@@ -97,7 +97,7 @@ export function parsePositiveInt(value: string | undefined, fallback: number) {
  * Returns the explicit credentials only when BOTH the access key id and secret
  * are provided. When neither is set, returns `undefined` so the AWS SDK falls
  * back to its default credential provider chain (EC2 instance profile, ECS task
- * role, EKS IRSA, environment variables, or shared config) — enabling
+ * role, EKS IRSA, environment variables, or shared config), enabling
  * IAM-role-based access without static keys.
  *
  * Throws when exactly one of the two is set, since that is almost always a
@@ -324,7 +324,15 @@ export function assertTaskImageKeyMatchesContext(
   const config = getStorageConfig();
   const objectPrefix = buildObjectKeyPrefix(context);
   const fullPrefix = `${applyKeyPrefix(config.keyPrefix, objectPrefix)}/`;
-  return key.startsWith(fullPrefix);
+
+  if (!key.startsWith(fullPrefix)) {
+    return false;
+  }
+
+  // The prefix alone is not enough: gateways that normalize paths would let
+  // a traversal suffix walk back out into another workspace's objects.
+  const suffix = key.slice(fullPrefix.length);
+  return /^[A-Za-z0-9._-]+$/.test(suffix) && !suffix.startsWith(".");
 }
 
 export async function getPrivateObject(key: string): Promise<AssetObject> {

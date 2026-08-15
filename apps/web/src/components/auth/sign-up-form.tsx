@@ -30,7 +30,7 @@ type SignUpFormProps = {
   /**
    * Captcha token lifted from the page level. When the page renders Turnstile
    * (cloud only), it passes the verified token here. `null` means captcha is
-   * required but not yet completed — the submit button stays disabled.
+   * required but not yet completed, so the submit button stays disabled.
    * `undefined` means captcha isn't required at all (self-hosted).
    */
   turnstileToken?: string | null;

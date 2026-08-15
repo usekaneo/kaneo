@@ -21,7 +21,7 @@ function useCreateTask() {
         title,
         description,
         projectId,
-        userId ?? "",
+        userId,
         status,
         startDate ? new Date(startDate) : undefined,
         dueDate ? new Date(dueDate) : undefined,

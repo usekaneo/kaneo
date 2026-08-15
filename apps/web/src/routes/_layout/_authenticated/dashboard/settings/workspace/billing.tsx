@@ -232,7 +232,7 @@ function RouteComponent() {
                 </div>
               </div>
               <Separator />
-              <div className="flex items-center justify-between gap-3 px-5 py-3">
+              <div className="flex flex-col items-start gap-3 px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-muted-foreground text-xs">
                   Update payment method, view invoices, or cancel anytime.
                 </p>

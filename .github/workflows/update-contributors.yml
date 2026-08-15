@@ -3,7 +3,7 @@ name: Update Contributors
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * 0'
+    - cron: '0 2 * * *'
   push:
     branches:
       - main
@@ -16,10 +16,11 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      actions: write
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7.0.1
 
       - name: Generate Contributors Images
         uses: jaywcjlove/github-action-contributors@main
@@ -45,9 +46,20 @@ jobs:
         run: node apps/site/scripts/sync-sponsors.mjs
 
       - name: Commit and Push Changes
+        id: commit
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add CONTRIBUTORS.svg README.md apps/site/constants/sponsors.json
-          git commit -m "docs: update contributors and sponsors" || exit 0
-          git push 
+          if git commit -m "docs: update contributors and sponsors"; then
+            git push
+            echo "pushed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy Site
+        if: ${{ steps.commit.outputs.pushed == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-site.yml --repo "${GITHUB_REPOSITORY}" --ref main 

@@ -8,7 +8,7 @@ import {
   coerceStatus,
   getValidTaskStatuses,
 } from "../validate-task-fields";
-import claimTaskNumbers from "./claim-task-numbers";
+import { claimTaskNumber } from "./claim-task-numbers";
 
 export type ImportTask = {
   title: string;
@@ -35,10 +35,6 @@ async function importTasks(
     });
   }
 
-  let taskNumber =
-    tasksToImport.length > 0
-      ? (await claimTaskNumbers(projectId, tasksToImport.length)) - 1
-      : 0;
   const validStatuses = await getValidTaskStatuses(projectId);
 
   const results = [];
@@ -61,21 +57,27 @@ async function importTasks(
         ),
       });
 
-      const [createdTask] = await db
-        .insert(taskTable)
-        .values({
-          projectId,
-          userId: taskData.userId || null,
-          title: taskData.title,
-          status,
-          columnId: column?.id ?? null,
-          startDate: taskData.startDate ? new Date(taskData.startDate) : null,
-          dueDate: taskData.dueDate ? new Date(taskData.dueDate) : null,
-          description: taskData.description || "",
-          priority,
-          number: ++taskNumber,
-        })
-        .returning();
+      const createdTask = await db.transaction(async (tx) => {
+        const taskNumber = await claimTaskNumber(projectId, tx);
+
+        const [task] = await tx
+          .insert(taskTable)
+          .values({
+            projectId,
+            userId: taskData.userId || null,
+            title: taskData.title,
+            status,
+            columnId: column?.id ?? null,
+            startDate: taskData.startDate ? new Date(taskData.startDate) : null,
+            dueDate: taskData.dueDate ? new Date(taskData.dueDate) : null,
+            description: taskData.description || "",
+            priority,
+            number: taskNumber,
+          })
+          .returning();
+
+        return task;
+      });
 
       if (createdTask) {
         await publishEvent("task.created", {

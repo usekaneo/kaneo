@@ -55,15 +55,15 @@ export async function migrateSessionColumn() {
         );
       } else if (hasNewColumn.rows.length > 0) {
         console.log(
-          "✅ active_organization_id column already exists — skipping migration.",
+          "✅ active_organization_id column already exists; skipping migration.",
         );
       } else if (hasOldColumn.rows.length === 0) {
         console.log(
-          "🛈 active_workspace_id column does not exist — skipping migration.",
+          "🛈 active_workspace_id column does not exist; skipping migration.",
         );
       }
     } else {
-      console.log("🛈 session table does not exist — skipping migration.");
+      console.log("🛈 session table does not exist; skipping migration.");
     }
 
     // Migrate invitation table - add created_at column
@@ -117,11 +117,11 @@ export async function migrateSessionColumn() {
         );
       } else {
         console.log(
-          "✅ created_at column already exists in invitation table — skipping migration.",
+          "✅ created_at column already exists in invitation table; skipping migration.",
         );
       }
     } else {
-      console.log("🛈 invitation table does not exist — skipping migration.");
+      console.log("🛈 invitation table does not exist; skipping migration.");
     }
   } catch (error) {
     console.error("❌ Error during migration:", error);

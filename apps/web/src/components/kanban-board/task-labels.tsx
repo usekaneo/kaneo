@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
+import type Task from "@/types/task";
 
 const labelColors = [
   { value: "gray", label: "Stone", color: "var(--color-stone-500)" },
@@ -32,9 +32,11 @@ function validColor(value: string): string {
   return "var(--color-neutral-400)";
 }
 
-function TaskCardLabels({ taskId }: { taskId: string }) {
-  const { data: labels = [] } = useGetLabelsByTask(taskId);
-
+export function TaskLabels({
+  labels,
+}: {
+  labels: NonNullable<Task["labels"]>;
+}) {
   if (!labels.length) return null;
 
   return (
@@ -57,5 +59,3 @@ function TaskCardLabels({ taskId }: { taskId: string }) {
     </div>
   );
 }
-
-export default TaskCardLabels;

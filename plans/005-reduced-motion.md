@@ -1,4 +1,4 @@
-# 005 — prefers-reduced-motion support
+# 005: prefers-reduced-motion support
 
 - **Status**: DONE
 - **Commit**: 813dcb36
@@ -8,7 +8,7 @@
 
 ## Problem
 
-Zero `prefers-reduced-motion` / `useReducedMotion` occurrences app-wide. Overlays translate/scale, framer flows slide, sidebar morphs — all ungated.
+Zero `prefers-reduced-motion` / `useReducedMotion` occurrences app-wide. Overlays translate/scale, framer flows slide, sidebar morphs, all ungated.
 
 ## Target
 
@@ -21,9 +21,9 @@ Reduced motion = fewer and gentler, not zero: keep opacity fades, drop movement.
 
 ## Boundaries
 
-- Do NOT globally disable all transitions (no `* { transition: none }` nuke) — color/opacity feedback stays.
+- Do NOT globally disable all transitions (no `* { transition: none }` nuke); color/opacity feedback stays.
 
 ## Verification
 
 - Mechanical: `pnpm --filter @kaneo/web build`; `grep -rn "motion-reduce\|useReducedMotion" apps/web/src | wc -l` > 10.
-- Feel: DevTools Rendering panel → emulate `prefers-reduced-motion: reduce`; open popover/dialog/sidebar — things fade without sliding or scaling; onboarding steps crossfade without vertical movement.
+- Feel: DevTools Rendering panel → emulate `prefers-reduced-motion: reduce`; open popover/dialog/sidebar and things fade without sliding or scaling; onboarding steps crossfade without vertical movement.

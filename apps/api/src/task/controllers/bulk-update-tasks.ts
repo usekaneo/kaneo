@@ -10,6 +10,8 @@ import {
   workspaceUserTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { removeLabelFromGitea } from "../../plugins/gitea/utils/sync-label-to-gitea";
+import { removeLabelFromGitHub } from "../../plugins/github/utils/sync-label-to-github";
 import {
   assertValidPriority,
   assertValidTaskStatus,
@@ -226,6 +228,12 @@ async function bulkUpdateTasks({
         throw new HTTPException(404, { message: "Label not found" });
       }
 
+      if (label.workspaceId && label.workspaceId !== workspaceId) {
+        throw new HTTPException(400, {
+          message: "Label and tasks must belong to the same workspace",
+        });
+      }
+
       for (const task of tasks) {
         const existingAssignment = await db.query.labelTable.findFirst({
           where: and(
@@ -263,19 +271,50 @@ async function bulkUpdateTasks({
       if (!value) {
         throw new HTTPException(400, { message: "Label ID is required" });
       }
-      const result = await db
-        .update(labelTable)
-        .set({ taskId: null })
+
+      const label = await db.query.labelTable.findFirst({
+        where: eq(labelTable.id, value),
+      });
+
+      if (!label) {
+        throw new HTTPException(404, { message: "Label not found" });
+      }
+
+      const deletedLabels = await db
+        .delete(labelTable)
         .where(
-          and(eq(labelTable.id, value), inArray(labelTable.taskId, foundIds)),
+          and(
+            eq(labelTable.workspaceId, workspaceId),
+            eq(labelTable.name, label.name),
+            inArray(labelTable.taskId, foundIds),
+          ),
+        )
+        .returning();
+
+      updatedCount = deletedLabels.length;
+
+      for (const deletedLabel of deletedLabels) {
+        if (!deletedLabel.taskId) continue;
+
+        removeLabelFromGitHub(deletedLabel.taskId, deletedLabel.name).catch(
+          (error) => {
+            console.error("Failed to remove label from GitHub:", error);
+          },
+        );
+        removeLabelFromGitea(deletedLabel.taskId, deletedLabel.name).catch(
+          (error) => {
+            console.error("Failed to remove label from Gitea:", error);
+          },
         );
 
-      updatedCount = result.rowCount ?? foundIds.length;
+        const task = tasks.find((t) => t.id === deletedLabel.taskId);
+        if (!task) continue;
 
-      for (const task of tasks) {
         await publishEvent("task.label_unassigned", {
+          label: deletedLabel,
+          task,
           projectId: task.projectId,
-          taskId: task.id,
+          taskId: deletedLabel.taskId,
           userId,
           type: "label_unassigned",
         });

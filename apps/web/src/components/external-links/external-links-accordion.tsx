@@ -2,12 +2,12 @@ import {
   ChevronDown,
   ChevronRight,
   FolderGit,
-  Github,
   GitMerge,
   GitPullRequest,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { GithubIcon } from "@/components/icons/github-icon";
 import { Button } from "@/components/ui/button";
 import {
   Collapsible,
@@ -132,7 +132,7 @@ export function ExternalLinksAccordion({
               {isGiteaResourceLink(link) ? (
                 <FolderGit className="size-4 flex-shrink-0 text-muted-foreground" />
               ) : (
-                <Github className="size-4 flex-shrink-0 text-muted-foreground" />
+                <GithubIcon className="size-4 flex-shrink-0 text-muted-foreground" />
               )}
               <span className="text-sm truncate flex-1 text-foreground/90 group-hover:text-foreground">
                 {link.title || link.externalId}

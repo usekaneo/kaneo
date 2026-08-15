@@ -37,19 +37,7 @@ function getLocaleLabel(locale: AppLocale) {
     const languageDisplayNames = new Intl.DisplayNames([locale], {
       type: "language",
     });
-    const regionDisplayNames = new Intl.DisplayNames([locale], {
-      type: "region",
-    });
-    const languageLabel = languageDisplayNames.of(localeObj.language) ?? locale;
-
-    if (!localeObj.region) {
-      return languageLabel;
-    }
-
-    const regionLabel =
-      regionDisplayNames.of(localeObj.region) ?? localeObj.region;
-
-    return `${languageLabel} (${regionLabel})`;
+    return languageDisplayNames.of(localeObj.language) ?? locale;
   } catch {
     return locale;
   }
@@ -120,7 +108,7 @@ function RouteComponent() {
         </div>
 
         <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <div className="space-y-0.5">
               <Label className="text-sm font-medium">
                 {t("settings:preferencesPage.theme")}
@@ -133,7 +121,7 @@ function RouteComponent() {
               value={theme}
               onValueChange={(value) => value && setTheme(value)}
             >
-              <SelectTrigger size="sm" className="w-40">
+              <SelectTrigger size="sm" className="w-full sm:w-40">
                 <SelectValue
                   placeholder={t("settings:preferencesPage.selectTheme")}
                 >
@@ -156,7 +144,7 @@ function RouteComponent() {
 
           <Separator />
 
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <div className="space-y-0.5">
               <Label className="text-sm font-medium">
                 {t("settings:preferencesPage.language")}
@@ -173,7 +161,7 @@ function RouteComponent() {
                 }
               }}
             >
-              <SelectTrigger size="sm" className="w-40">
+              <SelectTrigger size="sm" className="w-full sm:w-40">
                 <SelectValue
                   placeholder={t("settings:preferencesPage.selectLanguage")}
                 >
@@ -192,7 +180,7 @@ function RouteComponent() {
 
           <Separator />
 
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <div className="space-y-0.5">
               <Label className="text-sm font-medium">
                 {t("settings:preferencesPage.firstDayOfWeek")}
@@ -215,7 +203,7 @@ function RouteComponent() {
                 }
               }}
             >
-              <SelectTrigger size="sm" className="w-40">
+              <SelectTrigger size="sm" className="w-full sm:w-40">
                 <SelectValue
                   placeholder={t(
                     "settings:preferencesPage.selectFirstDayOfWeek",
@@ -236,7 +224,7 @@ function RouteComponent() {
 
           <Separator />
 
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <div className="space-y-0.5">
               <Label className="text-sm font-medium">
                 {t("settings:preferencesPage.defaultView")}
@@ -249,7 +237,7 @@ function RouteComponent() {
               value={viewMode}
               onValueChange={(value) => value && setViewMode(value)}
             >
-              <SelectTrigger size="sm" className="w-40">
+              <SelectTrigger size="sm" className="w-full sm:w-40">
                 <SelectValue
                   placeholder={t("settings:preferencesPage.selectViewMode")}
                 >
@@ -287,7 +275,7 @@ function RouteComponent() {
       </div>
 
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <div className="space-y-1">
             <h2 className="text-md font-medium">
               {t("settings:preferencesPage.displayOptions")}

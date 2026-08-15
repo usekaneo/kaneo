@@ -5,7 +5,7 @@ import { comparisons } from "@/lib/comparisons";
 export const metadata: Metadata = {
   title: "Open-source Jira alternative",
   description:
-    "Kaneo is an open-source, self-hostable project management tool — a simple Jira alternative you can run yourself or use as a managed cloud. Free to self-host, fair cloud pricing.",
+    "Kaneo is an open-source, self-hostable project management tool, a simple Jira alternative you can run yourself or use as a managed cloud. Free to self-host, fair cloud pricing.",
   alternates: { canonical: "/jira-alternative" },
 };
 

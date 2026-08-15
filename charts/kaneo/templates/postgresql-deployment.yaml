@@ -8,6 +8,8 @@ metadata:
     app.kubernetes.io/component: postgresql
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       {{- include "kaneo.selectorLabels" . | nindent 6 }}

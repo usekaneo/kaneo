@@ -7,14 +7,22 @@
 			"inputs": ["$TURBO_DEFAULT$", ".env*"],
 			"outputs": ["dist/**"]
 		},
+		"@kaneo/site#build": {
+			"outputs": [".next/**", "!.next/cache/**", "out/**"]
+		},
 
 		"dev": {
+			"dependsOn": ["^build"],
 			"cache": false,
 			"persistent": true
 		},
 		"lint": {
 			"cache": false,
 			"persistent": true
+		},
+		"typecheck": {
+			"dependsOn": ["^build"],
+			"outputs": []
 		},
 		"test": {
 			"dependsOn": ["^build"],

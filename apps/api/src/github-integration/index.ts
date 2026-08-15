@@ -38,8 +38,16 @@ const githubRepositorySchema = v.object({
 });
 
 const verificationResultSchema = v.object({
-  installed: v.boolean(),
-  message: v.optional(v.string()),
+  isInstalled: v.boolean(),
+  installationId: v.nullable(v.number()),
+  repositoryExists: v.nullable(v.boolean()),
+  repositoryPrivate: v.nullable(v.boolean()),
+  permissions: v.nullable(v.record(v.string(), v.string())),
+  hasRequiredPermissions: v.boolean(),
+  missingPermissions: v.array(v.string()),
+  message: v.string(),
+  settingsUrl: v.optional(v.string()),
+  installationUrl: v.optional(v.string()),
 });
 
 const importResultSchema = v.object({

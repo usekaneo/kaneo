@@ -34,6 +34,41 @@ vi.mock("../../apps/api/src/mcp/tools", () => ({
   registerMcpTools: vi.fn(),
 }));
 
+vi.mock("../../apps/api/src/mcp/oauth-store", () => {
+  const rows = new Map<string, { payload: unknown; expiresAt: Date }>();
+  const keyOf = (kind: string, key: string) => `${kind}:${key}`;
+  return {
+    putState: async (
+      kind: string,
+      key: string,
+      payload: unknown,
+      expiresAt: Date,
+    ) => {
+      rows.set(keyOf(kind, key), { payload, expiresAt });
+    },
+    getState: async (kind: string, key: string) => {
+      const row = rows.get(keyOf(kind, key));
+      if (!row) return null;
+      if (row.expiresAt.getTime() < Date.now()) return null;
+      return row.payload;
+    },
+    consumeState: async (kind: string, key: string) => {
+      const row = rows.get(keyOf(kind, key));
+      rows.delete(keyOf(kind, key));
+      if (!row) return null;
+      if (row.expiresAt.getTime() < Date.now()) return null;
+      return row.payload;
+    },
+    enforceStateCap: async () => {},
+    deleteExpiredStates: async () => {
+      const now = Date.now();
+      for (const [key, row] of rows) {
+        if (row.expiresAt.getTime() < now) rows.delete(key);
+      }
+    },
+  };
+});
+
 import mcpRoutes from "../../apps/api/src/mcp";
 import {
   createAuthorizationRequest,
@@ -296,25 +331,27 @@ describe("MCP OAuth security", () => {
     expect((await redeem(verifier)).status).toBe(400);
   });
 
-  it("sweeps expired authorization requests when creating a new one", () => {
+  it("sweeps expired authorization requests when creating a new one", async () => {
     const now = Date.now();
     vi.useFakeTimers();
     try {
       vi.setSystemTime(now);
-      const expiredRequestId = createAuthorizationRequest({
+      const expiredRequestId = await createAuthorizationRequest({
         clientId: "client-expired",
         redirectUri: "https://client.example/expired",
         codeChallenge: "challenge",
       });
 
       vi.setSystemTime(now + 10 * 60 * 1000 + 1);
-      createAuthorizationRequest({
+      await createAuthorizationRequest({
         clientId: "client-current",
         redirectUri: "https://client.example/current",
         codeChallenge: "challenge",
       });
 
-      expect(getAuthorizationRequest(expiredRequestId)).toBeUndefined();
+      await expect(
+        getAuthorizationRequest(expiredRequestId),
+      ).resolves.toBeNull();
     } finally {
       vi.useRealTimers();
     }

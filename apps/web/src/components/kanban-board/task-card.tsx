@@ -27,10 +27,13 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/preview-card";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
-import useExternalLinks from "@/hooks/queries/external-link/use-external-links";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
-import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
+import {
+  dueDateStatusColors,
+  getDueDateStatus,
+  isTaskCompleted,
+} from "@/lib/due-date-status";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
@@ -42,7 +45,7 @@ import type Task from "@/types/task";
 import { Button } from "../ui/button";
 import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
 import TaskCardContextMenuContent from "./task-card-context-menu/task-card-context-menu-content";
-import TaskCardLabels from "./task-labels";
+import { TaskLabels } from "./task-labels";
 
 type TaskCardProps = {
   task: Task;
@@ -60,6 +63,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
     isDragging,
   } = useSortable({ id: task.id, disabled: disableDragDrop });
   const { project } = useProjectStore();
+  const taskIsCompleted = isTaskCompleted(task.status, project?.columns);
   const { data: workspace } = useActiveWorkspace();
   const { mutateAsync: deleteTask } = useDeleteTask();
   const navigate = useNavigate();
@@ -71,15 +75,15 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
     showTaskNumbers,
   } = useUserPreferencesStore();
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
-  const { data: externalLinks } = useExternalLinks(task.id);
   const { toggleSelection, isSelected, isFocused } = useBulkSelectionStore();
   const isTaskSelected = isSelected(task.id);
   const isTaskFocused = isFocused(task.id);
 
   const pullRequests = useMemo(() => {
-    if (!externalLinks) return [];
-    return externalLinks.filter((link) => link.resourceType === "pull_request");
-  }, [externalLinks]);
+    return (task.externalLinks ?? []).filter(
+      (link) => link.resourceType === "pull_request",
+    );
+  }, [task.externalLinks]);
 
   const getPRInfo = (pr: (typeof pullRequests)[number]) => {
     const isMerged = pr.metadata?.merged === true;
@@ -248,7 +252,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
 
             {showLabels && (
               <div className="mb-2.5">
-                <TaskCardLabels taskId={task.id} />
+                <TaskLabels labels={task.labels ?? []} />
               </div>
             )}
 
@@ -261,18 +265,16 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
 
               {showDueDates && task.dueDate && (
                 <div
-                  className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded ${dueDateStatusColors[getDueDateStatus(task.dueDate)]}`}
+                  className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded ${dueDateStatusColors[getDueDateStatus(task.dueDate, taskIsCompleted)]}`}
                 >
-                  {getDueDateStatus(task.dueDate) === "overdue" && (
-                    <CalendarX className="w-3 h-3" />
-                  )}
-                  {getDueDateStatus(task.dueDate) === "due-soon" && (
-                    <CalendarClock className="w-3 h-3" />
-                  )}
-                  {(getDueDateStatus(task.dueDate) === "far-future" ||
-                    getDueDateStatus(task.dueDate) === "no-due-date") && (
-                    <Calendar className="w-3 h-3" />
-                  )}
+                  {getDueDateStatus(task.dueDate, taskIsCompleted) ===
+                    "overdue" && <CalendarX className="w-3 h-3" />}
+                  {getDueDateStatus(task.dueDate, taskIsCompleted) ===
+                    "due-soon" && <CalendarClock className="w-3 h-3" />}
+                  {(getDueDateStatus(task.dueDate, taskIsCompleted) ===
+                    "far-future" ||
+                    getDueDateStatus(task.dueDate, taskIsCompleted) ===
+                      "no-due-date") && <Calendar className="w-3 h-3" />}
                   <span>{format(new Date(task.dueDate), "MMM d")}</span>
                 </div>
               )}
@@ -413,15 +415,19 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogClose>
-              <Button variant="outline" size="sm">
-                {t("common:actions.cancel")}
-              </Button>
+            <AlertDialogClose render={<Button variant="outline" size="sm" />}>
+              {t("common:actions.cancel")}
             </AlertDialogClose>
-            <AlertDialogClose onClick={handleDeleteTask}>
-              <Button variant="destructive" size="sm">
-                {t("tasks:delete.action")}
-              </Button>
+            <AlertDialogClose
+              render={
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleDeleteTask}
+                />
+              }
+            >
+              {t("tasks:delete.action")}
             </AlertDialogClose>
           </AlertDialogFooter>
         </AlertDialogContent>

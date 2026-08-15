@@ -1,3 +1,4 @@
+import type Redis from "ioredis";
 import * as v from "valibot";
 import { closeRedis, getRedisPub, getRedisSub } from "../redis";
 import type { BroadcastAdapter, BroadcastMessage } from "./broadcast-adapter";
@@ -55,15 +56,15 @@ export class RedisBroadcastAdapter implements BroadcastAdapter {
         console.error("Failed to parse broadcast message:", err);
       }
     };
-    getRedisSub().on("pmessage", this._pmessageHandler);
+    (getRedisSub() as Redis).on("pmessage", this._pmessageHandler);
   }
 
   async shutdown(): Promise<void> {
     if (this._pmessageHandler) {
-      getRedisSub().off("pmessage", this._pmessageHandler);
+      (getRedisSub() as Redis).off("pmessage", this._pmessageHandler);
       this._pmessageHandler = null;
     }
-    // Unsubscribe from the pattern — covers all project channels
+    // Unsubscribe from the pattern, which covers all project channels
     await getRedisSub().punsubscribe(CHANNEL_PATTERN);
     this.subscribed = false;
     await closeRedis();

@@ -181,6 +181,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
       try {
         const snapshot = createVerificationSnapshot(data);
         const result = await verifyAccess({
+          projectId,
           baseUrl: snapshot.baseUrl,
           accessToken: snapshot.accessToken,
           repositoryOwner: snapshot.repositoryOwner,
@@ -193,7 +194,11 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
         if (showToast) {
           if (result.isInstalled && result.hasRequiredPermissions) {
             toast.success(t("settings:giteaIntegration.toast.verifyOk"));
-          } else if (!result.repositoryExists) {
+          } else if (result.failureReason === "redirected") {
+            toast.error(t("settings:giteaIntegration.toast.redirected"));
+          } else if (result.failureReason === "not_a_gitea_instance") {
+            toast.error(t("settings:giteaIntegration.toast.notGiteaInstance"));
+          } else if (result.failureReason === "repository_not_found") {
             toast.error(t("settings:giteaIntegration.toast.repoNotFound"));
           } else {
             toast.warning(t("settings:giteaIntegration.toast.verifyWarning"));
@@ -210,7 +215,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
         setVerificationResult(null);
       }
     },
-    [verifyAccess, integration, t],
+    [verifyAccess, integration, projectId, t],
   );
 
   const baseUrl = form.watch("baseUrl");
@@ -295,6 +300,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
 
       if (data.accessToken.trim() && !hasMatchingVerification) {
         const verification = await verifyAccess({
+          projectId,
           baseUrl: snapshot.baseUrl,
           accessToken: snapshot.accessToken,
           repositoryOwner: snapshot.repositoryOwner,
@@ -817,18 +823,18 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
                 verificationResult.result.isInstalled &&
                   verificationResult.result.hasRequiredPermissions
                   ? "border-success/25 bg-success/10"
-                  : verificationResult.result.repositoryExists
-                    ? "border-warning/25 bg-warning/10"
-                    : "border-destructive/25 bg-destructive/10",
+                  : verificationResult.result.failureReason
+                    ? "border-destructive/25 bg-destructive/10"
+                    : "border-warning/25 bg-warning/10",
               )}
             >
               {verificationResult.result.isInstalled &&
               verificationResult.result.hasRequiredPermissions ? (
                 <CheckCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-success-foreground" />
-              ) : verificationResult.result.repositoryExists ? (
-                <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-warning-foreground" />
-              ) : (
+              ) : verificationResult.result.failureReason ? (
                 <XCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-destructive-foreground" />
+              ) : (
+                <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-warning-foreground" />
               )}
               <div className="flex-1">
                 <p className="font-medium">
@@ -881,6 +887,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
 
       <GiteaRepositoryBrowserModal
         open={showRepositoryBrowser}
+        projectId={projectId}
         onOpenChange={setShowRepositoryBrowser}
         onSelectRepository={handleRepositorySelect}
         selectedRepository={

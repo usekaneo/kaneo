@@ -10,11 +10,11 @@ async function createTask(
   title: string,
   description: string,
   projectId: string,
-  userId: string,
+  userId: string | undefined,
   status: string,
   startDate: Date | undefined,
   dueDate: Date | undefined,
-  priority: string,
+  priority: CreateTaskRequest["priority"],
 ) {
   if (!projectId) {
     throw new Error("No project selected for task creation");
@@ -24,7 +24,7 @@ async function createTask(
     json: {
       title,
       description,
-      userId,
+      ...(userId ? { userId } : {}),
       status,
       startDate: startDate?.toISOString() || undefined,
       dueDate: dueDate?.toISOString() || undefined,

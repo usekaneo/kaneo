@@ -1,11 +1,18 @@
 import { DEFAULT_ROLE_NAMES } from "@kaneo/permissions";
-import { EllipsisIcon, MailIcon, ShieldIcon, TrashIcon } from "lucide-react";
+import {
+  CopyIcon,
+  EllipsisIcon,
+  MailIcon,
+  ShieldIcon,
+  TrashIcon,
+} from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import useCancelInvitation from "@/hooks/mutations/workspace-user/use-cancel-invitation";
 import useDeleteWorkspaceUser from "@/hooks/mutations/workspace-user/use-delete-workspace-user";
 import useUpdateWorkspaceUserRole from "@/hooks/mutations/workspace-user/use-update-workspace-user-role";
 import useWorkspaceRoles from "@/hooks/queries/workspace/use-workspace-roles";
+import { useCopyInvitationLink } from "@/hooks/use-copy-invitation-link";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { formatDateMedium } from "@/lib/format";
@@ -63,7 +70,7 @@ const AVATAR_TONES = [
   "bg-indigo-500/15 text-indigo-600 dark:text-indigo-300",
 ] as const;
 
-// Names that are NOT "truly custom" — viewer/member/admin are seeded as
+// Names that are NOT "truly custom": viewer/member/admin are seeded as
 // editable workspace_role rows on every workspace creation, and owner is a
 // static built-in. The Select already lists them as built-ins, so we filter
 // them out of the custom-roles tail to avoid duplicate options.
@@ -97,6 +104,7 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
   const { mutateAsync: cancelInvitation, isPending: isCancelling } =
     useCancelInvitation();
   const { mutateAsync: updateMemberRole } = useUpdateWorkspaceUserRole();
+  const { copy: copyInvitationLink } = useCopyInvitationLink();
   const { data: allWorkspaceRoles = [] } = useWorkspaceRoles(workspaceId);
   const { canManageTeam, canRemoveMembers, canInviteUsers } =
     useWorkspacePermission();
@@ -265,7 +273,7 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
                         {/* Owner is intentionally NOT offered here: the better-auth
                             organization plugin requires an explicit ownership
                             transfer flow (a workspace must have exactly one owner).
-                            That UI lives in workspace settings — TODO. */}
+                            That UI lives in workspace settings (TODO). */}
                         {customRoles.map((r) => (
                           <SelectItem key={r.id} value={r.role}>
                             {capitalize(r.role)}
@@ -282,7 +290,7 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
                   )}
                 </TableCell>
                 <TableCell className="py-3 text-sm text-muted-foreground tabular-nums">
-                  {member.createdAt ? formatDateMedium(member.createdAt) : "—"}
+                  {member.createdAt ? formatDateMedium(member.createdAt) : "–"}
                 </TableCell>
                 <TableCell className="pe-6 py-3 text-right">
                   {!isSelf && canRemove ? (
@@ -340,7 +348,7 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
                             defaultValue: "Expires {{date}}",
                             date: formatDateMedium(invitation.expiresAt),
                           })
-                        : "—"}
+                        : "–"}
                     </div>
                   </div>
                 </div>
@@ -353,19 +361,40 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
                 </Badge>
               </TableCell>
               <TableCell className="py-3 text-sm text-muted-foreground">
-                —
+                –
               </TableCell>
               <TableCell className="pe-6 py-3 text-right">
                 {canInvite ? (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setInvitationToCancel(invitation)}
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                    aria-label={t("team:membersTable.ariaCancelInvitation")}
-                  >
-                    <TrashIcon className="size-4" />
-                  </Button>
+                  <Menu>
+                    <MenuTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground"
+                          aria-label={t(
+                            "team:membersTable.ariaInvitationActions",
+                          )}
+                        />
+                      }
+                    >
+                      <EllipsisIcon className="size-4" />
+                    </MenuTrigger>
+                    <MenuPopup align="end">
+                      <MenuItem
+                        onClick={() => copyInvitationLink(invitation.id)}
+                      >
+                        <CopyIcon className="size-4" />
+                        {t("team:invitations.copyLink")}
+                      </MenuItem>
+                      <MenuItem
+                        onClick={() => setInvitationToCancel(invitation)}
+                      >
+                        <TrashIcon className="size-4" />
+                        {t("team:membersTable.cancelInvitation")}
+                      </MenuItem>
+                    </MenuPopup>
+                  </Menu>
                 ) : null}
               </TableCell>
             </TableRow>
@@ -405,19 +434,25 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogClose disabled={isDeleting}>
-              <Button variant="outline" size="sm" disabled={isDeleting}>
-                {t("common:actions.cancel")}
-              </Button>
+            <AlertDialogClose
+              render={
+                <Button variant="outline" size="sm" disabled={isDeleting} />
+              }
+            >
+              {t("common:actions.cancel")}
             </AlertDialogClose>
             <AlertDialogClose
-              onClick={handleDeleteMember}
-              disabled={isDeleting}
+              render={
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  disabled={isDeleting}
+                  onClick={handleDeleteMember}
+                />
+              }
             >
-              <Button variant="destructive" size="sm" disabled={isDeleting}>
-                <TrashIcon className="mr-2 size-4" />
-                {t("team:membersTable.removeMember")}
-              </Button>
+              <TrashIcon className="mr-2 size-4" />
+              {t("team:membersTable.removeMember")}
             </AlertDialogClose>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -439,19 +474,25 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogClose disabled={isCancelling}>
-              <Button variant="outline" size="sm" disabled={isCancelling}>
-                {t("common:actions.cancel")}
-              </Button>
+            <AlertDialogClose
+              render={
+                <Button variant="outline" size="sm" disabled={isCancelling} />
+              }
+            >
+              {t("common:actions.cancel")}
             </AlertDialogClose>
             <AlertDialogClose
-              onClick={handleCancelInvitation}
-              disabled={isCancelling}
+              render={
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  disabled={isCancelling}
+                  onClick={handleCancelInvitation}
+                />
+              }
             >
-              <Button variant="destructive" size="sm" disabled={isCancelling}>
-                <TrashIcon className="mr-2 size-4" />
-                {t("team:membersTable.cancelInvitation")}
-              </Button>
+              <TrashIcon className="mr-2 size-4" />
+              {t("team:membersTable.cancelInvitation")}
             </AlertDialogClose>
           </AlertDialogFooter>
         </AlertDialogContent>

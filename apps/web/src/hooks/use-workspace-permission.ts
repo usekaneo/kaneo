@@ -8,18 +8,22 @@ export type PermissionLevel = "owner" | "admin" | "member";
 
 // Capabilities are named permission bundles checked against the SERVER via
 // better-auth's `/organization/has-permission` endpoint. Going through the
-// server is what makes custom workspace roles work in the UI — the local
+// server is what makes custom workspace roles work in the UI: the local
 // `checkRolePermission` only knows about the four static roles compiled
 // into the auth client, so it would silently return false for any custom
 // role that grants the permission.
 const CAPABILITIES = {
   manageProjects: { project: ["create", "update", "delete"] },
   createProjects: { project: ["create"] },
+  updateProjects: { project: ["update"] },
   deleteProjects: { project: ["delete"] },
-  manageTasks: { task: ["create", "update", "delete"] },
+  updateTasks: { task: ["update"] },
   createTasks: { task: ["create"] },
+  deleteTasks: { task: ["delete"] },
   assignTasks: { task: ["assign"] },
-  manageLabels: { label: ["create", "update", "delete"] },
+  createLabels: { label: ["create"] },
+  updateLabels: { label: ["update"] },
+  deleteLabels: { label: ["delete"] },
   manageWorkspace: { workspace: ["update", "manage_settings"] },
   deleteWorkspace: { workspace: ["delete"] },
   inviteUsers: { invitation: ["create"] },
@@ -46,8 +50,8 @@ export function useWorkspacePermission() {
   const role = activeMember?.role as string | undefined;
 
   // One query that fans out to all capability checks in parallel and caches
-  // the resulting map by (workspaceId, role). Refetches when either changes
-  // — e.g., when the admin edits the role's permissions in the Roles UI and
+  // the resulting map by (workspaceId, role). Refetches when either changes,
+  // e.g., when the admin edits the role's permissions in the Roles UI and
   // we invalidate this key.
   const {
     data: capabilities,
@@ -89,11 +93,15 @@ export function useWorkspacePermission() {
     return {
       canManageProjects: () => can.manageProjects,
       canCreateProjects: () => can.createProjects,
+      canUpdateProjects: () => can.updateProjects,
       canDeleteProjects: () => can.deleteProjects,
-      canManageTasks: () => can.manageTasks,
+      canUpdateTasks: () => can.updateTasks,
       canCreateTasks: () => can.createTasks,
+      canDeleteTasks: () => can.deleteTasks,
       canAssignTasks: () => can.assignTasks,
-      canManageLabels: () => can.manageLabels,
+      canCreateLabels: () => can.createLabels,
+      canUpdateLabels: () => can.updateLabels,
+      canDeleteLabels: () => can.deleteLabels,
       canManageWorkspace: () => can.manageWorkspace,
       canDeleteWorkspace: () => can.deleteWorkspace,
       canInviteUsers: () => can.inviteUsers,

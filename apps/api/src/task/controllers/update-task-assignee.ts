@@ -10,7 +10,7 @@ async function updateTaskAssignee({
   currentUserId,
 }: {
   id: string;
-  userId: string;
+  userId: string | null;
   currentUserId: string;
 }) {
   const existingTask = await db.query.taskTable.findFirst({

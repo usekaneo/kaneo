@@ -79,9 +79,18 @@ export function useTaskFiltersWithLabelsSupport(
         if (normalizedTextQuery) {
           const title = task.title?.toLowerCase() ?? "";
           const description = task.description?.toLowerCase() ?? "";
+          const taskNumber = task.number?.toString() ?? "";
+          const taskIdentifier =
+            taskNumber && project?.slug
+              ? `${project.slug}-${taskNumber}`.toLowerCase()
+              : "";
+          const taskShortIdentifier = taskNumber ? `#${taskNumber}` : "";
           const matchesText =
             title.includes(normalizedTextQuery) ||
-            description.includes(normalizedTextQuery);
+            description.includes(normalizedTextQuery) ||
+            taskNumber.includes(normalizedTextQuery) ||
+            taskIdentifier.startsWith(normalizedTextQuery) ||
+            taskShortIdentifier.startsWith(normalizedTextQuery);
 
           if (!matchesText) {
             return false;
@@ -173,7 +182,7 @@ export function useTaskFiltersWithLabelsSupport(
         return true;
       });
     },
-    [filters, textQuery, weekStartsOn],
+    [filters, project?.slug, textQuery, weekStartsOn],
   );
 
   const filteredProject = useMemo(() => {

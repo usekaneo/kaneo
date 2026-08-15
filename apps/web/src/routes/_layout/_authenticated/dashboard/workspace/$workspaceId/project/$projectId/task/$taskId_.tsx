@@ -76,7 +76,7 @@ function RouteComponent() {
             ? t("tasks:common.loadingTask")
             : isTaskError || !task
               ? t("tasks:common.taskNotFound")
-              : `${project?.slug}-${task?.number} — ${task?.title}`
+              : `${project?.slug}-${task?.number} · ${task?.title}`
         }
         hideAppName
       />

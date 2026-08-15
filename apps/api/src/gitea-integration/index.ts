@@ -43,6 +43,9 @@ const verificationResultSchema = v.object({
   repositoryPrivate: v.nullable(v.boolean()),
   missingPermissions: v.array(v.string()),
   message: v.string(),
+  failureReason: v.nullable(
+    v.picklist(["not_a_gitea_instance", "redirected", "repository_not_found"]),
+  ),
 });
 
 const importResultSchema = v.object({
@@ -89,10 +92,13 @@ const giteaIntegration = new Hono<{
     validator(
       "json",
       v.object({
-        baseUrl: v.pipe(v.string(), v.minLength(1)),
+        projectId: v.pipe(v.string(), v.minLength(1)),
+        baseUrl: v.pipe(v.string(), v.url()),
         accessToken: v.pipe(v.string(), v.minLength(1)),
       }),
     ),
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ workspace: ["manage_settings"] }),
     async (c) => {
       const { baseUrl, accessToken } = c.req.valid("json");
       const result = await listGiteaRepositories({ baseUrl, accessToken });
@@ -119,12 +125,15 @@ const giteaIntegration = new Hono<{
     validator(
       "json",
       v.object({
-        baseUrl: v.pipe(v.string(), v.minLength(1)),
+        projectId: v.pipe(v.string(), v.minLength(1)),
+        baseUrl: v.pipe(v.string(), v.url()),
         accessToken: v.pipe(v.string(), v.minLength(1)),
         repositoryOwner: v.pipe(v.string(), v.minLength(1)),
         repositoryName: v.pipe(v.string(), v.minLength(1)),
       }),
     ),
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ workspace: ["manage_settings"] }),
     async (c) => {
       const body = c.req.valid("json");
       const result = await verifyGiteaAccess(body);

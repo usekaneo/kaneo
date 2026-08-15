@@ -43,7 +43,9 @@
 			"french": "Prancis",
 			"spanish": "Spanyol",
 			"dutch": "Belanda",
-			"korean": "Korea"
+			"korean": "Korea",
+			"chinese": "Mandarin",
+			"italian": "Italia"
 		},
 		"people": {
 			"someone": "Seseorang",
@@ -86,6 +88,7 @@
 			},
 			"createTask": {
 				"breadcrumbTask": "TUGAS",
+				"selectProject": "Pilih proyek",
 				"title": "Tugas Baru",
 				"description": "Buat tugas baru dengan memberikan judul, deskripsi, dan detail lainnya.",
 				"taskTitlePlaceholder": "Judul tugas",
@@ -152,10 +155,11 @@
 			"githubError": "Gagal masuk dengan GitHub",
 			"discordError": "Gagal masuk dengan Discord",
 			"errors": {
-				"account_not_linked": "This identity could not be linked to the existing account. Sign in by email to verify the account, then try SSO again. If email sign-in is unavailable, contact your administrator.",
+				"account_not_linked": "Identitas ini tidak dapat ditautkan ke akun yang sudah ada. Masuk dengan email untuk memverifikasi akun, lalu coba SSO lagi. Jika masuk dengan email tidak tersedia, hubungi administrator Anda.",
 				"oauth_code_verification_failed": "Verifikasi OAuth gagal. Silakan coba lagi.",
 				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Pendaftaran saat ini dinonaktifkan. Anda memerlukan undangan yang valid untuk membuat akun."
-			}
+			},
+			"instanceStatusError": "Tidak dapat menghubungi server. Silakan coba lagi beberapa saat lagi."
 		},
 		"providers": {
 			"google": "Google",
@@ -190,7 +194,10 @@
 			"signingIn": "Masuk...",
 			"continueAsGuest": "Lanjutkan sebagai tamu",
 			"toggleMessage": "Sudah punya akun?",
-			"toggleLink": "Masuk"
+			"toggleLink": "Masuk",
+			"instanceStatusError": "Tidak dapat menghubungi server. Silakan coba lagi beberapa saat lagi.",
+			"instanceAdminTitle": "Siapkan instans Kaneo Anda",
+			"instanceAdminSubtitle": "Akun ini menjadi administrator instans dengan akses penuh."
 		},
 		"verifyOtp": {
 			"pageTitle": "Verifikasi Kode",
@@ -248,7 +255,8 @@
 			"joinWorkspace": "Gabung {{workspaceName}}",
 			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> mengundang Anda untuk bergabung ke ruang kerjanya.",
 			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> mengundang Anda untuk bergabung ke ruang kerjanya di Kaneo.",
-			"signInToAccept": "Masuk untuk menerima undangan ini.",
+			"createAccountOrSignIn": "Buat akun untuk menerima undangan ini, atau masuk jika Anda sudah memilikinya.",
+			"createAccount": "Buat Akun",
 			"accepting": "Menerima...",
 			"acceptInvitation": "Terima Undangan",
 			"goToDashboard": "Buka Dasbor",
@@ -326,6 +334,29 @@
 				"nameRequired": "Nama wajib diisi",
 				"nameShort": "Nama harus minimal 2 karakter",
 				"invalidEmail": "Alamat email tidak valid"
+			},
+			"avatar": {
+				"hint": "PNG, JPEG, or WebP. Cropped to a square and resized to 256x256.",
+				"remove": "Remove",
+				"removeError": "Failed to remove profile picture",
+				"removeSuccess": "Profile picture removed",
+				"updateError": "Failed to update profile picture",
+				"updateSuccess": "Profile picture updated",
+				"change": "Change avatar",
+				"edit": "Change your profile picture"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Confirm your email address",
+				"description": "Workspaces only you belong to are deleted with your account. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"error": "Failed to delete account",
+				"modalDescription": "This cannot be undone. Type {{email}} to confirm.",
+				"modalTitle": "Delete your account?",
+				"sectionSubtitle": "Permanent actions that affect your whole account.",
+				"sectionTitle": "Danger zone",
+				"success": "Your account has been deleted",
+				"title": "Delete account",
+				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			}
 		},
 		"notificationsPage": {
@@ -414,7 +445,21 @@
 			"toastPreferencesSaved": "Preferensi notifikasi disimpan",
 			"toastPreferencesSaveFailed": "Gagal menyimpan preferensi notifikasi",
 			"toastRuleSavedGeneric": "Aturan notifikasi ruang kerja disimpan",
-			"toastRuleRemovedGeneric": "Aturan notifikasi ruang kerja dihapus"
+			"toastRuleRemovedGeneric": "Aturan notifikasi ruang kerja dihapus",
+			"workspaceEnabledLabel": "Aktifkan notifikasi untuk {{workspaceName}}",
+			"eventPreferencesTitle": "Beri tahu saya tentang",
+			"eventPreferencesDescription": "Pilih event tugas mana yang membuat notifikasi dalam aplikasi dan dapat dikirim ke kanal yang terhubung.",
+			"eventTaskAssignments": "Penugasan tugas",
+			"eventComments": "Komentar dan sebutan",
+			"eventCommentsHint": "Termasuk komentar baru pada tugas yang ditugaskan kepada Anda dan @mention langsung.",
+			"eventStatusChanges": "Perubahan status tugas",
+			"eventDueDateReminders": "Pengingat tenggat",
+			"reminderLeadTimeLabel": "Ingatkan saya sebelum tenggat",
+			"reminderLeadTimeHint": "Antara 1 jam hingga 30 hari sebelumnya. Notifikasi keterlambatan dikirim secara terpisah.",
+			"reminderLeadTimeUnitHours": "Jam",
+			"reminderLeadTimeUnitDays": "Hari",
+			"reminderLeadTimeInvalid": "Masukkan bilangan bulat antara 1 dan {{max}}.",
+			"saveEventPreferences": "Simpan jenis notifikasi"
 		},
 		"preferencesPage": {
 			"title": "Preferensi",
@@ -549,6 +594,21 @@
 			"validation": {
 				"nameRequired": "Nama ruang kerja wajib diisi",
 				"nameShort": "Nama ruang kerja harus minimal 2 karakter"
+			},
+			"transferOwnership": {
+				"toastSuccess": "Kepemilikan ditransfer",
+				"toastError": "Gagal mentransfer kepemilikan",
+				"title": "Transfer kepemilikan",
+				"subtitle": "Serahkan ruang kerja ini kepada anggota lain. Anda akan diturunkan menjadi admin dan kehilangan kemampuan khusus pemilik.",
+				"pickerLabel": "Pemilik baru",
+				"noEligibleMembers": "Undang minimal satu anggota lain sebelum Anda dapat mentransfer kepemilikan.",
+				"pickerHint": "Mereka akan menjadi satu-satunya pemilik ruang kerja ini.",
+				"pickerPlaceholder": "Pilih anggota",
+				"button": "Transfer",
+				"dialogTitle": "Transfer kepemilikan?",
+				"dialogDescription": "{{name}} akan menjadi satu-satunya pemilik {{workspace}}. Anda tetap memiliki akses admin tetapi kehilangan kemampuan khusus pemilik seperti menghapus ruang kerja atau mentransfernya lagi.",
+				"transferring": "Mentransfer…",
+				"confirm": "Transfer kepemilikan"
 			}
 		},
 		"projectGeneral": {
@@ -583,9 +643,7 @@
 			"toastDeleteError": "Gagal menghapus proyek",
 			"validation": {
 				"nameRequired": "Nama proyek wajib diisi",
-				"nameShort": "Nama proyek harus minimal 2 karakter",
 				"keyRequired": "Key wajib diisi",
-				"keyShort": "Key harus minimal 2 karakter",
 				"keyMax": "Key maksimal 8 karakter",
 				"iconRequired": "Ikon wajib diisi"
 			},
@@ -736,7 +794,7 @@
 				"verifyError": "Gagal memverifikasi akses Gitea",
 				"tokenRequired": "Token akses pribadi wajib diisi",
 				"tokenRequiredVerify": "Masukkan token untuk memverifikasi",
-				"verifyFirst": "Verifikasi akses gagal — periksa URL, token, dan repositori",
+				"verifyFirst": "Verifikasi akses gagal. Periksa URL, token, dan repositori",
 				"updated": "Integrasi Gitea disimpan",
 				"updateError": "Gagal menyimpan integrasi Gitea",
 				"removed": "Integrasi Gitea dihapus",
@@ -747,7 +805,9 @@
 				"commentOnDisabled": "Komentar tautan tugas pada issue baru dimatikan",
 				"settingsUpdateError": "Gagal memperbarui integrasi Gitea",
 				"secretCopied": "Disalin",
-				"unableToCopySecret": "Tidak dapat menyalin rahasia"
+				"unableToCopySecret": "Tidak dapat menyalin rahasia",
+				"notGiteaInstance": "URL tidak menunjuk ke instance Gitea",
+				"redirected": "URL Gitea dialihkan (biasanya ke HTTPS). Gunakan URL akhir secara langsung."
 			},
 			"webhookShow": "Tampilkan",
 			"webhookHide": "Sembunyikan",
@@ -907,11 +967,13 @@
 				"taskMoved": "Tugas dipindahkan",
 				"taskDueDateChanged": "Tenggat diubah",
 				"taskAssigneeChanged": "Penanggung jawab diubah",
-				"taskUnassigned": "Penugasan dihapus"
+				"taskUnassigned": "Penugasan dihapus",
+				"dueDateReminder": "Pengingat tenggat"
 			},
 			"connect": "Hubungkan webhook",
 			"saveChanges": "Simpan perubahan",
-			"disconnect": "Putuskan"
+			"disconnect": "Putuskan",
+			"reminderLeadTimeLabel": "Kirim webhook sekian jam sebelum tenggat"
 		},
 		"telegramIntegration": {
 			"validation": {
@@ -1159,6 +1221,31 @@
 				"title": "Hapus peran",
 				"description": "Ini akan menghapus peran \"{{role}}\" secara permanen. Anggota yang memakai peran ini akan kehilangan izinnya."
 			}
+		},
+		"workspaceLabels": {
+			"pageTitle": "Pengaturan Label",
+			"title": "Label",
+			"subtitle": "Buat, edit, dan hapus label tingkat ruang kerja.",
+			"cardDescription": "Kelola label yang dapat ditetapkan ke tugas.",
+			"createLabel": "Buat Label",
+			"editLabel": "Edit Label",
+			"deleteLabel": "Hapus",
+			"saveLabel": "Simpan",
+			"nameLabel": "Nama label",
+			"namePlaceholder": "Masukkan nama label",
+			"colorLabel": "Warna",
+			"createDescription": "Buat label baru yang dapat digunakan di semua tugas dalam ruang kerja ini.",
+			"editDescription": "Perbarui nama atau warna label ini.",
+			"deleteConfirmTitle": "Hapus label ini?",
+			"deleteConfirmDescription": "Ini akan menghapus label ini secara permanen dari semua tugas. Tindakan ini tidak dapat dibatalkan.",
+			"empty": "Belum ada label. Buat label pertama Anda untuk memulai.",
+			"createSuccess": "Label dibuat",
+			"updateSuccess": "Label diperbarui",
+			"deleteSuccess": "Label dihapus",
+			"createError": "Gagal membuat label",
+			"updateError": "Gagal memperbarui label",
+			"deleteError": "Gagal menghapus label",
+			"nameRequired": "Nama label wajib diisi"
 		}
 	},
 	"navigation": {
@@ -1310,7 +1397,27 @@
 				"title": "Pelacakan waktu dimulai",
 				"contentWithTask": "Pelacakan waktu dimulai pada tugas: {{taskTitle}}",
 				"contentWithoutTask": "Pelacakan waktu dimulai pada sebuah tugas"
+			},
+			"task_comment": {
+				"title": "{{commenterName}} mengomentari tugas Anda",
+				"content": "Komentar baru pada {{taskTitle}}: {{commentPreview}}"
+			},
+			"due_date_reminder": {
+				"title": "Tenggat tugas segera tiba",
+				"content": "{{taskTitle}} jatuh tempo dalam {{leadTime}}"
+			},
+			"task_overdue": {
+				"title": "Tugas terlambat",
+				"content": "{{taskTitle}} telah melewati tenggatnya"
 			}
+		},
+		"reminderLeadTime": {
+			"minutes_one": "{{count}} menit",
+			"minutes_other": "{{count}} menit",
+			"hours_one": "{{count}} jam",
+			"hours_other": "{{count}} jam",
+			"days_one": "{{count}} hari",
+			"days_other": "{{count}} hari"
 		}
 	},
 	"activity": {
@@ -1402,6 +1509,7 @@
 					"java": "Java",
 					"javascript": "JavaScript",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"plaintext": "Teks biasa",
 					"python": "Python",
 					"rust": "Rust",
@@ -1409,6 +1517,18 @@
 					"swift": "Swift",
 					"typescript": "TypeScript",
 					"yaml": "YAML"
+				},
+				"table": {
+					"addColumnBefore": "Sisipkan kolom di kiri",
+					"addColumnAfter": "Sisipkan kolom di kanan",
+					"deleteColumn": "Hapus kolom",
+					"addRowBefore": "Sisipkan baris di atas",
+					"addRowAfter": "Sisipkan baris di bawah",
+					"deleteRow": "Hapus baris",
+					"deleteTable": "Hapus tabel"
+				},
+				"mermaid": {
+					"renderFailed": "Diagram Mermaid tidak dapat dirender"
 				}
 			}
 		}
@@ -1510,6 +1630,7 @@
 					"kotlin": "Kotlin",
 					"makefile": "Makefile",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"ocaml": "OCaml",
 					"php": "PHP",
 					"perl": "Perl",
@@ -1541,6 +1662,9 @@
 						"onlyYoutube": "Hanya tautan YouTube yang dapat disematkan."
 					},
 					"onlyYoutubeInline": "Hanya URL YouTube yang dapat disematkan. Gunakan mode tautan."
+				},
+				"mermaid": {
+					"renderFailed": "Diagram Mermaid tidak dapat dirender"
 				}
 			}
 		},
@@ -1575,7 +1699,8 @@
 			"deleteError": "Gagal menghapus tugas",
 			"deleteDialogTitle": "Hapus Tugas?",
 			"deleteDialogDescription": "Ini akan menghapus tugas dan semua datanya secara permanen. Anda tidak dapat membatalkan tindakan ini.",
-			"deleteAction": "Hapus Tugas"
+			"deleteAction": "Hapus Tugas",
+			"completeAria": "Tandai subtugas selesai"
 		},
 		"properties": {
 			"title": "Properti",
@@ -1703,7 +1828,7 @@
 			}
 		},
 		"gantt": {
-			"pageTitle": "{{name}} — Gantt",
+			"pageTitle": "{{name}} – Gantt",
 			"title": "Linimasa Gantt",
 			"searchPlaceholder": "Cari tiket terjadwal...",
 			"hideTasks": "Sembunyikan tugas",
@@ -1716,7 +1841,7 @@
 			"updateDatesError": "Gagal memperbarui tanggal tugas",
 			"resizeStart": "Ubah ukuran tanggal mulai",
 			"resizeDue": "Ubah ukuran tenggat",
-			"taskAriaLabel": "{{title}} — buka atau seret untuk memindahkan"
+			"taskAriaLabel": "{{title}}: buka atau seret untuk memindahkan"
 		},
 		"delete": {
 			"title": "Hapus Tugas?",
@@ -1804,18 +1929,29 @@
 			"searchActions": "Cari aksi...",
 			"noActionsFound": "Tidak ada aksi ditemukan.",
 			"changeStatus": "Ubah Status"
+		},
+		"editor": {
+			"table": {
+				"addColumnBefore": "Sisipkan kolom di kiri",
+				"addColumnAfter": "Sisipkan kolom di kanan",
+				"deleteColumn": "Hapus kolom",
+				"addRowBefore": "Sisipkan baris di atas",
+				"addRowAfter": "Sisipkan baris di bawah",
+				"deleteRow": "Hapus baris",
+				"deleteTable": "Hapus tabel"
+			}
 		}
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} invited you to join {{workspaceName}} on Kaneo",
-			"preview": "You're invited to {{workspaceName}} on Kaneo",
-			"title": "Join {{workspaceName}}",
-			"subtitle": "{{inviterName}} ({{inviterEmail}}) invited you to collaborate in Kaneo.",
-			"cta": "Accept invitation",
-			"sameEmail": "You can accept with the same email that received this message.",
-			"ignore": "If this wasn't expected, you can safely ignore this email.",
-			"footer": "Kaneo workspace invitation"
+			"subject": "{{inviterName}} mengundang Anda bergabung ke {{workspaceName}} di Kaneo",
+			"preview": "Anda diundang ke {{workspaceName}} di Kaneo",
+			"title": "Bergabung ke {{workspaceName}}",
+			"subtitle": "{{inviterName}} ({{inviterEmail}}) mengundang Anda untuk berkolaborasi di Kaneo.",
+			"cta": "Terima undangan",
+			"sameEmail": "Anda dapat menerima undangan menggunakan alamat email yang menerima pesan ini.",
+			"ignore": "Jika ini tidak Anda harapkan, Anda dapat mengabaikan email ini dengan aman.",
+			"footer": "Undangan ruang kerja Kaneo"
 		},
 		"pageTitle": "Undangan",
 		"pendingInvitations": "Undangan Tertunda",
@@ -1853,7 +1989,9 @@
 				"complete": "Selesai",
 				"inProgress": "Sedang berjalan"
 			},
-			"noDueDate": "Tanpa tenggat"
+			"noDueDate": "Tanpa tenggat",
+			"reorderHandle": "Ubah urutan proyek",
+			"reorderError": "Gagal mengubah urutan proyek"
 		},
 		"search": {
 			"pageTitle": "Cari",
@@ -1898,7 +2036,16 @@
 		},
 		"members": {
 			"pageTitle": "Anggota",
-			"inviteMember": "Undang anggota"
+			"inviteMember": "Undang anggota",
+			"you": "Anda"
+		},
+		"invitations": {
+			"linkLabel": "Tautan undangan",
+			"copyLink": "Salin tautan",
+			"linkCopied": "Tautan undangan disalin",
+			"copyFailed": "Tidak dapat menyalin secara otomatis. Pilih tautan lalu tekan Ctrl+C.",
+			"pendingBadge": "tertunda",
+			"expires": "Kedaluwarsa {{date}}"
 		},
 		"inviteModal": {
 			"title": "Undang Anggota Tim",
@@ -1906,7 +2053,10 @@
 			"emailPlaceholder": "rekan@perusahaan.com",
 			"sendInvitation": "Kirim Undangan",
 			"success": "Undangan berhasil dikirim",
-			"error": "Gagal mengundang anggota tim"
+			"error": "Gagal mengundang anggota tim",
+			"createdTitle": "Undangan dibuat",
+			"shareLinkDescription": "Bagikan tautan ini kepada {{email}} agar mereka dapat bergabung ke ruang kerja.",
+			"done": "Selesai"
 		},
 		"membersTable": {
 			"emptyTitle": "Belum ada anggota tim",
@@ -1931,7 +2081,8 @@
 			"cancelInviteSuccess": "Undangan berhasil dibatalkan",
 			"cancelInviteError": "Gagal membatalkan undangan",
 			"roleUpdateSuccess": "Peran diperbarui",
-			"roleUpdateError": "Gagal memperbarui peran"
+			"roleUpdateError": "Gagal memperbarui peran",
+			"ariaInvitationActions": "Tindakan undangan"
 		}
 	},
 	"publicProject": {

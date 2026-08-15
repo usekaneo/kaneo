@@ -345,7 +345,7 @@ function MockGanttView({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// MockSidebar — visually identical to app-sidebar.tsx, driven by mock data
+// MockSidebar: visually identical to app-sidebar.tsx, driven by mock data
 // ─────────────────────────────────────────────────────────────────────────────
 function MockSidebar({
   activeProjectId,
@@ -360,7 +360,7 @@ function MockSidebar({
       variant="inset"
       className="border-none pt-1.5"
     >
-      {/* Header — WorkspaceSwitcher */}
+      {/* Header: WorkspaceSwitcher */}
       <SidebarHeader className="pt-1 pb-1.5">
         <div className="flex items-center justify-between w-full gap-2">
           <SidebarMenu>
@@ -436,7 +436,7 @@ function MockSidebar({
           </button>
         </SidebarGroup>
 
-        {/* NavMain — Overview */}
+        {/* NavMain: Overview */}
         <Collapsible defaultOpen>
           <SidebarGroup className="gap-1 p-2">
             <CollapsibleTrigger
@@ -468,7 +468,7 @@ function MockSidebar({
           </SidebarGroup>
         </Collapsible>
 
-        {/* NavProjects — Projects */}
+        {/* NavProjects: Projects */}
         <Collapsible defaultOpen>
           <SidebarGroup className="gap-1 p-2 pt-1">
             <CollapsibleTrigger
@@ -507,7 +507,7 @@ function MockSidebar({
         </Collapsible>
       </SidebarContent>
 
-      {/* Footer — version only */}
+      {/* Footer: version only */}
       <SidebarFooter>
         <div className="flex items-center justify-center px-2 py-1.5">
           <span className="text-xs text-muted-foreground">v1.0.0</span>

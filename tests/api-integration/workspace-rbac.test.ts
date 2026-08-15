@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
@@ -17,7 +17,11 @@ type CreateTaskBody = {
   status: string;
 };
 
-async function seedTask(projectId: string, columnId: string | null) {
+async function seedTask(
+  projectId: string,
+  columnId: string | null,
+  userId?: string,
+) {
   const [task] = await db
     .insert(schema.taskTable)
     .values({
@@ -29,6 +33,7 @@ async function seedTask(projectId: string, columnId: string | null) {
       columnId,
       number: 1,
       position: 1,
+      ...(userId ? { userId } : {}),
     })
     .returning();
   return task;
@@ -217,6 +222,234 @@ describe("API integration: workspace RBAC enforcement", () => {
     });
   });
 
+  describe("bulk task mutations", () => {
+    it("blocks a viewer from changing task priority in bulk", async () => {
+      const viewer = await createWorkspaceMember({ role: "viewer" });
+      const { project, columns } = await createProjectFixture({
+        workspaceId: viewer.workspace.id,
+      });
+      const task = await seedTask(project.id, columns.todo.id);
+
+      mockAuthenticatedSession(viewer.user);
+      const { app } = createApp();
+
+      const response = await app.request("/api/task/bulk", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          taskIds: [task.id],
+          operation: "updatePriority",
+          value: "high",
+        }),
+      });
+      expect(response.status).toBe(403);
+
+      const persisted = await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, task.id),
+      });
+      expect(persisted?.priority).toBe("medium");
+    });
+
+    it("allows a member to change task priority in bulk", async () => {
+      const member = await createWorkspaceMember({ role: "member" });
+      const { project, columns } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      const task = await seedTask(project.id, columns.todo.id);
+
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request("/api/task/bulk", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          taskIds: [task.id],
+          operation: "updatePriority",
+          value: "high",
+        }),
+      });
+      expect(response.status).toBe(200);
+
+      const persisted = await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, task.id),
+      });
+      expect(persisted?.priority).toBe("high");
+    });
+
+    it("preserves the not-found response for unknown tasks", async () => {
+      const member = await createWorkspaceMember({ role: "member" });
+
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request("/api/task/bulk", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          taskIds: [randomUUID()],
+          operation: "updatePriority",
+          value: "high",
+        }),
+      });
+      expect(response.status).toBe(404);
+    });
+
+    it("rejects bulk mutations that span workspaces", async () => {
+      const member = await createWorkspaceMember({ role: "member" });
+      const foreign = await createWorkspaceMember({ role: "admin" });
+      const { project, columns } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      const { project: foreignProject, columns: foreignColumns } =
+        await createProjectFixture({ workspaceId: foreign.workspace.id });
+      const task = await seedTask(project.id, columns.todo.id);
+      const foreignTask = await seedTask(
+        foreignProject.id,
+        foreignColumns.todo.id,
+      );
+
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request("/api/task/bulk", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          taskIds: [task.id, foreignTask.id],
+          operation: "updatePriority",
+          value: "high",
+        }),
+      });
+      expect(response.status).toBe(400);
+
+      const persistedTasks = await db
+        .select({ priority: schema.taskTable.priority })
+        .from(schema.taskTable)
+        .where(inArray(schema.taskTable.id, [task.id, foreignTask.id]));
+      expect(persistedTasks).toHaveLength(2);
+      expect(persistedTasks.every((task) => task.priority === "medium")).toBe(
+        true,
+      );
+    });
+
+    it("blocks a member from deleting a task in bulk", async () => {
+      const member = await createWorkspaceMember({ role: "member" });
+      const { project, columns } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      const task = await seedTask(project.id, columns.todo.id);
+
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request("/api/task/bulk", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ taskIds: [task.id], operation: "delete" }),
+      });
+      expect(response.status).toBe(403);
+
+      const persisted = await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, task.id),
+      });
+      expect(persisted).toBeDefined();
+    });
+
+    it("blocks a member from assigning a task in bulk", async () => {
+      const member = await createWorkspaceMember({ role: "member" });
+      const { project, columns } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      const task = await seedTask(project.id, columns.todo.id);
+
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request("/api/task/bulk", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          taskIds: [task.id],
+          operation: "updateAssignee",
+          value: member.user.id,
+        }),
+      });
+      expect(response.status).toBe(403);
+
+      const persisted = await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, task.id),
+      });
+      expect(persisted?.userId).toBeNull();
+    });
+
+    it("allows an admin to assign a task in bulk", async () => {
+      const admin = await createWorkspaceMember({ role: "admin" });
+      const { project, columns } = await createProjectFixture({
+        workspaceId: admin.workspace.id,
+      });
+      const task = await seedTask(project.id, columns.todo.id);
+
+      mockAuthenticatedSession(admin.user);
+      const { app } = createApp();
+
+      const response = await app.request("/api/task/bulk", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          taskIds: [task.id],
+          operation: "updateAssignee",
+          value: admin.user.id,
+        }),
+      });
+      expect(response.status).toBe(200);
+
+      const persisted = await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, task.id),
+      });
+      expect(persisted?.userId).toBe(admin.user.id);
+    });
+
+    it("does not copy a label from another workspace in bulk", async () => {
+      const member = await createWorkspaceMember({ role: "member" });
+      const foreign = await createWorkspaceMember({ role: "admin" });
+      const { project, columns } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      const task = await seedTask(project.id, columns.todo.id);
+      const [foreignLabel] = await db
+        .insert(schema.labelTable)
+        .values({
+          name: "private",
+          color: "#000000",
+          workspaceId: foreign.workspace.id,
+        })
+        .returning();
+
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request("/api/task/bulk", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          taskIds: [task.id],
+          operation: "addLabel",
+          value: foreignLabel.id,
+        }),
+      });
+      expect(response.status).toBe(400);
+
+      const copiedLabel = await db.query.labelTable.findFirst({
+        where: and(
+          eq(schema.labelTable.taskId, task.id),
+          eq(schema.labelTable.name, foreignLabel.name),
+        ),
+      });
+      expect(copiedLabel).toBeUndefined();
+    });
+  });
+
   describe("custom workspace roles", () => {
     it("blocks a custom role that only grants task:read from creating a task", async () => {
       const member = await createWorkspaceMember({ role: "readonly" });
@@ -313,7 +546,7 @@ describe("API integration: workspace RBAC enforcement", () => {
     });
 
     it("falls back to built-in role when no workspace_role row exists for the name", async () => {
-      // No workspace_role row, role is the compiled-in "admin" — should work.
+      // No workspace_role row, role is the compiled-in "admin"; should work.
       const member = await createWorkspaceMember({ role: "admin" });
       const { project } = await createProjectFixture({
         workspaceId: member.workspace.id,
@@ -351,6 +584,131 @@ describe("API integration: workspace RBAC enforcement", () => {
         }),
       });
       expect(response.status).toBe(200);
+    });
+
+    it("allows a member to update an assigned task without changing its assignee", async () => {
+      const member = await createWorkspaceMember({ role: "member" });
+      const { project, columns } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      const task = await seedTask(project.id, columns.todo.id, member.user.id);
+
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request(`/api/task/${task.id}`, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          title: "Updated by member",
+          description: "edit",
+          priority: "high",
+          status: "to-do",
+          projectId: project.id,
+          position: 1,
+          userId: member.user.id,
+        }),
+      });
+      expect(response.status).toBe(200);
+
+      const persisted = await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, task.id),
+      });
+      expect(persisted?.title).toBe("Updated by member");
+      expect(persisted?.userId).toBe(member.user.id);
+    });
+
+    it("blocks a member from assigning an unassigned task through full update", async () => {
+      const member = await createWorkspaceMember({ role: "member" });
+      const { project, columns } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      const task = await seedTask(project.id, columns.todo.id);
+
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request(`/api/task/${task.id}`, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          title: "Member attempt",
+          description: "nope",
+          priority: "low",
+          status: "to-do",
+          projectId: project.id,
+          position: 1,
+          userId: member.user.id,
+        }),
+      });
+      expect(response.status).toBe(403);
+
+      const persisted = await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, task.id),
+      });
+      expect(persisted?.userId).toBeNull();
+    });
+
+    it("blocks a member from unassigning a task through full update", async () => {
+      const member = await createWorkspaceMember({ role: "member" });
+      const { project, columns } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      const task = await seedTask(project.id, columns.todo.id, member.user.id);
+
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await app.request(`/api/task/${task.id}`, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          title: "Member attempt",
+          description: "nope",
+          priority: "low",
+          status: "to-do",
+          projectId: project.id,
+          position: 1,
+          userId: "",
+        }),
+      });
+      expect(response.status).toBe(403);
+
+      const persisted = await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, task.id),
+      });
+      expect(persisted?.userId).toBe(member.user.id);
+    });
+
+    it("allows an admin to assign a task through full update", async () => {
+      const admin = await createWorkspaceMember({ role: "admin" });
+      const { project, columns } = await createProjectFixture({
+        workspaceId: admin.workspace.id,
+      });
+      const task = await seedTask(project.id, columns.todo.id);
+
+      mockAuthenticatedSession(admin.user);
+      const { app } = createApp();
+
+      const response = await app.request(`/api/task/${task.id}`, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          title: "Assigned by admin",
+          description: "",
+          priority: "medium",
+          status: "to-do",
+          projectId: project.id,
+          position: 1,
+          userId: admin.user.id,
+        }),
+      });
+      expect(response.status).toBe(200);
+
+      const persisted = await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, task.id),
+      });
+      expect(persisted?.userId).toBe(admin.user.id);
     });
 
     it("blocks a viewer from updating a task", async () => {
@@ -617,7 +975,7 @@ describe("API integration: workspace RBAC enforcement", () => {
 
   describe("resource coverage: workspace:manage_settings", () => {
     // The integration endpoints (slack/discord/etc.) all gate on
-    // workspace:manage_settings. Use Slack as the canonical surface — the
+    // workspace:manage_settings. Use Slack as the canonical surface; the
     // 403 fires in middleware before the handler ever tries to call out.
     it("blocks a member from creating a Slack integration", async () => {
       const member = await createWorkspaceMember({ role: "member" });
@@ -705,7 +1063,7 @@ describe("API integration: workspace RBAC enforcement", () => {
 
     it("does not bypass for users with no role set", async () => {
       const member = await createWorkspaceMember({ role: "viewer" });
-      // Explicitly null role on the user table — should NOT bypass.
+      // Explicitly null role on the user table; should NOT bypass.
       await db
         .update(schema.userTable)
         .set({ role: null })

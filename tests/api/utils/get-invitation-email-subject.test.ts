@@ -34,6 +34,22 @@ describe("getInvitationEmailSubject", () => {
     );
   });
 
+  it("uses Brazilian Portuguese copy for regional Portuguese locales", () => {
+    const locale = "pt-BR";
+    const inviterName = "Alice";
+    const workspaceName = "Equipe produto";
+
+    const subject = getInvitationEmailSubject(
+      locale,
+      inviterName,
+      workspaceName,
+    );
+
+    expect(subject).toBe(
+      "Alice convidou você para participar de Equipe produto no Kaneo",
+    );
+  });
+
   it("uses the English fallback for unsupported locales", () => {
     const locale = "es-ES";
     const inviterName = "Alice";

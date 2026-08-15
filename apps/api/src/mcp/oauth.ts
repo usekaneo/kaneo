@@ -2,6 +2,13 @@ import { createHash, randomUUID } from "node:crypto";
 import { createId } from "@paralleldrive/cuid2";
 import db from "../database";
 import { sessionTable } from "../database/schema";
+import {
+  consumeState,
+  deleteExpiredStates,
+  enforceStateCap,
+  getState,
+  putState,
+} from "./oauth-store";
 
 type RegisteredClient = {
   clientId: string;
@@ -15,7 +22,6 @@ type AuthCode = {
   userId: string;
   codeChallenge: string;
   redirectUri: string;
-  expiresAt: number;
 };
 
 export type AuthorizationRequest = {
@@ -23,34 +29,25 @@ export type AuthorizationRequest = {
   codeChallenge: string;
   redirectUri: string;
   state?: string;
-  expiresAt: number;
 };
 
-const clients = new Map<string, RegisteredClient>();
-const codes = new Map<string, AuthCode>();
-const authorizationRequests = new Map<string, AuthorizationRequest>();
+// Clients re-register on invalid_client, so the TTL only bounds table growth.
+const clientTtlMs = 30 * 24 * 60 * 60 * 1000;
+const codeTtlMs = 5 * 60 * 1000;
+const requestTtlMs = 10 * 60 * 1000;
+// Same bound the in-memory store enforced; authorize is reachable without a session.
 const maxAuthorizationRequests = 10_000;
 
-function pruneAuthorizationRequests(now = Date.now()): void {
-  for (const [requestId, request] of authorizationRequests) {
-    if (request.expiresAt < now) authorizationRequests.delete(requestId);
-  }
-
-  while (authorizationRequests.size >= maxAuthorizationRequests) {
-    const oldestRequestId = authorizationRequests.keys().next().value;
-    if (!oldestRequestId) break;
-    authorizationRequests.delete(oldestRequestId);
-  }
+export async function getClient(
+  clientId: string,
+): Promise<RegisteredClient | null> {
+  return getState<RegisteredClient>("client", clientId);
 }
 
-export function getClient(clientId: string): RegisteredClient | undefined {
-  return clients.get(clientId);
-}
-
-export function registerClient(params: {
+export async function registerClient(params: {
   redirectUris: string[];
   clientName?: string;
-}): RegisteredClient {
+}): Promise<RegisteredClient> {
   const clientId = randomUUID();
   const client: RegisteredClient = {
     clientId,
@@ -58,58 +55,46 @@ export function registerClient(params: {
     clientName: params.clientName,
     issuedAt: Math.floor(Date.now() / 1000),
   };
-  clients.set(clientId, client);
+  await putState(
+    "client",
+    clientId,
+    client,
+    new Date(Date.now() + clientTtlMs),
+  );
   return client;
 }
 
-export function createAuthCode(params: {
-  clientId: string;
-  userId: string;
-  codeChallenge: string;
-  redirectUri: string;
-}): string {
+export async function createAuthCode(params: AuthCode): Promise<string> {
   const code = randomUUID();
-  codes.set(code, {
-    ...params,
-    expiresAt: Date.now() + 5 * 60 * 1000,
-  });
+  await putState("code", code, params, new Date(Date.now() + codeTtlMs));
   return code;
 }
 
-export function createAuthorizationRequest(params: {
-  clientId: string;
-  codeChallenge: string;
-  redirectUri: string;
-  state?: string;
-}): string {
-  pruneAuthorizationRequests();
+export async function createAuthorizationRequest(
+  params: AuthorizationRequest,
+): Promise<string> {
+  await deleteExpiredStates();
+  await enforceStateCap("request", maxAuthorizationRequests);
   const requestId = randomUUID();
-  authorizationRequests.set(requestId, {
-    ...params,
-    expiresAt: Date.now() + 10 * 60 * 1000,
-  });
+  await putState(
+    "request",
+    requestId,
+    params,
+    new Date(Date.now() + requestTtlMs),
+  );
   return requestId;
 }
 
-export function getAuthorizationRequest(
+export async function getAuthorizationRequest(
   requestId: string,
-): AuthorizationRequest | undefined {
-  const request = authorizationRequests.get(requestId);
-  if (!request) return undefined;
-  if (request.expiresAt < Date.now()) {
-    authorizationRequests.delete(requestId);
-    return undefined;
-  }
-  return request;
+): Promise<AuthorizationRequest | null> {
+  return getState<AuthorizationRequest>("request", requestId);
 }
 
-export function consumeAuthorizationRequest(
+export async function consumeAuthorizationRequest(
   requestId: string,
-): AuthorizationRequest | undefined {
-  const request = getAuthorizationRequest(requestId);
-  if (!request) return undefined;
-  authorizationRequests.delete(requestId);
-  return request;
+): Promise<AuthorizationRequest | null> {
+  return consumeState<AuthorizationRequest>("request", requestId);
 }
 
 function base64url(buf: Buffer): string {
@@ -127,13 +112,11 @@ export async function exchangeCode(
   codeVerifier: string,
   redirectUri: string,
 ): Promise<{ accessToken: string; expiresIn: number } | null> {
-  const stored = codes.get(code);
+  const stored = await consumeState<AuthCode>("code", code);
   if (!stored) return null;
-  codes.delete(code);
 
   if (stored.clientId !== clientId) return null;
   if (stored.redirectUri !== redirectUri) return null;
-  if (stored.expiresAt < Date.now()) return null;
   if (!verifyPkce(codeVerifier, stored.codeChallenge)) return null;
 
   const sessionToken = randomUUID();

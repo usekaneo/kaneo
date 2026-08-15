@@ -1,10 +1,10 @@
 # Kaneo MCP server
 
-`@kaneo/mcp` is a local stdio MCP server for Kaneo.
+[`@kaneo/mcp`](https://www.npmjs.com/package/@kaneo/mcp) is the official MCP (Model Context Protocol) server for [Kaneo](https://kaneo.app), the open source project management platform. It is maintained in the [usekaneo/kaneo](https://github.com/usekaneo/kaneo) monorepo and published to npm by the Kaneo team.
 
 It runs over stdio, signs in with Kaneo's device flow, and then calls the Kaneo API with a bearer token. The package lives in `packages/mcp` in this monorepo and exposes the `kaneo-mcp` CLI.
 
-> **Tip:** Every Kaneo instance also ships a built-in HTTP MCP endpoint at `/api/mcp`. If your MCP client supports Streamable HTTP transport (e.g. Claude Code), you can connect directly without this package. See the [MCP docs](https://docs.kaneo.app/core/integrations/mcp) for details.
+> **Tip:** Every Kaneo instance also ships a built-in HTTP MCP endpoint at `/api/mcp`. If your MCP client supports Streamable HTTP transport (e.g. Claude Code), you can connect directly without this package. See the [MCP docs](https://kaneo.app/docs/core/integrations/mcp) for details.
 
 ## Prerequisites
 
@@ -25,7 +25,7 @@ DEVICE_AUTH_CLIENT_IDS=kaneo-cli,kaneo-mcp,your-client-id
 |----------|-------------|
 | `KANEO_API_URL` | Kaneo API origin (default `http://localhost:1337`). Do not include `/api`. |
 | `KANEO_MCP_CLIENT_ID` | Device-flow client id (default `kaneo-mcp`). Must match `DEVICE_AUTH_CLIENT_IDS` on the server. |
-| `KANEO_API_KEY` | **Optional.** A Kaneo API key (create one under Settings → Account → Developer). When set, the server authenticates with it as a Bearer token and skips the interactive device flow — use this for headless/Docker setups. |
+| `KANEO_API_KEY` | **Optional.** A Kaneo API key (create one under Settings → Account → Developer). When set, the server authenticates with it as a Bearer token and skips the interactive device flow. Use this for headless/Docker setups. |
 
 ## Install
 
@@ -115,12 +115,20 @@ For headless or sandboxed environments where opening a browser is impractical, s
 
 ## Tools
 
-- Session: `whoami`, `list_workspaces`
-- Projects: `list_projects`, `get_project`, `create_project`, `update_project`
-- Tasks: `list_tasks`, `get_task`, `create_task`, `update_task`, `move_task`, `update_task_status`
+- Session: `whoami`, `list_workspaces`, `list_workspace_members`, `list_notifications`
+- Search: `search`
+- Projects: `list_projects`, `get_project`, `create_project`, `update_project`, `list_project_columns`
+- Tasks: `list_tasks`, `get_task`, `create_task`, `update_task`, `delete_task`, `move_task`, `update_task_status`, `update_task_assignee`, `update_task_due_date`, `list_task_activity`
+- Time entries: `list_task_time_entries`, `get_time_entry`, `create_time_entry`, `update_time_entry`
 - Comments: `list_task_comments`, `create_task_comment`, `update_task_comment`, `delete_task_comment`
 - Labels: `list_workspace_labels`, `create_label`, `attach_label_to_task`, `detach_label_from_task`, `delete_label`
 - Task relations: `create_task_relation`, `get_task_relations`, `delete_task_relation`
+
+Call `list_project_columns` before setting a status: the column slugs it
+returns are the values `create_task` and `update_task_status` accept.
+`list_workspace_members` resolves the user IDs the assignee tools expect.
+Time entries have no delete endpoint on the API, so there is no
+`delete_time_entry` tool.
 
 ## Releasing
 

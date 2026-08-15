@@ -14,7 +14,7 @@ export type CheckoutIntent = {
 
 /**
  * Reads a `?checkout=<plan>-<interval>` param from the current URL and stores
- * it. Called once at app boot, before the router runs — the sign-up →
+ * it. Called once at app boot, before the router runs: the sign-up →
  * onboarding → workspace redirect chain drops query params, so the value has
  * to be captured synchronously on first load.
  */

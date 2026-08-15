@@ -452,7 +452,7 @@ export const normalizeEmptyRequiredArrays = (spec: Record<string, unknown>) => {
 };
 
 // Better Auth's generateOpenAPISchema sometimes emits a `properties` entry whose
-// value is a primitive instead of a schema object — e.g. the organization
+// value is a primitive instead of a schema object, e.g. the organization
 // `create-role` `additionalFields` field comes through as
 // `properties: { type: "object" }`. OpenAPI validators (Mintlify) reject the
 // invalid sub-schema, so drop any property whose schema is not an object.
@@ -529,7 +529,7 @@ export const normalizeEmptyAndEnumSchemas = (spec: Record<string, unknown>) => {
       return;
     }
 
-    // propertyNames is not valid in OpenAPI 3.0.x — remove it
+    // propertyNames is not valid in OpenAPI 3.0.x, so remove it
     if ("propertyNames" in node) {
       delete node.propertyNames;
     }

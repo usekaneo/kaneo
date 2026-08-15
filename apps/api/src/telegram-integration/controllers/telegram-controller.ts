@@ -44,6 +44,7 @@ export function buildNextTelegramConfigFromPatch(
         ? currentConfig.chatLabel
         : (body.chatLabel ?? undefined),
     events: {
+      ...defaultTelegramEvents,
       ...(currentConfig.events ?? {}),
       ...(body.events ?? {}),
     },

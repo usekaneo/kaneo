@@ -1,0 +1,102 @@
+name: Publish PLANKA Import Package
+
+on:
+  release:
+    types: [published]
+  push:
+    branches: [main]
+    paths:
+      - packages/planka-import/package.json
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: publish-planka-import
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    if: ${{ github.event_name == 'push' || startsWith(github.event.release.tag_name, 'planka-import-v') }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10.32.1
+
+      # No registry-url here on purpose: it writes an .npmrc referencing
+      # NODE_AUTH_TOKEN, and npm only attempts the tokenless OIDC exchange when
+      # no auth is configured. Node 24 is required for npm >= 11.5.1 (OIDC).
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run PLANKA import checks
+        run: |
+          pnpm --filter @kaneo/planka-import test
+          pnpm --filter @kaneo/planka-import build
+
+      - name: Validate PLANKA import release tag
+        if: ${{ github.event_name == 'release' }}
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./packages/planka-import/package.json').version")
+          TAG_VERSION="${GITHUB_REF_NAME#planka-import-v}"
+
+          if [ "${GITHUB_REF_NAME}" = "${TAG_VERSION}" ]; then
+            echo "Release tag must start with planka-import-v, got ${GITHUB_REF_NAME}"
+            exit 1
+          fi
+
+          if [ "${TAG_VERSION}" != "${PACKAGE_VERSION}" ]; then
+            echo "Release tag version (${TAG_VERSION}) does not match packages/planka-import version (${PACKAGE_VERSION})"
+            exit 1
+          fi
+
+      - name: Check whether @kaneo/planka-import version is already published
+        id: version_check
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./packages/planka-import/package.json').version")
+
+          if npm view "@kaneo/planka-import@${PACKAGE_VERSION}" version >/dev/null 2>&1; then
+            echo "already_published=true" >> "$GITHUB_OUTPUT"
+            echo "@kaneo/planka-import@${PACKAGE_VERSION} is already published; skipping publish."
+          else
+            echo "already_published=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish @kaneo/planka-import
+        if: ${{ steps.version_check.outputs.already_published == 'false' }}
+        run: |
+          cd packages/planka-import
+          npm publish --access public --provenance
+
+      - name: Create PLANKA import release
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./packages/planka-import/package.json').version")
+
+          if gh release view "planka-import-v${PACKAGE_VERSION}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            echo "Release planka-import-v${PACKAGE_VERSION} already exists; skipping."
+            exit 0
+          fi
+
+          gh release create "planka-import-v${PACKAGE_VERSION}" \
+            --target "${GITHUB_SHA}" \
+            --title "@kaneo/planka-import v${PACKAGE_VERSION}" \
+            --notes "Published [@kaneo/planka-import@${PACKAGE_VERSION}](https://www.npmjs.com/package/@kaneo/planka-import/v/${PACKAGE_VERSION}) to npm." \
+            --latest=false
+        env:
+          GH_TOKEN: ${{ github.token }}
