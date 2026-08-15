@@ -137,6 +137,20 @@ function resetUndoHistory(editor: Editor) {
   );
 }
 
+function setContentWithoutUndoStep(editor: Editor, content: string) {
+  editor
+    .chain()
+    .command(({ tr }) => {
+      tr.setMeta("addToHistory", false);
+      return true;
+    })
+    .setContent(content, {
+      emitUpdate: false,
+      contentType: "markdown",
+    })
+    .run();
+}
+
 type EmbedComposerState = {
   mode: "choice" | "input";
   url: string;
@@ -1005,10 +1019,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     if (!hasHydratedRef.current) {
       isSyncingExternalContentRef.current = true;
       latestSyncedMarkdownRef.current = incomingMarkdown;
-      editor.commands.setContent(incomingMarkdown, {
-        emitUpdate: false,
-        contentType: "markdown",
-      });
+      setContentWithoutUndoStep(editor, incomingMarkdown);
       if (isTaskChanged) {
         resetUndoHistory(editor);
       }
@@ -1024,10 +1035,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
     isSyncingExternalContentRef.current = true;
     latestSyncedMarkdownRef.current = incomingMarkdown;
-    editor.commands.setContent(incomingMarkdown, {
-      emitUpdate: false,
-      contentType: "markdown",
-    });
+    setContentWithoutUndoStep(editor, incomingMarkdown);
     requestAnimationFrame(() => {
       isSyncingExternalContentRef.current = false;
     });
