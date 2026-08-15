@@ -1,8 +1,13 @@
 import { readFileSync } from "node:fs";
 import * as Sentry from "@sentry/node";
+import { nodeProfilingIntegration } from "@sentry/profiling-node";
 
 const tracesSampleRate = Number.parseFloat(
   process.env.SENTRY_TRACES_SAMPLE_RATE ?? "",
+);
+
+const profilesSampleRate = Number.parseFloat(
+  process.env.SENTRY_PROFILES_SAMPLE_RATE ?? "",
 );
 
 function readAppVersion() {
@@ -24,5 +29,9 @@ if (process.env.SENTRY_DSN) {
     release: process.env.SENTRY_RELEASE ?? readAppVersion(),
     sendDefaultPii: false,
     tracesSampleRate: Number.isFinite(tracesSampleRate) ? tracesSampleRate : 0,
+    profilesSampleRate: Number.isFinite(profilesSampleRate)
+      ? profilesSampleRate
+      : 0,
+    integrations: [nodeProfilingIntegration()],
   });
 }

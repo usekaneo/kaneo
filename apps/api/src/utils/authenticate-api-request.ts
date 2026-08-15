@@ -1,8 +1,18 @@
+import * as Sentry from "@sentry/node";
 import { APIError } from "better-auth/api";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { auth } from "../auth";
 import { verifyApiKey } from "./verify-api-key";
+
+// ponytail: Sentry's user scope is per-process in @sentry/node. Concurrent
+// requests from different users can race the per-context user id. The proper
+// fix is to wrap each request in Sentry.runWithAsyncContext, which requires
+// wiring AsyncLocalStorage through Hono's middleware chain. Tagging here is
+// best-effort attribution; do not rely on it for cross-user filtering.
+function attachUserToScope(userId: string) {
+  Sentry.setUser({ id: userId });
+}
 
 function isAuthRejection(error: unknown) {
   if (!(error instanceof APIError)) {
@@ -76,6 +86,7 @@ export async function authenticateApiRequest(c: Context): Promise<void> {
       enabled: key.enabled,
       permissions: key.permissions,
     });
+    attachUserToScope(key.userId);
     return;
   }
 
@@ -93,6 +104,7 @@ export async function authenticateApiRequest(c: Context): Promise<void> {
         enabled: key.enabled,
         permissions: key.permissions,
       });
+      attachUserToScope(key.userId);
       return;
     }
     const sessionResult = await getSessionFromBearerOnlyHeaders(c);
@@ -101,6 +113,7 @@ export async function authenticateApiRequest(c: Context): Promise<void> {
       c.set("session", sessionResult.session);
       c.set("userId", sessionResult.user.id);
       c.set("userEmail", sessionResult.user.email ?? "");
+      attachUserToScope(sessionResult.user.id);
       return;
     }
     throw new HTTPException(401, { message: "Unauthorized" });
@@ -115,6 +128,8 @@ export async function authenticateApiRequest(c: Context): Promise<void> {
   if (!sessionResult?.user) {
     throw new HTTPException(401, { message: "Unauthorized" });
   }
+
+  attachUserToScope(sessionResult.user.id);
 }
 
 export async function resolveAssetBearerOrCookie(c: Context): Promise<{
