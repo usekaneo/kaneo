@@ -320,7 +320,9 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   const hasHydratedRef = useRef(false);
   const isSyncingExternalContentRef = useRef(false);
   const latestSyncedMarkdownRef = useRef("");
-  const descriptionUpdateTimersRef = useRef<Map<string, number>>(new Map());
+  const descriptionUpdateTimersRef = useRef<
+    Map<string, { timer: number; markdown: string; task: Task | undefined }>
+  >(new Map());
   const hoveredCodeBlockElementRef = useRef<HTMLElement | null>(null);
   const [hoveredCodeBlock, setHoveredCodeBlock] =
     useState<HoveredCodeBlock | null>(null);
@@ -576,41 +578,57 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     };
   }, []);
 
+  const saveDescriptionUpdate = useCallback(
+    (taskId: string, markdown: string, task: Task | undefined) => {
+      const updateTaskFn = updateTaskRef.current;
+      if (!updateTaskFn) return;
+      const latest = taskRef.current;
+      const resolved = latest?.id === taskId ? latest : task;
+      if (!resolved) return;
+      void updateTaskFn({ ...resolved, description: markdown }).catch(
+        (error) => {
+          console.error("Failed to update description:", error);
+        },
+      );
+    },
+    [],
+  );
+
   const debouncedUpdate = useCallback(
     (
       markdown: string,
       taskId: string | undefined,
       currentTask: Task | undefined,
     ) => {
-      if (!taskId || !currentTask) return;
+      if (!taskId) return;
 
       const timers = descriptionUpdateTimersRef.current;
-      const existingTimer = timers.get(taskId);
-      if (existingTimer !== undefined) {
-        window.clearTimeout(existingTimer);
+      const existingEntry = timers.get(taskId);
+      if (existingEntry !== undefined) {
+        window.clearTimeout(existingEntry.timer);
       }
 
       const timer = window.setTimeout(() => {
+        const entry = timers.get(taskId);
+        if (!entry) return;
         timers.delete(taskId);
-        void (async () => {
-          const updateTaskFn = updateTaskRef.current;
-          if (!updateTaskFn) return;
-          const latest = taskRef.current;
-          const base = latest?.id === taskId ? latest : currentTask;
-          try {
-            await updateTaskFn({
-              ...base,
-              description: markdown,
-            });
-          } catch (error) {
-            console.error("Failed to update description:", error);
-          }
-        })();
+        saveDescriptionUpdate(taskId, entry.markdown, entry.task);
       }, 700);
-      timers.set(taskId, timer);
+      timers.set(taskId, { timer, markdown, task: currentTask });
     },
-    [],
+    [saveDescriptionUpdate],
   );
+
+  useEffect(() => {
+    const timers = descriptionUpdateTimersRef.current;
+    return () => {
+      timers.forEach(({ timer, markdown, task }, taskId) => {
+        window.clearTimeout(timer);
+        saveDescriptionUpdate(taskId, markdown, task);
+      });
+      timers.clear();
+    };
+  }, [saveDescriptionUpdate]);
 
   const editor = useEditor(
     {
