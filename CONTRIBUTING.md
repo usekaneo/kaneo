@@ -201,7 +201,7 @@ kaneo/
 
 ## Using AI
 
-You are welcome to use AI tools to help you contribute – we as maintainers do the same too. They are useful for research, writing code or tests, and exploring unfamiliar parts of the project. Two boundaries apply to every contribution.
+You are welcome to use AI tools to help you contribute, and we as maintainers do the same. They are useful for research, writing code or tests, and exploring unfamiliar parts of the project. Two boundaries apply to every contribution.
 
 ### Speak for yourself
 
