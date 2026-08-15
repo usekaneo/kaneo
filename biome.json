@@ -25,6 +25,8 @@
 			"!**/.cache",
 			"!**/coverage",
 			"!**/.claude",
+			"!**/.pi",
+			"!**/.pi-subagents",
 			"!**/openapi.json"
 		]
 	},
@@ -36,7 +38,7 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true,
+			"preset": "recommended",
 			"style": {
 				"noParameterAssign": "error",
 				"useAsConstAssertion": "error",
