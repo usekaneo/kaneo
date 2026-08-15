@@ -16,6 +16,7 @@ Thanks for wanting to contribute to Kaneo! Whether you're fixing bugs, adding fe
   - [Commit Messages](#commit-messages)
   - [Localization (i18n)](#localization-i18n)
   - [Project Structure](#project-structure)
+- [Using AI](#using-ai)
 - [Need Help?](#need-help)
 
 ## Code of Conduct
@@ -197,6 +198,26 @@ kaneo/
 ├── tests/            # API unit and integration tests
 └── charts/           # Kubernetes Helm chart
 ```
+
+## Using AI
+
+You are welcome to use AI tools to help you contribute, and we as maintainers do the same. They are useful for research, writing code or tests, and exploring unfamiliar parts of the project. Two boundaries apply to every contribution.
+
+### Speak for yourself
+
+Write issues, pull request descriptions, and review replies in your own words. Clear, imperfect writing is better than a generated explanation that is longer than necessary or does not accurately describe the contribution.
+
+### Think for yourself
+
+Understand and take responsibility for every change you submit. Before requesting review, reproduce the problem, reduce the solution to its necessary scope, and verify the behavior yourself. You should be able to explain the design decisions, tradeoffs, and tests without relying on an AI-generated answer.
+
+AI output is not evidence that a change is correct. Include meaningful regression coverage for behavior changes and keep unrelated or speculative work out of the pull request.
+
+Automated review can be part of preparing an open pull request. Address relevant bot feedback and stabilize the change before requesting review from a maintainer.
+
+Maintainers may close a pull request without a detailed implementation review when its description is inaccurate, its scope exceeds the linked issue, important behavior is untested, or the author cannot explain and validate the submitted work. Review feedback identifies problems; it does not replace the contributor's own investigation and validation.
+
+For more context, see [this blog article](https://roe.dev/blog/using-ai-in-open-source).
 
 ## Need Help?
 

@@ -110,11 +110,9 @@ export async function handleGiteaIssueOpened(
       description: formatTaskDescriptionFromIssue(issue.body),
       status: resolvedStatus,
       columnId: targetColumn?.id ?? null,
-      priority: null,
+      priority: priority ?? "low",
       number: nextTaskNumber,
     };
-
-    if (priority) taskValues.priority = priority;
 
     const [createdTask] = await db
       .insert(taskTable)
