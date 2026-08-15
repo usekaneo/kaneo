@@ -9,7 +9,7 @@ import TableRow from "@tiptap/extension-table-row";
 import TaskList from "@tiptap/extension-task-list";
 import { Markdown } from "@tiptap/markdown";
 import { Fragment, Slice } from "@tiptap/pm/model";
-import { TextSelection } from "@tiptap/pm/state";
+import { EditorState, TextSelection } from "@tiptap/pm/state";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
@@ -124,6 +124,17 @@ function formatMarkdown(markdown: string) {
     .replace(/\r\n/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
     .replace(/\n{2,}$/g, "\n");
+}
+
+function resetUndoHistory(editor: Editor) {
+  const { schema, plugins, doc } = editor.state;
+  editor.view.updateState(
+    EditorState.create({
+      schema,
+      plugins,
+      doc,
+    }),
+  );
 }
 
 type EmbedComposerState = {
@@ -998,6 +1009,9 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         emitUpdate: false,
         contentType: "markdown",
       });
+      if (isTaskChanged) {
+        resetUndoHistory(editor);
+      }
       hasHydratedRef.current = true;
       requestAnimationFrame(() => {
         isSyncingExternalContentRef.current = false;
