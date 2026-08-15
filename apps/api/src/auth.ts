@@ -374,8 +374,23 @@ export const auth = betterAuth({
       // instance-wide role is meaningful here; per-workspace roles
       // (owner/admin/member/viewer) don't apply until after a workspace
       // is joined.
+      //
+      // `user` here comes from the session, which may be served out of
+      // the cookie cache (see `session.cookieCache` below). The
+      // first-user bootstrap promotes the user to admin in
+      // `databaseHooks.user.create.after`, but that happens after
+      // `signUpEmail` has already returned/cached the pre-promotion
+      // role, so a cached session can still say `role: "user"` for up
+      // to `cookieCache.maxAge`. Re-read the role from the database
+      // instead of trusting the (possibly stale) cached role.
       allowUserToCreateOrganization: isWorkspaceCreationDisabled
-        ? (user) => user.role === "admin"
+        ? async (user) => {
+            const [freshUser] = await db
+              .select({ role: schema.userTable.role })
+              .from(schema.userTable)
+              .where(eq(schema.userTable.id, user.id));
+            return freshUser?.role === "admin";
+          }
         : true,
       // Better Auth defaults this to `true`, which blocks any user whose email
       // is not verified from accepting/rejecting an invitation. Kaneo does not

@@ -41,8 +41,9 @@ export function WorkspaceSwitcher() {
   const { data: workspaces } = useGetWorkspaces();
   const { data: session } = authClient.useSession();
   const { data: config } = useGetConfig();
+  const isAdmin = session?.user?.role === "admin";
   const canCreateWorkspace =
-    !config?.disableWorkspaceCreation || session?.user?.role === "admin";
+    isAdmin || (config !== undefined && !config.disableWorkspaceCreation);
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = React.useState(false);
   const [isCreateWorkspaceModalOpen, setIsCreateWorkspaceModalOpen] =

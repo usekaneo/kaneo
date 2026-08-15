@@ -51,8 +51,9 @@ function CommandPalette() {
   const { data: workspace } = useActiveWorkspace();
   const { data: session } = authClient.useSession();
   const { data: config } = useGetConfig();
+  const isAdmin = session?.user?.role === "admin";
   const canCreateWorkspace =
-    !config?.disableWorkspaceCreation || session?.user?.role === "admin";
+    isAdmin || (config !== undefined && !config.disableWorkspaceCreation);
   const [open, setOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
@@ -91,6 +92,7 @@ function CommandPalette() {
       },
       [shortcuts.workspace.prefix]: {
         [shortcuts.workspace.create]: () => {
+          if (!canCreateWorkspace) return;
           setIsCreateWorkspaceOpen(true);
         },
       },
