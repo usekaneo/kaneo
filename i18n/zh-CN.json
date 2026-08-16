@@ -1553,8 +1553,12 @@
 		},
 		"boardSearchPlaceholder": "搜索工单…",
 		"view": {
+			"backlog": "Backlog",
 			"board": "看板",
-			"list": "列表"
+			"gantt": "Gantt",
+			"list": "列表",
+			"section": "View",
+			"tasks": "Tasks"
 		},
 		"common": {
 			"selectTask": "选择任务",

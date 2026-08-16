@@ -41,12 +41,8 @@ export function getBrowserLocale(): string | null {
 }
 
 function getLocaleDirectionFromScript(locale: AppLocale): "rtl" | "ltr" {
-  try {
-    const textInfo = new Intl.Locale(locale).getTextInfo?.();
-    return textInfo?.direction === "rtl" ? "rtl" : "ltr";
-  } catch {
-    return "ltr";
-  }
+  // i18next resolves the direction from Intl or its built-in RTL language list.
+  return i18n.dir(locale) === "rtl" ? "rtl" : "ltr";
 }
 
 export function getLocaleDirection(locale: AppLocale): "rtl" | "ltr" {

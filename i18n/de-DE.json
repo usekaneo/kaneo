@@ -1553,8 +1553,12 @@
 		},
 		"boardSearchPlaceholder": "Tickets suchen...",
 		"view": {
+			"backlog": "Backlog",
 			"board": "Board",
-			"list": "Liste"
+			"gantt": "Gantt",
+			"list": "Liste",
+			"section": "View",
+			"tasks": "Tasks"
 		},
 		"common": {
 			"selectTask": "Aufgabe auswählen",

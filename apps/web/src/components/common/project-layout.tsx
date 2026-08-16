@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { CalendarDays, SquareKanban, SquircleDashed } from "lucide-react";
 import { type ReactNode, useState } from "react";
+import { useTranslation } from "react-i18next";
 import MobileProjectNav from "@/components/common/header/mobile-project-nav";
 import ProjectCrumbSelect from "@/components/common/header/project-crumb-select";
 import WorkspaceCrumbSelect from "@/components/common/header/workspace-crumb-select";
@@ -39,6 +40,7 @@ export default function ProjectLayout({
 }: ProjectLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
   const { data: project } = useGetProject({ id: projectId, workspaceId });
   const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] =
     useState(false);
@@ -152,7 +154,7 @@ export default function ProjectLayout({
                   )}
                 >
                   <SquircleDashed className="size-3.5" />
-                  Backlog
+                  {t("tasks:view.backlog")}
                 </Button>
                 <Button
                   variant={resolvedView === "board" ? "secondary" : "ghost"}
@@ -164,7 +166,7 @@ export default function ProjectLayout({
                   )}
                 >
                   <SquareKanban className="size-3.5" />
-                  Tasks
+                  {t("tasks:view.tasks")}
                 </Button>
                 <Button
                   variant={resolvedView === "gantt" ? "secondary" : "ghost"}
@@ -176,7 +178,7 @@ export default function ProjectLayout({
                   )}
                 >
                   <CalendarDays className="size-3.5" />
-                  Gantt
+                  {t("tasks:view.gantt")}
                 </Button>
               </div>
             )}

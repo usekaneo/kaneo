@@ -1571,8 +1571,12 @@
 		},
 		"boardSearchPlaceholder": "Поиск задач...",
 		"view": {
+			"backlog": "Backlog",
 			"board": "Доска",
-			"list": "Список"
+			"gantt": "Gantt",
+			"list": "Список",
+			"section": "View",
+			"tasks": "Tasks"
 		},
 		"common": {
 			"selectTask": "Выбрать задачу",

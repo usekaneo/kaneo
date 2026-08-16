@@ -1,4 +1,5 @@
 import type * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { NavMain } from "@/components/nav-main";
 import { NavProjects } from "@/components/nav-projects";
@@ -15,10 +16,18 @@ import { VersionDisplay } from "@/components/version-display";
 import { WorkspaceSwitcher } from "@/components/workspace-switcher";
 import { shortcuts } from "@/constants/shortcuts";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { getLocaleDirection, resolveLocale } from "@/lib/i18n";
 import Search from "./search";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { toggleSidebar } = useSidebar();
+  const { i18n } = useTranslation();
+
+  const side: "left" | "right" =
+    getLocaleDirection(resolveLocale(i18n.resolvedLanguage ?? null, null)) ===
+    "rtl"
+      ? "right"
+      : "left";
 
   useRegisterShortcuts({
     modifierShortcuts: {
@@ -32,6 +41,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar
       collapsible="offcanvas"
       variant="inset"
+      side={side}
       className="border-none pt-1.5"
       {...props}
     >

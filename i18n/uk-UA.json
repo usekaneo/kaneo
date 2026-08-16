@@ -1563,8 +1563,12 @@
 		},
 		"boardSearchPlaceholder": "Пошук тікетів...",
 		"view": {
+			"backlog": "Backlog",
 			"board": "Дошка",
-			"list": "Список"
+			"gantt": "Gantt",
+			"list": "Список",
+			"section": "View",
+			"tasks": "Tasks"
 		},
 		"common": {
 			"selectTask": "Обрати завдання",

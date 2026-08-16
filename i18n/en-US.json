@@ -1553,8 +1553,12 @@
 		},
 		"boardSearchPlaceholder": "Search tickets...",
 		"view": {
+			"backlog": "Backlog",
 			"board": "Board",
-			"list": "List"
+			"gantt": "Gantt",
+			"list": "List",
+			"section": "View",
+			"tasks": "Tasks"
 		},
 		"common": {
 			"selectTask": "Select task",

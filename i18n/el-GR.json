@@ -1553,8 +1553,12 @@
 		},
 		"boardSearchPlaceholder": "Αναζήτηση αιτημάτων...",
 		"view": {
+			"backlog": "Backlog",
 			"board": "Πίνακας",
-			"list": "Λίστα"
+			"gantt": "Gantt",
+			"list": "Λίστα",
+			"section": "View",
+			"tasks": "Tasks"
 		},
 		"common": {
 			"selectTask": "Επιλέξτε εργασία",

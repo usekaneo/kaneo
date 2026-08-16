@@ -1553,8 +1553,12 @@
 		},
 		"boardSearchPlaceholder": "Tickets zoeken...",
 		"view": {
+			"backlog": "Backlog",
 			"board": "Bord",
-			"list": "Lijst"
+			"gantt": "Gantt",
+			"list": "Lijst",
+			"section": "View",
+			"tasks": "Tasks"
 		},
 		"common": {
 			"selectTask": "Selecteer taak",

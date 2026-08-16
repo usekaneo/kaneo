@@ -1553,8 +1553,12 @@
 		},
 		"boardSearchPlaceholder": "Buscar tickets...",
 		"view": {
+			"backlog": "Backlog",
 			"board": "Quadro",
-			"list": "Lista"
+			"gantt": "Gantt",
+			"list": "Lista",
+			"section": "View",
+			"tasks": "Tasks"
 		},
 		"common": {
 			"selectTask": "Selecionar tarefa",

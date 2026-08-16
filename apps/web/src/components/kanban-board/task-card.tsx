@@ -211,7 +211,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
             )}
 
             {showAssignees && (
-              <div className="absolute top-3 right-3">
+              <div className="absolute top-3 end-3">
                 {task.userId ? (
                   <Avatar className="h-5 w-5">
                     <AvatarImage

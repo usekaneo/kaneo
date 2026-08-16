@@ -204,6 +204,20 @@ input:-webkit-autofill:active {
   --font-heading: "Vazirmatn", "Cal Sans Heading", var(--font-sans);
 }
 
+/*
+ * Mirror physical positioning for RTL locales.
+ * The switch thumb is translated with a physical transform in the component,
+ * so it must move in the opposite direction here.
+ */
+[dir="rtl"] [data-slot="switch"] [data-slot="switch-thumb"] {
+  transform-origin: right center;
+}
+
+[dir="rtl"] [data-slot="switch"] [data-slot="switch-thumb"][data-checked] {
+  transform-origin: 0 50%;
+  translate: calc(-1 * (var(--thumb-size) - 4px)) 0;
+}
+
 .dark {
   --accent: --alpha(var(--color-white) / 4%);
   --accent-foreground: var(--color-neutral-100);
