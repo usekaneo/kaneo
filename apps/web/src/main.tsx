@@ -10,6 +10,7 @@ import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
 import { KeyboardShortcutsHelp } from "./components/keyboard-shortcuts-help";
 import AuthProvider from "./components/providers/auth-provider";
 import { ThemeProvider } from "./components/providers/theme-provider";
+import { ErrorBoundary } from "./components/ui/error-boundary";
 import { KeyboardShortcutsProvider } from "./hooks/use-keyboard-shortcuts";
 import { captureCheckoutIntent } from "./lib/checkout-intent";
 import { AppI18nProvider } from "./lib/i18n/provider";
@@ -56,23 +57,55 @@ function App() {
   return <RouterProvider router={router} context={{ user }} />;
 }
 
+// Root boundary fallback: shows a generic message and a refresh button,
+// without rendering the raw error.message. The full error is still
+// captured to Sentry by the boundary itself.
+function RootCrashFallback({
+  resetError,
+}: {
+  error: Error;
+  resetError: () => void;
+}) {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background p-6">
+      <div className="max-w-md text-center">
+        <h1 className="text-2xl font-semibold text-foreground">
+          Something went wrong
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          The page crashed unexpectedly. Refreshing usually fixes it.
+        </p>
+        <button
+          type="button"
+          onClick={resetError}
+          className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+        >
+          Refresh page
+        </button>
+      </div>
+    </div>
+  );
+}
+
 const rootElement = document.getElementById("root") as HTMLElement;
 if (!rootElement.innerHTML) {
   const root = createRoot(rootElement);
   root.render(
     <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <AuthProvider>
-            <AppI18nProvider>
-              <KeyboardShortcutsProvider>
-                <App />
-                <KeyboardShortcutsHelp />
-              </KeyboardShortcutsProvider>
-            </AppI18nProvider>
-          </AuthProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
+      <ErrorBoundary fallback={RootCrashFallback}>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider>
+            <AuthProvider>
+              <AppI18nProvider>
+                <KeyboardShortcutsProvider>
+                  <App />
+                  <KeyboardShortcutsHelp />
+                </KeyboardShortcutsProvider>
+              </AppI18nProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        </QueryClientProvider>
+      </ErrorBoundary>
     </StrictMode>,
   );
 }
