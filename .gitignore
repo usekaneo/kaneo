@@ -54,3 +54,4 @@ compose.override.yml
 
 # TanStack Router generated cache
 apps/web/.tanstack/
+.pi/
