@@ -40,12 +40,12 @@ export function getBrowserLocale(): string | null {
   return navigator.language || navigator.languages?.[0] || null;
 }
 
-function getLocaleDirectionFromScript(locale: AppLocale): "rtl" | "ltr" {
+function getLocaleDirectionFromScript(locale: AppLocale) {
   // i18next resolves the direction from Intl or its built-in RTL language list.
   return i18n.dir(locale) === "rtl" ? "rtl" : "ltr";
 }
 
-export function getLocaleDirection(locale: AppLocale): "rtl" | "ltr" {
+export function getLocaleDirection(locale: AppLocale) {
   return getLocaleDirectionFromScript(locale);
 }
 

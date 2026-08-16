@@ -41,9 +41,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar
       collapsible="offcanvas"
       variant="inset"
+      {...props}
       side={side}
       className="border-none pt-1.5"
-      {...props}
     >
       <SidebarHeader className="pt-1 pb-1.5">
         <WorkspaceSwitcher />

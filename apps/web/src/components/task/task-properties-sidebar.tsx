@@ -174,12 +174,12 @@ export default function TaskPropertiesSidebar({
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-foreground rounded-s-none"
-                        onClick={() => handleCopyTaskBranch()}
-                      >
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-foreground rounded-s-none"
+                      onClick={() => handleCopyTaskBranch()}
+                    >
                       <GitBranch className="size-4" />
                     </Button>
                   </TooltipTrigger>
@@ -529,7 +529,7 @@ export default function TaskPropertiesSidebar({
                     <TaskMovePopover
                       task={task}
                       workspaceId={workspaceId}
-                      triggerClassName="rounded-l-md rounded-r-none border-r-0"
+                      triggerClassName="rounded-s-md rounded-e-none border-e-0"
                     />
                   )}
                   <TooltipProvider>
@@ -539,8 +539,8 @@ export default function TaskPropertiesSidebar({
                           variant="outline"
                           size="sm"
                           className={cn(
-                            "text-foreground border-r-0",
-                            canMoveTask ? "rounded-none" : "rounded-r-none",
+                            "text-foreground border-e-0",
+                            canMoveTask ? "rounded-none" : "rounded-e-none",
                           )}
                           onClick={() => handleCopyTaskLink()}
                         >
@@ -560,7 +560,7 @@ export default function TaskPropertiesSidebar({
                         <Button
                           variant="outline"
                           size="sm"
-                          className="text-foreground rounded-l-none"
+                          className="text-foreground rounded-s-none"
                           onClick={() => handleCopyTaskBranch()}
                         >
                           <GitBranch className="size-4" />

@@ -7,6 +7,7 @@ import {
   i18n,
   resolveLocale,
 } from "./index";
+import { persistLocale } from "./locale-storage";
 
 export function AppI18nProvider({ children }: PropsWithChildren) {
   const { user } = useAuth();
@@ -20,6 +21,7 @@ export function AppI18nProvider({ children }: PropsWithChildren) {
     void i18n.changeLanguage(resolvedLocale);
     document.documentElement.lang = resolvedLocale;
     document.documentElement.dir = getLocaleDirection(resolvedLocale);
+    persistLocale(resolvedLocale);
   }, [resolvedLocale]);
 
   return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>;

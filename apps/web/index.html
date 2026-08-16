@@ -34,11 +34,30 @@
   <link rel="canonical" href="https://kaneo.app">
 
   <script>
-    // Set the initial direction from the browser language before the app
-    // mounts, so right-to-left locales don't flash left-to-right.
+    // Set the initial direction from the persisted locale (preferred) or
+    // browser language before the app mounts, so right-to-left locales don't
+    // flash left-to-right.
     (function () {
-      var lang = (navigator.language || "en").toLowerCase();
-      if (lang.startsWith("fa")) {
+      var dir = "ltr";
+      try {
+        var persistedLocale = localStorage.getItem("kaneo:locale");
+        if (persistedLocale) {
+          dir = persistedLocale.startsWith("fa") ? "rtl" : "ltr";
+        } else {
+          var lang = (navigator.language || "en").toLowerCase();
+          // Common RTL language prefixes: Persian, Arabic, Hebrew, Urdu
+          dir = ["fa", "ar", "he", "ur"].some(function (prefix) {
+            return lang.startsWith(prefix);
+          }) ? "rtl" : "ltr";
+        }
+      } catch (e) {
+        // Private browsing; fall back to navigator.language.
+        var lang = (navigator.language || "en").toLowerCase();
+        dir = ["fa", "ar", "he", "ur"].some(function (prefix) {
+          return lang.startsWith(prefix);
+        }) ? "rtl" : "ltr";
+      }
+      if (dir === "rtl") {
         document.documentElement.setAttribute("dir", "rtl");
       }
     })();
