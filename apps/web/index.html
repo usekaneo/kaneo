@@ -42,7 +42,10 @@
       try {
         var persistedLocale = localStorage.getItem("kaneo:locale");
         if (persistedLocale) {
-          dir = persistedLocale.startsWith("fa") ? "rtl" : "ltr";
+          // Common RTL language prefixes: Persian, Arabic, Hebrew, Urdu
+          dir = ["fa", "ar", "he", "ur"].some(function (prefix) {
+            return persistedLocale.startsWith(prefix);
+          }) ? "rtl" : "ltr";
         } else {
           var lang = (navigator.language || "en").toLowerCase();
           // Common RTL language prefixes: Persian, Arabic, Hebrew, Urdu

@@ -22,7 +22,7 @@ export function persistLocale(locale: AppLocale) {
  * Reads the persisted locale from localStorage, if available. Used by the
  * bootstrap script in index.html to set the initial direction.
  */
-export function readPersistedLocale(): string | null {
+export function readPersistedLocale() {
   if (typeof window === "undefined") return null;
   try {
     return localStorage.getItem(STORAGE_KEY);
