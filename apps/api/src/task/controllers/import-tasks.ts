@@ -86,20 +86,27 @@ async function importTasks(
         // so without this an export/import round-trip silently drops them.
         if (task && taskData.labels?.length) {
           const uniqueLabels = [
-            ...new Map(taskData.labels.map((label) => [label.name, label])).values(),
+            ...new Map(
+              taskData.labels
+                .map((label) => ({ ...label, name: label.name.trim() }))
+                .filter((label) => label.name.length > 0)
+                .map((label) => [label.name, label] as const),
+            ).values(),
           ];
 
-          await tx
-            .insert(labelTable)
-            .values(
-              uniqueLabels.map((label) => ({
-                name: label.name,
-                color: label.color,
-                taskId: task.id,
-                workspaceId: project.workspaceId,
-              })),
-            )
-            .onConflictDoNothing();
+          if (uniqueLabels.length > 0) {
+            await tx
+              .insert(labelTable)
+              .values(
+                uniqueLabels.map((label) => ({
+                  name: label.name,
+                  color: label.color,
+                  taskId: task.id,
+                  workspaceId: project.workspaceId,
+                })),
+              )
+              .onConflictDoNothing();
+          }
         }
 
         return task;
