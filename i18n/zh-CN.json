@@ -1850,6 +1850,11 @@
 			"success": "任务已删除",
 			"error": "删除任务失败"
 		},
+		"duplicate": {
+			"titleSuffix": "{{title}}（副本）",
+			"success": "已创建任务副本",
+			"error": "创建任务副本失败"
+		},
 		"archive": {
 			"success": "已归档 {{count}} 个任务"
 		},
@@ -1894,6 +1899,7 @@
 			"copyLinkSuccess": "任务链接已复制！"
 		},
 		"actions": {
+			"duplicate": "创建副本",
 			"archive": "归档",
 			"markAsPlanned": "标记为已计划",
 			"delete": "删除…"

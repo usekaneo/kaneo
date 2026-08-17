@@ -1,5 +1,6 @@
 import { Readable } from "node:stream";
 import {
+  CopyObjectCommand,
   DeleteObjectCommand,
   GetObjectCommand,
   PutObjectCommand,
@@ -361,6 +362,28 @@ export async function getPrivateObject(key: string): Promise<AssetObject> {
     etag: response.ETag,
     lastModified: response.LastModified,
   };
+}
+
+export async function copyTaskAssetObject({
+  sourceKey,
+  destination,
+}: {
+  sourceKey: string;
+  destination: TaskImageUploadContext;
+}): Promise<string> {
+  const config = getStorageConfig();
+  const client = getClient(config);
+  const key = applyKeyPrefix(config.keyPrefix, buildObjectKey(destination));
+
+  await client.send(
+    new CopyObjectCommand({
+      Bucket: config.bucket,
+      CopySource: encodeURI(`${config.bucket}/${sourceKey}`),
+      Key: key,
+    }),
+  );
+
+  return key;
 }
 
 export async function deleteS3Object(key: string): Promise<void> {

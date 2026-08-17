@@ -1839,6 +1839,11 @@
 			"success": "Taak succesvol verwijderd",
 			"error": "Verwijderen taak mislukt"
 		},
+		"duplicate": {
+			"titleSuffix": "{{title}} (kopie)",
+			"success": "Taak succesvol gedupliceerd",
+			"error": "Dupliceren taak mislukt"
+		},
 		"archive": {
 			"success": "{{count}} taken gearchiveerd"
 		},
@@ -1883,6 +1888,7 @@
 			"copyLinkSuccess": "Taaklink gekopieerd!"
 		},
 		"actions": {
+			"duplicate": "Dupliceren",
 			"archive": "Archiveren",
 			"markAsPlanned": "Markeren als gepland",
 			"delete": "Verwijderen..."
