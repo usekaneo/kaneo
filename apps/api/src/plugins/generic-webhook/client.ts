@@ -1,4 +1,5 @@
 import { createHmac } from "node:crypto";
+import * as Sentry from "@sentry/node";
 import { assertPublicWebhookDestination } from "./config";
 
 type GenericWebhookPayload = Record<string, unknown>;
@@ -30,6 +31,11 @@ export async function postToGenericWebhook(
   );
 
   try {
+    Sentry.addBreadcrumb({
+      category: "integration",
+      level: "info",
+      data: { integration: "generic-webhook" },
+    });
     const response = await fetch(webhookUrl, {
       method: "POST",
       headers,
