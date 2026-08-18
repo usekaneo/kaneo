@@ -89,7 +89,7 @@ Each dashboard entry has:
   - `columns` — group-by fields
   - `query` — Sentry search filter (e.g., `event.type:error project:kaneo-api`)
   - `orderby` — sort field (e.g., `-count()`)
-  - `limit` — max rows for table widgets
+  - `limit` — required on every query; max is 10. The script uses 10 for all queries.
 
 Performance metrics use `event.type:transaction is_transaction:true` (the dataset migration removed `dataset: transactions`). Error metrics use `event.type:error`. Cron check-in events use `event.type:transaction monitor.check_in_id:*`.
 

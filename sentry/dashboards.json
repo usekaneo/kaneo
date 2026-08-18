@@ -20,7 +20,8 @@
 							"aggregates": ["count()"],
 							"columns": ["time"],
 							"query": "event.type:error project:kaneo-api",
-							"orderby": "time"
+							"orderby": "time",
+							"limit": 10
 						}
 					]
 				},
@@ -34,7 +35,8 @@
 							"aggregates": ["p95(transaction.duration)"],
 							"columns": ["time"],
 							"query": "transaction:*/api/* is_transaction:true project:kaneo-api",
-							"orderby": "time"
+							"orderby": "time",
+							"limit": 10
 						}
 					]
 				},
@@ -48,7 +50,8 @@
 							"aggregates": ["count()"],
 							"columns": ["time"],
 							"query": "transaction:*/api/* is_transaction:true project:kaneo-api",
-							"orderby": "time"
+							"orderby": "time",
+							"limit": 10
 						}
 					]
 				},
@@ -83,7 +86,8 @@
 							"aggregates": ["count()"],
 							"columns": ["time"],
 							"query": "event.type:error project:kaneo-web",
-							"orderby": "time"
+							"orderby": "time",
+							"limit": 10
 						}
 					]
 				},
@@ -97,7 +101,8 @@
 							"aggregates": ["p95(transaction.duration)"],
 							"columns": ["time"],
 							"query": "project:kaneo-web is_transaction:true",
-							"orderby": "time"
+							"orderby": "time",
+							"limit": 10
 						}
 					]
 				},
@@ -111,7 +116,8 @@
 							"aggregates": ["p75(measurements.lcp)"],
 							"columns": ["time"],
 							"query": "project:kaneo-web is_transaction:true",
-							"orderby": "time"
+							"orderby": "time",
+							"limit": 10
 						}
 					]
 				},
@@ -146,7 +152,8 @@
 							"aggregates": ["count()"],
 							"columns": ["time"],
 							"query": "transaction:*/api/mcp/* is_transaction:true",
-							"orderby": "time"
+							"orderby": "time",
+							"limit": 10
 						}
 					]
 				},
@@ -160,12 +167,13 @@
 							"aggregates": ["failure_rate()"],
 							"columns": ["time"],
 							"query": "transaction:*/api/mcp/* is_transaction:true",
-							"orderby": "time"
+							"orderby": "time",
+							"limit": 10
 						}
 					]
 				},
 				{
-					"title": "MCP tool usage (top 20)",
+					"title": "MCP tool usage (top 10)",
 					"displayType": "table",
 					"interval": "24h",
 					"queries": [
@@ -175,7 +183,7 @@
 							"columns": ["transaction"],
 							"query": "transaction:*/api/mcp/* is_transaction:true",
 							"orderby": "-count()",
-							"limit": 20
+							"limit": 10
 						}
 					]
 				},
@@ -189,7 +197,8 @@
 							"aggregates": ["p95(transaction.duration)"],
 							"columns": ["time"],
 							"query": "transaction:*/api/mcp/* is_transaction:true",
-							"orderby": "time"
+							"orderby": "time",
+							"limit": 10
 						}
 					]
 				}
@@ -210,7 +219,7 @@
 							"columns": ["monitor.slug"],
 							"query": "event.type:transaction monitor.check_in_id:*",
 							"orderby": "-count()",
-							"limit": 20
+							"limit": 10
 						}
 					]
 				},
@@ -224,7 +233,8 @@
 							"aggregates": ["count()"],
 							"columns": ["time"],
 							"query": "event.type:transaction monitor.check_in_id:*",
-							"orderby": "time"
+							"orderby": "time",
+							"limit": 10
 						}
 					]
 				},
@@ -238,7 +248,8 @@
 							"aggregates": ["count()"],
 							"columns": ["time"],
 							"query": "event.type:transaction monitor.check_in_id:* monitor.status:missed_or_failed",
-							"orderby": "time"
+							"orderby": "time",
+							"limit": 10
 						}
 					]
 				}
