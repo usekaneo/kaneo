@@ -118,6 +118,18 @@ jobs:
             type=raw,value=nightly-{{date 'YYYYMMDD'}}
             type=sha,prefix=nightly-
 
+      # The web Dockerfile mounts SENTRY_AUTH_TOKEN from a BuildKit secret
+      # so it never lands in image metadata. This step writes the secret to a
+      # file that build-push-action exposes to the build at runtime.
+      - name: Prepare Sentry auth token for source-map upload
+        if: matrix.dockerfile == './apps/web/Dockerfile'
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: |
+          mkdir -p /tmp/sentry-build-secrets
+          printf '%s' "$SENTRY_AUTH_TOKEN" > /tmp/sentry-build-secrets/SENTRY_AUTH_TOKEN
+          chmod 600 /tmp/sentry-build-secrets/SENTRY_AUTH_TOKEN
+
       - name: Build and push
         uses: docker/build-push-action@v7
         with:
@@ -129,3 +141,9 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            SENTRY_ORG=${{ vars.SENTRY_ORG }}
+            SENTRY_PROJECT=${{ vars.SENTRY_PROJECT }}
+          # The secret file is only prepared for the web build, so the input
+          # is empty for other matrix entries.
+          secrets: ${{ matrix.dockerfile == './apps/web/Dockerfile' && 'SENTRY_AUTH_TOKEN=/tmp/sentry-build-secrets/SENTRY_AUTH_TOKEN' || '' }}
