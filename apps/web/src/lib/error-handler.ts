@@ -60,8 +60,13 @@ export function parseApiError(error: unknown): ApiError {
       };
     }
 
+    // Don't surface `error.message` here: this branch covers both genuine
+    // API unknowns and any non-API error passed in (e.g. a React render
+    // error bubbled up to ErrorBoundary), and a raw `error.message` from
+    // the latter can leak internal implementation details to end users.
+    // The original error is preserved on `originalError` for Sentry.
     return {
-      message: error.message || "An unexpected error occurred.",
+      message: "An unexpected error occurred.",
       type: "unknown",
       originalError: error,
     };
