@@ -328,7 +328,15 @@ for i in $(seq 0 $((COUNT - 1))); do
           EXISTING_DET_ID=$(echo "$EXISTING" | jq -r '.detectorIds[0] // empty')
         fi
         if [ -z "$EXISTING_DET_ID" ]; then
-          EXISTING_DET_ID=$(find_detector_by_name "$DETECTOR_NAME" || true)
+          # On a request failure, skip the alert rather than silently letting
+          # an empty ID fall through to create_or_update_detector's POST
+          # path. A successful lookup that finds no match still leaves
+          # EXISTING_DET_ID empty; that's the normal "create new" path.
+          if ! EXISTING_DET_ID=$(find_detector_by_name "$DETECTOR_NAME"); then
+            err "  failed to look up existing detector '$DETECTOR_NAME' \u2014 skipping"
+            ERRORS=$((ERRORS + 1))
+            continue
+          fi
         fi
 
         if NEW_DET_ID=$(create_or_update_detector "$DETECTOR" "$EXISTING_DET_ID") && [ -n "$NEW_DET_ID" ]; then
