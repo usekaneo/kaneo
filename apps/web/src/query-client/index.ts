@@ -43,6 +43,10 @@ function captureCacheError(error: unknown, context: "query" | "mutation") {
       return;
     }
     networkErrorCooldowns.set(dedupeKey, now);
+    // ponytail: hard cap with full clear; entries older than the cooldown are
+    // useless to keep, and `error.message` can vary across fetchers/CORS
+    // failures so the keyspace is unbounded in practice.
+    if (networkErrorCooldowns.size > 50) networkErrorCooldowns.clear();
   }
 
   Sentry.captureException(error, { tags: { area } });
