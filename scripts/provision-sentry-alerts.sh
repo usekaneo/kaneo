@@ -21,14 +21,28 @@
 #   - v2: alerts were create-only; edited spec never propagated. now uses PUT.
 set -euo pipefail
 
-ORG="kaneo"
-REGION="de"
-API_BASE="${SENTRY_API_BASE:-https://${REGION}.sentry.io/api/0}"
-DEFAULT_FREQUENCY_MIN=30
-
+# Resolve the spec file first so we can pull org/region/api_base from it.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="$(dirname "$SCRIPT_DIR")"
 ALERTS_FILE="${SENTRY_ALERTS_FILE:-${CONFIG_DIR}/sentry/alerts.json}"
+
+# Read target organization, region, and API base from the spec. The README
+# documents the region field as the migration point — hardcoded values
+# below would silently route traffic to the wrong endpoint. SENTRY_API_BASE
+# remains an explicit override for ad-hoc runs against a different region.
+ORG=$(jq -er '.organization' "$ALERTS_FILE") || {
+  err "missing or invalid \`organization\` in $ALERTS_FILE"
+  exit 1
+}
+REGION=$(jq -er '.region' "$ALERTS_FILE") || {
+  err "missing or invalid \`region\` in $ALERTS_FILE"
+  exit 1
+}
+API_BASE="${SENTRY_API_BASE:-$(jq -er '.api_base' "$ALERTS_FILE")}" || {
+  err "missing or invalid \`api_base\` in $ALERTS_FILE (or unset SENTRY_API_BASE)"
+  exit 1
+}
+DEFAULT_FREQUENCY_MIN=30
 
 DRY_RUN=0
 if [ "${1:-}" = "--dry-run" ] || [ "${SENTRY_DRY_RUN:-0}" = "1" ]; then
@@ -229,12 +243,19 @@ for i in $(seq 0 $((COUNT - 1))); do
 
   case "$KIND" in
     issue)
-      # Build the workflow payload. Drop empty actions/actionFilters \u2014 the
-      # api rejects workflows with empty arrays in those fields.
+      # Issue alerts carry a top-level `projects` array. Forward it to the
+      # workflow payload so the rule is scoped to the named projects; without
+      # this, the api/web first-seen alerts fall back to organization-wide.
       WORKFLOW=$(echo "$ALERT" | jq --arg org "$ORG" --argjson freq "$DEFAULT_FREQUENCY_MIN" '
-        .workflow
-        | .organizationId = $org
-        | .config = ((.config // {}) + {frequency: $freq})
+        {
+          name:            .workflow.name,
+          enabled:         (.workflow.enabled // true),
+          organizationId:  $org,
+          projects:        (.projects // []),
+          config:          ((.workflow.config // {}) + {frequency: $freq}),
+          triggers:        .workflow.triggers,
+          actionFilters:   .workflow.actionFilters
+        }
         | if (.triggers // {}).actions == [] then del(.triggers.actions) else . end
         | if (.triggers // {}).conditions | not then del(.triggers) else . end
         | if (.actionFilters // []) == [] then del(.actionFilters) else . end
@@ -268,18 +289,23 @@ for i in $(seq 0 $((COUNT - 1))); do
           continue
         }
         RESOLVED=()
+        MISSING=()
         for slug in $SLUGS; do
           id=$(echo "$RESP" | jq -r --arg slug "$slug" \
             '.[] | select(.slug == $slug) | .id' | head -n1)
           if [ -z "$id" ] || [ "$id" = "null" ]; then
-            warn "Cron monitor '$slug' not found in Sentry yet. Has the cron run at least once?"
+            MISSING+=("$slug")
           else
             info "  resolved '$slug' -> id $id"
             RESOLVED+=("$id")
           fi
         done
-        if [ "${#RESOLVED[@]}" -eq 0 ]; then
-          err "No cron monitors resolved for '$NAME'. Skipping."
+        # The spec promises coverage of every configured slug. Partial
+        # resolution (e.g. only the five-minute crons have ticked) is a normal
+        # rollout state, not a pass — surface the missing slugs so a re-run
+        # cannot be mistaken for complete provisioning.
+        if [ "${#MISSING[@]}" -gt 0 ]; then
+          err "Cron monitors not found for '$NAME' (${#MISSING[@]} of ${#SLUGS[@]} missing): ${MISSING[*]}. Has each cron run at least once? Skipping."
           ERRORS=$((ERRORS + 1))
           continue
         fi
@@ -327,6 +353,7 @@ for i in $(seq 0 $((COUNT - 1))); do
           name: .workflow.name,
           enabled: (.workflow.enabled // true),
           organizationId: $org,
+          projects: (.projects // []),
           config: ((.workflow.config // {}) + {frequency: $freq}),
           detectorIds: $detectors,
           triggers: {

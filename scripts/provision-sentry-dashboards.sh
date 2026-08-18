@@ -13,13 +13,27 @@
 # Generate at: https://sentry.io/settings/account/api/auth-tokens/
 set -euo pipefail
 
-ORG="kaneo"
-REGION="de"
-API_BASE="${SENTRY_API_BASE:-https://${REGION}.sentry.io/api/0}"
-
+# Resolve the spec file first so we can pull org/region/api_base from it.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="$(dirname "$SCRIPT_DIR")"
 DASHBOARDS_FILE="${SENTRY_DASHBOARDS_FILE:-${CONFIG_DIR}/sentry/dashboards.json}"
+
+# Read target organization, region, and API base from the spec. The README
+# documents the region field as the migration point — hardcoded values
+# below would silently route traffic to the wrong endpoint. SENTRY_API_BASE
+# remains an explicit override for ad-hoc runs against a different region.
+ORG=$(jq -er '.organization' "$DASHBOARDS_FILE") || {
+  err "missing or invalid \`organization\` in $DASHBOARDS_FILE"
+  exit 1
+}
+REGION=$(jq -er '.region' "$DASHBOARDS_FILE") || {
+  err "missing or invalid \`region\` in $DASHBOARDS_FILE"
+  exit 1
+}
+API_BASE="${SENTRY_API_BASE:-$(jq -er '.api_base' "$DASHBOARDS_FILE")}" || {
+  err "missing or invalid \`api_base\` in $DASHBOARDS_FILE (or unset SENTRY_API_BASE)"
+  exit 1
+}
 
 DRY_RUN=0
 if [ "${1:-}" = "--dry-run" ] || [ "${SENTRY_DRY_RUN:-0}" = "1" ]; then
