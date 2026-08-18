@@ -1,9 +1,12 @@
 {
-	"version": 1,
+	"version": 2,
 	"organization": "kaneo",
 	"region": "de",
 	"api_base": "https://de.sentry.io/api/0",
 	"_comment_actions": "Actions are intentionally minimal. After the script applies this config, configure per-alert notifications in the Sentry UI (Settings > Alerts). Recommended: Slack #engineering or email on-call.",
+	"_comment_condition_result": "The Sentry API requires `conditionResult` on every condition. For issue alerts it's a boolean (true fires). For metric alerts it maps to issue priority: 75 = high, 50 = low, 0 = resolved.",
+	"_comment_event_types": "dataSources need `eventTypes`. Errors: [\"default\", \"error\"]. Transactions: [\"trace_item_span\"].",
+	"_comment_condition_group": "Detectors need a top-level `conditionGroup` defining the threshold (gt/lte/anomaly_detection).",
 	"alerts": [
 		{
 			"name": "Kaneo API: New issue",
@@ -15,10 +18,14 @@
 				"enabled": true,
 				"triggers": {
 					"logicType": "any-short",
-					"conditions": [{ "type": "first_seen_event", "comparison": true }],
-					"actions": []
-				},
-				"actionFilters": []
+					"conditions": [
+						{
+							"type": "first_seen_event",
+							"comparison": true,
+							"conditionResult": true
+						}
+					]
+				}
 			}
 		},
 		{
@@ -37,23 +44,28 @@
 					{
 						"dataset": "events",
 						"query": "event.type:error",
-						"queryType": 1,
+						"queryType": 0,
 						"aggregate": "count()",
 						"timeWindow": 300,
-						"environment": "production"
+						"environment": "production",
+						"eventTypes": ["default", "error"]
 					}
 				],
-				"workflows": []
+				"conditionGroup": {
+					"logicType": "any",
+					"conditions": [
+						{
+							"type": "gt",
+							"comparison": 50,
+							"conditionResult": 75
+						}
+					],
+					"actions": []
+				}
 			},
 			"workflow": {
 				"name": "Kaneo API: New error spike",
-				"enabled": true,
-				"triggers": {
-					"logicType": "any-short",
-					"conditions": [{ "type": "gt", "comparison": 50 }],
-					"actions": []
-				},
-				"actionFilters": []
+				"enabled": true
 			}
 		},
 		{
@@ -69,18 +81,7 @@
 			"_comment_detector_slugs": "Slugs are the human-readable identifiers from the captureCheckIn calls. The provisioning script resolves these to numeric detector IDs via GET /api/0/organizations/{org}/monitors/.",
 			"workflow": {
 				"name": "Cron: missed check-in (any)",
-				"enabled": true,
-				"triggers": {
-					"logicType": "any-short",
-					"conditions": [
-						{
-							"type": "monitor_check_in_failure",
-							"comparison": true
-						}
-					],
-					"actions": []
-				},
-				"actionFilters": []
+				"enabled": true
 			}
 		},
 		{
@@ -102,20 +103,25 @@
 						"queryType": 1,
 						"aggregate": "p95(transaction.duration)",
 						"timeWindow": 600,
-						"environment": "production"
+						"environment": "production",
+						"eventTypes": ["trace_item_span"]
 					}
 				],
-				"workflows": []
+				"conditionGroup": {
+					"logicType": "any",
+					"conditions": [
+						{
+							"type": "gt",
+							"comparison": 1500,
+							"conditionResult": 50
+						}
+					],
+					"actions": []
+				}
 			},
 			"workflow": {
 				"name": "Kaneo API: Slow p95 latency",
-				"enabled": true,
-				"triggers": {
-					"logicType": "any-short",
-					"conditions": [{ "type": "gt", "comparison": 1500 }],
-					"actions": []
-				},
-				"actionFilters": []
+				"enabled": true
 			}
 		},
 		{
@@ -137,20 +143,25 @@
 						"queryType": 1,
 						"aggregate": "failure_rate()",
 						"timeWindow": 3600,
-						"environment": "production"
+						"environment": "production",
+						"eventTypes": ["trace_item_span"]
 					}
 				],
-				"workflows": []
+				"conditionGroup": {
+					"logicType": "any",
+					"conditions": [
+						{
+							"type": "gt",
+							"comparison": 0.05,
+							"conditionResult": 75
+						}
+					],
+					"actions": []
+				}
 			},
 			"workflow": {
 				"name": "Kaneo API: MCP error rate",
-				"enabled": true,
-				"triggers": {
-					"logicType": "any-short",
-					"conditions": [{ "type": "gt", "comparison": 0.05 }],
-					"actions": []
-				},
-				"actionFilters": []
+				"enabled": true
 			}
 		},
 		{
@@ -163,10 +174,14 @@
 				"enabled": true,
 				"triggers": {
 					"logicType": "any-short",
-					"conditions": [{ "type": "first_seen_event", "comparison": true }],
-					"actions": []
-				},
-				"actionFilters": []
+					"conditions": [
+						{
+							"type": "first_seen_event",
+							"comparison": true,
+							"conditionResult": true
+						}
+					]
+				}
 			}
 		}
 	]

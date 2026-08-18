@@ -59,6 +59,13 @@ fi
 command -v jq >/dev/null || { err "jq is required"; exit 1; }
 
 # ---- API helpers ----
+# URL-encode a value for use in a query string. Slugs and alert names with
+# spaces, colons, or other reserved chars would otherwise break the GET
+# endpoints (HTTP 000 with curl).
+url_encode() {
+  printf '%s' "$1" | jq -sRr @uri
+}
+
 # Run an API call. Prints response body on success, returns 0.
 # On HTTP >= 400, prints the response body to stderr and returns 1.
 api_call() {
@@ -84,10 +91,10 @@ api_call() {
     -H "Content-Type: application/json" \
     "${body_args[@]}" \
     "$url" 2>/dev/null) || {
-    err "HTTP $status from $method $url"
+    err "HTTP ${status:-?} from $method $url"
     err "Request body: $body"
     err "Response body:"
-    sed 's/^/  /' "$tmp" >&2
+    [ -s "$tmp" ] && sed 's/^/  /' "$tmp" >&2 || echo "  (empty)" >&2
     rm -f "$tmp"
     return 1
   }
@@ -97,8 +104,10 @@ api_call() {
 
 find_existing_workflow_id() {
   local name="$1"
+  local encoded
+  encoded=$(url_encode "$name")
   local response
-  response=$(api_call GET "${API_BASE}/organizations/${ORG}/workflows/?query=${name}") || return 0
+  response=$(api_call GET "${API_BASE}/organizations/${ORG}/workflows/?query=${encoded}") || return 0
   echo "$response" | jq -r --arg name "$name" \
     '.[] | select(.name == $name) | .id' | head -n1
 }
@@ -177,8 +186,9 @@ for i in $(seq 0 $((COUNT - 1))); do
         SLUGS=$(echo "$ALERT" | jq -r '.detector_slugs[]')
         RESOLVED=()
         for slug in $SLUGS; do
+          encoded=$(url_encode "$slug")
           RESP=$(curl -sS -H "Authorization: Bearer ${SENTRY_API_TOKEN}" \
-            "${API_BASE}/organizations/${ORG}/monitors/?query=${slug}" 2>/dev/null) || {
+            "${API_BASE}/organizations/${ORG}/monitors/?query=${encoded}" 2>/dev/null) || {
             err "Monitor lookup failed for '$slug'"
             continue
           }
