@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/usekaneo-kaneo-badge.png)](https://mseep.ai/app/usekaneo-kaneo)
+
 <p align="center">
   <a href="https://kaneo.app">
     <img src="https://assets.kaneo.app/logo-text.png" alt="Kaneo's logo" width="450" />
