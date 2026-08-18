@@ -58,6 +58,11 @@
 							"type": "gt",
 							"comparison": 50,
 							"conditionResult": 75
+						},
+						{
+							"type": "lte",
+							"comparison": 50,
+							"conditionResult": 0
 						}
 					],
 					"actions": []
@@ -114,6 +119,11 @@
 							"type": "gt",
 							"comparison": 1500,
 							"conditionResult": 50
+						},
+						{
+							"type": "lte",
+							"comparison": 1500,
+							"conditionResult": 0
 						}
 					],
 					"actions": []
@@ -154,6 +164,11 @@
 							"type": "gt",
 							"comparison": 0.05,
 							"conditionResult": 75
+						},
+						{
+							"type": "lte",
+							"comparison": 0.05,
+							"conditionResult": 0
 						}
 					],
 					"actions": []
