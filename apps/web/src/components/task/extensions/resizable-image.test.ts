@@ -109,4 +109,62 @@ describe("ResizableImage", () => {
 
     expect(instance.getJSON().content?.[0]?.attrs?.width).toBeNull();
   });
+
+  it("ignores a percentage in the width attribute", () => {
+    const instance = createEditor();
+    instance.commands.setContent(`<img src="${SRC}" width="50%">`);
+
+    expect(instance.getJSON().content?.[0]?.attrs?.width).toBeNull();
+  });
+
+  it("accepts an explicit px suffix on the width attribute", () => {
+    const instance = createEditor();
+    instance.commands.setContent(`<img src="${SRC}" width="320px">`);
+
+    expect(instance.getJSON().content?.[0]?.attrs?.width).toBe(320);
+  });
+
+  it("ignores a width attribute in a unit that is not pixels", () => {
+    const instance = createEditor();
+    instance.commands.setContent(`<img src="${SRC}" width="20em">`);
+
+    expect(instance.getJSON().content?.[0]?.attrs?.width).toBeNull();
+  });
+
+  it("falls back to the inline style when the width attribute is unusable", () => {
+    const instance = createEditor();
+    instance.commands.setContent(
+      `<img src="${SRC}" width="50%" style="width: 320px">`,
+    );
+
+    expect(instance.getJSON().content?.[0]?.attrs?.width).toBe(320);
+  });
+
+  it("escapes brackets in the alt text of an unresized image", () => {
+    const instance = createEditor();
+    setImage(instance, { alt: "report].png" });
+
+    const markdown = instance.getMarkdown();
+    instance.commands.setContent(markdown, { contentType: "markdown" });
+
+    const image = instance.getJSON().content?.[0];
+
+    expect(image?.type).toBe("image");
+    expect(image?.attrs?.src).toBe(SRC);
+    expect(image?.attrs?.alt).toBe("report].png");
+  });
+
+  it("keeps a parenthesised src parseable for an unresized image", () => {
+    const instance = createEditor();
+    const parenSrc = "https://kaneo.app/diagram(1).png";
+    instance.commands.setContent({
+      type: "doc",
+      content: [{ type: "image", attrs: { src: parenSrc, alt: "Diagram" } }],
+    });
+
+    const markdown = instance.getMarkdown();
+    instance.commands.setContent(markdown, { contentType: "markdown" });
+
+    expect(instance.getJSON().content?.[0]?.attrs?.src).toBe(parenSrc);
+  });
 });

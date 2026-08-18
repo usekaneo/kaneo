@@ -2,15 +2,22 @@ import Image from "@tiptap/extension-image";
 import type { NodeViewProps } from "@tiptap/react";
 import { NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react";
 import {
+  type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
   useRef,
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/cn";
-import { escapeHtml } from "./url-safety";
+import {
+  escapeHtml,
+  escapeMarkdownText,
+  escapeMarkdownTitle,
+  formatMarkdownUrl,
+} from "./url-safety";
 
 const MIN_WIDTH = 80;
+const RESIZE_STEP = 16;
 
 const SIZE_PRESETS = [
   { key: "small", label: "tasks:detail.editor.image.small", fraction: 0.25 },
@@ -19,8 +26,18 @@ const SIZE_PRESETS = [
 ] as const;
 
 function parseWidth(value: unknown) {
-  const width = Number.parseInt(String(value ?? ""), 10);
-  return Number.isFinite(width) && width > 0 ? width : null;
+  if (typeof value === "number") {
+    return Number.isInteger(value) && value > 0 ? value : null;
+  }
+
+  // `Number.parseInt` stops at the first non-digit and discards the rest, so it
+  // would read `50%` as 50 pixels. Match the whole value instead, so only a
+  // pixel count gets through and every other unit is rejected.
+  const match = /^(\d+)(?:px)?$/i.exec(String(value ?? "").trim());
+  if (!match) return null;
+
+  const width = Number.parseInt(match[1], 10);
+  return width > 0 ? width : null;
 }
 
 function ResizableImageNodeView({
@@ -31,7 +48,12 @@ function ResizableImageNodeView({
   const { t } = useTranslation();
   const imageRef = useRef<HTMLImageElement>(null);
   const [isResizing, setIsResizing] = useState(false);
-  const width = parseWidth(node.attrs.width);
+  // Width previewed mid-drag. Committing on every `pointermove` would run a
+  // ProseMirror transaction — and the full-document markdown re-serialization in
+  // `TaskDescription.onUpdate` — at pointer-event frequency.
+  const [draftWidth, setDraftWidth] = useState<number | null>(null);
+  const draftWidthRef = useRef<number | null>(null);
+  const width = draftWidth ?? parseWidth(node.attrs.width);
   const isEditable = editor.isEditable;
 
   const maxWidth = () => editor.view.dom.clientWidth || MIN_WIDTH;
@@ -50,9 +72,9 @@ function ResizableImageNodeView({
     setIsResizing(true);
 
     const handleMove = (moveEvent: PointerEvent) => {
-      updateAttributes({
-        width: clamp(startWidth + moveEvent.clientX - startX),
-      });
+      const next = clamp(startWidth + moveEvent.clientX - startX);
+      draftWidthRef.current = next;
+      setDraftWidth(next);
     };
 
     const handleEnd = () => {
@@ -61,11 +83,34 @@ function ResizableImageNodeView({
       handle.removeEventListener("pointerup", handleEnd);
       handle.removeEventListener("pointercancel", handleEnd);
       setIsResizing(false);
+
+      // One transaction per gesture, so a single undo reverses the whole drag.
+      const resizedTo = draftWidthRef.current;
+      draftWidthRef.current = null;
+      setDraftWidth(null);
+      if (resizedTo !== null) updateAttributes({ width: resizedTo });
     };
 
     handle.addEventListener("pointermove", handleMove);
     handle.addEventListener("pointerup", handleEnd);
     handle.addEventListener("pointercancel", handleEnd);
+  };
+
+  const handleResizeKeyDown = (
+    event: ReactKeyboardEvent<HTMLButtonElement>,
+  ) => {
+    if (!isEditable) return;
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    event.preventDefault();
+
+    const current =
+      width ??
+      Math.round(imageRef.current?.getBoundingClientRect().width ?? MIN_WIDTH);
+    const step = event.shiftKey ? RESIZE_STEP * 4 : RESIZE_STEP;
+
+    updateAttributes({
+      width: clamp(current + (event.key === "ArrowLeft" ? -step : step)),
+    });
   };
 
   return (
@@ -122,6 +167,7 @@ function ResizableImageNodeView({
             isResizing && "kaneo-resizable-image-handle-active",
           )}
           onPointerDown={handleResizeStart}
+          onKeyDown={handleResizeKeyDown}
         />
       )}
     </NodeViewWrapper>
@@ -134,15 +180,12 @@ export const ResizableImage = Image.extend({
       ...this.parent?.(),
       width: {
         default: null,
-        parseHTML: (element: HTMLElement) => {
-          const styleWidth = element.style.width;
-          return parseWidth(
-            element.getAttribute("width") ??
-              // Only pixel widths are portable; a percentage would otherwise
-              // be misread as a pixel count.
-              (styleWidth.endsWith("px") ? styleWidth.slice(0, -2) : null),
-          );
-        },
+        parseHTML: (element: HTMLElement) =>
+          // `parseWidth` rejects every unit but `px`, so both raw values can go
+          // straight in. Reading them independently also stops an unusable
+          // `width="50%"` from shadowing a usable inline `width: 320px`.
+          parseWidth(element.getAttribute("width")) ??
+          parseWidth(element.style.width),
         renderHTML: (attributes: Record<string, unknown>) => {
           const width = parseWidth(attributes.width);
           return width ? { width } : {};
@@ -172,7 +215,10 @@ export const ResizableImage = Image.extend({
     // Standard markdown has nowhere to carry a width, so a resized image is
     // written as HTML — which the markdown pipeline round-trips intact.
     if (!width) {
-      return `![${alt}](${src}${title ? ` "${title}"` : ""})`;
+      const markdownTitle = title ? ` "${escapeMarkdownTitle(title)}"` : "";
+      return `![${escapeMarkdownText(alt)}](${formatMarkdownUrl(
+        src,
+      )}${markdownTitle})`;
     }
 
     return `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}"${

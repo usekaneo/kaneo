@@ -735,6 +735,19 @@ input:-webkit-autofill:active {
     max-width: 100%;
   }
 
+  /* An explicit resize is the user overriding the 44rem readability cap. Without
+     this the cap still wins above 704px, so the image renders at a different
+     size than the width that was persisted. */
+  .kaneo-tiptap-content
+    .ProseMirror
+    .kaneo-resizable-image[data-resized="true"]
+    img.kaneo-editor-image,
+  .kaneo-comment-editor-prose
+    .kaneo-resizable-image[data-resized="true"]
+    img.kaneo-editor-image {
+    max-width: 100%;
+  }
+
   .kaneo-resizable-image-controls {
     position: absolute;
     top: 1.25rem;
@@ -795,6 +808,17 @@ input:-webkit-autofill:active {
   .kaneo-resizable-image-handle:focus-visible,
   .kaneo-resizable-image-handle-active {
     opacity: 1;
+  }
+
+  /* Touch devices never produce hover, and the controls start at
+     `pointer-events: none`, so a tap could neither reveal nor focus them. Show
+     them unconditionally where hover does not exist. */
+  @media (hover: none) {
+    .kaneo-resizable-image-controls,
+    .kaneo-resizable-image-handle {
+      opacity: 1;
+      pointer-events: auto;
+    }
   }
 
   .kaneo-tiptap-content .ProseMirror .is-editor-empty:first-child::before {
