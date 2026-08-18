@@ -7,6 +7,7 @@
 	"_comment_condition_result": "The Sentry API requires `conditionResult` on every condition. For issue alerts it's a boolean (true fires). For metric alerts it maps to issue priority: 75 = high, 50 = low, 0 = resolved.",
 	"_comment_event_types": "dataSources need `eventTypes`. Errors: [\"default\", \"error\"]. Transactions: [\"trace_item_span\"].",
 	"_comment_condition_group": "Detectors need a top-level `conditionGroup` defining the threshold (gt/lte/anomaly_detection).",
+	"_comment_dataset": "Sentry is migrating transaction-based alerts away from `dataset: transactions`. Use `dataset: events_analytics_platform` (with `is_transaction:true` in the query) for transaction-based metrics.",
 	"alerts": [
 		{
 			"name": "Kaneo API: New issue",
@@ -103,8 +104,8 @@
 				},
 				"dataSources": [
 					{
-						"dataset": "transactions",
-						"query": "transaction.duration:>0 transaction:*/api/*",
+						"dataset": "events_analytics_platform",
+						"query": "transaction.duration:>0 transaction:*/api/* is_transaction:true",
 						"queryType": 1,
 						"aggregate": "p95(transaction.duration)",
 						"timeWindow": 600,
@@ -148,8 +149,8 @@
 				},
 				"dataSources": [
 					{
-						"dataset": "transactions",
-						"query": "transaction:*/api/mcp/* http.status_code:>=500",
+						"dataset": "events_analytics_platform",
+						"query": "transaction:*/api/mcp/* http.status_code:>=500 is_transaction:true",
 						"queryType": 1,
 						"aggregate": "failure_rate()",
 						"timeWindow": 3600,

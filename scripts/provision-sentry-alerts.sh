@@ -280,8 +280,9 @@ for i in $(seq 0 $((COUNT - 1))); do
         fi
       fi
 
-      # Workflow for metric alerts: detector-only, no triggers. The detector
-      # itself fires when its condition matches.
+      # Workflow for metric alerts: detectorOnly is the firing model, but the
+      # API still expects a `triggers` field on every workflow. Empty conditions
+      # are fine; the detector drives notification when the threshold trips.
       WORKFLOW=$(echo "$ALERT" | jq --arg org "$ORG" --argjson freq "$DEFAULT_FREQUENCY_MIN" \
         --argjson detectors "$DETECTOR_IDS" '
         {
@@ -289,7 +290,11 @@ for i in $(seq 0 $((COUNT - 1))); do
           enabled: (.workflow.enabled // true),
           organizationId: $org,
           config: ((.workflow.config // {}) + {frequency: $freq}),
-          detectorIds: $detectors
+          detectorIds: $detectors,
+          triggers: {
+            logicType: "any-short",
+            conditions: []
+          }
         }
       ')
 
