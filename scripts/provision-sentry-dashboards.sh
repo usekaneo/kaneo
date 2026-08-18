@@ -150,11 +150,18 @@ for i in $(seq 0 $((COUNT - 1))); do
   # Build the request body. On update, merge widgets into the existing
   # dashboard so user-set filters (projects, environment, period, etc.)
   # are preserved. On create, set sensible defaults.
+  #
+  # The Sentry API requires datasetSource ("user") on user-defined widgets
+  # AND conditions ("") on every query. Inject these here so the spec
+  # doesn't have to repeat them.
   if [ -n "$EXISTING_ID" ]; then
     BODY=$(echo "$DASHBOARD" | jq --argjson existing "$EXISTING" '
       {
         title:          $existing.title,
-        widgets:        .widgets,
+        widgets:        .widgets
+                        | map(. + {datasetSource: "user"})
+                        | map(.queries = (.queries
+                            | map(. + {conditions: ""}))),
         projects:       ($existing.projects       // []),
         environment:    ($existing.environment  // []),
         period:         ($existing.period         // "24h"),
@@ -170,7 +177,10 @@ for i in $(seq 0 $((COUNT - 1))); do
     BODY=$(echo "$DASHBOARD" | jq '
       {
         title:          .title,
-        widgets:        .widgets,
+        widgets:        .widgets
+                        | map(. + {datasetSource: "user"})
+                        | map(.queries = (.queries
+                            | map(. + {conditions: ""}))),
         projects:       [],
         environment:    [],
         period:         "24h",
