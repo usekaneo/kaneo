@@ -145,7 +145,10 @@ create_or_update_detector() {
   local body="$2"
   local id="${3:-}"
   local method=POST
-  local url="${API_BASE}/organizations/${ORG}/projects/${project}/detectors/"
+  # Detectors are organization-scoped. The project lives in the body
+  # (`projectId`), not the URL — `/projects/${project}/detectors/` returns
+  # 200 on POST but 404 on PUT, so the update path always failed.
+  local url="${API_BASE}/organizations/${ORG}/detectors/"
   if [ -n "$id" ]; then
     method=PUT
     url="${url}${id}/"
