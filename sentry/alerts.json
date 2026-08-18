@@ -1,0 +1,173 @@
+{
+	"version": 1,
+	"organization": "kaneo",
+	"region": "de",
+	"api_base": "https://de.sentry.io/api/0",
+	"_comment_actions": "Actions are intentionally minimal. After the script applies this config, configure per-alert notifications in the Sentry UI (Settings > Alerts). Recommended: Slack #engineering or email on-call.",
+	"alerts": [
+		{
+			"name": "Kaneo API: New issue",
+			"description": "First time a new issue is seen in kaneo-api. Triages everything that isn't yet bucketed.",
+			"kind": "issue",
+			"projects": ["kaneo-api"],
+			"workflow": {
+				"name": "Kaneo API: New issue",
+				"enabled": true,
+				"triggers": {
+					"logicType": "any-short",
+					"conditions": [{ "type": "first_seen_event", "comparison": true }],
+					"actions": []
+				},
+				"actionFilters": []
+			}
+		},
+		{
+			"name": "Kaneo API: New error spike",
+			"description": "More than 50 error events in 5 minutes. Detector is created alongside this workflow.",
+			"kind": "metric",
+			"project": "kaneo-api",
+			"detector": {
+				"name": "Kaneo API: Error spike detector",
+				"description": "count(error events) > 50 in a 5-minute window",
+				"type": "metric_issue",
+				"config": {
+					"detectionType": "static"
+				},
+				"dataSources": [
+					{
+						"dataset": "events",
+						"query": "event.type:error",
+						"queryType": 1,
+						"aggregate": "count()",
+						"timeWindow": 300,
+						"environment": "production"
+					}
+				],
+				"workflows": []
+			},
+			"workflow": {
+				"name": "Kaneo API: New error spike",
+				"enabled": true,
+				"triggers": {
+					"logicType": "any-short",
+					"conditions": [{ "type": "gt", "comparison": 50 }],
+					"actions": []
+				},
+				"actionFilters": []
+			}
+		},
+		{
+			"name": "Cron: missed check-in (any)",
+			"description": "A monitored cron job missed its check-in (or reported an error). Covers all 4 crons created by Sentry.captureCheckIn in apps/api/src/scheduler/index.ts.",
+			"kind": "metric",
+			"detector_slugs": [
+				"due-date-reminders",
+				"project-webhook-reminders",
+				"seat-reconciliation",
+				"trial-reminders"
+			],
+			"_comment_detector_slugs": "Slugs are the human-readable identifiers from the captureCheckIn calls. The provisioning script resolves these to numeric detector IDs via GET /api/0/organizations/{org}/monitors/.",
+			"workflow": {
+				"name": "Cron: missed check-in (any)",
+				"enabled": true,
+				"triggers": {
+					"logicType": "any-short",
+					"conditions": [
+						{
+							"type": "monitor_check_in_failure",
+							"comparison": true
+						}
+					],
+					"actions": []
+				},
+				"actionFilters": []
+			}
+		},
+		{
+			"name": "Kaneo API: Slow p95 latency",
+			"description": "p95 of transaction.duration > 1500ms in any 10-minute window on /api/* routes.",
+			"kind": "metric",
+			"project": "kaneo-api",
+			"detector": {
+				"name": "Kaneo API: Slow p95 latency detector",
+				"description": "p95(transaction.duration) > 1500ms over 10 minutes",
+				"type": "metric_issue",
+				"config": {
+					"detectionType": "static"
+				},
+				"dataSources": [
+					{
+						"dataset": "transactions",
+						"query": "transaction.duration:>0 transaction:*/api/*",
+						"queryType": 1,
+						"aggregate": "p95(transaction.duration)",
+						"timeWindow": 600,
+						"environment": "production"
+					}
+				],
+				"workflows": []
+			},
+			"workflow": {
+				"name": "Kaneo API: Slow p95 latency",
+				"enabled": true,
+				"triggers": {
+					"logicType": "any-short",
+					"conditions": [{ "type": "gt", "comparison": 1500 }],
+					"actions": []
+				},
+				"actionFilters": []
+			}
+		},
+		{
+			"name": "Kaneo API: MCP error rate",
+			"description": "MCP tool errors exceed 5% over a 1h window. Helps catch regressions before users do.",
+			"kind": "metric",
+			"project": "kaneo-api",
+			"detector": {
+				"name": "Kaneo API: MCP error rate detector",
+				"description": "MCP error rate > 5% over 1 hour",
+				"type": "metric_issue",
+				"config": {
+					"detectionType": "static"
+				},
+				"dataSources": [
+					{
+						"dataset": "transactions",
+						"query": "transaction:*/api/mcp/* http.status_code:>=500",
+						"queryType": 1,
+						"aggregate": "failure_rate()",
+						"timeWindow": 3600,
+						"environment": "production"
+					}
+				],
+				"workflows": []
+			},
+			"workflow": {
+				"name": "Kaneo API: MCP error rate",
+				"enabled": true,
+				"triggers": {
+					"logicType": "any-short",
+					"conditions": [{ "type": "gt", "comparison": 0.05 }],
+					"actions": []
+				},
+				"actionFilters": []
+			}
+		},
+		{
+			"name": "Kaneo Web: New issue",
+			"description": "New React ErrorBoundary or unhandled exception in kaneo-web.",
+			"kind": "issue",
+			"projects": ["kaneo-web"],
+			"workflow": {
+				"name": "Kaneo Web: New issue",
+				"enabled": true,
+				"triggers": {
+					"logicType": "any-short",
+					"conditions": [{ "type": "first_seen_event", "comparison": true }],
+					"actions": []
+				},
+				"actionFilters": []
+			}
+		}
+	]
+}
