@@ -4,7 +4,7 @@ This directory holds Sentry configuration as code, so the alert rules and dashbo
 
 ## What lives here
 
-- `alerts.json` — alert rules. Five rules cover first-seen issues, error spikes, missed cron check-ins, slow p95 latency, and MCP error rate. Both `kaneo-api` and `kaneo-web` are covered.
+- `alerts.json` — alert rules. Six rules cover first-seen issues, error spikes, missed cron check-ins, slow p95 latency, and MCP error rate. Both `kaneo-api` and `kaneo-web` are covered.
 
 ## What's NOT here yet
 
@@ -15,7 +15,7 @@ This directory holds Sentry configuration as code, so the alert rules and dashbo
 
 ### Option A: provisioning script (recommended)
 
-The script lives at `scripts/provision-sentry-alerts.sh`. It reads `sentry/alerts.json`, asks Sentry which rules already exist, and creates the missing ones. Idempotent — re-runs are safe.
+The script lives at `scripts/provision-sentry-alerts.sh`. It reads `sentry/alerts.json`, finds existing workflows by name, and **post-or-puts** so edited specs propagate. Idempotent — re-runs converge to the spec's state.
 
 ```bash
 # 1. Generate a Sentry auth token (admin scope)
@@ -25,11 +25,13 @@ The script lives at `scripts/provision-sentry-alerts.sh`. It reads `sentry/alert
 # 2. Apply
 SENTRY_API_TOKEN=sntrys_... ./scripts/provision-sentry-alerts.sh
 
-# Dry-run first to see what would be created
+# Dry-run first to see what would be created or updated
 SENTRY_API_TOKEN=sntrys_... ./scripts/provision-sentry-alerts.sh --dry-run
 ```
 
 The script targets the EU region (`https://de.sentry.io`). If Kaneo ever moves to the US region, change the `region` field in `alerts.json` (or override `SENTRY_API_BASE`).
+
+If you rename an alert in `alerts.json`, the old name stays in Sentry alongside the new one. Rename alerts only when you intend to delete the old one manually.
 
 ### Option B: manual setup via the Sentry UI
 

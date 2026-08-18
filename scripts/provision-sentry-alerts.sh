@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Provisions Sentry alert rules from sentry/alerts.json via the Sentry REST API.
-# Idempotent: existing alerts with the same name are skipped.
+# Idempotent: existing alerts with the same name are updated in place. Detectors
+# are matched by the workflow's detectorIds[0]. Cron monitor detectors are
+# re-resolved by slug on every run.
 #
 # Usage:
 #   SENTRY_API_TOKEN=sntrys_... ./scripts/provision-sentry-alerts.sh
@@ -16,6 +18,7 @@
 #   - jq "Cannot iterate over null" when detector_slugs is missing
 #   - missing config.frequency in workflows
 #   - cron alert workflows tried to send triggers alongside detectorIds
+#   - v2: alerts were create-only; edited spec never propagated. now uses PUT.
 set -euo pipefail
 
 ORG="kaneo"
@@ -106,12 +109,56 @@ list_monitors() {
   api_call GET "${API_BASE}/organizations/${ORG}/monitors/"
 }
 
-find_existing_workflow_id() {
+find_existing_workflow() {
+  # Returns the full workflow object as compact JSON, or empty string.
   local name="$1"
   local response
   response=$(list_workflows) || return 0
-  echo "$response" | jq -r --arg name "$name" \
-    '.[] | select(.name == $name) | .id' | head -n1
+  echo "$response" | jq -c --arg name "$name" \
+    '.[] | select(.name == $name)' | head -n1
+}
+
+# ---- POST/PUT helpers ----
+# POST if id is empty, PUT otherwise. Echoes the new/updated ID.
+create_or_update_workflow() {
+  local body="$1"
+  local id="${2:-}"
+  local method=POST
+  local url="${API_BASE}/organizations/${ORG}/workflows/"
+  if [ -n "$id" ]; then
+    method=PUT
+    url="${url}${id}/"
+  fi
+  if [ "$DRY_RUN" = "1" ]; then
+    echo "[dry-run] would $method $url" >&2
+    echo "$body" | jq . >&2
+    echo "stub-id"
+    return 0
+  fi
+  local resp
+  resp=$(api_call "$method" "$url" "$body") || return 1
+  echo "$resp" | jq -r '.id // empty'
+}
+
+create_or_update_detector() {
+  local project="$1"
+  local body="$2"
+  local id="${3:-}"
+  local method=POST
+  local url="${API_BASE}/organizations/${ORG}/projects/${project}/detectors/"
+  if [ -n "$id" ]; then
+    method=PUT
+    url="${url}${id}/"
+  fi
+  if [ "$DRY_RUN" = "1" ]; then
+    echo "[dry-run] would $method $url" >&2
+    echo "$body" | jq . >&2
+    echo "stub-detector-id"
+    return 0
+  fi
+  local resp
+  resp=$(api_call "$method" "$url" "$body") || return 1
+  echo "$resp" | jq -r '.id // empty'
 }
 
 # ---- input validation ----
@@ -129,7 +176,6 @@ jq -r '.alerts[] | .name | select(. == null or . == "")' "$ALERTS_FILE" \
 
 # ---- main loop ----
 APPLIED=0
-SKIPPED=0
 ERRORS=0
 
 for i in $(seq 0 $((COUNT - 1))); do
@@ -140,15 +186,18 @@ for i in $(seq 0 $((COUNT - 1))); do
   echo
   info "==== $NAME ($KIND) ===="
 
-  if existing=$(find_existing_workflow_id "$NAME") && [ -n "$existing" ]; then
-    ok "Workflow '$NAME' already exists (id $existing); skipping"
-    SKIPPED=$((SKIPPED + 1))
-    continue
+  # Find existing workflow (full object, or empty string). The script
+  # discriminates create vs update on whether this returns a value.
+  EXISTING=$(find_existing_workflow "$NAME")
+  EXISTING_ID=""
+  if [ -n "$EXISTING" ]; then
+    EXISTING_ID=$(echo "$EXISTING" | jq -r '.id // empty')
+    info "  existing workflow id $EXISTING_ID \u2014 will update"
   fi
 
   case "$KIND" in
     issue)
-      # Build the workflow payload. Drop empty actions/actionFilters — the
+      # Build the workflow payload. Drop empty actions/actionFilters \u2014 the
       # api rejects workflows with empty arrays in those fields.
       WORKFLOW=$(echo "$ALERT" | jq --arg org "$ORG" --argjson freq "$DEFAULT_FREQUENCY_MIN" '
         .workflow
@@ -159,19 +208,14 @@ for i in $(seq 0 $((COUNT - 1))); do
         | if (.actionFilters // []) == [] then del(.actionFilters) else . end
       ')
 
-      if [ "$DRY_RUN" = "1" ]; then
-        echo "$WORKFLOW" | jq .
-        APPLIED=$((APPLIED + 1))
-        continue
-      fi
-
-      if RESP=$(api_call POST "${API_BASE}/organizations/${ORG}/workflows/" "$WORKFLOW") \
-        && NEW_ID=$(echo "$RESP" | jq -r '.id // empty') && [ -n "$NEW_ID" ]; then
-        ok "Created workflow $NEW_ID"
+      if NEW_ID=$(create_or_update_workflow "$WORKFLOW" "$EXISTING_ID") && [ -n "$NEW_ID" ]; then
+        if [ -n "$EXISTING_ID" ]; then
+          ok "Updated workflow $NEW_ID"
+        else
+          ok "Created workflow $NEW_ID"
+        fi
         APPLIED=$((APPLIED + 1))
       else
-        # RESP is the error body at this point (api_call already printed a
-        # detailed error). Just count it.
         ERRORS=$((ERRORS + 1))
       fi
       ;;
@@ -203,7 +247,7 @@ for i in $(seq 0 $((COUNT - 1))); do
           fi
         done
         if [ "${#RESOLVED[@]}" -eq 0 ]; then
-          err "No cron monitors resolved for '$NAME'. Skipping workflow creation."
+          err "No cron monitors resolved for '$NAME'. Skipping."
           ERRORS=$((ERRORS + 1))
           continue
         fi
@@ -216,17 +260,23 @@ for i in $(seq 0 $((COUNT - 1))); do
           .detector + {organizationId: $org, projectId: $project}
         ')
 
-        if [ "$DRY_RUN" = "1" ]; then
-          echo "[dry-run] would POST detector:"; echo "$DETECTOR" | jq .
-        else
-          if RESP=$(api_call POST "${API_BASE}/organizations/${ORG}/projects/${PROJECT}/detectors/" "$DETECTOR") \
-            && NEW_DET_ID=$(echo "$RESP" | jq -r '.id // empty') && [ -n "$NEW_DET_ID" ]; then
-            ok "Created detector $NEW_DET_ID"
-            DETECTOR_IDS=$(echo "$DETECTOR_IDS" | jq --arg id "$NEW_DET_ID" '. + [$id]')
+        # On update, find the existing detector id from the workflow's
+        # detectorIds. On create, it is empty.
+        EXISTING_DET_ID=""
+        if [ -n "$EXISTING_ID" ]; then
+          EXISTING_DET_ID=$(echo "$EXISTING" | jq -r '.detectorIds[0] // empty')
+        fi
+
+        if NEW_DET_ID=$(create_or_update_detector "$PROJECT" "$DETECTOR" "$EXISTING_DET_ID") && [ -n "$NEW_DET_ID" ]; then
+          if [ -n "$EXISTING_DET_ID" ]; then
+            ok "Updated detector $NEW_DET_ID"
           else
-            ERRORS=$((ERRORS + 1))
-            continue
+            ok "Created detector $NEW_DET_ID"
           fi
+          DETECTOR_IDS=$(echo "$DETECTOR_IDS" | jq --arg id "$NEW_DET_ID" '. + [$id]')
+        else
+          ERRORS=$((ERRORS + 1))
+          continue
         fi
       fi
 
@@ -243,15 +293,12 @@ for i in $(seq 0 $((COUNT - 1))); do
         }
       ')
 
-      if [ "$DRY_RUN" = "1" ]; then
-        echo "[dry-run] would POST workflow:"; echo "$WORKFLOW" | jq .
-        APPLIED=$((APPLIED + 1))
-        continue
-      fi
-
-      if RESP=$(api_call POST "${API_BASE}/organizations/${ORG}/workflows/" "$WORKFLOW") \
-        && NEW_ID=$(echo "$RESP" | jq -r '.id // empty') && [ -n "$NEW_ID" ]; then
-        ok "Created workflow $NEW_ID"
+      if NEW_ID=$(create_or_update_workflow "$WORKFLOW" "$EXISTING_ID") && [ -n "$NEW_ID" ]; then
+        if [ -n "$EXISTING_ID" ]; then
+          ok "Updated workflow $NEW_ID"
+        else
+          ok "Created workflow $NEW_ID"
+        fi
         APPLIED=$((APPLIED + 1))
       else
         ERRORS=$((ERRORS + 1))
@@ -267,7 +314,7 @@ done
 
 echo
 echo "-----------------------------------------------------------"
-info "Done: $APPLIED created, $SKIPPED skipped, $ERRORS failed"
+info "Done: $APPLIED applied (created or updated), $ERRORS failed"
 [ "$DRY_RUN" = "1" ] && info "Re-run without --dry-run to apply"
 [ "$ERRORS" -gt 0 ] && exit 1
 exit 0
