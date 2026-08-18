@@ -90,9 +90,17 @@ list_dashboards() {
 }
 
 # Find existing dashboard by title. Returns the full dashboard object.
+# Returns non-zero if the list call itself failed (network, auth, etc.) —
+# callers must distinguish "no match" from "lookup failed" so they can
+# skip the dashboard rather than silently create a duplicate.
 find_dashboard_by_title() {
   local title="$1"
-  list_dashboards | jq -c --arg title "$title" \
+  local response
+  # Capture the list output so its exit status is preserved. Without this,
+  # a failed pipeline (list_dashboards | jq ...) would always look like
+  # "no match" because the jq side swallows the api_call failure.
+  response=$(list_dashboards) || return 1
+  echo "$response" | jq -c --arg title "$title" \
     '.[] | select(.title == $title)' | head -n1
 }
 
@@ -140,7 +148,11 @@ for i in $(seq 0 $((COUNT - 1))); do
   echo
   info "==== $TITLE ===="
 
-  EXISTING=$(find_dashboard_by_title "$TITLE")
+  if ! EXISTING=$(find_dashboard_by_title "$TITLE"); then
+    err "  failed to look up existing dashboard \u2014 skipping"
+    ERRORS=$((ERRORS + 1))
+    continue
+  fi
   EXISTING_ID=""
   if [ -n "$EXISTING" ]; then
     EXISTING_ID=$(echo "$EXISTING" | jq -r '.id // empty')
@@ -161,6 +173,7 @@ for i in $(seq 0 $((COUNT - 1))); do
     BODY=$(echo "$DASHBOARD" | jq --argjson existing "$EXISTING" '
       {
         title:          $existing.title,
+        description:    ($existing.description // .description // null),
         widgets:        .widgets
                         | map(. + {datasetSource: "user"}
                           + (if .displayType == "table" then {} else {limit: 10} end))
@@ -181,6 +194,7 @@ for i in $(seq 0 $((COUNT - 1))); do
     BODY=$(echo "$DASHBOARD" | jq '
       {
         title:          .title,
+        description:    .description,
         widgets:        .widgets
                         | map(. + {datasetSource: "user"}
                           + (if .displayType == "table" then {} else {limit: 10} end))

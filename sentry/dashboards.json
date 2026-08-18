@@ -247,7 +247,7 @@
 							"fields": ["count()", "time"],
 							"aggregates": ["count()"],
 							"columns": ["time"],
-							"query": "event.type:transaction monitor.check_in_id:* monitor.status:missed_or_failed",
+							"query": "event.type:transaction monitor.check_in_id:* (monitor.status:missed OR monitor.status:error)",
 							"orderby": "time",
 							"limit": 10
 						}

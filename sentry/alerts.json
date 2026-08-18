@@ -150,7 +150,7 @@
 				"dataSources": [
 					{
 						"dataset": "events_analytics_platform",
-						"query": "transaction:*/api/mcp/* http.status_code:>=500 is_transaction:true",
+						"query": "transaction:*/api/mcp/* is_transaction:true",
 						"queryType": 1,
 						"aggregate": "failure_rate()",
 						"timeWindow": 3600,

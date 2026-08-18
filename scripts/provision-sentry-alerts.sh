@@ -76,6 +76,8 @@ api_call() {
 
   local tmp
   tmp=$(mktemp)
+  local curl_err
+  curl_err=$(mktemp)
   local status
   # --fail-with-body: exit non-zero on HTTP error, but still write the body
   # to stdout (curl 7.76+). Lets us capture error responses inline.
@@ -86,14 +88,21 @@ api_call() {
     -H "Authorization: Bearer ${SENTRY_API_TOKEN}" \
     -H "Content-Type: application/json" \
     "${body_args[@]}" \
-    "$url" 2>/dev/null) || {
+    "$url" 2>"$curl_err") || {
     err "HTTP ${status:-?} from $method $url"
     err "Request body: $body"
     err "Response body:"
     [ -s "$tmp" ] && sed 's/^/  /' "$tmp" >&2 || echo "  (empty)" >&2
-    rm -f "$tmp"
+    # Surface transport-level diagnostics (DNS, TLS, timeout) when no
+    # HTTP response was produced. Helpful when the API is unreachable.
+    if [ -s "$curl_err" ]; then
+      err "curl:"
+      sed 's/^/  /' "$curl_err" >&2
+    fi
+    rm -f "$tmp" "$curl_err"
     return 1
   }
+  rm -f "$curl_err"
   cat "$tmp"
   rm -f "$tmp"
 }
@@ -109,11 +118,28 @@ list_monitors() {
   api_call GET "${API_BASE}/organizations/${ORG}/monitors/"
 }
 
-find_existing_workflow() {
-  # Returns the full workflow object as compact JSON, or empty string.
+list_detectors() {
+  api_call GET "${API_BASE}/organizations/${ORG}/detectors/"
+}
+
+# Find an existing detector by name. Returns the numeric id, or empty string.
+# Returns non-zero if the list call itself failed.
+find_detector_by_name() {
   local name="$1"
   local response
-  response=$(list_workflows) || return 0
+  response=$(list_detectors) || return 1
+  echo "$response" | jq -r --arg name "$name" \
+    '.[] | select(.name == $name) | .id' | head -n1
+}
+
+find_existing_workflow() {
+  # Returns the full workflow object as compact JSON, or empty string.
+  # Returns non-zero if the list call itself failed (network, auth, etc.) —
+  # callers must distinguish "no match" from "lookup failed" so they can
+  # skip the alert rather than silently create a duplicate.
+  local name="$1"
+  local response
+  response=$(list_workflows) || return 1
   echo "$response" | jq -c --arg name "$name" \
     '.[] | select(.name == $name)' | head -n1
 }
@@ -141,12 +167,11 @@ create_or_update_workflow() {
 }
 
 create_or_update_detector() {
-  local project="$1"
-  local body="$2"
-  local id="${3:-}"
+  local body="$1"
+  local id="${2:-}"
   local method=POST
   # Detectors are organization-scoped. The project lives in the body
-  # (`projectId`), not the URL — `/projects/${project}/detectors/` returns
+  # (`projectId`), not the URL — `/projects/{project}/detectors/` returns
   # 200 on POST but 404 on PUT, so the update path always failed.
   local url="${API_BASE}/organizations/${ORG}/detectors/"
   if [ -n "$id" ]; then
@@ -191,7 +216,11 @@ for i in $(seq 0 $((COUNT - 1))); do
 
   # Find existing workflow (full object, or empty string). The script
   # discriminates create vs update on whether this returns a value.
-  EXISTING=$(find_existing_workflow "$NAME")
+  if ! EXISTING=$(find_existing_workflow "$NAME"); then
+    err "  failed to look up existing workflow \u2014 skipping"
+    ERRORS=$((ERRORS + 1))
+    continue
+  fi
   EXISTING_ID=""
   if [ -n "$EXISTING" ]; then
     EXISTING_ID=$(echo "$EXISTING" | jq -r '.id // empty')
@@ -262,15 +291,21 @@ for i in $(seq 0 $((COUNT - 1))); do
         DETECTOR=$(echo "$ALERT" | jq --arg org "$ORG" --arg project "$PROJECT" '
           .detector + {organizationId: $org, projectId: $project}
         ')
+        DETECTOR_NAME=$(echo "$DETECTOR" | jq -r '.name')
 
-        # On update, find the existing detector id from the workflow's
-        # detectorIds. On create, it is empty.
+        # Resolve the existing detector id. The workflow's detectorIds is
+        # authoritative when the workflow exists, but a previous failed run
+        # can leave an orphaned detector behind. Falling back to a name
+        # lookup keeps idempotent re-runs from creating a duplicate.
         EXISTING_DET_ID=""
         if [ -n "$EXISTING_ID" ]; then
           EXISTING_DET_ID=$(echo "$EXISTING" | jq -r '.detectorIds[0] // empty')
         fi
+        if [ -z "$EXISTING_DET_ID" ]; then
+          EXISTING_DET_ID=$(find_detector_by_name "$DETECTOR_NAME" || true)
+        fi
 
-        if NEW_DET_ID=$(create_or_update_detector "$PROJECT" "$DETECTOR" "$EXISTING_DET_ID") && [ -n "$NEW_DET_ID" ]; then
+        if NEW_DET_ID=$(create_or_update_detector "$DETECTOR" "$EXISTING_DET_ID") && [ -n "$NEW_DET_ID" ]; then
           if [ -n "$EXISTING_DET_ID" ]; then
             ok "Updated detector $NEW_DET_ID"
           else
