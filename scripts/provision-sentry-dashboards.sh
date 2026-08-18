@@ -151,15 +151,19 @@ for i in $(seq 0 $((COUNT - 1))); do
   # dashboard so user-set filters (projects, environment, period, etc.)
   # are preserved. On create, set sensible defaults.
   #
-  # The Sentry API requires datasetSource ("user") on user-defined widgets
-  # AND conditions ("") on every query. Inject these here so the spec
-  # doesn't have to repeat them.
+  # The Sentry API requires several fields the spec doesn't repeat:
+  # - datasetSource: "user" on every widget (user-defined dashboards)
+  # - conditions: "" on every query (default empty)
+  # - limit: 10 on widgets that render time series (line/bar/area). The
+  #   API rejects widgets without it AND rejects values above 10. Tables
+  #   accept it but don't require it, so we skip them.
   if [ -n "$EXISTING_ID" ]; then
     BODY=$(echo "$DASHBOARD" | jq --argjson existing "$EXISTING" '
       {
         title:          $existing.title,
         widgets:        .widgets
-                        | map(. + {datasetSource: "user"})
+                        | map(. + {datasetSource: "user"}
+                          + (if .displayType == "table" then {} else {limit: 10} end))
                         | map(.queries = (.queries
                             | map(. + {conditions: ""}))),
         projects:       ($existing.projects       // []),
@@ -178,7 +182,8 @@ for i in $(seq 0 $((COUNT - 1))); do
       {
         title:          .title,
         widgets:        .widgets
-                        | map(. + {datasetSource: "user"})
+                        | map(. + {datasetSource: "user"}
+                          + (if .displayType == "table" then {} else {limit: 10} end))
                         | map(.queries = (.queries
                             | map(. + {conditions: ""}))),
         projects:       [],
