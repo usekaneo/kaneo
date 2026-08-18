@@ -53,6 +53,7 @@
 		},
 		"error": {
 			"title": "Something went wrong",
+			"description": "The page crashed unexpectedly. Refreshing usually fixes it.",
 			"troubleshooting": "Troubleshooting steps:",
 			"tryAgain": "Try Again",
 			"viewDeploymentGuide": "View Deployment Guide",

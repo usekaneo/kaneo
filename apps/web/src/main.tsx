@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { useTranslation } from "react-i18next";
 import queryClient from "@/query-client";
 import "@/index.css";
 import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
@@ -66,21 +67,23 @@ function RootCrashFallback({
   error: Error;
   resetError: () => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-6">
       <div className="max-w-md text-center">
         <h1 className="text-2xl font-semibold text-foreground">
-          Something went wrong
+          {t("common.error.title")}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          The page crashed unexpectedly. Refreshing usually fixes it.
+          {t("common.error.description")}
         </p>
         <button
           type="button"
           onClick={resetError}
           className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
         >
-          Refresh page
+          {t("common.error.refreshPage")}
         </button>
       </div>
     </div>
