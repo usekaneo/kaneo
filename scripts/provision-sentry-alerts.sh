@@ -282,7 +282,9 @@ for i in $(seq 0 $((COUNT - 1))); do
       DETECTOR_IDS='[]'
 
       if [ "$HAS_SLUGS" = "true" ]; then
-        SLUGS=$(echo "$ALERT" | jq -r '.detector_slugs[]')
+        # Declare as an array so ${#SLUGS[@]} works under `set -u` (accessing
+        # a scalar with array syntax aborts the script with "unbound variable").
+        mapfile -t SLUGS < <(echo "$ALERT" | jq -r '.detector_slugs[]')
         RESP=$(list_monitors) || {
           err "Monitor lookup failed for '$NAME'"
           ERRORS=$((ERRORS + 1))
@@ -290,7 +292,7 @@ for i in $(seq 0 $((COUNT - 1))); do
         }
         RESOLVED=()
         MISSING=()
-        for slug in $SLUGS; do
+        for slug in "${SLUGS[@]}"; do
           id=$(echo "$RESP" | jq -r --arg slug "$slug" \
             '.[] | select(.slug == $slug) | .id' | head -n1)
           if [ -z "$id" ] || [ "$id" = "null" ]; then
