@@ -144,5 +144,6 @@ jobs:
           build-args: |
             SENTRY_ORG=${{ vars.SENTRY_ORG }}
             SENTRY_PROJECT=${{ vars.SENTRY_PROJECT }}
-          secrets: |
-            SENTRY_AUTH_TOKEN=/tmp/sentry-build-secrets/SENTRY_AUTH_TOKEN
+          # The secret file is only prepared for the web build, so the input
+          # is empty for other matrix entries.
+          secrets: ${{ matrix.dockerfile == './apps/web/Dockerfile' && 'SENTRY_AUTH_TOKEN=/tmp/sentry-build-secrets/SENTRY_AUTH_TOKEN' || '' }}

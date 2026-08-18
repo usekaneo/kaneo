@@ -89,8 +89,9 @@ jobs:
           # secret-files mounts the file CONTENTS as the secret value in the
           # build. The 'secrets:' input would pass the file path string as
           # the value, which is not what BuildKit expects.
-          secret-files: |
-            SENTRY_AUTH_TOKEN=/tmp/sentry-build-secrets/SENTRY_AUTH_TOKEN
+          # The secret file is only prepared for the web build, so the input
+          # is empty for other matrix entries.
+          secret-files: ${{ matrix.dockerfile == './apps/web/Dockerfile' && 'SENTRY_AUTH_TOKEN=/tmp/sentry-build-secrets/SENTRY_AUTH_TOKEN' || '' }}
 
   trigger-helm-publish:
     needs: build-and-push-image

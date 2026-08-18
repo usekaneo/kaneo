@@ -40,8 +40,11 @@ RUN pnpm run build
 
 # Build the application
 WORKDIR /app/apps/web
-RUN --mount=type=secret,id=SENTRY_AUTH_TOKEN \
-    SENTRY_AUTH_TOKEN=$(cat /run/secrets/SENTRY_AUTH_TOKEN) \
+# SENTRY_AUTH_TOKEN is optional: only mounted during container builds that
+# need it (e.g., the publish workflows). Local or CI builds without the
+# secret still succeed; the build just runs without it.
+RUN --mount=type=secret,id=SENTRY_AUTH_TOKEN,required=false \
+    if [ -f /run/secrets/SENTRY_AUTH_TOKEN ]; then export SENTRY_AUTH_TOKEN="$(cat /run/secrets/SENTRY_AUTH_TOKEN)"; fi; \
     pnpm run build
 
 # Production stage with specific version
