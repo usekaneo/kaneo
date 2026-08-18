@@ -53,10 +53,33 @@
 		},
 		"error": {
 			"title": "Something went wrong",
+			"description": "The page crashed unexpectedly. Refreshing usually fixes it.",
 			"troubleshooting": "Troubleshooting steps:",
 			"tryAgain": "Try Again",
 			"viewDeploymentGuide": "View Deployment Guide",
-			"refreshPage": "Refresh Page"
+			"refreshPage": "Refresh Page",
+			"messages": {
+				"cors": "Unable to connect to the server. This might be due to CORS configuration issues.",
+				"network": "Network error. Please check your internet connection and try again.",
+				"auth": "Authentication failed. Please sign in again.",
+				"server": "Server error. Please try again later.",
+				"unknown": "An unexpected error occurred."
+			},
+			"troubleshootingSteps": {
+				"cors": {
+					"checkApiRunning": "Make sure your API server is running",
+					"checkApiUrl": "Check that VITE_API_URL in your frontend .env matches your API server URL",
+					"verifyCorsOrigins": "Verify CORS_ORIGINS in your API .env includes your frontend URL",
+					"checkProtocol": "Ensure both frontend and API are using the same protocol (http/https)",
+					"checkAccessibility": "Check that your API server is accessible from your browser"
+				},
+				"network": {
+					"checkConnection": "Check your internet connection",
+					"verifyApiRunning": "Verify the API server is running and accessible",
+					"tryRefresh": "Try refreshing the page",
+					"checkFirewall": "Check if there are any firewall or proxy issues"
+				}
+			}
 		},
 		"formats": {
 			"never": "Never"

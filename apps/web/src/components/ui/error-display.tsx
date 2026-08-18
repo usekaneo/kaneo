@@ -55,7 +55,7 @@ export function ErrorDisplay({
           </div>
           <CardTitle className="text-lg">{resolvedTitle}</CardTitle>
           <CardDescription className="text-sm">
-            {parsedError.message}
+            {t(parsedError.message)}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -68,7 +68,7 @@ export function ErrorDisplay({
                 {troubleshootingSteps.map((step) => (
                   <li key={step} className="flex items-start gap-2">
                     <span className="text-muted-foreground mt-0.5">•</span>
-                    <span>{step}</span>
+                    <span>{t(step)}</span>
                   </li>
                 ))}
               </ul>
