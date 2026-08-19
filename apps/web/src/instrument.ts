@@ -9,6 +9,14 @@ if (dsn && !dsn.startsWith("KANEO_")) {
     environment: import.meta.env.MODE,
     release: __APP_VERSION__,
     sendDefaultPii: false,
+    ignoreErrors: [
+      // Thrown by Safari browser extensions on iOS 18+ injecting content scripts;
+      // not caused by kaneo code.
+      "Invalid call to runtime.sendMessage()",
+      // Thrown by Facebook's in-app browser (Android) navigation performance logger
+      // calling postMessage on a destroyed WebView Java bridge; not caused by kaneo code.
+      "Error invoking postMessage: Java object is gone",
+    ],
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration(),
