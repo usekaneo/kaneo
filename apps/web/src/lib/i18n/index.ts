@@ -1,10 +1,12 @@
 import {
   type AppLocale,
   defaultLocale,
-  resources,
+  isSupportedLocale,
+  loadLocale,
   supportedLocales,
 } from "@i18n/resources";
 import i18n from "i18next";
+import resourcesToBackend from "i18next-resources-to-backend";
 import { initReactI18next } from "react-i18next";
 
 function getLanguageCode(locale: string) {
@@ -40,15 +42,23 @@ export function getBrowserLocale(): string | null {
   return navigator.language || navigator.languages?.[0] || null;
 }
 
-void i18n.use(initReactI18next).init({
-  resources,
-  lng: resolveLocale(null, getBrowserLocale()),
-  fallbackLng: defaultLocale,
-  ns: Object.keys(resources[defaultLocale]),
-  defaultNS: "common",
-  interpolation: {
-    escapeValue: false,
-  },
-});
+void i18n
+  .use(
+    resourcesToBackend((language: string, namespace: string) => {
+      const locale = isSupportedLocale(language) ? language : defaultLocale;
+      return loadLocale(locale).then(
+        (resources) => (resources as Record<string, unknown>)[namespace],
+      );
+    }),
+  )
+  .use(initReactI18next)
+  .init({
+    lng: resolveLocale(null, getBrowserLocale()),
+    fallbackLng: defaultLocale,
+    defaultNS: "common",
+    interpolation: {
+      escapeValue: false,
+    },
+  });
 
 export { i18n };
