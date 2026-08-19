@@ -9,6 +9,11 @@ if (dsn && !dsn.startsWith("KANEO_")) {
     environment: import.meta.env.MODE,
     release: __APP_VERSION__,
     sendDefaultPii: false,
+    ignoreErrors: [
+      // Thrown by Safari browser extensions on iOS 18+ injecting content scripts;
+      // not caused by kaneo code.
+      "Invalid call to runtime.sendMessage()",
+    ],
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration(),
