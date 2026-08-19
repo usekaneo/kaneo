@@ -6475,6 +6475,34 @@
 										}
 									},
 									"required": ["renderFailed"]
+								},
+								"image": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"small": {
+											"type": "string"
+										},
+										"medium": {
+											"type": "string"
+										},
+										"large": {
+											"type": "string"
+										},
+										"reset": {
+											"type": "string"
+										},
+										"resizeHandle": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"small",
+										"medium",
+										"large",
+										"reset",
+										"resizeHandle"
+									]
 								}
 							},
 							"required": [
@@ -6493,7 +6521,8 @@
 								"slash",
 								"languages",
 								"embed",
-								"mermaid"
+								"mermaid",
+								"image"
 							]
 						}
 					},
