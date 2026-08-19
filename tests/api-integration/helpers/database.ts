@@ -3,38 +3,10 @@ import { fileURLToPath } from "node:url";
 import { sql } from "drizzle-orm";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Client } from "pg";
-import db, { schema } from "../../../apps/api/src/database";
+import db from "../../../apps/api/src/database";
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
 const migrationsFolder = resolve(currentDir, "../../../apps/api/drizzle");
-
-const drizzleNameSymbol = Object.getOwnPropertySymbols(
-  Object.values(schema).find((value) => value && typeof value === "object") ??
-    {},
-).find((sym) => sym.toString() === "Symbol(drizzle:Name)");
-
-if (!drizzleNameSymbol) {
-  throw new Error(
-    "Could not locate Drizzle table name symbol; schema introspection changed",
-  );
-}
-
-function getTruncateTableNames() {
-  return Object.entries(schema)
-    .filter(
-      ([key, value]) =>
-        key.endsWith("Table") &&
-        !key.endsWith("TableRelations") &&
-        value &&
-        typeof value === "object" &&
-        drizzleNameSymbol in value,
-    )
-    .map(
-      ([, value]) =>
-        (value as Record<symbol, unknown>)[drizzleNameSymbol] as string,
-    )
-    .sort();
-}
 
 let migrationPromise: Promise<void> | null = null;
 
@@ -107,10 +79,33 @@ export async function ensureTestDatabaseMigrated() {
   }
 }
 
+// Ponytail: query Postgres directly. The catalog is the canonical source of
+// what tables actually exist after migrations run. Reflecting on the schema
+// object in apps/api/src/database misses any table that is not exported from
+// the index.ts registry (for example mcp_oauth_state and task_reminder_sent).
+async function listPublicTableNames(): Promise<string[]> {
+  const result = await db.execute<{ table_name: string }>(sql`
+    SELECT table_name
+    FROM information_schema.tables
+    WHERE table_schema = 'public'
+      AND table_type = 'BASE TABLE'
+    ORDER BY table_name
+  `);
+
+  return result.rows.map((row) => row.table_name);
+}
+
 export async function resetTestDatabase() {
   await ensureTestDatabaseMigrated();
 
-  const tableNames = getTruncateTableNames();
+  const tableNames = await listPublicTableNames();
+
+  if (tableNames.length === 0) {
+    throw new Error(
+      "resetTestDatabase found no tables to truncate. Did migrations run?",
+    );
+  }
+
   const formattedTableNames = tableNames.map((name) => `"${name}"`).join(", ");
 
   await db.execute(
