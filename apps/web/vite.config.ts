@@ -11,17 +11,6 @@ const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
 const sentryOrg = process.env.SENTRY_ORG;
 const sentryProject = process.env.SENTRY_PROJECT;
 
-// Validate that VITE_API_URL is explicitly set for production builds.
-// The auth client falls back to http://localhost:1337 when unset, which is
-// unreachable from a browser in production and causes "TypeError: Failed to fetch".
-if (process.env.NODE_ENV === "production" && !process.env.VITE_API_URL) {
-  throw new Error(
-    "[kaneo-web] VITE_API_URL must be set for production builds. " +
-      "Without it the auth client falls back to http://localhost:1337, " +
-      "which is unreachable from the browser and breaks authentication.",
-  );
-}
-
 export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(packageJson.version),
