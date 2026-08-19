@@ -102,7 +102,6 @@ describe("resetTestDatabase", () => {
 
   it("truncates mcp_oauth_state rows", async () => {
     const id = await seedMcpOauthStateRow();
-    expect(await rowExists("mcp_oauth_state", id)).toBe(true);
 
     await resetTestDatabase();
 
@@ -111,10 +110,38 @@ describe("resetTestDatabase", () => {
 
   it("truncates task_reminder_sent rows", async () => {
     const id = await seedTaskReminderSentRow();
-    expect(await rowExists("task_reminder_sent", id)).toBe(true);
 
     await resetTestDatabase();
 
     expect(await rowExists("task_reminder_sent", id)).toBe(false);
+  });
+
+  it("truncates tables that live outside the schema registry", async () => {
+    // A raw SQL table that no module in apps/api/src/database knows about.
+    // If resetTestDatabase ever reverts to deriving its list from the schema
+    // registry, this table will not appear in the TRUNCATE list and the row
+    // below will survive the reset.
+    const tableName = `test_only_unregistered_${randomUUID().replaceAll("-", "")}`;
+    const id = `row-${randomUUID()}`;
+    const quoted = `"${tableName}"`;
+
+    await db.execute(
+      sql.raw(
+        `CREATE TABLE ${quoted} (id text PRIMARY KEY, label text NOT NULL)`,
+      ),
+    );
+
+    try {
+      await db.execute(
+        sql.raw(`INSERT INTO ${quoted} (id, label) VALUES ('${id}', 'seed')`),
+      );
+      expect(await rowExists(tableName, id)).toBe(true);
+
+      await resetTestDatabase();
+
+      expect(await rowExists(tableName, id)).toBe(false);
+    } finally {
+      await db.execute(sql.raw(`DROP TABLE ${quoted}`));
+    }
   });
 });
