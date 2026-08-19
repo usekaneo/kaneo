@@ -39,10 +39,18 @@ function RouteComponent() {
   useEffect(() => {
     let mounted = true;
 
-    void getSharedShikiHighlighter().then(() => {
-      if (!mounted) return;
-      setIsShikiReady(true);
-    });
+    void getSharedShikiHighlighter()
+      .then(() => {
+        if (!mounted) return;
+        setIsShikiReady(true);
+      })
+      .catch((err) => {
+        console.error("Failed to initialize Shiki highlighter:", err);
+        if (!mounted) return;
+        // Render the task view without syntax highlighting rather than
+        // leaving the page stuck in a permanent loading state.
+        setIsShikiReady(true);
+      });
 
     return () => {
       mounted = false;

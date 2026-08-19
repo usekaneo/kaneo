@@ -5,6 +5,7 @@ let shikiHighlighterPromise: Promise<Highlighter> | null = null;
 
 const SHIKI_LANGUAGES = [
   "bash",
+  "shellscript",
   "csharp",
   "cpp",
   "css",
@@ -56,6 +57,11 @@ export function getSharedShikiHighlighter() {
       // (worst case: one token type unhighlighted) instead of throwing at
       // creation. All bundled grammars translate as of Shiki 3.9.1.
       engine: createJavaScriptRegexEngine({ forgiving: true }),
+    }).catch((err) => {
+      // Reset so a subsequent call can retry rather than reusing a
+      // permanently-rejected promise.
+      shikiHighlighterPromise = null;
+      throw err;
     });
   }
 
