@@ -573,11 +573,18 @@ export default function CommentEditor({
   useEffect(() => {
     let mounted = true;
 
-    void getSharedShikiHighlighter().then((instance) => {
-      if (!mounted) return;
-      shikiHighlighterRef.current = instance;
-      setShikiHighlighter(instance);
-    });
+    void getSharedShikiHighlighter()
+      .then((instance) => {
+        if (!mounted) return;
+        shikiHighlighterRef.current = instance;
+        setShikiHighlighter(instance);
+      })
+      .catch((err) => {
+        // Shared initializer resets its cached promise on rejection so a
+        // later attempt can retry. If this attempt also fails, swallow it
+        // and render without syntax highlighting.
+        console.error("Failed to initialize Shiki highlighter:", err);
+      });
 
     return () => {
       mounted = false;
