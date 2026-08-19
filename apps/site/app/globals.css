@@ -1,12 +1,6 @@
 @import "tailwindcss";
-
-@font-face {
-  font-family: "Cal Sans UI";
-  src: url("/fonts/cal-sans-body.woff2") format("woff2");
-  font-display: swap;
-  font-style: normal;
-  font-weight: 300 700;
-}
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -69,13 +63,13 @@
 
 :root {
   --font-sans:
-    "Cal Sans UI",
+    "Geist Variable",
     ui-sans-serif,
     system-ui,
     sans-serif;
-  --font-heading: "Cal Sans Heading", var(--font-sans);
+  --font-heading: var(--font-sans);
   --font-mono:
-    "Paper Mono",
+    "Geist Mono Variable",
     ui-monospace,
     SFMono-Regular,
     Menlo,
