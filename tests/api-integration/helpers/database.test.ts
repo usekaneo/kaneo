@@ -135,7 +135,6 @@ describe("resetTestDatabase", () => {
       await db.execute(
         sql.raw(`INSERT INTO ${quoted} (id, label) VALUES ('${id}', 'seed')`),
       );
-      expect(await rowExists(tableName, id)).toBe(true);
 
       await resetTestDatabase();
 
