@@ -55,8 +55,11 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { t } = useTranslation();
-  const { workspace, canManageLabels } = useWorkspacePermission();
-  const canEdit = canManageLabels();
+  const { workspace, canCreateLabels, canUpdateLabels, canDeleteLabels } =
+    useWorkspacePermission();
+  const canCreate = canCreateLabels();
+  const canUpdate = canUpdateLabels();
+  const canDelete = canDeleteLabels();
 
   const workspaceId = workspace?.id ?? "";
 
@@ -243,7 +246,7 @@ function RouteComponent() {
                   defaultValue: "Manage labels that can be assigned to tasks.",
                 })}
               </CardDescription>
-              {canEdit && (
+              {canCreate && (
                 <CardAction>
                   <Button onClick={openCreate} className="gap-2">
                     <Plus className="size-4" />
@@ -289,43 +292,47 @@ function RouteComponent() {
                         />
                         <span className="text-sm truncate">{label.name}</span>
                       </div>
-                      {canEdit && (
+                      {(canUpdate || canDelete) && (
                         <div className="flex items-center gap-1 flex-shrink-0">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            aria-label={t(
-                              "settings:workspaceLabels.editLabel",
-                              { defaultValue: "Edit Label" },
-                            )}
-                            className="h-8 w-8"
-                            onClick={() =>
-                              openEdit({
-                                id: label.id,
-                                name: label.name,
-                                color: label.color,
-                              })
-                            }
-                          >
-                            <Pencil className="size-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            aria-label={t(
-                              "settings:workspaceLabels.deleteLabel",
-                              { defaultValue: "Delete" },
-                            )}
-                            className="h-8 w-8 text-destructive hover:text-destructive"
-                            onClick={() =>
-                              openDelete({
-                                id: label.id,
-                                name: label.name,
-                              })
-                            }
-                          >
-                            <Trash2 className="size-3.5" />
-                          </Button>
+                          {canUpdate && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-label={t(
+                                "settings:workspaceLabels.editLabel",
+                                { defaultValue: "Edit Label" },
+                              )}
+                              className="h-8 w-8"
+                              onClick={() =>
+                                openEdit({
+                                  id: label.id,
+                                  name: label.name,
+                                  color: label.color,
+                                })
+                              }
+                            >
+                              <Pencil className="size-3.5" />
+                            </Button>
+                          )}
+                          {canDelete && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-label={t(
+                                "settings:workspaceLabels.deleteLabel",
+                                { defaultValue: "Delete" },
+                              )}
+                              className="h-8 w-8 text-destructive hover:text-destructive"
+                              onClick={() =>
+                                openDelete({
+                                  id: label.id,
+                                  name: label.name,
+                                })
+                              }
+                            >
+                              <Trash2 className="size-3.5" />
+                            </Button>
+                          )}
                         </div>
                       )}
                     </div>

@@ -29,9 +29,11 @@ async function findDriftedWorkspaces() {
     .limit(BATCH_SIZE);
 }
 
-export async function reconcileWorkspaceSeats(): Promise<void> {
+export async function reconcileWorkspaceSeats(): Promise<{
+  degraded: boolean;
+}> {
   if (!isBillingEnabled()) {
-    return;
+    return { degraded: false };
   }
 
   let drifted: Awaited<ReturnType<typeof findDriftedWorkspaces>>;
@@ -39,19 +41,21 @@ export async function reconcileWorkspaceSeats(): Promise<void> {
     drifted = await findDriftedWorkspaces();
   } catch (error) {
     console.error("billing: seat reconciliation query failed", error);
-    return;
+    return { degraded: true };
   }
 
   if (drifted.length === 0) {
-    return;
+    return { degraded: false };
   }
 
   let repaired = 0;
+  let degraded = false;
   for (const { workspaceId } of drifted) {
     try {
       await syncWorkspaceSeats(workspaceId);
       repaired += 1;
     } catch (error) {
+      degraded = true;
       console.error(
         `billing: seat reconciliation failed for workspace ${workspaceId}`,
         error,
@@ -62,4 +66,5 @@ export async function reconcileWorkspaceSeats(): Promise<void> {
   console.log(
     `billing: seat reconciliation resynced ${repaired}/${drifted.length} workspaces`,
   );
+  return { degraded };
 }

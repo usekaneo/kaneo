@@ -580,21 +580,24 @@ export function createApp() {
     ) {
       return next();
     }
-    try {
-      await authenticateApiRequest(c);
-    } catch (error) {
-      if (error instanceof HTTPException) {
+    return Sentry.withIsolationScope(async () => {
+      Sentry.setUser(null);
+      try {
+        await authenticateApiRequest(c);
+        const windowId = c.req.header("X-Kaneo-Window-Id");
+        const userId = c.get("userId");
+        const initiatorId = windowId ? `${userId}:${windowId}` : userId;
+        return await eventContext.run({ initiatorId }, next);
+      } catch (error) {
+        if (!(error instanceof HTTPException)) {
+          console.error("API authentication failed:", error);
+          throw new HTTPException(500, { message: "Internal Server Error" });
+        }
         throw error;
+      } finally {
+        Sentry.setUser(null);
       }
-      console.error("API authentication failed:", error);
-      throw new HTTPException(500, { message: "Internal Server Error" });
-    }
-
-    const windowId = c.req.header("X-Kaneo-Window-Id");
-    const userId = c.get("userId");
-    const initiatorId = windowId ? `${userId}:${windowId}` : userId;
-
-    return eventContext.run({ initiatorId }, next);
+    });
   });
 
   const oauthApi = api.route("/oauth", oauth);

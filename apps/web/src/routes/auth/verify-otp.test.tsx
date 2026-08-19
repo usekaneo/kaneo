@@ -1,4 +1,5 @@
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -76,7 +77,16 @@ beforeEach(() => {
   emailOtp.mockResolvedValue({ data: {}, error: null });
 });
 
-afterEach(() => {
+afterEach(async () => {
+  // input-otp schedules internal timers (0/10/50ms in password manager
+  // detection; 0/2/5/6s in autofill checks) when the input focuses. The
+  // short ones can fire after vitest tears down jsdom on a slow worker,
+  // surfacing as an unhandled "window is not defined" error from a stale
+  // setState. Drain inside act() so React flushes too. The 2/5/6s timers
+  // are still cleared by the component's effect cleanup when it unmounts.
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  });
   cleanup();
   emailOtp.mockReset();
   push.mockReset();
