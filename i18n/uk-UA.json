@@ -500,7 +500,8 @@
 			"labels": "Мітки",
 			"labelsDescription": "Показувати мітки та теґи завдань",
 			"priority": "Пріоритет",
-			"priorityDescription": "Відображати індикатори пріоритету"
+			"priorityDescription": "Відображати індикатори пріоритету",
+			"board3d": "3D-дошка"
 		},
 		"developerPage": {
 			"pageTitle": "Налаштування розробника",
@@ -1564,7 +1565,8 @@
 		"boardSearchPlaceholder": "Пошук тікетів...",
 		"view": {
 			"board": "Дошка",
-			"list": "Список"
+			"list": "Список",
+			"board3d": "3D"
 		},
 		"common": {
 			"selectTask": "Обрати завдання",
@@ -1952,6 +1954,10 @@
 				"deleteRow": "Видалити рядок",
 				"deleteTable": "Видалити таблицю"
 			}
+		},
+		"board3d": {
+			"hint": "перетягування: панорама · ctrl/праве перетягування: обертання · коліщатко: масштаб",
+			"reset": "Скинути"
 		}
 	},
 	"invitations": {

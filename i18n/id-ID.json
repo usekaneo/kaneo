@@ -500,7 +500,8 @@
 			"labels": "Label",
 			"labelsDescription": "Tampilkan label dan tag tugas",
 			"priority": "Prioritas",
-			"priorityDescription": "Tampilkan indikator prioritas"
+			"priorityDescription": "Tampilkan indikator prioritas",
+			"board3d": "Papan 3D"
 		},
 		"developerPage": {
 			"pageTitle": "Pengaturan Pengembang",
@@ -1554,7 +1555,8 @@
 		"boardSearchPlaceholder": "Cari tiket...",
 		"view": {
 			"board": "Papan",
-			"list": "Daftar"
+			"list": "Daftar",
+			"board3d": "3D"
 		},
 		"common": {
 			"selectTask": "Pilih tugas",
@@ -1940,6 +1942,10 @@
 				"deleteRow": "Hapus baris",
 				"deleteTable": "Hapus tabel"
 			}
+		},
+		"board3d": {
+			"hint": "seret: geser · ctrl/seret kanan: putar · roda: zoom",
+			"reset": "Atur ulang"
 		}
 	},
 	"invitations": {

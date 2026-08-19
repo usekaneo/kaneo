@@ -500,7 +500,8 @@
 			"labels": "Ετικέτες",
 			"labelsDescription": "Εμφάνιση ετικετών και tags εργασιών",
 			"priority": "Προτεραιότητα",
-			"priorityDescription": "Εμφάνιση ενδείξεων προτεραιότητας"
+			"priorityDescription": "Εμφάνιση ενδείξεων προτεραιότητας",
+			"board3d": "Πίνακας 3D"
 		},
 		"developerPage": {
 			"pageTitle": "Ρυθμίσεις προγραμματιστή",
@@ -1554,7 +1555,8 @@
 		"boardSearchPlaceholder": "Αναζήτηση αιτημάτων...",
 		"view": {
 			"board": "Πίνακας",
-			"list": "Λίστα"
+			"list": "Λίστα",
+			"board3d": "3D"
 		},
 		"common": {
 			"selectTask": "Επιλέξτε εργασία",
@@ -1940,6 +1942,10 @@
 				"deleteRow": "Διαγραφή γραμμής",
 				"deleteTable": "Διαγραφή πίνακα"
 			}
+		},
+		"board3d": {
+			"hint": "σύρσιμο: μετακίνηση · ctrl/δεξί σύρσιμο: περιστροφή · ροδέλα: ζουμ",
+			"reset": "Επαναφορά"
 		}
 	},
 	"invitations": {

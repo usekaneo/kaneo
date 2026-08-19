@@ -500,7 +500,8 @@
 			"labels": "Метки",
 			"labelsDescription": "Показывать метки и теги задач",
 			"priority": "Приоритет",
-			"priorityDescription": "Показывать индикаторы приоритета"
+			"priorityDescription": "Показывать индикаторы приоритета",
+			"board3d": "3D-доска"
 		},
 		"developerPage": {
 			"pageTitle": "Настройки разработчика",
@@ -1572,7 +1573,8 @@
 		"boardSearchPlaceholder": "Поиск задач...",
 		"view": {
 			"board": "Доска",
-			"list": "Список"
+			"list": "Список",
+			"board3d": "3D"
 		},
 		"common": {
 			"selectTask": "Выбрать задачу",
@@ -2008,6 +2010,10 @@
 				"deleteRow": "Удалить строку",
 				"deleteTable": "Удалить таблицу"
 			}
+		},
+		"board3d": {
+			"reset": "Сброс",
+			"hint": "перетаскивание: панорама · ctrl/ПКМ: вращение · колесо: зум"
 		}
 	},
 	"invitations": {

@@ -500,7 +500,8 @@
 			"labels": "Nhãn",
 			"labelsDescription": "Hiển thị nhãn và thẻ của công việc",
 			"priority": "Mức ưu tiên",
-			"priorityDescription": "Hiển thị chỉ báo mức ưu tiên"
+			"priorityDescription": "Hiển thị chỉ báo mức ưu tiên",
+			"board3d": "Bảng 3D"
 		},
 		"developerPage": {
 			"pageTitle": "Cài đặt nhà phát triển",
@@ -1554,7 +1555,8 @@
 		"boardSearchPlaceholder": "Tìm phiếu...",
 		"view": {
 			"board": "Bảng",
-			"list": "Danh sách"
+			"list": "Danh sách",
+			"board3d": "3D"
 		},
 		"common": {
 			"selectTask": "Chọn công việc",
@@ -1940,6 +1942,10 @@
 				"deleteRow": "Xóa hàng",
 				"deleteTable": "Xóa bảng"
 			}
+		},
+		"board3d": {
+			"hint": "kéo: di chuyển · ctrl/kéo chuột phải: xoay · con lăn: thu phóng",
+			"reset": "Đặt lại"
 		}
 	},
 	"invitations": {

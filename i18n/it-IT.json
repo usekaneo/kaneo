@@ -500,7 +500,8 @@
 			"labels": "Etichette",
 			"labelsDescription": "Mostra etichette e tag delle attività",
 			"priority": "Priorità",
-			"priorityDescription": "Visualizza indicatori di priorità"
+			"priorityDescription": "Visualizza indicatori di priorità",
+			"board3d": "Bacheca 3D"
 		},
 		"developerPage": {
 			"pageTitle": "Impostazioni Sviluppatore",
@@ -1554,7 +1555,8 @@
 		"boardSearchPlaceholder": "Cerca ticket...",
 		"view": {
 			"board": "Board",
-			"list": "Elenco"
+			"list": "Elenco",
+			"board3d": "3D"
 		},
 		"common": {
 			"selectTask": "Seleziona attività",
@@ -1940,6 +1942,10 @@
 				"deleteRow": "Elimina riga",
 				"deleteTable": "Elimina tabella"
 			}
+		},
+		"board3d": {
+			"hint": "trascina: sposta · ctrl/trascina destro: ruota · rotellina: zoom",
+			"reset": "Reimposta"
 		}
 	},
 	"invitations": {

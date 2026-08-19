@@ -500,7 +500,8 @@
 			"labels": "라벨",
 			"labelsDescription": "작업 라벨과 태그를 표시합니다",
 			"priority": "우선순위",
-			"priorityDescription": "우선순위 표시기를 표시합니다"
+			"priorityDescription": "우선순위 표시기를 표시합니다",
+			"board3d": "3D 보드"
 		},
 		"developerPage": {
 			"pageTitle": "개발자 설정",
@@ -1554,7 +1555,8 @@
 		"boardSearchPlaceholder": "티켓 검색...",
 		"view": {
 			"board": "보드",
-			"list": "목록"
+			"list": "목록",
+			"board3d": "3D"
 		},
 		"common": {
 			"selectTask": "작업 선택",
@@ -1940,6 +1942,10 @@
 				"deleteRow": "행 삭제",
 				"deleteTable": "표 삭제"
 			}
+		},
+		"board3d": {
+			"hint": "드래그: 이동 · Ctrl/우클릭 드래그: 회전 · 휠: 확대/축소",
+			"reset": "초기화"
 		}
 	},
 	"invitations": {

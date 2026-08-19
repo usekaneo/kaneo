@@ -1,4 +1,4 @@
-import { Filter, PanelsTopLeft, Rows3, X } from "lucide-react";
+import { Box, Filter, PanelsTopLeft, Rows3, X } from "lucide-react";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import SortControl from "@/components/common/sort-control";
@@ -55,8 +55,8 @@ type BoardToolbarProps = {
   hasActiveFilters: boolean;
   users?: ActiveUsers;
   workspaceLabels: WorkspaceLabel[];
-  viewMode: "board" | "list";
-  setViewMode: (mode: "board" | "list") => void;
+  viewMode: "board" | "board3d" | "list";
+  setViewMode: (mode: "board" | "board3d" | "list") => void;
   sort: SortConfig;
   onSortChange: (sort: SortConfig) => void;
 };
@@ -655,6 +655,18 @@ export default function BoardToolbar({
             >
               <PanelsTopLeft className="h-3 w-3" />
               {t("tasks:view.board")}
+            </button>
+            <button
+              type="button"
+              className={`inline-flex h-6 items-center gap-1 rounded-md px-2 text-xs font-medium transition-colors ${
+                viewMode === "board3d"
+                  ? "bg-accent text-foreground"
+                  : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+              }`}
+              onClick={() => setViewMode("board3d")}
+            >
+              <Box className="h-3 w-3" />
+              {t("tasks:view.board3d")}
             </button>
             <button
               type="button"

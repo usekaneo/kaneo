@@ -397,7 +397,8 @@
 			"labels": "Etiquetas",
 			"labelsDescription": "Mostrar descripción y etiquetas de las tareas",
 			"priority": "Prioridad",
-			"priorityDescription": "Mostrar indicador de prioridad"
+			"priorityDescription": "Mostrar indicador de prioridad",
+			"board3d": "Tablero 3D"
 		},
 		"developerPage": {
 			"pageTitle": "Ajustes de Desarrollador",
@@ -1554,7 +1555,8 @@
 		"boardSearchPlaceholder": "Buscar tickets...",
 		"view": {
 			"board": "Tablero",
-			"list": "Lista"
+			"list": "Lista",
+			"board3d": "3D"
 		},
 		"common": {
 			"selectTask": "Seleccionar tarea",
@@ -1940,6 +1942,10 @@
 				"deleteRow": "Eliminar fila",
 				"deleteTable": "Eliminar tabla"
 			}
+		},
+		"board3d": {
+			"hint": "arrastrar: desplazar · ctrl/arrastre derecho: rotar · rueda: zoom",
+			"reset": "Restablecer"
 		}
 	},
 	"invitations": {

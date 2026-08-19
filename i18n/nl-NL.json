@@ -397,7 +397,8 @@
 			"labels": "Labels",
 			"labelsDescription": "Toon taaklabels en tags",
 			"priority": "Prioriteit",
-			"priorityDescription": "Toon prioriteitsindicatoren"
+			"priorityDescription": "Toon prioriteitsindicatoren",
+			"board3d": "3D-bord"
 		},
 		"developerPage": {
 			"pageTitle": "Ontwikkelaarsinstellingen",
@@ -1554,7 +1555,8 @@
 		"boardSearchPlaceholder": "Tickets zoeken...",
 		"view": {
 			"board": "Bord",
-			"list": "Lijst"
+			"list": "Lijst",
+			"board3d": "3D"
 		},
 		"common": {
 			"selectTask": "Selecteer taak",
@@ -1940,6 +1942,10 @@
 				"deleteRow": "Rij verwijderen",
 				"deleteTable": "Tabel verwijderen"
 			}
+		},
+		"board3d": {
+			"hint": "slepen: verschuiven · ctrl/rechts slepen: draaien · scrollwiel: zoomen",
+			"reset": "Opnieuw instellen"
 		}
 	},
 	"invitations": {

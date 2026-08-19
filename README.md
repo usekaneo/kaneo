@@ -46,6 +46,23 @@ We believe the best tools are **invisible**. They should amplify your team's nat
 
 Learn more about Kaneo's features and capabilities in our [documentation](https://kaneo.app/docs/core).
 
+## 3D Board View
+
+The kanban board can be explored in three dimensions. A **Board / 3D / List** switch in the board toolbar turns the flat board into a spatial scene: columns are laid out in perspective, subtly angled toward the camera, and every card stays fully interactive — click a card and the task details panel opens exactly as it does in 2D.
+
+**Controls:**
+
+| Action | Input |
+|--------|-------|
+| Pan | drag |
+| Rotate | right-drag or <kbd>Ctrl</kbd> + drag |
+| Zoom | mouse wheel |
+| Reset camera | **Reset** button |
+
+The view is rendered with pure CSS 3D transforms — no WebGL, no extra dependencies, works in every modern browser and respects the light/dark theme. Your chosen view mode is remembered per user.
+
+🎥 **[Live demo](https://neo37.github.io/kaneo/)** — the board opens straight in 3D.
+
 ## Sponsors
 
 Kaneo is open source. If you find it useful, consider [sponsoring the project](https://github.com/sponsors/andrejsshell) to help support ongoing development.
