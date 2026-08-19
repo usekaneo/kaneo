@@ -15,6 +15,7 @@ import trTR from "./tr-TR.json";
 import ukUA from "./uk-UA.json";
 import viVN from "./vi-VN.json";
 import zhCN from "./zh-CN.json";
+import ltLT from "./lt-LT.json";
 
 export const supportedLocales = [
   "mk-MK",
@@ -34,6 +35,7 @@ export const supportedLocales = [
   "uk-UA",
   "vi-VN",
   "zh-CN",
+  "lt-LT",
 ] as const;
 
 export type AppLocale = (typeof supportedLocales)[number];
@@ -58,4 +60,5 @@ export const resources = {
   "uk-UA": ukUA,
   "vi-VN": viVN,
   "zh-CN": zhCN,
+  "lt-LT": ltLT,
 } as const;
