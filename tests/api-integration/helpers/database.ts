@@ -3,10 +3,38 @@ import { fileURLToPath } from "node:url";
 import { sql } from "drizzle-orm";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Client } from "pg";
-import db from "../../../apps/api/src/database";
+import db, { schema } from "../../../apps/api/src/database";
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
 const migrationsFolder = resolve(currentDir, "../../../apps/api/drizzle");
+
+const drizzleNameSymbol = Object.getOwnPropertySymbols(
+  Object.values(schema).find((value) => value && typeof value === "object") ??
+    {},
+).find((sym) => sym.toString() === "Symbol(drizzle:Name)");
+
+if (!drizzleNameSymbol) {
+  throw new Error(
+    "Could not locate Drizzle table name symbol; schema introspection changed",
+  );
+}
+
+function getTruncateTableNames() {
+  return Object.entries(schema)
+    .filter(
+      ([key, value]) =>
+        key.endsWith("Table") &&
+        !key.endsWith("TableRelations") &&
+        value &&
+        typeof value === "object" &&
+        drizzleNameSymbol in value,
+    )
+    .map(
+      ([, value]) =>
+        (value as Record<symbol, unknown>)[drizzleNameSymbol] as string,
+    )
+    .sort();
+}
 
 let migrationPromise: Promise<void> | null = null;
 
@@ -82,36 +110,10 @@ export async function ensureTestDatabaseMigrated() {
 export async function resetTestDatabase() {
   await ensureTestDatabaseMigrated();
 
+  const tableNames = getTruncateTableNames();
+  const formattedTableNames = tableNames.map((name) => `"${name}"`).join(", ");
+
   await db.execute(
-    sql.raw(`
-      TRUNCATE TABLE
-        "activity",
-        "account",
-        "apikey",
-        "asset",
-        "billing_event",
-        "column",
-        "comment",
-        "external_link",
-        "github_integration",
-        "integration",
-        "invitation",
-        "label",
-        "mcp_oauth_state",
-        "notification",
-        "project",
-        "session",
-        "task",
-        "task_relation",
-        "team",
-        "team_member",
-        "time_entry",
-        "verification",
-        "workflow_rule",
-        "workspace",
-        "workspace_member",
-        "user"
-      RESTART IDENTITY CASCADE
-    `),
+    sql.raw(`TRUNCATE TABLE ${formattedTableNames} RESTART IDENTITY CASCADE`),
   );
 }
