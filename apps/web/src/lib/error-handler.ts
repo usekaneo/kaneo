@@ -9,6 +9,7 @@ export function parseApiError(error: unknown): ApiError {
   if (error instanceof Error) {
     if (
       error.message.includes("Failed to fetch") ||
+      error.message.includes("Load failed") ||
       error.message.includes("NetworkError") ||
       error.message.includes("CORS")
     ) {

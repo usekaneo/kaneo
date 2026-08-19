@@ -16,6 +16,10 @@ if (dsn && !dsn.startsWith("KANEO_")) {
       // Thrown by Facebook's in-app browser (Android) navigation performance logger
       // calling postMessage on a destroyed WebView Java bridge; not caused by kaneo code.
       "Error invoking postMessage: Java object is gone",
+      // Safari's equivalent of Chrome's "Failed to fetch" — thrown when a fetch()
+      // request fails due to a transient network error (e.g. dropped mobile connection).
+      // Occurs on iOS/Safari during authClient.getSession() and is not a bug in kaneo code.
+      "Load failed",
     ],
     integrations: [
       Sentry.browserTracingIntegration(),
