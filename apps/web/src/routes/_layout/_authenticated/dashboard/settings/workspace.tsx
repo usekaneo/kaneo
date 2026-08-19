@@ -34,8 +34,15 @@ export const Route = createFileRoute(
   // sidebar ("WS / Roles.Undefined") and a stuck "Loading…", so pick the first
   // workspace as active so the layout has something to render.
   beforeLoad: async () => {
-    const session = await authClient.getSession();
-    if (session?.data?.session?.activeOrganizationId) return;
+    let session = null;
+    try {
+      const { data } = await authClient.getSession();
+      session = data;
+    } catch (error) {
+      if (import.meta.env.DEV) console.warn("getSession failed", error);
+      // getSession() rejected (e.g. network error) — continue to workspace fallback
+    }
+    if (session?.session?.activeOrganizationId) return;
 
     const workspaces = await getWorkspaces();
     if (workspaces.length === 0) {
