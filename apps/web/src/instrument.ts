@@ -17,6 +17,11 @@ if (dsn && !dsn.startsWith("KANEO_")) {
       // calling postMessage on a destroyed WebView Java bridge; not caused by kaneo code.
       "Error invoking postMessage: Java object is gone",
     ],
+    denyUrls: [
+      // Errors from third-party affiliate/adware browser extensions that inject
+      // scripts fetching from rsc.cdn77.org (e.g. domainList.json); not caused by kaneo code.
+      /cdn77\.org/,
+    ],
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration(),
