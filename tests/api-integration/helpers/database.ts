@@ -106,7 +106,7 @@ export async function resetTestDatabase() {
     );
   }
 
-  const formattedTableNames = tableNames.map((name) => `"${name}"`).join(", ");
+  const formattedTableNames = tableNames.map(quoteIdentifier).join(", ");
 
   await db.execute(
     sql.raw(`TRUNCATE TABLE ${formattedTableNames} RESTART IDENTITY CASCADE`),
