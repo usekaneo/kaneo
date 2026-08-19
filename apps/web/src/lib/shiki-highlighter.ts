@@ -61,6 +61,27 @@ export function getSharedShikiHighlighter() {
       // Reset so a subsequent call can retry rather than reusing a
       // permanently-rejected promise.
       shikiHighlighterPromise = null;
+
+      // A dynamic import failure typically means the browser has a stale
+      // version of the app (cached HTML referencing old content-hashed chunks)
+      // and the asset no longer exists after a new deployment. Reloading
+      // fetches the latest HTML and chunk filenames.
+      if (
+        err instanceof TypeError &&
+        err.message.includes("Failed to fetch dynamically imported module")
+      ) {
+        const RELOAD_FLAG = "shiki_chunk_reload_attempted";
+        if (!sessionStorage.getItem(RELOAD_FLAG)) {
+          sessionStorage.setItem(RELOAD_FLAG, "1");
+          window.location.reload();
+          // Return a never-resolving promise so callers wait for the reload
+          // rather than receiving a rejected promise.
+          return new Promise<never>(() => {});
+        }
+        // Already reloaded once — fail silently so we don't loop.
+        return Promise.reject(err);
+      }
+
       throw err;
     });
   }
