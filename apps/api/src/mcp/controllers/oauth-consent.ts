@@ -123,7 +123,7 @@ export async function decideMcpAuthorizationRequest(params: {
   if (!request) throwOAuthError(404, "invalid_or_expired_request");
 
   const client = await getClient(request.clientId);
-  if (!client || !client.redirectUris.includes(request.redirectUri)) {
+  if (!client?.redirectUris.includes(request.redirectUri)) {
     throwOAuthError(400, "invalid_client");
   }
 
