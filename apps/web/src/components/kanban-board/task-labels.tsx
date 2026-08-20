@@ -41,13 +41,14 @@ export function TaskLabels({
 
   return (
     <div className="flex min-w-0 flex-wrap gap-1">
-      {labels.map((label: { id: string; name: string; color: string }) => (
+      {labels.map((label) => (
         <Badge
           key={label.id}
           variant="outline"
           className="max-w-full min-w-0 px-2 py-0.5 text-[10px] flex items-center"
         >
           <span
+            aria-hidden="true"
             className="inline-block w-1.5 h-1.5 mr-1 shrink-0 rounded-full"
             style={{
               backgroundColor: validColor(label.color),

@@ -20,9 +20,13 @@ describe("TaskLabels", () => {
     render(<TaskLabels labels={[{ id: "label-1", name, color: "purple" }]} />);
 
     const labelName = screen.getByText(name);
+    const badge = labelName.closest('[data-slot="badge"]');
     expect(labelName).not.toHaveClass("max-w-20");
     expect(labelName).toHaveClass("min-w-0", "truncate");
     expect(labelName).toHaveAttribute("title", name);
-    expect(labelName.parentElement).toHaveClass("max-w-full", "min-w-0");
+    expect(badge).toHaveClass("max-w-full", "min-w-0");
+    expect(badge?.querySelector('[aria-hidden="true"]')).toHaveClass(
+      "shrink-0",
+    );
   });
 });
