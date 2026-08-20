@@ -20,9 +20,12 @@ export async function verifyTurnstile(
     return { ok: false, reason: "Captcha token missing." };
   }
 
-  const parsed = parseInt(process.env.TURNSTILE_TIMEOUT_MS ?? "", 10);
+  const raw = (process.env.TURNSTILE_TIMEOUT_MS ?? "").trim();
+  const parsed = Number.parseInt(raw, 10);
   const timeoutMs =
-    Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_TIMEOUT_MS;
+    Number.isSafeInteger(parsed) && parsed > 0 && String(parsed) === raw
+      ? parsed
+      : DEFAULT_TIMEOUT_MS;
 
   const body = new URLSearchParams();
   body.set("secret", secret);
