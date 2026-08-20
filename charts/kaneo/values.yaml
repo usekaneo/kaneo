@@ -16,6 +16,7 @@ nodeSelector: {}
 tolerations: []
 affinity: {}
 topologySpreadConstraints: []
+imagePullSecrets: []
 enableServiceLinks: false
 # Service account configuration
 serviceAccount:

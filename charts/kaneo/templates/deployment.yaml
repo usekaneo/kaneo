@@ -30,6 +30,10 @@ spec:
         {{- include "kaneo.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: kaneo
     spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       serviceAccountName: {{ include "kaneo.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
