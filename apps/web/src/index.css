@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
@@ -7,30 +9,6 @@ input:-webkit-autofill:active {
   -webkit-text-fill-color: var(--foreground) !important;
   -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
   transition: background-color 5000s ease-in-out 0s;
-}
-
-@font-face {
-  font-family: "Cal Sans UI";
-  src: url("./assets/fonts/CalSansUI[wght,GEOM]-s.p.c2e3469d.woff2") format("woff2");
-  font-display: swap;
-  font-style: normal;
-  font-weight: 300 700;
-}
-
-@font-face {
-  font-family: "Cal Sans Heading";
-  src: url("./assets/fonts/CalSans-SemiBold.woff2") format("woff2");
-  font-display: swap;
-  font-style: normal;
-  font-weight: 600;
-}
-
-@font-face {
-  font-family: "Paper Mono";
-  src: url("./assets/fonts/PaperMono-Regular.woff2") format("woff2");
-  font-display: swap;
-  font-style: normal;
-  font-weight: 400;
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -129,13 +107,13 @@ input:-webkit-autofill:active {
 
 :root {
   --font-sans:
-    "Cal Sans UI",
+    "Geist Variable",
     ui-sans-serif,
     system-ui,
     sans-serif;
-  --font-heading: "Cal Sans Heading", var(--font-sans);
+  --font-heading: var(--font-sans);
   --font-mono:
-    "Paper Mono",
+    "Geist Mono Variable",
     ui-monospace,
     SFMono-Regular,
     Menlo,
