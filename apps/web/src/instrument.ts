@@ -16,11 +16,15 @@ if (dsn && !dsn.startsWith("KANEO_")) {
       // Thrown by Facebook's in-app browser (Android) navigation performance logger
       // calling postMessage on a destroyed WebView Java bridge; not caused by kaneo code.
       "Error invoking postMessage: Java object is gone",
-      // Safari's equivalent of Chrome's "Failed to fetch" — thrown when a fetch()
-      // request fails due to a transient network error (e.g. dropped mobile connection).
-      // Occurs on iOS/Safari during authClient.getSession() and is not a bug in kaneo code.
-      "Load failed",
     ],
+    // Safari's "Load failed" used to be filtered here by message alone, which
+    // also silenced actionable TanStack Query fetch failures. The query client
+    // already rate-limits network errors via its own cooldown; auth-provider
+    // tags its transient session-fetch errors so we can drop only those here.
+    beforeSend(event) {
+      if (event.tags?.area === "auth.session") return null;
+      return event;
+    },
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration(),
