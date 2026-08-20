@@ -2,7 +2,7 @@
 #
 # Deploy this stack from a Git source with Coolify's "Docker Compose" build pack:
 #   Public Repository -> https://github.com/usekaneo/kaneo
-#   Build Pack: Docker Compose | Base Directory: / | Compose Location: docker-compose.yml
+#   Build Pack: Docker Compose | Base Directory: / | Compose Location: compose.coolify.yml
 #
 # Assign a domain to the "kaneo" service using its container port, e.g. https://kaneo.example.com:5173
 # (visitors use the normal HTTPS URL; the port only tells Coolify where to route traffic).

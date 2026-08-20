@@ -5,7 +5,7 @@ description: Deploy Kaneo to Coolify using the bundled Docker Compose file.
 
 ## Coolify
 
-Kaneo ships a [Coolify-optimized Docker Compose file](https://github.com/usekaneo/kaneo/blob/main/docker-compose.yml) so you can deploy the pre-built `ghcr.io/usekaneo/kaneo` image from the repository without building anything.
+Kaneo ships a [Coolify-optimized Docker Compose file](https://github.com/usekaneo/kaneo/blob/main/compose.coolify.yml) so you can deploy the pre-built `ghcr.io/usekaneo/kaneo` image from the repository without building anything.
 
 ## Deployment Steps
 
@@ -13,7 +13,7 @@ Kaneo ships a [Coolify-optimized Docker Compose file](https://github.com/usekane
 2. **Enter the repository**: `https://github.com/usekaneo/kaneo` and click **Check Repository**.
 3. **Select the build pack**: Set **Build Pack** to `Docker Compose`.
    - **Base Directory**: `/`
-   - **Docker Compose Location**: `docker-compose.yml`
+   - **Docker Compose Location**: `compose.coolify.yml`
 4. **Assign a domain to the `kaneo` service**: the container listens on port `5173`, so enter `https://<your-domain>:5173`. The port only tells Coolify where to route traffic inside the container — visitors use the normal HTTPS URL (`https://<your-domain>`) without the port.
 5. **Set environment variables** (pre-filled from the compose file):
    - `KANEO_CLIENT_URL` (required): your public URL, e.g. `https://kaneo.example.com` (no `:5173`).
