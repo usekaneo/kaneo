@@ -1,6 +1,5 @@
 import type { Editor } from "@tiptap/core";
 import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Table } from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
@@ -613,12 +612,6 @@ export default function CommentEditor({
             HTMLAttributes: { class: "kaneo-tiptap-codeblock" },
           },
         }),
-        Link.configure({
-          autolink: true,
-          defaultProtocol: "https",
-          linkOnPaste: true,
-          openOnClick: readOnly,
-        }),
         Markdown.configure({
           markedOptions: {
             breaks: true,
@@ -742,6 +735,16 @@ export default function CommentEditor({
           });
           setEmbedComposerError(null);
           return true;
+        },
+        handleClick: (view, _pos, event) => {
+          if (!readOnly) return false;
+          const target = event.target as HTMLElement;
+          const anchor = target.closest("a");
+          if (anchor?.href) {
+            window.open(anchor.href, "_blank", "noopener,noreferrer");
+            return true;
+          }
+          return false;
         },
         handleDrop: (view, event) => {
           if (readOnly || disabled) return false;
