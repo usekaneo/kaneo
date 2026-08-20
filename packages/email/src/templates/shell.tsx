@@ -98,7 +98,7 @@ const main = {
   margin: "0",
   padding: "20px 12px",
   fontFamily:
-    '"Cal Sans UI", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+    '"Geist Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
 };
 
 const container = {
@@ -130,7 +130,7 @@ const heading = {
   fontSize: "24px",
   lineHeight: "31px",
   fontFamily:
-    '"Cal Sans Heading", "Cal Sans UI", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+    '"Geist Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
 };
 
 const subtitleText = {
