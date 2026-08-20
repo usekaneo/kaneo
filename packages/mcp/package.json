@@ -42,9 +42,6 @@
 		"claude",
 		"stdio"
 	],
-	"engines": {
-		"node": ">=24.0.0"
-	},
 	"scripts": {
 		"build": "tsc -p tsconfig.json",
 		"prepublishOnly": "pnpm run build",
