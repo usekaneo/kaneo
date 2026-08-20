@@ -266,6 +266,7 @@ export const configSchema = v.object({
   disableRegistration: v.nullable(v.boolean()),
   disablePasswordRegistration: v.nullable(v.boolean()),
   disableEmailOtpSignIn: v.nullable(v.boolean()),
+  disableWorkspaceCreation: v.nullable(v.boolean()),
   isDemoMode: v.boolean(),
   hasSmtp: v.boolean(),
   hasGithubSignIn: v.nullable(v.boolean()),
