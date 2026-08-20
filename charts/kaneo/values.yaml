@@ -15,6 +15,7 @@ podSecurityContext: {}
 nodeSelector: {}
 tolerations: []
 affinity: {}
+enableServiceLinks: false
 # Service account configuration
 serviceAccount:
   create: true

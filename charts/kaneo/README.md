@@ -61,6 +61,7 @@ helm uninstall my-kaneo
 | `nameOverride`           | String to partially override the fullname template (will maintain the release name)                                | `""`        |
 | `fullnameOverride`       | String to fully override the fullname template                                                                     | `""`        |
 | `replicaCount`           | Number of replicas (ignored if autoscaling is enabled)                                                             | `1`         |
+| `enableServiceLinks`     | Controls Pod's enableServiceLinks field                                                                            | `false`   |
 ### Autoscaling parameters
 | Name                                | Description                                                                                                        | Value       |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ----------- |
