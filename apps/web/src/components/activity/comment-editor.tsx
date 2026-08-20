@@ -1,6 +1,5 @@
 import type { Editor } from "@tiptap/core";
 import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Table } from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
@@ -220,6 +219,8 @@ export default function CommentEditor({
   const onCancelShortcutRef = useRef(onCancelShortcut);
   onSubmitShortcutRef.current = onSubmitShortcut;
   onCancelShortcutRef.current = onCancelShortcut;
+  const readOnlyRef = useRef(readOnly);
+  readOnlyRef.current = readOnly;
   const pendingImageInsertRef = useRef<{
     editor: Editor;
     range?: SlashRange;
@@ -613,12 +614,6 @@ export default function CommentEditor({
             HTMLAttributes: { class: "kaneo-tiptap-codeblock" },
           },
         }),
-        Link.configure({
-          autolink: true,
-          defaultProtocol: "https",
-          linkOnPaste: true,
-          openOnClick: readOnly,
-        }),
         Markdown.configure({
           markedOptions: {
             breaks: true,
@@ -742,6 +737,16 @@ export default function CommentEditor({
           });
           setEmbedComposerError(null);
           return true;
+        },
+        handleClick: (_view, _pos, event) => {
+          if (!readOnlyRef.current) return false;
+          const target = event.target as HTMLElement;
+          const anchor = target.closest("a");
+          if (anchor?.href) {
+            window.open(anchor.href, "_blank", "noopener,noreferrer");
+            return true;
+          }
+          return false;
         },
         handleDrop: (view, event) => {
           if (readOnly || disabled) return false;
