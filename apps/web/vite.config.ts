@@ -60,11 +60,7 @@ export default defineConfig({
     // to end users; the Sentry plugin still attaches them to uploaded
     // releases.
     sourcemap: "hidden",
-    rollupOptions: {
-      output: {
-        manualChunks: undefined,
-      },
-    },
+    rollupOptions: {},
     commonjsOptions: {
       include: [/better-auth/, /node_modules/],
       transformMixedEsModules: true,
