@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
+import { BlogPostCard } from "@/components/landing/blog-post-card";
+import { ContentCard } from "@/components/landing/content-card";
 import { FadeIn } from "@/components/landing/fade-in";
 import { Footer } from "@/components/landing/footer";
 import { breadcrumbJsonLd, JsonLd } from "@/components/landing/json-ld";
 import { Navbar } from "@/components/landing/navbar";
 import { SectionSeparator } from "@/components/landing/section-separator";
+import { getPosts } from "@/lib/blog";
+import { formatBlogDateShort } from "@/lib/blog/format";
 import { alternativePath, comparisonList } from "@/lib/comparisons";
 import { guideList, guidePath } from "@/lib/guides";
 
@@ -18,16 +22,20 @@ const groups = [
   {
     id: "saas",
     title: "Hosted, closed-source tools",
+    label: "Proprietary",
     body: "None of these can be run on your own infrastructure. The comparison is mostly about pricing, data ownership, and how much tool you have to administer.",
   },
   {
     id: "open-source",
     title: "Open-source and self-hosted tools",
+    label: "Open source",
     body: "These are peers. The differences are licence, how much you have to run, and which features sit behind a paid edition.",
   },
 ] as const;
 
 export default function Page() {
+  const posts = getPosts().slice(0, 3);
+
   return (
     <>
       <JsonLd
@@ -58,16 +66,16 @@ export default function Page() {
                 <p className="font-medium text-primary text-sm">Comparisons</p>
               </FadeIn>
               <FadeIn delay={60}>
-                <h1 className="mt-3 text-balance text-4xl font-medium leading-[1.06] md:text-5xl">
+                <h1 className="mt-3 text-balance font-medium text-4xl leading-[1.06] md:text-5xl">
                   How Kaneo compares
                 </h1>
               </FadeIn>
               <FadeIn delay={120}>
                 <p className="mt-5 text-balance text-foreground/70 text-lg leading-relaxed">
-                  Kaneo is an MIT-licensed project manager you can self-host for
-                  free or run as a managed cloud from $4 a month. Here is how it
-                  sits next to the tools people usually weigh it against, and
-                  where each of them is the better answer.
+                  Kaneo Cloud is managed, EU-hosted project management from $4 a
+                  month, and it is open source if you would rather run it
+                  yourself. Here is how it sits next to the tools people usually
+                  weigh it against, and where each of them is the better answer.
                 </p>
               </FadeIn>
             </div>
@@ -79,29 +87,29 @@ export default function Page() {
             <section className="px-6 py-12 md:py-16">
               <div className="mx-auto w-full max-w-6xl">
                 <div className="max-w-2xl">
-                  <h2 className="text-2xl font-medium md:text-3xl">
+                  <h2 className="font-medium text-2xl md:text-3xl">
                     {group.title}
                   </h2>
-                  <p className="mt-3 text-foreground/70 text-sm leading-relaxed">
+                  <p className="mt-3 text-foreground/70 leading-relaxed">
                     {group.body}
                   </p>
                 </div>
-                <div className="mt-8 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {comparisonList
                     .filter((comparison) => comparison.category === group.id)
                     .map((comparison) => (
-                      <a
-                        key={comparison.slug}
-                        className="group rounded-xl border border-border/70 bg-card/70 p-4 transition-colors hover:border-border hover:bg-accent/40"
+                      <ContentCard
+                        body={comparison.summary}
                         href={alternativePath(comparison.slug)}
-                      >
-                        <h3 className="font-medium text-sm transition-colors group-hover:text-primary">
-                          Kaneo vs {comparison.competitor}
-                        </h3>
-                        <p className="mt-2 text-foreground/70 text-sm leading-relaxed">
-                          {comparison.summary}
-                        </p>
-                      </a>
+                        key={comparison.slug}
+                        meta={[
+                          group.label,
+                          <time dateTime={comparison.verifiedOn} key="checked">
+                            Checked {formatBlogDateShort(comparison.verifiedOn)}
+                          </time>,
+                        ]}
+                        title={`Kaneo vs ${comparison.competitor}`}
+                      />
                     ))}
                 </div>
               </div>
@@ -112,28 +120,61 @@ export default function Page() {
         <SectionSeparator>
           <section className="px-6 py-12 md:py-16">
             <div className="mx-auto w-full max-w-6xl">
-              <h2 className="text-2xl font-medium md:text-3xl">
-                Guides worth reading first
-              </h2>
-              <div className="mt-8 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
-                {guideList.slice(0, 6).map((guide) => (
-                  <a
-                    key={guide.slug}
-                    className="group rounded-xl border border-border/70 bg-card/70 p-4 transition-colors hover:border-border hover:bg-accent/40"
+              <div className="flex flex-wrap items-baseline justify-between gap-4">
+                <h2 className="font-medium text-2xl md:text-3xl">
+                  Guides worth reading first
+                </h2>
+                <a
+                  className="text-foreground/60 text-sm transition-colors hover:text-foreground"
+                  href="/guides"
+                >
+                  All guides
+                </a>
+              </div>
+              <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {guideList.slice(0, 3).map((guide) => (
+                  <ContentCard
+                    body={guide.summary}
                     href={guidePath(guide.slug)}
-                  >
-                    <h3 className="font-medium text-sm transition-colors group-hover:text-primary">
-                      {guide.question}
-                    </h3>
-                    <p className="mt-2 text-foreground/70 text-sm leading-relaxed">
-                      {guide.summary}
-                    </p>
-                  </a>
+                    key={guide.slug}
+                    meta={[
+                      "Guide",
+                      <time dateTime={guide.updatedOn} key="updated">
+                        Updated {formatBlogDateShort(guide.updatedOn)}
+                      </time>,
+                    ]}
+                    title={guide.question}
+                  />
                 ))}
               </div>
             </div>
           </section>
         </SectionSeparator>
+
+        {posts.length > 0 ? (
+          <SectionSeparator>
+            <section className="px-6 py-12 md:py-16">
+              <div className="mx-auto w-full max-w-6xl">
+                <div className="flex flex-wrap items-baseline justify-between gap-4">
+                  <h2 className="font-medium text-2xl md:text-3xl">
+                    Round-ups from the blog
+                  </h2>
+                  <a
+                    className="text-foreground/60 text-sm transition-colors hover:text-foreground"
+                    href="/blog"
+                  >
+                    All posts
+                  </a>
+                </div>
+                <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {posts.map((post) => (
+                    <BlogPostCard key={post.slug} post={post} />
+                  ))}
+                </div>
+              </div>
+            </section>
+          </SectionSeparator>
+        ) : null}
       </main>
       <Footer />
     </>
