@@ -42,23 +42,50 @@ export function getBrowserLocale(): string | null {
   return navigator.language || navigator.languages?.[0] || null;
 }
 
+// Components subscribe to the default namespace only, so any other namespace
+// they reference through `t("ns:key")` must be preloaded after init and on
+// every locale change. The lazy backend already returns the whole locale JSON,
+// so cache it once per locale to avoid a fresh dynamic import per namespace.
+const localeResources = new Map<AppLocale, Promise<Record<string, unknown>>>();
+
+function loadLocaleResources(
+  locale: AppLocale,
+): Promise<Record<string, unknown>> {
+  const cached = localeResources.get(locale);
+  if (cached) return cached;
+  const pending = loadLocale(locale).then(
+    (resources) => resources as Record<string, unknown>,
+  );
+  localeResources.set(locale, pending);
+  return pending;
+}
+
+export function preloadNamespaces(locale: AppLocale): Promise<void> {
+  return loadLocaleResources(locale).then((resources) =>
+    i18n.loadNamespaces(Object.keys(resources)),
+  );
+}
+
+const initialLocale = resolveLocale(null, getBrowserLocale());
+
 void i18n
   .use(
     resourcesToBackend((language: string, namespace: string) => {
       const locale = isSupportedLocale(language) ? language : defaultLocale;
-      return loadLocale(locale).then(
-        (resources) => (resources as Record<string, unknown>)[namespace],
+      return loadLocaleResources(locale).then(
+        (resources) => resources[namespace],
       );
     }),
   )
   .use(initReactI18next)
   .init({
-    lng: resolveLocale(null, getBrowserLocale()),
+    lng: initialLocale,
     fallbackLng: defaultLocale,
     defaultNS: "common",
     interpolation: {
       escapeValue: false,
     },
-  });
+  })
+  .then(() => preloadNamespaces(initialLocale));
 
 export { i18n };
