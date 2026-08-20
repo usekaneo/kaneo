@@ -91,6 +91,10 @@ spec:
             {{- with .Values.kaneo.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
+          {{- with .Values.kaneo.extraEnvFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           livenessProbe:
             {{- toYaml .Values.kaneo.livenessProbe | nindent 12 }}
           readinessProbe:
