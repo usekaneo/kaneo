@@ -736,7 +736,7 @@ export default function CommentEditor({
           setEmbedComposerError(null);
           return true;
         },
-        handleClick: (view, _pos, event) => {
+        handleClick: (_view, _pos, event) => {
           if (!readOnly) return false;
           const target = event.target as HTMLElement;
           const anchor = target.closest("a");
