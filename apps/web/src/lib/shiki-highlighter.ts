@@ -71,15 +71,21 @@ export function getSharedShikiHighlighter() {
         err.message.includes("Failed to fetch dynamically imported module")
       ) {
         const RELOAD_FLAG = "shiki_chunk_reload_attempted";
-        if (!sessionStorage.getItem(RELOAD_FLAG)) {
-          sessionStorage.setItem(RELOAD_FLAG, "1");
-          window.location.reload();
-          // Return a never-resolving promise so callers wait for the reload
-          // rather than receiving a rejected promise.
-          return new Promise<never>(() => {});
+        try {
+          if (!sessionStorage.getItem(RELOAD_FLAG)) {
+            sessionStorage.setItem(RELOAD_FLAG, "1");
+            window.location.reload();
+            // Return a never-resolving promise so callers wait for the reload
+            // rather than receiving a rejected promise.
+            return new Promise<never>(() => {});
+          }
+          // Already reloaded once — fail silently so we don't loop.
+          return Promise.reject(err);
+        } catch {
+          // sessionStorage access failed (disabled, private browsing, quota, etc.)
+          // Skip reload attempt and rethrow the original error.
+          throw err;
         }
-        // Already reloaded once — fail silently so we don't loop.
-        return Promise.reject(err);
       }
 
       throw err;
