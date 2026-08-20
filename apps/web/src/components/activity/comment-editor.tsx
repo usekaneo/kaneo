@@ -219,6 +219,8 @@ export default function CommentEditor({
   const onCancelShortcutRef = useRef(onCancelShortcut);
   onSubmitShortcutRef.current = onSubmitShortcut;
   onCancelShortcutRef.current = onCancelShortcut;
+  const readOnlyRef = useRef(readOnly);
+  readOnlyRef.current = readOnly;
   const pendingImageInsertRef = useRef<{
     editor: Editor;
     range?: SlashRange;
@@ -737,7 +739,7 @@ export default function CommentEditor({
           return true;
         },
         handleClick: (_view, _pos, event) => {
-          if (!readOnly) return false;
+          if (!readOnlyRef.current) return false;
           const target = event.target as HTMLElement;
           const anchor = target.closest("a");
           if (anchor?.href) {
