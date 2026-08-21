@@ -8,6 +8,7 @@ import {
   CalendarX,
   GitMerge,
   GitPullRequest,
+  SquareCheck,
 } from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -35,6 +36,7 @@ import {
   isTaskCompleted,
 } from "@/lib/due-date-status";
 import { getInitials } from "@/lib/get-initials";
+import { getTaskItemStats } from "@/lib/get-task-item-stats";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import queryClient from "@/query-client";
@@ -73,11 +75,16 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
     showDueDates,
     showLabels,
     showTaskNumbers,
+    showTaskItemCounts,
   } = useUserPreferencesStore();
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
   const { toggleSelection, isSelected, isFocused } = useBulkSelectionStore();
   const isTaskSelected = isSelected(task.id);
   const isTaskFocused = isFocused(task.id);
+  const taskItemStats = useMemo(
+    () => getTaskItemStats(task.description),
+    [task.description],
+  );
 
   const pullRequests = useMemo(() => {
     return (task.externalLinks ?? []).filter(
@@ -258,14 +265,21 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
 
             <div className="flex items-center gap-1.5">
               {showPriority && (
-                <span className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground">
+                <span className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground h-5.5">
                   {getPriorityIcon(task.priority ?? "")}
+                </span>
+              )}
+
+              {showTaskItemCounts && taskItemStats.total > 0 && (
+                <span className="flex items-center gap-1 text-[10px] px-2 py-1 rounded bg-muted/50 text-muted-foreground h-5.5">
+                  <SquareCheck className="h-[12px] w-[12px] text-muted-foreground" />
+                  {taskItemStats.completed}/{taskItemStats.total}
                 </span>
               )}
 
               {showDueDates && task.dueDate && (
                 <div
-                  className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded ${dueDateStatusColors[getDueDateStatus(task.dueDate, taskIsCompleted)]}`}
+                  className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded h-5.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate, taskIsCompleted)]}`}
                 >
                   {getDueDateStatus(task.dueDate, taskIsCompleted) ===
                     "overdue" && <CalendarX className="w-3 h-3" />}
