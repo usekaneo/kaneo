@@ -1,7 +1,12 @@
 import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { columnTable, projectTable, taskTable } from "../../database/schema";
+import {
+  columnTable,
+  labelTable,
+  projectTable,
+  taskTable,
+} from "../../database/schema";
 import { publishEvent } from "../../events";
 import {
   coercePriority,
@@ -18,6 +23,7 @@ export type ImportTask = {
   startDate?: string | null;
   dueDate?: string | null;
   userId?: string | null;
+  labels?: Array<{ name: string; color: string }>;
 };
 
 async function importTasks(
@@ -75,6 +81,33 @@ async function importTasks(
             number: taskNumber,
           })
           .returning();
+
+        // Re-create the task's labels. export-tasks serialises `labels` per task,
+        // so without this an export/import round-trip silently drops them.
+        if (task && taskData.labels?.length) {
+          const uniqueLabels = [
+            ...new Map(
+              taskData.labels
+                .map((label) => ({ ...label, name: label.name.trim() }))
+                .filter((label) => label.name.length > 0)
+                .map((label) => [label.name, label] as const),
+            ).values(),
+          ];
+
+          if (uniqueLabels.length > 0) {
+            await tx
+              .insert(labelTable)
+              .values(
+                uniqueLabels.map((label) => ({
+                  name: label.name,
+                  color: label.color,
+                  taskId: task.id,
+                  workspaceId: project.workspaceId,
+                })),
+              )
+              .onConflictDoNothing();
+          }
+        }
 
         return task;
       });

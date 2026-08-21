@@ -445,6 +445,9 @@ const task = new Hono<{
             startDate: v.optional(v.nullable(v.string())),
             dueDate: v.optional(v.nullable(v.string())),
             userId: v.optional(v.nullable(v.string())),
+            labels: v.optional(
+              v.array(v.object({ name: v.string(), color: v.string() })),
+            ),
           }),
         ),
       }),
