@@ -7,14 +7,18 @@
     "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
-    "lint": "biome check --write ."
+    "lint": "biome check --write .",
+    "og:generate": "node scripts/generate-og.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
+    "@fontsource-variable/geist": "5.3.0",
+    "@fontsource-variable/geist-mono": "5.3.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "lucide-react": "^1.28.0",
+    "marked": "^18.0.10",
     "next": "16.3.0",
     "radix-ui": "^1.6.7",
     "react": "19.2.8",

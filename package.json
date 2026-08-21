@@ -28,10 +28,10 @@
     "typescript": "7.0.2"
   },
   "engines": {
-    "node": ">=20.19.0"
+    "node": ">=24.0.0"
   },
   "packageManager": "pnpm@10.32.1",
-  "version": "2.19.1",
+  "version": "2.21.0",
   "dependencies": {
     "dotenv-mono": "^1.5.1"
   }

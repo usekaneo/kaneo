@@ -139,31 +139,25 @@ describe("buildDescription", () => {
 
 describe("formatComment", () => {
   it("keeps the body clean and notes the original date", () => {
-    const result = formatComment(
-      {
-        id: "c1",
-        cardId: "a",
-        userId: "u1",
-        text: "Looks good",
-        createdAt: "2026-03-04T10:00:00.000Z",
-      },
-      { id: "u1", email: "sam@example.com", name: "Sam", username: null },
-    );
+    const result = formatComment({
+      id: "c1",
+      cardId: "a",
+      userId: "u1",
+      text: "Looks good",
+      createdAt: "2026-03-04T10:00:00.000Z",
+    });
 
     expect(result).toBe("Looks good\n\n_Originally posted on 2026-03-04._");
   });
 
   it("returns the text unchanged when there is no date", () => {
-    const result = formatComment(
-      {
-        id: "c1",
-        cardId: "a",
-        userId: null,
-        text: "Orphaned",
-        createdAt: null,
-      },
-      undefined,
-    );
+    const result = formatComment({
+      id: "c1",
+      cardId: "a",
+      userId: null,
+      text: "Orphaned",
+      createdAt: null,
+    });
 
     expect(result).toBe("Orphaned");
   });

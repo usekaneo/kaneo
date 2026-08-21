@@ -17,6 +17,19 @@ if (dsn && !dsn.startsWith("KANEO_")) {
       // calling postMessage on a destroyed WebView Java bridge; not caused by kaneo code.
       "Error invoking postMessage: Java object is gone",
     ],
+    denyUrls: [
+      // Errors from third-party affiliate/adware browser extensions that inject
+      // scripts fetching from rsc.cdn77.org (e.g. domainList.json); not caused by kaneo code.
+      /cdn77\.org/,
+    ],
+    // Safari's "Load failed" used to be filtered here by message alone, which
+    // also silenced actionable TanStack Query fetch failures. The query client
+    // already rate-limits network errors via its own cooldown; auth-provider
+    // tags its transient session-fetch errors so we can drop only those here.
+    beforeSend(event) {
+      if (event.tags?.area === "auth.session") return null;
+      return event;
+    },
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration(),

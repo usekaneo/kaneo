@@ -88,6 +88,10 @@ function useShortcutCategories(): ShortcutCategory[] {
             keys: [shortcuts.view.prefix, shortcuts.view.backlog],
             description: t("navigation:keyboardShortcuts.items.backlogView"),
           },
+          {
+            keys: [shortcuts.view.prefix, shortcuts.view.calendar],
+            description: t("navigation:keyboardShortcuts.items.calendarView"),
+          },
         ],
       },
       {
