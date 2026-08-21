@@ -113,9 +113,7 @@ jobs:
     if: ${{ !inputs.dry_run && needs.plan.outputs.version != '' }}
     permissions:
       contents: read
-    uses: ./.github/workflows/helm-chart.yml
-    with:
-      version: ""
+    uses: ./.github/workflows/helm-validate.yml
 
   release:
     name: Release
