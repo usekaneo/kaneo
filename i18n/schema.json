@@ -1318,6 +1318,98 @@
 								}
 							},
 							"required": ["nameRequired", "nameShort", "invalidEmail"]
+						},
+						"avatar": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"hint": {
+									"type": "string"
+								},
+								"remove": {
+									"type": "string"
+								},
+								"updateSuccess": {
+									"type": "string"
+								},
+								"updateError": {
+									"type": "string"
+								},
+								"removeSuccess": {
+									"type": "string"
+								},
+								"removeError": {
+									"type": "string"
+								},
+								"edit": {
+									"type": "string"
+								},
+								"change": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"hint",
+								"remove",
+								"updateSuccess",
+								"updateError",
+								"removeSuccess",
+								"removeError",
+								"edit",
+								"change"
+							]
+						},
+						"deleteAccount": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"sectionTitle": {
+									"type": "string"
+								},
+								"sectionSubtitle": {
+									"type": "string"
+								},
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"modalTitle": {
+									"type": "string"
+								},
+								"modalDescription": {
+									"type": "string"
+								},
+								"confirmLabel": {
+									"type": "string"
+								},
+								"confirm": {
+									"type": "string"
+								},
+								"success": {
+									"type": "string"
+								},
+								"error": {
+									"type": "string"
+								},
+								"sessionTooOld": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"sectionTitle",
+								"sectionSubtitle",
+								"title",
+								"description",
+								"modalTitle",
+								"modalDescription",
+								"confirmLabel",
+								"confirm",
+								"success",
+								"error",
+								"sessionTooOld"
+							]
 						}
 					},
 					"required": [
@@ -1333,7 +1425,9 @@
 						"emailPlaceholder",
 						"updateSuccess",
 						"updateError",
-						"validation"
+						"validation",
+						"avatar",
+						"deleteAccount"
 					]
 				},
 				"notificationsPage": {
@@ -3639,6 +3733,12 @@
 								"repoNotFound": {
 									"type": "string"
 								},
+								"redirected": {
+									"type": "string"
+								},
+								"notGiteaInstance": {
+									"type": "string"
+								},
 								"verifyError": {
 									"type": "string"
 								},
@@ -3689,6 +3789,8 @@
 								"verifyOk",
 								"verifyWarning",
 								"repoNotFound",
+								"redirected",
+								"notGiteaInstance",
 								"verifyError",
 								"tokenRequired",
 								"tokenRequiredVerify",
@@ -5246,6 +5348,9 @@
 								"backlogView": {
 									"type": "string"
 								},
+								"calendarView": {
+									"type": "string"
+								},
 								"nextTask": {
 									"type": "string"
 								},
@@ -5271,6 +5376,7 @@
 								"boardView",
 								"listView",
 								"backlogView",
+								"calendarView",
 								"nextTask",
 								"prevTask",
 								"openTask",
@@ -7129,6 +7235,58 @@
 						"operators"
 					]
 				},
+				"calendar": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"pageTitle": {
+							"type": "string"
+						},
+						"title": {
+							"type": "string"
+						},
+						"previousMonth": {
+							"type": "string"
+						},
+						"nextMonth": {
+							"type": "string"
+						},
+						"today": {
+							"type": "string"
+						},
+						"noTasks": {
+							"type": "string"
+						},
+						"noTasksSubtitle": {
+							"type": "string"
+						},
+						"moreTasks": {
+							"type": "string"
+						},
+						"loadError": {
+							"type": "string"
+						},
+						"dayTasksAriaLabel": {
+							"type": "string"
+						},
+						"taskAriaLabel": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"pageTitle",
+						"title",
+						"previousMonth",
+						"nextMonth",
+						"today",
+						"noTasks",
+						"noTasksSubtitle",
+						"moreTasks",
+						"loadError",
+						"dayTasksAriaLabel",
+						"taskAriaLabel"
+					]
+				},
 				"gantt": {
 					"type": "object",
 					"additionalProperties": false,
@@ -7571,6 +7729,7 @@
 				"backlog",
 				"sort",
 				"boardFilters",
+				"calendar",
 				"gantt",
 				"delete",
 				"archive",

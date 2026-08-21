@@ -1356,7 +1356,8 @@
 				"nextTask": "अगला कार्य",
 				"prevTask": "पिछला कार्य",
 				"openTask": "चयनित कार्य खोलें",
-				"quickSelectNumber": "संख्या द्वारा विकल्प चुनें"
+				"quickSelectNumber": "संख्या द्वारा विकल्प चुनें",
+				"calendarView": "Switch to calendar view"
 			}
 		}
 	},
@@ -1940,6 +1941,19 @@
 				"deleteRow": "पंक्ति हटाएँ",
 				"deleteTable": "तालिका हटाएँ"
 			}
+		},
+		"calendar": {
+			"dayTasksAriaLabel": "Show all tasks for {{date}}",
+			"moreTasks": "+{{count}} more",
+			"nextMonth": "Next month",
+			"noTasks": "No scheduled tasks",
+			"noTasksSubtitle": "Add a start date, due date, or both to tasks to place them on the calendar.",
+			"pageTitle": "{{name}} – Calendar",
+			"previousMonth": "Previous month",
+			"taskAriaLabel": "{{title}}, {{range}}: open task",
+			"title": "Calendar",
+			"today": "Today",
+			"loadError": "Failed to load tasks."
 		}
 	},
 	"invitations": {

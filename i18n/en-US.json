@@ -1376,6 +1376,7 @@
 				"boardView": "Switch to board view",
 				"listView": "Switch to list view",
 				"backlogView": "Switch to backlog view",
+				"calendarView": "Switch to calendar view",
 				"nextTask": "Next task",
 				"prevTask": "Previous task",
 				"openTask": "Open selected task",
@@ -1849,6 +1850,19 @@
 				"isAnyOf": "is any of",
 				"includeAnyOf": "include any of"
 			}
+		},
+		"calendar": {
+			"pageTitle": "{{name}} – Calendar",
+			"title": "Calendar",
+			"previousMonth": "Previous month",
+			"nextMonth": "Next month",
+			"today": "Today",
+			"noTasks": "No scheduled tasks",
+			"noTasksSubtitle": "Add a start date, due date, or both to tasks to place them on the calendar.",
+			"moreTasks": "+{{count}} more",
+			"loadError": "Failed to load tasks.",
+			"dayTasksAriaLabel": "Show all tasks for {{date}}",
+			"taskAriaLabel": "{{title}}, {{range}}: open task"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",
