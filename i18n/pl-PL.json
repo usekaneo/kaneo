@@ -448,6 +448,8 @@
   "notifications": {
     "title": "Powiadomienia",
     "newCount_one": "{{count}} nowe",
+    "newCount_few": "{{count}} nowe",
+    "newCount_many": "{{count}} nowych",
     "newCount_other": "{{count}} nowych",
     "emptyTitle": "Brak powiadomień",
     "emptySubtitle": "Tutaj zobaczysz aktualizacje i aktywność.",
@@ -459,10 +461,16 @@
     },
     "reminderLeadTime": {
       "minutes_one": "{{count}} minuta",
+      "minutes_few": "{{count}} minuty",
+      "minutes_many": "{{count}} minut",
       "minutes_other": "{{count}} minut",
       "hours_one": "{{count}} godzina",
+      "hours_few": "{{count}} godziny",
+      "hours_many": "{{count}} godzin",
       "hours_other": "{{count}} godzin",
       "days_one": "{{count}} dzień",
+      "days_few": "{{count}} dni",
+      "days_many": "{{count}} dni",
       "days_other": "{{count}} dni"
     },
     "events": {
@@ -533,6 +541,8 @@
       "hint": "Przeszukaj wszystkie projekty w tym obszarze roboczym. Użyj krótkich ID, takich jak DEP-23, aby znaleźć konkretne zadania.",
       "searching": "Wyszukiwanie...",
       "resultsFound_one": "Znaleziono {{count}} wynik",
+      "resultsFound_few": "Znaleziono {{count}} wyniki",
+      "resultsFound_many": "Znaleziono {{count}} wyników",
       "resultsFound_other": "Znaleziono {{count}} wyniki",
       "noResultsTitle": "Nie znaleziono wyników",
       "noResultsDescription": "Spróbuj zmienić warunki wyszukiwania albo wyszukaj coś innego",
@@ -1625,6 +1635,8 @@
       "noAccess": "Do zarządzania rolami obszaru roboczego potrzebujesz uprawnień administratora lub właściciela.",
       "pageTitle": "Role",
       "permissionCount_one": "{{count}} uprawnienie",
+      "permissionCount_few": "{{count}} uprawnienia",
+      "permissionCount_many": "{{count}} uprawnień",
       "permissionCount_other": "{{count}} uprawnienia",
       "permissions": {
         "label": {
@@ -2058,6 +2070,8 @@
     },
     "pr": {
       "count_one": "{{count}} PR",
+      "count_few": "{{count}} PR-y",
+      "count_many": "{{count}} PR-ów",
       "count_other": "{{count}} PR-ów",
       "draft": "Wersja robocza",
       "label": "Pull request",
