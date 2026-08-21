@@ -37,7 +37,7 @@ spec:
       serviceAccountName: {{ include "kaneo.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      enableServiceLinks: {{ default .Values.enableServiceLinks false }}
+      enableServiceLinks: {{ default false .Values.enableServiceLinks }}
       containers:
         - name: kaneo
           securityContext:
