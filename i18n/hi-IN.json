@@ -1554,8 +1554,12 @@
 		},
 		"boardSearchPlaceholder": "टिकट खोजें...",
 		"view": {
+			"backlog": "Backlog",
 			"board": "बोर्ड",
-			"list": "सूची"
+			"gantt": "Gantt",
+			"list": "सूची",
+			"section": "View",
+			"tasks": "Tasks"
 		},
 		"common": {
 			"selectTask": "कार्य चुनें",

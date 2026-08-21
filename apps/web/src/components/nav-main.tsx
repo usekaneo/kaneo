@@ -77,7 +77,7 @@ export function NavMain() {
                   >
                     <span>{item.title}</span>
                     {item.badge !== null && (
-                      <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-sm border border-sidebar-border/60 px-1 text-[11px] font-medium text-sidebar-foreground/80">
+                      <span className="ms-auto flex h-5 min-w-5 items-center justify-center rounded-sm border border-sidebar-border/60 px-1 text-[11px] font-medium text-sidebar-foreground/80">
                         {item.badge}
                       </span>
                     )}

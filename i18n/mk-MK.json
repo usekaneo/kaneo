@@ -1554,8 +1554,12 @@
 		},
 		"boardSearchPlaceholder": "Пребарај тикети...",
 		"view": {
+			"backlog": "Backlog",
 			"board": "Табла",
-			"list": "Листа"
+			"gantt": "Gantt",
+			"list": "Листа",
+			"section": "View",
+			"tasks": "Tasks"
 		},
 		"common": {
 			"selectTask": "Избери задача",

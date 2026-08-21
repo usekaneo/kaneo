@@ -1554,8 +1554,12 @@
 		},
 		"boardSearchPlaceholder": "Tìm phiếu...",
 		"view": {
+			"backlog": "Backlog",
 			"board": "Bảng",
-			"list": "Danh sách"
+			"gantt": "Gantt",
+			"list": "Danh sách",
+			"section": "View",
+			"tasks": "Tasks"
 		},
 		"common": {
 			"selectTask": "Chọn công việc",

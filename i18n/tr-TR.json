@@ -1554,8 +1554,12 @@
 		},
 		"boardSearchPlaceholder": "Talep ara...",
 		"view": {
+			"backlog": "Backlog",
 			"board": "Pano",
-			"list": "Liste"
+			"gantt": "Gantt",
+			"list": "Liste",
+			"section": "View",
+			"tasks": "Tasks"
 		},
 		"common": {
 			"selectTask": "Talep seç",

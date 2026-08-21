@@ -1554,8 +1554,12 @@
 		},
 		"boardSearchPlaceholder": "Cerca ticket...",
 		"view": {
+			"backlog": "Backlog",
 			"board": "Board",
-			"list": "Elenco"
+			"gantt": "Gantt",
+			"list": "Elenco",
+			"section": "View",
+			"tasks": "Tasks"
 		},
 		"common": {
 			"selectTask": "Seleziona attività",

@@ -1554,8 +1554,12 @@
 		},
 		"boardSearchPlaceholder": "티켓 검색...",
 		"view": {
+			"backlog": "Backlog",
 			"board": "보드",
-			"list": "목록"
+			"gantt": "Gantt",
+			"list": "목록",
+			"section": "View",
+			"tasks": "Tasks"
 		},
 		"common": {
 			"selectTask": "작업 선택",
