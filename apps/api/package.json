@@ -1,6 +1,7 @@
 {
   "name": "@kaneo/api",
   "type": "module",
+  "private": true,
   "main": "./dist/index.js",
   "types": "./src/index.ts",
   "exports": {
