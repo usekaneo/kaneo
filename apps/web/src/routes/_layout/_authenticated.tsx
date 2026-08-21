@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/react";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { authClient } from "@/lib/auth-client";
 
@@ -6,15 +5,18 @@ import { authClient } from "@/lib/auth-client";
 export const Route = createFileRoute("/_layout/_authenticated")({
   beforeLoad: async ({ location }) => {
     let session = null;
+    let sessionError = false;
     try {
       const { data } = await authClient.getSession();
       session = data;
     } catch (error) {
+      sessionError = true;
       if (import.meta.env.DEV) console.warn("getSession failed", error);
-      Sentry.captureException(error, { tags: { area: "auth.getSession" } });
-      // getSession() rejected (e.g. network error) — treat as unauthenticated
+      // getSession() rejected (e.g. network error) — session state is
+      // unknown. Don't conflate with "no session" (unauthenticated): let
+      // children decide whether to skip active-organization mutations.
     }
-    if (!session) {
+    if (!session && !sessionError) {
       throw redirect({
         to: "/auth/sign-in",
         search: {
@@ -22,6 +24,6 @@ export const Route = createFileRoute("/_layout/_authenticated")({
         },
       });
     }
-    return { session };
+    return { session, sessionError };
   },
 });

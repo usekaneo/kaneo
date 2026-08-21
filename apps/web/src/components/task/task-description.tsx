@@ -1,6 +1,5 @@
 import type { Editor } from "@tiptap/core";
 import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Table } from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
@@ -623,12 +622,6 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           },
           trailingNode: false,
           heading: { levels: [1, 2, 3] },
-        }),
-        Link.configure({
-          autolink: true,
-          defaultProtocol: "https",
-          linkOnPaste: true,
-          openOnClick: false,
         }),
         Markdown.configure({
           markedOptions: {

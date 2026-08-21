@@ -5348,6 +5348,9 @@
 								"backlogView": {
 									"type": "string"
 								},
+								"calendarView": {
+									"type": "string"
+								},
 								"nextTask": {
 									"type": "string"
 								},
@@ -5373,6 +5376,7 @@
 								"boardView",
 								"listView",
 								"backlogView",
+								"calendarView",
 								"nextTask",
 								"prevTask",
 								"openTask",
@@ -7243,6 +7247,58 @@
 						"operators"
 					]
 				},
+				"calendar": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"pageTitle": {
+							"type": "string"
+						},
+						"title": {
+							"type": "string"
+						},
+						"previousMonth": {
+							"type": "string"
+						},
+						"nextMonth": {
+							"type": "string"
+						},
+						"today": {
+							"type": "string"
+						},
+						"noTasks": {
+							"type": "string"
+						},
+						"noTasksSubtitle": {
+							"type": "string"
+						},
+						"moreTasks": {
+							"type": "string"
+						},
+						"loadError": {
+							"type": "string"
+						},
+						"dayTasksAriaLabel": {
+							"type": "string"
+						},
+						"taskAriaLabel": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"pageTitle",
+						"title",
+						"previousMonth",
+						"nextMonth",
+						"today",
+						"noTasks",
+						"noTasksSubtitle",
+						"moreTasks",
+						"loadError",
+						"dayTasksAriaLabel",
+						"taskAriaLabel"
+					]
+				},
 				"gantt": {
 					"type": "object",
 					"additionalProperties": false,
@@ -7685,6 +7741,7 @@
 				"backlog",
 				"sort",
 				"boardFilters",
+				"calendar",
 				"gantt",
 				"delete",
 				"archive",

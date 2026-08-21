@@ -28,11 +28,10 @@
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
-    "@react-email/preview-server": "5.2.10",
     "@react-email/render": "^2.1.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
-    "react-email": "5.2.10",
+    "react-email": "6.9.2",
     "typescript": "^7.0.2",
     "vitest": "^4.1.10"
   }

@@ -106,6 +106,11 @@ function RouteComponent() {
       [shortcuts.view.prefix]: {
         [shortcuts.view.board]: () => setViewMode("board"),
         [shortcuts.view.list]: () => setViewMode("list"),
+        [shortcuts.view.calendar]: () =>
+          navigate({
+            to: "/dashboard/workspace/$workspaceId/project/$projectId/calendar",
+            params: { workspaceId, projectId },
+          }),
         [shortcuts.view.gantt]: () =>
           navigate({
             to: "/dashboard/workspace/$workspaceId/project/$projectId/gantt",

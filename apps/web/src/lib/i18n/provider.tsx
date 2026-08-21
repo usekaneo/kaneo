@@ -5,6 +5,7 @@ import {
   getBrowserLocale,
   getLocaleDirection,
   i18n,
+  preloadNamespaces,
   resolveLocale,
 } from "./index";
 import { persistLocale } from "./locale-storage";
@@ -18,7 +19,9 @@ export function AppI18nProvider({ children }: PropsWithChildren) {
   );
 
   useEffect(() => {
-    void i18n.changeLanguage(resolvedLocale);
+    void i18n
+      .changeLanguage(resolvedLocale)
+      .then(() => preloadNamespaces(resolvedLocale));
     document.documentElement.lang = resolvedLocale;
     document.documentElement.dir = getLocaleDirection(resolvedLocale);
     persistLocale(resolvedLocale);

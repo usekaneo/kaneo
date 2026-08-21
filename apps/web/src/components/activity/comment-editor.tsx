@@ -1,6 +1,5 @@
 import type { Editor } from "@tiptap/core";
 import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Table } from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
@@ -220,6 +219,8 @@ export default function CommentEditor({
   const onCancelShortcutRef = useRef(onCancelShortcut);
   onSubmitShortcutRef.current = onSubmitShortcut;
   onCancelShortcutRef.current = onCancelShortcut;
+  const readOnlyRef = useRef(readOnly);
+  readOnlyRef.current = readOnly;
   const pendingImageInsertRef = useRef<{
     editor: Editor;
     range?: SlashRange;
@@ -573,11 +574,18 @@ export default function CommentEditor({
   useEffect(() => {
     let mounted = true;
 
-    void getSharedShikiHighlighter().then((instance) => {
-      if (!mounted) return;
-      shikiHighlighterRef.current = instance;
-      setShikiHighlighter(instance);
-    });
+    void getSharedShikiHighlighter()
+      .then((instance) => {
+        if (!mounted) return;
+        shikiHighlighterRef.current = instance;
+        setShikiHighlighter(instance);
+      })
+      .catch((err) => {
+        // Shared initializer resets its cached promise on rejection so a
+        // later attempt can retry. If this attempt also fails, swallow it
+        // and render without syntax highlighting.
+        console.error("Failed to initialize Shiki highlighter:", err);
+      });
 
     return () => {
       mounted = false;
@@ -605,12 +613,6 @@ export default function CommentEditor({
           codeBlock: {
             HTMLAttributes: { class: "kaneo-tiptap-codeblock" },
           },
-        }),
-        Link.configure({
-          autolink: true,
-          defaultProtocol: "https",
-          linkOnPaste: true,
-          openOnClick: readOnly,
         }),
         Markdown.configure({
           markedOptions: {
@@ -735,6 +737,16 @@ export default function CommentEditor({
           });
           setEmbedComposerError(null);
           return true;
+        },
+        handleClick: (_view, _pos, event) => {
+          if (!readOnlyRef.current) return false;
+          const target = event.target as HTMLElement;
+          const anchor = target.closest("a");
+          if (anchor?.href) {
+            window.open(anchor.href, "_blank", "noopener,noreferrer");
+            return true;
+          }
+          return false;
         },
         handleDrop: (view, event) => {
           if (readOnly || disabled) return false;
@@ -1157,7 +1169,7 @@ export default function CommentEditor({
       const resolvedLanguage = language === "auto" ? "" : language;
       const { nodePos } = hoveredCodeBlock;
       const node = editor.state.doc.nodeAt(nodePos);
-      if (!node || node.type.name !== "codeBlock") return;
+      if (node?.type.name !== "codeBlock") return;
 
       editor
         .chain()
@@ -1404,7 +1416,7 @@ export default function CommentEditor({
   const copyHoveredCodeBlock = useCallback(async () => {
     if (!editor || !hoveredCodeBlock) return;
     const node = editor.state.doc.nodeAt(hoveredCodeBlock.nodePos);
-    if (!node || node.type.name !== "codeBlock") return;
+    if (node?.type.name !== "codeBlock") return;
 
     const content = node.textContent || "";
     if (!content) return;
