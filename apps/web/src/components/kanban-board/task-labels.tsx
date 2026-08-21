@@ -40,20 +40,23 @@ export function TaskLabels({
   if (!labels.length) return null;
 
   return (
-    <div className="flex flex-wrap gap-1">
-      {labels.map((label: { id: string; name: string; color: string }) => (
+    <div className="flex min-w-0 flex-wrap gap-1">
+      {labels.map((label) => (
         <Badge
           key={label.id}
           variant="outline"
-          className="px-2 py-0.5 text-[10px] flex items-center"
+          className="max-w-full min-w-0 px-2 py-0.5 text-[10px] flex items-center"
         >
           <span
-            className="inline-block w-1.5 h-1.5 mr-1 rounded-full"
+            aria-hidden="true"
+            className="inline-block w-1.5 h-1.5 mr-1 shrink-0 rounded-full"
             style={{
               backgroundColor: validColor(label.color),
             }}
           />
-          <span className="max-w-20 truncate">{label.name}</span>
+          <span className="min-w-0 truncate" title={label.name}>
+            {label.name}
+          </span>
         </Badge>
       ))}
     </div>
