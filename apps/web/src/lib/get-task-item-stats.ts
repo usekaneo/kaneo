@@ -5,13 +5,21 @@ type TaskItemsStats = {
 
 const TASK_ITEM_PATTERN =
   /^\s*(?:>\s*)*(?:[-+*]|\d{1,9}[.)])\s+\[([ xX])\](?:\s|$)/;
-const FENCE_PATTERN = /^\s*(`{3,}|~{3,})/;
+const FENCE_PATTERN = /^\s*(?:>\s*)*(`{3,}|~{3,})/;
 
 /**
- * Get task items count from a task description.
+ * Counts Markdown task-list items in a task description.
  *
- * @param description - Task description
- * @returns Object with completed and total items
+ * A task item must start a line (after indentation and optional blockquote
+ * prefixes), use a bullet or an ordered-list marker, and have a `[ ]` or
+ * `[x]` checkbox. Other checkbox-like text is intentionally ignored.
+ *
+ * Lines inside fenced code blocks are excluded. Fences may be backticks or
+ * tildes, including within blockquotes; a closing fence must use the same
+ * character and be at least as long as its opening fence.
+ *
+ * @param description - Markdown task description, or null when absent.
+ * @returns The total number of task items and the number marked complete.
  */
 export function getTaskItemStats(description: string | null): TaskItemsStats {
   if (!description) return { total: 0, completed: 0 };

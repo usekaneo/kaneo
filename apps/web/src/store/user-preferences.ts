@@ -115,6 +115,7 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
           showLabels: true,
           showTaskNumbers: true,
           showPriority: true,
+          showTaskItemCounts: true,
         }),
 
       sidebarDefaultOpen: true,

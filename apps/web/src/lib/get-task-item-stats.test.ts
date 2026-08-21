@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getTaskItemStats } from "./get-task-item-stats";
 
-describe("getTaskItems", () => {
+describe("getTaskItemStats", () => {
   it("returns zeroes for an empty description", () => {
     expect(getTaskItemStats(null)).toEqual({ total: 0, completed: 0 });
     expect(getTaskItemStats("")).toEqual({ total: 0, completed: 0 });
@@ -27,6 +27,14 @@ describe("getTaskItems", () => {
         "- [x] Real item\n```md\n- [ ] Example\n```\n- [ ] Another item",
       ),
     ).toEqual({ total: 2, completed: 1 });
+  });
+
+  it("does not count task items in blockquoted fenced code blocks", () => {
+    expect(
+      getTaskItemStats(
+        "> ```md\n> - [ ] Example\n> ```\n> - [x] Real item",
+      ),
+    ).toEqual({ total: 1, completed: 1 });
   });
 
   it("supports blockquoted task-list items", () => {
