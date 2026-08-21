@@ -97,6 +97,55 @@ export default function TaskCardContextMenuContent({
     toast.success(t("tasks:contextMenu.copyLinkSuccess"));
   };
 
+  const currentAssigneeIds = useMemo(() => {
+    if (task.assigneeIds && task.assigneeIds.length > 0) {
+      return task.assigneeIds;
+    }
+    if (Array.isArray(task.assignees) && task.assignees.length > 0) {
+      return task.assignees.map((a) => a.id);
+    }
+    return task.userId ? [task.userId] : [];
+  }, [task.assigneeIds, task.assignees, task.userId]);
+
+  const handleToggleAssignee = async (userId: string) => {
+    try {
+      const isSelected = currentAssigneeIds.includes(userId);
+      const nextAssigneeIds = isSelected
+        ? currentAssigneeIds.filter((id) => id !== userId)
+        : [...currentAssigneeIds, userId];
+
+      await updateTaskAssignee({
+        ...task,
+        assigneeIds: nextAssigneeIds,
+        userId: nextAssigneeIds[0] || null,
+      });
+      toast.success(t("tasks:assignee.updateSuccess"));
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("tasks:assignee.updateError"),
+      );
+    }
+  };
+
+  const handleClearAssignees = async () => {
+    try {
+      await updateTaskAssignee({
+        ...task,
+        assigneeIds: [],
+        userId: null,
+      });
+      toast.success(t("tasks:assignee.updateSuccess"));
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("tasks:assignee.updateError"),
+      );
+    }
+  };
+
   const handleChange = async (field: keyof Task, value: string | Date) => {
     try {
       switch (field) {
@@ -107,7 +156,11 @@ export default function TaskCardContextMenuContent({
           await updateTaskStatus({ ...task, status: value as string });
           break;
         case "userId":
-          await updateTaskAssignee({ ...task, userId: value as string });
+          await updateTaskAssignee({
+            ...task,
+            userId: (value as string) || null,
+            assigneeIds: value ? [value as string] : [],
+          });
           break;
         case "title":
           await updateTaskTitle({ ...task, title: value as string });
@@ -124,12 +177,11 @@ export default function TaskCardContextMenuContent({
             [field]: value,
           });
       }
+      toast.success(t("tasks:update.success"));
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : t("tasks:update.error"),
       );
-    } finally {
-      toast.success(t("tasks:update.success"));
     }
   };
 
@@ -260,9 +312,9 @@ export default function TaskCardContextMenuContent({
           </ContextMenuSubTrigger>
           <ContextMenuSubContent className="w-48">
             <ContextMenuCheckboxItem
-              checked={!task.userId}
-              onCheckedChange={() => handleChange("userId", "")}
-              closeOnClick
+              checked={currentAssigneeIds.length === 0}
+              onCheckedChange={handleClearAssignees}
+              closeOnClick={false}
             >
               <div
                 className="w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center"
@@ -274,23 +326,26 @@ export default function TaskCardContextMenuContent({
               </div>
               {t("tasks:assignee.unassigned")}
             </ContextMenuCheckboxItem>
-            {usersOptions.map((user) => (
-              <ContextMenuCheckboxItem
-                key={user.value}
-                checked={task.userId === user.value}
-                onCheckedChange={() => handleChange("userId", user.value ?? "")}
-                closeOnClick
-              >
-                <Avatar className="h-6 w-6">
-                  <AvatarImage src={user.image ?? ""} alt={user.name || ""} />
-                  <AvatarFallback className="text-xs font-medium border border-border/30">
-                    {getInitials(user.name)}
-                  </AvatarFallback>
-                </Avatar>
+            {usersOptions.map((user) => {
+              const isSelected = currentAssigneeIds.includes(user.value);
+              return (
+                <ContextMenuCheckboxItem
+                  key={user.value}
+                  checked={isSelected}
+                  onCheckedChange={() => handleToggleAssignee(user.value ?? "")}
+                  closeOnClick={false}
+                >
+                  <Avatar className="h-6 w-6">
+                    <AvatarImage src={user.image ?? ""} alt={user.name || ""} />
+                    <AvatarFallback className="text-xs font-medium border border-border/30">
+                      {getInitials(user.name)}
+                    </AvatarFallback>
+                  </Avatar>
 
-                {user.label}
-              </ContextMenuCheckboxItem>
-            ))}
+                  {user.label}
+                </ContextMenuCheckboxItem>
+              );
+            })}
           </ContextMenuSubContent>
         </ContextMenuSub>
       )}

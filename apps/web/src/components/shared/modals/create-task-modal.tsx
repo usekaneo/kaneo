@@ -395,6 +395,7 @@ function CreateTaskModal({
               title: title.trim(),
               description: description.trim() || "",
               userId: assigneeIds[0] || null,
+              assigneeIds: assigneeIds,
               status: taskStatus,
               priority,
               startDate: startDate ? startDate.toISOString() : null,
@@ -869,6 +870,7 @@ function CreateTaskModal({
                   <div className="space-y-1">
                     <button
                       type="button"
+                      aria-pressed={assigneeIds.length === 0}
                       className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
                       onClick={() => handleToggleModalAssignee("")}
                     >
@@ -895,6 +897,7 @@ function CreateTaskModal({
                         <button
                           key={member.userId}
                           type="button"
+                          aria-pressed={isSelected}
                           className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
                           onClick={() =>
                             handleToggleModalAssignee(member.userId || "")
