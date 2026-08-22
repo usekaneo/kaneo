@@ -48,6 +48,7 @@ import { Button } from "../ui/button";
 import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
 import TaskCardContextMenuContent from "./task-card-context-menu/task-card-context-menu-content";
 import { TaskLabels } from "./task-labels";
+import clsx from "clsx";
 
 type TaskCardProps = {
   task: Task;
@@ -271,8 +272,16 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
               )}
 
               {showTaskItemCounts && taskItemStats.total > 0 && (
-                <span className="flex items-center gap-1 text-[10px] px-2 py-1 rounded bg-muted/50 text-muted-foreground h-5.5">
-                  <SquareCheck className="h-[12px] w-[12px] text-muted-foreground" />
+                <span
+                  className={clsx(
+                    "flex items-center gap-1 text-[10px] px-2 py-1 rounded bg-muted/50 text-muted-foreground h-5.5",
+                    {
+                      "bg-success/10 text-success-foreground":
+                        taskItemStats.completed === taskItemStats.total,
+                    },
+                  )}
+                >
+                  <SquareCheck className="h-[12px] w-[12px]" />
                   {taskItemStats.completed}/{taskItemStats.total}
                 </span>
               )}
