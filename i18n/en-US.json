@@ -1887,6 +1887,11 @@
 			"success": "Task deleted successfully",
 			"error": "Failed to delete task"
 		},
+		"duplicate": {
+			"titleSuffix": "{{title}} (copy)",
+			"success": "Task duplicated successfully",
+			"error": "Failed to duplicate task"
+		},
 		"archive": {
 			"success": "Archived {{count}} tasks"
 		},
@@ -1931,6 +1936,7 @@
 			"copyLinkSuccess": "Task link copied!"
 		},
 		"actions": {
+			"duplicate": "Duplicate",
 			"archive": "Archive",
 			"markAsPlanned": "Mark as planned",
 			"delete": "Delete..."

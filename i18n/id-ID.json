@@ -1851,6 +1851,11 @@
 			"success": "Tugas berhasil dihapus",
 			"error": "Gagal menghapus tugas"
 		},
+		"duplicate": {
+			"titleSuffix": "{{title}} (salinan)",
+			"success": "Tugas berhasil diduplikasi",
+			"error": "Gagal menduplikasi tugas"
+		},
 		"archive": {
 			"success": "{{count}} tugas diarsipkan"
 		},
@@ -1895,6 +1900,7 @@
 			"copyLinkSuccess": "Tautan tugas disalin!"
 		},
 		"actions": {
+			"duplicate": "Duplikat",
 			"archive": "Arsipkan",
 			"markAsPlanned": "Tandai sebagai direncanakan",
 			"delete": "Hapus..."

@@ -1851,6 +1851,11 @@
 			"success": "Tarefa excluída com sucesso",
 			"error": "Falha ao excluir tarefa"
 		},
+		"duplicate": {
+			"titleSuffix": "{{title}} (cópia)",
+			"success": "Tarefa duplicada com sucesso",
+			"error": "Falha ao duplicar tarefa"
+		},
 		"archive": {
 			"success": "{{count}} tarefas arquivadas"
 		},
@@ -1895,6 +1900,7 @@
 			"copyLinkSuccess": "Link da tarefa copiado!"
 		},
 		"actions": {
+			"duplicate": "Duplicar",
 			"archive": "Arquivar",
 			"markAsPlanned": "Marcar como planejado",
 			"delete": "Excluir..."

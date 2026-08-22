@@ -1851,6 +1851,11 @@
 			"success": "Talep başarıyla silindi",
 			"error": "Talep silinemedi"
 		},
+		"duplicate": {
+			"titleSuffix": "{{title}} (kopya)",
+			"success": "Talep başarıyla çoğaltıldı",
+			"error": "Talep çoğaltılamadı"
+		},
 		"archive": {
 			"success": "{{count}} talep arşivlendi"
 		},
@@ -1895,6 +1900,7 @@
 			"copyLinkSuccess": "Talep bağlantısı kopyalandı!"
 		},
 		"actions": {
+			"duplicate": "Çoğalt",
 			"archive": "Arşivle",
 			"markAsPlanned": "Planlandı olarak işaretle",
 			"delete": "Sil..."

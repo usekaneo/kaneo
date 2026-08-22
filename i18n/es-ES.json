@@ -1840,6 +1840,11 @@
 			"success": "Tarea eliminada correctamente",
 			"error": "Error al eliminar la tarea"
 		},
+		"duplicate": {
+			"titleSuffix": "{{title}} (copia)",
+			"success": "Tarea duplicada correctamente",
+			"error": "Error al duplicar la tarea"
+		},
 		"archive": {
 			"success": "Se han archivado {{count}} tareas"
 		},
@@ -1884,6 +1889,7 @@
 			"copyLinkSuccess": "¡Enlace a la tarea copiado!"
 		},
 		"actions": {
+			"duplicate": "Duplicar",
 			"archive": "Archivar",
 			"markAsPlanned": "Marcar como planeada",
 			"delete": "Eliminar..."
