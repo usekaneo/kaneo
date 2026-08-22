@@ -90,6 +90,211 @@
           "organizationId",
           "createdAt"
         ]
+      },
+      "CustomFieldDefinition": {
+        "type": "object",
+        "required": [
+          "id",
+          "projectId",
+          "name",
+          "type",
+          "required",
+          "defaultValue",
+          "options",
+          "position",
+          "createdAt",
+          "updatedAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "defaultValue": {
+            "type": "string",
+            "nullable": true
+          },
+          "options": {
+            "nullable": true
+          },
+          "position": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CustomFieldValue": {
+        "type": "object",
+        "required": [
+          "id",
+          "taskId",
+          "fieldId",
+          "value",
+          "fieldName",
+          "fieldType",
+          "fieldOptions"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "taskId": {
+            "type": "string"
+          },
+          "fieldId": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          },
+          "fieldName": {
+            "type": "string"
+          },
+          "fieldType": {
+            "type": "string"
+          },
+          "fieldOptions": {
+            "nullable": true
+          }
+        }
+      },
+      "CustomFieldFilterValues": {
+        "type": "object",
+        "required": [
+          "fieldId",
+          "fieldName",
+          "fieldType",
+          "values"
+        ],
+        "properties": {
+          "fieldId": {
+            "type": "string"
+          },
+          "fieldName": {
+            "type": "string"
+          },
+          "fieldType": {
+            "type": "string"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CreateCustomFieldBody": {
+        "type": "object",
+        "required": [
+          "projectId",
+          "name",
+          "type"
+        ],
+        "properties": {
+          "projectId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "text",
+              "number",
+              "date",
+              "dropdown",
+              "boolean"
+            ]
+          },
+          "required": {
+            "type": "boolean",
+            "default": false
+          },
+          "defaultValue": {
+            "type": "string"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "SetCustomFieldValueBody": {
+        "type": "object",
+        "required": [
+          "taskId",
+          "fieldId",
+          "value"
+        ],
+        "properties": {
+          "taskId": {
+            "type": "string"
+          },
+          "fieldId": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string",
+            "description": "String representation of the value. For boolean fields: 'true' or 'false'. For number fields: a valid numeric string. For dropdown fields: one of the field's defined options."
+          }
+        }
+      },
+      "CustomFieldValueResult": {
+        "type": "object",
+        "required": [
+          "id",
+          "taskId",
+          "fieldId",
+          "value",
+          "createdAt",
+          "updatedAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "taskId": {
+            "type": "string"
+          },
+          "fieldId": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "HTTPError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
       }
     }
   },
@@ -2919,6 +3124,337 @@
           }
         ],
         "summary": "Delete Column"
+      }
+    },
+    "/custom-field/project/{projectId}": {
+      "get": {
+        "operationId": "getCustomFieldsByProject",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Get fields by project",
+        "description": "Get all custom field definitions for a project",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of custom field definitions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomFieldDefinition"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/custom-field/project/{projectId}/values": {
+      "get": {
+        "operationId": "getCustomFieldValuesByProject",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Get field values by project",
+        "description": "Get all custom field values for a project",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of custom field values with their definitions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomFieldValue"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/custom-field/task/{taskId}": {
+      "get": {
+        "operationId": "getCustomFieldValuesByTask",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Get field values by task",
+        "description": "Get all custom field values for a task",
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of custom field values with their definitions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomFieldValue"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/custom-field/project/{projectId}/filter-values": {
+      "get": {
+        "operationId": "getCustomFieldFilterValues",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Get custom field filter values",
+        "description": "Get distinct values actually used by tasks for each custom field of a project (for filters)",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of custom fields with their distinct used values",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomFieldFilterValues"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/custom-field/": {
+      "post": {
+        "operationId": "createCustomField",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Create a custom field",
+        "description": "Create a new custom field definition for a project",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCustomFieldBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Custom field created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomFieldDefinition"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/custom-field/value": {
+      "put": {
+        "operationId": "setCustomFieldValue",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Set a custom field value",
+        "description": "Set (create or update) a custom field value for a task",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCustomFieldValueBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Custom field value set successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomFieldValueResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error (required field empty, invalid dropdown option, invalid number, invalid boolean)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Custom field not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/custom-field/reorder/{projectId}": {
+      "put": {
+        "operationId": "reorderCustomFields",
+        "tags": [
+          "Custom Fields"
+        ],
+        "description": "Reorder custom fields in a project",
+        "responses": {
+          "200": {
+            "description": "Custom fields reordered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "projectId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fields": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "position": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "position"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "fields"
+                ]
+              }
+            }
+          }
+        },
+        "summary": "Reorder Custom Fields"
+      }
+    },
+    "/custom-field/{id}": {
+      "delete": {
+        "operationId": "deleteCustomField",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Delete a custom field",
+        "description": "Delete a custom field definition by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Custom field deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomFieldDefinition"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Custom field not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/activity/{taskId}": {

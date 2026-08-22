@@ -8,6 +8,8 @@ import {
   assetTableRelations,
   columnTableRelations,
   commentTableRelations,
+  customFieldDefinitionTableRelations,
+  customFieldValueTableRelations,
   externalLinkTableRelations,
   githubIntegrationTableRelations,
   integrationTableRelations,
@@ -41,6 +43,8 @@ import {
   billingReminderSentTable,
   columnTable,
   commentTable,
+  customFieldDefinitionTable,
+  customFieldValueTable,
   deviceCodeTable,
   externalLinkTable,
   githubIntegrationTable,
@@ -138,6 +142,10 @@ export const schema = {
   workspaceRoleTableRelations,
   workspaceTableRelations,
   workspaceUserTableRelations,
+  customFieldDefinitionTable,
+  customFieldValueTable,
+  customFieldDefinitionTableRelations,
+  customFieldValueTableRelations,
 };
 
 type DatabaseInstance = ReturnType<typeof drizzle<typeof schema>>;
