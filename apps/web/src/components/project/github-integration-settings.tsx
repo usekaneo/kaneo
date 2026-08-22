@@ -113,7 +113,7 @@ export function GitHubIntegrationSettings({
   const handleVerifyInstallation = React.useCallback(
     async (data: GithubIntegrationFormValues, showToast = true) => {
       try {
-        const result = await verifyInstallation(data);
+        const result = await verifyInstallation({ ...data, projectId });
         setVerificationResult(result);
 
         if (showToast) {
@@ -142,7 +142,7 @@ export function GitHubIntegrationSettings({
         setVerificationResult(null);
       }
     },
-    [verifyInstallation, t],
+    [verifyInstallation, projectId, t],
   );
 
   React.useEffect(() => {
@@ -177,7 +177,7 @@ export function GitHubIntegrationSettings({
 
   const onSubmit = async (data: GithubIntegrationFormValues) => {
     try {
-      const verification = await verifyInstallation(data);
+      const verification = await verifyInstallation({ ...data, projectId });
 
       if (!verification.isInstalled) {
         toast.error(t("settings:githubIntegration.toast.installAppFirst"));
@@ -681,6 +681,7 @@ export function GitHubIntegrationSettings({
       )}
 
       <RepositoryBrowserModal
+        projectId={projectId}
         open={showRepositoryBrowser}
         onOpenChange={setShowRepositoryBrowser}
         onSelectRepository={handleRepositorySelect}
