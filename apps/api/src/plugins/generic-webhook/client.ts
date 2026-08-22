@@ -41,7 +41,15 @@ export async function postToGenericWebhook(
       headers,
       body,
       signal: controller.signal,
+      redirect: "manual",
     });
+
+    if (response.status >= 300 && response.status < 400) {
+      await response.body?.cancel();
+      throw new Error(
+        `Generic webhook request was redirected (${response.status}); redirects are not followed`,
+      );
+    }
 
     if (!response.ok) {
       const errorText = await response.text();
