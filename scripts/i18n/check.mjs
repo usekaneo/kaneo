@@ -8,6 +8,47 @@ import {
   writeJson,
 } from "./shared.mjs";
 
+const PLURAL_CATEGORIES = ["zero", "one", "two", "few", "many", "other"];
+
+function pluralBase(key) {
+  for (const category of PLURAL_CATEGORIES) {
+    const suffix = `_${category}`;
+    if (key.endsWith(suffix)) {
+      return key.slice(0, -suffix.length);
+    }
+  }
+  return null;
+}
+
+function categoriesFor(locale) {
+  try {
+    return new Set(
+      new Intl.PluralRules(locale).resolvedOptions().pluralCategories,
+    );
+  } catch {
+    return new Set(["other"]);
+  }
+}
+
+function pluralFamilies(referenceKeys, localeKeys) {
+  const families = new Set();
+  for (const key of localeKeys) {
+    const base = pluralBase(key);
+    if (!base) {
+      continue;
+    }
+    const known =
+      referenceKeys.has(base) ||
+      PLURAL_CATEGORIES.some((category) =>
+        referenceKeys.has(`${base}_${category}`),
+      );
+    if (known) {
+      families.add(base);
+    }
+  }
+  return families;
+}
+
 const args = process.argv.slice(2);
 const shouldFix = args.includes("--fix");
 const localeFilter = args.find((arg) => arg !== "--fix");
@@ -28,11 +69,53 @@ let hasIssues = false;
 
 for (const locale of filteredLocales) {
   const localeKeys = flattenLocale(locale.data);
+  const required = categoriesFor(locale.locale);
+  const families = pluralFamilies(referenceKeys, localeKeys);
+
   const missing = new Set(
-    [...referenceKeys].filter((key) => !localeKeys.has(key)),
+    [...referenceKeys].filter((key) => {
+      if (localeKeys.has(key)) {
+        return false;
+      }
+      const base = pluralBase(key);
+      return !base || required.has(key.slice(base.length + 1));
+    }),
   );
+
+  for (const base of families) {
+    const referenceForms = PLURAL_CATEGORIES.filter((category) =>
+      referenceKeys.has(`${base}_${category}`),
+    );
+    const localeForms = PLURAL_CATEGORIES.filter((category) =>
+      localeKeys.has(`${base}_${category}`),
+    );
+    const declaresOwnForms = localeForms.some(
+      (category) => !referenceForms.includes(category),
+    );
+
+    if (!declaresOwnForms) {
+      continue;
+    }
+
+    for (const category of required) {
+      const key = `${base}_${category}`;
+      if (!localeKeys.has(key)) {
+        missing.add(key);
+      }
+    }
+  }
+
   const extra = new Set(
-    [...localeKeys].filter((key) => !referenceKeys.has(key)),
+    [...localeKeys].filter((key) => {
+      if (referenceKeys.has(key)) {
+        return false;
+      }
+      const base = pluralBase(key);
+      if (!base || !families.has(base)) {
+        return true;
+      }
+      return !required.has(key.slice(base.length + 1));
+    }),
   );
 
   if (missing.size === 0 && extra.size === 0) {

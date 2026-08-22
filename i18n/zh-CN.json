@@ -56,7 +56,30 @@
 			"troubleshooting": "故障排查步骤：",
 			"tryAgain": "重试",
 			"viewDeploymentGuide": "查看部署指南",
-			"refreshPage": "刷新页面"
+			"refreshPage": "刷新页面",
+			"description": "The page crashed unexpectedly. Refreshing usually fixes it.",
+			"messages": {
+				"auth": "Authentication failed. Please sign in again.",
+				"cors": "Unable to connect to the server. This might be due to CORS configuration issues.",
+				"network": "Network error. Please check your internet connection and try again.",
+				"server": "Server error. Please try again later.",
+				"unknown": "An unexpected error occurred."
+			},
+			"troubleshootingSteps": {
+				"cors": {
+					"checkAccessibility": "Check that your API server is accessible from your browser",
+					"checkApiRunning": "Make sure your API server is running",
+					"checkApiUrl": "Check that VITE_API_URL in your frontend .env matches your API server URL",
+					"checkProtocol": "Ensure both frontend and API are using the same protocol (http/https)",
+					"verifyCorsOrigins": "Verify CORS_ORIGINS in your API .env includes your frontend URL"
+				},
+				"network": {
+					"checkConnection": "Check your internet connection",
+					"checkFirewall": "Check if there are any firewall or proxy issues",
+					"tryRefresh": "Try refreshing the page",
+					"verifyApiRunning": "Verify the API server is running and accessible"
+				}
+			}
 		},
 		"formats": {
 			"never": "永不过期"
@@ -625,7 +648,6 @@
 			"emptyTitle": "暂无角色",
 			"emptyDescription": "默认角色在为该工作区初始化后显示在这里。",
 			"defaultBadge": "默认",
-			"permissionCount_one": "{{count}} 个权限",
 			"permissionCount_other": "{{count}} 个权限",
 			"nameLabel": "姓名",
 			"nameHint": "小写，保存后不可更改。",
@@ -1363,7 +1385,6 @@
 	},
 	"notifications": {
 		"title": "通知",
-		"newCount_one": "{{count}} 条新通知",
 		"newCount_other": "{{count}} 条新通知",
 		"emptyTitle": "暂无通知",
 		"emptySubtitle": "更新和活动将显示在这里。",
@@ -1374,11 +1395,8 @@
 			"open": "打开通知"
 		},
 		"reminderLeadTime": {
-			"minutes_one": "{{count}} 分钟",
 			"minutes_other": "{{count}} 分钟",
-			"hours_one": "{{count}} 小时",
 			"hours_other": "{{count}} 小时",
-			"days_one": "{{count}} 天",
 			"days_other": "{{count}} 天"
 		},
 		"events": {
@@ -1867,7 +1885,6 @@
 			"draft": "草稿",
 			"open": "打开",
 			"label": "Pull Request",
-			"count_one": "{{count}} 个 PR",
 			"count_other": "{{count}} 个 PR"
 		},
 		"assignee": {
@@ -2013,7 +2030,6 @@
 			"placeholder": "按任务标题或短 ID 搜索（例如 DEP-23）…",
 			"hint": "在此工作区的所有项目中搜索。使用类似 DEP-23 的短 ID 来定位任务。",
 			"searching": "搜索中…",
-			"resultsFound_one": "找到 {{count}} 条结果",
 			"resultsFound_other": "找到 {{count}} 条结果",
 			"noResultsTitle": "未找到结果",
 			"noResultsDescription": "请调整搜索条件或搜索其他内容",

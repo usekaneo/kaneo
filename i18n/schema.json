@@ -206,6 +206,9 @@
 						"title": {
 							"type": "string"
 						},
+						"description": {
+							"type": "string"
+						},
 						"troubleshooting": {
 							"type": "string"
 						},
@@ -217,14 +220,98 @@
 						},
 						"refreshPage": {
 							"type": "string"
+						},
+						"messages": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"cors": {
+									"type": "string"
+								},
+								"network": {
+									"type": "string"
+								},
+								"auth": {
+									"type": "string"
+								},
+								"server": {
+									"type": "string"
+								},
+								"unknown": {
+									"type": "string"
+								}
+							},
+							"required": ["cors", "network", "auth", "server", "unknown"]
+						},
+						"troubleshootingSteps": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"cors": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"checkApiRunning": {
+											"type": "string"
+										},
+										"checkApiUrl": {
+											"type": "string"
+										},
+										"verifyCorsOrigins": {
+											"type": "string"
+										},
+										"checkProtocol": {
+											"type": "string"
+										},
+										"checkAccessibility": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"checkApiRunning",
+										"checkApiUrl",
+										"verifyCorsOrigins",
+										"checkProtocol",
+										"checkAccessibility"
+									]
+								},
+								"network": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"checkConnection": {
+											"type": "string"
+										},
+										"verifyApiRunning": {
+											"type": "string"
+										},
+										"tryRefresh": {
+											"type": "string"
+										},
+										"checkFirewall": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"checkConnection",
+										"verifyApiRunning",
+										"tryRefresh",
+										"checkFirewall"
+									]
+								}
+							},
+							"required": ["cors", "network"]
 						}
 					},
 					"required": [
 						"title",
+						"description",
 						"troubleshooting",
 						"tryAgain",
 						"viewDeploymentGuide",
-						"refreshPage"
+						"refreshPage",
+						"messages",
+						"troubleshootingSteps"
 					]
 				},
 				"formats": {
