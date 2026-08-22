@@ -1,3 +1,19 @@
+## [2.22.0](https://github.com/usekaneo/kaneo/compare/v2.21.0...v2.22.0) (2026-08-21)
+
+### Features
+
+* **site:** add blog section with alternatives round-ups ([ddc242f](https://github.com/usekaneo/kaneo/commit/ddc242f51eb549a75ab69c7dda4d4c594f3bacb1))
+
+### Bug Fixes
+
+* **api:** return 404 when a label does not exist ([442a382](https://github.com/usekaneo/kaneo/commit/442a38230291edb7784343dc8cf576705a32c737))
+* **ci:** stop the release chart gate requesting packages write ([6ebb762](https://github.com/usekaneo/kaneo/commit/6ebb762cf346fb4a862819ca0dd180994e905664))
+
+### Documentation
+
+* describe the release flow in the agent guide ([56a9eab](https://github.com/usekaneo/kaneo/commit/56a9eabf7e78dfd51664285b801ae8c1fd22dcdc))
+* update contributors and sponsors ([012778e](https://github.com/usekaneo/kaneo/commit/012778e4e64c1d18c84fde192e025ae798f3df33))
+
 # [2.21.0](https://github.com/usekaneo/kaneo/compare/v2.20.0...v2.21.0) (2026-08-20)
 
 

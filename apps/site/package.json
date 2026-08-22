@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "biome check --write .",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "og:generate": "node scripts/generate-og.mjs"
   },
   "dependencies": {

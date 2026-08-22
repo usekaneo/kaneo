@@ -87,6 +87,26 @@ Use the smallest proof that covers the changed behavior, then broaden it when th
 
 Run repository-wide checks when a change crosses packages broadly, before a requested commit or pull request, or when explicitly asked. Report what ran and what did not.
 
+## Releases
+
+Releasing is manual and deliberate: dispatch the **Release** workflow from `main`. Nothing releases on a push.
+
+The workflow resolves the next version from the Conventional Commits since the last tag, builds and pushes the three GHCR images under that version, validates the Helm chart, and only then cuts the release: `package.json`, `charts/kaneo/Chart.yaml`, `CHANGELOG.md`, the `vX.Y.Z` tag, a GitHub Release with grouped notes, and a "released in vX.Y.Z" comment on every PR and issue it closed. `:latest` and the chart publish come after that. A failed image build stops the release; it never leaves a tag pointing at an image that was never published.
+
+Dispatch inputs: `release_type` (`auto` by default; `patch`/`minor`/`major` force the bump) and `dry_run`, which prints the version and notes to the job summary and stops.
+
+This is why the commit convention matters:
+
+- `feat:` → minor bump
+- `fix:` / `perf:` → patch bump
+- `feat!:` or a `BREAKING CHANGE:` footer → major bump
+- `refactor:` / `docs:` → shown in the changelog, no bump on their own
+- `test:` / `build:` / `ci:` / `chore:` / `style:` → no release, hidden from the notes
+
+The commit subject is the changelog entry that ships to users. A squash-merge subject like `fix: apply CodeRabbit auto-fixes` or `fix: remove text-sm` becomes a public release note; write what changed for the reader instead.
+
+Version-carrying files are listed in `scripts/release/apply-version.mjs`. Add new ones there rather than in a workflow step, because the image build and the release commit both run that script.
+
 ## Glossary
 
 - **instance**: one deployed Kaneo installation.
