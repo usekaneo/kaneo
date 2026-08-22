@@ -1,15 +1,22 @@
 import { Hono } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
+import { requireWorkspaceEntitlement } from "../billing/controllers/require-entitlement";
 import { requireEntitlement } from "../billing/require-entitlement-middleware";
 import { projectSchema } from "../schemas";
-import { requireWorkspacePermission } from "../utils/require-workspace-permission";
+import {
+  hasWorkspacePermission,
+  requireWorkspacePermission,
+} from "../utils/require-workspace-permission";
+import { validateWorkspaceAccess } from "../utils/validate-workspace-access";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import archiveProjectCtrl from "./controllers/archive-project";
 import createProjectCtrl from "./controllers/create-project";
 import deleteProjectCtrl from "./controllers/delete-project";
 import getProjectCtrl from "./controllers/get-project";
 import getProjectsCtrl from "./controllers/get-projects";
+import moveProjectCtrl from "./controllers/move-project";
 import reorderProjectsCtrl from "./controllers/reorder-projects";
 import unarchiveProjectCtrl from "./controllers/unarchive-project";
 import updateProjectCtrl from "./controllers/update-project";
@@ -18,6 +25,7 @@ const project = new Hono<{
   Variables: {
     userId: string;
     workspaceId: string;
+    apiKey?: { id: string };
   };
 }>()
   .get(
@@ -269,6 +277,75 @@ const project = new Hono<{
       const workspaceId = c.get("workspaceId");
       const unarchivedProject = await unarchiveProjectCtrl(id, workspaceId);
       return c.json(unarchivedProject);
+    },
+  )
+  .put(
+    "/:id/move",
+    describeRoute({
+      operationId: "moveProject",
+      tags: ["Projects"],
+      description: "Move a project to another workspace",
+      responses: {
+        200: {
+          description: "Project moved successfully",
+          content: {
+            "application/json": {
+              schema: resolver(
+                v.object({
+                  ...projectSchema.entries,
+                  unassignedTaskCount: v.number(),
+                }),
+              ),
+            },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    validator("json", v.object({ workspaceId: v.string() })),
+    workspaceAccess.fromProject(),
+    // A move removes the project from the source workspace, so it needs
+    // `delete` there on top of `update`. The built-in roles that grant
+    // `update` already grant `delete`; this only matters for custom roles,
+    // where the pair would otherwise let someone move a project out of a
+    // workspace they can't delete it from.
+    requireWorkspacePermission({ project: ["update", "delete"] }),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const { workspaceId: targetWorkspaceId } = c.req.valid("json");
+      const sourceWorkspaceId = c.get("workspaceId");
+
+      // The access middleware only resolves the source workspace, so the
+      // target has to be authorized separately: the caller must be able to
+      // create projects there, and it must have an active entitlement.
+      const userId = c.get("userId");
+      await validateWorkspaceAccess(
+        userId,
+        targetWorkspaceId,
+        c.get("apiKey")?.id,
+      );
+
+      const canCreateInTarget = await hasWorkspacePermission(
+        c,
+        { project: ["create"] },
+        targetWorkspaceId,
+      );
+
+      if (!canCreateInTarget) {
+        throw new HTTPException(403, {
+          message: "Insufficient permissions in the target workspace",
+        });
+      }
+
+      await requireWorkspaceEntitlement(targetWorkspaceId);
+
+      const movedProject = await moveProjectCtrl(
+        id,
+        sourceWorkspaceId,
+        targetWorkspaceId,
+        userId,
+      );
+      return c.json(movedProject);
     },
   );
 

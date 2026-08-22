@@ -87,8 +87,12 @@ function satisfies(
 export async function hasWorkspacePermission(
   c: Context,
   permissions: PermissionMap,
+  // Checks a workspace other than the one the request authorized against.
+  // Needed when a single request touches two workspaces (e.g. moving a
+  // project), since the access middleware only resolves one.
+  workspaceIdOverride?: string,
 ) {
-  const workspaceId = c.get("workspaceId");
+  const workspaceId = workspaceIdOverride ?? c.get("workspaceId");
   if (!workspaceId) return false;
 
   const apiKey = c.get("apiKey") as

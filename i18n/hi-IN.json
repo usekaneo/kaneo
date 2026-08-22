@@ -810,7 +810,18 @@
 				"iconRequired": "आइकन आवश्यक है"
 			},
 			"importExportTasks": "आयात/निर्यात",
-			"importExportTasksDescription": "कार्यों को आयात और निर्यात करें।"
+			"importExportTasksDescription": "कार्यों को आयात और निर्यात करें।",
+			"moveModalConfirm": "प्रोजेक्ट ले जाएँ",
+			"moveModalDescription": "इससे प्रोजेक्ट \"{{name}}\" और उसके सभी कार्य \"{{workspace}}\" में चले जाएँगे। जो कार्य उन लोगों को सौंपे गए हैं जो उस वर्कस्पेस के सदस्य नहीं हैं, उनका असाइनमेंट हटा दिया जाएगा, और इस प्रोजेक्ट की सूचना सदस्यताएँ हटा दी जाएँगी।",
+			"moveModalTitle": "प्रोजेक्ट ले जाएँ?",
+			"moveProject": "वर्कस्पेस में ले जाएँ",
+			"moveProjectAction": "ले जाएँ",
+			"moveProjectDescription": "इस प्रोजेक्ट को उसके सभी कार्यों सहित किसी अन्य वर्कस्पेस में ले जाएँ।",
+			"moveProjectPlaceholder": "वर्कस्पेस चुनें",
+			"toastMoved": "प्रोजेक्ट सफलतापूर्वक ले जाया गया",
+			"toastMovedWithUnassigned": "प्रोजेक्ट सफलतापूर्वक ले जाया गया। {{taskCount}} कार्य का असाइनमेंट हटा दिया गया।",
+			"toastMoveError": "प्रोजेक्ट ले जाने में विफल",
+			"moveTargetsError": "यह जाँचा नहीं जा सका कि आप इस प्रोजेक्ट को किन वर्कस्पेस में ले जा सकते हैं। पुनः प्रयास करने के लिए पेज रीलोड करें।"
 		},
 		"projectIntegrations": {
 			"pageTitle": "प्रोजेक्ट एकीकरण",

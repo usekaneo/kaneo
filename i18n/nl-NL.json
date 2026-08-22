@@ -545,7 +545,18 @@
 				"iconRequired": "Icoon is verplicht"
 			},
 			"importExportTasks": "Importeren/Exporteren",
-			"importExportTasksDescription": "Importeren/Exporteren taken"
+			"importExportTasksDescription": "Importeren/Exporteren taken",
+			"moveModalConfirm": "Project verplaatsen",
+			"moveModalDescription": "Hiermee worden het project \"{{name}}\" en al zijn taken verplaatst naar \"{{workspace}}\". Taken die zijn toegewezen aan personen die geen lid zijn van die werkruimte worden niet langer toegewezen, en meldingsabonnementen voor dit project worden verwijderd.",
+			"moveModalTitle": "Project verplaatsen?",
+			"moveProject": "Naar werkruimte verplaatsen",
+			"moveProjectAction": "Verplaatsen",
+			"moveProjectDescription": "Verplaats dit project, met al zijn taken, naar een andere werkruimte.",
+			"moveProjectPlaceholder": "Selecteer werkruimte",
+			"toastMoved": "Project succesvol verplaatst",
+			"toastMovedWithUnassigned": "Project succesvol verplaatst. {{taskCount}} taak/taken zijn niet langer toegewezen.",
+			"toastMoveError": "Verplaatsen van project mislukt",
+			"moveTargetsError": "Kon niet controleren naar welke workspaces je dit project kunt verplaatsen. Herlaad de pagina om het opnieuw te proberen."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Projectintegraties",

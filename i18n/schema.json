@@ -3136,6 +3136,36 @@
 						},
 						"importExportTasksDescription": {
 							"type": "string"
+						},
+						"moveProject": {
+							"type": "string"
+						},
+						"moveProjectDescription": {
+							"type": "string"
+						},
+						"moveProjectPlaceholder": {
+							"type": "string"
+						},
+						"moveProjectAction": {
+							"type": "string"
+						},
+						"moveModalTitle": {
+							"type": "string"
+						},
+						"moveModalDescription": {
+							"type": "string"
+						},
+						"moveModalConfirm": {
+							"type": "string"
+						},
+						"toastMoved": {
+							"type": "string"
+						},
+						"toastMovedWithUnassigned": {
+							"type": "string"
+						},
+						"toastMoveError": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -3170,7 +3200,17 @@
 						"toastDeleteError",
 						"validation",
 						"importExportTasks",
-						"importExportTasksDescription"
+						"importExportTasksDescription",
+						"moveProject",
+						"moveProjectDescription",
+						"moveProjectPlaceholder",
+						"moveProjectAction",
+						"moveModalTitle",
+						"moveModalDescription",
+						"moveModalConfirm",
+						"toastMoved",
+						"toastMovedWithUnassigned",
+						"toastMoveError"
 					]
 				},
 				"projectIntegrations": {

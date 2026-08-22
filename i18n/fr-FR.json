@@ -648,7 +648,18 @@
 				"iconRequired": "L'icône est requise"
 			},
 			"importExportTasks": "Importation/Exportation",
-			"importExportTasksDescription": "Importation/Exportation des Tâches"
+			"importExportTasksDescription": "Importation/Exportation des Tâches",
+			"moveModalConfirm": "Déplacer le projet",
+			"moveModalDescription": "Cette action déplacera le projet \"{{name}}\" et toutes ses tâches vers \"{{workspace}}\". Les tâches assignées à des personnes qui ne sont pas membres de cet espace de travail seront désassignées, et les abonnements aux notifications de ce projet seront supprimés.",
+			"moveModalTitle": "Déplacer le projet ?",
+			"moveProject": "Déplacer vers un espace de travail",
+			"moveProjectAction": "Déplacer",
+			"moveProjectDescription": "Déplacez ce projet, avec toutes ses tâches, vers un autre espace de travail.",
+			"moveProjectPlaceholder": "Sélectionner un espace de travail",
+			"toastMoved": "Projet déplacé avec succès",
+			"toastMovedWithUnassigned": "Projet déplacé avec succès. {{taskCount}} tâche(s) ont été désassignées.",
+			"toastMoveError": "Échec du déplacement du projet",
+			"moveTargetsError": "Impossible de vérifier vers quels espaces de travail vous pouvez déplacer ce projet. Rechargez la page pour réessayer."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Intégrations du projet",
