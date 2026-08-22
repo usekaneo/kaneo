@@ -162,28 +162,49 @@ const notification = new Hono<{
 subscribeToEvent<{
   taskId: string;
   userId: string;
+  assigneeIds?: string[];
   currentUserId?: string;
   title: string;
   projectId: string;
 }>("task.created", async (data) => {
-  if (data.userId && data.userId !== data.currentUserId) {
+  const notifyUserIds = new Set<string>();
+  if (data.assigneeIds && data.assigneeIds.length > 0) {
+    for (const id of data.assigneeIds) {
+      if (id && id !== data.currentUserId) {
+        notifyUserIds.add(id);
+      }
+    }
+  } else if (data.userId && data.userId !== data.currentUserId) {
+    notifyUserIds.add(data.userId);
+  }
+
+  if (notifyUserIds.size > 0) {
     const [project] = await db
       .select({ workspaceId: projectTable.workspaceId })
       .from(projectTable)
       .where(eq(projectTable.id, data.projectId))
       .limit(1);
 
-    await createNotification({
-      userId: data.userId,
-      type: "task_created",
-      eventData: {
-        taskTitle: data.title,
-        projectId: data.projectId,
-        workspaceId: project?.workspaceId ?? null,
-      },
-      resourceId: data.taskId,
-      resourceType: "task",
-    });
+    for (const notifyUserId of notifyUserIds) {
+      try {
+        await createNotification({
+          userId: notifyUserId,
+          type: "task_created",
+          eventData: {
+            taskTitle: data.title,
+            projectId: data.projectId,
+            workspaceId: project?.workspaceId ?? null,
+          },
+          resourceId: data.taskId,
+          resourceType: "task",
+        });
+      } catch (err) {
+        console.error(
+          `Failed to create task_created notification for user ${notifyUserId}:`,
+          err,
+        );
+      }
+    }
   }
 });
 

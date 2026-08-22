@@ -101,12 +101,19 @@ export function useTaskFilters(
         return false;
       }
 
-      if (
-        filters.assignee &&
-        filters.assignee.length > 0 &&
-        !filters.assignee.includes(task.userId ?? "")
-      ) {
-        return false;
+      if (filters.assignee && filters.assignee.length > 0) {
+        const taskUserIds =
+          task.assignees && task.assignees.length > 0
+            ? task.assignees.map((a) => a.id)
+            : task.userId
+              ? [task.userId]
+              : [];
+        const matchesAssignee = filters.assignee.some((filterId) =>
+          taskUserIds.includes(filterId),
+        );
+        if (!matchesAssignee) {
+          return false;
+        }
       }
 
       if (filters.dueDate && filters.dueDate.length > 0) {

@@ -1,16 +1,24 @@
-import { eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { taskTable, userTable } from "../../database/schema";
+import {
+  projectTable,
+  taskAssigneeTable,
+  taskTable,
+  userTable,
+  workspaceUserTable,
+} from "../../database/schema";
 import { publishEvent } from "../../events";
 
 async function updateTaskAssignee({
   id,
   userId,
+  assigneeIds,
   currentUserId,
 }: {
   id: string;
-  userId: string | null;
+  userId?: string | null;
+  assigneeIds?: string[];
   currentUserId: string;
 }) {
   const existingTask = await db.query.taskTable.findFirst({
@@ -23,16 +31,72 @@ async function updateTaskAssignee({
     });
   }
 
-  const nextAssigneeId = userId || null;
-  if (existingTask.userId === nextAssigneeId) {
-    return existingTask;
+  let targetAssigneeIds: string[] = [];
+  if (assigneeIds !== undefined) {
+    targetAssigneeIds = Array.from(
+      new Set(assigneeIds.map((id) => id.trim()).filter(Boolean)),
+    );
+  } else if (userId !== undefined) {
+    targetAssigneeIds = userId?.trim() ? [userId.trim()] : [];
+  } else {
+    targetAssigneeIds = existingTask.userId ? [existingTask.userId] : [];
   }
 
-  const [updatedTask] = await db
-    .update(taskTable)
-    .set({ userId: nextAssigneeId || null })
-    .where(eq(taskTable.id, id))
-    .returning();
+  if (targetAssigneeIds.length > 0) {
+    const project = await db.query.projectTable.findFirst({
+      where: eq(projectTable.id, existingTask.projectId),
+    });
+
+    if (project) {
+      const validMembers = await db
+        .select({ userId: workspaceUserTable.userId })
+        .from(workspaceUserTable)
+        .where(
+          and(
+            eq(workspaceUserTable.workspaceId, project.workspaceId),
+            inArray(workspaceUserTable.userId, targetAssigneeIds),
+          ),
+        );
+
+      if (validMembers.length !== targetAssigneeIds.length) {
+        throw new HTTPException(404, { message: "Assignee not found" });
+      }
+    } else {
+      const validUsers = await db
+        .select({ id: userTable.id })
+        .from(userTable)
+        .where(inArray(userTable.id, targetAssigneeIds));
+
+      if (validUsers.length !== targetAssigneeIds.length) {
+        throw new HTTPException(404, { message: "Assignee not found" });
+      }
+    }
+  }
+
+  const primaryAssigneeId =
+    targetAssigneeIds.length > 0 ? targetAssigneeIds[0] : null;
+
+  await db.transaction(async (tx) => {
+    await tx
+      .update(taskTable)
+      .set({ userId: primaryAssigneeId })
+      .where(eq(taskTable.id, id));
+
+    await tx.delete(taskAssigneeTable).where(eq(taskAssigneeTable.taskId, id));
+
+    if (targetAssigneeIds.length > 0) {
+      await tx.insert(taskAssigneeTable).values(
+        targetAssigneeIds.map((uId) => ({
+          taskId: id,
+          userId: uId,
+        })),
+      );
+    }
+  });
+
+  const updatedTask = await db.query.taskTable.findFirst({
+    where: eq(taskTable.id, id),
+  });
 
   if (!updatedTask) {
     throw new HTTPException(500, {
@@ -40,17 +104,17 @@ async function updateTaskAssignee({
     });
   }
 
-  const newAssigneeName = userId
-    ? (
-        await db
-          .select({ name: userTable.name })
-          .from(userTable)
-          .where(eq(userTable.id, userId))
-          .limit(1)
-      )[0]?.name
-    : undefined;
+  const assigneesData = await db
+    .select({
+      id: userTable.id,
+      name: userTable.name,
+      image: userTable.image,
+    })
+    .from(taskAssigneeTable)
+    .innerJoin(userTable, eq(taskAssigneeTable.userId, userTable.id))
+    .where(eq(taskAssigneeTable.taskId, id));
 
-  if (!userId) {
+  if (targetAssigneeIds.length === 0) {
     await publishEvent("task.unassigned", {
       taskId: updatedTask.id,
       projectId: updatedTask.projectId,
@@ -58,22 +122,28 @@ async function updateTaskAssignee({
       title: updatedTask.title,
       type: "unassigned",
     });
-
-    return updatedTask;
+  } else {
+    await publishEvent("task.assignee_changed", {
+      taskId: updatedTask.id,
+      projectId: updatedTask.projectId,
+      userId: currentUserId,
+      oldAssignee: existingTask.userId,
+      newAssignee: assigneesData
+        .map((a) => a.name)
+        .filter(Boolean)
+        .join(", "),
+      newAssigneeId: primaryAssigneeId,
+      assigneeIds: targetAssigneeIds,
+      title: updatedTask.title,
+      type: "assignee_changed",
+    });
   }
 
-  await publishEvent("task.assignee_changed", {
-    taskId: updatedTask.id,
-    projectId: updatedTask.projectId,
-    userId: currentUserId,
-    oldAssignee: existingTask.userId,
-    newAssignee: newAssigneeName,
-    newAssigneeId: userId,
-    title: updatedTask.title,
-    type: "assignee_changed",
-  });
-
-  return updatedTask;
+  return {
+    ...updatedTask,
+    assignees: assigneesData,
+    assigneeIds: targetAssigneeIds,
+  };
 }
 
 export default updateTaskAssignee;

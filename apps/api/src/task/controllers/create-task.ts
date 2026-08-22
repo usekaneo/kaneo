@@ -1,7 +1,14 @@
-import { and, eq, max } from "drizzle-orm";
+import { and, eq, inArray, max } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { columnTable, taskTable, userTable } from "../../database/schema";
+import {
+  columnTable,
+  projectTable,
+  taskAssigneeTable,
+  taskTable,
+  userTable,
+  workspaceUserTable,
+} from "../../database/schema";
 import { publishEvent } from "../../events";
 import { assertValidTaskStatus } from "../validate-task-fields";
 import { claimTaskNumber } from "./claim-task-numbers";
@@ -10,6 +17,7 @@ async function createTask({
   projectId,
   currentUserId,
   userId,
+  assigneeIds,
   title,
   status,
   startDate,
@@ -20,6 +28,7 @@ async function createTask({
   projectId: string;
   currentUserId: string;
   userId?: string;
+  assigneeIds?: string[];
   title: string;
   status: string;
   startDate?: Date;
@@ -30,20 +39,50 @@ async function createTask({
   const resolvedStatus = status || "to-do";
   const resolvedPriority = priority || "no-priority";
 
-  const normalizedUserId = userId?.trim() || undefined;
+  let targetAssigneeIds: string[] = [];
+  if (assigneeIds && assigneeIds.length > 0) {
+    targetAssigneeIds = Array.from(
+      new Set(assigneeIds.map((id) => id.trim()).filter(Boolean)),
+    );
+  } else if (userId?.trim()) {
+    targetAssigneeIds = [userId.trim()];
+  }
+
+  if (targetAssigneeIds.length > 0) {
+    const project = await db.query.projectTable.findFirst({
+      where: eq(projectTable.id, projectId),
+    });
+
+    if (project) {
+      const validMembers = await db
+        .select({ userId: workspaceUserTable.userId })
+        .from(workspaceUserTable)
+        .where(
+          and(
+            eq(workspaceUserTable.workspaceId, project.workspaceId),
+            inArray(workspaceUserTable.userId, targetAssigneeIds),
+          ),
+        );
+
+      if (validMembers.length !== targetAssigneeIds.length) {
+        throw new HTTPException(404, { message: "Assignee not found" });
+      }
+    } else {
+      const validUsers = await db
+        .select({ id: userTable.id })
+        .from(userTable)
+        .where(inArray(userTable.id, targetAssigneeIds));
+
+      if (validUsers.length !== targetAssigneeIds.length) {
+        throw new HTTPException(404, { message: "Assignee not found" });
+      }
+    }
+  }
+
+  const primaryUserId =
+    targetAssigneeIds.length > 0 ? targetAssigneeIds[0] : null;
 
   await assertValidTaskStatus(resolvedStatus, projectId);
-
-  const [assignee] = await db
-    .select({ name: userTable.name })
-    .from(userTable)
-    .where(eq(userTable.id, normalizedUserId ?? ""));
-
-  if (normalizedUserId && !assignee) {
-    throw new HTTPException(404, {
-      message: "Assignee not found",
-    });
-  }
 
   const column = await db.query.columnTable.findFirst({
     where: and(
@@ -73,7 +112,7 @@ async function createTask({
       .insert(taskTable)
       .values({
         projectId,
-        userId: normalizedUserId ?? null,
+        userId: primaryUserId,
         title: title || "",
         status: resolvedStatus,
         columnId: column?.id ?? null,
@@ -86,6 +125,15 @@ async function createTask({
       })
       .returning();
 
+    if (task && targetAssigneeIds.length > 0) {
+      await tx.insert(taskAssigneeTable).values(
+        targetAssigneeIds.map((uId) => ({
+          taskId: task.id,
+          userId: uId,
+        })),
+      );
+    }
+
     return task;
   });
 
@@ -95,18 +143,36 @@ async function createTask({
     });
   }
 
+  const assigneesData = await db
+    .select({
+      id: userTable.id,
+      name: userTable.name,
+      image: userTable.image,
+    })
+    .from(taskAssigneeTable)
+    .innerJoin(userTable, eq(taskAssigneeTable.userId, userTable.id))
+    .where(eq(taskAssigneeTable.taskId, createdTask.id));
+
   await publishEvent("task.created", {
     ...createdTask,
     taskId: createdTask.id,
     userId: createdTask.userId ?? "",
+    assigneeIds: targetAssigneeIds,
     currentUserId: currentUserId,
     type: "created",
     content: null,
   });
 
+  const primaryAssignee = primaryUserId
+    ? assigneesData.find((a) => a.id === primaryUserId)
+    : undefined;
+
   return {
     ...createdTask,
-    assigneeName: assignee?.name,
+    assignees: assigneesData,
+    assigneeIds: targetAssigneeIds,
+    assigneeName: primaryAssignee?.name,
+    assigneeImage: primaryAssignee?.image,
   };
 }
 

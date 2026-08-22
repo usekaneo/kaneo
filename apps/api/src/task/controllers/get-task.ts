@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { taskTable, userTable } from "../../database/schema";
+import { taskAssigneeTable, taskTable, userTable } from "../../database/schema";
 
 async function getTask(taskId: string) {
   const task = await db
@@ -19,6 +19,7 @@ async function getTask(taskId: string) {
       userId: taskTable.userId,
       assigneeName: userTable.name,
       assigneeId: userTable.id,
+      assigneeImage: userTable.image,
       projectId: taskTable.projectId,
     })
     .from(taskTable)
@@ -32,7 +33,38 @@ async function getTask(taskId: string) {
     });
   }
 
-  return task[0];
+  const targetTask = task[0];
+
+  const assigneesData = await db
+    .select({
+      id: userTable.id,
+      name: userTable.name,
+      image: userTable.image,
+    })
+    .from(taskAssigneeTable)
+    .innerJoin(userTable, eq(taskAssigneeTable.userId, userTable.id))
+    .where(eq(taskAssigneeTable.taskId, taskId));
+
+  let assignees: Array<{
+    id: string;
+    name: string | null;
+    image: string | null;
+  }> = assigneesData;
+  if (assignees.length === 0 && targetTask.assigneeId) {
+    assignees = [
+      {
+        id: targetTask.assigneeId,
+        name: targetTask.assigneeName,
+        image: targetTask.assigneeImage ?? null,
+      },
+    ];
+  }
+
+  return {
+    ...targetTask,
+    assignees,
+    assigneeIds: assignees.map((a) => a.id),
+  };
 }
 
 export default getTask;

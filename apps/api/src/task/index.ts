@@ -197,6 +197,7 @@ const task = new Hono<{
         priority: v.picklist(VALID_PRIORITIES),
         status: v.string(),
         userId: v.optional(v.string()),
+        assigneeIds: v.optional(v.array(v.string())),
       }),
     ),
     workspaceAccess.fromProject("projectId"),
@@ -212,6 +213,7 @@ const task = new Hono<{
         priority,
         status,
         userId,
+        assigneeIds,
       } = c.req.valid("json");
 
       const parsedStartDate =
@@ -229,6 +231,7 @@ const task = new Hono<{
         projectId,
         currentUserId: c.get("userId"),
         userId: userId,
+        assigneeIds: assigneeIds,
         title,
         description,
         startDate: parsedStartDate,
@@ -565,16 +568,27 @@ const task = new Hono<{
       },
     }),
     validator("param", v.object({ id: v.string() })),
-    validator("json", v.object({ userId: v.nullable(v.string()) })),
+    validator(
+      "json",
+      v.object({
+        userId: v.optional(v.nullable(v.string())),
+        assigneeIds: v.optional(v.array(v.string())),
+      }),
+    ),
     workspaceAccess.fromTask(),
     requireWorkspacePermission({ task: ["assign"] }),
     requireEntitlement,
     async (c) => {
       const { id } = c.req.valid("param");
-      const { userId } = c.req.valid("json");
+      const { userId, assigneeIds } = c.req.valid("json");
       const currentUserId = c.get("userId");
 
-      const task = await updateTaskAssignee({ id, userId, currentUserId });
+      const task = await updateTaskAssignee({
+        id,
+        userId,
+        assigneeIds,
+        currentUserId,
+      });
 
       return c.json(task);
     },
