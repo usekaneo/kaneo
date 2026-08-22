@@ -11,15 +11,24 @@ async function createTimeEntry({
   description,
   startTime,
   endTime,
-  duration,
 }: {
   taskId: string;
   userId: string;
   description?: string;
   startTime: Date;
   endTime?: Date;
-  duration?: number;
 }) {
+  if (endTime && startTime.getTime() > endTime.getTime()) {
+    throw new HTTPException(400, {
+      message:
+        "Start time cannot be after end time. Please adjust the time range.",
+    });
+  }
+
+  const duration = endTime
+    ? Math.floor((endTime.getTime() - startTime.getTime()) / 1000)
+    : null;
+
   const [createdTimeEntry] = await db
     .insert(timeEntryTable)
     .values({
@@ -29,7 +38,7 @@ async function createTimeEntry({
       description: description || "",
       startTime,
       endTime: endTime || null,
-      duration: duration || 0,
+      duration,
     })
     .returning();
 
