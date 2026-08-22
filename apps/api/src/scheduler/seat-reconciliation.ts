@@ -3,6 +3,7 @@ import { isBillingEnabled } from "../billing/config";
 import { syncWorkspaceSeats } from "../billing/controllers/sync-seats";
 import db from "../database";
 import { workspaceBillingTable, workspaceUserTable } from "../database/schema";
+import { SEAT_RECONCILIATION_LOCK, withLeaderLock } from "./leader-lock";
 
 const BATCH_SIZE = 100;
 
@@ -36,6 +37,12 @@ export async function reconcileWorkspaceSeats(): Promise<{
     return { degraded: false };
   }
 
+  return withLeaderLock(SEAT_RECONCILIATION_LOCK, runReconciliation, () => ({
+    degraded: false,
+  }));
+}
+
+async function runReconciliation(): Promise<{ degraded: boolean }> {
   let drifted: Awaited<ReturnType<typeof findDriftedWorkspaces>>;
   try {
     drifted = await findDriftedWorkspaces();

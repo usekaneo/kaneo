@@ -5,6 +5,8 @@ import type {
   BroadcastAdapter,
   BroadcastMessage,
   ProjectBroadcastMessage,
+  UserBroadcast,
+  UserBroadcastMessage,
 } from "./broadcast-adapter";
 import { InMemoryBroadcastAdapter } from "./in-memory-broadcast-adapter";
 import { RedisBroadcastAdapter } from "./redis-broadcast-adapter";
@@ -44,9 +46,21 @@ export function removeUserConnection(userId: string, conn: UserConnection) {
   }
 }
 
-export function broadcastToUser(
+export function broadcastToUser(userId: string, message: UserBroadcastMessage) {
+  if (adapter) {
+    void adapter.publishToUser({ userId, message }).catch((err) => {
+      console.error("Failed to publish a user broadcast:", err);
+      deliverToLocalUserConnections(userId, message);
+    });
+    return;
+  }
+
+  deliverToLocalUserConnections(userId, message);
+}
+
+function deliverToLocalUserConnections(
   userId: string,
-  message: { type: string; [key: string]: unknown },
+  message: UserBroadcastMessage,
 ) {
   const connections = userConnections.get(userId);
   if (!connections) return;
@@ -99,6 +113,9 @@ export async function initializeWebSocketAdapter() {
         msg.message,
         msg.excludeInitiatorId,
       );
+    });
+    await nextAdapter.subscribeToUser((msg: UserBroadcast) => {
+      deliverToLocalUserConnections(msg.userId, msg.message);
     });
   } catch (err) {
     await nextAdapter.shutdown().catch(() => {});
