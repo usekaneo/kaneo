@@ -44,8 +44,6 @@ async function importTasks(
     ),
   ];
 
-  // Resolved in one query, then applied per task: this endpoint reports mixed
-  // successful/failed outcomes, so one bad assignee must not sink the batch.
   const assignableIds = await filterAssignableUsers(
     assigneeIds,
     project.workspaceId,

@@ -12,9 +12,6 @@ import updateTimeEntry from "./controllers/update-time-entry";
 const ISO_TIMESTAMP =
   /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,9})?)?(Z|[+-]\d{2}:\d{2})$/;
 
-// Date.parse accepts 2026-02-30 and silently rolls it to March 2, and accepts
-// non-ISO forms whose meaning depends on the runtime, so the calendar date is
-// checked against a UTC probe rather than trusting the parse.
 function isIsoTimestamp(value: string) {
   if (!ISO_TIMESTAMP.test(value) || Number.isNaN(Date.parse(value))) {
     return false;

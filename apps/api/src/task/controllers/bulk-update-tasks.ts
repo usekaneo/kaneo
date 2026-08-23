@@ -165,9 +165,6 @@ async function bulkUpdateTasks({
     }
 
     case "updateAssignee": {
-      // Normalised like the other assignment paths: a blank value unassigns,
-      // and a padded id resolves to the user it names rather than being
-      // rejected as unassignable.
       const assigneeId = value?.trim() || null;
 
       if (assigneeId) {

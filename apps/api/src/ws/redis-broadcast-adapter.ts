@@ -99,8 +99,6 @@ export class RedisBroadcastAdapter implements BroadcastAdapter {
           console.error("Invalid user broadcast message:", parsed.issues);
           return;
         }
-        // The channel is the authority on the recipient; a payload that
-        // disagrees would deliver one user's message to another.
         if (channel !== this.channelForUser(parsed.output.userId)) {
           console.error("User broadcast channel and payload disagree");
           return;

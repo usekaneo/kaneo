@@ -4,14 +4,6 @@ import db, { schema } from "../database";
 
 const NOT_ASSIGNABLE = "Assignee is not a member of this workspace";
 
-/**
- * Resolves which of the given users may be assigned work in a workspace.
- *
- * Membership is checked first because it is the common case; instance admins
- * reach every workspace without holding a membership row, mirroring
- * validateWorkspaceAccess. A user that does not exist is simply absent from the
- * result, so callers cannot tell "no such user" from "not a member".
- */
 export async function filterAssignableUsers(
   userIds: string[],
   workspaceId: string,

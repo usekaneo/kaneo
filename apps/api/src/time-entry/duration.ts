@@ -1,7 +1,5 @@
 import { HTTPException } from "hono/http-exception";
 
-// time_entry.duration is a Postgres integer; a span beyond this overflows the
-// column and surfaces as a 500 instead of a rejected request.
 const MAX_DURATION_SECONDS = 2_147_483_647;
 
 export function resolveDuration(startTime: Date, endTime?: Date) {

@@ -50,9 +50,6 @@ export function removeUserConnection(userId: string, conn: UserConnection) {
 }
 
 export function broadcastToUser(userId: string, message: UserBroadcastMessage) {
-  // Local sockets are served directly and never wait on Redis: a publish can
-  // succeed while this instance's subscriber is disconnected, which would
-  // otherwise lose the notification for users on the publishing instance.
   deliverToLocalUserConnections(userId, message);
 
   if (!adapter) {
