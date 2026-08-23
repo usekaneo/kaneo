@@ -20,11 +20,13 @@ import {
   type BoardFilters,
   DUE_DATE_FILTER_VALUES,
 } from "@/hooks/use-task-filters";
+import { cn } from "@/lib/cn";
 import { getColumnIcon } from "@/lib/column";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
 import type { SortConfig } from "@/lib/sort-tasks";
+import { useBackgroundStore } from "@/store/background";
 import type { ProjectWithTasks } from "@/types/project";
 
 type WorkspaceLabel = {
@@ -88,8 +90,16 @@ function ActiveFilterChip({
   value,
   onClear,
 }: ActiveFilterChipProps) {
+  const { background } = useBackgroundStore();
   return (
-    <div className="inline-flex h-7 items-center rounded-md border border-border bg-background text-xs shadow-xs">
+    <div
+      className={cn(
+        "inline-flex h-7 items-center rounded-md border border-border bg-background text-xs shadow-xs",
+        {
+          "bg-accent": !!background,
+        },
+      )}
+    >
       <span className="px-2 font-medium text-foreground">{subject}</span>
       <span className="h-full w-px bg-border" />
       <span className="px-2 text-foreground/80">{operator}</span>
@@ -149,6 +159,7 @@ export default function BoardToolbar({
   const selectedPriorityIds = filters.priority ?? [];
   const selectedAssigneeIds = filters.assignee ?? [];
   const selectedDueDateFilters = filters.dueDate ?? [];
+  const { background } = useBackgroundStore();
 
   const getStatusDisplayName = (statusId: string) => {
     const column = project?.columns?.find((col) => col.id === statusId);
@@ -261,7 +272,12 @@ export default function BoardToolbar({
                 render={
                   <button
                     type="button"
-                    className="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-foreground text-xs font-medium outline-none ring-0 hover:bg-accent/60"
+                    className={cn(
+                      "inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-foreground text-xs font-medium outline-none ring-0 hover:bg-accent/60",
+                      {
+                        "bg-accent hover:bg-input": !!background,
+                      },
+                    )}
                   />
                 }
               >
