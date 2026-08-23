@@ -3,6 +3,24 @@ set -e
 
 echo "Starting environment variable replacement..."
 
+# Inject only a URL origin into nginx configuration. This deliberately rejects
+# paths, credentials, queries, fragments, and config syntax before substitution.
+metadata_config=/etc/nginx/conf.d/00-share-metadata.conf
+metadata_origin=""
+client_url_trimmed=$(printf '%s' "${KANEO_CLIENT_URL:-}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s#/*$##')
+client_url_single_line=$(printf '%s' "$client_url_trimmed" | tr -d '\r\n')
+if [ -n "$client_url_trimmed" ]; then
+  if [ "$client_url_trimmed" = "$client_url_single_line" ] && \
+    printf '%s' "$client_url_trimmed" | grep -Eq '^https?://(\[[0-9A-Fa-f:.]+\]|[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?)(:[0-9]{1,5})?$'; then
+    metadata_origin=$client_url_trimmed
+  else
+    echo "WARNING: KANEO_CLIENT_URL is not a valid HTTP(S) origin. Share metadata will use the request host."
+  fi
+fi
+
+# The allowlist above excludes sed/nginx metacharacters other than ':' and '/'.
+sed -i "s#__KANEO_CLIENT_ORIGIN__#$metadata_origin#g" "$metadata_config"
+
 # Process KANEO_API_URL first (with special handling)
 if [ ! -z "$KANEO_API_URL" ]; then
   echo "Found KANEO_API_URL: $KANEO_API_URL"
@@ -29,15 +47,16 @@ else
   sed -i "s#MCP_AS_JSON_PLACEHOLDER#{}#g" /etc/nginx/conf.d/default.conf
 fi
 
-# Process KANEO_CLIENT_URL efficiently
-if [ ! -z "$KANEO_CLIENT_URL" ]; then
-  echo "Found KANEO_CLIENT_URL: $KANEO_CLIENT_URL"
+# Process KANEO_CLIENT_URL efficiently. Reuse the validated origin so a
+# malformed value cannot become sed input or JavaScript source.
+if [ -n "$metadata_origin" ]; then
+  echo "Found KANEO_CLIENT_URL: $metadata_origin"
   
   # Only process files that actually contain the string
-  find /usr/share/nginx/html -type f -name "*.js" -exec grep -l "KANEO_CLIENT_URL" {} \; | xargs -r sed -i "s#KANEO_CLIENT_URL#$KANEO_CLIENT_URL#g"
-  find /usr/share/nginx/html -type f -name "*.js" -exec grep -l "\"KANEO_CLIENT_URL\"" {} \; | xargs -r sed -i "s#\"KANEO_CLIENT_URL\"#\"$KANEO_CLIENT_URL\"#g"
+  find /usr/share/nginx/html -type f -name "*.js" -exec grep -l "KANEO_CLIENT_URL" {} \; | xargs -r sed -i "s#KANEO_CLIENT_URL#$metadata_origin#g"
+  find /usr/share/nginx/html -type f -name "*.js" -exec grep -l "\"KANEO_CLIENT_URL\"" {} \; | xargs -r sed -i "s#\"KANEO_CLIENT_URL\"#\"$metadata_origin\"#g"
   
-  echo "✅ Replaced KANEO_CLIENT_URL with $KANEO_CLIENT_URL"
+  echo "✅ Replaced KANEO_CLIENT_URL with $metadata_origin"
 fi
 
 # Process any other KANEO_ prefixed environment variables (for future extensibility)

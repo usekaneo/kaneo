@@ -74,6 +74,7 @@ COPY --from=builder --chown=appuser:appuser /app/apps/web/dist /usr/share/nginx/
 
 # Copy nginx configuration (writable so env.sh can substitute placeholders at runtime)
 COPY --chown=appuser:appuser apps/web/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --chown=appuser:appuser apps/web/share-metadata.conf /etc/nginx/conf.d/00-share-metadata.conf
 RUN chown -R appuser:appuser /etc/nginx/conf.d
 
 # Copy and set permissions for environment script
