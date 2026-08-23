@@ -545,7 +545,7 @@ export function createApp() {
     },
   );
 
-  api.on(["POST", "GET", "PUT", "DELETE"], "/auth/*", async (c) => {
+  api.on(["POST", "GET", "PUT", "PATCH", "DELETE"], "/auth/*", async (c) => {
     const authHeader = c.req.header("Authorization");
     const apiKeyHeader = c.req.header("x-api-key");
     const bearerToken = authHeader?.match(/^Bearer\s+(\S+)$/i)?.[1];

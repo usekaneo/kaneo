@@ -61,7 +61,7 @@ const search = new Hono<{
         ]),
         "all",
       ),
-      workspaceId: v.optional(v.string()),
+      workspaceId: v.pipe(v.string(), v.minLength(1)),
       projectId: v.optional(v.string()),
       limit: v.optional(
         v.pipe(
