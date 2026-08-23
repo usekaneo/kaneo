@@ -7,6 +7,7 @@ import { isDemoMode } from "@/constants/urls";
 import { useUserPreferencesEffects } from "@/hooks/use-user-preferences-effects";
 import { cn } from "@/lib/cn";
 import { useUserPreferencesStore } from "@/store/user-preferences";
+import { useBackgroundStore } from "@/store/background";
 
 type LayoutProps = {
   children: ReactNode;
@@ -46,6 +47,7 @@ function LayoutContent({ children, className }: ContentProps) {
 
 function Layout({ children, className }: LayoutProps) {
   const { sidebarDefaultOpen } = useUserPreferencesStore();
+  const { background } = useBackgroundStore();
 
   useUserPreferencesEffects();
 
@@ -64,8 +66,14 @@ function Layout({ children, className }: LayoutProps) {
         <SidebarInset
           className={cn(
             "m-2 flex flex-1 flex-col overflow-auto rounded-xl border border-border/80 bg-background shadow-sm/5",
+            {
+              "bg-cover bg-center": background,
+            },
             className,
           )}
+          style={{
+            backgroundImage: `url(${background})`,
+          }}
         >
           {isDemoMode && <DemoAlert />}
           {children}

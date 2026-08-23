@@ -11,6 +11,7 @@ import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
 import { Input } from "@/components/ui/input";
 import { shortcuts } from "@/constants/shortcuts";
+import { getApiUrl } from "@/fetchers/get-api-url";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
@@ -20,6 +21,8 @@ import { useTaskFiltersWithLabelsSupport } from "@/hooks/use-task-filters-with-l
 import { sortTasks } from "@/lib/sort-tasks";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
+import { useBackgroundStore } from "@/store/background";
+import { cn } from "@/lib/cn";
 
 type BoardSearchParams = {
   taskId?: string;
@@ -89,6 +92,7 @@ function RouteComponent() {
   const [boardSearchInput, setBoardSearchInput] =
     useState<HTMLInputElement | null>(null);
   const { sort, setSort } = useBoardSort(projectId);
+  const { background } = useBackgroundStore();
 
   const { data: users } = useGetActiveWorkspaceUsers(workspaceId);
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);
@@ -232,7 +236,11 @@ function RouteComponent() {
           onSortChange={setSort}
         />
 
-        <div className="flex h-full flex-1 overflow-hidden bg-background">
+        <div
+          className={cn("flex h-full flex-1 overflow-hidden", {
+            "bg-background": !background,
+          })}
+        >
           {sortedProject ? (
             viewMode === "board" ? (
               <KanbanBoard

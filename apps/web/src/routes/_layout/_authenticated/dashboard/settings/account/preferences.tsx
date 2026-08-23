@@ -63,6 +63,8 @@ function RouteComponent() {
     setShowLabels,
     showPriority,
     setShowPriority,
+    showProjectBackgrounds,
+    setShowProjectBackgrounds,
     resetDisplayPreferences,
     sidebarDefaultOpen,
     setSidebarDefaultOpen,
@@ -253,6 +255,23 @@ function RouteComponent() {
                 </SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <Separator />
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-sm font-medium">
+                {t("settings:preferencesPage.projectBackgrounds")}
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                {t("settings:preferencesPage.projectBackgroundsDescription")}
+              </p>
+            </div>
+            <Switch
+              checked={showProjectBackgrounds}
+              onCheckedChange={setShowProjectBackgrounds}
+            />
           </div>
 
           <Separator />

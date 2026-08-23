@@ -5,7 +5,15 @@ import {
   useNavigate,
   useParams,
 } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ImageUp, Trash2 } from "lucide-react";
+import {
+  type ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
@@ -37,6 +45,11 @@ import {
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import icons from "@/constants/project-icons";
+import { getApiUrl } from "@/fetchers/get-api-url";
+import {
+  removeProjectBackground,
+  uploadProjectBackground,
+} from "@/fetchers/project/background";
 import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
 import useUpdateProject from "@/hooks/mutations/project/use-update-project";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
@@ -108,6 +121,8 @@ function RouteComponent() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [iconPopoverOpen, setIconPopoverOpen] = useState(false);
   const [iconSearch, setIconSearch] = useState("");
+  const [isUpdatingBackground, setIsUpdatingBackground] = useState(false);
+  const backgroundInputRef = useRef<HTMLInputElement>(null);
 
   const { data: workspace } = useActiveWorkspace();
   const { projectId: rawProjectId } = useParams({ strict: false });
@@ -319,6 +334,56 @@ function RouteComponent() {
       );
     }
   }, [project?.id, deleteProject, queryClient, navigate, workspace?.id, t]);
+
+  const refreshProject = useCallback(async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["tasks", projectId] }),
+      queryClient.invalidateQueries({ queryKey: ["projects"] }),
+    ]);
+  }, [projectId, queryClient]);
+
+  const handleBackgroundChange = useCallback(
+    async (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      event.target.value = "";
+      if (!file || !project?.id) return;
+
+      setIsUpdatingBackground(true);
+      try {
+        await uploadProjectBackground(project.id, file);
+        await refreshProject();
+        toast.success(t("settings:projectGeneral.backgroundUploadSuccess"));
+      } catch (error) {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : t("settings:projectGeneral.backgroundUploadError"),
+        );
+      } finally {
+        setIsUpdatingBackground(false);
+      }
+    },
+    [project?.id, refreshProject, t],
+  );
+
+  const handleRemoveBackground = useCallback(async () => {
+    if (!project?.id) return;
+
+    setIsUpdatingBackground(true);
+    try {
+      await removeProjectBackground(project.id);
+      await refreshProject();
+      toast.success(t("settings:projectGeneral.backgroundRemoveSuccess"));
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("settings:projectGeneral.backgroundRemoveError"),
+      );
+    } finally {
+      setIsUpdatingBackground(false);
+    }
+  }, [project?.id, refreshProject, t]);
 
   return (
     <>
@@ -538,6 +603,60 @@ function RouteComponent() {
                 />
               </form>
             </Form>
+            <Separator />
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium">
+                  {t("settings:projectGeneral.backgroundLabel")}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {t("settings:projectGeneral.backgroundHint")}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                {project?.backgroundVersion && (
+                  <img
+                    src={getApiUrl(
+                      `project/${project.id}/background?v=${encodeURIComponent(project.backgroundVersion)}`,
+                    )}
+                    alt=""
+                    className="h-9 w-16 rounded border border-border object-cover"
+                  />
+                )}
+                <input
+                  ref={backgroundInputRef}
+                  type="file"
+                  accept="image/apng,image/avif,image/gif,image/heic,image/heif,image/jpeg,image/jpg,image/png,image/webp"
+                  className="hidden"
+                  onChange={handleBackgroundChange}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={!canEdit || isUpdatingBackground}
+                  onClick={() => backgroundInputRef.current?.click()}
+                >
+                  <ImageUp className="size-4" />
+                  {project?.backgroundVersion
+                    ? t("settings:projectGeneral.backgroundReplace")
+                    : t("settings:projectGeneral.backgroundUpload")}
+                </Button>
+                {project?.backgroundVersion && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    disabled={!canEdit || isUpdatingBackground}
+                    onClick={handleRemoveBackground}
+                    aria-label={t("settings:projectGeneral.backgroundRemove")}
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+
             <Separator />
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div className="space-y-0.5">
