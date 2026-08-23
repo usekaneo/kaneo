@@ -10,6 +10,10 @@ import {
 } from "../../database/schema";
 import { publishEvent } from "../../events";
 import {
+  assertAssignableUser,
+  getProjectWorkspaceId,
+} from "../../utils/assert-assignable-user";
+import {
   assertRequiredCustomFields,
   assertValidTaskStatus,
 } from "../validate-task-fields";
@@ -91,15 +95,18 @@ async function createTask({
 
   await assertRequiredCustomFields(projectId, mergedCustomFields);
 
-  const [assignee] = await db
-    .select({ name: userTable.name })
-    .from(userTable)
-    .where(eq(userTable.id, normalizedUserId ?? ""));
+  let assignee: { name: string } | undefined;
 
-  if (normalizedUserId && !assignee) {
-    throw new HTTPException(404, {
-      message: "Assignee not found",
-    });
+  if (normalizedUserId) {
+    await assertAssignableUser(
+      normalizedUserId,
+      await getProjectWorkspaceId(projectId),
+    );
+
+    [assignee] = await db
+      .select({ name: userTable.name })
+      .from(userTable)
+      .where(eq(userTable.id, normalizedUserId));
   }
 
   const column = await db.query.columnTable.findFirst({
