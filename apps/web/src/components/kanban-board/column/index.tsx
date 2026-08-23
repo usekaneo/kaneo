@@ -11,7 +11,7 @@ type ColumnProps = {
 };
 
 export const columnVariants = cva(
-  "group relative flex h-full min-h-0 w-full flex-col rounded-xl border transition-colors duration-150",
+  "group relative flex h-full min-h-0 w-full flex-col rounded-xl transition-colors duration-150",
   {
     defaultVariants: {
       isDropzoneOver: false,
@@ -23,7 +23,7 @@ export const columnVariants = cva(
         false: "border-border/70 hover:border-border/90",
       },
       backgroundImage: {
-        true: "before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:pointer-events-none",
+        true: "before:content-[''] before:absolute before:inset-0 before:rounded-[calc(var(--radius-xl)-1px)] before:pointer-events-none",
         false: "",
       },
     },
@@ -31,12 +31,12 @@ export const columnVariants = cva(
       {
         isDropzoneOver: false,
         backgroundImage: false,
-        class: "bg-muted/40 shadow-xs/5 dark:bg-card/90",
+        class: "border bg-muted/40 shadow-xs/5 dark:bg-card/90",
       },
       {
         isDropzoneOver: true,
         backgroundImage: false,
-        class: "bg-accent/60 border-ring/40 ring-2 ring-ring/30",
+        class: "border bg-accent/60 border-ring/40 ring-2 ring-ring/30",
       },
       {
         isDropzoneOver: false,
@@ -46,7 +46,7 @@ export const columnVariants = cva(
       {
         isDropzoneOver: true,
         backgroundImage: true,
-        class: "bg-background ring-2 ring-focus/80 before:bg-accent/60",
+        class: "bg-background ring-2 ring-focus/60 before:bg-accent/60",
       },
     ],
   },

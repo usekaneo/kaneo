@@ -67,12 +67,14 @@ function Layout({ children, className }: LayoutProps) {
           className={cn(
             "m-2 flex flex-1 flex-col overflow-auto rounded-xl border border-border/80 bg-background shadow-sm/5",
             {
-              "bg-cover bg-center": background,
+              "before:content-[''] before:absolute before:inset-0 before:rounded-[calc(var(--radius-xl)-1px)] before:bg-cover before:bg-center before:bg-(image:--bg)":
+                background,
             },
             className,
           )}
           style={{
-            backgroundImage: `url(${background})`,
+            // @ts-expect-error variables are not typed by React
+            "--bg": `url(${background})`,
           }}
         >
           {isDemoMode && <DemoAlert />}
