@@ -58,5 +58,18 @@
 			"quoteStyle": "double",
 			"indentStyle": "space"
 		}
-	}
+	},
+	"overrides": [
+		{
+			"includes": ["release.config.js", "scripts/release/*.mjs"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noTemplateCurlyInString": "off",
+						"noUndeclaredEnvVars": "off"
+					}
+				}
+			}
+		}
+	]
 }
