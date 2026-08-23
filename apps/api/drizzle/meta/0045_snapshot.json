@@ -1,6 +1,6 @@
 {
-	"id": "be063fd6-8d03-4c4d-ae0c-02284036be3a",
-	"prevId": "9f67f0d6-b802-4751-9d9a-577ce21440a0",
+	"id": "b8b6dffe-46c4-4ef5-9dc1-2242cc1fa9ab",
+	"prevId": "9248c325-fef7-4c63-a54a-6800d29169ec",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
@@ -1894,6 +1894,37 @@
 					"onUpdate": "no action"
 				}
 			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.job_lease": {
+			"name": "job_lease",
+			"schema": "",
+			"columns": {
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"owner": {
+					"name": "owner",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"expires_at": {
+					"name": "expires_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
 			"compositePrimaryKeys": {},
 			"uniqueConstraints": {},
 			"policies": {},
