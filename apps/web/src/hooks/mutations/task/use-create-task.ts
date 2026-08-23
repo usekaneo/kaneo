@@ -33,6 +33,9 @@ function useCreateTask() {
       void queryClient.invalidateQueries({
         queryKey: ["tasks", variables.projectId],
       });
+      void queryClient.invalidateQueries({
+        queryKey: ["custom-field-values", variables.projectId],
+      });
     },
   });
 }
