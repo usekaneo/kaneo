@@ -61,6 +61,19 @@ type TaskImageUploadUrl = {
   headers: Record<string, string>;
 };
 
+type ProjectBackgroundUploadContext = {
+  workspaceId: string;
+  projectId: string;
+  contentType: string;
+};
+
+type ProjectBackgroundUploadUrl = {
+  key: string;
+  uploadUrl: string;
+  version: string;
+  headers: Record<string, string>;
+};
+
 type AssetObject = {
   body: unknown;
   contentType: string | undefined;
@@ -259,6 +272,32 @@ export function buildObjectKey(context: TaskImageUploadContext) {
   return `${objectKeyPrefix}/${fileName}`;
 }
 
+export function buildProjectBackgroundObjectKey(
+  context: Omit<ProjectBackgroundUploadContext, "contentType">,
+) {
+  const objectKeyPrefix = buildProjectBackgroundObjectKeyPrefix(context);
+  const version = createId();
+
+  const fileName = `background-${version}`;
+
+  return {
+    rawKey: `${objectKeyPrefix}/${fileName}`,
+    version,
+  };
+}
+
+export function buildProjectBackgroundObjectKeyPrefix(
+  context: Omit<ProjectBackgroundUploadContext, "contentType">,
+) {
+  return [
+    "workspace",
+    sanitizePathSegment(context.workspaceId),
+    "project",
+    sanitizePathSegment(context.projectId),
+    "backgrounds",
+  ].join("/");
+}
+
 export function applyKeyPrefix(prefix: string, key: string) {
   if (!prefix) return key;
   const trimmed = prefix.replace(/\/+$/, "");
@@ -273,6 +312,33 @@ export function validateTaskAssetUploadInput(
 
   if (!contentType.trim()) {
     throw new Error("A valid content type is required.");
+  }
+
+  if (size <= 0) {
+    throw new Error("Upload size must be greater than zero.");
+  }
+
+  if (size > maxImageUploadBytes) {
+    throw new Error(
+      `Upload exceeds the maximum upload size of ${Math.floor(maxImageUploadBytes / (1024 * 1024))}MB.`,
+    );
+  }
+}
+
+export function validateProjectBackgroundUploadInput(
+  contentType: string,
+  size: number,
+) {
+  const maxImageUploadBytes = getMaxImageUploadBytes();
+
+  if (!contentType.trim()) {
+    throw new Error("A valid content type is required.");
+  }
+
+  if (!isImageContentType(contentType)) {
+    throw new Error(
+      `Unsupported content type "${contentType}". Upload a supported image.`,
+    );
   }
 
   if (size <= 0) {
@@ -313,6 +379,34 @@ export async function createTaskImageUploadUrl(
   };
 }
 
+export async function createProjectBackgroundUploadUrl(
+  context: ProjectBackgroundUploadContext,
+): Promise<ProjectBackgroundUploadUrl> {
+  const config = getStorageConfig();
+  const client = getClient(config);
+  const { rawKey, version } = buildProjectBackgroundObjectKey(context);
+  const key = applyKeyPrefix(config.keyPrefix, rawKey);
+
+  const command = new PutObjectCommand({
+    Bucket: config.bucket,
+    Key: key,
+    ContentType: context.contentType,
+  });
+
+  const uploadUrl = await getSignedUrl(client, command, {
+    expiresIn: config.presignTtlSeconds,
+  });
+
+  return {
+    key,
+    uploadUrl,
+    version,
+    headers: {
+      "Content-Type": context.contentType,
+    },
+  };
+}
+
 export function assertStorageConfigured() {
   return getStorageConfig();
 }
@@ -333,6 +427,26 @@ export function assertTaskImageKeyMatchesContext(
   // a traversal suffix walk back out into another workspace's objects.
   const suffix = key.slice(fullPrefix.length);
   return /^[A-Za-z0-9._-]+$/.test(suffix) && !suffix.startsWith(".");
+}
+
+export function assertProjectBackgroundKeyMatchesContext(
+  key: string,
+  context: Omit<ProjectBackgroundUploadContext, "contentType"> & {
+    version: string;
+  },
+) {
+  const config = getStorageConfig();
+  const objectPrefix = buildProjectBackgroundObjectKeyPrefix(context);
+  const fullPrefix = `${applyKeyPrefix(config.keyPrefix, objectPrefix)}/`;
+
+  if (!key.startsWith(fullPrefix)) {
+    return false;
+  }
+
+  // The prefix alone is not enough: gateways that normalize paths would let
+  // a traversal suffix walk back out into another workspace's objects.
+  const suffix = key.slice(fullPrefix.length);
+  return suffix === `background-${context.version}`;
 }
 
 export async function getPrivateObject(key: string): Promise<AssetObject> {

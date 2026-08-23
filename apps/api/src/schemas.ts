@@ -20,6 +20,7 @@ export const projectSchema = v.object({
   isPublic: v.nullable(v.boolean()),
   archivedAt: v.nullable(v.date()),
   position: v.number(),
+  backgroundVersion: v.nullable(v.string()),
 });
 
 export const taskSchema = v.object({
@@ -277,4 +278,11 @@ export const configSchema = v.object({
   customOAuthAutoLogin: v.nullable(v.boolean()),
   customOAuthLogoutUrl: v.nullable(v.string()),
   billingEnabled: v.boolean(),
+});
+
+export const uploadProjectBackgroundSchema = v.object({
+  key: v.string(),
+  uploadUrl: v.string(),
+  version: v.string(),
+  headers: v.record(v.string(), v.string()),
 });
