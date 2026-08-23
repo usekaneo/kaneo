@@ -65,6 +65,7 @@ type ProjectBackgroundUploadContext = {
   workspaceId: string;
   projectId: string;
   contentType: string;
+  size: number;
 };
 
 type ProjectBackgroundUploadUrl = {
@@ -273,7 +274,7 @@ export function buildObjectKey(context: TaskImageUploadContext) {
 }
 
 export function buildProjectBackgroundObjectKey(
-  context: Omit<ProjectBackgroundUploadContext, "contentType">,
+  context: Pick<ProjectBackgroundUploadContext, "workspaceId" | "projectId">,
 ) {
   const objectKeyPrefix = buildProjectBackgroundObjectKeyPrefix(context);
   const version = createId();
@@ -287,7 +288,7 @@ export function buildProjectBackgroundObjectKey(
 }
 
 export function buildProjectBackgroundObjectKeyPrefix(
-  context: Omit<ProjectBackgroundUploadContext, "contentType">,
+  context: Pick<ProjectBackgroundUploadContext, "workspaceId" | "projectId">,
 ) {
   return [
     "workspace",
@@ -391,6 +392,7 @@ export async function createProjectBackgroundUploadUrl(
     Bucket: config.bucket,
     Key: key,
     ContentType: context.contentType,
+    ContentLength: context.size,
   });
 
   const uploadUrl = await getSignedUrl(client, command, {
@@ -431,7 +433,7 @@ export function assertTaskImageKeyMatchesContext(
 
 export function assertProjectBackgroundKeyMatchesContext(
   key: string,
-  context: Omit<ProjectBackgroundUploadContext, "contentType"> & {
+  context: Pick<ProjectBackgroundUploadContext, "workspaceId" | "projectId"> & {
     version: string;
   },
 ) {

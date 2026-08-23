@@ -176,7 +176,7 @@ const project = new Hono<{
           });
         }
 
-        const etag = object.etag || `\"${projectData.backgroundVersion}\"`;
+        const etag = object.etag || `"${projectData.backgroundVersion}"`;
         const headers: Record<string, string> = {
           "Cache-Control": "private, max-age=300, must-revalidate",
           "Content-Type": contentType,
@@ -427,6 +427,7 @@ const project = new Hono<{
           workspaceId: projectContext.workspaceId,
           projectId: projectContext.projectId,
           contentType,
+          size,
         });
 
         return c.json(upload);
@@ -557,6 +558,12 @@ const project = new Hono<{
     requireWorkspacePermission({ project: ["update"] }),
     async (c) => {
       const { id } = c.req.valid("param");
+      const [currentProject] = await db
+        .select({ backgroundObjectKey: projectTable.backgroundObjectKey })
+        .from(projectTable)
+        .where(eq(projectTable.id, id))
+        .limit(1);
+
       const [updatedProject] = await db
         .update(projectTable)
         .set({
@@ -565,10 +572,10 @@ const project = new Hono<{
           backgroundVersion: null,
         })
         .where(eq(projectTable.id, id))
-        .returning({ backgroundObjectKey: projectTable.backgroundObjectKey });
+        .returning({ id: projectTable.id });
 
-      if (updatedProject?.backgroundObjectKey) {
-        deleteS3Object(updatedProject.backgroundObjectKey).catch(() => {});
+      if (updatedProject && currentProject?.backgroundObjectKey) {
+        deleteS3Object(currentProject.backgroundObjectKey).catch(() => {});
       }
 
       return c.body(null, 204);
