@@ -31,6 +31,7 @@ To configure a custom OAuth/OIDC provider, you need to set the following environ
 | `CUSTOM_AUTH_PKCE` | Enable/disable PKCE (Proof Key for Code Exchange) | `true` |
 | `CUSTOM_OAUTH_LOGOUT_URL` | Logout endpoint URL (optional) | `https://id.example.com/api/oidc/logout` |
 | `CUSTOM_OAUTH_AUTO_LOGIN` | Auto-redirect to the custom OAuth provider, bypassing the login page | `false` |
+| `CUSTOM_OAUTH_ASSUME_EMAIL_VERIFIED` | Trust the custom provider's email ownership guarantee | `false` |
 
 ## Setup Steps
 
@@ -126,6 +127,20 @@ CUSTOM_OAUTH_AUTO_LOGIN=true
 
 When enabled, users visiting the sign-in page will be immediately redirected to your custom OAuth provider without seeing the Kaneo login page. This is ideal for organizations that use a single identity provider for all authentication.
 
+### Trust Email Ownership
+
+Kaneo treats the configured custom provider as trusted for account linking, so always control and restrict its issuer and tenant. The following setting changes email verification status only; it does not enable or disable account linking.
+
+By default, Kaneo does not assume that an email returned by the custom provider is verified. For a controlled enterprise identity provider that authoritatively assigns every email, you can enable this additional trust explicitly:
+
+```bash
+CUSTOM_OAUTH_ASSUME_EMAIL_VERIFIED=true
+```
+
+When enabled, Kaneo marks a non-empty custom provider email as verified when the `email_verified` claim is boolean `true` or omitted. Explicit `false` and malformed claim values remain unverified, and a response without an email claim cannot promote verification. The setting also updates an already-linked user's unverified email after their next successful custom OAuth sign-in.
+
+Only configure a custom provider when you control and restrict its issuer and tenant because its account-linking trust applies even while this setting is disabled. Enable this setting only when users cannot choose the returned email and the provider guarantees ownership or authoritative assignment of every returned email. Otherwise, a forged or user-controlled email claim could impersonate another user or link to an existing Kaneo account.
+
 ## Troubleshooting
 
 ### "Invalid code verifier" Error
@@ -190,3 +205,4 @@ On existing installations, local accounts created before this requirement may st
 - Keep your client secret secure and never commit it to version control
 - Enable PKCE when possible for enhanced security
 - Use the most restrictive scopes necessary for your use case
+- Keep `CUSTOM_OAUTH_ASSUME_EMAIL_VERIFIED` disabled unless your identity provider authoritatively controls every returned email

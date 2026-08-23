@@ -165,6 +165,11 @@ Name | Description |
 | `CUSTOM_OAUTH_RESPONSE_TYPE` | (Optional) OAuth response type. Default: `code`.
 | `CUSTOM_AUTH_PKCE` | (Optional) Enable/disable PKCE. Default: `true`.
 | `CUSTOM_OAUTH_LOGOUT_URL` | (Optional) Logout endpoint URL for your identity provider.
+| `CUSTOM_OAUTH_ASSUME_EMAIL_VERIFIED` | (Optional) Treat a non-empty custom-provider email as verified when `email_verified` is boolean `true` or omitted. Explicit `false` and malformed values remain unverified. Default: `false`.
+
+<Warning>
+  Kaneo treats the configured custom provider as trusted for account linking regardless of this setting, so always control and restrict its issuer and tenant. `CUSTOM_OAUTH_ASSUME_EMAIL_VERIFIED` changes email verification status only; it does not enable or disable account linking. Enable it only when users cannot choose their returned email and the provider guarantees ownership or authoritative assignment. Trusting a user-controlled email claim can allow account linking or impersonation.
+</Warning>
 
 ### Redis
 

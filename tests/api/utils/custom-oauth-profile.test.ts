@@ -45,4 +45,83 @@ describe("mapCustomOAuthProfileToUser", () => {
   it("returns an empty mapping when no usable display value exists", () => {
     expect(mapCustomOAuthProfileToUser({ email: "" })).toEqual({});
   });
+
+  it("does not assume the email is verified when trust is disabled", () => {
+    const profile = {
+      name: "Jane Doe",
+      email: "jane@example.com",
+      email_verified: true,
+    };
+
+    const result = mapCustomOAuthProfileToUser(profile, {
+      assumeEmailVerified: false,
+    });
+
+    expect(result).toEqual({ name: "Jane Doe" });
+  });
+
+  it("assumes the email is verified when the provider omits the claim", () => {
+    const profile = { name: "Jane Doe", email: "jane@example.com" };
+
+    const result = mapCustomOAuthProfileToUser(profile, {
+      assumeEmailVerified: true,
+    });
+
+    expect(result).toEqual({ name: "Jane Doe", emailVerified: true });
+  });
+
+  it("uses an explicitly verified email claim when trust is enabled", () => {
+    const profile = {
+      name: "Jane Doe",
+      email: "jane@example.com",
+      email_verified: true,
+    };
+
+    const result = mapCustomOAuthProfileToUser(profile, {
+      assumeEmailVerified: true,
+    });
+
+    expect(result).toEqual({ name: "Jane Doe", emailVerified: true });
+  });
+
+  it("preserves an explicitly unverified email claim when trust is enabled", () => {
+    const profile = {
+      name: "Jane Doe",
+      email: "jane@example.com",
+      email_verified: false,
+    };
+
+    const result = mapCustomOAuthProfileToUser(profile, {
+      assumeEmailVerified: true,
+    });
+
+    expect(result).toEqual({ name: "Jane Doe", emailVerified: false });
+  });
+
+  it.each(["false", "true", 0, 1, null])(
+    "treats a malformed verification claim (%s) as unverified",
+    (emailVerified) => {
+      const profile = {
+        name: "Jane Doe",
+        email: "jane@example.com",
+        email_verified: emailVerified,
+      };
+
+      const result = mapCustomOAuthProfileToUser(profile, {
+        assumeEmailVerified: true,
+      });
+
+      expect(result).toEqual({ name: "Jane Doe", emailVerified: false });
+    },
+  );
+
+  it("does not verify an email when the provider omits the email claim", () => {
+    const profile = { name: "Jane Doe", email_verified: true };
+
+    const result = mapCustomOAuthProfileToUser(profile, {
+      assumeEmailVerified: true,
+    });
+
+    expect(result).toEqual({ name: "Jane Doe" });
+  });
 });

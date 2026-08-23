@@ -18,6 +18,7 @@ import {
   createAuthMiddleware,
   getSessionFromCtx,
 } from "better-auth/api";
+import { setSessionCookie } from "better-auth/cookies";
 import {
   admin as adminPlugin,
   anonymous,
@@ -520,7 +521,11 @@ export const auth = betterAuth({
           responseType: process.env.CUSTOM_OAUTH_RESPONSE_TYPE || "code",
           discoveryUrl: process.env.CUSTOM_OAUTH_DISCOVERY_URL || "",
           pkce: process.env.CUSTOM_AUTH_PKCE !== "false",
-          mapProfileToUser: mapCustomOAuthProfileToUser,
+          mapProfileToUser: (profile) =>
+            mapCustomOAuthProfileToUser(profile, {
+              assumeEmailVerified:
+                process.env.CUSTOM_OAUTH_ASSUME_EMAIL_VERIFIED === "true",
+            }),
         },
       ],
     }),
@@ -767,6 +772,28 @@ export const auth = betterAuth({
       }
     }),
     after: createAuthMiddleware(async (ctx) => {
+      if (
+        ctx.path === "/oauth2/callback/:providerId" &&
+        ctx.params?.providerId === "custom" &&
+        process.env.CUSTOM_OAUTH_ASSUME_EMAIL_VERIFIED === "true"
+      ) {
+        const issuedSession = ctx.context.newSession;
+
+        if (issuedSession && !issuedSession.user.emailVerified) {
+          const [storedUser] = await db
+            .select({ emailVerified: schema.userTable.emailVerified })
+            .from(schema.userTable)
+            .where(eq(schema.userTable.id, issuedSession.user.id));
+
+          if (storedUser?.emailVerified) {
+            await setSessionCookie(ctx, {
+              session: issuedSession.session,
+              user: { ...issuedSession.user, emailVerified: true },
+            });
+          }
+        }
+      }
+
       if (ctx.path.startsWith("/sign-up") || ctx.path.startsWith("/sign-in")) {
         const newSession = ctx.context.newSession;
         if (newSession) {
