@@ -55,6 +55,12 @@ export function Footer() {
               </a>
               <a
                 className="block text-muted-foreground transition-colors hover:text-foreground"
+                href="/blog"
+              >
+                Blog
+              </a>
+              <a
+                className="block text-muted-foreground transition-colors hover:text-foreground"
                 href="/jira-alternative"
               >
                 vs Jira

@@ -1356,7 +1356,8 @@
 				"nextTask": "Công việc tiếp theo",
 				"prevTask": "Công việc trước đó",
 				"openTask": "Mở công việc đã chọn",
-				"quickSelectNumber": "Chọn tùy chọn theo số"
+				"quickSelectNumber": "Chọn tùy chọn theo số",
+				"calendarView": "Switch to calendar view"
 			}
 		}
 	},
@@ -1940,6 +1941,19 @@
 				"deleteRow": "Xóa hàng",
 				"deleteTable": "Xóa bảng"
 			}
+		},
+		"calendar": {
+			"dayTasksAriaLabel": "Show all tasks for {{date}}",
+			"moreTasks": "+{{count}} more",
+			"nextMonth": "Next month",
+			"noTasks": "No scheduled tasks",
+			"noTasksSubtitle": "Add a start date, due date, or both to tasks to place them on the calendar.",
+			"pageTitle": "{{name}} – Calendar",
+			"previousMonth": "Previous month",
+			"taskAriaLabel": "{{title}}, {{range}}: open task",
+			"title": "Calendar",
+			"today": "Today",
+			"loadError": "Failed to load tasks."
 		}
 	},
 	"invitations": {

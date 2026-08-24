@@ -1,3 +1,57 @@
+## [2.22.0](https://github.com/usekaneo/kaneo/compare/v2.21.0...v2.22.0) (2026-08-21)
+
+### Features
+
+* **site:** add blog section with alternatives round-ups ([ddc242f](https://github.com/usekaneo/kaneo/commit/ddc242f51eb549a75ab69c7dda4d4c594f3bacb1))
+
+### Bug Fixes
+
+* **api:** return 404 when a label does not exist ([442a382](https://github.com/usekaneo/kaneo/commit/442a38230291edb7784343dc8cf576705a32c737))
+* **ci:** stop the release chart gate requesting packages write ([6ebb762](https://github.com/usekaneo/kaneo/commit/6ebb762cf346fb4a862819ca0dd180994e905664))
+
+### Documentation
+
+* describe the release flow in the agent guide ([56a9eab](https://github.com/usekaneo/kaneo/commit/56a9eabf7e78dfd51664285b801ae8c1fd22dcdc))
+* update contributors and sponsors ([012778e](https://github.com/usekaneo/kaneo/commit/012778e4e64c1d18c84fde192e025ae798f3df33))
+
+# [2.21.0](https://github.com/usekaneo/kaneo/compare/v2.20.0...v2.21.0) (2026-08-20)
+
+
+### Bug Fixes
+
+* **api:** add timeout to Turnstile verification ([2f22623](https://github.com/usekaneo/kaneo/commit/2f226236ffe40b072c5fff007416ce80d956a80f))
+* **api:** gzip API responses to shrink large board payloads ([b1a4ac9](https://github.com/usekaneo/kaneo/commit/b1a4ac953ac86253e983675067c0573c2a91144f)), closes [#1630](https://github.com/usekaneo/kaneo/issues/1630)
+* **api:** reject malformed Turnstile timeout env values ([2e43a53](https://github.com/usekaneo/kaneo/commit/2e43a5354e32947e88a69db1fcc583b1e8b3d9c0))
+* apply CodeRabbit auto-fixes ([b100997](https://github.com/usekaneo/kaneo/commit/b100997c567be4f5ee43ab6801c214a9b52365e5))
+* apply CodeRabbit auto-fixes ([9520a44](https://github.com/usekaneo/kaneo/commit/9520a4466f11dda3d675ae5d1cf1378b2a867588))
+* apply CodeRabbit auto-fixes ([ac10128](https://github.com/usekaneo/kaneo/commit/ac10128382bd6a4d787a2e2e5be6f325351f00c0))
+* **auth:** address coderabbit/qodo review on workspace-creation gating ([e70d541](https://github.com/usekaneo/kaneo/commit/e70d5417d44ebea04be29755a32da4d5c67c0a2f))
+* **coolify:** pin the Kaneo image to a release tag ([fe92bd6](https://github.com/usekaneo/kaneo/commit/fe92bd6d7402667c57aa6fbe27ecc4d8f0e92e6d))
+* **coolify:** track the latest release instead of a broken pinned tag ([7aec7d6](https://github.com/usekaneo/kaneo/commit/7aec7d623dba40778b3d7b5e62e6793121ac2948))
+* **docker:** preserve web runtime placeholders ([ee03ea9](https://github.com/usekaneo/kaneo/commit/ee03ea9b608b4fe4de29b4a999839c7c1e1e1308))
+* **email:** let the workspace invitation template render without copy ([f3ea6b5](https://github.com/usekaneo/kaneo/commit/f3ea6b51f3dc50635e667e46f05683610550e072))
+* increase card title font size ([e9fb4a8](https://github.com/usekaneo/kaneo/commit/e9fb4a8ef6e4d31e0c0aad8cd473257d1da32f75))
+* remove text-sm ([fc5c3ad](https://github.com/usekaneo/kaneo/commit/fc5c3ad1f290473ce8082186d1ab34d4f8f8188b))
+* **web,i18n:** preload all namespaces after init and locale change ([4f51e5c](https://github.com/usekaneo/kaneo/commit/4f51e5c1b69abc51db6879da27e54dcba230a22a))
+* **web,sentry:** handle Safari "TypeError: Load failed" network errors ([e7dfcfa](https://github.com/usekaneo/kaneo/commit/e7dfcfa44a8f6cf517316089ec7d05892e9a63cf))
+* **web,sentry:** ignore third-party adware/extension errors from cdn77.org ([0ee58dc](https://github.com/usekaneo/kaneo/commit/0ee58dc45c39899d9a9090e4c564f9e2171fd0b1))
+* **web,sentry:** narrow Safari 'Load failed' suppression to auth-session path ([636ad39](https://github.com/usekaneo/kaneo/commit/636ad3914e3ec5eeb1f33401141aca9a21261d2d))
+* **web:** address calendar view review feedback ([93b78a0](https://github.com/usekaneo/kaneo/commit/93b78a0df9b593bddcf96a756668411476b82c4e))
+* **web:** announce the scheduled range in calendar task bars ([12dae3b](https://github.com/usekaneo/kaneo/commit/12dae3b806bca4eb18a9cba0cda46251d67ce44e))
+* **web:** classify Safari 'Load failed' as a network error ([6b5afd5](https://github.com/usekaneo/kaneo/commit/6b5afd5747c6501ac90b549f432aa296387668ab))
+* **web:** clear shiki stale-chunk reload flag after successful init ([c8c2d91](https://github.com/usekaneo/kaneo/commit/c8c2d91ae06c5cad7146a12fb6b7c93fa36c17a5))
+* **web:** preserve MIME metadata for unknown files ([b34474c](https://github.com/usekaneo/kaneo/commit/b34474cd893c1dcf01e69bd3fdd3a033508bb75c))
+* **web:** prevent auth client timeout by optimizing i18n loading ([4522365](https://github.com/usekaneo/kaneo/commit/4522365e6e9b92edac1dfbee70ea0f2730fb2f5c))
+* **web:** prevent Shiki highlighter crash on stale dynamic module load ([6be4428](https://github.com/usekaneo/kaneo/commit/6be44282dfa479bfbe27dd58491b4f9dc3af16c3))
+* **web:** prevent Tiptap TransformError from duplicate Link extension ([83702ee](https://github.com/usekaneo/kaneo/commit/83702eea120f36b2978e700a5379646fcaf98ff2))
+* **web:** track readOnly in ref so handleClick sees current mode ([2879021](https://github.com/usekaneo/kaneo/commit/2879021f895cebd911216a7c3ae02a7c94060082))
+
+
+### Features
+
+* **auth:** let admins restrict workspace creation to instance admins ([fb8c332](https://github.com/usekaneo/kaneo/commit/fb8c332600f5e8ce4cff6227e2f0bfbb1c859f69))
+* **site:** add comparison and guide content engine ([8f334ef](https://github.com/usekaneo/kaneo/commit/8f334ef9169a20d1b96e5a2ee4b5b19ad2d08010))
+* **web:** add a monthly calendar view to projects ([50f4590](https://github.com/usekaneo/kaneo/commit/50f459083e20b8d89d1880988a042fcddca7e426))
 # [2.20.0](https://github.com/usekaneo/kaneo/compare/v2.19.1...v2.20.0) (2026-08-19)
 
 

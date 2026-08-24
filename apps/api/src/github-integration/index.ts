@@ -89,7 +89,7 @@ const githubIntegration = new Hono<{
     },
   )
   .get(
-    "/repositories",
+    "/repositories/:projectId",
     describeRoute({
       operationId: "listGitHubRepositories",
       tags: ["GitHub"],
@@ -105,6 +105,9 @@ const githubIntegration = new Hono<{
         },
       },
     }),
+    validator("param", v.object({ projectId: v.string() })),
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ workspace: ["manage_settings"] }),
     async (c) => {
       const repositories = await listUserRepositories();
       return c.json(repositories);
@@ -128,10 +131,13 @@ const githubIntegration = new Hono<{
     validator(
       "json",
       v.object({
+        projectId: v.pipe(v.string(), v.minLength(1)),
         repositoryOwner: v.pipe(v.string(), v.minLength(1)),
         repositoryName: v.pipe(v.string(), v.minLength(1)),
       }),
     ),
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ workspace: ["manage_settings"] }),
     async (c) => {
       const { repositoryOwner, repositoryName } = c.req.valid("json");
 

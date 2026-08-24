@@ -325,7 +325,7 @@ async function migrateBoard(context: {
       const author = comment.userId ? usersById.get(comment.userId) : undefined;
       await kaneo.createComment(
         task.id,
-        formatComment(comment, author),
+        formatComment(comment),
         displayName(author),
       );
       report.comments++;

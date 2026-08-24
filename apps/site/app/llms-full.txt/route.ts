@@ -1,3 +1,4 @@
+import { blogPath, getPosts } from "@/lib/blog";
 import { alternativePath, comparisonList } from "@/lib/comparisons";
 import type { Cell } from "@/lib/comparisons/types";
 import { guideList, guidePath } from "@/lib/guides";
@@ -85,10 +86,25 @@ ${faq}`;
     .join("\n\n---\n\n");
 }
 
+function blogMarkdown() {
+  return getPosts()
+    .map(
+      (post) => `## ${post.title}
+
+URL: ${SITE}${blogPath(post.slug)}
+Published: ${post.date}${post.updatedOn ? `\nLast updated: ${post.updatedOn}` : ""}
+Author: ${post.author.name}, ${post.author.role}
+Category: ${post.category.name}
+
+${post.markdown}`,
+    )
+    .join("\n\n---\n\n");
+}
+
 export function GET() {
   const body = `# Kaneo, full content
 
-> Kaneo is an open-source, self-hostable project management platform under the MIT license. This file contains the full text of Kaneo's comparison and guide pages. Written by the Kaneo team, who build one of the tools discussed.
+> Kaneo is an open-source, self-hostable project management platform under the MIT license. This file contains the full text of Kaneo's comparison pages, guides, and blog posts. Written by the Kaneo team, who build one of the tools discussed.
 
 # Comparisons
 
@@ -97,6 +113,10 @@ ${comparisonMarkdown()}
 # Guides
 
 ${guideMarkdown()}
+
+# Blog
+
+${blogMarkdown()}
 `;
 
   return new Response(body, {

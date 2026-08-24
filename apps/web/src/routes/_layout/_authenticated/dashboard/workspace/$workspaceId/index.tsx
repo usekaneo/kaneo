@@ -390,8 +390,7 @@ function RouteComponent() {
                 strategy={verticalListSortingStrategy}
               >
                 {orderedProjects?.map((project) => {
-                  if (!project || !project.id || !project.statistics)
-                    return null;
+                  if (!project?.id || !project.statistics) return null;
 
                   const IconComponent =
                     icons[project.icon as keyof typeof icons] || icons.Layout;
