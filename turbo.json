@@ -17,8 +17,7 @@
 			"persistent": true
 		},
 		"lint": {
-			"cache": false,
-			"persistent": true
+			"cache": false
 		},
 		"typecheck": {
 			"dependsOn": ["^build"],
@@ -32,7 +31,8 @@
 		"test:integration": {
 			"dependsOn": ["^build"],
 			"cache": false,
-			"outputs": ["coverage/**"]
+			"outputs": ["coverage/**"],
+			"env": ["DATABASE_URL"]
 		}
 	}
 }
