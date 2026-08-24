@@ -137,11 +137,11 @@ function RouteComponent() {
   const { mutateAsync: deleteProject, isPending: isDeleting } =
     useDeleteProject();
   const {
-    mutateAsync: uploadProjectBackground,
+    mutate: uploadProjectBackground,
     isPending: isUploadingBackground,
   } = useUploadProjectBackground();
   const {
-    mutateAsync: removeProjectBackground,
+    mutate: removeProjectBackground,
     isPending: isRemovingBackground,
   } = useRemoveProjectBackground();
   const isUpdatingBackground = isUploadingBackground || isRemovingBackground;
@@ -342,35 +342,21 @@ function RouteComponent() {
   }, [project?.id, deleteProject, queryClient, navigate, workspace?.id, t]);
 
   const handleBackgroundChange = useCallback(
-    async (event: ChangeEvent<HTMLInputElement>) => {
+    (event: ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       event.target.value = "";
       if (!file || !project?.id) return;
 
-      try {
-        await uploadProjectBackground({ projectId: project.id, file });
-        toast.success(t("settings:projectGeneral.backgroundUploadSuccess"));
-      } catch {
-        toast.error(t("settings:projectGeneral.backgroundUploadError"));
-      }
+      uploadProjectBackground({ projectId: project.id, file });
     },
-    [project?.id, uploadProjectBackground, t],
+    [project?.id, uploadProjectBackground],
   );
 
-  const handleRemoveBackground = useCallback(async () => {
+  const handleRemoveBackground = useCallback(() => {
     if (!project?.id) return;
 
-    try {
-      await removeProjectBackground(project.id);
-      toast.success(t("settings:projectGeneral.backgroundRemoveSuccess"));
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t("settings:projectGeneral.backgroundRemoveError"),
-      );
-    }
-  }, [project?.id, removeProjectBackground, t]);
+    removeProjectBackground(project.id);
+  }, [project?.id, removeProjectBackground]);
 
   return (
     <>

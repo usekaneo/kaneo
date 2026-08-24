@@ -1,5 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { uploadProjectBackground } from "@/fetchers/project/background";
+import { toast } from "@/lib/toast";
 
 type UploadProjectBackgroundVariables = {
   projectId: string;
@@ -7,6 +9,7 @@ type UploadProjectBackgroundVariables = {
 };
 
 function useUploadProjectBackground() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -17,6 +20,10 @@ function useUploadProjectBackground() {
         queryClient.invalidateQueries({ queryKey: ["tasks", projectId] }),
         queryClient.invalidateQueries({ queryKey: ["projects"] }),
       ]);
+      toast.success(t("settings:projectGeneral.backgroundUploadSuccess"));
+    },
+    onError: () => {
+      toast.error(t("settings:projectGeneral.backgroundUploadError"));
     },
   });
 }
