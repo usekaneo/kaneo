@@ -165,7 +165,10 @@ check_runtime_contract() {
 	fetch '/auth/sign-in' "$response_dir/forwarded-list.html" 'request.example.test:5173' 'HTTPS, http'
 	assert_response_contains "$response_dir/forwarded-list.html" '<meta property="og:url" content="https://request.example.test:5173/auth/sign-in">'
 
-	if docker exec "$container_name" grep -R -F 'KANEO_CLIENT_URL' /usr/share/nginx/html >/dev/null; then
+	# Hidden source maps intentionally retain original source text. Check the
+	# executable bundles, which are the files env.sh rewrites at startup.
+	if docker exec "$container_name" sh -c \
+		'find /usr/share/nginx/html -type f -name "*.js" -exec grep -l -F KANEO_CLIENT_URL {} \; | grep -q .'; then
 		fail 'invalid client URL leaves the frontend placeholder in the bundle'
 	fi
 
