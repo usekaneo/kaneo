@@ -3471,7 +3471,10 @@
                     "description": "The user id of the organization creator. If not provided, the current user will be used. Should only be used by admins or when called by the server. server-only. Eg: \"user-id\""
                   },
                   "logo": {
-                    "type": "string",
+                    "type": [
+                      "string",
+                      "null"
+                    ],
                     "description": "The logo of the organization"
                   },
                   "metadata": {
@@ -3484,7 +3487,10 @@
                     "description": "Whether to keep the current active organization active after creating a new one. Eg: true"
                   },
                   "description": {
-                    "type": "string"
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
                 },
                 "required": [
@@ -3534,7 +3540,12 @@
                   },
                   "permission": {
                     "type": "object",
-                    "additionalProperties": {},
+                    "additionalProperties": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
                     "description": "The permission to assign to the role"
                   },
                   "additionalFields": {
@@ -3693,7 +3704,46 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "organizationId": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "roleName": {
+                            "type": "string",
+                            "description": "The name of the role to delete"
+                          }
+                        },
+                        "required": [
+                          "roleName"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "roleId": {
+                            "type": "string",
+                            "description": "The id of the role to delete"
+                          }
+                        },
+                        "required": [
+                          "roleId"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
             }
           }
         },
@@ -3806,7 +3856,7 @@
             "schema": {
               "type": "string"
             },
-            "required": false,
+            "required": true,
             "name": "id",
             "in": "query"
           }
@@ -4669,7 +4719,10 @@
                 "type": "object",
                 "properties": {
                   "organizationId": {
-                    "type": "string",
+                    "type": [
+                      "string",
+                      "null"
+                    ],
                     "description": "The organization id to set as active. It can be null to unset the active organization. Eg: \"org-id\""
                   },
                   "organizationSlug": {
@@ -4712,7 +4765,10 @@
                 "type": "object",
                 "properties": {
                   "teamId": {
-                    "type": "string",
+                    "type": [
+                      "string",
+                      "null"
+                    ],
                     "description": "The team id to set as active. It can be null to unset the active team"
                   }
                 }
@@ -4754,7 +4810,10 @@
                     "type": "object",
                     "properties": {
                       "description": {
-                        "type": "string"
+                        "type": [
+                          "string",
+                          "null"
+                        ]
                       },
                       "name": {
                         "type": "string",
@@ -4765,7 +4824,10 @@
                         "description": "The slug of the organization"
                       },
                       "logo": {
-                        "type": "string",
+                        "type": [
+                          "string",
+                          "null"
+                        ],
                         "description": "The logo of the organization"
                       },
                       "metadata": {
@@ -4905,7 +4967,66 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "organizationId": {
+                        "type": "string"
+                      },
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "permission": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "roleName": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "required": [
+                      "data"
+                    ]
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "roleName": {
+                            "type": "string",
+                            "description": "The name of the role to update"
+                          }
+                        },
+                        "required": [
+                          "roleName"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "roleId": {
+                            "type": "string",
+                            "description": "The id of the role to update"
+                          }
+                        },
+                        "required": [
+                          "roleId"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
             }
           }
         },

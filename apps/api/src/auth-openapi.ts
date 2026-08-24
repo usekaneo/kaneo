@@ -178,6 +178,7 @@ export function organizationRoutes(registry: OpenAPIHono["openAPIRegistry"]) {
               }),
               logo: z
                 .string()
+                .nullable()
                 .optional()
                 .openapi({ description: "The logo of the organization" }),
               metadata: z
@@ -188,7 +189,7 @@ export function organizationRoutes(registry: OpenAPIHono["openAPIRegistry"]) {
                 description:
                   "Whether to keep the current active organization active after creating a new one. Eg: true",
               }),
-              description: z.string().optional(),
+              description: z.string().nullable().optional(),
             }),
           },
         },
@@ -219,7 +220,7 @@ export function organizationRoutes(registry: OpenAPIHono["openAPIRegistry"]) {
               role: z
                 .string()
                 .openapi({ description: "The name of the role to create" }),
-              permission: z.record(z.string(), z.unknown()).openapi({
+              permission: z.record(z.string(), z.array(z.string())).openapi({
                 description: "The permission to assign to the role",
               }),
               additionalFields: z.record(z.string(), z.unknown()).optional(),
@@ -323,7 +324,27 @@ export function organizationRoutes(registry: OpenAPIHono["openAPIRegistry"]) {
     request: {
       body: {
         required: true,
-        content: { "application/json": { schema: z.unknown() } },
+        content: {
+          "application/json": {
+            schema: z.intersection(
+              z.object({
+                organizationId: z.string().optional(),
+              }),
+              z.union([
+                z.object({
+                  roleName: z
+                    .string()
+                    .openapi({ description: "The name of the role to delete" }),
+                }),
+                z.object({
+                  roleId: z
+                    .string()
+                    .openapi({ description: "The id of the role to delete" }),
+                }),
+              ]),
+            ),
+          },
+        },
       },
     },
     responses: {
@@ -391,7 +412,7 @@ export function organizationRoutes(registry: OpenAPIHono["openAPIRegistry"]) {
     description: "Get an invitation by ID",
     request: {
       query: z.object({
-        id: z.string().optional(),
+        id: z.string(),
       }),
     },
     responses: {
@@ -902,7 +923,7 @@ export function organizationRoutes(registry: OpenAPIHono["openAPIRegistry"]) {
         content: {
           "application/json": {
             schema: z.object({
-              organizationId: z.string().optional().openapi({
+              organizationId: z.string().nullable().optional().openapi({
                 description:
                   'The organization id to set as active. It can be null to unset the active organization. Eg: "org-id"',
               }),
@@ -936,7 +957,7 @@ export function organizationRoutes(registry: OpenAPIHono["openAPIRegistry"]) {
         content: {
           "application/json": {
             schema: z.object({
-              teamId: z.string().optional().openapi({
+              teamId: z.string().nullable().optional().openapi({
                 description:
                   "The team id to set as active. It can be null to unset the active team",
               }),
@@ -967,7 +988,7 @@ export function organizationRoutes(registry: OpenAPIHono["openAPIRegistry"]) {
           "application/json": {
             schema: z.object({
               data: z.object({
-                description: z.string().optional(),
+                description: z.string().nullable().optional(),
                 name: z
                   .string()
                   .optional()
@@ -978,6 +999,7 @@ export function organizationRoutes(registry: OpenAPIHono["openAPIRegistry"]) {
                   .openapi({ description: "The slug of the organization" }),
                 logo: z
                   .string()
+                  .nullable()
                   .optional()
                   .openapi({ description: "The logo of the organization" }),
                 metadata: z
@@ -1061,7 +1083,33 @@ export function organizationRoutes(registry: OpenAPIHono["openAPIRegistry"]) {
     request: {
       body: {
         required: true,
-        content: { "application/json": { schema: z.unknown() } },
+        content: {
+          "application/json": {
+            schema: z.intersection(
+              z.object({
+                organizationId: z.string().optional(),
+                data: z.object({
+                  permission: z
+                    .record(z.string(), z.array(z.string()))
+                    .optional(),
+                  roleName: z.string().optional(),
+                }),
+              }),
+              z.union([
+                z.object({
+                  roleName: z
+                    .string()
+                    .openapi({ description: "The name of the role to update" }),
+                }),
+                z.object({
+                  roleId: z
+                    .string()
+                    .openapi({ description: "The id of the role to update" }),
+                }),
+              ]),
+            ),
+          },
+        },
       },
     },
     responses: {
