@@ -61,6 +61,7 @@ Not every change touches every surface. Make the decision deliberately rather th
 - Use the client from `@kaneo/libs`; do not create a parallel untyped request layer.
 - Define database schema in `apps/api/src/database/schema.ts` and relations in `apps/api/src/database/relations.ts`.
 - Generate migrations with `pnpm --filter @kaneo/api db:generate`, inspect the SQL, and include it with the schema change.
+- `apps/docs/openapi.json` is a committed artifact that the docs site serves. Regenerate it with `pnpm openapi:check:fix` whenever a route, request schema, or response schema changes; CI fails when it drifts.
 - Prefer inferred TypeScript types and `type` over `interface` unless extension or declaration merging is required.
 - Comments should explain constraints or surprising decisions, not narrate code.
 
