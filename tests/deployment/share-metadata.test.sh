@@ -32,6 +32,8 @@ check_static_contract() {
 	assert_contains apps/web/share-metadata.conf 'map $request_uri $kaneo_share_title'
 	assert_contains apps/web/share-metadata.conf 'map $request_uri $kaneo_share_request_uri'
 	assert_contains apps/web/share-metadata.conf 'map $http_x_forwarded_proto $kaneo_forwarded_scheme'
+	assert_contains apps/web/share-metadata.conf '"~*^[[:space:]]*https[[:space:]]*(?:,|$)" "https";'
+	assert_contains apps/web/share-metadata.conf '"~*^[[:space:]]*http[[:space:]]*(?:,|$)" "http";'
 	assert_contains apps/web/share-metadata.conf '"Task · Kaneo"'
 	assert_contains apps/web/share-metadata.conf '"Project settings · Kaneo"'
 	assert_contains apps/web/share-metadata.conf '"Account settings · Kaneo"'
@@ -46,6 +48,9 @@ check_static_contract() {
 	assert_contains Dockerfile.kaneo 'apps/web/share-metadata.conf /etc/nginx/conf.d/00-share-metadata.conf'
 	assert_contains apps/web/env.sh '__KANEO_CLIENT_ORIGIN__'
 	assert_contains apps/web/env.sh 'client_url_single_line='
+	assert_contains apps/web/env.sh 'replace_client_url_placeholders "$metadata_origin"'
+	assert_contains apps/web/src/routes/auth/sign-in.tsx 'resolveClientOrigin('
+	assert_contains apps/web/src/routes/auth/sign-up.tsx 'resolveClientOrigin('
 	assert_contains .github/workflows/ci.yml 'file: ./apps/web/Dockerfile'
 	assert_contains .github/workflows/ci.yml 'tests/deployment/share-metadata.test.sh'
 }
@@ -156,6 +161,13 @@ check_runtime_contract() {
 	fetch '/auth/sign-in?next=%2Fdashboard' "$response_dir/request-origin.html" 'request.example.test:5173' 'https'
 	assert_response_contains "$response_dir/request-origin.html" '<title>Sign in · Kaneo</title>'
 	assert_response_contains "$response_dir/request-origin.html" '<meta property="og:url" content="https://request.example.test:5173/auth/sign-in?next=%2Fdashboard">'
+
+	fetch '/auth/sign-in' "$response_dir/forwarded-list.html" 'request.example.test:5173' 'HTTPS, http'
+	assert_response_contains "$response_dir/forwarded-list.html" '<meta property="og:url" content="https://request.example.test:5173/auth/sign-in">'
+
+	if docker exec "$container_name" grep -R -F 'KANEO_CLIENT_URL' /usr/share/nginx/html >/dev/null; then
+		fail 'invalid client URL leaves the frontend placeholder in the bundle'
+	fi
 
 	fetch '/auth/sign-in' "$response_dir/unsafe-scheme.html" 'request.example.test:5173' 'javascript'
 	assert_response_contains "$response_dir/unsafe-scheme.html" '<meta property="og:url" content="http://request.example.test:5173/auth/sign-in">'

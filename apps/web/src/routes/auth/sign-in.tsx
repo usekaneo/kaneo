@@ -16,6 +16,7 @@ import useInstanceStatus from "@/hooks/queries/instance/use-instance-status";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
+import { resolveClientOrigin } from "@/utils/resolve-client-origin";
 import { AuthLayout } from "../../components/auth/layout";
 import { OtpSignInForm } from "../../components/auth/otp-sign-in-form";
 import { SignInForm } from "../../components/auth/sign-in-form";
@@ -83,6 +84,10 @@ function SignIn() {
   const defaultEmail = search.email;
   const captchaConfigured = Boolean(TURNSTILE_SITE_KEY);
   const captchaPending = captchaConfigured && !turnstileToken;
+  const clientOrigin = resolveClientOrigin(
+    import.meta.env.VITE_CLIENT_URL,
+    window.location.origin,
+  );
 
   const handleTurnstileVerify = useCallback((token: string) => {
     setTurnstileToken(token);
@@ -100,16 +105,15 @@ function SignIn() {
   }, [search.redirect]);
 
   const getCallbackUrl = useCallback(() => {
-    const baseUrl = import.meta.env.VITE_CLIENT_URL;
     const redirectPath = getSafeRedirectPath();
     if (redirectPath) {
-      return `${baseUrl}${redirectPath}`;
+      return `${clientOrigin}${redirectPath}`;
     }
     if (invitationId) {
-      return `${baseUrl}/invitation/accept/${invitationId}`;
+      return `${clientOrigin}/invitation/accept/${invitationId}`;
     }
-    return `${baseUrl}/dashboard`;
-  }, [invitationId, getSafeRedirectPath]);
+    return `${clientOrigin}/dashboard`;
+  }, [clientOrigin, invitationId, getSafeRedirectPath]);
 
   const handleCustomOAuth = useCallback(async () => {
     setIsCustomOAuthLoading(true);
@@ -117,7 +121,7 @@ function SignIn() {
       const result = await authClient.signIn.oauth2({
         providerId: "custom",
         callbackURL: getCallbackUrl(),
-        errorCallbackURL: `${import.meta.env.VITE_CLIENT_URL}/auth/sign-in`,
+        errorCallbackURL: `${clientOrigin}/auth/sign-in`,
       });
       if (result.error) {
         throw new Error(result.error.message);
@@ -130,7 +134,7 @@ function SignIn() {
     } finally {
       setIsCustomOAuthLoading(false);
     }
-  }, [getCallbackUrl, t]);
+  }, [clientOrigin, getCallbackUrl, t]);
 
   const handleSignInGoogle = async () => {
     setIsGoogleLoading(true);
@@ -138,7 +142,7 @@ function SignIn() {
       const result = await authClient.signIn.social({
         provider: "google",
         callbackURL: getCallbackUrl(),
-        errorCallbackURL: `${import.meta.env.VITE_CLIENT_URL}/auth/sign-in`,
+        errorCallbackURL: `${clientOrigin}/auth/sign-in`,
       });
       if (result.error) {
         throw new Error(result.error.message);
@@ -158,7 +162,7 @@ function SignIn() {
       const result = await authClient.signIn.social({
         provider: "github",
         callbackURL: getCallbackUrl(),
-        errorCallbackURL: `${import.meta.env.VITE_CLIENT_URL}/auth/sign-in`,
+        errorCallbackURL: `${clientOrigin}/auth/sign-in`,
       });
       if (result.error) {
         throw new Error(result.error.message);
@@ -178,7 +182,7 @@ function SignIn() {
       const result = await authClient.signIn.social({
         provider: "discord",
         callbackURL: getCallbackUrl(),
-        errorCallbackURL: `${import.meta.env.VITE_CLIENT_URL}/auth/sign-in`,
+        errorCallbackURL: `${clientOrigin}/auth/sign-in`,
       });
       if (result.error) {
         throw new Error(result.error.message);

@@ -19,6 +19,7 @@ import useGetConfig from "@/hooks/queries/config/use-get-config";
 import useInstanceStatus from "@/hooks/queries/instance/use-instance-status";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "@/lib/toast";
+import { resolveClientOrigin } from "@/utils/resolve-client-origin";
 
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY as
   | string
@@ -72,7 +73,10 @@ function SignUp() {
   const prefillEmail = search.email;
   const isInstanceAdminSetup = instanceStatus?.hasUsers === false;
 
-  const baseUrl = import.meta.env.VITE_CLIENT_URL ?? window.location.origin;
+  const baseUrl = resolveClientOrigin(
+    import.meta.env.VITE_CLIENT_URL,
+    window.location.origin,
+  );
   const callbackURL = invitationId
     ? `${baseUrl}/invitation/accept/${invitationId}`
     : `${baseUrl}/dashboard`;

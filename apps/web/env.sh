@@ -21,6 +21,12 @@ fi
 # The allowlist above excludes sed/nginx metacharacters other than ':' and '/'.
 sed -i "s#__KANEO_CLIENT_ORIGIN__#$metadata_origin#g" "$metadata_config"
 
+replace_client_url_placeholders() {
+  replacement=$1
+  find /usr/share/nginx/html -type f -name "*.js" -exec grep -l "KANEO_CLIENT_URL" {} \; |
+    xargs -r sed -i "s#KANEO_CLIENT_URL#$replacement#g"
+}
+
 # Process KANEO_API_URL first (with special handling)
 if [ ! -z "$KANEO_API_URL" ]; then
   echo "Found KANEO_API_URL: $KANEO_API_URL"
@@ -48,16 +54,14 @@ else
 fi
 
 # Process KANEO_CLIENT_URL efficiently. Reuse the validated origin so a
-# malformed value cannot become sed input or JavaScript source.
+# malformed value cannot become sed input or JavaScript source. Always remove
+# the build-time placeholder: an empty replacement makes the browser use its
+# current origin instead of treating KANEO_CLIENT_URL as a real hostname.
 if [ -n "$metadata_origin" ]; then
   echo "Found KANEO_CLIENT_URL: $metadata_origin"
-  
-  # Only process files that actually contain the string
-  find /usr/share/nginx/html -type f -name "*.js" -exec grep -l "KANEO_CLIENT_URL" {} \; | xargs -r sed -i "s#KANEO_CLIENT_URL#$metadata_origin#g"
-  find /usr/share/nginx/html -type f -name "*.js" -exec grep -l "\"KANEO_CLIENT_URL\"" {} \; | xargs -r sed -i "s#\"KANEO_CLIENT_URL\"#\"$metadata_origin\"#g"
-  
   echo "✅ Replaced KANEO_CLIENT_URL with $metadata_origin"
 fi
+replace_client_url_placeholders "$metadata_origin"
 
 # Process any other KANEO_ prefixed environment variables (for future extensibility)
 # Exclude the ones we've already processed
