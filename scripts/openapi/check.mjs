@@ -14,6 +14,13 @@ const workdir = mkdtempSync(join(tmpdir(), "kaneo-openapi-"));
 const generated = join(workdir, "openapi.json");
 
 try {
+  // The exporter imports the API, which imports workspace packages from their
+  // built dist output, so those builds have to run first. Every other turbo
+  // task gets this from dependsOn: ["^build"]; this one is invoked directly.
+  execFileSync("pnpm", ["turbo", "build", "--filter=@kaneo/api^..."], {
+    stdio: ["ignore", "ignore", "inherit"],
+  });
+
   execFileSync(
     "pnpm",
     [
