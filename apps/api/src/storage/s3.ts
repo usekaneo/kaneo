@@ -447,6 +447,9 @@ export function assertProjectBackgroundKeyMatchesContext(
 
   // The prefix alone is not enough: gateways that normalize paths would let
   // a traversal suffix walk back out into another workspace's objects.
+  if (!/^[A-Za-z0-9_-]+$/.test(context.version)) {
+    return false;
+  }
   const suffix = key.slice(fullPrefix.length);
   return suffix === `background-${context.version}`;
 }

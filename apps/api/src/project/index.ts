@@ -506,7 +506,7 @@ const project = new Hono<{
         })
       ) {
         throw new HTTPException(400, {
-          message: "Image upload key does not match the task context.",
+          message: "Image upload key does not match the project context.",
         });
       }
 
@@ -534,7 +534,9 @@ const project = new Hono<{
         currentProject?.backgroundObjectKey &&
         currentProject.backgroundObjectKey !== normalizedKey
       ) {
-        deleteS3Object(currentProject.backgroundObjectKey).catch(() => {});
+        deleteS3Object(currentProject.backgroundObjectKey).catch((e) => {
+          console.warn(`S3 cleanup error: ${e}`);
+        });
       }
 
       const apiBaseUrl = normalizeApiServerUrl(

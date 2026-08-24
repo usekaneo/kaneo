@@ -94,9 +94,7 @@ describe("project background fetchers", () => {
       new Response(null, { status: 413 }),
     );
 
-    await expect(uploadProjectBackground("project-1", file)).rejects.toThrow(
-      "Failed to upload background image.",
-    );
+    await expect(uploadProjectBackground("project-1", file)).rejects.toThrow();
     expect(mocks.finalizeUpload).not.toHaveBeenCalled();
   });
 

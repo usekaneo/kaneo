@@ -15,7 +15,7 @@ export async function uploadProjectBackground(projectId: string, file: File) {
     body: file,
   });
   if (!storageResponse.ok)
-    throw new Error("Failed to upload background image.");
+    throw new Error();
 
   const finalizeResponse = await client.project[":id"][
     "background-upload"

@@ -46,12 +46,10 @@ import {
 import { Separator } from "@/components/ui/separator";
 import icons from "@/constants/project-icons";
 import { getApiUrl } from "@/fetchers/get-api-url";
-import {
-  removeProjectBackground,
-  uploadProjectBackground,
-} from "@/fetchers/project/background";
 import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
+import useRemoveProjectBackground from "@/hooks/mutations/project/use-remove-project-background";
 import useUpdateProject from "@/hooks/mutations/project/use-update-project";
+import useUploadProjectBackground from "@/hooks/mutations/project/use-upload-project-background";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
@@ -121,7 +119,6 @@ function RouteComponent() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [iconPopoverOpen, setIconPopoverOpen] = useState(false);
   const [iconSearch, setIconSearch] = useState("");
-  const [isUpdatingBackground, setIsUpdatingBackground] = useState(false);
   const backgroundInputRef = useRef<HTMLInputElement>(null);
 
   const { data: workspace } = useActiveWorkspace();
@@ -139,6 +136,15 @@ function RouteComponent() {
   const { mutateAsync: updateProject } = useUpdateProject();
   const { mutateAsync: deleteProject, isPending: isDeleting } =
     useDeleteProject();
+  const {
+    mutateAsync: uploadProjectBackground,
+    isPending: isUploadingBackground,
+  } = useUploadProjectBackground();
+  const {
+    mutateAsync: removeProjectBackground,
+    isPending: isRemovingBackground,
+  } = useRemoveProjectBackground();
+  const isUpdatingBackground = isUploadingBackground || isRemovingBackground;
   const { canManageProjects, canDeleteProjects } = useWorkspacePermission();
   const canEdit = canManageProjects();
   const canDelete = canDeleteProjects();
@@ -335,44 +341,27 @@ function RouteComponent() {
     }
   }, [project?.id, deleteProject, queryClient, navigate, workspace?.id, t]);
 
-  const refreshProject = useCallback(async () => {
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ["tasks", projectId] }),
-      queryClient.invalidateQueries({ queryKey: ["projects"] }),
-    ]);
-  }, [projectId, queryClient]);
-
   const handleBackgroundChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       event.target.value = "";
       if (!file || !project?.id) return;
 
-      setIsUpdatingBackground(true);
       try {
-        await uploadProjectBackground(project.id, file);
-        await refreshProject();
+        await uploadProjectBackground({ projectId: project.id, file });
         toast.success(t("settings:projectGeneral.backgroundUploadSuccess"));
-      } catch (error) {
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : t("settings:projectGeneral.backgroundUploadError"),
-        );
-      } finally {
-        setIsUpdatingBackground(false);
+      } catch {
+        toast.error(t("settings:projectGeneral.backgroundUploadError"));
       }
     },
-    [project?.id, refreshProject, t],
+    [project?.id, uploadProjectBackground, t],
   );
 
   const handleRemoveBackground = useCallback(async () => {
     if (!project?.id) return;
 
-    setIsUpdatingBackground(true);
     try {
       await removeProjectBackground(project.id);
-      await refreshProject();
       toast.success(t("settings:projectGeneral.backgroundRemoveSuccess"));
     } catch (error) {
       toast.error(
@@ -380,10 +369,8 @@ function RouteComponent() {
           ? error.message
           : t("settings:projectGeneral.backgroundRemoveError"),
       );
-    } finally {
-      setIsUpdatingBackground(false);
     }
-  }, [project?.id, refreshProject, t]);
+  }, [project?.id, removeProjectBackground, t]);
 
   return (
     <>
