@@ -9,8 +9,11 @@ if (!response.ok) {
   throw new Error(`OpenAPI export failed with status ${response.status}`);
 }
 
-const spec = await response.json();
-// Defaults to the file the docs site reads; the drift check passes a temp path.
+const spec = (await response.json()) as { servers?: unknown };
+
+spec.servers = [
+  { url: "https://cloud.kaneo.app/api", description: "Kaneo API Server" },
+];
 const outputPath = process.argv[2]
   ? resolve(process.argv[2])
   : resolve(import.meta.dirname, "../../docs/openapi.json");

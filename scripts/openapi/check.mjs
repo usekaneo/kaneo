@@ -1,26 +1,24 @@
 #!/usr/bin/env node
-// apps/docs/openapi.json is a committed artifact that Mintlify serves as the API
-// reference, so it only stays truthful if something regenerates it. This fails
-// when the committed document no longer matches what the routes produce.
 import { execFileSync } from "node:child_process";
-import { copyFileSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import {
+  copyFileSync,
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 const COMMITTED = resolve("apps/docs/openapi.json");
 const FIX = process.argv.includes("--fix");
+const RUN = {
+  stdio: ["ignore", "ignore", "inherit"],
+  shell: process.platform === "win32",
+};
 
-const workdir = mkdtempSync(join(tmpdir(), "kaneo-openapi-"));
-const generated = join(workdir, "openapi.json");
-
-try {
-  // The exporter imports the API, which imports workspace packages from their
-  // built dist output, so those builds have to run first. Every other turbo
-  // task gets this from dependsOn: ["^build"]; this one is invoked directly.
-  execFileSync("pnpm", ["turbo", "build", "--filter=@kaneo/api^..."], {
-    stdio: ["ignore", "ignore", "inherit"],
-  });
-
+function generate(into) {
+  execFileSync("pnpm", ["turbo", "build", "--filter=@kaneo/api^..."], RUN);
   execFileSync(
     "pnpm",
     [
@@ -29,29 +27,43 @@ try {
       "exec",
       "tsx",
       "scripts/export-openapi.ts",
-      generated,
+      into,
     ],
-    { stdio: ["ignore", "ignore", "inherit"] },
+    RUN,
   );
-
-  if (readFileSync(COMMITTED, "utf8") === readFileSync(generated, "utf8")) {
-    console.log("apps/docs/openapi.json is up to date");
-    process.exit(0);
-  }
-
-  if (FIX) {
-    copyFileSync(generated, COMMITTED);
-    console.log("apps/docs/openapi.json regenerated");
-    process.exit(0);
-  }
-
-  console.error(
-    "apps/docs/openapi.json is out of date with the API routes.\n" +
-      "The docs site serves this file, so it has to be regenerated and committed\n" +
-      "whenever a route, request schema, or response schema changes.\n\n" +
-      "  pnpm openapi:check:fix\n",
-  );
-  process.exit(1);
-} finally {
-  rmSync(workdir, { recursive: true, force: true });
 }
+
+function run() {
+  const workdir = mkdtempSync(join(tmpdir(), "kaneo-openapi-"));
+  const generated = join(workdir, "openapi.json");
+
+  try {
+    generate(generated);
+
+    const committed = existsSync(COMMITTED)
+      ? readFileSync(COMMITTED, "utf8")
+      : null;
+    if (committed === readFileSync(generated, "utf8")) {
+      console.log("apps/docs/openapi.json is up to date");
+      return 0;
+    }
+
+    if (FIX) {
+      copyFileSync(generated, COMMITTED);
+      console.log("apps/docs/openapi.json regenerated");
+      return 0;
+    }
+
+    console.error(
+      `apps/docs/openapi.json is ${committed === null ? "missing" : "out of date"}.\n` +
+        "The docs site serves this file, so it has to be regenerated and committed\n" +
+        "whenever a route, request schema, or response schema changes.\n\n" +
+        "  pnpm openapi:check:fix\n",
+    );
+    return 1;
+  } finally {
+    rmSync(workdir, { recursive: true, force: true });
+  }
+}
+
+process.exitCode = run();
