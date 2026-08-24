@@ -5,7 +5,7 @@ import { HTTPException } from "hono/http-exception";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import db from "../database";
-import { integrationTable } from "../database/schema";
+import { integrationTable, projectTable } from "../database/schema";
 import {
   type GitlabConfig,
   validateGitlabConfig,
@@ -15,6 +15,7 @@ import {
   hasWorkspacePermission,
   requireWorkspacePermission,
 } from "../utils/require-workspace-permission";
+import { validateWorkspaceAccess } from "../utils/validate-workspace-access";
 import {
   workspaceAccess,
   workspaceAccessMiddleware,
@@ -22,6 +23,7 @@ import {
 import createGitlabIntegration from "./controllers/create-gitlab-integration";
 import deleteGitlabIntegration from "./controllers/delete-gitlab-integration";
 import getGitlabIntegration from "./controllers/get-gitlab-integration";
+import { importGitlabIssues } from "./controllers/import-gitlab-issues";
 import listGitlabRepositories from "./controllers/list-gitlab-repositories";
 import verifyGitlabAccess from "./controllers/verify-gitlab-access";
 
@@ -324,6 +326,69 @@ const gitlabIntegration = new Hono<{
     async (c) => {
       const { projectId } = c.req.valid("param");
       const result = await deleteGitlabIntegration(projectId);
+      return c.json(result);
+    },
+  )
+  .post(
+    "/import-issues",
+    describeRoute({
+      operationId: "importGitlabIssues",
+      tags: ["GitLab"],
+      description: "Import GitLab issues as tasks",
+      responses: {
+        200: {
+          description: "Import result",
+          content: {
+            "application/json": {
+              schema: resolver(
+                v.object({
+                  imported: v.number(),
+                  updated: v.number(),
+                  skipped: v.number(),
+                  errors: v.optional(v.array(v.string())),
+                }),
+              ),
+            },
+          },
+        },
+      },
+    }),
+    validator(
+      "json",
+      v.object({
+        projectId: v.string(),
+      }),
+    ),
+    async (c, next) => {
+      const userId = c.get("userId");
+      if (!userId) {
+        throw new HTTPException(401, { message: "Unauthorized" });
+      }
+
+      const { projectId } = c.req.valid("json");
+
+      const [project] = await db
+        .select({ workspaceId: projectTable.workspaceId })
+        .from(projectTable)
+        .where(eq(projectTable.id, projectId))
+        .limit(1);
+
+      if (!project) {
+        throw new HTTPException(404, { message: "Project not found" });
+      }
+
+      const apiKey = c.get("apiKey");
+      const apiKeyId = apiKey?.id;
+
+      await validateWorkspaceAccess(userId, project.workspaceId, apiKeyId);
+      c.set("workspaceId", project.workspaceId);
+
+      return next();
+    },
+    requireWorkspacePermission({ task: ["create"] }),
+    async (c) => {
+      const { projectId } = c.req.valid("json");
+      const result = await importGitlabIssues(projectId);
       return c.json(result);
     },
   );
