@@ -178,6 +178,21 @@ export const giteaIntegrationSchema = v.object({
   updatedAt: v.date(),
 });
 
+export const gitlabIntegrationSchema = v.object({
+  id: v.string(),
+  projectId: v.string(),
+  baseUrl: v.string(),
+  repositoryPath: v.string(),
+  maskedAccessToken: v.string(),
+  webhookUrl: v.optional(v.string()),
+  webhookSecret: v.optional(v.string()),
+  branchPattern: v.optional(v.string()),
+  commentTaskLinkOnGitlabIssue: v.optional(v.boolean()),
+  isActive: v.nullable(v.boolean()),
+  createdAt: v.date(),
+  updatedAt: v.date(),
+});
+
 export const integrationEventsSchema = v.object({
   taskCreated: v.boolean(),
   taskStatusChanged: v.boolean(),
