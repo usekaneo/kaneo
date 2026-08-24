@@ -1205,6 +1205,27 @@
           "image"
         ]
       },
+      "TimeEntryWithUser": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TimeEntry"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "userName": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "userName"
+            ]
+          }
+        ]
+      },
       "TimeEntry": {
         "type": "object",
         "properties": {
@@ -3295,10 +3316,7 @@
                     "description": "The user Id which represents the user to be added as a member."
                   },
                   "organizationId": {
-                    "type": [
-                      "string",
-                      "null"
-                    ],
+                    "type": "string",
                     "description": "The organization ID which the team falls under. If not provided, it will default to the user's active organization."
                   }
                 },
@@ -3449,38 +3467,24 @@
                     "description": "The slug of the organization"
                   },
                   "userId": {
-                    "type": [
-                      "string",
-                      "null"
-                    ],
+                    "type": "string",
                     "description": "The user id of the organization creator. If not provided, the current user will be used. Should only be used by admins or when called by the server. server-only. Eg: \"user-id\""
                   },
                   "logo": {
-                    "type": [
-                      "string",
-                      "null"
-                    ],
+                    "type": "string",
                     "description": "The logo of the organization"
                   },
                   "metadata": {
-                    "type": [
-                      "string",
-                      "null"
-                    ],
+                    "type": "object",
+                    "additionalProperties": {},
                     "description": "The metadata of the organization"
                   },
                   "keepCurrentActiveOrganization": {
-                    "type": [
-                      "boolean",
-                      "null"
-                    ],
+                    "type": "boolean",
                     "description": "Whether to keep the current active organization active after creating a new one. Eg: true"
                   },
                   "description": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
+                    "type": "string"
                   }
                 },
                 "required": [
@@ -3496,10 +3500,7 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {}
-                }
+                "schema": {}
               }
             }
           },
@@ -3525,24 +3526,19 @@
                 "type": "object",
                 "properties": {
                   "organizationId": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
+                    "type": "string"
                   },
                   "role": {
                     "type": "string",
                     "description": "The name of the role to create"
                   },
                   "permission": {
-                    "type": "string",
+                    "type": "object",
+                    "additionalProperties": {},
                     "description": "The permission to assign to the role"
                   },
                   "additionalFields": {
-                    "type": [
-                      "object",
-                      "null"
-                    ],
+                    "type": "object",
                     "additionalProperties": {}
                   }
                 },
@@ -3584,10 +3580,7 @@
                     "description": "The name of the team. Eg: \"my-team\""
                   },
                   "organizationId": {
-                    "type": [
-                      "string",
-                      "null"
-                    ],
+                    "type": "string",
                     "description": "The organization ID which the team will be created in. Defaults to the active organization. Eg: \"organization-id\""
                   }
                 },
@@ -3696,6 +3689,14 @@
         "operationId": "deleteOrganizationRole",
         "summary": "Delete Organization Role",
         "description": "Delete Organization Role",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {}
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Success"
@@ -3782,10 +3783,7 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {}
-                }
+                "schema": {}
               }
             }
           },
@@ -3808,7 +3806,7 @@
             "schema": {
               "type": "string"
             },
-            "required": true,
+            "required": false,
             "name": "id",
             "in": "query"
           }
@@ -3898,7 +3896,7 @@
           "Organization Management"
         ],
         "operationId": "hasOrganizationPermission",
-        "summary": "Has Organization Permission",
+        "summary": "Check Organization Permission",
         "description": "Check if the user has permission",
         "requestBody": {
           "required": true,
@@ -3973,31 +3971,44 @@
                     "description": "The email address of the user to invite"
                   },
                   "role": {
-                    "type": "string",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ],
                     "description": "The role(s) to assign to the user. It can be `admin`, `member`, owner. Eg: \"member\""
                   },
                   "organizationId": {
-                    "type": [
-                      "string",
-                      "null"
-                    ],
+                    "type": "string",
                     "description": "The organization ID to invite the user to"
                   },
                   "resend": {
-                    "type": [
-                      "boolean",
-                      "null"
-                    ],
+                    "type": "boolean",
                     "description": "Resend the invitation email, if the user is already invited. Eg: true"
                   },
                   "teamId": {
-                    "type": "string"
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ]
                   }
                 },
                 "required": [
                   "email",
-                  "role",
-                  "teamId"
+                  "role"
                 ]
               }
             }
@@ -4373,10 +4384,7 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": {
-                    "type": "object",
-                    "additionalProperties": {}
-                  }
+                  "items": {}
                 }
               }
             }
@@ -4464,10 +4472,7 @@
                     "description": "The ID or email of the member to remove"
                   },
                   "organizationId": {
-                    "type": [
-                      "string",
-                      "null"
-                    ],
+                    "type": "string",
                     "description": "The ID of the organization to remove the member from. If not provided, the active organization will be used. Eg: \"org-id\""
                   }
                 },
@@ -4543,10 +4548,7 @@
                     "description": "The team ID of the team to remove. Eg: \"team-id\""
                   },
                   "organizationId": {
-                    "type": [
-                      "string",
-                      "null"
-                    ],
+                    "type": "string",
                     "description": "The organization ID which the team falls under. If not provided, it will default to the user's active organization. Eg: \"organization-id\""
                   }
                 },
@@ -4610,10 +4612,7 @@
                     "description": "The user which should be removed from the team."
                   },
                   "organizationId": {
-                    "type": [
-                      "string",
-                      "null"
-                    ],
+                    "type": "string",
                     "description": "The organization ID which the team falls under. If not provided, it will default to the user's active organization."
                   }
                 },
@@ -4670,16 +4669,11 @@
                 "type": "object",
                 "properties": {
                   "organizationId": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
+                    "type": "string",
+                    "description": "The organization id to set as active. It can be null to unset the active organization. Eg: \"org-id\""
                   },
                   "organizationSlug": {
-                    "type": [
-                      "string",
-                      "null"
-                    ],
+                    "type": "string",
                     "description": "The organization slug to set as active. It can be null to unset the active organization if organizationId is not provided. Eg: \"org-slug\""
                   }
                 }
@@ -4692,10 +4686,7 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {}
-                }
+                "schema": {}
               }
             }
           },
@@ -4721,10 +4712,8 @@
                 "type": "object",
                 "properties": {
                   "teamId": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
+                    "type": "string",
+                    "description": "The team id to set as active. It can be null to unset the active team"
                   }
                 }
               }
@@ -4736,10 +4725,7 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {}
-                }
+                "schema": {}
               }
             }
           },
@@ -4768,46 +4754,29 @@
                     "type": "object",
                     "properties": {
                       "description": {
-                        "type": [
-                          "string",
-                          "null"
-                        ]
+                        "type": "string"
                       },
                       "name": {
-                        "type": [
-                          "string",
-                          "null"
-                        ],
+                        "type": "string",
                         "description": "The name of the organization"
                       },
                       "slug": {
-                        "type": [
-                          "string",
-                          "null"
-                        ],
+                        "type": "string",
                         "description": "The slug of the organization"
                       },
                       "logo": {
-                        "type": [
-                          "string",
-                          "null"
-                        ],
+                        "type": "string",
                         "description": "The logo of the organization"
                       },
                       "metadata": {
-                        "type": [
-                          "string",
-                          "null"
-                        ],
+                        "type": "object",
+                        "additionalProperties": {},
                         "description": "The metadata of the organization"
                       }
                     }
                   },
                   "organizationId": {
-                    "type": [
-                      "string",
-                      "null"
-                    ],
+                    "type": "string",
                     "description": "The organization ID. Eg: \"org-id\""
                   }
                 },
@@ -4823,10 +4792,7 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {}
-                }
+                "schema": {}
               }
             }
           },
@@ -4852,7 +4818,17 @@
                 "type": "object",
                 "properties": {
                   "role": {
-                    "type": "string",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ],
                     "description": "The new role to be applied. This can be a string or array of strings representing the roles. Eg: [\"admin\", \"sale\"]"
                   },
                   "memberId": {
@@ -4860,10 +4836,7 @@
                     "description": "The member id to apply the role update to. Eg: \"member-id\""
                   },
                   "organizationId": {
-                    "type": [
-                      "string",
-                      "null"
-                    ],
+                    "type": "string",
                     "description": "An optional organization ID which the member is a part of to apply the role update. If not provided, you must provide session headers to get the active organization. Eg: \"organization-id\""
                   }
                 },
@@ -4928,6 +4901,14 @@
         "operationId": "updateOrganizationRole",
         "summary": "Update Organization Role",
         "description": "Update Organization Role",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {}
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Success"
@@ -4961,34 +4942,19 @@
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": [
-                          "string",
-                          "null"
-                        ]
+                        "type": "string"
                       },
                       "name": {
-                        "type": [
-                          "string",
-                          "null"
-                        ]
+                        "type": "string"
                       },
                       "organizationId": {
-                        "type": [
-                          "string",
-                          "null"
-                        ]
+                        "type": "string"
                       },
                       "createdAt": {
-                        "type": [
-                          "string",
-                          "null"
-                        ]
+                        "type": "string"
                       },
                       "updatedAt": {
-                        "type": [
-                          "string",
-                          "null"
-                        ]
+                        "type": "string"
                       }
                     }
                   }
@@ -6013,7 +5979,8 @@
           },
           {
             "schema": {
-              "type": "string"
+              "type": "string",
+              "pattern": "^\\d+$"
             },
             "required": false,
             "name": "page",
@@ -6021,7 +5988,8 @@
           },
           {
             "schema": {
-              "type": "string"
+              "type": "string",
+              "pattern": "^\\d+$"
             },
             "required": false,
             "name": "limit",
@@ -7583,6 +7551,16 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "The slug is reserved, or already used in this project",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
@@ -8499,7 +8477,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/TimeEntry"
+                    "$ref": "#/components/schemas/TimeEntryWithUser"
                   }
                 }
               }
@@ -10624,7 +10602,7 @@
           "Gitea"
         ],
         "summary": "Create Gitea integration",
-        "description": "Link a project to a Gitea repository, creating the webhook Gitea will post events to.",
+        "description": "Link a project to a Gitea repository, creating the webhook Gitea will post events to. Use the verify route first to confirm the token really reaches the repository.",
         "parameters": [
           {
             "schema": {
@@ -11366,7 +11344,7 @@
           "Discord"
         ],
         "summary": "Create Discord integration",
-        "description": "Create or replace the Discord integration for a project. The webhook URL is verified before it is stored.",
+        "description": "Create or replace the Discord integration for a project. The webhook URL is checked for shape only; delivery failures surface later.",
         "parameters": [
           {
             "schema": {
@@ -11700,7 +11678,7 @@
           "Slack"
         ],
         "summary": "Create Slack integration",
-        "description": "Create or replace the Slack integration for a project. The webhook URL is verified before it is stored.",
+        "description": "Create or replace the Slack integration for a project. The webhook URL is checked for shape only; delivery failures surface later.",
         "parameters": [
           {
             "schema": {
@@ -12034,7 +12012,7 @@
           "Telegram"
         ],
         "summary": "Create Telegram integration",
-        "description": "Create or replace the Telegram integration for a project. The bot token and chat are verified with Telegram before they are stored.",
+        "description": "Create or replace the Telegram integration for a project. The bot token and chat are checked for shape only, not against Telegram.",
         "parameters": [
           {
             "schema": {
@@ -12435,7 +12413,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or the relation already exists",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12458,7 +12436,17 @@
             }
           },
           "404": {
-            "description": "Source task not found",
+            "description": "Source or target task not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "This relation already exists",
             "content": {
               "text/plain": {
                 "schema": {

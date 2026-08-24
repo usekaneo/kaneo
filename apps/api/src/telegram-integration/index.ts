@@ -79,7 +79,7 @@ const createTelegramIntegrationRoute = createRoute({
   tags: ["Telegram"],
   summary: "Create Telegram integration",
   description:
-    "Create or replace the Telegram integration for a project. The bot token and chat are verified with Telegram before they are stored.",
+    "Create or replace the Telegram integration for a project. The bot token and chat are checked for shape only, not against Telegram.",
   middleware: manageAccess,
   request: {
     params: projectIdParam,

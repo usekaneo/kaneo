@@ -113,7 +113,7 @@ const createDiscordIntegrationRoute = createRoute({
   tags: ["Discord"],
   summary: "Create Discord integration",
   description:
-    "Create or replace the Discord integration for a project. The webhook URL is verified before it is stored.",
+    "Create or replace the Discord integration for a project. The webhook URL is checked for shape only; delivery failures surface later.",
   middleware: manageAccess,
   request: {
     params: projectIdParam,

@@ -20,4 +20,8 @@ export const timeEntrySchema = z
   })
   .openapi("TimeEntry");
 
-export const timeEntryListSchema = z.array(timeEntrySchema);
+export const timeEntryListSchema = z.array(
+  timeEntrySchema
+    .extend({ userName: z.string().nullable() })
+    .openapi("TimeEntryWithUser"),
+);

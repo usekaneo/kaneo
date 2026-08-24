@@ -122,7 +122,7 @@ const createIntegrationRoute = createRoute({
   tags: ["Gitea"],
   summary: "Create Gitea integration",
   description:
-    "Link a project to a Gitea repository, creating the webhook Gitea will post events to.",
+    "Link a project to a Gitea repository, creating the webhook Gitea will post events to. Use the verify route first to confirm the token really reaches the repository.",
   middleware: manageAccess,
   request: {
     params: projectIdParam,

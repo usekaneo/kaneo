@@ -111,7 +111,7 @@ const createSlackIntegrationRoute = createRoute({
   tags: ["Slack"],
   summary: "Create Slack integration",
   description:
-    "Create or replace the Slack integration for a project. The webhook URL is verified before it is stored.",
+    "Create or replace the Slack integration for a project. The webhook URL is checked for shape only; delivery failures surface later.",
   middleware: manageAccess,
   request: {
     params: projectIdParam,

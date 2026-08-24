@@ -1,6 +1,13 @@
 import { z } from "../openapi";
 import { VALID_PRIORITIES } from "./validate-task-fields";
 
+const pagingNumber = (min: number, max: number) =>
+  z
+    .string()
+    .regex(/^\d+$/, "Expected a positive integer")
+    .transform(Number)
+    .pipe(z.number().int().min(min).max(max));
+
 export const taskParam = z.object({ id: z.string() });
 
 export const projectIdParam = z.object({ projectId: z.string() });
@@ -12,14 +19,9 @@ export const listTasksQuery = z.object({
   status: z.string().optional(),
   priority: z.string().optional(),
   assigneeId: z.string().optional(),
-  page: z
-    .string()
-    .optional()
-    .transform((v) => (v === undefined ? undefined : Number(v))),
-  limit: z
-    .string()
-    .optional()
-    .transform((v) => (v === undefined ? undefined : Number(v))),
+  // Number("abc") is NaN, which used to reach the limit/offset clause unchecked.
+  page: pagingNumber(1, 1_000_000).optional(),
+  limit: pagingNumber(1, 200).optional(),
   sortBy: z
     .enum(["createdAt", "priority", "dueDate", "position", "title", "number"])
     .optional(),

@@ -133,11 +133,12 @@ const createTaskRelationRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The created relation", taskRelationSchema),
-    400: errorResponse("Invalid body, or the relation already exists"),
+    400: errorResponse("Invalid body"),
     403: errorResponse(
       "No workspace access, or missing task:update permission",
     ),
-    404: errorResponse("Source task not found"),
+    404: errorResponse("Source or target task not found"),
+    409: errorResponse("This relation already exists"),
   },
 });
 
