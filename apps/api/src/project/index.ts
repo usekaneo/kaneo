@@ -171,6 +171,7 @@ const project = new Hono<{
           ?.trim();
 
         if (!contentType || !isImageContentType(contentType)) {
+          await (object.body as ReadableStream).cancel();
           throw new HTTPException(404, {
             message: "Project background not found",
           });
@@ -192,6 +193,7 @@ const project = new Hono<{
         }
 
         if (c.req.header("If-None-Match") === etag) {
+          await (object.body as ReadableStream).cancel();
           return new Response(null, { status: 304, headers });
         }
 
