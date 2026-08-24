@@ -101,11 +101,20 @@ beforeEach(() => {
   });
   mocks.resolveTargetStatus.mockResolvedValue("in-progress");
   mocks.isTaskInFinalState.mockResolvedValue(false);
-  mocks.createOrUpdateExternalLink.mockResolvedValue({ id: "link-1", created: true });
+  mocks.createOrUpdateExternalLink.mockResolvedValue({
+    id: "link-1",
+    created: true,
+  });
   mocks.updateTaskStatus.mockResolvedValue({
     applied: true,
     before: { status: "to-do" },
-    after: { id: "task-1", status: "in-progress", projectId: "project-1", title: "t", userId: null },
+    after: {
+      id: "task-1",
+      status: "in-progress",
+      projectId: "project-1",
+      title: "t",
+      userId: null,
+    },
   });
 });
 
@@ -131,7 +140,10 @@ describe("handleGitlabPush", () => {
         externalId: "kan-5-fix-bug",
       }),
     );
-    expect(mocks.updateTaskStatus).toHaveBeenCalledWith("task-1", "in-progress");
+    expect(mocks.updateTaskStatus).toHaveBeenCalledWith(
+      "task-1",
+      "in-progress",
+    );
     expect(mocks.publishEvent).toHaveBeenCalledWith(
       "task.status_changed",
       expect.objectContaining({ newStatus: "in-progress" }),
