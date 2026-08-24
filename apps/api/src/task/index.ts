@@ -28,6 +28,7 @@ import { workspaceAccess } from "../utils/workspace-access-middleware";
 import bulkUpdateTasks from "./controllers/bulk-update-tasks";
 import createTask from "./controllers/create-task";
 import deleteTask from "./controllers/delete-task";
+import duplicateTask from "./controllers/duplicate-task";
 import exportTasks from "./controllers/export-tasks";
 import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
@@ -235,6 +236,41 @@ const task = new Hono<{
         dueDate: parsedDueDate,
         priority,
         status,
+      });
+
+      return c.json(task);
+    },
+  )
+  .post(
+    "/duplicate/:id",
+    describeRoute({
+      operationId: "duplicateTask",
+      tags: ["Tasks"],
+      description:
+        "Duplicate a task in the same project, copying its fields and labels",
+      responses: {
+        200: {
+          description: "Task duplicated successfully",
+          content: {
+            "application/json": { schema: resolver(taskSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    validator("json", v.object({ title: v.optional(v.string()) })),
+    workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["create"] }),
+    requireEntitlement,
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const { title } = c.req.valid("json");
+      const currentUserId = c.get("userId");
+
+      const task = await duplicateTask({
+        taskId: id,
+        currentUserId,
+        title,
       });
 
       return c.json(task);

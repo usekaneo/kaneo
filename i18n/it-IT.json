@@ -1879,6 +1879,11 @@
 			"success": "Attività eliminata con successo",
 			"error": "Eliminazione attività fallita"
 		},
+		"duplicate": {
+			"titleSuffix": "{{title}} (copia)",
+			"success": "Attività duplicata con successo",
+			"error": "Duplicazione attività fallita"
+		},
 		"archive": {
 			"success": "{{count}} attività archiviate"
 		},
@@ -1924,6 +1929,7 @@
 			"copyLinkSuccess": "Link attività copiato!"
 		},
 		"actions": {
+			"duplicate": "Duplica",
 			"archive": "Archivia",
 			"markAsPlanned": "Segna come pianificata",
 			"delete": "Elimina..."

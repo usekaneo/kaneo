@@ -1882,6 +1882,11 @@
 			"success": "작업이 삭제되었습니다",
 			"error": "작업 삭제에 실패했습니다"
 		},
+		"duplicate": {
+			"titleSuffix": "{{title}} (사본)",
+			"success": "작업이 복제되었습니다",
+			"error": "작업 복제에 실패했습니다"
+		},
 		"archive": {
 			"success": "작업 {{count}}개를 보관했습니다"
 		},
@@ -1925,6 +1930,7 @@
 			"copyLinkSuccess": "작업 링크가 복사되었습니다!"
 		},
 		"actions": {
+			"duplicate": "복제",
 			"archive": "보관",
 			"markAsPlanned": "계획됨으로 표시",
 			"delete": "삭제..."

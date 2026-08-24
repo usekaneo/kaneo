@@ -452,6 +452,28 @@ export function registerMcpTools(
   );
 
   registerTool(
+    "duplicate_task",
+    {
+      description:
+        "Duplicate a task in the same project, copying its fields and labels. Pass title to rename the copy.",
+      inputSchema: z.object({
+        taskId: nonEmptyString,
+        title: optionalNonEmptyString,
+      }),
+    },
+    async (args) => {
+      const body: Record<string, string> = {};
+      if (args.title !== undefined) body.title = args.title;
+      return run(() =>
+        client.json(`/api/task/duplicate/${encodeURIComponent(args.taskId)}`, {
+          method: "POST",
+          body: JSON.stringify(body),
+        }),
+      );
+    },
+  );
+
+  registerTool(
     "update_task",
     {
       description:
