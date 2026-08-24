@@ -22,6 +22,18 @@ assert_response_contains() {
 		fail "response does not contain: $text"
 }
 
+assert_metadata_contract() {
+	file=$1
+	title=$2
+	url=$3
+	assert_response_contains "$file" "<title>$title</title>"
+	assert_response_contains "$file" "<meta property=\"og:title\" content=\"$title\">"
+	assert_response_contains "$file" "<meta property=\"twitter:title\" content=\"$title\">"
+	assert_response_contains "$file" "<link rel=\"canonical\" href=\"$url\">"
+	assert_response_contains "$file" "<meta property=\"og:url\" content=\"$url\">"
+	assert_response_contains "$file" "<meta property=\"twitter:url\" content=\"$url\">"
+}
+
 check_static_contract() {
 	assert_contains apps/web/index.html "<title>Kaneo - All you need. Nothing you don't.</title>"
 	assert_contains apps/web/index.html '<meta property="og:url" content="https://kaneo.app">'
@@ -58,6 +70,15 @@ check_static_contract() {
 container_name="kaneo-share-metadata-$$"
 response_dir=""
 base_url=""
+curl_connect_timeout=5
+curl_total_timeout=15
+
+bounded_curl() {
+	curl \
+		--connect-timeout "$curl_connect_timeout" \
+		--max-time "$curl_total_timeout" \
+		"$@"
+}
 
 cleanup() {
 	docker rm -f "$container_name" >/dev/null 2>&1 || true
@@ -68,7 +89,7 @@ cleanup() {
 
 wait_for_nginx() {
 	attempt=0
-	until curl --fail --silent --show-error \
+	until bounded_curl --fail --silent --show-error \
 		-H 'Host: request.example.test:5173' \
 		-o /dev/null "$base_url/"; do
 		attempt=$((attempt + 1))
@@ -100,12 +121,12 @@ fetch() {
 	host=${3:-request.example.test:5173}
 	forwarded_proto=${4:-}
 	if [ -n "$forwarded_proto" ]; then
-		curl --fail --silent --show-error \
+		bounded_curl --fail --silent --show-error \
 			-H "Host: $host" \
 			-H "X-Forwarded-Proto: $forwarded_proto" \
 			-o "$output" "$base_url$path"
 	else
-		curl --fail --silent --show-error \
+		bounded_curl --fail --silent --show-error \
 			-H "Host: $host" \
 			-o "$output" "$base_url$path"
 	fi
@@ -123,47 +144,41 @@ check_runtime_contract() {
 
 	task_path='/dashboard/workspace/workspace-id/project/project-id/task/task-id?view=details&mode=compact'
 	fetch "$task_path" "$response_dir/task.html"
-	assert_response_contains "$response_dir/task.html" '<title>Task · Kaneo</title>'
+	assert_metadata_contract "$response_dir/task.html" 'Task · Kaneo' "https://preview.example.test$task_path"
 	assert_response_contains "$response_dir/task.html" '<meta name="title" content="Task · Kaneo">'
-	assert_response_contains "$response_dir/task.html" '<meta property="og:title" content="Task · Kaneo">'
-	assert_response_contains "$response_dir/task.html" '<meta property="twitter:title" content="Task · Kaneo">'
-	assert_response_contains "$response_dir/task.html" "<meta property=\"og:url\" content=\"https://preview.example.test$task_path\">"
-	assert_response_contains "$response_dir/task.html" "<meta property=\"twitter:url\" content=\"https://preview.example.test$task_path\">"
-	assert_response_contains "$response_dir/task.html" "<link rel=\"canonical\" href=\"https://preview.example.test$task_path\">"
 	if grep -F '__KANEO_SHARE_' "$response_dir/task.html" >/dev/null; then
 		fail 'served response retains a share metadata token'
 	fi
 
 	fetch '/dashboard/settings/projects/project-id/general' "$response_dir/project-settings.html"
-	assert_response_contains "$response_dir/project-settings.html" '<title>Project settings · Kaneo</title>'
+	assert_metadata_contract "$response_dir/project-settings.html" 'Project settings · Kaneo' 'https://preview.example.test/dashboard/settings/projects/project-id/general'
 
 	fetch '/dashboard/settings/account/information' "$response_dir/account-settings.html"
-	assert_response_contains "$response_dir/account-settings.html" '<title>Account settings · Kaneo</title>'
+	assert_metadata_contract "$response_dir/account-settings.html" 'Account settings · Kaneo' 'https://preview.example.test/dashboard/settings/account/information'
 
 	fetch '/dashboard/workspace/workspace-id/project/project-id/board' "$response_dir/board.html"
-	assert_response_contains "$response_dir/board.html" '<title>Project board · Kaneo</title>'
+	assert_metadata_contract "$response_dir/board.html" 'Project board · Kaneo' 'https://preview.example.test/dashboard/workspace/workspace-id/project/project-id/board'
 
 	fetch '/dashboard/workspace/workspace-id/project/project-id/backlog' "$response_dir/backlog.html"
-	assert_response_contains "$response_dir/backlog.html" '<title>Project backlog · Kaneo</title>'
+	assert_metadata_contract "$response_dir/backlog.html" 'Project backlog · Kaneo' 'https://preview.example.test/dashboard/workspace/workspace-id/project/project-id/backlog'
 
 	fetch '/dashboard/settings/workspace/general' "$response_dir/workspace-settings.html"
-	assert_response_contains "$response_dir/workspace-settings.html" '<title>Workspace settings · Kaneo</title>'
+	assert_metadata_contract "$response_dir/workspace-settings.html" 'Workspace settings · Kaneo' 'https://preview.example.test/dashboard/settings/workspace/general'
 
 	fetch '/invitation/accept/invitation-id' "$response_dir/invitation.html"
-	assert_response_contains "$response_dir/invitation.html" '<title>Invitation · Kaneo</title>'
+	assert_metadata_contract "$response_dir/invitation.html" 'Invitation · Kaneo' 'https://preview.example.test/invitation/accept/invitation-id'
 
 	fetch '/unknown-route' "$response_dir/unknown.html"
-	assert_response_contains "$response_dir/unknown.html" "<title>Kaneo - All you need. Nothing you don't.</title>"
+	assert_metadata_contract "$response_dir/unknown.html" "Kaneo - All you need. Nothing you don't." 'https://preview.example.test/unknown-route'
 
 	docker rm -f "$container_name" >/dev/null
 	start_image "$image" 'https://invalid.example.test/path;include'
 
 	fetch '/auth/sign-in?next=%2Fdashboard' "$response_dir/request-origin.html" 'request.example.test:5173' 'https'
-	assert_response_contains "$response_dir/request-origin.html" '<title>Sign in · Kaneo</title>'
-	assert_response_contains "$response_dir/request-origin.html" '<meta property="og:url" content="https://request.example.test:5173/auth/sign-in?next=%2Fdashboard">'
+	assert_metadata_contract "$response_dir/request-origin.html" 'Sign in · Kaneo' 'https://request.example.test:5173/auth/sign-in?next=%2Fdashboard'
 
 	fetch '/auth/sign-in' "$response_dir/forwarded-list.html" 'request.example.test:5173' 'HTTPS, http'
-	assert_response_contains "$response_dir/forwarded-list.html" '<meta property="og:url" content="https://request.example.test:5173/auth/sign-in">'
+	assert_metadata_contract "$response_dir/forwarded-list.html" 'Sign in · Kaneo' 'https://request.example.test:5173/auth/sign-in'
 
 	# Hidden source maps intentionally retain original source text. Check the
 	# executable bundles, which are the files env.sh rewrites at startup.
@@ -173,19 +188,19 @@ check_runtime_contract() {
 	fi
 
 	fetch '/auth/sign-in' "$response_dir/unsafe-scheme.html" 'request.example.test:5173' 'javascript'
-	assert_response_contains "$response_dir/unsafe-scheme.html" '<meta property="og:url" content="http://request.example.test:5173/auth/sign-in">'
+	assert_metadata_contract "$response_dir/unsafe-scheme.html" 'Sign in · Kaneo' 'http://request.example.test:5173/auth/sign-in'
 	if grep -F 'javascript://' "$response_dir/unsafe-scheme.html" >/dev/null; then
 		fail 'served response reflects an unsafe forwarded scheme'
 	fi
 
 	fetch '/auth/sign-in' "$response_dir/unsafe-host.html" 'unsafe_host'
-	assert_response_contains "$response_dir/unsafe-host.html" '<meta property="og:url" content="http://localhost/auth/sign-in">'
+	assert_metadata_contract "$response_dir/unsafe-host.html" 'Sign in · Kaneo' 'http://localhost/auth/sign-in'
 
-	curl --fail --silent --show-error \
+	bounded_curl --fail --silent --show-error \
 		-H 'Host: request.example.test:5173' \
 		--request-target '/auth/sign-in?next="><script>alert(1)</script>' \
 		-o "$response_dir/unsafe-uri.html" "$base_url/"
-	assert_response_contains "$response_dir/unsafe-uri.html" '<meta property="og:url" content="http://request.example.test:5173/">'
+	assert_metadata_contract "$response_dir/unsafe-uri.html" 'Sign in · Kaneo' 'http://request.example.test:5173/'
 	if grep -F '<script>alert(1)</script>' "$response_dir/unsafe-uri.html" >/dev/null; then
 		fail 'served response reflects an unsafe request target'
 	fi
@@ -194,7 +209,7 @@ check_runtime_contract() {
 	multiline_client_url=$(printf 'https://preview.example.test\ninclude /tmp/evil.conf;')
 	start_image "$image" "$multiline_client_url"
 	fetch '/auth/sign-in' "$response_dir/multiline-origin.html" 'request.example.test:5173' 'https'
-	assert_response_contains "$response_dir/multiline-origin.html" '<meta property="og:url" content="https://request.example.test:5173/auth/sign-in">'
+	assert_metadata_contract "$response_dir/multiline-origin.html" 'Sign in · Kaneo' 'https://request.example.test:5173/auth/sign-in'
 }
 
 check_static_contract

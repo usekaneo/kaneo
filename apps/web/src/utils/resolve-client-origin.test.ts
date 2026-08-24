@@ -2,14 +2,20 @@ import { describe, expect, it } from "vitest";
 import { resolveClientOrigin } from "./resolve-client-origin";
 
 describe("resolveClientOrigin", () => {
-  const browserOrigin = "https://served.example.test";
-
   it.each([undefined, "", "   ", "KANEO_CLIENT_URL"])(
     "falls back for an unset runtime placeholder (%s)",
     (configuredOrigin) => {
-      expect(resolveClientOrigin(configuredOrigin, browserOrigin)).toBe(
+      // Arrange
+      const browserOrigin = "https://served.example.test";
+
+      // Act
+      const resolvedOrigin = resolveClientOrigin(
+        configuredOrigin,
         browserOrigin,
       );
+
+      // Assert
+      expect(resolvedOrigin).toBe(browserOrigin);
     },
   );
 
@@ -19,14 +25,25 @@ describe("resolveClientOrigin", () => {
     "https://user:pass@configured.example.test",
     "not a URL",
   ])("falls back for a non-origin value (%s)", (configuredOrigin) => {
-    expect(resolveClientOrigin(configuredOrigin, browserOrigin)).toBe(
-      browserOrigin,
-    );
+    // Arrange
+    const browserOrigin = "https://served.example.test";
+
+    // Act
+    const resolvedOrigin = resolveClientOrigin(configuredOrigin, browserOrigin);
+
+    // Assert
+    expect(resolvedOrigin).toBe(browserOrigin);
   });
 
   it("normalizes a configured HTTP(S) origin", () => {
-    expect(
-      resolveClientOrigin("https://configured.example.test/", browserOrigin),
-    ).toBe("https://configured.example.test");
+    // Arrange
+    const configuredOrigin = "https://configured.example.test/";
+    const browserOrigin = "https://served.example.test";
+
+    // Act
+    const resolvedOrigin = resolveClientOrigin(configuredOrigin, browserOrigin);
+
+    // Assert
+    expect(resolvedOrigin).toBe("https://configured.example.test");
   });
 });
