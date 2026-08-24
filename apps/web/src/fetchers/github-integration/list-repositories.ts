@@ -2,7 +2,8 @@ import { client } from "@kaneo/libs";
 import type { InferResponseType } from "hono";
 
 export type ListRepositoriesResponse = InferResponseType<
-  (typeof client)["github-integration"]["repositories"][":projectId"]["$get"]
+  (typeof client)["github-integration"]["repositories"][":projectId"]["$get"],
+  200
 >;
 
 async function listRepositories(
