@@ -1,5 +1,6 @@
 // apps/api/src/gitlab-integration/index.ts
 import { and, eq } from "drizzle-orm";
+import type { Context } from "hono";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { describeRoute, resolver, validator } from "hono-openapi";
@@ -10,6 +11,7 @@ import {
   type GitlabConfig,
   validateGitlabConfig,
 } from "../plugins/gitlab/config";
+import { handleGitlabWebhookRequest } from "../plugins/gitlab/webhook-handler";
 import { gitlabIntegrationSchema } from "../schemas";
 import {
   hasWorkspacePermission,
@@ -392,5 +394,33 @@ const gitlabIntegration = new Hono<{
       return c.json(result);
     },
   );
+
+export async function handleGitlabWebhookRoute(c: Context) {
+  const integrationId = c.req.param("integrationId");
+  if (!integrationId) {
+    return c.json({ error: "Missing integration id" }, 400);
+  }
+
+  const arrayBuffer = await c.req.arrayBuffer();
+  const body = Buffer.from(arrayBuffer).toString("utf8");
+
+  const token =
+    c.req.header("x-gitlab-token") || c.req.header("X-Gitlab-Token");
+  const eventName =
+    c.req.header("x-gitlab-event") || c.req.header("X-Gitlab-Event");
+
+  const result = await handleGitlabWebhookRequest(
+    integrationId,
+    body,
+    token,
+    eventName,
+  );
+
+  if (!result.success) {
+    return c.json({ error: result.error }, 400);
+  }
+
+  return c.json({ status: "success" });
+}
 
 export default gitlabIntegration;

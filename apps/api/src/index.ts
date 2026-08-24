@@ -36,7 +36,9 @@ import giteaIntegration, { handleGiteaWebhookRoute } from "./gitea-integration";
 import githubIntegration, {
   handleGithubWebhookRoute,
 } from "./github-integration";
-import gitlabIntegration from "./gitlab-integration";
+import gitlabIntegration, {
+  handleGitlabWebhookRoute,
+} from "./gitlab-integration";
 import getInstanceStatus from "./instance/controllers/get-instance-status";
 import invitation from "./invitation";
 import label from "./label";
@@ -259,6 +261,11 @@ export function createApp() {
   api.post(
     "/gitea-integration/webhook/:integrationId",
     handleGiteaWebhookRoute,
+  );
+
+  api.post(
+    "/gitlab-integration/webhook/:integrationId",
+    handleGitlabWebhookRoute,
   );
 
   const invitationPublicApi = api.get("/invitation/public/:id", async (c) => {
