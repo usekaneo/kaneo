@@ -10,6 +10,8 @@ import {
 
 const GITEA_TOKEN = "gitea-pat-should-never-be-exposed";
 const WEBHOOK_SECRET = "gitea-webhook-secret-should-never-be-exposed";
+const GITLAB_TOKEN = "gitlab-pat-should-never-be-exposed";
+const GITLAB_WEBHOOK_SECRET = "gitlab-webhook-secret-should-never-be-exposed";
 
 describe("API integration: external link integration secrets", () => {
   beforeEach(async () => {
@@ -77,6 +79,69 @@ describe("API integration: external link integration secrets", () => {
     expect(links[0].integration).toEqual({
       id: integration.id,
       type: "gitea",
+    });
+  });
+
+  it("does not expose GitLab integration config to a workspace viewer", async () => {
+    const viewer = await createWorkspaceMember({ role: "viewer" });
+    const { project, columns } = await createProjectFixture({
+      workspaceId: viewer.workspace.id,
+    });
+
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "Task with a linked GitLab issue",
+        status: "to-do",
+        columnId: columns.todo.id,
+        priority: "medium",
+        number: 1,
+        position: 1,
+      })
+      .returning();
+
+    const [integration] = await db
+      .insert(schema.integrationTable)
+      .values({
+        projectId: project.id,
+        type: "gitlab",
+        config: JSON.stringify({
+          baseUrl: "https://gitlab.example",
+          accessToken: GITLAB_TOKEN,
+          repositoryPath: "group/project",
+          webhookSecret: GITLAB_WEBHOOK_SECRET,
+        }),
+        isActive: true,
+      })
+      .returning();
+
+    await db.insert(schema.externalLinkTable).values({
+      taskId: task.id,
+      integrationId: integration.id,
+      resourceType: "issue",
+      externalId: "1",
+      url: "https://gitlab.example/group/project/-/issues/1",
+      title: "Linked issue",
+    });
+
+    mockAuthenticatedSession(viewer.user);
+
+    const { app } = createApp();
+    const response = await app.request(`/api/external-link/task/${task.id}`);
+
+    expect(response.status).toBe(200);
+    const body = await response.text();
+
+    expect(body).not.toContain(GITLAB_TOKEN);
+    expect(body).not.toContain(GITLAB_WEBHOOK_SECRET);
+    expect(body).not.toContain("config");
+
+    const links = JSON.parse(body);
+    expect(links).toHaveLength(1);
+    expect(links[0].integration).toEqual({
+      id: integration.id,
+      type: "gitlab",
     });
   });
 });

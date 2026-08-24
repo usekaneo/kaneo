@@ -71,6 +71,70 @@ describe("github integration routes are workspace scoped", () => {
   });
 });
 
+describe("gitlab integration routes are workspace scoped", () => {
+  it("refuses to list repositories for a member without manage_settings", async () => {
+    const { user, workspace } = await createWorkspaceMember({ role: "member" });
+    const { project } = await createProjectFixture({
+      workspaceId: workspace.id,
+    });
+
+    mockAuthenticatedSession(user);
+    const { app } = createApp();
+
+    const response = await app.request("/api/gitlab-integration/repositories", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        projectId: project.id,
+        baseUrl: "https://gitlab.example",
+        accessToken: "token",
+      }),
+    });
+
+    expect(response.status).toBe(403);
+  });
+
+  it("refuses to verify access for a member without manage_settings", async () => {
+    const { user, workspace } = await createWorkspaceMember({ role: "member" });
+    const { project } = await createProjectFixture({
+      workspaceId: workspace.id,
+    });
+
+    mockAuthenticatedSession(user);
+    const { app } = createApp();
+
+    const response = await app.request("/api/gitlab-integration/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        projectId: project.id,
+        baseUrl: "https://gitlab.example",
+        accessToken: "token",
+        repositoryPath: "group/project",
+      }),
+    });
+
+    expect(response.status).toBe(403);
+  });
+
+  it("refuses to read the integration for a project in another workspace", async () => {
+    const outsider = await createWorkspaceMember({ role: "owner" });
+    const other = await createWorkspaceMember({ role: "owner" });
+    const { project } = await createProjectFixture({
+      workspaceId: other.workspace.id,
+    });
+
+    mockAuthenticatedSession(outsider.user);
+    const { app } = createApp();
+
+    const response = await app.request(
+      `/api/gitlab-integration/project/${project.id}`,
+    );
+
+    expect(response.status).toBe(403);
+  });
+});
+
 describe("public project route", () => {
   it("refuses a project that is not public", async () => {
     const { workspace } = await createWorkspaceMember();
