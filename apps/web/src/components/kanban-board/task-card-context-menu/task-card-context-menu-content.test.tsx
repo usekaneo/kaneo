@@ -9,26 +9,42 @@ afterEach(() => {
 });
 
 vi.mock("@/components/ui/context-menu", () => ({
-  ContextMenu: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  ContextMenuContent: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
-  ContextMenuItem: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
-  ContextMenuSeparator: () => <div />,
-  ContextMenuSub: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
-  ContextMenuSubContent: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
-  ContextMenuSubTrigger: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
-  ContextMenuCheckboxItem: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
+  ContextMenu: ({
+    children,
+  }: {
+    children: React.ReactNode;
+  }): React.JSX.Element => <>{children}</>,
+  ContextMenuContent: ({
+    children,
+  }: {
+    children: React.ReactNode;
+  }): React.JSX.Element => <div>{children}</div>,
+  ContextMenuItem: ({
+    children,
+  }: {
+    children: React.ReactNode;
+  }): React.JSX.Element => <div>{children}</div>,
+  ContextMenuSeparator: (): React.JSX.Element => <div />,
+  ContextMenuSub: ({
+    children,
+  }: {
+    children: React.ReactNode;
+  }): React.JSX.Element => <div>{children}</div>,
+  ContextMenuSubContent: ({
+    children,
+  }: {
+    children: React.ReactNode;
+  }): React.JSX.Element => <div>{children}</div>,
+  ContextMenuSubTrigger: ({
+    children,
+  }: {
+    children: React.ReactNode;
+  }): React.JSX.Element => <div>{children}</div>,
+  ContextMenuCheckboxItem: ({
+    children,
+  }: {
+    children: React.ReactNode;
+  }): React.JSX.Element => <div>{children}</div>,
 }));
 
 vi.mock("@/hooks/queries/column/use-get-columns", () => ({
@@ -76,7 +92,8 @@ vi.mock("@/hooks/mutations/task/use-update-task-title", () => ({
 
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({
-    canManageTasks: () => true,
+    canUpdateTasks: () => true,
+    canDeleteTasks: () => true,
     canAssignTasks: () => true,
   }),
 }));
