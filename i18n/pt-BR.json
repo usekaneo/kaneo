@@ -61,6 +61,14 @@
 		"formats": {
 			"never": "Nunca"
 		},
+		"projectTypes": {
+			"development": "Desenvolvimento",
+			"maintenance": "Manutenção",
+			"support": "Suporte",
+			"hr": "RH",
+			"marketing": "Marketing",
+			"operations": "Operações"
+		},
 		"modals": {
 			"createProject": {
 				"title": "Criar um novo projeto",
@@ -72,6 +80,9 @@
 				"projectName": "Nome do projeto",
 				"keyLabel": "Chave:",
 				"keyHint": "Usado para IDs de tickets (ex.: {{example}}-123)",
+				"clientLabel": "Cliente",
+				"clientPlaceholder": "Opcional — nenhum",
+				"typeLabel": "Tipo de projeto",
 				"createButton": "Criar projeto",
 				"successToast": "Projeto criado com sucesso",
 				"errorToast": "Falha ao criar projeto"

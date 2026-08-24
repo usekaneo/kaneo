@@ -61,6 +61,14 @@
 		"formats": {
 			"never": "Never"
 		},
+		"projectTypes": {
+			"development": "Development",
+			"maintenance": "Maintenance",
+			"support": "Support",
+			"hr": "HR",
+			"marketing": "Marketing",
+			"operations": "Operations"
+		},
 		"modals": {
 			"createProject": {
 				"title": "Create a new project",
@@ -72,6 +80,9 @@
 				"projectName": "Project name",
 				"keyLabel": "Key:",
 				"keyHint": "Used for ticket IDs (e.g., {{example}}-123)",
+				"clientLabel": "Client",
+				"clientPlaceholder": "Optional — none",
+				"typeLabel": "Project type",
 				"createButton": "Create Project",
 				"successToast": "Project created successfully",
 				"errorToast": "Failed to create project"

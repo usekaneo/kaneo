@@ -270,6 +270,45 @@ export const workspaceRoleTable = pgTable(
   ],
 );
 
+export const clientTable = pgTable(
+  "client",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    name: text("name").notNull(),
+    tradeName: text("trade_name"),
+    cnpj: text("cnpj").notNull(),
+    email: text("email"),
+    phone: text("phone"),
+    notes: text("notes"),
+    street: text("street"),
+    number: text("number"),
+    complement: text("complement"),
+    neighborhood: text("neighborhood"),
+    city: text("city"),
+    state: text("state"),
+    zipCode: text("zip_code"),
+    country: text("country").default("BR"),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    unique("client_workspace_cnpj_unique").on(table.workspaceId, table.cnpj),
+    index("client_workspace_id_idx").on(table.workspaceId),
+    index("client_workspace_name_idx").on(table.workspaceId, table.name),
+  ],
+);
+
 export const projectTable = pgTable(
   "project",
   {
@@ -286,6 +325,11 @@ export const projectTable = pgTable(
     icon: text("icon").default("Layout"),
     name: text("name").notNull(),
     description: text("description"),
+    projectType: text("project_type").notNull().default("development"),
+    clientId: text("client_id").references(() => clientTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
     isPublic: boolean("is_public").default(false),
     archivedAt: timestamp("archived_at", { mode: "date" }),
@@ -293,6 +337,7 @@ export const projectTable = pgTable(
   },
   (table) => [
     unique("project_workspace_id_id_unique").on(table.workspaceId, table.id),
+    index("project_client_id_idx").on(table.clientId),
   ],
 );
 

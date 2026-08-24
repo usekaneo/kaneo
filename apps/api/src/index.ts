@@ -22,6 +22,7 @@ import activity from "./activity";
 import { auth } from "./auth";
 import billing from "./billing";
 import branding from "./branding";
+import client from "./client";
 import column from "./column";
 import comment from "./comment";
 import config from "./config";
@@ -569,6 +570,7 @@ export function createApp() {
   const oauthApi = api.route("/oauth", oauth);
 
   const billingApi = api.route("/billing", billing);
+  const clientApi = api.route("/client", client);
   const projectApi = api.route("/project", project);
   const taskApi = api.route("/task", task);
   const columnApi = api.route("/column", column);
@@ -746,6 +748,7 @@ export function createApp() {
     injectWebSocket,
     activityApi,
     billingApi,
+    clientApi,
     columnApi,
     commentApi,
     configApi,
@@ -865,6 +868,7 @@ const {
   injectWebSocket,
   activityApi,
   billingApi,
+  clientApi,
   columnApi,
   commentApi,
   configApi,
@@ -903,6 +907,7 @@ if (isMainModule) {
 
 export type AppType =
   | typeof billingApi
+  | typeof clientApi
   | typeof configApi
   | typeof projectApi
   | typeof taskApi

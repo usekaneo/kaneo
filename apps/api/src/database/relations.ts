@@ -4,6 +4,7 @@ import {
   activityTable,
   apikeyTable,
   assetTable,
+  clientTable,
   columnTable,
   commentTable,
   externalLinkTable,
@@ -101,6 +102,10 @@ export const projectTableRelations = relations(
       fields: [projectTable.workspaceId],
       references: [workspaceTable.id],
     }),
+    client: one(clientTable, {
+      fields: [projectTable.clientId],
+      references: [clientTable.id],
+    }),
     tasks: many(taskTable),
     assets: many(assetTable),
     columns: many(columnTable),
@@ -110,6 +115,14 @@ export const projectTableRelations = relations(
     notificationWorkspaceProjects: many(userNotificationWorkspaceProjectTable),
   }),
 );
+
+export const clientTableRelations = relations(clientTable, ({ one, many }) => ({
+  workspace: one(workspaceTable, {
+    fields: [clientTable.workspaceId],
+    references: [workspaceTable.id],
+  }),
+  projects: many(projectTable),
+}));
 
 export const columnTableRelations = relations(columnTable, ({ one, many }) => ({
   project: one(projectTable, {
