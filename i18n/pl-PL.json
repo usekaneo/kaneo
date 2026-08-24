@@ -1548,7 +1548,7 @@
       "deleteModalDescription": "Obszar roboczy „{{name}}” i wszystkie jego dane zostaną trwale usunięte. Tej operacji nie można cofnąć.",
       "deleteModalTitle": "Usunąć obszar roboczy?",
       "deleteWorkspace": "Usuń obszar roboczy",
-      "deleteWorkspaceDescription": "Zaplanuj trwałe usunięcie obszaru roboczego",
+      "deleteWorkspaceDescription": "Trwale usuń ten obszar roboczy",
       "descriptionHint": "Krótki opis obszaru roboczego",
       "descriptionLabel": "Opis",
       "descriptionPlaceholder": "Wpisz opis obszaru roboczego",
