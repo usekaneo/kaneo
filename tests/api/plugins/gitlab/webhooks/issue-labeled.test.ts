@@ -130,4 +130,16 @@ describe("handleGitlabIssueLabeled", () => {
 
     expect(mocks.insertedLabels).toHaveLength(0);
   });
+
+  it("deletes a label that was removed from the diff", async () => {
+    mocks.labelFindMany.mockResolvedValue([
+      { id: "label-1", name: "bug", taskId: "task-1" },
+    ]);
+
+    await handleGitlabIssueLabeled(
+      labeledPayload([{ title: "bug", color: "#FF0000" }], []),
+    );
+
+    expect(mocks.deletedLabelIds).toHaveLength(1);
+  });
 });

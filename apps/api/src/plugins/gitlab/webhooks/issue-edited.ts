@@ -9,6 +9,20 @@ import { formatTaskDescriptionFromIssue } from "../../github/utils/format";
 import { findAllIntegrationsByGitlabProject } from "../services/integration-lookup";
 import { baseUrlFromProjectWebUrl } from "../utils/webhook-repo";
 
+type SyncStamp = {
+  timestamp: string;
+  source: string;
+  value: string;
+};
+
+type IssueEditedMetadata = {
+  lastSync?: {
+    title?: SyncStamp;
+    description?: SyncStamp;
+  };
+  [key: string]: unknown;
+};
+
 type IssueEditedPayload = {
   object_attributes: {
     iid: number;
@@ -71,12 +85,21 @@ export async function handleGitlabIssueEdited(
       continue;
     }
 
-    const metadata = externalLink.metadata
-      ? JSON.parse(externalLink.metadata)
-      : {};
+    let metadata: IssueEditedMetadata = {};
+    if (externalLink.metadata) {
+      try {
+        metadata = JSON.parse(externalLink.metadata) as IssueEditedMetadata;
+      } catch (error) {
+        console.warn("Failed to parse GitLab issue metadata for edit sync", {
+          externalLinkId: externalLink.id,
+          metadata: externalLink.metadata,
+          error,
+        });
+      }
+    }
 
     const updateData: Record<string, unknown> = {};
-    const updatedMetadata = { ...metadata };
+    const updatedMetadata: IssueEditedMetadata = { ...metadata };
 
     if (!updatedMetadata.lastSync) {
       updatedMetadata.lastSync = {};
