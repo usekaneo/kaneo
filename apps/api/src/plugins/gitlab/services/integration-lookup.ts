@@ -32,10 +32,9 @@ export async function findAllIntegrationsByGitlabProject(
         normalizeGitlabBaseUrl(config.baseUrl) === normalized &&
         config.repositoryPath === repositoryPath;
       if (integrationId && !matches) {
-        console.warn(
-          "[GitLab Webhook] Signed integration project mismatch",
-          { integrationId },
-        );
+        console.warn("[GitLab Webhook] Signed integration project mismatch", {
+          integrationId,
+        });
       }
       return matches;
     } catch {
