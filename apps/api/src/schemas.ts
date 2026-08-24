@@ -286,3 +286,7 @@ export const uploadProjectBackgroundSchema = v.object({
   version: v.string(),
   headers: v.record(v.string(), v.string()),
 });
+
+export const uploadProjectBackgroundFinalizeSchema = v.object({
+  url: v.string(),
+});

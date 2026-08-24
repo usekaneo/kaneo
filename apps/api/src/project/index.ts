@@ -6,7 +6,11 @@ import * as v from "valibot";
 import { requireEntitlement } from "../billing/require-entitlement-middleware";
 import db from "../database";
 import { projectTable } from "../database/schema";
-import { projectSchema, uploadProjectBackgroundSchema } from "../schemas";
+import {
+  projectSchema,
+  uploadProjectBackgroundFinalizeSchema,
+  uploadProjectBackgroundSchema,
+} from "../schemas";
 import {
   assertProjectBackgroundKeyMatchesContext,
   createProjectBackgroundUploadUrl,
@@ -453,7 +457,9 @@ const project = new Hono<{
         200: {
           description: "Image upload finalized successfully",
           content: {
-            "application/json": { schema: resolver(v.any()) },
+            "application/json": {
+              schema: resolver(uploadProjectBackgroundFinalizeSchema),
+            },
           },
         },
       },
