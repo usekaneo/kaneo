@@ -58,3 +58,6 @@ apps/web/.tanstack/
 
 # TypeScript incremental build state
 *.tsbuildinfo
+
+# Superpowers subagent-driven-development scratch workspace
+.superpowers/
