@@ -47,9 +47,9 @@ export default function WorkflowEditor({ projectId }: WorkflowEditorProps) {
   }
 
   const renderRuleSection = (
-    integrationType: "github" | "gitea",
-    headingKey: "githubHeading" | "giteaHeading",
-    hintKey: "githubHint" | "giteaHint",
+    integrationType: "github" | "gitea" | "gitlab",
+    headingKey: "githubHeading" | "giteaHeading" | "gitlabHeading",
+    hintKey: "githubHint" | "giteaHint" | "gitlabHint",
   ) => (
     <div className="space-y-4">
       <div className="space-y-1">
@@ -130,6 +130,7 @@ export default function WorkflowEditor({ projectId }: WorkflowEditorProps) {
     <div className="space-y-10">
       {renderRuleSection("github", "githubHeading", "githubHint")}
       {renderRuleSection("gitea", "giteaHeading", "giteaHint")}
+      {renderRuleSection("gitlab", "gitlabHeading", "gitlabHint")}
     </div>
   );
 }
