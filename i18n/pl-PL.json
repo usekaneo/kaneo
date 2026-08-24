@@ -94,7 +94,7 @@
         "searchIcons": "Szukaj ikon...",
         "projectName": "Nazwa projektu",
         "keyLabel": "Klucz:",
-        "keyHint": "Używany w identyfikatorach zgłoszeń (np. {{example}}-123)",
+        "keyHint": "Używany w identyfikatorach zadań (np. {{example}}-123)",
         "createButton": "Utwórz projekt",
         "successToast": "Projekt został utworzony",
         "errorToast": "Nie udało się utworzyć projektu"
@@ -438,6 +438,7 @@
         "boardView": "Przełącz na widok tablicy",
         "listView": "Przełącz na widok listy",
         "backlogView": "Przełącz na backlog",
+        "calendarView": "Przełącz na widok kalendarza",
         "nextTask": "Następne zadanie",
         "prevTask": "Poprzednie zadanie",
         "openTask": "Otwórz zaznaczone zadanie",
@@ -903,7 +904,7 @@
     "discordIntegration": {
       "channelHint": "Opcjonalna etykieta pomocnicza. Discord określa docelowy kanał na podstawie konfiguracji webhooka.",
       "channelLabel": "Nazwa kanału",
-      "channelPlaceholder": "#team-updates",
+      "channelPlaceholder": "#aktualizacje-zespolu",
       "connect": "Połącz Discord",
       "connected": "Połączono",
       "connectionHint": "Wklej adres URL webhooka Discord i wybierz, które zdarzenia zadań mają być publikowane.",
@@ -1213,7 +1214,7 @@
       "ntfyTokenHintConfigured": "Token jest już skonfigurowany ({{masked}}). Wpisz nowy token, aby go zastąpić.",
       "ntfyTokenHintOptional": "Opcjonalne. Podaj token, jeśli Twój serwer ntfy wymaga uwierzytelnienia.",
       "ntfyTokenPlaceholder": "Opcjonalny token nośnika (bearer)",
-      "ntfyTopicPlaceholder": "team-alerts",
+      "ntfyTopicPlaceholder": "alerty-zespolu",
       "pageTitle": "Powiadomienia",
       "projectScope": "Zakres projektów",
       "projectScopeDescription": "Domyślnie uwzględniane są wszystkie projekty. Zawęź zakres, jeśli ten obszar roboczy ma wysyłać powiadomienia tylko z wybranych projektów.",
@@ -1331,7 +1332,7 @@
       "iconLabel": "Ikona",
       "importExportTasks": "Importuj/Eksportuj",
       "importExportTasksDescription": "Importuj i eksportuj zadania.",
-      "keyHint": "Używane w identyfikatorach zgłoszeń (np. {{slug}}-123)",
+      "keyHint": "Używane w identyfikatorach zadań (np. {{slug}}-123)",
       "keyLabel": "Klucz",
       "keyPlaceholder": "PRO",
       "pageTitle": "Ustawienia projektu",
@@ -1422,7 +1423,7 @@
     "slackIntegration": {
       "channelHint": "Opcjonalna etykieta pomocnicza. Slack określa docelowy kanał na podstawie konfiguracji webhooka.",
       "channelLabel": "Nazwa kanału",
-      "channelPlaceholder": "#team-updates",
+      "channelPlaceholder": "#aktualizacje-zespolu",
       "connect": "Połącz Slack",
       "connected": "Połączono",
       "connectionHint": "Wklej adres URL przychodzącego webhooka Slack i wybierz, które zdarzenia zadań mają być publikowane.",
@@ -1749,6 +1750,7 @@
     }
   },
   "tasks": {
+    "title": "Zadania",
     "actions": {
       "archive": "Archiwizuj",
       "delete": "Usuń...",
@@ -1807,7 +1809,7 @@
         "status": "Status"
       }
     },
-    "boardSearchPlaceholder": "Szukaj zgłoszeń...",
+    "boardSearchPlaceholder": "Szukaj zadań...",
     "bulk": {
       "actions": "Akcje",
       "addLabel": "Dodaj etykietę",
@@ -1985,6 +1987,19 @@
     "entity": {
       "task": "Zadanie"
     },
+    "calendar": {
+      "pageTitle": "{{name}} – kalendarz",
+      "title": "Kalendarz",
+      "previousMonth": "Poprzedni miesiąc",
+      "nextMonth": "Następny miesiąc",
+      "today": "Dzisiaj",
+      "noTasks": "Brak zaplanowanych zadań",
+      "noTasksSubtitle": "Dodaj do zadań datę rozpoczęcia, termin lub obie daty, aby umieścić je w kalendarzu.",
+      "moreTasks": "+{{count}} więcej",
+      "loadError": "Nie udało się załadować zadań.",
+      "dayTasksAriaLabel": "Pokaż wszystkie zadania z dnia {{date}}",
+      "taskAriaLabel": "{{title}}, {{range}}: otwórz zadanie"
+    },
     "gantt": {
       "hideTasks": "Ukryj zadania",
       "noTasks": "Brak zaplanowanych zadań",
@@ -1994,7 +2009,7 @@
       "pageTitle": "{{name}} – wykres Gantta",
       "resizeDue": "Zmień rozmiar terminu",
       "resizeStart": "Zmień rozmiar daty rozpoczęcia",
-      "searchPlaceholder": "Szukaj zaplanowanych zgłoszeń...",
+      "searchPlaceholder": "Szukaj zaplanowanych zadań...",
       "showTasks": "Pokaż zadania",
       "taskAriaLabel": "{{title}}: otwórz lub przeciągnij, aby przenieść",
       "taskHeader": "Zadanie",
