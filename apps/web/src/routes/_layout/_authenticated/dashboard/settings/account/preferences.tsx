@@ -261,7 +261,10 @@ function RouteComponent() {
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label className="text-sm font-medium">
+              <Label
+                className="text-sm font-medium"
+                htmlFor="show-project-backgrounds"
+              >
                 {t("settings:preferencesPage.projectBackgrounds")}
               </Label>
               <p className="text-xs text-muted-foreground">
@@ -269,6 +272,7 @@ function RouteComponent() {
               </p>
             </div>
             <Switch
+              id="show-project-backgrounds"
               checked={showProjectBackgrounds}
               onCheckedChange={setShowProjectBackgrounds}
             />
@@ -278,7 +282,10 @@ function RouteComponent() {
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label className="text-sm font-medium">
+              <Label
+                className="text-sm font-medium"
+                htmlFor="sidebar-default-open"
+              >
                 {t("settings:preferencesPage.sidebarDefault")}
               </Label>
               <p className="text-xs text-muted-foreground">
@@ -286,6 +293,7 @@ function RouteComponent() {
               </p>
             </div>
             <Switch
+              id="sidebar-default-open"
               checked={sidebarDefaultOpen}
               onCheckedChange={setSidebarDefaultOpen}
             />
@@ -317,7 +325,10 @@ function RouteComponent() {
         <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label className="text-sm font-medium">
+              <Label
+                className="text-sm font-medium"
+                htmlFor="show-task-numbers"
+              >
                 {t("settings:preferencesPage.taskNumbers")}
               </Label>
               <p className="text-xs text-muted-foreground">
@@ -325,6 +336,7 @@ function RouteComponent() {
               </p>
             </div>
             <Switch
+              id="show-task-numbers"
               checked={showTaskNumbers}
               onCheckedChange={setShowTaskNumbers}
             />
@@ -334,7 +346,7 @@ function RouteComponent() {
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label className="text-sm font-medium">
+              <Label className="text-sm font-medium" htmlFor="show-asignees">
                 {t("settings:preferencesPage.assignees")}
               </Label>
               <p className="text-xs text-muted-foreground">
@@ -342,6 +354,7 @@ function RouteComponent() {
               </p>
             </div>
             <Switch
+              id="show-asignees"
               checked={showAssignees}
               onCheckedChange={setShowAssignees}
             />
@@ -351,42 +364,54 @@ function RouteComponent() {
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label className="text-sm font-medium">
+              <Label className="text-sm font-medium" htmlFor="show-due-dates">
                 {t("settings:preferencesPage.dueDates")}
               </Label>
               <p className="text-xs text-muted-foreground">
                 {t("settings:preferencesPage.dueDatesDescription")}
               </p>
             </div>
-            <Switch checked={showDueDates} onCheckedChange={setShowDueDates} />
+            <Switch
+              id="show-due-dates"
+              checked={showDueDates}
+              onCheckedChange={setShowDueDates}
+            />
           </div>
 
           <Separator />
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label className="text-sm font-medium">
+              <Label className="text-sm font-medium" htmlFor="show-labels">
                 {t("settings:preferencesPage.labels")}
               </Label>
               <p className="text-xs text-muted-foreground">
                 {t("settings:preferencesPage.labelsDescription")}
               </p>
             </div>
-            <Switch checked={showLabels} onCheckedChange={setShowLabels} />
+            <Switch
+              id="show-labels"
+              checked={showLabels}
+              onCheckedChange={setShowLabels}
+            />
           </div>
 
           <Separator />
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label className="text-sm font-medium">
+              <Label className="text-sm font-medium" htmlFor="show-priority">
                 {t("settings:preferencesPage.priority")}
               </Label>
               <p className="text-xs text-muted-foreground">
                 {t("settings:preferencesPage.priorityDescription")}
               </p>
             </div>
-            <Switch checked={showPriority} onCheckedChange={setShowPriority} />
+            <Switch
+              id="show-priority"
+              checked={showPriority}
+              onCheckedChange={setShowPriority}
+            />
           </div>
         </div>
       </div>
