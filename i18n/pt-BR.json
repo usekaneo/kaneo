@@ -56,7 +56,30 @@
 			"troubleshooting": "Passos para solução de problemas:",
 			"tryAgain": "Tentar novamente",
 			"viewDeploymentGuide": "Ver guia de implantação",
-			"refreshPage": "Atualizar página"
+			"refreshPage": "Atualizar página",
+			"description": "The page crashed unexpectedly. Refreshing usually fixes it.",
+			"messages": {
+				"auth": "Authentication failed. Please sign in again.",
+				"cors": "Unable to connect to the server. This might be due to CORS configuration issues.",
+				"network": "Network error. Please check your internet connection and try again.",
+				"server": "Server error. Please try again later.",
+				"unknown": "An unexpected error occurred."
+			},
+			"troubleshootingSteps": {
+				"cors": {
+					"checkAccessibility": "Check that your API server is accessible from your browser",
+					"checkApiRunning": "Make sure your API server is running",
+					"checkApiUrl": "Check that VITE_API_URL in your frontend .env matches your API server URL",
+					"checkProtocol": "Ensure both frontend and API are using the same protocol (http/https)",
+					"verifyCorsOrigins": "Verify CORS_ORIGINS in your API .env includes your frontend URL"
+				},
+				"network": {
+					"checkConnection": "Check your internet connection",
+					"checkFirewall": "Check if there are any firewall or proxy issues",
+					"tryRefresh": "Try refreshing the page",
+					"verifyApiRunning": "Verify the API server is running and accessible"
+				}
+			}
 		},
 		"formats": {
 			"never": "Nunca"
@@ -746,7 +769,8 @@
 			"deleteDialog": {
 				"title": "Excluir função",
 				"description": "Isso excluirá permanentemente a função \"{{role}}\". Os membros atribuídos a esta função perderão suas permissões."
-			}
+			},
+			"permissionCount_many": "{{count}} permissões"
 		},
 		"workspaceLabels": {
 			"pageTitle": "Configurações de etiquetas",
@@ -1379,7 +1403,10 @@
 			"hours_one": "{{count}} hora",
 			"hours_other": "{{count}} horas",
 			"days_one": "{{count}} dia",
-			"days_other": "{{count}} dias"
+			"days_other": "{{count}} dias",
+			"days_many": "{{count}} dias",
+			"hours_many": "{{count}} horas",
+			"minutes_many": "{{count}} minutos"
 		},
 		"events": {
 			"task_created": {
@@ -1419,7 +1446,8 @@
 				"contentWithTask": "Registro de tempo iniciado na tarefa: {{taskTitle}}",
 				"contentWithoutTask": "Registro de tempo iniciado em uma tarefa"
 			}
-		}
+		},
+		"newCount_many": "{{count}} novas"
 	},
 	"activity": {
 		"assignedToSelf": "atribuiu a tarefa a si mesmo",
@@ -1868,7 +1896,8 @@
 			"open": "Aberto",
 			"label": "Pull Request",
 			"count_one": "{{count}} PR",
-			"count_other": "{{count}} PRs"
+			"count_other": "{{count}} PRs",
+			"count_many": "{{count}} PRs"
 		},
 		"assignee": {
 			"label": "Responsável",
@@ -2024,7 +2053,8 @@
 			"suggestionBug": "Bug",
 			"suggestionFeature": "Funcionalidade",
 			"suggestionInProgress": "Em andamento",
-			"suggestionCompleted": "Concluído"
+			"suggestionCompleted": "Concluído",
+			"resultsFound_many": "{{count}} resultados encontrados"
 		},
 		"create": {
 			"pageTitle": "Criar espaço de trabalho",
