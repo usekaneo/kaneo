@@ -200,21 +200,6 @@
           "redirect"
         ]
       },
-      "OAuthIdToken": {
-        "type": "object",
-        "properties": {
-          "idToken": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "description": "The stored id_token for the user's `custom` OAuth account, or null when they have no such account."
-          }
-        },
-        "required": [
-          "idToken"
-        ]
-      },
       "ProjectListItem": {
         "allOf": [
           {
@@ -5493,27 +5478,26 @@
         }
       }
     },
-    "/oauth/id-token": {
+    "/oauth/logout": {
       "get": {
-        "operationId": "getOAuthIdToken",
+        "operationId": "oauthLogout",
         "tags": [
           "Authentication"
         ],
-        "summary": "Get OAuth id token",
-        "description": "Get the id_token for the current user's custom OAuth account. Returns null when the user signed in another way.",
+        "summary": "Log out",
+        "description": "Ends the Kaneo session and redirects to the identity provider's end-session endpoint so the provider closes its session too. The id_token_hint the provider needs is attached server-side, so navigate to this URL rather than fetching it. Redirects to the sign-in page when no custom OAuth logout URL is configured.",
         "responses": {
-          "200": {
-            "description": "The id_token if available",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OAuthIdToken"
-                }
-              }
-            }
+          "302": {
+            "description": "Redirect to the identity provider, or to sign-in"
           },
           "401": {
             "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "API keys, or a navigation from an untrusted origin"
+          },
+          "500": {
+            "description": "The session could not be ended"
           }
         }
       }
