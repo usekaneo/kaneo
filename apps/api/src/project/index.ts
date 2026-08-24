@@ -6,6 +6,7 @@ import * as v from "valibot";
 import { requireEntitlement } from "../billing/require-entitlement-middleware";
 import db from "../database";
 import { projectTable } from "../database/schema";
+import { publishEvent } from "../events";
 import { projectSchema, uploadProjectBackgroundSchema } from "../schemas";
 import {
   assertProjectBackgroundKeyMatchesContext,
@@ -530,6 +531,11 @@ const project = new Hono<{
         throw new HTTPException(500, { message: "Failed to save background" });
       }
 
+      await publishEvent("project.updated", {
+        projectId: updatedProject.id,
+        userId: c.get("userId"),
+      });
+
       if (
         currentProject?.backgroundObjectKey &&
         currentProject.backgroundObjectKey !== normalizedKey
@@ -578,6 +584,13 @@ const project = new Hono<{
 
       if (updatedProject && currentProject?.backgroundObjectKey) {
         deleteS3Object(currentProject.backgroundObjectKey).catch(() => {});
+      }
+
+      if (updatedProject) {
+        await publishEvent("project.updated", {
+          projectId: updatedProject.id,
+          userId: c.get("userId"),
+        });
       }
 
       return c.body(null, 204);
