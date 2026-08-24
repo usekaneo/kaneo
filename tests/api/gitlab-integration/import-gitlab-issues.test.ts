@@ -5,12 +5,14 @@ const mocks = vi.hoisted(() => ({
   integrationFindFirst: vi.fn(),
   findExternalLink: vi.fn(),
   createExternalLink: vi.fn(),
+  findTaskByNumber: vi.fn(),
   publishEvent: vi.fn(),
   listIssues: vi.fn(),
   listMergeRequests: vi.fn(),
   listLabels: vi.fn(),
   listIssueNotes: vi.fn(),
   insertedTasks: [] as Array<Record<string, unknown>>,
+  insertedRows: [] as Array<Record<string, unknown>>,
 }));
 
 vi.mock("../../../apps/api/src/database", () => ({
@@ -48,9 +50,12 @@ vi.mock("../../../apps/api/src/database", () => ({
         }),
       }),
     insert: () => ({
-      values: () => ({
-        onConflictDoNothing: () => ({ target: [] }),
-      }),
+      values: (values: Record<string, unknown>) => {
+        mocks.insertedRows.push(values);
+        return {
+          onConflictDoNothing: () => ({ target: [] }),
+        };
+      },
     }),
     update: () => ({
       set: () => ({ where: async () => undefined }),
@@ -66,6 +71,10 @@ vi.mock("../../../apps/api/src/events", () => ({
 vi.mock("../../../apps/api/src/plugins/github/services/link-manager", () => ({
   createExternalLink: (...a: unknown[]) => mocks.createExternalLink(...a),
   findExternalLink: (...a: unknown[]) => mocks.findExternalLink(...a),
+}));
+
+vi.mock("../../../apps/api/src/plugins/github/services/task-service", () => ({
+  findTaskByNumber: (...a: unknown[]) => mocks.findTaskByNumber(...a),
 }));
 
 vi.mock("../../../apps/api/src/plugins/gitlab/utils/gitlab-api", () => ({
@@ -84,6 +93,7 @@ const { importGitlabIssues } = await import(
 beforeEach(() => {
   vi.resetAllMocks();
   mocks.insertedTasks.length = 0;
+  mocks.insertedRows.length = 0;
   mocks.projectFindFirst.mockResolvedValue({
     id: "project-1",
     workspaceId: "ws-1",
@@ -100,6 +110,7 @@ beforeEach(() => {
   });
   mocks.findExternalLink.mockResolvedValue(null);
   mocks.createExternalLink.mockResolvedValue({ id: "link-1" });
+  mocks.findTaskByNumber.mockResolvedValue(null);
   mocks.publishEvent.mockResolvedValue(undefined);
   mocks.listLabels.mockResolvedValue([]);
   mocks.listIssueNotes.mockResolvedValue([]);
@@ -156,5 +167,84 @@ describe("importGitlabIssues", () => {
     expect(result.updated).toBe(1);
     expect(result.imported).toBe(0);
     expect(mocks.createExternalLink).not.toHaveBeenCalled();
+  });
+
+  it("resolves a labeled issue's label color from the project's listLabels call", async () => {
+    mocks.listLabels.mockResolvedValueOnce([
+      { id: 1, name: "bug", color: "#FF0000" },
+    ]);
+    mocks.listIssues.mockResolvedValueOnce([
+      {
+        id: 2,
+        iid: 6,
+        title: "Crash on save",
+        description: "",
+        web_url: "https://gitlab.example.com/group/project/-/issues/6",
+        state: "opened",
+        labels: ["bug"],
+        author: { username: "octocat" },
+      },
+    ]);
+
+    const result = await importGitlabIssues("project-1");
+
+    expect(result.imported).toBe(1);
+    const labelRow = mocks.insertedRows.find((row) => row.name === "bug");
+    expect(labelRow).toBeDefined();
+    expect(labelRow?.color).toBe("#FF0000");
+  });
+
+  it("links a merge request whose branch resolves a task number to that task", async () => {
+    mocks.listIssues.mockResolvedValueOnce([]);
+    mocks.findTaskByNumber.mockResolvedValueOnce({
+      id: "task-mr-1",
+      projectId: "project-1",
+      number: 7,
+    });
+    mocks.listMergeRequests.mockResolvedValueOnce([
+      {
+        iid: 9,
+        title: "Add feature",
+        description: null,
+        web_url: "https://gitlab.example.com/group/project/-/merge_requests/9",
+        state: "opened",
+        source_branch: "kan-7",
+        author: { username: "dev1" },
+      },
+    ]);
+
+    const result = await importGitlabIssues("project-1");
+
+    expect(result.errors).toBeUndefined();
+    expect(mocks.createExternalLink).toHaveBeenCalledWith(
+      expect.objectContaining({
+        resourceType: "pull_request",
+        externalId: "9",
+        taskId: "task-mr-1",
+      }),
+    );
+  });
+
+  it("skips a merge request whose branch resolves a task number with no matching task", async () => {
+    mocks.listIssues.mockResolvedValueOnce([]);
+    mocks.findTaskByNumber.mockResolvedValueOnce(null);
+    mocks.listMergeRequests.mockResolvedValueOnce([
+      {
+        iid: 10,
+        title: "Unrelated change",
+        description: null,
+        web_url: "https://gitlab.example.com/group/project/-/merge_requests/10",
+        state: "opened",
+        source_branch: "kan-99",
+        author: { username: "dev1" },
+      },
+    ]);
+
+    const result = await importGitlabIssues("project-1");
+
+    expect(result.errors).toBeUndefined();
+    expect(mocks.createExternalLink).not.toHaveBeenCalledWith(
+      expect.objectContaining({ resourceType: "pull_request" }),
+    );
   });
 });
