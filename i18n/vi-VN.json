@@ -832,7 +832,18 @@
 				"iconRequired": "Cần có biểu tượng"
 			},
 			"importExportTasks": "Nhập/Xuất",
-			"importExportTasksDescription": "Nhập và xuất công việc."
+			"importExportTasksDescription": "Nhập và xuất công việc.",
+			"moveModalConfirm": "Chuyển dự án",
+			"moveModalDescription": "Thao tác này sẽ chuyển dự án \"{{name}}\" và tất cả công việc của nó sang \"{{workspace}}\". Những công việc được giao cho người không phải là thành viên của không gian làm việc đó sẽ bị hủy phân công, và các đăng ký thông báo cho dự án này sẽ bị xóa.",
+			"moveModalTitle": "Chuyển dự án?",
+			"moveProject": "Chuyển đến không gian làm việc",
+			"moveProjectAction": "Chuyển",
+			"moveProjectDescription": "Chuyển dự án này, cùng với tất cả công việc của nó, sang không gian làm việc khác.",
+			"moveProjectPlaceholder": "Chọn không gian làm việc",
+			"toastMoved": "Đã chuyển dự án thành công",
+			"toastMovedWithUnassigned": "Đã chuyển dự án thành công. {{taskCount}} công việc đã bị hủy phân công.",
+			"toastMoveError": "Không thể chuyển dự án",
+			"moveTargetsError": "Không thể kiểm tra những không gian làm việc mà bạn có thể chuyển dự án này đến. Hãy tải lại trang để thử lại."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Tích hợp dự án",

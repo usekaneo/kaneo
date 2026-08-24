@@ -334,6 +334,24 @@ subscribeToEvent<{
   );
 });
 
+// Project-scoped rather than per task: a project move can unassign every task
+// in the project at once, so clients refetch the board once instead of
+// receiving one message per task.
+subscribeToEvent<{
+  projectId: string;
+  userId: string;
+  initiatorId?: string;
+}>("task.bulk_unassigned", async (data) => {
+  const { projectId, initiatorId } = data;
+  if (!projectId) return;
+
+  broadcastToProject(
+    projectId,
+    { type: "TASK_UPDATED", projectId, taskId: "" },
+    initiatorId,
+  );
+});
+
 subscribeToEvent<{ notificationId: string; userId: string }>(
   "notification.created",
   async (data) => {

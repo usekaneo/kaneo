@@ -832,7 +832,18 @@
 				"iconRequired": "图标不能为空"
 			},
 			"importExportTasks": "导入/导出",
-			"importExportTasksDescription": "导入和导出任务。"
+			"importExportTasksDescription": "导入和导出任务。",
+			"moveModalConfirm": "移动项目",
+			"moveModalDescription": "这将把项目 \"{{name}}\" 及其所有任务移动到 \"{{workspace}}\"。分配给非该工作区成员的任务将被取消分配，此项目的通知订阅也会被清除。",
+			"moveModalTitle": "移动项目？",
+			"moveProject": "移动到其他工作区",
+			"moveProjectAction": "移动",
+			"moveProjectDescription": "将此项目及其所有任务移动到其他工作区。",
+			"moveProjectPlaceholder": "选择工作区",
+			"toastMoved": "项目移动成功",
+			"toastMovedWithUnassigned": "项目移动成功。已取消分配 {{taskCount}} 个任务。",
+			"toastMoveError": "移动项目失败",
+			"moveTargetsError": "无法检查你可以将此项目移动到哪些工作区。请重新加载页面后重试。"
 		},
 		"projectIntegrations": {
 			"pageTitle": "项目集成",
