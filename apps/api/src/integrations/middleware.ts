@@ -5,9 +5,7 @@ import db from "../database";
 import { projectTable } from "../database/schema";
 import { validateWorkspaceAccess } from "../utils/validate-workspace-access";
 
-// Scopes the request to the workspace owning the projectId in the JSON body.
-// Route middleware runs before the request validators, so this reads the raw
-// body rather than c.req.valid("json"), which is not populated yet.
+// Route middleware runs before the validators, so c.req.valid() is unavailable.
 export async function scopeToProjectFromBody(c: Context, next: Next) {
   const userId = c.get("userId");
   if (!userId) {

@@ -76,8 +76,6 @@ export const githubInstallationSchema = z
   })
   .openapi("GitHubInstallation");
 
-// The previous spec described this route as returning a bare repository array;
-// it has always returned this envelope.
 export const githubRepositoryListSchema = z
   .object({
     repositories: z.array(githubRepositorySchema).openapi({
@@ -125,9 +123,6 @@ export const importResultSchema = z
   })
   .openapi("IssueImportResult");
 
-// createGithubIntegration assembles its result from the inserted row, whose
-// fields TypeScript cannot prove are present, so the create route reports the
-// looser shape rather than claiming a guarantee the code does not make.
 export const createdGithubIntegrationSchema = githubIntegrationSchema
   .partial({
     id: true,
@@ -138,8 +133,10 @@ export const createdGithubIntegrationSchema = githubIntegrationSchema
   })
   .openapi("CreatedGitHubIntegration");
 
-// The delete route returns a plain acknowledgement, not the removed row --
-// the previous spec described it as returning the integration.
 export const deleteResultSchema = z
   .object({ success: z.boolean(), message: z.string() })
   .openapi("GitHubDeleteResult");
+
+export const integrationNotFoundSchema = z
+  .object({ error: z.string() })
+  .openapi("GitHubIntegrationNotFound");

@@ -3,7 +3,6 @@ import { responseTimestamp, z } from "../openapi";
 const relationTypeDescription =
   "How the two tasks relate: `subtask`, `blocks`, or `related`.";
 
-// The joined task summary, restricted to the caller's workspace.
 const relatedTaskSchema = z
   .object({
     id: z.string(),
@@ -27,9 +26,8 @@ export const taskRelationSchema = z
   })
   .openapi("TaskRelation");
 
-// getTaskRelations drops any relation whose endpoints are not both visible in
-// the workspace, so in practice these are always present; they stay nullable
-// because the lookup itself is a map read.
+// Always present in practice: relations whose endpoints are not both visible in
+// the workspace are dropped. Nullable only because the lookup is a map read.
 export const taskRelationWithTasksSchema = taskRelationSchema
   .extend({
     sourceTask: relatedTaskSchema.nullable(),

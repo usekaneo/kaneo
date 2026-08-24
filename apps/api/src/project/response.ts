@@ -38,13 +38,10 @@ export const projectStatisticsSchema = z
   })
   .openapi("ProjectStatistics");
 
-// The list route enriches each project with rollup statistics. The three empty
-// arrays are retained for clients that still read them; they are never filled.
 export const projectListItemSchema = projectSchema
   .extend({
     statistics: projectStatisticsSchema,
-    // Legacy fields kept for clients that still read them. The list route
-    // always returns them empty; fetch the board via GET /task/tasks/{id}.
+    // Legacy, always empty. Fetch the board via GET /task/tasks/{id}.
     archivedTasks: z
       .array(boardTaskSchema)
       .openapi({ description: "Always empty." }),

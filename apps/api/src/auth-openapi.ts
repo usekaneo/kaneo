@@ -2,14 +2,8 @@ import type { OpenAPIHono } from "@hono/zod-openapi";
 import { z } from "./openapi";
 
 // Better Auth serves /api/auth/* from its own handler, so these operations have
-// no route of ours to hang documentation off. They are registered directly on
-// the OpenAPI registry instead.
-//
-// This file is generated from Better Auth's own generateOpenAPISchema() output
-// and then reviewed. Declaring it here replaced a runtime call to that
-// generator plus ~200 lines of spec rewriting (operationId/summary/tag
-// normalization, ref pruning, and a 3.1-to-3.0 downgrade). Regenerate and diff
-// this file when upgrading Better Auth.
+// no route of ours to document. Generated from its generateOpenAPISchema()
+// output; regenerate and diff this file when upgrading Better Auth.
 export function organizationRoutes(registry: OpenAPIHono["openAPIRegistry"]) {
   registry.registerPath({
     method: "post",

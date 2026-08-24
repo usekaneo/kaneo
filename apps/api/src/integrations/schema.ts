@@ -2,7 +2,6 @@ import { z } from "../openapi";
 
 export const projectIdParam = z.object({ projectId: z.string() });
 
-// On the way in every toggle is optional: omitted ones keep their current value.
 export const integrationEventToggles = z.object({
   taskCreated: z.boolean().optional(),
   taskStatusChanged: z.boolean().optional(),

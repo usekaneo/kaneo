@@ -11,7 +11,6 @@ import {
   createRoute,
   errorResponse,
   jsonResponse,
-  z,
 } from "../openapi";
 import { type GiteaConfig, validateGiteaConfig } from "../plugins/gitea/config";
 import { handleGiteaWebhookRequest } from "../plugins/gitea/webhook-handler";
@@ -32,40 +31,19 @@ import {
   giteaIntegrationSchema,
   giteaRepositoryListSchema,
   giteaVerificationResultSchema,
+  integrationNotFoundSchema,
 } from "./response";
+import {
+  createGiteaBody,
+  listGiteaRepositoriesBody,
+  updateGiteaBody,
+  verifyGiteaBody,
+} from "./schema";
 
 const manageAccess = [
   workspaceAccess.fromProject("projectId"),
   requireWorkspacePermission({ workspace: ["manage_settings"] }),
 ];
-
-const giteaCredentials = {
-  projectId: z.string().min(1),
-  baseUrl: z.url(),
-  accessToken: z.string().min(1),
-};
-
-const listRepositoriesBody = z.object(giteaCredentials);
-
-const verifyBody = z.object({
-  ...giteaCredentials,
-  repositoryOwner: z.string().min(1),
-  repositoryName: z.string().min(1),
-});
-
-const createBody = z.object({
-  baseUrl: z.string().min(1),
-  accessToken: z.string().optional().openapi({
-    description: "Omit to keep the token already stored for this project.",
-  }),
-  repositoryOwner: z.string().min(1),
-  repositoryName: z.string().min(1),
-});
-
-const updateBody = z.object({
-  isActive: z.boolean().optional(),
-  commentTaskLinkOnGiteaIssue: z.boolean().optional(),
-});
 
 const listRepositoriesRoute = createRoute({
   method: "post",
@@ -79,7 +57,7 @@ const listRepositoriesRoute = createRoute({
   request: {
     body: {
       required: true,
-      content: { "application/json": { schema: listRepositoriesBody } },
+      content: { "application/json": { schema: listGiteaRepositoriesBody } },
     },
   },
   responses: {
@@ -103,7 +81,7 @@ const verifyRoute = createRoute({
   request: {
     body: {
       required: true,
-      content: { "application/json": { schema: verifyBody } },
+      content: { "application/json": { schema: verifyGiteaBody } },
     },
   },
   responses: {
@@ -150,7 +128,7 @@ const createIntegrationRoute = createRoute({
     params: projectIdParam,
     body: {
       required: true,
-      content: { "application/json": { schema: createBody } },
+      content: { "application/json": { schema: createGiteaBody } },
     },
   },
   responses: {
@@ -175,7 +153,7 @@ const updateIntegrationRoute = createRoute({
     params: projectIdParam,
     body: {
       required: true,
-      content: { "application/json": { schema: updateBody } },
+      content: { "application/json": { schema: updateGiteaBody } },
     },
   },
   responses: {
@@ -184,7 +162,7 @@ const updateIntegrationRoute = createRoute({
     403: errorResponse(
       "No workspace access, or missing workspace:manage_settings",
     ),
-    404: jsonResponse("Integration not found", z.object({ error: z.string() })),
+    404: jsonResponse("Integration not found", integrationNotFoundSchema),
   },
 });
 

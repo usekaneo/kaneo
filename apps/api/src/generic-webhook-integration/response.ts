@@ -1,8 +1,7 @@
 import { genericWebhookEventsSchema } from "../integrations/response";
 import { responseTimestamp, z } from "../openapi";
 
-// Both the URL and the signing secret are credentials, so only masked forms
-// are returned alongside a boolean saying whether each is set.
+// Credentials are only ever returned masked, with a boolean saying if each is set.
 export const genericWebhookIntegrationSchema = z
   .object({
     id: z.string(),

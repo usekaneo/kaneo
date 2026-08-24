@@ -3,8 +3,6 @@ import { responseTimestamp, z } from "../openapi";
 const activityTypeDescription =
   "One of: comment, task, create, status_changed, priority_changed, assignee_changed, unassigned, due_date_changed, title_changed, description_changed.";
 
-// The raw activity row. Comments are activities with type `comment` and a
-// non-null content, which is why comment mutations return this same shape.
 export const activitySchema = z
   .object({
     id: z.string(),

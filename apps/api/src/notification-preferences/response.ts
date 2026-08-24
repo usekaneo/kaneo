@@ -1,8 +1,6 @@
 import { nullableResponseTimestamp, responseTimestamp, z } from "../openapi";
 
-// Secrets are never returned. Each one is reported as a *Configured boolean
-// plus a masked preview, so a client can show that a value is set without
-// being able to read it.
+// Secrets are never returned: each is a *Configured boolean plus a masked preview.
 export const workspaceRuleSchema = z
   .object({
     id: z.string(),

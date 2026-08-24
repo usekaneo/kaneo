@@ -1,3 +1,4 @@
+import { requireEntitlement } from "../billing/require-entitlement-middleware";
 import {
   apiRouter,
   type BaseVariables,
@@ -54,6 +55,7 @@ const createProjectRoute = createRoute({
   middleware: [
     workspaceAccess.fromBody(),
     requireWorkspacePermission({ project: ["create"] }),
+    requireEntitlement,
   ] as const,
   request: {
     body: {

@@ -22,15 +22,12 @@ export const taskSchema = z
       description: "The slug of the column the task sits in.",
     }),
     priority: z.string().openapi({ description: priorityDescription }),
-    // Nullable, not optional: the columns are always selected and may be null.
     startDate: nullableResponseTimestamp,
     dueDate: nullableResponseTimestamp,
     createdAt: responseTimestamp,
   })
   .openapi("Task");
 
-// The single-task route joins the assignee; the list/board route returns the
-// richer BoardTask below.
 export const taskWithAssigneeSchema = taskSchema
   .extend({
     assigneeName: z.string().nullable(),
@@ -60,7 +57,6 @@ const taskExternalLinkSchema = z
   })
   .openapi("TaskExternalLink");
 
-// The board task carries the joined assignee and the task's labels and links.
 export const boardTaskSchema = z
   .object({
     id: z.string(),
@@ -94,7 +90,6 @@ export const boardColumnSchema = z
   })
   .openapi("BoardColumn");
 
-// listTasks returns the project's board, not a flat task list.
 export const boardSchema = z
   .object({
     data: z

@@ -11,7 +11,6 @@ import {
   createRoute,
   errorResponse,
   jsonResponse,
-  z,
 } from "../openapi";
 import {
   type GitHubConfig,
@@ -33,30 +32,15 @@ import {
   githubIntegrationSchema,
   githubRepositoryListSchema,
   importResultSchema,
+  integrationNotFoundSchema,
   verificationResultSchema,
 } from "./response";
+import { createGitHubBody, updateGitHubBody, verifyGitHubBody } from "./schema";
 
 const manageAccess = [
   workspaceAccess.fromProject("projectId"),
   requireWorkspacePermission({ workspace: ["manage_settings"] }),
 ];
-
-const repositoryRef = {
-  repositoryOwner: z.string().min(1),
-  repositoryName: z.string().min(1),
-};
-
-const verifyBody = z.object({
-  projectId: z.string().min(1),
-  ...repositoryRef,
-});
-
-const createBody = z.object(repositoryRef);
-
-const updateBody = z.object({
-  isActive: z.boolean().optional(),
-  commentTaskLinkOnGitHubIssue: z.boolean().optional(),
-});
 
 const getAppInfoRoute = createRoute({
   method: "get",
@@ -107,7 +91,7 @@ const verifyRoute = createRoute({
   request: {
     body: {
       required: true,
-      content: { "application/json": { schema: verifyBody } },
+      content: { "application/json": { schema: verifyGitHubBody } },
     },
   },
   responses: {
@@ -153,7 +137,7 @@ const createIntegrationRoute = createRoute({
     params: projectIdParam,
     body: {
       required: true,
-      content: { "application/json": { schema: createBody } },
+      content: { "application/json": { schema: createGitHubBody } },
     },
   },
   responses: {
@@ -178,7 +162,7 @@ const updateIntegrationRoute = createRoute({
     params: projectIdParam,
     body: {
       required: true,
-      content: { "application/json": { schema: updateBody } },
+      content: { "application/json": { schema: updateGitHubBody } },
     },
   },
   responses: {
@@ -190,7 +174,7 @@ const updateIntegrationRoute = createRoute({
     403: errorResponse(
       "No workspace access, or missing workspace:manage_settings",
     ),
-    404: jsonResponse("Integration not found", z.object({ error: z.string() })),
+    404: jsonResponse("Integration not found", integrationNotFoundSchema),
   },
 });
 

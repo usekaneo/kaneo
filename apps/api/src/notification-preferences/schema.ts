@@ -2,8 +2,7 @@ import { z } from "../openapi";
 
 export const workspaceIdParam = z.object({ workspaceId: z.string() });
 
-// Write-only secret fields: send a value to set it, null to clear it, omit to
-// leave it untouched. They are never echoed back.
+// Secrets are write-only: a value sets it, null clears it, omitting leaves it.
 export const updatePreferencesBody = z.object({
   emailEnabled: z.boolean().optional(),
   ntfyEnabled: z.boolean().optional(),

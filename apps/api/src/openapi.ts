@@ -20,13 +20,8 @@ export type BaseVariables = {
   apiKey?: ApiKey;
 };
 
-// NOTE: routes declare auth/access middleware via createRoute({ middleware }),
-// which @hono/zod-openapi registers BEFORE the request validators (index.mjs:147
-// -- `this.on(method, path, ...middleware, ...validators, handler)`). The
-// hono-openapi routes this replaces listed validator() first, so a malformed
-// body used to be rejected before any authorization ran. Order is now
-// authorize-then-validate: an unauthorized caller gets 403 instead of 400 and
-// no longer learns whether their body was well-formed.
+// createRoute({ middleware }) registers middleware BEFORE the request
+// validators, so middleware must read the raw request, not c.req.valid().
 export function apiRouter<V extends BaseVariables = BaseVariables>() {
   return new OpenAPIHono<{ Variables: V }>({
     defaultHook: (result) => {
@@ -51,14 +46,8 @@ export const nullableResponseTimestamp = responseTimestamp
   .nullable()
   .openapi({ type: ["string", "null"], format: "date-time" });
 
-// HTTPException bodies are the plain message string (Hono's default
-// getResponse()), which every web fetcher reads with response.text().
-//
-// Declaring any non-2xx response puts it in the route's typed-response union,
-// so an untagged InferResponseType<typeof client.x.$get> on the frontend widens
-// from `Label` to `Label | string`. Tag the status instead --
-// InferResponseType<typeof client.x.$get, 200> -- as src/types/project already
-// does. Fetchers that narrow on `response.ok` before .json() are unaffected.
+// Declaring a non-2xx response widens an untagged InferResponseType on the
+// frontend, so those call sites must tag the status: InferResponseType<T, 200>.
 export function errorResponse(description: string) {
   return {
     description,

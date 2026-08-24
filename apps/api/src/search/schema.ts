@@ -8,7 +8,6 @@ export const searchQuery = z.object({
     .default("all"),
   workspaceId: z.string().min(1),
   projectId: z.string().optional(),
-  // Query strings arrive as text; keep the wire type honest and coerce after.
   limit: z
     .string()
     .optional()

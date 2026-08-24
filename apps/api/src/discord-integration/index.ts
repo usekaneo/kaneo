@@ -2,18 +2,13 @@ import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../database";
 import { integrationTable } from "../database/schema";
-import {
-  deletedSchema,
-  integrationEventToggles,
-  projectIdParam,
-} from "../integrations/schema";
+import { deletedSchema, projectIdParam } from "../integrations/schema";
 import {
   apiRouter,
   type BaseVariables,
   createRoute,
   errorResponse,
   jsonResponse,
-  z,
 } from "../openapi";
 import {
   type DiscordConfig,
@@ -24,6 +19,7 @@ import {
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import { discordIntegrationSchema } from "./response";
+import { createDiscordBody, updateDiscordBody } from "./schema";
 
 function maskWebhookUrl(value: string): string {
   try {
@@ -83,19 +79,6 @@ async function getDiscordIntegration(projectId: string) {
   return toResponse(integration);
 }
 
-const createBody = z.object({
-  webhookUrl: z.string().min(1),
-  channelName: z.string().optional(),
-  events: integrationEventToggles.optional(),
-});
-
-const updateBody = z.object({
-  webhookUrl: z.string().optional(),
-  channelName: z.string().nullable().optional(),
-  isActive: z.boolean().optional(),
-  events: integrationEventToggles.optional(),
-});
-
 const manageAccess = [
   workspaceAccess.fromProject("projectId"),
   requireWorkspacePermission({ workspace: ["manage_settings"] }),
@@ -136,7 +119,7 @@ const createDiscordIntegrationRoute = createRoute({
     params: projectIdParam,
     body: {
       required: true,
-      content: { "application/json": { schema: createBody } },
+      content: { "application/json": { schema: createDiscordBody } },
     },
   },
   responses: {
@@ -164,7 +147,7 @@ const updateDiscordIntegrationRoute = createRoute({
     params: projectIdParam,
     body: {
       required: true,
-      content: { "application/json": { schema: updateBody } },
+      content: { "application/json": { schema: updateDiscordBody } },
     },
   },
   responses: {

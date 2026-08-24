@@ -2,18 +2,13 @@ import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../database";
 import { integrationTable } from "../database/schema";
-import {
-  deletedSchema,
-  genericWebhookEventToggles,
-  projectIdParam,
-} from "../integrations/schema";
+import { deletedSchema, projectIdParam } from "../integrations/schema";
 import {
   apiRouter,
   type BaseVariables,
   createRoute,
   errorResponse,
   jsonResponse,
-  z,
 } from "../openapi";
 import {
   defaultGenericWebhookEvents,
@@ -24,6 +19,7 @@ import {
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import { genericWebhookIntegrationSchema } from "./response";
+import { createWebhookBody, updateWebhookBody } from "./schema";
 
 function maskValue(value: string | undefined): string | null {
   if (!value) return null;
@@ -76,32 +72,6 @@ async function getGenericWebhookIntegration(projectId: string) {
   return toResponse(integration);
 }
 
-const leadTimeMinutes = z
-  .number()
-  .int()
-  .min(5)
-  .max(43_200)
-  .openapi({ description: "Between 5 minutes and 30 days." });
-
-const createBody = z.object({
-  webhookUrl: z.string().min(1),
-  secret: z.string().optional().openapi({
-    description: "Optional HMAC secret used to sign outgoing deliveries.",
-  }),
-  events: genericWebhookEventToggles.optional(),
-  dueDateReminderLeadTimeMinutes: leadTimeMinutes.optional(),
-});
-
-const updateBody = z.object({
-  webhookUrl: z.string().optional(),
-  secret: z.string().nullable().optional().openapi({
-    description: "Send null to remove the signing secret.",
-  }),
-  isActive: z.boolean().optional(),
-  events: genericWebhookEventToggles.optional(),
-  dueDateReminderLeadTimeMinutes: leadTimeMinutes.optional(),
-});
-
 const manageAccess = [
   workspaceAccess.fromProject("projectId"),
   requireWorkspacePermission({ workspace: ["manage_settings"] }),
@@ -142,7 +112,7 @@ const createGenericWebhookIntegrationRoute = createRoute({
     params: projectIdParam,
     body: {
       required: true,
-      content: { "application/json": { schema: createBody } },
+      content: { "application/json": { schema: createWebhookBody } },
     },
   },
   responses: {
@@ -170,7 +140,7 @@ const updateGenericWebhookIntegrationRoute = createRoute({
     params: projectIdParam,
     body: {
       required: true,
-      content: { "application/json": { schema: updateBody } },
+      content: { "application/json": { schema: updateWebhookBody } },
     },
   },
   responses: {

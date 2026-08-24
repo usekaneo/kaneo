@@ -51,9 +51,7 @@ async function requireBillingManager(userId: string, workspaceId: string) {
 
 // Excluded from the app-wide auth middleware: authenticity comes from the
 // provider's webhook signature instead of a session.
-// Billing is a Kaneo Cloud concern: on a self-hosted instance isBillingEnabled()
-// is false and these routes report an always-active entitlement. They stay
-// served, but `hide` keeps them out of the published OpenAPI document so the
+// Kaneo Cloud only: still served, but kept out of the published document so the
 // self-hosted API reference does not advertise a paid tier that does not exist.
 const cloudOnly = { hide: true } as const;
 

@@ -7,13 +7,11 @@ export const projectIdParam = z.object({ projectId: z.string() });
 
 const priority = z.enum(VALID_PRIORITIES);
 
-// Every filter is optional; the outer object is required so it can be a
-// RouteParameter, and the handler treats an empty object as "no filters".
+// Required object of optional filters: a RouteParameter cannot itself be optional.
 export const listTasksQuery = z.object({
   status: z.string().optional(),
   priority: z.string().optional(),
   assigneeId: z.string().optional(),
-  // Query strings arrive as text; both are coerced after validation.
   page: z
     .string()
     .optional()

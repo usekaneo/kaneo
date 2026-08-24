@@ -1,7 +1,5 @@
 import { responseTimestamp, z } from "../openapi";
 
-// The list route joins the author; the mutation routes return the raw activity
-// row, which carries no author object. See activity/response.ts.
 export const commentSchema = z
   .object({
     id: z.string(),

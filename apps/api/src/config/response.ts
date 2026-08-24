@@ -1,7 +1,5 @@
 import { z } from "../openapi";
 
-// getSettings() derives every flag from process.env with a boolean fallback, so
-// none of these are nullable despite the previous schema saying so.
 export const configSchema = z
   .object({
     disableRegistration: z.boolean(),

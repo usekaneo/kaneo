@@ -17,8 +17,6 @@ import {
   upsertWorkspaceRule,
 } from "./service";
 
-// Every route returns the full preference document, so a client never has to
-// re-fetch after a write.
 const preferencesResponse = (description: string) =>
   jsonResponse(description, notificationPreferenceSchema);
 

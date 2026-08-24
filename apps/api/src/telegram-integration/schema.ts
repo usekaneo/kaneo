@@ -11,8 +11,7 @@ export const createTelegramBody = z.object({
   events: integrationEventToggles.optional(),
 });
 
-// Mirrors telegramIntegrationPatchBodySchema in controllers/telegram-controller,
-// which still types buildNextTelegramConfigFromPatch.
+// Must match TelegramIntegrationPatchBody in controllers/telegram-controller.
 export const updateTelegramBody = z.object({
   botToken: z.string().optional(),
   chatId: z.string().optional(),

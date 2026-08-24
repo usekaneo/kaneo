@@ -11,8 +11,6 @@ export const createColumnBody = z.object({
   isFinal: z.boolean().optional(),
 });
 
-// Every field is optional: omitting one leaves it unchanged, and icon and color
-// accept null to clear them.
 export const updateColumnBody = z.object({
   name: z.string().optional(),
   icon: z.string().nullable().optional(),

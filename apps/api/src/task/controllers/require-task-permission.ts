@@ -25,9 +25,7 @@ const BULK_OPERATIONS: readonly BulkTaskOperation[] = [
   "updateDueDate",
 ];
 
-// These run as route middleware, which @hono/zod-openapi registers before the
-// request validators, so c.req.valid() is not populated yet. Read the raw body
-// instead. The validator still rejects a malformed body immediately after.
+// Route middleware runs before the validators, so c.req.valid() is unavailable.
 async function readJsonBody(c: Context): Promise<Record<string, unknown>> {
   const raw = (await c.req.json().catch(() => ({}))) as unknown;
   if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {

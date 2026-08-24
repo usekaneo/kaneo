@@ -1,7 +1,5 @@
 import { responseTimestamp, z } from "../openapi";
 
-// getWorkflowRules left-joins the column, so the column fields are null when
-// the referenced column has been removed.
 export const workflowRuleSchema = z
   .object({
     id: z.string(),
@@ -25,7 +23,6 @@ export const workflowRuleSchema = z
 
 export const workflowRuleListSchema = z.array(workflowRuleSchema);
 
-// Upsert and delete return the raw row, without the joined column fields.
 export const workflowRuleRowSchema = z
   .object({
     id: z.string(),

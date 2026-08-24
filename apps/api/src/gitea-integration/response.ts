@@ -1,7 +1,7 @@
 import { responseTimestamp, z } from "../openapi";
 
-// The access token is a credential, so only a masked form is returned. The
-// webhook secret is included only for callers holding workspace:manage_settings.
+// Credentials are only ever returned masked; the webhook secret goes only to
+// callers holding workspace:manage_settings.
 export const giteaIntegrationSchema = z
   .object({
     id: z.string(),
@@ -79,3 +79,7 @@ export const giteaImportResultSchema = z
 export const giteaDeleteResultSchema = z
   .object({ success: z.boolean(), message: z.string() })
   .openapi("GiteaDeleteResult");
+
+export const integrationNotFoundSchema = z
+  .object({ error: z.string() })
+  .openapi("GiteaIntegrationNotFound");
