@@ -9,6 +9,32 @@ import getTimeEntriesByTaskId from "./controllers/get-time-entries";
 import getTimeEntry from "./controllers/get-time-entry";
 import updateTimeEntry from "./controllers/update-time-entry";
 
+const ISO_TIMESTAMP =
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,9})?)?(Z|[+-]\d{2}:\d{2})$/;
+
+function isIsoTimestamp(value: string) {
+  if (!ISO_TIMESTAMP.test(value) || Number.isNaN(Date.parse(value))) {
+    return false;
+  }
+
+  const year = Number(value.slice(0, 4));
+  const month = Number(value.slice(5, 7));
+  const day = Number(value.slice(8, 10));
+  const probe = new Date(0);
+  probe.setUTCFullYear(year, month - 1, day);
+
+  return (
+    probe.getUTCFullYear() === year &&
+    probe.getUTCMonth() === month - 1 &&
+    probe.getUTCDate() === day
+  );
+}
+
+const timestamp = v.pipe(
+  v.string(),
+  v.check(isIsoTimestamp, "Expected an ISO 8601 timestamp"),
+);
+
 const timeEntry = new Hono<{
   Variables: {
     userId: string;
@@ -79,8 +105,8 @@ const timeEntry = new Hono<{
       "json",
       v.object({
         taskId: v.string(),
-        startTime: v.string(),
-        endTime: v.optional(v.string()),
+        startTime: timestamp,
+        endTime: v.optional(timestamp),
         description: v.optional(v.string()),
       }),
     ),
@@ -118,8 +144,8 @@ const timeEntry = new Hono<{
     validator(
       "json",
       v.object({
-        startTime: v.string(),
-        endTime: v.optional(v.string()),
+        startTime: timestamp,
+        endTime: v.optional(timestamp),
         description: v.optional(v.string()),
       }),
     ),

@@ -1353,6 +1353,7 @@
 				"boardView": "보드 보기로 전환",
 				"listView": "목록 보기로 전환",
 				"backlogView": "백로그 보기로 전환",
+				"calendarView": "캘린더 보기로 전환",
 				"nextTask": "다음 작업",
 				"prevTask": "이전 작업",
 				"openTask": "선택한 작업 열기",
@@ -1826,6 +1827,19 @@
 				"isAnyOf": "다음 중 하나",
 				"includeAnyOf": "다음 중 하나 포함"
 			}
+		},
+		"calendar": {
+			"pageTitle": "{{name}} – 캘린더",
+			"title": "캘린더",
+			"previousMonth": "이전 달",
+			"nextMonth": "다음 달",
+			"today": "오늘",
+			"noTasks": "예약된 작업 없음",
+			"noTasksSubtitle": "캘린더에 작업을 배치하려면 시작일, 마감일 또는 둘 다 추가하세요.",
+			"moreTasks": "+{{count}}개",
+			"loadError": "작업을 불러오지 못했습니다.",
+			"dayTasksAriaLabel": "{{date}}의 모든 작업 보기",
+			"taskAriaLabel": "{{title}}, {{range}}: 작업 열기"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – 간트",

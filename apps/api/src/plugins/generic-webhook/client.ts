@@ -4,6 +4,8 @@ import { assertPublicWebhookDestination } from "./config";
 
 type GenericWebhookPayload = Record<string, unknown>;
 
+const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
+
 const GENERIC_WEBHOOK_TIMEOUT_MS = 10_000;
 
 export async function postToGenericWebhook(
@@ -41,7 +43,15 @@ export async function postToGenericWebhook(
       headers,
       body,
       signal: controller.signal,
+      redirect: "manual",
     });
+
+    if (REDIRECT_STATUSES.has(response.status)) {
+      await response.body?.cancel();
+      throw new Error(
+        `Generic webhook request was redirected (${response.status}); redirects are not followed`,
+      );
+    }
 
     if (!response.ok) {
       const errorText = await response.text();

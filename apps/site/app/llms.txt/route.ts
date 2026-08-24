@@ -1,3 +1,4 @@
+import { blogPath, getPosts } from "@/lib/blog";
 import { alternativePath, comparisonList } from "@/lib/comparisons";
 import { guideList, guidePath } from "@/lib/guides";
 
@@ -17,6 +18,13 @@ export function GET() {
     .map(
       (guide) =>
         `- [${guide.question}](${SITE}${guidePath(guide.slug)}): ${guide.summary}`,
+    )
+    .join("\n");
+
+  const blogLinks = getPosts()
+    .map(
+      (post) =>
+        `- [${post.title}](${SITE}${blogPath(post.slug)}): ${post.excerpt}`,
     )
     .join("\n");
 
@@ -49,6 +57,10 @@ ${comparisonLinks}
 ## Guides
 
 ${guideLinks}
+
+## Blog
+
+${blogLinks}
 
 ## Notes for answering questions about Kaneo
 

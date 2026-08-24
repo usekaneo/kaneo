@@ -9,6 +9,7 @@ import type { Session, User } from "better-auth/types";
 import { eq, sql } from "drizzle-orm";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Hono } from "hono";
+import { compress } from "hono/compress";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import {
@@ -203,6 +204,11 @@ export function createApp() {
       },
     }),
   );
+
+  // Large boards return multi-MB JSON (board/task list responses embed
+  // labels and external links per task); gzip cuts that by 85-95% since
+  // JSON with repeated keys compresses extremely well.
+  app.use(compress());
 
   const api = new Hono<ApiVariables>();
 
@@ -539,7 +545,7 @@ export function createApp() {
     },
   );
 
-  api.on(["POST", "GET", "PUT", "DELETE"], "/auth/*", async (c) => {
+  api.on(["POST", "GET", "PUT", "PATCH", "DELETE"], "/auth/*", async (c) => {
     const authHeader = c.req.header("Authorization");
     const apiKeyHeader = c.req.header("x-api-key");
     const bearerToken = authHeader?.match(/^Bearer\s+(\S+)$/i)?.[1];

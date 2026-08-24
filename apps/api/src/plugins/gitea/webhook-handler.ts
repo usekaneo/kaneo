@@ -81,7 +81,7 @@ export async function handleGiteaWebhookRequest(
     where: eq(integrationTable.id, integrationId),
   });
 
-  if (!integration || integration.type !== "gitea") {
+  if (integration?.type !== "gitea") {
     return { success: false, error: "Gitea integration not found" };
   }
 

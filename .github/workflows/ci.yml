@@ -2,8 +2,13 @@ name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 permissions:
   contents: read
@@ -23,7 +28,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 20.20.2
+          node-version: 24.19.0
           cache: pnpm
 
       - name: Install dependencies
@@ -46,7 +51,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 20.20.2
+          node-version: 24.19.0
           cache: pnpm
 
       - name: Install dependencies
@@ -69,7 +74,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 20.20.2
+          node-version: 24.19.0
           cache: pnpm
 
       - name: Install dependencies
@@ -92,7 +97,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 20.20.2
+          node-version: 24.19.0
           cache: pnpm
 
       - name: Install dependencies
@@ -136,7 +141,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 20.20.2
+          node-version: 24.19.0
           cache: pnpm
 
       - name: Install dependencies
