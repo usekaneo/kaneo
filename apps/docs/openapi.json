@@ -971,6 +971,10 @@
                       },
                       "position": {
                         "type": "number"
+                      },
+                      "backgroundVersion": {
+                        "type": "string",
+                        "nullable": true
                       }
                     },
                     "required": [
@@ -983,7 +987,8 @@
                       "createdAt",
                       "isPublic",
                       "archivedAt",
-                      "position"
+                      "position",
+                      "backgroundVersion"
                     ]
                   }
                 }
@@ -1057,6 +1062,10 @@
                     },
                     "position": {
                       "type": "number"
+                    },
+                    "backgroundVersion": {
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -1069,7 +1078,8 @@
                     "createdAt",
                     "isPublic",
                     "archivedAt",
-                    "position"
+                    "position",
+                    "backgroundVersion"
                   ]
                 }
               }
@@ -1157,6 +1167,10 @@
                     },
                     "position": {
                       "type": "number"
+                    },
+                    "backgroundVersion": {
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -1169,7 +1183,8 @@
                     "createdAt",
                     "isPublic",
                     "archivedAt",
-                    "position"
+                    "position",
+                    "backgroundVersion"
                   ]
                 }
               }
@@ -1235,6 +1250,10 @@
                     },
                     "position": {
                       "type": "number"
+                    },
+                    "backgroundVersion": {
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -1247,7 +1266,8 @@
                     "createdAt",
                     "isPublic",
                     "archivedAt",
-                    "position"
+                    "position",
+                    "backgroundVersion"
                   ]
                 }
               }
@@ -1347,6 +1367,10 @@
                     },
                     "position": {
                       "type": "number"
+                    },
+                    "backgroundVersion": {
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -1359,7 +1383,8 @@
                     "createdAt",
                     "isPublic",
                     "archivedAt",
-                    "position"
+                    "position",
+                    "backgroundVersion"
                   ]
                 }
               }
@@ -1377,6 +1402,62 @@
           }
         ],
         "summary": "Delete Project"
+      }
+    },
+    "/project/{id}/background": {
+      "get": {
+        "operationId": "getProjectBackground",
+        "tags": [
+          "Projects"
+        ],
+        "description": "Get the current project board background image",
+        "responses": {
+          "200": {
+            "description": "The project background image",
+            "content": {
+              "image/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "summary": "Get Project Background"
+      },
+      "delete": {
+        "operationId": "deleteProjectBackground",
+        "tags": [
+          "Projects"
+        ],
+        "description": "Remove the current project board background image",
+        "responses": {
+          "204": {
+            "description": "Project background removed"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "summary": "Delete Project Background"
       }
     },
     "/project/reorder": {
@@ -1429,6 +1510,10 @@
                       },
                       "position": {
                         "type": "number"
+                      },
+                      "backgroundVersion": {
+                        "type": "string",
+                        "nullable": true
                       }
                     },
                     "required": [
@@ -1441,7 +1526,8 @@
                       "createdAt",
                       "isPublic",
                       "archivedAt",
-                      "position"
+                      "position",
+                      "backgroundVersion"
                     ]
                   }
                 }
@@ -1545,6 +1631,10 @@
                     },
                     "position": {
                       "type": "number"
+                    },
+                    "backgroundVersion": {
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -1557,7 +1647,8 @@
                     "createdAt",
                     "isPublic",
                     "archivedAt",
-                    "position"
+                    "position",
+                    "backgroundVersion"
                   ]
                 }
               }
@@ -1625,6 +1716,10 @@
                     },
                     "position": {
                       "type": "number"
+                    },
+                    "backgroundVersion": {
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -1637,7 +1732,8 @@
                     "createdAt",
                     "isPublic",
                     "archivedAt",
-                    "position"
+                    "position",
+                    "backgroundVersion"
                   ]
                 }
               }
@@ -1678,6 +1774,9 @@
                     "uploadUrl": {
                       "type": "string"
                     },
+                    "version": {
+                      "type": "string"
+                    },
                     "headers": {
                       "type": "object",
                       "additionalProperties": {
@@ -1688,6 +1787,7 @@
                   "required": [
                     "key",
                     "uploadUrl",
+                    "version",
                     "headers"
                   ]
                 }
@@ -1728,6 +1828,68 @@
           }
         },
         "summary": "Upload Project Background"
+      }
+    },
+    "/project/{id}/background-upload/finalize": {
+      "post": {
+        "operationId": "finalizeProjectBackgroundUpload",
+        "tags": [
+          "Projects"
+        ],
+        "description": "Finalize an uploaded project background",
+        "responses": {
+          "200": {
+            "description": "Image upload finalized successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string"
+                  },
+                  "contentType": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "string"
+                  },
+                  "size": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "key",
+                  "contentType",
+                  "version",
+                  "size"
+                ]
+              }
+            }
+          }
+        },
+        "summary": "Finalize Project Background Upload"
       }
     },
     "/task/tasks/{projectId}": {
@@ -7225,6 +7387,10 @@
                           },
                           "position": {
                             "type": "number"
+                          },
+                          "backgroundVersion": {
+                            "type": "string",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -7237,7 +7403,8 @@
                           "createdAt",
                           "isPublic",
                           "archivedAt",
-                          "position"
+                          "position",
+                          "backgroundVersion"
                         ]
                       }
                     },
