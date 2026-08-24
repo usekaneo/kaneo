@@ -1,6 +1,5 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import type Task from "@/types/task";
 import TaskCardContextMenuContent from "./task-card-context-menu-content";
 
@@ -8,6 +7,29 @@ afterEach(() => {
   cleanup();
   vi.clearAllMocks();
 });
+
+vi.mock("@/components/ui/context-menu", () => ({
+  ContextMenu: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  ContextMenuContent: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+  ContextMenuItem: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+  ContextMenuSeparator: () => <div />,
+  ContextMenuSub: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+  ContextMenuSubContent: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+  ContextMenuSubTrigger: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+  ContextMenuCheckboxItem: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+}));
 
 vi.mock("@/hooks/queries/column/use-get-columns", () => ({
   useGetColumns: () => ({
@@ -73,7 +95,7 @@ vi.mock("react-i18next", () => ({
   }),
 }));
 
-const task: Task = {
+const task = {
   id: "task-1",
   title: "Test task",
   number: 1,
@@ -88,48 +110,38 @@ const task: Task = {
   assigneeId: null,
   assigneeName: null,
   projectId: "project-1",
-};
+} as const satisfies Task;
 
 const taskCardContext = {
   projectId: "project-1",
   worskpaceId: "workspace-1",
 };
 
-function renderContextMenu(testTask: Task) {
+function renderTask(taskToRender: Task) {
   render(
-    <ContextMenu>
-      <ContextMenuTrigger asChild>
-        <div data-testid="trigger">Open menu</div>
-      </ContextMenuTrigger>
-
-      <TaskCardContextMenuContent
-        task={testTask}
-        taskCardContext={taskCardContext}
-        onDeleteClick={vi.fn()}
-      />
-    </ContextMenu>,
+    <TaskCardContextMenuContent
+      task={taskToRender}
+      taskCardContext={taskCardContext}
+      onDeleteClick={vi.fn()}
+    />,
   );
-
-  fireEvent.contextMenu(screen.getByTestId("trigger"));
 }
 
 describe("TaskCardContextMenuContent", () => {
-  it("hides Mark as planned for planned tasks", async () => {
-    renderContextMenu({
+  it("hides Mark as planned for planned tasks", () => {
+    renderTask({
       ...task,
       status: "planned",
     });
 
     expect(
-      await screen.queryByText("tasks:actions.markAsPlanned"),
+      screen.queryByText("tasks:actions.markAsPlanned"),
     ).not.toBeInTheDocument();
   });
 
-  it("shows Mark as planned for tasks that are not planned", async () => {
-    renderContextMenu(task);
+  it("shows Mark as planned for tasks that are not planned", () => {
+    renderTask(task);
 
-    expect(
-      await screen.findByText("tasks:actions.markAsPlanned"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("tasks:actions.markAsPlanned")).toBeInTheDocument();
   });
 });
