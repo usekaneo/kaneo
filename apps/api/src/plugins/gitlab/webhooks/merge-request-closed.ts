@@ -47,7 +47,16 @@ export async function handleGitlabMergeRequestClosed(
   const merged = mr.state === "merged";
 
   for (const integration of integrations) {
-    const config = JSON.parse(integration.config) as GitlabConfig;
+    let config: GitlabConfig;
+    try {
+      config = JSON.parse(integration.config) as GitlabConfig;
+    } catch (error) {
+      console.error("Invalid GitLab config for integration", {
+        integrationId: integration.id,
+        error,
+      });
+      continue;
+    }
 
     const externalLink = await db.query.externalLinkTable.findFirst({
       where: and(
@@ -67,9 +76,21 @@ export async function handleGitlabMergeRequestClosed(
       continue;
     }
 
-    const existingMetadata = externalLink.metadata
-      ? JSON.parse(externalLink.metadata)
-      : {};
+    let existingMetadata: Record<string, unknown>;
+    if (externalLink.metadata) {
+      try {
+        existingMetadata = JSON.parse(externalLink.metadata);
+      } catch (error) {
+        console.warn("Failed to parse external link metadata", {
+          externalLinkId: externalLink.id,
+          metadata: externalLink.metadata,
+          error,
+        });
+        existingMetadata = {};
+      }
+    } else {
+      existingMetadata = {};
+    }
 
     await updateExternalLink(externalLink.id, {
       metadata: {
@@ -89,7 +110,21 @@ export async function handleGitlabMergeRequestClosed(
 
       const hasOpenMRs = allTaskMRs.some((mrLink) => {
         if (mrLink.id === externalLink.id) return false;
-        const metadata = mrLink.metadata ? JSON.parse(mrLink.metadata) : {};
+        let metadata: Record<string, unknown>;
+        if (mrLink.metadata) {
+          try {
+            metadata = JSON.parse(mrLink.metadata);
+          } catch (error) {
+            console.warn("Failed to parse MR link metadata", {
+              mrLinkId: mrLink.id,
+              metadata: mrLink.metadata,
+              error,
+            });
+            metadata = {};
+          }
+        } else {
+          metadata = {};
+        }
         return metadata.state === "opened";
       });
 

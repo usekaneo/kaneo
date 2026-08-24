@@ -97,7 +97,13 @@ beforeEach(() => {
   mocks.updateTaskStatus.mockResolvedValue({
     applied: true,
     before: { status: "in-review" },
-    after: { id: "task-1", status: "done", projectId: "project-1", title: "t", userId: null },
+    after: {
+      id: "task-1",
+      status: "done",
+      projectId: "project-1",
+      title: "t",
+      userId: null,
+    },
   });
 });
 
@@ -120,6 +126,32 @@ describe("handleGitlabMergeRequestClosed", () => {
       "link-1",
       expect.objectContaining({
         metadata: expect.objectContaining({ state: "closed", merged: false }),
+      }),
+    );
+  });
+
+  it("does not transition the task when other MRs are still open after this one merges", async () => {
+    // Mock that there's another open MR on the same task
+    mocks.externalLinkFindMany.mockResolvedValue([
+      {
+        id: "link-1",
+        taskId: "task-1",
+        metadata: JSON.stringify({ state: "merged", merged: true }),
+      },
+      {
+        id: "link-2",
+        taskId: "task-1",
+        metadata: JSON.stringify({ state: "opened", merged: false }),
+      },
+    ]);
+
+    await handleGitlabMergeRequestClosed(mrClosedPayload("merged"));
+
+    expect(mocks.updateTaskStatus).not.toHaveBeenCalled();
+    expect(mocks.updateExternalLink).toHaveBeenCalledWith(
+      "link-1",
+      expect.objectContaining({
+        metadata: expect.objectContaining({ state: "merged", merged: true }),
       }),
     );
   });
