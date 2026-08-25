@@ -12,8 +12,8 @@ export function useReorderCustomFields() {
       projectId: string;
       fields: Array<{ id: string; position: number }>;
     }) => reorderCustomFields(projectId, fields),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ refetchType: "all" });
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ refetchType: "all" });
     },
   });
 }

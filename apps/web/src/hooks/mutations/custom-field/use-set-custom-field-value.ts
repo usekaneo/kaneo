@@ -14,7 +14,7 @@ function useSetCustomFieldValue() {
       setCustomFieldValue({ taskId, fieldId, value }),
     onSuccess: (_data, variables: SetCustomFieldValueArgs) => {
       void queryClient.invalidateQueries({
-        queryKey: ["custom-field-values", variables.taskId],
+        queryKey: ["custom-field-values"],
       });
       if (variables.projectId) {
         void queryClient.invalidateQueries({

@@ -16,9 +16,7 @@ function useCreateCustomField() {
         },
       );
 
-      void queryClient.invalidateQueries({
-        queryKey: ["custom-fields", variables.projectId],
-      });
+      void queryClient.invalidateQueries({ refetchType: "all" });
     },
   });
 }

@@ -15,9 +15,7 @@ function useDeleteCustomField(projectId: string) {
         },
       );
 
-      void queryClient.invalidateQueries({
-        queryKey: ["custom-fields", projectId],
-      });
+      void queryClient.invalidateQueries({ refetchType: "all" });
     },
   });
 }
