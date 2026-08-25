@@ -3,15 +3,38 @@ import db from "../../../database";
 import { userTable } from "../../../database/schema";
 import type { createGitlabClient } from "./gitlab-api";
 
-export async function findKaneoUserByEmail(email: string) {
-  if (!email?.trim()) {
+export async function findKaneoUserByEmail(
+  emailOrUsername: string,
+  name?: string,
+) {
+  if (!emailOrUsername?.trim()) {
     return null;
   }
-  const normalized = email.trim().toLowerCase();
-  const user = await db.query.userTable.findFirst({
+  const normalized = emailOrUsername.trim().toLowerCase();
+
+  // 1. Exact email match
+  const byEmail = await db.query.userTable.findFirst({
     where: sql`LOWER(${userTable.email}) = ${normalized}`,
   });
-  return user ?? null;
+  if (byEmail) return byEmail;
+
+  // 2. Email prefix match (e.g. username matches 'iotech.agent' in 'iotech.agent@gmail.com')
+  const prefix = normalized.split("@")[0];
+  const byPrefix = await db.query.userTable.findFirst({
+    where: sql`LOWER(SPLIT_PART(${userTable.email}, '@', 1)) = ${prefix}`,
+  });
+  if (byPrefix) return byPrefix;
+
+  // 3. Name match if provided
+  if (name?.trim()) {
+    const normalizedName = name.trim().toLowerCase();
+    const byName = await db.query.userTable.findFirst({
+      where: sql`LOWER(${userTable.name}) = ${normalizedName}`,
+    });
+    if (byName) return byName;
+  }
+
+  return null;
 }
 
 export async function resolveGitlabAssigneeEmail(
@@ -57,6 +80,8 @@ export async function resolveGitlabAssigneeEmail(
         },
       );
     }
+    // Fallback to username if private email cannot be fetched
+    return assignee.username.trim();
   }
 
   return null;

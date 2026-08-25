@@ -104,6 +104,7 @@ export async function handleTaskAssigneeChanged(
     const gitlabUser = await client.findUserByEmail(
       assignedUser.email,
       config.repositoryPath,
+      assignedUser.name,
     );
 
     if (!gitlabUser) {

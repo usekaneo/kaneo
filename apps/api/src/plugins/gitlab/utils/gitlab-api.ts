@@ -512,6 +512,7 @@ export function createGitlabClient(
     async findUserByEmail(
       email: string,
       repositoryPath?: string,
+      name?: string,
     ): Promise<{
       id: number;
       username: string;
@@ -519,6 +520,10 @@ export function createGitlabClient(
       public_email?: string;
     } | null> {
       const normalizedEmail = email.trim().toLowerCase();
+      const emailPrefix = normalizedEmail.includes("@")
+        ? normalizedEmail.split("@")[0]
+        : normalizedEmail;
+
       try {
         const users = await gitlabFetch<
           Array<{
@@ -538,13 +543,64 @@ export function createGitlabClient(
               u.email?.toLowerCase() === normalizedEmail ||
               u.public_email?.toLowerCase() === normalizedEmail,
           );
-          return exact ?? users[0] ?? null;
+          if (exact) return exact;
         }
       } catch {}
 
       if (repositoryPath) {
         try {
-          const projectUsers = await gitlabFetch<
+          const members = await gitlabFetch<
+            Array<{
+              id: number;
+              username: string;
+              name?: string;
+              email?: string;
+              public_email?: string;
+            }>
+          >(
+            baseUrl,
+            accessToken,
+            `${project(repositoryPath)}/members/all?per_page=100`,
+          );
+
+          if (members && members.length > 0) {
+            // 1. Exact email match (if exposed)
+            const byEmail = members.find(
+              (m) =>
+                m.email?.toLowerCase() === normalizedEmail ||
+                m.public_email?.toLowerCase() === normalizedEmail,
+            );
+            if (byEmail) return byEmail;
+
+            // 2. Exact username match with full email or email prefix
+            const byUsername = members.find(
+              (m) =>
+                m.username.toLowerCase() === normalizedEmail ||
+                m.username.toLowerCase() === emailPrefix,
+            );
+            if (byUsername) return byUsername;
+
+            // 3. Username match ignoring dots/hyphens/underscores (e.g. iotech.agent -> iotech_agent)
+            const cleanPrefix = emailPrefix.replace(/[-_.]/g, "");
+            const byCleanUsername = members.find(
+              (m) =>
+                m.username.toLowerCase().replace(/[-_.]/g, "") === cleanPrefix,
+            );
+            if (byCleanUsername) return byCleanUsername;
+
+            // 4. Exact name match if provided
+            if (name?.trim()) {
+              const normalizedName = name.trim().toLowerCase();
+              const byName = members.find(
+                (m) => m.name?.toLowerCase() === normalizedName,
+              );
+              if (byName) return byName;
+            }
+          }
+        } catch {}
+
+        try {
+          const queryMembers = await gitlabFetch<
             Array<{
               id: number;
               username: string;
@@ -554,18 +610,31 @@ export function createGitlabClient(
           >(
             baseUrl,
             accessToken,
-            `${project(repositoryPath)}/users?search=${encodeURIComponent(normalizedEmail)}`,
+            `${project(repositoryPath)}/members/all?query=${encodeURIComponent(emailPrefix)}`,
           );
-          if (projectUsers && projectUsers.length > 0) {
-            const exact = projectUsers.find(
-              (u) =>
-                u.email?.toLowerCase() === normalizedEmail ||
-                u.public_email?.toLowerCase() === normalizedEmail,
-            );
-            return exact ?? projectUsers[0] ?? null;
+          if (queryMembers && queryMembers.length > 0) {
+            return queryMembers[0] ?? null;
           }
         } catch {}
       }
+
+      try {
+        const byUsernameDirect = await gitlabFetch<
+          Array<{
+            id: number;
+            username: string;
+            email?: string;
+            public_email?: string;
+          }>
+        >(
+          baseUrl,
+          accessToken,
+          `/users?username=${encodeURIComponent(emailPrefix)}`,
+        );
+        if (byUsernameDirect && byUsernameDirect.length > 0) {
+          return byUsernameDirect[0] ?? null;
+        }
+      } catch {}
 
       return null;
     },

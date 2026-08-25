@@ -93,6 +93,7 @@ describe("handleTaskAssigneeChanged", () => {
     expect(mocks.findUserByEmail).toHaveBeenCalledWith(
       "john@example.com",
       "group/project",
+      "John Doe",
     );
     expect(mocks.updateIssue).toHaveBeenCalledWith("group/project", 5, {
       assignee_ids: [123],
