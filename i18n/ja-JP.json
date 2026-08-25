@@ -53,33 +53,10 @@
 		},
 		"error": {
 			"title": "問題が発生しました",
-			"description": "ページが予期せずクラッシュしました。再読み込みすると解決することがあります。",
 			"troubleshooting": "トラブルシューティングの手順:",
 			"tryAgain": "もう一度試す",
 			"viewDeploymentGuide": "デプロイガイドを表示",
-			"refreshPage": "ページを更新",
-			"messages": {
-				"cors": "サーバーに接続できません。CORS設定に問題がある可能性があります。",
-				"network": "ネットワークエラーが発生しました。インターネット接続を確認して再試行してください。",
-				"auth": "認証に失敗しました。再度サインインしてください。",
-				"server": "サーバーエラーが発生しました。しばらくしてからもう一度お試しください。",
-				"unknown": "予期しないエラーが発生しました。"
-			},
-			"troubleshootingSteps": {
-				"cors": {
-					"checkApiRunning": "APIサーバーが起動していることを確認してください",
-					"checkApiUrl": "フロントエンドの.envにあるVITE_API_URLがAPIサーバーのURLと一致しているか確認してください",
-					"verifyCorsOrigins": "APIの.envにあるCORS_ORIGINSにフロントエンドのURLが含まれていることを確認してください",
-					"checkProtocol": "フロントエンドとAPIが同じプロトコル(http/https)を使用していることを確認してください",
-					"checkAccessibility": "ブラウザからAPIサーバーにアクセスできるか確認してください"
-				},
-				"network": {
-					"checkConnection": "インターネット接続を確認してください",
-					"verifyApiRunning": "APIサーバーが稼働しておりアクセス可能か確認してください",
-					"tryRefresh": "ページを再読み込みしてみてください",
-					"checkFirewall": "ファイアウォールやプロキシの問題がないか確認してください"
-				}
-			}
+			"refreshPage": "ページを更新"
 		},
 		"formats": {
 			"never": "無期限"
@@ -648,6 +625,7 @@
 			"emptyTitle": "ロールがまだありません",
 			"emptyDescription": "このワークスペースに初期ロールが設定されると、ここに表示されます。",
 			"defaultBadge": "デフォルト",
+			"permissionCount_one": "{{count}} 個の権限",
 			"permissionCount_other": "{{count}} 個の権限",
 			"nameLabel": "名前",
 			"nameHint": "半角小文字のみ。後から変更することはできません。",
@@ -1375,7 +1353,6 @@
 				"boardView": "ボードビューに切り替え",
 				"listView": "リストビューに切り替え",
 				"backlogView": "バックログビューに切り替え",
-				"calendarView": "カレンダービューに切り替え",
 				"nextTask": "次のタスク",
 				"prevTask": "前のタスク",
 				"openTask": "選択したタスクを開く",
@@ -1385,6 +1362,7 @@
 	},
 	"notifications": {
 		"title": "通知",
+		"newCount_one": "{{count}} 件の新着",
 		"newCount_other": "{{count}} 件の新着",
 		"emptyTitle": "通知はまだありません",
 		"emptySubtitle": "更新やアクティビティがここに表示されます。",
@@ -1395,8 +1373,11 @@
 			"open": "通知を開く"
 		},
 		"reminderLeadTime": {
+			"minutes_one": "{{count}} 分",
 			"minutes_other": "{{count}} 分",
+			"hours_one": "{{count}} 時間",
 			"hours_other": "{{count}} 時間",
+			"days_one": "{{count}} 日",
 			"days_other": "{{count}} 日"
 		},
 		"events": {
@@ -1846,19 +1827,6 @@
 				"includeAnyOf": "次のいずれかを含む"
 			}
 		},
-		"calendar": {
-			"pageTitle": "{{name}} – カレンダー",
-			"title": "カレンダー",
-			"previousMonth": "前月",
-			"nextMonth": "翌月",
-			"today": "今日",
-			"noTasks": "予定されたタスクはありません",
-			"noTasksSubtitle": "タスクに開始日、期限、またはその両方を追加すると、カレンダーに表示されます。",
-			"moreTasks": "+{{count}} 件",
-			"loadError": "タスクの読み込みに失敗しました。",
-			"dayTasksAriaLabel": "{{date}}のすべてのタスクを表示",
-			"taskAriaLabel": "{{title}}、{{range}}: タスクを開く"
-		},
 		"gantt": {
 			"pageTitle": "{{name}} – ガントチャート",
 			"title": "ガントタイムライン",
@@ -1898,6 +1866,7 @@
 			"draft": "下書き",
 			"open": "オープン",
 			"label": "Pull Request",
+			"count_one": "{{count}} 件の PR",
 			"count_other": "{{count}} 件の PR"
 		},
 		"assignee": {
@@ -2030,6 +1999,7 @@
 			"placeholder": "タイトルまたはID (例: DEP-23) でタスクを検索...",
 			"hint": "このワークスペース内のすべてのプロジェクトを検索します。特定のタスクを見つけるには DEP-23 のようなタスクIDを使用してください。",
 			"searching": "検索中...",
+			"resultsFound_one": "{{count}} 件の結果が見つかりました",
 			"resultsFound_other": "{{count}} 件の結果が見つかりました",
 			"noResultsTitle": "結果が見つかりません",
 			"noResultsDescription": "検索語句を変更するか、別のキーワードで検索してください",
