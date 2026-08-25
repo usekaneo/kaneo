@@ -6,6 +6,7 @@ import frFR from "./fr-FR.json";
 import hiIN from "./hi-IN.json";
 import idID from "./id-ID.json";
 import itIT from "./it-IT.json";
+import jaJP from "./ja-JP.json";
 import koKR from "./ko-KR.json";
 import mkMK from "./mk-MK.json";
 import nlNL from "./nl-NL.json";
@@ -27,6 +28,7 @@ export const supportedLocales = [
   "hi-IN",
   "id-ID",
   "it-IT",
+  "ja-JP",
   "ko-KR",
   "pt-BR",
   "ru-RU",
@@ -58,4 +60,5 @@ export const resources = {
   "uk-UA": ukUA,
   "vi-VN": viVN,
   "zh-CN": zhCN,
+  "ja-JP": jaJP,
 } as const;
