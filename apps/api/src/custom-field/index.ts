@@ -1,6 +1,9 @@
-import { Hono } from "hono";
-import { describeRoute, resolver, validator } from "hono-openapi";
-import * as v from "valibot";
+import {
+  apiRouter,
+  createRoute,
+  errorResponse,
+  jsonResponse,
+} from "../openapi";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createCustomField from "./controllers/create-custom-field";
@@ -11,297 +14,264 @@ import getCustomFieldValuesByTask from "./controllers/get-custom-field-values-by
 import getCustomFieldsByProject from "./controllers/get-custom-fields-by-project";
 import reorderCustomFields from "./controllers/reorder-custom-field";
 import setCustomFieldValue from "./controllers/set-custom-field-value";
+import {
+  customFieldDefinitionListSchema,
+  customFieldDefinitionSchema,
+  customFieldFilterValuesListSchema,
+  customFieldValueListSchema,
+  reorderCustomFieldsResponseSchema,
+  setCustomFieldValueResponseSchema,
+} from "./response";
+import {
+  createCustomFieldBody,
+  customFieldIdParam,
+  projectIdParam,
+  reorderCustomFieldsBody,
+  setCustomFieldValueBody,
+  taskIdParam,
+} from "./schema";
 
-const customFieldDefinitionSchema = v.object({
-  id: v.string(),
-  projectId: v.string(),
-  name: v.string(),
-  type: v.string(),
-  required: v.boolean(),
-  defaultValue: v.nullable(v.string()),
-  options: v.nullable(v.any()),
-  position: v.number(),
-  createdAt: v.date(),
-  updatedAt: v.date(),
-});
-
-const customFieldValueSchema = v.object({
-  id: v.string(),
-  taskId: v.string(),
-  fieldId: v.string(),
-  value: v.nullable(v.string()),
-  fieldName: v.string(),
-  fieldType: v.string(),
-  fieldOptions: v.nullable(v.any()),
-});
-
-const customField = new Hono<{
-  Variables: {
-    userId: string;
-    workspaceId: string;
-  };
-}>()
-  .get(
-    "/project/:projectId",
-    describeRoute({
-      operationId: "getCustomFieldsByProject",
-      tags: ["Custom Fields"],
-      description: "Get all custom field definitions for a project",
-      responses: {
-        200: {
-          description: "List of custom field definitions",
-          content: {
-            "application/json": {
-              schema: resolver(v.array(customFieldDefinitionSchema)),
-            },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ projectId: v.string() })),
-    workspaceAccess.fromProject("projectId"),
-    async (c) => {
-      const { projectId } = c.req.valid("param");
-      const fields = await getCustomFieldsByProject(projectId);
-      return c.json(fields);
-    },
-  )
-  .get(
-    "/project/:projectId/values",
-    describeRoute({
-      operationId: "getCustomFieldValuesByProject",
-      tags: ["Custom Fields"],
-      description: "Get all custom field values for a project",
-      responses: {
-        200: {
-          description:
-            "List of custom field values for all tasks in the project",
-          content: {
-            "application/json": {
-              schema: resolver(v.array(customFieldValueSchema)),
-            },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ projectId: v.string() })),
-    workspaceAccess.fromProject("projectId"),
-    async (c) => {
-      const { projectId } = c.req.valid("param");
-
-      const values = await getCustomFieldValuesByProject(projectId);
-
-      return c.json(values);
-    },
-  )
-  .get(
-    "/task/:taskId",
-    describeRoute({
-      operationId: "getCustomFieldValuesByTask",
-      tags: ["Custom Fields"],
-      description: "Get all custom field values for a task",
-      responses: {
-        200: {
-          description: "List of custom field values with their definitions",
-          content: {
-            "application/json": {
-              schema: resolver(v.array(customFieldValueSchema)),
-            },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ taskId: v.string() })),
-    workspaceAccess.fromTaskId("taskId"),
-    async (c) => {
-      const { taskId } = c.req.valid("param");
-      const values = await getCustomFieldValuesByTask(taskId);
-      return c.json(values);
-    },
-  )
-  .get(
-    "/project/:projectId/filter-values",
-    describeRoute({
-      operationId: "getCustomFieldFilterValues",
-      tags: ["Custom Fields"],
-      description:
-        "Get distinct values actually used by tasks for each custom field of a project (for filters)",
-      responses: {
-        200: {
-          description: "List of custom fields with their distinct used values",
-          content: {
-            "application/json": {
-              schema: resolver(
-                v.array(
-                  v.object({
-                    fieldId: v.string(),
-                    fieldName: v.string(),
-                    fieldType: v.string(),
-                    values: v.array(v.string()),
-                  }),
-                ),
-              ),
-            },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ projectId: v.string() })),
-    workspaceAccess.fromProject("projectId"),
-    async (c) => {
-      const { projectId } = c.req.valid("param");
-      const filterValues = await getCustomFieldFilterValues(projectId);
-      return c.json(filterValues);
-    },
-  )
-  .post(
-    "/",
-    describeRoute({
-      operationId: "createCustomField",
-      tags: ["Custom Fields"],
-      description: "Create a new custom field definition for a project",
-      responses: {
-        200: {
-          description: "Custom field created successfully",
-          content: {
-            "application/json": {
-              schema: resolver(customFieldDefinitionSchema),
-            },
-          },
-        },
-      },
-    }),
-    validator(
-      "json",
-      v.object({
-        projectId: v.string(),
-        name: v.string(),
-        type: v.picklist(["text", "number", "date", "dropdown", "boolean"]),
-        required: v.optional(v.boolean(), false),
-        defaultValue: v.optional(v.string()),
-        options: v.optional(v.array(v.string())),
-      }),
+const getCustomFieldsRoute = createRoute({
+  method: "get",
+  operationId: "getCustomFieldsByProject",
+  path: "/project/{projectId}",
+  tags: ["Custom Fields"],
+  summary: "Get custom fields",
+  description: "Get all custom field definitions for a project.",
+  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  request: { params: projectIdParam },
+  responses: {
+    200: jsonResponse(
+      "List of custom field definitions",
+      customFieldDefinitionListSchema,
     ),
+    400: errorResponse(
+      "Unknown project, or its workspace could not be determined",
+    ),
+    403: errorResponse("No access to the project's workspace"),
+  },
+});
+
+const getCustomFieldValuesByProjectRoute = createRoute({
+  method: "get",
+  operationId: "getCustomFieldValuesByProject",
+  path: "/project/{projectId}/values",
+  tags: ["Custom Fields"],
+  summary: "Get project custom field values",
+  description: "Get all custom field values for every task in a project.",
+  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  request: { params: projectIdParam },
+  responses: {
+    200: jsonResponse(
+      "List of custom field values for the project",
+      customFieldValueListSchema,
+    ),
+    400: errorResponse(
+      "Unknown project, or its workspace could not be determined",
+    ),
+    403: errorResponse("No access to the project's workspace"),
+  },
+});
+
+const getCustomFieldValuesByTaskRoute = createRoute({
+  method: "get",
+  operationId: "getCustomFieldValuesByTask",
+  path: "/task/{taskId}",
+  tags: ["Custom Fields"],
+  summary: "Get task custom field values",
+  description: "Get all custom field values for a task with their definitions.",
+  middleware: [workspaceAccess.fromTaskId("taskId")] as const,
+  request: { params: taskIdParam },
+  responses: {
+    200: jsonResponse(
+      "List of custom field values for the task",
+      customFieldValueListSchema,
+    ),
+    400: errorResponse(
+      "Unknown task, or its workspace could not be determined",
+    ),
+    403: errorResponse("No access to the task's workspace"),
+  },
+});
+
+const getCustomFieldFilterValuesRoute = createRoute({
+  method: "get",
+  operationId: "getCustomFieldFilterValues",
+  path: "/project/{projectId}/filter-values",
+  tags: ["Custom Fields"],
+  summary: "Get custom field filter values",
+  description:
+    "Get distinct values used by tasks for each custom field of a project.",
+  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  request: { params: projectIdParam },
+  responses: {
+    200: jsonResponse(
+      "Distinct values used for each custom field",
+      customFieldFilterValuesListSchema,
+    ),
+    400: errorResponse(
+      "Unknown project, or its workspace could not be determined",
+    ),
+    403: errorResponse("No access to the project's workspace"),
+  },
+});
+
+const createCustomFieldRoute = createRoute({
+  method: "post",
+  operationId: "createCustomField",
+  path: "/",
+  tags: ["Custom Fields"],
+  summary: "Create custom field",
+  description: "Create a custom field definition for a project.",
+  middleware: [
     workspaceAccess.fromProject("projectId"),
     requireWorkspacePermission({ project: ["update"] }),
-    async (c) => {
-      const { projectId, name, type, required, defaultValue, options } =
-        c.req.valid("json");
+  ] as const,
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: createCustomFieldBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("The created custom field", customFieldDefinitionSchema),
+    400: errorResponse("Invalid body, or unknown project"),
+    403: errorResponse(
+      "No workspace access, or missing project:update permission",
+    ),
+  },
+});
 
-      const field = await createCustomField(
+const reorderCustomFieldsRoute = createRoute({
+  method: "put",
+  operationId: "reorderCustomFields",
+  path: "/reorder/{projectId}",
+  tags: ["Custom Fields"],
+  summary: "Reorder custom fields",
+  description: "Set new positions for a project's custom fields.",
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ project: ["update"] }),
+  ] as const,
+  request: {
+    params: projectIdParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: reorderCustomFieldsBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse(
+      "The reordered custom fields",
+      reorderCustomFieldsResponseSchema,
+    ),
+    400: errorResponse("A custom field does not belong to this project"),
+    403: errorResponse(
+      "No workspace access, or missing project:update permission",
+    ),
+  },
+});
+
+const setCustomFieldValueRoute = createRoute({
+  method: "put",
+  operationId: "setCustomFieldValue",
+  path: "/value",
+  tags: ["Custom Fields"],
+  summary: "Set custom field value",
+  description: "Create or update a custom field value for a task.",
+  middleware: [
+    workspaceAccess.fromTaskId("taskId"),
+    requireWorkspacePermission({ task: ["update"] }),
+  ] as const,
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: setCustomFieldValueBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse(
+      "The saved custom field value",
+      setCustomFieldValueResponseSchema,
+    ),
+    400: errorResponse("Invalid body, unknown task, or unknown custom field"),
+    403: errorResponse(
+      "No workspace access, or missing task:update permission",
+    ),
+  },
+});
+
+const deleteCustomFieldRoute = createRoute({
+  method: "delete",
+  operationId: "deleteCustomField",
+  path: "/{id}",
+  tags: ["Custom Fields"],
+  summary: "Delete custom field",
+  description: "Delete a custom field definition by ID.",
+  middleware: [
+    workspaceAccess.fromCustomField("id"),
+    requireWorkspacePermission({ project: ["update"] }),
+  ] as const,
+  request: { params: customFieldIdParam },
+  responses: {
+    200: jsonResponse("The deleted custom field", customFieldDefinitionSchema),
+    400: errorResponse(
+      "Unknown custom field, or its workspace could not be determined",
+    ),
+    403: errorResponse(
+      "No workspace access, or missing project:update permission",
+    ),
+  },
+});
+
+const customField = apiRouter()
+  .openapi(getCustomFieldsRoute, async (c) =>
+    c.json(await getCustomFieldsByProject(c.req.valid("param").projectId), 200),
+  )
+  .openapi(getCustomFieldValuesByProjectRoute, async (c) =>
+    c.json(
+      await getCustomFieldValuesByProject(c.req.valid("param").projectId),
+      200,
+    ),
+  )
+  .openapi(getCustomFieldValuesByTaskRoute, async (c) =>
+    c.json(await getCustomFieldValuesByTask(c.req.valid("param").taskId), 200),
+  )
+  .openapi(getCustomFieldFilterValuesRoute, async (c) =>
+    c.json(
+      await getCustomFieldFilterValues(c.req.valid("param").projectId),
+      200,
+    ),
+  )
+  .openapi(createCustomFieldRoute, async (c) => {
+    const { projectId, name, type, required, defaultValue, options } =
+      c.req.valid("json");
+
+    return c.json(
+      await createCustomField(
         projectId,
         name,
         type,
         required,
         defaultValue,
         options,
-      );
-      return c.json(field);
-    },
-  )
-  .put(
-    "/reorder/:projectId",
-    describeRoute({
-      operationId: "reorderCustomFields",
-      tags: ["Custom Fields"],
-      description: "Reorder custom fields in a project",
-      responses: {
-        200: {
-          description: "Custom fields reordered successfully",
-          content: {
-            "application/json": { schema: resolver(v.any()) },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ projectId: v.string() })),
-    validator(
-      "json",
-      v.object({
-        fields: v.array(
-          v.object({
-            id: v.string(),
-            position: v.number(),
-          }),
-        ),
-      }),
-    ),
-    workspaceAccess.fromProject("projectId"),
-    requireWorkspacePermission({ project: ["update"] }),
-    async (c) => {
-      const { projectId } = c.req.valid("param");
-      const { fields } = c.req.valid("json");
-      const result = await reorderCustomFields(projectId, fields);
-      return c.json(result);
-    },
-  )
-  .put(
-    "/value",
-    describeRoute({
-      operationId: "setCustomFieldValue",
-      tags: ["Custom Fields"],
-      description: "Set (create or update) a custom field value for a task",
-      responses: {
-        200: {
-          description: "Custom field value set successfully",
-          content: {
-            "application/json": {
-              schema: resolver(
-                v.object({
-                  id: v.string(),
-                  taskId: v.string(),
-                  fieldId: v.string(),
-                  value: v.nullable(v.string()),
-                }),
-              ),
-            },
-          },
-        },
-      },
-    }),
-    validator(
-      "json",
-      v.object({
-        taskId: v.string(),
-        fieldId: v.string(),
-        value: v.string(),
-      }),
-    ),
-    workspaceAccess.fromTaskId("taskId"),
-    requireWorkspacePermission({ task: ["update"] }),
-    async (c) => {
-      const { taskId, fieldId, value } = c.req.valid("json");
+      ),
+      200,
+    );
+  })
+  .openapi(reorderCustomFieldsRoute, async (c) => {
+    const { projectId } = c.req.valid("param");
+    const { fields } = c.req.valid("json");
 
-      const result = await setCustomFieldValue(taskId, fieldId, value);
+    return c.json(await reorderCustomFields(projectId, fields), 200);
+  })
+  .openapi(setCustomFieldValueRoute, async (c) => {
+    const { taskId, fieldId, value } = c.req.valid("json");
 
-      return c.json(result);
-    },
-  )
-  .delete(
-    "/:id",
-    describeRoute({
-      operationId: "deleteCustomField",
-      tags: ["Custom Fields"],
-      description: "Delete a custom field definition by ID",
-      responses: {
-        200: {
-          description: "Custom field deleted successfully",
-          content: {
-            "application/json": {
-              schema: resolver(customFieldDefinitionSchema),
-            },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ id: v.string() })),
-    workspaceAccess.fromCustomField(),
-    requireWorkspacePermission({ project: ["update"] }),
-    async (c) => {
-      const { id } = c.req.valid("param");
-      const field = await deleteCustomField(id);
-      return c.json(field);
-    },
+    return c.json(await setCustomFieldValue(taskId, fieldId, value), 200);
+  })
+  .openapi(deleteCustomFieldRoute, async (c) =>
+    c.json(await deleteCustomField(c.req.valid("param").id), 200),
   );
 
 export default customField;
