@@ -56,7 +56,30 @@
 			"troubleshooting": "Pasos para solucionar problemas:",
 			"tryAgain": "Intentar de nuevo",
 			"viewDeploymentGuide": "Ver el manual del despliegue",
-			"refreshPage": "Actualizar página"
+			"refreshPage": "Actualizar página",
+			"description": "The page crashed unexpectedly. Refreshing usually fixes it.",
+			"messages": {
+				"auth": "Authentication failed. Please sign in again.",
+				"cors": "Unable to connect to the server. This might be due to CORS configuration issues.",
+				"network": "Network error. Please check your internet connection and try again.",
+				"server": "Server error. Please try again later.",
+				"unknown": "An unexpected error occurred."
+			},
+			"troubleshootingSteps": {
+				"cors": {
+					"checkAccessibility": "Check that your API server is accessible from your browser",
+					"checkApiRunning": "Make sure your API server is running",
+					"checkApiUrl": "Check that VITE_API_URL in your frontend .env matches your API server URL",
+					"checkProtocol": "Ensure both frontend and API are using the same protocol (http/https)",
+					"verifyCorsOrigins": "Verify CORS_ORIGINS in your API .env includes your frontend URL"
+				},
+				"network": {
+					"checkConnection": "Check your internet connection",
+					"checkFirewall": "Check if there are any firewall or proxy issues",
+					"tryRefresh": "Try refreshing the page",
+					"verifyApiRunning": "Verify the API server is running and accessible"
+				}
+			}
 		},
 		"formats": {
 			"never": "Nunca"
@@ -1098,7 +1121,8 @@
 			"deleteDialog": {
 				"title": "Eliminar rol",
 				"description": "Esto eliminará permanentemente el rol \"{{role}}\". Los miembros con este rol asignado perderán sus permisos."
-			}
+			},
+			"permissionCount_many": "{{count}} permisos"
 		},
 		"workspaceLabels": {
 			"pageTitle": "Ajustes de etiquetas",
@@ -1418,8 +1442,12 @@
 			"hours_one": "{{count}} hora",
 			"hours_other": "{{count}} horas",
 			"days_one": "{{count}} día",
-			"days_other": "{{count}} días"
-		}
+			"days_other": "{{count}} días",
+			"days_many": "{{count}} días",
+			"hours_many": "{{count}} horas",
+			"minutes_many": "{{count}} minutos"
+		},
+		"newCount_many": "{{count}} nuevas"
 	},
 	"activity": {
 		"assignedToSelf": "se ha asignado la tarea a sí mismo",
@@ -1857,7 +1885,8 @@
 			"open": "Abierta",
 			"label": "Pull Request",
 			"count_one": "{{count}} PR",
-			"count_other": "{{count}} PRs"
+			"count_other": "{{count}} PRs",
+			"count_many": "{{count}} PRs"
 		},
 		"assignee": {
 			"label": "Asignado",
@@ -2024,7 +2053,8 @@
 			"suggestionBug": "Bugs",
 			"suggestionFeature": "Features",
 			"suggestionInProgress": "En progreso",
-			"suggestionCompleted": "Completadas"
+			"suggestionCompleted": "Completadas",
+			"resultsFound_many": "{{count}} resultados"
 		},
 		"create": {
 			"pageTitle": "Crear espacio de trabajo",

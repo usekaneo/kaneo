@@ -2,7 +2,8 @@ import { client } from "@kaneo/libs";
 import type { InferResponseType } from "hono/client";
 
 export type GetIdTokenResponse = InferResponseType<
-  (typeof client)["oauth"]["id-token"]["$get"]
+  (typeof client)["oauth"]["id-token"]["$get"],
+  200
 >;
 
 export async function getIdToken() {
