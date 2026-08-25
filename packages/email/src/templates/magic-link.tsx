@@ -40,6 +40,15 @@ const messages = {
     ignore: "Nếu bạn không yêu cầu điều này, bạn có thể bỏ qua email này.",
     footer: "Email bảo mật Kaneo",
   },
+  ja: {
+    preview: "Kaneo にサインイン",
+    title: "安全なサインインリンク",
+    subtitle: "このリンクから Kaneo ワークスペースにアクセスできます。",
+    cta: "Kaneo にサインイン",
+    expiry: "セキュリティのため、このリンクは5分で有効期限が切れます。",
+    ignore: "心当たりがない場合は、このメールを無視してかまいません。",
+    footer: "Kaneo セキュリティメール",
+  },
 } as const;
 
 const MagicLinkEmail = ({ magicLink, locale }: MagicLinkEmailProps) => {
