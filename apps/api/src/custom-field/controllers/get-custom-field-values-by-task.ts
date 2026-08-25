@@ -13,6 +13,7 @@ async function getCustomFieldValuesByTask(taskId: string) {
       fieldId: customFieldValueTable.fieldId,
       value: customFieldValueTable.value,
       fieldName: customFieldDefinitionTable.name,
+      fieldPosition: customFieldDefinitionTable.position,
       fieldType: customFieldDefinitionTable.type,
       fieldOptions: customFieldDefinitionTable.options,
     })
