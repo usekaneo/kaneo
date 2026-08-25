@@ -625,7 +625,6 @@
 			"emptyTitle": "ロールがまだありません",
 			"emptyDescription": "このワークスペースに初期ロールが設定されると、ここに表示されます。",
 			"defaultBadge": "デフォルト",
-			"permissionCount_one": "{{count}} 個の権限",
 			"permissionCount_other": "{{count}} 個の権限",
 			"nameLabel": "名前",
 			"nameHint": "半角小文字のみ。後から変更することはできません。",
@@ -1362,7 +1361,6 @@
 	},
 	"notifications": {
 		"title": "通知",
-		"newCount_one": "{{count}} 件の新着",
 		"newCount_other": "{{count}} 件の新着",
 		"emptyTitle": "通知はまだありません",
 		"emptySubtitle": "更新やアクティビティがここに表示されます。",
@@ -1373,11 +1371,8 @@
 			"open": "通知を開く"
 		},
 		"reminderLeadTime": {
-			"minutes_one": "{{count}} 分",
 			"minutes_other": "{{count}} 分",
-			"hours_one": "{{count}} 時間",
 			"hours_other": "{{count}} 時間",
-			"days_one": "{{count}} 日",
 			"days_other": "{{count}} 日"
 		},
 		"events": {
@@ -1866,7 +1861,6 @@
 			"draft": "下書き",
 			"open": "オープン",
 			"label": "Pull Request",
-			"count_one": "{{count}} 件の PR",
 			"count_other": "{{count}} 件の PR"
 		},
 		"assignee": {
@@ -1999,7 +1993,6 @@
 			"placeholder": "タイトルまたはID (例: DEP-23) でタスクを検索...",
 			"hint": "このワークスペース内のすべてのプロジェクトを検索します。特定のタスクを見つけるには DEP-23 のようなタスクIDを使用してください。",
 			"searching": "検索中...",
-			"resultsFound_one": "{{count}} 件の結果が見つかりました",
 			"resultsFound_other": "{{count}} 件の結果が見つかりました",
 			"noResultsTitle": "結果が見つかりません",
 			"noResultsDescription": "検索語句を変更するか、別のキーワードで検索してください",
