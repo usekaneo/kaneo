@@ -1,5 +1,9 @@
-import * as v from "valibot";
+import { z } from "../openapi";
 
+// Redirect URIs are attacker-supplied during dynamic client registration, so
+// anything that could turn into script execution or credential leakage is
+// rejected: fragments, embedded credentials, and script-bearing schemes.
+// Plain http is allowed only for loopback, per OAuth 2.1 for native apps.
 function isValidRedirectUri(value: string): boolean {
   try {
     const url = new URL(value);
@@ -18,56 +22,63 @@ function isValidRedirectUri(value: string): boolean {
   }
 }
 
-const redirectUriSchema = v.pipe(
-  v.string(),
-  v.maxLength(2048),
-  v.check(isValidRedirectUri, "Invalid redirect URI"),
-);
+const redirectUriSchema = z
+  .string()
+  .max(2048)
+  .refine(isValidRedirectUri, "Invalid redirect URI");
 
-export const clientRegistrationSchema = v.object({
-  redirect_uris: v.pipe(v.array(redirectUriSchema), v.minLength(1)),
-  client_name: v.optional(v.pipe(v.string(), v.maxLength(100))),
-  token_endpoint_auth_method: v.optional(v.literal("none")),
-  grant_types: v.optional(v.tuple([v.literal("authorization_code")])),
-  response_types: v.optional(v.tuple([v.literal("code")])),
+export const clientRegistrationSchema = z.object({
+  redirect_uris: z.array(redirectUriSchema).min(1),
+  client_name: z.string().max(100).optional(),
+  token_endpoint_auth_method: z.literal("none").optional(),
+  grant_types: z.tuple([z.literal("authorization_code")]).optional(),
+  response_types: z.tuple([z.literal("code")]).optional(),
 });
 
-export const authorizationQuerySchema = v.object({
-  response_type: v.literal("code"),
-  client_id: v.string(),
+export const authorizationQuerySchema = z.object({
+  response_type: z.literal("code"),
+  client_id: z.string(),
   redirect_uri: redirectUriSchema,
-  code_challenge: v.pipe(v.string(), v.minLength(1)),
-  code_challenge_method: v.literal("S256"),
-  state: v.optional(v.string()),
+  code_challenge: z.string().min(1).openapi({
+    description: "PKCE challenge; only S256 is accepted.",
+  }),
+  code_challenge_method: z.literal("S256"),
+  state: z.string().optional(),
 });
 
-export const authorizationRequestParamSchema = v.object({
-  requestId: v.string(),
+export const authorizationRequestParamSchema = z.object({
+  requestId: z.string(),
 });
 
-export const authorizationDecisionSchema = v.object({
-  approved: v.boolean(),
+export const authorizationDecisionSchema = z.object({
+  approved: z.boolean(),
 });
 
-export const oauthErrorSchema = v.object({
-  error: v.string(),
-});
+export const oauthErrorSchema = z
+  .object({ error: z.string() })
+  .openapi("OAuthError");
 
-export const clientRegistrationResponseSchema = v.object({
-  client_id: v.string(),
-  client_id_issued_at: v.number(),
-  redirect_uris: v.array(v.string()),
-  client_name: v.optional(v.string()),
-  token_endpoint_auth_method: v.literal("none"),
-  grant_types: v.array(v.literal("authorization_code")),
-  response_types: v.array(v.literal("code")),
-});
+export const clientRegistrationResponseSchema = z
+  .object({
+    client_id: z.string(),
+    client_id_issued_at: z.number(),
+    redirect_uris: z.array(z.string()),
+    client_name: z.string().optional(),
+    token_endpoint_auth_method: z.literal("none"),
+    grant_types: z.array(z.literal("authorization_code")),
+    response_types: z.array(z.literal("code")),
+  })
+  .openapi("McpClientRegistration");
 
-export const authorizationRequestResponseSchema = v.object({
-  client_name: v.string(),
-  redirect_uri: v.string(),
-});
+export const authorizationRequestResponseSchema = z
+  .object({ client_name: z.string(), redirect_uri: z.string() })
+  .openapi("McpAuthorizationRequest");
 
-export const authorizationDecisionResponseSchema = v.object({
-  redirect: v.string(),
-});
+export const authorizationDecisionResponseSchema = z
+  .object({
+    redirect: z.string().openapi({
+      description:
+        "Where to send the browser next: back to the client with a code on approval, or with an error on denial.",
+    }),
+  })
+  .openapi("McpAuthorizationDecision");
