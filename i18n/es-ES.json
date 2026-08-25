@@ -881,7 +881,13 @@
 			"branch": "Rama",
 			"merged": "Merged",
 			"draft": "Borrador",
-			"open": "Abierta"
+			"open": "Abierta",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL"
 		},
 		"notifications": "Notificaciones",
 		"notificationsPage": {

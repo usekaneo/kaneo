@@ -1267,7 +1267,13 @@
 			"branch": "分支",
 			"merged": "已合并",
 			"draft": "草稿",
-			"open": "打开"
+			"open": "打开",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL"
 		}
 	},
 	"navigation": {

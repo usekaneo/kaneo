@@ -881,7 +881,13 @@
 			"branch": "Branch",
 			"merged": "Samengevoegd",
 			"draft": "Concept",
-			"open": "Open"
+			"open": "Open",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL"
 		},
 		"notifications": "Meldingen",
 		"notificationsPage": {

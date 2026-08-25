@@ -1269,7 +1269,13 @@
 			"branch": "Branch",
 			"merged": "Mesclado",
 			"draft": "Rascunho",
-			"open": "Aberto"
+			"open": "Aberto",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL"
 		}
 	},
 	"navigation": {

@@ -1269,7 +1269,13 @@
 			"branch": "Ramo",
 			"merged": "Unito",
 			"draft": "Bozza",
-			"open": "Aperto"
+			"open": "Aperto",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL"
 		}
 	},
 	"navigation": {

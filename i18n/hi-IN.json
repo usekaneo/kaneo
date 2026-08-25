@@ -1268,7 +1268,13 @@
 			"branch": "ब्रांच",
 			"merged": "मर्ज किया",
 			"draft": "ड्राफ़्ट",
-			"open": "खुला"
+			"open": "खुला",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL"
 		}
 	},
 	"navigation": {
