@@ -67,4 +67,23 @@ describe("uploadTaskImage", () => {
     expect(asset.mimeType).toBe("image/png");
     expect(asset.kind).toBe("image");
   });
+
+  it.each([
+    ["recording.mp4", "video/mp4"],
+    ["recording.avi", "video/x-msvideo"],
+  ])("infers the video content type for %s", async (filename, contentType) => {
+    const file = new File(["video"], filename);
+
+    const asset = await uploadTaskImage({
+      taskId: "task-1",
+      surface: "description",
+      file,
+    });
+
+    expect(mocks.createImageUpload).toHaveBeenCalledWith(
+      expect.objectContaining({ contentType }),
+    );
+    expect(asset.mimeType).toBe(contentType);
+    expect(asset.kind).toBe("attachment");
+  });
 });

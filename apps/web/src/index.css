@@ -886,6 +886,51 @@ input:-webkit-autofill:active {
     margin: 0.35rem 0;
   }
 
+  .kaneo-video-attachment {
+    display: block;
+    width: min(100%, 48rem);
+    margin-block: 0.75rem;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--muted);
+  }
+
+  .kaneo-video-player {
+    display: block;
+    width: 100%;
+    max-height: 32rem;
+    background: #000;
+  }
+
+  .kaneo-video-download {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 0.75rem;
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+    text-decoration: none;
+  }
+
+  .kaneo-video-download:hover {
+    color: var(--foreground);
+  }
+
+  .kaneo-video-download .kaneo-attachment-title {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--foreground);
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .kaneo-video-download .kaneo-attachment-meta {
+    margin-left: auto;
+    white-space: nowrap;
+  }
+
   .kaneo-attachment-card {
     display: inline-flex;
     align-items: center;

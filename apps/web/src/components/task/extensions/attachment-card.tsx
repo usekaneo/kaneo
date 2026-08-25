@@ -1,8 +1,21 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import type { NodeViewProps } from "@tiptap/react";
 import { NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react";
-import { FileText } from "lucide-react";
+import { Download, FileText } from "lucide-react";
 import { escapeHtml, isValidUrl } from "./url-safety";
+
+const embeddableVideoMimeTypes = new Set([
+  "video/mp4",
+  "video/avi",
+  "video/msvideo",
+  "video/x-msvideo",
+]);
+
+export function isEmbeddableVideoMimeType(mimeType: string) {
+  return embeddableVideoMimeTypes.has(
+    mimeType.toLowerCase().split(";", 1)[0]?.trim() ?? "",
+  );
+}
 
 function formatBytes(size: number) {
   if (!Number.isFinite(size) || size <= 0) return "";
@@ -19,6 +32,34 @@ function AttachmentCardView({ node }: NodeViewProps) {
   const filename = String(node.attrs.filename || "Attachment");
   const mimeType = String(node.attrs.mimeType || "");
   const size = Number(node.attrs.size || 0);
+
+  if (url && isEmbeddableVideoMimeType(mimeType)) {
+    return (
+      <NodeViewWrapper as="div" className="kaneo-video-attachment">
+        {/* biome-ignore lint/a11y/useMediaCaption: uploaded attachments do not include a separate captions track. */}
+        <video className="kaneo-video-player" controls preload="metadata">
+          <source src={url} type={mimeType} />
+          <a href={url} target="_blank" rel="noopener noreferrer">
+            {filename}
+          </a>
+        </video>
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="kaneo-video-download"
+          title={filename}
+        >
+          <span className="kaneo-attachment-title">{filename}</span>
+          <span className="kaneo-attachment-meta">
+            {formatBytes(size)}
+            {mimeType ? ` · ${mimeType}` : ""}
+          </span>
+          <Download className="size-4" aria-hidden="true" />
+        </a>
+      </NodeViewWrapper>
+    );
+  }
 
   return (
     <NodeViewWrapper as="span" className="kaneo-attachment-node">

@@ -24,6 +24,16 @@ export function isSupportedTaskAsset(file: File) {
   return file.size > 0;
 }
 
+function getTaskAssetContentType(file: File) {
+  if (file.type) return file.type;
+
+  const extension = file.name.split(".").pop()?.toLowerCase();
+  if (extension === "mp4") return "video/mp4";
+  if (extension === "avi") return "video/x-msvideo";
+
+  return "application/octet-stream";
+}
+
 export function getImageAltText(filename: string) {
   return filename
     .replace(/\.[^/.]+$/, "")
@@ -46,7 +56,7 @@ export async function uploadTaskImage({
     }
   }
 
-  const contentType = file.type || "application/octet-stream";
+  const contentType = getTaskAssetContentType(file);
 
   const upload = await createImageUpload({
     taskId,
