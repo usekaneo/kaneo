@@ -904,12 +904,13 @@ export const externalLinkTable = pgTable(
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
-    integrationId: text("integration_id")
-      .notNull()
-      .references(() => integrationTable.id, {
+    integrationId: text("integration_id").references(
+      () => integrationTable.id,
+      {
         onDelete: "cascade",
         onUpdate: "cascade",
-      }),
+      },
+    ),
     resourceType: text("resource_type").notNull(),
     externalId: text("external_id").notNull(),
     url: text("url").notNull(),

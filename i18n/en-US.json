@@ -1268,7 +1268,13 @@
 			"branch": "Branch",
 			"merged": "Merged",
 			"draft": "Draft",
-			"open": "Open"
+			"open": "Open",
+			"addResource": "Add resource",
+			"url": "URL",
+			"titleOptional": "Title (optional)",
+			"cancel": "Cancel",
+			"adding": "Adding...",
+			"empty": "No resources linked to this task."
 		}
 	},
 	"navigation": {
