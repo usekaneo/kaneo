@@ -523,7 +523,9 @@
 			"labels": "라벨",
 			"labelsDescription": "작업 라벨과 태그를 표시합니다",
 			"priority": "우선순위",
-			"priorityDescription": "우선순위 표시기를 표시합니다"
+			"priorityDescription": "우선순위 표시기를 표시합니다",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"developerPage": {
 			"pageTitle": "개발자 설정",
@@ -671,7 +673,16 @@
 				"iconRequired": "아이콘은 필수입니다"
 			},
 			"importExportTasks": "가져오기/내보내기",
-			"importExportTasksDescription": "작업을 가져오고 내보냅니다."
+			"importExportTasksDescription": "작업을 가져오고 내보냅니다.",
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundLabel": "Board background",
+			"backgroundRemove": "Remove image",
+			"backgroundRemoveError": "Failed to remove project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundReplace": "Replace image",
+			"backgroundUpload": "Upload image",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundUploadSuccess": "Project background updated"
 		},
 		"projectIntegrations": {
 			"pageTitle": "프로젝트 연동",

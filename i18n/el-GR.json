@@ -523,7 +523,9 @@
 			"labels": "Ετικέτες",
 			"labelsDescription": "Εμφάνιση ετικετών και tags εργασιών",
 			"priority": "Προτεραιότητα",
-			"priorityDescription": "Εμφάνιση ενδείξεων προτεραιότητας"
+			"priorityDescription": "Εμφάνιση ενδείξεων προτεραιότητας",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"developerPage": {
 			"pageTitle": "Ρυθμίσεις προγραμματιστή",
@@ -671,7 +673,16 @@
 				"iconRequired": "Το εικονίδιο είναι υποχρεωτικό"
 			},
 			"importExportTasks": "Εισαγωγή/Εξαγωγή",
-			"importExportTasksDescription": "Εισαγωγή/Εξαγωγή Εργασιών"
+			"importExportTasksDescription": "Εισαγωγή/Εξαγωγή Εργασιών",
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundLabel": "Board background",
+			"backgroundRemove": "Remove image",
+			"backgroundRemoveError": "Failed to remove project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundReplace": "Replace image",
+			"backgroundUpload": "Upload image",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundUploadSuccess": "Project background updated"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Ενσωματώσεις έργου",

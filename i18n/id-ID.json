@@ -523,7 +523,9 @@
 			"labels": "Label",
 			"labelsDescription": "Tampilkan label dan tag tugas",
 			"priority": "Prioritas",
-			"priorityDescription": "Tampilkan indikator prioritas"
+			"priorityDescription": "Tampilkan indikator prioritas",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"developerPage": {
 			"pageTitle": "Pengaturan Pengembang",
@@ -671,7 +673,16 @@
 				"iconRequired": "Ikon wajib diisi"
 			},
 			"importExportTasks": "Impor/Ekspor",
-			"importExportTasksDescription": "Impor dan ekspor tugas."
+			"importExportTasksDescription": "Impor dan ekspor tugas.",
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundLabel": "Board background",
+			"backgroundRemove": "Remove image",
+			"backgroundRemoveError": "Failed to remove project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundReplace": "Replace image",
+			"backgroundUpload": "Upload image",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundUploadSuccess": "Project background updated"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Integrasi Proyek",

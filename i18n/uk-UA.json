@@ -523,7 +523,9 @@
 			"labels": "Мітки",
 			"labelsDescription": "Показувати мітки та теґи завдань",
 			"priority": "Пріоритет",
-			"priorityDescription": "Відображати індикатори пріоритету"
+			"priorityDescription": "Відображати індикатори пріоритету",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"developerPage": {
 			"pageTitle": "Налаштування розробника",
@@ -671,7 +673,16 @@
 				"iconRequired": "Іконка є обов'язковою"
 			},
 			"importExportTasks": "Імпорт/Експорт",
-			"importExportTasksDescription": "Імпортуйте та експортуйте завдання."
+			"importExportTasksDescription": "Імпортуйте та експортуйте завдання.",
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundLabel": "Board background",
+			"backgroundRemove": "Remove image",
+			"backgroundRemoveError": "Failed to remove project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundReplace": "Replace image",
+			"backgroundUpload": "Upload image",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundUploadSuccess": "Project background updated"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Інтеґрації проєкту",

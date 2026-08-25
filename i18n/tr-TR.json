@@ -523,7 +523,9 @@
 			"labels": "Etiketler",
 			"labelsDescription": "Talep etiketlerini ve etiketleri göster",
 			"priority": "Öncelik",
-			"priorityDescription": "Öncelik göstergelerini görüntüle"
+			"priorityDescription": "Öncelik göstergelerini görüntüle",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"developerPage": {
 			"pageTitle": "Geliştirici Ayarları",
@@ -671,7 +673,16 @@
 				"iconRequired": "Simge gereklidir"
 			},
 			"importExportTasks": "İçe/Dışa Aktar",
-			"importExportTasksDescription": "Talepleri içe ve dışa aktarın."
+			"importExportTasksDescription": "Talepleri içe ve dışa aktarın.",
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundLabel": "Board background",
+			"backgroundRemove": "Remove image",
+			"backgroundRemoveError": "Failed to remove project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundReplace": "Replace image",
+			"backgroundUpload": "Upload image",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundUploadSuccess": "Project background updated"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Proje Entegrasyonları",
