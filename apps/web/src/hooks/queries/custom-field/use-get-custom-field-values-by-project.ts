@@ -7,6 +7,7 @@ export type CustomFieldValue = {
   fieldId: string;
   value: string | null;
   fieldName: string;
+  fieldPosition: number;
   fieldType: string;
   fieldOptions: unknown;
 };

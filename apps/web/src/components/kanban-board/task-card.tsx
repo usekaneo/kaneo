@@ -118,7 +118,10 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
     useGetCustomFieldValuesByProject(task.projectId);
 
   const customFieldValues = useMemo(
-    () => projectCustomFieldValues.filter((field) => field.taskId === task.id),
+    () =>
+      projectCustomFieldValues
+        .filter((field) => field.taskId === task.id)
+        .sort((a, b) => a.fieldPosition - b.fieldPosition),
     [projectCustomFieldValues, task.id],
   );
 
