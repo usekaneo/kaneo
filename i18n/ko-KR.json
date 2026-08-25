@@ -56,7 +56,30 @@
 			"troubleshooting": "문제 해결 단계:",
 			"tryAgain": "다시 시도",
 			"viewDeploymentGuide": "배포 가이드 보기",
-			"refreshPage": "페이지 새로고침"
+			"refreshPage": "페이지 새로고침",
+			"description": "The page crashed unexpectedly. Refreshing usually fixes it.",
+			"messages": {
+				"auth": "Authentication failed. Please sign in again.",
+				"cors": "Unable to connect to the server. This might be due to CORS configuration issues.",
+				"network": "Network error. Please check your internet connection and try again.",
+				"server": "Server error. Please try again later.",
+				"unknown": "An unexpected error occurred."
+			},
+			"troubleshootingSteps": {
+				"cors": {
+					"checkAccessibility": "Check that your API server is accessible from your browser",
+					"checkApiRunning": "Make sure your API server is running",
+					"checkApiUrl": "Check that VITE_API_URL in your frontend .env matches your API server URL",
+					"checkProtocol": "Ensure both frontend and API are using the same protocol (http/https)",
+					"verifyCorsOrigins": "Verify CORS_ORIGINS in your API .env includes your frontend URL"
+				},
+				"network": {
+					"checkConnection": "Check your internet connection",
+					"checkFirewall": "Check if there are any firewall or proxy issues",
+					"tryRefresh": "Try refreshing the page",
+					"verifyApiRunning": "Verify the API server is running and accessible"
+				}
+			}
 		},
 		"formats": {
 			"never": "안 함"
@@ -1099,7 +1122,6 @@
 			"emptyTitle": "아직 역할이 없습니다",
 			"emptyDescription": "이 워크스페이스에 기본 역할이 생성되면 여기에 표시됩니다.",
 			"defaultBadge": "기본",
-			"permissionCount_one": "권한 {{count}}개",
 			"permissionCount_other": "권한 {{count}}개",
 			"nameLabel": "이름",
 			"nameHint": "소문자로 입력하세요. 나중에 변경할 수 없습니다.",
@@ -1363,7 +1385,6 @@
 	},
 	"notifications": {
 		"title": "알림",
-		"newCount_one": "새 알림 {{count}}개",
 		"newCount_other": "새 알림 {{count}}개",
 		"emptyTitle": "아직 알림이 없습니다",
 		"emptySubtitle": "여기서 업데이트와 활동을 확인할 수 있습니다.",
@@ -1413,11 +1434,8 @@
 			}
 		},
 		"reminderLeadTime": {
-			"minutes_one": "{{count}}분",
 			"minutes_other": "{{count}}분",
-			"hours_one": "{{count}}시간",
 			"hours_other": "{{count}}시간",
-			"days_one": "{{count}}일",
 			"days_other": "{{count}}일"
 		}
 	},
@@ -1880,7 +1898,6 @@
 			"draft": "초안",
 			"open": "열림",
 			"label": "풀 리퀘스트",
-			"count_one": "PR {{count}}개",
 			"count_other": "PR {{count}}개"
 		},
 		"assignee": {
@@ -2013,7 +2030,6 @@
 			"placeholder": "제목 또는 짧은 ID로 작업 검색 (예: DEP-23)...",
 			"hint": "이 워크스페이스의 모든 프로젝트에서 검색합니다. DEP-23과 같은 짧은 ID를 사용하여 특정 작업을 찾으세요.",
 			"searching": "검색 중...",
-			"resultsFound_one": "결과 {{count}}개를 찾았습니다",
 			"resultsFound_other": "결과 {{count}}개를 찾았습니다",
 			"noResultsTitle": "결과를 찾을 수 없음",
 			"noResultsDescription": "검색어를 조정하거나 다른 항목을 검색해 보세요",

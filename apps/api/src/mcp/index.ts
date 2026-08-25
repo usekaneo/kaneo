@@ -6,8 +6,8 @@ import {
   isLegacyRequest,
 } from "@modelcontextprotocol/server";
 import { Hono } from "hono";
-import { describeRoute, resolver, validator } from "hono-openapi";
 import { auth } from "../auth";
+import { apiRouter, createRoute, jsonResponse } from "../openapi";
 import {
   beginMcpAuthorization,
   decideMcpAuthorizationRequest,
@@ -70,148 +70,183 @@ async function validateBearerToken(
   return { userId: session.user.id, token };
 }
 
-const mcp = new Hono();
+const mcp = apiRouter();
 
-mcp.post(
-  "/mcp/register",
-  describeRoute({
-    operationId: "registerMcpOAuthClient",
-    tags: ["MCP"],
-    description: "Register a public OAuth client for the MCP endpoint",
-    security: [],
-    responses: {
-      200: {
-        description: "Registered OAuth client",
-        content: {
-          "application/json": {
-            schema: resolver(clientRegistrationResponseSchema),
-          },
-        },
-      },
-      400: {
-        description: "Invalid client metadata",
-        content: {
-          "application/json": { schema: resolver(oauthErrorSchema) },
-        },
-      },
-    },
-  }),
-  validator("json", clientRegistrationSchema),
-  async (c) => c.json(await registerMcpClient(c.req.valid("json"))),
-);
+const jsonError = (description: string) =>
+  jsonResponse(description, oauthErrorSchema);
 
-mcp.get(
-  "/mcp/authorize",
-  describeRoute({
-    operationId: "authorizeMcpOAuthClient",
-    tags: ["MCP"],
-    description: "Start an explicit MCP OAuth consent request",
-    security: [],
-    responses: {
-      302: { description: "Redirect to the Kaneo consent page" },
-      400: {
-        description: "Invalid authorization request",
-        content: {
-          "application/json": { schema: resolver(oauthErrorSchema) },
-        },
-      },
+const registerRoute = createRoute({
+  method: "post",
+  operationId: "registerMcpOAuthClient",
+  path: "/mcp/register",
+  tags: ["MCP"],
+  summary: "Register MCP OAuth client",
+  description:
+    "Dynamically register a public OAuth client for the MCP endpoint. Public clients hold no secret, so authorization is protected by PKCE and an explicit consent step.",
+  security: [],
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: clientRegistrationSchema } },
     },
-  }),
-  validator("query", authorizationQuerySchema),
-  async (c) => c.redirect(await beginMcpAuthorization(c.req.valid("query"))),
-);
-
-mcp.get(
-  "/mcp/authorize/request/:requestId",
-  describeRoute({
-    operationId: "getMcpAuthorizationRequest",
-    tags: ["MCP"],
-    description: "Get display details for an MCP OAuth consent request",
-    security: [],
-    responses: {
-      200: {
-        description: "Authorization request details",
-        content: {
-          "application/json": {
-            schema: resolver(authorizationRequestResponseSchema),
-          },
-        },
-      },
-      400: {
-        description: "Invalid OAuth client",
-        content: {
-          "application/json": { schema: resolver(oauthErrorSchema) },
-        },
-      },
-      404: {
-        description: "Unknown or expired authorization request",
-        content: {
-          "application/json": { schema: resolver(oauthErrorSchema) },
-        },
-      },
-    },
-  }),
-  validator("param", authorizationRequestParamSchema),
-  async (c) => {
-    const { requestId } = c.req.valid("param");
-    return c.json(await getMcpAuthorizationRequest(requestId));
   },
-);
+  responses: {
+    200: jsonResponse(
+      "Registered OAuth client",
+      clientRegistrationResponseSchema,
+    ),
+    400: jsonError("Invalid client metadata"),
+  },
+});
 
-mcp.post(
-  "/mcp/authorize/request/:requestId",
-  describeRoute({
-    operationId: "decideMcpAuthorizationRequest",
-    tags: ["MCP"],
-    description: "Approve or deny an MCP OAuth consent request",
-    responses: {
-      200: {
-        description: "OAuth client redirect",
-        content: {
-          "application/json": {
-            schema: resolver(authorizationDecisionResponseSchema),
-          },
-        },
-      },
-      400: {
-        description: "Invalid request or OAuth client",
-        content: {
-          "application/json": { schema: resolver(oauthErrorSchema) },
-        },
-      },
-      401: {
-        description: "Authentication required",
-        content: {
-          "application/json": { schema: resolver(oauthErrorSchema) },
-        },
-      },
-      403: {
-        description: "Untrusted request origin",
-        content: {
-          "application/json": { schema: resolver(oauthErrorSchema) },
-        },
-      },
-      404: {
-        description: "Unknown or expired authorization request",
-        content: {
-          "application/json": { schema: resolver(oauthErrorSchema) },
-        },
-      },
+const authorizeRoute = createRoute({
+  method: "get",
+  operationId: "authorizeMcpOAuthClient",
+  path: "/mcp/authorize",
+  tags: ["MCP"],
+  summary: "Start MCP authorization",
+  description:
+    "Begin an MCP OAuth authorization. Redirects the browser to the Kaneo consent page, which then approves or denies the request.",
+  security: [],
+  request: { query: authorizationQuerySchema },
+  responses: {
+    302: { description: "Redirect to the Kaneo consent page" },
+    400: jsonError("Invalid authorization request"),
+  },
+});
+
+const getAuthorizationRequestRoute = createRoute({
+  method: "get",
+  operationId: "getMcpAuthorizationRequest",
+  path: "/mcp/authorize/request/{requestId}",
+  tags: ["MCP"],
+  summary: "Get consent request",
+  description:
+    "Get the client name and redirect URI for a pending consent request, so the consent page can show who is asking.",
+  security: [],
+  request: { params: authorizationRequestParamSchema },
+  responses: {
+    200: jsonResponse(
+      "Authorization request details",
+      authorizationRequestResponseSchema,
+    ),
+    400: jsonError("Invalid OAuth client"),
+    404: jsonError("Unknown or expired authorization request"),
+  },
+});
+
+const decideAuthorizationRequestRoute = createRoute({
+  method: "post",
+  operationId: "decideMcpAuthorizationRequest",
+  path: "/mcp/authorize/request/{requestId}",
+  tags: ["MCP"],
+  summary: "Decide consent request",
+  description:
+    "Approve or deny a pending consent request and get the URL to send the browser back to.",
+  request: {
+    params: authorizationRequestParamSchema,
+    body: {
+      required: true,
+      content: { "application/json": { schema: authorizationDecisionSchema } },
     },
-  }),
-  validator("param", authorizationRequestParamSchema),
-  validator("json", authorizationDecisionSchema),
-  async (c) => {
-    const { requestId } = c.req.valid("param");
+  },
+  responses: {
+    200: jsonResponse(
+      "OAuth client redirect",
+      authorizationDecisionResponseSchema,
+    ),
+    400: jsonError("Invalid request or OAuth client"),
+    401: jsonError("Authentication required"),
+    403: jsonError("Untrusted request origin"),
+    404: jsonError("Unknown or expired authorization request"),
+  },
+});
+
+mcp
+  .openapi(registerRoute, async (c) =>
+    c.json(await registerMcpClient(c.req.valid("json")), 200),
+  )
+  .openapi(authorizeRoute, async (c) =>
+    c.redirect(await beginMcpAuthorization(c.req.valid("query"))),
+  )
+  .openapi(getAuthorizationRequestRoute, async (c) =>
+    c.json(
+      await getMcpAuthorizationRequest(c.req.valid("param").requestId),
+      200,
+    ),
+  )
+  .openapi(decideAuthorizationRequestRoute, async (c) => {
     const redirect = await decideMcpAuthorizationRequest({
-      requestId,
+      requestId: c.req.valid("param").requestId,
       decision: c.req.valid("json"),
       headers: c.req.raw.headers,
       origin: c.req.header("origin"),
     });
-    return c.json({ redirect });
-  },
-);
+    return c.json({ redirect }, 200);
+  });
+
+mcp.all("/mcp", async (c) => {
+  const authResult = await validateBearerToken(c.req.raw);
+  if (!authResult) {
+    const prmUrl = `${publicApiUrl}/api/.well-known/oauth-protected-resource/api/mcp`;
+    c.header("WWW-Authenticate", `Bearer resource_metadata="${prmUrl}"`);
+    return c.json(
+      {
+        error: "invalid_token",
+        error_description: "Missing or invalid token",
+      },
+      401,
+    );
+  }
+
+  const sessionId = c.req.header("mcp-session-id");
+
+  if (sessionId) {
+    const existing = sessions.get(sessionId);
+    // A mismatched owner is reported as missing rather than forbidden so the
+    // response cannot confirm that someone else's session id is valid.
+    if (existing && existing.userId === authResult.userId) {
+      return existing.transport.handleRequest(c.req.raw);
+    }
+    return c.json({ error: "Session not found" }, 404);
+  }
+
+  if (c.req.method !== "POST") {
+    return c.json({ error: "Method not allowed" }, 405);
+  }
+
+  if (!isJsonContentType(c.req.header("content-type"))) {
+    return c.json({ error: "Unsupported Media Type" }, 415);
+  }
+
+  if (!(await isLegacyRequest(c.req.raw.clone()))) {
+    const modern = createModernMcpHandler(authResult.token, internalApiUrl);
+    return modern.fetch(c.req.raw);
+  }
+
+  const transport = new WebStandardStreamableHTTPServerTransport({
+    sessionIdGenerator: () => randomUUID(),
+  });
+
+  transport.onclose = () => {
+    if (transport.sessionId) {
+      sessions.delete(transport.sessionId);
+    }
+  };
+
+  const server = createMcpServerForUser(authResult.token);
+  await server.connect(transport);
+  const response = await transport.handleRequest(c.req.raw);
+
+  if (transport.sessionId) {
+    sessions.set(transport.sessionId, {
+      transport,
+      userId: authResult.userId,
+    });
+  }
+
+  return response;
+});
 
 mcp.post("/mcp/token", async (c) => {
   const contentType = c.req.header("content-type") || "";
