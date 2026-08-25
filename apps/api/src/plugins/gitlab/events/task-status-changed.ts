@@ -30,6 +30,14 @@ export async function handleTaskStatusChanged(
 
     const client = createGitlabClient(config);
     const issueIid = Number.parseInt(issueLink.externalId, 10);
+    if (Number.isNaN(issueIid)) {
+      console.warn("Skipping GitLab status sync for invalid issue iid", {
+        issueLinkId: issueLink.id,
+        externalId: issueLink.externalId,
+        taskId: issueLink.taskId,
+      });
+      return;
+    }
 
     await removeLabelGitlab(config, issueIid, `status:${event.oldStatus}`);
 
@@ -44,9 +52,28 @@ export async function handleTaskStatusChanged(
         state_event: "close",
       });
 
+      let existingMetadata: Record<string, unknown> = {};
+      if (issueLink.metadata) {
+        try {
+          existingMetadata = JSON.parse(issueLink.metadata) as Record<
+            string,
+            unknown
+          >;
+        } catch (error) {
+          console.warn(
+            "Failed to parse GitLab issue link metadata for close sync",
+            {
+              externalLinkId: issueLink.id,
+              metadata: issueLink.metadata,
+              error,
+            },
+          );
+        }
+      }
+
       await updateExternalLink(issueLink.id, {
         metadata: {
-          ...(issueLink.metadata ? JSON.parse(issueLink.metadata) : {}),
+          ...existingMetadata,
           state: "closed",
           lastOutboundStateSyncAt: Date.now(),
         },
@@ -56,9 +83,28 @@ export async function handleTaskStatusChanged(
         state_event: "reopen",
       });
 
+      let existingMetadata: Record<string, unknown> = {};
+      if (issueLink.metadata) {
+        try {
+          existingMetadata = JSON.parse(issueLink.metadata) as Record<
+            string,
+            unknown
+          >;
+        } catch (error) {
+          console.warn(
+            "Failed to parse GitLab issue link metadata for reopen sync",
+            {
+              externalLinkId: issueLink.id,
+              metadata: issueLink.metadata,
+              error,
+            },
+          );
+        }
+      }
+
       await updateExternalLink(issueLink.id, {
         metadata: {
-          ...(issueLink.metadata ? JSON.parse(issueLink.metadata) : {}),
+          ...existingMetadata,
           state: "opened",
           lastOutboundStateSyncAt: Date.now(),
         },

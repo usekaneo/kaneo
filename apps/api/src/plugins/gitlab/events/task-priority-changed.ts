@@ -25,6 +25,14 @@ export async function handleTaskPriorityChanged(
     }
 
     const issueIid = Number.parseInt(issueLink.externalId, 10);
+    if (Number.isNaN(issueIid)) {
+      console.warn("Skipping GitLab priority sync for invalid issue iid", {
+        issueLinkId: issueLink.id,
+        externalId: issueLink.externalId,
+        taskId: issueLink.taskId,
+      });
+      return;
+    }
 
     if (event.oldPriority && event.oldPriority !== "no-priority") {
       await removeLabelGitlab(
