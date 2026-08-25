@@ -477,6 +477,12 @@ export const billingReminderSentTable = pgTable(
   ],
 );
 
+export const jobLeaseTable = pgTable("job_lease", {
+  name: text("name").primaryKey(),
+  owner: text("owner").notNull(),
+  expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+});
+
 export const taskReminderSentTable = pgTable(
   "task_reminder_sent",
   {

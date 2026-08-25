@@ -1,12 +1,6 @@
 @import "tailwindcss";
-
-@font-face {
-  font-family: "Cal Sans UI";
-  src: url("/fonts/cal-sans-body.woff2") format("woff2");
-  font-display: swap;
-  font-style: normal;
-  font-weight: 300 700;
-}
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -69,13 +63,13 @@
 
 :root {
   --font-sans:
-    "Cal Sans UI",
+    "Geist Variable",
     ui-sans-serif,
     system-ui,
     sans-serif;
-  --font-heading: "Cal Sans Heading", var(--font-sans);
+  --font-heading: var(--font-sans);
   --font-mono:
-    "Paper Mono",
+    "Geist Mono Variable",
     ui-monospace,
     SFMono-Regular,
     Menlo,
@@ -335,5 +329,122 @@
 
   .dark .blocknote-transparent .bn-container {
     --bn-colors-shadow: --alpha(var(--color-black) / 44%);
+  }
+}
+
+@layer components {
+  /* Rendered markdown for blog posts. Scoped so it never leaks into the app UI. */
+  .blog-prose {
+    @apply text-[1.0625rem] text-foreground/80 leading-[1.75];
+  }
+
+  .blog-prose > *:first-child {
+    @apply mt-0;
+  }
+
+  .blog-prose p {
+    @apply mt-5;
+  }
+
+  .blog-prose h2 {
+    @apply mt-14 scroll-mt-24 text-balance font-medium text-2xl text-foreground leading-tight md:text-3xl;
+  }
+
+  .blog-prose h3 {
+    @apply mt-10 scroll-mt-24 text-balance font-medium text-foreground text-lg leading-snug md:text-xl;
+  }
+
+  .blog-prose h4 {
+    @apply mt-8 scroll-mt-24 font-medium text-base text-foreground;
+  }
+
+  .blog-prose h2 + p,
+  .blog-prose h3 + p,
+  .blog-prose h4 + p {
+    @apply mt-4;
+  }
+
+  .blog-prose a {
+    @apply text-foreground underline decoration-border underline-offset-4 transition-colors hover:decoration-current;
+  }
+
+  .blog-prose strong {
+    @apply font-medium text-foreground;
+  }
+
+  .blog-prose ul,
+  .blog-prose ol {
+    @apply mt-5 space-y-2 pl-5;
+  }
+
+  .blog-prose ul {
+    @apply list-disc;
+  }
+
+  .blog-prose ol {
+    @apply list-decimal;
+  }
+
+  .blog-prose li::marker {
+    @apply text-foreground/35;
+  }
+
+  .blog-prose li > ul,
+  .blog-prose li > ol {
+    @apply mt-2;
+  }
+
+  .blog-prose blockquote {
+    @apply mt-6 border-border border-l-2 pl-5 text-foreground/65;
+  }
+
+  .blog-prose blockquote p {
+    @apply mt-3 first:mt-0;
+  }
+
+  .blog-prose code {
+    @apply rounded-md border border-border/70 bg-muted px-1.5 py-0.5 font-mono text-[0.8125em] text-foreground;
+  }
+
+  .blog-prose pre {
+    @apply mt-6 overflow-x-auto rounded-xl border border-border/70 bg-card p-4 text-sm leading-relaxed;
+  }
+
+  .blog-prose pre code {
+    @apply border-0 bg-transparent p-0 text-[0.875rem];
+  }
+
+  .blog-prose-table {
+    @apply mt-8 overflow-x-auto rounded-xl border border-border/70;
+  }
+
+  .blog-prose table {
+    @apply w-full border-collapse text-left text-sm;
+  }
+
+  .blog-prose th,
+  .blog-prose td {
+    @apply border-border/70 border-b px-4 py-3 align-top;
+  }
+
+  .blog-prose thead th {
+    @apply bg-muted/50 font-medium text-foreground;
+  }
+
+  .blog-prose tbody tr:last-child th,
+  .blog-prose tbody tr:last-child td {
+    @apply border-b-0;
+  }
+
+  .blog-prose hr {
+    @apply my-12 border-border/70;
+  }
+
+  .blog-prose img {
+    @apply mt-8 w-full rounded-xl border border-border/70;
+  }
+
+  .blog-prose figcaption {
+    @apply mt-3 text-center text-foreground/50 text-sm;
   }
 }

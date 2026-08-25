@@ -54,3 +54,7 @@ compose.override.yml
 
 # TanStack Router generated cache
 apps/web/.tanstack/
+.pi/
+
+# TypeScript incremental build state
+*.tsbuildinfo

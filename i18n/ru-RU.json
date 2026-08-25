@@ -56,7 +56,30 @@
 			"troubleshooting": "Шаги для устранения неполадок:",
 			"tryAgain": "Попробовать снова",
 			"viewDeploymentGuide": "Руководство по развёртыванию",
-			"refreshPage": "Обновить страницу"
+			"refreshPage": "Обновить страницу",
+			"description": "The page crashed unexpectedly. Refreshing usually fixes it.",
+			"messages": {
+				"auth": "Authentication failed. Please sign in again.",
+				"cors": "Unable to connect to the server. This might be due to CORS configuration issues.",
+				"network": "Network error. Please check your internet connection and try again.",
+				"server": "Server error. Please try again later.",
+				"unknown": "An unexpected error occurred."
+			},
+			"troubleshootingSteps": {
+				"cors": {
+					"checkAccessibility": "Check that your API server is accessible from your browser",
+					"checkApiRunning": "Make sure your API server is running",
+					"checkApiUrl": "Check that VITE_API_URL in your frontend .env matches your API server URL",
+					"checkProtocol": "Ensure both frontend and API are using the same protocol (http/https)",
+					"verifyCorsOrigins": "Verify CORS_ORIGINS in your API .env includes your frontend URL"
+				},
+				"network": {
+					"checkConnection": "Check your internet connection",
+					"checkFirewall": "Check if there are any firewall or proxy issues",
+					"tryRefresh": "Try refreshing the page",
+					"verifyApiRunning": "Verify the API server is running and accessible"
+				}
+			}
 		},
 		"formats": {
 			"never": "Никогда"
@@ -1366,7 +1389,8 @@
 				"nextTask": "Следующая задача",
 				"prevTask": "Предыдущая задача",
 				"openTask": "Открыть выбранную задачу",
-				"quickSelectNumber": "Выбрать вариант по номеру"
+				"quickSelectNumber": "Выбрать вариант по номеру",
+				"calendarView": "Switch to calendar view"
 			}
 		}
 	},
@@ -2008,6 +2032,19 @@
 				"deleteRow": "Удалить строку",
 				"deleteTable": "Удалить таблицу"
 			}
+		},
+		"calendar": {
+			"dayTasksAriaLabel": "Show all tasks for {{date}}",
+			"moreTasks": "+{{count}} more",
+			"nextMonth": "Next month",
+			"noTasks": "No scheduled tasks",
+			"noTasksSubtitle": "Add a start date, due date, or both to tasks to place them on the calendar.",
+			"pageTitle": "{{name}} – Calendar",
+			"previousMonth": "Previous month",
+			"taskAriaLabel": "{{title}}, {{range}}: open task",
+			"title": "Calendar",
+			"today": "Today",
+			"loadError": "Failed to load tasks."
 		}
 	},
 	"invitations": {

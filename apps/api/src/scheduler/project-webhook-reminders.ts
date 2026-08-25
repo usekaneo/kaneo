@@ -15,7 +15,9 @@ import { REMINDER_WINDOW_MINUTES } from "./reminder-timing";
 
 const MINUTE_MS = 60 * 1000;
 
-export async function checkProjectWebhookReminders(): Promise<void> {
+export async function checkProjectWebhookReminders(): Promise<{
+  degraded: boolean;
+}> {
   const now = new Date();
   const integrations = await db
     .select({
@@ -30,6 +32,7 @@ export async function checkProjectWebhookReminders(): Promise<void> {
         eq(integrationTable.isActive, true),
       ),
     );
+  let degraded = false;
 
   for (const integration of integrations) {
     try {
@@ -95,6 +98,7 @@ export async function checkProjectWebhookReminders(): Promise<void> {
         }
       }
     } catch (error) {
+      degraded = true;
       console.error("Failed to process project webhook reminder", {
         integrationId: integration.id,
         projectId: integration.projectId,
@@ -102,4 +106,6 @@ export async function checkProjectWebhookReminders(): Promise<void> {
       });
     }
   }
+
+  return { degraded };
 }

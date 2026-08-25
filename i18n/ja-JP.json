@@ -53,10 +53,33 @@
 		},
 		"error": {
 			"title": "問題が発生しました",
+			"description": "ページが予期せずクラッシュしました。再読み込みすると解決することがあります。",
 			"troubleshooting": "トラブルシューティングの手順:",
 			"tryAgain": "もう一度試す",
 			"viewDeploymentGuide": "デプロイガイドを表示",
-			"refreshPage": "ページを更新"
+			"refreshPage": "ページを更新",
+			"messages": {
+				"cors": "サーバーに接続できません。CORS設定に問題がある可能性があります。",
+				"network": "ネットワークエラーが発生しました。インターネット接続を確認して再試行してください。",
+				"auth": "認証に失敗しました。再度サインインしてください。",
+				"server": "サーバーエラーが発生しました。しばらくしてからもう一度お試しください。",
+				"unknown": "予期しないエラーが発生しました。"
+			},
+			"troubleshootingSteps": {
+				"cors": {
+					"checkApiRunning": "APIサーバーが起動していることを確認してください",
+					"checkApiUrl": "フロントエンドの.envにあるVITE_API_URLがAPIサーバーのURLと一致しているか確認してください",
+					"verifyCorsOrigins": "APIの.envにあるCORS_ORIGINSにフロントエンドのURLが含まれていることを確認してください",
+					"checkProtocol": "フロントエンドとAPIが同じプロトコル(http/https)を使用していることを確認してください",
+					"checkAccessibility": "ブラウザからAPIサーバーにアクセスできるか確認してください"
+				},
+				"network": {
+					"checkConnection": "インターネット接続を確認してください",
+					"verifyApiRunning": "APIサーバーが稼働しておりアクセス可能か確認してください",
+					"tryRefresh": "ページを再読み込みしてみてください",
+					"checkFirewall": "ファイアウォールやプロキシの問題がないか確認してください"
+				}
+			}
 		},
 		"formats": {
 			"never": "無期限"
@@ -1353,6 +1376,7 @@
 				"boardView": "ボードビューに切り替え",
 				"listView": "リストビューに切り替え",
 				"backlogView": "バックログビューに切り替え",
+				"calendarView": "カレンダービューに切り替え",
 				"nextTask": "次のタスク",
 				"prevTask": "前のタスク",
 				"openTask": "選択したタスクを開く",
@@ -1826,6 +1850,19 @@
 				"isAnyOf": "次のいずれか",
 				"includeAnyOf": "次のいずれかを含む"
 			}
+		},
+		"calendar": {
+			"pageTitle": "{{name}} – カレンダー",
+			"title": "カレンダー",
+			"previousMonth": "前月",
+			"nextMonth": "翌月",
+			"today": "今日",
+			"noTasks": "予定されたタスクはありません",
+			"noTasksSubtitle": "タスクに開始日、期限、またはその両方を追加すると、カレンダーに表示されます。",
+			"moreTasks": "+{{count}} 件",
+			"loadError": "タスクの読み込みに失敗しました。",
+			"dayTasksAriaLabel": "{{date}}のすべてのタスクを表示",
+			"taskAriaLabel": "{{title}}、{{range}}: タスクを開く"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – ガントチャート",
