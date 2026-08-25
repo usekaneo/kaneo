@@ -39,6 +39,16 @@ const messages = {
     ignore: "Nếu bạn không yêu cầu điều này, bạn có thể bỏ qua email này.",
     footer: "Email bảo mật Kaneo",
   },
+  ja: {
+    preview: "Kaneo の確認コード",
+    title: "確認コード",
+    subtitle:
+      "サインインを完了するには、このワンタイムコードを入力してください。",
+    code: "はあなたの Kaneo 確認コードです。",
+    expiry: "このコードの有効期限は15分です。",
+    ignore: "心当たりがない場合は、このメールを無視してかまいません。",
+    footer: "Kaneo セキュリティメール",
+  },
 } as const;
 
 const OtpEmail = ({ otp, locale }: OtpEmailProps) => {
