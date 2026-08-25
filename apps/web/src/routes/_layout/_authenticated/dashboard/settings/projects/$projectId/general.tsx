@@ -136,14 +136,10 @@ function RouteComponent() {
   const { mutateAsync: updateProject } = useUpdateProject();
   const { mutateAsync: deleteProject, isPending: isDeleting } =
     useDeleteProject();
-  const {
-    mutate: uploadProjectBackground,
-    isPending: isUploadingBackground,
-  } = useUploadProjectBackground();
-  const {
-    mutate: removeProjectBackground,
-    isPending: isRemovingBackground,
-  } = useRemoveProjectBackground();
+  const { mutate: uploadProjectBackground, isPending: isUploadingBackground } =
+    useUploadProjectBackground();
+  const { mutate: removeProjectBackground, isPending: isRemovingBackground } =
+    useRemoveProjectBackground();
   const isUpdatingBackground = isUploadingBackground || isRemovingBackground;
   const { canManageProjects, canDeleteProjects } = useWorkspacePermission();
   const canEdit = canManageProjects();

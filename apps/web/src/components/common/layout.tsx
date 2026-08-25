@@ -6,8 +6,8 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { isDemoMode } from "@/constants/urls";
 import { useUserPreferencesEffects } from "@/hooks/use-user-preferences-effects";
 import { cn } from "@/lib/cn";
-import { useUserPreferencesStore } from "@/store/user-preferences";
 import { useBackgroundStore } from "@/store/background";
+import { useUserPreferencesStore } from "@/store/user-preferences";
 
 type LayoutProps = {
   children: ReactNode;

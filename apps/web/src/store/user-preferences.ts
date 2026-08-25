@@ -104,7 +104,8 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
       togglePriority: () =>
         set((state) => ({ showPriority: !state.showPriority })),
       showProjectBackgrounds: true,
-      setShowProjectBackgrounds: (show) => set({ showProjectBackgrounds: show }),
+      setShowProjectBackgrounds: (show) =>
+        set({ showProjectBackgrounds: show }),
       resetDisplayPreferences: () =>
         set({
           showAssignees: true,

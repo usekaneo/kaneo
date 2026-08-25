@@ -42,8 +42,8 @@ import {
   listProjectsQuery,
   projectParam,
   reorderProjectsBody,
-  uploadProjectBackgroundBody,
   updateProjectBody,
+  uploadProjectBackgroundBody,
   workspaceIdQuery,
 } from "./schema";
 

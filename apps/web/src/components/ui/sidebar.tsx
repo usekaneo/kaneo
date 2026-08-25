@@ -115,9 +115,9 @@ function SidebarProvider({
       const target = event.target as HTMLElement | null;
       const isEditableTarget = Boolean(
         target &&
-        (target.isContentEditable ||
-          ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) ||
-          target.closest('[contenteditable="true"]')),
+          (target.isContentEditable ||
+            ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) ||
+            target.closest('[contenteditable="true"]')),
       );
       if (isEditableTarget) return;
 
