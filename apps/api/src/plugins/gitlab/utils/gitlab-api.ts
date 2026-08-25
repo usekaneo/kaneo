@@ -18,6 +18,20 @@ export type GitlabIssue = {
   state: string;
   labels?: string[];
   author?: { username?: string; avatar_url?: string } | null;
+  assignees?: Array<{
+    id: number;
+    name: string;
+    username: string;
+    email?: string;
+    avatar_url?: string;
+  }>;
+  assignee?: {
+    id: number;
+    name: string;
+    username: string;
+    email?: string;
+    avatar_url?: string;
+  } | null;
 };
 
 export type GitlabNote = {
@@ -428,6 +442,132 @@ export function createGitlabClient(
         );
       }
       return mrs;
+    },
+
+    async getUser(userId: number): Promise<{
+      id: number;
+      username: string;
+      email?: string;
+      public_email?: string;
+    } | null> {
+      return (
+        (await gitlabFetch<{
+          id: number;
+          username: string;
+          email?: string;
+          public_email?: string;
+        }>(baseUrl, accessToken, `/users/${userId}`)) ?? null
+      );
+    },
+
+    async findUserByUsername(
+      username: string,
+      repositoryPath?: string,
+    ): Promise<{
+      id: number;
+      username: string;
+      email?: string;
+      public_email?: string;
+    } | null> {
+      try {
+        const users = await gitlabFetch<
+          Array<{
+            id: number;
+            username: string;
+            email?: string;
+            public_email?: string;
+          }>
+        >(
+          baseUrl,
+          accessToken,
+          `/users?username=${encodeURIComponent(username)}`,
+        );
+        if (users && users.length > 0) return users[0] ?? null;
+      } catch {}
+
+      if (repositoryPath) {
+        try {
+          const projectUsers = await gitlabFetch<
+            Array<{
+              id: number;
+              username: string;
+              email?: string;
+              public_email?: string;
+            }>
+          >(
+            baseUrl,
+            accessToken,
+            `${project(repositoryPath)}/users?search=${encodeURIComponent(username)}`,
+          );
+          const match = projectUsers?.find(
+            (u) => u.username.toLowerCase() === username.toLowerCase(),
+          );
+          if (match) return match ?? null;
+        } catch {}
+      }
+
+      return null;
+    },
+
+    async findUserByEmail(
+      email: string,
+      repositoryPath?: string,
+    ): Promise<{
+      id: number;
+      username: string;
+      email?: string;
+      public_email?: string;
+    } | null> {
+      const normalizedEmail = email.trim().toLowerCase();
+      try {
+        const users = await gitlabFetch<
+          Array<{
+            id: number;
+            username: string;
+            email?: string;
+            public_email?: string;
+          }>
+        >(
+          baseUrl,
+          accessToken,
+          `/users?search=${encodeURIComponent(normalizedEmail)}`,
+        );
+        if (users && users.length > 0) {
+          const exact = users.find(
+            (u) =>
+              u.email?.toLowerCase() === normalizedEmail ||
+              u.public_email?.toLowerCase() === normalizedEmail,
+          );
+          return exact ?? users[0] ?? null;
+        }
+      } catch {}
+
+      if (repositoryPath) {
+        try {
+          const projectUsers = await gitlabFetch<
+            Array<{
+              id: number;
+              username: string;
+              email?: string;
+              public_email?: string;
+            }>
+          >(
+            baseUrl,
+            accessToken,
+            `${project(repositoryPath)}/users?search=${encodeURIComponent(normalizedEmail)}`,
+          );
+          if (projectUsers && projectUsers.length > 0) {
+            const exact = projectUsers.find(
+              (u) =>
+                u.email?.toLowerCase() === normalizedEmail ||
+                u.public_email?.toLowerCase() === normalizedEmail,
+            );
+            return exact ?? projectUsers[0] ?? null;
+          }
+        } catch {}
+      }
+
+      return null;
     },
   };
 }

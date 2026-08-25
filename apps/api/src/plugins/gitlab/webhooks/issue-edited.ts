@@ -1,12 +1,19 @@
 import { eq } from "drizzle-orm";
 import db from "../../../database";
 import { taskTable } from "../../../database/schema";
+import { publishEvent } from "../../../events";
 import {
   findExternalLink,
   updateExternalLink,
 } from "../../github/services/link-manager";
 import { formatTaskDescriptionFromIssue } from "../../github/utils/format";
+import type { GitlabConfig } from "../config";
 import { findAllIntegrationsByGitlabProject } from "../services/integration-lookup";
+import { createGitlabClient } from "../utils/gitlab-api";
+import {
+  findKaneoUserByEmail,
+  resolveGitlabAssigneeEmail,
+} from "../utils/user-matcher";
 import { baseUrlFromProjectWebUrl } from "../utils/webhook-repo";
 
 type SyncStamp = {
@@ -19,6 +26,7 @@ type IssueEditedMetadata = {
   lastSync?: {
     title?: SyncStamp;
     description?: SyncStamp;
+    assignee?: SyncStamp;
   };
   [key: string]: unknown;
 };
@@ -30,10 +38,30 @@ type IssueEditedPayload = {
     description: string | null;
     url: string;
     action: string;
+    assignee_id?: number | null;
+    assignee_ids?: number[];
   };
+  assignees?: Array<{
+    id?: number;
+    name?: string;
+    username?: string;
+    email?: string;
+  }>;
+  assignee?: {
+    id?: number;
+    name?: string;
+    username?: string;
+    email?: string;
+  } | null;
   changes?: {
     title?: { previous: string; current: string };
     description?: { previous: string; current: string };
+    assignees?: {
+      previous: Array<unknown>;
+      current: Array<unknown>;
+    };
+    assignee_id?: { previous: unknown; current: unknown };
+    assignee_ids?: { previous: unknown; current: unknown };
   };
   project: {
     path_with_namespace: string;
@@ -50,7 +78,10 @@ export async function handleGitlabIssueEdited(
   if (issue.action !== "update") {
     return;
   }
-  if (!changes?.title && !changes?.description) {
+  const hasAssigneeChange = Boolean(
+    changes?.assignees || changes?.assignee_id || changes?.assignee_ids,
+  );
+  if (!changes?.title && !changes?.description && !hasAssigneeChange) {
     return;
   }
 
@@ -105,7 +136,7 @@ export async function handleGitlabIssueEdited(
       updatedMetadata.lastSync = {};
     }
 
-    if (changes.title) {
+    if (changes?.title) {
       const lastTitleSync = metadata.lastSync?.title;
 
       let shouldUpdateTitle = true;
@@ -135,7 +166,7 @@ export async function handleGitlabIssueEdited(
       }
     }
 
-    if (changes.description) {
+    if (changes?.description) {
       const lastDescSync = metadata.lastSync?.description;
       const formattedDescription = formatTaskDescriptionFromIssue(
         issue.description,
@@ -165,6 +196,74 @@ export async function handleGitlabIssueEdited(
           source: "gitlab",
           value: formattedDescription,
         };
+      }
+    }
+
+    if (hasAssigneeChange) {
+      const lastAssigneeSync = metadata.lastSync?.assignee;
+      let shouldCheckAssignee = true;
+
+      if (lastAssigneeSync) {
+        const timeSinceLastSync =
+          Date.now() - new Date(lastAssigneeSync.timestamp).getTime();
+        if (timeSinceLastSync < 2000 && lastAssigneeSync.source === "kaneo") {
+          shouldCheckAssignee = false;
+        }
+      }
+
+      if (shouldCheckAssignee) {
+        let config: GitlabConfig | null = null;
+        try {
+          config = JSON.parse(integration.config) as GitlabConfig;
+        } catch {}
+
+        const primaryAssignee = payload.assignees?.[0] || payload.assignee;
+        if (!primaryAssignee) {
+          if (task.userId !== null) {
+            updateData.userId = null;
+            updatedMetadata.lastSync.assignee = {
+              timestamp: new Date().toISOString(),
+              source: "gitlab",
+              value: "",
+            };
+            await publishEvent("task.unassigned", {
+              taskId: task.id,
+              projectId: task.projectId,
+              userId: null,
+              title: task.title,
+              type: "unassigned",
+            });
+          }
+        } else if (config) {
+          const client = createGitlabClient(config);
+          const email = await resolveGitlabAssigneeEmail(
+            client,
+            primaryAssignee,
+            config.repositoryPath,
+          );
+
+          if (email) {
+            const kaneoUser = await findKaneoUserByEmail(email);
+            if (kaneoUser && task.userId !== kaneoUser.id) {
+              updateData.userId = kaneoUser.id;
+              updatedMetadata.lastSync.assignee = {
+                timestamp: new Date().toISOString(),
+                source: "gitlab",
+                value: email,
+              };
+              await publishEvent("task.assignee_changed", {
+                taskId: task.id,
+                projectId: task.projectId,
+                userId: null,
+                oldAssignee: task.userId,
+                newAssignee: kaneoUser.name,
+                newAssigneeId: kaneoUser.id,
+                title: task.title,
+                type: "assignee_changed",
+              });
+            }
+          }
+        }
       }
     }
 

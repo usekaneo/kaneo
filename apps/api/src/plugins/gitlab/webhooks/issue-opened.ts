@@ -17,6 +17,10 @@ import { findAllIntegrationsByGitlabProject } from "../services/integration-look
 import { createGitlabClient } from "../utils/gitlab-api";
 import { addLabelsToIssueGitlab } from "../utils/labels";
 import { resolveTargetStatus } from "../utils/resolve-column";
+import {
+  findKaneoUserByEmail,
+  resolveGitlabAssigneeEmail,
+} from "../utils/user-matcher";
 import { baseUrlFromProjectWebUrl } from "../utils/webhook-repo";
 
 type IssueOpenedPayload = {
@@ -27,8 +31,22 @@ type IssueOpenedPayload = {
     url: string;
     state: string;
     action: string;
+    assignee_id?: number | null;
+    assignee_ids?: number[];
   };
   labels?: Array<{ title: string }>;
+  assignees?: Array<{
+    id?: number;
+    name?: string;
+    username?: string;
+    email?: string;
+  }>;
+  assignee?: {
+    id?: number;
+    name?: string;
+    username?: string;
+    email?: string;
+  } | null;
   project: {
     path_with_namespace: string;
     web_url: string;
@@ -107,9 +125,26 @@ export async function handleGitlabIssueOpened(
       ),
     });
 
+    let assignedUserId: string | null = null;
+    const primaryAssignee = payload.assignees?.[0] || payload.assignee;
+    if (primaryAssignee) {
+      const client = createGitlabClient(config);
+      const email = await resolveGitlabAssigneeEmail(
+        client,
+        primaryAssignee,
+        config.repositoryPath,
+      );
+      if (email) {
+        const kaneoUser = await findKaneoUserByEmail(email);
+        if (kaneoUser) {
+          assignedUserId = kaneoUser.id;
+        }
+      }
+    }
+
     const taskValues: typeof taskTable.$inferInsert = {
       projectId,
-      userId: null,
+      userId: assignedUserId,
       title: issue.title,
       description: formatTaskDescriptionFromIssue(issue.description),
       status: resolvedStatus,

@@ -12,6 +12,7 @@ const mocks = vi.hoisted(() => {
     publishEvent: vi.fn(),
     columnFindFirst: vi.fn(),
     projectFindFirst: vi.fn(),
+    userFindFirst: vi.fn(),
     createGitlabClient: vi.fn(),
     addLabelsToIssueGitlab: vi.fn(),
     db: {
@@ -27,6 +28,9 @@ const mocks = vi.hoisted(() => {
         },
         projectTable: {
           findFirst: (...a: unknown[]) => mocks.projectFindFirst(...a),
+        },
+        userTable: {
+          findFirst: (...a: unknown[]) => mocks.userFindFirst(...a),
         },
       },
     },
@@ -142,5 +146,29 @@ describe("handleGitlabIssueOpened", () => {
 
     expect(mocks.insertedValues).toHaveLength(1);
     expect(mocks.insertedValues[0].priority).toBe("high");
+  });
+
+  it("assigns matching Kaneo user by email when issue has assignee", async () => {
+    mocks.userFindFirst.mockResolvedValueOnce({
+      id: "user-kaneo-1",
+      email: "dev@example.com",
+    });
+
+    const payload = {
+      ...issueOpenedPayload([]),
+      assignees: [
+        {
+          id: 101,
+          name: "Developer",
+          username: "dev",
+          email: "dev@example.com",
+        },
+      ],
+    };
+
+    await handleGitlabIssueOpened(payload);
+
+    expect(mocks.insertedValues).toHaveLength(1);
+    expect(mocks.insertedValues[0].userId).toBe("user-kaneo-1");
   });
 });

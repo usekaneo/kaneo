@@ -26,6 +26,10 @@ import {
   type GitlabIssue,
   type GitlabMergeRequest,
 } from "../../plugins/gitlab/utils/gitlab-api";
+import {
+  findKaneoUserByEmail,
+  resolveGitlabAssigneeEmail,
+} from "../../plugins/gitlab/utils/user-matcher";
 
 type ImportResult = {
   imported: number;
@@ -208,6 +212,22 @@ async function importSingleIssue(
   const priority = extractIssuePriority(labels);
   const status = extractIssueStatus(labels);
 
+  let assignedUserId: string | null = null;
+  const primaryAssignee = issue.assignees?.[0] || issue.assignee;
+  if (primaryAssignee) {
+    const email = await resolveGitlabAssigneeEmail(
+      client,
+      primaryAssignee,
+      config.repositoryPath,
+    );
+    if (email) {
+      const kaneoUser = await findKaneoUserByEmail(email);
+      if (kaneoUser) {
+        assignedUserId = kaneoUser.id;
+      }
+    }
+  }
+
   if (existingLink) {
     const updateData: Record<string, unknown> = {
       title: issue.title,
@@ -216,6 +236,7 @@ async function importSingleIssue(
 
     if (priority) updateData.priority = priority;
     if (status) updateData.status = status;
+    if (assignedUserId !== null) updateData.userId = assignedUserId;
 
     await db
       .update(taskTable)
@@ -253,7 +274,7 @@ async function importSingleIssue(
 
     const taskValues: typeof taskTable.$inferInsert = {
       projectId,
-      userId: null,
+      userId: assignedUserId,
       title: issue.title,
       description: formatTaskDescriptionFromIssue(issue.description),
       status: status || "to-do",
