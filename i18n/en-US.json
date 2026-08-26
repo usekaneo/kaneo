@@ -434,6 +434,33 @@
 			"toastRuleSavedGeneric": "Workspace notification rule saved",
 			"toastRuleRemovedGeneric": "Workspace notification rule removed"
 		},
+		"colorTheme": {
+			"title": "App colors",
+			"subtitle": "Customize the instance brand colors. Changes affect buttons, links, and highlights for everyone.",
+			"presets": "Palettes",
+			"presetsDescription": "Pick a preset or fine-tune the colors below.",
+			"primary": "Primary color",
+			"primaryDescription": "Buttons, links, progress bars, and active items.",
+			"accent": "Accent color",
+			"accentDescription": "Secondary accents and brand contrast.",
+			"preview": "Preview",
+			"previewPrimary": "Primary button",
+			"previewAccent": "Accent",
+			"previewLink": "Sample link",
+			"reset": "Reset to default",
+			"save": "Save colors",
+			"saving": "Saving…",
+			"saveSuccess": "Colors saved",
+			"saveError": "Failed to save colors",
+			"invalidColor": "Enter valid hex colors (#RRGGBB).",
+			"preset": {
+				"elsetasks": "ElseTasks",
+				"ocean": "Ocean",
+				"forest": "Forest",
+				"slate": "Slate",
+				"amber": "Amber"
+			}
+		},
 		"preferencesPage": {
 			"title": "Preferences",
 			"subtitle": "Customize your ElseTasks experience.",
@@ -1233,7 +1260,8 @@
 			"members": "Members",
 			"invitations": "Invitations",
 			"more": "More",
-			"backToBoard": "Back to board"
+			"backToBoard": "Back to board",
+			"metrics": "Dashboard"
 		},
 		"projectList": {
 			"viewProject": "View Project",
@@ -1950,6 +1978,52 @@
 			"submit": "Create workspace",
 			"success": "Workspace created successfully",
 			"error": "Failed to create workspace"
+		},
+		"metrics": {
+			"pageTitle": "Dashboard",
+			"selectProject": "Select project",
+			"emptyTitle": "Choose a project",
+			"emptyDescription": "Select a project from this workflow to see columns, contracts, deliveries by person, and recent activity.",
+			"errorTitle": "Could not load dashboard",
+			"errorDescription": "Please try again in a moment.",
+			"completionLabel": "{{percent}}% complete",
+			"summary": {
+				"total": "Tasks",
+				"completed": "Done",
+				"inProgress": "In progress",
+				"overdue": "Overdue"
+			},
+			"columnsTitle": "Kanban board",
+			"columnsDescription": "Task count in each project column.",
+			"contractsTitle": "Contracts",
+			"contractsDescription": "{{count}} submissions linked to this project.",
+			"noContracts": "No contracts in this project",
+			"priorityTitle": "Priority",
+			"priorityDescription": "Task distribution by priority level.",
+			"noTasks": "No tasks in this project",
+			"assigneesTitle": "Deliveries by person",
+			"assigneesDescription": "Assigned, in progress, and done per assignee.",
+			"noAssignees": "No assigned tasks yet",
+			"assignee": {
+				"assigned": "Assigned",
+				"inProgress": "In progress",
+				"done": "Done"
+			},
+			"table": {
+				"user": "Person"
+			},
+			"activityTitle": "Activity (30 days)",
+			"activityDescription": "Tasks created and approximate completions in the period.",
+			"activity": {
+				"created": "Created",
+				"completed": "Completed"
+			},
+			"contractStatus": {
+				"pending": "Pending",
+				"sent": "Sent",
+				"completed": "Signed",
+				"declined": "Declined"
+			}
 		}
 	},
 	"team": {

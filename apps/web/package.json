@@ -89,6 +89,7 @@
 		"react-i18next": "^15.7.3",
 		"react-markdown": "^10.1.0",
 		"react-use-websocket": "^4.11.1",
+		"recharts": "^3.10.1",
 		"shiki": "^4.4.1",
 		"sonner": "^2.0.6",
 		"tailwind-merge": "^3.6.0",

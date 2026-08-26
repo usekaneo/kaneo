@@ -17,7 +17,7 @@ const DEFAULTS: BrandingDto = {
   logoDarkUrl: process.env.APP_LOGO_DARK_URL || null,
   faviconUrl: null,
   primaryColor: process.env.APP_PRIMARY_COLOR || "#0F766E",
-  accentColor: null,
+  accentColor: "#14B8A6",
   setupCompleted: false,
 };
 
@@ -38,7 +38,7 @@ export default async function getBranding(): Promise<BrandingDto> {
     logoDarkUrl: row.logoDarkUrl,
     faviconUrl: row.faviconUrl,
     primaryColor: row.primaryColor,
-    accentColor: row.accentColor,
+    accentColor: row.accentColor ?? DEFAULTS.accentColor,
     setupCompleted: row.setupCompleted,
   };
 }

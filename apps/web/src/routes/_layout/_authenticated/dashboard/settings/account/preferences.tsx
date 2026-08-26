@@ -6,6 +6,7 @@ import {
 import { createFileRoute } from "@tanstack/react-router";
 import { RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { ColorThemeSettings } from "@/components/settings/color-theme-settings";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -273,6 +274,8 @@ function RouteComponent() {
           </div>
         </div>
       </div>
+
+      <ColorThemeSettings />
 
       <div className="space-y-6">
         <div className="flex items-center justify-between">

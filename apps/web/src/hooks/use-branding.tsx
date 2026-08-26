@@ -7,6 +7,10 @@ import {
   useEffect,
   useState,
 } from "react";
+import {
+  DEFAULT_ACCENT_COLOR,
+  DEFAULT_PRIMARY_COLOR,
+} from "@/lib/brand-colors";
 
 export type Branding = {
   displayName: string;
@@ -23,8 +27,8 @@ const DEFAULT_BRANDING: Branding = {
   logoUrl: null,
   logoDarkUrl: null,
   faviconUrl: null,
-  primaryColor: "#0F766E",
-  accentColor: null,
+  primaryColor: DEFAULT_PRIMARY_COLOR,
+  accentColor: DEFAULT_ACCENT_COLOR,
   setupCompleted: false,
 };
 
@@ -38,11 +42,20 @@ const BrandingContext = createContext<BrandingContextValue | null>(null);
 
 function applyCssVars(branding: Branding) {
   const root = document.documentElement;
-  root.style.setProperty("--brand-primary", branding.primaryColor);
-  root.style.setProperty("--primary", branding.primaryColor);
-  if (branding.accentColor) {
-    root.style.setProperty("--brand-accent", branding.accentColor);
-  }
+  const primary = branding.primaryColor || DEFAULT_PRIMARY_COLOR;
+  const accent = branding.accentColor || DEFAULT_ACCENT_COLOR;
+
+  root.style.setProperty("--brand-primary", primary);
+  root.style.setProperty("--brand-accent", accent);
+  // Brand primary drives interactive chrome (buttons, links, progress).
+  root.style.setProperty("--primary", primary);
+  root.style.setProperty("--ring", primary);
+  root.style.setProperty("--sidebar-ring", primary);
+  // Keep active sidebar affordances aligned with the brand without
+  // rewriting the full sidebar surface palette.
+  root.style.setProperty("--sidebar-primary", primary);
+  root.style.setProperty("--sidebar-primary-foreground", "#FAFAFA");
+
   if (branding.faviconUrl) {
     const link =
       document.querySelector<HTMLLinkElement>("link[rel='icon']") ||
