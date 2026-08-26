@@ -57,6 +57,14 @@ export function NavMain() {
       isActive: window.location.pathname === "/dashboard/invitations",
       badge: pendingCount > 0 ? pendingCount : null,
     },
+    {
+      title: t("navigation:sidebar.contracts"),
+      url: "/dashboard/settings/workspace/contracts",
+      isActive: window.location.pathname.startsWith(
+        "/dashboard/settings/workspace/contracts",
+      ),
+      badge: null,
+    },
   ];
 
   return (

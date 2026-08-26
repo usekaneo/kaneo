@@ -41,7 +41,9 @@ import useCreateLabel from "@/hooks/mutations/label/use-create-label";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useUpdateTaskAssignee } from "@/hooks/mutations/task/use-update-task-assignee";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
+import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
@@ -49,7 +51,13 @@ import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { formatDateMedium } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
+import { getStatusLabel, getTaskTypeLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
+import {
+  DEFAULT_TASK_TYPE,
+  getDefaultTaskType,
+  getTaskTypesForProject,
+} from "@/lib/task-type";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
@@ -94,6 +102,7 @@ function normalizeTask(
     number: task.number ?? null,
     description: task.description ?? null,
     priority: task.priority ?? null,
+    taskType: task.taskType ?? DEFAULT_TASK_TYPE,
     startDate: task.startDate ?? null,
     dueDate: task.dueDate ?? null,
     position: task.position ?? 0,
@@ -185,7 +194,8 @@ function CreateTaskModal({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority>("no-priority");
-  const [assigneeId, setAssigneeId] = useState("");
+  const [taskType, setTaskType] = useState<string>(DEFAULT_TASK_TYPE);
+  const [assigneeIds, setAssigneeIds] = useState<string[]>([]);
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [createMore, setCreateMore] = useState(false);
@@ -207,9 +217,27 @@ function CreateTaskModal({
   const { data: workspaceProjects } = useGetProjects({
     workspaceId: workspace?.id || "",
   });
+  const { data: activeProject } = useGetProject({
+    id: resolvedProjectId,
+    workspaceId: workspace?.id || "",
+  });
   const resolvedProject = explicitProjectId
     ? project
-    : (workspaceProjects?.find((p) => p.id === resolvedProjectId) ?? null);
+    : (workspaceProjects?.find((p) => p.id === resolvedProjectId) ??
+      activeProject ??
+      null);
+  const resolvedProjectType = activeProject?.projectType;
+  const availableTaskTypes = useMemo(
+    () => getTaskTypesForProject(resolvedProjectType),
+    [resolvedProjectType],
+  );
+  const defaultTaskType = getDefaultTaskType(resolvedProjectType);
+
+  useEffect(() => {
+    if (!availableTaskTypes.includes(taskType)) {
+      setTaskType(defaultTaskType);
+    }
+  }, [availableTaskTypes, defaultTaskType, taskType]);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const draftCreationPromiseRef = useRef<Promise<Task> | null>(null);
@@ -217,6 +245,7 @@ function CreateTaskModal({
 
   const { mutateAsync: createTask } = useCreateTask();
   const { mutateAsync: updateTask } = useUpdateTask();
+  const { mutateAsync: updateTaskAssignee } = useUpdateTaskAssignee();
   const { mutateAsync: deleteTask } = useDeleteTask();
 
   const filteredLabels = (() => {
@@ -247,7 +276,8 @@ function CreateTaskModal({
     setTitle("");
     setDescription("");
     setPriority("no-priority");
-    setAssigneeId("");
+    setTaskType(defaultTaskType);
+    setAssigneeIds([]);
     setStartDate(undefined);
     setDueDate(undefined);
     setCreateMore(false);
@@ -342,8 +372,9 @@ function CreateTaskModal({
     const draftPromise = createTask({
       title: title.trim() || t("common:modals.createTask.untitledTask"),
       description: description.trim() || "",
-      userId: assigneeId,
+      userId: assigneeIds[0] || undefined,
       priority,
+      taskType,
       projectId: resolvedProjectId,
       startDate: startDate ? startDate.toISOString() : undefined,
       dueDate: dueDate ? dueDate.toISOString() : undefined,
@@ -367,13 +398,14 @@ function CreateTaskModal({
       draftCreationPromiseRef.current = null;
     }
   }, [
-    assigneeId,
+    assigneeIds,
     createTask,
     description,
     draftTask,
     startDate,
     dueDate,
     priority,
+    taskType,
     resolvedProjectId,
     title,
     t,
@@ -393,9 +425,10 @@ function CreateTaskModal({
               ...draftTask,
               title: title.trim(),
               description: description.trim() || "",
-              userId: assigneeId || null,
+              userId: assigneeIds[0] || null,
               status: taskStatus,
               priority,
+              taskType,
               startDate: startDate ? startDate.toISOString() : null,
               dueDate: dueDate ? dueDate.toISOString() : null,
               projectId: resolvedProjectId,
@@ -405,14 +438,22 @@ function CreateTaskModal({
             await createTask({
               title: title.trim(),
               description: description.trim() || "",
-              userId: assigneeId,
+              userId: assigneeIds[0] || undefined,
               priority,
+              taskType,
               projectId: resolvedProjectId,
               startDate: startDate ? startDate.toISOString() : undefined,
               dueDate: dueDate ? dueDate.toISOString() : undefined,
               status: taskStatus,
             }),
           );
+
+      if (draftTask) {
+        await updateTaskAssignee({
+          ...savedTask,
+          userId: assigneeIds[0] || null,
+        });
+      }
 
       for (const label of labels) {
         try {
@@ -439,7 +480,8 @@ function CreateTaskModal({
         setTitle("");
         setDescription("");
         setPriority("no-priority");
-        setAssigneeId("");
+        setTaskType(defaultTaskType);
+        setAssigneeIds([]);
         setStartDate(undefined);
         setDueDate(undefined);
         setLabels([]);
@@ -474,17 +516,25 @@ function CreateTaskModal({
     [t],
   );
 
-  const selectedPriority = priorityOptions.find((p) => p.value === priority);
-
-  const statusLabel = useMemo(() => {
-    if (status) {
-      return t(`tasks:status.${status}`);
-    }
-    return t("tasks:status.in-progress");
-  }, [status, t]);
-  const selectedUser = workspaceUsers?.members?.find(
-    (u) => u.userId === assigneeId,
+  const taskTypeOptions = useMemo(
+    () =>
+      availableTaskTypes.map((value) => ({
+        value,
+        label: getTaskTypeLabel(value),
+      })),
+    [availableTaskTypes],
   );
+
+  const selectedPriority = priorityOptions.find((p) => p.value === priority);
+  const selectedTaskType = taskTypeOptions.find((p) => p.value === taskType);
+
+  const statusLabel = useMemo(
+    () => getStatusLabel(status || "in-progress"),
+    [status],
+  );
+  const selectedUsers =
+    workspaceUsers?.members?.filter((u) => assigneeIds.includes(u.userId)) ??
+    [];
 
   useEffect(() => {
     if (labelsOpen && labelsStep === "select" && searchInputRef.current) {
@@ -602,6 +652,7 @@ function CreateTaskModal({
       <DialogContent
         className="kaneo-create-task-modal max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
         showCloseButton={false}
+        data-tour="create-task-modal"
       >
         <DialogHeader className="flex-shrink-0">
           <DialogTitle asChild>
@@ -636,6 +687,7 @@ function CreateTaskModal({
               placeholder={t("common:modals.createTask.taskTitlePlaceholder")}
               className="w-full [&_[data-slot=input]]:h-auto [&_[data-slot=input]]:px-0 [&_[data-slot=input]]:py-3 [&_[data-slot=input]]:text-2xl [&_[data-slot=input]]:leading-tight [&_[data-slot=input]]:font-semibold [&_[data-slot=input]]:tracking-tight [&_[data-slot=input]]:text-foreground [&_[data-slot=input]]:placeholder:text-muted-foreground [&_[data-slot=input]]:outline-none"
               required
+              data-tour="create-task-title"
             />
 
             <div className="min-h-[200px]">
@@ -807,25 +859,72 @@ function CreateTaskModal({
                 <PopoverTrigger asChild>
                   <button
                     type="button"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors border border-border hover:bg-accent/50 bg-accent/30 text-foreground"
+                    data-tour="create-task-type"
+                  >
+                    <span>
+                      {selectedTaskType
+                        ? selectedTaskType.label
+                        : t("common:modals.createTask.taskType")}
+                    </span>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-56 p-1" align="start">
+                  <div className="space-y-1 max-h-64 overflow-y-auto">
+                    {taskTypeOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
+                        onClick={() => setTaskType(option.value)}
+                      >
+                        <span className="text-sm truncate">{option.label}</span>
+                        {taskType === option.value && (
+                          <Check className="ml-auto h-4 w-4 shrink-0" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    data-tour="create-task-assignee"
                     className={cn(
                       "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors border border-border hover:bg-accent/50",
-                      selectedUser
+                      selectedUsers.length > 0
                         ? "bg-accent/30 text-foreground"
                         : "text-muted-foreground",
                     )}
                   >
-                    {selectedUser ? (
+                    {selectedUsers.length > 0 ? (
                       <>
-                        <Avatar className="h-4 w-4">
-                          <AvatarImage
-                            src={selectedUser?.user?.image ?? ""}
-                            alt={selectedUser?.user?.name || ""}
-                          />
-                          <AvatarFallback className="text-[10px] font-medium border border-border/30">
-                            {getInitials(selectedUser?.user?.name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span>{selectedUser.user?.name}</span>
+                        <div className="flex -space-x-1">
+                          {selectedUsers.slice(0, 3).map((member) => (
+                            <Avatar
+                              key={member.userId}
+                              className="h-4 w-4 border border-background"
+                            >
+                              <AvatarImage
+                                src={member?.user?.image ?? ""}
+                                alt={member?.user?.name || ""}
+                              />
+                              <AvatarFallback className="text-[10px] font-medium border border-border/30">
+                                {getInitials(member?.user?.name)}
+                              </AvatarFallback>
+                            </Avatar>
+                          ))}
+                        </div>
+                        <span>
+                          {selectedUsers.length === 1
+                            ? selectedUsers[0]?.user?.name
+                            : t("common:modals.createTask.assignCount", {
+                                count: selectedUsers.length,
+                              })}
+                        </span>
                       </>
                     ) : (
                       <>
@@ -840,7 +939,7 @@ function CreateTaskModal({
                     <button
                       type="button"
                       className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
-                      onClick={() => setAssigneeId("")}
+                      onClick={() => setAssigneeIds([])}
                     >
                       <div
                         className="w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center"
@@ -855,30 +954,39 @@ function CreateTaskModal({
                       <span className="text-sm">
                         {t("common:modals.createTask.assignUnassigned")}
                       </span>
-                      {!assigneeId && <Check className="ml-auto h-4 w-4" />}
+                      {assigneeIds.length === 0 && (
+                        <Check className="ml-auto h-4 w-4" />
+                      )}
                     </button>
-                    {workspaceUsers?.members?.map((member) => (
-                      <button
-                        key={member.userId}
-                        type="button"
-                        className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
-                        onClick={() => setAssigneeId(member.userId || "")}
-                      >
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage
-                            src={member?.user?.image ?? ""}
-                            alt={member?.user?.name || ""}
-                          />
-                          <AvatarFallback className="text-xs font-medium border border-border/30">
-                            {getInitials(member?.user?.name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm">{member?.user?.name}</span>
-                        {assigneeId === member.userId && (
-                          <Check className="ml-auto h-4 w-4" />
-                        )}
-                      </button>
-                    ))}
+                    {workspaceUsers?.members?.map((member) => {
+                      const selected = assigneeIds.includes(member.userId);
+                      return (
+                        <button
+                          key={member.userId}
+                          type="button"
+                          className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
+                          onClick={() =>
+                            setAssigneeIds((current) =>
+                              selected
+                                ? current.filter((id) => id !== member.userId)
+                                : [...current, member.userId],
+                            )
+                          }
+                        >
+                          <Avatar className="h-6 w-6">
+                            <AvatarImage
+                              src={member?.user?.image ?? ""}
+                              alt={member?.user?.name || ""}
+                            />
+                            <AvatarFallback className="text-xs font-medium border border-border/30">
+                              {getInitials(member?.user?.name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-sm">{member?.user?.name}</span>
+                          {selected && <Check className="ml-auto h-4 w-4" />}
+                        </button>
+                      );
+                    })}
                   </div>
                 </PopoverContent>
               </Popover>
@@ -929,6 +1037,7 @@ function CreateTaskModal({
                 <PopoverTrigger asChild>
                   <button
                     type="button"
+                    data-tour="create-task-labels"
                     className={cn(
                       "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors border border-border hover:bg-accent/50",
                       labels.length > 0
@@ -1096,6 +1205,7 @@ function CreateTaskModal({
               disabled={!title.trim()}
               size="sm"
               className="disabled:opacity-50"
+              data-tour="create-task-submit"
             >
               {t("common:modals.createTask.createButton")}
             </Button>

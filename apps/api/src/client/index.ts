@@ -2,8 +2,11 @@ import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
+import createClientCtrl from "./controllers/create-client";
 import ensureDefaultClientCtrl from "./controllers/ensure-default-client";
+import getClientCtrl from "./controllers/get-client";
 import getClientsCtrl from "./controllers/get-clients";
+import updateClientCtrl from "./controllers/update-client";
 
 const clientItemSchema = v.object({
   id: v.string(),
@@ -60,6 +63,120 @@ const client = new Hono<{
       const workspaceId = c.get("workspaceId");
       const clients = await getClientsCtrl(workspaceId);
       return c.json(clients);
+    },
+  )
+  .get(
+    "/:id",
+    describeRoute({
+      operationId: "getClient",
+      tags: ["Clients"],
+      description: "Get a client by ID",
+      responses: {
+        200: {
+          description: "Client details",
+          content: {
+            "application/json": { schema: resolver(clientItemSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    validator("query", v.object({ workspaceId: v.string() })),
+    workspaceAccess.fromQuery(),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const workspaceId = c.get("workspaceId");
+      const clientRecord = await getClientCtrl(id, workspaceId);
+      return c.json(clientRecord);
+    },
+  )
+  .post(
+    "/",
+    describeRoute({
+      operationId: "createClient",
+      tags: ["Clients"],
+      description: "Create a client in a workspace",
+      responses: {
+        200: {
+          description: "Created client",
+          content: {
+            "application/json": { schema: resolver(clientItemSchema) },
+          },
+        },
+      },
+    }),
+    validator(
+      "json",
+      v.object({
+        workspaceId: v.string(),
+        name: v.string(),
+        tradeName: v.optional(v.nullable(v.string())),
+        cnpj: v.string(),
+        email: v.optional(v.nullable(v.string())),
+        phone: v.optional(v.nullable(v.string())),
+        notes: v.optional(v.nullable(v.string())),
+      }),
+    ),
+    workspaceAccess.fromBody(),
+    async (c) => {
+      const workspaceId = c.get("workspaceId");
+      const body = c.req.valid("json");
+      const created = await createClientCtrl({
+        workspaceId,
+        name: body.name,
+        tradeName: body.tradeName,
+        cnpj: body.cnpj,
+        email: body.email,
+        phone: body.phone,
+        notes: body.notes,
+      });
+      return c.json(created);
+    },
+  )
+  .patch(
+    "/:id",
+    describeRoute({
+      operationId: "updateClient",
+      tags: ["Clients"],
+      description: "Update a client",
+      responses: {
+        200: {
+          description: "Updated client",
+          content: {
+            "application/json": { schema: resolver(clientItemSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    validator(
+      "json",
+      v.object({
+        workspaceId: v.string(),
+        name: v.optional(v.string()),
+        tradeName: v.optional(v.nullable(v.string())),
+        cnpj: v.optional(v.string()),
+        email: v.optional(v.nullable(v.string())),
+        phone: v.optional(v.nullable(v.string())),
+        notes: v.optional(v.nullable(v.string())),
+      }),
+    ),
+    workspaceAccess.fromBody(),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const workspaceId = c.get("workspaceId");
+      const body = c.req.valid("json");
+      const updated = await updateClientCtrl({
+        id,
+        workspaceId,
+        name: body.name,
+        tradeName: body.tradeName,
+        cnpj: body.cnpj,
+        email: body.email,
+        phone: body.phone,
+        notes: body.notes,
+      });
+      return c.json(updated);
     },
   )
   .post(

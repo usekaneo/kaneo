@@ -32,8 +32,13 @@ import { getColumnIcon } from "@/lib/column";
 import { dueDateStatusColors, getDueDateStatus } from "@/lib/due-date-status";
 import { formatDateShort } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
-import { getPriorityLabel, getStatusDisplayLabel } from "@/lib/i18n/domain";
+import {
+  getPriorityLabel,
+  getStatusDisplayLabel,
+  getTaskTypeLabel,
+} from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
+import { getDefaultTaskType } from "@/lib/task-type";
 import { toast } from "@/lib/toast";
 import TaskAssigneePopover from "./task-assignee-popover";
 import TaskDueDatePopover from "./task-due-date-popover";
@@ -42,6 +47,7 @@ import TaskMovePopover from "./task-move-popover";
 import TaskPriorityPopover from "./task-priority-popover";
 import TaskStartDatePopover from "./task-start-date-popover";
 import TaskStatusPopover from "./task-status-popover";
+import TaskTypePopover from "./task-type-popover";
 
 function slugify(text: string | undefined): string {
   if (!text) return "";
@@ -221,6 +227,22 @@ export default function TaskPropertiesSidebar({
                     </span>
                   </Button>
                 </TaskPriorityPopover>
+              )}
+              {task && (
+                <TaskTypePopover task={task} workspaceId={workspaceId}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start h-7 px-1.5 gap-1.5"
+                  >
+                    <span className="text-xs font-semibold truncate">
+                      {getTaskTypeLabel(
+                        task.taskType ??
+                          getDefaultTaskType(project?.projectType),
+                      )}
+                    </span>
+                  </Button>
+                </TaskTypePopover>
               )}
               {task && (
                 <TaskAssigneePopover task={task} workspaceId={workspaceId}>
@@ -408,6 +430,22 @@ export default function TaskPropertiesSidebar({
                       </span>
                     </Button>
                   </TaskPriorityPopover>
+                )}
+                {task && (
+                  <TaskTypePopover task={task} workspaceId={workspaceId}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="justify-start h-7 px-1.5 gap-1.5"
+                    >
+                      <span className="text-xs font-semibold truncate">
+                        {getTaskTypeLabel(
+                          task.taskType ??
+                            getDefaultTaskType(project?.projectType),
+                        )}
+                      </span>
+                    </Button>
+                  </TaskTypePopover>
                 )}
                 {task && (
                   <TaskAssigneePopover task={task} workspaceId={workspaceId}>
@@ -598,6 +636,22 @@ export default function TaskPropertiesSidebar({
                       </span>
                     </Button>
                   </TaskPriorityPopover>
+                )}
+                {task && (
+                  <TaskTypePopover task={task} workspaceId={workspaceId}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="justify-start h-7 px-1.5 gap-1.5 w-full"
+                    >
+                      <span className="text-xs font-semibold truncate">
+                        {getTaskTypeLabel(
+                          task.taskType ??
+                            getDefaultTaskType(project?.projectType),
+                        )}
+                      </span>
+                    </Button>
+                  </TaskTypePopover>
                 )}
                 {task && (
                   <TaskAssigneePopover task={task} workspaceId={workspaceId}>

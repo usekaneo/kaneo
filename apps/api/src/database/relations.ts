@@ -4,9 +4,13 @@ import {
   activityTable,
   apikeyTable,
   assetTable,
+  calBookingTable,
+  clientPartnerTable,
   clientTable,
   columnTable,
   commentTable,
+  contractSubmissionTable,
+  contractTemplateTable,
   externalLinkTable,
   githubIntegrationTable,
   integrationTable,
@@ -78,6 +82,8 @@ export const workspaceTableRelations = relations(
     assets: many(assetTable),
     invitations: many(invitationTable),
     notificationWorkspaceRules: many(userNotificationWorkspaceRuleTable),
+    clients: many(clientTable),
+    contractTemplates: many(contractTemplateTable),
   }),
 );
 
@@ -122,7 +128,73 @@ export const clientTableRelations = relations(clientTable, ({ one, many }) => ({
     references: [workspaceTable.id],
   }),
   projects: many(projectTable),
+  partners: many(clientPartnerTable),
 }));
+
+export const clientPartnerTableRelations = relations(
+  clientPartnerTable,
+  ({ one }) => ({
+    client: one(clientTable, {
+      fields: [clientPartnerTable.clientId],
+      references: [clientTable.id],
+    }),
+  }),
+);
+
+export const contractTemplateTableRelations = relations(
+  contractTemplateTable,
+  ({ one, many }) => ({
+    workspace: one(workspaceTable, {
+      fields: [contractTemplateTable.workspaceId],
+      references: [workspaceTable.id],
+    }),
+    createdByUser: one(userTable, {
+      fields: [contractTemplateTable.createdBy],
+      references: [userTable.id],
+    }),
+    submissions: many(contractSubmissionTable),
+  }),
+);
+
+export const contractSubmissionTableRelations = relations(
+  contractSubmissionTable,
+  ({ one }) => ({
+    workspace: one(workspaceTable, {
+      fields: [contractSubmissionTable.workspaceId],
+      references: [workspaceTable.id],
+    }),
+    project: one(projectTable, {
+      fields: [contractSubmissionTable.projectId],
+      references: [projectTable.id],
+    }),
+    task: one(taskTable, {
+      fields: [contractSubmissionTable.taskId],
+      references: [taskTable.id],
+    }),
+    client: one(clientTable, {
+      fields: [contractSubmissionTable.clientId],
+      references: [clientTable.id],
+    }),
+    template: one(contractTemplateTable, {
+      fields: [contractSubmissionTable.templateId],
+      references: [contractTemplateTable.id],
+    }),
+  }),
+);
+
+export const calBookingTableRelations = relations(
+  calBookingTable,
+  ({ one }) => ({
+    task: one(taskTable, {
+      fields: [calBookingTable.taskId],
+      references: [taskTable.id],
+    }),
+    createdByUser: one(userTable, {
+      fields: [calBookingTable.createdBy],
+      references: [userTable.id],
+    }),
+  }),
+);
 
 export const columnTableRelations = relations(columnTable, ({ one, many }) => ({
   project: one(projectTable, {
@@ -169,6 +241,8 @@ export const taskTableRelations = relations(taskTable, ({ one, many }) => ({
   sourceRelations: many(taskRelationTable, { relationName: "sourceTask" }),
   targetRelations: many(taskRelationTable, { relationName: "targetTask" }),
   remindersSent: many(taskReminderSentTable),
+  calBookings: many(calBookingTable),
+  contractSubmissions: many(contractSubmissionTable),
 }));
 
 export const timeEntryTableRelations = relations(timeEntryTable, ({ one }) => ({

@@ -795,6 +795,25 @@
 			"deleteError": "Failed to delete label",
 			"nameRequired": "Label name is required"
 		},
+		"workspaceClients": {
+			"title": "Clients",
+			"description": "Register clients with CNPJ to link to projects and contracts.",
+			"add": "New client",
+			"name": "Legal name",
+			"cnpj": "CNPJ",
+			"email": "Email",
+			"save": "Save client",
+			"loading": "Loading clients...",
+			"empty": "No clients registered yet.",
+			"createSuccess": "Client created successfully",
+			"createError": "Failed to create client"
+		},
+		"workspaceContracts": {
+			"title": "Contracts",
+			"description": "Contract templates available for DocuSeal sending.",
+			"loading": "Loading templates...",
+			"empty": "No templates yet. Use the demo seed or upload later."
+		},
 		"projectGeneral": {
 			"pageTitle": "Project Settings",
 			"title": "General Settings",
@@ -1298,7 +1317,8 @@
 			"invitations": "Invitations",
 			"more": "More",
 			"backToBoard": "Back to board",
-			"metrics": "Dashboard"
+			"metrics": "Dashboard",
+			"contracts": "Contracts"
 		},
 		"projectList": {
 			"viewProject": "View Project",
@@ -1544,6 +1564,7 @@
 	"tasks": {
 		"status": {
 			"label": "Status",
+			"new": "New",
 			"to-do": "To Do",
 			"in-progress": "In Progress",
 			"in-review": "In Review",
@@ -1558,6 +1579,45 @@
 			"medium": "Medium",
 			"high": "High",
 			"urgent": "Urgent"
+		},
+		"taskTypes": {
+			"feat": "Feature",
+			"fix": "Fix",
+			"chore": "Chore",
+			"bug": "Bug",
+			"docs": "Docs",
+			"refactor": "Refactor",
+			"test": "Test",
+			"perf": "Performance",
+			"ci": "CI",
+			"build": "Build",
+			"style": "Style",
+			"contract": "Contract",
+			"contrato": "Contract",
+			"reuniao": "Meeting",
+			"meeting": "Meeting",
+			"incidente": "Incident",
+			"melhoria": "Improvement",
+			"patch": "Patch",
+			"hotfix": "Hotfix",
+			"chamado": "Ticket",
+			"duvida": "Question",
+			"reclamacao": "Complaint",
+			"solicitacao": "Request",
+			"orcamento": "Quote",
+			"tsc": "TSC",
+			"curriculo": "Resume",
+			"entrevista": "Interview",
+			"proposta": "Proposal",
+			"onboarding": "Onboarding",
+			"campanha": "Campaign",
+			"conteudo": "Content",
+			"arte": "Creative",
+			"anuncio": "Ad",
+			"implantacao": "Deployment",
+			"consultoria": "Consulting",
+			"treinamento": "Training",
+			"auditoria": "Audit"
 		},
 		"boardSearchPlaceholder": "Search tickets...",
 		"view": {
@@ -1735,6 +1795,9 @@
 			},
 			"priority": {
 				"updateError": "Failed to update task priority"
+			},
+			"taskType": {
+				"updateError": "Failed to update task type"
 			},
 			"dueDate": {
 				"updateSuccess": "Task due date updated successfully",
@@ -2156,6 +2219,44 @@
 		},
 		"branding": {
 			"poweredBy": "Powered by"
+		}
+	},
+	"contracts": {
+		"status": {
+			"pending": "Pending",
+			"sent": "Sent",
+			"completed": "Completed",
+			"declined": "Declined"
+		},
+		"panel": {
+			"title": "Contract",
+			"start": "Start contract",
+			"loading": "Loading contract...",
+			"empty": "No contract started for this task.",
+			"submissionId": "Submission: {{id}}",
+			"modalTitle": "Send contract",
+			"template": "Template",
+			"client": "Client",
+			"pickTemplate": "Select a template",
+			"pickClient": "Select a client",
+			"send": "Send contract",
+			"sending": "Sending...",
+			"sentSuccess": "Contract sent successfully",
+			"sentError": "Failed to send contract"
+		}
+	},
+	"meetings": {
+		"panel": {
+			"title": "Meeting",
+			"loading": "Loading meeting...",
+			"empty": "Create a scheduling link for this task.",
+			"urlLabel": "Scheduling link",
+			"create": "Create link",
+			"creating": "Creating...",
+			"schedulingLink": "Scheduling link",
+			"meetingLink": "Meeting link",
+			"createdSuccess": "Meeting link created",
+			"createdError": "Failed to create meeting link"
 		}
 	}
 }

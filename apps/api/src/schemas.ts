@@ -39,6 +39,7 @@ export const taskSchema = v.object({
     "high",
     "urgent",
   ] as const),
+  taskType: v.string(),
   startDate: v.optional(v.date()),
   dueDate: v.optional(v.date()),
   createdAt: v.date(),

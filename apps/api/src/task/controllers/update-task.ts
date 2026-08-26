@@ -1,10 +1,13 @@
 import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { columnTable, taskTable } from "../../database/schema";
+import { columnTable, projectTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { deleteOrphanedAssets } from "../../storage/cleanup-assets";
-import { assertValidTaskStatus } from "../validate-task-fields";
+import {
+  assertValidTaskStatus,
+  assertValidTaskType,
+} from "../validate-task-fields";
 
 async function updateTask(
   id: string,
@@ -18,6 +21,7 @@ async function updateTask(
   position: number,
   userId?: string,
   currentUserId?: string,
+  taskType?: string,
 ) {
   const [existingTask] = await db
     .select({
@@ -44,6 +48,15 @@ async function updateTask(
 
   await assertValidTaskStatus(status, projectId);
 
+  if (taskType !== undefined) {
+    const [project] = await db
+      .select({ projectType: projectTable.projectType })
+      .from(projectTable)
+      .where(eq(projectTable.id, projectId))
+      .limit(1);
+    assertValidTaskType(taskType, project?.projectType ?? null);
+  }
+
   const column = await db.query.columnTable.findFirst({
     where: and(
       eq(columnTable.projectId, projectId),
@@ -64,6 +77,7 @@ async function updateTask(
       priority,
       position,
       userId: userId || null,
+      ...(taskType !== undefined ? { taskType } : {}),
     })
     .where(eq(taskTable.id, id))
     .returning();
