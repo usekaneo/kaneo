@@ -848,6 +848,8 @@
 			"genericWebhookSectionSubtitle": "将项目任务事件以 JSON 形式发送到任意 HTTP 端点。",
 			"slackSectionTitle": "Slack 集成",
 			"slackSectionSubtitle": "通过 Incoming Webhook 将项目任务更新发送到 Slack 频道。",
+			"googleChatSectionTitle": "Google Chat 集成",
+			"googleChatSectionSubtitle": "通过传入 Webhook 将项目任务更新发送到 Google Chat 空间。",
 			"telegramSectionTitle": "Telegram 集成",
 			"telegramSectionSubtitle": "通过 Bot 将项目任务更新发送到 Telegram 聊天或话题。"
 		},
@@ -1074,6 +1076,44 @@
 			"connect": "连接 Slack",
 			"saveChanges": "保存更改",
 			"update": "更新 Slack",
+			"disconnect": "断开连接"
+		},
+		"googleChatIntegration": {
+			"validation": {
+				"webhookInvalid": "请输入有效的 Google Chat Webhook URL"
+			},
+			"toast": {
+				"saved": "Google Chat 集成保存成功",
+				"saveError": "保存 Google Chat 集成失败",
+				"enabled": "Google Chat 通知已启用",
+				"disabled": "Google Chat 通知已暂停",
+				"updateError": "更新 Google Chat 集成失败",
+				"removed": "Google Chat 集成已移除",
+				"removeError": "移除 Google Chat 集成失败"
+			},
+			"connectionTitle": "Google Chat Webhook 连接",
+			"connectionHint": "粘贴 Google Chat Incoming Webhook URL 并选择应发布的任务事件。",
+			"connected": "已连接",
+			"paused": "已暂停",
+			"webhookLabel": "Incoming Webhook URL",
+			"webhookPlaceholder": "https://chat.googleapis.com/v1/spaces/.../messages?key=...&token=...",
+			"webhookHint": "在 Google Chat 中创建 Incoming Webhook，然后粘贴生成的 URL。",
+			"channelLabel": "空间名称",
+			"channelPlaceholder": "team-updates",
+			"channelHint": "用于识别的可选标签。Webhook 决定实际的目标空间。",
+			"eventsTitle": "事件通知",
+			"eventsHint": "选择应发布到 Google Chat 的项目变更。",
+			"events": {
+				"taskCreated": "新任务",
+				"taskStatusChanged": "状态变更",
+				"taskPriorityChanged": "优先级变更",
+				"taskTitleChanged": "标题变更",
+				"taskDescriptionChanged": "描述变更",
+				"taskCommentCreated": "新评论"
+			},
+			"connect": "连接 Google Chat",
+			"saveChanges": "保存更改",
+			"update": "更新 Google Chat",
 			"disconnect": "断开连接"
 		},
 		"discordIntegration": {

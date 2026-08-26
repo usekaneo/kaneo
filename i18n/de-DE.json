@@ -687,6 +687,8 @@
 			"genericWebhookSectionSubtitle": "Sende Projektaufgabenereignisse als JSON an einen beliebigen HTTP-Endpunkt.",
 			"slackSectionTitle": "Slack-Integration",
 			"slackSectionSubtitle": "Sende Projektaktualisierungen per Incoming Webhook in einen Slack-Kanal.",
+			"googleChatSectionTitle": "Google-Chat-Integration",
+			"googleChatSectionSubtitle": "Projektaufgaben-Aktualisierungen über einen eingehenden Webhook an einen Google-Chat-Bereich senden.",
 			"telegramSectionTitle": "Telegram-Integration",
 			"telegramSectionSubtitle": "Sende Projektaktualisierungen mit einem Bot in einen Telegram-Chat oder ein Thema."
 		},
@@ -913,6 +915,44 @@
 			"connect": "Slack verbinden",
 			"saveChanges": "Änderungen speichern",
 			"update": "Slack aktualisieren",
+			"disconnect": "Trennen"
+		},
+		"googleChatIntegration": {
+			"validation": {
+				"webhookInvalid": "Gib eine gültige Google Chat-Webhook-URL ein"
+			},
+			"toast": {
+				"saved": "Google Chat-Integration erfolgreich gespeichert",
+				"saveError": "Google Chat-Integration konnte nicht gespeichert werden",
+				"enabled": "Google Chat-Benachrichtigungen aktiviert",
+				"disabled": "Google Chat-Benachrichtigungen pausiert",
+				"updateError": "Google Chat-Integration konnte nicht aktualisiert werden",
+				"removed": "Google Chat-Integration erfolgreich entfernt",
+				"removeError": "Google Chat-Integration konnte nicht entfernt werden"
+			},
+			"connectionTitle": "Google Chat-Webhook-Verbindung",
+			"connectionHint": "Füge eine Google Chat-Incoming-Webhook-URL ein und wähle aus, welche Aufgabenereignisse gesendet werden sollen.",
+			"connected": "Verbunden",
+			"paused": "Pausiert",
+			"webhookLabel": "Incoming-Webhook-URL",
+			"webhookPlaceholder": "https://chat.googleapis.com/v1/spaces/.../messages?key=...&token=...",
+			"webhookHint": "Erstelle in Google Chat einen Incoming Webhook und füge die erzeugte URL hier ein.",
+			"channelLabel": "Name des Bereichs",
+			"channelPlaceholder": "team-updates",
+			"channelHint": "Optionale Bezeichnung zur Orientierung. Der Webhook bestimmt den tatsächlichen Zielbereich.",
+			"eventsTitle": "Ereignisbenachrichtigungen",
+			"eventsHint": "Wähle aus, welche Projektänderungen an Google Chat gesendet werden sollen.",
+			"events": {
+				"taskCreated": "Neue Aufgaben",
+				"taskStatusChanged": "Statusänderungen",
+				"taskPriorityChanged": "Prioritätsänderungen",
+				"taskTitleChanged": "Titeländerungen",
+				"taskDescriptionChanged": "Beschreibungsänderungen",
+				"taskCommentCreated": "Neue Kommentare"
+			},
+			"connect": "Google Chat verbinden",
+			"saveChanges": "Änderungen speichern",
+			"update": "Google Chat aktualisieren",
 			"disconnect": "Trennen"
 		},
 		"discordIntegration": {

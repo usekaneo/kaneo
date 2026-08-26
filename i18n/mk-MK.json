@@ -681,6 +681,8 @@
 			"githubSectionSubtitle": "Синхронизирај задачи со GitHub issues и овозможи двонасочна синхронизација.",
 			"giteaSectionTitle": "Gitea интеграција",
 			"giteaSectionSubtitle": "Синхронизирај задачи со само-хостирана Gitea инстанца (issues, PRs, webhooks).",
+			"googleChatSectionTitle": "Интеграција со Google Chat",
+			"googleChatSectionSubtitle": "Испраќајте ажурирања за проектните задачи во простор на Google Chat преку дојдовен webhook.",
 			"telegramSectionTitle": "Telegram интеграција",
 			"telegramSectionSubtitle": "Испраќај ажурирања за задачи од проектот во Telegram разговор или тема со бот.",
 			"discordSectionTitle": "Discord интеграција",
@@ -913,6 +915,44 @@
 			"connect": "Поврзи Slack",
 			"saveChanges": "Зачувај промени",
 			"update": "Ажурирај Slack",
+			"disconnect": "Откачи"
+		},
+		"googleChatIntegration": {
+			"validation": {
+				"webhookInvalid": "Внеси валидна Google Chat webhook URL"
+			},
+			"toast": {
+				"saved": "Google Chat интеграцијата е успешно зачувана",
+				"saveError": "Не успеа зачувувањето на Google Chat интеграцијата",
+				"enabled": "Google Chat известувањата се вклучени",
+				"disabled": "Google Chat известувањата се паузирани",
+				"updateError": "Не успеа ажурирањето на Google Chat интеграцијата",
+				"removed": "Google Chat интеграцијата е успешно отстранета",
+				"removeError": "Не успеа отстранувањето на Google Chat интеграцијата"
+			},
+			"connectionTitle": "Google Chat webhook конекција",
+			"connectionHint": "Залепи Google Chat incoming webhook URL и избери кои настани за задачи да се испраќаат.",
+			"connected": "Поврзано",
+			"paused": "Паузирано",
+			"webhookLabel": "Incoming webhook URL",
+			"webhookPlaceholder": "https://chat.googleapis.com/v1/spaces/.../messages?key=...&token=...",
+			"webhookHint": "Креирај Incoming Webhook во Google Chat и залепи ја генерираната URL тука.",
+			"channelLabel": "Име на просторот",
+			"channelPlaceholder": "team-updates",
+			"channelHint": "Изборна ознака за ваша референца. Webhook-от го контролира вистинскиот одредишен простор.",
+			"eventsTitle": "Известувања за настани",
+			"eventsHint": "Избери кои промени на проектот да се испраќаат во Google Chat.",
+			"events": {
+				"taskCreated": "Нови задачи",
+				"taskStatusChanged": "Промени на статус",
+				"taskPriorityChanged": "Промени на приоритет",
+				"taskTitleChanged": "Промени на наслов",
+				"taskDescriptionChanged": "Промени на опис",
+				"taskCommentCreated": "Нови коментари"
+			},
+			"connect": "Поврзи Google Chat",
+			"saveChanges": "Зачувај промени",
+			"update": "Ажурирај Google Chat",
 			"disconnect": "Откачи"
 		},
 		"discordIntegration": {

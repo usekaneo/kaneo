@@ -681,6 +681,8 @@
 			"githubSectionSubtitle": "Synchronisez les tâches avec les problèmes GitHub et activez la synchronisation bidirectionnelle.",
 			"giteaSectionTitle": "Intégration Gitea",
 			"giteaSectionSubtitle": "Synchronisez les tâches avec une instance Gitea auto-hébergée (issues, PRs, webhooks).",
+			"googleChatSectionTitle": "Intégration Google Chat",
+			"googleChatSectionSubtitle": "Envoyez les mises à jour des tâches du projet dans un espace Google Chat à l’aide d’un webhook entrant.",
 			"telegramSectionTitle": "Intégration Telegram",
 			"telegramSectionSubtitle": "Envoyez les mises à jour des tâches du projet dans un chat ou un sujet Telegram avec un bot.",
 			"discordSectionTitle": "Intégration Discord",
@@ -913,6 +915,44 @@
 			"connect": "Connecter Slack",
 			"saveChanges": "Enregistrer les modifications",
 			"update": "Mettre à jour Slack",
+			"disconnect": "Déconnecter"
+		},
+		"googleChatIntegration": {
+			"validation": {
+				"webhookInvalid": "Entrez une URL de webhook Google Chat valide"
+			},
+			"toast": {
+				"saved": "Intégration Google Chat enregistrée avec succès",
+				"saveError": "Échec de l'enregistrement de l'intégration Google Chat",
+				"enabled": "Notifications Google Chat activées",
+				"disabled": "Notifications Google Chat en pause",
+				"updateError": "Échec de la mise à jour de l'intégration Google Chat",
+				"removed": "Intégration Google Chat supprimée avec succès",
+				"removeError": "Échec de la suppression de l'intégration Google Chat"
+			},
+			"connectionTitle": "Connexion webhook Google Chat",
+			"connectionHint": "Collez une URL de webhook entrant Google Chat et choisissez les événements de tâche à publier.",
+			"connected": "Connecté",
+			"paused": "En pause",
+			"webhookLabel": "URL du webhook entrant",
+			"webhookPlaceholder": "https://chat.googleapis.com/v1/spaces/.../messages?key=...&token=...",
+			"webhookHint": "Créez un webhook entrant dans Google Chat et collez l'URL générée ici.",
+			"channelLabel": "Nom de l’espace",
+			"channelPlaceholder": "team-updates",
+			"channelHint": "Libellé facultatif à titre indicatif. Le webhook détermine l’espace de destination réel.",
+			"eventsTitle": "Notifications d'événements",
+			"eventsHint": "Choisissez les changements de projet à envoyer vers Google Chat.",
+			"events": {
+				"taskCreated": "Nouvelles tâches",
+				"taskStatusChanged": "Changements de statut",
+				"taskPriorityChanged": "Changements de priorité",
+				"taskTitleChanged": "Changements de titre",
+				"taskDescriptionChanged": "Changements de description",
+				"taskCommentCreated": "Nouveaux commentaires"
+			},
+			"connect": "Connecter Google Chat",
+			"saveChanges": "Enregistrer les modifications",
+			"update": "Mettre à jour Google Chat",
 			"disconnect": "Déconnecter"
 		},
 		"discordIntegration": {

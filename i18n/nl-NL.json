@@ -584,6 +584,8 @@
 			"slackSectionSubtitle": "Verstuur updates van projecttaken naar een Slack-kanaal met een binnenkomende webhook.",
 			"giteaSectionTitle": "Gitea Integratie",
 			"giteaSectionSubtitle": "Synchroniseer taken met een zelf-gehoste Gitea-instantie (issues, PR's, webhooks).",
+			"googleChatSectionTitle": "Google Chat-integratie",
+			"googleChatSectionSubtitle": "Stuur updates van projecttaken via een inkomende webhook naar een Google Chat-ruimte.",
 			"telegramSectionTitle": "Telegram Integratie",
 			"telegramSectionSubtitle": "Verstuur updates van projecttaken naar een Telegram-chat of -topic met een bot."
 		},
@@ -734,6 +736,44 @@
 			"connect": "Verbind Slack",
 			"saveChanges": "Wijzigingen opslaan",
 			"update": "Slack bijwerken",
+			"disconnect": "Ontkoppelen"
+		},
+		"googleChatIntegration": {
+			"validation": {
+				"webhookInvalid": "Voer een geldige Google Chat webhook-URL in"
+			},
+			"toast": {
+				"saved": "Google Chat-integratie succesvol opgeslagen",
+				"saveError": "Opslaan Google Chat-integratie mislukt",
+				"enabled": "Google Chat-meldingen ingeschakeld",
+				"disabled": "Google Chat-meldingen gepauzeerd",
+				"updateError": "Bijwerken Google Chat-integratie mislukt",
+				"removed": "Google Chat-integratie succesvol verwijderd",
+				"removeError": "Verwijderen Google Chat-integratie mislukt"
+			},
+			"connectionTitle": "Google Chat webhook-verbinding",
+			"connectionHint": "Plak een Google Chat 'incoming webhook'-URL en kies welke taakgebeurtenissen gepost moeten worden.",
+			"connected": "Verbonden",
+			"paused": "Gepauzeerd",
+			"webhookLabel": "Incoming webhook-URL",
+			"webhookPlaceholder": "https://chat.googleapis.com/v1/spaces/.../messages?key=...&token=...",
+			"webhookHint": "Maak een 'Incoming Webhook' aan in Google Chat en plak de gegenereerde URL hier.",
+			"channelLabel": "Naam van ruimte",
+			"channelPlaceholder": "team-updates",
+			"channelHint": "Optioneel label ter referentie. De webhook bepaalt de daadwerkelijke doelruimte.",
+			"eventsTitle": "Gebeurtenis-meldingen",
+			"eventsHint": "Kies welke projectwijzigingen naar Google Chat gepost moeten worden.",
+			"events": {
+				"taskCreated": "Nieuwe taken",
+				"taskStatusChanged": "Statuswijzigingen",
+				"taskPriorityChanged": "Prioriteitswijzigingen",
+				"taskTitleChanged": "Titelwijzigingen",
+				"taskDescriptionChanged": "Beschrijvingswijzigingen",
+				"taskCommentCreated": "Nieuwe reacties"
+			},
+			"connect": "Verbind Google Chat",
+			"saveChanges": "Wijzigingen opslaan",
+			"update": "Google Chat bijwerken",
 			"disconnect": "Ontkoppelen"
 		},
 		"discordIntegration": {

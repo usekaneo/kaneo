@@ -687,6 +687,8 @@
 			"genericWebhookSectionSubtitle": "Proje talep olaylarını JSON olarak herhangi bir HTTP uç noktasına gönderin.",
 			"slackSectionTitle": "Slack Entegrasyonu",
 			"slackSectionSubtitle": "Proje talep güncellemelerini gelen bir webhook ile Slack kanalına gönderin.",
+			"googleChatSectionTitle": "Google Chat Entegrasyonu",
+			"googleChatSectionSubtitle": "Gelen webhook ile proje görevi güncellemelerini bir Google Chat alanına gönderin.",
 			"telegramSectionTitle": "Telegram Entegrasyonu",
 			"telegramSectionSubtitle": "Proje talep güncellemelerini bir bot ile Telegram sohbetine veya konusuna gönderin."
 		},
@@ -913,6 +915,44 @@
 			"connect": "Slack bağla",
 			"saveChanges": "Değişiklikleri kaydet",
 			"update": "Slack'i güncelle",
+			"disconnect": "Bağlantıyı kes"
+		},
+		"googleChatIntegration": {
+			"validation": {
+				"webhookInvalid": "Geçerli bir Google Chat webhook URL'si girin"
+			},
+			"toast": {
+				"saved": "Google Chat entegrasyonu başarıyla kaydedildi",
+				"saveError": "Google Chat entegrasyonu kaydedilemedi",
+				"enabled": "Google Chat bildirimleri etkinleştirildi",
+				"disabled": "Google Chat bildirimleri duraklatıldı",
+				"updateError": "Google Chat entegrasyonu güncellenemedi",
+				"removed": "Google Chat entegrasyonu başarıyla kaldırıldı",
+				"removeError": "Google Chat entegrasyonu kaldırılamadı"
+			},
+			"connectionTitle": "Google Chat webhook bağlantısı",
+			"connectionHint": "Bir Google Chat gelen webhook URL'si yapıştırın ve hangi talep olaylarının gönderileceğini seçin.",
+			"connected": "Bağlı",
+			"paused": "Duraklatıldı",
+			"webhookLabel": "Gelen webhook URL'si",
+			"webhookPlaceholder": "https://chat.googleapis.com/v1/spaces/.../messages?key=...&token=...",
+			"webhookHint": "Google Chat'te bir Gelen Webhook oluşturun ve oluşturulan URL'yi buraya yapıştırın.",
+			"channelLabel": "Alan adı",
+			"channelPlaceholder": "takim-guncellemeleri",
+			"channelHint": "Referansınız için isteğe bağlı etikettir. Gerçek hedef alanı webhook belirler.",
+			"eventsTitle": "Olay bildirimleri",
+			"eventsHint": "Hangi proje değişikliklerinin Google Chat'e gönderileceğini seçin.",
+			"events": {
+				"taskCreated": "Yeni talepler",
+				"taskStatusChanged": "Durum değişiklikleri",
+				"taskPriorityChanged": "Öncelik değişiklikleri",
+				"taskTitleChanged": "Başlık değişiklikleri",
+				"taskDescriptionChanged": "Açıklama değişiklikleri",
+				"taskCommentCreated": "Yeni yorumlar"
+			},
+			"connect": "Google Chat bağla",
+			"saveChanges": "Değişiklikleri kaydet",
+			"update": "Google Chat'i güncelle",
 			"disconnect": "Bağlantıyı kes"
 		},
 		"discordIntegration": {

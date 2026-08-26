@@ -687,6 +687,8 @@
 			"genericWebhookSectionSubtitle": "프로젝트 작업 이벤트를 모든 HTTP 엔드포인트로 JSON 형식으로 전송합니다.",
 			"slackSectionTitle": "Slack 연동",
 			"slackSectionSubtitle": "수신 웹훅을 사용하여 프로젝트 작업 업데이트를 Slack 채널로 전송합니다.",
+			"googleChatSectionTitle": "Google Chat 연동",
+			"googleChatSectionSubtitle": "수신 웹훅을 사용하여 프로젝트 작업 업데이트를 Google Chat 스페이스로 전송합니다.",
 			"telegramSectionTitle": "Telegram 연동",
 			"telegramSectionSubtitle": "봇을 사용하여 프로젝트 작업 업데이트를 Telegram 채팅 또는 토픽으로 전송합니다."
 		},
@@ -913,6 +915,44 @@
 			"connect": "Slack 연결",
 			"saveChanges": "변경사항 저장",
 			"update": "Slack 업데이트",
+			"disconnect": "연결 해제"
+		},
+		"googleChatIntegration": {
+			"validation": {
+				"webhookInvalid": "유효한 Google Chat 웹훅 URL을 입력하세요"
+			},
+			"toast": {
+				"saved": "Google Chat 연동이 저장되었습니다",
+				"saveError": "Google Chat 연동 저장에 실패했습니다",
+				"enabled": "Google Chat 알림이 활성화되었습니다",
+				"disabled": "Google Chat 알림이 일시 중지되었습니다",
+				"updateError": "Google Chat 연동 업데이트에 실패했습니다",
+				"removed": "Google Chat 연동이 제거되었습니다",
+				"removeError": "Google Chat 연동 제거에 실패했습니다"
+			},
+			"connectionTitle": "Google Chat 웹훅 연결",
+			"connectionHint": "Google Chat 수신 웹훅 URL을 붙여넣고 게시할 작업 이벤트를 선택하세요.",
+			"connected": "연결됨",
+			"paused": "일시 중지됨",
+			"webhookLabel": "수신 웹훅 URL",
+			"webhookPlaceholder": "https://chat.googleapis.com/v1/spaces/.../messages?key=...&token=...",
+			"webhookHint": "Google Chat 스페이스에서 수신 웹훅을 만들고 생성된 URL을 여기에 붙여넣으세요.",
+			"channelLabel": "스페이스 이름",
+			"channelPlaceholder": "팀 업데이트",
+			"channelHint": "참고용 선택 라벨입니다. 실제 대상 스페이스는 웹훅 설정에서 제어합니다.",
+			"eventsTitle": "이벤트 알림",
+			"eventsHint": "Google Chat에 게시할 프로젝트 변경 사항을 선택합니다.",
+			"events": {
+				"taskCreated": "새 작업",
+				"taskStatusChanged": "상태 변경",
+				"taskPriorityChanged": "우선순위 변경",
+				"taskTitleChanged": "제목 변경",
+				"taskDescriptionChanged": "설명 변경",
+				"taskCommentCreated": "새 댓글"
+			},
+			"connect": "Google Chat 연결",
+			"saveChanges": "변경사항 저장",
+			"update": "Google Chat 업데이트",
 			"disconnect": "연결 해제"
 		},
 		"discordIntegration": {

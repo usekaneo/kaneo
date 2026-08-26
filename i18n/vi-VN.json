@@ -848,6 +848,8 @@
 			"genericWebhookSectionSubtitle": "Gửi sự kiện công việc dự án đến bất kỳ điểm cuối HTTP nào dưới dạng JSON.",
 			"slackSectionTitle": "Tích hợp Slack",
 			"slackSectionSubtitle": "Gửi cập nhật công việc dự án vào kênh Slack bằng webhook đến.",
+			"googleChatSectionTitle": "Tích hợp Google Chat",
+			"googleChatSectionSubtitle": "Gửi thông tin cập nhật công việc của dự án đến một không gian Google Chat bằng webhook đến.",
 			"telegramSectionTitle": "Tích hợp Telegram",
 			"telegramSectionSubtitle": "Gửi cập nhật công việc dự án vào cuộc trò chuyện hoặc chủ đề Telegram bằng bot."
 		},
@@ -1074,6 +1076,44 @@
 			"connect": "Kết nối Slack",
 			"saveChanges": "Lưu thay đổi",
 			"update": "Cập nhật Slack",
+			"disconnect": "Ngắt kết nối"
+		},
+		"googleChatIntegration": {
+			"validation": {
+				"webhookInvalid": "Nhập một URL webhook Google Chat hợp lệ"
+			},
+			"toast": {
+				"saved": "Đã lưu tích hợp Google Chat thành công",
+				"saveError": "Không thể lưu tích hợp Google Chat",
+				"enabled": "Đã bật thông báo Google Chat",
+				"disabled": "Đã tạm dừng thông báo Google Chat",
+				"updateError": "Không thể cập nhật tích hợp Google Chat",
+				"removed": "Gỡ bỏ tích hợp Google Chat thành công",
+				"removeError": "Không thể gỡ bỏ tích hợp Google Chat"
+			},
+			"connectionTitle": "Kết nối webhook Google Chat",
+			"connectionHint": "Dán URL webhook đến của Google Chat và chọn sự kiện công việc nào sẽ được đăng.",
+			"connected": "Đã kết nối",
+			"paused": "Đã tạm dừng",
+			"webhookLabel": "URL webhook đến",
+			"webhookPlaceholder": "https://chat.googleapis.com/v1/spaces/.../messages?key=...&token=...",
+			"webhookHint": "Tạo một Incoming Webhook trong Google Chat và dán URL được tạo vào đây.",
+			"channelLabel": "Tên không gian",
+			"channelPlaceholder": "team-updates",
+			"channelHint": "Nhãn tùy chọn để bạn tham khảo. Webhook kiểm soát không gian đích thực tế.",
+			"eventsTitle": "Thông báo sự kiện",
+			"eventsHint": "Chọn thay đổi dự án nào sẽ đăng lên Google Chat.",
+			"events": {
+				"taskCreated": "Công việc mới",
+				"taskStatusChanged": "Thay đổi trạng thái",
+				"taskPriorityChanged": "Thay đổi mức ưu tiên",
+				"taskTitleChanged": "Thay đổi tiêu đề",
+				"taskDescriptionChanged": "Thay đổi mô tả",
+				"taskCommentCreated": "Bình luận mới"
+			},
+			"connect": "Kết nối Google Chat",
+			"saveChanges": "Lưu thay đổi",
+			"update": "Cập nhật Google Chat",
 			"disconnect": "Ngắt kết nối"
 		},
 		"discordIntegration": {
