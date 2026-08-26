@@ -15,6 +15,7 @@ import { DiscordIntegrationSettings } from "@/components/project/discord-integra
 import { GenericWebhookIntegrationSettings } from "@/components/project/generic-webhook-integration-settings";
 import { GiteaIntegrationSettings } from "@/components/project/gitea-integration-settings";
 import { GitHubIntegrationSettings } from "@/components/project/github-integration-settings";
+import { GoogleChatIntegrationSettings } from "@/components/project/google-chat-integration-settings";
 import { SlackIntegrationSettings } from "@/components/project/slack-integration-settings";
 import { TelegramIntegrationSettings } from "@/components/project/telegram-integration-settings";
 import {
@@ -87,6 +88,16 @@ function RouteComponent() {
             title={t("settings:projectIntegrations.slackSectionTitle")}
           >
             <SlackIntegrationSettings projectId={projectId} />
+          </IntegrationSection>
+
+          <IntegrationSection
+            icon={<MessageCircle className="size-4" />}
+            subtitle={t(
+              "settings:projectIntegrations.googleChatSectionSubtitle",
+            )}
+            title={t("settings:projectIntegrations.googleChatSectionTitle")}
+          >
+            <GoogleChatIntegrationSettings projectId={projectId} />
           </IntegrationSection>
 
           <IntegrationSection
