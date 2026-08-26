@@ -320,15 +320,18 @@ export default function CommentEditor({
       }
 
       chain
-        .insertContent({
-          type: "attachmentCard",
-          attrs: {
-            url: asset.url,
-            filename: asset.filename,
-            mimeType: asset.mimeType,
-            size: asset.size,
+        .insertContent([
+          {
+            type: "attachmentCard",
+            attrs: {
+              url: asset.url,
+              filename: asset.filename,
+              mimeType: asset.mimeType,
+              size: asset.size,
+            },
           },
-        })
+          { type: "paragraph" },
+        ])
         .run();
     },
     [],
@@ -609,7 +612,7 @@ export default function CommentEditor({
       extensions: [
         StarterKit.configure({
           heading: { levels: [1, 2, 3] },
-          trailingNode: false,
+          trailingNode: {},
           codeBlock: {
             HTMLAttributes: { class: "kaneo-tiptap-codeblock" },
           },

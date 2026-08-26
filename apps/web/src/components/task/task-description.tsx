@@ -413,15 +413,18 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
       }
 
       chain
-        .insertContent({
-          type: "attachmentCard",
-          attrs: {
-            url: asset.url,
-            filename: asset.filename,
-            mimeType: asset.mimeType,
-            size: asset.size,
+        .insertContent([
+          {
+            type: "attachmentCard",
+            attrs: {
+              url: asset.url,
+              filename: asset.filename,
+              mimeType: asset.mimeType,
+              size: asset.size,
+            },
           },
-        })
+          { type: "paragraph" },
+        ])
         .run();
     },
     [],
@@ -620,7 +623,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           codeBlock: {
             HTMLAttributes: { class: "kaneo-tiptap-codeblock" },
           },
-          trailingNode: false,
+          trailingNode: {},
           heading: { levels: [1, 2, 3] },
         }),
         Markdown.configure({

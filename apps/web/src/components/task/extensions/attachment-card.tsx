@@ -17,6 +17,26 @@ export function isEmbeddableVideoMimeType(mimeType: string) {
   );
 }
 
+export function isEmbeddableVideoAttachment(
+  mimeType: string,
+  filename: string,
+  url: string,
+) {
+  if (isEmbeddableVideoMimeType(mimeType)) return true;
+
+  return [filename, url].some((value) =>
+    value.split(/[?#]/, 1)[0]?.toLowerCase().endsWith(".mp4"),
+  );
+}
+
+export function parseAttachmentMimeType(element: HTMLElement) {
+  return (
+    element.getAttribute("mime-type") ||
+    element.getAttribute("data-mime-type") ||
+    ""
+  );
+}
+
 function formatBytes(size: number) {
   if (!Number.isFinite(size) || size <= 0) return "";
   if (size < 1024) return `${size} B`;
@@ -33,12 +53,12 @@ function AttachmentCardView({ node }: NodeViewProps) {
   const mimeType = String(node.attrs.mimeType || "");
   const size = Number(node.attrs.size || 0);
 
-  if (url && isEmbeddableVideoMimeType(mimeType)) {
+  if (url && isEmbeddableVideoAttachment(mimeType, filename, url)) {
     return (
       <NodeViewWrapper as="div" className="kaneo-video-attachment">
         {/* biome-ignore lint/a11y/useMediaCaption: uploaded attachments do not include a separate captions track. */}
         <video className="kaneo-video-player" controls preload="metadata">
-          <source src={url} type={mimeType} />
+          <source src={url} type={mimeType || "video/mp4"} />
           <a href={url} target="_blank" rel="noopener noreferrer">
             {filename}
           </a>
@@ -62,7 +82,7 @@ function AttachmentCardView({ node }: NodeViewProps) {
   }
 
   return (
-    <NodeViewWrapper as="span" className="kaneo-attachment-node">
+    <NodeViewWrapper as="div" className="kaneo-attachment-node">
       <a
         href={url || undefined}
         target="_blank"
@@ -87,8 +107,8 @@ function AttachmentCardView({ node }: NodeViewProps) {
 
 export const AttachmentCard = Node.create({
   name: "attachmentCard",
-  group: "inline",
-  inline: true,
+  group: "block",
+  inline: false,
   atom: true,
   selectable: false,
 
@@ -96,7 +116,10 @@ export const AttachmentCard = Node.create({
     return {
       url: { default: "" },
       filename: { default: "" },
-      mimeType: { default: "" },
+      mimeType: {
+        default: "",
+        parseHTML: parseAttachmentMimeType,
+      },
       size: { default: 0 },
     };
   },

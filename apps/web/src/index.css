@@ -880,9 +880,8 @@ input:-webkit-autofill:active {
   }
 
   .kaneo-attachment-node {
-    display: inline-flex;
+    display: block;
     max-width: 100%;
-    vertical-align: middle;
     margin: 0.35rem 0;
   }
 
