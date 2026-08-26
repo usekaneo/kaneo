@@ -72,4 +72,17 @@ describe("buildTaskHierarchy", () => {
       "first",
     ]);
   });
+
+  it("includes standalone tasks when requested", () => {
+    const result = buildTaskHierarchy(
+      [task("parent"), task("child"), task("standalone")],
+      [{ sourceTaskId: "parent", targetTaskId: "child" }],
+      { includeUnrelated: true },
+    );
+
+    expect(result.map((node) => node.task.id)).toEqual([
+      "parent",
+      "standalone",
+    ]);
+  });
 });

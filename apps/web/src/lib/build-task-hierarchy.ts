@@ -13,6 +13,7 @@ type SubtaskRelation = {
 export function buildTaskHierarchy(
   tasks: Task[],
   relations: SubtaskRelation[],
+  options: { includeUnrelated?: boolean } = {},
 ): TaskHierarchyNode[] {
   const tasksById = new Map(tasks.map((task) => [task.id, task]));
   const taskOrder = new Map(tasks.map((task, index) => [task.id, index]));
@@ -64,7 +65,11 @@ export function buildTaskHierarchy(
   };
 
   const roots = tasks
-    .filter((task) => relatedIds.has(task.id) && !childIds.has(task.id))
+    .filter(
+      (task) =>
+        !childIds.has(task.id) &&
+        (options.includeUnrelated || relatedIds.has(task.id)),
+    )
     .map((task) => buildNode(task.id, new Set()));
 
   // Invalid legacy data may contain a cycle. Keep it visible instead of
