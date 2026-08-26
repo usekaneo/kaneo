@@ -1585,6 +1585,35 @@
 			"board": "Board",
 			"list": "Elenco"
 		},
+		"hierarchy": {
+			"title": "Gerarchia",
+			"empty": "Non è ancora presente una gerarchia di attività",
+			"emptyDescription": "Collega un'attività come sottoattività per visualizzarne qui la struttura principale e secondaria.",
+			"expandTask": "Espandi {{title}}",
+			"collapseTask": "Comprimi {{title}}",
+			"unassigned": "Non assegnata",
+			"filters": {
+				"filterBy": "Filtra per",
+				"label": "Stato di completamento",
+				"all": "Tutte le attività",
+				"open": "Attività aperte",
+				"completed": "Attività completate",
+				"assignee": "Assegnatario",
+				"allAssignees": "Tutti gli assegnatari",
+				"unassigned": "Non assegnata",
+				"selected": "{{count}} filtri",
+				"dueDate": "Data di scadenza",
+				"allDueDates": "Tutte le date di scadenza",
+				"dueThisWeek": "In scadenza questa settimana",
+				"dueNextWeek": "In scadenza la prossima settimana",
+				"noDueDate": "Nessuna data di scadenza",
+				"labels": "Etichette",
+				"relation": "Relazione gerarchica",
+				"allRelations": "Tutte le attività",
+				"related": "Ha un'attività principale o una sottoattività",
+				"standalone": "Attività indipendenti"
+			}
+		},
 		"common": {
 			"selectTask": "Seleziona attività",
 			"loadingTask": "Caricamento attività...",

@@ -1580,6 +1580,35 @@
 			"board": "Pano",
 			"list": "Liste"
 		},
+		"hierarchy": {
+			"title": "Hiyerarşi",
+			"empty": "Henüz görev hiyerarşisi yok",
+			"emptyDescription": "Üst ve alt görev yapısını burada görmek için bir görevi alt görev olarak bağlayın.",
+			"expandTask": "{{title}} görevini genişlet",
+			"collapseTask": "{{title}} görevini daralt",
+			"unassigned": "Atanmamış",
+			"filters": {
+				"filterBy": "Şuna göre filtrele",
+				"label": "Tamamlanma durumu",
+				"all": "Tüm görevler",
+				"open": "Açık görevler",
+				"completed": "Tamamlanan görevler",
+				"assignee": "Atanan kişi",
+				"allAssignees": "Atanan tüm kişiler",
+				"unassigned": "Atanmamış",
+				"selected": "{{count}} filtre",
+				"dueDate": "Bitiş tarihi",
+				"allDueDates": "Tüm bitiş tarihleri",
+				"dueThisWeek": "Bu hafta bitecek",
+				"dueNextWeek": "Gelecek hafta bitecek",
+				"noDueDate": "Bitiş tarihi yok",
+				"labels": "Etiketler",
+				"relation": "Hiyerarşi ilişkisi",
+				"allRelations": "Tüm görevler",
+				"related": "Üst görevi veya alt görevi var",
+				"standalone": "Bağımsız görevler"
+			}
+		},
 		"common": {
 			"selectTask": "Talep seç",
 			"loadingTask": "Talep yükleniyor...",

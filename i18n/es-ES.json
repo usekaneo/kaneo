@@ -1585,6 +1585,35 @@
 			"board": "Tablero",
 			"list": "Lista"
 		},
+		"hierarchy": {
+			"title": "Jerarquía",
+			"empty": "Aún no hay una jerarquía de tareas",
+			"emptyDescription": "Vincula una tarea como subtarea para ver aquí su estructura de tareas principales y secundarias.",
+			"expandTask": "Expandir {{title}}",
+			"collapseTask": "Contraer {{title}}",
+			"unassigned": "Sin asignar",
+			"filters": {
+				"filterBy": "Filtrar por",
+				"label": "Estado de finalización",
+				"all": "Todas las tareas",
+				"open": "Tareas abiertas",
+				"completed": "Tareas completadas",
+				"assignee": "Persona asignada",
+				"allAssignees": "Todas las personas asignadas",
+				"unassigned": "Sin asignar",
+				"selected": "{{count}} filtros",
+				"dueDate": "Fecha de vencimiento",
+				"allDueDates": "Todas las fechas de vencimiento",
+				"dueThisWeek": "Vence esta semana",
+				"dueNextWeek": "Vence la próxima semana",
+				"noDueDate": "Sin fecha de vencimiento",
+				"labels": "Etiquetas",
+				"relation": "Relación jerárquica",
+				"allRelations": "Todas las tareas",
+				"related": "Tiene tarea principal o subtarea",
+				"standalone": "Tareas independientes"
+			}
+		},
 		"common": {
 			"selectTask": "Seleccionar tarea",
 			"loadingTask": "Cargando tarea...",

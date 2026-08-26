@@ -1575,6 +1575,35 @@
 			"board": "Bảng",
 			"list": "Danh sách"
 		},
+		"hierarchy": {
+			"title": "Phân cấp",
+			"empty": "Chưa có phân cấp công việc",
+			"emptyDescription": "Liên kết một công việc làm công việc con để xem cấu trúc cha và con tại đây.",
+			"expandTask": "Mở rộng {{title}}",
+			"collapseTask": "Thu gọn {{title}}",
+			"unassigned": "Chưa giao",
+			"filters": {
+				"filterBy": "Lọc theo",
+				"label": "Trạng thái hoàn thành",
+				"all": "Tất cả công việc",
+				"open": "Công việc đang mở",
+				"completed": "Công việc đã hoàn thành",
+				"assignee": "Người được giao",
+				"allAssignees": "Tất cả người được giao",
+				"unassigned": "Chưa giao",
+				"selected": "{{count}} bộ lọc",
+				"dueDate": "Ngày đến hạn",
+				"allDueDates": "Tất cả ngày đến hạn",
+				"dueThisWeek": "Đến hạn tuần này",
+				"dueNextWeek": "Đến hạn tuần sau",
+				"noDueDate": "Không có ngày đến hạn",
+				"labels": "Nhãn",
+				"relation": "Quan hệ phân cấp",
+				"allRelations": "Tất cả công việc",
+				"related": "Có công việc cha hoặc công việc con",
+				"standalone": "Công việc độc lập"
+			}
+		},
 		"common": {
 			"selectTask": "Chọn công việc",
 			"loadingTask": "Đang tải công việc...",

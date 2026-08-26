@@ -1580,6 +1580,35 @@
 			"board": "Board",
 			"list": "Liste"
 		},
+		"hierarchy": {
+			"title": "Hierarchie",
+			"empty": "Noch keine Aufgabenhierarchie",
+			"emptyDescription": "Verknüpfe eine Aufgabe als Unteraufgabe, um hier ihre über- und untergeordnete Struktur zu sehen.",
+			"expandTask": "{{title}} aufklappen",
+			"collapseTask": "{{title}} zuklappen",
+			"unassigned": "Nicht zugewiesen",
+			"filters": {
+				"filterBy": "Filtern nach",
+				"label": "Abschlussstatus",
+				"all": "Alle Aufgaben",
+				"open": "Offene Aufgaben",
+				"completed": "Abgeschlossene Aufgaben",
+				"assignee": "Zuständige Person",
+				"allAssignees": "Alle Zuständigen",
+				"unassigned": "Nicht zugewiesen",
+				"selected": "{{count}} Filter",
+				"dueDate": "Fälligkeitsdatum",
+				"allDueDates": "Alle Fälligkeitsdaten",
+				"dueThisWeek": "Diese Woche fällig",
+				"dueNextWeek": "Nächste Woche fällig",
+				"noDueDate": "Kein Fälligkeitsdatum",
+				"labels": "Labels",
+				"relation": "Hierarchiebeziehung",
+				"allRelations": "Alle Aufgaben",
+				"related": "Hat über- oder untergeordnete Aufgabe",
+				"standalone": "Eigenständige Aufgaben"
+			}
+		},
 		"common": {
 			"selectTask": "Aufgabe auswählen",
 			"loadingTask": "Aufgabe wird geladen...",

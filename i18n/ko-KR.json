@@ -1575,6 +1575,35 @@
 			"board": "보드",
 			"list": "목록"
 		},
+		"hierarchy": {
+			"title": "Hierarchy",
+			"empty": "아직 작업 Hierarchy가 없습니다",
+			"emptyDescription": "작업을 하위 작업으로 연결하면 여기에서 상위 및 하위 구조를 확인할 수 있습니다.",
+			"expandTask": "{{title}} 펼치기",
+			"collapseTask": "{{title}} 접기",
+			"unassigned": "담당자 없음",
+			"filters": {
+				"filterBy": "필터 기준",
+				"label": "완료 상태",
+				"all": "모든 작업",
+				"open": "미완료 작업",
+				"completed": "완료된 작업",
+				"assignee": "담당자",
+				"allAssignees": "모든 담당자",
+				"unassigned": "담당자 없음",
+				"selected": "필터 {{count}}개",
+				"dueDate": "마감일",
+				"allDueDates": "모든 마감일",
+				"dueThisWeek": "이번 주 마감",
+				"dueNextWeek": "다음 주 마감",
+				"noDueDate": "마감일 없음",
+				"labels": "라벨",
+				"relation": "계층 관계",
+				"allRelations": "모든 작업",
+				"related": "상위 또는 하위 작업 있음",
+				"standalone": "독립 작업"
+			}
+		},
 		"common": {
 			"selectTask": "작업 선택",
 			"loadingTask": "작업 로딩 중...",
