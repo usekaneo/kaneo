@@ -8,10 +8,13 @@ import {
   useState,
 } from "react";
 import {
+  applyThemePaletteStyles,
   type BrandPalette,
-  contrastingForeground,
-  DEFAULT_PALETTE,
-  resolvePalette,
+  DEFAULT_THEME_PALETTES,
+  resolveDarkPalette,
+  resolveLightPalette,
+  resolveThemePalettes,
+  type ThemePalettes,
 } from "@/lib/brand-colors";
 
 export type Branding = {
@@ -19,15 +22,8 @@ export type Branding = {
   logoUrl: string | null;
   logoDarkUrl: string | null;
   faviconUrl: string | null;
-  primaryColor: string;
-  accentColor: string | null;
-  backgroundColor: string;
-  foregroundColor: string;
-  cardColor: string;
-  mutedColor: string;
-  borderColor: string;
-  sidebarBackgroundColor: string;
-  sidebarForegroundColor: string;
+  paletteDark: BrandPalette;
+  paletteLight: BrandPalette;
   setupCompleted: boolean;
 };
 
@@ -36,58 +32,24 @@ const DEFAULT_BRANDING: Branding = {
   logoUrl: null,
   logoDarkUrl: null,
   faviconUrl: null,
-  ...DEFAULT_PALETTE,
-  accentColor: DEFAULT_PALETTE.accentColor,
+  paletteDark: DEFAULT_THEME_PALETTES.dark,
+  paletteLight: DEFAULT_THEME_PALETTES.light,
   setupCompleted: false,
 };
 
 type BrandingContextValue = {
   branding: Branding;
   refresh: () => Promise<void>;
-  setBrandingLocal: (next: Partial<Branding>) => void;
+  setBrandingLocal: (next: Partial<Branding> & Partial<ThemePalettes>) => void;
 };
 
 const BrandingContext = createContext<BrandingContextValue | null>(null);
 
-function applyCssVars(branding: Branding) {
-  const root = document.documentElement;
-  const palette = resolvePalette(branding);
-  const primaryFg = contrastingForeground(palette.primaryColor);
-
-  root.style.setProperty("--brand-primary", palette.primaryColor);
-  root.style.setProperty("--brand-accent", palette.accentColor);
-  root.style.setProperty("--primary", palette.primaryColor);
-  root.style.setProperty("--primary-foreground", primaryFg);
-  root.style.setProperty("--ring", palette.primaryColor);
-  root.style.setProperty("--sidebar-ring", palette.primaryColor);
-  root.style.setProperty("--sidebar-primary", palette.primaryColor);
-  root.style.setProperty("--sidebar-primary-foreground", primaryFg);
-
-  root.style.setProperty("--background", palette.backgroundColor);
-  root.style.setProperty("--foreground", palette.foregroundColor);
-  root.style.setProperty("--card", palette.cardColor);
-  root.style.setProperty("--card-foreground", palette.foregroundColor);
-  root.style.setProperty("--popover", palette.cardColor);
-  root.style.setProperty("--popover-foreground", palette.foregroundColor);
-  root.style.setProperty("--muted", palette.mutedColor);
-  root.style.setProperty("--muted-foreground", palette.sidebarForegroundColor);
-  root.style.setProperty("--secondary", palette.mutedColor);
-  root.style.setProperty("--secondary-foreground", palette.foregroundColor);
-  root.style.setProperty("--accent", palette.mutedColor);
-  root.style.setProperty("--accent-foreground", palette.foregroundColor);
-  root.style.setProperty("--border", palette.borderColor);
-  root.style.setProperty("--input", palette.borderColor);
-  root.style.setProperty("--sidebar", palette.sidebarBackgroundColor);
-  root.style.setProperty(
-    "--sidebar-foreground",
-    palette.sidebarForegroundColor,
-  );
-  root.style.setProperty("--sidebar-border", palette.borderColor);
-  root.style.setProperty("--sidebar-accent", palette.mutedColor);
-  root.style.setProperty(
-    "--sidebar-accent-foreground",
-    palette.foregroundColor,
-  );
+function applyBrandingEffects(branding: Branding) {
+  applyThemePaletteStyles({
+    light: branding.paletteLight,
+    dark: branding.paletteDark,
+  });
 
   if (branding.faviconUrl) {
     const link =
@@ -106,16 +68,47 @@ function applyCssVars(branding: Branding) {
 }
 
 function normalizeBranding(
-  raw: Partial<Branding> & { displayName?: string },
+  raw: Partial<Branding> & {
+    displayName?: string;
+    paletteLight?: Partial<BrandPalette> | null;
+    primaryColor?: string;
+    accentColor?: string | null;
+    backgroundColor?: string;
+    foregroundColor?: string;
+    cardColor?: string;
+    mutedColor?: string;
+    borderColor?: string;
+    sidebarBackgroundColor?: string;
+    sidebarForegroundColor?: string;
+  },
 ): Branding {
-  const palette = resolvePalette(raw as Partial<BrandPalette>);
+  const paletteDark = resolveDarkPalette({
+    ...(raw.paletteDark ?? {}),
+    primaryColor: raw.primaryColor ?? raw.paletteDark?.primaryColor,
+    accentColor: raw.accentColor ?? raw.paletteDark?.accentColor,
+    backgroundColor: raw.backgroundColor ?? raw.paletteDark?.backgroundColor,
+    foregroundColor: raw.foregroundColor ?? raw.paletteDark?.foregroundColor,
+    cardColor: raw.cardColor ?? raw.paletteDark?.cardColor,
+    mutedColor: raw.mutedColor ?? raw.paletteDark?.mutedColor,
+    borderColor: raw.borderColor ?? raw.paletteDark?.borderColor,
+    sidebarBackgroundColor:
+      raw.sidebarBackgroundColor ?? raw.paletteDark?.sidebarBackgroundColor,
+    sidebarForegroundColor:
+      raw.sidebarForegroundColor ?? raw.paletteDark?.sidebarForegroundColor,
+  });
+
+  const paletteLight = resolveLightPalette(
+    raw.paletteLight ?? undefined,
+    paletteDark,
+  );
+
   return {
     displayName: raw.displayName || DEFAULT_BRANDING.displayName,
     logoUrl: raw.logoUrl ?? null,
     logoDarkUrl: raw.logoDarkUrl ?? null,
     faviconUrl: raw.faviconUrl ?? null,
-    ...palette,
-    accentColor: palette.accentColor,
+    paletteDark,
+    paletteLight,
     setupCompleted: raw.setupCompleted ?? false,
   };
 }
@@ -141,7 +134,7 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
   const refresh = useCallback(async () => {
     const next = await fetchBranding();
     setBranding(next);
-    applyCssVars(next);
+    applyBrandingEffects(next);
   }, []);
 
   useEffect(() => {
@@ -156,7 +149,7 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
         setBrandingLocal: (partial) => {
           setBranding((prev) => {
             const next = normalizeBranding({ ...prev, ...partial });
-            applyCssVars(next);
+            applyBrandingEffects(next);
             return next;
           });
         },
@@ -174,3 +167,5 @@ export function useBranding() {
   }
   return ctx;
 }
+
+export { resolveThemePalettes };

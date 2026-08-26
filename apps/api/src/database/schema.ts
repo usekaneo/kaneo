@@ -1014,6 +1014,7 @@ export const instanceBrandingTable = pgTable("instance_branding", {
   borderColor: text("border_color").default("#2A2A2A"),
   sidebarBackgroundColor: text("sidebar_background_color").default("#0F0F0F"),
   sidebarForegroundColor: text("sidebar_foreground_color").default("#A3A3A3"),
+  lightPalette: jsonb("light_palette").$type<Record<string, string>>(),
   setupCompleted: boolean("setup_completed").notNull().default(false),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { mode: "date" })

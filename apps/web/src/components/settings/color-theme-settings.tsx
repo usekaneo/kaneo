@@ -5,75 +5,86 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
 import { updateBranding } from "@/fetchers/branding/update-branding";
 import { useBranding } from "@/hooks/use-branding";
 import {
   type BrandPalette,
   COLOR_PRESETS,
-  DEFAULT_PALETTE,
+  DEFAULT_DARK_PALETTE,
+  DEFAULT_THEME_PALETTES,
   isHexColor,
   normalizeHexColor,
-  palettesEqual,
-  resolvePalette,
+  type ThemePalettes,
+  themePalettesEqual,
 } from "@/lib/brand-colors";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
 
-type DraftColors = BrandPalette;
+type PaletteMode = keyof ThemePalettes;
 
-function draftFromBranding(branding: {
-  primaryColor: string;
-  accentColor?: string | null;
-  backgroundColor?: string | null;
-  foregroundColor?: string | null;
-  cardColor?: string | null;
-  mutedColor?: string | null;
-  borderColor?: string | null;
-  sidebarBackgroundColor?: string | null;
-  sidebarForegroundColor?: string | null;
-}): DraftColors {
-  return resolvePalette(branding);
+function palettesFromBranding(branding: {
+  paletteDark: BrandPalette;
+  paletteLight: BrandPalette;
+}): ThemePalettes {
+  return {
+    dark: branding.paletteDark,
+    light: branding.paletteLight,
+  };
 }
 
-const PALETTE_KEYS = Object.keys(DEFAULT_PALETTE) as (keyof BrandPalette)[];
+const PALETTE_KEYS = Object.keys(
+  DEFAULT_DARK_PALETTE,
+) as (keyof BrandPalette)[];
 
 export function ColorThemeSettings() {
   const { t } = useTranslation();
   const { branding, setBrandingLocal, refresh } = useBranding();
-  const [draft, setDraft] = useState<DraftColors>(() =>
-    draftFromBranding(branding),
+  const [draft, setDraft] = useState<ThemePalettes>(() =>
+    palettesFromBranding(branding),
   );
+  const [activeMode, setActiveMode] = useState<PaletteMode>("dark");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    setDraft(draftFromBranding(branding));
+    setDraft(palettesFromBranding(branding));
   }, [branding]);
 
-  const saved = draftFromBranding(branding);
-  const isDirty = !palettesEqual(draft, saved);
-  const isDefault = palettesEqual(draft, DEFAULT_PALETTE);
+  const saved = palettesFromBranding(branding);
+  const isDirty = !themePalettesEqual(draft, saved);
+  const isDefault = themePalettesEqual(draft, DEFAULT_THEME_PALETTES);
+  const activePalette = draft[activeMode];
 
-  const applyDraft = (next: DraftColors) => {
+  const applyDraft = (next: ThemePalettes) => {
     setDraft(next);
-    setBrandingLocal(next);
+    setBrandingLocal({
+      paletteDark: next.dark,
+      paletteLight: next.light,
+    });
   };
 
   const updateColor = (key: keyof BrandPalette, value: string) => {
     const normalized = normalizeHexColor(value);
     if (normalized) {
-      applyDraft({ ...draft, [key]: normalized });
+      applyDraft({
+        ...draft,
+        [activeMode]: { ...draft[activeMode], [key]: normalized },
+      });
       return;
     }
-    setDraft((prev) => ({ ...prev, [key]: value }));
+    setDraft((prev) => ({
+      ...prev,
+      [activeMode]: { ...prev[activeMode], [key]: value },
+    }));
   };
 
   const selectPreset = (preset: (typeof COLOR_PRESETS)[number]) => {
-    const { id: _id, ...palette } = preset;
-    applyDraft(palette);
+    const { id: _id, light, dark } = preset;
+    applyDraft({ light, dark });
   };
 
   const resetToDefault = () => {
-    applyDraft({ ...DEFAULT_PALETTE });
+    applyDraft({ ...DEFAULT_THEME_PALETTES });
   };
 
   const discardChanges = () => {
@@ -81,14 +92,20 @@ export function ColorThemeSettings() {
   };
 
   const save = async () => {
-    if (PALETTE_KEYS.some((key) => !isHexColor(draft[key]))) {
+    if (
+      PALETTE_KEYS.some((key) => !isHexColor(draft.dark[key])) ||
+      PALETTE_KEYS.some((key) => !isHexColor(draft.light[key]))
+    ) {
       toast.error(t("settings:colorTheme.invalidColor"));
       return;
     }
 
     setSaving(true);
     try {
-      const next = await updateBranding(draft);
+      const next = await updateBranding({
+        ...draft.dark,
+        paletteLight: draft.light,
+      });
       setBrandingLocal(next);
       await refresh();
       toast.success(t("settings:colorTheme.saveSuccess"));
@@ -104,8 +121,8 @@ export function ColorThemeSettings() {
   };
 
   const activePresetId = COLOR_PRESETS.find((preset) => {
-    const { id: _id, ...palette } = preset;
-    return palettesEqual(draft, palette);
+    const { id: _id, light, dark } = preset;
+    return themePalettesEqual(draft, { light, dark });
   })?.id;
 
   return (
@@ -160,16 +177,18 @@ export function ColorThemeSettings() {
                     <span
                       className="size-4 rounded-full border border-border"
                       style={{
-                        backgroundColor: preset.sidebarBackgroundColor,
+                        backgroundColor: preset.dark.sidebarBackgroundColor,
                       }}
                     />
                     <span
                       className="size-4 rounded-full border border-border"
-                      style={{ backgroundColor: preset.backgroundColor }}
+                      style={{
+                        backgroundColor: preset.light.backgroundColor,
+                      }}
                     />
                     <span
                       className="size-4 rounded-full border border-border"
-                      style={{ backgroundColor: preset.primaryColor }}
+                      style={{ backgroundColor: preset.dark.primaryColor }}
                     />
                   </span>
                   {t(`settings:colorTheme.preset.${preset.id}`)}
@@ -181,188 +200,44 @@ export function ColorThemeSettings() {
 
         <Separator />
 
-        <div className="space-y-3">
-          <div className="space-y-0.5">
-            <Label className="text-sm font-medium">
-              {t("settings:colorTheme.brandSection")}
-            </Label>
-            <p className="text-xs text-muted-foreground">
-              {t("settings:colorTheme.brandSectionDescription")}
-            </p>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <ColorSlot
-              id="primaryColor"
-              label={t("settings:colorTheme.primary")}
-              description={t("settings:colorTheme.primaryDescription")}
-              value={draft.primaryColor}
-              onChange={(value) => updateColor("primaryColor", value)}
-            />
-            <ColorSlot
-              id="accentColor"
-              label={t("settings:colorTheme.accent")}
-              description={t("settings:colorTheme.accentDescription")}
-              value={draft.accentColor}
-              onChange={(value) => updateColor("accentColor", value)}
-            />
-          </div>
-        </div>
+        <Tabs
+          value={activeMode}
+          onValueChange={(value) => setActiveMode(value as PaletteMode)}
+        >
+          <TabsList className="w-full sm:w-auto">
+            <TabsTab value="light">
+              {t("settings:colorTheme.modeLight")}
+            </TabsTab>
+            <TabsTab value="dark">{t("settings:colorTheme.modeDark")}</TabsTab>
+          </TabsList>
+          <p className="text-xs text-muted-foreground">
+            {t("settings:colorTheme.modeDescription")}
+          </p>
 
-        <Separator />
-
-        <div className="space-y-3">
-          <div className="space-y-0.5">
-            <Label className="text-sm font-medium">
-              {t("settings:colorTheme.chromeSection")}
-            </Label>
-            <p className="text-xs text-muted-foreground">
-              {t("settings:colorTheme.chromeSectionDescription")}
-            </p>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <ColorSlot
-              id="sidebarBackgroundColor"
-              label={t("settings:colorTheme.sidebarBackground")}
-              description={t(
-                "settings:colorTheme.sidebarBackgroundDescription",
-              )}
-              value={draft.sidebarBackgroundColor}
-              onChange={(value) => updateColor("sidebarBackgroundColor", value)}
-            />
-            <ColorSlot
-              id="sidebarForegroundColor"
-              label={t("settings:colorTheme.sidebarForeground")}
-              description={t(
-                "settings:colorTheme.sidebarForegroundDescription",
-              )}
-              value={draft.sidebarForegroundColor}
-              onChange={(value) => updateColor("sidebarForegroundColor", value)}
-            />
-            <ColorSlot
-              id="backgroundColor"
-              label={t("settings:colorTheme.background")}
-              description={t("settings:colorTheme.backgroundDescription")}
-              value={draft.backgroundColor}
-              onChange={(value) => updateColor("backgroundColor", value)}
-            />
-            <ColorSlot
-              id="foregroundColor"
-              label={t("settings:colorTheme.foreground")}
-              description={t("settings:colorTheme.foregroundDescription")}
-              value={draft.foregroundColor}
-              onChange={(value) => updateColor("foregroundColor", value)}
-            />
-            <ColorSlot
-              id="cardColor"
-              label={t("settings:colorTheme.card")}
-              description={t("settings:colorTheme.cardDescription")}
-              value={draft.cardColor}
-              onChange={(value) => updateColor("cardColor", value)}
-            />
-            <ColorSlot
-              id="mutedColor"
-              label={t("settings:colorTheme.muted")}
-              description={t("settings:colorTheme.mutedDescription")}
-              value={draft.mutedColor}
-              onChange={(value) => updateColor("mutedColor", value)}
-            />
-            <ColorSlot
-              id="borderColor"
-              label={t("settings:colorTheme.border")}
-              description={t("settings:colorTheme.borderDescription")}
-              value={draft.borderColor}
-              onChange={(value) => updateColor("borderColor", value)}
+          <div className="space-y-4 pt-2">
+            <PaletteEditor
+              mode={activeMode}
+              palette={activePalette}
+              onUpdateColor={updateColor}
+              t={t}
             />
           </div>
-        </div>
+        </Tabs>
 
         <Separator />
 
         <div className="space-y-2">
           <Label className="text-sm font-medium">
-            {t("settings:colorTheme.preview")}
+            {t("settings:colorTheme.preview")}{" "}
+            <span className="font-normal text-muted-foreground">
+              (
+              {activeMode === "light"
+                ? t("settings:colorTheme.modeLight")
+                : t("settings:colorTheme.modeDark")}
+              )
+            </span>
           </Label>
-          <div
-            className="overflow-hidden rounded-md border"
-            style={{
-              borderColor: draft.borderColor,
-              backgroundColor: draft.backgroundColor,
-              color: draft.foregroundColor,
-            }}
-          >
-            <div className="flex min-h-36">
-              <aside
-                className="flex w-28 shrink-0 flex-col gap-2 border-r p-3 text-[10px]"
-                style={{
-                  backgroundColor: draft.sidebarBackgroundColor,
-                  borderColor: draft.borderColor,
-                  color: draft.sidebarForegroundColor,
-                }}
-              >
-                <span
-                  className="font-medium"
-                  style={{ color: draft.foregroundColor }}
-                >
-                  {t("settings:colorTheme.previewSidebar")}
-                </span>
-                <span
-                  className="rounded px-1.5 py-1"
-                  style={{
-                    backgroundColor: draft.mutedColor,
-                    color: draft.foregroundColor,
-                  }}
-                >
-                  {t("settings:colorTheme.previewNav")}
-                </span>
-                <span>{t("settings:colorTheme.previewNavMuted")}</span>
-              </aside>
-              <div className="flex flex-1 flex-col gap-3 p-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Button type="button" size="sm">
-                    {t("settings:colorTheme.previewPrimary")}
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    style={{
-                      borderColor: draft.accentColor,
-                      color: draft.accentColor,
-                    }}
-                  >
-                    {t("settings:colorTheme.previewAccent")}
-                  </Button>
-                  <div
-                    className="h-2 w-24 overflow-hidden rounded-full"
-                    style={{ backgroundColor: draft.mutedColor }}
-                  >
-                    <div
-                      className="h-full w-2/3 rounded-full"
-                      style={{ backgroundColor: draft.primaryColor }}
-                    />
-                  </div>
-                </div>
-                <div
-                  className="rounded-md border p-3 text-xs"
-                  style={{
-                    backgroundColor: draft.cardColor,
-                    borderColor: draft.borderColor,
-                    color: draft.foregroundColor,
-                  }}
-                >
-                  <p className="font-medium">
-                    {t("settings:colorTheme.previewCard")}
-                  </p>
-                  <p
-                    className="mt-1"
-                    style={{ color: draft.sidebarForegroundColor }}
-                  >
-                    {t("settings:colorTheme.previewCardMuted")}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <PalettePreview palette={activePalette} t={t} />
         </div>
 
         <div className="flex flex-wrap justify-end gap-2 pt-1">
@@ -393,6 +268,206 @@ export function ColorThemeSettings() {
   );
 }
 
+function PaletteEditor({
+  mode,
+  palette,
+  onUpdateColor,
+  t,
+}: {
+  mode: PaletteMode;
+  palette: BrandPalette;
+  onUpdateColor: (key: keyof BrandPalette, value: string) => void;
+  t: (key: string) => string;
+}) {
+  const fieldId = (key: string) => `${mode}-${key}`;
+  return (
+    <>
+      <div className="space-y-3">
+        <div className="space-y-0.5">
+          <Label className="text-sm font-medium">
+            {t("settings:colorTheme.brandSection")}
+          </Label>
+          <p className="text-xs text-muted-foreground">
+            {t("settings:colorTheme.brandSectionDescription")}
+          </p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <ColorSlot
+            id={fieldId("primaryColor")}
+            label={t("settings:colorTheme.primary")}
+            description={t("settings:colorTheme.primaryDescription")}
+            value={palette.primaryColor}
+            onChange={(value) => onUpdateColor("primaryColor", value)}
+          />
+          <ColorSlot
+            id={fieldId("accentColor")}
+            label={t("settings:colorTheme.accent")}
+            description={t("settings:colorTheme.accentDescription")}
+            value={palette.accentColor}
+            onChange={(value) => onUpdateColor("accentColor", value)}
+          />
+        </div>
+      </div>
+
+      <Separator />
+
+      <div className="space-y-3">
+        <div className="space-y-0.5">
+          <Label className="text-sm font-medium">
+            {t("settings:colorTheme.chromeSection")}
+          </Label>
+          <p className="text-xs text-muted-foreground">
+            {t("settings:colorTheme.chromeSectionDescription")}
+          </p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <ColorSlot
+            id={fieldId("sidebarBackgroundColor")}
+            label={t("settings:colorTheme.sidebarBackground")}
+            description={t("settings:colorTheme.sidebarBackgroundDescription")}
+            value={palette.sidebarBackgroundColor}
+            onChange={(value) => onUpdateColor("sidebarBackgroundColor", value)}
+          />
+          <ColorSlot
+            id={fieldId("sidebarForegroundColor")}
+            label={t("settings:colorTheme.sidebarForeground")}
+            description={t("settings:colorTheme.sidebarForegroundDescription")}
+            value={palette.sidebarForegroundColor}
+            onChange={(value) => onUpdateColor("sidebarForegroundColor", value)}
+          />
+          <ColorSlot
+            id={fieldId("backgroundColor")}
+            label={t("settings:colorTheme.background")}
+            description={t("settings:colorTheme.backgroundDescription")}
+            value={palette.backgroundColor}
+            onChange={(value) => onUpdateColor("backgroundColor", value)}
+          />
+          <ColorSlot
+            id={fieldId("foregroundColor")}
+            label={t("settings:colorTheme.foreground")}
+            description={t("settings:colorTheme.foregroundDescription")}
+            value={palette.foregroundColor}
+            onChange={(value) => onUpdateColor("foregroundColor", value)}
+          />
+          <ColorSlot
+            id={fieldId("cardColor")}
+            label={t("settings:colorTheme.card")}
+            description={t("settings:colorTheme.cardDescription")}
+            value={palette.cardColor}
+            onChange={(value) => onUpdateColor("cardColor", value)}
+          />
+          <ColorSlot
+            id={fieldId("mutedColor")}
+            label={t("settings:colorTheme.muted")}
+            description={t("settings:colorTheme.mutedDescription")}
+            value={palette.mutedColor}
+            onChange={(value) => onUpdateColor("mutedColor", value)}
+          />
+          <ColorSlot
+            id={fieldId("borderColor")}
+            label={t("settings:colorTheme.border")}
+            description={t("settings:colorTheme.borderDescription")}
+            value={palette.borderColor}
+            onChange={(value) => onUpdateColor("borderColor", value)}
+          />
+        </div>
+      </div>
+    </>
+  );
+}
+
+function PalettePreview({
+  palette,
+  t,
+}: {
+  palette: BrandPalette;
+  t: (key: string) => string;
+}) {
+  return (
+    <div
+      className="overflow-hidden rounded-md border"
+      style={{
+        borderColor: palette.borderColor,
+        backgroundColor: palette.backgroundColor,
+        color: palette.foregroundColor,
+      }}
+    >
+      <div className="flex min-h-36">
+        <aside
+          className="flex w-28 shrink-0 flex-col gap-2 border-r p-3 text-[10px]"
+          style={{
+            backgroundColor: palette.sidebarBackgroundColor,
+            borderColor: palette.borderColor,
+            color: palette.sidebarForegroundColor,
+          }}
+        >
+          <span
+            className="font-medium"
+            style={{ color: palette.foregroundColor }}
+          >
+            {t("settings:colorTheme.previewSidebar")}
+          </span>
+          <span
+            className="rounded px-1.5 py-1"
+            style={{
+              backgroundColor: palette.mutedColor,
+              color: palette.foregroundColor,
+            }}
+          >
+            {t("settings:colorTheme.previewNav")}
+          </span>
+          <span>{t("settings:colorTheme.previewNavMuted")}</span>
+        </aside>
+        <div className="flex flex-1 flex-col gap-3 p-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button type="button" size="sm">
+              {t("settings:colorTheme.previewPrimary")}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              style={{
+                borderColor: palette.accentColor,
+                color: palette.accentColor,
+              }}
+            >
+              {t("settings:colorTheme.previewAccent")}
+            </Button>
+            <div
+              className="h-2 w-24 overflow-hidden rounded-full"
+              style={{ backgroundColor: palette.mutedColor }}
+            >
+              <div
+                className="h-full w-2/3 rounded-full"
+                style={{ backgroundColor: palette.primaryColor }}
+              />
+            </div>
+          </div>
+          <div
+            className="rounded-md border p-3 text-xs"
+            style={{
+              backgroundColor: palette.cardColor,
+              borderColor: palette.borderColor,
+              color: palette.foregroundColor,
+            }}
+          >
+            <p className="font-medium">
+              {t("settings:colorTheme.previewCard")}
+            </p>
+            <p
+              className="mt-1"
+              style={{ color: palette.sidebarForegroundColor }}
+            >
+              {t("settings:colorTheme.previewCardMuted")}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ColorSlot({
   id,
   label,
@@ -406,7 +481,9 @@ function ColorSlot({
   value: string;
   onChange: (value: string) => void;
 }) {
-  const pickerValue = isHexColor(value) ? value : DEFAULT_PALETTE.primaryColor;
+  const pickerValue = isHexColor(value)
+    ? value
+    : DEFAULT_DARK_PALETTE.primaryColor;
 
   return (
     <div className="space-y-2">

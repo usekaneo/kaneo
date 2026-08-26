@@ -21,7 +21,9 @@ function SetupWizard() {
   const { data: status, isLoading, isError, refetch } = useInstanceStatus();
   const [step, setStep] = useState<Step>("checks");
   const [displayName, setDisplayName] = useState(branding.displayName);
-  const [primaryColor, setPrimaryColor] = useState(branding.primaryColor);
+  const [primaryColor, setPrimaryColor] = useState(
+    branding.paletteDark.primaryColor,
+  );
   const [logoUrl, setLogoUrl] = useState(branding.logoUrl || "");
   const [licenseKey, setLicenseKey] = useState("");
   const [saving, setSaving] = useState(false);
@@ -154,14 +156,32 @@ function SetupWizard() {
                   value={primaryColor}
                   onChange={(e) => {
                     setPrimaryColor(e.target.value);
-                    setBrandingLocal({ primaryColor: e.target.value });
+                    setBrandingLocal({
+                      paletteDark: {
+                        ...branding.paletteDark,
+                        primaryColor: e.target.value,
+                      },
+                      paletteLight: {
+                        ...branding.paletteLight,
+                        primaryColor: e.target.value,
+                      },
+                    });
                   }}
                 />
                 <Input
                   value={primaryColor}
                   onChange={(e) => {
                     setPrimaryColor(e.target.value);
-                    setBrandingLocal({ primaryColor: e.target.value });
+                    setBrandingLocal({
+                      paletteDark: {
+                        ...branding.paletteDark,
+                        primaryColor: e.target.value,
+                      },
+                      paletteLight: {
+                        ...branding.paletteLight,
+                        primaryColor: e.target.value,
+                      },
+                    });
                   }}
                 />
               </div>

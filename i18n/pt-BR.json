@@ -436,9 +436,9 @@
 		},
 		"colorTheme": {
 			"title": "Cores do aplicativo",
-			"subtitle": "Personalize as cores da interface da instância: marca, barra lateral, fundo, texto e cards. Alterações valem para todos os usuários.",
+			"subtitle": "Personalize as cores da interface da instância para modo claro e escuro: marca, barra lateral, fundo, texto e cards. Alterações valem para todos os usuários.",
 			"presets": "Paletas",
-			"presetsDescription": "Escolha um preset ou ajuste as cores abaixo.",
+			"presetsDescription": "Escolha um preset (par claro/escuro) ou ajuste as cores abaixo.",
 			"primary": "Cor primária",
 			"primaryDescription": "Botões, links, barras de progresso e itens ativos.",
 			"accent": "Cor de destaque",
@@ -482,7 +482,10 @@
 			"previewNav": "Ativo",
 			"previewNavMuted": "Item",
 			"previewCard": "Card de tarefa",
-			"previewCardMuted": "Metadados do card"
+			"previewCardMuted": "Metadados do card",
+			"modeLight": "Modo claro",
+			"modeDark": "Modo escuro",
+			"modeDescription": "Configure as cores para cada tema. O app usa a paleta correspondente quando o usuário escolhe claro ou escuro."
 		},
 		"preferencesPage": {
 			"title": "Preferências",

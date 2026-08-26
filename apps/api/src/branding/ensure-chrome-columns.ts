@@ -9,6 +9,7 @@ const ALTERS = [
   "ALTER TABLE instance_branding ADD COLUMN IF NOT EXISTS border_color text DEFAULT '#2A2A2A'",
   "ALTER TABLE instance_branding ADD COLUMN IF NOT EXISTS sidebar_background_color text DEFAULT '#0F0F0F'",
   "ALTER TABLE instance_branding ADD COLUMN IF NOT EXISTS sidebar_foreground_color text DEFAULT '#A3A3A3'",
+  "ALTER TABLE instance_branding ADD COLUMN IF NOT EXISTS light_palette jsonb",
 ] as const;
 
 let ensured = false;

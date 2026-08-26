@@ -436,9 +436,9 @@
 		},
 		"colorTheme": {
 			"title": "App colors",
-			"subtitle": "Customize the instance UI colors: brand, sidebar, background, text, and cards. Changes apply to everyone.",
+			"subtitle": "Customize the instance UI colors for light and dark mode: brand, sidebar, background, text, and cards. Changes apply to everyone.",
 			"presets": "Palettes",
-			"presetsDescription": "Pick a preset or fine-tune the colors below.",
+			"presetsDescription": "Pick a preset (light/dark pair) or fine-tune the colors below.",
 			"primary": "Primary color",
 			"primaryDescription": "Buttons, links, progress bars, and active items.",
 			"accent": "Accent color",
@@ -482,7 +482,10 @@
 			"previewNav": "Active",
 			"previewNavMuted": "Item",
 			"previewCard": "Task card",
-			"previewCardMuted": "Card metadata"
+			"previewCardMuted": "Card metadata",
+			"modeLight": "Light mode",
+			"modeDark": "Dark mode",
+			"modeDescription": "Configure colors for each theme. The app uses the matching palette when users choose light or dark."
 		},
 		"preferencesPage": {
 			"title": "Preferences",
