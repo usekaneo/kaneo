@@ -22,9 +22,11 @@ import activity from "./activity";
 import { auth } from "./auth";
 import billing from "./billing";
 import branding from "./branding";
+import client from "./client";
 import column from "./column";
 import comment from "./comment";
 import config from "./config";
+import contract from "./contract";
 import db, { getDatabase, schema } from "./database";
 import { prepareDatabaseStartup } from "./database/prepare-database-startup";
 import { waitForDatabase } from "./database/wait-for-database";
@@ -41,6 +43,7 @@ import invitation from "./invitation";
 import label from "./label";
 import license from "./license";
 import mcpRoutes, { mcpWellKnownRoutes } from "./mcp";
+import meeting from "./meeting";
 import { migrateColumns } from "./migrations/column-migration";
 import notification from "./notification";
 import notificationPreferences from "./notification-preferences";
@@ -569,6 +572,9 @@ export function createApp() {
   const oauthApi = api.route("/oauth", oauth);
 
   const billingApi = api.route("/billing", billing);
+  const clientApi = api.route("/client", client);
+  const contractApi = api.route("/contract", contract);
+  const meetingApi = api.route("/meeting", meeting);
   const projectApi = api.route("/project", project);
   const taskApi = api.route("/task", task);
   const columnApi = api.route("/column", column);
@@ -746,6 +752,9 @@ export function createApp() {
     injectWebSocket,
     activityApi,
     billingApi,
+    clientApi,
+    contractApi,
+    meetingApi,
     columnApi,
     commentApi,
     configApi,
@@ -865,6 +874,9 @@ const {
   injectWebSocket,
   activityApi,
   billingApi,
+  clientApi,
+  contractApi,
+  meetingApi,
   columnApi,
   commentApi,
   configApi,
@@ -903,6 +915,9 @@ if (isMainModule) {
 
 export type AppType =
   | typeof billingApi
+  | typeof clientApi
+  | typeof contractApi
+  | typeof meetingApi
   | typeof configApi
   | typeof projectApi
   | typeof taskApi

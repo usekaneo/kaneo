@@ -42,6 +42,8 @@ import { Route as LayoutAuthenticatedDashboardSettingsAccountInformationRouteImp
 import { Route as LayoutAuthenticatedDashboardSettingsAccountNotificationsRouteImport } from './routes/_layout/_authenticated/dashboard/settings/account/notifications'
 import { Route as LayoutAuthenticatedDashboardSettingsAccountPreferencesRouteImport } from './routes/_layout/_authenticated/dashboard/settings/account/preferences'
 import { Route as LayoutAuthenticatedDashboardSettingsWorkspaceBillingRouteImport } from './routes/_layout/_authenticated/dashboard/settings/workspace/billing'
+import { Route as LayoutAuthenticatedDashboardSettingsWorkspaceClientsRouteImport } from './routes/_layout/_authenticated/dashboard/settings/workspace/clients'
+import { Route as LayoutAuthenticatedDashboardSettingsWorkspaceContractsRouteImport } from './routes/_layout/_authenticated/dashboard/settings/workspace/contracts'
 import { Route as LayoutAuthenticatedDashboardSettingsWorkspaceGeneralRouteImport } from './routes/_layout/_authenticated/dashboard/settings/workspace/general'
 import { Route as LayoutAuthenticatedDashboardSettingsWorkspaceLabelsRouteImport } from './routes/_layout/_authenticated/dashboard/settings/workspace/labels'
 import { Route as LayoutAuthenticatedDashboardSettingsWorkspaceRolesRouteImport } from './routes/_layout/_authenticated/dashboard/settings/workspace/roles'
@@ -240,6 +242,18 @@ const LayoutAuthenticatedDashboardSettingsWorkspaceBillingRoute =
     path: '/billing',
     getParentRoute: () => LayoutAuthenticatedDashboardSettingsWorkspaceRoute,
   } as any)
+const LayoutAuthenticatedDashboardSettingsWorkspaceClientsRoute =
+  LayoutAuthenticatedDashboardSettingsWorkspaceClientsRouteImport.update({
+    id: '/clients',
+    path: '/clients',
+    getParentRoute: () => LayoutAuthenticatedDashboardSettingsWorkspaceRoute,
+  } as any)
+const LayoutAuthenticatedDashboardSettingsWorkspaceContractsRoute =
+  LayoutAuthenticatedDashboardSettingsWorkspaceContractsRouteImport.update({
+    id: '/contracts',
+    path: '/contracts',
+    getParentRoute: () => LayoutAuthenticatedDashboardSettingsWorkspaceRoute,
+  } as any)
 const LayoutAuthenticatedDashboardSettingsWorkspaceGeneralRoute =
   LayoutAuthenticatedDashboardSettingsWorkspaceGeneralRouteImport.update({
     id: '/general',
@@ -392,6 +406,8 @@ export interface FileRoutesByFullPath {
   '/dashboard/settings/account/notifications': typeof LayoutAuthenticatedDashboardSettingsAccountNotificationsRoute
   '/dashboard/settings/account/preferences': typeof LayoutAuthenticatedDashboardSettingsAccountPreferencesRoute
   '/dashboard/settings/workspace/billing': typeof LayoutAuthenticatedDashboardSettingsWorkspaceBillingRoute
+  '/dashboard/settings/workspace/clients': typeof LayoutAuthenticatedDashboardSettingsWorkspaceClientsRoute
+  '/dashboard/settings/workspace/contracts': typeof LayoutAuthenticatedDashboardSettingsWorkspaceContractsRoute
   '/dashboard/settings/workspace/general': typeof LayoutAuthenticatedDashboardSettingsWorkspaceGeneralRoute
   '/dashboard/settings/workspace/labels': typeof LayoutAuthenticatedDashboardSettingsWorkspaceLabelsRoute
   '/dashboard/settings/workspace/roles': typeof LayoutAuthenticatedDashboardSettingsWorkspaceRolesRoute
@@ -438,6 +454,8 @@ export interface FileRoutesByTo {
   '/dashboard/settings/account/notifications': typeof LayoutAuthenticatedDashboardSettingsAccountNotificationsRoute
   '/dashboard/settings/account/preferences': typeof LayoutAuthenticatedDashboardSettingsAccountPreferencesRoute
   '/dashboard/settings/workspace/billing': typeof LayoutAuthenticatedDashboardSettingsWorkspaceBillingRoute
+  '/dashboard/settings/workspace/clients': typeof LayoutAuthenticatedDashboardSettingsWorkspaceClientsRoute
+  '/dashboard/settings/workspace/contracts': typeof LayoutAuthenticatedDashboardSettingsWorkspaceContractsRoute
   '/dashboard/settings/workspace/general': typeof LayoutAuthenticatedDashboardSettingsWorkspaceGeneralRoute
   '/dashboard/settings/workspace/labels': typeof LayoutAuthenticatedDashboardSettingsWorkspaceLabelsRoute
   '/dashboard/settings/workspace/roles': typeof LayoutAuthenticatedDashboardSettingsWorkspaceRolesRoute
@@ -490,6 +508,8 @@ export interface FileRoutesById {
   '/_layout/_authenticated/dashboard/settings/account/notifications': typeof LayoutAuthenticatedDashboardSettingsAccountNotificationsRoute
   '/_layout/_authenticated/dashboard/settings/account/preferences': typeof LayoutAuthenticatedDashboardSettingsAccountPreferencesRoute
   '/_layout/_authenticated/dashboard/settings/workspace/billing': typeof LayoutAuthenticatedDashboardSettingsWorkspaceBillingRoute
+  '/_layout/_authenticated/dashboard/settings/workspace/clients': typeof LayoutAuthenticatedDashboardSettingsWorkspaceClientsRoute
+  '/_layout/_authenticated/dashboard/settings/workspace/contracts': typeof LayoutAuthenticatedDashboardSettingsWorkspaceContractsRoute
   '/_layout/_authenticated/dashboard/settings/workspace/general': typeof LayoutAuthenticatedDashboardSettingsWorkspaceGeneralRoute
   '/_layout/_authenticated/dashboard/settings/workspace/labels': typeof LayoutAuthenticatedDashboardSettingsWorkspaceLabelsRoute
   '/_layout/_authenticated/dashboard/settings/workspace/roles': typeof LayoutAuthenticatedDashboardSettingsWorkspaceRolesRoute
@@ -541,6 +561,8 @@ export interface FileRouteTypes {
     | '/dashboard/settings/account/notifications'
     | '/dashboard/settings/account/preferences'
     | '/dashboard/settings/workspace/billing'
+    | '/dashboard/settings/workspace/clients'
+    | '/dashboard/settings/workspace/contracts'
     | '/dashboard/settings/workspace/general'
     | '/dashboard/settings/workspace/labels'
     | '/dashboard/settings/workspace/roles'
@@ -587,6 +609,8 @@ export interface FileRouteTypes {
     | '/dashboard/settings/account/notifications'
     | '/dashboard/settings/account/preferences'
     | '/dashboard/settings/workspace/billing'
+    | '/dashboard/settings/workspace/clients'
+    | '/dashboard/settings/workspace/contracts'
     | '/dashboard/settings/workspace/general'
     | '/dashboard/settings/workspace/labels'
     | '/dashboard/settings/workspace/roles'
@@ -638,6 +662,8 @@ export interface FileRouteTypes {
     | '/_layout/_authenticated/dashboard/settings/account/notifications'
     | '/_layout/_authenticated/dashboard/settings/account/preferences'
     | '/_layout/_authenticated/dashboard/settings/workspace/billing'
+    | '/_layout/_authenticated/dashboard/settings/workspace/clients'
+    | '/_layout/_authenticated/dashboard/settings/workspace/contracts'
     | '/_layout/_authenticated/dashboard/settings/workspace/general'
     | '/_layout/_authenticated/dashboard/settings/workspace/labels'
     | '/_layout/_authenticated/dashboard/settings/workspace/roles'
@@ -901,6 +927,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutAuthenticatedDashboardSettingsWorkspaceBillingRouteImport
       parentRoute: typeof LayoutAuthenticatedDashboardSettingsWorkspaceRoute
     }
+    '/_layout/_authenticated/dashboard/settings/workspace/clients': {
+      id: '/_layout/_authenticated/dashboard/settings/workspace/clients'
+      path: '/clients'
+      fullPath: '/dashboard/settings/workspace/clients'
+      preLoaderRoute: typeof LayoutAuthenticatedDashboardSettingsWorkspaceClientsRouteImport
+      parentRoute: typeof LayoutAuthenticatedDashboardSettingsWorkspaceRoute
+    }
+    '/_layout/_authenticated/dashboard/settings/workspace/contracts': {
+      id: '/_layout/_authenticated/dashboard/settings/workspace/contracts'
+      path: '/contracts'
+      fullPath: '/dashboard/settings/workspace/contracts'
+      preLoaderRoute: typeof LayoutAuthenticatedDashboardSettingsWorkspaceContractsRouteImport
+      parentRoute: typeof LayoutAuthenticatedDashboardSettingsWorkspaceRoute
+    }
     '/_layout/_authenticated/dashboard/settings/workspace/general': {
       id: '/_layout/_authenticated/dashboard/settings/workspace/general'
       path: '/general'
@@ -1066,6 +1106,8 @@ const LayoutAuthenticatedDashboardSettingsProjectsRouteWithChildren =
 
 interface LayoutAuthenticatedDashboardSettingsWorkspaceRouteChildren {
   LayoutAuthenticatedDashboardSettingsWorkspaceBillingRoute: typeof LayoutAuthenticatedDashboardSettingsWorkspaceBillingRoute
+  LayoutAuthenticatedDashboardSettingsWorkspaceClientsRoute: typeof LayoutAuthenticatedDashboardSettingsWorkspaceClientsRoute
+  LayoutAuthenticatedDashboardSettingsWorkspaceContractsRoute: typeof LayoutAuthenticatedDashboardSettingsWorkspaceContractsRoute
   LayoutAuthenticatedDashboardSettingsWorkspaceGeneralRoute: typeof LayoutAuthenticatedDashboardSettingsWorkspaceGeneralRoute
   LayoutAuthenticatedDashboardSettingsWorkspaceLabelsRoute: typeof LayoutAuthenticatedDashboardSettingsWorkspaceLabelsRoute
   LayoutAuthenticatedDashboardSettingsWorkspaceRolesRoute: typeof LayoutAuthenticatedDashboardSettingsWorkspaceRolesRoute
@@ -1075,6 +1117,10 @@ const LayoutAuthenticatedDashboardSettingsWorkspaceRouteChildren: LayoutAuthenti
   {
     LayoutAuthenticatedDashboardSettingsWorkspaceBillingRoute:
       LayoutAuthenticatedDashboardSettingsWorkspaceBillingRoute,
+    LayoutAuthenticatedDashboardSettingsWorkspaceClientsRoute:
+      LayoutAuthenticatedDashboardSettingsWorkspaceClientsRoute,
+    LayoutAuthenticatedDashboardSettingsWorkspaceContractsRoute:
+      LayoutAuthenticatedDashboardSettingsWorkspaceContractsRoute,
     LayoutAuthenticatedDashboardSettingsWorkspaceGeneralRoute:
       LayoutAuthenticatedDashboardSettingsWorkspaceGeneralRoute,
     LayoutAuthenticatedDashboardSettingsWorkspaceLabelsRoute:

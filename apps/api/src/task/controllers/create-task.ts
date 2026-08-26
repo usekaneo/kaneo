@@ -1,9 +1,18 @@
 import { and, eq, max } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { columnTable, taskTable, userTable } from "../../database/schema";
+import {
+  columnTable,
+  projectTable,
+  taskTable,
+  userTable,
+} from "../../database/schema";
 import { publishEvent } from "../../events";
-import { assertValidTaskStatus } from "../validate-task-fields";
+import { getDefaultTaskType } from "../../project/task-types";
+import {
+  assertValidTaskStatus,
+  assertValidTaskType,
+} from "../validate-task-fields";
 import { claimTaskNumber } from "./claim-task-numbers";
 
 async function createTask({
@@ -16,6 +25,7 @@ async function createTask({
   dueDate,
   description,
   priority,
+  taskType,
 }: {
   projectId: string;
   currentUserId: string;
@@ -26,16 +36,31 @@ async function createTask({
   dueDate?: Date;
   description?: string;
   priority?: string;
+  taskType?: string;
 }) {
+  const [project] = await db
+    .select({ projectType: projectTable.projectType })
+    .from(projectTable)
+    .where(eq(projectTable.id, projectId))
+    .limit(1);
+
+  if (!project) {
+    throw new HTTPException(404, { message: "Project not found" });
+  }
+
   const resolvedStatus = status || "to-do";
   const resolvedPriority = priority || "no-priority";
+  const resolvedTaskType = taskType || getDefaultTaskType(project.projectType);
 
   await assertValidTaskStatus(resolvedStatus, projectId);
+  assertValidTaskType(resolvedTaskType, project.projectType);
 
-  const [assignee] = await db
-    .select({ name: userTable.name })
-    .from(userTable)
-    .where(eq(userTable.id, userId ?? ""));
+  const [assignee] = userId
+    ? await db
+        .select({ name: userTable.name })
+        .from(userTable)
+        .where(eq(userTable.id, userId))
+    : [];
 
   const column = await db.query.columnTable.findFirst({
     where: and(
@@ -73,6 +98,7 @@ async function createTask({
         dueDate: dueDate || null,
         description: description || "",
         priority: resolvedPriority,
+        taskType: resolvedTaskType,
         number: taskNumber,
         position: nextPosition,
       })

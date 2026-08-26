@@ -24,11 +24,17 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import icons from "@/constants/project-icons";
+import {
+  DEFAULT_PROJECT_TYPE,
+  type ProjectTypeKey,
+} from "@/constants/project-types";
 import useCreateProject from "@/hooks/mutations/project/use-create-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
 import generateProjectSlug from "@/lib/generate-project-id";
 import { toast } from "@/lib/toast";
+import ProjectClientSelect from "./project-client-select";
+import ProjectTypePicker from "./project-type-picker";
 
 type CreateProjectModalProps = {
   open: boolean;
@@ -40,6 +46,9 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [selectedIcon, setSelectedIcon] = useState("Layout");
+  const [clientId, setClientId] = useState<string | null>(null);
+  const [projectType, setProjectType] =
+    useState<ProjectTypeKey>(DEFAULT_PROJECT_TYPE);
   const [iconPopoverOpen, setIconPopoverOpen] = useState(false);
   const [iconSearch, setIconSearch] = useState("");
   const queryClient = useQueryClient();
@@ -49,6 +58,8 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
     slug,
     workspaceId: workspace?.id ?? "",
     icon: selectedIcon,
+    clientId,
+    projectType,
   });
   const SelectedIcon =
     icons[selectedIcon as keyof typeof icons] || icons.Layout;
@@ -61,6 +72,8 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
     setName("");
     setSlug("");
     setSelectedIcon("Layout");
+    setClientId(null);
+    setProjectType(DEFAULT_PROJECT_TYPE);
     setIconPopoverOpen(false);
     setIconSearch("");
     onClose();
@@ -196,6 +209,14 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
           </div>
 
           <div className="space-y-3 px-3">
+            {workspace?.id ? (
+              <ProjectClientSelect
+                workspaceId={workspace.id}
+                value={clientId}
+                onChange={setClientId}
+              />
+            ) : null}
+            <ProjectTypePicker value={projectType} onChange={setProjectType} />
             <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-muted-foreground">

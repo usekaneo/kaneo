@@ -41,6 +41,10 @@ vi.mock("@/hooks/mutations/task/use-update-task", () => ({
   useUpdateTask: () => ({ mutateAsync: vi.fn() }),
 }));
 
+vi.mock("@/hooks/mutations/task/use-update-task-assignee", () => ({
+  useUpdateTaskAssignee: () => ({ mutateAsync: vi.fn() }),
+}));
+
 vi.mock("@/hooks/queries/label/use-get-labels-by-workspace", () => ({
   default: () => ({ data: [] }),
 }));
@@ -66,10 +70,24 @@ vi.mock("@/hooks/use-workspace-permission", () => ({
 vi.mock("@/hooks/queries/project/use-get-projects", () => ({
   default: () => ({
     data: [
-      { id: "project-1", name: "Alpha", slug: "alp" },
-      { id: "project-2", name: "Beta", slug: "bet" },
+      {
+        id: "project-1",
+        name: "Alpha",
+        slug: "alp",
+        projectType: "development",
+      },
+      {
+        id: "project-2",
+        name: "Beta",
+        slug: "bet",
+        projectType: "development",
+      },
     ],
   }),
+}));
+
+vi.mock("@/hooks/queries/project/use-get-project", () => ({
+  default: () => ({ data: { projectType: "development" } }),
 }));
 
 vi.mock("@/store/project", () => ({

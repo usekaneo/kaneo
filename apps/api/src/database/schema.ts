@@ -270,6 +270,259 @@ export const workspaceRoleTable = pgTable(
   ],
 );
 
+export const clientTable = pgTable(
+  "client",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    name: text("name").notNull(),
+    tradeName: text("trade_name"),
+    cnpj: text("cnpj").notNull(),
+    email: text("email"),
+    phone: text("phone"),
+    notes: text("notes"),
+    street: text("street"),
+    number: text("number"),
+    complement: text("complement"),
+    neighborhood: text("neighborhood"),
+    city: text("city"),
+    state: text("state"),
+    zipCode: text("zip_code"),
+    country: text("country").default("BR"),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    unique("client_workspace_cnpj_unique").on(table.workspaceId, table.cnpj),
+    index("client_workspace_id_idx").on(table.workspaceId),
+    index("client_workspace_name_idx").on(table.workspaceId, table.name),
+  ],
+);
+
+export const clientPartnerTable = pgTable(
+  "client_partner",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    clientId: text("client_id")
+      .notNull()
+      .references(() => clientTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    name: text("name").notNull(),
+    cpf: text("cpf"),
+    role: text("role"),
+    ownershipPercent: integer("ownership_percent"),
+    email: text("email"),
+    phone: text("phone"),
+    sortOrder: integer("sort_order").notNull().default(0),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("client_partner_client_id_idx").on(table.clientId),
+    uniqueIndex("client_partner_cpf_unique")
+      .on(table.cpf)
+      .where(sql`${table.cpf} is not null`),
+  ],
+);
+
+export type ContractSignaturePlacement = {
+  mode?: "anchor" | "manual";
+  page?: number | null;
+  yPercent?: number | null;
+  xPercent?: number | null;
+};
+
+export type ContractTemplateField = {
+  placeholder: string;
+  dataPath: string;
+  label?: string;
+  type?: "text" | "signature" | "date";
+  signaturePlacement?: ContractSignaturePlacement | null;
+};
+
+export const contractTemplateTable = pgTable(
+  "contract_template",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    name: text("name").notNull(),
+    originalFilename: text("original_filename").notNull(),
+    storageKey: text("storage_key").notNull(),
+    mimeType: text("mime_type")
+      .notNull()
+      .default(
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      ),
+    sizeBytes: integer("size_bytes").notNull().default(0),
+    fieldMap: jsonb("field_map")
+      .$type<ContractTemplateField[]>()
+      .notNull()
+      .default([]),
+    bodyHtml: text("body_html"),
+    previewHtml: text("preview_html"),
+    createdBy: text("created_by").references(() => userTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("contract_template_workspace_id_idx").on(table.workspaceId),
+    index("contract_template_created_by_idx").on(table.createdBy),
+  ],
+);
+
+export type ContractSubmitterRecord = {
+  name: string;
+  email: string;
+  role: string;
+  partnerId?: string | null;
+  docusealSubmitterId?: number | string | null;
+  signedAt?: string | null;
+  status?: "pending" | "sent" | "completed" | "declined" | null;
+};
+
+export const contractSubmissionTable = pgTable(
+  "contract_submission",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projectTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    taskId: text("task_id")
+      .notNull()
+      .references(() => taskTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    clientId: text("client_id")
+      .notNull()
+      .references(() => clientTable.id, {
+        onDelete: "restrict",
+        onUpdate: "cascade",
+      }),
+    templateId: text("template_id")
+      .notNull()
+      .references(() => contractTemplateTable.id, {
+        onDelete: "restrict",
+        onUpdate: "cascade",
+      }),
+    docusealSubmissionId: text("docuseal_submission_id").notNull(),
+    status: text("status").notNull().default("pending"),
+    submitters: jsonb("submitters")
+      .$type<ContractSubmitterRecord[]>()
+      .notNull()
+      .default([]),
+    signedPdfAssetId: text("signed_pdf_asset_id").references(
+      () => assetTable.id,
+      {
+        onDelete: "set null",
+        onUpdate: "cascade",
+      },
+    ),
+    createdBy: text("created_by").references(() => userTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("contract_submission_workspace_id_idx").on(table.workspaceId),
+    index("contract_submission_project_id_idx").on(table.projectId),
+    index("contract_submission_task_id_idx").on(table.taskId),
+    index("contract_submission_client_id_idx").on(table.clientId),
+    index("contract_submission_template_id_idx").on(table.templateId),
+    uniqueIndex("contract_submission_docuseal_id_unique").on(
+      table.docusealSubmissionId,
+    ),
+  ],
+);
+
+export const calBookingTable = pgTable(
+  "cal_booking",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    taskId: text("task_id")
+      .notNull()
+      .references(() => taskTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    kind: text("kind").notNull().default("scheduling_link"),
+    status: text("status").notNull().default("pending"),
+    title: text("title"),
+    notes: text("notes"),
+    calBookingId: text("cal_booking_id"),
+    calBookingUid: text("cal_booking_uid"),
+    eventTypeId: text("event_type_id"),
+    eventTypeSlug: text("event_type_slug"),
+    schedulingUrl: text("scheduling_url"),
+    meetingUrl: text("meeting_url"),
+    attendees:
+      jsonb("attendees").$type<{ email: string; name?: string | null }[]>(),
+    startsAt: timestamp("starts_at", { mode: "date" }),
+    endsAt: timestamp("ends_at", { mode: "date" }),
+    createdBy: text("created_by").references(() => userTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("cal_booking_taskId_idx").on(table.taskId),
+    index("cal_booking_calBookingUid_idx").on(table.calBookingUid),
+  ],
+);
+
 export const projectTable = pgTable(
   "project",
   {
@@ -286,6 +539,11 @@ export const projectTable = pgTable(
     icon: text("icon").default("Layout"),
     name: text("name").notNull(),
     description: text("description"),
+    projectType: text("project_type").notNull().default("development"),
+    clientId: text("client_id").references(() => clientTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
     isPublic: boolean("is_public").default(false),
     archivedAt: timestamp("archived_at", { mode: "date" }),
@@ -293,6 +551,7 @@ export const projectTable = pgTable(
   },
   (table) => [
     unique("project_workspace_id_id_unique").on(table.workspaceId, table.id),
+    index("project_client_id_idx").on(table.clientId),
   ],
 );
 
@@ -381,6 +640,8 @@ export const taskTable = pgTable(
       onUpdate: "cascade",
     }),
     priority: text("priority").default("low"),
+    /** Conventional-commit / domain slug used in branch names and workflows. */
+    taskType: text("task_type").default("feat").notNull(),
     startDate: timestamp("start_date", { mode: "date" }),
     dueDate: timestamp("due_date", { mode: "date" }),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),

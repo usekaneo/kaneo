@@ -6,16 +6,17 @@ export type CreateTaskRequest = InferRequestType<
 >["json"] &
   InferRequestType<(typeof client)["task"][":projectId"]["$post"]>["param"];
 
-async function createTask(
-  title: string,
-  description: string,
-  projectId: string,
-  userId: string,
-  status: string,
-  startDate: Date | undefined,
-  dueDate: Date | undefined,
-  priority: CreateTaskRequest["priority"],
-) {
+async function createTask({
+  title,
+  description,
+  projectId,
+  userId,
+  status,
+  startDate,
+  dueDate,
+  priority,
+  taskType,
+}: CreateTaskRequest) {
   if (!projectId) {
     throw new Error("No project selected for task creation");
   }
@@ -26,9 +27,10 @@ async function createTask(
       description,
       userId,
       status,
-      startDate: startDate?.toISOString() || undefined,
-      dueDate: dueDate?.toISOString() || undefined,
+      startDate: startDate || undefined,
+      dueDate: dueDate || undefined,
       priority,
+      taskType,
     },
     param: { projectId },
   });
@@ -38,9 +40,7 @@ async function createTask(
     throw new Error(error);
   }
 
-  const data = await response.json();
-
-  return data;
+  return response.json();
 }
 
 export default createTask;

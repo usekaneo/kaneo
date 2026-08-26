@@ -61,6 +61,14 @@
 		"formats": {
 			"never": "Nunca"
 		},
+		"projectTypes": {
+			"development": "Desenvolvimento",
+			"maintenance": "Manutenção",
+			"support": "Suporte",
+			"hr": "RH",
+			"marketing": "Marketing",
+			"operations": "Operações"
+		},
 		"modals": {
 			"createProject": {
 				"title": "Criar um novo projeto",
@@ -72,6 +80,9 @@
 				"projectName": "Nome do projeto",
 				"keyLabel": "Chave:",
 				"keyHint": "Usado para IDs de tickets (ex.: {{example}}-123)",
+				"clientLabel": "Cliente",
+				"clientPlaceholder": "Opcional — nenhum",
+				"typeLabel": "Tipo de projeto",
 				"createButton": "Criar projeto",
 				"successToast": "Projeto criado com sucesso",
 				"errorToast": "Falha ao criar projeto"
@@ -784,6 +795,25 @@
 			"deleteError": "Falha ao excluir etiqueta",
 			"nameRequired": "O nome da etiqueta é obrigatório"
 		},
+		"workspaceClients": {
+			"title": "Clientes",
+			"description": "Cadastre clientes com CNPJ para vincular a projetos e contratos.",
+			"add": "Novo cliente",
+			"name": "Razão social",
+			"cnpj": "CNPJ",
+			"email": "E-mail",
+			"save": "Salvar cliente",
+			"loading": "Carregando clientes...",
+			"empty": "Nenhum cliente cadastrado ainda.",
+			"createSuccess": "Cliente criado com sucesso",
+			"createError": "Falha ao criar cliente"
+		},
+		"workspaceContracts": {
+			"title": "Contratos",
+			"description": "Modelos de contrato disponíveis para envio via DocuSeal.",
+			"loading": "Carregando modelos...",
+			"empty": "Nenhum modelo cadastrado. Use o seed de demo ou faça upload futuramente."
+		},
 		"projectGeneral": {
 			"pageTitle": "Configurações do projeto",
 			"title": "Configurações gerais",
@@ -1287,7 +1317,8 @@
 			"invitations": "Convites",
 			"more": "Mais",
 			"backToBoard": "Voltar ao quadro",
-			"metrics": "Dashboard"
+			"metrics": "Dashboard",
+			"contracts": "Contratos"
 		},
 		"projectList": {
 			"viewProject": "Ver projeto",
@@ -1533,6 +1564,7 @@
 	"tasks": {
 		"status": {
 			"label": "Status",
+			"new": "Novo",
 			"to-do": "A Fazer",
 			"in-progress": "Em Andamento",
 			"in-review": "Em Revisão",
@@ -1547,6 +1579,45 @@
 			"medium": "Média",
 			"high": "Alta",
 			"urgent": "Urgente"
+		},
+		"taskTypes": {
+			"feat": "Feature",
+			"fix": "Correção",
+			"chore": "Manutenção",
+			"bug": "Bug",
+			"docs": "Documentação",
+			"refactor": "Refatoração",
+			"test": "Teste",
+			"perf": "Performance",
+			"ci": "CI",
+			"build": "Build",
+			"style": "Estilo",
+			"contract": "Contrato",
+			"contrato": "Contrato",
+			"reuniao": "Reunião",
+			"meeting": "Reunião",
+			"incidente": "Incidente",
+			"melhoria": "Melhoria",
+			"patch": "Patch",
+			"hotfix": "Hotfix",
+			"chamado": "Chamado",
+			"duvida": "Dúvida",
+			"reclamacao": "Reclamação",
+			"solicitacao": "Solicitação",
+			"orcamento": "Orçamento",
+			"tsc": "TSC",
+			"curriculo": "Currículo",
+			"entrevista": "Entrevista",
+			"proposta": "Proposta",
+			"onboarding": "Onboarding",
+			"campanha": "Campanha",
+			"conteudo": "Conteúdo",
+			"arte": "Arte",
+			"anuncio": "Anúncio",
+			"implantacao": "Implantação",
+			"consultoria": "Consultoria",
+			"treinamento": "Treinamento",
+			"auditoria": "Auditoria"
 		},
 		"boardSearchPlaceholder": "Buscar tickets...",
 		"view": {
@@ -1724,6 +1795,9 @@
 			},
 			"priority": {
 				"updateError": "Falha ao atualizar a prioridade da tarefa"
+			},
+			"taskType": {
+				"updateError": "Falha ao atualizar o tipo da tarefa"
 			},
 			"dueDate": {
 				"updateSuccess": "Data de vencimento da tarefa atualizada com sucesso",
@@ -2145,6 +2219,44 @@
 		},
 		"branding": {
 			"poweredBy": "Desenvolvido por"
+		}
+	},
+	"contracts": {
+		"status": {
+			"pending": "Pendente",
+			"sent": "Enviado",
+			"completed": "Concluído",
+			"declined": "Recusado"
+		},
+		"panel": {
+			"title": "Contrato",
+			"start": "Iniciar contrato",
+			"loading": "Carregando contrato...",
+			"empty": "Nenhum contrato iniciado para esta tarefa.",
+			"submissionId": "Envio: {{id}}",
+			"modalTitle": "Enviar contrato",
+			"template": "Modelo",
+			"client": "Cliente",
+			"pickTemplate": "Selecione um modelo",
+			"pickClient": "Selecione um cliente",
+			"send": "Enviar contrato",
+			"sending": "Enviando...",
+			"sentSuccess": "Contrato enviado com sucesso",
+			"sentError": "Falha ao enviar contrato"
+		}
+	},
+	"meetings": {
+		"panel": {
+			"title": "Reunião",
+			"loading": "Carregando reunião...",
+			"empty": "Crie um link de agendamento para esta tarefa.",
+			"urlLabel": "Link de agendamento",
+			"create": "Criar link",
+			"creating": "Criando...",
+			"schedulingLink": "Link de agendamento",
+			"meetingLink": "Link da reunião",
+			"createdSuccess": "Link de reunião criado",
+			"createdError": "Falha ao criar link de reunião"
 		}
 	}
 }

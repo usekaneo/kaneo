@@ -29,6 +29,12 @@ export function getPriorityLabel(priority: string) {
   });
 }
 
+export function getTaskTypeLabel(taskType: string) {
+  return i18n.t(`tasks:taskTypes.${taskType}`, {
+    defaultValue: toDisplayCase(taskType),
+  });
+}
+
 function toDisplayCase(value: string) {
   return value
     .replace(/[-_]/g, " ")

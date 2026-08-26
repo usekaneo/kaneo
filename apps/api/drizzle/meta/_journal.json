@@ -281,6 +281,20 @@
 			"when": 1786200000000,
 			"tag": "0039_branding_light_palette",
 			"breakpoints": true
+		},
+		{
+			"idx": 40,
+			"version": "7",
+			"when": 1787600000000,
+			"tag": "0040_project_client_and_type",
+			"breakpoints": true
+		},
+		{
+			"idx": 41,
+			"version": "7",
+			"when": 1787700000000,
+			"tag": "0041_task_type_and_domain",
+			"breakpoints": true
 		}
 	]
 }

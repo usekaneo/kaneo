@@ -13,7 +13,9 @@ import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import useGetTaskRelations from "@/hooks/queries/task-relation/use-get-task-relations";
 import type { ExternalLink } from "@/types/external-link";
+import TaskContractPanel from "./task-contract-panel";
 import TaskDescription from "./task-description";
+import TaskMeetingPanel from "./task-meeting-panel";
 import TaskRelations from "./task-relations";
 import TaskSubtasks from "./task-subtasks";
 import TaskTitle from "./task-title";
@@ -78,6 +80,16 @@ export default function TaskDetailsContent({
         </p>
         <TaskTitle taskId={taskId} />
         <TaskDescription taskId={taskId} />
+        <TaskContractPanel
+          taskId={taskId}
+          workspaceId={workspaceId}
+          taskType={task?.taskType}
+        />
+        <TaskMeetingPanel
+          taskId={taskId}
+          workspaceId={workspaceId}
+          taskType={task?.taskType}
+        />
       </div>
       {!isLoadingExternalLinks && externalLinks.length > 0 && (
         <div className="mt-4">
