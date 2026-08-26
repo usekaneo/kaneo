@@ -8,6 +8,13 @@ export type BrandingDto = {
   faviconUrl: string | null;
   primaryColor: string;
   accentColor: string | null;
+  backgroundColor: string;
+  foregroundColor: string;
+  cardColor: string;
+  mutedColor: string;
+  borderColor: string;
+  sidebarBackgroundColor: string;
+  sidebarForegroundColor: string;
   setupCompleted: boolean;
 };
 
@@ -18,6 +25,13 @@ const DEFAULTS: BrandingDto = {
   faviconUrl: null,
   primaryColor: process.env.APP_PRIMARY_COLOR || "#0F766E",
   accentColor: "#14B8A6",
+  backgroundColor: "#0C0C0C",
+  foregroundColor: "#F5F5F5",
+  cardColor: "#141414",
+  mutedColor: "#1F1F1F",
+  borderColor: "#2A2A2A",
+  sidebarBackgroundColor: "#0F0F0F",
+  sidebarForegroundColor: "#A3A3A3",
   setupCompleted: false,
 };
 
@@ -39,6 +53,15 @@ export default async function getBranding(): Promise<BrandingDto> {
     faviconUrl: row.faviconUrl,
     primaryColor: row.primaryColor,
     accentColor: row.accentColor ?? DEFAULTS.accentColor,
+    backgroundColor: row.backgroundColor ?? DEFAULTS.backgroundColor,
+    foregroundColor: row.foregroundColor ?? DEFAULTS.foregroundColor,
+    cardColor: row.cardColor ?? DEFAULTS.cardColor,
+    mutedColor: row.mutedColor ?? DEFAULTS.mutedColor,
+    borderColor: row.borderColor ?? DEFAULTS.borderColor,
+    sidebarBackgroundColor:
+      row.sidebarBackgroundColor ?? DEFAULTS.sidebarBackgroundColor,
+    sidebarForegroundColor:
+      row.sidebarForegroundColor ?? DEFAULTS.sidebarForegroundColor,
     setupCompleted: row.setupCompleted,
   };
 }

@@ -8,90 +8,72 @@ import { Separator } from "@/components/ui/separator";
 import { updateBranding } from "@/fetchers/branding/update-branding";
 import { useBranding } from "@/hooks/use-branding";
 import {
+  type BrandPalette,
   COLOR_PRESETS,
-  DEFAULT_ACCENT_COLOR,
-  DEFAULT_PRIMARY_COLOR,
+  DEFAULT_PALETTE,
   isHexColor,
   normalizeHexColor,
+  palettesEqual,
+  resolvePalette,
 } from "@/lib/brand-colors";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
 
-type DraftColors = {
-  primaryColor: string;
-  accentColor: string;
-};
+type DraftColors = BrandPalette;
 
-function colorsEqual(a: DraftColors, b: DraftColors) {
-  return (
-    a.primaryColor.toUpperCase() === b.primaryColor.toUpperCase() &&
-    a.accentColor.toUpperCase() === b.accentColor.toUpperCase()
-  );
+function draftFromBranding(branding: {
+  primaryColor: string;
+  accentColor?: string | null;
+  backgroundColor?: string | null;
+  foregroundColor?: string | null;
+  cardColor?: string | null;
+  mutedColor?: string | null;
+  borderColor?: string | null;
+  sidebarBackgroundColor?: string | null;
+  sidebarForegroundColor?: string | null;
+}): DraftColors {
+  return resolvePalette(branding);
 }
+
+const PALETTE_KEYS = Object.keys(DEFAULT_PALETTE) as (keyof BrandPalette)[];
 
 export function ColorThemeSettings() {
   const { t } = useTranslation();
   const { branding, setBrandingLocal, refresh } = useBranding();
-  const [draft, setDraft] = useState<DraftColors>({
-    primaryColor: branding.primaryColor,
-    accentColor: branding.accentColor ?? DEFAULT_ACCENT_COLOR,
-  });
+  const [draft, setDraft] = useState<DraftColors>(() =>
+    draftFromBranding(branding),
+  );
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    setDraft({
-      primaryColor: branding.primaryColor,
-      accentColor: branding.accentColor ?? DEFAULT_ACCENT_COLOR,
-    });
-  }, [branding.primaryColor, branding.accentColor]);
+    setDraft(draftFromBranding(branding));
+  }, [branding]);
 
-  const saved: DraftColors = {
-    primaryColor: branding.primaryColor,
-    accentColor: branding.accentColor ?? DEFAULT_ACCENT_COLOR,
-  };
-  const isDirty = !colorsEqual(draft, saved);
-  const isDefault =
-    draft.primaryColor.toUpperCase() === DEFAULT_PRIMARY_COLOR.toUpperCase() &&
-    draft.accentColor.toUpperCase() === DEFAULT_ACCENT_COLOR.toUpperCase();
+  const saved = draftFromBranding(branding);
+  const isDirty = !palettesEqual(draft, saved);
+  const isDefault = palettesEqual(draft, DEFAULT_PALETTE);
 
   const applyDraft = (next: DraftColors) => {
     setDraft(next);
-    setBrandingLocal({
-      primaryColor: next.primaryColor,
-      accentColor: next.accentColor,
-    });
+    setBrandingLocal(next);
   };
 
-  const updatePrimary = (value: string) => {
+  const updateColor = (key: keyof BrandPalette, value: string) => {
     const normalized = normalizeHexColor(value);
     if (normalized) {
-      applyDraft({ ...draft, primaryColor: normalized });
+      applyDraft({ ...draft, [key]: normalized });
       return;
     }
-    setDraft((prev) => ({ ...prev, primaryColor: value }));
-  };
-
-  const updateAccent = (value: string) => {
-    const normalized = normalizeHexColor(value);
-    if (normalized) {
-      applyDraft({ ...draft, accentColor: normalized });
-      return;
-    }
-    setDraft((prev) => ({ ...prev, accentColor: value }));
+    setDraft((prev) => ({ ...prev, [key]: value }));
   };
 
   const selectPreset = (preset: (typeof COLOR_PRESETS)[number]) => {
-    applyDraft({
-      primaryColor: preset.primaryColor,
-      accentColor: preset.accentColor,
-    });
+    const { id: _id, ...palette } = preset;
+    applyDraft(palette);
   };
 
   const resetToDefault = () => {
-    applyDraft({
-      primaryColor: DEFAULT_PRIMARY_COLOR,
-      accentColor: DEFAULT_ACCENT_COLOR,
-    });
+    applyDraft({ ...DEFAULT_PALETTE });
   };
 
   const discardChanges = () => {
@@ -99,17 +81,14 @@ export function ColorThemeSettings() {
   };
 
   const save = async () => {
-    if (!isHexColor(draft.primaryColor) || !isHexColor(draft.accentColor)) {
+    if (PALETTE_KEYS.some((key) => !isHexColor(draft[key]))) {
       toast.error(t("settings:colorTheme.invalidColor"));
       return;
     }
 
     setSaving(true);
     try {
-      const next = await updateBranding({
-        primaryColor: draft.primaryColor,
-        accentColor: draft.accentColor,
-      });
+      const next = await updateBranding(draft);
       setBrandingLocal(next);
       await refresh();
       toast.success(t("settings:colorTheme.saveSuccess"));
@@ -124,12 +103,10 @@ export function ColorThemeSettings() {
     }
   };
 
-  const activePresetId = COLOR_PRESETS.find((preset) =>
-    colorsEqual(draft, {
-      primaryColor: preset.primaryColor,
-      accentColor: preset.accentColor,
-    }),
-  )?.id;
+  const activePresetId = COLOR_PRESETS.find((preset) => {
+    const { id: _id, ...palette } = preset;
+    return palettesEqual(draft, palette);
+  })?.id;
 
   return (
     <div className="space-y-6">
@@ -182,11 +159,17 @@ export function ColorThemeSettings() {
                   <span className="flex -space-x-1" aria-hidden>
                     <span
                       className="size-4 rounded-full border border-border"
-                      style={{ backgroundColor: preset.primaryColor }}
+                      style={{
+                        backgroundColor: preset.sidebarBackgroundColor,
+                      }}
                     />
                     <span
                       className="size-4 rounded-full border border-border"
-                      style={{ backgroundColor: preset.accentColor }}
+                      style={{ backgroundColor: preset.backgroundColor }}
+                    />
+                    <span
+                      className="size-4 rounded-full border border-border"
+                      style={{ backgroundColor: preset.primaryColor }}
                     />
                   </span>
                   {t(`settings:colorTheme.preset.${preset.id}`)}
@@ -198,21 +181,99 @@ export function ColorThemeSettings() {
 
         <Separator />
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <ColorSlot
-            id="primaryColor"
-            label={t("settings:colorTheme.primary")}
-            description={t("settings:colorTheme.primaryDescription")}
-            value={draft.primaryColor}
-            onChange={updatePrimary}
-          />
-          <ColorSlot
-            id="accentColor"
-            label={t("settings:colorTheme.accent")}
-            description={t("settings:colorTheme.accentDescription")}
-            value={draft.accentColor}
-            onChange={updateAccent}
-          />
+        <div className="space-y-3">
+          <div className="space-y-0.5">
+            <Label className="text-sm font-medium">
+              {t("settings:colorTheme.brandSection")}
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              {t("settings:colorTheme.brandSectionDescription")}
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <ColorSlot
+              id="primaryColor"
+              label={t("settings:colorTheme.primary")}
+              description={t("settings:colorTheme.primaryDescription")}
+              value={draft.primaryColor}
+              onChange={(value) => updateColor("primaryColor", value)}
+            />
+            <ColorSlot
+              id="accentColor"
+              label={t("settings:colorTheme.accent")}
+              description={t("settings:colorTheme.accentDescription")}
+              value={draft.accentColor}
+              onChange={(value) => updateColor("accentColor", value)}
+            />
+          </div>
+        </div>
+
+        <Separator />
+
+        <div className="space-y-3">
+          <div className="space-y-0.5">
+            <Label className="text-sm font-medium">
+              {t("settings:colorTheme.chromeSection")}
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              {t("settings:colorTheme.chromeSectionDescription")}
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <ColorSlot
+              id="sidebarBackgroundColor"
+              label={t("settings:colorTheme.sidebarBackground")}
+              description={t(
+                "settings:colorTheme.sidebarBackgroundDescription",
+              )}
+              value={draft.sidebarBackgroundColor}
+              onChange={(value) => updateColor("sidebarBackgroundColor", value)}
+            />
+            <ColorSlot
+              id="sidebarForegroundColor"
+              label={t("settings:colorTheme.sidebarForeground")}
+              description={t(
+                "settings:colorTheme.sidebarForegroundDescription",
+              )}
+              value={draft.sidebarForegroundColor}
+              onChange={(value) => updateColor("sidebarForegroundColor", value)}
+            />
+            <ColorSlot
+              id="backgroundColor"
+              label={t("settings:colorTheme.background")}
+              description={t("settings:colorTheme.backgroundDescription")}
+              value={draft.backgroundColor}
+              onChange={(value) => updateColor("backgroundColor", value)}
+            />
+            <ColorSlot
+              id="foregroundColor"
+              label={t("settings:colorTheme.foreground")}
+              description={t("settings:colorTheme.foregroundDescription")}
+              value={draft.foregroundColor}
+              onChange={(value) => updateColor("foregroundColor", value)}
+            />
+            <ColorSlot
+              id="cardColor"
+              label={t("settings:colorTheme.card")}
+              description={t("settings:colorTheme.cardDescription")}
+              value={draft.cardColor}
+              onChange={(value) => updateColor("cardColor", value)}
+            />
+            <ColorSlot
+              id="mutedColor"
+              label={t("settings:colorTheme.muted")}
+              description={t("settings:colorTheme.mutedDescription")}
+              value={draft.mutedColor}
+              onChange={(value) => updateColor("mutedColor", value)}
+            />
+            <ColorSlot
+              id="borderColor"
+              label={t("settings:colorTheme.border")}
+              description={t("settings:colorTheme.borderDescription")}
+              value={draft.borderColor}
+              onChange={(value) => updateColor("borderColor", value)}
+            />
+          </div>
         </div>
 
         <Separator />
@@ -221,33 +282,86 @@ export function ColorThemeSettings() {
           <Label className="text-sm font-medium">
             {t("settings:colorTheme.preview")}
           </Label>
-          <div className="flex flex-wrap items-center gap-3 rounded-md border border-border bg-card p-3">
-            <Button type="button" size="sm">
-              {t("settings:colorTheme.previewPrimary")}
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              style={{
-                borderColor: draft.accentColor,
-                color: draft.accentColor,
-              }}
-            >
-              {t("settings:colorTheme.previewAccent")}
-            </Button>
-            <div className="h-2 w-28 overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full w-2/3 rounded-full"
-                style={{ backgroundColor: draft.primaryColor }}
-              />
+          <div
+            className="overflow-hidden rounded-md border"
+            style={{
+              borderColor: draft.borderColor,
+              backgroundColor: draft.backgroundColor,
+              color: draft.foregroundColor,
+            }}
+          >
+            <div className="flex min-h-36">
+              <aside
+                className="flex w-28 shrink-0 flex-col gap-2 border-r p-3 text-[10px]"
+                style={{
+                  backgroundColor: draft.sidebarBackgroundColor,
+                  borderColor: draft.borderColor,
+                  color: draft.sidebarForegroundColor,
+                }}
+              >
+                <span
+                  className="font-medium"
+                  style={{ color: draft.foregroundColor }}
+                >
+                  {t("settings:colorTheme.previewSidebar")}
+                </span>
+                <span
+                  className="rounded px-1.5 py-1"
+                  style={{
+                    backgroundColor: draft.mutedColor,
+                    color: draft.foregroundColor,
+                  }}
+                >
+                  {t("settings:colorTheme.previewNav")}
+                </span>
+                <span>{t("settings:colorTheme.previewNavMuted")}</span>
+              </aside>
+              <div className="flex flex-1 flex-col gap-3 p-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button type="button" size="sm">
+                    {t("settings:colorTheme.previewPrimary")}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    style={{
+                      borderColor: draft.accentColor,
+                      color: draft.accentColor,
+                    }}
+                  >
+                    {t("settings:colorTheme.previewAccent")}
+                  </Button>
+                  <div
+                    className="h-2 w-24 overflow-hidden rounded-full"
+                    style={{ backgroundColor: draft.mutedColor }}
+                  >
+                    <div
+                      className="h-full w-2/3 rounded-full"
+                      style={{ backgroundColor: draft.primaryColor }}
+                    />
+                  </div>
+                </div>
+                <div
+                  className="rounded-md border p-3 text-xs"
+                  style={{
+                    backgroundColor: draft.cardColor,
+                    borderColor: draft.borderColor,
+                    color: draft.foregroundColor,
+                  }}
+                >
+                  <p className="font-medium">
+                    {t("settings:colorTheme.previewCard")}
+                  </p>
+                  <p
+                    className="mt-1"
+                    style={{ color: draft.sidebarForegroundColor }}
+                  >
+                    {t("settings:colorTheme.previewCardMuted")}
+                  </p>
+                </div>
+              </div>
             </div>
-            <span
-              className="text-sm font-medium"
-              style={{ color: draft.primaryColor }}
-            >
-              {t("settings:colorTheme.previewLink")}
-            </span>
           </div>
         </div>
 
@@ -292,7 +406,7 @@ function ColorSlot({
   value: string;
   onChange: (value: string) => void;
 }) {
-  const pickerValue = isHexColor(value) ? value : DEFAULT_PRIMARY_COLOR;
+  const pickerValue = isHexColor(value) ? value : DEFAULT_PALETTE.primaryColor;
 
   return (
     <div className="space-y-2">

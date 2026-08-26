@@ -8,8 +8,10 @@ import {
   useState,
 } from "react";
 import {
-  DEFAULT_ACCENT_COLOR,
-  DEFAULT_PRIMARY_COLOR,
+  type BrandPalette,
+  contrastingForeground,
+  DEFAULT_PALETTE,
+  resolvePalette,
 } from "@/lib/brand-colors";
 
 export type Branding = {
@@ -19,6 +21,13 @@ export type Branding = {
   faviconUrl: string | null;
   primaryColor: string;
   accentColor: string | null;
+  backgroundColor: string;
+  foregroundColor: string;
+  cardColor: string;
+  mutedColor: string;
+  borderColor: string;
+  sidebarBackgroundColor: string;
+  sidebarForegroundColor: string;
   setupCompleted: boolean;
 };
 
@@ -27,8 +36,8 @@ const DEFAULT_BRANDING: Branding = {
   logoUrl: null,
   logoDarkUrl: null,
   faviconUrl: null,
-  primaryColor: DEFAULT_PRIMARY_COLOR,
-  accentColor: DEFAULT_ACCENT_COLOR,
+  ...DEFAULT_PALETTE,
+  accentColor: DEFAULT_PALETTE.accentColor,
   setupCompleted: false,
 };
 
@@ -42,19 +51,43 @@ const BrandingContext = createContext<BrandingContextValue | null>(null);
 
 function applyCssVars(branding: Branding) {
   const root = document.documentElement;
-  const primary = branding.primaryColor || DEFAULT_PRIMARY_COLOR;
-  const accent = branding.accentColor || DEFAULT_ACCENT_COLOR;
+  const palette = resolvePalette(branding);
+  const primaryFg = contrastingForeground(palette.primaryColor);
 
-  root.style.setProperty("--brand-primary", primary);
-  root.style.setProperty("--brand-accent", accent);
-  // Brand primary drives interactive chrome (buttons, links, progress).
-  root.style.setProperty("--primary", primary);
-  root.style.setProperty("--ring", primary);
-  root.style.setProperty("--sidebar-ring", primary);
-  // Keep active sidebar affordances aligned with the brand without
-  // rewriting the full sidebar surface palette.
-  root.style.setProperty("--sidebar-primary", primary);
-  root.style.setProperty("--sidebar-primary-foreground", "#FAFAFA");
+  root.style.setProperty("--brand-primary", palette.primaryColor);
+  root.style.setProperty("--brand-accent", palette.accentColor);
+  root.style.setProperty("--primary", palette.primaryColor);
+  root.style.setProperty("--primary-foreground", primaryFg);
+  root.style.setProperty("--ring", palette.primaryColor);
+  root.style.setProperty("--sidebar-ring", palette.primaryColor);
+  root.style.setProperty("--sidebar-primary", palette.primaryColor);
+  root.style.setProperty("--sidebar-primary-foreground", primaryFg);
+
+  root.style.setProperty("--background", palette.backgroundColor);
+  root.style.setProperty("--foreground", palette.foregroundColor);
+  root.style.setProperty("--card", palette.cardColor);
+  root.style.setProperty("--card-foreground", palette.foregroundColor);
+  root.style.setProperty("--popover", palette.cardColor);
+  root.style.setProperty("--popover-foreground", palette.foregroundColor);
+  root.style.setProperty("--muted", palette.mutedColor);
+  root.style.setProperty("--muted-foreground", palette.sidebarForegroundColor);
+  root.style.setProperty("--secondary", palette.mutedColor);
+  root.style.setProperty("--secondary-foreground", palette.foregroundColor);
+  root.style.setProperty("--accent", palette.mutedColor);
+  root.style.setProperty("--accent-foreground", palette.foregroundColor);
+  root.style.setProperty("--border", palette.borderColor);
+  root.style.setProperty("--input", palette.borderColor);
+  root.style.setProperty("--sidebar", palette.sidebarBackgroundColor);
+  root.style.setProperty(
+    "--sidebar-foreground",
+    palette.sidebarForegroundColor,
+  );
+  root.style.setProperty("--sidebar-border", palette.borderColor);
+  root.style.setProperty("--sidebar-accent", palette.mutedColor);
+  root.style.setProperty(
+    "--sidebar-accent-foreground",
+    palette.foregroundColor,
+  );
 
   if (branding.faviconUrl) {
     const link =
@@ -72,6 +105,21 @@ function applyCssVars(branding: Branding) {
   );
 }
 
+function normalizeBranding(
+  raw: Partial<Branding> & { displayName?: string },
+): Branding {
+  const palette = resolvePalette(raw as Partial<BrandPalette>);
+  return {
+    displayName: raw.displayName || DEFAULT_BRANDING.displayName,
+    logoUrl: raw.logoUrl ?? null,
+    logoDarkUrl: raw.logoDarkUrl ?? null,
+    faviconUrl: raw.faviconUrl ?? null,
+    ...palette,
+    accentColor: palette.accentColor,
+    setupCompleted: raw.setupCompleted ?? false,
+  };
+}
+
 async function fetchBranding(): Promise<Branding> {
   try {
     const baseUrl = resolveApiBaseUrl(import.meta.env.VITE_API_URL);
@@ -81,7 +129,7 @@ async function fetchBranding(): Promise<Branding> {
     if (!response.ok) {
       return DEFAULT_BRANDING;
     }
-    return response.json();
+    return normalizeBranding(await response.json());
   } catch {
     return DEFAULT_BRANDING;
   }
@@ -107,7 +155,7 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
         refresh,
         setBrandingLocal: (partial) => {
           setBranding((prev) => {
-            const next = { ...prev, ...partial };
+            const next = normalizeBranding({ ...prev, ...partial });
             applyCssVars(next);
             return next;
           });

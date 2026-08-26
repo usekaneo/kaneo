@@ -4,15 +4,22 @@ import * as v from "valibot";
 import getBranding from "./controllers/get-branding";
 import updateBranding from "./controllers/update-branding";
 
+const hexColor = v.pipe(v.string(), v.regex(/^#[0-9A-Fa-f]{6}$/));
+
 const brandingBodySchema = v.object({
   displayName: v.optional(v.pipe(v.string(), v.minLength(1), v.maxLength(80))),
   logoUrl: v.optional(v.nullable(v.string())),
   logoDarkUrl: v.optional(v.nullable(v.string())),
   faviconUrl: v.optional(v.nullable(v.string())),
-  primaryColor: v.optional(v.pipe(v.string(), v.regex(/^#[0-9A-Fa-f]{6}$/))),
-  accentColor: v.optional(
-    v.nullable(v.pipe(v.string(), v.regex(/^#[0-9A-Fa-f]{6}$/))),
-  ),
+  primaryColor: v.optional(hexColor),
+  accentColor: v.optional(v.nullable(hexColor)),
+  backgroundColor: v.optional(hexColor),
+  foregroundColor: v.optional(hexColor),
+  cardColor: v.optional(hexColor),
+  mutedColor: v.optional(hexColor),
+  borderColor: v.optional(hexColor),
+  sidebarBackgroundColor: v.optional(hexColor),
+  sidebarForegroundColor: v.optional(hexColor),
   setupCompleted: v.optional(v.boolean()),
 });
 
