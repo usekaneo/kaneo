@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from "@tanstack/react-router";
 import {
   CalendarDays,
   CalendarRange,
+  Network,
   SquareKanban,
   SquircleDashed,
 } from "lucide-react";
@@ -32,7 +33,7 @@ type ProjectLayoutProps = {
   headerActions?: ReactNode;
   children: ReactNode;
   showViewSwitcher?: boolean;
-  activeView?: "backlog" | "board" | "calendar" | "gantt";
+  activeView?: "backlog" | "board" | "calendar" | "gantt" | "hierarchy";
 };
 
 export default function ProjectLayout({
@@ -58,9 +59,11 @@ export default function ProjectLayout({
       ? "backlog"
       : location.pathname.includes("/calendar")
         ? "calendar"
-        : location.pathname.includes("/gantt")
-          ? "gantt"
-          : "board");
+        : location.pathname.includes("/hierarchy")
+          ? "hierarchy"
+          : location.pathname.includes("/gantt")
+            ? "gantt"
+            : "board");
 
   const handleNavigateToBacklog = () => {
     navigate({
@@ -90,6 +93,13 @@ export default function ProjectLayout({
     });
   };
 
+  const handleNavigateToHierarchy = () => {
+    navigate({
+      to: "/dashboard/workspace/$workspaceId/project/$projectId/hierarchy",
+      params: { workspaceId, projectId },
+    });
+  };
+
   const handleProjectSwitch = (nextProjectId: string) => {
     navigate({
       to:
@@ -99,7 +109,9 @@ export default function ProjectLayout({
             ? "/dashboard/workspace/$workspaceId/project/$projectId/calendar"
             : resolvedView === "gantt"
               ? "/dashboard/workspace/$workspaceId/project/$projectId/gantt"
-              : "/dashboard/workspace/$workspaceId/project/$projectId/board",
+              : resolvedView === "hierarchy"
+                ? "/dashboard/workspace/$workspaceId/project/$projectId/hierarchy"
+                : "/dashboard/workspace/$workspaceId/project/$projectId/board",
       params: {
         workspaceId,
         projectId: nextProjectId,
@@ -154,6 +166,7 @@ export default function ProjectLayout({
                 onSelectBoard={handleNavigateToBoard}
                 onSelectCalendar={handleNavigateToCalendar}
                 onSelectGantt={handleNavigateToGantt}
+                onSelectHierarchy={handleNavigateToHierarchy}
                 onSelectProject={handleProjectSwitch}
                 onAddProject={() => setIsCreateProjectModalOpen(true)}
               />
@@ -184,6 +197,18 @@ export default function ProjectLayout({
                 >
                   <SquareKanban className="size-3.5" />
                   Tasks
+                </Button>
+                <Button
+                  variant={resolvedView === "hierarchy" ? "secondary" : "ghost"}
+                  size="xs"
+                  onClick={handleNavigateToHierarchy}
+                  className={cn(
+                    "h-6 gap-1.5 rounded-md px-2 text-xs",
+                    resolvedView !== "hierarchy" && "text-muted-foreground",
+                  )}
+                >
+                  <Network className="size-3.5" />
+                  {t("tasks:hierarchy.title")}
                 </Button>
                 <Button
                   variant={resolvedView === "calendar" ? "secondary" : "ghost"}
