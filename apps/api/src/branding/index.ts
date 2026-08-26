@@ -6,6 +6,18 @@ import updateBranding from "./controllers/update-branding";
 
 const hexColor = v.pipe(v.string(), v.regex(/^#[0-9A-Fa-f]{6}$/));
 
+const paletteSchema = v.object({
+  primaryColor: v.optional(hexColor),
+  accentColor: v.optional(hexColor),
+  backgroundColor: v.optional(hexColor),
+  foregroundColor: v.optional(hexColor),
+  cardColor: v.optional(hexColor),
+  mutedColor: v.optional(hexColor),
+  borderColor: v.optional(hexColor),
+  sidebarBackgroundColor: v.optional(hexColor),
+  sidebarForegroundColor: v.optional(hexColor),
+});
+
 const brandingBodySchema = v.object({
   displayName: v.optional(v.pipe(v.string(), v.minLength(1), v.maxLength(80))),
   logoUrl: v.optional(v.nullable(v.string())),
@@ -20,6 +32,7 @@ const brandingBodySchema = v.object({
   borderColor: v.optional(hexColor),
   sidebarBackgroundColor: v.optional(hexColor),
   sidebarForegroundColor: v.optional(hexColor),
+  paletteLight: v.optional(v.nullable(paletteSchema)),
   setupCompleted: v.optional(v.boolean()),
 });
 

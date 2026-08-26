@@ -1,22 +1,16 @@
 import { resolveApiBaseUrl } from "@kaneo/libs";
 import type { Branding } from "@/hooks/use-branding";
+import type { BrandPalette } from "@/lib/brand-colors";
 
 export type UpdateBrandingInput = Partial<{
   displayName: string;
   logoUrl: string | null;
   logoDarkUrl: string | null;
   faviconUrl: string | null;
-  primaryColor: string;
-  accentColor: string | null;
-  backgroundColor: string;
-  foregroundColor: string;
-  cardColor: string;
-  mutedColor: string;
-  borderColor: string;
-  sidebarBackgroundColor: string;
-  sidebarForegroundColor: string;
   setupCompleted: boolean;
-}>;
+  paletteLight: Partial<BrandPalette> | null;
+}> &
+  Partial<BrandPalette>;
 
 export async function updateBranding(
   input: UpdateBrandingInput,

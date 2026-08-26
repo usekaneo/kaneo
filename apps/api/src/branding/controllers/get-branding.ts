@@ -1,23 +1,14 @@
 import { desc } from "drizzle-orm";
 import db, { schema } from "../../database";
 import ensureBrandingChromeColumns from "../ensure-chrome-columns";
+import {
+  type BrandingDto,
+  type BrandPaletteDto,
+  darkPaletteFromRow,
+  lightPaletteFromRow,
+} from "../palette-utils";
 
-export type BrandingDto = {
-  displayName: string;
-  logoUrl: string | null;
-  logoDarkUrl: string | null;
-  faviconUrl: string | null;
-  primaryColor: string;
-  accentColor: string | null;
-  backgroundColor: string;
-  foregroundColor: string;
-  cardColor: string;
-  mutedColor: string;
-  borderColor: string;
-  sidebarBackgroundColor: string;
-  sidebarForegroundColor: string;
-  setupCompleted: boolean;
-};
+export type { BrandingDto, BrandPaletteDto };
 
 const DEFAULTS: BrandingDto = {
   displayName: process.env.APP_NAME || "ElseTasks",
@@ -33,8 +24,36 @@ const DEFAULTS: BrandingDto = {
   borderColor: "#2A2A2A",
   sidebarBackgroundColor: "#0F0F0F",
   sidebarForegroundColor: "#A3A3A3",
+  paletteLight: {
+    primaryColor: process.env.APP_PRIMARY_COLOR || "#0F766E",
+    accentColor: "#14B8A6",
+    backgroundColor: "#FFFFFF",
+    foregroundColor: "#262626",
+    cardColor: "#FFFFFF",
+    mutedColor: "#F5F5F5",
+    borderColor: "#E5E5E5",
+    sidebarBackgroundColor: "#FAFAFA",
+    sidebarForegroundColor: "#737373",
+  },
   setupCompleted: false,
 };
+
+function rowToDto(
+  row: typeof schema.instanceBrandingTable.$inferSelect,
+): BrandingDto {
+  const paletteDark = darkPaletteFromRow(row);
+  const paletteLight = lightPaletteFromRow(row, paletteDark);
+
+  return {
+    displayName: row.displayName,
+    logoUrl: row.logoUrl,
+    logoDarkUrl: row.logoDarkUrl,
+    faviconUrl: row.faviconUrl,
+    ...paletteDark,
+    paletteLight,
+    setupCompleted: row.setupCompleted,
+  };
+}
 
 export default async function getBranding(): Promise<BrandingDto> {
   await ensureBrandingChromeColumns();
@@ -48,22 +67,5 @@ export default async function getBranding(): Promise<BrandingDto> {
     return DEFAULTS;
   }
 
-  return {
-    displayName: row.displayName,
-    logoUrl: row.logoUrl,
-    logoDarkUrl: row.logoDarkUrl,
-    faviconUrl: row.faviconUrl,
-    primaryColor: row.primaryColor,
-    accentColor: row.accentColor ?? DEFAULTS.accentColor,
-    backgroundColor: row.backgroundColor ?? DEFAULTS.backgroundColor,
-    foregroundColor: row.foregroundColor ?? DEFAULTS.foregroundColor,
-    cardColor: row.cardColor ?? DEFAULTS.cardColor,
-    mutedColor: row.mutedColor ?? DEFAULTS.mutedColor,
-    borderColor: row.borderColor ?? DEFAULTS.borderColor,
-    sidebarBackgroundColor:
-      row.sidebarBackgroundColor ?? DEFAULTS.sidebarBackgroundColor,
-    sidebarForegroundColor:
-      row.sidebarForegroundColor ?? DEFAULTS.sidebarForegroundColor,
-    setupCompleted: row.setupCompleted,
-  };
+  return rowToDto(row);
 }
