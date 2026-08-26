@@ -434,6 +434,33 @@
 			"toastRuleSavedGeneric": "Workspace notification rule saved",
 			"toastRuleRemovedGeneric": "Workspace notification rule removed"
 		},
+		"colorTheme": {
+			"title": "App colors",
+			"subtitle": "Customize the instance brand colors. Changes affect buttons, links, and highlights for everyone.",
+			"presets": "Palettes",
+			"presetsDescription": "Pick a preset or fine-tune the colors below.",
+			"primary": "Primary color",
+			"primaryDescription": "Buttons, links, progress bars, and active items.",
+			"accent": "Accent color",
+			"accentDescription": "Secondary accents and brand contrast.",
+			"preview": "Preview",
+			"previewPrimary": "Primary button",
+			"previewAccent": "Accent",
+			"previewLink": "Sample link",
+			"reset": "Reset to default",
+			"save": "Save colors",
+			"saving": "Saving…",
+			"saveSuccess": "Colors saved",
+			"saveError": "Failed to save colors",
+			"invalidColor": "Enter valid hex colors (#RRGGBB).",
+			"preset": {
+				"elsetasks": "ElseTasks",
+				"ocean": "Ocean",
+				"forest": "Forest",
+				"slate": "Slate",
+				"amber": "Amber"
+			}
+		},
 		"preferencesPage": {
 			"title": "Preferences",
 			"subtitle": "Customize your ElseTasks experience.",

@@ -434,6 +434,33 @@
 			"toastRuleSavedGeneric": "Regra de notificação do espaço de trabalho salva",
 			"toastRuleRemovedGeneric": "Regra de notificação do espaço de trabalho removida"
 		},
+		"colorTheme": {
+			"title": "Cores do aplicativo",
+			"subtitle": "Personalize as cores de marca da instância. Alterações afetam botões, links e destaques para todos os usuários.",
+			"presets": "Paletas",
+			"presetsDescription": "Escolha um preset ou ajuste as cores abaixo.",
+			"primary": "Cor primária",
+			"primaryDescription": "Botões, links, barras de progresso e itens ativos.",
+			"accent": "Cor de destaque",
+			"accentDescription": "Acentos secundários e contraste da marca.",
+			"preview": "Pré-visualização",
+			"previewPrimary": "Botão primário",
+			"previewAccent": "Destaque",
+			"previewLink": "Link de exemplo",
+			"reset": "Restaurar padrão",
+			"save": "Salvar cores",
+			"saving": "Salvando…",
+			"saveSuccess": "Cores salvas",
+			"saveError": "Falha ao salvar as cores",
+			"invalidColor": "Informe cores hex válidas (#RRGGBB).",
+			"preset": {
+				"elsetasks": "ElseTasks",
+				"ocean": "Oceano",
+				"forest": "Floresta",
+				"slate": "Ardósia",
+				"amber": "Âmbar"
+			}
+		},
 		"preferencesPage": {
 			"title": "Preferências",
 			"subtitle": "Personalize sua experiência no ElseTasks.",

@@ -1202,6 +1202,33 @@
 			"merged": "मर्ज किया",
 			"draft": "ड्राफ़्ट",
 			"open": "खुला"
+		},
+		"colorTheme": {
+			"accent": "Accent color",
+			"accentDescription": "Secondary accents and brand contrast.",
+			"invalidColor": "Enter valid hex colors (#RRGGBB).",
+			"preset": {
+				"amber": "Amber",
+				"elsetasks": "ElseTasks",
+				"forest": "Forest",
+				"ocean": "Ocean",
+				"slate": "Slate"
+			},
+			"presets": "Palettes",
+			"presetsDescription": "Pick a preset or fine-tune the colors below.",
+			"preview": "Preview",
+			"previewAccent": "Accent",
+			"previewLink": "Sample link",
+			"previewPrimary": "Primary button",
+			"primary": "Primary color",
+			"primaryDescription": "Buttons, links, progress bars, and active items.",
+			"reset": "Reset to default",
+			"save": "Save colors",
+			"saveError": "Failed to save colors",
+			"saveSuccess": "Colors saved",
+			"saving": "Saving…",
+			"subtitle": "Customize the instance brand colors. Changes affect buttons, links, and highlights for everyone.",
+			"title": "App colors"
 		}
 	},
 	"navigation": {

@@ -1728,6 +1728,109 @@
 						"toastRuleRemovedGeneric"
 					]
 				},
+				"colorTheme": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"title": {
+							"type": "string"
+						},
+						"subtitle": {
+							"type": "string"
+						},
+						"presets": {
+							"type": "string"
+						},
+						"presetsDescription": {
+							"type": "string"
+						},
+						"primary": {
+							"type": "string"
+						},
+						"primaryDescription": {
+							"type": "string"
+						},
+						"accent": {
+							"type": "string"
+						},
+						"accentDescription": {
+							"type": "string"
+						},
+						"preview": {
+							"type": "string"
+						},
+						"previewPrimary": {
+							"type": "string"
+						},
+						"previewAccent": {
+							"type": "string"
+						},
+						"previewLink": {
+							"type": "string"
+						},
+						"reset": {
+							"type": "string"
+						},
+						"save": {
+							"type": "string"
+						},
+						"saving": {
+							"type": "string"
+						},
+						"saveSuccess": {
+							"type": "string"
+						},
+						"saveError": {
+							"type": "string"
+						},
+						"invalidColor": {
+							"type": "string"
+						},
+						"preset": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"elsetasks": {
+									"type": "string"
+								},
+								"ocean": {
+									"type": "string"
+								},
+								"forest": {
+									"type": "string"
+								},
+								"slate": {
+									"type": "string"
+								},
+								"amber": {
+									"type": "string"
+								}
+							},
+							"required": ["elsetasks", "ocean", "forest", "slate", "amber"]
+						}
+					},
+					"required": [
+						"title",
+						"subtitle",
+						"presets",
+						"presetsDescription",
+						"primary",
+						"primaryDescription",
+						"accent",
+						"accentDescription",
+						"preview",
+						"previewPrimary",
+						"previewAccent",
+						"previewLink",
+						"reset",
+						"save",
+						"saving",
+						"saveSuccess",
+						"saveError",
+						"invalidColor",
+						"preset"
+					]
+				},
 				"preferencesPage": {
 					"type": "object",
 					"additionalProperties": false,
@@ -4752,6 +4855,7 @@
 				"apiKeys",
 				"informationPage",
 				"notificationsPage",
+				"colorTheme",
 				"preferencesPage",
 				"developerPage",
 				"apiKey",

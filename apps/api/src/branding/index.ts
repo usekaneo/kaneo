@@ -10,7 +10,9 @@ const brandingBodySchema = v.object({
   logoDarkUrl: v.optional(v.nullable(v.string())),
   faviconUrl: v.optional(v.nullable(v.string())),
   primaryColor: v.optional(v.pipe(v.string(), v.regex(/^#[0-9A-Fa-f]{6}$/))),
-  accentColor: v.optional(v.nullable(v.string())),
+  accentColor: v.optional(
+    v.nullable(v.pipe(v.string(), v.regex(/^#[0-9A-Fa-f]{6}$/))),
+  ),
   setupCompleted: v.optional(v.boolean()),
 });
 
