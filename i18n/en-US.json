@@ -1620,6 +1620,30 @@
 			"board": "Board",
 			"list": "List"
 		},
+		"hierarchy": {
+			"title": "Hierarchy",
+			"empty": "No task hierarchy yet",
+			"emptyDescription": "Link a task as a sub-task to see its parent and child structure here.",
+			"expandTask": "Expand {{title}}",
+			"collapseTask": "Collapse {{title}}",
+			"unassigned": "Unassigned",
+			"filters": {
+				"label": "Completion status",
+				"all": "All tasks",
+				"open": "Open tasks",
+				"completed": "Completed tasks",
+				"assignee": "Assignee",
+				"allAssignees": "All assignees",
+				"unassigned": "Unassigned",
+				"selected": "{{count}} filters",
+				"dueDate": "Due date",
+				"allDueDates": "All due dates",
+				"dueThisWeek": "Due this week",
+				"dueNextWeek": "Due next week",
+				"noDueDate": "No due date",
+				"labels": "Labels"
+			}
+		},
 		"common": {
 			"selectTask": "Select task",
 			"loadingTask": "Loading task...",

@@ -90,6 +90,14 @@ export const boardColumnSchema = z
   })
   .openapi("BoardColumn");
 
+const boardSubtaskRelationSchema = z
+  .object({
+    id: z.string(),
+    sourceTaskId: z.string().openapi({ description: "The parent task id." }),
+    targetTaskId: z.string().openapi({ description: "The child task id." }),
+  })
+  .openapi("BoardSubtaskRelation");
+
 export const boardSchema = z
   .object({
     data: z
@@ -104,6 +112,7 @@ export const boardSchema = z
         columns: z.array(boardColumnSchema),
         archivedTasks: z.array(boardTaskSchema),
         plannedTasks: z.array(boardTaskSchema),
+        subtaskRelations: z.array(boardSubtaskRelationSchema),
       })
       .openapi("Board"),
     pagination: z

@@ -3,6 +3,7 @@ import {
   CalendarRange,
   Check,
   Menu,
+  Network,
   Plus,
   SquareKanban,
 } from "lucide-react";
@@ -20,11 +21,12 @@ import { cn } from "@/lib/cn";
 type MobileProjectNavProps = {
   workspaceId: string;
   projectId: string;
-  activeView: "backlog" | "board" | "calendar" | "gantt";
+  activeView: "backlog" | "board" | "calendar" | "gantt" | "hierarchy";
   onSelectBoard: () => void;
   onSelectBacklog: () => void;
   onSelectCalendar: () => void;
   onSelectGantt: () => void;
+  onSelectHierarchy: () => void;
   onSelectProject: (projectId: string) => void;
   onAddProject: () => void;
 };
@@ -37,6 +39,7 @@ export default function MobileProjectNav({
   onSelectBacklog,
   onSelectCalendar,
   onSelectGantt,
+  onSelectHierarchy,
   onSelectProject,
   onAddProject,
 }: MobileProjectNavProps) {
@@ -62,7 +65,7 @@ export default function MobileProjectNav({
             <p className="px-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
               View
             </p>
-            <div className="grid grid-cols-4 gap-1">
+            <div className="grid grid-cols-2 gap-1">
               <button
                 type="button"
                 onClick={onSelectBacklog}
@@ -87,6 +90,19 @@ export default function MobileProjectNav({
               >
                 <SquareKanban className="size-3.5" />
                 Board
+              </button>
+              <button
+                type="button"
+                onClick={onSelectHierarchy}
+                className={cn(
+                  "flex w-full items-center justify-center gap-1 whitespace-nowrap rounded-md border px-2 py-1.5 text-xs font-medium transition-colors",
+                  activeView === "hierarchy"
+                    ? "border-border bg-secondary text-foreground"
+                    : "border-transparent text-muted-foreground hover:bg-accent",
+                )}
+              >
+                <Network className="size-3.5" />
+                {t("tasks:hierarchy.title")}
               </button>
               <button
                 type="button"

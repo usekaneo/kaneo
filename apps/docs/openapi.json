@@ -642,6 +642,12 @@
             "items": {
               "$ref": "#/components/schemas/BoardTask"
             }
+          },
+          "subtaskRelations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BoardSubtaskRelation"
+            }
           }
         },
         "required": [
@@ -654,7 +660,8 @@
           "workspaceId",
           "columns",
           "archivedTasks",
-          "plannedTasks"
+          "plannedTasks",
+          "subtaskRelations"
         ]
       },
       "BoardPagination": {
@@ -3087,6 +3094,27 @@
         },
         "required": [
           "deleted"
+        ]
+      },
+      "BoardSubtaskRelation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sourceTaskId": {
+            "type": "string",
+            "description": "The parent task id."
+          },
+          "targetTaskId": {
+            "type": "string",
+            "description": "The child task id."
+          }
+        },
+        "required": [
+          "id",
+          "sourceTaskId",
+          "targetTaskId"
         ]
       }
     },

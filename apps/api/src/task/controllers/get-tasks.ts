@@ -16,6 +16,7 @@ import {
   externalLinkTable,
   labelTable,
   projectTable,
+  taskRelationTable,
   taskTable,
   userTable,
 } from "../../database/schema";
@@ -173,6 +174,24 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
           .where(inArray(externalLinkTable.taskId, taskIds))
       : [];
 
+  const subtaskRelations =
+    taskIds.length > 0
+      ? await db
+          .select({
+            id: taskRelationTable.id,
+            sourceTaskId: taskRelationTable.sourceTaskId,
+            targetTaskId: taskRelationTable.targetTaskId,
+          })
+          .from(taskRelationTable)
+          .where(
+            and(
+              eq(taskRelationTable.relationType, "subtask"),
+              inArray(taskRelationTable.sourceTaskId, taskIds),
+              inArray(taskRelationTable.targetTaskId, taskIds),
+            ),
+          )
+      : [];
+
   const taskLabelsMap = new Map<
     string,
     Array<{ id: string; name: string; color: string }>
@@ -264,6 +283,7 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
       columns,
       archivedTasks,
       plannedTasks,
+      subtaskRelations,
     },
     pagination: usePagination
       ? {
