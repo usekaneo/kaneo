@@ -1585,6 +1585,35 @@
 			"board": "Tableau",
 			"list": "Liste"
 		},
+		"hierarchy": {
+			"title": "Hiérarchie",
+			"empty": "Aucune hiérarchie de tâches pour le moment",
+			"emptyDescription": "Liez une tâche en tant que sous-tâche pour afficher ici sa structure parent-enfant.",
+			"expandTask": "Développer {{title}}",
+			"collapseTask": "Réduire {{title}}",
+			"unassigned": "Non attribuée",
+			"filters": {
+				"filterBy": "Filtrer par",
+				"label": "État d’achèvement",
+				"all": "Toutes les tâches",
+				"open": "Tâches ouvertes",
+				"completed": "Tâches terminées",
+				"assignee": "Responsable",
+				"allAssignees": "Tous les responsables",
+				"unassigned": "Non attribuée",
+				"selected": "{{count}} filtres",
+				"dueDate": "Date d’échéance",
+				"allDueDates": "Toutes les dates d’échéance",
+				"dueThisWeek": "Échéance cette semaine",
+				"dueNextWeek": "Échéance la semaine prochaine",
+				"noDueDate": "Aucune date d’échéance",
+				"labels": "Étiquettes",
+				"relation": "Relation hiérarchique",
+				"allRelations": "Toutes les tâches",
+				"related": "Possède une tâche parente ou une sous-tâche",
+				"standalone": "Tâches indépendantes"
+			}
+		},
 		"common": {
 			"selectTask": "Sélectionner une tâche",
 			"loadingTask": "Chargement de la tâche...",

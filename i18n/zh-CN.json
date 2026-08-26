@@ -1575,6 +1575,35 @@
 			"board": "看板",
 			"list": "列表"
 		},
+		"hierarchy": {
+			"title": "层级结构",
+			"empty": "暂无任务层级结构",
+			"emptyDescription": "将任务关联为子任务，即可在此查看其父子结构。",
+			"expandTask": "展开{{title}}",
+			"collapseTask": "折叠{{title}}",
+			"unassigned": "未分配",
+			"filters": {
+				"filterBy": "筛选条件",
+				"label": "完成状态",
+				"all": "所有任务",
+				"open": "未完成任务",
+				"completed": "已完成任务",
+				"assignee": "负责人",
+				"allAssignees": "所有负责人",
+				"unassigned": "未分配",
+				"selected": "{{count}} 个筛选条件",
+				"dueDate": "截止日期",
+				"allDueDates": "所有截止日期",
+				"dueThisWeek": "本周到期",
+				"dueNextWeek": "下周到期",
+				"noDueDate": "无截止日期",
+				"labels": "标签",
+				"relation": "层级关系",
+				"allRelations": "所有任务",
+				"related": "有父任务或子任务",
+				"standalone": "独立任务"
+			}
+		},
 		"common": {
 			"selectTask": "选择任务",
 			"loadingTask": "正在加载任务…",

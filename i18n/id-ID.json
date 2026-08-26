@@ -1575,6 +1575,35 @@
 			"board": "Papan",
 			"list": "Daftar"
 		},
+		"hierarchy": {
+			"title": "Hierarki",
+			"empty": "Belum ada hierarki tugas",
+			"emptyDescription": "Tautkan tugas sebagai subtugas untuk melihat struktur induk dan turunannya di sini.",
+			"expandTask": "Perluas {{title}}",
+			"collapseTask": "Ciutkan {{title}}",
+			"unassigned": "Belum ditugaskan",
+			"filters": {
+				"filterBy": "Filter berdasarkan",
+				"label": "Status penyelesaian",
+				"all": "Semua tugas",
+				"open": "Tugas terbuka",
+				"completed": "Tugas selesai",
+				"assignee": "Penerima tugas",
+				"allAssignees": "Semua penerima tugas",
+				"unassigned": "Belum ditugaskan",
+				"selected": "{{count}} filter",
+				"dueDate": "Tenggat",
+				"allDueDates": "Semua tenggat",
+				"dueThisWeek": "Jatuh tempo minggu ini",
+				"dueNextWeek": "Jatuh tempo minggu depan",
+				"noDueDate": "Tanpa tenggat",
+				"labels": "Label",
+				"relation": "Relasi hierarki",
+				"allRelations": "Semua tugas",
+				"related": "Memiliki tugas induk atau subtugas",
+				"standalone": "Tugas mandiri"
+			}
+		},
 		"common": {
 			"selectTask": "Pilih tugas",
 			"loadingTask": "Memuat tugas...",

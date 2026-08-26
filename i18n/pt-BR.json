@@ -1585,6 +1585,35 @@
 			"board": "Quadro",
 			"list": "Lista"
 		},
+		"hierarchy": {
+			"title": "Hierarquia",
+			"empty": "Ainda não há uma hierarquia de tarefas",
+			"emptyDescription": "Vincule uma tarefa como subtarefa para ver aqui sua estrutura de tarefas pai e filhas.",
+			"expandTask": "Expandir {{title}}",
+			"collapseTask": "Recolher {{title}}",
+			"unassigned": "Não atribuída",
+			"filters": {
+				"filterBy": "Filtrar por",
+				"label": "Status de conclusão",
+				"all": "Todas as tarefas",
+				"open": "Tarefas abertas",
+				"completed": "Tarefas concluídas",
+				"assignee": "Responsável",
+				"allAssignees": "Todos os responsáveis",
+				"unassigned": "Não atribuída",
+				"selected": "{{count}} filtros",
+				"dueDate": "Data de vencimento",
+				"allDueDates": "Todas as datas de vencimento",
+				"dueThisWeek": "Vence esta semana",
+				"dueNextWeek": "Vence na próxima semana",
+				"noDueDate": "Sem data de vencimento",
+				"labels": "Etiquetas",
+				"relation": "Relação hierárquica",
+				"allRelations": "Todas as tarefas",
+				"related": "Tem tarefa pai ou subtarefa",
+				"standalone": "Tarefas independentes"
+			}
+		},
 		"common": {
 			"selectTask": "Selecionar tarefa",
 			"loadingTask": "Carregando tarefa...",

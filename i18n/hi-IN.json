@@ -1580,6 +1580,35 @@
 			"board": "बोर्ड",
 			"list": "सूची"
 		},
+		"hierarchy": {
+			"title": "पदानुक्रम",
+			"empty": "अभी तक कोई कार्य पदानुक्रम नहीं है",
+			"emptyDescription": "यहाँ उसकी पैरेंट और चाइल्ड संरचना देखने के लिए किसी कार्य को उप-कार्य के रूप में लिंक करें।",
+			"expandTask": "{{title}} को फैलाएँ",
+			"collapseTask": "{{title}} को समेटें",
+			"unassigned": "असाइन नहीं किया गया",
+			"filters": {
+				"filterBy": "इसके अनुसार फ़िल्टर करें",
+				"label": "पूर्णता स्थिति",
+				"all": "सभी कार्य",
+				"open": "खुले कार्य",
+				"completed": "पूर्ण कार्य",
+				"assignee": "असाइनी",
+				"allAssignees": "सभी असाइनी",
+				"unassigned": "असाइन नहीं किया गया",
+				"selected": "{{count}} फ़िल्टर",
+				"dueDate": "नियत तारीख",
+				"allDueDates": "सभी नियत तारीखें",
+				"dueThisWeek": "इस सप्ताह नियत",
+				"dueNextWeek": "अगले सप्ताह नियत",
+				"noDueDate": "कोई नियत तारीख नहीं",
+				"labels": "लेबल",
+				"relation": "पदानुक्रम संबंध",
+				"allRelations": "सभी कार्य",
+				"related": "पैरेंट या उप-कार्य मौजूद है",
+				"standalone": "स्वतंत्र कार्य"
+			}
+		},
 		"common": {
 			"selectTask": "कार्य चुनें",
 			"loadingTask": "कार्य लोड हो रहा है...",

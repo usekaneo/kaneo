@@ -1556,6 +1556,35 @@
 			"board": "ボード",
 			"list": "リスト"
 		},
+		"hierarchy": {
+			"title": "階層",
+			"empty": "タスク階層はまだありません",
+			"emptyDescription": "タスクをサブタスクとして関連付けると、親子構造がここに表示されます。",
+			"expandTask": "{{title}}を展開",
+			"collapseTask": "{{title}}を折りたたむ",
+			"unassigned": "未割り当て",
+			"filters": {
+				"filterBy": "フィルター条件",
+				"label": "完了状態",
+				"all": "すべてのタスク",
+				"open": "未完了のタスク",
+				"completed": "完了したタスク",
+				"assignee": "担当者",
+				"allAssignees": "すべての担当者",
+				"unassigned": "未割り当て",
+				"selected": "{{count}}件のフィルター",
+				"dueDate": "期限",
+				"allDueDates": "すべての期限",
+				"dueThisWeek": "今週が期限",
+				"dueNextWeek": "来週が期限",
+				"noDueDate": "期限なし",
+				"labels": "ラベル",
+				"relation": "階層関係",
+				"allRelations": "すべてのタスク",
+				"related": "親タスクまたはサブタスクあり",
+				"standalone": "独立したタスク"
+			}
+		},
 		"common": {
 			"selectTask": "タスクを選択",
 			"loadingTask": "タスクを読み込み中...",

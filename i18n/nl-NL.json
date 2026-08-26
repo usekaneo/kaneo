@@ -1580,6 +1580,35 @@
 			"board": "Bord",
 			"list": "Lijst"
 		},
+		"hierarchy": {
+			"title": "Hiërarchie",
+			"empty": "Nog geen taakhiërarchie",
+			"emptyDescription": "Koppel een taak als subtaak om hier de boven- en onderliggende structuur te bekijken.",
+			"expandTask": "{{title}} uitvouwen",
+			"collapseTask": "{{title}} samenvouwen",
+			"unassigned": "Niet toegewezen",
+			"filters": {
+				"filterBy": "Filteren op",
+				"label": "Voltooiingsstatus",
+				"all": "Alle taken",
+				"open": "Open taken",
+				"completed": "Voltooide taken",
+				"assignee": "Toegewezen persoon",
+				"allAssignees": "Alle toegewezen personen",
+				"unassigned": "Niet toegewezen",
+				"selected": "{{count}} filters",
+				"dueDate": "Vervaldatum",
+				"allDueDates": "Alle vervaldatums",
+				"dueThisWeek": "Deze week te voltooien",
+				"dueNextWeek": "Volgende week te voltooien",
+				"noDueDate": "Geen vervaldatum",
+				"labels": "Labels",
+				"relation": "Hiërarchische relatie",
+				"allRelations": "Alle taken",
+				"related": "Heeft bovenliggende taak of subtaak",
+				"standalone": "Zelfstandige taken"
+			}
+		},
 		"common": {
 			"selectTask": "Selecteer taak",
 			"loadingTask": "Taak laden...",
