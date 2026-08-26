@@ -1,6 +1,5 @@
 "use client";
 
-import {} from "lucide-react";
 import { GithubIcon } from "@/components/icons/github-icon";
 import { AppPreview } from "@/components/landing/app-preview";
 import { FadeIn } from "@/components/landing/fade-in";

@@ -1,4 +1,5 @@
 import type { BlogAuthor } from "@/lib/blog/types";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 function initials(name: string) {
@@ -19,7 +20,7 @@ export function BlogAvatar({
 }) {
   if (author.avatar) {
     return (
-      <img
+      <Image
         alt=""
         className={cn("size-8 shrink-0 rounded-full object-cover", className)}
         src={author.avatar}
