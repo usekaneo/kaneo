@@ -8,6 +8,13 @@ export type UpdateBrandingInput = Partial<{
   faviconUrl: string | null;
   primaryColor: string;
   accentColor: string | null;
+  backgroundColor: string;
+  foregroundColor: string;
+  cardColor: string;
+  mutedColor: string;
+  borderColor: string;
+  sidebarBackgroundColor: string;
+  sidebarForegroundColor: string;
   setupCompleted: boolean;
 }>;
 

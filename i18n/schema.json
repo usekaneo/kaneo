@@ -1807,6 +1807,75 @@
 								}
 							},
 							"required": ["elsetasks", "ocean", "forest", "slate", "amber"]
+						},
+						"brandSection": {
+							"type": "string"
+						},
+						"brandSectionDescription": {
+							"type": "string"
+						},
+						"chromeSection": {
+							"type": "string"
+						},
+						"chromeSectionDescription": {
+							"type": "string"
+						},
+						"sidebarBackground": {
+							"type": "string"
+						},
+						"sidebarBackgroundDescription": {
+							"type": "string"
+						},
+						"sidebarForeground": {
+							"type": "string"
+						},
+						"sidebarForegroundDescription": {
+							"type": "string"
+						},
+						"background": {
+							"type": "string"
+						},
+						"backgroundDescription": {
+							"type": "string"
+						},
+						"foreground": {
+							"type": "string"
+						},
+						"foregroundDescription": {
+							"type": "string"
+						},
+						"card": {
+							"type": "string"
+						},
+						"cardDescription": {
+							"type": "string"
+						},
+						"muted": {
+							"type": "string"
+						},
+						"mutedDescription": {
+							"type": "string"
+						},
+						"border": {
+							"type": "string"
+						},
+						"borderDescription": {
+							"type": "string"
+						},
+						"previewSidebar": {
+							"type": "string"
+						},
+						"previewNav": {
+							"type": "string"
+						},
+						"previewNavMuted": {
+							"type": "string"
+						},
+						"previewCard": {
+							"type": "string"
+						},
+						"previewCardMuted": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -1828,7 +1897,30 @@
 						"saveSuccess",
 						"saveError",
 						"invalidColor",
-						"preset"
+						"preset",
+						"brandSection",
+						"brandSectionDescription",
+						"chromeSection",
+						"chromeSectionDescription",
+						"sidebarBackground",
+						"sidebarBackgroundDescription",
+						"sidebarForeground",
+						"sidebarForegroundDescription",
+						"background",
+						"backgroundDescription",
+						"foreground",
+						"foregroundDescription",
+						"card",
+						"cardDescription",
+						"muted",
+						"mutedDescription",
+						"border",
+						"borderDescription",
+						"previewSidebar",
+						"previewNav",
+						"previewNavMuted",
+						"previewCard",
+						"previewCardMuted"
 					]
 				},
 				"preferencesPage": {

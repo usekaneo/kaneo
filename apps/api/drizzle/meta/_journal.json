@@ -267,6 +267,13 @@
 			"when": 1786000000000,
 			"tag": "0037_elsetasks_branding_license",
 			"breakpoints": true
+		},
+		{
+			"idx": 38,
+			"version": "7",
+			"when": 1786100000000,
+			"tag": "0038_branding_chrome_colors",
+			"breakpoints": true
 		}
 	]
 }
