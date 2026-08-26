@@ -226,9 +226,25 @@ async function getProjectMetrics(
     }))
     .sort((a, b) => b.assigned - a.assigned);
 
-  // Contract submissions are not on this branch yet — keep shape for the UI.
-  const contractsByStatus: StatusCount[] = [];
-  const contractsTotal = 0;
+  const contractRows = await db.execute<{ status: string; count: number }>(sql`
+    select status, count(*)::int as count
+    from contract_submission
+    where project_id = ${projectId}
+    group by status
+    order by status
+  `);
+  const contractList = Array.isArray(contractRows)
+    ? contractRows
+    : ((contractRows as { rows?: { status: string; count: number }[] }).rows ??
+      []);
+  const contractsByStatus: StatusCount[] = contractList.map((row) => ({
+    status: row.status,
+    count: Number(row.count),
+  }));
+  const contractsTotal = contractsByStatus.reduce(
+    (sum, row) => sum + row.count,
+    0,
+  );
 
   const priorityRows = await db
     .select({
