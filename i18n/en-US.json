@@ -1628,6 +1628,7 @@
 			"collapseTask": "Collapse {{title}}",
 			"unassigned": "Unassigned",
 			"filters": {
+				"filterBy": "Filter by",
 				"label": "Completion status",
 				"all": "All tasks",
 				"open": "Open tasks",
@@ -1641,7 +1642,11 @@
 				"dueThisWeek": "Due this week",
 				"dueNextWeek": "Due next week",
 				"noDueDate": "No due date",
-				"labels": "Labels"
+				"labels": "Labels",
+				"relation": "Hierarchy relation",
+				"allRelations": "All tasks",
+				"related": "Has parent or sub-task",
+				"standalone": "Standalone tasks"
 			}
 		},
 		"common": {

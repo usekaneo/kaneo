@@ -17,6 +17,7 @@ import type Task from "@/types/task";
 type HierarchyViewProps = {
   project: ProjectWithTasks;
   tasks?: Task[];
+  includeStandalone?: boolean;
   onOpenTask: (taskId: string) => void;
 };
 
@@ -107,6 +108,7 @@ function HierarchyRow({
 export default function HierarchyView({
   project,
   tasks: visibleTasks,
+  includeStandalone = true,
   onOpenTask,
 }: HierarchyViewProps) {
   const { t } = useTranslation();
@@ -114,7 +116,9 @@ export default function HierarchyView({
     ...project.plannedTasks,
     ...project.columns.flatMap((column) => column.tasks),
   ];
-  const roots = buildTaskHierarchy(tasks, project.subtaskRelations ?? []);
+  const roots = buildTaskHierarchy(tasks, project.subtaskRelations ?? [], {
+    includeUnrelated: includeStandalone,
+  });
 
   if (roots.length === 0) {
     return (

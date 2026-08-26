@@ -109,9 +109,11 @@ function MenuCheckboxItem({
   className,
   children,
   checked,
+  indicatorVariant = "checkmark",
   variant = "default",
   ...props
 }: MenuPrimitive.CheckboxItem.Props & {
+  indicatorVariant?: "checkmark" | "checkbox";
   variant?: "default" | "switch";
 }) {
   return (
@@ -139,8 +141,17 @@ function MenuCheckboxItem({
         </>
       ) : (
         <>
-          <MenuPrimitive.CheckboxItemIndicator className="col-start-1">
+          <MenuPrimitive.CheckboxItemIndicator
+            className={cn(
+              "col-start-1",
+              indicatorVariant === "checkbox" &&
+                "relative inline-flex size-4 shrink-0 items-center justify-center rounded-[.25rem] border border-input bg-background text-primary-foreground shadow-xs/5 data-checked:border-primary data-checked:bg-primary data-unchecked:text-transparent",
+            )}
+            keepMounted={indicatorVariant === "checkbox"}
+          >
             <svg
+              aria-hidden="true"
+              className={cn(indicatorVariant === "checkbox" && "size-3")}
               fill="none"
               height="24"
               stroke="currentColor"
@@ -151,7 +162,6 @@ function MenuCheckboxItem({
               width="24"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <title>Check</title>
               <path d="M5.252 12.7 10.2 18.63 18.748 5.37" />
             </svg>
           </MenuPrimitive.CheckboxItemIndicator>
