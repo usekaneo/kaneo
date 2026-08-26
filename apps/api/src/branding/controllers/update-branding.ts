@@ -1,10 +1,12 @@
 import { desc, eq } from "drizzle-orm";
 import db, { schema } from "../../database";
+import ensureBrandingChromeColumns from "../ensure-chrome-columns";
 import getBranding, { type BrandingDto } from "./get-branding";
 
 export default async function updateBranding(
   input: Partial<BrandingDto>,
 ): Promise<BrandingDto> {
+  await ensureBrandingChromeColumns();
   const [existing] = await db
     .select()
     .from(schema.instanceBrandingTable)

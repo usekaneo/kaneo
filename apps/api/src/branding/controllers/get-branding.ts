@@ -1,5 +1,6 @@
 import { desc } from "drizzle-orm";
 import db, { schema } from "../../database";
+import ensureBrandingChromeColumns from "../ensure-chrome-columns";
 
 export type BrandingDto = {
   displayName: string;
@@ -36,6 +37,7 @@ const DEFAULTS: BrandingDto = {
 };
 
 export default async function getBranding(): Promise<BrandingDto> {
+  await ensureBrandingChromeColumns();
   const [row] = await db
     .select()
     .from(schema.instanceBrandingTable)
