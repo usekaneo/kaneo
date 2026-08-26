@@ -26,6 +26,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:seed:user-data": "tsx scripts/seed-user-data.ts",
+    "db:seed:architecture": "tsx scripts/seed-architecture-demo.ts",
     "openapi:export": "tsx scripts/export-openapi.ts"
   },
   "dependencies": {
