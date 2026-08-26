@@ -849,6 +849,8 @@
 			"genericWebhookSectionSubtitle": "Send project task events to any HTTP endpoint as JSON.",
 			"slackSectionTitle": "Slack Integration",
 			"slackSectionSubtitle": "Send project task updates into a Slack channel with an incoming webhook.",
+			"googleChatSectionTitle": "Google Chat Integration",
+			"googleChatSectionSubtitle": "Send project task updates into a Google Chat space with an incoming webhook.",
 			"telegramSectionTitle": "Telegram Integration",
 			"telegramSectionSubtitle": "Send project task updates into a Telegram chat or topic with a bot."
 		},
@@ -1075,6 +1077,44 @@
 			"connect": "Connect Slack",
 			"saveChanges": "Save changes",
 			"update": "Update Slack",
+			"disconnect": "Disconnect"
+		},
+		"googleChatIntegration": {
+			"validation": {
+				"webhookInvalid": "Enter a valid Google Chat webhook URL"
+			},
+			"toast": {
+				"saved": "Google Chat integration saved successfully",
+				"saveError": "Failed to save Google Chat integration",
+				"enabled": "Google Chat notifications enabled",
+				"disabled": "Google Chat notifications paused",
+				"updateError": "Failed to update Google Chat integration",
+				"removed": "Google Chat integration removed successfully",
+				"removeError": "Failed to remove Google Chat integration"
+			},
+			"connectionTitle": "Google Chat webhook connection",
+			"connectionHint": "Paste a Google Chat incoming webhook URL and choose which task events should be posted.",
+			"connected": "Connected",
+			"paused": "Paused",
+			"webhookLabel": "Incoming webhook URL",
+			"webhookPlaceholder": "https://chat.googleapis.com/v1/spaces/.../messages?key=...&token=...",
+			"webhookHint": "Create an incoming webhook in the Google Chat space and paste the generated URL here.",
+			"channelLabel": "Space name",
+			"channelPlaceholder": "Team updates",
+			"channelHint": "Optional label for your reference. The webhook controls the actual destination space.",
+			"eventsTitle": "Event notifications",
+			"eventsHint": "Choose which project changes should post to Google Chat.",
+			"events": {
+				"taskCreated": "New tasks",
+				"taskStatusChanged": "Status changes",
+				"taskPriorityChanged": "Priority changes",
+				"taskTitleChanged": "Title changes",
+				"taskDescriptionChanged": "Description changes",
+				"taskCommentCreated": "New comments"
+			},
+			"connect": "Connect Google Chat",
+			"saveChanges": "Save changes",
+			"update": "Update Google Chat",
 			"disconnect": "Disconnect"
 		},
 		"discordIntegration": {
