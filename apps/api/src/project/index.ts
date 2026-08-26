@@ -9,9 +9,67 @@ import archiveProjectCtrl from "./controllers/archive-project";
 import createProjectCtrl from "./controllers/create-project";
 import deleteProjectCtrl from "./controllers/delete-project";
 import getProjectCtrl from "./controllers/get-project";
+import getProjectMetricsCtrl from "./controllers/get-project-metrics";
 import getProjectsCtrl from "./controllers/get-projects";
 import unarchiveProjectCtrl from "./controllers/unarchive-project";
 import updateProjectCtrl from "./controllers/update-project";
+
+const projectMetricsSchema = v.object({
+  projectId: v.string(),
+  projectName: v.string(),
+  summary: v.object({
+    totalTasks: v.number(),
+    completedTasks: v.number(),
+    inProgressTasks: v.number(),
+    unassignedTasks: v.number(),
+    overdueTasks: v.number(),
+    completionPercentage: v.number(),
+  }),
+  columns: v.array(
+    v.object({
+      id: v.nullable(v.string()),
+      name: v.string(),
+      slug: v.string(),
+      color: v.nullable(v.string()),
+      position: v.number(),
+      isFinal: v.boolean(),
+      count: v.number(),
+    }),
+  ),
+  assignees: v.array(
+    v.object({
+      userId: v.nullable(v.string()),
+      name: v.string(),
+      email: v.nullable(v.string()),
+      image: v.nullable(v.string()),
+      assigned: v.number(),
+      done: v.number(),
+      inProgress: v.number(),
+    }),
+  ),
+  contracts: v.object({
+    total: v.number(),
+    byStatus: v.array(
+      v.object({
+        status: v.string(),
+        count: v.number(),
+      }),
+    ),
+  }),
+  priority: v.array(
+    v.object({
+      priority: v.string(),
+      count: v.number(),
+    }),
+  ),
+  activity: v.array(
+    v.object({
+      date: v.string(),
+      created: v.number(),
+      completed: v.number(),
+    }),
+  ),
+});
 
 const project = new Hono<{
   Variables: {
@@ -84,6 +142,31 @@ const project = new Hono<{
       const workspaceId = c.get("workspaceId");
       const newProject = await createProjectCtrl(workspaceId, name, icon, slug);
       return c.json(newProject);
+    },
+  )
+  .get(
+    "/:id/metrics",
+    describeRoute({
+      operationId: "getProjectMetrics",
+      tags: ["Projects"],
+      description:
+        "Aggregated project metrics: columns, assignees, contracts, priority and activity",
+      responses: {
+        200: {
+          description: "Project metrics",
+          content: {
+            "application/json": { schema: resolver(projectMetricsSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    workspaceAccess.fromProject(),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const workspaceId = c.get("workspaceId");
+      const metrics = await getProjectMetricsCtrl(id, workspaceId);
+      return c.json(metrics);
     },
   )
   .get(

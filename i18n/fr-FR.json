@@ -1055,7 +1055,8 @@
 			"members": "Membres",
 			"invitations": "Invitations",
 			"more": "Plus",
-			"backToBoard": "Retour au tableau"
+			"backToBoard": "Retour au tableau",
+			"metrics": "Dashboard"
 		},
 		"projectList": {
 			"viewProject": "Voir le projet",
@@ -1752,6 +1753,52 @@
 			"submit": "Créer un workspace",
 			"success": "Workspace créé avec succès",
 			"error": "Échec de la création du workspace"
+		},
+		"metrics": {
+			"pageTitle": "Dashboard",
+			"selectProject": "Select project",
+			"emptyTitle": "Choose a project",
+			"emptyDescription": "Select a project from this workflow to see columns, contracts, deliveries by person, and recent activity.",
+			"errorTitle": "Could not load dashboard",
+			"errorDescription": "Please try again in a moment.",
+			"completionLabel": "{{percent}}% complete",
+			"summary": {
+				"total": "Tasks",
+				"completed": "Done",
+				"inProgress": "In progress",
+				"overdue": "Overdue"
+			},
+			"columnsTitle": "Kanban board",
+			"columnsDescription": "Task count in each project column.",
+			"contractsTitle": "Contracts",
+			"contractsDescription": "{{count}} submissions linked to this project.",
+			"noContracts": "No contracts in this project",
+			"priorityTitle": "Priority",
+			"priorityDescription": "Task distribution by priority level.",
+			"noTasks": "No tasks in this project",
+			"assigneesTitle": "Deliveries by person",
+			"assigneesDescription": "Assigned, in progress, and done per assignee.",
+			"noAssignees": "No assigned tasks yet",
+			"assignee": {
+				"assigned": "Assigned",
+				"inProgress": "In progress",
+				"done": "Done"
+			},
+			"table": {
+				"user": "Person"
+			},
+			"activityTitle": "Activity (30 days)",
+			"activityDescription": "Tasks created and approximate completions in the period.",
+			"activity": {
+				"created": "Created",
+				"completed": "Completed"
+			},
+			"contractStatus": {
+				"pending": "Pending",
+				"sent": "Sent",
+				"completed": "Signed",
+				"declined": "Declined"
+			}
 		}
 	},
 	"team": {

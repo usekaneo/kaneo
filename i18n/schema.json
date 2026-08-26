@@ -4885,6 +4885,9 @@
 						},
 						"backToBoard": {
 							"type": "string"
+						},
+						"metrics": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -4893,7 +4896,8 @@
 						"members",
 						"invitations",
 						"more",
-						"backToBoard"
+						"backToBoard",
+						"metrics"
 					]
 				},
 				"projectList": {
@@ -7718,9 +7722,179 @@
 						"success",
 						"error"
 					]
+				},
+				"metrics": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"pageTitle": {
+							"type": "string"
+						},
+						"selectProject": {
+							"type": "string"
+						},
+						"emptyTitle": {
+							"type": "string"
+						},
+						"emptyDescription": {
+							"type": "string"
+						},
+						"errorTitle": {
+							"type": "string"
+						},
+						"errorDescription": {
+							"type": "string"
+						},
+						"completionLabel": {
+							"type": "string"
+						},
+						"summary": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"total": {
+									"type": "string"
+								},
+								"completed": {
+									"type": "string"
+								},
+								"inProgress": {
+									"type": "string"
+								},
+								"overdue": {
+									"type": "string"
+								}
+							},
+							"required": ["total", "completed", "inProgress", "overdue"]
+						},
+						"columnsTitle": {
+							"type": "string"
+						},
+						"columnsDescription": {
+							"type": "string"
+						},
+						"contractsTitle": {
+							"type": "string"
+						},
+						"contractsDescription": {
+							"type": "string"
+						},
+						"noContracts": {
+							"type": "string"
+						},
+						"priorityTitle": {
+							"type": "string"
+						},
+						"priorityDescription": {
+							"type": "string"
+						},
+						"noTasks": {
+							"type": "string"
+						},
+						"assigneesTitle": {
+							"type": "string"
+						},
+						"assigneesDescription": {
+							"type": "string"
+						},
+						"noAssignees": {
+							"type": "string"
+						},
+						"assignee": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"assigned": {
+									"type": "string"
+								},
+								"inProgress": {
+									"type": "string"
+								},
+								"done": {
+									"type": "string"
+								}
+							},
+							"required": ["assigned", "inProgress", "done"]
+						},
+						"table": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"user": {
+									"type": "string"
+								}
+							},
+							"required": ["user"]
+						},
+						"activityTitle": {
+							"type": "string"
+						},
+						"activityDescription": {
+							"type": "string"
+						},
+						"activity": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"created": {
+									"type": "string"
+								},
+								"completed": {
+									"type": "string"
+								}
+							},
+							"required": ["created", "completed"]
+						},
+						"contractStatus": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"pending": {
+									"type": "string"
+								},
+								"sent": {
+									"type": "string"
+								},
+								"completed": {
+									"type": "string"
+								},
+								"declined": {
+									"type": "string"
+								}
+							},
+							"required": ["pending", "sent", "completed", "declined"]
+						}
+					},
+					"required": [
+						"pageTitle",
+						"selectProject",
+						"emptyTitle",
+						"emptyDescription",
+						"errorTitle",
+						"errorDescription",
+						"completionLabel",
+						"summary",
+						"columnsTitle",
+						"columnsDescription",
+						"contractsTitle",
+						"contractsDescription",
+						"noContracts",
+						"priorityTitle",
+						"priorityDescription",
+						"noTasks",
+						"assigneesTitle",
+						"assigneesDescription",
+						"noAssignees",
+						"assignee",
+						"table",
+						"activityTitle",
+						"activityDescription",
+						"activity",
+						"contractStatus"
+					]
 				}
 			},
-			"required": ["projects", "search", "create"]
+			"required": ["projects", "search", "create", "metrics"]
 		},
 		"team": {
 			"type": "object",
