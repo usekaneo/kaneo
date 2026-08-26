@@ -687,6 +687,8 @@
 			"genericWebhookSectionSubtitle": "Надсилайте події завдань проєкту на будь-яку HTTP-кінцеву точку у форматі JSON.",
 			"slackSectionTitle": "Інтеґрація зі Slack",
 			"slackSectionSubtitle": "Надсилайте оновлення завдань проєкту до каналу Slack за допомогою вхідного вебхука.",
+			"googleChatSectionTitle": "Інтеграція з Google Chat",
+			"googleChatSectionSubtitle": "Надсилайте оновлення завдань проєкту в простір Google Chat через вхідний вебхук.",
 			"telegramSectionTitle": "Інтеґрація з Telegram",
 			"telegramSectionSubtitle": "Надсилайте оновлення завдань проєкту до чату або теми Telegram за допомогою бота."
 		},
@@ -913,6 +915,44 @@
 			"connect": "Підключити Slack",
 			"saveChanges": "Зберегти зміни",
 			"update": "Оновити Slack",
+			"disconnect": "Від'єднати"
+		},
+		"googleChatIntegration": {
+			"validation": {
+				"webhookInvalid": "Введіть дійсну URL-адресу вебхука Google Chat"
+			},
+			"toast": {
+				"saved": "Інтеґрацію зі Google Chat успішно збережено",
+				"saveError": "Не вдалося зберегти інтеґрацію зі Google Chat",
+				"enabled": "Сповіщення Google Chat увімкнено",
+				"disabled": "Сповіщення Google Chat призупинено",
+				"updateError": "Не вдалося оновити інтеґрацію зі Google Chat",
+				"removed": "Інтеґрацію зі Google Chat успішно видалено",
+				"removeError": "Не вдалося видалити інтеґрацію зі Google Chat"
+			},
+			"connectionTitle": "Підключення вебхука Google Chat",
+			"connectionHint": "Вставте URL вхідного вебхука Google Chat та оберіть, які події завдань мають публікуватися.",
+			"connected": "Підключено",
+			"paused": "Призупинено",
+			"webhookLabel": "URL вхідного вебхука",
+			"webhookPlaceholder": "https://chat.googleapis.com/v1/spaces/.../messages?key=...&token=...",
+			"webhookHint": "Створіть Incoming Webhook у Google Chat та вставте згенеровану URL-адресу сюди.",
+			"channelLabel": "Назва простору",
+			"channelPlaceholder": "team-updates",
+			"channelHint": "Необов’язкова мітка для довідки. Фактичний простір призначення визначає вебхук.",
+			"eventsTitle": "Сповіщення про події",
+			"eventsHint": "Оберіть, які зміни в проєкті мають публікуватися в Google Chat.",
+			"events": {
+				"taskCreated": "Нові завдання",
+				"taskStatusChanged": "Зміни статусу",
+				"taskPriorityChanged": "Зміни пріоритету",
+				"taskTitleChanged": "Зміни назви",
+				"taskDescriptionChanged": "Зміни опису",
+				"taskCommentCreated": "Нові коментарі"
+			},
+			"connect": "Підключити Google Chat",
+			"saveChanges": "Зберегти зміни",
+			"update": "Оновити Google Chat",
 			"disconnect": "Від'єднати"
 		},
 		"discordIntegration": {

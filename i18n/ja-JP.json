@@ -826,6 +826,8 @@
 			"genericWebhookSectionSubtitle": "プロジェクトのタスクイベントを JSON として任意の HTTP エンドポイントに送信します。",
 			"slackSectionTitle": "Slack 連携",
 			"slackSectionSubtitle": "Incoming Webhook を使用してプロジェクトのタスク更新を Slack チャンネルに送信します。",
+			"googleChatSectionTitle": "Google Chat 連携",
+			"googleChatSectionSubtitle": "受信 Webhook を使用して、プロジェクトのタスク更新を Google Chat のスペースに送信します。",
 			"telegramSectionTitle": "Telegram 連携",
 			"telegramSectionSubtitle": "ボットを使用してプロジェクトのタスク更新を Telegram のチャットまたはトピックに送信します。"
 		},
@@ -1052,6 +1054,44 @@
 			"connect": "Slack に接続",
 			"saveChanges": "変更を保存",
 			"update": "Slack を更新",
+			"disconnect": "接続解除"
+		},
+		"googleChatIntegration": {
+			"validation": {
+				"webhookInvalid": "有効な Google Chat Webhook URL を入力してください"
+			},
+			"toast": {
+				"saved": "Google Chat 連携を保存しました",
+				"saveError": "Google Chat 連携の保存に失敗しました",
+				"enabled": "Google Chat 通知を有効にしました",
+				"disabled": "Google Chat 通知を一時停止しました",
+				"updateError": "Google Chat 連携の更新に失敗しました",
+				"removed": "Google Chat 連携を解除しました",
+				"removeError": "Google Chat 連携の解除に失敗しました"
+			},
+			"connectionTitle": "Google Chat Webhook 接続",
+			"connectionHint": "Google Chat の Incoming Webhook URL を貼り付け、投稿するタスクイベントを選択します。",
+			"connected": "接続済み",
+			"paused": "一時停止中",
+			"webhookLabel": "Incoming Webhook URL",
+			"webhookPlaceholder": "https://chat.googleapis.com/v1/spaces/.../messages?key=...&token=...",
+			"webhookHint": "Google Chat で Incoming Webhook を作成し、生成された URL をここに貼り付けます。",
+			"channelLabel": "スペース名",
+			"channelPlaceholder": "team-updates",
+			"channelHint": "参照用の任意のラベルです。実際の送信先スペースは Webhook によって決まります。",
+			"eventsTitle": "イベント通知",
+			"eventsHint": "Google Chat に投稿するプロジェクトの変更を選択します。",
+			"events": {
+				"taskCreated": "タスクの新規作成",
+				"taskStatusChanged": "ステータスの変更",
+				"taskPriorityChanged": "優先度の変更",
+				"taskTitleChanged": "タイトルの変更",
+				"taskDescriptionChanged": "説明の変更",
+				"taskCommentCreated": "新しいコメント"
+			},
+			"connect": "Google Chat に接続",
+			"saveChanges": "変更を保存",
+			"update": "Google Chat を更新",
 			"disconnect": "接続解除"
 		},
 		"discordIntegration": {

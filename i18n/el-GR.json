@@ -681,6 +681,8 @@
 			"githubSectionSubtitle": "Συγχρονίστε εργασίες με GitHub issues και ενεργοποιήστε αμφίδρομο συγχρονισμό.",
 			"giteaSectionTitle": "Ενσωμάτωση Gitea",
 			"giteaSectionSubtitle": "Συγχρονίστε εργασίες με μια αυτο-φιλοξενούμενη εγκατάσταση Gitea (issues, PRs, webhooks).",
+			"googleChatSectionTitle": "Ενσωμάτωση Google Chat",
+			"googleChatSectionSubtitle": "Στείλτε ενημερώσεις εργασιών έργου σε έναν χώρο Google Chat μέσω εισερχόμενου webhook.",
 			"telegramSectionTitle": "Ενσωμάτωση Telegram",
 			"telegramSectionSubtitle": "Στείλτε ενημερώσεις εργασιών έργου σε συνομιλία ή θέμα Telegram με bot.",
 			"discordSectionTitle": "Ενσωμάτωση Discord",
@@ -914,6 +916,44 @@
 			"webhookHint": "Δημιουργήστε ένα Incoming Webhook στο Slack και επικολλήστε εδώ το παραγόμενο URL.",
 			"webhookLabel": "URL εισερχόμενου webhook",
 			"webhookPlaceholder": "https://hooks.slack.com/services/..."
+		},
+		"googleChatIntegration": {
+			"channelHint": "Προαιρετική ετικέτα για αναφορά. Το webhook καθορίζει τον πραγματικό χώρο προορισμού.",
+			"channelLabel": "Όνομα χώρου",
+			"channelPlaceholder": "team-updates",
+			"connect": "Σύνδεση Google Chat",
+			"connected": "Συνδεδεμένο",
+			"connectionHint": "Επικολλήστε ένα URL εισερχόμενου webhook του Google Chat και επιλέξτε ποια γεγονότα εργασιών θα δημοσιεύονται.",
+			"connectionTitle": "Σύνδεση webhook Google Chat",
+			"disconnect": "Αποσύνδεση",
+			"events": {
+				"taskCommentCreated": "Νέα σχόλια",
+				"taskCreated": "Νέες εργασίες",
+				"taskDescriptionChanged": "Αλλαγές περιγραφής",
+				"taskPriorityChanged": "Αλλαγές προτεραιότητας",
+				"taskStatusChanged": "Αλλαγές κατάστασης",
+				"taskTitleChanged": "Αλλαγές τίτλου"
+			},
+			"eventsHint": "Επιλέξτε ποιες αλλαγές έργου θα δημοσιεύονται στο Google Chat.",
+			"eventsTitle": "Ειδοποιήσεις γεγονότων",
+			"paused": "Σε παύση",
+			"saveChanges": "Αποθήκευση αλλαγών",
+			"toast": {
+				"disabled": "Οι ειδοποιήσεις Google Chat τέθηκαν σε παύση",
+				"enabled": "Οι ειδοποιήσεις Google Chat ενεργοποιήθηκαν",
+				"removed": "Η ενσωμάτωση Google Chat αφαιρέθηκε με επιτυχία",
+				"removeError": "Αποτυχία αφαίρεσης της ενσωμάτωσης Google Chat",
+				"saved": "Η ενσωμάτωση Google Chat αποθηκεύτηκε με επιτυχία",
+				"saveError": "Αποτυχία αποθήκευσης της ενσωμάτωσης Google Chat",
+				"updateError": "Αποτυχία ενημέρωσης της ενσωμάτωσης Google Chat"
+			},
+			"update": "Ενημέρωση Google Chat",
+			"validation": {
+				"webhookInvalid": "Εισαγάγετε ένα έγκυρο URL webhook Google Chat"
+			},
+			"webhookHint": "Δημιουργήστε ένα Incoming Webhook στο Google Chat και επικολλήστε εδώ το παραγόμενο URL.",
+			"webhookLabel": "URL εισερχόμενου webhook",
+			"webhookPlaceholder": "https://chat.googleapis.com/v1/spaces/.../messages?key=...&token=..."
 		},
 		"discordIntegration": {
 			"channelHint": "Προαιρετική ετικέτα για τη δική σας αναφορά. Το Discord ελέγχει το πραγματικό κανάλι προορισμού από τη ρύθμιση του webhook.",

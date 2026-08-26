@@ -687,6 +687,8 @@
 			"genericWebhookSectionSubtitle": "Отправка событий по задачам проекта на любой HTTP-эндпоинт в формате JSON.",
 			"slackSectionTitle": "Интеграция со Slack",
 			"slackSectionSubtitle": "Отправка обновлений по задачам проекта в канал Slack через входящий вебхук.",
+			"googleChatSectionTitle": "Интеграция с Google Chat",
+			"googleChatSectionSubtitle": "Отправляйте обновления задач проекта в пространство Google Chat через входящий вебхук.",
 			"telegramSectionTitle": "Интеграция с Telegram",
 			"telegramSectionSubtitle": "Отправка обновлений по задачам проекта в чат или тему Telegram через бота."
 		},
@@ -913,6 +915,44 @@
 			"connect": "Подключить Slack",
 			"saveChanges": "Сохранить изменения",
 			"update": "Обновить Slack",
+			"disconnect": "Отключить"
+		},
+		"googleChatIntegration": {
+			"validation": {
+				"webhookInvalid": "Введите корректный URL вебхука Google Chat"
+			},
+			"toast": {
+				"saved": "Интеграция со Google Chat успешно сохранена",
+				"saveError": "Не удалось сохранить интеграцию со Google Chat",
+				"enabled": "Уведомления Google Chat включены",
+				"disabled": "Уведомления Google Chat приостановлены",
+				"updateError": "Не удалось обновить интеграцию со Google Chat",
+				"removed": "Интеграция со Google Chat успешно удалена",
+				"removeError": "Не удалось удалить интеграцию со Google Chat"
+			},
+			"connectionTitle": "Подключение вебхука Google Chat",
+			"connectionHint": "Вставьте URL входящего вебхука Google Chat и выберите, какие события задач отправлять.",
+			"connected": "Подключён",
+			"paused": "Приостановлен",
+			"webhookLabel": "URL входящего вебхука",
+			"webhookPlaceholder": "https://chat.googleapis.com/v1/spaces/.../messages?key=...&token=...",
+			"webhookHint": "Создайте входящий вебхук в Google Chat и вставьте сгенерированный URL сюда.",
+			"channelLabel": "Название пространства",
+			"channelPlaceholder": "team-updates",
+			"channelHint": "Необязательная метка для справки. Фактическое пространство назначения определяется вебхуком.",
+			"eventsTitle": "Уведомления о событиях",
+			"eventsHint": "Выберите, какие изменения проекта отправлять в Google Chat.",
+			"events": {
+				"taskCreated": "Новые задачи",
+				"taskStatusChanged": "Изменения статуса",
+				"taskPriorityChanged": "Изменения приоритета",
+				"taskTitleChanged": "Изменения названия",
+				"taskDescriptionChanged": "Изменения описания",
+				"taskCommentCreated": "Новые комментарии"
+			},
+			"connect": "Подключить Google Chat",
+			"saveChanges": "Сохранить изменения",
+			"update": "Обновить Google Chat",
 			"disconnect": "Отключить"
 		},
 		"discordIntegration": {

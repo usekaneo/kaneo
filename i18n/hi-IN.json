@@ -849,6 +849,8 @@
 			"genericWebhookSectionSubtitle": "प्रोजेक्ट कार्य इवेंट किसी भी HTTP एंडपॉइंट पर JSON के रूप में भेजें।",
 			"slackSectionTitle": "Slack एकीकरण",
 			"slackSectionSubtitle": "इनकमिंग वेबहुक के साथ Slack चैनल में प्रोजेक्ट कार्य अपडेट भेजें।",
+			"googleChatSectionTitle": "Google Chat एकीकरण",
+			"googleChatSectionSubtitle": "इनकमिंग वेबहुक से प्रोजेक्ट कार्य के अपडेट Google Chat स्पेस में भेजें।",
 			"telegramSectionTitle": "Telegram एकीकरण",
 			"telegramSectionSubtitle": "बॉट के साथ Telegram चैट या टॉपिक में प्रोजेक्ट कार्य अपडेट भेजें।"
 		},
@@ -1075,6 +1077,44 @@
 			"connect": "Slack कनेक्ट करें",
 			"saveChanges": "परिवर्तन सहेजें",
 			"update": "Slack अपडेट करें",
+			"disconnect": "डिस्कनेक्ट करें"
+		},
+		"googleChatIntegration": {
+			"validation": {
+				"webhookInvalid": "वैध Google Chat वेबहुक URL दर्ज करें"
+			},
+			"toast": {
+				"saved": "Google Chat एकीकरण सफलतापूर्वक सहेजा गया",
+				"saveError": "Google Chat एकीकरण सहेजने में विफल",
+				"enabled": "Google Chat सूचनाएँ सक्षम",
+				"disabled": "Google Chat सूचनाएँ रुकी हुई",
+				"updateError": "Google Chat एकीकरण अपडेट करने में विफल",
+				"removed": "Google Chat एकीकरण सफलतापूर्वक हटाया गया",
+				"removeError": "Google Chat एकीकरण हटाने में विफल"
+			},
+			"connectionTitle": "Google Chat वेबहुक कनेक्शन",
+			"connectionHint": "Google Chat इनकमिंग वेबहुक URL चिपकाएँ और चुनें कि कौन से कार्य इवेंट पोस्ट होने चाहिए।",
+			"connected": "जुड़ा हुआ",
+			"paused": "रुका हुआ",
+			"webhookLabel": "इनकमिंग वेबहुक URL",
+			"webhookPlaceholder": "https://chat.googleapis.com/v1/spaces/.../messages?key=...&token=...",
+			"webhookHint": "Google Chat में एक Incoming Webhook बनाएँ और जनरेट किया गया URL यहाँ चिपकाएँ।",
+			"channelLabel": "स्पेस का नाम",
+			"channelPlaceholder": "team-updates",
+			"channelHint": "आपके संदर्भ के लिए वैकल्पिक लेबल। वास्तविक गंतव्य स्पेस को वेबहुक नियंत्रित करता है।",
+			"eventsTitle": "इवेंट सूचनाएँ",
+			"eventsHint": "चुनें कि कौन से प्रोजेक्ट परिवर्तन Google Chat पर पोस्ट होने चाहिए।",
+			"events": {
+				"taskCreated": "नए कार्य",
+				"taskStatusChanged": "स्थिति परिवर्तन",
+				"taskPriorityChanged": "प्राथमिकता परिवर्तन",
+				"taskTitleChanged": "शीर्षक परिवर्तन",
+				"taskDescriptionChanged": "विवरण परिवर्तन",
+				"taskCommentCreated": "नई टिप्पणियाँ"
+			},
+			"connect": "Google Chat कनेक्ट करें",
+			"saveChanges": "परिवर्तन सहेजें",
+			"update": "Google Chat अपडेट करें",
 			"disconnect": "डिस्कनेक्ट करें"
 		},
 		"discordIntegration": {

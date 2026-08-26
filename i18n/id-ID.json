@@ -687,6 +687,8 @@
 			"genericWebhookSectionSubtitle": "Kirim event tugas proyek ke endpoint HTTP apa pun sebagai JSON.",
 			"slackSectionTitle": "Integrasi Slack",
 			"slackSectionSubtitle": "Kirim pembaruan tugas proyek ke kanal Slack dengan incoming webhook.",
+			"googleChatSectionTitle": "Integrasi Google Chat",
+			"googleChatSectionSubtitle": "Kirim pembaruan tugas proyek ke ruang Google Chat dengan webhook masuk.",
 			"telegramSectionTitle": "Integrasi Telegram",
 			"telegramSectionSubtitle": "Kirim pembaruan tugas proyek ke chat atau topik Telegram dengan bot."
 		},
@@ -913,6 +915,44 @@
 			"connect": "Hubungkan Slack",
 			"saveChanges": "Simpan perubahan",
 			"update": "Perbarui Slack",
+			"disconnect": "Putuskan"
+		},
+		"googleChatIntegration": {
+			"validation": {
+				"webhookInvalid": "Masukkan URL webhook Google Chat yang valid"
+			},
+			"toast": {
+				"saved": "Integrasi Google Chat berhasil disimpan",
+				"saveError": "Gagal menyimpan integrasi Google Chat",
+				"enabled": "Notifikasi Google Chat diaktifkan",
+				"disabled": "Notifikasi Google Chat dijeda",
+				"updateError": "Gagal memperbarui integrasi Google Chat",
+				"removed": "Integrasi Google Chat berhasil dihapus",
+				"removeError": "Gagal menghapus integrasi Google Chat"
+			},
+			"connectionTitle": "Koneksi webhook Google Chat",
+			"connectionHint": "Tempel URL incoming webhook Google Chat dan pilih event tugas yang harus diposting.",
+			"connected": "Terhubung",
+			"paused": "Dijeda",
+			"webhookLabel": "URL incoming webhook",
+			"webhookPlaceholder": "https://chat.googleapis.com/v1/spaces/.../messages?key=...&token=...",
+			"webhookHint": "Buat Incoming Webhook di Google Chat dan tempel URL yang dihasilkan di sini.",
+			"channelLabel": "Nama ruang",
+			"channelPlaceholder": "team-updates",
+			"channelHint": "Label opsional untuk referensi Anda. Webhook mengontrol ruang tujuan yang sebenarnya.",
+			"eventsTitle": "Notifikasi event",
+			"eventsHint": "Pilih perubahan proyek yang harus diposting ke Google Chat.",
+			"events": {
+				"taskCreated": "Tugas baru",
+				"taskStatusChanged": "Perubahan status",
+				"taskPriorityChanged": "Perubahan prioritas",
+				"taskTitleChanged": "Perubahan judul",
+				"taskDescriptionChanged": "Perubahan deskripsi",
+				"taskCommentCreated": "Komentar baru"
+			},
+			"connect": "Hubungkan Google Chat",
+			"saveChanges": "Simpan perubahan",
+			"update": "Perbarui Google Chat",
 			"disconnect": "Putuskan"
 		},
 		"discordIntegration": {

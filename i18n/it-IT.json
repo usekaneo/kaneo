@@ -850,6 +850,8 @@
 			"genericWebhookSectionSubtitle": "Invia eventi delle attività del progetto a qualsiasi endpoint HTTP come JSON.",
 			"slackSectionTitle": "Integrazione Slack",
 			"slackSectionSubtitle": "Invia aggiornamenti delle attività del progetto in un canale Slack tramite webhook in entrata.",
+			"googleChatSectionTitle": "Integrazione Google Chat",
+			"googleChatSectionSubtitle": "Invia gli aggiornamenti delle attività del progetto a uno spazio Google Chat tramite un webhook in entrata.",
 			"telegramSectionTitle": "Integrazione Telegram",
 			"telegramSectionSubtitle": "Invia aggiornamenti delle attività del progetto in una chat o topic Telegram con un bot."
 		},
@@ -1076,6 +1078,44 @@
 			"connect": "Connetti Slack",
 			"saveChanges": "Salva modifiche",
 			"update": "Aggiorna Slack",
+			"disconnect": "Disconnetti"
+		},
+		"googleChatIntegration": {
+			"validation": {
+				"webhookInvalid": "Inserisci un URL webhook Google Chat valido"
+			},
+			"toast": {
+				"saved": "Integrazione Google Chat salvata con successo",
+				"saveError": "Salvataggio integrazione Google Chat fallito",
+				"enabled": "Notifiche Google Chat attivate",
+				"disabled": "Notifiche Google Chat in pausa",
+				"updateError": "Aggiornamento integrazione Google Chat fallito",
+				"removed": "Integrazione Google Chat rimossa con successo",
+				"removeError": "Rimozione integrazione Google Chat fallita"
+			},
+			"connectionTitle": "Connessione webhook Google Chat",
+			"connectionHint": "Incolla un URL webhook in entrata di Google Chat e scegli quali eventi delle attività pubblicare.",
+			"connected": "Connesso",
+			"paused": "In pausa",
+			"webhookLabel": "URL webhook in entrata",
+			"webhookPlaceholder": "https://chat.googleapis.com/v1/spaces/.../messages?key=...&token=...",
+			"webhookHint": "Crea un Incoming Webhook in Google Chat e incolla l'URL generato qui.",
+			"channelLabel": "Nome dello spazio",
+			"channelPlaceholder": "aggiornamenti-team",
+			"channelHint": "Etichetta facoltativa di riferimento. Il webhook controlla lo spazio di destinazione effettivo.",
+			"eventsTitle": "Notifiche eventi",
+			"eventsHint": "Scegli quali modifiche del progetto pubblicare su Google Chat.",
+			"events": {
+				"taskCreated": "Nuove attività",
+				"taskStatusChanged": "Cambiamenti di stato",
+				"taskPriorityChanged": "Cambiamenti di priorità",
+				"taskTitleChanged": "Cambiamenti di titolo",
+				"taskDescriptionChanged": "Cambiamenti di descrizione",
+				"taskCommentCreated": "Nuovi commenti"
+			},
+			"connect": "Connetti Google Chat",
+			"saveChanges": "Salva modifiche",
+			"update": "Aggiorna Google Chat",
 			"disconnect": "Disconnetti"
 		},
 		"discordIntegration": {
