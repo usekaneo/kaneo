@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { FadeIn } from "@/components/landing/fade-in";
 import sponsors from "@/constants/sponsors.json";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 type Sponsor = {
