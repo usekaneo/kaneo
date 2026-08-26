@@ -1,5 +1,5 @@
-import type { BlogAuthor } from "@/lib/blog/types";
 import Image from "next/image";
+import type { BlogAuthor } from "@/lib/blog/types";
 import { cn } from "@/lib/utils";
 
 function initials(name: string) {
