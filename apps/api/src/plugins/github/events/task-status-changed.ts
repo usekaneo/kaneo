@@ -4,18 +4,13 @@ import {
   findExternalLinksByTask,
   updateExternalLink,
 } from "../services/link-manager";
-import { getGithubApp, getInstallationIdForRepo } from "../utils/github-app";
 import { addLabelsToIssue, removeLabel } from "../utils/labels";
+import { getOctokitForConfig } from "../utils/octokit-for-config";
 
 export async function handleTaskStatusChanged(
   event: TaskStatusChangedEvent,
   context: PluginContext,
 ): Promise<void> {
-  const githubApp = getGithubApp();
-  if (!githubApp) {
-    return;
-  }
-
   const config = context.config as GitHubConfig;
   const { repositoryOwner, repositoryName } = config;
 
@@ -31,15 +26,7 @@ export async function handleTaskStatusChanged(
       return;
     }
 
-    let installationId = config.installationId;
-    if (!installationId) {
-      installationId = await getInstallationIdForRepo(
-        repositoryOwner,
-        repositoryName,
-      );
-    }
-
-    const octokit = await githubApp.getInstallationOctokit(installationId);
+    const octokit = await getOctokitForConfig(config);
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
 
     await removeLabel(

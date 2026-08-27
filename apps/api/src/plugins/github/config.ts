@@ -17,6 +17,14 @@ export const githubConfigSchema = v.object({
   repositoryOwner: v.string(),
   repositoryName: v.string(),
   installationId: v.nullable(v.number()),
+  // Per-project authentication. When `accessToken` is set the integration
+  // authenticates as that Personal Access Token (repos in any personal
+  // account, no shared GitHub App install). When it is absent the integration
+  // falls back to the instance GitHub App keyed by `installationId`. The
+  // webhook secret is generated per project so GitHub-signed deliveries can be
+  // verified without the App's shared secret.
+  accessToken: v.optional(v.string()),
+  webhookSecret: v.optional(v.string()),
   branchPattern: v.optional(v.string()),
   customBranchRegex: v.optional(v.string()),
   commentTaskLinkOnGitHubIssue: v.optional(v.boolean()),
