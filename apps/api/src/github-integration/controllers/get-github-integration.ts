@@ -19,6 +19,15 @@ async function getGithubIntegration(projectId: string) {
   }
 
   const config = JSON.parse(integration.config) as GitHubConfig;
+  const authMode = config.accessToken ? "token" : "app";
+
+  // Surface what the UI needs to finish per-project (token) setup — the webhook
+  // endpoint and its secret — but never the access token itself.
+  const apiUrl = process.env.KANEO_API_URL || "http://localhost:1337";
+  const webhookUrl =
+    authMode === "token"
+      ? `${apiUrl.replace(/\/$/, "")}/github-integration/webhook`
+      : undefined;
 
   return {
     id: integration.id,
@@ -26,6 +35,10 @@ async function getGithubIntegration(projectId: string) {
     repositoryOwner: config.repositoryOwner,
     repositoryName: config.repositoryName,
     installationId: config.installationId,
+    authMode,
+    hasAccessToken: authMode === "token",
+    webhookUrl,
+    webhookSecret: authMode === "token" ? config.webhookSecret : undefined,
     branchPattern: config.branchPattern || defaultGitHubConfig.branchPattern,
     commentTaskLinkOnGitHubIssue: config.commentTaskLinkOnGitHubIssue !== false,
     isActive: integration.isActive,

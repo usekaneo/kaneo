@@ -1,4 +1,5 @@
 import { HTTPException } from "hono/http-exception";
+import { Octokit } from "octokit";
 import { getGithubApp } from "../../plugins/github/utils/github-app";
 
 type VerificationResult = {
@@ -37,13 +38,75 @@ function settingsUrlFor(installationId: number): string {
   return `https://github.com/settings/installations/${installationId}`;
 }
 
+// PAT mode: confirm the token can see the repo and has write access (needed to
+// create/close issues and sync labels). Repo-level `permissions.push`/`admin`
+// stands in for the App's installation permission check.
+async function verifyWithToken(
+  repositoryOwner: string,
+  repositoryName: string,
+  accessToken: string,
+): Promise<VerificationResult> {
+  try {
+    const octokit = new Octokit({ auth: accessToken });
+    const { data } = await octokit.rest.repos.get({
+      owner: repositoryOwner,
+      repo: repositoryName,
+    });
+
+    const perms = data.permissions;
+    const canWrite = Boolean(perms?.push || perms?.admin);
+    const permissions = perms
+      ? Object.fromEntries(
+          Object.entries(perms).map(([key, value]) => [key, String(value)]),
+        )
+      : null;
+
+    return {
+      isInstalled: canWrite,
+      installationId: null,
+      repositoryExists: true,
+      repositoryPrivate: data.private,
+      permissions,
+      hasRequiredPermissions: canWrite,
+      missingPermissions: canWrite ? [] : ["contents/issues: write"],
+      message: canWrite
+        ? "Token has access to the repository with write permissions"
+        : "Token can read the repository but lacks the write access needed to sync issues",
+    };
+  } catch (error) {
+    if (isGithubNotFound(error)) {
+      return {
+        isInstalled: false,
+        installationId: null,
+        repositoryExists: false,
+        repositoryPrivate: null,
+        permissions: null,
+        hasRequiredPermissions: false,
+        missingPermissions: [],
+        message:
+          "Repository not found, or the token cannot access it. Check the token and its repository permissions.",
+      };
+    }
+
+    throw new HTTPException(500, {
+      message: `Failed to verify GitHub token: ${(error as Error).message || "Unknown error"}`,
+    });
+  }
+}
+
 async function verifyGithubInstallation({
   repositoryOwner,
   repositoryName,
+  accessToken,
 }: {
   repositoryOwner: string;
   repositoryName: string;
+  accessToken?: string;
 }): Promise<VerificationResult> {
+  if (accessToken?.trim()) {
+    return verifyWithToken(repositoryOwner, repositoryName, accessToken.trim());
+  }
+
   const githubApp = getGithubApp();
 
   if (!githubApp) {
