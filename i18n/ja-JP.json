@@ -1267,7 +1267,13 @@
 			"branch": "ブランチ",
 			"merged": "マージ済み",
 			"draft": "下書き",
-			"open": "オープン"
+			"open": "オープン",
+			"adding": "追加中...",
+			"addResource": "リソースを追加",
+			"cancel": "キャンセル",
+			"empty": "このタスクにリンクされたリソースはありません。",
+			"titleOptional": "タイトル（任意）",
+			"url": "URL"
 		}
 	},
 	"navigation": {
