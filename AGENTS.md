@@ -113,6 +113,16 @@ node scripts/release/notes.mjs v2.21.0 HEAD
 
 Version-carrying files are listed in `scripts/release/apply-version.mjs`. Add new ones there rather than in a workflow step, because the image build and the release commit both run that script.
 
+## Working Kaneo tasks (branch & commit convention)
+
+When this repository is bound to a Kaneo project and you are implementing a Kaneo task, follow this so the Git integration drives task status automatically. See `apps/docs/core/functional/git-task-workflow.mdx` for the full workflow.
+
+- Branch from the task using `<project-slug>-<task-number>-<short-title>` (the default `{slug}-{number}` pattern), e.g. task #123 in project `proj` → `proj-123-fix-login`. Read the slug and number from Kaneo (MCP `get_task`); confirm the project's actual branch pattern if it was customized.
+- Never commit straight to `main`, `master`, `develop`, `staging`, or `production` — those are protected and never move a task.
+- Pushing the task branch moves the task to `in-progress`; opening a PR moves it to `in-review`; merging moves it to `done`.
+- To close a task without a PR, put a closing keyword in the commit body referencing the **Git host issue number** (not the Kaneo task number): `fixes #<issue>` (also `close(s)`/`closed`, `fix(es)`/`fixed`, `resolve(s)`/`resolved`). This closes the issue and moves the task to `done`.
+- Keep using Conventional Commit types as described under Releases.
+
 ## Glossary
 
 - **instance**: one deployed Kaneo installation.

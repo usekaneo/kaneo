@@ -52,6 +52,7 @@
 							"core/functional/index",
 							"core/functional/create-workspace-and-project",
 							"core/functional/plan-and-execute-tasks",
+							"core/functional/git-task-workflow",
 							"core/functional/backlog-planning",
 							"core/functional/collaborate-with-team",
 							"core/functional/configure-workflows",
