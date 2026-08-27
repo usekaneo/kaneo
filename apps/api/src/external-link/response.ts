@@ -4,7 +4,7 @@ export const externalLinkSchema = z
   .object({
     id: z.string(),
     taskId: z.string(),
-    integrationId: z.string(),
+    integrationId: z.string().nullable(),
     resourceType: z.string().openapi({
       description:
         "The kind of remote resource, e.g. `issue` or `pull_request`.",
@@ -24,8 +24,13 @@ export const externalLinkSchema = z
     // plaintext provider secrets and any workspace member can read this route.
     integration: z
       .object({ id: z.string(), type: z.string() })
+      .nullable()
       .openapi("ExternalLinkIntegration"),
   })
   .openapi("ExternalLink");
+
+export const createdExternalLinkSchema = externalLinkSchema.omit({
+  integration: true,
+});
 
 export const externalLinkListSchema = z.array(externalLinkSchema);
