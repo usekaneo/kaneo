@@ -70,6 +70,7 @@ export async function handleTaskStatusChanged(
         metadata: {
           ...(issueLink.metadata ? JSON.parse(issueLink.metadata) : {}),
           state: "closed",
+          lastOutboundStateSyncAt: Date.now(),
         },
       });
     } else if (event.oldStatus === "done" && event.newStatus !== "done") {
@@ -84,6 +85,7 @@ export async function handleTaskStatusChanged(
         metadata: {
           ...(issueLink.metadata ? JSON.parse(issueLink.metadata) : {}),
           state: "open",
+          lastOutboundStateSyncAt: Date.now(),
         },
       });
     }

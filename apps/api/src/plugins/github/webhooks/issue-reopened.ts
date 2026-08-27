@@ -7,6 +7,7 @@ import {
   findAllIntegrationsByRepo,
   updateTaskStatus,
 } from "../services/task-service";
+import { isOutboundStateEcho } from "../utils/outbound-echo";
 import { resolveTargetStatus } from "../utils/resolve-column";
 
 type IssueReopenedPayload = {
@@ -16,6 +17,7 @@ type IssueReopenedPayload = {
     title: string;
     html_url: string;
     state: string;
+    updated_at?: string;
   };
   repository: {
     owner: { login: string };
@@ -69,7 +71,9 @@ export async function handleIssueReopened(payload: IssueReopenedPayload) {
       }
     }
 
-    if (existingMetadata.createdFrom === "kaneo") {
+    // Skip only the echo of our own outbound reopen; a genuine external reopen
+    // still propagates back to the task, including for Kaneo-created issues.
+    if (isOutboundStateEcho(existingMetadata, issue)) {
       continue;
     }
 

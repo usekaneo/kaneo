@@ -7,6 +7,7 @@ import {
   findAllIntegrationsByRepo,
   updateTaskStatus,
 } from "../services/task-service";
+import { isOutboundStateEcho } from "../utils/outbound-echo";
 import { parseLinkMetadata } from "../utils/parse-link-metadata";
 import { resolveTargetStatus } from "../utils/resolve-column";
 
@@ -17,6 +18,7 @@ type IssueClosedPayload = {
     title: string;
     html_url: string;
     state: string;
+    updated_at?: string;
   };
   repository: {
     owner: { login: string };
@@ -59,7 +61,10 @@ export async function handleIssueClosed(payload: IssueClosedPayload) {
       source: "issue_closed",
     });
 
-    if (existingMetadata.createdFrom === "kaneo") {
+    // Skip only the echo of our own outbound close; a genuine external close
+    // (a human, or a `closes #N` commit that GitHub applied) still propagates,
+    // including for issues Kaneo originally created.
+    if (isOutboundStateEcho(existingMetadata, issue)) {
       continue;
     }
 
