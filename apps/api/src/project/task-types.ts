@@ -54,12 +54,19 @@ export const PROJECT_TASK_TYPES = {
   ],
 } as const satisfies Record<ProjectTypeKey, readonly string[]>;
 
+/**
+ * Always available in every project type (contracts & meetings).
+ * Canonical slugs only — aliases are accepted via isUniversalTaskType.
+ */
+export const UNIVERSAL_TASK_TYPES = ["contract", "reuniao"] as const;
+
 export type ProjectTaskType =
   (typeof PROJECT_TASK_TYPES)[ProjectTypeKey][number];
 
-const ALL_TASK_TYPE_SET = new Set<string>(
-  Object.values(PROJECT_TASK_TYPES).flat(),
-);
+const ALL_TASK_TYPE_SET = new Set<string>([
+  ...Object.values(PROJECT_TASK_TYPES).flat(),
+  ...UNIVERSAL_TASK_TYPES,
+]);
 
 export const ALL_TASK_TYPES = [...ALL_TASK_TYPE_SET] as [
   string,
@@ -70,13 +77,23 @@ export const ALL_TASK_TYPES = [...ALL_TASK_TYPE_SET] as [
 /** @deprecated Prefer ALL_TASK_TYPES or getTaskTypesForProjectType */
 export const VALID_TASK_TYPES = ALL_TASK_TYPES;
 
+function withUniversalTaskTypes(types: readonly string[]): readonly string[] {
+  const merged = [...types];
+  for (const type of UNIVERSAL_TASK_TYPES) {
+    if (!merged.includes(type)) {
+      merged.push(type);
+    }
+  }
+  return merged;
+}
+
 export function getTaskTypesForProjectType(
   projectType: string | null | undefined,
 ): readonly string[] {
   if (projectType && isProjectTypeKey(projectType)) {
-    return PROJECT_TASK_TYPES[projectType];
+    return withUniversalTaskTypes(PROJECT_TASK_TYPES[projectType]);
   }
-  return PROJECT_TASK_TYPES[DEFAULT_PROJECT_TYPE];
+  return withUniversalTaskTypes(PROJECT_TASK_TYPES[DEFAULT_PROJECT_TYPE]);
 }
 
 export function getDefaultTaskType(
@@ -85,10 +102,26 @@ export function getDefaultTaskType(
   return getTaskTypesForProjectType(projectType)[0] ?? "feat";
 }
 
+export function isUniversalTaskType(
+  taskType: string | null | undefined,
+): boolean {
+  if (!taskType) return false;
+  const normalized = taskType.trim().toLowerCase();
+  return (
+    normalized === "contract" ||
+    normalized === "contrato" ||
+    normalized === "reuniao" ||
+    normalized === "meeting"
+  );
+}
+
 export function isValidTaskTypeForProject(
   taskType: string,
   projectType: string | null | undefined,
 ): boolean {
+  if (isUniversalTaskType(taskType)) {
+    return true;
+  }
   return getTaskTypesForProjectType(projectType).includes(taskType);
 }
 

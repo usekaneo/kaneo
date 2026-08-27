@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { clientTable } from "../../database/schema";
+import { clientPartnerTable, clientTable } from "../../database/schema";
 
 async function getClient(id: string, workspaceId: string) {
   const [client] = await db
@@ -14,7 +14,12 @@ async function getClient(id: string, workspaceId: string) {
     throw new HTTPException(404, { message: "Client not found" });
   }
 
-  return client;
+  const partners = await db
+    .select()
+    .from(clientPartnerTable)
+    .where(eq(clientPartnerTable.clientId, id));
+
+  return { ...client, partners };
 }
 
 export default getClient;

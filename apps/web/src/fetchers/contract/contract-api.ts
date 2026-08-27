@@ -6,6 +6,9 @@ export type ContractTemplate = {
   name: string;
   originalFilename: string;
   storageKey: string;
+  mimeType?: string;
+  sizeBytes?: number;
+  bodyHtml?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -35,6 +38,28 @@ export async function getContractTemplates(workspaceId: string) {
   }
 
   return response.json() as Promise<ContractTemplate[]>;
+}
+
+export async function createContractTemplate(input: {
+  workspaceId: string;
+  name: string;
+  originalFilename?: string | null;
+  bodyHtml?: string | null;
+  mimeType?: string | null;
+  sizeBytes?: number | null;
+}) {
+  const response = await fetch(getApiUrl("/contract/templates"), {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+
+  return response.json() as Promise<ContractTemplate>;
 }
 
 export async function getContractSubmission(taskId: string) {

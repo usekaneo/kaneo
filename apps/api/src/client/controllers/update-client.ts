@@ -2,9 +2,15 @@ import { and, eq, ne } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { clientTable } from "../../database/schema";
+import type { ClientAddressInput } from "./create-client";
 
 function normalizeCnpj(cnpj: string): string {
   return cnpj.replace(/\D/g, "");
+}
+
+function normalizeOptionalText(value?: string | null) {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
 }
 
 async function updateClient({
@@ -16,6 +22,14 @@ async function updateClient({
   email,
   phone,
   notes,
+  street,
+  number,
+  complement,
+  neighborhood,
+  city,
+  state,
+  zipCode,
+  country,
 }: {
   id: string;
   workspaceId: string;
@@ -25,7 +39,7 @@ async function updateClient({
   email?: string | null;
   phone?: string | null;
   notes?: string | null;
-}) {
+} & ClientAddressInput) {
   const [existing] = await db
     .select()
     .from(clientTable)
@@ -67,12 +81,34 @@ async function updateClient({
     .set({
       ...(name !== undefined ? { name: name.trim() } : {}),
       ...(tradeName !== undefined
-        ? { tradeName: tradeName?.trim() || null }
+        ? { tradeName: normalizeOptionalText(tradeName) }
         : {}),
       ...(cnpj !== undefined ? { cnpj: normalizedCnpj } : {}),
-      ...(email !== undefined ? { email: email?.trim() || null } : {}),
-      ...(phone !== undefined ? { phone: phone?.trim() || null } : {}),
-      ...(notes !== undefined ? { notes: notes?.trim() || null } : {}),
+      ...(email !== undefined ? { email: normalizeOptionalText(email) } : {}),
+      ...(phone !== undefined ? { phone: normalizeOptionalText(phone) } : {}),
+      ...(notes !== undefined ? { notes: normalizeOptionalText(notes) } : {}),
+      ...(street !== undefined
+        ? { street: normalizeOptionalText(street) }
+        : {}),
+      ...(number !== undefined
+        ? { number: normalizeOptionalText(number) }
+        : {}),
+      ...(complement !== undefined
+        ? { complement: normalizeOptionalText(complement) }
+        : {}),
+      ...(neighborhood !== undefined
+        ? { neighborhood: normalizeOptionalText(neighborhood) }
+        : {}),
+      ...(city !== undefined ? { city: normalizeOptionalText(city) } : {}),
+      ...(state !== undefined
+        ? { state: normalizeOptionalText(state)?.toUpperCase() ?? null }
+        : {}),
+      ...(zipCode !== undefined
+        ? { zipCode: zipCode?.replace(/\D/g, "") || null }
+        : {}),
+      ...(country !== undefined
+        ? { country: normalizeOptionalText(country) ?? "BR" }
+        : {}),
     })
     .where(eq(clientTable.id, id))
     .returning();

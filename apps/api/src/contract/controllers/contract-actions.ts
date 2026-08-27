@@ -18,6 +18,80 @@ async function listContractTemplates(workspaceId: string) {
     .orderBy(contractTemplateTable.name);
 }
 
+async function createContractTemplate({
+  workspaceId,
+  name,
+  originalFilename,
+  bodyHtml,
+  mimeType,
+  sizeBytes,
+  storageKey,
+  fieldMap,
+  createdBy,
+}: {
+  workspaceId: string;
+  name: string;
+  originalFilename?: string | null;
+  bodyHtml?: string | null;
+  mimeType?: string | null;
+  sizeBytes?: number | null;
+  storageKey?: string | null;
+  fieldMap?: Array<Record<string, unknown>> | null;
+  createdBy: string;
+}) {
+  const trimmedName = name.trim();
+  if (!trimmedName) {
+    throw new HTTPException(400, { message: "Template name is required" });
+  }
+
+  const filename =
+    originalFilename?.trim() ||
+    `${trimmedName
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")}.html`;
+
+  const resolvedStorageKey =
+    storageKey?.trim() || `templates/${workspaceId}/${createId()}/${filename}`;
+
+  const [created] = await db
+    .insert(contractTemplateTable)
+    .values({
+      workspaceId,
+      name: trimmedName,
+      originalFilename: filename,
+      storageKey: resolvedStorageKey,
+      mimeType:
+        mimeType?.trim() ||
+        (filename.endsWith(".docx")
+          ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          : "text/html"),
+      sizeBytes: sizeBytes ?? bodyHtml?.length ?? 0,
+      fieldMap: (fieldMap as never) ?? [
+        {
+          placeholder: "cliente.razaoSocial",
+          dataPath: "cliente.razaoSocial",
+        },
+        { placeholder: "cliente.cnpj", dataPath: "cliente.cnpj" },
+      ],
+      bodyHtml:
+        bodyHtml?.trim() ||
+        "<p>Contrato {{cliente.razaoSocial}} (CNPJ {{cliente.cnpj}}).</p>",
+      createdBy,
+    })
+    .returning();
+
+  if (!created) {
+    throw new HTTPException(500, {
+      message: "Failed to create contract template",
+    });
+  }
+
+  return created;
+}
+
 async function getContractSubmissionForTask(taskId: string) {
   const [submission] = await db
     .select()
@@ -139,4 +213,9 @@ async function sendContract({
   return submission;
 }
 
-export { getContractSubmissionForTask, listContractTemplates, sendContract };
+export {
+  createContractTemplate,
+  getContractSubmissionForTask,
+  listContractTemplates,
+  sendContract,
+};

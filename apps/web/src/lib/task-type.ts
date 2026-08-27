@@ -53,6 +53,12 @@ export const PROJECT_TASK_TYPES = {
   ],
 } as const satisfies Record<ProjectTypeKey, readonly string[]>;
 
+/**
+ * Always available in every project type (contracts & meetings).
+ * Keep in sync with apps/api/src/project/task-types.ts.
+ */
+export const UNIVERSAL_TASK_TYPES = ["contract", "reuniao"] as const;
+
 export type TaskType = (typeof PROJECT_TASK_TYPES)[ProjectTypeKey][number];
 
 /** Development types — legacy alias used by older call sites. */
@@ -60,13 +66,23 @@ export const TASK_TYPES = PROJECT_TASK_TYPES.development;
 
 export const DEFAULT_TASK_TYPE = PROJECT_TASK_TYPES.development[0];
 
+function withUniversalTaskTypes(types: readonly string[]): readonly string[] {
+  const merged = [...types];
+  for (const type of UNIVERSAL_TASK_TYPES) {
+    if (!merged.includes(type)) {
+      merged.push(type);
+    }
+  }
+  return merged;
+}
+
 export function getTaskTypesForProject(
   projectType: string | null | undefined,
 ): readonly string[] {
   if (projectType && isProjectTypeKey(projectType)) {
-    return PROJECT_TASK_TYPES[projectType];
+    return withUniversalTaskTypes(PROJECT_TASK_TYPES[projectType]);
   }
-  return PROJECT_TASK_TYPES[DEFAULT_PROJECT_TYPE];
+  return withUniversalTaskTypes(PROJECT_TASK_TYPES[DEFAULT_PROJECT_TYPE]);
 }
 
 export function getDefaultTaskType(
