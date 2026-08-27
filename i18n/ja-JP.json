@@ -53,10 +53,33 @@
 		},
 		"error": {
 			"title": "問題が発生しました",
+			"description": "予期せずページでエラーが発生しました。通常はページを更新すると解決します。",
 			"troubleshooting": "トラブルシューティングの手順:",
 			"tryAgain": "もう一度試す",
 			"viewDeploymentGuide": "デプロイガイドを表示",
-			"refreshPage": "ページを更新"
+			"refreshPage": "ページを更新",
+			"messages": {
+				"cors": "サーバーに接続できません。CORS の設定に問題がある可能性があります。",
+				"network": "ネットワークエラーが発生しました。インターネット接続を確認して、もう一度お試しください。",
+				"auth": "認証に失敗しました。もう一度サインインしてください。",
+				"server": "サーバーエラーが発生しました。しばらくしてからもう一度お試しください。",
+				"unknown": "予期しないエラーが発生しました。"
+			},
+			"troubleshootingSteps": {
+				"cors": {
+					"checkApiRunning": "API サーバーが起動していることを確認してください",
+					"checkApiUrl": "フロントエンドの .env にある VITE_API_URL が API サーバーの URL と一致していることを確認してください",
+					"verifyCorsOrigins": "API の .env にある CORS_ORIGINS にフロントエンドの URL が含まれていることを確認してください",
+					"checkProtocol": "フロントエンドと API が同じプロトコル（http/https）を使用していることを確認してください",
+					"checkAccessibility": "ブラウザーから API サーバーにアクセスできることを確認してください"
+				},
+				"network": {
+					"checkConnection": "インターネット接続を確認してください",
+					"verifyApiRunning": "API サーバーが起動していてアクセス可能であることを確認してください",
+					"tryRefresh": "ページを更新してみてください",
+					"checkFirewall": "ファイアウォールやプロキシに問題がないか確認してください"
+				}
+			}
 		},
 		"formats": {
 			"never": "無期限"
@@ -1393,6 +1416,7 @@
 				"boardView": "ボードビューに切り替え",
 				"listView": "リストビューに切り替え",
 				"backlogView": "バックログビューに切り替え",
+				"calendarView": "カレンダービューに切り替え",
 				"nextTask": "次のタスク",
 				"prevTask": "前のタスク",
 				"openTask": "選択したタスクを開く",
@@ -1895,6 +1919,19 @@
 				"isAnyOf": "次のいずれか",
 				"includeAnyOf": "次のいずれかを含む"
 			}
+		},
+		"calendar": {
+			"pageTitle": "{{name}} – カレンダー",
+			"title": "カレンダー",
+			"previousMonth": "前の月",
+			"nextMonth": "次の月",
+			"today": "今日",
+			"noTasks": "予定されているタスクはありません",
+			"noTasksSubtitle": "タスクに開始日、期限、またはその両方を設定すると、カレンダーに表示されます。",
+			"moreTasks": "他 {{count}} 件",
+			"loadError": "タスクの読み込みに失敗しました。",
+			"dayTasksAriaLabel": "{{date}} のすべてのタスクを表示",
+			"taskAriaLabel": "{{title}}、{{range}}: タスクを開く"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – ガントチャート",
