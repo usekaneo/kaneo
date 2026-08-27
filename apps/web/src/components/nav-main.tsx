@@ -49,6 +49,12 @@ export function NavMain() {
       isActive: window.location.pathname === "/dashboard/invitations",
       badge: pendingCount > 0 ? pendingCount : null,
     },
+    {
+      title: t("navigation:sidebar.developerGuide"),
+      url: "/dashboard/developer-guide",
+      isActive: window.location.pathname === "/dashboard/developer-guide",
+      badge: null,
+    },
   ];
 
   return (

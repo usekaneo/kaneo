@@ -1347,6 +1347,11 @@
 			"open": "Open"
 		}
 	},
+	"developerGuide": {
+		"pageTitle": "Developer Guide",
+		"heading": "Developer Guide",
+		"subtitle": "Connect your repository and MCP, drive task status from Git, and pick up and finish assigned work in Claude Code."
+	},
 	"navigation": {
 		"commandPalette": {
 			"suggestions": "Suggestions",
@@ -1375,6 +1380,7 @@
 			"projects": "Projects",
 			"members": "Members",
 			"invitations": "Invitations",
+			"developerGuide": "Developer Guide",
 			"more": "More",
 			"backToBoard": "Back to board"
 		},
