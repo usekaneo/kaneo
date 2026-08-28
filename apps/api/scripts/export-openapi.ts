@@ -2,6 +2,8 @@ import { writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { createApp } from "../src/index";
 
+process.env.KANEO_API_URL = "https://cloud.kaneo.app";
+
 const { app } = createApp();
 const response = await app.request("/api/openapi");
 
@@ -9,11 +11,7 @@ if (!response.ok) {
   throw new Error(`OpenAPI export failed with status ${response.status}`);
 }
 
-const spec = (await response.json()) as { servers?: unknown };
-
-spec.servers = [
-  { url: "https://cloud.kaneo.app/api", description: "Kaneo API Server" },
-];
+const spec = await response.json();
 const outputPath = process.argv[2]
   ? resolve(process.argv[2])
   : resolve(import.meta.dirname, "../../docs/openapi.json");
