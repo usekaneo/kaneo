@@ -40,10 +40,9 @@ function run() {
   try {
     generate(generated);
 
-    const committed = existsSync(COMMITTED)
-      ? readFileSync(COMMITTED, "utf8")
-      : null;
-    if (committed === readFileSync(generated, "utf8")) {
+    const read = (path) => readFileSync(path, "utf8").replace(/\r\n/g, "\n");
+    const committed = existsSync(COMMITTED) ? read(COMMITTED) : null;
+    if (committed === read(generated)) {
       console.log("apps/docs/openapi.json is up to date");
       return 0;
     }
