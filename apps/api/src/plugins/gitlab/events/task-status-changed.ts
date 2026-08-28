@@ -57,7 +57,20 @@ export async function handleTaskStatusChanged(
       ...(stateEvent ? { state_event: stateEvent } : {}),
     });
 
-    const metadata = issueLink.metadata ? JSON.parse(issueLink.metadata) : {};
+    // The issue has already been closed or reopened by this point, so a throw
+    // here would leave the outbound marker unwritten and let the resulting
+    // webhook bounce the status straight back.
+    let metadata: Record<string, unknown> = {};
+    if (issueLink.metadata) {
+      try {
+        metadata = JSON.parse(issueLink.metadata) as Record<string, unknown>;
+      } catch (error) {
+        console.warn("Failed to parse GitLab issue metadata for status sync", {
+          issueLinkId: issueLink.id,
+          error,
+        });
+      }
+    }
 
     await updateExternalLink(issueLink.id, {
       metadata: {

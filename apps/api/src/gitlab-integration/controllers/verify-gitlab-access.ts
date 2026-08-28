@@ -102,6 +102,18 @@ async function verifyGitlabAccess({
         return notAGitlabInstance;
       }
 
+      if (error.kind === "INSECURE_TRANSPORT") {
+        return {
+          isInstalled: false,
+          hasRequiredPermissions: false,
+          projectExists: false,
+          projectPrivate: null,
+          missingPermissions: [] as string[],
+          message: error.message,
+          failureReason: "insecure_transport" as const,
+        };
+      }
+
       if (error.status === 404) {
         return {
           isInstalled: true,

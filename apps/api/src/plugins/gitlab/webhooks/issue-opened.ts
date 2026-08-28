@@ -21,6 +21,7 @@ import type { GitlabConfig } from "../config";
 import { findAllIntegrationsByGitlabProject } from "../services/integration-lookup";
 import { createGitlabClient } from "../utils/gitlab-api";
 import { addLabelsToIssueGitlab } from "../utils/labels";
+import { recordOutboundNoteId } from "../utils/outbound-notes";
 import { resolveTargetStatus } from "../utils/resolve-column";
 import { syncIssueLabelsToTask } from "../utils/task-labels";
 import { baseUrlFromProjectWebUrl } from "../utils/webhook-project";
@@ -127,6 +128,8 @@ export async function handleGitlabIssueOpened(
     // check above and create a task each; and a link insert failing after the
     // task was written would leave an unlinked task that the next delivery
     // duplicates.
+    let issueLinkId: string | null = null;
+
     const createdTask = await db.transaction(async (tx) => {
       const [lockedProject] = await tx
         .select({ id: projectTable.id })
@@ -162,7 +165,7 @@ export async function handleGitlabIssueOpened(
 
       // Must run before task.created: the plugin's onTaskCreated uses link
       // existence to skip self-originated tasks, else it duplicates the issue.
-      await createExternalLink(
+      const link = await createExternalLink(
         {
           taskId: task.id,
           integrationId: integration.id,
@@ -178,6 +181,7 @@ export async function handleGitlabIssueOpened(
         },
         tx,
       );
+      issueLinkId = link.id;
 
       return task;
     });
@@ -231,10 +235,16 @@ export async function handleGitlabIssueOpened(
       }
 
       if (config.commentTaskLinkOnGitlabIssue !== false) {
-        await createGitlabClient(config).createIssueNote(
+        const note = await createGitlabClient(config).createIssueNote(
           issue.iid,
           `[${taskIdentifier}](${taskUrl})`,
         );
+        // GitLab sends this note straight back as a note webhook, authored by
+        // the token's own user, so it has to be remembered like any other
+        // outbound note or it lands as a comment on the task it links to.
+        if (issueLinkId) {
+          await recordOutboundNoteId(issueLinkId, note.id);
+        }
       }
     } catch (error) {
       console.error("Failed to process GitLab issue:", error);

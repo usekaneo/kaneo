@@ -84,8 +84,14 @@ export async function handleTaskDescriptionChanged(
       return;
     }
 
+    // The stored value is always the GitLab-side body, in both directions, so
+    // the inbound handler can recognise this write coming back. Recording the
+    // bare description instead would never match the body GitLab echoes, and
+    // every edit would bounce back and re-append the task footer.
+    const outboundBody = formatIssueBody(event.newDescription, event.taskId);
+
     await createGitlabClient(config).updateIssue(issueIid, {
-      description: formatIssueBody(event.newDescription, event.taskId),
+      description: outboundBody,
     });
 
     await updateExternalLink(issueLink.id, {
@@ -96,7 +102,7 @@ export async function handleTaskDescriptionChanged(
           description: {
             timestamp: new Date().toISOString(),
             source: "kaneo",
-            value: newDescNormalized,
+            value: outboundBody,
           },
         },
       },

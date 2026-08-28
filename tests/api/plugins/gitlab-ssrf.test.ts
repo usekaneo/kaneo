@@ -1,11 +1,26 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { normalizeGitlabBaseUrl } from "../../../apps/api/src/plugins/gitlab/config";
 import { gitlabFetch } from "../../../apps/api/src/plugins/gitlab/utils/gitlab-api";
+import { assertPrivateDestination } from "../../../apps/api/src/utils/assert-public-destination";
 
 const PRIVATE_OPT_IN = "KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS";
 
-afterEach(() => {
+// The runner may inherit this from the environment, which would quietly
+// invalidate every default-behaviour assertion below, so it is cleared before
+// each test rather than only cleaned up after.
+let inheritedOptIn: string | undefined;
+
+beforeEach(() => {
+  inheritedOptIn = process.env[PRIVATE_OPT_IN];
   delete process.env[PRIVATE_OPT_IN];
+});
+
+afterEach(() => {
+  if (inheritedOptIn === undefined) {
+    delete process.env[PRIVATE_OPT_IN];
+  } else {
+    process.env[PRIVATE_OPT_IN] = inheritedOptIn;
+  }
 });
 
 describe("normalizeGitlabBaseUrl", () => {
@@ -88,5 +103,30 @@ describe("gitlabFetch destination guard", () => {
     await expect(
       gitlabFetch("http://gitlab.example.com", "token", "/user"),
     ).rejects.toThrow(/must use https/);
+  });
+
+  it("still refuses http to a public host when private destinations are allowed", async () => {
+    // The opt-in switches the public check off rather than narrowing it to
+    // private hosts, so it must not become a way to send the token in the
+    // clear to a public address. A literal IP keeps this off the network.
+    process.env[PRIVATE_OPT_IN] = "true";
+
+    await expect(
+      gitlabFetch("http://8.8.8.8", "token", "/user"),
+    ).rejects.toThrow(/public address, so it must use https/);
+  });
+});
+
+describe("assertPrivateDestination", () => {
+  it("accepts a private address, which is the only place http may go", async () => {
+    await expect(
+      assertPrivateDestination("http://10.0.0.5:8080", "GitLab"),
+    ).resolves.toBeUndefined();
+  });
+
+  it("rejects a public address", async () => {
+    await expect(
+      assertPrivateDestination("http://8.8.8.8", "GitLab"),
+    ).rejects.toThrow(/public address/);
   });
 });

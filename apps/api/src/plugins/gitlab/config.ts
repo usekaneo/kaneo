@@ -69,8 +69,9 @@ export function normalizeGitlabBaseUrl(url: string): string {
 
   // The access token travels on every request, so plain HTTP would put it on
   // the wire in the clear. The one setup where that is a deliberate choice is a
-  // self-hosted instance on a trusted network, which the operator has already
-  // had to opt into for the destination check to let it through at all.
+  // self-hosted instance on a private network, which needs this opt-in anyway.
+  // The opt-in alone is not proof the host is private -- gitlabFetch confirms
+  // that before any http request actually carries the token.
   if (parsed.protocol === "http:" && !privateDestinationsAllowed()) {
     throw new Error(
       "GitLab base URL must use https, so the access token is not sent in the clear",

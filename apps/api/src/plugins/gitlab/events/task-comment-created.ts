@@ -42,6 +42,13 @@ export async function handleTaskCommentCreated(
     // GitLab posts this note straight back as a note webhook, authored by the
     // token's own user. Without remembering the id, that echo lands as a
     // second, external copy of the comment on the task.
+    //
+    // The id can only be known once the POST returns, so a webhook that beats
+    // this write still slips through. Closing that window would mean matching
+    // on note content, which would also swallow a genuine identical comment, or
+    // storing the token's own user id, which would swallow every comment the
+    // operator writes in GitLab under that account. Both cost more than the
+    // narrow race they close, so the ordering stands.
     await recordOutboundNoteId(existingLink.id, note.id);
   } catch (error) {
     console.error("Failed to create GitLab comment:", error);

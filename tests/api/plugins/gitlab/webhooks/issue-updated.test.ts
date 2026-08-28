@@ -152,6 +152,36 @@ describe("handleGitlabIssueUpdated", () => {
     expect(mocks.taskUpdates[0].title).toBe("A human renamed it");
   });
 
+  it("drops the echo of a description Kaneo wrote, footer and all", async () => {
+    // Kaneo appends a task footer on the way out, so the stored sync value has
+    // to be the GitLab-side body. Recording the bare description would never
+    // match what GitLab echoes back, and each edit would re-append the footer.
+    const body = "Steps to reproduce\n\n---\n<sub>Task: task-1</sub>";
+    mocks.findExternalLink.mockResolvedValue({
+      id: "link-1",
+      taskId: "task-1",
+      metadata: JSON.stringify({
+        lastSync: {
+          description: {
+            timestamp: new Date().toISOString(),
+            source: "kaneo",
+            value: body,
+          },
+        },
+      }),
+    });
+
+    await handleGitlabIssueUpdated({
+      ...updatePayload("Title", { description: { previous: "old" } }),
+      object_attributes: {
+        ...updatePayload("Title", {}).object_attributes,
+        description: body,
+      },
+    });
+
+    expect(mocks.taskUpdates).toHaveLength(0);
+  });
+
   it("falls back to the default priority when the label is removed", async () => {
     mocks.findExternalLink.mockResolvedValue({
       id: "link-1",

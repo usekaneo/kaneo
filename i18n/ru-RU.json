@@ -1338,7 +1338,8 @@
 				"verifyFirst": "Verify access failed. Check URL, token, and project",
 				"verifyOk": "GitLab token can access this project",
 				"verifyWarning": "Check token permissions or project access",
-				"importedWithErrors": "Import finished, but {{errors}} item(s) could not be imported"
+				"importedWithErrors": "Import finished, but {{errors}} item(s) could not be imported",
+				"insecureTransport": "This GitLab URL is not https, so the token would be sent in the clear"
 			},
 			"tokenHint": "Token with the api scope for the target project",
 			"tokenLabel": "Access token",

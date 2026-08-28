@@ -117,3 +117,33 @@ export async function assertPublicDestination(
     throw new Error(`${label} destination resolves to a non-routable address`);
   }
 }
+
+/**
+ * The mirror of assertPublicDestination: proves a host really is non-routable.
+ *
+ * KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS switches the public check off
+ * entirely rather than narrowing it to private hosts, so it cannot be read as
+ * evidence that a destination is internal. A caller relaxing a rule only for
+ * private networks has to establish that separately.
+ */
+export async function assertPrivateDestination(
+  destinationUrl: string,
+  label: string,
+): Promise<void> {
+  const url = new URL(destinationUrl);
+
+  if (isDisallowedAddress(url.hostname)) {
+    return;
+  }
+
+  const addresses = await lookup(url.hostname, { all: true, verbatim: true });
+  if (addresses.length === 0) {
+    throw new Error(`${label} destination could not be resolved`);
+  }
+
+  if (!addresses.every((entry) => isDisallowedAddress(entry.address))) {
+    throw new Error(
+      `${label} destination is a public address, so it must use https`,
+    );
+  }
+}

@@ -4150,6 +4150,9 @@
 								"notGitlabInstance": {
 									"type": "string"
 								},
+								"insecureTransport": {
+									"type": "string"
+								},
 								"verifyError": {
 									"type": "string"
 								},
@@ -4205,6 +4208,7 @@
 								"projectNotFound",
 								"redirected",
 								"notGitlabInstance",
+								"insecureTransport",
 								"verifyError",
 								"tokenRequired",
 								"tokenRequiredVerify",

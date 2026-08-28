@@ -159,14 +159,33 @@ async function createGitlabIntegration({
   const webhookSecret =
     previousConfig?.webhookSecret || randomBytes(24).toString("hex");
 
-  const config: GitlabConfig = getDefaultGitlabConfig(
-    normalizedBase,
-    resolvedToken,
-    resolvedTokenType,
-    namespace,
-    projectPath,
-    webhookSecret,
-  );
+  // Re-saving the connection form must not reset settings the user owns
+  // elsewhere in the UI: the defaults only fill in what was never configured.
+  const config: GitlabConfig = {
+    ...getDefaultGitlabConfig(
+      normalizedBase,
+      resolvedToken,
+      resolvedTokenType,
+      namespace,
+      projectPath,
+      webhookSecret,
+    ),
+    ...(previousConfig?.branchPattern !== undefined
+      ? { branchPattern: previousConfig.branchPattern }
+      : {}),
+    ...(previousConfig?.customBranchRegex !== undefined
+      ? { customBranchRegex: previousConfig.customBranchRegex }
+      : {}),
+    ...(previousConfig?.commentTaskLinkOnGitlabIssue !== undefined
+      ? {
+          commentTaskLinkOnGitlabIssue:
+            previousConfig.commentTaskLinkOnGitlabIssue,
+        }
+      : {}),
+    ...(previousConfig?.statusTransitions !== undefined
+      ? { statusTransitions: previousConfig.statusTransitions }
+      : {}),
+  };
 
   const validation = await validateGitlabConfig(config);
   if (!validation.valid) {

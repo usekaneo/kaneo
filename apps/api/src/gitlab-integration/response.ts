@@ -61,7 +61,12 @@ export const gitlabVerificationResultSchema = z
       description: "A human-readable summary to show the user.",
     }),
     failureReason: z
-      .enum(["not_a_gitlab_instance", "redirected", "project_not_found"])
+      .enum([
+        "not_a_gitlab_instance",
+        "redirected",
+        "project_not_found",
+        "insecure_transport",
+      ])
       .nullable()
       .openapi({
         description:

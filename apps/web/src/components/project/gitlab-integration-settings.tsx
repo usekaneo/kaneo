@@ -240,6 +240,10 @@ export function GitlabIntegrationSettings({
             );
           } else if (result.failureReason === "project_not_found") {
             toast.error(t("settings:gitlabIntegration.toast.projectNotFound"));
+          } else if (result.failureReason === "insecure_transport") {
+            toast.error(
+              t("settings:gitlabIntegration.toast.insecureTransport"),
+            );
           } else {
             toast.warning(t("settings:gitlabIntegration.toast.verifyWarning"));
           }

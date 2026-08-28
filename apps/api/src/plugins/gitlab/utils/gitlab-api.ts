@@ -1,5 +1,8 @@
 import * as Sentry from "@sentry/node";
-import { assertPublicDestination } from "../../../utils/assert-public-destination";
+import {
+  assertPrivateDestination,
+  assertPublicDestination,
+} from "../../../utils/assert-public-destination";
 import type { GitlabConfig } from "../config";
 import { normalizeGitlabBaseUrl, projectFullPath } from "../config";
 
@@ -71,7 +74,8 @@ export type GitlabApiErrorKind =
   | "INVALID_JSON"
   | "HTTP_ERROR"
   | "TIMEOUT"
-  | "EMPTY_RESPONSE";
+  | "EMPTY_RESPONSE"
+  | "INSECURE_TRANSPORT";
 
 export class GitlabApiError extends Error {
   constructor(
@@ -110,6 +114,24 @@ export async function gitlabFetch<T>(
   const url = `${root}/api/v4${path.startsWith("/") ? path : `/${path}`}`;
 
   await assertPublicDestination(root, "GitLab");
+
+  // normalizeGitlabBaseUrl lets http through once the operator has opted into
+  // private destinations, but that opt-in disables the destination check rather
+  // than restricting it to private hosts. Confirm the host really is internal
+  // before the token goes out in the clear.
+  if (new URL(root).protocol === "http:") {
+    try {
+      await assertPrivateDestination(root, "GitLab");
+    } catch (error) {
+      throw new GitlabApiError(
+        error instanceof Error
+          ? error.message
+          : "GitLab base URL must use https",
+        400,
+        "INSECURE_TRANSPORT",
+      );
+    }
+  }
 
   const controller = new AbortController();
   let timedOut = false;
