@@ -25,10 +25,11 @@ whoever runs Kaneo; you then link a repository from **Project Settings**.
 
 For repositories hosted under personal accounts where installing the App is not
 practical, you can instead paste a **Personal Access Token** (with repository
-read/write and issues permissions) in the integration form. When a token is
-used, connect the repository, then add the shown **webhook URL and secret** in
+read/write, issues, and webhook permissions) in the integration form. On
+connect, Kaneo registers the repository webhook automatically. If the token
+lacks webhook permission, add the shown **webhook URL and secret** manually in
 the repo's **Settings → Webhooks** (content type `application/json`; events:
-Pushes, Pull requests, Issues, Issue comments) so Git activity updates tasks.
+Pushes, Pull requests, Issues, Issue comments).
 
 ### GitLab
 

@@ -159,6 +159,7 @@ export const githubIntegrationSchema = v.object({
   hasAccessToken: v.optional(v.boolean()),
   webhookUrl: v.optional(v.string()),
   webhookSecret: v.optional(v.string()),
+  webhookRegistered: v.optional(v.boolean()),
   branchPattern: v.optional(v.string()),
   commentTaskLinkOnGitHubIssue: v.optional(v.boolean()),
   isActive: v.nullable(v.boolean()),

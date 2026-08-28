@@ -9,6 +9,7 @@ import {
   type GitHubConfig,
 } from "../../plugins/github/config";
 import { getGithubApp } from "../../plugins/github/utils/github-app";
+import { ensureRepoWebhook } from "../../plugins/github/utils/register-webhook";
 
 function parseConfig(raw: string): Partial<GitHubConfig> {
   try {
@@ -78,13 +79,14 @@ async function createGithubIntegration({
 
   let config: GitHubConfig;
   let webhookSecret: string | undefined;
+  let webhookRegistered = false;
 
   if (resolvedToken) {
     // PAT mode: prove the token can see the repo, then persist a per-project
     // webhook secret (reused across re-connects so the registered hook keeps
     // working). No GitHub App install is required.
+    const octokit = new Octokit({ auth: resolvedToken });
     try {
-      const octokit = new Octokit({ auth: resolvedToken });
       await octokit.rest.repos.get({
         owner: repositoryOwner,
         repo: repositoryName,
@@ -97,6 +99,25 @@ async function createGithubIntegration({
 
     webhookSecret =
       previousConfig.webhookSecret || randomBytes(24).toString("hex");
+
+    // Best-effort automatic webhook registration; falls back to manual setup
+    // when the token lacks webhook-admin permission.
+    const apiUrl = process.env.KANEO_API_URL || "http://localhost:1337";
+    const callbackUrl = `${apiUrl.replace(/\/$/, "")}/github-integration/webhook`;
+    const registration = await ensureRepoWebhook(
+      octokit,
+      repositoryOwner,
+      repositoryName,
+      callbackUrl,
+      webhookSecret,
+    );
+    webhookRegistered = registration.registered;
+    if (!registration.registered) {
+      console.warn(
+        "[GitHub] Automatic webhook registration failed; manual setup required",
+        { reason: registration.reason },
+      );
+    }
 
     config = {
       repositoryOwner,
@@ -159,6 +180,7 @@ async function createGithubIntegration({
       installationId: config.installationId,
       authMode,
       webhookSecret,
+      webhookRegistered,
       isActive: updatedIntegration?.isActive,
       createdAt: updatedIntegration?.createdAt,
       updatedAt: updatedIntegration?.updatedAt,
@@ -183,6 +205,7 @@ async function createGithubIntegration({
     installationId: config.installationId,
     authMode,
     webhookSecret,
+    webhookRegistered,
     isActive: newIntegration?.isActive,
     createdAt: newIntegration?.createdAt,
     updatedAt: newIntegration?.updatedAt,

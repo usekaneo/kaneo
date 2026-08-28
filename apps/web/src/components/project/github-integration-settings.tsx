@@ -201,11 +201,20 @@ export function GitHubIntegrationSettings({
         return;
       }
 
-      await createIntegration({
+      const result = await createIntegration({
         projectId,
         data,
       });
-      toast.success(t("settings:githubIntegration.toast.updated"));
+
+      if (result?.authMode === "token") {
+        toast.success(
+          result.webhookRegistered
+            ? t("settings:githubIntegration.toast.tokenConnectedAuto")
+            : t("settings:githubIntegration.toast.tokenConnectedManual"),
+        );
+      } else {
+        toast.success(t("settings:githubIntegration.toast.updated"));
+      }
     } catch (error) {
       toast.error(
         error instanceof Error
