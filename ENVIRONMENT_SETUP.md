@@ -51,6 +51,7 @@ Kaneo supports many optional configuration options including:
 - CORS configuration
 - Redis for horizontal scaling
 - Private-network notification receivers (`KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS=true` lets ntfy/Gotify/webhook destinations resolve to private addresses; off by default to prevent SSRF)
+- Plain-http GitLab instances (`KANEO_ALLOW_INSECURE_GITLAB_URL=true` accepts an `http://` GitLab URL, which sends the access token unencrypted; off by default, and even when on the token is only sent to an address that resolves inside a private range)
 
 #### Redis Configuration
 

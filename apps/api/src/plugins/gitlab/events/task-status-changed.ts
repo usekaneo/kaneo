@@ -63,7 +63,15 @@ export async function handleTaskStatusChanged(
     let metadata: Record<string, unknown> = {};
     if (issueLink.metadata) {
       try {
-        metadata = JSON.parse(issueLink.metadata) as Record<string, unknown>;
+        const parsed = JSON.parse(issueLink.metadata) as unknown;
+        // `null` and arrays both parse cleanly but spread into nonsense.
+        if (
+          typeof parsed === "object" &&
+          parsed !== null &&
+          !Array.isArray(parsed)
+        ) {
+          metadata = parsed as Record<string, unknown>;
+        }
       } catch (error) {
         console.warn("Failed to parse GitLab issue metadata for status sync", {
           issueLinkId: issueLink.id,

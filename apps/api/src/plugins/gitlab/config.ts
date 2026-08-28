@@ -1,5 +1,4 @@
 import * as v from "valibot";
-import { privateDestinationsAllowed } from "../../utils/assert-public-destination";
 import { branchPatterns } from "../github/config";
 
 export { branchPatterns };
@@ -59,6 +58,19 @@ export const defaultGitlabConfig: Partial<GitlabConfig> = {
 
 export const DEFAULT_GITLAB_BASE_URL = "https://gitlab.com";
 
+/**
+ * Operator acknowledgement that a GitLab access token may travel over plain
+ * http. Deliberately separate from KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS:
+ * allowing Kaneo to reach an internal host says nothing about whether
+ * credentials may cross that network unencrypted.
+ */
+export function insecureGitlabUrlAllowed(): boolean {
+  return (
+    process.env.KANEO_ALLOW_INSECURE_GITLAB_URL === "true" ||
+    process.env.KANEO_ALLOW_INSECURE_GITLAB_URL === "1"
+  );
+}
+
 export function normalizeGitlabBaseUrl(url: string): string {
   const trimmed = url.trim().replace(/\/+$/, "");
   const parsed = new URL(trimmed);
@@ -67,12 +79,13 @@ export function normalizeGitlabBaseUrl(url: string): string {
     throw new Error("GitLab base URL must use http or https");
   }
 
-  // The access token travels on every request, so plain HTTP would put it on
-  // the wire in the clear. The one setup where that is a deliberate choice is a
-  // self-hosted instance on a private network, which needs this opt-in anyway.
-  // The opt-in alone is not proof the host is private -- gitlabFetch confirms
-  // that before any http request actually carries the token.
-  if (parsed.protocol === "http:" && !privateDestinationsAllowed()) {
+  // The access token travels on every request, so plain http puts it on the
+  // wire in the clear, where anyone on the path can read it -- a private
+  // network is not automatically a trusted one. That is a call only the
+  // operator can make, so it needs its own acknowledgement rather than riding
+  // on a flag set for webhook delivery. gitlabFetch additionally refuses to
+  // send the token over http to anything that resolves publicly.
+  if (parsed.protocol === "http:" && !insecureGitlabUrlAllowed()) {
     throw new Error(
       "GitLab base URL must use https, so the access token is not sent in the clear",
     );

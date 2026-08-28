@@ -7,7 +7,7 @@ export const gitlabTokenType = z.enum(["pat", "oauth2"]).openapi({
 
 const baseUrl = z.url().openapi({
   description:
-    "Root URL of the GitLab instance. Must be https, since the access token is sent on every request; plain http is accepted only when the instance is explicitly allowed as a private destination.",
+    "Root URL of the GitLab instance. Must be https, since the access token is sent on every request; plain http needs KANEO_ALLOW_INSECURE_GITLAB_URL and still only reaches a private address.",
 });
 
 const gitlabCredentials = {

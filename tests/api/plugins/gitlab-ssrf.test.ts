@@ -4,22 +4,27 @@ import { gitlabFetch } from "../../../apps/api/src/plugins/gitlab/utils/gitlab-a
 import { assertPrivateDestination } from "../../../apps/api/src/utils/assert-public-destination";
 
 const PRIVATE_OPT_IN = "KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS";
+const INSECURE_OPT_IN = "KANEO_ALLOW_INSECURE_GITLAB_URL";
 
 // The runner may inherit this from the environment, which would quietly
 // invalidate every default-behaviour assertion below, so it is cleared before
 // each test rather than only cleaned up after.
-let inheritedOptIn: string | undefined;
+const inherited: Record<string, string | undefined> = {};
 
 beforeEach(() => {
-  inheritedOptIn = process.env[PRIVATE_OPT_IN];
-  delete process.env[PRIVATE_OPT_IN];
+  for (const key of [PRIVATE_OPT_IN, INSECURE_OPT_IN]) {
+    inherited[key] = process.env[key];
+    delete process.env[key];
+  }
 });
 
 afterEach(() => {
-  if (inheritedOptIn === undefined) {
-    delete process.env[PRIVATE_OPT_IN];
-  } else {
-    process.env[PRIVATE_OPT_IN] = inheritedOptIn;
+  for (const key of [PRIVATE_OPT_IN, INSECURE_OPT_IN]) {
+    if (inherited[key] === undefined) {
+      delete process.env[key];
+    } else {
+      process.env[key] = inherited[key];
+    }
   }
 });
 
@@ -67,11 +72,18 @@ describe("normalizeGitlabBaseUrl", () => {
     );
   });
 
-  it("allows http once the operator has opted into private destinations", () => {
-    // A self-hosted instance on a trusted network is the one case where plain
-    // http is a deliberate choice, and it already needs this opt-in to be
-    // reachable at all.
+  it("does not treat the webhook-destination flag as consent to send the token in the clear", () => {
+    // Reaching an internal host and sending credentials across it unencrypted
+    // are separate decisions, so the destination flag must not imply the other.
     process.env[PRIVATE_OPT_IN] = "true";
+
+    expect(() => normalizeGitlabBaseUrl("http://gitlab.internal")).toThrow(
+      /must use https/,
+    );
+  });
+
+  it("allows http once the operator has explicitly accepted it", () => {
+    process.env[INSECURE_OPT_IN] = "true";
 
     expect(normalizeGitlabBaseUrl("http://gitlab.internal/")).toBe(
       "http://gitlab.internal",
@@ -105,11 +117,10 @@ describe("gitlabFetch destination guard", () => {
     ).rejects.toThrow(/must use https/);
   });
 
-  it("still refuses http to a public host when private destinations are allowed", async () => {
-    // The opt-in switches the public check off rather than narrowing it to
-    // private hosts, so it must not become a way to send the token in the
-    // clear to a public address. A literal IP keeps this off the network.
-    process.env[PRIVATE_OPT_IN] = "true";
+  it("still refuses http to a public host once http has been accepted", async () => {
+    // Accepting cleartext for a private instance must not become a way to send
+    // the token to a public address. A literal IP keeps this off the network.
+    process.env[INSECURE_OPT_IN] = "true";
 
     await expect(
       gitlabFetch("http://8.8.8.8", "token", "/user"),

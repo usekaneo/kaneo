@@ -22,7 +22,7 @@ Kaneo accepts either kind of credential:
 
 Create a personal access token under **User settings → Access tokens**, or a project token under **Project → Settings → Access tokens**.
 
-- **Instance URL**: must be `https`. The access token is sent on every API request, so Kaneo refuses to put it on the wire in the clear. A self-hosted instance reachable only over plain `http` needs `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS=true`, the same opt-in that lets Kaneo reach a private address at all.
+- **Instance URL**: must be `https`. The access token is sent on every API request, so Kaneo refuses to put it on the wire in the clear. A self-hosted instance reachable only over plain `http` needs `KANEO_ALLOW_INSECURE_GITLAB_URL=true`, and even then Kaneo will only send the token to an address that resolves inside a private range. A private network is not automatically a trusted one, so prefer TLS wherever you can terminate it.
 - **Scope**: `api`.
 - **Role**: **Developer** or higher. Kaneo creates its own `priority:` and `status:` labels, which Reporter cannot do.
 

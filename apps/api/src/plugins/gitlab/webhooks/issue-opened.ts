@@ -97,8 +97,6 @@ export async function handleGitlabIssueOpened(
       continue;
     }
 
-    const nextTaskNumber = await claimTaskNumber(projectId);
-
     const resolvedStatus = await resolveTargetStatus(
       projectId,
       "issue_opened",
@@ -111,17 +109,6 @@ export async function handleGitlabIssueOpened(
         eq(columnTable.slug, resolvedStatus),
       ),
     });
-
-    const taskValues: typeof taskTable.$inferInsert = {
-      projectId,
-      userId: null,
-      title: issue.title,
-      description: formatTaskDescriptionFromIssue(issue.description),
-      status: resolvedStatus,
-      columnId: targetColumn?.id ?? null,
-      priority: priority ?? "low",
-      number: nextTaskNumber,
-    };
 
     // The task and its link commit together, behind a lock on the project row.
     // Two concurrent deliveries of the same issue would otherwise both pass the
@@ -156,6 +143,19 @@ export async function handleGitlabIssueOpened(
       if (alreadyLinked) {
         return null;
       }
+
+      // Claimed only once this delivery is known to be the one creating the
+      // task; claiming earlier burns a number on every duplicate delivery.
+      const taskValues: typeof taskTable.$inferInsert = {
+        projectId,
+        userId: null,
+        title: issue.title,
+        description: formatTaskDescriptionFromIssue(issue.description),
+        status: resolvedStatus,
+        columnId: targetColumn?.id ?? null,
+        priority: priority ?? "low",
+        number: await claimTaskNumber(projectId, tx),
+      };
 
       const [task] = await tx.insert(taskTable).values(taskValues).returning();
 
