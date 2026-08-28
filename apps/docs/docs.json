@@ -87,6 +87,10 @@
 						"pages": ["core/integrations/gitea/setup"]
 					},
 					{
+						"group": "GitLab Integration",
+						"pages": ["core/integrations/gitlab/setup"]
+					},
+					{
 						"group": "Integrations",
 						"pages": [
 							"core/integrations/mcp",

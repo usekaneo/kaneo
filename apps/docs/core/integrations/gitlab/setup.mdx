@@ -1,0 +1,93 @@
+---
+title: GitLab Setup
+description: Connect Kaneo to GitLab.com or a self-managed GitLab instance (issues, merge requests, webhooks).
+---
+
+## Overview
+
+The GitLab integration links a Kaneo project to a project on GitLab. Tasks sync with issues, and webhooks keep Kaneo updated when issues, merge requests, or pushes change. It works the same way against `gitlab.com` and a self-managed instance.
+
+You need:
+
+- **GitLab URL**: `https://gitlab.com`, or your own instance, e.g. `https://git.example.com`.
+- **Access token** that can read and write issues on the target project.
+- **Namespace and project path**: for `acme/platform/my-app`, the namespace is `acme/platform` and the project path is `my-app`.
+
+## Access token
+
+Kaneo accepts either kind of credential:
+
+- **Access token** (default) — a personal, project, or group access token, sent as `PRIVATE-TOKEN`.
+- **OAuth2 token** — an already-issued OAuth2 token, sent as `Authorization: Bearer`. Kaneo does not run the OAuth authorization flow itself; paste a token you already hold.
+
+Create a personal access token under **User settings → Access tokens**, or a project token under **Project → Settings → Access tokens**.
+
+- **Scope**: `api`.
+- **Role**: **Developer** or higher. Kaneo creates its own `priority:` and `status:` labels, which Reporter cannot do.
+
+Copy the token and paste it into Kaneo's GitLab integration settings. Kaneo only ever shows it back masked.
+
+## Webhook in GitLab
+
+GitLab does not sign webhook bodies. It sends back the **secret token** you configure on the hook in the `X-Gitlab-Token` header, and Kaneo compares it against the per-integration secret in constant time. Treat that secret like a password.
+
+### Configure the webhook
+
+1. Connect the project in Kaneo **Project → Integrations → GitLab** and save.
+2. Copy the **Webhook URL** and **Secret token** shown in Kaneo (after saving).
+3. In GitLab, open the same project and go to **Settings → Webhooks → Add new webhook**.
+4. Set **URL** to the Kaneo webhook URL.
+5. Set **Secret token** to the exact value from Kaneo.
+6. Enable triggers:
+
+   - **Push events**
+   - **Issues events**
+   - **Merge request events**
+   - **Comments** (note events)
+
+7. Save, then use **Test → Push events** to confirm a `200` response from Kaneo.
+
+**Direct URL pattern** (replace host and full project path):
+
+`https://<your-gitlab-host>/<namespace>/<project>/-/hooks`
+
+Example: `https://gitlab.com/acme/my-app/-/hooks`
+
+The Kaneo webhook URL includes your integration id, for example:
+
+`https://your-kaneo-host/api/gitlab-integration/webhook/<integrationId>`
+
+<Note>
+  Adding the webhook needs **Maintainer** on the GitLab project, which is a
+  higher bar than the Developer role the token itself needs.
+</Note>
+
+## What syncs
+
+| In GitLab | In Kaneo |
+| --- | --- |
+| Issue opened | Task created, and Kaneo comments the task link back on the issue |
+| Issue closed / reopened | Task moves to the mapped column (Done / To do by default) |
+| Issue title, description, or labels edited | Task title, description, priority, status, and labels updated |
+| Issue comment | Comment appears on the task's activity |
+| Push to a branch named after a task | Branch linked to the task; task moves to In progress |
+| Merge request opened | Merge request linked; task moves to In review (drafts do not move it) |
+| Draft marked ready | Task moves to In review |
+| Merge request merged | Task moves to Done once no other merge request on it is open |
+
+Kaneo pushes changes back the other way too: creating a task creates an issue, and title, description, status, priority, labels, and comments follow it.
+
+Status transitions are configurable per project under **Project → Settings → Workflow**.
+
+## Self-managed specifics
+
+- A **relative URL root** is supported. Use the full prefix as the GitLab URL, e.g. `https://git.example.com/gitlab`.
+- Kaneo refuses to call private or link-local addresses, so the instance must be reachable at a routable address from wherever the API runs.
+- Kaneo does not follow redirects. If verification reports a redirect, the instance is probably forcing HTTPS — enter the final URL directly.
+
+## Troubleshooting
+
+- **"The URL does not point to a GitLab instance"** — `<url>/api/v4/user` did not answer as GitLab. Check the URL, including any path prefix.
+- **"Project not found or not accessible with this token"** — the instance answered, but the namespace, project path, or token is wrong.
+- **"Token may not have sufficient permissions"** — the token holds less than Developer on the project.
+- **Webhook returns 400** — the secret token in GitLab does not match the one in Kaneo, or the integration was deleted and re-created (which keeps the secret only if the project link was kept).

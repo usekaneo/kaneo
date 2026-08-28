@@ -8,6 +8,7 @@ import {
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { GithubIcon } from "@/components/icons/github-icon";
+import { GitlabIcon } from "@/components/icons/gitlab-icon";
 import { Button } from "@/components/ui/button";
 import {
   Collapsible,
@@ -27,6 +28,14 @@ function isGiteaResourceLink(link: ExternalLink) {
   }
   const from = link.metadata?.createdFrom;
   return from === "gitea" || from === "gitea-import";
+}
+
+function isGitlabResourceLink(link: ExternalLink) {
+  if (link.integration?.type === "gitlab") {
+    return true;
+  }
+  const from = link.metadata?.createdFrom;
+  return from === "gitlab" || from === "gitlab-import";
 }
 
 export function ExternalLinksAccordion({
@@ -129,7 +138,9 @@ export function ExternalLinksAccordion({
               rel="noopener noreferrer"
               className="group flex items-center gap-3 py-2 px-3 rounded-md hover:bg-accent/50 transition-colors"
             >
-              {isGiteaResourceLink(link) ? (
+              {isGitlabResourceLink(link) ? (
+                <GitlabIcon className="size-4 flex-shrink-0 text-muted-foreground" />
+              ) : isGiteaResourceLink(link) ? (
                 <FolderGit className="size-4 flex-shrink-0 text-muted-foreground" />
               ) : (
                 <GithubIcon className="size-4 flex-shrink-0 text-muted-foreground" />

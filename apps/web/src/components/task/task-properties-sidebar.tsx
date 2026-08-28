@@ -22,6 +22,7 @@ import labelColors from "@/constants/label-colors";
 import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
 import useGetGiteaIntegration from "@/hooks/queries/gitea-integration/use-get-gitea-integration";
 import useGetGithubIntegration from "@/hooks/queries/github-integration/use-get-github-integration";
+import useGetGitlabIntegration from "@/hooks/queries/gitlab-integration/use-get-gitlab-integration";
 import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
@@ -93,6 +94,7 @@ export default function TaskPropertiesSidebar({
   const { data: taskLabels = [] } = useGetLabelsByTask(taskId ?? "");
   const { data: githubIntegration } = useGetGithubIntegration(projectId);
   const { data: giteaIntegration } = useGetGiteaIntegration(projectId);
+  const { data: gitlabIntegration } = useGetGitlabIntegration(projectId);
   const { data: workspaceProjects = [] } = useGetProjects({ workspaceId });
   const canMoveTask =
     Boolean(task) && workspaceProjects.some((p) => p.id !== task?.projectId);
@@ -111,6 +113,7 @@ export default function TaskPropertiesSidebar({
   const branchPattern =
     githubIntegration?.branchPattern ||
     giteaIntegration?.branchPattern ||
+    gitlabIntegration?.branchPattern ||
     "{slug}-{number}";
 
   const assignee = workspaceUsers?.members?.find(

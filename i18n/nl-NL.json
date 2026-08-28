@@ -585,7 +585,9 @@
 			"giteaSectionTitle": "Gitea Integratie",
 			"giteaSectionSubtitle": "Synchroniseer taken met een zelf-gehoste Gitea-instantie (issues, PR's, webhooks).",
 			"telegramSectionTitle": "Telegram Integratie",
-			"telegramSectionSubtitle": "Verstuur updates van projecttaken naar een Telegram-chat of -topic met een bot."
+			"telegramSectionSubtitle": "Verstuur updates van projecttaken naar een Telegram-chat of -topic met een bot.",
+			"gitlabSectionSubtitle": "Synchronize tasks with GitLab.com or a self-managed GitLab instance (issues, merge requests, webhooks).",
+			"gitlabSectionTitle": "GitLab Integration"
 		},
 		"projectVisibility": {
 			"pageTitle": "Projectzichtbaarheid",
@@ -873,7 +875,9 @@
 				"issue_closed": "Issue Gesloten"
 			},
 			"giteaHeading": "Gitea",
-			"giteaHint": "Wanneer een Gitea-webhookgebeurtenis plaatsvindt, verplaats de gekoppelde taak naar een kolom."
+			"giteaHint": "Wanneer een Gitea-webhookgebeurtenis plaatsvindt, verplaats de gekoppelde taak naar een kolom.",
+			"gitlabHeading": "GitLab",
+			"gitlabHint": "When a GitLab webhook event occurs, move the linked task to a column."
 		},
 		"externalLinks": {
 			"resources": "Bronnen",
@@ -1269,6 +1273,86 @@
 			"connect": "Verbind Telegram",
 			"saveChanges": "Wijzigingen opslaan",
 			"disconnect": "Ontkoppelen"
+		},
+		"gitlabIntegration": {
+			"actionsHint": "Verify access and connect",
+			"actionsTitle": "Actions",
+			"badgeConnected": "Connected",
+			"badgeNotConnected": "Not connected",
+			"baseUrlHint": "Root URL of your GitLab instance, or https://gitlab.com",
+			"baseUrlLabel": "GitLab URL",
+			"browse": "Browse",
+			"browseModalHint": "Projects your token can access",
+			"browseModalTitle": "Your projects",
+			"browseNeedsCredentials": "Enter GitLab URL and token to browse",
+			"commentTaskLinkHint": "When enabled, Kaneo posts a comment on each new issue with a link to the task.",
+			"commentTaskLinkTitle": "Comment Kaneo link on new issues",
+			"connect": "Connect",
+			"connectedActive": "Project connected and active",
+			"connectionStatus": "Connection status",
+			"currentToken": "stored",
+			"disconnect": "Disconnect",
+			"importDisabledHint": "Verify the project above to enable importing",
+			"importing": "Importing…",
+			"importIssues": "Import issues",
+			"importSectionHint": "Import open issues and merge requests from the project",
+			"importSectionTitle": "Import GitLab issues",
+			"loadingProjects": "Loading projects…",
+			"namespaceHint": "Group path, including subgroups",
+			"namespaceLabel": "Namespace",
+			"notConnectedHint": "No GitLab project connected",
+			"pathHint": "Project path only (no namespace)",
+			"pathLabel": "Project path",
+			"project": "Project",
+			"projectHint": "Linked GitLab project",
+			"retry": "Retry",
+			"searchProjects": "Search…",
+			"toast": {
+				"commentOnDisabled": "Task link comments on new issues are turned off",
+				"commentOnEnabled": "Kaneo will comment with a task link on new issues",
+				"importError": "Failed to import issues",
+				"issuesImported": "Issues imported successfully",
+				"notGitlabInstance": "The URL does not point to a GitLab instance",
+				"projectNotFound": "Project not found or not accessible",
+				"redirected": "GitLab URL redirected (usually to HTTPS). Use the final URL directly.",
+				"removed": "GitLab integration removed",
+				"removeError": "Failed to remove GitLab integration",
+				"secretCopied": "Copied",
+				"settingsUpdateError": "Failed to update GitLab integration",
+				"tokenRequired": "Access token is required",
+				"tokenRequiredVerify": "Enter a token to verify",
+				"unableToCopySecret": "Unable to copy secret",
+				"updated": "GitLab integration saved",
+				"updateError": "Failed to save GitLab integration",
+				"verifyError": "Failed to verify GitLab access",
+				"verifyFirst": "Verify access failed. Check URL, token, and project",
+				"verifyOk": "GitLab token can access this project",
+				"verifyWarning": "Check token permissions or project access"
+			},
+			"tokenHint": "Token with the api scope for the target project",
+			"tokenLabel": "Access token",
+			"tokenPlaceholder": "Paste token",
+			"tokenPlaceholderUpdate": "Paste new token to rotate",
+			"tokenTypeHint": "How Kaneo sends the token to GitLab",
+			"tokenTypeLabel": "Token type",
+			"tokenTypeOauth2": "OAuth2 token",
+			"tokenTypePat": "Access token (personal, project, or group)",
+			"update": "Update",
+			"validation": {
+				"baseUrlInvalid": "Enter a valid URL (e.g. https://gitlab.com)",
+				"baseUrlRequired": "GitLab URL is required",
+				"namespaceInvalid": "Invalid namespace format",
+				"namespaceRequired": "Namespace is required",
+				"pathInvalid": "Invalid project path format",
+				"pathRequired": "Project path is required"
+			},
+			"verify": "Verify",
+			"webhookCopy": "Copy",
+			"webhookHide": "Hide",
+			"webhookHint": "In your GitLab project, add a webhook with this URL and secret token. Enable push, issues, merge request, and comment events.",
+			"webhookSecretLabel": "Secret token (must match the webhook secret token in GitLab)",
+			"webhookShow": "Show",
+			"webhookTitle": "Webhook"
 		}
 	},
 	"navigation": {
@@ -1554,7 +1638,12 @@
 				"mermaid": {
 					"renderFailed": "Mermaid-diagram kon niet worden weergegeven"
 				}
-			}
+			},
+			"commentedExternally": "commented externally",
+			"commentedOnGitea": "commented on Gitea",
+			"commentedOnGitlab": "commented on GitLab",
+			"gitea": "Gitea",
+			"gitlab": "GitLab"
 		}
 	},
 	"tasks": {
