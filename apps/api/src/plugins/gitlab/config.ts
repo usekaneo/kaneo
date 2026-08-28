@@ -1,4 +1,5 @@
 import * as v from "valibot";
+import { privateDestinationsAllowed } from "../../utils/assert-public-destination";
 import { branchPatterns } from "../github/config";
 
 export { branchPatterns };
@@ -64,6 +65,16 @@ export function normalizeGitlabBaseUrl(url: string): string {
 
   if (!["http:", "https:"].includes(parsed.protocol)) {
     throw new Error("GitLab base URL must use http or https");
+  }
+
+  // The access token travels on every request, so plain HTTP would put it on
+  // the wire in the clear. The one setup where that is a deliberate choice is a
+  // self-hosted instance on a trusted network, which the operator has already
+  // had to opt into for the destination check to let it through at all.
+  if (parsed.protocol === "http:" && !privateDestinationsAllowed()) {
+    throw new Error(
+      "GitLab base URL must use https, so the access token is not sent in the clear",
+    );
   }
 
   // A query or fragment would swallow the appended /api/v4/... path and let a

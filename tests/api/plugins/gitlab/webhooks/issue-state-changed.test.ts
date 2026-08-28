@@ -67,13 +67,13 @@ function payload(action: "close" | "reopen", updatedAt: number) {
       iid: 42,
       title: "Login button is inert",
       description: null,
-      url: "http://gitlab.example/acme/my-app/-/issues/42",
+      url: "https://gitlab.example/acme/my-app/-/issues/42",
       state: action === "close" ? "closed" : "opened",
       action,
       updated_at: new Date(updatedAt).toISOString(),
     },
     project: {
-      web_url: "http://gitlab.example/acme/my-app",
+      web_url: "https://gitlab.example/acme/my-app",
       path_with_namespace: "acme/my-app",
     },
   };

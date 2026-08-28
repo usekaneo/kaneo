@@ -78,7 +78,12 @@ export function isDisallowedAddress(address: string): boolean {
   return false;
 }
 
-function privateDestinationsAllowed(): boolean {
+/**
+ * Operators opt in to reaching internal hosts for a self-hosted forge behind a
+ * private network. Callers also use it to decide how strict to be about
+ * transport, since an internal host is often plain HTTP by design.
+ */
+export function privateDestinationsAllowed(): boolean {
   return (
     process.env.KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS === "true" ||
     process.env.KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS === "1"

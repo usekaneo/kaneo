@@ -5,9 +5,14 @@ export const gitlabTokenType = z.enum(["pat", "oauth2"]).openapi({
     "`pat` sends the token as PRIVATE-TOKEN (personal, project, or group access token); `oauth2` sends it as a bearer token.",
 });
 
+const baseUrl = z.url().openapi({
+  description:
+    "Root URL of the GitLab instance. Must be https, since the access token is sent on every request; plain http is accepted only when the instance is explicitly allowed as a private destination.",
+});
+
 const gitlabCredentials = {
   projectId: z.string().min(1),
-  baseUrl: z.url(),
+  baseUrl,
   accessToken: z.string().min(1),
   tokenType: gitlabTokenType.optional(),
 };
@@ -21,7 +26,7 @@ export const verifyGitlabBody = z.object({
 });
 
 export const createGitlabBody = z.object({
-  baseUrl: z.url(),
+  baseUrl,
   accessToken: z.string().optional().openapi({
     description: "Omit to keep the token already stored for this project.",
   }),

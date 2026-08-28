@@ -11275,7 +11275,8 @@
                   },
                   "baseUrl": {
                     "type": "string",
-                    "format": "uri"
+                    "format": "uri",
+                    "description": "Root URL of the GitLab instance. Must be https, since the access token is sent on every request; plain http is accepted only when the instance is explicitly allowed as a private destination."
                   },
                   "accessToken": {
                     "type": "string",
@@ -11357,7 +11358,8 @@
                   },
                   "baseUrl": {
                     "type": "string",
-                    "format": "uri"
+                    "format": "uri",
+                    "description": "Root URL of the GitLab instance. Must be https, since the access token is sent on every request; plain http is accepted only when the instance is explicitly allowed as a private destination."
                   },
                   "accessToken": {
                     "type": "string",
@@ -11508,7 +11510,8 @@
                 "properties": {
                   "baseUrl": {
                     "type": "string",
-                    "format": "uri"
+                    "format": "uri",
+                    "description": "Root URL of the GitLab instance. Must be https, since the access token is sent on every request; plain http is accepted only when the instance is explicitly allowed as a private destination."
                   },
                   "accessToken": {
                     "type": "string",

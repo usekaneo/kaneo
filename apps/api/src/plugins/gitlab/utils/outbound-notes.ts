@@ -1,3 +1,7 @@
+import { eq } from "drizzle-orm";
+import db from "../../../database";
+import { externalLinkTable } from "../../../database/schema";
+
 /**
  * Ids of notes Kaneo posted itself, kept on the issue link so the matching note
  * webhook can be recognised as an echo rather than a new comment. Bounded
@@ -45,4 +49,34 @@ export function isOutboundNoteId(
   noteId: number,
 ): boolean {
   return readIds(parseMetadata(rawMetadata)).includes(noteId);
+}
+
+/**
+ * Two comments posted in quick succession run their handlers concurrently, and
+ * each rewrites the whole metadata blob. Re-reading under a row lock means the
+ * second write merges onto the first instead of dropping its id, which would
+ * let that note's echo through as a duplicate comment.
+ */
+export async function recordOutboundNoteId(
+  externalLinkId: string,
+  noteId: number,
+): Promise<void> {
+  await db.transaction(async (tx) => {
+    const [row] = await tx
+      .select({ metadata: externalLinkTable.metadata })
+      .from(externalLinkTable)
+      .where(eq(externalLinkTable.id, externalLinkId))
+      .for("update");
+
+    if (!row) {
+      return;
+    }
+
+    await tx
+      .update(externalLinkTable)
+      .set({
+        metadata: JSON.stringify(rememberOutboundNoteId(row.metadata, noteId)),
+      })
+      .where(eq(externalLinkTable.id, externalLinkId));
+  });
 }

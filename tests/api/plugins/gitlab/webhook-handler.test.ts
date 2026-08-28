@@ -87,7 +87,7 @@ const SECRET = "kaneo-webhook-secret";
 const project = {
   id: 1,
   name: "my-app",
-  web_url: "http://gitlab.example/acme/platform/my-app",
+  web_url: "https://gitlab.example/acme/platform/my-app",
   path_with_namespace: "acme/platform/my-app",
 };
 
