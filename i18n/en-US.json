@@ -1070,7 +1070,8 @@
 				"commentOnDisabled": "Task link comments on new issues are turned off",
 				"settingsUpdateError": "Failed to update GitLab integration",
 				"secretCopied": "Copied",
-				"unableToCopySecret": "Unable to copy secret"
+				"unableToCopySecret": "Unable to copy secret",
+				"importedWithErrors": "Import finished, but {{errors}} item(s) could not be imported"
 			},
 			"webhookShow": "Show",
 			"webhookHide": "Hide",
@@ -1119,6 +1120,9 @@
 			"searchProjects": "Search…",
 			"browseNeedsCredentials": "Enter GitLab URL and token to browse",
 			"loadingProjects": "Loading projects…",
+			"loadProjectsError": "Could not load projects",
+			"noProjectsFound": "No projects match your search",
+			"openProjectInGitlab": "Open {{project}} in GitLab",
 			"retry": "Retry"
 		},
 		"slackIntegration": {

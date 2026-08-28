@@ -8,8 +8,8 @@ import {
 } from "../../plugins/gitlab/config";
 import { normalizeApiServerUrl } from "../../utils/openapi-spec";
 
-function maskToken(token: string): string {
-  if (token.length <= 8) {
+function maskToken(token: unknown): string {
+  if (typeof token !== "string" || token.length <= 8) {
     return "••••••••";
   }
   return `${token.slice(0, 4)}••••••${token.slice(-4)}`;
@@ -30,7 +30,16 @@ async function getGitlabIntegration(
     return null;
   }
 
-  const config = JSON.parse(integration.config) as GitlabConfig;
+  let config: GitlabConfig;
+  try {
+    config = JSON.parse(integration.config) as GitlabConfig;
+  } catch (error) {
+    console.error("Invalid GitLab integration config JSON", {
+      integrationId: integration.id,
+      error,
+    });
+    return null;
+  }
 
   const apiBase = normalizeApiServerUrl(
     process.env.KANEO_API_URL || "http://localhost:1337",

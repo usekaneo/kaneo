@@ -17,6 +17,20 @@ import listGitlabProjects, {
 } from "@/fetchers/gitlab-integration/list-gitlab-projects";
 import { cn } from "@/lib/cn";
 
+/**
+ * Cache identity has to change with the token, or a re-opened modal serves the
+ * previous token's private projects. The raw secret must not sit in query keys
+ * or devtools state, so it is reduced to a non-reversible FNV-1a digest.
+ */
+function tokenFingerprint(token: string): string {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < token.length; i++) {
+    hash ^= token.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(16);
+}
+
 type GitlabProjectBrowserModalProps = {
   open: boolean;
   projectId: string;
@@ -47,8 +61,13 @@ export function GitlabProjectBrowserModal({
   const canFetch =
     open && baseUrl.trim().length > 0 && accessToken.trim().length > 0;
 
+  const tokenKey = React.useMemo(
+    () => tokenFingerprint(accessToken.trim()),
+    [accessToken],
+  );
+
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["gitlab-projects", projectId, baseUrl, tokenType],
+    queryKey: ["gitlab-projects", projectId, baseUrl, tokenType, tokenKey],
     queryFn: () =>
       listGitlabProjects({ projectId, baseUrl, accessToken, tokenType }),
     enabled: canFetch,
@@ -120,7 +139,9 @@ export function GitlabProjectBrowserModal({
           {canFetch && error && (
             <div className="py-6 text-center space-y-2">
               <p className="text-sm text-destructive">
-                {error instanceof Error ? error.message : "Error"}
+                {error instanceof Error
+                  ? error.message
+                  : t("settings:gitlabIntegration.loadProjectsError")}
               </p>
               <Button
                 type="button"
@@ -132,7 +153,12 @@ export function GitlabProjectBrowserModal({
               </Button>
             </div>
           )}
-          {canFetch && data && (
+          {canFetch && data && filteredProjects.length === 0 && (
+            <p className="text-sm text-muted-foreground py-8 text-center">
+              {t("settings:gitlabIntegration.noProjectsFound")}
+            </p>
+          )}
+          {canFetch && data && filteredProjects.length > 0 && (
             <ul className="space-y-1">
               {filteredProjects.map((project) => (
                 <li key={project.id}>
@@ -162,6 +188,10 @@ export function GitlabProjectBrowserModal({
                       href={project.web_url}
                       target="_blank"
                       rel="noopener noreferrer"
+                      aria-label={t(
+                        "settings:gitlabIntegration.openProjectInGitlab",
+                        { project: project.path_with_namespace },
+                      )}
                       className="rounded-md p-2 text-primary hover:bg-muted/80 transition-colors"
                     >
                       <ExternalLink className="size-3.5" />

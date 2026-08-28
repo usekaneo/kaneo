@@ -4194,6 +4194,9 @@
 								},
 								"unableToCopySecret": {
 									"type": "string"
+								},
+								"importedWithErrors": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -4216,7 +4219,8 @@
 								"commentOnDisabled",
 								"settingsUpdateError",
 								"secretCopied",
-								"unableToCopySecret"
+								"unableToCopySecret",
+								"importedWithErrors"
 							]
 						},
 						"webhookShow": {
@@ -4360,6 +4364,15 @@
 						"loadingProjects": {
 							"type": "string"
 						},
+						"loadProjectsError": {
+							"type": "string"
+						},
+						"noProjectsFound": {
+							"type": "string"
+						},
+						"openProjectInGitlab": {
+							"type": "string"
+						},
 						"retry": {
 							"type": "string"
 						}
@@ -4414,6 +4427,9 @@
 						"searchProjects",
 						"browseNeedsCredentials",
 						"loadingProjects",
+						"loadProjectsError",
+						"noProjectsFound",
+						"openProjectInGitlab",
 						"retry"
 					]
 				},

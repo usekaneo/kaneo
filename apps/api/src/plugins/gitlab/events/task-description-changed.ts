@@ -6,6 +6,7 @@ import { formatIssueBody } from "../../github/utils/format";
 import type { PluginContext, TaskDescriptionChangedEvent } from "../../types";
 import type { GitlabConfig } from "../config";
 import { createGitlabClient } from "../utils/gitlab-api";
+import { parseIssueIid } from "../utils/issue-iid";
 
 type LinkSyncState = {
   timestamp: string;
@@ -60,19 +61,18 @@ export async function handleTaskDescriptionChanged(
     const lastDescSync = metadata.lastSync?.description;
     const newDescNormalized = event.newDescription || "";
 
-    if (lastDescSync?.source === "gitlab") {
-      if (lastDescSync.value === newDescNormalized) {
-        return;
-      }
-      const timeSinceLastSync =
-        Date.now() - new Date(lastDescSync.timestamp).getTime();
-      if (timeSinceLastSync < 2000) {
-        return;
-      }
+    // Only an identical value is the echo of what GitLab just sent us. A
+    // different value is a genuine Kaneo edit and must still go out.
+    if (
+      lastDescSync?.source === "gitlab" &&
+      lastDescSync.value === newDescNormalized &&
+      Date.now() - new Date(lastDescSync.timestamp).getTime() < 2000
+    ) {
+      return;
     }
 
-    const issueIid = Number.parseInt(issueLink.externalId, 10);
-    if (Number.isNaN(issueIid)) {
+    const issueIid = parseIssueIid(issueLink.externalId);
+    if (issueIid === null) {
       console.warn(
         "Skipping GitLab description sync for invalid issue number",
         {

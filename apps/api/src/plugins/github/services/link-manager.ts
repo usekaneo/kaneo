@@ -18,10 +18,17 @@ export type UpdateExternalLinkParams = {
   metadata?: Record<string, unknown>;
 };
 
+/**
+ * Accepts a transaction so a caller can commit a task and its link together;
+ * defaults to the module-level connection.
+ */
+type LinkWriter = Pick<typeof db, "insert">;
+
 export async function createExternalLink(
   params: CreateExternalLinkParams,
+  executor: LinkWriter = db,
 ): Promise<{ id: string }> {
-  const result = await db
+  const result = await executor
     .insert(externalLinkTable)
     .values({
       taskId: params.taskId,

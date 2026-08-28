@@ -11508,7 +11508,7 @@
                 "properties": {
                   "baseUrl": {
                     "type": "string",
-                    "minLength": 1
+                    "format": "uri"
                   },
                   "accessToken": {
                     "type": "string",
@@ -11567,7 +11567,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No workspace access, missing workspace:manage_settings, or the GitLab token lacks the Developer role on the project",
             "content": {
               "text/plain": {
                 "schema": {

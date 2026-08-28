@@ -20,6 +20,16 @@ export function generateBranchName(
     .replace("{title}", slugify(taskTitle));
 }
 
+/**
+ * The branch matchers read only these two fields, so they accept the narrow
+ * shape rather than a whole provider config. Gitea and GitLab pass their own
+ * configs directly.
+ */
+export type BranchMatchConfig = Pick<
+  GitHubConfig,
+  "branchPattern" | "customBranchRegex"
+>;
+
 export function createBranchRegex(
   pattern: string,
   projectSlug: string,
@@ -40,7 +50,7 @@ export function createBranchRegex(
 
 export function extractTaskNumberFromBranch(
   branchName: string,
-  config: GitHubConfig,
+  config: BranchMatchConfig,
   projectSlug: string,
 ): number | null {
   if (config.customBranchRegex) {
@@ -112,7 +122,7 @@ export function extractTaskNumber(
   branchName: string,
   prTitle: string | undefined,
   prBody: string | undefined,
-  config: GitHubConfig,
+  config: BranchMatchConfig,
   projectSlug: string,
 ): number | null {
   const fromBranch = extractTaskNumberFromBranch(

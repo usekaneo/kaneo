@@ -1,12 +1,9 @@
 import { client } from "@kaneo/libs";
+import type { InferRequestType } from "hono";
 
-export type CreateGitlabIntegrationRequest = {
-  baseUrl: string;
-  accessToken?: string;
-  tokenType?: "pat" | "oauth2";
-  namespace: string;
-  projectPath: string;
-};
+export type CreateGitlabIntegrationRequest = InferRequestType<
+  (typeof client)["gitlab-integration"]["project"][":projectId"]["$post"]
+>["json"];
 
 async function createGitlabIntegration(
   projectId: string,

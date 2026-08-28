@@ -2,6 +2,7 @@ import { publishEvent } from "../../../events";
 import {
   createExternalLink,
   findExternalLink,
+  updateExternalLink,
 } from "../../github/services/link-manager";
 import {
   findTaskByNumber,
@@ -95,25 +96,39 @@ export async function handleGitlabMergeRequestOpened(
       mr.iid.toString(),
     );
 
-    if (existingLink) {
-      continue;
-    }
+    const linkMetadata = {
+      state: mr.state,
+      draft: isDraftMergeRequest(mr),
+      merged: mr.state === "merged",
+      branch: branchName,
+      author: payload.user?.username ?? payload.user?.name,
+    };
 
-    await createExternalLink({
-      taskId: task.id,
-      integrationId: integration.id,
-      resourceType: "pull_request",
-      externalId: mr.iid.toString(),
-      url: mr.url,
-      title: mr.title,
-      metadata: {
-        state: mr.state,
-        draft: isDraftMergeRequest(mr),
-        merged: mr.state === "merged",
-        branch: branchName,
-        author: payload.user?.username ?? payload.user?.name,
-      },
-    });
+    // A reopen arrives here with the link already in place from the original
+    // open. Refresh it and still run the transition, or the task would stay
+    // wherever the close left it.
+    if (existingLink) {
+      await updateExternalLink(existingLink.id, {
+        title: mr.title,
+        url: mr.url,
+        metadata: {
+          ...(existingLink.metadata
+            ? (JSON.parse(existingLink.metadata) as Record<string, unknown>)
+            : {}),
+          ...linkMetadata,
+        },
+      });
+    } else {
+      await createExternalLink({
+        taskId: task.id,
+        integrationId: integration.id,
+        resourceType: "pull_request",
+        externalId: mr.iid.toString(),
+        url: mr.url,
+        title: mr.title,
+        metadata: linkMetadata,
+      });
+    }
 
     // A draft merge request is not ready for review, so the board should not
     // claim it is.

@@ -1,5 +1,9 @@
 import type { GitlabConfig } from "../config";
-import { createGitlabClient, type GitlabLabel } from "./gitlab-api";
+import {
+  createGitlabClient,
+  GitlabApiError,
+  type GitlabLabel,
+} from "./gitlab-api";
 
 const labelColors: Record<string, string> = {
   "priority:low": "0EA5E9",
@@ -42,6 +46,11 @@ export async function listAllGitlabLabels(
 /**
  * Adding an unknown label to a GitLab issue creates it with a random colour, so
  * the ones Kaneo owns are created up front with their intended colour.
+ *
+ * A failed enumeration is not a reason to skip creation: GitLab answers a
+ * duplicate label with a conflict, which is exactly the "already there" signal
+ * the listing would have given. Assignment then still runs, so a transient read
+ * failure costs nothing.
  */
 export async function ensureLabelsExistGitlab(
   config: GitlabConfig,
@@ -51,19 +60,16 @@ export async function ensureLabelsExistGitlab(
 
   const client = createGitlabClient(config);
 
-  let existing: GitlabLabel[];
+  let known = new Set<string>();
   try {
-    existing = await listAllGitlabLabels(config);
+    known = new Set((await listAllGitlabLabels(config)).map((l) => l.name));
   } catch (error) {
-    console.error("Failed to list GitLab labels for ensureLabelsExistGitlab", {
+    console.error("Failed to list GitLab labels; creating optimistically", {
       namespace: config.namespace,
       projectPath: config.projectPath,
       error,
     });
-    return;
   }
-
-  const known = new Set(existing.map((label) => label.name));
 
   for (const name of labels) {
     if (known.has(name)) continue;
@@ -71,10 +77,24 @@ export async function ensureLabelsExistGitlab(
       await client.createLabel(name, getLabelColor(name));
       known.add(name);
     } catch (error) {
-      // A concurrent webhook may have created it between the list and now.
+      if (isAlreadyExists(error)) {
+        continue;
+      }
       console.error(`Failed to ensure GitLab label "${name}":`, error);
     }
   }
+}
+
+/** GitLab answers a duplicate label name with 409, older versions with 400. */
+export function isAlreadyExists(error: unknown): boolean {
+  if (!(error instanceof GitlabApiError)) {
+    return false;
+  }
+  return (
+    error.status === 409 ||
+    (error.status === 400 &&
+      /already exists|has already been taken/i.test(error.body ?? ""))
+  );
 }
 
 export async function addLabelsToIssueGitlab(

@@ -2,6 +2,7 @@ import { findExternalLinksByTask } from "../../github/services/link-manager";
 import type { PluginContext, TaskPriorityChangedEvent } from "../../types";
 import type { GitlabConfig } from "../config";
 import { createGitlabClient } from "../utils/gitlab-api";
+import { parseIssueIid } from "../utils/issue-iid";
 import { ensureLabelsExistGitlab } from "../utils/labels";
 
 export async function handleTaskPriorityChanged(
@@ -25,8 +26,12 @@ export async function handleTaskPriorityChanged(
       return;
     }
 
-    const issueIid = Number.parseInt(issueLink.externalId, 10);
-    if (Number.isNaN(issueIid)) {
+    const issueIid = parseIssueIid(issueLink.externalId);
+    if (issueIid === null) {
+      console.warn("Skipping GitLab priority sync for invalid issue number", {
+        issueLinkId: issueLink.id,
+        externalId: issueLink.externalId,
+      });
       return;
     }
 

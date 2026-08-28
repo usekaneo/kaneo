@@ -138,7 +138,7 @@ const createIntegrationRoute = createRoute({
     200: jsonResponse("The stored integration", gitlabIntegrationSchema),
     400: errorResponse("Invalid body, or unknown project"),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No workspace access, missing workspace:manage_settings, or the GitLab token lacks the Developer role on the project",
     ),
     409: errorResponse(
       "The GitLab project is already linked to another Kaneo project",

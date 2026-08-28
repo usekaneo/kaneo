@@ -1,4 +1,3 @@
-import type { GitHubConfig } from "../../github/config";
 import {
   extractTaskNumber,
   extractTaskNumberFromBranch,
@@ -7,10 +6,6 @@ import {
   generateBranchName,
 } from "../../github/utils/branch-matcher";
 import type { GitlabConfig } from "../config";
-
-function asBranchConfig(config: GitlabConfig): GitHubConfig {
-  return config as unknown as GitHubConfig;
-}
 
 export {
   extractTaskNumberFromPRBody,
@@ -23,11 +18,7 @@ export function extractTaskNumberFromBranchGitlab(
   config: GitlabConfig,
   projectSlug: string,
 ): number | null {
-  return extractTaskNumberFromBranch(
-    branchName,
-    asBranchConfig(config),
-    projectSlug,
-  );
+  return extractTaskNumberFromBranch(branchName, config, projectSlug);
 }
 
 export function extractTaskNumberGitlab(
@@ -41,7 +32,7 @@ export function extractTaskNumberGitlab(
     branchName,
     mrTitle,
     mrDescription,
-    asBranchConfig(config),
+    config,
     projectSlug,
   );
 }

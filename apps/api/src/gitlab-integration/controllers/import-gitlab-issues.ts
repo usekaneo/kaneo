@@ -242,21 +242,26 @@ async function importSingleIssue(
       throw new Error("Failed to create task");
     }
 
-    return created;
-  });
+    // Committed with the task: a link written afterwards could fail and leave
+    // an unlinked task, which the next import would import a second time.
+    await createExternalLink(
+      {
+        taskId: created.id,
+        integrationId,
+        resourceType: "issue",
+        externalId: issue.iid.toString(),
+        url: issue.web_url,
+        title: issue.title,
+        metadata: {
+          state: issue.state,
+          createdFrom: "gitlab-import",
+          author: issue.author?.username ?? issue.author?.name,
+        },
+      },
+      tx,
+    );
 
-  await createExternalLink({
-    taskId: createdTask.id,
-    integrationId,
-    resourceType: "issue",
-    externalId: issue.iid.toString(),
-    url: issue.web_url,
-    title: issue.title,
-    metadata: {
-      state: issue.state,
-      createdFrom: "gitlab-import",
-      author: issue.author?.username ?? issue.author?.name,
-    },
+    return created;
   });
 
   await importLabelsForTask(labels, createdTask.id, workspaceId);

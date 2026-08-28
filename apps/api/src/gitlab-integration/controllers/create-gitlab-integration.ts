@@ -12,6 +12,10 @@ import {
   validateGitlabConfig,
 } from "../../plugins/gitlab/config";
 import {
+  hasRequiredAccess,
+  REQUIRED_ACCESS_LABEL,
+} from "../../plugins/gitlab/utils/access-level";
+import {
   createGitlabClient,
   GitlabApiError,
   type GitlabTokenType,
@@ -41,7 +45,15 @@ async function createGitlabIntegration({
     throw new HTTPException(404, { message: "Project not found" });
   }
 
-  const normalizedBase = normalizeGitlabBaseUrl(baseUrl);
+  let normalizedBase: string;
+  try {
+    normalizedBase = normalizeGitlabBaseUrl(baseUrl);
+  } catch (error) {
+    throw new HTTPException(400, {
+      message:
+        error instanceof Error ? error.message : "Invalid GitLab base URL",
+    });
+  }
 
   const existingIntegration = await db.query.integrationTable.findFirst({
     where: and(
@@ -77,14 +89,26 @@ async function createGitlabIntegration({
   try {
     await verifyGitlabToken(normalizedBase, resolvedToken, resolvedTokenType);
 
-    await createGitlabClient({
+    const gitlabProject = await createGitlabClient({
       baseUrl: normalizedBase,
       accessToken: resolvedToken,
       tokenType: resolvedTokenType,
       namespace,
       projectPath,
     }).getProject();
+
+    // Reading the project only proves the token can see it. Kaneo also creates
+    // labels and edits issues, so the level is enforced here rather than
+    // trusting the caller to have run /verify first.
+    if (!hasRequiredAccess(gitlabProject)) {
+      throw new HTTPException(403, {
+        message: `GitLab token needs ${REQUIRED_ACCESS_LABEL} on ${namespace}/${projectPath} to manage issues and labels`,
+      });
+    }
   } catch (error) {
+    if (error instanceof HTTPException) {
+      throw error;
+    }
     if (error instanceof GitlabApiError) {
       throw new HTTPException((error.status || 400) as ContentfulStatusCode, {
         message: error.message,

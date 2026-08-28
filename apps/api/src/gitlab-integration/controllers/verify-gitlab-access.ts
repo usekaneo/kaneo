@@ -1,25 +1,15 @@
 import { HTTPException } from "hono/http-exception";
 import { normalizeGitlabBaseUrl } from "../../plugins/gitlab/config";
 import {
+  hasRequiredAccess,
+  REQUIRED_ACCESS_LABEL,
+} from "../../plugins/gitlab/utils/access-level";
+import {
   createGitlabClient,
   GitlabApiError,
   type GitlabTokenType,
   verifyGitlabToken,
 } from "../../plugins/gitlab/utils/gitlab-api";
-
-// GitLab role levels: Guest 10, Reporter 20, Developer 30, Maintainer 40,
-// Owner 50. Managing project labels needs Developer.
-const REQUIRED_ACCESS_LEVEL = 30;
-
-function highestAccessLevel(permissions: {
-  project_access?: { access_level?: number } | null;
-  group_access?: { access_level?: number } | null;
-}): number {
-  return Math.max(
-    permissions.project_access?.access_level ?? 0,
-    permissions.group_access?.access_level ?? 0,
-  );
-}
 
 async function verifyGitlabAccess({
   baseUrl,
@@ -44,8 +34,22 @@ async function verifyGitlabAccess({
     failureReason: "not_a_gitlab_instance" as const,
   };
 
+  let normalized: string;
   try {
-    const normalized = normalizeGitlabBaseUrl(baseUrl);
+    // z.url() lets through a query, a fragment, and non-http schemes that
+    // normalization rejects; that is bad input, not a server fault.
+    normalized = normalizeGitlabBaseUrl(baseUrl);
+  } catch (error) {
+    return {
+      ...notAGitlabInstance,
+      message:
+        error instanceof Error
+          ? error.message
+          : "The URL is not a valid GitLab base URL.",
+    };
+  }
+
+  try {
     try {
       await verifyGitlabToken(normalized, accessToken, tokenType);
     } catch (error) {
@@ -67,17 +71,14 @@ async function verifyGitlabAccess({
 
     const project = await client.getProject();
 
-    const accessLevel = highestAccessLevel(project.permissions ?? {});
-    const hasRequiredPermissions = accessLevel >= REQUIRED_ACCESS_LEVEL;
+    const hasRequiredPermissions = hasRequiredAccess(project);
 
     return {
       isInstalled: true,
       hasRequiredPermissions,
       projectExists: true,
       projectPrivate: project.visibility !== "public",
-      missingPermissions: hasRequiredPermissions
-        ? []
-        : ["Developer role or higher"],
+      missingPermissions: hasRequiredPermissions ? [] : [REQUIRED_ACCESS_LABEL],
       message: hasRequiredPermissions
         ? "Token can access the project."
         : "Token may not have sufficient permissions to manage issues and labels.",

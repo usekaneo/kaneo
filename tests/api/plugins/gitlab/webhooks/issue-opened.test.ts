@@ -3,9 +3,15 @@ import { handleGitlabIssueOpened } from "../../../../../apps/api/src/plugins/git
 
 const mocks = vi.hoisted(() => {
   const insertedValues: Array<Record<string, unknown>> = [];
+  const state = {
+    lockedProject: [{ id: "project-1" }],
+    linkedRows: [] as unknown[],
+  };
 
   return {
     insertedValues,
+    state,
+    syncIssueLabelsToTask: vi.fn(),
     findAllIntegrationsByGitlabProject: vi.fn(),
     findExternalLink: vi.fn(),
     createExternalLink: vi.fn(),
@@ -23,6 +29,27 @@ const mocks = vi.hoisted(() => {
           return { returning: async () => [{ id: "task-1", number: 7 }] };
         },
       }),
+      // The handler commits the task and its link behind a lock on the project
+      // row, so the fake transaction has to answer both reads.
+      transaction: async (
+        run: (tx: Record<string, unknown>) => Promise<unknown>,
+      ) =>
+        run({
+          select: () => ({
+            from: () => ({
+              where: () => ({
+                for: async () => state.lockedProject,
+                limit: async () => state.linkedRows,
+              }),
+            }),
+          }),
+          insert: () => ({
+            values: (values: Record<string, unknown>) => {
+              insertedValues.push(values);
+              return { returning: async () => [{ id: "task-1", number: 7 }] };
+            },
+          }),
+        }),
       query: {
         columnTable: {
           findFirst: (...args: unknown[]) => mocks.columnFindFirst(...args),
@@ -82,6 +109,11 @@ vi.mock("../../../../../apps/api/src/plugins/gitlab/utils/labels", () => ({
     mocks.addLabelsToIssueGitlab(...args),
 }));
 
+vi.mock("../../../../../apps/api/src/plugins/gitlab/utils/task-labels", () => ({
+  syncIssueLabelsToTask: (...args: unknown[]) =>
+    mocks.syncIssueLabelsToTask(...args),
+}));
+
 const integration = {
   id: "integration-1",
   projectId: "project-1",
@@ -121,6 +153,8 @@ function issueOpenedPayload(labels: Array<{ title: string; color?: string }>) {
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.insertedValues.length = 0;
+  mocks.state.lockedProject = [{ id: "project-1" }];
+  mocks.state.linkedRows = [];
   mocks.findAllIntegrationsByGitlabProject.mockResolvedValue([integration]);
   mocks.findExternalLink.mockResolvedValue(null);
   mocks.claimTaskNumber.mockResolvedValue(7);
@@ -181,6 +215,7 @@ describe("handleGitlabIssueOpened", () => {
           author: "octocat",
         }),
       }),
+      expect.anything(),
     );
   });
 
@@ -191,5 +226,40 @@ describe("handleGitlabIssueOpened", () => {
 
     expect(mocks.insertedValues).toHaveLength(0);
     expect(mocks.createExternalLink).not.toHaveBeenCalled();
+  });
+
+  it("creates nothing when a concurrent delivery linked the issue first", async () => {
+    // The pre-transaction check passes, then the locked re-read finds the link
+    // the other delivery just committed.
+    mocks.state.linkedRows = [{ id: "link-1" }];
+
+    await handleGitlabIssueOpened(issueOpenedPayload([]));
+
+    expect(mocks.createExternalLink).not.toHaveBeenCalled();
+    expect(mocks.publishEvent).not.toHaveBeenCalled();
+  });
+
+  it("commits the external link inside the task transaction", async () => {
+    await handleGitlabIssueOpened(issueOpenedPayload([]));
+
+    expect(mocks.createExternalLink).toHaveBeenCalledWith(
+      expect.objectContaining({ externalId: "42" }),
+      expect.anything(),
+    );
+  });
+
+  it("carries the issue's ordinary labels onto the new task", async () => {
+    await handleGitlabIssueOpened(
+      issueOpenedPayload([
+        { title: "bug", color: "#d9534f" },
+        { title: "priority:high" },
+      ]),
+    );
+
+    expect(mocks.syncIssueLabelsToTask).toHaveBeenCalledWith(
+      "task-1",
+      undefined,
+      [{ title: "bug", color: "#d9534f" }, { title: "priority:high" }],
+    );
   });
 });

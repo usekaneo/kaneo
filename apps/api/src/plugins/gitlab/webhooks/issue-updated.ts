@@ -1,6 +1,6 @@
-import { eq, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import db from "../../../database";
-import { labelTable, taskTable } from "../../../database/schema";
+import { taskTable } from "../../../database/schema";
 import { publishEvent } from "../../../events";
 import {
   findExternalLink,
@@ -13,7 +13,7 @@ import {
 } from "../../github/utils/extract-priority";
 import { formatTaskDescriptionFromIssue } from "../../github/utils/format";
 import { findAllIntegrationsByGitlabProject } from "../services/integration-lookup";
-import { isSystemLabelName } from "../utils/system-labels";
+import { syncIssueLabelsToTask } from "../utils/task-labels";
 import { baseUrlFromProjectWebUrl } from "../utils/webhook-project";
 import type { IssuePayload } from "./issue-opened";
 import { type GitlabWebhookLabel, webhookLabelNames } from "./types";
@@ -41,81 +41,20 @@ type LinkMetadata = {
 
 const ECHO_WINDOW_MS = 2000;
 
-/** True when the incoming value is Kaneo's own edit coming back around. */
+/** What issue-opened gives a task when the issue carries no priority label. */
+const DEFAULT_ISSUE_PRIORITY = "low";
+
+/**
+ * True when the incoming value is Kaneo's own edit coming back around. Identity
+ * is the value itself; the window only bounds how long an identical value is
+ * still assumed to be that echo. A differing value is always a real GitLab
+ * edit, even when it lands inside the window.
+ */
 function isOwnEcho(last: LinkSyncState | undefined, incoming: string): boolean {
-  if (last?.source !== "kaneo") {
+  if (last?.source !== "kaneo" || last.value !== incoming) {
     return false;
   }
-  if (last.value === incoming) {
-    return true;
-  }
   return Date.now() - new Date(last.timestamp).getTime() < ECHO_WINDOW_MS;
-}
-
-function labelColor(label: GitlabWebhookLabel): string {
-  return label.color ? `#${label.color.replace(/^#/, "")}` : "#6B7280";
-}
-
-async function syncGitlabLabelsToTask(
-  taskId: string,
-  workspaceId: string,
-  labels: GitlabWebhookLabel[],
-) {
-  const desired = labels.filter(
-    (label) => label.title && !isSystemLabelName(label.title),
-  );
-  const desiredNames = new Set(desired.map((label) => label.title as string));
-
-  const existingRows = await db.query.labelTable.findMany({
-    where: eq(labelTable.taskId, taskId),
-  });
-
-  const toInsert = desired
-    .filter((label) => !existingRows.some((row) => row.name === label.title))
-    .map((label) => ({
-      name: label.title as string,
-      color: labelColor(label),
-      taskId,
-      workspaceId,
-    }));
-
-  const recolor = new Map<string, string[]>();
-  for (const label of desired) {
-    const row = existingRows.find((r) => r.name === label.title);
-    if (!row) continue;
-    const want = labelColor(label);
-    const have = row.color ? `#${row.color.replace(/^#/, "")}` : "#6B7280";
-    if (have === want) continue;
-    const ids = recolor.get(want) ?? [];
-    ids.push(row.id);
-    recolor.set(want, ids);
-  }
-
-  for (const [color, ids] of recolor) {
-    await db
-      .update(labelTable)
-      .set({ color })
-      .where(inArray(labelTable.id, ids));
-  }
-
-  if (toInsert.length > 0) {
-    await db
-      .insert(labelTable)
-      .values(toInsert)
-      .onConflictDoNothing({
-        target: [labelTable.taskId, labelTable.name],
-      });
-  }
-
-  const toDelete = existingRows
-    .filter(
-      (row) => !desiredNames.has(row.name) && !isSystemLabelName(row.name),
-    )
-    .map((row) => row.id);
-
-  if (toDelete.length > 0) {
-    await db.delete(labelTable).where(inArray(labelTable.id, toDelete));
-  }
 }
 
 export async function handleGitlabIssueUpdated(
@@ -206,9 +145,14 @@ export async function handleGitlabIssueUpdated(
         const current = changes?.labels?.current ?? payload.labels ?? [];
         const names = webhookLabelNames(current);
 
+        // `changes.labels.current` is the whole set, so a missing priority:
+        // label means it was removed, not absent from the event. Falling back
+        // matches what a freshly opened issue with no priority label gets.
         const priority = extractIssuePriority(names);
         if (priority) {
           updateData.priority = priority;
+        } else if (task.priority !== DEFAULT_ISSUE_PRIORITY) {
+          updateData.priority = DEFAULT_ISSUE_PRIORITY;
         }
 
         const status = extractIssueStatus(names);
@@ -234,13 +178,11 @@ export async function handleGitlabIssueUpdated(
           }
         }
 
-        if (task.project?.workspaceId) {
-          await syncGitlabLabelsToTask(
-            task.id,
-            task.project.workspaceId,
-            current,
-          );
-        }
+        await syncIssueLabelsToTask(
+          task.id,
+          task.project?.workspaceId,
+          current,
+        );
       }
 
       if (Object.keys(updateData).length > 0) {

@@ -5,6 +5,7 @@ import {
 import type { PluginContext, TaskStatusChangedEvent } from "../../types";
 import type { GitlabConfig } from "../config";
 import { createGitlabClient } from "../utils/gitlab-api";
+import { parseIssueIid } from "../utils/issue-iid";
 import { ensureLabelsExistGitlab } from "../utils/labels";
 
 export async function handleTaskStatusChanged(
@@ -28,8 +29,12 @@ export async function handleTaskStatusChanged(
       return;
     }
 
-    const issueIid = Number.parseInt(issueLink.externalId, 10);
-    if (Number.isNaN(issueIid)) {
+    const issueIid = parseIssueIid(issueLink.externalId);
+    if (issueIid === null) {
+      console.warn("Skipping GitLab status sync for invalid issue number", {
+        issueLinkId: issueLink.id,
+        externalId: issueLink.externalId,
+      });
       return;
     }
 

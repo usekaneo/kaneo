@@ -1329,7 +1329,8 @@
 				"verifyError": "Failed to verify GitLab access",
 				"verifyFirst": "Verify access failed. Check URL, token, and project",
 				"verifyOk": "GitLab token can access this project",
-				"verifyWarning": "Check token permissions or project access"
+				"verifyWarning": "Check token permissions or project access",
+				"importedWithErrors": "Import finished, but {{errors}} item(s) could not be imported"
 			},
 			"tokenHint": "Token with the api scope for the target project",
 			"tokenLabel": "Access token",
@@ -1354,7 +1355,10 @@
 			"webhookHint": "In your GitLab project, add a webhook with this URL and secret token. Enable push, issues, merge request, and comment events.",
 			"webhookSecretLabel": "Secret token (must match the webhook secret token in GitLab)",
 			"webhookShow": "Show",
-			"webhookTitle": "Webhook"
+			"webhookTitle": "Webhook",
+			"loadProjectsError": "Could not load projects",
+			"noProjectsFound": "No projects match your search",
+			"openProjectInGitlab": "Open {{project}} in GitLab"
 		}
 	},
 	"navigation": {

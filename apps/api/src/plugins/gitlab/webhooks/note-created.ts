@@ -2,6 +2,7 @@ import db from "../../../database";
 import { activityTable } from "../../../database/schema";
 import { findExternalLink } from "../../github/services/link-manager";
 import { findAllIntegrationsByGitlabProject } from "../services/integration-lookup";
+import { isOutboundNoteId } from "../utils/outbound-notes";
 import { baseUrlFromProjectWebUrl } from "../utils/webhook-project";
 import type { GitlabWebhookProject, GitlabWebhookUser } from "./types";
 
@@ -58,6 +59,12 @@ export async function handleGitlabNoteCreated(
     );
 
     if (!existingLink) {
+      continue;
+    }
+
+    // A note Kaneo posted itself comes back through this webhook authored by
+    // the token's own user, which the [bot] check cannot catch.
+    if (isOutboundNoteId(existingLink.metadata, note.id)) {
       continue;
     }
 

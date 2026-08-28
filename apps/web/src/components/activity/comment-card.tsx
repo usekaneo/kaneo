@@ -86,7 +86,12 @@ export default function CommentCard({
   const queryClient = useQueryClient();
 
   const canEdit = currentUser?.id === user?.id;
-  const forge = FORGES[externalSource ?? ""] ?? null;
+  // A stored source of "toString" or "constructor" would otherwise resolve to
+  // an inherited Object property and render an undefined icon.
+  const forge =
+    externalSource && Object.hasOwn(FORGES, externalSource)
+      ? FORGES[externalSource]
+      : null;
   const isFromGitHub = externalSource === "github";
   const githubProfileUrl =
     isFromGitHub && user?.name ? `https://github.com/${user.name}` : null;

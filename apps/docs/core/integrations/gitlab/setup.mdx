@@ -47,13 +47,13 @@ GitLab does not sign webhook bodies. It sends back the **secret token** you conf
 
 7. Save, then use **Test → Push events** to confirm a `200` response from Kaneo.
 
-**Direct URL pattern** (replace host and full project path):
+**Shortcut to the GitLab webhook settings page** — this is where you add the hook, not a value to paste into it:
 
 `https://<your-gitlab-host>/<namespace>/<project>/-/hooks`
 
 Example: `https://gitlab.com/acme/my-app/-/hooks`
 
-The Kaneo webhook URL includes your integration id, for example:
+The **URL** you paste into that page is the Kaneo webhook URL, which includes your integration id:
 
 `https://your-kaneo-host/api/gitlab-integration/webhook/<integrationId>`
 

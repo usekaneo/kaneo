@@ -5,6 +5,7 @@ import {
 import type { PluginContext, TaskTitleChangedEvent } from "../../types";
 import type { GitlabConfig } from "../config";
 import { createGitlabClient } from "../utils/gitlab-api";
+import { parseIssueIid } from "../utils/issue-iid";
 
 type LinkSyncState = {
   timestamp: string;
@@ -57,19 +58,18 @@ export async function handleTaskTitleChanged(
     }
 
     const lastTitleSync = metadata.lastSync?.title;
-    if (lastTitleSync?.source === "gitlab") {
-      if (lastTitleSync.value === event.newTitle) {
-        return;
-      }
-      const timeSinceLastSync =
-        Date.now() - new Date(lastTitleSync.timestamp).getTime();
-      if (timeSinceLastSync < 2000) {
-        return;
-      }
+    // Only an identical value is the echo of what GitLab just sent us. A
+    // different value is a genuine Kaneo edit and must still go out.
+    if (
+      lastTitleSync?.source === "gitlab" &&
+      lastTitleSync.value === event.newTitle &&
+      Date.now() - new Date(lastTitleSync.timestamp).getTime() < 2000
+    ) {
+      return;
     }
 
-    const issueIid = Number.parseInt(issueLink.externalId, 10);
-    if (Number.isNaN(issueIid)) {
+    const issueIid = parseIssueIid(issueLink.externalId);
+    if (issueIid === null) {
       console.warn("Skipping GitLab title sync for invalid issue number", {
         issueLinkId: issueLink.id,
         externalId: issueLink.externalId,

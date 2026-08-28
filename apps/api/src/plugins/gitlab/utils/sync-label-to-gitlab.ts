@@ -3,7 +3,8 @@ import db from "../../../database";
 import { externalLinkTable } from "../../../database/schema";
 import type { GitlabConfig } from "../config";
 import { createGitlabClient } from "./gitlab-api";
-import { listAllGitlabLabels } from "./labels";
+import { parseIssueIid } from "./issue-iid";
+import { isAlreadyExists, listAllGitlabLabels } from "./labels";
 
 const namedColorToHex: Record<string, string> = {
   red: "EF4444",
@@ -53,9 +54,14 @@ async function getGitlabIssueContext(taskId: string) {
     },
   });
 
+  // isActive has to be checked here: these helpers are called straight from the
+  // label controllers, bypassing the plugin registry's active-integration
+  // filter, so a disabled integration would otherwise keep writing to GitLab.
   const externalLink = externalLinks.find(
     (link) =>
-      link.resourceType === "issue" && link.integration?.type === "gitlab",
+      link.resourceType === "issue" &&
+      link.integration?.type === "gitlab" &&
+      link.integration.isActive === true,
   );
 
   if (!externalLink?.integration) {
@@ -73,8 +79,8 @@ async function getGitlabIssueContext(taskId: string) {
     return null;
   }
 
-  const issueIid = Number.parseInt(externalLink.externalId, 10);
-  if (Number.isNaN(issueIid)) {
+  const issueIid = parseIssueIid(externalLink.externalId);
+  if (issueIid === null) {
     console.warn("Invalid GitLab issue externalId for label sync", {
       externalLinkId: externalLink.id,
       externalId: externalLink.externalId,
@@ -100,13 +106,18 @@ export async function syncLabelToGitlab(
 
   const { client, config, issueIid } = ctx;
 
+  // Creating with the intended colour is best-effort; a conflict just means it
+  // is already there, and any other failure still leaves assignment worth a try
+  // since GitLab will create the label itself.
   try {
     const labels = await listAllGitlabLabels(config);
     if (!labels.some((label) => label.name === labelName)) {
       await client.createLabel(labelName, toHexColor(labelColor));
     }
   } catch (error) {
-    console.error(`Failed to create label "${labelName}" in GitLab:`, error);
+    if (!isAlreadyExists(error)) {
+      console.error(`Failed to create label "${labelName}" in GitLab:`, error);
+    }
   }
 
   try {

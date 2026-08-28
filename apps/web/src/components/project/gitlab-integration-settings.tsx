@@ -193,6 +193,10 @@ export function GitlabIntegrationSettings({
     resetIntegrationForm();
   }, [resetIntegrationForm]);
 
+  // Auto-verify debounces but does not serialise, so a slow earlier request can
+  // resolve after a newer one. Only the latest request may write the result.
+  const latestVerifyRequest = React.useRef(0);
+
   const runVerify = React.useCallback(
     async (data: GitlabIntegrationFormValues, showToast = true) => {
       const token = data.accessToken.trim();
@@ -208,6 +212,9 @@ export function GitlabIntegrationSettings({
         setVerificationResult(null);
         return;
       }
+      const requestId = latestVerifyRequest.current + 1;
+      latestVerifyRequest.current = requestId;
+
       try {
         const snapshot = createVerificationSnapshot(data);
         const result = await verifyAccess({
@@ -218,6 +225,9 @@ export function GitlabIntegrationSettings({
           namespace: snapshot.namespace,
           projectPath: snapshot.projectPath,
         });
+        if (requestId !== latestVerifyRequest.current) {
+          return;
+        }
         setVerificationResult({ result, verified: snapshot });
         if (showToast) {
           if (result.isInstalled && result.hasRequiredPermissions) {
@@ -235,6 +245,9 @@ export function GitlabIntegrationSettings({
           }
         }
       } catch (error) {
+        if (requestId !== latestVerifyRequest.current) {
+          return;
+        }
         if (showToast) {
           toast.error(
             error instanceof Error
@@ -377,7 +390,17 @@ export function GitlabIntegrationSettings({
 
   const handleImportIssues = async () => {
     try {
-      await importIssues(projectId);
+      const result = await importIssues(projectId);
+      // The route answers 200 with a per-item error list, so a run where every
+      // issue failed still resolves here.
+      if (result.errors && result.errors.length > 0) {
+        toast.warning(
+          t("settings:gitlabIntegration.toast.importedWithErrors", {
+            errors: result.errors.length,
+          }),
+        );
+        return;
+      }
       toast.success(t("settings:gitlabIntegration.toast.issuesImported"));
     } catch (error) {
       toast.error(

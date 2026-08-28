@@ -1,6 +1,11 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
-import { columnTable, projectTable, taskTable } from "../../../database/schema";
+import {
+  columnTable,
+  externalLinkTable,
+  projectTable,
+  taskTable,
+} from "../../../database/schema";
 import { publishEvent } from "../../../events";
 import { claimTaskNumber } from "../../../task/controllers/claim-task-numbers";
 import {
@@ -17,6 +22,7 @@ import { findAllIntegrationsByGitlabProject } from "../services/integration-look
 import { createGitlabClient } from "../utils/gitlab-api";
 import { addLabelsToIssueGitlab } from "../utils/labels";
 import { resolveTargetStatus } from "../utils/resolve-column";
+import { syncIssueLabelsToTask } from "../utils/task-labels";
 import { baseUrlFromProjectWebUrl } from "../utils/webhook-project";
 import {
   type GitlabWebhookLabel,
@@ -116,31 +122,75 @@ export async function handleGitlabIssueOpened(
       number: nextTaskNumber,
     };
 
-    const [createdTask] = await db
-      .insert(taskTable)
-      .values(taskValues)
-      .returning();
+    // The task and its link commit together, behind a lock on the project row.
+    // Two concurrent deliveries of the same issue would otherwise both pass the
+    // check above and create a task each; and a link insert failing after the
+    // task was written would leave an unlinked task that the next delivery
+    // duplicates.
+    const createdTask = await db.transaction(async (tx) => {
+      const [lockedProject] = await tx
+        .select({ id: projectTable.id })
+        .from(projectTable)
+        .where(eq(projectTable.id, projectId))
+        .for("update");
+
+      if (!lockedProject) {
+        return null;
+      }
+
+      const [alreadyLinked] = await tx
+        .select({ id: externalLinkTable.id })
+        .from(externalLinkTable)
+        .where(
+          and(
+            eq(externalLinkTable.integrationId, integration.id),
+            eq(externalLinkTable.resourceType, "issue"),
+            eq(externalLinkTable.externalId, issue.iid.toString()),
+          ),
+        )
+        .limit(1);
+
+      if (alreadyLinked) {
+        return null;
+      }
+
+      const [task] = await tx.insert(taskTable).values(taskValues).returning();
+
+      if (!task) {
+        throw new Error("Failed to create task from GitLab issue");
+      }
+
+      // Must run before task.created: the plugin's onTaskCreated uses link
+      // existence to skip self-originated tasks, else it duplicates the issue.
+      await createExternalLink(
+        {
+          taskId: task.id,
+          integrationId: integration.id,
+          resourceType: "issue",
+          externalId: issue.iid.toString(),
+          url: issue.url,
+          title: issue.title,
+          metadata: {
+            state: "opened",
+            createdFrom: "gitlab",
+            author: payload.user?.username ?? payload.user?.name,
+          },
+        },
+        tx,
+      );
+
+      return task;
+    });
 
     if (!createdTask) {
-      console.error("Failed to create task from GitLab issue");
       continue;
     }
 
-    // Must run before task.created: the plugin's onTaskCreated uses link
-    // existence to skip self-originated tasks, else it duplicates the issue.
-    await createExternalLink({
-      taskId: createdTask.id,
-      integrationId: integration.id,
-      resourceType: "issue",
-      externalId: issue.iid.toString(),
-      url: issue.url,
-      title: issue.title,
-      metadata: {
-        state: "opened",
-        createdFrom: "gitlab",
-        author: payload.user?.username ?? payload.user?.name,
-      },
-    });
+    await syncIssueLabelsToTask(
+      createdTask.id,
+      integration.project?.workspaceId,
+      payload.labels,
+    );
 
     await publishEvent("task.created", {
       ...createdTask,

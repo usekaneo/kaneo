@@ -21,7 +21,7 @@ export const verifyGitlabBody = z.object({
 });
 
 export const createGitlabBody = z.object({
-  baseUrl: z.string().min(1),
+  baseUrl: z.url(),
   accessToken: z.string().optional().openapi({
     description: "Omit to keep the token already stored for this project.",
   }),
