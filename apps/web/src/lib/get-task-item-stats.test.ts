@@ -31,9 +31,7 @@ describe("getTaskItemStats", () => {
 
   it("does not count task items in blockquoted fenced code blocks", () => {
     expect(
-      getTaskItemStats(
-        "> ```md\n> - [ ] Example\n> ```\n> - [x] Real item",
-      ),
+      getTaskItemStats("> ```md\n> - [ ] Example\n> ```\n> - [x] Real item"),
     ).toEqual({ total: 1, completed: 1 });
   });
 
