@@ -1,8 +1,12 @@
-import { Hono } from "hono";
-import { describeRoute, resolver, validator } from "hono-openapi";
-import * as v from "valibot";
 import { requireEntitlement } from "../billing/require-entitlement-middleware";
-import { projectSchema } from "../schemas";
+import {
+  apiRouter,
+  type BaseVariables,
+  createRoute,
+  errorResponse,
+  jsonResponse,
+  z,
+} from "../openapi";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import archiveProjectCtrl from "./controllers/archive-project";
@@ -13,263 +17,268 @@ import getProjectsCtrl from "./controllers/get-projects";
 import reorderProjectsCtrl from "./controllers/reorder-projects";
 import unarchiveProjectCtrl from "./controllers/unarchive-project";
 import updateProjectCtrl from "./controllers/update-project";
+import { projectListSchema, projectSchema } from "./response";
+import {
+  createProjectBody,
+  listProjectsQuery,
+  projectParam,
+  reorderProjectsBody,
+  updateProjectBody,
+  workspaceIdQuery,
+} from "./schema";
 
-const project = new Hono<{
-  Variables: {
-    userId: string;
-    workspaceId: string;
-  };
-}>()
-  .get(
-    "/",
-    describeRoute({
-      operationId: "listProjects",
-      tags: ["Projects"],
-      description: "Get all projects in a workspace",
-      responses: {
-        200: {
-          description: "List of projects with statistics",
-          content: {
-            "application/json": { schema: resolver(v.array(projectSchema)) },
-          },
-        },
-      },
-    }),
-    validator(
-      "query",
-      v.object({
-        workspaceId: v.string(),
-        includeArchived: v.optional(v.string()),
-      }),
-    ),
-    workspaceAccess.fromQuery(),
-    async (c) => {
-      const workspaceId = c.get("workspaceId");
-      const { includeArchived } = c.req.valid("query");
-      const projects = await getProjectsCtrl(
-        workspaceId,
-        includeArchived === "true",
-      );
-      return c.json(projects);
-    },
-  )
-  .post(
-    "/",
-    describeRoute({
-      operationId: "createProject",
-      tags: ["Projects"],
-      description: "Create a new project in a workspace",
-      responses: {
-        200: {
-          description: "Project created successfully",
-          content: {
-            "application/json": { schema: resolver(projectSchema) },
-          },
-        },
-      },
-    }),
-    validator(
-      "json",
-      v.object({
-        name: v.string(),
-        workspaceId: v.string(),
-        icon: v.string(),
-        slug: v.string(),
-      }),
-    ),
+const listProjectsRoute = createRoute({
+  method: "get",
+  operationId: "listProjects",
+  path: "/",
+  tags: ["Projects"],
+  summary: "List projects",
+  description:
+    "List a workspace's projects in sidebar order, each with rollup task statistics. Archived projects are excluded unless includeArchived is set.",
+  middleware: [workspaceAccess.fromQuery()] as const,
+  request: { query: listProjectsQuery },
+  responses: {
+    200: jsonResponse("List of projects", projectListSchema),
+    400: errorResponse("Workspace ID could not be determined"),
+    403: errorResponse("No access to the workspace"),
+  },
+});
+
+const createProjectRoute = createRoute({
+  method: "post",
+  operationId: "createProject",
+  path: "/",
+  tags: ["Projects"],
+  summary: "Create project",
+  description:
+    "Create a project in a workspace. The slug becomes the prefix of its task identifiers.",
+  middleware: [
     workspaceAccess.fromBody(),
     requireWorkspacePermission({ project: ["create"] }),
     requireEntitlement,
-    async (c) => {
-      const { name, icon, slug } = c.req.valid("json");
-      const workspaceId = c.get("workspaceId");
-      const newProject = await createProjectCtrl(workspaceId, name, icon, slug);
-      return c.json(newProject);
+  ] as const,
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: createProjectBody } },
     },
-  )
-  .get(
-    "/:id",
-    describeRoute({
-      operationId: "getProject",
-      tags: ["Projects"],
-      description: "Get a specific project by ID",
-      responses: {
-        200: {
-          description: "Project details",
-          content: {
-            "application/json": { schema: resolver(projectSchema) },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ id: v.string() })),
-    workspaceAccess.fromProject(),
-    async (c) => {
-      const { id } = c.req.valid("param");
-      const workspaceId = c.get("workspaceId");
-      const projectData = await getProjectCtrl(id, workspaceId);
-      return c.json(projectData);
-    },
-  )
-  .put(
-    "/reorder",
-    describeRoute({
-      operationId: "reorderProjects",
-      tags: ["Projects"],
-      description: "Reorder projects in a workspace",
-      responses: {
-        200: {
-          description: "Projects reordered successfully",
-          content: {
-            "application/json": { schema: resolver(v.array(projectSchema)) },
-          },
-        },
-      },
-    }),
-    validator("query", v.object({ workspaceId: v.string() })),
-    validator(
-      "json",
-      v.object({
-        // Positions express a relative order only; the controller renumbers
-        // the workspace to 0..n-1, so the values just have to be sane.
-        projects: v.pipe(
-          v.array(
-            v.object({
-              id: v.string(),
-              position: v.pipe(v.number(), v.integer(), v.minValue(0)),
-            }),
-          ),
-          v.minLength(1),
-        ),
-      }),
+  },
+  responses: {
+    200: jsonResponse("The created project", projectSchema),
+    400: errorResponse("Invalid body, or workspace ID could not be determined"),
+    403: errorResponse(
+      "No workspace access, or missing project:create permission",
     ),
+  },
+});
+
+const getProjectRoute = createRoute({
+  method: "get",
+  operationId: "getProject",
+  path: "/{id}",
+  tags: ["Projects"],
+  summary: "Get project",
+  description: "Get a single project by ID.",
+  middleware: [workspaceAccess.fromProject()] as const,
+  request: { params: projectParam },
+  responses: {
+    200: jsonResponse("Project details", projectSchema),
+    400: errorResponse(
+      "Unknown project, or its workspace could not be determined",
+    ),
+    403: errorResponse("No access to the project's workspace"),
+  },
+});
+
+const reorderProjectsRoute = createRoute({
+  method: "put",
+  operationId: "reorderProjects",
+  path: "/reorder",
+  tags: ["Projects"],
+  summary: "Reorder projects",
+  description:
+    "Set the sidebar order of a workspace's projects. The given positions express relative order only -- the workspace is renumbered to 0..n-1.",
+  middleware: [
     workspaceAccess.fromQuery(),
     requireWorkspacePermission({ project: ["update"] }),
-    async (c) => {
-      const workspaceId = c.get("workspaceId");
-      const { projects } = c.req.valid("json");
-      const reordered = await reorderProjectsCtrl(workspaceId, projects);
-      return c.json(reordered);
+  ] as const,
+  request: {
+    query: workspaceIdQuery,
+    body: {
+      required: true,
+      content: { "application/json": { schema: reorderProjectsBody } },
     },
-  )
-  .put(
-    "/:id",
-    describeRoute({
-      operationId: "updateProject",
-      tags: ["Projects"],
-      description: "Update an existing project",
-      responses: {
-        200: {
-          description: "Project updated successfully",
-          content: {
-            "application/json": { schema: resolver(projectSchema) },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ id: v.string() })),
-    validator(
-      "json",
-      v.object({
-        name: v.string(),
-        icon: v.string(),
-        slug: v.string(),
-        description: v.string(),
-        isPublic: v.boolean(),
-      }),
+  },
+  responses: {
+    // Reorder returns the plain project rows, without the list route's
+    // rollup statistics.
+    200: jsonResponse("The reordered projects", z.array(projectSchema)),
+    400: errorResponse("Invalid body, or workspace ID could not be determined"),
+    403: errorResponse(
+      "No workspace access, or missing project:update permission",
     ),
+  },
+});
+
+const updateProjectRoute = createRoute({
+  method: "put",
+  operationId: "updateProject",
+  path: "/{id}",
+  tags: ["Projects"],
+  summary: "Update project",
+  description:
+    "Replace a project's name, icon, slug, description, and visibility.",
+  middleware: [
     workspaceAccess.fromProject(),
     requireWorkspacePermission({ project: ["update"] }),
-    async (c) => {
-      const { id } = c.req.valid("param");
-      const { name, icon, slug, description, isPublic } = c.req.valid("json");
-      const workspaceId = c.get("workspaceId");
-      const updatedProject = await updateProjectCtrl(
-        id,
-        name,
-        icon,
-        slug,
-        description,
-        isPublic,
-        workspaceId,
-      );
-      return c.json(updatedProject);
+  ] as const,
+  request: {
+    params: projectParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: updateProjectBody } },
     },
-  )
-  .delete(
-    "/:id",
-    describeRoute({
-      operationId: "deleteProject",
-      tags: ["Projects"],
-      description: "Delete a project by ID",
-      responses: {
-        200: {
-          description: "Project deleted successfully",
-          content: {
-            "application/json": { schema: resolver(projectSchema) },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ id: v.string() })),
+  },
+  responses: {
+    200: jsonResponse("The updated project", projectSchema),
+    400: errorResponse("Invalid body, or unknown project"),
+    403: errorResponse(
+      "No workspace access, or missing project:update permission",
+    ),
+  },
+});
+
+const deleteProjectRoute = createRoute({
+  method: "delete",
+  operationId: "deleteProject",
+  path: "/{id}",
+  tags: ["Projects"],
+  summary: "Delete project",
+  description:
+    "Permanently delete a project and everything in it. Archive it instead to keep the data.",
+  middleware: [
     workspaceAccess.fromProject(),
     requireWorkspacePermission({ project: ["delete"] }),
-    async (c) => {
-      const { id } = c.req.valid("param");
-      const workspaceId = c.get("workspaceId");
-      const deletedProject = await deleteProjectCtrl(id, workspaceId);
-      return c.json(deletedProject);
-    },
-  )
-  .put(
-    "/:id/archive",
-    describeRoute({
-      operationId: "archiveProject",
-      tags: ["Projects"],
-      description: "Archive a project by ID",
-      responses: {
-        200: {
-          description: "Project archived successfully",
-          content: {
-            "application/json": { schema: resolver(projectSchema) },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ id: v.string() })),
+  ] as const,
+  request: { params: projectParam },
+  responses: {
+    200: jsonResponse("The deleted project", projectSchema),
+    400: errorResponse(
+      "Unknown project, or its workspace could not be determined",
+    ),
+    403: errorResponse(
+      "No workspace access, or missing project:delete permission",
+    ),
+  },
+});
+
+const archiveProjectRoute = createRoute({
+  method: "put",
+  operationId: "archiveProject",
+  path: "/{id}/archive",
+  tags: ["Projects"],
+  summary: "Archive project",
+  description:
+    "Hide a project from the default list without deleting it. Reversible with unarchive.",
+  middleware: [
     workspaceAccess.fromProject(),
     requireWorkspacePermission({ project: ["update"] }),
-    async (c) => {
-      const { id } = c.req.valid("param");
-      const workspaceId = c.get("workspaceId");
-      const archivedProject = await archiveProjectCtrl(id, workspaceId);
-      return c.json(archivedProject);
-    },
-  )
-  .put(
-    "/:id/unarchive",
-    describeRoute({
-      operationId: "unarchiveProject",
-      tags: ["Projects"],
-      description: "Unarchive a project by ID",
-      responses: {
-        200: {
-          description: "Project unarchived successfully",
-          content: {
-            "application/json": { schema: resolver(projectSchema) },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ id: v.string() })),
+  ] as const,
+  request: { params: projectParam },
+  responses: {
+    200: jsonResponse("The archived project", projectSchema),
+    400: errorResponse(
+      "Unknown project, or its workspace could not be determined",
+    ),
+    403: errorResponse(
+      "No workspace access, or missing project:update permission",
+    ),
+  },
+});
+
+const unarchiveProjectRoute = createRoute({
+  method: "put",
+  operationId: "unarchiveProject",
+  path: "/{id}/unarchive",
+  tags: ["Projects"],
+  summary: "Unarchive project",
+  description: "Return an archived project to the default list.",
+  middleware: [
     workspaceAccess.fromProject(),
     requireWorkspacePermission({ project: ["update"] }),
-    async (c) => {
-      const { id } = c.req.valid("param");
-      const workspaceId = c.get("workspaceId");
-      const unarchivedProject = await unarchiveProjectCtrl(id, workspaceId);
-      return c.json(unarchivedProject);
-    },
-  );
+  ] as const,
+  request: { params: projectParam },
+  responses: {
+    200: jsonResponse("The restored project", projectSchema),
+    400: errorResponse(
+      "Unknown project, or its workspace could not be determined",
+    ),
+    403: errorResponse(
+      "No workspace access, or missing project:update permission",
+    ),
+  },
+});
+
+const project = apiRouter<BaseVariables & { workspaceId: string }>()
+  .openapi(listProjectsRoute, async (c) => {
+    const workspaceId = c.get("workspaceId");
+    const { includeArchived } = c.req.valid("query");
+    const projects = await getProjectsCtrl(
+      workspaceId,
+      includeArchived === "true",
+    );
+    return c.json(projects, 200);
+  })
+  .openapi(createProjectRoute, async (c) => {
+    const { name, icon, slug } = c.req.valid("json");
+    const workspaceId = c.get("workspaceId");
+    const newProject = await createProjectCtrl(workspaceId, name, icon, slug);
+    return c.json(newProject, 200);
+  })
+  .openapi(getProjectRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    const workspaceId = c.get("workspaceId");
+    const projectData = await getProjectCtrl(id, workspaceId);
+    return c.json(projectData, 200);
+  })
+  .openapi(reorderProjectsRoute, async (c) => {
+    const workspaceId = c.get("workspaceId");
+    const { projects } = c.req.valid("json");
+    const reordered = await reorderProjectsCtrl(workspaceId, projects);
+    return c.json(reordered, 200);
+  })
+  .openapi(updateProjectRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    const { name, icon, slug, description, isPublic } = c.req.valid("json");
+    const workspaceId = c.get("workspaceId");
+    const updatedProject = await updateProjectCtrl(
+      id,
+      name,
+      icon,
+      slug,
+      description,
+      isPublic,
+      workspaceId,
+    );
+    return c.json(updatedProject, 200);
+  })
+  .openapi(deleteProjectRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    const workspaceId = c.get("workspaceId");
+    const deletedProject = await deleteProjectCtrl(id, workspaceId);
+    return c.json(deletedProject, 200);
+  })
+  .openapi(archiveProjectRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    const workspaceId = c.get("workspaceId");
+    const archivedProject = await archiveProjectCtrl(id, workspaceId);
+    return c.json(archivedProject, 200);
+  })
+  .openapi(unarchiveProjectRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    const workspaceId = c.get("workspaceId");
+    const unarchivedProject = await unarchiveProjectCtrl(id, workspaceId);
+    return c.json(unarchivedProject, 200);
+  });
 
 export default project;

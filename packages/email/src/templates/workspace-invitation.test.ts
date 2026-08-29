@@ -3,6 +3,7 @@ import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 import enUS from "../../../../i18n/en-US.json";
 import frFR from "../../../../i18n/fr-FR.json";
+import jaJP from "../../../../i18n/ja-JP.json";
 import WorkspaceInvitationEmail from "./workspace-invitation";
 
 describe("WorkspaceInvitationEmail", () => {
@@ -21,6 +22,23 @@ describe("WorkspaceInvitationEmail", () => {
     expect(html).toContain("Rejoindre Équipe Produit");
     expect(html).toContain("Accepter l’invitation");
     expect(html).toContain("Camille (camille@example.com)");
+  });
+
+  it("renders the invitation in Japanese for a Japanese locale", async () => {
+    const html = await render(
+      createElement(WorkspaceInvitationEmail, {
+        workspaceName: "プロダクト",
+        inviterName: "アリス",
+        inviterEmail: "alice@example.com",
+        invitationLink: "https://kaneo.example/invite/abc",
+        to: "invite@example.com",
+        copy: jaJP.invitations.email,
+      }),
+    );
+
+    expect(html).toContain("「プロダクト」に参加");
+    expect(html).toContain("招待を承諾");
+    expect(html).toContain("アリス (alice@example.com)");
   });
 });
 

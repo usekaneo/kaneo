@@ -206,6 +206,9 @@
 						"title": {
 							"type": "string"
 						},
+						"description": {
+							"type": "string"
+						},
 						"troubleshooting": {
 							"type": "string"
 						},
@@ -217,14 +220,98 @@
 						},
 						"refreshPage": {
 							"type": "string"
+						},
+						"messages": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"cors": {
+									"type": "string"
+								},
+								"network": {
+									"type": "string"
+								},
+								"auth": {
+									"type": "string"
+								},
+								"server": {
+									"type": "string"
+								},
+								"unknown": {
+									"type": "string"
+								}
+							},
+							"required": ["cors", "network", "auth", "server", "unknown"]
+						},
+						"troubleshootingSteps": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"cors": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"checkApiRunning": {
+											"type": "string"
+										},
+										"checkApiUrl": {
+											"type": "string"
+										},
+										"verifyCorsOrigins": {
+											"type": "string"
+										},
+										"checkProtocol": {
+											"type": "string"
+										},
+										"checkAccessibility": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"checkApiRunning",
+										"checkApiUrl",
+										"verifyCorsOrigins",
+										"checkProtocol",
+										"checkAccessibility"
+									]
+								},
+								"network": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"checkConnection": {
+											"type": "string"
+										},
+										"verifyApiRunning": {
+											"type": "string"
+										},
+										"tryRefresh": {
+											"type": "string"
+										},
+										"checkFirewall": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"checkConnection",
+										"verifyApiRunning",
+										"tryRefresh",
+										"checkFirewall"
+									]
+								}
+							},
+							"required": ["cors", "network"]
 						}
 					},
 					"required": [
 						"title",
+						"description",
 						"troubleshooting",
 						"tryAgain",
 						"viewDeploymentGuide",
-						"refreshPage"
+						"refreshPage",
+						"messages",
+						"troubleshootingSteps"
 					]
 				},
 				"formats": {
@@ -2483,6 +2570,18 @@
 						"permissionCount_one": {
 							"type": "string"
 						},
+						"permissionCount_zero": {
+							"type": "string"
+						},
+						"permissionCount_two": {
+							"type": "string"
+						},
+						"permissionCount_few": {
+							"type": "string"
+						},
+						"permissionCount_many": {
+							"type": "string"
+						},
 						"permissionCount_other": {
 							"type": "string"
 						},
@@ -2896,8 +2995,6 @@
 						"emptyTitle",
 						"emptyDescription",
 						"defaultBadge",
-						"permissionCount_one",
-						"permissionCount_other",
 						"nameLabel",
 						"nameHint",
 						"namePlaceholder",
@@ -4713,10 +4810,64 @@
 						"relativeMinutesAgo": {
 							"type": "string"
 						},
+						"relativeMinutesAgo_zero": {
+							"type": "string"
+						},
+						"relativeMinutesAgo_one": {
+							"type": "string"
+						},
+						"relativeMinutesAgo_two": {
+							"type": "string"
+						},
+						"relativeMinutesAgo_few": {
+							"type": "string"
+						},
+						"relativeMinutesAgo_many": {
+							"type": "string"
+						},
+						"relativeMinutesAgo_other": {
+							"type": "string"
+						},
 						"relativeHoursAgo": {
 							"type": "string"
 						},
+						"relativeHoursAgo_zero": {
+							"type": "string"
+						},
+						"relativeHoursAgo_one": {
+							"type": "string"
+						},
+						"relativeHoursAgo_two": {
+							"type": "string"
+						},
+						"relativeHoursAgo_few": {
+							"type": "string"
+						},
+						"relativeHoursAgo_many": {
+							"type": "string"
+						},
+						"relativeHoursAgo_other": {
+							"type": "string"
+						},
 						"relativeDaysAgo": {
+							"type": "string"
+						},
+						"relativeDaysAgo_zero": {
+							"type": "string"
+						},
+						"relativeDaysAgo_one": {
+							"type": "string"
+						},
+						"relativeDaysAgo_two": {
+							"type": "string"
+						},
+						"relativeDaysAgo_few": {
+							"type": "string"
+						},
+						"relativeDaysAgo_many": {
+							"type": "string"
+						},
+						"relativeDaysAgo_other": {
 							"type": "string"
 						}
 					},
@@ -4734,10 +4885,7 @@
 						"footerSummary",
 						"manageInstallations",
 						"updatedPrefix",
-						"relativeJustNow",
-						"relativeMinutesAgo",
-						"relativeHoursAgo",
-						"relativeDaysAgo"
+						"relativeJustNow"
 					]
 				},
 				"tasksImportExport": {
@@ -4780,7 +4928,43 @@
 						"importSuccess": {
 							"type": "string"
 						},
+						"importSuccess_zero": {
+							"type": "string"
+						},
+						"importSuccess_one": {
+							"type": "string"
+						},
+						"importSuccess_two": {
+							"type": "string"
+						},
+						"importSuccess_few": {
+							"type": "string"
+						},
+						"importSuccess_many": {
+							"type": "string"
+						},
+						"importSuccess_other": {
+							"type": "string"
+						},
 						"importPartialError": {
+							"type": "string"
+						},
+						"importPartialError_zero": {
+							"type": "string"
+						},
+						"importPartialError_one": {
+							"type": "string"
+						},
+						"importPartialError_two": {
+							"type": "string"
+						},
+						"importPartialError_few": {
+							"type": "string"
+						},
+						"importPartialError_many": {
+							"type": "string"
+						},
+						"importPartialError_other": {
 							"type": "string"
 						},
 						"importError": {
@@ -4808,8 +4992,6 @@
 						"exportSuccess",
 						"exportError",
 						"importing",
-						"importSuccess",
-						"importPartialError",
 						"importError",
 						"invalidFormat",
 						"noFileDropped",
@@ -5418,6 +5600,18 @@
 				"newCount_one": {
 					"type": "string"
 				},
+				"newCount_zero": {
+					"type": "string"
+				},
+				"newCount_two": {
+					"type": "string"
+				},
+				"newCount_few": {
+					"type": "string"
+				},
+				"newCount_many": {
+					"type": "string"
+				},
 				"newCount_other": {
 					"type": "string"
 				},
@@ -5453,10 +5647,34 @@
 						"minutes_one": {
 							"type": "string"
 						},
+						"minutes_zero": {
+							"type": "string"
+						},
+						"minutes_two": {
+							"type": "string"
+						},
+						"minutes_few": {
+							"type": "string"
+						},
+						"minutes_many": {
+							"type": "string"
+						},
 						"minutes_other": {
 							"type": "string"
 						},
 						"hours_one": {
+							"type": "string"
+						},
+						"hours_zero": {
+							"type": "string"
+						},
+						"hours_two": {
+							"type": "string"
+						},
+						"hours_few": {
+							"type": "string"
+						},
+						"hours_many": {
 							"type": "string"
 						},
 						"hours_other": {
@@ -5465,18 +5683,23 @@
 						"days_one": {
 							"type": "string"
 						},
+						"days_zero": {
+							"type": "string"
+						},
+						"days_two": {
+							"type": "string"
+						},
+						"days_few": {
+							"type": "string"
+						},
+						"days_many": {
+							"type": "string"
+						},
 						"days_other": {
 							"type": "string"
 						}
 					},
-					"required": [
-						"minutes_one",
-						"minutes_other",
-						"hours_one",
-						"hours_other",
-						"days_one",
-						"days_other"
-					]
+					"required": []
 				},
 				"events": {
 					"type": "object",
@@ -5618,8 +5841,6 @@
 			},
 			"required": [
 				"title",
-				"newCount_one",
-				"newCount_other",
 				"emptyTitle",
 				"emptySubtitle",
 				"clearAll",
@@ -7005,7 +7226,43 @@
 						"moveAllConfirm": {
 							"type": "string"
 						},
+						"moveAllConfirm_zero": {
+							"type": "string"
+						},
+						"moveAllConfirm_one": {
+							"type": "string"
+						},
+						"moveAllConfirm_two": {
+							"type": "string"
+						},
+						"moveAllConfirm_few": {
+							"type": "string"
+						},
+						"moveAllConfirm_many": {
+							"type": "string"
+						},
+						"moveAllConfirm_other": {
+							"type": "string"
+						},
 						"moveAllSuccess": {
+							"type": "string"
+						},
+						"moveAllSuccess_zero": {
+							"type": "string"
+						},
+						"moveAllSuccess_one": {
+							"type": "string"
+						},
+						"moveAllSuccess_two": {
+							"type": "string"
+						},
+						"moveAllSuccess_few": {
+							"type": "string"
+						},
+						"moveAllSuccess_many": {
+							"type": "string"
+						},
+						"moveAllSuccess_other": {
 							"type": "string"
 						},
 						"plan": {
@@ -7082,8 +7339,6 @@
 					"required": [
 						"pageTitle",
 						"noTasksToMove",
-						"moveAllConfirm",
-						"moveAllSuccess",
 						"plan",
 						"moveAllTooltip",
 						"moveAll",
@@ -7181,6 +7436,24 @@
 						"selectedCount": {
 							"type": "string"
 						},
+						"selectedCount_zero": {
+							"type": "string"
+						},
+						"selectedCount_one": {
+							"type": "string"
+						},
+						"selectedCount_two": {
+							"type": "string"
+						},
+						"selectedCount_few": {
+							"type": "string"
+						},
+						"selectedCount_many": {
+							"type": "string"
+						},
+						"selectedCount_other": {
+							"type": "string"
+						},
 						"subjects": {
 							"type": "object",
 							"additionalProperties": false,
@@ -7230,7 +7503,6 @@
 						"allAssignees",
 						"allDueDates",
 						"allLabels",
-						"selectedCount",
 						"subjects",
 						"operators"
 					]
@@ -7263,6 +7535,24 @@
 						"moreTasks": {
 							"type": "string"
 						},
+						"moreTasks_zero": {
+							"type": "string"
+						},
+						"moreTasks_one": {
+							"type": "string"
+						},
+						"moreTasks_two": {
+							"type": "string"
+						},
+						"moreTasks_few": {
+							"type": "string"
+						},
+						"moreTasks_many": {
+							"type": "string"
+						},
+						"moreTasks_other": {
+							"type": "string"
+						},
 						"loadError": {
 							"type": "string"
 						},
@@ -7281,7 +7571,6 @@
 						"today",
 						"noTasks",
 						"noTasksSubtitle",
-						"moreTasks",
 						"loadError",
 						"dayTasksAriaLabel",
 						"taskAriaLabel"
@@ -7379,9 +7668,27 @@
 					"properties": {
 						"success": {
 							"type": "string"
+						},
+						"success_zero": {
+							"type": "string"
+						},
+						"success_one": {
+							"type": "string"
+						},
+						"success_two": {
+							"type": "string"
+						},
+						"success_few": {
+							"type": "string"
+						},
+						"success_many": {
+							"type": "string"
+						},
+						"success_other": {
+							"type": "string"
 						}
 					},
-					"required": ["success"]
+					"required": []
 				},
 				"listView": {
 					"type": "object",
@@ -7428,18 +7735,23 @@
 						"count_one": {
 							"type": "string"
 						},
+						"count_zero": {
+							"type": "string"
+						},
+						"count_two": {
+							"type": "string"
+						},
+						"count_few": {
+							"type": "string"
+						},
+						"count_many": {
+							"type": "string"
+						},
 						"count_other": {
 							"type": "string"
 						}
 					},
-					"required": [
-						"merged",
-						"draft",
-						"open",
-						"label",
-						"count_one",
-						"count_other"
-					]
+					"required": ["merged", "draft", "open", "label"]
 				},
 				"assignee": {
 					"type": "object",
@@ -7548,10 +7860,46 @@
 						"selectedCount": {
 							"type": "string"
 						},
+						"selectedCount_zero": {
+							"type": "string"
+						},
+						"selectedCount_one": {
+							"type": "string"
+						},
+						"selectedCount_two": {
+							"type": "string"
+						},
+						"selectedCount_few": {
+							"type": "string"
+						},
+						"selectedCount_many": {
+							"type": "string"
+						},
+						"selectedCount_other": {
+							"type": "string"
+						},
 						"moveToBacklog": {
 							"type": "string"
 						},
 						"moveToBacklogSuccess": {
+							"type": "string"
+						},
+						"moveToBacklogSuccess_zero": {
+							"type": "string"
+						},
+						"moveToBacklogSuccess_one": {
+							"type": "string"
+						},
+						"moveToBacklogSuccess_two": {
+							"type": "string"
+						},
+						"moveToBacklogSuccess_few": {
+							"type": "string"
+						},
+						"moveToBacklogSuccess_many": {
+							"type": "string"
+						},
+						"moveToBacklogSuccess_other": {
 							"type": "string"
 						},
 						"moveToBacklogError": {
@@ -7563,6 +7911,24 @@
 						"moveToBoardSuccess": {
 							"type": "string"
 						},
+						"moveToBoardSuccess_zero": {
+							"type": "string"
+						},
+						"moveToBoardSuccess_one": {
+							"type": "string"
+						},
+						"moveToBoardSuccess_two": {
+							"type": "string"
+						},
+						"moveToBoardSuccess_few": {
+							"type": "string"
+						},
+						"moveToBoardSuccess_many": {
+							"type": "string"
+						},
+						"moveToBoardSuccess_other": {
+							"type": "string"
+						},
 						"moveToBoardError": {
 							"type": "string"
 						},
@@ -7572,7 +7938,43 @@
 						"deleteConfirm": {
 							"type": "string"
 						},
+						"deleteConfirm_zero": {
+							"type": "string"
+						},
+						"deleteConfirm_one": {
+							"type": "string"
+						},
+						"deleteConfirm_two": {
+							"type": "string"
+						},
+						"deleteConfirm_few": {
+							"type": "string"
+						},
+						"deleteConfirm_many": {
+							"type": "string"
+						},
+						"deleteConfirm_other": {
+							"type": "string"
+						},
 						"deleteSuccess": {
+							"type": "string"
+						},
+						"deleteSuccess_zero": {
+							"type": "string"
+						},
+						"deleteSuccess_one": {
+							"type": "string"
+						},
+						"deleteSuccess_two": {
+							"type": "string"
+						},
+						"deleteSuccess_few": {
+							"type": "string"
+						},
+						"deleteSuccess_many": {
+							"type": "string"
+						},
+						"deleteSuccess_other": {
 							"type": "string"
 						},
 						"deleteError": {
@@ -7584,10 +7986,46 @@
 						"archiveSuccess": {
 							"type": "string"
 						},
+						"archiveSuccess_zero": {
+							"type": "string"
+						},
+						"archiveSuccess_one": {
+							"type": "string"
+						},
+						"archiveSuccess_two": {
+							"type": "string"
+						},
+						"archiveSuccess_few": {
+							"type": "string"
+						},
+						"archiveSuccess_many": {
+							"type": "string"
+						},
+						"archiveSuccess_other": {
+							"type": "string"
+						},
 						"archiveError": {
 							"type": "string"
 						},
 						"updateSuccess": {
+							"type": "string"
+						},
+						"updateSuccess_zero": {
+							"type": "string"
+						},
+						"updateSuccess_one": {
+							"type": "string"
+						},
+						"updateSuccess_two": {
+							"type": "string"
+						},
+						"updateSuccess_few": {
+							"type": "string"
+						},
+						"updateSuccess_many": {
+							"type": "string"
+						},
+						"updateSuccess_other": {
 							"type": "string"
 						},
 						"updateError": {
@@ -7597,6 +8035,24 @@
 							"type": "string"
 						},
 						"assignSuccess": {
+							"type": "string"
+						},
+						"assignSuccess_zero": {
+							"type": "string"
+						},
+						"assignSuccess_one": {
+							"type": "string"
+						},
+						"assignSuccess_two": {
+							"type": "string"
+						},
+						"assignSuccess_few": {
+							"type": "string"
+						},
+						"assignSuccess_many": {
+							"type": "string"
+						},
+						"assignSuccess_other": {
 							"type": "string"
 						},
 						"assignError": {
@@ -7612,6 +8068,24 @@
 							"type": "string"
 						},
 						"addLabelSuccess": {
+							"type": "string"
+						},
+						"addLabelSuccess_zero": {
+							"type": "string"
+						},
+						"addLabelSuccess_one": {
+							"type": "string"
+						},
+						"addLabelSuccess_two": {
+							"type": "string"
+						},
+						"addLabelSuccess_few": {
+							"type": "string"
+						},
+						"addLabelSuccess_many": {
+							"type": "string"
+						},
+						"addLabelSuccess_other": {
 							"type": "string"
 						},
 						"addLabelError": {
@@ -7637,29 +8111,20 @@
 						}
 					},
 					"required": [
-						"selectedCount",
 						"moveToBacklog",
-						"moveToBacklogSuccess",
 						"moveToBacklogError",
 						"moveToBoard",
-						"moveToBoardSuccess",
 						"moveToBoardError",
 						"delete",
-						"deleteConfirm",
-						"deleteSuccess",
 						"deleteError",
 						"archive",
-						"archiveSuccess",
 						"archiveError",
-						"updateSuccess",
 						"updateError",
 						"assignTo",
-						"assignSuccess",
 						"assignError",
 						"setPriority",
 						"updatePriorityError",
 						"addLabel",
-						"addLabelSuccess",
 						"addLabelError",
 						"setDueDate",
 						"updateDueDateError",
@@ -7968,6 +8433,18 @@
 						"resultsFound_one": {
 							"type": "string"
 						},
+						"resultsFound_zero": {
+							"type": "string"
+						},
+						"resultsFound_two": {
+							"type": "string"
+						},
+						"resultsFound_few": {
+							"type": "string"
+						},
+						"resultsFound_many": {
+							"type": "string"
+						},
 						"resultsFound_other": {
 							"type": "string"
 						},
@@ -8008,8 +8485,6 @@
 						"placeholder",
 						"hint",
 						"searching",
-						"resultsFound_one",
-						"resultsFound_other",
 						"noResultsTitle",
 						"noResultsDescription",
 						"startTitle",

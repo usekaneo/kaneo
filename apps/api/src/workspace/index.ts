@@ -1,48 +1,34 @@
-import { Hono } from "hono";
-import { describeRoute, resolver, validator } from "hono-openapi";
-import * as v from "valibot";
+import {
+  apiRouter,
+  type BaseVariables,
+  createRoute,
+  errorResponse,
+  jsonResponse,
+} from "../openapi";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import getWorkspaceMembersCtrl from "./controllers/get-workspace-members";
+import { workspaceMemberListSchema } from "./response";
+import { workspaceIdParam } from "./schema";
 
-const workspace = new Hono<{
-  Variables: {
-    userId: string;
-    workspaceId: string;
-  };
-}>().get(
-  "/:workspaceId/members",
-  describeRoute({
-    operationId: "getWorkspaceMembers",
-    tags: ["Workspaces"],
-    description: "Get all members of a workspace",
-    responses: {
-      200: {
-        description: "List of workspace members",
-        content: {
-          "application/json": {
-            schema: resolver(
-              v.array(
-                v.object({
-                  id: v.string(),
-                  name: v.string(),
-                  email: v.string(),
-                  image: v.nullable(v.string()),
-                  role: v.string(),
-                }),
-              ),
-            ),
-          },
-        },
-      },
-    },
-  }),
-  validator("param", v.object({ workspaceId: v.string() })),
-  workspaceAccess.fromParam("workspaceId"),
-  async (c) => {
-    const workspaceId = c.get("workspaceId");
-    const members = await getWorkspaceMembersCtrl(workspaceId);
-    return c.json(members);
+const getWorkspaceMembersRoute = createRoute({
+  method: "get",
+  operationId: "getWorkspaceMembers",
+  path: "/{workspaceId}/members",
+  tags: ["Workspaces"],
+  summary: "Get workspace members",
+  description: "Get all members of a workspace, with their role.",
+  middleware: [workspaceAccess.fromParam("workspaceId")] as const,
+  request: { params: workspaceIdParam },
+  responses: {
+    200: jsonResponse("List of workspace members", workspaceMemberListSchema),
+    400: errorResponse("Workspace ID could not be determined"),
+    403: errorResponse("No access to the workspace"),
   },
+});
+
+const workspace = apiRouter<BaseVariables & { workspaceId: string }>().openapi(
+  getWorkspaceMembersRoute,
+  async (c) => c.json(await getWorkspaceMembersCtrl(c.get("workspaceId")), 200),
 );
 
 export default workspace;
