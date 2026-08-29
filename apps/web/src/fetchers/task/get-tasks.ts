@@ -9,8 +9,7 @@ async function getTasks(projectId: string) {
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new HttpError(response.status, error);
+    throw new HttpError(response.status, "Failed to fetch tasks");
   }
 
   const json = await response.json();

@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/react";
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
-import { isUnauthorizedError } from "@/lib/http-error";
+import { handleUnauthorized, isUnauthorizedError } from "@/lib/http-error";
 
 // TanStack raises these before any fetcher-level message exists; CORS rejections
 // from the browser also surface here. Used both to skip auto-retry and to tag
@@ -57,7 +57,7 @@ const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error) => {
       if (isUnauthorizedError(error)) {
-        window.location.replace("/auth/sign-in");
+        handleUnauthorized();
         return;
       }
       captureCacheError(error, "query");
