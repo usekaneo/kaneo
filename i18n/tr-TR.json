@@ -1558,6 +1558,7 @@
 		}
 	},
 	"tasks": {
+		"title": "Görevler",
 		"status": {
 			"label": "Durum",
 			"to-do": "Yapılacak",

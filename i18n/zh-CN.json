@@ -1553,6 +1553,7 @@
 		}
 	},
 	"tasks": {
+		"title": "任务",
 		"status": {
 			"label": "状态",
 			"to-do": "待办",

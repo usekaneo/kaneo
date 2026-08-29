@@ -1558,6 +1558,7 @@
 		}
 	},
 	"tasks": {
+		"title": "Taken",
 		"status": {
 			"label": "Status",
 			"to-do": "Te doen",

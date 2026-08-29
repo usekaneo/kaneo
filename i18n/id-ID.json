@@ -1553,6 +1553,7 @@
 		}
 	},
 	"tasks": {
+		"title": "Tugas",
 		"status": {
 			"label": "Status",
 			"to-do": "Perlu Dikerjakan",
