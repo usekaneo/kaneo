@@ -56,7 +56,30 @@
 			"troubleshooting": "Passaggi per la risoluzione:",
 			"tryAgain": "Riprova",
 			"viewDeploymentGuide": "Visualizza guida al deployment",
-			"refreshPage": "Aggiorna pagina"
+			"refreshPage": "Aggiorna pagina",
+			"description": "The page crashed unexpectedly. Refreshing usually fixes it.",
+			"messages": {
+				"auth": "Authentication failed. Please sign in again.",
+				"cors": "Unable to connect to the server. This might be due to CORS configuration issues.",
+				"network": "Network error. Please check your internet connection and try again.",
+				"server": "Server error. Please try again later.",
+				"unknown": "An unexpected error occurred."
+			},
+			"troubleshootingSteps": {
+				"cors": {
+					"checkAccessibility": "Check that your API server is accessible from your browser",
+					"checkApiRunning": "Make sure your API server is running",
+					"checkApiUrl": "Check that VITE_API_URL in your frontend .env matches your API server URL",
+					"checkProtocol": "Ensure both frontend and API are using the same protocol (http/https)",
+					"verifyCorsOrigins": "Verify CORS_ORIGINS in your API .env includes your frontend URL"
+				},
+				"network": {
+					"checkConnection": "Check your internet connection",
+					"checkFirewall": "Check if there are any firewall or proxy issues",
+					"tryRefresh": "Try refreshing the page",
+					"verifyApiRunning": "Verify the API server is running and accessible"
+				}
+			}
 		},
 		"formats": {
 			"never": "Mai"
@@ -746,7 +769,8 @@
 			"deleteDialog": {
 				"title": "Elimina ruolo",
 				"description": "Questo eliminerà permanentemente il ruolo \"{{role}}\". I membri assegnati a questo ruolo perderanno i suoi permessi."
-			}
+			},
+			"permissionCount_many": "{{count}} permessi"
 		},
 		"workspaceLabels": {
 			"pageTitle": "Impostazioni Etichette",
@@ -1379,7 +1403,10 @@
 			"hours_one": "{{count}} ora",
 			"hours_other": "{{count}} ore",
 			"days_one": "{{count}} giorno",
-			"days_other": "{{count}} giorni"
+			"days_other": "{{count}} giorni",
+			"days_many": "{{count}} giorni",
+			"hours_many": "{{count}} ore",
+			"minutes_many": "{{count}} minuti"
 		},
 		"events": {
 			"task_created": {
@@ -1419,7 +1446,8 @@
 				"contentWithTask": "Tracciamento tempo iniziato sull'attività: {{taskTitle}}",
 				"contentWithoutTask": "Tracciamento tempo iniziato su un'attività"
 			}
-		}
+		},
+		"newCount_many": "{{count}} nuove"
 	},
 	"activity": {
 		"assignedToSelf": "ha assegnato l'attività a sé stesso",
@@ -1868,7 +1896,8 @@
 			"open": "Aperto",
 			"label": "Pull Request",
 			"count_one": "{{count}} PR",
-			"count_other": "{{count}} PR"
+			"count_other": "{{count}} PR",
+			"count_many": "{{count}} PR"
 		},
 		"assignee": {
 			"label": "Assegnatario",
@@ -2024,7 +2053,8 @@
 			"suggestionBug": "Bug",
 			"suggestionFeature": "Funzionalità",
 			"suggestionInProgress": "In corso",
-			"suggestionCompleted": "Completato"
+			"suggestionCompleted": "Completato",
+			"resultsFound_many": "{{count}} risultati trovati"
 		},
 		"create": {
 			"pageTitle": "Crea Workspace",

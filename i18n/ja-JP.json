@@ -1,0 +1,2155 @@
+{
+	"common": {
+		"appName": "Kaneo",
+		"actions": {
+			"cancel": "キャンセル",
+			"close": "閉じる",
+			"clearAll": "すべてクリア",
+			"delete": "削除",
+			"deleting": "削除中...",
+			"markAllRead": "すべて既読にする",
+			"remove": "削除",
+			"reset": "リセット",
+			"filter": "フィルター",
+			"clearAllFilters": "すべてのフィルターをクリア"
+		},
+		"a11y": {
+			"toggleSidebar": "サイドバーを切り替え"
+		},
+		"sidebar": {
+			"title": "サイドバー",
+			"mobileDescription": "モバイルサイドバーを表示します。"
+		},
+		"empty": {
+			"loading": "読み込み中..."
+		},
+		"pagination": {
+			"label": "ページネーション",
+			"previous": "前へ",
+			"next": "次へ",
+			"previousPage": "前のページに移動",
+			"nextPage": "次のページに移動",
+			"morePages": "その他のページ"
+		},
+		"breadcrumb": {
+			"label": "パンくずリスト",
+			"more": "その他の階層"
+		},
+		"language": {
+			"english": "英語",
+			"german": "ドイツ語",
+			"greek": "ギリシャ語",
+			"macedonian": "マケドニア語",
+			"french": "フランス語",
+			"spanish": "スペイン語",
+			"dutch": "オランダ語",
+			"korean": "韓国語",
+			"chinese": "中国語",
+			"italian": "イタリア語"
+		},
+		"people": {
+			"someone": "ユーザー",
+			"unknown": "不明なユーザー"
+		},
+		"error": {
+			"title": "問題が発生しました",
+			"description": "ページが予期せずクラッシュしました。再読み込みすると解決することがあります。",
+			"troubleshooting": "トラブルシューティングの手順:",
+			"tryAgain": "もう一度試す",
+			"viewDeploymentGuide": "デプロイガイドを表示",
+			"refreshPage": "ページを更新",
+			"messages": {
+				"cors": "サーバーに接続できません。CORS設定に問題がある可能性があります。",
+				"network": "ネットワークエラーが発生しました。インターネット接続を確認して再試行してください。",
+				"auth": "認証に失敗しました。再度サインインしてください。",
+				"server": "サーバーエラーが発生しました。しばらくしてからもう一度お試しください。",
+				"unknown": "予期しないエラーが発生しました。"
+			},
+			"troubleshootingSteps": {
+				"cors": {
+					"checkApiRunning": "APIサーバーが起動していることを確認してください",
+					"checkApiUrl": "フロントエンドの.envにあるVITE_API_URLがAPIサーバーのURLと一致しているか確認してください",
+					"verifyCorsOrigins": "APIの.envにあるCORS_ORIGINSにフロントエンドのURLが含まれていることを確認してください",
+					"checkProtocol": "フロントエンドとAPIが同じプロトコル(http/https)を使用していることを確認してください",
+					"checkAccessibility": "ブラウザからAPIサーバーにアクセスできるか確認してください"
+				},
+				"network": {
+					"checkConnection": "インターネット接続を確認してください",
+					"verifyApiRunning": "APIサーバーが稼働しておりアクセス可能か確認してください",
+					"tryRefresh": "ページを再読み込みしてみてください",
+					"checkFirewall": "ファイアウォールやプロキシの問題がないか確認してください"
+				}
+			}
+		},
+		"formats": {
+			"never": "無期限"
+		},
+		"modals": {
+			"createProject": {
+				"title": "新しいプロジェクトを作成",
+				"breadcrumbNew": "新しいプロジェクトを作成",
+				"workspaceFallback": "ワークスペース",
+				"description": "名前、キー、アイコンを設定してワークスペースに新しいプロジェクトを作成します。",
+				"pickIcon": "アイコンを選択",
+				"searchIcons": "アイコンを検索...",
+				"projectName": "プロジェクト名",
+				"keyLabel": "キー:",
+				"keyHint": "チケットIDに使用されます (例: {{example}}-123)",
+				"createButton": "プロジェクトを作成",
+				"successToast": "プロジェクトを作成しました",
+				"errorToast": "プロジェクトの作成に失敗しました"
+			},
+			"createWorkspace": {
+				"breadcrumbKaneo": "KANEO",
+				"title": "新しいワークスペースを作成",
+				"description": "名前を入力して新しいワークスペースを作成します。",
+				"namePlaceholder": "ワークスペース名",
+				"descriptionPlaceholder": "説明を追加...",
+				"createButton": "ワークスペースを作成",
+				"successToast": "ワークスペースを作成しました",
+				"errorToast": "ワークスペースの作成に失敗しました"
+			},
+			"createTask": {
+				"breadcrumbTask": "タスク",
+				"selectProject": "プロジェクトを選択",
+				"title": "新規タスク",
+				"description": "タイトル、説明、その他の詳細を入力して新しいタスクを作成します。",
+				"taskTitlePlaceholder": "タスク名",
+				"descriptionPlaceholder": "タスクの説明を追加...",
+				"chooseProjectForImages": "画像をアップロードする前にプロジェクトを選択してください。",
+				"prepareTaskError": "タスクの準備に失敗しました",
+				"successCreated": "タスクを作成しました",
+				"successUpdated": "タスクを更新しました",
+				"createError": "タスクの作成に失敗しました",
+				"priority": "優先度",
+				"statusFallback": "進行中",
+				"startDate": "開始日",
+				"dueDate": "期限",
+				"clearStartDate": "開始日をクリア",
+				"clearDueDate": "期限をクリア",
+				"assign": "担当者を割り当て",
+				"assignUnassigned": "未割り当て",
+				"assignUnassignedTitle": "未割り当て",
+				"labels": "ラベル",
+				"searchLabels": "ラベルを検索...",
+				"noLabelsFound": "ラベルが見つかりません",
+				"createLabel": "「{{name}}」を作成",
+				"chooseColor": "色を選択",
+				"labelCreated": "ラベルを作成しました",
+				"labelCreateError": "ラベルの作成に失敗しました",
+				"createMore": "続けて作成",
+				"createButton": "タスクを作成",
+				"untitledTask": "無題のタスク",
+				"labelColors": {
+					"stone": "ストーン",
+					"slate": "スレート",
+					"lavender": "ラベンダー",
+					"sage": "セージ",
+					"forest": "フォレスト",
+					"amber": "アンバー",
+					"terracotta": "テラコッタ",
+					"rose": "ローズ",
+					"crimson": "クリムゾン"
+				}
+			}
+		}
+	},
+	"auth": {
+		"signIn": {
+			"pageTitle": "サインイン",
+			"title": "おかえりなさい",
+			"subtitle": "ワークスペースにアクセスするには認証情報を入力してください",
+			"invitationSubtitle": "招待を承諾するにはサインインしてください",
+			"invitationAlert": "サインイン後、ワークスペースへの招待を承諾できるようになります。",
+			"signingIn": "サインイン中...",
+			"continueWithGoogle": "Google で続ける",
+			"continueWithGithub": "GitHub で続ける",
+			"continueWithDiscord": "Discord で続ける",
+			"continueWithOidc": "OIDC で続ける",
+			"lastUsed": "前回使用",
+			"registrationDisabled": "一般登録は無効化されています。アカウントを作成するには招待が必要です。",
+			"passwordRegistrationDisabled": "パスワードによる登録は無効化されています。アカウントを作成するにはソーシャルログインまたはOIDCログインを使用してください。",
+			"toggleMessage": "アカウントをお持ちでないですか？",
+			"toggleLink": "アカウント作成",
+			"guestSuccess": "ゲストとしてサインインしました",
+			"guestError": "ゲストとしてのサインインに失敗しました",
+			"oidcError": "OIDC でのサインインに失敗しました",
+			"googleError": "Google でのサインインに失敗しました",
+			"githubError": "GitHub でのサインインに失敗しました",
+			"discordError": "Discord でのサインインに失敗しました",
+			"errors": {
+				"account_not_linked": "この認証情報は既存のアカウントにリンクできませんでした。メールでサインインしてアカウントを確認後、再度SSOをお試しください。メールサインインが利用できない場合は、管理者にお問い合わせください。",
+				"oauth_code_verification_failed": "OAuth 認証に失敗しました。もう一度お試しください。",
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "現在、新規登録は無効になっています。アカウントを作成するには有効な招待が必要です。"
+			},
+			"instanceStatusError": "サーバーに接続できませんでした。しばらくしてから再試行してください。"
+		},
+		"providers": {
+			"google": "Google",
+			"discord": "Discord"
+		},
+		"forms": {
+			"or": "または",
+			"email": "メールアドレス",
+			"password": "パスワード",
+			"emailPlaceholder": "me@example.com",
+			"passwordPlaceholder": "••••••••",
+			"showPassword": "パスワードを表示",
+			"hidePassword": "パスワードを非表示"
+		},
+		"checkEmail": {
+			"pageTitle": "メールを確認してください",
+			"title": "メールを確認してください",
+			"inboxMessage": "一時的なログインリンクを送信しました。<email>{{email}}</email> の受信トレイをご確認ください。",
+			"emailFallback": "ご登録のメールアドレス",
+			"backToLogin": "サインインに戻る"
+		},
+		"signUp": {
+			"pageTitle": "アカウント作成",
+			"title": "アカウントを作成",
+			"subtitleInvitation": "招待を承諾するにはアカウントを作成してください",
+			"subtitleRegistrationDisabled": "登録には招待が必要です",
+			"subtitlePasswordDisabled": "ソーシャルログインまたはOIDCログインを使用してアカウントを作成してください",
+			"subtitleDefault": "ワークスペースを始めましょう",
+			"invitationAlert": "アカウント作成後、ワークスペースへの招待を承諾できるようになります。",
+			"registrationDisabledAlert": "現在、新規登録は無効になっています。招待を受け取っている場合は、招待を受信したメールアドレスを入力してアカウントを作成してください。",
+			"passwordDisabledAlert": "パスワードによるアカウント作成は無効化されています。サインインページから設定済みのソーシャルログインまたはOIDCログインをご利用ください。",
+			"signingIn": "サインイン中...",
+			"continueAsGuest": "ゲストとして続ける",
+			"toggleMessage": "すでにアカウントをお持ちですか？",
+			"toggleLink": "サインイン",
+			"instanceStatusError": "サーバーに接続できませんでした。しばらくしてから再試行してください。",
+			"instanceAdminTitle": "Kaneo インスタンスのセットアップ",
+			"instanceAdminSubtitle": "このアカウントはフルアクセス権を持つインスタンス管理者になります。"
+		},
+		"verifyOtp": {
+			"pageTitle": "認証コードの確認",
+			"title": "認証コードを入力",
+			"subtitle": "続行するには、メールに送信された6桁のコードを入力してください",
+			"codeSentTo": "{{email}} にコードを送信しました",
+			"verificationCodeLabel": "認証コード",
+			"verifying": "確認中...",
+			"verifyAndSignIn": "認証してサインイン",
+			"changeEmail": "メールアドレスを変更",
+			"resend": "再送信",
+			"validation": {
+				"codeLength": "6桁のコードを入力してください"
+			},
+			"toast": {
+				"invalidCode": "無効な認証コードです",
+				"signedInSuccess": "サインインしました！",
+				"verifyFailed": "コードの確認に失敗しました",
+				"resendFailed": "コードの再送信に失敗しました",
+				"resendSuccess": "新しい認証コードを送信しました！"
+			}
+		},
+		"otpSignIn": {
+			"sendFailed": "認証コードの送信に失敗しました",
+			"codeSent": "認証コードを送信しました！メールをご確認ください。",
+			"sending": "送信中...",
+			"sendVerificationCode": "認証コードを送信"
+		},
+		"signInForm": {
+			"failedSignIn": "サインインに失敗しました",
+			"signedInSuccess": "サインインしました",
+			"signingIn": "サインイン中...",
+			"signIn": "サインイン"
+		},
+		"signUpForm": {
+			"fullName": "名前",
+			"namePlaceholder": "山田 太郎",
+			"failedSignUp": "アカウント作成に失敗しました",
+			"accountCreated": "アカウントを作成しました",
+			"passwordTooShort": "パスワードが短すぎます",
+			"creatingAccount": "アカウント作成中...",
+			"createAccount": "アカウントを作成"
+		},
+		"invitation": {
+			"pageTitleAccept": "招待を承諾",
+			"pageTitleError": "招待エラー",
+			"pageTitleInvalid": "無効な招待",
+			"loadingTitle": "招待を読み込み中...",
+			"errorTitle": "招待エラー",
+			"invalidTitle": "無効な招待",
+			"invitationExpired": "招待の有効期限が切れています",
+			"errorLoadDescription": "招待情報の読み込みに失敗しました。招待が無効であるか、有効期限が切れている可能性があります。",
+			"goToSignIn": "サインインへ移動",
+			"workspaceLabel": "ワークスペース: {{workspaceName}}",
+			"joinWorkspace": "{{workspaceName}} に参加",
+			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> さんからワークスペースへの招待が届いています。",
+			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> さんから Kaneo のワークスペースへの招待が届いています。",
+			"createAccountOrSignIn": "この招待を承諾するにはアカウントを作成するか、すでにお持ちの場合はサインインしてください。",
+			"createAccount": "アカウント作成",
+			"accepting": "承諾中...",
+			"acceptInvitation": "招待を承諾",
+			"goToDashboard": "ダッシュボードへ移動",
+			"signedInAs": "<email>{{email}}</email> としてサインイン中",
+			"youveBeenInvited": "招待が届いています！",
+			"invitationFor": "招待先: <email>{{email}}</email>",
+			"signIn": "サインイン",
+			"toast": {
+				"acceptFailed": "招待の承諾に失敗しました",
+				"acceptSuccess": "招待を承諾しました！チームへようこそ。"
+			}
+		},
+		"onboarding": {
+			"pageTitle": "Kaneo へようこそ",
+			"workspacePageTitle": "ワークスペースを作成",
+			"createWorkspaceTitle": "ワークスペースを作成",
+			"createWorkspaceSubtitle": "プロジェクトの管理を始めるためにワークスペースをセットアップしましょう",
+			"workspaceName": "ワークスペース名",
+			"workspaceNamePlaceholder": "例: Acme Inc, 開発チーム",
+			"descriptionOptional": "説明 (任意)",
+			"descriptionPlaceholder": "チームの主な業務内容は何ですか？",
+			"creating": "作成中...",
+			"createWorkspace": "ワークスペースを作成",
+			"workspaceCreatedTitle": "ワークスペースを作成しました",
+			"redirectingToWorkspace": "<name>{{name}}</name> に移動しています...",
+			"toast": {
+				"workspaceCreated": "ワークスペースを作成しました",
+				"createFailed": "ワークスペースの作成に失敗しました"
+			},
+			"validation": {
+				"workspaceNameRequired": "ワークスペース名を入力してください"
+			}
+		},
+		"profileSetup": {
+			"pageTitle": "プロフィール設定",
+			"completeTitle": "プロフィールを完成させる",
+			"subtitle": "始めるには名前を入力してください",
+			"yourName": "お名前",
+			"namePlaceholder": "例: 山田 太郎",
+			"saving": "保存中...",
+			"continue": "続ける",
+			"welcome": "ようこそ、{{name}} さん！",
+			"redirecting": "ダッシュボードに移動しています...",
+			"toast": {
+				"updateSuccess": "プロフィールを更新しました",
+				"updateFailed": "プロフィールの更新に失敗しました"
+			},
+			"validation": {
+				"nameRequired": "名前を入力してください",
+				"nameShort": "名前は2文字以上で入力してください"
+			}
+		}
+	},
+	"settings": {
+		"account": "アカウント",
+		"developer": "開発者",
+		"information": "基本情報",
+		"notifications": "通知",
+		"preferences": "環境設定",
+		"apiKeys": "APIキー",
+		"informationPage": {
+			"pageTitle": "基本情報",
+			"title": "基本情報",
+			"subtitle": "個人情報およびアカウント情報を管理します。",
+			"sectionTitle": "アカウント情報",
+			"sectionSubtitle": "プロフィールおよびアカウントの詳細を管理します。",
+			"profilePicture": "プロフィール画像",
+			"fullName": "氏名",
+			"fullNamePlaceholder": "名前を入力",
+			"email": "メールアドレス",
+			"emailPlaceholder": "メールアドレスを入力",
+			"updateSuccess": "プロフィールを更新しました",
+			"updateError": "プロフィールの更新に失敗しました",
+			"validation": {
+				"nameRequired": "名前は必須です",
+				"nameShort": "名前は2文字以上で入力してください",
+				"invalidEmail": "有効なメールアドレスを入力してください"
+			},
+			"avatar": {
+				"hint": "画像をクリックして変更または削除できます。正方形にトリミングされ、256x256にリサイズされます。",
+				"remove": "プロフィール画像を削除",
+				"updateSuccess": "プロフィール画像を更新しました",
+				"updateError": "プロフィール画像の更新に失敗しました",
+				"removeSuccess": "プロフィール画像を削除しました",
+				"removeError": "プロフィール画像の削除に失敗しました",
+				"edit": "プロフィール画像を変更",
+				"change": "プロフィール画像を変更"
+			},
+			"deleteAccount": {
+				"sectionTitle": "危険な操作",
+				"sectionSubtitle": "アカウント全体に影響する取り消し不可能な操作です。",
+				"title": "アカウントを削除",
+				"description": "あなただけが所属するワークスペースはアカウントとともに削除されます。その他のワークスペースでは、タスクは未割り当てのまま残り、コメントは削除されます。",
+				"modalTitle": "アカウントを削除しますか？",
+				"modalDescription": "これによりアカウントは完全に削除され、元に戻すことはできません。",
+				"confirmLabel": "確認のため {{email}} と入力してください",
+				"confirm": "アカウントを削除",
+				"success": "アカウントを削除しました",
+				"error": "アカウントの削除に失敗しました",
+				"sessionTooOld": "セキュリティのため、アカウントを削除する前に一度サインアウトして再サインインしてください。"
+			}
+		},
+		"notificationsPage": {
+			"pageTitle": "通知",
+			"title": "通知",
+			"subtitle": "Kaneo からのアカウント通知の配信方法と使用するチャンネルを選択します。",
+			"statusConnected": "接続済み",
+			"statusPaused": "一時停止中",
+			"emailTitle": "メール",
+			"emailDescription": "アカウントのメールアドレスを通知の送信先として使用します。",
+			"accountEmailLabel": "アカウントのメールアドレス",
+			"accountEmailNoAddress": "登録されているメールアドレスがありません",
+			"accountEmailHint": "メール通知は常にサインイン中のアカウントのメールアドレスに送信されます。",
+			"saveChanges": "変更を保存",
+			"disconnect": "接続を解除",
+			"ntfyTitle": "ntfy",
+			"ntfyDescription": "アカウント通知を ntfy トピックに配信します。",
+			"serverUrl": "サーバーURL",
+			"topic": "トピック",
+			"token": "トークン",
+			"ntfyServerPlaceholder": "https://ntfy.example.com",
+			"ntfyTopicPlaceholder": "team-alerts",
+			"ntfyTokenPlaceholder": "ベアラートークン（任意）",
+			"ntfyTokenHintConfigured": "トークンはすでに設定されています ({{masked}})。変更する場合は新しいトークンを入力してください。",
+			"ntfyTokenHintOptional": "任意。ntfy サーバーで認証が必要な場合はトークンを指定してください。",
+			"connectNtfy": "ntfy を接続",
+			"gotifyTitle": "Gotify",
+			"gotifyDescription": "Gotify サーバーにアカウント通知を送信します。",
+			"gotifyTokenLabel": "アプリトークン",
+			"gotifyServerPlaceholder": "https://gotify.example.com",
+			"gotifyTokenPlaceholder": "Gotify アプリトークン",
+			"gotifyTokenHintConfigured": "アプリトークンはすでに設定されています ({{masked}})。変更する場合は新しいトークンを入力してください。",
+			"gotifyTokenHintRequired": "必須。Gotify サーバーのアプリケーショントークンを使用してください。",
+			"connectGotify": "Gotify を接続",
+			"webhookTitle": "カスタム Webhook",
+			"webhookDescription": "アカウント通知を独自のエンドポイントに JSON 形式で送信します。",
+			"endpointUrl": "エンドポイントURL",
+			"signingSecret": "署名シークレット",
+			"webhookUrlPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookSecretPlaceholder": "共有シークレット（任意）",
+			"webhookSecretHintConfigured": "署名シークレットはすでに設定されています ({{masked}})。変更する場合は新しいシークレットを入力してください。",
+			"webhookSecretHintOptional": "任意。シークレットを設定すると、Kaneo はリクエスト本文に署名を付与します。",
+			"connectWebhook": "Webhook を接続",
+			"workspaceRulesTitle": "ワークスペースの配信ルール",
+			"workspaceRulesDescription": "全体設定のチャンネルを使用し、ワークスペースやプロジェクトごとに通知の送信条件を設定します。",
+			"workspaceCardHint": "このワークスペースのアカウント通知で使用するチャンネルを選択します。",
+			"workspaceEnabledLabel": "{{workspaceName}} の通知を有効にする",
+			"eventPreferencesTitle": "通知を受け取るイベント",
+			"eventPreferencesDescription": "アプリ内通知を生成し、接続中のチャンネルに配信するタスクイベントを選択します。",
+			"eventTaskAssignments": "タスクの割り当て",
+			"eventComments": "コメントとメンション",
+			"eventCommentsHint": "自分に割り当てられたタスクへの新規コメントや、自分宛ての @メンションが含まれます。",
+			"eventStatusChanges": "タスクのステータス変更",
+			"eventDueDateReminders": "期限のリマインダー",
+			"reminderLeadTimeLabel": "期限前にリマインド",
+			"reminderLeadTimeHint": "期限の1時間前から30日前までの間で設定できます。期限切れ通知は個別に送信されます。",
+			"reminderLeadTimeUnitHours": "時間",
+			"reminderLeadTimeUnitDays": "日",
+			"reminderLeadTimeInvalid": "1 から {{max}} までの整数を入力してください。",
+			"saveEventPreferences": "通知タイプを保存",
+			"workspaceCardLabelEmail": "メール",
+			"workspaceCardLabelNtfy": "ntfy",
+			"workspaceCardLabelGotify": "Gotify",
+			"workspaceCardLabelWebhook": "カスタム Webhook",
+			"emailChannelHintEnabled": "該当するワークスペースの通知をメールで送信します。",
+			"emailChannelHintDisabled": "最初に全体設定でメールを設定して有効にしてください。",
+			"ntfyChannelHintEnabled": "該当するワークスペースの通知を ntfy に送信します。",
+			"ntfyChannelHintDisabled": "最初に全体設定で ntfy を設定して有効にしてください。",
+			"gotifyChannelHintEnabled": "該当するワークスペースの通知を Gotify に送信します。",
+			"gotifyChannelHintDisabled": "最初に全体設定で Gotify を設定して有効にしてください。",
+			"webhookChannelHintEnabled": "該当するワークスペースの通知を Webhook に送信します。",
+			"webhookChannelHintDisabled": "最初に全体設定で Webhook を設定して有効にしてください。",
+			"projectScope": "プロジェクトの対象範囲",
+			"projectScopeDescription": "デフォルトではすべてのプロジェクトが含まれます。特定のプロジェクトからの通知のみを受信したい場合は絞り込んでください。",
+			"allProjects": "すべてのプロジェクト",
+			"allProjectsDescription": "このワークスペース内のすべてのプロジェクトから通知を配信します。",
+			"selectedProjects": "選択したプロジェクト",
+			"selectedProjectsDescription": "選択したプロジェクトからの通知のみを配信します。",
+			"noProjectsInWorkspace": "このワークスペースにはまだプロジェクトがありません。",
+			"createRule": "ルールを作成",
+			"removeRule": "ルールを削除",
+			"toastEmailSaved": "メール通知設定を保存しました",
+			"toastEmailSaveFailed": "メール通知設定の保存に失敗しました",
+			"toastNtfySaved": "ntfy 設定を保存しました",
+			"toastNtfySaveFailed": "ntfy 設定の保存に失敗しました",
+			"toastNtfyDisconnected": "ntfy の接続を解除しました",
+			"toastNtfyDisconnectFailed": "ntfy の接続解除に失敗しました",
+			"toastGotifySaved": "Gotify 設定を保存しました",
+			"toastGotifySaveFailed": "Gotify 設定の保存に失敗しました",
+			"toastGotifyDisconnected": "Gotify の接続を解除しました",
+			"toastGotifyDisconnectFailed": "Gotify の接続解除に失敗しました",
+			"toastWebhookSaved": "Webhook 設定を保存しました",
+			"toastWebhookSaveFailed": "Webhook 設定の保存に失敗しました",
+			"toastWebhookDisconnected": "Webhook の接続を解除しました",
+			"toastWebhookDisconnectFailed": "Webhook の接続解除に失敗しました",
+			"toastRuleSaved": "{{workspaceName}} の通知ルールを保存しました",
+			"toastRuleSaveFailed": "ワークスペースの通知ルールの保存に失敗しました",
+			"toastRuleRemoved": "{{workspaceName}} の通知ルールを削除しました",
+			"toastRuleRemoveFailed": "ワークスペースの通知ルールの削除に失敗しました",
+			"toastPreferencesSaved": "通知設定を保存しました",
+			"toastPreferencesSaveFailed": "通知設定の保存に失敗しました",
+			"toastRuleSavedGeneric": "ワークスペースの通知ルールを保存しました",
+			"toastRuleRemovedGeneric": "ワークスペースの通知ルールを削除しました"
+		},
+		"preferencesPage": {
+			"title": "環境設定",
+			"subtitle": "Kaneo の利用環境をカスタマイズします。",
+			"appearanceTitle": "外観",
+			"appearanceSubtitle": "外観とレイアウトの設定を行います。",
+			"theme": "テーマ",
+			"themeDescription": "お好みのカラースキームを選択してください",
+			"selectTheme": "テーマを選択",
+			"themeLight": "ライト",
+			"themeDark": "ダーク",
+			"themeSystem": "システム",
+			"language": "言語",
+			"languageDescription": "表示言語を選択してください",
+			"selectLanguage": "言語を選択",
+			"firstDayOfWeek": "週の始まりの曜日",
+			"firstDayOfWeekDescription": "カレンダーや週の表示を開始する曜日を選択してください",
+			"selectFirstDayOfWeek": "開始曜日を選択",
+			"weekStartsOnSunday": "日曜日",
+			"weekStartsOnMonday": "月曜日",
+			"weekStartsOnSaturday": "土曜日",
+			"defaultView": "デフォルトのビュー",
+			"defaultViewDescription": "デフォルトのタスク表示モードを選択してください",
+			"selectViewMode": "ビューモードを選択",
+			"board": "ボード",
+			"list": "リスト",
+			"gantt": "ガント",
+			"sidebarDefault": "サイドバーのデフォルト状態",
+			"sidebarDefaultDescription": "起動時にサイドバーを展開した状態に保ちます",
+			"displayOptions": "表示オプション",
+			"displayOptionsDescription": "タスクビューに表示する情報を選択します",
+			"taskNumbers": "タスク番号",
+			"taskNumbersDescription": "タスク ID と番号を表示します",
+			"assignees": "担当者",
+			"assigneesDescription": "タスクの担当者を表示します",
+			"dueDates": "期限",
+			"dueDatesDescription": "タスクの期限を表示します",
+			"labels": "ラベル",
+			"labelsDescription": "タスクのラベルとタグを表示します",
+			"priority": "優先度",
+			"priorityDescription": "優先度インジケーターを表示します"
+		},
+		"developerPage": {
+			"pageTitle": "開発者設定",
+			"title": "開発者設定",
+			"subtitle": "APIキーと開発者向けリソースを管理します。",
+			"apiKeysCardTitle": "APIキー",
+			"apiKeysCardDescription": "Kaneo にプログラムからアクセスするための API キーを作成・管理します。",
+			"createApiKey": "APIキーを作成",
+			"unnamedKey": "名称未設定のキー"
+		},
+		"apiKey": {
+			"createdModal": {
+				"title": "APIキーを作成しました",
+				"description": "APIキー「{{keyName}}」を作成しました。",
+				"yourApiKey": "APIキー",
+				"copy": "コピー",
+				"copied": "コピー完了",
+				"toastCopied": "APIキーをクリップボードにコピーしました",
+				"alertTitle": "APIキーを作成しました",
+				"alertDescription": "このキーを今すぐコピーしてください。再度表示することはできません。",
+				"done": "完了",
+				"copyToContinue": "キーをコピーして続行"
+			},
+			"table": {
+				"loading": "APIキーを読み込み中...",
+				"empty": "APIキーはまだありません。作成して始めましょう。",
+				"columnName": "名前",
+				"columnKey": "キー",
+				"columnCreated": "作成日時",
+				"columnExpires": "有効期限",
+				"columnActions": "操作",
+				"unnamedKey": "名称未設定のキー",
+				"expiredBadge": "期限切れ {{label}}",
+				"deleteConfirmTitle": "APIキーを削除しますか？",
+				"deleteConfirmDescription": "この操作は取り消せません。これにより {{name}} は完全に削除されます。",
+				"deleteFallbackName": "このAPIキー",
+				"delete": "削除",
+				"deleting": "削除中...",
+				"deleteAria": "{{name}} を削除",
+				"deleteAriaFallback": "APIキー",
+				"toastDeleted": "APIキーを削除しました",
+				"toastDeleteError": "APIキーの削除に失敗しました"
+			},
+			"createDialog": {
+				"title": "APIキーを作成",
+				"description": "Kaneo API にプログラムからアクセスするための新しい API キーを作成します。",
+				"nameLabel": "名前",
+				"namePlaceholder": "マイAPIキー",
+				"nameDescription": "この API キーのわかりやすい名前",
+				"expirationLabel": "有効期限",
+				"expirationPlaceholder": "有効期限を選択",
+				"expirationDescription": "この API キーの有効期間を選択してください。「無期限」を選択すると、自動失効しないキーが作成されます。",
+				"expiration1d": "1日",
+				"expiration7d": "7日",
+				"expiration30d": "30日",
+				"expiration90d": "90日",
+				"expirationNever": "無期限",
+				"create": "作成",
+				"creating": "作成中...",
+				"failedCreate": "APIキーの作成に失敗しました",
+				"validation": {
+					"nameRequired": "名前は必須です",
+					"nameShort": "名前は3文字以上で入力してください",
+					"expirationRequired": "有効期限を選択してください"
+				}
+			}
+		},
+		"workspaceGeneral": {
+			"pageTitle": "一般設定",
+			"title": "一般設定",
+			"subtitle": "ワークスペースの名前と説明を管理します。",
+			"workspaceInfoTitle": "ワークスペース情報",
+			"workspaceInfoSubtitle": "ワークスペースの詳細と基本設定を管理します。",
+			"nameLabel": "ワークスペース名",
+			"nameHint": "ワークスペースの名前",
+			"namePlaceholder": "ワークスペース名を入力",
+			"descriptionLabel": "説明",
+			"descriptionHint": "ワークスペースの簡単な説明",
+			"descriptionPlaceholder": "ワークスペースの説明を入力",
+			"dangerZone": "危険な操作",
+			"dangerZoneSubtitle": "取り消し不可能な破壊的操作です。",
+			"deleteWorkspace": "ワークスペースを削除",
+			"deleteWorkspaceDescription": "ワークスペースの完全削除を予約します",
+			"deleteModalTitle": "ワークスペースを削除しますか？",
+			"deleteModalDescription": "これによりワークスペース「{{name}}」とそのすべてのデータが完全に削除されます。この操作は取り消せません。",
+			"deleteModalConfirm": "ワークスペースを削除",
+			"toastUpdated": "ワークスペースを更新しました",
+			"toastUpdateError": "ワークスペースの更新に失敗しました",
+			"toastDeleted": "ワークスペースを削除しました",
+			"toastDeleteError": "ワークスペースの削除に失敗しました",
+			"validation": {
+				"nameRequired": "ワークスペース名は必須です",
+				"nameShort": "ワークスペース名は2文字以上で入力してください"
+			},
+			"transferOwnership": {
+				"toastSuccess": "所有権を譲渡しました",
+				"toastError": "所有権の譲渡に失敗しました",
+				"title": "所有権を譲渡",
+				"subtitle": "このワークスペースを他のメンバーに引き継ぎます。あなたの権限は管理者に変更され、オーナー専用の操作権限を失います。",
+				"pickerLabel": "新しいオーナー",
+				"noEligibleMembers": "所有権を譲渡するには、事前に他のメンバーを1人以上招待してください。",
+				"pickerHint": "そのメンバーがこのワークスペースの唯一のオーナーになります。",
+				"pickerPlaceholder": "メンバーを選択",
+				"button": "譲渡",
+				"dialogTitle": "所有権を譲渡しますか？",
+				"dialogDescription": "{{name}} が {{workspace}} の唯一のオーナーになります。管理者権限は維持されますが、ワークスペースの削除や再度の譲渡などオーナー限定の権限は失われます。",
+				"transferring": "譲渡中...",
+				"confirm": "所有権を譲渡"
+			}
+		},
+		"workspaceRoles": {
+			"pageTitle": "ロール",
+			"title": "ロール",
+			"subtitle": "{{workspaceName}} 内でメンバーが実行できる操作を定義します。",
+			"thisWorkspace": "このワークスペース",
+			"noAccess": "ワークスペースのロールを管理するには管理者またはオーナーの権限が必要です。",
+			"sectionTitle": "ワークスペースのロール",
+			"sectionSubtitle": "デフォルトのロールを編集するか、カスタムロールを追加します。メンバーに割り当てられたロール名は編集後も維持されます。",
+			"newRole": "新規ロール",
+			"loading": "読み込み中...",
+			"loadError": "ロールの読み込みに失敗しました。",
+			"emptyTitle": "ロールがまだありません",
+			"emptyDescription": "このワークスペースに初期ロールが設定されると、ここに表示されます。",
+			"defaultBadge": "デフォルト",
+			"permissionCount_other": "{{count}} 個の権限",
+			"nameLabel": "名前",
+			"nameHint": "半角小文字のみ。後から変更することはできません。",
+			"namePlaceholder": "例: reviewer",
+			"discard": "破棄",
+			"createRole": "ロールを作成",
+			"deleteRole": "ロールを削除",
+			"defaultRoleHelp": "デフォルトロール: 名前は予約されており、削除することはできません。",
+			"unsavedChanges": "未保存の変更があります",
+			"allChangesSaved": "すべての変更を保存しました",
+			"saveChanges": "変更を保存",
+			"defaultRoleDescriptions": {
+				"viewer": "タスクの閲覧とコメントができます。",
+				"member": "タスクとプロジェクトの作成・管理ができます。",
+				"admin": "ワークスペースへのフルアクセス権を持ちます。"
+			},
+			"resources": {
+				"project": "プロジェクト",
+				"task": "タスク",
+				"label": "ラベル",
+				"workspace": "ワークスペース"
+			},
+			"permissions": {
+				"project": {
+					"create": {
+						"label": "作成",
+						"description": "新規プロジェクトを作成できます"
+					},
+					"read": {
+						"label": "閲覧",
+						"description": "プロジェクトを閲覧できます"
+					},
+					"update": {
+						"label": "更新",
+						"description": "プロジェクト設定を編集できます"
+					},
+					"delete": {
+						"label": "削除",
+						"description": "プロジェクトを削除できます"
+					},
+					"share": {
+						"label": "共有",
+						"description": "プロジェクトを共有できます"
+					}
+				},
+				"task": {
+					"create": {
+						"label": "作成",
+						"description": "タスクを作成できます"
+					},
+					"read": {
+						"label": "閲覧",
+						"description": "タスクを閲覧できます"
+					},
+					"update": {
+						"label": "更新",
+						"description": "タスクを編集できます"
+					},
+					"delete": {
+						"label": "削除",
+						"description": "タスクを削除できます"
+					},
+					"assign": {
+						"label": "割り当て",
+						"description": "メンバーにタスクを割り当てることができます"
+					}
+				},
+				"label": {
+					"create": {
+						"label": "作成",
+						"description": "ラベルを作成できます"
+					},
+					"read": {
+						"label": "閲覧",
+						"description": "ラベルを閲覧できます"
+					},
+					"update": {
+						"label": "更新",
+						"description": "ラベルを編集できます"
+					},
+					"delete": {
+						"label": "削除",
+						"description": "ラベルを削除できます"
+					}
+				},
+				"workspace": {
+					"read": {
+						"label": "閲覧",
+						"description": "ワークスペース設定を閲覧できます"
+					},
+					"update": {
+						"label": "更新",
+						"description": "ワークスペース設定を更新できます"
+					},
+					"delete": {
+						"label": "削除",
+						"description": "ワークスペースを削除できます"
+					},
+					"manage_settings": {
+						"label": "設定の管理",
+						"description": "ワークスペース設定を管理できます"
+					}
+				}
+			},
+			"validation": {
+				"nameRequired": "ロール名は必須です",
+				"nameExists": "この名前のロールは既に存在します",
+				"permissionRequired": "権限を1つ以上選択してください"
+			},
+			"toast": {
+				"created": "ロールを作成しました",
+				"createError": "ロールの作成に失敗しました",
+				"updated": "ロールを更新しました",
+				"updateError": "ロールの更新に失敗しました",
+				"deleted": "ロールを削除しました",
+				"deleteError": "ロールの削除に失敗しました"
+			},
+			"deleteDialog": {
+				"title": "ロールを削除",
+				"description": "これによりロール「{{role}}」は完全に削除されます。このロールが割り当てられていたメンバーは権限を失います。"
+			}
+		},
+		"workspaceLabels": {
+			"pageTitle": "ラベル設定",
+			"title": "ラベル",
+			"subtitle": "ワークスペース共通のラベルを作成・編集・削除します。",
+			"cardDescription": "タスクに割り当て可能なラベルを管理します。",
+			"createLabel": "ラベルを作成",
+			"editLabel": "ラベルを編集",
+			"deleteLabel": "削除",
+			"saveLabel": "保存",
+			"nameLabel": "ラベル名",
+			"namePlaceholder": "ラベル名を入力",
+			"colorLabel": "カラー",
+			"createDescription": "このワークスペース内のタスク全体で使用できる新しいラベルを作成します。",
+			"editDescription": "このラベルの名前またはカラーを変更します。",
+			"deleteConfirmTitle": "このラベルを削除しますか？",
+			"deleteConfirmDescription": "これにより、すべてのタスクからこのラベルが完全に削除されます。この操作は取り消せません。",
+			"empty": "ラベルはまだありません。最初のラベルを作成して始めましょう。",
+			"createSuccess": "ラベルを作成しました",
+			"updateSuccess": "ラベルを更新しました",
+			"deleteSuccess": "ラベルを削除しました",
+			"createError": "ラベルの作成に失敗しました",
+			"updateError": "ラベルの更新に失敗しました",
+			"deleteError": "ラベルの削除に失敗しました",
+			"nameRequired": "ラベル名は必須です"
+		},
+		"projectGeneral": {
+			"pageTitle": "プロジェクト設定",
+			"title": "一般設定",
+			"subtitle": "プロジェクトの名前、キー、アイコン、説明を管理します。",
+			"projectInfoTitle": "プロジェクト情報",
+			"projectInfoSubtitle": "プロジェクトの詳細と基本設定を行います。",
+			"iconLabel": "アイコン",
+			"iconHint": "サイドバーやプロジェクト画面に表示されます。",
+			"pickIconTitle": "アイコンを選択",
+			"searchIconsPlaceholder": "アイコンを検索...",
+			"projectNameLabel": "プロジェクト名",
+			"projectNameHint": "プロジェクトの名前",
+			"projectNamePlaceholder": "プロジェクト名を入力",
+			"keyLabel": "キー",
+			"keyHint": "チケットIDに使用されます (例: {{slug}}-123)",
+			"keyPlaceholder": "PRO",
+			"descriptionLabel": "説明",
+			"descriptionHint": "プロジェクトの簡単な説明",
+			"descriptionPlaceholder": "プロジェクトの説明を入力",
+			"dangerZone": "危険な操作",
+			"dangerZoneSubtitle": "取り消し不可能な破壊的操作です。",
+			"deleteProject": "プロジェクトを削除",
+			"deleteProjectDescription": "プロジェクトの完全削除をスケジュールします",
+			"deleteModalTitle": "プロジェクトを削除しますか？",
+			"deleteModalDescription": "これによりプロジェクト「{{name}}」とそのすべてのデータが完全に削除されます。この操作は取り消せません。",
+			"deleteModalConfirm": "プロジェクトを削除",
+			"toastUpdated": "プロジェクトを更新しました",
+			"toastUpdateError": "プロジェクトの更新に失敗しました",
+			"toastDeleted": "プロジェクトを削除しました",
+			"toastDeleteError": "プロジェクトの削除に失敗しました",
+			"validation": {
+				"nameRequired": "プロジェクト名は必須です",
+				"keyRequired": "キーは必須です",
+				"keyMax": "キーは8文字以内で入力してください",
+				"iconRequired": "アイコンは必須です"
+			},
+			"importExportTasks": "インポート/エクスポート",
+			"importExportTasksDescription": "タスクのインポートとエクスポートを行います。"
+		},
+		"projectIntegrations": {
+			"pageTitle": "プロジェクト連携",
+			"title": "プロジェクト連携",
+			"subtitle": "プロジェクトを外部ツールやサービスと接続し、ワークフローを効率化します。",
+			"githubSectionTitle": "GitHub 連携",
+			"githubSectionSubtitle": "タスクを GitHub Issue と同期し、双方向同期を有効にします。",
+			"giteaSectionTitle": "Gitea 連携",
+			"giteaSectionSubtitle": "セルフホストされた Gitea インスタンスとタスクを同期します（Issue、PR、Webhook）。",
+			"discordSectionTitle": "Discord 連携",
+			"discordSectionSubtitle": "Webhook を使用してプロジェクトのタスク更新を Discord チャンネルに送信します。",
+			"genericWebhookSectionTitle": "汎用 Webhook",
+			"genericWebhookSectionSubtitle": "プロジェクトのタスクイベントを JSON として任意の HTTP エンドポイントに送信します。",
+			"slackSectionTitle": "Slack 連携",
+			"slackSectionSubtitle": "Incoming Webhook を使用してプロジェクトのタスク更新を Slack チャンネルに送信します。",
+			"telegramSectionTitle": "Telegram 連携",
+			"telegramSectionSubtitle": "ボットを使用してプロジェクトのタスク更新を Telegram のチャットまたはトピックに送信します。"
+		},
+		"projectVisibility": {
+			"pageTitle": "プロジェクトの公開設定",
+			"title": "公開設定",
+			"subtitle": "プロジェクトの閲覧およびアクセス権限を管理します。",
+			"sectionTitle": "公開設定",
+			"sectionSubtitle": "公開アクセスを切り替え、公開 URL を共有します。",
+			"publicAccess": "公開アクセス",
+			"publicAccessHint": "URL を知っているすべてのユーザーにこのプロジェクトの閲覧を許可します",
+			"publicUrl": "公開 URL",
+			"publicUrlHint": "プロジェクトが公開されている場合、このリンクを共有できます",
+			"copy": "コピー",
+			"copiedToast": "コピーしました",
+			"toastUpdated": "公開設定を更新しました",
+			"toastUpdateError": "公開設定の更新に失敗しました"
+		},
+		"projectWorkflow": {
+			"pageTitle": "ワークフロー設定",
+			"title": "ワークフロー",
+			"subtitle": "このプロジェクトのボードカラムと自動化ルールを設定します。",
+			"columnsTitle": "カラム",
+			"columnsDescription": "ボードに表示されるカラムを管理します。ドラッグして並べ替えます。完了した作業を表すステージには「完了カラム」をオンにしてください。",
+			"automationTitle": "自動化ルール",
+			"automationDescription": "連携イベントをカラムにマッピングします。イベントが発生すると、リンクされたタスクが指定されたカラムに移動します。"
+		},
+		"projectSwitcher": {
+			"selectProject": "プロジェクトを選択",
+			"noProjects": "プロジェクトがありません"
+		},
+		"columnEditor": {
+			"toastCreated": "カラムを作成しました",
+			"toastCreateError": "カラムの作成に失敗しました",
+			"toastRenamed": "カラム名を変更しました",
+			"toastRenameError": "カラムの更新に失敗しました",
+			"toastFinalOn": "カラムを完了カラムに設定しました",
+			"toastFinalOff": "カラムの完了設定を解除しました",
+			"toastUpdateError": "カラムの更新に失敗しました",
+			"toastIconUpdated": "カラムアイコンを更新しました",
+			"toastDeleted": "カラムを削除しました",
+			"toastDeleteError": "カラムの削除に失敗しました",
+			"loading": "カラムを読み込み中...",
+			"pickIconTitle": "カラムアイコンを選択",
+			"searchIconsPlaceholder": "アイコンを検索...",
+			"doneColumnTooltip": "これを完了カラムとして扱います",
+			"doneColumn": "完了カラム",
+			"markDoneAria": "{{name}} を完了カラムとして設定",
+			"on": "オン",
+			"off": "オフ",
+			"newColumnPlaceholder": "新しいカラム名...",
+			"add": "追加"
+		},
+		"githubIntegration": {
+			"validation": {
+				"ownerRequired": "リポジトリのオーナーは必須です",
+				"ownerInvalid": "リポジトリのオーナーの形式が無効です",
+				"nameRequired": "リポジトリ名は必須です",
+				"nameInvalid": "リポジトリ名の形式が無効です"
+			},
+			"toast": {
+				"installedOk": "GitHub App が正しくインストールされています！",
+				"installedMissingPerms": "GitHub App はインストールされていますが、必要な権限が不足しています",
+				"needsInstallOnRepo": "このリポジトリに GitHub App をインストールする必要があります",
+				"repoNotFound": "リポジトリが見つからないか、アクセスできません",
+				"verifyError": "GitHub App のインストール検証に失敗しました",
+				"installAppFirst": "まずこのリポジトリに GitHub App をインストールしてください",
+				"missingPermsDetail": "GitHub App に必要な権限が不足しています: {{list}}。アプリの権限を更新してください。",
+				"updated": "GitHub 連携を更新しました",
+				"updateError": "GitHub 連携の更新に失敗しました",
+				"removed": "GitHub 連携を解除しました",
+				"removeError": "GitHub 連携の解除に失敗しました",
+				"issuesImported": "Issue をインポートしました",
+				"importError": "Issue のインポートに失敗しました",
+				"commentOnEnabled": "新しい Issue に Kaneo がタスクリンク付きのコメントを投稿します",
+				"commentOnDisabled": "新しい Issue へのタスクリンクのコメント投稿をオフにしました",
+				"settingsUpdateError": "GitHub 連携の更新に失敗しました"
+			},
+			"connectionStatus": "接続ステータス",
+			"connectedActive": "リポジトリが接続され、アクティブです",
+			"notConnectedHint": "接続されているリポジトリはありません",
+			"badgeConnected": "接続済み",
+			"badgeNotConnected": "未接続",
+			"repository": "リポジトリ",
+			"repositoryHint": "接続されている GitHub リポジトリ",
+			"commentTaskLinkTitle": "新しい Issue に Kaneo リンクをコメント",
+			"commentTaskLinkHint": "有効にすると、Kaneo は新しい GitHub Issue ごとにタスクへのリンクを含むコメントを投稿します。",
+			"appStatusTitle": "GitHub App ステータス",
+			"appStatusHint": "インストールおよび権限のステータス",
+			"statusProperlyConfigured": "適切に設定されています",
+			"statusMissingPermissions": "権限が不足しています",
+			"statusNotInstalled": "未インストール",
+			"ownerLabel": "リポジトリオーナー",
+			"ownerHint": "GitHub のユーザー名または組織名",
+			"ownerPlaceholder": "例: octocat",
+			"repoNameLabel": "リポジトリ名",
+			"repoNameHint": "リポジトリ名",
+			"repoNamePlaceholder": "例: my-project",
+			"actionsTitle": "操作",
+			"actionsHint": "リポジトリの接続を管理します",
+			"browse": "参照",
+			"verify": "検証",
+			"update": "更新",
+			"connect": "接続",
+			"disconnect": "接続解除",
+			"missingPermissionsLabel": "不足している権限:",
+			"updatePermissions": "権限を更新",
+			"installGithubApp": "GitHub App をインストール",
+			"importSectionTitle": "GitHub Issue のインポート",
+			"importSectionHint": "GitHub リポジトリの既存の Issue をタスクとしてインポートします",
+			"importing": "インポート中...",
+			"importIssues": "Issue をインポート",
+			"importDisabledHint": "インポートを有効にするには、上記のリポジトリ設定を完了してください"
+		},
+		"giteaIntegration": {
+			"validation": {
+				"baseUrlRequired": "Gitea のベース URL は必須です",
+				"baseUrlInvalid": "有効な URL を入力してください (例: https://gitea.example.com)",
+				"ownerRequired": "リポジトリのオーナーは必須です",
+				"ownerInvalid": "リポジトリのオーナーの形式が無効です",
+				"nameRequired": "リポジトリ名は必須です",
+				"nameInvalid": "リポジトリ名の形式が無効です"
+			},
+			"toast": {
+				"verifyOk": "Gitea トークンはこのリポジトリにアクセスできます",
+				"verifyWarning": "トークンの権限またはリポジトリへのアクセス権を確認してください",
+				"repoNotFound": "リポジトリが見つからないか、アクセスできません",
+				"redirected": "Gitea URL がリダイレクトされました（通常は HTTPS へ）。最終的な URL を直接入力してください。",
+				"notGiteaInstance": "この URL は Gitea インスタンスを指していません",
+				"verifyError": "Gitea へのアクセスの検証に失敗しました",
+				"tokenRequired": "Personal Access Token は必須です",
+				"tokenRequiredVerify": "検証するトークンを入力してください",
+				"verifyFirst": "アクセスの検証に失敗しました。URL、トークン、リポジトリを確認してください",
+				"updated": "Gitea 連携を保存しました",
+				"updateError": "Gitea 連携の保存に失敗しました",
+				"removed": "Gitea 連携を解除しました",
+				"removeError": "Gitea 連携の解除に失敗しました",
+				"issuesImported": "Issue をインポートしました",
+				"importError": "Issue のインポートに失敗しました",
+				"commentOnEnabled": "新しい Issue に Kaneo がタスクリンク付きのコメントを投稿します",
+				"commentOnDisabled": "新しい Issue へのタスクリンクのコメント投稿をオフにしました",
+				"settingsUpdateError": "Gitea 連携の更新に失敗しました",
+				"secretCopied": "コピーしました",
+				"unableToCopySecret": "シークレットをコピーできませんでした"
+			},
+			"webhookShow": "表示",
+			"webhookHide": "非表示",
+			"webhookCopy": "コピー",
+			"connectionStatus": "接続ステータス",
+			"connectedActive": "リポジトリが接続され、アクティブです",
+			"notConnectedHint": "接続されている Gitea リポジトリはありません",
+			"badgeConnected": "接続済み",
+			"badgeNotConnected": "未接続",
+			"repository": "リポジトリ",
+			"repositoryHint": "リンクされた Gitea リポジトリ",
+			"commentTaskLinkTitle": "新しい Issue に Kaneo のリンクをコメントする",
+			"commentTaskLinkHint": "有効にすると、Kaneo は新しい Issue ごとにタスクへのリンクを含むコメントを投稿します。",
+			"webhookTitle": "Webhook",
+			"webhookHint": "Gitea リポジトリで、この URL とシークレットを使用して Webhook を追加します。プッシュ、プルリクエスト、Issue、Issue コメント、作成 (ラベル用) を有効にしてください。",
+			"webhookSecretLabel": "シークレット (Gitea の Webhook シークレットと一致する必要があります)",
+			"baseUrlLabel": "Gitea URL",
+			"baseUrlHint": "Gitea インスタンスのルート URL",
+			"tokenLabel": "パーソナルアクセストークン",
+			"tokenHint": "リポジトリおよび Issue へのアクセス権を持つトークン",
+			"tokenPlaceholder": "トークンを貼り付け",
+			"tokenPlaceholderUpdate": "更新用の新しいトークンを貼り付け",
+			"currentToken": "保存済み",
+			"ownerLabel": "オーナー",
+			"ownerHint": "ユーザー名または組織名",
+			"repoNameLabel": "リポジトリ名",
+			"repoNameHint": "リポジトリ名のみ (オーナー名は含めない)",
+			"actionsTitle": "操作",
+			"actionsHint": "アクセスを検証して接続します",
+			"browse": "参照",
+			"verify": "検証",
+			"update": "更新",
+			"connect": "接続",
+			"disconnect": "接続解除",
+			"importSectionTitle": "Gitea Issue のインポート",
+			"importSectionHint": "リポジトリからオープン状態の Issue およびプルリクエストをインポートします",
+			"importing": "インポート中...",
+			"importIssues": "Issue をインポート",
+			"importDisabledHint": "インポートを有効にするには、上記のリポジトリを検証してください",
+			"browseModalTitle": "マイリポジトリ",
+			"browseModalHint": "トークンがアクセス可能なリポジトリ",
+			"searchRepos": "検索...",
+			"browseNeedsCredentials": "参照するには Gitea の URL とトークンを入力してください",
+			"loadingRepos": "リポジトリを読み込み中...",
+			"retry": "再試行"
+		},
+		"slackIntegration": {
+			"validation": {
+				"webhookInvalid": "有効な Slack Webhook URL を入力してください"
+			},
+			"toast": {
+				"saved": "Slack 連携を保存しました",
+				"saveError": "Slack 連携の保存に失敗しました",
+				"enabled": "Slack 通知を有効にしました",
+				"disabled": "Slack 通知を一時停止しました",
+				"updateError": "Slack 連携の更新に失敗しました",
+				"removed": "Slack 連携を解除しました",
+				"removeError": "Slack 連携の解除に失敗しました"
+			},
+			"connectionTitle": "Slack Webhook 接続",
+			"connectionHint": "Slack の Incoming Webhook URL を貼り付け、投稿するタスクイベントを選択します。",
+			"connected": "接続済み",
+			"paused": "一時停止中",
+			"webhookLabel": "Incoming Webhook URL",
+			"webhookPlaceholder": "https://hooks.slack.com/services/...",
+			"webhookHint": "Slack で Incoming Webhook を作成し、生成された URL をここに貼り付けます。",
+			"channelLabel": "チャンネル名",
+			"channelPlaceholder": "#team-updates",
+			"channelHint": "参照用の任意のラベルです。実際の送信先チャンネルは Slack の Webhook 設定で制御されます。",
+			"eventsTitle": "イベント通知",
+			"eventsHint": "Slack に投稿するプロジェクトの変更を選択します。",
+			"events": {
+				"taskCreated": "タスクの新規作成",
+				"taskStatusChanged": "ステータスの変更",
+				"taskPriorityChanged": "優先度の変更",
+				"taskTitleChanged": "タイトルの変更",
+				"taskDescriptionChanged": "説明の変更",
+				"taskCommentCreated": "新しいコメント"
+			},
+			"connect": "Slack に接続",
+			"saveChanges": "変更を保存",
+			"update": "Slack を更新",
+			"disconnect": "接続解除"
+		},
+		"discordIntegration": {
+			"validation": {
+				"webhookInvalid": "有効な Discord Webhook URL を入力してください"
+			},
+			"toast": {
+				"saved": "Discord 連携を保存しました",
+				"saveError": "Discord 連携の保存に失敗しました",
+				"enabled": "Discord 通知を有効にしました",
+				"disabled": "Discord 通知を一時停止しました",
+				"updateError": "Discord 連携の更新に失敗しました",
+				"removed": "Discord 連携を解除しました",
+				"removeError": "Discord 連携の解除に失敗しました"
+			},
+			"connectionTitle": "Discord Webhook 接続",
+			"connectionHint": "Discord の Webhook URL を貼り付け、投稿するタスクイベントを選択します。",
+			"connected": "接続済み",
+			"paused": "一時停止中",
+			"webhookLabel": "Webhook URL",
+			"webhookPlaceholder": "https://discord.com/api/webhooks/...",
+			"webhookHint": "Discord チャンネルの Webhook を作成し、生成された URL をここに貼り付けます。",
+			"channelLabel": "チャンネル名",
+			"channelPlaceholder": "#team-updates",
+			"channelHint": "参照用の任意のラベルです。実際の送信先チャンネルは Discord の Webhook 設定で制御されます。",
+			"eventsTitle": "イベント通知",
+			"eventsHint": "Discord に投稿するプロジェクトの変更を選択します。",
+			"events": {
+				"taskCreated": "タスクの新規作成",
+				"taskStatusChanged": "ステータスの変更",
+				"taskPriorityChanged": "優先度の変更",
+				"taskTitleChanged": "タイトルの変更",
+				"taskDescriptionChanged": "説明の変更",
+				"taskCommentCreated": "新しいコメント"
+			},
+			"connect": "Discord に接続",
+			"saveChanges": "変更を保存",
+			"update": "Discord を更新",
+			"disconnect": "接続解除"
+		},
+		"genericWebhookIntegration": {
+			"validation": {
+				"webhookInvalid": "有効な Webhook URL を入力してください"
+			},
+			"toast": {
+				"saved": "汎用 Webhook 連携を保存しました",
+				"saveError": "汎用 Webhook 連携の保存に失敗しました",
+				"enabled": "汎用 Webhook 通知を有効にしました",
+				"disabled": "汎用 Webhook 通知を一時停止しました",
+				"updateError": "汎用 Webhook 連携の更新に失敗しました",
+				"removed": "汎用 Webhook 連携を解除しました",
+				"removeError": "汎用 Webhook 連携の解除に失敗しました"
+			},
+			"connectionTitle": "送信 Webhook 接続",
+			"connectionHint": "タスクイベントを JSON として独自のエンドポイントに送信します。シークレットが設定されている場合、署名された X-Kaneo-Signature ヘッダーが含まれます。",
+			"connected": "接続済み",
+			"paused": "一時停止中",
+			"webhookLabel": "エンドポイント URL",
+			"webhookPlaceholder": "https://example.com/webhooks/kaneo",
+			"webhookHint": "Kaneo は有効になっているイベントごとに JSON ペイロードを含む POST リクエストを送信します。",
+			"secretLabel": "署名シークレット",
+			"secretPlaceholder": "共有シークレット（任意）",
+			"secretHint": "任意。指定した場合、Kaneo はリクエスト本文に署名し、その 16 進ダイジェストを X-Kaneo-Signature ヘッダーで送信します。",
+			"secretHintConfigured": "署名シークレットは既に設定されています ({{secret}})。置き換えるには新しいシークレットを入力してください。",
+			"eventsTitle": "イベント通知",
+			"eventsHint": "送信 Webhook をトリガーするプロジェクトの変更を選択します。",
+			"events": {
+				"taskCreated": "タスクの新規作成",
+				"taskStatusChanged": "ステータスの変更",
+				"taskPriorityChanged": "優先度の変更",
+				"taskTitleChanged": "タイトルの変更",
+				"taskDescriptionChanged": "説明の変更",
+				"taskCommentCreated": "新しいコメント",
+				"taskDeleted": "タスクの削除",
+				"taskMoved": "タスクの移動",
+				"taskDueDateChanged": "期限の変更",
+				"taskAssigneeChanged": "担当者の変更",
+				"taskUnassigned": "担当者の解除",
+				"dueDateReminder": "期限リマインダー"
+			},
+			"reminderLeadTimeLabel": "期限の何時間前に Webhook を送信するか（時間）",
+			"connect": "Webhook を接続",
+			"saveChanges": "変更を保存",
+			"disconnect": "接続解除"
+		},
+		"telegramIntegration": {
+			"validation": {
+				"botTokenInvalid": "有効な Telegram ボットトークンを入力してください",
+				"chatIdRequired": "チャット ID は必須です",
+				"threadIdInvalid": "有効な Telegram トピックのスレッド ID を入力してください"
+			},
+			"toast": {
+				"saved": "Telegram 連携を保存しました",
+				"saveError": "Telegram 連携の保存に失敗しました",
+				"enabled": "Telegram 通知を有効にしました",
+				"disabled": "Telegram 通知を一時停止しました",
+				"updateError": "Telegram 連携の更新に失敗しました",
+				"removed": "Telegram 連携を解除しました",
+				"removeError": "Telegram 連携の解除に失敗しました"
+			},
+			"connectionTitle": "Telegram ボット接続",
+			"connectionHint": "Telegram ボットのトークンとチャット ID を使用して、プロジェクトのタスク更新をチャットまたはトピックに送信します。",
+			"connected": "接続済み",
+			"paused": "一時停止中",
+			"botTokenLabel": "ボットトークン",
+			"botTokenPlaceholder": "123456789:AAExampleBotToken",
+			"botTokenHint": "BotFather でボットを作成し、そのトークンをここに貼り付けます。",
+			"botTokenHintConfigured": "ボットトークンは既に設定されています ({{token}})。置き換えるには新しいトークンを入力してください。",
+			"chatIdLabel": "チャット ID",
+			"chatIdPlaceholder": "-1001234567890 または @team_updates",
+			"chatIdHint": "更新を投稿する Telegram のチャット ID またはチャンネルのユーザー名を入力します。",
+			"threadIdLabel": "トピックスレッド ID",
+			"threadIdPlaceholder": "トピック ID（任意）",
+			"threadIdHint": "任意。Telegram グループ内のフォーラムトピックに使用します。",
+			"chatLabelLabel": "チャットラベル",
+			"chatLabelPlaceholder": "開発チームの更新",
+			"chatLabelHint": "Kaneo 内での参照用の任意のラベルです。",
+			"eventsTitle": "イベント通知",
+			"eventsHint": "Telegram に投稿するプロジェクトの変更を選択します。",
+			"events": {
+				"taskCreated": "タスクの新規作成",
+				"taskStatusChanged": "ステータスの変更",
+				"taskPriorityChanged": "優先度の変更",
+				"taskTitleChanged": "タイトルの変更",
+				"taskDescriptionChanged": "説明の変更",
+				"taskCommentCreated": "新しいコメント"
+			},
+			"connect": "Telegram に接続",
+			"saveChanges": "変更を保存",
+			"disconnect": "接続解除"
+		},
+		"repositoryBrowser": {
+			"title": "リポジトリの選択",
+			"description": "Issue 同期を有効にするために、GitHub App がインストールされているリポジトリを選択してください。",
+			"searchPlaceholder": "リポジトリを検索...",
+			"loadError": "リポジトリの読み込みに失敗しました",
+			"tryAgain": "もう一度試す",
+			"emptyTitle": "リポジトリが見つかりません",
+			"emptyHint": "ここに表示するには、リポジトリに GitHub App をインストールしてください。",
+			"installGithubApp": "GitHub App をインストール",
+			"noSearchMatchTitle": "検索条件に一致するリポジトリがありません",
+			"noSearchMatchHint": "検索キーワードを変更するか、検索をクリアしてすべてのリポジトリを表示してください。",
+			"footerSummary": "{{installationCount}} 件のインストール全体で {{repoCount}} 個のリポジトリ",
+			"manageInstallations": "インストールを管理",
+			"updatedPrefix": "最終更新:",
+			"relativeJustNow": "たった今",
+			"relativeMinutesAgo": "{{count}}分前",
+			"relativeHoursAgo": "{{count}}時間前",
+			"relativeDaysAgo": "{{count}}日前"
+		},
+		"tasksImportExport": {
+			"exportTasks": "タスクのエクスポート",
+			"importTasks": "タスクのインポート",
+			"dialogTitle": "タスクのインポート",
+			"dialogDescription": "このプロジェクトにインポートするタスクを含む JSON ファイルをアップロードします。",
+			"expectedFormat": "想定される形式:",
+			"dropHint": "ここに JSON ファイルをドラッグ＆ドロップしてください",
+			"selectFile": "ファイルを選択",
+			"exporting": "タスクをエクスポート中...",
+			"exportSuccess": "タスクをエクスポートしました",
+			"exportError": "タスクのエクスポートに失敗しました",
+			"importing": "タスクをインポート中...",
+			"importSuccess": "{{count}} 件のタスクをインポートしました",
+			"importPartialError": "{{count}} 件のタスクのインポートに失敗しました",
+			"importError": "タスクのインポートに失敗しました",
+			"invalidFormat": "インポートファイルの形式が無効です",
+			"noFileDropped": "ファイルがドロップされませんでした",
+			"notJsonFile": "JSON ファイルをアップロードしてください"
+		},
+		"workflowEditor": {
+			"loading": "読み込み中...",
+			"createColumnsFirst": "自動化ルールを設定するには、先にカラムを作成してください。",
+			"githubHeading": "GitHub",
+			"githubHint": "GitHub イベントが発生したときに、リンクされたタスクをカラムに移動します。",
+			"giteaHeading": "Gitea",
+			"giteaHint": "Gitea の Webhook イベントが発生したときに、リンクされたタスクをカラムに移動します。",
+			"selectColumnPlaceholder": "カラムを選択...",
+			"toastUpdated": "ワークフロールールを更新しました",
+			"toastError": "ルールの更新に失敗しました",
+			"events": {
+				"branch_push": "ブランチのプッシュ",
+				"pr_opened": "PR オープン",
+				"pr_merged": "PR マージ",
+				"issue_opened": "Issue オープン",
+				"issue_closed": "Issue クローズ"
+			}
+		},
+		"externalLinks": {
+			"resources": "リソース",
+			"issue": "Issue",
+			"branch": "ブランチ",
+			"merged": "マージ済み",
+			"draft": "下書き",
+			"open": "オープン"
+		}
+	},
+	"navigation": {
+		"commandPalette": {
+			"suggestions": "候補",
+			"commands": "コマンド",
+			"projects": "プロジェクト",
+			"search": "検索",
+			"members": "メンバー",
+			"createTask": "タスクを作成",
+			"createProject": "プロジェクトを作成",
+			"createWorkspace": "ワークスペースを作成",
+			"lightTheme": "ライトテーマ",
+			"darkTheme": "ダークテーマ",
+			"systemTheme": "システムテーマ",
+			"keyboardShortcuts": "キーボードショートカット",
+			"inputPlaceholder": "アプリやコマンドを検索...",
+			"empty": "結果が見つかりません。",
+			"footer": {
+				"navigate": "移動",
+				"open": "開く",
+				"close": "閉じる"
+			}
+		},
+		"notifications": "通知",
+		"sidebar": {
+			"overview": "概要",
+			"projects": "プロジェクト",
+			"members": "メンバー",
+			"invitations": "招待",
+			"more": "その他",
+			"backToBoard": "ボードに戻る"
+		},
+		"projectList": {
+			"viewProject": "プロジェクトを表示",
+			"shareProject": "プロジェクトを共有",
+			"projectSettings": "プロジェクト設定",
+			"linkCopied": "プロジェクトのリンクをクリップボードにコピーしました",
+			"addProject": "プロジェクトを追加",
+			"deleteConfirmTitle": "プロジェクトを削除しますか？",
+			"deleteConfirmDescription": "これにより、プロジェクトとそのすべてのデータが完全に削除されます。この操作は取り消せません。",
+			"deletedToast": "プロジェクトを削除しました",
+			"deleteProject": "プロジェクトを削除"
+		},
+		"search": {
+			"inputPlaceholder": "タスク、プロジェクト、コメントを検索...",
+			"minCharsHint": "検索するには3文字以上入力してください",
+			"groups": {
+				"task": "タスク",
+				"project": "プロジェクト",
+				"workspace": "ワークスペース",
+				"comment": "コメント",
+				"activity": "アクティビティ",
+				"fallback": "検索結果"
+			}
+		},
+		"settingsLayout": {
+			"toggleSidebar": "サイドバーを切り替え",
+			"back": "戻る"
+		},
+		"userMenu": {
+			"signedOutSuccess": "サインアウトしました",
+			"signOutFailed": "サインアウトに失敗しました",
+			"unnamedUser": "ユーザー",
+			"settings": "設定",
+			"signingOut": "サインアウト中...",
+			"logOut": "ログアウト"
+		},
+		"workspaceSwitcher": {
+			"workspaces": "ワークスペース",
+			"switching": "切り替え中...",
+			"addWorkspace": "ワークスペースを追加",
+			"selectWorkspace": "ワークスペースを選択"
+		},
+		"page": {
+			"projectsTitle": "プロジェクト",
+			"settingsTitle": "設定",
+			"backToWorkspace": "ワークスペースに戻る",
+			"settingsWorkspaceTab": "ワークスペース"
+		},
+		"projectSettings": {
+			"projectLabel": "プロジェクト"
+		},
+		"keyboardShortcuts": {
+			"title": "キーボードショートカット",
+			"subtitle": "キーボードショートカットで作業を効率化",
+			"searchPlaceholder": "ショートカットを検索...",
+			"footer": "<kbd>Escape</kbd> で閉じる",
+			"categories": {
+				"general": "一般",
+				"create": "作成",
+				"views": "ビュー",
+				"navigation": "ナビゲーション",
+				"quickSelect": "クイック選択 (ポップオーバー内)"
+			},
+			"items": {
+				"openCommandPalette": "コマンドパレットを開く",
+				"globalSearch": "全体検索",
+				"toggleSidebar": "サイドバーを切り替え",
+				"showShortcuts": "キーボードショートカットを表示",
+				"closeModal": "モーダル/ポップオーバーを閉じる",
+				"createTask": "タスクを作成",
+				"createProject": "プロジェクトを作成",
+				"createWorkspace": "ワークスペースを作成",
+				"boardView": "ボードビューに切り替え",
+				"listView": "リストビューに切り替え",
+				"backlogView": "バックログビューに切り替え",
+				"calendarView": "カレンダービューに切り替え",
+				"nextTask": "次のタスク",
+				"prevTask": "前のタスク",
+				"openTask": "選択したタスクを開く",
+				"quickSelectNumber": "番号で項目を選択"
+			}
+		}
+	},
+	"notifications": {
+		"title": "通知",
+		"newCount_other": "{{count}} 件の新着",
+		"emptyTitle": "通知はまだありません",
+		"emptySubtitle": "更新やアクティビティがここに表示されます。",
+		"clearAll": "すべての通知を消去",
+		"clearDialogTitle": "すべての通知を消去しますか？",
+		"clearDialogDescription": "これにより、すべての通知が完全に削除されます。この操作は取り消せません。",
+		"shortcuts": {
+			"open": "通知を開く"
+		},
+		"reminderLeadTime": {
+			"minutes_other": "{{count}} 分",
+			"hours_other": "{{count}} 時間",
+			"days_other": "{{count}} 日"
+		},
+		"events": {
+			"task_created": {
+				"title": "新しいタスクが作成されました",
+				"content": "タスク「{{taskTitle}}」が作成されました"
+			},
+			"workspace_created": {
+				"title": "ワークスペースが作成されました",
+				"content": "ワークスペース「{{workspaceName}}」が作成されました"
+			},
+			"task_status_changed": {
+				"title": "タスクのステータスが変更されました",
+				"content": "タスク「{{taskTitle}}」のステータスが「{{oldStatus}}」から「{{newStatus}}」に変更されました"
+			},
+			"task_assignee_changed": {
+				"title": "タスクが割り当てられました",
+				"content": "タスク「{{taskTitle}}」の担当者に割り当てられました"
+			},
+			"task_mention": {
+				"title": "{{mentionerName}} さんがあなたをメンションしました",
+				"content": "{{mentionerName}} さんが「{{taskTitle}}」であなたをメンションしました"
+			},
+			"task_comment": {
+				"title": "{{commenterName}} さんがあなたのタスクにコメントしました",
+				"content": "「{{taskTitle}}」への新しいコメント: {{commentPreview}}"
+			},
+			"due_date_reminder": {
+				"title": "タスクの期限が近づいています",
+				"content": "「{{taskTitle}}」の期限まであと {{leadTime}} です"
+			},
+			"task_overdue": {
+				"title": "タスクの期限が過ぎています",
+				"content": "「{{taskTitle}}」の期限が過ぎています"
+			},
+			"time_entry_created": {
+				"title": "時間計測を開始しました",
+				"contentWithTask": "タスク「{{taskTitle}}」の時間計測を開始しました",
+				"contentWithoutTask": "タスクの時間計測を開始しました"
+			}
+		}
+	},
+	"activity": {
+		"assignedToSelf": "がタスクを自分に割り当てました",
+		"unassigned": "が担当者の割り当てを解除しました",
+		"assignedTo": "がタスクを {{name}} に割り当てました",
+		"changedStatus": "がステータスを {{from}} から {{to}} に変更しました",
+		"changedPriority": "が優先度を {{from}} から {{to}} に変更しました",
+		"clearedDueDate": "が期限をクリアしました",
+		"setDueDate": "が期限を {{date}} に設定しました",
+		"changedDueDate": "が期限を {{from}} から {{to}} に変更しました",
+		"changedTitle": "がタイトルを「{{from}}」から「{{to}}」に変更しました",
+		"moved": "がタスクを「{{from}}」から「{{to}}」に移動しました",
+		"created": "がこのタスクを作成しました",
+		"githubUser": "GitHub ユーザー",
+		"comment": {
+			"github": "GitHub",
+			"viewGithubProfile": "GitHub プロフィールを表示",
+			"commentedOnGithub": "GitHub でコメント",
+			"cannotBeEmpty": "コメントを入力してください",
+			"mustBeLoggedInToEdit": "コメントを編集するにはログインが必要です",
+			"updated": "コメントを更新しました",
+			"failedToUpdate": "コメントの更新に失敗しました",
+			"edit": "コメントを編集",
+			"editPlaceholder": "コメントを編集...",
+			"save": "保存",
+			"added": "コメントを追加しました",
+			"failedToAdd": "コメントの追加に失敗しました",
+			"leavePlaceholder": "コメントを入力...",
+			"attachFile": "ファイルを添付",
+			"submitShortcut": "コメントを送信",
+			"editor": {
+				"uploadsOnlyOnSavedTasks": "ファイルのアップロードは保存済みのタスクでのみ利用できます。",
+				"uploadingFile": "ファイルをアップロード中...",
+				"imageUploaded": "画像をアップロードしました",
+				"fileAttached": "ファイルを添付しました",
+				"failedToUploadFile": "ファイルのアップロードに失敗しました",
+				"enterUrl": "URLを入力",
+				"plaintext": "プレーンテキスト",
+				"autoDetect": "自動検出",
+				"slashGroupText": "テキスト",
+				"slashGroupLists": "リスト",
+				"slashGroupInsert": "挿入",
+				"slashParagraph": "テキスト",
+				"slashHeading": "見出し",
+				"slashBulletList": "箇条書きリスト",
+				"slashTaskList": "To-Do リスト",
+				"slashOrderedList": "番号付きリスト",
+				"slashQuote": "引用",
+				"slashCodeBlock": "コードブロック",
+				"slashTable": "表",
+				"slashFile": "ファイル",
+				"searchParagraph": "テキスト 段落 通常",
+				"searchHeading": "見出し タイトル h2",
+				"searchBulletList": "リスト 箇条書き 順不同",
+				"searchTaskList": "ToDo to-do チェックリスト チェックボックス タスクリスト",
+				"searchOrderedList": "リスト 順序 番号付き",
+				"searchQuote": "引用 引用文 ブロッククォート",
+				"searchCodeBlock": "コード スニペット",
+				"searchTable": "表 グリッド テーブル",
+				"searchFile": "ファイル 添付 画像 写真 アップロード",
+				"embedErrorInvalidUrl": "有効なURLを入力してください",
+				"embedErrorYoutubeOnly": "YouTube のリンクのみ埋め込み可能です。",
+				"embedVideo": "動画を埋め込む",
+				"keepAsLink": "リンクのまま保持",
+				"hintTab": "Tab",
+				"hintEsc": "Esc",
+				"pasteUrl": "URLを貼り付け",
+				"asLink": "リンクとして表示",
+				"embed": "埋め込む",
+				"noCommands": "コマンドがありません",
+				"ariaCommentContent": "コメント内容",
+				"ariaCommentEditor": "コメントエディター",
+				"ariaCopyCode": "コードをコピー",
+				"ariaCopied": "コピー完了",
+				"copy": "コピー",
+				"copied": "コピー完了",
+				"dropImageToUpload": "画像をドロップしてアップロード",
+				"previewImageAlt": "プレビュー画像",
+				"codeLang": {
+					"bash": "Bash",
+					"csharp": "C#",
+					"cpp": "C++",
+					"css": "CSS",
+					"go": "Golang",
+					"graphql": "GraphQL",
+					"html": "HTML",
+					"json": "JSON",
+					"java": "Java",
+					"javascript": "JavaScript",
+					"markdown": "Markdown",
+					"mermaid": "Mermaid",
+					"plaintext": "プレーンテキスト",
+					"python": "Python",
+					"rust": "Rust",
+					"sql": "SQL",
+					"swift": "Swift",
+					"typescript": "TypeScript",
+					"yaml": "YAML"
+				},
+				"table": {
+					"addColumnBefore": "左に列を挿入",
+					"addColumnAfter": "右に列を挿入",
+					"deleteColumn": "列を削除",
+					"addRowBefore": "上に行を挿入",
+					"addRowAfter": "下に行を挿入",
+					"deleteRow": "行を削除",
+					"deleteTable": "表を削除"
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid ダイアグラムを描画できませんでした"
+				}
+			}
+		}
+	},
+	"tasks": {
+		"status": {
+			"label": "ステータス",
+			"to-do": "To Do",
+			"in-progress": "進行中",
+			"in-review": "レビュー中",
+			"done": "完了",
+			"archived": "アーカイブ済み",
+			"planned": "計画中"
+		},
+		"priority": {
+			"label": "優先度",
+			"no-priority": "優先度なし",
+			"low": "低",
+			"medium": "中",
+			"high": "高",
+			"urgent": "緊急"
+		},
+		"boardSearchPlaceholder": "チケットを検索...",
+		"view": {
+			"board": "ボード",
+			"list": "リスト"
+		},
+		"common": {
+			"selectTask": "タスクを選択",
+			"loadingTask": "タスクを読み込み中...",
+			"taskNotFound": "タスクが見つかりません",
+			"taskNotFoundDescription": "お探しのタスクは存在しないか、削除されました。"
+		},
+		"detail": {
+			"subtaskOf": "親タスク:",
+			"activity": "アクティビティ",
+			"noActivity": "アクティビティはありません",
+			"openInFullPage": "フルページで開く",
+			"titlePlaceholder": "クリックしてタイトルを追加",
+			"addDescription": "説明を追加...",
+			"editor": {
+				"ariaLabel": "タスク説明エディター",
+				"placeholder": "説明を入力...",
+				"previewImage": "画像をプレビュー",
+				"enterUrl": "URLを入力",
+				"autoDetect": "自動検出",
+				"copyCode": "コードをコピー",
+				"copy": "コピー",
+				"copied": "コピー完了",
+				"attachFile": "ファイルを添付",
+				"dropToUpload": "画像をドロップしてアップロード",
+				"checkbox": {
+					"markIncomplete": "タスクを未完了にする",
+					"markComplete": "タスクを完了にする"
+				},
+				"upload": {
+					"loading": "ファイルをアップロード中...",
+					"failed": "ファイルのアップロードに失敗しました",
+					"imageSuccess": "画像をアップロードしました",
+					"fileSuccess": "ファイルを添付しました"
+				},
+				"slash": {
+					"groups": {
+						"text": "テキスト",
+						"lists": "リスト",
+						"insert": "挿入"
+					},
+					"empty": "コマンドがありません",
+					"commands": {
+						"paragraph": "テキスト",
+						"heading-2": "見出し",
+						"bullet-list": "箇条書きリスト",
+						"task-list": "To-Do リスト",
+						"ordered-list": "番号付きリスト",
+						"blockquote": "引用",
+						"code-block": "コードブロック",
+						"table": "表",
+						"file": "ファイル"
+					}
+				},
+				"languages": {
+					"bash": "Bash",
+					"csharp": "C#",
+					"cpp": "C++",
+					"css": "CSS",
+					"clojure": "Clojure",
+					"cypher": "Cypher",
+					"dart": "Dart",
+					"diff": "Diff",
+					"elixir": "Elixir",
+					"excel": "Excel",
+					"go": "Golang",
+					"graphql": "GraphQL",
+					"html": "HTML",
+					"haskell": "Haskell",
+					"json": "JSON",
+					"java": "Java",
+					"javascript": "JavaScript",
+					"kotlin": "Kotlin",
+					"makefile": "Makefile",
+					"markdown": "Markdown",
+					"mermaid": "Mermaid",
+					"ocaml": "OCaml",
+					"php": "PHP",
+					"perl": "Perl",
+					"plaintext": "プレーンテキスト",
+					"python": "Python",
+					"r": "R",
+					"reasonml": "ReasonML",
+					"ruby": "Ruby",
+					"rust": "Rust",
+					"sql": "SQL",
+					"swift": "Swift",
+					"toml": "TOML",
+					"terraform": "Terraform",
+					"typescript": "TypeScript",
+					"xml": "XML",
+					"yaml": "YAML"
+				},
+				"embed": {
+					"choice": {
+						"embedVideo": "動画を埋め込む",
+						"keepAsLink": "リンクのまま保持"
+					},
+					"inputPlaceholder": "URLを貼り付け",
+					"embeddedContent": "埋め込みコンテンツ",
+					"asLink": "リンクとして表示",
+					"submit": "埋め込む",
+					"errors": {
+						"invalidUrl": "有効なURLを入力してください",
+						"onlyYoutube": "YouTube のリンクのみ埋め込み可能です。"
+					},
+					"onlyYoutubeInline": "YouTube の URL のみ埋め込み可能です。代わりにリンクモードを使用してください。"
+				},
+				"mermaid": {
+					"renderFailed": "Mermaid ダイアグラムを描画できませんでした"
+				}
+			}
+		},
+		"entity": {
+			"task": "タスク"
+		},
+		"relations": {
+			"title": "関連",
+			"tasksInProject": "プロジェクト内のタスク",
+			"linkError": "タスクのリンクに失敗しました",
+			"empty": "関連タスクはありません",
+			"searchPlaceholder": "リンクするタスクを検索...",
+			"noTasksFound": "タスクが見つかりません",
+			"openTask": "タスクを開く",
+			"removeRelation": "関連付けを解除",
+			"related": "関連",
+			"blocks": "ブロック中",
+			"selectTask": "リンクするタスクを選択",
+			"types": {
+				"blocks": "ブロック中",
+				"blocked_by": "ブロックされている",
+				"related": "関連"
+			}
+		},
+		"subtasks": {
+			"title": "サブタスク",
+			"inputPlaceholder": "サブタスクのタイトル...",
+			"addAction": "追加",
+			"empty": "サブタスクはまだありません",
+			"createError": "サブタスクの作成に失敗しました",
+			"deleteSuccess": "タスクを削除しました",
+			"deleteError": "タスクの削除に失敗しました",
+			"deleteDialogTitle": "タスクを削除しますか？",
+			"deleteDialogDescription": "これにより、タスクとそのすべてのデータが完全に削除されます。この操作は取り消せません。",
+			"deleteAction": "タスクを削除",
+			"completeAria": "サブタスクを完了にする"
+		},
+		"properties": {
+			"title": "プロパティ",
+			"labels": "ラベル",
+			"copyTaskLink": "タスクのリンクをコピー",
+			"copyTaskBranch": "タスクのブランチ名をコピー",
+			"start": "開始",
+			"startDate": "開始日",
+			"noDate": "日付なし"
+		},
+		"move": {
+			"title": "タスクを移動",
+			"projectLabel": "移動先プロジェクト",
+			"projectPlaceholder": "プロジェクトを選択",
+			"statusLabel": "移動先ステータス",
+			"statusHintKeep": "このプロジェクトのワークフローは現在のステータスに対応しています。",
+			"statusHintAdjust": "移動先のプロジェクトで使用するステータスを選択してください。",
+			"action": "タスクを移動",
+			"success": "タスクを移動しました",
+			"error": "タスクの移動に失敗しました"
+		},
+		"popover": {
+			"assignee": {
+				"unassigned": "未割り当て",
+				"updateError": "担当者の更新に失敗しました"
+			},
+			"status": {
+				"updateError": "ステータスの更新に失敗しました"
+			},
+			"priority": {
+				"updateError": "優先度の更新に失敗しました"
+			},
+			"dueDate": {
+				"updateSuccess": "期限を更新しました",
+				"updateError": "期限の更新に失敗しました",
+				"clear": "日付をクリア"
+			},
+			"startDate": {
+				"updateSuccess": "開始日を更新しました",
+				"updateError": "開始日の更新に失敗しました",
+				"clear": "開始日をクリア"
+			},
+			"labels": {
+				"searchPlaceholder": "ラベルを検索...",
+				"empty": "ラベルが見つかりません",
+				"create": "「{{name}}」を作成",
+				"chooseColor": "色を選択",
+				"addSuccess": "ラベルを追加しました",
+				"removeSuccess": "ラベルを削除しました",
+				"updateError": "ラベルの更新に失敗しました",
+				"createSuccess": "ラベルを作成して追加しました",
+				"createError": "ラベルの作成に失敗しました",
+				"colors": {
+					"stone": "ストーン",
+					"slate": "スレート",
+					"lavender": "ラベンダー",
+					"sage": "セージ",
+					"forest": "フォレスト",
+					"amber": "アンバー",
+					"terracotta": "テラコッタ",
+					"rose": "ローズ",
+					"crimson": "クリムゾン"
+				}
+			}
+		},
+		"backlog": {
+			"pageTitle": "{{name}} のバックログ",
+			"noTasksToMove": "移動できる計画中のタスクはありません",
+			"moveAllConfirm": "計画中の {{count}} 件のタスクをすべて To Do に移動しますか？",
+			"moveAllSuccess": "{{count}} 件のタスクを To Do に移動しました",
+			"plan": "計画",
+			"moveAllTooltip": "計画中のタスクをすべて To Do に移動",
+			"moveAll": "すべて移動",
+			"addTask": "タスクを追加",
+			"filter": "フィルター",
+			"addFilter": "フィルターを追加...",
+			"sections": {
+				"planned": "計画中",
+				"archived": "アーカイブ済み"
+			},
+			"noTasksInSection": "{{section}} のタスクはありません",
+			"filters": {
+				"priority": "優先度: {{name}}",
+				"assignee": "担当者: {{name}}",
+				"due": "期限: {{date}}",
+				"label": "ラベル: {{name}}",
+				"dueThisWeek": "今週が期限",
+				"dueNextWeek": "来週が期限",
+				"noDueDate": "期限なし"
+			}
+		},
+		"sort": {
+			"label": "並び替え",
+			"by": "並び替え基準",
+			"direction": "順序",
+			"ascending": "昇順",
+			"descending": "降順",
+			"fields": {
+				"position": "手動 (位置)",
+				"createdAt": "作成日",
+				"priority": "優先度",
+				"dueDate": "期限",
+				"title": "タイトル",
+				"number": "タスク番号"
+			}
+		},
+		"boardFilters": {
+			"filterBy": "フィルター条件",
+			"allStatuses": "すべてのステータス",
+			"allPriorities": "すべての優先度",
+			"allAssignees": "すべての担当者",
+			"allDueDates": "すべての期限",
+			"allLabels": "すべてのラベル",
+			"selectedCount": "{{count}} 件選択中",
+			"subjects": {
+				"status": "ステータス",
+				"priority": "優先度",
+				"assignee": "担当者",
+				"dueDate": "期限",
+				"labels": "ラベル"
+			},
+			"operators": {
+				"isAnyOf": "次のいずれか",
+				"includeAnyOf": "次のいずれかを含む"
+			}
+		},
+		"calendar": {
+			"pageTitle": "{{name}} – カレンダー",
+			"title": "カレンダー",
+			"previousMonth": "前月",
+			"nextMonth": "翌月",
+			"today": "今日",
+			"noTasks": "予定されたタスクはありません",
+			"noTasksSubtitle": "タスクに開始日、期限、またはその両方を追加すると、カレンダーに表示されます。",
+			"moreTasks": "+{{count}} 件",
+			"loadError": "タスクの読み込みに失敗しました。",
+			"dayTasksAriaLabel": "{{date}}のすべてのタスクを表示",
+			"taskAriaLabel": "{{title}}、{{range}}: タスクを開く"
+		},
+		"gantt": {
+			"pageTitle": "{{name}} – ガントチャート",
+			"title": "ガントタイムライン",
+			"searchPlaceholder": "スケジュール済みのチケットを検索...",
+			"hideTasks": "タスクを非表示",
+			"showTasks": "タスクを表示",
+			"noTasks": "スケジュール済みのタスクはありません",
+			"noTasksSubtitle": "タスクに開始日や期限を設定して、プロジェクトのタイムラインに配置します。",
+			"noTasksFound": "タスクが見つかりません",
+			"noTasksMatch": "「{{query}}」に一致するスケジュール済みタスクはありません",
+			"taskHeader": "タスク",
+			"updateDatesError": "タスクの日程の更新に失敗しました",
+			"resizeStart": "開始日を変更",
+			"resizeDue": "期限を変更",
+			"taskAriaLabel": "{{title}}: 開く、またはドラッグして移動"
+		},
+		"delete": {
+			"title": "タスクを削除しますか？",
+			"description": "これにより、タスクとそのすべてのデータが完全に削除されます。この操作は取り消せません。",
+			"action": "タスクを削除",
+			"success": "タスクを削除しました",
+			"error": "タスクの削除に失敗しました"
+		},
+		"archive": {
+			"success": "{{count}} 件のタスクをアーカイブしました"
+		},
+		"listView": {
+			"addTask": "タスクを追加",
+			"archiveAllTooltip": "完了したタスクをすべてアーカイブ",
+			"noTasks": "タスクはありません"
+		},
+		"kanban": {
+			"addTask": "タスクを追加"
+		},
+		"pr": {
+			"merged": "マージ済み",
+			"draft": "下書き",
+			"open": "オープン",
+			"label": "Pull Request",
+			"count_other": "{{count}} 件の PR"
+		},
+		"assignee": {
+			"label": "担当者",
+			"unassigned": "未割り当て"
+		},
+		"dueDate": {
+			"label": "期限",
+			"clear": "日付をクリア",
+			"updateSuccess": "期限を更新しました",
+			"updateError": "期限の更新に失敗しました",
+			"clearSuccess": "期限をクリアしました",
+			"clearError": "期限のクリアに失敗しました"
+		},
+		"labels": {
+			"label": "ラベル",
+			"empty": "利用可能なラベルがありません"
+		},
+		"update": {
+			"success": "タスクを更新しました",
+			"error": "タスクの更新に失敗しました"
+		},
+		"contextMenu": {
+			"copyLink": "リンクをコピー",
+			"copyLinkSuccess": "タスクのリンクをコピーしました！"
+		},
+		"actions": {
+			"archive": "アーカイブ",
+			"markAsPlanned": "計画中に設定",
+			"delete": "削除..."
+		},
+		"bulk": {
+			"selectedCount": "{{count}} 件選択中",
+			"moveToBacklog": "バックログに移動",
+			"moveToBacklogSuccess": "{{count}} 件のタスクをバックログに移動しました",
+			"moveToBacklogError": "バックログへの移動に失敗しました",
+			"moveToBoard": "ボードに移動",
+			"moveToBoardSuccess": "{{count}} 件のタスクをボードに移動しました",
+			"moveToBoardError": "ボードへの移動に失敗しました",
+			"delete": "タスクを削除",
+			"deleteConfirm": "{{count}} 件のタスクを削除しますか？この操作は取り消せません。",
+			"deleteSuccess": "{{count}} 件のタスクを削除しました",
+			"deleteError": "タスクの削除に失敗しました",
+			"archive": "タスクをアーカイブ",
+			"archiveSuccess": "{{count}} 件のタスクをアーカイブしました",
+			"archiveError": "タスクのアーカイブに失敗しました",
+			"updateSuccess": "{{count}} 件のタスクを更新しました",
+			"updateError": "タスクの更新に失敗しました",
+			"assignTo": "担当者を割り当て",
+			"assignSuccess": "{{count}} 件のタスクに担当者を割り当てました",
+			"assignError": "担当者の割り当てに失敗しました",
+			"setPriority": "優先度を設定",
+			"updatePriorityError": "優先度の更新に失敗しました",
+			"addLabel": "ラベルを追加",
+			"addLabelSuccess": "{{count}} 件のタスクにラベルを追加しました",
+			"addLabelError": "ラベルの追加に失敗しました",
+			"setDueDate": "期限を設定",
+			"updateDueDateError": "期限の更新に失敗しました",
+			"actions": "操作",
+			"searchActions": "操作を検索...",
+			"noActionsFound": "操作が見つかりません。",
+			"changeStatus": "ステータスを変更"
+		},
+		"editor": {
+			"table": {
+				"addColumnBefore": "左に列を挿入",
+				"addColumnAfter": "右に列を挿入",
+				"deleteColumn": "列を削除",
+				"addRowBefore": "上に行を挿入",
+				"addRowAfter": "下に行を挿入",
+				"deleteRow": "行を削除",
+				"deleteTable": "表を削除"
+			}
+		}
+	},
+	"invitations": {
+		"email": {
+			"subject": "{{inviterName}} さんが Kaneo の「{{workspaceName}}」にあなたを招待しました",
+			"preview": "Kaneo の「{{workspaceName}}」に招待されました",
+			"title": "「{{workspaceName}}」に参加",
+			"subtitle": "{{inviterName}} ({{inviterEmail}}) さんが Kaneo でのコラボレーションにあなたを招待しました。",
+			"cta": "招待を承諾",
+			"sameEmail": "このメッセージを受信したメールアドレスで承諾できます。",
+			"ignore": "心当たりがない場合は、このメールを無視していただいて構いません。",
+			"footer": "Kaneo ワークスペース招待"
+		},
+		"pageTitle": "招待",
+		"pendingInvitations": "保留中の招待",
+		"acceptSubtitle": "招待を承諾してワークスペースに参加",
+		"noPendingTitle": "保留中の招待はありません",
+		"noPendingDescription": "現在、保留中のワークスペース招待はありません。",
+		"continueToSetup": "セットアップへ進む",
+		"skipForNow": "今はスキップ",
+		"table": {
+			"workspace": "ワークスペース",
+			"invitedBy": "招待者",
+			"expires": "有効期限"
+		},
+		"toast": {
+			"acceptError": "招待の承諾に失敗しました",
+			"acceptSuccess": "招待を承諾しました！チームへようこそ。",
+			"rejectError": "招待の辞退に失敗しました",
+			"rejectSuccess": "招待を辞退しました"
+		}
+	},
+	"workspace": {
+		"projects": {
+			"pageTitle": "プロジェクト",
+			"createProject": "プロジェクトを作成",
+			"title": "タイトル",
+			"progress": "進捗",
+			"targetDate": "目標日",
+			"dueDate": "期限",
+			"status": "ステータス",
+			"emptyTitle": "プロジェクトがまだありません",
+			"emptyDescription": "最初のプロジェクトを作成して始めましょう。",
+			"emptyDescriptionReadOnly": "このワークスペースにはまだプロジェクトがありません。管理者に作成を依頼してください。",
+			"projectStatus": {
+				"notStarted": "未着手",
+				"complete": "完了",
+				"inProgress": "進行中"
+			},
+			"noDueDate": "期限なし",
+			"reorderHandle": "プロジェクトの並び替え",
+			"reorderError": "プロジェクトの並び替えに失敗しました"
+		},
+		"search": {
+			"pageTitle": "検索",
+			"backToDashboard": "ダッシュボードに戻る",
+			"placeholder": "タイトルまたはID (例: DEP-23) でタスクを検索...",
+			"hint": "このワークスペース内のすべてのプロジェクトを検索します。特定のタスクを見つけるには DEP-23 のようなタスクIDを使用してください。",
+			"searching": "検索中...",
+			"resultsFound_other": "{{count}} 件の結果が見つかりました",
+			"noResultsTitle": "結果が見つかりません",
+			"noResultsDescription": "検索語句を変更するか、別のキーワードで検索してください",
+			"startTitle": "検索を開始",
+			"startDescription": "キーワードを入力して、すべてのプロジェクトからタスクを検索します",
+			"quickSearchesLabel": "クイック検索:",
+			"suggestionHighPriority": "高優先度",
+			"suggestionBug": "バグ",
+			"suggestionFeature": "機能",
+			"suggestionInProgress": "進行中",
+			"suggestionCompleted": "完了"
+		},
+		"create": {
+			"pageTitle": "ワークスペースを作成",
+			"heading": "新しいワークスペースを作成",
+			"subtitle": "ワークスペースは、チームがプロジェクト、サイクル、課題に取り組むための共有環境です。",
+			"nameLabel": "ワークスペース名",
+			"namePlaceholder": "ワークスペース名を入力",
+			"descriptionLabel": "説明 (任意)",
+			"descriptionPlaceholder": "ワークスペースの説明を追加",
+			"required": "必須",
+			"creating": "作成中...",
+			"submit": "ワークスペースを作成",
+			"success": "ワークスペースを作成しました",
+			"error": "ワークスペースの作成に失敗しました"
+		}
+	},
+	"team": {
+		"roles": {
+			"owner": "オーナー",
+			"admin": "管理者",
+			"member": "メンバー",
+			"viewer": "閲覧者"
+		},
+		"members": {
+			"pageTitle": "メンバー",
+			"inviteMember": "メンバーを招待",
+			"you": "あなた"
+		},
+		"invitations": {
+			"pendingBadge": "保留中",
+			"expires": "有効期限: {{date}}",
+			"linkLabel": "招待リンク",
+			"copyLink": "リンクをコピー",
+			"linkCopied": "招待リンクをコピーしました",
+			"copyFailed": "自動コピーできませんでした。リンクを選択して Ctrl+C を押してください。"
+		},
+		"inviteModal": {
+			"title": "チームメンバーを招待",
+			"emailLabel": "メールアドレス",
+			"emailPlaceholder": "colleague@company.com",
+			"sendInvitation": "招待を送信",
+			"success": "招待を送信しました",
+			"error": "チームメンバーの招待に失敗しました",
+			"createdTitle": "招待を作成しました",
+			"shareLinkDescription": "{{email}} にこのリンクを共有して、ワークスペースに参加してもらいましょう。",
+			"done": "完了"
+		},
+		"membersTable": {
+			"emptyTitle": "チームメンバーがまだいません",
+			"emptyDescription": "最初のチームメンバーを招待して始めましょう。",
+			"columns": {
+				"name": "名前",
+				"role": "ロール",
+				"joined": "参加日",
+				"actions": "操作"
+			},
+			"memberRolePending": "{{role}} (保留中)",
+			"ariaCancelInvitation": "招待をキャンセル",
+			"ariaInvitationActions": "招待の操作",
+			"ariaRemoveMember": "メンバーを削除",
+			"removeDialogTitle": "チームメンバーを削除しますか？",
+			"removeDialogDescription": "本当に {{name}} をワークスペースから削除しますか？この操作は取り消せません。",
+			"cancelDialogTitle": "招待をキャンセルしますか？",
+			"cancelDialogDescription": "本当に {{email}} への招待をキャンセルしますか？この操作は取り消せません。",
+			"removeMember": "メンバーを削除",
+			"cancelInvitation": "招待をキャンセル",
+			"removeSuccess": "チームメンバーを削除しました",
+			"removeError": "チームメンバーの削除に失敗しました",
+			"cancelInviteSuccess": "招待をキャンセルしました",
+			"cancelInviteError": "招待のキャンセルに失敗しました",
+			"roleUpdateSuccess": "ロールを更新しました",
+			"roleUpdateError": "ロールの更新に失敗しました"
+		}
+	},
+	"publicProject": {
+		"pageTitle": "公開ビュー",
+		"badge": "公開",
+		"readOnly": "閲覧専用",
+		"error": {
+			"title": "プロジェクトが見つかりません",
+			"description": "このプロジェクトは存在しないか、一般公開されていません。"
+		},
+		"taskCard": {
+			"viewDetailsAria": "タスク「{{title}}」の詳細を表示"
+		},
+		"taskDetail": {
+			"labels": "ラベル",
+			"externalLinks": "外部リンク",
+			"pullRequestFallback": "Pull Request",
+			"issueFallback": "Issue",
+			"prStatusMerged": "マージ済み",
+			"prStatusDraft": "下書き",
+			"prStatusOpen": "オープン",
+			"dueWithDate": "期限: {{date}}",
+			"created": "作成日",
+			"dueDateLabel": "期限"
+		},
+		"theme": {
+			"switchToLight": "ライトモードに切り替え",
+			"switchToDark": "ダークモードに切り替え"
+		},
+		"copyUrl": {
+			"successToast": "URLをコピーしました",
+			"errorToast": "URLのコピーに失敗しました",
+			"copied": "コピー完了",
+			"share": "共有"
+		},
+		"branding": {
+			"poweredBy": "Powered by"
+		}
+	}
+}
