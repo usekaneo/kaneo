@@ -75,75 +75,13 @@ jobs:
     name: Publish nightly images
     needs: verify
     if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
-    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - dockerfile: ./Dockerfile.kaneo
-            image: ghcr.io/${{ github.repository_owner }}/kaneo
-          - dockerfile: ./apps/web/Dockerfile
-            image: ghcr.io/${{ github.repository_owner }}/web
-          - dockerfile: ./apps/api/Dockerfile
-            image: ghcr.io/${{ github.repository_owner }}/api
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          persist-credentials: false
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GH_PACKAGE_TOKEN }}
-
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v6
-        with:
-          images: ${{ matrix.image }}
-          tags: |
-            type=raw,value=nightly
-            type=raw,value=nightly-{{date 'YYYYMMDD'}}
-            type=sha,prefix=nightly-
-
-      # The web Dockerfile mounts SENTRY_AUTH_TOKEN from a BuildKit secret
-      # so it never lands in image metadata. This step writes the secret to a
-      # file that build-push-action exposes to the build at runtime.
-      - name: Prepare Sentry auth token for source-map upload
-        if: matrix.dockerfile == './apps/web/Dockerfile'
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-        run: |
-          mkdir -p /tmp/sentry-build-secrets
-          printf '%s' "$SENTRY_AUTH_TOKEN" > /tmp/sentry-build-secrets/SENTRY_AUTH_TOKEN
-          chmod 600 /tmp/sentry-build-secrets/SENTRY_AUTH_TOKEN
-
-      - name: Build and push
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          file: ${{ matrix.dockerfile }}
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          build-args: |
-            SENTRY_ORG=${{ vars.SENTRY_ORG }}
-            SENTRY_PROJECT=${{ vars.SENTRY_PROJECT }}
-          # The secret file is only prepared for the web build, so the input
-          # is empty for other matrix entries.
-          secrets: ${{ matrix.dockerfile == './apps/web/Dockerfile' && 'SENTRY_AUTH_TOKEN=/tmp/sentry-build-secrets/SENTRY_AUTH_TOKEN' || '' }}
+    uses: ./.github/workflows/build-images.yml
+    secrets: inherit
+    with:
+      tags: |
+        type=raw,value=nightly
+        type=raw,value=nightly-{{date 'YYYYMMDD'}}
+        type=sha,prefix=nightly-

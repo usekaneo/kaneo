@@ -56,7 +56,30 @@
 			"troubleshooting": "Các bước khắc phục:",
 			"tryAgain": "Thử lại",
 			"viewDeploymentGuide": "Xem hướng dẫn triển khai",
-			"refreshPage": "Tải lại trang"
+			"refreshPage": "Tải lại trang",
+			"description": "The page crashed unexpectedly. Refreshing usually fixes it.",
+			"messages": {
+				"auth": "Authentication failed. Please sign in again.",
+				"cors": "Unable to connect to the server. This might be due to CORS configuration issues.",
+				"network": "Network error. Please check your internet connection and try again.",
+				"server": "Server error. Please try again later.",
+				"unknown": "An unexpected error occurred."
+			},
+			"troubleshootingSteps": {
+				"cors": {
+					"checkAccessibility": "Check that your API server is accessible from your browser",
+					"checkApiRunning": "Make sure your API server is running",
+					"checkApiUrl": "Check that VITE_API_URL in your frontend .env matches your API server URL",
+					"checkProtocol": "Ensure both frontend and API are using the same protocol (http/https)",
+					"verifyCorsOrigins": "Verify CORS_ORIGINS in your API .env includes your frontend URL"
+				},
+				"network": {
+					"checkConnection": "Check your internet connection",
+					"checkFirewall": "Check if there are any firewall or proxy issues",
+					"tryRefresh": "Try refreshing the page",
+					"verifyApiRunning": "Verify the API server is running and accessible"
+				}
+			}
 		},
 		"formats": {
 			"never": "Không bao giờ"
@@ -625,7 +648,6 @@
 			"emptyTitle": "Chưa có vai trò nào",
 			"emptyDescription": "Các vai trò mặc định sẽ xuất hiện ở đây khi được khởi tạo cho không gian làm việc này.",
 			"defaultBadge": "Mặc định",
-			"permissionCount_one": "{{count}} quyền",
 			"permissionCount_other": "{{count}} quyền",
 			"nameLabel": "Tên",
 			"nameHint": "Chữ thường. Không thể thay đổi sau này.",
@@ -1363,7 +1385,6 @@
 	},
 	"notifications": {
 		"title": "Thông báo",
-		"newCount_one": "{{count}} mới",
 		"newCount_other": "{{count}} mới",
 		"emptyTitle": "Chưa có thông báo nào",
 		"emptySubtitle": "Bạn sẽ thấy các cập nhật và hoạt động ở đây.",
@@ -1374,11 +1395,8 @@
 			"open": "Mở thông báo"
 		},
 		"reminderLeadTime": {
-			"minutes_one": "{{count}} phút",
 			"minutes_other": "{{count}} phút",
-			"hours_one": "{{count}} giờ",
 			"hours_other": "{{count}} giờ",
-			"days_one": "{{count}} ngày",
 			"days_other": "{{count}} ngày"
 		},
 		"events": {
@@ -1867,7 +1885,6 @@
 			"draft": "Bản nháp",
 			"open": "Đang mở",
 			"label": "Pull Request",
-			"count_one": "{{count}} PR",
 			"count_other": "{{count}} PR"
 		},
 		"assignee": {
@@ -2013,7 +2030,6 @@
 			"placeholder": "Tìm công việc theo tiêu đề hoặc mã ngắn (ví dụ: DEP-23)...",
 			"hint": "Tìm kiếm trong tất cả dự án của không gian làm việc này. Dùng mã ngắn như DEP-23 để tìm công việc cụ thể.",
 			"searching": "Đang tìm kiếm...",
-			"resultsFound_one": "Tìm thấy {{count}} kết quả",
 			"resultsFound_other": "Tìm thấy {{count}} kết quả",
 			"noResultsTitle": "Không tìm thấy kết quả nào",
 			"noResultsDescription": "Hãy thử điều chỉnh từ khóa tìm kiếm hoặc tìm nội dung khác",

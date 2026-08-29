@@ -122,13 +122,14 @@ async function getWorkspacesNeedingReminder(type: ReminderType, now: Date) {
     .limit(maxPerRun());
 }
 
-export async function checkTrialReminders(): Promise<void> {
+export async function checkTrialReminders(): Promise<{ degraded: boolean }> {
   if (!isBillingEnabled() || !isSmtpConfigured()) {
-    return;
+    return { degraded: false };
   }
 
   const now = new Date();
   let sent = 0;
+  let degraded = false;
 
   for (const reminder of REMINDERS) {
     let rows: Awaited<ReturnType<typeof getWorkspacesNeedingReminder>>;
@@ -136,6 +137,7 @@ export async function checkTrialReminders(): Promise<void> {
       rows = await getWorkspacesNeedingReminder(reminder.type, now);
     } catch (error) {
       console.error(`Failed to query ${reminder.type} reminders`, error);
+      degraded = true;
       continue;
     }
 
@@ -191,4 +193,6 @@ export async function checkTrialReminders(): Promise<void> {
   if (sent > 0) {
     console.log(`Sent ${sent} trial reminder email(s)`);
   }
+
+  return { degraded };
 }

@@ -112,11 +112,59 @@ export function setValueAtKey(localeData, translationKey, value) {
   current[segments.at(-1)] = value;
 }
 
-export function pruneLocale(localeData, allowedKeys) {
+export const PLURAL_CATEGORIES = ["zero", "one", "two", "few", "many", "other"];
+
+// A locale supplies the plural categories its own language needs, so _few and
+// _many have no en-US counterpart. Pruning purely against the reference key set
+// would delete them.
+function isAllowedKey(key, allowedKeys, referenceData) {
+  if (allowedKeys.has(key)) {
+    return true;
+  }
+
+  for (const category of PLURAL_CATEGORIES) {
+    const suffix = `_${category}`;
+    if (!key.endsWith(suffix)) {
+      continue;
+    }
+
+    const base = key.slice(0, -suffix.length);
+
+    // A reference family the locale extends with its own categories.
+    if (
+      PLURAL_CATEGORIES.some((other) => allowedKeys.has(`${base}_${other}`))
+    ) {
+      return true;
+    }
+
+    // A plain reference key may only gain plural forms if it interpolates a
+    // count; otherwise the suffix is a typo and should be pruned.
+    if (allowedKeys.has(base) && isCountBearing(referenceData, base)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function isCountBearing(referenceData, key) {
+  if (!referenceData) {
+    return false;
+  }
+  const value = getValueAtKey(referenceData, key);
+  return typeof value === "string" && value.includes("{{count}}");
+}
+
+export function pruneLocale(localeData, allowedKeys, referenceData) {
   const nextLocale = {};
 
   for (const [namespace, value] of Object.entries(localeData)) {
-    const nextValue = pruneNamespace(value, `${namespace}:`, allowedKeys);
+    const nextValue = pruneNamespace(
+      value,
+      `${namespace}:`,
+      allowedKeys,
+      referenceData,
+    );
     if (nextValue !== undefined) {
       nextLocale[namespace] = nextValue;
     }
@@ -125,13 +173,17 @@ export function pruneLocale(localeData, allowedKeys) {
   return nextLocale;
 }
 
-function pruneNamespace(value, prefix, allowedKeys) {
+function pruneNamespace(value, prefix, allowedKeys, referenceData) {
   if (typeof value === "string") {
-    return allowedKeys.has(prefix.slice(0, -1)) ? value : undefined;
+    return isAllowedKey(prefix.slice(0, -1), allowedKeys, referenceData)
+      ? value
+      : undefined;
   }
 
   if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return allowedKeys.has(prefix.slice(0, -1)) ? value : undefined;
+    return isAllowedKey(prefix.slice(0, -1), allowedKeys, referenceData)
+      ? value
+      : undefined;
   }
 
   const nextValue = {};
@@ -141,6 +193,7 @@ function pruneNamespace(value, prefix, allowedKeys) {
       childValue,
       `${prefix}${childKey}.`,
       allowedKeys,
+      referenceData,
     );
     if (pruned !== undefined) {
       nextValue[childKey] = pruned;
