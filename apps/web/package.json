@@ -14,7 +14,7 @@
 	},
 	"dependencies": {
 		"@base-ui/react": "^1.7.0",
-		"@better-auth/api-key": "^1.6.25",
+		"@better-auth/api-key": "^1.7.2",
 		"@dnd-kit/core": "^6.3.1",
 		"@dnd-kit/modifiers": "^9.0.0",
 		"@dnd-kit/sortable": "^10.0.0",
@@ -69,7 +69,7 @@
 		"@types/file-saver": "^2.0.7",
 		"@vitejs/plugin-react": "^6.0.5",
 		"babel-plugin-react-compiler": "^1.0.0",
-		"better-auth": "^1.6.25",
+		"better-auth": "^1.7.2",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"cmdk": "^1.1.1",
@@ -78,7 +78,7 @@
 		"file-saver": "^2.0.5",
 		"framer-motion": "^13.0.0",
 		"highlight.js": "^11.11.1",
-		"hono": "^4.13.0",
+		"hono": "^4.13.5",
 		"i18next": "^26.3.6",
 		"i18next-resources-to-backend": "^1.2.1",
 		"immer": "^11.1.16",
@@ -113,15 +113,15 @@
 		"@testing-library/jest-dom": "^7.0.0",
 		"@testing-library/react": "^16.3.2",
 		"@types/babel__core": "^7.20.5",
-		"@types/node": "^26.1.2",
+		"@types/node": "^26.4.0",
 		"@types/react": "^19.2.18",
-		"@types/react-dom": "^19.2.4",
+		"@types/react-dom": "^19.2.5",
 		"globals": "^17.9.0",
 		"jsdom": "^30.0.1",
 		"postcss": "^8.5.26",
 		"tailwindcss": "^4.3.3",
 		"typescript": "~7.0.2",
-		"vite": "^8.2.0",
-		"vitest": "^4.1.10"
+		"vite": "^8.2.2",
+		"vitest": "^4.1.11"
 	}
 }
