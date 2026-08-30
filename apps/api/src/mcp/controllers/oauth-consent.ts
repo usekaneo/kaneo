@@ -1,7 +1,7 @@
 import { HTTPException } from "hono/http-exception";
-import type * as v from "valibot";
 import { auth } from "../../auth";
 import { publishEvent } from "../../events";
+import type { z } from "../../openapi";
 import {
   consumeAuthorizationRequest,
   createAuthCode,
@@ -18,11 +18,9 @@ import type {
 
 const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
 
-type ClientRegistrationInput = v.InferOutput<typeof clientRegistrationSchema>;
-type AuthorizationInput = v.InferOutput<typeof authorizationQuerySchema>;
-type AuthorizationDecisionInput = v.InferOutput<
-  typeof authorizationDecisionSchema
->;
+type ClientRegistrationInput = z.infer<typeof clientRegistrationSchema>;
+type AuthorizationInput = z.infer<typeof authorizationQuerySchema>;
+type AuthorizationDecisionInput = z.infer<typeof authorizationDecisionSchema>;
 
 type OAuthErrorStatus = 400 | 401 | 403 | 404;
 
@@ -123,7 +121,7 @@ export async function decideMcpAuthorizationRequest(params: {
   if (!request) throwOAuthError(404, "invalid_or_expired_request");
 
   const client = await getClient(request.clientId);
-  if (!client || !client.redirectUris.includes(request.redirectUri)) {
+  if (!client?.redirectUris.includes(request.redirectUri)) {
     throwOAuthError(400, "invalid_client");
   }
 

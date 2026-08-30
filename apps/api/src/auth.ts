@@ -34,13 +34,19 @@ import type { AccessControl } from "better-auth/plugins/access";
 import type { UserWithAnonymous } from "better-auth/plugins/anonymous";
 import { config } from "dotenv-mono";
 import { count, eq, sql } from "drizzle-orm";
+import {
+  findBillableWorkspaces,
+  formatBillableWorkspacesMessage,
+} from "./billing/controllers/find-billable-workspaces";
 import { syncWorkspaceSeats } from "./billing/controllers/sync-seats";
 import db, { schema } from "./database";
 import { publishEvent } from "./events";
+import deleteAccountData from "./user/controllers/delete-account-data";
 import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
 import { checkWorkspaceName } from "./utils/check-workspace-name";
 import { mapCustomOAuthProfileToUser } from "./utils/custom-oauth-profile";
 import { generateDemoName } from "./utils/generate-demo-name";
+import { getDefaultCookieAttributes } from "./utils/get-default-cookie-attributes";
 import { getInvitationEmailSubject } from "./utils/get-invitation-email-subject";
 import { getWorkspaceInvitationEmailCopy } from "./utils/get-workspace-invitation-email-copy";
 import { getGithubSsoOAuthCredentials } from "./utils/github-sso-env";
@@ -59,6 +65,8 @@ const isPasswordRegistrationDisabled =
 const isLoginFormDisabled = process.env.DISABLE_LOGIN_FORM === "true";
 const isEmailOtpSignInDisabled =
   process.env.DISABLE_EMAIL_OTP_SIGN_IN === "true";
+const isWorkspaceCreationDisabled =
+  process.env.DISABLE_WORKSPACE_CREATION === "true";
 
 function normalizeInvitationId(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
@@ -74,20 +82,6 @@ function isOAuthCallbackPath(path: unknown): boolean {
 
 const apiUrl = process.env.KANEO_API_URL || "http://localhost:1337";
 const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
-const isHttps = apiUrl.startsWith("https://");
-const isCrossSubdomain = (() => {
-  try {
-    const apiHost = new URL(apiUrl).hostname;
-    const clientHost = new URL(clientUrl).hostname;
-    return (
-      apiHost !== clientHost &&
-      apiHost !== "localhost" &&
-      clientHost !== "localhost"
-    );
-  } catch {
-    return false;
-  }
-})();
 
 const trustedOrigins = [clientUrl];
 try {
@@ -128,6 +122,7 @@ function getLocaleKey(locale?: string | null) {
   const normalized = locale?.toLowerCase();
   if (normalized?.startsWith("de")) return "de";
   if (normalized?.startsWith("vi")) return "vi";
+  if (normalized?.startsWith("ja")) return "ja";
   return "en";
 }
 
@@ -145,6 +140,13 @@ function getAuthEmailCopy(locale?: string | null) {
     return {
       magicLinkSubject: "Liên kết đăng nhập Kaneo",
       otpSubject: "Mã xác minh Kaneo",
+    };
+  }
+
+  if (localeKey === "ja") {
+    return {
+      magicLinkSubject: "Kaneo ログインリンク",
+      otpSubject: "Kaneo 認証コード",
     };
   }
 
@@ -220,6 +222,12 @@ export const auth = betterAuth({
         type: "string",
         input: true,
         required: false,
+      },
+    },
+    deleteUser: {
+      enabled: true,
+      beforeDelete: async (user) => {
+        await deleteAccountData(user.id);
       },
     },
   },
@@ -365,7 +373,31 @@ export const auth = betterAuth({
           },
         },
       },
-      allowUserToCreateOrganization: true,
+      // When `DISABLE_WORKSPACE_CREATION` is set, only instance admins
+      // (`user.role === "admin"`) may create workspaces — mirrors the
+      // implicit-exemption shape of `DISABLE_REGISTRATION` above. This
+      // check runs before any workspace membership exists, so only the
+      // instance-wide role is meaningful here; per-workspace roles
+      // (owner/admin/member/viewer) don't apply until after a workspace
+      // is joined.
+      //
+      // `user` here comes from the session, which may be served out of
+      // the cookie cache (see `session.cookieCache` below). The
+      // first-user bootstrap promotes the user to admin in
+      // `databaseHooks.user.create.after`, but that happens after
+      // `signUpEmail` has already returned/cached the pre-promotion
+      // role, so a cached session can still say `role: "user"` for up
+      // to `cookieCache.maxAge`. Re-read the role from the database
+      // instead of trusting the (possibly stale) cached role.
+      allowUserToCreateOrganization: isWorkspaceCreationDisabled
+        ? async (user) => {
+            const [freshUser] = await db
+              .select({ role: schema.userTable.role })
+              .from(schema.userTable)
+              .where(eq(schema.userTable.id, user.id));
+            return freshUser?.role === "admin";
+          }
+        : true,
       // Better Auth defaults this to `true`, which blocks any user whose email
       // is not verified from accepting/rejecting an invitation. Kaneo does not
       // verify emails on signup (and guest/anonymous users are unverified by
@@ -422,6 +454,16 @@ export const auth = betterAuth({
             ownerEmail: user.name,
             ownerId: user.id,
           });
+        },
+        beforeDeleteOrganization: async ({ organization }) => {
+          const billable = await findBillableWorkspaces([organization.id]);
+          if (billable.length > 0) {
+            throw new APIError("CONFLICT", {
+              message: formatBillableWorkspacesMessage(
+                billable.map((workspace) => workspace.name),
+              ),
+            });
+          }
         },
         afterAddMember: async ({ member }) => {
           if (member?.organizationId) {
@@ -759,13 +801,10 @@ export const auth = betterAuth({
       ipAddressHeaders: ["cf-connecting-ip", "x-forwarded-for"],
       trustedProxies: trustedProxies(),
     },
-    defaultCookieAttributes: {
-      // For cross-subdomain auth with HTTPS, use sameSite: "none" with secure: true
-      // For same-domain or HTTP deployments, use sameSite: "lax" with secure: false
-      sameSite: isCrossSubdomain && isHttps ? "none" : "lax",
-      secure: isCrossSubdomain && isHttps, // must be true when sameSite is "none"
-      partitioned: isCrossSubdomain && isHttps,
-      domain: process.env.COOKIE_DOMAIN || undefined, // Optional: e.g., ".andrej.com" for explicit cross-subdomain cookies
-    },
+    defaultCookieAttributes: getDefaultCookieAttributes({
+      apiUrl,
+      clientUrl,
+      cookieDomain: process.env.COOKIE_DOMAIN,
+    }),
   },
 });

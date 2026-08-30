@@ -98,6 +98,12 @@ function RouteComponent() {
             params: { workspaceId, projectId },
           });
         },
+        [shortcuts.view.calendar]: () => {
+          navigate({
+            to: "/dashboard/workspace/$workspaceId/project/$projectId/calendar",
+            params: { workspaceId, projectId },
+          });
+        },
         [shortcuts.view.gantt]: () => {
           navigate({
             to: "/dashboard/workspace/$workspaceId/project/$projectId/gantt",
@@ -330,7 +336,8 @@ function RouteComponent() {
     }
 
     const updatedProject = produce(project, (draft) => {
-      const todoColumn = draft.columns?.find((col) => col.id === "to-do");
+      // "to-do" is a column slug, so it can only be matched against slug.
+      const todoColumn = draft.columns?.find((col) => col.slug === "to-do");
       if (todoColumn && draft.plannedTasks) {
         todoColumn.tasks.push(
           ...draft.plannedTasks.map((task) => ({

@@ -2,11 +2,14 @@ import { and, eq, isNotNull, min } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
+  trialGrantTable,
+  userTable,
   workspaceBillingTable,
   workspaceTable,
   workspaceUserTable,
 } from "../../database/schema";
 import { foundingCutoff, isBillingEnabled, trialDays } from "../config";
+import { hashTrialEmail } from "../trial-identity";
 
 const ACTIVE_STATUSES = new Set([
   "active",
@@ -19,8 +22,12 @@ export async function resolveTrialEndsAt(
   workspaceId: string,
 ): Promise<Date | null> {
   const [owner] = await db
-    .select({ userId: workspaceUserTable.userId })
+    .select({
+      userId: workspaceUserTable.userId,
+      email: userTable.email,
+    })
     .from(workspaceUserTable)
+    .innerJoin(userTable, eq(userTable.id, workspaceUserTable.userId))
     .where(
       and(
         eq(workspaceUserTable.workspaceId, workspaceId),
@@ -48,9 +55,34 @@ export async function resolveTrialEndsAt(
     if (earlier?.trialEndsAt) {
       return new Date(earlier.trialEndsAt);
     }
+
+    return claimTrial(owner.email);
   }
 
   return new Date(Date.now() + trialDays() * 24 * 60 * 60 * 1000);
+}
+
+async function claimTrial(email: string): Promise<Date> {
+  const emailHash = hashTrialEmail(email);
+  const trialEndsAt = new Date(Date.now() + trialDays() * 24 * 60 * 60 * 1000);
+
+  const [claimed] = await db
+    .insert(trialGrantTable)
+    .values({ emailHash, trialEndsAt })
+    .onConflictDoNothing({ target: trialGrantTable.emailHash })
+    .returning({ trialEndsAt: trialGrantTable.trialEndsAt });
+
+  if (claimed) {
+    return claimed.trialEndsAt;
+  }
+
+  const [granted] = await db
+    .select({ trialEndsAt: trialGrantTable.trialEndsAt })
+    .from(trialGrantTable)
+    .where(eq(trialGrantTable.emailHash, emailHash))
+    .limit(1);
+
+  return granted?.trialEndsAt ?? trialEndsAt;
 }
 
 export async function getOrCreateWorkspaceBilling(workspaceId: string) {

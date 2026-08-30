@@ -237,7 +237,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
 
             <div className="mb-2.5 pr-6">
               <div
-                className="overflow-hidden break-words text-sm leading-5 font-medium text-foreground/95"
+                className="overflow-hidden break-words leading-5 font-medium text-foreground/95 text-[15px]"
                 style={{
                   display: "-webkit-box",
                   WebkitLineClamp: 3,

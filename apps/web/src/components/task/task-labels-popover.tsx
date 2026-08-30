@@ -8,12 +8,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import useAttachLabelToTask from "@/hooks/mutations/label/use-attach-label-to-task";
 import useCreateLabel from "@/hooks/mutations/label/use-create-label";
-import useDeleteLabel from "@/hooks/mutations/label/use-delete-label";
+import useDetachLabelFromTask from "@/hooks/mutations/label/use-detach-label-from-task";
 import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
+import { getTaskLabelOptions } from "@/lib/get-task-label-options";
 import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
 
@@ -65,15 +67,12 @@ export default function TaskLabelsPopover({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
 
+  const { mutateAsync: attachLabel } = useAttachLabelToTask();
   const { mutateAsync: createLabel } = useCreateLabel();
-  const { mutateAsync: deleteLabel } = useDeleteLabel();
-  // Attaching/removing labels from a task is a task mutation; creating a new
-  // workspace label needs the label capability. We gate the popover trigger
-  // on whichever is required: any flow needs at least task-edit since the
-  // result lives on the task.
-  const { canManageTasks, canManageLabels } = useWorkspacePermission();
-  const canEdit = canManageTasks();
-  const canCreateLabels = canManageLabels();
+  const { mutateAsync: detachLabel } = useDetachLabelFromTask();
+  const { canCreateLabels, canUpdateLabels } = useWorkspacePermission();
+  const canCreate = canCreateLabels();
+  const canEdit = canUpdateLabels();
 
   const { data: taskLabels = [] } = useGetLabelsByTask(task.id);
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);
@@ -83,29 +82,25 @@ export default function TaskLabelsPopover({
     [taskLabels],
   );
 
+  const workspaceLevelLabels = useMemo(
+    () => workspaceLabels.filter((label) => label.taskId === null),
+    [workspaceLabels],
+  );
+
   const filteredLabels = useMemo(() => {
-    const searchFiltered = workspaceLabels.filter((label) =>
+    const selectableLabels = getTaskLabelOptions(workspaceLabels, task.id);
+    return selectableLabels.filter((label) =>
       label.name.toLowerCase().includes(searchValue.toLowerCase()),
     );
-
-    const labelMap = new Map<string, (typeof workspaceLabels)[0]>();
-    for (const label of searchFiltered) {
-      const existing = labelMap.get(label.name);
-      if (!existing || (label.taskId === null && existing.taskId !== null)) {
-        labelMap.set(label.name, label);
-      }
-    }
-
-    return Array.from(labelMap.values());
-  }, [workspaceLabels, searchValue]);
+  }, [workspaceLabels, searchValue, task.id]);
 
   const isCreatingNewLabel = useMemo(
     () =>
       searchValue &&
-      !workspaceLabels.some(
+      !workspaceLevelLabels.some(
         (label) => label.name.toLowerCase() === searchValue.toLowerCase(),
       ),
-    [workspaceLabels, searchValue],
+    [workspaceLevelLabels, searchValue],
   );
 
   useEffect(() => {
@@ -139,16 +134,14 @@ export default function TaskLabelsPopover({
           (l) => l.name === workspaceLabel.name,
         );
         if (taskLabel?.id) {
-          await deleteLabel({ id: taskLabel.id });
+          await detachLabel({ labelId: taskLabel.id });
           toast.success(t("tasks:popover.labels.removeSuccess"));
         }
       } else {
-        // Add label to task
-        await createLabel({
-          name: workspaceLabel.name,
-          color: workspaceLabel.color as LabelColor,
+        if (workspaceLabel.taskId !== null) return;
+        await attachLabel({
+          labelId: workspaceLabel.id,
           taskId: task.id,
-          workspaceId,
         });
         toast.success(t("tasks:popover.labels.addSuccess"));
       }
@@ -178,18 +171,15 @@ export default function TaskLabelsPopover({
 
     try {
       // First create the label in the workspace
-      await createLabel({
+      const createdLabel = await createLabel({
         name: newLabelName.trim(),
         color: color,
         workspaceId,
       });
 
-      // Then assign it to the task
-      await createLabel({
-        name: newLabelName.trim(),
-        color: color,
+      await attachLabel({
+        labelId: createdLabel.id,
         taskId: task.id,
-        workspaceId,
       });
 
       await queryClient.invalidateQueries({
@@ -250,10 +240,10 @@ export default function TaskLabelsPopover({
           </button>
         ))}
 
-        {canCreateLabels && isCreatingNewLabel && filteredLabels.length > 0 && (
+        {canCreate && isCreatingNewLabel && filteredLabels.length > 0 && (
           <div className="border-t border-border my-1" />
         )}
-        {canCreateLabels && isCreatingNewLabel && (
+        {canCreate && isCreatingNewLabel && (
           <button
             type="button"
             className="w-full flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-accent/50 text-left"
@@ -321,8 +311,8 @@ export default function TaskLabelsPopover({
     </div>
   );
 
-  // No task-edit permission → no label changes at all. The trigger renders
-  // as a plain element so users still see the existing labels.
+  // Without label-update permission the trigger renders as a plain element,
+  // so users can still see the existing labels without opening edit controls.
   if (!canEdit) return <>{children}</>;
 
   return (

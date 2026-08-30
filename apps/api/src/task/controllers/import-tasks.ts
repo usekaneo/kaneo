@@ -3,6 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable, projectTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { filterAssignableUsers } from "../../utils/assert-assignable-user";
 import {
   coercePriority,
   coerceStatus,
@@ -35,11 +36,35 @@ async function importTasks(
     });
   }
 
+  const assigneeIds = [
+    ...new Set(
+      tasksToImport
+        .map((task) => task.userId?.trim())
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+
+  const assignableIds = await filterAssignableUsers(
+    assigneeIds,
+    project.workspaceId,
+  );
+
   const validStatuses = await getValidTaskStatuses(projectId);
 
   const results = [];
 
   for (const taskData of tasksToImport) {
+    const assigneeId = taskData.userId?.trim() || null;
+
+    if (assigneeId && !assignableIds.has(assigneeId)) {
+      results.push({
+        success: false,
+        error: "Assignee is not a member of this workspace",
+        task: taskData,
+      });
+      continue;
+    }
+
     try {
       const { status, warning: statusWarning } = coerceStatus(
         taskData.status,
@@ -64,7 +89,7 @@ async function importTasks(
           .insert(taskTable)
           .values({
             projectId,
-            userId: taskData.userId || null,
+            userId: assigneeId,
             title: taskData.title,
             status,
             columnId: column?.id ?? null,

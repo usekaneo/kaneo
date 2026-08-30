@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import { getOrCreateWorkspaceBilling } from "../../apps/api/src/billing/controllers/get-workspace-billing";
 import db, { schema } from "../../apps/api/src/database";
+import deleteAccountData from "../../apps/api/src/user/controllers/delete-account-data";
 import { resetTestDatabase } from "./helpers/database";
 import { createWorkspaceMember } from "./helpers/fixtures";
 
@@ -106,5 +107,52 @@ describe("trial is granted once per owner", () => {
     const billing = await getOrCreateWorkspaceBilling(workspace.id);
 
     expect(billing.trialEndsAt?.getTime()).toBe(pinned.getTime());
+  });
+
+  it("does not hand out a new trial after the account is deleted", async () => {
+    const first = await createWorkspaceMember({ role: "owner" });
+    const firstBilling = await getOrCreateWorkspaceBilling(first.workspace.id);
+    expect(firstBilling.trialEndsAt).not.toBeNull();
+
+    await deleteAccountData(first.user.id);
+    await db
+      .delete(schema.userTable)
+      .where(eq(schema.userTable.id, first.user.id));
+
+    const returning = await createWorkspaceMember({ role: "owner" });
+    await db
+      .update(schema.userTable)
+      .set({ email: first.user.email })
+      .where(eq(schema.userTable.id, returning.user.id));
+
+    const secondBilling = await getOrCreateWorkspaceBilling(
+      returning.workspace.id,
+    );
+
+    expect(secondBilling.trialEndsAt?.getTime()).toBe(
+      firstBilling.trialEndsAt?.getTime(),
+    );
+  });
+
+  it("treats a plus-addressed signup as the same trial identity", async () => {
+    const first = await createWorkspaceMember({ role: "owner" });
+    await db
+      .update(schema.userTable)
+      .set({ email: "trial-abuse@example.com" })
+      .where(eq(schema.userTable.id, first.user.id));
+    const firstBilling = await getOrCreateWorkspaceBilling(first.workspace.id);
+
+    const second = await createWorkspaceMember({ role: "owner" });
+    await db
+      .update(schema.userTable)
+      .set({ email: "trial-abuse+again@example.com" })
+      .where(eq(schema.userTable.id, second.user.id));
+    const secondBilling = await getOrCreateWorkspaceBilling(
+      second.workspace.id,
+    );
+
+    expect(secondBilling.trialEndsAt?.getTime()).toBe(
+      firstBilling.trialEndsAt?.getTime(),
+    );
   });
 });

@@ -2,8 +2,13 @@ name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 permissions:
   contents: read
@@ -23,7 +28,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 20.20.2
+          node-version: 24.19.0
           cache: pnpm
 
       - name: Install dependencies
@@ -31,6 +36,31 @@ jobs:
 
       - name: Run Biome
         run: pnpm exec biome ci .
+
+  i18n:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10.32.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check locale files against en-US
+        run: pnpm i18n:check
 
   typecheck:
     runs-on: ubuntu-24.04
@@ -46,7 +76,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 20.20.2
+          node-version: 24.19.0
           cache: pnpm
 
       - name: Install dependencies
@@ -69,7 +99,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 20.20.2
+          node-version: 24.19.0
           cache: pnpm
 
       - name: Install dependencies
@@ -92,7 +122,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 20.20.2
+          node-version: 24.19.0
           cache: pnpm
 
       - name: Install dependencies
@@ -136,7 +166,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 20.20.2
+          node-version: 24.19.0
           cache: pnpm
 
       - name: Install dependencies

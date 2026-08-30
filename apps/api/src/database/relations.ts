@@ -35,7 +35,6 @@ export const userTableRelations = relations(userTable, ({ many, one }) => ({
   sessions: many(sessionTable),
   accounts: many(accountTable),
   teamMembers: many(teamMemberTable),
-  workspaces: many(workspaceTable),
   workspaceMemberships: many(workspaceUserTable),
   assignedTasks: many(taskTable),
   timeEntries: many(timeEntryTable),

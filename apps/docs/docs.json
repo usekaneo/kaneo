@@ -22,16 +22,9 @@
 		}
 	},
 	"fonts": {
-		"heading": {
-			"family": "Cal Sans Heading",
-			"source": "/fonts/cal-sans-heading.woff2",
-			"format": "woff2"
-		},
-		"body": {
-			"family": "Cal Sans UI",
-			"source": "/fonts/cal-sans-body.woff2",
-			"format": "woff2"
-		}
+		"family": "Geist Variable",
+		"source": "/fonts/geist.woff2",
+		"format": "woff2"
 	},
 	"favicon": "/favicon.svg",
 	"logo": {
@@ -63,6 +56,7 @@
 							"core/functional/collaborate-with-team",
 							"core/functional/configure-workflows",
 							"core/functional/account-notifications",
+							"core/functional/manage-your-account",
 							"core/functional/personalize-your-workspace",
 							"core/functional/manage-workspace-labels"
 						]
@@ -114,7 +108,11 @@
 					},
 					{
 						"group": "Deployment & Operations",
-						"pages": ["core/reverse-proxy/nginx", "core/deployments/railway"]
+						"pages": [
+							"core/reverse-proxy/nginx",
+							"core/deployments/railway",
+							"core/deployments/coolify"
+						]
 					},
 					{
 						"group": "Migration",

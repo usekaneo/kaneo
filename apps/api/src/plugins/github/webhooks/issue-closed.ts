@@ -7,6 +7,7 @@ import {
   findAllIntegrationsByRepo,
   updateTaskStatus,
 } from "../services/task-service";
+import { parseLinkMetadata } from "../utils/parse-link-metadata";
 import { resolveTargetStatus } from "../utils/resolve-column";
 
 type IssueClosedPayload = {
@@ -53,9 +54,10 @@ export async function handleIssueClosed(payload: IssueClosedPayload) {
       continue;
     }
 
-    const existingMetadata = externalLink.metadata
-      ? JSON.parse(externalLink.metadata)
-      : {};
+    const existingMetadata = parseLinkMetadata(externalLink.metadata, {
+      externalLinkId: externalLink.id,
+      source: "issue_closed",
+    });
 
     if (existingMetadata.createdFrom === "kaneo") {
       continue;
@@ -90,7 +92,5 @@ export async function handleIssueClosed(payload: IssueClosedPayload) {
         state: "closed",
       },
     });
-
-    return;
   }
 }
