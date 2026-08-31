@@ -1,7 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import reorderTasks, {
   type TaskReorderInput,
 } from "@/fetchers/task/reorder-tasks";
+import { toast } from "@/lib/toast";
 
 type ReorderTasksVariables = {
   projectId: string;
@@ -25,6 +27,7 @@ type ReorderTasksVariables = {
  */
 export function useReorderTasks() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: ({ projectId, tasks }: ReorderTasksVariables) =>
@@ -50,6 +53,7 @@ export function useReorderTasks() {
         queryClient.invalidateQueries({ queryKey: ["activities", task.id] });
       }
     },
+    onError: (_) => toast.error(t("tasks:update.error")),
   });
 }
 

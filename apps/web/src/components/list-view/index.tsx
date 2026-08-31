@@ -360,15 +360,11 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
 
     if (changedTasks.length === 0) return;
 
-    reorderTasks(
-      { projectId: project.id, tasks: changedTasks, crossedColumns },
-      {
-        onError: (error) =>
-          toast.error(
-            error instanceof Error ? error.message : t("tasks:update.error"),
-          ),
-      },
-    );
+    reorderTasks({
+      projectId: project.id,
+      tasks: changedTasks,
+      crossedColumns,
+    });
   };
 
   const toggleSection = (sectionId: string) => {

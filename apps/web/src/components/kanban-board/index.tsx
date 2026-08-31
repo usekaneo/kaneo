@@ -195,15 +195,11 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
 
     if (changedTasks.length === 0) return;
 
-    reorderTasks(
-      { projectId: project.id, tasks: changedTasks, crossedColumns },
-      {
-        onError: (error) =>
-          toast.error(
-            error instanceof Error ? error.message : t("tasks:update.error"),
-          ),
-      },
-    );
+    reorderTasks({
+      projectId: project.id,
+      tasks: changedTasks,
+      crossedColumns,
+    });
   };
 
   if (!project?.columns) {
