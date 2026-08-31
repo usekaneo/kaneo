@@ -25,9 +25,11 @@ import { Archive, ChevronRight, Flag, Plus } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
-import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useBulkOperations } from "@/hooks/mutations/task/use-bulk-operations";
+import { useReorderTasks } from "@/hooks/mutations/task/use-reorder-tasks";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
+import collectReorderedTasks from "@/lib/collect-reordered-tasks";
 import { getColumnIcon } from "@/lib/column";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
@@ -172,7 +174,8 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
     focusedTaskId,
     clearFocus,
   } = useBulkSelectionStore();
-  const { mutate: updateTask } = useUpdateTask();
+  const { mutate: reorderTasks } = useReorderTasks();
+  const { bulkArchive } = useBulkOperations();
   const navigate = useNavigate();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [overColumnId, setOverColumnId] = useState<string | null>(null);
@@ -286,12 +289,14 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
 
     if (!over || !project?.columns) return;
 
-    const activeTaskId = active.id.toString();
+    const draggedTaskId = active.id.toString();
     const overId = over.id.toString();
+
+    let crossedColumns = false;
 
     const updatedProject = produce(project, (draft) => {
       const sourceColumn = draft?.columns?.find((col) =>
-        col.tasks.some((task) => task.id === activeTaskId),
+        col.tasks.some((task) => task.id === draggedTaskId),
       );
       const destinationColumn = draft?.columns?.find(
         (col) =>
@@ -301,64 +306,69 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
       if (!sourceColumn || !destinationColumn) return;
 
       const sourceTaskIndex = sourceColumn.tasks.findIndex(
-        (task) => task.id === activeTaskId,
+        (task) => task.id === draggedTaskId,
       );
       const task = sourceColumn.tasks[sourceTaskIndex];
 
-      sourceColumn.tasks = sourceColumn.tasks.filter(
-        (t) => t.id !== activeTaskId,
+      if (!task) return;
+
+      sourceColumn.tasks.splice(sourceTaskIndex, 1);
+
+      const overIndex = destinationColumn.tasks.findIndex(
+        (t) => t.id === overId,
       );
 
       if (sourceColumn.id === destinationColumn.id) {
-        let destinationIndex = destinationColumn.tasks.findIndex(
-          (t) => t.id === overId,
-        );
-        if (sourceTaskIndex <= destinationIndex) {
+        // Dropping on the section itself rather than on a row sends the task to
+        // the end, instead of splicing at -1 and landing second to last.
+        let destinationIndex =
+          overIndex === -1 ? destinationColumn.tasks.length : overIndex;
+
+        if (overIndex !== -1 && sourceTaskIndex <= destinationIndex) {
           destinationIndex += 1;
         }
-        destinationColumn.tasks.splice(destinationIndex, 0, task);
 
-        const firstChangedIndex = Math.min(sourceTaskIndex, destinationIndex);
-        const lastChangedIndex = Math.max(sourceTaskIndex, destinationIndex);
-        destinationColumn.tasks
-          .slice(firstChangedIndex, lastChangedIndex + 1)
-          .forEach((t, offset) => {
-            updateTask({
-              ...t,
-              status: destinationColumn.slug,
-              position: firstChangedIndex + offset,
-            });
-          });
+        destinationColumn.tasks.splice(destinationIndex, 0, task);
       } else {
+        crossedColumns = true;
         // A task's status is a column slug. The column id is only the
         // droppable identity here, and the two are interchangeable only
         // because the tasks endpoint happens to return `id: column.slug`.
         task.status = destinationColumn.slug;
+
         const destinationIndex =
-          overId === destinationColumn.id
-            ? destinationColumn.tasks.length
-            : destinationColumn.tasks.findIndex((t) => t.id === overId) + 1;
+          overIndex === -1 ? destinationColumn.tasks.length : overIndex + 1;
 
         destinationColumn.tasks.splice(destinationIndex, 0, task);
+      }
 
-        destinationColumn.tasks.slice(destinationIndex).forEach((t, offset) => {
-          updateTask({
-            ...t,
-            status: destinationColumn.slug,
-            position: destinationIndex + offset,
-          });
-        });
-
-        sourceColumn.tasks.slice(sourceTaskIndex).forEach((t, offset) => {
-          updateTask({
-            ...t,
-            position: sourceTaskIndex + offset,
-          });
+      // Renumber the sections the drag touched so stored positions stay dense.
+      // A Set because a same-section move sees the same draft object twice.
+      for (const column of new Set([sourceColumn, destinationColumn])) {
+        column.tasks.forEach((t, index) => {
+          t.position = index;
         });
       }
     });
 
     setProject(updatedProject);
+
+    const changedTasks = collectReorderedTasks(
+      project.columns.flatMap((column) => column.tasks),
+      updatedProject.columns.flatMap((column) => column.tasks),
+    );
+
+    if (changedTasks.length === 0) return;
+
+    reorderTasks(
+      { projectId: project.id, tasks: changedTasks, crossedColumns },
+      {
+        onError: (error) =>
+          toast.error(
+            error instanceof Error ? error.message : t("tasks:update.error"),
+          ),
+      },
+    );
   };
 
   const toggleSection = (sectionId: string) => {
@@ -377,26 +387,28 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
   const handleConfirmArchive = () => {
     if (!columnToArchive) return;
 
+    const taskIds = columnToArchive.tasks.map((task) => task.id);
+
     const updatedProject = produce(project, (draft) => {
       const archivedColumn = draft?.columns?.find(
         (col) => col.id === columnToArchive.id,
       );
       if (!archivedColumn) return;
 
-      for (const task of archivedColumn.tasks) {
-        updateTask({
-          ...task,
-          status: "archived",
-        });
-      }
-
       archivedColumn.tasks = [];
     });
 
     setProject(updatedProject);
-    toast.success(
-      t("tasks:archive.success", { count: columnToArchive.tasks.length }),
-    );
+
+    if (taskIds.length > 0) {
+      bulkArchive(taskIds).catch((error: unknown) =>
+        toast.error(
+          error instanceof Error ? error.message : t("tasks:update.error"),
+        ),
+      );
+    }
+
+    toast.success(t("tasks:archive.success", { count: taskIds.length }));
 
     setIsArchiveModalOpen(false);
     setColumnToArchive(null);

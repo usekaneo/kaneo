@@ -13,12 +13,14 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { produce } from "immer";
 import { useEffect, useState } from "react";
-import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useTranslation } from "react-i18next";
+import { useReorderTasks } from "@/hooks/mutations/task/use-reorder-tasks";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import collectReorderedTasks from "@/lib/collect-reordered-tasks";
+import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
@@ -32,14 +34,14 @@ type KanbanBoardProps = {
 };
 
 function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
-  const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const setProject = useProjectStore((s) => s.setProject);
   const setAvailableTasks = useBulkSelectionStore((s) => s.setAvailableTasks);
   const focusNext = useBulkSelectionStore((s) => s.focusNext);
   const focusPrevious = useBulkSelectionStore((s) => s.focusPrevious);
   const clearFocus = useBulkSelectionStore((s) => s.clearFocus);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
-  const { mutate: updateTask } = useUpdateTask();
+  const { mutate: reorderTasks } = useReorderTasks();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -122,12 +124,14 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
 
     if (!over || !project?.columns) return;
 
-    const activeId = active.id.toString();
+    const draggedTaskId = active.id.toString();
     const overId = over.id.toString();
+
+    let crossedColumns = false;
 
     const updatedProject = produce(project, (draft) => {
       const sourceColumn = draft?.columns?.find((col) =>
-        col.tasks.some((task) => task.id === activeId),
+        col.tasks.some((task) => task.id === draggedTaskId),
       );
       const destinationColumn = draft?.columns?.find(
         (col) =>
@@ -137,60 +141,69 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
       if (!sourceColumn || !destinationColumn) return;
 
       const sourceTaskIndex = sourceColumn.tasks.findIndex(
-        (task) => task.id === activeId,
+        (task) => task.id === draggedTaskId,
       );
       const task = sourceColumn.tasks[sourceTaskIndex];
 
-      sourceColumn.tasks = sourceColumn.tasks.filter((t) => t.id !== activeId);
+      if (!task) return;
+
+      sourceColumn.tasks.splice(sourceTaskIndex, 1);
+
+      const overIndex = destinationColumn.tasks.findIndex(
+        (t) => t.id === overId,
+      );
 
       if (sourceColumn.id === destinationColumn.id) {
-        let destinationIndex = destinationColumn.tasks.findIndex(
-          (t) => t.id === overId,
-        );
-        if (sourceTaskIndex <= destinationIndex) {
+        let destinationIndex =
+          overIndex === -1 ? destinationColumn.tasks.length : overIndex;
+
+        if (overIndex !== -1 && sourceTaskIndex <= destinationIndex) {
           destinationIndex += 1;
         }
+
         destinationColumn.tasks.splice(destinationIndex, 0, task);
-
-        const firstChangedIndex = Math.min(sourceTaskIndex, destinationIndex);
-        const lastChangedIndex = Math.max(sourceTaskIndex, destinationIndex);
-        destinationColumn.tasks
-          .slice(firstChangedIndex, lastChangedIndex + 1)
-          .forEach((t, offset) => {
-            updateTask({ ...t, position: firstChangedIndex + offset });
-          });
-
-        queryClient.invalidateQueries({
-          queryKey: ["projects", project.workspaceId],
-        });
       } else {
+        crossedColumns = true;
         // A task's status is a column slug. The column id is only the
         // droppable identity here, and the two are interchangeable only
         // because the tasks endpoint happens to return `id: column.slug`.
         task.status = destinationColumn.slug;
+
         const destinationIndex =
-          overId === destinationColumn.id
-            ? destinationColumn.tasks.length
-            : destinationColumn.tasks.findIndex((t) => t.id === overId) + 1;
+          overIndex === -1 ? destinationColumn.tasks.length : overIndex + 1;
 
         destinationColumn.tasks.splice(destinationIndex, 0, task);
+      }
 
-        destinationColumn.tasks.slice(destinationIndex).forEach((t, offset) => {
-          updateTask({
-            ...t,
-            status: destinationColumn.slug,
-            position: destinationIndex + offset,
-          });
-        });
-
-        sourceColumn.tasks.slice(sourceTaskIndex).forEach((t, offset) => {
-          updateTask({ ...t, position: sourceTaskIndex + offset });
+      // Renumber the columns the drag touched so stored positions stay dense.
+      // A Set because a same-column move sees the same draft object twice.
+      for (const column of new Set([sourceColumn, destinationColumn])) {
+        column.tasks.forEach((t, index) => {
+          t.position = index;
         });
       }
     });
 
     setProject(updatedProject);
-    setActiveId(null);
+
+    // One request for the whole drop. Sending a full task update per renumbered
+    // neighbour is what used to flood the API on every move.
+    const changedTasks = collectReorderedTasks(
+      project.columns.flatMap((column) => column.tasks),
+      updatedProject.columns.flatMap((column) => column.tasks),
+    );
+
+    if (changedTasks.length === 0) return;
+
+    reorderTasks(
+      { projectId: project.id, tasks: changedTasks, crossedColumns },
+      {
+        onError: (error) =>
+          toast.error(
+            error instanceof Error ? error.message : t("tasks:update.error"),
+          ),
+      },
+    );
   };
 
   if (!project?.columns) {

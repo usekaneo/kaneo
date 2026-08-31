@@ -3,7 +3,7 @@ import { Archive, Plus } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
-import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useBulkOperations } from "@/hooks/mutations/task/use-bulk-operations";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
 import { toast } from "@/lib/toast";
@@ -19,7 +19,7 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
   const { t } = useTranslation();
   const projectId = useProjectStore((s) => s.project?.id);
   const setProject = useProjectStore((s) => s.setProject);
-  const { mutate: updateTask } = useUpdateTask();
+  const { bulkArchive } = useBulkOperations();
   const { canUpdateTasks, canCreateTasks } = useWorkspacePermission();
   const canTask = canUpdateTasks();
   const canCreate = canCreateTasks();
@@ -31,24 +31,29 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
     const { project } = useProjectStore.getState();
     if (!column.isFinal || !project) return;
 
+    const taskIds = column.tasks.map((task) => task.id);
+
     const updatedProject = produce(project, (draft) => {
       const archivedColumn = draft?.columns?.find(
         (col) => col.id === column.id,
       );
       if (!archivedColumn) return;
 
-      for (const task of archivedColumn.tasks) {
-        updateTask({
-          ...task,
-          status: "archived",
-        });
-      }
-
       archivedColumn.tasks = [];
     });
 
     setProject(updatedProject);
-    toast.success(t("tasks:archive.success", { count: column.tasks.length }));
+
+    // One request for the column, rather than a full task update per card.
+    if (taskIds.length > 0) {
+      bulkArchive(taskIds).catch((error: unknown) =>
+        toast.error(
+          error instanceof Error ? error.message : t("tasks:update.error"),
+        ),
+      );
+    }
+
+    toast.success(t("tasks:archive.success", { count: taskIds.length }));
     setIsArchiveModalOpen(false);
   };
 
