@@ -16,11 +16,9 @@ import {
 import { useNavigate } from "@tanstack/react-router";
 import { produce } from "immer";
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { useReorderTasks } from "@/hooks/mutations/task/use-reorder-tasks";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import collectReorderedTasks from "@/lib/collect-reordered-tasks";
-import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
@@ -34,7 +32,6 @@ type KanbanBoardProps = {
 };
 
 function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
-  const { t } = useTranslation();
   const setProject = useProjectStore((s) => s.setProject);
   const setAvailableTasks = useBulkSelectionStore((s) => s.setAvailableTasks);
   const focusNext = useBulkSelectionStore((s) => s.focusNext);
