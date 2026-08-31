@@ -11,8 +11,15 @@ import {
   startOfWeek,
   subDays,
 } from "date-fns";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { Calendar, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import ProjectLayout from "@/components/common/project-layout";
 import { GanttTaskBar } from "@/components/gantt/gantt-task-bar";
@@ -62,6 +69,12 @@ function RouteComponent() {
   const showTaskRail = !isMobile || isTaskRailOpen;
   const timelineTrackRef = useRef<HTMLDivElement>(null);
   const [pixelsPerDay, setPixelsPerDay] = useState(44);
+  const todayCellRef = useRef<HTMLDivElement>(null);
+  // Only auto-scroll once per visit to the view: re-running on every timeline
+  // recalculation (e.g. a browser resize crossing the mobile breakpoint) would
+  // yank the grid back to today out from under someone who deliberately
+  // scrolled elsewhere.
+  const hasCenteredOnTodayRef = useRef(false);
 
   useEffect(() => {
     if (!isMobile) {
@@ -152,6 +165,23 @@ function RouteComponent() {
     };
   }, [parsedTasks, dayColumnWidthRem, weekStartsOn]);
 
+  // Whether "today" actually falls inside the computed date range. A project
+  // made up entirely of past or far-future tasks has no "today" column to
+  // jump to, so the button below is disabled in that case instead of doing
+  // nothing silently.
+  const todayInRange = useMemo(
+    () => timeline?.days.some((day) => isToday(day)) ?? false,
+    [timeline],
+  );
+
+  const scrollToToday = useCallback((behavior: ScrollBehavior = "smooth") => {
+    todayCellRef.current?.scrollIntoView({
+      behavior,
+      inline: "center",
+      block: "nearest",
+    });
+  }, []);
+
   useLayoutEffect(() => {
     const element = timelineTrackRef.current;
     if (!element || !timeline) return;
@@ -167,6 +197,15 @@ function RouteComponent() {
     observer.observe(element);
     return () => observer.disconnect();
   }, [timeline]);
+
+  // Center the view on today the first time it becomes available, so opening
+  // the Gantt chart on a long-running project doesn't drop you at the start
+  // of the timeline with today scrolled off-screen.
+  useLayoutEffect(() => {
+    if (hasCenteredOnTodayRef.current || !todayInRange) return;
+    hasCenteredOnTodayRef.current = true;
+    scrollToToday("auto");
+  }, [todayInRange, scrollToToday]);
 
   return (
     <ProjectLayout
@@ -196,6 +235,17 @@ function RouteComponent() {
                 className="h-9 min-h-11 touch-manipulation sm:h-8 sm:min-h-0 [&_[data-slot=input]]:pl-8 [&_[data-slot=input]]:text-xs"
               />
             </div>
+
+            <Button
+              variant="outline"
+              size="xs"
+              className="min-h-11 touch-manipulation sm:min-h-0"
+              onClick={() => scrollToToday()}
+              disabled={!todayInRange}
+            >
+              <Calendar className="size-3.5" />
+              {t("tasks:gantt.jumpToToday")}
+            </Button>
 
             <Button
               variant="outline"
@@ -265,9 +315,12 @@ function RouteComponent() {
                       index === 0 ||
                       !isSameMonth(day, timeline.days[index - 1] ?? day);
 
+                    const isCurrentDay = isToday(day);
+
                     return (
                       <div
                         key={day.toISOString()}
+                        ref={isCurrentDay ? todayCellRef : undefined}
                         className={cn(
                           "border-r border-border/70 px-0.5 py-2 text-center sm:px-1",
                           isWeekend(day) && "bg-muted/25",
@@ -279,7 +332,7 @@ function RouteComponent() {
                         <div
                           className={cn(
                             "mx-auto flex size-6 items-center justify-center rounded-full text-xs font-medium",
-                            isToday(day) &&
+                            isCurrentDay &&
                               "bg-primary text-primary-foreground",
                           )}
                         >
@@ -370,8 +423,8 @@ function RouteComponent() {
                           style={{
                             minWidth: `${timeline.timelineMinWidthRem}rem`,
                           }}
-                        >
-                          <GanttTaskBar
+                      >
+                        <GanttTaskBar
                             task={task}
                             timeline={timeline}
                             pixelsPerDay={pixelsPerDay}
@@ -386,7 +439,7 @@ function RouteComponent() {
                           />
                         </div>
                       </div>
-                    );
+                   );
                   })}
                 </div>
               </div>
