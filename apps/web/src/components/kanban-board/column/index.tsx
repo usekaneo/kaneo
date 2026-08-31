@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import type { ProjectWithTasks } from "@/types/project";
 import { ColumnDropzone } from "./column-dropzone";
 import { ColumnHeader } from "./column-header";
@@ -6,16 +6,20 @@ import { ColumnHeader } from "./column-header";
 type ColumnProps = {
   column: ProjectWithTasks["columns"][number];
   disableDragDrop?: boolean;
+  isOver?: boolean;
 };
 
-function Column({ column, disableDragDrop = false }: ColumnProps) {
-  const [isDropzoneOver, setIsDropzoneOver] = useState(false);
+function Column({
+  column,
+  disableDragDrop = false,
+  isOver = false,
+}: ColumnProps) {
   const scrollElementRef = useRef<HTMLDivElement>(null);
 
   return (
     <div
       className={`group relative flex h-full min-h-0 w-full flex-col rounded-xl border transition-colors duration-150 ${
-        isDropzoneOver
+        isOver
           ? "border-ring/40 bg-accent/60 shadow-md ring-2 ring-ring/30"
           : "border-border/70 bg-muted/40 shadow-xs/5 hover:border-border/90 dark:bg-card/90"
       }`}
@@ -30,7 +34,6 @@ function Column({ column, disableDragDrop = false }: ColumnProps) {
         <ColumnDropzone
           column={column}
           disableDragDrop={disableDragDrop}
-          onIsOverChange={setIsDropzoneOver}
           scrollElementRef={scrollElementRef}
         />
       </div>

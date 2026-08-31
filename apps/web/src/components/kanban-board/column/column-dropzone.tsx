@@ -4,7 +4,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { memo, type RefObject, useEffect } from "react";
+import { memo, type RefObject } from "react";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import TaskCard from "../task-card";
@@ -41,17 +41,15 @@ const VirtualTaskRow = memo(function VirtualTaskRow({
 type ColumnDropzoneProps = {
   column: ProjectWithTasks["columns"][number];
   disableDragDrop?: boolean;
-  onIsOverChange?: (isOver: boolean) => void;
   scrollElementRef: RefObject<HTMLDivElement | null>;
 };
 
 export function ColumnDropzone({
   column,
   disableDragDrop = false,
-  onIsOverChange,
   scrollElementRef,
 }: ColumnDropzoneProps) {
-  const { setNodeRef, isOver } = useDroppable({
+  const { setNodeRef } = useDroppable({
     id: column.id,
     data: {
       type: "column",
@@ -69,12 +67,8 @@ export function ColumnDropzone({
     overscan: 5,
   });
 
-  useEffect(() => {
-    onIsOverChange?.(isOver);
-  }, [isOver, onIsOverChange]);
-
   return (
-    <div ref={setNodeRef} className="min-h-full">
+    <div ref={setNodeRef} className="relative min-h-full bg-transparent">
       <SortableContext
         items={column.tasks}
         strategy={verticalListSortingStrategy}

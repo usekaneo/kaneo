@@ -72,8 +72,8 @@ function ColumnHeaderRow({
 }: ColumnHeaderRowProps) {
   const { t } = useTranslation();
   const { setNodeRef } = useDroppable({
-    id: column.id,
-    disabled: expanded && column.tasks.length === 0,
+    id: `column-header:${column.id}`,
+    disabled: expanded,
     data: {
       type: "column",
       column,
@@ -144,7 +144,7 @@ function EmptyColumnRow({
 }) {
   const { t } = useTranslation();
   const { setNodeRef } = useDroppable({
-    id: column.id,
+    id: `column-empty:${column.id}`,
     data: {
       type: "column",
       column,
@@ -265,8 +265,9 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
       return;
     }
 
-    if (project?.columns?.some((col) => col.id === over.id)) {
-      setOverColumnId(over.id.toString());
+    const targetColumnId = over.data.current?.column?.id;
+    if (typeof targetColumnId === "string") {
+      setOverColumnId(targetColumnId);
       return;
     }
 
@@ -291,6 +292,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
 
     const draggedTaskId = active.id.toString();
     const overId = over.id.toString();
+    const targetColumnId = over.data.current?.column?.id;
 
     let crossedColumns = false;
 
@@ -300,7 +302,9 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
       );
       const destinationColumn = draft?.columns?.find(
         (col) =>
-          col.id === overId || col.tasks.some((task) => task.id === overId),
+          col.id === targetColumnId ||
+          col.id === overId ||
+          col.tasks.some((task) => task.id === overId),
       );
 
       if (!sourceColumn || !destinationColumn) return;

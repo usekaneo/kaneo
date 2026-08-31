@@ -1,13 +1,16 @@
 import {
+  type CollisionDetection,
   closestCorners,
   DndContext,
   type DragEndEvent,
+  type DragOverEvent,
   DragOverlay,
   type DragStartEvent,
   type DropAnimation,
   defaultDropAnimationSideEffects,
   KeyboardSensor,
   MouseSensor,
+  pointerWithin,
   TouchSensor,
   type UniqueIdentifier,
   useSensor,
@@ -15,7 +18,7 @@ import {
 } from "@dnd-kit/core";
 import { useNavigate } from "@tanstack/react-router";
 import { produce } from "immer";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useReorderTasks } from "@/hooks/mutations/task/use-reorder-tasks";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import collectReorderedTasks from "@/lib/collect-reordered-tasks";
@@ -38,6 +41,7 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
   const focusPrevious = useBulkSelectionStore((s) => s.focusPrevious);
   const clearFocus = useBulkSelectionStore((s) => s.clearFocus);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
+  const [overColumnId, setOverColumnId] = useState<string | null>(null);
   const { mutate: reorderTasks } = useReorderTasks();
   const navigate = useNavigate();
 
@@ -115,9 +119,58 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
     setActiveId(event.active.id);
   };
 
+  const taskIds = useMemo(
+    () =>
+      new Set(
+        project.columns.flatMap((column) =>
+          column.tasks.map((task) => task.id),
+        ),
+      ),
+    [project.columns],
+  );
+
+  const collisionDetection = useCallback<CollisionDetection>(
+    (args) => {
+      const pointerCollisions = pointerWithin(args);
+
+      if (pointerCollisions.length > 0) {
+        // Prefer the precise card target when the pointer is on a rendered
+        // card. Otherwise keep the column target, including an empty column.
+        const taskCollision = pointerCollisions.find((collision) =>
+          taskIds.has(collision.id.toString()),
+        );
+        return taskCollision ? [taskCollision] : pointerCollisions;
+      }
+
+      return closestCorners(args);
+    },
+    [taskIds],
+  );
+
+  const handleDragOver = ({ over }: DragOverEvent) => {
+    if (!over) {
+      setOverColumnId(null);
+      return;
+    }
+
+    const overId = over.id.toString();
+    const column = project.columns.find(
+      (candidate) =>
+        candidate.id === overId ||
+        candidate.tasks.some((task) => task.id === overId),
+    );
+
+    setOverColumnId(column?.id ?? null);
+  };
+
+  const clearDragState = () => {
+    setActiveId(null);
+    setOverColumnId(null);
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    setActiveId(null);
+    clearDragState();
 
     if (!over || !project?.columns) return;
 
@@ -256,9 +309,11 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCorners}
+      collisionDetection={collisionDetection}
       onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
+      onDragCancel={clearDragState}
     >
       <div className="flex h-full w-full flex-col bg-linear-to-b from-muted/20 to-background">
         <div className="min-h-0 flex-1 overflow-x-auto [-webkit-overflow-scrolling:touch]">
@@ -268,7 +323,11 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
                 key={column.id}
                 className="h-full max-w-96 min-w-80 shrink-0 flex-1"
               >
-                <Column column={column} disableDragDrop={disableDragDrop} />
+                <Column
+                  column={column}
+                  disableDragDrop={disableDragDrop}
+                  isOver={overColumnId === column.id}
+                />
               </div>
             ))}
           </div>
