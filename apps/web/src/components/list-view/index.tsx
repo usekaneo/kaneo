@@ -380,9 +380,10 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
     setIsArchiveModalOpen(true);
   };
 
-  const handleConfirmArchive = () => {
+  const handleConfirmArchive = async () => {
     if (!columnToArchive) return;
 
+    const previousProject = project;
     const taskIds = columnToArchive.tasks.map((task) => task.id);
 
     const updatedProject = produce(project, (draft) => {
@@ -396,15 +397,18 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
 
     setProject(updatedProject);
 
-    if (taskIds.length > 0) {
-      bulkArchive(taskIds).catch((error: unknown) =>
-        toast.error(
-          error instanceof Error ? error.message : t("tasks:update.error"),
-        ),
+    try {
+      if (taskIds.length > 0) {
+        await bulkArchive(taskIds);
+      }
+
+      toast.success(t("tasks:archive.success", { count: taskIds.length }));
+    } catch (error) {
+      setProject(previousProject);
+      toast.error(
+        error instanceof Error ? error.message : t("tasks:update.error"),
       );
     }
-
-    toast.success(t("tasks:archive.success", { count: taskIds.length }));
 
     setIsArchiveModalOpen(false);
     setColumnToArchive(null);

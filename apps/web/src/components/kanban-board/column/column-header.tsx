@@ -27,10 +27,11 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
-  const handleConfirmArchive = () => {
+  const handleConfirmArchive = async () => {
     const { project } = useProjectStore.getState();
     if (!column.isFinal || !project) return;
 
+    const previousProject = project;
     const taskIds = column.tasks.map((task) => task.id);
 
     const updatedProject = produce(project, (draft) => {
@@ -44,16 +45,20 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
 
     setProject(updatedProject);
 
-    // One request for the column, rather than a full task update per card.
-    if (taskIds.length > 0) {
-      bulkArchive(taskIds).catch((error: unknown) =>
-        toast.error(
-          error instanceof Error ? error.message : t("tasks:update.error"),
-        ),
+    try {
+      // One request for the column, rather than a full task update per card.
+      if (taskIds.length > 0) {
+        await bulkArchive(taskIds);
+      }
+
+      toast.success(t("tasks:archive.success", { count: taskIds.length }));
+    } catch (error) {
+      setProject(previousProject);
+      toast.error(
+        error instanceof Error ? error.message : t("tasks:update.error"),
       );
     }
 
-    toast.success(t("tasks:archive.success", { count: taskIds.length }));
     setIsArchiveModalOpen(false);
   };
 
