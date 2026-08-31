@@ -15,7 +15,10 @@ type ReorderInput = {
 // binds four, so the rows are written in chunks well inside that ceiling. This
 // keeps a whole-column drag to a couple of statements instead of one per task.
 const PARAMETERS_PER_TASK = 4;
-const MAX_TASKS_PER_STATEMENT = Math.floor(60_000 / PARAMETERS_PER_TASK);
+const MAX_BOUND_PARAMETERS_PER_STATEMENT = 60_000;
+const MAX_TASKS_PER_STATEMENT = Math.floor(
+  MAX_BOUND_PARAMETERS_PER_STATEMENT / PARAMETERS_PER_TASK,
+);
 
 /**
  * Applies a whole board drag in one transaction.
@@ -44,17 +47,33 @@ async function reorderTasks({
       sql`SELECT pg_advisory_xact_lock(1526, hashtext(${projectId}))`,
     );
 
-    const existing = await tx
-      .select({
-        id: taskTable.id,
-        status: taskTable.status,
-        position: taskTable.position,
-        title: taskTable.title,
-        userId: taskTable.userId,
-        projectId: taskTable.projectId,
-      })
-      .from(taskTable)
-      .where(inArray(taskTable.id, ids));
+    const existing = [];
+
+    // `inArray` binds every id separately, so large boards need the same
+    // protection from PostgreSQL's parameter ceiling as the updates below.
+    for (
+      let offset = 0;
+      offset < ids.length;
+      offset += MAX_BOUND_PARAMETERS_PER_STATEMENT
+    ) {
+      const idChunk = ids.slice(
+        offset,
+        offset + MAX_BOUND_PARAMETERS_PER_STATEMENT,
+      );
+      const chunk = await tx
+        .select({
+          id: taskTable.id,
+          status: taskTable.status,
+          position: taskTable.position,
+          title: taskTable.title,
+          userId: taskTable.userId,
+          projectId: taskTable.projectId,
+        })
+        .from(taskTable)
+        .where(inArray(taskTable.id, idChunk));
+
+      existing.push(...chunk);
+    }
 
     const existingById = new Map(existing.map((task) => [task.id, task]));
 
