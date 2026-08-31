@@ -64,6 +64,8 @@ export const reorderTasksBody = z.object({
     .min(1),
 });
 
+export type ReorderTask = z.infer<typeof reorderTasksBody>["tasks"][number];
+
 export const createTaskBody = z.object({
   title: z.string(),
   description: z.string(),

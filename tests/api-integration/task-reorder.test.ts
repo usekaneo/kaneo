@@ -2,6 +2,7 @@ import { asc, eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
+import type { ReorderTask } from "../../apps/api/src/task/schema";
 import { mockAnonymousSession, mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
 import {
@@ -9,9 +10,7 @@ import {
   createWorkspaceMember,
 } from "./helpers/fixtures";
 
-type ReorderEntry = { id: string; status: string; position: number };
-
-function reorderRequest(projectId: string, tasks: ReorderEntry[]) {
+function reorderRequest(projectId: string, tasks: ReorderTask[]) {
   const { app } = createApp();
   return app.request(`/api/task/reorder/${projectId}`, {
     method: "PUT",
