@@ -1875,7 +1875,8 @@
 			"updateDatesError": "Не вдалося оновити дати завдання",
 			"resizeStart": "Змінити дату початку",
 			"resizeDue": "Змінити дату завершення",
-			"taskAriaLabel": "{{title}}: відкрити або перетягнути для переміщення"
+			"taskAriaLabel": "{{title}}: відкрити або перетягнути для переміщення",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "Видалити завдання?",
