@@ -33,14 +33,11 @@ type KanbanBoardProps = {
 
 function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
   const queryClient = useQueryClient();
-  const { setProject } = useProjectStore();
-  const {
-    setAvailableTasks,
-    focusNext,
-    focusPrevious,
-    focusedTaskId,
-    clearFocus,
-  } = useBulkSelectionStore();
+  const setProject = useProjectStore((s) => s.setProject);
+  const setAvailableTasks = useBulkSelectionStore((s) => s.setAvailableTasks);
+  const focusNext = useBulkSelectionStore((s) => s.focusNext);
+  const focusPrevious = useBulkSelectionStore((s) => s.focusPrevious);
+  const clearFocus = useBulkSelectionStore((s) => s.clearFocus);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const { mutate: updateTask } = useUpdateTask();
   const navigate = useNavigate();
@@ -75,6 +72,7 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
         }
       },
       Enter: () => {
+        const { focusedTaskId } = useBulkSelectionStore.getState();
         if (focusedTaskId && project) {
           navigate({
             to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
@@ -154,9 +152,13 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
         }
         destinationColumn.tasks.splice(destinationIndex, 0, task);
 
-        destinationColumn.tasks.forEach((t, index) => {
-          updateTask({ ...t, position: index });
-        });
+        const firstChangedIndex = Math.min(sourceTaskIndex, destinationIndex);
+        const lastChangedIndex = Math.max(sourceTaskIndex, destinationIndex);
+        destinationColumn.tasks
+          .slice(firstChangedIndex, lastChangedIndex + 1)
+          .forEach((t, offset) => {
+            updateTask({ ...t, position: firstChangedIndex + offset });
+          });
 
         queryClient.invalidateQueries({
           queryKey: ["projects", project.workspaceId],
@@ -173,12 +175,16 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
 
         destinationColumn.tasks.splice(destinationIndex, 0, task);
 
-        destinationColumn.tasks.forEach((t, index) => {
-          updateTask({ ...t, status: destinationColumn.slug, position: index });
+        destinationColumn.tasks.slice(destinationIndex).forEach((t, offset) => {
+          updateTask({
+            ...t,
+            status: destinationColumn.slug,
+            position: destinationIndex + offset,
+          });
         });
 
-        sourceColumn.tasks.forEach((t, index) => {
-          updateTask({ ...t, position: index });
+        sourceColumn.tasks.slice(sourceTaskIndex).forEach((t, offset) => {
+          updateTask({ ...t, position: sourceTaskIndex + offset });
         });
       }
     });
@@ -266,7 +272,7 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
         {activeTask ? (
           <div className="transform rotate-1 scale-[1.03] shadow-lg">
             <div className="ring-2 ring-ring/35 rounded-lg">
-              <TaskCard task={activeTask} />
+              <TaskCard task={activeTask} dragOverlay />
             </div>
           </div>
         ) : null}

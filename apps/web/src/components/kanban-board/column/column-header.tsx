@@ -17,7 +17,8 @@ type ColumnHeaderProps = {
 
 export function ColumnHeader({ column }: ColumnHeaderProps) {
   const { t } = useTranslation();
-  const { project, setProject } = useProjectStore();
+  const projectId = useProjectStore((s) => s.project?.id);
+  const setProject = useProjectStore((s) => s.setProject);
   const { mutate: updateTask } = useUpdateTask();
   const { canUpdateTasks, canCreateTasks } = useWorkspacePermission();
   const canTask = canUpdateTasks();
@@ -27,6 +28,7 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
   const handleConfirmArchive = () => {
+    const { project } = useProjectStore.getState();
     if (!column.isFinal || !project) return;
 
     const updatedProject = produce(project, (draft) => {
@@ -90,7 +92,7 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
       <CreateTaskModal
         open={isTaskModalOpen}
         onClose={() => setIsTaskModalOpen(false)}
-        projectId={project?.id}
+        projectId={projectId}
         status={column.id}
       />
 

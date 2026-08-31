@@ -46,6 +46,7 @@
 		"@tanstack/react-query": "^5.101.4",
 		"@tanstack/react-query-devtools": "^5.101.4",
 		"@tanstack/react-router": "^1.170.21",
+		"@tanstack/react-virtual": "^3.14.10",
 		"@tanstack/router-devtools": "^1.167.1",
 		"@tanstack/router-plugin": "^1.168.26",
 		"@tiptap/core": "^3.29.2",

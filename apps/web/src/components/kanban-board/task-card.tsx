@@ -44,7 +44,10 @@ import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import queryClient from "@/query-client";
-import useBulkSelectionStore from "@/store/bulk-selection";
+import useBulkSelectionStore, {
+  useIsTaskFocused,
+  useIsTaskSelected,
+} from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
@@ -56,23 +59,24 @@ import { TaskLabels } from "./task-labels";
 type TaskCardProps = {
   task: Task;
   disableDragDrop?: boolean;
+  dragOverlay?: boolean;
+};
+
+type TaskCardContentProps = TaskCardProps & {
+  isDragging?: boolean;
 };
 
 const TaskCardContent = memo(
-  ({ task, disableDragDrop = false }: TaskCardProps) => {
+  ({
+    task,
+    disableDragDrop = false,
+    isDragging = false,
+  }: TaskCardContentProps) => {
     const { t } = useTranslation();
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      transform,
-      transition,
-      isDragging,
-    } = useSortable({ id: task.id, disabled: disableDragDrop });
-    const project = useProjectStore((s) => s.project);
-    const taskIsCompleted = useMemo(
-      () => isTaskCompleted(task.status, project?.columns),
-      [task.status, project?.columns],
+    const projectId = useProjectStore((s) => s.project?.id);
+    const projectSlug = useProjectStore((s) => s.project?.slug);
+    const taskIsCompleted = useProjectStore((s) =>
+      isTaskCompleted(task.status, s.project?.columns),
     );
     const { data: workspace } = useActiveWorkspace();
     const { mutateAsync: deleteTask } = useDeleteTask();
@@ -84,10 +88,8 @@ const TaskCardContent = memo(
     const showTaskNumbers = useUserPreferencesStore((s) => s.showTaskNumbers);
     const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
     const toggleSelection = useBulkSelectionStore((s) => s.toggleSelection);
-    const isSelected = useBulkSelectionStore((s) => s.isSelected);
-    const isFocused = useBulkSelectionStore((s) => s.isFocused);
-    const isTaskSelected = isSelected(task.id);
-    const isTaskFocused = isFocused(task.id);
+    const isTaskSelected = useIsTaskSelected(task.id);
+    const isTaskFocused = useIsTaskFocused(task.id);
 
     const pullRequests = useMemo(() => {
       return (task.externalLinks ?? []).filter(
@@ -136,15 +138,6 @@ const TaskCardContent = memo(
       [pullRequests, getPRInfo],
     );
 
-    const style: CSSProperties = {
-      transform: CSS.Transform.toString(transform),
-      transition:
-        transition || "transform 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-      opacity: isDragging ? 0.6 : 1,
-      touchAction: isDragging ? "none" : "auto",
-      zIndex: isDragging ? 999 : "auto",
-    };
-
     const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
       workspace?.id ?? "",
     );
@@ -161,7 +154,7 @@ const TaskCardContent = memo(
           | React.MouseEvent<HTMLDivElement>
           | React.KeyboardEvent<HTMLDivElement>,
       ) => {
-        if (!project || !task || !workspace) return;
+        if (!projectId || !task || !workspace) return;
 
         if (
           (e as React.MouseEvent).metaKey ||
@@ -186,7 +179,7 @@ const TaskCardContent = memo(
           });
         }
       },
-      [project, task, task.id, workspace, navigate, toggleSelection],
+      [projectId, task, task.id, workspace, navigate, toggleSelection],
     );
 
     const handleKeyDown = useCallback(
@@ -202,7 +195,7 @@ const TaskCardContent = memo(
       try {
         await deleteTask(task.id);
         queryClient.invalidateQueries({
-          queryKey: ["tasks", project?.id],
+          queryKey: ["tasks", projectId],
         });
       } catch (error) {
         toast.error(
@@ -211,10 +204,10 @@ const TaskCardContent = memo(
       } finally {
         toast.success(t("tasks:delete.success"));
       }
-    }, [deleteTask, project?.id, t, task.id]);
+    }, [deleteTask, projectId, t, task.id]);
 
     return (
-      <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <>
         <ContextMenu>
           <ContextMenuTrigger asChild>
             {/** biome-ignore lint/a11y/noStaticElementInteractions: false positive for onClick and onKeyDown */}
@@ -241,7 +234,7 @@ const TaskCardContent = memo(
             >
               {showTaskNumbers && (
                 <div className="mb-2 text-[10px] font-mono text-muted-foreground/90">
-                  {project?.slug}-{task.number}
+                  {projectSlug}-{task.number}
                 </div>
               )}
 
@@ -430,11 +423,11 @@ const TaskCardContent = memo(
             </div>
           </ContextMenuTrigger>
 
-          {project && workspace && (
+          {projectId && workspace && (
             <TaskCardContextMenuContent
               task={task}
               taskCardContext={{
-                projectId: project.id,
+                projectId,
                 worskpaceId: workspace.id,
               }}
               onDeleteClick={() => setIsDeleteTaskModalOpen(true)}
@@ -471,12 +464,12 @@ const TaskCardContent = memo(
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </div>
+      </>
     );
   },
 );
 
-function DraggableTaskCard({ task, disableDragDrop = false }: TaskCardProps) {
+function SortableTaskCard({ task, disableDragDrop = false }: TaskCardProps) {
   const {
     attributes,
     listeners,
@@ -509,4 +502,16 @@ function DraggableTaskCard({ task, disableDragDrop = false }: TaskCardProps) {
   );
 }
 
-export default memo(DraggableTaskCard);
+function TaskCard({
+  task,
+  disableDragDrop = false,
+  dragOverlay = false,
+}: TaskCardProps) {
+  if (dragOverlay) {
+    return <TaskCardContent task={task} disableDragDrop />;
+  }
+
+  return <SortableTaskCard task={task} disableDragDrop={disableDragDrop} />;
+}
+
+export default memo(TaskCard);
