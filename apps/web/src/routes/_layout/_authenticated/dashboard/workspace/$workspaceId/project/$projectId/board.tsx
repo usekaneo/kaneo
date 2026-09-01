@@ -116,6 +116,11 @@ function RouteComponent() {
             to: "/dashboard/workspace/$workspaceId/project/$projectId/gantt",
             params: { workspaceId, projectId },
           }),
+        [shortcuts.view.epics]: () =>
+          navigate({
+            to: "/dashboard/workspace/$workspaceId/project/$projectId/epics",
+            params: { workspaceId, projectId },
+          }),
         [shortcuts.view.backlog]: () =>
           navigate({
             to: "/dashboard/workspace/$workspaceId/project/$projectId/backlog",

@@ -10,6 +10,7 @@ async function getTask(taskId: string) {
       title: taskTable.title,
       number: taskTable.number,
       description: taskTable.description,
+      type: taskTable.type,
       status: taskTable.status,
       priority: taskTable.priority,
       startDate: taskTable.startDate,

@@ -1,7 +1,15 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { produce } from "immer";
-import { ArrowRight, Calendar, Filter, Plus, User, X } from "lucide-react";
+import {
+  ArrowRight,
+  Calendar,
+  Filter,
+  Layers,
+  Plus,
+  User,
+  X,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import BacklogListView from "@/components/backlog-list-view";
@@ -26,7 +34,9 @@ import labelColors from "@/constants/label-colors";
 import { shortcuts } from "@/constants/shortcuts";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
+import { useGetProjectEpics } from "@/hooks/queries/task/use-get-project-epics";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
+import useGetTaskRelations from "@/hooks/queries/task-relation/use-get-task-relations";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { DUE_DATE_FILTER_VALUES } from "@/hooks/use-task-filters";
@@ -110,6 +120,12 @@ function RouteComponent() {
             params: { workspaceId, projectId },
           });
         },
+        [shortcuts.view.epics]: () => {
+          navigate({
+            to: "/dashboard/workspace/$workspaceId/project/$projectId/epics",
+            params: { workspaceId, projectId },
+          });
+        },
         [shortcuts.view.backlog]: () => {},
       },
     },
@@ -120,7 +136,29 @@ function RouteComponent() {
     assignee: null as string | null,
     dueDate: null as string | null,
     labels: [] as string[],
+    epicId: null as string | null,
   });
+
+  const { data: epics = [] } = useGetProjectEpics(projectId);
+  // Only the selected epic's children matter, so this fetches one task's
+  // relations (like TaskSubtasks/TaskEpicChildren do) rather than every
+  // relation in the project.
+  const { data: epicRelations = [] } = useGetTaskRelations(
+    filters.epicId ?? "",
+  );
+  const epicChildIds = useMemo(
+    () =>
+      new Set(
+        epicRelations
+          .filter(
+            (rel) =>
+              rel.relationType === "epic" &&
+              rel.sourceTaskId === filters.epicId,
+          )
+          .map((rel) => rel.targetTaskId),
+      ),
+    [epicRelations, filters.epicId],
+  );
 
   const updateFilter = (key: string, value: string | null) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -141,6 +179,7 @@ function RouteComponent() {
       assignee: null,
       dueDate: null,
       labels: [],
+      epicId: null,
     });
   };
 
@@ -240,6 +279,10 @@ function RouteComponent() {
           }
         }
 
+        if (filters.epicId && !epicChildIds.has(task.id)) {
+          return false;
+        }
+
         return true;
       });
     };
@@ -249,7 +292,7 @@ function RouteComponent() {
       plannedTasks: filterTasks(project.plannedTasks || []),
       archivedTasks: filterTasks(project.archivedTasks || []),
     };
-  }, [project, filters, getTaskLabels]);
+  }, [project, filters, getTaskLabels, epicChildIds]);
 
   const uniqueLabels = workspaceLabels.reduce(
     (
@@ -525,6 +568,34 @@ function RouteComponent() {
                       </Button>
                     ))}
 
+                {filters.epicId && (
+                  <Button
+                    variant="secondary"
+                    size="xs"
+                    className="h-7 rounded-md px-2 text-xs font-medium gap-1.5"
+                  >
+                    <Layers className="h-3 w-3" />
+                    <span>
+                      {t("tasks:backlog.filters.epic", {
+                        name:
+                          epics.find((epic) => epic.id === filters.epicId)
+                            ?.title ?? "",
+                      })}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-4 w-4 p-0 ml-1 hover:bg-destructive hover:text-destructive-foreground"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updateFilter("epicId", null);
+                      }}
+                    >
+                      <X className="h-2.5 w-2.5" />
+                    </Button>
+                  </Button>
+                )}
+
                 <SortControl sort={sort} onSortChange={setSort} />
 
                 <DropdownMenu>
@@ -685,6 +756,37 @@ function RouteComponent() {
                         className="h-8 rounded-md text-sm text-muted-foreground"
                       >
                         <span>{t("tasks:labels.empty")}</span>
+                      </DropdownMenuItem>
+                    )}
+
+                    <DropdownMenuSeparator />
+                    <DropdownMenuGroup>
+                      <DropdownMenuLabel className="text-[11px] uppercase tracking-wide">
+                        {t("tasks:epics.label")}
+                      </DropdownMenuLabel>
+                    </DropdownMenuGroup>
+                    {epics.length > 0 ? (
+                      epics.map((epic) => (
+                        <DropdownMenuCheckboxItem
+                          key={epic.id}
+                          checked={filters.epicId === epic.id}
+                          onCheckedChange={(checked) =>
+                            updateFilter("epicId", checked ? epic.id : null)
+                          }
+                          className="h-8 rounded-md text-sm"
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <Layers className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                            <span className="truncate">{epic.title}</span>
+                          </div>
+                        </DropdownMenuCheckboxItem>
+                      ))
+                    ) : (
+                      <DropdownMenuItem
+                        disabled
+                        className="h-8 rounded-md text-sm text-muted-foreground"
+                      >
+                        <span>{t("tasks:epics.noneAvailable")}</span>
                       </DropdownMenuItem>
                     )}
                   </DropdownMenuContent>

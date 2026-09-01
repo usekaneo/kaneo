@@ -15,6 +15,7 @@ async function createTask(
   startDate: Date | undefined,
   dueDate: Date | undefined,
   priority: CreateTaskRequest["priority"],
+  type?: CreateTaskRequest["type"],
 ) {
   if (!projectId) {
     throw new Error("No project selected for task creation");
@@ -29,6 +30,7 @@ async function createTask(
       startDate: startDate?.toISOString() || undefined,
       dueDate: dueDate?.toISOString() || undefined,
       priority,
+      ...(type ? { type } : {}),
     },
     param: { projectId },
   });

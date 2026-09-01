@@ -105,6 +105,12 @@ function RouteComponent() {
             params: { workspaceId, projectId },
           });
         },
+        [shortcuts.view.epics]: () => {
+          navigate({
+            to: "/dashboard/workspace/$workspaceId/project/$projectId/epics",
+            params: { workspaceId, projectId },
+          });
+        },
         [shortcuts.view.calendar]: () => {},
       },
     },

@@ -418,6 +418,10 @@ export const taskTable = pgTable(
     }),
     title: text("title").notNull(),
     description: text("description"),
+    // "task" (default) or "epic". An epic is an ordinary task that groups
+    // children through a `task_relation` row of type "epic" (see
+    // taskRelationTable) rather than a separate table.
+    type: text("type").notNull().default("task"),
     status: text("status").notNull().default("to-do"),
     columnId: text("column_id").references(() => columnTable.id, {
       onDelete: "set null",

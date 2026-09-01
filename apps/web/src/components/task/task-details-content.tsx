@@ -14,6 +14,7 @@ import useGetTask from "@/hooks/queries/task/use-get-task";
 import useGetTaskRelations from "@/hooks/queries/task-relation/use-get-task-relations";
 import type { ExternalLink } from "@/types/external-link";
 import TaskDescription from "./task-description";
+import TaskEpicChildren from "./task-epic-children";
 import TaskRelations from "./task-relations";
 import TaskSubtasks from "./task-subtasks";
 import TaskTitle from "./task-title";
@@ -46,6 +47,11 @@ export default function TaskDetailsContent({
   );
   const parentTask = parentRelation?.sourceTask;
 
+  const parentEpicRelation = relations.find(
+    (rel) => rel.relationType === "epic" && rel.targetTaskId === taskId,
+  );
+  const parentEpic = parentEpicRelation?.sourceTask;
+
   if (!taskId) return null;
 
   return (
@@ -73,6 +79,28 @@ export default function TaskDetailsContent({
             </span>
           </button>
         )}
+        {parentEpic && (
+          <button
+            type="button"
+            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors w-fit"
+            onClick={() =>
+              navigate({
+                to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
+                params: {
+                  workspaceId,
+                  projectId,
+                  taskId: parentEpic.id,
+                },
+              })
+            }
+          >
+            <ArrowUpRight className="size-3" />
+            <span>
+              {t("tasks:detail.epicOf")}{" "}
+              <span className="font-medium">{parentEpic.title}</span>
+            </span>
+          </button>
+        )}
         <p className="text-xs font-semibold text-foreground/70">
           {project?.slug}-{task?.number}
         </p>
@@ -84,6 +112,16 @@ export default function TaskDetailsContent({
           <ExternalLinksAccordion
             externalLinks={externalLinks as ExternalLink[]}
             isLoading={isLoadingExternalLinks}
+          />
+        </div>
+      )}
+      {task?.type === "epic" && (
+        <div className="mt-4">
+          <TaskEpicChildren
+            taskId={taskId}
+            projectId={projectId}
+            workspaceId={workspaceId}
+            parentStatus={task.status}
           />
         </div>
       )}

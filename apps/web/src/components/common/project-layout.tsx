@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from "@tanstack/react-router";
 import {
   CalendarDays,
   CalendarRange,
+  Layers,
   SquareKanban,
   SquircleDashed,
 } from "lucide-react";
@@ -32,7 +33,7 @@ type ProjectLayoutProps = {
   headerActions?: ReactNode;
   children: ReactNode;
   showViewSwitcher?: boolean;
-  activeView?: "backlog" | "board" | "calendar" | "gantt";
+  activeView?: "backlog" | "board" | "calendar" | "gantt" | "epics";
 };
 
 export default function ProjectLayout({
@@ -60,7 +61,9 @@ export default function ProjectLayout({
         ? "calendar"
         : location.pathname.includes("/gantt")
           ? "gantt"
-          : "board");
+          : location.pathname.includes("/epics")
+            ? "epics"
+            : "board");
 
   const handleNavigateToBacklog = () => {
     navigate({
@@ -90,6 +93,13 @@ export default function ProjectLayout({
     });
   };
 
+  const handleNavigateToEpics = () => {
+    navigate({
+      to: "/dashboard/workspace/$workspaceId/project/$projectId/epics",
+      params: { workspaceId, projectId },
+    });
+  };
+
   const handleProjectSwitch = (nextProjectId: string) => {
     navigate({
       to:
@@ -99,7 +109,9 @@ export default function ProjectLayout({
             ? "/dashboard/workspace/$workspaceId/project/$projectId/calendar"
             : resolvedView === "gantt"
               ? "/dashboard/workspace/$workspaceId/project/$projectId/gantt"
-              : "/dashboard/workspace/$workspaceId/project/$projectId/board",
+              : resolvedView === "epics"
+                ? "/dashboard/workspace/$workspaceId/project/$projectId/epics"
+                : "/dashboard/workspace/$workspaceId/project/$projectId/board",
       params: {
         workspaceId,
         projectId: nextProjectId,
@@ -154,6 +166,7 @@ export default function ProjectLayout({
                 onSelectBoard={handleNavigateToBoard}
                 onSelectCalendar={handleNavigateToCalendar}
                 onSelectGantt={handleNavigateToGantt}
+                onSelectEpics={handleNavigateToEpics}
                 onSelectProject={handleProjectSwitch}
                 onAddProject={() => setIsCreateProjectModalOpen(true)}
               />
@@ -208,6 +221,18 @@ export default function ProjectLayout({
                 >
                   <CalendarDays className="size-3.5" />
                   Gantt
+                </Button>
+                <Button
+                  variant={resolvedView === "epics" ? "secondary" : "ghost"}
+                  size="xs"
+                  onClick={handleNavigateToEpics}
+                  className={cn(
+                    "h-6 gap-1.5 rounded-md px-2 text-xs",
+                    resolvedView !== "epics" && "text-muted-foreground",
+                  )}
+                >
+                  <Layers className="size-3.5" />
+                  {t("tasks:epics.tabTitle")}
                 </Button>
               </div>
             )}

@@ -7,7 +7,10 @@ import {
   assertAssignableUser,
   getProjectWorkspaceId,
 } from "../../utils/assert-assignable-user";
-import { assertValidTaskStatus } from "../validate-task-fields";
+import {
+  assertValidTaskStatus,
+  assertValidTaskType,
+} from "../validate-task-fields";
 import { claimTaskNumber } from "./claim-task-numbers";
 
 async function createTask({
@@ -20,6 +23,7 @@ async function createTask({
   dueDate,
   description,
   priority,
+  type,
 }: {
   projectId: string;
   currentUserId: string;
@@ -30,13 +34,16 @@ async function createTask({
   dueDate?: Date;
   description?: string;
   priority?: string;
+  type?: string;
 }) {
   const resolvedStatus = status || "to-do";
   const resolvedPriority = priority || "no-priority";
+  const resolvedType = type || "task";
 
   const normalizedUserId = userId?.trim() || undefined;
 
   await assertValidTaskStatus(resolvedStatus, projectId);
+  assertValidTaskType(resolvedType);
 
   let assignee: { name: string } | undefined;
 
@@ -82,6 +89,7 @@ async function createTask({
         projectId,
         userId: normalizedUserId ?? null,
         title: title || "",
+        type: resolvedType,
         status: resolvedStatus,
         columnId: column?.id ?? null,
         startDate: startDate || null,

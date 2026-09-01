@@ -104,8 +104,11 @@ export default function TaskRelations({
     }
   }, [commandOpen]);
 
+  // "subtask" and "epic" relations each have their own dedicated section
+  // (TaskSubtasks / TaskEpicChildren), so they're excluded here to avoid
+  // showing the same link twice under two different UIs.
   const nonSubtaskRelations = relations.filter(
-    (rel) => rel.relationType !== "subtask",
+    (rel) => rel.relationType !== "subtask" && rel.relationType !== "epic",
   );
 
   const groupedRelations = useMemo(() => {

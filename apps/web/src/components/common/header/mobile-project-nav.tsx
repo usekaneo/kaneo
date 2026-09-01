@@ -2,6 +2,7 @@ import {
   CalendarDays,
   CalendarRange,
   Check,
+  Layers,
   Menu,
   Plus,
   SquareKanban,
@@ -20,11 +21,12 @@ import { cn } from "@/lib/cn";
 type MobileProjectNavProps = {
   workspaceId: string;
   projectId: string;
-  activeView: "backlog" | "board" | "calendar" | "gantt";
+  activeView: "backlog" | "board" | "calendar" | "gantt" | "epics";
   onSelectBoard: () => void;
   onSelectBacklog: () => void;
   onSelectCalendar: () => void;
   onSelectGantt: () => void;
+  onSelectEpics: () => void;
   onSelectProject: (projectId: string) => void;
   onAddProject: () => void;
 };
@@ -37,6 +39,7 @@ export default function MobileProjectNav({
   onSelectBacklog,
   onSelectCalendar,
   onSelectGantt,
+  onSelectEpics,
   onSelectProject,
   onAddProject,
 }: MobileProjectNavProps) {
@@ -62,7 +65,7 @@ export default function MobileProjectNav({
             <p className="px-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
               View
             </p>
-            <div className="grid grid-cols-4 gap-1">
+            <div className="grid grid-cols-5 gap-1">
               <button
                 type="button"
                 onClick={onSelectBacklog}
@@ -113,6 +116,19 @@ export default function MobileProjectNav({
               >
                 <CalendarDays className="size-3.5" />
                 Gantt
+              </button>
+              <button
+                type="button"
+                onClick={onSelectEpics}
+                className={cn(
+                  "flex w-full items-center justify-center gap-1 whitespace-nowrap rounded-md border px-2 py-1.5 text-xs font-medium transition-colors",
+                  activeView === "epics"
+                    ? "border-border bg-secondary text-foreground"
+                    : "border-transparent text-muted-foreground hover:bg-accent",
+                )}
+              >
+                <Layers className="size-3.5" />
+                {t("tasks:epics.tabTitle")}
               </button>
             </div>
           </div>

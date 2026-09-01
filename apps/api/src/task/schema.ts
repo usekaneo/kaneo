@@ -1,5 +1,5 @@
 import { z } from "../openapi";
-import { VALID_PRIORITIES } from "./validate-task-fields";
+import { VALID_PRIORITIES, VALID_TASK_TYPES } from "./validate-task-fields";
 
 const pagingNumber = (min: number, max: number) =>
   z
@@ -13,12 +13,16 @@ export const taskParam = z.object({ id: z.string() });
 export const projectIdParam = z.object({ projectId: z.string() });
 
 const priority = z.enum(VALID_PRIORITIES);
+const taskType = z.enum(VALID_TASK_TYPES);
 
 // Required object of optional filters: a RouteParameter cannot itself be optional.
 export const listTasksQuery = z.object({
   status: z.string().optional(),
   priority: z.string().optional(),
   assigneeId: z.string().optional(),
+  type: taskType.optional().openapi({
+    description: "Filter to only tasks of this type, e.g. `epic`.",
+  }),
   // Number("abc") is NaN, which used to reach the limit/offset clause unchecked.
   page: pagingNumber(1, 1_000_000).optional(),
   limit: pagingNumber(1, 200).optional(),
@@ -55,6 +59,9 @@ export const createTaskBody = z.object({
   priority,
   status: z.string().openapi({ description: "The target column's slug." }),
   userId: z.string().optional().openapi({ description: "Assignee, if any." }),
+  type: taskType.optional().openapi({
+    description: "Defaults to `task`. Set to `epic` to create an epic.",
+  }),
 });
 
 export const updateTaskBody = z.object({
@@ -67,6 +74,9 @@ export const updateTaskBody = z.object({
   projectId: z.string(),
   position: z.number(),
   userId: z.string().optional(),
+  type: taskType.optional().openapi({
+    description: "Omit to leave the task's type unchanged.",
+  }),
 });
 
 export const moveTaskBody = z.object({

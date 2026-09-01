@@ -20,6 +20,7 @@ type Task = {
   title: string;
   number: number | null;
   description: string | null;
+  type?: string;
   status: string;
   priority: string | null;
   startDate: string | null;

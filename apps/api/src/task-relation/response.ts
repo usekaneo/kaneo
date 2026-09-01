@@ -1,7 +1,7 @@
 import { responseTimestamp, z } from "../openapi";
 
 const relationTypeDescription =
-  "How the two tasks relate: `subtask`, `blocks`, or `related`.";
+  "How the two tasks relate: `subtask`, `blocks`, `related`, or `epic` (source is the epic, target is a child task).";
 
 const relatedTaskSchema = z
   .object({

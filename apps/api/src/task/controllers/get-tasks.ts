@@ -36,6 +36,7 @@ type GetTasksOptions = {
     | "number";
   sortOrder?: "asc" | "desc";
   status?: string;
+  type?: string;
 };
 
 const priorityCaseExpr = sql<number>`CASE
@@ -93,6 +94,10 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
     conditions.push(eq(taskTable.userId, options.assigneeId));
   }
 
+  if (options.type) {
+    conditions.push(eq(taskTable.type, options.type));
+  }
+
   if (options.dueBefore) {
     conditions.push(lte(taskTable.dueDate, new Date(options.dueBefore)));
   }
@@ -125,6 +130,7 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
     title: taskTable.title,
     number: taskTable.number,
     description: taskTable.description,
+    type: taskTable.type,
     status: taskTable.status,
     priority: taskTable.priority,
     startDate: taskTable.startDate,

@@ -18,6 +18,9 @@ export const taskSchema = z
       .openapi({ description: "The assignee, if any." }),
     title: z.string(),
     description: z.string().nullable(),
+    type: z.string().openapi({
+      description: "`task` (default) or `epic`.",
+    }),
     status: z.string().openapi({
       description: "The slug of the column the task sits in.",
     }),
@@ -63,6 +66,9 @@ export const boardTaskSchema = z
     title: z.string(),
     number: z.number().nullable(),
     description: z.string().nullable(),
+    type: z.string().openapi({
+      description: "`task` (default) or `epic`.",
+    }),
     status: z.string(),
     priority: z.string().openapi({ description: priorityDescription }),
     startDate: nullableResponseTimestamp,

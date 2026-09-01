@@ -8,7 +8,10 @@ import {
   assertAssignableUser,
   getProjectWorkspaceId,
 } from "../../utils/assert-assignable-user";
-import { assertValidTaskStatus } from "../validate-task-fields";
+import {
+  assertValidTaskStatus,
+  assertValidTaskType,
+} from "../validate-task-fields";
 
 async function updateTask(
   id: string,
@@ -22,6 +25,10 @@ async function updateTask(
   position: number,
   userId?: string,
   currentUserId?: string,
+  // Omitted (rather than defaulted) so routine edits through this "replace
+  // every field" endpoint never touch a task's type unless a caller
+  // explicitly asks to change it.
+  type?: string,
 ) {
   const [existingTask] = await db
     .select({
@@ -47,6 +54,10 @@ async function updateTask(
   }
 
   await assertValidTaskStatus(status, projectId);
+
+  if (type !== undefined) {
+    assertValidTaskType(type);
+  }
 
   const normalizedUserId = userId?.trim() || undefined;
 
@@ -77,6 +88,7 @@ async function updateTask(
       priority,
       position,
       userId: normalizedUserId ?? null,
+      ...(type !== undefined ? { type } : {}),
     })
     .where(eq(taskTable.id, id))
     .returning();

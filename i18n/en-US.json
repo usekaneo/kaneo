@@ -1588,6 +1588,7 @@
 		},
 		"detail": {
 			"subtaskOf": "Subtask of",
+			"epicOf": "Part of",
 			"activity": "Activity",
 			"noActivity": "No activity found",
 			"openInFullPage": "Open in full page",
@@ -1726,6 +1727,30 @@
 			"deleteAction": "Delete Task",
 			"completeAria": "Mark subtask complete"
 		},
+		"epics": {
+			"tabTitle": "Epics",
+			"label": "Epic",
+			"title": "Epics",
+			"pageTitle": "{{name}} – Epics",
+			"newEpic": "New Epic",
+			"inputPlaceholder": "Epic title...",
+			"createError": "Failed to create epic",
+			"empty": "No epics yet",
+			"emptySubtitle": "Create an epic to group related tasks together.",
+			"noneAvailable": "No epics available",
+			"children": {
+				"title": "Tasks in this epic",
+				"inputPlaceholder": "Task title...",
+				"addAction": "Add",
+				"empty": "No tasks in this epic yet",
+				"createError": "Failed to create task",
+				"deleteSuccess": "Task deleted successfully",
+				"deleteError": "Failed to delete task",
+				"deleteDialogTitle": "Delete Task?",
+				"deleteDialogDescription": "This will permanently remove the task and all its data. You can't undo this action.",
+				"deleteAction": "Delete Task"
+			}
+		},
 		"properties": {
 			"title": "Properties",
 			"labels": "Labels",
@@ -1813,7 +1838,8 @@
 				"label": "Label: {{name}}",
 				"dueThisWeek": "Due this week",
 				"dueNextWeek": "Due next week",
-				"noDueDate": "No due date"
+				"noDueDate": "No due date",
+				"epic": "Epic: {{name}}"
 			}
 		},
 		"sort": {
