@@ -75,6 +75,17 @@ function RouteComponent() {
   // yank the grid back to today out from under someone who deliberately
   // scrolled elsewhere.
   const hasCenteredOnTodayRef = useRef(false);
+  // The Gantt project selector can swap `projectId` without unmounting this
+  // route, so the one-time guard above has to be re-armed for the newly
+  // selected project. Resetting it here (during render, comparing against the
+  // previous projectId) rather than in an effect means it's already cleared
+  // by the time the auto-center layout effect below runs for this project,
+  // instead of one render later.
+  const previousProjectIdRef = useRef(projectId);
+  if (previousProjectIdRef.current !== projectId) {
+    previousProjectIdRef.current = projectId;
+    hasCenteredOnTodayRef.current = false;
+  }
 
   useEffect(() => {
     if (!isMobile) {
@@ -174,6 +185,21 @@ function RouteComponent() {
     [timeline],
   );
 
+  // The task rail is `position: sticky; left: 0`, so it stays pinned over the
+  // left edge of the scroll container's viewport rather than scrolling away
+  // with the timeline underneath it. `scrollIntoView({ inline: "center" })`
+  // has no way to know that, and centers the target against the *whole*
+  // viewport width, landing today roughly half the rail's width left of
+  // where it visually reads as centered. `scroll-padding-left` tells the
+  // browser's own scroll-alignment math to treat the rail's width as inset
+  // from the viewport, so "center" (and any future "start"/"end" alignment)
+  // resolves against the space actually visible next to it.
+  const scrollPaddingLeftRem = showTaskRail
+    ? isMobile
+      ? taskColumnWidthRem
+      : 20
+    : 0;
+
   const scrollToToday = useCallback((behavior: ScrollBehavior = "smooth") => {
     todayCellRef.current?.scrollIntoView({
       behavior,
@@ -200,12 +226,20 @@ function RouteComponent() {
 
   // Center the view on today the first time it becomes available, so opening
   // the Gantt chart on a long-running project doesn't drop you at the start
-  // of the timeline with today scrolled off-screen.
+  // of the timeline with today scrolled off-screen. `projectId` is listed as
+  // a dependency (even though the effect body doesn't use it directly)
+  // because switching projects can leave `todayInRange` unchanged (true on
+  // both the old and new project) while still resetting the one-time guard
+  // above during render — without `projectId` here, React would bail out of
+  // re-running this effect since neither `todayInRange` nor `scrollToToday`
+  // actually changed value, and the newly selected project would never get
+  // its auto-center.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: projectId is intentionally listed to force a re-run on project switch; see comment above.
   useLayoutEffect(() => {
     if (hasCenteredOnTodayRef.current || !todayInRange) return;
     hasCenteredOnTodayRef.current = true;
     scrollToToday("auto");
-  }, [todayInRange, scrollToToday]);
+  }, [todayInRange, scrollToToday, projectId]);
 
   return (
     <ProjectLayout
@@ -241,7 +275,7 @@ function RouteComponent() {
               size="xs"
               className="min-h-11 touch-manipulation sm:min-h-0"
               onClick={() => scrollToToday()}
-              disabled={!todayInRange}
+              disabled={!todayInRange || scheduledTasks.length === 0}
             >
               <Calendar className="size-3.5" />
               {t("tasks:gantt.jumpToToday")}
@@ -288,7 +322,11 @@ function RouteComponent() {
             </div>
           </div>
         ) : (
-          <div className="min-h-0 flex-1 overflow-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]">
+          <div
+            data-testid="gantt-scroll-container"
+            className="min-h-0 flex-1 overflow-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]"
+            style={{ scrollPaddingLeft: `${scrollPaddingLeftRem}rem` }}
+          >
             <div className="relative min-w-max touch-pan-x touch-pan-y">
               <div className="sticky top-0 z-20 flex border-b border-border bg-background/95 backdrop-blur">
                 {showTaskRail ? (
@@ -423,8 +461,8 @@ function RouteComponent() {
                           style={{
                             minWidth: `${timeline.timelineMinWidthRem}rem`,
                           }}
-                      >
-                        <GanttTaskBar
+                        >
+                          <GanttTaskBar
                             task={task}
                             timeline={timeline}
                             pixelsPerDay={pixelsPerDay}
@@ -439,7 +477,7 @@ function RouteComponent() {
                           />
                         </div>
                       </div>
-                   );
+                    );
                   })}
                 </div>
               </div>
