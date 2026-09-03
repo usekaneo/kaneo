@@ -22,13 +22,6 @@
 			"founding": false
 		},
 		{
-			"login": "meruw",
-			"name": "mer",
-			"avatarUrl": "https://avatars.githubusercontent.com/u/118006985?v=4",
-			"tier": 5,
-			"founding": false
-		},
-		{
 			"login": "randoneering",
 			"name": "(justin)randoneering",
 			"avatarUrl": "https://avatars.githubusercontent.com/u/127273550?v=4",
@@ -64,6 +57,13 @@
 			"avatarUrl": "https://avatars.githubusercontent.com/u/36614366?v=4",
 			"tier": 20,
 			"founding": true
+		},
+		{
+			"login": "meruw",
+			"name": "mer",
+			"avatarUrl": "https://avatars.githubusercontent.com/u/118006985?v=4",
+			"tier": 5,
+			"founding": false
 		},
 		{
 			"login": "ndinevski",
