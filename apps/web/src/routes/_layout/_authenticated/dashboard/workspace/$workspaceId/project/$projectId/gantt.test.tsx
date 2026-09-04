@@ -20,10 +20,17 @@ Element.prototype.scrollIntoView = scrollIntoView;
 
 const navigate = vi.fn();
 
+// A plain mutable object rather than a per-test vi.fn() mock: the Gantt
+// project selector swaps `projectId` on the same route (no remount), so
+// tests that exercise that need to change what `useParams` returns between
+// renders of the *same* render() call, which a fresh mockReturnValue can't
+// do retroactively.
+const routeParams = { workspaceId: "workspace-1", projectId: "project-1" };
+
 vi.mock("@tanstack/react-router", () => ({
   createFileRoute: () => (options: unknown) => ({
     ...(options as Record<string, unknown>),
-    useParams: () => ({ workspaceId: "workspace-1", projectId: "project-1" }),
+    useParams: () => routeParams,
     useSearch: () => ({ taskId: undefined }),
   }),
   useNavigate: () => navigate,
@@ -108,11 +115,14 @@ function makeTask(overrides: Partial<Task>): Task {
   };
 }
 
-function mockProjectWithTask(task: Task) {
+function mockProjectWithTask(
+  task: Task,
+  overrides: { id?: string; name?: string } = {},
+) {
   useGetTasks.mockReturnValue({
     data: {
-      id: "project-1",
-      name: "Roadmap",
+      id: overrides.id ?? "project-1",
+      name: overrides.name ?? "Roadmap",
       slug: "RM",
       columns: [{ id: "col-1", name: "In Progress", tasks: [task] }],
       plannedTasks: [],
@@ -133,6 +143,7 @@ afterEach(() => {
   vi.useRealTimers();
   scrollIntoView.mockClear();
   useGetTasks.mockReset();
+  routeParams.projectId = "project-1";
 });
 
 describe("Gantt jump-to-today", () => {
@@ -186,5 +197,99 @@ describe("Gantt jump-to-today", () => {
     expect(scrollIntoView).toHaveBeenLastCalledWith(
       expect.objectContaining({ behavior: "smooth", inline: "center" }),
     );
+  });
+
+  it("re-arms auto-centering after switching to a different project on the same route", () => {
+    mockProjectWithTask(
+      makeTask({
+        id: "current-task",
+        title: "Ongoing work",
+        startDate: "2026-08-28",
+        dueDate: "2026-09-02",
+      }),
+    );
+
+    const { rerender } = render(<GanttRoute />);
+
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
+
+    // The in-page Gantt project selector changes `projectId` without
+    // unmounting this route component, so a fresh task near today on the
+    // newly selected project must still trigger the mount-time auto-center —
+    // the one-time guard from the previous project shouldn't carry over.
+    routeParams.projectId = "project-2";
+    mockProjectWithTask(
+      makeTask({
+        id: "other-project-task",
+        title: "Other project's work",
+        startDate: "2026-08-30",
+        dueDate: "2026-09-03",
+      }),
+      { id: "project-2", name: "Other roadmap" },
+    );
+
+    rerender(<GanttRoute />);
+
+    expect(scrollIntoView).toHaveBeenCalledTimes(2);
+    expect(scrollIntoView).toHaveBeenLastCalledWith(
+      expect.objectContaining({ behavior: "auto", inline: "center" }),
+    );
+  });
+
+  it("disables the button once a search filters out every task, even with today in range", () => {
+    mockProjectWithTask(
+      makeTask({
+        id: "current-task",
+        title: "Ongoing work",
+        startDate: "2026-08-28",
+        dueDate: "2026-09-02",
+      }),
+    );
+
+    render(<GanttRoute />);
+
+    const button = screen.getByRole("button", { name: "Jump to today" });
+    expect(button).not.toBeDisabled();
+
+    // The search narrows the *visible* timeline down to nothing, even though
+    // today is still within the unfiltered project's date range — the button
+    // has nothing left to scroll to and must reflect that.
+    fireEvent.change(
+      screen.getByPlaceholderText("Search scheduled tickets..."),
+      {
+        target: { value: "no such task" },
+      },
+    );
+
+    expect(
+      screen.getByText('No scheduled tasks match "no such task"'),
+    ).toBeInTheDocument();
+    expect(button).toBeDisabled();
+  });
+
+  it("insets scroll-alignment by the task rail's width so a scrollIntoView center lands in the visible timeline", () => {
+    mockProjectWithTask(
+      makeTask({
+        id: "current-task",
+        title: "Ongoing work",
+        startDate: "2026-08-28",
+        dueDate: "2026-09-02",
+      }),
+    );
+
+    render(<GanttRoute />);
+
+    // The task rail renders at a fixed 20rem on desktop (see the `left`
+    // offset used by the timeline track below it); scroll-padding has to
+    // match that exactly, or "centering" on today still lands it partway
+    // under the rail.
+    //
+    // Asserted against the raw inline style rather than via `toHaveStyle`:
+    // jsdom resolves `getComputedStyle()` rem units to pixels (assuming the
+    // default 16px root), which would make a "20rem" expectation compare
+    // against a computed "320px" and fail regardless of whether the
+    // component is correct.
+    const container = screen.getByTestId("gantt-scroll-container");
+    expect(container.style.scrollPaddingLeft).toBe("20rem");
   });
 });
