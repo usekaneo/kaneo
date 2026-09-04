@@ -139,9 +139,9 @@
 				"labelCreateError": "라벨 생성에 실패했습니다",
 				"createMore": "계속 만들기",
 				"createButton": "작업 만들기",
-				"discardTitle": "작업을 취소할까요?",
+				"discardTitle": "작성 중인 작업을 버릴까요?",
 				"discardDescription": "저장하지 않은 작업 세부 정보가 손실됩니다.",
-				"discardButton": "작업 취소",
+				"discardButton": "작업 버리기",
 				"untitledTask": "제목 없는 작업",
 				"labelColors": {
 					"stone": "스톤",

@@ -139,9 +139,9 @@
 				"labelCreateError": "Etiket oluşturulamadı",
 				"createMore": "Daha fazla oluştur",
 				"createButton": "Talep Oluştur",
-				"discardTitle": "Görev iptal edilsin mi?",
-				"discardDescription": "Kaydedilmemiş görev ayrıntıları kaybolacak.",
-				"discardButton": "Görevi iptal et",
+				"discardTitle": "Kaydedilmemiş talep taslağı silinsin mi?",
+				"discardDescription": "Kaydedilmemiş talep ayrıntıları kaybolacak.",
+				"discardButton": "Talep taslağını sil",
 				"untitledTask": "Başlıksız talep",
 				"labelColors": {
 					"stone": "Taş",

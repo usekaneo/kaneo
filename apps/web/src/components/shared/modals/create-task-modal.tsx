@@ -258,6 +258,7 @@ function CreateTaskModal({
       assigneeId ||
       startDate ||
       dueDate ||
+      selectedProjectId ||
       labels.length > 0 ||
       draftTask,
   );
@@ -272,6 +273,7 @@ function CreateTaskModal({
     setAssigneeId("");
     setStartDate(undefined);
     setDueDate(undefined);
+    setSelectedProjectId("");
     setCreateMore(false);
     setLabels([]);
     setLabelsStep("select");
@@ -527,7 +529,7 @@ function CreateTaskModal({
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (!open) return;
+      if (!open || discardConfirmationOpen) return;
 
       if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
         e.preventDefault();
@@ -541,7 +543,7 @@ function CreateTaskModal({
         }
       }
     },
-    [open, title, resolvedProjectId, workspace?.id],
+    [open, discardConfirmationOpen, title, resolvedProjectId, workspace?.id],
   );
 
   useEffect(() => {
