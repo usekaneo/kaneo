@@ -125,6 +125,25 @@ export const bulkResultSchema = z
   .object({ success: z.boolean(), updatedCount: z.number() })
   .openapi("BulkTaskResult");
 
+export const reorderTasksResultSchema = z
+  .object({
+    success: z.boolean(),
+    updatedCount: z.number().openapi({
+      description:
+        "How many tasks actually changed. Tasks already in the requested place are skipped.",
+    }),
+    tasks: z.array(
+      z
+        .object({
+          id: z.string(),
+          status: z.string(),
+          position: z.number().nullable(),
+        })
+        .openapi("ReorderedTask"),
+    ),
+  })
+  .openapi("ReorderTasksResult");
+
 export const moveTaskResultSchema = z
   .object({
     task: taskSchema,

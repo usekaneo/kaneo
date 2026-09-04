@@ -1,24 +1,27 @@
 import {
+  type CollisionDetection,
   closestCorners,
   DndContext,
   type DragEndEvent,
+  type DragOverEvent,
   DragOverlay,
   type DragStartEvent,
   type DropAnimation,
   defaultDropAnimationSideEffects,
   KeyboardSensor,
   MouseSensor,
+  pointerWithin,
   TouchSensor,
   type UniqueIdentifier,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { produce } from "immer";
-import { useEffect, useState } from "react";
-import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useReorderTasks } from "@/hooks/mutations/task/use-reorder-tasks";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import collectReorderedTasks from "@/lib/collect-reordered-tasks";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
@@ -32,17 +35,14 @@ type KanbanBoardProps = {
 };
 
 function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
-  const queryClient = useQueryClient();
-  const { setProject } = useProjectStore();
-  const {
-    setAvailableTasks,
-    focusNext,
-    focusPrevious,
-    focusedTaskId,
-    clearFocus,
-  } = useBulkSelectionStore();
+  const setProject = useProjectStore((s) => s.setProject);
+  const setAvailableTasks = useBulkSelectionStore((s) => s.setAvailableTasks);
+  const focusNext = useBulkSelectionStore((s) => s.focusNext);
+  const focusPrevious = useBulkSelectionStore((s) => s.focusPrevious);
+  const clearFocus = useBulkSelectionStore((s) => s.clearFocus);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
-  const { mutate: updateTask } = useUpdateTask();
+  const [overColumnId, setOverColumnId] = useState<string | null>(null);
+  const { mutate: reorderTasks } = useReorderTasks();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -75,6 +75,7 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
         }
       },
       Enter: () => {
+        const { focusedTaskId } = useBulkSelectionStore.getState();
         if (focusedTaskId && project) {
           navigate({
             to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
@@ -118,18 +119,69 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
     setActiveId(event.active.id);
   };
 
+  const taskIds = useMemo(
+    () =>
+      new Set(
+        project.columns.flatMap((column) =>
+          column.tasks.map((task) => task.id),
+        ),
+      ),
+    [project.columns],
+  );
+
+  const collisionDetection = useCallback<CollisionDetection>(
+    (args) => {
+      const pointerCollisions = pointerWithin(args);
+
+      if (pointerCollisions.length > 0) {
+        // Prefer the precise card target when the pointer is on a rendered
+        // card. Otherwise keep the column target, including an empty column.
+        const taskCollision = pointerCollisions.find((collision) =>
+          taskIds.has(collision.id.toString()),
+        );
+        return taskCollision ? [taskCollision] : pointerCollisions;
+      }
+
+      return closestCorners(args);
+    },
+    [taskIds],
+  );
+
+  const handleDragOver = ({ over }: DragOverEvent) => {
+    if (!over) {
+      setOverColumnId(null);
+      return;
+    }
+
+    const overId = over.id.toString();
+    const column = project.columns.find(
+      (candidate) =>
+        candidate.id === overId ||
+        candidate.tasks.some((task) => task.id === overId),
+    );
+
+    setOverColumnId(column?.id ?? null);
+  };
+
+  const clearDragState = () => {
+    setActiveId(null);
+    setOverColumnId(null);
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    setActiveId(null);
+    clearDragState();
 
     if (!over || !project?.columns) return;
 
-    const activeId = active.id.toString();
+    const draggedTaskId = active.id.toString();
     const overId = over.id.toString();
+
+    let crossedColumns = false;
 
     const updatedProject = produce(project, (draft) => {
       const sourceColumn = draft?.columns?.find((col) =>
-        col.tasks.some((task) => task.id === activeId),
+        col.tasks.some((task) => task.id === draggedTaskId),
       );
       const destinationColumn = draft?.columns?.find(
         (col) =>
@@ -139,52 +191,65 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
       if (!sourceColumn || !destinationColumn) return;
 
       const sourceTaskIndex = sourceColumn.tasks.findIndex(
-        (task) => task.id === activeId,
+        (task) => task.id === draggedTaskId,
       );
       const task = sourceColumn.tasks[sourceTaskIndex];
 
-      sourceColumn.tasks = sourceColumn.tasks.filter((t) => t.id !== activeId);
+      if (!task) return;
+
+      sourceColumn.tasks.splice(sourceTaskIndex, 1);
+
+      const overIndex = destinationColumn.tasks.findIndex(
+        (t) => t.id === overId,
+      );
 
       if (sourceColumn.id === destinationColumn.id) {
-        let destinationIndex = destinationColumn.tasks.findIndex(
-          (t) => t.id === overId,
-        );
-        if (sourceTaskIndex <= destinationIndex) {
+        let destinationIndex =
+          overIndex === -1 ? destinationColumn.tasks.length : overIndex;
+
+        if (overIndex !== -1 && sourceTaskIndex <= destinationIndex) {
           destinationIndex += 1;
         }
+
         destinationColumn.tasks.splice(destinationIndex, 0, task);
-
-        destinationColumn.tasks.forEach((t, index) => {
-          updateTask({ ...t, position: index });
-        });
-
-        queryClient.invalidateQueries({
-          queryKey: ["projects", project.workspaceId],
-        });
       } else {
+        crossedColumns = true;
         // A task's status is a column slug. The column id is only the
         // droppable identity here, and the two are interchangeable only
         // because the tasks endpoint happens to return `id: column.slug`.
         task.status = destinationColumn.slug;
+
         const destinationIndex =
-          overId === destinationColumn.id
-            ? destinationColumn.tasks.length
-            : destinationColumn.tasks.findIndex((t) => t.id === overId) + 1;
+          overIndex === -1 ? destinationColumn.tasks.length : overIndex + 1;
 
         destinationColumn.tasks.splice(destinationIndex, 0, task);
+      }
 
-        destinationColumn.tasks.forEach((t, index) => {
-          updateTask({ ...t, status: destinationColumn.slug, position: index });
-        });
-
-        sourceColumn.tasks.forEach((t, index) => {
-          updateTask({ ...t, position: index });
+      // Renumber the columns the drag touched so stored positions stay dense.
+      // A Set because a same-column move sees the same draft object twice.
+      for (const column of new Set([sourceColumn, destinationColumn])) {
+        column.tasks.forEach((t, index) => {
+          t.position = index;
         });
       }
     });
 
     setProject(updatedProject);
-    setActiveId(null);
+
+    // One request for the whole drop. Sending a full task update per renumbered
+    // neighbour is what used to flood the API on every move.
+    const changedTasks = collectReorderedTasks(
+      project.columns.flatMap((column) => column.tasks),
+      updatedProject.columns.flatMap((column) => column.tasks),
+    );
+
+    if (changedTasks.length === 0) return;
+
+    reorderTasks({
+      projectId: project.id,
+      tasks: changedTasks,
+      crossedColumns,
+    });
   };
 
   if (!project?.columns) {
@@ -244,9 +309,11 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCorners}
+      collisionDetection={collisionDetection}
       onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
+      onDragCancel={clearDragState}
     >
       <div className="flex h-full w-full flex-col bg-linear-to-b from-muted/20 to-background">
         <div className="min-h-0 flex-1 overflow-x-auto [-webkit-overflow-scrolling:touch]">
@@ -256,7 +323,11 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
                 key={column.id}
                 className="h-full max-w-96 min-w-80 shrink-0 flex-1"
               >
-                <Column column={column} disableDragDrop={disableDragDrop} />
+                <Column
+                  column={column}
+                  disableDragDrop={disableDragDrop}
+                  isOver={overColumnId === column.id}
+                />
               </div>
             ))}
           </div>
@@ -266,7 +337,7 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
         {activeTask ? (
           <div className="transform rotate-1 scale-[1.03] shadow-lg">
             <div className="ring-2 ring-ring/35 rounded-lg">
-              <TaskCard task={activeTask} />
+              <TaskCard task={activeTask} dragOverlay />
             </div>
           </div>
         ) : null}

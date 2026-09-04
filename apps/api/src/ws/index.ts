@@ -269,6 +269,8 @@ const taskUpdateEvents = [
   "task.updated",
   "task.deleted",
   "task.status_changed",
+  // One message per board drag, however many tasks it renumbered.
+  "task.reordered",
   "task.priority_changed",
   "task.unassigned",
   "task.assignee_changed",

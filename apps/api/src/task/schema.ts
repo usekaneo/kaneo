@@ -47,6 +47,25 @@ export const bulkUpdateBody = z.object({
   }),
 });
 
+export const reorderTasksBody = z.object({
+  // A board drag moves one card but renumbers its neighbours, so the client
+  // sends the whole affected slice in one request rather than one request per
+  // task. Only tasks whose status or position actually changed need to be here.
+  tasks: z
+    .array(
+      z.object({
+        id: z.string(),
+        status: z
+          .string()
+          .openapi({ description: "The target column's slug." }),
+        position: z.number().int().min(0).max(1_000_000),
+      }),
+    )
+    .min(1),
+});
+
+export type ReorderTask = z.infer<typeof reorderTasksBody>["tasks"][number];
+
 export const createTaskBody = z.object({
   title: z.string(),
   description: z.string(),
