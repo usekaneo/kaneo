@@ -95,6 +95,7 @@ describe("CalendarTaskBar", () => {
     ["in-progress", "bg-blue-500/15"],
     ["in-review", "bg-amber-500/15"],
     ["done", "bg-emerald-500/15"],
+    ["custom-status", "bg-primary/12"],
   ])("uses the %s status color", (status, expectedClass) => {
     render(
       <CalendarTaskBar
