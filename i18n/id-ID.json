@@ -139,6 +139,9 @@
 				"labelCreateError": "Gagal membuat label",
 				"createMore": "Buat lagi",
 				"createButton": "Buat Tugas",
+				"discardTitle": "Buang tugas?",
+				"discardDescription": "Detail tugas yang belum disimpan akan hilang.",
+				"discardButton": "Buang tugas",
 				"untitledTask": "Tugas tanpa judul",
 				"labelColors": {
 					"stone": "Abu Batu",

@@ -139,6 +139,9 @@
 				"labelCreateError": "Không thể tạo nhãn",
 				"createMore": "Tạo thêm",
 				"createButton": "Tạo công việc",
+				"discardTitle": "Hủy công việc?",
+				"discardDescription": "Các chi tiết công việc chưa lưu sẽ bị mất.",
+				"discardButton": "Hủy công việc",
 				"untitledTask": "Công việc chưa đặt tên",
 				"labelColors": {
 					"stone": "Đá",

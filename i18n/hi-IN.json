@@ -139,6 +139,9 @@
 				"labelCreateError": "लेबल बनाने में विफल",
 				"createMore": "और बनाएँ",
 				"createButton": "कार्य बनाएँ",
+				"discardTitle": "कार्य छोड़ें?",
+				"discardDescription": "आपके सहेजे नहीं गए कार्य विवरण खो जाएँगे।",
+				"discardButton": "कार्य छोड़ें",
 				"untitledTask": "बिना शीर्षक कार्य",
 				"labelColors": {
 					"stone": "पत्थर",

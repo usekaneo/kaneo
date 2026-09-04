@@ -13,6 +13,15 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import TaskDescriptionEditor from "@/components/task/task-description-editor";
+import {
+  AlertDialog,
+  AlertDialogClose,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -191,6 +200,7 @@ function CreateTaskModal({
   const [createMore, setCreateMore] = useState(false);
   const [labels, setLabels] = useState<Label[]>([]);
   const [draftTask, setDraftTask] = useState<Task | null>(null);
+  const [discardConfirmationOpen, setDiscardConfirmationOpen] = useState(false);
 
   const [labelsOpen, setLabelsOpen] = useState(false);
   const [labelsStep, setLabelsStep] = useState<PopoverStep>("select");
@@ -241,9 +251,21 @@ function CreateTaskModal({
       (label) => label.name.toLowerCase() === searchValue.toLowerCase(),
     );
 
-  const handleClose = () => {
+  const hasUnsavedChanges = Boolean(
+    title.trim() ||
+      description.trim() ||
+      priority !== "no-priority" ||
+      assigneeId ||
+      startDate ||
+      dueDate ||
+      labels.length > 0 ||
+      draftTask,
+  );
+
+  const closeAndReset = () => {
     const shouldDeleteDraft = draftTask && !didSubmitRef.current;
 
+    setDiscardConfirmationOpen(false);
     setTitle("");
     setDescription("");
     setPriority("no-priority");
@@ -266,6 +288,17 @@ function CreateTaskModal({
         // ignore cleanup failures for abandoned empty drafts
       });
     }
+  };
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) return;
+
+    if (hasUnsavedChanges && !didSubmitRef.current) {
+      setDiscardConfirmationOpen(true);
+      return;
+    }
+
+    closeAndReset();
   };
 
   const syncTaskIntoProject = useCallback(
@@ -451,7 +484,7 @@ function CreateTaskModal({
         didSubmitRef.current = false;
         setDraftTask(null);
       } else {
-        handleClose();
+        closeAndReset();
       }
     } catch (error) {
       didSubmitRef.current = false;
@@ -598,7 +631,7 @@ function CreateTaskModal({
   if (!canCreateTaskCapability) return null;
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         className="kaneo-create-task-modal max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
         showCloseButton={false}
@@ -1084,7 +1117,7 @@ function CreateTaskModal({
 
             <Button
               type="button"
-              onClick={handleClose}
+              onClick={() => handleOpenChange(false)}
               variant="outline"
               size="sm"
               className="border-border text-foreground hover:bg-accent"
@@ -1102,6 +1135,37 @@ function CreateTaskModal({
           </DialogFooter>
         </form>
       </DialogContent>
+
+      <AlertDialog
+        open={discardConfirmationOpen}
+        onOpenChange={setDiscardConfirmationOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("common:modals.createTask.discardTitle")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("common:modals.createTask.discardDescription")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogClose
+              render={<Button type="button" variant="outline" size="sm" />}
+            >
+              {t("common:actions.cancel")}
+            </AlertDialogClose>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={closeAndReset}
+            >
+              {t("common:modals.createTask.discardButton")}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }

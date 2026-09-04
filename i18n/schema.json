@@ -515,6 +515,15 @@
 								"createButton": {
 									"type": "string"
 								},
+								"discardTitle": {
+									"type": "string"
+								},
+								"discardDescription": {
+									"type": "string"
+								},
+								"discardButton": {
+									"type": "string"
+								},
 								"untitledTask": {
 									"type": "string"
 								},
@@ -593,6 +602,9 @@
 								"labelCreateError",
 								"createMore",
 								"createButton",
+								"discardTitle",
+								"discardDescription",
+								"discardButton",
 								"untitledTask",
 								"labelColors"
 							]

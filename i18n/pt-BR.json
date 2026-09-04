@@ -139,6 +139,9 @@
 				"labelCreateError": "Falha ao criar etiqueta",
 				"createMore": "Criar mais",
 				"createButton": "Criar tarefa",
+				"discardTitle": "Descartar tarefa?",
+				"discardDescription": "Os detalhes não salvos da tarefa serão perdidos.",
+				"discardButton": "Descartar tarefa",
 				"untitledTask": "Tarefa sem título",
 				"labelColors": {
 					"stone": "Pedra",

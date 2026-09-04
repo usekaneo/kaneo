@@ -139,6 +139,9 @@
 				"labelCreateError": "Неуспешно креирање на етикета",
 				"createMore": "Креирај уште",
 				"createButton": "Креирај задача",
+				"discardTitle": "Да се отфрли задачата?",
+				"discardDescription": "Незачуваните детали за задачата ќе се изгубат.",
+				"discardButton": "Отфрли ја задачата",
 				"untitledTask": "Задача без наслов",
 				"labelColors": {
 					"stone": "Камен",
