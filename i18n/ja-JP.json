@@ -139,6 +139,9 @@
 				"labelCreateError": "ラベルの作成に失敗しました",
 				"createMore": "続けて作成",
 				"createButton": "タスクを作成",
+				"discardTitle": "タスクを破棄しますか？",
+				"discardDescription": "保存されていないタスクの詳細は失われます。",
+				"discardButton": "タスクを破棄",
 				"untitledTask": "無題のタスク",
 				"labelColors": {
 					"stone": "ストーン",

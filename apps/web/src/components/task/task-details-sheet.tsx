@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/tooltip";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
+import TaskDeleteButton from "./task-delete-button";
 import TaskDetailsContent from "./task-details-content";
 import TaskPropertiesSidebar from "./task-properties-sidebar";
 
@@ -75,6 +76,9 @@ export default function TaskDetailsSheet({
             </span>
           </div>
           <div className="flex items-center gap-1">
+            {currentTaskId && (
+              <TaskDeleteButton taskId={currentTaskId} onDeleted={onClose} />
+            )}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>

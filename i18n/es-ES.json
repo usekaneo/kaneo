@@ -139,6 +139,9 @@
 				"labelCreateError": "Error al crear la etiqueta",
 				"createMore": "Crear más",
 				"createButton": "Crear tarea",
+				"discardTitle": "¿Descartar tarea?",
+				"discardDescription": "Los detalles de la tarea que no hayas guardado se perderán.",
+				"discardButton": "Descartar tarea",
 				"untitledTask": "Tarea sin título",
 				"labelColors": {
 					"stone": "Piedra",

@@ -39,7 +39,6 @@ import {
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
-import queryClient from "@/query-client";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
@@ -165,15 +164,11 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
   const handleDeleteTask = async () => {
     try {
       await deleteTask(task.id);
-      queryClient.invalidateQueries({
-        queryKey: ["tasks", project?.id],
-      });
+      toast.success(t("tasks:delete.success"));
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : t("tasks:delete.error"),
       );
-    } finally {
-      toast.success(t("tasks:delete.success"));
     }
   };
 

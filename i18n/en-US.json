@@ -139,6 +139,9 @@
 				"labelCreateError": "Failed to create label",
 				"createMore": "Create more",
 				"createButton": "Create Task",
+				"discardTitle": "Discard task?",
+				"discardDescription": "Your unsaved task details will be lost.",
+				"discardButton": "Discard task",
 				"untitledTask": "Untitled task",
 				"labelColors": {
 					"stone": "Stone",

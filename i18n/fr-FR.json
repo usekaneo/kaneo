@@ -139,6 +139,9 @@
 				"labelCreateError": "Échec de la création du label",
 				"createMore": "Créer plus",
 				"createButton": "Créer la tâche",
+				"discardTitle": "Abandonner la tâche ?",
+				"discardDescription": "Les détails non enregistrés de la tâche seront perdus.",
+				"discardButton": "Abandonner la tâche",
 				"untitledTask": "Tâche sans titre",
 				"labelColors": {
 					"stone": "Pierre",

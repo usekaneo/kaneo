@@ -85,7 +85,83 @@ vi.mock("react-i18next", () => ({
   initReactI18next: { type: "3rdParty", init: vi.fn() },
 }));
 
-describe("CreateTaskModal project picker", () => {
+describe("CreateTaskModal", () => {
+  it("keeps unsaved input while discard confirmation is open", async () => {
+    useLocation.mockReturnValue({
+      pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
+    });
+    const onClose = vi.fn();
+
+    render(<CreateTaskModal open onClose={onClose} />);
+
+    const titleInput = screen.getByPlaceholderText(
+      "common:modals.createTask.taskTitlePlaceholder",
+    );
+    fireEvent.change(titleInput, { target: { value: "Unsaved task" } });
+
+    const backdrop = document.querySelector('[data-slot="dialog-backdrop"]');
+    expect(backdrop).not.toBeNull();
+    fireEvent.pointerDown(backdrop as Element);
+    fireEvent.pointerUp(backdrop as Element);
+    fireEvent.click(backdrop as Element);
+
+    expect(onClose).not.toHaveBeenCalled();
+    expect(
+      await screen.findByText("common:modals.createTask.discardTitle"),
+    ).toBeTruthy();
+    expect(titleInput).toHaveValue("Unsaved task");
+
+    fireEvent.keyDown(document, { key: "Enter", ctrlKey: true });
+
+    expect(createTask).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("closes after the user confirms discarding unsaved input", async () => {
+    useLocation.mockReturnValue({
+      pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
+    });
+    const onClose = vi.fn();
+
+    render(<CreateTaskModal open onClose={onClose} />);
+
+    fireEvent.change(
+      screen.getByPlaceholderText(
+        "common:modals.createTask.taskTitlePlaceholder",
+      ),
+      { target: { value: "Unsaved task" } },
+    );
+    const backdrop = document.querySelector('[data-slot="dialog-backdrop"]');
+    fireEvent.pointerDown(backdrop as Element);
+    fireEvent.pointerUp(backdrop as Element);
+    fireEvent.click(backdrop as Element);
+
+    await screen.findByText("common:modals.createTask.discardTitle");
+
+    fireEvent.click(screen.getByText("common:modals.createTask.discardButton"));
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("treats a selected project as unsaved input", async () => {
+    useLocation.mockReturnValue({
+      pathname: "/dashboard/workspace/workspace-1",
+    });
+
+    render(<CreateTaskModal open onClose={vi.fn()} />);
+
+    fireEvent.click(screen.getByText("common:modals.createTask.selectProject"));
+    fireEvent.click(await screen.findByText("Beta"));
+    const backdrop = document.querySelector('[data-slot="dialog-backdrop"]');
+    fireEvent.pointerDown(backdrop as Element);
+    fireEvent.pointerUp(backdrop as Element);
+    fireEvent.click(backdrop as Element);
+
+    expect(
+      await screen.findByText("common:modals.createTask.discardTitle"),
+    ).toBeTruthy();
+  });
+
   it("shows a project picker and creates the task in the chosen project", async () => {
     useLocation.mockReturnValue({
       pathname: "/dashboard/workspace/workspace-1",

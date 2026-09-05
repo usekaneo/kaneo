@@ -139,6 +139,9 @@
 				"labelCreateError": "Не вдалося створити мітку",
 				"createMore": "Створити ще",
 				"createButton": "Створити завдання",
+				"discardTitle": "Відхилити завдання?",
+				"discardDescription": "Незбережені дані завдання буде втрачено.",
+				"discardButton": "Відхилити завдання",
 				"untitledTask": "Завдання без назви",
 				"labelColors": {
 					"stone": "Камінь",

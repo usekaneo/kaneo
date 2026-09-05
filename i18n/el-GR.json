@@ -139,6 +139,9 @@
 				"labelCreateError": "Αποτυχία δημιουργίας ετικέτας",
 				"createMore": "Δημιουργία περισσότερων",
 				"createButton": "Δημιουργία εργασίας",
+				"discardTitle": "Απόρριψη εργασίας;",
+				"discardDescription": "Οι μη αποθηκευμένες λεπτομέρειες της εργασίας θα χαθούν.",
+				"discardButton": "Απόρριψη εργασίας",
 				"untitledTask": "Εργασία χωρίς τίτλο",
 				"labelColors": {
 					"stone": "Πέτρα",

@@ -139,6 +139,9 @@
 				"labelCreateError": "Label konnte nicht erstellt werden",
 				"createMore": "Weitere erstellen",
 				"createButton": "Aufgabe erstellen",
+				"discardTitle": "Aufgabe verwerfen?",
+				"discardDescription": "Deine ungespeicherten Aufgabendetails gehen verloren.",
+				"discardButton": "Aufgabe verwerfen",
 				"untitledTask": "Unbenannte Aufgabe",
 				"labelColors": {
 					"stone": "Stein",

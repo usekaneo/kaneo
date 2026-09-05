@@ -139,6 +139,9 @@
 				"labelCreateError": "Nie udało się utworzyć etykiety",
 				"createMore": "Utwórz kolejne",
 				"createButton": "Utwórz zadanie",
+				"discardTitle": "Odrzucić zadanie?",
+				"discardDescription": "Niezapisane szczegóły zadania zostaną utracone.",
+				"discardButton": "Odrzuć zadanie",
 				"untitledTask": "Bez tytułu",
 				"labelColors": {
 					"stone": "Kamień",

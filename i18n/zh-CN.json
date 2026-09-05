@@ -139,6 +139,9 @@
 				"labelCreateError": "创建标签失败",
 				"createMore": "继续创建",
 				"createButton": "创建任务",
+				"discardTitle": "放弃任务？",
+				"discardDescription": "未保存的任务详情将会丢失。",
+				"discardButton": "放弃任务",
 				"untitledTask": "未命名任务",
 				"labelColors": {
 					"stone": "石板灰",

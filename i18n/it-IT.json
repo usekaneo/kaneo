@@ -139,6 +139,9 @@
 				"labelCreateError": "Creazione etichetta fallita",
 				"createMore": "Crea altro",
 				"createButton": "Crea Attività",
+				"discardTitle": "Scartare l'attività?",
+				"discardDescription": "I dettagli non salvati dell'attività andranno persi.",
+				"discardButton": "Scarta attività",
 				"untitledTask": "Attività senza titolo",
 				"labelColors": {
 					"stone": "Pietra",
