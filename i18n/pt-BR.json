@@ -1873,7 +1873,8 @@
 			"updateDatesError": "Falha ao atualizar as datas da tarefa",
 			"resizeStart": "Redimensionar data de início",
 			"resizeDue": "Redimensionar data de vencimento",
-			"taskAriaLabel": "{{title}}: abrir ou arrastar para mover"
+			"taskAriaLabel": "{{title}}: abrir ou arrastar para mover",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "Excluir tarefa?",

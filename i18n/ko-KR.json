@@ -1876,7 +1876,8 @@
 			"updateDatesError": "작업 날짜 업데이트에 실패했습니다",
 			"resizeStart": "시작일 크기 조정",
 			"resizeDue": "마감일 크기 조정",
-			"taskAriaLabel": "{{title}}: 열거나 드래그하여 이동"
+			"taskAriaLabel": "{{title}}: 열거나 드래그하여 이동",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "작업을 삭제하시겠습니까?",

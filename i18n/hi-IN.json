@@ -1868,7 +1868,8 @@
 			"updateDatesError": "कार्य की तारीखें अपडेट करने में विफल",
 			"resizeStart": "शुरू तारीख बदलें",
 			"resizeDue": "नियत तारीख बदलें",
-			"taskAriaLabel": "{{title}}: खोलें या ले जाने के लिए खींचें"
+			"taskAriaLabel": "{{title}}: खोलें या ले जाने के लिए खींचें",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "कार्य हटाएँ?",

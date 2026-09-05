@@ -7601,6 +7601,9 @@
 						"searchPlaceholder": {
 							"type": "string"
 						},
+						"jumpToToday": {
+							"type": "string"
+						},
 						"hideTasks": {
 							"type": "string"
 						},
@@ -7639,6 +7642,7 @@
 						"pageTitle",
 						"title",
 						"searchPlaceholder",
+						"jumpToToday",
 						"hideTasks",
 						"showTasks",
 						"noTasks",

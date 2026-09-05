@@ -1868,7 +1868,8 @@
 			"updateDatesError": "Talep tarihleri güncellenemedi",
 			"resizeStart": "Başlangıç tarihini yeniden boyutlandır",
 			"resizeDue": "Bitiş tarihini yeniden boyutlandır",
-			"taskAriaLabel": "{{title}}: açmak veya taşımak için sürükleyin"
+			"taskAriaLabel": "{{title}}: açmak veya taşımak için sürükleyin",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "Talep Silinsin mi?",

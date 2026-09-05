@@ -1876,7 +1876,8 @@
 			"updateDatesError": "タスクの日程の更新に失敗しました",
 			"resizeStart": "開始日を変更",
 			"resizeDue": "期限を変更",
-			"taskAriaLabel": "{{title}}: 開く、またはドラッグして移動"
+			"taskAriaLabel": "{{title}}: 開く、またはドラッグして移動",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "タスクを削除しますか？",

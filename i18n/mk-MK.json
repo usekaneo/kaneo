@@ -1868,7 +1868,8 @@
 			"updateDatesError": "Неуспешно ажурирање на датуми на задача",
 			"resizeStart": "Промени почетен датум",
 			"resizeDue": "Промени краен рок",
-			"taskAriaLabel": "{{title}}: отвори или повлечи за преместување"
+			"taskAriaLabel": "{{title}}: отвори или повлечи за преместување",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "Избриши задача?",
