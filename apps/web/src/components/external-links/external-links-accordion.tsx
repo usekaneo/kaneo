@@ -274,7 +274,7 @@ export function ExternalLinksAccordion({
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setIsDialogOpen(false)}
+                onClick={() => handleDialogChange(false)}
                 disabled={createExternalLink.isPending}
               >
                 {t("settings:externalLinks.cancel")}

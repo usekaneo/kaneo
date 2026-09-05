@@ -55,6 +55,38 @@ async function submitResource() {
 }
 
 describe("manual task resources", () => {
+  it("clears canceled values before reopening the form", async () => {
+    renderResources();
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "settings:externalLinks.addResource",
+      }),
+    );
+    fireEvent.change(
+      await screen.findByLabelText("settings:externalLinks.url"),
+      { target: { value: "https://example.com/canceled" } },
+    );
+    fireEvent.change(
+      screen.getByLabelText("settings:externalLinks.titleOptional"),
+      { target: { value: "Canceled title" } },
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "settings:externalLinks.cancel" }),
+    );
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "settings:externalLinks.addResource",
+      }),
+    );
+    expect(
+      await screen.findByLabelText("settings:externalLinks.url"),
+    ).toHaveValue("");
+    expect(
+      screen.getByLabelText("settings:externalLinks.titleOptional"),
+    ).toHaveValue("");
+  });
+
   it("hides creation from users without task update permission", () => {
     canUpdateTasks.mockReturnValue(false);
     renderResources();

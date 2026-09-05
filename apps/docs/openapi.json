@@ -12667,7 +12667,8 @@
                 "properties": {
                   "url": {
                     "type": "string",
-                    "format": "uri"
+                    "format": "uri",
+                    "description": "An HTTP or HTTPS URL"
                   },
                   "title": {
                     "type": "string",
