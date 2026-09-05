@@ -6385,14 +6385,26 @@
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
+						"backlog": {
+							"type": "string"
+						},
 						"board": {
+							"type": "string"
+						},
+						"gantt": {
 							"type": "string"
 						},
 						"list": {
 							"type": "string"
+						},
+						"section": {
+							"type": "string"
+						},
+						"tasks": {
+							"type": "string"
 						}
 					},
-					"required": ["board", "list"]
+					"required": ["backlog", "board", "gantt", "list", "section", "tasks"]
 				},
 				"common": {
 					"type": "object",
