@@ -139,6 +139,9 @@
 				"labelCreateError": "Не удалось создать метку",
 				"createMore": "Создать ещё",
 				"createButton": "Создать задачу",
+				"discardTitle": "Отменить задачу?",
+				"discardDescription": "Несохранённые данные задачи будут потеряны.",
+				"discardButton": "Отменить задачу",
 				"untitledTask": "Задача без названия",
 				"labelColors": {
 					"stone": "Камень",

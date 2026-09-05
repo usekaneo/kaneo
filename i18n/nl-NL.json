@@ -139,6 +139,9 @@
 				"labelCreateError": "Aanmaken van label mislukt",
 				"createMore": "Meer aanmaken",
 				"createButton": "Taak aanmaken",
+				"discardTitle": "Taak verwerpen?",
+				"discardDescription": "Je niet-opgeslagen taakgegevens gaan verloren.",
+				"discardButton": "Taak verwerpen",
 				"untitledTask": "Naamloze taak",
 				"labelColors": {
 					"stone": "Steen",
