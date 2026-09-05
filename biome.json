@@ -27,7 +27,8 @@
 			"!**/.claude",
 			"!**/.pi",
 			"!**/.pi-subagents",
-			"!**/openapi.json"
+			"!**/openapi.json",
+			"!**/drizzle/meta/**"
 		]
 	},
 	"formatter": {

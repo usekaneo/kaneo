@@ -523,7 +523,9 @@
 			"labels": "Метки",
 			"labelsDescription": "Показывать метки и теги задач",
 			"priority": "Приоритет",
-			"priorityDescription": "Показывать индикаторы приоритета"
+			"priorityDescription": "Показывать индикаторы приоритета",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"developerPage": {
 			"pageTitle": "Настройки разработчика",
@@ -671,7 +673,16 @@
 				"iconRequired": "Иконка обязательна"
 			},
 			"importExportTasks": "Импорт/Экспорт",
-			"importExportTasksDescription": "Импортируйте и экспортируйте задачи."
+			"importExportTasksDescription": "Импортируйте и экспортируйте задачи.",
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundLabel": "Board background",
+			"backgroundRemove": "Remove image",
+			"backgroundRemoveError": "Failed to remove project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundReplace": "Replace image",
+			"backgroundUpload": "Upload image",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundUploadSuccess": "Project background updated"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Интеграции проекта",

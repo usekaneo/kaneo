@@ -5,7 +5,15 @@ import {
   useNavigate,
   useParams,
 } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ImageUp, Trash2 } from "lucide-react";
+import {
+  type ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
@@ -37,8 +45,11 @@ import {
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import icons from "@/constants/project-icons";
+import { getApiUrl } from "@/fetchers/get-api-url";
 import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
+import useRemoveProjectBackground from "@/hooks/mutations/project/use-remove-project-background";
 import useUpdateProject from "@/hooks/mutations/project/use-update-project";
+import useUploadProjectBackground from "@/hooks/mutations/project/use-upload-project-background";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
@@ -108,6 +119,7 @@ function RouteComponent() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [iconPopoverOpen, setIconPopoverOpen] = useState(false);
   const [iconSearch, setIconSearch] = useState("");
+  const backgroundInputRef = useRef<HTMLInputElement>(null);
 
   const { data: workspace } = useActiveWorkspace();
   const { projectId: rawProjectId } = useParams({ strict: false });
@@ -124,6 +136,11 @@ function RouteComponent() {
   const { mutateAsync: updateProject } = useUpdateProject();
   const { mutateAsync: deleteProject, isPending: isDeleting } =
     useDeleteProject();
+  const { mutate: uploadProjectBackground, isPending: isUploadingBackground } =
+    useUploadProjectBackground();
+  const { mutate: removeProjectBackground, isPending: isRemovingBackground } =
+    useRemoveProjectBackground();
+  const isUpdatingBackground = isUploadingBackground || isRemovingBackground;
   const { canManageProjects, canDeleteProjects } = useWorkspacePermission();
   const canEdit = canManageProjects();
   const canDelete = canDeleteProjects();
@@ -319,6 +336,23 @@ function RouteComponent() {
       );
     }
   }, [project?.id, deleteProject, queryClient, navigate, workspace?.id, t]);
+
+  const handleBackgroundChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      event.target.value = "";
+      if (!file || !project?.id) return;
+
+      uploadProjectBackground({ projectId: project.id, file });
+    },
+    [project?.id, uploadProjectBackground],
+  );
+
+  const handleRemoveBackground = useCallback(() => {
+    if (!project?.id) return;
+
+    removeProjectBackground(project.id);
+  }, [project?.id, removeProjectBackground]);
 
   return (
     <>
@@ -538,6 +572,60 @@ function RouteComponent() {
                 />
               </form>
             </Form>
+            <Separator />
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium">
+                  {t("settings:projectGeneral.backgroundLabel")}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {t("settings:projectGeneral.backgroundHint")}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                {project?.backgroundVersion && (
+                  <img
+                    src={getApiUrl(
+                      `project/${project.id}/background?v=${encodeURIComponent(project.backgroundVersion)}`,
+                    )}
+                    alt=""
+                    className="h-9 w-16 rounded border border-border object-cover"
+                  />
+                )}
+                <input
+                  ref={backgroundInputRef}
+                  type="file"
+                  accept="image/apng,image/avif,image/gif,image/heic,image/heif,image/jpeg,image/jpg,image/png,image/webp"
+                  className="hidden"
+                  onChange={handleBackgroundChange}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={!canEdit || isUpdatingBackground}
+                  onClick={() => backgroundInputRef.current?.click()}
+                >
+                  <ImageUp className="size-4" />
+                  {project?.backgroundVersion
+                    ? t("settings:projectGeneral.backgroundReplace")
+                    : t("settings:projectGeneral.backgroundUpload")}
+                </Button>
+                {project?.backgroundVersion && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    disabled={!canEdit || isUpdatingBackground}
+                    onClick={handleRemoveBackground}
+                    aria-label={t("settings:projectGeneral.backgroundRemove")}
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+
             <Separator />
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div className="space-y-0.5">

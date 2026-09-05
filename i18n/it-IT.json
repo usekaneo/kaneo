@@ -523,7 +523,9 @@
 			"labels": "Etichette",
 			"labelsDescription": "Mostra etichette e tag delle attività",
 			"priority": "Priorità",
-			"priorityDescription": "Visualizza indicatori di priorità"
+			"priorityDescription": "Visualizza indicatori di priorità",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"developerPage": {
 			"pageTitle": "Impostazioni Sviluppatore",
@@ -834,7 +836,16 @@
 				"iconRequired": "L'icona è obbligatoria"
 			},
 			"importExportTasks": "Importa/Esporta",
-			"importExportTasksDescription": "Importa ed esporta attività."
+			"importExportTasksDescription": "Importa ed esporta attività.",
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundLabel": "Board background",
+			"backgroundRemove": "Remove image",
+			"backgroundRemoveError": "Failed to remove project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundReplace": "Replace image",
+			"backgroundUpload": "Upload image",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundUploadSuccess": "Project background updated"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Integrazioni Progetto",

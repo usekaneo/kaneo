@@ -17,7 +17,9 @@ import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-
 import { useBoardSort } from "@/hooks/use-board-sort";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useTaskFiltersWithLabelsSupport } from "@/hooks/use-task-filters-with-labels-support";
+import { cn } from "@/lib/cn";
 import { sortTasks } from "@/lib/sort-tasks";
+import { useBackgroundStore } from "@/store/background";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 
@@ -89,6 +91,7 @@ function RouteComponent() {
   const [boardSearchInput, setBoardSearchInput] =
     useState<HTMLInputElement | null>(null);
   const { sort, setSort } = useBoardSort(projectId);
+  const { background } = useBackgroundStore();
 
   const { data: users } = useGetActiveWorkspaceUsers(workspaceId);
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);
@@ -237,7 +240,11 @@ function RouteComponent() {
           onSortChange={setSort}
         />
 
-        <div className="flex h-full flex-1 overflow-hidden bg-background">
+        <div
+          className={cn("flex h-full flex-1 overflow-hidden", {
+            "bg-background": !background,
+          })}
+        >
           {sortedProject ? (
             viewMode === "board" ? (
               <KanbanBoard

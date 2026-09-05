@@ -523,7 +523,9 @@
 			"labels": "ラベル",
 			"labelsDescription": "タスクのラベルとタグを表示します",
 			"priority": "優先度",
-			"priorityDescription": "優先度インジケーターを表示します"
+			"priorityDescription": "優先度インジケーターを表示します",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"developerPage": {
 			"pageTitle": "開発者設定",
@@ -832,7 +834,16 @@
 				"iconRequired": "アイコンは必須です"
 			},
 			"importExportTasks": "インポート/エクスポート",
-			"importExportTasksDescription": "タスクのインポートとエクスポートを行います。"
+			"importExportTasksDescription": "タスクのインポートとエクスポートを行います。",
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundLabel": "Board background",
+			"backgroundRemove": "Remove image",
+			"backgroundRemoveError": "Failed to remove project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundReplace": "Replace image",
+			"backgroundUpload": "Upload image",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundUploadSuccess": "Project background updated"
 		},
 		"projectIntegrations": {
 			"pageTitle": "プロジェクト連携",

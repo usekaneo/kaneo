@@ -523,7 +523,9 @@
 			"labels": "Labels",
 			"labelsDescription": "Show task labels and tags",
 			"priority": "Priority",
-			"priorityDescription": "Display priority indicators"
+			"priorityDescription": "Display priority indicators",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"developerPage": {
 			"pageTitle": "Developer Settings",
@@ -815,6 +817,15 @@
 			"descriptionLabel": "Description",
 			"descriptionHint": "A brief description of your project",
 			"descriptionPlaceholder": "Enter project description",
+			"backgroundLabel": "Board background",
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundUpload": "Upload image",
+			"backgroundReplace": "Replace image",
+			"backgroundRemove": "Remove image",
+			"backgroundUploadSuccess": "Project background updated",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundRemoveError": "Failed to remove project background",
 			"dangerZone": "Danger zone",
 			"dangerZoneSubtitle": "Irreversible and destructive actions.",
 			"deleteProject": "Delete project",

@@ -523,7 +523,9 @@
 			"labels": "लेबल",
 			"labelsDescription": "कार्य लेबल और टैग दिखाएँ",
 			"priority": "प्राथमिकता",
-			"priorityDescription": "प्राथमिकता संकेतक दिखाएँ"
+			"priorityDescription": "प्राथमिकता संकेतक दिखाएँ",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"developerPage": {
 			"pageTitle": "डेवलपर सेटिंग",
@@ -833,7 +835,16 @@
 				"iconRequired": "आइकन आवश्यक है"
 			},
 			"importExportTasks": "आयात/निर्यात",
-			"importExportTasksDescription": "कार्यों को आयात और निर्यात करें।"
+			"importExportTasksDescription": "कार्यों को आयात और निर्यात करें।",
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundLabel": "Board background",
+			"backgroundRemove": "Remove image",
+			"backgroundRemoveError": "Failed to remove project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundReplace": "Replace image",
+			"backgroundUpload": "Upload image",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundUploadSuccess": "Project background updated"
 		},
 		"projectIntegrations": {
 			"pageTitle": "प्रोजेक्ट एकीकरण",

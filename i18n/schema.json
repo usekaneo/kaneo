@@ -2045,6 +2045,12 @@
 						},
 						"priorityDescription": {
 							"type": "string"
+						},
+						"projectBackgrounds": {
+							"type": "string"
+						},
+						"projectBackgroundsDescription": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -2086,7 +2092,9 @@
 						"labels",
 						"labelsDescription",
 						"priority",
-						"priorityDescription"
+						"priorityDescription",
+						"projectBackgrounds",
+						"projectBackgroundsDescription"
 					]
 				},
 				"developerPage": {
@@ -3171,6 +3179,33 @@
 						"descriptionPlaceholder": {
 							"type": "string"
 						},
+						"backgroundLabel": {
+							"type": "string"
+						},
+						"backgroundHint": {
+							"type": "string"
+						},
+						"backgroundUpload": {
+							"type": "string"
+						},
+						"backgroundReplace": {
+							"type": "string"
+						},
+						"backgroundRemove": {
+							"type": "string"
+						},
+						"backgroundUploadSuccess": {
+							"type": "string"
+						},
+						"backgroundUploadError": {
+							"type": "string"
+						},
+						"backgroundRemoveSuccess": {
+							"type": "string"
+						},
+						"backgroundRemoveError": {
+							"type": "string"
+						},
 						"dangerZone": {
 							"type": "string"
 						},
@@ -3254,6 +3289,15 @@
 						"descriptionLabel",
 						"descriptionHint",
 						"descriptionPlaceholder",
+						"backgroundLabel",
+						"backgroundHint",
+						"backgroundUpload",
+						"backgroundReplace",
+						"backgroundRemove",
+						"backgroundUploadSuccess",
+						"backgroundUploadError",
+						"backgroundRemoveSuccess",
+						"backgroundRemoveError",
 						"dangerZone",
 						"dangerZoneSubtitle",
 						"deleteProject",
