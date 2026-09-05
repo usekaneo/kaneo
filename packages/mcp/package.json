@@ -53,16 +53,16 @@
 	},
 	"dependencies": {
 		"@modelcontextprotocol/sdk": "^1.30.0",
-		"open": "^11.0.0",
+		"open": "^11.0.2",
 		"prompts": "^2.4.2",
-		"zod": "^4.4.3"
+		"zod": "^4.5.4"
 	},
 	"devDependencies": {
 		"@kaneo/typescript-config": "workspace:*",
-		"@types/node": "^26.1.2",
+		"@types/node": "^26.4.1",
 		"@types/prompts": "^2.4.9",
-		"tsx": "^4.23.9",
+		"tsx": "^4.23.13",
 		"typescript": "^7.0.2",
-		"vitest": "^4.1.10"
+		"vitest": "^4.1.11"
 	}
 }
