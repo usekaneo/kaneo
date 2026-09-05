@@ -236,10 +236,16 @@ function RouteComponent() {
   // its auto-center.
   // biome-ignore lint/correctness/useExhaustiveDependencies: projectId is intentionally listed to force a re-run on project switch; see comment above.
   useLayoutEffect(() => {
-    if (hasCenteredOnTodayRef.current || !todayInRange) return;
+    if (
+      hasCenteredOnTodayRef.current ||
+      !todayInRange ||
+      scheduledTasks.length === 0 ||
+      !todayCellRef.current
+    )
+      return;
     hasCenteredOnTodayRef.current = true;
     scrollToToday("auto");
-  }, [todayInRange, scrollToToday, projectId]);
+  }, [todayInRange, scrollToToday, projectId, scheduledTasks.length]);
 
   return (
     <ProjectLayout

@@ -147,6 +147,35 @@ afterEach(() => {
 });
 
 describe("Gantt jump-to-today", () => {
+  it("centers a new project after a search stops hiding its timeline", () => {
+    mockProjectWithTask(
+      makeTask({
+        title: "First task",
+        startDate: "2026-08-28",
+        dueDate: "2026-09-02",
+      }),
+    );
+    const { rerender } = render(<GanttRoute />);
+    const search = screen.getByPlaceholderText("Search scheduled tickets...");
+    fireEvent.change(search, { target: { value: "no match" } });
+    routeParams.projectId = "project-2";
+    mockProjectWithTask(
+      makeTask({
+        title: "Second task",
+        startDate: "2026-08-28",
+        dueDate: "2026-09-02",
+      }),
+      { id: "project-2" },
+    );
+    rerender(<GanttRoute />);
+
+    fireEvent.change(search, { target: { value: "" } });
+
+    expect(scrollIntoView).toHaveBeenCalledTimes(2);
+    expect(scrollIntoView).toHaveBeenLastCalledWith(
+      expect.objectContaining({ behavior: "auto", inline: "center" }),
+    );
+  });
   it("disables the button and never auto-scrolls when no task falls near today", () => {
     mockProjectWithTask(
       makeTask({
