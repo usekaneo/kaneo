@@ -55,6 +55,9 @@ export const createTaskBody = z.object({
   priority,
   status: z.string().openapi({ description: "The target column's slug." }),
   userId: z.string().optional().openapi({ description: "Assignee, if any." }),
+  customFields: z
+    .array(z.object({ fieldId: z.string(), value: z.string() }))
+    .optional(),
 });
 
 export const updateTaskBody = z.object({
