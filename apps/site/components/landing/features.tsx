@@ -10,7 +10,7 @@ export function Features() {
         <FadeIn>
           <div className="rounded-2xl border border-border/70 bg-card/70 p-2">
             <div className="grid grid-cols-1 gap-2 lg:grid-cols-12">
-              <article className="rounded-xl border border-border/70 bg-card p-6 lg:col-span-5 lg:p-8">
+              <article className="rounded-md border border-border/70 bg-card p-6 lg:col-span-5 lg:p-8">
                 <p className="font-medium text-muted-foreground text-sm">
                   Core workflows
                 </p>
@@ -33,7 +33,7 @@ export function Features() {
               </article>
 
               <div className="grid grid-cols-1 gap-2 lg:col-span-7 sm:grid-cols-2">
-                <article className="rounded-xl border border-border/70 bg-card p-6">
+                <article className="rounded-md border border-border/70 bg-card p-6">
                   <h3 className="text-sm font-medium">
                     Planning that stays focused
                   </h3>
@@ -43,7 +43,7 @@ export function Features() {
                   </p>
                 </article>
 
-                <article className="rounded-xl border border-border/70 bg-card p-6">
+                <article className="rounded-md border border-border/70 bg-card p-6">
                   <h3 className="text-sm font-medium">Labels and priorities</h3>
                   <p className="mt-2 text-muted-foreground text-sm leading-relaxed">
                     Organize initiatives with labels and prioritize work clearly
@@ -51,7 +51,7 @@ export function Features() {
                   </p>
                 </article>
 
-                <article className="rounded-xl border border-border/70 bg-card p-6 sm:col-span-2">
+                <article className="rounded-md border border-border/70 bg-card p-6 sm:col-span-2">
                   <h3 className="text-sm font-medium">
                     Native GitHub integration
                   </h3>
@@ -61,7 +61,7 @@ export function Features() {
                   </p>
                 </article>
 
-                <article className="rounded-xl border border-border/70 bg-card p-6">
+                <article className="rounded-md border border-border/70 bg-card p-6">
                   <h3 className="text-sm font-medium">Privacy first</h3>
                   <p className="mt-2 text-muted-foreground text-sm leading-relaxed">
                     Minimal analytics and transparent architecture for teams
@@ -69,7 +69,7 @@ export function Features() {
                   </p>
                 </article>
 
-                <article className="rounded-xl border border-border/70 bg-card p-6">
+                <article className="rounded-md border border-border/70 bg-card p-6">
                   <h3 className="text-sm font-medium">
                     Self-hosted by default
                   </h3>
