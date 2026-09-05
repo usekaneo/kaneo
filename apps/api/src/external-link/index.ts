@@ -42,6 +42,7 @@ const createExternalLinkRoute = createRoute({
       createdExternalLinkSchema,
     ),
     400: errorResponse("Invalid external link data"),
+    401: errorResponse("Unauthorized"),
     403: errorResponse("No permission to update the task"),
   },
 });

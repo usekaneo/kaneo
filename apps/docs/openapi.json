@@ -2777,7 +2777,10 @@
             "type": "string"
           },
           "integrationId": {
-            "type": "string"
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "resourceType": {
             "type": "string",
@@ -2825,7 +2828,10 @@
         ]
       },
       "ExternalLinkIntegration": {
-        "type": "object",
+        "type": [
+          "object",
+          "null"
+        ],
         "properties": {
           "id": {
             "type": "string"
@@ -12635,6 +12641,142 @@
       }
     },
     "/external-link/task/{taskId}": {
+      "post": {
+        "operationId": "createExternalLink",
+        "tags": [
+          "External Links"
+        ],
+        "summary": "Create an external link",
+        "description": "Add a resource link to a task",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "taskId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "title": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                },
+                "required": [
+                  "url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "External link created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "taskId": {
+                      "type": "string"
+                    },
+                    "integrationId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "resourceType": {
+                      "type": "string",
+                      "description": "The kind of remote resource, e.g. `issue` or `pull_request`."
+                    },
+                    "externalId": {
+                      "type": "string",
+                      "description": "The provider's own identifier for the linked resource."
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "metadata": {
+                      "description": "Provider-specific payload, parsed from the stored JSON string. Null when the link has no metadata."
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "taskId",
+                    "integrationId",
+                    "resourceType",
+                    "externalId",
+                    "url",
+                    "title",
+                    "createdAt",
+                    "updatedAt"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid external link data",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No permission to update the task",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
       "get": {
         "operationId": "getExternalLinksByTask",
         "tags": [

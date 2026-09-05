@@ -26,6 +26,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import useCreateExternalLink from "@/hooks/mutations/external-link/use-create-external-link";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import type { ExternalLink } from "@/types/external-link";
 
 interface ExternalLinksAccordionProps {
@@ -49,6 +50,8 @@ export function ExternalLinksAccordion({
   isLoading,
 }: ExternalLinksAccordionProps) {
   const { t } = useTranslation();
+  const { canUpdateTasks } = useWorkspacePermission();
+  const canAddResource = canUpdateTasks();
   const [isOpen, setIsOpen] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [url, setUrl] = useState("");
@@ -83,6 +86,7 @@ export function ExternalLinksAccordion({
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!canAddResource || createExternalLink.isPending) return;
 
     createExternalLink.mutate(
       {
@@ -171,16 +175,18 @@ export function ExternalLinksAccordion({
             </Button>
           </CollapsibleTrigger>
 
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="gap-1 h-8"
-            onClick={() => setIsDialogOpen(true)}
-          >
-            <Plus className="size-4" />
-            {t("settings:externalLinks.addResource")}
-          </Button>
+          {canAddResource && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="gap-1 h-8"
+              onClick={() => setIsDialogOpen(true)}
+            >
+              <Plus className="size-4" />
+              {t("settings:externalLinks.addResource")}
+            </Button>
+          )}
         </div>
 
         <CollapsibleContent>
@@ -224,7 +230,10 @@ export function ExternalLinksAccordion({
         </CollapsibleContent>
       </Collapsible>
 
-      <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
+      <Dialog
+        open={isDialogOpen && canAddResource}
+        onOpenChange={handleDialogChange}
+      >
         <DialogContent>
           <form onSubmit={handleSubmit}>
             <DialogHeader>
@@ -243,7 +252,6 @@ export function ExternalLinksAccordion({
                   type="url"
                   value={url}
                   onChange={(event) => setUrl(event.target.value)}
-                  placeholder="https://github.com/..."
                   required
                   autoFocus
                 />
@@ -257,7 +265,6 @@ export function ExternalLinksAccordion({
                   id="external-resource-title"
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
-                  placeholder="Fix authentication bug"
                   maxLength={200}
                 />
               </div>
