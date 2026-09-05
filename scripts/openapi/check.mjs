@@ -12,16 +12,28 @@ import { join, resolve } from "node:path";
 
 const COMMITTED = resolve("apps/docs/openapi.json");
 const FIX = process.argv.includes("--fix");
+// Invoke pnpm through Node so Windows paths and arguments never pass through cmd.exe.
+// biome-ignore lint/suspicious/noUndeclaredEnvVars: this entrypoint runs outside Turbo's task cache.
+const packageManager = process.env.npm_execpath;
+if (!packageManager) {
+  throw new Error(
+    "Run this check with pnpm openapi:check or pnpm openapi:check:fix",
+  );
+}
 const RUN = {
   stdio: ["ignore", "ignore", "inherit"],
-  shell: process.platform === "win32",
 };
 
 function generate(into) {
-  execFileSync("pnpm", ["turbo", "build", "--filter=@kaneo/api^..."], RUN);
   execFileSync(
-    "pnpm",
+    process.execPath,
+    [packageManager, "turbo", "build", "--filter=@kaneo/api^..."],
+    RUN,
+  );
+  execFileSync(
+    process.execPath,
     [
+      packageManager,
       "--filter",
       "@kaneo/api",
       "exec",
