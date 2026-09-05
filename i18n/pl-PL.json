@@ -2005,6 +2005,7 @@
 		},
 		"gantt": {
 			"hideTasks": "Ukryj zadania",
+			"jumpToToday": "Przejdź do dzisiaj",
 			"noTasks": "Brak zaplanowanych zadań",
 			"noTasksFound": "Nie znaleziono zadań",
 			"noTasksMatch": "Brak zaplanowanych zadań pasujących do „{{query}}”",

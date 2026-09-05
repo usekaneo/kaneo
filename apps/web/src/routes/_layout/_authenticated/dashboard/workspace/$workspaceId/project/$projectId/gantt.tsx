@@ -11,8 +11,15 @@ import {
   startOfWeek,
   subDays,
 } from "date-fns";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { Calendar, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import ProjectLayout from "@/components/common/project-layout";
 import { GanttTaskBar } from "@/components/gantt/gantt-task-bar";
@@ -62,6 +69,23 @@ function RouteComponent() {
   const showTaskRail = !isMobile || isTaskRailOpen;
   const timelineTrackRef = useRef<HTMLDivElement>(null);
   const [pixelsPerDay, setPixelsPerDay] = useState(44);
+  const todayCellRef = useRef<HTMLDivElement>(null);
+  // Only auto-scroll once per visit to the view: re-running on every timeline
+  // recalculation (e.g. a browser resize crossing the mobile breakpoint) would
+  // yank the grid back to today out from under someone who deliberately
+  // scrolled elsewhere.
+  const hasCenteredOnTodayRef = useRef(false);
+  // The Gantt project selector can swap `projectId` without unmounting this
+  // route, so the one-time guard above has to be re-armed for the newly
+  // selected project. Resetting it here (during render, comparing against the
+  // previous projectId) rather than in an effect means it's already cleared
+  // by the time the auto-center layout effect below runs for this project,
+  // instead of one render later.
+  const previousProjectIdRef = useRef(projectId);
+  if (previousProjectIdRef.current !== projectId) {
+    previousProjectIdRef.current = projectId;
+    hasCenteredOnTodayRef.current = false;
+  }
 
   useEffect(() => {
     if (!isMobile) {
@@ -152,6 +176,38 @@ function RouteComponent() {
     };
   }, [parsedTasks, dayColumnWidthRem, weekStartsOn]);
 
+  // Whether "today" actually falls inside the computed date range. A project
+  // made up entirely of past or far-future tasks has no "today" column to
+  // jump to, so the button below is disabled in that case instead of doing
+  // nothing silently.
+  const todayInRange = useMemo(
+    () => timeline?.days.some((day) => isToday(day)) ?? false,
+    [timeline],
+  );
+
+  // The task rail is `position: sticky; left: 0`, so it stays pinned over the
+  // left edge of the scroll container's viewport rather than scrolling away
+  // with the timeline underneath it. `scrollIntoView({ inline: "center" })`
+  // has no way to know that, and centers the target against the *whole*
+  // viewport width, landing today roughly half the rail's width left of
+  // where it visually reads as centered. `scroll-padding-left` tells the
+  // browser's own scroll-alignment math to treat the rail's width as inset
+  // from the viewport, so "center" (and any future "start"/"end" alignment)
+  // resolves against the space actually visible next to it.
+  const scrollPaddingLeftRem = showTaskRail
+    ? isMobile
+      ? taskColumnWidthRem
+      : 20
+    : 0;
+
+  const scrollToToday = useCallback((behavior: ScrollBehavior = "smooth") => {
+    todayCellRef.current?.scrollIntoView({
+      behavior,
+      inline: "center",
+      block: "nearest",
+    });
+  }, []);
+
   useLayoutEffect(() => {
     const element = timelineTrackRef.current;
     if (!element || !timeline) return;
@@ -167,6 +223,29 @@ function RouteComponent() {
     observer.observe(element);
     return () => observer.disconnect();
   }, [timeline]);
+
+  // Center the view on today the first time it becomes available, so opening
+  // the Gantt chart on a long-running project doesn't drop you at the start
+  // of the timeline with today scrolled off-screen. `projectId` is listed as
+  // a dependency (even though the effect body doesn't use it directly)
+  // because switching projects can leave `todayInRange` unchanged (true on
+  // both the old and new project) while still resetting the one-time guard
+  // above during render — without `projectId` here, React would bail out of
+  // re-running this effect since neither `todayInRange` nor `scrollToToday`
+  // actually changed value, and the newly selected project would never get
+  // its auto-center.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: projectId is intentionally listed to force a re-run on project switch; see comment above.
+  useLayoutEffect(() => {
+    if (
+      hasCenteredOnTodayRef.current ||
+      !todayInRange ||
+      scheduledTasks.length === 0 ||
+      !todayCellRef.current
+    )
+      return;
+    hasCenteredOnTodayRef.current = true;
+    scrollToToday("auto");
+  }, [todayInRange, scrollToToday, projectId, scheduledTasks.length]);
 
   return (
     <ProjectLayout
@@ -196,6 +275,17 @@ function RouteComponent() {
                 className="h-9 min-h-11 touch-manipulation sm:h-8 sm:min-h-0 [&_[data-slot=input]]:pl-8 [&_[data-slot=input]]:text-xs"
               />
             </div>
+
+            <Button
+              variant="outline"
+              size="xs"
+              className="min-h-11 touch-manipulation sm:min-h-0"
+              onClick={() => scrollToToday()}
+              disabled={!todayInRange || scheduledTasks.length === 0}
+            >
+              <Calendar className="size-3.5" />
+              {t("tasks:gantt.jumpToToday")}
+            </Button>
 
             <Button
               variant="outline"
@@ -238,7 +328,11 @@ function RouteComponent() {
             </div>
           </div>
         ) : (
-          <div className="min-h-0 flex-1 overflow-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]">
+          <div
+            data-testid="gantt-scroll-container"
+            className="min-h-0 flex-1 overflow-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]"
+            style={{ scrollPaddingLeft: `${scrollPaddingLeftRem}rem` }}
+          >
             <div className="relative min-w-max touch-pan-x touch-pan-y">
               <div className="sticky top-0 z-20 flex border-b border-border bg-background/95 backdrop-blur">
                 {showTaskRail ? (
@@ -265,9 +359,12 @@ function RouteComponent() {
                       index === 0 ||
                       !isSameMonth(day, timeline.days[index - 1] ?? day);
 
+                    const isCurrentDay = isToday(day);
+
                     return (
                       <div
                         key={day.toISOString()}
+                        ref={isCurrentDay ? todayCellRef : undefined}
                         className={cn(
                           "border-r border-border/70 px-0.5 py-2 text-center sm:px-1",
                           isWeekend(day) && "bg-muted/25",
@@ -279,7 +376,7 @@ function RouteComponent() {
                         <div
                           className={cn(
                             "mx-auto flex size-6 items-center justify-center rounded-full text-xs font-medium",
-                            isToday(day) &&
+                            isCurrentDay &&
                               "bg-primary text-primary-foreground",
                           )}
                         >

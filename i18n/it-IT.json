@@ -1874,7 +1874,8 @@
 			"updateDatesError": "Aggiornamento date attività fallito",
 			"resizeStart": "Ridimensiona data inizio",
 			"resizeDue": "Ridimensiona data scadenza",
-			"taskAriaLabel": "{{title}}: apri o trascina per spostare"
+			"taskAriaLabel": "{{title}}: apri o trascina per spostare",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "Eliminare l'Attività?",
