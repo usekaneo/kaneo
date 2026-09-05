@@ -1556,6 +1556,7 @@
 		}
 	},
 	"tasks": {
+		"title": "작업",
 		"status": {
 			"label": "상태",
 			"to-do": "할 일",

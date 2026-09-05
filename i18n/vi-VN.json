@@ -1556,6 +1556,7 @@
 		}
 	},
 	"tasks": {
+		"title": "Nhiệm vụ",
 		"status": {
 			"label": "Trạng thái",
 			"to-do": "Cần làm",

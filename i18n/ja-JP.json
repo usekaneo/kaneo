@@ -1556,6 +1556,7 @@
 		}
 	},
 	"tasks": {
+		"title": "タスク",
 		"status": {
 			"label": "ステータス",
 			"to-do": "To Do",

@@ -1566,6 +1566,7 @@
 		}
 	},
 	"tasks": {
+		"title": "Tareas",
 		"status": {
 			"label": "Estado",
 			"to-do": "To Do",

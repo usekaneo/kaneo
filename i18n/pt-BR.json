@@ -1566,6 +1566,7 @@
 		}
 	},
 	"tasks": {
+		"title": "Tarefas",
 		"status": {
 			"label": "Status",
 			"to-do": "A Fazer",
