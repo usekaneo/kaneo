@@ -41,4 +41,15 @@ describe("getTaskItemStats", () => {
       completed: 1,
     });
   });
+
+  it.each(["```", "~~~"])(
+    "keeps a %s fence open when a marker has trailing content",
+    (marker) => {
+      const description = `${marker}\n${marker}ts\n- [x] Example\n${marker} \t\n- [ ] Real item`;
+
+      const stats = getTaskItemStats(description);
+
+      expect(stats).toEqual({ total: 1, completed: 0 });
+    },
+  );
 });

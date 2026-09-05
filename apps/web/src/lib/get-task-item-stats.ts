@@ -38,7 +38,11 @@ export function getTaskItemStats(description: string | null): TaskItemsStats {
         // Opening a new fence
         fenceChar = marker[0];
         fenceLen = marker.length;
-      } else if (marker[0] === fenceChar && marker.length >= fenceLen) {
+      } else if (
+        marker[0] === fenceChar &&
+        marker.length >= fenceLen &&
+        /^[\t ]*$/.test(line.slice(fenceMatch[0].length))
+      ) {
         // Closing the current fence
         fenceChar = null;
       }
