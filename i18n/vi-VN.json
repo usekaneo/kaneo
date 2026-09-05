@@ -1270,7 +1270,13 @@
 			"branch": "Nhánh",
 			"merged": "Đã gộp",
 			"draft": "Bản nháp",
-			"open": "Đang mở"
+			"open": "Đang mở",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL"
 		}
 	},
 	"navigation": {

@@ -79,14 +79,13 @@ export default function TaskDetailsContent({
         <TaskTitle taskId={taskId} />
         <TaskDescription taskId={taskId} />
       </div>
-      {!isLoadingExternalLinks && externalLinks.length > 0 && (
-        <div className="mt-4">
-          <ExternalLinksAccordion
-            externalLinks={externalLinks as ExternalLink[]}
-            isLoading={isLoadingExternalLinks}
-          />
-        </div>
-      )}
+      <div className="mt-4">
+        <ExternalLinksAccordion
+          taskId={taskId}
+          externalLinks={externalLinks as ExternalLink[]}
+          isLoading={isLoadingExternalLinks}
+        />
+      </div>
       <div className="mt-4">
         {task && (
           <TaskSubtasks
