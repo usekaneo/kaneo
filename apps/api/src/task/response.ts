@@ -90,18 +90,17 @@ export const boardColumnSchema = z
   })
   .openapi("BoardColumn");
 
-export const boardPaginationSchema = z
+// Shared by every paged list, so it must not describe one endpoint's defaults.
+export const paginationSchema = z
   .object({
-    total: z.number(),
+    total: z.number().openapi({
+      description: "How many rows match in total, across all pages.",
+    }),
     page: z.number(),
     pageSize: z.number(),
-    totalPages: z.number(),
+    totalPages: z.number().openapi({ description: "At least 1." }),
   })
-  .openapi({
-    description:
-      "When no page/limit is given, everything is returned on a single page.",
-  })
-  .openapi("BoardPagination");
+  .openapi("Pagination");
 
 export const boardSchema = z
   .object({
@@ -119,7 +118,7 @@ export const boardSchema = z
         plannedTasks: z.array(boardTaskSchema),
       })
       .openapi("Board"),
-    pagination: boardPaginationSchema,
+    pagination: paginationSchema,
   })
   .openapi("BoardResponse");
 

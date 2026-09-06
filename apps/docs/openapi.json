@@ -584,7 +584,7 @@
             "$ref": "#/components/schemas/Board"
           },
           "pagination": {
-            "$ref": "#/components/schemas/BoardPagination"
+            "$ref": "#/components/schemas/Pagination"
           }
         },
         "required": [
@@ -657,11 +657,12 @@
           "plannedTasks"
         ]
       },
-      "BoardPagination": {
+      "Pagination": {
         "type": "object",
         "properties": {
           "total": {
-            "type": "number"
+            "type": "number",
+            "description": "How many rows match in total, across all pages."
           },
           "page": {
             "type": "number"
@@ -670,7 +671,8 @@
             "type": "number"
           },
           "totalPages": {
-            "type": "number"
+            "type": "number",
+            "description": "At least 1."
           }
         },
         "required": [
@@ -678,8 +680,7 @@
           "page",
           "pageSize",
           "totalPages"
-        ],
-        "description": "When no page/limit is given, everything is returned on a single page."
+        ]
       },
       "BulkTaskResult": {
         "type": "object",
@@ -3083,7 +3084,7 @@
             ]
           },
           "pagination": {
-            "$ref": "#/components/schemas/BoardPagination"
+            "$ref": "#/components/schemas/Pagination"
           }
         },
         "required": [
@@ -6181,7 +6182,7 @@
           "Tasks"
         ],
         "summary": "List tasks",
-        "description": "Get a project's board: its columns, each with the tasks in it, plus the archived and planned buckets. Filter and paginate with the query parameters.",
+        "description": "Get a project's board: its columns, each with the tasks in it, plus the archived and planned buckets. Filter and paginate with the query parameters; when neither `page` nor `limit` is given, everything is returned on a single page.",
         "parameters": [
           {
             "schema": {
@@ -13129,7 +13130,7 @@
           "Tasks"
         ],
         "summary": "List tasks assigned to me",
-        "description": "Every open task assigned to the current user across all the workspaces they are a member of, with the projects and columns needed to display them. Planned and archived tasks, and tasks in archived projects, are left out. Tasks are ordered by due date, soonest first, and paged: `limit` defaults to and is capped at 2000, so `pagination.total` tells when more pages exist. The caller is always the authenticated user.",
+        "description": "Every open task assigned to the current user across all the workspaces they are a member of, with the projects and columns needed to display them. Planned and archived tasks, and tasks in archived projects, are left out. Tasks are ordered by due date, soonest first, and paged: `limit` defaults to 2000, which is also the maximum, so `pagination.total` tells when more pages exist. The caller is always the authenticated user.",
         "parameters": [
           {
             "schema": {
