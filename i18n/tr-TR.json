@@ -1304,7 +1304,7 @@
 			"invitations": "Davetler",
 			"more": "Daha fazla",
 			"backToBoard": "Panoya dön",
-			"myTasks": "My tasks"
+			"myTasks": "Görevlerim"
 		},
 		"projectList": {
 			"viewProject": "Projeyi Görüntüle",
@@ -1850,13 +1850,13 @@
 				"assignee": "Atanan",
 				"dueDate": "Bitiş tarihi",
 				"labels": "Etiketler",
-				"project": "Project"
+				"project": "Proje"
 			},
 			"operators": {
 				"isAnyOf": "herhangi biri",
 				"includeAnyOf": "herhangi birini içer"
 			},
-			"allProjects": "All projects"
+			"allProjects": "Tüm projeler"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",
@@ -1987,13 +1987,13 @@
 			"loadError": "Failed to load tasks."
 		},
 		"myTasks": {
-			"empty": "Nothing assigned to you",
-			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
-			"loadError": "Failed to load your tasks.",
-			"pageTitle": "My tasks · {{view}}",
-			"title": "My tasks",
-			"noMatches": "No tasks match",
-			"noMatchesSubtitle": "Try a different search or clear the active filters."
+			"empty": "Size atanmış bir şey yok",
+			"emptySubtitle": "Çalışma alanlarınızın herhangi birinde size atanan görevler burada görünür.",
+			"loadError": "Görevleriniz yüklenemedi.",
+			"pageTitle": "Görevlerim · {{view}}",
+			"title": "Görevlerim",
+			"noMatches": "Eşleşen görev yok",
+			"noMatchesSubtitle": "Farklı bir arama deneyin veya etkin filtreleri temizleyin."
 		}
 	},
 	"invitations": {

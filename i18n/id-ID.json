@@ -1303,7 +1303,7 @@
 			"invitations": "Undangan",
 			"more": "Lainnya",
 			"backToBoard": "Kembali ke papan",
-			"myTasks": "My tasks"
+			"myTasks": "Tugas saya"
 		},
 		"projectList": {
 			"viewProject": "Lihat Proyek",
@@ -1845,13 +1845,13 @@
 				"assignee": "Penanggung jawab",
 				"dueDate": "Tenggat",
 				"labels": "Label",
-				"project": "Project"
+				"project": "Proyek"
 			},
 			"operators": {
 				"isAnyOf": "adalah salah satu dari",
 				"includeAnyOf": "menyertakan salah satu dari"
 			},
-			"allProjects": "All projects"
+			"allProjects": "Semua proyek"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",
@@ -1981,13 +1981,13 @@
 			"loadError": "Failed to load tasks."
 		},
 		"myTasks": {
-			"empty": "Nothing assigned to you",
-			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
-			"loadError": "Failed to load your tasks.",
-			"pageTitle": "My tasks · {{view}}",
-			"title": "My tasks",
-			"noMatches": "No tasks match",
-			"noMatchesSubtitle": "Try a different search or clear the active filters."
+			"empty": "Tidak ada yang ditugaskan kepada Anda",
+			"emptySubtitle": "Tugas yang ditugaskan kepada Anda di salah satu ruang kerja Anda akan muncul di sini.",
+			"loadError": "Gagal memuat tugas Anda.",
+			"pageTitle": "Tugas saya · {{view}}",
+			"title": "Tugas saya",
+			"noMatches": "Tidak ada tugas yang cocok",
+			"noMatchesSubtitle": "Coba pencarian lain atau hapus filter yang aktif."
 		}
 	},
 	"invitations": {

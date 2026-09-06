@@ -1304,7 +1304,7 @@
 			"invitations": "Uitnodigingen",
 			"more": "Meer",
 			"backToBoard": "Terug naar bord",
-			"myTasks": "My tasks"
+			"myTasks": "Mijn taken"
 		},
 		"projectList": {
 			"viewProject": "Project bekijken",
@@ -1845,7 +1845,7 @@
 				"isAnyOf": "is een van",
 				"includeAnyOf": "bevat een van"
 			},
-			"allProjects": "All projects"
+			"allProjects": "Alle projecten"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",
@@ -1987,13 +1987,13 @@
 			"loadError": "Failed to load tasks."
 		},
 		"myTasks": {
-			"empty": "Nothing assigned to you",
-			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
-			"loadError": "Failed to load your tasks.",
-			"pageTitle": "My tasks · {{view}}",
-			"title": "My tasks",
-			"noMatches": "No tasks match",
-			"noMatchesSubtitle": "Try a different search or clear the active filters."
+			"empty": "Er is niets aan u toegewezen",
+			"emptySubtitle": "Taken die in een van uw werkruimten aan u zijn toegewezen, verschijnen hier.",
+			"loadError": "Uw taken konden niet worden geladen.",
+			"pageTitle": "Mijn taken · {{view}}",
+			"title": "Mijn taken",
+			"noMatches": "Geen taken gevonden",
+			"noMatchesSubtitle": "Probeer een andere zoekopdracht of wis de actieve filters."
 		}
 	},
 	"invitations": {

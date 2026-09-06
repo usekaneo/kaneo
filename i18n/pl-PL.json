@@ -366,7 +366,7 @@
 			"invitations": "Zaproszenia",
 			"more": "Więcej",
 			"backToBoard": "Wróć do tablicy",
-			"myTasks": "My tasks"
+			"myTasks": "Moje zadania"
 		},
 		"projectList": {
 			"viewProject": "Zobacz projekt",
@@ -1811,9 +1811,9 @@
 				"labels": "Etykiety",
 				"priority": "Priorytet",
 				"status": "Status",
-				"project": "Project"
+				"project": "Projekt"
 			},
-			"allProjects": "All projects"
+			"allProjects": "Wszystkie projekty"
 		},
 		"boardSearchPlaceholder": "Szukaj zadań...",
 		"bulk": {
@@ -2181,13 +2181,13 @@
 			"list": "Lista"
 		},
 		"myTasks": {
-			"empty": "Nothing assigned to you",
-			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
-			"loadError": "Failed to load your tasks.",
-			"pageTitle": "My tasks · {{view}}",
-			"title": "My tasks",
-			"noMatches": "No tasks match",
-			"noMatchesSubtitle": "Try a different search or clear the active filters."
+			"empty": "Nic nie jest do Ciebie przypisane",
+			"emptySubtitle": "Zadania przypisane do Ciebie w dowolnym z Twoich obszarów roboczych pojawią się tutaj.",
+			"loadError": "Nie udało się wczytać Twoich zadań.",
+			"pageTitle": "Moje zadania · {{view}}",
+			"title": "Moje zadania",
+			"noMatches": "Brak pasujących zadań",
+			"noMatchesSubtitle": "Spróbuj innego wyszukiwania lub wyczyść aktywne filtry."
 		}
 	}
 }

@@ -1303,7 +1303,7 @@
 			"invitations": "Lời mời",
 			"more": "Thêm",
 			"backToBoard": "Quay lại bảng",
-			"myTasks": "My tasks"
+			"myTasks": "Công việc của tôi"
 		},
 		"projectList": {
 			"viewProject": "Xem dự án",
@@ -1845,13 +1845,13 @@
 				"assignee": "Người được giao",
 				"dueDate": "Ngày đến hạn",
 				"labels": "Nhãn",
-				"project": "Project"
+				"project": "Dự án"
 			},
 			"operators": {
 				"isAnyOf": "là một trong",
 				"includeAnyOf": "bao gồm một trong"
 			},
-			"allProjects": "All projects"
+			"allProjects": "Tất cả dự án"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",
@@ -1981,13 +1981,13 @@
 			"loadError": "Failed to load tasks."
 		},
 		"myTasks": {
-			"empty": "Nothing assigned to you",
-			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
-			"loadError": "Failed to load your tasks.",
-			"pageTitle": "My tasks · {{view}}",
-			"title": "My tasks",
-			"noMatches": "No tasks match",
-			"noMatchesSubtitle": "Try a different search or clear the active filters."
+			"empty": "Chưa có công việc nào được giao cho bạn",
+			"emptySubtitle": "Các công việc được giao cho bạn trong bất kỳ không gian làm việc nào của bạn sẽ hiển thị ở đây.",
+			"loadError": "Không thể tải công việc của bạn.",
+			"pageTitle": "Công việc của tôi · {{view}}",
+			"title": "Công việc của tôi",
+			"noMatches": "Không có công việc nào phù hợp",
+			"noMatchesSubtitle": "Hãy thử tìm kiếm khác hoặc xóa các bộ lọc đang áp dụng."
 		}
 	},
 	"invitations": {

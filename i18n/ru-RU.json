@@ -1314,7 +1314,7 @@
 			"invitations": "Приглашения",
 			"more": "Ещё",
 			"backToBoard": "Назад к доске",
-			"myTasks": "My tasks"
+			"myTasks": "Мои задачи"
 		},
 		"projectList": {
 			"viewProject": "Открыть проект",
@@ -1875,14 +1875,14 @@
 				"assignee": "Исполнитель",
 				"dueDate": "Срок выполнения",
 				"labels": "Метки",
-				"project": "Project"
+				"project": "Проект"
 			},
 			"operators": {
 				"isAnyOf": "любой из",
 				"includeAnyOf": "включает любой из"
 			},
 			"selectedCount": "{{count}} выбрано",
-			"allProjects": "All projects"
+			"allProjects": "Все проекты"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Гант",
@@ -2055,13 +2055,13 @@
 			"loadError": "Failed to load tasks."
 		},
 		"myTasks": {
-			"empty": "Nothing assigned to you",
-			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
-			"loadError": "Failed to load your tasks.",
-			"pageTitle": "My tasks · {{view}}",
-			"title": "My tasks",
-			"noMatches": "No tasks match",
-			"noMatchesSubtitle": "Try a different search or clear the active filters."
+			"empty": "Вам ничего не назначено",
+			"emptySubtitle": "Задачи, назначенные вам в любой из ваших рабочих областей, будут отображаться здесь.",
+			"loadError": "Не удалось загрузить ваши задачи.",
+			"pageTitle": "Мои задачи · {{view}}",
+			"title": "Мои задачи",
+			"noMatches": "Нет подходящих задач",
+			"noMatchesSubtitle": "Попробуйте другой запрос или сбросьте активные фильтры."
 		}
 	},
 	"invitations": {

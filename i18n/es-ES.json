@@ -1305,7 +1305,7 @@
 			"invitations": "Invitaciones",
 			"more": "Más",
 			"backToBoard": "Volver al tablero",
-			"myTasks": "My tasks"
+			"myTasks": "Mis tareas"
 		},
 		"projectList": {
 			"viewProject": "Ver Proyecto",
@@ -1844,13 +1844,13 @@
 				"assignee": "Asignado",
 				"dueDate": "Fecha de vencimiento",
 				"labels": "Etiquetas",
-				"project": "Project"
+				"project": "Proyecto"
 			},
 			"operators": {
 				"isAnyOf": "es alguno de",
 				"includeAnyOf": "incluye alguno de"
 			},
-			"allProjects": "All projects"
+			"allProjects": "Todos los proyectos"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",
@@ -1993,13 +1993,13 @@
 			"loadError": "Failed to load tasks."
 		},
 		"myTasks": {
-			"empty": "Nothing assigned to you",
-			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
-			"loadError": "Failed to load your tasks.",
-			"pageTitle": "My tasks · {{view}}",
-			"title": "My tasks",
-			"noMatches": "No tasks match",
-			"noMatchesSubtitle": "Try a different search or clear the active filters."
+			"empty": "No tienes nada asignado",
+			"emptySubtitle": "Las tareas que se te asignen en cualquiera de tus espacios de trabajo aparecerán aquí.",
+			"loadError": "No se pudieron cargar tus tareas.",
+			"pageTitle": "Mis tareas · {{view}}",
+			"title": "Mis tareas",
+			"noMatches": "Ninguna tarea coincide",
+			"noMatchesSubtitle": "Prueba con otra búsqueda o borra los filtros activos."
 		}
 	},
 	"invitations": {

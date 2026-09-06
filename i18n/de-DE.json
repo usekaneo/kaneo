@@ -1304,7 +1304,7 @@
 			"invitations": "Einladungen",
 			"more": "Mehr",
 			"backToBoard": "Zurück zum Board",
-			"myTasks": "My tasks"
+			"myTasks": "Meine Aufgaben"
 		},
 		"projectList": {
 			"viewProject": "Projekt ansehen",
@@ -1850,13 +1850,13 @@
 				"assignee": "Zugewiesen",
 				"dueDate": "Fälligkeitsdatum",
 				"labels": "Labels",
-				"project": "Project"
+				"project": "Projekt"
 			},
 			"operators": {
 				"isAnyOf": "ist einer von",
 				"includeAnyOf": "enthält einen von"
 			},
-			"allProjects": "All projects"
+			"allProjects": "Alle Projekte"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",
@@ -1987,13 +1987,13 @@
 			"loadError": "Failed to load tasks."
 		},
 		"myTasks": {
-			"empty": "Nothing assigned to you",
-			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
-			"loadError": "Failed to load your tasks.",
-			"pageTitle": "My tasks · {{view}}",
-			"title": "My tasks",
-			"noMatches": "No tasks match",
-			"noMatchesSubtitle": "Try a different search or clear the active filters."
+			"empty": "Dir ist nichts zugewiesen",
+			"emptySubtitle": "Aufgaben, die dir in einem deiner Workspaces zugewiesen sind, erscheinen hier.",
+			"loadError": "Deine Aufgaben konnten nicht geladen werden.",
+			"pageTitle": "Meine Aufgaben · {{view}}",
+			"title": "Meine Aufgaben",
+			"noMatches": "Keine passenden Aufgaben",
+			"noMatchesSubtitle": "Versuche eine andere Suche oder entferne die aktiven Filter."
 		}
 	},
 	"invitations": {

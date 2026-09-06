@@ -1303,7 +1303,7 @@
 			"invitations": "초대",
 			"more": "더 보기",
 			"backToBoard": "보드로 돌아가기",
-			"myTasks": "My tasks"
+			"myTasks": "내 작업"
 		},
 		"projectList": {
 			"viewProject": "프로젝트 보기",
@@ -1845,13 +1845,13 @@
 				"assignee": "담당자",
 				"dueDate": "마감일",
 				"labels": "라벨",
-				"project": "Project"
+				"project": "프로젝트"
 			},
 			"operators": {
 				"isAnyOf": "다음 중 하나",
 				"includeAnyOf": "다음 중 하나 포함"
 			},
-			"allProjects": "All projects"
+			"allProjects": "모든 프로젝트"
 		},
 		"calendar": {
 			"pageTitle": "{{name}} – 캘린더",
@@ -1981,13 +1981,13 @@
 			}
 		},
 		"myTasks": {
-			"empty": "Nothing assigned to you",
-			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
-			"loadError": "Failed to load your tasks.",
-			"pageTitle": "My tasks · {{view}}",
-			"title": "My tasks",
-			"noMatches": "No tasks match",
-			"noMatchesSubtitle": "Try a different search or clear the active filters."
+			"empty": "할당된 작업이 없습니다",
+			"emptySubtitle": "어느 워크스페이스에서든 나에게 할당된 작업이 여기에 표시됩니다.",
+			"loadError": "작업을 불러오지 못했습니다.",
+			"pageTitle": "내 작업 · {{view}}",
+			"title": "내 작업",
+			"noMatches": "일치하는 작업이 없습니다",
+			"noMatchesSubtitle": "다른 검색어를 시도하거나 활성 필터를 지우세요."
 		}
 	},
 	"invitations": {

@@ -1303,7 +1303,7 @@
 			"invitations": "招待",
 			"more": "その他",
 			"backToBoard": "ボードに戻る",
-			"myTasks": "My tasks"
+			"myTasks": "マイタスク"
 		},
 		"projectList": {
 			"viewProject": "プロジェクトを表示",
@@ -1845,13 +1845,13 @@
 				"assignee": "担当者",
 				"dueDate": "期限",
 				"labels": "ラベル",
-				"project": "Project"
+				"project": "プロジェクト"
 			},
 			"operators": {
 				"isAnyOf": "次のいずれか",
 				"includeAnyOf": "次のいずれかを含む"
 			},
-			"allProjects": "All projects"
+			"allProjects": "すべてのプロジェクト"
 		},
 		"calendar": {
 			"pageTitle": "{{name}} – カレンダー",
@@ -1981,13 +1981,13 @@
 			}
 		},
 		"myTasks": {
-			"empty": "Nothing assigned to you",
-			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
-			"loadError": "Failed to load your tasks.",
-			"pageTitle": "My tasks · {{view}}",
-			"title": "My tasks",
-			"noMatches": "No tasks match",
-			"noMatchesSubtitle": "Try a different search or clear the active filters."
+			"empty": "割り当てられたタスクはありません",
+			"emptySubtitle": "いずれかのワークスペースであなたに割り当てられたタスクがここに表示されます。",
+			"loadError": "タスクを読み込めませんでした。",
+			"pageTitle": "マイタスク · {{view}}",
+			"title": "マイタスク",
+			"noMatches": "一致するタスクはありません",
+			"noMatchesSubtitle": "別の検索を試すか、有効なフィルターを解除してください。"
 		}
 	},
 	"invitations": {

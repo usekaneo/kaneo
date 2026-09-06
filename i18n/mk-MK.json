@@ -1304,7 +1304,7 @@
 			"invitations": "Покани",
 			"more": "Повеќе",
 			"backToBoard": "Назад на табла",
-			"myTasks": "My tasks"
+			"myTasks": "Мои задачи"
 		},
 		"projectList": {
 			"viewProject": "Погледни проект",
@@ -1850,13 +1850,13 @@
 				"assignee": "Доделен",
 				"dueDate": "Краен рок",
 				"labels": "Етикети",
-				"project": "Project"
+				"project": "Проект"
 			},
 			"operators": {
 				"isAnyOf": "е било кој од",
 				"includeAnyOf": "вклучува било кој од"
 			},
-			"allProjects": "All projects"
+			"allProjects": "Сите проекти"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",
@@ -1987,13 +1987,13 @@
 			"loadError": "Failed to load tasks."
 		},
 		"myTasks": {
-			"empty": "Nothing assigned to you",
-			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
-			"loadError": "Failed to load your tasks.",
-			"pageTitle": "My tasks · {{view}}",
-			"title": "My tasks",
-			"noMatches": "No tasks match",
-			"noMatchesSubtitle": "Try a different search or clear the active filters."
+			"empty": "Ништо не ви е доделено",
+			"emptySubtitle": "Задачите што ви се доделени во кој било од вашите работни простори ќе се појават тука.",
+			"loadError": "Не успеа вчитувањето на вашите задачи.",
+			"pageTitle": "Мои задачи · {{view}}",
+			"title": "Мои задачи",
+			"noMatches": "Ниедна задача не одговара",
+			"noMatchesSubtitle": "Обидете се со друго пребарување или исчистете ги активните филтри."
 		}
 	},
 	"invitations": {

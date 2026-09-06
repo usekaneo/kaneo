@@ -1304,7 +1304,7 @@
 			"invitations": "Προσκλήσεις",
 			"more": "Περισσότερα",
 			"backToBoard": "Επιστροφή στον πίνακα",
-			"myTasks": "My tasks"
+			"myTasks": "Οι εργασίες μου"
 		},
 		"projectList": {
 			"viewProject": "Προβολή έργου",
@@ -1850,13 +1850,13 @@
 				"assignee": "Ανατεθειμένος",
 				"dueDate": "Ημερομηνία λήξης",
 				"labels": "Ετικέτες",
-				"project": "Project"
+				"project": "Έργο"
 			},
 			"operators": {
 				"isAnyOf": "είναι ένα από",
 				"includeAnyOf": "περιλαμβάνει κάποιο από"
 			},
-			"allProjects": "All projects"
+			"allProjects": "Όλα τα έργα"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",
@@ -1987,13 +1987,13 @@
 			"loadError": "Failed to load tasks."
 		},
 		"myTasks": {
-			"empty": "Nothing assigned to you",
-			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
-			"loadError": "Failed to load your tasks.",
-			"pageTitle": "My tasks · {{view}}",
-			"title": "My tasks",
-			"noMatches": "No tasks match",
-			"noMatchesSubtitle": "Try a different search or clear the active filters."
+			"empty": "Δεν σας έχει ανατεθεί τίποτα",
+			"emptySubtitle": "Οι εργασίες που σας ανατίθενται σε οποιονδήποτε από τους χώρους εργασίας σας θα εμφανίζονται εδώ.",
+			"loadError": "Η φόρτωση των εργασιών σας απέτυχε.",
+			"pageTitle": "Οι εργασίες μου · {{view}}",
+			"title": "Οι εργασίες μου",
+			"noMatches": "Καμία εργασία δεν ταιριάζει",
+			"noMatchesSubtitle": "Δοκιμάστε μια διαφορετική αναζήτηση ή καθαρίστε τα ενεργά φίλτρα."
 		}
 	},
 	"invitations": {

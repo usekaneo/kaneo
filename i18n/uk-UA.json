@@ -1306,7 +1306,7 @@
 			"invitations": "Запрошення",
 			"more": "Більше",
 			"backToBoard": "Назад до дошки",
-			"myTasks": "My tasks"
+			"myTasks": "Мої завдання"
 		},
 		"projectList": {
 			"viewProject": "Переглянути проєкт",
@@ -1860,13 +1860,13 @@
 				"assignee": "Виконавець",
 				"dueDate": "Дата завершення",
 				"labels": "Мітки",
-				"project": "Project"
+				"project": "Проєкт"
 			},
 			"operators": {
 				"isAnyOf": "є будь-яким з",
 				"includeAnyOf": "включає будь-який з"
 			},
-			"allProjects": "All projects"
+			"allProjects": "Усі проєкти"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Ґант",
@@ -1999,13 +1999,13 @@
 			"loadError": "Failed to load tasks."
 		},
 		"myTasks": {
-			"empty": "Nothing assigned to you",
-			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
-			"loadError": "Failed to load your tasks.",
-			"pageTitle": "My tasks · {{view}}",
-			"title": "My tasks",
-			"noMatches": "No tasks match",
-			"noMatchesSubtitle": "Try a different search or clear the active filters."
+			"empty": "Вам нічого не призначено",
+			"emptySubtitle": "Завдання, призначені вам у будь-якому з ваших робочих просторів, з'являтимуться тут.",
+			"loadError": "Не вдалося завантажити ваші завдання.",
+			"pageTitle": "Мої завдання · {{view}}",
+			"title": "Мої завдання",
+			"noMatches": "Немає відповідних завдань",
+			"noMatchesSubtitle": "Спробуйте інший запит або очистьте активні фільтри."
 		}
 	},
 	"invitations": {
