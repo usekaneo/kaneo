@@ -145,8 +145,11 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
   ) {
     if (!project || !task) return;
 
-    if ((e as React.MouseEvent).metaKey || (e as React.KeyboardEvent).ctrlKey) {
-      if (bulkSelection) toggleSelection(task.id);
+    if (
+      bulkSelection &&
+      ((e as React.MouseEvent).metaKey || (e as React.KeyboardEvent).ctrlKey)
+    ) {
+      toggleSelection(task.id);
       return;
     }
 

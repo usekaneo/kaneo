@@ -131,7 +131,7 @@ function BulkToolbar() {
         ),
       );
 
-      if ((e.metaKey || e.ctrlKey) && e.key === "a") {
+      if (bulkSelection && (e.metaKey || e.ctrlKey) && e.key === "a") {
         if (isTypingContext) return;
         e.preventDefault();
         selectAll();
@@ -145,7 +145,7 @@ function BulkToolbar() {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [selectAll, clearSelection]);
+  }, [bulkSelection, selectAll, clearSelection]);
 
   const handleMoveToBacklog = useCallback(async () => {
     try {
