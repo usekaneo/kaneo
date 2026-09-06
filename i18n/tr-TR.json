@@ -1303,7 +1303,8 @@
 			"members": "Üyeler",
 			"invitations": "Davetler",
 			"more": "Daha fazla",
-			"backToBoard": "Panoya dön"
+			"backToBoard": "Panoya dön",
+			"myTasks": "My tasks"
 		},
 		"projectList": {
 			"viewProject": "Projeyi Görüntüle",
@@ -1848,12 +1849,14 @@
 				"priority": "Öncelik",
 				"assignee": "Atanan",
 				"dueDate": "Bitiş tarihi",
-				"labels": "Etiketler"
+				"labels": "Etiketler",
+				"project": "Project"
 			},
 			"operators": {
 				"isAnyOf": "herhangi biri",
 				"includeAnyOf": "herhangi birini içer"
-			}
+			},
+			"allProjects": "All projects"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",
@@ -1982,6 +1985,13 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"myTasks": {
+			"empty": "Nothing assigned to you",
+			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
+			"loadError": "Failed to load your tasks.",
+			"pageTitle": "My tasks · {{view}}",
+			"title": "My tasks"
 		}
 	},
 	"invitations": {

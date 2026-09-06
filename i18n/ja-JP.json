@@ -1302,7 +1302,8 @@
 			"members": "メンバー",
 			"invitations": "招待",
 			"more": "その他",
-			"backToBoard": "ボードに戻る"
+			"backToBoard": "ボードに戻る",
+			"myTasks": "My tasks"
 		},
 		"projectList": {
 			"viewProject": "プロジェクトを表示",
@@ -1843,12 +1844,14 @@
 				"priority": "優先度",
 				"assignee": "担当者",
 				"dueDate": "期限",
-				"labels": "ラベル"
+				"labels": "ラベル",
+				"project": "Project"
 			},
 			"operators": {
 				"isAnyOf": "次のいずれか",
 				"includeAnyOf": "次のいずれかを含む"
-			}
+			},
+			"allProjects": "All projects"
 		},
 		"calendar": {
 			"pageTitle": "{{name}} – カレンダー",
@@ -1976,6 +1979,13 @@
 				"deleteRow": "行を削除",
 				"deleteTable": "表を削除"
 			}
+		},
+		"myTasks": {
+			"empty": "Nothing assigned to you",
+			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
+			"loadError": "Failed to load your tasks.",
+			"pageTitle": "My tasks · {{view}}",
+			"title": "My tasks"
 		}
 	},
 	"invitations": {

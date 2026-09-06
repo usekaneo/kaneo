@@ -1302,7 +1302,8 @@
 			"members": "成员",
 			"invitations": "邀请",
 			"more": "更多",
-			"backToBoard": "返回看板"
+			"backToBoard": "返回看板",
+			"myTasks": "My tasks"
 		},
 		"projectList": {
 			"viewProject": "查看项目",
@@ -1843,12 +1844,14 @@
 				"priority": "优先级",
 				"assignee": "负责人",
 				"dueDate": "截止日期",
-				"labels": "标签"
+				"labels": "标签",
+				"project": "Project"
 			},
 			"operators": {
 				"isAnyOf": "为以下任一",
 				"includeAnyOf": "包含以下任一"
-			}
+			},
+			"allProjects": "All projects"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – 甘特图",
@@ -1976,6 +1979,13 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"myTasks": {
+			"empty": "Nothing assigned to you",
+			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
+			"loadError": "Failed to load your tasks.",
+			"pageTitle": "My tasks · {{view}}",
+			"title": "My tasks"
 		}
 	},
 	"invitations": {

@@ -11,6 +11,7 @@ const DEFAULT_FILTERS: BoardFilters = {
   assignee: null,
   dueDate: null,
   labels: null,
+  project: null,
 };
 
 const FILTER_KEYS: Array<keyof BoardFilters> = [
@@ -19,6 +20,7 @@ const FILTER_KEYS: Array<keyof BoardFilters> = [
   "assignee",
   "dueDate",
   "labels",
+  "project",
 ];
 
 function normalizeFilters(raw: unknown): BoardFilters {
@@ -117,6 +119,14 @@ export function useTaskFiltersWithLabelsSupport(
           filters.assignee &&
           filters.assignee.length > 0 &&
           !filters.assignee.includes(task.userId ?? "")
+        ) {
+          return false;
+        }
+
+        if (
+          filters.project &&
+          filters.project.length > 0 &&
+          !filters.project.includes(task.projectId)
         ) {
           return false;
         }

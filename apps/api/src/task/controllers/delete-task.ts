@@ -38,6 +38,7 @@ async function deleteTask(taskId: string, currentUserId: string) {
     taskId: task.id,
     projectId: task.projectId,
     userId: currentUserId,
+    assigneeId: task.userId,
     title: task.title,
   });
 

@@ -1304,7 +1304,8 @@
 			"members": "Membros",
 			"invitations": "Convites",
 			"more": "Mais",
-			"backToBoard": "Voltar ao quadro"
+			"backToBoard": "Voltar ao quadro",
+			"myTasks": "My tasks"
 		},
 		"projectList": {
 			"viewProject": "Ver projeto",
@@ -1853,12 +1854,14 @@
 				"priority": "Prioridade",
 				"assignee": "Responsável",
 				"dueDate": "Data de vencimento",
-				"labels": "Etiquetas"
+				"labels": "Etiquetas",
+				"project": "Project"
 			},
 			"operators": {
 				"isAnyOf": "é qualquer um de",
 				"includeAnyOf": "inclui qualquer um de"
-			}
+			},
+			"allProjects": "All projects"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",
@@ -1988,6 +1991,13 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"myTasks": {
+			"empty": "Nothing assigned to you",
+			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
+			"loadError": "Failed to load your tasks.",
+			"pageTitle": "My tasks · {{view}}",
+			"title": "My tasks"
 		}
 	},
 	"invitations": {

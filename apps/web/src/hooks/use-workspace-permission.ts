@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { createContext, useContext, useMemo } from "react";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUser } from "@/hooks/queries/workspace-users/use-active-workspace-user";
 import { authClient } from "@/lib/auth-client";
@@ -43,10 +43,22 @@ function emptyCapabilityMap(): CapabilityMap {
   return out;
 }
 
-export function useWorkspacePermission() {
+/**
+ * Scopes every `useWorkspacePermission()` call underneath to one workspace.
+ * Task UIs that can show tasks from several workspaces (the "My tasks" views)
+ * wrap each task's UI in it, so hints follow the task's workspace rather than
+ * the one open in the sidebar.
+ */
+export const WorkspacePermissionScope = createContext<string | undefined>(
+  undefined,
+);
+
+export function useWorkspacePermission(explicitWorkspaceId?: string) {
+  const scopedWorkspaceId = useContext(WorkspacePermissionScope);
   const { data: activeWorkspace } = useActiveWorkspace();
-  const { data: activeMember } = useGetActiveWorkspaceUser();
-  const workspaceId = activeWorkspace?.id;
+  const workspaceId =
+    explicitWorkspaceId || scopedWorkspaceId || activeWorkspace?.id;
+  const { data: activeMember } = useGetActiveWorkspaceUser(workspaceId);
   const role = activeMember?.role as string | undefined;
 
   // One query that fans out to all capability checks in parallel and caches

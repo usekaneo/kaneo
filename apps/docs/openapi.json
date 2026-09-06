@@ -3056,6 +3056,119 @@
           "role"
         ]
       },
+      "AssignedTasksResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "tasks": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/BoardTask"
+                },
+                "description": "Open tasks assigned to the current user, ordered by due date (tasks without one last). `status` is a column slug of the task's project."
+              },
+              "projects": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/AssignedTaskProject"
+                },
+                "description": "The projects those tasks belong to, with their columns, so clients can resolve statuses without extra requests."
+              }
+            },
+            "required": [
+              "tasks",
+              "projects"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "AssignedTaskProject": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "icon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "position": {
+            "type": "number"
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "workspaceName": {
+            "type": "string"
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssignedTaskProjectColumn"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "icon",
+          "position",
+          "workspaceId",
+          "workspaceName",
+          "columns"
+        ]
+      },
+      "AssignedTaskProjectColumn": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string",
+            "description": "Stable identifier derived from the name; tasks store this as their status."
+          },
+          "name": {
+            "type": "string"
+          },
+          "icon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "isFinal": {
+            "type": "boolean",
+            "description": "Marks the column as a done state, which stops overdue reminders for tasks in it."
+          },
+          "position": {
+            "type": "number",
+            "description": "Board order, ascending. Columns are always returned sorted by it."
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "icon",
+          "isFinal",
+          "position"
+        ]
+      },
       "UserAvatar": {
         "type": "object",
         "properties": {
@@ -13001,6 +13114,31 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/user/tasks": {
+      "get": {
+        "operationId": "listAssignedTasks",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "List tasks assigned to me",
+        "description": "Every open task assigned to the current user across all the workspaces they are a member of, with the projects and columns needed to display them. Planned and archived tasks, and tasks in archived projects, are left out. There are no parameters: the caller is always the authenticated user.",
+        "responses": {
+          "200": {
+            "description": "Tasks assigned to the current user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignedTasksResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
           }
         }
       }

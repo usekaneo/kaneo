@@ -53,7 +53,7 @@ export default function TaskCardContextMenuContent({
   const columns =
     project?.columns && project.columns.length > 0
       ? project.columns.map((col) => ({
-          slug: col.id,
+          slug: col.slug,
           name: col.name,
           icon: col.icon,
           isFinal: col.isFinal,

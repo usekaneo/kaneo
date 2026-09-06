@@ -10,6 +10,7 @@ export type BoardFilters = {
   assignee: string[] | null;
   dueDate: string[] | null;
   labels: string[] | null;
+  project: string[] | null;
 };
 
 export const DUE_DATE_FILTER_VALUES = {
@@ -24,6 +25,7 @@ const DEFAULT_FILTERS: BoardFilters = {
   assignee: null,
   dueDate: null,
   labels: null,
+  project: null,
 };
 
 const FILTER_KEYS: Array<keyof BoardFilters> = [
@@ -32,6 +34,7 @@ const FILTER_KEYS: Array<keyof BoardFilters> = [
   "assignee",
   "dueDate",
   "labels",
+  "project",
 ];
 
 function normalizeFilters(raw: unknown): BoardFilters {

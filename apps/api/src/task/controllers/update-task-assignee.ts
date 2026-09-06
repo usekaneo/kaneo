@@ -66,6 +66,7 @@ async function updateTaskAssignee({
       taskId: updatedTask.id,
       projectId: updatedTask.projectId,
       userId: currentUserId,
+      previousAssigneeId: existingTask.userId,
       title: updatedTask.title,
       type: "unassigned",
     });

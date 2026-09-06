@@ -218,6 +218,7 @@ async function bulkUpdateTasks({
           taskId: task.id,
           projectId: task.projectId,
           userId,
+          assigneeId: task.userId,
           title: task.title,
         });
       }

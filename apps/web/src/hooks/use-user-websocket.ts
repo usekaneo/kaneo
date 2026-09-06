@@ -13,6 +13,7 @@ export function getUserWsUrl() {
 const MAX_RETRIES = 5;
 const BASE_DELAY = 1000;
 const WS_PING_INTERVAL_MS = 30_000;
+const ASSIGNED_TASKS_DEBOUNCE_MS = 100;
 
 /**
  * Maintains a user-scoped WebSocket connection for receiving user-targeted
@@ -26,11 +27,22 @@ export function useUserWebSocket() {
   const retriesRef = useRef(0);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const assignedTasksTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   useEffect(() => {
     if (!session?.user?.id) return;
 
     retriesRef.current = 0;
+
+    function invalidateAssignedTasks() {
+      if (assignedTasksTimeoutRef.current) return;
+      assignedTasksTimeoutRef.current = setTimeout(() => {
+        assignedTasksTimeoutRef.current = null;
+        queryClient.invalidateQueries({ queryKey: ["my-tasks"] });
+      }, ASSIGNED_TASKS_DEBOUNCE_MS);
+    }
 
     function clearPing() {
       if (pingIntervalRef.current) {
@@ -58,9 +70,17 @@ export function useUserWebSocket() {
         try {
           const message = JSON.parse(event.data as string) as {
             type?: string;
+            taskId?: string;
           };
           if (message.type === "NOTIFICATION_CREATED") {
             queryClient.invalidateQueries({ queryKey: ["notifications"] });
+          } else if (message.type === "ASSIGNED_TASKS_UPDATED") {
+            invalidateAssignedTasks();
+            if (message.taskId) {
+              queryClient.invalidateQueries({
+                queryKey: ["task", message.taskId],
+              });
+            }
           }
         } catch {
           // Ignore malformed messages
@@ -86,6 +106,10 @@ export function useUserWebSocket() {
       clearPing();
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
+      }
+      if (assignedTasksTimeoutRef.current) {
+        clearTimeout(assignedTasksTimeoutRef.current);
+        assignedTasksTimeoutRef.current = null;
       }
       wsRef.current?.close();
     };

@@ -1313,7 +1313,8 @@
 			"members": "Участники",
 			"invitations": "Приглашения",
 			"more": "Ещё",
-			"backToBoard": "Назад к доске"
+			"backToBoard": "Назад к доске",
+			"myTasks": "My tasks"
 		},
 		"projectList": {
 			"viewProject": "Открыть проект",
@@ -1873,13 +1874,15 @@
 				"priority": "Приоритет",
 				"assignee": "Исполнитель",
 				"dueDate": "Срок выполнения",
-				"labels": "Метки"
+				"labels": "Метки",
+				"project": "Project"
 			},
 			"operators": {
 				"isAnyOf": "любой из",
 				"includeAnyOf": "включает любой из"
 			},
-			"selectedCount": "{{count}} выбрано"
+			"selectedCount": "{{count}} выбрано",
+			"allProjects": "All projects"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Гант",
@@ -2050,6 +2053,13 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"myTasks": {
+			"empty": "Nothing assigned to you",
+			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
+			"loadError": "Failed to load your tasks.",
+			"pageTitle": "My tasks · {{view}}",
+			"title": "My tasks"
 		}
 	},
 	"invitations": {

@@ -365,7 +365,8 @@
 			"members": "Członkowie",
 			"invitations": "Zaproszenia",
 			"more": "Więcej",
-			"backToBoard": "Wróć do tablicy"
+			"backToBoard": "Wróć do tablicy",
+			"myTasks": "My tasks"
 		},
 		"projectList": {
 			"viewProject": "Zobacz projekt",
@@ -1809,8 +1810,10 @@
 				"dueDate": "Termin",
 				"labels": "Etykiety",
 				"priority": "Priorytet",
-				"status": "Status"
-			}
+				"status": "Status",
+				"project": "Project"
+			},
+			"allProjects": "All projects"
 		},
 		"boardSearchPlaceholder": "Szukaj zadań...",
 		"bulk": {
@@ -2176,6 +2179,13 @@
 		"view": {
 			"board": "Tablica",
 			"list": "Lista"
+		},
+		"myTasks": {
+			"empty": "Nothing assigned to you",
+			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
+			"loadError": "Failed to load your tasks.",
+			"pageTitle": "My tasks · {{view}}",
+			"title": "My tasks"
 		}
 	}
 }

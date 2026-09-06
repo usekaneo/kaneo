@@ -1299,6 +1299,7 @@
 		"notifications": "Notifications",
 		"sidebar": {
 			"overview": "Overview",
+			"myTasks": "My tasks",
 			"projects": "Projects",
 			"members": "Members",
 			"invitations": "Invitations",
@@ -1584,6 +1585,13 @@
 			"board": "Board",
 			"list": "List"
 		},
+		"myTasks": {
+			"title": "My tasks",
+			"pageTitle": "My tasks · {{view}}",
+			"empty": "Nothing assigned to you",
+			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
+			"loadError": "Failed to load your tasks."
+		},
 		"common": {
 			"selectTask": "Select task",
 			"loadingTask": "Loading task...",
@@ -1848,12 +1856,14 @@
 				"priority": "Priority",
 				"assignee": "Assignee",
 				"dueDate": "Due date",
-				"labels": "Labels"
+				"labels": "Labels",
+				"project": "Project"
 			},
 			"operators": {
 				"isAnyOf": "is any of",
 				"includeAnyOf": "include any of"
-			}
+			},
+			"allProjects": "All projects"
 		},
 		"calendar": {
 			"pageTitle": "{{name}} – Calendar",
