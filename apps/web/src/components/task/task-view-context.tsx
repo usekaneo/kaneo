@@ -1,6 +1,5 @@
 import { createContext, type ReactNode, useContext } from "react";
 import useProjectStore from "@/store/project";
-import type { ProjectWithTasks } from "@/types/project";
 
 /**
  * The project a task belongs to, as far as the task components need it: the
@@ -24,6 +23,8 @@ export type TaskViewCapabilities = {
   bulkSelection: boolean;
   /** Per-column "add task" and "archive all". Off when a column aggregates several projects. */
   columnActions: boolean;
+  /** Sorting by position. Off when positions come from several projects and mean nothing side by side. */
+  manualSort: boolean;
 };
 
 export type TaskViewContextValue = {
@@ -35,6 +36,7 @@ export type TaskViewContextValue = {
 const DEFAULT_CAPABILITIES: TaskViewCapabilities = {
   bulkSelection: true,
   columnActions: true,
+  manualSort: true,
 };
 
 const TaskViewContext = createContext<TaskViewContextValue | null>(null);
@@ -53,8 +55,9 @@ export function TaskViewProvider({
   );
 }
 
-function toProjectRef(
-  project: ProjectWithTasks | undefined,
+/** Narrows any project shape (board, assigned-tasks project) to what task components read. */
+export function toProjectRef(
+  project: TaskProjectRef | undefined,
 ): TaskProjectRef | undefined {
   if (!project) return undefined;
   return {

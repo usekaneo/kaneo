@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { useTaskProject } from "@/components/task/task-view-context";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -28,7 +29,6 @@ import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
-import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
 
 type TaskCardContext = {
@@ -48,7 +48,7 @@ export default function TaskCardContextMenuContent({
   onDeleteClick,
 }: TaskCardContextMenuContentProps) {
   const { t } = useTranslation();
-  const { project } = useProjectStore();
+  const project = useTaskProject(task);
   const { data: columnsData = [] } = useGetColumns(taskCardContext.projectId);
   const columns =
     project?.columns && project.columns.length > 0
@@ -75,7 +75,7 @@ export default function TaskCardContextMenuContent({
   const { mutateAsync: updateTaskDescription } = useUpdateTaskDescription();
   const { mutateAsync: updateTaskDueDate } = useUpdateTaskDueDate();
   const { canUpdateTasks, canDeleteTasks, canAssignTasks } =
-    useWorkspacePermission();
+    useWorkspacePermission(taskCardContext.worskpaceId);
   const canEdit = canUpdateTasks();
   const canDelete = canDeleteTasks();
   const canAssign = canAssignTasks();

@@ -94,17 +94,28 @@ const subscribedEvents = [
   "task.label_deleted",
 ];
 
-for (const eventName of subscribedEvents) {
-  subscribeToEvent<TaskEventPayload>(eventName, async (data) => {
-    if (!data.taskId) return;
-    try {
-      const assignees = await resolveAffectedAssignees(eventName, data);
-      notifyAssignees(eventName, data, assignees);
-    } catch (error) {
-      console.error(
-        `Failed to notify assignees for ${eventName}:`,
-        error instanceof Error ? error.message : error,
-      );
-    }
-  });
+let registered = false;
+
+/**
+ * Called from `createApp()`. Guarded because tests build the app many times
+ * in one process and a second registration would double every broadcast.
+ */
+export function registerAssignedTasksRealtime() {
+  if (registered) return;
+  registered = true;
+
+  for (const eventName of subscribedEvents) {
+    subscribeToEvent<TaskEventPayload>(eventName, async (data) => {
+      if (!data.taskId) return;
+      try {
+        const assignees = await resolveAffectedAssignees(eventName, data);
+        notifyAssignees(eventName, data, assignees);
+      } catch (error) {
+        console.error(
+          `Failed to notify assignees for ${eventName}:`,
+          error instanceof Error ? error.message : error,
+        );
+      }
+    });
+  }
 }

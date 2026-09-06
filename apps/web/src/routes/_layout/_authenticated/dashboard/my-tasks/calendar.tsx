@@ -97,26 +97,17 @@ function RouteComponent() {
           />
 
           {isLoading ? (
-            <div className="border-b border-border/80 px-4 py-3 text-center">
-              <p className="text-sm text-muted-foreground">
-                {t("common:empty.loading")}
-              </p>
-            </div>
+            <CalendarNotice title={t("common:empty.loading")} tone="muted" />
           ) : isError ? (
-            <div className="border-b border-border/80 px-4 py-3 text-center">
-              <p className="text-sm font-semibold text-destructive">
-                {t("tasks:myTasks.loadError")}
-              </p>
-            </div>
+            <CalendarNotice
+              title={t("tasks:myTasks.loadError")}
+              tone="destructive"
+            />
           ) : scheduledTasks.length === 0 ? (
-            <div className="border-b border-border/80 px-4 py-3 text-center">
-              <p className="text-sm font-semibold text-foreground">
-                {t("tasks:calendar.noTasks")}
-              </p>
-              <p className="mt-0.5 text-sm text-muted-foreground">
-                {t("tasks:calendar.noTasksSubtitle")}
-              </p>
-            </div>
+            <CalendarNotice
+              title={t("tasks:calendar.noTasks")}
+              subtitle={t("tasks:calendar.noTasksSubtitle")}
+            />
           ) : null}
 
           <MonthGrid
@@ -130,13 +121,38 @@ function RouteComponent() {
           <WorkspacePermissionScope value={sheet.workspaceId}>
             <TaskDetailsSheet
               taskId={sheet.taskId}
-              projectId={sheet.projectId}
-              workspaceId={sheet.workspaceId}
+              projectId={sheet.projectId ?? ""}
+              workspaceId={sheet.workspaceId ?? ""}
               onClose={sheet.onClose}
             />
           </WorkspacePermissionScope>
         </div>
       </TaskViewProvider>
     </MyTasksLayout>
+  );
+}
+
+const NOTICE_TONES = {
+  default: "text-sm font-semibold text-foreground",
+  muted: "text-sm text-muted-foreground",
+  destructive: "text-sm font-semibold text-destructive",
+};
+
+function CalendarNotice({
+  title,
+  subtitle,
+  tone = "default",
+}: {
+  title: string;
+  subtitle?: string;
+  tone?: keyof typeof NOTICE_TONES;
+}) {
+  return (
+    <div className="border-b border-border/80 px-4 py-3 text-center">
+      <p className={NOTICE_TONES[tone]}>{title}</p>
+      {subtitle ? (
+        <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>
+      ) : null}
+    </div>
   );
 }

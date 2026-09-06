@@ -1,5 +1,6 @@
 import { ArrowDownAZ, ArrowUpAZ } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useTaskViewCapabilities } from "@/components/task/task-view-context";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,8 +33,11 @@ function CheckSlot({ checked }: { checked: boolean }) {
 
 export default function SortControl({ sort, onSortChange }: SortControlProps) {
   const { t } = useTranslation();
+  const { manualSort } = useTaskViewCapabilities();
   const sortFields: { field: SortField; label: string }[] = [
-    { field: "position", label: t("tasks:sort.fields.position") },
+    ...(manualSort
+      ? [{ field: "position" as const, label: t("tasks:sort.fields.position") }]
+      : []),
     { field: "createdAt", label: t("tasks:sort.fields.createdAt") },
     { field: "priority", label: t("tasks:sort.fields.priority") },
     { field: "dueDate", label: t("tasks:sort.fields.dueDate") },
@@ -45,6 +49,9 @@ export default function SortControl({ sort, onSortChange }: SortControlProps) {
 
   const handleFieldChange = (field: SortField) => {
     if (field === "position" || field === sort.field) {
+      // Re-picking the active field returns to manual order; without one there
+      // is nothing to return to.
+      if (!manualSort) return;
       onSortChange({ field: "position", direction: "asc" });
     } else {
       const defaultDirection: SortDirection =

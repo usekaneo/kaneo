@@ -48,9 +48,12 @@ vi.mock("../../../apps/api/src/database", async () => {
   return { default: chain, schema };
 });
 
-const { notifyAssignees, resolveAffectedAssignees } = await import(
-  "../../../apps/api/src/task/assigned-tasks-realtime"
-);
+const { subscribeToEvent } = await import("../../../apps/api/src/events");
+const {
+  notifyAssignees,
+  registerAssignedTasksRealtime,
+  resolveAffectedAssignees,
+} = await import("../../../apps/api/src/task/assigned-tasks-realtime");
 
 describe("assigned tasks realtime", () => {
   beforeEach(() => {
@@ -134,6 +137,15 @@ describe("assigned tasks realtime", () => {
     await expect(
       resolveAffectedAssignees("task.due_date_changed", { taskId: "task-1" }),
     ).resolves.toEqual([]);
+  });
+
+  it("subscribes once no matter how many apps are created", () => {
+    registerAssignedTasksRealtime();
+    const subscriptions = vi.mocked(subscribeToEvent).mock.calls.length;
+    expect(subscriptions).toBeGreaterThan(0);
+
+    registerAssignedTasksRealtime();
+    expect(vi.mocked(subscribeToEvent).mock.calls.length).toBe(subscriptions);
   });
 
   it("broadcasts one user message per assignee with the destination project", () => {

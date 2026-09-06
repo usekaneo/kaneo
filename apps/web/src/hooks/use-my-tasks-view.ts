@@ -1,8 +1,8 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo } from "react";
-import type {
-  TaskProjectRef,
-  TaskViewContextValue,
+import {
+  type TaskViewContextValue,
+  toProjectRef,
 } from "@/components/task/task-view-context";
 import { shortcuts } from "@/constants/shortcuts";
 import { useGetAssignedTasks } from "@/hooks/queries/task/use-get-assigned-tasks";
@@ -10,20 +10,7 @@ import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { buildAssignedBoard } from "@/lib/assigned-board";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
-import type { AssignedTaskProject } from "@/types/my-tasks";
 import type Task from "@/types/task";
-
-function toProjectRef(
-  project: AssignedTaskProject | undefined,
-): TaskProjectRef | undefined {
-  if (!project) return undefined;
-  return {
-    id: project.id,
-    slug: project.slug,
-    workspaceId: project.workspaceId,
-    columns: project.columns,
-  };
-}
 
 /**
  * Everything the "My tasks" routes share: the assigned-tasks query folded into
@@ -63,8 +50,12 @@ export function useMyTasksView(taskId: string | undefined) {
           : undefined;
       },
       // Positions are per project and bulk operations are per workspace, so
-      // neither can be offered on a board that merges several of each.
-      capabilities: { bulkSelection: false, columnActions: false },
+      // none of these can be offered on a board that merges several of each.
+      capabilities: {
+        bulkSelection: false,
+        columnActions: false,
+        manualSort: false,
+      },
     }),
     [assigned],
   );
@@ -141,10 +132,12 @@ export function useMyTasksView(taskId: string | undefined) {
     getProjectSlug,
     isLoading,
     isError,
+    // `projectId` and `workspaceId` are undefined whenever `taskId` is, so the
+    // permission scope falls through to the active workspace instead of "".
     sheet: {
       taskId: sheetProject ? taskId : undefined,
-      projectId: sheetProject?.id ?? "",
-      workspaceId: sheetProject?.workspaceId ?? "",
+      projectId: sheetProject?.id,
+      workspaceId: sheetProject?.workspaceId,
       onClose: closeTask,
     },
     openTask,

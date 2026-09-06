@@ -131,8 +131,8 @@ function RouteComponent() {
           <WorkspacePermissionScope value={sheet.workspaceId}>
             <TaskDetailsSheet
               taskId={sheet.taskId}
-              projectId={sheet.projectId}
-              workspaceId={sheet.workspaceId}
+              projectId={sheet.projectId ?? ""}
+              workspaceId={sheet.workspaceId ?? ""}
               onClose={sheet.onClose}
             />
           </WorkspacePermissionScope>
