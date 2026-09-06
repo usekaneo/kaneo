@@ -46,6 +46,7 @@ export function useTaskFiltersWithLabelsSupport(
   project: ProjectWithTasks | null | undefined,
   projectId?: string,
   textQuery?: string,
+  getTaskProjectSlug?: (task: Task) => string | undefined,
 ) {
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   const storageKey = projectId ? `kaneo:board-filters:${projectId}` : null;
@@ -82,9 +83,10 @@ export function useTaskFiltersWithLabelsSupport(
           const title = task.title?.toLowerCase() ?? "";
           const description = task.description?.toLowerCase() ?? "";
           const taskNumber = task.number?.toString() ?? "";
+          const projectSlug = getTaskProjectSlug?.(task) ?? project?.slug;
           const taskIdentifier =
-            taskNumber && project?.slug
-              ? `${project.slug}-${taskNumber}`.toLowerCase()
+            taskNumber && projectSlug
+              ? `${projectSlug}-${taskNumber}`.toLowerCase()
               : "";
           const taskShortIdentifier = taskNumber ? `#${taskNumber}` : "";
           const matchesText =
@@ -192,7 +194,7 @@ export function useTaskFiltersWithLabelsSupport(
         return true;
       });
     },
-    [filters, project?.slug, textQuery, weekStartsOn],
+    [filters, getTaskProjectSlug, project?.slug, textQuery, weekStartsOn],
   );
 
   const filteredProject = useMemo(() => {

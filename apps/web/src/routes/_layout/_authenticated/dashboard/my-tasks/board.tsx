@@ -39,8 +39,16 @@ function RouteComponent() {
   const { viewMode, setViewMode } = useUserPreferencesStore();
   const [searchQuery, setSearchQuery] = useState("");
   const { sort, setSort } = useBoardSort(MY_TASKS_BOARD_ID, DEFAULT_SORT);
-  const { board, projects, labels, taskView, isLoading, isError, sheet } =
-    useMyTasksView(taskId);
+  const {
+    board,
+    projects,
+    labels,
+    taskView,
+    getProjectSlug,
+    isLoading,
+    isError,
+    sheet,
+  } = useMyTasksView(taskId);
 
   const {
     filters,
@@ -49,7 +57,12 @@ function RouteComponent() {
     filteredProject,
     hasActiveFilters,
     clearFilters,
-  } = useTaskFiltersWithLabelsSupport(board, MY_TASKS_BOARD_ID, searchQuery);
+  } = useTaskFiltersWithLabelsSupport(
+    board,
+    MY_TASKS_BOARD_ID,
+    searchQuery,
+    getProjectSlug,
+  );
 
   const sortedBoard = useMemo(() => {
     if (!filteredProject || sort.field === "position") return filteredProject;
