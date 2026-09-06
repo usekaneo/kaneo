@@ -23,7 +23,9 @@ type MergedColumn = ProjectWithTasks["columns"][number] & {
  * bucketing needs no mapping. Tasks whose project or column is unknown are
  * dropped, as the project board does.
  */
-export function buildAssignedBoard(data: AssignedTasksData): AssignedBoard {
+export function buildAssignedBoard(
+  data: Pick<AssignedTasksData, "tasks" | "projects">,
+): AssignedBoard {
   const projectById = new Map<string, AssignedTaskProject>();
   const columnsBySlug = new Map<string, MergedColumn>();
 

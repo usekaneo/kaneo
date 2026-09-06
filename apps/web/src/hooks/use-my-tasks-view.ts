@@ -126,14 +126,14 @@ export function useMyTasksView(taskId: string | undefined) {
     board: assigned?.board ?? null,
     projectById: assigned?.projectById,
     tasks: data?.tasks ?? [],
+    // The API pages the result; the views only ever show the first page and say so when there is more.
+    totalTasks: data?.pagination.total ?? 0,
     projects,
     labels,
     taskView,
     getProjectSlug,
     isLoading,
     isError,
-    // `projectId` and `workspaceId` are undefined whenever `taskId` is, so the
-    // permission scope falls through to the active workspace instead of "".
     sheet: {
       taskId: sheetProject ? taskId : undefined,
       projectId: sheetProject?.id,

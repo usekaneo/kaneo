@@ -43,8 +43,10 @@ function RouteComponent() {
   );
   const {
     board,
+    tasks,
     getProjectSlug,
     taskView,
+    totalTasks,
     isLoading,
     isError,
     sheet,
@@ -107,6 +109,14 @@ function RouteComponent() {
             <CalendarNotice
               title={t("tasks:calendar.noTasks")}
               subtitle={t("tasks:calendar.noTasksSubtitle")}
+            />
+          ) : totalTasks > tasks.length ? (
+            <CalendarNotice
+              title={t("tasks:myTasks.showingFirstPage", {
+                shown: tasks.length,
+                total: totalTasks,
+              })}
+              tone="muted"
             />
           ) : null}
 

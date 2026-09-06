@@ -1,6 +1,6 @@
 import { columnSchema } from "../column/response";
 import { z } from "../openapi";
-import { boardTaskSchema } from "../task/response";
+import { boardPaginationSchema, boardTaskSchema } from "../task/response";
 
 export const avatarSchema = z
   .object({
@@ -57,5 +57,6 @@ export const assignedTasksSchema = z
           "The projects those tasks belong to, with their columns, so clients can resolve statuses without extra requests.",
       }),
     }),
+    pagination: boardPaginationSchema,
   })
   .openapi("AssignedTasksResponse");

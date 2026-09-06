@@ -1,7 +1,7 @@
 import { z } from "../openapi";
 import { VALID_PRIORITIES } from "./validate-task-fields";
 
-const pagingNumber = (min: number, max: number) =>
+export const pagingNumber = (min: number, max: number) =>
   z
     .string()
     .regex(/^\d+$/, "Expected a positive integer")

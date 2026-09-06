@@ -23,6 +23,19 @@ import { loadTaskDecorations } from "./load-task-decorations";
 // archived ones are history. Keeping them out bounds the payload to open work.
 const HIDDEN_STATUSES = ["planned", "archived"];
 
+// The web client keeps the whole page in memory to build the merged board,
+// filter and sort it, and refetches every 30 seconds, so the page size has to
+// stay bounded even when the caller asks for nothing. The bound is a safety
+// net well above what one person can hold open, not a working page size:
+// filters and search run on the client, over the loaded page only. Tasks are
+// ordered by due date, so that page is always the work due soonest.
+export const MAX_ASSIGNED_TASKS = 2000;
+
+type AssignedTasksOptions = {
+  page?: number;
+  limit?: number;
+};
+
 type AssignedProjectColumn = {
   id: string;
   slug: string;
@@ -51,8 +64,14 @@ type AssignedProject = {
  * same rule `validateWorkspaceAccess` applies per request. There is no instance
  * admin bypass here: "my tasks" means the workspaces the user is a member of,
  * which is also what the workspace switcher shows.
+ *
+ * Paged like the project board: `page` and `limit` are optional, but unlike
+ * the board there is no "everything" mode; the page size is capped.
  */
-async function getAssignedTasks(userId: string) {
+async function getAssignedTasks(
+  userId: string,
+  options: AssignedTasksOptions = {},
+) {
   const isMember = exists(
     db
       .select({ one: sql`1` })
@@ -64,6 +83,32 @@ async function getAssignedTasks(userId: string) {
         ),
       ),
   );
+
+  const whereClause = and(
+    eq(taskTable.userId, userId),
+    isNull(projectTable.archivedAt),
+    notInArray(taskTable.status, HIDDEN_STATUSES),
+    isMember,
+  );
+  const page = options.page && options.page > 0 ? options.page : 1;
+  const pageSize =
+    options.limit && options.limit > 0
+      ? Math.min(options.limit, MAX_ASSIGNED_TASKS)
+      : MAX_ASSIGNED_TASKS;
+  const offset = (page - 1) * pageSize;
+
+  const [taskCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(taskTable)
+    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+    .where(whereClause);
+  const total = Number(taskCount?.count ?? 0);
+  const pagination = {
+    total,
+    page,
+    pageSize,
+    totalPages: Math.max(1, Math.ceil(total / pageSize)),
+  };
 
   const tasks = await db
     .select({
@@ -86,22 +131,20 @@ async function getAssignedTasks(userId: string) {
     .from(taskTable)
     .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
     .leftJoin(userTable, eq(taskTable.userId, userTable.id))
-    .where(
-      and(
-        eq(taskTable.userId, userId),
-        isNull(projectTable.archivedAt),
-        notInArray(taskTable.status, HIDDEN_STATUSES),
-        isMember,
-      ),
-    )
+    .where(whereClause)
     .orderBy(
       sql`${taskTable.dueDate} asc nulls last`,
       asc(taskTable.createdAt),
       asc(taskTable.id),
-    );
+    )
+    .limit(pageSize)
+    .offset(offset);
 
   if (tasks.length === 0) {
-    return { tasks: [], projects: [] as AssignedProject[] };
+    return {
+      data: { tasks: [], projects: [] as AssignedProject[] },
+      pagination,
+    };
   }
 
   const projectIds = [...new Set(tasks.map((task) => task.projectId))];
@@ -170,12 +213,15 @@ async function getAssignedTasks(userId: string) {
   }
 
   return {
-    tasks: tasks.map((task) => ({
-      ...task,
-      labels: labelsByTask.get(task.id) ?? [],
-      externalLinks: externalLinksByTask.get(task.id) ?? [],
-    })),
-    projects: [...projects.values()],
+    data: {
+      tasks: tasks.map((task) => ({
+        ...task,
+        labels: labelsByTask.get(task.id) ?? [],
+        externalLinks: externalLinksByTask.get(task.id) ?? [],
+      })),
+      projects: [...projects.values()],
+    },
+    pagination,
   };
 }
 

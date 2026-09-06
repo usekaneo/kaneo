@@ -1592,6 +1592,7 @@
 			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
 			"noMatches": "No tasks match",
 			"noMatchesSubtitle": "Try a different search or clear the active filters.",
+			"showingFirstPage": "Showing the {{shown}} of {{total}} tasks due soonest. Filters and search only cover these.",
 			"loadError": "Failed to load your tasks."
 		},
 		"common": {

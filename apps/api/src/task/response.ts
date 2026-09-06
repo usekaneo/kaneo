@@ -90,6 +90,19 @@ export const boardColumnSchema = z
   })
   .openapi("BoardColumn");
 
+export const boardPaginationSchema = z
+  .object({
+    total: z.number(),
+    page: z.number(),
+    pageSize: z.number(),
+    totalPages: z.number(),
+  })
+  .openapi({
+    description:
+      "When no page/limit is given, everything is returned on a single page.",
+  })
+  .openapi("BoardPagination");
+
 export const boardSchema = z
   .object({
     data: z
@@ -106,18 +119,7 @@ export const boardSchema = z
         plannedTasks: z.array(boardTaskSchema),
       })
       .openapi("Board"),
-    pagination: z
-      .object({
-        total: z.number(),
-        page: z.number(),
-        pageSize: z.number(),
-        totalPages: z.number(),
-      })
-      .openapi({
-        description:
-          "When no page/limit is given, everything is returned on a single page.",
-      })
-      .openapi("BoardPagination"),
+    pagination: boardPaginationSchema,
   })
   .openapi("BoardResponse");
 

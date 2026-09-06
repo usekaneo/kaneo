@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
+import { MAX_ASSIGNED_TASKS } from "../../apps/api/src/task/controllers/get-assigned-tasks";
 import { mockAnonymousSession, mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
 import {
@@ -27,6 +28,12 @@ type AssignedTasksResponse = {
       workspaceName: string;
       columns: Array<{ slug: string; isFinal: boolean }>;
     }>;
+  };
+  pagination: {
+    total: number;
+    page: number;
+    pageSize: number;
+    totalPages: number;
   };
 };
 
@@ -165,6 +172,12 @@ describe("API integration: tasks assigned to me", () => {
     expect(body.data.tasks[0]?.labels.map((label) => label.name)).toEqual([
       "urgent-ish",
     ]);
+    expect(body.pagination).toEqual({
+      total: 3,
+      page: 1,
+      pageSize: MAX_ASSIGNED_TASKS,
+      totalPages: 1,
+    });
 
     expect(body.data.projects.map((project) => project.slug).sort()).toEqual([
       "first",
@@ -245,6 +258,47 @@ describe("API integration: tasks assigned to me", () => {
     expect(body.data.projects.map((project) => project.slug)).toEqual(["live"]);
   });
 
+  it("pages the response, first page being the tasks due soonest", async () => {
+    const me = await createWorkspaceMember({ userName: "Me" });
+    const { project, columns } = await createProjectFixture({
+      workspaceId: me.workspace.id,
+      slug: "busy",
+    });
+
+    // One more than the cap, each due a day later than the previous one, so
+    // the one that must fall off is the last by due date.
+    const total = MAX_ASSIGNED_TASKS + 1;
+    await db.insert(schema.taskTable).values(
+      Array.from({ length: total }, (_, index) => ({
+        projectId: project.id,
+        columnId: columns.todo.id,
+        userId: me.user.id,
+        title: `Task ${index}`,
+        status: "to-do",
+        priority: "medium",
+        number: index + 1,
+        dueDate: new Date(Date.UTC(2026, 8, 1 + index)),
+      })),
+    );
+
+    mockAuthenticatedSession(me.user);
+    const { app } = createApp();
+
+    const response = await app.request("/api/user/tasks");
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as AssignedTasksResponse;
+
+    expect(body.pagination).toEqual({
+      total,
+      page: 1,
+      pageSize: MAX_ASSIGNED_TASKS,
+      totalPages: 2,
+    });
+    expect(body.data.tasks).toHaveLength(MAX_ASSIGNED_TASKS);
+    expect(body.data.tasks.at(-1)?.title).toBe(`Task ${total - 2}`);
+    expect(body.data.projects.map((p) => p.slug)).toEqual(["busy"]);
+  });
+
   it("returns empty lists when nothing is assigned to me", async () => {
     const me = await createWorkspaceMember();
     await createProjectFixture({ workspaceId: me.workspace.id });
@@ -256,6 +310,12 @@ describe("API integration: tasks assigned to me", () => {
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({
       data: { tasks: [], projects: [] },
+      pagination: {
+        total: 0,
+        page: 1,
+        pageSize: MAX_ASSIGNED_TASKS,
+        totalPages: 1,
+      },
     });
   });
 });

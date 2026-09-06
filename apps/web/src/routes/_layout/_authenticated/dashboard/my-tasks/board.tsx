@@ -41,10 +41,12 @@ function RouteComponent() {
   const { sort, setSort } = useBoardSort(MY_TASKS_BOARD_ID, DEFAULT_SORT);
   const {
     board,
+    tasks,
     projects,
     labels,
     taskView,
     getProjectSlug,
+    totalTasks,
     isLoading,
     isError,
     sheet,
@@ -127,6 +129,15 @@ function RouteComponent() {
             sort={sort}
             onSortChange={setSort}
           />
+
+          {totalTasks > tasks.length ? (
+            <p className="border-b border-border/80 px-4 py-1.5 text-center text-xs text-muted-foreground">
+              {t("tasks:myTasks.showingFirstPage", {
+                shown: tasks.length,
+                total: totalTasks,
+              })}
+            </p>
+          ) : null}
 
           <div className="flex h-full flex-1 overflow-hidden bg-background">
             {isError ? (

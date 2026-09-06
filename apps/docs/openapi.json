@@ -3081,10 +3081,14 @@
               "tasks",
               "projects"
             ]
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/BoardPagination"
           }
         },
         "required": [
-          "data"
+          "data",
+          "pagination"
         ]
       },
       "AssignedTaskProject": {
@@ -13125,7 +13129,27 @@
           "Tasks"
         ],
         "summary": "List tasks assigned to me",
-        "description": "Every open task assigned to the current user across all the workspaces they are a member of, with the projects and columns needed to display them. Planned and archived tasks, and tasks in archived projects, are left out. There are no parameters: the caller is always the authenticated user.",
+        "description": "Every open task assigned to the current user across all the workspaces they are a member of, with the projects and columns needed to display them. Planned and archived tasks, and tasks in archived projects, are left out. Tasks are ordered by due date, soonest first, and paged: `limit` defaults to and is capped at 2000, so `pagination.total` tells when more pages exist. The caller is always the authenticated user.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$"
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$"
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Tasks assigned to the current user",

@@ -11,7 +11,7 @@ async function getAssignedTasks(): Promise<AssignedTasksData> {
 
   const json = await response.json();
 
-  return json.data;
+  return { ...json.data, pagination: json.pagination };
 }
 
 export default getAssignedTasks;
