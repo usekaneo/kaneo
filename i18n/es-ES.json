@@ -139,6 +139,9 @@
 				"labelCreateError": "Error al crear la etiqueta",
 				"createMore": "Crear más",
 				"createButton": "Crear tarea",
+				"discardTitle": "¿Descartar tarea?",
+				"discardDescription": "Los detalles de la tarea que no hayas guardado se perderán.",
+				"discardButton": "Descartar tarea",
 				"untitledTask": "Tarea sin título",
 				"labelColors": {
 					"stone": "Piedra",
@@ -1569,6 +1572,7 @@
 		}
 	},
 	"tasks": {
+		"title": "Tareas",
 		"status": {
 			"label": "Estado",
 			"to-do": "To Do",
@@ -1865,7 +1869,8 @@
 			"updateDatesError": "Error al actualizar las fechas de la tarea",
 			"resizeStart": "Cambiar la fecha de comienzo",
 			"resizeDue": "Cambiar la fecha de vencimiento",
-			"taskAriaLabel": "{{title}}: abrir o arrastrar para mover"
+			"taskAriaLabel": "{{title}}: abrir o arrastrar para mover",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "¿Eliminar tarea?",

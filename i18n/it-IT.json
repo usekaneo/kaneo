@@ -139,6 +139,9 @@
 				"labelCreateError": "Creazione etichetta fallita",
 				"createMore": "Crea altro",
 				"createButton": "Crea Attività",
+				"discardTitle": "Scartare l'attività?",
+				"discardDescription": "I dettagli non salvati dell'attività andranno persi.",
+				"discardButton": "Scarta attività",
 				"untitledTask": "Attività senza titolo",
 				"labelColors": {
 					"stone": "Pietra",
@@ -1569,6 +1572,7 @@
 		}
 	},
 	"tasks": {
+		"title": "Attività",
 		"status": {
 			"label": "Stato",
 			"to-do": "Da Fare",
@@ -1876,7 +1880,8 @@
 			"updateDatesError": "Aggiornamento date attività fallito",
 			"resizeStart": "Ridimensiona data inizio",
 			"resizeDue": "Ridimensiona data scadenza",
-			"taskAriaLabel": "{{title}}: apri o trascina per spostare"
+			"taskAriaLabel": "{{title}}: apri o trascina per spostare",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "Eliminare l'Attività?",

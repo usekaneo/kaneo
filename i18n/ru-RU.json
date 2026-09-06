@@ -139,6 +139,9 @@
 				"labelCreateError": "Не удалось создать метку",
 				"createMore": "Создать ещё",
 				"createButton": "Создать задачу",
+				"discardTitle": "Отменить задачу?",
+				"discardDescription": "Несохранённые данные задачи будут потеряны.",
+				"discardButton": "Отменить задачу",
 				"untitledTask": "Задача без названия",
 				"labelColors": {
 					"stone": "Камень",
@@ -1582,6 +1585,7 @@
 		"created": "создал эту задачу"
 	},
 	"tasks": {
+		"title": "Задачи",
 		"status": {
 			"label": "Статус",
 			"to-do": "К выполнению",
@@ -1897,7 +1901,8 @@
 			"updateDatesError": "Не удалось обновить даты задачи",
 			"resizeStart": "Изменить дату начала",
 			"resizeDue": "Изменить срок выполнения",
-			"taskAriaLabel": "{{title}}: откройте или перетащите для перемещения"
+			"taskAriaLabel": "{{title}}: откройте или перетащите для перемещения",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "Удалить задачу?",

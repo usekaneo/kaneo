@@ -139,6 +139,9 @@
 				"labelCreateError": "Etiket oluşturulamadı",
 				"createMore": "Daha fazla oluştur",
 				"createButton": "Talep Oluştur",
+				"discardTitle": "Kaydedilmemiş talep taslağı silinsin mi?",
+				"discardDescription": "Kaydedilmemiş talep ayrıntıları kaybolacak.",
+				"discardButton": "Talep taslağını sil",
 				"untitledTask": "Başlıksız talep",
 				"labelColors": {
 					"stone": "Taş",
@@ -1564,6 +1567,7 @@
 		}
 	},
 	"tasks": {
+		"title": "Görevler",
 		"status": {
 			"label": "Durum",
 			"to-do": "Yapılacak",
@@ -1871,7 +1875,8 @@
 			"updateDatesError": "Talep tarihleri güncellenemedi",
 			"resizeStart": "Başlangıç tarihini yeniden boyutlandır",
 			"resizeDue": "Bitiş tarihini yeniden boyutlandır",
-			"taskAriaLabel": "{{title}}: açmak veya taşımak için sürükleyin"
+			"taskAriaLabel": "{{title}}: açmak veya taşımak için sürükleyin",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "Talep Silinsin mi?",

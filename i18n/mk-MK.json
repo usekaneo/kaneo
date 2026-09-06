@@ -139,6 +139,9 @@
 				"labelCreateError": "Неуспешно креирање на етикета",
 				"createMore": "Креирај уште",
 				"createButton": "Креирај задача",
+				"discardTitle": "Да се отфрли задачата?",
+				"discardDescription": "Незачуваните детали за задачата ќе се изгубат.",
+				"discardButton": "Отфрли ја задачата",
 				"untitledTask": "Задача без наслов",
 				"labelColors": {
 					"stone": "Камен",
@@ -1564,6 +1567,7 @@
 		}
 	},
 	"tasks": {
+		"title": "Задачи",
 		"status": {
 			"label": "Статус",
 			"to-do": "За правење",
@@ -1871,7 +1875,8 @@
 			"updateDatesError": "Неуспешно ажурирање на датуми на задача",
 			"resizeStart": "Промени почетен датум",
 			"resizeDue": "Промени краен рок",
-			"taskAriaLabel": "{{title}}: отвори или повлечи за преместување"
+			"taskAriaLabel": "{{title}}: отвори или повлечи за преместување",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "Избриши задача?",

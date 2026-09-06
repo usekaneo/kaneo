@@ -139,6 +139,9 @@
 				"labelCreateError": "Échec de la création du label",
 				"createMore": "Créer plus",
 				"createButton": "Créer la tâche",
+				"discardTitle": "Abandonner la tâche ?",
+				"discardDescription": "Les détails non enregistrés de la tâche seront perdus.",
+				"discardButton": "Abandonner la tâche",
 				"untitledTask": "Tâche sans titre",
 				"labelColors": {
 					"stone": "Pierre",
@@ -1569,6 +1572,7 @@
 		}
 	},
 	"tasks": {
+		"title": "Tâches",
 		"status": {
 			"label": "Statut",
 			"to-do": "À faire",
@@ -1876,7 +1880,8 @@
 			"updateDatesError": "Échec de la mise à jour des dates de la tâche",
 			"resizeStart": "Redimensionner la date de début",
 			"resizeDue": "Redimensionner la date d'échéance",
-			"taskAriaLabel": "{{title}} : ouvrir ou déplacer"
+			"taskAriaLabel": "{{title}} : ouvrir ou déplacer",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "Supprimer la tâche ?",

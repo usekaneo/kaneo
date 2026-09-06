@@ -139,6 +139,9 @@
 				"labelCreateError": "ラベルの作成に失敗しました",
 				"createMore": "続けて作成",
 				"createButton": "タスクを作成",
+				"discardTitle": "タスクを破棄しますか？",
+				"discardDescription": "保存されていないタスクの詳細は失われます。",
+				"discardButton": "タスクを破棄",
 				"untitledTask": "無題のタスク",
 				"labelColors": {
 					"stone": "ストーン",
@@ -1559,6 +1562,7 @@
 		}
 	},
 	"tasks": {
+		"title": "タスク",
 		"status": {
 			"label": "ステータス",
 			"to-do": "To Do",
@@ -1879,7 +1883,8 @@
 			"updateDatesError": "タスクの日程の更新に失敗しました",
 			"resizeStart": "開始日を変更",
 			"resizeDue": "期限を変更",
-			"taskAriaLabel": "{{title}}: 開く、またはドラッグして移動"
+			"taskAriaLabel": "{{title}}: 開く、またはドラッグして移動",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "タスクを削除しますか？",

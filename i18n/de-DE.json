@@ -139,6 +139,9 @@
 				"labelCreateError": "Label konnte nicht erstellt werden",
 				"createMore": "Weitere erstellen",
 				"createButton": "Aufgabe erstellen",
+				"discardTitle": "Aufgabe verwerfen?",
+				"discardDescription": "Deine ungespeicherten Aufgabendetails gehen verloren.",
+				"discardButton": "Aufgabe verwerfen",
 				"untitledTask": "Unbenannte Aufgabe",
 				"labelColors": {
 					"stone": "Stein",
@@ -1564,6 +1567,7 @@
 		}
 	},
 	"tasks": {
+		"title": "Aufgaben",
 		"status": {
 			"label": "Status",
 			"to-do": "Zu erledigen",
@@ -1871,7 +1875,8 @@
 			"updateDatesError": "Aufgabendaten konnten nicht aktualisiert werden",
 			"resizeStart": "Startdatum anpassen",
 			"resizeDue": "Fälligkeitsdatum anpassen",
-			"taskAriaLabel": "{{title}}: öffnen oder ziehen zum Verschieben"
+			"taskAriaLabel": "{{title}}: öffnen oder ziehen zum Verschieben",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "Aufgabe löschen?",

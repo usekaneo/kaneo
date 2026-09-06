@@ -11,6 +11,7 @@ export const supportedLocales = [
   "it-IT",
   "ja-JP",
   "ko-KR",
+  "pl-PL",
   "pt-BR",
   "ru-RU",
   "tr-TR",
@@ -53,6 +54,8 @@ export async function loadLocale(locale: AppLocale): Promise<object> {
       return (await import("./mk-MK.json")).default;
     case "nl-NL":
       return (await import("./nl-NL.json")).default;
+    case "pl-PL":
+      return (await import("./pl-PL.json")).default;
     case "pt-BR":
       return (await import("./pt-BR.json")).default;
     case "ru-RU":

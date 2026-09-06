@@ -139,6 +139,9 @@
 				"labelCreateError": "Gagal membuat label",
 				"createMore": "Buat lagi",
 				"createButton": "Buat Tugas",
+				"discardTitle": "Buang tugas?",
+				"discardDescription": "Detail tugas yang belum disimpan akan hilang.",
+				"discardButton": "Buang tugas",
 				"untitledTask": "Tugas tanpa judul",
 				"labelColors": {
 					"stone": "Abu Batu",
@@ -1559,6 +1562,7 @@
 		}
 	},
 	"tasks": {
+		"title": "Tugas",
 		"status": {
 			"label": "Status",
 			"to-do": "Perlu Dikerjakan",
@@ -1866,7 +1870,8 @@
 			"updateDatesError": "Gagal memperbarui tanggal tugas",
 			"resizeStart": "Ubah ukuran tanggal mulai",
 			"resizeDue": "Ubah ukuran tenggat",
-			"taskAriaLabel": "{{title}}: buka atau seret untuk memindahkan"
+			"taskAriaLabel": "{{title}}: buka atau seret untuk memindahkan",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "Hapus Tugas?",

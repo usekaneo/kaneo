@@ -139,6 +139,9 @@
 				"labelCreateError": "Не вдалося створити мітку",
 				"createMore": "Створити ще",
 				"createButton": "Створити завдання",
+				"discardTitle": "Відхилити завдання?",
+				"discardDescription": "Незбережені дані завдання буде втрачено.",
+				"discardButton": "Відхилити завдання",
 				"untitledTask": "Завдання без назви",
 				"labelColors": {
 					"stone": "Камінь",
@@ -1574,6 +1577,7 @@
 		"created": "створив це завдання"
 	},
 	"tasks": {
+		"title": "Завдання",
 		"status": {
 			"label": "Статус",
 			"to-do": "До виконання",
@@ -1881,7 +1885,8 @@
 			"updateDatesError": "Не вдалося оновити дати завдання",
 			"resizeStart": "Змінити дату початку",
 			"resizeDue": "Змінити дату завершення",
-			"taskAriaLabel": "{{title}}: відкрити або перетягнути для переміщення"
+			"taskAriaLabel": "{{title}}: відкрити або перетягнути для переміщення",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "Видалити завдання?",
