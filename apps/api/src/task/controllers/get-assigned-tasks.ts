@@ -23,12 +23,12 @@ import { loadTaskDecorations } from "./load-task-decorations";
 // archived ones are history. Keeping them out bounds the payload to open work.
 const HIDDEN_STATUSES = ["planned", "archived"];
 
-// The web client keeps the whole page in memory to build the merged board,
-// filter and sort it, and refetches every 30 seconds, so the page size has to
-// stay bounded even when the caller asks for nothing. The bound is a safety
-// net well above what one person can hold open, not a working page size:
-// filters and search run on the client, over the loaded page only. Tasks are
-// ordered by due date, so that page is always the work due soonest.
+// Bounds one request, not the view: the web client walks every page and
+// merges them so filters and search run over the whole set, as on a project
+// board. The cap keeps each query, its decoration lookups and its payload
+// bounded even when the caller asks for nothing, and is well above what one
+// person can hold open. Tasks are ordered by due date, so the first page is
+// always the work due soonest.
 export const MAX_ASSIGNED_TASKS = 2000;
 
 type AssignedTasksOptions = {

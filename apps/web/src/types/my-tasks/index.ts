@@ -13,5 +13,4 @@ export type AssignedTaskProject = AssignedTasksRaw["projects"][number];
 
 export type AssignedTasksData = Omit<AssignedTasksRaw, "tasks"> & {
   tasks: Task[];
-  pagination: AssignedTasksApiResponse["pagination"];
 };

@@ -126,8 +126,6 @@ export function useMyTasksView(taskId: string | undefined) {
     board: assigned?.board ?? null,
     projectById: assigned?.projectById,
     tasks: data?.tasks ?? [],
-    // The API pages the result; the views only ever show the first page and say so when there is more.
-    totalTasks: data?.pagination.total ?? 0,
     projects,
     labels,
     taskView,
