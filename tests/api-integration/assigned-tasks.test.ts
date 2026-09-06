@@ -3,7 +3,9 @@ import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
+import type { z } from "../../apps/api/src/openapi";
 import { MAX_ASSIGNED_TASKS } from "../../apps/api/src/task/controllers/get-assigned-tasks";
+import type { assignedTasksSchema } from "../../apps/api/src/user/response";
 import { mockAnonymousSession, mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
 import {
@@ -11,31 +13,7 @@ import {
   createWorkspaceMember,
 } from "./helpers/fixtures";
 
-type AssignedTasksResponse = {
-  data: {
-    tasks: Array<{
-      id: string;
-      title: string;
-      status: string;
-      projectId: string;
-      dueDate: string | null;
-      labels: Array<{ name: string }>;
-    }>;
-    projects: Array<{
-      id: string;
-      slug: string;
-      workspaceId: string;
-      workspaceName: string;
-      columns: Array<{ slug: string; isFinal: boolean }>;
-    }>;
-  };
-  pagination: {
-    total: number;
-    page: number;
-    pageSize: number;
-    totalPages: number;
-  };
-};
+type AssignedTasksResponse = z.infer<typeof assignedTasksSchema>;
 
 async function insertTask({
   projectId,
