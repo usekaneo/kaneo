@@ -75,7 +75,7 @@ describe("buildAssignedBoard", () => {
     "ws-2",
   );
 
-  const data: AssignedTasksData = {
+  const data: Pick<AssignedTasksData, "tasks" | "projects"> = {
     projects: [alpha, beta],
     tasks: [
       task("t1", "alpha", "to-do"),
