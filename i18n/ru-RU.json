@@ -2059,7 +2059,9 @@
 			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
 			"loadError": "Failed to load your tasks.",
 			"pageTitle": "My tasks · {{view}}",
-			"title": "My tasks"
+			"title": "My tasks",
+			"noMatches": "No tasks match",
+			"noMatchesSubtitle": "Try a different search or clear the active filters."
 		}
 	},
 	"invitations": {

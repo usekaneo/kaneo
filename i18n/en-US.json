@@ -1590,6 +1590,8 @@
 			"pageTitle": "My tasks · {{view}}",
 			"empty": "Nothing assigned to you",
 			"emptySubtitle": "Tasks assigned to you in any of your workspaces will show up here.",
+			"noMatches": "No tasks match",
+			"noMatchesSubtitle": "Try a different search or clear the active filters.",
 			"loadError": "Failed to load your tasks."
 		},
 		"common": {

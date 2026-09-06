@@ -75,8 +75,12 @@ function RouteComponent() {
     };
   }, [filteredProject, sort]);
 
-  const isEmpty =
+  const hasNoAssignments =
     board?.columns.every((column) => column.tasks.length === 0) ?? false;
+  const hasNoMatches =
+    !hasNoAssignments &&
+    (sortedBoard?.columns.every((column) => column.tasks.length === 0) ??
+      false);
 
   return (
     <MyTasksLayout
@@ -129,10 +133,15 @@ function RouteComponent() {
               <StatusMessage title={t("tasks:myTasks.loadError")} />
             ) : isLoading || !sortedBoard ? (
               <StatusMessage title={t("common:empty.loading")} muted />
-            ) : isEmpty ? (
+            ) : hasNoAssignments ? (
               <StatusMessage
                 title={t("tasks:myTasks.empty")}
                 subtitle={t("tasks:myTasks.emptySubtitle")}
+              />
+            ) : hasNoMatches ? (
+              <StatusMessage
+                title={t("tasks:myTasks.noMatches")}
+                subtitle={t("tasks:myTasks.noMatchesSubtitle")}
               />
             ) : viewMode === "board" ? (
               <KanbanBoard project={sortedBoard} disableDragDrop />
