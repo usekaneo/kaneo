@@ -65,10 +65,10 @@ export async function registerMcpClient(input: ClientRegistrationInput) {
     client_id_issued_at: client.issuedAt,
     redirect_uris: client.redirectUris,
     client_name: client.clientName,
-    token_endpoint_auth_method: input.token_endpoint_auth_method ?? "none",
-    grant_types: input.grant_types ?? ["authorization_code"],
-    response_types: input.response_types ?? ["code"],
-  } as const;
+    token_endpoint_auth_method: "none" as const,
+    grant_types: ["authorization_code" as const],
+    response_types: ["code" as const],
+  };
 }
 
 export async function beginMcpAuthorization(
