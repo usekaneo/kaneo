@@ -1,5 +1,13 @@
 ### Bug Fixes
 
+- **mcp:** accept refresh_token grant on register: [59314c1](https://github.com/usekaneo/kaneo/commit/59314c15aded93fe65170eb7ca94d00bc1af5174)
+
+### Documentation
+
+- update contributors and sponsors: [e5a4675](https://github.com/usekaneo/kaneo/commit/e5a4675e7d49e634de4cef4171e3925666bb6c8c)
+
+### Bug Fixes
+
 - **web:** use location.href for the sign-in redirect param: [7483d37](https://github.com/usekaneo/kaneo/commit/7483d37ea059a76f298cbd66cb3eb9903e0ce44f)
 
 ### Features
