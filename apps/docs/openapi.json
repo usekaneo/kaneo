@@ -167,6 +167,9 @@
         "properties": {
           "error": {
             "type": "string"
+          },
+          "error_description": {
+            "type": "string"
           }
         },
         "required": [
@@ -5269,25 +5272,23 @@
                   },
                   "grant_types": {
                     "type": "array",
-                    "prefixItems": [
-                      {
-                        "type": "string",
-                        "enum": [
-                          "authorization_code"
-                        ]
-                      }
-                    ]
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "authorization_code",
+                        "refresh_token"
+                      ]
+                    }
                   },
                   "response_types": {
                     "type": "array",
-                    "prefixItems": [
-                      {
-                        "type": "string",
-                        "enum": [
-                          "code"
-                        ]
-                      }
-                    ]
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "code"
+                      ]
+                    },
+                    "minItems": 1
                   }
                 },
                 "required": [
