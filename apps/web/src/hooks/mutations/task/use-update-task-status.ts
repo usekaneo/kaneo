@@ -12,7 +12,7 @@ export function useUpdateTaskStatus() {
         queryKey: ["task", variables.id],
       });
       queryClient.invalidateQueries({
-        queryKey: ["tasks"],
+        queryKey: ["tasks", variables.projectId],
       });
       queryClient.invalidateQueries({
         queryKey: ["notifications"],

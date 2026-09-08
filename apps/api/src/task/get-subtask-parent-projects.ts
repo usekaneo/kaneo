@@ -1,16 +1,18 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import db from "../database";
 import { taskRelationTable, taskTable } from "../database/schema";
 
 /** Find boards whose counters depend on a child, including other projects. */
-export async function getSubtaskParentProjects(taskId: string) {
+export async function getSubtaskParentProjects(taskIds: string[]) {
+  if (taskIds.length === 0) return [];
   return db
     .selectDistinct({ projectId: taskTable.projectId })
     .from(taskRelationTable)
     .innerJoin(taskTable, eq(taskRelationTable.sourceTaskId, taskTable.id))
     .where(
       and(
-        eq(taskRelationTable.targetTaskId, taskId),
+        inArray(taskRelationTable.targetTaskId, taskIds),
         eq(taskRelationTable.relationType, "subtask"),
       ),
     );
@@ -22,4 +24,24 @@ export async function getRelationSourceProject(sourceTaskId: string) {
     .select({ projectId: taskTable.projectId })
     .from(taskTable)
     .where(eq(taskTable.id, sourceTaskId));
+}
+
+/** Final-column changes affect every parent of a task using that column's slug. */
+export async function getColumnSubtaskParentProjects(
+  projectId: string,
+  status: string,
+) {
+  const child = alias(taskTable, "child");
+  return db
+    .selectDistinct({ projectId: taskTable.projectId })
+    .from(taskRelationTable)
+    .innerJoin(taskTable, eq(taskRelationTable.sourceTaskId, taskTable.id))
+    .innerJoin(child, eq(taskRelationTable.targetTaskId, child.id))
+    .where(
+      and(
+        eq(child.projectId, projectId),
+        eq(child.status, status),
+        eq(taskRelationTable.relationType, "subtask"),
+      ),
+    );
 }

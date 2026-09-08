@@ -268,25 +268,28 @@ type TaskEvent = {
   targetTaskId: string | undefined;
 };
 
-// Send only an invalidation to parent boards, without exposing child task data.
+// Include the initiating window: its local mutation refreshes the child project,
+// while it may be displaying a different parent board. Never send child data.
 function refreshParentBoards(
   projects: { projectId: string }[],
-  currentProjectId: string,
-  initiatorId?: string,
+  currentProjectId = "",
 ) {
   for (const { projectId } of projects) {
     if (projectId === currentProjectId) continue;
-    broadcastToProject(
+    broadcastToProject(projectId, {
+      type: "TASK_RELATION_UPDATED",
       projectId,
-      {
-        type: "TASK_RELATION_UPDATED",
-        projectId,
-        taskId: "",
-      },
-      initiatorId,
-    );
+      taskId: "",
+    });
   }
 }
+
+subscribeToEvent<{ projects: { projectId: string }[] }>(
+  "subtask-parents.refresh",
+  async ({ projects }) => {
+    refreshParentBoards(projects);
+  },
+);
 
 const taskUpdateEvents = [
   "task.created",
@@ -335,11 +338,7 @@ subscribeToEvent<{
     { type: "TASK_MOVED", projectId: fromProjectId, taskId },
     initiatorId,
   );
-  refreshParentBoards(
-    await getSubtaskParentProjects(taskId),
-    fromProjectId,
-    initiatorId,
-  );
+  refreshParentBoards(await getSubtaskParentProjects([taskId]), fromProjectId);
 });
 
 subscribeToEvent<{
@@ -417,16 +416,11 @@ for (const eventName of taskUpdateEvents) {
       initiatorId,
     );
     if (eventName === "task.status_changed") {
-      refreshParentBoards(
-        await getSubtaskParentProjects(taskId),
-        projectId,
-        initiatorId,
-      );
+      refreshParentBoards(await getSubtaskParentProjects([taskId]), projectId);
     } else if (eventName === "task-relation.deleted" && data.sourceTaskId) {
       refreshParentBoards(
         await getRelationSourceProject(data.sourceTaskId),
         projectId,
-        initiatorId,
       );
     }
   });

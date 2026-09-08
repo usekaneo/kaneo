@@ -13,6 +13,7 @@ import { publishEvent } from "../../events";
 import { removeLabelFromGitea } from "../../plugins/gitea/utils/sync-label-to-gitea";
 import { removeLabelFromGitHub } from "../../plugins/github/utils/sync-label-to-github";
 import { assertAssignableUser } from "../../utils/assert-assignable-user";
+import { getSubtaskParentProjects } from "../get-subtask-parent-projects";
 import {
   assertValidPriority,
   assertValidTaskStatus,
@@ -207,6 +208,8 @@ async function bulkUpdateTasks({
     }
 
     case "delete": {
+      // Relations cascade away with the children, so capture parents first.
+      const parentProjects = await getSubtaskParentProjects(foundIds);
       const result = await db
         .delete(taskTable)
         .where(inArray(taskTable.id, foundIds));
@@ -221,6 +224,9 @@ async function bulkUpdateTasks({
           title: task.title,
         });
       }
+      await publishEvent("subtask-parents.refresh", {
+        projects: parentProjects,
+      });
       break;
     }
 

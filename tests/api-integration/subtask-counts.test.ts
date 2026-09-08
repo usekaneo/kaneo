@@ -1,6 +1,8 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import updateColumn from "../../apps/api/src/column/controllers/update-column";
 import db, { schema } from "../../apps/api/src/database";
+import { eventContext } from "../../apps/api/src/events";
 import { createApp } from "../../apps/api/src/index";
 import { getPublicProject } from "../../apps/api/src/project/controllers/get-public-project";
 import deleteTask from "../../apps/api/src/task/controllers/delete-task";
@@ -241,11 +243,13 @@ describe("API integration: subtask counters", () => {
       "other-window",
     );
     try {
-      await updateTaskStatus({
-        id: child.id,
-        status: "done",
-        currentUserId: member.user.id,
-      });
+      await eventContext.run({ initiatorId: "other-window" }, () =>
+        updateTaskStatus({
+          id: child.id,
+          status: "done",
+          currentUserId: member.user.id,
+        }),
+      );
       await vi.waitFor(() => expect(send).toHaveBeenCalled());
       expect(JSON.parse(send.mock.calls[0][0])).toEqual({
         type: "TASK_RELATION_UPDATED",
@@ -253,12 +257,104 @@ describe("API integration: subtask counters", () => {
         taskId: "",
       });
       send.mockClear();
-      await deleteTask(child.id, member.user.id);
+      await eventContext.run({ initiatorId: "other-window" }, () =>
+        deleteTask(child.id, member.user.id),
+      );
       await vi.waitFor(() => expect(send).toHaveBeenCalled());
       expect(JSON.parse(send.mock.calls[0][0])).toEqual({
         type: "TASK_RELATION_UPDATED",
         projectId: parentProject.project.id,
         taskId: "",
+      });
+    } finally {
+      removeConnection(parentProject.project.id, connection);
+      await shutdownWebSocketAdapter();
+    }
+  });
+  it("refreshes parent boards when a child's column is marked final or reopened", async () => {
+    const member = await createWorkspaceMember();
+    const parentProject = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const childProject = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const parent = await addTask(parentProject.project.id);
+    const child = await addTask(childProject.project.id, "done");
+    await relate(parent.id, child.id);
+    await initializeWebSocketAdapter();
+    const send = vi.fn();
+    const connection = addConnection(
+      parentProject.project.id,
+      { send } as never,
+      member.user.id,
+      "same-window",
+    );
+    try {
+      for (const isFinal of [false, true]) {
+        send.mockClear();
+        await eventContext.run({ initiatorId: "same-window" }, () =>
+          updateColumn(childProject.columns.done.id, { isFinal }),
+        );
+        await vi.waitFor(() => expect(send).toHaveBeenCalled());
+        expect(JSON.parse(send.mock.calls[0][0])).toEqual({
+          type: "TASK_RELATION_UPDATED",
+          projectId: parentProject.project.id,
+          taskId: "",
+        });
+        expect(await countsFor(parentProject.project.id, parent.id)).toEqual({
+          completed: isFinal ? 1 : 0,
+          total: 1,
+        });
+      }
+    } finally {
+      removeConnection(parentProject.project.id, connection);
+      await shutdownWebSocketAdapter();
+    }
+  });
+
+  it("refreshes parent boards after the bulk API deletes children", async () => {
+    const member = await createWorkspaceMember({ role: "owner" });
+    const parentProject = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const childProject = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const parent = await addTask(parentProject.project.id);
+    const child = await addTask(childProject.project.id);
+    const secondChild = await addTask(childProject.project.id);
+    await relate(parent.id, child.id);
+    await relate(parent.id, secondChild.id);
+    await initializeWebSocketAdapter();
+    const send = vi.fn();
+    const connection = addConnection(
+      parentProject.project.id,
+      { send } as never,
+      member.user.id,
+      "other-window",
+    );
+    try {
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+      const response = await app.request("/api/task/bulk", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          taskIds: [child.id, secondChild.id],
+          operation: "delete",
+        }),
+      });
+      expect(response.status).toBe(200);
+      await vi.waitFor(() => expect(send).toHaveBeenCalled());
+      expect(JSON.parse(send.mock.calls[0][0])).toEqual({
+        type: "TASK_RELATION_UPDATED",
+        projectId: parentProject.project.id,
+        taskId: "",
+      });
+      expect(await countsFor(parentProject.project.id, parent.id)).toEqual({
+        completed: 0,
+        total: 0,
       });
     } finally {
       removeConnection(parentProject.project.id, connection);
