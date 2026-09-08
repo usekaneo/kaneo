@@ -3,7 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable } from "../../database/schema";
 import { publishEvent } from "../../events";
-import { getColumnSubtaskParentProjects } from "../../task/get-subtask-parent-projects";
+import { getProjectSubtaskParentProjects } from "../../task/get-subtask-parent-projects";
 
 async function updateColumn(
   id: string,
@@ -38,7 +38,7 @@ async function updateColumn(
   }
 
   if (existing.isFinal !== updated.isFinal) {
-    const parents = await getColumnSubtaskParentProjects(
+    const parents = await getProjectSubtaskParentProjects(
       updated.projectId,
       updated.slug,
     );

@@ -26,10 +26,10 @@ export async function getRelationSourceProject(sourceTaskId: string) {
     .where(eq(taskTable.id, sourceTaskId));
 }
 
-/** Final-column changes affect every parent of a task using that column's slug. */
-export async function getColumnSubtaskParentProjects(
+/** Find affected parent boards before a project cascade or column change. */
+export async function getProjectSubtaskParentProjects(
   projectId: string,
-  status: string,
+  status?: string,
 ) {
   const child = alias(taskTable, "child");
   return db
@@ -40,7 +40,7 @@ export async function getColumnSubtaskParentProjects(
     .where(
       and(
         eq(child.projectId, projectId),
-        eq(child.status, status),
+        status === undefined ? undefined : eq(child.status, status),
         eq(taskRelationTable.relationType, "subtask"),
       ),
     );

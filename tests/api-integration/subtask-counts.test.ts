@@ -4,6 +4,7 @@ import updateColumn from "../../apps/api/src/column/controllers/update-column";
 import db, { schema } from "../../apps/api/src/database";
 import { eventContext } from "../../apps/api/src/events";
 import { createApp } from "../../apps/api/src/index";
+import deleteProject from "../../apps/api/src/project/controllers/delete-project";
 import { getPublicProject } from "../../apps/api/src/project/controllers/get-public-project";
 import deleteTask from "../../apps/api/src/task/controllers/delete-task";
 import getTasks from "../../apps/api/src/task/controllers/get-tasks";
@@ -346,6 +347,48 @@ describe("API integration: subtask counters", () => {
         }),
       });
       expect(response.status).toBe(200);
+      await vi.waitFor(() => expect(send).toHaveBeenCalled());
+      expect(JSON.parse(send.mock.calls[0][0])).toEqual({
+        type: "TASK_RELATION_UPDATED",
+        projectId: parentProject.project.id,
+        taskId: "",
+      });
+      expect(await countsFor(parentProject.project.id, parent.id)).toEqual({
+        completed: 0,
+        total: 0,
+      });
+    } finally {
+      removeConnection(parentProject.project.id, connection);
+      await shutdownWebSocketAdapter();
+    }
+  });
+  it("refreshes surviving parent boards when a child project is deleted", async () => {
+    const member = await createWorkspaceMember();
+    const parentProject = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const childProject = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const parent = await addTask(parentProject.project.id);
+    const child = await addTask(childProject.project.id, "done");
+    await relate(parent.id, child.id);
+    expect(await countsFor(parentProject.project.id, parent.id)).toEqual({
+      completed: 1,
+      total: 1,
+    });
+    await initializeWebSocketAdapter();
+    const send = vi.fn();
+    const connection = addConnection(
+      parentProject.project.id,
+      { send } as never,
+      member.user.id,
+      "same-window",
+    );
+    try {
+      await eventContext.run({ initiatorId: "same-window" }, () =>
+        deleteProject(childProject.project.id, member.workspace.id),
+      );
       await vi.waitFor(() => expect(send).toHaveBeenCalled());
       expect(JSON.parse(send.mock.calls[0][0])).toEqual({
         type: "TASK_RELATION_UPDATED",
