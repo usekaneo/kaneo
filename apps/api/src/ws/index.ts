@@ -259,6 +259,7 @@ export function broadcastToProject(
 }
 
 type TaskEvent = {
+  skipSubtaskParentRefresh?: boolean;
   id: string | undefined;
   projectId: string;
   userId: string;
@@ -415,7 +416,7 @@ for (const eventName of taskUpdateEvents) {
       },
       initiatorId,
     );
-    if (eventName === "task.status_changed") {
+    if (eventName === "task.status_changed" && !data.skipSubtaskParentRefresh) {
       refreshParentBoards(await getSubtaskParentProjects([taskId]), projectId);
     } else if (eventName === "task-relation.deleted" && data.sourceTaskId) {
       refreshParentBoards(

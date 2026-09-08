@@ -9,6 +9,7 @@ import { getPublicProject } from "../../apps/api/src/project/controllers/get-pub
 import deleteTask from "../../apps/api/src/task/controllers/delete-task";
 import getTasks from "../../apps/api/src/task/controllers/get-tasks";
 import updateTaskStatus from "../../apps/api/src/task/controllers/update-task-status";
+import * as subtaskParents from "../../apps/api/src/task/get-subtask-parent-projects";
 import {
   addConnection,
   initializeWebSocketAdapter,
@@ -314,54 +315,64 @@ describe("API integration: subtask counters", () => {
     }
   });
 
-  it("refreshes parent boards after the bulk API deletes children", async () => {
-    const member = await createWorkspaceMember({ role: "owner" });
-    const parentProject = await createProjectFixture({
-      workspaceId: member.workspace.id,
-    });
-    const childProject = await createProjectFixture({
-      workspaceId: member.workspace.id,
-    });
-    const parent = await addTask(parentProject.project.id);
-    const child = await addTask(childProject.project.id);
-    const secondChild = await addTask(childProject.project.id);
-    await relate(parent.id, child.id);
-    await relate(parent.id, secondChild.id);
-    await initializeWebSocketAdapter();
-    const send = vi.fn();
-    const connection = addConnection(
-      parentProject.project.id,
-      { send } as never,
-      member.user.id,
-      "other-window",
-    );
-    try {
-      mockAuthenticatedSession(member.user);
-      const { app } = createApp();
-      const response = await app.request("/api/task/bulk", {
-        method: "PATCH",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          taskIds: [child.id, secondChild.id],
-          operation: "delete",
-        }),
+  it.each(["delete", "updateStatus"])(
+    "batches parent refreshes when the bulk API performs %s",
+    async (operation) => {
+      const member = await createWorkspaceMember({ role: "owner" });
+      const parentProject = await createProjectFixture({
+        workspaceId: member.workspace.id,
       });
-      expect(response.status).toBe(200);
-      await vi.waitFor(() => expect(send).toHaveBeenCalled());
-      expect(JSON.parse(send.mock.calls[0][0])).toEqual({
-        type: "TASK_RELATION_UPDATED",
-        projectId: parentProject.project.id,
-        taskId: "",
+      const childProject = await createProjectFixture({
+        workspaceId: member.workspace.id,
       });
-      expect(await countsFor(parentProject.project.id, parent.id)).toEqual({
-        completed: 0,
-        total: 0,
-      });
-    } finally {
-      removeConnection(parentProject.project.id, connection);
-      await shutdownWebSocketAdapter();
-    }
-  });
+      const parent = await addTask(parentProject.project.id);
+      const child = await addTask(childProject.project.id);
+      const secondChild = await addTask(childProject.project.id);
+      await relate(parent.id, child.id);
+      await relate(parent.id, secondChild.id);
+      await initializeWebSocketAdapter();
+      const send = vi.fn();
+      const connection = addConnection(
+        parentProject.project.id,
+        { send } as never,
+        member.user.id,
+        "other-window",
+      );
+      const parentLookup = vi.spyOn(subtaskParents, "getSubtaskParentProjects");
+      try {
+        mockAuthenticatedSession(member.user);
+        const { app } = createApp();
+        const response = await app.request("/api/task/bulk", {
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            taskIds: [child.id, secondChild.id],
+            operation,
+            value: operation === "updateStatus" ? "done" : undefined,
+          }),
+        });
+        expect(response.status).toBe(200);
+        await vi.waitFor(() => expect(send).toHaveBeenCalled());
+        expect(JSON.parse(send.mock.calls[0][0])).toEqual({
+          type: "TASK_RELATION_UPDATED",
+          projectId: parentProject.project.id,
+          taskId: "",
+        });
+        expect(await countsFor(parentProject.project.id, parent.id)).toEqual({
+          completed: operation === "updateStatus" ? 2 : 0,
+          total: operation === "updateStatus" ? 2 : 0,
+        });
+        expect(parentLookup).toHaveBeenCalledTimes(1);
+        expect(parentLookup.mock.calls[0][0].toSorted()).toEqual(
+          [child.id, secondChild.id].toSorted(),
+        );
+      } finally {
+        parentLookup.mockRestore();
+        removeConnection(parentProject.project.id, connection);
+        await shutdownWebSocketAdapter();
+      }
+    },
+  );
   it("refreshes surviving parent boards when a child project is deleted", async () => {
     const member = await createWorkspaceMember();
     const parentProject = await createProjectFixture({

@@ -122,6 +122,11 @@ async function bulkUpdateTasks({
 
         updatedCount += result.rowCount ?? projectTaskIds.length;
 
+        const parentProjects = await getSubtaskParentProjects(projectTaskIds);
+        await publishEvent("subtask-parents.refresh", {
+          projects: parentProjects,
+        });
+
         for (const taskId of projectTaskIds) {
           await publishEvent("task.status_changed", {
             taskId,
@@ -129,6 +134,7 @@ async function bulkUpdateTasks({
             userId,
             newStatus: value,
             type: "status_changed",
+            skipSubtaskParentRefresh: true,
           });
         }
 

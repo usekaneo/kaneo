@@ -9,8 +9,10 @@ import type Task from "@/types/task";
 
 export function TaskProgressBadges({
   task,
+  asText = false,
 }: {
   task: Pick<Task, "description" | "subtaskCounts">;
+  asText?: boolean;
 }) {
   const { t } = useTranslation();
   const { showTaskItemCounts } = useUserPreferencesStore();
@@ -39,22 +41,39 @@ export function TaskProgressBadges({
     },
   ];
 
-  return counters.map(({ kind, counts, Icon, label }) =>
-    counts && counts.total > 0 ? (
+  return counters.map(({ kind, counts, Icon, label }) => {
+    if (!counts || counts.total === 0) return null;
+    const className = cn(
+      "inline-flex h-5.5 shrink-0 cursor-inherit items-center gap-1 rounded border border-border/70 bg-muted/50 px-2 py-1 text-[10px] font-medium tabular-nums text-muted-foreground",
+      counts.completed === counts.total &&
+        "border-success/20 bg-success/10 text-success-foreground",
+    );
+    const content = (
+      <>
+        <Icon className="size-3" aria-hidden="true" />
+        {counts.completed}/{counts.total}
+      </>
+    );
+
+    // Public cards are buttons already; their badges must remain plain text.
+    if (asText) {
+      return (
+        <span key={kind} className={className} title={label}>
+          <span className="sr-only">{label}</span>
+          <span aria-hidden="true" className="inline-flex items-center gap-1">
+            {content}
+          </span>
+        </span>
+      );
+    }
+
+    return (
       <Tooltip key={kind}>
-        <TooltipTrigger
-          aria-label={label}
-          className={cn(
-            "inline-flex h-5.5 shrink-0 cursor-inherit items-center gap-1 rounded border border-border/70 bg-muted/50 px-2 py-1 text-[10px] font-medium tabular-nums text-muted-foreground",
-            counts.completed === counts.total &&
-              "border-success/20 bg-success/10 text-success-foreground",
-          )}
-        >
-          <Icon className="size-3" aria-hidden="true" />
-          {counts.completed}/{counts.total}
+        <TooltipTrigger aria-label={label} className={className}>
+          {content}
         </TooltipTrigger>
         <TooltipPopup>{label}</TooltipPopup>
       </Tooltip>
-    ) : null,
-  );
+    );
+  });
 }
