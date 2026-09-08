@@ -10,6 +10,11 @@ export const githubIntegrationSchema = z
       description:
         "The GitHub App installation that grants access to the repository.",
     }),
+    authMode: z.string().optional(),
+    hasAccessToken: z.boolean().optional(),
+    webhookUrl: z.string().optional(),
+    webhookSecret: z.string().optional(),
+    webhookRegistered: z.boolean().optional(),
     branchPattern: z.string().optional().openapi({
       description: "Template used to name branches created for a task.",
     }),

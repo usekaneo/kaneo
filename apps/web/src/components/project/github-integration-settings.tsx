@@ -44,6 +44,7 @@ import { toast } from "@/lib/toast";
 type GithubIntegrationFormValues = {
   repositoryOwner: string;
   repositoryName: string;
+  accessToken?: string;
 };
 
 export function GitHubIntegrationSettings({
@@ -69,6 +70,7 @@ export function GitHubIntegrationSettings({
             /^[a-zA-Z0-9._-]+$/,
             t("settings:githubIntegration.validation.nameInvalid"),
           ),
+        accessToken: z.string().optional(),
       }),
     [t],
   );
@@ -95,6 +97,7 @@ export function GitHubIntegrationSettings({
     defaultValues: {
       repositoryOwner: integration?.repositoryOwner || "",
       repositoryName: integration?.repositoryName || "",
+      accessToken: "",
     },
   });
 
@@ -109,6 +112,7 @@ export function GitHubIntegrationSettings({
 
   const repositoryOwner = form.watch("repositoryOwner");
   const repositoryName = form.watch("repositoryName");
+  const accessToken = form.watch("accessToken");
 
   const handleVerifyInstallation = React.useCallback(
     async (data: GithubIntegrationFormValues, showToast = true) => {
@@ -147,11 +151,15 @@ export function GitHubIntegrationSettings({
 
   React.useEffect(() => {
     if (repositoryOwner && repositoryName && form.formState.isValid) {
-      handleVerifyInstallation({ repositoryOwner, repositoryName }, false);
+      handleVerifyInstallation(
+        { repositoryOwner, repositoryName, accessToken },
+        false,
+      );
     }
   }, [
     repositoryOwner,
     repositoryName,
+    accessToken,
     form.formState.isValid,
     handleVerifyInstallation,
   ]);
@@ -193,11 +201,20 @@ export function GitHubIntegrationSettings({
         return;
       }
 
-      await createIntegration({
+      const result = await createIntegration({
         projectId,
         data,
       });
-      toast.success(t("settings:githubIntegration.toast.updated"));
+
+      if (result?.authMode === "token") {
+        toast.success(
+          result.webhookRegistered
+            ? t("settings:githubIntegration.toast.tokenConnectedAuto")
+            : t("settings:githubIntegration.toast.tokenConnectedManual"),
+        );
+      } else {
+        toast.success(t("settings:githubIntegration.toast.updated"));
+      }
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -324,6 +341,43 @@ export function GitHubIntegrationSettings({
                 </a>
               </div>
             </div>
+
+            {integration.authMode === "token" && integration.webhookUrl && (
+              <>
+                <Separator />
+                <div className="space-y-2">
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">
+                      {t("settings:githubIntegration.webhookTitle")}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {t("settings:githubIntegration.webhookHint")}
+                    </p>
+                  </div>
+                  <div className="space-y-2 rounded-md border border-border bg-background p-3 text-xs">
+                    <div className="space-y-1">
+                      <p className="font-medium text-muted-foreground">
+                        {t("settings:githubIntegration.webhookUrlLabel")}
+                      </p>
+                      <code className="block break-all">
+                        {integration.webhookUrl}
+                      </code>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="font-medium text-muted-foreground">
+                        {t("settings:githubIntegration.webhookSecretLabel")}
+                      </p>
+                      <code className="block break-all">
+                        {integration.webhookSecret}
+                      </code>
+                    </div>
+                    <p className="text-muted-foreground">
+                      {t("settings:githubIntegration.webhookEvents")}
+                    </p>
+                  </div>
+                </div>
+              </>
+            )}
 
             <Separator />
             <div className="flex items-center justify-between gap-4">
@@ -461,6 +515,40 @@ export function GitHubIntegrationSettings({
                         className="w-64"
                         placeholder={t(
                           "settings:githubIntegration.repoNamePlaceholder",
+                        )}
+                        {...field}
+                        disabled={isCreating || isDeleting}
+                      />
+                    </FormControl>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Separator />
+
+            <FormField
+              control={form.control}
+              name="accessToken"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="min-w-0 flex-1 space-y-0.5">
+                      <FormLabel className="text-sm font-medium">
+                        {t("settings:githubIntegration.tokenLabel")}
+                      </FormLabel>
+                      <p className="text-xs text-muted-foreground">
+                        {t("settings:githubIntegration.tokenHint")}
+                      </p>
+                    </div>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        autoComplete="off"
+                        className="w-64"
+                        placeholder={t(
+                          "settings:githubIntegration.tokenPlaceholder",
                         )}
                         {...field}
                         disabled={isCreating || isDeleting}

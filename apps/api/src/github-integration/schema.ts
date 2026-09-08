@@ -3,6 +3,7 @@ import { z } from "../openapi";
 const repositoryRef = {
   repositoryOwner: z.string().min(1),
   repositoryName: z.string().min(1),
+  accessToken: z.string().optional(),
 };
 
 export const verifyGitHubBody = z.object({

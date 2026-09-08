@@ -241,11 +241,13 @@ const githubIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
     return c.json(repositories, 200);
   })
   .openapi(verifyRoute, async (c) => {
-    const { repositoryOwner, repositoryName } = c.req.valid("json");
+    const { repositoryOwner, repositoryName, accessToken } =
+      c.req.valid("json");
 
     const verification = await verifyGithubInstallation({
       repositoryOwner,
       repositoryName,
+      accessToken,
     });
 
     return c.json(verification, 200);
@@ -257,12 +259,14 @@ const githubIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
   })
   .openapi(createIntegrationRoute, async (c) => {
     const { projectId } = c.req.valid("param");
-    const { repositoryOwner, repositoryName } = c.req.valid("json");
+    const { repositoryOwner, repositoryName, accessToken } =
+      c.req.valid("json");
 
     const integration = await createGithubIntegration({
       projectId,
       repositoryOwner,
       repositoryName,
+      accessToken,
     });
 
     return c.json(integration, 200);

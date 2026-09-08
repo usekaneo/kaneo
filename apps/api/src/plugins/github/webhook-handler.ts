@@ -1,4 +1,7 @@
+import { findAllIntegrationsByRepo } from "./services/task-service";
 import { getGithubApp } from "./utils/github-app";
+import { verifyGithubWebhookSignature } from "./utils/verify-webhook-signature";
+import { dispatchGithubEvent } from "./webhook-dispatch";
 import { handleIssueClosed } from "./webhooks/issue-closed";
 import { handleIssueCommentCreated } from "./webhooks/issue-comment-created";
 import { handleIssueEdited } from "./webhooks/issue-edited";
@@ -10,6 +13,62 @@ import { handlePullRequestClosed } from "./webhooks/pull-request-closed";
 import { handlePullRequestOpened } from "./webhooks/pull-request-opened";
 import { handlePush } from "./webhooks/push";
 
+// Deliveries for a PAT-based integration are signed with that project's own
+// webhook secret, which the GitHub App SDK cannot verify. Look the repo up, and
+// when it belongs to a token integration verify the HMAC ourselves and dispatch
+// to the same handlers. Returns { handled: false } so the caller falls back to
+// the App path for App-based repos.
+async function tryHandleTokenDelivery(
+  body: string,
+  signature: string,
+  eventName: string,
+): Promise<{
+  handled: boolean;
+  result?: { success: boolean; error?: string };
+}> {
+  let payload: { repository?: { owner?: { login?: string }; name?: string } };
+  try {
+    payload = JSON.parse(body);
+  } catch {
+    return { handled: false };
+  }
+
+  const owner = payload.repository?.owner?.login;
+  const name = payload.repository?.name;
+  if (!owner || !name) {
+    return { handled: false };
+  }
+
+  const integrations = await findAllIntegrationsByRepo(owner, name);
+  const tokenIntegration = integrations.find((integration) => {
+    try {
+      const config = JSON.parse(integration.config);
+      return Boolean(config.accessToken && config.webhookSecret);
+    } catch {
+      return false;
+    }
+  });
+
+  if (!tokenIntegration) {
+    return { handled: false };
+  }
+
+  const config = JSON.parse(tokenIntegration.config) as {
+    webhookSecret: string;
+  };
+
+  if (!verifyGithubWebhookSignature(config.webhookSecret, signature, body)) {
+    console.error("[GitHub Webhook] Invalid signature for token integration");
+    return {
+      handled: true,
+      result: { success: false, error: "Invalid signature" },
+    };
+  }
+
+  await dispatchGithubEvent(eventName, payload as { action?: string });
+  return { handled: true, result: { success: true } };
+}
+
 export async function handleGitHubWebhook(
   body: string,
   signature: string,
@@ -19,6 +78,15 @@ export async function handleGitHubWebhook(
   console.log(
     `[GitHub Webhook] Received event: ${eventName}, delivery: ${deliveryId}`,
   );
+
+  const tokenDelivery = await tryHandleTokenDelivery(
+    body,
+    signature,
+    eventName,
+  );
+  if (tokenDelivery.handled) {
+    return tokenDelivery.result ?? { success: true };
+  }
 
   const githubApp = getGithubApp();
 

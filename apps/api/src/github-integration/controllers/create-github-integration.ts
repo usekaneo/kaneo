@@ -1,27 +1,35 @@
+import { randomBytes } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
+import { Octokit } from "octokit";
 import db from "../../database";
 import { integrationTable, projectTable } from "../../database/schema";
-import { defaultGitHubConfig } from "../../plugins/github/config";
+import {
+  defaultGitHubConfig,
+  type GitHubConfig,
+} from "../../plugins/github/config";
 import { getGithubApp } from "../../plugins/github/utils/github-app";
+import { ensureRepoWebhook } from "../../plugins/github/utils/register-webhook";
+
+function parseConfig(raw: string): Partial<GitHubConfig> {
+  try {
+    return JSON.parse(raw) as Partial<GitHubConfig>;
+  } catch {
+    return {};
+  }
+}
 
 async function createGithubIntegration({
   projectId,
   repositoryOwner,
   repositoryName,
+  accessToken,
 }: {
   projectId: string;
   repositoryOwner: string;
   repositoryName: string;
+  accessToken?: string;
 }) {
-  const githubApp = getGithubApp();
-
-  if (!githubApp) {
-    throw new HTTPException(500, {
-      message: "GitHub app not configured",
-    });
-  }
-
   const project = await db.query.projectTable.findFirst({
     where: eq(projectTable.id, projectId),
   });
@@ -56,31 +64,97 @@ async function createGithubIntegration({
     }
   }
 
-  let installationId: number | null = null;
-  try {
-    const { data: installation } =
-      await githubApp.octokit.rest.apps.getRepoInstallation({
-        owner: repositoryOwner,
-        repo: repositoryName,
-      });
-    installationId = installation.id;
-  } catch (error) {
-    console.warn("Could not get installation ID for repository:", error);
-  }
-
   const existingIntegration = await db.query.integrationTable.findFirst({
     where: and(
       eq(integrationTable.projectId, projectId),
       eq(integrationTable.type, "github"),
     ),
   });
+  const previousConfig = existingIntegration
+    ? parseConfig(existingIntegration.config)
+    : {};
 
-  const config = {
-    repositoryOwner,
-    repositoryName,
-    installationId,
-    ...defaultGitHubConfig,
-  };
+  // A token on the request, or already stored, selects per-project PAT auth.
+  const resolvedToken = accessToken?.trim() || previousConfig.accessToken;
+
+  let config: GitHubConfig;
+  let webhookSecret: string | undefined;
+  let webhookRegistered = false;
+
+  if (resolvedToken) {
+    // PAT mode: prove the token can see the repo, then persist a per-project
+    // webhook secret (reused across re-connects so the registered hook keeps
+    // working). No GitHub App install is required.
+    const octokit = new Octokit({ auth: resolvedToken });
+    try {
+      await octokit.rest.repos.get({
+        owner: repositoryOwner,
+        repo: repositoryName,
+      });
+    } catch {
+      throw new HTTPException(400, {
+        message: `Could not access ${repositoryOwner}/${repositoryName} with the provided token. Check the token and its repository permissions.`,
+      });
+    }
+
+    webhookSecret =
+      previousConfig.webhookSecret || randomBytes(24).toString("hex");
+
+    // Best-effort automatic webhook registration; falls back to manual setup
+    // when the token lacks webhook-admin permission.
+    const apiUrl = process.env.KANEO_API_URL || "http://localhost:1337";
+    const callbackUrl = `${apiUrl.replace(/\/$/, "")}/github-integration/webhook`;
+    const registration = await ensureRepoWebhook(
+      octokit,
+      repositoryOwner,
+      repositoryName,
+      callbackUrl,
+      webhookSecret,
+    );
+    webhookRegistered = registration.registered;
+    if (!registration.registered) {
+      console.warn(
+        "[GitHub] Automatic webhook registration failed; manual setup required",
+        { reason: registration.reason },
+      );
+    }
+
+    config = {
+      repositoryOwner,
+      repositoryName,
+      installationId: null,
+      accessToken: resolvedToken,
+      webhookSecret,
+      ...defaultGitHubConfig,
+    };
+  } else {
+    // App mode: keep the existing GitHub App installation flow.
+    const githubApp = getGithubApp();
+    if (!githubApp) {
+      throw new HTTPException(500, { message: "GitHub app not configured" });
+    }
+
+    let installationId: number | null = null;
+    try {
+      const { data: installation } =
+        await githubApp.octokit.rest.apps.getRepoInstallation({
+          owner: repositoryOwner,
+          repo: repositoryName,
+        });
+      installationId = installation.id;
+    } catch (error) {
+      console.warn("Could not get installation ID for repository:", error);
+    }
+
+    config = {
+      repositoryOwner,
+      repositoryName,
+      installationId,
+      ...defaultGitHubConfig,
+    };
+  }
+
+  const authMode = resolvedToken ? "token" : "app";
 
   if (existingIntegration) {
     const [updatedIntegration] = await db
@@ -103,7 +177,10 @@ async function createGithubIntegration({
       projectId: updatedIntegration?.projectId,
       repositoryOwner,
       repositoryName,
-      installationId,
+      installationId: config.installationId,
+      authMode,
+      webhookSecret,
+      webhookRegistered,
       isActive: updatedIntegration?.isActive,
       createdAt: updatedIntegration?.createdAt,
       updatedAt: updatedIntegration?.updatedAt,
@@ -125,7 +202,10 @@ async function createGithubIntegration({
     projectId: newIntegration?.projectId,
     repositoryOwner,
     repositoryName,
-    installationId,
+    installationId: config.installationId,
+    authMode,
+    webhookSecret,
+    webhookRegistered,
     isActive: newIntegration?.isActive,
     createdAt: newIntegration?.createdAt,
     updatedAt: newIntegration?.updatedAt,

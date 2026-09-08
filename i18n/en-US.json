@@ -943,6 +943,8 @@
 				"installAppFirst": "Please install the GitHub App on this repository first",
 				"missingPermsDetail": "GitHub App is missing required permissions: {{list}}. Please update the app permissions.",
 				"updated": "GitHub integration updated successfully",
+				"tokenConnectedAuto": "Connected. Webhook registered automatically.",
+				"tokenConnectedManual": "Connected. Add the webhook manually — see the details below.",
 				"updateError": "Failed to update GitHub integration",
 				"removed": "GitHub integration removed successfully",
 				"removeError": "Failed to remove GitHub integration",
@@ -972,6 +974,14 @@
 			"repoNameLabel": "Repository Name",
 			"repoNameHint": "The repository name",
 			"repoNamePlaceholder": "e.g., my-project",
+			"tokenLabel": "Personal Access Token",
+			"tokenHint": "Optional. Provide a token to connect a repo in any account without the GitHub App. Leave blank to use the GitHub App.",
+			"tokenPlaceholder": "ghp_… or github_pat_…",
+			"webhookTitle": "Webhook setup",
+			"webhookHint": "Kaneo tries to register this automatically. If Git activity isn't updating tasks, add the webhook in the repository's Settings → Webhooks.",
+			"webhookUrlLabel": "Payload URL",
+			"webhookSecretLabel": "Secret",
+			"webhookEvents": "Content type: application/json. Events: Pushes, Pull requests, Issues, Issue comments.",
 			"actionsTitle": "Actions",
 			"actionsHint": "Manage your repository connection",
 			"browse": "Browse",
@@ -1408,6 +1418,11 @@
 			"open": "Open"
 		}
 	},
+	"developerGuide": {
+		"pageTitle": "Developer Guide",
+		"heading": "Developer Guide",
+		"subtitle": "Connect your repository and MCP, drive task status from Git, and pick up and finish assigned work in Claude Code."
+	},
 	"navigation": {
 		"commandPalette": {
 			"suggestions": "Suggestions",
@@ -1436,6 +1451,7 @@
 			"projects": "Projects",
 			"members": "Members",
 			"invitations": "Invitations",
+			"developerGuide": "Developer Guide",
 			"more": "More",
 			"backToBoard": "Back to board"
 		},
