@@ -37,7 +37,17 @@ function getLocaleLabel(locale: AppLocale) {
     const languageDisplayNames = new Intl.DisplayNames([locale], {
       type: "language",
     });
-    return languageDisplayNames.of(localeObj.language) ?? locale;
+    // Locales that share a language subtag (zh-CN and zh-TW both resolve to
+    // "zh") would otherwise render identical labels, so show the full tag —
+    // "中文（中国）" vs "中文（台灣）" — for those only.
+    const sharesLanguage =
+      supportedLocales.filter(
+        (candidate) => new Intl.Locale(candidate).language === localeObj.language,
+      ).length > 1;
+    return (
+      languageDisplayNames.of(sharesLanguage ? locale : localeObj.language) ??
+      locale
+    );
   } catch {
     return locale;
   }
