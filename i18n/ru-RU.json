@@ -56,7 +56,30 @@
 			"troubleshooting": "Шаги для устранения неполадок:",
 			"tryAgain": "Попробовать снова",
 			"viewDeploymentGuide": "Руководство по развёртыванию",
-			"refreshPage": "Обновить страницу"
+			"refreshPage": "Обновить страницу",
+			"description": "The page crashed unexpectedly. Refreshing usually fixes it.",
+			"messages": {
+				"auth": "Authentication failed. Please sign in again.",
+				"cors": "Unable to connect to the server. This might be due to CORS configuration issues.",
+				"network": "Network error. Please check your internet connection and try again.",
+				"server": "Server error. Please try again later.",
+				"unknown": "An unexpected error occurred."
+			},
+			"troubleshootingSteps": {
+				"cors": {
+					"checkAccessibility": "Check that your API server is accessible from your browser",
+					"checkApiRunning": "Make sure your API server is running",
+					"checkApiUrl": "Check that VITE_API_URL in your frontend .env matches your API server URL",
+					"checkProtocol": "Ensure both frontend and API are using the same protocol (http/https)",
+					"verifyCorsOrigins": "Verify CORS_ORIGINS in your API .env includes your frontend URL"
+				},
+				"network": {
+					"checkConnection": "Check your internet connection",
+					"checkFirewall": "Check if there are any firewall or proxy issues",
+					"tryRefresh": "Try refreshing the page",
+					"verifyApiRunning": "Verify the API server is running and accessible"
+				}
+			}
 		},
 		"formats": {
 			"never": "Никогда"
@@ -116,6 +139,9 @@
 				"labelCreateError": "Не удалось создать метку",
 				"createMore": "Создать ещё",
 				"createButton": "Создать задачу",
+				"discardTitle": "Отменить задачу?",
+				"discardDescription": "Несохранённые данные задачи будут потеряны.",
+				"discardButton": "Отменить задачу",
 				"untitledTask": "Задача без названия",
 				"labelColors": {
 					"stone": "Камень",
@@ -1553,6 +1579,7 @@
 		"created": "создал эту задачу"
 	},
 	"tasks": {
+		"title": "Задачи",
 		"status": {
 			"label": "Статус",
 			"to-do": "К выполнению",
@@ -1868,7 +1895,8 @@
 			"updateDatesError": "Не удалось обновить даты задачи",
 			"resizeStart": "Изменить дату начала",
 			"resizeDue": "Изменить срок выполнения",
-			"taskAriaLabel": "{{title}}: откройте или перетащите для перемещения"
+			"taskAriaLabel": "{{title}}: откройте или перетащите для перемещения",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "Удалить задачу?",

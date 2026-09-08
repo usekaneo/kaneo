@@ -520,9 +520,7 @@ export function createGitlabClient(
       public_email?: string;
     } | null> {
       const normalizedEmail = email.trim().toLowerCase();
-      const emailPrefix = normalizedEmail.includes("@")
-        ? normalizedEmail.split("@")[0]
-        : normalizedEmail;
+      const emailPrefix = normalizedEmail.split("@")[0] ?? normalizedEmail;
 
       try {
         const users = await gitlabFetch<

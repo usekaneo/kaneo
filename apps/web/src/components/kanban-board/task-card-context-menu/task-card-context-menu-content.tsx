@@ -307,11 +307,13 @@ export default function TaskCardContextMenuContent({
                 <span>{t("tasks:actions.archive")}</span>
               </ContextMenuItem>
 
-              <ContextMenuItem
-                onClick={() => handleChange("status", "planned")}
-              >
-                <span>{t("tasks:actions.markAsPlanned")}</span>
-              </ContextMenuItem>
+              {task.status !== "planned" && (
+                <ContextMenuItem
+                  onClick={() => handleChange("status", "planned")}
+                >
+                  <span>{t("tasks:actions.markAsPlanned")}</span>
+                </ContextMenuItem>
+              )}
             </>
           )}
 

@@ -278,7 +278,7 @@ export function NavProjects() {
                               </span>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent
-                              className="w-44 rounded-lg"
+                              className="min-w-44 rounded-lg"
                               side={isMobile ? "bottom" : "right"}
                               align={isMobile ? "end" : "start"}
                             >

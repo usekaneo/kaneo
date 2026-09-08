@@ -45,6 +45,7 @@ import useUpdateLabel from "@/hooks/mutations/label/use-update-label";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
+import { resolveLabelColor } from "@/lib/label-color";
 import { toast } from "@/lib/toast";
 
 export const Route = createFileRoute(
@@ -213,10 +214,6 @@ function RouteComponent() {
     }
   };
 
-  const getColorVar = (colorValue: string) =>
-    labelColors.find((c) => c.value === colorValue)?.color ??
-    "var(--color-neutral-400)";
-
   return (
     <>
       <PageTitle title={t("settings:workspaceLabels.pageTitle")} />
@@ -287,7 +284,7 @@ function RouteComponent() {
                         <span
                           className="w-3 h-3 rounded-full flex-shrink-0"
                           style={{
-                            backgroundColor: getColorVar(label.color),
+                            backgroundColor: resolveLabelColor(label.color),
                           }}
                         />
                         <span className="text-sm truncate">{label.name}</span>

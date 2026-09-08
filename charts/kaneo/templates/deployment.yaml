@@ -30,9 +30,14 @@ spec:
         {{- include "kaneo.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: kaneo
     spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       serviceAccountName: {{ include "kaneo.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      enableServiceLinks: {{ default false .Values.enableServiceLinks }}
       containers:
         - name: kaneo
           securityContext:
@@ -90,6 +95,10 @@ spec:
             {{- with .Values.kaneo.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
+          {{- with .Values.kaneo.extraEnvFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           livenessProbe:
             {{- toYaml .Values.kaneo.livenessProbe | nindent 12 }}
           readinessProbe:
@@ -107,5 +116,9 @@ spec:
       {{- end }}
       {{- with .Values.tolerations }}
       tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
         {{- toYaml . | nindent 8 }}
       {{- end }}

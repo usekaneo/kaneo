@@ -34,7 +34,7 @@ async function verifyGitlabAccess({
           repositoryPrivate: null,
           missingPermissions: [] as string[],
           message: "The URL does not point to a GitLab instance.",
-          failureReason: "not_a_gitlab_instance",
+          failureReason: "not_a_gitlab_instance" as const,
         };
       }
       throw error;
@@ -76,7 +76,7 @@ async function verifyGitlabAccess({
           repositoryPrivate: null,
           missingPermissions: [] as string[],
           message: `The GitLab URL redirected (HTTP ${error.status}). This usually means the server forces HTTPS. Please use the final URL directly.`,
-          failureReason: "redirected",
+          failureReason: "redirected" as const,
         };
       }
 
@@ -88,7 +88,7 @@ async function verifyGitlabAccess({
           repositoryPrivate: null,
           missingPermissions: [] as string[],
           message: "The URL does not point to a GitLab instance.",
-          failureReason: "not_a_gitlab_instance",
+          failureReason: "not_a_gitlab_instance" as const,
         };
       }
     }
@@ -101,7 +101,7 @@ async function verifyGitlabAccess({
         repositoryPrivate: null,
         missingPermissions: [] as string[],
         message: "Project not found or not accessible with this token.",
-        failureReason: "repository_not_found",
+        failureReason: "repository_not_found" as const,
       };
     }
 

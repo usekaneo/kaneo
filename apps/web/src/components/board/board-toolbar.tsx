@@ -15,7 +15,6 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/menu";
-import labelColors from "@/constants/label-colors";
 import {
   type BoardFilters,
   DUE_DATE_FILTER_VALUES,
@@ -23,6 +22,7 @@ import {
 import { getColumnIcon } from "@/lib/column";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel } from "@/lib/i18n/domain";
+import { resolveLabelColor } from "@/lib/label-color";
 import { getPriorityIcon } from "@/lib/priority";
 import type { SortConfig } from "@/lib/sort-tasks";
 import type { ProjectWithTasks } from "@/types/project";
@@ -493,9 +493,7 @@ export default function BoardToolbar({
                           <span
                             className="h-2.5 w-2.5 shrink-0 rounded-full"
                             style={{
-                              backgroundColor:
-                                labelColors.find((c) => c.value === label.color)
-                                  ?.color || "var(--color-neutral-400)",
+                              backgroundColor: resolveLabelColor(label.color),
                             }}
                           />
                           <span className="max-w-20 truncate">

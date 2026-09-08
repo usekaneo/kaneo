@@ -1,399 +1,330 @@
-// apps/api/src/gitlab-integration/index.ts
 import { and, eq } from "drizzle-orm";
 import type { Context } from "hono";
-import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { describeRoute, resolver, validator } from "hono-openapi";
-import * as v from "valibot";
 import db from "../database";
-import { integrationTable, projectTable } from "../database/schema";
+import { integrationTable } from "../database/schema";
+import { scopeToProjectFromBody } from "../integrations/middleware";
+import { projectIdBody, projectIdParam } from "../integrations/schema";
+import {
+  apiRouter,
+  type BaseVariables,
+  createRoute,
+  errorResponse,
+  jsonResponse,
+} from "../openapi";
 import {
   type GitlabConfig,
   validateGitlabConfig,
 } from "../plugins/gitlab/config";
 import { handleGitlabWebhookRequest } from "../plugins/gitlab/webhook-handler";
-import { gitlabIntegrationSchema } from "../schemas";
 import {
   hasWorkspacePermission,
   requireWorkspacePermission,
 } from "../utils/require-workspace-permission";
-import { validateWorkspaceAccess } from "../utils/validate-workspace-access";
-import {
-  workspaceAccess,
-  workspaceAccessMiddleware,
-} from "../utils/workspace-access-middleware";
+import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createGitlabIntegration from "./controllers/create-gitlab-integration";
 import deleteGitlabIntegration from "./controllers/delete-gitlab-integration";
 import getGitlabIntegration from "./controllers/get-gitlab-integration";
 import { importGitlabIssues } from "./controllers/import-gitlab-issues";
 import listGitlabRepositories from "./controllers/list-gitlab-repositories";
 import verifyGitlabAccess from "./controllers/verify-gitlab-access";
+import {
+  gitlabDeleteResultSchema,
+  gitlabImportResultSchema,
+  gitlabIntegrationNotFoundSchema,
+  gitlabIntegrationSchema,
+  gitlabRepositoryListSchema,
+  gitlabVerificationResultSchema,
+} from "./response";
+import {
+  createGitlabBody,
+  listGitlabRepositoriesBody,
+  updateGitlabBody,
+  verifyGitlabBody,
+} from "./schema";
 
-const gitlabRepositorySchema = v.object({
-  id: v.number(),
-  name: v.string(),
-  path_with_namespace: v.string(),
-  visibility: v.string(),
-  web_url: v.string(),
+const manageAccess = [
+  workspaceAccess.fromProject("projectId"),
+  requireWorkspacePermission({ workspace: ["manage_settings"] }),
+];
+
+const listRepositoriesRoute = createRoute({
+  method: "post",
+  operationId: "listGitlabRepositories",
+  path: "/repositories",
+  tags: ["GitLab"],
+  summary: "List GitLab repositories",
+  description:
+    "List the repositories a GitLab token can reach, for picking one to link. Sent as a POST because the token travels in the body rather than the URL.",
+  middleware: manageAccess,
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: listGitlabRepositoriesBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("Accessible repositories", gitlabRepositoryListSchema),
+    400: errorResponse("Invalid body, or unknown project"),
+    403: errorResponse(
+      "No workspace access, or missing workspace:manage_settings",
+    ),
+  },
 });
 
-const verificationResultSchema = v.object({
-  isInstalled: v.boolean(),
-  hasRequiredPermissions: v.boolean(),
-  repositoryExists: v.boolean(),
-  repositoryPrivate: v.nullable(v.boolean()),
-  missingPermissions: v.array(v.string()),
-  message: v.string(),
-  failureReason: v.nullable(
-    v.picklist(["not_a_gitlab_instance", "redirected", "repository_not_found"]),
-  ),
+const verifyRoute = createRoute({
+  method: "post",
+  operationId: "verifyGitlabAccess",
+  path: "/verify",
+  tags: ["GitLab"],
+  summary: "Verify GitLab access",
+  description:
+    "Check that the base URL is a GitLab instance and that the token can reach the repository with the permissions Kaneo needs. Always 200 -- problems are reported in the body.",
+  middleware: manageAccess,
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: verifyGitlabBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("Verification result", gitlabVerificationResultSchema),
+    400: errorResponse("Invalid body, or unknown project"),
+    403: errorResponse(
+      "No workspace access, or missing workspace:manage_settings",
+    ),
+  },
 });
 
-const nullableGitlabIntegrationSchema = v.nullable(gitlabIntegrationSchema);
+const getIntegrationRoute = createRoute({
+  method: "get",
+  operationId: "getGitlabIntegration",
+  path: "/project/{projectId}",
+  tags: ["GitLab"],
+  summary: "Get GitLab integration",
+  description:
+    "Get the GitLab integration for a project, or null when none is configured. The webhook secret is included only for callers with workspace:manage_settings.",
+  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  request: { params: projectIdParam },
+  responses: {
+    200: jsonResponse(
+      "GitLab integration details, or null",
+      gitlabIntegrationSchema.nullable(),
+    ),
+    400: errorResponse(
+      "Unknown project, or its workspace could not be determined",
+    ),
+    403: errorResponse("No access to the project's workspace"),
+  },
+});
 
-const gitlabIntegration = new Hono<{
-  Variables: {
-    userId: string;
-    workspaceId: string;
-    apiKey?: {
-      id: string;
-      userId: string;
-      enabled: boolean;
-    };
-  };
-}>()
-  .post(
-    "/repositories",
-    describeRoute({
-      operationId: "listGitlabRepositories",
-      tags: ["GitLab"],
-      description: "List projects accessible with a GitLab token",
-      responses: {
-        200: {
-          description: "Repositories",
-          content: {
-            "application/json": {
-              schema: resolver(
-                v.object({
-                  repositories: v.array(gitlabRepositorySchema),
-                }),
-              ),
-            },
-          },
-        },
-      },
-    }),
-    validator(
-      "json",
-      v.object({
-        projectId: v.pipe(v.string(), v.minLength(1)),
-        baseUrl: v.pipe(v.string(), v.url()),
-        accessToken: v.pipe(v.string(), v.minLength(1)),
-      }),
-    ),
-    workspaceAccess.fromProject("projectId"),
-    requireWorkspacePermission({ workspace: ["manage_settings"] }),
-    async (c) => {
-      const { baseUrl, accessToken } = c.req.valid("json");
-      const result = await listGitlabRepositories({ baseUrl, accessToken });
-      return c.json(result);
+const createIntegrationRoute = createRoute({
+  method: "post",
+  operationId: "createGitlabIntegration",
+  path: "/project/{projectId}",
+  tags: ["GitLab"],
+  summary: "Create GitLab integration",
+  description:
+    "Link a project to a GitLab repository, creating the webhook GitLab will post events to. Use the verify route first to confirm the token really reaches the repository.",
+  middleware: manageAccess,
+  request: {
+    params: projectIdParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: createGitlabBody } },
     },
-  )
-  .post(
-    "/verify",
-    describeRoute({
-      operationId: "verifyGitlabAccess",
-      tags: ["GitLab"],
-      description: "Verify GitLab token and project access",
-      responses: {
-        200: {
-          description: "Verification result",
-          content: {
-            "application/json": {
-              schema: resolver(verificationResultSchema),
-            },
-          },
-        },
-      },
-    }),
-    validator(
-      "json",
-      v.object({
-        projectId: v.pipe(v.string(), v.minLength(1)),
-        baseUrl: v.pipe(v.string(), v.url()),
-        accessToken: v.pipe(v.string(), v.minLength(1)),
-        repositoryPath: v.pipe(v.string(), v.minLength(1)),
-      }),
+  },
+  responses: {
+    200: jsonResponse("The stored integration", gitlabIntegrationSchema),
+    400: errorResponse("Invalid body, or unknown project"),
+    403: errorResponse(
+      "No workspace access, or missing workspace:manage_settings",
     ),
-    workspaceAccess.fromProject("projectId"),
-    requireWorkspacePermission({ workspace: ["manage_settings"] }),
-    async (c) => {
-      const body = c.req.valid("json");
-      const result = await verifyGitlabAccess(body);
-      return c.json(result);
-    },
-  )
-  .get(
-    "/project/:projectId",
-    describeRoute({
-      operationId: "getGitlabIntegration",
-      tags: ["GitLab"],
-      description: "Get GitLab integration for a project",
-      responses: {
-        200: {
-          description: "GitLab integration details",
-          content: {
-            "application/json": {
-              schema: resolver(nullableGitlabIntegrationSchema),
-            },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ projectId: v.string() })),
-    workspaceAccessMiddleware({
-      sources: [{ type: "lookup", resource: "project", idKey: "projectId" }],
-    }),
-    async (c) => {
-      const { projectId } = c.req.valid("param");
-      const includeWebhookSecret = await hasWorkspacePermission(c, {
-        workspace: ["manage_settings"],
-      });
-      const integration = await getGitlabIntegration(
-        projectId,
-        includeWebhookSecret,
-      );
-      if (!integration) {
-        return c.json(null, 200);
-      }
-      return c.json(integration);
-    },
-  )
-  .post(
-    "/project/:projectId",
-    describeRoute({
-      operationId: "createGitlabIntegration",
-      tags: ["GitLab"],
-      description: "Create or update GitLab integration for a project",
-      responses: {
-        200: {
-          description: "Integration saved",
-          content: {
-            "application/json": {
-              schema: resolver(gitlabIntegrationSchema),
-            },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ projectId: v.string() })),
-    validator(
-      "json",
-      v.object({
-        baseUrl: v.pipe(v.string(), v.minLength(1)),
-        accessToken: v.optional(v.string()),
-        repositoryPath: v.pipe(v.string(), v.minLength(1)),
-      }),
-    ),
-    workspaceAccess.fromProject("projectId"),
-    requireWorkspacePermission({ workspace: ["manage_settings"] }),
-    async (c) => {
-      const { projectId } = c.req.valid("param");
-      const body = c.req.valid("json");
-      await createGitlabIntegration({
-        projectId,
-        baseUrl: body.baseUrl,
-        accessToken: body.accessToken,
-        repositoryPath: body.repositoryPath,
-      });
-      const integration = await getGitlabIntegration(projectId, true);
-      if (!integration) {
-        throw new HTTPException(500, { message: "Failed to load integration" });
-      }
-      return c.json(integration);
-    },
-  )
-  .patch(
-    "/project/:projectId",
-    describeRoute({
-      operationId: "updateGitlabIntegration",
-      tags: ["GitLab"],
-      description: "Update GitLab integration settings",
-      responses: {
-        200: {
-          description: "Updated",
-          content: {
-            "application/json": {
-              schema: resolver(gitlabIntegrationSchema),
-            },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ projectId: v.string() })),
-    validator(
-      "json",
-      v.object({
-        isActive: v.optional(v.boolean()),
-        commentTaskLinkOnGitlabIssue: v.optional(v.boolean()),
-      }),
-    ),
-    workspaceAccess.fromProject("projectId"),
-    requireWorkspacePermission({ workspace: ["manage_settings"] }),
-    async (c) => {
-      const { projectId } = c.req.valid("param");
-      const body = c.req.valid("json");
+  },
+});
 
-      const row = await db.query.integrationTable.findFirst({
-        where: and(
+const updateIntegrationRoute = createRoute({
+  method: "patch",
+  operationId: "updateGitlabIntegration",
+  path: "/project/{projectId}",
+  tags: ["GitLab"],
+  summary: "Update GitLab integration",
+  description:
+    "Update the GitLab integration. Omitted fields keep their current value.",
+  middleware: manageAccess,
+  request: {
+    params: projectIdParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: updateGitlabBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("The updated integration", gitlabIntegrationSchema),
+    400: errorResponse("The resulting config failed validation"),
+    403: errorResponse(
+      "No workspace access, or missing workspace:manage_settings",
+    ),
+    404: jsonResponse("Integration not found", gitlabIntegrationNotFoundSchema),
+  },
+});
+
+const deleteIntegrationRoute = createRoute({
+  method: "delete",
+  operationId: "deleteGitlabIntegration",
+  path: "/project/{projectId}",
+  tags: ["GitLab"],
+  summary: "Delete GitLab integration",
+  description: "Unlink a project from its GitLab repository.",
+  middleware: manageAccess,
+  request: { params: projectIdParam },
+  responses: {
+    200: jsonResponse("The integration was removed", gitlabDeleteResultSchema),
+    400: errorResponse(
+      "Unknown project, or its workspace could not be determined",
+    ),
+    403: errorResponse(
+      "No workspace access, or missing workspace:manage_settings",
+    ),
+    404: errorResponse("GitLab integration not found"),
+  },
+});
+
+const importIssuesRoute = createRoute({
+  method: "post",
+  operationId: "importGitlabIssues",
+  path: "/import-issues",
+  tags: ["GitLab"],
+  summary: "Import GitLab issues",
+  description:
+    "Import the linked repository's issues as tasks. Issues that already have a task are refreshed rather than duplicated.",
+  middleware: [
+    scopeToProjectFromBody,
+    requireWorkspacePermission({ task: ["create"] }),
+  ] as const,
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: projectIdBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("Import summary", gitlabImportResultSchema),
+    400: errorResponse("projectId is required"),
+    403: errorResponse(
+      "No workspace access, or missing task:create permission",
+    ),
+    404: errorResponse("Project not found"),
+  },
+});
+
+const gitlabIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
+  .openapi(listRepositoriesRoute, async (c) => {
+    const { baseUrl, accessToken } = c.req.valid("json");
+    const result = await listGitlabRepositories({ baseUrl, accessToken });
+    return c.json(result, 200);
+  })
+  .openapi(verifyRoute, async (c) => {
+    const body = c.req.valid("json");
+    const result = await verifyGitlabAccess(body);
+    return c.json(result, 200);
+  })
+  .openapi(getIntegrationRoute, async (c) => {
+    const { projectId } = c.req.valid("param");
+    const includeWebhookSecret = await hasWorkspacePermission(c, {
+      workspace: ["manage_settings"],
+    });
+    const integration = await getGitlabIntegration(
+      projectId,
+      includeWebhookSecret,
+    );
+    if (!integration) {
+      return c.json(null, 200);
+    }
+    return c.json(integration, 200);
+  })
+  .openapi(createIntegrationRoute, async (c) => {
+    const { projectId } = c.req.valid("param");
+    const body = c.req.valid("json");
+    await createGitlabIntegration({
+      projectId,
+      baseUrl: body.baseUrl,
+      accessToken: body.accessToken,
+      repositoryPath: body.repositoryPath,
+    });
+    const integration = await getGitlabIntegration(projectId, true);
+    if (!integration) {
+      throw new HTTPException(500, { message: "Failed to load integration" });
+    }
+    return c.json(integration, 200);
+  })
+  .openapi(updateIntegrationRoute, async (c) => {
+    const { projectId } = c.req.valid("param");
+    const body = c.req.valid("json");
+
+    const row = await db.query.integrationTable.findFirst({
+      where: and(
+        eq(integrationTable.projectId, projectId),
+        eq(integrationTable.type, "gitlab"),
+      ),
+    });
+
+    if (!row) {
+      return c.json({ error: "Integration not found" }, 404);
+    }
+
+    let config: GitlabConfig;
+    try {
+      config = JSON.parse(row.config) as GitlabConfig;
+    } catch {
+      throw new HTTPException(500, { message: "Invalid integration config" });
+    }
+
+    if (body.commentTaskLinkOnGitlabIssue !== undefined) {
+      config = {
+        ...config,
+        commentTaskLinkOnGitlabIssue: body.commentTaskLinkOnGitlabIssue,
+      };
+    }
+
+    const validation = await validateGitlabConfig(config);
+    if (!validation.valid) {
+      throw new HTTPException(400, {
+        message: validation.errors?.join(", ") ?? "Invalid config",
+      });
+    }
+
+    await db
+      .update(integrationTable)
+      .set({
+        config: JSON.stringify(config),
+        isActive:
+          body.isActive !== undefined ? body.isActive : (row.isActive ?? true),
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
           eq(integrationTable.projectId, projectId),
           eq(integrationTable.type, "gitlab"),
         ),
-      });
+      );
 
-      if (!row) {
-        return c.json({ error: "Integration not found" }, 404);
-      }
-
-      let config: GitlabConfig;
-      try {
-        config = JSON.parse(row.config) as GitlabConfig;
-      } catch {
-        throw new HTTPException(500, { message: "Invalid integration config" });
-      }
-
-      if (body.commentTaskLinkOnGitlabIssue !== undefined) {
-        config = {
-          ...config,
-          commentTaskLinkOnGitlabIssue: body.commentTaskLinkOnGitlabIssue,
-        };
-      }
-
-      const validation = await validateGitlabConfig(config);
-      if (!validation.valid) {
-        throw new HTTPException(400, {
-          message: validation.errors?.join(", ") ?? "Invalid config",
-        });
-      }
-
-      await db
-        .update(integrationTable)
-        .set({
-          config: JSON.stringify(config),
-          isActive:
-            body.isActive !== undefined
-              ? body.isActive
-              : (row.isActive ?? true),
-          updatedAt: new Date(),
-        })
-        .where(
-          and(
-            eq(integrationTable.projectId, projectId),
-            eq(integrationTable.type, "gitlab"),
-          ),
-        );
-
-      const updated = await getGitlabIntegration(projectId, true);
-      if (!updated) {
-        throw new HTTPException(500, { message: "Failed to load integration" });
-      }
-      return c.json(updated, 200);
-    },
-  )
-  .delete(
-    "/project/:projectId",
-    describeRoute({
-      operationId: "deleteGitlabIntegration",
-      tags: ["GitLab"],
-      description: "Delete GitLab integration for a project",
-      responses: {
-        200: {
-          description: "Deleted",
-          content: {
-            "application/json": {
-              schema: resolver(
-                v.object({
-                  success: v.boolean(),
-                  message: v.string(),
-                }),
-              ),
-            },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ projectId: v.string() })),
-    workspaceAccess.fromProject("projectId"),
-    requireWorkspacePermission({ workspace: ["manage_settings"] }),
-    async (c) => {
-      const { projectId } = c.req.valid("param");
-      const result = await deleteGitlabIntegration(projectId);
-      return c.json(result);
-    },
-  )
-  .post(
-    "/import-issues",
-    describeRoute({
-      operationId: "importGitlabIssues",
-      tags: ["GitLab"],
-      description: "Import GitLab issues as tasks",
-      responses: {
-        200: {
-          description: "Import result",
-          content: {
-            "application/json": {
-              schema: resolver(
-                v.object({
-                  imported: v.number(),
-                  updated: v.number(),
-                  skipped: v.number(),
-                  errors: v.optional(v.array(v.string())),
-                }),
-              ),
-            },
-          },
-        },
-      },
-    }),
-    validator(
-      "json",
-      v.object({
-        projectId: v.string(),
-      }),
-    ),
-    async (c, next) => {
-      const userId = c.get("userId");
-      if (!userId) {
-        throw new HTTPException(401, { message: "Unauthorized" });
-      }
-
-      const { projectId } = c.req.valid("json");
-
-      const [project] = await db
-        .select({ workspaceId: projectTable.workspaceId })
-        .from(projectTable)
-        .where(eq(projectTable.id, projectId))
-        .limit(1);
-
-      if (!project) {
-        throw new HTTPException(404, { message: "Project not found" });
-      }
-
-      const apiKey = c.get("apiKey");
-      const apiKeyId = apiKey?.id;
-
-      await validateWorkspaceAccess(userId, project.workspaceId, apiKeyId);
-      c.set("workspaceId", project.workspaceId);
-
-      return next();
-    },
-    requireWorkspacePermission({ task: ["create"] }),
-    async (c) => {
-      const { projectId } = c.req.valid("json");
-      const result = await importGitlabIssues(projectId);
-      return c.json(result);
-    },
-  );
+    const updated = await getGitlabIntegration(projectId, true);
+    if (!updated) {
+      throw new HTTPException(500, { message: "Failed to load integration" });
+    }
+    return c.json(updated, 200);
+  })
+  .openapi(deleteIntegrationRoute, async (c) => {
+    const { projectId } = c.req.valid("param");
+    const result = await deleteGitlabIntegration(projectId);
+    return c.json(result, 200);
+  })
+  .openapi(importIssuesRoute, async (c) => {
+    const { projectId } = c.req.valid("json");
+    const result = await importGitlabIssues(projectId);
+    return c.json(result, 200);
+  });
 
 export async function handleGitlabWebhookRoute(c: Context) {
   const integrationId = c.req.param("integrationId");

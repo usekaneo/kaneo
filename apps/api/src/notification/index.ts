@@ -1,162 +1,134 @@
 import { eq } from "drizzle-orm";
-import { Hono } from "hono";
-import { describeRoute, resolver, validator } from "hono-openapi";
-import * as v from "valibot";
 import db from "../database";
 import { projectTable, taskTable } from "../database/schema";
 import { subscribeToEvent } from "../events";
-import { notificationSchema } from "../schemas";
+import {
+  apiRouter,
+  createRoute,
+  errorResponse,
+  jsonResponse,
+} from "../openapi";
 import clearNotifications from "./controllers/clear-notifications";
 import createNotification from "./controllers/create-notification";
 import getNotifications from "./controllers/get-notifications";
 import markAllNotificationsAsRead from "./controllers/mark-all-notifications-as-read";
 import markAsRead from "./controllers/mark-notification-as-read";
+import {
+  bulkResultSchema,
+  notificationListSchema,
+  notificationSchema,
+} from "./response";
+import { createNotificationBody, notificationParam } from "./schema";
 
-const bulkResultSchema = v.object({
-  success: v.boolean(),
-  count: v.optional(v.number()),
+const listNotificationsRoute = createRoute({
+  method: "get",
+  operationId: "listNotifications",
+  path: "/",
+  tags: ["Notifications"],
+  summary: "List notifications",
+  description: "Get every notification for the current user, read and unread.",
+  responses: {
+    200: jsonResponse("List of notifications", notificationListSchema),
+  },
 });
 
-const notification = new Hono<{
-  Variables: {
-    userId: string;
-  };
-}>()
-  .get(
-    "/",
-    describeRoute({
-      operationId: "listNotifications",
-      tags: ["Notifications"],
-      description: "Get all notifications for the current user",
-      responses: {
-        200: {
-          description: "List of notifications",
-          content: {
-            "application/json": {
-              schema: resolver(v.array(notificationSchema)),
-            },
-          },
-        },
-      },
-    }),
-    async (c) => {
-      const userId = c.get("userId");
-      const notifications = await getNotifications(userId);
-      return c.json(notifications);
+const createNotificationRoute = createRoute({
+  method: "post",
+  operationId: "createNotification",
+  path: "/",
+  tags: ["Notifications"],
+  summary: "Create notification",
+  description:
+    "Create a notification for the current user. Most notifications are raised by the server from task and workspace events; this exists for integrations. Returns null when the user has turned off this notification category in their preferences.",
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: createNotificationBody } },
     },
-  )
-  .post(
-    "/",
-    describeRoute({
-      operationId: "createNotification",
-      tags: ["Notifications"],
-      description: "Create a new notification for a user",
-      responses: {
-        200: {
-          description: "Notification created successfully",
-          content: {
-            "application/json": { schema: resolver(notificationSchema) },
-          },
-        },
-      },
-    }),
-    validator(
-      "json",
-      v.object({
-        title: v.optional(v.nullable(v.string())),
-        message: v.optional(v.nullable(v.string())),
-        type: v.string(),
-        eventData: v.optional(v.nullable(v.record(v.string(), v.unknown()))),
-        relatedEntityId: v.optional(v.string()),
-        relatedEntityType: v.optional(v.string()),
-      }),
+  },
+  responses: {
+    200: jsonResponse(
+      "The created notification, or null when the user has muted this notification type",
+      notificationSchema.nullable(),
     ),
-    async (c) => {
-      const {
-        title,
-        message,
-        type,
-        eventData,
-        relatedEntityId,
-        relatedEntityType,
-      } = c.req.valid("json");
-      const userId = c.get("userId");
-      const notification = await createNotification({
-        userId,
+    400: errorResponse("Invalid request"),
+  },
+});
+
+const markAsReadRoute = createRoute({
+  method: "patch",
+  operationId: "markNotificationAsRead",
+  path: "/{id}/read",
+  tags: ["Notifications"],
+  summary: "Mark notification read",
+  description:
+    "Mark one notification as read. Scoped to the current user, so another user's notification is not found.",
+  request: { params: notificationParam },
+  responses: {
+    200: jsonResponse("The updated notification", notificationSchema),
+    404: errorResponse("Notification not found"),
+  },
+});
+
+const markAllAsReadRoute = createRoute({
+  method: "patch",
+  operationId: "markAllNotificationsAsRead",
+  path: "/read-all",
+  tags: ["Notifications"],
+  summary: "Mark all read",
+  description: "Mark every notification for the current user as read.",
+  responses: {
+    200: jsonResponse("All notifications marked as read", bulkResultSchema),
+  },
+});
+
+const clearAllRoute = createRoute({
+  method: "delete",
+  operationId: "clearAllNotifications",
+  path: "/clear-all",
+  tags: ["Notifications"],
+  summary: "Clear all",
+  description:
+    "Permanently delete every notification for the current user. This cannot be undone.",
+  responses: {
+    200: jsonResponse("All notifications cleared", bulkResultSchema),
+  },
+});
+
+const notification = apiRouter()
+  .openapi(listNotificationsRoute, async (c) =>
+    c.json(await getNotifications(c.get("userId")), 200),
+  )
+  .openapi(createNotificationRoute, async (c) => {
+    const {
+      title,
+      message,
+      type,
+      eventData,
+      relatedEntityId,
+      relatedEntityType,
+    } = c.req.valid("json");
+    return c.json(
+      await createNotification({
+        userId: c.get("userId"),
         title,
         content: message,
         type,
         eventData,
         resourceId: relatedEntityId,
         resourceType: relatedEntityType,
-      });
-      return c.json(notification);
-    },
+      }),
+      200,
+    );
+  })
+  .openapi(markAsReadRoute, async (c) =>
+    c.json(await markAsRead(c.req.valid("param").id, c.get("userId")), 200),
   )
-  .patch(
-    "/:id/read",
-    describeRoute({
-      operationId: "markNotificationAsRead",
-      tags: ["Notifications"],
-      description: "Mark a specific notification as read",
-      responses: {
-        200: {
-          description: "Notification marked as read",
-          content: {
-            "application/json": { schema: resolver(notificationSchema) },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ id: v.string() })),
-    async (c) => {
-      const { id } = c.req.valid("param");
-      const userId = c.get("userId");
-      const notification = await markAsRead(id, userId);
-      return c.json(notification);
-    },
+  .openapi(markAllAsReadRoute, async (c) =>
+    c.json(await markAllNotificationsAsRead(c.get("userId")), 200),
   )
-  .patch(
-    "/read-all",
-    describeRoute({
-      operationId: "markAllNotificationsAsRead",
-      tags: ["Notifications"],
-      description: "Mark all notifications as read for the current user",
-      responses: {
-        200: {
-          description: "All notifications marked as read",
-          content: {
-            "application/json": { schema: resolver(bulkResultSchema) },
-          },
-        },
-      },
-    }),
-    async (c) => {
-      const userId = c.get("userId");
-      const result = await markAllNotificationsAsRead(userId);
-      return c.json(result);
-    },
-  )
-  .delete(
-    "/clear-all",
-    describeRoute({
-      operationId: "clearAllNotifications",
-      tags: ["Notifications"],
-      description: "Clear all notifications for the current user",
-      responses: {
-        200: {
-          description: "All notifications cleared",
-          content: {
-            "application/json": { schema: resolver(bulkResultSchema) },
-          },
-        },
-      },
-    }),
-    async (c) => {
-      const userId = c.get("userId");
-      const result = await clearNotifications(userId);
-      return c.json(result);
-    },
+  .openapi(clearAllRoute, async (c) =>
+    c.json(await clearNotifications(c.get("userId")), 200),
   );
 
 subscribeToEvent<{

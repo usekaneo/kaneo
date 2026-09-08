@@ -56,7 +56,30 @@
 			"troubleshooting": "Sorun giderme adımları:",
 			"tryAgain": "Tekrar dene",
 			"viewDeploymentGuide": "Dağıtım Kılavuzunu Görüntüle",
-			"refreshPage": "Sayfayı Yenile"
+			"refreshPage": "Sayfayı Yenile",
+			"description": "The page crashed unexpectedly. Refreshing usually fixes it.",
+			"messages": {
+				"auth": "Authentication failed. Please sign in again.",
+				"cors": "Unable to connect to the server. This might be due to CORS configuration issues.",
+				"network": "Network error. Please check your internet connection and try again.",
+				"server": "Server error. Please try again later.",
+				"unknown": "An unexpected error occurred."
+			},
+			"troubleshootingSteps": {
+				"cors": {
+					"checkAccessibility": "Check that your API server is accessible from your browser",
+					"checkApiRunning": "Make sure your API server is running",
+					"checkApiUrl": "Check that VITE_API_URL in your frontend .env matches your API server URL",
+					"checkProtocol": "Ensure both frontend and API are using the same protocol (http/https)",
+					"verifyCorsOrigins": "Verify CORS_ORIGINS in your API .env includes your frontend URL"
+				},
+				"network": {
+					"checkConnection": "Check your internet connection",
+					"checkFirewall": "Check if there are any firewall or proxy issues",
+					"tryRefresh": "Try refreshing the page",
+					"verifyApiRunning": "Verify the API server is running and accessible"
+				}
+			}
 		},
 		"formats": {
 			"never": "Asla"
@@ -116,6 +139,9 @@
 				"labelCreateError": "Etiket oluşturulamadı",
 				"createMore": "Daha fazla oluştur",
 				"createButton": "Talep Oluştur",
+				"discardTitle": "Kaydedilmemiş talep taslağı silinsin mi?",
+				"discardDescription": "Kaydedilmemiş talep ayrıntıları kaybolacak.",
+				"discardButton": "Talep taslağını sil",
 				"untitledTask": "Başlıksız talep",
 				"labelColors": {
 					"stone": "Taş",
@@ -1535,6 +1561,7 @@
 		}
 	},
 	"tasks": {
+		"title": "Görevler",
 		"status": {
 			"label": "Durum",
 			"to-do": "Yapılacak",
@@ -1842,7 +1869,8 @@
 			"updateDatesError": "Talep tarihleri güncellenemedi",
 			"resizeStart": "Başlangıç tarihini yeniden boyutlandır",
 			"resizeDue": "Bitiş tarihini yeniden boyutlandır",
-			"taskAriaLabel": "{{title}}: açmak veya taşımak için sürükleyin"
+			"taskAriaLabel": "{{title}}: açmak veya taşımak için sürükleyin",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "Talep Silinsin mi?",

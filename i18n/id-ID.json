@@ -56,7 +56,30 @@
 			"troubleshooting": "Langkah pemecahan masalah:",
 			"tryAgain": "Coba lagi",
 			"viewDeploymentGuide": "Lihat panduan deployment",
-			"refreshPage": "Muat ulang halaman"
+			"refreshPage": "Muat ulang halaman",
+			"description": "The page crashed unexpectedly. Refreshing usually fixes it.",
+			"messages": {
+				"auth": "Authentication failed. Please sign in again.",
+				"cors": "Unable to connect to the server. This might be due to CORS configuration issues.",
+				"network": "Network error. Please check your internet connection and try again.",
+				"server": "Server error. Please try again later.",
+				"unknown": "An unexpected error occurred."
+			},
+			"troubleshootingSteps": {
+				"cors": {
+					"checkAccessibility": "Check that your API server is accessible from your browser",
+					"checkApiRunning": "Make sure your API server is running",
+					"checkApiUrl": "Check that VITE_API_URL in your frontend .env matches your API server URL",
+					"checkProtocol": "Ensure both frontend and API are using the same protocol (http/https)",
+					"verifyCorsOrigins": "Verify CORS_ORIGINS in your API .env includes your frontend URL"
+				},
+				"network": {
+					"checkConnection": "Check your internet connection",
+					"checkFirewall": "Check if there are any firewall or proxy issues",
+					"tryRefresh": "Try refreshing the page",
+					"verifyApiRunning": "Verify the API server is running and accessible"
+				}
+			}
 		},
 		"formats": {
 			"never": "Tidak pernah"
@@ -116,6 +139,9 @@
 				"labelCreateError": "Gagal membuat label",
 				"createMore": "Buat lagi",
 				"createButton": "Buat Tugas",
+				"discardTitle": "Buang tugas?",
+				"discardDescription": "Detail tugas yang belum disimpan akan hilang.",
+				"discardButton": "Buang tugas",
 				"untitledTask": "Tugas tanpa judul",
 				"labelColors": {
 					"stone": "Abu Batu",
@@ -1099,7 +1125,6 @@
 			"emptyTitle": "Belum ada peran",
 			"emptyDescription": "Peran bawaan akan muncul di sini setelah disiapkan untuk ruang kerja ini.",
 			"defaultBadge": "Bawaan",
-			"permissionCount_one": "{{count}} izin",
 			"permissionCount_other": "{{count}} izin",
 			"nameLabel": "Nama",
 			"nameHint": "Huruf kecil. Tidak dapat diubah nanti.",
@@ -1363,7 +1388,6 @@
 	},
 	"notifications": {
 		"title": "Notifikasi",
-		"newCount_one": "{{count}} baru",
 		"newCount_other": "{{count}} baru",
 		"emptyTitle": "Belum ada notifikasi",
 		"emptySubtitle": "Pembaruan dan aktivitas akan muncul di sini.",
@@ -1413,11 +1437,8 @@
 			}
 		},
 		"reminderLeadTime": {
-			"minutes_one": "{{count}} menit",
 			"minutes_other": "{{count}} menit",
-			"hours_one": "{{count}} jam",
 			"hours_other": "{{count}} jam",
-			"days_one": "{{count}} hari",
 			"days_other": "{{count}} hari"
 		}
 	},
@@ -1535,6 +1556,7 @@
 		}
 	},
 	"tasks": {
+		"title": "Tugas",
 		"status": {
 			"label": "Status",
 			"to-do": "Perlu Dikerjakan",
@@ -1842,7 +1864,8 @@
 			"updateDatesError": "Gagal memperbarui tanggal tugas",
 			"resizeStart": "Ubah ukuran tanggal mulai",
 			"resizeDue": "Ubah ukuran tenggat",
-			"taskAriaLabel": "{{title}}: buka atau seret untuk memindahkan"
+			"taskAriaLabel": "{{title}}: buka atau seret untuk memindahkan",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "Hapus Tugas?",
@@ -1867,7 +1890,6 @@
 			"draft": "Draf",
 			"open": "Terbuka",
 			"label": "Pull Request",
-			"count_one": "{{count}} PR",
 			"count_other": "{{count}} PR"
 		},
 		"assignee": {
@@ -2013,7 +2035,6 @@
 			"placeholder": "Cari tugas berdasarkan judul atau ID pendek (mis. DEP-23)...",
 			"hint": "Cari di semua proyek dalam ruang kerja ini. Gunakan ID pendek seperti DEP-23 untuk menemukan tugas tertentu.",
 			"searching": "Mencari...",
-			"resultsFound_one": "{{count}} hasil ditemukan",
 			"resultsFound_other": "{{count}} hasil ditemukan",
 			"noResultsTitle": "Tidak ada hasil ditemukan",
 			"noResultsDescription": "Coba sesuaikan kata pencarian atau cari hal lain",

@@ -13,6 +13,15 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import TaskDescriptionEditor from "@/components/task/task-description-editor";
+import {
+  AlertDialog,
+  AlertDialogClose,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -49,6 +58,7 @@ import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { formatDateMedium } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
+import { resolveLabelColor } from "@/lib/label-color";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
@@ -191,6 +201,7 @@ function CreateTaskModal({
   const [createMore, setCreateMore] = useState(false);
   const [labels, setLabels] = useState<Label[]>([]);
   const [draftTask, setDraftTask] = useState<Task | null>(null);
+  const [discardConfirmationOpen, setDiscardConfirmationOpen] = useState(false);
 
   const [labelsOpen, setLabelsOpen] = useState(false);
   const [labelsStep, setLabelsStep] = useState<PopoverStep>("select");
@@ -241,15 +252,29 @@ function CreateTaskModal({
       (label) => label.name.toLowerCase() === searchValue.toLowerCase(),
     );
 
-  const handleClose = () => {
+  const hasUnsavedChanges = Boolean(
+    title.trim() ||
+      description.trim() ||
+      priority !== "no-priority" ||
+      assigneeId ||
+      startDate ||
+      dueDate ||
+      selectedProjectId ||
+      labels.length > 0 ||
+      draftTask,
+  );
+
+  const closeAndReset = () => {
     const shouldDeleteDraft = draftTask && !didSubmitRef.current;
 
+    setDiscardConfirmationOpen(false);
     setTitle("");
     setDescription("");
     setPriority("no-priority");
     setAssigneeId("");
     setStartDate(undefined);
     setDueDate(undefined);
+    setSelectedProjectId("");
     setCreateMore(false);
     setLabels([]);
     setLabelsStep("select");
@@ -266,6 +291,17 @@ function CreateTaskModal({
         // ignore cleanup failures for abandoned empty drafts
       });
     }
+  };
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) return;
+
+    if (hasUnsavedChanges && !didSubmitRef.current) {
+      setDiscardConfirmationOpen(true);
+      return;
+    }
+
+    closeAndReset();
   };
 
   const syncTaskIntoProject = useCallback(
@@ -451,7 +487,7 @@ function CreateTaskModal({
         didSubmitRef.current = false;
         setDraftTask(null);
       } else {
-        handleClose();
+        closeAndReset();
       }
     } catch (error) {
       didSubmitRef.current = false;
@@ -494,7 +530,7 @@ function CreateTaskModal({
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (!open) return;
+      if (!open || discardConfirmationOpen) return;
 
       if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
         e.preventDefault();
@@ -508,7 +544,7 @@ function CreateTaskModal({
         }
       }
     },
-    [open, title, resolvedProjectId, workspace?.id],
+    [open, discardConfirmationOpen, title, resolvedProjectId, workspace?.id],
   );
 
   useEffect(() => {
@@ -598,7 +634,7 @@ function CreateTaskModal({
   if (!canCreateTaskCapability) return null;
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         className="kaneo-create-task-modal max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
         showCloseButton={false}
@@ -663,9 +699,7 @@ function CreateTaskModal({
                     <span
                       className="inline-block w-2 h-2 mr-1.5 rounded-full"
                       style={{
-                        backgroundColor:
-                          labelColors.find((c) => c.value === label.color)
-                            ?.color || "var(--color-neutral-400)",
+                        backgroundColor: resolveLabelColor(label.color),
                       }}
                     />
                     <span className="max-w-20 truncate">{label.name}</span>
@@ -978,10 +1012,7 @@ function CreateTaskModal({
                             <span
                               className="w-2 h-2 rounded-full flex-shrink-0"
                               style={{
-                                backgroundColor:
-                                  labelColors.find(
-                                    (c) => c.value === label.color,
-                                  )?.color || "var(--color-neutral-400)",
+                                backgroundColor: resolveLabelColor(label.color),
                               }}
                             />
                             <span className="max-w-20 truncate">
@@ -1084,7 +1115,7 @@ function CreateTaskModal({
 
             <Button
               type="button"
-              onClick={handleClose}
+              onClick={() => handleOpenChange(false)}
               variant="outline"
               size="sm"
               className="border-border text-foreground hover:bg-accent"
@@ -1102,6 +1133,37 @@ function CreateTaskModal({
           </DialogFooter>
         </form>
       </DialogContent>
+
+      <AlertDialog
+        open={discardConfirmationOpen}
+        onOpenChange={setDiscardConfirmationOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("common:modals.createTask.discardTitle")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("common:modals.createTask.discardDescription")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogClose
+              render={<Button type="button" variant="outline" size="sm" />}
+            >
+              {t("common:actions.cancel")}
+            </AlertDialogClose>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={closeAndReset}
+            >
+              {t("common:modals.createTask.discardButton")}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }

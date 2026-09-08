@@ -5,6 +5,7 @@ import {
   MessageCircle,
   Radio,
   Send,
+  Server,
   Webhook,
 } from "lucide-react";
 import type { ReactNode } from "react";
@@ -17,6 +18,7 @@ import { GenericWebhookIntegrationSettings } from "@/components/project/generic-
 import { GiteaIntegrationSettings } from "@/components/project/gitea-integration-settings";
 import { GitHubIntegrationSettings } from "@/components/project/github-integration-settings";
 import { GitlabIntegrationSettings } from "@/components/project/gitlab-integration-settings";
+import { MattermostIntegrationSettings } from "@/components/project/mattermost-integration-settings";
 import { SlackIntegrationSettings } from "@/components/project/slack-integration-settings";
 import { TelegramIntegrationSettings } from "@/components/project/telegram-integration-settings";
 import {
@@ -97,6 +99,16 @@ function RouteComponent() {
             title={t("settings:projectIntegrations.slackSectionTitle")}
           >
             <SlackIntegrationSettings projectId={projectId} />
+          </IntegrationSection>
+
+          <IntegrationSection
+            icon={<Server className="size-4" />}
+            subtitle={t(
+              "settings:projectIntegrations.mattermostSectionSubtitle",
+            )}
+            title={t("settings:projectIntegrations.mattermostSectionTitle")}
+          >
+            <MattermostIntegrationSettings projectId={projectId} />
           </IntegrationSection>
 
           <IntegrationSection

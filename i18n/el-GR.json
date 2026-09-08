@@ -56,7 +56,30 @@
 			"troubleshooting": "Βήματα αντιμετώπισης προβλημάτων:",
 			"tryAgain": "Δοκιμάστε ξανά",
 			"viewDeploymentGuide": "Προβολή οδηγού εγκατάστασης",
-			"refreshPage": "Ανανέωση σελίδας"
+			"refreshPage": "Ανανέωση σελίδας",
+			"description": "The page crashed unexpectedly. Refreshing usually fixes it.",
+			"messages": {
+				"auth": "Authentication failed. Please sign in again.",
+				"cors": "Unable to connect to the server. This might be due to CORS configuration issues.",
+				"network": "Network error. Please check your internet connection and try again.",
+				"server": "Server error. Please try again later.",
+				"unknown": "An unexpected error occurred."
+			},
+			"troubleshootingSteps": {
+				"cors": {
+					"checkAccessibility": "Check that your API server is accessible from your browser",
+					"checkApiRunning": "Make sure your API server is running",
+					"checkApiUrl": "Check that VITE_API_URL in your frontend .env matches your API server URL",
+					"checkProtocol": "Ensure both frontend and API are using the same protocol (http/https)",
+					"verifyCorsOrigins": "Verify CORS_ORIGINS in your API .env includes your frontend URL"
+				},
+				"network": {
+					"checkConnection": "Check your internet connection",
+					"checkFirewall": "Check if there are any firewall or proxy issues",
+					"tryRefresh": "Try refreshing the page",
+					"verifyApiRunning": "Verify the API server is running and accessible"
+				}
+			}
 		},
 		"formats": {
 			"never": "Ποτέ"
@@ -116,6 +139,9 @@
 				"labelCreateError": "Αποτυχία δημιουργίας ετικέτας",
 				"createMore": "Δημιουργία περισσότερων",
 				"createButton": "Δημιουργία εργασίας",
+				"discardTitle": "Απόρριψη εργασίας;",
+				"discardDescription": "Οι μη αποθηκευμένες λεπτομέρειες της εργασίας θα χαθούν.",
+				"discardButton": "Απόρριψη εργασίας",
 				"untitledTask": "Εργασία χωρίς τίτλο",
 				"labelColors": {
 					"stone": "Πέτρα",
@@ -1535,6 +1561,7 @@
 		}
 	},
 	"tasks": {
+		"title": "Εργασίες",
 		"status": {
 			"label": "Κατάσταση",
 			"to-do": "Προς υλοποίηση",
@@ -1842,7 +1869,8 @@
 			"updateDatesError": "Αποτυχία ενημέρωσης ημερομηνιών εργασίας",
 			"resizeStart": "Αλλαγή μεγέθους ημερομηνίας έναρξης",
 			"resizeDue": "Αλλαγή μεγέθους ημερομηνίας λήξης",
-			"taskAriaLabel": "{{title}}: άνοιγμα ή σύρσιμο για μετακίνηση"
+			"taskAriaLabel": "{{title}}: άνοιγμα ή σύρσιμο για μετακίνηση",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "Διαγραφή εργασίας;",

@@ -1,4 +1,5 @@
 import { client } from "@kaneo/libs";
+import { HttpError } from "@/lib/http-error";
 import type { WorkspaceUserInvitation } from "@/types/workspace-user";
 
 export async function getPendingInvitations(): Promise<
@@ -7,7 +8,7 @@ export async function getPendingInvitations(): Promise<
   const response = await client.invitation.pending.$get();
 
   if (!response.ok) {
-    throw new Error("Failed to get pending invitations");
+    throw new HttpError(response.status, "Failed to get pending invitations");
   }
 
   return response.json();

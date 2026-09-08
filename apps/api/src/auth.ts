@@ -122,6 +122,7 @@ function getLocaleKey(locale?: string | null) {
   const normalized = locale?.toLowerCase();
   if (normalized?.startsWith("de")) return "de";
   if (normalized?.startsWith("vi")) return "vi";
+  if (normalized?.startsWith("ja")) return "ja";
   return "en";
 }
 
@@ -139,6 +140,13 @@ function getAuthEmailCopy(locale?: string | null) {
     return {
       magicLinkSubject: "Liên kết đăng nhập Kaneo",
       otpSubject: "Mã xác minh Kaneo",
+    };
+  }
+
+  if (localeKey === "ja") {
+    return {
+      magicLinkSubject: "Kaneo ログインリンク",
+      otpSubject: "Kaneo 認証コード",
     };
   }
 

@@ -2,7 +2,8 @@ import { client } from "@kaneo/libs";
 import type { InferResponseType } from "hono/client";
 
 export type GetConfigResponse = InferResponseType<
-  (typeof client)["config"]["$get"]
+  (typeof client)["config"]["$get"],
+  200
 >;
 
 export async function getConfig() {

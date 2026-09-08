@@ -36,7 +36,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import labelColors from "@/constants/label-colors";
 import { useBulkOperations } from "@/hooks/mutations/task/use-bulk-operations";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
@@ -45,6 +44,7 @@ import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel } from "@/lib/i18n/domain";
+import { resolveLabelColor } from "@/lib/label-color";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
@@ -364,9 +364,7 @@ function BulkToolbar() {
             <span
               className="inline-block w-3 h-3 rounded-full shrink-0"
               style={{
-                backgroundColor:
-                  labelColors.find((c) => c.value === label.color)?.color ||
-                  "var(--color-neutral-400)",
+                backgroundColor: resolveLabelColor(label.color),
               }}
             />
           ),

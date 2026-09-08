@@ -56,7 +56,30 @@
 			"troubleshooting": "Stappen voor probleemoplossing:",
 			"tryAgain": "Opnieuw proberen",
 			"viewDeploymentGuide": "Implementatiehandleiding bekijken",
-			"refreshPage": "Pagina vernieuwen"
+			"refreshPage": "Pagina vernieuwen",
+			"description": "The page crashed unexpectedly. Refreshing usually fixes it.",
+			"messages": {
+				"auth": "Authentication failed. Please sign in again.",
+				"cors": "Unable to connect to the server. This might be due to CORS configuration issues.",
+				"network": "Network error. Please check your internet connection and try again.",
+				"server": "Server error. Please try again later.",
+				"unknown": "An unexpected error occurred."
+			},
+			"troubleshootingSteps": {
+				"cors": {
+					"checkAccessibility": "Check that your API server is accessible from your browser",
+					"checkApiRunning": "Make sure your API server is running",
+					"checkApiUrl": "Check that VITE_API_URL in your frontend .env matches your API server URL",
+					"checkProtocol": "Ensure both frontend and API are using the same protocol (http/https)",
+					"verifyCorsOrigins": "Verify CORS_ORIGINS in your API .env includes your frontend URL"
+				},
+				"network": {
+					"checkConnection": "Check your internet connection",
+					"checkFirewall": "Check if there are any firewall or proxy issues",
+					"tryRefresh": "Try refreshing the page",
+					"verifyApiRunning": "Verify the API server is running and accessible"
+				}
+			}
 		},
 		"formats": {
 			"never": "Nooit"
@@ -116,6 +139,9 @@
 				"labelCreateError": "Aanmaken van label mislukt",
 				"createMore": "Meer aanmaken",
 				"createButton": "Taak aanmaken",
+				"discardTitle": "Taak verwerpen?",
+				"discardDescription": "Je niet-opgeslagen taakgegevens gaan verloren.",
+				"discardButton": "Taak verwerpen",
 				"untitledTask": "Naamloze taak",
 				"labelColors": {
 					"stone": "Steen",
@@ -1535,6 +1561,7 @@
 		}
 	},
 	"tasks": {
+		"title": "Taken",
 		"status": {
 			"label": "Status",
 			"to-do": "Te doen",
@@ -1831,7 +1858,8 @@
 			"updateDatesError": "Bijwerken taakdatums mislukt",
 			"resizeStart": "Startdatum wijzigen",
 			"resizeDue": "Einddatum wijzigen",
-			"taskAriaLabel": "{{title}}: openen of slepen om te verplaatsen"
+			"taskAriaLabel": "{{title}}: openen of slepen om te verplaatsen",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "Taak verwijderen?",

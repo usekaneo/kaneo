@@ -1,30 +1,22 @@
-import { Hono } from "hono";
-import { describeRoute, resolver } from "hono-openapi";
-import * as v from "valibot";
+import { apiRouter, createRoute, jsonResponse } from "../openapi";
 import getIdToken from "./controllers/get-id-token";
+import { idTokenSchema } from "./response";
 
-const oauth = new Hono<{ Variables: { userId: string } }>().get(
-  "/id-token",
-  describeRoute({
-    operationId: "getOAuthIdToken",
-    tags: ["Authentication"],
-    description: "Get the id_token for the current user's custom OAuth account",
-    responses: {
-      200: {
-        description: "The id_token if available",
-        content: {
-          "application/json": {
-            schema: resolver(v.object({ idToken: v.nullable(v.string()) })),
-          },
-        },
-      },
-    },
-  }),
-  async (c) => {
-    const userId = c.get("userId");
-    const result = await getIdToken(userId);
-    return c.json(result);
+const getIdTokenRoute = createRoute({
+  method: "get",
+  operationId: "getOAuthIdToken",
+  path: "/id-token",
+  tags: ["Authentication"],
+  summary: "Get OAuth id token",
+  description:
+    "Get the id_token for the current user's custom OAuth account. Returns null when the user signed in another way.",
+  responses: {
+    200: jsonResponse("The id_token if available", idTokenSchema),
   },
+});
+
+const oauth = apiRouter().openapi(getIdTokenRoute, async (c) =>
+  c.json(await getIdToken(c.get("userId")), 200),
 );
 
 export default oauth;

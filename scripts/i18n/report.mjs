@@ -4,7 +4,9 @@ import {
   defaultLocale,
   flattenLocale,
   formatKeyList,
+  getValueAtKey,
   loadLocales,
+  PLURAL_CATEGORIES,
   pruneLocale,
   repoRoot,
   writeJson,
@@ -20,8 +22,11 @@ const localeKeys = flattenLocale(reference.data);
 const sourceFiles = await collectSourceFiles(
   path.join(repoRoot, "apps", "web", "src"),
 );
-const { staticKeys, dynamicCalls, dynamicPrefixes } =
-  await collectUsedKeys(sourceFiles);
+const namespaces = new Set(Object.keys(reference.data));
+const { staticKeys, dynamicCalls, dynamicPrefixes } = await collectUsedKeys(
+  sourceFiles,
+  namespaces,
+);
 
 const missing = new Set(
   [...staticKeys].filter((key) => !isRepresentedByLocaleKeys(key, localeKeys)),
@@ -34,7 +39,56 @@ const unused = new Set(
   ),
 );
 
-if (missing.size === 0 && unused.size === 0 && dynamicCalls.length === 0) {
+function referenceFallback(key) {
+  for (const category of PLURAL_CATEGORIES) {
+    const suffix = `_${category}`;
+    if (!key.endsWith(suffix)) {
+      continue;
+    }
+    const base = key.slice(0, -suffix.length);
+    for (const candidate of [`${base}_other`, base, `${base}_one`]) {
+      const value = getValueAtKey(reference.data, candidate);
+      if (value !== undefined) {
+        return value;
+      }
+    }
+  }
+  return undefined;
+}
+
+// A value byte-identical to en-US has not been translated yet. Keys added by
+// `i18n:check --fix` land here, which is the only place they surface.
+const untranslated = new Map();
+for (const locale of locales) {
+  if (locale.locale === defaultLocale) {
+    continue;
+  }
+
+  // Locale-specific plural forms (_few, _many, …) are absent from en-US, so
+  // they are compared against the wording their family falls back to.
+  const candidates = new Set([...localeKeys, ...flattenLocale(locale.data)]);
+
+  const pending = [...candidates].filter((key) => {
+    const target = getValueAtKey(locale.data, key);
+    if (typeof target !== "string") {
+      return false;
+    }
+
+    const source = getValueAtKey(reference.data, key) ?? referenceFallback(key);
+    return typeof source === "string" && source === target;
+  });
+
+  if (pending.length > 0) {
+    untranslated.set(locale.locale, pending);
+  }
+}
+
+if (
+  missing.size === 0 &&
+  unused.size === 0 &&
+  dynamicCalls.length === 0 &&
+  untranslated.size === 0
+) {
   console.log("i18n report is clean.");
 } else {
   if (missing.size > 0) {
@@ -57,6 +111,16 @@ if (missing.size === 0 && unused.size === 0 && dynamicCalls.length === 0) {
       console.log(`  - ${call}`);
     }
   }
+
+  if (untranslated.size > 0) {
+    console.log("Untranslated (still identical to en-US):");
+    for (const [locale, keys] of [...untranslated].sort()) {
+      console.log(`  ${locale}: ${keys.length}`);
+      for (const key of formatKeyList(new Set(keys))) {
+        console.log(`    - ${key}`);
+      }
+    }
+  }
 }
 
 if (shouldFix) {
@@ -68,7 +132,7 @@ if (shouldFix) {
     );
 
     for (const locale of locales) {
-      const nextLocale = pruneLocale(locale.data, allowedKeys);
+      const nextLocale = pruneLocale(locale.data, allowedKeys, reference.data);
       await writeJson(locale.path, nextLocale);
     }
 
@@ -104,7 +168,7 @@ async function collectSourceFiles(rootDir) {
   return files.flat();
 }
 
-async function collectUsedKeys(files) {
+async function collectUsedKeys(files, knownNamespaces) {
   const staticKeys = new Set();
   const dynamicCalls = [];
   const dynamicPrefixes = [];
@@ -122,6 +186,19 @@ async function collectUsedKeys(files) {
       /\bi18nKey\s*=\s*(['"])([^'"\\]+)\1/gu,
     )) {
       staticKeys.add(match[2]);
+    }
+
+    // Keys are not always handed straight to t(): error-handler.ts returns them
+    // as values that error-display.tsx resolves through t(variable). A real
+    // namespace plus a dotted path keeps Tailwind variants, storage keys and
+    // permission statements out, while still reporting an indirect key the
+    // reference has not defined yet.
+    for (const match of source.matchAll(
+      /(['"])([a-z][\w-]*):([A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)+)\1/gu,
+    )) {
+      if (knownNamespaces.has(match[2])) {
+        staticKeys.add(`${match[2]}:${match[3]}`);
+      }
     }
 
     for (const match of source.matchAll(

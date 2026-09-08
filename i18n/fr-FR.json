@@ -56,7 +56,30 @@
 			"troubleshooting": "Étapes de dépannage :",
 			"tryAgain": "Réessayer",
 			"viewDeploymentGuide": "Voir le guide de déploiement",
-			"refreshPage": "Rafraîchir la page"
+			"refreshPage": "Rafraîchir la page",
+			"description": "The page crashed unexpectedly. Refreshing usually fixes it.",
+			"messages": {
+				"auth": "Authentication failed. Please sign in again.",
+				"cors": "Unable to connect to the server. This might be due to CORS configuration issues.",
+				"network": "Network error. Please check your internet connection and try again.",
+				"server": "Server error. Please try again later.",
+				"unknown": "An unexpected error occurred."
+			},
+			"troubleshootingSteps": {
+				"cors": {
+					"checkAccessibility": "Check that your API server is accessible from your browser",
+					"checkApiRunning": "Make sure your API server is running",
+					"checkApiUrl": "Check that VITE_API_URL in your frontend .env matches your API server URL",
+					"checkProtocol": "Ensure both frontend and API are using the same protocol (http/https)",
+					"verifyCorsOrigins": "Verify CORS_ORIGINS in your API .env includes your frontend URL"
+				},
+				"network": {
+					"checkConnection": "Check your internet connection",
+					"checkFirewall": "Check if there are any firewall or proxy issues",
+					"tryRefresh": "Try refreshing the page",
+					"verifyApiRunning": "Verify the API server is running and accessible"
+				}
+			}
 		},
 		"formats": {
 			"never": "Jamais"
@@ -116,6 +139,9 @@
 				"labelCreateError": "Échec de la création du label",
 				"createMore": "Créer plus",
 				"createButton": "Créer la tâche",
+				"discardTitle": "Abandonner la tâche ?",
+				"discardDescription": "Les détails non enregistrés de la tâche seront perdus.",
+				"discardButton": "Abandonner la tâche",
 				"untitledTask": "Tâche sans titre",
 				"labelColors": {
 					"stone": "Pierre",
@@ -1220,7 +1246,8 @@
 			"deleteDialog": {
 				"title": "Supprimer le rôle",
 				"description": "Cela supprimera définitivement le rôle \"{{role}}\". Les membres assignés à ce rôle perdront ses permissions."
-			}
+			},
+			"permissionCount_many": "{{count}} permissions"
 		},
 		"workspaceLabels": {
 			"pageTitle": "Paramètres des labels",
@@ -1418,8 +1445,12 @@
 			"hours_one": "{{count}} heure",
 			"hours_other": "{{count}} heures",
 			"days_one": "{{count}} jour",
-			"days_other": "{{count}} jours"
-		}
+			"days_other": "{{count}} jours",
+			"minutes_many": "{{count}} minutes",
+			"days_many": "{{count}} jours",
+			"hours_many": "{{count}} heures"
+		},
+		"newCount_many": "{{count}} nouvelles"
 	},
 	"activity": {
 		"assignedToSelf": "s'est assigné la tâche",
@@ -1535,6 +1566,7 @@
 		}
 	},
 	"tasks": {
+		"title": "Tâches",
 		"status": {
 			"label": "Statut",
 			"to-do": "À faire",
@@ -1842,7 +1874,8 @@
 			"updateDatesError": "Échec de la mise à jour des dates de la tâche",
 			"resizeStart": "Redimensionner la date de début",
 			"resizeDue": "Redimensionner la date d'échéance",
-			"taskAriaLabel": "{{title}} : ouvrir ou déplacer"
+			"taskAriaLabel": "{{title}} : ouvrir ou déplacer",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "Supprimer la tâche ?",
@@ -1868,7 +1901,8 @@
 			"open": "Ouvert",
 			"label": "Pull Request",
 			"count_one": "{{count}} PR",
-			"count_other": "{{count}} PR"
+			"count_other": "{{count}} PR",
+			"count_many": "{{count}} PR"
 		},
 		"assignee": {
 			"label": "Assigné",
@@ -2024,7 +2058,8 @@
 			"suggestionBug": "Bug",
 			"suggestionFeature": "Fonctionnalité",
 			"suggestionInProgress": "En cours",
-			"suggestionCompleted": "Terminé"
+			"suggestionCompleted": "Terminé",
+			"resultsFound_many": "{{count}} résultats trouvés"
 		},
 		"create": {
 			"pageTitle": "Créer un workspace",
