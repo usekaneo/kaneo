@@ -1753,6 +1753,7 @@
 		}
 	},
 	"tasks": {
+		"checklistProgress": "Ukończone elementy listy kontrolnej: {{completed}} z {{total}}",
 		"title": "Zadania",
 		"actions": {
 			"archive": "Archiwizuj",
@@ -2157,6 +2158,7 @@
 			"to-do": "Do zrobienia"
 		},
 		"subtasks": {
+			"progress": "Ukończone podzadania: {{completed}} z {{total}}",
 			"addAction": "Dodaj",
 			"completeAria": "Oznacz podzadanie jako ukończone",
 			"createError": "Nie udało się utworzyć podzadania",

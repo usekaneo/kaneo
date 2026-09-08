@@ -23,7 +23,7 @@ export async function getPublicProject(id: string) {
     });
   }
 
-  const result = await getTasks(id);
+  const result = await getTasks(id, { publicOnly: true });
 
   if (!result.data) {
     throw new HTTPException(404, {

@@ -9,16 +9,13 @@ export function useMoveTask() {
 
   return useMutation({
     mutationFn: moveTask,
-    onSuccess: (result, variables) => {
+    onSuccess: (_, variables) => {
       toast.success(t("tasks:move.success"));
       queryClient.invalidateQueries({
         queryKey: ["task", variables.taskId],
       });
       queryClient.invalidateQueries({
-        queryKey: ["tasks", result.sourceProjectId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["tasks", result.destinationProjectId],
+        queryKey: ["tasks"],
       });
       queryClient.invalidateQueries({
         queryKey: ["projects"],

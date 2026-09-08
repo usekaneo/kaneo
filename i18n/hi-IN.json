@@ -1561,6 +1561,7 @@
 		}
 	},
 	"tasks": {
+		"checklistProgress": "चेकलिस्ट के {{total}} में से {{completed}} आइटम पूरे हुए",
 		"title": "कार्य",
 		"status": {
 			"label": "स्थिति",
@@ -1718,6 +1719,7 @@
 			}
 		},
 		"subtasks": {
+			"progress": "{{total}} में से {{completed}} उपकार्य पूरे हुए",
 			"title": "उप-कार्य",
 			"inputPlaceholder": "उप-कार्य शीर्षक...",
 			"addAction": "जोड़ें",

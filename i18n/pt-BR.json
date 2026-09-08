@@ -1566,6 +1566,7 @@
 		}
 	},
 	"tasks": {
+		"checklistProgress": "{{completed}} de {{total}} itens da lista concluídos",
 		"title": "Tarefas",
 		"status": {
 			"label": "Status",
@@ -1723,6 +1724,7 @@
 			}
 		},
 		"subtasks": {
+			"progress": "{{completed}} de {{total}} subtarefas concluídas",
 			"title": "Subtarefas",
 			"inputPlaceholder": "Título da subtarefa...",
 			"addAction": "Adicionar",

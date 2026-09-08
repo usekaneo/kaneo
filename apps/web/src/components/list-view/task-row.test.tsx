@@ -85,6 +85,7 @@ const task: Task = {
   assigneeName: null,
   projectId: "project-1",
   labels: [{ id: "label-1", name: "Bug", color: "red" }],
+  subtaskCounts: { completed: 2, total: 5 },
   externalLinks: [
     {
       id: "link-1",
@@ -105,6 +106,9 @@ describe("TaskRow", () => {
 
     expect(screen.getByText("Bug")).toBeVisible();
     expect(screen.getByText("#42")).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: "tasks:subtasks.progress" }),
+    ).toHaveTextContent("2/5");
     expect(useExternalLinks).not.toHaveBeenCalled();
     expect(useGetLabelsByTask).not.toHaveBeenCalled();
   });

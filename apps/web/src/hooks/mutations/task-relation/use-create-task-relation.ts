@@ -7,6 +7,7 @@ function useCreateTaskRelation() {
   return useMutation({
     mutationFn: createTaskRelation,
     onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({
         queryKey: ["task-relations", variables.sourceTaskId],
       });

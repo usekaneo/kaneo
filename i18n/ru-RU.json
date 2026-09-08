@@ -1579,6 +1579,7 @@
 		"created": "создал эту задачу"
 	},
 	"tasks": {
+		"checklistProgress": "Выполнено пунктов списка: {{completed}} из {{total}}",
 		"title": "Задачи",
 		"status": {
 			"label": "Статус",
@@ -1736,6 +1737,7 @@
 			}
 		},
 		"subtasks": {
+			"progress": "Выполнено подзадач: {{completed}} из {{total}}",
 			"title": "Подзадачи",
 			"inputPlaceholder": "Название подзадачи...",
 			"addAction": "Добавить",

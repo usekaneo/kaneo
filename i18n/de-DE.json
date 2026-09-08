@@ -1561,6 +1561,7 @@
 		}
 	},
 	"tasks": {
+		"checklistProgress": "{{completed}} von {{total}} Checklistenpunkten abgeschlossen",
 		"title": "Aufgaben",
 		"status": {
 			"label": "Status",
@@ -1718,6 +1719,7 @@
 			}
 		},
 		"subtasks": {
+			"progress": "{{completed}} von {{total}} Unteraufgaben abgeschlossen",
 			"title": "Teilaufgaben",
 			"inputPlaceholder": "Titel der Teilaufgabe...",
 			"addAction": "Hinzufügen",

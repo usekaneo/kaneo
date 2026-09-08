@@ -2,6 +2,10 @@ import { randomUUID } from "node:crypto";
 import type { WSContext } from "hono/ws";
 import { subscribeToEvent } from "../events";
 import { isRedisConfigured } from "../redis";
+import {
+  getRelationSourceProject,
+  getSubtaskParentProjects,
+} from "../task/get-subtask-parent-projects";
 import type {
   BroadcastAdapter,
   BroadcastMessage,
@@ -264,6 +268,26 @@ type TaskEvent = {
   targetTaskId: string | undefined;
 };
 
+// Send only an invalidation to parent boards, without exposing child task data.
+function refreshParentBoards(
+  projects: { projectId: string }[],
+  currentProjectId: string,
+  initiatorId?: string,
+) {
+  for (const { projectId } of projects) {
+    if (projectId === currentProjectId) continue;
+    broadcastToProject(
+      projectId,
+      {
+        type: "TASK_RELATION_UPDATED",
+        projectId,
+        taskId: "",
+      },
+      initiatorId,
+    );
+  }
+}
+
 const taskUpdateEvents = [
   "task.created",
   "task.updated",
@@ -309,6 +333,11 @@ subscribeToEvent<{
   broadcastToProject(
     fromProjectId,
     { type: "TASK_MOVED", projectId: fromProjectId, taskId },
+    initiatorId,
+  );
+  refreshParentBoards(
+    await getSubtaskParentProjects(taskId),
+    fromProjectId,
     initiatorId,
   );
 });
@@ -387,5 +416,18 @@ for (const eventName of taskUpdateEvents) {
       },
       initiatorId,
     );
+    if (eventName === "task.status_changed") {
+      refreshParentBoards(
+        await getSubtaskParentProjects(taskId),
+        projectId,
+        initiatorId,
+      );
+    } else if (eventName === "task-relation.deleted" && data.sourceTaskId) {
+      refreshParentBoards(
+        await getRelationSourceProject(data.sourceTaskId),
+        projectId,
+        initiatorId,
+      );
+    }
   });
 }

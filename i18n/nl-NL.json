@@ -1561,6 +1561,7 @@
 		}
 	},
 	"tasks": {
+		"checklistProgress": "{{completed}} van {{total}} checklistitems voltooid",
 		"title": "Taken",
 		"status": {
 			"label": "Status",
@@ -1718,6 +1719,7 @@
 			}
 		},
 		"subtasks": {
+			"progress": "{{completed}} van {{total}} subtaken voltooid",
 			"title": "Subtaken",
 			"inputPlaceholder": "Titel subtaak...",
 			"addAction": "Toevoegen",

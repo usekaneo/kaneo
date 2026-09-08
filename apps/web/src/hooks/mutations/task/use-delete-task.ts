@@ -20,7 +20,7 @@ export function useDeleteTask() {
         exact: true,
       });
       void queryClient.invalidateQueries({
-        queryKey: ["tasks", deletedTask.projectId],
+        queryKey: ["tasks"],
       });
 
       const { project, setProject } = useProjectStore.getState();

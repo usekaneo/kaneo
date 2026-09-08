@@ -6322,6 +6322,9 @@
 			"type": "object",
 			"additionalProperties": false,
 			"properties": {
+				"checklistProgress": {
+					"type": "string"
+				},
 				"status": {
 					"type": "object",
 					"additionalProperties": false,
@@ -6929,6 +6932,9 @@
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
+						"progress": {
+							"type": "string"
+						},
 						"title": {
 							"type": "string"
 						},
@@ -6964,6 +6970,7 @@
 						}
 					},
 					"required": [
+						"progress",
 						"title",
 						"inputPlaceholder",
 						"addAction",
@@ -8195,6 +8202,7 @@
 				}
 			},
 			"required": [
+				"checklistProgress",
 				"status",
 				"priority",
 				"boardSearchPlaceholder",
