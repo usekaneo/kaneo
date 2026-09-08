@@ -1,6 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type Task from "@/types/task";
+import BacklogTaskRow from "../backlog-list-view/backlog-task-row";
 import TaskRow from "./task-row";
 
 const useExternalLinks = vi.fn((_taskId: string) => ({ data: [] }));
@@ -101,6 +102,19 @@ const task: Task = {
 };
 
 describe("TaskRow", () => {
+  it.each(["planned", "archived"])(
+    "renders progress for %s backlog parents without per-row requests",
+    (status) => {
+      render(<BacklogTaskRow task={{ ...task, status }} />);
+
+      expect(
+        screen.getByRole("button", { name: "tasks:subtasks.progress" }),
+      ).toHaveTextContent("2/5");
+      expect(useExternalLinks).not.toHaveBeenCalled();
+      expect(useGetLabelsByTask).not.toHaveBeenCalled();
+    },
+  );
+
   it("renders labels and pull requests from the task payload without per-row requests", () => {
     render(<TaskRow task={task} projectSlug="kan" />);
 
