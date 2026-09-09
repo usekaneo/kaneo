@@ -12,14 +12,14 @@
 		"test:watch": "vitest --config vitest.config.ts"
 	},
 	"devDependencies": {
-		"@types/react": "^19.2.18",
-		"@types/react-dom": "^19.2.4",
 		"@kaneo/api": "workspace:*",
-		"hono": "^4.13.0",
-		"react": "^19.2.8",
 		"@kaneo/typescript-config": "workspace:*",
+		"@types/react": "^19.2.18",
+		"@types/react-dom": "^19.2.7",
+		"hono": "^4.13.7",
+		"react": "^19.2.8",
 		"typescript": "^7.0.2",
-		"vite": "^8.2.0",
-		"vitest": "^4.1.10"
+		"vite": "^8.2.2",
+		"vitest": "^5.0.0"
 	}
 }

@@ -7,6 +7,10 @@ description: Configure Kaneo with your custom OpenID Connect (OIDC) provider.
 
 Kaneo supports custom OAuth 2.0 and OpenID Connect (OIDC) providers, allowing you to integrate with any standards-compliant identity provider such as Keycloak, Auth0, Okta, Azure AD, or self-hosted solutions like Pocket ID.
 
+<Warning>
+  Kaneo's better-auth upgrade to 1.7 changed the callback path from `/api/auth/oauth2/callback/custom` to `/api/auth/callback/custom`. If you configured a custom OAuth provider on an earlier version, update the redirect URI registered with your identity provider to match, or sign-in will fail.
+</Warning>
+
 ## Configuration
 
 To configure a custom OAuth/OIDC provider, you need to set the following environment variables in your `.env` file:
@@ -40,8 +44,8 @@ First, create an OAuth 2.0 or OIDC application in your identity provider:
 
 1. Log in to your identity provider's admin console
 2. Create a new OAuth 2.0 or OIDC application
-3. Set the redirect URI to: `{KANEO_API_URL}/api/auth/oauth2/callback/custom`
-   - Example: `https://api.kaneo.example.com/api/auth/oauth2/callback/custom`
+3. Set the redirect URI to: `{KANEO_API_URL}/api/auth/callback/custom`
+   - Example: `https://api.kaneo.example.com/api/auth/callback/custom`
 4. Copy the client ID and client secret
 5. Note the authorization, token, and userinfo endpoint URLs
 
@@ -157,13 +161,13 @@ CUSTOM_OAUTH_SCOPES=openid,profile,email
 Verify that your redirect URI in the OAuth provider matches exactly:
 
 ```
-{KANEO_API_URL}/api/auth/oauth2/callback/custom
+{KANEO_API_URL}/api/auth/callback/custom
 ```
 
 For example, if `KANEO_API_URL=https://api.kaneo.example.com`, the redirect URI should be:
 
 ```
-https://api.kaneo.example.com/api/auth/oauth2/callback/custom
+https://api.kaneo.example.com/api/auth/callback/custom
 ```
 
 ## Discovery URL

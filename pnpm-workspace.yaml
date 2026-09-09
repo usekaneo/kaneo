@@ -6,7 +6,7 @@ overrides:
   '@hono/node-server': '>=1.19.13'
   ajv: 8.18.0
   diff: 8.0.3
-  esbuild: 0.28.1
+  esbuild: 0.28.2
   express-rate-limit: 8.2.2
   hono: '>=4.12.25'
   lodash: 4.18.0
@@ -28,10 +28,10 @@ overrides:
   sharp: '>=0.35.0'
   engine.io: '>=6.6.7'
   valibot: '>=1.4.2'
-  better-auth: 1.6.25
+  better-auth: 1.7.3
   undici: '>=7.29.0 <8'
   js-yaml: '>=4.2.0 <5'
-  '@babel/core': '>=7.29.6 <8'
+  '@babel/core': '>=8.0.1 <9'
 onlyBuiltDependencies:
   - '@biomejs/biome'
   - bcrypt

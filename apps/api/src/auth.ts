@@ -53,6 +53,7 @@ import { getGithubSsoOAuthCredentials } from "./utils/github-sso-env";
 import { isCloud } from "./utils/is-cloud";
 import { isDisposableEmail } from "./utils/is-disposable-email";
 import { isLocalSignInPath } from "./utils/is-local-sign-in-path";
+import { isOAuthCallbackPath } from "./utils/is-oauth-callback-path";
 import { verifyTurnstile } from "./utils/verify-turnstile";
 
 config();
@@ -73,11 +74,6 @@ function normalizeInvitationId(value: unknown): string | undefined {
   const normalized = value.trim();
   if (!/^[a-z0-9_-]{1,128}$/i.test(normalized)) return undefined;
   return normalized;
-}
-
-function isOAuthCallbackPath(path: unknown): boolean {
-  if (typeof path !== "string") return false;
-  return path.startsWith("/callback/") || path.startsWith("/oauth2/callback/");
 }
 
 const apiUrl = process.env.KANEO_API_URL || "http://localhost:1337";

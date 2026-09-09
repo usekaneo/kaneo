@@ -21,18 +21,17 @@
   },
   "dependencies": {
     "@react-email/components": "1.0.12",
-    "@types/node": "^26.1.2",
-    "@types/nodemailer": "^8.0.1",
-    "nodemailer": "^9.0.4",
+    "@types/node": "^26.5.0",
+    "nodemailer": "^10.0.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
     "@react-email/render": "^2.1.0",
     "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.4",
-    "react-email": "6.9.2",
+    "@types/react-dom": "^19.2.7",
+    "react-email": "6.9.5",
     "typescript": "^7.0.2",
-    "vitest": "^4.1.10"
+    "vitest": "^5.0.0"
   }
 }
