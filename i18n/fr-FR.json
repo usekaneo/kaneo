@@ -691,7 +691,9 @@
 			"genericWebhookSectionTitle": "Webhooks génériques",
 			"genericWebhookSectionSubtitle": "Envoyez les événements des tâches du projet vers n'importe quel point de terminaison HTTP au format JSON.",
 			"slackSectionTitle": "Intégration Slack",
-			"slackSectionSubtitle": "Envoyez les mises à jour des tâches du projet dans un canal Slack via un webhook entrant."
+			"slackSectionSubtitle": "Envoyez les mises à jour des tâches du projet dans un canal Slack via un webhook entrant.",
+			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook.",
+			"mattermostSectionTitle": "Mattermost Integration"
 		},
 		"projectVisibility": {
 			"pageTitle": "Visibilité du projet",
@@ -1273,6 +1275,44 @@
 			"updateError": "Échec de la mise à jour du label",
 			"deleteError": "Échec de la suppression du label",
 			"nameRequired": "Le nom du label est requis"
+		},
+		"mattermostIntegration": {
+			"channelHint": "Optional label for your reference. Mattermost controls the actual destination channel from the webhook setup.",
+			"channelLabel": "Channel name",
+			"channelPlaceholder": "#team-updates",
+			"connect": "Connect Mattermost",
+			"connected": "Connected",
+			"connectionHint": "Paste a Mattermost incoming webhook URL and choose which task events should be posted.",
+			"connectionTitle": "Mattermost webhook connection",
+			"disconnect": "Disconnect",
+			"events": {
+				"taskCommentCreated": "New comments",
+				"taskCreated": "New tasks",
+				"taskDescriptionChanged": "Description changes",
+				"taskPriorityChanged": "Priority changes",
+				"taskStatusChanged": "Status changes",
+				"taskTitleChanged": "Title changes"
+			},
+			"eventsHint": "Choose which project changes should post to Mattermost.",
+			"eventsTitle": "Event notifications",
+			"paused": "Paused",
+			"saveChanges": "Save changes",
+			"toast": {
+				"disabled": "Mattermost notifications paused",
+				"enabled": "Mattermost notifications enabled",
+				"removed": "Mattermost integration removed successfully",
+				"removeError": "Failed to remove Mattermost integration",
+				"saved": "Mattermost integration saved successfully",
+				"saveError": "Failed to save Mattermost integration",
+				"updateError": "Failed to update Mattermost integration"
+			},
+			"update": "Update Mattermost",
+			"validation": {
+				"webhookInvalid": "Enter a valid Mattermost webhook URL"
+			},
+			"webhookHint": "Create an Incoming Webhook in Mattermost and paste the generated URL here.",
+			"webhookLabel": "Incoming webhook URL",
+			"webhookPlaceholder": "https://your-mattermost-server.com/hooks/..."
 		}
 	},
 	"navigation": {

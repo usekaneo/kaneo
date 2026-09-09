@@ -3325,6 +3325,12 @@
 						"slackSectionSubtitle": {
 							"type": "string"
 						},
+						"mattermostSectionTitle": {
+							"type": "string"
+						},
+						"mattermostSectionSubtitle": {
+							"type": "string"
+						},
 						"telegramSectionTitle": {
 							"type": "string"
 						},
@@ -3346,6 +3352,8 @@
 						"genericWebhookSectionSubtitle",
 						"slackSectionTitle",
 						"slackSectionSubtitle",
+						"mattermostSectionTitle",
+						"mattermostSectionSubtitle",
 						"telegramSectionTitle",
 						"telegramSectionSubtitle"
 					]
@@ -4405,6 +4413,159 @@
 						"disconnect"
 					]
 				},
+				"mattermostIntegration": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"validation": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"webhookInvalid": {
+									"type": "string"
+								}
+							},
+							"required": ["webhookInvalid"]
+						},
+						"toast": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"saved": {
+									"type": "string"
+								},
+								"saveError": {
+									"type": "string"
+								},
+								"enabled": {
+									"type": "string"
+								},
+								"disabled": {
+									"type": "string"
+								},
+								"updateError": {
+									"type": "string"
+								},
+								"removed": {
+									"type": "string"
+								},
+								"removeError": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"saved",
+								"saveError",
+								"enabled",
+								"disabled",
+								"updateError",
+								"removed",
+								"removeError"
+							]
+						},
+						"connectionTitle": {
+							"type": "string"
+						},
+						"connectionHint": {
+							"type": "string"
+						},
+						"connected": {
+							"type": "string"
+						},
+						"paused": {
+							"type": "string"
+						},
+						"webhookLabel": {
+							"type": "string"
+						},
+						"webhookPlaceholder": {
+							"type": "string"
+						},
+						"webhookHint": {
+							"type": "string"
+						},
+						"channelLabel": {
+							"type": "string"
+						},
+						"channelPlaceholder": {
+							"type": "string"
+						},
+						"channelHint": {
+							"type": "string"
+						},
+						"eventsTitle": {
+							"type": "string"
+						},
+						"eventsHint": {
+							"type": "string"
+						},
+						"events": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"taskCreated": {
+									"type": "string"
+								},
+								"taskStatusChanged": {
+									"type": "string"
+								},
+								"taskPriorityChanged": {
+									"type": "string"
+								},
+								"taskTitleChanged": {
+									"type": "string"
+								},
+								"taskDescriptionChanged": {
+									"type": "string"
+								},
+								"taskCommentCreated": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"taskCreated",
+								"taskStatusChanged",
+								"taskPriorityChanged",
+								"taskTitleChanged",
+								"taskDescriptionChanged",
+								"taskCommentCreated"
+							]
+						},
+						"connect": {
+							"type": "string"
+						},
+						"saveChanges": {
+							"type": "string"
+						},
+						"update": {
+							"type": "string"
+						},
+						"disconnect": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"validation",
+						"toast",
+						"connectionTitle",
+						"connectionHint",
+						"connected",
+						"paused",
+						"webhookLabel",
+						"webhookPlaceholder",
+						"webhookHint",
+						"channelLabel",
+						"channelPlaceholder",
+						"channelHint",
+						"eventsTitle",
+						"eventsHint",
+						"events",
+						"connect",
+						"saveChanges",
+						"update",
+						"disconnect"
+					]
+				},
 				"genericWebhookIntegration": {
 					"type": "object",
 					"additionalProperties": false,
@@ -5141,6 +5302,7 @@
 				"giteaIntegration",
 				"slackIntegration",
 				"discordIntegration",
+				"mattermostIntegration",
 				"genericWebhookIntegration",
 				"telegramIntegration",
 				"repositoryBrowser",
@@ -6323,6 +6485,9 @@
 			"additionalProperties": false,
 			"properties": {
 				"checklistProgress": {
+					"type": "string"
+				},
+				"title": {
 					"type": "string"
 				},
 				"status": {
@@ -7605,10 +7770,10 @@
 						"title": {
 							"type": "string"
 						},
-						"searchPlaceholder": {
+						"jumpToToday": {
 							"type": "string"
 						},
-						"jumpToToday": {
+						"searchPlaceholder": {
 							"type": "string"
 						},
 						"hideTasks": {
@@ -7648,8 +7813,8 @@
 					"required": [
 						"pageTitle",
 						"title",
-						"searchPlaceholder",
 						"jumpToToday",
+						"searchPlaceholder",
 						"hideTasks",
 						"showTasks",
 						"noTasks",
@@ -8203,6 +8368,7 @@
 			},
 			"required": [
 				"checklistProgress",
+				"title",
 				"status",
 				"priority",
 				"boardSearchPlaceholder",

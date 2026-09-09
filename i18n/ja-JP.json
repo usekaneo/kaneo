@@ -852,7 +852,9 @@
 			"slackSectionTitle": "Slack 連携",
 			"slackSectionSubtitle": "Incoming Webhook を使用してプロジェクトのタスク更新を Slack チャンネルに送信します。",
 			"telegramSectionTitle": "Telegram 連携",
-			"telegramSectionSubtitle": "ボットを使用してプロジェクトのタスク更新を Telegram のチャットまたはトピックに送信します。"
+			"telegramSectionSubtitle": "ボットを使用してプロジェクトのタスク更新を Telegram のチャットまたはトピックに送信します。",
+			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook.",
+			"mattermostSectionTitle": "Mattermost Integration"
 		},
 		"projectVisibility": {
 			"pageTitle": "プロジェクトの公開設定",
@@ -1271,6 +1273,44 @@
 			"merged": "マージ済み",
 			"draft": "下書き",
 			"open": "オープン"
+		},
+		"mattermostIntegration": {
+			"channelHint": "Optional label for your reference. Mattermost controls the actual destination channel from the webhook setup.",
+			"channelLabel": "Channel name",
+			"channelPlaceholder": "#team-updates",
+			"connect": "Connect Mattermost",
+			"connected": "Connected",
+			"connectionHint": "Paste a Mattermost incoming webhook URL and choose which task events should be posted.",
+			"connectionTitle": "Mattermost webhook connection",
+			"disconnect": "Disconnect",
+			"events": {
+				"taskCommentCreated": "New comments",
+				"taskCreated": "New tasks",
+				"taskDescriptionChanged": "Description changes",
+				"taskPriorityChanged": "Priority changes",
+				"taskStatusChanged": "Status changes",
+				"taskTitleChanged": "Title changes"
+			},
+			"eventsHint": "Choose which project changes should post to Mattermost.",
+			"eventsTitle": "Event notifications",
+			"paused": "Paused",
+			"saveChanges": "Save changes",
+			"toast": {
+				"disabled": "Mattermost notifications paused",
+				"enabled": "Mattermost notifications enabled",
+				"removed": "Mattermost integration removed successfully",
+				"removeError": "Failed to remove Mattermost integration",
+				"saved": "Mattermost integration saved successfully",
+				"saveError": "Failed to save Mattermost integration",
+				"updateError": "Failed to update Mattermost integration"
+			},
+			"update": "Update Mattermost",
+			"validation": {
+				"webhookInvalid": "Enter a valid Mattermost webhook URL"
+			},
+			"webhookHint": "Create an Incoming Webhook in Mattermost and paste the generated URL here.",
+			"webhookLabel": "Incoming webhook URL",
+			"webhookPlaceholder": "https://your-mattermost-server.com/hooks/..."
 		}
 	},
 	"navigation": {
