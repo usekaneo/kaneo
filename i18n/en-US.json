@@ -1377,6 +1377,7 @@
 				"listView": "Switch to list view",
 				"backlogView": "Switch to backlog view",
 				"calendarView": "Switch to calendar view",
+				"epicsView": "Switch to epics view",
 				"nextTask": "Next task",
 				"prevTask": "Previous task",
 				"openTask": "Open selected task",

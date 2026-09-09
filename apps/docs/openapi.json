@@ -302,6 +302,10 @@
               "null"
             ]
           },
+          "type": {
+            "type": "string",
+            "description": "`task` (default) or `epic`."
+          },
           "status": {
             "type": "string"
           },
@@ -378,6 +382,7 @@
           "title",
           "number",
           "description",
+          "type",
           "status",
           "priority",
           "startDate",
@@ -735,6 +740,10 @@
               "null"
             ]
           },
+          "type": {
+            "type": "string",
+            "description": "`task` (default) or `epic`."
+          },
           "status": {
             "type": "string",
             "description": "The slug of the column the task sits in."
@@ -770,6 +779,7 @@
           "userId",
           "title",
           "description",
+          "type",
           "status",
           "priority",
           "startDate",
@@ -2752,7 +2762,7 @@
           },
           "relationType": {
             "type": "string",
-            "description": "How the two tasks relate: `subtask`, `blocks`, or `related`."
+            "description": "How the two tasks relate: `subtask`, `blocks`, `related`, or `epic` (source is the epic, target is a child task)."
           },
           "createdAt": {
             "type": "string",
@@ -6101,6 +6111,20 @@
           {
             "schema": {
               "type": "string",
+              "enum": [
+                "task",
+                "epic"
+              ],
+              "description": "Filter to only tasks of this type, e.g. `epic`."
+            },
+            "required": false,
+            "description": "Filter to only tasks of this type, e.g. `epic`.",
+            "name": "type",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
               "pattern": "^\\d+$"
             },
             "required": false,
@@ -6349,6 +6373,14 @@
                   "userId": {
                     "type": "string",
                     "description": "Assignee, if any."
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "task",
+                      "epic"
+                    ],
+                    "description": "Defaults to `task`. Set to `epic` to create an epic."
                   }
                 },
                 "required": [
@@ -6509,6 +6541,14 @@
                   },
                   "userId": {
                     "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "task",
+                      "epic"
+                    ],
+                    "description": "Omit to leave the task's type unchanged."
                   }
                 },
                 "required": [
@@ -6790,6 +6830,13 @@
                         },
                         "description": {
                           "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "task",
+                            "epic"
+                          ]
                         },
                         "status": {
                           "type": "string"
@@ -12509,7 +12556,8 @@
                     "enum": [
                       "subtask",
                       "blocks",
-                      "related"
+                      "related",
+                      "epic"
                     ]
                   }
                 },

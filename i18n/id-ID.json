@@ -1379,7 +1379,8 @@
 				"prevTask": "Tugas sebelumnya",
 				"openTask": "Buka tugas terpilih",
 				"quickSelectNumber": "Pilih opsi berdasarkan nomor",
-				"calendarView": "Switch to calendar view"
+				"calendarView": "Switch to calendar view",
+				"epicsView": "Switch to epics view"
 			}
 		}
 	},
@@ -1685,7 +1686,8 @@
 				"mermaid": {
 					"renderFailed": "Diagram Mermaid tidak dapat dirender"
 				}
-			}
+			},
+			"epicOf": "Part of"
 		},
 		"entity": {
 			"task": "Tugas"
@@ -1808,7 +1810,8 @@
 				"label": "Label: {{name}}",
 				"dueThisWeek": "Tenggat minggu ini",
 				"dueNextWeek": "Tenggat minggu depan",
-				"noDueDate": "Tanpa tenggat"
+				"noDueDate": "Tanpa tenggat",
+				"epic": "Epic: {{name}}"
 			}
 		},
 		"sort": {
@@ -1971,6 +1974,30 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"epics": {
+			"children": {
+				"addAction": "Add",
+				"createError": "Failed to create task",
+				"deleteAction": "Delete Task",
+				"deleteDialogDescription": "This will permanently remove the task and all its data. You can't undo this action.",
+				"deleteDialogTitle": "Delete Task?",
+				"deleteError": "Failed to delete task",
+				"deleteSuccess": "Task deleted successfully",
+				"empty": "No tasks in this epic yet",
+				"inputPlaceholder": "Task title...",
+				"title": "Tasks in this epic"
+			},
+			"createError": "Failed to create epic",
+			"empty": "No epics yet",
+			"emptySubtitle": "Create an epic to group related tasks together.",
+			"inputPlaceholder": "Epic title...",
+			"label": "Epic",
+			"newEpic": "New Epic",
+			"noneAvailable": "No epics available",
+			"pageTitle": "{{name}} – Epics",
+			"tabTitle": "Epics",
+			"title": "Epics"
 		}
 	},
 	"invitations": {

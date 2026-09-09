@@ -1379,7 +1379,8 @@
 				"nextTask": "次のタスク",
 				"prevTask": "前のタスク",
 				"openTask": "選択したタスクを開く",
-				"quickSelectNumber": "番号で項目を選択"
+				"quickSelectNumber": "番号で項目を選択",
+				"epicsView": "Switch to epics view"
 			}
 		}
 	},
@@ -1685,7 +1686,8 @@
 				"mermaid": {
 					"renderFailed": "Mermaid ダイアグラムを描画できませんでした"
 				}
-			}
+			},
+			"epicOf": "Part of"
 		},
 		"entity": {
 			"task": "タスク"
@@ -1808,7 +1810,8 @@
 				"label": "ラベル: {{name}}",
 				"dueThisWeek": "今週が期限",
 				"dueNextWeek": "来週が期限",
-				"noDueDate": "期限なし"
+				"noDueDate": "期限なし",
+				"epic": "Epic: {{name}}"
 			}
 		},
 		"sort": {
@@ -1971,6 +1974,30 @@
 				"deleteRow": "行を削除",
 				"deleteTable": "表を削除"
 			}
+		},
+		"epics": {
+			"children": {
+				"addAction": "Add",
+				"createError": "Failed to create task",
+				"deleteAction": "Delete Task",
+				"deleteDialogDescription": "This will permanently remove the task and all its data. You can't undo this action.",
+				"deleteDialogTitle": "Delete Task?",
+				"deleteError": "Failed to delete task",
+				"deleteSuccess": "Task deleted successfully",
+				"empty": "No tasks in this epic yet",
+				"inputPlaceholder": "Task title...",
+				"title": "Tasks in this epic"
+			},
+			"createError": "Failed to create epic",
+			"empty": "No epics yet",
+			"emptySubtitle": "Create an epic to group related tasks together.",
+			"inputPlaceholder": "Epic title...",
+			"label": "Epic",
+			"newEpic": "New Epic",
+			"noneAvailable": "No epics available",
+			"pageTitle": "{{name}} – Epics",
+			"tabTitle": "Epics",
+			"title": "Epics"
 		}
 	},
 	"invitations": {

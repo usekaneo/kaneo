@@ -169,6 +169,59 @@ describe("API integration: epics", () => {
     });
   });
 
+  it("rejects an epic relation whose source task is not an epic", async () => {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+
+    const [notAnEpic] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "Ordinary task",
+        type: "task",
+        status: "to-do",
+        columnId: columns.todo.id,
+        number: 1,
+        position: 1,
+      })
+      .returning();
+    const [child] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "Child task",
+        type: "task",
+        status: "to-do",
+        columnId: columns.todo.id,
+        number: 2,
+        position: 2,
+      })
+      .returning();
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const response = await app.request("/api/task-relation", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        sourceTaskId: notAnEpic.id,
+        targetTaskId: child.id,
+        relationType: "epic",
+      }),
+    });
+
+    expect(response.status).toBe(400);
+
+    const persistedRelations = await db
+      .select()
+      .from(schema.taskRelationTable)
+      .where(eq(schema.taskRelationTable.sourceTaskId, notAnEpic.id));
+    expect(persistedRelations).toHaveLength(0);
+  });
+
   it("lists only epic-type tasks when filtering the project's tasks by type", async () => {
     const member = await createWorkspaceMember();
     const { project, columns } = await createProjectFixture({

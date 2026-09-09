@@ -30,6 +30,7 @@ async function createTaskRelation({
   const [sourceTask] = await db
     .select({
       id: taskTable.id,
+      type: taskTable.type,
       projectId: taskTable.projectId,
       workspaceId: projectTable.workspaceId,
     })
@@ -45,6 +46,14 @@ async function createTaskRelation({
 
   if (!sourceTask) {
     throw new HTTPException(404, { message: "Source task not found" });
+  }
+
+  // The epic UI only renders children under a task whose type is "epic", so an
+  // epic relation hanging off a plain task would create children nothing shows.
+  if (relationType === "epic" && sourceTask.type !== "epic") {
+    throw new HTTPException(400, {
+      message: "An epic relation requires the source task to be an epic",
+    });
   }
 
   const [targetTask] = await db

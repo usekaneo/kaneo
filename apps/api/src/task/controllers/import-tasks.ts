@@ -14,6 +14,7 @@ import { claimTaskNumber } from "./claim-task-numbers";
 export type ImportTask = {
   title: string;
   description?: string;
+  type?: string;
   status: string;
   priority?: string;
   startDate?: string | null;
@@ -91,6 +92,7 @@ async function importTasks(
             projectId,
             userId: assigneeId,
             title: taskData.title,
+            type: taskData.type ?? "task",
             status,
             columnId: column?.id ?? null,
             startDate: taskData.startDate ? new Date(taskData.startDate) : null,

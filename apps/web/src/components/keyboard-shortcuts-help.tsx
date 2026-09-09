@@ -92,6 +92,10 @@ function useShortcutCategories(): ShortcutCategory[] {
             keys: [shortcuts.view.prefix, shortcuts.view.calendar],
             description: t("navigation:keyboardShortcuts.items.calendarView"),
           },
+          {
+            keys: [shortcuts.view.prefix, shortcuts.view.epics],
+            description: t("navigation:keyboardShortcuts.items.epicsView"),
+          },
         ],
       },
       {

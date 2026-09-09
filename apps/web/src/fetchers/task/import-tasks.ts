@@ -3,6 +3,7 @@ import { client } from "@kaneo/libs";
 export type TaskToImport = {
   title: string;
   description?: string;
+  type?: "task" | "epic";
   status: string;
   priority?: string;
   startDate?: string;

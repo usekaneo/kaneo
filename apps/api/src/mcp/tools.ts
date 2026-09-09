@@ -195,6 +195,7 @@ const prioritySchema = z.enum([
   "high",
   "urgent",
 ]);
+const taskTypeSchema = z.enum(["task", "epic"]);
 const nonEmptyString = z.string().trim().min(1);
 const optionalNonEmptyString = nonEmptyString.optional();
 const nullableOptionalNonEmptyString = nonEmptyString.nullable().optional();
@@ -364,12 +365,14 @@ export function registerMcpTools(
   registerTool(
     "list_tasks",
     {
-      description: "List tasks for a project (optionally filtered/sorted).",
+      description:
+        "List tasks for a project (optionally filtered/sorted). Pass type: 'epic' to list only the project's epics.",
       inputSchema: z.object({
         projectId: nonEmptyString,
         status: optionalNonEmptyString,
         priority: prioritySchema.optional(),
         assigneeId: optionalNonEmptyString,
+        type: taskTypeSchema.optional(),
         page: z.number().int().positive().optional(),
         limit: z.number().int().positive().optional(),
         sortBy: z
@@ -420,7 +423,8 @@ export function registerMcpTools(
   registerTool(
     "create_task",
     {
-      description: "Create a task in a project.",
+      description:
+        "Create a task in a project. Pass type: 'epic' to create an epic that other tasks can be grouped under via create_task_relation.",
       inputSchema: z.object({
         projectId: nonEmptyString,
         title: nonEmptyString,
@@ -430,6 +434,7 @@ export function registerMcpTools(
         startDate: optionalIsoDateTimeSchema,
         dueDate: optionalIsoDateTimeSchema,
         userId: optionalNonEmptyString,
+        type: taskTypeSchema.optional(),
       }),
     },
     async (args) => {
@@ -442,6 +447,7 @@ export function registerMcpTools(
       if (args.startDate !== undefined) body.startDate = args.startDate;
       if (args.dueDate !== undefined) body.dueDate = args.dueDate;
       if (args.userId !== undefined) body.userId = args.userId;
+      if (args.type !== undefined) body.type = args.type;
       return run(() =>
         client.json(`/api/task/${encodeURIComponent(args.projectId)}`, {
           method: "POST",
@@ -666,11 +672,11 @@ export function registerMcpTools(
     "create_task_relation",
     {
       description:
-        "Create a relation between two tasks. relationType: 'subtask' (sourceTaskId is the parent, targetTaskId the child), 'blocks' (sourceTaskId blocks targetTaskId), or 'related' (bidirectional).",
+        "Create a relation between two tasks. relationType: 'subtask' (sourceTaskId is the parent, targetTaskId the child), 'blocks' (sourceTaskId blocks targetTaskId), 'related' (bidirectional), or 'epic' (sourceTaskId must be a task of type 'epic'; targetTaskId becomes one of its children).",
       inputSchema: z.object({
         sourceTaskId: nonEmptyString,
         targetTaskId: nonEmptyString,
-        relationType: z.enum(["subtask", "blocks", "related"]),
+        relationType: z.enum(["subtask", "blocks", "related", "epic"]),
       }),
     },
     async (args) =>
@@ -690,7 +696,7 @@ export function registerMcpTools(
     "get_task_relations",
     {
       description:
-        "List all relations (subtask/blocks/related) involving a task.",
+        "List all relations (subtask/blocks/related/epic) involving a task.",
       inputSchema: z.object({ taskId: nonEmptyString }),
     },
     async (args) =>

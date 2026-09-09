@@ -91,6 +91,7 @@ export const importTasksBody = z.object({
     z.object({
       title: z.string(),
       description: z.string().optional(),
+      type: taskType.optional(),
       status: z.string(),
       priority: z.string().optional(),
       startDate: z.string().nullable().optional(),

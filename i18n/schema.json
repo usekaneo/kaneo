@@ -5533,6 +5533,9 @@
 								"calendarView": {
 									"type": "string"
 								},
+								"epicsView": {
+									"type": "string"
+								},
 								"nextTask": {
 									"type": "string"
 								},
@@ -5559,6 +5562,7 @@
 								"listView",
 								"backlogView",
 								"calendarView",
+								"epicsView",
 								"nextTask",
 								"prevTask",
 								"openTask",
@@ -6425,6 +6429,9 @@
 						"subtaskOf": {
 							"type": "string"
 						},
+						"epicOf": {
+							"type": "string"
+						},
 						"activity": {
 							"type": "string"
 						},
@@ -6826,6 +6833,7 @@
 					},
 					"required": [
 						"subtaskOf",
+						"epicOf",
 						"activity",
 						"noActivity",
 						"openInFullPage",
@@ -6963,6 +6971,103 @@
 						"deleteDialogDescription",
 						"deleteAction",
 						"completeAria"
+					]
+				},
+				"epics": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"tabTitle": {
+							"type": "string"
+						},
+						"label": {
+							"type": "string"
+						},
+						"title": {
+							"type": "string"
+						},
+						"pageTitle": {
+							"type": "string"
+						},
+						"newEpic": {
+							"type": "string"
+						},
+						"inputPlaceholder": {
+							"type": "string"
+						},
+						"createError": {
+							"type": "string"
+						},
+						"empty": {
+							"type": "string"
+						},
+						"emptySubtitle": {
+							"type": "string"
+						},
+						"noneAvailable": {
+							"type": "string"
+						},
+						"children": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"inputPlaceholder": {
+									"type": "string"
+								},
+								"addAction": {
+									"type": "string"
+								},
+								"empty": {
+									"type": "string"
+								},
+								"createError": {
+									"type": "string"
+								},
+								"deleteSuccess": {
+									"type": "string"
+								},
+								"deleteError": {
+									"type": "string"
+								},
+								"deleteDialogTitle": {
+									"type": "string"
+								},
+								"deleteDialogDescription": {
+									"type": "string"
+								},
+								"deleteAction": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"title",
+								"inputPlaceholder",
+								"addAction",
+								"empty",
+								"createError",
+								"deleteSuccess",
+								"deleteError",
+								"deleteDialogTitle",
+								"deleteDialogDescription",
+								"deleteAction"
+							]
+						}
+					},
+					"required": [
+						"tabTitle",
+						"label",
+						"title",
+						"pageTitle",
+						"newEpic",
+						"inputPlaceholder",
+						"createError",
+						"empty",
+						"emptySubtitle",
+						"noneAvailable",
+						"children"
 					]
 				},
 				"properties": {
@@ -7323,6 +7428,9 @@
 								},
 								"noDueDate": {
 									"type": "string"
+								},
+								"epic": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -7332,7 +7440,8 @@
 								"label",
 								"dueThisWeek",
 								"dueNextWeek",
-								"noDueDate"
+								"noDueDate",
+								"epic"
 							]
 						}
 					},
@@ -8188,6 +8297,7 @@
 				"entity",
 				"relations",
 				"subtasks",
+				"epics",
 				"properties",
 				"move",
 				"popover",

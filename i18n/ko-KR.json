@@ -1379,7 +1379,8 @@
 				"nextTask": "다음 작업",
 				"prevTask": "이전 작업",
 				"openTask": "선택한 작업 열기",
-				"quickSelectNumber": "번호로 옵션 선택"
+				"quickSelectNumber": "번호로 옵션 선택",
+				"epicsView": "Switch to epics view"
 			}
 		}
 	},
@@ -1685,7 +1686,8 @@
 				"mermaid": {
 					"renderFailed": "Mermaid 다이어그램을 렌더링할 수 없습니다"
 				}
-			}
+			},
+			"epicOf": "Part of"
 		},
 		"entity": {
 			"task": "작업"
@@ -1808,7 +1810,8 @@
 				"label": "라벨: {{name}}",
 				"dueThisWeek": "이번 주 마감",
 				"dueNextWeek": "다음 주 마감",
-				"noDueDate": "마감일 없음"
+				"noDueDate": "마감일 없음",
+				"epic": "Epic: {{name}}"
 			}
 		},
 		"sort": {
@@ -1971,6 +1974,30 @@
 				"deleteRow": "행 삭제",
 				"deleteTable": "표 삭제"
 			}
+		},
+		"epics": {
+			"children": {
+				"addAction": "Add",
+				"createError": "Failed to create task",
+				"deleteAction": "Delete Task",
+				"deleteDialogDescription": "This will permanently remove the task and all its data. You can't undo this action.",
+				"deleteDialogTitle": "Delete Task?",
+				"deleteError": "Failed to delete task",
+				"deleteSuccess": "Task deleted successfully",
+				"empty": "No tasks in this epic yet",
+				"inputPlaceholder": "Task title...",
+				"title": "Tasks in this epic"
+			},
+			"createError": "Failed to create epic",
+			"empty": "No epics yet",
+			"emptySubtitle": "Create an epic to group related tasks together.",
+			"inputPlaceholder": "Epic title...",
+			"label": "Epic",
+			"newEpic": "New Epic",
+			"noneAvailable": "No epics available",
+			"pageTitle": "{{name}} – Epics",
+			"tabTitle": "Epics",
+			"title": "Epics"
 		}
 	},
 	"invitations": {

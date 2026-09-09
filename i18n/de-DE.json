@@ -1380,7 +1380,8 @@
 				"prevTask": "Vorherige Aufgabe",
 				"openTask": "Ausgewählte Aufgabe öffnen",
 				"quickSelectNumber": "Option per Nummer auswählen",
-				"calendarView": "Switch to calendar view"
+				"calendarView": "Switch to calendar view",
+				"epicsView": "Switch to epics view"
 			}
 		}
 	},
@@ -1690,7 +1691,8 @@
 				"mermaid": {
 					"renderFailed": "Mermaid-Diagramm konnte nicht gerendert werden"
 				}
-			}
+			},
+			"epicOf": "Part of"
 		},
 		"entity": {
 			"task": "Aufgabe"
@@ -1813,7 +1815,8 @@
 				"label": "Label: {{name}}",
 				"dueThisWeek": "Diese Woche fällig",
 				"dueNextWeek": "Nächste Woche fällig",
-				"noDueDate": "Kein Fälligkeitsdatum"
+				"noDueDate": "Kein Fälligkeitsdatum",
+				"epic": "Epic: {{name}}"
 			}
 		},
 		"sort": {
@@ -1977,6 +1980,30 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"epics": {
+			"children": {
+				"addAction": "Add",
+				"createError": "Failed to create task",
+				"deleteAction": "Delete Task",
+				"deleteDialogDescription": "This will permanently remove the task and all its data. You can't undo this action.",
+				"deleteDialogTitle": "Delete Task?",
+				"deleteError": "Failed to delete task",
+				"deleteSuccess": "Task deleted successfully",
+				"empty": "No tasks in this epic yet",
+				"inputPlaceholder": "Task title...",
+				"title": "Tasks in this epic"
+			},
+			"createError": "Failed to create epic",
+			"empty": "No epics yet",
+			"emptySubtitle": "Create an epic to group related tasks together.",
+			"inputPlaceholder": "Epic title...",
+			"label": "Epic",
+			"newEpic": "New Epic",
+			"noneAvailable": "No epics available",
+			"pageTitle": "{{name}} – Epics",
+			"tabTitle": "Epics",
+			"title": "Epics"
 		}
 	},
 	"invitations": {
