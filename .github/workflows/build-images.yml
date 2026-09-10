@@ -61,7 +61,10 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GH_PACKAGE_TOKEN }}
+          # GITHUB_TOKEN (with the packages:write granted above) is enough to
+          # push to this repository's own packages; GH_PACKAGE_TOKEN exists for
+          # pushing elsewhere and is not set up on forks.
+          password: ${{ secrets.GH_PACKAGE_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata
         id: meta

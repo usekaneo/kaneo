@@ -1,10 +1,21 @@
 name: Build & publish images to GHCR
 
+# Two ways in:
+#   * push a suffixed tag (v2.23.2-patched) -- for builds that are not cut by
+#     the release workflow, e.g. a fork carrying local patches;
+#   * run it by hand with any version.
+#
+# Plain vX.Y.Z tags are deliberately NOT a trigger: those are created by
+# semantic-release in release.yml, which has already built and pushed the
+# images for that version by the time the tag exists.
 on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+-*"
   workflow_dispatch:
     inputs:
       version:
-        description: "Version to tag the images (e.g., 1.0.0)"
+        description: "Version to tag the images (e.g. 2.23.2, v2.23.2-patched)"
         required: true
         type: string
       latest:
@@ -13,15 +24,80 @@ on:
         type: boolean
         default: false
 
+concurrency:
+  group: docker-${{ inputs.version || github.ref_name }}
+  cancel-in-progress: false
+
 jobs:
+  resolve:
+    name: Resolve version
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.resolve.outputs.version }}
+      tags: ${{ steps.resolve.outputs.tags }}
+    steps:
+      - name: Resolve version and image tags
+        id: resolve
+        env:
+          # On a tag push this is the tag name; on a dispatch it is whatever
+          # was typed in. Read through the environment so neither can be
+          # interpolated into the script itself.
+          RAW_VERSION: ${{ inputs.version || github.ref_name }}
+          TAG_LATEST: ${{ inputs.latest || false }}
+        run: |
+          set -euo pipefail
+
+          raw="${RAW_VERSION#refs/tags/}"
+          # Git tags are conventionally v-prefixed; the version stamped into
+          # package.json and Chart.yaml must be bare semver.
+          version="${raw#v}"
+
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::'$raw' is not a version this workflow can build. Expected semver, optionally v-prefixed and with a suffix: 2.23.2, v2.23.2, v2.23.2-patched."
+            exit 1
+          fi
+
+          # Only `latest` is a choice; the rest follow from the version.
+          # release.yml owns `latest` for real releases, so a patched build
+          # never quietly takes it over.
+          tags=("$version")
+          # Also publish under the tag as written, so `v2.23.2-patched` in git
+          # and in a compose file are the same string.
+          if [ "$raw" != "$version" ]; then
+            tags+=("$raw")
+          fi
+          if [ "$TAG_LATEST" = "true" ]; then
+            tags+=("latest")
+          fi
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "tags<<TAGS_EOF"
+            for tag in "${tags[@]}"; do
+              echo "type=raw,value=$tag"
+            done
+            echo "TAGS_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "### Building \`$version\`"
+            echo
+            echo "Image tags:"
+            for tag in "${tags[@]}"; do
+              echo "- \`$tag\`"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+
   build:
+    needs: resolve
     permissions:
       contents: read
       packages: write
     uses: ./.github/workflows/build-images.yml
     secrets: inherit
     with:
-      version: ${{ inputs.version }}
-      tags: |
-        type=raw,value=${{ inputs.version }}
-        type=raw,value=latest,enable=${{ inputs.latest }}
+      version: ${{ needs.resolve.outputs.version }}
+      tags: ${{ needs.resolve.outputs.tags }}
