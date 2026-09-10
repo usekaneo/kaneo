@@ -1596,6 +1596,7 @@
 		}
 	},
 	"tasks": {
+		"checklistProgress": "Đã hoàn thành {{completed}} trên {{total}} mục trong danh sách kiểm tra",
 		"title": "Nhiệm vụ",
 		"status": {
 			"label": "Trạng thái",
@@ -1753,6 +1754,7 @@
 			}
 		},
 		"subtasks": {
+			"progress": "Đã hoàn thành {{completed}} trên {{total}} công việc con",
 			"title": "Công việc con",
 			"inputPlaceholder": "Tiêu đề công việc con...",
 			"addAction": "Thêm",

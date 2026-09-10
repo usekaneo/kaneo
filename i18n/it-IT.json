@@ -1606,6 +1606,7 @@
 		}
 	},
 	"tasks": {
+		"checklistProgress": "{{completed}} di {{total}} elementi della checklist completati",
 		"title": "Attività",
 		"status": {
 			"label": "Stato",
@@ -1763,6 +1764,7 @@
 			}
 		},
 		"subtasks": {
+			"progress": "{{completed}} di {{total}} sottoattività completate",
 			"title": "Sotto-attività",
 			"inputPlaceholder": "Titolo sotto-attività...",
 			"addAction": "Aggiungi",

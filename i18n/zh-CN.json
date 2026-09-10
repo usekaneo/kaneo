@@ -1596,6 +1596,7 @@
 		}
 	},
 	"tasks": {
+		"checklistProgress": "已完成 {{completed}}/{{total}} 个清单项",
 		"title": "任务",
 		"status": {
 			"label": "状态",
@@ -1753,6 +1754,7 @@
 			}
 		},
 		"subtasks": {
+			"progress": "已完成 {{completed}}/{{total}} 个子任务",
 			"title": "子任务",
 			"inputPlaceholder": "子任务标题…",
 			"addAction": "添加",

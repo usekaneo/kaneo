@@ -1596,6 +1596,7 @@
 		}
 	},
 	"tasks": {
+		"checklistProgress": "체크리스트 항목 {{total}}개 중 {{completed}}개 완료",
 		"title": "작업",
 		"status": {
 			"label": "상태",
@@ -1753,6 +1754,7 @@
 			}
 		},
 		"subtasks": {
+			"progress": "하위 작업 {{total}}개 중 {{completed}}개 완료",
 			"title": "하위 작업",
 			"inputPlaceholder": "하위 작업 제목...",
 			"addAction": "추가",

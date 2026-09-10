@@ -19,8 +19,10 @@ import {
   taskTable,
   userTable,
 } from "../../database/schema";
+import { getSubtaskCounts } from "../get-subtask-counts";
 
 type GetTasksOptions = {
+  publicOnly?: boolean;
   assigneeId?: string;
   dueAfter?: string;
   dueBefore?: string;
@@ -152,6 +154,12 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
 
   const taskIds = paginatedTasks.map((task) => task.id);
 
+  const subtaskCounts = await getSubtaskCounts(
+    taskIds,
+    project.workspaceId,
+    options.publicOnly ?? false,
+  );
+
   const labelsData =
     taskIds.length > 0
       ? await db
@@ -231,6 +239,7 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
       .filter((task) => task.status === column.slug)
       .map((task) => ({
         ...task,
+        subtaskCounts: subtaskCounts.get(task.id) ?? { completed: 0, total: 0 },
         labels: taskLabelsMap.get(task.id) || [],
         externalLinks: taskExternalLinksMap.get(task.id) || [],
       })),
@@ -240,6 +249,7 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
     .filter((task) => task.status === "archived")
     .map((task) => ({
       ...task,
+      subtaskCounts: subtaskCounts.get(task.id) ?? { completed: 0, total: 0 },
       labels: taskLabelsMap.get(task.id) || [],
       externalLinks: taskExternalLinksMap.get(task.id) || [],
     }));
@@ -248,6 +258,7 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
     .filter((task) => task.status === "planned")
     .map((task) => ({
       ...task,
+      subtaskCounts: subtaskCounts.get(task.id) ?? { completed: 0, total: 0 },
       labels: taskLabelsMap.get(task.id) || [],
       externalLinks: taskExternalLinksMap.get(task.id) || [],
     }));

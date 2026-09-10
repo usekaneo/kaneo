@@ -1601,6 +1601,7 @@
 		}
 	},
 	"tasks": {
+		"checklistProgress": "Завршени се {{completed}} од {{total}} ставки од списокот",
 		"title": "Задачи",
 		"status": {
 			"label": "Статус",
@@ -1758,6 +1759,7 @@
 			}
 		},
 		"subtasks": {
+			"progress": "Завршени се {{completed}} од {{total}} подзадачи",
 			"title": "Подзадачи",
 			"inputPlaceholder": "Наслов на подзадача...",
 			"addAction": "Додади",

@@ -1601,6 +1601,7 @@
 		}
 	},
 	"tasks": {
+		"checklistProgress": "Ολοκληρώθηκαν {{completed}} από {{total}} στοιχεία λίστας ελέγχου",
 		"title": "Εργασίες",
 		"status": {
 			"label": "Κατάσταση",
@@ -1758,6 +1759,7 @@
 			}
 		},
 		"subtasks": {
+			"progress": "Ολοκληρώθηκαν {{completed}} από {{total}} υποεργασίες",
 			"title": "Υποεργασίες",
 			"inputPlaceholder": "Τίτλος υποεργασίας...",
 			"addAction": "Προσθήκη",

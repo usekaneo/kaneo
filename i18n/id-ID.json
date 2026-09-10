@@ -1596,6 +1596,7 @@
 		}
 	},
 	"tasks": {
+		"checklistProgress": "{{completed}} dari {{total}} item daftar periksa selesai",
 		"title": "Tugas",
 		"status": {
 			"label": "Status",
@@ -1753,6 +1754,7 @@
 			}
 		},
 		"subtasks": {
+			"progress": "{{completed}} dari {{total}} subtugas selesai",
 			"title": "Subtugas",
 			"inputPlaceholder": "Judul subtugas...",
 			"addAction": "Tambah",

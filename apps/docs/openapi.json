@@ -363,6 +363,24 @@
           "projectId": {
             "type": "string"
           },
+          "subtaskCounts": {
+            "type": "object",
+            "properties": {
+              "completed": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "total": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "completed",
+              "total"
+            ],
+            "description": "Direct subtasks in the workspace; completed means a final column in the child project. Public boards count only children in public projects."
+          },
           "labels": {
             "type": "array",
             "items": {
@@ -392,6 +410,7 @@
           "assigneeId",
           "assigneeImage",
           "projectId",
+          "subtaskCounts",
           "labels",
           "externalLinks"
         ]

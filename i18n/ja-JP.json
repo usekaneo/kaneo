@@ -1596,6 +1596,7 @@
 		}
 	},
 	"tasks": {
+		"checklistProgress": "チェックリスト {{total}} 項目中 {{completed}} 項目完了",
 		"title": "タスク",
 		"status": {
 			"label": "ステータス",
@@ -1753,6 +1754,7 @@
 			}
 		},
 		"subtasks": {
+			"progress": "サブタスク {{total}} 件中 {{completed}} 件完了",
 			"title": "サブタスク",
 			"inputPlaceholder": "サブタスクのタイトル...",
 			"addAction": "追加",

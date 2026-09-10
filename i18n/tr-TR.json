@@ -1601,6 +1601,7 @@
 		}
 	},
 	"tasks": {
+		"checklistProgress": "{{total}} kontrol listesi öğesinin {{completed}} tanesi tamamlandı",
 		"title": "Görevler",
 		"status": {
 			"label": "Durum",
@@ -1758,6 +1759,7 @@
 			}
 		},
 		"subtasks": {
+			"progress": "{{total}} alt görevin {{completed}} tanesi tamamlandı",
 			"title": "Alt talepler",
 			"inputPlaceholder": "Alt talep başlığı...",
 			"addAction": "Ekle",

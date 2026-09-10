@@ -1611,6 +1611,7 @@
 		"created": "створив це завдання"
 	},
 	"tasks": {
+		"checklistProgress": "Виконано пунктів списку: {{completed}} із {{total}}",
 		"title": "Завдання",
 		"status": {
 			"label": "Статус",
@@ -1768,6 +1769,7 @@
 			}
 		},
 		"subtasks": {
+			"progress": "Виконано підзавдань: {{completed}} із {{total}}",
 			"title": "Підзавдання",
 			"inputPlaceholder": "Назва підзавдання...",
 			"addAction": "Додати",
