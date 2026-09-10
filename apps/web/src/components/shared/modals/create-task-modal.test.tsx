@@ -114,7 +114,9 @@ describe("CreateTaskModal", () => {
     });
     const onClose = vi.fn();
 
-    render(<CreateTaskModal open onClose={onClose} />);
+    render(<CreateTaskModal open onClose={onClose} />, {
+      wrapper: createWrapper(), 
+    });
 
     const titleInput = screen.getByPlaceholderText(
       "common:modals.createTask.taskTitlePlaceholder",
@@ -145,7 +147,9 @@ describe("CreateTaskModal", () => {
     });
     const onClose = vi.fn();
 
-    render(<CreateTaskModal open onClose={onClose} />);
+    render(<CreateTaskModal open onClose={onClose} />, {
+      wrapper: createWrapper(),
+    });
 
     fireEvent.change(
       screen.getByPlaceholderText(
@@ -170,7 +174,9 @@ describe("CreateTaskModal", () => {
       pathname: "/dashboard/workspace/workspace-1",
     });
 
-    render(<CreateTaskModal open onClose={vi.fn()} />);
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
 
     fireEvent.click(screen.getByText("common:modals.createTask.selectProject"));
     fireEvent.click(await screen.findByText("Beta"));
