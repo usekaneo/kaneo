@@ -111,7 +111,7 @@ export function PricingPlans() {
             return (
               <article
                 key={plan.name}
-                className={`flex flex-col rounded-xl border p-6 lg:p-8 ${
+                className={`flex flex-col rounded-[calc(var(--radius-2xl)-0.5rem-1px)] border p-6 lg:p-8 ${
                   plan.highlighted
                     ? "border-primary/40 bg-card shadow-[0_0_40px_-12px] shadow-primary/20"
                     : "border-border/70 bg-card"

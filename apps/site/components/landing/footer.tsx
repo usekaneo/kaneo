@@ -10,7 +10,7 @@ export function Footer() {
               <Logo />
             </a>
             <p className="max-w-sm text-balance text-muted-foreground text-sm">
-              All you need. Nothing you don&apos;t.
+              Project management that doesn&apos;t become the project.
             </p>
           </div>
 
