@@ -1,4 +1,4 @@
-import { and, between, eq, isNotNull, isNull, or, sql } from "drizzle-orm";
+import { and, between, eq, isNotNull, isNull, ne, or, sql } from "drizzle-orm";
 import db from "../database";
 import {
   columnTable,
@@ -74,6 +74,8 @@ async function getTasksNeedingReminder(
         ),
         // Exclude tasks in final columns (completed); include tasks with no column
         or(isNull(columnTable.isFinal), eq(columnTable.isFinal, false)),
+        // Archived tasks keep their due date but should not notify anyone
+        ne(taskTable.status, "archived"),
       ),
     );
 

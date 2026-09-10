@@ -1,4 +1,4 @@
-import { and, between, eq, isNotNull, isNull, or } from "drizzle-orm";
+import { and, between, eq, isNotNull, isNull, ne, or } from "drizzle-orm";
 import db from "../database";
 import {
   columnTable,
@@ -65,6 +65,7 @@ export async function checkProjectWebhookReminders(): Promise<{
             between(taskTable.dueDate, windowStart, windowEnd),
             isNull(taskReminderSentTable.id),
             or(isNull(columnTable.isFinal), eq(columnTable.isFinal, false)),
+            ne(taskTable.status, "archived"),
           ),
         );
 
