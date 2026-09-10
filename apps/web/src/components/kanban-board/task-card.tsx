@@ -8,6 +8,7 @@ import {
   CalendarX,
   GitMerge,
   GitPullRequest,
+  SlidersHorizontal,
   SquareCheck,
 } from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
@@ -284,6 +285,53 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                 <span className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground h-5.5">
                   {getPriorityIcon(task.priority ?? "")}
                 </span>
+              )}
+
+              {activeCustomFieldValues.length > 0 && (
+                <HoverCard openDelay={200} closeDelay={100}>
+                  <HoverCardTrigger asChild>
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground cursor-default focus:outline-none focus:ring-2 focus:ring-ring/50 focus:ring-offset-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                      }}
+                      onPointerDown={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                      }}
+                      aria-label={t("tasks:customFields.ariaLabel", {
+                        count: activeCustomFieldValues.length,
+                      })}
+                    >
+                      <SlidersHorizontal className="w-3 h-3" />
+                      <span>{activeCustomFieldValues.length}</span>
+                    </button>
+                  </HoverCardTrigger>
+                  <HoverCardContent
+                    className="w-fit p-2.5"
+                    side="bottom"
+                    onClick={(e) => e.stopPropagation()}
+                    onPointerDown={(e) => e.stopPropagation()}
+                  >
+                    <div className="space-y-1.5">
+                      {activeCustomFieldValues.map((field) => (
+                        <div
+                          key={field.id}
+                          className="flex items-center justify-between gap-2 text-xs"
+                        >
+                          <span className="font-medium text-muted-foreground truncate">
+                            {field.fieldName}
+                          </span>
+                          <span className="text-foreground truncate max-w-24">
+                            {field.value}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
               )}
 
               {showTaskItemCounts && taskItemStats.total > 0 && (

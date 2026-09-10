@@ -307,6 +307,13 @@ function CreateTaskModal({
       (label) => label.name.toLowerCase() === searchValue.toLowerCase(),
     );
 
+  const buildDefaultCustomFieldValues = useCallback(() => {
+    return customFields.reduce<Record<string, string>>((acc, field) => {
+      acc[field.id] = field.defaultValue ?? "";
+      return acc;
+    }, {});
+  }, [customFields]);
+
   const hasUnsavedChanges = Boolean(
     title.trim() ||
       description.trim() ||
