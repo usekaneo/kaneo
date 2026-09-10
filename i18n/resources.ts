@@ -1,4 +1,5 @@
 export const supportedLocales = [
+  "az-AZ",
   "mk-MK",
   "nl-NL",
   "de-DE",
@@ -30,6 +31,8 @@ export function isSupportedLocale(locale: string): locale is AppLocale {
 
 export async function loadLocale(locale: AppLocale): Promise<object> {
   switch (locale) {
+    case "az-AZ":
+      return (await import("./az-AZ.json")).default;
     case "de-DE":
       return (await import("./de-DE.json")).default;
     case "el-GR":
