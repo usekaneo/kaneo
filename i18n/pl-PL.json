@@ -943,13 +943,19 @@
 			"webhookPlaceholder": "https://discord.com/api/webhooks/..."
 		},
 		"externalLinks": {
-			"branch": "Gałąź",
-			"draft": "Wersja robocza",
-			"issue": "Zgłoszenie",
-			"merged": "Scalone",
-			"open": "Otwarte",
-			"resources": "Zasoby"
-		},
+                       "adding": "Dodawanie...",
+                       "addResource": "Dodaj zasób",
+                       "branch": "Gałąź",
+                       "cancel": "Anuluj",
+                       "draft": "Wersja robocza",
+                       "empty": "Brak zasobów powiązanych z tym zadaniem.",
+                       "issue": "Zgłoszenie",
+                       "merged": "Scalone",
+                       "open": "Otwarte",
+                       "resources": "Zasoby",
+                       "titleOptional": "Tytuł (opcjonalnie)",
+                       "url": "URL"
+                },
 		"genericWebhookIntegration": {
 			"connect": "Połącz webhook",
 			"connected": "Połączono",
