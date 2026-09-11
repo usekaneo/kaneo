@@ -46,8 +46,9 @@ vi.mock("@/hooks/mutations/time-entry/use-update-time-entry", () => ({
   default: () => ({ mutateAsync: updateEntry, isPending: false }),
 }));
 
+const { toastError } = vi.hoisted(() => ({ toastError: vi.fn() }));
 vi.mock("@/lib/toast", () => ({
-  toast: { success: vi.fn(), error: vi.fn() },
+  toast: { success: vi.fn(), error: toastError },
 }));
 
 function closed(id: string, userId: string, duration: number) {
@@ -69,6 +70,7 @@ describe("TaskTimeTracking", () => {
   beforeEach(() => {
     createEntry.mockReset().mockResolvedValue(undefined);
     updateEntry.mockReset().mockResolvedValue(undefined);
+    toastError.mockReset();
     entries = [];
     canEdit = true;
   });
@@ -132,5 +134,42 @@ describe("TaskTimeTracking", () => {
 
     // 3600 + 900 = 4500s = 1h 15m
     expect(screen.getByText("1h 15m")).toBeTruthy();
+  });
+
+  it("still offers Start when only another user has a running entry", () => {
+    entries = [
+      {
+        id: "run2",
+        taskId: "t1",
+        userId: "u2",
+        userName: "Someone",
+        description: null,
+        startTime: "2026-09-11T10:00:00Z",
+        endTime: null,
+        duration: null,
+      },
+    ];
+    render(<TaskTimeTracking taskId="t1" />);
+
+    // Another user's open timer must not present me a Stop for their entry.
+    expect(
+      screen.getByRole("button", { name: "tasks:timeTracking.start" }),
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole("button", { name: "tasks:timeTracking.stop" }),
+    ).toBeNull();
+  });
+
+  it("toasts an error when starting the timer fails", async () => {
+    createEntry.mockRejectedValueOnce(new Error("nope"));
+    render(<TaskTimeTracking taskId="t1" />);
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "tasks:timeTracking.start" }),
+    );
+
+    await waitFor(() =>
+      expect(toastError).toHaveBeenCalledWith("tasks:timeTracking.startError"),
+    );
   });
 });
