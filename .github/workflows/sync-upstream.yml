@@ -1,0 +1,137 @@
+# Keeps feat/persian-rtl in sync with upstream/main and publishes the
+# fork's Docker image (Persian/RTL included) for the Coolify deployment.
+#
+# Schedule (cron) only runs from the repository's DEFAULT branch, so this
+# file must also exist on main for the daily run to fire. Workflow dispatch
+# works from any branch.
+#
+# Safety rules of this workflow:
+# - merge only, never rebase/force-push; local RTL/farsi work is never rewritten
+# - on conflict: abort, list the conflicting files, fail loudly, change nothing
+# - image is published only after the merge actually landed
+
+name: Sync upstream
+
+on:
+  schedule:
+    - cron: "23 2 * * *" # daily, deliberately odd minute
+  workflow_dispatch:
+    inputs:
+      force_image:
+        description: "Build the image even when nothing new was merged"
+        type: boolean
+        default: false
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  UPSTREAM_REPO: https://github.com/usekaneo/kaneo.git
+  BRANCH: feat/persian-rtl
+
+jobs:
+  sync:
+    name: Merge upstream/main
+    runs-on: ubuntu-24.04
+    outputs:
+      merged: ${{ steps.merge.outputs.merged }}
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ env.BRANCH }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream "$UPSTREAM_REPO"
+          git fetch upstream main --no-tags
+
+      - name: Count commits behind upstream
+        id: behind
+        run: |
+          count=$(git rev-list --count HEAD..upstream/main)
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          echo "Branch is $count commits behind upstream/main"
+
+      - name: Merge upstream/main
+        id: merge
+        if: steps.behind.outputs.count != '0'
+        run: |
+          if ! git merge --no-ff --no-edit upstream/main; then
+            echo "Conflicting files:"
+            git diff --name-only --diff-filter=U || true
+            git merge --abort
+            echo "::error::Merge conflicts with upstream/main. Nothing was changed. Resolve them manually on $BRANCH."
+            exit 1
+          fi
+          echo "merged=true" >> "$GITHUB_OUTPUT"
+
+      # Upstream sometimes adds brand-new locales that predate this fork's
+      # view-switcher keys; the repo CI would then fail i18n:check. Backfill
+      # missing keys (en-US wording) so every sync lands with green checks.
+      - name: Backfill i18n keys for locales added upstream
+        if: steps.merge.outputs.merged == 'true'
+        run: |
+          node scripts/i18n/check.mjs --fix
+          node scripts/i18n/check.mjs
+          if ! git diff --quiet i18n; then
+            git add i18n
+            git commit -m "chore(i18n): backfill missing keys for locales added upstream"
+          fi
+
+      - name: Push merge
+        if: steps.merge.outputs.merged == 'true'
+        run: git push origin "HEAD:$BRANCH"
+
+  image:
+    name: Build and publish kaneo image
+    needs: sync
+    if: needs.sync.outputs.merged == 'true' || inputs.force_image == true
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ env.BRANCH }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Short sha tag
+        id: sha
+        run: echo "short=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./Dockerfile.kaneo
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/kaneo:latest
+            ghcr.io/${{ github.repository_owner }}/kaneo:${{ steps.sha.outputs.short }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

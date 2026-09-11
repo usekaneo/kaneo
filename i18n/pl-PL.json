@@ -2255,8 +2255,12 @@
 			"success": "Zadanie zaktualizowano pomyślnie"
 		},
 		"view": {
+			"backlog": "Backlog",
 			"board": "Tablica",
-			"list": "Lista"
+			"gantt": "Gantt",
+			"list": "Lista",
+			"section": "Widok",
+			"tasks": "Zadania"
 		}
 	}
 }
