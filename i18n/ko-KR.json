@@ -2057,6 +2057,16 @@
 				"deleteRow": "행 삭제",
 				"deleteTable": "표 삭제"
 			}
+		},
+		"timeTracking": {
+			"empty": "No time logged yet.",
+			"running": "Running",
+			"start": "Start timer",
+			"startError": "Failed to start the timer.",
+			"stop": "Stop timer",
+			"stopError": "Failed to stop the timer.",
+			"title": "Time tracking",
+			"unknownUser": "Unknown"
 		}
 	},
 	"invitations": {
