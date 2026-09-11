@@ -155,6 +155,12 @@
 					"crimson": "Karmazyn"
 				}
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -1380,7 +1386,9 @@
 			"subtitle": "Połącz projekt z zewnętrznymi narzędziami i usługami, aby usprawnić obieg pracy.",
 			"telegramSectionSubtitle": "Wysyłaj aktualizacje zadań projektu do czatu lub wątku w Telegramie za pomocą bota.",
 			"telegramSectionTitle": "Integracja z Telegramem",
-			"title": "Integracje projektu"
+			"title": "Integracje projektu",
+			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook.",
+			"mattermostSectionTitle": "Mattermost Integration"
 		},
 		"projectSwitcher": {
 			"noProjects": "Brak projektów",
@@ -1408,7 +1416,9 @@
 			"columnsTitle": "Kolumny",
 			"pageTitle": "Ustawienia obiegu pracy",
 			"subtitle": "Skonfiguruj kolumny tablicy i reguły automatyzacji dla tego projektu.",
-			"title": "Obieg pracy"
+			"title": "Obieg pracy",
+			"customFieldsDescription": "Manage the custom fields for this project. Drag  to reorder.",
+			"customFieldsTitle": "Custom Fields"
 		},
 		"repositoryBrowser": {
 			"description": "Wybierz repozytorium, w którym zainstalowano aplikację GitHub, aby włączyć synchronizację zgłoszeń.",
@@ -1756,6 +1766,70 @@
 				"nameRequired": "Nazwa roli jest wymagana",
 				"permissionRequired": "Należy wybrać co najmniej jedno uprawnienie"
 			}
+		},
+		"mattermostIntegration": {
+			"channelHint": "Optional label for your reference. Mattermost controls the actual destination channel from the webhook setup.",
+			"channelLabel": "Channel name",
+			"channelPlaceholder": "#team-updates",
+			"connect": "Connect Mattermost",
+			"connected": "Connected",
+			"connectionHint": "Paste a Mattermost incoming webhook URL and choose which task events should be posted.",
+			"connectionTitle": "Mattermost webhook connection",
+			"disconnect": "Disconnect",
+			"events": {
+				"taskCommentCreated": "New comments",
+				"taskCreated": "New tasks",
+				"taskDescriptionChanged": "Description changes",
+				"taskPriorityChanged": "Priority changes",
+				"taskStatusChanged": "Status changes",
+				"taskTitleChanged": "Title changes"
+			},
+			"eventsHint": "Choose which project changes should post to Mattermost.",
+			"eventsTitle": "Event notifications",
+			"paused": "Paused",
+			"saveChanges": "Save changes",
+			"toast": {
+				"disabled": "Mattermost notifications paused",
+				"enabled": "Mattermost notifications enabled",
+				"removed": "Mattermost integration removed successfully",
+				"removeError": "Failed to remove Mattermost integration",
+				"saved": "Mattermost integration saved successfully",
+				"saveError": "Failed to save Mattermost integration",
+				"updateError": "Failed to update Mattermost integration"
+			},
+			"update": "Update Mattermost",
+			"validation": {
+				"webhookInvalid": "Enter a valid Mattermost webhook URL"
+			},
+			"webhookHint": "Create an Incoming Webhook in Mattermost and paste the generated URL here.",
+			"webhookLabel": "Incoming webhook URL",
+			"webhookPlaceholder": "https://your-mattermost-server.com/hooks/..."
+		},
+		"customFields": {
+			"addButton": "Add",
+			"createError": "Failed to create custom field.",
+			"createSuccess": "Custom field created.",
+			"creating": "Creating...",
+			"defaultLabel": "Default",
+			"defaultValuePlaceholder": "Default value",
+			"deleteButton": "Delete",
+			"deleteError": "Failed to delete custom field.",
+			"deleteSuccess": "Custom field deleted.",
+			"deleting": "Deleting...",
+			"empty": "No custom fields configured yet.",
+			"loading": "Loading custom fields...",
+			"namePlaceholder": "Field name",
+			"noOptionsPlaceholder": "No options",
+			"optionsPlaceholder": "Options separated by commas",
+			"required": "Required",
+			"typePlaceholder": "Select field type",
+			"types": {
+				"boolean": "Boolean",
+				"date": "Date",
+				"dropdown": "Dropdown",
+				"number": "Number",
+				"text": "Text"
+			}
 		}
 	},
 	"tasks": {
@@ -1816,7 +1890,11 @@
 				"labels": "Etykiety",
 				"priority": "Priorytet",
 				"status": "Status"
-			}
+			},
+			"all": "All",
+			"allCustomFieldValues": "All values",
+			"noCustomFieldValues": "No custom field values",
+			"noValuesUsedYet": "No values used yet"
 		},
 		"boardSearchPlaceholder": "Szukaj zadań...",
 		"bulk": {
@@ -1855,7 +1933,8 @@
 			"loadingTask": "Ładowanie zadania...",
 			"selectTask": "Wybierz zadanie",
 			"taskNotFound": "Nie znaleziono zadania",
-			"taskNotFoundDescription": "Zadanie, którego szukasz, nie istnieje lub zostało usunięte."
+			"taskNotFoundDescription": "Zadanie, którego szukasz, nie istnieje lub zostało usunięte.",
+			"customFields": "Custom Fields"
 		},
 		"contextMenu": {
 			"copyLink": "Kopiuj link",
@@ -1972,7 +2051,9 @@
 			"noActivity": "Nie znaleziono aktywności",
 			"openInFullPage": "Otwórz na pełnej stronie",
 			"subtaskOf": "Podzadanie zadania",
-			"titlePlaceholder": "Kliknij, aby dodać tytuł"
+			"titlePlaceholder": "Kliknij, aby dodać tytuł",
+			"customFieldUpdated": "Field updated",
+			"selectOption": "Select option"
 		},
 		"dueDate": {
 			"clear": "Wyczyść datę",

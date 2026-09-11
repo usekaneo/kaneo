@@ -1,3 +1,81 @@
+### Features
+
+- custom fields configuration: #1542
+- redirect to default project: #1640
+- **i18n:** add Azerbaijani (az-AZ) translation: #1704
+
+### Bug Fixes
+
+- **web:** defer Shiki highlighter loading on task page: #1713
+- **i18n:** restore Simplified Chinese translations for Mattermost integration: #1701
+- **i18n:** sync Mattermost keys across locales: #1710
+- **npm:** fixing CVE-2026-75604: #1709
+- **api:** skip archived tasks in due date reminders: #1702
+
+### Documentation
+
+- update contributors and sponsors: [d7f1c46](https://github.com/usekaneo/kaneo/commit/d7f1c4664d55bdea1f3b9e27d1f26607a053c00e)
+- update contributors and sponsors: [243f9d8](https://github.com/usekaneo/kaneo/commit/243f9d8e16793d2bbc3d22d66ba53bc21eed0867)
+- update contributors and sponsors: [41b72df](https://github.com/usekaneo/kaneo/commit/41b72df7cdfefd89f0adf643f249aa3ad6ea28d8)
+
+### Credits
+
+Huge thanks to @MonsPropre, @ApplesBear-X, @randoneering, @jamalkamaladdin, and @mmilanovic4 for helping!
+
+### Bug Fixes
+
+- **mcp:** accept refresh_token grant on register: [59314c1](https://github.com/usekaneo/kaneo/commit/59314c15aded93fe65170eb7ca94d00bc1af5174)
+
+### Documentation
+
+- update contributors and sponsors: [e5a4675](https://github.com/usekaneo/kaneo/commit/e5a4675e7d49e634de4cef4171e3925666bb6c8c)
+
+### Bug Fixes
+
+- **web:** use location.href for the sign-in redirect param: [7483d37](https://github.com/usekaneo/kaneo/commit/7483d37ea059a76f298cbd66cb3eb9903e0ce44f)
+
+### Features
+
+- **mattermost:** add native Mattermost integration: #1325
+- center Gantt view on today by default: #1686
+- task item counters: #1638
+- **i18n:** add polish locale: #1639
+- **i18n:** add Japanese (ja-JP) translation: #1662
+
+### Bug Fixes
+
+- **ci:** preserve OpenAPI checker argument boundaries: #1657
+- **web:** preserve imported label colors: #1695
+- project nav width in different language: #1641
+- make task removal discoverable and calendar states distinct: #1685
+- **web:** protect unsaved task input: #1694
+- **auth:** prevent 401 retry storm for pending invitations: #1677
+- **auth:** prevent 401 retry storm and redirect to sign-in: #1676
+- hide "Mark as planned" for backlog tasks: #1675
+- **api:** close the remaining gaps in the auth schema emitter: #1655
+- **web:** resolve the root error boundary's translation keys: #1648
+- **api:** replace the seat-reconciliation advisory lock with a job lease: [cf701d0](https://github.com/usekaneo/kaneo/commit/cf701d02415412b91c28ea608c144f6673c6e4b8)
+- **api:** close five workspace-scoping gaps: #1646
+- **api:** correct five defects that fail silently: #1647
+- **api:** make notifications and seat reconciliation survive replicas: #1649
+- **chart:** Added more values: #1636
+- **web:** let task labels use card width: #1635
+
+### Documentation
+
+- update contributors and sponsors: [8083ab2](https://github.com/usekaneo/kaneo/commit/8083ab2a65257da6552f07cf52149ad12434d0bf)
+- update contributors and sponsors: [2ad7533](https://github.com/usekaneo/kaneo/commit/2ad753396331d964310d5ddd3ef112d9a0bede3e)
+- update contributors and sponsors: [ee36e49](https://github.com/usekaneo/kaneo/commit/ee36e499a9d4e8520d8f8cdf5cd685e48fae48f9)
+- update contributors and sponsors: [4653916](https://github.com/usekaneo/kaneo/commit/46539164c68669cec15b1528835c10ad0a66355e)
+- update contributors and sponsors: [22e7da2](https://github.com/usekaneo/kaneo/commit/22e7da2db1c41b9449f4768000bf1504e0d343be)
+- update contributors and sponsors: [48e87e4](https://github.com/usekaneo/kaneo/commit/48e87e4f8749474e940081708320dc75eb84afe8)
+- update contributors and sponsors: [b760dce](https://github.com/usekaneo/kaneo/commit/b760dcec37edf22c390ec973d7fbed9a4c110578)
+- update contributors and sponsors: [8100f3b](https://github.com/usekaneo/kaneo/commit/8100f3b1ab47a0b49c7ac6deabe64eb0d1d9970d)
+
+### Credits
+
+Huge thanks to @shockalotti, @reachsanjivbhagat-gif, @andrejsshell, @tinsever, @TymekV, @MonsPropre, @krudo-taco, @mohiuddin000, @sinsky, and @hydraxman for helping!
+
 ## [2.22.0](https://github.com/usekaneo/kaneo/compare/v2.21.0...v2.22.0) (2026-08-21)
 
 ### Features

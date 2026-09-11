@@ -35,7 +35,7 @@ import {
 import type { MouseEvent as ReactMouseEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { bundledLanguages, type Highlighter } from "shiki";
+import type { Highlighter } from "shiki";
 import { AttachmentCard } from "@/components/task/extensions/attachment-card";
 import { EmbedBlock } from "@/components/task/extensions/embed-block";
 import { KaneoIssueLink } from "@/components/task/extensions/kaneo-issue-link";
@@ -70,7 +70,6 @@ import {
   normalizeUrl,
 } from "@/lib/editor-url-utils";
 import { isInCodeBlockLanguagePicker } from "@/lib/is-in-codeblock-language-picker";
-import { getSharedShikiHighlighter } from "@/lib/shiki-highlighter";
 import { toast } from "@/lib/toast";
 import { uploadTaskImage } from "@/lib/upload-task-image";
 
@@ -255,9 +254,8 @@ export default function CommentEditor({
       })),
     [t],
   );
-  const availableShikiLanguages = useMemo(
-    () => new Set(Object.keys(bundledLanguages)),
-    [],
+  const [availableShikiLanguages, setAvailableShikiLanguages] = useState(
+    () => new Set<string>(),
   );
   const toShikiLanguage = useCallback(
     (language: string) => {
@@ -574,11 +572,17 @@ export default function CommentEditor({
   useEffect(() => {
     let mounted = true;
 
-    void getSharedShikiHighlighter()
-      .then((instance) => {
+    void Promise.all([
+      import("@/lib/shiki-highlighter").then(({ getSharedShikiHighlighter }) =>
+        getSharedShikiHighlighter(),
+      ),
+      import("shiki"),
+    ])
+      .then(([instance, { bundledLanguages: languages }]) => {
         if (!mounted) return;
         shikiHighlighterRef.current = instance;
         setShikiHighlighter(instance);
+        setAvailableShikiLanguages(new Set(Object.keys(languages)));
       })
       .catch((err) => {
         // Shared initializer resets its cached promise on rejection so a

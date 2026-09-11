@@ -25,6 +25,9 @@ export const taskSchema = z
     startDate: nullableResponseTimestamp,
     dueDate: nullableResponseTimestamp,
     createdAt: responseTimestamp,
+    customFields: z
+      .array(z.object({ fieldId: z.string(), value: z.string() }))
+      .optional(),
   })
   .openapi("Task");
 

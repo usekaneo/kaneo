@@ -1,1 +1,0 @@
-ALTER TABLE "external_link" ALTER COLUMN "integration_id" DROP NOT NULL;
