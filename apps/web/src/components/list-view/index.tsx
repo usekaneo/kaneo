@@ -19,15 +19,17 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { useNavigate } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "framer-motion";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { produce } from "immer";
 import { Archive, ChevronRight, Flag, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
-import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useBulkOperations } from "@/hooks/mutations/task/use-bulk-operations";
+import { useReorderTasks } from "@/hooks/mutations/task/use-reorder-tasks";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
+import collectReorderedTasks from "@/lib/collect-reordered-tasks";
 import { getColumnIcon } from "@/lib/column";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
@@ -43,6 +45,125 @@ type ListViewProps = {
   disableDragDrop?: boolean;
 };
 
+type Column = ProjectWithTasks["columns"][number];
+type Task = Column["tasks"][number];
+
+type ListRow =
+  | { type: "header"; key: string; column: Column }
+  | { type: "task"; key: string; columnId: string; task: Task }
+  | { type: "empty"; key: string; column: Column };
+
+type ColumnHeaderRowProps = {
+  column: Column;
+  expanded: boolean;
+  showDropIndicator: boolean;
+  onToggle: () => void;
+  onAddTask: () => void;
+  onArchive: () => void;
+};
+
+function ColumnHeaderRow({
+  column,
+  expanded,
+  showDropIndicator,
+  onToggle,
+  onAddTask,
+  onArchive,
+}: ColumnHeaderRowProps) {
+  const { t } = useTranslation();
+  const { setNodeRef } = useDroppable({
+    id: `column-header:${column.id}`,
+    disabled: expanded,
+    data: {
+      type: "column",
+      column,
+    },
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={cn(
+        "flex items-center justify-between py-2 px-4 bg-muted/60 border-b border-border/50 transition-colors duration-150",
+        showDropIndicator && "border-l-4 border-l-ring bg-accent/35",
+      )}
+    >
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-foreground transition-colors"
+      >
+        <ChevronRight
+          className={cn(
+            "w-3 h-3 transition-transform",
+            expanded && "rotate-90",
+          )}
+        />
+        <div className="flex items-center gap-2 h-4">
+          {getColumnIcon(column.id, column.isFinal, column.icon)}
+          <div className="flex items-center gap-1">
+            <span className="mt-1 mr-1">{column.name}</span>
+            <span className="text-xs text-muted-foreground mt-0.5">
+              {column.tasks.length}
+            </span>
+          </div>
+        </div>
+      </button>
+
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={onAddTask}
+          className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
+          title={t("tasks:listView.addTask")}
+        >
+          <Plus className="w-3 h-3" />
+        </button>
+
+        {column.isFinal && column.tasks.length > 0 && (
+          <button
+            type="button"
+            onClick={onArchive}
+            className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
+            title={t("tasks:listView.archiveAllTooltip")}
+          >
+            <Archive className="w-3 h-3" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function EmptyColumnRow({
+  column,
+  showDropIndicator,
+}: {
+  column: Column;
+  showDropIndicator: boolean;
+}) {
+  const { t } = useTranslation();
+  const { setNodeRef } = useDroppable({
+    id: `column-empty:${column.id}`,
+    data: {
+      type: "column",
+      column,
+    },
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={cn(
+        "py-6 px-4 text-center text-xs text-muted-foreground bg-card border-b border-border/50 transition-colors duration-150",
+        showDropIndicator && "border-l-4 border-l-ring bg-accent/35",
+      )}
+    >
+      {t("tasks:listView.noTasks")}
+    </div>
+  );
+}
+
 function ListView({ project, disableDragDrop = false }: ListViewProps) {
   const { t } = useTranslation();
   const { setProject } = useProjectStore();
@@ -53,7 +174,8 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
     focusedTaskId,
     clearFocus,
   } = useBulkSelectionStore();
-  const { mutate: updateTask } = useUpdateTask();
+  const { mutate: reorderTasks } = useReorderTasks();
+  const { bulkArchive } = useBulkOperations();
   const navigate = useNavigate();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [overColumnId, setOverColumnId] = useState<string | null>(null);
@@ -143,8 +265,9 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
       return;
     }
 
-    if (project?.columns?.some((col) => col.id === over.id)) {
-      setOverColumnId(over.id.toString());
+    const targetColumnId = over.data.current?.column?.id;
+    if (typeof targetColumnId === "string") {
+      setOverColumnId(targetColumnId);
       return;
     }
 
@@ -167,75 +290,85 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
 
     if (!over || !project?.columns) return;
 
-    const activeTaskId = active.id.toString();
+    const draggedTaskId = active.id.toString();
     const overId = over.id.toString();
+    const targetColumnId = over.data.current?.column?.id;
+
+    let crossedColumns = false;
 
     const updatedProject = produce(project, (draft) => {
       const sourceColumn = draft?.columns?.find((col) =>
-        col.tasks.some((task) => task.id === activeTaskId),
+        col.tasks.some((task) => task.id === draggedTaskId),
       );
       const destinationColumn = draft?.columns?.find(
         (col) =>
-          col.id === overId || col.tasks.some((task) => task.id === overId),
+          col.id === targetColumnId ||
+          col.id === overId ||
+          col.tasks.some((task) => task.id === overId),
       );
 
       if (!sourceColumn || !destinationColumn) return;
 
       const sourceTaskIndex = sourceColumn.tasks.findIndex(
-        (task) => task.id === activeTaskId,
+        (task) => task.id === draggedTaskId,
       );
       const task = sourceColumn.tasks[sourceTaskIndex];
 
-      sourceColumn.tasks = sourceColumn.tasks.filter(
-        (t) => t.id !== activeTaskId,
+      if (!task) return;
+
+      sourceColumn.tasks.splice(sourceTaskIndex, 1);
+
+      const overIndex = destinationColumn.tasks.findIndex(
+        (t) => t.id === overId,
       );
 
       if (sourceColumn.id === destinationColumn.id) {
-        let destinationIndex = destinationColumn.tasks.findIndex(
-          (t) => t.id === overId,
-        );
-        if (sourceTaskIndex <= destinationIndex) {
+        // Dropping on the section itself rather than on a row sends the task to
+        // the end, instead of splicing at -1 and landing second to last.
+        let destinationIndex =
+          overIndex === -1 ? destinationColumn.tasks.length : overIndex;
+
+        if (overIndex !== -1 && sourceTaskIndex <= destinationIndex) {
           destinationIndex += 1;
         }
-        destinationColumn.tasks.splice(destinationIndex, 0, task);
 
-        destinationColumn.tasks.forEach((t, index) => {
-          updateTask({
-            ...t,
-            status: destinationColumn.slug,
-            position: index,
-          });
-        });
+        destinationColumn.tasks.splice(destinationIndex, 0, task);
       } else {
+        crossedColumns = true;
         // A task's status is a column slug. The column id is only the
         // droppable identity here, and the two are interchangeable only
         // because the tasks endpoint happens to return `id: column.slug`.
         task.status = destinationColumn.slug;
+
         const destinationIndex =
-          overId === destinationColumn.id
-            ? destinationColumn.tasks.length
-            : destinationColumn.tasks.findIndex((t) => t.id === overId) + 1;
+          overIndex === -1 ? destinationColumn.tasks.length : overIndex + 1;
 
         destinationColumn.tasks.splice(destinationIndex, 0, task);
+      }
 
-        destinationColumn.tasks.forEach((t, index) => {
-          updateTask({
-            ...t,
-            status: destinationColumn.slug,
-            position: index,
-          });
-        });
-
-        sourceColumn.tasks.forEach((t, index) => {
-          updateTask({
-            ...t,
-            position: index,
-          });
+      // Renumber the sections the drag touched so stored positions stay dense.
+      // A Set because a same-section move sees the same draft object twice.
+      for (const column of new Set([sourceColumn, destinationColumn])) {
+        column.tasks.forEach((t, index) => {
+          t.position = index;
         });
       }
     });
 
     setProject(updatedProject);
+
+    const changedTasks = collectReorderedTasks(
+      project.columns.flatMap((column) => column.tasks),
+      updatedProject.columns.flatMap((column) => column.tasks),
+    );
+
+    if (changedTasks.length === 0) return;
+
+    reorderTasks({
+      projectId: project.id,
+      tasks: changedTasks,
+      crossedColumns,
+    });
   };
 
   const toggleSection = (sectionId: string) => {
@@ -251,8 +384,11 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
     setIsArchiveModalOpen(true);
   };
 
-  const handleConfirmArchive = () => {
+  const handleConfirmArchive = async () => {
     if (!columnToArchive) return;
+
+    const previousProject = project;
+    const taskIds = columnToArchive.tasks.map((task) => task.id);
 
     const updatedProject = produce(project, (draft) => {
       const archivedColumn = draft?.columns?.find(
@@ -260,130 +396,74 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
       );
       if (!archivedColumn) return;
 
-      for (const task of archivedColumn.tasks) {
-        updateTask({
-          ...task,
-          status: "archived",
-        });
-      }
-
       archivedColumn.tasks = [];
     });
 
     setProject(updatedProject);
-    toast.success(
-      t("tasks:archive.success", { count: columnToArchive.tasks.length }),
-    );
+
+    try {
+      if (taskIds.length > 0) {
+        await bulkArchive(taskIds);
+      }
+
+      toast.success(t("tasks:archive.success", { count: taskIds.length }));
+    } catch (error) {
+      setProject(previousProject);
+      toast.error(
+        error instanceof Error ? error.message : t("tasks:update.error"),
+      );
+    }
 
     setIsArchiveModalOpen(false);
     setColumnToArchive(null);
   };
 
-  function ColumnSection({
-    column,
-  }: {
-    column: ProjectWithTasks["columns"][number];
-  }) {
-    const { setNodeRef } = useDroppable({
-      id: column.id,
-      data: {
-        type: "column",
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const rows = useMemo<ListRow[]>(() => {
+    const nextRows: ListRow[] = [];
+
+    for (const column of project.columns) {
+      nextRows.push({
+        type: "header",
+        key: `header:${column.id}`,
         column,
-      },
-    });
+      });
 
-    const showDropIndicator = activeId && overColumnId === column.id;
+      if (!expandedSections[column.id]) continue;
 
-    return (
-      <div
-        className={cn(
-          "border-b border-border/50 transition-colors duration-150 overflow-auto",
-          showDropIndicator && "border-l-4 border-l-ring bg-accent/35",
-        )}
-      >
-        <div className="flex items-center justify-between py-2 px-4 bg-muted/60 border-b border-border/50">
-          <button
-            type="button"
-            onClick={() => toggleSection(column.id)}
-            className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-foreground transition-colors"
-          >
-            <ChevronRight
-              className={cn(
-                "w-3 h-3 transition-transform",
-                expandedSections[column.id] && "rotate-90",
-              )}
-            />
-            <div className="flex items-center gap-2 h-4">
-              {getColumnIcon(column.id, column.isFinal, column.icon)}
-              <div className="flex items-center gap-1">
-                <span className="mt-1 mr-1">{column.name}</span>
-                <span className="text-xs text-muted-foreground mt-0.5">
-                  {column.tasks.length}
-                </span>
-              </div>
-            </div>
-          </button>
+      if (column.tasks.length === 0) {
+        nextRows.push({
+          type: "empty",
+          key: `empty:${column.id}`,
+          column,
+        });
+        continue;
+      }
 
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => {
-                setIsTaskModalOpen(true);
-                setActiveColumn(column.id);
-              }}
-              className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
-              title={t("tasks:listView.addTask")}
-            >
-              <Plus className="w-3 h-3" />
-            </button>
+      for (const task of column.tasks) {
+        nextRows.push({
+          type: "task",
+          key: `task:${task.id}`,
+          columnId: column.id,
+          task,
+        });
+      }
+    }
 
-            {column.isFinal && column.tasks.length > 0 && (
-              <button
-                type="button"
-                onClick={() => handleArchiveClick(column)}
-                className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
-                title={t("tasks:listView.archiveAllTooltip")}
-              >
-                <Archive className="w-3 h-3" />
-              </button>
-            )}
-          </div>
-        </div>
-
-        {expandedSections[column.id] && (
-          <div
-            ref={setNodeRef}
-            className="bg-card transition-[translate,opacity] duration-150 ease-out starting:-translate-y-1 starting:opacity-0 motion-reduce:starting:translate-y-0"
-          >
-            <SortableContext
-              items={column.tasks}
-              strategy={verticalListSortingStrategy}
-            >
-              <AnimatePresence initial={false} mode="popLayout">
-                {column.tasks.map((task) => (
-                  <motion.div
-                    key={task.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
-                  >
-                    <TaskRow task={task} projectSlug={project?.slug ?? ""} />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </SortableContext>
-
-            {column.tasks.length === 0 && (
-              <div className="py-6 px-4 text-center text-xs text-muted-foreground">
-                {t("tasks:listView.noTasks")}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  }
+    return nextRows;
+  }, [expandedSections, project.columns]);
+  const sortableTaskIds = useMemo(
+    () => rows.flatMap((row) => (row.type === "task" ? [row.task.id] : [])),
+    [rows],
+  );
+  const rowVirtualizer = useVirtualizer({
+    count: rows.length,
+    getScrollElement: () => scrollContainerRef.current,
+    estimateSize: (index) => (rows[index]?.type === "empty" ? 73 : 41),
+    initialRect: { width: 1024, height: 800 },
+    getItemKey: (index) => rows[index]?.key ?? index,
+    overscan: 10,
+  });
 
   if (!project?.columns) {
     return null;
@@ -404,11 +484,74 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
       onDragEnd={handleDragEnd}
       modifiers={[snapCenterToCursor]}
     >
-      <div className="w-full h-full overflow-auto bg-muted/20">
-        <div className="divide-y divide-border/50">
-          {project.columns.map((column) => (
-            <ColumnSection key={column.id} column={column} />
-          ))}
+      <div
+        ref={scrollContainerRef}
+        className="w-full h-full overflow-auto bg-muted/20"
+      >
+        <div
+          className="relative w-full"
+          style={{ height: rowVirtualizer.getTotalSize() }}
+        >
+          <SortableContext
+            items={sortableTaskIds}
+            strategy={verticalListSortingStrategy}
+          >
+            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+              const row = rows[virtualRow.index];
+              if (!row) return null;
+
+              return (
+                <div
+                  key={row.key}
+                  ref={rowVirtualizer.measureElement}
+                  data-index={virtualRow.index}
+                  className="absolute top-0 left-0 w-full"
+                  style={{ transform: `translateY(${virtualRow.start}px)` }}
+                >
+                  {row.type === "header" && (
+                    <ColumnHeaderRow
+                      column={row.column}
+                      expanded={expandedSections[row.column.id]}
+                      showDropIndicator={
+                        Boolean(activeId) && overColumnId === row.column.id
+                      }
+                      onToggle={() => toggleSection(row.column.id)}
+                      onAddTask={() => {
+                        setIsTaskModalOpen(true);
+                        setActiveColumn(row.column.id);
+                      }}
+                      onArchive={() => handleArchiveClick(row.column)}
+                    />
+                  )}
+
+                  {row.type === "task" && (
+                    <div
+                      className={cn(
+                        "bg-card transition-colors duration-150",
+                        activeId &&
+                          overColumnId === row.columnId &&
+                          "border-l-4 border-l-ring bg-accent/35",
+                      )}
+                    >
+                      <TaskRow
+                        task={row.task}
+                        projectSlug={project.slug ?? ""}
+                      />
+                    </div>
+                  )}
+
+                  {row.type === "empty" && (
+                    <EmptyColumnRow
+                      column={row.column}
+                      showDropIndicator={
+                        Boolean(activeId) && overColumnId === row.column.id
+                      }
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </SortableContext>
         </div>
       </div>
 

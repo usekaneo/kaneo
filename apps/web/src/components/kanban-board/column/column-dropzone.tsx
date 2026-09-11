@@ -3,23 +3,53 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useEffect } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import { memo, type RefObject } from "react";
 import type { ProjectWithTasks } from "@/types/project";
+import type Task from "@/types/task";
 import TaskCard from "../task-card";
+
+type VirtualTaskRowProps = {
+  task: Task;
+  index: number;
+  start: number;
+  disableDragDrop: boolean;
+  measureElement: (node: Element | null) => void;
+};
+
+const VirtualTaskRow = memo(function VirtualTaskRow({
+  task,
+  index,
+  start,
+  disableDragDrop,
+  measureElement,
+}: VirtualTaskRowProps) {
+  return (
+    <div
+      ref={measureElement}
+      data-index={index}
+      className="absolute top-0 left-0 w-full"
+      style={{
+        transform: `translateY(${start}px)`,
+      }}
+    >
+      <TaskCard task={task} disableDragDrop={disableDragDrop} />
+    </div>
+  );
+});
 
 type ColumnDropzoneProps = {
   column: ProjectWithTasks["columns"][number];
   disableDragDrop?: boolean;
-  onIsOverChange?: (isOver: boolean) => void;
+  scrollElementRef: RefObject<HTMLDivElement | null>;
 };
 
 export function ColumnDropzone({
   column,
   disableDragDrop = false,
-  onIsOverChange,
+  scrollElementRef,
 }: ColumnDropzoneProps) {
-  const { setNodeRef, isOver } = useDroppable({
+  const { setNodeRef } = useDroppable({
     id: column.id,
     data: {
       type: "column",
@@ -27,38 +57,43 @@ export function ColumnDropzone({
     },
   });
 
-  useEffect(() => {
-    onIsOverChange?.(isOver);
-  }, [isOver, onIsOverChange]);
-
-  const reduceMotion = useReducedMotion();
+  const taskVirtualizer = useVirtualizer({
+    count: column.tasks.length,
+    getScrollElement: () => scrollElementRef.current,
+    estimateSize: () => 132,
+    initialRect: { width: 384, height: 800 },
+    getItemKey: (index) => column.tasks[index]?.id ?? index,
+    gap: 8,
+    overscan: 5,
+  });
 
   return (
-    <div ref={setNodeRef} className="flex-1 min-h-0">
+    <div ref={setNodeRef} className="relative min-h-full bg-transparent">
       <SortableContext
         items={column.tasks}
         strategy={verticalListSortingStrategy}
       >
-        <div className="flex flex-col gap-2">
-          <AnimatePresence initial={false} mode="popLayout">
-            {column.tasks.map((task) => (
-              <motion.div
-                key={task.id}
-                initial={
-                  reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98 }
-                }
-                animate={
-                  reduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }
-                }
-                exit={
-                  reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98 }
-                }
-                transition={{ type: "spring", duration: 0.35, bounce: 0.15 }}
-              >
-                <TaskCard task={task} disableDragDrop={disableDragDrop} />
-              </motion.div>
-            ))}
-          </AnimatePresence>
+        <div
+          className="relative w-full"
+          style={{
+            height: `${taskVirtualizer.getTotalSize()}px`,
+          }}
+        >
+          {taskVirtualizer.getVirtualItems().map((virtualTask) => {
+            const task = column.tasks[virtualTask.index];
+            if (!task) return null;
+
+            return (
+              <VirtualTaskRow
+                key={virtualTask.key}
+                task={task}
+                index={virtualTask.index}
+                start={virtualTask.start}
+                disableDragDrop={disableDragDrop}
+                measureElement={taskVirtualizer.measureElement}
+              />
+            );
+          })}
         </div>
       </SortableContext>
     </div>

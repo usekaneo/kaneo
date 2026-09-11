@@ -3,7 +3,7 @@ import { Archive, Plus } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
-import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useBulkOperations } from "@/hooks/mutations/task/use-bulk-operations";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
 import { toast } from "@/lib/toast";
@@ -17,8 +17,9 @@ type ColumnHeaderProps = {
 
 export function ColumnHeader({ column }: ColumnHeaderProps) {
   const { t } = useTranslation();
-  const { project, setProject } = useProjectStore();
-  const { mutate: updateTask } = useUpdateTask();
+  const projectId = useProjectStore((s) => s.project?.id);
+  const setProject = useProjectStore((s) => s.setProject);
+  const { bulkArchive } = useBulkOperations();
   const { canUpdateTasks, canCreateTasks } = useWorkspacePermission();
   const canTask = canUpdateTasks();
   const canCreate = canCreateTasks();
@@ -26,8 +27,12 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
-  const handleConfirmArchive = () => {
+  const handleConfirmArchive = async () => {
+    const { project } = useProjectStore.getState();
     if (!column.isFinal || !project) return;
+
+    const previousProject = project;
+    const taskIds = column.tasks.map((task) => task.id);
 
     const updatedProject = produce(project, (draft) => {
       const archivedColumn = draft?.columns?.find(
@@ -35,18 +40,25 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
       );
       if (!archivedColumn) return;
 
-      for (const task of archivedColumn.tasks) {
-        updateTask({
-          ...task,
-          status: "archived",
-        });
-      }
-
       archivedColumn.tasks = [];
     });
 
     setProject(updatedProject);
-    toast.success(t("tasks:archive.success", { count: column.tasks.length }));
+
+    try {
+      // One request for the column, rather than a full task update per card.
+      if (taskIds.length > 0) {
+        await bulkArchive(taskIds);
+      }
+
+      toast.success(t("tasks:archive.success", { count: taskIds.length }));
+    } catch (error) {
+      setProject(previousProject);
+      toast.error(
+        error instanceof Error ? error.message : t("tasks:update.error"),
+      );
+    }
+
     setIsArchiveModalOpen(false);
   };
 
@@ -90,7 +102,7 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
       <CreateTaskModal
         open={isTaskModalOpen}
         onClose={() => setIsTaskModalOpen(false)}
-        projectId={project?.id}
+        projectId={projectId}
         status={column.id}
       />
 

@@ -25,9 +25,11 @@ import { Archive, ChevronRight, Clock, Flag, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
-import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useReorderTasks } from "@/hooks/mutations/task/use-reorder-tasks";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
+import collectReorderedTasks from "@/lib/collect-reordered-tasks";
+import { toast } from "@/lib/toast";
 import useBacklogBulkSelectionStore from "@/store/backlog-bulk-selection";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
@@ -46,7 +48,7 @@ function BacklogListView({
   disableDragDrop = false,
 }: BacklogListViewProps) {
   const { t } = useTranslation();
-  const { mutate: updateTask } = useUpdateTask();
+  const { mutate: reorderTasks } = useReorderTasks();
   const { setProject } = useProjectStore();
   const {
     setAvailableTasks,
@@ -190,6 +192,8 @@ function BacklogListView({
       }
     }
 
+    const crossedSections = activeTask.status !== targetSection;
+
     const updatedProject = produce(project, (draft) => {
       const sourceSection =
         activeTask.status === "planned"
@@ -203,46 +207,9 @@ function BacklogListView({
 
       if (!task) return;
 
-      if (activeTask.status === "planned") {
-        draft.plannedTasks =
-          draft.plannedTasks?.filter((t) => t.id !== activeTaskId) || [];
-      } else {
-        draft.archivedTasks =
-          draft.archivedTasks?.filter((t) => t.id !== activeTaskId) || [];
-      }
+      sourceSection.splice(sourceTaskIndex, 1);
 
-      if (activeTask.status === targetSection) {
-        const targetSectionTasks =
-          activeTask.status === "planned"
-            ? draft.plannedTasks || []
-            : draft.archivedTasks || [];
-
-        let destinationIndex = targetSectionTasks.findIndex(
-          (t) => t.id === overId,
-        );
-
-        if (sourceTaskIndex <= destinationIndex) {
-          destinationIndex += 1;
-        }
-
-        if (activeTask.status === "planned") {
-          draft.plannedTasks?.splice(destinationIndex, 0, task);
-        } else {
-          draft.archivedTasks?.splice(destinationIndex, 0, task);
-        }
-
-        const finalTasks =
-          activeTask.status === "planned"
-            ? draft.plannedTasks || []
-            : draft.archivedTasks || [];
-
-        finalTasks.forEach((t, index) => {
-          updateTask({
-            ...t,
-            position: index,
-          });
-        });
-      } else {
+      if (crossedSections) {
         task.status = targetSection;
 
         if (targetSection === "planned") {
@@ -250,35 +217,54 @@ function BacklogListView({
         } else {
           draft.archivedTasks = [...(draft.archivedTasks || []), task];
         }
+      } else {
+        const overIndex = sourceSection.findIndex((t) => t.id === overId);
 
-        const updatedTasks =
-          targetSection === "planned"
-            ? draft.plannedTasks || []
-            : draft.archivedTasks || [];
+        let destinationIndex =
+          overIndex === -1 ? sourceSection.length : overIndex;
 
-        updatedTasks.forEach((t, index) => {
-          updateTask({
-            ...t,
-            status: targetSection,
-            position: index,
-          });
-        });
+        if (overIndex !== -1 && sourceTaskIndex <= destinationIndex) {
+          destinationIndex += 1;
+        }
 
-        const sourceTasks =
-          activeTask.status === "planned"
-            ? draft.plannedTasks || []
-            : draft.archivedTasks || [];
+        sourceSection.splice(destinationIndex, 0, task);
+      }
 
-        sourceTasks.forEach((t, index) => {
-          updateTask({
-            ...t,
-            position: index,
-          });
+      // Renumber both sections so stored positions stay dense. Previously this
+      // sent a full task update for every task in the section, so reordering
+      // one card in a long backlog fired a request per card.
+      for (const section of [draft.plannedTasks, draft.archivedTasks]) {
+        section?.forEach((t, index) => {
+          t.position = index;
         });
       }
     });
 
     setProject(updatedProject);
+
+    const changedTasks = collectReorderedTasks(
+      [...plannedTasks, ...archivedTasks],
+      [
+        ...(updatedProject.plannedTasks || []),
+        ...(updatedProject.archivedTasks || []),
+      ],
+    );
+
+    if (changedTasks.length === 0) return;
+
+    reorderTasks(
+      {
+        projectId: project.id,
+        tasks: changedTasks,
+        crossedColumns: crossedSections,
+      },
+      {
+        onError: (error) =>
+          toast.error(
+            error instanceof Error ? error.message : t("tasks:update.error"),
+          ),
+      },
+    );
   };
 
   const toggleSection = (sectionId: string) => {

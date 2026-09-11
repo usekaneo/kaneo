@@ -36,6 +36,7 @@ import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
 import importTasks from "./controllers/import-tasks";
 import moveTask from "./controllers/move-task";
+import reorderTasks from "./controllers/reorder-tasks";
 import {
   requireBulkTaskEntitlement,
   requireBulkTaskPermission,
@@ -54,6 +55,7 @@ import {
   finalizedAssetSchema,
   imageUploadSchema,
   moveTaskResultSchema,
+  reorderTasksResultSchema,
   taskExportSchema,
   taskImportResultSchema,
   taskSchema,
@@ -68,6 +70,7 @@ import {
   listTasksQuery,
   moveTaskBody,
   projectIdParam,
+  reorderTasksBody,
   taskParam,
   updateAssigneeBody,
   updateDescriptionBody,
@@ -125,6 +128,38 @@ const bulkUpdateTasksRoute = createRoute({
       "No workspace access, or missing the permission the operation needs",
     ),
     404: errorResponse("No tasks found"),
+  },
+});
+
+const reorderTasksRoute = createRoute({
+  method: "put",
+  operationId: "reorderTasks",
+  path: "/reorder/{projectId}",
+  tags: ["Tasks"],
+  summary: "Reorder tasks",
+  description:
+    "Apply a board drag in one request: set the column and position of every task the move affected. Tasks already in the requested place are skipped, and a column change records activity just as the single-task status route does.",
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ task: ["update"] }),
+    requireEntitlement,
+  ] as const,
+  request: {
+    params: projectIdParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: reorderTasksBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("The tasks that changed", reorderTasksResultSchema),
+    400: errorResponse(
+      "Invalid body, duplicate ids, an unknown status, or a task from another project",
+    ),
+    403: errorResponse(
+      "No workspace access, or missing task:update permission",
+    ),
+    404: errorResponse("One of the tasks does not exist"),
   },
 });
 
@@ -575,6 +610,18 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       operation,
       value,
       userId,
+    });
+
+    return c.json(result, 200);
+  })
+  .openapi(reorderTasksRoute, async (c) => {
+    const { projectId } = c.req.valid("param");
+    const { tasks } = c.req.valid("json");
+
+    const result = await reorderTasks({
+      projectId,
+      tasks,
+      currentUserId: c.get("userId"),
     });
 
     return c.json(result, 200);

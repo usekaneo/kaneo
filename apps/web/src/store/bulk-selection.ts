@@ -126,4 +126,10 @@ const useBulkSelectionStore = create<BulkSelectionState>((set, get) => ({
   },
 }));
 
+export const useIsTaskSelected = (taskId: string) =>
+  useBulkSelectionStore((state) => state.selectedTaskIds.has(taskId));
+
+export const useIsTaskFocused = (taskId: string) =>
+  useBulkSelectionStore((state) => state.focusedTaskId === taskId);
+
 export default useBulkSelectionStore;
