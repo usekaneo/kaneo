@@ -10,10 +10,15 @@ export const Route = createFileRoute(
 
     if (currentPath !== workspacePath) return;
 
-    const projects = await context.queryClient.ensureQueryData({
-      queryKey: ["projects", params.workspaceId],
-      queryFn: () => getProjects({ workspaceId: params.workspaceId }),
-    });
+    let projects: Awaited<ReturnType<typeof getProjects>> | undefined;
+    try {
+      projects = await context.queryClient.ensureQueryData({
+        queryKey: ["projects", params.workspaceId],
+        queryFn: () => getProjects({ workspaceId: params.workspaceId }),
+      });
+    } catch (e) {
+      return;
+    }
 
     if (projects?.length !== 1) return;
 
