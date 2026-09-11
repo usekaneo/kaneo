@@ -16,7 +16,7 @@ export const Route = createFileRoute(
         queryKey: ["projects", params.workspaceId],
         queryFn: () => getProjects({ workspaceId: params.workspaceId }),
       });
-    } catch (e) {
+    } catch {
       return;
     }
 
