@@ -70,6 +70,16 @@
 					}
 				}
 			}
+		},
+		{
+			"includes": ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noUndeclaredEnvVars": "off"
+					}
+				}
+			}
 		}
 	]
 }
