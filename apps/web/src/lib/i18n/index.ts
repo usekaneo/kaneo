@@ -48,14 +48,58 @@ export function getBrowserLocale(): string | null {
 // so cache it once per locale to avoid a fresh dynamic import per namespace.
 const localeResources = new Map<AppLocale, Promise<Record<string, unknown>>>();
 
+const I18N_CHUNK_RELOAD_FLAG = "i18n_chunk_reload_attempted";
+
 function loadLocaleResources(
   locale: AppLocale,
 ): Promise<Record<string, unknown>> {
   const cached = localeResources.get(locale);
   if (cached) return cached;
-  const pending = loadLocale(locale).then(
-    (resources) => resources as Record<string, unknown>,
-  );
+  const pending = loadLocale(locale)
+    .then((resources) => {
+      // Successful load — clear the reload flag so a stale-chunk failure
+      // from a later deployment in the same tab can still trigger a reload.
+      try {
+        sessionStorage.removeItem(I18N_CHUNK_RELOAD_FLAG);
+      } catch {
+        // sessionStorage unavailable — nothing to clear.
+      }
+      return resources as Record<string, unknown>;
+    })
+    .catch((err: unknown) => {
+      // Remove the rejected promise from cache so a subsequent call can retry.
+      localeResources.delete(locale);
+
+      // A dynamic import failure typically means the browser has a stale
+      // version of the app (cached HTML referencing old content-hashed chunks)
+      // and the asset no longer exists after a new deployment. Reloading
+      // fetches the latest HTML and chunk filenames.
+      // Chrome: "Failed to fetch dynamically imported module"
+      // Firefox: "error loading dynamically imported module"
+      const isStaleChunk =
+        err instanceof TypeError &&
+        (err.message.includes("Failed to fetch dynamically imported module") ||
+          err.message.includes("error loading dynamically imported module"));
+
+      if (isStaleChunk) {
+        try {
+          if (!sessionStorage.getItem(I18N_CHUNK_RELOAD_FLAG)) {
+            sessionStorage.setItem(I18N_CHUNK_RELOAD_FLAG, "1");
+            window.location.reload();
+            // Return a never-resolving promise so callers wait for the reload
+            // rather than receiving a rejected promise.
+            return new Promise<never>(() => {});
+          }
+          // Already reloaded once — fail silently so we don't loop.
+          return Promise.reject(err);
+        } catch {
+          // sessionStorage access failed (disabled, private browsing, quota, etc.)
+          // Skip reload attempt and rethrow the original error.
+        }
+      }
+
+      throw err;
+    });
   localeResources.set(locale, pending);
   return pending;
 }
