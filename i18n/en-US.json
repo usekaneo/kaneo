@@ -1346,6 +1346,35 @@
 			"merged": "Merged",
 			"draft": "Draft",
 			"open": "Open"
+		},
+		"security": "Security",
+		"securityPage": {
+			"pageTitle": "Security",
+			"title": "Security",
+			"subtitle": "Manage your password and account security.",
+			"sectionTitle": "Password",
+			"sectionSubtitle": "Change the password you use to sign in.",
+			"currentPassword": "Current password",
+			"newPassword": "New password",
+			"confirmPassword": "Confirm new password",
+			"currentPasswordPlaceholder": "Enter your current password",
+			"newPasswordPlaceholder": "Enter a new password",
+			"confirmPasswordPlaceholder": "Re-enter your new password",
+			"submit": "Update password",
+			"submitting": "Updating...",
+			"updateSuccess": "Password updated.",
+			"updateError": "Failed to update password.",
+			"noPassword": {
+				"title": "Password change isn't available",
+				"description": "Your account signs in with a different method, so there is no password to change."
+			},
+			"validation": {
+				"currentRequired": "Enter your current password.",
+				"tooShort": "New password must be at least 8 characters.",
+				"confirmRequired": "Confirm your new password.",
+				"mismatch": "Passwords do not match.",
+				"sameAsCurrent": "New password must be different from your current password."
+			}
 		}
 	},
 	"navigation": {
