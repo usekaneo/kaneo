@@ -33,6 +33,12 @@ const messages = {
     footer: "Thông báo Kaneo",
     actionLabel: "Mở trong Kaneo",
   },
+  ja: {
+    preview: "Kaneo の新しい通知",
+    subtitle: "配信設定に一致する通知がありました。",
+    footer: "Kaneo 通知",
+    actionLabel: "Kaneo で開く",
+  },
 } as const;
 
 const NotificationEmail = ({
