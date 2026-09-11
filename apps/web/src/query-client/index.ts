@@ -57,6 +57,11 @@ const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error) => {
       if (isUnauthorizedError(error)) {
+        // Clear all cached query data (including session) before redirecting so
+        // that any session-dependent hooks (e.g. usePendingInvitations) see
+        // enabled=false immediately and do not fire further unauthorized requests
+        // during the brief window before window.location.replace() completes.
+        queryClient.clear();
         handleUnauthorized();
         return;
       }
