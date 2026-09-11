@@ -48,7 +48,7 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { bundledLanguages, type Highlighter } from "shiki";
+import type { Highlighter } from "shiki";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogPopup } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -72,7 +72,6 @@ import {
   normalizeUrl,
 } from "@/lib/editor-url-utils";
 import { isInCodeBlockLanguagePicker } from "@/lib/is-in-codeblock-language-picker";
-import { getSharedShikiHighlighter } from "@/lib/shiki-highlighter";
 import { toast } from "@/lib/toast";
 import { uploadTaskImage } from "@/lib/upload-task-image";
 import { AttachmentCard } from "./extensions/attachment-card";
@@ -348,9 +347,8 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     updateTaskRef.current = updateTaskDescription;
   }, [task, taskId, updateTaskDescription]);
 
-  const shikiSupportedLanguages = useMemo(
-    () => new Set([...Object.keys(bundledLanguages), "text"]),
-    [],
+  const [shikiSupportedLanguages, setShikiSupportedLanguages] = useState(
+    () => new Set<string>(["text"]),
   );
   const toShikiLanguage = useCallback(
     (language: string) => SHIKI_LANGUAGE_ALIASES[language] || language,
@@ -559,11 +557,19 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   useEffect(() => {
     let isDisposed = false;
 
-    void getSharedShikiHighlighter()
-      .then((nextHighlighter) => {
+    void Promise.all([
+      import("@/lib/shiki-highlighter").then(({ getSharedShikiHighlighter }) =>
+        getSharedShikiHighlighter(),
+      ),
+      import("shiki"),
+    ])
+      .then(([nextHighlighter, { bundledLanguages: languages }]) => {
         shikiHighlighterRef.current = nextHighlighter;
         if (!isDisposed) {
           setShikiHighlighter(nextHighlighter);
+          setShikiSupportedLanguages(
+            new Set([...Object.keys(languages), "text"]),
+          );
         }
       })
       .catch((error) => {

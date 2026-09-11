@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import useGetActivitiesByTaskId from "@/hooks/queries/activity/use-get-activities-by-task-id";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
-import { getSharedShikiHighlighter } from "@/lib/shiki-highlighter";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId_",
@@ -40,7 +39,8 @@ function RouteComponent() {
   useEffect(() => {
     let mounted = true;
 
-    void getSharedShikiHighlighter()
+    void import("@/lib/shiki-highlighter")
+      .then(({ getSharedShikiHighlighter }) => getSharedShikiHighlighter())
       .then(() => {
         if (!mounted) return;
         setIsShikiReady(true);
