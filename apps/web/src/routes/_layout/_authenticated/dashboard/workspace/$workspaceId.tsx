@@ -12,7 +12,7 @@ export const Route = createFileRoute(
 
     let projects: Awaited<ReturnType<typeof getProjects>> | undefined;
     try {
-      projects = await context.queryClient.ensureQueryData({
+      projects = await context.queryClient.fetchQuery({
         queryKey: ["projects", params.workspaceId],
         queryFn: () => getProjects({ workspaceId: params.workspaceId }),
       });
