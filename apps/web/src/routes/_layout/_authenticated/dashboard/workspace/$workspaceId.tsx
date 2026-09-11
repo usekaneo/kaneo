@@ -4,14 +4,15 @@ import getProjects from "@/fetchers/project/get-projects";
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId",
 )({
-  beforeLoad: async ({ params, location }) => {
+  beforeLoad: async ({ params, location, context }) => {
     const currentPath = location.pathname.replace(/\/+$/, "");
     const workspacePath = `/dashboard/workspace/${params.workspaceId}`;
 
     if (currentPath !== workspacePath) return;
 
-    const projects = await getProjects({
-      workspaceId: params.workspaceId,
+    const projects = await context.queryClient.ensureQueryData({
+      queryKey: ["projects", params.workspaceId],
+      queryFn: () => getProjects({ workspaceId: params.workspaceId }),
     });
 
     if (projects?.length !== 1) return;
