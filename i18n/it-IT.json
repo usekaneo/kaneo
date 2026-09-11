@@ -1282,7 +1282,13 @@
 			"branch": "Ramo",
 			"merged": "Unito",
 			"draft": "Bozza",
-			"open": "Aperto"
+			"open": "Aperto",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL"
 		},
 		"mattermostIntegration": {
 			"channelHint": "Optional label for your reference. Mattermost controls the actual destination channel from the webhook setup.",
