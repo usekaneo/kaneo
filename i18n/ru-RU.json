@@ -155,6 +155,12 @@
 					"crimson": "Малиновый"
 				}
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -717,7 +723,9 @@
 			"columnsTitle": "Колонки",
 			"columnsDescription": "Управляйте колонками на доске. Перетаскивайте для изменения порядка. Включите «Колонка завершения» для этапов, обозначающих выполненную работу.",
 			"automationTitle": "Правила автоматизации",
-			"automationDescription": "Привяжите события интеграций к колонкам. При наступлении события связанная задача перемещается в указанную колонку."
+			"automationDescription": "Привяжите события интеграций к колонкам. При наступлении события связанная задача перемещается в указанную колонку.",
+			"customFieldsDescription": "Manage the custom fields for this project. Drag  to reorder.",
+			"customFieldsTitle": "Custom Fields"
 		},
 		"projectSwitcher": {
 			"selectProject": "Выберите проект",
@@ -1322,6 +1330,32 @@
 			"webhookHint": "Create an Incoming Webhook in Mattermost and paste the generated URL here.",
 			"webhookLabel": "Incoming webhook URL",
 			"webhookPlaceholder": "https://your-mattermost-server.com/hooks/..."
+		},
+		"customFields": {
+			"addButton": "Add",
+			"createError": "Failed to create custom field.",
+			"createSuccess": "Custom field created.",
+			"creating": "Creating...",
+			"defaultLabel": "Default",
+			"defaultValuePlaceholder": "Default value",
+			"deleteButton": "Delete",
+			"deleteError": "Failed to delete custom field.",
+			"deleteSuccess": "Custom field deleted.",
+			"deleting": "Deleting...",
+			"empty": "No custom fields configured yet.",
+			"loading": "Loading custom fields...",
+			"namePlaceholder": "Field name",
+			"noOptionsPlaceholder": "No options",
+			"optionsPlaceholder": "Options separated by commas",
+			"required": "Required",
+			"typePlaceholder": "Select field type",
+			"types": {
+				"boolean": "Boolean",
+				"date": "Date",
+				"dropdown": "Dropdown",
+				"number": "Number",
+				"text": "Text"
+			}
 		}
 	},
 	"navigation": {
@@ -1646,7 +1680,8 @@
 			"selectTask": "Выбрать задачу",
 			"loadingTask": "Загрузка задачи...",
 			"taskNotFound": "Задача не найдена",
-			"taskNotFoundDescription": "Задача, которую вы ищете, не существует или была удалена."
+			"taskNotFoundDescription": "Задача, которую вы ищете, не существует или была удалена.",
+			"customFields": "Custom Fields"
 		},
 		"detail": {
 			"subtaskOf": "Подзадача",
@@ -1752,7 +1787,9 @@
 				"mermaid": {
 					"renderFailed": "Не удалось отобразить диаграмму Mermaid"
 				}
-			}
+			},
+			"customFieldUpdated": "Field updated",
+			"selectOption": "Select option"
 		},
 		"entity": {
 			"task": "Задача"
@@ -1919,7 +1956,11 @@
 				"isAnyOf": "любой из",
 				"includeAnyOf": "включает любой из"
 			},
-			"selectedCount": "{{count}} выбрано"
+			"selectedCount": "{{count}} выбрано",
+			"all": "All",
+			"allCustomFieldValues": "All values",
+			"noCustomFieldValues": "No custom field values",
+			"noValuesUsedYet": "No values used yet"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Гант",

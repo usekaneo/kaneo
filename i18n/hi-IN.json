@@ -155,6 +155,12 @@
 					"crimson": "किरमिज़ी"
 				}
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -879,7 +885,9 @@
 			"columnsTitle": "कॉलम",
 			"columnsDescription": "अपने बोर्ड पर दिखाई देने वाले कॉलम प्रबंधित करें। पुनर्क्रम के लिए खींचें। पूर्ण कार्य को दर्शाने वाले चरणों के लिए \"Done column\" चालू करें।",
 			"automationTitle": "ऑटोमेशन नियम",
-			"automationDescription": "एकीकरण इवेंट को कॉलम से मैप करें। जब कोई इवेंट होता है, तो लिंक किया गया कार्य निर्दिष्ट कॉलम में चला जाता है।"
+			"automationDescription": "एकीकरण इवेंट को कॉलम से मैप करें। जब कोई इवेंट होता है, तो लिंक किया गया कार्य निर्दिष्ट कॉलम में चला जाता है।",
+			"customFieldsDescription": "Manage the custom fields for this project. Drag  to reorder.",
+			"customFieldsTitle": "Custom Fields"
 		},
 		"projectSwitcher": {
 			"selectProject": "प्रोजेक्ट चुनें",
@@ -1312,6 +1320,32 @@
 			"webhookHint": "Create an Incoming Webhook in Mattermost and paste the generated URL here.",
 			"webhookLabel": "Incoming webhook URL",
 			"webhookPlaceholder": "https://your-mattermost-server.com/hooks/..."
+		},
+		"customFields": {
+			"addButton": "Add",
+			"createError": "Failed to create custom field.",
+			"createSuccess": "Custom field created.",
+			"creating": "Creating...",
+			"defaultLabel": "Default",
+			"defaultValuePlaceholder": "Default value",
+			"deleteButton": "Delete",
+			"deleteError": "Failed to delete custom field.",
+			"deleteSuccess": "Custom field deleted.",
+			"deleting": "Deleting...",
+			"empty": "No custom fields configured yet.",
+			"loading": "Loading custom fields...",
+			"namePlaceholder": "Field name",
+			"noOptionsPlaceholder": "No options",
+			"optionsPlaceholder": "Options separated by commas",
+			"required": "Required",
+			"typePlaceholder": "Select field type",
+			"types": {
+				"boolean": "Boolean",
+				"date": "Date",
+				"dropdown": "Dropdown",
+				"number": "Number",
+				"text": "Text"
+			}
 		}
 	},
 	"navigation": {
@@ -1628,7 +1662,8 @@
 			"selectTask": "कार्य चुनें",
 			"loadingTask": "कार्य लोड हो रहा है...",
 			"taskNotFound": "कार्य नहीं मिला",
-			"taskNotFoundDescription": "जो कार्य आप खोज रहे हैं वह मौजूद नहीं है या हटा दिया गया है।"
+			"taskNotFoundDescription": "जो कार्य आप खोज रहे हैं वह मौजूद नहीं है या हटा दिया गया है।",
+			"customFields": "Custom Fields"
 		},
 		"detail": {
 			"subtaskOf": "उप-कार्य",
@@ -1734,7 +1769,9 @@
 				"mermaid": {
 					"renderFailed": "Mermaid डायग्राम प्रस्तुत नहीं किया जा सका"
 				}
-			}
+			},
+			"customFieldUpdated": "Field updated",
+			"selectOption": "Select option"
 		},
 		"entity": {
 			"task": "कार्य"
@@ -1893,7 +1930,11 @@
 			"operators": {
 				"isAnyOf": "में से कोई है",
 				"includeAnyOf": "में से कोई शामिल है"
-			}
+			},
+			"all": "All",
+			"allCustomFieldValues": "All values",
+			"noCustomFieldValues": "No custom field values",
+			"noValuesUsedYet": "No values used yet"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – गैंट",
