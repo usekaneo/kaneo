@@ -1,6 +1,27 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { useTaskFiltersWithLabelsSupport } from "./use-task-filters-with-labels-support";
+
+function createTestQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+}
+
+function createWrapper() {
+  const queryClient = createTestQueryClient();
+
+  return function Wrapper({ children }: { children: React.ReactNode }) {
+    return (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+  };
+}
 
 describe("useTaskFiltersWithLabelsSupport", () => {
   const storageKey = "kaneo:board-filters:project-1";
@@ -90,8 +111,11 @@ describe("useTaskFiltersWithLabelsSupport", () => {
       archivedTasks: [],
     };
 
-    const { result } = renderHook(() =>
-      useTaskFiltersWithLabelsSupport(project, "project-1"),
+    const { result } = renderHook(
+      () => useTaskFiltersWithLabelsSupport(project, "project-1"),
+      {
+        wrapper: createWrapper(),
+      },
     );
 
     await waitFor(() => {
@@ -172,8 +196,11 @@ describe("useTaskFiltersWithLabelsSupport", () => {
         archivedTasks: [],
       };
 
-      const { result } = renderHook(() =>
-        useTaskFiltersWithLabelsSupport(project, "project-1", textQuery),
+      const { result } = renderHook(
+        () => useTaskFiltersWithLabelsSupport(project, "project-1", textQuery),
+        {
+          wrapper: createWrapper(),
+        },
       );
 
       expect(result.current.filteredProject?.columns[0]?.tasks).toEqual([

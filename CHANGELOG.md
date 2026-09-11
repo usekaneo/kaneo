@@ -1,3 +1,27 @@
+### Features
+
+- custom fields configuration: #1542
+- redirect to default project: #1640
+- **i18n:** add Azerbaijani (az-AZ) translation: #1704
+
+### Bug Fixes
+
+- **web:** defer Shiki highlighter loading on task page: #1713
+- **i18n:** restore Simplified Chinese translations for Mattermost integration: #1701
+- **i18n:** sync Mattermost keys across locales: #1710
+- **npm:** fixing CVE-2026-75604: #1709
+- **api:** skip archived tasks in due date reminders: #1702
+
+### Documentation
+
+- update contributors and sponsors: [d7f1c46](https://github.com/usekaneo/kaneo/commit/d7f1c4664d55bdea1f3b9e27d1f26607a053c00e)
+- update contributors and sponsors: [243f9d8](https://github.com/usekaneo/kaneo/commit/243f9d8e16793d2bbc3d22d66ba53bc21eed0867)
+- update contributors and sponsors: [41b72df](https://github.com/usekaneo/kaneo/commit/41b72df7cdfefd89f0adf643f249aa3ad6ea28d8)
+
+### Credits
+
+Huge thanks to @MonsPropre, @ApplesBear-X, @randoneering, @jamalkamaladdin, and @mmilanovic4 for helping!
+
 ### Bug Fixes
 
 - **mcp:** accept refresh_token grant on register: [59314c1](https://github.com/usekaneo/kaneo/commit/59314c15aded93fe65170eb7ca94d00bc1af5174)
