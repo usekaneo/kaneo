@@ -155,6 +155,12 @@
 					"crimson": "Гримизна"
 				}
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -717,7 +723,9 @@
 			"columnsTitle": "Колони",
 			"columnsDescription": "Управувај со колоните што се прикажуваат на таблата. Повлечи за да ги преуредиш. Вклучи \"Завршна колона\" за фази што претставуваат завршена работа.",
 			"automationTitle": "Правила за автоматизација",
-			"automationDescription": "Поврзи настани од интеграции со колони. Кога ќе се случи настан, поврзаната задача се преместува во одредената колона."
+			"automationDescription": "Поврзи настани од интеграции со колони. Кога ќе се случи настан, поврзаната задача се преместува во одредената колона.",
+			"customFieldsDescription": "Manage the custom fields for this project. Drag  to reorder.",
+			"customFieldsTitle": "Custom Fields"
 		},
 		"projectSwitcher": {
 			"selectProject": "Избери проект",
@@ -1312,6 +1320,32 @@
 			"webhookHint": "Create an Incoming Webhook in Mattermost and paste the generated URL here.",
 			"webhookLabel": "Incoming webhook URL",
 			"webhookPlaceholder": "https://your-mattermost-server.com/hooks/..."
+		},
+		"customFields": {
+			"addButton": "Add",
+			"createError": "Failed to create custom field.",
+			"createSuccess": "Custom field created.",
+			"creating": "Creating...",
+			"defaultLabel": "Default",
+			"defaultValuePlaceholder": "Default value",
+			"deleteButton": "Delete",
+			"deleteError": "Failed to delete custom field.",
+			"deleteSuccess": "Custom field deleted.",
+			"deleting": "Deleting...",
+			"empty": "No custom fields configured yet.",
+			"loading": "Loading custom fields...",
+			"namePlaceholder": "Field name",
+			"noOptionsPlaceholder": "No options",
+			"optionsPlaceholder": "Options separated by commas",
+			"required": "Required",
+			"typePlaceholder": "Select field type",
+			"types": {
+				"boolean": "Boolean",
+				"date": "Date",
+				"dropdown": "Dropdown",
+				"number": "Number",
+				"text": "Text"
+			}
 		}
 	},
 	"navigation": {
@@ -1628,7 +1662,8 @@
 			"selectTask": "Избери задача",
 			"loadingTask": "Се вчитува задача...",
 			"taskNotFound": "Задачата не е пронајдена",
-			"taskNotFoundDescription": "Задачата што ја барате не постои или е избришана."
+			"taskNotFoundDescription": "Задачата што ја барате не постои или е избришана.",
+			"customFields": "Custom Fields"
 		},
 		"detail": {
 			"subtaskOf": "Подзадача на",
@@ -1734,7 +1769,9 @@
 				"mermaid": {
 					"renderFailed": "Mermaid дијаграмот не можеше да се прикаже"
 				}
-			}
+			},
+			"customFieldUpdated": "Field updated",
+			"selectOption": "Select option"
 		},
 		"entity": {
 			"task": "Задача"
@@ -1893,7 +1930,11 @@
 			"operators": {
 				"isAnyOf": "е било кој од",
 				"includeAnyOf": "вклучува било кој од"
-			}
+			},
+			"all": "All",
+			"allCustomFieldValues": "All values",
+			"noCustomFieldValues": "No custom field values",
+			"noValuesUsedYet": "No values used yet"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",

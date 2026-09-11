@@ -155,6 +155,12 @@
 					"crimson": "크림슨"
 				}
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -717,7 +723,9 @@
 			"columnsTitle": "컬럼",
 			"columnsDescription": "보드에 표시되는 컬럼을 관리합니다. 드래그하여 순서를 바꿉니다. 완료된 작업을 나타내는 단계의 경우 \"완료 컬럼\"을 켜세요.",
 			"automationTitle": "자동화 규칙",
-			"automationDescription": "연동 이벤트를 컬럼에 매핑합니다. 이벤트가 발생하면 연결된 작업이 지정된 컬럼으로 이동합니다."
+			"automationDescription": "연동 이벤트를 컬럼에 매핑합니다. 이벤트가 발생하면 연결된 작업이 지정된 컬럼으로 이동합니다.",
+			"customFieldsDescription": "Manage the custom fields for this project. Drag  to reorder.",
+			"customFieldsTitle": "Custom Fields"
 		},
 		"projectSwitcher": {
 			"selectProject": "프로젝트 선택",
@@ -1311,6 +1319,32 @@
 			"webhookHint": "Create an Incoming Webhook in Mattermost and paste the generated URL here.",
 			"webhookLabel": "Incoming webhook URL",
 			"webhookPlaceholder": "https://your-mattermost-server.com/hooks/..."
+		},
+		"customFields": {
+			"addButton": "Add",
+			"createError": "Failed to create custom field.",
+			"createSuccess": "Custom field created.",
+			"creating": "Creating...",
+			"defaultLabel": "Default",
+			"defaultValuePlaceholder": "Default value",
+			"deleteButton": "Delete",
+			"deleteError": "Failed to delete custom field.",
+			"deleteSuccess": "Custom field deleted.",
+			"deleting": "Deleting...",
+			"empty": "No custom fields configured yet.",
+			"loading": "Loading custom fields...",
+			"namePlaceholder": "Field name",
+			"noOptionsPlaceholder": "No options",
+			"optionsPlaceholder": "Options separated by commas",
+			"required": "Required",
+			"typePlaceholder": "Select field type",
+			"types": {
+				"boolean": "Boolean",
+				"date": "Date",
+				"dropdown": "Dropdown",
+				"number": "Number",
+				"text": "Text"
+			}
 		}
 	},
 	"navigation": {
@@ -1623,7 +1657,8 @@
 			"selectTask": "작업 선택",
 			"loadingTask": "작업 로딩 중...",
 			"taskNotFound": "작업을 찾을 수 없음",
-			"taskNotFoundDescription": "찾는 작업이 존재하지 않거나 삭제되었습니다."
+			"taskNotFoundDescription": "찾는 작업이 존재하지 않거나 삭제되었습니다.",
+			"customFields": "Custom Fields"
 		},
 		"detail": {
 			"subtaskOf": "상위 작업",
@@ -1729,7 +1764,9 @@
 				"mermaid": {
 					"renderFailed": "Mermaid 다이어그램을 렌더링할 수 없습니다"
 				}
-			}
+			},
+			"customFieldUpdated": "Field updated",
+			"selectOption": "Select option"
 		},
 		"entity": {
 			"task": "작업"
@@ -1888,7 +1925,11 @@
 			"operators": {
 				"isAnyOf": "다음 중 하나",
 				"includeAnyOf": "다음 중 하나 포함"
-			}
+			},
+			"all": "All",
+			"allCustomFieldValues": "All values",
+			"noCustomFieldValues": "No custom field values",
+			"noValuesUsedYet": "No values used yet"
 		},
 		"calendar": {
 			"pageTitle": "{{name}} – 캘린더",

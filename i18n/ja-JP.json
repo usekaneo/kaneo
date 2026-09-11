@@ -155,6 +155,12 @@
 					"crimson": "クリムゾン"
 				}
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -878,7 +884,9 @@
 			"columnsTitle": "カラム",
 			"columnsDescription": "ボードに表示されるカラムを管理します。ドラッグして並べ替えます。完了した作業を表すステージには「完了カラム」をオンにしてください。",
 			"automationTitle": "自動化ルール",
-			"automationDescription": "連携イベントをカラムにマッピングします。イベントが発生すると、リンクされたタスクが指定されたカラムに移動します。"
+			"automationDescription": "連携イベントをカラムにマッピングします。イベントが発生すると、リンクされたタスクが指定されたカラムに移動します。",
+			"customFieldsDescription": "Manage the custom fields for this project. Drag  to reorder.",
+			"customFieldsTitle": "Custom Fields"
 		},
 		"projectSwitcher": {
 			"selectProject": "プロジェクトを選択",
@@ -1311,6 +1319,32 @@
 			"webhookHint": "Create an Incoming Webhook in Mattermost and paste the generated URL here.",
 			"webhookLabel": "Incoming webhook URL",
 			"webhookPlaceholder": "https://your-mattermost-server.com/hooks/..."
+		},
+		"customFields": {
+			"addButton": "Add",
+			"createError": "Failed to create custom field.",
+			"createSuccess": "Custom field created.",
+			"creating": "Creating...",
+			"defaultLabel": "Default",
+			"defaultValuePlaceholder": "Default value",
+			"deleteButton": "Delete",
+			"deleteError": "Failed to delete custom field.",
+			"deleteSuccess": "Custom field deleted.",
+			"deleting": "Deleting...",
+			"empty": "No custom fields configured yet.",
+			"loading": "Loading custom fields...",
+			"namePlaceholder": "Field name",
+			"noOptionsPlaceholder": "No options",
+			"optionsPlaceholder": "Options separated by commas",
+			"required": "Required",
+			"typePlaceholder": "Select field type",
+			"types": {
+				"boolean": "Boolean",
+				"date": "Date",
+				"dropdown": "Dropdown",
+				"number": "Number",
+				"text": "Text"
+			}
 		}
 	},
 	"navigation": {
@@ -1623,7 +1657,8 @@
 			"selectTask": "タスクを選択",
 			"loadingTask": "タスクを読み込み中...",
 			"taskNotFound": "タスクが見つかりません",
-			"taskNotFoundDescription": "お探しのタスクは存在しないか、削除されました。"
+			"taskNotFoundDescription": "お探しのタスクは存在しないか、削除されました。",
+			"customFields": "Custom Fields"
 		},
 		"detail": {
 			"subtaskOf": "親タスク:",
@@ -1729,7 +1764,9 @@
 				"mermaid": {
 					"renderFailed": "Mermaid ダイアグラムを描画できませんでした"
 				}
-			}
+			},
+			"customFieldUpdated": "Field updated",
+			"selectOption": "Select option"
 		},
 		"entity": {
 			"task": "タスク"
@@ -1888,7 +1925,11 @@
 			"operators": {
 				"isAnyOf": "次のいずれか",
 				"includeAnyOf": "次のいずれかを含む"
-			}
+			},
+			"all": "All",
+			"allCustomFieldValues": "All values",
+			"noCustomFieldValues": "No custom field values",
+			"noValuesUsedYet": "No values used yet"
 		},
 		"calendar": {
 			"pageTitle": "{{name}} – カレンダー",

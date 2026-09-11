@@ -2,7 +2,12 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { Calendar, CalendarClock, CalendarX } from "lucide-react";
+import {
+  Calendar,
+  CalendarClock,
+  CalendarX,
+  SlidersHorizontal,
+} from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -16,7 +21,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/preview-card";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
+import useGetCustomFieldValuesByProject from "@/hooks/queries/custom-field/use-get-custom-field-values-by-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { cn } from "@/lib/cn";
@@ -78,6 +89,22 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
       (member) => member.userId === task.userId,
     );
   }, [workspaceUsers, task.userId]);
+
+  const { data: projectCustomFieldValues = [] } =
+    useGetCustomFieldValuesByProject(task.projectId);
+
+  const customFieldValues = useMemo(
+    () => projectCustomFieldValues.filter((field) => field.taskId === task.id),
+    [projectCustomFieldValues, task.id],
+  );
+
+  const activeCustomFieldValues = useMemo(
+    () =>
+      customFieldValues.filter(
+        (field) => field.value !== null && field.value !== "",
+      ),
+    [customFieldValues],
+  );
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -191,6 +218,53 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
                     "no-due-date") && <Calendar className="w-3 h-3" />}
                 <span>{format(new Date(task.dueDate), "MMM d")}</span>
               </div>
+            )}
+
+            {activeCustomFieldValues.length > 0 && (
+              <HoverCard openDelay={200} closeDelay={100}>
+                <HoverCardTrigger asChild>
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground cursor-default focus:outline-none focus:ring-2 focus:ring-ring/50 focus:ring-offset-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                    }}
+                    onPointerDown={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                    }}
+                    aria-label={t("tasks:customFields.ariaLabel", {
+                      count: activeCustomFieldValues.length,
+                    })}
+                  >
+                    <SlidersHorizontal className="w-3 h-3" />
+                    <span>{activeCustomFieldValues.length}</span>
+                  </button>
+                </HoverCardTrigger>
+                <HoverCardContent
+                  className="w-fit p-2.5"
+                  side="bottom"
+                  onClick={(e) => e.stopPropagation()}
+                  onPointerDown={(e) => e.stopPropagation()}
+                >
+                  <div className="space-y-1.5">
+                    {activeCustomFieldValues.map((field) => (
+                      <div
+                        key={field.id}
+                        className="flex items-center justify-between gap-2 text-xs"
+                      >
+                        <span className="font-medium text-muted-foreground truncate">
+                          {field.fieldName}
+                        </span>
+                        <span className="text-foreground truncate max-w-24">
+                          {field.value}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </HoverCardContent>
+              </HoverCard>
             )}
 
             {showAssignees && (

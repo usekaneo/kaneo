@@ -155,6 +155,12 @@
 					"crimson": "Багряний"
 				}
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -717,7 +723,9 @@
 			"columnsTitle": "Колонки",
 			"columnsDescription": "Керуйте колонками, які відображаються на вашій дошці. Перетягуйте для зміни порядку. Увімкніть «Колонка готовності» для етапів, які означають завершену роботу.",
 			"automationTitle": "Правила автоматизації",
-			"automationDescription": "Зіставте події інтеґрацій із колонками. Коли подія відбувається, пов'язане завдання переміщується до вказаної колонки."
+			"automationDescription": "Зіставте події інтеґрацій із колонками. Коли подія відбувається, пов'язане завдання переміщується до вказаної колонки.",
+			"customFieldsDescription": "Manage the custom fields for this project. Drag  to reorder.",
+			"customFieldsTitle": "Custom Fields"
 		},
 		"projectSwitcher": {
 			"selectProject": "Обрати проєкт",
@@ -1314,6 +1322,32 @@
 			"webhookHint": "Create an Incoming Webhook in Mattermost and paste the generated URL here.",
 			"webhookLabel": "Incoming webhook URL",
 			"webhookPlaceholder": "https://your-mattermost-server.com/hooks/..."
+		},
+		"customFields": {
+			"addButton": "Add",
+			"createError": "Failed to create custom field.",
+			"createSuccess": "Custom field created.",
+			"creating": "Creating...",
+			"defaultLabel": "Default",
+			"defaultValuePlaceholder": "Default value",
+			"deleteButton": "Delete",
+			"deleteError": "Failed to delete custom field.",
+			"deleteSuccess": "Custom field deleted.",
+			"deleting": "Deleting...",
+			"empty": "No custom fields configured yet.",
+			"loading": "Loading custom fields...",
+			"namePlaceholder": "Field name",
+			"noOptionsPlaceholder": "No options",
+			"optionsPlaceholder": "Options separated by commas",
+			"required": "Required",
+			"typePlaceholder": "Select field type",
+			"types": {
+				"boolean": "Boolean",
+				"date": "Date",
+				"dropdown": "Dropdown",
+				"number": "Number",
+				"text": "Text"
+			}
 		}
 	},
 	"navigation": {
@@ -1638,7 +1672,8 @@
 			"selectTask": "Обрати завдання",
 			"loadingTask": "Завантаження завдання...",
 			"taskNotFound": "Завдання не знайдено",
-			"taskNotFoundDescription": "Завдання, яке ви шукаєте, не існує або було видалено."
+			"taskNotFoundDescription": "Завдання, яке ви шукаєте, не існує або було видалено.",
+			"customFields": "Custom Fields"
 		},
 		"detail": {
 			"subtaskOf": "Підзавдання",
@@ -1744,7 +1779,9 @@
 				"mermaid": {
 					"renderFailed": "Не вдалося відобразити діаграму Mermaid"
 				}
-			}
+			},
+			"customFieldUpdated": "Field updated",
+			"selectOption": "Select option"
 		},
 		"entity": {
 			"task": "Завдання"
@@ -1903,7 +1940,11 @@
 			"operators": {
 				"isAnyOf": "є будь-яким з",
 				"includeAnyOf": "включає будь-який з"
-			}
+			},
+			"all": "All",
+			"allCustomFieldValues": "All values",
+			"noCustomFieldValues": "No custom field values",
+			"noValuesUsedYet": "No values used yet"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Ґант",

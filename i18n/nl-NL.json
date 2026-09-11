@@ -155,6 +155,12 @@
 					"crimson": "Karmozijn"
 				}
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -614,7 +620,9 @@
 			"columnsTitle": "Kolommen",
 			"columnsDescription": "Beheer de kolommen op je bord. Sleep om de volgorde te wijzigen. Schakel \"Gereed-kolom\" in voor stadia die voltooid werk vertegenwoordigen.",
 			"automationTitle": "Automatiseringsregels",
-			"automationDescription": "Koppel integratie-gebeurtenissen aan kolommen. Bij een gebeurtenis verplaatst de taak automatisch naar de gekozen kolom."
+			"automationDescription": "Koppel integratie-gebeurtenissen aan kolommen. Bij een gebeurtenis verplaatst de taak automatisch naar de gekozen kolom.",
+			"customFieldsDescription": "Manage the custom fields for this project. Drag  to reorder.",
+			"customFieldsTitle": "Custom Fields"
 		},
 		"projectSwitcher": {
 			"selectProject": "Project selecteren",
@@ -1312,6 +1320,32 @@
 			"webhookHint": "Create an Incoming Webhook in Mattermost and paste the generated URL here.",
 			"webhookLabel": "Incoming webhook URL",
 			"webhookPlaceholder": "https://your-mattermost-server.com/hooks/..."
+		},
+		"customFields": {
+			"addButton": "Add",
+			"createError": "Failed to create custom field.",
+			"createSuccess": "Custom field created.",
+			"creating": "Creating...",
+			"defaultLabel": "Default",
+			"defaultValuePlaceholder": "Default value",
+			"deleteButton": "Delete",
+			"deleteError": "Failed to delete custom field.",
+			"deleteSuccess": "Custom field deleted.",
+			"deleting": "Deleting...",
+			"empty": "No custom fields configured yet.",
+			"loading": "Loading custom fields...",
+			"namePlaceholder": "Field name",
+			"noOptionsPlaceholder": "No options",
+			"optionsPlaceholder": "Options separated by commas",
+			"required": "Required",
+			"typePlaceholder": "Select field type",
+			"types": {
+				"boolean": "Boolean",
+				"date": "Date",
+				"dropdown": "Dropdown",
+				"number": "Number",
+				"text": "Text"
+			}
 		}
 	},
 	"navigation": {
@@ -1628,7 +1662,8 @@
 			"selectTask": "Selecteer taak",
 			"loadingTask": "Taak laden...",
 			"taskNotFound": "Taak niet gevonden",
-			"taskNotFoundDescription": "De taak die u zoekt bestaat niet of is verwijderd."
+			"taskNotFoundDescription": "De taak die u zoekt bestaat niet of is verwijderd.",
+			"customFields": "Custom Fields"
 		},
 		"detail": {
 			"subtaskOf": "Subtaak van",
@@ -1734,7 +1769,9 @@
 				"mermaid": {
 					"renderFailed": "Mermaid-diagram kon niet worden weergegeven"
 				}
-			}
+			},
+			"customFieldUpdated": "Field updated",
+			"selectOption": "Select option"
 		},
 		"entity": {
 			"task": "Taak"
@@ -1882,7 +1919,11 @@
 			"operators": {
 				"isAnyOf": "is een van",
 				"includeAnyOf": "bevat een van"
-			}
+			},
+			"all": "All",
+			"allCustomFieldValues": "All values",
+			"noCustomFieldValues": "No custom field values",
+			"noValuesUsedYet": "No values used yet"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",

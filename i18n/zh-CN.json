@@ -155,6 +155,12 @@
 					"crimson": "深红"
 				}
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -878,7 +884,9 @@
 			"columnsTitle": "列",
 			"columnsDescription": "管理看板上显示的列，可拖拽排序。打开“完成列”以表示已完成阶段。",
 			"automationTitle": "自动化规则",
-			"automationDescription": "将集成事件映射到列。当事件发生时，关联的任务会移动到指定的列。"
+			"automationDescription": "将集成事件映射到列。当事件发生时，关联的任务会移动到指定的列。",
+			"customFieldsDescription": "Manage the custom fields for this project. Drag  to reorder.",
+			"customFieldsTitle": "Custom Fields"
 		},
 		"projectSwitcher": {
 			"selectProject": "选择项目",
@@ -1311,6 +1319,32 @@
 			"merged": "已合并",
 			"draft": "草稿",
 			"open": "打开"
+		},
+		"customFields": {
+			"addButton": "Add",
+			"createError": "Failed to create custom field.",
+			"createSuccess": "Custom field created.",
+			"creating": "Creating...",
+			"defaultLabel": "Default",
+			"defaultValuePlaceholder": "Default value",
+			"deleteButton": "Delete",
+			"deleteError": "Failed to delete custom field.",
+			"deleteSuccess": "Custom field deleted.",
+			"deleting": "Deleting...",
+			"empty": "No custom fields configured yet.",
+			"loading": "Loading custom fields...",
+			"namePlaceholder": "Field name",
+			"noOptionsPlaceholder": "No options",
+			"optionsPlaceholder": "Options separated by commas",
+			"required": "Required",
+			"typePlaceholder": "Select field type",
+			"types": {
+				"boolean": "Boolean",
+				"date": "Date",
+				"dropdown": "Dropdown",
+				"number": "Number",
+				"text": "Text"
+			}
 		}
 	},
 	"navigation": {
@@ -1623,7 +1657,8 @@
 			"selectTask": "选择任务",
 			"loadingTask": "正在加载任务…",
 			"taskNotFound": "未找到任务",
-			"taskNotFoundDescription": "你查找的任务不存在或已删除。"
+			"taskNotFoundDescription": "你查找的任务不存在或已删除。",
+			"customFields": "Custom Fields"
 		},
 		"detail": {
 			"subtaskOf": "子任务属于",
@@ -1729,7 +1764,9 @@
 				"mermaid": {
 					"renderFailed": "Mermaid 图渲染失败"
 				}
-			}
+			},
+			"customFieldUpdated": "Field updated",
+			"selectOption": "Select option"
 		},
 		"entity": {
 			"task": "任务"
@@ -1888,7 +1925,11 @@
 			"operators": {
 				"isAnyOf": "为以下任一",
 				"includeAnyOf": "包含以下任一"
-			}
+			},
+			"all": "All",
+			"allCustomFieldValues": "All values",
+			"noCustomFieldValues": "No custom field values",
+			"noValuesUsedYet": "No values used yet"
 		},
 		"calendar": {
 			"pageTitle": "{{name}} – 日历",
