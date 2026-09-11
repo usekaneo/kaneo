@@ -115,7 +115,7 @@ describe("CreateTaskModal", () => {
     const onClose = vi.fn();
 
     render(<CreateTaskModal open onClose={onClose} />, {
-      wrapper: createWrapper(), 
+      wrapper: createWrapper(),
     });
 
     const titleInput = screen.getByPlaceholderText(
