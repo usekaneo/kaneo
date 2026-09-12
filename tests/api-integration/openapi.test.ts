@@ -61,6 +61,10 @@ describe("Kaneo API OpenAPI spec", () => {
     );
     for (const op of [
       "GET /config",
+      "GET /mattermost-integration/project/{projectId}",
+      "POST /mattermost-integration/project/{projectId}",
+      "PATCH /mattermost-integration/project/{projectId}",
+      "DELETE /mattermost-integration/project/{projectId}",
       "GET /label/{id}",
       "POST /label",
       "GET /project",
@@ -104,6 +108,7 @@ describe("Kaneo API OpenAPI spec", () => {
         "Config",
         "SearchResult",
         "WorkspaceMember",
+        "MattermostIntegration",
       ]),
     );
   });

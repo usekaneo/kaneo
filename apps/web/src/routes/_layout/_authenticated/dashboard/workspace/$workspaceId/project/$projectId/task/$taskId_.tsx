@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import TaskLayout from "@/components/common/task-layout";
 import PageTitle from "@/components/page-title";
+import TaskDeleteButton from "@/components/task/task-delete-button";
 import TaskDetailsContent from "@/components/task/task-details-content";
 import {
   TaskDetailsSkeleton,
@@ -13,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import useGetActivitiesByTaskId from "@/hooks/queries/activity/use-get-activities-by-task-id";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
-import { getSharedShikiHighlighter } from "@/lib/shiki-highlighter";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId_",
@@ -39,7 +39,8 @@ function RouteComponent() {
   useEffect(() => {
     let mounted = true;
 
-    void getSharedShikiHighlighter()
+    void import("@/lib/shiki-highlighter")
+      .then(({ getSharedShikiHighlighter }) => getSharedShikiHighlighter())
       .then(() => {
         if (!mounted) return;
         setIsShikiReady(true);
@@ -60,11 +61,24 @@ function RouteComponent() {
   const isLoading =
     isTaskLoading || isProjectLoading || isActivitiesLoading || !isShikiReady;
 
+  const handleDeleted = () => {
+    navigate({
+      to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
+      params: { workspaceId, projectId },
+      replace: true,
+    });
+  };
+
   return (
     <TaskLayout
       taskId={taskId}
       projectId={projectId}
       workspaceId={workspaceId}
+      headerActions={
+        !isLoading && task ? (
+          <TaskDeleteButton taskId={taskId} onDeleted={handleDeleted} />
+        ) : null
+      }
       rightSidebar={
         isLoading ? (
           <TaskPropertiesSidebarSkeleton className="h-full w-full lg:w-72 xl:w-80 flex flex-col gap-2" />

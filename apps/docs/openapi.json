@@ -167,6 +167,9 @@
         "properties": {
           "error": {
             "type": "string"
+          },
+          "error_description": {
+            "type": "string"
           }
         },
         "required": [
@@ -797,6 +800,24 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "customFields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "fieldId": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "fieldId",
+                "value"
+              ]
+            }
           }
         },
         "required": [
@@ -2576,6 +2597,61 @@
           "updatedAt"
         ]
       },
+      "MattermostIntegration": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "channelName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "webhookConfigured": {
+            "type": "boolean"
+          },
+          "maskedWebhookUrl": {
+            "type": "string",
+            "description": "The webhook URL with its secret path segment masked, or an empty string when none is set."
+          },
+          "events": {
+            "$ref": "#/components/schemas/IntegrationEvents"
+          },
+          "isActive": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "projectId",
+          "channelName",
+          "webhookConfigured",
+          "maskedWebhookUrl",
+          "events",
+          "isActive",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
       "SlackIntegration": {
         "type": [
           "object",
@@ -3091,6 +3167,147 @@
           "email",
           "image",
           "role"
+        ]
+      },
+      "CustomFieldDefinition": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "defaultValue": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "options": {},
+          "position": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "projectId",
+          "name",
+          "type",
+          "required",
+          "defaultValue",
+          "position",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CustomFieldValue": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "taskId": {
+            "type": "string"
+          },
+          "fieldId": {
+            "type": "string"
+          },
+          "value": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "fieldName": {
+            "type": "string"
+          },
+          "fieldPosition": {
+            "type": "number"
+          },
+          "fieldType": {
+            "type": "string"
+          },
+          "fieldOptions": {}
+        },
+        "required": [
+          "id",
+          "taskId",
+          "fieldId",
+          "value",
+          "fieldName",
+          "fieldPosition",
+          "fieldType"
+        ]
+      },
+      "CustomFieldFilterValues": {
+        "type": "object",
+        "properties": {
+          "fieldId": {
+            "type": "string"
+          },
+          "fieldName": {
+            "type": "string"
+          },
+          "fieldType": {
+            "type": "string"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "fieldId",
+          "fieldName",
+          "fieldType",
+          "values"
+        ]
+      },
+      "ReorderCustomFieldsResponse": {},
+      "SetCustomFieldValueResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "taskId": {
+            "type": "string"
+          },
+          "fieldId": {
+            "type": "string"
+          },
+          "value": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "taskId",
+          "fieldId",
+          "value"
         ]
       },
       "UserAvatar": {
@@ -5251,25 +5468,23 @@
                   },
                   "grant_types": {
                     "type": "array",
-                    "prefixItems": [
-                      {
-                        "type": "string",
-                        "enum": [
-                          "authorization_code"
-                        ]
-                      }
-                    ]
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "authorization_code",
+                        "refresh_token"
+                      ]
+                    }
                   },
                   "response_types": {
                     "type": "array",
-                    "prefixItems": [
-                      {
-                        "type": "string",
-                        "enum": [
-                          "code"
-                        ]
-                      }
-                    ]
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "code"
+                      ]
+                    },
+                    "minItems": 1
                   }
                 },
                 "required": [
@@ -6703,6 +6918,24 @@
                   "userId": {
                     "type": "string",
                     "description": "Assignee, if any."
+                  },
+                  "customFields": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "fieldId": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "fieldId",
+                        "value"
+                      ]
+                    }
                   }
                 },
                 "required": [
@@ -12093,6 +12326,340 @@
         }
       }
     },
+    "/mattermost-integration/project/{projectId}": {
+      "get": {
+        "operationId": "getMattermostIntegration",
+        "tags": [
+          "Mattermost"
+        ],
+        "summary": "Get Mattermost integration",
+        "description": "Get the Mattermost integration for a project, or null when none is configured.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mattermost integration details, or null",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MattermostIntegration"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown project, or its workspace could not be determined",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project's workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createMattermostIntegration",
+        "tags": [
+          "Mattermost"
+        ],
+        "summary": "Create Mattermost integration",
+        "description": "Create or replace the Mattermost integration for a project. The webhook URL must use HTTPS and pass destination validation; delivery failures surface later.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "webhookUrl": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "channelName": {
+                    "type": "string"
+                  },
+                  "events": {
+                    "type": "object",
+                    "properties": {
+                      "taskCreated": {
+                        "type": "boolean"
+                      },
+                      "taskStatusChanged": {
+                        "type": "boolean"
+                      },
+                      "taskPriorityChanged": {
+                        "type": "boolean"
+                      },
+                      "taskTitleChanged": {
+                        "type": "boolean"
+                      },
+                      "taskDescriptionChanged": {
+                        "type": "boolean"
+                      },
+                      "taskCommentCreated": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "webhookUrl"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The stored integration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MattermostIntegration"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The webhook URL failed validation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateMattermostIntegration",
+        "tags": [
+          "Mattermost"
+        ],
+        "summary": "Update Mattermost integration",
+        "description": "Update the Mattermost integration. Omitted fields keep their current value, and event toggles are merged into the existing set.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "webhookUrl": {
+                    "type": "string"
+                  },
+                  "channelName": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "isActive": {
+                    "type": "boolean"
+                  },
+                  "events": {
+                    "type": "object",
+                    "properties": {
+                      "taskCreated": {
+                        "type": "boolean"
+                      },
+                      "taskStatusChanged": {
+                        "type": "boolean"
+                      },
+                      "taskPriorityChanged": {
+                        "type": "boolean"
+                      },
+                      "taskTitleChanged": {
+                        "type": "boolean"
+                      },
+                      "taskDescriptionChanged": {
+                        "type": "boolean"
+                      },
+                      "taskCommentCreated": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated integration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MattermostIntegration"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The resulting config failed validation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mattermost integration not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteMattermostIntegration",
+        "tags": [
+          "Mattermost"
+        ],
+        "summary": "Delete Mattermost integration",
+        "description": "Remove the Mattermost integration from a project.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The integration was removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown project, or its workspace could not be determined",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mattermost integration not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/slack-integration/project/{projectId}": {
       "get": {
         "operationId": "getSlackIntegration",
@@ -13348,6 +13915,543 @@
           },
           "403": {
             "description": "No access to the workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/custom-field/project/{projectId}": {
+      "get": {
+        "operationId": "getCustomFieldsByProject",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Get custom fields",
+        "description": "Get all custom field definitions for a project.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of custom field definitions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomFieldDefinition"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown project, or its workspace could not be determined",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project's workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/custom-field/project/{projectId}/values": {
+      "get": {
+        "operationId": "getCustomFieldValuesByProject",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Get project custom field values",
+        "description": "Get all custom field values for every task in a project.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of custom field values for the project",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomFieldValue"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown project, or its workspace could not be determined",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project's workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/custom-field/task/{taskId}": {
+      "get": {
+        "operationId": "getCustomFieldValuesByTask",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Get task custom field values",
+        "description": "Get all custom field values for a task with their definitions.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "taskId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of custom field values for the task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomFieldValue"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown task, or its workspace could not be determined",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the task's workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/custom-field/project/{projectId}/filter-values": {
+      "get": {
+        "operationId": "getCustomFieldFilterValues",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Get custom field filter values",
+        "description": "Get distinct values used by tasks for each custom field of a project.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Distinct values used for each custom field",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomFieldFilterValues"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown project, or its workspace could not be determined",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project's workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/custom-field": {
+      "post": {
+        "operationId": "createCustomField",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Create custom field",
+        "description": "Create a custom field definition for a project.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "projectId": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "text",
+                      "number",
+                      "date",
+                      "dropdown",
+                      "boolean"
+                    ]
+                  },
+                  "required": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "defaultValue": {
+                    "type": "string"
+                  },
+                  "options": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "projectId",
+                  "name",
+                  "type"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The created custom field",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomFieldDefinition"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, or unknown project",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing project:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/custom-field/reorder/{projectId}": {
+      "put": {
+        "operationId": "reorderCustomFields",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Reorder custom fields",
+        "description": "Set new positions for a project's custom fields.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fields": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "position": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "position"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "fields"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The reordered custom fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReorderCustomFieldsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A custom field does not belong to this project",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing project:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/custom-field/value": {
+      "put": {
+        "operationId": "setCustomFieldValue",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Set custom field value",
+        "description": "Create or update a custom field value for a task.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "taskId": {
+                    "type": "string"
+                  },
+                  "fieldId": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "taskId",
+                  "fieldId",
+                  "value"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The saved custom field value",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetCustomFieldValueResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, unknown task, or unknown custom field",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/custom-field/{id}": {
+      "delete": {
+        "operationId": "deleteCustomField",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Delete custom field",
+        "description": "Delete a custom field definition by ID.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The deleted custom field",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomFieldDefinition"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown custom field, or its workspace could not be determined",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing project:update permission",
             "content": {
               "text/plain": {
                 "schema": {

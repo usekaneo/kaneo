@@ -139,6 +139,9 @@
 				"labelCreateError": "Falha ao criar etiqueta",
 				"createMore": "Criar mais",
 				"createButton": "Criar tarefa",
+				"discardTitle": "Descartar tarefa?",
+				"discardDescription": "Os detalhes não salvos da tarefa serão perdidos.",
+				"discardButton": "Descartar tarefa",
 				"untitledTask": "Tarefa sem título",
 				"labelColors": {
 					"stone": "Pedra",
@@ -152,6 +155,12 @@
 					"crimson": "Carmesim"
 				}
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -862,7 +871,9 @@
 			"slackSectionTitle": "Integração com Slack",
 			"slackSectionSubtitle": "Envie atualizações de tarefas do projeto para um canal do Slack com um webhook de entrada.",
 			"telegramSectionTitle": "Integração com Telegram",
-			"telegramSectionSubtitle": "Envie atualizações de tarefas do projeto para um chat ou tópico do Telegram com um bot."
+			"telegramSectionSubtitle": "Envie atualizações de tarefas do projeto para um chat ou tópico do Telegram com um bot.",
+			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook.",
+			"mattermostSectionTitle": "Mattermost Integration"
 		},
 		"projectVisibility": {
 			"pageTitle": "Visibilidade do projeto",
@@ -886,7 +897,9 @@
 			"columnsTitle": "Colunas",
 			"columnsDescription": "Gerencie as colunas exibidas no seu quadro. Arraste para reordenar. Ative \"Coluna de concluído\" para as etapas que representam trabalho concluído.",
 			"automationTitle": "Regras de automação",
-			"automationDescription": "Mapeie eventos de integração para colunas. Quando um evento ocorrer, a tarefa vinculada será movida para a coluna especificada."
+			"automationDescription": "Mapeie eventos de integração para colunas. Quando um evento ocorrer, a tarefa vinculada será movida para a coluna especificada.",
+			"customFieldsDescription": "Manage the custom fields for this project. Drag  to reorder.",
+			"customFieldsTitle": "Custom Fields"
 		},
 		"projectSwitcher": {
 			"selectProject": "Selecionar projeto",
@@ -1281,6 +1294,70 @@
 			"merged": "Mesclado",
 			"draft": "Rascunho",
 			"open": "Aberto"
+		},
+		"mattermostIntegration": {
+			"channelHint": "Optional label for your reference. Mattermost controls the actual destination channel from the webhook setup.",
+			"channelLabel": "Channel name",
+			"channelPlaceholder": "#team-updates",
+			"connect": "Connect Mattermost",
+			"connected": "Connected",
+			"connectionHint": "Paste a Mattermost incoming webhook URL and choose which task events should be posted.",
+			"connectionTitle": "Mattermost webhook connection",
+			"disconnect": "Disconnect",
+			"events": {
+				"taskCommentCreated": "New comments",
+				"taskCreated": "New tasks",
+				"taskDescriptionChanged": "Description changes",
+				"taskPriorityChanged": "Priority changes",
+				"taskStatusChanged": "Status changes",
+				"taskTitleChanged": "Title changes"
+			},
+			"eventsHint": "Choose which project changes should post to Mattermost.",
+			"eventsTitle": "Event notifications",
+			"paused": "Paused",
+			"saveChanges": "Save changes",
+			"toast": {
+				"disabled": "Mattermost notifications paused",
+				"enabled": "Mattermost notifications enabled",
+				"removed": "Mattermost integration removed successfully",
+				"removeError": "Failed to remove Mattermost integration",
+				"saved": "Mattermost integration saved successfully",
+				"saveError": "Failed to save Mattermost integration",
+				"updateError": "Failed to update Mattermost integration"
+			},
+			"update": "Update Mattermost",
+			"validation": {
+				"webhookInvalid": "Enter a valid Mattermost webhook URL"
+			},
+			"webhookHint": "Create an Incoming Webhook in Mattermost and paste the generated URL here.",
+			"webhookLabel": "Incoming webhook URL",
+			"webhookPlaceholder": "https://your-mattermost-server.com/hooks/..."
+		},
+		"customFields": {
+			"addButton": "Add",
+			"createError": "Failed to create custom field.",
+			"createSuccess": "Custom field created.",
+			"creating": "Creating...",
+			"defaultLabel": "Default",
+			"defaultValuePlaceholder": "Default value",
+			"deleteButton": "Delete",
+			"deleteError": "Failed to delete custom field.",
+			"deleteSuccess": "Custom field deleted.",
+			"deleting": "Deleting...",
+			"empty": "No custom fields configured yet.",
+			"loading": "Loading custom fields...",
+			"namePlaceholder": "Field name",
+			"noOptionsPlaceholder": "No options",
+			"optionsPlaceholder": "Options separated by commas",
+			"required": "Required",
+			"typePlaceholder": "Select field type",
+			"types": {
+				"boolean": "Boolean",
+				"date": "Date",
+				"dropdown": "Dropdown",
+				"number": "Number",
+				"text": "Text"
+			}
 		}
 	},
 	"navigation": {
@@ -1574,6 +1651,7 @@
 		}
 	},
 	"tasks": {
+		"title": "Tarefas",
 		"status": {
 			"label": "Status",
 			"to-do": "A Fazer",
@@ -1600,7 +1678,8 @@
 			"selectTask": "Selecionar tarefa",
 			"loadingTask": "Carregando tarefa...",
 			"taskNotFound": "Tarefa não encontrada",
-			"taskNotFoundDescription": "A tarefa que você está procurando não existe ou foi excluída."
+			"taskNotFoundDescription": "A tarefa que você está procurando não existe ou foi excluída.",
+			"customFields": "Custom Fields"
 		},
 		"detail": {
 			"subtaskOf": "Subtarefa de",
@@ -1706,7 +1785,9 @@
 				"mermaid": {
 					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
-			}
+			},
+			"customFieldUpdated": "Field updated",
+			"selectOption": "Select option"
 		},
 		"entity": {
 			"task": "Tarefa"
@@ -1865,7 +1946,11 @@
 			"operators": {
 				"isAnyOf": "é qualquer um de",
 				"includeAnyOf": "inclui qualquer um de"
-			}
+			},
+			"all": "All",
+			"allCustomFieldValues": "All values",
+			"noCustomFieldValues": "No custom field values",
+			"noValuesUsedYet": "No values used yet"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",
@@ -1881,7 +1966,8 @@
 			"updateDatesError": "Falha ao atualizar as datas da tarefa",
 			"resizeStart": "Redimensionar data de início",
 			"resizeDue": "Redimensionar data de vencimento",
-			"taskAriaLabel": "{{title}}: abrir ou arrastar para mover"
+			"taskAriaLabel": "{{title}}: abrir ou arrastar para mover",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "Excluir tarefa?",

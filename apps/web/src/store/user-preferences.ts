@@ -38,6 +38,9 @@ type UserPreferencesStore = {
   togglePriority: () => void;
   showProjectBackgrounds: boolean;
   setShowProjectBackgrounds: (show: boolean) => void;
+  showTaskItemCounts: boolean;
+  setShowTaskItemCounts: (show: boolean) => void;
+  toggleTaskItemCounts: () => void;
   resetDisplayPreferences: () => void;
 
   sidebarDefaultOpen: boolean;
@@ -106,6 +109,10 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
       showProjectBackgrounds: true,
       setShowProjectBackgrounds: (show) =>
         set({ showProjectBackgrounds: show }),
+      showTaskItemCounts: true,
+      setShowTaskItemCounts: (show) => set({ showTaskItemCounts: show }),
+      toggleTaskItemCounts: () =>
+        set((state) => ({ showTaskItemCounts: !state.showTaskItemCounts })),
       resetDisplayPreferences: () =>
         set({
           showAssignees: true,
@@ -113,6 +120,7 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
           showLabels: true,
           showTaskNumbers: true,
           showPriority: true,
+          showTaskItemCounts: true,
         }),
 
       sidebarDefaultOpen: true,

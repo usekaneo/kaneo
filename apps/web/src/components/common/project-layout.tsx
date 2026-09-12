@@ -189,7 +189,7 @@ export default function ProjectLayout({
                   )}
                 >
                   <SquareKanban className="size-3.5" />
-                  Tasks
+                  {t("tasks:title")}
                 </Button>
                 <Button
                   variant={resolvedView === "calendar" ? "secondary" : "ghost"}
