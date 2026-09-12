@@ -13038,7 +13038,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No access to the project's workspace",
+            "description": "No workspace access, or missing task:read permission",
             "content": {
               "text/plain": {
                 "schema": {

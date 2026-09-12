@@ -124,7 +124,10 @@ const getProjectTaskRelationsRoute = createRoute({
   summary: "Get a project's task relations",
   description:
     "Get every relation joining two tasks in the project, without the task summaries the per-task endpoint returns. Intended for views that render many tasks at once and already hold them. Relations reaching outside the project are omitted.",
-  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ task: ["read"] }),
+  ] as const,
   request: { params: projectIdParam },
   responses: {
     200: jsonResponse(
@@ -134,7 +137,7 @@ const getProjectTaskRelationsRoute = createRoute({
     400: errorResponse(
       "Unknown project, or its workspace could not be determined",
     ),
-    403: errorResponse("No access to the project's workspace"),
+    403: errorResponse("No workspace access, or missing task:read permission"),
   },
 });
 
