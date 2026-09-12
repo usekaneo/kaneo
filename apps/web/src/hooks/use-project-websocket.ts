@@ -76,9 +76,13 @@ export function useProjectWebSocket(projectId: string) {
             // list a refetch.
             // Creating a task inserts no relation — a subtask is a create
             // followed by a separate relation mutation, which emits its own
-            // event — so only these three can change the edge set.
+            // event. TASK_RELATION_UPDATED also carries `task-relation.refresh`,
+            // which the API publishes on every status change with no endpoint
+            // ids; that changes the per-task responses, which embed task
+            // status, but not the project response, which is edges only.
             if (
-              message.type === "TASK_RELATION_UPDATED" ||
+              (message.type === "TASK_RELATION_UPDATED" &&
+                (message.sourceTaskId || message.targetTaskId)) ||
               message.type === "TASK_DELETED" ||
               message.type === "TASK_MOVED"
             ) {
@@ -105,8 +109,14 @@ export function useProjectWebSocket(projectId: string) {
                 });
               }
               if (!message.sourceTaskId && !message.targetTaskId) {
+                // Every per-task relation query, but not the project one:
+                // those responses embed each linked task's status, so a status
+                // change stales them, while the project query returns edges
+                // alone and a prefix match would refetch it needlessly.
                 queryClient.invalidateQueries({
-                  queryKey: ["task-relations"],
+                  predicate: (query) =>
+                    query.queryKey[0] === "task-relations" &&
+                    query.queryKey[1] !== "project",
                 });
               }
             } else {

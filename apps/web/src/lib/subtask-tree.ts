@@ -27,7 +27,11 @@ export type SubtaskRow<T> = {
 export function buildSubtaskChildren(
   relations: readonly TaskRelationEdge[],
 ): Map<string, string[]> {
-  const children = new Map<string, string[]>();
+  // A Set rather than scanning the accumulated array: this runs on every
+  // relation response, and `includes` per edge is quadratic in one parent's
+  // children. Insertion order is preserved, so the rendered order is the order
+  // the relations arrived in.
+  const children = new Map<string, Set<string>>();
 
   for (const relation of relations) {
     if (relation.relationType !== "subtask") continue;
@@ -35,15 +39,15 @@ export function buildSubtaskChildren(
 
     const existing = children.get(relation.sourceTaskId);
     if (existing) {
-      if (!existing.includes(relation.targetTaskId)) {
-        existing.push(relation.targetTaskId);
-      }
+      existing.add(relation.targetTaskId);
     } else {
-      children.set(relation.sourceTaskId, [relation.targetTaskId]);
+      children.set(relation.sourceTaskId, new Set([relation.targetTaskId]));
     }
   }
 
-  return children;
+  return new Map(
+    [...children].map(([parentId, childIds]) => [parentId, [...childIds]]),
+  );
 }
 
 /**

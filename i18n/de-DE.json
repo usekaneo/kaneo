@@ -1967,8 +1967,8 @@
 			"addTask": "Aufgabe hinzufügen",
 			"archiveAllTooltip": "Alle abgeschlossenen Aufgaben archivieren",
 			"noTasks": "Keine Aufgaben",
-			"collapseSubtasks": "Teilaufgaben ausblenden",
-			"expandSubtasks": "Teilaufgaben anzeigen",
+			"collapseSubtasks": "Teilaufgaben von {{title}} ausblenden",
+			"expandSubtasks": "Teilaufgaben von {{title}} anzeigen",
 			"subtaskLevel": "Teilaufgabe, Ebene {{level}}"
 		},
 		"kanban": {

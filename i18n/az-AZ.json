@@ -1980,8 +1980,8 @@
 			"addTask": "Tapşırıq əlavə et",
 			"archiveAllTooltip": "Bütün tamamlanmış tapşırıqları arxivlə",
 			"noTasks": "Tapşırıq yoxdur",
-			"collapseSubtasks": "Alt tapşırıqları gizlət",
-			"expandSubtasks": "Alt tapşırıqları göstər",
+			"collapseSubtasks": "{{title}} alt tapşırıqlarını gizlət",
+			"expandSubtasks": "{{title}} alt tapşırıqlarını göstər",
 			"subtaskLevel": "Alt tapşırıq, səviyyə {{level}}"
 		},
 		"kanban": {

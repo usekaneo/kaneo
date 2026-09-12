@@ -1975,8 +1975,8 @@
 			"addTask": "添加任务",
 			"archiveAllTooltip": "归档所有已完成任务",
 			"noTasks": "无任务",
-			"collapseSubtasks": "隐藏子任务",
-			"expandSubtasks": "显示子任务",
+			"collapseSubtasks": "隐藏 {{title}} 的子任务",
+			"expandSubtasks": "显示 {{title}} 的子任务",
 			"subtaskLevel": "子任务，第 {{level}} 层"
 		},
 		"kanban": {

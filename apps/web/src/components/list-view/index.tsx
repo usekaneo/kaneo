@@ -292,6 +292,13 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
     setProject(updatedProject);
   };
 
+  // Escape ends a drag without onDragEnd, so without this the dragged row
+  // stays active: its children remain collapsed and the overlay lingers.
+  const handleDragCancel = () => {
+    setActiveId(null);
+    setOverColumnId(null);
+  };
+
   const toggleSection = (sectionId: string) => {
     setExpandedSections((prev) => ({
       ...prev,
@@ -491,6 +498,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
       modifiers={[snapCenterToCursor]}
     >
       <div className="w-full h-full overflow-auto bg-muted/20">

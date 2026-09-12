@@ -240,10 +240,13 @@ function TaskRow({
               type="button"
               onClick={onToggleExpanded}
               aria-expanded={isExpanded}
+              // Named with the task, not just the action: the toggle sits
+              // outside the row's own control, so several identical "Show
+              // subtasks" buttons would be indistinguishable in a rotor.
               aria-label={
                 isExpanded
-                  ? t("tasks:listView.collapseSubtasks")
-                  : t("tasks:listView.expandSubtasks")
+                  ? t("tasks:listView.collapseSubtasks", { title: task.title })
+                  : t("tasks:listView.expandSubtasks", { title: task.title })
               }
               className="flex-shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             >

@@ -8,6 +8,7 @@ const useGetLabelsByTask = vi.fn((_taskId: string) => ({ data: [] }));
 
 afterEach(() => {
   cleanup();
+  interpolations.length = 0;
   vi.clearAllMocks();
 });
 
@@ -64,8 +65,15 @@ vi.mock("@/store/user-preferences", () => ({
   }),
 }));
 
+const interpolations: Record<string, unknown>[] = [];
+
 vi.mock("react-i18next", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    t: (key: string, options?: Record<string, unknown>) => {
+      if (options) interpolations.push(options);
+      return key;
+    },
+  }),
   initReactI18next: { type: "3rdParty", init: vi.fn() },
 }));
 
@@ -189,6 +197,21 @@ describe("TaskRow", () => {
     expect(
       screen.queryByText("tasks:listView.subtaskLevel"),
     ).not.toBeInTheDocument();
+  });
+
+  it("names the toggle by its task, not the action alone", () => {
+    render(
+      <TaskRow
+        task={task}
+        projectSlug="kan"
+        childCount={1}
+        onToggleExpanded={vi.fn()}
+      />,
+    );
+
+    // Several rows each offering "Show subtasks" would be indistinguishable,
+    // so the label interpolates the title.
+    expect(interpolations).toContainEqual({ title: "Row from payload" });
   });
 
   it("labels the toggle by its resulting state", () => {

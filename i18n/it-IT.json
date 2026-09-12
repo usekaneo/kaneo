@@ -1972,8 +1972,8 @@
 			"addTask": "Aggiungi attività",
 			"archiveAllTooltip": "Archivia tutte le attività completate",
 			"noTasks": "Nessuna attività",
-			"collapseSubtasks": "Nascondi sotto-attività",
-			"expandSubtasks": "Mostra sotto-attività",
+			"collapseSubtasks": "Nascondi sotto-attività di {{title}}",
+			"expandSubtasks": "Mostra sotto-attività di {{title}}",
 			"subtaskLevel": "Sotto-attività, livello {{level}}"
 		},
 		"kanban": {

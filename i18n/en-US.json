@@ -1980,8 +1980,8 @@
 			"addTask": "Add task",
 			"archiveAllTooltip": "Archive all completed tasks",
 			"noTasks": "No tasks",
-			"expandSubtasks": "Show subtasks",
-			"collapseSubtasks": "Hide subtasks",
+			"expandSubtasks": "Show subtasks of {{title}}",
+			"collapseSubtasks": "Hide subtasks of {{title}}",
 			"subtaskLevel": "Subtask, level {{level}}"
 		},
 		"kanban": {
