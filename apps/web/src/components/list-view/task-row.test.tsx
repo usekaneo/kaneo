@@ -140,6 +140,39 @@ describe("TaskRow", () => {
     expect(toggle.closest('[role="button"]')).toBeNull();
   });
 
+  it("reserves the toggle column so titles stay aligned in a group", () => {
+    const { container: withToggle } = render(
+      <TaskRow
+        task={task}
+        projectSlug="kan"
+        childCount={1}
+        reserveToggleSpace
+        onToggleExpanded={vi.fn()}
+      />,
+    );
+    const { container: withoutToggle } = render(
+      <TaskRow task={task} projectSlug="kan" reserveToggleSpace />,
+    );
+
+    const gutter = (root: HTMLElement) =>
+      root.firstElementChild?.firstElementChild;
+
+    // A row with no children still renders the column, so its number and title
+    // start at the same offset as a sibling that does have one.
+    expect(gutter(withToggle)).not.toBeNull();
+    expect(gutter(withoutToggle)).not.toBeNull();
+    expect(gutter(withoutToggle)?.className).toEqual(
+      gutter(withToggle)?.className,
+    );
+  });
+
+  it("keeps the original left edge when a group has no subtasks", () => {
+    const { container } = render(<TaskRow task={task} projectSlug="kan" />);
+    const draggable = container.querySelector('[role="button"]');
+
+    expect(draggable?.className).toContain("pl-4");
+  });
+
   it("labels the toggle by its resulting state", () => {
     render(
       <TaskRow

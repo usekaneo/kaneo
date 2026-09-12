@@ -351,6 +351,9 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
     // A dragged parent collapses for the duration: moving a row while its
     // children are rendered beneath it has no single correct outcome, and
     // hiding them keeps the drag to the one row the user grabbed.
+    // Reserving the toggle column on every row keeps the titles aligned, but
+    // only where the group actually has subtasks; a project without any keeps
+    // the original left edge.
     const rows = flattenSubtaskRows({
       tasks: column.tasks,
       children: subtaskChildren,
@@ -364,6 +367,10 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
         return activeId !== taskId;
       },
     });
+
+    const groupHasSubtasks = rows.some(
+      (row) => row.childCount > 0 || row.depth > 0,
+    );
 
     return (
       <div
@@ -444,6 +451,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
                     <TaskRow
                       task={row.task}
                       projectSlug={project?.slug ?? ""}
+                      reserveToggleSpace={groupHasSubtasks}
                       depth={row.depth}
                       rowId={row.rowId}
                       childCount={row.childCount}

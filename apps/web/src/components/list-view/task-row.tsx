@@ -62,6 +62,11 @@ type TaskRowProps = {
   childCount?: number;
   isExpanded?: boolean;
   onToggleExpanded?: () => void;
+  /**
+   * Keeps the toggle column present on rows that have no toggle, so titles in
+   * a group containing subtasks stay on one vertical line.
+   */
+  reserveToggleSpace?: boolean;
 };
 
 function TaskRow({
@@ -72,7 +77,9 @@ function TaskRow({
   childCount = 0,
   isExpanded = false,
   onToggleExpanded,
+  reserveToggleSpace = false,
 }: TaskRowProps) {
+  const showToggleColumn = depth > 0 || childCount > 0 || reserveToggleSpace;
   const { t } = useTranslation();
   const navigate = useNavigate();
   // Only the top-level row is a drag source. A nested repeat shares its task
@@ -211,7 +218,7 @@ function TaskRow({
         isTaskFocused && "ring-2 ring-inset ring-ring/50",
       )}
     >
-      {(depth > 0 || childCount > 0) && (
+      {showToggleColumn && (
         <div
           className={cn(
             "flex flex-shrink-0 items-center pl-4",
@@ -261,7 +268,7 @@ function TaskRow({
             onKeyDown={handleKeyDown}
             className={cn(
               "relative flex min-w-0 flex-1 items-center gap-3 py-1.5 pr-4 transition-colors cursor-pointer",
-              depth > 0 || childCount > 0 ? "pl-2" : "pl-4",
+              showToggleColumn ? "pl-2" : "pl-4",
               isTaskSelected ? "bg-accent/45" : "group-hover:bg-accent/60",
             )}
             {...attributes}
