@@ -79,7 +79,7 @@ const navigationLinks: NavigationLink[] = [
       { href: "/docs/core", label: "Quick Start" },
       { href: "/docs/core/installation", label: "Installation" },
       { href: "/docs/core/functional", label: "Functional Guide" },
-      { href: "/docs/api", label: "API Reference" },
+      { href: "/docs/api-reference/introduction", label: "API Reference" },
     ],
     label: "Docs",
     submenu: true,
@@ -102,6 +102,18 @@ const navigationLinks: NavigationLink[] = [
     submenu: true,
     type: "simple",
   },
+  {
+    items: [
+      { href: "/blog", label: "Latest posts" },
+      { href: "/blog/category/alternatives", label: "Alternatives" },
+      { href: "/guides", label: "Guides" },
+      { href: "/alternatives", label: "Compare tools" },
+    ],
+    label: "Blog",
+    submenu: true,
+    type: "simple",
+  },
+  { href: "/pricing", label: "Pricing" },
 ];
 
 export function Navbar() {
@@ -241,7 +253,7 @@ export function Navbar() {
                       </>
                     ) : (
                       <NavigationMenuLink
-                        className="rounded-none py-1.5 font-medium text-muted-foreground hover:text-primary"
+                        className="rounded-none bg-transparent px-2 py-1.5 font-medium text-muted-foreground hover:bg-transparent hover:text-primary focus:bg-transparent"
                         href={link.href}
                       >
                         {link.label}

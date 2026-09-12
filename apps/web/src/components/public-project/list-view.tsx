@@ -35,6 +35,7 @@ export function PublicListView({ project, onTaskClick }: PublicListViewProps) {
                     key={task.id}
                     task={task}
                     projectSlug={project.slug}
+                    isCompleted={column.isFinal}
                     onTaskClick={onTaskClick}
                   />
                 ))}

@@ -37,10 +37,10 @@ function CheckEmail() {
           <div className="space-y-3">
             <Button
               variant="ghost"
-              asChild
+              render={<Link to="/auth/sign-in" />}
               className="w-full h-8 text-xs text-muted-foreground hover:text-foreground"
             >
-              <Link to="/auth/sign-in">{t("auth:checkEmail.backToLogin")}</Link>
+              {t("auth:checkEmail.backToLogin")}
             </Button>
           </div>
         </div>

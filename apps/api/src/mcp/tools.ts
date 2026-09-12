@@ -1,6 +1,43 @@
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
+
+type McpToolResult = {
+  content: Array<{ type: "text"; text: string }>;
+  isError?: boolean;
+};
+
+/** Minimal tool-registration contract shared by legacy and modern MCP servers. */
+export type McpToolRegistrar = {
+  registerTool(
+    name: string,
+    config: {
+      description: string;
+      inputSchema: z.ZodObject;
+    },
+    callback: (args: unknown) => Promise<McpToolResult>,
+  ): unknown;
+};
+
+type ShapeToolServer = {
+  registerTool(
+    name: string,
+    config: { description: string; inputSchema: z.ZodRawShape },
+    callback: (args: unknown) => Promise<McpToolResult>,
+  ): unknown;
+};
+
+export function toMcpToolRegistrar(server: ShapeToolServer): McpToolRegistrar {
+  return {
+    registerTool: (name, config, callback) =>
+      server.registerTool(
+        name,
+        {
+          description: config.description,
+          inputSchema: config.inputSchema.shape,
+        },
+        (args) => callback(args),
+      ),
+  };
+}
 
 class ApiClient {
   constructor(
@@ -44,17 +81,17 @@ class ApiClient {
   }
 }
 
-function textResult(data: unknown, isError = false): CallToolResult {
+function textResult(data: unknown, isError = false): McpToolResult {
   const text =
     typeof data === "string" ? data : (JSON.stringify(data, null, 2) ?? "");
   return { content: [{ type: "text", text }], isError };
 }
 
-function errorResult(message: string): CallToolResult {
+function errorResult(message: string): McpToolResult {
   return textResult({ error: message }, true);
 }
 
-function run(fn: () => Promise<unknown>): Promise<CallToolResult> {
+function run(fn: () => Promise<unknown>): Promise<McpToolResult> {
   return fn()
     .then((data) => textResult(data))
     .catch((e: unknown) =>
@@ -173,14 +210,27 @@ const hexColorSchema = z
     "Expected a hex color like #FF6600",
   );
 
+/** Register Kaneo's authenticated tool catalog on an MCP server adapter. */
 export function registerMcpTools(
-  server: McpServer,
+  server: McpToolRegistrar,
   baseUrl: string,
   token: string,
 ): void {
   const client = new ApiClient(baseUrl, token);
+  const registerTool = <InputSchema extends z.ZodObject>(
+    name: string,
+    config: { description: string; inputSchema: InputSchema },
+    callback: (args: z.output<InputSchema>) => Promise<McpToolResult>,
+  ) =>
+    server.registerTool(name, config, async (args) => {
+      const parsed = config.inputSchema.safeParse(args);
+      if (!parsed.success) {
+        return errorResult(z.prettifyError(parsed.error));
+      }
+      return callback(parsed.data);
+    });
 
-  server.registerTool(
+  registerTool(
     "whoami",
     {
       description: "Return the current Kaneo session and user.",
@@ -190,7 +240,7 @@ export function registerMcpTools(
       run(() => client.json("/api/auth/get-session", { method: "GET" })),
   );
 
-  server.registerTool(
+  registerTool(
     "list_workspaces",
     {
       description: "List workspaces the signed-in user can access.",
@@ -200,7 +250,7 @@ export function registerMcpTools(
       run(() => client.json("/api/auth/organization/list", { method: "GET" })),
   );
 
-  server.registerTool(
+  registerTool(
     "list_projects",
     {
       description: "List projects in a workspace.",
@@ -221,7 +271,7 @@ export function registerMcpTools(
     },
   );
 
-  server.registerTool(
+  registerTool(
     "get_project",
     {
       description: "Get a single project by ID.",
@@ -231,7 +281,7 @@ export function registerMcpTools(
       run(() => client.json(`/api/project/${encodeURIComponent(args.id)}`)),
   );
 
-  server.registerTool(
+  registerTool(
     "create_project",
     {
       description: "Create a project in a workspace.",
@@ -256,7 +306,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "update_project",
     {
       description:
@@ -311,7 +361,7 @@ export function registerMcpTools(
     },
   );
 
-  server.registerTool(
+  registerTool(
     "list_tasks",
     {
       description: "List tasks for a project (optionally filtered/sorted).",
@@ -353,7 +403,7 @@ export function registerMcpTools(
     },
   );
 
-  server.registerTool(
+  registerTool(
     "get_task",
     {
       description: "Get a task by ID.",
@@ -367,7 +417,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "create_task",
     {
       description: "Create a task in a project.",
@@ -401,7 +451,7 @@ export function registerMcpTools(
     },
   );
 
-  server.registerTool(
+  registerTool(
     "update_task",
     {
       description:
@@ -435,7 +485,7 @@ export function registerMcpTools(
     },
   );
 
-  server.registerTool(
+  registerTool(
     "move_task",
     {
       description:
@@ -460,7 +510,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "update_task_status",
     {
       description: "Update only the status (column) of a task.",
@@ -475,7 +525,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "list_task_comments",
     {
       description: "List comments on a task.",
@@ -489,7 +539,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "create_task_comment",
     {
       description: "Add a comment to a task.",
@@ -507,7 +557,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "update_task_comment",
     {
       description: "Update one of your comments on a task.",
@@ -525,7 +575,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "delete_task_comment",
     {
       description: "Delete one of your comments from a task.",
@@ -539,7 +589,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "list_workspace_labels",
     {
       description: "List labels defined in a workspace.",
@@ -554,7 +604,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "create_label",
     {
       description:
@@ -580,7 +630,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "attach_label_to_task",
     {
       description: "Attach an existing label to a task.",
@@ -598,7 +648,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "detach_label_from_task",
     {
       description: "Detach a label from its current task.",
@@ -612,7 +662,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "create_task_relation",
     {
       description:
@@ -636,7 +686,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "get_task_relations",
     {
       description:
@@ -651,7 +701,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "delete_task_relation",
     {
       description: "Delete a task relation by its relation ID.",
@@ -665,7 +715,7 @@ export function registerMcpTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "delete_label",
     {
       description:
@@ -687,5 +737,221 @@ export function registerMcpTools(
           method: "DELETE",
         });
       }),
+  );
+
+  registerTool(
+    "list_workspace_members",
+    {
+      description:
+        "List the members of a workspace. Use this to resolve the user ID an assignee tool expects.",
+      inputSchema: z.object({ workspaceId: nonEmptyString }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(
+          `/api/workspace/${encodeURIComponent(args.workspaceId)}/members`,
+        ),
+      ),
+  );
+
+  registerTool(
+    "search",
+    {
+      description:
+        "Search across tasks, projects, workspaces, comments, and activities.",
+      inputSchema: z.object({
+        q: nonEmptyString.describe("Search query"),
+        type: z
+          .enum([
+            "all",
+            "tasks",
+            "projects",
+            "workspaces",
+            "comments",
+            "activities",
+          ])
+          .optional()
+          .describe("Restrict results to one kind. Defaults to all."),
+        workspaceId: optionalNonEmptyString.describe("Limit to one workspace"),
+        projectId: optionalNonEmptyString.describe("Limit to one project"),
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(50)
+          .optional()
+          .describe("Maximum results, 1 to 50. Defaults to 20."),
+      }),
+    },
+    async (args) => {
+      const qs = new URLSearchParams({ q: args.q });
+      if (args.type) qs.set("type", args.type);
+      if (args.workspaceId) qs.set("workspaceId", args.workspaceId);
+      if (args.projectId) qs.set("projectId", args.projectId);
+      if (args.limit !== undefined) qs.set("limit", String(args.limit));
+      return run(() => client.json(`/api/search?${qs.toString()}`));
+    },
+  );
+
+  registerTool(
+    "list_project_columns",
+    {
+      description:
+        "List a project's columns. Their slugs are the values update_task_status and create_task accept as a status.",
+      inputSchema: z.object({ projectId: nonEmptyString }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/column/${encodeURIComponent(args.projectId)}`),
+      ),
+  );
+
+  registerTool(
+    "delete_task",
+    {
+      description: "Delete a task by ID.",
+      inputSchema: z.object({ taskId: nonEmptyString }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/task/${encodeURIComponent(args.taskId)}`, {
+          method: "DELETE",
+        }),
+      ),
+  );
+
+  registerTool(
+    "update_task_assignee",
+    {
+      description:
+        "Assign a task to a workspace member, or pass a null userId to unassign it.",
+      inputSchema: z.object({
+        taskId: nonEmptyString,
+        userId: nonEmptyString
+          .nullable()
+          .describe("Member user ID, or null to unassign"),
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/task/assignee/${encodeURIComponent(args.taskId)}`, {
+          method: "PUT",
+          body: JSON.stringify({ userId: args.userId }),
+        }),
+      ),
+  );
+
+  registerTool(
+    "update_task_due_date",
+    {
+      description: "Set a task's due date. Omit dueDate to clear it.",
+      inputSchema: z.object({
+        taskId: nonEmptyString,
+        dueDate: optionalIsoDateTimeSchema,
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/task/due-date/${encodeURIComponent(args.taskId)}`, {
+          method: "PUT",
+          body: JSON.stringify(
+            args.dueDate === undefined ? {} : { dueDate: args.dueDate },
+          ),
+        }),
+      ),
+  );
+
+  registerTool(
+    "list_task_time_entries",
+    {
+      description: "List the time entries logged against a task.",
+      inputSchema: z.object({ taskId: nonEmptyString }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/time-entry/task/${encodeURIComponent(args.taskId)}`),
+      ),
+  );
+
+  registerTool(
+    "get_time_entry",
+    {
+      description: "Get a single time entry by ID.",
+      inputSchema: z.object({ id: nonEmptyString }),
+    },
+    async (args) =>
+      run(() => client.json(`/api/time-entry/${encodeURIComponent(args.id)}`)),
+  );
+
+  registerTool(
+    "create_time_entry",
+    {
+      description:
+        "Log time against a task. Omit endTime to leave the entry running.",
+      inputSchema: z.object({
+        taskId: nonEmptyString,
+        startTime: isoDateTimeSchema,
+        endTime: optionalIsoDateTimeSchema,
+        description: optionalNonEmptyString,
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json("/api/time-entry", {
+          method: "POST",
+          body: JSON.stringify({
+            taskId: args.taskId,
+            startTime: args.startTime,
+            ...(args.endTime ? { endTime: args.endTime } : {}),
+            ...(args.description ? { description: args.description } : {}),
+          }),
+        }),
+      ),
+  );
+
+  registerTool(
+    "update_time_entry",
+    {
+      description:
+        "Update a time entry. startTime is required; omitting endTime keeps the stored one. startTime cannot be later than the end time.",
+      inputSchema: z.object({
+        id: nonEmptyString,
+        startTime: isoDateTimeSchema,
+        endTime: optionalIsoDateTimeSchema,
+        description: optionalNonEmptyString,
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/time-entry/${encodeURIComponent(args.id)}`, {
+          method: "PUT",
+          body: JSON.stringify({
+            startTime: args.startTime,
+            ...(args.endTime ? { endTime: args.endTime } : {}),
+            ...(args.description ? { description: args.description } : {}),
+          }),
+        }),
+      ),
+  );
+
+  registerTool(
+    "list_task_activity",
+    {
+      description: "List a task's activity history.",
+      inputSchema: z.object({ taskId: nonEmptyString }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/activity/${encodeURIComponent(args.taskId)}`),
+      ),
+  );
+
+  registerTool(
+    "list_notifications",
+    {
+      description: "List the signed-in user's notifications.",
+      inputSchema: z.object({}),
+    },
+    async () => run(() => client.json("/api/notification")),
   );
 }

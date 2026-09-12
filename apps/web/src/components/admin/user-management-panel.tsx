@@ -87,8 +87,6 @@ type EditValues = {
   role: "admin" | "user";
 };
 
-const GLOBAL_ROLES = ["user", "admin"] as const;
-
 function getUserInitials(name: string) {
   return (
     name
@@ -146,6 +144,7 @@ function UserManagementPanel() {
   }, [editingUser]);
 
   const total = data?.total ?? 0;
+  const isSearchActive = debouncedSearch.trim().length > 0;
   const pageCount = Math.max(1, Math.ceil(total / ADMIN_USERS_PAGE_SIZE));
   const isBusy = isTogglingStatus || isDeleting;
 
@@ -587,7 +586,10 @@ function UserManagementPanel() {
                     {t("settings:adminUsers.edit.role")}
                   </FieldLabel>
                   <Select
-                    items={GLOBAL_ROLES}
+                    items={{
+                      user: t("settings:adminUsers.roles.user"),
+                      admin: t("settings:adminUsers.roles.admin"),
+                    }}
                     value={editValues.role}
                     disabled={editingUser?.id === currentUser?.id}
                     onValueChange={(value) => {

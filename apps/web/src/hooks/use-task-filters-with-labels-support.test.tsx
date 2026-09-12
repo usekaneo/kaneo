@@ -1,6 +1,27 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { useTaskFiltersWithLabelsSupport } from "./use-task-filters-with-labels-support";
+
+function createTestQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+}
+
+function createWrapper() {
+  const queryClient = createTestQueryClient();
+
+  return function Wrapper({ children }: { children: React.ReactNode }) {
+    return (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+  };
+}
 
 describe("useTaskFiltersWithLabelsSupport", () => {
   const storageKey = "kaneo:board-filters:project-1";
@@ -90,8 +111,11 @@ describe("useTaskFiltersWithLabelsSupport", () => {
       archivedTasks: [],
     };
 
-    const { result } = renderHook(() =>
-      useTaskFiltersWithLabelsSupport(project, "project-1"),
+    const { result } = renderHook(
+      () => useTaskFiltersWithLabelsSupport(project, "project-1"),
+      {
+        wrapper: createWrapper(),
+      },
     );
 
     await waitFor(() => {
@@ -103,4 +127,85 @@ describe("useTaskFiltersWithLabelsSupport", () => {
       "task-1",
     );
   });
+
+  it.each(["#123", "proj-123", "proj-"])(
+    "matches a task by its issue identifier when searching for %s",
+    (textQuery) => {
+      const project = {
+        id: "project-1",
+        name: "Project",
+        slug: "PROJ",
+        icon: null,
+        description: null,
+        isPublic: false,
+        createdAt: "2026-04-16T00:00:00.000Z",
+        updatedAt: "2026-04-16T00:00:00.000Z",
+        workspaceId: "workspace-1",
+        columns: [
+          {
+            id: "todo",
+            slug: "todo",
+            name: "Todo",
+            icon: null,
+            isFinal: false,
+            tasks: [
+              {
+                id: "task-123",
+                title: "Unrelated title",
+                number: 123,
+                description: null,
+                status: "todo",
+                priority: null,
+                startDate: null,
+                dueDate: null,
+                position: 0,
+                createdAt: "2026-04-16T00:00:00.000Z",
+                updatedAt: "2026-04-16T00:00:00.000Z",
+                userId: null,
+                assigneeId: null,
+                assigneeName: null,
+                assigneeImage: null,
+                projectId: "project-1",
+                labels: [],
+                externalLinks: [],
+              },
+              {
+                id: "task-without-number",
+                title: "Another unrelated title",
+                number: null,
+                description: null,
+                status: "todo",
+                priority: null,
+                startDate: null,
+                dueDate: null,
+                position: 1,
+                createdAt: "2026-04-16T00:00:00.000Z",
+                updatedAt: "2026-04-16T00:00:00.000Z",
+                userId: null,
+                assigneeId: null,
+                assigneeName: null,
+                assigneeImage: null,
+                projectId: "project-1",
+                labels: [],
+                externalLinks: [],
+              },
+            ],
+          },
+        ],
+        plannedTasks: [],
+        archivedTasks: [],
+      };
+
+      const { result } = renderHook(
+        () => useTaskFiltersWithLabelsSupport(project, "project-1", textQuery),
+        {
+          wrapper: createWrapper(),
+        },
+      );
+
+      expect(result.current.filteredProject?.columns[0]?.tasks).toEqual([
+        expect.objectContaining({ id: "task-123" }),
+      ]);
+    },
+  );
 });

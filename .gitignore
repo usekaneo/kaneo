@@ -51,3 +51,10 @@ compose.override.yml
 
 # IntelliJ IDE
 .idea
+
+# TanStack Router generated cache
+apps/web/.tanstack/
+.pi/
+
+# TypeScript incremental build state
+*.tsbuildinfo

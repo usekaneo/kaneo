@@ -14,7 +14,7 @@ export function Footer() {
             </p>
           </div>
 
-          <div className="col-span-3 grid gap-6 sm:grid-cols-3">
+          <div className="col-span-3 grid gap-6 sm:grid-cols-4">
             <div className="space-y-3 text-sm">
               <p className="font-medium">Product</p>
               <a
@@ -34,6 +34,42 @@ export function Footer() {
                 href="#features"
               >
                 Features
+              </a>
+              <a
+                className="block text-muted-foreground transition-colors hover:text-foreground"
+                href="/pricing"
+              >
+                Pricing
+              </a>
+              <a
+                className="block text-muted-foreground transition-colors hover:text-foreground"
+                href="/alternatives"
+              >
+                Comparisons
+              </a>
+              <a
+                className="block text-muted-foreground transition-colors hover:text-foreground"
+                href="/guides"
+              >
+                Guides
+              </a>
+              <a
+                className="block text-muted-foreground transition-colors hover:text-foreground"
+                href="/blog"
+              >
+                Blog
+              </a>
+              <a
+                className="block text-muted-foreground transition-colors hover:text-foreground"
+                href="/jira-alternative"
+              >
+                vs Jira
+              </a>
+              <a
+                className="block text-muted-foreground transition-colors hover:text-foreground"
+                href="/linear-alternative"
+              >
+                vs Linear
               </a>
             </div>
 
@@ -77,9 +113,39 @@ export function Footer() {
               </a>
               <a
                 className="block text-muted-foreground transition-colors hover:text-foreground"
+                href="https://github.com/sponsors/andrejsshell"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Sponsor
+              </a>
+              <a
+                className="block text-muted-foreground transition-colors hover:text-foreground"
                 href="/docs"
               >
                 Documentation
+              </a>
+            </div>
+
+            <div className="space-y-3 text-sm">
+              <p className="font-medium">Legal</p>
+              <a
+                className="block text-muted-foreground transition-colors hover:text-foreground"
+                href="/privacy"
+              >
+                Privacy Policy
+              </a>
+              <a
+                className="block text-muted-foreground transition-colors hover:text-foreground"
+                href="/terms"
+              >
+                Terms of Service
+              </a>
+              <a
+                className="block text-muted-foreground transition-colors hover:text-foreground"
+                href="mailto:support@kaneo.app"
+              >
+                support@kaneo.app
               </a>
             </div>
           </div>

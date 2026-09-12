@@ -25,7 +25,7 @@ export async function migrateWorkspaceUserEmail() {
       tableExists.rows[0]?.exists === "t";
     if (!exists) {
       console.log(
-        "🛈 workspace_member table does not exist — skipping migration.",
+        "🛈 workspace_member table does not exist; skipping migration.",
       );
       return;
     }

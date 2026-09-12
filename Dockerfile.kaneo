@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:20.20.2-alpine AS api-builder
+FROM --platform=$BUILDPLATFORM node:24.19.0-alpine AS api-builder
 
 RUN apk add --no-cache python3 make g++ && \
   corepack enable && \
@@ -34,7 +34,7 @@ RUN pnpm run build
 # Assembles the production node_modules on the BUILD platform (native, no QEMU emulation).
 # All API runtime deps are pure JavaScript (bcrypt was replaced with bcryptjs), so this
 # node_modules is architecture-independent and is copied into the runtime stage below.
-FROM --platform=$BUILDPLATFORM node:20.20.2-alpine AS api-runtime
+FROM --platform=$BUILDPLATFORM node:24.19.0-alpine AS api-runtime
 
 WORKDIR /app
 
@@ -55,7 +55,7 @@ COPY --from=api-builder /app/apps/api/drizzle ./apps/api/drizzle
 COPY --from=api-builder /app/packages/email ./packages/email
 COPY --from=api-builder /app/packages/permissions ./packages/permissions
 
-FROM --platform=$BUILDPLATFORM node:20.20.2-alpine AS web-builder
+FROM --platform=$BUILDPLATFORM node:24.19.0-alpine AS web-builder
 
 RUN apk add --no-cache python3 make g++ && \
   corepack enable && \
@@ -81,9 +81,9 @@ RUN pnpm run build
 WORKDIR /app/apps/web
 RUN pnpm run build
 
-FROM node:20.20.2-alpine AS runtime
+FROM node:24.19.0-alpine AS runtime
 
-RUN apk add --no-cache nginx=~1.28.3 && \
+RUN apk add --no-cache nginx=~1.30.4 && \
   addgroup -g 1001 appuser && \
   adduser -u 1001 -G appuser -D appuser && \
   mkdir -p /app /app/apps/api/data /var/cache/nginx /var/run/nginx /var/log/nginx /var/lib/nginx/logs /var/lib/nginx/tmp /usr/share/nginx/html /docker-entrypoint.d && \

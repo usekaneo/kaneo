@@ -1,6 +1,7 @@
 "use client";
 
-import { Github } from "lucide-react";
+import {} from "lucide-react";
+import { GithubIcon } from "@/components/icons/github-icon";
 import { AppPreview } from "@/components/landing/app-preview";
 import { FadeIn } from "@/components/landing/fade-in";
 import { Button } from "@/components/ui/button";
@@ -53,35 +54,24 @@ export function Hero() {
                   window.location.href = "https://github.com/usekaneo/kaneo";
                 }}
               >
-                <Github className="h-4 w-4" />
+                <GithubIcon className="h-4 w-4" />
                 GitHub
               </Button>
               <Button
                 variant="outline"
                 size="lg"
-                className="gap-2 border-[#da552f]/40 bg-[#da552f]/8 text-foreground hover:bg-[#da552f]/14"
-                render={
-                  <a
-                    href="https://www.producthunt.com/products/kaneo"
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label="View Kaneo on Product Hunt"
-                  >
-                    <img
-                      src="/images/product-hunt.svg"
-                      alt=""
-                      className="size-5"
-                      aria-hidden="true"
-                    />
-                    Product Hunt
-                  </a>
-                }
-              />
+                className="gap-2"
+                onClick={() => {
+                  window.location.href = "/pricing";
+                }}
+              >
+                Pricing
+              </Button>
             </div>
           </FadeIn>
         </div>
 
-        {/* ── App preview — interactive mock of the real Kaneo UI ── */}
+        {/* ── App preview: interactive mock of the real Kaneo UI ── */}
         <FadeIn delay={240} distance={32}>
           <AppPreview />
         </FadeIn>

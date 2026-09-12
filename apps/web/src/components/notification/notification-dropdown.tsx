@@ -391,15 +391,19 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogClose>
-                <Button variant="outline" size="sm">
-                  {t("common:actions.cancel")}
-                </Button>
+              <AlertDialogClose render={<Button variant="outline" size="sm" />}>
+                {t("common:actions.cancel")}
               </AlertDialogClose>
-              <AlertDialogClose onClick={handleClearAll}>
-                <Button variant="destructive" size="sm">
-                  {t("common:actions.clearAll")}
-                </Button>
+              <AlertDialogClose
+                render={
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleClearAll}
+                  />
+                }
+              >
+                {t("common:actions.clearAll")}
               </AlertDialogClose>
             </AlertDialogFooter>
           </AlertDialogContent>

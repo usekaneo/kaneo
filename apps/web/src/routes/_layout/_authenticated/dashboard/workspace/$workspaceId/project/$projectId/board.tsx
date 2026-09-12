@@ -7,10 +7,13 @@ import ProjectLayout from "@/components/common/project-layout";
 import KanbanBoard from "@/components/kanban-board";
 import ListView from "@/components/list-view";
 import PageTitle from "@/components/page-title";
+import type { CustomFieldDefinition } from "@/components/project/custom-field-editor";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
 import { Input } from "@/components/ui/input";
 import { shortcuts } from "@/constants/shortcuts";
+import useGetCustomFieldFilterValues from "@/hooks/queries/custom-field/use-get-custom-field-filter-values";
+import useGetCustomFieldsByProject from "@/hooks/queries/custom-field/use-get-custom-fields-by-project";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
@@ -93,6 +96,28 @@ function RouteComponent() {
   const { data: users } = useGetActiveWorkspaceUsers(workspaceId);
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);
 
+  const { data: rawCustomFields = [] } = useGetCustomFieldsByProject(projectId);
+
+  const { data: filterValuesData = [] } =
+    useGetCustomFieldFilterValues(projectId);
+
+  const customFieldDefinitions = useMemo<CustomFieldDefinition[]>(
+    () =>
+      rawCustomFields.map((f, index) => ({
+        ...f,
+        type: f.type as CustomFieldDefinition["type"],
+        options: Array.isArray(f.options) ? (f.options as string[]) : null,
+        position: index,
+      })),
+    [rawCustomFields],
+  );
+
+  const usedCustomFieldValues = useMemo<Record<string, string[]>>(() => {
+    return Object.fromEntries(
+      filterValuesData.map((f) => [f.fieldId, f.values]),
+    );
+  }, [filterValuesData]);
+
   const handleCloseTaskSheet = useCallback(() => {
     navigate({
       to: ".",
@@ -106,6 +131,11 @@ function RouteComponent() {
       [shortcuts.view.prefix]: {
         [shortcuts.view.board]: () => setViewMode("board"),
         [shortcuts.view.list]: () => setViewMode("list"),
+        [shortcuts.view.calendar]: () =>
+          navigate({
+            to: "/dashboard/workspace/$workspaceId/project/$projectId/calendar",
+            params: { workspaceId, projectId },
+          }),
         [shortcuts.view.gantt]: () =>
           navigate({
             to: "/dashboard/workspace/$workspaceId/project/$projectId/gantt",
@@ -160,6 +190,7 @@ function RouteComponent() {
     filters,
     updateFilter,
     updateLabelFilter,
+    updateCustomFieldFilter,
     filteredProject,
     hasActiveFilters,
     clearFilters,
@@ -213,7 +244,7 @@ function RouteComponent() {
       headerActions={boardHeaderSearch}
     >
       <PageTitle
-        title={`${project?.name} — ${viewMode === "board" ? t("tasks:view.board") : t("tasks:view.list")}`}
+        title={`${project?.name} · ${viewMode === "board" ? t("tasks:view.board") : t("tasks:view.list")}`}
         hideAppName
       />
       <div className="relative flex flex-col h-full min-h-0 overflow-hidden">
@@ -222,6 +253,7 @@ function RouteComponent() {
           filters={filters}
           updateFilter={updateFilter}
           updateLabelFilter={updateLabelFilter}
+          updateCustomFieldFilter={updateCustomFieldFilter}
           clearFilters={clearFilters}
           hasActiveFilters={hasActiveFilters}
           users={users}
@@ -230,6 +262,8 @@ function RouteComponent() {
           setViewMode={setViewMode}
           sort={sort}
           onSortChange={setSort}
+          customFieldDefinitions={customFieldDefinitions}
+          usedCustomFieldValues={usedCustomFieldValues}
         />
 
         <div className="flex h-full flex-1 overflow-hidden bg-background">

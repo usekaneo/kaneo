@@ -1,3 +1,5 @@
+import * as Sentry from "@sentry/node";
+
 type TelegramMessage = {
   chat_id: string;
   text: string;
@@ -16,6 +18,11 @@ export async function postToTelegram(
   const timeoutId = setTimeout(() => controller.abort(), TELEGRAM_TIMEOUT_MS);
 
   try {
+    Sentry.addBreadcrumb({
+      category: "integration",
+      level: "info",
+      data: { integration: "telegram" },
+    });
     const response = await fetch(
       `https://api.telegram.org/bot${botToken}/sendMessage`,
       {

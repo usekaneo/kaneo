@@ -3,12 +3,13 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable, projectTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { filterAssignableUsers } from "../../utils/assert-assignable-user";
 import {
   coercePriority,
   coerceStatus,
   getValidTaskStatuses,
 } from "../validate-task-fields";
-import getNextTaskNumber from "./get-next-task-number";
+import { claimTaskNumber } from "./claim-task-numbers";
 
 export type ImportTask = {
   title: string;
@@ -35,12 +36,35 @@ async function importTasks(
     });
   }
 
-  let taskNumber = await getNextTaskNumber(projectId);
+  const assigneeIds = [
+    ...new Set(
+      tasksToImport
+        .map((task) => task.userId?.trim())
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+
+  const assignableIds = await filterAssignableUsers(
+    assigneeIds,
+    project.workspaceId,
+  );
+
   const validStatuses = await getValidTaskStatuses(projectId);
 
   const results = [];
 
   for (const taskData of tasksToImport) {
+    const assigneeId = taskData.userId?.trim() || null;
+
+    if (assigneeId && !assignableIds.has(assigneeId)) {
+      results.push({
+        success: false,
+        error: "Assignee is not a member of this workspace",
+        task: taskData,
+      });
+      continue;
+    }
+
     try {
       const { status, warning: statusWarning } = coerceStatus(
         taskData.status,
@@ -58,21 +82,27 @@ async function importTasks(
         ),
       });
 
-      const [createdTask] = await db
-        .insert(taskTable)
-        .values({
-          projectId,
-          userId: taskData.userId || null,
-          title: taskData.title,
-          status,
-          columnId: column?.id ?? null,
-          startDate: taskData.startDate ? new Date(taskData.startDate) : null,
-          dueDate: taskData.dueDate ? new Date(taskData.dueDate) : null,
-          description: taskData.description || "",
-          priority,
-          number: ++taskNumber,
-        })
-        .returning();
+      const createdTask = await db.transaction(async (tx) => {
+        const taskNumber = await claimTaskNumber(projectId, tx);
+
+        const [task] = await tx
+          .insert(taskTable)
+          .values({
+            projectId,
+            userId: assigneeId,
+            title: taskData.title,
+            status,
+            columnId: column?.id ?? null,
+            startDate: taskData.startDate ? new Date(taskData.startDate) : null,
+            dueDate: taskData.dueDate ? new Date(taskData.dueDate) : null,
+            description: taskData.description || "",
+            priority,
+            number: taskNumber,
+          })
+          .returning();
+
+        return task;
+      });
 
       if (createdTask) {
         await publishEvent("task.created", {

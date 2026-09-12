@@ -46,7 +46,7 @@ services:
     restart: unless-stopped
 
   docs:
-    image: node:20-alpine
+    image: node:24.19.0-alpine
     working_dir: /app/apps/docs
     command: sh -c "npm install -g mintlify && mintlify dev --disable-openapi"
     ports:

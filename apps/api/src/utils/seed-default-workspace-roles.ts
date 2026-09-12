@@ -9,7 +9,7 @@ import db, { schema } from "../database";
  *
  * These three roles used to be static (compiled into better-auth's
  * `roles` config). They were converted to DB rows so admins can override
- * them per workspace — but that means existing workspaces, which were
+ * them per workspace, but that means existing workspaces, which were
  * created before the switch, have no rows yet. Without this backfill,
  * better-auth's dynamic-access-control resolution would treat them as
  * having an empty permission set on existing workspaces.
@@ -31,7 +31,7 @@ export async function seedDefaultWorkspaceRoles() {
       tableExists.rows[0]?.exists === "t";
     if (!exists) {
       console.log(
-        "🛈 workspace_role table does not exist — skipping default-role seed.",
+        "🛈 workspace_role table does not exist; skipping default-role seed.",
       );
       return;
     }

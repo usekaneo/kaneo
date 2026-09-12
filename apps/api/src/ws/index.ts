@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import type { WSContext } from "hono/ws";
 import { subscribeToEvent } from "../events";
 import { isRedisConfigured } from "../redis";
@@ -5,9 +6,13 @@ import type {
   BroadcastAdapter,
   BroadcastMessage,
   ProjectBroadcastMessage,
+  UserBroadcast,
+  UserBroadcastMessage,
 } from "./broadcast-adapter";
 import { InMemoryBroadcastAdapter } from "./in-memory-broadcast-adapter";
 import { RedisBroadcastAdapter } from "./redis-broadcast-adapter";
+
+const INSTANCE_ID = randomUUID();
 
 type ProjectConnection = {
   ws: WSContext;
@@ -20,7 +25,7 @@ type UserConnection = {
 };
 
 /**
- * User-scoped connections — tracks WebSocket connections keyed by userId.
+ * User-scoped connections: tracks WebSocket connections keyed by userId.
  * Used for delivering user-targeted events like NOTIFICATION_CREATED.
  */
 const userConnections = new Map<string, Set<UserConnection>>();
@@ -44,9 +49,23 @@ export function removeUserConnection(userId: string, conn: UserConnection) {
   }
 }
 
-export function broadcastToUser(
+export function broadcastToUser(userId: string, message: UserBroadcastMessage) {
+  deliverToLocalUserConnections(userId, message);
+
+  if (!adapter) {
+    return;
+  }
+
+  void adapter
+    .publishToUser({ userId, message, origin: INSTANCE_ID })
+    .catch((err) => {
+      console.error("Failed to publish a user broadcast:", err);
+    });
+}
+
+function deliverToLocalUserConnections(
   userId: string,
-  message: { type: string; [key: string]: unknown },
+  message: UserBroadcastMessage,
 ) {
   const connections = userConnections.get(userId);
   if (!connections) return;
@@ -65,7 +84,7 @@ export function broadcastToUser(
 }
 
 /**
- * Local connections — Each instance tracks only its own WebSocket connections.
+ * Local connections: each instance tracks only its own WebSocket connections.
  */
 const projectConnections = new Map<string, Set<ProjectConnection>>();
 
@@ -99,6 +118,12 @@ export async function initializeWebSocketAdapter() {
         msg.message,
         msg.excludeInitiatorId,
       );
+    });
+    await nextAdapter.subscribeToUser((msg: UserBroadcast) => {
+      if (msg.origin === INSTANCE_ID) {
+        return;
+      }
+      deliverToLocalUserConnections(msg.userId, msg.message);
     });
   } catch (err) {
     await nextAdapter.shutdown().catch(() => {});

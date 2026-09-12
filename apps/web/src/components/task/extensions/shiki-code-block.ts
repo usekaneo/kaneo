@@ -16,11 +16,13 @@ type ShikiCodeBlockOptions = {
 export const SHIKI_CODEBLOCK_REFRESH_META = "shiki-codeblock-refresh";
 const shikiPluginKey = new PluginKey("shiki-codeblock");
 
+export function isDarkTheme() {
+  if (typeof document === "undefined") return true;
+  return document.documentElement.classList.contains("dark");
+}
+
 function getCurrentTheme(options: ShikiCodeBlockOptions) {
-  if (typeof document === "undefined") return options.themeDark;
-  return document.documentElement.classList.contains("dark")
-    ? options.themeDark
-    : options.themeLight;
+  return isDarkTheme() ? options.themeDark : options.themeLight;
 }
 
 function resolveHighlighter(options: ShikiCodeBlockOptions) {

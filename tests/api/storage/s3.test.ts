@@ -143,6 +143,38 @@ describe("S3 helpers", () => {
     ).toBe(true);
   });
 
+  it("assertTaskImageKeyMatchesContext rejects traversal past the prefix", () => {
+    process.env.S3_ENDPOINT = "https://storage.example.test";
+    process.env.S3_BUCKET = "kaneo";
+    process.env.S3_ACCESS_KEY_ID = "test-access-key";
+    process.env.S3_SECRET_ACCESS_KEY = "test-secret-key";
+    delete process.env.S3_KEY_PREFIX;
+
+    const ctx = {
+      workspaceId: "ws1",
+      projectId: "p1",
+      taskId: "t1",
+      surface: "description" as const,
+    };
+    const prefix = "workspace/ws1/project/p1/task/t1/descriptions";
+
+    expect(
+      assertTaskImageKeyMatchesContext(`${prefix}/image-1-abc.png`, ctx),
+    ).toBe(true);
+
+    for (const suffix of [
+      "../../../../../../workspace/victim/secret.png",
+      "nested/deeper.png",
+      "..%2Fescape.png",
+      ".hidden",
+      "back\\slash.png",
+    ]) {
+      expect(assertTaskImageKeyMatchesContext(`${prefix}/${suffix}`, ctx)).toBe(
+        false,
+      );
+    }
+  });
+
   it("applyKeyPrefix prepends prefix and trims trailing slashes", () => {
     expect(applyKeyPrefix("", "workspace/a/file.png")).toBe(
       "workspace/a/file.png",

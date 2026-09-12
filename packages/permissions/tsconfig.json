@@ -4,7 +4,7 @@
         "rootDir": "./src",
         "module": "ESNext",
         "target": "ESNext",
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "declaration": true,
         "sourceMap": true,
         "strict": true,

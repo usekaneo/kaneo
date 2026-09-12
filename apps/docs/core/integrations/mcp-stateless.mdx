@@ -1,0 +1,122 @@
+---
+title: MCP 2026-07-28 stateless compatibility
+description: Protocol contract, verification, limitations, and rollback for Kaneo's dual-era Streamable HTTP endpoint.
+---
+
+# MCP 2026-07-28 stateless compatibility
+
+Research date: 2026-08-09.
+
+## Contract and primary sources
+
+MCP revision `2026-07-28` changes Streamable HTTP from a protocol-session
+model to a per-request model. Modern clients do not call `initialize` or
+`notifications/initialized`, and the server does not mint `Mcp-Session-Id`.
+Every JSON-RPC message uses a separate HTTP POST and carries protocol version,
+client identity, and capabilities in request metadata.
+
+Primary sources:
+
+- [MCP 2026-07-28 changelog](https://modelcontextprotocol.io/specification/2026-07-28/changelog)
+- [Streamable HTTP specification](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http)
+- [SEP-2575: Make MCP Stateless](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/seps/2575-stateless-mcp.md)
+- [OpenAI Codex support commit](https://github.com/openai/codex/commit/be2e4afcd739)
+- [Official OpenAI MCP documentation](https://learn.chatgpt.com/docs/extend/mcp)
+
+Required modern request fields include:
+
+- `MCP-Protocol-Version: 2026-07-28`
+- `Mcp-Method: <json-rpc-method>`
+- `Mcp-Name: <tool-name>` for `tools/call`
+- matching `params._meta["io.modelcontextprotocol/protocolVersion"]`
+- per-request client capabilities and, preferably, client information
+
+Kaneo validates the bearer token before protocol routing on every request.
+Modern requests use a fresh `McpServer` instance and hold no process-local
+protocol state. Requests classified as the 2025 era continue through the
+existing sessionful transport, preserving `initialize`,
+`notifications/initialized`, and `Mcp-Session-Id` behavior.
+
+This dual-era split matters: treating a sessionful `2025-06-18` exchange as
+"stateless" because its POSTs use separate TCP connections does not implement
+the `2026-07-28` contract.
+
+## Automated verification
+
+From the repository root:
+
+```bash
+pnpm --filter @kaneo/api test:unit
+pnpm --filter @kaneo/api typecheck
+pnpm --filter @kaneo/api build
+```
+
+`tests/api/mcp-stateless.test.ts` verifies:
+
+1. repeated `tools/list` calls on independent requests without session IDs;
+2. concurrent read-only `tools/call` requests with bearer propagation;
+3. rejection of missing per-request metadata;
+4. an effectful `update_task_status` request;
+5. separation of modern traffic from legacy `initialize` traffic.
+
+The tests use an in-process handler and stub the internal Kaneo API fetch. They
+do not mutate a real Kaneo database.
+
+## Codex configuration and manual verification
+
+Codex CLI `0.147.0` contains `mcp_2026_07_28`, but the feature is under
+development and disabled by default. Confirm the installed build before
+testing:
+
+```bash
+which codex
+codex --version
+codex features list | grep '^mcp_2026_07_28'
+codex -c features.mcp_2026_07_28=true features list | grep '^mcp_2026_07_28'
+```
+
+Permanent configuration, once the operator chooses to enable the experimental
+client path:
+
+```toml
+[features]
+mcp_2026_07_28 = true
+
+[mcp_servers.kaneo]
+url = "https://your-kaneo-instance.com/api/mcp"
+bearer_token_env_var = "KANEO_MCP_TOKEN"
+startup_timeout_sec = 20
+tool_timeout_sec = 60
+```
+
+Keep the token in the environment, not in `config.toml`. Then start a new Codex
+session, inspect `/mcp`, list Kaneo tools, call `whoami`, and perform one
+explicitly approved effectful call on test data. Capture traffic only with
+authorization values redacted. Modern traffic must show `server/discover`
+followed by self-contained calls, no `initialize`, and no `Mcp-Session-Id`.
+
+With the feature disabled, Codex uses its legacy MCP lifecycle. Kaneo should
+still complete `initialize`, return a session ID, accept
+`notifications/initialized`, and serve tools on later requests carrying that
+ID.
+
+## Limitations
+
+- OpenAI documentation confirms Streamable HTTP, bearer tokens, and OAuth, but
+  does not publish a Codex-release-to-MCP-revision matrix.
+- Modern Codex support remains experimental in `0.147.0`; dual-era serving is
+  required until deployed clients are confirmed.
+- The modern handler is request-local. Kaneo tools currently need no
+  server-to-client request channel or cross-request protocol state.
+- No production image or NAS stack is changed by the repository tests.
+
+## Rollback
+
+Code rollback removes the modern route and `@modelcontextprotocol/server` v2,
+leaving the existing v1 sessionful branch unchanged. Client rollback disables
+`features.mcp_2026_07_28` and starts a new Codex session. No database migration
+is involved.
+
+Production rollback must happen by deploying the previous Kaneo image through
+the normal operator-controlled stack workflow. Do not restart the host and do
+not remove persistent volumes.

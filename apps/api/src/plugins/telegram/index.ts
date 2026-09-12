@@ -18,5 +18,5 @@ export const telegramPlugin: IntegrationPlugin = {
   onTaskTitleChanged: handleTaskTitleChanged,
   onTaskDescriptionChanged: handleTaskDescriptionChanged,
   onTaskCommentCreated: handleTaskCommentCreated,
-  validateConfig: validateTelegramConfig,
+  validateConfig: async (config) => validateTelegramConfig(config),
 };

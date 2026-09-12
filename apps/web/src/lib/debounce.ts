@@ -3,10 +3,14 @@ function debounce<Args extends unknown[], R>(
   delay: number,
 ) {
   let timeout: ReturnType<typeof setTimeout>;
-  return (...args: Args) => {
+  const debounced = (...args: Args) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => func(...args), delay);
   };
+
+  debounced.cancel = () => clearTimeout(timeout);
+
+  return debounced;
 }
 
 export default debounce;

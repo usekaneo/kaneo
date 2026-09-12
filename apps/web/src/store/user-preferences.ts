@@ -1,6 +1,13 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
+export const WEEK_START_DAYS = [0, 1, 6] as const;
+export type WeekStartDay = (typeof WEEK_START_DAYS)[number];
+
+export function isWeekStartDay(value: number): value is WeekStartDay {
+  return WEEK_START_DAYS.some((day) => day === value);
+}
+
 type UserPreferencesStore = {
   theme: "light" | "dark" | "system";
   setTheme: (
@@ -29,13 +36,16 @@ type UserPreferencesStore = {
   showPriority: boolean;
   setShowPriority: (show: boolean) => void;
   togglePriority: () => void;
+  showTaskItemCounts: boolean;
+  setShowTaskItemCounts: (show: boolean) => void;
+  toggleTaskItemCounts: () => void;
   resetDisplayPreferences: () => void;
 
   sidebarDefaultOpen: boolean;
   setSidebarDefaultOpen: (open: boolean) => void;
 
-  weekStartsOn: 0 | 1;
-  setWeekStartsOn: (weekStartsOn: 0 | 1) => void;
+  weekStartsOn: WeekStartDay;
+  setWeekStartsOn: (weekStartsOn: WeekStartDay) => void;
 };
 
 export const useUserPreferencesStore = create<UserPreferencesStore>()(
@@ -94,6 +104,10 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
       setShowPriority: (show) => set({ showPriority: show }),
       togglePriority: () =>
         set((state) => ({ showPriority: !state.showPriority })),
+      showTaskItemCounts: true,
+      setShowTaskItemCounts: (show) => set({ showTaskItemCounts: show }),
+      toggleTaskItemCounts: () =>
+        set((state) => ({ showTaskItemCounts: !state.showTaskItemCounts })),
       resetDisplayPreferences: () =>
         set({
           showAssignees: true,
@@ -101,6 +115,7 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
           showLabels: true,
           showTaskNumbers: true,
           showPriority: true,
+          showTaskItemCounts: true,
         }),
 
       sidebarDefaultOpen: true,
@@ -112,6 +127,11 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
     {
       name: "user-preferences",
       storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (state) => {
+        if (state && !isWeekStartDay(state.weekStartsOn)) {
+          state.setWeekStartsOn(0);
+        }
+      },
     },
   ),
 );

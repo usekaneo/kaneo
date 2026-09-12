@@ -34,12 +34,19 @@ import type { AccessControl } from "better-auth/plugins/access";
 import type { UserWithAnonymous } from "better-auth/plugins/anonymous";
 import { config } from "dotenv-mono";
 import { count, eq, sql } from "drizzle-orm";
+import {
+  findBillableWorkspaces,
+  formatBillableWorkspacesMessage,
+} from "./billing/controllers/find-billable-workspaces";
+import { syncWorkspaceSeats } from "./billing/controllers/sync-seats";
 import db, { schema } from "./database";
 import { publishEvent } from "./events";
+import deleteAccountData from "./user/controllers/delete-account-data";
 import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
 import { checkWorkspaceName } from "./utils/check-workspace-name";
 import { mapCustomOAuthProfileToUser } from "./utils/custom-oauth-profile";
 import { generateDemoName } from "./utils/generate-demo-name";
+import { getDefaultCookieAttributes } from "./utils/get-default-cookie-attributes";
 import { getInvitationEmailSubject } from "./utils/get-invitation-email-subject";
 import { getWorkspaceInvitationEmailCopy } from "./utils/get-workspace-invitation-email-copy";
 import { getGithubSsoOAuthCredentials } from "./utils/github-sso-env";
@@ -58,6 +65,8 @@ const isPasswordRegistrationDisabled =
 const isLoginFormDisabled = process.env.DISABLE_LOGIN_FORM === "true";
 const isEmailOtpSignInDisabled =
   process.env.DISABLE_EMAIL_OTP_SIGN_IN === "true";
+const isWorkspaceCreationDisabled =
+  process.env.DISABLE_WORKSPACE_CREATION === "true";
 
 function normalizeInvitationId(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
@@ -66,22 +75,13 @@ function normalizeInvitationId(value: unknown): string | undefined {
   return normalized;
 }
 
+function isOAuthCallbackPath(path: unknown): boolean {
+  if (typeof path !== "string") return false;
+  return path.startsWith("/callback/") || path.startsWith("/oauth2/callback/");
+}
+
 const apiUrl = process.env.KANEO_API_URL || "http://localhost:1337";
 const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
-const isHttps = apiUrl.startsWith("https://");
-const isCrossSubdomain = (() => {
-  try {
-    const apiHost = new URL(apiUrl).hostname;
-    const clientHost = new URL(clientUrl).hostname;
-    return (
-      apiHost !== clientHost &&
-      apiHost !== "localhost" &&
-      clientHost !== "localhost"
-    );
-  } catch {
-    return false;
-  }
-})();
 
 const trustedOrigins = [clientUrl];
 try {
@@ -119,19 +119,41 @@ async function getUserLocale(email: string) {
 }
 
 function getLocaleKey(locale?: string | null) {
-  return locale?.toLowerCase().startsWith("de") ? "de" : "en";
+  const normalized = locale?.toLowerCase();
+  if (normalized?.startsWith("de")) return "de";
+  if (normalized?.startsWith("vi")) return "vi";
+  if (normalized?.startsWith("ja")) return "ja";
+  return "en";
 }
 
 function getAuthEmailCopy(locale?: string | null) {
-  return getLocaleKey(locale) === "de"
-    ? {
-        magicLinkSubject: "Anmeldelink fuer Kaneo",
-        otpSubject: "Bestaetigungscode fuer Kaneo",
-      }
-    : {
-        magicLinkSubject: "Login for Kaneo",
-        otpSubject: "Authentication code for Kaneo",
-      };
+  const localeKey = getLocaleKey(locale);
+
+  if (localeKey === "de") {
+    return {
+      magicLinkSubject: "Anmeldelink fuer Kaneo",
+      otpSubject: "Bestaetigungscode fuer Kaneo",
+    };
+  }
+
+  if (localeKey === "vi") {
+    return {
+      magicLinkSubject: "Liên kết đăng nhập Kaneo",
+      otpSubject: "Mã xác minh Kaneo",
+    };
+  }
+
+  if (localeKey === "ja") {
+    return {
+      magicLinkSubject: "Kaneo ログインリンク",
+      otpSubject: "Kaneo 認証コード",
+    };
+  }
+
+  return {
+    magicLinkSubject: "Login for Kaneo",
+    otpSubject: "Authentication code for Kaneo",
+  };
 }
 
 function getDeviceAuthClientIds(): Set<string> {
@@ -145,6 +167,25 @@ function getDeviceAuthClientIds(): Set<string> {
     );
   }
   return new Set(["kaneo-cli", "kaneo-mcp"]);
+}
+
+const DEFAULT_TRUSTED_PROXIES = [
+  "127.0.0.0/8",
+  "::1/128",
+  "10.0.0.0/8",
+  "172.16.0.0/12",
+  "192.168.0.0/16",
+];
+
+function trustedProxies(): string[] {
+  const raw = process.env.TRUSTED_PROXIES?.trim();
+  if (!raw) {
+    return DEFAULT_TRUSTED_PROXIES;
+  }
+  return raw
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean);
 }
 
 function getDeviceAuthVerificationUri(): string {
@@ -181,6 +222,12 @@ export const auth = betterAuth({
         type: "string",
         input: true,
         required: false,
+      },
+    },
+    deleteUser: {
+      enabled: true,
+      beforeDelete: async (user) => {
+        await deleteAccountData(user.id);
       },
     },
   },
@@ -326,7 +373,31 @@ export const auth = betterAuth({
           },
         },
       },
-      allowUserToCreateOrganization: true,
+      // When `DISABLE_WORKSPACE_CREATION` is set, only instance admins
+      // (`user.role === "admin"`) may create workspaces — mirrors the
+      // implicit-exemption shape of `DISABLE_REGISTRATION` above. This
+      // check runs before any workspace membership exists, so only the
+      // instance-wide role is meaningful here; per-workspace roles
+      // (owner/admin/member/viewer) don't apply until after a workspace
+      // is joined.
+      //
+      // `user` here comes from the session, which may be served out of
+      // the cookie cache (see `session.cookieCache` below). The
+      // first-user bootstrap promotes the user to admin in
+      // `databaseHooks.user.create.after`, but that happens after
+      // `signUpEmail` has already returned/cached the pre-promotion
+      // role, so a cached session can still say `role: "user"` for up
+      // to `cookieCache.maxAge`. Re-read the role from the database
+      // instead of trusting the (possibly stale) cached role.
+      allowUserToCreateOrganization: isWorkspaceCreationDisabled
+        ? async (user) => {
+            const [freshUser] = await db
+              .select({ role: schema.userTable.role })
+              .from(schema.userTable)
+              .where(eq(schema.userTable.id, user.id));
+            return freshUser?.role === "admin";
+          }
+        : true,
       // Better Auth defaults this to `true`, which blocks any user whose email
       // is not verified from accepting/rejecting an invitation. Kaneo does not
       // verify emails on signup (and guest/anonymous users are unverified by
@@ -346,7 +417,7 @@ export const auth = betterAuth({
           // role's permissions are derived from the compiled-in defaults
           // in `@kaneo/permissions`; admins can later replace them in the
           // Roles UI. We skip names that somehow already exist (this hook
-          // is best-effort idempotent — the boot-time backfill is the
+          // is best-effort idempotent; the boot-time backfill is the
           // belt-and-braces path).
           try {
             const existing = await db
@@ -384,6 +455,30 @@ export const auth = betterAuth({
             ownerId: user.id,
           });
         },
+        beforeDeleteOrganization: async ({ organization }) => {
+          const billable = await findBillableWorkspaces([organization.id]);
+          if (billable.length > 0) {
+            throw new APIError("CONFLICT", {
+              message: formatBillableWorkspacesMessage(
+                billable.map((workspace) => workspace.name),
+              ),
+            });
+          }
+        },
+        afterAddMember: async ({ member }) => {
+          if (member?.organizationId) {
+            void syncWorkspaceSeats(member.organizationId).catch((error) => {
+              console.error("Seat sync after member add failed:", error);
+            });
+          }
+        },
+        afterRemoveMember: async ({ member }) => {
+          if (member?.organizationId) {
+            void syncWorkspaceSeats(member.organizationId).catch((error) => {
+              console.error("Seat sync after member remove failed:", error);
+            });
+          }
+        },
       },
       async sendInvitationEmail(data) {
         const inviteLink = `${process.env.KANEO_CLIENT_URL}/invitation/accept/${data.id}`;
@@ -400,7 +495,6 @@ export const auth = betterAuth({
           {
             inviterEmail: data.inviter.user.email,
             inviterName: data.inviter.user.name,
-            locale,
             workspaceName: data.organization.name,
             invitationLink: inviteLink,
             to: data.email,
@@ -492,13 +586,14 @@ export const auth = betterAuth({
           }
 
           // Allow the very first signup through even when registration
-          // is disabled — that's the instance-admin bootstrap flow.
+          // is disabled: that's the instance-admin bootstrap flow.
           // Otherwise a fresh instance with DISABLE_REGISTRATION=true
           // could never be set up because `checkRegistrationAllowed`
           // would reject the first user (qodo bot #3).
-          const [{ value: existingUserCount }] = await db
+          const [userCountRow] = await db
             .select({ value: count() })
             .from(schema.userTable);
+          const existingUserCount = userCountRow?.value ?? 0;
           if (existingUserCount === 0) {
             return;
           }
@@ -511,6 +606,7 @@ export const auth = betterAuth({
           const result = await checkRegistrationAllowed(
             user.email,
             invitationId,
+            { allowInvitationByEmail: isOAuthCallbackPath(ctx?.path) },
           );
           if (!result.allowed) {
             throw new APIError("FORBIDDEN", {
@@ -543,8 +639,8 @@ export const auth = betterAuth({
           // transaction then sees totalUserCount > 1 and skips.
           //
           // Note: we count total users (not admins) so that upgrading
-          // an existing instance — where every existing user has
-          // role=NULL from the new column — doesn't promote the next
+          // an existing instance (where every existing user has
+          // role=NULL from the new column) doesn't promote the next
           // signup to admin (qodo bot #4).
           await db.transaction(async (tx) => {
             await tx.execute(sql`SELECT pg_advisory_xact_lock(2026)`);
@@ -584,7 +680,7 @@ export const auth = betterAuth({
       // shuts that path off without affecting self-hosted instances.
       if (ctx.path === "/organization/invite-member" && isCloud()) {
         // `before` hooks don't auto-populate ctx.context.session; load it
-        // explicitly. `disableRefresh` keeps this gate cheap — we only need
+        // explicitly. `disableRefresh` keeps this gate cheap: we only need
         // the user record, not a session refresh side-effect.
         const session = await getSessionFromCtx(ctx, {
           disableRefresh: true,
@@ -701,13 +797,14 @@ export const auth = betterAuth({
     }),
   },
   advanced: {
-    defaultCookieAttributes: {
-      // For cross-subdomain auth with HTTPS, use sameSite: "none" with secure: true
-      // For same-domain or HTTP deployments, use sameSite: "lax" with secure: false
-      sameSite: isCrossSubdomain && isHttps ? "none" : "lax",
-      secure: isCrossSubdomain && isHttps, // must be true when sameSite is "none"
-      partitioned: isCrossSubdomain && isHttps,
-      domain: process.env.COOKIE_DOMAIN || undefined, // Optional: e.g., ".andrej.com" for explicit cross-subdomain cookies
+    ipAddress: {
+      ipAddressHeaders: ["cf-connecting-ip", "x-forwarded-for"],
+      trustedProxies: trustedProxies(),
     },
+    defaultCookieAttributes: getDefaultCookieAttributes({
+      apiUrl,
+      clientUrl,
+      cookieDomain: process.env.COOKIE_DOMAIN,
+    }),
   },
 });

@@ -127,7 +127,7 @@ function RouteComponent() {
 
             <Separator />
 
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div className="space-y-0.5">
                 <Label className="text-sm font-medium">
                   {t("settings:projectVisibility.publicUrl")}
@@ -136,8 +136,8 @@ function RouteComponent() {
                   {t("settings:projectVisibility.publicUrlHint")}
                 </p>
               </div>
-              <div className="flex items-center gap-2">
-                <Input readOnly value={publicUrl} className="w-96" />
+              <div className="flex w-full min-w-0 items-center gap-2 sm:w-auto">
+                <Input readOnly value={publicUrl} className="w-full sm:w-96" />
                 <Button
                   size="sm"
                   onClick={() => {

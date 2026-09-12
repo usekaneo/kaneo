@@ -3,19 +3,30 @@ name: Publish MCP Package
 on:
   release:
     types: [published]
+  push:
+    branches: [main]
+    paths:
+      - packages/mcp/package.json
+      - packages/mcp/server.json
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
+
+concurrency:
+  group: publish-mcp
+  cancel-in-progress: false
 
 jobs:
   publish:
     runs-on: ubuntu-24.04
-    if: ${{ startsWith(github.event.release.tag_name, 'mcp-v') }}
+    if: ${{ github.event_name == 'push' || startsWith(github.event.release.tag_name, 'mcp-v') }}
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
@@ -23,11 +34,10 @@ jobs:
           version: 10.32.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
-          node-version: 20.19.0
+          node-version: 24.19.0
           cache: pnpm
-          registry-url: https://registry.npmjs.org
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -38,6 +48,7 @@ jobs:
           pnpm --filter @kaneo/mcp build
 
       - name: Validate MCP release tag
+        if: ${{ github.event_name == 'release' }}
         run: |
           PACKAGE_VERSION=$(node -p "require('./packages/mcp/package.json').version")
           TAG_VERSION="${GITHUB_REF_NAME#mcp-v}"
@@ -69,5 +80,36 @@ jobs:
         run: |
           cd packages/mcp
           npm publish --access public --provenance
+
+      - name: Publish to the MCP Registry
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./packages/mcp/package.json').version")
+          IN_REGISTRY=$(curl -s "https://registry.modelcontextprotocol.io/v0/servers?search=io.github.usekaneo/kaneo" \
+            | jq -r --arg v "$PACKAGE_VERSION" '[.servers[]? | (.server // .) | select(.name == "io.github.usekaneo/kaneo" and .version == $v)] | length')
+          if [ "$IN_REGISTRY" != "0" ]; then
+            echo "io.github.usekaneo/kaneo@${PACKAGE_VERSION} is already in the MCP Registry; skipping."
+            exit 0
+          fi
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+          cd packages/mcp
+          jq --arg v "$PACKAGE_VERSION" '.version = $v | .packages[0].version = $v' server.json > server.tmp && mv server.tmp server.json
+          ../../mcp-publisher login github-oidc
+          ../../mcp-publisher publish
+
+      - name: Create MCP release
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./packages/mcp/package.json').version")
+
+          if gh release view "mcp-v${PACKAGE_VERSION}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            echo "Release mcp-v${PACKAGE_VERSION} already exists; skipping."
+            exit 0
+          fi
+
+          gh release create "mcp-v${PACKAGE_VERSION}" \
+            --target "${GITHUB_SHA}" \
+            --title "@kaneo/mcp v${PACKAGE_VERSION}" \
+            --notes "Published [@kaneo/mcp@${PACKAGE_VERSION}](https://www.npmjs.com/package/@kaneo/mcp/v/${PACKAGE_VERSION}) to npm." \
+            --latest=false
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GH_TOKEN: ${{ github.token }}

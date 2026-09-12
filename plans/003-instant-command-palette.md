@@ -1,4 +1,4 @@
-# 003 — Command palette and search open instantly
+# 003: Command palette and search open instantly
 
 - **Status**: DONE
 - **Commit**: 813dcb36
@@ -26,4 +26,4 @@ Add an `instant?: boolean` prop to the command dialog popup/overlay in `ui/comma
 ## Verification
 
 - Mechanical: `pnpm --filter @kaneo/web build`.
-- Feel: hit Cmd+K repeatedly — the palette appears/disappears with zero transition, like Raycast. Regular dialogs (create task) still animate.
+- Feel: hit Cmd+K repeatedly; the palette appears/disappears with zero transition, like Raycast. Regular dialogs (create task) still animate.

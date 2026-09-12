@@ -1,0 +1,63 @@
+name: Validate Helm chart
+
+on:
+  workflow_call:
+
+env:
+  CHART_PATH: charts/kaneo
+
+jobs:
+  validate:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: default
+            args: >-
+              --set kaneo.env.authSecret=secure-auth-secret-at-least-32-characters
+          - name: ingress
+            args: >-
+              --set ingress.enabled=true
+              --set kaneo.env.authSecret=secure-auth-secret-at-least-32-characters
+              --set postgresql.auth.password=secure-db-password
+          - name: gateway
+            args: >-
+              --set gateway.enabled=true
+              --set gateway.parentRefs[0].name=gateway
+              --set kaneo.env.authSecret=secure-auth-secret-at-least-32-characters
+              --set postgresql.auth.password=secure-db-password
+          - name: autoscaling
+            args: >-
+              --set autoscaling.enabled=true
+              --set kaneo.resources.requests.cpu=100m
+              --set kaneo.env.authSecret=secure-auth-secret-at-least-32-characters
+          - name: external-database
+            args: >-
+              --set postgresql.enabled=false
+              --set kaneo.env.database.external.enabled=true
+              --set kaneo.env.database.external.host=db.example.com
+              --set kaneo.env.database.external.password=secure-db-password
+              --set kaneo.env.authSecret=secure-auth-secret-at-least-32-characters
+          - name: bundled-postgresql-secret
+            args: >-
+              --set postgresql.auth.existingSecret=kaneo-secrets
+              --set kaneo.env.authSecret=secure-auth-secret-at-least-32-characters
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Helm
+        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5
+
+      - name: Lint chart
+        run: helm lint "$CHART_PATH"
+
+      - name: Render chart (${{ matrix.name }})
+        run: helm template kaneo "$CHART_PATH" ${{ matrix.args }}

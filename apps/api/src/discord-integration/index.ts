@@ -1,31 +1,25 @@
 import { and, eq } from "drizzle-orm";
-import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { describeRoute, resolver, validator } from "hono-openapi";
-import * as v from "valibot";
 import db from "../database";
 import { integrationTable } from "../database/schema";
+import { deletedSchema, projectIdParam } from "../integrations/schema";
+import {
+  apiRouter,
+  type BaseVariables,
+  createRoute,
+  errorResponse,
+  jsonResponse,
+} from "../openapi";
 import {
   type DiscordConfig,
   defaultDiscordEvents,
   normalizeDiscordConfig,
   validateDiscordConfig,
 } from "../plugins/discord/config";
-import { discordIntegrationSchema } from "../schemas";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
-
-const discordIntegration = new Hono<{
-  Variables: {
-    userId: string;
-    workspaceId: string;
-    apiKey?: {
-      id: string;
-      userId: string;
-      enabled: boolean;
-    };
-  };
-}>();
+import { discordIntegrationSchema } from "./response";
+import { createDiscordBody, updateDiscordBody } from "./schema";
 
 function maskWebhookUrl(value: string): string {
   try {
@@ -85,232 +79,228 @@ async function getDiscordIntegration(projectId: string) {
   return toResponse(integration);
 }
 
-const discordEventsSchema = v.object({
-  taskCreated: v.optional(v.boolean()),
-  taskStatusChanged: v.optional(v.boolean()),
-  taskPriorityChanged: v.optional(v.boolean()),
-  taskTitleChanged: v.optional(v.boolean()),
-  taskDescriptionChanged: v.optional(v.boolean()),
-  taskCommentCreated: v.optional(v.boolean()),
+const manageAccess = [
+  workspaceAccess.fromProject("projectId"),
+  requireWorkspacePermission({ workspace: ["manage_settings"] }),
+];
+
+const getDiscordIntegrationRoute = createRoute({
+  method: "get",
+  operationId: "getDiscordIntegration",
+  path: "/project/{projectId}",
+  tags: ["Discord"],
+  summary: "Get Discord integration",
+  description:
+    "Get the Discord integration for a project, or null when none is configured.",
+  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  request: { params: projectIdParam },
+  responses: {
+    200: jsonResponse(
+      "Discord integration details, or null",
+      discordIntegrationSchema.nullable(),
+    ),
+    400: errorResponse(
+      "Unknown project, or its workspace could not be determined",
+    ),
+    403: errorResponse("No access to the project's workspace"),
+  },
 });
 
-const nullableDiscordIntegrationSchema = v.nullable(discordIntegrationSchema);
-
-discordIntegration
-  .get(
-    "/project/:projectId",
-    describeRoute({
-      operationId: "getDiscordIntegration",
-      tags: ["Discord"],
-      description: "Get Discord integration for a project",
-      responses: {
-        200: {
-          description: "Discord integration details",
-          content: {
-            "application/json": {
-              schema: resolver(nullableDiscordIntegrationSchema),
-            },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ projectId: v.string() })),
-    workspaceAccess.fromProject("projectId"),
-    async (c) => {
-      const { projectId } = c.req.valid("param");
-      const integration = await getDiscordIntegration(projectId);
-      return c.json(integration);
+const createDiscordIntegrationRoute = createRoute({
+  method: "post",
+  operationId: "createDiscordIntegration",
+  path: "/project/{projectId}",
+  tags: ["Discord"],
+  summary: "Create Discord integration",
+  description:
+    "Create or replace the Discord integration for a project. The webhook URL is checked for shape only; delivery failures surface later.",
+  middleware: manageAccess,
+  request: {
+    params: projectIdParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: createDiscordBody } },
     },
-  )
-  .post(
-    "/project/:projectId",
-    describeRoute({
-      operationId: "createDiscordIntegration",
-      tags: ["Discord"],
-      description: "Create or replace a Discord integration for a project",
-      responses: {
-        200: {
-          description: "Discord integration created successfully",
-          content: {
-            "application/json": {
-              schema: resolver(discordIntegrationSchema),
-            },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ projectId: v.string() })),
-    validator(
-      "json",
-      v.object({
-        webhookUrl: v.pipe(v.string(), v.minLength(1)),
-        channelName: v.optional(v.string()),
-        events: v.optional(discordEventsSchema),
-      }),
+  },
+  responses: {
+    200: jsonResponse(
+      "The stored integration",
+      discordIntegrationSchema.nullable(),
     ),
-    workspaceAccess.fromProject("projectId"),
-    requireWorkspacePermission({ workspace: ["manage_settings"] }),
-    async (c) => {
-      const { projectId } = c.req.valid("param");
-      const body = c.req.valid("json");
+    400: errorResponse("The webhook URL failed validation"),
+    403: errorResponse(
+      "No workspace access, or missing workspace:manage_settings",
+    ),
+  },
+});
 
-      const config = normalizeDiscordConfig({
-        webhookUrl: body.webhookUrl,
-        channelName: body.channelName,
-        events: body.events,
+const updateDiscordIntegrationRoute = createRoute({
+  method: "patch",
+  operationId: "updateDiscordIntegration",
+  path: "/project/{projectId}",
+  tags: ["Discord"],
+  summary: "Update Discord integration",
+  description:
+    "Update the Discord integration. Omitted fields keep their current value, and event toggles are merged into the existing set.",
+  middleware: manageAccess,
+  request: {
+    params: projectIdParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: updateDiscordBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse(
+      "The updated integration",
+      discordIntegrationSchema.nullable(),
+    ),
+    400: errorResponse("The resulting config failed validation"),
+    403: errorResponse(
+      "No workspace access, or missing workspace:manage_settings",
+    ),
+    404: errorResponse("Discord integration not found"),
+  },
+});
+
+const deleteDiscordIntegrationRoute = createRoute({
+  method: "delete",
+  operationId: "deleteDiscordIntegration",
+  path: "/project/{projectId}",
+  tags: ["Discord"],
+  summary: "Delete Discord integration",
+  description: "Remove the Discord integration from a project.",
+  middleware: manageAccess,
+  request: { params: projectIdParam },
+  responses: {
+    200: jsonResponse("The integration was removed", deletedSchema),
+    400: errorResponse(
+      "Unknown project, or its workspace could not be determined",
+    ),
+    403: errorResponse(
+      "No workspace access, or missing workspace:manage_settings",
+    ),
+    404: errorResponse("Discord integration not found"),
+  },
+});
+
+const discordIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
+  .openapi(getDiscordIntegrationRoute, async (c) => {
+    const { projectId } = c.req.valid("param");
+    const integration = await getDiscordIntegration(projectId);
+    return c.json(integration, 200);
+  })
+  .openapi(createDiscordIntegrationRoute, async (c) => {
+    const { projectId } = c.req.valid("param");
+    const body = c.req.valid("json");
+
+    const config = normalizeDiscordConfig({
+      webhookUrl: body.webhookUrl,
+      channelName: body.channelName,
+      events: body.events,
+    });
+
+    const validation = await validateDiscordConfig(config);
+    if (!validation.valid) {
+      throw new HTTPException(400, {
+        message: validation.errors?.join(", ") ?? "Invalid config",
       });
+    }
 
-      const validation = await validateDiscordConfig(config);
-      if (!validation.valid) {
-        throw new HTTPException(400, {
-          message: validation.errors?.join(", ") ?? "Invalid config",
-        });
-      }
-
-      await db
-        .insert(integrationTable)
-        .values({
-          projectId,
-          type: "discord",
+    await db
+      .insert(integrationTable)
+      .values({
+        projectId,
+        type: "discord",
+        config: JSON.stringify(config),
+        isActive: true,
+      })
+      .onConflictDoUpdate({
+        target: [integrationTable.projectId, integrationTable.type],
+        set: {
           config: JSON.stringify(config),
           isActive: true,
-        })
-        .onConflictDoUpdate({
-          target: [integrationTable.projectId, integrationTable.type],
-          set: {
-            config: JSON.stringify(config),
-            isActive: true,
-            updatedAt: new Date(),
-          },
-        });
-
-      const integration = await getDiscordIntegration(projectId);
-      return c.json(integration);
-    },
-  )
-  .patch(
-    "/project/:projectId",
-    describeRoute({
-      operationId: "updateDiscordIntegration",
-      tags: ["Discord"],
-      description: "Update Discord integration settings",
-      responses: {
-        200: {
-          description: "Discord integration updated successfully",
-          content: {
-            "application/json": { schema: resolver(discordIntegrationSchema) },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ projectId: v.string() })),
-    validator(
-      "json",
-      v.object({
-        webhookUrl: v.optional(v.string()),
-        channelName: v.optional(v.nullable(v.string())),
-        isActive: v.optional(v.boolean()),
-        events: v.optional(discordEventsSchema),
-      }),
-    ),
-    workspaceAccess.fromProject("projectId"),
-    requireWorkspacePermission({ workspace: ["manage_settings"] }),
-    async (c) => {
-      const { projectId } = c.req.valid("param");
-      const body = c.req.valid("json");
-
-      const existing = await db.query.integrationTable.findFirst({
-        where: and(
-          eq(integrationTable.projectId, projectId),
-          eq(integrationTable.type, "discord"),
-        ),
-      });
-
-      if (!existing) {
-        throw new HTTPException(404, {
-          message: "Discord integration not found",
-        });
-      }
-
-      const currentConfig = normalizeDiscordConfig(
-        JSON.parse(existing.config) as DiscordConfig,
-      );
-      const nextConfig = normalizeDiscordConfig({
-        webhookUrl: body.webhookUrl?.trim() || currentConfig.webhookUrl,
-        channelName:
-          body.channelName === undefined
-            ? currentConfig.channelName
-            : (body.channelName ?? undefined),
-        events: {
-          ...(currentConfig.events ?? {}),
-          ...(body.events ?? {}),
-        },
-      });
-
-      const validation = await validateDiscordConfig(nextConfig);
-      if (!validation.valid) {
-        throw new HTTPException(400, {
-          message: validation.errors?.join(", ") ?? "Invalid config",
-        });
-      }
-
-      await db
-        .update(integrationTable)
-        .set({
-          config: JSON.stringify(nextConfig),
-          isActive:
-            body.isActive !== undefined
-              ? body.isActive
-              : (existing.isActive ?? true),
           updatedAt: new Date(),
-        })
-        .where(eq(integrationTable.id, existing.id));
-
-      const integration = await getDiscordIntegration(projectId);
-      return c.json(integration);
-    },
-  )
-  .delete(
-    "/project/:projectId",
-    describeRoute({
-      operationId: "deleteDiscordIntegration",
-      tags: ["Discord"],
-      description: "Delete Discord integration for a project",
-      responses: {
-        200: {
-          description: "Discord integration deleted successfully",
-          content: {
-            "application/json": {
-              schema: resolver(v.object({ success: v.boolean() })),
-            },
-          },
         },
-      },
-    }),
-    validator("param", v.object({ projectId: v.string() })),
-    workspaceAccess.fromProject("projectId"),
-    requireWorkspacePermission({ workspace: ["manage_settings"] }),
-    async (c) => {
-      const { projectId } = c.req.valid("param");
-
-      const existing = await db.query.integrationTable.findFirst({
-        where: and(
-          eq(integrationTable.projectId, projectId),
-          eq(integrationTable.type, "discord"),
-        ),
       });
 
-      if (!existing) {
-        throw new HTTPException(404, {
-          message: "Discord integration not found",
-        });
-      }
+    const integration = await getDiscordIntegration(projectId);
+    return c.json(integration, 200);
+  })
+  .openapi(updateDiscordIntegrationRoute, async (c) => {
+    const { projectId } = c.req.valid("param");
+    const body = c.req.valid("json");
 
-      await db
-        .delete(integrationTable)
-        .where(eq(integrationTable.id, existing.id));
-      return c.json({ success: true });
-    },
-  );
+    const existing = await db.query.integrationTable.findFirst({
+      where: and(
+        eq(integrationTable.projectId, projectId),
+        eq(integrationTable.type, "discord"),
+      ),
+    });
+
+    if (!existing) {
+      throw new HTTPException(404, {
+        message: "Discord integration not found",
+      });
+    }
+
+    const currentConfig = normalizeDiscordConfig(
+      JSON.parse(existing.config) as DiscordConfig,
+    );
+    const nextConfig = normalizeDiscordConfig({
+      webhookUrl: body.webhookUrl?.trim() || currentConfig.webhookUrl,
+      channelName:
+        body.channelName === undefined
+          ? currentConfig.channelName
+          : (body.channelName ?? undefined),
+      events: {
+        ...(currentConfig.events ?? {}),
+        ...(body.events ?? {}),
+      },
+    });
+
+    const validation = await validateDiscordConfig(nextConfig);
+    if (!validation.valid) {
+      throw new HTTPException(400, {
+        message: validation.errors?.join(", ") ?? "Invalid config",
+      });
+    }
+
+    await db
+      .update(integrationTable)
+      .set({
+        config: JSON.stringify(nextConfig),
+        isActive:
+          body.isActive !== undefined
+            ? body.isActive
+            : (existing.isActive ?? true),
+        updatedAt: new Date(),
+      })
+      .where(eq(integrationTable.id, existing.id));
+
+    const integration = await getDiscordIntegration(projectId);
+    return c.json(integration, 200);
+  })
+  .openapi(deleteDiscordIntegrationRoute, async (c) => {
+    const { projectId } = c.req.valid("param");
+
+    const existing = await db.query.integrationTable.findFirst({
+      where: and(
+        eq(integrationTable.projectId, projectId),
+        eq(integrationTable.type, "discord"),
+      ),
+    });
+
+    if (!existing) {
+      throw new HTTPException(404, {
+        message: "Discord integration not found",
+      });
+    }
+
+    await db
+      .delete(integrationTable)
+      .where(eq(integrationTable.id, existing.id));
+    return c.json({ success: true }, 200);
+  });
 
 export default discordIntegration;

@@ -43,6 +43,33 @@ describe("createBranchRegex", () => {
   });
 });
 
+describe("branch names round trip", () => {
+  // slugify keeps only ASCII alphanumerics, so a title written in any other
+  // script leaves nothing where {title} goes. Four of the eight patterns
+  // offered in the integration settings carry {title}.
+  const pattern = "{slug}-{number}-{title}";
+  const config = { ...baseConfig, branchPattern: pattern };
+
+  it.each([
+    ["Проверка входа", "Cyrillic"],
+    ["ログイン修正", "Japanese"],
+    ["登录修复", "Chinese"],
+    ["수정", "Korean"],
+    ["Διόρθωση", "Greek"],
+  ])("matches the branch it generated for %s (%s)", (title) => {
+    const branch = generateBranchName(pattern, "KAN", 42, title);
+
+    expect(extractTaskNumberFromBranch(branch, config, "KAN")).toBe(42);
+  });
+
+  it("matches the branch it generated for a Latin title", () => {
+    const branch = generateBranchName(pattern, "KAN", 42, "Fix the login bug");
+
+    expect(branch).toBe("kan-42-fix-the-login-bug");
+    expect(extractTaskNumberFromBranch(branch, config, "KAN")).toBe(42);
+  });
+});
+
 describe("extractTaskNumberFromBranch", () => {
   it("uses the default branch pattern", () => {
     expect(

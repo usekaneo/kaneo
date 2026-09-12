@@ -2,6 +2,7 @@ import { HTTPException } from "hono/http-exception";
 import { normalizeGiteaBaseUrl } from "../../plugins/gitea/config";
 import {
   createGiteaClient,
+  GiteaApiError,
   verifyGiteaToken,
 } from "../../plugins/gitea/utils/gitea-api";
 
@@ -18,7 +19,25 @@ async function verifyGiteaAccess({
 }) {
   try {
     const normalized = normalizeGiteaBaseUrl(baseUrl);
-    await verifyGiteaToken(normalized, accessToken);
+    try {
+      await verifyGiteaToken(normalized, accessToken);
+    } catch (error) {
+      // A 404 from /user means the URL does not point at a Gitea instance
+      // (or the token endpoint is misrouted), not a repository lookup
+      // failure. Treat it like any other non-Gitea-instance signal.
+      if (error instanceof GiteaApiError && error.status === 404) {
+        return {
+          isInstalled: false,
+          hasRequiredPermissions: false,
+          repositoryExists: false,
+          repositoryPrivate: null,
+          missingPermissions: [] as string[],
+          message: "The URL does not point to a Gitea instance.",
+          failureReason: "not_a_gitea_instance" as const,
+        };
+      }
+      throw error;
+    }
 
     const client = createGiteaClient({
       baseUrl: normalized,
@@ -39,9 +58,36 @@ async function verifyGiteaAccess({
       message: hasIssuesWrite
         ? "Token can access the repository."
         : "Token may not have sufficient permissions to manage issues.",
+      failureReason: null,
     };
   } catch (error) {
     const err = error as { status?: number; message?: string };
+
+    if (error instanceof GiteaApiError) {
+      if (error.kind === "REDIRECT") {
+        return {
+          isInstalled: false,
+          hasRequiredPermissions: false,
+          repositoryExists: false,
+          repositoryPrivate: null,
+          missingPermissions: [] as string[],
+          message: `The Gitea URL redirected (HTTP ${error.status}). This usually means the server forces HTTPS. Please use the final URL directly.`,
+          failureReason: "redirected" as const,
+        };
+      }
+
+      if (error.kind === "INVALID_JSON") {
+        return {
+          isInstalled: false,
+          hasRequiredPermissions: false,
+          repositoryExists: false,
+          repositoryPrivate: null,
+          missingPermissions: [] as string[],
+          message: "The URL does not point to a Gitea instance.",
+          failureReason: "not_a_gitea_instance" as const,
+        };
+      }
+    }
 
     if (err.status === 404) {
       return {
@@ -51,6 +97,7 @@ async function verifyGiteaAccess({
         repositoryPrivate: null,
         missingPermissions: [] as string[],
         message: "Repository not found or not accessible with this token.",
+        failureReason: "repository_not_found" as const,
       };
     }
 

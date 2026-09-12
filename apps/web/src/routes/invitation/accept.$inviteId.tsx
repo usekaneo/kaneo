@@ -10,6 +10,7 @@ import {
   Clock,
   Loader2,
   LogIn,
+  UserPlus,
   Users,
   XCircle,
 } from "lucide-react";
@@ -92,6 +93,17 @@ function AcceptInvitation() {
     });
   };
 
+  // Invitees without an account need the sign-up page: sign-in cannot create
+  // one. Both flows forward the invitation id, which is what allows account
+  // creation on instances running with DISABLE_REGISTRATION=true.
+  const handleCreateAccount = () => {
+    const email = invitationData?.invitation?.email;
+    navigate({
+      to: "/auth/sign-up",
+      search: { invitationId: inviteId, email },
+    });
+  };
+
   if (isLoading) {
     return (
       <>
@@ -120,8 +132,12 @@ function AcceptInvitation() {
                 {t("auth:invitation.errorLoadDescription")}
               </AlertDescription>
             </Alert>
-            <Button asChild variant="outline" className="w-full">
-              <Link to="/auth/sign-in">{t("auth:invitation.goToSignIn")}</Link>
+            <Button
+              render={<Link to="/auth/sign-in" />}
+              variant="outline"
+              className="w-full"
+            >
+              {t("auth:invitation.goToSignIn")}
             </Button>
           </div>
         </AuthLayout>
@@ -161,8 +177,12 @@ function AcceptInvitation() {
               )}
             </div>
 
-            <Button asChild variant="outline" className="w-full">
-              <Link to="/auth/sign-in">{t("auth:invitation.goToSignIn")}</Link>
+            <Button
+              render={<Link to="/auth/sign-in" />}
+              variant="outline"
+              className="w-full"
+            >
+              {t("auth:invitation.goToSignIn")}
             </Button>
           </div>
         </AuthLayout>
@@ -231,10 +251,12 @@ function AcceptInvitation() {
                 )}
               </Button>
 
-              <Button asChild variant="outline" className="w-full">
-                <Link to="/dashboard">
-                  {t("auth:invitation.goToDashboard")}
-                </Link>
+              <Button
+                render={<Link to="/dashboard" />}
+                variant="outline"
+                className="w-full"
+              >
+                {t("auth:invitation.goToDashboard")}
               </Button>
             </div>
 
@@ -276,12 +298,17 @@ function AcceptInvitation() {
               />
             </p>
             <p className="text-sm text-muted-foreground">
-              {t("auth:invitation.signInToAccept")}
+              {t("auth:invitation.createAccountOrSignIn")}
             </p>
           </div>
 
           <div className="space-y-3 pt-2">
-            <Button onClick={handleSignIn} className="w-full">
+            <Button onClick={handleCreateAccount} className="w-full">
+              <UserPlus className="w-4 h-4 mr-2" />
+              {t("auth:invitation.createAccount")}
+            </Button>
+
+            <Button onClick={handleSignIn} variant="outline" className="w-full">
               <LogIn className="w-4 h-4 mr-2" />
               {t("auth:invitation.signIn")}
             </Button>

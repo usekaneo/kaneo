@@ -4,8 +4,28 @@ export type DueDateStatus =
   | "far-future"
   | "no-due-date";
 
-export function getDueDateStatus(dueDate: string | null): DueDateStatus {
+type CompletionColumn = { slug: string; isFinal: boolean };
+
+// Columns are user-configurable, so completion comes from the column's isFinal
+// flag. The slug check is the fallback for surfaces that render before columns
+// load, or that never have them.
+export function isTaskCompleted(
+  status: string,
+  columns?: CompletionColumn[],
+): boolean {
+  if (columns?.length) {
+    return columns.find((column) => column.slug === status)?.isFinal ?? false;
+  }
+  return status === "done" || status === "archived";
+}
+
+export function getDueDateStatus(
+  dueDate: string | null,
+  isCompleted = false,
+): DueDateStatus {
   if (!dueDate) return "no-due-date";
+  // A finished task cannot be late, so it keeps the neutral badge.
+  if (isCompleted) return "far-future";
 
   const now = new Date();
   const due = new Date(dueDate);

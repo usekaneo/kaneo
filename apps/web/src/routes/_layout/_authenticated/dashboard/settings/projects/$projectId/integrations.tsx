@@ -2,19 +2,21 @@ import { createFileRoute } from "@tanstack/react-router";
 import {
   ChevronDown,
   FolderGit,
-  Github,
   MessageCircle,
   Radio,
   Send,
+  Server,
   Webhook,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { GithubIcon } from "@/components/icons/github-icon";
 import PageTitle from "@/components/page-title";
 import { DiscordIntegrationSettings } from "@/components/project/discord-integration-settings";
 import { GenericWebhookIntegrationSettings } from "@/components/project/generic-webhook-integration-settings";
 import { GiteaIntegrationSettings } from "@/components/project/gitea-integration-settings";
 import { GitHubIntegrationSettings } from "@/components/project/github-integration-settings";
+import { MattermostIntegrationSettings } from "@/components/project/mattermost-integration-settings";
 import { SlackIntegrationSettings } from "@/components/project/slack-integration-settings";
 import { TelegramIntegrationSettings } from "@/components/project/telegram-integration-settings";
 import {
@@ -48,7 +50,7 @@ function RouteComponent() {
 
         <div className="space-y-6">
           <IntegrationSection
-            icon={<Github className="size-4" />}
+            icon={<GithubIcon className="size-4" />}
             subtitle={t("settings:projectIntegrations.githubSectionSubtitle")}
             title={t("settings:projectIntegrations.githubSectionTitle")}
           >
@@ -87,6 +89,16 @@ function RouteComponent() {
             title={t("settings:projectIntegrations.slackSectionTitle")}
           >
             <SlackIntegrationSettings projectId={projectId} />
+          </IntegrationSection>
+
+          <IntegrationSection
+            icon={<Server className="size-4" />}
+            subtitle={t(
+              "settings:projectIntegrations.mattermostSectionSubtitle",
+            )}
+            title={t("settings:projectIntegrations.mattermostSectionTitle")}
+          >
+            <MattermostIntegrationSettings projectId={projectId} />
           </IntegrationSection>
 
           <IntegrationSection

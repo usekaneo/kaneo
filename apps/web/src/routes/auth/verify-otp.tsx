@@ -77,10 +77,18 @@ function VerifyOtp() {
     async (data: VerifyOtpFormValues) => {
       setIsPending(true);
       try {
-        const result = await authClient.signIn.emailOtp({
-          email,
-          otp: data.otp,
-        });
+        // A first-time OTP sign-in creates the account, so instances with
+        // DISABLE_REGISTRATION=true reject it unless the request carries the
+        // invitation the visitor arrived with.
+        const result = await authClient.signIn.emailOtp(
+          {
+            email,
+            otp: data.otp,
+          },
+          invitationId
+            ? { headers: { "x-invitation-id": invitationId } }
+            : undefined,
+        );
 
         if (result.error) {
           toast.error(

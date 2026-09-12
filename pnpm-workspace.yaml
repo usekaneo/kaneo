@@ -1,6 +1,37 @@
 packages:
   - packages/**
   - apps/**
+overrides:
+  '@isaacs/brace-expansion': 5.0.1
+  '@hono/node-server': '>=1.19.13'
+  ajv: 8.18.0
+  diff: 8.0.3
+  esbuild: 0.28.1
+  express-rate-limit: 8.2.2
+  hono: '>=4.12.25'
+  lodash: 4.18.0
+  markdown-it: 14.1.1
+  minimatch: 10.2.3
+  rollup: 4.59.0
+  seroval: '>=1.5.3'
+  effect: '>=3.20.0'
+  fast-xml-parser: '>=5.5.7'
+  socket.io-parser: '>=4.2.7'
+  picomatch: '>=4.0.4'
+  path-to-regexp: '>=8.4.0'
+  brace-expansion: '>=5.0.9'
+  yaml: '>=2.8.3'
+  qs: '>=6.15.2'
+  ws: '>=8.20.1'
+  ip-address: 10.3.1
+  postcss: '>=8.5.23'
+  sharp: '>=0.35.0'
+  engine.io: '>=6.6.7'
+  valibot: '>=1.4.2'
+  better-auth: 1.6.25
+  undici: '>=7.29.0 <8'
+  js-yaml: '>=4.2.0 <5'
+  '@babel/core': '>=7.29.6 <8'
 onlyBuiltDependencies:
   - '@biomejs/biome'
   - bcrypt

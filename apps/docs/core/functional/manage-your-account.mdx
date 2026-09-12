@@ -1,0 +1,41 @@
+---
+title: Manage Your Account
+description: Change your profile picture and understand what deleting your account does
+---
+
+Your profile picture and your account itself are both managed from **Settings -> Account -> Information**.
+
+## Change your profile picture
+
+1. Go to **Settings**.
+2. Open **Account -> Information**.
+3. Click your picture and choose **Change avatar**.
+4. Pick any image. It is cropped to a square and resized to 256x256 before it is uploaded.
+
+Choose **Remove avatar** to go back to your initials. Pictures are stored in your Kaneo database, so self-hosted instances need no object storage for this and a normal database backup includes them.
+
+## Delete your account
+
+1. Go to **Settings**.
+2. Open **Account -> Information**.
+3. Under **Danger zone**, select **Delete account**.
+4. Type your email address to confirm, then select **Delete account**.
+
+Deleting your account cannot be undone.
+
+### What happens to your data
+
+- Workspaces where you are the only member are deleted along with everything in them.
+- In workspaces shared with other people, you are removed as a member. Tasks assigned to you stay and become unassigned, and time you logged stays on those tasks.
+- Comments you wrote are removed.
+- Your API keys and sessions are revoked.
+
+### When deletion is refused
+
+- **You are the only owner of a shared workspace.** Transfer ownership from **Settings -> Workspace -> General**, or delete the workspace first.
+- **A workspace still has an active subscription.** Cancel it under **Settings -> Workspace -> Billing** first, so you are not charged for a workspace you can no longer reach.
+- **You signed in a while ago.** For security, sign out and sign back in, then try again.
+
+<Note>
+  On Kaneo Cloud, a free trial is tied to your email address. Deleting your account and signing up again does not start a new trial.
+</Note>

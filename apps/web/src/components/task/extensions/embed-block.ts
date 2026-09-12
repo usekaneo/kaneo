@@ -1,24 +1,8 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import { i18n } from "@/lib/i18n";
+import { escapeHtml, isValidUrl } from "./url-safety";
 
 type EmbedMode = "embed" | "link";
-
-function isValidUrl(value: string) {
-  try {
-    const url = new URL(value);
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/"/g, "&quot;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
 
 function getEmbedSource(url: string) {
   try {

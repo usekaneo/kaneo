@@ -34,7 +34,7 @@ export function PrivateKanbanView({
             key={column.id}
             className="h-full max-w-96 min-w-80 shrink-0 flex-1"
           >
-            {/* Column wrapper — private style */}
+            {/* Column wrapper (private style) */}
             <div className="group relative flex h-full min-h-0 w-full flex-col rounded-xl border transition-all duration-300 ease-out border-border/70 bg-muted/40 shadow-xs/5 hover:border-border/90 dark:bg-card/90">
               {/* Column header */}
               <div className="shrink-0 border-b border-border/60 px-3 py-2">
@@ -60,12 +60,13 @@ export function PrivateKanbanView({
                     key={task.id}
                     task={task}
                     projectSlug={project.slug}
+                    isCompleted={column.isFinal}
                     onTaskClick={onTaskClick}
                   />
                 ))}
               </div>
 
-              {/* Add task footer — reveals on column hover */}
+              {/* Add task footer, revealed on column hover */}
               <div className="shrink-0 border-t border-border/60 p-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-150">
                 <button
                   type="button"

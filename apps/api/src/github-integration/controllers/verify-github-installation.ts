@@ -1,138 +1,161 @@
 import { HTTPException } from "hono/http-exception";
 import { getGithubApp } from "../../plugins/github/utils/github-app";
 
+type VerificationResult = {
+  isInstalled: boolean;
+  installationId: number | null;
+  repositoryExists: boolean | null;
+  repositoryPrivate: boolean | null;
+  permissions: Record<string, string> | null;
+  hasRequiredPermissions: boolean;
+  missingPermissions: string[];
+  message: string;
+  settingsUrl?: string;
+  installationUrl?: string;
+};
+
+function isGithubNotFound(error: unknown): boolean {
+  const status = (error as { status?: number })?.status;
+  return status === 404;
+}
+
+function appInstallUrl(): string | undefined {
+  return process.env.GITHUB_APP_NAME
+    ? `https://github.com/apps/${process.env.GITHUB_APP_NAME}`
+    : undefined;
+}
+
+function newInstallUrl(targetId?: number): string | undefined {
+  if (!process.env.GITHUB_APP_NAME) return undefined;
+  const base = `https://github.com/apps/${process.env.GITHUB_APP_NAME}/installations/new`;
+  return typeof targetId === "number" && Number.isFinite(targetId)
+    ? `${base}/permissions?target_id=${targetId}`
+    : `${base}/permissions`;
+}
+
+function settingsUrlFor(installationId: number): string {
+  return `https://github.com/settings/installations/${installationId}`;
+}
+
 async function verifyGithubInstallation({
   repositoryOwner,
   repositoryName,
 }: {
   repositoryOwner: string;
   repositoryName: string;
-}) {
+}): Promise<VerificationResult> {
   const githubApp = getGithubApp();
 
+  if (!githubApp) {
+    throw new HTTPException(500, {
+      message: "GitHub app not configured",
+    });
+  }
+
+  let installation: { id: number; permissions?: Record<string, string> };
   try {
-    if (!githubApp) {
-      throw new HTTPException(500, {
-        message: "GitHub app not configured",
-      });
-    }
-
-    const { data: installation } =
-      await githubApp.octokit.rest.apps.getRepoInstallation({
-        owner: repositoryOwner,
-        repo: repositoryName,
-      });
-
-    const octokit = await githubApp.getInstallationOctokit(installation.id);
-    const { data: repo } = await octokit.rest.repos.get({
+    const { data } = await githubApp.octokit.rest.apps.getRepoInstallation({
       owner: repositoryOwner,
       repo: repositoryName,
     });
-
-    const requiredPermissions = ["issues"];
-    const hasRequiredPermissions = checkPermissions(
-      installation.permissions,
-      requiredPermissions,
-    );
-    const missingPermissions = getMissingPermissions(
-      installation.permissions,
-      requiredPermissions,
-    );
-
-    if (!hasRequiredPermissions) {
+    installation = data;
+  } catch (error) {
+    if (isGithubNotFound(error)) {
       return {
-        isInstalled: true,
-        installationId: installation.id,
-        repositoryExists: true,
-        repositoryPrivate: repo.private,
-        permissions: installation.permissions,
+        isInstalled: false,
+        installationId: null,
+        repositoryExists: null,
+        repositoryPrivate: null,
+        permissions: null,
         hasRequiredPermissions: false,
-        missingPermissions,
-        message: `GitHub App is installed but missing required permissions: ${missingPermissions.join(", ")}`,
-        settingsUrl: `https://github.com/settings/installations/${installation.id}`,
-        installationUrl: process.env.GITHUB_APP_NAME
-          ? `https://github.com/apps/${process.env.GITHUB_APP_NAME}/installations/new/permissions?target_id=${repo.id}`
-          : undefined,
+        missingPermissions: [],
+        message:
+          "GitHub App is not installed on this repository or the repository is not accessible",
+        installationUrl: newInstallUrl(),
+        settingsUrl: appInstallUrl(),
       };
     }
 
+    throw new HTTPException(500, {
+      message: `Failed to verify GitHub installation: ${(error as Error).message || "Unknown error"}`,
+    });
+  }
+
+  let repo: {
+    id: number;
+    private: boolean;
+    owner: { id: number; login: string };
+  };
+  try {
+    const installationOctokit = await githubApp.getInstallationOctokit(
+      installation.id,
+    );
+    const { data } = await installationOctokit.rest.repos.get({
+      owner: repositoryOwner,
+      repo: repositoryName,
+    });
+    repo = data;
+  } catch (error) {
+    if (isGithubNotFound(error)) {
+      return {
+        isInstalled: true,
+        installationId: installation.id,
+        repositoryExists: false,
+        repositoryPrivate: null,
+        permissions: installation.permissions ?? null,
+        hasRequiredPermissions: false,
+        missingPermissions: [],
+        message:
+          "GitHub App is installed but the repository is no longer accessible",
+        settingsUrl: settingsUrlFor(installation.id),
+        installationUrl: appInstallUrl(),
+      };
+    }
+
+    throw new HTTPException(500, {
+      message: `Failed to verify GitHub installation: ${(error as Error).message || "Unknown error"}`,
+    });
+  }
+
+  const requiredPermissions = ["issues"];
+  const hasRequiredPermissions = checkPermissions(
+    installation.permissions,
+    requiredPermissions,
+  );
+  const missingPermissions = getMissingPermissions(
+    installation.permissions,
+    requiredPermissions,
+  );
+  const accountId = repo.owner.id;
+
+  if (!hasRequiredPermissions) {
     return {
       isInstalled: true,
       installationId: installation.id,
       repositoryExists: true,
       repositoryPrivate: repo.private,
-      permissions: installation.permissions,
-      hasRequiredPermissions: true,
-      missingPermissions: [],
-      installationUrl: `https://github.com/apps/${process.env.GITHUB_APP_NAME}/installations/new/permissions?target_id=${repo.id}`,
-      message:
-        "GitHub App is properly installed and has all required permissions",
-      settingsUrl: `https://github.com/settings/installations/${installation.id}`,
+      permissions: installation.permissions ?? null,
+      hasRequiredPermissions: false,
+      missingPermissions,
+      message: `GitHub App is installed but missing required permissions: ${missingPermissions.join(", ")}`,
+      settingsUrl: settingsUrlFor(installation.id),
+      installationUrl: newInstallUrl(accountId),
     };
-  } catch (error) {
-    const githubError = error as { status?: number; message?: string };
-
-    if (githubError.status === 404) {
-      try {
-        if (!githubApp) {
-          throw new HTTPException(500, {
-            message: "GitHub app not configured",
-          });
-        }
-
-        await githubApp.octokit.rest.repos.get({
-          owner: repositoryOwner,
-          repo: repositoryName,
-        });
-
-        const repoId = await getRepositoryId(repositoryOwner, repositoryName);
-
-        return {
-          isInstalled: false,
-          installationId: null,
-          repositoryExists: true,
-          repositoryPrivate: null,
-          permissions: null,
-          hasRequiredPermissions: false,
-          missingPermissions: [],
-          message: "Repository exists but GitHub App is not installed",
-          installationUrl: process.env.GITHUB_APP_NAME
-            ? `https://github.com/apps/${process.env.GITHUB_APP_NAME}/installations/new/permissions?target_id=${repoId}`
-            : undefined,
-          settingsUrl: process.env.GITHUB_APP_NAME
-            ? `https://github.com/apps/${process.env.GITHUB_APP_NAME}`
-            : undefined,
-        };
-      } catch (repoError) {
-        const repoGithubError = repoError as {
-          status?: number;
-          message?: string;
-        };
-
-        if (repoGithubError.status === 404) {
-          return {
-            isInstalled: false,
-            installationId: null,
-            repositoryExists: false,
-            repositoryPrivate: null,
-            permissions: null,
-            hasRequiredPermissions: false,
-            missingPermissions: [],
-            settingsUrl: undefined,
-            installationUrl: undefined,
-            message: "Repository does not exist or is not accessible",
-          };
-        }
-        throw new HTTPException(500, {
-          message: `Failed to verify GitHub installation: ${repoGithubError.status || repoGithubError.message || "Unknown error"}`,
-        });
-      }
-    }
-
-    throw new HTTPException(500, {
-      message: `Failed to verify GitHub installation: ${githubError.message || "Unknown error"}`,
-    });
   }
+
+  return {
+    isInstalled: true,
+    installationId: installation.id,
+    repositoryExists: true,
+    repositoryPrivate: repo.private,
+    permissions: installation.permissions ?? null,
+    hasRequiredPermissions: true,
+    missingPermissions: [],
+    message:
+      "GitHub App is properly installed and has all required permissions",
+    settingsUrl: settingsUrlFor(installation.id),
+    installationUrl: newInstallUrl(accountId),
+  };
 }
 
 function checkPermissions(
@@ -157,26 +180,6 @@ function getMissingPermissions(
     const permissionLevel = permissions[perm];
     return permissionLevel !== "write" && permissionLevel !== "admin";
   });
-}
-
-async function getRepositoryId(owner: string, repo: string): Promise<number> {
-  const githubApp = getGithubApp();
-
-  try {
-    if (!githubApp) {
-      throw new HTTPException(500, {
-        message: "GitHub app not configured",
-      });
-    }
-
-    const { data } = await githubApp.octokit.rest.repos.get({
-      owner,
-      repo,
-    });
-    return data.id;
-  } catch {
-    return 0;
-  }
 }
 
 export default verifyGithubInstallation;

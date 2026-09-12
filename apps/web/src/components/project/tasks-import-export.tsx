@@ -137,25 +137,21 @@ export function TasksImportExport({ project }: TasksImportExportProps) {
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Button
-          className="flex items-center gap-1.5 bg-card hover:bg-accent text-foreground border border-border"
+          variant="outline"
           size="sm"
           onClick={handleExport}
           disabled={isExporting}
         >
-          {isExporting ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Download className="h-4 w-4" />
-          )}
+          {isExporting ? <Loader2 className="animate-spin" /> : <Download />}
           {t("settings:tasksImportExport.exportTasks")}
         </Button>
 
         <Button
-          className="flex items-center gap-1.5 bg-card hover:bg-accent text-foreground border border-border"
+          variant="outline"
           size="sm"
           onClick={() => setIsImportOpen(true)}
         >
-          <Upload className="h-4 w-4" />
+          <Upload />
           {t("settings:tasksImportExport.importTasks")}
         </Button>
 

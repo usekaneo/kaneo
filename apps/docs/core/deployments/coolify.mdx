@@ -1,0 +1,45 @@
+---
+title: Coolify
+description: Deploy Kaneo to Coolify using the bundled Docker Compose file.
+---
+
+## Coolify
+
+Kaneo ships a [Coolify-optimized Docker Compose file](https://github.com/usekaneo/kaneo/blob/main/compose.coolify.yml) so you can deploy the pre-built `ghcr.io/usekaneo/kaneo` image from the repository without building anything.
+
+## Deployment Steps
+
+1. **Create a new resource**: In your Coolify project, click **+ New** and choose **Public Repository**.
+2. **Enter the repository**: `https://github.com/usekaneo/kaneo` and click **Check Repository**.
+3. **Select the build pack**: Set **Build Pack** to `Docker Compose`.
+   - **Base Directory**: `/`
+   - **Docker Compose Location**: `compose.coolify.yml`
+4. **Assign a domain to the `kaneo` service**: the container listens on port `5173`, so enter `https://<your-domain>:5173`. The port only tells Coolify where to route traffic inside the container — visitors use the normal HTTPS URL (`https://<your-domain>`) without the port.
+5. **Set environment variables** (pre-filled from the compose file):
+   - `KANEO_CLIENT_URL` (required): your public URL, e.g. `https://kaneo.example.com` (no `:5173`).
+   - `AUTH_SECRET` (auto-generated 64-character hex, editable).
+   - PostgreSQL password (auto-generated, shared with both services).
+   - **Do not set `KANEO_API_URL`** to `localhost` or an internal address. Leave it unset — the container derives it from `KANEO_CLIENT_URL` (`https://kaneo.example.com/api`). The browser must reach the API over the same public domain, not a host-internal URL.
+   - `KANEO_IMAGE_TAG` (optional): the Kaneo image version to deploy. It defaults to `latest`; set it to a release tag such as `2.20.0` to hold the deployment on a known version.
+6. **Deploy**.
+
+## What the Compose File Sets Up
+
+- **PostgreSQL 16** with a persistent volume; Kaneo waits for its health check before starting.
+- **Kaneo bundled image** (nginx + API in one container) on port `5173`.
+- **Kaneo version**: the image tracks `latest`, so a redeploy picks up the newest release. The API runs database migrations on startup, so set `KANEO_IMAGE_TAG` to a release tag if you would rather upgrade deliberately.
+- **`KANEO_API_URL` is derived automatically** from `KANEO_CLIENT_URL` by the container entrypoint — no extra API URL configuration needed.
+- **No host port mappings or custom networks**: Coolify's proxy handles all external traffic.
+
+## Post-Deployment Setup
+
+1. **Create your first user**: visit your domain to create the admin account.
+2. **Email (optional)**: set the `SMTP_*` variables on the `kaneo` service in the Coolify UI.
+3. **SSO (optional)**: configure GitHub, Google, or other providers — see the [social providers](/core/social-providers/github) guides.
+
+## Troubleshooting
+
+- **"No Available Server"**: check the container health check with `docker ps`; the image needs up to 60 seconds to start.
+- **Verify environment**: ensure `KANEO_CLIENT_URL` is set to the exact public URL of your instance.
+
+For other issues, see the [troubleshooting section](/core/installation/start-services).

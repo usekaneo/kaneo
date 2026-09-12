@@ -43,8 +43,9 @@ For local development, the web app also supports:
 ### Optional Variables
 
 Kaneo supports many optional configuration options including:
+- `KANEO_INTERNAL_API_URL` - API origin used only for server-side requests from the built-in HTTP MCP endpoint. Defaults to `http://127.0.0.1:1337`; override it only if the API is not reachable there from its own process.
 - SSO providers (GitHub OAuth via `GITHUB_OAUTH_CLIENT_ID` / `GITHUB_OAUTH_CLIENT_SECRET`, Google, Discord, Custom OAuth/OIDC)
-- GitHub repository integration (GitHub App: `GITHUB_APP_ID`, `GITHUB_PRIVATE_KEY`, `GITHUB_WEBHOOK_SECRET`, optional `GITHUB_APP_NAME`) — separate from GitHub SSO
+- GitHub repository integration (GitHub App: `GITHUB_APP_ID`, `GITHUB_PRIVATE_KEY`, `GITHUB_WEBHOOK_SECRET`, optional `GITHUB_APP_NAME`), separate from GitHub SSO
 - SMTP configuration for email
 - Access control settings
 - CORS configuration
@@ -68,7 +69,7 @@ Kaneo supports three Redis deployment modes for WebSocket Pub/Sub. When any Redi
 - `REDIS_CLUSTER_NODES` - Comma-separated list of cluster seed nodes (e.g., `node-1:6379,node-2:6379,node-3:6379`)
 
 **Shared (used by Sentinel and Cluster modes):**
-- `REDIS_PASSWORD` - Password for the Redis data nodes (used by both Sentinel and Cluster modes, not for Sentinel auth itself — use `REDIS_SENTINEL_PASSWORD` for that)
+- `REDIS_PASSWORD` - Password for the Redis data nodes (used by both Sentinel and Cluster modes, not for Sentinel auth itself; use `REDIS_SENTINEL_PASSWORD` for that)
 
 > **Note:** Only one mode should be configured at a time. If multiple are set, the priority is: Cluster > Sentinel > Standalone.
 
@@ -96,6 +97,16 @@ Hosted multi-tenant instances should enable the cloud abuse gates. Self-hosted i
 - `TURNSTILE_SECRET_KEY` - Cloudflare Turnstile secret key (API container, server-side verification). When unset, captcha verification is skipped.
 - `KANEO_TURNSTILE_SITE_KEY` - Cloudflare Turnstile site key, on the **web container**. The production web image bakes the literal placeholder `KANEO_TURNSTILE_SITE_KEY` into the bundle; `apps/web/env.sh` swaps it for the runtime value when the container starts.
 - `VITE_TURNSTILE_SITE_KEY` - Local dev only. Set in `apps/web/.env` when running `pnpm dev`; Vite reads this at build/dev time. Not used in the production image.
+
+#### Sentry (error monitoring)
+
+All Sentry integration is opt-in; leave these unset for zero telemetry.
+
+- `SENTRY_DSN` - Sentry DSN for the API. When unset, the Sentry SDK never initializes.
+- `SENTRY_ENVIRONMENT` - Environment tag for API events (defaults to `NODE_ENV`).
+- `SENTRY_TRACES_SAMPLE_RATE` - Fraction of API requests to trace for performance monitoring, `0`-`1` (default: `0`, tracing off).
+- `KANEO_SENTRY_DSN` - Sentry DSN for the **web container** (browser errors, tracing, session replay). Same runtime-placeholder mechanism as `KANEO_TURNSTILE_SITE_KEY`.
+- `VITE_SENTRY_DSN` - Local dev only. Set in `apps/web/.env` when running `pnpm dev`.
 
 For a complete list of all environment variables, their descriptions, and configuration options, see the [official documentation](https://kaneo.app/docs/core/installation/environment-variables).
 

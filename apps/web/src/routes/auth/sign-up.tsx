@@ -159,7 +159,7 @@ function SignUp() {
             );
             // Hide self-service alternatives (guest + SSO) when registration
             // is disabled and the user isn't either accepting an invitation
-            // or doing first-user instance setup — otherwise the alternatives
+            // or doing first-user instance setup; otherwise the alternatives
             // would either bypass the policy or send the user into a flow
             // the backend will reject.
             const selfServiceAllowed =

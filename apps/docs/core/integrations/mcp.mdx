@@ -1,12 +1,12 @@
 ---
-title: MCP
+title: Kaneo MCP Server
 description: Connect Kaneo to MCP clients like Cursor and Claude Desktop using the official Kaneo MCP server.
 ---
 
 Kaneo supports the Model Context Protocol (MCP) in two ways:
 
-1. **Built-in HTTP endpoint** — every Kaneo instance exposes `/api/mcp` out of the box. No extra setup, no extra process.
-2. **Stdio package** (`@kaneo/mcp`) — a local stdio server for clients that prefer stdio transport.
+1. **Built-in HTTP endpoint**: every Kaneo instance exposes `/api/mcp` out of the box. No extra setup, no extra process.
+2. **Stdio package** ([`@kaneo/mcp`](https://www.npmjs.com/package/@kaneo/mcp)): the official Kaneo MCP package on npm, a local stdio server for clients that prefer stdio transport.
 
 Both offer the same tools for managing workspaces, projects, tasks, comments, and labels.
 
@@ -27,13 +27,18 @@ The endpoint implements OAuth 2.1 with PKCE for authentication. Discovery metada
 - `/.well-known/oauth-protected-resource/api/mcp`
 - `/.well-known/oauth-authorization-server/api`
 
+The endpoint serves both MCP protocol eras: modern `2026-07-28` requests are
+stateless and self-contained, while 2025-era clients keep the sessionful
+`initialize` flow. See [MCP 2026-07-28 stateless compatibility](/core/integrations/mcp-stateless)
+for the exact contract, tests, Codex configuration, limitations, and rollback.
+
 ## Stdio package
 
 The `@kaneo/mcp` package runs a local stdio MCP server and authenticates with Kaneo using device authorization. Use this when your MCP client requires stdio transport.
 
 ### Prerequisites
 
-- Node.js 20 or newer
+- Node.js 24 or newer
 - A running Kaneo API
 - Access to the Kaneo web app to approve device login
 
@@ -97,12 +102,20 @@ On the first tool call that needs Kaneo access, the MCP server:
 
 Both the HTTP endpoint and stdio package expose the same tools:
 
-- Session: `whoami`, `list_workspaces`
-- Projects: `list_projects`, `get_project`, `create_project`, `update_project`
-- Tasks: `list_tasks`, `get_task`, `create_task`, `update_task`, `move_task`, `update_task_status`
+- Session: `whoami`, `list_workspaces`, `list_workspace_members`, `list_notifications`
+- Search: `search`
+- Projects: `list_projects`, `get_project`, `create_project`, `update_project`, `list_project_columns`
+- Tasks: `list_tasks`, `get_task`, `create_task`, `update_task`, `delete_task`, `move_task`, `update_task_status`, `update_task_assignee`, `update_task_due_date`, `list_task_activity`
+- Time entries: `list_task_time_entries`, `get_time_entry`, `create_time_entry`, `update_time_entry`
 - Comments: `list_task_comments`, `create_task_comment`
 - Labels: `list_workspace_labels`, `create_label`, `attach_label_to_task`, `detach_label_from_task`, `delete_label`
 - Task relations: `create_task_relation`, `get_task_relations`, `delete_task_relation`
+
+`list_project_columns` is worth calling first when setting a status: the column
+slugs it returns are exactly the values `create_task` and `update_task_status`
+accept. Likewise `list_workspace_members` resolves the user IDs the assignee
+tools expect. Time entries have no delete endpoint on the API, so there is no
+`delete_time_entry` tool.
 
 ## Debugging
 

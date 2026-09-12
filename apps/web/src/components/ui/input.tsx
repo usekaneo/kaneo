@@ -1,6 +1,7 @@
 "use client";
 
 import { Input as InputPrimitive } from "@base-ui/react/input";
+import type { useRender } from "@base-ui/react/use-render";
 import type * as React from "react";
 
 import { cn } from "@/lib/cn";
@@ -49,7 +50,7 @@ function Input({
           className={inputClassName}
           data-slot="input"
           size={typeof size === "number" ? size : undefined}
-          {...props}
+          {...(props as useRender.ElementProps<"input">)}
         />
       ) : (
         <InputPrimitive

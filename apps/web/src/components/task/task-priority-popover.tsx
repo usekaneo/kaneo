@@ -36,8 +36,8 @@ export default function TaskPriorityPopover({
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const { mutateAsync: updateTaskPriority } = useUpdateTaskPriority();
-  const { canManageTasks } = useWorkspacePermission();
-  const canEdit = canManageTasks();
+  const { canUpdateTasks } = useWorkspacePermission();
+  const canEdit = canUpdateTasks();
 
   const handlePriorityChange = useCallback(
     async (newPriority: string) => {

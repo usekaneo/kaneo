@@ -1,0 +1,153 @@
+---
+title: Migrating to drim
+description: Move an existing Kaneo deployment onto the drim CLI, or update an older drim deployment to the current single-container layout
+---
+
+Two migrations are covered here. Both reuse your existing Docker volumes, so your database and uploads stay where they are and no data is copied.
+
+## Updating an older drim deployment
+
+Kaneo used to ship as two images, `api` and `web`, behind a reverse proxy that split traffic between them. It now ships as one container that serves the web app and the API together.
+
+`drim upgrade` pulls new images but does not rewrite an existing `docker-compose.yml`, so a deployment created before that change keeps running the old layout indefinitely. Check which one you have:
+
+```bash
+grep -E 'image:.*usekaneo' docker-compose.yml
+```
+
+Two lines with `usekaneo/api` and `usekaneo/web` mean you are on the old layout. A single `usekaneo/kaneo` line means you are already current and there is nothing to do.
+
+### Steps
+
+Back up the files you are about to edit, so you can put them back:
+
+```bash
+STAMP=$(date +%Y%m%d-%H%M%S)
+cp docker-compose.yml docker-compose.yml.bak-$STAMP
+cp Caddyfile Caddyfile.bak-$STAMP
+```
+
+Pull the image first, so the switchover is a quick container swap rather than a download:
+
+```bash
+docker pull ghcr.io/usekaneo/kaneo:latest
+```
+
+Replace the `api` and `web` services in `docker-compose.yml` with one `kaneo` service. Leave `postgres`, the volumes, and any services you added yourself untouched:
+
+```yaml
+  kaneo:
+    image: ghcr.io/usekaneo/kaneo:latest
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:5173/api/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
+    networks:
+      - kaneo
+```
+
+Update anything that pointed at the old services. In `depends_on` entries elsewhere, replace `api` and `web` with `kaneo`. In your reverse proxy, send everything to the one service instead of splitting on path, because the container routes `/api` internally:
+
+```caddyfile
+your-domain.com {
+    reverse_proxy http://kaneo:5173
+    encode gzip
+}
+```
+
+Apply it:
+
+```bash
+docker compose up -d --remove-orphans
+```
+
+<Warning>
+If your reverse proxy config is bind-mounted as a single file, recreate that container rather than reloading it. Replacing the file with `mv` gives it a new inode, and the running container keeps reading the old one, so a reload silently applies stale config:
+
+```bash
+docker compose up -d --force-recreate caddy
+```
+</Warning>
+
+### Verify
+
+```bash
+docker compose ps
+curl -s https://your-domain.com/api/health
+```
+
+You want every service up, the Kaneo container reporting healthy once its start period elapses, and `{"status":"ok"}` from the health endpoint.
+
+### Rollback
+
+Restore the backed-up files and recreate:
+
+```bash
+cp docker-compose.yml.bak-$STAMP docker-compose.yml
+cp Caddyfile.bak-$STAMP Caddyfile
+docker compose up -d --force-recreate
+```
+
+## Moving an existing Kaneo onto drim
+
+If you deployed Kaneo by hand and want drim to manage it, the goal is to have drim generate its files and then point them at the volumes you already have.
+
+Record the names of your existing volumes and your current environment values:
+
+```bash
+docker volume ls | grep -i kaneo
+```
+
+Stop the current stack, then install drim and run setup in a new directory:
+
+```bash
+docker compose down
+curl -fsSL https://assets.kaneo.app/install.sh | sh
+mkdir ~/kaneo && cd ~/kaneo
+drim setup --domain=your-domain.com
+drim stop
+```
+
+Point the generated `docker-compose.yml` at your existing database volume by declaring it external, using the exact name from `docker volume ls`:
+
+```yaml
+volumes:
+  postgres_data:
+    external: true
+    name: your_existing_volume_name
+```
+
+Copy your previous credentials into the generated `.env`, in particular `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `DATABASE_URL` and `AUTH_SECRET`. A different `AUTH_SECRET` invalidates every existing session, so reuse the old value unless you intend to sign everyone out.
+
+```bash
+drim configure   # opens .env, applies changes on save
+```
+
+Then start and verify as above.
+
+### Using your own reverse proxy
+
+If you already run nginx, Traefik or similar, choose `--no-reverse-proxy` at setup so drim does not start Caddy on ports 80 and 443, and point your proxy at Kaneo on port 5173.
+
+## Common issues
+
+**Database connection failed.** The credentials in `.env` do not match the ones the volume was created with. `DATABASE_URL` must agree with `POSTGRES_USER`, `POSTGRES_PASSWORD` and `POSTGRES_DB`.
+
+**Volume not found.** The `name:` under an external volume must match `docker volume ls` exactly, including any project-name prefix from the old deployment.
+
+**Port already in use.** Something else holds 80 or 443, usually a system nginx or the old stack still running. Stop it, or use `--no-reverse-proxy`.
+
+**Everyone was signed out.** `AUTH_SECRET` changed. Restore the previous value.
+
+## After migrating
+
+Keep the old containers' volumes until you are confident, then remove the stale containers and images. Volumes are the only thing holding your data, so remove those last and deliberately.
+
+Set up off-site backups if you have not already. A copy on the same machine does not survive losing that machine.

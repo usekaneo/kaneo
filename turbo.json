@@ -7,14 +7,21 @@
 			"inputs": ["$TURBO_DEFAULT$", ".env*"],
 			"outputs": ["dist/**"]
 		},
+		"@kaneo/site#build": {
+			"outputs": [".next/**", "!.next/cache/**", "out/**"]
+		},
 
 		"dev": {
+			"dependsOn": ["^build"],
 			"cache": false,
 			"persistent": true
 		},
 		"lint": {
-			"cache": false,
-			"persistent": true
+			"cache": false
+		},
+		"typecheck": {
+			"dependsOn": ["^build"],
+			"outputs": []
 		},
 		"test": {
 			"dependsOn": ["^build"],
@@ -24,7 +31,8 @@
 		"test:integration": {
 			"dependsOn": ["^build"],
 			"cache": false,
-			"outputs": ["coverage/**"]
+			"outputs": ["coverage/**"],
+			"env": ["DATABASE_URL"]
 		}
 	}
 }

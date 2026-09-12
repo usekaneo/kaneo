@@ -24,7 +24,7 @@ vi.mock("@/hooks/use-numbered-shortcuts", () => ({
 }));
 
 vi.mock("@/hooks/use-workspace-permission", () => ({
-  useWorkspacePermission: () => ({ canManageTasks: () => true }),
+  useWorkspacePermission: () => ({ canUpdateTasks: () => true }),
 }));
 
 vi.mock("react-i18next", () => ({

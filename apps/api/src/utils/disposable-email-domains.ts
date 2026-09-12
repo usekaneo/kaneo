@@ -4,7 +4,7 @@
 // `dwv.dropmail.me`, `xu.mimimail.me`).
 //
 // Keep this list lowercased. Add new providers as they show up in incidents;
-// don't gold-plate it with every disposable provider in existence — the goal is
+// don't gold-plate it with every disposable provider in existence; the goal is
 // to deter automated abuse, not to be airtight.
 export const DISPOSABLE_EMAIL_DOMAINS: readonly string[] = [
   "10mail.info",

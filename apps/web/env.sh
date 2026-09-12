@@ -55,14 +55,12 @@ for key in $(env | grep '^KANEO_' | grep -v 'KANEO_API_URL\|KANEO_CLIENT_URL' | 
   fi
 done
 
-# Empty any remaining `"KANEO_*"` placeholder whose env var was left unset.
+# Empty the quoted Turnstile placeholder when its env var was left unset.
 # Without this, the literal placeholder stays in the bundle and is read by
 # the frontend as a truthy string — which broke self-hosted signup when
-# KANEO_TURNSTILE_SITE_KEY was left unset (issue #1304). Apply to any future
-# runtime-substituted flag so the same trap doesn't recur.
+# KANEO_TURNSTILE_SITE_KEY was left unset (issue #1304).
 echo "Stripping unset KANEO_* placeholders..."
 find /usr/share/nginx/html -type f \( -name "*.js" -o -name "*.css" \) \
-  -exec grep -lE '"KANEO_[A-Z_]+"' {} \; \
-  | xargs -r sed -i -E 's#"KANEO_[A-Z_]+"#""#g'
+  -exec sed -i -E 's#[`"'"'"']KANEO_TURNSTILE_SITE_KEY[`"'"'"']#""#g' {} +
 
 echo "✅ Environment variable replacement complete"

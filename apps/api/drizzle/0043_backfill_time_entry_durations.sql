@@ -1,0 +1,2 @@
+UPDATE "time_entry" SET "duration" = FLOOR(EXTRACT(EPOCH FROM ("end_time" - "start_time"))) WHERE "end_time" IS NOT NULL AND "end_time" >= "start_time" AND ("duration" IS NULL OR "duration" = 0) AND FLOOR(EXTRACT(EPOCH FROM ("end_time" - "start_time"))) <= 2147483647 AND "duration" IS DISTINCT FROM FLOOR(EXTRACT(EPOCH FROM ("end_time" - "start_time")));--> statement-breakpoint
+UPDATE "time_entry" SET "duration" = NULL WHERE "end_time" IS NULL AND "duration" IS NOT NULL;

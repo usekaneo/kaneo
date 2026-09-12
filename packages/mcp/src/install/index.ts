@@ -324,7 +324,7 @@ export async function runInstall(argv: string[]): Promise<void> {
 }
 
 function printInstallHelp(): void {
-  console.log(`kaneo-mcp install — register Kaneo in an MCP client config
+  console.log(`kaneo-mcp install: register Kaneo in an MCP client config
 
 Usage:
   kaneo-mcp install [options]

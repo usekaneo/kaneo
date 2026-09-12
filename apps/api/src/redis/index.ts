@@ -46,15 +46,15 @@ export function parseNodeList(
       } else {
         const colonCount = entry.split(":").length - 1;
         if (colonCount > 1) {
-          // Multiple colons — bare IPv6 address without brackets (e.g. "::1")
+          // Multiple colons: bare IPv6 address without brackets (e.g. "::1")
           host = entry;
         } else if (colonCount === 1) {
-          // Exactly one colon — standard host:port
+          // Exactly one colon: standard host:port
           const colonIdx = entry.indexOf(":");
           host = entry.slice(0, colonIdx);
           portStr = entry.slice(colonIdx + 1);
         } else {
-          // No colons — hostname only
+          // No colons: hostname only
           host = entry;
         }
       }
@@ -154,7 +154,7 @@ export { isRedisConfigured };
 export function getRedisPub(): RedisClient {
   if (!_redisPub) {
     _redisPub = createRedisClient();
-    _redisPub.on("error", (err) =>
+    (_redisPub as Redis).on("error", (err: Error) =>
       console.error("Redis pub client error:", err),
     );
   }
@@ -164,7 +164,7 @@ export function getRedisPub(): RedisClient {
 export function getRedisSub(): RedisClient {
   if (!_redisSub) {
     _redisSub = createRedisClient();
-    _redisSub.on("error", (err) =>
+    (_redisSub as Redis).on("error", (err: Error) =>
       console.error("Redis sub client error:", err),
     );
   }

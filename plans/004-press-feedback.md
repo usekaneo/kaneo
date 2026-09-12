@@ -1,4 +1,4 @@
-# 004 — Tactile press feedback on buttons and task cards
+# 004: Tactile press feedback on buttons and task cards
 
 - **Status**: DONE
 - **Commit**: 813dcb36
@@ -23,4 +23,4 @@ No interactive surface presses. `ui/button.tsx:34` variants change color/shadow 
 ## Verification
 
 - Mechanical: `pnpm --filter @kaneo/web build`.
-- Feel: click-and-hold any button — it compresses; release — it snaps back fast. Card press feels tactile, not bouncy. Keyboard activation (Enter/Space) shows the same pressed state via `data-pressed`.
+- Feel: click-and-hold any button and it compresses; on release it snaps back fast. Card press feels tactile, not bouncy. Keyboard activation (Enter/Space) shows the same pressed state via `data-pressed`.

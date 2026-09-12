@@ -65,7 +65,7 @@ export default function SubtaskRow({
           <div
             className={`group flex items-center gap-2 py-1 px-2 ${selectionRadius} transition-colors cursor-default ${isSelected ? "bg-primary/10 hover:bg-primary/15" : "hover:bg-accent/50"} ${isFocused ? "ring-1 ring-inset ring-ring/50" : ""}`}
           >
-            {/* Completion — toggles the subtask done/undone and persists it. */}
+            {/* Completion checkbox: toggles the subtask done/undone and persists it. */}
             <Checkbox
               checked={isCompleted}
               onCheckedChange={onToggleComplete}

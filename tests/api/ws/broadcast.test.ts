@@ -103,7 +103,7 @@ describe("broadcastToProject", () => {
     const ws = makeFakeWs();
     const conn = addConnection("proj-1", ws, "user-1", "init-1");
 
-    // Send two messages with the same type+taskId — should be deduplicated
+    // Send two messages with the same type+taskId; they should be deduplicated
     broadcastToProject("proj-1", {
       type: "TASK_UPDATED",
       projectId: "proj-1",

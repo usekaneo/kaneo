@@ -1,6 +1,7 @@
-import { Github, KeyRound } from "lucide-react";
+import { KeyRound } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { GithubIcon } from "@/components/icons/github-icon";
 import { Button } from "@/components/ui/button";
 import type { GetConfigResponse } from "@/fetchers/config/get-config";
 import { authClient } from "@/lib/auth-client";
@@ -106,7 +107,7 @@ export function SSOProviders({
           onClick={() => handleSocial("github", "auth:signIn.githubError")}
           label={t("auth:signIn.continueWithGithub")}
           loadingLabel={t("auth:signIn.signingIn")}
-          icon={<Github className="w-5 h-5 mr-2" />}
+          icon={<GithubIcon className="w-5 h-5 mr-2" />}
         />
       )}
       {config?.hasDiscordSignIn && (

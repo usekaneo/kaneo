@@ -1,124 +1,209 @@
-name: Create Release
+name: Release
 
+# Images are built and pushed under the computed version before the release
+# exists, so a broken image build stops the release instead of leaving a tag, a
+# GitHub Release, a Discord announcement and a Helm chart pointing at nothing.
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: "Version to release (leave empty for automatic versioning)"
+      release_type:
+        description: "Version bump"
+        required: true
+        default: auto
+        type: choice
+        options:
+          - auto
+          - patch
+          - minor
+          - major
+      dry_run:
+        description: "Preview the version and notes without releasing anything"
         required: false
-        type: string
+        default: false
+        type: boolean
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions: {}
 
 jobs:
-  release:
-    runs-on: ubuntu-latest
+  plan:
+    name: Plan
+    runs-on: ubuntu-24.04
     permissions:
-      contents: write
-      pull-requests: write
-      actions: write
-
+      contents: write # semantic-release verifies push permission even on a dry run
+    outputs:
+      version: ${{ steps.plan.outputs.version }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
       - name: Enforce dispatch from main
         run: |
           if [ "$GITHUB_REF" != "refs/heads/main" ]; then
-            echo "::error::release.yml must be dispatched from main (current ref: $GITHUB_REF). The Chart.yaml bump and tag push will not land on main otherwise."
+            echo "::error::Release must be dispatched from main (current ref: $GITHUB_REF)."
             exit 1
           fi
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
         with:
-          bun-version: latest
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10.32.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+          cache: pnpm
 
       - name: Install dependencies
-        run: |
-          bun add -g conventional-changelog-cli
-          bun add -g conventional-recommended-bump
-          bun add -g conventional-changelog-angular
-          bun add -g semver
+        run: pnpm install --frozen-lockfile
 
-      - name: Get version bump
-        id: bump
-        if: ${{ !inputs.version }}
+      - name: Resolve next version
+        id: plan
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          RELEASE_TYPE: ${{ inputs.release_type }}
         run: |
-          BUMP=$(bunx conventional-recommended-bump -p angular)
-          echo "bump=$BUMP" >> $GITHUB_OUTPUT
+          set -o pipefail
+          pnpm exec semantic-release --dry-run 2>&1 | tee /tmp/release-plan.log
 
-      - name: Get current version
-        id: current_version
+      - name: Summarise the plan
+        env:
+          VERSION: ${{ steps.plan.outputs.version }}
         run: |
-          VERSION=$(bun x jq -r .version package.json)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          {
+            if [ -n "$VERSION" ]; then
+              echo "## Release plan: v$VERSION"
+            else
+              echo "## No release"
+              echo
+              echo "No releasable commits since the last tag."
+            fi
+            echo
+            echo "<details><summary>semantic-release dry run</summary>"
+            echo
+            echo '```'
+            cat /tmp/release-plan.log
+            echo '```'
+            echo
+            echo "</details>"
+          } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Calculate new version
-        id: new_version
+  images:
+    name: Images
+    needs: plan
+    if: ${{ !inputs.dry_run && needs.plan.outputs.version != '' }}
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/build-images.yml
+    secrets: inherit
+    with:
+      version: ${{ needs.plan.outputs.version }}
+      tags: type=raw,value=${{ needs.plan.outputs.version }}
+
+  chart:
+    name: Chart
+    needs: plan
+    if: ${{ !inputs.dry_run && needs.plan.outputs.version != '' }}
+    permissions:
+      contents: read
+    uses: ./.github/workflows/helm-validate.yml
+
+  release:
+    name: Release
+    needs: [plan, images, chart]
+    if: ${{ !inputs.dry_run && needs.plan.outputs.version != '' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      # The same token the API calls use, so the release commit and tag are not
+      # pushed under a different identity than the one that was verified.
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10.32.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # A release created with GITHUB_TOKEN does not trigger other workflows,
+      # which would silence release-notify.yml.
+      - name: Release
+        id: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          RELEASE_TYPE: ${{ inputs.release_type }}
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: github-actions[bot]@users.noreply.github.com
+        run: pnpm exec semantic-release
+
+      - name: Verify the released version matches the built images
+        env:
+          PLANNED: ${{ needs.plan.outputs.version }}
+          RELEASED: ${{ steps.release.outputs.version }}
         run: |
-          if [ -n "${{ inputs.version }}" ]; then
-            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
-          else
-            echo 'import semver from "semver";
-            const current = "${{ steps.current_version.outputs.version }}";
-            const bump = "${{ steps.bump.outputs.bump }}";
-            console.log(semver.inc(current, bump));' > version.mjs
-            NEW_VERSION=$(bun version.mjs)
-            rm version.mjs
-            echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          if [ "$PLANNED" != "$RELEASED" ]; then
+            echo "::error::Planned v$PLANNED but released v$RELEASED; the images published for this run are tagged v$PLANNED."
+            exit 1
           fi
 
-      - name: Update version in package.json
-        run: |
-          bun x npm version ${{ steps.new_version.outputs.version }} --no-git-tag-version
-
-      - name: Update Chart.yaml appVersion and chart version
-        run: |
-          VERSION="${{ steps.new_version.outputs.version }}"
-          sed -i -E "s/^version:[[:space:]]*.*/version: ${VERSION}/" charts/kaneo/Chart.yaml
-          sed -i -E "s/^appVersion:[[:space:]]*\"?[^\"]*\"?.*/appVersion: \"${VERSION}\"/" charts/kaneo/Chart.yaml
-          grep -q "^version: ${VERSION}$" charts/kaneo/Chart.yaml
-          grep -q "^appVersion: \"${VERSION}\"$" charts/kaneo/Chart.yaml
-
-      - name: Generate changelog
-        run: |
-          bunx conventional-changelog -p angular -i CHANGELOG.md -s --release-count 1
-
-      - name: Create Release Commit
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add CHANGELOG.md package.json charts/kaneo/Chart.yaml
-          git commit -m "chore(release): v${{ steps.new_version.outputs.version }}"
-          git tag "v${{ steps.new_version.outputs.version }}"
-
-      - name: Push changes
-        run: git push origin HEAD:${{ github.ref }} --tags
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3.0.1
+  promote:
+    name: Promote
+    needs: [plan, release]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
         with:
-          token: ${{ secrets.RELEASE_TOKEN }}
-          tag_name: v${{ steps.new_version.outputs.version }}
-          name: Release v${{ steps.new_version.outputs.version }}
-          generate_release_notes: true
-          draft: false
-          prerelease: false
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_PACKAGE_TOKEN }}
 
-      - name: Trigger Docker Build
-        uses: actions/github-script@v8
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'docker.yml',
-              ref: 'main',
-              inputs: {
-                version: '${{ steps.new_version.outputs.version }}',
-                latest: 'true'
-              }
-            });
-            console.log('Triggered Docker build for version ${{ steps.new_version.outputs.version }}');
+      # Copies the published manifest, so :latest is the exact bytes released.
+      - name: Tag images as latest
+        env:
+          OWNER: ${{ github.repository_owner }}
+          VERSION: ${{ needs.plan.outputs.version }}
+        run: |
+          for image in kaneo web api; do
+            ref="ghcr.io/${OWNER,,}/${image}"
+            docker buildx imagetools create --tag "${ref}:latest" "${ref}:${VERSION}"
+          done
+
+  chart-publish:
+    name: Publish chart
+    needs: [plan, promote]
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/helm-chart.yml
+    with:
+      version: ${{ needs.plan.outputs.version }}

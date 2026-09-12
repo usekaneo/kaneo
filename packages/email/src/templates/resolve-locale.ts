@@ -1,4 +1,4 @@
-const supportedLocales = ["en", "de"] as const;
+const supportedLocales = ["en", "de", "vi", "ja"] as const;
 
 type EmailLocale = (typeof supportedLocales)[number];
 

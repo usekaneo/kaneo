@@ -1,4 +1,6 @@
+import { isSmtpConfigured } from "@kaneo/email";
 import { config } from "dotenv-mono";
+import { isBillingEnabled } from "../billing/config";
 import { isGithubSsoConfigured } from "./github-sso-env";
 
 config();
@@ -9,13 +11,9 @@ function getSettings() {
     disablePasswordRegistration:
       process.env.DISABLE_PASSWORD_REGISTRATION === "true",
     disableEmailOtpSignIn: process.env.DISABLE_EMAIL_OTP_SIGN_IN === "true",
+    disableWorkspaceCreation: process.env.DISABLE_WORKSPACE_CREATION === "true",
     isDemoMode: process.env.DEMO_MODE === "true",
-    hasSmtp:
-      Boolean(process.env.SMTP_HOST) &&
-      Boolean(process.env.SMTP_PORT) &&
-      Boolean(process.env.SMTP_SECURE) &&
-      Boolean(process.env.SMTP_USER) &&
-      Boolean(process.env.SMTP_PASSWORD),
+    hasSmtp: isSmtpConfigured(),
     hasGithubSignIn: isGithubSsoConfigured(),
     hasGoogleSignIn:
       Boolean(process.env.GOOGLE_CLIENT_ID) &&
@@ -30,6 +28,7 @@ function getSettings() {
     disableLoginForm: process.env.DISABLE_LOGIN_FORM === "true",
     customOAuthAutoLogin: process.env.CUSTOM_OAUTH_AUTO_LOGIN === "true",
     customOAuthLogoutUrl: process.env.CUSTOM_OAUTH_LOGOUT_URL || null,
+    billingEnabled: isBillingEnabled(),
   };
 }
 

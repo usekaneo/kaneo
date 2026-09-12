@@ -94,4 +94,112 @@ describe("API integration: task comments", () => {
       .where(eq(schema.commentTable.taskId, task.id));
     expect(legacyComments).toHaveLength(0);
   });
+
+  it("records an external author when both name and source are given", async () => {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "Imported",
+        status: "to-do",
+        columnId: columns.todo.id,
+        priority: "medium",
+        number: 1,
+        position: 1,
+      })
+      .returning();
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const attributed = await app.request(`/api/comment/${task.id}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        content: "From PLANKA",
+        externalUserName: "Sam",
+        externalSource: "planka",
+      }),
+    });
+    expect(attributed.status).toBe(200);
+
+    const [row] = await db
+      .select()
+      .from(schema.activityTable)
+      .where(eq(schema.activityTable.taskId, task.id));
+    expect(row?.externalUserName).toBe("Sam");
+    expect(row?.externalSource).toBe("planka");
+  });
+
+  it("ignores an external name with no source, so it cannot look like a real user", async () => {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "Unattributed",
+        status: "to-do",
+        columnId: columns.todo.id,
+        priority: "medium",
+        number: 1,
+        position: 1,
+      })
+      .returning();
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    await app.request(`/api/comment/${task.id}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ content: "Nice try", externalUserName: "Andrej" }),
+    });
+
+    const [row] = await db
+      .select()
+      .from(schema.activityTable)
+      .where(eq(schema.activityTable.taskId, task.id));
+    expect(row?.externalUserName).toBeNull();
+  });
+
+  it("rejects an unknown external source", async () => {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "Bad source",
+        status: "to-do",
+        columnId: columns.todo.id,
+        priority: "medium",
+        number: 1,
+        position: 1,
+      })
+      .returning();
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const response = await app.request(`/api/comment/${task.id}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        content: "Spoof",
+        externalUserName: "Andrej",
+        externalSource: "definitely-real",
+      }),
+    });
+
+    expect(response.status).toBeGreaterThanOrEqual(400);
+  });
 });

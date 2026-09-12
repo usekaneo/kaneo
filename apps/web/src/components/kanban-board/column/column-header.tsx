@@ -19,8 +19,8 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
   const { t } = useTranslation();
   const { project, setProject } = useProjectStore();
   const { mutate: updateTask } = useUpdateTask();
-  const { canManageTasks, canCreateTasks } = useWorkspacePermission();
-  const canTask = canManageTasks();
+  const { canUpdateTasks, canCreateTasks } = useWorkspacePermission();
+  const canTask = canUpdateTasks();
   const canCreate = canCreateTasks();
 
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);

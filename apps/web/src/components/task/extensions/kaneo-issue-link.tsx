@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/preview-card";
 import getProject from "@/fetchers/project/get-project";
 import getTask from "@/fetchers/task/get-task";
+import { escapeHtml, isValidUrl } from "./url-safety";
 
 function parseTaskRouteFromUrl(url: string) {
   try {
@@ -70,18 +71,19 @@ function KaneoIssueLinkView({ node }: NodeViewProps) {
     ? t(`tasks:priority.${task.priority}`)
     : t("tasks:priority.no-priority");
   const assignee = task?.assigneeName || t("tasks:assignee.unassigned");
-  const href =
+  const resolvedHref =
     taskRoute?.workspaceId && taskRoute?.projectId && task?.id
       ? `/dashboard/workspace/${taskRoute.workspaceId}/project/${taskRoute.projectId}/task/${task.id}`
       : url;
-  const isInternal = href.startsWith("/");
+  const isInternal = resolvedHref.startsWith("/");
+  const href = isInternal || isValidUrl(resolvedHref) ? resolvedHref : "";
 
   return (
     <NodeViewWrapper as="span" className="kaneo-issue-link-node">
       <HoverCard openDelay={160} closeDelay={120}>
         <HoverCardTrigger asChild>
           <a
-            href={href}
+            href={href || undefined}
             target={isInternal ? undefined : "_blank"}
             rel={isInternal ? undefined : "noopener noreferrer"}
             className="kaneo-issue-link-chip"
@@ -168,6 +170,6 @@ export const KaneoIssueLink = Node.create({
     const issueKey = String(node.attrs?.issueKey || "");
     const taskId = String(node.attrs?.taskId || "");
     if (!url) return "";
-    return `\n<kaneo-issue-link url="${url}" issue-key="${issueKey}" task-id="${taskId}" />\n`;
+    return `\n<kaneo-issue-link url="${escapeHtml(url)}" issue-key="${escapeHtml(issueKey)}" task-id="${escapeHtml(taskId)}" />\n`;
   },
 });

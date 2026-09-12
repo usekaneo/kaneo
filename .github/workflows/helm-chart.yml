@@ -5,16 +5,18 @@ on:
     paths:
       - "charts/kaneo/**"
       - ".github/workflows/helm-chart.yml"
-  push:
-    tags:
-      - "kaneo-*"
-    paths:
-      - "charts/kaneo/**"
-      - ".github/workflows/helm-chart.yml"
+      - ".github/workflows/helm-validate.yml"
+  workflow_call:
+    inputs:
+      version:
+        description: "Chart version to publish (blank validates only)"
+        required: false
+        type: string
+        default: ""
   workflow_dispatch:
     inputs:
       version:
-        description: "Version to tag the images (e.g., 1.0.0)"
+        description: "Chart version to publish (e.g. 1.0.0)"
         required: true
         type: string
 
@@ -24,61 +26,12 @@ env:
 
 jobs:
   validate:
-    runs-on: ubuntu-24.04
     permissions:
       contents: read
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: default
-            args: >-
-              --set kaneo.env.authSecret=secure-auth-secret-at-least-32-characters
-          - name: ingress
-            args: >-
-              --set ingress.enabled=true
-              --set kaneo.env.authSecret=secure-auth-secret-at-least-32-characters
-              --set postgresql.auth.password=secure-db-password
-          - name: gateway
-            args: >-
-              --set gateway.enabled=true
-              --set gateway.parentRefs[0].name=gateway
-              --set kaneo.env.authSecret=secure-auth-secret-at-least-32-characters
-              --set postgresql.auth.password=secure-db-password
-          - name: autoscaling
-            args: >-
-              --set autoscaling.enabled=true
-              --set kaneo.resources.requests.cpu=100m
-              --set kaneo.env.authSecret=secure-auth-secret-at-least-32-characters
-          - name: external-database
-            args: >-
-              --set postgresql.enabled=false
-              --set kaneo.env.database.external.enabled=true
-              --set kaneo.env.database.external.host=db.example.com
-              --set kaneo.env.database.external.password=secure-db-password
-              --set kaneo.env.authSecret=secure-auth-secret-at-least-32-characters
-          - name: bundled-postgresql-secret
-            args: >-
-              --set postgresql.auth.existingSecret=kaneo-secrets
-              --set kaneo.env.authSecret=secure-auth-secret-at-least-32-characters
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-        with:
-          persist-credentials: false
-
-      - name: Set up Helm
-        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5
-
-      - name: Lint chart
-        run: helm lint "$CHART_PATH"
-
-      - name: Render chart (${{ matrix.name }})
-        run: helm template kaneo "$CHART_PATH" ${{ matrix.args }}
+    uses: ./.github/workflows/helm-validate.yml
 
   publish:
-    if: github.event_name != 'pull_request'
+    if: inputs.version != ''
     runs-on: ubuntu-24.04
     needs: validate
     permissions:
@@ -87,34 +40,29 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
         with:
           persist-credentials: false
 
       - name: Set up Helm
         uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5
-    
-      - name: Extract Version from Tag
+
+      - name: Resolve chart version
         env:
-          INPUT_VERSION: ${{ github.event.inputs.version }}
-        run: |
-          if [[ $GITHUB_REF == refs/tags/kaneo-* ]]; then
-            echo "CHART_VERSION=${GITHUB_REF#refs/tags/kaneo-}" >> $GITHUB_ENV
-          else
-            echo "CHART_VERSION=$INPUT_VERSION" >> $GITHUB_ENV
-          fi
-    
+          INPUT_VERSION: ${{ inputs.version }}
+        run: echo "CHART_VERSION=$INPUT_VERSION" >> "$GITHUB_ENV"
+
       - name: Package chart
         run: |
           mkdir -p dist
           helm package "$CHART_PATH" --version "$CHART_VERSION" --app-version "$CHART_VERSION" --destination dist
-    
+
       - name: Log in to GHCR
         env:
           GH_ACTOR: ${{ github.actor }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: echo "$GH_TOKEN" | helm registry login "$REGISTRY" --username "$GH_ACTOR" --password-stdin
-    
+
       - name: Publish chart
         run: |
           OWNER="${GITHUB_REPOSITORY_OWNER,,}"

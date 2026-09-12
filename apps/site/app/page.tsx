@@ -4,6 +4,7 @@ import { FounderStatement } from "@/components/landing/founder-statement";
 import { Hero } from "@/components/landing/hero";
 import { Navbar } from "@/components/landing/navbar";
 import { SectionSeparator } from "@/components/landing/section-separator";
+import { Sponsors } from "@/components/landing/sponsors";
 
 export default function HomePage() {
   return (
@@ -16,6 +17,9 @@ export default function HomePage() {
         </SectionSeparator>
         <SectionSeparator>
           <FounderStatement />
+        </SectionSeparator>
+        <SectionSeparator>
+          <Sponsors />
         </SectionSeparator>
       </main>
       <Footer />

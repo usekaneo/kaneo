@@ -3,6 +3,7 @@ import { produce } from "immer";
 import {
   CalendarIcon,
   Check,
+  FolderKanban,
   Plus,
   Search,
   Tag,
@@ -12,6 +13,15 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import TaskDescriptionEditor from "@/components/task/task-description-editor";
+import {
+  AlertDialog,
+  AlertDialogClose,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -36,17 +46,29 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import useSetCustomFieldValue from "@/hooks/mutations/custom-field/use-set-custom-field-value";
 import useCreateLabel from "@/hooks/mutations/label/use-create-label";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import useGetCustomFieldsByProject from "@/hooks/queries/custom-field/use-get-custom-fields-by-project";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
+import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { formatDateMedium } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
+import { resolveLabelColor } from "@/lib/label-color";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
@@ -82,6 +104,21 @@ type Label = {
 };
 
 type PopoverStep = "select" | "color";
+
+type CustomFieldType = "text" | "number" | "date" | "dropdown" | "boolean";
+
+type CustomFieldDefinition = {
+  id: string;
+  projectId: string;
+  name: string;
+  type: CustomFieldType;
+  required: boolean;
+  defaultValue: string | null;
+  options: string[] | null;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+};
 
 function normalizeTask(
   task: Partial<Task> &
@@ -176,9 +213,9 @@ function CreateTaskModal({
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(
     workspace?.id || "",
   );
-  const { canCreateTasks, canManageLabels } = useWorkspacePermission();
+  const { canCreateTasks, canCreateLabels } = useWorkspacePermission();
   const canCreateTaskCapability = canCreateTasks();
-  const canCreateLabelCapability = canManageLabels();
+  const canCreateLabelCapability = canCreateLabels();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -189,6 +226,7 @@ function CreateTaskModal({
   const [createMore, setCreateMore] = useState(false);
   const [labels, setLabels] = useState<Label[]>([]);
   const [draftTask, setDraftTask] = useState<Task | null>(null);
+  const [discardConfirmationOpen, setDiscardConfirmationOpen] = useState(false);
 
   const [labelsOpen, setLabelsOpen] = useState(false);
   const [labelsStep, setLabelsStep] = useState<PopoverStep>("select");
@@ -198,7 +236,16 @@ function CreateTaskModal({
 
   const routeProjectId =
     location.pathname.match(/\/project\/([^/]+)/)?.[1] ?? null;
-  const resolvedProjectId = projectId || project?.id || routeProjectId || "";
+  const explicitProjectId = projectId || routeProjectId || "";
+  const [selectedProjectId, setSelectedProjectId] = useState("");
+  const resolvedProjectId =
+    explicitProjectId || selectedProjectId || project?.id || "";
+  const { data: workspaceProjects } = useGetProjects({
+    workspaceId: workspace?.id || "",
+  });
+  const resolvedProject = explicitProjectId
+    ? project
+    : (workspaceProjects?.find((p) => p.id === resolvedProjectId) ?? null);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const draftCreationPromiseRef = useRef<Promise<Task> | null>(null);
@@ -207,6 +254,36 @@ function CreateTaskModal({
   const { mutateAsync: createTask } = useCreateTask();
   const { mutateAsync: updateTask } = useUpdateTask();
   const { mutateAsync: deleteTask } = useDeleteTask();
+
+  const { data: rawCustomFields } = useGetCustomFieldsByProject(
+    resolvedProjectId,
+  ) as { data: CustomFieldDefinition[] | undefined };
+
+  const customFields = useMemo(() => rawCustomFields ?? [], [rawCustomFields]);
+
+  const { mutateAsync: setCustomFieldValue } = useSetCustomFieldValue();
+
+  const [customFieldValues, setCustomFieldValues] = useState<
+    Record<string, string>
+  >({});
+
+  const handleCustomFieldChange = (fieldId: string, value: string) => {
+    setCustomFieldValues((prev) => ({
+      ...prev,
+      [fieldId]: value,
+    }));
+  };
+
+  useEffect(() => {
+    setCustomFieldValues((previousValues) =>
+      Object.fromEntries(
+        customFields.map((field) => [
+          field.id,
+          previousValues[field.id] ?? field.defaultValue ?? "",
+        ]),
+      ),
+    );
+  }, [customFields]);
 
   const filteredLabels = (() => {
     const searchFiltered = workspaceLabels.filter((label) =>
@@ -230,15 +307,36 @@ function CreateTaskModal({
       (label) => label.name.toLowerCase() === searchValue.toLowerCase(),
     );
 
-  const handleClose = () => {
+  const buildDefaultCustomFieldValues = useCallback(() => {
+    return customFields.reduce<Record<string, string>>((acc, field) => {
+      acc[field.id] = field.defaultValue ?? "";
+      return acc;
+    }, {});
+  }, [customFields]);
+
+  const hasUnsavedChanges = Boolean(
+    title.trim() ||
+      description.trim() ||
+      priority !== "no-priority" ||
+      assigneeId ||
+      startDate ||
+      dueDate ||
+      selectedProjectId ||
+      labels.length > 0 ||
+      draftTask,
+  );
+
+  const closeAndReset = () => {
     const shouldDeleteDraft = draftTask && !didSubmitRef.current;
 
+    setDiscardConfirmationOpen(false);
     setTitle("");
     setDescription("");
     setPriority("no-priority");
     setAssigneeId("");
     setStartDate(undefined);
     setDueDate(undefined);
+    setSelectedProjectId("");
     setCreateMore(false);
     setLabels([]);
     setLabelsStep("select");
@@ -248,6 +346,7 @@ function CreateTaskModal({
     draftCreationPromiseRef.current = null;
     didSubmitRef.current = false;
     setDraftTask(null);
+    setCustomFieldValues(buildDefaultCustomFieldValues());
     onClose();
 
     if (shouldDeleteDraft) {
@@ -255,6 +354,17 @@ function CreateTaskModal({
         // ignore cleanup failures for abandoned empty drafts
       });
     }
+  };
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) return;
+
+    if (hasUnsavedChanges && !didSubmitRef.current) {
+      setDiscardConfirmationOpen(true);
+      return;
+    }
+
+    closeAndReset();
   };
 
   const syncTaskIntoProject = useCallback(
@@ -337,6 +447,12 @@ function CreateTaskModal({
       startDate: startDate ? startDate.toISOString() : undefined,
       dueDate: dueDate ? dueDate.toISOString() : undefined,
       status: draftStatus,
+      customFields: Object.entries(customFieldValues)
+        .filter(([_, value]) => value.trim() !== "")
+        .map(([fieldId, value]) => ({
+          fieldId,
+          value,
+        })),
     }).then((task) => normalizeTask(task));
 
     draftCreationPromiseRef.current = draftPromise;
@@ -366,6 +482,7 @@ function CreateTaskModal({
     resolvedProjectId,
     title,
     t,
+    customFieldValues,
   ]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -388,6 +505,9 @@ function CreateTaskModal({
               startDate: startDate ? startDate.toISOString() : null,
               dueDate: dueDate ? dueDate.toISOString() : null,
               projectId: resolvedProjectId,
+              customFieldValues: Object.entries(customFieldValues)
+                .filter(([_, value]) => value.trim() !== "")
+                .map(([fieldId, value]) => ({ fieldId, value })),
             }),
           )
         : normalizeTask(
@@ -400,6 +520,12 @@ function CreateTaskModal({
               startDate: startDate ? startDate.toISOString() : undefined,
               dueDate: dueDate ? dueDate.toISOString() : undefined,
               status: taskStatus,
+              customFields: Object.entries(customFieldValues)
+                .filter(([_, value]) => value.trim() !== "")
+                .map(([fieldId, value]) => ({
+                  fieldId,
+                  value,
+                })),
             }),
           );
 
@@ -413,6 +539,18 @@ function CreateTaskModal({
           });
         } catch (error) {
           console.error("Failed to create label:", error);
+        }
+      }
+
+      if (draftTask) {
+        for (const [fieldId, value] of Object.entries(customFieldValues)) {
+          if (value) {
+            await setCustomFieldValue({
+              taskId: savedTask.id,
+              fieldId,
+              value: String(value),
+            });
+          }
         }
       }
 
@@ -439,8 +577,9 @@ function CreateTaskModal({
         draftCreationPromiseRef.current = null;
         didSubmitRef.current = false;
         setDraftTask(null);
+        setCustomFieldValues(buildDefaultCustomFieldValues());
       } else {
-        handleClose();
+        closeAndReset();
       }
     } catch (error) {
       didSubmitRef.current = false;
@@ -483,11 +622,11 @@ function CreateTaskModal({
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (!open) return;
+      if (!open || discardConfirmationOpen) return;
 
       if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
         e.preventDefault();
-        if (title.trim() && project?.id && workspace?.id) {
+        if (title.trim() && resolvedProjectId && workspace?.id) {
           const form = document.querySelector("form");
           if (form) {
             form.dispatchEvent(
@@ -497,7 +636,7 @@ function CreateTaskModal({
         }
       }
     },
-    [open, title, project?.id, workspace?.id],
+    [open, discardConfirmationOpen, title, resolvedProjectId, workspace?.id],
   );
 
   useEffect(() => {
@@ -581,13 +720,97 @@ function CreateTaskModal({
     setLabels(labels.filter((l) => l.name !== labelName));
   };
 
+  const renderCustomFieldInput = (field: CustomFieldDefinition) => {
+    const value = customFieldValues[field.id] ?? "";
+
+    switch (field.type) {
+      case "dropdown": {
+        const options = field.options || [];
+
+        return (
+          <Select
+            value={value}
+            onValueChange={(val) =>
+              handleCustomFieldChange(field.id, val as string)
+            }
+          >
+            <SelectTrigger className="h-9 w-full text-sm bg-background">
+              <SelectValue
+                placeholder={t(
+                  "common:modals.createTask.selectOptionPlaceholder",
+                  "Select an option",
+                )}
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {options.map((opt) => (
+                <SelectItem key={opt} value={opt}>
+                  {opt}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
+      }
+
+      case "date":
+        return (
+          <Input
+            type="date"
+            value={value}
+            onChange={(e) => handleCustomFieldChange(field.id, e.target.value)}
+            required={field.required}
+            className="h-9 w-full text-sm bg-background"
+          />
+        );
+
+      case "number":
+        return (
+          <Input
+            type="number"
+            value={value}
+            onChange={(e) => handleCustomFieldChange(field.id, e.target.value)}
+            placeholder={field.defaultValue || ""}
+            required={field.required}
+            className="h-9 w-full text-sm bg-background"
+          />
+        );
+
+      case "boolean":
+        return (
+          <div className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 text-sm">
+            <span className="text-sm text-foreground capitalize">{value}</span>
+
+            <Switch
+              checked={value === "true"}
+              onCheckedChange={(checked) =>
+                handleCustomFieldChange(field.id, checked ? "true" : "false")
+              }
+            />
+          </div>
+        );
+
+      default:
+        return (
+          <Input
+            type="text"
+            value={value}
+            onChange={(e) => handleCustomFieldChange(field.id, e.target.value)}
+            placeholder={field.defaultValue || ""}
+            required={field.required}
+            className="h-9 w-full text-sm bg-background"
+          />
+        );
+    }
+  };
+
   // Defense-in-depth: if the user lacks task-create permission, don't render
   // the modal even if a stale trigger somehow opens it (e.g., keyboard
   // shortcut after the capability has changed).
   if (!canCreateTaskCapability) return null;
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         className="kaneo-create-task-modal max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
         showCloseButton={false}
@@ -597,7 +820,7 @@ function CreateTaskModal({
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="text-muted-foreground font-semibold tracking-wider text-sm">
-                  {project?.slug?.toUpperCase() ||
+                  {resolvedProject?.slug?.toUpperCase() ||
                     t("common:modals.createTask.breadcrumbTask")}
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
@@ -639,6 +862,33 @@ function CreateTaskModal({
               />
             </div>
 
+            {customFields.length > 0 && (
+              <div className="space-y-4 pt-4 border-t border-border">
+                <h4 className="text-sm font-semibold text-foreground">
+                  {t("tasks:common.customFields")}
+                </h4>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {customFields.map((field) => (
+                    <div
+                      key={`custom-field_${field.id}`}
+                      className="space-y-1.5"
+                    >
+                      <label
+                        htmlFor={`custom-field_${field.id}`}
+                        className="text-xs font-medium text-muted-foreground flex items-center gap-1"
+                      >
+                        {field.name}
+                        {field.required && (
+                          <span className="text-destructive">*</span>
+                        )}
+                      </label>
+                      {renderCustomFieldInput(field)}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {labels.length > 0 && (
               <div className="flex flex-wrap mb-2">
                 {labels.map((label) => (
@@ -652,9 +902,7 @@ function CreateTaskModal({
                     <span
                       className="inline-block w-2 h-2 mr-1.5 rounded-full"
                       style={{
-                        backgroundColor:
-                          labelColors.find((c) => c.value === label.color)
-                            ?.color || "var(--color-neutral-400)",
+                        backgroundColor: resolveLabelColor(label.color),
                       }}
                     />
                     <span className="max-w-20 truncate">{label.name}</span>
@@ -664,6 +912,48 @@ function CreateTaskModal({
             )}
 
             <div className="flex flex-wrap items-center gap-2 py-2">
+              {!explicitProjectId && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className={cn(
+                        "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors border border-border hover:bg-accent/50",
+                        resolvedProjectId
+                          ? "bg-accent/30 text-foreground"
+                          : "text-muted-foreground",
+                      )}
+                    >
+                      <FolderKanban className="w-3.5 h-3.5" />
+                      <span>
+                        {resolvedProject?.name ||
+                          t("common:modals.createTask.selectProject")}
+                      </span>
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-48 p-1" align="start">
+                    <div className="space-y-1">
+                      {workspaceProjects?.map((workspaceProject) => (
+                        <button
+                          key={workspaceProject.id}
+                          type="button"
+                          className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
+                          onClick={() =>
+                            setSelectedProjectId(workspaceProject.id)
+                          }
+                        >
+                          <span className="text-sm truncate">
+                            {workspaceProject.name}
+                          </span>
+                          {resolvedProjectId === workspaceProject.id && (
+                            <Check className="ml-auto h-4 w-4 shrink-0" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              )}
               <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-accent/50 text-foreground rounded-md text-xs font-medium border border-border">
                 <div className="w-1.5 h-1.5 bg-foreground rounded-full" />
                 {statusLabel}
@@ -925,10 +1215,7 @@ function CreateTaskModal({
                             <span
                               className="w-2 h-2 rounded-full flex-shrink-0"
                               style={{
-                                backgroundColor:
-                                  labelColors.find(
-                                    (c) => c.value === label.color,
-                                  )?.color || "var(--color-neutral-400)",
+                                backgroundColor: resolveLabelColor(label.color),
                               }}
                             />
                             <span className="max-w-20 truncate">
@@ -1031,7 +1318,7 @@ function CreateTaskModal({
 
             <Button
               type="button"
-              onClick={handleClose}
+              onClick={() => handleOpenChange(false)}
               variant="outline"
               size="sm"
               className="border-border text-foreground hover:bg-accent"
@@ -1049,6 +1336,37 @@ function CreateTaskModal({
           </DialogFooter>
         </form>
       </DialogContent>
+
+      <AlertDialog
+        open={discardConfirmationOpen}
+        onOpenChange={setDiscardConfirmationOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("common:modals.createTask.discardTitle")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("common:modals.createTask.discardDescription")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogClose
+              render={<Button type="button" variant="outline" size="sm" />}
+            >
+              {t("common:actions.cancel")}
+            </AlertDialogClose>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={closeAndReset}
+            >
+              {t("common:modals.createTask.discardButton")}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }

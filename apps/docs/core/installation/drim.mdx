@@ -1,112 +1,156 @@
 ---
 title: Deploy with drim CLI
-description: One-click deployment tool for self-hosted Kaneo instances
+description: Deploy and manage a self-hosted Kaneo instance with the drim CLI
 ---
 
 ## What is drim?
 
-[drim](https://github.com/usekaneo/drim) is a CLI tool for deploying your Kaneo instances. It's designed for fairly straightforward setups where you want to get Kaneo up and running quickly without manual configuration.
+[drim](https://github.com/usekaneo/drim) is a CLI tool for deploying Kaneo. It generates your `docker-compose.yml`, `Caddyfile` and `.env`, installs Docker if it is missing, and brings the stack up, so a fresh server goes from nothing to a running instance in one command.
 
-drim handles:
-- Docker Compose file generation
-- Environment variable setup
-- Automatic HTTPS with Caddy
-- Service management (start, stop, restart)
-- Updates and upgrades
+It suits straightforward deployments. If you need a custom topology, extra services, or your own reverse proxy, [Docker Compose](/core/installation/docker-compose) gives you more control.
 
 ## Installation
-
-Install drim with a single command:
 
 ```bash
 curl -fsSL https://assets.kaneo.app/install.sh | sh
 ```
 
-Or download the binary manually from [releases](https://github.com/usekaneo/drim/releases/latest).
+Or download a binary from [releases](https://github.com/usekaneo/drim/releases/latest).
 
-## Quick Start
+### Install script options
 
-### Local Development
-
-For local development without a domain:
+| Option | Description |
+| --- | --- |
+| `--silent` | Suppress output |
+| `--setup` | Run `drim setup` after installing |
+| `--domain=DOMAIN` | Deploy on this domain, implies `--setup` |
 
 ```bash
-drim setup
-# Press Enter when prompted for domain
-# Access at http://localhost
+# Install, deploy, and configure HTTPS for a domain in one command
+curl -fsSL https://assets.kaneo.app/install.sh | sh -s -- --setup --domain=kaneo.example.com
 ```
 
-### Production Deployment
+The script detects your platform, downloads the matching binary, and installs it to `/usr/local/bin`. It supports Linux and macOS on amd64 and arm64, and Windows through WSL.
 
-For production with automatic HTTPS:
+## Quick start
+
+### Interactive
 
 ```bash
 drim setup
-# Enter your domain when prompted (e.g., kaneo.example.com)
-# Access at https://your-domain.com
+```
+
+You are asked whether to use the bundled Caddy reverse proxy, and for a domain. Leave the domain empty for a local deployment, reachable at `http://localhost`, or `http://localhost:5173` when you skip the reverse proxy.
+
+### Non-interactive
+
+Pass the configuration as flags to skip the prompts, which is what you want in a script or over SSH without a terminal:
+
+```bash
+drim setup --domain=kaneo.example.com
+drim setup --no-reverse-proxy
 ```
 
 <Info>
-Make sure your domain's DNS A record points to your server before running setup.
+Point your domain's DNS A record at the server before running setup. Caddy requests a certificate immediately, and that only succeeds once the record resolves.
 </Info>
 
 ## Commands
 
-drim provides several commands to manage your Kaneo instance:
-
 ```bash
-drim setup        # Deploy Kaneo
-drim start        # Start services
-drim stop         # Stop services
-drim restart      # Restart services
-drim upgrade      # Update Kaneo to latest version
-drim update       # Update drim CLI to latest version
-drim configure    # Edit configuration
-drim uninstall    # Remove Kaneo
+drim setup       # Deploy Kaneo
+drim start       # Start services
+drim stop        # Stop services
+drim restart     # Restart services
+drim upgrade     # Pull the latest Kaneo images and restart
+drim update      # Update the drim CLI itself
+drim configure   # Edit .env, then apply the changes
+drim uninstall   # Remove Kaneo
 ```
 
-## What Gets Installed
+Run these from the directory holding your `docker-compose.yml`. drim tells you when it cannot find a deployment there.
 
-When you run `drim setup`, the following services are deployed:
+`drim restart` restarts the containers. Because services read configuration through `env_file`, a plain restart reuses the environment a container was created with, so use `drim restart --recreate` to recreate containers and pick up `.env` changes. `drim configure` already does this for you.
 
-- **PostgreSQL 16** - Database
-- **Kaneo** - Combined API and web frontend in a single container
-- **Caddy** - Reverse proxy with automatic HTTPS
+## What gets installed
 
-All services run in Docker containers with proper networking and health checks.
+- **PostgreSQL 16**, the database
+- **Kaneo**, the API and web app in a single container
+- **Caddy**, the reverse proxy with automatic HTTPS, unless you pass `--no-reverse-proxy`
+
+Services run with health checks and restart automatically unless explicitly stopped. PostgreSQL is only reachable on the internal Docker network, never published to the host.
 
 ## Configuration
-
-To edit environment variables after setup:
 
 ```bash
 drim configure
 ```
 
-This opens `.env` in your default editor. After saving, services are restarted automatically.
+This opens `.env` in `$EDITOR` (or nano). After saving, drim offers to apply the changes, which recreates the containers so the new values take effect.
 
-See the [environment variables documentation](/core/installation/environment-variables) for available options.
+`drim setup` writes the variables Kaneo requires. Optional features are enabled by adding their variables, for example:
+
+```env
+# GitHub sign-in
+GITHUB_OAUTH_CLIENT_ID=your_client_id
+GITHUB_OAUTH_CLIENT_SECRET=your_client_secret
+
+# Email
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=you@example.com
+SMTP_PASSWORD=your-password
+SMTP_FROM=you@example.com
+
+# Redis pub/sub, for running more than one API replica
+REDIS_URL=redis://your-redis-host:6379
+```
+
+See [environment variables](/core/installation/environment-variables) for the full list.
 
 ## Requirements
 
-- Docker 20.10+
-- Docker Compose V2
-- 2GB RAM minimum
-- 10GB disk space
+- Docker 20.10+ and Docker Compose V2
+- 2GB RAM and 10GB disk
+- A public DNS record, for production deployments
 
-**Supported Platforms:** Linux, macOS, Windows (WSL)
+drim installs Docker automatically on supported Linux distributions. When it does, it also adds your user to the `docker` group and stops, because group membership only applies to a new login session. Log out, log back in, and run `drim setup` again.
 
-<Info>
-drim will attempt to install Docker automatically on supported Linux distributions.
-</Info>
+If Docker is already installed but you are not in the `docker` group, setup tells you so before writing any files, along with the command to fix it:
 
-## When to Use drim
+```bash
+sudo usermod -aG docker $USER
+```
 
-drim is ideal for:
+## Upgrading
 
-- Quick local development setups
-- Simple production deployments with a single domain
-- Teams that want automatic HTTPS without manual configuration
-- Anyone who wants to get Kaneo running with minimal effort
+```bash
+drim upgrade
+```
 
-For more complex setups (multiple domains, custom networking, Kubernetes, etc.), see the [manual Docker Compose installation](/core/installation/docker-compose).
+This pulls the latest images and restarts the changed services. Your data lives in Docker volumes and is not touched.
+
+To update drim itself:
+
+```bash
+drim update
+```
+
+<Warning>
+Deployments created before Kaneo moved to a single container still run the older two-image layout, and `drim upgrade` does not rewrite an existing `docker-compose.yml`. See [migrating to drim](/core/installation/drim-migration) to move to the current layout.
+</Warning>
+
+## Building from source
+
+```bash
+git clone https://github.com/usekaneo/drim.git
+cd drim
+go build -o drim .
+```
+
+`make build-all` cross-compiles for every supported platform.
+
+## Getting help
+
+- [Report an issue](https://github.com/usekaneo/drim/issues)
+- [Discord](https://discord.gg/rU4tSyhXXU)

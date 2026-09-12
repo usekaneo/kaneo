@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { timeEntryTable } from "../../database/schema";
+import { resolveDuration } from "../duration";
 
 type UpdateTimeEntryParams = {
   timeEntryId: string;
@@ -24,17 +25,15 @@ async function updateTimeEntry(params: UpdateTimeEntryParams) {
     });
   }
 
-  // Calculate duration if both startTime and endTime are provided
-  let duration: number | null = null;
-  if (endTime) {
-    duration = Math.floor((endTime.getTime() - startTime.getTime()) / 1000); // duration in seconds
-  }
+  const effectiveEndTime = endTime ?? existingTimeEntry.endTime;
+
+  const duration = resolveDuration(startTime, effectiveEndTime ?? undefined);
 
   const [updatedTimeEntry] = await db
     .update(timeEntryTable)
     .set({
       startTime,
-      endTime: endTime || null,
+      endTime: effectiveEndTime,
       duration,
       ...(description !== undefined && { description }),
     })

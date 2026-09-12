@@ -4,6 +4,7 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { taskTable, timeEntryTable } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { resolveDuration } from "../duration";
 
 async function createTimeEntry({
   taskId,
@@ -11,15 +12,15 @@ async function createTimeEntry({
   description,
   startTime,
   endTime,
-  duration,
 }: {
   taskId: string;
   userId: string;
   description?: string;
   startTime: Date;
   endTime?: Date;
-  duration?: number;
 }) {
+  const duration = resolveDuration(startTime, endTime);
+
   const [createdTimeEntry] = await db
     .insert(timeEntryTable)
     .values({
@@ -29,7 +30,7 @@ async function createTimeEntry({
       description: description || "",
       startTime,
       endTime: endTime || null,
-      duration: duration || 0,
+      duration,
     })
     .returning();
 
