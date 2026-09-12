@@ -1345,6 +1345,84 @@
 				"number": "Number",
 				"text": "Text"
 			}
+		},
+		"administration": "Administration",
+		"adminUsers": {
+			"actions": {
+				"deactivate": "Deactivate account",
+				"edit": "Edit account",
+				"open": "Actions for {{name}}",
+				"reactivate": "Reactivate account"
+			},
+			"clearSearch": "Clear search",
+			"columns": {
+				"actions": "Actions",
+				"joined": "Joined",
+				"role": "Global role",
+				"status": "Status",
+				"user": "User"
+			},
+			"confirm": {
+				"deactivate": {
+					"action": "Deactivate account",
+					"description": "{{name}} will be signed out and unable to sign in until an administrator reactivates the account.",
+					"title": "Deactivate this account?"
+				},
+				"delete": {
+					"action": "Delete permanently",
+					"description": "This permanently deletes {{name}}, their sessions, memberships, and associated data. This cannot be undone.",
+					"title": "Permanently delete this account?"
+				},
+				"reactivate": {
+					"action": "Reactivate account",
+					"description": "{{name}} will be able to sign in and access their workspaces again.",
+					"title": "Reactivate this account?"
+				},
+				"working": "Working…"
+			},
+			"directoryTitle": "User directory",
+			"edit": {
+				"description": "Update this account's identity and instance-wide access.",
+				"email": "Email address",
+				"name": "Full name",
+				"role": "Global role",
+				"save": "Save changes",
+				"saving": "Saving…",
+				"selfRoleHint": "You cannot change your own global role.",
+				"title": "Edit user"
+			},
+			"emptyDescription": "Try another name or email address.",
+			"emptyTitle": "No users found",
+			"instanceBadge": "Instance",
+			"loadError": "Users could not be loaded.",
+			"next": "Next",
+			"pagination": "Page {{current}} of {{total}}",
+			"previous": "Previous",
+			"refreshing": "Refreshing users",
+			"retry": "Retry",
+			"roles": {
+				"admin": "Instance admin",
+				"user": "User"
+			},
+			"searchCount_other": "{{count}} matching users",
+			"searchLabel": "Search users",
+			"searchPlaceholder": "Search name or email…",
+			"status": {
+				"active": "Active",
+				"deactivated": "Deactivated"
+			},
+			"subtitle": "Manage every account registered on this Kaneo instance.",
+			"title": "User management",
+			"toast": {
+				"actionError": "Failed to update user status",
+				"deactivated": "User deactivated",
+				"deleted": "User deleted",
+				"reactivated": "User reactivated",
+				"updated": "User updated",
+				"updateError": "Failed to update user"
+			},
+			"userCount_other": "{{count}} registered users",
+			"you": "(you)"
 		}
 	},
 	"navigation": {

@@ -1347,6 +1347,9 @@
 				"account": {
 					"type": "string"
 				},
+				"administration": {
+					"type": "string"
+				},
 				"developer": {
 					"type": "string"
 				},
@@ -1361,6 +1364,318 @@
 				},
 				"apiKeys": {
 					"type": "string"
+				},
+				"adminUsers": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"title": {
+							"type": "string"
+						},
+						"subtitle": {
+							"type": "string"
+						},
+						"instanceBadge": {
+							"type": "string"
+						},
+						"directoryTitle": {
+							"type": "string"
+						},
+						"userCount_one": {
+							"type": "string"
+						},
+						"userCount_zero": {
+							"type": "string"
+						},
+						"userCount_two": {
+							"type": "string"
+						},
+						"userCount_few": {
+							"type": "string"
+						},
+						"userCount_many": {
+							"type": "string"
+						},
+						"userCount_other": {
+							"type": "string"
+						},
+						"searchCount_one": {
+							"type": "string"
+						},
+						"searchCount_zero": {
+							"type": "string"
+						},
+						"searchCount_two": {
+							"type": "string"
+						},
+						"searchCount_few": {
+							"type": "string"
+						},
+						"searchCount_many": {
+							"type": "string"
+						},
+						"searchCount_other": {
+							"type": "string"
+						},
+						"refreshing": {
+							"type": "string"
+						},
+						"searchPlaceholder": {
+							"type": "string"
+						},
+						"searchLabel": {
+							"type": "string"
+						},
+						"loadError": {
+							"type": "string"
+						},
+						"retry": {
+							"type": "string"
+						},
+						"emptyTitle": {
+							"type": "string"
+						},
+						"emptyDescription": {
+							"type": "string"
+						},
+						"clearSearch": {
+							"type": "string"
+						},
+						"you": {
+							"type": "string"
+						},
+						"previous": {
+							"type": "string"
+						},
+						"next": {
+							"type": "string"
+						},
+						"pagination": {
+							"type": "string"
+						},
+						"columns": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"user": {
+									"type": "string"
+								},
+								"role": {
+									"type": "string"
+								},
+								"status": {
+									"type": "string"
+								},
+								"joined": {
+									"type": "string"
+								},
+								"actions": {
+									"type": "string"
+								}
+							},
+							"required": ["user", "role", "status", "joined", "actions"]
+						},
+						"roles": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"admin": {
+									"type": "string"
+								},
+								"user": {
+									"type": "string"
+								}
+							},
+							"required": ["admin", "user"]
+						},
+						"status": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"active": {
+									"type": "string"
+								},
+								"deactivated": {
+									"type": "string"
+								}
+							},
+							"required": ["active", "deactivated"]
+						},
+						"actions": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"open": {
+									"type": "string"
+								},
+								"edit": {
+									"type": "string"
+								},
+								"deactivate": {
+									"type": "string"
+								},
+								"reactivate": {
+									"type": "string"
+								}
+							},
+							"required": ["open", "edit", "deactivate", "reactivate"]
+						},
+						"edit": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"name": {
+									"type": "string"
+								},
+								"email": {
+									"type": "string"
+								},
+								"role": {
+									"type": "string"
+								},
+								"selfRoleHint": {
+									"type": "string"
+								},
+								"save": {
+									"type": "string"
+								},
+								"saving": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"title",
+								"description",
+								"name",
+								"email",
+								"role",
+								"selfRoleHint",
+								"save",
+								"saving"
+							]
+						},
+						"confirm": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"working": {
+									"type": "string"
+								},
+								"deactivate": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"title": {
+											"type": "string"
+										},
+										"description": {
+											"type": "string"
+										},
+										"action": {
+											"type": "string"
+										}
+									},
+									"required": ["title", "description", "action"]
+								},
+								"reactivate": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"title": {
+											"type": "string"
+										},
+										"description": {
+											"type": "string"
+										},
+										"action": {
+											"type": "string"
+										}
+									},
+									"required": ["title", "description", "action"]
+								},
+								"delete": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"title": {
+											"type": "string"
+										},
+										"description": {
+											"type": "string"
+										},
+										"action": {
+											"type": "string"
+										}
+									},
+									"required": ["title", "description", "action"]
+								}
+							},
+							"required": ["working", "deactivate", "reactivate", "delete"]
+						},
+						"toast": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"updated": {
+									"type": "string"
+								},
+								"updateError": {
+									"type": "string"
+								},
+								"deactivated": {
+									"type": "string"
+								},
+								"reactivated": {
+									"type": "string"
+								},
+								"deleted": {
+									"type": "string"
+								},
+								"actionError": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"updated",
+								"updateError",
+								"deactivated",
+								"reactivated",
+								"deleted",
+								"actionError"
+							]
+						}
+					},
+					"required": [
+						"title",
+						"subtitle",
+						"instanceBadge",
+						"directoryTitle",
+						"refreshing",
+						"searchPlaceholder",
+						"searchLabel",
+						"loadError",
+						"retry",
+						"emptyTitle",
+						"emptyDescription",
+						"clearSearch",
+						"you",
+						"previous",
+						"next",
+						"pagination",
+						"columns",
+						"roles",
+						"status",
+						"actions",
+						"edit",
+						"confirm",
+						"toast"
+					]
 				},
 				"informationPage": {
 					"type": "object",
@@ -5118,11 +5433,13 @@
 			},
 			"required": [
 				"account",
+				"administration",
 				"developer",
 				"information",
 				"notifications",
 				"preferences",
 				"apiKeys",
+				"adminUsers",
 				"informationPage",
 				"notificationsPage",
 				"preferencesPage",
