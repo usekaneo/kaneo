@@ -81,7 +81,10 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
     ProjectWithTasks["columns"][number] | null
   >(null);
 
-  const { data: relations } = useGetProjectTaskRelations(project?.id ?? "");
+  // isLoading rather than isPending: a disabled query is also pending, and an
+  // empty project should not look like it is still fetching.
+  const { data: relations, isLoading: relationsLoading } =
+    useGetProjectTaskRelations(project?.id ?? "");
 
   const subtaskChildren = useMemo(
     () => buildSubtaskChildren(relations ?? []),
@@ -374,9 +377,13 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
       isExpanded: (rowId) => !activeId && Boolean(expandedTasks[rowId]),
     });
 
-    const groupHasSubtasks = rows.some(
-      (row) => row.childCount > 0 || row.depth > 0,
-    );
+    // Until the relations arrive, every task looks childless. Holding the
+    // toggle column open means the chevrons appear in place instead of
+    // shifting every title sideways, and aria-busy below says the region is
+    // still resolving rather than settled and flat.
+    const groupHasSubtasks =
+      relationsLoading ||
+      rows.some((row) => row.childCount > 0 || row.depth > 0);
 
     return (
       <div
@@ -502,7 +509,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
       modifiers={[snapCenterToCursor]}
     >
       <div className="w-full h-full overflow-auto bg-muted/20">
-        <div className="divide-y divide-border/50">
+        <div aria-busy={relationsLoading} className="divide-y divide-border/50">
           {project.columns.map((column) => (
             <ColumnSection key={column.id} column={column} />
           ))}
