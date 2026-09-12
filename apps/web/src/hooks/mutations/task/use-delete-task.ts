@@ -22,6 +22,12 @@ export function useDeleteTask() {
       void queryClient.invalidateQueries({
         queryKey: ["tasks", deletedTask.projectId],
       });
+      // Relations cascade with the task, and the TASK_DELETED broadcast skips
+      // the window that issued the delete, so this is the only path that
+      // refreshes the list view's edge set for whoever performed it.
+      void queryClient.invalidateQueries({
+        queryKey: ["task-relations", "project", deletedTask.projectId],
+      });
 
       const { project, setProject } = useProjectStore.getState();
       if (project?.id === deletedTask.projectId) {

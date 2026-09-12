@@ -67,6 +67,12 @@ type TaskRowProps = {
    * a group containing subtasks stay on one vertical line.
    */
   reserveToggleSpace?: boolean;
+  /**
+   * True while this task is being dragged from another of its rows. A subtask
+   * is repeated under each parent, and only the top-level row is the drag
+   * source, so the repeats would otherwise sit at full opacity beside it.
+   */
+  isTaskDragging?: boolean;
 };
 
 function TaskRow({
@@ -78,6 +84,7 @@ function TaskRow({
   isExpanded = false,
   onToggleExpanded,
   reserveToggleSpace = false,
+  isTaskDragging = false,
 }: TaskRowProps) {
   const showToggleColumn = depth > 0 || childCount > 0 || reserveToggleSpace;
   const { t } = useTranslation();
@@ -212,7 +219,7 @@ function TaskRow({
         // than inside it: dnd-kit gives its activator role="button", and a
         // button nested in one is an ambiguous control for assistive tech.
         "group flex items-stretch border-b border-border/50 transition-colors duration-150",
-        isDragging && "opacity-50",
+        (isDragging || isTaskDragging) && "opacity-50",
         isTaskSelected &&
           "bg-accent/60 shadow-sm ring-1 ring-inset ring-ring/30",
         isTaskFocused && "ring-2 ring-inset ring-ring/50",

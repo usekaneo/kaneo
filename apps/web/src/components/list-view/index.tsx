@@ -459,6 +459,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
                       task={row.task}
                       projectSlug={project?.slug ?? ""}
                       reserveToggleSpace={groupHasSubtasks}
+                      isTaskDragging={activeId === row.task.id}
                       depth={row.depth}
                       rowId={row.rowId}
                       childCount={row.childCount}

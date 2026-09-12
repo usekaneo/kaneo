@@ -207,6 +207,26 @@ describe("flattenSubtaskRows", () => {
     expect(rows.filter((row) => row.depth > 0)).toHaveLength(10);
   });
 
+  it("reports no children once the budget is spent", () => {
+    const tasks = [task("a"), task("b")];
+    const rows = flattenSubtaskRows({
+      tasks,
+      children: buildSubtaskChildren([subtask("a", "b"), subtask("b", "c")]),
+      tasksById: new Map(
+        [...tasks, task("c")].map((entry) => [entry.id, entry]),
+      ),
+      isExpanded: () => true,
+      maxNestedRows: 1,
+    });
+
+    // The nested "a/b" is the row that spends the budget, so it must not
+    // advertise a chevron that can reveal nothing.
+    expect(rows.find((row) => row.rowId === "a/b")).toMatchObject({
+      childCount: 0,
+    });
+    expect(rows.map((row) => row.rowId)).not.toContain("a/b/c");
+  });
+
   it("leaves every task a top-level row even when nesting is capped", () => {
     const tasks = [task("a"), task("b"), task("c")];
     const rows = flattenSubtaskRows({

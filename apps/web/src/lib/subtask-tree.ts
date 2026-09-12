@@ -104,11 +104,15 @@ export function flattenSubtaskRows<T extends { id: string }>({
       }
     }
 
-    rows.push({ task, depth, rowId, childCount: childTasks.length });
-
     if (depth > 0) nested += 1;
-    if (childTasks.length === 0 || !isExpanded(rowId)) return;
-    if (nested >= maxNestedRows) return;
+
+    // Past the budget the row reports no children, so it renders no chevron
+    // rather than an expanded one with nothing beneath it.
+    const childCount = nested >= maxNestedRows ? 0 : childTasks.length;
+
+    rows.push({ task, depth, rowId, childCount });
+
+    if (childCount === 0 || !isExpanded(rowId)) return;
 
     const nextAncestors = new Set(ancestors);
     nextAncestors.add(task.id);
