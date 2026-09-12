@@ -24,6 +24,10 @@ import { produce } from "immer";
 import { Archive, ChevronRight, Flag, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  useTaskProjectById,
+  useTaskViewCapabilities,
+} from "@/components/task/task-view-context";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
@@ -55,6 +59,8 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
   } = useBulkSelectionStore();
   const { mutate: updateTask } = useUpdateTask();
   const navigate = useNavigate();
+  const { columnActions } = useTaskViewCapabilities();
+  const focusedTaskProject = useTaskProjectById(focusedTaskId);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [overColumnId, setOverColumnId] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<
@@ -105,12 +111,13 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
         }
       },
       Enter: () => {
-        if (focusedTaskId && project) {
+        const target = focusedTaskProject ?? project;
+        if (focusedTaskId && target) {
           navigate({
             to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
             params: {
-              workspaceId: project.workspaceId,
-              projectId: project.id,
+              workspaceId: target.workspaceId,
+              projectId: target.id,
               taskId: focusedTaskId,
             },
           });
@@ -324,30 +331,32 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
             </div>
           </button>
 
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => {
-                setIsTaskModalOpen(true);
-                setActiveColumn(column.id);
-              }}
-              className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
-              title={t("tasks:listView.addTask")}
-            >
-              <Plus className="w-3 h-3" />
-            </button>
-
-            {column.isFinal && column.tasks.length > 0 && (
+          {columnActions && (
+            <div className="flex items-center gap-1">
               <button
                 type="button"
-                onClick={() => handleArchiveClick(column)}
+                onClick={() => {
+                  setIsTaskModalOpen(true);
+                  setActiveColumn(column.id);
+                }}
                 className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
-                title={t("tasks:listView.archiveAllTooltip")}
+                title={t("tasks:listView.addTask")}
               >
-                <Archive className="w-3 h-3" />
+                <Plus className="w-3 h-3" />
               </button>
-            )}
-          </div>
+
+              {column.isFinal && column.tasks.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => handleArchiveClick(column)}
+                  className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
+                  title={t("tasks:listView.archiveAllTooltip")}
+                >
+                  <Archive className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {expandedSections[column.id] && (
@@ -368,7 +377,11 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
                   >
-                    <TaskRow task={task} projectSlug={project?.slug ?? ""} />
+                    <TaskRow
+                      task={task}
+                      projectSlug={project?.slug ?? ""}
+                      disableDragDrop={disableDragDrop}
+                    />
                   </motion.div>
                 ))}
               </AnimatePresence>

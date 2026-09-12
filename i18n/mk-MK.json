@@ -1377,7 +1377,8 @@
 			"members": "Членови",
 			"invitations": "Покани",
 			"more": "Повеќе",
-			"backToBoard": "Назад на табла"
+			"backToBoard": "Назад на табла",
+			"myTasks": "Мои задачи"
 		},
 		"projectList": {
 			"viewProject": "Погледни проект",
@@ -1925,12 +1926,14 @@
 				"priority": "Приоритет",
 				"assignee": "Доделен",
 				"dueDate": "Краен рок",
-				"labels": "Етикети"
+				"labels": "Етикети",
+				"project": "Проект"
 			},
 			"operators": {
 				"isAnyOf": "е било кој од",
 				"includeAnyOf": "вклучува било кој од"
 			},
+			"allProjects": "Сите проекти",
 			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
@@ -2063,6 +2066,15 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"myTasks": {
+			"empty": "Ништо не ви е доделено",
+			"emptySubtitle": "Задачите што ви се доделени во кој било од вашите работни простори ќе се појават тука.",
+			"loadError": "Не успеа вчитувањето на вашите задачи.",
+			"pageTitle": "Мои задачи · {{view}}",
+			"title": "Мои задачи",
+			"noMatches": "Ниедна задача не одговара",
+			"noMatchesSubtitle": "Обидете се со друго пребарување или исчистете ги активните филтри."
 		}
 	},
 	"invitations": {

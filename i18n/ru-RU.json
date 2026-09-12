@@ -1387,7 +1387,8 @@
 			"members": "Участники",
 			"invitations": "Приглашения",
 			"more": "Ещё",
-			"backToBoard": "Назад к доске"
+			"backToBoard": "Назад к доске",
+			"myTasks": "Мои задачи"
 		},
 		"projectList": {
 			"viewProject": "Открыть проект",
@@ -1950,13 +1951,15 @@
 				"priority": "Приоритет",
 				"assignee": "Исполнитель",
 				"dueDate": "Срок выполнения",
-				"labels": "Метки"
+				"labels": "Метки",
+				"project": "Проект"
 			},
 			"operators": {
 				"isAnyOf": "любой из",
 				"includeAnyOf": "включает любой из"
 			},
 			"selectedCount": "{{count}} выбрано",
+			"allProjects": "Все проекты",
 			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
@@ -2131,6 +2134,15 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"myTasks": {
+			"empty": "Вам ничего не назначено",
+			"emptySubtitle": "Задачи, назначенные вам в любой из ваших рабочих областей, будут отображаться здесь.",
+			"loadError": "Не удалось загрузить ваши задачи.",
+			"pageTitle": "Мои задачи · {{view}}",
+			"title": "Мои задачи",
+			"noMatches": "Нет подходящих задач",
+			"noMatchesSubtitle": "Попробуйте другой запрос или сбросьте активные фильтры."
 		}
 	},
 	"invitations": {

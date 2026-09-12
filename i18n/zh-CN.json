@@ -1376,7 +1376,8 @@
 			"members": "成员",
 			"invitations": "邀请",
 			"more": "更多",
-			"backToBoard": "返回看板"
+			"backToBoard": "返回看板",
+			"myTasks": "我的任务"
 		},
 		"projectList": {
 			"viewProject": "查看项目",
@@ -1920,12 +1921,14 @@
 				"priority": "优先级",
 				"assignee": "负责人",
 				"dueDate": "截止日期",
-				"labels": "标签"
+				"labels": "标签",
+				"project": "项目"
 			},
 			"operators": {
 				"isAnyOf": "为以下任一",
 				"includeAnyOf": "包含以下任一"
 			},
+			"allProjects": "所有项目",
 			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
@@ -2057,6 +2060,15 @@
 				"deleteRow": "删除行",
 				"deleteTable": "删除表格"
 			}
+		},
+		"myTasks": {
+			"empty": "没有分配给你的任务",
+			"emptySubtitle": "在任意工作区中分配给你的任务会显示在这里。",
+			"loadError": "无法加载你的任务。",
+			"pageTitle": "我的任务 · {{view}}",
+			"title": "我的任务",
+			"noMatches": "没有匹配的任务",
+			"noMatchesSubtitle": "请尝试其他搜索或清除当前筛选条件。"
 		}
 	},
 	"invitations": {

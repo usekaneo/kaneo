@@ -14,6 +14,7 @@ export function useUpdateTask() {
       queryClient.invalidateQueries({
         queryKey: ["tasks", variables.projectId],
       });
+      queryClient.invalidateQueries({ queryKey: ["my-tasks"] });
       queryClient.invalidateQueries({
         queryKey: ["notifications"],
       });

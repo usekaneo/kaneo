@@ -1378,7 +1378,8 @@
 			"members": "Miembros",
 			"invitations": "Invitaciones",
 			"more": "Más",
-			"backToBoard": "Volver al tablero"
+			"backToBoard": "Volver al tablero",
+			"myTasks": "Mis tareas"
 		},
 		"projectList": {
 			"viewProject": "Ver Proyecto",
@@ -1919,12 +1920,14 @@
 				"priority": "Prioridad",
 				"assignee": "Asignado",
 				"dueDate": "Fecha de vencimiento",
-				"labels": "Etiquetas"
+				"labels": "Etiquetas",
+				"project": "Proyecto"
 			},
 			"operators": {
 				"isAnyOf": "es alguno de",
 				"includeAnyOf": "incluye alguno de"
 			},
+			"allProjects": "Todos los proyectos",
 			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
@@ -2069,6 +2072,15 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"myTasks": {
+			"empty": "No tienes nada asignado",
+			"emptySubtitle": "Las tareas que se te asignen en cualquiera de tus espacios de trabajo aparecerán aquí.",
+			"loadError": "No se pudieron cargar tus tareas.",
+			"pageTitle": "Mis tareas · {{view}}",
+			"title": "Mis tareas",
+			"noMatches": "Ninguna tarea coincide",
+			"noMatchesSubtitle": "Prueba con otra búsqueda o borra los filtros activos."
 		}
 	},
 	"invitations": {

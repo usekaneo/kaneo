@@ -1376,7 +1376,8 @@
 			"members": "Thành viên",
 			"invitations": "Lời mời",
 			"more": "Thêm",
-			"backToBoard": "Quay lại bảng"
+			"backToBoard": "Quay lại bảng",
+			"myTasks": "Công việc của tôi"
 		},
 		"projectList": {
 			"viewProject": "Xem dự án",
@@ -1920,12 +1921,14 @@
 				"priority": "Mức ưu tiên",
 				"assignee": "Người được giao",
 				"dueDate": "Ngày đến hạn",
-				"labels": "Nhãn"
+				"labels": "Nhãn",
+				"project": "Dự án"
 			},
 			"operators": {
 				"isAnyOf": "là một trong",
 				"includeAnyOf": "bao gồm một trong"
 			},
+			"allProjects": "Tất cả dự án",
 			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
@@ -2057,6 +2060,15 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"myTasks": {
+			"empty": "Chưa có công việc nào được giao cho bạn",
+			"emptySubtitle": "Các công việc được giao cho bạn trong bất kỳ không gian làm việc nào của bạn sẽ hiển thị ở đây.",
+			"loadError": "Không thể tải công việc của bạn.",
+			"pageTitle": "Công việc của tôi · {{view}}",
+			"title": "Công việc của tôi",
+			"noMatches": "Không có công việc nào phù hợp",
+			"noMatchesSubtitle": "Hãy thử tìm kiếm khác hoặc xóa các bộ lọc đang áp dụng."
 		}
 	},
 	"invitations": {

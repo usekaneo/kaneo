@@ -10,6 +10,7 @@ export type BoardFilters = {
   assignee: string[] | null;
   dueDate: string[] | null;
   labels: string[] | null;
+  project: string[] | null;
   customFields: Record<string, string[]> | null;
 };
 
@@ -25,6 +26,7 @@ const DEFAULT_FILTERS: BoardFilters = {
   assignee: null,
   dueDate: null,
   labels: null,
+  project: null,
   customFields: null,
 };
 
@@ -34,6 +36,7 @@ const FILTER_KEYS: Array<keyof BoardFilters> = [
   "assignee",
   "dueDate",
   "labels",
+  "project",
   "customFields",
 ];
 

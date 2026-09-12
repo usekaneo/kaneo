@@ -587,7 +587,7 @@
             "$ref": "#/components/schemas/Board"
           },
           "pagination": {
-            "$ref": "#/components/schemas/BoardPagination"
+            "$ref": "#/components/schemas/Pagination"
           }
         },
         "required": [
@@ -660,11 +660,12 @@
           "plannedTasks"
         ]
       },
-      "BoardPagination": {
+      "Pagination": {
         "type": "object",
         "properties": {
           "total": {
-            "type": "number"
+            "type": "number",
+            "description": "How many rows match in total, across all pages."
           },
           "page": {
             "type": "number"
@@ -673,7 +674,8 @@
             "type": "number"
           },
           "totalPages": {
-            "type": "number"
+            "type": "number",
+            "description": "At least 1."
           }
         },
         "required": [
@@ -681,8 +683,7 @@
           "page",
           "pageSize",
           "totalPages"
-        ],
-        "description": "When no page/limit is given, everything is returned on a single page."
+        ]
       },
       "BulkTaskResult": {
         "type": "object",
@@ -3271,6 +3272,123 @@
           "taskId",
           "fieldId",
           "value"
+        ]
+      },
+      "AssignedTasksResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "tasks": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/BoardTask"
+                },
+                "description": "Open tasks assigned to the current user, ordered by due date (tasks without one last). `status` is a column slug of the task's project."
+              },
+              "projects": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/AssignedTaskProject"
+                },
+                "description": "The projects those tasks belong to, with their columns, so clients can resolve statuses without extra requests."
+              }
+            },
+            "required": [
+              "tasks",
+              "projects"
+            ]
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        },
+        "required": [
+          "data",
+          "pagination"
+        ]
+      },
+      "AssignedTaskProject": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "icon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "position": {
+            "type": "number"
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "workspaceName": {
+            "type": "string"
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssignedTaskProjectColumn"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "icon",
+          "position",
+          "workspaceId",
+          "workspaceName",
+          "columns"
+        ]
+      },
+      "AssignedTaskProjectColumn": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string",
+            "description": "Stable identifier derived from the name; tasks store this as their status."
+          },
+          "name": {
+            "type": "string"
+          },
+          "icon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "isFinal": {
+            "type": "boolean",
+            "description": "Marks the column as a done state, which stops overdue reminders for tasks in it."
+          },
+          "position": {
+            "type": "number",
+            "description": "Board order, ascending. Columns are always returned sorted by it."
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "icon",
+          "isFinal",
+          "position"
         ]
       },
       "UserAvatar": {
@@ -6279,7 +6397,7 @@
           "Tasks"
         ],
         "summary": "List tasks",
-        "description": "Get a project's board: its columns, each with the tasks in it, plus the archived and planned buckets. Filter and paginate with the query parameters.",
+        "description": "Get a project's board: its columns, each with the tasks in it, plus the archived and planned buckets. Filter and paginate with the query parameters; when neither `page` nor `limit` is given, everything is returned on a single page.",
         "parameters": [
           {
             "schema": {
@@ -14105,6 +14223,51 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/user/tasks": {
+      "get": {
+        "operationId": "listAssignedTasks",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "List tasks assigned to me",
+        "description": "Every open task assigned to the current user across all the workspaces they are a member of, with the projects and columns needed to display them. Planned and archived tasks, and tasks in archived projects, are left out. Tasks are ordered by due date, soonest first, and paged: `limit` defaults to 2000, which is also the maximum, so `pagination.total` tells when more pages exist. The caller is always the authenticated user.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$"
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$"
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tasks assigned to the current user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignedTasksResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
           }
         }
       }

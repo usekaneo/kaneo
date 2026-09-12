@@ -207,17 +207,26 @@ async function bulkUpdateTasks({
     }
 
     case "delete": {
-      const result = await db
+      // Publish from the deleted rows, not the earlier read, so a concurrent
+      // reassignment still reaches the assignee whose "My tasks" view changes.
+      const deleted = await db
         .delete(taskTable)
-        .where(inArray(taskTable.id, foundIds));
+        .where(inArray(taskTable.id, foundIds))
+        .returning({
+          id: taskTable.id,
+          projectId: taskTable.projectId,
+          userId: taskTable.userId,
+          title: taskTable.title,
+        });
 
-      updatedCount = result.rowCount ?? foundIds.length;
+      updatedCount = deleted.length;
 
-      for (const task of tasks) {
+      for (const task of deleted) {
         await publishEvent("task.deleted", {
           taskId: task.id,
           projectId: task.projectId,
           userId,
+          assigneeId: task.userId,
           title: task.title,
         });
       }

@@ -208,4 +208,66 @@ describe("useTaskFiltersWithLabelsSupport", () => {
       ]);
     },
   );
+
+  it("matches identifiers by each task's own project slug on a merged board", () => {
+    const task = {
+      id: "task-7",
+      title: "Unrelated title",
+      number: 7,
+      description: null,
+      status: "todo",
+      priority: null,
+      startDate: null,
+      dueDate: null,
+      position: 0,
+      createdAt: "2026-04-16T00:00:00.000Z",
+      updatedAt: "2026-04-16T00:00:00.000Z",
+      userId: null,
+      assigneeId: null,
+      assigneeName: null,
+      assigneeImage: null,
+      projectId: "project-ops",
+      labels: [],
+      externalLinks: [],
+    };
+    const mergedBoard = {
+      id: "my-tasks",
+      name: "My tasks",
+      slug: "",
+      icon: null,
+      description: null,
+      isPublic: false,
+      createdAt: "2026-04-16T00:00:00.000Z",
+      updatedAt: "2026-04-16T00:00:00.000Z",
+      workspaceId: "",
+      columns: [
+        {
+          id: "todo",
+          slug: "todo",
+          name: "Todo",
+          icon: null,
+          isFinal: false,
+          tasks: [task],
+        },
+      ],
+      plannedTasks: [],
+      archivedTasks: [],
+    };
+    const slugByProjectId: Record<string, string> = { "project-ops": "OPS" };
+
+    const { result } = renderHook(
+      () =>
+        useTaskFiltersWithLabelsSupport(
+          mergedBoard,
+          "my-tasks",
+          "ops-7",
+          (candidate) => slugByProjectId[candidate.projectId],
+        ),
+      { wrapper: createWrapper() },
+    );
+
+    expect(result.current.filteredProject?.columns[0]?.tasks).toEqual([
+      expect.objectContaining({ id: "task-7" }),
+    ]);
+  });
 });

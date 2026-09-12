@@ -1377,7 +1377,8 @@
 			"members": "Üyeler",
 			"invitations": "Davetler",
 			"more": "Daha fazla",
-			"backToBoard": "Panoya dön"
+			"backToBoard": "Panoya dön",
+			"myTasks": "Görevlerim"
 		},
 		"projectList": {
 			"viewProject": "Projeyi Görüntüle",
@@ -1925,12 +1926,14 @@
 				"priority": "Öncelik",
 				"assignee": "Atanan",
 				"dueDate": "Bitiş tarihi",
-				"labels": "Etiketler"
+				"labels": "Etiketler",
+				"project": "Proje"
 			},
 			"operators": {
 				"isAnyOf": "herhangi biri",
 				"includeAnyOf": "herhangi birini içer"
 			},
+			"allProjects": "Tüm projeler",
 			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
@@ -2063,6 +2066,15 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"myTasks": {
+			"empty": "Size atanmış bir şey yok",
+			"emptySubtitle": "Çalışma alanlarınızın herhangi birinde size atanan görevler burada görünür.",
+			"loadError": "Görevleriniz yüklenemedi.",
+			"pageTitle": "Görevlerim · {{view}}",
+			"title": "Görevlerim",
+			"noMatches": "Eşleşen görev yok",
+			"noMatchesSubtitle": "Farklı bir arama deneyin veya etkin filtreleri temizleyin."
 		}
 	},
 	"invitations": {

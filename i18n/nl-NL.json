@@ -1377,7 +1377,8 @@
 			"members": "Leden",
 			"invitations": "Uitnodigingen",
 			"more": "Meer",
-			"backToBoard": "Terug naar bord"
+			"backToBoard": "Terug naar bord",
+			"myTasks": "Mijn taken"
 		},
 		"projectList": {
 			"viewProject": "Project bekijken",
@@ -1914,12 +1915,14 @@
 				"priority": "Prioriteit",
 				"assignee": "Toegewezen persoon",
 				"dueDate": "Einddatum",
-				"labels": "Labels"
+				"labels": "Labels",
+				"project": "Project"
 			},
 			"operators": {
 				"isAnyOf": "is een van",
 				"includeAnyOf": "bevat een van"
 			},
+			"allProjects": "Alle projecten",
 			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
@@ -2063,6 +2066,15 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"myTasks": {
+			"empty": "Er is niets aan u toegewezen",
+			"emptySubtitle": "Taken die in een van uw werkruimten aan u zijn toegewezen, verschijnen hier.",
+			"loadError": "Uw taken konden niet worden geladen.",
+			"pageTitle": "Mijn taken · {{view}}",
+			"title": "Mijn taken",
+			"noMatches": "Geen taken gevonden",
+			"noMatchesSubtitle": "Probeer een andere zoekopdracht of wis de actieve filters."
 		}
 	},
 	"invitations": {
