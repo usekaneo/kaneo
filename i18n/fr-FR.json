@@ -155,6 +155,12 @@
 					"crimson": "Cramoisi"
 				}
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -691,7 +697,9 @@
 			"genericWebhookSectionTitle": "Webhooks génériques",
 			"genericWebhookSectionSubtitle": "Envoyez les événements des tâches du projet vers n'importe quel point de terminaison HTTP au format JSON.",
 			"slackSectionTitle": "Intégration Slack",
-			"slackSectionSubtitle": "Envoyez les mises à jour des tâches du projet dans un canal Slack via un webhook entrant."
+			"slackSectionSubtitle": "Envoyez les mises à jour des tâches du projet dans un canal Slack via un webhook entrant.",
+			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook.",
+			"mattermostSectionTitle": "Mattermost Integration"
 		},
 		"projectVisibility": {
 			"pageTitle": "Visibilité du projet",
@@ -715,7 +723,9 @@
 			"columnsTitle": "Colonnes",
 			"columnsDescription": "Gérez les colonnes qui apparaissent sur votre tableau. Faites glisser pour réorganiser. Activez \"Colonne terminée\" pour les étapes qui représentent le travail terminé.",
 			"automationTitle": "Règles d'automatisation",
-			"automationDescription": "Mappez les événements d'intégration aux colonnes. Lorsqu'un événement se produit, la tâche liée se déplace vers la colonne spécifiée."
+			"automationDescription": "Mappez les événements d'intégration aux colonnes. Lorsqu'un événement se produit, la tâche liée se déplace vers la colonne spécifiée.",
+			"customFieldsDescription": "Manage the custom fields for this project. Drag  to reorder.",
+			"customFieldsTitle": "Custom Fields"
 		},
 		"projectSwitcher": {
 			"selectProject": "Sélectionner un projet",
@@ -1273,6 +1283,70 @@
 			"updateError": "Échec de la mise à jour du label",
 			"deleteError": "Échec de la suppression du label",
 			"nameRequired": "Le nom du label est requis"
+		},
+		"mattermostIntegration": {
+			"channelHint": "Optional label for your reference. Mattermost controls the actual destination channel from the webhook setup.",
+			"channelLabel": "Channel name",
+			"channelPlaceholder": "#team-updates",
+			"connect": "Connect Mattermost",
+			"connected": "Connected",
+			"connectionHint": "Paste a Mattermost incoming webhook URL and choose which task events should be posted.",
+			"connectionTitle": "Mattermost webhook connection",
+			"disconnect": "Disconnect",
+			"events": {
+				"taskCommentCreated": "New comments",
+				"taskCreated": "New tasks",
+				"taskDescriptionChanged": "Description changes",
+				"taskPriorityChanged": "Priority changes",
+				"taskStatusChanged": "Status changes",
+				"taskTitleChanged": "Title changes"
+			},
+			"eventsHint": "Choose which project changes should post to Mattermost.",
+			"eventsTitle": "Event notifications",
+			"paused": "Paused",
+			"saveChanges": "Save changes",
+			"toast": {
+				"disabled": "Mattermost notifications paused",
+				"enabled": "Mattermost notifications enabled",
+				"removed": "Mattermost integration removed successfully",
+				"removeError": "Failed to remove Mattermost integration",
+				"saved": "Mattermost integration saved successfully",
+				"saveError": "Failed to save Mattermost integration",
+				"updateError": "Failed to update Mattermost integration"
+			},
+			"update": "Update Mattermost",
+			"validation": {
+				"webhookInvalid": "Enter a valid Mattermost webhook URL"
+			},
+			"webhookHint": "Create an Incoming Webhook in Mattermost and paste the generated URL here.",
+			"webhookLabel": "Incoming webhook URL",
+			"webhookPlaceholder": "https://your-mattermost-server.com/hooks/..."
+		},
+		"customFields": {
+			"addButton": "Add",
+			"createError": "Failed to create custom field.",
+			"createSuccess": "Custom field created.",
+			"creating": "Creating...",
+			"defaultLabel": "Default",
+			"defaultValuePlaceholder": "Default value",
+			"deleteButton": "Delete",
+			"deleteError": "Failed to delete custom field.",
+			"deleteSuccess": "Custom field deleted.",
+			"deleting": "Deleting...",
+			"empty": "No custom fields configured yet.",
+			"loading": "Loading custom fields...",
+			"namePlaceholder": "Field name",
+			"noOptionsPlaceholder": "No options",
+			"optionsPlaceholder": "Options separated by commas",
+			"required": "Required",
+			"typePlaceholder": "Select field type",
+			"types": {
+				"boolean": "Boolean",
+				"date": "Date",
+				"dropdown": "Dropdown",
+				"number": "Number",
+				"text": "Text"
+			}
 		}
 	},
 	"navigation": {
@@ -1594,7 +1668,8 @@
 			"selectTask": "Sélectionner une tâche",
 			"loadingTask": "Chargement de la tâche...",
 			"taskNotFound": "Tâche non trouvée",
-			"taskNotFoundDescription": "La tâche que vous recherchez n'existe pas ou a été supprimée."
+			"taskNotFoundDescription": "La tâche que vous recherchez n'existe pas ou a été supprimée.",
+			"customFields": "Custom Fields"
 		},
 		"detail": {
 			"subtaskOf": "Sous-tâche de",
@@ -1700,7 +1775,9 @@
 				"mermaid": {
 					"renderFailed": "Impossible d'afficher le diagramme Mermaid"
 				}
-			}
+			},
+			"customFieldUpdated": "Field updated",
+			"selectOption": "Select option"
 		},
 		"entity": {
 			"task": "Tâche"
@@ -1861,7 +1938,11 @@
 				"isAnyOf": "est l'un des",
 				"includeAnyOf": "inclut l'un des"
 			},
-			"allProjects": "Tous les projets"
+			"allProjects": "Tous les projets",
+			"all": "All",
+			"allCustomFieldValues": "All values",
+			"noCustomFieldValues": "No custom field values",
+			"noValuesUsedYet": "No values used yet"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
+import useGetCachedCustomFieldValues from "./queries/custom-field/use-get-all-custom-field-values-by-project";
 import { type BoardFilters, DUE_DATE_FILTER_VALUES } from "./use-task-filters";
 
 const DEFAULT_FILTERS: BoardFilters = {
@@ -12,6 +13,7 @@ const DEFAULT_FILTERS: BoardFilters = {
   dueDate: null,
   labels: null,
   project: null,
+  customFields: null,
 };
 
 const FILTER_KEYS: Array<keyof BoardFilters> = [
@@ -21,6 +23,7 @@ const FILTER_KEYS: Array<keyof BoardFilters> = [
   "dueDate",
   "labels",
   "project",
+  "customFields",
 ];
 
 function normalizeFilters(raw: unknown): BoardFilters {
@@ -32,6 +35,24 @@ function normalizeFilters(raw: unknown): BoardFilters {
   const normalized = { ...DEFAULT_FILTERS };
 
   for (const key of FILTER_KEYS) {
+    if (key === "customFields") {
+      const value = candidate.customFields;
+      if (value && typeof value === "object" && !Array.isArray(value)) {
+        const customFields = Object.fromEntries(
+          Object.entries(value).filter(
+            ([, values]) =>
+              Array.isArray(values) &&
+              values.length > 0 &&
+              values.every((item) => typeof item === "string"),
+          ),
+        ) as Record<string, string[]>;
+
+        normalized.customFields =
+          Object.keys(customFields).length > 0 ? customFields : null;
+      }
+
+      continue;
+    }
     const value = candidate[key];
     if (Array.isArray(value)) {
       const values = value.filter((v): v is string => typeof v === "string");
@@ -51,6 +72,7 @@ export function useTaskFiltersWithLabelsSupport(
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   const storageKey = projectId ? `kaneo:board-filters:${projectId}` : null;
   const [filters, setFilters] = useState<BoardFilters>(DEFAULT_FILTERS);
+  const { getValuesForTask } = useGetCachedCustomFieldValues();
 
   useEffect(() => {
     if (!storageKey || typeof window === "undefined") return;
@@ -191,10 +213,46 @@ export function useTaskFiltersWithLabelsSupport(
           }
         }
 
+        if (
+          filters.customFields &&
+          Object.keys(filters.customFields).length > 0
+        ) {
+          const taskFieldValues = getValuesForTask(task.id);
+
+          const matchesAllFields = Object.entries(filters.customFields).every(
+            ([fieldId, allowedValues]) => {
+              if (!allowedValues || allowedValues.length === 0) return true;
+
+              const fieldEntry = taskFieldValues.find(
+                (v) => v.fieldId === fieldId,
+              );
+
+              if (
+                !fieldEntry ||
+                fieldEntry.value == null ||
+                fieldEntry.value === ""
+              ) {
+                return false;
+              }
+
+              return allowedValues.includes(fieldEntry.value);
+            },
+          );
+
+          if (!matchesAllFields) return false;
+        }
+
         return true;
       });
     },
-    [filters, getTaskProjectSlug, project?.slug, textQuery, weekStartsOn],
+    [
+      filters,
+      getTaskProjectSlug,
+      project?.slug,
+      textQuery,
+      weekStartsOn,
+      getValuesForTask,
+    ],
   );
 
   const filteredProject = useMemo(() => {
@@ -242,11 +300,29 @@ export function useTaskFiltersWithLabelsSupport(
     });
   };
 
+  const updateCustomFieldFilter = (fieldId: string, value: string) => {
+    setFilters((prev) => {
+      const current = prev.customFields ?? {};
+      const existing = current[fieldId] ?? [];
+      const isSelected = existing.includes(value);
+      const next = isSelected
+        ? existing.filter((v) => v !== value)
+        : [...existing, value];
+      const updated = { ...current, [fieldId]: next };
+      if (updated[fieldId].length === 0) delete updated[fieldId];
+      return {
+        ...prev,
+        customFields: Object.keys(updated).length > 0 ? updated : null,
+      };
+    });
+  };
+
   return {
     filters,
     setFilters,
     updateFilter,
     updateLabelFilter,
+    updateCustomFieldFilter,
     filteredProject,
     hasActiveFilters,
     clearFilters,

@@ -6,6 +6,7 @@ import {
   isLegacyRequest,
 } from "@modelcontextprotocol/server";
 import { Hono } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { auth } from "../auth";
 import { apiRouter, createRoute, jsonResponse } from "../openapi";
 import {
@@ -74,6 +75,33 @@ const mcp = apiRouter();
 
 const jsonError = (description: string) =>
   jsonResponse(description, oauthErrorSchema);
+
+// OAuth clients parse validation failures, so these routes answer with the
+// RFC 6749 / RFC 7591 JSON error shape instead of the router's text default.
+type ValidationResult = { success: boolean; error?: { issues: unknown[] } };
+
+const oauthValidationHook =
+  (error: "invalid_request" | "invalid_client_metadata") =>
+  (result: ValidationResult): undefined => {
+    if (result.success) return;
+    const issue = result.error?.issues[0] as
+      | { path?: PropertyKey[]; message?: string }
+      | undefined;
+    const field = issue?.path?.map(String).join(".");
+    throw new HTTPException(400, {
+      res: Response.json(
+        {
+          error: field?.startsWith("redirect_uri")
+            ? "invalid_redirect_uri"
+            : error,
+          error_description: issue
+            ? `${field || "request"}: ${issue.message}`
+            : "Invalid request",
+        },
+        { status: 400 },
+      ),
+    });
+  };
 
 const registerRoute = createRoute({
   method: "post",
@@ -163,27 +191,38 @@ const decideAuthorizationRequestRoute = createRoute({
 });
 
 mcp
-  .openapi(registerRoute, async (c) =>
-    c.json(await registerMcpClient(c.req.valid("json")), 200),
+  .openapi(
+    registerRoute,
+    async (c) => c.json(await registerMcpClient(c.req.valid("json")), 200),
+    oauthValidationHook("invalid_client_metadata"),
   )
-  .openapi(authorizeRoute, async (c) =>
-    c.redirect(await beginMcpAuthorization(c.req.valid("query"))),
+  .openapi(
+    authorizeRoute,
+    async (c) => c.redirect(await beginMcpAuthorization(c.req.valid("query"))),
+    oauthValidationHook("invalid_request"),
   )
-  .openapi(getAuthorizationRequestRoute, async (c) =>
-    c.json(
-      await getMcpAuthorizationRequest(c.req.valid("param").requestId),
-      200,
-    ),
+  .openapi(
+    getAuthorizationRequestRoute,
+    async (c) =>
+      c.json(
+        await getMcpAuthorizationRequest(c.req.valid("param").requestId),
+        200,
+      ),
+    oauthValidationHook("invalid_request"),
   )
-  .openapi(decideAuthorizationRequestRoute, async (c) => {
-    const redirect = await decideMcpAuthorizationRequest({
-      requestId: c.req.valid("param").requestId,
-      decision: c.req.valid("json"),
-      headers: c.req.raw.headers,
-      origin: c.req.header("origin"),
-    });
-    return c.json({ redirect }, 200);
-  });
+  .openapi(
+    decideAuthorizationRequestRoute,
+    async (c) => {
+      const redirect = await decideMcpAuthorizationRequest({
+        requestId: c.req.valid("param").requestId,
+        decision: c.req.valid("json"),
+        headers: c.req.raw.headers,
+        origin: c.req.header("origin"),
+      });
+      return c.json({ redirect }, 200);
+    },
+    oauthValidationHook("invalid_request"),
+  );
 
 mcp.all("/mcp", async (c) => {
   const authResult = await validateBearerToken(c.req.raw);

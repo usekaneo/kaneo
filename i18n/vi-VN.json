@@ -155,6 +155,12 @@
 					"crimson": "Đỏ thẫm"
 				}
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -852,7 +858,9 @@
 			"slackSectionTitle": "Tích hợp Slack",
 			"slackSectionSubtitle": "Gửi cập nhật công việc dự án vào kênh Slack bằng webhook đến.",
 			"telegramSectionTitle": "Tích hợp Telegram",
-			"telegramSectionSubtitle": "Gửi cập nhật công việc dự án vào cuộc trò chuyện hoặc chủ đề Telegram bằng bot."
+			"telegramSectionSubtitle": "Gửi cập nhật công việc dự án vào cuộc trò chuyện hoặc chủ đề Telegram bằng bot.",
+			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook.",
+			"mattermostSectionTitle": "Mattermost Integration"
 		},
 		"projectVisibility": {
 			"pageTitle": "Chế độ hiển thị dự án",
@@ -876,7 +884,9 @@
 			"columnsTitle": "Cột",
 			"columnsDescription": "Quản lý các cột xuất hiện trên bảng của bạn. Kéo để sắp xếp lại. Bật \"Cột hoàn thành\" cho các giai đoạn thể hiện công việc đã hoàn tất.",
 			"automationTitle": "Quy tắc tự động hóa",
-			"automationDescription": "Ánh xạ sự kiện tích hợp với các cột. Khi một sự kiện xảy ra, công việc liên kết sẽ chuyển sang cột được chỉ định."
+			"automationDescription": "Ánh xạ sự kiện tích hợp với các cột. Khi một sự kiện xảy ra, công việc liên kết sẽ chuyển sang cột được chỉ định.",
+			"customFieldsDescription": "Manage the custom fields for this project. Drag  to reorder.",
+			"customFieldsTitle": "Custom Fields"
 		},
 		"projectSwitcher": {
 			"selectProject": "Chọn dự án",
@@ -1271,6 +1281,70 @@
 			"merged": "Đã gộp",
 			"draft": "Bản nháp",
 			"open": "Đang mở"
+		},
+		"mattermostIntegration": {
+			"channelHint": "Optional label for your reference. Mattermost controls the actual destination channel from the webhook setup.",
+			"channelLabel": "Channel name",
+			"channelPlaceholder": "#team-updates",
+			"connect": "Connect Mattermost",
+			"connected": "Connected",
+			"connectionHint": "Paste a Mattermost incoming webhook URL and choose which task events should be posted.",
+			"connectionTitle": "Mattermost webhook connection",
+			"disconnect": "Disconnect",
+			"events": {
+				"taskCommentCreated": "New comments",
+				"taskCreated": "New tasks",
+				"taskDescriptionChanged": "Description changes",
+				"taskPriorityChanged": "Priority changes",
+				"taskStatusChanged": "Status changes",
+				"taskTitleChanged": "Title changes"
+			},
+			"eventsHint": "Choose which project changes should post to Mattermost.",
+			"eventsTitle": "Event notifications",
+			"paused": "Paused",
+			"saveChanges": "Save changes",
+			"toast": {
+				"disabled": "Mattermost notifications paused",
+				"enabled": "Mattermost notifications enabled",
+				"removed": "Mattermost integration removed successfully",
+				"removeError": "Failed to remove Mattermost integration",
+				"saved": "Mattermost integration saved successfully",
+				"saveError": "Failed to save Mattermost integration",
+				"updateError": "Failed to update Mattermost integration"
+			},
+			"update": "Update Mattermost",
+			"validation": {
+				"webhookInvalid": "Enter a valid Mattermost webhook URL"
+			},
+			"webhookHint": "Create an Incoming Webhook in Mattermost and paste the generated URL here.",
+			"webhookLabel": "Incoming webhook URL",
+			"webhookPlaceholder": "https://your-mattermost-server.com/hooks/..."
+		},
+		"customFields": {
+			"addButton": "Add",
+			"createError": "Failed to create custom field.",
+			"createSuccess": "Custom field created.",
+			"creating": "Creating...",
+			"defaultLabel": "Default",
+			"defaultValuePlaceholder": "Default value",
+			"deleteButton": "Delete",
+			"deleteError": "Failed to delete custom field.",
+			"deleteSuccess": "Custom field deleted.",
+			"deleting": "Deleting...",
+			"empty": "No custom fields configured yet.",
+			"loading": "Loading custom fields...",
+			"namePlaceholder": "Field name",
+			"noOptionsPlaceholder": "No options",
+			"optionsPlaceholder": "Options separated by commas",
+			"required": "Required",
+			"typePlaceholder": "Select field type",
+			"types": {
+				"boolean": "Boolean",
+				"date": "Date",
+				"dropdown": "Dropdown",
+				"number": "Number",
+				"text": "Text"
+			}
 		}
 	},
 	"navigation": {
@@ -1584,7 +1658,8 @@
 			"selectTask": "Chọn công việc",
 			"loadingTask": "Đang tải công việc...",
 			"taskNotFound": "Không tìm thấy công việc",
-			"taskNotFoundDescription": "Công việc bạn đang tìm không tồn tại hoặc đã bị xóa."
+			"taskNotFoundDescription": "Công việc bạn đang tìm không tồn tại hoặc đã bị xóa.",
+			"customFields": "Custom Fields"
 		},
 		"detail": {
 			"subtaskOf": "Công việc con của",
@@ -1690,7 +1765,9 @@
 				"mermaid": {
 					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
-			}
+			},
+			"customFieldUpdated": "Field updated",
+			"selectOption": "Select option"
 		},
 		"entity": {
 			"task": "Công việc"
@@ -1851,7 +1928,11 @@
 				"isAnyOf": "là một trong",
 				"includeAnyOf": "bao gồm một trong"
 			},
-			"allProjects": "Tất cả dự án"
+			"allProjects": "Tất cả dự án",
+			"all": "All",
+			"allCustomFieldValues": "All values",
+			"noCustomFieldValues": "No custom field values",
+			"noValuesUsedYet": "No values used yet"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",

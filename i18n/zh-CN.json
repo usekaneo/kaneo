@@ -36,16 +36,16 @@
 			"more": "更多"
 		},
 		"language": {
-			"chinese": "中文",
-			"dutch": "荷兰语",
 			"english": "英语",
-			"french": "法语",
 			"german": "德语",
 			"greek": "希腊语",
-			"italian": "意大利语",
-			"korean": "韩语",
 			"macedonian": "马其顿语",
-			"spanish": "西班牙语"
+			"french": "法语",
+			"spanish": "西班牙语",
+			"dutch": "荷兰语",
+			"korean": "韩语",
+			"chinese": "中文",
+			"italian": "意大利语"
 		},
 		"people": {
 			"someone": "某人",
@@ -53,31 +53,31 @@
 		},
 		"error": {
 			"title": "出错了",
+			"description": "页面意外崩溃，刷新一下通常就能恢复。",
 			"troubleshooting": "故障排查步骤：",
 			"tryAgain": "重试",
 			"viewDeploymentGuide": "查看部署指南",
 			"refreshPage": "刷新页面",
-			"description": "The page crashed unexpectedly. Refreshing usually fixes it.",
 			"messages": {
-				"auth": "Authentication failed. Please sign in again.",
-				"cors": "Unable to connect to the server. This might be due to CORS configuration issues.",
-				"network": "Network error. Please check your internet connection and try again.",
-				"server": "Server error. Please try again later.",
-				"unknown": "An unexpected error occurred."
+				"cors": "无法连接服务器，可能是 CORS 配置问题。",
+				"network": "网络异常，请检查网络连接后重试。",
+				"auth": "身份验证失败，请重新登录。",
+				"server": "服务器错误，请稍后重试。",
+				"unknown": "发生未知错误。"
 			},
 			"troubleshootingSteps": {
 				"cors": {
-					"checkAccessibility": "Check that your API server is accessible from your browser",
-					"checkApiRunning": "Make sure your API server is running",
-					"checkApiUrl": "Check that VITE_API_URL in your frontend .env matches your API server URL",
-					"checkProtocol": "Ensure both frontend and API are using the same protocol (http/https)",
-					"verifyCorsOrigins": "Verify CORS_ORIGINS in your API .env includes your frontend URL"
+					"checkApiRunning": "确认 API 服务器已经启动",
+					"checkApiUrl": "检查前端 .env 中 VITE_API_URL 是否与 API 服务器地址一致",
+					"verifyCorsOrigins": "检查 API 的 .env 中 CORS_ORIGINS 是否包含前端地址",
+					"checkProtocol": "确保前端和 API 使用相同的协议（http/https）",
+					"checkAccessibility": "确认浏览器能访问到 API 服务器"
 				},
 				"network": {
-					"checkConnection": "Check your internet connection",
-					"checkFirewall": "Check if there are any firewall or proxy issues",
-					"tryRefresh": "Try refreshing the page",
-					"verifyApiRunning": "Verify the API server is running and accessible"
+					"checkConnection": "检查网络连接",
+					"verifyApiRunning": "确认 API 服务器运行中且可访问",
+					"tryRefresh": "刷新页面重试",
+					"checkFirewall": "排查防火墙或代理是否拦截了请求"
 				}
 			}
 		},
@@ -155,6 +155,12 @@
 					"crimson": "深红"
 				}
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -362,27 +368,27 @@
 				"invalidEmail": "邮箱地址无效"
 			},
 			"avatar": {
-				"hint": "PNG, JPEG, or WebP. Cropped to a square and resized to 256x256.",
-				"remove": "Remove",
-				"removeError": "Failed to remove profile picture",
-				"removeSuccess": "Profile picture removed",
-				"updateError": "Failed to update profile picture",
-				"updateSuccess": "Profile picture updated",
-				"change": "Change avatar",
-				"edit": "Change your profile picture"
+				"hint": "点击头像即可更换或移除，图片会裁成正方形并缩放到 256x256。",
+				"remove": "移除头像",
+				"updateSuccess": "头像已更新",
+				"updateError": "更新头像失败",
+				"removeSuccess": "头像已移除",
+				"removeError": "移除头像失败",
+				"edit": "更换头像",
+				"change": "更换头像"
 			},
 			"deleteAccount": {
-				"confirm": "Delete account",
-				"confirmLabel": "Confirm your email address",
-				"description": "Workspaces only you belong to are deleted with your account. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
-				"error": "Failed to delete account",
-				"modalDescription": "This cannot be undone. Type {{email}} to confirm.",
-				"modalTitle": "Delete your account?",
-				"sectionSubtitle": "Permanent actions that affect your whole account.",
-				"sectionTitle": "Danger zone",
-				"success": "Your account has been deleted",
-				"title": "Delete account",
-				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
+				"sectionTitle": "危险区域",
+				"sectionSubtitle": "以下操作会永久影响你的整个账户。",
+				"title": "删除账户",
+				"description": "只有你一个人的工作区会随账户一起删除；其他工作区中，你的任务会保留并转为未指派，你发表的评论会被移除。",
+				"modalTitle": "删除你的账户？",
+				"modalDescription": "你的账户将被永久删除，此操作无法撤销。",
+				"confirmLabel": "请输入 {{email}} 以确认",
+				"confirm": "删除账户",
+				"success": "账户已删除",
+				"error": "删除账户失败",
+				"sessionTooOld": "为安全起见，请先退出并重新登录，之后才能删除账户。"
 			}
 		},
 		"notificationsPage": {
@@ -851,6 +857,8 @@
 			"genericWebhookSectionSubtitle": "将项目任务事件以 JSON 形式发送到任意 HTTP 端点。",
 			"slackSectionTitle": "Slack 集成",
 			"slackSectionSubtitle": "通过 Incoming Webhook 将项目任务更新发送到 Slack 频道。",
+			"mattermostSectionTitle": "Mattermost 集成",
+			"mattermostSectionSubtitle": "借助 Incoming Webhook，把项目任务动态推送到 Mattermost 频道。",
 			"telegramSectionTitle": "Telegram 集成",
 			"telegramSectionSubtitle": "通过 Bot 将项目任务更新发送到 Telegram 聊天或话题。"
 		},
@@ -876,7 +884,9 @@
 			"columnsTitle": "列",
 			"columnsDescription": "管理看板上显示的列，可拖拽排序。打开“完成列”以表示已完成阶段。",
 			"automationTitle": "自动化规则",
-			"automationDescription": "将集成事件映射到列。当事件发生时，关联的任务会移动到指定的列。"
+			"automationDescription": "将集成事件映射到列。当事件发生时，关联的任务会移动到指定的列。",
+			"customFieldsDescription": "Manage the custom fields for this project. Drag  to reorder.",
+			"customFieldsTitle": "Custom Fields"
 		},
 		"projectSwitcher": {
 			"selectProject": "选择项目",
@@ -978,6 +988,8 @@
 				"verifyOk": "Gitea 令牌可访问此仓库",
 				"verifyWarning": "请检查令牌权限或仓库访问",
 				"repoNotFound": "未找到仓库或无法访问",
+				"redirected": "Gitea 地址发生重定向（通常转为 HTTPS），请直接使用重定向后的最终地址。",
+				"notGiteaInstance": "该 URL 不指向 Gitea 实例",
 				"verifyError": "验证 Gitea 访问失败",
 				"tokenRequired": "个人访问令牌不能为空",
 				"tokenRequiredVerify": "输入令牌以验证",
@@ -992,9 +1004,7 @@
 				"commentOnDisabled": "新 Issue 的任务链接评论已关闭",
 				"settingsUpdateError": "更新 Gitea 集成失败",
 				"secretCopied": "已复制",
-				"unableToCopySecret": "无法复制密钥",
-				"notGiteaInstance": "The URL does not point to a Gitea instance",
-				"redirected": "Gitea URL redirected (usually to HTTPS). Use the final URL directly."
+				"unableToCopySecret": "无法复制密钥"
 			},
 			"webhookShow": "显示",
 			"webhookHide": "隐藏",
@@ -1058,7 +1068,7 @@
 			"connectionHint": "粘贴 Slack Incoming Webhook URL 并选择应发布的任务事件。",
 			"connected": "已连接",
 			"paused": "已暂停",
-			"webhookLabel": "Incoming Webhook URL",
+			"webhookLabel": "Incoming webhook URL",
 			"webhookPlaceholder": "https://hooks.slack.com/services/...",
 			"webhookHint": "在 Slack 中创建 Incoming Webhook，然后粘贴生成的 URL。",
 			"channelLabel": "频道名称",
@@ -1115,6 +1125,44 @@
 			"connect": "连接 Discord",
 			"saveChanges": "保存更改",
 			"update": "更新 Discord",
+			"disconnect": "断开连接"
+		},
+		"mattermostIntegration": {
+			"validation": {
+				"webhookInvalid": "请输入有效的 Mattermost Webhook URL"
+			},
+			"toast": {
+				"saved": "Mattermost 集成保存成功",
+				"saveError": "保存 Mattermost 集成失败",
+				"enabled": "Mattermost 通知已启用",
+				"disabled": "Mattermost 通知已暂停",
+				"updateError": "更新 Mattermost 集成失败",
+				"removed": "Mattermost 集成已移除",
+				"removeError": "移除 Mattermost 集成失败"
+			},
+			"connectionTitle": "Mattermost Webhook 连接",
+			"connectionHint": "粘贴 Mattermost 的 Incoming Webhook URL，再勾选要推送哪些任务动态。",
+			"connected": "已连接",
+			"paused": "已暂停",
+			"webhookLabel": "Incoming webhook URL",
+			"webhookPlaceholder": "https://your-mattermost-server.com/hooks/...",
+			"webhookHint": "先在 Mattermost 中创建 Incoming Webhook，再把生成的 URL 粘贴到此处。",
+			"channelLabel": "频道名称",
+			"channelPlaceholder": "#team-updates",
+			"channelHint": "仅作参考的备注名称，消息实际发到哪个频道由 Mattermost 侧的 Webhook 设置决定。",
+			"eventsTitle": "事件通知",
+			"eventsHint": "勾选要推送到 Mattermost 的项目事件。",
+			"events": {
+				"taskCreated": "新任务",
+				"taskStatusChanged": "状态变更",
+				"taskPriorityChanged": "优先级变更",
+				"taskTitleChanged": "标题变更",
+				"taskDescriptionChanged": "描述变更",
+				"taskCommentCreated": "新评论"
+			},
+			"connect": "连接 Mattermost",
+			"saveChanges": "保存更改",
+			"update": "更新 Mattermost",
 			"disconnect": "断开连接"
 		},
 		"genericWebhookIntegration": {
@@ -1271,6 +1319,32 @@
 			"merged": "已合并",
 			"draft": "草稿",
 			"open": "打开"
+		},
+		"customFields": {
+			"addButton": "Add",
+			"createError": "Failed to create custom field.",
+			"createSuccess": "Custom field created.",
+			"creating": "Creating...",
+			"defaultLabel": "Default",
+			"defaultValuePlaceholder": "Default value",
+			"deleteButton": "Delete",
+			"deleteError": "Failed to delete custom field.",
+			"deleteSuccess": "Custom field deleted.",
+			"deleting": "Deleting...",
+			"empty": "No custom fields configured yet.",
+			"loading": "Loading custom fields...",
+			"namePlaceholder": "Field name",
+			"noOptionsPlaceholder": "No options",
+			"optionsPlaceholder": "Options separated by commas",
+			"required": "Required",
+			"typePlaceholder": "Select field type",
+			"types": {
+				"boolean": "Boolean",
+				"date": "Date",
+				"dropdown": "Dropdown",
+				"number": "Number",
+				"text": "Text"
+			}
 		}
 	},
 	"navigation": {
@@ -1353,7 +1427,7 @@
 			"settingsWorkspaceTab": "工作区"
 		},
 		"projectSettings": {
-			"projectLabel": "Project"
+			"projectLabel": "项目"
 		},
 		"keyboardShortcuts": {
 			"title": "键盘快捷键",
@@ -1379,11 +1453,11 @@
 				"boardView": "切换到看板视图",
 				"listView": "切换到列表视图",
 				"backlogView": "切换到待办视图",
+				"calendarView": "切换到日历视图",
 				"nextTask": "下一任务",
 				"prevTask": "上一任务",
 				"openTask": "打开所选任务",
-				"quickSelectNumber": "按数字选择选项",
-				"calendarView": "Switch to calendar view"
+				"quickSelectNumber": "按数字选择选项"
 			}
 		}
 	},
@@ -1525,21 +1599,21 @@
 					"csharp": "C#",
 					"cpp": "C++",
 					"css": "CSS",
-					"go": "Go",
+					"go": "Golang",
 					"graphql": "GraphQL",
 					"html": "HTML",
 					"json": "JSON",
 					"java": "Java",
 					"javascript": "JavaScript",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"plaintext": "纯文本",
 					"python": "Python",
 					"rust": "Rust",
 					"sql": "SQL",
 					"swift": "Swift",
 					"typescript": "TypeScript",
-					"yaml": "YAML",
-					"mermaid": "Mermaid"
+					"yaml": "YAML"
 				},
 				"table": {
 					"addColumnBefore": "在左侧插入列",
@@ -1551,7 +1625,7 @@
 					"deleteTable": "删除表格"
 				},
 				"mermaid": {
-					"renderFailed": "Mermaid diagram couldn't be rendered"
+					"renderFailed": "Mermaid 图渲染失败"
 				}
 			}
 		}
@@ -1584,7 +1658,8 @@
 			"selectTask": "选择任务",
 			"loadingTask": "正在加载任务…",
 			"taskNotFound": "未找到任务",
-			"taskNotFoundDescription": "你查找的任务不存在或已删除。"
+			"taskNotFoundDescription": "你查找的任务不存在或已删除。",
+			"customFields": "Custom Fields"
 		},
 		"detail": {
 			"subtaskOf": "子任务属于",
@@ -1644,7 +1719,7 @@
 					"diff": "Diff",
 					"elixir": "Elixir",
 					"excel": "Excel",
-					"go": "Go",
+					"go": "Golang",
 					"graphql": "GraphQL",
 					"html": "HTML",
 					"haskell": "Haskell",
@@ -1654,6 +1729,7 @@
 					"kotlin": "Kotlin",
 					"makefile": "Makefile",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"ocaml": "OCaml",
 					"php": "PHP",
 					"perl": "Perl",
@@ -1669,8 +1745,7 @@
 					"terraform": "Terraform",
 					"typescript": "TypeScript",
 					"xml": "XML",
-					"yaml": "YAML",
-					"mermaid": "Mermaid"
+					"yaml": "YAML"
 				},
 				"embed": {
 					"choice": {
@@ -1688,9 +1763,11 @@
 					"onlyYoutubeInline": "仅支持嵌入 YouTube URL，请改用链接模式。"
 				},
 				"mermaid": {
-					"renderFailed": "Mermaid diagram couldn't be rendered"
+					"renderFailed": "Mermaid 图渲染失败"
 				}
-			}
+			},
+			"customFieldUpdated": "Field updated",
+			"selectOption": "Select option"
 		},
 		"entity": {
 			"task": "任务"
@@ -1851,11 +1928,29 @@
 				"isAnyOf": "为以下任一",
 				"includeAnyOf": "包含以下任一"
 			},
-			"allProjects": "所有项目"
+			"allProjects": "所有项目",
+			"all": "All",
+			"allCustomFieldValues": "All values",
+			"noCustomFieldValues": "No custom field values",
+			"noValuesUsedYet": "No values used yet"
+		},
+		"calendar": {
+			"pageTitle": "{{name}} – 日历",
+			"title": "日历",
+			"previousMonth": "上个月",
+			"nextMonth": "下个月",
+			"today": "今天",
+			"noTasks": "暂无安排的任务",
+			"noTasksSubtitle": "给任务加上开始日期或截止日期（或两者），它就会出现在日历上。",
+			"moreTasks": "+{{count}} 项",
+			"loadError": "任务加载失败。",
+			"dayTasksAriaLabel": "查看 {{date}} 的全部任务",
+			"taskAriaLabel": "{{title}}，{{range}}：打开任务"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – 甘特图",
 			"title": "甘特图时间线",
+			"jumpToToday": "回到今天",
 			"searchPlaceholder": "搜索已排期工单…",
 			"hideTasks": "隐藏任务",
 			"showTasks": "显示任务",
@@ -1867,8 +1962,7 @@
 			"updateDatesError": "更新任务日期失败",
 			"resizeStart": "调整开始日期",
 			"resizeDue": "调整截止日期",
-			"taskAriaLabel": "{{title}}：打开或拖动以移动",
-			"jumpToToday": "Jump to today"
+			"taskAriaLabel": "{{title}}：打开或拖动以移动"
 		},
 		"delete": {
 			"title": "删除任务？",
@@ -1966,19 +2060,6 @@
 				"deleteRow": "删除行",
 				"deleteTable": "删除表格"
 			}
-		},
-		"calendar": {
-			"dayTasksAriaLabel": "Show all tasks for {{date}}",
-			"moreTasks": "+{{count}} more",
-			"nextMonth": "Next month",
-			"noTasks": "No scheduled tasks",
-			"noTasksSubtitle": "Add a start date, due date, or both to tasks to place them on the calendar.",
-			"pageTitle": "{{name}} – Calendar",
-			"previousMonth": "Previous month",
-			"taskAriaLabel": "{{title}}, {{range}}: open task",
-			"title": "Calendar",
-			"today": "Today",
-			"loadError": "Failed to load tasks."
 		},
 		"myTasks": {
 			"empty": "没有分配给你的任务",
