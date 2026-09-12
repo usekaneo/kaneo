@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type Task from "@/types/task";
 import TaskRow from "./task-row";
@@ -12,8 +12,10 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
+const navigate = vi.fn();
+
 vi.mock("@tanstack/react-router", () => ({
-  useNavigate: () => vi.fn(),
+  useNavigate: () => navigate,
 }));
 
 vi.mock("@/hooks/queries/external-link/use-external-links", () => ({
@@ -224,6 +226,23 @@ describe("TaskRow", () => {
     const row = screen.getByRole("button", { name: /Row from payload/ });
     expect(row).not.toHaveAttribute("aria-disabled", "true");
     expect(row).toHaveAttribute("tabindex", "0");
+  });
+
+  it("opens a repeated row with Space as well as Enter", () => {
+    render(
+      <TaskRow task={task} projectSlug="kan" rowId="parent/task-1" depth={1} />,
+    );
+
+    const row = screen.getByRole("button", { name: /Row from payload/ });
+
+    // The repeat carries button semantics but none of dnd-kit's keyboard
+    // listeners, so Space has to be handled for it to activate like one.
+    fireEvent.keyDown(row, { key: " " });
+    expect(navigate).toHaveBeenCalled();
+
+    navigate.mockClear();
+    fireEvent.keyDown(row, { key: "Enter" });
+    expect(navigate).toHaveBeenCalled();
   });
 
   it("labels the toggle by its resulting state", () => {

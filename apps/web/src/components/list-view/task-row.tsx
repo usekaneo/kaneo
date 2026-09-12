@@ -196,6 +196,18 @@ function TaskRow({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       handleClick(e as unknown as React.MouseEvent);
+      return;
+    }
+
+    // Space activates a control with button semantics. Only the repeats need
+    // it handled here: the top-level rows hand Space to dnd-kit, which starts
+    // a keyboard drag with it.
+    if (isNestedRepeat && e.key === " ") {
+      // Opened before the default is prevented: handleClick ignores an event
+      // that is already defaultPrevented, and preventing it anywhere in this
+      // handler still stops the page scrolling.
+      handleClick(e as unknown as React.MouseEvent);
+      e.preventDefault();
     }
   };
 
