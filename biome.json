@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.5.4/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.5.7/schema.json",
 	"vcs": {
 		"enabled": false,
 		"clientKind": "git",
@@ -66,6 +66,16 @@
 				"rules": {
 					"suspicious": {
 						"noTemplateCurlyInString": "off",
+						"noUndeclaredEnvVars": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
+			"linter": {
+				"rules": {
+					"suspicious": {
 						"noUndeclaredEnvVars": "off"
 					}
 				}
