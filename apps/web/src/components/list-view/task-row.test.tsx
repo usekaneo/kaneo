@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type Task from "@/types/task";
 import TaskRow from "./task-row";
@@ -8,11 +8,14 @@ const useGetLabelsByTask = vi.fn((_taskId: string) => ({ data: [] }));
 
 afterEach(() => {
   cleanup();
+  interpolations.length = 0;
   vi.clearAllMocks();
 });
 
+const navigate = vi.fn();
+
 vi.mock("@tanstack/react-router", () => ({
-  useNavigate: () => vi.fn(),
+  useNavigate: () => navigate,
 }));
 
 vi.mock("@/hooks/queries/external-link/use-external-links", () => ({
@@ -64,8 +67,15 @@ vi.mock("@/store/user-preferences", () => ({
   }),
 }));
 
+const interpolations: Record<string, unknown>[] = [];
+
 vi.mock("react-i18next", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    t: (key: string, options?: Record<string, unknown>) => {
+      if (options) interpolations.push(options);
+      return key;
+    },
+  }),
   initReactI18next: { type: "3rdParty", init: vi.fn() },
 }));
 
@@ -107,5 +117,146 @@ describe("TaskRow", () => {
     expect(screen.getByText("#42")).toBeVisible();
     expect(useExternalLinks).not.toHaveBeenCalled();
     expect(useGetLabelsByTask).not.toHaveBeenCalled();
+  });
+
+  it("shows no subtask toggle when the task has no children", () => {
+    render(<TaskRow task={task} projectSlug="kan" />);
+
+    expect(
+      screen.queryByLabelText("tasks:listView.expandSubtasks"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("keeps the subtask toggle outside the drag activator", () => {
+    render(
+      <TaskRow
+        task={task}
+        projectSlug="kan"
+        rowId="parent/task-1"
+        depth={1}
+        childCount={2}
+        onToggleExpanded={vi.fn()}
+      />,
+    );
+
+    const toggle = screen.getByLabelText("tasks:listView.expandSubtasks");
+    const activator = document.querySelector('[role="button"]');
+
+    // dnd-kit gives its activator role="button". A button nested inside one is
+    // an ambiguous control for assistive technology, so the toggle has to be a
+    // sibling of the draggable region rather than a descendant.
+    expect(activator).not.toBeNull();
+    expect(activator?.contains(toggle)).toBe(false);
+    expect(toggle.closest('[role="button"]')).toBeNull();
+  });
+
+  it("reserves the toggle column so titles stay aligned in a group", () => {
+    const { container: withToggle } = render(
+      <TaskRow
+        task={task}
+        projectSlug="kan"
+        childCount={1}
+        reserveToggleSpace
+        onToggleExpanded={vi.fn()}
+      />,
+    );
+    const { container: withoutToggle } = render(
+      <TaskRow task={task} projectSlug="kan" reserveToggleSpace />,
+    );
+
+    const gutter = (root: HTMLElement) =>
+      root.firstElementChild?.firstElementChild;
+
+    // A row with no children still renders the column, so its number and title
+    // start at the same offset as a sibling that does have one.
+    expect(gutter(withToggle)).not.toBeNull();
+    expect(gutter(withoutToggle)).not.toBeNull();
+    expect(gutter(withoutToggle)?.className).toEqual(
+      gutter(withToggle)?.className,
+    );
+  });
+
+  it("keeps the original left edge when a group has no subtasks", () => {
+    const { container } = render(<TaskRow task={task} projectSlug="kan" />);
+    const draggable = container.querySelector('[role="button"]');
+
+    expect(draggable?.className).toContain("pl-4");
+  });
+
+  it("announces the nesting level, which the indent cannot", () => {
+    render(
+      <TaskRow task={task} projectSlug="kan" rowId="a/b/task-1" depth={2} />,
+    );
+
+    // A nested repeat and its top-level row otherwise expose identical
+    // content, so the hierarchy would be inaudible.
+    expect(screen.getByText("tasks:listView.subtaskLevel")).toBeInTheDocument();
+  });
+
+  it("adds no level announcement to a top-level row", () => {
+    render(<TaskRow task={task} projectSlug="kan" />);
+
+    expect(
+      screen.queryByText("tasks:listView.subtaskLevel"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("names the toggle by its task, not the action alone", () => {
+    render(
+      <TaskRow
+        task={task}
+        projectSlug="kan"
+        childCount={1}
+        onToggleExpanded={vi.fn()}
+      />,
+    );
+
+    // Several rows each offering "Show subtasks" would be indistinguishable,
+    // so the label interpolates the title.
+    expect(interpolations).toContainEqual({ title: "Row from payload" });
+  });
+
+  it("does not announce a repeated row as disabled", () => {
+    render(
+      <TaskRow task={task} projectSlug="kan" rowId="parent/task-1" depth={1} />,
+    );
+
+    // The repeat is not a drag source, but it still opens its task, so the
+    // aria-disabled dnd-kit puts on a disabled sortable must not reach it.
+    const row = screen.getByRole("button", { name: /Row from payload/ });
+    expect(row).not.toHaveAttribute("aria-disabled", "true");
+    expect(row).toHaveAttribute("tabindex", "0");
+  });
+
+  it("opens a repeated row with Space as well as Enter", () => {
+    render(
+      <TaskRow task={task} projectSlug="kan" rowId="parent/task-1" depth={1} />,
+    );
+
+    const row = screen.getByRole("button", { name: /Row from payload/ });
+
+    // The repeat carries button semantics but none of dnd-kit's keyboard
+    // listeners, so Space has to be handled for it to activate like one.
+    fireEvent.keyDown(row, { key: " " });
+    expect(navigate).toHaveBeenCalled();
+
+    navigate.mockClear();
+    fireEvent.keyDown(row, { key: "Enter" });
+    expect(navigate).toHaveBeenCalled();
+  });
+
+  it("labels the toggle by its resulting state", () => {
+    render(
+      <TaskRow
+        task={task}
+        projectSlug="kan"
+        childCount={1}
+        isExpanded
+        onToggleExpanded={vi.fn()}
+      />,
+    );
+
+    const toggle = screen.getByLabelText("tasks:listView.collapseSubtasks");
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
   });
 });

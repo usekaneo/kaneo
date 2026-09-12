@@ -2111,7 +2111,10 @@
 		"listView": {
 			"addTask": "Dodaj zadanie",
 			"archiveAllTooltip": "Archiwizuj wszystkie ukończone zadania",
-			"noTasks": "Brak zadań"
+			"noTasks": "Brak zadań",
+			"collapseSubtasks": "Ukryj podzadania {{title}}",
+			"expandSubtasks": "Pokaż podzadania {{title}}",
+			"subtaskLevel": "Podzadanie, poziom {{level}}"
 		},
 		"move": {
 			"action": "Przenieś zadanie",

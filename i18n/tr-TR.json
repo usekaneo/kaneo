@@ -1966,7 +1966,10 @@
 		"listView": {
 			"addTask": "Talep ekle",
 			"archiveAllTooltip": "Tüm tamamlanmış talepleri arşivle",
-			"noTasks": "Talep yok"
+			"noTasks": "Talep yok",
+			"collapseSubtasks": "{{title}} alt taleplerini gizle",
+			"expandSubtasks": "{{title}} alt taleplerini göster",
+			"subtaskLevel": "Alt talep, seviye {{level}}"
 		},
 		"kanban": {
 			"addTask": "Talep ekle"

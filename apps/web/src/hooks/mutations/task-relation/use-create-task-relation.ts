@@ -13,6 +13,11 @@ function useCreateTaskRelation() {
       queryClient.invalidateQueries({
         queryKey: ["task-relations", variables.targetTaskId],
       });
+      // The list view reads relations per project rather than per task, and
+      // the mutation does not carry the project the tasks belong to.
+      queryClient.invalidateQueries({
+        queryKey: ["task-relations", "project"],
+      });
     },
   });
 }

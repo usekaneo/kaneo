@@ -14,7 +14,13 @@ export function useBulkOperations() {
     mutationFn: async (taskIds: string[]) => {
       await Promise.all(taskIds.map((id) => deleteTask(id)));
     },
-    onSuccess: invalidateCommon,
+    onSuccess: () => {
+      invalidateCommon();
+      // Relations cascade with each task, and the task-deleted broadcast skips
+      // the window that issued the delete. Only this path refreshes the edge
+      // set for whoever ran the bulk operation.
+      queryClientRef.invalidateQueries({ queryKey: ["task-relations"] });
+    },
   });
 
   const bulkArchive = useMutation({

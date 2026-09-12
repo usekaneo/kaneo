@@ -1971,7 +1971,10 @@
 		"listView": {
 			"addTask": "Aggiungi attività",
 			"archiveAllTooltip": "Archivia tutte le attività completate",
-			"noTasks": "Nessuna attività"
+			"noTasks": "Nessuna attività",
+			"collapseSubtasks": "Nascondi sotto-attività di {{title}}",
+			"expandSubtasks": "Mostra sotto-attività di {{title}}",
+			"subtaskLevel": "Sotto-attività, livello {{level}}"
 		},
 		"kanban": {
 			"addTask": "Aggiungi attività"
