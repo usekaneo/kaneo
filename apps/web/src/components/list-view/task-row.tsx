@@ -201,13 +201,58 @@ function TaskRow({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "border-b border-border/50 transition-colors duration-150",
+        // The indent and the toggle sit beside the draggable region rather
+        // than inside it: dnd-kit gives its activator role="button", and a
+        // button nested in one is an ambiguous control for assistive tech.
+        "group flex items-stretch border-b border-border/50 transition-colors duration-150",
         isDragging && "opacity-50",
         isTaskSelected &&
           "bg-accent/60 shadow-sm ring-1 ring-inset ring-ring/30",
         isTaskFocused && "ring-2 ring-inset ring-ring/50",
       )}
     >
+      {(depth > 0 || childCount > 0) && (
+        <div
+          className={cn(
+            "flex flex-shrink-0 items-center pl-4",
+            isTaskSelected ? "bg-accent/45" : "group-hover:bg-accent/60",
+          )}
+        >
+          {depth > 0 && (
+            <span
+              aria-hidden="true"
+              className="flex-shrink-0"
+              // Indentation is capped so a deep chain cannot push the title
+              // off the row; the chevrons still convey the nesting.
+              style={{ width: `${Math.min(depth, 6) * 1.25}rem` }}
+            />
+          )}
+
+          {childCount > 0 ? (
+            <button
+              type="button"
+              onClick={onToggleExpanded}
+              aria-expanded={isExpanded}
+              aria-label={
+                isExpanded
+                  ? t("tasks:listView.collapseSubtasks")
+                  : t("tasks:listView.expandSubtasks")
+              }
+              className="flex-shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              <ChevronRight
+                className={cn(
+                  "w-3 h-3 transition-transform",
+                  isExpanded && "rotate-90",
+                )}
+              />
+            </button>
+          ) : (
+            <span aria-hidden="true" className="w-5 flex-shrink-0" />
+          )}
+        </div>
+      )}
+
       <ContextMenu>
         <ContextMenuTrigger asChild>
           {/* biome-ignore lint/a11y/noStaticElementInteractions: false positive for onClick and onKeyDown */}
@@ -215,53 +260,13 @@ function TaskRow({
             onClick={handleClick}
             onKeyDown={handleKeyDown}
             className={cn(
-              "group relative flex items-center gap-3 px-4 py-1.5 transition-colors cursor-pointer",
-              isTaskSelected ? "bg-accent/45" : "hover:bg-accent/60",
+              "relative flex min-w-0 flex-1 items-center gap-3 py-1.5 pr-4 transition-colors cursor-pointer",
+              depth > 0 || childCount > 0 ? "pl-2" : "pl-4",
+              isTaskSelected ? "bg-accent/45" : "group-hover:bg-accent/60",
             )}
             {...attributes}
             {...listeners}
           >
-            {depth > 0 && (
-              <div
-                aria-hidden="true"
-                className="flex-shrink-0"
-                // Indentation is capped so a deep chain cannot push the title
-                // off the row; the chevrons still convey the nesting.
-                style={{ width: `${Math.min(depth, 6) * 1.25}rem` }}
-              />
-            )}
-
-            {childCount > 0 ? (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleExpanded?.();
-                }}
-                // The row handles Enter by opening the task, and a button's
-                // Enter keydown bubbles there even though its click does not.
-                onKeyDown={(e) => e.stopPropagation()}
-                aria-expanded={isExpanded}
-                aria-label={
-                  isExpanded
-                    ? t("tasks:listView.collapseSubtasks")
-                    : t("tasks:listView.expandSubtasks")
-                }
-                className="flex-shrink-0 -my-1 -mx-1 p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-              >
-                <ChevronRight
-                  className={cn(
-                    "w-3 h-3 transition-transform",
-                    isExpanded && "rotate-90",
-                  )}
-                />
-              </button>
-            ) : (
-              depth > 0 && (
-                <div aria-hidden="true" className="w-3 flex-shrink-0" />
-              )
-            )}
-
             {showPriority && (
               <div className="flex-shrink-0 first:[&_svg]:h-4 first:[&_svg]:w-4">
                 {getPriorityIcon(task.priority ?? "")}

@@ -108,4 +108,50 @@ describe("TaskRow", () => {
     expect(useExternalLinks).not.toHaveBeenCalled();
     expect(useGetLabelsByTask).not.toHaveBeenCalled();
   });
+
+  it("shows no subtask toggle when the task has no children", () => {
+    render(<TaskRow task={task} projectSlug="kan" />);
+
+    expect(
+      screen.queryByLabelText("tasks:listView.expandSubtasks"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("keeps the subtask toggle outside the drag activator", () => {
+    render(
+      <TaskRow
+        task={task}
+        projectSlug="kan"
+        rowId="parent/task-1"
+        depth={1}
+        childCount={2}
+        onToggleExpanded={vi.fn()}
+      />,
+    );
+
+    const toggle = screen.getByLabelText("tasks:listView.expandSubtasks");
+    const activator = document.querySelector('[role="button"]');
+
+    // dnd-kit gives its activator role="button". A button nested inside one is
+    // an ambiguous control for assistive technology, so the toggle has to be a
+    // sibling of the draggable region rather than a descendant.
+    expect(activator).not.toBeNull();
+    expect(activator?.contains(toggle)).toBe(false);
+    expect(toggle.closest('[role="button"]')).toBeNull();
+  });
+
+  it("labels the toggle by its resulting state", () => {
+    render(
+      <TaskRow
+        task={task}
+        projectSlug="kan"
+        childCount={1}
+        isExpanded
+        onToggleExpanded={vi.fn()}
+      />,
+    );
+
+    const toggle = screen.getByLabelText("tasks:listView.collapseSubtasks");
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+  });
 });
