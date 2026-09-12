@@ -11,11 +11,13 @@ import {
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { GithubIcon } from "@/components/icons/github-icon";
+import { GitlabIcon } from "@/components/icons/gitlab-icon";
 import PageTitle from "@/components/page-title";
 import { DiscordIntegrationSettings } from "@/components/project/discord-integration-settings";
 import { GenericWebhookIntegrationSettings } from "@/components/project/generic-webhook-integration-settings";
 import { GiteaIntegrationSettings } from "@/components/project/gitea-integration-settings";
 import { GitHubIntegrationSettings } from "@/components/project/github-integration-settings";
+import { GitlabIntegrationSettings } from "@/components/project/gitlab-integration-settings";
 import { MattermostIntegrationSettings } from "@/components/project/mattermost-integration-settings";
 import { SlackIntegrationSettings } from "@/components/project/slack-integration-settings";
 import { TelegramIntegrationSettings } from "@/components/project/telegram-integration-settings";
@@ -63,6 +65,14 @@ function RouteComponent() {
             title={t("settings:projectIntegrations.giteaSectionTitle")}
           >
             <GiteaIntegrationSettings projectId={projectId} />
+          </IntegrationSection>
+
+          <IntegrationSection
+            icon={<GitlabIcon className="size-4" />}
+            subtitle={t("settings:projectIntegrations.gitlabSectionSubtitle")}
+            title={t("settings:projectIntegrations.gitlabSectionTitle")}
+          >
+            <GitlabIntegrationSettings projectId={projectId} />
           </IntegrationSection>
 
           <IntegrationSection
