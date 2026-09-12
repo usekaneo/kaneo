@@ -15,13 +15,16 @@ import { validateWorkspaceAccess } from "../utils/validate-workspace-access";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createTaskRelation from "./controllers/create-task-relation";
 import deleteTaskRelation from "./controllers/delete-task-relation";
+import getProjectTaskRelations from "./controllers/get-project-task-relations";
 import getTaskRelations from "./controllers/get-task-relations";
 import {
+  taskRelationListSchema,
   taskRelationSchema,
   taskRelationWithTasksListSchema,
 } from "./response";
 import {
   createTaskRelationBody,
+  projectIdParam,
   taskIdParam,
   taskRelationParam,
 } from "./schema";
@@ -113,6 +116,28 @@ const getTaskRelationsRoute = createRoute({
   },
 });
 
+const getProjectTaskRelationsRoute = createRoute({
+  method: "get",
+  operationId: "getProjectTaskRelations",
+  path: "/project/{projectId}",
+  tags: ["Task Relations"],
+  summary: "Get a project's task relations",
+  description:
+    "Get every relation joining two tasks in the project, without the task summaries the per-task endpoint returns. Intended for views that render many tasks at once and already hold them. Relations reaching outside the project are omitted.",
+  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  request: { params: projectIdParam },
+  responses: {
+    200: jsonResponse(
+      "Relations between tasks in the project",
+      taskRelationListSchema,
+    ),
+    400: errorResponse(
+      "Unknown project, or its workspace could not be determined",
+    ),
+    403: errorResponse("No access to the project's workspace"),
+  },
+});
+
 const createTaskRelationRoute = createRoute({
   method: "post",
   operationId: "createTaskRelation",
@@ -164,6 +189,10 @@ const deleteTaskRelationRoute = createRoute({
 });
 
 const taskRelation = apiRouter<BaseVariables & { workspaceId: string }>()
+  // Registered before "/{taskId}" so the literal segment is matched first.
+  .openapi(getProjectTaskRelationsRoute, async (c) =>
+    c.json(await getProjectTaskRelations(c.req.valid("param").projectId), 200),
+  )
   .openapi(getTaskRelationsRoute, async (c) =>
     c.json(
       await getTaskRelations(c.req.valid("param").taskId, c.get("workspaceId")),
