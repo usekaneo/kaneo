@@ -462,7 +462,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
                       depth={row.depth}
                       rowId={row.rowId}
                       childCount={row.childCount}
-                      isExpanded={Boolean(expandedTasks[row.rowId])}
+                      isExpanded={row.isExpanded}
                       onToggleExpanded={() => toggleTaskExpanded(row.rowId)}
                     />
                   </motion.div>

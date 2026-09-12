@@ -15,6 +15,13 @@ export type SubtaskRow<T> = {
    */
   rowId: string;
   childCount: number;
+  /**
+   * Whether this row's children are actually rendered beneath it. Not the same
+   * as the stored preference: a drag collapses every row, and the budget stops
+   * deep ones expanding. The chevron and its aria-expanded must follow this,
+   * or the control describes a subtree that is not on screen.
+   */
+  isExpanded: boolean;
 };
 
 /**
@@ -110,9 +117,11 @@ export function flattenSubtaskRows<T extends { id: string }>({
     // rather than an expanded one with nothing beneath it.
     const childCount = nested >= maxNestedRows ? 0 : childTasks.length;
 
-    rows.push({ task, depth, rowId, childCount });
+    const expanded = childCount > 0 && isExpanded(rowId);
 
-    if (childCount === 0 || !isExpanded(rowId)) return;
+    rows.push({ task, depth, rowId, childCount, isExpanded: expanded });
+
+    if (!expanded) return;
 
     const nextAncestors = new Set(ancestors);
     nextAncestors.add(task.id);

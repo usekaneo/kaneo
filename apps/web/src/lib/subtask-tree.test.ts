@@ -207,6 +207,26 @@ describe("flattenSubtaskRows", () => {
     expect(rows.filter((row) => row.depth > 0)).toHaveLength(10);
   });
 
+  it("reports the expansion that was actually rendered", () => {
+    const tasks = [task("parent"), task("child")];
+    const relations = [subtask("parent", "child")];
+
+    const open = flatten(tasks, relations);
+    expect(open.find((row) => row.rowId === "parent")?.isExpanded).toBe(true);
+
+    // The stored preference is irrelevant once the flattener declines to
+    // expand — during a drag, say — and the chevron follows this, not the map.
+    const shut = flatten(tasks, relations, { expanded: false });
+    expect(shut.find((row) => row.rowId === "parent")?.isExpanded).toBe(false);
+    expect(shut.find((row) => row.rowId === "parent")?.childCount).toBe(1);
+  });
+
+  it("never reports a childless row as expanded", () => {
+    const rows = flatten([task("a")], []);
+
+    expect(rows[0].isExpanded).toBe(false);
+  });
+
   it("reports no children once the budget is spent", () => {
     const tasks = [task("a"), task("b")];
     const rows = flattenSubtaskRows({
