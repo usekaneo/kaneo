@@ -105,7 +105,10 @@ describe("API integration: project task relations", () => {
     const outside = await seedTask(member.user.id, other.project.id, "Outside");
 
     const kept = await relate(parent.id, inside.id);
+    // Both directions: the endpoint requires each end to be in the project,
+    // so an outward and an inward edge exercise a different check each.
     await relate(parent.id, outside.id);
+    await relate(outside.id, parent.id);
 
     const response = await fetchProjectRelations(project.id);
     const payload = (await response.json()) as RelationRow[];
