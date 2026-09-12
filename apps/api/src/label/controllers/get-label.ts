@@ -1,18 +1,21 @@
-import { HTTPException } from "hono/http-exception";
-import db from "../../database";
+import { Effect } from "effect";
+import { Database } from "../../effect/database";
+import { LabelNotFound } from "../errors";
 
-async function getLabel(id: string) {
-  const label = await db.query.labelTable.findFirst({
-    where: (label, { eq }) => eq(label.id, id),
-  });
+const getLabel = Effect.fn("label.getLabel")(function* (id: string) {
+  const database = yield* Database;
+
+  const label = yield* database.query((db) =>
+    db.query.labelTable.findFirst({
+      where: (label, { eq }) => eq(label.id, id),
+    }),
+  );
 
   if (!label) {
-    throw new HTTPException(404, {
-      message: "Label not found",
-    });
+    return yield* new LabelNotFound({ id });
   }
 
   return label;
-}
+});
 
 export default getLabel;

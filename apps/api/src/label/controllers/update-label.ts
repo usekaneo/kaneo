@@ -1,43 +1,57 @@
 import { and, eq, isNotNull } from "drizzle-orm";
-import { HTTPException } from "hono/http-exception";
-import db from "../../database";
+import { Effect } from "effect";
 import { labelTable } from "../../database/schema";
+import { Database } from "../../effect/database";
+import { LabelNotFound } from "../errors";
 
-async function updateLabel(id: string, name: string, color: string) {
-  return db.transaction(async (tx) => {
-    const label = await tx.query.labelTable.findFirst({
-      where: (label, { eq }) => eq(label.id, id),
-    });
+const updateLabel = Effect.fn("label.updateLabel")(function* (
+  id: string,
+  name: string,
+  color: string,
+) {
+  const database = yield* Database;
 
-    if (!label) {
-      throw new HTTPException(404, {
-        message: "Label not found",
-      });
-    }
+  return yield* database.transaction((tx) =>
+    Effect.gen(function* () {
+      const label = yield* tx.query((db) =>
+        db.query.labelTable.findFirst({
+          where: (label, { eq }) => eq(label.id, id),
+        }),
+      );
 
-    const [updatedLabel] = await tx
-      .update(labelTable)
-      .set({ name, color })
-      .where(eq(labelTable.id, id))
-      .returning();
+      if (!label) {
+        return yield* new LabelNotFound({ id });
+      }
 
-    // If this is a workspace-level label, cascade the changes to all
-    // task-level copies so existing label assignments reflect the new color/name
-    if (!label.taskId && label.workspaceId) {
-      await tx
-        .update(labelTable)
-        .set({ name, color })
-        .where(
-          and(
-            eq(labelTable.workspaceId, label.workspaceId),
-            eq(labelTable.name, label.name),
-            isNotNull(labelTable.taskId),
-          ),
+      const [updatedLabel] = yield* tx.query((db) =>
+        db
+          .update(labelTable)
+          .set({ name, color })
+          .where(eq(labelTable.id, id))
+          .returning(),
+      );
+
+      // If this is a workspace-level label, cascade the changes to all
+      // task-level copies so existing label assignments reflect the new color/name
+      if (!label.taskId && label.workspaceId) {
+        const workspaceId = label.workspaceId;
+        yield* tx.query((db) =>
+          db
+            .update(labelTable)
+            .set({ name, color })
+            .where(
+              and(
+                eq(labelTable.workspaceId, workspaceId),
+                eq(labelTable.name, label.name),
+                isNotNull(labelTable.taskId),
+              ),
+            ),
         );
-    }
+      }
 
-    return updatedLabel;
-  });
-}
+      return updatedLabel;
+    }),
+  );
+});
 
 export default updateLabel;

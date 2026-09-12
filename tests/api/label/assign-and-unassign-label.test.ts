@@ -70,8 +70,17 @@ vi.mock(
   }),
 );
 
-import assignLabelToTask from "../../../apps/api/src/label/controllers/assign-label-to-task";
-import unassignLabelFromTask from "../../../apps/api/src/label/controllers/unassign-label-from-task";
+import assignLabelToTaskEffect from "../../../apps/api/src/label/controllers/assign-label-to-task";
+import unassignLabelFromTaskEffect from "../../../apps/api/src/label/controllers/unassign-label-from-task";
+import { runLabel } from "../../../apps/api/src/label/runtime";
+
+// Runs the controllers through the same boundary the route handlers use.
+const assignLabelToTask = (
+  ...args: Parameters<typeof assignLabelToTaskEffect>
+) => runLabel(assignLabelToTaskEffect(...args));
+const unassignLabelFromTask = (
+  ...args: Parameters<typeof unassignLabelFromTaskEffect>
+) => runLabel(unassignLabelFromTaskEffect(...args));
 
 const WORKSPACE_LABEL = {
   id: "label-ws-1",

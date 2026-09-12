@@ -1,167 +1,155 @@
 import { and, eq } from "drizzle-orm";
-import { HTTPException } from "hono/http-exception";
-import db from "../../database";
+import { Effect } from "effect";
+import { labelTable, projectTable, taskTable } from "../../database/schema";
+import { Database } from "../../effect/database";
+import { Events } from "../../effect/events";
 import {
-  labelTable,
-  type labelTable as labelTableType,
-  projectTable,
-  taskTable,
-} from "../../database/schema";
-import { publishEvent } from "../../events";
-import {
-  removeLabelFromGitea,
-  syncLabelToGitea,
-} from "../../plugins/gitea/utils/sync-label-to-gitea";
-import {
-  removeLabelFromGitHub,
-  syncLabelToGitHub,
-} from "../../plugins/github/utils/sync-label-to-github";
+  LabelAttachFailed,
+  LabelNotFound,
+  LabelWorkspaceMismatch,
+  TaskNotFound,
+} from "../errors";
+import { LabelSync } from "../label-sync";
 
-type LabelRow = typeof labelTableType.$inferSelect;
+const assignLabelToTask = Effect.fn("label.assignLabelToTask")(function* (
+  id: string,
+  taskId: string,
+  userId: string,
+) {
+  const database = yield* Database;
+  const events = yield* Events;
+  const sync = yield* LabelSync;
 
-async function assignLabelToTask(id: string, taskId: string, userId: string) {
-  const label = await db.query.labelTable.findFirst({
-    where: (label, { eq }) => eq(label.id, id),
-  });
+  const label = yield* database.query((db) =>
+    db.query.labelTable.findFirst({
+      where: (label, { eq }) => eq(label.id, id),
+    }),
+  );
 
   if (!label) {
-    throw new HTTPException(404, {
-      message: "Label not found",
-    });
+    return yield* new LabelNotFound({ id });
   }
 
-  const [task] = await db
-    .select({
-      id: taskTable.id,
-      projectId: taskTable.projectId,
-      workspaceId: projectTable.workspaceId,
-    })
-    .from(taskTable)
-    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
-    .where(eq(taskTable.id, taskId))
-    .limit(1);
+  const [task] = yield* database.query((db) =>
+    db
+      .select({
+        id: taskTable.id,
+        projectId: taskTable.projectId,
+        workspaceId: projectTable.workspaceId,
+      })
+      .from(taskTable)
+      .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+      .where(eq(taskTable.id, taskId))
+      .limit(1),
+  );
 
   if (!task) {
-    throw new HTTPException(404, {
-      message: "Task not found",
-    });
+    return yield* new TaskNotFound({ taskId });
   }
 
   if (label.workspaceId && label.workspaceId !== task.workspaceId) {
-    throw new HTTPException(400, {
-      message: "Label and task must belong to the same workspace",
-    });
+    return yield* new LabelWorkspaceMismatch({ labelId: id, taskId });
   }
 
   if (label.taskId === taskId) {
     return label;
   }
 
-  type InsertionResult = {
-    taskLabel: LabelRow;
-    inserted: boolean;
-    previousTaskId: string | null;
-    previousName: string;
-  };
   const { taskLabel, inserted, previousTaskId, previousName } =
-    await db.transaction<InsertionResult>(async (tx) => {
-      const currentLabel = await tx.query.labelTable.findFirst({
-        where: (label, { eq }) => eq(label.id, id),
-      });
+    yield* database.transaction((tx) =>
+      Effect.gen(function* () {
+        const currentLabel = yield* tx.query((db) =>
+          db.query.labelTable.findFirst({
+            where: (label, { eq }) => eq(label.id, id),
+          }),
+        );
 
-      if (!currentLabel) {
-        throw new HTTPException(404, {
-          message: "Label not found",
-        });
-      }
+        if (!currentLabel) {
+          return yield* new LabelNotFound({ id });
+        }
 
-      if (
-        currentLabel.workspaceId &&
-        currentLabel.workspaceId !== task.workspaceId
-      ) {
-        throw new HTTPException(400, {
-          message: "Label and task must belong to the same workspace",
-        });
-      }
+        if (
+          currentLabel.workspaceId &&
+          currentLabel.workspaceId !== task.workspaceId
+        ) {
+          return yield* new LabelWorkspaceMismatch({ labelId: id, taskId });
+        }
 
-      if (currentLabel.taskId === taskId) {
+        if (currentLabel.taskId === taskId) {
+          return {
+            taskLabel: currentLabel,
+            inserted: false,
+            previousTaskId: null,
+            previousName: currentLabel.name,
+          };
+        }
+
+        const previousTaskId = currentLabel.taskId;
+        if (previousTaskId) {
+          yield* tx.query((db) =>
+            db.delete(labelTable).where(eq(labelTable.id, id)),
+          );
+        }
+
+        const [insertedRow] = yield* tx.query((db) =>
+          db
+            .insert(labelTable)
+            .values({
+              name: currentLabel.name,
+              color: currentLabel.color,
+              taskId,
+              workspaceId: task.workspaceId,
+            })
+            .onConflictDoNothing({
+              target: [labelTable.taskId, labelTable.name],
+            })
+            .returning(),
+        );
+
+        if (insertedRow) {
+          return {
+            taskLabel: insertedRow,
+            inserted: true,
+            previousTaskId,
+            previousName: currentLabel.name,
+          };
+        }
+
+        const existing = yield* tx.query((db) =>
+          db.query.labelTable.findFirst({
+            where: and(
+              eq(labelTable.taskId, taskId),
+              eq(labelTable.name, currentLabel.name),
+            ),
+          }),
+        );
+
+        if (!existing) {
+          return yield* new LabelAttachFailed({ id, taskId });
+        }
+
         return {
-          taskLabel: currentLabel,
+          taskLabel: existing,
           inserted: false,
-          previousTaskId: null,
-          previousName: currentLabel.name,
-        };
-      }
-
-      const previousTaskId = currentLabel.taskId;
-      if (previousTaskId) {
-        await tx.delete(labelTable).where(eq(labelTable.id, id));
-      }
-
-      const [insertedRow] = await tx
-        .insert(labelTable)
-        .values({
-          name: currentLabel.name,
-          color: currentLabel.color,
-          taskId,
-          workspaceId: task.workspaceId,
-        })
-        .onConflictDoNothing({
-          target: [labelTable.taskId, labelTable.name],
-        })
-        .returning();
-
-      if (insertedRow) {
-        return {
-          taskLabel: insertedRow,
-          inserted: true,
           previousTaskId,
           previousName: currentLabel.name,
         };
-      }
-
-      const existing = await tx.query.labelTable.findFirst({
-        where: and(
-          eq(labelTable.taskId, taskId),
-          eq(labelTable.name, currentLabel.name),
-        ),
-      });
-
-      if (!existing) {
-        throw new HTTPException(500, {
-          message: "Failed to attach label to task",
-        });
-      }
-
-      return {
-        taskLabel: existing,
-        inserted: false,
-        previousTaskId,
-        previousName: currentLabel.name,
-      };
-    });
+      }),
+    );
 
   if (previousTaskId) {
-    removeLabelFromGitHub(previousTaskId, previousName).catch((error) => {
-      console.error("Failed to remove label from GitHub:", error);
-    });
-    removeLabelFromGitea(previousTaskId, previousName).catch((error) => {
-      console.error("Failed to remove label from Gitea:", error);
-    });
+    yield* sync.removeFromGitHub(previousTaskId, previousName);
+    yield* sync.removeFromGitea(previousTaskId, previousName);
   }
 
   if (!inserted) {
     return taskLabel;
   }
 
-  syncLabelToGitHub(taskId, taskLabel.name, taskLabel.color).catch((error) => {
-    console.error("Failed to sync label to GitHub:", error);
-  });
-  syncLabelToGitea(taskId, taskLabel.name, taskLabel.color).catch((error) => {
-    console.error("Failed to sync label to Gitea:", error);
-  });
+  yield* sync.syncToGitHub(taskId, taskLabel.name, taskLabel.color);
+  yield* sync.syncToGitea(taskId, taskLabel.name, taskLabel.color);
 
-  await publishEvent("task.label_assigned", {
+  yield* events.publish("task.label_assigned", {
     label: taskLabel,
     task,
     projectId: task.projectId,
@@ -171,6 +159,6 @@ async function assignLabelToTask(id: string, taskId: string, userId: string) {
   });
 
   return taskLabel;
-}
+});
 
 export default assignLabelToTask;

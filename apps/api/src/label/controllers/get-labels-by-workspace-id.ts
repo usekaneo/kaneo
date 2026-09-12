@@ -1,12 +1,19 @@
 import { eq } from "drizzle-orm";
-import db from "../../database";
+import { Effect } from "effect";
 import { labelTable } from "../../database/schema";
+import { Database } from "../../effect/database";
 
-function getLabelsByWorkspaceId(workspaceId: string) {
-  return db
-    .select()
-    .from(labelTable)
-    .where(eq(labelTable.workspaceId, workspaceId));
-}
+const getLabelsByWorkspaceId = Effect.fn("label.getLabelsByWorkspaceId")(
+  function* (workspaceId: string) {
+    const database = yield* Database;
+
+    return yield* database.query((db) =>
+      db
+        .select()
+        .from(labelTable)
+        .where(eq(labelTable.workspaceId, workspaceId)),
+    );
+  },
+);
 
 export default getLabelsByWorkspaceId;

@@ -15,6 +15,7 @@ import getLabelsByWorkspaceId from "./controllers/get-labels-by-workspace-id";
 import unassignLabelFromTask from "./controllers/unassign-label-from-task";
 import updateLabel from "./controllers/update-label";
 import { labelListSchema, labelSchema } from "./response";
+import { runLabel } from "./runtime";
 import {
   attachLabelBody,
   createLabelBody,
@@ -209,44 +210,44 @@ const deleteLabelRoute = createRoute({
 const label = apiRouter()
   .openapi(getTaskLabelsRoute, async (c) => {
     const { taskId } = c.req.valid("param");
-    return c.json(await getLabelsByTaskId(taskId), 200);
+    return c.json(await runLabel(getLabelsByTaskId(taskId)), 200);
   })
   .openapi(getWorkspaceLabelsRoute, async (c) => {
     const { workspaceId } = c.req.valid("param");
-    return c.json(await getLabelsByWorkspaceId(workspaceId), 200);
+    return c.json(await runLabel(getLabelsByWorkspaceId(workspaceId)), 200);
   })
   .openapi(createLabelRoute, async (c) => {
     const { name, color, workspaceId, taskId } = c.req.valid("json");
     const userId = c.get("userId");
     return c.json(
-      await createLabel(name, color, taskId, workspaceId, userId),
+      await runLabel(createLabel(name, color, taskId, workspaceId, userId)),
       200,
     );
   })
   .openapi(getLabelRoute, async (c) => {
     const { id } = c.req.valid("param");
-    return c.json(await getLabel(id), 200);
+    return c.json(await runLabel(getLabel(id)), 200);
   })
   .openapi(attachLabelToTaskRoute, async (c) => {
     const { id } = c.req.valid("param");
     const { taskId } = c.req.valid("json");
     const userId = c.get("userId");
-    return c.json(await assignLabelToTask(id, taskId, userId), 200);
+    return c.json(await runLabel(assignLabelToTask(id, taskId, userId)), 200);
   })
   .openapi(detachLabelFromTaskRoute, async (c) => {
     const { id } = c.req.valid("param");
     const userId = c.get("userId");
-    return c.json(await unassignLabelFromTask(id, userId), 200);
+    return c.json(await runLabel(unassignLabelFromTask(id, userId)), 200);
   })
   .openapi(updateLabelRoute, async (c) => {
     const { id } = c.req.valid("param");
     const { name, color } = c.req.valid("json");
-    return c.json(await updateLabel(id, name, color), 200);
+    return c.json(await runLabel(updateLabel(id, name, color)), 200);
   })
   .openapi(deleteLabelRoute, async (c) => {
     const { id } = c.req.valid("param");
     const userId = c.get("userId");
-    return c.json(await deleteLabel(id, userId), 200);
+    return c.json(await runLabel(deleteLabel(id, userId)), 200);
   });
 
 export default label;
