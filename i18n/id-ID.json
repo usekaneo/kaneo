@@ -1963,7 +1963,8 @@
 			"archiveAllTooltip": "Arsipkan semua tugas yang selesai",
 			"noTasks": "Tidak ada tugas",
 			"collapseSubtasks": "Sembunyikan subtugas",
-			"expandSubtasks": "Tampilkan subtugas"
+			"expandSubtasks": "Tampilkan subtugas",
+			"subtaskLevel": "Subtugas, tingkat {{level}}"
 		},
 		"kanban": {
 			"addTask": "Tambah tugas"

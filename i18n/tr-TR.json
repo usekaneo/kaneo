@@ -1968,7 +1968,8 @@
 			"archiveAllTooltip": "Tüm tamamlanmış talepleri arşivle",
 			"noTasks": "Talep yok",
 			"collapseSubtasks": "Alt talepleri gizle",
-			"expandSubtasks": "Alt talepleri göster"
+			"expandSubtasks": "Alt talepleri göster",
+			"subtaskLevel": "Alt talep, seviye {{level}}"
 		},
 		"kanban": {
 			"addTask": "Talep ekle"

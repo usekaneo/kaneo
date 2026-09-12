@@ -185,6 +185,28 @@ describe("flattenSubtaskRows", () => {
     expect(rows.filter((row) => row.depth === 0)).toHaveLength(tasks.length);
   });
 
+  it("caps a single parent with more children than the budget", () => {
+    const parent = task("parent");
+    const children = Array.from({ length: 50 }, (_, index) =>
+      task(`child-${index}`),
+    );
+    const relations = children.map((child) => subtask("parent", child.id));
+
+    const rows = flattenSubtaskRows({
+      tasks: [parent],
+      children: buildSubtaskChildren(relations),
+      tasksById: new Map(
+        [parent, ...children].map((entry) => [entry.id, entry]),
+      ),
+      isExpanded: () => true,
+      maxNestedRows: 10,
+    });
+
+    // The budget used to be checked once per parent, so a wide parent emitted
+    // every child regardless of it.
+    expect(rows.filter((row) => row.depth > 0)).toHaveLength(10);
+  });
+
   it("leaves every task a top-level row even when nesting is capped", () => {
     const tasks = [task("a"), task("b"), task("c")];
     const rows = flattenSubtaskRows({

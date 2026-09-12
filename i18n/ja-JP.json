@@ -1976,7 +1976,8 @@
 			"archiveAllTooltip": "完了したタスクをすべてアーカイブ",
 			"noTasks": "タスクはありません",
 			"collapseSubtasks": "サブタスクを非表示",
-			"expandSubtasks": "サブタスクを表示"
+			"expandSubtasks": "サブタスクを表示",
+			"subtaskLevel": "サブタスク、レベル {{level}}"
 		},
 		"kanban": {
 			"addTask": "タスクを追加"

@@ -1957,7 +1957,8 @@
 			"archiveAllTooltip": "Alle voltooide taken archiveren",
 			"noTasks": "Geen taken",
 			"collapseSubtasks": "Subtaken verbergen",
-			"expandSubtasks": "Subtaken tonen"
+			"expandSubtasks": "Subtaken tonen",
+			"subtaskLevel": "Subtaak, niveau {{level}}"
 		},
 		"kanban": {
 			"addTask": "Taak toevoegen"

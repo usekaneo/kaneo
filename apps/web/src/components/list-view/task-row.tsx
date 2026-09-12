@@ -274,6 +274,16 @@ function TaskRow({
             {...attributes}
             {...listeners}
           >
+            {depth > 0 && (
+              // The indent is decorative, so nesting is otherwise inaudible:
+              // a repeat and its top-level row expose identical content. This
+              // joins the row's accessible name, which the drag activator
+              // builds from its text.
+              <span className="sr-only">
+                {t("tasks:listView.subtaskLevel", { level: depth })}
+              </span>
+            )}
+
             {showPriority && (
               <div className="flex-shrink-0 first:[&_svg]:h-4 first:[&_svg]:w-4">
                 {getPriorityIcon(task.priority ?? "")}

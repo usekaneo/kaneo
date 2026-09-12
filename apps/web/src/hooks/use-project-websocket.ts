@@ -74,9 +74,11 @@ export function useProjectWebSocket(projectId: string) {
             // which edges belong to the project qualify: an edit, a label or a
             // comment leaves the edge set alone and would cost every mounted
             // list a refetch.
+            // Creating a task inserts no relation — a subtask is a create
+            // followed by a separate relation mutation, which emits its own
+            // event — so only these three can change the edge set.
             if (
               message.type === "TASK_RELATION_UPDATED" ||
-              message.type === "TASK_CREATED" ||
               message.type === "TASK_DELETED" ||
               message.type === "TASK_MOVED"
             ) {

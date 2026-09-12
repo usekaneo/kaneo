@@ -173,6 +173,24 @@ describe("TaskRow", () => {
     expect(draggable?.className).toContain("pl-4");
   });
 
+  it("announces the nesting level, which the indent cannot", () => {
+    render(
+      <TaskRow task={task} projectSlug="kan" rowId="a/b/task-1" depth={2} />,
+    );
+
+    // A nested repeat and its top-level row otherwise expose identical
+    // content, so the hierarchy would be inaudible.
+    expect(screen.getByText("tasks:listView.subtaskLevel")).toBeInTheDocument();
+  });
+
+  it("adds no level announcement to a top-level row", () => {
+    render(<TaskRow task={task} projectSlug="kan" />);
+
+    expect(
+      screen.queryByText("tasks:listView.subtaskLevel"),
+    ).not.toBeInTheDocument();
+  });
+
   it("labels the toggle by its resulting state", () => {
     render(
       <TaskRow

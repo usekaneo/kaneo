@@ -2113,7 +2113,8 @@
 			"archiveAllTooltip": "Archiwizuj wszystkie ukończone zadania",
 			"noTasks": "Brak zadań",
 			"collapseSubtasks": "Ukryj podzadania",
-			"expandSubtasks": "Pokaż podzadania"
+			"expandSubtasks": "Pokaż podzadania",
+			"subtaskLevel": "Podzadanie, poziom {{level}}"
 		},
 		"move": {
 			"action": "Przenieś zadanie",

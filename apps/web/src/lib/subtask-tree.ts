@@ -109,6 +109,9 @@ export function flattenSubtaskRows<T extends { id: string }>({
     const nextAncestors = new Set(ancestors);
     nextAncestors.add(task.id);
     for (const child of childTasks) {
+      // Checked per child, not once per parent: a single parent with more
+      // children than the budget would otherwise emit all of them.
+      if (nested >= maxNestedRows) return;
       walk(child, depth + 1, nextAncestors, rowId);
     }
   };

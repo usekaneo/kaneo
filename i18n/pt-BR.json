@@ -1973,7 +1973,8 @@
 			"archiveAllTooltip": "Arquivar todas as tarefas concluídas",
 			"noTasks": "Nenhuma tarefa",
 			"collapseSubtasks": "Ocultar subtarefas",
-			"expandSubtasks": "Mostrar subtarefas"
+			"expandSubtasks": "Mostrar subtarefas",
+			"subtaskLevel": "Subtarefa, nível {{level}}"
 		},
 		"kanban": {
 			"addTask": "Adicionar tarefa"

@@ -1968,7 +1968,8 @@
 			"archiveAllTooltip": "Αρχειοθέτηση όλων των ολοκληρωμένων εργασιών",
 			"noTasks": "Δεν υπάρχουν εργασίες",
 			"collapseSubtasks": "Απόκρυψη υποεργασιών",
-			"expandSubtasks": "Εμφάνιση υποεργασιών"
+			"expandSubtasks": "Εμφάνιση υποεργασιών",
+			"subtaskLevel": "Υποεργασία, επίπεδο {{level}}"
 		},
 		"kanban": {
 			"addTask": "Προσθήκη εργασίας"

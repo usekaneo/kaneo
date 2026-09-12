@@ -1978,7 +1978,8 @@
 			"archiveAllTooltip": "Архівувати всі завершені завдання",
 			"noTasks": "Немає завдань",
 			"collapseSubtasks": "Приховати підзавдання",
-			"expandSubtasks": "Показати підзавдання"
+			"expandSubtasks": "Показати підзавдання",
+			"subtaskLevel": "Підзавдання, рівень {{level}}"
 		},
 		"kanban": {
 			"addTask": "Додати завдання"

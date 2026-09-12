@@ -1968,7 +1968,8 @@
 			"archiveAllTooltip": "सभी पूर्ण कार्य संग्रहित करें",
 			"noTasks": "कोई कार्य नहीं",
 			"collapseSubtasks": "उप-कार्य छिपाएँ",
-			"expandSubtasks": "उप-कार्य दिखाएँ"
+			"expandSubtasks": "उप-कार्य दिखाएँ",
+			"subtaskLevel": "उप-कार्य, स्तर {{level}}"
 		},
 		"kanban": {
 			"addTask": "कार्य जोड़ें"

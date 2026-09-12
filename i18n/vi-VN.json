@@ -1963,7 +1963,8 @@
 			"archiveAllTooltip": "Lưu trữ tất cả công việc đã hoàn thành",
 			"noTasks": "Không có công việc",
 			"collapseSubtasks": "Ẩn công việc con",
-			"expandSubtasks": "Hiện công việc con"
+			"expandSubtasks": "Hiện công việc con",
+			"subtaskLevel": "Công việc con, cấp {{level}}"
 		},
 		"kanban": {
 			"addTask": "Thêm công việc"

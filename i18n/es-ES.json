@@ -1962,7 +1962,8 @@
 			"archiveAllTooltip": "Archivar todas las tareas completadas",
 			"noTasks": "No hay tareas",
 			"collapseSubtasks": "Ocultar sub-tareas",
-			"expandSubtasks": "Mostrar sub-tareas"
+			"expandSubtasks": "Mostrar sub-tareas",
+			"subtaskLevel": "Sub-tarea, nivel {{level}}"
 		},
 		"kanban": {
 			"addTask": "Añadir tarea"

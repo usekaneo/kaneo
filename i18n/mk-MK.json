@@ -1968,7 +1968,8 @@
 			"archiveAllTooltip": "Архивирај ги сите завршени задачи",
 			"noTasks": "Нема задачи",
 			"collapseSubtasks": "Сокриј подзадачи",
-			"expandSubtasks": "Прикажи подзадачи"
+			"expandSubtasks": "Прикажи подзадачи",
+			"subtaskLevel": "Подзадача, ниво {{level}}"
 		},
 		"kanban": {
 			"addTask": "Додади задача"

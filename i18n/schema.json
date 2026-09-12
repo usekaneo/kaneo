@@ -8045,6 +8045,9 @@
 						},
 						"collapseSubtasks": {
 							"type": "string"
+						},
+						"subtaskLevel": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -8052,7 +8055,8 @@
 						"archiveAllTooltip",
 						"noTasks",
 						"expandSubtasks",
-						"collapseSubtasks"
+						"collapseSubtasks",
+						"subtaskLevel"
 					]
 				},
 				"kanban": {
