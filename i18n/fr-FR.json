@@ -1971,7 +1971,9 @@
 		"listView": {
 			"addTask": "Ajouter une tâche",
 			"archiveAllTooltip": "Archiver toutes les tâches terminées",
-			"noTasks": "Aucune tâche"
+			"noTasks": "Aucune tâche",
+			"collapseSubtasks": "Masquer les sous-tâches",
+			"expandSubtasks": "Afficher les sous-tâches"
 		},
 		"kanban": {
 			"addTask": "Ajouter une tâche"

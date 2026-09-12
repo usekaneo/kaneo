@@ -6,6 +6,7 @@ import {
   Calendar,
   CalendarClock,
   CalendarX,
+  ChevronRight,
   GitMerge,
   GitPullRequest,
 } from "lucide-react";
@@ -50,11 +51,34 @@ import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
 type TaskRowProps = {
   task: Task;
   projectSlug: string;
+  /** Nesting level; 0 for a task shown in its own status group. */
+  depth?: number;
+  /**
+   * Identifies the row rather than the task. A subtask keeps its own top-level
+   * row and is repeated under each parent, so the task id is not unique here
+   * and cannot be used as a drag identity.
+   */
+  rowId?: string;
+  childCount?: number;
+  isExpanded?: boolean;
+  onToggleExpanded?: () => void;
 };
 
-function TaskRow({ task, projectSlug }: TaskRowProps) {
+function TaskRow({
+  task,
+  projectSlug,
+  depth = 0,
+  rowId,
+  childCount = 0,
+  isExpanded = false,
+  onToggleExpanded,
+}: TaskRowProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  // Only the top-level row is a drag source. A nested repeat shares its task
+  // id with that row, so making it sortable would register the same id twice
+  // and move the wrong row.
+  const isNestedRepeat = depth > 0;
   const {
     attributes,
     listeners,
@@ -62,7 +86,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: task.id });
+  } = useSortable({ id: rowId ?? task.id, disabled: isNestedRepeat });
 
   const { project } = useProjectStore();
   const taskIsCompleted = isTaskCompleted(task.status, project?.columns);
@@ -197,6 +221,44 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
             {...attributes}
             {...listeners}
           >
+            {depth > 0 && (
+              <div
+                aria-hidden="true"
+                className="flex-shrink-0"
+                // Indentation is capped so a deep chain cannot push the title
+                // off the row; the chevrons still convey the nesting.
+                style={{ width: `${Math.min(depth, 6) * 1.25}rem` }}
+              />
+            )}
+
+            {childCount > 0 ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleExpanded?.();
+                }}
+                aria-expanded={isExpanded}
+                aria-label={
+                  isExpanded
+                    ? t("tasks:listView.collapseSubtasks")
+                    : t("tasks:listView.expandSubtasks")
+                }
+                className="flex-shrink-0 -my-1 -mx-1 p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+              >
+                <ChevronRight
+                  className={cn(
+                    "w-3 h-3 transition-transform",
+                    isExpanded && "rotate-90",
+                  )}
+                />
+              </button>
+            ) : (
+              depth > 0 && (
+                <div aria-hidden="true" className="w-3 flex-shrink-0" />
+              )
+            )}
+
             {showPriority && (
               <div className="flex-shrink-0 first:[&_svg]:h-4 first:[&_svg]:w-4">
                 {getPriorityIcon(task.priority ?? "")}

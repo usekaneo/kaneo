@@ -1979,7 +1979,9 @@
 		"listView": {
 			"addTask": "Tapşırıq əlavə et",
 			"archiveAllTooltip": "Bütün tamamlanmış tapşırıqları arxivlə",
-			"noTasks": "Tapşırıq yoxdur"
+			"noTasks": "Tapşırıq yoxdur",
+			"collapseSubtasks": "Alt tapşırıqları gizlət",
+			"expandSubtasks": "Alt tapşırıqları göstər"
 		},
 		"kanban": {
 			"addTask": "Tapşırıq əlavə et"

@@ -1996,7 +1996,9 @@
 		"listView": {
 			"addTask": "Добавить задачу",
 			"archiveAllTooltip": "Архивировать все завершённые задачи",
-			"noTasks": "Нет задач"
+			"noTasks": "Нет задач",
+			"collapseSubtasks": "Скрыть подзадачи",
+			"expandSubtasks": "Показать подзадачи"
 		},
 		"kanban": {
 			"addTask": "Добавить задачу"

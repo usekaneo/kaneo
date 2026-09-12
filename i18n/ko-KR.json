@@ -1974,7 +1974,9 @@
 		"listView": {
 			"addTask": "작업 추가",
 			"archiveAllTooltip": "완료된 모든 작업 보관",
-			"noTasks": "작업 없음"
+			"noTasks": "작업 없음",
+			"collapseSubtasks": "하위 작업 숨기기",
+			"expandSubtasks": "하위 작업 표시"
 		},
 		"kanban": {
 			"addTask": "작업 추가"

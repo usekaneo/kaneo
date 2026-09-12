@@ -1966,7 +1966,9 @@
 		"listView": {
 			"addTask": "कार्य जोड़ें",
 			"archiveAllTooltip": "सभी पूर्ण कार्य संग्रहित करें",
-			"noTasks": "कोई कार्य नहीं"
+			"noTasks": "कोई कार्य नहीं",
+			"collapseSubtasks": "उप-कार्य छिपाएँ",
+			"expandSubtasks": "उप-कार्य दिखाएँ"
 		},
 		"kanban": {
 			"addTask": "कार्य जोड़ें"

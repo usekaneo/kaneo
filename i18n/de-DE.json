@@ -1966,7 +1966,9 @@
 		"listView": {
 			"addTask": "Aufgabe hinzufügen",
 			"archiveAllTooltip": "Alle abgeschlossenen Aufgaben archivieren",
-			"noTasks": "Keine Aufgaben"
+			"noTasks": "Keine Aufgaben",
+			"collapseSubtasks": "Teilaufgaben ausblenden",
+			"expandSubtasks": "Teilaufgaben anzeigen"
 		},
 		"kanban": {
 			"addTask": "Aufgabe hinzufügen"

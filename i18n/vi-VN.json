@@ -1961,7 +1961,9 @@
 		"listView": {
 			"addTask": "Thêm công việc",
 			"archiveAllTooltip": "Lưu trữ tất cả công việc đã hoàn thành",
-			"noTasks": "Không có công việc"
+			"noTasks": "Không có công việc",
+			"collapseSubtasks": "Ẩn công việc con",
+			"expandSubtasks": "Hiện công việc con"
 		},
 		"kanban": {
 			"addTask": "Thêm công việc"

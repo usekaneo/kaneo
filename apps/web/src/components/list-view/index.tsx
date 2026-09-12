@@ -22,13 +22,15 @@ import { useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import { produce } from "immer";
 import { Archive, ChevronRight, Flag, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import useGetProjectTaskRelations from "@/hooks/queries/task-relation/use-get-project-task-relations";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
 import { getColumnIcon } from "@/lib/column";
+import { buildSubtaskChildren, flattenSubtaskRows } from "@/lib/subtask-tree";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
@@ -74,6 +76,55 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
   const [columnToArchive, setColumnToArchive] = useState<
     ProjectWithTasks["columns"][number] | null
   >(null);
+
+  const { data: relations } = useGetProjectTaskRelations(project?.id ?? "");
+
+  const subtaskChildren = useMemo(
+    () => buildSubtaskChildren(relations ?? []),
+    [relations],
+  );
+
+  const tasksById = useMemo(() => {
+    const index = new Map<
+      string,
+      ProjectWithTasks["columns"][number]["tasks"][number]
+    >();
+    for (const column of project?.columns ?? []) {
+      for (const task of column.tasks) {
+        index.set(task.id, task);
+      }
+    }
+    return index;
+  }, [project?.columns]);
+
+  // Per viewer and per project, and only a convenience: a row that cannot be
+  // restored simply starts collapsed.
+  const expandedStorageKey = `kaneo:list-view:expanded-subtasks:${project?.id ?? ""}`;
+  const [expandedTasks, setExpandedTasks] = useState<Record<string, boolean>>(
+    () => {
+      try {
+        const stored = localStorage.getItem(expandedStorageKey);
+        return stored ? (JSON.parse(stored) as Record<string, boolean>) : {};
+      } catch {
+        return {};
+      }
+    },
+  );
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(expandedStorageKey, JSON.stringify(expandedTasks));
+    } catch {
+      // A private window or blocked site data only costs the restore.
+    }
+  }, [expandedStorageKey, expandedTasks]);
+
+  const toggleTaskExpanded = useCallback((rowId: string) => {
+    setExpandedTasks((previous) => ({
+      ...previous,
+      [rowId]: !previous[rowId],
+    }));
+  }, []);
 
   useEffect(() => {
     if (project?.columns) {
@@ -294,6 +345,17 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
 
     const showDropIndicator = activeId && overColumnId === column.id;
 
+    // A dragged parent collapses for the duration: moving a row while its
+    // children are rendered beneath it has no single correct outcome, and
+    // hiding them keeps the drag to the one row the user grabbed.
+    const rows = flattenSubtaskRows({
+      tasks: column.tasks,
+      children: subtaskChildren,
+      tasksById,
+      isExpanded: (rowId) =>
+        Boolean(expandedTasks[rowId]) && activeId !== rowId,
+    });
+
     return (
       <div
         className={cn(
@@ -355,20 +417,30 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
             ref={setNodeRef}
             className="bg-card transition-[translate,opacity] duration-150 ease-out starting:-translate-y-1 starting:opacity-0 motion-reduce:starting:translate-y-0"
           >
+            {/* Only the top-level rows are sortable; the nested repeats share
+                their task id with one of them. */}
             <SortableContext
               items={column.tasks}
               strategy={verticalListSortingStrategy}
             >
               <AnimatePresence initial={false} mode="popLayout">
-                {column.tasks.map((task) => (
+                {rows.map((row) => (
                   <motion.div
-                    key={task.id}
+                    key={row.rowId}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
                   >
-                    <TaskRow task={task} projectSlug={project?.slug ?? ""} />
+                    <TaskRow
+                      task={row.task}
+                      projectSlug={project?.slug ?? ""}
+                      depth={row.depth}
+                      rowId={row.rowId}
+                      childCount={row.childCount}
+                      isExpanded={Boolean(expandedTasks[row.rowId])}
+                      onToggleExpanded={() => toggleTaskExpanded(row.rowId)}
+                    />
                   </motion.div>
                 ))}
               </AnimatePresence>

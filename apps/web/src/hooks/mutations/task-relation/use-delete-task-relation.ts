@@ -10,6 +10,11 @@ function useDeleteTaskRelation(taskId: string) {
       queryClient.invalidateQueries({
         queryKey: ["task-relations", taskId],
       });
+      // The other end of the relation and the project-scoped list the list
+      // view reads are both stale now, and neither is keyed by this task.
+      queryClient.invalidateQueries({
+        queryKey: ["task-relations", "project"],
+      });
     },
   });
 }
