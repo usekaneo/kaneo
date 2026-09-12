@@ -365,14 +365,13 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
       tasks: column.tasks,
       children: subtaskChildren,
       tasksById,
-      isExpanded: (rowId) => {
-        if (!expandedTasks[rowId]) return false;
-        // activeId is the dragged row's id, which is a bare task id because
-        // only top-level rows drag. The same task can also be rendered at
-        // "parent/child", and those occurrences have to collapse too.
-        const taskId = rowId.slice(rowId.lastIndexOf("/") + 1);
-        return activeId !== taskId;
-      },
+      // Nothing stays expanded while a drag is in flight. Nested repeats are
+      // not in the SortableContext, so they never receive the transforms
+      // applied to the top-level rows: dragging any task past an expanded
+      // parent would slide the parent while its children stayed put, and the
+      // subtree would visibly split. Collapsing happens once, as the drag
+      // starts, rather than shifting rows under a moving pointer.
+      isExpanded: (rowId) => !activeId && Boolean(expandedTasks[rowId]),
     });
 
     const groupHasSubtasks = rows.some(

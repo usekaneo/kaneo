@@ -214,6 +214,18 @@ describe("TaskRow", () => {
     expect(interpolations).toContainEqual({ title: "Row from payload" });
   });
 
+  it("does not announce a repeated row as disabled", () => {
+    render(
+      <TaskRow task={task} projectSlug="kan" rowId="parent/task-1" depth={1} />,
+    );
+
+    // The repeat is not a drag source, but it still opens its task, so the
+    // aria-disabled dnd-kit puts on a disabled sortable must not reach it.
+    const row = screen.getByRole("button", { name: /Row from payload/ });
+    expect(row).not.toHaveAttribute("aria-disabled", "true");
+    expect(row).toHaveAttribute("tabindex", "0");
+  });
+
   it("labels the toggle by its resulting state", () => {
     render(
       <TaskRow

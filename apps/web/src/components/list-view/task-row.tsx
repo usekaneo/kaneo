@@ -276,13 +276,18 @@ function TaskRow({
           <div
             onClick={handleClick}
             onKeyDown={handleKeyDown}
+            // A repeated row opens its task like any other, so it keeps the
+            // button semantics but takes none of dnd-kit's attributes: those
+            // carry aria-disabled for a disabled sortable, which would tell
+            // assistive technology the row cannot be used.
+            {...(isNestedRepeat
+              ? { role: "button" as const, tabIndex: 0 }
+              : { ...attributes, ...listeners })}
             className={cn(
               "relative flex min-w-0 flex-1 items-center gap-3 py-1.5 pr-4 transition-colors cursor-pointer",
               showToggleColumn ? "pl-2" : "pl-4",
               isTaskSelected ? "bg-accent/45" : "group-hover:bg-accent/60",
             )}
-            {...attributes}
-            {...listeners}
           >
             {depth > 0 && (
               // The indent is decorative, so nesting is otherwise inaudible:
