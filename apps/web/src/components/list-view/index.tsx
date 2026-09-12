@@ -40,6 +40,19 @@ import { ArchiveTasksModal } from "../shared/modals/archive-tasks-modal";
 import CreateTaskModal from "../shared/modals/create-task-modal";
 import TaskRow from "./task-row";
 
+function expandedRowsStorageKey(projectId: string) {
+  return `kaneo:list-view:expanded-subtasks:${projectId}`;
+}
+
+function readExpandedRows(projectId: string): Record<string, boolean> {
+  try {
+    const stored = localStorage.getItem(expandedRowsStorageKey(projectId));
+    return stored ? (JSON.parse(stored) as Record<string, boolean>) : {};
+  } catch {
+    return {};
+  }
+}
+
 type ListViewProps = {
   project: ProjectWithTasks;
   disableDragDrop?: boolean;
@@ -99,30 +112,36 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
 
   // Per viewer and per project, and only a convenience: a row that cannot be
   // restored simply starts collapsed.
-  const expandedStorageKey = `kaneo:list-view:expanded-subtasks:${project?.id ?? ""}`;
-  const [expandedTasks, setExpandedTasks] = useState<Record<string, boolean>>(
-    () => {
-      try {
-        const stored = localStorage.getItem(expandedStorageKey);
-        return stored ? (JSON.parse(stored) as Record<string, boolean>) : {};
-      } catch {
-        return {};
-      }
-    },
-  );
+  const projectId = project?.id ?? "";
+  const [expanded, setExpanded] = useState(() => ({
+    projectId,
+    rows: readExpandedRows(projectId),
+  }));
+
+  // The board route swaps this component's project rather than remounting it,
+  // so a lazy initializer would keep the previous project's map and then save
+  // it under the new project's key.
+  if (expanded.projectId !== projectId) {
+    setExpanded({ projectId, rows: readExpandedRows(projectId) });
+  }
+
+  const expandedTasks = expanded.rows;
 
   useEffect(() => {
     try {
-      localStorage.setItem(expandedStorageKey, JSON.stringify(expandedTasks));
+      localStorage.setItem(
+        expandedRowsStorageKey(projectId),
+        JSON.stringify(expandedTasks),
+      );
     } catch {
       // A private window or blocked site data only costs the restore.
     }
-  }, [expandedStorageKey, expandedTasks]);
+  }, [projectId, expandedTasks]);
 
   const toggleTaskExpanded = useCallback((rowId: string) => {
-    setExpandedTasks((previous) => ({
+    setExpanded((previous) => ({
       ...previous,
-      [rowId]: !previous[rowId],
+      rows: { ...previous.rows, [rowId]: !previous.rows[rowId] },
     }));
   }, []);
 
@@ -352,8 +371,14 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
       tasks: column.tasks,
       children: subtaskChildren,
       tasksById,
-      isExpanded: (rowId) =>
-        Boolean(expandedTasks[rowId]) && activeId !== rowId,
+      isExpanded: (rowId) => {
+        if (!expandedTasks[rowId]) return false;
+        // activeId is the dragged row's id, which is a bare task id because
+        // only top-level rows drag. The same task can also be rendered at
+        // "parent/child", and those occurrences have to collapse too.
+        const taskId = rowId.slice(rowId.lastIndexOf("/") + 1);
+        return activeId !== taskId;
+      },
     });
 
     return (

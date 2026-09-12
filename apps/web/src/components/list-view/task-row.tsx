@@ -238,6 +238,9 @@ function TaskRow({
                   e.stopPropagation();
                   onToggleExpanded?.();
                 }}
+                // The row handles Enter by opening the task, and a button's
+                // Enter keydown bubbles there even though its click does not.
+                onKeyDown={(e) => e.stopPropagation()}
                 aria-expanded={isExpanded}
                 aria-label={
                   isExpanded

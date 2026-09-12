@@ -69,6 +69,14 @@ export function useProjectWebSocket(projectId: string) {
               queryKey: ["tasks", message.projectId],
             });
 
+            // The list view reads relations per project. A relation changed by
+            // another client, or a task moving in or out of the project,
+            // changes which edges belong to it, and neither is covered by the
+            // per-task keys below.
+            queryClient.invalidateQueries({
+              queryKey: ["task-relations", "project", message.projectId],
+            });
+
             if (message.type === "TASK_RELATION_UPDATED") {
               if (message.sourceTaskId) {
                 queryClient.invalidateQueries({

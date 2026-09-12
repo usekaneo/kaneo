@@ -147,6 +147,59 @@ describe("flattenSubtaskRows", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
+  it("caps nesting on a layered graph with shared descendants", () => {
+    // Every task on a level parents every task on the next. Expanding each
+    // occurrence would enumerate simple paths: this shape produced 16,356 rows
+    // before expansion was bounded, with no cycle anywhere in it.
+    const LEVELS = 12;
+    const WIDTH = 2;
+    const tasks: T[] = [];
+    const relations: TaskRelationEdge[] = [];
+
+    for (let level = 0; level < LEVELS; level += 1) {
+      for (let index = 0; index < WIDTH; index += 1) {
+        tasks.push(task(`l${level}n${index}`));
+      }
+    }
+    for (let level = 0; level < LEVELS - 1; level += 1) {
+      for (let from = 0; from < WIDTH; from += 1) {
+        for (let to = 0; to < WIDTH; to += 1) {
+          relations.push(subtask(`l${level}n${from}`, `l${level + 1}n${to}`));
+        }
+      }
+    }
+
+    const rows = flattenSubtaskRows({
+      tasks,
+      children: buildSubtaskChildren(relations),
+      tasksById: new Map(tasks.map((entry) => [entry.id, entry])),
+      isExpanded: () => true,
+      maxNestedRows: 200,
+    });
+
+    // Unbounded, this shape reaches 16,356 rows with no cycle in it. Reaching
+    // it in the app would need a viewer to expand that many rows by hand, but
+    // the walk itself has to terminate regardless of who calls it.
+    const nested = rows.filter((row) => row.depth > 0);
+    expect(nested.length).toBeLessThan(400);
+    expect(rows.filter((row) => row.depth === 0)).toHaveLength(tasks.length);
+  });
+
+  it("leaves every task a top-level row even when nesting is capped", () => {
+    const tasks = [task("a"), task("b"), task("c")];
+    const rows = flattenSubtaskRows({
+      tasks,
+      children: buildSubtaskChildren([subtask("a", "b"), subtask("b", "c")]),
+      tasksById: new Map(tasks.map((entry) => [entry.id, entry])),
+      isExpanded: () => true,
+      maxNestedRows: 0,
+    });
+
+    // Status grouping and the per-column counts depend on these rows, so the
+    // cap drops nesting and never a task's own row.
+    expect(rows.map((row) => row.rowId)).toEqual(["a", "b", "c"]);
+  });
+
   it("ignores a child the view is not rendering", () => {
     // A subtask in another project is not returned by the endpoint, so a
     // chevron would open onto nothing.

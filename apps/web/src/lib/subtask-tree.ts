@@ -47,6 +47,18 @@ export function buildSubtaskChildren(
 }
 
 /**
+ * A task may have several parents, so expanding every occurrence enumerates
+ * simple paths rather than tasks and can grow exponentially: twelve layers of
+ * two tasks each, 24 tasks and 44 edges, reach 16,356 rows. Reaching that
+ * needs a viewer to expand exponentially many rows by hand, since every row
+ * starts collapsed and nested rows carry their own path ids rather than
+ * inheriting their task's state. The cap is a backstop for the shapes that
+ * would otherwise freeze the tab, not the mechanism that keeps the common
+ * case small.
+ */
+const MAX_NESTED_ROWS = 1000;
+
+/**
  * Expands a column's tasks into rows, repeating each subtask beneath its
  * parent when that parent is expanded.
  *
@@ -59,13 +71,16 @@ export function flattenSubtaskRows<T extends { id: string }>({
   children,
   tasksById,
   isExpanded,
+  maxNestedRows = MAX_NESTED_ROWS,
 }: {
   tasks: readonly T[];
   children: Map<string, string[]>;
   tasksById: Map<string, T>;
   isExpanded: (rowId: string) => boolean;
+  maxNestedRows?: number;
 }): SubtaskRow<T>[] {
   const rows: SubtaskRow<T>[] = [];
+  let nested = 0;
 
   const walk = (
     task: T,
@@ -87,7 +102,9 @@ export function flattenSubtaskRows<T extends { id: string }>({
 
     rows.push({ task, depth, rowId, childCount: childTasks.length });
 
+    if (depth > 0) nested += 1;
     if (childTasks.length === 0 || !isExpanded(rowId)) return;
+    if (nested >= maxNestedRows) return;
 
     const nextAncestors = new Set(ancestors);
     nextAncestors.add(task.id);
@@ -96,6 +113,9 @@ export function flattenSubtaskRows<T extends { id: string }>({
     }
   };
 
+  // Top-level rows are always emitted; the cap governs nesting only, because
+  // the status grouping and the per-column counts depend on every task in the
+  // column having a row.
   for (const task of tasks) {
     walk(task, 0, new Set(), "");
   }

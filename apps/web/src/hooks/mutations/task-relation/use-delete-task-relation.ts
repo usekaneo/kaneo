@@ -10,8 +10,9 @@ function useDeleteTaskRelation(taskId: string) {
       queryClient.invalidateQueries({
         queryKey: ["task-relations", taskId],
       });
-      // The other end of the relation and the project-scoped list the list
-      // view reads are both stale now, and neither is keyed by this task.
+      // Both the other end of the relation and the project-scoped query the
+      // list view reads are stale now, and neither is keyed by this task.
+      // Invalidating the prefix covers every project a mounted view holds.
       queryClient.invalidateQueries({
         queryKey: ["task-relations", "project"],
       });
