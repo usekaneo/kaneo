@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { getApiUrl } from "@/fetchers/get-api-url";
 import { authClient } from "@/lib/auth-client";
+import { isPerTaskRelationQuery } from "@/lib/relation-query-keys";
 
 export function getWsUrl(projectId: string) {
   const base = getApiUrl("ws");
@@ -114,9 +115,7 @@ export function useProjectWebSocket(projectId: string) {
                 // change stales them, while the project query returns edges
                 // alone and a prefix match would refetch it needlessly.
                 queryClient.invalidateQueries({
-                  predicate: (query) =>
-                    query.queryKey[0] === "task-relations" &&
-                    query.queryKey[1] !== "project",
+                  predicate: isPerTaskRelationQuery,
                 });
               }
             } else {
