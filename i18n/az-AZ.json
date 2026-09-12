@@ -1616,9 +1616,7 @@
 		"created": "Bu tapşırığı yaratdı",
 		"githubUser": "GitHub istifadəçisi",
 		"comment": {
-			"github": "GitHub",
 			"viewGithubProfile": "GitHub profilinə bax",
-			"commentedOnGithub": "GitHub-da şərh yazdı",
 			"cannotBeEmpty": "Şərh boş ola bilməz",
 			"mustBeLoggedInToEdit": "Şərhləri redaktə etmək üçün daxil olmalısınız",
 			"updated": "Şərh yeniləndi",
@@ -1712,7 +1710,8 @@
 				"mermaid": {
 					"renderFailed": "Mermaid diaqramını göstərmək mümkün olmadı"
 				}
-			}
+			},
+			"commentedOnForge": "commented on {{forge}}"
 		}
 	},
 	"tasks": {

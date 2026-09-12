@@ -1624,9 +1624,7 @@
 		"changedTitle": "змінив назву з «{{from}}» на «{{to}}»",
 		"githubUser": "Користувач GitHub",
 		"comment": {
-			"github": "GitHub",
 			"viewGithubProfile": "Переглянути профіль GitHub",
-			"commentedOnGithub": "прокоментував на GitHub",
 			"cannotBeEmpty": "Коментар не може бути порожнім",
 			"mustBeLoggedInToEdit": "Ви повинні увійти, щоб редагувати коментарі",
 			"updated": "Коментар оновлено",
@@ -1720,7 +1718,8 @@
 				"mermaid": {
 					"renderFailed": "Не вдалося відобразити діаграму Mermaid"
 				}
-			}
+			},
+			"commentedOnForge": "commented on {{forge}}"
 		},
 		"moved": "перемістив завдання з «{{from}}» до «{{to}}»",
 		"created": "створив це завдання"

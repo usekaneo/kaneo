@@ -1616,9 +1616,7 @@
 		"moved": "μετακίνησε την εργασία από \"{{from}}\" σε \"{{to}}\"",
 		"githubUser": "Χρήστης GitHub",
 		"comment": {
-			"github": "GitHub",
 			"viewGithubProfile": "Προβολή προφίλ GitHub",
-			"commentedOnGithub": "σχολίασε στο GitHub",
 			"cannotBeEmpty": "Το σχόλιο δεν μπορεί να είναι κενό",
 			"mustBeLoggedInToEdit": "Πρέπει να είστε συνδεδεμένοι για να επεξεργαστείτε σχόλια",
 			"updated": "Το σχόλιο ενημερώθηκε",
@@ -1712,7 +1710,8 @@
 				"mermaid": {
 					"renderFailed": "Δεν ήταν δυνατή η απόδοση του διαγράμματος Mermaid"
 				}
-			}
+			},
+			"commentedOnForge": "commented on {{forge}}"
 		}
 	},
 	"tasks": {

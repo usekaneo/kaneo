@@ -1616,9 +1616,7 @@
 		"created": "यह कार्य बनाया",
 		"githubUser": "GitHub उपयोगकर्ता",
 		"comment": {
-			"github": "GitHub",
 			"viewGithubProfile": "GitHub प्रोफ़ाइल देखें",
-			"commentedOnGithub": "GitHub पर टिप्पणी की",
 			"cannotBeEmpty": "टिप्पणी खाली नहीं हो सकती",
 			"mustBeLoggedInToEdit": "टिप्पणियाँ संपादित करने के लिए लॉग इन होना चाहिए",
 			"updated": "टिप्पणी अपडेट की गई",
@@ -1712,7 +1710,8 @@
 				"mermaid": {
 					"renderFailed": "Mermaid डायग्राम प्रस्तुत नहीं किया जा सका"
 				}
-			}
+			},
+			"commentedOnForge": "commented on {{forge}}"
 		}
 	},
 	"tasks": {

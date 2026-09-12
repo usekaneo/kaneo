@@ -1611,9 +1611,7 @@
 		"created": "创建了此任务",
 		"githubUser": "GitHub 用户",
 		"comment": {
-			"github": "GitHub",
 			"viewGithubProfile": "查看 GitHub 主页",
-			"commentedOnGithub": "在 GitHub 上评论",
 			"cannotBeEmpty": "评论不能为空",
 			"mustBeLoggedInToEdit": "你需要登录后才能编辑评论",
 			"updated": "评论已更新",
@@ -1707,7 +1705,8 @@
 				"mermaid": {
 					"renderFailed": "Mermaid 图渲染失败"
 				}
-			}
+			},
+			"commentedOnForge": "commented on {{forge}}"
 		}
 	},
 	"tasks": {

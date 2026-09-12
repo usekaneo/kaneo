@@ -1621,9 +1621,7 @@
 		"moved": "a déplacé la tâche de \"{{from}}\" à \"{{to}}\"",
 		"githubUser": "GitHub User",
 		"comment": {
-			"github": "GitHub",
 			"viewGithubProfile": "Voir le profil GitHub",
-			"commentedOnGithub": "a commenté sur GitHub",
 			"cannotBeEmpty": "Le commentaire ne peut pas être vide",
 			"mustBeLoggedInToEdit": "Vous devez être connecté pour modifier les commentaires",
 			"updated": "Commentaire mis à jour",
@@ -1717,7 +1715,8 @@
 				"mermaid": {
 					"renderFailed": "Impossible d'afficher le diagramme Mermaid"
 				}
-			}
+			},
+			"commentedOnForge": "commented on {{forge}}"
 		}
 	},
 	"tasks": {

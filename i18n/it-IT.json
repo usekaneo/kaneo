@@ -1621,9 +1621,7 @@
 		"created": "ha creato questa attività",
 		"githubUser": "Utente GitHub",
 		"comment": {
-			"github": "GitHub",
 			"viewGithubProfile": "Vedi Profilo GitHub",
-			"commentedOnGithub": "ha commentato su GitHub",
 			"cannotBeEmpty": "Il commento non può essere vuoto",
 			"mustBeLoggedInToEdit": "Devi aver effettuato l'accesso per modificare i commenti",
 			"updated": "Commento aggiornato",
@@ -1717,7 +1715,8 @@
 				"mermaid": {
 					"renderFailed": "Impossibile eseguire il rendering del diagramma Mermaid"
 				}
-			}
+			},
+			"commentedOnForge": "commented on {{forge}}"
 		}
 	},
 	"tasks": {

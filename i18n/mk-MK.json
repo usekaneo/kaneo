@@ -1616,9 +1616,7 @@
 		"moved": "ја премести задачата од \"{{from}}\" во \"{{to}}\"",
 		"githubUser": "GitHub корисник",
 		"comment": {
-			"github": "GitHub",
 			"viewGithubProfile": "Погледни GitHub профил",
-			"commentedOnGithub": "коментираше на GitHub",
 			"cannotBeEmpty": "Коментарот не може да биде празен",
 			"mustBeLoggedInToEdit": "Мораш да бидеш најавен за да уредуваш коментари",
 			"updated": "Коментарот е ажуриран",
@@ -1712,7 +1710,8 @@
 				"mermaid": {
 					"renderFailed": "Mermaid дијаграмот не можеше да се прикаже"
 				}
-			}
+			},
+			"commentedOnForge": "commented on {{forge}}"
 		}
 	},
 	"tasks": {

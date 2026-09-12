@@ -1616,9 +1616,7 @@
 		"created": "bu talebi oluşturdu",
 		"githubUser": "GitHub Kullanıcısı",
 		"comment": {
-			"github": "GitHub",
 			"viewGithubProfile": "GitHub Profilini Görüntüle",
-			"commentedOnGithub": "GitHub'da yorum yaptı",
 			"cannotBeEmpty": "Yorum boş olamaz",
 			"mustBeLoggedInToEdit": "Yorumları düzenlemek için giriş yapmış olmalısınız",
 			"updated": "Yorum güncellendi",
@@ -1712,7 +1710,8 @@
 				"mermaid": {
 					"renderFailed": "Mermaid diyagramı oluşturulamadı"
 				}
-			}
+			},
+			"commentedOnForge": "commented on {{forge}}"
 		}
 	},
 	"tasks": {

@@ -1621,9 +1621,7 @@
 		"created": "criou esta tarefa",
 		"githubUser": "Usuário do GitHub",
 		"comment": {
-			"github": "GitHub",
 			"viewGithubProfile": "Ver perfil no GitHub",
-			"commentedOnGithub": "comentou no GitHub",
 			"cannotBeEmpty": "O comentário não pode estar vazio",
 			"mustBeLoggedInToEdit": "Você precisa estar conectado para editar comentários",
 			"updated": "Comentário atualizado",
@@ -1717,7 +1715,8 @@
 				"mermaid": {
 					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
-			}
+			},
+			"commentedOnForge": "commented on {{forge}}"
 		}
 	},
 	"tasks": {

@@ -1616,9 +1616,8 @@
 		"created": "created this task",
 		"githubUser": "GitHub User",
 		"comment": {
-			"github": "GitHub",
 			"viewGithubProfile": "View GitHub Profile",
-			"commentedOnGithub": "commented on GitHub",
+			"commentedOnForge": "commented on {{forge}}",
 			"cannotBeEmpty": "Comment cannot be empty",
 			"mustBeLoggedInToEdit": "You must be logged in to edit comments",
 			"updated": "Comment updated",

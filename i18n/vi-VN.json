@@ -1611,9 +1611,7 @@
 		"created": "đã tạo công việc này",
 		"githubUser": "Người dùng GitHub",
 		"comment": {
-			"github": "GitHub",
 			"viewGithubProfile": "Xem hồ sơ GitHub",
-			"commentedOnGithub": "đã bình luận trên GitHub",
 			"cannotBeEmpty": "Bình luận không được để trống",
 			"mustBeLoggedInToEdit": "Bạn phải đăng nhập để chỉnh sửa bình luận",
 			"updated": "Đã cập nhật bình luận",
@@ -1707,7 +1705,8 @@
 				"mermaid": {
 					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
-			}
+			},
+			"commentedOnForge": "commented on {{forge}}"
 		}
 	},
 	"tasks": {

@@ -1616,9 +1616,7 @@
 		"created": "hat diese Aufgabe erstellt",
 		"githubUser": "GitHub-Benutzer",
 		"comment": {
-			"github": "GitHub",
 			"viewGithubProfile": "GitHub-Profil ansehen",
-			"commentedOnGithub": "hat auf GitHub kommentiert",
 			"cannotBeEmpty": "Kommentar darf nicht leer sein",
 			"mustBeLoggedInToEdit": "Du musst angemeldet sein, um Kommentare zu bearbeiten",
 			"updated": "Kommentar aktualisiert",
@@ -1712,7 +1710,8 @@
 				"mermaid": {
 					"renderFailed": "Mermaid-Diagramm konnte nicht gerendert werden"
 				}
-			}
+			},
+			"commentedOnForge": "commented on {{forge}}"
 		}
 	},
 	"tasks": {

@@ -717,7 +717,6 @@
 			"added": "Dodano komentarz",
 			"attachFile": "Dołącz plik",
 			"cannotBeEmpty": "Komentarz nie może być pusty",
-			"commentedOnGithub": "skomentował(a) na GitHubie",
 			"edit": "Edytuj komentarz",
 			"editor": {
 				"ariaCommentContent": "Treść komentarza",
@@ -804,13 +803,13 @@
 			"editPlaceholder": "Edytuj komentarz...",
 			"failedToAdd": "Nie udało się dodać komentarza",
 			"failedToUpdate": "Nie udało się zaktualizować komentarza",
-			"github": "GitHub",
 			"leavePlaceholder": "Dodaj komentarz...",
 			"mustBeLoggedInToEdit": "Musisz być zalogowany(a), aby edytować komentarze",
 			"save": "Zapisz",
 			"submitShortcut": "Wyślij komentarz",
 			"updated": "Zaktualizowano komentarz",
-			"viewGithubProfile": "Wyświetl profil GitHub"
+			"viewGithubProfile": "Wyświetl profil GitHub",
+			"commentedOnForge": "commented on {{forge}}"
 		},
 		"created": "utworzył(a) to zadanie",
 		"githubUser": "Użytkownik GitHub",

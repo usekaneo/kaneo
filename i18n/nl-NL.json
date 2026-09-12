@@ -1616,9 +1616,7 @@
 		"moved": "heeft de taak van \"{{from}}\" naar \"{{to}}\" verplaatst",
 		"githubUser": "GitHub-gebruiker",
 		"comment": {
-			"github": "GitHub",
 			"viewGithubProfile": "GitHub-profiel bekijken",
-			"commentedOnGithub": "heeft gereageerd op GitHub",
 			"cannotBeEmpty": "Reactie mag niet leeg zijn",
 			"mustBeLoggedInToEdit": "Je moet ingelogd zijn om reacties te bewerken",
 			"updated": "Reactie bijgewerkt",
@@ -1712,7 +1710,8 @@
 				"mermaid": {
 					"renderFailed": "Mermaid-diagram kon niet worden weergegeven"
 				}
-			}
+			},
+			"commentedOnForge": "commented on {{forge}}"
 		}
 	},
 	"tasks": {

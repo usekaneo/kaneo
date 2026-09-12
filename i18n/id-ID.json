@@ -1611,9 +1611,7 @@
 		"created": "membuat tugas ini",
 		"githubUser": "Pengguna GitHub",
 		"comment": {
-			"github": "GitHub",
 			"viewGithubProfile": "Lihat Profil GitHub",
-			"commentedOnGithub": "berkomentar di GitHub",
 			"cannotBeEmpty": "Komentar tidak boleh kosong",
 			"mustBeLoggedInToEdit": "Anda harus masuk untuk mengedit komentar",
 			"updated": "Komentar diperbarui",
@@ -1707,7 +1705,8 @@
 				"mermaid": {
 					"renderFailed": "Diagram Mermaid tidak dapat dirender"
 				}
-			}
+			},
+			"commentedOnForge": "commented on {{forge}}"
 		}
 	},
 	"tasks": {

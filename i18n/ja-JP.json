@@ -1611,9 +1611,7 @@
 		"created": "がこのタスクを作成しました",
 		"githubUser": "GitHub ユーザー",
 		"comment": {
-			"github": "GitHub",
 			"viewGithubProfile": "GitHub プロフィールを表示",
-			"commentedOnGithub": "GitHub でコメント",
 			"cannotBeEmpty": "コメントを入力してください",
 			"mustBeLoggedInToEdit": "コメントを編集するにはログインが必要です",
 			"updated": "コメントを更新しました",
@@ -1707,7 +1705,8 @@
 				"mermaid": {
 					"renderFailed": "Mermaid ダイアグラムを描画できませんでした"
 				}
-			}
+			},
+			"commentedOnForge": "commented on {{forge}}"
 		}
 	},
 	"tasks": {

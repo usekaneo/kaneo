@@ -1611,9 +1611,7 @@
 		"created": "이 작업을 생성함",
 		"githubUser": "GitHub 사용자",
 		"comment": {
-			"github": "GitHub",
 			"viewGithubProfile": "GitHub 프로필 보기",
-			"commentedOnGithub": "GitHub에 댓글을 남김",
 			"cannotBeEmpty": "댓글은 비워둘 수 없습니다",
 			"mustBeLoggedInToEdit": "댓글을 편집하려면 로그인해야 합니다",
 			"updated": "댓글이 업데이트되었습니다",
@@ -1707,7 +1705,8 @@
 				"mermaid": {
 					"renderFailed": "Mermaid 다이어그램을 렌더링할 수 없습니다"
 				}
-			}
+			},
+			"commentedOnForge": "commented on {{forge}}"
 		}
 	},
 	"tasks": {
