@@ -6,6 +6,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { isDemoMode } from "@/constants/urls";
 import { useUserPreferencesEffects } from "@/hooks/use-user-preferences-effects";
 import { cn } from "@/lib/cn";
+import { useBackgroundStore } from "@/store/background";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 
 type LayoutProps = {
@@ -46,6 +47,7 @@ function LayoutContent({ children, className }: ContentProps) {
 
 function Layout({ children, className }: LayoutProps) {
   const { sidebarDefaultOpen } = useUserPreferencesStore();
+  const { background } = useBackgroundStore();
 
   useUserPreferencesEffects();
 
@@ -64,8 +66,17 @@ function Layout({ children, className }: LayoutProps) {
         <SidebarInset
           className={cn(
             "m-2 flex flex-1 flex-col overflow-auto rounded-xl border border-border/80 bg-background shadow-sm/5",
+            "md:peer-data-[variant=inset]:peer-data-[state=collapsed]:border-0",
+            {
+              "before:content-[''] before:absolute before:inset-0 before:bg-cover before:bg-center before:bg-(image:--bg) before:pointer-events-none":
+                background,
+            },
             className,
           )}
+          style={{
+            // @ts-expect-error variables are not typed by React
+            "--bg": `url(${background})`,
+          }}
         >
           {isDemoMode && <DemoAlert />}
           {children}

@@ -6,6 +6,7 @@ vi.mock("../../../apps/api/src/events", () => ({
   publishEvent: vi.fn(),
 }));
 
+import { subscribeToEvent } from "../../../apps/api/src/events";
 import {
   addConnection,
   broadcastToProject,
@@ -128,6 +129,38 @@ describe("broadcastToProject", () => {
     expect(
       (ws as { send: ReturnType<typeof vi.fn> }).send,
     ).toHaveBeenCalledTimes(1);
+
+    removeConnection("proj-1", conn);
+  });
+
+  it("broadcasts project updates to connected clients", async () => {
+    const ws = makeFakeWs();
+    const conn = addConnection("proj-1", ws, "user-1", "init-1");
+    const projectUpdateHandler = vi
+      .mocked(subscribeToEvent)
+      .mock.calls.find(
+        ([eventName]: [string]) => eventName === "project.updated",
+      )?.[1];
+
+    expect(projectUpdateHandler).toBeDefined();
+    await projectUpdateHandler?.({ projectId: "proj-1" });
+
+    await vi.waitFor(
+      () => {
+        expect(
+          (ws as { send: ReturnType<typeof vi.fn> }).send,
+        ).toHaveBeenCalled();
+      },
+      { timeout: 300 },
+    );
+
+    const sent = JSON.parse(
+      (ws as { send: ReturnType<typeof vi.fn> }).send.mock.calls[0][0],
+    );
+    expect(sent).toMatchObject({
+      type: "PROJECT_UPDATED",
+      projectId: "proj-1",
+    });
 
     removeConnection("proj-1", conn);
   });

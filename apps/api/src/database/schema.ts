@@ -329,6 +329,9 @@ export const projectTable = pgTable(
     archivedAt: timestamp("archived_at", { mode: "date" }),
     lastTaskNumber: integer("last_task_number").notNull().default(0),
     position: integer("position").notNull().default(0),
+    backgroundObjectKey: text("background_object_key"),
+    backgroundMimeType: text("background_mime_type"),
+    backgroundVersion: text("background_version"),
   },
   (table) => [
     unique("project_workspace_id_id_unique").on(table.workspaceId, table.id),

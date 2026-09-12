@@ -1,4 +1,8 @@
+import { eq } from "drizzle-orm";
+import { HTTPException } from "hono/http-exception";
 import { requireEntitlement } from "../billing/require-entitlement-middleware";
+import db from "../database";
+import { projectTable } from "../database/schema";
 import {
   apiRouter,
   type BaseVariables,
@@ -7,6 +11,15 @@ import {
   jsonResponse,
   z,
 } from "../openapi";
+import {
+  assertProjectBackgroundKeyMatchesContext,
+  createProjectBackgroundUploadUrl,
+  deleteS3Object,
+  getPrivateObject,
+  isImageContentType,
+  validateProjectBackgroundUploadInput,
+} from "../storage/s3";
+import { normalizeApiServerUrl } from "../utils/openapi-spec";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import archiveProjectCtrl from "./controllers/archive-project";
@@ -17,13 +30,20 @@ import getProjectsCtrl from "./controllers/get-projects";
 import reorderProjectsCtrl from "./controllers/reorder-projects";
 import unarchiveProjectCtrl from "./controllers/unarchive-project";
 import updateProjectCtrl from "./controllers/update-project";
-import { projectListSchema, projectSchema } from "./response";
+import {
+  projectBackgroundFinalizeSchema,
+  projectBackgroundUploadSchema,
+  projectListSchema,
+  projectSchema,
+} from "./response";
 import {
   createProjectBody,
+  finalizeProjectBackgroundBody,
   listProjectsQuery,
   projectParam,
   reorderProjectsBody,
   updateProjectBody,
+  uploadProjectBackgroundBody,
   workspaceIdQuery,
 } from "./schema";
 
@@ -219,6 +239,124 @@ const unarchiveProjectRoute = createRoute({
   },
 });
 
+const getProjectBackgroundRoute = createRoute({
+  method: "get",
+  operationId: "getProjectBackground",
+  path: "/{id}/background",
+  tags: ["Projects"],
+  summary: "Download project background",
+  description: "Download the current project board background image.",
+  middleware: [workspaceAccess.fromProject()] as const,
+  request: { params: projectParam },
+  responses: {
+    200: {
+      description: "The project background image",
+      content: {
+        "image/*": { schema: { type: "string", format: "binary" } },
+      },
+    },
+    304: { description: "Not modified" },
+    400: errorResponse(
+      "Unknown project, or its workspace could not be determined",
+    ),
+    403: errorResponse("No access to the project's workspace"),
+    404: errorResponse("Project background not found"),
+  },
+});
+
+const uploadProjectBackgroundRoute = createRoute({
+  method: "put",
+  operationId: "uploadProjectBackground",
+  path: "/{id}/background-upload",
+  tags: ["Projects"],
+  summary: "Prepare project background upload",
+  description: "Create a presigned background image upload URL for a project.",
+  middleware: [
+    workspaceAccess.fromProject(),
+    requireWorkspacePermission({ project: ["update"] }),
+    requireEntitlement,
+  ] as const,
+  request: {
+    params: projectParam,
+    body: {
+      required: true,
+      content: {
+        "application/json": { schema: uploadProjectBackgroundBody },
+      },
+    },
+  },
+  responses: {
+    200: jsonResponse(
+      "Background image upload URL",
+      projectBackgroundUploadSchema,
+    ),
+    400: errorResponse("Invalid image upload request, or unknown project"),
+    403: errorResponse(
+      "No workspace access, or missing project:update permission",
+    ),
+    404: errorResponse("Project not found"),
+    503: errorResponse("Image uploads are not configured"),
+  },
+});
+
+const finalizeProjectBackgroundRoute = createRoute({
+  method: "post",
+  operationId: "finalizeProjectBackgroundUpload",
+  path: "/{id}/background-upload/finalize",
+  tags: ["Projects"],
+  summary: "Finalize project background upload",
+  description: "Save an uploaded image as the project's board background.",
+  middleware: [
+    workspaceAccess.fromProject(),
+    requireWorkspacePermission({ project: ["update"] }),
+    requireEntitlement,
+  ] as const,
+  request: {
+    params: projectParam,
+    body: {
+      required: true,
+      content: {
+        "application/json": { schema: finalizeProjectBackgroundBody },
+      },
+    },
+  },
+  responses: {
+    200: jsonResponse(
+      "Finalized project background",
+      projectBackgroundFinalizeSchema,
+    ),
+    400: errorResponse("Invalid image upload request, or unknown project"),
+    403: errorResponse(
+      "No workspace access, or missing project:update permission",
+    ),
+    404: errorResponse("Project not found"),
+    500: errorResponse("Failed to save the project background"),
+  },
+});
+
+const deleteProjectBackgroundRoute = createRoute({
+  method: "delete",
+  operationId: "deleteProjectBackground",
+  path: "/{id}/background",
+  tags: ["Projects"],
+  summary: "Delete project background",
+  description: "Remove the current project board background image.",
+  middleware: [
+    workspaceAccess.fromProject(),
+    requireWorkspacePermission({ project: ["update"] }),
+  ] as const,
+  request: { params: projectParam },
+  responses: {
+    204: { description: "Project background removed" },
+    400: errorResponse(
+      "Unknown project, or its workspace could not be determined",
+    ),
+    403: errorResponse(
+      "No workspace access, or missing project:update permission",
+    ),
+  },
+});
+
 const project = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(listProjectsRoute, async (c) => {
     const workspaceId = c.get("workspaceId");
@@ -240,6 +378,71 @@ const project = apiRouter<BaseVariables & { workspaceId: string }>()
     const workspaceId = c.get("workspaceId");
     const projectData = await getProjectCtrl(id, workspaceId);
     return c.json(projectData, 200);
+  })
+  .openapi(getProjectBackgroundRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    const [projectData] = await db
+      .select({
+        backgroundObjectKey: projectTable.backgroundObjectKey,
+        backgroundMimeType: projectTable.backgroundMimeType,
+        backgroundVersion: projectTable.backgroundVersion,
+      })
+      .from(projectTable)
+      .where(eq(projectTable.id, id))
+      .limit(1);
+
+    if (!projectData?.backgroundObjectKey) {
+      throw new HTTPException(404, {
+        message: "Project background not found",
+      });
+    }
+
+    try {
+      const object = await getPrivateObject(projectData.backgroundObjectKey);
+      const contentType = (
+        object.contentType ||
+        projectData.backgroundMimeType ||
+        ""
+      )
+        .toLowerCase()
+        .split(";")[0]
+        ?.trim();
+
+      if (!contentType || !isImageContentType(contentType)) {
+        await (object.body as ReadableStream).cancel();
+        throw new HTTPException(404, {
+          message: "Project background not found",
+        });
+      }
+
+      const etag = object.etag || `"${projectData.backgroundVersion}"`;
+      const headers: Record<string, string> = {
+        "Cache-Control": "private, max-age=300, must-revalidate",
+        "Content-Type": contentType,
+        ETag: etag,
+        Vary: "Cookie, Authorization",
+        "X-Content-Type-Options": "nosniff",
+      };
+      if (object.contentLength !== undefined) {
+        headers["Content-Length"] = object.contentLength.toString();
+      }
+      if (object.lastModified) {
+        headers["Last-Modified"] = object.lastModified.toUTCString();
+      }
+
+      if (c.req.header("If-None-Match") === etag) {
+        await (object.body as ReadableStream).cancel();
+        return new Response(null, { status: 304, headers });
+      }
+
+      return new Response(object.body as BodyInit, { headers });
+    } catch (error) {
+      if (error instanceof HTTPException) throw error;
+      console.error("Failed to stream project background:", error);
+      throw new HTTPException(404, {
+        message: "Project background not found",
+      });
+    }
   })
   .openapi(reorderProjectsRoute, async (c) => {
     const workspaceId = c.get("workspaceId");
@@ -279,6 +482,155 @@ const project = apiRouter<BaseVariables & { workspaceId: string }>()
     const workspaceId = c.get("workspaceId");
     const unarchivedProject = await unarchiveProjectCtrl(id, workspaceId);
     return c.json(unarchivedProject, 200);
+  })
+  .openapi(uploadProjectBackgroundRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    const { contentType, size } = c.req.valid("json");
+
+    try {
+      validateProjectBackgroundUploadInput(contentType, size);
+    } catch (error) {
+      throw new HTTPException(400, {
+        message:
+          error instanceof Error
+            ? error.message
+            : "Invalid image upload request",
+      });
+    }
+
+    const [projectContext] = await db
+      .select({
+        projectId: projectTable.id,
+        workspaceId: projectTable.workspaceId,
+      })
+      .from(projectTable)
+      .where(eq(projectTable.id, id))
+      .limit(1);
+
+    if (!projectContext) {
+      throw new HTTPException(404, { message: "Project not found" });
+    }
+
+    try {
+      const upload = await createProjectBackgroundUploadUrl({
+        workspaceId: projectContext.workspaceId,
+        projectId: projectContext.projectId,
+        contentType,
+        size,
+      });
+      return c.json(upload, 200);
+    } catch (error) {
+      throw new HTTPException(503, {
+        message:
+          error instanceof Error
+            ? error.message
+            : "Image uploads are not configured",
+      });
+    }
+  })
+  .openapi(finalizeProjectBackgroundRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    const { key, contentType, size, version } = c.req.valid("json");
+
+    try {
+      validateProjectBackgroundUploadInput(contentType, size);
+    } catch (error) {
+      throw new HTTPException(400, {
+        message:
+          error instanceof Error
+            ? error.message
+            : "Invalid image upload request",
+      });
+    }
+
+    const [projectContext] = await db
+      .select({
+        projectId: projectTable.id,
+        workspaceId: projectTable.workspaceId,
+      })
+      .from(projectTable)
+      .where(eq(projectTable.id, id))
+      .limit(1);
+
+    if (!projectContext) {
+      throw new HTTPException(404, { message: "Project not found" });
+    }
+
+    const normalizedKey = key.trim();
+    if (
+      !assertProjectBackgroundKeyMatchesContext(normalizedKey, {
+        workspaceId: projectContext.workspaceId,
+        projectId: projectContext.projectId,
+        version,
+      })
+    ) {
+      throw new HTTPException(400, {
+        message: "Image upload key does not match the project context.",
+      });
+    }
+
+    const [currentProject] = await db
+      .select({ backgroundObjectKey: projectTable.backgroundObjectKey })
+      .from(projectTable)
+      .where(eq(projectTable.id, id))
+      .limit(1);
+
+    const [updatedProject] = await db
+      .update(projectTable)
+      .set({
+        backgroundObjectKey: normalizedKey,
+        backgroundMimeType: contentType,
+        backgroundVersion: version,
+      })
+      .where(eq(projectTable.id, id))
+      .returning({ id: projectTable.id });
+
+    if (!updatedProject) {
+      throw new HTTPException(500, { message: "Failed to save background" });
+    }
+
+    if (
+      currentProject?.backgroundObjectKey &&
+      currentProject.backgroundObjectKey !== normalizedKey
+    ) {
+      deleteS3Object(currentProject.backgroundObjectKey).catch((error) => {
+        console.warn(`S3 cleanup error: ${error}`);
+      });
+    }
+
+    const apiBaseUrl = normalizeApiServerUrl(
+      process.env.KANEO_API_URL || new URL(c.req.url).origin,
+    );
+    return c.json(
+      {
+        url: `${apiBaseUrl}/project/${updatedProject.id}/background?v=${encodeURIComponent(version)}`,
+      },
+      200,
+    );
+  })
+  .openapi(deleteProjectBackgroundRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    const [currentProject] = await db
+      .select({ backgroundObjectKey: projectTable.backgroundObjectKey })
+      .from(projectTable)
+      .where(eq(projectTable.id, id))
+      .limit(1);
+
+    const [updatedProject] = await db
+      .update(projectTable)
+      .set({
+        backgroundObjectKey: null,
+        backgroundMimeType: null,
+        backgroundVersion: null,
+      })
+      .where(eq(projectTable.id, id))
+      .returning({ id: projectTable.id });
+
+    if (updatedProject && currentProject?.backgroundObjectKey) {
+      deleteS3Object(currentProject.backgroundObjectKey).catch(() => {});
+    }
+
+    return c.body(null, 204);
   });
 
 export default project;
