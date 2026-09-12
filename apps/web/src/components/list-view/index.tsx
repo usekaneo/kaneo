@@ -30,6 +30,10 @@ import useGetProjectTaskRelations from "@/hooks/queries/task-relation/use-get-pr
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
 import { getColumnIcon } from "@/lib/column";
+import {
+  readExpandedRows,
+  writeExpandedRows,
+} from "@/lib/expanded-rows-storage";
 import { buildSubtaskChildren, flattenSubtaskRows } from "@/lib/subtask-tree";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
@@ -39,19 +43,6 @@ import BulkToolbar from "../bulk-selection/bulk-toolbar";
 import { ArchiveTasksModal } from "../shared/modals/archive-tasks-modal";
 import CreateTaskModal from "../shared/modals/create-task-modal";
 import TaskRow from "./task-row";
-
-function expandedRowsStorageKey(projectId: string) {
-  return `kaneo:list-view:expanded-subtasks:${projectId}`;
-}
-
-function readExpandedRows(projectId: string): Record<string, boolean> {
-  try {
-    const stored = localStorage.getItem(expandedRowsStorageKey(projectId));
-    return stored ? (JSON.parse(stored) as Record<string, boolean>) : {};
-  } catch {
-    return {};
-  }
-}
 
 type ListViewProps = {
   project: ProjectWithTasks;
@@ -128,14 +119,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
   const expandedTasks = expanded.rows;
 
   useEffect(() => {
-    try {
-      localStorage.setItem(
-        expandedRowsStorageKey(projectId),
-        JSON.stringify(expandedTasks),
-      );
-    } catch {
-      // A private window or blocked site data only costs the restore.
-    }
+    writeExpandedRows(projectId, expandedTasks);
   }, [projectId, expandedTasks]);
 
   const toggleTaskExpanded = useCallback((rowId: string) => {

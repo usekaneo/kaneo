@@ -69,13 +69,21 @@ export function useProjectWebSocket(projectId: string) {
               queryKey: ["tasks", message.projectId],
             });
 
-            // The list view reads relations per project. A relation changed by
-            // another client, or a task moving in or out of the project,
-            // changes which edges belong to it, and neither is covered by the
-            // per-task keys below.
-            queryClient.invalidateQueries({
-              queryKey: ["task-relations", "project", message.projectId],
-            });
+            // The list view reads relations per project, and the per-task keys
+            // below do not reach that query. Only the events that can change
+            // which edges belong to the project qualify: an edit, a label or a
+            // comment leaves the edge set alone and would cost every mounted
+            // list a refetch.
+            if (
+              message.type === "TASK_RELATION_UPDATED" ||
+              message.type === "TASK_CREATED" ||
+              message.type === "TASK_DELETED" ||
+              message.type === "TASK_MOVED"
+            ) {
+              queryClient.invalidateQueries({
+                queryKey: ["task-relations", "project", message.projectId],
+              });
+            }
 
             if (message.type === "TASK_RELATION_UPDATED") {
               if (message.sourceTaskId) {
