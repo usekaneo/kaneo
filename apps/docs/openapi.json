@@ -2510,7 +2510,7 @@
           },
           "commentTaskLinkOnGitlabIssue": {
             "type": "boolean",
-            "description": "When on, Kaneo comments a link back to the task on the linked GitLab issue."
+            "description": "When on, Kaneo comments a link back to the task on each issue opened in GitLab. Issues Kaneo creates from tasks are not commented on."
           },
           "isActive": {
             "type": [
