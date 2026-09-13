@@ -50,7 +50,6 @@ vi.mock(
 import deleteLabelEffect from "../../../apps/api/src/label/controllers/delete-label";
 import { runLabel } from "../../../apps/api/src/label/runtime";
 
-// Runs the controller through the same boundary the route handler uses.
 const deleteLabel = (...args: Parameters<typeof deleteLabelEffect>) =>
   runLabel(deleteLabelEffect(...args));
 

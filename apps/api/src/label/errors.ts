@@ -37,8 +37,7 @@ export type LabelError =
   | LabelAttachFailed
   | LabelDetachFailed;
 
-// Statuses and messages are the public contract the controllers produced
-// before the Effect migration; they must not change.
+// Statuses and messages match what the controllers threw before the migration.
 export function labelErrorToHttpException(error: LabelError): HTTPException {
   switch (error._tag) {
     case "LabelNotFound":

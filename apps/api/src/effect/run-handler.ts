@@ -2,10 +2,8 @@ import { Cause, Effect, Exit, Option } from "effect";
 import type { HTTPException } from "hono/http-exception";
 import { DatabaseError } from "./database";
 
-// Runs a controller effect at a Hono handler. Typed domain errors become the
-// HTTPException the module maps them to. A DatabaseError rethrows its cause
-// and a defect is rethrown as is, so Hono's onError renders the same JSON
-// 500 and Sentry capture as an uncaught throw did before the migration.
+// A DatabaseError's cause and any defect are rethrown unchanged so Hono's
+// onError keeps rendering the same JSON 500 and Sentry capture as before.
 export async function runHandler<A, E>(
   effect: Effect.Effect<A, E | DatabaseError>,
   toHttpException: (error: E) => HTTPException,

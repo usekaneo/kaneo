@@ -54,8 +54,6 @@ function makeTestLabelSync() {
   return { layer, calls };
 }
 
-// Fakes for the fluent Drizzle calls the controllers make. Each terminal
-// call resolves to the rows given here.
 function selectReturning(rows: unknown[]) {
   const chain = {
     from: () => chain,

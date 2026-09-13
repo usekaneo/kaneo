@@ -1,7 +1,6 @@
 import { Context, type Effect } from "effect";
 
-// Provider sync is fire-and-forget: each call schedules the work and
-// returns immediately, exactly like the plain helpers it wraps.
+// Fire-and-forget: each call schedules the work and returns immediately.
 export type LabelSyncShape = {
   readonly syncToGitHub: (
     taskId: string,

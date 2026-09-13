@@ -74,7 +74,6 @@ import assignLabelToTaskEffect from "../../../apps/api/src/label/controllers/ass
 import unassignLabelFromTaskEffect from "../../../apps/api/src/label/controllers/unassign-label-from-task";
 import { runLabel } from "../../../apps/api/src/label/runtime";
 
-// Runs the controllers through the same boundary the route handlers use.
 const assignLabelToTask = (
   ...args: Parameters<typeof assignLabelToTaskEffect>
 ) => runLabel(assignLabelToTaskEffect(...args));
