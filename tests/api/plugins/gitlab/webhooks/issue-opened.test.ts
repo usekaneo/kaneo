@@ -160,6 +160,17 @@ describe("handleGitlabIssueOpened", () => {
     );
   });
 
+  it("keeps a confidential issue out of the workspace", async () => {
+    const payload = issueOpenedPayload([]);
+    await handleGitlabIssueOpened({
+      ...payload,
+      object_attributes: { ...payload.object_attributes, confidential: true },
+    });
+
+    expect(mocks.insertedValues).toHaveLength(0);
+    expect(mocks.findAllIntegrationsByGitlabProject).not.toHaveBeenCalled();
+  });
+
   it("skips an issue that already has a task", async () => {
     mocks.findExternalLink.mockResolvedValue({
       id: "link-1",

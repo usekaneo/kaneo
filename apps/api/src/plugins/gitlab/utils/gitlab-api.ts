@@ -26,12 +26,14 @@ export type GitlabIssue = {
   labels?: string[];
   author?: GitlabUser | null;
   updated_at?: string;
+  confidential?: boolean;
 };
 
 export type GitlabNote = {
   id: number;
   body: string;
   system: boolean;
+  internal?: boolean;
   author?: GitlabUser | null;
   created_at: string;
 };

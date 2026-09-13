@@ -18,7 +18,6 @@ import {
   extractIssuePriority,
   extractIssueStatus,
 } from "../../plugins/github/utils/extract-priority";
-import { formatTaskDescriptionFromIssue } from "../../plugins/github/utils/format";
 import type { GitlabConfig } from "../../plugins/gitlab/config";
 import { extractTaskNumberGitlab } from "../../plugins/gitlab/utils/branch-matcher";
 import {
@@ -26,6 +25,7 @@ import {
   type GitlabIssue,
   type GitlabMergeRequest,
 } from "../../plugins/gitlab/utils/gitlab-api";
+import { taskDescriptionFromIssue } from "../../plugins/gitlab/utils/issue-description";
 import { isSystemLabelName } from "../../plugins/gitlab/utils/system-labels";
 import { claimTaskNumber } from "../../task/controllers/claim-task-numbers";
 
@@ -105,6 +105,13 @@ export async function importGitlabIssues(
   }
 
   for (const issue of allIssues) {
+    // Confidential issues stay out of the workspace, the same as they do when
+    // one arrives through the webhook.
+    if (issue.confidential) {
+      skipped++;
+      continue;
+    }
+
     try {
       const result = await importSingleIssue(
         issue,
@@ -183,7 +190,7 @@ async function importSingleIssue(
   if (existingLink) {
     const updateData: Record<string, unknown> = {
       title: issue.title,
-      description: formatTaskDescriptionFromIssue(issue.description),
+      description: taskDescriptionFromIssue(issue.description),
     };
 
     if (priority) updateData.priority = priority;
@@ -210,7 +217,7 @@ async function importSingleIssue(
       projectId,
       userId: null,
       title: issue.title,
-      description: formatTaskDescriptionFromIssue(issue.description),
+      description: taskDescriptionFromIssue(issue.description),
       status: status || "to-do",
       priority: priority ?? "low",
       number,
@@ -321,8 +328,9 @@ async function importNotesForTask(
     if (notes.length === 0) break;
 
     for (const note of notes) {
-      // GitLab records label, milestone and state changes as system notes.
-      if (note.system) {
+      // GitLab records label, milestone and state changes as system notes, and
+      // an internal note is visible there only to project members.
+      if (note.system || note.internal) {
         continue;
       }
 

@@ -11,8 +11,8 @@ import {
   extractIssuePriority,
   extractIssueStatus,
 } from "../../github/utils/extract-priority";
-import { formatTaskDescriptionFromIssue } from "../../github/utils/format";
 import { findAllIntegrationsByGitlabProject } from "../services/integration-lookup";
+import { taskDescriptionFromIssue } from "../utils/issue-description";
 import {
   isEchoOf,
   type LinkMetadata,
@@ -189,8 +189,11 @@ export async function handleGitlabIssueUpdated(
         }
 
         if (changes?.description) {
-          const description = formatTaskDescriptionFromIssue(issue.description);
-          if (!isEchoOf(metadata.lastSync?.description, "kaneo", description)) {
+          // Kaneo recorded the full body it wrote, footer included, so the echo
+          // is recognised against the raw body; the task keeps it without one.
+          const issueBody = issue.description ?? "";
+          if (!isEchoOf(metadata.lastSync?.description, "kaneo", issueBody)) {
+            const description = taskDescriptionFromIssue(issue.description);
             updateData.description = description;
             lastSync.description = {
               timestamp: now,

@@ -12,10 +12,10 @@ import {
   extractIssuePriority,
   extractIssueStatus,
 } from "../../github/utils/extract-priority";
-import { formatTaskDescriptionFromIssue } from "../../github/utils/format";
 import type { GitlabConfig } from "../config";
 import { findAllIntegrationsByGitlabProject } from "../services/integration-lookup";
 import { createGitlabClient } from "../utils/gitlab-api";
+import { taskDescriptionFromIssue } from "../utils/issue-description";
 import { addLabelsToIssueGitlab } from "../utils/labels";
 import type {
   GitlabWebhookLabel,
@@ -35,6 +35,7 @@ type IssueOpenedPayload = {
     description: string | null;
     url: string;
     action?: string;
+    confidential?: boolean;
   };
   labels?: GitlabWebhookLabel[];
   project: GitlabWebhookProject;
@@ -46,6 +47,12 @@ export async function handleGitlabIssueOpened(
 ) {
   const issue = payload.object_attributes;
   const { project } = payload;
+
+  // A confidential issue is limited to project members in GitLab; turning it
+  // into a task would publish its title and description to the whole workspace.
+  if (issue.confidential) {
+    return;
+  }
 
   const baseUrl = baseUrlFromProjectWebUrl(
     project.web_url,
@@ -113,7 +120,7 @@ export async function handleGitlabIssueOpened(
       projectId,
       userId: null,
       title: issue.title,
-      description: formatTaskDescriptionFromIssue(issue.description),
+      description: taskDescriptionFromIssue(issue.description),
       status: resolvedStatus,
       columnId: targetColumn?.id ?? null,
       priority: priority ?? "low",

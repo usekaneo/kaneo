@@ -7,6 +7,7 @@ import { syncedNoteIds } from "../utils/synced-notes";
 import { baseUrlFromProjectWebUrl } from "../utils/webhook-project";
 
 type NoteCreatedPayload = {
+  event_type?: string;
   user?: GitlabWebhookUser | null;
   object_attributes: {
     id: number;
@@ -14,6 +15,7 @@ type NoteCreatedPayload = {
     noteable_type: string;
     url: string;
     system?: boolean;
+    internal?: boolean;
   };
   issue?: { iid: number };
   project: GitlabWebhookProject;
@@ -32,6 +34,13 @@ export async function handleGitlabNoteCreated(
   // GitLab posts a system note for label, milestone and status changes. Those
   // are not comments and would read as one in the task activity.
   if (note.system) {
+    return;
+  }
+
+  // An internal note, or any note on a confidential issue, is visible in GitLab
+  // only to project members with Reporter access. Copying it into the task
+  // activity would show it to everyone in the Kaneo workspace.
+  if (note.internal || payload.event_type === "confidential_note") {
     return;
   }
 
