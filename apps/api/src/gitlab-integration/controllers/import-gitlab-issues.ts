@@ -1,4 +1,4 @@
-import { and, eq, inArray, notInArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
@@ -266,14 +266,8 @@ async function importLabelsForTask(
 ): Promise<void> {
   const names = issueLabels.filter((name) => name && !isSystemLabelName(name));
 
-  if (names.length > 0) {
-    await db
-      .delete(labelTable)
-      .where(
-        and(eq(labelTable.taskId, taskId), notInArray(labelTable.name, names)),
-      );
-  } else {
-    await db.delete(labelTable).where(eq(labelTable.taskId, taskId));
+  // GitLab issue, so its absence there is not a reason to remove labels.
+  if (names.length === 0) {
     return;
   }
 
