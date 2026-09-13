@@ -2,8 +2,9 @@ import { and, eq, isNotNull } from "drizzle-orm";
 import { Effect } from "effect";
 import { labelTable, projectTable, taskTable } from "../../database/schema";
 import { Database } from "../../effect/database";
+import { NotFound } from "../../effect/errors";
 import { Events } from "../../effect/events";
-import { LabelNotFound, TaskNotFound } from "../errors";
+import { labelById, taskRefById } from "../../effect/lookups";
 import { LabelSync } from "../label-sync";
 
 const deleteLabel = Effect.fn("label.deleteLabel")(function* (
@@ -14,42 +15,18 @@ const deleteLabel = Effect.fn("label.deleteLabel")(function* (
   const events = yield* Events;
   const sync = yield* LabelSync;
 
-  const label = yield* database.query((db) =>
-    db.query.labelTable.findFirst({
-      where: (label, { eq }) => eq(label.id, id),
-    }),
-  );
-
-  if (!label) {
-    return yield* new LabelNotFound({ id });
-  }
+  const label = yield* labelById(id);
 
   if (label.taskId) {
     // Task-level label: fetch task, delete with event + GitHub sync
-    const taskId = label.taskId;
-    const [task] = yield* database.query((db) =>
-      db
-        .select({
-          id: taskTable.id,
-          projectId: taskTable.projectId,
-          workspaceId: projectTable.workspaceId,
-        })
-        .from(taskTable)
-        .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
-        .where(eq(taskTable.id, taskId))
-        .limit(1),
-    );
-
-    if (!task) {
-      return yield* new TaskNotFound({ taskId });
-    }
+    const task = yield* taskRefById(label.taskId);
 
     const [deletedLabel] = yield* database.query((db) =>
       db.delete(labelTable).where(eq(labelTable.id, id)).returning(),
     );
 
     if (!deletedLabel) {
-      return yield* new LabelNotFound({ id });
+      return yield* new NotFound({ entity: "Label", id });
     }
 
     if (deletedLabel.taskId) {
@@ -74,7 +51,7 @@ const deleteLabel = Effect.fn("label.deleteLabel")(function* (
   );
 
   if (!deletedLabel) {
-    return yield* new LabelNotFound({ id });
+    return yield* new NotFound({ entity: "Label", id });
   }
 
   // Label without a workspace: the cascade filter below could never match

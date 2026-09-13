@@ -1,14 +1,10 @@
 import { and, eq } from "drizzle-orm";
 import { Effect } from "effect";
-import { labelTable, projectTable, taskTable } from "../../database/schema";
+import { labelTable } from "../../database/schema";
 import { Database } from "../../effect/database";
 import { Events } from "../../effect/events";
-import {
-  LabelAttachFailed,
-  LabelNotFound,
-  LabelWorkspaceMismatch,
-  TaskNotFound,
-} from "../errors";
+import { labelById, taskRefById } from "../../effect/lookups";
+import { LabelAttachFailed, LabelWorkspaceMismatch } from "../errors";
 import { LabelSync } from "../label-sync";
 
 const assignLabelToTask = Effect.fn("label.assignLabelToTask")(function* (
@@ -20,32 +16,8 @@ const assignLabelToTask = Effect.fn("label.assignLabelToTask")(function* (
   const events = yield* Events;
   const sync = yield* LabelSync;
 
-  const label = yield* database.query((db) =>
-    db.query.labelTable.findFirst({
-      where: (label, { eq }) => eq(label.id, id),
-    }),
-  );
-
-  if (!label) {
-    return yield* new LabelNotFound({ id });
-  }
-
-  const [task] = yield* database.query((db) =>
-    db
-      .select({
-        id: taskTable.id,
-        projectId: taskTable.projectId,
-        workspaceId: projectTable.workspaceId,
-      })
-      .from(taskTable)
-      .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
-      .where(eq(taskTable.id, taskId))
-      .limit(1),
-  );
-
-  if (!task) {
-    return yield* new TaskNotFound({ taskId });
-  }
+  const label = yield* labelById(id);
+  const task = yield* taskRefById(taskId);
 
   if (label.workspaceId && label.workspaceId !== task.workspaceId) {
     return yield* new LabelWorkspaceMismatch({ labelId: id, taskId });
@@ -58,15 +30,7 @@ const assignLabelToTask = Effect.fn("label.assignLabelToTask")(function* (
   const { taskLabel, inserted, previousTaskId, previousName } =
     yield* database.transaction((tx) =>
       Effect.gen(function* () {
-        const currentLabel = yield* tx.query((db) =>
-          db.query.labelTable.findFirst({
-            where: (label, { eq }) => eq(label.id, id),
-          }),
-        );
-
-        if (!currentLabel) {
-          return yield* new LabelNotFound({ id });
-        }
+        const currentLabel = yield* labelById(id, tx);
 
         if (
           currentLabel.workspaceId &&

@@ -2,7 +2,7 @@ import { and, eq, isNotNull } from "drizzle-orm";
 import { Effect } from "effect";
 import { labelTable } from "../../database/schema";
 import { Database } from "../../effect/database";
-import { LabelNotFound } from "../errors";
+import { labelById } from "../../effect/lookups";
 
 const updateLabel = Effect.fn("label.updateLabel")(function* (
   id: string,
@@ -13,15 +13,7 @@ const updateLabel = Effect.fn("label.updateLabel")(function* (
 
   return yield* database.transaction((tx) =>
     Effect.gen(function* () {
-      const label = yield* tx.query((db) =>
-        db.query.labelTable.findFirst({
-          where: (label, { eq }) => eq(label.id, id),
-        }),
-      );
-
-      if (!label) {
-        return yield* new LabelNotFound({ id });
-      }
+      const label = yield* labelById(id, tx);
 
       const [updatedLabel] = yield* tx.query((db) =>
         db

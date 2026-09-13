@@ -1,14 +1,6 @@
 import { Data } from "effect";
 import { HTTPException } from "hono/http-exception";
 
-export class LabelNotFound extends Data.TaggedError("LabelNotFound")<{
-  readonly id: string;
-}> {}
-
-export class TaskNotFound extends Data.TaggedError("TaskNotFound")<{
-  readonly taskId: string;
-}> {}
-
 export class LabelWorkspaceMismatch extends Data.TaggedError(
   "LabelWorkspaceMismatch",
 )<{
@@ -30,8 +22,6 @@ export class LabelDetachFailed extends Data.TaggedError("LabelDetachFailed")<{
 }> {}
 
 export type LabelError =
-  | LabelNotFound
-  | TaskNotFound
   | LabelWorkspaceMismatch
   | LabelNotAssigned
   | LabelAttachFailed
@@ -40,10 +30,6 @@ export type LabelError =
 // Statuses and messages match what the controllers threw before the migration.
 export function labelErrorToHttpException(error: LabelError): HTTPException {
   switch (error._tag) {
-    case "LabelNotFound":
-      return new HTTPException(404, { message: "Label not found" });
-    case "TaskNotFound":
-      return new HTTPException(404, { message: "Task not found" });
     case "LabelWorkspaceMismatch":
       return new HTTPException(400, {
         message: "Label and task must belong to the same workspace",

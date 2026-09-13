@@ -1,16 +1,7 @@
-import type { ExtractTablesWithRelations } from "drizzle-orm";
-import type { NodePgQueryResultHKT } from "drizzle-orm/node-postgres";
-import type { PgDatabase } from "drizzle-orm/pg-core";
 import { type Cause, Context, Data, Effect, Exit } from "effect";
-import type { schema } from "../database";
+import type { DrizzleClient } from "../database/client";
 
-// Common supertype of the root Drizzle client and a transaction handle, so
-// the same query helper serves both inside and outside transactions.
-export type DrizzleClient = PgDatabase<
-  NodePgQueryResultHKT,
-  typeof schema,
-  ExtractTablesWithRelations<typeof schema>
->;
+export type { DrizzleClient };
 
 export class DatabaseError extends Data.TaggedError("DatabaseError")<{
   readonly cause: unknown;

@@ -1,14 +1,10 @@
 import { eq } from "drizzle-orm";
 import { Effect } from "effect";
-import { labelTable, projectTable, taskTable } from "../../database/schema";
+import { labelTable } from "../../database/schema";
 import { Database } from "../../effect/database";
 import { Events } from "../../effect/events";
-import {
-  LabelDetachFailed,
-  LabelNotAssigned,
-  LabelNotFound,
-  TaskNotFound,
-} from "../errors";
+import { labelById, taskRefById } from "../../effect/lookups";
+import { LabelDetachFailed, LabelNotAssigned } from "../errors";
 import { LabelSync } from "../label-sync";
 
 const unassignLabelFromTask = Effect.fn("label.unassignLabelFromTask")(
@@ -17,37 +13,13 @@ const unassignLabelFromTask = Effect.fn("label.unassignLabelFromTask")(
     const events = yield* Events;
     const sync = yield* LabelSync;
 
-    const label = yield* database.query((db) =>
-      db.query.labelTable.findFirst({
-        where: (label, { eq }) => eq(label.id, id),
-      }),
-    );
-
-    if (!label) {
-      return yield* new LabelNotFound({ id });
-    }
+    const label = yield* labelById(id);
 
     if (!label.taskId) {
       return yield* new LabelNotAssigned({ id });
     }
 
-    const taskId = label.taskId;
-    const [task] = yield* database.query((db) =>
-      db
-        .select({
-          id: taskTable.id,
-          projectId: taskTable.projectId,
-          workspaceId: projectTable.workspaceId,
-        })
-        .from(taskTable)
-        .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
-        .where(eq(taskTable.id, taskId))
-        .limit(1),
-    );
-
-    if (!task) {
-      return yield* new TaskNotFound({ taskId });
-    }
+    const task = yield* taskRefById(label.taskId);
 
     const [deletedLabel] = yield* database.query((db) =>
       db.delete(labelTable).where(eq(labelTable.id, id)).returning(),

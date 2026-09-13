@@ -1,9 +1,10 @@
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { Effect } from "effect";
-import { labelTable, projectTable, taskTable } from "../../database/schema";
+import { labelTable } from "../../database/schema";
 import { Database } from "../../effect/database";
+import { NotFound } from "../../effect/errors";
 import { Events } from "../../effect/events";
-import { TaskNotFound } from "../errors";
+import { taskRefById } from "../../effect/lookups";
 import { LabelSync } from "../label-sync";
 
 const createLabel = Effect.fn("label.createLabel")(function* (
@@ -16,25 +17,10 @@ const createLabel = Effect.fn("label.createLabel")(function* (
   const database = yield* Database;
 
   if (taskId) {
-    const [task] = yield* database.query((db) =>
-      db
-        .select({
-          id: taskTable.id,
-          projectId: taskTable.projectId,
-          workspaceId: projectTable.workspaceId,
-        })
-        .from(taskTable)
-        .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
-        .where(eq(taskTable.id, taskId))
-        .limit(1),
-    );
-
-    if (!task) {
-      return yield* new TaskNotFound({ taskId });
-    }
+    const task = yield* taskRefById(taskId);
 
     if (task.workspaceId !== workspaceId) {
-      return yield* new TaskNotFound({ taskId });
+      return yield* new NotFound({ entity: "Task", id: taskId });
     }
 
     const [inserted] = yield* database.query((db) =>

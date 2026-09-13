@@ -1,5 +1,6 @@
 import { Effect, Layer } from "effect";
 import { describe, expect, it } from "vitest";
+import { NotFound } from "../../../apps/api/src/effect/errors";
 import {
   makeTestDatabase,
   makeTestEvents,
@@ -8,10 +9,7 @@ import createLabel from "../../../apps/api/src/label/controllers/create-label";
 import getLabel from "../../../apps/api/src/label/controllers/get-label";
 import unassignLabelFromTask from "../../../apps/api/src/label/controllers/unassign-label-from-task";
 import updateLabel from "../../../apps/api/src/label/controllers/update-label";
-import {
-  LabelNotAssigned,
-  LabelNotFound,
-} from "../../../apps/api/src/label/errors";
+import { LabelNotAssigned } from "../../../apps/api/src/label/errors";
 import { LabelSync } from "../../../apps/api/src/label/label-sync";
 
 const WORKSPACE_LABEL = {
@@ -102,7 +100,7 @@ function updateRecorder(returning: unknown[]) {
 }
 
 describe("label controllers through the Effect test layers", () => {
-  it("getLabel fails with LabelNotFound when no row matches", async () => {
+  it("getLabel fails with NotFound when no row matches", async () => {
     const database = makeTestDatabase({
       query: { labelTable: { findFirst: () => Promise.resolve(undefined) } },
     });
@@ -111,8 +109,8 @@ describe("label controllers through the Effect test layers", () => {
       Effect.provide(getLabel("missing"), database),
     );
 
-    expect(error).toBeInstanceOf(LabelNotFound);
-    expect((error as LabelNotFound).id).toBe("missing");
+    expect(error).toBeInstanceOf(NotFound);
+    expect(error).toMatchObject({ entity: "Label", id: "missing" });
   });
 
   it("getLabel returns the row", async () => {
@@ -212,7 +210,7 @@ describe("label controllers through the Effect test layers", () => {
     expect(calls[1]?.set).toEqual({ name: "defect", color: "111111" });
   });
 
-  it("updateLabel fails with LabelNotFound and never updates when the label is missing", async () => {
+  it("updateLabel fails with NotFound and never updates when the label is missing", async () => {
     const { update, calls } = updateRecorder([]);
     const database = makeTestDatabase({
       transaction: async (body: (tx: unknown) => Promise<unknown>) =>
@@ -228,7 +226,8 @@ describe("label controllers through the Effect test layers", () => {
       Effect.provide(updateLabel("missing", "x", "y"), database),
     );
 
-    expect(error).toBeInstanceOf(LabelNotFound);
+    expect(error).toBeInstanceOf(NotFound);
+    expect(error).toMatchObject({ entity: "Label", id: "missing" });
     expect(calls).toEqual([]);
   });
 
