@@ -1706,7 +1706,7 @@
 					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
 			},
-			"commentedOnForge": "commented on {{forge}}"
+			"commentedOnForge": "đã bình luận trên {{forge}}"
 		}
 	},
 	"tasks": {

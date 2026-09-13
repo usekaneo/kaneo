@@ -1716,7 +1716,7 @@
 					"renderFailed": "No se pudo renderizar el diagrama de Mermaid"
 				}
 			},
-			"commentedOnForge": "commented on {{forge}}"
+			"commentedOnForge": "comentado en {{forge}}"
 		}
 	},
 	"tasks": {

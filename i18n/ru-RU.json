@@ -1727,7 +1727,7 @@
 					"renderFailed": "Не удалось отобразить диаграмму Mermaid"
 				}
 			},
-			"commentedOnForge": "прокомментировано в {{forge}}"
+			"commentedOnForge": "прокомментировал на {{forge}}"
 		},
 		"moved": "переместил задачу из «{{from}}» в «{{to}}»",
 		"created": "создал эту задачу"

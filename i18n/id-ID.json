@@ -1706,7 +1706,7 @@
 					"renderFailed": "Diagram Mermaid tidak dapat dirender"
 				}
 			},
-			"commentedOnForge": "commented on {{forge}}"
+			"commentedOnForge": "berkomentar di {{forge}}"
 		}
 	},
 	"tasks": {

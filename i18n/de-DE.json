@@ -1711,7 +1711,7 @@
 					"renderFailed": "Mermaid-Diagramm konnte nicht gerendert werden"
 				}
 			},
-			"commentedOnForge": "commented on {{forge}}"
+			"commentedOnForge": "hat auf {{forge}} kommentiert"
 		}
 	},
 	"tasks": {

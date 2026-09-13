@@ -1711,7 +1711,7 @@
 					"renderFailed": "Mermaid डायग्राम प्रस्तुत नहीं किया जा सका"
 				}
 			},
-			"commentedOnForge": "commented on {{forge}}"
+			"commentedOnForge": "{{forge}} पर टिप्पणी की"
 		}
 	},
 	"tasks": {

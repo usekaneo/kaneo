@@ -1711,7 +1711,7 @@
 					"renderFailed": "Mermaid дијаграмот не можеше да се прикаже"
 				}
 			},
-			"commentedOnForge": "commented on {{forge}}"
+			"commentedOnForge": "коментираше на {{forge}}"
 		}
 	},
 	"tasks": {

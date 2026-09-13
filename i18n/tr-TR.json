@@ -1711,7 +1711,7 @@
 					"renderFailed": "Mermaid diyagramı oluşturulamadı"
 				}
 			},
-			"commentedOnForge": "commented on {{forge}}"
+			"commentedOnForge": "{{forge}}'da yorum yaptı"
 		}
 	},
 	"tasks": {

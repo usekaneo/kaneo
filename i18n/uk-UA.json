@@ -1719,7 +1719,7 @@
 					"renderFailed": "Не вдалося відобразити діаграму Mermaid"
 				}
 			},
-			"commentedOnForge": "commented on {{forge}}"
+			"commentedOnForge": "прокоментував на {{forge}}"
 		},
 		"moved": "перемістив завдання з «{{from}}» до «{{to}}»",
 		"created": "створив це завдання"

@@ -1706,7 +1706,7 @@
 					"renderFailed": "Mermaid 다이어그램을 렌더링할 수 없습니다"
 				}
 			},
-			"commentedOnForge": "commented on {{forge}}"
+			"commentedOnForge": "{{forge}}에 댓글을 남김"
 		}
 	},
 	"tasks": {

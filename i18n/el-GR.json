@@ -1711,7 +1711,7 @@
 					"renderFailed": "Δεν ήταν δυνατή η απόδοση του διαγράμματος Mermaid"
 				}
 			},
-			"commentedOnForge": "commented on {{forge}}"
+			"commentedOnForge": "σχολίασε στο {{forge}}"
 		}
 	},
 	"tasks": {
