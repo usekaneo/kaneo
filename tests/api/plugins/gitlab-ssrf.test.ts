@@ -1,5 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+import { parseGitlabBaseUrl } from "../../../apps/api/src/gitlab-integration/utils/normalize-input";
 import {
+  assertGitlabTransport,
   normalizeGitlabBaseUrl,
   normalizeProjectPath,
 } from "../../../apps/api/src/plugins/gitlab/config";
@@ -86,4 +88,46 @@ describe("gitlabFetch destination guard", () => {
       ).rejects.toThrow(/non-routable/);
     });
   }
+});
+
+describe("GitLab transport", () => {
+  const originalAllowPrivate =
+    process.env.KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS;
+
+  afterEach(() => {
+    if (originalAllowPrivate === undefined) {
+      delete process.env.KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS;
+    } else {
+      process.env.KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS =
+        originalAllowPrivate;
+    }
+  });
+
+  it("does not send a token to a public host over plain http", async () => {
+    delete process.env.KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS;
+
+    await expect(
+      gitlabFetch("http://93.184.216.34", "token", "private", "/user"),
+    ).rejects.toThrow(/must use https/);
+  });
+
+  it("rejects a plain http URL entered in the form as a bad request", () => {
+    delete process.env.KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS;
+
+    expect(() => parseGitlabBaseUrl("http://gitlab.example.com")).toThrow(
+      expect.objectContaining({ status: 400 }),
+    );
+  });
+
+  it("allows plain http once private destinations are enabled", () => {
+    process.env.KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS = "true";
+
+    expect(() => assertGitlabTransport("http://10.0.0.5")).not.toThrow();
+  });
+
+  it("always allows https", () => {
+    delete process.env.KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS;
+
+    expect(() => assertGitlabTransport("https://gitlab.com")).not.toThrow();
+  });
 });

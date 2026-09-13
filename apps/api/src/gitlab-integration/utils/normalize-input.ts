@@ -1,5 +1,6 @@
 import { HTTPException } from "hono/http-exception";
 import {
+  assertGitlabTransport,
   normalizeGitlabBaseUrl,
   normalizeProjectPath,
 } from "../../plugins/gitlab/config";
@@ -15,7 +16,11 @@ function orBadRequest<T>(normalize: () => T): T {
 }
 
 export function parseGitlabBaseUrl(url: string): string {
-  return orBadRequest(() => normalizeGitlabBaseUrl(url));
+  return orBadRequest(() => {
+    const normalized = normalizeGitlabBaseUrl(url);
+    assertGitlabTransport(normalized);
+    return normalized;
+  });
 }
 
 export function parseGitlabProjectPath(path: string): string {

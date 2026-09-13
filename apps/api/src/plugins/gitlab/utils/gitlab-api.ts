@@ -1,7 +1,11 @@
 import * as Sentry from "@sentry/node";
 import { assertPublicDestination } from "../../../utils/assert-public-destination";
 import type { GitlabConfig, GitlabTokenType } from "../config";
-import { normalizeGitlabBaseUrl, normalizeProjectPath } from "../config";
+import {
+  assertGitlabTransport,
+  normalizeGitlabBaseUrl,
+  normalizeProjectPath,
+} from "../config";
 
 export type GitlabLabel = {
   id: number;
@@ -104,6 +108,7 @@ export async function gitlabFetch<T>(
   const url = `${root}/api/v4${path.startsWith("/") ? path : `/${path}`}`;
 
   await assertPublicDestination(root, "GitLab");
+  assertGitlabTransport(root);
 
   const controller = new AbortController();
   let timedOut = false;

@@ -1,4 +1,5 @@
 import * as v from "valibot";
+import { privateDestinationsAllowed } from "../../utils/assert-public-destination";
 import { branchPatterns } from "../github/config";
 
 export { branchPatterns };
@@ -73,6 +74,16 @@ export function normalizeGitlabBaseUrl(url: string): string {
   }
 
   return `${parsed.origin}${parsed.pathname.replace(/\/+$/, "")}`;
+}
+
+// The token travels in a request header, so plain http is only accepted for
+// instances on a private network.
+export function assertGitlabTransport(baseUrl: string): void {
+  if (new URL(baseUrl).protocol === "http:" && !privateDestinationsAllowed()) {
+    throw new Error(
+      "GitLab URL must use https unless KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS is enabled",
+    );
+  }
 }
 
 // Reject a leading slash or ".." before the path goes into the URL.
