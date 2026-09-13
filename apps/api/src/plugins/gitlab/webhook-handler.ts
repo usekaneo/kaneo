@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import db from "../../database";
 import { integrationTable } from "../../database/schema";
 import type { GitlabConfig } from "./config";
-import { verifyGitlabToken } from "./utils/verify-token";
+import { verifyWebhookToken } from "./utils/verify-token";
 import { handleGitlabIssueClosed } from "./webhooks/issue-closed";
 import { handleGitlabIssueOpened } from "./webhooks/issue-opened";
 import { handleGitlabIssueReopened } from "./webhooks/issue-reopened";
@@ -69,13 +69,15 @@ function objectAction(payload: Record<string, unknown>): string | undefined {
   return typeof attributes.action === "string" ? attributes.action : undefined;
 }
 
-/** True when an "update" took the merge request out of draft. */
-function leftDraft(payload: Record<string, unknown>): boolean {
+/** Which way an "update" moved the draft flag, or null when it did not. */
+function draftChange(
+  payload: Record<string, unknown>,
+): "entered" | "left" | null {
   const changes = payload.changes;
-  if (!isRecord(changes)) return false;
+  if (!isRecord(changes)) return null;
   const draft = changes.draft;
-  if (!isRecord(draft)) return false;
-  return draft.previous === true && draft.current === false;
+  if (!isRecord(draft) || draft.previous === draft.current) return null;
+  return draft.current === true ? "entered" : "left";
 }
 
 export async function handleGitlabWebhookRequest(
@@ -103,7 +105,7 @@ export async function handleGitlabWebhookRequest(
     return { success: false, error: "Webhook secret not configured" };
   }
 
-  if (!verifyGitlabToken(secret, tokenHeader)) {
+  if (!verifyWebhookToken(secret, tokenHeader)) {
     return { success: false, error: "Invalid webhook token" };
   }
 
@@ -187,8 +189,13 @@ async function dispatchGitlabEvent(
         await handleGitlabMergeRequestOpened(payload, integrationId);
         return;
       }
-      if (action === "update" && leftDraft(payload)) {
-        await handleGitlabMergeRequestOpened(payload, integrationId);
+      if (action === "update") {
+        const change = draftChange(payload);
+        if (change) {
+          await handleGitlabMergeRequestOpened(payload, integrationId, {
+            moveTask: change === "left",
+          });
+        }
         return;
       }
       if (action === "merge" || action === "close") {

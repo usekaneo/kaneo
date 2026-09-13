@@ -36,6 +36,7 @@ type MergeRequestOpenedPayload = {
 export async function handleGitlabMergeRequestOpened(
   payload: MergeRequestOpenedPayload,
   integrationId?: string,
+  { moveTask = true }: { moveTask?: boolean } = {},
 ) {
   const mergeRequest = payload.object_attributes;
   const { project } = payload;
@@ -121,6 +122,10 @@ export async function handleGitlabMergeRequestOpened(
         title: mergeRequest.title,
         metadata,
       });
+    }
+
+    if (!moveTask) {
+      return;
     }
 
     // A reopen arrives with the link already recorded, and the task still needs
