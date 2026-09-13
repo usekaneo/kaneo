@@ -192,7 +192,9 @@ async function dispatchGitlabEvent(
       }
       const action = objectAction(payload);
       if (action === "open" || action === "reopen") {
-        await handleGitlabMergeRequestOpened(payload, integrationId);
+        await handleGitlabMergeRequestOpened(payload, integrationId, {
+          moveTask: payload.object_attributes.draft !== true,
+        });
         return;
       }
       if (action === "update") {

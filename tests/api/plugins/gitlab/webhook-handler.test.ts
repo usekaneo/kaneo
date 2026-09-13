@@ -74,6 +74,27 @@ function mergeRequestUpdate(changes: Record<string, unknown>) {
   });
 }
 
+function mergeRequestOpen(draft: boolean) {
+  return JSON.stringify({
+    object_kind: "merge_request",
+    object_attributes: {
+      iid: 2,
+      title: "Draft: Rework the checkout form",
+      description: null,
+      url: "https://gitlab.com/acme/web/-/merge_requests/2",
+      state: "opened",
+      action: "open",
+      draft,
+      source_branch: "kan-2",
+    },
+    project: {
+      name: "web",
+      web_url: "https://gitlab.com/acme/web",
+      path_with_namespace: "acme/web",
+    },
+  });
+}
+
 function issueEvent({
   action,
   eventType = "issue",
@@ -109,6 +130,36 @@ beforeEach(() => {
     id: "integration-1",
     type: "gitlab",
     config: JSON.stringify({ webhookSecret: secret }),
+  });
+});
+
+describe("handleGitlabWebhookRequest merge request opened", () => {
+  it("links a draft merge request without moving the task", async () => {
+    await handleGitlabWebhookRequest(
+      "integration-1",
+      mergeRequestOpen(true),
+      secret,
+    );
+
+    expect(mocks.handleGitlabMergeRequestOpened).toHaveBeenCalledWith(
+      expect.anything(),
+      "integration-1",
+      { moveTask: false },
+    );
+  });
+
+  it("moves the task when a merge request is opened ready for review", async () => {
+    await handleGitlabWebhookRequest(
+      "integration-1",
+      mergeRequestOpen(false),
+      secret,
+    );
+
+    expect(mocks.handleGitlabMergeRequestOpened).toHaveBeenCalledWith(
+      expect.anything(),
+      "integration-1",
+      { moveTask: true },
+    );
   });
 });
 
