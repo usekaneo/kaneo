@@ -18,6 +18,23 @@ import {
   verifyGitlabToken,
 } from "../../plugins/gitlab/utils/gitlab-api";
 
+function pickSettings(config: Partial<GitlabConfig>): Partial<GitlabConfig> {
+  const settings: Partial<GitlabConfig> = {};
+  if (config.branchPattern !== undefined) {
+    settings.branchPattern = config.branchPattern;
+  }
+  if (config.customBranchRegex !== undefined) {
+    settings.customBranchRegex = config.customBranchRegex;
+  }
+  if (config.commentTaskLinkOnGitlabIssue !== undefined) {
+    settings.commentTaskLinkOnGitlabIssue = config.commentTaskLinkOnGitlabIssue;
+  }
+  if (config.statusTransitions !== undefined) {
+    settings.statusTransitions = config.statusTransitions;
+  }
+  return settings;
+}
+
 async function createGitlabIntegration({
   projectId,
   baseUrl,
@@ -49,11 +66,10 @@ async function createGitlabIntegration({
     ),
   });
 
-  let resolvedToken = accessToken?.trim() ?? "";
-  if (!resolvedToken && existingIntegration) {
+  let previousConfig: Partial<GitlabConfig> = {};
+  if (existingIntegration) {
     try {
-      const previous = JSON.parse(existingIntegration.config) as GitlabConfig;
-      resolvedToken = previous.accessToken;
+      previousConfig = JSON.parse(existingIntegration.config) as GitlabConfig;
     } catch (error) {
       console.warn("Failed to parse existing GitLab integration config", {
         integrationId: existingIntegration.id,
@@ -61,6 +77,8 @@ async function createGitlabIntegration({
       });
     }
   }
+
+  const resolvedToken = accessToken?.trim() || previousConfig.accessToken || "";
 
   if (!resolvedToken) {
     throw new HTTPException(400, {
@@ -121,31 +139,19 @@ async function createGitlabIntegration({
     }
   }
 
-  let webhookSecret = randomBytes(24).toString("hex");
-  if (existingIntegration) {
-    try {
-      const previousConfig = JSON.parse(
-        existingIntegration.config,
-      ) as GitlabConfig;
-      webhookSecret = previousConfig.webhookSecret ?? webhookSecret;
-    } catch (error) {
-      console.warn(
-        "Failed to parse existing GitLab config for webhook secret",
-        {
-          integrationId: existingIntegration.id,
-          error,
-        },
-      );
-    }
-  }
+  const webhookSecret =
+    previousConfig.webhookSecret ?? randomBytes(24).toString("hex");
 
-  const config = getDefaultGitlabConfig(
-    normalizedBase,
-    resolvedToken,
-    tokenType,
-    normalizedPath,
-    webhookSecret,
-  );
+  const config: GitlabConfig = {
+    ...getDefaultGitlabConfig(
+      normalizedBase,
+      resolvedToken,
+      tokenType,
+      normalizedPath,
+      webhookSecret,
+    ),
+    ...pickSettings(previousConfig),
+  };
 
   const validation = await validateGitlabConfig(config);
   if (!validation.valid) {
