@@ -1154,6 +1154,7 @@
 			"searchProjects": "Search…",
 			"browseNeedsCredentials": "Enter GitLab URL and token to browse",
 			"loadingProjects": "Loading projects…",
+			"loadProjectsError": "Failed to load projects",
 			"openInGitlab": "Open {{project}} in GitLab",
 			"retry": "Retry"
 		},

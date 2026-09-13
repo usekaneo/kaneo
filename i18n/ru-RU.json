@@ -1385,6 +1385,7 @@
 			"importSectionHint": "Импортировать открытые issues и merge requests из проекта",
 			"importSectionTitle": "Импорт issues из GitLab",
 			"loadingProjects": "Загрузка проектов…",
+			"loadProjectsError": "Не удалось загрузить проекты",
 			"notConnectedHint": "Проект GitLab не подключён",
 			"openInGitlab": "Открыть {{project}} в GitLab",
 			"project": "Проект",

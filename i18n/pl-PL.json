@@ -1903,7 +1903,8 @@
 			"webhookHint": "In your GitLab project, add a webhook with this URL and secret token. Enable push, issues, comments, and merge request events.",
 			"webhookSecretLabel": "Secret token (must match the one set on the webhook in GitLab)",
 			"webhookShow": "Show",
-			"webhookTitle": "Webhook"
+			"webhookTitle": "Webhook",
+			"loadProjectsError": "Failed to load projects"
 		}
 	},
 	"tasks": {
