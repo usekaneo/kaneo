@@ -1,12 +1,15 @@
 import { HTTPException } from "hono/http-exception";
 import type { GitlabTokenType } from "../../plugins/gitlab/config";
-import { normalizeGitlabBaseUrl } from "../../plugins/gitlab/config";
 import {
   createGitlabClient,
   GitlabApiError,
   type GitlabProject,
   verifyGitlabToken,
 } from "../../plugins/gitlab/utils/gitlab-api";
+import {
+  parseGitlabBaseUrl,
+  parseGitlabProjectPath,
+} from "../utils/normalize-input";
 
 // Developer is the lowest role that can create the priority/status labels.
 const REQUIRED_ACCESS_LEVEL = 30;
@@ -45,9 +48,10 @@ async function verifyGitlabAccess({
   tokenType: GitlabTokenType;
   projectPath: string;
 }) {
-  try {
-    const normalized = normalizeGitlabBaseUrl(baseUrl);
+  const normalized = parseGitlabBaseUrl(baseUrl);
+  const normalizedPath = parseGitlabProjectPath(projectPath);
 
+  try {
     try {
       await verifyGitlabToken(normalized, accessToken, tokenType);
     } catch (error) {
@@ -67,7 +71,7 @@ async function verifyGitlabAccess({
       tokenType,
     });
 
-    const project = await client.getProject(projectPath);
+    const project = await client.getProject(normalizedPath);
 
     // Group and instance tokens have no project access level.
     const accessLevel = highestAccessLevel(project);

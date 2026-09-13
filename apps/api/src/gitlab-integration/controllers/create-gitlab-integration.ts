@@ -17,6 +17,10 @@ import {
   GitlabApiError,
   verifyGitlabToken,
 } from "../../plugins/gitlab/utils/gitlab-api";
+import {
+  parseGitlabBaseUrl,
+  parseGitlabProjectPath,
+} from "../utils/normalize-input";
 
 function pickSettings(config: Partial<GitlabConfig>): Partial<GitlabConfig> {
   const settings: Partial<GitlabConfig> = {};
@@ -56,8 +60,8 @@ async function createGitlabIntegration({
     throw new HTTPException(404, { message: "Project not found" });
   }
 
-  const normalizedBase = normalizeGitlabBaseUrl(baseUrl);
-  const normalizedPath = normalizeProjectPath(projectPath);
+  const normalizedBase = parseGitlabBaseUrl(baseUrl);
+  const normalizedPath = parseGitlabProjectPath(projectPath);
 
   const existingIntegration = await db.query.integrationTable.findFirst({
     where: and(

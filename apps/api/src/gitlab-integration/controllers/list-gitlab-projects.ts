@@ -1,10 +1,10 @@
 import { HTTPException } from "hono/http-exception";
 import type { GitlabTokenType } from "../../plugins/gitlab/config";
-import { normalizeGitlabBaseUrl } from "../../plugins/gitlab/config";
 import {
   createGitlabClient,
   verifyGitlabToken,
 } from "../../plugins/gitlab/utils/gitlab-api";
+import { parseGitlabBaseUrl } from "../utils/normalize-input";
 
 type ProjectRow = {
   id: number;
@@ -27,7 +27,7 @@ async function listGitlabProjects({
   accessToken: string;
   tokenType: GitlabTokenType;
 }): Promise<{ projects: ProjectRow[] }> {
-  const normalized = normalizeGitlabBaseUrl(baseUrl);
+  const normalized = parseGitlabBaseUrl(baseUrl);
 
   try {
     await verifyGitlabToken(normalized, accessToken, tokenType);

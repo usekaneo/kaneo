@@ -118,3 +118,20 @@ describe("createGitlabIntegration on an existing integration", () => {
     });
   });
 });
+
+describe("createGitlabIntegration input", () => {
+  it("rejects a malformed project path with a 400", async () => {
+    mocks.existingIntegration.mockResolvedValue(undefined);
+
+    await expect(
+      createGitlabIntegration({
+        projectId: "project-1",
+        baseUrl: "https://gitlab.com",
+        accessToken: "token",
+        tokenType: "private",
+        projectPath: "acme/../web",
+      }),
+    ).rejects.toMatchObject({ status: 400 });
+    expect(mocks.updateSet).not.toHaveBeenCalled();
+  });
+});

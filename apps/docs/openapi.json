@@ -11740,7 +11740,7 @@
                 "properties": {
                   "baseUrl": {
                     "type": "string",
-                    "minLength": 1
+                    "format": "uri"
                   },
                   "accessToken": {
                     "type": "string",
