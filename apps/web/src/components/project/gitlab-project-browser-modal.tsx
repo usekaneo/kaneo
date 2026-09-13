@@ -16,6 +16,7 @@ import listGitlabProjects, {
   type ListGitlabProjectsResponse,
 } from "@/fetchers/gitlab-integration/list-gitlab-projects";
 import { cn } from "@/lib/cn";
+import { tokenFingerprint } from "@/lib/token-fingerprint";
 
 type GitlabProjectBrowserModalProps = {
   open: boolean;
@@ -45,11 +46,16 @@ export function GitlabProjectBrowserModal({
     open && baseUrl.trim().length > 0 && accessToken.trim().length > 0;
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["gitlab-projects", projectId, baseUrl, tokenType],
+    queryKey: [
+      "gitlab-projects",
+      projectId,
+      baseUrl,
+      tokenType,
+      tokenFingerprint(accessToken),
+    ],
     queryFn: () =>
       listGitlabProjects({ projectId, baseUrl, accessToken, tokenType }),
     enabled: canFetch,
-    // Token is not in the key; gcTime: 0 drops the result when the modal closes.
     gcTime: 0,
   });
 
