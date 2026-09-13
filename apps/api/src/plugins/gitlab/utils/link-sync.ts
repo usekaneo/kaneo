@@ -12,19 +12,10 @@ export type LinkMetadata = {
   [key: string]: unknown;
 };
 
-/**
- * How long an identical value still counts as the other side's echo. Generous
- * enough for a slow webhook delivery, short enough that setting a title back to
- * an older value tomorrow is treated as the real edit it is.
- */
+/** How long an identical value still counts as an echo. */
 export const TEXT_ECHO_WINDOW_MS = 60_000;
 
-/**
- * A value one side writes comes straight back from the other as a webhook or an
- * event. The value itself is what identifies the echo -- suppressing anything
- * that merely arrives soon after a write would drop a real edit made right on
- * top of it -- and the window bounds how long that identity holds.
- */
+/** An echo is the value the other side last wrote, within the window. */
 export function isEchoOf(
   state: LinkSyncState | undefined,
   source: string,

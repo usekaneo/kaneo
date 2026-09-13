@@ -8,8 +8,7 @@ import {
   verifyGitlabToken,
 } from "../../plugins/gitlab/utils/gitlab-api";
 
-// Managing issue labels needs Developer. Reporter can open an issue but cannot
-// create the priority and status labels Kaneo relies on.
+// Developer is the lowest role that can create the priority/status labels.
 const REQUIRED_ACCESS_LEVEL = 30;
 
 function highestAccessLevel(project: GitlabProject): number {
@@ -52,8 +51,7 @@ async function verifyGitlabAccess({
     try {
       await verifyGitlabToken(normalized, accessToken, tokenType);
     } catch (error) {
-      // A 404 from /user means the URL does not serve the GitLab API, not that
-      // a project is missing.
+      // 404 from /user: the URL is not a GitLab instance.
       if (error instanceof GitlabApiError && error.status === 404) {
         return failure(
           "The URL does not point to a GitLab instance.",
@@ -71,9 +69,7 @@ async function verifyGitlabAccess({
 
     const project = await client.getProject(projectPath);
 
-    // A group or instance token carries no per-project access level, so a
-    // missing level is not proof of missing rights -- the project answering at
-    // all already means the token can read it.
+    // Group and instance tokens have no project access level.
     const accessLevel = highestAccessLevel(project);
     const hasRequiredPermissions =
       accessLevel === 0 || accessLevel >= REQUIRED_ACCESS_LEVEL;

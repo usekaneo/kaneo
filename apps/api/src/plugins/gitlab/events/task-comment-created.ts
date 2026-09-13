@@ -55,8 +55,6 @@ export async function handleTaskCommentCreated(
       event.comment,
     );
 
-    // The note webhook reports this note as authored by the token's own user, so
-    // recording its id is what stops it coming back as a duplicate comment.
     const metadata = parseLinkSyncMetadata(existingLink.metadata, {
       externalLinkId: existingLink.id,
       field: "syncedNoteIds",

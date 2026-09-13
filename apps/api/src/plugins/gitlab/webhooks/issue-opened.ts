@@ -48,8 +48,7 @@ export async function handleGitlabIssueOpened(
   const issue = payload.object_attributes;
   const { project } = payload;
 
-  // A confidential issue is limited to project members in GitLab; turning it
-  // into a task would publish its title and description to the whole workspace.
+  // Confidential issues are visible only to project members in GitLab.
   if (issue.confidential) {
     return;
   }
@@ -200,9 +199,6 @@ export async function handleGitlabIssueOpened(
           `[${taskIdentifier}](${taskUrl})`,
         );
 
-        // This note returns through the note webhook authored by the token's
-        // own user, so without its id recorded it lands in the task activity as
-        // a comment Kaneo wrote to itself.
         await updateExternalLink(issueLink.id, {
           metadata: {
             ...linkMetadata,

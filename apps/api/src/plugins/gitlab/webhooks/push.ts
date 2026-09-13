@@ -31,8 +31,7 @@ const PROTECTED_BRANCHES = [
   "production",
 ];
 
-// A branch name may contain slashes, and those are path separators in GitLab's
-// tree URL rather than characters to escape.
+// Slashes in a branch name are path separators in the tree URL.
 function treePath(branchName: string): string {
   return branchName.split("/").map(encodeURIComponent).join("/");
 }

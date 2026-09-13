@@ -52,9 +52,7 @@ async function getGitlabIssueContext(taskId: string) {
     },
   });
 
-  // Label changes reach here straight from the label controllers rather than
-  // through the plugin registry, so the registry's active-integration filter
-  // does not apply and a disabled integration has to be skipped here.
+  // Called from label controllers, bypassing the registry's isActive filter.
   const externalLink = externalLinks.find(
     (link) =>
       link.resourceType === "issue" &&

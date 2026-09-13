@@ -105,8 +105,7 @@ export async function importGitlabIssues(
   }
 
   for (const issue of allIssues) {
-    // Confidential issues stay out of the workspace, the same as they do when
-    // one arrives through the webhook.
+    // Confidential issues are skipped, same as in the webhook.
     if (issue.confidential) {
       skipped++;
       continue;
@@ -207,9 +206,6 @@ async function importSingleIssue(
     return "updated";
   }
 
-  // The project's own counter is the allocator every other task creation path
-  // uses, so deriving a number from max(number) here would hand the next
-  // webhook a number that is already taken.
   const createdTask = await db.transaction(async (tx) => {
     const number = await claimTaskNumber(projectId, tx);
 
@@ -328,8 +324,7 @@ async function importNotesForTask(
     if (notes.length === 0) break;
 
     for (const note of notes) {
-      // GitLab records label, milestone and state changes as system notes, and
-      // an internal note is visible there only to project members.
+      // Skip system notes (label/state changes) and internal notes.
       if (note.system || note.internal) {
         continue;
       }
@@ -345,8 +340,7 @@ async function importNotesForTask(
           externalUserName: username || "Unknown",
           externalUserAvatar: note.author?.avatar_url ?? null,
           externalSource: "gitlab",
-          // The notes API returns no URL for a note, and the anchor on the
-          // issue page is how GitLab itself links to one.
+          // The notes API has no URL, so link to the anchor on the issue page.
           externalUrl: `${issue.web_url}#note_${note.id}`,
           eventData: {
             externalCommentId: note.id,

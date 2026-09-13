@@ -25,8 +25,6 @@ import { formatDateTime, formatRelativeTime } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
 import { toast } from "@/lib/toast";
 
-// A comment can arrive from any of the linked forges, so the icon and the name
-// follow the source rather than always reading GitHub.
 const forges = {
   github: { name: "GitHub", Icon: GithubIcon },
   gitea: { name: "Gitea", Icon: FolderGit },
@@ -75,8 +73,7 @@ export default function CommentCard({
 
   const canEdit = currentUser?.id === user?.id;
   const forge = forgeOf(externalSource);
-  // Only GitHub has a profile URL that can be derived from a username alone; a
-  // Gitea or GitLab profile lives on whichever instance the comment came from.
+  // Gitea and GitLab profile URLs depend on the instance.
   const githubProfileUrl =
     forge?.name === "GitHub" && user?.name
       ? `https://github.com/${user.name}`

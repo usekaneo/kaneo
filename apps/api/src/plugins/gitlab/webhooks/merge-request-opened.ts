@@ -16,8 +16,6 @@ import type { GitlabWebhookProject, GitlabWebhookUser } from "../utils/payload";
 import { resolveTargetStatus } from "../utils/resolve-column";
 import { baseUrlFromProjectWebUrl } from "../utils/webhook-project";
 
-// A merge request is stored as a `pull_request` external link: the resource
-// type is the shared vocabulary the task UI already renders, not a forge term.
 type MergeRequestOpenedPayload = {
   user?: GitlabWebhookUser | null;
   object_attributes: {
@@ -128,8 +126,7 @@ export async function handleGitlabMergeRequestOpened(
       return;
     }
 
-    // A reopen arrives with the link already recorded, and the task still needs
-    // to move back out of whatever state closing it left behind.
+    // On reopen the link already exists, but the task still has to move.
     const targetStatus = await resolveTargetStatus(
       integration.projectId,
       "pr_opened",

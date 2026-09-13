@@ -18,9 +18,7 @@ function getLabelColor(labelName: string): string {
   return labelColors[labelName] || "6B7280";
 }
 
-// GitLab creates a missing project label on its own when an issue is labelled,
-// but picks the colour itself. Creating them up front is what keeps the
-// priority and status labels recognisable.
+// Created up front so GitLab does not pick its own colours for them.
 export async function ensureLabelsExistGitlab(
   config: GitlabConfig,
   labels: string[],
@@ -52,10 +50,7 @@ export async function ensureLabelsExistGitlab(
   }
 }
 
-/**
- * Adds and removes issue labels in one request, so an issue never briefly
- * carries two `status:` labels for a racing read to pick up.
- */
+/** Adds and removes labels in one request, so two status labels never coexist. */
 export async function updateIssueLabelsGitlab(
   config: GitlabConfig,
   issueIid: number,

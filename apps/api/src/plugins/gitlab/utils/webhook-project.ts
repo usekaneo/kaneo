@@ -1,8 +1,6 @@
 import { normalizeGitlabBaseUrl } from "../config";
 
-// A webhook payload carries the project's web URL and its full path, so the
-// instance root is the URL with that path removed. This also covers instances
-// served under a path prefix, where the root is not just the origin.
+// Instance root is web_url minus the project path, keeping any path prefix.
 export function baseUrlFromProjectWebUrl(
   webUrl: string,
   pathWithNamespace: string,

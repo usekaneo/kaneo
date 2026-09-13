@@ -1,7 +1,6 @@
 import { responseTimestamp, z } from "../openapi";
 
-// Credentials are only ever returned masked; the webhook secret goes only to
-// callers holding workspace:manage_settings.
+// Tokens are masked; the webhook secret needs manage_settings.
 export const gitlabIntegrationSchema = z
   .object({
     id: z.string(),

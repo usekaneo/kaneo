@@ -31,15 +31,12 @@ export async function handleGitlabNoteCreated(
     return;
   }
 
-  // GitLab posts a system note for label, milestone and status changes. Those
-  // are not comments and would read as one in the task activity.
+  // System notes are label/state changes, not comments.
   if (note.system) {
     return;
   }
 
-  // An internal note, or any note on a confidential issue, is visible in GitLab
-  // only to project members with Reporter access. Copying it into the task
-  // activity would show it to everyone in the Kaneo workspace.
+  // Internal and confidential notes are for project members only.
   if (note.internal || payload.event_type === "confidential_note") {
     return;
   }
@@ -70,8 +67,6 @@ export async function handleGitlabNoteCreated(
       continue;
     }
 
-    // A note Kaneo posted itself comes back authored by the token's own user,
-    // so the author is no help; the id Kaneo recorded when posting is.
     if (syncedNoteIds(externalLink.metadata).includes(note.id)) {
       continue;
     }

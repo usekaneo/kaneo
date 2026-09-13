@@ -116,8 +116,6 @@ export async function handleGitlabWebhookRequest(
     return { success: false, error: "Invalid JSON payload" };
   }
 
-  // GitLab names the event in the body as well as in X-Gitlab-Event, and the
-  // body is what the token above authenticates.
   const objectKind =
     typeof payload.object_kind === "string" ? payload.object_kind : undefined;
 

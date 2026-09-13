@@ -94,8 +94,6 @@ const integration = {
   }),
 };
 
-// A webhook payload names a label in `title`, unlike the REST API, which returns
-// issue labels as plain strings.
 function issueOpenedPayload(labels: Array<{ title: string }>) {
   return {
     user: { username: "octocat" },

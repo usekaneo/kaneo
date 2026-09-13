@@ -26,9 +26,7 @@ import { labelColor, labelTitles } from "../utils/payload";
 import { isSystemLabelName } from "../utils/system-labels";
 import { baseUrlFromProjectWebUrl } from "../utils/webhook-project";
 
-// GitLab reports an edit, a label change and a status label change as one
-// "update" action with a `changes` object, so what Gitea splits across
-// issue_edited and issue_labeled arrives here together.
+// Edits and label changes arrive together as one "update" action.
 type IssueUpdatedPayload = {
   object_attributes: {
     iid: number;
@@ -189,8 +187,7 @@ export async function handleGitlabIssueUpdated(
         }
 
         if (changes?.description) {
-          // Kaneo recorded the full body it wrote, footer included, so the echo
-          // is recognised against the raw body; the task keeps it without one.
+          // Kaneo recorded the body with its footer, so compare the raw body.
           const issueBody = issue.description ?? "";
           if (!isEchoOf(metadata.lastSync?.description, "kaneo", issueBody)) {
             const description = taskDescriptionFromIssue(issue.description);

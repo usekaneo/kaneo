@@ -1,6 +1,4 @@
-// formatIssueBody appends a `Task: <id>` footer to every description Kaneo
-// writes to GitLab. Reading that body back into the task unchanged would keep
-// the footer there, and the next edit in Kaneo would append a second one.
+// Strip the `Task:` footer Kaneo appends, or every sync adds another one.
 const FOOTER = /(?:\r?\n)*-{3}\r?\n<sub>Task: [^<\r\n]+<\/sub>\s*$/;
 const FOOTER_ONLY = /^\s*<sub>Task: [^<\r\n]+<\/sub>\s*$/;
 

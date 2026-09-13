@@ -49,9 +49,7 @@ export function GitlabProjectBrowserModal({
     queryFn: () =>
       listGitlabProjects({ projectId, baseUrl, accessToken, tokenType }),
     enabled: canFetch,
-    // The token is part of the request but deliberately not part of the key, so
-    // the result is dropped when the modal closes rather than being replayed for
-    // whatever token is in the form the next time it opens.
+    // Token is not in the key; gcTime: 0 drops the result when the modal closes.
     gcTime: 0,
   });
 

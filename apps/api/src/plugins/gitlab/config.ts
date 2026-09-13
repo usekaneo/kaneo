@@ -6,11 +6,7 @@ export { branchPatterns };
 export const gitlabConfigSchema = v.object({
   baseUrl: v.pipe(v.string(), v.url()),
   accessToken: v.pipe(v.string(), v.trim(), v.nonEmpty()),
-  // GitLab accepts personal, project and group tokens in PRIVATE-TOKEN, and
-  // OAuth2 tokens in Authorization: Bearer. The user picks which they pasted.
   tokenType: v.optional(v.picklist(["private", "bearer"])),
-  // Nested groups make a single path the only workable identifier, so unlike
-  // the Gitea config there is no owner/name split.
   projectPath: v.pipe(v.string(), v.trim(), v.nonEmpty()),
   webhookSecret: v.optional(v.string()),
   branchPattern: v.optional(v.string()),
@@ -69,8 +65,7 @@ export function normalizeGitlabBaseUrl(url: string): string {
     throw new Error("GitLab base URL must use http or https");
   }
 
-  // A query or fragment would swallow the appended /api/v4/... path and let a
-  // caller aim the request at an arbitrary path on the target host.
+  // A query or fragment would break the /api/v4 path appended later.
   if (parsed.search || parsed.hash || parsed.username || parsed.password) {
     throw new Error(
       "GitLab base URL must not contain a query, fragment, or credentials",
@@ -80,9 +75,7 @@ export function normalizeGitlabBaseUrl(url: string): string {
   return `${parsed.origin}${parsed.pathname.replace(/\/+$/, "")}`;
 }
 
-// Paths arrive from a form and from webhook payloads, and both reach the API
-// as a single encoded path segment, so a leading slash or a stray ".." must not
-// survive into the request.
+// Reject a leading slash or ".." before the path goes into the URL.
 export function normalizeProjectPath(path: string): string {
   const segments = path
     .trim()

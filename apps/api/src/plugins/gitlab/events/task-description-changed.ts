@@ -53,8 +53,6 @@ export async function handleTaskDescriptionChanged(
       return;
     }
 
-    // The issue body carries a task footer, and that whole string is what comes
-    // back through the webhook, so it is the value the echo check compares.
     const issueDescription = formatIssueBody(newDescription, event.taskId);
 
     await createGitlabClient(config).updateIssue(config.projectPath, issueIid, {

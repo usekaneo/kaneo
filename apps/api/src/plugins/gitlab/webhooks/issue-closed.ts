@@ -85,8 +85,7 @@ export async function handleGitlabIssueClosed(
       }
     }
 
-    // A close arriving right after Kaneo closed the issue is our own echo, but
-    // only when the state Kaneo last wrote is the state being reported.
+    // Only an echo if it reports the state Kaneo last wrote.
     const lastOutbound = existingMetadata.lastOutboundStateSyncAt;
     if (
       typeof lastOutbound === "number" &&

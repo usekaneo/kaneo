@@ -130,8 +130,7 @@ export async function gitlabFetch<T>(
     const res = await fetch(url, {
       ...init,
       signal: controller.signal,
-      // Following redirects would let a public host bounce the request to an
-      // internal address after the destination check has already passed.
+      // A redirect could lead past the destination check to an internal host.
       redirect: "manual",
       headers: {
         ...authHeaders(token, tokenType),

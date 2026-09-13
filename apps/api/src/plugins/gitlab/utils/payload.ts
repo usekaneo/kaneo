@@ -1,8 +1,4 @@
-/**
- * Shapes shared by every GitLab webhook payload. Unlike the REST API, which
- * returns issue labels as plain names, webhooks send label objects keyed by
- * `title`.
- */
+/** Webhooks send labels as objects keyed by `title`, unlike the REST API. */
 export type GitlabWebhookProject = {
   name: string;
   web_url: string;
