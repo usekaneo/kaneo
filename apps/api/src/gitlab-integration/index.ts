@@ -357,7 +357,7 @@ export async function handleGitlabWebhookRoute(c: Context) {
   const result = await handleGitlabWebhookRequest(integrationId, body, token);
 
   if (!result.success) {
-    return c.json({ error: result.error }, 400);
+    return c.json({ error: result.error }, result.status ?? 400);
   }
 
   return c.json({ status: "success" });

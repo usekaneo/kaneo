@@ -216,6 +216,27 @@ describe("handleGitlabWebhookRequest merge request updates", () => {
   });
 });
 
+describe("handleGitlabWebhookRequest handler failures", () => {
+  it("reports a failing handler as a server error without its details", async () => {
+    mocks.handleGitlabIssueClosed.mockRejectedValueOnce(
+      new Error('duplicate key value violates unique constraint "task_pkey"'),
+    );
+    vi.spyOn(console, "error").mockImplementationOnce(() => undefined);
+
+    const result = await handleGitlabWebhookRequest(
+      "integration-1",
+      issueEvent({ action: "close" }),
+      secret,
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "Webhook handler failed",
+      status: 500,
+    });
+  });
+});
+
 describe("handleGitlabWebhookRequest confidential issues", () => {
   it("passes a regular issue update to the handler", async () => {
     await handleGitlabWebhookRequest(

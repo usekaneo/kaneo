@@ -92,7 +92,7 @@ export async function handleGitlabWebhookRequest(
   integrationId: string,
   rawBody: string,
   tokenHeader: string | undefined,
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; status?: 400 | 500 }> {
   const integration = await db.query.integrationTable.findFirst({
     where: eq(integrationTable.id, integrationId),
   });
@@ -136,10 +136,8 @@ export async function handleGitlabWebhookRequest(
     return { success: true };
   } catch (error) {
     console.error("[GitLab Webhook] Handler error:", error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Webhook handler failed",
-    };
+    // The request itself was valid; the details stay in the server log.
+    return { success: false, error: "Webhook handler failed", status: 500 };
   }
 }
 
