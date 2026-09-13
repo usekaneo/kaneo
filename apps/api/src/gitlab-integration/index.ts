@@ -108,7 +108,7 @@ const getIntegrationRoute = createRoute({
   tags: ["GitLab"],
   summary: "Get GitLab integration",
   description:
-    "Get the GitLab integration for a project, or null when none is configured. The webhook secret is included only for callers with workspace:manage_settings.",
+    "Get the GitLab integration for a project, or null when none is configured. The masked access token and the webhook secret are included only for callers with workspace:manage_settings.",
   middleware: [workspaceAccess.fromProject("projectId")] as const,
   request: { params: projectIdParam },
   responses: {
@@ -246,13 +246,10 @@ const gitlabIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
   })
   .openapi(getIntegrationRoute, async (c) => {
     const { projectId } = c.req.valid("param");
-    const includeWebhookSecret = await hasWorkspacePermission(c, {
+    const includeSecrets = await hasWorkspacePermission(c, {
       workspace: ["manage_settings"],
     });
-    const integration = await getGitlabIntegration(
-      projectId,
-      includeWebhookSecret,
-    );
+    const integration = await getGitlabIntegration(projectId, includeSecrets);
     if (!integration) {
       return c.json(null, 200);
     }

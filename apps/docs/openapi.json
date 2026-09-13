@@ -2495,7 +2495,8 @@
             ]
           },
           "maskedAccessToken": {
-            "type": "string"
+            "type": "string",
+            "description": "First and last characters of the stored token, only returned to callers with workspace:manage_settings."
           },
           "webhookUrl": {
             "type": "string",
@@ -11667,7 +11668,7 @@
           "GitLab"
         ],
         "summary": "Get GitLab integration",
-        "description": "Get the GitLab integration for a project, or null when none is configured. The webhook secret is included only for callers with workspace:manage_settings.",
+        "description": "Get the GitLab integration for a project, or null when none is configured. The masked access token and the webhook secret are included only for callers with workspace:manage_settings.",
         "parameters": [
           {
             "schema": {

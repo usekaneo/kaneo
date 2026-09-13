@@ -12,7 +12,10 @@ export const gitlabIntegrationSchema = z
       description: "Full path of the linked project, nested groups included.",
     }),
     tokenType: z.enum(["private", "bearer"]),
-    maskedAccessToken: z.string(),
+    maskedAccessToken: z.string().openapi({
+      description:
+        "First and last characters of the stored token, only returned to callers with workspace:manage_settings.",
+    }),
     webhookUrl: z.string().optional().openapi({
       description: "Where GitLab should POST events for this project.",
     }),

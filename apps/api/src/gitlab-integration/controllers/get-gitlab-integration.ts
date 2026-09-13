@@ -15,10 +15,7 @@ function maskToken(token: string): string {
   return `${token.slice(0, 4)}••••••${token.slice(-4)}`;
 }
 
-async function getGitlabIntegration(
-  projectId: string,
-  includeWebhookSecret = false,
-) {
+async function getGitlabIntegration(projectId: string, includeSecrets = false) {
   const integration = await db.query.integrationTable.findFirst({
     where: and(
       eq(integrationTable.projectId, projectId),
@@ -42,9 +39,9 @@ async function getGitlabIntegration(
     baseUrl: config.baseUrl,
     projectPath: config.projectPath,
     tokenType: tokenTypeOf(config),
-    maskedAccessToken: maskToken(config.accessToken),
+    maskedAccessToken: includeSecrets ? maskToken(config.accessToken) : "",
     webhookUrl: `${apiBase.replace(/\/$/, "")}/gitlab-integration/webhook/${integration.id}`,
-    webhookSecret: includeWebhookSecret ? (config.webhookSecret ?? "") : "",
+    webhookSecret: includeSecrets ? (config.webhookSecret ?? "") : "",
     branchPattern: config.branchPattern || defaultGitlabConfig.branchPattern,
     commentTaskLinkOnGitlabIssue: config.commentTaskLinkOnGitlabIssue !== false,
     isActive: integration.isActive,
