@@ -5,7 +5,25 @@ const mocks = vi.hoisted(() => ({
   integrationFindFirst: vi.fn(),
   handleGitlabMergeRequestOpened: vi.fn(),
   handleGitlabMergeRequestClosed: vi.fn(),
+  handleGitlabIssueUpdated: vi.fn(),
+  handleGitlabIssueClosed: vi.fn(),
 }));
+
+vi.mock(
+  "../../../../apps/api/src/plugins/gitlab/webhooks/issue-updated",
+  () => ({
+    handleGitlabIssueUpdated: (...args: unknown[]) =>
+      mocks.handleGitlabIssueUpdated(...args),
+  }),
+);
+
+vi.mock(
+  "../../../../apps/api/src/plugins/gitlab/webhooks/issue-closed",
+  () => ({
+    handleGitlabIssueClosed: (...args: unknown[]) =>
+      mocks.handleGitlabIssueClosed(...args),
+  }),
+);
 
 vi.mock("../../../../apps/api/src/database", () => ({
   default: {
@@ -48,6 +66,35 @@ function mergeRequestUpdate(changes: Record<string, unknown>) {
       source_branch: "kan-1",
     },
     changes,
+    project: {
+      name: "web",
+      web_url: "https://gitlab.com/acme/web",
+      path_with_namespace: "acme/web",
+    },
+  });
+}
+
+function issueEvent({
+  action,
+  eventType = "issue",
+  confidential = false,
+}: {
+  action: string;
+  eventType?: string;
+  confidential?: boolean;
+}) {
+  return JSON.stringify({
+    object_kind: "issue",
+    event_type: eventType,
+    object_attributes: {
+      iid: 7,
+      title: "Payment provider keys",
+      description: "internal details",
+      url: "https://gitlab.com/acme/web/-/issues/7",
+      action,
+      confidential,
+    },
+    changes: { title: { previous: "Old", current: "Payment provider keys" } },
     project: {
       name: "web",
       web_url: "https://gitlab.com/acme/web",
@@ -115,5 +162,42 @@ describe("handleGitlabWebhookRequest merge request updates", () => {
 
     expect(result).toEqual({ success: false, error: "Invalid webhook token" });
     expect(mocks.handleGitlabMergeRequestOpened).not.toHaveBeenCalled();
+  });
+});
+
+describe("handleGitlabWebhookRequest confidential issues", () => {
+  it("passes a regular issue update to the handler", async () => {
+    await handleGitlabWebhookRequest(
+      "integration-1",
+      issueEvent({ action: "update" }),
+      secret,
+    );
+
+    expect(mocks.handleGitlabIssueUpdated).toHaveBeenCalledOnce();
+  });
+
+  it("drops an update to an issue that was made confidential", async () => {
+    const result = await handleGitlabWebhookRequest(
+      "integration-1",
+      issueEvent({
+        action: "update",
+        eventType: "confidential_issue",
+        confidential: true,
+      }),
+      secret,
+    );
+
+    expect(result.success).toBe(true);
+    expect(mocks.handleGitlabIssueUpdated).not.toHaveBeenCalled();
+  });
+
+  it("drops a confidential issue even without the event type", async () => {
+    await handleGitlabWebhookRequest(
+      "integration-1",
+      issueEvent({ action: "close", confidential: true }),
+      secret,
+    );
+
+    expect(mocks.handleGitlabIssueClosed).not.toHaveBeenCalled();
   });
 });

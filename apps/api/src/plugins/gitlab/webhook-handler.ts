@@ -63,6 +63,14 @@ function isNotePayload(
   return hasProject(payload) && hasObjectAttributes(payload);
 }
 
+function isConfidentialIssue(payload: Record<string, unknown>): boolean {
+  const attributes = payload.object_attributes;
+  return (
+    payload.event_type === "confidential_issue" ||
+    (isRecord(attributes) && attributes.confidential === true)
+  );
+}
+
 function objectAction(payload: Record<string, unknown>): string | undefined {
   const attributes = payload.object_attributes;
   if (!isRecord(attributes)) return undefined;
@@ -149,7 +157,7 @@ async function dispatchGitlabEvent(
       }
       return;
     case "issue": {
-      if (!isIssuePayload(payload)) {
+      if (!isIssuePayload(payload) || isConfidentialIssue(payload)) {
         return;
       }
       switch (objectAction(payload)) {
