@@ -6,6 +6,7 @@ import type { PluginContext, TaskStatusChangedEvent } from "../../types";
 import type { GitlabConfig } from "../config";
 import { createGitlabClient } from "../utils/gitlab-api";
 import { updateIssueLabelsGitlab } from "../utils/labels";
+import { parseLinkSyncMetadata } from "../utils/link-sync";
 
 export async function handleTaskStatusChanged(
   event: TaskStatusChangedEvent,
@@ -55,7 +56,10 @@ export async function handleTaskStatusChanged(
 
     await updateExternalLink(issueLink.id, {
       metadata: {
-        ...(issueLink.metadata ? JSON.parse(issueLink.metadata) : {}),
+        ...parseLinkSyncMetadata(issueLink.metadata, {
+          externalLinkId: issueLink.id,
+          field: "state",
+        }),
         state: closing ? "closed" : "opened",
         lastOutboundStateSyncAt: Date.now(),
       },
