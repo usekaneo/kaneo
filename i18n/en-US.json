@@ -934,6 +934,7 @@
 			"deleteSuccess": "Custom field deleted.",
 			"deleteError": "Failed to delete custom field.",
 			"reorderError": "Failed to reorder fields",
+			"moreOptions": "+{{hiddenCount}} more",
 			"clearDefault": "Clear",
 			"options": "options",
 			"availableOptions": "Available options",
@@ -942,7 +943,8 @@
 				"number": "Number",
 				"date": "Date",
 				"dropdown": "Dropdown",
-				"boolean": "Boolean"
+				"boolean": "Boolean",
+				"multiselect": "Multi-Select"
 			},
 			"multiple": "Multiple"
 		},
@@ -2252,8 +2254,5 @@
 		"branding": {
 			"poweredBy": "Powered by"
 		}
-	},
-	"settings:customFields": {
-		"moreOptions": "+{{hiddenCount}} more"
 	}
 }

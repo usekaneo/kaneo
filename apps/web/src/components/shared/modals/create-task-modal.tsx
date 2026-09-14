@@ -868,7 +868,9 @@ function CreateTaskModal({
                                 e.preventDefault();
                               }}
                             >
-                              +{hiddenCount} more
+                              {t("settings:customFields.moreOptions", {
+                                hiddenCount,
+                              })}
                             </button>
                           </HoverCardTrigger>
 

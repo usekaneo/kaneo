@@ -524,7 +524,12 @@ export default function TaskDetailsContent({
                                                 e.preventDefault();
                                               }}
                                             >
-                                              +{hiddenCount} more
+                                              {t(
+                                                "settings:customFields.moreOptions",
+                                                {
+                                                  hiddenCount,
+                                                },
+                                              )}
                                             </button>
                                           </HoverCardTrigger>
 
