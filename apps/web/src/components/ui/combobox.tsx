@@ -342,9 +342,11 @@ function ComboboxChips({
   className,
   children,
   startAddon,
+  endAddon,
   ...props
 }: ComboboxPrimitive.Chips.Props & {
   startAddon?: React.ReactNode;
+  endAddon?: React.ReactNode;
 }) {
   const { chipsRef } = React.useContext(ComboboxContext);
 
@@ -368,19 +370,37 @@ function ComboboxChips({
         </div>
       )}
       {children}
+      {endAddon && (
+        <div
+          aria-hidden="true"
+          className="ms-auto flex shrink-0 items-center pe-2 opacity-80 [&_svg:not([class*='size-'])]:size-4.5 sm:[&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none"
+          data-slot="combobox-end-addon"
+        >
+          {endAddon}
+        </div>
+      )}
     </ComboboxPrimitive.Chips>
   );
 }
 
-function ComboboxChip({ children, ...props }: ComboboxPrimitive.Chip.Props) {
+function ComboboxChip({
+  children,
+  className,
+  showRemove = true,
+  ...props
+}: ComboboxPrimitive.Chip.Props & { showRemove?: boolean }) {
   return (
     <ComboboxPrimitive.Chip
-      className="flex items-center rounded-[calc(var(--radius-md)-1px)] bg-accent ps-2 font-medium text-accent-foreground text-sm outline-none sm:text-xs/(--text-xs--line-height) [&_svg:not([class*='size-'])]:size-4 sm:[&_svg:not([class*='size-'])]:size-3.5"
+      className={cn(
+        "flex items-center rounded-[calc(var(--radius-md)-1px)] bg-accent ps-2 font-medium text-accent-foreground text-sm outline-none sm:text-xs/(--text-xs--line-height) [&_svg:not([class*='size-'])]:size-4 sm:[&_svg:not([class*='size-'])]:size-3.5",
+        !showRemove && "pe-2",
+        className,
+      )}
       data-slot="combobox-chip"
       {...props}
     >
       {children}
-      <ComboboxChipRemove />
+      {showRemove && <ComboboxChipRemove />}
     </ComboboxPrimitive.Chip>
   );
 }

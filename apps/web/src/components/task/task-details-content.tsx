@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { format, isValid, parseISO } from "date-fns";
-import { ArrowUpRight, CalendarIcon, X } from "lucide-react";
+import { ArrowUpRight, CalendarIcon, ChevronsUpDown, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Activity from "@/components/activity";
@@ -16,12 +16,28 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import {
+  Combobox,
+  ComboboxChip,
+  ComboboxChips,
+  ComboboxChipsInput,
+  ComboboxEmpty,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxPopup,
+  ComboboxValue,
+} from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/preview-card";
 import {
   Select,
   SelectContent,
@@ -48,7 +64,13 @@ import TaskRelations from "./task-relations";
 import TaskSubtasks from "./task-subtasks";
 import TaskTitle from "./task-title";
 
-type CustomFieldType = "text" | "number" | "date" | "dropdown" | "boolean";
+type CustomFieldType =
+  | "text"
+  | "number"
+  | "date"
+  | "dropdown"
+  | "boolean"
+  | "multiselect";
 
 type CustomFieldDefinition = {
   id: string;
@@ -63,12 +85,28 @@ type CustomFieldDefinition = {
   updatedAt: string;
 };
 
+type CustomFieldValueMap = Record<string, string | string[]>;
+
 type TaskDetailsContentProps = {
   taskId: string | undefined;
   projectId: string;
   workspaceId: string;
   className?: string;
 };
+
+function safeParseMultiselect(raw: string | null | undefined): string[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) return parsed as string[];
+    return [];
+  } catch {
+    return raw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+}
 
 export default function TaskDetailsContent({
   taskId,
@@ -98,47 +136,73 @@ export default function TaskDetailsContent({
   const { canUpdateTasks } = useWorkspacePermission();
   const canEdit = canUpdateTasks();
 
-  const [localValues, setLocalValues] = useState<Record<string, string>>({});
+  const [localValues, setLocalValues] = useState<CustomFieldValueMap>({});
 
   useEffect(() => {
-    const valuesMap: Record<string, string> = {};
+    const valuesMap: CustomFieldValueMap = {};
 
     for (const field of customFields) {
-      valuesMap[field.id] = field.defaultValue || "";
+      if (field.type === "multiselect") {
+        valuesMap[field.id] = safeParseMultiselect(field.defaultValue);
+      } else {
+        valuesMap[field.id] = field.defaultValue || "";
+      }
     }
 
     for (const val of customFieldValues) {
       if (val.value !== null) {
-        valuesMap[val.fieldId] = val.value;
+        const field = customFields.find((f) => f.id === val.fieldId);
+
+        valuesMap[val.fieldId] =
+          field?.type === "multiselect"
+            ? safeParseMultiselect(val.value)
+            : val.value;
       }
     }
 
     setLocalValues(valuesMap);
   }, [customFields, customFieldValues]);
 
-  const handleLocalChange = (fieldId: string, val: string) => {
-    setLocalValues((prev) => ({ ...prev, [fieldId]: val }));
+  const handleLocalChange = (fieldId: string, val: string | string[]) => {
+    setLocalValues((prev: CustomFieldValueMap) => ({
+      ...prev,
+      [fieldId]: val,
+    }));
   };
 
-  const handleSaveField = async (fieldId: string, value: string) => {
+  const handleSaveField = async (fieldId: string, value: string | string[]) => {
     if (!taskId) return;
 
+    const field = customFields.find((f) => f.id === fieldId);
     const existingValObj = customFieldValues.find((v) => v.fieldId === fieldId);
-    const existingVal = existingValObj ? (existingValObj.value ?? "") : "";
+    const existingRaw = existingValObj ? (existingValObj.value ?? "") : "";
 
-    if (value === existingVal) return;
+    const isMultiselect = field?.type === "multiselect";
+
+    const serializedValue = isMultiselect
+      ? JSON.stringify(value as string[])
+      : (value as string);
+
+    const existingComparable = isMultiselect
+      ? JSON.stringify(safeParseMultiselect(existingRaw))
+      : existingRaw;
+
+    if (serializedValue === existingComparable) return;
 
     try {
       await setCustomFieldValue({
         taskId,
         fieldId,
-        value,
+        value: serializedValue,
         projectId,
       });
 
       toast.success(t("tasks:detail.customFieldUpdated", "Field updated"));
     } catch (error) {
-      handleLocalChange(fieldId, existingVal);
+      handleLocalChange(
+        fieldId,
+        isMultiselect ? safeParseMultiselect(existingRaw) : existingRaw,
+      );
       toast.error(
         error instanceof Error ? error.message : "Failed to update field",
       );
@@ -208,6 +272,10 @@ export default function TaskDetailsContent({
                 <div className="grid gap-4 sm:grid-cols-2">
                   {customFields.map((field) => {
                     const val = localValues[field.id] ?? "";
+                    const multiselectVal: string[] = Array.isArray(val)
+                      ? val
+                      : [];
+                    const textVal: string = Array.isArray(val) ? "" : val;
 
                     return (
                       <div
@@ -226,7 +294,7 @@ export default function TaskDetailsContent({
 
                         {field.type === "dropdown" ? (
                           <Select
-                            value={val}
+                            value={textVal}
                             onValueChange={(newVal) => {
                               handleLocalChange(field.id, newVal as string);
                               void handleSaveField(field.id, newVal as string);
@@ -247,11 +315,13 @@ export default function TaskDetailsContent({
                                   {t("tasks:detail.selectOption")}
                                 </SelectItem>
                               )}
-                              {(field.options || []).map((opt) => (
-                                <SelectItem key={opt} value={opt}>
-                                  {opt}
-                                </SelectItem>
-                              ))}
+                              {Array.from(new Set(field.options || [])).map(
+                                (opt) => (
+                                  <SelectItem key={opt} value={opt}>
+                                    {opt}
+                                  </SelectItem>
+                                ),
+                              )}
                             </SelectContent>
                           </Select>
                         ) : field.type === "date" ? (
@@ -265,14 +335,17 @@ export default function TaskDetailsContent({
                                     disabled={!canEdit}
                                     className={cn(
                                       "h-10! w-full justify-start rounded-md bg-background pr-10 text-left text-sm font-normal",
-                                      !val && "text-muted-foreground",
+                                      !textVal && "text-muted-foreground",
                                     )}
                                   >
                                     <CalendarIcon className="mr-2 size-4 shrink-0 opacity-70" />
 
                                     <span className="truncate">
-                                      {val && isValid(parseISO(val))
-                                        ? format(parseISO(val), "dd MMM yyyy")
+                                      {textVal && isValid(parseISO(textVal))
+                                        ? format(
+                                            parseISO(textVal),
+                                            "dd MMM yyyy",
+                                          )
                                         : t(
                                             "tasks:detail.pickDate",
                                             "Pick a date",
@@ -290,8 +363,8 @@ export default function TaskDetailsContent({
                                 <Calendar
                                   mode="single"
                                   selected={
-                                    val && isValid(parseISO(val))
-                                      ? parseISO(val)
+                                    textVal && isValid(parseISO(textVal))
+                                      ? parseISO(textVal)
                                       : undefined
                                   }
                                   onSelect={(date) => {
@@ -311,14 +384,14 @@ export default function TaskDetailsContent({
                               <Button
                                 variant="ghost"
                                 type="button"
-                                disabled={!canEdit || !val}
+                                disabled={!canEdit || !textVal}
                                 onClick={() => {
                                   handleLocalChange(field.id, "");
                                   void handleSaveField(field.id, "");
                                 }}
                                 className={cn(
                                   "absolute right-1 top-1/2 z-10 size-8 -translate-y-1/2 rounded-md p-0 text-muted-foreground",
-                                  canEdit && val
+                                  canEdit && textVal
                                     ? "hover:bg-destructive/10 hover:text-destructive"
                                     : "cursor-not-allowed",
                                 )}
@@ -337,11 +410,13 @@ export default function TaskDetailsContent({
                         ) : field.type === "number" ? (
                           <Input
                             type="number"
-                            value={val}
+                            value={textVal}
                             onChange={(e) =>
                               handleLocalChange(field.id, e.target.value)
                             }
-                            onBlur={() => void handleSaveField(field.id, val)}
+                            onBlur={() =>
+                              void handleSaveField(field.id, textVal)
+                            }
                             disabled={!canEdit}
                             className="h-9 w-full bg-background text-sm"
                           />
@@ -354,11 +429,11 @@ export default function TaskDetailsContent({
                             )}
                           >
                             <span className="flex-1 truncate text-foreground">
-                              {t(`common:boolean.${val || "notSet"}`)}
+                              {t(`common:boolean.${textVal || "notSet"}`)}
                             </span>
 
                             <Switch
-                              checked={val === "true"}
+                              checked={textVal === "true"}
                               onCheckedChange={(checked) => {
                                 const nextValue = checked ? "true" : "false";
 
@@ -394,14 +469,148 @@ export default function TaskDetailsContent({
                               </Button>
                             )}
                           </div>
+                        ) : field.type === "multiselect" ? (
+                          <Combobox
+                            multiple={true}
+                            autoHighlight
+                            items={Array.from(new Set(field.options ?? []))}
+                            value={multiselectVal}
+                            onValueChange={(newVal) => {
+                              const nextVal = newVal as string[];
+                              handleLocalChange(field.id, nextVal);
+                            }}
+                            onOpenChange={(open) => {
+                              if (!open) {
+                                handleLocalChange(field.id, multiselectVal);
+                                void handleSaveField(field.id, multiselectVal);
+                              }
+                            }}
+                            disabled={!canEdit}
+                          >
+                            <ComboboxChips className="h-9 w-full flex-[2_0_0] select-none cursor-default text-sm disabled:opacity-50">
+                              <ComboboxValue>
+                                {(values: string[]) => {
+                                  const MAX_VISIBLE_CHIPS = 3;
+                                  const visibleChips = values.slice(
+                                    0,
+                                    MAX_VISIBLE_CHIPS,
+                                  );
+                                  const hiddenCount =
+                                    values.length - MAX_VISIBLE_CHIPS;
+
+                                  return (
+                                    <>
+                                      {visibleChips.map((value) => (
+                                        <ComboboxChip
+                                          className="select-none cursor-default"
+                                          showRemove={false}
+                                          key={value}
+                                        >
+                                          {value}
+                                        </ComboboxChip>
+                                      ))}
+                                      {values.length > MAX_VISIBLE_CHIPS && (
+                                        <HoverCard>
+                                          <HoverCardTrigger asChild>
+                                            <button
+                                              type="button"
+                                              className="inline-flex items-center gap-1 text-xs font-medium cursor-pointer text-foreground/50"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                              }}
+                                              onPointerDown={(e) => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                              }}
+                                            >
+                                              +{hiddenCount} more
+                                            </button>
+                                          </HoverCardTrigger>
+
+                                          <HoverCardContent
+                                            side="top"
+                                            align="start"
+                                            className="flex max-w-xs flex-wrap gap-1"
+                                          >
+                                            <div className="space-y-1.5">
+                                              <div className="text-xs font-medium text-muted-foreground">
+                                                {t(
+                                                  "settings:customFields.availableOptions",
+                                                  "Available options",
+                                                )}
+                                              </div>
+
+                                              <div className="flex max-h-48 flex-wrap gap-x-1.5 gap-y-3">
+                                                {values
+                                                  .slice(MAX_VISIBLE_CHIPS)
+                                                  .map((value) => (
+                                                    <ComboboxChip
+                                                      className="h-6 -my-1 select-none cursor-default"
+                                                      showRemove={false}
+                                                      key={value}
+                                                    >
+                                                      {value}
+                                                    </ComboboxChip>
+                                                  ))}
+                                              </div>
+                                            </div>
+                                          </HoverCardContent>
+                                        </HoverCard>
+                                      )}
+
+                                      <ComboboxChipsInput
+                                        className="pointer-events-none caret-transparent"
+                                        placeholder={
+                                          (field.options || []).length === 0
+                                            ? t(
+                                                "settings:customFields.noOptionsPlaceholder",
+                                                "No options",
+                                              )
+                                            : values.length === 0
+                                              ? t(
+                                                  "settings:customFields.defaultValuePlaceholder",
+                                                  "Default value",
+                                                )
+                                              : undefined
+                                        }
+                                      />
+                                    </>
+                                  );
+                                }}
+                              </ComboboxValue>
+                            </ComboboxChips>
+
+                            <ComboboxPopup>
+                              <ComboboxEmpty>
+                                {t(
+                                  "settings:customFields.noOptionsPlaceholder",
+                                  "No options",
+                                )}
+                              </ComboboxEmpty>
+
+                              <ComboboxList>
+                                {(option: string) => (
+                                  <ComboboxItem
+                                    key={`field_option_${option}`}
+                                    value={option}
+                                  >
+                                    {option}
+                                  </ComboboxItem>
+                                )}
+                              </ComboboxList>
+                            </ComboboxPopup>
+                          </Combobox>
                         ) : (
                           <Input
                             type="text"
-                            value={val}
+                            value={textVal}
                             onChange={(e) =>
                               handleLocalChange(field.id, e.target.value)
                             }
-                            onBlur={() => void handleSaveField(field.id, val)}
+                            onBlur={() =>
+                              void handleSaveField(field.id, textVal)
+                            }
                             disabled={!canEdit}
                             className="h-9 w-full bg-background text-sm"
                           />

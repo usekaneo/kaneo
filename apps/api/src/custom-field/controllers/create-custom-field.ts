@@ -16,6 +16,9 @@ async function createCustomField(
   defaultValue?: string,
   options?: string[],
 ) {
+  if (!name.trim())
+    throw new HTTPException(400, { message: "Name cannot be empty" });
+
   const [project] = await db
     .select({ id: projectTable.id })
     .from(projectTable)
@@ -87,9 +90,15 @@ async function createCustomField(
     }
   }
 
-  if (type === "dropdown" && (!options || options.length === 0)) {
+  if (type === "dropdown" && (!options || options.length < 1)) {
     throw new HTTPException(400, {
       message: "Dropdown fields must have at least one option",
+    });
+  }
+
+  if (type === "multiselect" && (!options || options.length < 2)) {
+    throw new HTTPException(400, {
+      message: "Multiselect fields must have at least 2 options",
     });
   }
 

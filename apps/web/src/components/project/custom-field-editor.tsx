@@ -2,18 +2,31 @@ import { format, isValid, parseISO } from "date-fns";
 import {
   CalendarIcon,
   CheckSquare,
+  ChevronsUpDown,
   GripVertical,
   Hash,
   List,
   Plus,
   Trash2,
   Type,
+  X,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Combobox,
+  ComboboxChip,
+  ComboboxChips,
+  ComboboxChipsInput,
+  ComboboxEmpty,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxPopup,
+  ComboboxValue,
+} from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -25,13 +38,6 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/preview-card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import useCreateCustomField from "@/hooks/mutations/custom-field/use-create-custom-field";
 import useDeleteCustomField from "@/hooks/mutations/custom-field/use-delete-custom-field";
 import { useReorderCustomFields } from "@/hooks/mutations/custom-field/use-reorder-custom-field";
@@ -39,7 +45,13 @@ import useGetCustomFieldsByProject from "@/hooks/queries/custom-field/use-get-cu
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
-type CustomFieldType = "text" | "number" | "date" | "dropdown" | "boolean";
+type CustomFieldType =
+  | "text"
+  | "number"
+  | "date"
+  | "dropdown"
+  | "boolean"
+  | "multiselect";
 
 export type CustomFieldDefinition = {
   id: string;
@@ -57,12 +69,14 @@ export type CustomFieldDefinition = {
 const CUSTOM_FIELD_TYPES: Array<{
   value: CustomFieldType;
   icon: React.ElementType;
+  availableOnTask?: boolean;
 }> = [
-  { value: "text", icon: Type },
-  { value: "number", icon: Hash },
-  { value: "date", icon: CalendarIcon },
-  { value: "dropdown", icon: List },
-  { value: "boolean", icon: CheckSquare },
+  { value: "text", icon: Type, availableOnTask: true },
+  { value: "number", icon: Hash, availableOnTask: true },
+  { value: "date", icon: CalendarIcon, availableOnTask: true },
+  { value: "dropdown", icon: List, availableOnTask: true },
+  { value: "multiselect", icon: List, availableOnTask: false },
+  { value: "boolean", icon: CheckSquare, availableOnTask: true },
 ];
 
 type CustomFieldEditorProps = {
@@ -89,7 +103,10 @@ export default function CustomFieldEditor({
   const [name, setName] = useState("");
   const [type, setType] = useState<CustomFieldType>("text");
   const [required, setRequired] = useState(false);
-  const [defaultValue, setDefaultValue] = useState("");
+
+  const [isMultiple, setIsMultiple] = useState(false);
+
+  const [defaultValue, setDefaultValue] = useState<string | string[]>("");
   const [optionsText, setOptionsText] = useState("");
   const [deletingFieldId, setDeletingFieldId] = useState<string | null>(null);
 
@@ -117,24 +134,49 @@ export default function CustomFieldEditor({
 
       const options =
         type === "dropdown"
-          ? optionsText
-              .split(",")
-              .map((v) => v.trim())
-              .filter(Boolean)
+          ? Array.from(
+              new Set(
+                optionsText
+                  .split(",")
+                  .map((v) => v.trim())
+                  .filter(Boolean),
+              ),
+            )
           : undefined;
+
+      let apiDefaultValue: string | undefined;
+
+      // Type envoyé à l'API
+      const apiType: CustomFieldType =
+        type === "dropdown" && isMultiple ? "multiselect" : type;
+
+      if (apiType === "multiselect") {
+        if (Array.isArray(defaultValue) && defaultValue.length > 0) {
+          apiDefaultValue = JSON.stringify(defaultValue);
+        }
+      } else if (apiType === "dropdown") {
+        if (typeof defaultValue === "string" && defaultValue.trim() !== "") {
+          apiDefaultValue = defaultValue;
+        }
+      } else if (typeof defaultValue === "string") {
+        if (defaultValue.trim() !== "") {
+          apiDefaultValue = defaultValue;
+        }
+      }
 
       await createCustomField({
         projectId,
         name: name.trim(),
-        type,
+        type: apiType,
         required,
-        defaultValue: defaultValue || undefined,
+        defaultValue: apiDefaultValue,
         options,
       });
 
       setName("");
       setType("text");
       setRequired(false);
+      setIsMultiple(false);
       setDefaultValue("");
       setOptionsText("");
 
@@ -263,7 +305,7 @@ export default function CustomFieldEditor({
       toast.error(
         error instanceof Error
           ? error.message
-          : t("settings:customFields.reorderError", "Failed to reorder fields"),
+          : t("settings:customFields.reorderError"),
       );
     } finally {
       setIsReordering(false);
@@ -273,10 +315,56 @@ export default function CustomFieldEditor({
   const hasExtraInput =
     type === "dropdown" || type === "date" || type === "boolean";
 
-  const dropdownOptions = optionsText
-    .split(",")
-    .map((v) => v.trim())
-    .filter(Boolean);
+  const dropdownOptions = useMemo(() => {
+    return Array.from(
+      new Set(
+        optionsText
+          .split(",")
+          .map((v) => v.trim())
+          .filter(Boolean),
+      ),
+    );
+  }, [optionsText]);
+
+  // Nettoyer defaultValue si on passe de multiple à single ou inversement
+  useEffect(() => {
+    if (type !== "dropdown") return;
+
+    if (isMultiple) {
+      if (!Array.isArray(defaultValue)) {
+        setDefaultValue(defaultValue ? [defaultValue] : []);
+      }
+    } else {
+      if (Array.isArray(defaultValue)) {
+        setDefaultValue(defaultValue[0] ?? "");
+      }
+    }
+  }, [isMultiple, type, defaultValue]);
+
+  // Mettre à jour defaultValue quand les options changent
+  useEffect(() => {
+    if (type !== "dropdown") return;
+
+    if (isMultiple) {
+      if (Array.isArray(defaultValue)) {
+        const stillValid = defaultValue.filter((v) =>
+          dropdownOptions.includes(v),
+        );
+        if (stillValid.length !== defaultValue.length) {
+          setDefaultValue(stillValid);
+        }
+      }
+    } else {
+      if (typeof defaultValue === "string" && defaultValue !== "") {
+        if (
+          dropdownOptions.length === 0 ||
+          !dropdownOptions.includes(defaultValue)
+        ) {
+          setDefaultValue("");
+        }
+      }
+    }
+  }, [dropdownOptions, isMultiple, type, defaultValue]);
 
   const currentType = CUSTOM_FIELD_TYPES.find((t) => t.value === type);
   const CurrentIcon = currentType?.icon || Type;
@@ -335,7 +423,9 @@ export default function CustomFieldEditor({
                         {t("settings:customFields.required")}
                       </span>
                     )}
-                    {field.type === "dropdown" && field.options?.length ? (
+                    {(field.type === "dropdown" ||
+                      field.type === "multiselect") &&
+                    field.options?.length ? (
                       <HoverCard>
                         <HoverCardTrigger asChild>
                           <span className="inline-flex items-center gap-1 rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground cursor-pointer hover:bg-muted/80 transition-colors">
@@ -373,7 +463,16 @@ export default function CustomFieldEditor({
                       <span className="truncate text-xs text-muted-foreground">
                         {t("settings:customFields.defaultLabel")}:{" "}
                         <span className="text-foreground">
-                          {field.defaultValue}
+                          {(() => {
+                            try {
+                              const value = JSON.parse(field.defaultValue);
+                              return Array.isArray(value)
+                                ? value.join(", ")
+                                : field.defaultValue;
+                            } catch {
+                              return field.defaultValue;
+                            }
+                          })()}
                         </span>
                       </span>
                     )}
@@ -413,26 +512,28 @@ export default function CustomFieldEditor({
           </PopoverTrigger>
           <PopoverContent className="w-48" align="start">
             <div className="space-y-1 px-0.5 py-1">
-              {CUSTOM_FIELD_TYPES.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Button
-                    key={item.value}
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setType(item.value)}
-                    className={cn(
-                      "w-full justify-start gap-2 text-sm rounded-sm",
-                      type === item.value &&
-                        "bg-sidebar-accent text-sidebar-accent-foreground",
-                    )}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {t(`settings:customFields.types.${item.value}`)}
-                  </Button>
-                );
-              })}
+              {CUSTOM_FIELD_TYPES.filter((item) => item.availableOnTask).map(
+                (item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Button
+                      key={item.value}
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setType(item.value)}
+                      className={cn(
+                        "w-full justify-start gap-2 text-sm rounded-sm",
+                        type === item.value &&
+                          "bg-sidebar-accent text-sidebar-accent-foreground",
+                      )}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {t(`settings:customFields.types.${item.value}`)}
+                    </Button>
+                  );
+                },
+              )}
             </div>
           </PopoverContent>
         </Popover>
@@ -463,11 +564,14 @@ export default function CustomFieldEditor({
                 variant="outline"
                 className={cn(
                   "h-8 w-48 flex-[2_0_0] justify-start bg-background text-left text-sm font-normal",
-                  !defaultValue && "text-muted-foreground",
+                  !(typeof defaultValue === "string" && defaultValue) &&
+                    "text-muted-foreground",
                 )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4 opacity-70" />
-                {defaultValue && isValid(parseISO(defaultValue))
+                {typeof defaultValue === "string" &&
+                defaultValue &&
+                isValid(parseISO(defaultValue))
                   ? format(parseISO(defaultValue), "dd MMM yyyy")
                   : t("tasks:detail.pickDate", "Pick a date")}
               </Button>
@@ -476,7 +580,9 @@ export default function CustomFieldEditor({
               <Calendar
                 mode="single"
                 selected={
-                  defaultValue && isValid(parseISO(defaultValue))
+                  typeof defaultValue === "string" &&
+                  defaultValue &&
+                  isValid(parseISO(defaultValue))
                     ? parseISO(defaultValue)
                     : undefined
                 }
@@ -490,54 +596,190 @@ export default function CustomFieldEditor({
         )}
 
         {type === "boolean" ? (
-          <Select
-            value={defaultValue ?? "false"}
-            onValueChange={(value) => setDefaultValue(value as string)}
-          >
-            <SelectTrigger className="h-8 w-48 flex-[2_0_0] text-sm">
-              <SelectValue
-                placeholder={t("settings:customFields.defaultValuePlaceholder")}
-              />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="true">{t("common:true", "True")}</SelectItem>
-              <SelectItem value="false">
-                {t("common:false", "False")}
-              </SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="h-8 w-48 flex-[2_0_0]" />
         ) : type === "dropdown" ? (
-          <Select
-            value={defaultValue}
-            onValueChange={(value) => setDefaultValue(value as string)}
-            disabled={dropdownOptions.length === 0}
-          >
-            <SelectTrigger className="h-8 w-48 flex-[2_0_0] text-sm disabled:opacity-50">
-              <SelectValue
-                placeholder={
-                  dropdownOptions.length === 0
-                    ? t(
-                        "settings:customFields.noOptionsPlaceholder",
-                        "No options",
-                      )
-                    : t(
-                        "settings:customFields.defaultValuePlaceholder",
-                        "Default value",
-                      )
-                }
-              />
-            </SelectTrigger>
-            <SelectContent>
-              {dropdownOptions.map((option) => (
-                <SelectItem key={`field_option_${option}`} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <>
+            <Combobox
+              key={isMultiple ? "multi" : "single"}
+              multiple={isMultiple}
+              autoHighlight
+              items={dropdownOptions}
+              value={
+                isMultiple
+                  ? Array.isArray(defaultValue)
+                    ? defaultValue
+                    : []
+                  : typeof defaultValue === "string"
+                    ? defaultValue
+                    : ""
+              }
+              onValueChange={(value) => {
+                setDefaultValue(isMultiple ? (value ?? []) : (value ?? ""));
+              }}
+              disabled={dropdownOptions.length === 0}
+            >
+              <ComboboxChips className="h-8 w-48 flex-[2_0_0] select-none cursor-default text-sm disabled:opacity-50">
+                <ComboboxValue>
+                  {(values: string[] | string) => {
+                    const selected: string[] = isMultiple
+                      ? Array.isArray(values)
+                        ? values.filter((v) => v !== "")
+                        : []
+                      : typeof values === "string" && values !== ""
+                        ? [values]
+                        : [];
+
+                    const MAX_VISIBLE_CHIPS = 3;
+                    const visibleChips = selected.slice(0, MAX_VISIBLE_CHIPS);
+                    const hiddenCount = selected.length - MAX_VISIBLE_CHIPS;
+
+                    return (
+                      <>
+                        {isMultiple &&
+                          visibleChips.map((value) => (
+                            <ComboboxChip
+                              className="select-none cursor-default"
+                              showRemove={false}
+                              key={value}
+                            >
+                              {value}
+                            </ComboboxChip>
+                          ))}
+                        {selected.length > MAX_VISIBLE_CHIPS && (
+                          <HoverCard>
+                            <HoverCardTrigger asChild>
+                              <button
+                                type="button"
+                                className="inline-flex items-center gap-1 text-xs font-medium cursor-pointer text-foreground/50"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  e.preventDefault();
+                                }}
+                                onPointerDown={(e) => {
+                                  e.stopPropagation();
+                                  e.preventDefault();
+                                }}
+                              >
+                                {t("settings:customFields.moreOptions", {
+                                  hiddenCount,
+                                })}
+                              </button>
+                            </HoverCardTrigger>
+
+                            <HoverCardContent
+                              side="top"
+                              align="start"
+                              className="flex max-w-xs flex-wrap gap-1"
+                            >
+                              <div className="space-y-1.5">
+                                <div className="text-xs font-medium text-muted-foreground">
+                                  {t(
+                                    "settings:customFields.availableOptions",
+                                    "Available options",
+                                  )}
+                                </div>
+
+                                <div className="flex max-h-48 flex-wrap gap-x-1.5 gap-y-3">
+                                  {selected
+                                    .slice(MAX_VISIBLE_CHIPS)
+                                    .map((value) => (
+                                      <ComboboxChip
+                                        className="h-6 -my-1 select-none cursor-default"
+                                        showRemove={false}
+                                        key={value}
+                                      >
+                                        {value}
+                                      </ComboboxChip>
+                                    ))}
+                                </div>
+                              </div>
+                            </HoverCardContent>
+                          </HoverCard>
+                        )}
+
+                        <ComboboxChipsInput
+                          className={cn(
+                            "pointer-events-none caret-transparent placeholder:text-foreground/50",
+                            isMultiple && "text-transparent",
+                          )}
+                          placeholder={
+                            dropdownOptions.length === 0
+                              ? t(
+                                  "settings:customFields.noOptionsPlaceholder",
+                                  "No options",
+                                )
+                              : selected.length === 0
+                                ? t(
+                                    "settings:customFields.defaultValuePlaceholder",
+                                    "Default value",
+                                  )
+                                : undefined
+                          }
+                        />
+
+                        {!isMultiple && !required && selected.length > 0 && (
+                          <button
+                            type="button"
+                            className="ml-auto shrink-0 rounded-sm p-0.5 text-muted-foreground hover:text-foreground hover:bg-muted"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDefaultValue("");
+                            }}
+                            aria-label={t(
+                              "settings:customFields.clearDefault",
+                              "Clear",
+                            )}
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </>
+                    );
+                  }}
+                </ComboboxValue>
+              </ComboboxChips>
+
+              <ComboboxPopup>
+                <ComboboxEmpty>
+                  {t(
+                    "settings:customFields.noOptionsPlaceholder",
+                    "No options",
+                  )}
+                </ComboboxEmpty>
+
+                <ComboboxList>
+                  {(option: string) => (
+                    <ComboboxItem key={`field_option_${option}`} value={option}>
+                      {option}
+                    </ComboboxItem>
+                  )}
+                </ComboboxList>
+              </ComboboxPopup>
+            </Combobox>
+            <Checkbox
+              id="dropdown-multiple"
+              checked={isMultiple}
+              onCheckedChange={(checked) => {
+                const next = Boolean(checked);
+                setIsMultiple(next);
+                setDefaultValue(next ? [] : "");
+              }}
+              className="h-4 w-4"
+            />
+            <label
+              htmlFor="dropdown-multiple"
+              className="text-xs text-muted-foreground whitespace-nowrap"
+            >
+              {t("settings:customFields.multiple")}
+            </label>
+          </>
         ) : type === "number" ? (
           <Input
-            value={defaultValue}
+            value={typeof defaultValue === "string" ? defaultValue : ""}
             type="number"
             onChange={(e) => setDefaultValue(e.target.value)}
             placeholder={t("settings:customFields.defaultValuePlaceholder")}
@@ -577,8 +819,10 @@ export default function CustomFieldEditor({
           disabled={
             !name.trim() ||
             savingField ||
-            (type === "dropdown" && !optionsText.trim()) ||
-            (required && !defaultValue)
+            (required && !defaultValue) ||
+            (type === "dropdown" &&
+              !optionsText.trim() &&
+              dropdownOptions.length === 0)
           }
           className="h-8 gap-1 shrink-0"
         >

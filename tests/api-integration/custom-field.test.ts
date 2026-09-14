@@ -152,6 +152,31 @@ describe("custom fields API", () => {
     expect(body).toContain("at least one option");
   });
 
+  it("rejects a dropdown field with an empty options array", async () => {
+    const { app, project } = await createFixture();
+
+    const response = await app.request("/api/custom-field", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        projectId: project.id,
+        name: "Environment",
+        type: "dropdown",
+        required: false,
+        options: [],
+      }),
+    });
+
+    const body = await response.text();
+    expect(
+      response.status,
+      `Expected 400, got ${response.status}: ${body}`,
+    ).toBe(400);
+    expect(body).toContain("at least one option");
+  });
+
   it("rejects a required field without a default value", async () => {
     const { app, project } = await createFixture();
 
