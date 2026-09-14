@@ -618,7 +618,13 @@ export default function CustomFieldEditor({
               }}
               disabled={dropdownOptions.length === 0}
             >
-              <ComboboxChips className="h-8 w-48 flex-[2_0_0] select-none cursor-default text-sm disabled:opacity-50">
+              <ComboboxChips
+                className={cn(
+                  "h-8 min-w-0 w-48 flex-[2_0_0] select-none cursor-default",
+                  "overflow-hidden",
+                  "flex-nowrap",
+                )}
+              >
                 <ComboboxValue>
                   {(values: string[] | string) => {
                     const selected: string[] = isMultiple
@@ -638,19 +644,24 @@ export default function CustomFieldEditor({
                         {isMultiple &&
                           visibleChips.map((value) => (
                             <ComboboxChip
-                              className="select-none cursor-default"
-                              showRemove={false}
                               key={value}
+                              showRemove={false}
+                              className={cn(
+                                "min-w-0 max-w-[50%] shrink",
+                                "overflow-hidden text-ellipsis whitespace-nowrap",
+                                "select-none cursor-default",
+                              )}
                             >
                               {value}
                             </ComboboxChip>
                           ))}
+
                         {selected.length > MAX_VISIBLE_CHIPS && (
                           <HoverCard>
                             <HoverCardTrigger asChild>
                               <button
                                 type="button"
-                                className="inline-flex items-center gap-1 text-xs font-medium cursor-pointer text-foreground/50"
+                                className="shrink-0 whitespace-nowrap inline-flex items-center gap-1 text-xs font-medium cursor-pointer text-foreground/50"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   e.preventDefault();
@@ -684,9 +695,9 @@ export default function CustomFieldEditor({
                                     .slice(MAX_VISIBLE_CHIPS)
                                     .map((value) => (
                                       <ComboboxChip
-                                        className="h-6 -my-1 select-none cursor-default"
-                                        showRemove={false}
                                         key={value}
+                                        showRemove={false}
+                                        className="h-6 min-w-0 max-w-full -my-1 whitespace-nowrap select-none cursor-default"
                                       >
                                         {value}
                                       </ComboboxChip>
@@ -699,7 +710,8 @@ export default function CustomFieldEditor({
 
                         <ComboboxChipsInput
                           className={cn(
-                            "pointer-events-none caret-transparent placeholder:text-foreground/50",
+                            "min-w-0 flex-1 pointer-events-none caret-transparent",
+                            "placeholder:text-foreground/50",
                             isMultiple && "text-transparent",
                           )}
                           placeholder={
@@ -720,7 +732,7 @@ export default function CustomFieldEditor({
                         {!isMultiple && !required && selected.length > 0 && (
                           <button
                             type="button"
-                            className="ml-auto shrink-0 rounded-sm p-0.5 text-muted-foreground hover:text-foreground hover:bg-muted"
+                            className="ml-auto shrink-0 rounded-sm p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
                             onMouseDown={(e) => {
                               e.preventDefault();
                               e.stopPropagation();

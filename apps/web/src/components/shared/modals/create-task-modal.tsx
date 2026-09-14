@@ -840,7 +840,12 @@ function CreateTaskModal({
               handleCustomFieldChange(field.id, JSON.stringify(val))
             }
           >
-            <ComboboxChips className="h-9 w-full text-sm">
+            <ComboboxChips
+              className={cn(
+                "h-9 w-full min-w-0",
+                "flex-nowrap overflow-hidden text-sm",
+              )}
+            >
               <ComboboxValue>
                 {(values: string[]) => {
                   const visibleChips = values.slice(0, MAX_VISIBLE_CHIPS);
@@ -849,16 +854,25 @@ function CreateTaskModal({
                   return (
                     <>
                       {visibleChips.map((chipValue) => (
-                        <ComboboxChip key={chipValue} showRemove={false}>
+                        <ComboboxChip
+                          key={chipValue}
+                          showRemove={false}
+                          className={cn(
+                            "min-w-0 max-w-[30%] shrink",
+                            "overflow-hidden text-ellipsis whitespace-nowrap",
+                            "select-none cursor-default",
+                          )}
+                        >
                           {chipValue}
                         </ComboboxChip>
                       ))}
+
                       {hiddenCount > 0 && (
                         <HoverCard>
                           <HoverCardTrigger asChild>
                             <button
                               type="button"
-                              className="inline-flex items-center gap-1 text-xs font-medium cursor-pointer text-foreground/50"
+                              className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-xs font-medium cursor-pointer text-foreground/50"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 e.preventDefault();
@@ -892,9 +906,12 @@ function CreateTaskModal({
                                   .slice(MAX_VISIBLE_CHIPS)
                                   .map((value) => (
                                     <ComboboxChip
-                                      className="h-6 -my-1 select-none cursor-default"
-                                      showRemove={false}
                                       key={value}
+                                      showRemove={false}
+                                      className={cn(
+                                        "h-6 min-w-0 max-w-full -my-1",
+                                        "whitespace-nowrap select-none cursor-default",
+                                      )}
                                     >
                                       {value}
                                     </ComboboxChip>
@@ -904,7 +921,9 @@ function CreateTaskModal({
                           </HoverCardContent>
                         </HoverCard>
                       )}
+
                       <ComboboxChipsInput
+                        className="min-w-0 flex-1 truncate"
                         placeholder={
                           (field.options || []).length === 0
                             ? t(
