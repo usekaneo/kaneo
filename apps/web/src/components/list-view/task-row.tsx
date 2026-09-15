@@ -12,6 +12,10 @@ import {
 import { type CSSProperties, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  useTaskProject,
+  useTaskViewCapabilities,
+} from "@/components/task/task-view-context";
+import {
   AlertDialog,
   AlertDialogClose,
   AlertDialogContent,
@@ -28,7 +32,6 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/preview-card";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
-import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { cn } from "@/lib/cn";
 import {
@@ -40,7 +43,6 @@ import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
-import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
 import TaskCardContextMenuContent from "../kanban-board/task-card-context-menu/task-card-context-menu-content";
@@ -50,9 +52,10 @@ import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
 type TaskRowProps = {
   task: Task;
   projectSlug: string;
+  disableDragDrop?: boolean;
 };
 
-function TaskRow({ task, projectSlug }: TaskRowProps) {
+function TaskRow({ task, projectSlug, disableDragDrop = false }: TaskRowProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const {
@@ -62,11 +65,13 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: task.id });
+  } = useSortable({ id: task.id, disabled: disableDragDrop });
 
-  const { project } = useProjectStore();
+  const project = useTaskProject(task);
   const taskIsCompleted = isTaskCompleted(task.status, project?.columns);
-  const { data: workspace } = useActiveWorkspace();
+  const { bulkSelection } = useTaskViewCapabilities();
+  // The row's own project wins over the board-level slug, which is empty when the list mixes projects.
+  const taskSlug = project?.slug || projectSlug;
   const {
     showAssignees,
     showPriority,
@@ -81,7 +86,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
   const isTaskFocused = isFocused(task.id);
 
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
-    workspace?.id ?? "",
+    project?.workspaceId ?? "",
   );
 
   const assignee = useMemo(() => {
@@ -135,7 +140,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
 
     if (e.metaKey || e.ctrlKey) {
       e.preventDefault();
-      toggleSelection(task.id);
+      if (bulkSelection) toggleSelection(task.id);
       return;
     }
 
@@ -204,7 +209,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
             )}
             {showTaskNumbers && (
               <div className="text-xs font-mono text-muted-foreground flex-shrink-0">
-                {projectSlug}-{task.number}
+                {taskSlug}-{task.number}
               </div>
             )}
 
@@ -373,12 +378,12 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
           </div>
         </ContextMenuTrigger>
 
-        {project && workspace && (
+        {project && (
           <TaskCardContextMenuContent
             task={task}
             taskCardContext={{
               projectId: project.id,
-              worskpaceId: workspace.id,
+              worskpaceId: project.workspaceId,
             }}
             onDeleteClick={() => setIsDeleteTaskModalOpen(true)}
           />

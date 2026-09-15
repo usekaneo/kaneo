@@ -371,7 +371,8 @@
 			"members": "Członkowie",
 			"invitations": "Zaproszenia",
 			"more": "Więcej",
-			"backToBoard": "Wróć do tablicy"
+			"backToBoard": "Wróć do tablicy",
+			"myTasks": "Moje zadania"
 		},
 		"projectList": {
 			"viewProject": "Zobacz projekt",
@@ -1883,8 +1884,10 @@
 				"dueDate": "Termin",
 				"labels": "Etykiety",
 				"priority": "Priorytet",
-				"status": "Status"
+				"status": "Status",
+				"project": "Projekt"
 			},
+			"allProjects": "Wszystkie projekty",
 			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
@@ -2257,6 +2260,15 @@
 		"view": {
 			"board": "Tablica",
 			"list": "Lista"
+		},
+		"myTasks": {
+			"empty": "Nic nie jest do Ciebie przypisane",
+			"emptySubtitle": "Zadania przypisane do Ciebie w dowolnym z Twoich obszarów roboczych pojawią się tutaj.",
+			"loadError": "Nie udało się wczytać Twoich zadań.",
+			"pageTitle": "Moje zadania · {{view}}",
+			"title": "Moje zadania",
+			"noMatches": "Brak pasujących zadań",
+			"noMatchesSubtitle": "Spróbuj innego wyszukiwania lub wyczyść aktywne filtry."
 		}
 	}
 }

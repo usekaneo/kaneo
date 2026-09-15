@@ -15,6 +15,7 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { useTaskViewCapabilities } from "@/components/task/task-view-context";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -69,6 +70,7 @@ function BulkToolbar() {
   const { t } = useTranslation();
   const { selectedTaskIds, clearSelection, selectAll } =
     useBulkSelectionStore();
+  const { bulkSelection } = useTaskViewCapabilities();
 
   const priorityOptions = useMemo(
     () => [
@@ -129,7 +131,7 @@ function BulkToolbar() {
         ),
       );
 
-      if ((e.metaKey || e.ctrlKey) && e.key === "a") {
+      if (bulkSelection && (e.metaKey || e.ctrlKey) && e.key === "a") {
         if (isTypingContext) return;
         e.preventDefault();
         selectAll();
@@ -143,7 +145,7 @@ function BulkToolbar() {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [selectAll, clearSelection]);
+  }, [bulkSelection, selectAll, clearSelection]);
 
   const handleMoveToBacklog = useCallback(async () => {
     try {
@@ -393,7 +395,7 @@ function BulkToolbar() {
     t,
   ]);
 
-  if (selectedCount === 0) return null;
+  if (!bulkSelection || selectedCount === 0) return null;
   // Nothing the user can do in bulk → no toolbar.
   if (!canEdit && !canDelete && !canAssign && !canEditLabels) return null;
 

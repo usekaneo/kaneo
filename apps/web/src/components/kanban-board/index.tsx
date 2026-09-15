@@ -17,6 +17,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { produce } from "immer";
 import { useEffect, useState } from "react";
+import { useTaskProjectById } from "@/components/task/task-view-context";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import useBulkSelectionStore from "@/store/bulk-selection";
@@ -44,6 +45,7 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const { mutate: updateTask } = useUpdateTask();
   const navigate = useNavigate();
+  const focusedTaskProject = useTaskProjectById(focusedTaskId);
 
   useEffect(() => {
     if (project?.columns) {
@@ -75,12 +77,13 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
         }
       },
       Enter: () => {
-        if (focusedTaskId && project) {
+        const target = focusedTaskProject ?? project;
+        if (focusedTaskId && target) {
           navigate({
             to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
             params: {
-              workspaceId: project.workspaceId,
-              projectId: project.id,
+              workspaceId: target.workspaceId,
+              projectId: target.id,
               taskId: focusedTaskId,
             },
           });

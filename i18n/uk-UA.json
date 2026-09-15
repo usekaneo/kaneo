@@ -1379,7 +1379,8 @@
 			"members": "Учасники",
 			"invitations": "Запрошення",
 			"more": "Більше",
-			"backToBoard": "Назад до дошки"
+			"backToBoard": "Назад до дошки",
+			"myTasks": "Мої завдання"
 		},
 		"projectList": {
 			"viewProject": "Переглянути проєкт",
@@ -1935,12 +1936,14 @@
 				"priority": "Пріоритет",
 				"assignee": "Виконавець",
 				"dueDate": "Дата завершення",
-				"labels": "Мітки"
+				"labels": "Мітки",
+				"project": "Проєкт"
 			},
 			"operators": {
 				"isAnyOf": "є будь-яким з",
 				"includeAnyOf": "включає будь-який з"
 			},
+			"allProjects": "Усі проєкти",
 			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
@@ -2075,6 +2078,15 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"myTasks": {
+			"empty": "Вам нічого не призначено",
+			"emptySubtitle": "Завдання, призначені вам у будь-якому з ваших робочих просторів, з'являтимуться тут.",
+			"loadError": "Не вдалося завантажити ваші завдання.",
+			"pageTitle": "Мої завдання · {{view}}",
+			"title": "Мої завдання",
+			"noMatches": "Немає відповідних завдань",
+			"noMatchesSubtitle": "Спробуйте інший запит або очистьте активні фільтри."
 		}
 	},
 	"invitations": {

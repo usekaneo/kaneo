@@ -1376,7 +1376,8 @@
 			"members": "Anggota",
 			"invitations": "Undangan",
 			"more": "Lainnya",
-			"backToBoard": "Kembali ke papan"
+			"backToBoard": "Kembali ke papan",
+			"myTasks": "Tugas saya"
 		},
 		"projectList": {
 			"viewProject": "Lihat Proyek",
@@ -1920,12 +1921,14 @@
 				"priority": "Prioritas",
 				"assignee": "Penanggung jawab",
 				"dueDate": "Tenggat",
-				"labels": "Label"
+				"labels": "Label",
+				"project": "Proyek"
 			},
 			"operators": {
 				"isAnyOf": "adalah salah satu dari",
 				"includeAnyOf": "menyertakan salah satu dari"
 			},
+			"allProjects": "Semua proyek",
 			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
@@ -2057,6 +2060,15 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"myTasks": {
+			"empty": "Tidak ada yang ditugaskan kepada Anda",
+			"emptySubtitle": "Tugas yang ditugaskan kepada Anda di salah satu ruang kerja Anda akan muncul di sini.",
+			"loadError": "Gagal memuat tugas Anda.",
+			"pageTitle": "Tugas saya · {{view}}",
+			"title": "Tugas saya",
+			"noMatches": "Tidak ada tugas yang cocok",
+			"noMatchesSubtitle": "Coba pencarian lain atau hapus filter yang aktif."
 		}
 	},
 	"invitations": {

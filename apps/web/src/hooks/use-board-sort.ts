@@ -34,23 +34,26 @@ function isSortDirection(value: unknown): value is SortDirection {
   return SORT_DIRECTIONS.includes(value as SortDirection);
 }
 
-function normalizeSort(value: unknown): SortConfig {
+function normalizeSort(value: unknown, fallback: SortConfig): SortConfig {
   if (!value || typeof value !== "object") {
-    return DEFAULT_SORT;
+    return fallback;
   }
 
   const candidate = value as Partial<Record<keyof SortConfig, unknown>>;
 
   if (!isSortField(candidate.field) || !isSortDirection(candidate.direction)) {
-    return DEFAULT_SORT;
+    return fallback;
   }
 
   return { field: candidate.field, direction: candidate.direction };
 }
 
-export function useBoardSort(projectId: string | undefined) {
+export function useBoardSort(
+  projectId: string | undefined,
+  defaultSort: SortConfig = DEFAULT_SORT,
+) {
   const storageKey = projectId ? `kaneo:board-sort:${projectId}` : null;
-  const [sort, setSort] = useState<SortConfig>(DEFAULT_SORT);
+  const [sort, setSort] = useState<SortConfig>(defaultSort);
 
   useEffect(() => {
     if (!storageKey || typeof window === "undefined") return;
@@ -58,16 +61,16 @@ export function useBoardSort(projectId: string | undefined) {
     try {
       const stored = window.localStorage.getItem(storageKey);
       if (!stored) {
-        setSort(DEFAULT_SORT);
+        setSort(defaultSort);
         return;
       }
 
       const parsed = JSON.parse(stored) as unknown;
-      setSort(normalizeSort(parsed));
+      setSort(normalizeSort(parsed, defaultSort));
     } catch {
-      setSort(DEFAULT_SORT);
+      setSort(defaultSort);
     }
-  }, [storageKey]);
+  }, [storageKey, defaultSort]);
 
   useEffect(() => {
     if (!storageKey || typeof window === "undefined") return;

@@ -44,8 +44,18 @@ type ActiveUsers = {
   }>;
 };
 
+type FilterableProject = {
+  id: string;
+  name: string;
+  workspaceName: string;
+};
+
 type BoardToolbarProps = {
   project?: ProjectWithTasks | null;
+  // When given, adds a project filter; used by views that mix projects.
+  projects?: FilterableProject[];
+  // Hidden on views where every task shares the same assignee.
+  showAssigneeFilter?: boolean;
   filters: BoardFilters;
   updateFilter: (
     key: keyof BoardFilters,
@@ -138,6 +148,8 @@ function StackedIcons({
 
 export default function BoardToolbar({
   project,
+  projects,
+  showAssigneeFilter = true,
   filters,
   updateFilter,
   updateLabelFilter,
@@ -158,6 +170,12 @@ export default function BoardToolbar({
   const selectedPriorityIds = filters.priority ?? [];
   const selectedAssigneeIds = filters.assignee ?? [];
   const selectedDueDateFilters = filters.dueDate ?? [];
+  const selectedProjectIds = filters.project ?? [];
+  const projectWorkspaces = new Set(
+    (projects ?? []).map((item) => item.workspaceName),
+  );
+  const getProjectDisplayName = (projectId: string) =>
+    projects?.find((item) => item.id === projectId)?.name ?? projectId;
 
   const filterableCustomFields = customFieldDefinitions;
 
@@ -240,6 +258,14 @@ export default function BoardToolbar({
     updateFilter("assignee", next.length > 0 ? next : null);
   };
 
+  const toggleProjectFilter = (projectId: string) => {
+    const exists = selectedProjectIds.includes(projectId);
+    const next = exists
+      ? selectedProjectIds.filter((id) => id !== projectId)
+      : [...selectedProjectIds, projectId];
+    updateFilter("project", next.length > 0 ? next : null);
+  };
+
   const toggleDueDateFilter = (dueDate: string) => {
     const exists = selectedDueDateFilters.includes(dueDate);
     const next = exists
@@ -307,6 +333,57 @@ export default function BoardToolbar({
                   </DropdownMenuLabel>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
+
+                {projects && (
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger className="h-8 rounded-md text-sm">
+                      {t("tasks:boardFilters.subjects.project")}
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent className="w-72">
+                      <div className="grid grid-cols-1 gap-1 p-1">
+                        <button
+                          className={`inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-left text-xs ${
+                            selectedProjectIds.length === 0
+                              ? "bg-accent text-accent-foreground"
+                              : "text-foreground/90 hover:bg-accent/60 hover:text-foreground"
+                          }`}
+                          onClick={() => updateFilter("project", null)}
+                          type="button"
+                        >
+                          <CheckSlot
+                            checked={selectedProjectIds.length === 0}
+                          />
+                          {t("tasks:boardFilters.allProjects")}
+                        </button>
+                        {projects.map((item, index) => (
+                          <div key={item.id} className="contents">
+                            {projectWorkspaces.size > 1 &&
+                              projects[index - 1]?.workspaceName !==
+                                item.workspaceName && (
+                                <div className="px-2 pt-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                                  {item.workspaceName}
+                                </div>
+                              )}
+                            <button
+                              className={`inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-left text-xs ${
+                                selectedProjectIds.includes(item.id)
+                                  ? "bg-accent text-accent-foreground"
+                                  : "text-foreground/90 hover:bg-accent/60 hover:text-foreground"
+                              }`}
+                              onClick={() => toggleProjectFilter(item.id)}
+                              type="button"
+                            >
+                              <CheckSlot
+                                checked={selectedProjectIds.includes(item.id)}
+                              />
+                              <span className="truncate">{item.name}</span>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                )}
 
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger className="h-8 rounded-md text-sm">
@@ -394,57 +471,61 @@ export default function BoardToolbar({
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
 
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className="h-8 rounded-md text-sm">
-                    {t("tasks:boardFilters.subjects.assignee")}
-                  </DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent className="w-64">
-                    <div className="grid grid-cols-1 gap-1 p-1">
-                      <button
-                        className={`inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-left text-xs ${
-                          selectedAssigneeIds.length === 0
-                            ? "bg-accent text-accent-foreground"
-                            : "text-foreground/90 hover:bg-accent/60 hover:text-foreground"
-                        }`}
-                        onClick={() => updateFilter("assignee", null)}
-                        type="button"
-                      >
-                        <CheckSlot checked={selectedAssigneeIds.length === 0} />
-                        {t("tasks:boardFilters.allAssignees")}
-                      </button>
-                      {users?.members?.map((member) => (
+                {showAssigneeFilter && (
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger className="h-8 rounded-md text-sm">
+                      {t("tasks:boardFilters.subjects.assignee")}
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent className="w-64">
+                      <div className="grid grid-cols-1 gap-1 p-1">
                         <button
-                          key={member.userId}
                           className={`inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-left text-xs ${
-                            selectedAssigneeIds.includes(member.userId)
+                            selectedAssigneeIds.length === 0
                               ? "bg-accent text-accent-foreground"
                               : "text-foreground/90 hover:bg-accent/60 hover:text-foreground"
                           }`}
-                          onClick={() => toggleAssigneeFilter(member.userId)}
+                          onClick={() => updateFilter("assignee", null)}
                           type="button"
                         >
                           <CheckSlot
-                            checked={selectedAssigneeIds.includes(
-                              member.userId,
-                            )}
+                            checked={selectedAssigneeIds.length === 0}
                           />
-                          <span className="inline-flex items-center gap-2">
-                            <Avatar className="h-5 w-5">
-                              <AvatarImage
-                                src={member.user?.image ?? ""}
-                                alt={member.user?.name || ""}
-                              />
-                              <AvatarFallback className="border border-border/30 text-[10px] font-medium">
-                                {getInitials(member.user?.name)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span>{member.user?.name}</span>
-                          </span>
+                          {t("tasks:boardFilters.allAssignees")}
                         </button>
-                      ))}
-                    </div>
-                  </DropdownMenuSubContent>
-                </DropdownMenuSub>
+                        {users?.members?.map((member) => (
+                          <button
+                            key={member.userId}
+                            className={`inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-left text-xs ${
+                              selectedAssigneeIds.includes(member.userId)
+                                ? "bg-accent text-accent-foreground"
+                                : "text-foreground/90 hover:bg-accent/60 hover:text-foreground"
+                            }`}
+                            onClick={() => toggleAssigneeFilter(member.userId)}
+                            type="button"
+                          >
+                            <CheckSlot
+                              checked={selectedAssigneeIds.includes(
+                                member.userId,
+                              )}
+                            />
+                            <span className="inline-flex items-center gap-2">
+                              <Avatar className="h-5 w-5">
+                                <AvatarImage
+                                  src={member.user?.image ?? ""}
+                                  alt={member.user?.name || ""}
+                                />
+                                <AvatarFallback className="border border-border/30 text-[10px] font-medium">
+                                  {getInitials(member.user?.name)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span>{member.user?.name}</span>
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                )}
 
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger className="h-8 rounded-md text-sm">
@@ -681,6 +762,21 @@ export default function BoardToolbar({
             </DropdownMenu>
 
             <SortControl sort={sort} onSortChange={onSortChange} />
+
+            {selectedProjectIds.length > 0 && (
+              <ActiveFilterChip
+                subject={t("tasks:boardFilters.subjects.project")}
+                operator={t("tasks:boardFilters.operators.isAnyOf")}
+                value={
+                  selectedProjectIds.length === 1
+                    ? getProjectDisplayName(selectedProjectIds[0])
+                    : t("tasks:boardFilters.selectedCount", {
+                        count: selectedProjectIds.length,
+                      })
+                }
+                onClear={() => updateFilter("project", null)}
+              />
+            )}
 
             {selectedStatusIds.length > 0 && (
               <ActiveFilterChip
