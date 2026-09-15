@@ -55,3 +55,16 @@ export const projectListItemSchema = projectSchema
   .openapi("ProjectListItem");
 
 export const projectListSchema = z.array(projectListItemSchema);
+
+export const projectBackgroundUploadSchema = z
+  .object({
+    key: z.string(),
+    uploadUrl: z.string(),
+    version: z.string(),
+    headers: z.record(z.string(), z.string()),
+  })
+  .openapi("ProjectBackgroundUpload");
+
+export const projectBackgroundFinalizeSchema = z
+  .object({ url: z.string() })
+  .openapi("ProjectBackgroundFinalize");
