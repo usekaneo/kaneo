@@ -78,7 +78,7 @@ export function isDisallowedAddress(address: string): boolean {
   return false;
 }
 
-function privateDestinationsAllowed(): boolean {
+export function privateDestinationsAllowed(): boolean {
   return (
     process.env.KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS === "true" ||
     process.env.KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS === "1"

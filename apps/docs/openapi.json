@@ -2369,6 +2369,229 @@
           "skipped"
         ]
       },
+      "GitlabProjectList": {
+        "type": "object",
+        "properties": {
+          "projects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GitlabProject"
+            }
+          }
+        },
+        "required": [
+          "projects"
+        ]
+      },
+      "GitlabProject": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path_with_namespace": {
+            "type": "string"
+          },
+          "name_with_namespace": {
+            "type": "string"
+          },
+          "visibility": {
+            "type": "string"
+          },
+          "web_url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "path_with_namespace",
+          "name_with_namespace",
+          "visibility",
+          "web_url"
+        ]
+      },
+      "GitlabVerificationResult": {
+        "type": "object",
+        "properties": {
+          "isInstalled": {
+            "type": "boolean",
+            "description": "The base URL answered as a GitLab instance for this token."
+          },
+          "hasRequiredPermissions": {
+            "type": "boolean"
+          },
+          "projectExists": {
+            "type": "boolean"
+          },
+          "projectVisibility": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "missingPermissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "message": {
+            "type": "string",
+            "description": "A human-readable summary to show the user."
+          },
+          "failureReason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "not_a_gitlab_instance",
+              "redirected",
+              "project_not_found",
+              null
+            ],
+            "description": "Why verification failed, when it did. `redirected` usually means the base URL is behind a proxy that rewrites it."
+          }
+        },
+        "required": [
+          "isInstalled",
+          "hasRequiredPermissions",
+          "projectExists",
+          "projectVisibility",
+          "missingPermissions",
+          "message",
+          "failureReason"
+        ]
+      },
+      "GitlabIntegration": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "baseUrl": {
+            "type": "string",
+            "description": "Root URL of the GitLab instance."
+          },
+          "projectPath": {
+            "type": "string",
+            "description": "Full path of the linked project, nested groups included."
+          },
+          "tokenType": {
+            "type": "string",
+            "enum": [
+              "private",
+              "bearer"
+            ]
+          },
+          "maskedAccessToken": {
+            "type": "string",
+            "description": "First and last characters of the stored token, only returned to callers with workspace:manage_settings."
+          },
+          "webhookUrl": {
+            "type": "string",
+            "description": "Where GitLab should POST events for this project."
+          },
+          "webhookSecret": {
+            "type": "string",
+            "description": "Only returned to callers with workspace:manage_settings, so the value can be pasted into GitLab."
+          },
+          "branchPattern": {
+            "type": "string"
+          },
+          "commentTaskLinkOnGitlabIssue": {
+            "type": "boolean",
+            "description": "When on, Kaneo comments a link back to the task on each issue opened in GitLab. Issues Kaneo creates from tasks are not commented on."
+          },
+          "isActive": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "projectId",
+          "baseUrl",
+          "projectPath",
+          "tokenType",
+          "maskedAccessToken",
+          "isActive",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "GitlabIntegrationNotFound": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "GitlabDeleteResult": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "success",
+          "message"
+        ]
+      },
+      "GitlabImportResult": {
+        "type": "object",
+        "properties": {
+          "imported": {
+            "type": "number"
+          },
+          "updated": {
+            "type": "number",
+            "description": "Existing tasks that were refreshed from their issue."
+          },
+          "skipped": {
+            "type": "number"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "imported",
+          "updated",
+          "skipped"
+        ]
+      },
       "GenericWebhookIntegration": {
         "type": [
           "object",
@@ -11214,6 +11437,561 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/GiteaImportResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "projectId is required",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing task:create permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/gitlab-integration/projects": {
+      "post": {
+        "operationId": "listGitlabProjects",
+        "tags": [
+          "GitLab"
+        ],
+        "summary": "List GitLab projects",
+        "description": "List the projects a GitLab token is a member of, for picking one to link. Sent as a POST because the token travels in the body rather than the URL.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "projectId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "baseUrl": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "accessToken": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "tokenType": {
+                    "type": "string",
+                    "enum": [
+                      "private",
+                      "bearer"
+                    ],
+                    "description": "`private` sends the token in PRIVATE-TOKEN, which is what personal, project and group access tokens expect. `bearer` sends it in Authorization, for an OAuth2 token you already hold. Defaults to `private`."
+                  }
+                },
+                "required": [
+                  "projectId",
+                  "baseUrl",
+                  "accessToken"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Accessible projects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GitlabProjectList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, or unknown project",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "GitLab rejected the token, or the instance is unreachable",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No workspace access, or missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/gitlab-integration/verify": {
+      "post": {
+        "operationId": "verifyGitlabAccess",
+        "tags": [
+          "GitLab"
+        ],
+        "summary": "Verify GitLab access",
+        "description": "Check that the base URL is a GitLab instance and that the token can reach the project with the permissions Kaneo needs. An unreachable instance, a missing project, or insufficient permissions are reported in a 200 body so the form can explain them; a token GitLab rejects outright is a 401.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "projectId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "baseUrl": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "accessToken": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "tokenType": {
+                    "type": "string",
+                    "enum": [
+                      "private",
+                      "bearer"
+                    ],
+                    "description": "`private` sends the token in PRIVATE-TOKEN, which is what personal, project and group access tokens expect. `bearer` sends it in Authorization, for an OAuth2 token you already hold. Defaults to `private`."
+                  },
+                  "projectPath": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Full path of the GitLab project, including any nested groups, for example acme/platform/web."
+                  }
+                },
+                "required": [
+                  "projectId",
+                  "baseUrl",
+                  "accessToken",
+                  "projectPath"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verification result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GitlabVerificationResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, or unknown project",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "GitLab rejected the token",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No workspace access, or missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/gitlab-integration/project/{projectId}": {
+      "get": {
+        "operationId": "getGitlabIntegration",
+        "tags": [
+          "GitLab"
+        ],
+        "summary": "Get GitLab integration",
+        "description": "Get the GitLab integration for a project, or null when none is configured. The masked access token and the webhook secret are included only for callers with workspace:manage_settings.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GitLab integration details, or null",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GitlabIntegration"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown project, or its workspace could not be determined",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project's workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createGitlabIntegration",
+        "tags": [
+          "GitLab"
+        ],
+        "summary": "Create GitLab integration",
+        "description": "Link a project to a GitLab project. Kaneo generates the secret GitLab must send with each webhook; add the webhook in GitLab afterwards. Use the verify route first to confirm the token really reaches the project.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "baseUrl": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "accessToken": {
+                    "type": "string",
+                    "description": "Omit to keep the token already stored for this project."
+                  },
+                  "tokenType": {
+                    "type": "string",
+                    "enum": [
+                      "private",
+                      "bearer"
+                    ],
+                    "description": "`private` sends the token in PRIVATE-TOKEN, which is what personal, project and group access tokens expect. `bearer` sends it in Authorization, for an OAuth2 token you already hold. Defaults to `private`."
+                  },
+                  "projectPath": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "baseUrl",
+                  "projectPath"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The stored integration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GitlabIntegration"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, or unknown project",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "That GitLab project is already linked to another Kaneo project",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateGitlabIntegration",
+        "tags": [
+          "GitLab"
+        ],
+        "summary": "Update GitLab integration",
+        "description": "Update the GitLab integration. Omitted fields keep their current value.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "isActive": {
+                    "type": "boolean"
+                  },
+                  "commentTaskLinkOnGitlabIssue": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated integration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GitlabIntegration"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The resulting config failed validation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Integration not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GitlabIntegrationNotFound"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteGitlabIntegration",
+        "tags": [
+          "GitLab"
+        ],
+        "summary": "Delete GitLab integration",
+        "description": "Unlink a project from its GitLab project.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The integration was removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GitlabDeleteResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown project, or its workspace could not be determined",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "GitLab integration not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/gitlab-integration/import-issues": {
+      "post": {
+        "operationId": "importGitlabIssues",
+        "tags": [
+          "GitLab"
+        ],
+        "summary": "Import GitLab issues",
+        "description": "Import the linked project's open issues as tasks. Issues that already have a task are refreshed rather than duplicated.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "projectId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "projectId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Import summary",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GitlabImportResult"
                 }
               }
             }
