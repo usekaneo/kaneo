@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { getApiUrl } from "@/fetchers/get-api-url";
 import { authClient } from "@/lib/auth-client";
+import { isPerTaskRelationQuery } from "@/lib/relation-query-keys";
 
 export function getWsUrl(projectId: string) {
   const base = getApiUrl("ws");
@@ -69,6 +70,28 @@ export function useProjectWebSocket(projectId: string) {
               queryKey: ["tasks", message.projectId],
             });
 
+            // The list view reads relations per project, and the per-task keys
+            // below do not reach that query. Only the events that can change
+            // which edges belong to the project qualify: an edit, a label or a
+            // comment leaves the edge set alone and would cost every mounted
+            // list a refetch.
+            // Creating a task inserts no relation — a subtask is a create
+            // followed by a separate relation mutation, which emits its own
+            // event. TASK_RELATION_UPDATED also carries `task-relation.refresh`,
+            // which the API publishes on every status change with no endpoint
+            // ids; that changes the per-task responses, which embed task
+            // status, but not the project response, which is edges only.
+            if (
+              (message.type === "TASK_RELATION_UPDATED" &&
+                (message.sourceTaskId || message.targetTaskId)) ||
+              message.type === "TASK_DELETED" ||
+              message.type === "TASK_MOVED"
+            ) {
+              queryClient.invalidateQueries({
+                queryKey: ["task-relations", "project", message.projectId],
+              });
+            }
+
             if (message.type === "TASK_RELATION_UPDATED") {
               if (message.sourceTaskId) {
                 queryClient.invalidateQueries({
@@ -87,8 +110,12 @@ export function useProjectWebSocket(projectId: string) {
                 });
               }
               if (!message.sourceTaskId && !message.targetTaskId) {
+                // Every per-task relation query, but not the project one:
+                // those responses embed each linked task's status, so a status
+                // change stales them, while the project query returns edges
+                // alone and a prefix match would refetch it needlessly.
                 queryClient.invalidateQueries({
-                  queryKey: ["task-relations"],
+                  predicate: isPerTaskRelationQuery,
                 });
               }
             } else {

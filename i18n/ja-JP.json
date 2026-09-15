@@ -1974,7 +1974,10 @@
 		"listView": {
 			"addTask": "タスクを追加",
 			"archiveAllTooltip": "完了したタスクをすべてアーカイブ",
-			"noTasks": "タスクはありません"
+			"noTasks": "タスクはありません",
+			"collapseSubtasks": "{{title}} のサブタスクを非表示",
+			"expandSubtasks": "{{title}} のサブタスクを表示",
+			"subtaskLevel": "サブタスク、レベル {{level}}"
 		},
 		"kanban": {
 			"addTask": "タスクを追加"

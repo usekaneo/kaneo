@@ -2738,6 +2738,35 @@
           "updatedAt"
         ]
       },
+      "TaskRelation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sourceTaskId": {
+            "type": "string"
+          },
+          "targetTaskId": {
+            "type": "string"
+          },
+          "relationType": {
+            "type": "string",
+            "description": "How the two tasks relate: `subtask`, `blocks`, or `related`."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "sourceTaskId",
+          "targetTaskId",
+          "relationType",
+          "createdAt"
+        ]
+      },
       "TaskRelationWithTasks": {
         "allOf": [
           {
@@ -2812,35 +2841,6 @@
           "projectId",
           "userId",
           "assigneeName"
-        ]
-      },
-      "TaskRelation": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "sourceTaskId": {
-            "type": "string"
-          },
-          "targetTaskId": {
-            "type": "string"
-          },
-          "relationType": {
-            "type": "string",
-            "description": "How the two tasks relate: `subtask`, `blocks`, or `related`."
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "sourceTaskId",
-          "targetTaskId",
-          "relationType",
-          "createdAt"
         ]
       },
       "ExternalLink": {
@@ -12981,6 +12981,64 @@
           },
           "404": {
             "description": "Telegram integration not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/task-relation/project/{projectId}": {
+      "get": {
+        "operationId": "getProjectTaskRelations",
+        "tags": [
+          "Task Relations"
+        ],
+        "summary": "Get a project's task relations",
+        "description": "Get every relation joining two tasks in the project, without the task summaries the per-task endpoint returns. Intended for views that render many tasks at once and already hold them. Relations reaching outside the project are omitted.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Relations between tasks in the project",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskRelation"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown project, or its workspace could not be determined",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing task:read permission",
             "content": {
               "text/plain": {
                 "schema": {

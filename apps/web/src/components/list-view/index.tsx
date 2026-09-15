@@ -22,13 +22,19 @@ import { useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import { produce } from "immer";
 import { Archive, ChevronRight, Flag, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import useGetProjectTaskRelations from "@/hooks/queries/task-relation/use-get-project-task-relations";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
 import { getColumnIcon } from "@/lib/column";
+import {
+  readExpandedRows,
+  writeExpandedRows,
+} from "@/lib/expanded-rows-storage";
+import { buildSubtaskChildren, flattenSubtaskRows } from "@/lib/subtask-tree";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
@@ -74,6 +80,57 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
   const [columnToArchive, setColumnToArchive] = useState<
     ProjectWithTasks["columns"][number] | null
   >(null);
+
+  // isLoading rather than isPending: a disabled query is also pending, and an
+  // empty project should not look like it is still fetching.
+  const { data: relations, isLoading: relationsLoading } =
+    useGetProjectTaskRelations(project?.id ?? "");
+
+  const subtaskChildren = useMemo(
+    () => buildSubtaskChildren(relations ?? []),
+    [relations],
+  );
+
+  const tasksById = useMemo(() => {
+    const index = new Map<
+      string,
+      ProjectWithTasks["columns"][number]["tasks"][number]
+    >();
+    for (const column of project?.columns ?? []) {
+      for (const task of column.tasks) {
+        index.set(task.id, task);
+      }
+    }
+    return index;
+  }, [project?.columns]);
+
+  // Per viewer and per project, and only a convenience: a row that cannot be
+  // restored simply starts collapsed.
+  const projectId = project?.id ?? "";
+  const [expanded, setExpanded] = useState(() => ({
+    projectId,
+    rows: readExpandedRows(projectId),
+  }));
+
+  // The board route swaps this component's project rather than remounting it,
+  // so a lazy initializer would keep the previous project's map and then save
+  // it under the new project's key.
+  if (expanded.projectId !== projectId) {
+    setExpanded({ projectId, rows: readExpandedRows(projectId) });
+  }
+
+  const expandedTasks = expanded.rows;
+
+  useEffect(() => {
+    writeExpandedRows(projectId, expandedTasks);
+  }, [projectId, expandedTasks]);
+
+  const toggleTaskExpanded = useCallback((rowId: string) => {
+    setExpanded((previous) => ({
+      ...previous,
+      rows: { ...previous.rows, [rowId]: !previous.rows[rowId] },
+    }));
+  }, []);
 
   useEffect(() => {
     if (project?.columns) {
@@ -238,6 +295,13 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
     setProject(updatedProject);
   };
 
+  // Escape ends a drag without onDragEnd, so without this the dragged row
+  // stays active: its children remain collapsed and the overlay lingers.
+  const handleDragCancel = () => {
+    setActiveId(null);
+    setOverColumnId(null);
+  };
+
   const toggleSection = (sectionId: string) => {
     setExpandedSections((prev) => ({
       ...prev,
@@ -293,6 +357,33 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
     });
 
     const showDropIndicator = activeId && overColumnId === column.id;
+
+    // A dragged parent collapses for the duration: moving a row while its
+    // children are rendered beneath it has no single correct outcome, and
+    // hiding them keeps the drag to the one row the user grabbed.
+    // Reserving the toggle column on every row keeps the titles aligned, but
+    // only where the group actually has subtasks; a project without any keeps
+    // the original left edge.
+    const rows = flattenSubtaskRows({
+      tasks: column.tasks,
+      children: subtaskChildren,
+      tasksById,
+      // Nothing stays expanded while a drag is in flight. Nested repeats are
+      // not in the SortableContext, so they never receive the transforms
+      // applied to the top-level rows: dragging any task past an expanded
+      // parent would slide the parent while its children stayed put, and the
+      // subtree would visibly split. Collapsing happens once, as the drag
+      // starts, rather than shifting rows under a moving pointer.
+      isExpanded: (rowId) => !activeId && Boolean(expandedTasks[rowId]),
+    });
+
+    // Until the relations arrive, every task looks childless. Holding the
+    // toggle column open means the chevrons appear in place instead of
+    // shifting every title sideways, and aria-busy below says the region is
+    // still resolving rather than settled and flat.
+    const groupHasSubtasks =
+      relationsLoading ||
+      rows.some((row) => row.childCount > 0 || row.depth > 0);
 
     return (
       <div
@@ -355,20 +446,32 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
             ref={setNodeRef}
             className="bg-card transition-[translate,opacity] duration-150 ease-out starting:-translate-y-1 starting:opacity-0 motion-reduce:starting:translate-y-0"
           >
+            {/* Only the top-level rows are sortable; the nested repeats share
+                their task id with one of them. */}
             <SortableContext
               items={column.tasks}
               strategy={verticalListSortingStrategy}
             >
               <AnimatePresence initial={false} mode="popLayout">
-                {column.tasks.map((task) => (
+                {rows.map((row) => (
                   <motion.div
-                    key={task.id}
+                    key={row.rowId}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
                   >
-                    <TaskRow task={task} projectSlug={project?.slug ?? ""} />
+                    <TaskRow
+                      task={row.task}
+                      projectSlug={project?.slug ?? ""}
+                      reserveToggleSpace={groupHasSubtasks}
+                      isTaskDragging={activeId === row.task.id}
+                      depth={row.depth}
+                      rowId={row.rowId}
+                      childCount={row.childCount}
+                      isExpanded={row.isExpanded}
+                      onToggleExpanded={() => toggleTaskExpanded(row.rowId)}
+                    />
                   </motion.div>
                 ))}
               </AnimatePresence>
@@ -402,10 +505,11 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
       modifiers={[snapCenterToCursor]}
     >
       <div className="w-full h-full overflow-auto bg-muted/20">
-        <div className="divide-y divide-border/50">
+        <div aria-busy={relationsLoading} className="divide-y divide-border/50">
           {project.columns.map((column) => (
             <ColumnSection key={column.id} column={column} />
           ))}
