@@ -243,24 +243,36 @@ describe("assignLabelToTask", () => {
     expect(mockPublishEvent).not.toHaveBeenCalled();
   });
 
-  it("removes the stale task copy when moving the label to a different task", async () => {
-    const stale = { ...TASK_LABEL, taskId: "task-old" };
-    mockFindFirst.mockResolvedValue(stale);
+  it("attaching to a different task keeps the original row and adds one for the target task", async () => {
+    const attachedElsewhere = { ...TASK_LABEL, taskId: "task-old" };
+    mockFindFirst.mockResolvedValue(attachedElsewhere);
     mockSelect.mockReturnValue(makeSelectMock([TASK]));
-    mockDelete.mockReturnValue(makeDeleteMock(stale));
     const insertedCopy = { ...TASK_LABEL, id: "label-task-2" };
     const insertChain = makeInsertMock(insertedCopy);
     mockInsert.mockReturnValue(insertChain);
-    mockRemoveLabelFromGitHub.mockResolvedValue(undefined);
-    mockRemoveLabelFromGitea.mockResolvedValue(undefined);
     mockSyncLabelToGitHub.mockResolvedValue(undefined);
     mockSyncLabelToGitea.mockResolvedValue(undefined);
 
-    await assignLabelToTask("label-task-1", "task-1", "user-1");
+    const result = await assignLabelToTask("label-task-1", "task-1", "user-1");
 
-    expect(mockRemoveLabelFromGitHub).toHaveBeenCalledWith("task-old", "bug");
-    expect(mockRemoveLabelFromGitea).toHaveBeenCalledWith("task-old", "bug");
+    expect(result).toEqual(insertedCopy);
+    expect(mockDelete).not.toHaveBeenCalled();
+    expect(insertChain.values).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "bug",
+        color: "EF4444",
+        taskId: "task-1",
+        workspaceId: "ws-1",
+      }),
+    );
+    expect(mockRemoveLabelFromGitHub).not.toHaveBeenCalled();
+    expect(mockRemoveLabelFromGitea).not.toHaveBeenCalled();
     expect(mockSyncLabelToGitHub).toHaveBeenCalledWith(
+      "task-1",
+      "bug",
+      "EF4444",
+    );
+    expect(mockSyncLabelToGitea).toHaveBeenCalledWith(
       "task-1",
       "bug",
       "EF4444",

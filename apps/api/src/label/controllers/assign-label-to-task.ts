@@ -8,14 +8,8 @@ import {
   taskTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
-import {
-  removeLabelFromGitea,
-  syncLabelToGitea,
-} from "../../plugins/gitea/utils/sync-label-to-gitea";
-import {
-  removeLabelFromGitHub,
-  syncLabelToGitHub,
-} from "../../plugins/github/utils/sync-label-to-github";
+import { syncLabelToGitea } from "../../plugins/gitea/utils/sync-label-to-gitea";
+import { syncLabelToGitHub } from "../../plugins/github/utils/sync-label-to-github";
 
 type LabelRow = typeof labelTableType.$inferSelect;
 
@@ -60,11 +54,9 @@ async function assignLabelToTask(id: string, taskId: string, userId: string) {
   type InsertionResult = {
     taskLabel: LabelRow;
     inserted: boolean;
-    previousTaskId: string | null;
-    previousName: string;
   };
-  const { taskLabel, inserted, previousTaskId, previousName } =
-    await db.transaction<InsertionResult>(async (tx) => {
+  const { taskLabel, inserted } = await db.transaction<InsertionResult>(
+    async (tx) => {
       const currentLabel = await tx.query.labelTable.findFirst({
         where: (label, { eq }) => eq(label.id, id),
       });
@@ -85,19 +77,11 @@ async function assignLabelToTask(id: string, taskId: string, userId: string) {
       }
 
       if (currentLabel.taskId === taskId) {
-        return {
-          taskLabel: currentLabel,
-          inserted: false,
-          previousTaskId: null,
-          previousName: currentLabel.name,
-        };
+        return { taskLabel: currentLabel, inserted: false };
       }
 
-      const previousTaskId = currentLabel.taskId;
-      if (previousTaskId) {
-        await tx.delete(labelTable).where(eq(labelTable.id, id));
-      }
-
+      // Attaching never deletes the source row: the previous task keeps its
+      // assignment, and the target task gets its own copy of name/color.
       const [insertedRow] = await tx
         .insert(labelTable)
         .values({
@@ -112,12 +96,7 @@ async function assignLabelToTask(id: string, taskId: string, userId: string) {
         .returning();
 
       if (insertedRow) {
-        return {
-          taskLabel: insertedRow,
-          inserted: true,
-          previousTaskId,
-          previousName: currentLabel.name,
-        };
+        return { taskLabel: insertedRow, inserted: true };
       }
 
       const existing = await tx.query.labelTable.findFirst({
@@ -133,22 +112,9 @@ async function assignLabelToTask(id: string, taskId: string, userId: string) {
         });
       }
 
-      return {
-        taskLabel: existing,
-        inserted: false,
-        previousTaskId,
-        previousName: currentLabel.name,
-      };
-    });
-
-  if (previousTaskId) {
-    removeLabelFromGitHub(previousTaskId, previousName).catch((error) => {
-      console.error("Failed to remove label from GitHub:", error);
-    });
-    removeLabelFromGitea(previousTaskId, previousName).catch((error) => {
-      console.error("Failed to remove label from Gitea:", error);
-    });
-  }
+      return { taskLabel: existing, inserted: false };
+    },
+  );
 
   if (!inserted) {
     return taskLabel;
