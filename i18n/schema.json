@@ -8192,6 +8192,46 @@
 						}
 					},
 					"required": ["table"]
+				},
+				"timeTracking": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"title": {
+							"type": "string"
+						},
+						"start": {
+							"type": "string"
+						},
+						"stop": {
+							"type": "string"
+						},
+						"running": {
+							"type": "string"
+						},
+						"empty": {
+							"type": "string"
+						},
+						"unknownUser": {
+							"type": "string"
+						},
+						"startError": {
+							"type": "string"
+						},
+						"stopError": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"title",
+						"start",
+						"stop",
+						"running",
+						"empty",
+						"unknownUser",
+						"startError",
+						"stopError"
+					]
 				}
 			},
 			"required": [
@@ -8224,7 +8264,8 @@
 				"contextMenu",
 				"actions",
 				"bulk",
-				"editor"
+				"editor",
+				"timeTracking"
 			]
 		},
 		"invitations": {
