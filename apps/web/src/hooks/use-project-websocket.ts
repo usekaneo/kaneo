@@ -103,6 +103,12 @@ export function useProjectWebSocket(projectId: string) {
               });
             }
 
+            if (message.type === "TASK_UPDATED" && message.taskId) {
+              queryClient.invalidateQueries({
+                queryKey: ["external-links", message.taskId],
+              });
+            }
+
             if (message.type === "COMMENT_UPDATED") {
               queryClient.invalidateQueries({
                 queryKey: ["activities", message.taskId],

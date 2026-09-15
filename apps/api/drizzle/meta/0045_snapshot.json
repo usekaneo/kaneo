@@ -1446,7 +1446,7 @@
 					"name": "integration_id",
 					"type": "text",
 					"primaryKey": false,
-					"notNull": true
+					"notNull": false
 				},
 				"resource_type": {
 					"name": "resource_type",
