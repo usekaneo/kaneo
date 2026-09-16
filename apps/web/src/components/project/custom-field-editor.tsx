@@ -2,7 +2,6 @@ import { format, isValid, parseISO } from "date-fns";
 import {
   CalendarIcon,
   CheckSquare,
-  ChevronsUpDown,
   GripVertical,
   Hash,
   List,

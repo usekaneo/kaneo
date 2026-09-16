@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { format, isValid, parseISO } from "date-fns";
-import { ArrowUpRight, CalendarIcon, ChevronsUpDown, X } from "lucide-react";
+import { ArrowUpRight, CalendarIcon, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Activity from "@/components/activity";
