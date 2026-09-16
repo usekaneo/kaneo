@@ -16,7 +16,7 @@ import { snapCenterToCursor } from "@dnd-kit/modifiers";
 import { useNavigate } from "@tanstack/react-router";
 import { produce } from "immer";
 import { Archive, Clock, Flag } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
@@ -82,37 +82,41 @@ function BacklogListView({
     clearFocus();
   }, [clearFocus]);
 
-  useRegisterShortcuts({
-    shortcuts: {
-      j: () => {
-        focusNext();
-        const state = useBacklogBulkSelectionStore.getState();
-        if (state.focusedTaskId) {
-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
-        }
+  const keyboardShortcuts = useMemo(
+    () => ({
+      shortcuts: {
+        j: () => {
+          focusNext();
+          const state = useBacklogBulkSelectionStore.getState();
+          if (state.focusedTaskId) {
+            navigate({ to: ".", search: { taskId: state.focusedTaskId } });
+          }
+        },
+        k: () => {
+          focusPrevious();
+          const state = useBacklogBulkSelectionStore.getState();
+          if (state.focusedTaskId) {
+            navigate({ to: ".", search: { taskId: state.focusedTaskId } });
+          }
+        },
+        enter: () => {
+          const { focusedTaskId } = useBacklogBulkSelectionStore.getState();
+          if (focusedTaskId && project) {
+            navigate({
+              to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
+              params: {
+                workspaceId: project.workspaceId,
+                projectId: project.id,
+                taskId: focusedTaskId,
+              },
+            });
+          }
+        },
       },
-      k: () => {
-        focusPrevious();
-        const state = useBacklogBulkSelectionStore.getState();
-        if (state.focusedTaskId) {
-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
-        }
-      },
-      Enter: () => {
-        const { focusedTaskId } = useBacklogBulkSelectionStore.getState();
-        if (focusedTaskId && project) {
-          navigate({
-            to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
-            params: {
-              workspaceId: project.workspaceId,
-              projectId: project.id,
-              taskId: focusedTaskId,
-            },
-          });
-        }
-      },
-    },
-  });
+    }),
+    [focusNext, focusPrevious, navigate, project],
+  );
+  useRegisterShortcuts(keyboardShortcuts);
 
   const sensors = useSensors(
     useSensor(MouseSensor, {

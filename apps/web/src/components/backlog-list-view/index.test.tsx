@@ -6,20 +6,18 @@ import {
   screen,
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { KeyboardShortcutsProvider } from "@/hooks/use-keyboard-shortcuts";
 import useBacklogBulkSelectionStore from "@/store/backlog-bulk-selection";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import BacklogListView from "./index";
 
-const { mountRow, unmountRow, renderRow, navigate, shortcuts } = vi.hoisted(
-  () => ({
-    mountRow: vi.fn(),
-    unmountRow: vi.fn(),
-    renderRow: vi.fn(),
-    navigate: vi.fn(),
-    shortcuts: {} as Record<string, () => void>,
-  }),
-);
+const { mountRow, unmountRow, renderRow, navigate } = vi.hoisted(() => ({
+  mountRow: vi.fn(),
+  unmountRow: vi.fn(),
+  renderRow: vi.fn(),
+  navigate: vi.fn(),
+}));
 
 vi.mock("./backlog-task-row", async () => {
   const { useEffect } = await import("react");
@@ -38,13 +36,6 @@ vi.mock("./backlog-task-row", async () => {
 vi.mock("@tanstack/react-router", () => ({ useNavigate: () => navigate }));
 vi.mock("@/hooks/mutations/task/use-update-task", () => ({
   useUpdateTask: () => ({ mutate: vi.fn() }),
-}));
-vi.mock("@/hooks/use-keyboard-shortcuts", () => ({
-  useRegisterShortcuts: (options: {
-    shortcuts: Record<string, () => void>;
-  }) => {
-    Object.assign(shortcuts, options.shortcuts);
-  },
 }));
 vi.mock("../shared/modals/create-task-modal", () => ({
   default: ({ open, status }: { open: boolean; status: string }) =>
@@ -100,7 +91,9 @@ afterEach(cleanup);
 
 describe("backlog row lifecycle", () => {
   it("mounts each row once and preserves the other section when collapsing and expanding", () => {
-    render(<BacklogListView project={project} />);
+    render(<BacklogListView project={project} />, {
+      wrapper: KeyboardShortcutsProvider,
+    });
     expect(mountRow).toHaveBeenCalledTimes(800);
     expect(unmountRow).not.toHaveBeenCalled();
 
@@ -132,24 +125,26 @@ describe("backlog row lifecycle", () => {
   });
 
   it("does not render the list again on selection or keyboard focus changes", () => {
-    render(<BacklogListView project={project} />);
+    render(<BacklogListView project={project} />, {
+      wrapper: KeyboardShortcutsProvider,
+    });
     renderRow.mockClear();
     mountRow.mockClear();
 
     act(() =>
       useBacklogBulkSelectionStore.getState().toggleSelection("planned-0"),
     );
-    act(() => shortcuts.j());
+    fireEvent.keyDown(document.body, { key: "j" });
     expect(navigate).toHaveBeenLastCalledWith({
       to: ".",
       search: { taskId: "planned-0" },
     });
-    act(() => shortcuts.j());
+    fireEvent.keyDown(document.body, { key: "j" });
     expect(navigate).toHaveBeenLastCalledWith({
       to: ".",
       search: { taskId: "planned-1" },
     });
-    act(() => shortcuts.Enter());
+    fireEvent.keyDown(document.body, { key: "Enter" });
     expect(navigate).toHaveBeenLastCalledWith({
       to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
       params: {
@@ -158,7 +153,7 @@ describe("backlog row lifecycle", () => {
         taskId: "planned-1",
       },
     });
-    act(() => shortcuts.k());
+    fireEvent.keyDown(document.body, { key: "k" });
     expect(navigate).toHaveBeenLastCalledWith({
       to: ".",
       search: { taskId: "planned-0" },
@@ -169,7 +164,9 @@ describe("backlog row lifecycle", () => {
   });
 
   it("preserves rows when opening task creation or receiving updated task data", () => {
-    const { rerender } = render(<BacklogListView project={project} />);
+    const { rerender } = render(<BacklogListView project={project} />, {
+      wrapper: KeyboardShortcutsProvider,
+    });
     const archivedRow = screen.getByLabelText("archived-0");
     mountRow.mockClear();
     fireEvent.click(
