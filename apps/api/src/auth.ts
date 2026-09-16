@@ -573,6 +573,21 @@ export const auth = betterAuth({
   },
   databaseHooks: {
     user: {
+      update: {
+        before: async (user, ctx) => {
+          if (
+            (ctx?.path === "/admin/set-role" ||
+              ctx?.path === "/admin/update-user") &&
+            Object.hasOwn(user, "role") &&
+            ctx.body?.userId === ctx.context.session?.user.id
+          ) {
+            throw new APIError("BAD_REQUEST", {
+              code: "YOU_CANNOT_CHANGE_YOUR_OWN_ROLE",
+              message: "You cannot change your own role.",
+            });
+          }
+        },
+      },
       create: {
         before: async (user, ctx) => {
           // The anonymous() plugin creates ephemeral users for guest
