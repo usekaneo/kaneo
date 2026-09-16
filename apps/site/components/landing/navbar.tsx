@@ -102,6 +102,17 @@ const navigationLinks: NavigationLink[] = [
     submenu: true,
     type: "simple",
   },
+  {
+    items: [
+      { href: "/blog", label: "Latest posts" },
+      { href: "/blog/category/alternatives", label: "Alternatives" },
+      { href: "/guides", label: "Guides" },
+      { href: "/alternatives", label: "Compare tools" },
+    ],
+    label: "Blog",
+    submenu: true,
+    type: "simple",
+  },
   { href: "/pricing", label: "Pricing" },
 ];
 

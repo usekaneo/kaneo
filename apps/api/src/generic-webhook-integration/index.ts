@@ -1,31 +1,25 @@
 import { and, eq } from "drizzle-orm";
-import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { describeRoute, resolver, validator } from "hono-openapi";
-import * as v from "valibot";
 import db from "../database";
 import { integrationTable } from "../database/schema";
+import { deletedSchema, projectIdParam } from "../integrations/schema";
+import {
+  apiRouter,
+  type BaseVariables,
+  createRoute,
+  errorResponse,
+  jsonResponse,
+} from "../openapi";
 import {
   defaultGenericWebhookEvents,
   type GenericWebhookConfig,
   normalizeGenericWebhookConfig,
   validateGenericWebhookConfig,
 } from "../plugins/generic-webhook/config";
-import { genericWebhookIntegrationSchema } from "../schemas";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
-
-const genericWebhookIntegration = new Hono<{
-  Variables: {
-    userId: string;
-    workspaceId: string;
-    apiKey?: {
-      id: string;
-      userId: string;
-      enabled: boolean;
-    };
-  };
-}>();
+import { genericWebhookIntegrationSchema } from "./response";
+import { createWebhookBody, updateWebhookBody } from "./schema";
 
 function maskValue(value: string | undefined): string | null {
   if (!value) return null;
@@ -78,258 +72,240 @@ async function getGenericWebhookIntegration(projectId: string) {
   return toResponse(integration);
 }
 
-const genericWebhookEventsSchema = v.object({
-  taskCreated: v.optional(v.boolean()),
-  taskStatusChanged: v.optional(v.boolean()),
-  taskPriorityChanged: v.optional(v.boolean()),
-  taskTitleChanged: v.optional(v.boolean()),
-  taskDescriptionChanged: v.optional(v.boolean()),
-  taskCommentCreated: v.optional(v.boolean()),
-  taskDeleted: v.optional(v.boolean()),
-  taskMoved: v.optional(v.boolean()),
-  taskDueDateChanged: v.optional(v.boolean()),
-  taskAssigneeChanged: v.optional(v.boolean()),
-  taskUnassigned: v.optional(v.boolean()),
-  dueDateReminder: v.optional(v.boolean()),
+const manageAccess = [
+  workspaceAccess.fromProject("projectId"),
+  requireWorkspacePermission({ workspace: ["manage_settings"] }),
+];
+
+const getGenericWebhookIntegrationRoute = createRoute({
+  method: "get",
+  operationId: "getGenericWebhookIntegration",
+  path: "/project/{projectId}",
+  tags: ["Generic Webhook"],
+  summary: "Get webhook integration",
+  description:
+    "Get the outgoing webhook integration for a project, or null when none is configured.",
+  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  request: { params: projectIdParam },
+  responses: {
+    200: jsonResponse(
+      "Webhook integration details, or null",
+      genericWebhookIntegrationSchema.nullable(),
+    ),
+    400: errorResponse(
+      "Unknown project, or its workspace could not be determined",
+    ),
+    403: errorResponse("No access to the project's workspace"),
+  },
 });
 
-const nullableGenericWebhookIntegrationSchema = v.nullable(
-  genericWebhookIntegrationSchema,
-);
-
-genericWebhookIntegration
-  .get(
-    "/project/:projectId",
-    describeRoute({
-      operationId: "getGenericWebhookIntegration",
-      tags: ["Generic Webhook"],
-      description: "Get generic outgoing webhook integration for a project",
-      responses: {
-        200: {
-          description: "Generic webhook integration details",
-          content: {
-            "application/json": {
-              schema: resolver(nullableGenericWebhookIntegrationSchema),
-            },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ projectId: v.string() })),
-    workspaceAccess.fromProject("projectId"),
-    async (c) => {
-      const { projectId } = c.req.valid("param");
-      return c.json(await getGenericWebhookIntegration(projectId));
+const createGenericWebhookIntegrationRoute = createRoute({
+  method: "post",
+  operationId: "createGenericWebhookIntegration",
+  path: "/project/{projectId}",
+  tags: ["Generic Webhook"],
+  summary: "Create webhook integration",
+  description:
+    "Create or replace the outgoing webhook for a project. Kaneo POSTs the selected task events to this URL, signed with the secret when one is set.",
+  middleware: manageAccess,
+  request: {
+    params: projectIdParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: createWebhookBody } },
     },
-  )
-  .post(
-    "/project/:projectId",
-    describeRoute({
-      operationId: "createGenericWebhookIntegration",
-      tags: ["Generic Webhook"],
-      description: "Create or replace a generic outgoing webhook integration",
-      responses: {
-        200: {
-          description: "Generic webhook integration created successfully",
-          content: {
-            "application/json": {
-              schema: resolver(genericWebhookIntegrationSchema),
-            },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ projectId: v.string() })),
-    validator(
-      "json",
-      v.object({
-        webhookUrl: v.pipe(v.string(), v.minLength(1)),
-        secret: v.optional(v.string()),
-        events: v.optional(genericWebhookEventsSchema),
-        dueDateReminderLeadTimeMinutes: v.optional(
-          v.pipe(v.number(), v.integer(), v.minValue(5), v.maxValue(43_200)),
-        ),
-      }),
+  },
+  responses: {
+    200: jsonResponse(
+      "The stored integration",
+      genericWebhookIntegrationSchema.nullable(),
     ),
-    workspaceAccess.fromProject("projectId"),
-    requireWorkspacePermission({ workspace: ["manage_settings"] }),
-    async (c) => {
-      const { projectId } = c.req.valid("param");
-      const body = c.req.valid("json");
+    400: errorResponse("The webhook URL failed validation"),
+    403: errorResponse(
+      "No workspace access, or missing workspace:manage_settings",
+    ),
+  },
+});
 
-      const config = normalizeGenericWebhookConfig({
-        webhookUrl: body.webhookUrl,
-        secret: body.secret,
-        events: body.events,
-        dueDateReminderLeadTimeMinutes: body.dueDateReminderLeadTimeMinutes,
-      });
-
-      const validation = await validateGenericWebhookConfig(config);
-      if (!validation.valid) {
-        throw new HTTPException(400, {
-          message: validation.errors?.join(", ") ?? "Invalid config",
-        });
-      }
-
-      const existing = await db.query.integrationTable.findFirst({
-        where: and(
-          eq(integrationTable.projectId, projectId),
-          eq(integrationTable.type, "generic-webhook"),
-        ),
-      });
-
-      if (existing) {
-        await db
-          .update(integrationTable)
-          .set({
-            config: JSON.stringify(config),
-            isActive: true,
-            updatedAt: new Date(),
-          })
-          .where(eq(integrationTable.id, existing.id));
-      } else {
-        await db.insert(integrationTable).values({
-          projectId,
-          type: "generic-webhook",
-          config: JSON.stringify(config),
-          isActive: true,
-        });
-      }
-
-      return c.json(await getGenericWebhookIntegration(projectId));
+const updateGenericWebhookIntegrationRoute = createRoute({
+  method: "patch",
+  operationId: "updateGenericWebhookIntegration",
+  path: "/project/{projectId}",
+  tags: ["Generic Webhook"],
+  summary: "Update webhook integration",
+  description:
+    "Update the outgoing webhook. Omitted fields keep their current value, event toggles merge into the existing set, and a null secret clears it.",
+  middleware: manageAccess,
+  request: {
+    params: projectIdParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: updateWebhookBody } },
     },
-  )
-  .patch(
-    "/project/:projectId",
-    describeRoute({
-      operationId: "updateGenericWebhookIntegration",
-      tags: ["Generic Webhook"],
-      description: "Update generic outgoing webhook settings",
-      responses: {
-        200: {
-          description: "Generic webhook integration updated successfully",
-          content: {
-            "application/json": {
-              schema: resolver(genericWebhookIntegrationSchema),
-            },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ projectId: v.string() })),
-    validator(
-      "json",
-      v.object({
-        webhookUrl: v.optional(v.string()),
-        secret: v.optional(v.nullable(v.string())),
-        isActive: v.optional(v.boolean()),
-        events: v.optional(genericWebhookEventsSchema),
-        dueDateReminderLeadTimeMinutes: v.optional(
-          v.pipe(v.number(), v.integer(), v.minValue(5), v.maxValue(43_200)),
-        ),
-      }),
+  },
+  responses: {
+    200: jsonResponse(
+      "The updated integration",
+      genericWebhookIntegrationSchema.nullable(),
     ),
-    workspaceAccess.fromProject("projectId"),
-    requireWorkspacePermission({ workspace: ["manage_settings"] }),
-    async (c) => {
-      const { projectId } = c.req.valid("param");
-      const body = c.req.valid("json");
+    400: errorResponse("The resulting config failed validation"),
+    403: errorResponse(
+      "No workspace access, or missing workspace:manage_settings",
+    ),
+    404: errorResponse("Webhook integration not found"),
+  },
+});
 
-      const existing = await db.query.integrationTable.findFirst({
-        where: and(
-          eq(integrationTable.projectId, projectId),
-          eq(integrationTable.type, "generic-webhook"),
-        ),
+const deleteGenericWebhookIntegrationRoute = createRoute({
+  method: "delete",
+  operationId: "deleteGenericWebhookIntegration",
+  path: "/project/{projectId}",
+  tags: ["Generic Webhook"],
+  summary: "Delete webhook integration",
+  description: "Remove the outgoing webhook from a project.",
+  middleware: manageAccess,
+  request: { params: projectIdParam },
+  responses: {
+    200: jsonResponse("The integration was removed", deletedSchema),
+    400: errorResponse(
+      "Unknown project, or its workspace could not be determined",
+    ),
+    403: errorResponse(
+      "No workspace access, or missing workspace:manage_settings",
+    ),
+    404: errorResponse("Webhook integration not found"),
+  },
+});
+
+const genericWebhookIntegration = apiRouter<
+  BaseVariables & { workspaceId: string }
+>()
+  .openapi(getGenericWebhookIntegrationRoute, async (c) => {
+    const { projectId } = c.req.valid("param");
+    return c.json(await getGenericWebhookIntegration(projectId), 200);
+  })
+  .openapi(createGenericWebhookIntegrationRoute, async (c) => {
+    const { projectId } = c.req.valid("param");
+    const body = c.req.valid("json");
+
+    const config = normalizeGenericWebhookConfig({
+      webhookUrl: body.webhookUrl,
+      secret: body.secret,
+      events: body.events,
+      dueDateReminderLeadTimeMinutes: body.dueDateReminderLeadTimeMinutes,
+    });
+
+    const validation = await validateGenericWebhookConfig(config);
+    if (!validation.valid) {
+      throw new HTTPException(400, {
+        message: validation.errors?.join(", ") ?? "Invalid config",
       });
+    }
 
-      if (!existing) {
-        throw new HTTPException(404, {
-          message: "Generic webhook integration not found",
-        });
-      }
+    const existing = await db.query.integrationTable.findFirst({
+      where: and(
+        eq(integrationTable.projectId, projectId),
+        eq(integrationTable.type, "generic-webhook"),
+      ),
+    });
 
-      const currentConfig = normalizeGenericWebhookConfig(
-        JSON.parse(existing.config) as GenericWebhookConfig,
-      );
-      const nextConfig = normalizeGenericWebhookConfig({
-        webhookUrl: body.webhookUrl?.trim() || currentConfig.webhookUrl,
-        secret:
-          body.secret === undefined
-            ? currentConfig.secret
-            : (body.secret ?? undefined),
-        events: {
-          ...(currentConfig.events ?? {}),
-          ...(body.events ?? {}),
-        },
-        dueDateReminderLeadTimeMinutes:
-          body.dueDateReminderLeadTimeMinutes ??
-          currentConfig.dueDateReminderLeadTimeMinutes,
-      });
-
-      const validation = await validateGenericWebhookConfig(nextConfig);
-      if (!validation.valid) {
-        throw new HTTPException(400, {
-          message: validation.errors?.join(", ") ?? "Invalid config",
-        });
-      }
-
+    if (existing) {
       await db
         .update(integrationTable)
         .set({
-          config: JSON.stringify(nextConfig),
-          isActive:
-            body.isActive !== undefined
-              ? body.isActive
-              : (existing.isActive ?? true),
+          config: JSON.stringify(config),
+          isActive: true,
           updatedAt: new Date(),
         })
         .where(eq(integrationTable.id, existing.id));
-
-      return c.json(await getGenericWebhookIntegration(projectId));
-    },
-  )
-  .delete(
-    "/project/:projectId",
-    describeRoute({
-      operationId: "deleteGenericWebhookIntegration",
-      tags: ["Generic Webhook"],
-      description: "Delete generic outgoing webhook integration for a project",
-      responses: {
-        200: {
-          description: "Generic webhook integration deleted successfully",
-          content: {
-            "application/json": {
-              schema: resolver(v.object({ success: v.boolean() })),
-            },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ projectId: v.string() })),
-    workspaceAccess.fromProject("projectId"),
-    requireWorkspacePermission({ workspace: ["manage_settings"] }),
-    async (c) => {
-      const { projectId } = c.req.valid("param");
-
-      const existing = await db.query.integrationTable.findFirst({
-        where: and(
-          eq(integrationTable.projectId, projectId),
-          eq(integrationTable.type, "generic-webhook"),
-        ),
+    } else {
+      await db.insert(integrationTable).values({
+        projectId,
+        type: "generic-webhook",
+        config: JSON.stringify(config),
+        isActive: true,
       });
+    }
 
-      if (!existing) {
-        throw new HTTPException(404, {
-          message: "Generic webhook integration not found",
-        });
-      }
+    return c.json(await getGenericWebhookIntegration(projectId), 200);
+  })
+  .openapi(updateGenericWebhookIntegrationRoute, async (c) => {
+    const { projectId } = c.req.valid("param");
+    const body = c.req.valid("json");
 
-      await db
-        .delete(integrationTable)
-        .where(eq(integrationTable.id, existing.id));
+    const existing = await db.query.integrationTable.findFirst({
+      where: and(
+        eq(integrationTable.projectId, projectId),
+        eq(integrationTable.type, "generic-webhook"),
+      ),
+    });
 
-      return c.json({ success: true });
-    },
-  );
+    if (!existing) {
+      throw new HTTPException(404, {
+        message: "Generic webhook integration not found",
+      });
+    }
+
+    const currentConfig = normalizeGenericWebhookConfig(
+      JSON.parse(existing.config) as GenericWebhookConfig,
+    );
+    const nextConfig = normalizeGenericWebhookConfig({
+      webhookUrl: body.webhookUrl?.trim() || currentConfig.webhookUrl,
+      secret:
+        body.secret === undefined
+          ? currentConfig.secret
+          : (body.secret ?? undefined),
+      events: {
+        ...(currentConfig.events ?? {}),
+        ...(body.events ?? {}),
+      },
+      dueDateReminderLeadTimeMinutes:
+        body.dueDateReminderLeadTimeMinutes ??
+        currentConfig.dueDateReminderLeadTimeMinutes,
+    });
+
+    const validation = await validateGenericWebhookConfig(nextConfig);
+    if (!validation.valid) {
+      throw new HTTPException(400, {
+        message: validation.errors?.join(", ") ?? "Invalid config",
+      });
+    }
+
+    await db
+      .update(integrationTable)
+      .set({
+        config: JSON.stringify(nextConfig),
+        isActive:
+          body.isActive !== undefined
+            ? body.isActive
+            : (existing.isActive ?? true),
+        updatedAt: new Date(),
+      })
+      .where(eq(integrationTable.id, existing.id));
+
+    return c.json(await getGenericWebhookIntegration(projectId), 200);
+  })
+  .openapi(deleteGenericWebhookIntegrationRoute, async (c) => {
+    const { projectId } = c.req.valid("param");
+
+    const existing = await db.query.integrationTable.findFirst({
+      where: and(
+        eq(integrationTable.projectId, projectId),
+        eq(integrationTable.type, "generic-webhook"),
+      ),
+    });
+
+    if (!existing) {
+      throw new HTTPException(404, {
+        message: "Generic webhook integration not found",
+      });
+    }
+
+    await db
+      .delete(integrationTable)
+      .where(eq(integrationTable.id, existing.id));
+
+    return c.json({ success: true }, 200);
+  });
 
 export default genericWebhookIntegration;

@@ -9,6 +9,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import TaskSubtasks from "./task-subtasks";
 
 const mocks = vi.hoisted(() => ({
+  canCreateTasks: vi.fn(),
+  canUpdateTasks: vi.fn(),
   createTask: vi.fn(),
   createRelation: vi.fn(),
   getColumns: vi.fn(),
@@ -49,11 +51,16 @@ vi.mock(
   }),
 );
 vi.mock("@/hooks/use-workspace-permission", () => ({
-  useWorkspacePermission: () => ({ canManageTasks: () => true }),
+  useWorkspacePermission: () => ({
+    canCreateTasks: mocks.canCreateTasks,
+    canUpdateTasks: mocks.canUpdateTasks,
+  }),
 }));
 vi.mock("@/lib/toast", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 
 beforeEach(() => {
+  mocks.canCreateTasks.mockReturnValue(true);
+  mocks.canUpdateTasks.mockReturnValue(true);
   mocks.getColumns.mockReturnValue({
     data: [
       { id: "todo", slug: "to-do", name: "To Do", isFinal: false },
@@ -150,5 +157,24 @@ describe("TaskSubtasks", () => {
         name: "tasks:subtasks.addAction tasks:subtasks.title",
       }),
     ).toBeDisabled();
+  });
+
+  it("hides subtask creation without task-create permission", () => {
+    mocks.canCreateTasks.mockReturnValue(false);
+
+    render(
+      <TaskSubtasks
+        taskId="parent-4"
+        projectId="project-1"
+        workspaceId="workspace-1"
+        parentStatus="planned"
+      />,
+    );
+
+    expect(
+      screen.queryByRole("button", {
+        name: "tasks:subtasks.addAction tasks:subtasks.title",
+      }),
+    ).not.toBeInTheDocument();
   });
 });

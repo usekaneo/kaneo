@@ -51,12 +51,12 @@ async function getGitHubContext(taskId: string) {
     },
   });
 
-  if (!externalLink || externalLink.resourceType !== "issue") {
+  if (externalLink?.resourceType !== "issue") {
     return null;
   }
 
   const integration = externalLink.integration;
-  if (!integration || integration.type !== "github") {
+  if (integration?.type !== "github") {
     return null;
   }
 

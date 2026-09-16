@@ -1,128 +1,144 @@
-import { Hono } from "hono";
-import { describeRoute, resolver, validator } from "hono-openapi";
-import * as v from "valibot";
-import { commentSchema } from "../schemas";
+import { activitySchema } from "../activity/response";
+import {
+  apiRouter,
+  createRoute,
+  errorResponse,
+  jsonResponse,
+} from "../openapi";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createComment from "./controllers/create-comment";
 import deleteComment from "./controllers/delete-comment";
 import getComments from "./controllers/get-comments";
 import updateComment from "./controllers/update-comment";
+import { commentListSchema } from "./response";
+import {
+  commentParam,
+  createCommentBody,
+  taskIdParam,
+  updateCommentBody,
+} from "./schema";
 
-const comment = new Hono<{
-  Variables: {
-    userId: string;
-  };
-}>()
-  .get(
-    "/:taskId",
-    describeRoute({
-      operationId: "getTaskComments",
-      tags: ["Comments"],
-      description: "Get all comments for a specific task",
-      responses: {
-        200: {
-          description: "List of comments for the task",
-          content: {
-            "application/json": {
-              schema: resolver(v.array(commentSchema)),
-            },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ taskId: v.string() })),
-    workspaceAccess.fromTaskId(),
-    async (c) => {
-      const { taskId } = c.req.valid("param");
-      const comments = await getComments(taskId);
-      return c.json(comments);
-    },
-  )
-  .post(
-    "/:taskId",
-    describeRoute({
-      operationId: "createTaskComment",
-      tags: ["Comments"],
-      description: "Create a new comment on a task",
-      responses: {
-        200: {
-          description: "Comment created successfully",
-          content: {
-            "application/json": { schema: resolver(commentSchema) },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ taskId: v.string() })),
-    validator(
-      "json",
-      v.object({ content: v.pipe(v.string(), v.minLength(1)) }),
+const getTaskCommentsRoute = createRoute({
+  method: "get",
+  operationId: "getTaskComments",
+  path: "/{taskId}",
+  tags: ["Comments"],
+  summary: "Get task comments",
+  description:
+    "Get every comment on a task, oldest first, each with its author's name and avatar.",
+  middleware: [workspaceAccess.fromTaskId()] as const,
+  request: { params: taskIdParam },
+  responses: {
+    200: jsonResponse("List of comments for the task", commentListSchema),
+    400: errorResponse(
+      "Unknown task, or its workspace could not be determined",
     ),
+    403: errorResponse("No access to the task's workspace"),
+  },
+});
+
+const createTaskCommentRoute = createRoute({
+  method: "post",
+  operationId: "createTaskComment",
+  path: "/{taskId}",
+  tags: ["Comments"],
+  summary: "Create task comment",
+  description:
+    "Add a comment to a task. Mentions in the content notify the mentioned users, and the assignee is notified too. Returns the stored activity row, which carries no author object -- read the list route for that.",
+  middleware: [
     workspaceAccess.fromTaskId(),
     requireWorkspacePermission({ task: ["update"] }),
-    async (c) => {
-      const { taskId } = c.req.valid("param");
-      const { content } = c.req.valid("json");
-      const userId = c.get("userId");
-      const newComment = await createComment(taskId, userId, content);
-      return c.json(newComment);
+  ] as const,
+  request: {
+    params: taskIdParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: createCommentBody } },
     },
-  )
-  .put(
-    "/:id",
-    describeRoute({
-      operationId: "updateTaskComment",
-      tags: ["Comments"],
-      description: "Update an existing comment (author only)",
-      responses: {
-        200: {
-          description: "Comment updated successfully",
-          content: {
-            "application/json": { schema: resolver(commentSchema) },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ id: v.string() })),
-    validator(
-      "json",
-      v.object({ content: v.pipe(v.string(), v.minLength(1)) }),
+  },
+  responses: {
+    200: jsonResponse("The created comment", activitySchema),
+    400: errorResponse("Invalid body, or unknown task"),
+    403: errorResponse(
+      "No workspace access, or missing task:update permission",
     ),
+  },
+});
+
+const updateTaskCommentRoute = createRoute({
+  method: "put",
+  operationId: "updateTaskComment",
+  path: "/{id}",
+  tags: ["Comments"],
+  summary: "Update task comment",
+  description: "Edit a comment. Only the comment's author may do this.",
+  middleware: [
     workspaceAccess.fromComment(),
     requireWorkspacePermission({ task: ["update"] }),
-    async (c) => {
-      const { id } = c.req.valid("param");
-      const { content } = c.req.valid("json");
-      const userId = c.get("userId");
-      const updated = await updateComment(userId, id, content);
-      return c.json(updated);
+  ] as const,
+  request: {
+    params: commentParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: updateCommentBody } },
     },
+  },
+  responses: {
+    200: jsonResponse("The updated comment", activitySchema),
+    400: errorResponse("Invalid body, or unknown comment"),
+    403: errorResponse("Not the author, or missing task:update permission"),
+    404: errorResponse("Comment not found"),
+  },
+});
+
+const deleteTaskCommentRoute = createRoute({
+  method: "delete",
+  operationId: "deleteTaskComment",
+  path: "/{id}",
+  tags: ["Comments"],
+  summary: "Delete task comment",
+  description: "Delete a comment. Only the comment's author may do this.",
+  middleware: [
+    workspaceAccess.fromComment(),
+    requireWorkspacePermission({ task: ["update"] }),
+  ] as const,
+  request: { params: commentParam },
+  responses: {
+    200: jsonResponse("The deleted comment", activitySchema),
+    400: errorResponse(
+      "Unknown comment, or its workspace could not be determined",
+    ),
+    403: errorResponse("Not the author, or missing task:update permission"),
+    404: errorResponse("Comment not found"),
+  },
+});
+
+const comment = apiRouter()
+  .openapi(getTaskCommentsRoute, async (c) =>
+    c.json(await getComments(c.req.valid("param").taskId), 200),
   )
-  .delete(
-    "/:id",
-    describeRoute({
-      operationId: "deleteTaskComment",
-      tags: ["Comments"],
-      description: "Delete a comment (author only)",
-      responses: {
-        200: {
-          description: "Comment deleted successfully",
-          content: {
-            "application/json": { schema: resolver(commentSchema) },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ id: v.string() })),
-    workspaceAccess.fromComment(),
-    requireWorkspacePermission({ task: ["update"] }),
-    async (c) => {
-      const { id } = c.req.valid("param");
-      const userId = c.get("userId");
-      const deleted = await deleteComment(userId, id);
-      return c.json(deleted);
-    },
+  .openapi(createTaskCommentRoute, async (c) => {
+    const { taskId } = c.req.valid("param");
+    const { content, externalUserName, externalSource } = c.req.valid("json");
+    // Both or neither: a name without a source would render as an
+    // unattributed impersonation of a real account.
+    const external =
+      externalUserName && externalSource
+        ? { userName: externalUserName, source: externalSource }
+        : undefined;
+    return c.json(
+      await createComment(taskId, c.get("userId"), content, external),
+      200,
+    );
+  })
+  .openapi(updateTaskCommentRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    const { content } = c.req.valid("json");
+    return c.json(await updateComment(c.get("userId"), id, content), 200);
+  })
+  .openapi(deleteTaskCommentRoute, async (c) =>
+    c.json(await deleteComment(c.get("userId"), c.req.valid("param").id), 200),
   );
 
 export default comment;

@@ -1,0 +1,98 @@
+name: Build images
+
+on:
+  workflow_call:
+    inputs:
+      tags:
+        description: "docker/metadata-action tag directives, one per line"
+        required: true
+        type: string
+      version:
+        description: "Release version to stamp into the tree before building (blank builds the tree as-is)"
+        required: false
+        type: string
+        default: ""
+      platforms:
+        required: false
+        type: string
+        default: linux/amd64,linux/arm64
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: kaneo
+            dockerfile: ./Dockerfile.kaneo
+            image: ghcr.io/${{ github.repository_owner }}/kaneo
+          - name: web
+            dockerfile: ./apps/web/Dockerfile
+            image: ghcr.io/${{ github.repository_owner }}/web
+          - name: api
+            dockerfile: ./apps/api/Dockerfile
+            image: ghcr.io/${{ github.repository_owner }}/api
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      # A release builds its images before the release commit exists, and the
+      # artifacts self-report their version.
+      - name: Stamp release version
+        if: inputs.version != ''
+        run: node scripts/release/apply-version.mjs "${{ inputs.version }}"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_PACKAGE_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ matrix.image }}
+          tags: ${{ inputs.tags }}
+
+      - name: Prepare Sentry auth token for source-map upload
+        if: matrix.name == 'web'
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: |
+          mkdir -p /tmp/sentry-build-secrets
+          printf '%s' "$SENTRY_AUTH_TOKEN" > /tmp/sentry-build-secrets/SENTRY_AUTH_TOKEN
+          chmod 600 /tmp/sentry-build-secrets/SENTRY_AUTH_TOKEN
+
+      - name: Build and push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          platforms: ${{ inputs.platforms }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            SENTRY_ORG=${{ vars.SENTRY_ORG }}
+            SENTRY_PROJECT=${{ vars.SENTRY_PROJECT }}
+          # secret-files mounts the file contents; 'secrets:' would pass the
+          # path string as the value.
+          secret-files: ${{ matrix.name == 'web' && 'SENTRY_AUTH_TOKEN=/tmp/sentry-build-secrets/SENTRY_AUTH_TOKEN' || '' }}

@@ -1,3 +1,5 @@
+import * as Sentry from "@sentry/node";
+
 export type SlackTextObject = {
   type: "mrkdwn" | "plain_text";
   text: string;
@@ -29,6 +31,11 @@ export async function postToSlack(
   const timeoutId = setTimeout(() => controller.abort(), SLACK_TIMEOUT_MS);
 
   try {
+    Sentry.addBreadcrumb({
+      category: "integration",
+      level: "info",
+      data: { integration: "slack" },
+    });
     const response = await fetch(webhookUrl, {
       method: "POST",
       headers: {

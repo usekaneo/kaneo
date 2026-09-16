@@ -244,7 +244,7 @@ async function importSingleIssue(
     title: issue.title,
     description: formatTaskDescriptionFromIssue(issue.body),
     status: status || "to-do",
-    priority: priority || null,
+    priority: priority ?? "low",
     number: nextTaskNumber,
   };
 

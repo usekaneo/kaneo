@@ -15,6 +15,9 @@ podSecurityContext: {}
 nodeSelector: {}
 tolerations: []
 affinity: {}
+topologySpreadConstraints: []
+imagePullSecrets: []
+enableServiceLinks: false
 # Service account configuration
 serviceAccount:
   create: true
@@ -132,6 +135,10 @@ kaneo:
   #       secretKeyRef:
   #         name: oauth-secret
   #         key: client-id
+  extraEnvFrom: []
+  # extraEnvFrom:
+  #   - secretRef:
+  #       name: oauth-secret
   livenessProbe:
     httpGet:
       path: /api/health

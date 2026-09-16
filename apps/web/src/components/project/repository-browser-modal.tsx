@@ -31,6 +31,7 @@ import { cn } from "@/lib/cn";
 import { getInitials } from "@/lib/get-initials";
 
 type RepositoryBrowserModalProps = {
+  projectId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelectRepository: (repository: { owner: string; name: string }) => void;
@@ -38,6 +39,7 @@ type RepositoryBrowserModalProps = {
 };
 
 export function RepositoryBrowserModal({
+  projectId,
   open,
   onOpenChange,
   onSelectRepository,
@@ -47,8 +49,8 @@ export function RepositoryBrowserModal({
   const [searchTerm, setSearchTerm] = React.useState("");
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["github-repositories"],
-    queryFn: listRepositories,
+    queryKey: ["github-repositories", projectId],
+    queryFn: () => listRepositories(projectId),
     enabled: open,
   });
 

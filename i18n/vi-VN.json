@@ -56,7 +56,30 @@
 			"troubleshooting": "Các bước khắc phục:",
 			"tryAgain": "Thử lại",
 			"viewDeploymentGuide": "Xem hướng dẫn triển khai",
-			"refreshPage": "Tải lại trang"
+			"refreshPage": "Tải lại trang",
+			"description": "The page crashed unexpectedly. Refreshing usually fixes it.",
+			"messages": {
+				"auth": "Authentication failed. Please sign in again.",
+				"cors": "Unable to connect to the server. This might be due to CORS configuration issues.",
+				"network": "Network error. Please check your internet connection and try again.",
+				"server": "Server error. Please try again later.",
+				"unknown": "An unexpected error occurred."
+			},
+			"troubleshootingSteps": {
+				"cors": {
+					"checkAccessibility": "Check that your API server is accessible from your browser",
+					"checkApiRunning": "Make sure your API server is running",
+					"checkApiUrl": "Check that VITE_API_URL in your frontend .env matches your API server URL",
+					"checkProtocol": "Ensure both frontend and API are using the same protocol (http/https)",
+					"verifyCorsOrigins": "Verify CORS_ORIGINS in your API .env includes your frontend URL"
+				},
+				"network": {
+					"checkConnection": "Check your internet connection",
+					"checkFirewall": "Check if there are any firewall or proxy issues",
+					"tryRefresh": "Try refreshing the page",
+					"verifyApiRunning": "Verify the API server is running and accessible"
+				}
+			}
 		},
 		"formats": {
 			"never": "Không bao giờ"
@@ -116,6 +139,9 @@
 				"labelCreateError": "Không thể tạo nhãn",
 				"createMore": "Tạo thêm",
 				"createButton": "Tạo công việc",
+				"discardTitle": "Hủy công việc?",
+				"discardDescription": "Các chi tiết công việc chưa lưu sẽ bị mất.",
+				"discardButton": "Hủy công việc",
 				"untitledTask": "Công việc chưa đặt tên",
 				"labelColors": {
 					"stone": "Đá",
@@ -129,6 +155,12 @@
 					"crimson": "Đỏ thẫm"
 				}
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -334,6 +366,29 @@
 				"nameRequired": "Cần có tên",
 				"nameShort": "Tên phải có ít nhất 2 ký tự",
 				"invalidEmail": "Địa chỉ email không hợp lệ"
+			},
+			"avatar": {
+				"hint": "PNG, JPEG, or WebP. Cropped to a square and resized to 256x256.",
+				"remove": "Remove",
+				"removeError": "Failed to remove profile picture",
+				"removeSuccess": "Profile picture removed",
+				"updateError": "Failed to update profile picture",
+				"updateSuccess": "Profile picture updated",
+				"change": "Change avatar",
+				"edit": "Change your profile picture"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Confirm your email address",
+				"description": "Workspaces only you belong to are deleted with your account. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"error": "Failed to delete account",
+				"modalDescription": "This cannot be undone. Type {{email}} to confirm.",
+				"modalTitle": "Delete your account?",
+				"sectionSubtitle": "Permanent actions that affect your whole account.",
+				"sectionTitle": "Danger zone",
+				"success": "Your account has been deleted",
+				"title": "Delete account",
+				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			}
 		},
 		"notificationsPage": {
@@ -602,7 +657,6 @@
 			"emptyTitle": "Chưa có vai trò nào",
 			"emptyDescription": "Các vai trò mặc định sẽ xuất hiện ở đây khi được khởi tạo cho không gian làm việc này.",
 			"defaultBadge": "Mặc định",
-			"permissionCount_one": "{{count}} quyền",
 			"permissionCount_other": "{{count}} quyền",
 			"nameLabel": "Tên",
 			"nameHint": "Chữ thường. Không thể thay đổi sau này.",
@@ -804,7 +858,9 @@
 			"slackSectionTitle": "Tích hợp Slack",
 			"slackSectionSubtitle": "Gửi cập nhật công việc dự án vào kênh Slack bằng webhook đến.",
 			"telegramSectionTitle": "Tích hợp Telegram",
-			"telegramSectionSubtitle": "Gửi cập nhật công việc dự án vào cuộc trò chuyện hoặc chủ đề Telegram bằng bot."
+			"telegramSectionSubtitle": "Gửi cập nhật công việc dự án vào cuộc trò chuyện hoặc chủ đề Telegram bằng bot.",
+			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook.",
+			"mattermostSectionTitle": "Mattermost Integration"
 		},
 		"projectVisibility": {
 			"pageTitle": "Chế độ hiển thị dự án",
@@ -828,7 +884,9 @@
 			"columnsTitle": "Cột",
 			"columnsDescription": "Quản lý các cột xuất hiện trên bảng của bạn. Kéo để sắp xếp lại. Bật \"Cột hoàn thành\" cho các giai đoạn thể hiện công việc đã hoàn tất.",
 			"automationTitle": "Quy tắc tự động hóa",
-			"automationDescription": "Ánh xạ sự kiện tích hợp với các cột. Khi một sự kiện xảy ra, công việc liên kết sẽ chuyển sang cột được chỉ định."
+			"automationDescription": "Ánh xạ sự kiện tích hợp với các cột. Khi một sự kiện xảy ra, công việc liên kết sẽ chuyển sang cột được chỉ định.",
+			"customFieldsDescription": "Manage the custom fields for this project. Drag  to reorder.",
+			"customFieldsTitle": "Custom Fields"
 		},
 		"projectSwitcher": {
 			"selectProject": "Chọn dự án",
@@ -1223,6 +1281,70 @@
 			"merged": "Đã gộp",
 			"draft": "Bản nháp",
 			"open": "Đang mở"
+		},
+		"mattermostIntegration": {
+			"channelHint": "Optional label for your reference. Mattermost controls the actual destination channel from the webhook setup.",
+			"channelLabel": "Channel name",
+			"channelPlaceholder": "#team-updates",
+			"connect": "Connect Mattermost",
+			"connected": "Connected",
+			"connectionHint": "Paste a Mattermost incoming webhook URL and choose which task events should be posted.",
+			"connectionTitle": "Mattermost webhook connection",
+			"disconnect": "Disconnect",
+			"events": {
+				"taskCommentCreated": "New comments",
+				"taskCreated": "New tasks",
+				"taskDescriptionChanged": "Description changes",
+				"taskPriorityChanged": "Priority changes",
+				"taskStatusChanged": "Status changes",
+				"taskTitleChanged": "Title changes"
+			},
+			"eventsHint": "Choose which project changes should post to Mattermost.",
+			"eventsTitle": "Event notifications",
+			"paused": "Paused",
+			"saveChanges": "Save changes",
+			"toast": {
+				"disabled": "Mattermost notifications paused",
+				"enabled": "Mattermost notifications enabled",
+				"removed": "Mattermost integration removed successfully",
+				"removeError": "Failed to remove Mattermost integration",
+				"saved": "Mattermost integration saved successfully",
+				"saveError": "Failed to save Mattermost integration",
+				"updateError": "Failed to update Mattermost integration"
+			},
+			"update": "Update Mattermost",
+			"validation": {
+				"webhookInvalid": "Enter a valid Mattermost webhook URL"
+			},
+			"webhookHint": "Create an Incoming Webhook in Mattermost and paste the generated URL here.",
+			"webhookLabel": "Incoming webhook URL",
+			"webhookPlaceholder": "https://your-mattermost-server.com/hooks/..."
+		},
+		"customFields": {
+			"addButton": "Add",
+			"createError": "Failed to create custom field.",
+			"createSuccess": "Custom field created.",
+			"creating": "Creating...",
+			"defaultLabel": "Default",
+			"defaultValuePlaceholder": "Default value",
+			"deleteButton": "Delete",
+			"deleteError": "Failed to delete custom field.",
+			"deleteSuccess": "Custom field deleted.",
+			"deleting": "Deleting...",
+			"empty": "No custom fields configured yet.",
+			"loading": "Loading custom fields...",
+			"namePlaceholder": "Field name",
+			"noOptionsPlaceholder": "No options",
+			"optionsPlaceholder": "Options separated by commas",
+			"required": "Required",
+			"typePlaceholder": "Select field type",
+			"types": {
+				"boolean": "Boolean",
+				"date": "Date",
+				"dropdown": "Dropdown",
+				"number": "Number",
+				"text": "Text"
+			}
 		}
 	},
 	"navigation": {
@@ -1333,13 +1455,13 @@
 				"nextTask": "Công việc tiếp theo",
 				"prevTask": "Công việc trước đó",
 				"openTask": "Mở công việc đã chọn",
-				"quickSelectNumber": "Chọn tùy chọn theo số"
+				"quickSelectNumber": "Chọn tùy chọn theo số",
+				"calendarView": "Switch to calendar view"
 			}
 		}
 	},
 	"notifications": {
 		"title": "Thông báo",
-		"newCount_one": "{{count}} mới",
 		"newCount_other": "{{count}} mới",
 		"emptyTitle": "Chưa có thông báo nào",
 		"emptySubtitle": "Bạn sẽ thấy các cập nhật và hoạt động ở đây.",
@@ -1350,11 +1472,8 @@
 			"open": "Mở thông báo"
 		},
 		"reminderLeadTime": {
-			"minutes_one": "{{count}} phút",
 			"minutes_other": "{{count}} phút",
-			"hours_one": "{{count}} giờ",
 			"hours_other": "{{count}} giờ",
-			"days_one": "{{count}} ngày",
 			"days_other": "{{count}} ngày"
 		},
 		"events": {
@@ -1511,6 +1630,7 @@
 		}
 	},
 	"tasks": {
+		"title": "Nhiệm vụ",
 		"status": {
 			"label": "Trạng thái",
 			"to-do": "Cần làm",
@@ -1537,7 +1657,8 @@
 			"selectTask": "Chọn công việc",
 			"loadingTask": "Đang tải công việc...",
 			"taskNotFound": "Không tìm thấy công việc",
-			"taskNotFoundDescription": "Công việc bạn đang tìm không tồn tại hoặc đã bị xóa."
+			"taskNotFoundDescription": "Công việc bạn đang tìm không tồn tại hoặc đã bị xóa.",
+			"customFields": "Custom Fields"
 		},
 		"detail": {
 			"subtaskOf": "Công việc con của",
@@ -1643,7 +1764,9 @@
 				"mermaid": {
 					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
-			}
+			},
+			"customFieldUpdated": "Field updated",
+			"selectOption": "Select option"
 		},
 		"entity": {
 			"task": "Công việc"
@@ -1802,7 +1925,11 @@
 			"operators": {
 				"isAnyOf": "là một trong",
 				"includeAnyOf": "bao gồm một trong"
-			}
+			},
+			"all": "All",
+			"allCustomFieldValues": "All values",
+			"noCustomFieldValues": "No custom field values",
+			"noValuesUsedYet": "No values used yet"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",
@@ -1818,7 +1945,8 @@
 			"updateDatesError": "Không thể cập nhật ngày của công việc",
 			"resizeStart": "Thay đổi kích thước ngày bắt đầu",
 			"resizeDue": "Thay đổi kích thước ngày đến hạn",
-			"taskAriaLabel": "{{title}}: mở hoặc kéo để di chuyển"
+			"taskAriaLabel": "{{title}}: mở hoặc kéo để di chuyển",
+			"jumpToToday": "Jump to today"
 		},
 		"delete": {
 			"title": "Xóa công việc?",
@@ -1843,7 +1971,6 @@
 			"draft": "Bản nháp",
 			"open": "Đang mở",
 			"label": "Pull Request",
-			"count_one": "{{count}} PR",
 			"count_other": "{{count}} PR"
 		},
 		"assignee": {
@@ -1917,6 +2044,19 @@
 				"deleteRow": "Xóa hàng",
 				"deleteTable": "Xóa bảng"
 			}
+		},
+		"calendar": {
+			"dayTasksAriaLabel": "Show all tasks for {{date}}",
+			"moreTasks": "+{{count}} more",
+			"nextMonth": "Next month",
+			"noTasks": "No scheduled tasks",
+			"noTasksSubtitle": "Add a start date, due date, or both to tasks to place them on the calendar.",
+			"pageTitle": "{{name}} – Calendar",
+			"previousMonth": "Previous month",
+			"taskAriaLabel": "{{title}}, {{range}}: open task",
+			"title": "Calendar",
+			"today": "Today",
+			"loadError": "Failed to load tasks."
 		}
 	},
 	"invitations": {
@@ -1976,7 +2116,6 @@
 			"placeholder": "Tìm công việc theo tiêu đề hoặc mã ngắn (ví dụ: DEP-23)...",
 			"hint": "Tìm kiếm trong tất cả dự án của không gian làm việc này. Dùng mã ngắn như DEP-23 để tìm công việc cụ thể.",
 			"searching": "Đang tìm kiếm...",
-			"resultsFound_one": "Tìm thấy {{count}} kết quả",
 			"resultsFound_other": "Tìm thấy {{count}} kết quả",
 			"noResultsTitle": "Không tìm thấy kết quả nào",
 			"noResultsDescription": "Hãy thử điều chỉnh từ khóa tìm kiếm hoặc tìm nội dung khác",

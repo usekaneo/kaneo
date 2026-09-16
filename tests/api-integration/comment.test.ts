@@ -97,76 +97,88 @@ describe("API integration: task comments", () => {
     expect(legacyComments).toHaveLength(0);
   });
 
-  it("rejects creating comments over the activity API length limit", async () => {
-    const member = await createWorkspaceMember();
-    const { project, columns } = await createProjectFixture({
-      workspaceId: member.workspace.id,
-    });
-    const [task] = await db
-      .insert(schema.taskTable)
-      .values({
-        projectId: project.id,
-        title: "Comment length limit",
-        status: "to-do",
-        columnId: columns.todo.id,
-        priority: "medium",
-        number: 1,
-        position: 1,
-      })
-      .returning();
+  it.each([
+    { length: 10_000, status: 200 },
+    { length: 10_001, status: 400 },
+  ])(
+    "returns $status when creating a $length-character comment",
+    async ({ length, status }) => {
+      const member = await createWorkspaceMember();
+      const { project, columns } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      const [task] = await db
+        .insert(schema.taskTable)
+        .values({
+          projectId: project.id,
+          title: "Comment length limit",
+          status: "to-do",
+          columnId: columns.todo.id,
+          priority: "medium",
+          number: 1,
+          position: 1,
+        })
+        .returning();
 
-    mockAuthenticatedSession(member.user);
-    const { app } = createApp();
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
 
-    const overlongComment = "x".repeat(10_001);
-    const response = await app.request("/api/activity/comment", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ taskId: task.id, comment: overlongComment }),
-    });
+      const comment = "x".repeat(length);
+      const response = await app.request("/api/activity/comment", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ taskId: task.id, comment }),
+      });
 
-    expect(response.status).toBe(400);
-  });
+      expect(response.status).toBe(status);
+    },
+  );
 
-  it("rejects updating comments over the activity API length limit", async () => {
-    const member = await createWorkspaceMember();
-    const { project, columns } = await createProjectFixture({
-      workspaceId: member.workspace.id,
-    });
-    const [task] = await db
-      .insert(schema.taskTable)
-      .values({
-        projectId: project.id,
-        title: "Comment length limit",
-        status: "to-do",
-        columnId: columns.todo.id,
-        priority: "medium",
-        number: 1,
-        position: 1,
-      })
-      .returning();
-    mockAuthenticatedSession(member.user);
-    const { app } = createApp();
-    const createResponse = await app.request("/api/activity/comment", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ taskId: task.id, comment: "Short comment" }),
-    });
-    expect(createResponse.status).toBe(200);
-    const createdComment = (await createResponse.json()) as { id: string };
-    const overlongComment = "x".repeat(10_001);
+  it.each([
+    { length: 10_000, status: 200 },
+    { length: 10_001, status: 400 },
+  ])(
+    "returns $status when updating a $length-character comment",
+    async ({ length, status }) => {
+      const member = await createWorkspaceMember();
+      const { project, columns } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      const [task] = await db
+        .insert(schema.taskTable)
+        .values({
+          projectId: project.id,
+          title: "Comment length limit",
+          status: "to-do",
+          columnId: columns.todo.id,
+          priority: "medium",
+          number: 1,
+          position: 1,
+        })
+        .returning();
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+      const createResponse = await app.request("/api/activity/comment", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ taskId: task.id, comment: "Short comment" }),
+      });
+      expect(createResponse.status).toBe(200);
+      const createdComment = (await createResponse.json()) as { id: string };
+      const comment = "x".repeat(length);
 
-    const response = await app.request("/api/activity/comment", {
-      method: "PUT",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        activityId: createdComment.id,
-        comment: overlongComment,
-      }),
-    });
+      const response = await app.request("/api/activity/comment", {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          activityId: createdComment.id,
+          comment,
+        }),
+      });
 
-    expect(response.status).toBe(400);
-  });
+      expect(response.status).toBe(status);
+    },
+  );
 
   it("rejects comments through the generic activity endpoint", async () => {
     const member = await createWorkspaceMember();
@@ -204,5 +216,113 @@ describe("API integration: task comments", () => {
     expect(await response.json()).toEqual({
       message: "Use the comment endpoint to create comments",
     });
+  });
+
+  it("records an external author when both name and source are given", async () => {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "Imported",
+        status: "to-do",
+        columnId: columns.todo.id,
+        priority: "medium",
+        number: 1,
+        position: 1,
+      })
+      .returning();
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const attributed = await app.request(`/api/comment/${task.id}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        content: "From PLANKA",
+        externalUserName: "Sam",
+        externalSource: "planka",
+      }),
+    });
+    expect(attributed.status).toBe(200);
+
+    const [row] = await db
+      .select()
+      .from(schema.activityTable)
+      .where(eq(schema.activityTable.taskId, task.id));
+    expect(row?.externalUserName).toBe("Sam");
+    expect(row?.externalSource).toBe("planka");
+  });
+
+  it("ignores an external name with no source, so it cannot look like a real user", async () => {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "Unattributed",
+        status: "to-do",
+        columnId: columns.todo.id,
+        priority: "medium",
+        number: 1,
+        position: 1,
+      })
+      .returning();
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    await app.request(`/api/comment/${task.id}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ content: "Nice try", externalUserName: "Andrej" }),
+    });
+
+    const [row] = await db
+      .select()
+      .from(schema.activityTable)
+      .where(eq(schema.activityTable.taskId, task.id));
+    expect(row?.externalUserName).toBeNull();
+  });
+
+  it("rejects an unknown external source", async () => {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "Bad source",
+        status: "to-do",
+        columnId: columns.todo.id,
+        priority: "medium",
+        number: 1,
+        position: 1,
+      })
+      .returning();
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const response = await app.request(`/api/comment/${task.id}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        content: "Spoof",
+        externalUserName: "Andrej",
+        externalSource: "definitely-real",
+      }),
+    });
+
+    expect(response.status).toBeGreaterThanOrEqual(400);
   });
 });

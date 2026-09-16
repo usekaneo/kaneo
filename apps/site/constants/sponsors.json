@@ -1,10 +1,10 @@
 {
 	"current": [
 		{
-			"login": "barbanet",
-			"name": "Damián Culotta",
-			"avatarUrl": "https://avatars.githubusercontent.com/u/392385?v=4",
-			"tier": 5,
+			"login": "t0yohei",
+			"name": "t0yohei",
+			"avatarUrl": "https://avatars.githubusercontent.com/u/30691457?v=4",
+			"tier": 20,
 			"founding": false
 		},
 		{
@@ -18,13 +18,6 @@
 			"login": "floreabogdan",
 			"name": "Bogdan FLOREA",
 			"avatarUrl": "https://avatars.githubusercontent.com/u/983985?v=4",
-			"tier": 5,
-			"founding": false
-		},
-		{
-			"login": "meruw",
-			"name": "meri",
-			"avatarUrl": "https://avatars.githubusercontent.com/u/118006985?v=4",
 			"tier": 5,
 			"founding": false
 		},
@@ -52,6 +45,13 @@
 			"founding": true
 		},
 		{
+			"login": "barbanet",
+			"name": "Damián Culotta",
+			"avatarUrl": "https://avatars.githubusercontent.com/u/392385?v=4",
+			"tier": 5,
+			"founding": false
+		},
+		{
 			"login": "KnudH",
 			"name": "Knud Hollander",
 			"avatarUrl": "https://avatars.githubusercontent.com/u/26556793?v=4",
@@ -64,6 +64,13 @@
 			"avatarUrl": "https://avatars.githubusercontent.com/u/36614366?v=4",
 			"tier": 20,
 			"founding": true
+		},
+		{
+			"login": "meruw",
+			"name": "mer",
+			"avatarUrl": "https://avatars.githubusercontent.com/u/118006985?v=4",
+			"tier": 5,
+			"founding": false
 		},
 		{
 			"login": "ndinevski",

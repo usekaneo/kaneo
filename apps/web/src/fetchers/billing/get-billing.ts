@@ -2,7 +2,8 @@ import { client } from "@kaneo/libs";
 import type { InferResponseType } from "hono/client";
 
 export type GetBillingResponse = InferResponseType<
-  (typeof client)["billing"][":workspaceId"]["$get"]
+  (typeof client)["billing"][":workspaceId"]["$get"],
+  200
 >;
 
 export async function getBilling(workspaceId: string) {

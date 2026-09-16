@@ -15,6 +15,11 @@ type TaskExternalLink = {
   metadata: Record<string, unknown> | null;
 };
 
+type TaskCustomFieldValue = {
+  fieldId: string;
+  value: string | null;
+};
+
 type Task = {
   id: string;
   title: string;
@@ -35,6 +40,7 @@ type Task = {
   columnId?: string | null;
   labels?: TaskLabel[];
   externalLinks?: TaskExternalLink[];
+  customFieldValues?: TaskCustomFieldValue[];
 };
 
 export default Task;

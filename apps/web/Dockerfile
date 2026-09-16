@@ -1,5 +1,14 @@
+# syntax=docker/dockerfile:1
 # Build stage
-FROM --platform=$BUILDPLATFORM node:20-alpine AS builder
+FROM --platform=$BUILDPLATFORM node:24.19.0-alpine AS builder
+
+# Sentry org/project are public identifiers (not secrets). The auth token
+# is the only real secret; it is mounted via `--mount=type=secret` during
+# the pnpm build step so it never lands in any layer or image metadata.
+ARG SENTRY_ORG
+ARG SENTRY_PROJECT
+ENV SENTRY_ORG=$SENTRY_ORG
+ENV SENTRY_PROJECT=$SENTRY_PROJECT
 
 # Install build dependencies in a single layer
 RUN apk add --no-cache python3 make g++ && \
@@ -31,7 +40,12 @@ RUN pnpm run build
 
 # Build the application
 WORKDIR /app/apps/web
-RUN pnpm run build
+# SENTRY_AUTH_TOKEN is optional: only mounted during container builds that
+# need it (e.g., the publish workflows). Local or CI builds without the
+# secret still succeed; the build just runs without it.
+RUN --mount=type=secret,id=SENTRY_AUTH_TOKEN,required=false \
+    if [ -f /run/secrets/SENTRY_AUTH_TOKEN ]; then export SENTRY_AUTH_TOKEN="$(cat /run/secrets/SENTRY_AUTH_TOKEN)"; fi; \
+    pnpm run build
 
 # Production stage with specific version
 FROM nginx:1.29.5-alpine AS runtime

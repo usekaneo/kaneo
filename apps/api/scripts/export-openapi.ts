@@ -2,6 +2,8 @@ import { writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { createApp } from "../src/index";
 
+process.env.KANEO_API_URL = "https://cloud.kaneo.app";
+
 const { app } = createApp();
 const response = await app.request("/api/openapi");
 
@@ -10,5 +12,7 @@ if (!response.ok) {
 }
 
 const spec = await response.json();
-const outputPath = resolve(import.meta.dirname, "../../docs/openapi.json");
+const outputPath = process.argv[2]
+  ? resolve(process.argv[2])
+  : resolve(import.meta.dirname, "../../docs/openapi.json");
 await writeFile(outputPath, `${JSON.stringify(spec, null, 2)}\n`);

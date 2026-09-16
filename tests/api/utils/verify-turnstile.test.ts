@@ -73,4 +73,20 @@ describe("verifyTurnstile", () => {
     const result = await verifyTurnstile("token");
     expect(result.ok).toBe(false);
   });
+
+  it.each(["5000ms", "1e3", "", "abc", "-100", "0", "5000"])(
+    "ignores malformed TURNSTILE_TIMEOUT_MS=%p",
+    async (raw) => {
+      process.env.TURNSTILE_TIMEOUT_MS = raw;
+      const fetchMock = vi.fn().mockResolvedValue({
+        json: async () => ({ success: true }),
+      });
+      globalThis.fetch = fetchMock as unknown as typeof fetch;
+
+      const result = await verifyTurnstile("token");
+
+      expect(result.ok).toBe(true);
+      expect(fetchMock).toHaveBeenCalledOnce();
+    },
+  );
 });

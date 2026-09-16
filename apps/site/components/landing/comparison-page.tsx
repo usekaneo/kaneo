@@ -1,21 +1,19 @@
 import { Check, Minus } from "lucide-react";
 import { FadeIn } from "@/components/landing/fade-in";
 import { Footer } from "@/components/landing/footer";
+import {
+  breadcrumbJsonLd,
+  faqJsonLd,
+  JsonLd,
+} from "@/components/landing/json-ld";
 import { Navbar } from "@/components/landing/navbar";
 import { SectionSeparator } from "@/components/landing/section-separator";
+import { alternativePath, comparisons } from "@/lib/comparisons";
+import type { Cell, Comparison } from "@/lib/comparisons/types";
 
 const SIGN_UP = "https://cloud.kaneo.app/auth/sign-up";
 
-type Cell = boolean | string;
-
-export type Comparison = {
-  competitor: string;
-  heading: string;
-  subheading: string;
-  rows: { feature: string; kaneo: Cell; them: Cell }[];
-  reasons: { title: string; body: string }[];
-  honestNote: string;
-};
+export type { Comparison };
 
 function CellValue({ value, emphasize }: { value: Cell; emphasize?: boolean }) {
   if (typeof value === "boolean") {
@@ -37,9 +35,38 @@ function CellValue({ value, emphasize }: { value: Cell; emphasize?: boolean }) {
   );
 }
 
+function formatVerifiedOn(value: string) {
+  return new Date(`${value}T00:00:00Z`).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 export function ComparisonPage({ data }: { data: Comparison }) {
+  const path = alternativePath(data.slug);
+  const related = data.related
+    .map((slug) => comparisons[slug])
+    .filter((entry): entry is Comparison => Boolean(entry));
+
+  const facts = [
+    { label: "License", value: data.facts.license },
+    { label: "Hosting", value: data.facts.hosting },
+    { label: "Single sign-on", value: data.facts.sso },
+    { label: "Pricing", value: data.facts.pricing },
+  ];
+
   return (
     <>
+      <JsonLd data={faqJsonLd(data.faq)} />
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Kaneo", path: "/" },
+          { name: "Alternatives", path: "/alternatives" },
+          { name: `Kaneo vs ${data.competitor}`, path },
+        ])}
+      />
       <Navbar />
       <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
         <section className="relative overflow-hidden px-6 pt-14 pb-16 md:pt-20 md:pb-20">
@@ -78,7 +105,33 @@ export function ComparisonPage({ data }: { data: Comparison }) {
               </FadeIn>
             </div>
 
+            <FadeIn delay={200}>
+              <div className="mt-12 max-w-3xl rounded-2xl border border-border/70 bg-card/70 p-5 md:p-6">
+                <h2 className="font-medium text-sm">
+                  Short answer: is Kaneo a good {data.competitor} alternative?
+                </h2>
+                <p className="mt-2 text-foreground/80 text-sm leading-relaxed md:text-base">
+                  {data.verdict}
+                </p>
+              </div>
+            </FadeIn>
+
             <FadeIn delay={220}>
+              <dl className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {facts.map((fact) => (
+                  <div key={fact.label} className="space-y-1">
+                    <dt className="font-medium text-foreground/50 text-xs uppercase tracking-wide">
+                      {fact.label}
+                    </dt>
+                    <dd className="text-foreground/80 text-sm leading-relaxed">
+                      {fact.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </FadeIn>
+
+            <FadeIn delay={260}>
               <div className="mt-12 overflow-hidden rounded-2xl border border-border/70 bg-card/70">
                 <div className="grid grid-cols-[1.4fr_1fr_1fr] text-sm">
                   <div className="border-border/50 border-b px-4 py-3 font-medium sm:px-6" />
@@ -105,6 +158,23 @@ export function ComparisonPage({ data }: { data: Comparison }) {
                 </div>
               </div>
             </FadeIn>
+
+            <p className="mt-4 text-foreground/50 text-xs">
+              {data.competitor} details checked on{" "}
+              {formatVerifiedOn(data.verifiedOn)}.{" "}
+              {data.sources.map((source, index) => (
+                <span key={source.href}>
+                  {index > 0 ? ", " : ""}
+                  <a
+                    className="underline underline-offset-4 transition-colors hover:text-foreground"
+                    href={source.href}
+                  >
+                    {source.label}
+                  </a>
+                </span>
+              ))}
+              .
+            </p>
           </div>
         </section>
 
@@ -125,6 +195,19 @@ export function ComparisonPage({ data }: { data: Comparison }) {
                 ))}
               </div>
 
+              {data.migration ? (
+                <p className="mt-14 max-w-2xl text-foreground/70 text-sm leading-relaxed">
+                  {data.migration.body}{" "}
+                  <a
+                    className="text-foreground underline underline-offset-4 transition-colors hover:text-primary"
+                    href={data.migration.href}
+                  >
+                    {data.migration.linkText}
+                  </a>
+                  .
+                </p>
+              ) : null}
+
               <div className="mt-14 max-w-2xl rounded-xl border border-border/70 bg-card/70 p-5">
                 <h3 className="font-medium text-sm">
                   When {data.competitor} is the better choice
@@ -133,6 +216,49 @@ export function ComparisonPage({ data }: { data: Comparison }) {
                   {data.honestNote}
                 </p>
               </div>
+            </div>
+          </section>
+        </SectionSeparator>
+
+        <SectionSeparator>
+          <section className="px-6 py-14 md:py-20">
+            <div className="mx-auto w-full max-w-6xl">
+              <h2 className="max-w-2xl text-2xl font-medium md:text-3xl">
+                Kaneo vs {data.competitor}, answered
+              </h2>
+              <div className="mt-8 grid gap-8 md:grid-cols-2">
+                {data.faq.map((entry) => (
+                  <div key={entry.question} className="space-y-2">
+                    <h3 className="font-medium text-sm">{entry.question}</h3>
+                    <p className="text-foreground/70 text-sm leading-relaxed">
+                      {entry.answer}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {related.length > 0 ? (
+                <div className="mt-14">
+                  <h3 className="font-medium text-sm">Other comparisons</h3>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {related.map((entry) => (
+                      <a
+                        key={entry.slug}
+                        className="inline-flex h-8 items-center rounded-lg border border-border/70 px-3 text-foreground/70 text-sm transition-colors hover:bg-accent hover:text-foreground"
+                        href={alternativePath(entry.slug)}
+                      >
+                        Kaneo vs {entry.competitor}
+                      </a>
+                    ))}
+                    <a
+                      className="inline-flex h-8 items-center rounded-lg border border-border/70 px-3 text-foreground/70 text-sm transition-colors hover:bg-accent hover:text-foreground"
+                      href="/alternatives"
+                    >
+                      All alternatives
+                    </a>
+                  </div>
+                </div>
+              ) : null}
 
               <div className="mt-12 flex flex-wrap items-center gap-3">
                 <a

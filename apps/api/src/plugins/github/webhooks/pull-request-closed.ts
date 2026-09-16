@@ -9,6 +9,7 @@ import {
   findTaskById,
   updateTaskStatus,
 } from "../services/task-service";
+import { parseLinkMetadata } from "../utils/parse-link-metadata";
 import { resolveTargetStatus } from "../utils/resolve-column";
 
 type PRClosedPayload = {
@@ -59,9 +60,10 @@ export async function handlePullRequestClosed(payload: PRClosedPayload) {
       continue;
     }
 
-    const existingMetadata = externalLink.metadata
-      ? JSON.parse(externalLink.metadata)
-      : {};
+    const existingMetadata = parseLinkMetadata(externalLink.metadata, {
+      externalLinkId: externalLink.id,
+      source: "pull_request_closed",
+    });
 
     await updateExternalLink(externalLink.id, {
       metadata: {
@@ -82,7 +84,10 @@ export async function handlePullRequestClosed(payload: PRClosedPayload) {
 
       const hasOpenPRs = allTaskPRs.some((pr) => {
         if (pr.id === externalLink.id) return false;
-        const metadata = pr.metadata ? JSON.parse(pr.metadata) : {};
+        const metadata = parseLinkMetadata(pr.metadata, {
+          externalLinkId: pr.id,
+          source: "pull_request_closed",
+        });
         return metadata.state === "open";
       });
 

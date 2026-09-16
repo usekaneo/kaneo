@@ -14,7 +14,11 @@ async function updateTask(taskId: string, task: Task) {
       title: task.title,
       description: task.description || "",
       status: task.status,
-      priority: (task.priority || "") as UpdateTaskPriority,
+      // The API validates priority against a picklist that has no empty
+      // member, so a task carrying no priority has to be sent as the explicit
+      // "no priority" value rather than "". Sending "" rejected the whole
+      // update, which is what broke dragging every imported task.
+      priority: (task.priority || "no-priority") as UpdateTaskPriority,
       startDate: task.startDate?.toString(),
       dueDate: task.dueDate?.toString(),
       position: task.position ?? 0,
