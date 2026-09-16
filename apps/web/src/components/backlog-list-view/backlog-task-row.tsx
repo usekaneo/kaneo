@@ -8,7 +8,7 @@ import {
   CalendarX,
   SlidersHorizontal,
 } from "lucide-react";
-import { type CSSProperties, useMemo, useState } from "react";
+import { type CSSProperties, memo, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AlertDialog,
@@ -51,7 +51,9 @@ type BacklogTaskRowProps = {
   task: Task;
 };
 
-export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
+const BacklogTaskRow = memo(function BacklogTaskRow({
+  task,
+}: BacklogTaskRowProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const {
@@ -63,7 +65,7 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
     isDragging,
   } = useSortable({ id: task.id });
 
-  const { project } = useProjectStore();
+  const project = useProjectStore((state) => state.project);
   const taskIsCompleted = isTaskCompleted(task.status, project?.columns);
   const { data: workspace } = useActiveWorkspace();
   const {
@@ -75,10 +77,15 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
   } = useUserPreferencesStore();
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
   const { mutateAsync: deleteTask } = useDeleteTask();
-  const { toggleSelection, isSelected, isFocused } =
-    useBacklogBulkSelectionStore();
-  const isTaskSelected = isSelected(task.id);
-  const isTaskFocused = isFocused(task.id);
+  const toggleSelection = useBacklogBulkSelectionStore(
+    (state) => state.toggleSelection,
+  );
+  const isTaskSelected = useBacklogBulkSelectionStore((state) =>
+    state.selectedTaskIds.has(task.id),
+  );
+  const isTaskFocused = useBacklogBulkSelectionStore(
+    (state) => state.focusedTaskId === task.id,
+  );
 
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
     workspace?.id ?? "",
@@ -337,4 +344,6 @@ export default function BacklogTaskRow({ task }: BacklogTaskRowProps) {
       </AlertDialog>
     </div>
   );
-}
+});
+
+export default BacklogTaskRow;
