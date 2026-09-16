@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { auth } from "../../apps/api/src/auth";
 import db, { schema } from "../../apps/api/src/database";
 import { resetTestDatabase } from "./helpers/database";
@@ -139,6 +139,51 @@ describe.each(["/admin/set-role", "/admin/update-user"])(
       const response = await request(path, body(admin.id, "user"));
       expect(response.status).toBe(401);
       expect(await getRole(admin.id)).toBe("admin");
+    });
+
+    it("preserves an administrator when admins concurrently demote each other", async () => {
+      const admin = await createUser("admin");
+      const other = await createUser("admin");
+      // Multiple roles must still count as an administrator.
+      await db
+        .update(schema.userTable)
+        .set({ role: "user,admin" })
+        .where(eq(schema.userTable.id, other.id));
+
+      const context = await auth.$context;
+      const updateUser = context.internalAdapter.updateUser.bind(
+        context.internalAdapter,
+      );
+      let release = () => {};
+      const bothAuthorized = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      let arrivals = 0;
+      // Hold both writes until both requests have passed authorization.
+      vi.spyOn(context.internalAdapter, "updateUser").mockImplementation(
+        async (...args) => {
+          if (++arrivals === 2) release();
+          await bothAuthorized;
+          return updateUser(...args);
+        },
+      );
+
+      const responses = await Promise.all([
+        request(path, body(other.id, "user"), { Cookie: admin.cookie }),
+        request(path, body(admin.id, "user"), { Cookie: other.cookie }),
+      ]);
+
+      expect(responses.map((response) => response.status).sort()).toEqual([
+        200, 400,
+      ]);
+      const rejected = responses.find((response) => response.status === 400);
+      expect(await rejected?.json()).toMatchObject({
+        code: "CANNOT_REMOVE_LAST_ADMIN",
+      });
+      const roles = await Promise.all([getRole(admin.id), getRole(other.id)]);
+      expect(
+        roles.filter((role) => role?.split(",").includes("admin")),
+      ).toHaveLength(1);
     });
   },
 );
