@@ -377,9 +377,7 @@ function CreateTaskModal({
     onClose();
 
     if (shouldDeleteDraft) {
-      void deleteTask(draftTask.id).catch(() => {
-        // ignore cleanup failures for abandoned empty drafts
-      });
+      void deleteTask(draftTask.id).catch(() => {});
     }
   };
 
