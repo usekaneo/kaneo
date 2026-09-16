@@ -17,7 +17,6 @@ import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Combobox,
-  ComboboxChip,
   ComboboxChips,
   ComboboxChipsInput,
   ComboboxEmpty,
@@ -145,7 +144,6 @@ export default function CustomFieldEditor({
 
       let apiDefaultValue: string | undefined;
 
-      // Type envoyé à l'API
       const apiType: CustomFieldType =
         type === "dropdown" && isMultiple ? "multiselect" : type;
 
@@ -325,7 +323,6 @@ export default function CustomFieldEditor({
     );
   }, [optionsText]);
 
-  // Nettoyer defaultValue si on passe de multiple à single ou inversement
   useEffect(() => {
     if (type !== "dropdown") return;
 
@@ -340,7 +337,6 @@ export default function CustomFieldEditor({
     }
   }, [isMultiple, type, defaultValue]);
 
-  // Mettre à jour defaultValue quand les options changent
   useEffect(() => {
     if (type !== "dropdown") return;
 
@@ -391,6 +387,26 @@ export default function CustomFieldEditor({
             const isDragging = draggedIndex === index;
             const isHovered = draggedIndex !== null && draggedIndex !== index;
 
+            let defaultParsedValues: string[] | null = null;
+            let defaultDisplayValue = field.defaultValue ?? "";
+
+            if (field.defaultValue) {
+              try {
+                const parsed = JSON.parse(field.defaultValue);
+                if (Array.isArray(parsed)) {
+                  defaultParsedValues = parsed;
+                  defaultDisplayValue = parsed.join(", ");
+                }
+              } catch {}
+            }
+
+            const defaultValueCanHover =
+              Boolean(field.defaultValue) &&
+              (field.type === "dropdown" || field.type === "multiselect") &&
+              (defaultParsedValues
+                ? defaultParsedValues.length > 0
+                : Boolean(defaultDisplayValue));
+
             return (
               // biome-ignore lint/a11y/useSemanticElements: false positive for role="listitem"
               <div
@@ -410,15 +426,15 @@ export default function CustomFieldEditor({
                 <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab shrink-0" />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <FieldIcon className="w-4 h-4 text-muted-foreground" />
-                    <span className="truncate text-sm font-medium">
+                    <FieldIcon className="w-4 h-4 text-muted-foreground shrink-0" />
+                    <span className="min-w-0 max-w-[16rem] truncate text-sm font-medium">
                       {field.name}
                     </span>
-                    <span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                    <span className="shrink-0 rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">
                       {t(`settings:customFields.types.${field.type}`)}
                     </span>
                     {field.required && (
-                      <span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                      <span className="shrink-0 rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">
                         {t("settings:customFields.required")}
                       </span>
                     )}
@@ -427,16 +443,17 @@ export default function CustomFieldEditor({
                     field.options?.length ? (
                       <HoverCard>
                         <HoverCardTrigger asChild>
-                          <span className="inline-flex items-center gap-1 rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground cursor-pointer hover:bg-muted/80 transition-colors">
-                            {field.options.length}{" "}
-                            {t("settings:customFields.options", "options")}
+                          <span className="shrink-0 inline-flex items-center gap-1 rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground cursor-pointer hover:bg-muted/80 transition-colors">
+                            {t("settings:customFields.options", {
+                              count: field.options.length,
+                            })}
                           </span>
                         </HoverCardTrigger>
                         <HoverCardContent
-                          className="w-64 max-w-[calc(100vw-3rem)]"
+                          className="w-64 max-w-[calc(100vw-3rem)] overflow-hidden"
                           align="start"
                         >
-                          <div className="space-y-1.5">
+                          <div className="min-w-0 space-y-1.5">
                             <div className="text-xs font-medium text-muted-foreground">
                               {t(
                                 "settings:customFields.availableOptions",
@@ -444,11 +461,11 @@ export default function CustomFieldEditor({
                               )}
                             </div>
 
-                            <div className="flex max-h-48 flex-wrap gap-1.5 overflow-y-auto">
+                            <div className="flex min-w-0 max-h-48 flex-wrap gap-1.5 overflow-y-auto overflow-x-hidden">
                               {field.options.map((option) => (
                                 <span
                                   key={`field_${field.id}_option_${option}`}
-                                  className="max-w-full whitespace-normal break-words rounded bg-secondary px-2.5 py-1 text-xs"
+                                  className="min-w-0 max-w-full whitespace-normal break-all rounded bg-secondary px-2.5 py-1 text-xs"
                                 >
                                   {option}
                                 </span>
@@ -458,23 +475,52 @@ export default function CustomFieldEditor({
                         </HoverCardContent>
                       </HoverCard>
                     ) : null}
-                    {field.defaultValue && (
-                      <span className="truncate text-xs text-muted-foreground">
-                        {t("settings:customFields.defaultLabel")}:{" "}
-                        <span className="text-foreground">
-                          {(() => {
-                            try {
-                              const value = JSON.parse(field.defaultValue);
-                              return Array.isArray(value)
-                                ? value.join(", ")
-                                : field.defaultValue;
-                            } catch {
-                              return field.defaultValue;
-                            }
-                          })()}
+                    {field.defaultValue &&
+                      (defaultValueCanHover ? (
+                        <HoverCard>
+                          <HoverCardTrigger asChild>
+                            <span className="shrink-0 inline-flex items-center gap-1 rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground cursor-pointer hover:bg-muted/80 transition-colors">
+                              {t("settings:customFields.defaultValues", {
+                                count: defaultParsedValues?.length ?? 0,
+                              })}
+                            </span>
+                          </HoverCardTrigger>
+                          <HoverCardContent
+                            className="w-64 max-w-[calc(100vw-3rem)] overflow-hidden"
+                            align="start"
+                          >
+                            <div className="min-w-0 space-y-1.5">
+                              <div className="text-xs font-medium text-muted-foreground">
+                                {t("settings:customFields.defaultLabel")}
+                              </div>
+
+                              {defaultParsedValues ? (
+                                <div className="flex min-w-0 max-h-48 flex-wrap gap-1.5 overflow-y-auto overflow-x-hidden">
+                                  {defaultParsedValues.map((value) => (
+                                    <span
+                                      key={`field_${field.id}_default_${value}`}
+                                      className="min-w-0 max-w-full whitespace-normal break-all rounded bg-secondary px-2.5 py-1 text-xs"
+                                    >
+                                      {value}
+                                    </span>
+                                  ))}
+                                </div>
+                              ) : (
+                                <p className="min-w-0 max-w-full whitespace-normal break-words text-xs text-foreground">
+                                  {defaultDisplayValue}
+                                </p>
+                              )}
+                            </div>
+                          </HoverCardContent>
+                        </HoverCard>
+                      ) : (
+                        <span className="min-w-0 max-w-[12rem] truncate text-xs text-muted-foreground">
+                          {t("settings:customFields.defaultLabel")}:{" "}
+                          <span className="text-foreground">
+                            {defaultDisplayValue}
+                          </span>
                         </span>
-                      </span>
-                    )}
+                      ))}
                   </div>
                 </div>
                 <Button
@@ -640,27 +686,47 @@ export default function CustomFieldEditor({
 
                     return (
                       <>
-                        {isMultiple &&
-                          visibleChips.map((value) => (
-                            <ComboboxChip
+                        {visibleChips.map((value) => {
+                          if (isMultiple) {
+                            return (
+                              <div
+                                key={value}
+                                className={cn(
+                                  "min-w-0 max-w-full flex-1 shrink basis-0",
+                                  "inline-flex items-center overflow-hidden",
+                                  "rounded-md bg-secondary px-1.5 py-0.5",
+                                  "select-none cursor-default",
+                                )}
+                              >
+                                <span className="block min-w-0 max-w-full truncate text-xs">
+                                  {value}
+                                </span>
+                              </div>
+                            );
+                          }
+                          return (
+                            <div
                               key={value}
-                              showRemove={false}
                               className={cn(
-                                "min-w-0 max-w-[50%] shrink",
-                                "overflow-hidden text-ellipsis whitespace-nowrap",
+                                "min-w-0 max-w-full flex-1 shrink basis-0",
+                                "inline-flex items-center overflow-hidden",
+                                "ps-1.5",
                                 "select-none cursor-default",
                               )}
                             >
-                              {value}
-                            </ComboboxChip>
-                          ))}
+                              <span className="block min-w-0 max-w-full truncate text-xs">
+                                {value}
+                              </span>
+                            </div>
+                          );
+                        })}
 
                         {selected.length > MAX_VISIBLE_CHIPS && (
                           <HoverCard>
                             <HoverCardTrigger asChild>
                               <button
                                 type="button"
-                                className="shrink-0 whitespace-nowrap inline-flex items-center gap-1 text-xs font-medium cursor-pointer text-foreground/50"
+                                className="shrink-0 inline-flex items-center gap-1 text-xs font-medium cursor-pointer text-foreground/50 pe-1"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   e.preventDefault();
@@ -679,9 +745,9 @@ export default function CustomFieldEditor({
                             <HoverCardContent
                               side="top"
                               align="start"
-                              className="flex max-w-xs flex-wrap gap-1"
+                              className="flex max-w-xs flex-wrap gap-1 overflow-hidden"
                             >
-                              <div className="space-y-1.5">
+                              <div className="min-w-0 space-y-1.5">
                                 <div className="text-xs font-medium text-muted-foreground">
                                   {t(
                                     "settings:customFields.availableOptions",
@@ -689,17 +755,23 @@ export default function CustomFieldEditor({
                                   )}
                                 </div>
 
-                                <div className="flex max-h-48 flex-wrap gap-x-1.5 gap-y-3">
+                                <div className="flex min-w-0 max-h-48 flex-wrap gap-x-1.5 gap-y-1.5 overflow-y-auto overflow-x-hidden">
                                   {selected
                                     .slice(MAX_VISIBLE_CHIPS)
                                     .map((value) => (
-                                      <ComboboxChip
+                                      <div
                                         key={value}
-                                        showRemove={false}
-                                        className="h-6 min-w-0 max-w-full -my-1 whitespace-nowrap select-none cursor-default"
+                                        className={cn(
+                                          "min-w-0 max-w-full",
+                                          "inline-flex items-center overflow-hidden",
+                                          "rounded bg-secondary px-1.5 py-0.5",
+                                          "select-none cursor-default",
+                                        )}
                                       >
-                                        {value}
-                                      </ComboboxChip>
+                                        <span className="block min-w-0 max-w-[14rem] truncate text-xs">
+                                          {value}
+                                        </span>
+                                      </div>
                                     ))}
                                 </div>
                               </div>
@@ -709,7 +781,9 @@ export default function CustomFieldEditor({
 
                         <ComboboxChipsInput
                           className={cn(
-                            "min-w-0 flex-1 pointer-events-none caret-transparent",
+                            "min-w-0 flex-1 caret-transparent",
+                            selected.length > 0 && "hidden",
+                            "pointer-events-none",
                             "placeholder:text-foreground/50",
                             isMultiple && "text-transparent",
                           )}
@@ -764,8 +838,12 @@ export default function CustomFieldEditor({
 
                 <ComboboxList>
                   {(option: string) => (
-                    <ComboboxItem key={`field_option_${option}`} value={option}>
-                      {option}
+                    <ComboboxItem
+                      className="min-w-0 max-w-full"
+                      key={`field_option_${option}`}
+                      value={option}
+                    >
+                      <span className="block max-w-38 truncate">{option}</span>
                     </ComboboxItem>
                   )}
                 </ComboboxList>

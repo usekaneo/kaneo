@@ -40,7 +40,6 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Combobox,
-  ComboboxChip,
   ComboboxChips,
   ComboboxChipsInput,
   ComboboxEmpty,
@@ -773,7 +772,7 @@ function CreateTaskModal({
             <SelectContent>
               {options.map((opt) => (
                 <SelectItem key={opt} value={opt}>
-                  {opt}
+                  <span className="block max-w-38 truncate">{opt}</span>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -840,12 +839,7 @@ function CreateTaskModal({
               handleCustomFieldChange(field.id, JSON.stringify(val))
             }
           >
-            <ComboboxChips
-              className={cn(
-                "h-9 w-full min-w-0",
-                "flex-nowrap overflow-hidden text-sm",
-              )}
-            >
+            <ComboboxChips className="h-9 w-full flex-[2_0_0] select-none cursor-default text-sm disabled:opacity-50">
               <ComboboxValue>
                 {(values: string[]) => {
                   const visibleChips = values.slice(0, MAX_VISIBLE_CHIPS);
@@ -853,26 +847,27 @@ function CreateTaskModal({
 
                   return (
                     <>
-                      {visibleChips.map((chipValue) => (
-                        <ComboboxChip
-                          key={chipValue}
-                          showRemove={false}
+                      {visibleChips.map((value) => (
+                        <div
+                          key={value}
                           className={cn(
-                            "min-w-0 max-w-[30%] shrink",
-                            "overflow-hidden text-ellipsis whitespace-nowrap",
+                            "min-w-0 max-w-full flex-1 shrink basis-0",
+                            "inline-flex items-center overflow-hidden",
+                            "rounded-md bg-secondary px-1.5 py-0.5",
                             "select-none cursor-default",
                           )}
                         >
-                          {chipValue}
-                        </ComboboxChip>
+                          <span className="block min-w-0 max-w-full truncate text-xs text-white">
+                            {value}
+                          </span>
+                        </div>
                       ))}
-
-                      {hiddenCount > 0 && (
+                      {values.length > MAX_VISIBLE_CHIPS && (
                         <HoverCard>
                           <HoverCardTrigger asChild>
                             <button
                               type="button"
-                              className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-xs font-medium cursor-pointer text-foreground/50"
+                              className="shrink-0 inline-flex items-center gap-1 text-xs font-medium cursor-pointer text-foreground/50 pe-1"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 e.preventDefault();
@@ -901,20 +896,23 @@ function CreateTaskModal({
                                 )}
                               </div>
 
-                              <div className="flex max-h-48 flex-wrap gap-x-1.5 gap-y-3">
+                              <div className="flex min-w-0 max-h-48 flex-wrap gap-x-1.5 gap-y-1.5 overflow-y-auto overflow-x-hidden">
                                 {values
                                   .slice(MAX_VISIBLE_CHIPS)
                                   .map((value) => (
-                                    <ComboboxChip
+                                    <div
                                       key={value}
-                                      showRemove={false}
                                       className={cn(
-                                        "h-6 min-w-0 max-w-full -my-1",
-                                        "whitespace-nowrap select-none cursor-default",
+                                        "min-w-0 max-w-full",
+                                        "inline-flex items-center overflow-hidden",
+                                        "rounded bg-secondary px-1.5 py-0.5",
+                                        "select-none cursor-default",
                                       )}
                                     >
-                                      {value}
-                                    </ComboboxChip>
+                                      <span className="block min-w-0 max-w-[13rem] truncate text-xs">
+                                        {value}
+                                      </span>
+                                    </div>
                                   ))}
                               </div>
                             </div>
@@ -923,17 +921,23 @@ function CreateTaskModal({
                       )}
 
                       <ComboboxChipsInput
-                        className="min-w-0 flex-1 truncate"
+                        className={cn(
+                          "min-w-0 flex-1 caret-transparent",
+                          values.length > 0 && "hidden",
+                          "pointer-events-none",
+                          "placeholder:text-foreground/50",
+                          "text-transparent",
+                        )}
                         placeholder={
-                          (field.options || []).length === 0
+                          Array.from(new Set(field.options ?? [])).length === 0
                             ? t(
                                 "settings:customFields.noOptionsPlaceholder",
                                 "No options",
                               )
                             : values.length === 0
                               ? t(
-                                  "common:modals.createTask.selectOptionPlaceholder",
-                                  "Select an option",
+                                  "settings:customFields.defaultValuePlaceholder",
+                                  "Default value",
                                 )
                               : undefined
                         }
@@ -951,8 +955,12 @@ function CreateTaskModal({
 
               <ComboboxList>
                 {(option: string) => (
-                  <ComboboxItem key={`field_option_${option}`} value={option}>
-                    {option}
+                  <ComboboxItem
+                    className="min-w-0 max-w-full"
+                    key={`field_option_${option}`}
+                    value={option}
+                  >
+                    <span className="block max-w-38 truncate">{option}</span>
                   </ComboboxItem>
                 )}
               </ComboboxList>
@@ -975,9 +983,6 @@ function CreateTaskModal({
     }
   };
 
-  // Defense-in-depth: if the user lacks task-create permission, don't render
-  // the modal even if a stale trigger somehow opens it (e.g., keyboard
-  // shortcut after the capability has changed).
   if (!canCreateTaskCapability) return null;
 
   return (

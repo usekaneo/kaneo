@@ -18,7 +18,6 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Combobox,
-  ComboboxChip,
   ComboboxChips,
   ComboboxChipsInput,
   ComboboxEmpty,
@@ -309,7 +308,7 @@ export default function TaskDetailsContent({
                                 )}
                               />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="max-w-[25rem]">
                               {!field.required && (
                                 <SelectItem key="empty" value="">
                                   {t("tasks:detail.selectOption")}
@@ -318,7 +317,9 @@ export default function TaskDetailsContent({
                               {Array.from(new Set(field.options || [])).map(
                                 (opt) => (
                                   <SelectItem key={opt} value={opt}>
-                                    {opt}
+                                    <span className="block max-w-38 truncate">
+                                      {opt}
+                                    </span>
                                   </SelectItem>
                                 ),
                               )}
@@ -501,20 +502,26 @@ export default function TaskDetailsContent({
                                   return (
                                     <>
                                       {visibleChips.map((value) => (
-                                        <ComboboxChip
-                                          className="select-none cursor-default"
-                                          showRemove={false}
+                                        <div
                                           key={value}
+                                          className={cn(
+                                            "min-w-0 max-w-full flex-1 shrink basis-0",
+                                            "inline-flex items-center overflow-hidden",
+                                            "rounded-md bg-secondary px-1.5 py-0.5",
+                                            "select-none cursor-default",
+                                          )}
                                         >
-                                          {value}
-                                        </ComboboxChip>
+                                          <span className="block min-w-0 max-w-full truncate text-xs text-white">
+                                            {value}
+                                          </span>
+                                        </div>
                                       ))}
                                       {values.length > MAX_VISIBLE_CHIPS && (
                                         <HoverCard>
                                           <HoverCardTrigger asChild>
                                             <button
                                               type="button"
-                                              className="inline-flex items-center gap-1 text-xs font-medium cursor-pointer text-foreground/50"
+                                              className="shrink-0 inline-flex items-center gap-1 text-xs font-medium cursor-pointer text-foreground/50 pe-1"
                                               onClick={(e) => {
                                                 e.stopPropagation();
                                                 e.preventDefault();
@@ -546,17 +553,23 @@ export default function TaskDetailsContent({
                                                 )}
                                               </div>
 
-                                              <div className="flex max-h-48 flex-wrap gap-x-1.5 gap-y-3">
+                                              <div className="flex min-w-0 max-h-48 flex-wrap gap-x-1.5 gap-y-1.5 overflow-y-auto overflow-x-hidden">
                                                 {values
                                                   .slice(MAX_VISIBLE_CHIPS)
                                                   .map((value) => (
-                                                    <ComboboxChip
-                                                      className="h-6 -my-1 select-none cursor-default"
-                                                      showRemove={false}
+                                                    <div
                                                       key={value}
+                                                      className={cn(
+                                                        "min-w-0 max-w-full",
+                                                        "inline-flex items-center overflow-hidden",
+                                                        "rounded bg-secondary px-1.5 py-0.5",
+                                                        "select-none cursor-default",
+                                                      )}
                                                     >
-                                                      {value}
-                                                    </ComboboxChip>
+                                                      <span className="block min-w-0 max-w-[13rem] truncate text-xs">
+                                                        {value}
+                                                      </span>
+                                                    </div>
                                                   ))}
                                               </div>
                                             </div>
@@ -565,9 +578,17 @@ export default function TaskDetailsContent({
                                       )}
 
                                       <ComboboxChipsInput
-                                        className="pointer-events-none caret-transparent"
+                                        className={cn(
+                                          "min-w-0 flex-1 caret-transparent",
+                                          values.length > 0 && "hidden",
+                                          "pointer-events-none",
+                                          "placeholder:text-foreground/50",
+                                          "text-transparent",
+                                        )}
                                         placeholder={
-                                          (field.options || []).length === 0
+                                          Array.from(
+                                            new Set(field.options ?? []),
+                                          ).length === 0
                                             ? t(
                                                 "settings:customFields.noOptionsPlaceholder",
                                                 "No options",
@@ -597,10 +618,13 @@ export default function TaskDetailsContent({
                               <ComboboxList>
                                 {(option: string) => (
                                   <ComboboxItem
+                                    className="min-w-0 max-w-full"
                                     key={`field_option_${option}`}
                                     value={option}
                                   >
-                                    {option}
+                                    <span className="block max-w-38 truncate">
+                                      {option}
+                                    </span>
                                   </ComboboxItem>
                                 )}
                               </ComboboxList>

@@ -921,6 +921,8 @@
 			"noOptionsPlaceholder": "No options",
 			"defaultValuePlaceholder": "Default value",
 			"optionsPlaceholder": "Options separated by commas",
+			"selectPlaceholder": "Select option(s)",
+			"defaultValues": "{{count}} default(s)",
 			"required": "Required",
 			"addButton": "Add",
 			"creating": "Creating...",
@@ -936,7 +938,7 @@
 			"reorderError": "Failed to reorder fields",
 			"moreOptions": "+{{hiddenCount}} more",
 			"clearDefault": "Clear",
-			"options": "options",
+			"options": "{{count}} option(s)",
 			"availableOptions": "Available options",
 			"types": {
 				"text": "Text",
