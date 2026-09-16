@@ -7,6 +7,8 @@ import {
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import useBacklogBulkSelectionStore from "@/store/backlog-bulk-selection";
+import useProjectStore from "@/store/project";
+import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import BacklogTaskRow from "./backlog-task-row";
 
@@ -46,14 +48,8 @@ vi.mock(
     default: () => null,
   }),
 );
-vi.mock("@/store/project", () => {
-  const state = { project: { id: "project-1", slug: "IMP", columns: [] } };
-  return {
-    default: (selector = (value: typeof state) => value) => selector(state),
-  };
-});
 vi.mock("@/store/user-preferences", () => ({
-  useUserPreferencesStore: () => ({ showLabels: true }),
+  useUserPreferencesStore: () => ({ showLabels: true, showTaskNumbers: true }),
 }));
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -79,7 +75,21 @@ const task: Task = {
 };
 const otherTask = { ...task, id: "task-2", title: "Second task" };
 
+const project: ProjectWithTasks = {
+  id: "project-1",
+  workspaceId: "workspace-1",
+  name: "Imported project",
+  slug: "IMP",
+  icon: null,
+  description: null,
+  isPublic: false,
+  columns: [],
+  plannedTasks: [task, otherTask],
+  archivedTasks: [],
+};
+
 beforeEach(() => {
+  useProjectStore.setState({ project });
   useBacklogBulkSelectionStore.setState(
     useBacklogBulkSelectionStore.getInitialState(),
   );
@@ -97,13 +107,13 @@ describe("backlog row subscriptions", () => {
     );
     useSortable.mockClear();
 
-    fireEvent.click(screen.getByRole("button", { name: "First task" }), {
+    fireEvent.click(screen.getByRole("button", { name: /First task/ }), {
       ctrlKey: true,
     });
     expect(useSortable.mock.calls.map(([options]) => options.id)).toEqual([
       "task-1",
     ]);
-    expect(screen.getByRole("button", { name: "First task" })).toHaveClass(
+    expect(screen.getByRole("button", { name: /First task/ })).toHaveClass(
       "bg-accent/45",
     );
 
@@ -112,7 +122,7 @@ describe("backlog row subscriptions", () => {
     expect(useSortable.mock.calls.map(([options]) => options.id)).toEqual([
       "task-1",
     ]);
-    expect(screen.getByRole("button", { name: "First task" })).not.toHaveClass(
+    expect(screen.getByRole("button", { name: /First task/ })).not.toHaveClass(
       "bg-accent/45",
     );
   });
@@ -137,7 +147,7 @@ describe("backlog row subscriptions", () => {
       "task-1",
     ]);
     expect(
-      screen.getByRole("button", { name: "First task" }).closest(".ring-2"),
+      screen.getByRole("button", { name: /First task/ }).closest(".ring-2"),
     ).not.toBeNull();
 
     useSortable.mockClear();
@@ -146,11 +156,34 @@ describe("backlog row subscriptions", () => {
       useSortable.mock.calls.map(([options]) => options.id).sort(),
     ).toEqual(["task-1", "task-2"]);
     expect(
-      screen.getByRole("button", { name: "First task" }).closest(".ring-2"),
+      screen.getByRole("button", { name: /First task/ }).closest(".ring-2"),
     ).toBeNull();
     expect(
-      screen.getByRole("button", { name: "Second task" }).closest(".ring-2"),
+      screen.getByRole("button", { name: /Second task/ }).closest(".ring-2"),
     ).not.toBeNull();
+  });
+
+  it("ignores unrelated project updates but keeps task numbers in sync with the slug", () => {
+    render(
+      <>
+        <BacklogTaskRow task={task} />
+        <BacklogTaskRow task={otherTask} />
+      </>,
+    );
+    useSortable.mockClear();
+    act(() =>
+      useProjectStore
+        .getState()
+        .setProject({ ...project, description: "Updated description" }),
+    );
+    expect(useSortable).not.toHaveBeenCalled();
+    act(() =>
+      useProjectStore.getState().setProject({ ...project, slug: "NEW" }),
+    );
+    expect(
+      useSortable.mock.calls.map(([options]) => options.id).sort(),
+    ).toEqual(["task-1", "task-2"]);
+    expect(screen.getAllByText("NEW-1")).toHaveLength(2);
   });
 
   it("skips unchanged task props but renders refreshed task data", () => {

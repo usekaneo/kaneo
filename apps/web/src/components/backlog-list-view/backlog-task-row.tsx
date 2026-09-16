@@ -65,8 +65,10 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
     isDragging,
   } = useSortable({ id: task.id });
 
-  const project = useProjectStore((state) => state.project);
-  const taskIsCompleted = isTaskCompleted(task.status, project?.columns);
+  const projectId = useProjectStore((state) => state.project?.id);
+  const projectSlug = useProjectStore((state) => state.project?.slug);
+  const projectColumns = useProjectStore((state) => state.project?.columns);
+  const taskIsCompleted = isTaskCompleted(task.status, projectColumns);
   const { data: workspace } = useActiveWorkspace();
   const {
     showAssignees,
@@ -120,7 +122,7 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
   };
 
   const handleClick = (e: React.MouseEvent) => {
-    if (!project || !task) return;
+    if (!projectId || !task) return;
     if (e.defaultPrevented) return;
 
     if (e.metaKey || e.ctrlKey) {
@@ -194,7 +196,7 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
             )}
             {showTaskNumbers && (
               <div className="text-xs font-mono text-muted-foreground flex-shrink-0">
-                {project?.slug}-{task.number}
+                {projectSlug}-{task.number}
               </div>
             )}
 
@@ -301,11 +303,11 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
           </div>
         </ContextMenuTrigger>
 
-        {project && workspace && (
+        {projectId && workspace && (
           <TaskCardContextMenuContent
             task={task}
             taskCardContext={{
-              projectId: project.id,
+              projectId,
               worskpaceId: workspace.id,
             }}
             onDeleteClick={() => setIsDeleteTaskModalOpen(true)}
