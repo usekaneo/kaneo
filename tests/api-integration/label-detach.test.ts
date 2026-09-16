@@ -180,6 +180,110 @@ describe("API integration: label detach/attach", () => {
     expect(allLabels.filter((l) => l.taskId === task.id)).toHaveLength(1);
   });
 
+  it("attaching a task-level label to a second task keeps the first task assignment and adds one for the target", async () => {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+
+    const [taskA] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        userId: member.user.id,
+        title: "Task A",
+        status: "to-do",
+        columnId: columns.todo.id,
+        priority: "medium",
+        number: 1,
+        position: 1,
+      })
+      .returning();
+
+    const [taskB] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        userId: member.user.id,
+        title: "Task B",
+        status: "to-do",
+        columnId: columns.todo.id,
+        priority: "medium",
+        number: 2,
+        position: 2,
+      })
+      .returning();
+
+    const [label] = await db
+      .insert(schema.labelTable)
+      .values({
+        name: "Bug",
+        color: "#ef4444",
+        workspaceId: member.workspace.id,
+        taskId: taskA.id,
+      })
+      .returning();
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const attachResponse = await app.request(`/api/label/${label.id}/task`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ taskId: taskB.id }),
+    });
+    expect(attachResponse.status).toBe(200);
+
+    // Attaching never moves the label: Task A keeps its own assignment.
+    const taskALabelsResponse = await app.request(
+      `/api/label/task/${taskA.id}`,
+    );
+    expect(taskALabelsResponse.status).toBe(200);
+    const taskALabels = (await taskALabelsResponse.json()) as Array<{
+      id: string;
+      name: string;
+      taskId: string | null;
+    }>;
+    expect(taskALabels).toHaveLength(1);
+    expect(taskALabels[0].id).toBe(label.id);
+    expect(taskALabels[0].name).toBe("Bug");
+    expect(taskALabels[0].taskId).toBe(taskA.id);
+
+    // Task B gets its own row with the same name and color.
+    const taskBLabelsResponse = await app.request(
+      `/api/label/task/${taskB.id}`,
+    );
+    expect(taskBLabelsResponse.status).toBe(200);
+    const taskBLabels = (await taskBLabelsResponse.json()) as Array<{
+      id: string;
+      name: string;
+      color: string;
+      taskId: string | null;
+    }>;
+    expect(taskBLabels).toHaveLength(1);
+    expect(taskBLabels[0].id).not.toBe(label.id);
+    expect(taskBLabels[0].name).toBe("Bug");
+    expect(taskBLabels[0].color).toBe("#ef4444");
+    expect(taskBLabels[0].taskId).toBe(taskB.id);
+
+    const repeatResponse = await app.request(`/api/label/${label.id}/task`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ taskId: taskB.id }),
+    });
+    expect(repeatResponse.status).toBe(200);
+
+    const afterRepeatResponse = await app.request(
+      `/api/label/task/${taskB.id}`,
+    );
+    expect(afterRepeatResponse.status).toBe(200);
+    const afterRepeatLabels = (await afterRepeatResponse.json()) as Array<{
+      id: string;
+    }>;
+    expect(afterRepeatLabels).toHaveLength(1);
+    expect(afterRepeatLabels[0].id).toBe(taskBLabels[0].id);
+  });
+
   it("does not republish task.label_assigned when re-attaching the same workspace label", async () => {
     const member = await createWorkspaceMember();
     const { project } = await createProjectFixture({
