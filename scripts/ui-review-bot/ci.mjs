@@ -164,6 +164,13 @@ async function main() {
       path.join(second, "capture.json"),
       JSON.stringify({ results: run.results }),
     );
+    const incomplete = run.results.filter(
+      (item) => !item.after?.ok || !item.before?.ok,
+    );
+    if (incomplete.length)
+      throw new Error(
+        `Capture incomplete: ${incomplete.map((item) => `${item.name}: ${[...(item.after?.unhandled || []), ...(item.before?.unhandled || []), ...(item.after?.actions || []).filter((action) => !action.ok).map((action) => `missing control ${action.name}`)].join(", ") || "page failed to render"}`).join("; ")}`,
+      );
   } else if (stage === "review") {
     if (!process.env.OPENROUTER_API_KEY)
       throw new Error("Missing OpenRouter secret.");

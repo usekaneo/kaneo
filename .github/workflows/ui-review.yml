@@ -1,8 +1,8 @@
 name: Peekareq
 
 on:
-  issue_comment:
-    types: [created]
+  repository_dispatch:
+    types: [peekareq]
   workflow_dispatch:
     inputs:
       pr:
@@ -25,8 +25,7 @@ jobs:
       github.repository == 'usekaneo/kaneo' &&
       github.ref == format('refs/heads/{0}', github.event.repository.default_branch) &&
       (github.event_name == 'workflow_dispatch' ||
-      (github.event.issue.pull_request && github.event.comment.user.type == 'User' &&
-      contains(github.event.comment.body, '/peekareq')))
+      (github.event_name == 'repository_dispatch' && github.event.sender.login == 'peekareq[bot]'))
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     outputs:

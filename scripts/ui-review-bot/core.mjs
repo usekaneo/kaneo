@@ -8,7 +8,10 @@ export const ROOT = path.resolve(
   "../..",
 );
 export const DATA = path.join(ROOT, ".cache/ui-review-bot");
-export const REPO = "usekaneo/kaneo";
+export { prNumber, REPO } from "./identity.mjs";
+
+import { prNumber, REPO } from "./identity.mjs";
+
 const exec = promisify(execFile);
 
 export async function command(bin, args, options = {}) {
@@ -19,19 +22,6 @@ export async function command(bin, args, options = {}) {
     ...options,
   });
   return result.stdout.trim();
-}
-
-export function prNumber(value) {
-  const match = String(value)
-    .trim()
-    .match(
-      /^(?:https:\/\/github\.com\/usekaneo\/kaneo\/pull\/)?([1-9]\d{0,6})\/?$/,
-    );
-  if (!match)
-    throw new Error(
-      "Enter a Kaneo PR number or its github.com/usekaneo/kaneo/pull/… URL.",
-    );
-  return Number(match[1]);
 }
 
 export async function getPR(value) {

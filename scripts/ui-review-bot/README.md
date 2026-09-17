@@ -8,9 +8,10 @@ The comment contains no model details, costs, diagnostics, or review text. Re-ru
 
 ## GitHub setup
 
-- Install the GitHub App on `usekaneo/kaneo` with **Contents: Read and write** and **Pull requests: Read and write**. Webhooks may remain disabled; Actions handles the comment event.
+- Install the GitHub App on `usekaneo/kaneo` with **Contents: Read and write** and **Pull requests: Read and write**, and **Issues: Read-only**. The installation owner must approve permission updates.
 - Set Actions variable `APP_CLIENT_ID` and secrets `APP_PRIVATE_KEY` (the complete PEM file) and `OPENROUTER_API_KEY`.
 - Put this directory and both `ui-review.yml` and `ui-review-run.yml` workflows on the default branch.
+- Deploy `worker/` to Cloudflare (see below). Enable the App webhook at its `/webhook` URL, set the same signing secret, and subscribe only to **Issue comment**.
 
 Comment exactly `/peekareq` in a PR's conversation, or use **Actions → Peekareq → Run workflow**. Current write, maintain, or admin access is required. Bots, comment edits, quoted commands, arguments, ordinary issues, and closed PRs do not start a run. Failed permission checks stop the request before model calls. Only authorized requests can cancel an earlier run for the same PR.
 
@@ -43,10 +44,23 @@ Local reports, before/after PNGs, and pixel differences are saved in `.cache/ui-
 
 ## Coverage and isolation
 
-The current fixture adapter supports account settings with a synthetic credential account, workspace owner, and empty projects. The capture-only preset is specific to PR #1719. Other features may require fixtures; unknown API reads produce incomplete captures. Screenshots use a 1440×1000 desktop viewport, light theme, English, UTC, and disabled animations. This tests frontend appearance and interactions, not real backend behavior.
+The current fixture adapter supports account settings, a synthetic workspace/project/task, and stateful time-entry Start/Stop controls. Each scenario gets its own fixture state. The capture-only preset is specific to PR #1719. Other features may require fixtures; unknown API reads produce incomplete captures. Screenshots use a 1440×1000 desktop viewport, light theme, English, UTC, and disabled animations. This tests frontend appearance and interactions, not real backend behavior.
 
 Before images use the PR's merge base. Different routes or interaction states are labeled in the local report rather than treated as regression scores. Each revision uses its own frozen lockfile with install scripts disabled. Browser traffic is restricted to the local preview and synthetic API responses.
 
-Authorization, planning, capture, and review/posting use separate GitHub-hosted runners. Only capture executes PR code, without provider secrets or a write token. Trusted jobs check out the workflow revision. Review accepts bounded capture JSON and PNGs, preserves the trusted plan's PR identity, rejects malformed images, and recalculates differences. App credentials are provided only after review. The default Actions token is read-only.
+The Worker verifies GitHub signatures and current maintainer access before sending `repository_dispatch`. Ordinary comments never create Actions entries. Actions rechecks the original comment and author before planning. Authorization, planning, capture, and review/posting use separate GitHub-hosted runners. Only capture executes PR code, without provider secrets or a write token. Trusted jobs check out the workflow revision. Review accepts bounded capture JSON and PNGs, preserves the trusted plan's PR identity, rejects malformed images, and recalculates differences. App credentials are provided only after review. The default Actions token is read-only.
 
 Local capture executes PR code as your OS user; it is not an OS sandbox. Use GitHub-hosted capture for untrusted PRs. Credentials are not passed into preview environments or written to reports. Only PR screenshots and short captions are published; intermediate workflow artifacts expire after one day.
+
+## Cloudflare webhook
+
+The Worker is `peekareq-webhook`; endpoint: `https://peekareq-webhook.marmeladenjunge.workers.dev/webhook`. It uses the Workers Free-compatible request path and a small D1 table to deduplicate command comment IDs. No OpenRouter key or browser runs in the Worker. Its installation token is restricted to `kaneo` with Contents write and Pull requests read; repository dispatch uses the existing Contents permission.
+
+```sh
+npx wrangler@4.133.0 d1 execute peekareq-commands --remote --file scripts/ui-review-bot/worker/schema.sql --config scripts/ui-review-bot/worker/wrangler.jsonc
+npx wrangler@4.133.0 secret put APP_PRIVATE_KEY --config scripts/ui-review-bot/worker/wrangler.jsonc
+npx wrangler@4.133.0 secret put WEBHOOK_SECRET --config scripts/ui-review-bot/worker/wrangler.jsonc
+npx wrangler@4.133.0 deploy --config scripts/ui-review-bot/worker/wrangler.jsonc
+```
+
+Store the App key as PKCS#8 PEM (convert a downloaded PKCS#1 key with `openssl pkcs8 -topk8 -nocrypt`). Keep secrets out of source control. For a new account, create a D1 database and update its ID in `wrangler.jsonc`. The Worker checks the configured installation ID and repository before using App credentials. If dispatch times out after claiming a command, it deliberately does not replay it: check Actions first, then post a fresh command if needed.

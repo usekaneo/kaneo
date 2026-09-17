@@ -28,6 +28,113 @@ const member = {
   user,
 };
 
+const project = {
+  id: "ui-review-project",
+  workspaceId: organization.id,
+  name: "Website redesign",
+  slug: "WEB",
+  icon: "Globe",
+  description: "Synthetic project for UI previews.",
+  createdAt: date,
+  isPublic: false,
+  archivedAt: null,
+  position: 0,
+  lastTaskNumber: 1,
+  statistics: { completionPercentage: 0, totalTasks: 1, dueDate: null },
+  archivedTasks: [],
+  plannedTasks: [],
+  columns: [],
+};
+const task = {
+  id: "ui-review-task",
+  projectId: project.id,
+  title: "Polish the landing page",
+  number: 1,
+  description: "Review the layout, typography, and interaction details.",
+  status: "in-progress",
+  priority: "medium",
+  startDate: null,
+  dueDate: null,
+  position: 0,
+  createdAt: date,
+  userId: user.id,
+  assigneeId: user.id,
+  assigneeName: user.name,
+  assigneeImage: null,
+  labels: [],
+  externalLinks: [],
+  customFieldValues: [],
+};
+const columns = [
+  {
+    id: "ui-review-column",
+    projectId: project.id,
+    name: "In Progress",
+    slug: "in-progress",
+    position: 0,
+    icon: null,
+    color: null,
+    isFinal: false,
+    createdAt: date,
+    updatedAt: date,
+    tasks: [task],
+  },
+];
+
+export function createFixtureSession() {
+  const entries = [
+    {
+      id: "ui-review-time-entry",
+      taskId: task.id,
+      userId: user.id,
+      userName: user.name,
+      description: "Layout review",
+      startTime: date,
+      endTime: "2026-09-01T10:25:00.000Z",
+      duration: 1500,
+      createdAt: date,
+    },
+  ];
+  return (url, method, body = {}) => {
+    const p = new URL(url).pathname;
+    if (p === `/api/time-entry/task/${task.id}` && method === "GET")
+      return entries.map((entry) => ({ ...entry }));
+    if (
+      p === "/api/time-entry" &&
+      method === "POST" &&
+      body.taskId === task.id
+    ) {
+      const entry = {
+        id: `ui-review-time-${entries.length}`,
+        taskId: task.id,
+        userId: user.id,
+        userName: user.name,
+        description: body.description ?? null,
+        startTime: body.startTime,
+        endTime: null,
+        duration: null,
+        createdAt: body.startTime,
+      };
+      entries.push(entry);
+      return { ...entry };
+    }
+    if (p.startsWith("/api/time-entry/") && method === "PUT") {
+      const entry = entries.find((item) => p === `/api/time-entry/${item.id}`);
+      if (!entry) return undefined;
+      Object.assign(entry, body, {
+        duration: Math.max(
+          0,
+          Math.floor(
+            (Date.parse(body.endTime) - Date.parse(entry.startTime)) / 1000,
+          ),
+        ),
+      });
+      return { ...entry };
+    }
+    return fixture(url, method);
+  };
+}
+
 export function fixture(url, method) {
   const p = new URL(url).pathname;
   if (p.endsWith("/get-session"))
@@ -72,7 +179,32 @@ export function fixture(url, method) {
       auth: { emailAndPassword: true },
     };
   if (p.endsWith("/has-permission")) return { success: true, error: null };
-  if (/\/project\/?$/.test(p)) return [];
+  if (method === "GET") {
+    if (p === "/api/project") return [project];
+    if (p === `/api/project/${project.id}`) return project;
+    if (
+      [
+        `/api/github-integration/project/${project.id}`,
+        `/api/gitea-integration/project/${project.id}`,
+      ].includes(p)
+    )
+      return null;
+    if (p === `/api/task/${task.id}`) return task;
+    if (p === `/api/task/tasks/${project.id}`)
+      return { data: columns, total: 1, page: 1, limit: 50, totalPages: 1 };
+    if (p === `/api/column/${project.id}`) return columns;
+    if (
+      [
+        `/api/activity/${task.id}`,
+        `/api/task-relation/${task.id}`,
+        `/api/external-link/task/${task.id}`,
+        `/api/custom-field/project/${project.id}`,
+        `/api/custom-field/task/${task.id}`,
+        `/api/label/task/${task.id}`,
+      ].includes(p)
+    )
+      return [];
+  }
   if (/\/label\/workspace\//.test(p)) return [];
   if (/\/billing\/[^/]+$/.test(p))
     return {
@@ -88,6 +220,7 @@ export function fixture(url, method) {
 }
 
 export async function installFixtures(context, origin, diagnostics) {
+  const sessionFixture = createFixtureSession();
   await context.addInitScript(() => {
     localStorage.setItem("theme", "light");
     localStorage.setItem("vite-ui-theme", "light");
@@ -118,7 +251,11 @@ export async function installFixtures(context, origin, diagnostics) {
             "access-control-allow-headers": "*",
           },
         });
-      const data = fixture(request.url(), request.method());
+      const data = sessionFixture(
+        request.url(),
+        request.method(),
+        request.postDataJSON?.() ?? {},
+      );
       if (data === undefined)
         diagnostics.unhandled.push(`${request.method()} ${url.pathname}`);
       return route.fulfill({
@@ -129,7 +266,9 @@ export async function installFixtures(context, origin, diagnostics) {
           "access-control-allow-credentials": "true",
         },
         body: JSON.stringify(
-          data ?? { error: "No synthetic fixture for this endpoint" },
+          data === undefined
+            ? { error: "No synthetic fixture for this endpoint" }
+            : data,
         ),
       });
     }

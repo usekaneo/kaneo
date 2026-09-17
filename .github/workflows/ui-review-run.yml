@@ -82,6 +82,7 @@ jobs:
       - name: Capture base and PR screenshots
         run: node scripts/ui-review-bot/ci.mjs capture ui-review-plan ui-review-capture
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
         id: capture-artifact
         with:
           name: ui-review-capture-${{ github.run_attempt }}
