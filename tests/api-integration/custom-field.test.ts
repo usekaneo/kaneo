@@ -426,7 +426,7 @@ describe("custom fields API", () => {
     const invalidDefinitions = [
       {
         options: undefined,
-        expectedMessage: "at least one option",
+        expectedMessage: "at least 2 options",
       },
       {
         options: [],
@@ -824,6 +824,6 @@ describe("custom fields API", () => {
       `Expected 400, got ${invalidOptionResponse.status}: ${invalidOptionBody}`,
     ).toBe(400);
 
-    expect(invalidOptionBody).toContain("unknown");
+    expect(invalidOptionBody).toContain("invalid");
   });
 });
