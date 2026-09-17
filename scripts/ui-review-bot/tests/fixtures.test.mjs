@@ -35,3 +35,47 @@ test("timer start and stop persist within one browser scenario and never leak be
   });
   assert.equal(list(a).at(-1).duration, 120);
 });
+
+test("custom-field values persist, preserve the API shape, and reset for each scenario", () => {
+  const a = createFixtureSession({ customFields: true, multiselect: true });
+  const b = createFixtureSession({ customFields: true, multiselect: true });
+  const api = (session, route, method = "GET", body = {}) =>
+    session(`http://app/api/${route}`, method, body);
+  const [field] = api(a, "custom-field/project/ui-review-project");
+  assert.equal(field.type, "multiselect");
+  assert.deepEqual(field.options, ["Design", "Engineering", "Product"]);
+  const value = JSON.stringify(["Design", "Engineering"]);
+  api(a, "custom-field/value", "PUT", {
+    taskId: "ui-review-task",
+    fieldId: field.id,
+    value,
+  });
+  assert.equal(api(a, "custom-field/task/ui-review-task")[0].value, value);
+  assert.equal(
+    api(b, "custom-field/task/ui-review-task")[0].value,
+    '["Design"]',
+  );
+  assert.equal(
+    api(a, "custom-field/value", "PUT", {
+      taskId: "unknown",
+      fieldId: field.id,
+      value,
+    }),
+    undefined,
+  );
+  const base = createFixtureSession({ customFields: true });
+  assert.equal(
+    api(base, "custom-field/project/ui-review-project")[0].type,
+    "dropdown",
+  );
+  assert.equal(
+    api(base, "custom-field/task/ui-review-task")[0].value,
+    "Design",
+  );
+  const result = api(a, "custom-field/project/ui-review-project");
+  result[0].options.length = 0;
+  assert.equal(
+    api(a, "custom-field/project/ui-review-project")[0].options.length,
+    3,
+  );
+});

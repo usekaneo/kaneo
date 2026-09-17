@@ -26,6 +26,7 @@ import {
 import { installFixtures } from "./fixtures.mjs";
 import { readScreenshot } from "./images.mjs";
 import { ATTRIBUTION } from "./publish.mjs";
+import { checkSupportedSurface, customFieldPlan } from "./scenarios.mjs";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const exists = (p) =>
@@ -229,7 +230,15 @@ function locator(page, a) {
   return page.getByText(a.name, { exact: true }).first();
 }
 
-export async function capture(browser, origin, scenario, side, file, signal) {
+export async function capture(
+  browser,
+  origin,
+  scenario,
+  side,
+  file,
+  signal,
+  fixtures,
+) {
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
     deviceScaleFactor: 1,
@@ -249,7 +258,7 @@ export async function capture(browser, origin, scenario, side, file, signal) {
   const close = () => context.close().catch(() => {});
   signal.addEventListener("abort", close, { once: true });
   try {
-    await installFixtures(context, origin, diagnostics);
+    await installFixtures(context, origin, diagnostics, fixtures);
     const page = await context.newPage();
     page.on("pageerror", (e) =>
       diagnostics.errors.push(e.message.slice(0, 700)),
@@ -402,6 +411,7 @@ export async function planRun(run, token, signal, log) {
     throw new Error(
       "Capture-only preset is prepared for PR #1719. Use AI review for another UI PR.",
     );
+  checkSupportedSurface(run.pr.files);
   const revisions = await fetchRevisions(run.pr, log, signal);
   const snapshots = {
     before: { sha: revisions.before },
@@ -416,6 +426,25 @@ export async function planRun(run, token, signal, log) {
     "Each revision uses its locked dependencies with install scripts disabled.",
     "Coverage is limited to the selected scenarios at a 1440 × 1000 desktop viewport.",
   ];
+  const taskDetailsPath =
+    "apps/web/src/components/task/task-details-content.tsx";
+  if (
+    run.pr.files.some((file) =>
+      /custom-field|task-details-content/.test(file.path),
+    )
+  ) {
+    const source = await command(
+      "git",
+      ["show", `${revisions.after}:${taskDetailsPath}`],
+      { signal },
+    );
+    if (source.includes('field.type === "multiselect"')) {
+      run.fixtureProfile = "custom-fields";
+      run.plan = customFieldPlan(source.includes("<Accordion"));
+      log("plan", "Using fixture-backed custom-field interaction scenarios");
+      return;
+    }
+  }
   const context = await planningContext(run.pr, snapshots, signal);
   if (run.mode === "ai") {
     log(
@@ -477,6 +506,20 @@ export async function captureRun(run, signal, log, folder, update = () => {}) {
         diff: path.join(folder, `${i}-diff.png`),
       };
       for (const [j, side] of ["before", "after"].entries()) {
+        let fixtures;
+        if (run.fixtureProfile === "custom-fields") {
+          const source = await readFile(
+            path.join(
+              snapshots[side].dir,
+              "apps/web/src/components/task/task-details-content.tsx",
+            ),
+            "utf8",
+          );
+          fixtures = {
+            customFields: true,
+            multiselect: source.includes('field.type === "multiselect"'),
+          };
+        }
         log(
           "capture",
           `Capturing ${side === "before" ? "base" : "PR"}: ${scenario.name}`,
@@ -488,6 +531,7 @@ export async function captureRun(run, signal, log, folder, update = () => {}) {
           side,
           files[side],
           signal,
+          fixtures,
         );
         item[side].image = `${i}-${side}.png`;
       }
@@ -506,6 +550,10 @@ export async function captureRun(run, signal, log, folder, update = () => {}) {
 }
 
 export async function reviewRun(run, token, signal, log, folder) {
+  if (run.results.some((item) => item.status !== "captured"))
+    throw new Error(
+      "Capture incomplete; no model review or publishing will run.",
+    );
   if (run.mode !== "ai") return;
   for (const item of run.results) {
     log("review", `AI is reviewing before/after screenshots: ${item.name}`);
