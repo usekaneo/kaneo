@@ -134,9 +134,18 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
 
   const activeCustomFieldValues = useMemo(
     () =>
-      customFieldValues.filter(
-        (field) => field.value !== null && field.value !== "",
-      ),
+      customFieldValues.filter((field) => {
+        if (field.value === null || field.value === "") return false;
+        if (field.fieldType === "multiselect") {
+          try {
+            const parsed = JSON.parse(field.value);
+            return Array.isArray(parsed) && parsed.length > 0;
+          } catch {
+            return false;
+          }
+        }
+        return true;
+      }),
     [customFieldValues],
   );
 
@@ -322,13 +331,15 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                         if (!value) return null;
 
                         let displayValue: string = value;
-                        try {
-                          const parsed = JSON.parse(value);
-                          displayValue = Array.isArray(parsed)
-                            ? parsed.join(", ")
-                            : value;
-                        } catch {
-                          displayValue = value;
+                        if (field.fieldType === "multiselect") {
+                          try {
+                            const parsed = JSON.parse(value);
+                            if (Array.isArray(parsed)) {
+                              displayValue = parsed.join(", ");
+                            }
+                          } catch {
+                            displayValue = value;
+                          }
                         }
 
                         return (
