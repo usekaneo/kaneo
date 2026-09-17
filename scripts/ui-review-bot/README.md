@@ -44,7 +44,7 @@ Local reports, before/after PNGs, and pixel differences are saved in `.cache/ui-
 
 ## Coverage and isolation
 
-The current fixture adapter supports account settings, a synthetic workspace/project/task, and stateful time-entry Start/Stop controls. Each scenario gets its own fixture state. The capture-only preset is specific to PR #1719. Other features may require fixtures; unknown API reads produce incomplete captures. Screenshots use a 1440×1000 desktop viewport, light theme, English, UTC, and disabled animations. This tests frontend appearance and interactions, not real backend behavior.
+The current fixture adapter supports account settings, a synthetic workspace/project/task, stateful time-entry Start/Stop controls, and custom-field values. Multiselect changes use fixture-backed scenarios for the task overview, option picker, and multiple selected values instead of asking the model to invent controls. Marketing-site and docs-only changes stop during planning because the preview currently runs `apps/web` only. Each scenario gets its own fixture state. The capture-only preset is specific to PR #1719. Other features may require fixtures; unknown API reads produce incomplete captures. Screenshots use a 1440×1000 desktop viewport, light theme, English, UTC, and disabled animations. This tests frontend appearance and interactions, not real backend behavior.
 
 Before images use the PR's merge base. Different routes or interaction states are labeled in the local report rather than treated as regression scores. Each revision uses its own frozen lockfile with install scripts disabled. Browser traffic is restricted to the local preview and synthetic API responses.
 

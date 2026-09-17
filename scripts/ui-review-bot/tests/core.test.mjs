@@ -208,3 +208,47 @@ test("CLI requires an explicit PR and rejects misspelled flags before spending o
   assert.equal(options.post, false);
   assert.equal(options.mode, "capture");
 });
+
+test("temporary provider throttling retries within the five-request budget", async () => {
+  const original = globalThis.fetch;
+  const run = {
+    calls: 0,
+    usage: { input: 0, output: 0, cost: 0, costKnown: true },
+  };
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls++;
+    return calls === 1
+      ? new Response('{"error":{"code":429}}', {
+          status: 429,
+          headers: { "retry-after": "0" },
+        })
+      : Response.json({
+          choices: [{ message: { content: '{"caption":"Captured"}' } }],
+          usage: { cost: 0 },
+        });
+  };
+  try {
+    const args = {
+      token: "test",
+      model: "test",
+      messages: [],
+      run,
+      signal: new AbortController().signal,
+    };
+    assert.deepEqual(await completion(args), { caption: "Captured" });
+    assert.equal(run.calls, 2);
+    globalThis.fetch = async () =>
+      new Response('{"error":{"code":429}}', {
+        status: 429,
+        headers: { "retry-after": "0" },
+      });
+    run.calls = 4;
+    await assert.rejects(completion(args), /429/);
+    assert.equal(run.calls, 5);
+    await assert.rejects(completion(args), /five-call limit/);
+    assert.equal(run.calls, 5);
+  } finally {
+    globalThis.fetch = original;
+  }
+});
