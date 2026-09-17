@@ -79,7 +79,7 @@ async function github(endpoint, token, signal, body) {
   const result = await fetch(`https://api.github.com/${endpoint}`, {
     method: body ? "POST" : "GET",
     signal,
-    redirect: "error",
+    redirect: "manual",
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: "application/vnd.github+json",
@@ -139,6 +139,7 @@ export async function handleWebhook(request, env, dependencies = {}) {
     return response(403, "wrong_installation");
   const signal = AbortSignal.timeout(8_000);
   let claimed = false;
+  let stage = "token";
   try {
     const token = await (
       dependencies.token ||
@@ -158,8 +159,10 @@ export async function handleWebhook(request, env, dependencies = {}) {
     const api =
       dependencies.api ||
       ((endpoint, body) => github(endpoint, token, signal, body));
+    stage = "authorize";
     const decision = await authorizeRequest(eventName, event, api);
     if (!decision.allowed) return response(200, "ignored");
+    stage = "claim";
     const claim = await env.DB.prepare(
       "INSERT OR IGNORE INTO commands (comment_id, created_at) VALUES (?, ?)",
     )
@@ -167,6 +170,7 @@ export async function handleWebhook(request, env, dependencies = {}) {
       .run();
     if (!claim.meta.changes) return response(200, "duplicate");
     claimed = true;
+    stage = "dispatch";
     await api(`repos/${REPO}/dispatches`, {
       event_type: "peekareq",
       client_payload: { pr: decision.pr, comment_id: event.comment.id },
@@ -177,6 +181,8 @@ export async function handleWebhook(request, env, dependencies = {}) {
     console.error(
       JSON.stringify({
         event: "webhook_failed",
+        stage,
+        error_type: error.name,
         comment_id: event.comment.id,
         claimed,
         code: /^github_\d+$/.test(error.message)
@@ -188,4 +194,4 @@ export async function handleWebhook(request, env, dependencies = {}) {
   }
 }
 
-export default { fetch: handleWebhook };
+export default { fetch: (request, env) => handleWebhook(request, env) };

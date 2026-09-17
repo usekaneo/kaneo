@@ -174,3 +174,50 @@ test("Actions rechecks dispatched comment authors and rejects spoofed dispatcher
     false,
   );
 });
+
+test("default Worker path signs an App JWT and uses an edge-compatible redirect policy", async (t) => {
+  const s = setup();
+  const keys = await crypto.subtle.generateKey(
+    {
+      name: "RSASSA-PKCS1-v1_5",
+      modulusLength: 2048,
+      publicExponent: new Uint8Array([1, 0, 1]),
+      hash: "SHA-256",
+    },
+    true,
+    ["sign", "verify"],
+  );
+  const der = await crypto.subtle.exportKey("pkcs8", keys.privateKey);
+  s.env.APP_PRIVATE_KEY = `-----BEGIN PRIVATE KEY-----\n${Buffer.from(der).toString("base64")}\n-----END PRIVATE KEY-----`;
+  s.env.APP_CLIENT_ID = "test-app";
+  t.mock.method(globalThis, "fetch", async (url, options) => {
+    assert.equal(options.redirect, "manual");
+    const endpoint = String(url).replace("https://api.github.com/", "");
+    if (endpoint.endsWith("/access_tokens")) {
+      const jwt = options.headers.Authorization.slice(7).split(".");
+      assert.equal(
+        await crypto.subtle.verify(
+          "RSASSA-PKCS1-v1_5",
+          keys.publicKey,
+          Buffer.from(jwt[2], "base64url"),
+          Buffer.from(jwt.slice(0, 2).join(".")),
+        ),
+        true,
+      );
+      return Response.json({ token: "test-installation-token" });
+    }
+    assert.equal(
+      options.headers.Authorization,
+      "Bearer test-installation-token",
+    );
+    const result = await s.dependencies.api(
+      endpoint,
+      options.body ? JSON.parse(options.body) : undefined,
+    );
+    return result === null
+      ? new Response(null, { status: 204 })
+      : Response.json(result);
+  });
+  assert.equal((await handleWebhook(request(), s.env)).status, 200);
+  assert.equal(s.writes.length, 1);
+});
