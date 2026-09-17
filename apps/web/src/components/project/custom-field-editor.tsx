@@ -908,10 +908,12 @@ export default function CustomFieldEditor({
           disabled={
             !name.trim() ||
             savingField ||
-            (required && !defaultValue) ||
+            (required &&
+              (Array.isArray(defaultValue)
+                ? defaultValue.length === 0
+                : !defaultValue)) ||
             (type === "dropdown" &&
-              !optionsText.trim() &&
-              dropdownOptions.length === 0)
+              dropdownOptions.length < (isMultiple ? 2 : 1))
           }
           className="h-8 gap-1 shrink-0"
         >
