@@ -31,29 +31,40 @@ export function customFieldPlan(collapsible) {
     ...(collapsible ? [click("Custom Fields")] : []),
     click("Design"),
   ];
+  const focus = { by: "text", name: "Custom Fields" };
+  const audience = { by: "text", name: "Audience" };
   return validatePlan({
     summary:
-      "Synthetic Audience field: task overview, available options, and multiple selected values. Base uses a dropdown when multiselect is unavailable.",
+      "Synthetic Audience field: project configuration, available options, and multiple selected values. Base uses a dropdown when multiselect is unavailable.",
     scenarios: [
       {
-        name: "Task overview",
-        reason: "Initial task layout with the custom-field section.",
-        beforePath: route,
-        afterPath: route,
+        name: "Multiselect field configuration",
+        reason: "Project settings show the field type and available options.",
+        beforePath: "/dashboard/settings/projects/ui-review-project/workflow",
+        afterPath: "/dashboard/settings/projects/ui-review-project/workflow",
         actions: [],
+        focus: { by: "role", role: "heading", name: "Custom Fields" },
+        visible: [audience],
       },
       {
-        name: "Custom-field options",
+        name: "Choose from multiple options",
         reason: "Expanded Audience multiselect with synthetic options.",
         beforePath: route,
         afterPath: route,
         actions: open,
+        focus,
+        visible: [
+          audience,
+          { by: "role", role: "option", name: "Engineering" },
+        ],
       },
       {
-        name: "Multiple selected values",
+        name: "Design and Engineering selected",
         reason: "Audience with Design and Engineering selected.",
         beforePath: route,
         afterPath: route,
+        focus,
+        visible: [audience, { by: "text", name: "Engineering" }],
         actions: [
           ...open,
           click("Engineering", "role", "option"),
@@ -65,8 +76,51 @@ export function customFieldPlan(collapsible) {
             value: "Escape",
             only: "after",
           },
+          click("Audience"),
         ],
       },
     ],
+  });
+}
+
+export function timeTrackingPlan() {
+  const route =
+    "/dashboard/workspace/ui-review-workspace/project/ui-review-project/task/ui-review-task";
+  const click = (name) => ({
+    type: "click",
+    by: "role",
+    role: "button",
+    name,
+    only: "after",
+  });
+  const target = (name) => ({ by: "role", role: "button", name });
+  const open = click("Time tracking");
+  const start = click("Start timer");
+  return validatePlan({
+    summary:
+      "Synthetic time entries: expanded history, a running timer, and the saved entry after stopping.",
+    scenarios: [
+      {
+        name: "Logged time entries",
+        actions: [open],
+        visible: [target("Start timer")],
+      },
+      {
+        name: "Timer running",
+        actions: [open, start],
+        visible: [target("Stop timer")],
+      },
+      {
+        name: "Timer stopped and entry saved",
+        actions: [open, start, click("Stop timer")],
+        visible: [target("Start timer")],
+      },
+    ].map((scenario) => ({
+      ...scenario,
+      beforePath: route,
+      afterPath: route,
+      focus: target("Time tracking"),
+      visible: [...scenario.visible, { by: "text", name: "Layout review" }],
+    })),
   });
 }

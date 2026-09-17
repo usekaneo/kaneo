@@ -4,13 +4,21 @@ import { PNG } from "pngjs";
 
 export const MAX_IMAGE_BYTES = 6_000_000;
 
-export function decodeScreenshot(bytes) {
+export function decodeScreenshot(bytes, { preview = false } = {}) {
   const invalid = () =>
-    new Error("Invalid screenshot: expected a bounded 1440 × 1000 PNG.");
+    new Error("Invalid screenshot: expected a bounded PNG within 1440 × 1000.");
   if (
     bytes.length < 45 ||
     bytes.length > MAX_IMAGE_BYTES ||
     bytes.subarray(0, 8).toString("hex") !== "89504e470d0a1a0a"
+  )
+    throw invalid();
+  const width = bytes.readUInt32BE(16);
+  const height = bytes.readUInt32BE(20);
+  if (
+    preview
+      ? width < 320 || height < 160 || width > 1440 || height > 1000
+      : width !== 1440 || height !== 1000
   )
     throw invalid();
   const chunks = [bytes.subarray(0, 8)];
@@ -29,8 +37,6 @@ export function decodeScreenshot(bytes) {
       if (
         offset !== 8 ||
         length !== 13 ||
-        bytes.readUInt32BE(16) !== 1440 ||
-        bytes.readUInt32BE(20) !== 1000 ||
         bytes[24] !== 8 ||
         ![2, 6].includes(bytes[25]) ||
         bytes[26] !== 0 ||
@@ -53,7 +59,7 @@ export function decodeScreenshot(bytes) {
   }
   if (!ended) throw invalid();
   // Reject duplicate headers and expansion bombs before pngjs parses untrusted bytes.
-  const expected = (1440 * channels + 1) * 1000;
+  const expected = (width * channels + 1) * height;
   try {
     if (
       inflateSync(Buffer.concat(compressed), { maxOutputLength: expected })
@@ -66,9 +72,9 @@ export function decodeScreenshot(bytes) {
   }
 }
 
-export async function readScreenshot(file) {
+export async function readScreenshot(file, options) {
   const stat = await lstat(file);
   if (!stat.isFile() || stat.isSymbolicLink() || stat.size > MAX_IMAGE_BYTES)
     throw new Error("Invalid screenshot file.");
-  return decodeScreenshot(await readFile(file));
+  return decodeScreenshot(await readFile(file), options);
 }

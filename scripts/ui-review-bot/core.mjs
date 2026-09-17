@@ -61,6 +61,22 @@ export function parseJSON(content) {
   );
 }
 
+export function validateTarget(target) {
+  if (
+    !target ||
+    !["role", "label", "placeholder", "text"].includes(target.by) ||
+    typeof target.name !== "string" ||
+    !target.name.trim() ||
+    target.name.length > 200
+  )
+    throw new Error("Invalid screenshot target.");
+  return {
+    by: target.by,
+    name: target.name,
+    role: String(target.role || "button").slice(0, 30),
+  };
+}
+
 export function validatePlan(plan) {
   if (!Array.isArray(plan.scenarios) || !plan.scenarios.length)
     throw new Error("The model did not return any scenarios.");
@@ -71,6 +87,10 @@ export function validatePlan(plan) {
       reason: String(s.reason || "").slice(0, 1500),
       beforePath: localPath(s.beforePath),
       afterPath: localPath(s.afterPath),
+      ...(s.focus ? { focus: validateTarget(s.focus) } : {}),
+      visible: (Array.isArray(s.visible) ? s.visible : [])
+        .slice(0, 6)
+        .map(validateTarget),
       actions: (Array.isArray(s.actions) ? s.actions : [])
         .slice(0, 6)
         .map((a) => {
@@ -253,7 +273,12 @@ export async function completion({
     );
   }
   if (requestModel === fallback) run.providerFallback = true;
-  run.modelsUsed = [...new Set([...(run.modelsUsed || []), requestModel])];
+  const servedModel =
+    typeof data.model === "string" &&
+    /^[a-zA-Z0-9][a-zA-Z0-9/_.:@~-]{0,119}$/.test(data.model)
+      ? data.model
+      : requestModel;
+  run.modelsUsed = [...new Set([...(run.modelsUsed || []), servedModel])];
   run.usage.input += data.usage?.prompt_tokens || 0;
   run.usage.output += data.usage?.completion_tokens || 0;
   if (Number.isFinite(data.usage?.cost)) run.usage.cost += data.usage.cost;

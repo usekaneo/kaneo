@@ -33,3 +33,22 @@ test("compressed pixels cannot expand beyond the declared screenshot size", () =
   const bomb = Buffer.concat([valid.subarray(0, 33), bigger.subarray(33)]);
   assert.throws(() => decodeScreenshot(bomb), /Invalid screenshot/);
 });
+
+test("focused previews accept bounded dimensions while full captures keep their exact size", () => {
+  const preview = PNG.sync.write(new PNG({ width: 784, height: 298 }));
+  assert.throws(() => decodeScreenshot(preview), /Invalid screenshot/);
+  assert.equal(decodeScreenshot(preview, { preview: true }).height, 298);
+  for (const [width, height] of [
+    [319, 200],
+    [640, 159],
+    [1441, 200],
+    [640, 1001],
+  ])
+    assert.throws(
+      () =>
+        decodeScreenshot(PNG.sync.write(new PNG({ width, height })), {
+          preview: true,
+        }),
+      /Invalid screenshot/,
+    );
+});

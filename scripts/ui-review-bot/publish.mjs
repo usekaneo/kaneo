@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { command, prNumber, REPO } from "./core.mjs";
+import { findingDetails, runDetails } from "./findings.mjs";
 import { uploadScreenshots } from "./upload.mjs";
 
 export const ATTRIBUTION =
@@ -58,7 +59,14 @@ export function commentBody(run, { images } = {}) {
       throw new Error("Use uploaded GitHub screenshot URLs.");
     lines.push(`| ${plain(image.description, 140)} | ![Screenshot](${url}) |`);
   }
-  lines.push("", MARKER);
+  lines.push(
+    "",
+    ...findingDetails(run, plain),
+    "",
+    ...runDetails(run, plain),
+    "",
+    MARKER,
+  );
   return lines.join("\n");
 }
 
