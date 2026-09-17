@@ -169,6 +169,30 @@ describe("CommentEditor image upload insertion", () => {
     );
   });
 
+  it("does not insert into a replacement editor for another task", async () => {
+    const resolveUpload = deferredUpload();
+    const props = {
+      value: "",
+      onChange: () => {},
+      taskId: "task-1",
+      placeholder: "first",
+    };
+    const { rerender } = render(<CommentEditor {...props} />);
+    await waitFor(() => expect(latestEditor()).toBeDefined());
+
+    const firstEditor = latestEditor();
+    pasteFile(firstEditor);
+    await act(async () => {});
+
+    rerender(<CommentEditor {...props} taskId="task-2" placeholder="second" />);
+    const currentEditor = latestEditor();
+    expect(currentEditor).not.toBe(firstEditor);
+
+    await act(async () => resolveUpload());
+
+    expect(currentEditor.getHTML()).not.toContain("/api/asset/asset-9");
+  });
+
   it("reports an error when the insert command does not execute", async () => {
     const resolveUpload = deferredUpload();
     render(<CommentEditor value="" onChange={() => {}} taskId="task-1" />);

@@ -343,8 +343,9 @@ export default function CommentEditor({
   const handleAssetFileUpload = useCallback(
     async (file: File, targetEditor?: Editor | null, range?: SlashRange) => {
       const activeEditor = targetEditor || lastEditorRef.current;
+      const initialTaskId = taskIdRef.current;
       const resolvedTaskId =
-        taskIdRef.current ?? (await ensureTaskIdRef.current?.());
+        initialTaskId ?? (await ensureTaskIdRef.current?.());
 
       if (!activeEditor || !resolvedTaskId) {
         toast.error(t("activity:comment.editor.uploadsOnlyOnSavedTasks"));
@@ -362,12 +363,17 @@ export default function CommentEditor({
           file,
         });
 
-        // The captured editor can be destroyed and replaced while the upload
-        // is in flight; fall back to the current instance.
+        // Reuse a replacement editor only while it still belongs to the task
+        // that owns the uploaded asset.
         const currentEditor = !activeEditor.isDestroyed
           ? activeEditor
           : lastEditorRef.current;
-        if (!currentEditor || currentEditor.isDestroyed) {
+        if (
+          (initialTaskId !== undefined &&
+            taskIdRef.current !== initialTaskId) ||
+          !currentEditor ||
+          currentEditor.isDestroyed
+        ) {
           toast.dismiss(loadingToast);
           return;
         }
