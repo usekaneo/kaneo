@@ -739,7 +739,7 @@ export default function CustomFieldEditor({
                                   "select-none cursor-default",
                                 )}
                               >
-                                <span className="block min-w-0 max-w-full truncate text-xs">
+                                <span className="block min-w-0 max-w-full truncate text-xs text-secondary-foreground">
                                   {value}
                                 </span>
                               </div>

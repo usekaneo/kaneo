@@ -508,7 +508,7 @@ export default function TaskDetailsContent({
                                             "select-none cursor-default",
                                           )}
                                         >
-                                          <span className="block min-w-0 max-w-full truncate text-xs text-white">
+                                          <span className="block min-w-0 max-w-full truncate text-xs text-secondary-foreground">
                                             {value}
                                           </span>
                                         </div>
