@@ -111,7 +111,7 @@ test("manual publishing ignores other authors' markers and preserves exact attri
   const { api, writes } = mock([
     { id: 9, user: { login: "other" }, body: MARKER },
   ]);
-  await publishReport(run, { images }, api);
+  await publishReport(run, { actor: "tinsever", images }, api);
   assert.equal(writes.length, 1);
   assert.equal(writes[0].method, "POST");
   assert.equal(writes[0].body.body.split("\n")[0], ATTRIBUTION);
@@ -125,7 +125,7 @@ test("reruns update the existing author's old or new comment format", async () =
     const { api, writes } = mock([
       { id: 42, user: { login: "tinsever" }, body },
     ]);
-    await publishReport(run, { images }, api);
+    await publishReport(run, { actor: "tinsever", images }, api);
     assert.equal(writes[0].method, "PATCH");
     assert.match(writes[0].endpoint, /comments\/42$/);
   }
@@ -133,9 +133,16 @@ test("reruns update the existing author's old or new comment format", async () =
 
 test("stale or failed reports cannot post", async () => {
   const { api, writes } = mock([], { head: "b".repeat(40) });
-  await assert.rejects(publishReport(run, { images }, api), /PR changed/);
   await assert.rejects(
-    publishReport({ ...run, status: "failed" }, { images }, api),
+    publishReport(run, { actor: "tinsever", images }, api),
+    /PR changed/,
+  );
+  await assert.rejects(
+    publishReport(
+      { ...run, status: "failed" },
+      { actor: "tinsever", images },
+      api,
+    ),
     /Only completed/,
   );
   assert.equal(writes.length, 0);
@@ -178,7 +185,7 @@ test("bot authors update their own comments", async () => {
 test("publishing automatically uploads only the three PR PNGs before posting their image URLs", async (t) => {
   const folder = await screenshots(t);
   const { api, writes } = mock();
-  await publishReport(run, { folder }, api);
+  await publishReport(run, { actor: "tinsever", folder }, api);
   const blobs = writes.filter((w) => w.endpoint.endsWith("/blobs"));
   assert.equal(blobs.length, 3);
   for (const blob of blobs) {
@@ -201,7 +208,7 @@ test("publishing automatically uploads only the three PR PNGs before posting the
 test("existing screenshot branch keeps previous images and never force pushes", async (t) => {
   const folder = await screenshots(t);
   const { api, writes } = mock([], { existingBranch: true });
-  await publishReport(run, { folder }, api);
+  await publishReport(run, { actor: "tinsever", folder }, api);
   assert.equal(
     writes.find((w) => w.endpoint.endsWith("/trees")).body.base_tree,
     "e".repeat(40),
@@ -221,7 +228,7 @@ test("upload failure or a new PR commit during upload prevents commenting", asyn
   for (const options of [{ failUpload: true }, { changedDuringUpload: true }]) {
     const { api, writes } = mock([], options);
     await assert.rejects(
-      publishReport(run, { folder }, api),
+      publishReport(run, { actor: "tinsever", folder }, api),
       /Upload denied|PR changed/,
     );
     assert.equal(
@@ -236,7 +243,7 @@ test("invalid screenshots fail before any upload or comment", async (t) => {
   await writeFile(path.join(folder, "2-after.png"), "not an image");
   const { api, writes } = mock();
   await assert.rejects(
-    publishReport(run, { folder }, api),
+    publishReport(run, { actor: "tinsever", folder }, api),
     /Invalid screenshot/,
   );
   assert.equal(writes.length, 0);
@@ -297,7 +304,7 @@ test("uploads retry a branch conflict against the new tip without overwriting an
     }
     return api(endpoint, options);
   };
-  await publishReport(run, { folder }, concurrentAPI);
+  await publishReport(run, { actor: "tinsever", folder }, concurrentAPI);
   const commits = writes.filter((w) => w.endpoint.endsWith("/commits"));
   assert.equal(commits.length, 2);
   assert.deepEqual(commits[1].body.parents, ["f".repeat(40)]);
@@ -307,11 +314,15 @@ test("uploads retry a branch conflict against the new tip without overwriting an
 test("closed PRs cannot receive an outdated screenshot comment", async () => {
   const { api, writes } = mock();
   await assert.rejects(
-    publishReport(run, { images }, async (endpoint, options) => {
-      if (endpoint.endsWith("/pulls/1719"))
-        return { state: "closed", head: { sha: run.revisions.after } };
-      return api(endpoint, options);
-    }),
+    publishReport(
+      run,
+      { actor: "tinsever", images },
+      async (endpoint, options) => {
+        if (endpoint.endsWith("/pulls/1719"))
+          return { state: "closed", head: { sha: run.revisions.after } };
+        return api(endpoint, options);
+      },
+    ),
     /closed/,
   );
   assert.equal(writes.length, 0);
