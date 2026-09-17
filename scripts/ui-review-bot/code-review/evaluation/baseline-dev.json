@@ -1,0 +1,534 @@
+[
+	{
+		"id": "01-control",
+		"split": "dev",
+		"kind": "control",
+		"base": "9dc704404d61887531dc58e79acd0ad16a231968",
+		"head": "d8cd08c533f62c55ac3d0faac0a0399cbfb70c2f",
+		"path": "apps/api/src/scheduler/due-date-reminders.ts",
+		"expected": "Fix direction: inspect unexpected findings individually; not assumed universally bug-free.",
+		"provenance": "https://github.com/usekaneo/kaneo/commit/d8cd08c533f62c55ac3d0faac0a0399cbfb70c2f",
+		"synthetic": true,
+		"status": "reviewed",
+		"findings": [],
+		"rejected": [],
+		"cost": 0.00048095754,
+		"adjudication": null,
+		"note": "Match root cause manually; a matching file alone is not a true positive."
+	},
+	{
+		"id": "01-regression",
+		"split": "dev",
+		"kind": "regression",
+		"base": "d8cd08c533f62c55ac3d0faac0a0399cbfb70c2f",
+		"head": "9dc704404d61887531dc58e79acd0ad16a231968",
+		"path": "apps/api/src/scheduler/due-date-reminders.ts",
+		"expected": "Archived tasks receive due-date reminders",
+		"provenance": "https://github.com/usekaneo/kaneo/commit/d8cd08c533f62c55ac3d0faac0a0399cbfb70c2f",
+		"synthetic": true,
+		"status": "reviewed",
+		"findings": [
+			{
+				"id": "1",
+				"title": "Due date reminders sent for archived tasks after removing status filter",
+				"severity": "high",
+				"category": "behavior",
+				"path": "apps/api/src/scheduler/due-date-reminders.ts",
+				"line": 77,
+				"trigger": "Removal of the `ne(taskTable.status, \"archived\")` condition from the WHERE clause allows archived tasks to be selected for reminders.",
+				"expected": "Archived tasks should not trigger due date reminders (test asserts zero notifications).",
+				"actual": "Archived tasks are now included in the query results and may receive notifications.",
+				"introducedBy": "9dc704404d61887531dc58e79acd0ad16a231968",
+				"evidence": [
+					{
+						"path": "apps/api/src/scheduler/due-date-reminders.ts",
+						"line": 78,
+						"quote": "        ne(taskTable.status, \"archived\"),",
+						"revision": "base"
+					},
+					{
+						"path": "apps/api/src/scheduler/due-date-reminders.ts",
+						"line": 76,
+						"quote": "        or(isNull(columnTable.isFinal), eq(columnTable.isFinal, false)),",
+						"revision": "head"
+					}
+				],
+				"contract": {
+					"path": "tests/api-integration/due-date-reminders.test.ts",
+					"line": 133,
+					"quote": "    expect(await notificationsFor(task.id)).toHaveLength(0);",
+					"revision": "head"
+				},
+				"evidenceLevel": "single-pass"
+			}
+		],
+		"rejected": [],
+		"cost": 0.00059571162,
+		"adjudication": null,
+		"note": "Match root cause manually; a matching file alone is not a true positive."
+	},
+	{
+		"id": "02-regression",
+		"split": "dev",
+		"kind": "regression",
+		"base": "ab6d2b519762cb38f44e99bd1968acbafa4d4dec",
+		"head": "5cad85e1a1e6c208a9452dc7042561668ed0fd43",
+		"path": "apps/web/src/lib/get-task-item-stats.ts",
+		"expected": "Invalid closing fence exposes code-block checkboxes",
+		"provenance": "https://github.com/usekaneo/kaneo/commit/ab6d2b519762cb38f44e99bd1968acbafa4d4dec",
+		"synthetic": true,
+		"status": "reviewed",
+		"findings": [],
+		"rejected": [
+			{
+				"id": "FENCE_TRAILING_CONTENT_REMOVED",
+				"reason": "Malformed finding or source citation could not be validated."
+			}
+		],
+		"cost": 0.00034606152,
+		"adjudication": null,
+		"note": "Match root cause manually; a matching file alone is not a true positive."
+	},
+	{
+		"id": "03-regression",
+		"split": "dev",
+		"kind": "regression",
+		"base": "442a38230291edb7784343dc8cf576705a32c737",
+		"head": "902ebba84e1465eca17248959c9507458c9c163c",
+		"path": "apps/api/src/label/controllers/get-label.ts",
+		"expected": "Missing label query is not awaited; 404 branch cannot execute",
+		"provenance": "https://github.com/usekaneo/kaneo/commit/442a38230291edb7784343dc8cf576705a32c737",
+		"synthetic": true,
+		"status": "reviewed",
+		"findings": [],
+		"rejected": [
+			{
+				"id": "1",
+				"reason": "Malformed finding or source citation could not be validated."
+			}
+		],
+		"cost": 0.0002079168,
+		"adjudication": null,
+		"note": "Match root cause manually; a matching file alone is not a true positive."
+	},
+	{
+		"id": "02-control",
+		"split": "dev",
+		"kind": "control",
+		"base": "5cad85e1a1e6c208a9452dc7042561668ed0fd43",
+		"head": "ab6d2b519762cb38f44e99bd1968acbafa4d4dec",
+		"path": "apps/web/src/lib/get-task-item-stats.ts",
+		"expected": "Fix direction: inspect unexpected findings individually; not assumed universally bug-free.",
+		"provenance": "https://github.com/usekaneo/kaneo/commit/ab6d2b519762cb38f44e99bd1968acbafa4d4dec",
+		"synthetic": true,
+		"status": "reviewed",
+		"findings": [],
+		"rejected": [],
+		"cost": 0.000342422976,
+		"adjudication": null,
+		"note": "Match root cause manually; a matching file alone is not a true positive."
+	},
+	{
+		"id": "03-control",
+		"split": "dev",
+		"kind": "control",
+		"base": "902ebba84e1465eca17248959c9507458c9c163c",
+		"head": "442a38230291edb7784343dc8cf576705a32c737",
+		"path": "apps/api/src/label/controllers/get-label.ts",
+		"expected": "Fix direction: inspect unexpected findings individually; not assumed universally bug-free.",
+		"provenance": "https://github.com/usekaneo/kaneo/commit/442a38230291edb7784343dc8cf576705a32c737",
+		"synthetic": true,
+		"status": "reviewed",
+		"findings": [],
+		"rejected": [],
+		"cost": 0.00022885842,
+		"adjudication": null,
+		"note": "Match root cause manually; a matching file alone is not a true positive."
+	},
+	{
+		"id": "04-regression",
+		"split": "dev",
+		"kind": "regression",
+		"base": "a581bdd2a2cad087a88739732ea380b836d29bd6",
+		"head": "64af699064987117b0fcb33dd3a4d6037e743338",
+		"path": "apps/api/src/project/index.ts",
+		"expected": "Expired billing entitlement can create projects",
+		"provenance": "https://github.com/usekaneo/kaneo/commit/a581bdd2a2cad087a88739732ea380b836d29bd6",
+		"synthetic": true,
+		"status": "reviewed",
+		"findings": [
+			{
+				"id": "1",
+				"title": "Removed entitlement check for project creation",
+				"severity": "high",
+				"category": "authorization",
+				"path": "apps/api/src/project/index.ts",
+				"line": 57,
+				"trigger": "A user sends a POST request to create a project without having the required entitlement (e.g., a paid plan).",
+				"expected": "The request should be blocked by requireEntitlement middleware, as present in the base revision.",
+				"actual": "The request succeeds because requireEntitlement was removed from the middleware array. Any user with workspace access and project:create permission can create a project regardless of entitlement status.",
+				"introducedBy": "64af699064987117b0fcb33dd3a4d6037e743338",
+				"evidence": [
+					{
+						"path": "apps/api/src/project/index.ts",
+						"line": 54,
+						"quote": "  middleware: [\n    workspaceAccess.fromBody(),\n    requireWorkspacePermission({ project: [\"create\"] }),\n  ] as const,",
+						"revision": "head"
+					},
+					{
+						"path": "apps/api/src/project/index.ts",
+						"line": 56,
+						"quote": "    requireWorkspacePermission({ project: [\"create\"] }),\n  ] as const,",
+						"revision": "head"
+					}
+				],
+				"contract": {
+					"path": "apps/api/src/project/index.ts",
+					"line": 57,
+					"quote": "    requireWorkspacePermission({ project: [\"create\"] }),\n    requireEntitlement,\n  ] as const,",
+					"revision": "base"
+				},
+				"evidenceLevel": "single-pass"
+			}
+		],
+		"rejected": [],
+		"cost": 0.00058181718,
+		"adjudication": null,
+		"note": "Match root cause manually; a matching file alone is not a true positive."
+	},
+	{
+		"id": "04-control",
+		"split": "dev",
+		"kind": "control",
+		"base": "64af699064987117b0fcb33dd3a4d6037e743338",
+		"head": "a581bdd2a2cad087a88739732ea380b836d29bd6",
+		"path": "apps/api/src/project/index.ts",
+		"expected": "Fix direction: inspect unexpected findings individually; not assumed universally bug-free.",
+		"provenance": "https://github.com/usekaneo/kaneo/commit/a581bdd2a2cad087a88739732ea380b836d29bd6",
+		"synthetic": true,
+		"status": "reviewed",
+		"findings": [],
+		"rejected": [],
+		"cost": 0.00062859846,
+		"adjudication": null,
+		"note": "Match root cause manually; a matching file alone is not a true positive."
+	},
+	{
+		"id": "05-control",
+		"split": "dev",
+		"kind": "control",
+		"base": "9f20898b3c2a507650954a28726747c1b073aa1b",
+		"head": "6de9ea05f1ebdbfc4c91ab1ec0aed70cdc710ed8",
+		"path": "apps/api/src/plugins/generic-webhook/client.ts",
+		"expected": "Fix direction: inspect unexpected findings individually; not assumed universally bug-free.",
+		"provenance": "https://github.com/usekaneo/kaneo/commit/6de9ea05f1ebdbfc4c91ab1ec0aed70cdc710ed8",
+		"synthetic": true,
+		"status": "reviewed",
+		"findings": [],
+		"rejected": [],
+		"cost": 0.0002733906,
+		"adjudication": null,
+		"note": "Match root cause manually; a matching file alone is not a true positive."
+	},
+	{
+		"id": "05-regression",
+		"split": "dev",
+		"kind": "regression",
+		"base": "6de9ea05f1ebdbfc4c91ab1ec0aed70cdc710ed8",
+		"head": "9f20898b3c2a507650954a28726747c1b073aa1b",
+		"path": "apps/api/src/plugins/generic-webhook/client.ts",
+		"expected": "Redirect bypasses validated public webhook destination",
+		"provenance": "https://github.com/usekaneo/kaneo/commit/6de9ea05f1ebdbfc4c91ab1ec0aed70cdc710ed8",
+		"synthetic": true,
+		"status": "reviewed",
+		"findings": [
+			{
+				"id": "REDIRECT_SSRF",
+				"title": "Removed redirect check allows SSRF via webhook",
+				"severity": "high",
+				"category": "authorization",
+				"path": "apps/api/src/plugins/generic-webhook/client.ts",
+				"line": 44,
+				"trigger": "Webhook URL returns a redirect (e.g., 302) to a non-public IP after the initial public URL check",
+				"expected": "Request should fail with error when redirected, preventing follow of redirects to internal networks",
+				"actual": "Request follows redirect because fetch default redirect is 'follow' and redirect manual handling was removed",
+				"introducedBy": "9f20898b3c2a507650954a28726747c1b073aa1b",
+				"evidence": [
+					{
+						"path": "apps/api/src/plugins/generic-webhook/client.ts",
+						"line": 39,
+						"quote": "    const response = await fetch(webhookUrl, {",
+						"revision": "head"
+					},
+					{
+						"path": "apps/api/src/plugins/generic-webhook/client.ts",
+						"line": 49,
+						"quote": "    if (REDIRECT_STATUSES.has(response.status)) {",
+						"revision": "base"
+					}
+				],
+				"contract": {
+					"path": "apps/api/src/plugins/generic-webhook/client.ts",
+					"line": 49,
+					"quote": "    if (REDIRECT_STATUSES.has(response.status)) {",
+					"revision": "base"
+				},
+				"evidenceLevel": "single-pass"
+			}
+		],
+		"rejected": [
+			{
+				"id": "METHOD_CHANGE_ON_REDIRECT",
+				"reason": "Malformed finding or source citation could not be validated."
+			}
+		],
+		"cost": 0.000472221036,
+		"adjudication": null,
+		"note": "Match root cause manually; a matching file alone is not a true positive."
+	},
+	{
+		"id": "06-regression",
+		"split": "dev",
+		"kind": "regression",
+		"base": "902e3219e226827bfefe94955a435740473f2402",
+		"head": "6ef91572471f99f7c9b18a732c6a7fe02d99f383",
+		"path": "apps/api/src/time-entry/controllers/create-time-entry.ts",
+		"expected": "Completed time entry persists zero duration",
+		"provenance": "https://github.com/usekaneo/kaneo/commit/902e3219e226827bfefe94955a435740473f2402",
+		"synthetic": true,
+		"status": "reviewed",
+		"findings": [
+			{
+				"id": "F1",
+				"title": "Removal of server-side duration calculation causes zero duration when caller omits argument",
+				"severity": "medium",
+				"category": "data",
+				"path": "apps/api/src/time-entry/controllers/create-time-entry.ts",
+				"line": 32,
+				"trigger": "Caller invokes createTimeEntry without providing the `duration` argument",
+				"expected": "The duration is calculated from startTime and endTime using resolveDuration, matching previous behavior",
+				"actual": "The duration inserted into the database is 0 because `duration || 0` coerces undefined to 0",
+				"introducedBy": "6ef91572471f99f7c9b18a732c6a7fe02d99f383",
+				"evidence": [
+					{
+						"path": "apps/api/src/time-entry/controllers/create-time-entry.ts",
+						"line": 32,
+						"quote": "      duration: duration || 0,",
+						"revision": "head"
+					},
+					{
+						"path": "apps/api/src/time-entry/controllers/create-time-entry.ts",
+						"line": 22,
+						"quote": "  const duration = resolveDuration(startTime, endTime);",
+						"revision": "base"
+					},
+					{
+						"path": "apps/api/src/time-entry/controllers/create-time-entry.ts",
+						"line": 33,
+						"quote": "      duration,",
+						"revision": "base"
+					}
+				],
+				"contract": {
+					"path": "apps/api/src/time-entry/controllers/create-time-entry.ts",
+					"line": 22,
+					"quote": "  const duration = resolveDuration(startTime, endTime);",
+					"revision": "base"
+				},
+				"evidenceLevel": "single-pass"
+			}
+		],
+		"rejected": [],
+		"cost": 0.00047391036,
+		"adjudication": null,
+		"note": "Match root cause manually; a matching file alone is not a true positive."
+	},
+	{
+		"id": "06-control",
+		"split": "dev",
+		"kind": "control",
+		"base": "6ef91572471f99f7c9b18a732c6a7fe02d99f383",
+		"head": "902e3219e226827bfefe94955a435740473f2402",
+		"path": "apps/api/src/time-entry/controllers/create-time-entry.ts",
+		"expected": "Fix direction: inspect unexpected findings individually; not assumed universally bug-free.",
+		"provenance": "https://github.com/usekaneo/kaneo/commit/902e3219e226827bfefe94955a435740473f2402",
+		"synthetic": true,
+		"status": "reviewed",
+		"findings": [
+			{
+				"id": "F001",
+				"title": "移除 duration 输入参数，客户端无法提供自定义时长，且 endTime 缺失时插入 null 而非原来的 0",
+				"severity": "medium",
+				"category": "behavior",
+				"path": "apps/api/src/time-entry/controllers/create-time-entry.ts",
+				"line": 22,
+				"trigger": "客户端请求创建时间条目时，若原本提供 duration 字段，现在被忽略；若未提供 endTime，则 duration 变为 null（原为 0）",
+				"expected": "保持原有参数，允许客户端传入 duration；当 endTime 缺失时，duration 应为 0（或保持原有默认值）",
+				"actual": "duration 参数被移除，强制通过 resolveDuration 计算；当 endTime 为 undefined 时，resolveDuration 返回 null，导致数据库插入 null",
+				"introducedBy": "902e3219e226827bfefe94955a435740473f2402",
+				"evidence": [
+					{
+						"path": "apps/api/src/time-entry/controllers/create-time-entry.ts",
+						"line": 7,
+						"quote": "import { resolveDuration } from \"../duration\";",
+						"revision": "head"
+					},
+					{
+						"path": "apps/api/src/time-entry/controllers/create-time-entry.ts",
+						"line": 22,
+						"quote": "  const duration = resolveDuration(startTime, endTime);",
+						"revision": "head"
+					},
+					{
+						"path": "apps/api/src/time-entry/controllers/create-time-entry.ts",
+						"line": 33,
+						"quote": "      duration,",
+						"revision": "head"
+					},
+					{
+						"path": "apps/api/src/time-entry/controllers/create-time-entry.ts",
+						"line": 14,
+						"quote": "  duration,",
+						"revision": "base"
+					},
+					{
+						"path": "apps/api/src/time-entry/controllers/create-time-entry.ts",
+						"line": 21,
+						"quote": "  duration?: number;",
+						"revision": "base"
+					},
+					{
+						"path": "apps/api/src/time-entry/controllers/create-time-entry.ts",
+						"line": 32,
+						"quote": "      duration: duration || 0,",
+						"revision": "base"
+					}
+				],
+				"contract": {
+					"path": "apps/api/src/time-entry/controllers/create-time-entry.ts",
+					"line": 21,
+					"quote": "  duration?: number;",
+					"revision": "base"
+				},
+				"evidenceLevel": "single-pass"
+			}
+		],
+		"rejected": [],
+		"cost": 0.00048975402,
+		"adjudication": null,
+		"note": "Match root cause manually; a matching file alone is not a true positive."
+	},
+	{
+		"id": "07-regression",
+		"split": "dev",
+		"kind": "regression",
+		"base": "6de9ea05f1ebdbfc4c91ab1ec0aed70cdc710ed8",
+		"head": "3a4e02f19c8d264841d37fd1fe4b36dfb560be91",
+		"path": "apps/api/src/task/controllers/update-task-assignee.ts",
+		"expected": "Assignee can belong to another workspace",
+		"provenance": "https://github.com/usekaneo/kaneo/commit/6de9ea05f1ebdbfc4c91ab1ec0aed70cdc710ed8",
+		"synthetic": true,
+		"status": "reviewed",
+		"findings": [],
+		"rejected": [
+			{
+				"id": "1",
+				"reason": "Malformed finding or source citation could not be validated."
+			}
+		],
+		"cost": 0.0004795581,
+		"adjudication": null,
+		"note": "Match root cause manually; a matching file alone is not a true positive."
+	},
+	{
+		"id": "07-control",
+		"split": "dev",
+		"kind": "control",
+		"base": "3a4e02f19c8d264841d37fd1fe4b36dfb560be91",
+		"head": "6de9ea05f1ebdbfc4c91ab1ec0aed70cdc710ed8",
+		"path": "apps/api/src/task/controllers/update-task-assignee.ts",
+		"expected": "Fix direction: inspect unexpected findings individually; not assumed universally bug-free.",
+		"provenance": "https://github.com/usekaneo/kaneo/commit/6de9ea05f1ebdbfc4c91ab1ec0aed70cdc710ed8",
+		"synthetic": true,
+		"status": "reviewed",
+		"findings": [],
+		"rejected": [],
+		"cost": 0.000590473716,
+		"adjudication": null,
+		"note": "Match root cause manually; a matching file alone is not a true positive."
+	},
+	{
+		"id": "08-regression",
+		"split": "dev",
+		"kind": "regression",
+		"base": "a945c21d38255944c301980c1297d054a1049bdb",
+		"head": "29aa3fc6216fdc412801918763ecd5ac321628f1",
+		"path": "apps/web/src/hooks/queries/invitation/use-pending-invitations.ts",
+		"expected": "Unauthorized pending invitations continue polling",
+		"provenance": "https://github.com/usekaneo/kaneo/commit/a945c21d38255944c301980c1297d054a1049bdb",
+		"synthetic": true,
+		"status": "reviewed",
+		"findings": [
+			{
+				"id": "1",
+				"title": "Removed unauthorized error check causes infinite polling on auth failure",
+				"severity": "high",
+				"category": "behavior",
+				"path": "apps/web/src/hooks/queries/invitation/use-pending-invitations.ts",
+				"line": 12,
+				"trigger": "When the query function getPendingInvitations fails with an unauthorized error (e.g., session expired or user lacks permission), the previous logic stopped refetching. After this change, the query continues to refetch every 60 seconds indefinitely.",
+				"expected": "The query should stop refetching when it encounters an unauthorized error, as the previous code did by returning false from refetchInterval.",
+				"actual": "refetchInterval is now a constant 60000, so the query keeps polling even on unauthorized errors, resulting in unnecessary repeated requests and potential resource waste.",
+				"introducedBy": "29aa3fc6216fdc412801918763ecd5ac321628f1",
+				"evidence": [
+					{
+						"path": "apps/web/src/hooks/queries/invitation/use-pending-invitations.ts",
+						"line": 12,
+						"quote": "    refetchInterval: 60000,",
+						"revision": "head"
+					},
+					{
+						"path": "apps/web/src/hooks/queries/invitation/use-pending-invitations.ts",
+						"line": 13,
+						"quote": "    refetchInterval: (query) =>",
+						"revision": "base"
+					},
+					{
+						"path": "apps/web/src/hooks/queries/invitation/use-pending-invitations.ts",
+						"line": 14,
+						"quote": "      isUnauthorizedError(query.state.error) ? false : 60000,",
+						"revision": "base"
+					}
+				],
+				"contract": {
+					"path": "apps/web/src/hooks/queries/invitation/use-pending-invitations.ts",
+					"line": 11,
+					"quote": "    enabled: !!session?.user?.email,",
+					"revision": "head"
+				},
+				"evidenceLevel": "single-pass"
+			}
+		],
+		"rejected": [],
+		"cost": 0.0001841763,
+		"adjudication": null,
+		"note": "Match root cause manually; a matching file alone is not a true positive."
+	},
+	{
+		"id": "08-control",
+		"split": "dev",
+		"kind": "control",
+		"base": "29aa3fc6216fdc412801918763ecd5ac321628f1",
+		"head": "a945c21d38255944c301980c1297d054a1049bdb",
+		"path": "apps/web/src/hooks/queries/invitation/use-pending-invitations.ts",
+		"expected": "Fix direction: inspect unexpected findings individually; not assumed universally bug-free.",
+		"provenance": "https://github.com/usekaneo/kaneo/commit/a945c21d38255944c301980c1297d054a1049bdb",
+		"synthetic": true,
+		"status": "reviewed",
+		"findings": [],
+		"rejected": [],
+		"cost": 0.00017747898,
+		"adjudication": null,
+		"note": "Match root cause manually; a matching file alone is not a true positive."
+	}
+]

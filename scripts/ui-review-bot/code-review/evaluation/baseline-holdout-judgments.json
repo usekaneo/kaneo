@@ -1,0 +1,22 @@
+{
+	"09-regression:authorization-activity-userid-trust": {
+		"label": "known-regression",
+		"reason": "The activity route takes actor userId from the request body instead of the authenticated context; task-update permission does not establish that the supplied actor is the caller."
+	},
+	"10-control:1": {
+		"label": "false-positive",
+		"reason": "The new project parameter gates permission to use the GitHub integration. Listing App-accessible repositories is unchanged; the route name alone does not establish a requirement to filter them to an existing project association."
+	},
+	"13-regression:F1": {
+		"label": "known-regression",
+		"reason": "The diff removes both the unauthorized-query redirect and retry suppression. Both changes are visible in the global query configuration; these are distinct consequences with separate fixes."
+	},
+	"13-regression:F2": {
+		"label": "known-regression",
+		"reason": "The diff removes both the unauthorized-query redirect and retry suppression. Both changes are visible in the global query configuration; these are distinct consequences with separate fixes."
+	},
+	"13-control:unauthorized-mutation-redirect-missing": {
+		"label": "false-positive",
+		"reason": "The unchanged mutation onError handler already lacked a sign-in redirect in base. This is not introduced by the query-error fix."
+	}
+}

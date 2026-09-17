@@ -1,0 +1,34 @@
+{
+	"verified-dev": {
+		"cases": 16,
+		"callsIncludingCached": 39,
+		"successfulResponseCostIncludingCached": 0.022128625008,
+		"newSpendRecordedInCaseReports": 0.007832085912
+	},
+	"verified-holdout": {
+		"cases": 14,
+		"callsIncludingCached": 34,
+		"successfulResponseCostIncludingCached": 0.022948386972,
+		"newSpendRecordedInCaseReports": 0.022948386972
+	},
+	"baseline-dev": {
+		"cases": 16,
+		"callsIncludingCached": 16,
+		"successfulResponseCostIncludingCached": 0.006553307628,
+		"newSpendRecordedInCaseReports": 0.006553307628
+	},
+	"baseline-holdout": {
+		"cases": 14,
+		"callsIncludingCached": 14,
+		"successfulResponseCostIncludingCached": 0.00742267974,
+		"newSpendRecordedInCaseReports": 0.00742267974
+	},
+	"entireExperiment": {
+		"reportedSpend": 0.099547295148,
+		"committedWithAllowance": 0.11447938942019999,
+		"paidRequests": 174,
+		"unknownCostRequests": 0,
+		"cap": 0.85,
+		"note": "Includes development iterations, baselines, held-out reviews, malformed/incomplete responses and natural PR attempts. Successful cached responses were reused; per-version successful-response totals are not additional charges."
+	}
+}

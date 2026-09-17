@@ -1,0 +1,34 @@
+{
+	"01-regression:bc85a6197e7432ffc471": {
+		"label": "known-regression",
+		"reason": "Removed SQL status filter admits archived tasks. The retained integration test requires no notification for archived tasks even in a non-final column."
+	},
+	"02-regression:e6200d5accc4d11607c5": {
+		"label": "known-regression",
+		"reason": "Closing-fence trailing-content guard was removed. The retained parser test and a separately specified isolated differential probe establish that a fence with trailing content must remain open."
+	},
+	"03-regression:bd877a9c6c1196fa51a0": {
+		"label": "known-regression",
+		"reason": "Drizzle findFirst returns a thenable without await. Its truthiness bypasses the existing missing-label 404 check."
+	},
+	"04-regression:7b17d8dfcee96878f5e7": {
+		"label": "known-regression",
+		"reason": "Project creation loses the billing entitlement middleware while retaining workspace and permission checks; those checks do not enforce billing eligibility."
+	},
+	"05-regression:5813dcc850ca50fbca07": {
+		"label": "known-regression",
+		"reason": "Destination validation checks the initial URL only. Removing manual redirect mode allows fetch to reach an unvalidated redirect destination."
+	},
+	"06-regression:2beb5fcf18cd6101572d": {
+		"label": "known-regression",
+		"reason": "The route supplies start/end timestamps without a duration; replacing resolveDuration with duration || 0 stores zero for completed entries."
+	},
+	"07-regression:73cece33186299b052b3": {
+		"label": "known-regression",
+		"reason": "The assignee must exist in the project workspace. A foreign key enforces user existence only; removing assertAssignableUser permits an existing user from another workspace."
+	},
+	"07-regression:057e5dee46831c69042b": {
+		"label": "false-positive",
+		"reason": "The removed trim does break whitespace-only unassignment, but the published consequence is materially wrong: taskTable.assignee_id references userTable.id, so a nonexistent whitespace ID fails the awaited write before the claimed lookup and event. Count the full finding as unconfirmed rather than crediting its valid fragment."
+	}
+}
