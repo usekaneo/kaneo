@@ -1,9 +1,0 @@
-{
-	"pr": 1735,
-	"head": "79c56da54ab33aea45c43e8cdd26a46ff61f71bc",
-	"version": 6,
-	"status": "inconclusive",
-	"reason": "Incomplete model response; no completed report or approval.",
-	"source": "Private CLI invocation; stderr in local /tmp/peekareq-real-v6.log.",
-	"findings": null
-}
