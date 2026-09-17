@@ -308,16 +308,21 @@ export default function CommentEditor({
       }
 
       if (asset.kind === "image") {
-        chain
+        const ran = chain
           .setImage({
             src: asset.url,
             alt: asset.alt,
           })
           .run();
+        // Chain commands report silent failure via false rather than
+        // throwing; convert it so the caller's catch reports it.
+        if (!ran) {
+          throw new Error(t("activity:comment.editor.failedToUploadFile"));
+        }
         return;
       }
 
-      chain
+      const ran = chain
         .insertContent({
           type: "attachmentCard",
           attrs: {
@@ -328,8 +333,11 @@ export default function CommentEditor({
           },
         })
         .run();
+      if (!ran) {
+        throw new Error(t("activity:comment.editor.failedToUploadFile"));
+      }
     },
-    [],
+    [t],
   );
 
   const handleAssetFileUpload = useCallback(
@@ -353,7 +361,20 @@ export default function CommentEditor({
           surface: uploadSurfaceRef.current,
           file,
         });
-        insertUploadedAsset(activeEditor, uploadedAsset, range);
+
+        // The captured editor can be destroyed and replaced while the upload
+        // is in flight; fall back to the current instance.
+        const currentEditor = !activeEditor.isDestroyed
+          ? activeEditor
+          : lastEditorRef.current;
+        if (!currentEditor || currentEditor.isDestroyed) {
+          toast.dismiss(loadingToast);
+          return;
+        }
+
+        // Only report success when the image actually landed in the document;
+        // insertUploadedAsset throws otherwise and the catch below reports it.
+        insertUploadedAsset(currentEditor, uploadedAsset, range);
 
         toast.dismiss(loadingToast);
         toast.success(
@@ -958,7 +979,10 @@ export default function CommentEditor({
   }, [editor]);
 
   useEffect(() => {
-    if (!editor) return;
+    // The editor instance can be destroyed and replaced while effects are
+    // flushing (e.g. Shiki resolving recreates it via useEditor deps). The
+    // next run attaches to the replacement instance.
+    if (!editor || editor.isDestroyed) return;
 
     const handleImagePreviewClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement | null;
