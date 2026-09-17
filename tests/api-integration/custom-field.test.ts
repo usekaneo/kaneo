@@ -824,6 +824,8 @@ describe("custom fields API", () => {
       `Expected 400, got ${invalidOptionResponse.status}: ${invalidOptionBody}`,
     ).toBe(400);
 
-    expect(invalidOptionBody).toContain("invalid");
+    expect(invalidOptionBody).toContain(
+      "Invalid option(s) for this custom field",
+    );
   });
 });
