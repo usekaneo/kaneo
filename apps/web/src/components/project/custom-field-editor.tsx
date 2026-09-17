@@ -117,6 +117,14 @@ export default function CustomFieldEditor({
   const dragPreviewRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    if (type !== "boolean") return;
+
+    if (defaultValue !== "true" && defaultValue !== "false") {
+      setDefaultValue("false");
+    }
+  }, [type, defaultValue]);
+
+  useEffect(() => {
     return () => {
       dragPreviewRef.current?.remove();
     };
@@ -324,7 +332,18 @@ export default function CustomFieldEditor({
   }, [optionsText]);
 
   useEffect(() => {
-    if (type !== "dropdown") return;
+    if (type !== "dropdown") {
+      if (isMultiple) setIsMultiple(false);
+      if (Array.isArray(defaultValue)) {
+        setDefaultValue(defaultValue[0] ?? "");
+      } else if (
+        type !== "boolean" &&
+        (defaultValue === "true" || defaultValue === "false")
+      ) {
+        setDefaultValue("");
+      }
+      return;
+    }
 
     if (isMultiple) {
       if (!Array.isArray(defaultValue)) {
@@ -481,7 +500,7 @@ export default function CustomFieldEditor({
                           <HoverCardTrigger asChild>
                             <span className="shrink-0 inline-flex items-center gap-1 rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground cursor-pointer hover:bg-muted/80 transition-colors">
                               {t("settings:customFields.defaultValues", {
-                                count: defaultParsedValues?.length ?? 0,
+                                count: defaultParsedValues?.length ?? 1,
                               })}
                             </span>
                           </HoverCardTrigger>
@@ -641,7 +660,29 @@ export default function CustomFieldEditor({
         )}
 
         {type === "boolean" ? (
-          <div className="h-8 w-48 flex-[2_0_0]" />
+          <div className="inline-flex h-8 w-48 flex-[2_0_0] items-center overflow-hidden rounded-lg border text-xs">
+            {(["true", "false"] as const).map((val) => {
+              const isSelected = defaultValue === val;
+              return (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => setDefaultValue(val)}
+                  className={cn(
+                    "flex-1 h-full flex items-center justify-center capitalize transition-colors",
+                    isSelected
+                      ? "bg-foreground text-background font-medium"
+                      : "text-muted-foreground hover:bg-muted",
+                  )}
+                  aria-pressed={isSelected}
+                >
+                  {val === "true"
+                    ? t("common:boolean.true", "True")
+                    : t("common:boolean.false", "False")}
+                </button>
+              );
+            })}
+          </div>
         ) : type === "dropdown" ? (
           <>
             <Combobox
