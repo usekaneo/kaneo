@@ -96,10 +96,24 @@ async function createCustomField(
     });
   }
 
-  if (type === "multiselect" && (!options || options.length < 2)) {
-    throw new HTTPException(400, {
-      message: "Multiselect fields must have at least 2 options",
-    });
+  let finalOptions = options ?? null;
+
+  if (type === "multiselect") {
+    const normalizedOptions = Array.from(
+      new Set(
+        (options ?? [])
+          .map((opt) => opt.trim())
+          .filter((opt) => opt.length > 0),
+      ),
+    );
+
+    if (normalizedOptions.length < 2) {
+      throw new HTTPException(400, {
+        message: "Multiselect fields must have at least 2 options",
+      });
+    }
+
+    finalOptions = normalizedOptions;
   }
 
   const [maxPositionResult] = await db
@@ -116,7 +130,7 @@ async function createCustomField(
         type,
         required,
         defaultValue: defaultValue ?? null,
-        options: options ?? null,
+        options: finalOptions,
         position: (maxPositionResult?.maxPosition ?? 0) + 1,
       })
       .returning();

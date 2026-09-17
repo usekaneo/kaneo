@@ -855,7 +855,7 @@ function CreateTaskModal({
                             "select-none cursor-default",
                           )}
                         >
-                          <span className="block min-w-0 max-w-full truncate text-xs text-white">
+                          <span className="block min-w-0 max-w-full truncate text-xs text-secondary-foreground">
                             {value}
                           </span>
                         </div>
@@ -1038,7 +1038,15 @@ function CreateTaskModal({
 
             {customFields.length > 0 && (
               <div className="mt-2">
-                <Accordion className="w-full">
+                <Accordion
+                  key={resolvedProjectId}
+                  className="w-full"
+                  defaultValue={
+                    customFields.some((field) => field.required)
+                      ? ["custom-fields"]
+                      : []
+                  }
+                >
                   <AccordionItem
                     value="custom-fields"
                     className="rounded-lg border border-border bg-sidebar/30 px-4"
