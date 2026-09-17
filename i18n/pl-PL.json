@@ -1822,8 +1822,17 @@
 				"date": "Date",
 				"dropdown": "Dropdown",
 				"number": "Number",
-				"text": "Text"
-			}
+				"text": "Text",
+				"multiselect": "Multi-Select"
+			},
+			"availableOptions": "Available options",
+			"clearDefault": "Clear",
+			"defaultValues": "{{count}} default(s)",
+			"moreOptions": "+{{hiddenCount}} more",
+			"multiple": "Multiple",
+			"options": "{{count}} option(s)",
+			"reorderError": "Failed to reorder fields",
+			"selectPlaceholder": "Select option(s)"
 		}
 	},
 	"tasks": {
@@ -2257,6 +2266,9 @@
 		"view": {
 			"board": "Tablica",
 			"list": "Lista"
+		},
+		"customFields": {
+			"ariaLabel": "Custom fields"
 		}
 	}
 }
