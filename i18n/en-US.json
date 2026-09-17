@@ -312,6 +312,9 @@
 			"descriptionPlaceholder": "What does your team work on?",
 			"creating": "Creating...",
 			"createWorkspace": "Create workspace",
+			"restrictedTitle": "You need an invitation",
+			"restrictedSubtitle": "Only an instance administrator can create workspaces here. Ask one to invite you, then reload this page.",
+			"restrictedCheckInvitations": "Check invitations",
 			"workspaceCreatedTitle": "Workspace created",
 			"redirectingToWorkspace": "Taking you to <name>{{name}}</name>...",
 			"toast": {

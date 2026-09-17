@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "İş sahəsinin adı tələb olunur"
-			}
+			},
+			"restrictedSubtitle": "Burada yalnız instans administratoru iş sahəsi yarada bilər. Sizi dəvət etməsini xahiş edin, sonra bu səhifəni yeniləyin.",
+			"restrictedCheckInvitations": "Dəvətlərə bax",
+			"restrictedTitle": "Dəvət lazımdır"
 		},
 		"profileSetup": {
 			"pageTitle": "Profili tamamla",

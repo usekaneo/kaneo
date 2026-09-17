@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "Nazwa obszaru roboczego jest wymagana"
-			}
+			},
+			"restrictedSubtitle": "Tutaj tylko administrator instancji może tworzyć przestrzenie robocze. Poproś o zaproszenie i odśwież tę stronę.",
+			"restrictedCheckInvitations": "Sprawdź zaproszenia",
+			"restrictedTitle": "Potrzebujesz zaproszenia"
 		},
 		"profileSetup": {
 			"pageTitle": "Uzupełnij profil",

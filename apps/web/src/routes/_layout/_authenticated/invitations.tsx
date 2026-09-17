@@ -15,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import useGetConfig from "@/hooks/queries/config/use-get-config";
 import { usePendingInvitations } from "@/hooks/queries/invitation/use-pending-invitations";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/cn";
@@ -33,6 +34,14 @@ function InvitationsPage() {
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const { user } = useAuth();
+  const { data: session } = authClient.useSession();
+  const { data: config } = useGetConfig();
+  // Unknown is not restricted. This page has no fallback view, so treating a
+  // failed config request as a restriction would leave it with no action at
+  // all; the API refuses the creation anyway if it really is restricted.
+  const canCreateWorkspace =
+    session?.user?.role === "admin" ||
+    config?.disableWorkspaceCreation !== true;
 
   const handleSkip = () => {
     if (!user?.name) {
@@ -171,9 +180,14 @@ function InvitationsPage() {
               <p className="text-sm text-muted-foreground max-w-md mb-6">
                 {t("invitations:noPendingDescription")}
               </p>
-              <Button onClick={handleSkip} variant="default">
-                {t("invitations:continueToSetup")}
-              </Button>
+              {canCreateWorkspace && (
+                // Without creation rights there is no setup to continue to,
+                // and this would bounce back to the onboarding screen that
+                // sent the user here.
+                <Button onClick={handleSkip} variant="default">
+                  {t("invitations:continueToSetup")}
+                </Button>
+              )}
             </div>
           ) : (
             <div className="space-y-6">
@@ -274,15 +288,20 @@ function InvitationsPage() {
                   </TableBody>
                 </Table>
               </div>
-              <div className="flex justify-center pt-2">
-                <Button
-                  variant="ghost"
-                  onClick={handleSkip}
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  {t("invitations:skipForNow")}
-                </Button>
-              </div>
+              {canCreateWorkspace && (
+                // Skipping exists to go and create your own workspace. When
+                // only instance admins may create one, it leads to a screen
+                // with nothing to do and no way back to this invitation.
+                <div className="flex justify-center pt-2">
+                  <Button
+                    variant="ghost"
+                    onClick={handleSkip}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    {t("invitations:skipForNow")}
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </div>

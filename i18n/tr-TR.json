@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "Çalışma alanı adı gereklidir"
-			}
+			},
+			"restrictedSubtitle": "Burada yalnızca örnek yöneticisi çalışma alanı oluşturabilir. Davet isteyin, ardından bu sayfayı yenileyin.",
+			"restrictedCheckInvitations": "Davetleri görüntüle",
+			"restrictedTitle": "Davet gerekiyor"
 		},
 		"profileSetup": {
 			"pageTitle": "Profili Tamamla",
