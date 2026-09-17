@@ -38,7 +38,7 @@ node scripts/ui-review-bot/publish.mjs /absolute/path/to/report.json
 
 Use `--model provider/model` or `--key-file /path/to/key.env` to override defaults. Local App authentication uses `GH_TOKEN` and `UI_REVIEW_BOT_LOGIN=<app-slug>[bot]`; otherwise `gh` supplies your user identity.
 
-Default model: `qwen/qwen3.8-flash`, verified against OpenRouter's live vision-model catalog. The model receives the PR diff, relevant source, synthetic page text, and screenshots. Each run allows at most five calls, three scenarios, and six interactions per scenario. Reports record provider-reported usage and cost; there is no fixed dollar cap.
+Default model: `qwen/qwen3.8-flash`, verified against OpenRouter's live vision-model catalog. If its provider is rate-limited or temporarily unavailable, the run switches to `google/gemini-2.5-flash-lite`; explicitly selected other models keep their selection. Temporary failures retry at most twice and all attempts count toward the five-request budget. The model receives the PR diff, relevant source, synthetic page text, and screenshots. Each run allows at most five calls, three scenarios, and six interactions per scenario. Reports record provider-reported usage and cost; there is no fixed dollar cap.
 
 Local reports, before/after PNGs, and pixel differences are saved in `.cache/ui-review-bot/runs/<id>/`. Ctrl+C cancels capture and closes previews.
 

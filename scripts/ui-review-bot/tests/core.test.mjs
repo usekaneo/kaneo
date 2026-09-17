@@ -252,3 +252,50 @@ test("temporary provider throttling retries within the five-request budget", asy
     globalThis.fetch = original;
   }
 });
+
+test("default provider outage switches to a vision fallback and keeps it for the run", async () => {
+  const original = globalThis.fetch;
+  const requests = [];
+  const run = {
+    calls: 0,
+    reasoning: { max_tokens: 512 },
+    usage: { input: 0, output: 0, cost: 0, costKnown: true },
+  };
+  globalThis.fetch = async (_, options) => {
+    const body = JSON.parse(options.body);
+    requests.push(body);
+    return body.model === "qwen/qwen3.8-flash"
+      ? new Response('{"error":{"code":429}}', {
+          status: 429,
+          headers: { "retry-after": "0" },
+        })
+      : Response.json({
+          choices: [{ message: { content: '{"caption":"Captured"}' } }],
+          usage: { cost: 0 },
+        });
+  };
+  try {
+    const args = {
+      token: "test",
+      model: "qwen/qwen3.8-flash",
+      messages: [],
+      run,
+      signal: new AbortController().signal,
+    };
+    await completion(args);
+    await completion(args);
+    assert.equal(run.calls, 3);
+    assert.deepEqual(
+      requests.map((x) => x.model),
+      [
+        "qwen/qwen3.8-flash",
+        "google/gemini-2.5-flash-lite",
+        "google/gemini-2.5-flash-lite",
+      ],
+    );
+    assert.equal(requests[1].reasoning, undefined);
+    assert.deepEqual(run.modelsUsed, ["google/gemini-2.5-flash-lite"]);
+  } finally {
+    globalThis.fetch = original;
+  }
+});

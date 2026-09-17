@@ -196,6 +196,9 @@ export async function completion({
   signal,
   maxTokens = 2500,
 }) {
+  const fallback =
+    model === "qwen/qwen3.8-flash" ? "google/gemini-2.5-flash-lite" : null;
+  let requestModel = fallback && run.providerFallback ? fallback : model;
   let response;
   for (let attempt = 0; attempt < 3; attempt++) {
     if (run.calls >= 5)
@@ -210,11 +213,13 @@ export async function completion({
         "X-OpenRouter-Title": "Kaneo UI Review - Local",
       },
       body: JSON.stringify({
-        model,
+        model: requestModel,
         messages,
         max_tokens: maxTokens,
         temperature: 0.1,
-        ...(run.reasoning ? { reasoning: run.reasoning } : {}),
+        ...(run.reasoning && requestModel === model
+          ? { reasoning: run.reasoning }
+          : {}),
         response_format: { type: "json_object" },
         provider: { require_parameters: true },
       }),
@@ -235,6 +240,7 @@ export async function completion({
         ? seconds * 1000
         : 2000 * 2 ** attempt;
     if (wait > 30000) break;
+    if (fallback) requestModel = fallback;
     await response.body?.cancel();
     await delay(wait, undefined, { signal });
   }
@@ -246,6 +252,8 @@ export async function completion({
       `OpenRouter request failed (${code}). Check token credits, model access, or choose a different model.`,
     );
   }
+  if (requestModel === fallback) run.providerFallback = true;
+  run.modelsUsed = [...new Set([...(run.modelsUsed || []), requestModel])];
   run.usage.input += data.usage?.prompt_tokens || 0;
   run.usage.output += data.usage?.completion_tokens || 0;
   if (Number.isFinite(data.usage?.cost)) run.usage.cost += data.usage.cost;
