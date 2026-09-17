@@ -233,6 +233,7 @@ export function fixture(url, method) {
     if (
       [
         `/api/activity/${task.id}`,
+        `/api/workflow-rule/${project.id}`,
         `/api/task-relation/${task.id}`,
         `/api/external-link/task/${task.id}`,
         `/api/custom-field/project/${project.id}`,

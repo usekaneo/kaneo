@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { checkSupportedSurface, customFieldPlan } from "../scenarios.mjs";
+import {
+  checkSupportedSurface,
+  customFieldPlan,
+  timeTrackingPlan,
+} from "../scenarios.mjs";
 
 test("site changes cannot generate unrelated task screenshots", () => {
   assert.throws(
@@ -31,4 +35,18 @@ test("custom-field scenarios use fixture values and handle the new collapsed sec
       (action) => action.role === "option" && action.name === "Engineering",
     ),
   );
+});
+
+test("new time controls are never required on the base revision", () => {
+  const plan = timeTrackingPlan();
+  assert.equal(plan.scenarios.length, 3);
+  for (const scenario of plan.scenarios) {
+    assert.ok(scenario.focus);
+    assert.ok(scenario.actions.every((action) => action.only === "after"));
+    assert.ok(
+      scenario.visible.every(
+        (target) => !["Running", "0m"].includes(target.name),
+      ),
+    );
+  }
 });

@@ -3,6 +3,7 @@ import { lstat, mkdir, readFile, realpath, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { PNG } from "pngjs";
+import { normalizeAudit } from "./accessibility.mjs";
 import { getModels, prNumber, validatePlan } from "./core.mjs";
 import { decodeScreenshot, MAX_IMAGE_BYTES } from "./images.mjs";
 import { captureRun, planRun, reviewRun, saveReport } from "./runner.mjs";
@@ -65,6 +66,8 @@ function diagnostics(input, scenario, side) {
     console: strings(input.console),
     text: String(input.text || "").slice(0, 9000),
     url: String(input.url || "").slice(0, 1000),
+    preview: input.preview === true,
+    accessibility: normalizeAudit(input.accessibility),
     ok:
       input.ok === true &&
       !errors.length &&
@@ -102,6 +105,17 @@ export async function importCapture(run, input, output) {
       );
       await writeFile(path.join(output, name), PNG.sync.write(png));
       item[side] = { ...diagnostics(raw[side], scenario, side), image: name };
+    }
+    if (scenario.focus) {
+      const png = decodeScreenshot(
+        await readBounded(input, `${index}-preview.png`, MAX_IMAGE_BYTES),
+        { preview: true },
+      );
+      await writeFile(
+        path.join(output, `${index}-preview.png`),
+        PNG.sync.write(png),
+      );
+      if (!item.after.preview) item.after.ok = false;
     }
     item.diff = `${index}-diff.png`;
     item.status = item.before.ok && item.after.ok ? "captured" : "incomplete";
@@ -169,7 +183,7 @@ async function main() {
     );
     if (incomplete.length)
       throw new Error(
-        `Capture incomplete: ${incomplete.map((item) => `${item.name}: ${[...(item.after?.unhandled || []), ...(item.before?.unhandled || []), ...(item.after?.actions || []).filter((action) => !action.ok).map((action) => `missing control ${action.name}`)].join(", ") || "page failed to render"}`).join("; ")}`,
+        `Capture incomplete: ${incomplete.map((item) => `${item.name}: ${[...(item.after?.errors || []), ...(item.before?.errors || []), ...(item.after?.unhandled || []), ...(item.before?.unhandled || []), ...(item.after?.actions || []).filter((action) => !action.ok).map((action) => `missing control ${action.name}`)].join(", ") || "page failed to render"}`).join("; ")}`,
       );
   } else if (stage === "review") {
     if (!process.env.OPENROUTER_API_KEY)

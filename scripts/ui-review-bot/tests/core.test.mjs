@@ -299,3 +299,27 @@ test("default provider outage switches to a vision fallback and keeps it for the
     globalThis.fetch = original;
   }
 });
+
+test("framing accepts only bounded semantic targets, never selectors or executable code", () => {
+  const scenario = samplePlan().scenarios[0];
+  for (const focus of [
+    { by: "css", name: "body" },
+    { by: "text", name: "" },
+    { by: "text", name: "x".repeat(201) },
+  ])
+    assert.throws(
+      () => validatePlan({ scenarios: [{ ...scenario, focus }] }),
+      /Invalid screenshot target/,
+    );
+  const plan = validatePlan({
+    scenarios: [
+      {
+        ...scenario,
+        focus: { by: "role", role: "heading", name: "Account" },
+        visible: [{ by: "label", name: "Email" }],
+      },
+    ],
+  });
+  assert.equal(plan.scenarios[0].focus.role, "heading");
+  assert.equal(plan.scenarios[0].visible[0].name, "Email");
+});

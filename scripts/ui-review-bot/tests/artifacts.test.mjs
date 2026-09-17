@@ -66,3 +66,42 @@ test("artifact reads reject symlinks and excessive size", async (t) => {
   await assert.rejects(readBounded(root, "link", 100), /Invalid artifact/);
   await assert.rejects(readBounded(root, "real", 2), /Invalid artifact/);
 });
+
+test("trusted focus plans require bounded previews and ignore capture-supplied image paths", async (t) => {
+  const root = await mkdtemp(path.join(tmpdir(), "ui-focus-artifact-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const output = path.join(root, "output");
+  const run = {
+    prNumber: 1735,
+    plan: {
+      scenarios: [{ ...scenario, focus: { by: "text", name: "Feature" } }],
+    },
+  };
+  await writeFile(
+    path.join(root, "capture.json"),
+    JSON.stringify({
+      results: [
+        {
+          before: good,
+          after: { ...good, preview: true, image: "/secret.env" },
+        },
+      ],
+    }),
+  );
+  const full = PNG.sync.write(new PNG({ width: 1440, height: 1000 }));
+  for (const side of ["before", "after"])
+    await writeFile(path.join(root, `0-${side}.png`), full);
+  await assert.rejects(importCapture(run, root, output), /ENOENT/);
+  await writeFile(
+    path.join(root, "0-preview.png"),
+    PNG.sync.write(new PNG({ width: 784, height: 200 })),
+  );
+  await importCapture(run, root, output);
+  assert.equal(run.results[0].after.preview, true);
+  assert.equal(run.results[0].focus.name, "Feature");
+  await writeFile(
+    path.join(root, "0-preview.png"),
+    PNG.sync.write(new PNG({ width: 1, height: 1 })),
+  );
+  await assert.rejects(importCapture(run, root, output), /Invalid screenshot/);
+});

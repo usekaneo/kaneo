@@ -1,10 +1,10 @@
 # Peekareq
 
-A maintainer comments `/peekareq` on an open Kaneo PR. The bot selects up to three UI scenarios, captures the PR in Chromium, uploads the PR screenshots, and posts this line followed by a description/image table:
+A maintainer comments `/peekareq` on an open Kaneo PR. The bot selects up to three UI scenarios, captures the PR in Chromium, frames the changed component, uploads three distinct previews, and posts this line followed by a description/image table:
 
 > This UI-screenshot was auto-made by a beta tool made by @tinsever
 
-The comment contains no model details, costs, diagnostics, or review text. Re-runs update the bot's existing comment.
+Below the screenshot table, **Findings (Beta)** and **Run info** are collapsed by default. Findings contain axe-core accessibility results and clearly labeled AI suggestions with practical fixes. Run info lists the models that returned responses, provider-reported AI cost, and elapsed time from planning through review (including job waits). Re-runs update the bot's existing comment.
 
 ## GitHub setup
 
@@ -44,13 +44,13 @@ Local reports, before/after PNGs, and pixel differences are saved in `.cache/ui-
 
 ## Coverage and isolation
 
-The current fixture adapter supports account settings, a synthetic workspace/project/task, stateful time-entry Start/Stop controls, and custom-field values. Multiselect changes use fixture-backed scenarios for the task overview, option picker, and multiple selected values instead of asking the model to invent controls. Marketing-site and docs-only changes stop during planning because the preview currently runs `apps/web` only. Each scenario gets its own fixture state. The capture-only preset is specific to PR #1719. Other features may require fixtures; unknown API reads produce incomplete captures. Screenshots use a 1440×1000 desktop viewport, light theme, English, UTC, and disabled animations. This tests frontend appearance and interactions, not real backend behavior.
+The current fixture adapter supports account settings, a synthetic workspace/project/task, stateful time-entry Start/Stop controls, and custom-field values. Multiselect changes use fixture-backed scenarios for project configuration, the option picker, and multiple selected values. Each scenario identifies the component to frame and controls that must be visible; portalled menus are included in the frame. Missing or clipped controls and identical previews prevent publication. Defined fixture scenarios use their short, specific names as captions. Marketing-site and docs-only changes stop during planning because the preview currently runs `apps/web` only. Each scenario gets its own fixture state. The capture-only preset is specific to PR #1719. Other features may require fixtures; unknown API reads produce incomplete captures. Full before/after captures use a 1440×1000 desktop viewport; GitHub receives bounded close-up previews captured directly in Chromium. Captions are limited to 70 characters. Captures use light theme, English, UTC, and disabled animations. The captured PR areas are audited with axe-core 4.13.0 using WCAG 2 A/AA, 2.1 A/AA, 2.2 AA, and best-practice rules. Confirmed violations and checks needing manual review remain distinct. AI also reviews visible clipping, overlap, readability, and interaction feedback. These checks do not establish full accessibility compliance or test real backend behavior.
 
 Before images use the PR's merge base. Different routes or interaction states are labeled in the local report rather than treated as regression scores. Each revision uses its own frozen lockfile with install scripts disabled. Browser traffic is restricted to the local preview and synthetic API responses.
 
 The Worker verifies GitHub signatures and current maintainer access before sending `repository_dispatch`. Ordinary comments never create Actions entries. Actions rechecks the original comment and author before planning. Authorization, planning, capture, and review/posting use separate GitHub-hosted runners. Only capture executes PR code, without provider secrets or a write token. Trusted jobs check out the workflow revision. Review accepts bounded capture JSON and PNGs, preserves the trusted plan's PR identity, rejects malformed images, and recalculates differences. App credentials are provided only after review. The default Actions token is read-only.
 
-Local capture executes PR code as your OS user; it is not an OS sandbox. Use GitHub-hosted capture for untrusted PRs. Credentials are not passed into preview environments or written to reports. Only PR screenshots and short captions are published; intermediate workflow artifacts expire after one day.
+Local capture executes PR code as your OS user; it is not an OS sandbox. Use GitHub-hosted capture for untrusted PRs. Credentials are not passed into preview environments or written to reports. PR previews, short captions, bounded findings, and run statistics are published; intermediate workflow artifacts expire after one day.
 
 ## Cloudflare webhook
 
