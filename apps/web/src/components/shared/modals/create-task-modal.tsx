@@ -569,13 +569,11 @@ function CreateTaskModal({
 
       if (draftTask) {
         for (const [fieldId, value] of Object.entries(customFieldValues)) {
-          if (value) {
-            await setCustomFieldValue({
-              taskId: savedTask.id,
-              fieldId,
-              value: String(value),
-            });
-          }
+          await setCustomFieldValue({
+            taskId: savedTask.id,
+            fieldId,
+            value: String(value ?? ""),
+          });
         }
       }
 

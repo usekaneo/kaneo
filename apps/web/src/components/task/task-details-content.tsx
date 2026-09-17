@@ -141,22 +141,18 @@ export default function TaskDetailsContent({
     const valuesMap: CustomFieldValueMap = {};
 
     for (const field of customFields) {
-      if (field.type === "multiselect") {
-        valuesMap[field.id] = safeParseMultiselect(field.defaultValue);
-      } else {
-        valuesMap[field.id] = field.defaultValue || "";
-      }
+      valuesMap[field.id] = field.type === "multiselect" ? [] : "";
     }
 
     for (const val of customFieldValues) {
-      if (val.value !== null) {
-        const field = customFields.find((f) => f.id === val.fieldId);
+      const field = customFields.find((f) => f.id === val.fieldId);
 
-        valuesMap[val.fieldId] =
-          field?.type === "multiselect"
-            ? safeParseMultiselect(val.value)
-            : val.value;
-      }
+      if (!field) continue;
+
+      valuesMap[val.fieldId] =
+        field.type === "multiselect"
+          ? safeParseMultiselect(val.value)
+          : (val.value ?? "");
     }
 
     setLocalValues(valuesMap);
@@ -412,6 +408,7 @@ export default function TaskDetailsContent({
                           <Input
                             type="number"
                             value={textVal}
+                            placeholder={field.defaultValue?.toString()}
                             onChange={(e) =>
                               handleLocalChange(field.id, e.target.value)
                             }
@@ -634,6 +631,7 @@ export default function TaskDetailsContent({
                           <Input
                             type="text"
                             value={textVal}
+                            placeholder={field.defaultValue?.toString()}
                             onChange={(e) =>
                               handleLocalChange(field.id, e.target.value)
                             }

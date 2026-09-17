@@ -159,10 +159,14 @@ export async function assertRequiredCustomFields(
       | "dropdown"
       | "multiselect";
 
-    if (isCustomFieldValueEmpty(cf.value, type))
-      throw new HTTPException(400, {
-        message: `Custom field "${def.name}" is required to create a task.`,
-      });
+    if (isCustomFieldValueEmpty(cf.value, type)) {
+      if (def.required) {
+        throw new HTTPException(400, {
+          message: `Custom field "${def.name}" is required to create a task.`,
+        });
+      }
+      continue;
+    }
 
     const error = validateCustomFieldValue(
       cf.value,
