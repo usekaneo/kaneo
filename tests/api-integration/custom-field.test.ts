@@ -430,7 +430,7 @@ describe("custom fields API", () => {
       },
       {
         options: [],
-        expectedMessage: "at least one option",
+        expectedMessage: "at least 2 options",
       },
       {
         options: ["only-one"],

@@ -118,7 +118,7 @@ async function setCustomFieldValue(
 
       if (invalid) {
         throw new HTTPException(400, {
-          message: "Invalid option(s) for this custom field",
+          message: "invalid option(s) for this custom field",
         });
       }
     }
