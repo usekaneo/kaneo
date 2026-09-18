@@ -20,6 +20,7 @@ import {
   taskRelationSchema,
   taskRelationWithTasksListSchema,
 } from "./response";
+import { runTaskRelation } from "./runtime";
 import {
   createTaskRelationBody,
   taskIdParam,
@@ -166,26 +167,32 @@ const deleteTaskRelationRoute = createRoute({
 const taskRelation = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(getTaskRelationsRoute, async (c) =>
     c.json(
-      await getTaskRelations(c.req.valid("param").taskId, c.get("workspaceId")),
+      await runTaskRelation(
+        getTaskRelations(c.req.valid("param").taskId, c.get("workspaceId")),
+      ),
       200,
     ),
   )
   .openapi(createTaskRelationRoute, async (c) => {
     const { sourceTaskId, targetTaskId, relationType } = c.req.valid("json");
     return c.json(
-      await createTaskRelation({
-        sourceTaskId,
-        targetTaskId,
-        relationType,
-        userId: c.get("userId"),
-        workspaceId: c.get("workspaceId"),
-      }),
+      await runTaskRelation(
+        createTaskRelation({
+          sourceTaskId,
+          targetTaskId,
+          relationType,
+          userId: c.get("userId"),
+          workspaceId: c.get("workspaceId"),
+        }),
+      ),
       200,
     );
   })
   .openapi(deleteTaskRelationRoute, async (c) =>
     c.json(
-      await deleteTaskRelation(c.req.valid("param").id, c.get("userId")),
+      await runTaskRelation(
+        deleteTaskRelation(c.req.valid("param").id, c.get("userId")),
+      ),
       200,
     ),
   );

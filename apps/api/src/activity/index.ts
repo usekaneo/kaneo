@@ -1,3 +1,4 @@
+import { runComment } from "../comment/runtime";
 import { subscribeToEvent } from "../events";
 import {
   apiRouter,
@@ -151,18 +152,23 @@ const activity = apiRouter()
   })
   .openapi(createCommentRoute, async (c) => {
     const { taskId, comment } = c.req.valid("json");
-    return c.json(await createComment(taskId, c.get("userId"), comment), 200);
+    return c.json(
+      await runComment(createComment(taskId, c.get("userId"), comment)),
+      200,
+    );
   })
   .openapi(updateCommentRoute, async (c) => {
     const { activityId, comment } = c.req.valid("json");
     return c.json(
-      await updateComment(c.get("userId"), activityId, comment),
+      await runComment(updateComment(c.get("userId"), activityId, comment)),
       200,
     );
   })
   .openapi(deleteCommentRoute, async (c) =>
     c.json(
-      await deleteComment(c.get("userId"), c.req.valid("json").activityId),
+      await runComment(
+        deleteComment(c.get("userId"), c.req.valid("json").activityId),
+      ),
       200,
     ),
   );

@@ -12,6 +12,7 @@ import deleteComment from "./controllers/delete-comment";
 import getComments from "./controllers/get-comments";
 import updateComment from "./controllers/update-comment";
 import { commentListSchema } from "./response";
+import { runComment } from "./runtime";
 import {
   commentParam,
   createCommentBody,
@@ -116,7 +117,7 @@ const deleteTaskCommentRoute = createRoute({
 
 const comment = apiRouter()
   .openapi(getTaskCommentsRoute, async (c) =>
-    c.json(await getComments(c.req.valid("param").taskId), 200),
+    c.json(await runComment(getComments(c.req.valid("param").taskId)), 200),
   )
   .openapi(createTaskCommentRoute, async (c) => {
     const { taskId } = c.req.valid("param");
@@ -128,17 +129,25 @@ const comment = apiRouter()
         ? { userName: externalUserName, source: externalSource }
         : undefined;
     return c.json(
-      await createComment(taskId, c.get("userId"), content, external),
+      await runComment(
+        createComment(taskId, c.get("userId"), content, external),
+      ),
       200,
     );
   })
   .openapi(updateTaskCommentRoute, async (c) => {
     const { id } = c.req.valid("param");
     const { content } = c.req.valid("json");
-    return c.json(await updateComment(c.get("userId"), id, content), 200);
+    return c.json(
+      await runComment(updateComment(c.get("userId"), id, content)),
+      200,
+    );
   })
   .openapi(deleteTaskCommentRoute, async (c) =>
-    c.json(await deleteComment(c.get("userId"), c.req.valid("param").id), 200),
+    c.json(
+      await runComment(deleteComment(c.get("userId"), c.req.valid("param").id)),
+      200,
+    ),
   );
 
 export default comment;

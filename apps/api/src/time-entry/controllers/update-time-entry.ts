@@ -1,7 +1,8 @@
 import { eq } from "drizzle-orm";
-import { HTTPException } from "hono/http-exception";
-import db from "../../database";
+import { Effect } from "effect";
 import { timeEntryTable } from "../../database/schema";
+import { Database } from "../../effect/database";
+import { timeEntryById } from "../../effect/lookups";
 import { resolveDuration } from "../duration";
 
 type UpdateTimeEntryParams = {
@@ -11,36 +12,37 @@ type UpdateTimeEntryParams = {
   description?: string;
 };
 
-async function updateTimeEntry(params: UpdateTimeEntryParams) {
-  const { timeEntryId, startTime, endTime, description } = params;
+const updateTimeEntry = Effect.fn("timeEntry.updateTimeEntry")(function* ({
+  timeEntryId,
+  startTime,
+  endTime,
+  description,
+}: UpdateTimeEntryParams) {
+  const database = yield* Database;
 
-  const [existingTimeEntry] = await db
-    .select()
-    .from(timeEntryTable)
-    .where(eq(timeEntryTable.id, timeEntryId));
-
-  if (!existingTimeEntry) {
-    throw new HTTPException(404, {
-      message: "Time entry not found",
-    });
-  }
+  const existingTimeEntry = yield* timeEntryById(timeEntryId);
 
   const effectiveEndTime = endTime ?? existingTimeEntry.endTime;
 
-  const duration = resolveDuration(startTime, effectiveEndTime ?? undefined);
+  const duration = yield* resolveDuration(
+    startTime,
+    effectiveEndTime ?? undefined,
+  );
 
-  const [updatedTimeEntry] = await db
-    .update(timeEntryTable)
-    .set({
-      startTime,
-      endTime: effectiveEndTime,
-      duration,
-      ...(description !== undefined && { description }),
-    })
-    .where(eq(timeEntryTable.id, timeEntryId))
-    .returning();
+  const [updatedTimeEntry] = yield* database.query((db) =>
+    db
+      .update(timeEntryTable)
+      .set({
+        startTime,
+        endTime: effectiveEndTime,
+        duration,
+        ...(description !== undefined && { description }),
+      })
+      .where(eq(timeEntryTable.id, timeEntryId))
+      .returning(),
+  );
 
   return updatedTimeEntry;
-}
+});
 
 export default updateTimeEntry;

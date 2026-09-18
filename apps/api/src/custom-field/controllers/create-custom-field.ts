@@ -1,14 +1,65 @@
 import { eq, max } from "drizzle-orm";
-import { HTTPException } from "hono/http-exception";
-import db from "../../database";
+import { Effect } from "effect";
 import {
   customFieldDefinitionTable,
   customFieldValueTable,
-  projectTable,
   taskTable,
 } from "../../database/schema";
+import { Database } from "../../effect/database";
+import { projectById } from "../../effect/lookups";
+import {
+  CustomFieldCreateFailed,
+  InvalidCustomFieldDefinition,
+} from "../errors";
 
-async function createCustomField(
+function validateDefaultValue(
+  type: string,
+  defaultValue: string | undefined,
+  options: string[] | undefined,
+) {
+  if (defaultValue === undefined || defaultValue === null) {
+    return undefined;
+  }
+
+  const trimmedValue = defaultValue.trim();
+  if (!trimmedValue) {
+    return undefined;
+  }
+
+  if (type === "number") {
+    const numberRegex = /^-?\d+(?:\.\d+)?(?:e[+-]?\d+)?$/i;
+    if (!numberRegex.test(trimmedValue)) {
+      return "number-default";
+    }
+    const parsed = Number(trimmedValue);
+    if (Number.isNaN(parsed) || !Number.isFinite(parsed)) {
+      return "number-default";
+    }
+  } else if (type === "boolean") {
+    if (trimmedValue !== "true" && trimmedValue !== "false") {
+      return "boolean-default";
+    }
+  } else if (type === "date") {
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(trimmedValue)) {
+      const parsedDate = new Date(trimmedValue);
+      if (Number.isNaN(parsedDate.getTime())) {
+        return "date-default";
+      }
+    }
+  } else if (type === "dropdown") {
+    if (options && options.length > 0) {
+      const normalizedOptions = options.map((opt) => opt.trim());
+      if (!normalizedOptions.includes(trimmedValue)) {
+        return "dropdown-default";
+      }
+    }
+  }
+
+  return undefined;
+}
+
+const createCustomField = Effect.fn("customField.createCustomField")(function* (
   projectId: string,
   name: string,
   type: string,
@@ -16,15 +67,9 @@ async function createCustomField(
   defaultValue?: string,
   options?: string[],
 ) {
-  const [project] = await db
-    .select({ id: projectTable.id })
-    .from(projectTable)
-    .where(eq(projectTable.id, projectId))
-    .limit(1);
+  const database = yield* Database;
 
-  if (!project) {
-    throw new HTTPException(404, { message: "Project not found" });
-  }
+  yield* projectById(projectId);
 
   if (
     required &&
@@ -32,117 +77,79 @@ async function createCustomField(
       defaultValue === null ||
       defaultValue.trim() === "")
   ) {
-    throw new HTTPException(400, {
-      message: "Required fields must have a default value",
+    return yield* new InvalidCustomFieldDefinition({
+      reason: "required-default",
     });
   }
 
-  if (defaultValue !== undefined && defaultValue !== null) {
-    const trimmedValue = defaultValue.trim();
-
-    if (trimmedValue) {
-      if (type === "number") {
-        const numberRegex = /^-?\d+(?:\.\d+)?(?:e[+-]?\d+)?$/i;
-        if (!numberRegex.test(trimmedValue)) {
-          throw new HTTPException(400, {
-            message:
-              "Default value must be a valid number for number type fields",
-          });
-        }
-        const parsed = Number(trimmedValue);
-        if (Number.isNaN(parsed) || !Number.isFinite(parsed)) {
-          throw new HTTPException(400, {
-            message:
-              "Default value must be a valid number for number type fields",
-          });
-        }
-      } else if (type === "boolean") {
-        if (trimmedValue !== "true" && trimmedValue !== "false") {
-          throw new HTTPException(400, {
-            message:
-              "Default value must be 'true' or 'false' for boolean type fields",
-          });
-        }
-      } else if (type === "date") {
-        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-        if (!dateRegex.test(trimmedValue)) {
-          const parsedDate = new Date(trimmedValue);
-          if (Number.isNaN(parsedDate.getTime())) {
-            throw new HTTPException(400, {
-              message:
-                "Default value must be a valid date in ISO format (YYYY-MM-DD)",
-            });
-          }
-        }
-      } else if (type === "dropdown") {
-        if (options && options.length > 0) {
-          const normalizedOptions = options.map((opt) => opt.trim());
-          if (!normalizedOptions.includes(trimmedValue)) {
-            throw new HTTPException(400, {
-              message: "Default value must be one of the dropdown options",
-            });
-          }
-        }
-      }
-    }
+  const invalidDefault = validateDefaultValue(type, defaultValue, options);
+  if (invalidDefault) {
+    return yield* new InvalidCustomFieldDefinition({ reason: invalidDefault });
   }
 
   if (type === "dropdown" && (!options || options.length === 0)) {
-    throw new HTTPException(400, {
-      message: "Dropdown fields must have at least one option",
+    return yield* new InvalidCustomFieldDefinition({
+      reason: "dropdown-options",
     });
   }
 
-  const [maxPositionResult] = await db
-    .select({ maxPosition: max(customFieldDefinitionTable.position) })
-    .from(customFieldDefinitionTable)
-    .where(eq(customFieldDefinitionTable.projectId, projectId));
+  const [maxPositionResult] = yield* database.query((db) =>
+    db
+      .select({ maxPosition: max(customFieldDefinitionTable.position) })
+      .from(customFieldDefinitionTable)
+      .where(eq(customFieldDefinitionTable.projectId, projectId)),
+  );
 
-  const field = await db.transaction(async (tx) => {
-    const [created] = await tx
-      .insert(customFieldDefinitionTable)
-      .values({
-        projectId,
-        name,
-        type,
-        required,
-        defaultValue: defaultValue ?? null,
-        options: options ?? null,
-        position: (maxPositionResult?.maxPosition ?? 0) + 1,
-      })
-      .returning();
+  return yield* database.transaction((tx) =>
+    Effect.gen(function* () {
+      const [created] = yield* tx.query((db) =>
+        db
+          .insert(customFieldDefinitionTable)
+          .values({
+            projectId,
+            name,
+            type,
+            required,
+            defaultValue: defaultValue ?? null,
+            options: options ?? null,
+            position: (maxPositionResult?.maxPosition ?? 0) + 1,
+          })
+          .returning(),
+      );
 
-    if (!created) {
-      throw new HTTPException(500, {
-        message: "Failed to create custom field",
-      });
-    }
-
-    if (defaultValue != null && defaultValue.trim() !== "") {
-      const tasks = await tx
-        .select({ id: taskTable.id })
-        .from(taskTable)
-        .where(eq(taskTable.projectId, projectId));
-
-      const CHUNK_SIZE = 500;
-      for (let i = 0; i < tasks.length; i += CHUNK_SIZE) {
-        await tx
-          .insert(customFieldValueTable)
-          .values(
-            tasks.slice(i, i + CHUNK_SIZE).map((task) => ({
-              taskId: task.id,
-              fieldId: created.id,
-              value: defaultValue,
-            })),
-          )
-          .onConflictDoNothing();
+      if (!created) {
+        return yield* new CustomFieldCreateFailed({ projectId });
       }
-    }
 
-    return created;
-  });
+      if (defaultValue != null && defaultValue.trim() !== "") {
+        const tasks = yield* tx.query((db) =>
+          db
+            .select({ id: taskTable.id })
+            .from(taskTable)
+            .where(eq(taskTable.projectId, projectId)),
+        );
 
-  return field;
-}
+        const CHUNK_SIZE = 500;
+        for (let i = 0; i < tasks.length; i += CHUNK_SIZE) {
+          const chunk = tasks.slice(i, i + CHUNK_SIZE);
+          yield* tx.query((db) =>
+            db
+              .insert(customFieldValueTable)
+              .values(
+                chunk.map((task) => ({
+                  taskId: task.id,
+                  fieldId: created.id,
+                  value: defaultValue,
+                })),
+              )
+              .onConflictDoNothing(),
+          );
+        }
+      }
+
+      return created;
+    }),
+  );
+});
 
 export default createCustomField;

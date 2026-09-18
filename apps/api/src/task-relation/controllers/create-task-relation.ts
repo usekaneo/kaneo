@@ -1,121 +1,113 @@
 import { and, eq, or } from "drizzle-orm";
-import { HTTPException } from "hono/http-exception";
-import db from "../../database";
+import { Effect } from "effect";
+import { findTaskRefInWorkspace } from "../../database/lookups";
+import { taskRelationTable } from "../../database/schema";
+import { Database } from "../../effect/database";
+import { Events } from "../../effect/events";
 import {
-  projectTable,
-  taskRelationTable,
-  taskTable,
-} from "../../database/schema";
-import { publishEvent } from "../../events";
+  RelatedTaskNotFound,
+  RelationAlreadyExists,
+  RelationCreateFailed,
+  SelfRelation,
+} from "../errors";
 
-async function createTaskRelation({
-  sourceTaskId,
-  targetTaskId,
-  relationType,
-  userId,
-  workspaceId,
-}: {
-  sourceTaskId: string;
-  targetTaskId: string;
-  relationType: string;
-  userId: string;
-  workspaceId: string;
-}) {
-  if (sourceTaskId === targetTaskId) {
-    throw new HTTPException(400, {
-      message: "Cannot create a relation between a task and itself",
-    });
-  }
-
-  const [sourceTask] = await db
-    .select({
-      id: taskTable.id,
-      projectId: taskTable.projectId,
-      workspaceId: projectTable.workspaceId,
-    })
-    .from(taskTable)
-    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
-    .where(
-      and(
-        eq(taskTable.id, sourceTaskId),
-        eq(projectTable.workspaceId, workspaceId),
-      ),
-    )
-    .limit(1);
-
-  if (!sourceTask) {
-    throw new HTTPException(404, { message: "Source task not found" });
-  }
-
-  const [targetTask] = await db
-    .select({
-      id: taskTable.id,
-      projectId: taskTable.projectId,
-      workspaceId: projectTable.workspaceId,
-    })
-    .from(taskTable)
-    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
-    .where(
-      and(
-        eq(taskTable.id, targetTaskId),
-        eq(projectTable.workspaceId, workspaceId),
-      ),
-    )
-    .limit(1);
-
-  if (!targetTask) {
-    throw new HTTPException(404, { message: "Target task not found" });
-  }
-
-  const existing = await db
-    .select({ id: taskRelationTable.id })
-    .from(taskRelationTable)
-    .where(
-      and(
-        eq(taskRelationTable.relationType, relationType),
-        or(
-          and(
-            eq(taskRelationTable.sourceTaskId, sourceTaskId),
-            eq(taskRelationTable.targetTaskId, targetTaskId),
-          ),
-          and(
-            eq(taskRelationTable.sourceTaskId, targetTaskId),
-            eq(taskRelationTable.targetTaskId, sourceTaskId),
-          ),
-        ),
-      ),
-    )
-    .limit(1);
-
-  if (existing.length > 0) {
-    throw new HTTPException(409, {
-      message: "This relation already exists",
-    });
-  }
-
-  const [relation] = await db
-    .insert(taskRelationTable)
-    .values({
-      sourceTaskId,
-      targetTaskId,
-      relationType,
-    })
-    .returning();
-
-  if (!relation) {
-    throw new HTTPException(500, {
-      message: "Failed to create task relation",
-    });
-  }
-
-  await publishEvent("task-relation.created", {
-    ...relation,
-    taskId: sourceTaskId,
-    projectId: sourceTask.projectId,
+const createTaskRelation = Effect.fn("taskRelation.createTaskRelation")(
+  function* ({
+    sourceTaskId,
+    targetTaskId,
+    relationType,
     userId,
-  });
+    workspaceId,
+  }: {
+    sourceTaskId: string;
+    targetTaskId: string;
+    relationType: string;
+    userId: string;
+    workspaceId: string;
+  }) {
+    const database = yield* Database;
+    const events = yield* Events;
 
-  return relation;
-}
+    if (sourceTaskId === targetTaskId) {
+      return yield* new SelfRelation({ taskId: sourceTaskId });
+    }
+
+    const [sourceTask] = yield* database.query((db) =>
+      findTaskRefInWorkspace(sourceTaskId, workspaceId, db),
+    );
+
+    if (!sourceTask) {
+      return yield* new RelatedTaskNotFound({
+        role: "Source",
+        taskId: sourceTaskId,
+      });
+    }
+
+    const [targetTask] = yield* database.query((db) =>
+      findTaskRefInWorkspace(targetTaskId, workspaceId, db),
+    );
+
+    if (!targetTask) {
+      return yield* new RelatedTaskNotFound({
+        role: "Target",
+        taskId: targetTaskId,
+      });
+    }
+
+    const existing = yield* database.query((db) =>
+      db
+        .select({ id: taskRelationTable.id })
+        .from(taskRelationTable)
+        .where(
+          and(
+            eq(taskRelationTable.relationType, relationType),
+            or(
+              and(
+                eq(taskRelationTable.sourceTaskId, sourceTaskId),
+                eq(taskRelationTable.targetTaskId, targetTaskId),
+              ),
+              and(
+                eq(taskRelationTable.sourceTaskId, targetTaskId),
+                eq(taskRelationTable.targetTaskId, sourceTaskId),
+              ),
+            ),
+          ),
+        )
+        .limit(1),
+    );
+
+    if (existing.length > 0) {
+      return yield* new RelationAlreadyExists({
+        sourceTaskId,
+        targetTaskId,
+        relationType,
+      });
+    }
+
+    const [relation] = yield* database.query((db) =>
+      db
+        .insert(taskRelationTable)
+        .values({
+          sourceTaskId,
+          targetTaskId,
+          relationType,
+        })
+        .returning(),
+    );
+
+    if (!relation) {
+      return yield* new RelationCreateFailed({ sourceTaskId, targetTaskId });
+    }
+
+    yield* events.publish("task-relation.created", {
+      ...relation,
+      taskId: sourceTaskId,
+      projectId: sourceTask.projectId,
+      userId,
+    });
+
+    return relation;
+  },
+);
 
 export default createTaskRelation;

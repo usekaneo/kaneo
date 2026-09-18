@@ -47,7 +47,11 @@ vi.mock(
   }),
 );
 
-import deleteLabel from "../../../apps/api/src/label/controllers/delete-label";
+import deleteLabelEffect from "../../../apps/api/src/label/controllers/delete-label";
+import { runLabel } from "../../../apps/api/src/label/runtime";
+
+const deleteLabel = (...args: Parameters<typeof deleteLabelEffect>) =>
+  runLabel(deleteLabelEffect(...args));
 
 const WORKSPACE_LABEL = {
   id: "label-ws-1",

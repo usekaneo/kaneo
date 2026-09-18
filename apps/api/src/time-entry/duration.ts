@@ -1,26 +1,26 @@
-import { HTTPException } from "hono/http-exception";
+import { Effect } from "effect";
+import { InvalidTimeRange, TimeRangeTooLong } from "./errors";
 
 const MAX_DURATION_SECONDS = 2_147_483_647;
 
-export function resolveDuration(startTime: Date, endTime?: Date) {
-  if (!endTime) {
-    return null;
-  }
+export const resolveDuration = Effect.fn("timeEntry.resolveDuration")(
+  function* (startTime: Date, endTime?: Date) {
+    if (!endTime) {
+      return null;
+    }
 
-  if (startTime.getTime() > endTime.getTime()) {
-    throw new HTTPException(400, {
-      message:
-        "Start time cannot be after end time. Please adjust the time range.",
-    });
-  }
+    if (startTime.getTime() > endTime.getTime()) {
+      return yield* new InvalidTimeRange({ startTime, endTime });
+    }
 
-  const duration = Math.floor((endTime.getTime() - startTime.getTime()) / 1000);
+    const duration = Math.floor(
+      (endTime.getTime() - startTime.getTime()) / 1000,
+    );
 
-  if (duration > MAX_DURATION_SECONDS) {
-    throw new HTTPException(400, {
-      message: "The time range is too long to record.",
-    });
-  }
+    if (duration > MAX_DURATION_SECONDS) {
+      return yield* new TimeRangeTooLong({ duration });
+    }
 
-  return duration;
-}
+    return duration;
+  },
+);

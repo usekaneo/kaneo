@@ -17,7 +17,7 @@ overrides:
   minimatch: 10.2.3
   rollup: 4.59.0
   seroval: '>=1.5.3'
-  effect: '>=3.20.0'
+  effect@<4.0.0-0: '>=3.20.0'
   fast-xml-parser: '>=5.5.7'
   socket.io-parser: '>=4.2.7'
   picomatch: '>=4.0.4'
@@ -158,6 +158,9 @@ importers:
       drizzle-orm:
         specifier: ^0.45.2
         version: 0.45.2(@electric-sql/pglite@0.3.15)(@opentelemetry/api@1.9.1)(@prisma/client@7.4.2(prisma@7.4.2(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@7.0.2))(typescript@7.0.2))(@types/pg@8.21.0)(kysely@0.29.4)(mysql2@3.15.3)(pg@8.22.0)(postgres@3.4.7)(prisma@7.4.2(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@7.0.2))
+      effect:
+        specifier: 4.0.0-rc.115
+        version: 4.0.0-rc.115
       hono:
         specifier: '>=4.12.25'
         version: 4.12.34
@@ -5675,6 +5678,9 @@ packages:
 
   effect@3.22.1:
     resolution: {integrity: sha512-TNoXushmPOBAjJlthF5d2QwnX2xBPEtcNJr5XKNKbRLbDvBcOYkXlYDfvGfSA0zriwLFuCll5MDtNMAdZL17PQ==}
+
+  effect@4.0.0-rc.115:
+    resolution: {integrity: sha512-ogYulZ5ffeOzrJqQrG0XOkDO5lKn2s9KNHhoxJy/6wKUkF0i12dlVXWA9TgsgQ+zV/JzizyG0+XMPepZEQX6vw==}
 
   electron-to-chromium@1.5.400:
     resolution: {integrity: sha512-96EWDNjM59SYflgeV5Ylsf4EMiq1a25YjCnJH7cxn/AF2H3pILRweaUnoLax0yKHWdpOzY6JKEu45e8irqZIHA==}
@@ -13671,6 +13677,8 @@ snapshots:
       '@standard-schema/spec': 1.1.0
       fast-check: 3.23.2
     optional: true
+
+  effect@4.0.0-rc.115: {}
 
   electron-to-chromium@1.5.400: {}
 
