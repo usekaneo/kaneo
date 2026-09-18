@@ -1,14 +1,14 @@
-import { eq } from "drizzle-orm";
-import db from "../../database";
-import { timeEntryTable } from "../../database/schema";
+import { Effect } from "effect";
+import { findTimeEntry } from "../../database/lookups";
+import { Database } from "../../effect/database";
 
-async function getTimeEntry(id: string) {
-  const [timeEntry] = await db
-    .select()
-    .from(timeEntryTable)
-    .where(eq(timeEntryTable.id, id));
+const getTimeEntry = Effect.fn("timeEntry.getTimeEntry")(function* (
+  id: string,
+) {
+  const database = yield* Database;
+  const [timeEntry] = yield* database.query((db) => findTimeEntry(id, db));
 
   return timeEntry;
-}
+});
 
 export default getTimeEntry;

@@ -10,7 +10,11 @@ vi.mock("../../../apps/api/src/database", () => ({
   },
 }));
 
-import updateTimeEntry from "../../../apps/api/src/time-entry/controllers/update-time-entry";
+import updateTimeEntryEffect from "../../../apps/api/src/time-entry/controllers/update-time-entry";
+import { runTimeEntry } from "../../../apps/api/src/time-entry/runtime";
+
+const updateTimeEntry = (...args: Parameters<typeof updateTimeEntryEffect>) =>
+  runTimeEntry(updateTimeEntryEffect(...args));
 
 function makeSelectMock(rows: unknown[]) {
   const chain: Record<string, Mock> = {

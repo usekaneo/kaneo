@@ -29,6 +29,15 @@ export type EventMap = {
     task: TaskRef | Pick<TaskRef, "id" | "projectId">;
     taskId: string;
   };
+  "time-entry.created": {
+    timeEntryId: string;
+    taskId: string;
+    userId: string;
+    type: "create";
+    content: "started time tracking";
+    taskOwnerId: string | null | undefined;
+    taskTitle: string | undefined;
+  };
 };
 
 export type EventName = keyof EventMap;

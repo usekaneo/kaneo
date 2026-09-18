@@ -11,6 +11,7 @@ import getTimeEntriesByTaskId from "./controllers/get-time-entries";
 import getTimeEntry from "./controllers/get-time-entry";
 import updateTimeEntry from "./controllers/update-time-entry";
 import { timeEntryListSchema, timeEntrySchema } from "./response";
+import { runTimeEntry } from "./runtime";
 import {
   createTimeEntryBody,
   taskIdParam,
@@ -111,21 +112,26 @@ const updateTimeEntryRoute = createRoute({
 
 const timeEntry = apiRouter()
   .openapi(getTaskTimeEntriesRoute, async (c) =>
-    c.json(await getTimeEntriesByTaskId(c.req.valid("param").taskId), 200),
+    c.json(
+      await runTimeEntry(getTimeEntriesByTaskId(c.req.valid("param").taskId)),
+      200,
+    ),
   )
   .openapi(getTimeEntryRoute, async (c) =>
-    c.json(await getTimeEntry(c.req.valid("param").id), 200),
+    c.json(await runTimeEntry(getTimeEntry(c.req.valid("param").id)), 200),
   )
   .openapi(createTimeEntryRoute, async (c) => {
     const { taskId, startTime, endTime, description } = c.req.valid("json");
     return c.json(
-      await createTimeEntry({
-        taskId,
-        userId: c.get("userId"),
-        startTime: new Date(startTime),
-        endTime: endTime ? new Date(endTime) : undefined,
-        description,
-      }),
+      await runTimeEntry(
+        createTimeEntry({
+          taskId,
+          userId: c.get("userId"),
+          startTime: new Date(startTime),
+          endTime: endTime ? new Date(endTime) : undefined,
+          description,
+        }),
+      ),
       200,
     );
   })
@@ -133,12 +139,14 @@ const timeEntry = apiRouter()
     const { id } = c.req.valid("param");
     const { startTime, endTime, description } = c.req.valid("json");
     return c.json(
-      await updateTimeEntry({
-        timeEntryId: id,
-        startTime: new Date(startTime),
-        endTime: endTime ? new Date(endTime) : undefined,
-        description,
-      }),
+      await runTimeEntry(
+        updateTimeEntry({
+          timeEntryId: id,
+          startTime: new Date(startTime),
+          endTime: endTime ? new Date(endTime) : undefined,
+          description,
+        }),
+      ),
       200,
     );
   });

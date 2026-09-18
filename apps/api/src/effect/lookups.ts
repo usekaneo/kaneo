@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import { findLabel, findTaskRef } from "../database/lookups";
+import { findLabel, findTaskRef, findTimeEntry } from "../database/lookups";
 import { Database, type DatabaseExecutor } from "./database";
 import { NotFound } from "./errors";
 
@@ -29,4 +29,18 @@ export const taskRefById = Effect.fn("lookups.taskRefById")(function* (
   }
 
   return task;
+});
+
+export const timeEntryById = Effect.fn("lookups.timeEntryById")(function* (
+  id: string,
+  tx?: DatabaseExecutor,
+) {
+  const database = tx ?? (yield* Database);
+  const [timeEntry] = yield* database.query((db) => findTimeEntry(id, db));
+
+  if (!timeEntry) {
+    return yield* new NotFound({ entity: "Time entry", id });
+  }
+
+  return timeEntry;
 });

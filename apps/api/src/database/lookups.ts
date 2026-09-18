@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import type { DrizzleClient } from "./client";
-import { labelTable, projectTable, taskTable } from "./schema";
+import { labelTable, projectTable, taskTable, timeEntryTable } from "./schema";
 
 export function findLabel(id: string, client: DrizzleClient) {
   return client.query.labelTable.findFirst({ where: eq(labelTable.id, id) });
@@ -19,4 +19,8 @@ export function findTaskRef(taskId: string, client: DrizzleClient) {
     .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
     .where(eq(taskTable.id, taskId))
     .limit(1);
+}
+
+export function findTimeEntry(id: string, client: DrizzleClient) {
+  return client.select().from(timeEntryTable).where(eq(timeEntryTable.id, id));
 }

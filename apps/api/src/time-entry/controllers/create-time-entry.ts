@@ -1,12 +1,13 @@
 import { createId } from "@paralleldrive/cuid2";
 import { eq } from "drizzle-orm";
-import { HTTPException } from "hono/http-exception";
-import db from "../../database";
+import { Effect } from "effect";
 import { taskTable, timeEntryTable } from "../../database/schema";
-import { publishEvent } from "../../events";
+import { Database } from "../../effect/database";
+import { Events } from "../../effect/events";
 import { resolveDuration } from "../duration";
+import { TimeEntryCreateFailed } from "../errors";
 
-async function createTimeEntry({
+const createTimeEntry = Effect.fn("timeEntry.createTimeEntry")(function* ({
   taskId,
   userId,
   description,
@@ -19,33 +20,38 @@ async function createTimeEntry({
   startTime: Date;
   endTime?: Date;
 }) {
-  const duration = resolveDuration(startTime, endTime);
+  const database = yield* Database;
+  const events = yield* Events;
 
-  const [createdTimeEntry] = await db
-    .insert(timeEntryTable)
-    .values({
-      id: createId(),
-      taskId,
-      userId,
-      description: description || "",
-      startTime,
-      endTime: endTime || null,
-      duration,
-    })
-    .returning();
+  const duration = yield* resolveDuration(startTime, endTime);
+
+  const [createdTimeEntry] = yield* database.query((db) =>
+    db
+      .insert(timeEntryTable)
+      .values({
+        id: createId(),
+        taskId,
+        userId,
+        description: description || "",
+        startTime,
+        endTime: endTime || null,
+        duration,
+      })
+      .returning(),
+  );
 
   if (!createdTimeEntry) {
-    throw new HTTPException(500, {
-      message: "Failed to create time entry",
-    });
+    return yield* new TimeEntryCreateFailed({ taskId });
   }
 
-  const [task] = await db
-    .select({ userId: taskTable.userId, title: taskTable.title })
-    .from(taskTable)
-    .where(eq(taskTable.id, taskId));
+  const [task] = yield* database.query((db) =>
+    db
+      .select({ userId: taskTable.userId, title: taskTable.title })
+      .from(taskTable)
+      .where(eq(taskTable.id, taskId)),
+  );
 
-  await publishEvent("time-entry.created", {
+  yield* events.publish("time-entry.created", {
     timeEntryId: createdTimeEntry.id,
     taskId: createdTimeEntry.taskId,
     userId,
@@ -56,6 +62,6 @@ async function createTimeEntry({
   });
 
   return createdTimeEntry;
-}
+});
 
 export default createTimeEntry;
