@@ -1,70 +1,62 @@
 import { and, eq } from "drizzle-orm";
-import { HTTPException } from "hono/http-exception";
-import db from "../../database";
+import { Effect } from "effect";
+import { CommentNotFoundOrNotAuthor } from "../../comment/errors";
+import { ownCommentById } from "../../comment/lookups";
+import { AssetCleanup } from "../../comment/services";
 import { activityTable, taskTable } from "../../database/schema";
-import { publishEvent } from "../../events";
-import { deleteOrphanedAssets } from "../../storage/cleanup-assets";
+import { Database } from "../../effect/database";
+import { Events } from "../../effect/events";
 
-async function updateComment(userId: string, id: string, content: string) {
-  const [existing] = await db
-    .select({
-      id: activityTable.id,
-      content: activityTable.content,
-      taskId: activityTable.taskId,
-    })
-    .from(activityTable)
-    .where(
-      and(
-        eq(activityTable.id, id),
-        eq(activityTable.userId, userId),
-        eq(activityTable.type, "comment"),
-      ),
-    )
-    .limit(1);
+const updateComment = Effect.fn("comment.updateComment")(function* (
+  userId: string,
+  id: string,
+  content: string,
+) {
+  const database = yield* Database;
+  const events = yield* Events;
+  const assets = yield* AssetCleanup;
 
-  if (!existing) {
-    throw new HTTPException(404, {
-      message: "Comment not found or you are not the author",
-    });
-  }
+  const existing = yield* ownCommentById(id, userId);
 
-  const [updated] = await db
-    .update(activityTable)
-    .set({ content })
-    .where(
-      and(
-        eq(activityTable.id, id),
-        eq(activityTable.userId, userId),
-        eq(activityTable.type, "comment"),
-      ),
-    )
-    .returning();
+  const [updated] = yield* database.query((db) =>
+    db
+      .update(activityTable)
+      .set({ content })
+      .where(
+        and(
+          eq(activityTable.id, id),
+          eq(activityTable.userId, userId),
+          eq(activityTable.type, "comment"),
+        ),
+      )
+      .returning(),
+  );
 
   if (!updated) {
-    throw new HTTPException(404, {
-      message: "Comment not found or you are not the author",
-    });
+    return yield* new CommentNotFoundOrNotAuthor({ id, userId });
   }
 
-  const [task] = await db
-    .select({ projectId: taskTable.projectId })
-    .from(taskTable)
-    .where(eq(taskTable.id, updated.taskId))
-    .limit(1);
+  const [task] = yield* database.query((db) =>
+    db
+      .select({ projectId: taskTable.projectId })
+      .from(taskTable)
+      .where(eq(taskTable.id, updated.taskId))
+      .limit(1),
+  );
 
   if (task) {
-    await publishEvent("comment.updated", {
+    yield* events.publish("comment.updated", {
       ...updated,
       projectId: task.projectId,
       userId,
     });
   }
 
-  deleteOrphanedAssets(existing.content, content, {
+  yield* assets.deleteOrphaned(existing.content, content, {
     taskId: existing.taskId,
-  }).catch(() => {});
+  });
 
   return updated;
-}
+});
 
 export default updateComment;

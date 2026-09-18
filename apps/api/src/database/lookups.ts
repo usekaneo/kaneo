@@ -1,6 +1,12 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { DrizzleClient } from "./client";
-import { labelTable, projectTable, taskTable, timeEntryTable } from "./schema";
+import {
+  activityTable,
+  labelTable,
+  projectTable,
+  taskTable,
+  timeEntryTable,
+} from "./schema";
 
 export function findLabel(id: string, client: DrizzleClient) {
   return client.query.labelTable.findFirst({ where: eq(labelTable.id, id) });
@@ -23,4 +29,26 @@ export function findTaskRef(taskId: string, client: DrizzleClient) {
 
 export function findTimeEntry(id: string, client: DrizzleClient) {
   return client.select().from(timeEntryTable).where(eq(timeEntryTable.id, id));
+}
+
+export function findOwnComment(
+  id: string,
+  userId: string,
+  client: DrizzleClient,
+) {
+  return client
+    .select({
+      id: activityTable.id,
+      content: activityTable.content,
+      taskId: activityTable.taskId,
+    })
+    .from(activityTable)
+    .where(
+      and(
+        eq(activityTable.id, id),
+        eq(activityTable.userId, userId),
+        eq(activityTable.type, "comment"),
+      ),
+    )
+    .limit(1);
 }

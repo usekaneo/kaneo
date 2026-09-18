@@ -1,69 +1,60 @@
 import { and, eq } from "drizzle-orm";
-import { HTTPException } from "hono/http-exception";
-import db from "../../database";
+import { Effect } from "effect";
+import { CommentNotFoundOrNotAuthor } from "../../comment/errors";
+import { ownCommentById } from "../../comment/lookups";
+import { AssetCleanup } from "../../comment/services";
 import { activityTable, taskTable } from "../../database/schema";
-import { publishEvent } from "../../events";
-import { deleteOrphanedAssets } from "../../storage/cleanup-assets";
+import { Database } from "../../effect/database";
+import { Events } from "../../effect/events";
 
-async function deleteComment(userId: string, id: string) {
-  const [existing] = await db
-    .select({
-      id: activityTable.id,
-      content: activityTable.content,
-      taskId: activityTable.taskId,
-    })
-    .from(activityTable)
-    .where(
-      and(
-        eq(activityTable.id, id),
-        eq(activityTable.userId, userId),
-        eq(activityTable.type, "comment"),
-      ),
-    )
-    .limit(1);
+const deleteComment = Effect.fn("comment.deleteComment")(function* (
+  userId: string,
+  id: string,
+) {
+  const database = yield* Database;
+  const events = yield* Events;
+  const assets = yield* AssetCleanup;
 
-  if (!existing) {
-    throw new HTTPException(404, {
-      message: "Comment not found or you are not the author",
-    });
-  }
+  const existing = yield* ownCommentById(id, userId);
 
-  const [deletedComment] = await db
-    .delete(activityTable)
-    .where(
-      and(
-        eq(activityTable.id, id),
-        eq(activityTable.userId, userId),
-        eq(activityTable.type, "comment"),
-      ),
-    )
-    .returning();
+  const [deletedComment] = yield* database.query((db) =>
+    db
+      .delete(activityTable)
+      .where(
+        and(
+          eq(activityTable.id, id),
+          eq(activityTable.userId, userId),
+          eq(activityTable.type, "comment"),
+        ),
+      )
+      .returning(),
+  );
 
   if (!deletedComment) {
-    throw new HTTPException(404, {
-      message: "Comment not found or you are not the author",
-    });
+    return yield* new CommentNotFoundOrNotAuthor({ id, userId });
   }
 
-  const [task] = await db
-    .select({ projectId: taskTable.projectId })
-    .from(taskTable)
-    .where(eq(taskTable.id, deletedComment.taskId))
-    .limit(1);
+  const [task] = yield* database.query((db) =>
+    db
+      .select({ projectId: taskTable.projectId })
+      .from(taskTable)
+      .where(eq(taskTable.id, deletedComment.taskId))
+      .limit(1),
+  );
 
   if (task) {
-    await publishEvent("comment.deleted", {
+    yield* events.publish("comment.deleted", {
       ...deletedComment,
       projectId: task.projectId,
       userId,
     });
   }
 
-  deleteOrphanedAssets(existing.content, null, {
+  yield* assets.deleteOrphaned(existing.content, null, {
     taskId: existing.taskId,
-  }).catch(() => {});
+  });
 
   return deletedComment;
-}
+});
 
 export default deleteComment;

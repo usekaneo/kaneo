@@ -1,7 +1,8 @@
 import type { TaskRef } from "../database/lookups";
-import type { labelTable } from "../database/schema";
+import type { activityTable, labelTable } from "../database/schema";
 
 type LabelRow = typeof labelTable.$inferSelect;
+type ActivityRow = typeof activityTable.$inferSelect;
 
 type LabelEvent<Kind extends string> = {
   label: LabelRow;
@@ -38,6 +39,9 @@ export type EventMap = {
     taskOwnerId: string | null | undefined;
     taskTitle: string | undefined;
   };
+  "comment.created": ActivityRow & { comment: string; projectId: string };
+  "comment.updated": ActivityRow & { projectId: string; userId: string };
+  "comment.deleted": ActivityRow & { projectId: string; userId: string };
 };
 
 export type EventName = keyof EventMap;

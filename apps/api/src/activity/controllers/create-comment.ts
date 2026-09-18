@@ -1,62 +1,71 @@
 import { eq } from "drizzle-orm";
-import { HTTPException } from "hono/http-exception";
-import db from "../../database";
+import { Effect } from "effect";
+import { CommentCreateFailed } from "../../comment/errors";
+import { Notifications } from "../../comment/services";
 import {
   activityTable,
   projectTable,
   taskTable,
   userTable,
 } from "../../database/schema";
-import { publishEvent } from "../../events";
-import createNotification from "../../notification/controllers/create-notification";
+import { Database } from "../../effect/database";
+import { Events } from "../../effect/events";
 import { parseMentionIds } from "../../utils/parse-mentions";
 
-async function createComment(
+const createComment = Effect.fn("comment.createComment")(function* (
   taskId: string,
   userId: string,
   content: string,
   external?: { userName: string; source: string },
 ) {
-  const [activity] = await db
-    .insert(activityTable)
-    .values({
-      taskId,
-      type: "comment",
-      userId,
-      content,
-      ...(external
-        ? {
-            externalUserName: external.userName,
-            externalSource: external.source,
-          }
-        : {}),
-    })
-    .returning();
+  const database = yield* Database;
+  const events = yield* Events;
+  const notifications = yield* Notifications;
+
+  const [activity] = yield* database.query((db) =>
+    db
+      .insert(activityTable)
+      .values({
+        taskId,
+        type: "comment",
+        userId,
+        content,
+        ...(external
+          ? {
+              externalUserName: external.userName,
+              externalSource: external.source,
+            }
+          : {}),
+      })
+      .returning(),
+  );
 
   if (!activity) {
-    throw new HTTPException(500, {
-      message: "Failed to create activity",
-    });
+    return yield* new CommentCreateFailed({ taskId });
   }
 
-  const [user] = await db
-    .select({ name: userTable.name })
-    .from(userTable)
-    .where(eq(userTable.id, userId));
+  const [user] = yield* database.query((db) =>
+    db
+      .select({ name: userTable.name })
+      .from(userTable)
+      .where(eq(userTable.id, userId)),
+  );
 
-  const [task] = await db
-    .select({
-      assigneeId: taskTable.userId,
-      projectId: taskTable.projectId,
-      title: taskTable.title,
-      workspaceId: projectTable.workspaceId,
-    })
-    .from(taskTable)
-    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
-    .where(eq(taskTable.id, taskId));
+  const [task] = yield* database.query((db) =>
+    db
+      .select({
+        assigneeId: taskTable.userId,
+        projectId: taskTable.projectId,
+        title: taskTable.title,
+        workspaceId: projectTable.workspaceId,
+      })
+      .from(taskTable)
+      .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+      .where(eq(taskTable.id, taskId)),
+  );
 
   if (task) {
-    await publishEvent("comment.created", {
+    yield* events.publish("comment.created", {
       ...activity,
       comment: `**${user?.name}** commented:\n> ${content}`,
       projectId: task.projectId,
@@ -66,7 +75,7 @@ async function createComment(
   // Notify any workspace members @mentioned in the comment (not the author).
   const mentionedIds = parseMentionIds(content).filter((id) => id !== userId);
   for (const mentionedId of mentionedIds) {
-    await createNotification({
+    yield* notifications.create({
       userId: mentionedId,
       type: "task_mention",
       eventData: {
@@ -85,7 +94,7 @@ async function createComment(
     task.assigneeId !== userId &&
     !mentionedIds.includes(task.assigneeId)
   ) {
-    await createNotification({
+    yield* notifications.create({
       userId: task.assigneeId,
       type: "task_comment",
       eventData: {
@@ -101,6 +110,6 @@ async function createComment(
   }
 
   return activity;
-}
+});
 
 export default createComment;
