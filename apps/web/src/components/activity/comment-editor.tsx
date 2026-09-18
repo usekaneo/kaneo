@@ -368,12 +368,12 @@ export default function CommentEditor({
         const currentEditor = !activeEditor.isDestroyed
           ? activeEditor
           : lastEditorRef.current;
-        if (
-          (initialTaskId !== undefined &&
-            taskIdRef.current !== initialTaskId) ||
-          !currentEditor ||
-          currentEditor.isDestroyed
-        ) {
+        const taskChanged =
+          initialTaskId === undefined
+            ? taskIdRef.current !== undefined &&
+              taskIdRef.current !== resolvedTaskId
+            : taskIdRef.current !== initialTaskId;
+        if (taskChanged || !currentEditor || currentEditor.isDestroyed) {
           toast.dismiss(loadingToast);
           return;
         }
