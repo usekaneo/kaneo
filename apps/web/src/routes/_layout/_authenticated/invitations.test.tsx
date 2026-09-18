@@ -5,7 +5,7 @@ import { Route } from "./invitations";
 
 const config = vi.fn();
 const authUser = vi.fn();
-const refetchUser = vi.fn(async () => {});
+const getSession = vi.fn();
 const pendingInvitations = vi.fn();
 
 vi.mock("@tanstack/react-router", () => ({
@@ -22,12 +22,7 @@ vi.mock("@/hooks/queries/invitation/use-pending-invitations", () => ({
 }));
 
 vi.mock("@/components/providers/auth-provider/hooks/use-auth", () => ({
-  default: () => ({
-    user: authUser(),
-    refetchUser: async () => {
-      await refetchUser();
-    },
-  }),
+  default: () => ({ user: authUser(), refetchUser: vi.fn() }),
 }));
 
 vi.mock("@/lib/auth-client", () => ({
@@ -37,6 +32,7 @@ vi.mock("@/lib/auth-client", () => ({
       rejectInvitation: vi.fn(),
       setActive: vi.fn(),
     },
+    getSession: (options: unknown) => getSession(options),
   },
 }));
 
@@ -69,6 +65,11 @@ beforeEach(() => {
     isPending: false,
   });
   pendingInvitations.mockReturnValue({ data: [], isLoading: false });
+  // Better Auth resolves with `{ data, error }` and does not reject.
+  getSession.mockResolvedValue({
+    data: { user: { id: "u1", role: "user" } },
+    error: null,
+  });
 });
 
 afterEach(() => {
@@ -112,7 +113,10 @@ describe("InvitationsPage", () => {
         data: { disableWorkspaceCreation: true },
         isPending: false,
       });
-      authUser.mockReturnValue({ id: "u1", name: "Sam", role: "admin" });
+      getSession.mockResolvedValue({
+        data: { user: { id: "u1", role: "admin" } },
+        error: null,
+      });
 
       await renderPage(<InvitationsPage />);
 
@@ -154,7 +158,10 @@ describe("InvitationsPage", () => {
         data: { disableWorkspaceCreation: true },
         isPending: false,
       });
-      authUser.mockReturnValue({ id: "u1", name: "Sam", role: "admin" });
+      getSession.mockResolvedValue({
+        data: { user: { id: "u1", role: "admin" } },
+        error: null,
+      });
 
       await renderPage(<InvitationsPage />);
 

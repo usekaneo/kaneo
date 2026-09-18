@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
+import { authClient } from "@/lib/auth-client";
 
 // "stale" is a refresh that failed: the cached role is all there is.
 type RoleStatus = "pending" | "fresh" | "stale";
@@ -21,7 +22,7 @@ export type WorkspaceCreationAccess = {
  * offering, and every screen that offers it has to agree.
  */
 export default function useWorkspaceCreationAccess(): WorkspaceCreationAccess {
-  const { user, refetchUser } = useAuth();
+  const { user } = useAuth();
   const { data: config, isPending: configPending } = useGetConfig();
 
   // The session role can be up to five minutes stale: `auth.ts` notes that the
@@ -30,12 +31,18 @@ export default function useWorkspaceCreationAccess(): WorkspaceCreationAccess {
   // whether the first administrator of an instance is told to go and ask
   // someone for an invitation. Re-read it once, bypassing that cache.
   //
-  // Guarded by a ref rather than the dependency array: the provider builds
-  // `refetchUser` inline in its context value, so it is a new function on
-  // every provider render, and refetching rerenders the provider. Depending on
-  // it alone would refetch in a loop.
+  // `getSession` rather than the provider's `refetchUser`, because this needs
+  // to know whether the answer arrived. `useSession().refetch()` writes a
+  // failed request into the session store's `error` and keeps the stale
+  // `data` — deliberately, so a dropped connection does not sign anyone out —
+  // and resolves either way, so awaiting it cannot distinguish a confirmed
+  // role from an unconfirmed one.
+  //
+  // Guarded by a ref so React's development double-mount does not send it
+  // twice.
   const refreshStarted = useRef(false);
   const [roleStatus, setRoleStatus] = useState<RoleStatus>("pending");
+  const [refreshedRole, setRefreshedRole] = useState<string | null>(null);
 
   useEffect(() => {
     if (refreshStarted.current) return;
@@ -43,19 +50,27 @@ export default function useWorkspaceCreationAccess(): WorkspaceCreationAccess {
 
     void (async () => {
       try {
-        await refetchUser();
+        const { data, error } = await authClient.getSession({
+          query: { disableCookieCache: true },
+        });
+        if (error || !data) {
+          setRoleStatus("stale");
+          return;
+        }
+        setRefreshedRole((data.user as { role?: string | null }).role ?? null);
         setRoleStatus("fresh");
       } catch {
         // Swallowed rather than left to surface as an unhandled rejection.
-        // The cached role still describes most users correctly; "stale" only
-        // stops it being used to take something away.
         setRoleStatus("stale");
       }
     })();
-  }, [refetchUser]);
+  }, []);
 
+  // The re-read answer when there is one, the cached role when there is not.
   const isInstanceAdmin =
-    (user as { role?: string | null } | null | undefined)?.role === "admin";
+    roleStatus === "fresh"
+      ? refreshedRole === "admin"
+      : (user as { role?: string | null } | null | undefined)?.role === "admin";
 
   // Only a confirmed non-admin under a confirmed restriction loses anything.
   // Every other combination — a role that could not be re-read, a config
