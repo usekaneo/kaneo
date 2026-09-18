@@ -162,6 +162,35 @@ describe("OnboardingFlow", () => {
     process.off("unhandledRejection", unhandled);
   });
 
+  it("offers the form when the role refresh fails under a restriction", async () => {
+    // The cached role cannot be trusted to take the form away: the one user
+    // whose role is most likely wrong here is the freshly promoted first
+    // administrator, who is entitled to it. The API still refuses the
+    // creation if the role really is `user`.
+    config.mockReturnValue({
+      data: { disableWorkspaceCreation: true },
+      isPending: false,
+    });
+    refetchUser.mockRejectedValueOnce(new Error("network"));
+
+    render(<OnboardingFlow />);
+    await settled();
+    await settled();
+
+    expect(creationForm()).toBeInTheDocument();
+    expect(restricted()).not.toBeInTheDocument();
+  });
+
+  it("shows progress while the decision is pending", async () => {
+    config.mockReturnValue({ data: undefined, isPending: true });
+
+    render(<OnboardingFlow />);
+    await settled();
+
+    // Neither branch renders yet, and an empty page is not an answer.
+    expect(screen.getByRole("status")).toBeInTheDocument();
+  });
+
   it("claims nothing while the config is still loading", async () => {
     // `undefined` is the pending state. Showing the restriction here would
     // flash a false statement before a working form resolves, and showing the

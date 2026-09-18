@@ -15,8 +15,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import useGetConfig from "@/hooks/queries/config/use-get-config";
 import { usePendingInvitations } from "@/hooks/queries/invitation/use-pending-invitations";
+import useWorkspaceCreationAccess from "@/hooks/use-workspace-creation-access";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/cn";
 import { formatDateMedium } from "@/lib/format";
@@ -34,14 +34,12 @@ function InvitationsPage() {
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const { user } = useAuth();
-  const { data: session } = authClient.useSession();
-  const { data: config } = useGetConfig();
-  // Unknown is not restricted. This page has no fallback view, so treating a
-  // failed config request as a restriction would leave it with no action at
-  // all; the API refuses the creation anyway if it really is restricted.
-  const canCreateWorkspace =
-    session?.user?.role === "admin" ||
-    config?.disableWorkspaceCreation !== true;
+  // The same rule the onboarding screen applies, so this page cannot offer a
+  // route into a form that screen would refuse to show. It also covers the
+  // stale session role: the first administrator of an instance is promoted
+  // after their session is cached, and deciding on that would hide the only
+  // two controls on the page from the one user entitled to both.
+  const { canCreateWorkspace } = useWorkspaceCreationAccess();
 
   const handleSkip = () => {
     if (!user?.name) {
