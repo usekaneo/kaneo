@@ -1,7 +1,9 @@
 import { Effect } from "effect";
 import {
   findColumn,
+  findCustomField,
   findLabel,
+  findProject,
   findTaskRef,
   findTaskRelation,
   findTimeEntry,
@@ -76,4 +78,32 @@ export const columnById = Effect.fn("lookups.columnById")(function* (
   }
 
   return column;
+});
+
+export const projectById = Effect.fn("lookups.projectById")(function* (
+  id: string,
+  tx?: DatabaseExecutor,
+) {
+  const database = tx ?? (yield* Database);
+  const project = yield* database.query((db) => findProject(id, db));
+
+  if (!project) {
+    return yield* new NotFound({ entity: "Project", id });
+  }
+
+  return project;
+});
+
+export const customFieldById = Effect.fn("lookups.customFieldById")(function* (
+  id: string,
+  tx?: DatabaseExecutor,
+) {
+  const database = tx ?? (yield* Database);
+  const [field] = yield* database.query((db) => findCustomField(id, db));
+
+  if (!field) {
+    return yield* new NotFound({ entity: "Custom field", id });
+  }
+
+  return field;
 });

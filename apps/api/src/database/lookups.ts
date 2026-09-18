@@ -3,6 +3,7 @@ import type { DrizzleClient } from "./client";
 import {
   activityTable,
   columnTable,
+  customFieldDefinitionTable,
   labelTable,
   projectTable,
   taskRelationTable,
@@ -87,4 +88,18 @@ export function findTaskRelation(id: string, client: DrizzleClient) {
 
 export function findColumn(id: string, client: DrizzleClient) {
   return client.query.columnTable.findFirst({ where: eq(columnTable.id, id) });
+}
+
+export function findProject(id: string, client: DrizzleClient) {
+  return client.query.projectTable.findFirst({
+    where: eq(projectTable.id, id),
+  });
+}
+
+export function findCustomField(id: string, client: DrizzleClient) {
+  return client
+    .select()
+    .from(customFieldDefinitionTable)
+    .where(eq(customFieldDefinitionTable.id, id))
+    .limit(1);
 }

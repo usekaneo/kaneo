@@ -3,7 +3,9 @@ import { HTTPException } from "hono/http-exception";
 
 export type NotFoundEntity =
   | "Column"
+  | "Custom field"
   | "Label"
+  | "Project"
   | "Task"
   | "Task relation"
   | "Time entry";
