@@ -1,10 +1,10 @@
 import { render } from "@react-email/render";
 import { createElement } from "react";
 import { describe, expect, it } from "vitest";
-import enUS from "../../../../i18n/en-US.json";
-import frFR from "../../../../i18n/fr-FR.json";
-import jaJP from "../../../../i18n/ja-JP.json";
-import WorkspaceInvitationEmail from "./workspace-invitation";
+import enUS from "../../../../../i18n/en-US.json";
+import frFR from "../../../../../i18n/fr-FR.json";
+import jaJP from "../../../../../i18n/ja-JP.json";
+import WorkspaceInvitationEmail from "./invitation";
 
 describe("WorkspaceInvitationEmail", () => {
   it("renders the invitation in French for a French locale", async () => {

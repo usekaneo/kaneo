@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowUp, Paperclip } from "lucide-react";
-import { useCallback, useState } from "react";
+import { ArrowUp, Paperclip, Reply, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import CommentEditor from "@/components/activity/comment-editor";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import useCreateComment from "@/hooks/mutations/comment/use-create-comment";
 import { getModifierKeyText } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
+import { useCommentReplyStore } from "@/store/comment-reply";
 
 type CommentInputProps = {
   taskId: string;
@@ -26,6 +27,20 @@ export default function CommentInput({ taskId }: CommentInputProps) {
   const [attachAction, setAttachAction] = useState<(() => void) | null>(null);
   const { mutateAsync: createComment, isPending } = useCreateComment();
   const queryClient = useQueryClient();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const storedReply = useCommentReplyStore((s) => s.replyTo);
+  const requested = useCommentReplyStore((s) => s.requested);
+  const clearReply = useCommentReplyStore((s) => s.clear);
+  // A reply started on another task's comment doesn't belong here.
+  const replyTo = storedReply?.taskId === taskId ? storedReply : null;
+
+  // Bring the box into view when someone clicks Reply on a comment below.
+  useEffect(() => {
+    if (requested === 0) return;
+    const box = containerRef.current;
+    box?.scrollIntoView({ behavior: "smooth", block: "center" });
+    box?.querySelector<HTMLElement>(".ProseMirror")?.focus();
+  }, [requested]);
 
   const handleSubmit = useCallback(async () => {
     if (!content.trim()) {
@@ -37,9 +52,11 @@ export default function CommentInput({ taskId }: CommentInputProps) {
       await createComment({
         taskId,
         comment: content,
+        replyToId: replyTo?.id,
       });
 
       setContent("");
+      if (replyTo) clearReply();
       await queryClient.invalidateQueries({ queryKey: ["activities", taskId] });
 
       toast.success(t("activity:comment.added"));
@@ -47,7 +64,7 @@ export default function CommentInput({ taskId }: CommentInputProps) {
       console.error("Failed to create comment:", error);
       toast.error(t("activity:comment.failedToAdd"));
     }
-  }, [content, createComment, queryClient, t, taskId]);
+  }, [clearReply, content, createComment, queryClient, replyTo, t, taskId]);
 
   const handleAttachActionChange = useCallback(
     (nextAttachAction: (() => void) | null) => {
@@ -57,8 +74,32 @@ export default function CommentInput({ taskId }: CommentInputProps) {
   );
 
   return (
-    <div className="w-full">
+    <div ref={containerRef} className="w-full">
       <div className="rounded-xl border border-border/80 bg-card/70 transition-colors focus-within:border-ring/60 focus-within:shadow-[0_0_0_2px_color-mix(in_srgb,var(--ring)_20%,transparent)]">
+        {replyTo && (
+          <div className="flex items-center gap-2 border-border/70 border-b px-3 py-2">
+            <Reply className="size-3.5 shrink-0 text-primary" />
+            <div className="min-w-0 flex-1 border-primary/60 border-s-2 ps-2 text-xs">
+              <p className="font-semibold">
+                {t("activity:comment.replyingTo", {
+                  name: replyTo.userName ?? t("common:people.someone"),
+                })}
+              </p>
+              <p className="truncate text-muted-foreground">
+                {replyTo.excerpt}
+              </p>
+            </div>
+            <Button
+              size="xs"
+              variant="ghost"
+              onClick={clearReply}
+              aria-label={t("activity:comment.cancelReply")}
+              className="text-muted-foreground"
+            >
+              <X className="size-3.5" />
+            </Button>
+          </div>
+        )}
         <CommentEditor
           value={content}
           onChange={setContent}

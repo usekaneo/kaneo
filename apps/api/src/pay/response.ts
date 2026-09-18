@@ -54,6 +54,13 @@ export const payrollItemSchema = z
     overtimeMinutes: z.number(),
     baseAmount: z.number(),
     overtimeAmount: z.number(),
+    overtimeRate: z.number().openapi({
+      description: "Pay for one overtime hour, overtime premium included.",
+    }),
+    overtimeAutoAmount: z.number().openapi({
+      description:
+        "Overtime as calculated. Differs from overtimeAmount when edited.",
+    }),
     bonus: z.number(),
     deduction: z.number(),
     netAmount: z.number(),

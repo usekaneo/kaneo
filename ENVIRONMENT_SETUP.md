@@ -73,6 +73,12 @@ Kaneo supports three Redis deployment modes for WebSocket Pub/Sub. When any Redi
 
 > **Note:** Only one mode should be configured at a time. If multiple are set, the priority is: Cluster > Sentinel > Standalone.
 
+#### Email with Resend
+
+Kaneo sends email through [Resend](https://resend.com) when `RESEND_API_KEY` is set, and falls back to SMTP otherwise:
+- `RESEND_API_KEY` - Resend API key with sending access
+- `EMAIL_FROM` - Sender such as `Acme <team@mail.acme.com>`; the domain must be verified in Resend (falls back to `SMTP_FROM`)
+
 #### SMTP Configuration
 
 For sending emails (workspace invitations, magic links, etc.), configure these variables:

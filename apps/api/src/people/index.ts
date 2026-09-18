@@ -1,22 +1,32 @@
+import { HTTPException } from "hono/http-exception";
 import {
   apiRouter,
   createRoute,
   errorResponse,
   jsonResponse,
+  z,
 } from "../openapi";
 import { assertSelfOrPermission } from "../utils/assert-self-or-permission";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
+import getPeopleOverview from "./controllers/get-people-overview";
 import getPerson from "./controllers/get-person";
 import getPersonTasks from "./controllers/get-person-tasks";
 import listPeople from "./controllers/list-people";
+import setTaskOrder from "./controllers/set-task-order";
 import updatePerson from "./controllers/update-person";
 import {
+  peopleOverviewSchema,
   personDetailSchema,
   personListSchema,
   personTaskListSchema,
 } from "./response";
-import { personParam, updatePersonBody, workspaceQuery } from "./schema";
+import {
+  personParam,
+  setTaskOrderBody,
+  updatePersonBody,
+  workspaceQuery,
+} from "./schema";
 
 const listPeopleRoute = createRoute({
   method: "get",
@@ -94,9 +104,57 @@ const getPersonTasksRoute = createRoute({
   },
 });
 
+const setTaskOrderRoute = createRoute({
+  method: "put",
+  operationId: "setPersonTaskOrder",
+  path: "/{userId}/tasks/order",
+  tags: ["People"],
+  summary: "Set my task order",
+  description:
+    "Save your own ordering of your tasks on My work, most important first. Replaces the previous order in this workspace; tasks left out fall back to the top, newest first. Does not change board order.",
+  middleware: [workspaceAccess.fromBody()] as const,
+  request: {
+    params: personParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: setTaskOrderBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse(
+      "The saved order",
+      z.object({ taskIds: z.array(z.string()) }),
+    ),
+    403: errorResponse("Only your own order can be set"),
+  },
+});
+
+// Registered before "/{userId}" so "overview" is not taken for a user id.
+const peopleOverviewRoute = createRoute({
+  method: "get",
+  operationId: "getPeopleOverview",
+  path: "/overview",
+  tags: ["People"],
+  summary: "People overview",
+  description:
+    "Per-person workload, time at work this month and leave this year, for the admin People view. Pay is not included; see the Pay API.",
+  middleware: [
+    workspaceAccess.fromQuery(),
+    requireWorkspacePermission({ people: ["read_all"] }),
+  ] as const,
+  request: { query: workspaceQuery },
+  responses: {
+    200: jsonResponse("Overview", peopleOverviewSchema),
+    403: errorResponse("Missing people:read_all"),
+  },
+});
+
 const people = apiRouter()
   .openapi(listPeopleRoute, async (c) =>
     c.json(await listPeople(c.req.valid("query").workspaceId), 200),
+  )
+  .openapi(peopleOverviewRoute, async (c) =>
+    c.json(await getPeopleOverview(c.req.valid("query").workspaceId), 200),
   )
   .openapi(getPersonRoute, async (c) => {
     const { userId } = c.req.valid("param");
@@ -121,6 +179,16 @@ const people = apiRouter()
       await getPersonTasks(c.req.valid("query").workspaceId, userId),
       200,
     );
+  })
+  .openapi(setTaskOrderRoute, async (c) => {
+    const { userId } = c.req.valid("param");
+    if (userId !== c.get("userId")) {
+      throw new HTTPException(403, {
+        message: "Only your own order can be set",
+      });
+    }
+    const { workspaceId, taskIds } = c.req.valid("json");
+    return c.json(await setTaskOrder(workspaceId, userId, taskIds), 200);
   });
 
 export default people;

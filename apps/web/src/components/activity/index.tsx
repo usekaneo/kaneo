@@ -2,6 +2,7 @@ import { Calendar, CircleAlert, History, UserRound } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import useGetWorkspaceUsers from "@/hooks/queries/workspace-users/use-get-workspace-users";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { formatDateMedium, formatRelativeTime } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel, getStatusLabel } from "@/lib/i18n/domain";
@@ -27,6 +28,13 @@ type ActivityItem = {
   externalUserAvatar?: string | null;
   externalSource?: string | null;
   externalUrl?: string | null;
+  editedAt?: string | null;
+  replyTo?: {
+    id: string;
+    userName: string | null;
+    excerpt: string;
+  } | null;
+  reactions?: { emoji: string; userIds: string[] }[];
 };
 
 function getEventDataRecord(
@@ -424,6 +432,7 @@ function Activity({
   const { data: workspaceUsers } = useGetWorkspaceUsers({
     workspaceId: workspace?.id,
   });
+  const { canUpdateTasks } = useWorkspacePermission();
 
   const user = activity.userId
     ? workspaceUsers?.find(
@@ -460,6 +469,14 @@ function Activity({
             createdAt={activity.createdAt}
             externalSource={activity.externalSource}
             externalUrl={activity.externalUrl}
+            workspaceId={workspace?.id}
+            editedAt={activity.editedAt}
+            replyTo={activity.replyTo}
+            reactions={activity.reactions}
+            canInteract={Boolean(canUpdateTasks())}
+            nameOf={(id) =>
+              workspaceUsers?.find((w) => w.user?.id === id)?.user?.name ?? ""
+            }
           />
         </TimelineContent>
       </TimelineItem>

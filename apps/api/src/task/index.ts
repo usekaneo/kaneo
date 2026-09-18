@@ -29,6 +29,7 @@ import {
 } from "../utils/validate-dates";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import bulkUpdateTasks from "./controllers/bulk-update-tasks";
+import createQuickTask from "./controllers/create-quick-task";
 import createTask from "./controllers/create-task";
 import deleteTask from "./controllers/delete-task";
 import exportTasks from "./controllers/export-tasks";
@@ -62,6 +63,7 @@ import {
 } from "./response";
 import {
   bulkUpdateBody,
+  createQuickTaskBody,
   createTaskBody,
   finalizeImageUploadBody,
   imageUploadBody,
@@ -78,6 +80,7 @@ import {
   updateStatusBody,
   updateTaskBody,
   updateTitleBody,
+  workspaceIdParam,
 } from "./schema";
 
 const listTasksRoute = createRoute({
@@ -153,6 +156,35 @@ const createTaskRoute = createRoute({
   responses: {
     200: jsonResponse("The created task", taskSchema),
     400: errorResponse("Invalid body, or unknown project"),
+    403: errorResponse(
+      "No workspace access, or missing task:create permission",
+    ),
+  },
+});
+
+const createQuickTaskRoute = createRoute({
+  method: "post",
+  operationId: "createQuickTask",
+  path: "/workspace/{workspaceId}",
+  tags: ["Tasks"],
+  summary: "Create quick task",
+  description:
+    "Create a task assigned to the caller, placed in the project's first column. Without `projectId` it goes to the workspace's \"Daily Task\" project, which is created on first use.",
+  middleware: [
+    workspaceAccess.fromParam("workspaceId"),
+    requireWorkspacePermission({ task: ["create"] }),
+    requireEntitlement,
+  ] as const,
+  request: {
+    params: workspaceIdParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: createQuickTaskBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("The created task", taskSchema),
+    400: errorResponse("Invalid body, or unknown or archived project"),
     403: errorResponse(
       "No workspace access, or missing task:create permission",
     ),
@@ -645,6 +677,25 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       priority,
       status,
       customFields,
+    });
+
+    return c.json(task, 200);
+  })
+  .openapi(createQuickTaskRoute, async (c) => {
+    const { title, description, projectId, dueDate, priority } =
+      c.req.valid("json");
+
+    const task = await createQuickTask({
+      workspaceId: c.get("workspaceId"),
+      currentUserId: c.get("userId"),
+      title,
+      description,
+      projectId,
+      dueDate:
+        dueDate !== undefined
+          ? validateAndParseDate(dueDate, "dueDate")
+          : undefined,
+      priority,
     });
 
     return c.json(task, 200);

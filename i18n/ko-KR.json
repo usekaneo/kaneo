@@ -491,7 +491,8 @@
 			"reminderLeadTimeUnitHours": "시간",
 			"reminderLeadTimeUnitDays": "일",
 			"reminderLeadTimeInvalid": "1에서 {{max}} 사이의 정수를 입력하세요.",
-			"saveEventPreferences": "알림 유형 저장"
+			"saveEventPreferences": "알림 유형 저장",
+			"statusDefault": "Default: email, all projects"
 		},
 		"preferencesPage": {
 			"title": "환경설정",
@@ -1470,7 +1471,9 @@
 			"payroll": "Payroll",
 			"files": "Files",
 			"chat": "Chat",
-			"attendance": "Attendance"
+			"attendance": "Attendance",
+			"expenses": "Expenses",
+			"reports": "Reports"
 		},
 		"projectList": {
 			"viewProject": "프로젝트 보기",
@@ -1618,12 +1621,34 @@
 			"leave": {
 				"content": "{{dates}}",
 				"contentWithNote": "{{dates}} · {{note}}"
+			},
+			"expense_approved": {
+				"title": "Your expense was approved"
+			},
+			"expense_paid": {
+				"title": "Your expense was paid back"
+			},
+			"expense_rejected": {
+				"title": "Your expense was rejected"
+			},
+			"expense_submitted": {
+				"title": "{{userName}} submitted an expense for approval"
+			},
+			"payslip_ready": {
+				"title": "Your payslip is ready"
 			}
 		},
 		"reminderLeadTime": {
 			"minutes_other": "{{count}}분",
 			"hours_other": "{{count}}시간",
 			"days_other": "{{count}}일"
+		},
+		"invitations": {
+			"accept": "Join",
+			"decline": "Decline",
+			"invitedBy": "Invited by {{name}}",
+			"title": "Invitations",
+			"viewAll": "View all"
 		}
 	},
 	"activity": {
@@ -1736,7 +1761,14 @@
 				"mermaid": {
 					"renderFailed": "Mermaid 다이어그램을 렌더링할 수 없습니다"
 				}
-			}
+			},
+			"cancelReply": "Cancel reply",
+			"edited": "(edited)",
+			"failedToReact": "Couldn’t add your reaction",
+			"reactWith": "React with {{emoji}}",
+			"reply": "Reply",
+			"replyingTo": "Replying to {{name}}",
+			"you": "You"
 		}
 	},
 	"tasks": {
@@ -1910,7 +1942,23 @@
 			"deleteDialogTitle": "작업을 삭제하시겠습니까?",
 			"deleteDialogDescription": "작업과 모든 데이터가 영구적으로 제거됩니다. 이 작업은 취소할 수 없습니다.",
 			"deleteAction": "작업 삭제",
-			"completeAria": "하위 작업을 완료로 표시"
+			"completeAria": "하위 작업을 완료로 표시",
+			"addChecklist": "Add checklist",
+			"addItem": "Add an item",
+			"checklistDeleted": "Checklist deleted",
+			"checklistName": "Checklist name",
+			"checklistNamePlaceholder": "e.g. Design, QA (optional)",
+			"checklistOptions": "Options for {{name}}",
+			"defaultName": "Checklist",
+			"deleteChecklist": "Delete checklist",
+			"deleteChecklistEmpty": "The checklist is empty.",
+			"deleteChecklistTitle": "Delete “{{name}}”?",
+			"deleteChecklistWithItems_other": "Its {{count}} items are tasks and will be deleted too. You can’t undo this.",
+			"dragChecklist": "Drag to reorder",
+			"dragItem": "Drag to move",
+			"error": "Something went wrong",
+			"rename": "Rename",
+			"renameHint": "Double-click to rename"
 		},
 		"properties": {
 			"title": "속성",
@@ -2178,6 +2226,27 @@
 			"save": "Save",
 			"tooltip": "Tracked / estimated time",
 			"tracked": "Tracked so far: {{time}}"
+		},
+		"attachments": {
+			"title": "Files & media",
+			"add": "Add a file or link",
+			"upload": "Upload",
+			"link": "Link",
+			"uploadFile": "Upload file",
+			"pasteHint": "or Ctrl+V to paste an image",
+			"url": "Link URL",
+			"linkTitle": "Title (optional)",
+			"addLink": "Add link",
+			"empty": "No files or links yet.",
+			"emptyDrop": "No files or links yet. Drop files here to upload.",
+			"remove": "Remove",
+			"uploadError": "Upload failed",
+			"linkError": "Couldn't add the link",
+			"removeError": "Couldn't remove it"
+		},
+		"progress": {
+			"label": "{{done}}/{{total}} done · {{percent}}%",
+			"hint": "{{done}} of {{total}} subtasks done"
 		}
 	},
 	"invitations": {
@@ -2229,7 +2298,43 @@
 			"noDueDate": "마감일 없음",
 			"reorderHandle": "프로젝트 순서 변경",
 			"reorderError": "프로젝트 순서를 변경하지 못했습니다",
-			"emptyDescriptionReadOnly": "이 워크스페이스에 아직 프로젝트가 없습니다. 관리자에게 프로젝트 생성을 요청하세요."
+			"emptyDescriptionReadOnly": "이 워크스페이스에 아직 프로젝트가 없습니다. 관리자에게 프로젝트 생성을 요청하세요.",
+			"due": {
+				"inDays_other": "In {{count}} days",
+				"overdue_other": "{{count}} days overdue",
+				"today": "Due today"
+			},
+			"estimated": "of {{time}} estimated",
+			"filter": {
+				"active": "Active",
+				"all": "All",
+				"atRisk": "At risk",
+				"done": "Complete"
+			},
+			"filters": "Filter projects",
+			"health": {
+				"atRisk": "At risk",
+				"atRiskCount_other": "{{count}} overdue",
+				"done": "Complete",
+				"dueSoon": "Due this week",
+				"empty": "Not started",
+				"onTrack": "On track"
+			},
+			"nextDue": "Next due",
+			"noMatches": "No projects match.",
+			"search": "Search projects",
+			"summary": {
+				"active": "Active projects",
+				"complete": "Complete projects",
+				"dueThisWeek": "Due this week",
+				"openTasks": "Open tasks",
+				"overdue": "Overdue tasks",
+				"tracked": "Tracked, last 30 days"
+			},
+			"taskCounts": "{{open}} open · {{done}} done",
+			"team": "Team",
+			"tracked": "Tracked (30d)",
+			"updated": "Updated"
 		},
 		"search": {
 			"pageTitle": "검색",
@@ -2415,7 +2520,12 @@
 			"stop": "Stop timer",
 			"stopError": "Couldn't stop the timer",
 			"title": "Time",
-			"to": "To"
+			"to": "To",
+			"stopAndSave": "Stop and save",
+			"stopWithoutNote": "Stop without a note",
+			"whatDidYouDo": "What did you work on?",
+			"whatDidYouDoHint": "{{time}} on this task. A line or two is enough.",
+			"whatDidYouDoPlaceholder": "e.g. Compressed hero images, lazy-loaded the gallery"
 		},
 		"tabs": {
 			"attendance": "Attendance",
@@ -2479,6 +2589,36 @@
 			"empty": "No tasks assigned.",
 			"open_other": "{{count}} open tasks",
 			"recentlyDone_other": "{{count}} finished in the last 30 days"
+		},
+		"summary": {
+			"people": "People",
+			"departments": "Departments: {{count}}",
+			"invited": "Invited: {{count}}",
+			"present": "Present now",
+			"onLeave": "On leave today: {{count}}",
+			"openTasks": "Open tasks",
+			"unassigned": "Unassigned: {{count}}",
+			"overdue": "Overdue tasks",
+			"hoursThisMonth": "Worked this month",
+			"monthlyPayroll": "Monthly salaries",
+			"hourly": "Hourly: {{count}}",
+			"noSalary": "No salary set: {{count}}"
+		},
+		"table": {
+			"status": "Status",
+			"tasks": "Open tasks",
+			"thisMonth": "This month",
+			"leave": "Leave",
+			"salary": "Salary",
+			"overdue": "{{count}} overdue",
+			"present": "Present",
+			"away": "Not in",
+			"perMonth": "/mo",
+			"perHour": "/hr",
+			"noSalary": "Not set",
+			"editSalary": "Change salary for {{name}}",
+			"leavePending": "+{{count}} pending",
+			"leaveHint": "{{used}} of {{allowance}} days used, {{pending}} pending"
 		}
 	},
 	"company": {
@@ -2719,7 +2859,19 @@
 		},
 		"tasks": {
 			"profile": "My profile",
-			"title": "My tasks"
+			"title": "My tasks",
+			"new": "New task",
+			"dialogTitle": "New task",
+			"name": "Title",
+			"namePlaceholder": "What needs doing?",
+			"description": "Description",
+			"project": "Project",
+			"dueDate": "Due date",
+			"dailyProject": "Daily Task",
+			"dailyHint": "Without a project, the task goes to the \"Daily Task\" project, created automatically the first time.",
+			"create": "Create task",
+			"created": "Task created",
+			"createError": "Couldn't create the task"
 		},
 		"title": "My work",
 		"today": {
@@ -2732,6 +2884,40 @@
 			"title": "Today",
 			"tracked": "Tracked on tasks",
 			"worked": "Worked"
+		},
+		"table": {
+			"filters": "Task filters",
+			"filter": {
+				"open": "Open",
+				"today": "Due today",
+				"overdue": "Overdue",
+				"week": "Next 7 days",
+				"urgent": "Urgent & high",
+				"fromOthers": "Assigned by others",
+				"done": "Done"
+			},
+			"search": "Search tasks",
+			"allProjects": "All projects",
+			"col": {
+				"id": "ID",
+				"task": "Task",
+				"status": "Status",
+				"priority": "Priority",
+				"project": "Project",
+				"assignedBy": "Assigned by",
+				"due": "Due",
+				"time": "Time"
+			},
+			"noMatch": "No tasks match these filters.",
+			"you": "You",
+			"unknown": "Unknown",
+			"today": "Today",
+			"loading": "Loading…",
+			"updateError": "Couldn't update the task",
+			"myOrder": "My order",
+			"myOrderHint": "Arrange your tasks by dragging. Only you see this order; boards don't change.",
+			"dragHandle": "Reorder {{title}}",
+			"orderError": "Couldn't save your order"
 		}
 	},
 	"pay": {
@@ -2771,7 +2957,10 @@
 			"noSalaries": "Nobody has a salary for this month yet. Add salaries under Salaries, then recalculate.",
 			"paidHint": "Paid.",
 			"recalculate": "Recalculate",
-			"recalculated": "Recalculated from current salaries and attendance"
+			"recalculated": "Recalculated from current salaries and attendance",
+			"overtimeAuto": "Auto: {{amount}}",
+			"overtimeRateLine": "{{hours}} × {{rate}}/h",
+			"overtimeReset": "Use auto"
 		},
 		"salary": {
 			"amount": "Amount ({{currency}})",
@@ -3050,6 +3239,195 @@
 		"yesterday": "Yesterday",
 		"preview": {
 			"play": "Play {{title}}"
+		},
+		"offline": "Offline",
+		"online": "Online",
+		"messagePerson": "Message {{name}}",
+		"nobodyOnline": "Nobody else is online right now.",
+		"onlineCount_other": "{{count}} online",
+		"onlineNow": "Online now"
+	},
+	"emailLog": {
+		"all": "All",
+		"attempts_other": "{{count}} attempts",
+		"category": {
+			"expense": "Expense",
+			"invitation": "Invitation",
+			"leave": "Leave",
+			"other": "Other",
+			"pay": "Payroll",
+			"task": "Task"
+		},
+		"columns": {
+			"email": "Email",
+			"status": "Status",
+			"to": "To",
+			"when": "When"
+		},
+		"empty": "No emails yet.",
+		"error": "Something went wrong",
+		"provider": {
+			"hint": "Members get email for assignments, mentions, due dates, leave, expenses and payslips unless they turn it off in their notification settings.",
+			"none": "Email is not set up",
+			"noneHint": "Ask whoever runs this Kaneo server to set RESEND_API_KEY and EMAIL_FROM (or SMTP). Notifications still show inside Kaneo.",
+			"resend": "Sending with Resend",
+			"smtp": "Sending with SMTP"
+		},
+		"retried": "Email sent again",
+		"retry": "Send again",
+		"status": {
+			"failed": "Failed",
+			"queued": "Waiting",
+			"sending": "Sending",
+			"sent": "Sent"
+		},
+		"subtitle": "Every email Kaneo sent to people in this workspace, and whether it arrived at the mail provider. Failed emails are retried for about an hour.",
+		"title": "Email",
+		"noAccess": "Only people who manage workspace settings can see the email log."
+	},
+	"expenses": {
+		"title": "Expenses",
+		"tabs": {
+			"expenses": "Expenses"
+		},
+		"allTime": "All time",
+		"filters": "Expense filters",
+		"search": "Search expenses",
+		"everyone": "Everyone",
+		"byCategory": "By category",
+		"receipt": "Receipt",
+		"empty": "No expenses in this period.",
+		"noMatch": "No expenses match these filters.",
+		"approve": "Approve",
+		"reject": "Reject",
+		"markPaid": "Mark paid",
+		"status": {
+			"all": "All"
+		},
+		"col": {
+			"date": "Date",
+			"person": "Person",
+			"what": "Category & note",
+			"project": "Project",
+			"amount": "Amount",
+			"status": "Status"
+		},
+		"summary": {
+			"spent": "Total spent",
+			"pending": "Waiting approval",
+			"toReimburse": "Approved, to pay back",
+			"reimbursed": "Paid back",
+			"payroll": "Payroll (net)",
+			"totalCost": "Total cost",
+			"totalHint": "Payroll + approved and paid expenses",
+			"count": "Items: {{count}}",
+			"people": "People: {{count}}",
+			"noRun": "No payroll for this month",
+			"pickMonth": "Pick a month",
+			"otherCurrency": "Other currency: {{count}}"
 		}
+	},
+	"reports": {
+		"activity": {
+			"audit": {
+				"attendanceEdited": "{{who}} corrected attendance for {{target}}",
+				"expenseApproved": "{{who}} approved an expense for {{target}}",
+				"expensePaid": "{{who}} paid back an expense for {{target}}",
+				"expenseRejected": "{{who}} rejected an expense for {{target}}",
+				"leaveApproved": "{{who}} approved leave for {{target}}",
+				"leaveCancelled": "{{who}} called off leave for {{target}}",
+				"leaveRejected": "{{who}} rejected leave for {{target}}",
+				"other": "{{who}}: {{action}}",
+				"payrollApproved": "{{who}} approved a payroll run",
+				"payrollPaid": "{{who}} marked a payroll run paid"
+			},
+			"empty": "Nothing happened in this range.",
+			"more": "Show older",
+			"someone": "Someone",
+			"task": {
+				"assigned": "{{who}} assigned “{{task}}” to {{assignee}}",
+				"assignedSomeone": "{{who}} changed who works on “{{task}}”",
+				"comment": "{{who}} commented on “{{task}}”",
+				"created": "{{who}} created “{{task}}”",
+				"dueDate": "{{who}} changed the due date of “{{task}}”",
+				"moved": "{{who}} moved “{{task}}” to another project",
+				"other": "{{who}} updated “{{task}}”",
+				"priority": "{{who}} set “{{task}}” to {{priority}} priority",
+				"renamed": "{{who}} renamed a task to “{{task}}”",
+				"status": "{{who}} moved “{{task}}” to {{status}}",
+				"unassigned": "{{who}} unassigned “{{task}}”"
+			}
+		},
+		"attendance": {
+			"lateDays_other": "{{count}} late days",
+			"overtime": "Overtime",
+			"rate": "Attendance",
+			"title": "Attendance",
+			"worked": "Worked"
+		},
+		"columns": {
+			"person": "Person",
+			"project": "Project"
+		},
+		"csv": {
+			"metric": "Metric",
+			"name": "Name",
+			"section": "Section",
+			"value": "Value"
+		},
+		"expenses": {
+			"none": "No expenses in this range.",
+			"title": "Expenses by category"
+		},
+		"export": "Export CSV",
+		"filters": {
+			"allProjects": "All projects",
+			"everyone": "Everyone"
+		},
+		"leave": {
+			"days_other": "{{count}} days",
+			"none": "No approved leave in this range.",
+			"title": "Leave taken"
+		},
+		"loading": "Updating…",
+		"onlyYou": "Your own work",
+		"range": {
+			"custom": "Custom",
+			"from": "From",
+			"last30": "Last 30 days",
+			"lastMonth": "Last month",
+			"thisMonth": "This month",
+			"thisQuarter": "This quarter",
+			"thisWeek": "This week",
+			"to": "To"
+		},
+		"tabs": {
+			"activity": "Activity",
+			"overview": "Overview",
+			"people": "People",
+			"tasks": "Tasks",
+			"time": "Time"
+		},
+		"tasks": {
+			"byPerson": "Work by person",
+			"byProject": "Work by project",
+			"completed": "Completed",
+			"created": "Created",
+			"cycle": "Avg. {{time}} to finish",
+			"flowTitle": "Tasks created and completed",
+			"noneOverdue": "Nothing is overdue.",
+			"open": "Open",
+			"overdue": "Overdue",
+			"overdueList": "Overdue tasks"
+		},
+		"time": {
+			"byPerson": "Hours by person",
+			"byProject": "Hours by project",
+			"hours": "Hours",
+			"perDay": "Hours tracked per day",
+			"tracked": "Time tracked"
+		},
+		"title": "Reports",
+		"unassigned": "Unassigned"
 	}
 }

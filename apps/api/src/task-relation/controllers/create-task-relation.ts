@@ -1,5 +1,6 @@
 import { and, eq, or } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
+import { placeNewSubtask } from "../../checklist/controllers";
 import db from "../../database";
 import {
   projectTable,
@@ -14,12 +15,14 @@ async function createTaskRelation({
   relationType,
   userId,
   workspaceId,
+  checklistId,
 }: {
   sourceTaskId: string;
   targetTaskId: string;
   relationType: string;
   userId: string;
   workspaceId: string;
+  checklistId?: string;
 }) {
   if (sourceTaskId === targetTaskId) {
     throw new HTTPException(400, {
@@ -106,6 +109,10 @@ async function createTaskRelation({
     throw new HTTPException(500, {
       message: "Failed to create task relation",
     });
+  }
+
+  if (relationType === "subtask") {
+    await placeNewSubtask(sourceTaskId, relation.id, checklistId);
   }
 
   await publishEvent("task-relation.created", {

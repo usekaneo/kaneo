@@ -47,6 +47,7 @@ import TaskMovePopover from "./task-move-popover";
 import TaskPriorityPopover from "./task-priority-popover";
 import TaskStartDatePopover from "./task-start-date-popover";
 import TaskStatusPopover from "./task-status-popover";
+import { TaskTimeLog } from "./task-time-tracking";
 
 function slugify(text: string | undefined): string {
   if (!text) return "";
@@ -764,6 +765,7 @@ export default function TaskPropertiesSidebar({
               )}
             </div>
           </div>
+          {taskId && <TaskTimeLog taskId={taskId} className="mt-2" />}
         </div>
       </div>
     </div>

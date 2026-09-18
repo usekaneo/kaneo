@@ -22,6 +22,7 @@ The variables are split up into the following sections:
 - [Discord SSO](#discord-sso)
 - [Custom OAuth/OIDC](#custom-oauth-oidc)
 - [Redis](#redis)
+- [Email with Resend](#email-with-resend)
 - [SMTP Configuration](#smtp-configuration)
 
 ## Required variables
@@ -199,6 +200,15 @@ Name | Description |
 --- | --- |
 | `REDIS_PASSWORD` | Password for the Redis data nodes (used by both Sentinel and Cluster modes, not for Sentinel auth itself; use `REDIS_SENTINEL_PASSWORD` for that).
 
+### Email with Resend
+
+Kaneo sends email through [Resend](https://resend.com) when `RESEND_API_KEY` is set, and falls back to SMTP otherwise. You only need one of the two.
+
+Name | Description |
+--- | --- |
+| `RESEND_API_KEY` | A Resend API key with sending access (`re_…`).
+| `EMAIL_FROM` | The sender, e.g. `Acme <team@mail.acme.com>`. Its domain must be verified in Resend. Falls back to `SMTP_FROM`.
+
 ### SMTP Configuration
 
 Name | Description |
@@ -219,5 +229,5 @@ Name | Description |
 - If you enable Google SSO, you need to set up the Google app which is used to authenticate users in the [Google Cloud Console](https://console.cloud.google.com/). See the [Google SSO guide](/core/social-providers/google).
 - If you enable Discord SSO, you need to set up the Discord application which is used to authenticate users in the [Discord Developer Portal](https://discord.com/developers/applications). See the [Discord SSO guide](/core/social-providers/discord).
 - If you enable Custom OAuth/OIDC, you need to configure your identity provider with the appropriate redirect URI. See the [Custom OAuth/OIDC guide](/core/social-providers/custom-oauth).
-- If you have enabled SMTP, sign-in uses email verification codes by default. Set `DISABLE_EMAIL_OTP_SIGN_IN=true` to use email/password sign-in instead.
+- If you have enabled email (Resend or SMTP), sign-in uses email verification codes by default. Set `DISABLE_EMAIL_OTP_SIGN_IN=true` to use email/password sign-in instead.
 - If you need device authorization for clients beyond the defaults (`kaneo-cli`, `kaneo-mcp` when `DEVICE_AUTH_CLIENT_IDS` is unset), set `DEVICE_AUTH_CLIENT_IDS` to the full comma-separated list of trusted client IDs for your deployment.

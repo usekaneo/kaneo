@@ -10,13 +10,19 @@ import {
 import { publishEvent } from "../../events";
 import createNotification from "../../notification/controllers/create-notification";
 import { parseMentionIds } from "../../utils/parse-mentions";
+import { assertReplyTarget } from "./comment-extras";
 
 async function createComment(
   taskId: string,
   userId: string,
   content: string,
   external?: { userName: string; source: string },
+  replyToId?: string,
 ) {
+  const repliedTo = replyToId
+    ? await assertReplyTarget(taskId, replyToId)
+    : null;
+
   const [activity] = await db
     .insert(activityTable)
     .values({
@@ -24,6 +30,7 @@ async function createComment(
       type: "comment",
       userId,
       content,
+      replyToId: repliedTo?.id ?? null,
       ...(external
         ? {
             externalUserName: external.userName,
@@ -80,8 +87,32 @@ async function createComment(
     });
   }
 
+  // Whoever wrote the comment being replied to hears about the reply.
+  const replyAuthor = repliedTo?.userId;
+  if (
+    task &&
+    replyAuthor &&
+    replyAuthor !== userId &&
+    !mentionedIds.includes(replyAuthor)
+  ) {
+    await createNotification({
+      userId: replyAuthor,
+      type: "task_comment",
+      eventData: {
+        taskTitle: task.title,
+        commenterName: user?.name ?? null,
+        commentPreview: content.slice(0, 160),
+        projectId: task.projectId,
+        workspaceId: task.workspaceId,
+      },
+      resourceId: taskId,
+      resourceType: "task",
+    });
+  }
+
   if (
     task?.assigneeId &&
+    task.assigneeId !== replyAuthor &&
     task.assigneeId !== userId &&
     !mentionedIds.includes(task.assigneeId)
   ) {

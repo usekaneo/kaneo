@@ -105,6 +105,15 @@ export const requestsApi = {
         query: person(workspaceId, userId),
       }),
     ),
+  allExpenses: async (
+    workspaceId: string,
+    filters: { from?: string; to?: string } = {},
+  ) =>
+    unwrap(
+      await client.requests.expenses.all.$get({
+        query: { workspaceId, ...filters },
+      }),
+    ),
   submitExpense: async (json: ExpenseBody) =>
     unwrap(await client.requests.expenses.$post({ json })),
   cancelExpense: async (workspaceId: string, id: string) =>

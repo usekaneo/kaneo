@@ -91,6 +91,17 @@ export const useExpenses = (workspaceId?: string, userId?: string) =>
     enabled: !!workspaceId,
   });
 
+export const useAllExpenses = (
+  workspaceId: string | undefined,
+  filters: { from?: string; to?: string },
+  enabled = true,
+) =>
+  useQuery({
+    queryKey: ["requests", "all-expenses", workspaceId, filters],
+    queryFn: () => requestsApi.allExpenses(workspaceId as string, filters),
+    enabled: !!workspaceId && enabled,
+  });
+
 export const useOpenRequests = (workspaceId?: string, enabled = true) =>
   useQuery({
     queryKey: ["requests", "open", workspaceId],

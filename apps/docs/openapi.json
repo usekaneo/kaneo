@@ -276,12 +276,66 @@
             ],
             "format": "date-time",
             "description": "The soonest due date among the project's open tasks."
+          },
+          "nextDueDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "The soonest due date among open tasks only."
+          },
+          "openTasks": {
+            "type": "number"
+          },
+          "completedTasks": {
+            "type": "number"
+          },
+          "overdueTasks": {
+            "type": "number",
+            "description": "Open tasks whose due date has passed."
+          },
+          "dueThisWeekTasks": {
+            "type": "number",
+            "description": "Open tasks due in the next 7 days."
+          },
+          "estimateMinutes": {
+            "type": "number",
+            "description": "Sum of the tasks' estimates."
+          },
+          "trackedSecondsLast30Days": {
+            "type": "number",
+            "description": "Finished time entries on the project's tasks, last 30 days."
+          },
+          "assigneeIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "People assigned to the project's open tasks."
+          },
+          "lastActivityAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "When any of the project's tasks last changed."
           }
         },
         "required": [
           "completionPercentage",
           "totalTasks",
-          "dueDate"
+          "dueDate",
+          "nextDueDate",
+          "openTasks",
+          "completedTasks",
+          "overdueTasks",
+          "dueThisWeekTasks",
+          "estimateMinutes",
+          "trackedSecondsLast30Days",
+          "assigneeIds",
+          "lastActivityAt"
         ]
       },
       "BoardTask": {
@@ -1101,6 +1155,76 @@
           "updatedAt"
         ]
       },
+      "FeedActivity": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Activity"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "replyTo": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "userId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "userName": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "excerpt": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "userId",
+                  "userName",
+                  "excerpt"
+                ],
+                "description": "The quoted comment; null once it has been deleted."
+              },
+              "reactions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "emoji": {
+                      "type": "string"
+                    },
+                    "userIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "emoji",
+                    "userIds"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "replyTo",
+              "reactions"
+            ]
+          }
+        ]
+      },
       "Activity": {
         "type": "object",
         "properties": {
@@ -1162,6 +1286,21 @@
               "string",
               "null"
             ]
+          },
+          "replyToId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Comments only: the comment this one replies to."
+          },
+          "editedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "When the author last edited the comment."
           }
         },
         "required": [
@@ -1175,7 +1314,9 @@
           "externalUserName",
           "externalUserAvatar",
           "externalSource",
-          "externalUrl"
+          "externalUrl",
+          "replyToId",
+          "editedAt"
         ]
       },
       "Comment": {
@@ -1591,6 +1732,20 @@
           "path"
         ]
       },
+      "ChatPresence": {
+        "type": "object",
+        "properties": {
+          "online": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "online"
+        ]
+      },
       "ChatConversation": {
         "type": "object",
         "properties": {
@@ -1892,6 +2047,704 @@
           "youtubeId"
         ]
       },
+      "EmailLog": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "resend",
+              "smtp",
+              null
+            ],
+            "description": "How this instance sends email; null when it can't."
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmailLogEntry"
+            }
+          }
+        },
+        "required": [
+          "provider",
+          "entries"
+        ]
+      },
+      "EmailLogEntry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "toEmail": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "description": "queued, sending, sent or failed"
+          },
+          "attempts": {
+            "type": "number"
+          },
+          "lastError": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sentAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "toEmail",
+          "subject",
+          "category",
+          "status",
+          "attempts",
+          "lastError",
+          "createdAt",
+          "sentAt"
+        ]
+      },
+      "ReportSummary": {
+        "type": "object",
+        "properties": {
+          "scope": {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "team": {
+                "type": "boolean",
+                "description": "Whether the caller may see everyone (report:read)."
+              }
+            },
+            "required": [
+              "userId",
+              "team"
+            ]
+          },
+          "tasks": {
+            "type": "object",
+            "properties": {
+              "created": {
+                "type": "number"
+              },
+              "completed": {
+                "type": "number"
+              },
+              "open": {
+                "type": "number"
+              },
+              "overdue": {
+                "type": "number"
+              },
+              "averageCycleHours": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "series": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "day": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "type": "number"
+                    },
+                    "completed": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "day",
+                    "created",
+                    "completed"
+                  ]
+                }
+              },
+              "byPerson": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "userId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "name": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "image": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "open": {
+                      "type": "number"
+                    },
+                    "completed": {
+                      "type": "number"
+                    },
+                    "overdue": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "userId",
+                    "name",
+                    "image",
+                    "open",
+                    "completed",
+                    "overdue"
+                  ]
+                }
+              },
+              "byProject": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "projectId": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "type": "number"
+                    },
+                    "completed": {
+                      "type": "number"
+                    },
+                    "open": {
+                      "type": "number"
+                    },
+                    "overdue": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "projectId",
+                    "name",
+                    "created",
+                    "completed",
+                    "open",
+                    "overdue"
+                  ]
+                }
+              },
+              "overdueTasks": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "number": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "dueDate": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "projectId": {
+                      "type": "string"
+                    },
+                    "projectName": {
+                      "type": "string"
+                    },
+                    "assigneeName": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "number",
+                    "title",
+                    "dueDate",
+                    "projectId",
+                    "projectName",
+                    "assigneeName"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "created",
+              "completed",
+              "open",
+              "overdue",
+              "averageCycleHours",
+              "series",
+              "byPerson",
+              "byProject",
+              "overdueTasks"
+            ]
+          },
+          "time": {
+            "type": "object",
+            "properties": {
+              "trackedSeconds": {
+                "type": "number"
+              },
+              "byDay": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "day": {
+                      "type": "string"
+                    },
+                    "seconds": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "day",
+                    "seconds"
+                  ]
+                }
+              },
+              "byPerson": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "userId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "name": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "seconds": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "userId",
+                    "name",
+                    "seconds"
+                  ]
+                }
+              },
+              "byProject": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "projectId": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "seconds": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "projectId",
+                    "name",
+                    "seconds"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "trackedSeconds",
+              "byDay",
+              "byPerson",
+              "byProject"
+            ]
+          },
+          "attendance": {
+            "type": "object",
+            "properties": {
+              "people": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "userId": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "presentDays": {
+                      "type": "number"
+                    },
+                    "lateDays": {
+                      "type": "number"
+                    },
+                    "absentDays": {
+                      "type": "number"
+                    },
+                    "leaveDays": {
+                      "type": "number"
+                    },
+                    "workedMinutes": {
+                      "type": "number"
+                    },
+                    "overtimeMinutes": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "userId",
+                    "name",
+                    "presentDays",
+                    "lateDays",
+                    "absentDays",
+                    "leaveDays",
+                    "workedMinutes",
+                    "overtimeMinutes"
+                  ]
+                }
+              },
+              "totals": {
+                "type": "object",
+                "properties": {
+                  "presentDays": {
+                    "type": "number"
+                  },
+                  "lateDays": {
+                    "type": "number"
+                  },
+                  "absentDays": {
+                    "type": "number"
+                  },
+                  "leaveDays": {
+                    "type": "number"
+                  },
+                  "workedMinutes": {
+                    "type": "number"
+                  },
+                  "overtimeMinutes": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "presentDays",
+                  "lateDays",
+                  "absentDays",
+                  "leaveDays",
+                  "workedMinutes",
+                  "overtimeMinutes"
+                ]
+              }
+            },
+            "required": [
+              "people",
+              "totals"
+            ]
+          },
+          "leave": {
+            "type": "object",
+            "properties": {
+              "approvedDaysByType": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "days": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "days"
+                  ]
+                }
+              },
+              "requestsByStatus": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "count": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "count"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "approvedDaysByType",
+              "requestsByStatus"
+            ]
+          },
+          "expenses": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "currency": {
+                "type": "string"
+              },
+              "byCategory": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "category": {
+                      "type": "string"
+                    },
+                    "amount": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "category",
+                    "amount"
+                  ]
+                }
+              },
+              "byStatus": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "count": {
+                      "type": "number"
+                    },
+                    "amount": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "count",
+                    "amount"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "currency",
+              "byCategory",
+              "byStatus"
+            ],
+            "description": "Amounts in minor units. Null for people who may not see others' money."
+          }
+        },
+        "required": [
+          "scope",
+          "tasks",
+          "time",
+          "attendance",
+          "leave",
+          "expenses"
+        ]
+      },
+      "ReportActivity": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "source": {
+                  "type": "string",
+                  "enum": [
+                    "task",
+                    "audit"
+                  ]
+                },
+                "action": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "actorId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "actorName": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "data": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "additionalProperties": {}
+                },
+                "content": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "taskId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "taskNumber": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "taskTitle": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "projectId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "projectName": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "source",
+                "action",
+                "createdAt",
+                "actorId",
+                "actorName",
+                "data",
+                "content",
+                "taskId",
+                "taskNumber",
+                "taskTitle",
+                "projectId",
+                "projectName"
+              ]
+            }
+          },
+          "nextBefore": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "items",
+          "nextBefore"
+        ]
+      },
+      "TaskChecklist": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "taskId": {
+            "type": "string"
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Null shows as the default name, \"Checklist\"."
+          },
+          "position": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "taskId",
+          "title",
+          "position",
+          "createdAt"
+        ]
+      },
       "CompanyToday": {
         "type": "object",
         "properties": {
@@ -2072,73 +2925,6 @@
           "available"
         ]
       },
-      "LeaveHistory": {
-        "type": "array",
-        "items": {
-          "allOf": [
-            {
-              "$ref": "#/components/schemas/LeaveRequest"
-            },
-            {
-              "type": "object",
-              "properties": {
-                "decidedByName": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
-                }
-              },
-              "required": [
-                "decidedByName"
-              ]
-            }
-          ]
-        }
-      },
-      "LeavePreview": {
-        "type": "object",
-        "properties": {
-          "days": {
-            "type": "number",
-            "description": "Working days in the range."
-          }
-        },
-        "required": [
-          "days"
-        ]
-      },
-      "LeaveRequestBasic": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
-          },
-          "startDate": {
-            "type": "string"
-          },
-          "endDate": {
-            "type": "string"
-          },
-          "days": {
-            "type": "number"
-          },
-          "status": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "type",
-          "startDate",
-          "endDate",
-          "days",
-          "status"
-        ]
-      },
       "Expense": {
         "type": "object",
         "properties": {
@@ -2233,6 +3019,73 @@
           "decidedAt",
           "paidAt",
           "createdAt"
+        ]
+      },
+      "LeaveHistory": {
+        "type": "array",
+        "items": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/LeaveRequest"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "decidedByName": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "decidedByName"
+              ]
+            }
+          ]
+        }
+      },
+      "LeavePreview": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "number",
+            "description": "Working days in the range."
+          }
+        },
+        "required": [
+          "days"
+        ]
+      },
+      "LeaveRequestBasic": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "days": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "startDate",
+          "endDate",
+          "days",
+          "status"
         ]
       },
       "OpenRequests": {
@@ -2506,6 +3359,14 @@
           "overtimeAmount": {
             "type": "number"
           },
+          "overtimeRate": {
+            "type": "number",
+            "description": "Pay for one overtime hour, overtime premium included."
+          },
+          "overtimeAutoAmount": {
+            "type": "number",
+            "description": "Overtime as calculated. Differs from overtimeAmount when edited."
+          },
           "bonus": {
             "type": "number"
           },
@@ -2532,6 +3393,8 @@
           "overtimeMinutes",
           "baseAmount",
           "overtimeAmount",
+          "overtimeRate",
+          "overtimeAutoAmount",
           "bonus",
           "deduction",
           "netAmount",
@@ -3282,6 +4145,70 @@
           "online"
         ]
       },
+      "PeopleOverview": {
+        "type": "object",
+        "properties": {
+          "today": {
+            "type": "string",
+            "description": "Company-local day"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "leaveAllowance": {
+            "type": "number",
+            "description": "Annual leave days per person"
+          },
+          "unassignedOpenTasks": {
+            "type": "number"
+          },
+          "people": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "string"
+                },
+                "openTasks": {
+                  "type": "number"
+                },
+                "overdueTasks": {
+                  "type": "number"
+                },
+                "workedMinutesThisMonth": {
+                  "type": "number"
+                },
+                "leaveUsed": {
+                  "type": "number"
+                },
+                "leavePending": {
+                  "type": "number"
+                },
+                "onLeaveToday": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "userId",
+                "openTasks",
+                "overdueTasks",
+                "workedMinutesThisMonth",
+                "leaveUsed",
+                "leavePending",
+                "onLeaveToday"
+              ]
+            }
+          }
+        },
+        "required": [
+          "today",
+          "currency",
+          "leaveAllowance",
+          "unassignedOpenTasks",
+          "people"
+        ]
+      },
       "PersonDetail": {
         "allOf": [
           {
@@ -3385,6 +4312,18 @@
           "status": {
             "type": "string"
           },
+          "statusName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "statusIcon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "priority": {
             "type": "string"
           },
@@ -3407,6 +4346,46 @@
           "done": {
             "type": "boolean"
           },
+          "assignedById": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Who last assigned the task to this person (the creator when assigned at creation)."
+          },
+          "assignedByName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "assignedByImage": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "attachmentCount": {
+            "type": "number"
+          },
+          "subtaskTotal": {
+            "type": "number"
+          },
+          "subtaskDone": {
+            "type": "number",
+            "description": "Subtasks in a final column."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "myPosition": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "The person's own My work order (lower first); null until they arrange it."
+          },
           "projectId": {
             "type": "string"
           },
@@ -3422,11 +4401,21 @@
           "title",
           "number",
           "status",
+          "statusName",
+          "statusIcon",
           "priority",
           "dueDate",
           "estimateMinutes",
           "trackedSeconds",
           "done",
+          "assignedById",
+          "assignedByName",
+          "assignedByImage",
+          "attachmentCount",
+          "subtaskTotal",
+          "subtaskDone",
+          "createdAt",
+          "myPosition",
           "projectId",
           "projectName",
           "projectSlug"
@@ -5046,6 +6035,17 @@
             "type": "string",
             "description": "How the two tasks relate: `subtask`, `blocks`, or `related`."
           },
+          "checklistId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Subtasks only: the parent's checklist this item is in."
+          },
+          "position": {
+            "type": "number",
+            "description": "Subtasks only: the item's place in its checklist."
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -5056,6 +6056,8 @@
           "sourceTaskId",
           "targetTaskId",
           "relationType",
+          "checklistId",
+          "position",
           "createdAt"
         ]
       },
@@ -5129,6 +6131,89 @@
         "required": [
           "id",
           "type"
+        ]
+      },
+      "TaskAttachment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "taskId": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "file",
+              "link"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Set for links."
+          },
+          "fileId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Set for files: download it through the Files API (`/files/{id}/download`)."
+          },
+          "mimeType": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "size": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "uploadedBy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdBy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdByName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "taskId",
+          "kind",
+          "title",
+          "url",
+          "fileId",
+          "mimeType",
+          "size",
+          "uploadedBy",
+          "createdBy",
+          "createdByName",
+          "createdAt"
         ]
       },
       "WorkflowRule": {
@@ -8856,6 +9941,101 @@
         }
       }
     },
+    "/task/workspace/{workspaceId}": {
+      "post": {
+        "operationId": "createQuickTask",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Create quick task",
+        "description": "Create a task assigned to the caller, placed in the project's first column. Without `projectId` it goes to the workspace's \"Daily Task\" project, which is created on first use.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "projectId": {
+                    "type": "string",
+                    "description": "Target project. When omitted, the task goes to the workspace's \"Daily Task\" project, which is created on first use."
+                  },
+                  "dueDate": {
+                    "type": "string"
+                  },
+                  "priority": {
+                    "type": "string",
+                    "enum": [
+                      "no-priority",
+                      "low",
+                      "medium",
+                      "high",
+                      "urgent"
+                    ]
+                  }
+                },
+                "required": [
+                  "title"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The created task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, or unknown or archived project",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing task:create permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/task/{id}": {
       "get": {
         "operationId": "getTask",
@@ -10499,7 +11679,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Activity"
+                    "$ref": "#/components/schemas/FeedActivity"
                   }
                 }
               }
@@ -10635,6 +11815,10 @@
                   },
                   "comment": {
                     "type": "string"
+                  },
+                  "replyToId": {
+                    "type": "string",
+                    "description": "Quote another comment on the same task."
                   }
                 },
                 "required": [
@@ -10807,6 +11991,87 @@
           },
           "403": {
             "description": "Not the author, or no access to the workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Comment not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activity/comment/reactions": {
+      "post": {
+        "operationId": "toggleCommentReaction",
+        "tags": [
+          "Activity"
+        ],
+        "summary": "React to a comment",
+        "description": "Adds the caller's emoji to a comment, or removes it when already there.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "activityId": {
+                    "type": "string"
+                  },
+                  "emoji": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16,
+                    "pattern": "^\\p{Extended_Pictographic}/u",
+                    "example": "👍"
+                  }
+                },
+                "required": [
+                  "activityId",
+                  "emoji"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The comment with its reactions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedActivity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Not an emoji",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing task:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11357,7 +12622,7 @@
           "Time Entries"
         ],
         "summary": "Stop time entry",
-        "description": "Stop a running entry now. Stopping an entry that already ended returns it unchanged.",
+        "description": "Stop a running entry now. An optional JSON body `{ \"description\": \"...\" }` saves what was done. Stopping an entry that already ended returns it unchanged.",
         "parameters": [
           {
             "schema": {
@@ -12649,6 +13914,51 @@
         }
       }
     },
+    "/chat/presence": {
+      "get": {
+        "operationId": "getChatPresence",
+        "tags": [
+          "Chat"
+        ],
+        "summary": "Who is online",
+        "description": "Ids of workspace members online now: Kaneo open in a browser, or the desktop app reporting in.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Online members",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatPresence"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/chat": {
       "get": {
         "operationId": "listChatConversations",
@@ -13692,6 +15002,738 @@
         }
       }
     },
+    "/email-log": {
+      "get": {
+        "operationId": "listEmailLog",
+        "tags": [
+          "Email"
+        ],
+        "summary": "Email delivery log",
+        "description": "The latest emails sent to this workspace's members, with their delivery status. Bodies are never returned. Needs workspace:manage_settings.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "queued",
+                "sending",
+                "sent",
+                "failed"
+              ]
+            },
+            "required": false,
+            "name": "status",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Log",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailLog"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "Missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/email-log/{id}/retry": {
+      "post": {
+        "operationId": "retryEmail",
+        "tags": [
+          "Email"
+        ],
+        "summary": "Send a failed email again",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "workspaceId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "workspaceId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Queued again",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "404": {
+            "description": "No failed email with that id in the workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reports/summary": {
+      "get": {
+        "operationId": "getReportSummary",
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Workspace report",
+        "description": "Tasks, time, attendance, leave and expenses for a date range, in the workspace timezone. Everyone can see their own; the whole team needs report:read.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "example": "2026-09-18"
+            },
+            "required": true,
+            "name": "from",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "example": "2026-09-18"
+            },
+            "required": true,
+            "name": "to",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "projectId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "One person's work. Without report:read this is always you, and asking for someone else is refused."
+            },
+            "required": false,
+            "description": "One person's work. Without report:read this is always you, and asking for someone else is refused.",
+            "name": "userId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Report",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportSummary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad range",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "Someone else's report without report:read",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reports/activity": {
+      "get": {
+        "operationId": "getReportActivity",
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Activity timeline",
+        "description": "Who did what, newest first: task changes and comments, plus approvals and edits for people with audit:read. Page with `before`.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "example": "2026-09-18"
+            },
+            "required": true,
+            "name": "from",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "example": "2026-09-18"
+            },
+            "required": true,
+            "name": "to",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "projectId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "One person's work. Without report:read this is always you, and asking for someone else is refused."
+            },
+            "required": false,
+            "description": "One person's work. Without report:read this is always you, and asking for someone else is refused.",
+            "name": "userId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": false,
+            "name": "before",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Timeline",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportActivity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "Someone else's activity without report:read",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/checklist/{taskId}": {
+      "get": {
+        "operationId": "listTaskChecklists",
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "List a task's checklists",
+        "description": "In order. Their items are the task's subtask relations (see /task-relation), each carrying `checklistId` and `position`.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "taskId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Checklists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskChecklist"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the task's workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/checklist/order": {
+      "put": {
+        "operationId": "reorderTaskChecklists",
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Reorder checklists",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "taskId": {
+                    "type": "string"
+                  },
+                  "checklistIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "maxItems": 100
+                  }
+                },
+                "required": [
+                  "taskId",
+                  "checklistIds"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Checklists in their new order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskChecklist"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A checklist of another task was listed",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          }
+        }
+      }
+    },
+    "/checklist": {
+      "post": {
+        "operationId": "createTaskChecklist",
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Add a checklist",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "taskId": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string",
+                    "maxLength": 120,
+                    "example": "QA"
+                  }
+                },
+                "required": [
+                  "taskId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskChecklist"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "Missing task:update",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/checklist/{id}": {
+      "patch": {
+        "operationId": "renameTaskChecklist",
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Rename a checklist",
+        "description": "An empty title goes back to the default name.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "taskId": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string",
+                    "maxLength": 120
+                  }
+                },
+                "required": [
+                  "taskId",
+                  "title"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Renamed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskChecklist"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "Missing task:update",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not a checklist of this task",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteTaskChecklist",
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Delete a checklist",
+        "description": "Deletes the checklist and its items, which are tasks. Needs task:delete when it has any.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "taskId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "taskId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "deletedItems": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "deletedItems"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "Missing task:update, or task:delete for its items",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not a checklist of this task",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/checklist/{id}/items": {
+      "put": {
+        "operationId": "setTaskChecklistItems",
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Order a checklist's items",
+        "description": "Send the checklist's full list of subtask relation ids in order. Ids from another checklist of the same task are moved into this one.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "taskId": {
+                    "type": "string"
+                  },
+                  "relationIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "maxItems": 500
+                  }
+                },
+                "required": [
+                  "taskId",
+                  "relationIds"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Saved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "An item isn't a subtask of this task",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "404": {
+            "description": "Not a checklist of this task",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/overview/company": {
       "get": {
         "operationId": "getCompanyToday",
@@ -14011,6 +16053,100 @@
           },
           "403": {
             "description": "Not you, and missing request:approve",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/requests/expenses/all": {
+      "get": {
+        "operationId": "listAllExpenses",
+        "tags": [
+          "Requests"
+        ],
+        "summary": "Everyone's expenses",
+        "description": "Every expense in the workspace, newest first, filtered by status, person and spend date.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "approved",
+                "rejected",
+                "paid"
+              ]
+            },
+            "required": false,
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "userId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "example": "2026-09-18",
+              "description": "Only expenses spent on or after this day."
+            },
+            "required": false,
+            "description": "Only expenses spent on or after this day.",
+            "name": "from",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "example": "2026-09-18",
+              "description": "Only expenses spent on or before this day."
+            },
+            "required": false,
+            "description": "Only expenses spent on or before this day.",
+            "name": "to",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Expenses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Expense"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "Missing request:approve",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15426,6 +17562,15 @@
                     "minimum": 0,
                     "maximum": 1000000000000,
                     "description": "Amount in minor units, e.g. 5000000 = 50,000.00"
+                  },
+                  "overtimeAmount": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 1000000000000,
+                    "description": "Overtime set by hand. Null goes back to the automatic amount; leave it out to keep the current one."
                   },
                   "note": {
                     "type": [
@@ -16848,6 +18993,51 @@
         }
       }
     },
+    "/people/overview": {
+      "get": {
+        "operationId": "getPeopleOverview",
+        "tags": [
+          "People"
+        ],
+        "summary": "People overview",
+        "description": "Per-person workload, time at work this month and leave this year, for the admin People view. Pay is not included; see the Pay API.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Overview",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PeopleOverview"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "Missing people:read_all",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/people/{userId}": {
       "get": {
         "operationId": "getPerson",
@@ -17100,6 +19290,88 @@
           },
           "403": {
             "description": "Not you, and missing people:read_all",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/people/{userId}/tasks/order": {
+      "put": {
+        "operationId": "setPersonTaskOrder",
+        "tags": [
+          "People"
+        ],
+        "summary": "Set my task order",
+        "description": "Save your own ordering of your tasks on My work, most important first. Replaces the previous order in this workspace; tasks left out fall back to the top, newest first. Does not change board order.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "workspaceId": {
+                    "type": "string"
+                  },
+                  "taskIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "maxItems": 2000
+                  }
+                },
+                "required": [
+                  "workspaceId",
+                  "taskIds"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The saved order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "taskIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "taskIds"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "Only your own order can be set",
             "content": {
               "text/plain": {
                 "schema": {
@@ -21487,6 +23759,10 @@
                       "blocks",
                       "related"
                     ]
+                  },
+                  "checklistId": {
+                    "type": "string",
+                    "description": "Subtasks only: the parent's checklist to add it to. Defaults to the first one."
                   }
                 },
                 "required": [
@@ -21657,6 +23933,277 @@
           },
           "403": {
             "description": "No access to the task's workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/task-attachment/{taskId}": {
+      "get": {
+        "operationId": "listTaskAttachments",
+        "tags": [
+          "Task attachments"
+        ],
+        "summary": "List a task's files and links",
+        "description": "Newest first.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "taskId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Attachments",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskAttachment"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the task's workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/task-attachment/{taskId}/file": {
+      "post": {
+        "operationId": "attachTaskFile",
+        "tags": [
+          "Task attachments"
+        ],
+        "summary": "Attach a file",
+        "description": "Attach a file already uploaded to the workspace Files library (`PUT /files/upload`).",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "taskId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fileId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "fileId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The attachment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskAttachment"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown file",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "Missing task:update",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/task-attachment/{taskId}/link": {
+      "post": {
+        "operationId": "attachTaskLink",
+        "tags": [
+          "Task attachments"
+        ],
+        "summary": "Add a link",
+        "description": "Without a title, the page's own title is used, or else the host name.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "taskId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "maxLength": 2000,
+                    "format": "uri"
+                  },
+                  "title": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                },
+                "required": [
+                  "url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The attachment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskAttachment"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Not an http(s) link",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "Missing task:update",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/task-attachment/{taskId}/{id}": {
+      "delete": {
+        "operationId": "removeTaskAttachment",
+        "tags": [
+          "Task attachments"
+        ],
+        "summary": "Remove a file or link",
+        "description": "A removed file is deleted from the Files library too, so it needs the uploader or file:manage.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "taskId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "Missing task:update, or not your file",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "text/plain": {
                 "schema": {

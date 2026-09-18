@@ -14,6 +14,7 @@ import {
   userTable,
   workspaceUserTable,
 } from "../database/schema";
+import { publishEvent } from "../events";
 import { calculatePay, paidMinutesInMonth } from "./calculate";
 
 const monthEnd = (year: number, month: number) =>
@@ -227,12 +228,20 @@ function presentRun(r: RunRow) {
   };
 }
 
+type KeptEdits = {
+  bonus: number;
+  deduction: number;
+  note: string | null;
+  // Set only when someone changed the overtime by hand.
+  overtimeAmount: number | null;
+};
+
 /** Draft items for everyone with a salary in force at the end of the month. */
 async function computeItems(
   workspaceId: string,
   year: number,
   month: number,
-  keep: Map<string, { bonus: number; deduction: number; note: string | null }>,
+  keep: Map<string, KeptEdits>,
 ) {
   const company = await getCompanySettings(workspaceId);
   const last = monthEnd(year, month);
@@ -281,6 +290,7 @@ async function computeItems(
       bonus,
       deduction,
     });
+    const overtimeAmount = kept?.overtimeAmount ?? pay.overtimeAmount;
     items.push({
       userId: person.userId,
       employeeName: person.name,
@@ -288,7 +298,11 @@ async function computeItems(
       salaryAmount: salary.amount,
       workedMinutes: attendance.totals.workedMinutes,
       overtimeMinutes: attendance.totals.overtimeMinutes,
-      ...pay,
+      baseAmount: pay.baseAmount,
+      overtimeRate: pay.overtimeRate,
+      overtimeAutoAmount: pay.overtimeAmount,
+      overtimeAmount,
+      netAmount: pay.netAmount - pay.overtimeAmount + overtimeAmount,
       bonus,
       deduction,
       note: kept?.note ?? null,
@@ -354,6 +368,8 @@ export async function getRun(workspaceId: string, id: string) {
       overtimeMinutes: i.overtimeMinutes,
       baseAmount: i.baseAmount,
       overtimeAmount: i.overtimeAmount,
+      overtimeRate: i.overtimeRate,
+      overtimeAutoAmount: i.overtimeAutoAmount,
       bonus: i.bonus,
       deduction: i.deduction,
       netAmount: i.netAmount,
@@ -379,7 +395,13 @@ export async function recalculateRun(
       .filter((i) => i.userId)
       .map((i) => [
         i.userId as string,
-        { bonus: i.bonus, deduction: i.deduction, note: i.note },
+        {
+          bonus: i.bonus,
+          deduction: i.deduction,
+          note: i.note,
+          overtimeAmount:
+            i.overtimeAmount !== i.overtimeAutoAmount ? i.overtimeAmount : null,
+        },
       ]),
   );
   const { items } = await computeItems(workspaceId, run.year, run.month, keep);
@@ -407,7 +429,13 @@ export async function updateItem(
   actorId: string,
   runId: string,
   itemId: string,
-  input: { bonus: number; deduction: number; note?: string | null },
+  input: {
+    bonus: number;
+    deduction: number;
+    // A number sets the overtime by hand; null puts the automatic one back.
+    overtimeAmount?: number | null;
+    note?: string | null;
+  },
 ) {
   const item = await db.transaction(async (tx) => {
     await lockDraft(tx, workspaceId, runId);
@@ -420,18 +448,23 @@ export async function updateItem(
     if (!item)
       throw new HTTPException(404, { message: "Payroll line not found" });
 
+    const overtimeAmount =
+      input.overtimeAmount === undefined
+        ? item.overtimeAmount
+        : (input.overtimeAmount ?? item.overtimeAutoAmount);
     const netAmount =
-      item.baseAmount + item.overtimeAmount + input.bonus - input.deduction;
+      item.baseAmount + overtimeAmount + input.bonus - input.deduction;
     await tx
       .update(payrollItemTable)
       .set({
+        overtimeAmount,
         bonus: input.bonus,
         deduction: input.deduction,
         netAmount,
         ...(input.note !== undefined && { note: input.note }),
       })
       .where(eq(payrollItemTable.id, itemId));
-    return item;
+    return { ...item, newOvertime: overtimeAmount };
   });
 
   await recordAudit({
@@ -442,8 +475,16 @@ export async function updateItem(
     targetId: runId,
     data: {
       employee: item.employeeName,
-      from: { bonus: item.bonus, deduction: item.deduction },
-      to: { bonus: input.bonus, deduction: input.deduction },
+      from: {
+        overtime: item.overtimeAmount,
+        bonus: item.bonus,
+        deduction: item.deduction,
+      },
+      to: {
+        overtime: item.newOvertime,
+        bonus: input.bonus,
+        deduction: input.deduction,
+      },
     },
   });
   return getRun(workspaceId, runId);
@@ -474,6 +515,20 @@ export async function changeRunStatus(
         next === "approved"
           ? "Only a draft payroll can be approved"
           : "Only an approved payroll can be marked paid",
+    });
+  }
+  // Payslips become visible to employees at approval.
+  if (next === "approved") {
+    const people = await db
+      .select({ userId: payrollItemTable.userId })
+      .from(payrollItemTable)
+      .where(eq(payrollItemTable.runId, id));
+    await publishEvent("payslip.ready", {
+      workspaceId,
+      runId: id,
+      year: run.year,
+      month: run.month,
+      userIds: people.flatMap((p) => (p.userId ? [p.userId] : [])),
     });
   }
   await recordAudit({

@@ -1,4 +1,4 @@
-import { nullableResponseTimestamp, z } from "../openapi";
+import { nullableResponseTimestamp, responseTimestamp, z } from "../openapi";
 
 export const personSchema = z
   .object({
@@ -56,11 +56,29 @@ export const personTaskSchema = z
     title: z.string(),
     number: z.number().nullable(),
     status: z.string(),
+    statusName: z.string().nullable(),
+    statusIcon: z.string().nullable(),
     priority: z.string(),
     dueDate: nullableResponseTimestamp,
     estimateMinutes: z.number().nullable(),
     trackedSeconds: z.number(),
     done: z.boolean(),
+    assignedById: z.string().nullable().openapi({
+      description:
+        "Who last assigned the task to this person (the creator when assigned at creation).",
+    }),
+    assignedByName: z.string().nullable(),
+    assignedByImage: z.string().nullable(),
+    attachmentCount: z.number(),
+    subtaskTotal: z.number(),
+    subtaskDone: z.number().openapi({
+      description: "Subtasks in a final column.",
+    }),
+    createdAt: responseTimestamp,
+    myPosition: z.number().nullable().openapi({
+      description:
+        "The person's own My work order (lower first); null until they arrange it.",
+    }),
     projectId: z.string(),
     projectName: z.string(),
     projectSlug: z.string(),
@@ -68,3 +86,25 @@ export const personTaskSchema = z
   .openapi("PersonTask");
 
 export const personTaskListSchema = z.array(personTaskSchema);
+
+export const peopleOverviewSchema = z
+  .object({
+    today: z.string().openapi({ description: "Company-local day" }),
+    currency: z.string(),
+    leaveAllowance: z
+      .number()
+      .openapi({ description: "Annual leave days per person" }),
+    unassignedOpenTasks: z.number(),
+    people: z.array(
+      z.object({
+        userId: z.string(),
+        openTasks: z.number(),
+        overdueTasks: z.number(),
+        workedMinutesThisMonth: z.number(),
+        leaveUsed: z.number(),
+        leavePending: z.number(),
+        onLeaveToday: z.boolean(),
+      }),
+    ),
+  })
+  .openapi("PeopleOverview");

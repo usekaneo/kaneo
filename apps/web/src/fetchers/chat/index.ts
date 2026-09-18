@@ -31,6 +31,8 @@ async function unwrap<T>(response: {
 }
 
 export const chatApi = {
+  presence: async (workspaceId: string) =>
+    unwrap(await client.chat.presence.$get({ query: { workspaceId } })),
   conversations: async (workspaceId: string) =>
     unwrap(await client.chat.$get({ query: { workspaceId } })),
   createChannel: async (json: {

@@ -1,8 +1,9 @@
 import { createHmac } from "node:crypto";
-import { sendNotificationEmail } from "@kaneo/email";
+import { renderActivityEmail } from "@kaneo/email";
 import { and, eq } from "drizzle-orm";
 import db from "../database";
 import {
+  leaveRequestTable,
   notificationTable,
   projectTable,
   taskTable,
@@ -11,10 +12,36 @@ import {
   userTable,
   workspaceTable,
 } from "../database/schema";
+import { enqueueEmail } from "../email/outbox";
 import { assertPublicWebhookDestination } from "../plugins/generic-webhook/config";
+import { buildNotificationEmail, clientUrl } from "./email-content";
 import { decryptSecret } from "./secrets";
 
 const DEFAULT_OUTBOUND_FETCH_TIMEOUT_MS = 15_000;
+
+const DEFAULT_PREFERENCE = {
+  emailEnabled: true,
+  ntfyEnabled: false,
+  ntfyServerUrl: null,
+  ntfyTopic: null,
+  ntfyToken: null,
+  gotifyEnabled: false,
+  gotifyServerUrl: null,
+  gotifyToken: null,
+  webhookEnabled: false,
+  webhookUrl: null,
+  webhookSecret: null,
+} as const;
+
+const DEFAULT_RULE = {
+  isActive: true,
+  emailEnabled: true,
+  ntfyEnabled: false,
+  gotifyEnabled: false,
+  webhookEnabled: false,
+  projectMode: "all",
+  selectedProjects: [] as { projectId: string }[],
+};
 
 async function fetchWithTimeout(
   url: string,
@@ -34,6 +61,9 @@ async function fetchWithTimeout(
 type ResolvedNotificationContext = {
   workspaceId: string;
   workspaceName: string;
+  workspaceLogo: string | null;
+  /** Where "open" goes; the task URL for task notifications. */
+  actionUrl: string | null;
   projectId: string | null;
   projectName: string | null;
   taskId: string | null;
@@ -205,6 +235,9 @@ function buildDeliveryContent(notification: {
 }
 
 async function resolveNotificationContext(notification: {
+  type: string;
+  userId: string;
+  eventData: unknown;
   resourceType: string | null;
   resourceId: string | null;
 }): Promise<ResolvedNotificationContext | null> {
@@ -221,6 +254,7 @@ async function resolveNotificationContext(notification: {
         projectName: projectTable.name,
         workspaceId: workspaceTable.id,
         workspaceName: workspaceTable.name,
+        workspaceLogo: workspaceTable.logo,
       })
       .from(taskTable)
       .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
@@ -235,14 +269,17 @@ async function resolveNotificationContext(notification: {
       return null;
     }
 
+    const taskUrl = buildTaskUrl(task.workspaceId, task.projectId, task.taskId);
     return {
       workspaceId: task.workspaceId,
       workspaceName: task.workspaceName,
+      workspaceLogo: task.workspaceLogo,
+      actionUrl: taskUrl,
       projectId: task.projectId,
       projectName: task.projectName,
       taskId: task.taskId,
       taskTitle: task.taskTitle,
-      taskUrl: buildTaskUrl(task.workspaceId, task.projectId, task.taskId),
+      taskUrl,
     };
   }
 
@@ -251,6 +288,7 @@ async function resolveNotificationContext(notification: {
       .select({
         workspaceId: workspaceTable.id,
         workspaceName: workspaceTable.name,
+        workspaceLogo: workspaceTable.logo,
       })
       .from(workspaceTable)
       .where(eq(workspaceTable.id, notification.resourceId))
@@ -263,6 +301,82 @@ async function resolveNotificationContext(notification: {
     return {
       workspaceId: workspace.workspaceId,
       workspaceName: workspace.workspaceName,
+      workspaceLogo: workspace.workspaceLogo,
+      actionUrl: `${clientUrl()}/dashboard/workspace/${workspace.workspaceId}`,
+      projectId: null,
+      projectName: null,
+      taskId: null,
+      taskTitle: null,
+      taskUrl: null,
+    };
+  }
+
+  if (
+    notification.resourceType === "expense" ||
+    notification.resourceType === "payslip"
+  ) {
+    const data = notification.eventData as { workspaceId?: unknown } | null;
+    const workspaceId =
+      typeof data?.workspaceId === "string" ? data.workspaceId : null;
+    if (!workspaceId) return null;
+    const [workspace] = await db
+      .select({
+        workspaceName: workspaceTable.name,
+        workspaceLogo: workspaceTable.logo,
+      })
+      .from(workspaceTable)
+      .where(eq(workspaceTable.id, workspaceId))
+      .limit(1);
+    if (!workspace) return null;
+
+    // Approvers review expenses on People; everyone else sees their own
+    // expenses and payslips on My work and their profile.
+    const base = `${clientUrl()}/dashboard/workspace/${workspaceId}`;
+    const actionUrl =
+      notification.type === "expense_submitted"
+        ? `${base}/people`
+        : notification.resourceType === "payslip"
+          ? `${base}/people/${notification.userId}`
+          : `${base}/my-work`;
+    return {
+      workspaceId,
+      workspaceName: workspace.workspaceName,
+      workspaceLogo: workspace.workspaceLogo,
+      actionUrl,
+      projectId: null,
+      projectName: null,
+      taskId: null,
+      taskTitle: null,
+      taskUrl: null,
+    };
+  }
+
+  if (notification.resourceType === "leave_request") {
+    const [leave] = await db
+      .select({
+        workspaceId: workspaceTable.id,
+        workspaceName: workspaceTable.name,
+        workspaceLogo: workspaceTable.logo,
+      })
+      .from(leaveRequestTable)
+      .innerJoin(
+        workspaceTable,
+        eq(leaveRequestTable.workspaceId, workspaceTable.id),
+      )
+      .where(eq(leaveRequestTable.id, notification.resourceId))
+      .limit(1);
+
+    if (!leave) {
+      return null;
+    }
+
+    // Approvers land on the requests tab; the person on their own page.
+    const tab = notification.type === "leave_requested" ? "?tab=leave" : "";
+    return {
+      workspaceId: leave.workspaceId,
+      workspaceName: leave.workspaceName,
+      workspaceLogo: leave.workspaceLogo,
+      actionUrl: `${clientUrl()}/dashboard/workspace/${leave.workspaceId}/attendance${tab}`,
       projectId: null,
       projectName: null,
       taskId: null,
@@ -423,28 +537,31 @@ export async function deliverNotification(
     where: eq(userNotificationPreferenceTable.userId, notification.userId),
   });
 
-  if (!preference) {
-    return;
-  }
+  // Someone who never opened notification settings gets email by default;
+  // once they save settings, their choices apply.
+  const decryptedPreference = preference
+    ? {
+        ...preference,
+        ntfyToken: decryptSecret(preference.ntfyToken),
+        gotifyToken: decryptSecret(preference.gotifyToken),
+        webhookSecret: decryptSecret(preference.webhookSecret),
+      }
+    : DEFAULT_PREFERENCE;
 
-  const decryptedPreference = {
-    ...preference,
-    ntfyToken: decryptSecret(preference.ntfyToken),
-    gotifyToken: decryptSecret(preference.gotifyToken),
-    webhookSecret: decryptSecret(preference.webhookSecret),
-  };
+  // No rule for this workspace means the default: email, every project.
+  // Switching a workspace off saves an inactive rule, which is the opt-out.
+  const rule =
+    (await db.query.userNotificationWorkspaceRuleTable.findFirst({
+      where: and(
+        eq(userNotificationWorkspaceRuleTable.userId, notification.userId),
+        eq(userNotificationWorkspaceRuleTable.workspaceId, context.workspaceId),
+      ),
+      with: {
+        selectedProjects: true,
+      },
+    })) ?? DEFAULT_RULE;
 
-  const rule = await db.query.userNotificationWorkspaceRuleTable.findFirst({
-    where: and(
-      eq(userNotificationWorkspaceRuleTable.userId, notification.userId),
-      eq(userNotificationWorkspaceRuleTable.workspaceId, context.workspaceId),
-    ),
-    with: {
-      selectedProjects: true,
-    },
-  });
-
-  if (!rule?.isActive) {
+  if (!rule.isActive) {
     return;
   }
 
@@ -458,15 +575,29 @@ export async function deliverNotification(
     return;
   }
 
-  const content = buildDeliveryContent({
+  const eventData =
+    notification.eventData && typeof notification.eventData === "object"
+      ? (notification.eventData as Record<string, unknown>)
+      : null;
+  const baseContent = buildDeliveryContent({
     type: notification.type,
     title: notification.title ?? null,
     content: notification.content ?? null,
-    eventData:
-      notification.eventData && typeof notification.eventData === "object"
-        ? (notification.eventData as Record<string, unknown>)
-        : null,
+    eventData,
   });
+  const email = buildNotificationEmail({
+    type: notification.type,
+    eventData,
+    context,
+    recipientName: user.name,
+    fallback: baseContent,
+  });
+  // Task types keep their established push/webhook wording; newer types
+  // (leave, …) only have wording in the email catalog.
+  const content =
+    email.category === "other" || notification.type.startsWith("task_")
+      ? baseContent
+      : { title: email.subject, body: email.props.preview };
 
   const webhookPayload = {
     notification: {
@@ -506,14 +637,19 @@ export async function deliverNotification(
   const deliveries: Array<Promise<void>> = [];
 
   if (decryptedPreference.emailEnabled && rule.emailEnabled && user.email) {
+    const to = user.email;
     deliveries.push(
-      sendNotificationEmail(user.email, content.title, {
-        title: content.title,
-        message: content.body,
-        actionUrl: context.taskUrl,
-        actionLabel: context.taskUrl ? "Open in Kaneo" : undefined,
-        locale: user.locale ?? null,
-      }).then(() => undefined),
+      renderActivityEmail(email.props).then(({ html, text }) =>
+        enqueueEmail({
+          to,
+          subject: email.subject,
+          html,
+          text,
+          category: email.category,
+          workspaceId: context.workspaceId,
+          userId: notification.userId,
+        }).then(() => undefined),
+      ),
     );
   }
 
@@ -530,7 +666,7 @@ export async function deliverNotification(
         token: decryptedPreference.ntfyToken,
         title: content.title,
         body: content.body,
-        clickUrl: context.taskUrl,
+        clickUrl: context.actionUrl,
       }),
     );
   }
@@ -547,7 +683,7 @@ export async function deliverNotification(
         token: decryptedPreference.gotifyToken,
         title: content.title,
         body: content.body,
-        clickUrl: context.taskUrl,
+        clickUrl: context.actionUrl,
       }),
     );
   }

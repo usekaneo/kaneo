@@ -26,6 +26,7 @@ import {
   createTimeEntryBody,
   listTimeEntriesQuery,
   runningTimeEntryQuery,
+  stopTimeEntryBody,
   taskIdParam,
   timeEntryParam,
   updateTimeEntryBody,
@@ -95,11 +96,13 @@ const stopTimeEntryRoute = createRoute({
   tags: ["Time Entries"],
   summary: "Stop time entry",
   description:
-    "Stop a running entry now. Stopping an entry that already ended returns it unchanged.",
+    "Stop a running entry now. An optional JSON body `{ \"description\": \"...\" }` saves what was done. Stopping an entry that already ended returns it unchanged.",
   middleware: [
     workspaceAccess.fromTimeEntry(),
     requireWorkspacePermission({ task: ["update"] }),
   ] as const,
+  // The optional `{ "description": "..." }` body is read by hand: callers
+  // that stop with an empty body (and a JSON content type) must keep working.
   request: { params: timeEntryParam },
   responses: {
     200: jsonResponse("The stopped time entry", timeEntrySchema),
@@ -233,7 +236,22 @@ const timeEntry = apiRouter()
   .openapi(stopTimeEntryRoute, async (c) => {
     const { id } = c.req.valid("param");
     await assertCanManageTimeEntry(c, id);
-    return c.json(await stopTimeEntry(id), 200);
+    const raw = await c.req.text();
+    let description: string | undefined;
+    if (raw.trim()) {
+      let json: unknown;
+      try {
+        json = JSON.parse(raw);
+      } catch {
+        throw new HTTPException(400, { message: "Body must be JSON" });
+      }
+      const parsed = stopTimeEntryBody.safeParse(json);
+      if (!parsed.success) {
+        throw new HTTPException(400, { message: "Invalid description" });
+      }
+      description = parsed.data.description;
+    }
+    return c.json(await stopTimeEntry(id, description), 200);
   })
   .openapi(deleteTimeEntryRoute, async (c) => {
     const { id } = c.req.valid("param");

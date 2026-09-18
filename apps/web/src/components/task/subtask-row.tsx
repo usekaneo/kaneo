@@ -1,4 +1,5 @@
 import { motion, useReducedMotion } from "framer-motion";
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import TaskCardContextMenuContent from "@/components/kanban-board/task-card-context-menu/task-card-context-menu-content";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -26,6 +27,8 @@ type SubtaskRowProps = {
   onToggleComplete: () => void;
   onNavigate: () => void;
   onDeleteClick: () => void;
+  /** Grip shown on hover when the row can be dragged. */
+  dragHandle?: ReactNode;
 };
 
 export default function SubtaskRow({
@@ -42,13 +45,14 @@ export default function SubtaskRow({
   onToggleComplete,
   onNavigate,
   onDeleteClick,
+  dragHandle,
 }: SubtaskRowProps) {
   const reduceMotion = useReducedMotion();
   const { t } = useTranslation();
 
   return (
+    // No `layout` animation: dnd-kit positions the row while it's dragged.
     <motion.div
-      layout
       initial={
         reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0, scale: 0.98 }
       }
@@ -65,6 +69,7 @@ export default function SubtaskRow({
           <div
             className={`group flex items-center gap-2 py-1 px-2 ${selectionRadius} transition-colors cursor-default ${isSelected ? "bg-primary/10 hover:bg-primary/15" : "hover:bg-accent/50"} ${isFocused ? "ring-1 ring-inset ring-ring/50" : ""}`}
           >
+            {dragHandle}
             {/* Completion checkbox: toggles the subtask done/undone and persists it. */}
             <Checkbox
               checked={isCompleted}

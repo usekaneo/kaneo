@@ -42,6 +42,10 @@ export const updateItemBody = z.object({
   workspaceId: z.string(),
   bonus: money,
   deduction: money,
+  overtimeAmount: money.nullable().optional().openapi({
+    description:
+      "Overtime set by hand. Null goes back to the automatic amount; leave it out to keep the current one.",
+  }),
   note: z.string().max(500).nullable().optional(),
 });
 

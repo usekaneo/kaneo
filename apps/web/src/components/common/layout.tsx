@@ -71,8 +71,9 @@ function Layout({ children, className }: LayoutProps) {
           {isDemoMode && <DemoAlert />}
           {children}
         </SidebarInset>
+        {/* Inside the provider: it sits beside the sidebar and follows it. */}
+        <ChatWidget />
       </SidebarProvider>
-      <ChatWidget />
     </div>
   );
 }

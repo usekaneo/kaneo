@@ -8,4 +8,8 @@ export const createTaskRelationBody = z.object({
   sourceTaskId: z.string(),
   targetTaskId: z.string(),
   relationType: z.enum(["subtask", "blocks", "related"]),
+  checklistId: z.string().optional().openapi({
+    description:
+      "Subtasks only: the parent's checklist to add it to. Defaults to the first one.",
+  }),
 });

@@ -13,7 +13,8 @@ type ProjectListEntry = typeof schema.projectTable.$inferSelect & {
     completionPercentage: number;
     totalTasks: number;
     dueDate: string | null;
-  };
+    nextDueDate?: string | null;
+  } & Record<string, unknown>;
   tasks?: unknown;
 };
 
@@ -95,6 +96,83 @@ describe("API integration: project list payload", () => {
       completionPercentage: 50,
     });
     expect(new Date(payload[0].statistics.dueDate as string)).toEqual(earliest);
+  });
+
+  it("summarises open, overdue and upcoming work and tracked time", async () => {
+    const member = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const day = 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    const [overdue] = await db
+      .insert(schema.taskTable)
+      .values([
+        {
+          projectId: project.id,
+          title: "Late",
+          status: "to-do",
+          dueDate: new Date(now - 2 * day),
+          userId: member.user.id,
+          estimateMinutes: 60,
+          number: 1,
+        },
+        {
+          projectId: project.id,
+          title: "Soon",
+          status: "in-progress",
+          dueDate: new Date(now + 3 * day),
+          estimateMinutes: 30,
+          number: 2,
+        },
+        {
+          projectId: project.id,
+          title: "Finished late",
+          status: "done",
+          dueDate: new Date(now - 10 * day),
+          number: 3,
+        },
+      ])
+      .returning();
+    await db.insert(schema.timeEntryTable).values([
+      {
+        taskId: overdue.id,
+        userId: member.user.id,
+        startTime: new Date(now - day),
+        endTime: new Date(now - day + 3600_000),
+        duration: 3600,
+      },
+      // Older than 30 days: not counted.
+      {
+        taskId: overdue.id,
+        userId: member.user.id,
+        startTime: new Date(now - 40 * day),
+        endTime: new Date(now - 40 * day + 3600_000),
+        duration: 3600,
+      },
+    ]);
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+    const response = await app.request(
+      `/api/project?workspaceId=${member.workspace.id}`,
+    );
+    const [entry] = (await response.json()) as ProjectListEntry[];
+
+    expect(entry.statistics).toMatchObject({
+      openTasks: 2,
+      completedTasks: 1,
+      overdueTasks: 1,
+      dueThisWeekTasks: 1,
+      estimateMinutes: 90,
+      trackedSecondsLast30Days: 3600,
+      assigneeIds: [member.user.id],
+    });
+    // The next due date ignores finished tasks; dueDate doesn't.
+    expect(Date.parse(entry.statistics.nextDueDate as string)).toBe(
+      now - 2 * day,
+    );
+    expect(Date.parse(entry.statistics.dueDate as string)).toBe(now - 10 * day);
   });
 
   it("reports zeroed statistics for a project with no tasks", async () => {

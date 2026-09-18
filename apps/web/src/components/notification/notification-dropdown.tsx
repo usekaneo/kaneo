@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { Bell } from "lucide-react";
+import { Bell, Mail } from "lucide-react";
 import { forwardRef, useCallback, useImperativeHandle, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -29,7 +29,9 @@ import { shortcuts } from "@/constants/shortcuts";
 import useClearNotifications from "@/hooks/mutations/notification/use-clear-notifications";
 import useMarkAllNotificationsAsRead from "@/hooks/mutations/notification/use-mark-all-notifications-as-read";
 import useMarkNotificationAsRead from "@/hooks/mutations/notification/use-mark-notification-as-read";
+import { usePendingInvitations } from "@/hooks/queries/invitation/use-pending-invitations";
 import useGetNotifications from "@/hooks/queries/notification/use-get-notifications";
+import { useInvitationActions } from "@/hooks/use-invitation-actions";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
 import { formatDateMedium, formatRelativeTime } from "@/lib/format";
@@ -69,6 +71,11 @@ function getReminderLeadTime(
 }
 
 const LEAVE_TITLES: Record<string, string> = {
+  expense_submitted: "notifications:events.expense_submitted.title",
+  expense_approved: "notifications:events.expense_approved.title",
+  expense_rejected: "notifications:events.expense_rejected.title",
+  expense_paid: "notifications:events.expense_paid.title",
+  payslip_ready: "notifications:events.payslip_ready.title",
   leave_requested: "notifications:events.leave_requested.title",
   leave_approved: "notifications:events.leave_approved.title",
   leave_rejected: "notifications:events.leave_rejected.title",
@@ -90,8 +97,10 @@ function leaveValues(
         : leaveType === "unpaid"
           ? t("requests:leave.types.unpaid")
           : t("requests:leave.types.annual"),
-    dates:
-      start === end
+    // Expense and payslip notifications have no dates.
+    dates: !start
+      ? ""
+      : start === end
         ? formatDateMedium(start)
         : `${formatDateMedium(start)} – ${formatDateMedium(end)}`,
   };
@@ -153,6 +162,11 @@ export function getNotificationTitle(
       case "leave_approved":
       case "leave_rejected":
       case "leave_cancelled":
+      case "expense_submitted":
+      case "expense_approved":
+      case "expense_rejected":
+      case "expense_paid":
+      case "payslip_ready":
         return t(LEAVE_TITLES[notification.type], {
           ...leaveValues(eventData, t),
           defaultValue: notification.title ?? notification.type,
@@ -253,6 +267,8 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { data: notifications } = useGetNotifications();
+    const { data: invitations = [] } = usePendingInvitations();
+    const invitationActions = useInvitationActions();
     const [isOpen, setIsOpen] = useState(false);
     const [showClearDialog, setShowClearDialog] = useState(false);
 
@@ -272,6 +288,30 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
         const projectId =
           typeof ed?.projectId === "string" ? ed.projectId : null;
         const taskId = notification.resourceId ?? null;
+
+        if (
+          (notification.resourceType === "expense" ||
+            notification.resourceType === "payslip") &&
+          workspaceId
+        ) {
+          if (notification.type === "expense_submitted") {
+            navigate({
+              to: "/dashboard/workspace/$workspaceId/people",
+              params: { workspaceId },
+            });
+          } else if (notification.resourceType === "payslip") {
+            navigate({
+              to: "/dashboard/workspace/$workspaceId/people/$userId",
+              params: { workspaceId, userId: notification.userId },
+            });
+          } else {
+            navigate({
+              to: "/dashboard/workspace/$workspaceId/my-work",
+              params: { workspaceId },
+            });
+          }
+          return;
+        }
 
         if (notification.resourceType === "leave_request" && workspaceId) {
           navigate({
@@ -300,6 +340,8 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
 
     const unreadNotifications = notifications?.filter((n) => !n.isRead) || [];
     const hasNotifications = notifications && notifications.length > 0;
+    // Pending invitations live on the bell too: they need an answer.
+    const badgeCount = unreadNotifications.length + invitations.length;
 
     useImperativeHandle(ref, () => ({
       toggle: () => setIsOpen(!isOpen),
@@ -327,11 +369,9 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="relative">
                     <Bell className="h-4 w-4" />
-                    {unreadNotifications.length > 0 && (
+                    {badgeCount > 0 && (
                       <span className="absolute -top-0.5 -right-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-destructive px-1 text-[9px] font-semibold leading-none text-white ring-2 ring-sidebar transition-[scale,opacity] duration-200 ease-out starting:scale-75 starting:opacity-0 motion-reduce:starting:scale-100">
-                        {unreadNotifications.length > 99
-                          ? "99+"
-                          : unreadNotifications.length}
+                        {badgeCount > 99 ? "99+" : badgeCount}
                       </span>
                     )}
                     <span className="sr-only">
@@ -370,6 +410,65 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
                   </DropdownMenuItem>
                 )}
               </div>
+
+              {invitations.length > 0 && (
+                <div className="border-border/50 border-b p-1">
+                  <div className="flex items-center justify-between px-2.5 pt-1.5 pb-1">
+                    <span className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+                      {t("notifications:invitations.title")}
+                    </span>
+                    <DropdownMenuItem
+                      onClick={() => navigate({ to: "/dashboard/invitations" })}
+                      className="min-h-0 w-auto cursor-pointer rounded-md px-1.5 py-0.5 text-muted-foreground text-xs sm:min-h-0 sm:text-xs data-highlighted:text-foreground"
+                    >
+                      {t("notifications:invitations.viewAll")}
+                    </DropdownMenuItem>
+                  </div>
+                  {invitations.slice(0, 3).map((invitation) => (
+                    <div
+                      key={invitation.id}
+                      className="flex items-center gap-2 rounded-md px-2.5 py-2"
+                    >
+                      <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                        <Mail className="size-3.5" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">
+                          {invitation.workspaceName}
+                        </p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {t("notifications:invitations.invitedBy", {
+                            name: invitation.inviterName,
+                          })}
+                        </p>
+                      </div>
+                      <Button
+                        size="xs"
+                        variant="ghost"
+                        disabled={invitationActions.busyId === invitation.id}
+                        onClick={() =>
+                          void invitationActions.decline(invitation.id)
+                        }
+                      >
+                        {t("notifications:invitations.decline")}
+                      </Button>
+                      <Button
+                        size="xs"
+                        disabled={invitationActions.busyId === invitation.id}
+                        onClick={() => {
+                          setIsOpen(false);
+                          void invitationActions.accept(
+                            invitation.id,
+                            invitation.workspaceId,
+                          );
+                        }}
+                      >
+                        {t("notifications:invitations.accept")}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               <div className="relative max-h-80 overflow-y-auto p-1">
                 {!hasNotifications ? (

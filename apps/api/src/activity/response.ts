@@ -1,4 +1,4 @@
-import { responseTimestamp, z } from "../openapi";
+import { nullableResponseTimestamp, responseTimestamp, z } from "../openapi";
 
 const activityTypeDescription =
   "One of: comment, task, create, status_changed, priority_changed, assignee_changed, unassigned, due_date_changed, title_changed, description_changed.";
@@ -24,7 +24,32 @@ export const activitySchema = z
       description: "The tool it was imported from, e.g. planka, trello, jira.",
     }),
     externalUrl: z.string().nullable(),
+    replyToId: z.string().nullable().openapi({
+      description: "Comments only: the comment this one replies to.",
+    }),
+    editedAt: nullableResponseTimestamp.openapi({
+      description: "When the author last edited the comment.",
+    }),
   })
   .openapi("Activity");
 
-export const activityListSchema = z.array(activitySchema);
+export const feedActivitySchema = activitySchema
+  .extend({
+    replyTo: z
+      .object({
+        id: z.string(),
+        userId: z.string().nullable(),
+        userName: z.string().nullable(),
+        excerpt: z.string(),
+      })
+      .nullable()
+      .openapi({
+        description: "The quoted comment; null once it has been deleted.",
+      }),
+    reactions: z.array(
+      z.object({ emoji: z.string(), userIds: z.array(z.string()) }),
+    ),
+  })
+  .openapi("FeedActivity");
+
+export const activityListSchema = z.array(feedActivitySchema);

@@ -149,6 +149,49 @@ describe("payroll", () => {
     );
     expect(adjusted.json.items[0].netAmount).toBe(5_085_227 + 200_000);
 
+    // Overtime starts at the automatic amount and can be set by hand; a
+    // recalculation keeps the edit, and null puts the automatic amount back.
+    expect(line).toMatchObject({
+      overtimeRate: 42_614,
+      overtimeAutoAmount: 85_227,
+    });
+    const lineUrl = `/pay/runs/${draft.json.id}/items/${line.id}`;
+    const edited = await asOwner(lineUrl, {
+      method: "PUT",
+      body: {
+        workspaceId: workspace.id,
+        bonus: 300_000,
+        deduction: 100_000,
+        overtimeAmount: 100_000,
+      },
+    });
+    expect(edited.json.items[0]).toMatchObject({
+      overtimeAmount: 100_000,
+      overtimeAutoAmount: 85_227,
+      netAmount: 5_000_000 + 100_000 + 200_000,
+    });
+    const recalculated = await asOwner(
+      `/pay/runs/${draft.json.id}/recalculate`,
+      { method: "POST", body: { workspaceId: workspace.id } },
+    );
+    expect(recalculated.json.items[0].overtimeAmount).toBe(100_000);
+    const reset = await asOwner(
+      `/pay/runs/${draft.json.id}/items/${recalculated.json.items[0].id}`,
+      {
+        method: "PUT",
+        body: {
+          workspaceId: workspace.id,
+          bonus: 300_000,
+          deduction: 100_000,
+          overtimeAmount: null,
+        },
+      },
+    );
+    expect(reset.json.items[0]).toMatchObject({
+      overtimeAmount: 85_227,
+      netAmount: 5_085_227 + 200_000,
+    });
+
     // Drafts are not payslips yet.
     const before = await asAlice(`/pay/payslips?workspaceId=${workspace.id}`);
     expect(before.json).toEqual([]);

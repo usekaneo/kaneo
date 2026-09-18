@@ -37,6 +37,7 @@ const CAPABILITIES = {
   managePay: { payroll: ["manage"] },
   readAudit: { audit: ["read"] },
   uploadFiles: { file: ["upload"] },
+  readReports: { report: ["read"] },
   manageFiles: { file: ["manage"] },
 } as const satisfies Record<string, Record<string, string[]>>;
 
@@ -121,6 +122,7 @@ export function useWorkspacePermission() {
       canManagePay: () => can.managePay,
       canReadAudit: () => can.readAudit,
       canUploadFiles: () => can.uploadFiles,
+      canReadReports: () => can.readReports,
       canManageFiles: () => can.manageFiles,
       // Escape hatch for ad-hoc permission checks (uncached). Prefer adding
       // a capability above.

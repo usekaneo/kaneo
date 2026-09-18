@@ -60,6 +60,19 @@ export const createTaskBody = z.object({
     .optional(),
 });
 
+export const workspaceIdParam = z.object({ workspaceId: z.string() });
+
+export const createQuickTaskBody = z.object({
+  title: z.string().trim().min(1).max(500),
+  description: z.string().optional(),
+  projectId: z.string().optional().openapi({
+    description:
+      'Target project. When omitted, the task goes to the workspace\'s "Daily Task" project, which is created on first use.',
+  }),
+  dueDate: z.string().optional(),
+  priority: priority.optional(),
+});
+
 export const updateTaskBody = z.object({
   title: z.string(),
   description: z.string(),

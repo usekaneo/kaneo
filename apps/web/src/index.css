@@ -1351,3 +1351,15 @@ input:-webkit-autofill:active {
   }
 
 }
+
+/* Chart series colours for reports: the first two slots of the validated
+   categorical palette (CVD-safe as a pair in both modes). Dark steps are
+   chosen for the dark surface, not an automatic flip. */
+:root {
+  --viz-series-1: #2a78d6;
+  --viz-series-2: #eb6834;
+}
+.dark {
+  --viz-series-1: #3987e5;
+  --viz-series-2: #d95926;
+}

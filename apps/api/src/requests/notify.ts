@@ -1,6 +1,10 @@
 import { eq } from "drizzle-orm";
 import db from "../database";
-import { userTable, workspaceUserTable } from "../database/schema";
+import {
+  payrollRunTable,
+  userTable,
+  workspaceUserTable,
+} from "../database/schema";
 import { subscribeToEvent } from "../events";
 import createNotification from "../notification/controllers/create-notification";
 import { getRoleStatements } from "../utils/require-workspace-permission";
@@ -40,6 +44,7 @@ type LeaveRequested = {
   startDate: string;
   endDate: string;
   days: number;
+  reason: string | null;
 };
 
 type LeaveDecided = {
@@ -80,4 +85,84 @@ subscribeToEvent<LeaveDecided>("leave.decided", async (data) => {
     resourceId: data.requestId,
     resourceType: "leave_request",
   });
+});
+
+type ExpenseSubmitted = {
+  workspaceId: string;
+  expenseId: string;
+  userId: string;
+  amount: number;
+  currency: string;
+  category: string;
+  description: string | null;
+  spentOn: string;
+};
+
+type ExpenseDecided = {
+  workspaceId: string;
+  expenseId: string;
+  userId: string;
+  actorId: string;
+  decision: "approved" | "rejected" | "paid";
+  amount: number;
+  currency: string;
+  category: string;
+  spentOn: string;
+};
+
+subscribeToEvent<ExpenseSubmitted>("expense.submitted", async (data) => {
+  const [recipients, userName] = await Promise.all([
+    approvers(data.workspaceId, data.userId),
+    nameOf(data.userId),
+  ]);
+  await Promise.all(
+    recipients.map((userId) =>
+      createNotification({
+        userId,
+        type: "expense_submitted",
+        eventData: { ...data, userName },
+        resourceId: data.expenseId,
+        resourceType: "expense",
+      }),
+    ),
+  );
+});
+
+subscribeToEvent<ExpenseDecided>("expense.decided", async (data) => {
+  // Paying yourself back needs no email to yourself.
+  if (data.actorId === data.userId) return;
+  await createNotification({
+    userId: data.userId,
+    type: `expense_${data.decision}`,
+    eventData: { ...data, actorName: await nameOf(data.actorId) },
+    resourceId: data.expenseId,
+    resourceType: "expense",
+  });
+});
+
+type PayslipReady = { workspaceId: string; runId: string; userIds: string[] };
+
+// Published by pay/ when a run is approved, which is when payslips show.
+subscribeToEvent<PayslipReady>("payslip.ready", async (data) => {
+  const [run] = await db
+    .select({ year: payrollRunTable.year, month: payrollRunTable.month })
+    .from(payrollRunTable)
+    .where(eq(payrollRunTable.id, data.runId));
+  if (!run) return;
+  await Promise.all(
+    data.userIds.map((userId) =>
+      createNotification({
+        userId,
+        type: "payslip_ready",
+        eventData: {
+          workspaceId: data.workspaceId,
+          runId: data.runId,
+          year: run.year,
+          month: run.month,
+        },
+        resourceId: data.runId,
+        resourceType: "payslip",
+      }),
+    ),
+  );
 });

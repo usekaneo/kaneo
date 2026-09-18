@@ -1,4 +1,5 @@
 import { streamSSE } from "hono/streaming";
+import { onlineUserIds } from "../company/presence";
 import {
   apiRouter,
   createRoute,
@@ -9,6 +10,7 @@ import {
   z,
 } from "../openapi";
 import { hasWorkspacePermission } from "../utils/require-workspace-permission";
+import { markWebPresence, webPresentUserIds } from "../utils/web-presence";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import { addUserListener } from "../ws";
 import {
@@ -350,6 +352,25 @@ const streamRoute = createRoute({
   },
 });
 
+const presenceRoute = createRoute({
+  method: "get",
+  operationId: "getChatPresence",
+  path: "/presence",
+  tags,
+  summary: "Who is online",
+  description:
+    "Ids of workspace members online now: Kaneo open in a browser, or the desktop app reporting in.",
+  middleware: [workspaceAccess.fromQuery()] as const,
+  request: { query: workspaceQuery },
+  responses: {
+    200: jsonResponse(
+      "Online members",
+      z.object({ online: z.array(z.string()) }).openapi("ChatPresence"),
+    ),
+    403: errorResponse("No access to the workspace"),
+  },
+});
+
 const reactionRoute = createRoute({
   method: "post",
   operationId: "toggleChatReaction",
@@ -404,6 +425,8 @@ const chat = apiRouter()
     // Stops proxies such as nginx from holding events back in a buffer.
     c.header("X-Accel-Buffering", "no");
     return streamSSE(c, async (stream) => {
+      const leave = markWebPresence(workspaceId, userId);
+      stream.onAbort(leave);
       const unsubscribe = addUserListener(userId, (message) => {
         if (
           !message.type.startsWith("CHAT_") ||
@@ -424,7 +447,16 @@ const chat = apiRouter()
         await stream.writeSSE({ event: "ping", data: "" }).catch(() => {});
       }
       unsubscribe();
+      leave();
     });
+  })
+  .openapi(presenceRoute, async (c) => {
+    const { workspaceId } = c.req.valid("query");
+    const online = new Set([
+      ...webPresentUserIds(workspaceId),
+      ...(await onlineUserIds(workspaceId)),
+    ]);
+    return c.json({ online: [...online] }, 200);
   })
   .openapi(listConversationsRoute, async (c) =>
     c.json(

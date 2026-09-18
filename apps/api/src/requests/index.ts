@@ -27,6 +27,7 @@ import {
   decideExpense,
   decideLeave,
   leaveBalance,
+  listAllExpenses,
   listAllLeave,
   listExpenses,
   listLeave,
@@ -51,6 +52,7 @@ import {
   storedFileSchema,
 } from "./response";
 import {
+  allExpensesQuery,
   allLeaveQuery,
   balanceQuery,
   decideBody,
@@ -197,6 +199,22 @@ const listExpensesRoute = createRoute({
   },
 });
 
+const allExpensesRoute = createRoute({
+  method: "get",
+  operationId: "listAllExpenses",
+  path: "/expenses/all",
+  tags,
+  summary: "Everyone's expenses",
+  description:
+    "Every expense in the workspace, newest first, filtered by status, person and spend date.",
+  middleware: [workspaceAccess.fromQuery(), approver] as const,
+  request: { query: allExpensesQuery },
+  responses: {
+    200: jsonResponse("Expenses", expenseListSchema),
+    403: errorResponse("Missing request:approve"),
+  },
+});
+
 const submitExpenseRoute = createRoute({
   method: "post",
   operationId: "submitExpense",
@@ -336,6 +354,10 @@ const requests = apiRouter()
       await leaveBalance(workspaceId, target, year ?? thisYear),
       200,
     );
+  })
+  .openapi(allExpensesRoute, async (c) => {
+    const { workspaceId, ...filters } = c.req.valid("query");
+    return c.json(await listAllExpenses(workspaceId, filters), 200);
   })
   .openapi(allLeaveRoute, async (c) => {
     const { workspaceId, ...filters } = c.req.valid("query");

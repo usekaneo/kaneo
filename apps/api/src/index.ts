@@ -20,6 +20,7 @@ import { auth } from "./auth";
 import { organizationRoutes } from "./auth-openapi";
 import billing from "./billing";
 import chat from "./chat";
+import checklist from "./checklist";
 import column from "./column";
 import comment from "./comment";
 import company from "./company";
@@ -29,6 +30,7 @@ import db, { getDatabase, schema } from "./database";
 import { prepareDatabaseStartup } from "./database/prepare-database-startup";
 import { waitForDatabase } from "./database/wait-for-database";
 import discordIntegration from "./discord-integration";
+import emailLog from "./email";
 import { eventContext } from "./events";
 import externalLink from "./external-link";
 import files from "./files";
@@ -55,12 +57,14 @@ import { initializePlugins } from "./plugins";
 import { migrateGitHubIntegration } from "./plugins/github/migration";
 import project from "./project";
 import { getPublicProject } from "./project/controllers/get-public-project";
+import reports from "./reports";
 import requests from "./requests";
 import { initializeScheduler, shutdownScheduler } from "./scheduler";
 import search from "./search";
 import slackIntegration from "./slack-integration";
 import { getPrivateObject } from "./storage/s3";
 import task from "./task";
+import taskAttachment from "./task-attachment";
 import taskRelation from "./task-relation";
 import telegramIntegration from "./telegram-integration";
 import timeEntry from "./time-entry";
@@ -597,6 +601,9 @@ export function createApp() {
   const filesApi = api.route("/files", files);
   const chatApi = api.route("/chat", chat);
   const linkPreviewApi = api.route("/link-preview", linkPreview);
+  const emailLogApi = api.route("/email-log", emailLog);
+  const reportsApi = api.route("/reports", reports);
+  const checklistApi = api.route("/checklist", checklist);
   const overviewApi = api.route("/overview", overview);
   const requestsApi = api.route("/requests", requests);
   const payApi = api.route("/pay", pay);
@@ -635,6 +642,7 @@ export function createApp() {
   );
   const taskRelationApi = api.route("/task-relation", taskRelation);
   const externalLinkApi = api.route("/external-link", externalLink);
+  const taskAttachmentApi = api.route("/task-attachment", taskAttachment);
   const workflowRuleApi = api.route("/workflow-rule", workflowRule);
   const invitationApi = api.route("/invitation", invitation);
   const workspaceApi = api.route("/workspace", workspace);
@@ -786,6 +794,7 @@ export function createApp() {
     configApi,
     discordIntegrationApi,
     externalLinkApi,
+    taskAttachmentApi,
     genericWebhookIntegrationApi,
     githubIntegrationApi,
     giteaIntegrationApi,
@@ -806,6 +815,9 @@ export function createApp() {
     filesApi,
     chatApi,
     linkPreviewApi,
+    emailLogApi,
+    reportsApi,
+    checklistApi,
     overviewApi,
     requestsApi,
     payApi,
@@ -916,6 +928,7 @@ const {
   configApi,
   discordIntegrationApi,
   externalLinkApi,
+  taskAttachmentApi,
   genericWebhookIntegrationApi,
   githubIntegrationApi,
   giteaIntegrationApi,
@@ -936,6 +949,9 @@ const {
   filesApi,
   chatApi,
   linkPreviewApi,
+  emailLogApi,
+  reportsApi,
+  checklistApi,
   overviewApi,
   requestsApi,
   payApi,
@@ -972,6 +988,9 @@ export type AppType =
   | typeof filesApi
   | typeof chatApi
   | typeof linkPreviewApi
+  | typeof emailLogApi
+  | typeof reportsApi
+  | typeof checklistApi
   | typeof overviewApi
   | typeof requestsApi
   | typeof payApi
@@ -992,6 +1011,7 @@ export type AppType =
   | typeof telegramIntegrationApi
   | typeof taskRelationApi
   | typeof externalLinkApi
+  | typeof taskAttachmentApi
   | typeof workflowRuleApi
   | typeof invitationApi
   | typeof workspaceApi

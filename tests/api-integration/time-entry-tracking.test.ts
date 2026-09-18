@@ -343,3 +343,36 @@ describe("time tracking: viewers", () => {
     ).toBe(403);
   });
 });
+
+describe("time tracking: stopping with a note", () => {
+  it("saves what was done, and still stops without one", async () => {
+    const { user, workspace } = await createWorkspaceMember({ role: "owner" });
+    const { task } = await seedTask(workspace.id);
+    const first = await logEntry(
+      user.id,
+      task.id,
+      "2026-09-14T04:00:00Z",
+      null,
+    );
+    const stopped = await as(user)(`/time-entry/${first.id}/stop`, {
+      method: "POST",
+      body: JSON.stringify({ description: "  Compressed hero images  " }),
+    });
+    expect(stopped.status).toBe(200);
+    expect(await stopped.json()).toMatchObject({
+      description: "Compressed hero images",
+    });
+
+    const second = await logEntry(
+      user.id,
+      task.id,
+      "2026-09-15T04:00:00Z",
+      null,
+    );
+    const plain = await as(user)(`/time-entry/${second.id}/stop`, {
+      method: "POST",
+    });
+    expect(plain.status).toBe(200);
+    expect((await plain.json()).endTime).not.toBeNull();
+  });
+});

@@ -1,6 +1,8 @@
 import { Hash, Lock, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { ChatConversation } from "@/fetchers/chat";
+import { useOnlineUserIds } from "@/hooks/chat";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
 import { formatDate, formatDateShort } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
@@ -36,18 +38,34 @@ export function PersonAvatar({
   name,
   image,
   className,
+  online,
 }: {
   name: string | null;
   image: string | null;
   className?: string;
+  /** Adds a presence dot: green when online, hollow grey when not. */
+  online?: boolean;
 }) {
-  return (
+  const avatar = (
     <Avatar className={cn("size-6 rounded-lg", className)}>
       <AvatarImage src={image ?? ""} alt={name ?? ""} />
       <AvatarFallback className="rounded-lg bg-primary/10 text-[10px] font-semibold text-primary">
         {getInitials(name)}
       </AvatarFallback>
     </Avatar>
+  );
+  if (online === undefined) return avatar;
+  return (
+    <span className="relative inline-flex shrink-0">
+      {avatar}
+      <span
+        aria-hidden
+        className={cn(
+          "absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full ring-2 ring-popover",
+          online ? "bg-emerald-500" : "bg-muted-foreground/40",
+        )}
+      />
+    </span>
   );
 }
 
@@ -62,6 +80,8 @@ export function ConversationIcon({
   size?: "sm" | "md" | "lg";
   className?: string;
 }) {
+  const { data: workspace } = useActiveWorkspace();
+  const online = useOnlineUserIds(workspace?.id);
   const box = { sm: "size-6", md: "size-8", lg: "size-12" }[size];
   const glyph = { sm: "size-3.5", md: "size-4", lg: "size-6" }[size];
 
@@ -98,6 +118,7 @@ export function ConversationIcon({
     <PersonAvatar
       name={person?.name ?? null}
       image={person?.image ?? null}
+      online={person && others.length === 1 ? online.has(person.id) : undefined}
       className={cn(box, size === "lg" && "text-sm", className)}
     />
   );

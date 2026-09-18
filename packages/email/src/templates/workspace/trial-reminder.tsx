@@ -1,6 +1,6 @@
 import { Link, Section, Text } from "@react-email/components";
 import React from "react";
-import { EmailShell, styles } from "./shell";
+import { EmailShell, styles } from "../shell";
 
 void React;
 

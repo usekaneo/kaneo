@@ -7,13 +7,19 @@ import {
 } from "../openapi";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
+import { toggleCommentReaction } from "./controllers/comment-extras";
 import createActivity from "./controllers/create-activity";
 import createComment from "./controllers/create-comment";
 import deleteComment from "./controllers/delete-comment";
 import getActivities from "./controllers/get-activities";
 import updateComment from "./controllers/update-comment";
-import { activityListSchema, activitySchema } from "./response";
 import {
+  activityListSchema,
+  activitySchema,
+  feedActivitySchema,
+} from "./response";
+import {
+  commentReactionBody,
   createActivityBody,
   createCommentBody,
   deleteCommentBody,
@@ -138,6 +144,34 @@ const deleteCommentRoute = createRoute({
   },
 });
 
+const commentReactionRoute = createRoute({
+  method: "post",
+  operationId: "toggleCommentReaction",
+  path: "/comment/reactions",
+  tags: ["Activity"],
+  summary: "React to a comment",
+  description:
+    "Adds the caller's emoji to a comment, or removes it when already there.",
+  middleware: [
+    workspaceAccess.fromActivity("activityId"),
+    requireWorkspacePermission({ task: ["update"] }),
+  ] as const,
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: commentReactionBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("The comment with its reactions", feedActivitySchema),
+    400: errorResponse("Not an emoji"),
+    403: errorResponse(
+      "No workspace access, or missing task:update permission",
+    ),
+    404: errorResponse("Comment not found"),
+  },
+});
+
 const activity = apiRouter()
   .openapi(getActivitiesRoute, async (c) =>
     c.json(await getActivities(c.req.valid("param").taskId), 200),
@@ -150,13 +184,29 @@ const activity = apiRouter()
     );
   })
   .openapi(createCommentRoute, async (c) => {
-    const { taskId, comment } = c.req.valid("json");
-    return c.json(await createComment(taskId, c.get("userId"), comment), 200);
+    const { taskId, comment, replyToId } = c.req.valid("json");
+    return c.json(
+      await createComment(
+        taskId,
+        c.get("userId"),
+        comment,
+        undefined,
+        replyToId,
+      ),
+      200,
+    );
   })
   .openapi(updateCommentRoute, async (c) => {
     const { activityId, comment } = c.req.valid("json");
     return c.json(
       await updateComment(c.get("userId"), activityId, comment),
+      200,
+    );
+  })
+  .openapi(commentReactionRoute, async (c) => {
+    const { activityId, emoji } = c.req.valid("json");
+    return c.json(
+      await toggleCommentReaction(c.get("userId"), activityId, emoji),
       200,
     );
   })

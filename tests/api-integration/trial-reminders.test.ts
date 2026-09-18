@@ -14,6 +14,7 @@ const sendTrialReminderEmail = vi.fn();
 
 vi.mock("@kaneo/email", () => ({
   isSmtpConfigured: () => true,
+  isEmailConfigured: () => true,
   sendTrialReminderEmail: (...args: unknown[]) =>
     sendTrialReminderEmail(...args),
 }));

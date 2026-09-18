@@ -1,4 +1,4 @@
-import { and, eq, inArray, or } from "drizzle-orm";
+import { and, asc, eq, inArray, or } from "drizzle-orm";
 import db from "../../database";
 import {
   projectTable,
@@ -14,6 +14,8 @@ async function getTaskRelations(taskId: string, workspaceId: string) {
       sourceTaskId: taskRelationTable.sourceTaskId,
       targetTaskId: taskRelationTable.targetTaskId,
       relationType: taskRelationTable.relationType,
+      checklistId: taskRelationTable.checklistId,
+      position: taskRelationTable.position,
       createdAt: taskRelationTable.createdAt,
     })
     .from(taskRelationTable)
@@ -22,7 +24,8 @@ async function getTaskRelations(taskId: string, workspaceId: string) {
         eq(taskRelationTable.sourceTaskId, taskId),
         eq(taskRelationTable.targetTaskId, taskId),
       ),
-    );
+    )
+    .orderBy(asc(taskRelationTable.position), asc(taskRelationTable.createdAt));
 
   const taskIds = new Set<string>();
   for (const rel of relations) {

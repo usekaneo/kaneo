@@ -22,6 +22,12 @@ export const taskRelationSchema = z
     sourceTaskId: z.string(),
     targetTaskId: z.string(),
     relationType: z.string().openapi({ description: relationTypeDescription }),
+    checklistId: z.string().nullable().openapi({
+      description: "Subtasks only: the parent's checklist this item is in.",
+    }),
+    position: z.number().openapi({
+      description: "Subtasks only: the item's place in its checklist.",
+    }),
     createdAt: responseTimestamp,
   })
   .openapi("TaskRelation");

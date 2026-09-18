@@ -4,7 +4,7 @@ import db from "../../database";
 import { timeEntryTable } from "../../database/schema";
 import { resolveDuration } from "../duration";
 
-async function stopTimeEntry(timeEntryId: string) {
+async function stopTimeEntry(timeEntryId: string, description?: string) {
   const [entry] = await db
     .select()
     .from(timeEntryTable)
@@ -22,7 +22,11 @@ async function stopTimeEntry(timeEntryId: string) {
 
   const [stopped] = await db
     .update(timeEntryTable)
-    .set({ endTime, duration: resolveDuration(entry.startTime, endTime) })
+    .set({
+      endTime,
+      duration: resolveDuration(entry.startTime, endTime),
+      ...(description && { description }),
+    })
     .where(eq(timeEntryTable.id, timeEntryId))
     .returning();
 

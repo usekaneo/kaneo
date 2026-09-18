@@ -9,6 +9,11 @@ export const workspaceQuery = z.object({ workspaceId: z.string() });
 
 export const personParam = z.object({ userId: z.string() });
 
+export const setTaskOrderBody = z.object({
+  workspaceId: z.string(),
+  taskIds: z.array(z.string()).max(2000),
+});
+
 export const employeeStatus = z.enum(["active", "on_leave", "inactive"]);
 
 // Every field is optional; null clears it (a cleared schedule field falls

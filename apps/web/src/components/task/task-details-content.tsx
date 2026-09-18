@@ -43,10 +43,12 @@ import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
 import type { ExternalLink } from "@/types/external-link";
+import TaskAttachments from "./task-attachments";
 import TaskDescription from "./task-description";
+import TaskProgress from "./task-progress";
 import TaskRelations from "./task-relations";
 import TaskSubtasks from "./task-subtasks";
-import TaskTimeTracking from "./task-time-tracking";
+import { TaskTimeLog, TaskTimerButton } from "./task-time-tracking";
 import TaskTitle from "./task-title";
 
 type CustomFieldType = "text" | "number" | "date" | "dropdown" | "boolean";
@@ -179,9 +181,15 @@ export default function TaskDetailsContent({
           </button>
         )}
 
-        <p className="text-xs font-semibold text-foreground/70">
-          {project?.slug}-{task?.number}
-        </p>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <p className="text-xs font-semibold text-foreground/70">
+              {project?.slug}-{task?.number}
+            </p>
+            <TaskProgress taskId={taskId} projectId={projectId} />
+          </div>
+          <TaskTimerButton taskId={taskId} />
+        </div>
 
         <TaskTitle taskId={taskId} />
         <TaskDescription taskId={taskId} />
@@ -417,6 +425,16 @@ export default function TaskDetailsContent({
         </div>
       )}
 
+      {project?.slug && task && (
+        <div className="mt-2">
+          <TaskAttachments
+            taskId={taskId}
+            workspaceId={workspaceId}
+            folder={`Tasks/${project.slug}-${task.number}/`}
+          />
+        </div>
+      )}
+
       {!isLoadingExternalLinks && externalLinks.length > 0 && (
         <div className="mt-4">
           <ExternalLinksAccordion
@@ -445,9 +463,8 @@ export default function TaskDetailsContent({
         />
       </div>
 
-      <div className="mt-2">
-        <TaskTimeTracking taskId={taskId} />
-      </div>
+      {/* On wide screens the log lives in the properties sidebar. */}
+      <TaskTimeLog taskId={taskId} className="mt-2 lg:hidden" />
       <span className="text-sm font-medium text-muted-foreground h-[1px] bg-border w-full block shrink-0" />
       <div className="flex flex-col gap-4">
         <h1 className="text-md font-semibold">{t("tasks:detail.activity")}</h1>

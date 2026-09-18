@@ -2,6 +2,7 @@ import * as Sentry from "@sentry/node";
 import { Cron } from "croner";
 import { purgeOldActivity } from "../agent/controllers";
 import { autoClockOut } from "../attendance/auto-clock";
+import { processEmailOutbox } from "../email/outbox";
 import { checkDueDateReminders } from "./due-date-reminders";
 import { checkProjectWebhookReminders } from "./project-webhook-reminders";
 import { reconcileWorkspaceSeats } from "./seat-reconciliation";
@@ -78,12 +79,19 @@ export function initializeScheduler(): void {
   );
   jobs.push(
     new Cron(
+      "* * * * *",
+      { protect: true },
+      withCheckIn("email-outbox", () => processEmailOutbox()),
+    ),
+  );
+  jobs.push(
+    new Cron(
       "41 3 * * *",
       withCheckIn("activity-retention", () => purgeOldActivity()),
     ),
   );
   console.log(
-    "⏰ Scheduler started (auto clock-out every minute, reminders every 5 minutes, seat reconciliation and trial reminders hourly, activity retention daily)",
+    "⏰ Scheduler started (auto clock-out and email retries every minute, reminders every 5 minutes, seat reconciliation and trial reminders hourly, activity retention daily)",
   );
 }
 

@@ -17,7 +17,7 @@ import {
 import { publishEvent } from "../events";
 
 // Leave types that use up the yearly allowance. Unpaid leave does not.
-const COUNTED = ["annual", "sick"];
+export const COUNTED = ["annual", "sick"];
 
 async function scheduleFor(workspaceId: string, userId: string) {
   const [company, [profile]] = await Promise.all([
@@ -220,6 +220,7 @@ export async function requestLeave(
     startDate: created.startDate,
     endDate: created.endDate,
     days: created.days,
+    reason: created.reason,
   });
   return created;
 }
@@ -432,6 +433,23 @@ export async function listExpenses(workspaceId: string, userId: string) {
     .orderBy(desc(expenseTable.spentOn), desc(expenseTable.createdAt));
 }
 
+export async function listAllExpenses(
+  workspaceId: string,
+  filters: { status?: string; userId?: string; from?: string; to?: string },
+) {
+  return selectExpenses()
+    .where(
+      and(
+        eq(expenseTable.workspaceId, workspaceId),
+        filters.status ? eq(expenseTable.status, filters.status) : undefined,
+        filters.userId ? eq(expenseTable.userId, filters.userId) : undefined,
+        filters.from ? gte(expenseTable.spentOn, filters.from) : undefined,
+        filters.to ? lte(expenseTable.spentOn, filters.to) : undefined,
+      ),
+    )
+    .orderBy(desc(expenseTable.spentOn), desc(expenseTable.createdAt));
+}
+
 export async function submitExpense(
   workspaceId: string,
   userId: string,
@@ -489,6 +507,18 @@ export async function submitExpense(
     .returning({ id: expenseTable.id });
   if (!created) throw new HTTPException(500, { message: "Failed to save" });
   const [row] = await selectExpenses().where(eq(expenseTable.id, created.id));
+  if (row) {
+    await publishEvent("expense.submitted", {
+      workspaceId,
+      expenseId: row.id,
+      userId,
+      amount: row.amount,
+      currency: row.currency,
+      category: row.category,
+      description: row.description,
+      spentOn: row.spentOn,
+    });
+  }
   return row;
 }
 
@@ -572,6 +602,17 @@ export async function decideExpense(
     targetId: row.userId,
     data: { expenseId: id, amount: row.amount, currency: row.currency },
   });
+  await publishEvent("expense.decided", {
+    workspaceId,
+    expenseId: id,
+    userId: row.userId,
+    actorId,
+    decision,
+    amount: row.amount,
+    currency: row.currency,
+    category: row.category,
+    spentOn: row.spentOn,
+  });
   return presentExpense(id);
 }
 
@@ -603,6 +644,17 @@ export async function markExpensePaid(
     targetType: "user",
     targetId: row.userId,
     data: { expenseId: id, amount: row.amount, currency: row.currency },
+  });
+  await publishEvent("expense.decided", {
+    workspaceId,
+    expenseId: id,
+    userId: row.userId,
+    actorId,
+    decision: "paid",
+    amount: row.amount,
+    currency: row.currency,
+    category: row.category,
+    spentOn: row.spentOn,
   });
   return presentExpense(id);
 }

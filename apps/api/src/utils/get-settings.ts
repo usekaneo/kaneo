@@ -1,4 +1,4 @@
-import { isSmtpConfigured } from "@kaneo/email";
+import { isEmailConfigured } from "@kaneo/email";
 import { config } from "dotenv-mono";
 import { isBillingEnabled } from "../billing/config";
 import { isGithubSsoConfigured } from "./github-sso-env";
@@ -13,7 +13,8 @@ function getSettings() {
     disableEmailOtpSignIn: process.env.DISABLE_EMAIL_OTP_SIGN_IN === "true",
     disableWorkspaceCreation: process.env.DISABLE_WORKSPACE_CREATION === "true",
     isDemoMode: process.env.DEMO_MODE === "true",
-    hasSmtp: isSmtpConfigured(),
+    // "Can send email", via SMTP or Resend; the name predates Resend.
+    hasSmtp: isEmailConfigured(),
     hasGithubSignIn: isGithubSsoConfigured(),
     hasGoogleSignIn:
       Boolean(process.env.GOOGLE_CLIENT_ID) &&

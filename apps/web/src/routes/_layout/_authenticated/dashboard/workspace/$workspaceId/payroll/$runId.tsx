@@ -107,7 +107,12 @@ function RouteComponent() {
 
   const save = (
     item: Item,
-    patch: Partial<Pick<Item, "bonus" | "deduction">>,
+    patch: {
+      bonus?: number;
+      deduction?: number;
+      // null puts the automatic overtime back.
+      overtimeAmount?: number | null;
+    },
   ) =>
     act(() =>
       actions.updateItem.mutateAsync({
@@ -115,6 +120,7 @@ function RouteComponent() {
         itemId: item.id,
         bonus: patch.bonus ?? item.bonus,
         deduction: patch.deduction ?? item.deduction,
+        overtimeAmount: patch.overtimeAmount,
       }),
     );
 
@@ -146,8 +152,9 @@ function RouteComponent() {
                       act(async () => {
                         await actions.remove.mutateAsync(run.id);
                         navigate({
-                          to: "/dashboard/workspace/$workspaceId/payroll",
+                          to: "/dashboard/workspace/$workspaceId/expenses",
                           params: { workspaceId },
+                          search: { tab: "payroll" },
                         });
                       })
                     }
@@ -250,16 +257,41 @@ function RouteComponent() {
                     <TableCell className="text-right tabular-nums">
                       {money(item.baseAmount)}
                     </TableCell>
-                    <TableCell className="text-right tabular-nums">
-                      {item.overtimeAmount > 0 ? (
-                        <>
-                          {money(item.overtimeAmount)}
-                          <div className="text-xs text-muted-foreground">
-                            {formatHours(item.overtimeMinutes * 60)}
-                          </div>
-                        </>
-                      ) : (
-                        "–"
+                    <TableCell className="text-right">
+                      <AdjustableAmount
+                        value={item.overtimeAmount}
+                        editable={canEdit}
+                        format={money}
+                        label={t("pay:columns.overtime")}
+                        onSave={(overtimeAmount) =>
+                          save(item, { overtimeAmount })
+                        }
+                      />
+                      {(item.overtimeMinutes > 0 || item.overtimeRate > 0) && (
+                        <div className="mt-1 text-xs text-muted-foreground tabular-nums">
+                          {t("pay:runs.overtimeRateLine", {
+                            hours: formatHours(item.overtimeMinutes * 60),
+                            rate: money(item.overtimeRate),
+                          })}
+                        </div>
+                      )}
+                      {item.overtimeAmount !== item.overtimeAutoAmount && (
+                        <div className="text-xs text-muted-foreground">
+                          {t("pay:runs.overtimeAuto", {
+                            amount: money(item.overtimeAutoAmount),
+                          })}
+                          {canEdit && (
+                            <button
+                              type="button"
+                              className="ms-1.5 text-primary hover:underline"
+                              onClick={() =>
+                                save(item, { overtimeAmount: null })
+                              }
+                            >
+                              {t("pay:runs.overtimeReset")}
+                            </button>
+                          )}
+                        </div>
                       )}
                     </TableCell>
                     <TableCell className="text-right">

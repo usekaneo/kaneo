@@ -77,6 +77,9 @@ export function useProjectWebSocket(projectId: string) {
                 queryClient.invalidateQueries({
                   queryKey: ["task-relations", message.sourceTaskId],
                 });
+                queryClient.invalidateQueries({
+                  queryKey: ["task-checklists", message.sourceTaskId],
+                });
               }
               if (message.targetTaskId) {
                 queryClient.invalidateQueries({

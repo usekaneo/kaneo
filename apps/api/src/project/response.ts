@@ -35,6 +35,30 @@ export const projectStatisticsSchema = z
     dueDate: nullableResponseTimestamp.openapi({
       description: "The soonest due date among the project's open tasks.",
     }),
+    nextDueDate: nullableResponseTimestamp.openapi({
+      description: "The soonest due date among open tasks only.",
+    }),
+    openTasks: z.number(),
+    completedTasks: z.number(),
+    overdueTasks: z.number().openapi({
+      description: "Open tasks whose due date has passed.",
+    }),
+    dueThisWeekTasks: z.number().openapi({
+      description: "Open tasks due in the next 7 days.",
+    }),
+    estimateMinutes: z.number().openapi({
+      description: "Sum of the tasks' estimates.",
+    }),
+    trackedSecondsLast30Days: z.number().openapi({
+      description:
+        "Finished time entries on the project's tasks, last 30 days.",
+    }),
+    assigneeIds: z.array(z.string()).openapi({
+      description: "People assigned to the project's open tasks.",
+    }),
+    lastActivityAt: nullableResponseTimestamp.openapi({
+      description: "When any of the project's tasks last changed.",
+    }),
   })
   .openapi("ProjectStatistics");
 

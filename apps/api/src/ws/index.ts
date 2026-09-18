@@ -308,9 +308,11 @@ const taskUpdateEvents = [
   "task.label_deleted",
   "task-relation.created",
   "task-relation.deleted",
+  "checklist.updated",
   "comment.created",
   "comment.deleted",
   "comment.updated",
+  "comment.reacted",
 ];
 
 subscribeToEvent<{
@@ -386,6 +388,7 @@ for (const eventName of taskUpdateEvents) {
         break;
       case "task-relation.created":
       case "task-relation.deleted":
+      case "checklist.updated":
         type = "TASK_RELATION_UPDATED";
         break;
       case "task.label_assigned":
@@ -397,6 +400,7 @@ for (const eventName of taskUpdateEvents) {
       case "comment.created":
       case "comment.deleted":
       case "comment.updated":
+      case "comment.reacted":
         type = "COMMENT_UPDATED";
         break;
       default:

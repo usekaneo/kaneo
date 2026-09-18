@@ -1,6 +1,7 @@
 import { desc, eq } from "drizzle-orm";
 import db from "../../database";
 import { activityTable } from "../../database/schema";
+import { withCommentExtras } from "./comment-extras";
 
 async function getActivitiesFromTaskId(taskId: string) {
   const activities = await db.query.activityTable.findMany({
@@ -14,7 +15,7 @@ async function getActivitiesFromTaskId(taskId: string) {
     }
   });
 
-  return activities;
+  return withCommentExtras(activities);
 }
 
 export default getActivitiesFromTaskId;

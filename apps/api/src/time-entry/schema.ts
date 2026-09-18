@@ -41,6 +41,12 @@ export const createTimeEntryBody = z.object({
   description: z.string().optional(),
 });
 
+export const stopTimeEntryBody = z.object({
+  description: z.string().trim().max(1000).optional().openapi({
+    description: "What was done; replaces the entry's note when given.",
+  }),
+});
+
 export const updateTimeEntryBody = z.object({
   startTime: timestamp,
   endTime: timestamp.optional(),

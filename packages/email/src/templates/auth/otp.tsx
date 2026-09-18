@@ -1,7 +1,7 @@
 import { Section, Text } from "@react-email/components";
 import React from "react";
-import { resolveEmailLocale } from "./resolve-locale";
-import { EmailShell, styles } from "./shell";
+import { resolveEmailLocale } from "../resolve-locale";
+import { EmailShell, styles } from "../shell";
 
 void React;
 

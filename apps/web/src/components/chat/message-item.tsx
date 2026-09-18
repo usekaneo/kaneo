@@ -284,7 +284,7 @@ function ToolbarButton({
   );
 }
 
-function ReactionPicker({
+export function ReactionPicker({
   onPick,
   children,
 }: {

@@ -81,12 +81,13 @@ function createWorkspaceRuleState(input: {
     };
   }
 
+  // What the server does without a rule: email, every project.
   return {
-    isActive: false,
+    isActive: true,
     emailEnabled: input.hasEmailChannel,
-    ntfyEnabled: input.hasNtfyChannel,
-    gotifyEnabled: input.hasGotifyChannel,
-    webhookEnabled: input.hasWebhookChannel,
+    ntfyEnabled: false,
+    gotifyEnabled: false,
+    webhookEnabled: false,
     projectMode: "all",
     selectedProjectIds: [],
   };
@@ -264,7 +265,11 @@ function WorkspaceRuleCard({
                   : t("settings:notificationsPage.statusPaused")}
               </span>
             </div>
-          ) : null}
+          ) : (
+            <span className="text-xs text-muted-foreground">
+              {t("settings:notificationsPage.statusDefault")}
+            </span>
+          )}
           <Switch
             aria-label={t("settings:notificationsPage.workspaceEnabledLabel", {
               workspaceName: workspace.name,

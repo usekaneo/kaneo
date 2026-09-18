@@ -74,7 +74,12 @@ export const payApi = {
     workspaceId: string,
     id: string,
     itemId: string,
-    input: { bonus: number; deduction: number; note?: string | null },
+    input: {
+      bonus: number;
+      deduction: number;
+      overtimeAmount?: number | null;
+      note?: string | null;
+    },
   ) =>
     unwrap(
       await client.pay.runs[":id"].items[":itemId"].$put({

@@ -11,6 +11,7 @@ import {
   integer,
   jsonb,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   unique,
@@ -430,6 +431,9 @@ export const taskTable = pgTable(
     priority: text("priority").default("low").notNull(),
     startDate: timestamp("start_date", { mode: "date" }),
     dueDate: timestamp("due_date", { mode: "date" }),
+    // Set by a database trigger when the task enters a final column, cleared
+    // when it leaves one, so every code path that moves tasks keeps it right.
+    completedAt: timestamp("completed_at", { mode: "date" }),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { mode: "date" })
       .defaultNow()
@@ -441,6 +445,7 @@ export const taskTable = pgTable(
     index("task_dueDate_idx").on(table.dueDate),
     index("task_assigneeId_idx").on(table.userId),
     index("task_columnId_idx").on(table.columnId),
+    index("task_completed_at_idx").on(table.completedAt),
     unique("task_project_number_unique").on(table.projectId, table.number),
   ],
 );
@@ -578,6 +583,13 @@ export const activityTable = pgTable(
     externalUserAvatar: text("external_user_avatar"),
     externalSource: text("external_source"),
     externalUrl: text("external_url"),
+    // Comments only: the comment this one replies to (null once it's deleted).
+    replyToId: text("reply_to_id").references(
+      (): AnyPgColumn => activityTable.id,
+      { onDelete: "set null", onUpdate: "cascade" },
+    ),
+    // Set when the author edits a comment; updated_at also moves on other writes.
+    editedAt: timestamp("edited_at", { mode: "date" }),
   },
   (table) => [
     index("activity_task_id_idx").on(table.taskId),
@@ -986,12 +998,41 @@ export const taskRelationTable = pgTable(
         onUpdate: "cascade",
       }),
     relationType: text("relation_type").notNull(),
+    // Subtasks only: which of the parent's checklists the item sits in, and
+    // its place there. Deleting a checklist deletes its items (the tasks).
+    checklistId: text("checklist_id").references(
+      () => taskChecklistTable.id,
+      { onDelete: "set null", onUpdate: "cascade" },
+    ),
+    position: integer("position").notNull().default(0),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
   },
   (table) => [
     index("task_relation_source_idx").on(table.sourceTaskId),
     index("task_relation_target_idx").on(table.targetTaskId),
+    index("task_relation_checklist_idx").on(table.checklistId),
   ],
+);
+
+// Named groups of subtasks on a task ("Design", "QA"…). A null title shows
+// as the translated default name, "Checklist".
+export const taskChecklistTable = pgTable(
+  "task_checklist",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    taskId: text("task_id")
+      .notNull()
+      .references(() => taskTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    title: text("title"),
+    position: integer("position").notNull().default(0),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [index("task_checklist_task_idx").on(table.taskId)],
 );
 
 export const apikeyTable = pgTable(
@@ -1659,6 +1700,15 @@ export const payrollItemTable = pgTable(
     overtimeAmount: bigint("overtime_amount", { mode: "number" })
       .notNull()
       .default(0),
+    // What one overtime hour pays (overtime premium included), and what the
+    // overtime came to before anyone edited it. An edited line is one whose
+    // amount differs from the automatic one.
+    overtimeRate: bigint("overtime_rate", { mode: "number" })
+      .notNull()
+      .default(0),
+    overtimeAutoAmount: bigint("overtime_auto_amount", { mode: "number" })
+      .notNull()
+      .default(0),
     bonus: bigint("bonus", { mode: "number" }).notNull().default(0),
     deduction: bigint("deduction", { mode: "number" }).notNull().default(0),
     netAmount: bigint("net_amount", { mode: "number" }).notNull(),
@@ -1758,6 +1808,48 @@ export const storedFileTable = pgTable(
   ],
 );
 
+// Every email Kaneo sends goes through here: it is sent right away, retried
+// with backoff when the provider fails, and kept as a delivery log.
+export const emailOutboxTable = pgTable(
+  "email_outbox",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id").references(() => workspaceTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+    userId: text("user_id").references(() => userTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    toEmail: text("to_email").notNull(),
+    subject: text("subject").notNull(),
+    category: text("category").notNull().default("other"),
+    html: text("html").notNull(),
+    text: text("text"),
+    // queued → sending → sent, or back to queued until attempts run out.
+    status: text("status").notNull().default("queued"),
+    attempts: integer("attempts").notNull().default(0),
+    lastError: text("last_error"),
+    provider: text("provider"),
+    providerId: text("provider_id"),
+    nextAttemptAt: timestamp("next_attempt_at", { mode: "date" })
+      .defaultNow()
+      .notNull(),
+    sentAt: timestamp("sent_at", { mode: "date" }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("email_outbox_status_next_idx").on(table.status, table.nextAttemptAt),
+    index("email_outbox_workspace_created_idx").on(
+      table.workspaceId,
+      table.createdAt,
+    ),
+  ],
+);
+
 // Folders on the Files page are mostly implied by file paths; a row here
 // keeps a folder someone created visible while it is still empty.
 export const fileFolderTable = pgTable(
@@ -1784,6 +1876,80 @@ export const fileFolderTable = pgTable(
     uniqueIndex("file_folder_workspace_path_idx").on(
       table.workspaceId,
       table.path,
+    ),
+  ],
+);
+
+// A task's "Files & media": either a file in the workspace library (kept in a
+// Tasks/<ID>/ folder, so it also shows on the Files page) or a plain link.
+export const taskAttachmentTable = pgTable(
+  "task_attachment",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    taskId: text("task_id")
+      .notNull()
+      .references(() => taskTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    // "file" points at stored_file; "link" carries a url.
+    kind: text("kind").notNull(),
+    fileId: text("file_id").references(() => storedFileTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+    url: text("url"),
+    title: text("title").notNull(),
+    createdBy: text("created_by").references(() => userTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("task_attachment_taskId_idx").on(table.taskId),
+    index("task_attachment_fileId_idx").on(table.fileId),
+  ],
+);
+
+// A person's own ordering of their tasks on My work. Separate from
+// task.position, which is the shared board order within one project column.
+export const userTaskOrderTable = pgTable(
+  "user_task_order",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    taskId: text("task_id")
+      .notNull()
+      .references(() => taskTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    position: integer("position").notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.taskId] }),
+    index("user_task_order_user_workspace_idx").on(
+      table.userId,
+      table.workspaceId,
     ),
   ],
 );
@@ -2018,6 +2184,34 @@ export const chatReactionTable = pgTable(
   (table) => [
     uniqueIndex("chat_reaction_message_user_emoji_idx").on(
       table.messageId,
+      table.userId,
+      table.emoji,
+    ),
+  ],
+);
+
+// Emoji reactions on task comments (activity rows of type "comment").
+export const activityReactionTable = pgTable(
+  "activity_reaction",
+  {
+    activityId: text("activity_id")
+      .notNull()
+      .references(() => activityTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    emoji: text("emoji").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("activity_reaction_activity_user_emoji_idx").on(
+      table.activityId,
       table.userId,
       table.emoji,
     ),

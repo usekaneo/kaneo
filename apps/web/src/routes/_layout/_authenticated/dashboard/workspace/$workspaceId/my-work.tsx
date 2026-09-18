@@ -3,9 +3,10 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import WorkspaceLayout from "@/components/common/workspace-layout";
 import { CompanyToday } from "@/components/my-work/company-today";
+import { CreateQuickTaskDialog } from "@/components/my-work/create-quick-task-dialog";
+import { MyTasksTable } from "@/components/my-work/my-tasks-table";
 import PageTitle from "@/components/page-title";
 import { monthLabel } from "@/components/pay/labels";
-import { PersonTasks } from "@/components/people/person-tasks";
 import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
 import { AddExpenseDialog } from "@/components/requests/add-expense-dialog";
 import {
@@ -76,7 +77,7 @@ function RouteComponent() {
   const { workspaceId } = Route.useParams();
   const { user } = useAuth();
   const userId = user?.id ?? "";
-  const { canSeePeople } = useWorkspacePermission();
+  const { canSeePeople, canCreateTasks } = useWorkspacePermission();
   const { data: company } = useCompanySettings(workspaceId);
   const timeZone = company?.timezone ?? "UTC";
   const currency = company?.currency ?? "USD";
@@ -106,10 +107,10 @@ function RouteComponent() {
   const { cancelLeave, cancelExpense } = useRequestActions(workspaceId);
   const [leaveOpen, setLeaveOpen] = useState(false);
   const [expenseOpen, setExpenseOpen] = useState(false);
+  const [taskOpen, setTaskOpen] = useState(false);
 
   const now = new Date();
   const tracked = entries.reduce((sum, e) => sum + entrySeconds(e, now), 0);
-  const openTasks = tasks.filter((task) => !task.done);
   const latestSlip = payslips[0];
 
   const act = (fn: () => Promise<unknown>) =>
@@ -124,20 +125,35 @@ function RouteComponent() {
         <div className="space-y-8 p-4">
           {canSeePeople() && <CompanyToday workspaceId={workspaceId} />}
 
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+          <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_18rem]">
             <Section
               title={t("myWork:tasks.title")}
               action={
-                <Link
-                  to="/dashboard/workspace/$workspaceId/people/$userId"
-                  params={{ workspaceId, userId }}
-                  className="text-xs text-muted-foreground hover:text-foreground"
-                >
-                  {t("myWork:tasks.profile")}
-                </Link>
+                <div className="flex items-center gap-3">
+                  <Link
+                    to="/dashboard/workspace/$workspaceId/people/$userId"
+                    params={{ workspaceId, userId }}
+                    className="text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    {t("myWork:tasks.profile")}
+                  </Link>
+                  {canCreateTasks() && (
+                    <Button
+                      variant="outline"
+                      size="xs"
+                      onClick={() => setTaskOpen(true)}
+                    >
+                      {t("myWork:tasks.new")}
+                    </Button>
+                  )}
+                </div>
               }
             >
-              <PersonTasks workspaceId={workspaceId} tasks={openTasks} />
+              <MyTasksTable
+                workspaceId={workspaceId}
+                userId={userId}
+                tasks={tasks}
+              />
             </Section>
 
             <div className="space-y-8">
@@ -320,6 +336,11 @@ function RouteComponent() {
           </div>
         </div>
 
+        <CreateQuickTaskDialog
+          open={taskOpen}
+          onClose={() => setTaskOpen(false)}
+          workspaceId={workspaceId}
+        />
         <RequestLeaveDialog
           open={leaveOpen}
           onClose={() => setLeaveOpen(false)}

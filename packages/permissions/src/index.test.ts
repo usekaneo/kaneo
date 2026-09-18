@@ -228,4 +228,12 @@ describe("file permissions", () => {
     expect(owner.statements.file).toEqual(["upload", "manage"]);
     expect((viewer.statements as Record<string, unknown>).file).toBeUndefined();
   });
+
+  it("lets managers and above read team reports, not members", () => {
+    expect(manager.statements.report).toEqual(["read"]);
+    expect(admin.statements.report).toEqual(["read"]);
+    expect(owner.statements.report).toEqual(["read"]);
+    expect(member.statements.report).toBeUndefined();
+    expect(viewer.statements.report).toBeUndefined();
+  });
 });

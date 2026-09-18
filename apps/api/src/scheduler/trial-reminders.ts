@@ -1,4 +1,4 @@
-import { isSmtpConfigured, sendTrialReminderEmail } from "@kaneo/email";
+import { isEmailConfigured, sendTrialReminderEmail } from "@kaneo/email";
 import { and, asc, eq, gt, isNotNull, isNull, lte } from "drizzle-orm";
 import { isBillingEnabled } from "../billing/config";
 import db from "../database";
@@ -123,7 +123,7 @@ async function getWorkspacesNeedingReminder(type: ReminderType, now: Date) {
 }
 
 export async function checkTrialReminders(): Promise<{ degraded: boolean }> {
-  if (!isBillingEnabled() || !isSmtpConfigured()) {
+  if (!isBillingEnabled() || !isEmailConfigured()) {
     return { degraded: false };
   }
 

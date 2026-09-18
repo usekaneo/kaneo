@@ -54,7 +54,8 @@ export function calculatePay(input: PayInput) {
   }
 
   const overtimeAmount = Math.round(overtimeHours * hourlyRate * ratePercent);
+  const overtimeRate = Math.round(hourlyRate * ratePercent);
   const netAmount = baseAmount + overtimeAmount + input.bonus - input.deduction;
 
-  return { baseAmount, overtimeAmount, netAmount };
+  return { baseAmount, overtimeAmount, overtimeRate, netAmount };
 }

@@ -36,6 +36,8 @@ describe("calculatePay", () => {
     expect(pay).toEqual({
       baseAmount: 5_000_000,
       overtimeAmount: 426_136,
+      // 28,409.09 × 1.5 per overtime hour.
+      overtimeRate: 42_614,
       netAmount: 5_000_000 + 426_136 + 200_000 - 50_000,
     });
   });
@@ -54,6 +56,7 @@ describe("calculatePay", () => {
     expect(pay).toEqual({
       baseAmount: 160 * 50_000,
       overtimeAmount: 10 * 50_000 * 1.5,
+      overtimeRate: 75_000,
       netAmount: 160 * 50_000 + 750_000,
     });
   });

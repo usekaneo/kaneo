@@ -190,7 +190,8 @@ export async function getNotificationPreferences(
 
   return {
     emailAddress,
-    emailEnabled: decryptedPreference?.emailEnabled ?? false,
+    // Matches delivery: email is on until someone turns it off.
+    emailEnabled: decryptedPreference?.emailEnabled ?? true,
     ntfyEnabled: decryptedPreference?.ntfyEnabled ?? false,
     ntfyConfigured: Boolean(
       decryptedPreference?.ntfyServerUrl && decryptedPreference?.ntfyTopic,

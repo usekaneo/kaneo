@@ -19,6 +19,19 @@ export const createActivityBody = z.object({
 export const createCommentBody = z.object({
   taskId: z.string(),
   comment: z.string(),
+  replyToId: z.string().optional().openapi({
+    description: "Quote another comment on the same task.",
+  }),
+});
+
+export const commentReactionBody = z.object({
+  activityId: z.string(),
+  emoji: z
+    .string()
+    .min(1)
+    .max(16)
+    .regex(/^\p{Extended_Pictographic}/u, "Pick an emoji")
+    .openapi({ example: "👍" }),
 });
 
 export const updateCommentBody = z.object({

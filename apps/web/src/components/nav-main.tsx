@@ -1,15 +1,15 @@
 import { useNavigate } from "@tanstack/react-router";
 import {
+  BarChart3,
   CalendarCheck,
   ChevronRight,
   Clock,
   FolderKanban,
   FolderOpen,
   House,
-  Mail,
   MessagesSquare,
+  Receipt,
   Users,
-  Wallet,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -27,7 +27,6 @@ import {
 } from "@/components/ui/sidebar";
 import { useChatConversations } from "@/hooks/chat";
 import { useOpenRequests } from "@/hooks/queries/company-os";
-import { usePendingInvitations } from "@/hooks/queries/invitation/use-pending-invitations";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 
@@ -35,8 +34,7 @@ export function NavMain() {
   const { t } = useTranslation();
   const { data: workspace } = useActiveWorkspace();
   const navigate = useNavigate();
-  const { data: invitations = [] } = usePendingInvitations();
-  const { canSeePay, canApproveRequests } = useWorkspacePermission();
+  const { canApproveRequests } = useWorkspacePermission();
   const { data: openRequests } = useOpenRequests(
     workspace?.id,
     Boolean(canApproveRequests()),
@@ -45,9 +43,10 @@ export function NavMain() {
 
   if (!workspace) return null;
 
-  const pendingCount = invitations.length;
   const chatUnread = conversations.reduce((sum, c) => sum + c.unreadCount, 0);
   const pendingLeave = openRequests?.leave.length ?? 0;
+  const pendingExpenses =
+    openRequests?.expenses.filter((e) => e.status === "pending").length ?? 0;
 
   const base = `/dashboard/workspace/${workspace.id}`;
   const navItems = [
@@ -92,6 +91,13 @@ export function NavMain() {
       badge: pendingLeave > 0 ? pendingLeave : null,
     },
     {
+      icon: BarChart3,
+      title: t("navigation:sidebar.reports"),
+      url: `${base}/reports`,
+      isActive: window.location.pathname === `${base}/reports`,
+      badge: null,
+    },
+    {
       icon: MessagesSquare,
       title: t("navigation:sidebar.chat"),
       url: `${base}/chat`,
@@ -105,23 +111,15 @@ export function NavMain() {
       isActive: window.location.pathname === `${base}/files`,
       badge: null,
     },
-    ...(canSeePay()
-      ? [
-          {
-            icon: Wallet,
-            title: t("navigation:sidebar.payroll"),
-            url: `${base}/payroll`,
-            isActive: window.location.pathname.startsWith(`${base}/payroll`),
-            badge: null,
-          },
-        ]
-      : []),
+    // Everyone files expenses; payroll is a tab inside for those who see pay.
     {
-      icon: Mail,
-      title: t("navigation:sidebar.invitations"),
-      url: "/dashboard/invitations",
-      isActive: window.location.pathname === "/dashboard/invitations",
-      badge: pendingCount > 0 ? pendingCount : null,
+      icon: Receipt,
+      title: t("navigation:sidebar.expenses"),
+      url: `${base}/expenses`,
+      isActive:
+        window.location.pathname.startsWith(`${base}/expenses`) ||
+        window.location.pathname.startsWith(`${base}/payroll`),
+      badge: pendingExpenses > 0 ? pendingExpenses : null,
     },
   ];
 

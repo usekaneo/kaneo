@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { useChatActions } from "@/hooks/chat";
+import { useChatActions, useOnlineUserIds } from "@/hooks/chat";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
@@ -42,6 +42,7 @@ export function NewConversationDialog({
   const { data } = useGetActiveWorkspaceUsers(workspaceId);
   const members = useMemo(() => data?.members ?? [], [data]);
   const actions = useChatActions(workspaceId);
+  const online = useOnlineUserIds(workspaceId);
   const [name, setName] = useState("");
   const [isPrivate, setIsPrivate] = useState(false);
   const [search, setSearch] = useState("");
@@ -64,15 +65,21 @@ export function NewConversationDialog({
       ...(mode?.kind === "add" ? mode.existingIds : []),
     ]);
     const query = search.trim().toLowerCase();
-    return members
-      .filter((m) => !excluded.has(m.userId))
-      .filter(
-        (m) =>
-          !query ||
-          m.user.name?.toLowerCase().includes(query) ||
-          m.user.email?.toLowerCase().includes(query),
-      );
-  }, [members, search, user?.id, mode]);
+    return (
+      members
+        .filter((m) => !excluded.has(m.userId))
+        .filter(
+          (m) =>
+            !query ||
+            m.user.name?.toLowerCase().includes(query) ||
+            m.user.email?.toLowerCase().includes(query),
+        )
+        // Online people first; the sort is stable, so names keep their order.
+        .sort(
+          (a, b) => Number(online.has(b.userId)) - Number(online.has(a.userId)),
+        )
+    );
+  }, [members, search, user?.id, mode, online]);
 
   const toggle = (id: string) =>
     setPicked((all) =>
@@ -184,12 +191,25 @@ export function NewConversationDialog({
                     <PersonAvatar
                       name={m.user.name ?? null}
                       image={m.user.image ?? null}
+                      online={online.has(m.userId)}
                     />
                     <span className="min-w-0 flex-1 truncate">
                       {m.user.name}
                       <span className="ms-2 text-xs text-muted-foreground">
                         {m.user.email}
                       </span>
+                    </span>
+                    <span
+                      className={cn(
+                        "shrink-0 text-xs",
+                        online.has(m.userId)
+                          ? "text-emerald-500"
+                          : "text-muted-foreground",
+                      )}
+                    >
+                      {online.has(m.userId)
+                        ? t("chat:online")
+                        : t("chat:offline")}
                     </span>
                     {selected && <Check className="size-4 text-primary" />}
                   </button>

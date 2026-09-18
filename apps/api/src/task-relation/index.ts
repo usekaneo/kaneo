@@ -171,7 +171,8 @@ const taskRelation = apiRouter<BaseVariables & { workspaceId: string }>()
     ),
   )
   .openapi(createTaskRelationRoute, async (c) => {
-    const { sourceTaskId, targetTaskId, relationType } = c.req.valid("json");
+    const { sourceTaskId, targetTaskId, relationType, checklistId } =
+      c.req.valid("json");
     return c.json(
       await createTaskRelation({
         sourceTaskId,
@@ -179,6 +180,7 @@ const taskRelation = apiRouter<BaseVariables & { workspaceId: string }>()
         relationType,
         userId: c.get("userId"),
         workspaceId: c.get("workspaceId"),
+        checklistId,
       }),
       200,
     );

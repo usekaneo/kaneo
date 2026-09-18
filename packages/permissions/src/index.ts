@@ -25,6 +25,9 @@ export const statement = {
   // Workspace files. Everyone who works in the workspace can upload and share
   // their own; manage covers other people's files.
   file: ["upload", "manage"],
+  // Workspace-wide reports. Everyone sees a report of their own work; this
+  // covers the whole team's.
+  report: ["read"],
 } as const;
 
 export const ac = createAccessControl(statement);
@@ -59,6 +62,7 @@ export const manager = ac.newRole({
   activity: ["read_all"],
   request: ["approve"],
   file: ["upload"],
+  report: ["read"],
 });
 
 export const admin = ac.newRole({
@@ -74,6 +78,7 @@ export const admin = ac.newRole({
   payroll: ["read", "manage"],
   audit: ["read"],
   file: ["upload", "manage"],
+  report: ["read"],
 });
 
 export const owner = ac.newRole({
@@ -89,6 +94,7 @@ export const owner = ac.newRole({
   payroll: ["read", "manage"],
   audit: ["read"],
   file: ["upload", "manage"],
+  report: ["read"],
 });
 
 export const builtInRoles = { viewer, member, manager, admin, owner } as const;

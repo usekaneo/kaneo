@@ -45,6 +45,7 @@ export function usePayrollActions(workspaceId: string) {
         itemId: string;
         bonus: number;
         deduction: number;
+        overtimeAmount?: number | null;
         note?: string | null;
       }) => payApi.updateItem(workspaceId, id, itemId, input),
       onSuccess,

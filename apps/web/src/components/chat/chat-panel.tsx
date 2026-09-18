@@ -17,6 +17,7 @@ import {
   NewConversationDialog,
   type NewConversationMode,
 } from "./new-conversation-dialog";
+import { OnlineNow } from "./online-now";
 
 type Props = {
   workspaceId: string;
@@ -132,6 +133,7 @@ export function ChatPanel({
                 {newMessageButton}
                 {headerActions}
               </header>
+              <OnlineNow workspaceId={workspaceId} onOpened={onSelect} />
               <div className="min-h-0 flex-1">{list}</div>
             </>
           )}
@@ -151,6 +153,7 @@ export function ChatPanel({
               </h2>
               {newMessageButton}
             </header>
+            <OnlineNow workspaceId={workspaceId} onOpened={onSelect} />
             <div className="min-h-0 flex-1">{list}</div>
           </aside>
           <div className={cn("min-w-0 flex-1", !active && "hidden md:block")}>

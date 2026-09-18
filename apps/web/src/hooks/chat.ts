@@ -6,6 +6,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { useMemo } from "react";
 import {
   type ChatConversation,
   type ChatMessage,
@@ -29,6 +30,18 @@ export function useChatConversations(workspaceId: string | undefined) {
     queryFn: () => chatApi.conversations(workspaceId as string),
     enabled: !!workspaceId,
   });
+}
+
+/** Ids of people online in the workspace, refreshed every 30 seconds. */
+export function useOnlineUserIds(workspaceId: string | undefined) {
+  const { data } = useQuery({
+    queryKey: [...chatKeys.all(workspaceId ?? ""), "presence"],
+    queryFn: () => chatApi.presence(workspaceId as string),
+    enabled: !!workspaceId,
+    refetchInterval: 30_000,
+    staleTime: 15_000,
+  });
+  return useMemo(() => new Set(data?.online ?? []), [data]);
 }
 
 export function useChatMessages(workspaceId: string, conversationId: string) {

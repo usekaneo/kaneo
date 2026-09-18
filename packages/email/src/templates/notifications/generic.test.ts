@@ -1,7 +1,7 @@
 import { render } from "@react-email/render";
 import { createElement } from "react";
 import { describe, expect, it } from "vitest";
-import NotificationEmail from "./notification";
+import NotificationEmail from "./generic";
 
 describe("NotificationEmail", () => {
   it("renders Japanese chrome for a Japanese locale", async () => {

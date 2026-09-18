@@ -4,16 +4,20 @@ async function createTaskRelation({
   sourceTaskId,
   targetTaskId,
   relationType,
+  checklistId,
 }: {
   sourceTaskId: string;
   targetTaskId: string;
   relationType: "subtask" | "blocks" | "related";
+  /** Subtasks only: which of the parent's checklists to add it to. */
+  checklistId?: string;
 }) {
   const response = await client["task-relation"].$post({
     json: {
       sourceTaskId,
       targetTaskId,
       relationType,
+      ...(checklistId && { checklistId }),
     },
   });
 

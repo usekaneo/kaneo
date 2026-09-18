@@ -30,7 +30,7 @@ async function updateComment(userId: string, id: string, content: string) {
 
   const [updated] = await db
     .update(activityTable)
-    .set({ content })
+    .set({ content, editedAt: new Date() })
     .where(
       and(
         eq(activityTable.id, id),

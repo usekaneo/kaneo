@@ -1,9 +1,20 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactElement, ReactNode } from "react";
 import { cloneElement, isValidElement } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { useCommentReplyStore } from "@/store/comment-reply";
 import CommentCard from "./comment-card";
+
+const react = vi.fn();
+vi.mock("@/hooks/mutations/comment/use-react-to-comment", () => ({
+  default: () => ({ mutate: react }),
+}));
+
+// Previews fetch from the API; the card only needs to decide to show one.
+vi.mock("@/components/chat/link-preview-card", () => ({
+  LinkPreviewCard: ({ url }: { url: string }) => <div>preview {url}</div>,
+}));
 
 vi.mock("@/components/activity/comment-editor", () => ({
   default: ({ value }: { value: string }) => <div>{value}</div>,
@@ -93,7 +104,9 @@ vi.mock("@/components/ui/tooltip", async () => {
   };
 });
 
-function renderCommentCard() {
+function renderCommentCard(
+  props: Partial<Parameters<typeof CommentCard>[0]> = {},
+) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -114,12 +127,18 @@ function renderCommentCard() {
           email: "tin@example.com",
           image: null,
         }}
+        {...props}
       />
     </QueryClientProvider>,
   );
 }
 
 describe("CommentCard", () => {
+  afterEach(() => {
+    cleanup();
+    useCommentReplyStore.getState().clear();
+  });
+
   it("shows full date+short time in tooltip on hover/focus", async () => {
     renderCommentCard();
 
@@ -135,5 +154,48 @@ describe("CommentCard", () => {
 
     fireEvent.focus(trigger);
     expect(await screen.findByText("Apr 5, 2026, 11:38 AM")).toBeVisible();
+  });
+
+  it("shows the quoted comment, edits, reactions and link previews", () => {
+    renderCommentCard({
+      content: "See https://example.com/spec for details",
+      editedAt: "2026-04-05T10:00:00.000Z",
+      replyTo: { id: "comment-0", userName: "Ana", excerpt: "Is it ready?" },
+      reactions: [{ emoji: "🎉", userIds: ["user-2", "user-3"] }],
+      canInteract: true,
+    });
+
+    expect(screen.getByText("Ana")).toBeInTheDocument();
+    expect(screen.getByText("Is it ready?")).toBeInTheDocument();
+    expect(screen.getByText("activity:comment.edited")).toBeInTheDocument();
+    expect(screen.getByText("preview https://example.com/spec")).toBeVisible();
+
+    fireEvent.click(screen.getByRole("button", { name: /🎉\s*2/ }));
+    expect(react).toHaveBeenCalledWith(
+      { activityId: "comment-1", emoji: "🎉" },
+      expect.anything(),
+    );
+  });
+
+  it("starts a reply that quotes this comment", () => {
+    renderCommentCard({ canInteract: true });
+    fireEvent.click(
+      screen.getAllByRole("button", {
+        name: "activity:comment.reply",
+      })[0] as HTMLElement,
+    );
+    expect(useCommentReplyStore.getState().replyTo).toEqual({
+      taskId: "task-1",
+      id: "comment-1",
+      userName: "Tin",
+      excerpt: "Test comment",
+    });
+  });
+
+  it("hides reacting and replying from people who can't comment", () => {
+    renderCommentCard({ canInteract: false });
+    expect(
+      screen.queryByRole("button", { name: "activity:comment.reply" }),
+    ).not.toBeInTheDocument();
   });
 });

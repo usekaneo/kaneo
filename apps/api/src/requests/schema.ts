@@ -16,6 +16,18 @@ export const balanceQuery = personQuery.extend({
 
 export const idParam = z.object({ id: z.string() });
 
+export const allExpensesQuery = z.object({
+  workspaceId: z.string(),
+  status: z.enum(["pending", "approved", "rejected", "paid"]).optional(),
+  userId: z.string().optional(),
+  from: calendarDay.optional().openapi({
+    description: "Only expenses spent on or after this day.",
+  }),
+  to: calendarDay.optional().openapi({
+    description: "Only expenses spent on or before this day.",
+  }),
+});
+
 export const allLeaveQuery = z.object({
   workspaceId: z.string(),
   status: z.enum(["pending", "approved", "rejected", "cancelled"]).optional(),
