@@ -164,10 +164,14 @@ describe("TaskCardContextMenuContent", () => {
     expect(screen.getByText("tasks:actions.markAsPlanned")).toBeInTheDocument();
   });
 
-  it("saves the time estimate from the submenu form", async () => {
+  it("shows the time estimate label in the submenu", () => {
     renderTask(task);
 
     expect(screen.getByText("tasks:timeEstimate.label")).toBeInTheDocument();
+  });
+
+  it("saves the time estimate from the submenu form", async () => {
+    renderTask(task);
 
     fireEvent.change(
       screen.getByPlaceholderText("tasks:popover.timeEstimate.placeholder"),
