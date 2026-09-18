@@ -12,6 +12,7 @@ import getColumns from "./controllers/get-columns";
 import reorderColumns from "./controllers/reorder-columns";
 import updateColumn from "./controllers/update-column";
 import { columnListSchema, columnSchema } from "./response";
+import { runColumn } from "./runtime";
 import {
   columnParam,
   createColumnBody,
@@ -150,29 +151,31 @@ const deleteColumnRoute = createRoute({
 
 const column = apiRouter()
   .openapi(getColumnsRoute, async (c) =>
-    c.json(await getColumns(c.req.valid("param").projectId), 200),
+    c.json(await runColumn(getColumns(c.req.valid("param").projectId)), 200),
   )
   .openapi(createColumnRoute, async (c) => {
     const { projectId } = c.req.valid("param");
     const { name, icon, color, isFinal } = c.req.valid("json");
     return c.json(
-      await createColumn({ projectId, name, icon, color, isFinal }),
+      await runColumn(createColumn({ projectId, name, icon, color, isFinal })),
       200,
     );
   })
   .openapi(reorderColumnsRoute, async (c) => {
     const { projectId } = c.req.valid("param");
     const { columns } = c.req.valid("json");
-    return c.json(await reorderColumns(projectId, columns), 200);
+    return c.json(await runColumn(reorderColumns(projectId, columns)), 200);
   })
   .openapi(updateColumnRoute, async (c) =>
     c.json(
-      await updateColumn(c.req.valid("param").id, c.req.valid("json")),
+      await runColumn(
+        updateColumn(c.req.valid("param").id, c.req.valid("json")),
+      ),
       200,
     ),
   )
   .openapi(deleteColumnRoute, async (c) =>
-    c.json(await deleteColumn(c.req.valid("param").id), 200),
+    c.json(await runColumn(deleteColumn(c.req.valid("param").id)), 200),
   );
 
 export default column;

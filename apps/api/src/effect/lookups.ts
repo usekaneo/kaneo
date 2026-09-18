@@ -1,5 +1,6 @@
 import { Effect } from "effect";
 import {
+  findColumn,
   findLabel,
   findTaskRef,
   findTaskRelation,
@@ -62,3 +63,17 @@ export const taskRelationById = Effect.fn("lookups.taskRelationById")(
     return relation;
   },
 );
+
+export const columnById = Effect.fn("lookups.columnById")(function* (
+  id: string,
+  tx?: DatabaseExecutor,
+) {
+  const database = tx ?? (yield* Database);
+  const column = yield* database.query((db) => findColumn(id, db));
+
+  if (!column) {
+    return yield* new NotFound({ entity: "Column", id });
+  }
+
+  return column;
+});

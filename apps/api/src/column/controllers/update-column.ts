@@ -1,9 +1,11 @@
 import { eq } from "drizzle-orm";
-import { HTTPException } from "hono/http-exception";
-import db from "../../database";
+import { Effect } from "effect";
 import { columnTable } from "../../database/schema";
+import { Database } from "../../effect/database";
+import { columnById } from "../../effect/lookups";
+import { ColumnUpdateFailed } from "../errors";
 
-async function updateColumn(
+const updateColumn = Effect.fn("column.updateColumn")(function* (
   id: string,
   data: {
     name?: string;
@@ -12,30 +14,28 @@ async function updateColumn(
     isFinal?: boolean;
   },
 ) {
-  const existing = await db.query.columnTable.findFirst({
-    where: eq(columnTable.id, id),
-  });
+  const database = yield* Database;
 
-  if (!existing) {
-    throw new HTTPException(404, { message: "Column not found" });
-  }
+  yield* columnById(id);
 
-  const [updated] = await db
-    .update(columnTable)
-    .set({
-      ...(data.name !== undefined && { name: data.name }),
-      ...(data.icon !== undefined && { icon: data.icon }),
-      ...(data.color !== undefined && { color: data.color }),
-      ...(data.isFinal !== undefined && { isFinal: data.isFinal }),
-    })
-    .where(eq(columnTable.id, id))
-    .returning();
+  const [updated] = yield* database.query((db) =>
+    db
+      .update(columnTable)
+      .set({
+        ...(data.name !== undefined && { name: data.name }),
+        ...(data.icon !== undefined && { icon: data.icon }),
+        ...(data.color !== undefined && { color: data.color }),
+        ...(data.isFinal !== undefined && { isFinal: data.isFinal }),
+      })
+      .where(eq(columnTable.id, id))
+      .returning(),
+  );
 
   if (!updated) {
-    throw new HTTPException(500, { message: "Failed to update column" });
+    return yield* new ColumnUpdateFailed({ id });
   }
 
   return updated;
-}
+});
 
 export default updateColumn;

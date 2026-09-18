@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import type { DrizzleClient } from "./client";
 import {
   activityTable,
+  columnTable,
   labelTable,
   projectTable,
   taskRelationTable,
@@ -82,4 +83,8 @@ export function findTaskRelation(id: string, client: DrizzleClient) {
     .from(taskRelationTable)
     .where(eq(taskRelationTable.id, id))
     .limit(1);
+}
+
+export function findColumn(id: string, client: DrizzleClient) {
+  return client.query.columnTable.findFirst({ where: eq(columnTable.id, id) });
 }

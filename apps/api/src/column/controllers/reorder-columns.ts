@@ -1,34 +1,37 @@
 import { and, eq } from "drizzle-orm";
-import { HTTPException } from "hono/http-exception";
-import db from "../../database";
+import { Effect } from "effect";
 import { columnTable } from "../../database/schema";
+import { Database } from "../../effect/database";
+import { ColumnNotInProject } from "../errors";
 
-async function reorderColumns(
+const reorderColumns = Effect.fn("column.reorderColumns")(function* (
   projectId: string,
   columns: Array<{ id: string; position: number }>,
 ) {
+  const database = yield* Database;
+
   for (const col of columns) {
-    const [updated] = await db
-      .update(columnTable)
-      .set({ position: col.position })
-      .where(
-        and(eq(columnTable.id, col.id), eq(columnTable.projectId, projectId)),
-      )
-      .returning({ id: columnTable.id });
+    const [updated] = yield* database.query((db) =>
+      db
+        .update(columnTable)
+        .set({ position: col.position })
+        .where(
+          and(eq(columnTable.id, col.id), eq(columnTable.projectId, projectId)),
+        )
+        .returning({ id: columnTable.id }),
+    );
 
     if (!updated) {
-      throw new HTTPException(400, {
-        message: `Column ${col.id} does not belong to this project`,
-      });
+      return yield* new ColumnNotInProject({ id: col.id, projectId });
     }
   }
 
-  const updated = await db.query.columnTable.findMany({
-    where: eq(columnTable.projectId, projectId),
-    orderBy: (columns, { asc }) => [asc(columns.position)],
-  });
-
-  return updated;
-}
+  return yield* database.query((db) =>
+    db.query.columnTable.findMany({
+      where: eq(columnTable.projectId, projectId),
+      orderBy: (columns, { asc }) => [asc(columns.position)],
+    }),
+  );
+});
 
 export default reorderColumns;
