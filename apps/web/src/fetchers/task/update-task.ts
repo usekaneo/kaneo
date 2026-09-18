@@ -21,6 +21,7 @@ async function updateTask(taskId: string, task: Task) {
       priority: (task.priority || "no-priority") as UpdateTaskPriority,
       startDate: task.startDate?.toString(),
       dueDate: task.dueDate?.toString(),
+      timeEstimate: task.timeEstimate ?? null,
       position: task.position ?? 0,
       projectId: task.projectId,
     },

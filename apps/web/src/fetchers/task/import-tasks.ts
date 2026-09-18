@@ -7,6 +7,7 @@ export type TaskToImport = {
   priority?: string;
   startDate?: string;
   dueDate?: string;
+  timeEstimate?: number;
   userId?: string | null;
 };
 

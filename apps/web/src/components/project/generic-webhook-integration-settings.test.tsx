@@ -103,6 +103,7 @@ describe("GenericWebhookIntegrationSettings", () => {
       "taskDeleted",
       "taskMoved",
       "taskDueDateChanged",
+      "taskTimeEstimateChanged",
       "taskAssigneeChanged",
       "taskUnassigned",
     ]) {
@@ -126,6 +127,7 @@ describe("GenericWebhookIntegrationSettings", () => {
             taskDeleted: true,
             taskMoved: true,
             taskDueDateChanged: true,
+            taskTimeEstimateChanged: true,
             taskAssigneeChanged: true,
             taskUnassigned: true,
           }),

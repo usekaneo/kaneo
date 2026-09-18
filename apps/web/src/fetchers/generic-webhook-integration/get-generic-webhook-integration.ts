@@ -17,6 +17,7 @@ export type GenericWebhookIntegration = {
     taskDeleted: boolean;
     taskMoved: boolean;
     taskDueDateChanged: boolean;
+    taskTimeEstimateChanged: boolean;
     taskAssigneeChanged: boolean;
     taskUnassigned: boolean;
     dueDateReminder: boolean;
