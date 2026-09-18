@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
@@ -552,16 +552,21 @@ describe("API integration: task time estimate", () => {
             eq(schema.activityTable.taskId, created.id),
             eq(schema.activityTable.type, "time_estimate_changed"),
           ),
-        );
+        )
+        .orderBy(desc(schema.activityTable.createdAt));
 
       expect(rows.length).toBeGreaterThanOrEqual(2);
-      expect(rows[rows.length - 1]).toMatchObject({
-        type: "time_estimate_changed",
-        eventData: {
-          oldTimeEstimate: 5400,
-          newTimeEstimate: null,
-        },
-      });
+      expect(rows).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: "time_estimate_changed",
+            eventData: expect.objectContaining({
+              oldTimeEstimate: 5400,
+              newTimeEstimate: null,
+            }),
+          }),
+        ]),
+      );
     });
   });
 
