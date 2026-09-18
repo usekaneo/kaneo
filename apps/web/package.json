@@ -78,7 +78,7 @@
 		"file-saver": "^2.0.5",
 		"framer-motion": "^13.0.0",
 		"highlight.js": "^11.11.1",
-		"hono": "^4.13.0",
+		"hono": "^4.13.5",
 		"i18next": "^26.3.6",
 		"i18next-resources-to-backend": "^1.2.1",
 		"immer": "^11.1.16",
