@@ -47,6 +47,7 @@ import updateTaskDescription from "./controllers/update-task-description";
 import updateTaskDueDate from "./controllers/update-task-due-date";
 import updateTaskPriority from "./controllers/update-task-priority";
 import updateTaskStatus from "./controllers/update-task-status";
+import updateTaskTimeEstimate from "./controllers/update-task-time-estimate";
 import updateTaskTitle from "./controllers/update-task-title";
 import {
   boardSchema,
@@ -75,6 +76,7 @@ import {
   updatePriorityBody,
   updateStatusBody,
   updateTaskBody,
+  updateTimeEstimateBody,
   updateTitleBody,
 } from "./schema";
 
@@ -424,6 +426,34 @@ const updateTaskDueDateRoute = createRoute({
   },
 });
 
+const updateTaskTimeEstimateRoute = createRoute({
+  method: "put",
+  operationId: "updateTaskTimeEstimate",
+  path: "/time-estimate/{id}",
+  tags: ["Tasks"],
+  summary: "Update task time estimate",
+  description: "Set or clear a task's time estimate, in seconds.",
+  middleware: [
+    workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["update"] }),
+    requireEntitlement,
+  ] as const,
+  request: {
+    params: taskParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: updateTimeEstimateBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("The updated task", taskSchema),
+    400: errorResponse("Invalid estimate, or unknown task"),
+    403: errorResponse(
+      "No workspace access, or missing task:update permission",
+    ),
+  },
+});
+
 const updateTaskTitleRoute = createRoute({
   method: "put",
   operationId: "updateTaskTitle",
@@ -563,6 +593,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
     if (
       operation !== "delete" &&
       operation !== "updateDueDate" &&
+      operation !== "updateTimeEstimate" &&
       value === undefined
     ) {
       throw new HTTPException(400, {
@@ -586,6 +617,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       description,
       startDate,
       dueDate,
+      timeEstimate,
       priority,
       status,
       userId,
@@ -603,6 +635,8 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
 
     validateDateRange(parsedStartDate, parsedDueDate);
 
+    const normalizedTimeEstimate = timeEstimate || undefined;
+
     const task = await createTask({
       projectId,
       currentUserId: c.get("userId"),
@@ -611,6 +645,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       description,
       startDate: parsedStartDate,
       dueDate: parsedDueDate,
+      timeEstimate: normalizedTimeEstimate,
       priority,
       status,
       customFields,
@@ -646,6 +681,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       description,
       startDate,
       dueDate,
+      timeEstimate,
       priority,
       status,
       projectId,
@@ -666,6 +702,8 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
 
     validateDateRange(parsedStartDate, parsedDueDate);
 
+    const normalizedTimeEstimate = timeEstimate || undefined;
+
     const task = await updateTask(
       id,
       title,
@@ -678,6 +716,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       position,
       userId,
       currentUserId,
+      normalizedTimeEstimate,
     );
 
     return c.json(task, 200);
@@ -741,6 +780,19 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
     const task = await updateTaskDueDate({
       id,
       dueDate: dueDate ? validateAndParseDate(dueDate, "dueDate") : null,
+      currentUserId,
+    });
+
+    return c.json(task, 200);
+  })
+  .openapi(updateTaskTimeEstimateRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    const { timeEstimate = null } = c.req.valid("json");
+    const currentUserId = c.get("userId");
+
+    const task = await updateTaskTimeEstimate({
+      id,
+      timeEstimate,
       currentUserId,
     });
 

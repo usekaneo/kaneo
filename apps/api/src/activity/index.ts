@@ -284,4 +284,18 @@ subscribeToEvent<{
   });
 });
 
+subscribeToEvent<{
+  taskId: string;
+  userId: string;
+  oldTimeEstimate: number | null;
+  newTimeEstimate: number | null;
+  title: string;
+  type: string;
+}>("task.time_estimate_changed", async (data) => {
+  await createActivity(data.taskId, data.type, data.userId, null, {
+    oldTimeEstimate: data.oldTimeEstimate,
+    newTimeEstimate: data.newTimeEstimate,
+  });
+});
+
 export default activity;

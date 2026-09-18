@@ -326,6 +326,13 @@
             ],
             "format": "date-time"
           },
+          "timeEstimate": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Estimated seconds, if any."
+          },
           "position": {
             "type": [
               "number",
@@ -385,6 +392,7 @@
           "priority",
           "startDate",
           "dueDate",
+          "timeEstimate",
           "position",
           "createdAt",
           "userId",
@@ -760,6 +768,13 @@
             ],
             "format": "date-time"
           },
+          "timeEstimate": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Estimated seconds, if any."
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -795,6 +810,7 @@
           "priority",
           "startDate",
           "dueDate",
+          "timeEstimate",
           "createdAt"
         ]
       },
@@ -919,6 +935,12 @@
             ],
             "format": "date-time"
           },
+          "timeEstimate": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
           "userId": {
             "type": [
               "string",
@@ -940,6 +962,7 @@
           "priority",
           "dueDate",
           "startDate",
+          "timeEstimate",
           "userId",
           "labels"
         ]
@@ -2453,6 +2476,9 @@
               "taskDueDateChanged": {
                 "type": "boolean"
               },
+              "taskTimeEstimateChanged": {
+                "type": "boolean"
+              },
               "taskAssigneeChanged": {
                 "type": "boolean"
               },
@@ -2467,6 +2493,7 @@
               "taskDeleted",
               "taskMoved",
               "taskDueDateChanged",
+              "taskTimeEstimateChanged",
               "taskAssigneeChanged",
               "taskUnassigned",
               "dueDateReminder"
@@ -6444,7 +6471,8 @@
                       "delete",
                       "addLabel",
                       "removeLabel",
-                      "updateDueDate"
+                      "updateDueDate",
+                      "updateTimeEstimate"
                     ]
                   },
                   "value": {
@@ -6452,7 +6480,7 @@
                       "string",
                       "null"
                     ],
-                    "description": "The new value for the chosen operation. Unused by `delete`; null clears an assignee or due date."
+                    "description": "The new value for the chosen operation. Unused by `delete`; null clears an assignee, due date, or time estimate."
                   }
                 },
                 "required": [
@@ -6546,6 +6574,13 @@
                   },
                   "dueDate": {
                     "type": "string"
+                  },
+                  "timeEstimate": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0
                   },
                   "priority": {
                     "type": "string",
@@ -6720,6 +6755,13 @@
                   },
                   "dueDate": {
                     "type": "string"
+                  },
+                  "timeEstimate": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0
                   },
                   "priority": {
                     "type": "string",
@@ -7041,6 +7083,13 @@
                             "string",
                             "null"
                           ]
+                        },
+                        "timeEstimate": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 0
                         },
                         "userId": {
                           "type": [
@@ -7386,6 +7435,84 @@
           },
           "400": {
             "description": "Invalid date, or unknown task",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/task/time-estimate/{id}": {
+      "put": {
+        "operationId": "updateTaskTimeEstimate",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Update task time estimate",
+        "description": "Set or clear a task's time estimate, in seconds.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "timeEstimate": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "description": "Estimated seconds. Null or 0 clears it."
+                  }
+                },
+                "required": [
+                  "timeEstimate"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid estimate, or unknown task",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11370,6 +11497,9 @@
                       "taskDueDateChanged": {
                         "type": "boolean"
                       },
+                      "taskTimeEstimateChanged": {
+                        "type": "boolean"
+                      },
                       "taskAssigneeChanged": {
                         "type": "boolean"
                       },
@@ -11496,6 +11626,9 @@
                         "type": "boolean"
                       },
                       "taskDueDateChanged": {
+                        "type": "boolean"
+                      },
+                      "taskTimeEstimateChanged": {
                         "type": "boolean"
                       },
                       "taskAssigneeChanged": {

@@ -22,6 +22,7 @@ async function updateTask(
   position: number,
   userId?: string,
   currentUserId?: string,
+  timeEstimate?: number,
 ) {
   const [existingTask] = await db
     .select({
@@ -72,6 +73,7 @@ async function updateTask(
       columnId: column?.id ?? null,
       startDate: startDate || null,
       dueDate: dueDate || null,
+      timeEstimate: timeEstimate || null,
       projectId,
       description,
       priority,

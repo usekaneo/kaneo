@@ -247,11 +247,12 @@ export function registerTools(
         status: nonEmptyString,
         startDate: optionalIsoDateTimeSchema,
         dueDate: optionalIsoDateTimeSchema,
+        timeEstimate: z.number().int().min(0).optional(),
         userId: optionalNonEmptyString,
       }),
     },
     async (args) => {
-      const body: Record<string, string | undefined> = {
+      const body: Record<string, string | number | undefined> = {
         title: args.title,
         description: args.description,
         priority: args.priority,
@@ -262,6 +263,9 @@ export function registerTools(
       }
       if (args.dueDate !== undefined) {
         body.dueDate = args.dueDate;
+      }
+      if (args.timeEstimate !== undefined) {
+        body.timeEstimate = args.timeEstimate;
       }
       if (args.userId !== undefined) {
         body.userId = args.userId;
@@ -285,6 +289,7 @@ export function registerTools(
     position: z.number().optional(),
     startDate: nullableOptionalIsoDateTimeSchema,
     dueDate: nullableOptionalIsoDateTimeSchema,
+    timeEstimate: z.number().int().min(0).nullable().optional(),
     userId: nullableOptionalNonEmptyString,
   });
 
@@ -687,6 +692,28 @@ export function registerTools(
             args.dueDate === undefined ? {} : { dueDate: args.dueDate },
           ),
         }),
+      ),
+  );
+
+  server.registerTool(
+    "update_task_time_estimate",
+    {
+      description:
+        "Set a task's time estimate in seconds, or pass null to clear it.",
+      inputSchema: z.object({
+        taskId: nonEmptyString,
+        timeEstimate: z.number().int().min(0).nullable(),
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(
+          `/api/task/time-estimate/${encodeURIComponent(args.taskId)}`,
+          {
+            method: "PUT",
+            body: JSON.stringify({ timeEstimate: args.timeEstimate }),
+          },
+        ),
       ),
   );
 
