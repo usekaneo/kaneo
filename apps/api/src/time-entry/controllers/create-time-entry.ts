@@ -5,6 +5,7 @@ import db from "../../database";
 import { taskTable, timeEntryTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { resolveDuration } from "../duration";
+import { stopRunningTimeEntries } from "./stop-running-time-entries";
 
 async function createTimeEntry({
   taskId,
@@ -20,6 +21,10 @@ async function createTimeEntry({
   endTime?: Date;
 }) {
   const duration = resolveDuration(startTime, endTime);
+
+  if (!endTime) {
+    await stopRunningTimeEntries(userId, new Date());
+  }
 
   const [createdTimeEntry] = await db
     .insert(timeEntryTable)

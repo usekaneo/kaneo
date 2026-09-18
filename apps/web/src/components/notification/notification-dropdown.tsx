@@ -32,7 +32,7 @@ import useMarkNotificationAsRead from "@/hooks/mutations/notification/use-mark-n
 import useGetNotifications from "@/hooks/queries/notification/use-get-notifications";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
-import { formatRelativeTime } from "@/lib/format";
+import { formatDateMedium, formatRelativeTime } from "@/lib/format";
 import { getStatusLabel } from "@/lib/i18n/domain";
 import type { Notification } from "@/types/notification";
 
@@ -66,6 +66,35 @@ function getReminderLeadTime(
     });
   }
   return t("notifications:reminderLeadTime.minutes", { count: minutes });
+}
+
+const LEAVE_TITLES: Record<string, string> = {
+  leave_requested: "notifications:events.leave_requested.title",
+  leave_approved: "notifications:events.leave_approved.title",
+  leave_rejected: "notifications:events.leave_rejected.title",
+  leave_cancelled: "notifications:events.leave_cancelled.title",
+};
+
+function leaveValues(
+  eventData: Record<string, unknown>,
+  t: (key: string, options?: Record<string, unknown>) => string,
+) {
+  const start = String(eventData.startDate ?? "");
+  const end = String(eventData.endDate ?? start);
+  const leaveType = String(eventData.type ?? "annual");
+  return {
+    ...eventData,
+    leaveType:
+      leaveType === "sick"
+        ? t("requests:leave.types.sick")
+        : leaveType === "unpaid"
+          ? t("requests:leave.types.unpaid")
+          : t("requests:leave.types.annual"),
+    dates:
+      start === end
+        ? formatDateMedium(start)
+        : `${formatDateMedium(start)} – ${formatDateMedium(end)}`,
+  };
 }
 
 export function getNotificationTitle(
@@ -118,6 +147,14 @@ export function getNotificationTitle(
       case "task_overdue":
         return t("notifications:events.task_overdue.title", {
           ...eventData,
+          defaultValue: notification.title ?? notification.type,
+        });
+      case "leave_requested":
+      case "leave_approved":
+      case "leave_rejected":
+      case "leave_cancelled":
+        return t(LEAVE_TITLES[notification.type], {
+          ...leaveValues(eventData, t),
           defaultValue: notification.title ?? notification.type,
         });
       default:
@@ -188,6 +225,21 @@ export function getNotificationContent(
           ...eventData,
           defaultValue: notification.content ?? "",
         });
+      case "leave_requested":
+      case "leave_approved":
+      case "leave_rejected":
+      case "leave_cancelled": {
+        const values = leaveValues(eventData, t);
+        return eventData.note
+          ? t("notifications:events.leave.contentWithNote", {
+              ...values,
+              defaultValue: notification.content ?? "",
+            })
+          : t("notifications:events.leave.content", {
+              ...values,
+              defaultValue: notification.content ?? "",
+            });
+      }
       default:
         break;
     }
@@ -220,6 +272,16 @@ const NotificationDropdown = forwardRef<NotificationDropdownRef>(
         const projectId =
           typeof ed?.projectId === "string" ? ed.projectId : null;
         const taskId = notification.resourceId ?? null;
+
+        if (notification.resourceType === "leave_request" && workspaceId) {
+          navigate({
+            to: "/dashboard/workspace/$workspaceId/attendance",
+            params: { workspaceId },
+            search:
+              notification.type === "leave_requested" ? { tab: "leave" } : {},
+          });
+          return;
+        }
 
         if (
           notification.resourceType === "task" &&

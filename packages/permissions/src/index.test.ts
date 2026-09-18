@@ -3,8 +3,10 @@ import {
   ac,
   admin,
   builtInRoles,
+  coversPermissions,
   DEFAULT_ROLE_NAMES,
   defaultRolePayloads,
+  manager,
   member,
   owner,
   statement,
@@ -85,13 +87,15 @@ describe("built-in role privileges", () => {
     );
   });
 
-  it("groups all four roles under builtInRoles by name", () => {
+  it("groups all five roles under builtInRoles by name", () => {
     expect(Object.keys(builtInRoles).sort()).toEqual([
       "admin",
+      "manager",
       "member",
       "owner",
       "viewer",
     ]);
+    expect(builtInRoles.manager).toBe(manager);
     expect(builtInRoles.viewer).toBe(viewer);
     expect(builtInRoles.member).toBe(member);
     expect(builtInRoles.admin).toBe(admin);
@@ -101,10 +105,16 @@ describe("built-in role privileges", () => {
 
 describe("default-role seed payloads", () => {
   it("names the seedable defaults but excludes owner (kept as static role)", () => {
-    expect(DEFAULT_ROLE_NAMES).toEqual(["viewer", "member", "admin"]);
+    expect(DEFAULT_ROLE_NAMES).toEqual([
+      "viewer",
+      "member",
+      "manager",
+      "admin",
+    ]);
     expect(DEFAULT_ROLE_NAMES).not.toContain("owner");
     expect(Object.keys(defaultRolePayloads).sort()).toEqual([
       "admin",
+      "manager",
       "member",
       "viewer",
     ]);
@@ -136,5 +146,86 @@ describe("default-role seed payloads", () => {
     // role object's statements are decoupled (we only mutated the copy).
     expect(memberPayload.task).toContain("__test_marker");
     expect(member.statements.task).not.toContain("__test_marker");
+  });
+});
+
+describe("coversPermissions", () => {
+  it("lets a role grant any role that is equal or weaker", () => {
+    expect(coversPermissions([admin.statements], [member.statements])).toBe(
+      true,
+    );
+    expect(coversPermissions([member.statements], [viewer.statements])).toBe(
+      true,
+    );
+    expect(coversPermissions([member.statements], [member.statements])).toBe(
+      true,
+    );
+  });
+
+  it("refuses to grant a role with permissions the granter lacks", () => {
+    expect(coversPermissions([member.statements], [admin.statements])).toBe(
+      false,
+    );
+    expect(coversPermissions([viewer.statements], [member.statements])).toBe(
+      false,
+    );
+  });
+
+  it("combines the permissions of every role the granter holds", () => {
+    const inviteOnly = { invitation: ["create"] };
+    const target = { invitation: ["create"], task: ["read"] };
+
+    expect(coversPermissions([inviteOnly], [target])).toBe(false);
+    expect(coversPermissions([inviteOnly, { task: ["read"] }], [target])).toBe(
+      true,
+    );
+  });
+});
+
+describe("timeEntry permissions", () => {
+  it("lets only owner and admin see or manage other people's time", () => {
+    expect(statement.timeEntry).toEqual(["read_all", "manage_all"]);
+    expect(owner.statements.timeEntry).toEqual(["read_all", "manage_all"]);
+    expect(admin.statements.timeEntry).toEqual(["read_all", "manage_all"]);
+    expect(
+      (member.statements as Record<string, unknown>).timeEntry,
+    ).toBeUndefined();
+    expect(
+      (viewer.statements as Record<string, unknown>).timeEntry,
+    ).toBeUndefined();
+  });
+});
+
+describe("company permissions", () => {
+  it("keeps pay and the audit log away from managers and employees", () => {
+    for (const role of [manager, member, viewer]) {
+      const statements = role.statements as Record<string, unknown>;
+      expect(statements.payroll).toBeUndefined();
+      expect(statements.audit).toBeUndefined();
+    }
+    expect(admin.statements.payroll).toEqual(["read", "manage"]);
+    expect(owner.statements.audit).toEqual(["read"]);
+  });
+
+  it("lets managers see their team and approve requests, but not manage people", () => {
+    expect(manager.statements.people).toEqual(["read_all"]);
+    expect(manager.statements.request).toEqual(["approve"]);
+    expect(manager.statements.timeEntry).toEqual(["read_all"]);
+    expect(coversPermissions([admin.statements], [manager.statements])).toBe(
+      true,
+    );
+    expect(coversPermissions([manager.statements], [admin.statements])).toBe(
+      false,
+    );
+  });
+});
+
+describe("file permissions", () => {
+  it("lets everyone who works in the workspace upload, and admins manage", () => {
+    expect(member.statements.file).toEqual(["upload"]);
+    expect(manager.statements.file).toEqual(["upload"]);
+    expect(admin.statements.file).toEqual(["upload", "manage"]);
+    expect(owner.statements.file).toEqual(["upload", "manage"]);
+    expect((viewer.statements as Record<string, unknown>).file).toBeUndefined();
   });
 });

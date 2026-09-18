@@ -1,0 +1,1 @@
+ALTER TABLE "company_settings" ADD COLUMN "late_grace_minutes" integer DEFAULT 10 NOT NULL;

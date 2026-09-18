@@ -46,35 +46,59 @@ export const Route = createFileRoute(
   component: RouteComponent,
 });
 
-// Resources our app contributes on top of better-auth's defaults
-// (organization/member/team/invitation). Derive the list from the shared
-// `@kaneo/permissions` statement so adding a new resource there picks it
-// up here automatically.
-// "ac" is better-auth's meta-resource for managing roles themselves; we don't
-// surface it. Organization/member/team/invitation are likewise managed by the
-// org plugin, not by our workspace permissions UI.
-const BUILT_IN_RESOURCES = new Set([
-  "organization",
-  "member",
-  "team",
-  "invitation",
-  "ac",
-]);
+// Resources shown in the role editor. Derived from the shared
+// `@kaneo/permissions` statement so a new resource shows up automatically.
+// "ac" (managing roles themselves), "organization" and "team" stay with the
+// owner/admin built-ins. Member and invitation are shown so a custom role
+// (say, HR) can invite people and change roles; the API still refuses to let
+// anyone grant more than they hold.
+const HIDDEN_RESOURCES = new Set(["organization", "team", "ac"]);
+// Better Auth's direct "add member" skips invitations; Kaneo never uses it.
+const HIDDEN_ACTIONS: Record<string, string[]> = { member: ["create"] };
 const CUSTOM_RESOURCES = (
   Object.keys(statement) as (keyof typeof statement)[]
-).filter((key) => !BUILT_IN_RESOURCES.has(key));
+).filter((key) => !HIDDEN_RESOURCES.has(key));
 
 const RESOURCE_LABELS: Record<string, string> = {
   project: "Projects",
   task: "Tasks",
   label: "Labels",
   workspace: "Workspace",
+  member: "Members",
+  invitation: "Invitations",
+  timeEntry: "Time tracking",
 };
 
 const PERMISSION_LABELS: Record<
   string,
   { label: string; description: string }
 > = {
+  "invitation:create": {
+    label: "Invite people",
+    description: "Send invitations, with a role no stronger than their own.",
+  },
+  "invitation:cancel": {
+    label: "Cancel invitations",
+    description: "Withdraw invitations that have not been accepted.",
+  },
+  "member:update": {
+    label: "Change roles",
+    description: "Change members' roles, up to their own permissions.",
+  },
+  "member:delete": {
+    label: "Remove members",
+    description: "Remove people from the workspace.",
+  },
+  "timeEntry:read_all": {
+    label: "See everyone's time",
+    description:
+      "View all members' time entries and timesheets. Everyone can always see their own.",
+  },
+  "timeEntry:manage_all": {
+    label: "Edit everyone's time",
+    description:
+      "Edit or delete other members' time entries. Everyone can always edit their own.",
+  },
   "project:create": {
     label: "Create projects",
     description: "Create new projects in this workspace.",
@@ -463,7 +487,9 @@ function PermissionList({
     () =>
       CUSTOM_RESOURCES.map((resource) => ({
         resource,
-        actions: [...(statement[resource] ?? [])] as string[],
+        actions: ([...(statement[resource] ?? [])] as string[]).filter(
+          (action) => !HIDDEN_ACTIONS[resource]?.includes(action),
+        ),
       })),
     [],
   );

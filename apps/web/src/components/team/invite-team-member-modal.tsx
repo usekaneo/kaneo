@@ -1,13 +1,15 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
 import useInviteWorkspaceUser from "@/hooks/mutations/workspace-user/use-invite-workspace-user";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import useGrantableRoles from "@/hooks/use-grantable-roles";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toast } from "@/lib/toast";
+import { roleLabel } from "../people/labels";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -27,6 +29,13 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import InvitationLinkField from "./invitation-link-field";
 
 type Props = {
@@ -36,6 +45,7 @@ type Props = {
 
 const teamMemberSchema = z.object({
   email: z.string(),
+  role: z.string().min(1),
 });
 
 type TeamMemberFormValues = z.infer<typeof teamMemberSchema>;
@@ -53,14 +63,43 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
     email: string;
   } | null>(null);
 
+  const { roles: grantableRoles } = useGrantableRoles(workspaceId);
+  const defaultRole = grantableRoles.includes("member")
+    ? "member"
+    : (grantableRoles[0] ?? "");
+
   const form = useForm<TeamMemberFormValues>({
     resolver: standardSchemaResolver(teamMemberSchema),
     defaultValues: {
       email: "",
+      role: defaultRole,
     },
   });
 
-  const onSubmit = async ({ email }: TeamMemberFormValues) => {
+  // Roles load after the form mounts; fill the default once they arrive
+  // without overriding a choice the user already made.
+  useEffect(() => {
+    if (!form.getValues("role") && defaultRole) {
+      form.setValue("role", defaultRole);
+    }
+  }, [defaultRole, form]);
+
+  const roleHint = (role: string) => {
+    switch (role) {
+      case "viewer":
+        return t("team:inviteModal.roleHint.viewer");
+      case "member":
+        return t("team:inviteModal.roleHint.member");
+      case "manager":
+        return t("team:inviteModal.roleHint.manager");
+      case "admin":
+        return t("team:inviteModal.roleHint.admin");
+      default:
+        return t("team:inviteModal.roleHint.custom");
+    }
+  };
+
+  const onSubmit = async ({ email, role }: TeamMemberFormValues) => {
     if (!workspaceId) {
       toast.error(t("team:inviteModal.error"));
       return;
@@ -76,8 +115,8 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
       const invitation = await mutateAsync({
         email,
         workspaceId,
-        role: "member",
-      }); // TODO: role and email
+        role,
+      });
       await queryClient.refetchQueries({
         queryKey: ["workspace-users", workspaceId],
       });
@@ -89,7 +128,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
       // returning an id, fall back to the previous close-on-success behaviour.
       if (invitation?.id) {
         setCreatedInvitation({ id: invitation.id, email });
-        form.reset();
+        form.reset({ email: "", role: defaultRole });
         return;
       }
 
@@ -108,7 +147,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
         queryKey: ["workspace-users", workspaceId],
       });
     }
-    form.reset();
+    form.reset({ email: "", role: defaultRole });
   };
 
   const resetAndCloseModal = () => {
@@ -147,7 +186,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
         ) : (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="contents">
-              <DialogPanel>
+              <DialogPanel className="space-y-4">
                 <FormField
                   control={form.control}
                   name="email"
@@ -165,6 +204,40 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("team:inviteModal.roleLabel")}</FormLabel>
+                      <FormControl>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger>
+                            <SelectValue>
+                              {field.value ? roleLabel(t, field.value) : null}
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {grantableRoles.map((role) => (
+                              <SelectItem key={role} value={role}>
+                                {roleLabel(t, role)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      {field.value ? (
+                        <p className="text-xs text-muted-foreground">
+                          {roleHint(field.value)}
+                        </p>
+                      ) : null}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </DialogPanel>
 
               <DialogFooter>
@@ -176,7 +249,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
                 <Button
                   type="submit"
                   size="sm"
-                  disabled={!workspaceId || !canInvite}
+                  disabled={!workspaceId || !canInvite || !form.watch("role")}
                 >
                   {t("team:inviteModal.sendInvitation")}
                 </Button>

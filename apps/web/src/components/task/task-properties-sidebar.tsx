@@ -41,6 +41,7 @@ import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import TaskAssigneePopover from "./task-assignee-popover";
 import TaskDueDatePopover from "./task-due-date-popover";
+import TaskEstimatePopover from "./task-estimate-popover";
 import TaskLabelsPopover from "./task-labels-popover";
 import TaskMovePopover from "./task-move-popover";
 import TaskPriorityPopover from "./task-priority-popover";
@@ -324,6 +325,7 @@ export default function TaskPropertiesSidebar({
                   </Button>
                 </TaskDueDatePopover>
               )}
+              {task && <TaskEstimatePopover task={task} />}
             </div>
           </div>
         )}
@@ -515,6 +517,7 @@ export default function TaskPropertiesSidebar({
                     </Button>
                   </TaskDueDatePopover>
                 )}
+                {task && <TaskEstimatePopover task={task} />}
               </div>
             </div>
 
@@ -708,6 +711,7 @@ export default function TaskPropertiesSidebar({
                     </Button>
                   </TaskDueDatePopover>
                 )}
+                {task && <TaskEstimatePopover task={task} />}
               </div>
             </div>
           </>

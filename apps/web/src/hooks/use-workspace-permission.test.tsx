@@ -4,8 +4,8 @@ import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useWorkspacePermission } from "./use-workspace-permission";
 
-const { hasPermission } = vi.hoisted(() => ({
-  hasPermission: vi.fn(),
+const { getPermissions } = vi.hoisted(() => ({
+  getPermissions: vi.fn(),
 }));
 
 vi.mock("@/hooks/queries/workspace/use-active-workspace", () => ({
@@ -17,8 +17,14 @@ vi.mock("@/hooks/queries/workspace-users/use-active-workspace-user", () => ({
 }));
 
 vi.mock("@/lib/auth-client", () => ({
-  authClient: {
-    organization: { hasPermission },
+  authClient: { organization: { hasPermission: vi.fn() } },
+}));
+
+vi.mock("@kaneo/libs", () => ({
+  client: {
+    workspace: {
+      ":workspaceId": { permissions: { $get: getPermissions } },
+    },
   },
 }));
 
@@ -34,26 +40,20 @@ function createWrapper() {
   };
 }
 
+function respond(body: unknown, ok = true) {
+  getPermissions.mockResolvedValue({ ok, json: async () => body });
+}
+
 describe("useWorkspacePermission", () => {
   beforeEach(() => {
-    hasPermission.mockReset();
+    getPermissions.mockReset();
   });
 
   it("keeps update capabilities independent from delete capabilities", async () => {
-    const granted = {
-      task: new Set(["create", "read", "update"]),
-      label: new Set(["create", "read", "update"]),
-    } as Record<string, Set<string>>;
-
-    hasPermission.mockImplementation(
-      async ({ permissions }: { permissions: Record<string, string[]> }) => ({
-        data: {
-          success: Object.entries(permissions).every(([resource, actions]) =>
-            actions.every((action) => granted[resource]?.has(action)),
-          ),
-        },
-      }),
-    );
+    respond({
+      task: ["create", "read", "update"],
+      label: ["create", "read", "update"],
+    });
 
     const { result } = renderHook(() => useWorkspacePermission(), {
       wrapper: createWrapper(),
@@ -69,5 +69,36 @@ describe("useWorkspacePermission", () => {
     expect(result.current.canCreateLabels()).toBe(true);
     expect(result.current.canUpdateLabels()).toBe(true);
     expect(result.current.canDeleteLabels()).toBe(false);
+  });
+
+  it("asks the server once, however many capabilities there are", async () => {
+    respond({ payroll: ["read"], people: ["read_all"] });
+
+    const { result } = renderHook(() => useWorkspacePermission(), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.isCheckingPermissions).toBe(false);
+    });
+
+    expect(getPermissions).toHaveBeenCalledTimes(1);
+    expect(result.current.canSeePay()).toBe(true);
+    expect(result.current.canManagePay()).toBe(false);
+    expect(result.current.canSeePeople()).toBe(true);
+  });
+
+  it("grants nothing when the permissions request fails", async () => {
+    respond({}, false);
+
+    const { result } = renderHook(() => useWorkspacePermission(), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.isCheckingPermissions).toBe(false);
+    });
+
+    expect(result.current.canUpdateTasks()).toBe(false);
   });
 });

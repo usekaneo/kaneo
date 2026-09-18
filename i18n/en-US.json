@@ -678,7 +678,16 @@
 				"project": "Projects",
 				"task": "Tasks",
 				"label": "Labels",
-				"workspace": "Workspace"
+				"workspace": "Workspace",
+				"timeEntry": "Time tracking",
+				"people": "People",
+				"activity": "Desktop activity",
+				"request": "Leave & expenses",
+				"payroll": "Salary & payroll",
+				"audit": "Audit log",
+				"file": "Files",
+				"member": "Members",
+				"invitation": "Invitations"
 			},
 			"permissions": {
 				"project": {
@@ -759,6 +768,84 @@
 					"manage_settings": {
 						"label": "Manage Settings",
 						"description": "Can manage workspace settings"
+					}
+				},
+				"timeEntry": {
+					"read_all": {
+						"label": "See everyone's time",
+						"description": "View all members' time entries and timesheets. Everyone can always see their own."
+					},
+					"manage_all": {
+						"label": "Edit everyone's time",
+						"description": "Edit or delete other members' time entries. Everyone can always edit their own."
+					}
+				},
+				"people": {
+					"read_all": {
+						"label": "See everyone's details",
+						"description": "Open anyone's profile, tasks and attendance. Everyone can see their own."
+					},
+					"manage": {
+						"label": "Manage people",
+						"description": "Edit profiles, departments and schedules, and correct attendance."
+					}
+				},
+				"activity": {
+					"read_all": {
+						"label": "See everyone's desktop activity",
+						"description": "Active and idle time and app/website totals from the desktop app. Everyone can see their own."
+					}
+				},
+				"request": {
+					"approve": {
+						"label": "Approve leave and expenses",
+						"description": "Decide other people's leave and expense requests."
+					}
+				},
+				"payroll": {
+					"read": {
+						"label": "See salaries and payroll",
+						"description": "Everyone's salary history and payrolls. Everyone can see their own pay."
+					},
+					"manage": {
+						"label": "Manage salaries and payroll",
+						"description": "Change salaries, run, approve and pay payrolls, and pay out expenses."
+					}
+				},
+				"audit": {
+					"read": {
+						"label": "See the audit log",
+						"description": "Who changed pay, roles, people and approvals, and when."
+					}
+				},
+				"file": {
+					"upload": {
+						"label": "Upload and share files",
+						"description": "Add files and create live links for their own files."
+					},
+					"manage": {
+						"label": "Manage everyone's files",
+						"description": "Delete other people's files and turn their live links on or off."
+					}
+				},
+				"invitation": {
+					"create": {
+						"label": "Invite people",
+						"description": "Send invitations, with a role no stronger than their own."
+					},
+					"cancel": {
+						"label": "Cancel invitations",
+						"description": "Withdraw invitations that have not been accepted."
+					}
+				},
+				"member": {
+					"update": {
+						"label": "Change roles",
+						"description": "Change members' roles, up to their own permissions."
+					},
+					"delete": {
+						"label": "Remove members",
+						"description": "Remove people from the workspace."
 					}
 				}
 			},
@@ -1377,7 +1464,14 @@
 			"members": "Members",
 			"invitations": "Invitations",
 			"more": "More",
-			"backToBoard": "Back to board"
+			"backToBoard": "Back to board",
+			"time": "Time",
+			"people": "People",
+			"myWork": "My work",
+			"payroll": "Payroll",
+			"files": "Files",
+			"chat": "Chat",
+			"attendance": "Attendance"
 		},
 		"projectList": {
 			"viewProject": "View Project",
@@ -1518,6 +1612,22 @@
 				"title": "Time tracking started",
 				"contentWithTask": "Time tracking started on task: {{taskTitle}}",
 				"contentWithoutTask": "Time tracking started on a task"
+			},
+			"leave_requested": {
+				"title": "{{userName}} asked for {{leaveType}}"
+			},
+			"leave_approved": {
+				"title": "Your {{leaveType}} was approved"
+			},
+			"leave_rejected": {
+				"title": "Your {{leaveType}} was rejected"
+			},
+			"leave_cancelled": {
+				"title": "Your {{leaveType}} was called off"
+			},
+			"leave": {
+				"content": "{{dates}}",
+				"contentWithNote": "{{dates}} · {{note}}"
 			}
 		}
 	},
@@ -2063,6 +2173,17 @@
 				"deleteRow": "Delete row",
 				"deleteTable": "Delete table"
 			}
+		},
+		"estimate": {
+			"add": "Estimate",
+			"label": "Estimate",
+			"tooltip": "Tracked / estimated time",
+			"placeholder": "3h, 90m, 1h 30m",
+			"save": "Save",
+			"clear": "Clear estimate",
+			"tracked": "Tracked so far: {{time}}",
+			"invalid": "Enter a time like 3h, 90m or 1h 30m.",
+			"error": "Couldn't update the estimate"
 		}
 	},
 	"invitations": {
@@ -2155,7 +2276,8 @@
 			"owner": "Owner",
 			"admin": "Admin",
 			"member": "Member",
-			"viewer": "Viewer"
+			"viewer": "Viewer",
+			"manager": "Manager"
 		},
 		"members": {
 			"pageTitle": "Members",
@@ -2174,6 +2296,14 @@
 			"title": "Invite Team Member",
 			"emailLabel": "Email",
 			"emailPlaceholder": "colleague@company.com",
+			"roleLabel": "Role",
+			"roleHint": {
+				"viewer": "Can see projects and tasks but can't change anything.",
+				"member": "Can create projects and tasks and work on them.",
+				"admin": "Can manage members, roles and workspace settings.",
+				"custom": "Gets exactly the permissions set for this role in Settings → Roles.",
+				"manager": "Runs a team: sees people and their time, approves leave and expenses. No pay or settings."
+			},
 			"sendInvitation": "Send Invitation",
 			"success": "Invitation sent successfully",
 			"error": "Failed to invite team member",
@@ -2243,6 +2373,708 @@
 		},
 		"branding": {
 			"poweredBy": "Powered by"
+		}
+	},
+	"time": {
+		"task": {
+			"title": "Time",
+			"start": "Start",
+			"stop": "Stop timer",
+			"addManual": "Add time manually",
+			"date": "Date",
+			"from": "From",
+			"to": "To",
+			"note": "Note",
+			"notePlaceholder": "What did you work on? (optional)",
+			"save": "Add time",
+			"added": "Time added",
+			"addError": "Couldn't add time",
+			"invalidTime": "Enter a valid date and times.",
+			"endBeforeStart": "The end time must be after the start time.",
+			"startError": "Couldn't start the timer",
+			"stopError": "Couldn't stop the timer",
+			"deleted": "Time entry deleted",
+			"deleteError": "Couldn't delete the time entry",
+			"delete": "Delete time entry",
+			"empty": "No time logged yet.",
+			"running": "running",
+			"formerMember": "Former member"
+		},
+		"sheet": {
+			"title": "Timesheet",
+			"everyone": "Everyone",
+			"previousWeek": "Previous week",
+			"nextWeek": "Next week",
+			"thisWeek": "This week",
+			"exportCsv": "Export CSV",
+			"range": "{{from}} – {{to}}",
+			"emptyTitle": "No time logged this week",
+			"emptyDescription": "Start a timer from any task, or add time manually.",
+			"byPerson": "Person",
+			"byTask": "Project / task",
+			"total": "Total"
+		},
+		"csv": {
+			"date": "Date",
+			"start": "Start",
+			"end": "End",
+			"hours": "Hours",
+			"person": "Person",
+			"project": "Project",
+			"task": "Task",
+			"note": "Note"
+		},
+		"tabs": {
+			"time": "Timesheet",
+			"attendance": "Attendance",
+			"activity": "Activity"
+		}
+	},
+	"people": {
+		"pageTitle": "People",
+		"notAvailableTitle": "You can't see this person",
+		"notAvailableDescription": "You can see your own page. Ask an admin if you need to see other people.",
+		"status": {
+			"active": "Active",
+			"on_leave": "On leave",
+			"inactive": "Inactive",
+			"clockedIn": "Clocked in",
+			"online": "Online"
+		},
+		"tabs": {
+			"overview": "Overview",
+			"tasks": "Tasks",
+			"time": "Time",
+			"attendance": "Attendance",
+			"activity": "Activity",
+			"pay": "Pay",
+			"people": "People",
+			"requests": "Requests"
+		},
+		"fields": {
+			"email": "Email",
+			"role": "Role",
+			"title": "Title",
+			"department": "Department",
+			"joinDate": "Joined",
+			"status": "Status",
+			"workingHours": "Working hours"
+		},
+		"overview": {
+			"openTasks": "Open tasks",
+			"overdueTasks": "Overdue",
+			"activeProjects": "Projects"
+		},
+		"tasks": {
+			"empty": "No tasks assigned.",
+			"open_one": "{{count}} open task",
+			"open_other": "{{count}} open tasks",
+			"recentlyDone_one": "{{count}} finished in the last 30 days",
+			"recentlyDone_other": "{{count}} finished in the last 30 days"
+		},
+		"schedule": {
+			"workDays": "Work days",
+			"start": "Start",
+			"end": "End",
+			"breakMinutes": "Break (min)"
+		},
+		"edit": {
+			"button": "Edit",
+			"title": "Edit {{name}}",
+			"titlePlaceholder": "e.g. Backend developer",
+			"noDepartment": "No department",
+			"customSchedule": "Different working hours from the company",
+			"needWorkDay": "Pick at least one work day.",
+			"save": "Save",
+			"saved": "Profile saved",
+			"error": "Couldn't save the profile"
+		}
+	},
+	"company": {
+		"title": "Company",
+		"subtitle": "Working hours, leave and activity settings used for attendance, time and payroll.",
+		"save": "Save changes",
+		"saved": "Company settings saved",
+		"error": "Couldn't save company settings",
+		"basics": {
+			"title": "Basics",
+			"subtitle": "Where your company works and how money is shown.",
+			"timezone": "Timezone",
+			"timezoneHint": "Decides what \"today\" means for attendance and reports.",
+			"currency": "Currency",
+			"currencyHint": "3-letter code, e.g. BDT, USD, EUR."
+		},
+		"schedule": {
+			"title": "Working hours",
+			"subtitle": "The usual week. People can have their own hours on their profile. Time past these hours counts as overtime.",
+			"lateGrace": "Late after (minutes)",
+			"lateGraceHint": "Clocking in this many minutes after the start of the day still counts as on time."
+		},
+		"leave": {
+			"title": "Leave and overtime",
+			"subtitle": "Yearly leave allowance and how overtime is paid.",
+			"annualDays": "Leave days per year",
+			"overtimeRate": "Overtime pay (%)",
+			"overtimeRateHint": "Of the hourly rate. 150 means time and a half."
+		},
+		"activity": {
+			"title": "Desktop activity",
+			"subtitle": "What the desktop app records and how long it is kept.",
+			"trackDomains": "Record website domains",
+			"trackDomainsHint": "Only the domain (github.com), never the page or its contents.",
+			"detailDays": "Keep details (days)",
+			"detailDaysHint": "Individual activity spans are deleted after this.",
+			"summaryDays": "Keep daily totals (days)",
+			"summaryDaysHint": "Per-app and per-domain totals are kept this long."
+		},
+		"departments": {
+			"title": "Departments",
+			"subtitle": "Group people by team. Set someone's department on their profile.",
+			"empty": "No departments yet.",
+			"placeholder": "New department name",
+			"add": "Add",
+			"delete": "Delete {{name}}",
+			"error": "Couldn't add the department",
+			"people_one": "{{count}} person",
+			"people_other": "{{count}} people"
+		},
+		"autoClock": {
+			"title": "Automatic clock in/out",
+			"subtitle": "Let the Kaneo desktop app clock people in when they start working and out when they stop.",
+			"enabled": "Clock in and out from the desktop app",
+			"enabledHint": "People are clocked in when they start using their computer and clocked out when they step away, quit the app or go offline. Clocking out by hand still works, and the app won’t clock them back in that day. Make sure your team knows this is on.",
+			"idleMinutes": "Clock out when idle for (minutes)",
+			"idleMinutesHint": "No keyboard or mouse activity for this long. The clock-out is set back to the last activity, so the wait isn’t counted.",
+			"offlineMinutes": "Clock out when offline for (minutes)",
+			"offlineMinutesHint": "None of the person’s computers has checked in for this long (asleep, shut down, no internet). Coming back sooner continues the same session."
+		}
+	},
+	"attendance": {
+		"card": {
+			"since": "In {{time}}",
+			"notClockedIn": "Not clocked in",
+			"clockIn": "Clock in",
+			"clockOut": "Clock out",
+			"pause": "Pause timer",
+			"resume": "Resume timer",
+			"paused": "Paused",
+			"dismiss": "Forget paused timer",
+			"error": "Couldn't update attendance",
+			"auto": "Auto",
+			"autoHint": "Clocked in automatically by the desktop app"
+		},
+		"table": {
+			"day": "Day",
+			"person": "Person",
+			"in": "In",
+			"out": "Out",
+			"worked": "Worked",
+			"active": "Active",
+			"idle": "Idle",
+			"overtime": "Overtime",
+			"now": "Now",
+			"status": "Status"
+		},
+		"month": {
+			"summary": "{{worked}} worked, {{overtime}} overtime",
+			"previous": "Previous month",
+			"next": "Next month",
+			"thisMonth": "This month"
+		},
+		"team": {
+			"today": "Today",
+			"previousDay": "Previous day",
+			"nextDay": "Next day",
+			"pickDay": "Pick a day",
+			"filtered_one": "Showing {{count}} person: {{status}}.",
+			"filtered_other": "Showing {{count}} people: {{status}}.",
+			"showAll": "Show everyone"
+		},
+		"edit": {
+			"title": "Attendance on {{date}}",
+			"hint": "Times are in {{timeZone}}. Leave Out empty for someone still at work.",
+			"add": "Add session",
+			"remove": "Remove session",
+			"save": "Save",
+			"saved": "Attendance updated",
+			"error": "Couldn't update attendance",
+			"outBeforeIn": "Clock-out must be after clock-in."
+		},
+		"status": {
+			"present": "Present",
+			"late": "Late",
+			"absent": "Absent",
+			"leave": "On leave",
+			"off": "Day off",
+			"pending": "Not in yet",
+			"upcoming": "Upcoming",
+			"lateBy": "+{{minutes}}m",
+			"notJoined": "Before joining"
+		},
+		"today": {
+			"officeHours": "Office hours {{start}}–{{end}}",
+			"onLeave": "{{type}} today, enjoy the day off",
+			"firstIn": "First in",
+			"lastOut": "Last out",
+			"worked": "Worked today",
+			"ofTarget": "of {{target}}"
+		},
+		"page": {
+			"title": "Attendance",
+			"me": "My attendance",
+			"team": "Team",
+			"leave": "Leave requests",
+			"timezoneHint": "All times on this page are in the company timezone, set in Settings → Company."
+		}
+	},
+	"devices": {
+		"title": "Devices",
+		"subtitle": "The Kaneo desktop app records your active and idle time and which apps you use in {{workspace}}. You can pause it any time from its tray icon.",
+		"error": "Something went wrong",
+		"connect": {
+			"title": "Connect the desktop app",
+			"subtitle": "Create a one-time code and enter it in the app. The code works once and for 10 minutes.",
+			"button": "Create a code",
+			"newCode": "Create a new code",
+			"expires": "Expires {{time}}",
+			"step1": "Open the Kaneo desktop app.",
+			"step2": "Enter this address: {{address}}",
+			"step3": "Enter the code above and press Connect.",
+			"whatIsShared": "Shared: the app in front, website domains (if your company allows it), and active or idle time. Never keystrokes, screenshots, window titles or page contents."
+		},
+		"list": {
+			"title": "Connected computers",
+			"emptyTitle": "No computers connected",
+			"emptyDescription": "Create a code above to connect the desktop app.",
+			"online": "Online",
+			"offline": "Offline",
+			"paused": "Paused",
+			"lastSeen": "last seen {{time}}",
+			"added": "added {{date}}",
+			"disconnect": "Disconnect",
+			"revoked": "Computer disconnected"
+		}
+	},
+	"desktopActivity": {
+		"range": {
+			"today": "Today",
+			"week": "This week",
+			"month": "This month"
+		},
+		"active": "active",
+		"idle": "idle",
+		"apps": "Apps",
+		"domains": "Websites",
+		"showAll": "Show all {{count}}",
+		"showLess": "Show less",
+		"details": "Details for {{day}}",
+		"noDetails": "No details for this day.",
+		"emptyTitle": "No desktop activity",
+		"emptyDescription": "Activity appears once the desktop app is connected in Settings → Account → Devices.",
+		"privacyNote": "Active and idle time come from the desktop app and are not the same as worked time. Only app names and website domains are recorded."
+	},
+	"myWork": {
+		"title": "My work",
+		"cancel": "Cancel",
+		"company": {
+			"present": "Present now",
+			"dueToday": "Tasks due today",
+			"overdue": "Overdue tasks",
+			"workedToday": "Worked today",
+			"pendingLeave": "Pending leave",
+			"openPayroll": "Open payrolls"
+		},
+		"tasks": {
+			"profile": "My profile",
+			"title": "My tasks"
+		},
+		"today": {
+			"title": "Today",
+			"attendance": "Attendance",
+			"clockedIn": "Clocked in",
+			"clockedOut": "Clocked out",
+			"notYet": "Not clocked in",
+			"worked": "Worked",
+			"tracked": "Tracked on tasks",
+			"activeIdle": "Active / idle",
+			"overtime": "Overtime"
+		},
+		"leave": {
+			"title": "Leave",
+			"request": "Request leave",
+			"balance": "{{available}} days left · {{used}} used · {{pending}} pending"
+		},
+		"expenses": {
+			"title": "Expenses",
+			"add": "Add expense",
+			"none": "No expenses yet."
+		},
+		"pay": {
+			"title": "Pay",
+			"none": "No payslips yet."
+		}
+	},
+	"pay": {
+		"title": "Payroll",
+		"error": "Something went wrong",
+		"noAccess": "Payroll is only visible to people with payroll access.",
+		"tabs": {
+			"runs": "Payroll",
+			"salaries": "Salaries"
+		},
+		"status": {
+			"draft": "Draft",
+			"approved": "Approved",
+			"paid": "Paid"
+		},
+		"columns": {
+			"month": "Month",
+			"status": "Status",
+			"people": "People",
+			"netTotal": "Net total",
+			"person": "Person",
+			"salary": "Salary",
+			"since": "Since",
+			"base": "Base",
+			"overtime": "Overtime",
+			"bonus": "Bonus",
+			"deduction": "Deduction",
+			"net": "Net"
+		},
+		"runs": {
+			"create": "Create payroll",
+			"emptyTitle": "No payrolls yet",
+			"emptyDescription": "Pick a month and create a payroll. It starts as a draft you can check before approving.",
+			"draftHint": "Check bonuses and deductions, then approve. People see their payslip once it's approved.",
+			"approvedHint": "Locked. Mark it paid once the money has gone out.",
+			"paidHint": "Paid.",
+			"recalculate": "Recalculate",
+			"recalculated": "Recalculated from current salaries and attendance",
+			"approve": "Approve",
+			"approved": "Payroll approved",
+			"markPaid": "Mark paid",
+			"markedPaid": "Payroll marked paid",
+			"delete": "Delete draft",
+			"monthlyLine": "Monthly · {{worked}} worked",
+			"hourlyLine": "{{rate}}/h · {{hours}} worked",
+			"noSalaries": "Nobody has a salary for this month yet. Add salaries under Salaries, then recalculate."
+		},
+		"salary": {
+			"historyTitle": "Salary",
+			"none": "No salary recorded.",
+			"notSet": "Not set",
+			"set": "Set salary",
+			"change": "Change salary",
+			"current": "Current",
+			"since": "From {{date}}",
+			"perMonth": "/ month",
+			"perHour": "/ hour",
+			"dialogTitle": "Salary for {{name}}",
+			"dialogHint": "This adds a new record from the date you pick. Earlier salaries stay in the history.",
+			"amount": "Amount ({{currency}})",
+			"type": "Paid",
+			"monthly": "Monthly",
+			"hourly": "Hourly",
+			"effectiveFrom": "From",
+			"note": "Note",
+			"notePlaceholder": "e.g. Yearly raise",
+			"save": "Save",
+			"saved": "Salary saved",
+			"invalidAmount": "Enter an amount like 50,000 or 50000.50."
+		},
+		"payslips": {
+			"title": "Payslips",
+			"none": "No payslips yet. They appear once a payroll is approved."
+		}
+	},
+	"requests": {
+		"error": "Something went wrong",
+		"status": {
+			"pending": "Pending",
+			"approved": "Approved",
+			"rejected": "Rejected",
+			"cancelled": "Cancelled",
+			"paid": "Paid"
+		},
+		"leave": {
+			"dialogTitle": "Request leave",
+			"type": "Type",
+			"types": {
+				"annual": "Annual leave",
+				"sick": "Sick leave",
+				"unpaid": "Unpaid leave"
+			},
+			"from": "First day",
+			"to": "Last day",
+			"reason": "Reason",
+			"reasonPlaceholder": "Optional",
+			"send": "Send request",
+			"pickDates": "Pick the first day of your leave.",
+			"sent_one": "Leave requested for {{count}} working day",
+			"sent_other": "Leave requested for {{count}} working days",
+			"days_one": "{{count}} day",
+			"days_other": "{{count}} days",
+			"noWorkingDays": "Those dates have no working days.",
+			"overBalance": "More than you have left ({{available}} days). Your approver can still allow it.",
+			"afterThis_one": "{{count}} day left after this",
+			"afterThis_other": "{{count}} days left after this",
+			"unpaidHint": "Unpaid leave doesn't use your allowance.",
+			"approvalHint": "Your leave counts only once an approver accepts it. You'll get a notification.",
+			"none": "No leave requests yet.",
+			"decisionNote": "Approver: {{note}}",
+			"askedOn": "asked {{date}}",
+			"whoIsOut": "Out in the next two weeks",
+			"nobodyOut": "Nobody is on leave in the next two weeks.",
+			"outNow": "Out now",
+			"history": "All leave",
+			"all": "All",
+			"dates": "Dates",
+			"daysColumn": "Days",
+			"decidedBy": "Decided by",
+			"callOff": "Call off",
+			"calledOff": "Leave called off"
+		},
+		"expense": {
+			"dialogTitle": "Add expense",
+			"amount": "Amount ({{currency}})",
+			"date": "Date",
+			"category": "Category",
+			"categoryPlaceholder": "e.g. Travel",
+			"categories": {
+				"travel": "Travel",
+				"meals": "Meals",
+				"equipment": "Equipment",
+				"software": "Software",
+				"other": "Other"
+			},
+			"description": "Description",
+			"project": "Project",
+			"noProject": "No project",
+			"receipt": "Receipt",
+			"send": "Submit",
+			"sent": "Expense submitted",
+			"invalidAmount": "Enter an amount like 1,500 or 1500.50.",
+			"needCategory": "Add a category.",
+			"receiptTooLarge": "Receipts can be at most 5 MB."
+		},
+		"approvals": {
+			"leave": "Leave",
+			"expenses": "Expenses",
+			"approve": "Approve",
+			"reject": "Reject",
+			"markPaid": "Mark paid",
+			"emptyTitle": "Nothing waiting",
+			"emptyDescription": "Leave and expense requests show up here.",
+			"approvedToast": "Leave approved for {{name}}",
+			"rejectedToast": "Leave rejected for {{name}}",
+			"rejectTitle": "Reject {{name}}'s leave?",
+			"rejectNote": "Reason (optional, they'll see it)",
+			"ownRequest": "Your own request"
+		},
+		"balance": {
+			"daysLeft": "of {{total}} days left this year",
+			"used_one": "{{count}} day used",
+			"used_other": "{{count}} days used",
+			"pending_one": "{{count}} day waiting",
+			"pending_other": "{{count}} days waiting"
+		}
+	},
+	"audit": {
+		"title": "Audit log",
+		"subtitle": "Important changes: pay, payroll, roles, people, approvals and devices.",
+		"noAccess": "Only owners and admins can see the audit log.",
+		"empty": "Nothing recorded yet.",
+		"someone": "Someone",
+		"more": "Show older",
+		"actions": {
+			"salaryAdded": "changed a salary",
+			"payrollCreated": "created a payroll",
+			"payrollRecalculated": "recalculated a payroll",
+			"payrollLineUpdated": "adjusted a payroll line",
+			"payrollApproved": "approved a payroll",
+			"payrollPaid": "marked a payroll paid",
+			"payrollDeleted": "deleted a draft payroll",
+			"leaveApproved": "approved leave",
+			"leaveRejected": "rejected leave",
+			"expenseApproved": "approved an expense",
+			"expenseRejected": "rejected an expense",
+			"expensePaid": "marked an expense paid",
+			"personUpdated": "updated a profile",
+			"attendanceCorrected": "corrected attendance",
+			"deviceRevoked": "disconnected a computer",
+			"memberInvited": "invited someone",
+			"roleChanged": "changed a role",
+			"memberRemoved": "removed someone",
+			"roleEdited": "edited role permissions",
+			"companySettingsUpdated": "changed company settings",
+			"departmentsChanged": "changed departments"
+		}
+	},
+	"files": {
+		"title": "Files",
+		"error": "Something went wrong",
+		"upload": "Upload",
+		"newFolder": "New folder",
+		"folderName": "Folder name",
+		"open": "Open",
+		"allFiles": "All files",
+		"dropHint": "Drop files or folders anywhere here to upload",
+		"uploading_one": "Uploading {{count}} file…",
+		"uploading_other": "Uploading {{count}} files…",
+		"uploaded_one": "{{count}} file uploaded",
+		"uploaded_other": "{{count}} files uploaded",
+		"databaseHint": "Files are stored in the database (10 MB each). Connect Cloudflare R2 in Settings → Company for bigger files.",
+		"emptyTitle": "No files yet",
+		"emptyFolder": "This folder is empty",
+		"emptyDescription": "Drop files here or use Upload. Everyone in the workspace can see them.",
+		"columns": {
+			"name": "Name",
+			"size": "Size",
+			"by": "Added by",
+			"added": "Added"
+		},
+		"actions": "File actions",
+		"download": "Download",
+		"createLink": "Create live link",
+		"copyLink": "Copy live link",
+		"turnOffLink": "Turn off live link",
+		"linkCopied": "Live link copied. Anyone with it can open the file.",
+		"linkOff": "Live link turned off",
+		"isShared": "Has a live link",
+		"delete": "Delete",
+		"deleted": "File deleted",
+		"deleteTitle": "Delete this file?",
+		"deleteDescription": "{{name}} will be deleted for everyone, and its live link will stop working.",
+		"newFolderIn": "New folder in {{name}}",
+		"createFolder": "Create folder",
+		"folderCreated": "Folder \"{{name}}\" created",
+		"folderDeleted": "Folder deleted",
+		"folderActions": "Folder actions",
+		"fileName": "File name",
+		"invalidName": "Names can't contain \"/\" or be \".\" or \"..\"",
+		"rename": "Rename",
+		"save": "Save",
+		"moveTo": "Move to…",
+		"moveTitle": "Move \"{{name}}\"",
+		"moveHere": "Move here",
+		"findFolder": "Find a folder",
+		"currentFolder": "Current",
+		"moved": "Moved {{name}}",
+		"uploadFiles": "Upload files",
+		"uploadFolder": "Upload folder",
+		"dropInto": "Drop to upload into {{name}}",
+		"dragHint": "Drag files onto a folder to move them. Drop files or whole folders from your computer to upload.",
+		"breadcrumbs": "Folder path",
+		"searchHere": "Search in this folder",
+		"noMatches": "Nothing here matches \"{{query}}\"",
+		"fileCount_zero": "Empty",
+		"fileCount_one": "{{count}} file",
+		"fileCount_other": "{{count}} files",
+		"uploadFailedCount_one": "{{count}} upload failed",
+		"uploadFailedCount_other": "{{count}} uploads failed",
+		"queue": {
+			"expand": "Show uploads",
+			"collapse": "Hide uploads",
+			"close": "Close"
+		},
+		"storage": {
+			"title": "File storage",
+			"subtitle": "Where workspace files and receipts are kept.",
+			"statusConnected": "Cloudflare R2",
+			"statusDatabase": "Database",
+			"connectedHint": "New files go to the bucket {{bucket}}.",
+			"databaseHint": "Files are kept in the database, up to 10 MB each.",
+			"endpoint": "S3 endpoint",
+			"bucket": "Bucket",
+			"accessKey": "Access key ID",
+			"secretKey": "Secret access key",
+			"secretKept": "Saved (leave empty to keep)",
+			"prefix": "Folder in bucket (optional)",
+			"help": "In Cloudflare: R2 → Manage API tokens → create a token with Object Read & Write for this bucket. The endpoint is shown on the bucket's settings page. Kaneo checks that it can write before saving; the secret is stored encrypted.",
+			"connect": "Test and connect",
+			"update": "Test and save",
+			"testing": "Testing…",
+			"connected": "Storage connected",
+			"disconnect": "Disconnect",
+			"disconnected": "Storage disconnected"
+		}
+	},
+	"chat": {
+		"title": "Chat",
+		"error": "Something went wrong",
+		"channels": "Channels",
+		"directMessages": "Direct messages",
+		"findConversation": "Find a conversation",
+		"noChannels": "No channels yet",
+		"noDms": "No direct messages yet",
+		"newChannel": "New channel",
+		"newMessage": "New message",
+		"addPeople": "Add people",
+		"channelName": "Channel name",
+		"channelNamePlaceholder": "e.g. design-team",
+		"privateChannel": "Private channel",
+		"privateChannelHint": "Only people you add can see and join it.",
+		"dmHint": "Pick one person, or several for a group conversation.",
+		"searchPeople": "Search people",
+		"noPeople": "No one else to add",
+		"create": "Create",
+		"start": "Start",
+		"add": "Add",
+		"you": "You",
+		"back": "Back",
+		"close": "Close chat",
+		"openFull": "Open in full view",
+		"openWithUnread_one": "Chat, {{count}} unread message",
+		"openWithUnread_other": "Chat, {{count}} unread messages",
+		"options": "Conversation options",
+		"leave": "Leave channel",
+		"deleteChannel": "Delete channel",
+		"deleteConfirm": "Delete #{{name}} and all of its messages? This can’t be undone.",
+		"memberCount_one": "{{count}} member",
+		"memberCount_other": "{{count}} members",
+		"formerMember": "Former member",
+		"edited": "(edited)",
+		"editMessage": "Edit message",
+		"deleteMessage": "Delete message",
+		"deleteMessageConfirm": "Delete this message?",
+		"save": "Save",
+		"loadEarlier": "Load earlier messages",
+		"channelStart": "This is the start of #{{name}}",
+		"dmStart": "This is the start of your conversation with {{name}}",
+		"messagePlaceholder": "Message {{name}}",
+		"send": "Send",
+		"notJoined": "You’re viewing #{{name}}. Join to send messages.",
+		"join": "Join channel",
+		"composerHint": "Enter to send · Shift + Enter for a new line · ↑ to edit your last message",
+		"pickTitle": "Pick a conversation",
+		"pickDescription": "Choose a channel or person on the left, or start something new.",
+		"openToJoin": "Open channel · tap to view",
+		"noMessagesYet": "No messages yet",
+		"publicChannel": "Public channel",
+		"directMessage": "Direct message",
+		"groupMessage_one": "Group · {{count}} person",
+		"groupMessage_other": "Group · {{count}} people",
+		"channelIntro": "Everything posted here is shared with the people in this channel.",
+		"dmIntro": "Only the people in this conversation can see these messages.",
+		"today": "Today",
+		"yesterday": "Yesterday",
+		"seen": "Seen",
+		"seenBy_one": "Seen by {{count}}",
+		"seenBy_other": "Seen by {{count}}",
+		"sent": "Sent",
+		"jumpToLatest": "Jump to latest",
+		"olderMessage": "That message is further back. Load earlier messages to see it.",
+		"typingOne": "{{name}} is typing…",
+		"typingMany_one": "{{count}} person is typing…",
+		"typingMany_other": "{{count}} people are typing…",
+		"replyingTo": "Replying to {{name}}",
+		"cancelReply": "Cancel reply",
+		"reply": "Reply",
+		"addReaction": "Add reaction",
+		"reactWith": "React with {{emoji}}",
+		"editHint": "Enter to save · Esc to cancel",
+		"preview": {
+			"play": "Play {{title}}"
 		}
 	}
 }

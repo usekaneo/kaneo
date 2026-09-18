@@ -14,3 +14,7 @@ export const workspaceMemberSchema = z
   .openapi("WorkspaceMember");
 
 export const workspaceMemberListSchema = z.array(workspaceMemberSchema);
+
+export const myPermissionsSchema = z
+  .record(z.string(), z.array(z.string()))
+  .openapi("MyWorkspacePermissions");

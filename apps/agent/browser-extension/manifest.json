@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Kaneo Agent connector",
+  "version": "0.1.0",
+  "description": "Shares only the website domain (e.g. github.com) of your active tab with the Kaneo Agent on this computer. Never paths, titles, page content or incognito tabs.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA8cBM75RxOk91tca8+5ZGyUHKhjOSMX2m7tssNGjlzIj35sFZxdGcRCVrBLIbC6gE2kNA4Cl4zy6V9Jk9iPQA3UCnAaSyNkxqIiWq0nVll7hHnzATA2wH4Yh9CFJeIQLxVEisOKvrAjSc/opevnFKkuauM1tGIBVghrp90HXnCEzQqL+V9+/vezaBVRZKNsn3ezrqnl3mNL0Ybm7Zkaw4KgFw+iqQvAe11Mi3SfGqV92uPe9wq3MVg0WG2ItkGfjU9E864pkgqp55H3REs+J6KUAKgzMGN+hxaVTGYQBvc/PgCpOTXR6sn0RTpKVLeckwZ0bATEbp/c6ATcrRAPQlkQIDAQAB",
+  "minimum_chrome_version": "120",
+  "incognito": "not_allowed",
+  "permissions": ["tabs", "nativeMessaging", "alarms"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
+}

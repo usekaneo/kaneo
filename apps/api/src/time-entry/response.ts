@@ -25,3 +25,20 @@ export const timeEntryListSchema = z.array(
     .extend({ userName: z.string().nullable() })
     .openapi("TimeEntryWithUser"),
 );
+
+export const timeEntryDetailSchema = timeEntrySchema
+  .extend({
+    userName: z.string().nullable(),
+    taskTitle: z.string(),
+    taskNumber: z.number().nullable(),
+    projectId: z.string(),
+    projectName: z.string(),
+    projectSlug: z.string(),
+  })
+  .openapi("TimeEntryDetail");
+
+export const timeEntryDetailListSchema = z.array(timeEntryDetailSchema);
+
+export const runningTimeEntrySchema = timeEntryDetailSchema
+  .nullable()
+  .openapi("RunningTimeEntry");

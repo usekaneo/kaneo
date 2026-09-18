@@ -1,3 +1,4 @@
+import { client } from "@kaneo/libs";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
@@ -6,12 +7,9 @@ import { authClient } from "@/lib/auth-client";
 
 export type PermissionLevel = "owner" | "admin" | "member";
 
-// Capabilities are named permission bundles checked against the SERVER via
-// better-auth's `/organization/has-permission` endpoint. Going through the
-// server is what makes custom workspace roles work in the UI: the local
-// `checkRolePermission` only knows about the four static roles compiled
-// into the auth client, so it would silently return false for any custom
-// role that grants the permission.
+// Capabilities are named permission bundles checked against what the SERVER
+// resolves for the caller (custom roles included), fetched once per
+// workspace and role rather than one request per capability.
 const CAPABILITIES = {
   manageProjects: { project: ["create", "update", "delete"] },
   createProjects: { project: ["create"] },
@@ -29,6 +27,17 @@ const CAPABILITIES = {
   inviteUsers: { invitation: ["create"] },
   manageTeam: { member: ["update", "delete"] },
   removeMembers: { member: ["delete"] },
+  seeEveryonesTime: { timeEntry: ["read_all"] },
+  manageEveryonesTime: { timeEntry: ["manage_all"] },
+  seePeople: { people: ["read_all"] },
+  managePeople: { people: ["manage"] },
+  seeActivity: { activity: ["read_all"] },
+  approveRequests: { request: ["approve"] },
+  seePay: { payroll: ["read"] },
+  managePay: { payroll: ["manage"] },
+  readAudit: { audit: ["read"] },
+  uploadFiles: { file: ["upload"] },
+  manageFiles: { file: ["manage"] },
 } as const satisfies Record<string, Record<string, string[]>>;
 
 type Capability = keyof typeof CAPABILITIES;
@@ -62,26 +71,21 @@ export function useWorkspacePermission() {
     enabled: Boolean(workspaceId && role),
     staleTime: 5 * 60 * 1000,
     queryFn: async (): Promise<CapabilityMap> => {
-      const entries = Object.entries(CAPABILITIES) as Array<
-        [Capability, Record<string, string[]>]
-      >;
-      const results = await Promise.all(
-        entries.map(async ([key, permissions]) => {
-          try {
-            const res = await authClient.organization.hasPermission({
-              organizationId: workspaceId,
-              permissions,
-            });
-            return [key, res.data?.success === true] as const;
-          } catch (error) {
-            console.error(`hasPermission check failed for ${key}:`, error);
-            return [key, false] as const;
-          }
-        }),
-      );
       const map = emptyCapabilityMap();
-      for (const [key, value] of results) {
-        map[key] = value;
+      const response = await client.workspace[":workspaceId"].permissions.$get({
+        param: { workspaceId: workspaceId as string },
+      });
+      if (!response.ok) {
+        console.error("Failed to load workspace permissions");
+        return map;
+      }
+      const granted: Record<string, string[]> = await response.json();
+      for (const [key, permissions] of Object.entries(CAPABILITIES) as Array<
+        [Capability, Record<string, readonly string[]>]
+      >) {
+        map[key] = Object.entries(permissions).every(([resource, actions]) =>
+          actions.every((action) => granted[resource]?.includes(action)),
+        );
       }
       return map;
     },
@@ -107,6 +111,17 @@ export function useWorkspacePermission() {
       canInviteUsers: () => can.inviteUsers,
       canManageTeam: () => can.manageTeam,
       canRemoveMembers: () => can.removeMembers,
+      canSeeEveryonesTime: () => can.seeEveryonesTime,
+      canManageEveryonesTime: () => can.manageEveryonesTime,
+      canSeePeople: () => can.seePeople,
+      canManagePeople: () => can.managePeople,
+      canSeeActivity: () => can.seeActivity,
+      canApproveRequests: () => can.approveRequests,
+      canSeePay: () => can.seePay,
+      canManagePay: () => can.managePay,
+      canReadAudit: () => can.readAudit,
+      canUploadFiles: () => can.uploadFiles,
+      canManageFiles: () => can.manageFiles,
       // Escape hatch for ad-hoc permission checks (uncached). Prefer adding
       // a capability above.
       hasPermission: async (permissions: Record<string, string[]>) => {

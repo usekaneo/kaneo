@@ -201,6 +201,8 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
       url: string;
       title: string | null;
       metadata: Record<string, unknown> | null;
+      createdAt: Date;
+      updatedAt: Date;
     }>
   >();
   for (const externalLink of externalLinksData) {

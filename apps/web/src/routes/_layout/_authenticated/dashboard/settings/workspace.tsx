@@ -5,7 +5,14 @@ import {
   redirect,
   useLocation,
 } from "@tanstack/react-router";
-import { CreditCard, Settings, Shield, Tag } from "lucide-react";
+import {
+  Building2,
+  CreditCard,
+  ScrollText,
+  Settings,
+  Shield,
+  Tag,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import SettingsSidebar from "@/components/SettingsSidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -66,7 +73,7 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { t } = useTranslation();
-  const { workspace, role } = useWorkspacePermission();
+  const { workspace, role, canReadAudit } = useWorkspacePermission();
   const { data: config } = useGetConfig();
   const location = useLocation();
   const menuItems = [
@@ -74,6 +81,11 @@ function RouteComponent() {
       title: t("settings:workspaceGeneral.title"),
       url: "/dashboard/settings/workspace/general",
       icon: Settings,
+    },
+    {
+      title: t("company:title"),
+      url: "/dashboard/settings/workspace/company",
+      icon: Building2,
     },
     {
       title: t("settings:workspaceRoles.title", { defaultValue: "Roles" }),
@@ -85,6 +97,15 @@ function RouteComponent() {
       url: "/dashboard/settings/workspace/labels",
       icon: Tag,
     },
+    ...(canReadAudit()
+      ? [
+          {
+            title: t("audit:title"),
+            url: "/dashboard/settings/workspace/audit",
+            icon: ScrollText,
+          },
+        ]
+      : []),
     ...(config?.billingEnabled
       ? [
           {

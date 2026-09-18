@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "The agent window only calls the agent's own commands.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

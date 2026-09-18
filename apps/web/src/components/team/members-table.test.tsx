@@ -50,8 +50,8 @@ vi.mock(
   }),
 );
 
-vi.mock("@/hooks/queries/workspace/use-workspace-roles", () => ({
-  default: () => ({ data: [] }),
+vi.mock("@/hooks/use-grantable-roles", () => ({
+  default: () => ({ roles: ["viewer", "member", "admin"], isLoading: false }),
 }));
 
 const canInviteUsers = vi.fn(() => true);

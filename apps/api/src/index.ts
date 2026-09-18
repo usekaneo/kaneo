@@ -14,11 +14,15 @@ import { compress } from "hono/compress";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import activity from "./activity";
+import agent from "./agent";
+import attendance from "./attendance";
 import { auth } from "./auth";
 import { organizationRoutes } from "./auth-openapi";
 import billing from "./billing";
+import chat from "./chat";
 import column from "./column";
 import comment from "./comment";
+import company from "./company";
 import config from "./config";
 import customField from "./custom-field";
 import db, { getDatabase, schema } from "./database";
@@ -27,6 +31,7 @@ import { waitForDatabase } from "./database/wait-for-database";
 import discordIntegration from "./discord-integration";
 import { eventContext } from "./events";
 import externalLink from "./external-link";
+import files from "./files";
 import genericWebhookIntegration from "./generic-webhook-integration";
 import giteaIntegration, { handleGiteaWebhookRoute } from "./gitea-integration";
 import githubIntegration, {
@@ -35,6 +40,7 @@ import githubIntegration, {
 import getInstanceStatus from "./instance/controllers/get-instance-status";
 import invitation from "./invitation";
 import label from "./label";
+import linkPreview from "./link-preview";
 import mattermostIntegration from "./mattermost-integration";
 import mcpRoutes, { mcpWellKnownRoutes } from "./mcp";
 import { migrateColumns } from "./migrations/column-migration";
@@ -42,10 +48,14 @@ import notification from "./notification";
 import notificationPreferences from "./notification-preferences";
 import oauth from "./oauth";
 import { createRoute, jsonResponse, z } from "./openapi";
+import overview from "./overview";
+import pay from "./pay";
+import people from "./people";
 import { initializePlugins } from "./plugins";
 import { migrateGitHubIntegration } from "./plugins/github/migration";
 import project from "./project";
 import { getPublicProject } from "./project/controllers/get-public-project";
+import requests from "./requests";
 import { initializeScheduler, shutdownScheduler } from "./scheduler";
 import search from "./search";
 import slackIntegration from "./slack-integration";
@@ -547,7 +557,11 @@ export function createApp() {
     if (
       path.startsWith("/api/mcp") ||
       path.startsWith("/api/.well-known/") ||
-      path === "/api/billing/webhook"
+      path === "/api/billing/webhook" ||
+      // Desktop agent calls authenticate with a device token instead.
+      path.startsWith("/api/agent/device/") ||
+      // Live links are public by design; the unguessable token is the check.
+      path.startsWith("/api/files/public/")
     ) {
       return next();
     }
@@ -580,6 +594,16 @@ export function createApp() {
   const activityApi = api.route("/activity", activity);
   const commentApi = api.route("/comment", comment);
   const timeEntryApi = api.route("/time-entry", timeEntry);
+  const filesApi = api.route("/files", files);
+  const chatApi = api.route("/chat", chat);
+  const linkPreviewApi = api.route("/link-preview", linkPreview);
+  const overviewApi = api.route("/overview", overview);
+  const requestsApi = api.route("/requests", requests);
+  const payApi = api.route("/pay", pay);
+  const agentApi = api.route("/agent", agent);
+  const attendanceApi = api.route("/attendance", attendance);
+  const peopleApi = api.route("/people", people);
+  const companyApi = api.route("/company", company);
   const labelApi = api.route("/label", label);
   const notificationApi = api.route("/notification", notification);
   const notificationPreferencesApi = api.route(
@@ -779,6 +803,16 @@ export function createApp() {
     taskRelationApi,
     telegramIntegrationApi,
     timeEntryApi,
+    filesApi,
+    chatApi,
+    linkPreviewApi,
+    overviewApi,
+    requestsApi,
+    payApi,
+    agentApi,
+    attendanceApi,
+    peopleApi,
+    companyApi,
     userApi,
     workflowRuleApi,
     workspaceApi,
@@ -899,6 +933,16 @@ const {
   taskRelationApi,
   telegramIntegrationApi,
   timeEntryApi,
+  filesApi,
+  chatApi,
+  linkPreviewApi,
+  overviewApi,
+  requestsApi,
+  payApi,
+  agentApi,
+  attendanceApi,
+  peopleApi,
+  companyApi,
   userApi,
   workflowRuleApi,
   workspaceApi,
@@ -925,6 +969,16 @@ export type AppType =
   | typeof activityApi
   | typeof commentApi
   | typeof timeEntryApi
+  | typeof filesApi
+  | typeof chatApi
+  | typeof linkPreviewApi
+  | typeof overviewApi
+  | typeof requestsApi
+  | typeof payApi
+  | typeof agentApi
+  | typeof attendanceApi
+  | typeof peopleApi
+  | typeof companyApi
   | typeof labelApi
   | typeof notificationApi
   | typeof notificationPreferencesApi

@@ -63,10 +63,37 @@ export function broadcastToUser(userId: string, message: UserBroadcastMessage) {
     });
 }
 
+/**
+ * Server-sent-event listeners (chat) keyed by userId. They receive the same
+ * user broadcasts as sockets, including ones relayed from other instances.
+ */
+type UserListener = (message: UserBroadcastMessage) => void;
+const userListeners = new Map<string, Set<UserListener>>();
+
+export function addUserListener(userId: string, listener: UserListener) {
+  if (!userListeners.has(userId)) {
+    userListeners.set(userId, new Set());
+  }
+  userListeners.get(userId)?.add(listener);
+  return () => {
+    const listeners = userListeners.get(userId);
+    listeners?.delete(listener);
+    if (listeners?.size === 0) userListeners.delete(userId);
+  };
+}
+
 function deliverToLocalUserConnections(
   userId: string,
   message: UserBroadcastMessage,
 ) {
+  for (const listener of userListeners.get(userId) ?? []) {
+    try {
+      listener(message);
+    } catch (err) {
+      console.error("User listener failed:", err);
+    }
+  }
+
   const connections = userConnections.get(userId);
   if (!connections) return;
 
@@ -389,3 +416,16 @@ for (const eventName of taskUpdateEvents) {
     );
   });
 }
+
+// Chat goes to each member's user stream, so it follows people across pages
+// and reaches every instance through the adapter.
+subscribeToEvent<{
+  type: string;
+  workspaceId: string;
+  conversationId: string;
+  recipientIds: string[];
+}>("chat.changed", async ({ recipientIds, ...message }) => {
+  for (const userId of recipientIds) {
+    broadcastToUser(userId, message);
+  }
+});

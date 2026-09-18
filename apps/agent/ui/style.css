@@ -1,0 +1,94 @@
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --fg: #18181b;
+  --muted: #71717a;
+  --border: #d4d4d8;
+  --accent: #4f46e5;
+  --accent-fg: #ffffff;
+  --error: #b91c1c;
+  --ok: #16a34a;
+  --warn: #d97706;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #18181b;
+    --fg: #f4f4f5;
+    --muted: #a1a1aa;
+    --border: #3f3f46;
+    --accent: #818cf8;
+    --accent-fg: #18181b;
+    --error: #f87171;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+main { padding: 24px; }
+
+h1 { font-size: 18px; margin: 0 0 16px; }
+
+p { margin: 0 0 12px; }
+
+.muted { color: var(--muted); }
+
+.error { color: var(--error); }
+
+label { display: block; margin-bottom: 12px; font-weight: 500; }
+
+input {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+#code { text-transform: uppercase; letter-spacing: 0.08em; }
+
+button {
+  width: 100%;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--accent-fg);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:disabled { opacity: 0.6; cursor: default; }
+
+button.link {
+  background: none;
+  color: var(--muted);
+  font-weight: 400;
+  text-decoration: underline;
+  margin-top: 4px;
+}
+
+input:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.status { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); }
+.dot.tracking { background: var(--ok); }
+.dot.paused, .dot.offline { background: var(--warn); }
+
+.shared { margin-top: 16px; font-size: 13px; }
+.attendance { margin-top: -4px; font-size: 13px; color: var(--muted); }

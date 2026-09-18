@@ -70,6 +70,40 @@ async function customRoleStatements(
   return parsePermissionStatements(row.permission);
 }
 
+// Prefer the DB row when present so admin-edited defaults
+// (viewer/member/admin) take effect immediately. Falls back to the
+// compiled-in static definitions only when no row exists, which protects
+// viewer/member/admin users from a 403 if their workspace somehow
+// missed the seed (e.g., seed failed during workspace creation and
+// the boot-time backfill hasn't run yet).
+export async function getRoleStatements(
+  workspaceId: string,
+  role: string,
+): Promise<Record<string, readonly string[]> | null> {
+  return (
+    (await customRoleStatements(workspaceId, role)) ??
+    builtInRoleStatements(role)
+  );
+}
+
+export async function getMemberRole(
+  workspaceId: string,
+  userId: string,
+): Promise<string | null> {
+  const [member] = await db
+    .select({ role: schema.workspaceUserTable.role })
+    .from(schema.workspaceUserTable)
+    .where(
+      and(
+        eq(schema.workspaceUserTable.workspaceId, workspaceId),
+        eq(schema.workspaceUserTable.userId, userId),
+      ),
+    )
+    .limit(1);
+
+  return member?.role ?? null;
+}
+
 function satisfies(
   statements: Record<string, readonly string[]>,
   required: PermissionMap,
@@ -105,28 +139,10 @@ export async function hasWorkspacePermission(
   const userId = c.get("userId");
   if (!userId) return false;
 
-  const [member] = await db
-    .select({ role: schema.workspaceUserTable.role })
-    .from(schema.workspaceUserTable)
-    .where(
-      and(
-        eq(schema.workspaceUserTable.workspaceId, workspaceId),
-        eq(schema.workspaceUserTable.userId, userId),
-      ),
-    )
-    .limit(1);
+  const role = await getMemberRole(workspaceId, userId);
+  if (!role) return false;
 
-  if (!member?.role) return false;
-
-  // Prefer the DB row when present so admin-edited defaults
-  // (viewer/member/admin) take effect immediately. Falls back to the
-  // compiled-in static definitions only when no row exists, which protects
-  // viewer/member/admin users from a 403 if their workspace somehow
-  // missed the seed (e.g., seed failed during workspace creation and
-  // the boot-time backfill hasn't run yet).
-  const statements =
-    (await customRoleStatements(workspaceId, member.role)) ??
-    builtInRoleStatements(member.role);
+  const statements = await getRoleStatements(workspaceId, role);
 
   return Boolean(statements && satisfies(statements, permissions));
 }

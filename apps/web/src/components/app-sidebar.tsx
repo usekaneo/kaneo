@@ -12,6 +12,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { VersionDisplay } from "@/components/version-display";
+import { WorkStatusCard } from "@/components/work-status-card";
 import { WorkspaceSwitcher } from "@/components/workspace-switcher";
 import { shortcuts } from "@/constants/shortcuts";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
@@ -44,6 +45,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavProjects />
       </SidebarContent>
       <SidebarFooter>
+        <WorkStatusCard />
         <TrialCard />
         <div className="flex items-center justify-between">
           <VersionDisplay />

@@ -1,4 +1,3 @@
-import { DEFAULT_ROLE_NAMES } from "@kaneo/permissions";
 import {
   CopyIcon,
   EllipsisIcon,
@@ -11,8 +10,8 @@ import { useTranslation } from "react-i18next";
 import useCancelInvitation from "@/hooks/mutations/workspace-user/use-cancel-invitation";
 import useDeleteWorkspaceUser from "@/hooks/mutations/workspace-user/use-delete-workspace-user";
 import useUpdateWorkspaceUserRole from "@/hooks/mutations/workspace-user/use-update-workspace-user-role";
-import useWorkspaceRoles from "@/hooks/queries/workspace/use-workspace-roles";
 import { useCopyInvitationLink } from "@/hooks/use-copy-invitation-link";
+import useGrantableRoles from "@/hooks/use-grantable-roles";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { formatDateMedium } from "@/lib/format";
@@ -52,10 +51,22 @@ import {
   TableRow,
 } from "../ui/table";
 
+type PersonInfo = {
+  title: string | null;
+  departmentName: string | null;
+  clockedIn: boolean;
+  online: boolean;
+};
+
 type Props = {
   workspaceId: string;
   invitations: WorkspaceUserInvitation[];
   users: WorkspaceUser[];
+  // Company profile per user id; when given, rows show title/department and
+  // presence, and names open the person's page where the viewer may see it.
+  people?: Map<string, PersonInfo>;
+  canOpenPerson?: (userId: string) => boolean;
+  onOpenPerson?: (userId: string) => void;
 };
 
 // Stable per-user pastel for the avatar fallback. Picks one of a curated set
@@ -69,12 +80,6 @@ const AVATAR_TONES = [
   "bg-violet-500/15 text-violet-600 dark:text-violet-300",
   "bg-indigo-500/15 text-indigo-600 dark:text-indigo-300",
 ] as const;
-
-// Names that are NOT "truly custom": viewer/member/admin are seeded as
-// editable workspace_role rows on every workspace creation, and owner is a
-// static built-in. The Select already lists them as built-ins, so we filter
-// them out of the custom-roles tail to avoid duplicate options.
-const RESERVED_ROLE_NAMES = new Set<string>([...DEFAULT_ROLE_NAMES, "owner"]);
 
 function toneFor(value: string): string {
   let hash = 0;
@@ -90,7 +95,14 @@ function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-function MembersTable({ workspaceId, invitations, users }: Props) {
+function MembersTable({
+  workspaceId,
+  invitations,
+  users,
+  people,
+  canOpenPerson,
+  onOpenPerson,
+}: Props) {
   const { t } = useTranslation();
   const [memberToDelete, setMemberToDelete] = useState<WorkspaceUser | null>(
     null,
@@ -105,16 +117,12 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
     useCancelInvitation();
   const { mutateAsync: updateMemberRole } = useUpdateWorkspaceUserRole();
   const { copy: copyInvitationLink } = useCopyInvitationLink();
-  const { data: allWorkspaceRoles = [] } = useWorkspaceRoles(workspaceId);
+  const { roles: grantableRoles } = useGrantableRoles(workspaceId);
   const { canManageTeam, canRemoveMembers, canInviteUsers } =
     useWorkspacePermission();
   const canChangeRoles = Boolean(canManageTeam());
   const canRemove = Boolean(canRemoveMembers());
   const canInvite = Boolean(canInviteUsers());
-
-  const customRoles = allWorkspaceRoles.filter(
-    (role) => !RESERVED_ROLE_NAMES.has(role.role),
-  );
 
   // Owner first, then everyone else (stable on ties so the original
   // listMembers order is preserved within each group).
@@ -205,27 +213,63 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
         <TableBody>
           {sortedUsers.map((member) => {
             const isSelf = currentUser?.id === member.userId;
+            // Only members whose current role the viewer could have granted
+            // are editable; the API enforces the same rule.
             const showRoleSelect =
-              canChangeRoles && !isSelf && member.role !== "owner";
+              canChangeRoles &&
+              !isSelf &&
+              member.role !== "owner" &&
+              grantableRoles.includes(member.role);
             const tone = toneFor(member.user.email);
+            const person = people?.get(member.userId);
+            const canOpen = Boolean(
+              onOpenPerson && canOpenPerson?.(member.userId),
+            );
             return (
               <TableRow key={member.user.email}>
                 <TableCell className="ps-6 py-3">
                   <div className="flex items-center gap-3">
-                    <Avatar className={cn("size-8", tone)}>
-                      <AvatarImage
-                        src={member.user.image ?? ""}
-                        alt={member.user.name ?? ""}
-                      />
-                      <AvatarFallback className="bg-transparent text-[11px] font-medium">
-                        {getInitials(member.user.name)}
-                      </AvatarFallback>
-                    </Avatar>
+                    <div className="relative shrink-0">
+                      <Avatar className={cn("size-8", tone)}>
+                        <AvatarImage
+                          src={member.user.image ?? ""}
+                          alt={member.user.name ?? ""}
+                        />
+                        <AvatarFallback className="bg-transparent text-[11px] font-medium">
+                          {getInitials(member.user.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      {person && (person.clockedIn || person.online) ? (
+                        <span
+                          className={cn(
+                            "absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full ring-2 ring-background",
+                            person.clockedIn
+                              ? "bg-emerald-500"
+                              : "bg-muted-foreground/60",
+                          )}
+                          title={
+                            person.clockedIn
+                              ? t("people:status.clockedIn")
+                              : t("people:status.online")
+                          }
+                        />
+                      ) : null}
+                    </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">
-                          {member.user.name}
-                        </span>
+                        {canOpen ? (
+                          <button
+                            type="button"
+                            onClick={() => onOpenPerson?.(member.userId)}
+                            className="text-sm font-medium hover:underline"
+                          >
+                            {member.user.name}
+                          </button>
+                        ) : (
+                          <span className="text-sm font-medium">
+                            {member.user.name}
+                          </span>
+                        )}
                         {isSelf ? (
                           <span className="text-xs text-muted-foreground">
                             ({t("team:members.you", { defaultValue: "You" })})
@@ -233,7 +277,11 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
                         ) : null}
                       </div>
                       <div className="truncate text-xs text-muted-foreground">
-                        {member.user.email}
+                        {person?.title || person?.departmentName
+                          ? [person.title, person.departmentName]
+                              .filter(Boolean)
+                              .join(" · ")
+                          : member.user.email}
                       </div>
                     </div>
                   </div>
@@ -261,22 +309,14 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="viewer">
-                          {t("team:roles.viewer", { defaultValue: "Viewer" })}
-                        </SelectItem>
-                        <SelectItem value="member">
-                          {t("team:roles.member", { defaultValue: "Member" })}
-                        </SelectItem>
-                        <SelectItem value="admin">
-                          {t("team:roles.admin", { defaultValue: "Admin" })}
-                        </SelectItem>
-                        {/* Owner is intentionally NOT offered here: the better-auth
+                        {/* Owner is never offered here: the better-auth
                             organization plugin requires an explicit ownership
-                            transfer flow (a workspace must have exactly one owner).
-                            That UI lives in workspace settings (TODO). */}
-                        {customRoles.map((r) => (
-                          <SelectItem key={r.id} value={r.role}>
-                            {capitalize(r.role)}
+                            transfer flow (a workspace must have exactly one owner). */}
+                        {grantableRoles.map((role) => (
+                          <SelectItem key={role} value={role}>
+                            {t(`team:roles.${role}`, {
+                              defaultValue: capitalize(role),
+                            })}
                           </SelectItem>
                         ))}
                       </SelectContent>

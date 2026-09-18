@@ -24,6 +24,9 @@ export const taskSchema = z
     priority: z.string().openapi({ description: priorityDescription }),
     startDate: nullableResponseTimestamp,
     dueDate: nullableResponseTimestamp,
+    estimateMinutes: z.number().nullable().optional().openapi({
+      description: "Planned effort in minutes.",
+    }),
     createdAt: responseTimestamp,
     customFields: z
       .array(z.object({ fieldId: z.string(), value: z.string() }))

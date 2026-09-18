@@ -100,6 +100,11 @@ export const updateAssigneeBody = z.object({
 });
 export const updateDueDateBody = z.object({ dueDate: z.string().optional() });
 export const updateTitleBody = z.object({ title: z.string() });
+export const updateEstimateBody = z.object({
+  estimateMinutes: z.number().int().min(1).max(100_000).nullable().openapi({
+    description: "Planned effort in minutes; null clears it.",
+  }),
+});
 export const updateDescriptionBody = z.object({ description: z.string() });
 
 const surface = z.enum(["description", "comment"]).openapi({

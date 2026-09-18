@@ -6,8 +6,9 @@ import {
   jsonResponse,
 } from "../openapi";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
+import getMyPermissions from "./controllers/get-my-permissions";
 import getWorkspaceMembersCtrl from "./controllers/get-workspace-members";
-import { workspaceMemberListSchema } from "./response";
+import { myPermissionsSchema, workspaceMemberListSchema } from "./response";
 import { workspaceIdParam } from "./schema";
 
 const getWorkspaceMembersRoute = createRoute({
@@ -26,9 +27,28 @@ const getWorkspaceMembersRoute = createRoute({
   },
 });
 
-const workspace = apiRouter<BaseVariables & { workspaceId: string }>().openapi(
-  getWorkspaceMembersRoute,
-  async (c) => c.json(await getWorkspaceMembersCtrl(c.get("workspaceId")), 200),
-);
+const getMyPermissionsRoute = createRoute({
+  method: "get",
+  operationId: "getMyWorkspacePermissions",
+  path: "/{workspaceId}/permissions",
+  tags: ["Workspaces"],
+  summary: "Get my permissions",
+  description:
+    "Every action the caller may take in the workspace, by resource. For showing and hiding UI; the API still checks each request.",
+  middleware: [workspaceAccess.fromParam("workspaceId")] as const,
+  request: { params: workspaceIdParam },
+  responses: {
+    200: jsonResponse("Granted actions by resource", myPermissionsSchema),
+    403: errorResponse("No access to the workspace"),
+  },
+});
+
+const workspace = apiRouter<BaseVariables & { workspaceId: string }>()
+  .openapi(getWorkspaceMembersRoute, async (c) =>
+    c.json(await getWorkspaceMembersCtrl(c.get("workspaceId")), 200),
+  )
+  .openapi(getMyPermissionsRoute, async (c) =>
+    c.json(await getMyPermissions(c, c.get("workspaceId")), 200),
+  );
 
 export default workspace;

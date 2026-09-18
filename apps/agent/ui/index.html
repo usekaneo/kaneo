@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Kaneo Agent</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Kaneo Agent</h1>
+
+      <form id="pair" hidden>
+        <p class="muted">In Kaneo, open Settings → Account → Devices and create a code.</p>
+        <label>
+          Kaneo address
+          <input id="address" type="url" placeholder="https://kaneo.example.com" autocomplete="url" required />
+        </label>
+        <label>
+          Pairing code
+          <input id="code" placeholder="K7QM-2XPA" autocomplete="off" spellcheck="false" required />
+        </label>
+        <p id="pair-error" class="error" role="alert" hidden></p>
+        <button id="connect" type="submit">Connect</button>
+      </form>
+
+      <section id="connected" hidden>
+        <p id="who"></p>
+        <p class="status"><span id="dot" class="dot"></span><span id="status"></span></p>
+        <p id="attendance" class="attendance" hidden></p>
+        <p id="last-sync" class="muted"></p>
+        <p id="sync-error" class="error" role="alert" hidden></p>
+        <button id="toggle" type="button"></button>
+        <p class="muted shared">
+          <strong>What is shared:</strong> Only the app you're using, website domains (where enabled),
+          and active/idle time. Never keystrokes, screenshots, window titles or page contents.
+        </p>
+        <button id="disconnect" type="button" class="link">Disconnect this computer</button>
+      </section>
+    </main>
+    <script src="main.js"></script>
+  </body>
+</html>

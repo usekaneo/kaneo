@@ -1,5 +1,7 @@
 import * as Sentry from "@sentry/node";
 import { Cron } from "croner";
+import { purgeOldActivity } from "../agent/controllers";
+import { autoClockOut } from "../attendance/auto-clock";
 import { checkDueDateReminders } from "./due-date-reminders";
 import { checkProjectWebhookReminders } from "./project-webhook-reminders";
 import { reconcileWorkspaceSeats } from "./seat-reconciliation";
@@ -66,8 +68,22 @@ export function initializeScheduler(): void {
   jobs.push(
     new Cron("23 * * * *", withCheckIn("trial-reminders", checkTrialReminders)),
   );
+  jobs.push(
+    new Cron(
+      "* * * * *",
+      // Skips a tick rather than overlapping a slow one.
+      { protect: true },
+      withCheckIn("attendance-auto-clock-out", () => autoClockOut()),
+    ),
+  );
+  jobs.push(
+    new Cron(
+      "41 3 * * *",
+      withCheckIn("activity-retention", () => purgeOldActivity()),
+    ),
+  );
   console.log(
-    "⏰ Scheduler started (reminders every 5 minutes, seat reconciliation and trial reminders hourly)",
+    "⏰ Scheduler started (auto clock-out every minute, reminders every 5 minutes, seat reconciliation and trial reminders hourly, activity retention daily)",
   );
 }
 

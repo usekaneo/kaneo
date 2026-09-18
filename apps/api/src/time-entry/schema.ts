@@ -23,7 +23,7 @@ function isIsoTimestamp(value: string) {
   );
 }
 
-const timestamp = z
+export const timestamp = z
   .string()
   .refine(isIsoTimestamp, "Expected an ISO 8601 timestamp")
   .openapi({ format: "date-time", example: "2026-01-31T09:00:00Z" });
@@ -46,3 +46,33 @@ export const updateTimeEntryBody = z.object({
   endTime: timestamp.optional(),
   description: z.string().optional(),
 });
+
+// Bounds a single timesheet request; a quarter is plenty for the UI and export.
+const MAX_RANGE_DAYS = 92;
+
+export const listTimeEntriesQuery = z
+  .object({
+    workspaceId: z.string(),
+    from: timestamp.openapi({ description: "Inclusive start of the range." }),
+    to: timestamp.openapi({ description: "Exclusive end of the range." }),
+    userId: z.string().optional().openapi({
+      description:
+        "Only this person's entries. Other people's entries need timeEntry:read_all; without it the list is limited to your own.",
+    }),
+    projectId: z.string().optional(),
+  })
+  .refine((q) => Date.parse(q.to) > Date.parse(q.from), {
+    message: "`to` must be after `from`",
+    path: ["to"],
+  })
+  .refine(
+    (q) =>
+      Date.parse(q.to) - Date.parse(q.from) <=
+      MAX_RANGE_DAYS * 24 * 60 * 60 * 1000,
+    {
+      message: `The range can be at most ${MAX_RANGE_DAYS} days`,
+      path: ["to"],
+    },
+  );
+
+export const runningTimeEntryQuery = z.object({ workspaceId: z.string() });

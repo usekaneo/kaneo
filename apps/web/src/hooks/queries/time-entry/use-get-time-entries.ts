@@ -3,7 +3,7 @@ import getTimeEntriesByTaskId from "@/fetchers/time-entry/get-time-entries";
 
 function useGetTimeEntriesByTaskId(taskId: string) {
   return useQuery({
-    queryKey: ["time-entries", taskId],
+    queryKey: ["time-entries", "task", taskId],
     queryFn: () => getTimeEntriesByTaskId(taskId),
     enabled: !!taskId,
   });

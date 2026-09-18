@@ -34,6 +34,7 @@ import type { AccessControl } from "better-auth/plugins/access";
 import type { UserWithAnonymous } from "better-auth/plugins/anonymous";
 import { config } from "dotenv-mono";
 import { count, eq, sql } from "drizzle-orm";
+import { auditAuthChange } from "./audit/auth-audit";
 import {
   findBillableWorkspaces,
   formatBillableWorkspacesMessage,
@@ -42,6 +43,7 @@ import { syncWorkspaceSeats } from "./billing/controllers/sync-seats";
 import db, { schema } from "./database";
 import { publishEvent } from "./events";
 import deleteAccountData from "./user/controllers/delete-account-data";
+import { canGrantRole, getRoleOfMembership } from "./utils/can-grant-role";
 import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
 import { checkWorkspaceName } from "./utils/check-workspace-name";
 import { mapCustomOAuthProfileToUser } from "./utils/custom-oauth-profile";
@@ -702,6 +704,51 @@ export const auth = betterAuth({
         }
       }
 
+      if (
+        ctx.path === "/organization/invite-member" ||
+        ctx.path === "/organization/update-member-role"
+      ) {
+        const session = await getSessionFromCtx(ctx, {
+          disableRefresh: true,
+        }).catch(() => null);
+        // Resolve the workspace exactly as Better Auth does (`||`, so an empty
+        // organizationId falls back to the active workspace). If either can't
+        // be worked out, refuse: this check must never be skipped.
+        const workspaceId =
+          (ctx.body?.organizationId as string | undefined) ||
+          (session?.session as { activeOrganizationId?: string | null })
+            ?.activeOrganizationId;
+        if (!session || !workspaceId) {
+          throw new APIError("FORBIDDEN", {
+            message: "Choose a workspace to change roles in.",
+          });
+        }
+        const grant = (role: unknown) =>
+          canGrantRole({
+            workspaceId,
+            userId: session.user.id,
+            role,
+            isInstanceAdmin:
+              (session.user as { role?: string | null }).role === "admin",
+          });
+        // Changing a role must also be allowed for the member's current
+        // role, or a weaker role could demote an admin.
+        const memberId = ctx.body?.memberId as string | undefined;
+        const currentRole =
+          ctx.path === "/organization/update-member-role" && memberId
+            ? await getRoleOfMembership(workspaceId, memberId)
+            : null;
+        const allowed =
+          (await grant(ctx.body?.role)) &&
+          (currentRole === null || (await grant(currentRole)));
+        if (!allowed) {
+          throw new APIError("FORBIDDEN", {
+            message:
+              "You can only give a role whose permissions you already have.",
+          });
+        }
+      }
+
       const isSignUpPath =
         ctx.path === "/sign-up/email" ||
         ctx.path.startsWith("/callback/") ||
@@ -775,6 +822,23 @@ export const auth = betterAuth({
       }
     }),
     after: createAuthMiddleware(async (ctx) => {
+      if (ctx.path.startsWith("/organization/")) {
+        const session = await getSessionFromCtx(ctx, {
+          disableRefresh: true,
+        }).catch(() => null);
+        await auditAuthChange({
+          path: ctx.path,
+          body: ctx.body as Record<string, unknown> | null,
+          returned: ctx.context.returned,
+          actorId: session?.user.id,
+          activeWorkspaceId: (
+            session?.session as { activeOrganizationId?: string | null }
+          )?.activeOrganizationId,
+        }).catch((error) => {
+          console.error("Failed to audit permission change:", error);
+        });
+      }
+
       if (ctx.path.startsWith("/sign-up") || ctx.path.startsWith("/sign-in")) {
         const newSession = ctx.context.newSession;
         if (newSession) {

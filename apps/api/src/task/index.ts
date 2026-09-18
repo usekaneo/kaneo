@@ -45,6 +45,7 @@ import updateTask from "./controllers/update-task";
 import updateTaskAssignee from "./controllers/update-task-assignee";
 import updateTaskDescription from "./controllers/update-task-description";
 import updateTaskDueDate from "./controllers/update-task-due-date";
+import updateTaskEstimate from "./controllers/update-task-estimate";
 import updateTaskPriority from "./controllers/update-task-priority";
 import updateTaskStatus from "./controllers/update-task-status";
 import updateTaskTitle from "./controllers/update-task-title";
@@ -72,6 +73,7 @@ import {
   updateAssigneeBody,
   updateDescriptionBody,
   updateDueDateBody,
+  updateEstimateBody,
   updatePriorityBody,
   updateStatusBody,
   updateTaskBody,
@@ -424,6 +426,35 @@ const updateTaskDueDateRoute = createRoute({
   },
 });
 
+const updateTaskEstimateRoute = createRoute({
+  method: "put",
+  operationId: "updateTaskEstimate",
+  path: "/estimate/{id}",
+  tags: ["Tasks"],
+  summary: "Update task estimate",
+  description: "Set or clear how long a task is expected to take, in minutes.",
+  middleware: [
+    workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["update"] }),
+    requireEntitlement,
+  ] as const,
+  request: {
+    params: taskParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: updateEstimateBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("The updated task", taskSchema),
+    400: errorResponse("Invalid estimate"),
+    403: errorResponse(
+      "No workspace access, or missing task:update permission",
+    ),
+    404: errorResponse("Task not found"),
+  },
+});
+
 const updateTaskTitleRoute = createRoute({
   method: "put",
   operationId: "updateTaskTitle",
@@ -745,6 +776,18 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
     });
 
     return c.json(task, 200);
+  })
+  .openapi(updateTaskEstimateRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    const { estimateMinutes } = c.req.valid("json");
+    return c.json(
+      await updateTaskEstimate({
+        id,
+        estimateMinutes,
+        currentUserId: c.get("userId"),
+      }),
+      200,
+    );
   })
   .openapi(updateTaskTitleRoute, async (c) => {
     const { id } = c.req.valid("param");

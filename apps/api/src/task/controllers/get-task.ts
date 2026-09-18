@@ -14,6 +14,7 @@ async function getTask(taskId: string) {
       priority: taskTable.priority,
       startDate: taskTable.startDate,
       dueDate: taskTable.dueDate,
+      estimateMinutes: taskTable.estimateMinutes,
       position: taskTable.position,
       createdAt: taskTable.createdAt,
       userId: taskTable.userId,

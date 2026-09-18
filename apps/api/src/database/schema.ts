@@ -1,8 +1,11 @@
 import { createId } from "@paralleldrive/cuid2";
 import { relations, sql } from "drizzle-orm";
 import {
+  type AnyPgColumn,
+  bigint,
   boolean,
   customType,
+  date,
   foreignKey,
   index,
   integer,
@@ -412,6 +415,7 @@ export const taskTable = pgTable(
       }),
     position: integer("position").default(0),
     number: integer("number").default(1),
+    estimateMinutes: integer("estimate_minutes"),
     userId: text("assignee_id").references(() => userTable.id, {
       onDelete: "set null",
       onUpdate: "cascade",
@@ -540,6 +544,9 @@ export const timeEntryTable = pgTable(
   (table) => [
     index("time_entry_taskId_idx").on(table.taskId),
     index("time_entry_userId_idx").on(table.userId),
+    // Timesheets: one person's week, and everyone's week.
+    index("time_entry_userId_startTime_idx").on(table.userId, table.startTime),
+    index("time_entry_startTime_idx").on(table.startTime),
   ],
 );
 
@@ -1236,6 +1243,783 @@ export const customFieldValueTable = pgTable(
     unique("custom_field_value_task_field_unique").on(
       table.taskId,
       table.fieldId,
+    ),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Company layer: people, attendance, desktop activity, pay, requests, audit.
+// Money is stored as integer minor units (e.g. paisa) in the workspace
+// currency. Calendar days are `date` strings (YYYY-MM-DD) in the workspace
+// timezone; instants are timestamps.
+// ---------------------------------------------------------------------------
+
+export const companySettingsTable = pgTable("company_settings", {
+  workspaceId: text("workspace_id")
+    .primaryKey()
+    .references(() => workspaceTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  timezone: text("timezone").notNull().default("UTC"),
+  currency: text("currency").notNull().default("USD"),
+  // ISO weekdays, 1 = Monday … 7 = Sunday.
+  workDays: text("work_days").notNull().default("1,2,3,4,5"),
+  workStart: text("work_start").notNull().default("09:00"),
+  workEnd: text("work_end").notNull().default("17:00"),
+  breakMinutes: integer("break_minutes").notNull().default(60),
+  // Clocking in up to this many minutes after the start still counts as on time.
+  lateGraceMinutes: integer("late_grace_minutes").notNull().default(10),
+  annualLeaveDays: integer("annual_leave_days").notNull().default(15),
+  overtimeRatePercent: integer("overtime_rate_percent").notNull().default(100),
+  trackDomains: boolean("track_domains").notNull().default(true),
+  activityDetailDays: integer("activity_detail_days").notNull().default(90),
+  activitySummaryDays: integer("activity_summary_days").notNull().default(365),
+  // Clock people in and out from the desktop app's activity.
+  autoClock: boolean("auto_clock").notNull().default(false),
+  // Clock out after this long without keyboard or mouse activity…
+  autoClockIdleMinutes: integer("auto_clock_idle_minutes")
+    .notNull()
+    .default(15),
+  // …or this long without hearing from any of the person's devices.
+  autoClockOfflineMinutes: integer("auto_clock_offline_minutes")
+    .notNull()
+    .default(10),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const departmentTable = pgTable(
+  "department",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    name: text("name").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    unique("department_workspace_name_unique").on(
+      table.workspaceId,
+      table.name,
+    ),
+  ],
+);
+
+export const employeeProfileTable = pgTable(
+  "employee_profile",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    title: text("title"),
+    departmentId: text("department_id").references(() => departmentTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    joinDate: date("join_date", { mode: "string" }),
+    status: text("status").notNull().default("active"),
+    // Null means "use the company schedule".
+    workDays: text("work_days"),
+    workStart: text("work_start"),
+    workEnd: text("work_end"),
+    breakMinutes: integer("break_minutes"),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    unique("employee_profile_workspace_user_unique").on(
+      table.workspaceId,
+      table.userId,
+    ),
+    index("employee_profile_departmentId_idx").on(table.departmentId),
+  ],
+);
+
+export const attendanceSessionTable = pgTable(
+  "attendance_session",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    clockIn: timestamp("clock_in", { mode: "date" }).notNull(),
+    clockOut: timestamp("clock_out", { mode: "date" }),
+    source: text("source").notNull().default("web"),
+    // "agent" when the desktop app's inactivity closed it; anything else is a
+    // person, whose clock-out keeps the app from clocking them back in that day.
+    clockOutSource: text("clock_out_source"),
+    note: text("note"),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("attendance_session_user_clockIn_idx").on(
+      table.workspaceId,
+      table.userId,
+      table.clockIn,
+    ),
+    // A person is clocked in at most once per workspace at a time.
+    uniqueIndex("attendance_session_open_unique")
+      .on(table.workspaceId, table.userId)
+      .where(sql`${table.clockOut} is null`),
+  ],
+);
+
+export const agentDeviceTable = pgTable(
+  "agent_device",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    name: text("name").notNull(),
+    platform: text("platform").notNull(),
+    agentVersion: text("agent_version"),
+    // SHA-256 of the device token; the token itself is never stored.
+    tokenHash: text("token_hash")
+      .notNull()
+      .unique("agent_device_token_hash_unique"),
+    lastSeenAt: timestamp("last_seen_at", { mode: "date" }),
+    lastState: text("last_state"),
+    // Latest moment the device saw keyboard or mouse activity.
+    lastActiveAt: timestamp("last_active_at", { mode: "date" }),
+    revokedAt: timestamp("revoked_at", { mode: "date" }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("agent_device_workspace_user_idx").on(
+      table.workspaceId,
+      table.userId,
+    ),
+  ],
+);
+
+export const agentPairingCodeTable = pgTable(
+  "agent_pairing_code",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    codeHash: text("code_hash")
+      .notNull()
+      .unique("agent_pairing_code_hash_unique"),
+    expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+    usedAt: timestamp("used_at", { mode: "date" }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [index("agent_pairing_code_userId_idx").on(table.userId)],
+);
+
+export const activitySpanTable = pgTable(
+  "activity_span",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    deviceId: text("device_id")
+      .notNull()
+      .references(() => agentDeviceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    // Chosen by the agent so a retried batch is recorded once.
+    clientId: text("client_id").notNull(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    startedAt: timestamp("started_at", { mode: "date" }).notNull(),
+    endedAt: timestamp("ended_at", { mode: "date" }).notNull(),
+    state: text("state").notNull(),
+    app: text("app"),
+    domain: text("domain"),
+  },
+  (table) => [
+    unique("activity_span_device_client_unique").on(
+      table.deviceId,
+      table.clientId,
+    ),
+    index("activity_span_user_startedAt_idx").on(
+      table.workspaceId,
+      table.userId,
+      table.startedAt,
+    ),
+    index("activity_span_startedAt_idx").on(table.startedAt),
+  ],
+);
+
+export const activityDailyTable = pgTable(
+  "activity_daily",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    day: date("day", { mode: "string" }).notNull(),
+    // Empty string rather than null so the unique key below works.
+    app: text("app").notNull().default(""),
+    domain: text("domain").notNull().default(""),
+    activeSeconds: integer("active_seconds").notNull().default(0),
+    idleSeconds: integer("idle_seconds").notNull().default(0),
+  },
+  (table) => [
+    unique("activity_daily_unique").on(
+      table.workspaceId,
+      table.userId,
+      table.day,
+      table.app,
+      table.domain,
+    ),
+    index("activity_daily_workspace_day_idx").on(table.workspaceId, table.day),
+  ],
+);
+
+export const salaryTable = pgTable(
+  "salary",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    amount: bigint("amount", { mode: "number" }).notNull(),
+    type: text("type").notNull().default("monthly"),
+    effectiveFrom: date("effective_from", { mode: "string" }).notNull(),
+    note: text("note"),
+    createdBy: text("created_by").references(() => userTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("salary_user_effectiveFrom_idx").on(
+      table.workspaceId,
+      table.userId,
+      table.effectiveFrom,
+    ),
+  ],
+);
+
+export const payrollRunTable = pgTable(
+  "payroll_run",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    year: integer("year").notNull(),
+    month: integer("month").notNull(),
+    currency: text("currency").notNull(),
+    status: text("status").notNull().default("draft"),
+    createdBy: text("created_by").references(() => userTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    approvedBy: text("approved_by").references(() => userTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    approvedAt: timestamp("approved_at", { mode: "date" }),
+    paidAt: timestamp("paid_at", { mode: "date" }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    unique("payroll_run_workspace_period_unique").on(
+      table.workspaceId,
+      table.year,
+      table.month,
+    ),
+  ],
+);
+
+export const payrollItemTable = pgTable(
+  "payroll_item",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    runId: text("run_id")
+      .notNull()
+      .references(() => payrollRunTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    // Payroll is a financial record that outlives the account, so the name is
+    // kept next to a nullable user reference.
+    userId: text("user_id").references(() => userTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    employeeName: text("employee_name").notNull(),
+    salaryType: text("salary_type").notNull(),
+    salaryAmount: bigint("salary_amount", { mode: "number" }).notNull(),
+    workedMinutes: integer("worked_minutes").notNull().default(0),
+    overtimeMinutes: integer("overtime_minutes").notNull().default(0),
+    baseAmount: bigint("base_amount", { mode: "number" }).notNull(),
+    overtimeAmount: bigint("overtime_amount", { mode: "number" })
+      .notNull()
+      .default(0),
+    bonus: bigint("bonus", { mode: "number" }).notNull().default(0),
+    deduction: bigint("deduction", { mode: "number" }).notNull().default(0),
+    netAmount: bigint("net_amount", { mode: "number" }).notNull(),
+    note: text("note"),
+  },
+  (table) => [
+    unique("payroll_item_run_user_unique").on(table.runId, table.userId),
+  ],
+);
+
+export const leaveRequestTable = pgTable(
+  "leave_request",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    type: text("type").notNull(),
+    startDate: date("start_date", { mode: "string" }).notNull(),
+    endDate: date("end_date", { mode: "string" }).notNull(),
+    days: integer("days").notNull(),
+    reason: text("reason"),
+    status: text("status").notNull().default("pending"),
+    decidedBy: text("decided_by").references(() => userTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    decidedAt: timestamp("decided_at", { mode: "date" }),
+    decisionNote: text("decision_note"),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("leave_request_workspace_status_idx").on(
+      table.workspaceId,
+      table.status,
+    ),
+    index("leave_request_user_startDate_idx").on(
+      table.workspaceId,
+      table.userId,
+      table.startDate,
+    ),
+  ],
+);
+
+export const storedFileTable = pgTable(
+  "stored_file",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    uploadedBy: text("uploaded_by").references(() => userTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    filename: text("filename").notNull(),
+    mimeType: text("mime_type").notNull(),
+    size: integer("size").notNull(),
+    // "db" keeps the bytes in `data`; "s3" keeps them at `objectKey`.
+    storage: text("storage").notNull(),
+    objectKey: text("object_key"),
+    data: bytea("data"),
+    // "receipt" files belong to an expense; "file" ones show on the Files page.
+    kind: text("kind").notNull().default("receipt"),
+    folder: text("folder").notNull().default(""),
+    // Set while the file has a public link; clearing it revokes the link.
+    shareToken: text("share_token").unique("stored_file_share_token_unique"),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("stored_file_workspaceId_idx").on(table.workspaceId),
+    index("stored_file_workspace_kind_folder_idx").on(
+      table.workspaceId,
+      table.kind,
+      table.folder,
+    ),
+  ],
+);
+
+// Folders on the Files page are mostly implied by file paths; a row here
+// keeps a folder someone created visible while it is still empty.
+export const fileFolderTable = pgTable(
+  "file_folder",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    // "Design/Logos/" style, same shape as stored_file.folder.
+    path: text("path").notNull(),
+    createdBy: text("created_by").references(() => userTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("file_folder_workspace_path_idx").on(
+      table.workspaceId,
+      table.path,
+    ),
+  ],
+);
+
+// A workspace's own S3-compatible bucket (Cloudflare R2 and the like). Without
+// a row, files are kept in Postgres.
+export const workspaceStorageTable = pgTable("workspace_storage", {
+  workspaceId: text("workspace_id")
+    .primaryKey()
+    .references(() => workspaceTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  endpoint: text("endpoint").notNull(),
+  bucket: text("bucket").notNull(),
+  region: text("region").notNull().default("auto"),
+  accessKeyId: text("access_key_id").notNull(),
+  // Encrypted at rest; never returned by the API.
+  secretAccessKey: text("secret_access_key").notNull(),
+  keyPrefix: text("key_prefix").notNull().default(""),
+  updatedBy: text("updated_by").references(() => userTable.id, {
+    onDelete: "set null",
+    onUpdate: "cascade",
+  }),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const expenseTable = pgTable(
+  "expense",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    amount: bigint("amount", { mode: "number" }).notNull(),
+    currency: text("currency").notNull(),
+    category: text("category").notNull(),
+    description: text("description"),
+    spentOn: date("spent_on", { mode: "string" }).notNull(),
+    projectId: text("project_id").references(() => projectTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    receiptFileId: text("receipt_file_id").references(
+      () => storedFileTable.id,
+      { onDelete: "set null", onUpdate: "cascade" },
+    ),
+    status: text("status").notNull().default("pending"),
+    decidedBy: text("decided_by").references(() => userTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    decidedAt: timestamp("decided_at", { mode: "date" }),
+    paidAt: timestamp("paid_at", { mode: "date" }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("expense_workspace_status_idx").on(table.workspaceId, table.status),
+    index("expense_workspace_user_idx").on(table.workspaceId, table.userId),
+    index("expense_projectId_idx").on(table.projectId),
+    index("expense_receiptFileId_idx").on(table.receiptFileId),
+  ],
+);
+
+export const auditLogTable = pgTable(
+  "audit_log",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    actorId: text("actor_id").references(() => userTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    action: text("action").notNull(),
+    targetType: text("target_type").notNull(),
+    targetId: text("target_id"),
+    data: jsonb("data"),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("audit_log_workspace_createdAt_idx").on(
+      table.workspaceId,
+      table.createdAt,
+    ),
+  ],
+);
+
+// Workspace chat. A "channel" has a name and is either open to every member
+// (anyone can join) or private (invite only); a "dm" is between the people in
+// chat_member and has no name. DMs are unique per member set via `dmKey`.
+export const chatConversationTable = pgTable(
+  "chat_conversation",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    type: text("type").notNull(),
+    name: text("name"),
+    isPrivate: boolean("is_private").notNull().default(false),
+    // Sorted member ids joined with ":" for DMs, so reopening one finds it.
+    dmKey: text("dm_key"),
+    createdBy: text("created_by").references(() => userTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    lastMessageAt: timestamp("last_message_at", { mode: "date" }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("chat_conversation_workspace_idx").on(table.workspaceId),
+    uniqueIndex("chat_conversation_workspace_dm_key_idx").on(
+      table.workspaceId,
+      table.dmKey,
+    ),
+  ],
+);
+
+export const chatMemberTable = pgTable(
+  "chat_member",
+  {
+    conversationId: text("conversation_id")
+      .notNull()
+      .references(() => chatConversationTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    // Compared with chat_message.created_at, which the API stamps, so this
+    // default comes from the same (API) clock rather than Postgres's now().
+    lastReadAt: timestamp("last_read_at", { mode: "date" })
+      .defaultNow()
+      .$defaultFn(() => new Date())
+      .notNull(),
+    joinedAt: timestamp("joined_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("chat_member_conversation_user_idx").on(
+      table.conversationId,
+      table.userId,
+    ),
+    index("chat_member_user_idx").on(table.userId),
+  ],
+);
+
+export const chatMessageTable = pgTable(
+  "chat_message",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    conversationId: text("conversation_id")
+      .notNull()
+      .references(() => chatConversationTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    userId: text("user_id").references(() => userTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    body: text("body").notNull(),
+    // Set null when the quoted message is deleted; the reply stays.
+    replyToId: text("reply_to_id").references(
+      (): AnyPgColumn => chatMessageTable.id,
+      { onDelete: "set null", onUpdate: "cascade" },
+    ),
+    editedAt: timestamp("edited_at", { mode: "date" }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("chat_message_conversation_created_idx").on(
+      table.conversationId,
+      table.createdAt,
+    ),
+  ],
+);
+
+export const chatReactionTable = pgTable(
+  "chat_reaction",
+  {
+    messageId: text("message_id")
+      .notNull()
+      .references(() => chatMessageTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    emoji: text("emoji").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("chat_reaction_message_user_emoji_idx").on(
+      table.messageId,
+      table.userId,
+      table.emoji,
     ),
   ],
 );

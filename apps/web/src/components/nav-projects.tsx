@@ -27,6 +27,7 @@ import {
   Folder,
   Forward,
   MoreHorizontal,
+  Plus,
   Settings,
   Trash2,
 } from "lucide-react";
@@ -54,6 +55,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import icons from "@/constants/project-icons";
 import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
 import useReorderProjects from "@/hooks/mutations/project/use-reorder-projects";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
@@ -252,10 +254,11 @@ export function NavProjects() {
                           <SidebarMenuButton
                             isActive={isCurrentProject(project.id)}
                             size="default"
-                            className="h-8 gap-0 ps-3.5 text-sm hover:bg-transparent hover:text-sidebar-accent-foreground active:bg-transparent"
+                            className="h-8 gap-2.5 ps-3 text-sm hover:bg-transparent hover:text-sidebar-accent-foreground active:bg-transparent"
                             onClick={() => handleProjectClick(project)}
                           >
-                            <span>{project.name}</span>
+                            <ProjectIcon icon={project.icon} />
+                            <span className="truncate">{project.name}</span>
                           </SidebarMenuButton>
 
                           <DropdownMenu>
@@ -351,9 +354,12 @@ export function NavProjects() {
                     <SidebarMenuItem className="mt-1">
                       <SidebarMenuButton
                         size="default"
-                        className="h-8 ps-3.5 text-sm hover:bg-transparent hover:text-sidebar-accent-foreground active:bg-transparent"
+                        className="h-8 gap-2.5 ps-3 text-sm text-sidebar-foreground/70 hover:bg-transparent hover:text-sidebar-accent-foreground active:bg-transparent"
                         onClick={() => setIsCreateProjectModalOpen(true)}
                       >
+                        <span className="flex size-5 shrink-0 items-center justify-center rounded-md border border-sidebar-border border-dashed">
+                          <Plus className="size-3" aria-hidden />
+                        </span>
                         <span>{t("navigation:projectList.addProject")}</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -428,5 +434,15 @@ export function NavProjects() {
         </AlertDialogContent>
       </AlertDialog>
     </>
+  );
+}
+
+/** The project's own icon on a small tile, so projects stand apart from pages. */
+function ProjectIcon({ icon }: { icon: string | null | undefined }) {
+  const Icon = icons[icon as keyof typeof icons] ?? icons.Layout;
+  return (
+    <span className="flex size-5 shrink-0 items-center justify-center rounded-md border border-sidebar-border bg-sidebar-accent/60 text-sidebar-foreground/80">
+      <Icon className="size-3" aria-hidden />
+    </span>
   );
 }
