@@ -4,6 +4,7 @@ import {
   activityTable,
   labelTable,
   projectTable,
+  taskRelationTable,
   taskTable,
   timeEntryTable,
 } from "./schema";
@@ -50,5 +51,35 @@ export function findOwnComment(
         eq(activityTable.type, "comment"),
       ),
     )
+    .limit(1);
+}
+
+export function findTaskRefInWorkspace(
+  taskId: string,
+  workspaceId: string,
+  client: DrizzleClient,
+) {
+  return client
+    .select({
+      id: taskTable.id,
+      projectId: taskTable.projectId,
+      workspaceId: projectTable.workspaceId,
+    })
+    .from(taskTable)
+    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+    .where(
+      and(eq(taskTable.id, taskId), eq(projectTable.workspaceId, workspaceId)),
+    )
+    .limit(1);
+}
+
+export function findTaskRelation(id: string, client: DrizzleClient) {
+  return client
+    .select({
+      sourceTaskId: taskRelationTable.sourceTaskId,
+      targetTaskId: taskRelationTable.targetTaskId,
+    })
+    .from(taskRelationTable)
+    .where(eq(taskRelationTable.id, id))
     .limit(1);
 }

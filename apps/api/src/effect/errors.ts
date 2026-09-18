@@ -1,7 +1,7 @@
 import { Data } from "effect";
 import { HTTPException } from "hono/http-exception";
 
-export type NotFoundEntity = "Label" | "Task" | "Time entry";
+export type NotFoundEntity = "Label" | "Task" | "Task relation" | "Time entry";
 
 export class NotFound extends Data.TaggedError("NotFound")<{
   readonly entity: NotFoundEntity;
