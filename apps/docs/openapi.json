@@ -6580,7 +6580,8 @@
                       "integer",
                       "null"
                     ],
-                    "minimum": 0
+                    "minimum": 0,
+                    "maximum": 2147483647
                   },
                   "priority": {
                     "type": "string",
@@ -6761,7 +6762,8 @@
                       "integer",
                       "null"
                     ],
-                    "minimum": 0
+                    "minimum": 0,
+                    "maximum": 2147483647
                   },
                   "priority": {
                     "type": "string",
@@ -7089,7 +7091,8 @@
                             "integer",
                             "null"
                           ],
-                          "minimum": 0
+                          "minimum": 0,
+                          "maximum": 2147483647
                         },
                         "userId": {
                           "type": [
@@ -7490,6 +7493,7 @@
                       "null"
                     ],
                     "minimum": 0,
+                    "maximum": 2147483647,
                     "description": "Estimated seconds. Null or 0 clears it."
                   }
                 },

@@ -1,6 +1,9 @@
 import { z } from "../openapi";
 import { VALID_PRIORITIES } from "./validate-task-fields";
 
+// Postgres integer: callers can probe limits, so guard at the schema layer.
+const MAX_TIME_ESTIMATE = 2_147_483_647;
+
 const pagingNumber = (min: number, max: number) =>
   z
     .string()
@@ -53,7 +56,13 @@ export const createTaskBody = z.object({
   description: z.string(),
   startDate: z.string().optional(),
   dueDate: z.string().optional(),
-  timeEstimate: z.number().int().min(0).nullable().optional(),
+  timeEstimate: z
+    .number()
+    .int()
+    .min(0)
+    .max(MAX_TIME_ESTIMATE)
+    .nullable()
+    .optional(),
   priority,
   status: z.string().openapi({ description: "The target column's slug." }),
   userId: z.string().optional().openapi({ description: "Assignee, if any." }),
@@ -67,7 +76,13 @@ export const updateTaskBody = z.object({
   description: z.string(),
   startDate: z.string().optional(),
   dueDate: z.string().optional(),
-  timeEstimate: z.number().int().min(0).nullable().optional(),
+  timeEstimate: z
+    .number()
+    .int()
+    .min(0)
+    .max(MAX_TIME_ESTIMATE)
+    .nullable()
+    .optional(),
   priority,
   status: z.string(),
   projectId: z.string(),
@@ -91,7 +106,13 @@ export const importTasksBody = z.object({
       priority: z.string().optional(),
       startDate: z.string().nullable().optional(),
       dueDate: z.string().nullable().optional(),
-      timeEstimate: z.number().int().min(0).nullable().optional(),
+      timeEstimate: z
+        .number()
+        .int()
+        .min(0)
+        .max(MAX_TIME_ESTIMATE)
+        .nullable()
+        .optional(),
       userId: z.string().nullable().optional(),
     }),
   ),
@@ -108,6 +129,7 @@ export const updateTimeEstimateBody = z.object({
     .number()
     .int()
     .min(0)
+    .max(MAX_TIME_ESTIMATE)
     .nullable()
     .openapi({ description: "Estimated seconds. Null or 0 clears it." }),
 });

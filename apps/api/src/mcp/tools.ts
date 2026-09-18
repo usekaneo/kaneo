@@ -438,7 +438,7 @@ export function registerMcpTools(
         status: nonEmptyString,
         startDate: optionalIsoDateTimeSchema,
         dueDate: optionalIsoDateTimeSchema,
-        timeEstimate: z.number().int().min(0).optional(),
+        timeEstimate: z.number().int().min(0).max(2_147_483_647).optional(),
         userId: optionalNonEmptyString,
       }),
     },
@@ -478,7 +478,13 @@ export function registerMcpTools(
         position: z.number().optional(),
         startDate: nullableOptionalIsoDateTimeSchema,
         dueDate: nullableOptionalIsoDateTimeSchema,
-        timeEstimate: z.number().int().min(0).nullable().optional(),
+        timeEstimate: z
+          .number()
+          .int()
+          .min(0)
+          .max(2_147_483_647)
+          .nullable()
+          .optional(),
         userId: nullableOptionalNonEmptyString,
       }),
     },
@@ -881,7 +887,7 @@ export function registerMcpTools(
         "Set a task's time estimate in seconds, or pass null to clear it.",
       inputSchema: z.object({
         taskId: nonEmptyString,
-        timeEstimate: z.number().int().min(0).nullable(),
+        timeEstimate: z.number().int().min(0).max(2_147_483_647).nullable(),
       }),
     },
     async (args) =>

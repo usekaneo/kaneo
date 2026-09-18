@@ -369,7 +369,11 @@ async function bulkUpdateTasks({
       let estimate: number | null = null;
       if (value) {
         estimate = Number(value);
-        if (!Number.isInteger(estimate) || estimate < 0) {
+        if (
+          !Number.isInteger(estimate) ||
+          estimate < 0 ||
+          estimate > 2_147_483_647
+        ) {
           throw new HTTPException(400, {
             message: `Invalid time estimate value "${value}"`,
           });
