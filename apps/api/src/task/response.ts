@@ -161,7 +161,7 @@ export const taskExportSchema = z
           priority: z.string(),
           dueDate: z.string().nullable().openapi({ format: "date-time" }),
           startDate: z.string().nullable().openapi({ format: "date-time" }),
-          timeEstimate: z.number().nullable(),
+          timeEstimate: z.number().int().nullable(),
           userId: z.string().nullable(),
           labels: z
             .array(

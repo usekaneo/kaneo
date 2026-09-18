@@ -937,7 +937,7 @@
           },
           "timeEstimate": {
             "type": [
-              "number",
+              "integer",
               "null"
             ]
           },
