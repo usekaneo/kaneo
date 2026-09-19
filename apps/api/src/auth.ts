@@ -12,7 +12,6 @@ import {
 } from "@kaneo/permissions";
 import bcrypt from "bcryptjs";
 import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import {
   APIError,
   createAuthMiddleware,
@@ -40,6 +39,7 @@ import {
 } from "./billing/controllers/find-billable-workspaces";
 import { syncWorkspaceSeats } from "./billing/controllers/sync-seats";
 import db, { schema } from "./database";
+import { authDatabaseAdapter } from "./database/auth-adapter";
 import { publishEvent } from "./events";
 import deleteAccountData from "./user/controllers/delete-account-data";
 import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
@@ -198,7 +198,7 @@ export const auth = betterAuth({
   trustedOrigins,
   secret: process.env.AUTH_SECRET || "",
   basePath: "/api/auth",
-  database: drizzleAdapter(db, {
+  database: authDatabaseAdapter({
     provider: "pg",
     schema: {
       ...schema,
@@ -573,6 +573,21 @@ export const auth = betterAuth({
   },
   databaseHooks: {
     user: {
+      update: {
+        before: async (user, ctx) => {
+          if (
+            (ctx?.path === "/admin/set-role" ||
+              ctx?.path === "/admin/update-user") &&
+            Object.hasOwn(user, "role") &&
+            ctx.body?.userId === ctx.context.session?.user.id
+          ) {
+            throw new APIError("BAD_REQUEST", {
+              code: "YOU_CANNOT_CHANGE_YOUR_OWN_ROLE",
+              message: "You cannot change your own role.",
+            });
+          }
+        },
+      },
       create: {
         before: async (user, ctx) => {
           // The anonymous() plugin creates ephemeral users for guest
