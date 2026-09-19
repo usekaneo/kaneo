@@ -20,8 +20,11 @@ async function verifyGiteaAccess(
 
   if (!response.ok) {
     const error = await response
+      .clone()
       .json()
-      .catch(() => ({ message: "Request failed" }));
+      .catch(async () => ({
+        message: (await response.text()) || "Request failed",
+      }));
     throw new HttpError(
       response.status,
       typeof error === "object" && error && "message" in error
