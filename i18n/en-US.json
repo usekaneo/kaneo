@@ -2063,6 +2063,16 @@
 				"deleteRow": "Delete row",
 				"deleteTable": "Delete table"
 			}
+		},
+		"timeTracking": {
+			"title": "Time tracking",
+			"start": "Start timer",
+			"stop": "Stop timer",
+			"running": "Running",
+			"empty": "No time logged yet.",
+			"unknownUser": "Unknown",
+			"startError": "Failed to start the timer.",
+			"stopError": "Failed to stop the timer."
 		}
 	},
 	"invitations": {

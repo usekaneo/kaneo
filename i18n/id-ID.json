@@ -2057,6 +2057,16 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"timeTracking": {
+			"empty": "No time logged yet.",
+			"running": "Running",
+			"start": "Start timer",
+			"startError": "Failed to start the timer.",
+			"stop": "Stop timer",
+			"stopError": "Failed to stop the timer.",
+			"title": "Time tracking",
+			"unknownUser": "Unknown"
 		}
 	},
 	"invitations": {

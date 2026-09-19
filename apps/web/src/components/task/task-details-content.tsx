@@ -46,6 +46,7 @@ import type { ExternalLink } from "@/types/external-link";
 import TaskDescription from "./task-description";
 import TaskRelations from "./task-relations";
 import TaskSubtasks from "./task-subtasks";
+import { TaskTimeTracking } from "./task-time-tracking";
 import TaskTitle from "./task-title";
 
 type CustomFieldType = "text" | "number" | "date" | "dropdown" | "boolean";
@@ -442,6 +443,9 @@ export default function TaskDetailsContent({
           projectId={projectId}
           workspaceId={workspaceId}
         />
+      </div>
+      <div className="mt-2">
+        <TaskTimeTracking taskId={taskId} />
       </div>
       <span className="text-sm font-medium text-muted-foreground h-[1px] bg-border w-full block shrink-0" />
       <div className="flex flex-col gap-4">
