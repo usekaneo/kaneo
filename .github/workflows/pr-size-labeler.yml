@@ -1,0 +1,35 @@
+name: PR Size Labeler
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: pr-size-labeler-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  label:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      # Only read trusted base-branch configuration, including for fork PRs.
+      - name: Checkout size configuration
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+          sparse-checkout: .github/pull-request-size.yml
+          sparse-checkout-cone-mode: false
+
+      - name: Label PR based on size
+        uses: cbrgm/pr-size-labeler-action@6b70abfe1f75f6f35ca24731f6d25fb7251b6127 # v1.3.13
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_repository: ${{ github.repository }}
+          github_pr_number: ${{ github.event.pull_request.number }}
+          config_file_path: .github/pull-request-size.yml
