@@ -1,5 +1,29 @@
 ### Features
 
+- add focused Peekareq previews and accessibility findings: [6e01c0f](https://github.com/usekaneo/kaneo/commit/6e01c0f0d579c1a5fc3b602206e95f2478232ca8)
+- **ci:** add maintainer-triggered Peekareq screenshots: [2d8a4c6](https://github.com/usekaneo/kaneo/commit/2d8a4c6fe5727a96a550380995aa5bb57775b669)
+
+### Bug Fixes
+
+- **billing:** keep cancelled subscriptions entitled until the paid period ends: #1741
+- fall back when Peekareq's model provider is throttled: [145c13a](https://github.com/usekaneo/kaneo/commit/145c13a11bd508659ee6396a95058cf468845ef5)
+- ground Peekareq custom-field screenshots in fixtures: [4b684e7](https://github.com/usekaneo/kaneo/commit/4b684e79441055a12a79579443551ecf8a19fa84)
+- **ci:** use Cloudflare-compatible GitHub requests: [9740bf8](https://github.com/usekaneo/kaneo/commit/9740bf8402d79b806e9115180aca7b5e3354f9a5)
+- **ci:** filter Peekareq commands with a Cloudflare webhook: [34ee59e](https://github.com/usekaneo/kaneo/commit/34ee59e12343b80ab6beae94ba06c36e0f7cc813)
+
+### Documentation
+
+- update contributors and sponsors: [508bd4b](https://github.com/usekaneo/kaneo/commit/508bd4b89ade880527e01408aaec332102cafa4b)
+- update contributors and sponsors: [a750d01](https://github.com/usekaneo/kaneo/commit/a750d01a2f420992d5321918c9f57750f3326e01)
+- update contributors and sponsors: [16fcd5f](https://github.com/usekaneo/kaneo/commit/16fcd5fc5103ec3ce7187dcb780ef5ac360e1375)
+- update contributors and sponsors: [93cb471](https://github.com/usekaneo/kaneo/commit/93cb4712367e5cbb7ac6f9c5ec20e6a037c227bc)
+
+### Credits
+
+Huge thanks to @andrejsshell for helping!
+
+### Features
+
 - custom fields configuration: #1542
 - redirect to default project: #1640
 - **i18n:** add Azerbaijani (az-AZ) translation: #1704

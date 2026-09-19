@@ -1,0 +1,80 @@
+name: Peekareview
+
+on:
+  repository_dispatch:
+    types: [peekareview]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Pull request number
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  authorize:
+    if: >-
+      github.repository == 'usekaneo/kaneo' &&
+      github.ref == format('refs/heads/{0}', github.event.repository.default_branch) &&
+      (github.event_name == 'workflow_dispatch' || github.event.sender.login == 'peekareq[bot]')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      allowed: ${{ steps.request.outputs.allowed }}
+      pr: ${{ steps.request.outputs.pr }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.workflow_sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24.19.0
+          package-manager-cache: false
+      - id: request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REVIEW_COMMAND: peekareview
+        run: node scripts/ui-review-bot/request.mjs
+
+  review:
+    needs: authorize
+    if: needs.authorize.outputs.allowed == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    concurrency:
+      group: peekareview-${{ needs.authorize.outputs.pr }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.workflow_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24.19.0
+          package-manager-cache: false
+      - run: npm --prefix scripts/ui-review-bot ci --ignore-scripts
+      - name: Read PR source and review changed behavior
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PEEKAREVIEW_PR: ${{ needs.authorize.outputs.pr }}
+          PEEKAREVIEW_MODEL_URL: ${{ vars.PEEKAREVIEW_MODEL_URL }}
+          PEEKAREVIEW_PROXY_TOKEN: ${{ secrets.PEEKAREVIEW_PROXY_TOKEN }}
+        run: node scripts/ui-review-bot/code-review/cli.mjs "$PEEKAREVIEW_PR" --output peekareview-report
+      - name: Authenticate as Peekareq
+        id: bot-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-pull-requests: write
+      - name: Recheck authorization and update the review comment
+        env:
+          GH_TOKEN: ${{ steps.bot-token.outputs.token }}
+          UI_REVIEW_BOT_LOGIN: ${{ steps.bot-token.outputs.app-slug }}[bot]
+        run: node scripts/ui-review-bot/code-review/publish.mjs peekareview-report/report.json
