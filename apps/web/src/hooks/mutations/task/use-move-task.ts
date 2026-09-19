@@ -20,6 +20,16 @@ export function useMoveTask() {
       queryClient.invalidateQueries({
         queryKey: ["tasks", result.destinationProjectId],
       });
+      // The list view reads relations per project, and moving a task changes
+      // which edges are internal to each side. The websocket broadcast skips
+      // the window that started the move, so this is the only path that
+      // refreshes it for whoever performed it.
+      queryClient.invalidateQueries({
+        queryKey: ["task-relations", "project", result.sourceProjectId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["task-relations", "project", result.destinationProjectId],
+      });
       queryClient.invalidateQueries({
         queryKey: ["projects"],
       });

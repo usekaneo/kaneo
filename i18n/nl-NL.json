@@ -1955,7 +1955,10 @@
 		"listView": {
 			"addTask": "Taak toevoegen",
 			"archiveAllTooltip": "Alle voltooide taken archiveren",
-			"noTasks": "Geen taken"
+			"noTasks": "Geen taken",
+			"collapseSubtasks": "Subtaken van {{title}} verbergen",
+			"expandSubtasks": "Subtaken van {{title}} tonen",
+			"subtaskLevel": "Subtaak, niveau {{level}}"
 		},
 		"kanban": {
 			"addTask": "Taak toevoegen"

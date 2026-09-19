@@ -6,6 +6,7 @@ import {
   Calendar,
   CalendarClock,
   CalendarX,
+  ChevronRight,
   GitMerge,
   GitPullRequest,
 } from "lucide-react";
@@ -50,11 +51,48 @@ import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
 type TaskRowProps = {
   task: Task;
   projectSlug: string;
+  /** Nesting level; 0 for a task shown in its own status group. */
+  depth?: number;
+  /**
+   * Identifies the row rather than the task. A subtask keeps its own top-level
+   * row and is repeated under each parent, so the task id is not unique here
+   * and cannot be used as a drag identity.
+   */
+  rowId?: string;
+  childCount?: number;
+  isExpanded?: boolean;
+  onToggleExpanded?: () => void;
+  /**
+   * Keeps the toggle column present on rows that have no toggle, so titles in
+   * a group containing subtasks stay on one vertical line.
+   */
+  reserveToggleSpace?: boolean;
+  /**
+   * True while this task is being dragged from another of its rows. A subtask
+   * is repeated under each parent, and only the top-level row is the drag
+   * source, so the repeats would otherwise sit at full opacity beside it.
+   */
+  isTaskDragging?: boolean;
 };
 
-function TaskRow({ task, projectSlug }: TaskRowProps) {
+function TaskRow({
+  task,
+  projectSlug,
+  depth = 0,
+  rowId,
+  childCount = 0,
+  isExpanded = false,
+  onToggleExpanded,
+  reserveToggleSpace = false,
+  isTaskDragging = false,
+}: TaskRowProps) {
+  const showToggleColumn = depth > 0 || childCount > 0 || reserveToggleSpace;
   const { t } = useTranslation();
   const navigate = useNavigate();
+  // Only the top-level row is a drag source. A nested repeat shares its task
+  // id with that row, so making it sortable would register the same id twice
+  // and move the wrong row.
+  const isNestedRepeat = depth > 0;
   const {
     attributes,
     listeners,
@@ -62,7 +100,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: task.id });
+  } = useSortable({ id: rowId ?? task.id, disabled: isNestedRepeat });
 
   const { project } = useProjectStore();
   const taskIsCompleted = isTaskCompleted(task.status, project?.columns);
@@ -158,6 +196,18 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       handleClick(e as unknown as React.MouseEvent);
+      return;
+    }
+
+    // Space activates a control with button semantics. Only the repeats need
+    // it handled here: the top-level rows hand Space to dnd-kit, which starts
+    // a keyboard drag with it.
+    if (isNestedRepeat && e.key === " ") {
+      // Opened before the default is prevented: handleClick ignores an event
+      // that is already defaultPrevented, and preventing it anywhere in this
+      // handler still stops the page scrolling.
+      handleClick(e as unknown as React.MouseEvent);
+      e.preventDefault();
     }
   };
 
@@ -177,26 +227,90 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
       ref={setNodeRef}
       style={style}
       className={cn(
-        "border-b border-border/50 transition-colors duration-150",
-        isDragging && "opacity-50",
+        // The indent and the toggle sit beside the draggable region rather
+        // than inside it: dnd-kit gives its activator role="button", and a
+        // button nested in one is an ambiguous control for assistive tech.
+        "group flex items-stretch border-b border-border/50 transition-colors duration-150",
+        (isDragging || isTaskDragging) && "opacity-50",
         isTaskSelected &&
           "bg-accent/60 shadow-sm ring-1 ring-inset ring-ring/30",
         isTaskFocused && "ring-2 ring-inset ring-ring/50",
       )}
     >
+      {showToggleColumn && (
+        <div
+          className={cn(
+            "flex flex-shrink-0 items-center pl-4",
+            isTaskSelected ? "bg-accent/45" : "group-hover:bg-accent/60",
+          )}
+        >
+          {depth > 0 && (
+            <span
+              aria-hidden="true"
+              className="flex-shrink-0"
+              // Indentation is capped so a deep chain cannot push the title
+              // off the row; the chevrons still convey the nesting.
+              style={{ width: `${Math.min(depth, 6) * 1.25}rem` }}
+            />
+          )}
+
+          {childCount > 0 ? (
+            <button
+              type="button"
+              onClick={onToggleExpanded}
+              aria-expanded={isExpanded}
+              // Named with the task, not just the action: the toggle sits
+              // outside the row's own control, so several identical "Show
+              // subtasks" buttons would be indistinguishable in a rotor.
+              aria-label={
+                isExpanded
+                  ? t("tasks:listView.collapseSubtasks", { title: task.title })
+                  : t("tasks:listView.expandSubtasks", { title: task.title })
+              }
+              className="flex-shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              <ChevronRight
+                className={cn(
+                  "w-3 h-3 transition-transform",
+                  isExpanded && "rotate-90",
+                )}
+              />
+            </button>
+          ) : (
+            <span aria-hidden="true" className="w-5 flex-shrink-0" />
+          )}
+        </div>
+      )}
+
       <ContextMenu>
         <ContextMenuTrigger asChild>
           {/* biome-ignore lint/a11y/noStaticElementInteractions: false positive for onClick and onKeyDown */}
           <div
             onClick={handleClick}
             onKeyDown={handleKeyDown}
+            // A repeated row opens its task like any other, so it keeps the
+            // button semantics but takes none of dnd-kit's attributes: those
+            // carry aria-disabled for a disabled sortable, which would tell
+            // assistive technology the row cannot be used.
+            {...(isNestedRepeat
+              ? { role: "button" as const, tabIndex: 0 }
+              : { ...attributes, ...listeners })}
             className={cn(
-              "group relative flex items-center gap-3 px-4 py-1.5 transition-colors cursor-pointer",
-              isTaskSelected ? "bg-accent/45" : "hover:bg-accent/60",
+              "relative flex min-w-0 flex-1 items-center gap-3 py-1.5 pr-4 transition-colors cursor-pointer",
+              showToggleColumn ? "pl-2" : "pl-4",
+              isTaskSelected ? "bg-accent/45" : "group-hover:bg-accent/60",
             )}
-            {...attributes}
-            {...listeners}
           >
+            {depth > 0 && (
+              // The indent is decorative, so nesting is otherwise inaudible:
+              // a repeat and its top-level row expose identical content. This
+              // joins the row's accessible name, which the drag activator
+              // builds from its text.
+              <span className="sr-only">
+                {t("tasks:listView.subtaskLevel", { level: depth })}
+              </span>
+            )}
+
             {showPriority && (
               <div className="flex-shrink-0 first:[&_svg]:h-4 first:[&_svg]:w-4">
                 {getPriorityIcon(task.priority ?? "")}
