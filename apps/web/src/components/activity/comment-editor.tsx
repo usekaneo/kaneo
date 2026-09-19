@@ -308,16 +308,21 @@ export default function CommentEditor({
       }
 
       if (asset.kind === "image") {
-        chain
+        const ran = chain
           .setImage({
             src: asset.url,
             alt: asset.alt,
           })
           .run();
+        // Chain commands report silent failure via false rather than
+        // throwing; convert it so the caller's catch reports it.
+        if (!ran) {
+          throw new Error(t("activity:comment.editor.failedToUploadFile"));
+        }
         return;
       }
 
-      chain
+      const ran = chain
         .insertContent({
           type: "attachmentCard",
           attrs: {
@@ -328,15 +333,19 @@ export default function CommentEditor({
           },
         })
         .run();
+      if (!ran) {
+        throw new Error(t("activity:comment.editor.failedToUploadFile"));
+      }
     },
-    [],
+    [t],
   );
 
   const handleAssetFileUpload = useCallback(
     async (file: File, targetEditor?: Editor | null, range?: SlashRange) => {
       const activeEditor = targetEditor || lastEditorRef.current;
+      const initialTaskId = taskIdRef.current;
       const resolvedTaskId =
-        taskIdRef.current ?? (await ensureTaskIdRef.current?.());
+        initialTaskId ?? (await ensureTaskIdRef.current?.());
 
       if (!activeEditor || !resolvedTaskId) {
         toast.error(t("activity:comment.editor.uploadsOnlyOnSavedTasks"));
@@ -353,7 +362,25 @@ export default function CommentEditor({
           surface: uploadSurfaceRef.current,
           file,
         });
-        insertUploadedAsset(activeEditor, uploadedAsset, range);
+
+        // Reuse a replacement editor only while it still belongs to the task
+        // that owns the uploaded asset.
+        const currentEditor = !activeEditor.isDestroyed
+          ? activeEditor
+          : lastEditorRef.current;
+        const taskChanged =
+          initialTaskId === undefined
+            ? taskIdRef.current !== undefined &&
+              taskIdRef.current !== resolvedTaskId
+            : taskIdRef.current !== initialTaskId;
+        if (taskChanged || !currentEditor || currentEditor.isDestroyed) {
+          toast.dismiss(loadingToast);
+          return;
+        }
+
+        // Only report success when the image actually landed in the document;
+        // insertUploadedAsset throws otherwise and the catch below reports it.
+        insertUploadedAsset(currentEditor, uploadedAsset, range);
 
         toast.dismiss(loadingToast);
         toast.success(
@@ -958,7 +985,10 @@ export default function CommentEditor({
   }, [editor]);
 
   useEffect(() => {
-    if (!editor) return;
+    // The editor instance can be destroyed and replaced while effects are
+    // flushing (e.g. Shiki resolving recreates it via useEditor deps). The
+    // next run attaches to the replacement instance.
+    if (!editor || editor.isDestroyed) return;
 
     const handleImagePreviewClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement | null;
