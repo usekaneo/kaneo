@@ -1,0 +1,79 @@
+---
+title: GitLab Setup
+description: Connect Kaneo to GitLab.com or a self-managed instance (issues, merge requests, webhooks).
+---
+
+## Overview
+
+The GitLab integration links a Kaneo project to a project on GitLab.com or your own instance. Tasks sync with issues, and webhooks keep Kaneo updated when issues, merge requests, or pushes change.
+
+You need:
+
+- **GitLab URL**: `https://gitlab.com`, or e.g. `https://gitlab.example.com`.
+- **Access token** with the `api` scope and at least the **Developer** role on the target project.
+- **Project path**: the full path including any groups, same as in the GitLab UI.
+
+## Access token
+
+1. In GitLab, open **Settings → Access tokens → Add new token** (personal, project, and group tokens all work).
+2. Enable the **api** scope and pick a role of **Developer** or higher.
+3. Copy the token and store it securely; paste it into Kaneo’s GitLab integration settings and leave **Token type** on **Personal, project or group access token**.
+
+To use an OAuth2 token you already hold, switch **Token type** to **OAuth2 token**; Kaneo then sends it in `Authorization` instead of `PRIVATE-TOKEN`. GitLab expires OAuth2 tokens two hours after they are created, so an access token is the better fit for a long-lived link.
+
+## Webhook in GitLab
+
+Kaneo verifies incoming webhooks with a **secret token** stored per integration, which GitLab sends back in a header rather than signing the payload, so serve Kaneo over HTTPS.
+
+### Where to create the webhook in GitLab
+
+1. Log in to GitLab and **open the same project** you linked in Kaneo (`group/project`).
+2. Open the project **Settings**.
+3. In the **left sidebar**, open **Webhooks** (under the “Settings” section).  
+   - If you do not see it, you need at least the **Maintainer** role on that project.
+4. Click **Add new webhook**.
+
+**Direct URL pattern** (replace host and project path):
+
+`https://<your-gitlab-host>/<project path>/-/hooks`
+
+Example: `https://gitlab.com/acme/my-app/-/hooks`
+
+### Configure the webhook
+
+1. Connect the project in Kaneo **Project → Integrations → GitLab** and save.
+2. Copy the **Webhook URL** and **Secret token** shown in Kaneo (after saving).
+3. In GitLab: **Settings → Webhooks → Add new webhook**.
+4. Set **URL** to the Kaneo webhook URL.
+5. Set **Secret token** to the exact value from Kaneo.
+6. Leave **Enable SSL verification** on, unless your Kaneo host uses a self-signed certificate.
+7. Enable triggers:
+
+   - **Push events**
+   - **Issues events**
+   - **Comments**
+   - **Merge request events**
+
+8. Save and use **Test → Push events** to confirm a `200` response from Kaneo.  
+   - If Kaneo runs on a private address, an administrator must first enable **Admin → Settings → Network → Outbound requests → Allow requests to the local network from webhooks and integrations**.
+
+The webhook URL includes your integration id, for example:
+
+`https://your-kaneo-host/api/gitlab-integration/webhook/<integrationId>`
+
+## GitLab on a private network
+
+By default Kaneo refuses a GitLab URL that resolves to a private or loopback address. If your instance is only reachable inside your network, set `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS=true` on the API. The same variable lifts the check for Gitea and notification destinations, so only enable it on a trusted deployment.
+
+Without this variable the GitLab URL must use `https`, since the access token is sent with every request.
+
+## What is not synced
+
+- **Confidential issues.** They are skipped on import and ignored when they arrive through the webhook. If an issue is made confidential later, its task keeps the last public content and stops receiving updates.
+- **Internal notes and comments on confidential issues.**
+
+The **Confidential issues events** and **Confidential comments** triggers can stay off.
+
+## Disconnecting
+
+Disconnecting removes the integration and its links to issues and merge requests; the tasks stay. Connecting again creates a new webhook URL and secret token, so update the webhook in GitLab afterwards.

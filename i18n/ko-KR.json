@@ -699,7 +699,9 @@
 			"telegramSectionTitle": "Telegram 연동",
 			"telegramSectionSubtitle": "봇을 사용하여 프로젝트 작업 업데이트를 Telegram 채팅 또는 토픽으로 전송합니다.",
 			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook.",
-			"mattermostSectionTitle": "Mattermost Integration"
+			"mattermostSectionTitle": "Mattermost Integration",
+			"gitlabSectionSubtitle": "Synchronize tasks with GitLab.com or a self-managed instance (issues, merge requests, webhooks).",
+			"gitlabSectionTitle": "GitLab Integration"
 		},
 		"projectVisibility": {
 			"pageTitle": "프로젝트 공개 설정",
@@ -1111,7 +1113,9 @@
 				"pr_merged": "PR 병합됨",
 				"issue_opened": "이슈 열림",
 				"issue_closed": "이슈 닫힘"
-			}
+			},
+			"gitlabHeading": "GitLab",
+			"gitlabHint": "When a GitLab webhook event occurs, move the linked task to a column."
 		},
 		"externalLinks": {
 			"resources": "리소스",
@@ -1345,6 +1349,84 @@
 				"number": "Number",
 				"text": "Text"
 			}
+		},
+		"gitlabIntegration": {
+			"actionsHint": "Verify access and connect",
+			"actionsTitle": "Actions",
+			"badgeConnected": "Connected",
+			"badgeNotConnected": "Not connected",
+			"baseUrlHint": "https://gitlab.com, or the root URL of your instance",
+			"baseUrlLabel": "GitLab URL",
+			"browse": "Browse",
+			"browseModalHint": "Projects your token is a member of",
+			"browseModalTitle": "Your projects",
+			"browseNeedsCredentials": "Enter GitLab URL and token to browse",
+			"commentTaskLinkHint": "When enabled, Kaneo comments with a link to the task on each issue opened in GitLab.",
+			"commentTaskLinkTitle": "Comment a Kaneo link on issues opened in GitLab",
+			"connect": "Connect",
+			"connectedActive": "Project connected and active",
+			"connectionStatus": "Connection status",
+			"currentToken": "stored",
+			"disconnect": "Disconnect",
+			"importDisabledHint": "Verify the project above to enable importing",
+			"importing": "Importing…",
+			"importIssues": "Import issues",
+			"importSectionHint": "Import open issues and merge requests from the project",
+			"importSectionTitle": "Import GitLab issues",
+			"loadingProjects": "Loading projects…",
+			"notConnectedHint": "No GitLab project connected",
+			"openInGitlab": "Open {{project}} in GitLab",
+			"project": "Project",
+			"projectHint": "Linked GitLab project",
+			"projectPathHint": "Full path including any groups, e.g. group/subgroup/project",
+			"projectPathLabel": "Project path",
+			"retry": "Retry",
+			"searchProjects": "Search…",
+			"toast": {
+				"commentOnDisabled": "Task link comments on issues opened in GitLab are turned off",
+				"commentOnEnabled": "Kaneo will comment with a task link on issues opened in GitLab",
+				"importError": "Failed to import issues",
+				"issuesImported": "Issues imported successfully",
+				"notGitlabInstance": "The URL does not point to a GitLab instance",
+				"projectNotFound": "Project not found or not accessible",
+				"redirected": "GitLab URL redirected (usually to HTTPS). Use the final URL directly.",
+				"removed": "GitLab integration removed",
+				"removeError": "Failed to remove GitLab integration",
+				"secretCopied": "Copied",
+				"settingsUpdateError": "Failed to update GitLab integration",
+				"tokenRequired": "Access token is required",
+				"tokenRequiredVerify": "Enter a token to verify",
+				"unableToCopySecret": "Unable to copy secret",
+				"updated": "GitLab integration saved",
+				"updateError": "Failed to save GitLab integration",
+				"verifyError": "Failed to verify GitLab access",
+				"verifyFirst": "Verify access failed. Check URL, token, and project path",
+				"verifyOk": "GitLab token can access this project",
+				"verifyWarning": "Check token permissions or project access"
+			},
+			"tokenHint": "Token with api scope and at least Developer on the project",
+			"tokenLabel": "Access token",
+			"tokenPlaceholder": "Paste token",
+			"tokenPlaceholderUpdate": "Paste new token to rotate",
+			"tokenTypeBearer": "OAuth2 token",
+			"tokenTypeHint": "How the token is sent. Access tokens use PRIVATE-TOKEN; an OAuth2 token uses Authorization.",
+			"tokenTypeLabel": "Token type",
+			"tokenTypePrivate": "Personal, project or group access token",
+			"update": "Update",
+			"validation": {
+				"baseUrlInvalid": "Enter a valid URL (e.g. https://gitlab.com)",
+				"baseUrlRequired": "GitLab base URL is required",
+				"pathInvalid": "Enter the full path, e.g. group/project",
+				"pathRequired": "Project path is required"
+			},
+			"verify": "Verify",
+			"webhookCopy": "Copy",
+			"webhookHide": "Hide",
+			"webhookHint": "In your GitLab project, add a webhook with this URL and secret token. Enable push, issues, comments, and merge request events.",
+			"webhookSecretLabel": "Secret token (must match the one set on the webhook in GitLab)",
+			"webhookShow": "Show",
+			"webhookTitle": "Webhook",
+			"loadProjectsError": "Failed to load projects"
 		}
 	},
 	"navigation": {
@@ -1530,9 +1612,7 @@
 		"created": "이 작업을 생성함",
 		"githubUser": "GitHub 사용자",
 		"comment": {
-			"github": "GitHub",
 			"viewGithubProfile": "GitHub 프로필 보기",
-			"commentedOnGithub": "GitHub에 댓글을 남김",
 			"cannotBeEmpty": "댓글은 비워둘 수 없습니다",
 			"mustBeLoggedInToEdit": "댓글을 편집하려면 로그인해야 합니다",
 			"updated": "댓글이 업데이트되었습니다",
@@ -1626,7 +1706,8 @@
 				"mermaid": {
 					"renderFailed": "Mermaid 다이어그램을 렌더링할 수 없습니다"
 				}
-			}
+			},
+			"commentedOnForge": "{{forge}}에 댓글을 남김"
 		}
 	},
 	"tasks": {
