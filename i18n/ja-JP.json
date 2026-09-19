@@ -1650,8 +1650,12 @@
 		},
 		"boardSearchPlaceholder": "チケットを検索...",
 		"view": {
+			"backlog": "バックログ",
 			"board": "ボード",
-			"list": "リスト"
+			"gantt": "ガント",
+			"list": "リスト",
+			"section": "表示",
+			"tasks": "タスク"
 		},
 		"common": {
 			"selectTask": "タスクを選択",

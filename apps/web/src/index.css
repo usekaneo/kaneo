@@ -170,6 +170,32 @@ input:-webkit-autofill:active {
   --code-highlight: --alpha(var(--color-black) / 4%);
 }
 
+/* Right-to-left locales (e.g. Persian) use script-appropriate fonts. */
+[dir="rtl"] {
+  --font-sans:
+    "Vazirmatn",
+    "Tahoma",
+    "Cal Sans UI",
+    ui-sans-serif,
+    system-ui,
+    sans-serif;
+  --font-heading: "Vazirmatn", "Cal Sans Heading", var(--font-sans);
+}
+
+/*
+ * Mirror physical positioning for RTL locales.
+ * The switch thumb is translated with a physical transform in the component,
+ * so it must move in the opposite direction here.
+ */
+[dir="rtl"] [data-slot="switch"] [data-slot="switch-thumb"] {
+  transform-origin: right center;
+}
+
+[dir="rtl"] [data-slot="switch"] [data-slot="switch-thumb"][data-checked] {
+  transform-origin: 0 50%;
+  translate: calc(-1 * (var(--thumb-size) - 4px)) 0;
+}
+
 .dark {
   --accent: --alpha(var(--color-white) / 4%);
   --accent-foreground: var(--color-neutral-100);
@@ -424,7 +450,7 @@ input:-webkit-autofill:active {
     width: 100%;
     border-radius: 0.35rem;
     padding: 0.4rem 0.45rem;
-    text-align: left;
+    text-align: start;
     font-size: 0.79rem;
     color: color-mix(in srgb, var(--foreground) 88%, transparent);
   }
@@ -487,7 +513,7 @@ input:-webkit-autofill:active {
     width: 100%;
     border-radius: 0.35rem;
     padding: 0.32rem 0.42rem;
-    text-align: left;
+    text-align: start;
     font-size: 0.79rem;
     color: color-mix(in srgb, var(--foreground) 88%, transparent);
   }
@@ -577,7 +603,7 @@ input:-webkit-autofill:active {
     justify-content: flex-start;
     gap: 0.45rem;
     margin: 0.18rem 0;
-    text-align: left;
+    text-align: start;
   }
 
   .kaneo-tiptap-content
@@ -593,7 +619,7 @@ input:-webkit-autofill:active {
   .kaneo-tiptap-content .ProseMirror li[data-type="taskItem"] > div {
     flex: 0 1 auto;
     min-width: 0;
-    text-align: left;
+    text-align: start;
   }
 
   .kaneo-tiptap-content .ProseMirror li[data-type="taskItem"] > div > * {
@@ -683,8 +709,8 @@ input:-webkit-autofill:active {
 
   .kaneo-tiptap-content .ProseMirror blockquote {
     margin: 0.5rem 0;
-    border-left: 2px solid var(--border);
-    padding-left: 0.75rem;
+    border-inline-start: 2px solid var(--border);
+    padding-inline-start: 0.75rem;
     color: color-mix(in srgb, var(--foreground) 78%, transparent);
   }
 
@@ -711,7 +737,7 @@ input:-webkit-autofill:active {
     pointer-events: none;
     content: attr(data-placeholder);
     height: 0;
-    float: left;
+    float: inline-start;
     color: color-mix(in srgb, var(--foreground) 40%, transparent);
   }
 
@@ -736,7 +762,7 @@ input:-webkit-autofill:active {
   .kaneo-tiptap-content .ProseMirror table th {
     background: color-mix(in srgb, var(--accent) 70%, transparent);
     font-weight: 600;
-    text-align: left;
+    text-align: start;
   }
 
   .kaneo-tiptap-content .ProseMirror .selectedCell:after {
@@ -994,7 +1020,7 @@ input:-webkit-autofill:active {
     gap: 0.8rem;
     border-radius: 0.4rem;
     padding: 0.38rem 0.45rem;
-    text-align: left;
+    text-align: start;
     font-size: 0.82rem;
     color: color-mix(in srgb, var(--foreground) 90%, transparent);
   }
@@ -1160,7 +1186,7 @@ input:-webkit-autofill:active {
     justify-content: flex-start;
     gap: 0.45rem;
     margin: 0.14rem 0;
-    text-align: left;
+    text-align: start;
   }
 
   .kaneo-comment-editor-prose
@@ -1175,7 +1201,7 @@ input:-webkit-autofill:active {
   .kaneo-comment-editor-prose li[data-type="taskItem"] > div {
     flex: 0 1 auto;
     min-width: 0;
-    text-align: left;
+    text-align: start;
   }
 
   .kaneo-comment-editor-prose li[data-type="taskItem"] > div > * {
@@ -1293,7 +1319,7 @@ input:-webkit-autofill:active {
   .kaneo-comment-editor-prose table th {
     background: color-mix(in srgb, var(--accent) 65%, transparent);
     font-weight: 600;
-    text-align: left;
+    text-align: start;
   }
 
   .kaneo-comment-editor-prose .tableWrapper {
@@ -1304,7 +1330,7 @@ input:-webkit-autofill:active {
     content: attr(data-placeholder);
     color: color-mix(in srgb, var(--foreground) 42%, transparent);
     pointer-events: none;
-    float: left;
+    float: inline-start;
     height: 0;
   }
 
