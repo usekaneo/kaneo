@@ -51,6 +51,7 @@ import search from "./search";
 import slackIntegration from "./slack-integration";
 import { getPrivateObject } from "./storage/s3";
 import task from "./task";
+import { registerAssignedTasksRealtime } from "./task/assigned-tasks-realtime";
 import taskRelation from "./task-relation";
 import telegramIntegration from "./telegram-integration";
 import timeEntry from "./time-entry";
@@ -750,6 +751,8 @@ export function createApp() {
   );
 
   app.route("/api", api);
+
+  registerAssignedTasksRealtime();
 
   return {
     app,

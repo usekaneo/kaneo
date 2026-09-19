@@ -5,11 +5,18 @@ import {
   errorResponse,
   jsonResponse,
 } from "../openapi";
+import getAssignedTasks, {
+  MAX_ASSIGNED_TASKS,
+} from "../task/controllers/get-assigned-tasks";
 import { MAX_AVATAR_BYTES } from "./avatar";
 import deleteAvatar from "./controllers/delete-avatar";
 import saveAvatar from "./controllers/save-avatar";
-import { avatarDeletedSchema, avatarSchema } from "./response";
-import { uploadAvatarBody } from "./schema";
+import {
+  assignedTasksSchema,
+  avatarDeletedSchema,
+  avatarSchema,
+} from "./response";
+import { listAssignedTasksQuery, uploadAvatarBody } from "./schema";
 
 const uploadAvatarRoute = createRoute({
   method: "put",
@@ -47,7 +54,29 @@ const deleteAvatarRoute = createRoute({
   },
 });
 
+const listAssignedTasksRoute = createRoute({
+  method: "get",
+  operationId: "listAssignedTasks",
+  path: "/tasks",
+  tags: ["Tasks"],
+  summary: "List tasks assigned to me",
+  description: `Every open task assigned to the current user across all the workspaces they are a member of, with the projects and columns needed to display them. Planned and archived tasks, and tasks in archived projects, are left out. Tasks are ordered by due date, soonest first, and paged: \`limit\` defaults to ${MAX_ASSIGNED_TASKS}, which is also the maximum, so \`pagination.total\` tells when more pages exist. The caller is always the authenticated user.`,
+  request: { query: listAssignedTasksQuery },
+  responses: {
+    200: jsonResponse(
+      "Tasks assigned to the current user",
+      assignedTasksSchema,
+    ),
+  },
+});
+
 const user = apiRouter()
+  .openapi(listAssignedTasksRoute, async (c) =>
+    c.json(
+      await getAssignedTasks(c.get("userId"), c.req.valid("query") ?? {}),
+      200,
+    ),
+  )
   .openapi(uploadAvatarRoute, async (c) => {
     const { contentType, data } = c.req.valid("json");
     try {

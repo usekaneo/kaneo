@@ -1373,6 +1373,7 @@
 		"notifications": "Bildirişlər",
 		"sidebar": {
 			"overview": "İcmal",
+			"myTasks": "Tapşırıqlarım",
 			"projects": "Layihələr",
 			"members": "Üzvlər",
 			"invitations": "Dəvətlər",
@@ -1925,12 +1926,14 @@
 				"priority": "Prioritet",
 				"assignee": "İcraçı",
 				"dueDate": "Son tarix",
-				"labels": "Etiketlər"
+				"labels": "Etiketlər",
+				"project": "Layihə"
 			},
 			"operators": {
 				"isAnyOf": "Bunlardan biridir",
 				"includeAnyOf": "Bunlardan hər hansı birini ehtiva edir"
 			},
+			"allProjects": "Bütün layihələr",
 			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
@@ -1980,6 +1983,15 @@
 			"addTask": "Tapşırıq əlavə et",
 			"archiveAllTooltip": "Bütün tamamlanmış tapşırıqları arxivlə",
 			"noTasks": "Tapşırıq yoxdur"
+		},
+		"myTasks": {
+			"title": "Tapşırıqlarım",
+			"pageTitle": "Tapşırıqlarım · {{view}}",
+			"empty": "Sizə heç nə təyin edilməyib",
+			"emptySubtitle": "İş sahələrinizin hər hansı birində sizə təyin edilən tapşırıqlar burada görünəcək.",
+			"noMatches": "Uyğun tapşırıq yoxdur",
+			"noMatchesSubtitle": "Fərqli bir axtarış sınayın və ya aktiv filtrləri təmizləyin.",
+			"loadError": "Tapşırıqlarınız yüklənə bilmədi."
 		},
 		"kanban": {
 			"addTask": "Tapşırıq əlavə et"

@@ -34,10 +34,13 @@ async function deleteTask(taskId: string, currentUserId: string) {
     });
   }
 
+  // The row read at the top may be stale by now: a concurrent reassignment
+  // would leave the new assignee's "My tasks" view showing a deleted task.
   await publishEvent("task.deleted", {
     taskId: task.id,
     projectId: task.projectId,
     userId: currentUserId,
+    assigneeId: deletedTask.userId,
     title: task.title,
   });
 
