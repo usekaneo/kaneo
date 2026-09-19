@@ -1,5 +1,6 @@
 import { client } from "@kaneo/libs";
 import type { InferRequestType } from "hono/client";
+import { HttpError } from "@/lib/http-error";
 
 export type DeleteLabelRequest = InferRequestType<
   (typeof client)["label"][":id"]["$delete"]
@@ -11,8 +12,7 @@ async function deleteLabel({ id }: DeleteLabelRequest) {
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    throw new HttpError(response.status, await response.text());
   }
 
   const data = await response.json();

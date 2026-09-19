@@ -1,5 +1,6 @@
 import { client } from "@kaneo/libs";
 import type { InferResponseType } from "hono";
+import { HttpError } from "@/lib/http-error";
 
 export type ListRepositoriesResponse = InferResponseType<
   (typeof client)["github-integration"]["repositories"][":projectId"]["$get"],
@@ -16,8 +17,7 @@ async function listRepositories(
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    throw new HttpError(response.status, await response.text());
   }
 
   const result = await response.json();
