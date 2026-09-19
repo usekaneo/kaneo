@@ -134,9 +134,18 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
 
   const activeCustomFieldValues = useMemo(
     () =>
-      customFieldValues.filter(
-        (field) => field.value !== null && field.value !== "",
-      ),
+      customFieldValues.filter((field) => {
+        if (field.value === null || field.value === "") return false;
+        if (field.fieldType === "multiselect") {
+          try {
+            const parsed = JSON.parse(field.value);
+            return Array.isArray(parsed) && parsed.length > 0;
+          } catch {
+            return false;
+          }
+        }
+        return true;
+      }),
     [customFieldValues],
   );
 
@@ -316,19 +325,37 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                     onPointerDown={(e) => e.stopPropagation()}
                   >
                     <div className="space-y-1.5">
-                      {activeCustomFieldValues.map((field) => (
-                        <div
-                          key={field.id}
-                          className="flex items-center justify-between gap-2 text-xs"
-                        >
-                          <span className="font-medium text-muted-foreground truncate">
-                            {field.fieldName}
-                          </span>
-                          <span className="text-foreground truncate max-w-24">
-                            {field.value}
-                          </span>
-                        </div>
-                      ))}
+                      {activeCustomFieldValues.map((field) => {
+                        const value = field.value;
+
+                        if (!value) return null;
+
+                        let displayValue: string = value;
+                        if (field.fieldType === "multiselect") {
+                          try {
+                            const parsed = JSON.parse(value);
+                            if (Array.isArray(parsed)) {
+                              displayValue = parsed.join(", ");
+                            }
+                          } catch {
+                            displayValue = value;
+                          }
+                        }
+
+                        return (
+                          <div
+                            key={field.id}
+                            className="flex items-center justify-between gap-2 text-xs"
+                          >
+                            <span className="font-medium text-muted-foreground truncate">
+                              {field.fieldName}
+                            </span>
+                            <span className="text-foreground truncate max-w-24">
+                              {displayValue}
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </HoverCardContent>
                 </HoverCard>

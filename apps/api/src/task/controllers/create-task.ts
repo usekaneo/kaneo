@@ -16,6 +16,7 @@ import {
 import {
   assertRequiredCustomFields,
   assertValidTaskStatus,
+  isCustomFieldValueEmpty,
 } from "../validate-task-fields";
 import { claimTaskNumber } from "./claim-task-numbers";
 
@@ -84,7 +85,15 @@ async function createTask({
       !providedFieldIds.has(field.id) &&
       field.required &&
       field.defaultValue != null &&
-      field.defaultValue.trim() !== ""
+      !isCustomFieldValueEmpty(
+        field.defaultValue,
+        field.type as
+          | "number"
+          | "boolean"
+          | "date"
+          | "dropdown"
+          | "multiselect",
+      )
     ) {
       mergedCustomFields.push({
         fieldId: field.id,
