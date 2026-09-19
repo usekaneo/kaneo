@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "워크스페이스 이름은 필수입니다"
-			}
+			},
+			"restrictedSubtitle": "이 인스턴스에서는 관리자만 워크스페이스를 만들 수 있습니다. 초대를 요청한 뒤 이 페이지를 새로고침하세요.",
+			"restrictedCheckInvitations": "초대 확인",
+			"restrictedTitle": "초대가 필요합니다"
 		},
 		"profileSetup": {
 			"pageTitle": "프로필 완성",

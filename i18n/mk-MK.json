@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "Името на работниот простор е задолжително"
-			}
+			},
+			"restrictedSubtitle": "Овде само администратор на инстанцата може да создава работни простори. Побарајте покана и освежете ја страницата.",
+			"restrictedCheckInvitations": "Провери покани",
+			"restrictedTitle": "Ви треба покана"
 		},
 		"profileSetup": {
 			"pageTitle": "Заврши го профилот",

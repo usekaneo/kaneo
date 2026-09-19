@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "O nome do espaço de trabalho é obrigatório"
-			}
+			},
+			"restrictedSubtitle": "Aqui apenas um administrador da instância pode criar espaços de trabalho. Peça um convite e recarregue esta página.",
+			"restrictedCheckInvitations": "Ver convites",
+			"restrictedTitle": "Você precisa de um convite"
 		},
 		"profileSetup": {
 			"pageTitle": "Completar perfil",

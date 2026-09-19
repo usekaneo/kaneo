@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "Название рабочей области обязательно"
-			}
+			},
+			"restrictedSubtitle": "Здесь создавать рабочие пространства может только администратор экземпляра. Попросите приглашение и обновите страницу.",
+			"restrictedCheckInvitations": "Проверить приглашения",
+			"restrictedTitle": "Нужно приглашение"
 		},
 		"profileSetup": {
 			"pageTitle": "Заполнение профиля",
