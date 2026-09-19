@@ -109,6 +109,8 @@ async function main() {
     JSON.stringify(
       {
         report: path.join(folder, "review.md"),
+        status: report.status,
+        failure: report.failure || null,
         findings: report.findings.length,
         cost: report.cost,
         budget: await budget.status(),

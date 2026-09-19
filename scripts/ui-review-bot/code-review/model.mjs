@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parseJSON } from "../core.mjs";
@@ -29,6 +29,7 @@ export class ReviewerModel {
       deadline,
     });
     this.calls = [];
+    this.attempt = randomUUID();
   }
 
   async ask(system, input, label) {
@@ -86,6 +87,7 @@ export class ReviewerModel {
       headers: {
         Authorization: `Bearer ${this.key}`,
         "Content-Type": "application/json",
+        "X-Peekareview-Attempt": this.attempt,
         "X-OpenRouter-Title": "Peekareq code review beta",
       },
       body: JSON.stringify(body),

@@ -39,6 +39,9 @@ export async function reviewModel(request, env, fetcher = fetch) {
   if (request.method !== "POST") return fail(405, "Method not allowed");
   if (!env.OPENROUTER_API_KEY)
     return fail(503, "Review provider is not configured");
+  const attempt = request.headers.get("x-peekareview-attempt");
+  if (!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(attempt || ""))
+    return fail(400, "Invalid review attempt");
   let input;
   let reserved;
   let format;
@@ -71,14 +74,21 @@ export async function reviewModel(request, env, fetcher = fetch) {
     },
   };
   const serialized = JSON.stringify(body);
-  const hash = Buffer.from(
+  const contentHash = Buffer.from(
     await crypto.subtle.digest("SHA-256", encoder.encode(serialized)),
   ).toString("hex");
-  const cached = await env.DB.prepare(
-    "SELECT status, response FROM review_requests WHERE hash = ?",
-  )
-    .bind(hash)
-    .first();
+  const hash = `${contentHash}.${attempt}`;
+  const cached =
+    (await env.DB.prepare(
+      "SELECT status, response FROM review_requests WHERE status = 'complete' AND (hash = ? OR hash GLOB ?) LIMIT 1",
+    )
+      .bind(contentHash, `${contentHash}.*`)
+      .first()) ||
+    (await env.DB.prepare(
+      "SELECT status, response FROM review_requests WHERE hash = ?",
+    )
+      .bind(hash)
+      .first());
   if (cached) {
     if (cached.status !== "complete")
       return fail(409, "Prior request unresolved; no automatic retry");
@@ -105,7 +115,7 @@ export async function reviewModel(request, env, fetcher = fetch) {
       "https://openrouter.ai/api/v1/chat/completions",
       {
         method: "POST",
-        redirect: "error",
+        redirect: "manual",
         signal: AbortSignal.timeout(180_000),
         headers: {
           Authorization: `Bearer ${env.OPENROUTER_API_KEY}`,

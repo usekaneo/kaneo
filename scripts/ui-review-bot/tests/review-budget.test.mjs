@@ -46,10 +46,17 @@ async function setup(t, ceiling = 850000) {
   };
 }
 
-function request(text = "review", token = "a".repeat(64)) {
+function request(
+  text = "review",
+  token = "a".repeat(64),
+  attempt = "11111111-1111-4111-8111-111111111111",
+) {
   return new Request("https://example.test/review-model", {
     method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "X-Peekareview-Attempt": attempt,
+    },
     body: JSON.stringify({
       model: MODEL,
       response_format: responseFormat("investigate"),
@@ -77,6 +84,7 @@ test("shared SQL ledger reserves before inference and concurrent identical reque
   let calls = 0;
   const provider = async (_url, options) => {
     calls++;
+    assert.equal(options.redirect, "manual");
     assert.equal(
       db.prepare("SELECT status FROM review_requests").get().status,
       "reserved",
@@ -168,7 +176,10 @@ test("proxy rejects unknown stages and replaces client schemas with trusted defi
   const make = (input) =>
     new Request("https://example.test/review-model", {
       method: "POST",
-      headers: { Authorization: `Bearer ${"a".repeat(64)}` },
+      headers: {
+        Authorization: `Bearer ${"a".repeat(64)}`,
+        "X-Peekareview-Attempt": "11111111-1111-4111-8111-111111111111",
+      },
       body: JSON.stringify(input),
     });
   body.response_format.json_schema.name = "arbitrary";
@@ -216,4 +227,42 @@ test("schema-invalid replies are charged but cannot replay as successful cached 
   );
   assert.equal((await reviewModel(request(), env, provider)).status, 409);
   assert.equal(calls, 1);
+});
+
+test("a new review can retry an unresolved request while retaining its earlier reservation", async (t) => {
+  const { db, env } = await setup(t);
+  const first = await reviewModel(request(), env, async () => {
+    throw Error("timeout");
+  });
+  assert.equal(first.status, 502);
+  const reserved = db
+    .prepare("SELECT charged FROM review_requests")
+    .get().charged;
+  assert.equal(
+    (
+      await reviewModel(request(), env, async () => {
+        throw Error("No automatic replay");
+      })
+    ).status,
+    409,
+  );
+  const second = await reviewModel(
+    request("review", "a".repeat(64), "22222222-2222-4222-8222-222222222222"),
+    env,
+    async () => reply(),
+  );
+  assert.equal(second.status, 200);
+  const total = db
+    .prepare("SELECT SUM(charged) AS total FROM review_requests")
+    .get().total;
+  assert.equal(total, reserved + 1150);
+  const cached = await reviewModel(
+    request("review", "a".repeat(64), "33333333-3333-4333-8333-333333333333"),
+    env,
+    async () => {
+      throw Error("Completed response should be shared");
+    },
+  );
+  assert.equal(cached.status, 200);
+  assert.equal((await cached.json()).usage.cost, 0);
 });
