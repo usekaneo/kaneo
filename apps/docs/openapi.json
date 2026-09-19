@@ -8276,11 +8276,24 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown task",
+            "description": "Invalid body, unknown task, or comment activity submitted through the generic endpoint",
             "content": {
               "text/plain": {
                 "schema": {
                   "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -8320,7 +8333,8 @@
                     "type": "string"
                   },
                   "comment": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 10000
                   }
                 },
                 "required": [
@@ -8385,7 +8399,8 @@
                     "type": "string"
                   },
                   "comment": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 10000
                   }
                 },
                 "required": [
