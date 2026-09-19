@@ -84,6 +84,15 @@ export type TaskDueDateChangedEvent = {
   newDueDate: Date | null;
 };
 
+export type TaskTimeEstimateChangedEvent = {
+  taskId: string;
+  projectId: string;
+  userId: string | null;
+  title: string;
+  oldTimeEstimate: number | null;
+  newTimeEstimate: number | null;
+};
+
 export type TaskAssigneeChangedEvent = {
   taskId: string;
   projectId: string;
@@ -111,6 +120,7 @@ export type TaskEvent =
   | TaskDeletedEvent
   | TaskMovedEvent
   | TaskDueDateChangedEvent
+  | TaskTimeEstimateChangedEvent
   | TaskAssigneeChangedEvent
   | TaskUnassignedEvent;
 
@@ -156,6 +166,7 @@ export type IntegrationPlugin = {
   onTaskDeleted?: TaskEventHandler<TaskDeletedEvent>;
   onTaskMoved?: TaskEventHandler<TaskMovedEvent>;
   onTaskDueDateChanged?: TaskEventHandler<TaskDueDateChangedEvent>;
+  onTaskTimeEstimateChanged?: TaskEventHandler<TaskTimeEstimateChangedEvent>;
   onTaskAssigneeChanged?: TaskEventHandler<TaskAssigneeChangedEvent>;
   onTaskUnassigned?: TaskEventHandler<TaskUnassignedEvent>;
 

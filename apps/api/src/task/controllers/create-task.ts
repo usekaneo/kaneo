@@ -48,6 +48,7 @@ async function createTask({
   status,
   startDate,
   dueDate,
+  timeEstimate,
   description,
   priority,
   customFields,
@@ -59,6 +60,7 @@ async function createTask({
   status: string;
   startDate?: Date;
   dueDate?: Date;
+  timeEstimate?: number;
   description?: string;
   priority?: string;
   customFields?: CustomFieldInput[];
@@ -143,6 +145,7 @@ async function createTask({
         columnId: column?.id ?? null,
         startDate: startDate || null,
         dueDate: dueDate || null,
+        timeEstimate: timeEstimate || null,
         description: description || "",
         priority: resolvedPriority,
         number: taskNumber,

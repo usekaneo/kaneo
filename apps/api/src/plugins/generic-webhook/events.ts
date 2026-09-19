@@ -19,6 +19,7 @@ import type {
   TaskMovedEvent,
   TaskPriorityChangedEvent,
   TaskStatusChangedEvent,
+  TaskTimeEstimateChangedEvent,
   TaskTitleChangedEvent,
   TaskUnassignedEvent,
 } from "../types";
@@ -498,6 +499,29 @@ export async function handleTaskDueDateChanged(
       title: event.title,
       oldDueDate: event.oldDueDate,
       newDueDate: event.newDueDate,
+    },
+  );
+}
+
+export async function handleTaskTimeEstimateChanged(
+  event: TaskTimeEstimateChangedEvent,
+  context: PluginContext,
+): Promise<void> {
+  const config = normalizeGenericWebhookConfig(
+    context.config as GenericWebhookConfig,
+  );
+  if (!isEnabled(config, "taskTimeEstimateChanged")) return;
+
+  await sendEvent(
+    config,
+    "task.time_estimate_changed",
+    event.taskId,
+    event.projectId,
+    event.userId,
+    {
+      title: event.title,
+      oldTimeEstimate: event.oldTimeEstimate,
+      newTimeEstimate: event.newTimeEstimate,
     },
   );
 }

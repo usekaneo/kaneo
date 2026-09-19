@@ -14,6 +14,7 @@ import type {
   TaskMovedEvent,
   TaskPriorityChangedEvent,
   TaskStatusChangedEvent,
+  TaskTimeEstimateChangedEvent,
   TaskTitleChangedEvent,
   TaskUnassignedEvent,
 } from "./types";
@@ -190,6 +191,24 @@ export function initializeEventSubscriptions(): void {
       title: data.title,
       oldDueDate: data.oldDueDate,
       newDueDate: data.newDueDate,
+    });
+  });
+
+  subscribeToEvent<{
+    taskId: string;
+    userId: string | null;
+    oldTimeEstimate: number | null;
+    newTimeEstimate: number | null;
+    title: string;
+    projectId: string;
+  }>("task.time_estimate_changed", async (data) => {
+    await broadcastTaskTimeEstimateChanged({
+      taskId: data.taskId,
+      projectId: data.projectId,
+      userId: data.userId,
+      title: data.title,
+      oldTimeEstimate: data.oldTimeEstimate,
+      newTimeEstimate: data.newTimeEstimate,
     });
   });
 
@@ -441,6 +460,28 @@ export async function broadcastTaskDueDateChanged(
     } catch (error) {
       console.error(
         `Plugin ${plugin.type} error on task.due_date_changed:`,
+        error,
+      );
+    }
+  }
+}
+
+export async function broadcastTaskTimeEstimateChanged(
+  event: TaskTimeEstimateChangedEvent,
+): Promise<void> {
+  const integrations = await getActiveIntegrations(event.projectId);
+
+  for (const integration of integrations) {
+    const plugin = getPlugin(integration.type);
+    if (!plugin?.onTaskTimeEstimateChanged) continue;
+
+    const context = createContext(integration);
+
+    try {
+      await plugin.onTaskTimeEstimateChanged(event, context);
+    } catch (error) {
+      console.error(
+        `Plugin ${plugin.type} error on task.time_estimate_changed:`,
         error,
       );
     }

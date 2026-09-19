@@ -173,6 +173,14 @@ function buildFullTaskUpdateBody(
   const dueDate = formatOptionalIso(
     patch.dueDate !== undefined ? patch.dueDate : existing.dueDate,
   );
+  const timeEstimateRaw =
+    patch.timeEstimate !== undefined
+      ? patch.timeEstimate
+      : existing.timeEstimate;
+  // Null clears, like formatOptionalIso mapping null dates to omitted keys:
+  // the full-replace PUT clears absent fields.
+  const timeEstimate =
+    typeof timeEstimateRaw === "number" ? timeEstimateRaw : undefined;
 
   const body: Record<string, string | number | undefined> = {
     title,
@@ -184,6 +192,7 @@ function buildFullTaskUpdateBody(
   };
   if (startDate !== undefined) body.startDate = startDate;
   if (dueDate !== undefined) body.dueDate = dueDate;
+  if (timeEstimate !== undefined) body.timeEstimate = timeEstimate;
   if (userId !== undefined) body.userId = userId;
   return body;
 }
@@ -429,11 +438,12 @@ export function registerMcpTools(
         status: nonEmptyString,
         startDate: optionalIsoDateTimeSchema,
         dueDate: optionalIsoDateTimeSchema,
+        timeEstimate: z.number().int().min(0).max(2_147_483_647).optional(),
         userId: optionalNonEmptyString,
       }),
     },
     async (args) => {
-      const body: Record<string, string | undefined> = {
+      const body: Record<string, string | number | undefined> = {
         title: args.title,
         description: args.description,
         priority: args.priority,
@@ -441,6 +451,8 @@ export function registerMcpTools(
       };
       if (args.startDate !== undefined) body.startDate = args.startDate;
       if (args.dueDate !== undefined) body.dueDate = args.dueDate;
+      if (args.timeEstimate !== undefined)
+        body.timeEstimate = args.timeEstimate;
       if (args.userId !== undefined) body.userId = args.userId;
       return run(() =>
         client.json(`/api/task/${encodeURIComponent(args.projectId)}`, {
@@ -466,6 +478,13 @@ export function registerMcpTools(
         position: z.number().optional(),
         startDate: nullableOptionalIsoDateTimeSchema,
         dueDate: nullableOptionalIsoDateTimeSchema,
+        timeEstimate: z
+          .number()
+          .int()
+          .min(0)
+          .max(2_147_483_647)
+          .nullable()
+          .optional(),
         userId: nullableOptionalNonEmptyString,
       }),
     },
@@ -858,6 +877,28 @@ export function registerMcpTools(
             args.dueDate === undefined ? {} : { dueDate: args.dueDate },
           ),
         }),
+      ),
+  );
+
+  registerTool(
+    "update_task_time_estimate",
+    {
+      description:
+        "Set a task's time estimate in seconds, or pass null to clear it.",
+      inputSchema: z.object({
+        taskId: nonEmptyString,
+        timeEstimate: z.number().int().min(0).max(2_147_483_647).nullable(),
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(
+          `/api/task/time-estimate/${encodeURIComponent(args.taskId)}`,
+          {
+            method: "PUT",
+            body: JSON.stringify({ timeEstimate: args.timeEstimate }),
+          },
+        ),
       ),
   );
 

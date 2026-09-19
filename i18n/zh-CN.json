@@ -153,7 +153,9 @@
 					"terracotta": "赤陶",
 					"rose": "玫红",
 					"crimson": "深红"
-				}
+				},
+				"timeEstimate": "Time estimate",
+				"setTimeEstimate": "Set"
 			}
 		},
 		"boolean": {
@@ -532,7 +534,9 @@
 			"labels": "标签",
 			"labelsDescription": "显示任务的标签和标记",
 			"priority": "优先级",
-			"priorityDescription": "显示优先级指示"
+			"priorityDescription": "显示优先级指示",
+			"timeEstimates": "Time Estimates",
+			"timeEstimatesDescription": "Show time estimates on tasks"
 		},
 		"developerPage": {
 			"pageTitle": "开发者设置",
@@ -1203,7 +1207,8 @@
 				"taskDueDateChanged": "截止日期已变更",
 				"taskAssigneeChanged": "负责人已变更",
 				"taskUnassigned": "任务已取消指派",
-				"dueDateReminder": "截止日期提醒"
+				"dueDateReminder": "截止日期提醒",
+				"taskTimeEstimateChanged": "Time estimate changed"
 			},
 			"reminderLeadTimeLabel": "提前这么多小时发送 Webhook",
 			"connect": "连接 Webhook",
@@ -1627,7 +1632,10 @@
 					"renderFailed": "Mermaid 图渲染失败"
 				}
 			}
-		}
+		},
+		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
+		"clearedTimeEstimate": "cleared the time estimate",
+		"setTimeEstimate": "set time estimate to {{estimate}}"
 	},
 	"tasks": {
 		"title": "任务",
@@ -1809,7 +1817,9 @@
 			"copyTaskBranch": "复制任务分支",
 			"start": "开始",
 			"startDate": "开始日期",
-			"noDate": "无日期"
+			"noDate": "无日期",
+			"noEstimate": "No estimate",
+			"timeEstimate": "Time estimate"
 		},
 		"move": {
 			"title": "移动任务",
@@ -1864,6 +1874,14 @@
 					"rose": "玫红",
 					"crimson": "深红"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
+				"placeholder": "e.g. 2h 30m",
+				"save": "Save",
+				"title": "Time estimate",
+				"updateError": "Failed to update task time estimate",
+				"updateSuccess": "Task time estimate updated successfully"
 			}
 		},
 		"backlog": {
@@ -2045,7 +2063,9 @@
 			"actions": "操作",
 			"searchActions": "搜索操作…",
 			"noActionsFound": "未找到操作。",
-			"changeStatus": "更改状态"
+			"changeStatus": "更改状态",
+			"setTimeEstimate": "Set Time Estimate",
+			"updateTimeEstimateError": "Failed to update time estimate"
 		},
 		"editor": {
 			"table": {
@@ -2057,6 +2077,9 @@
 				"deleteRow": "删除行",
 				"deleteTable": "删除表格"
 			}
+		},
+		"timeEstimate": {
+			"label": "Time estimate"
 		}
 	},
 	"invitations": {

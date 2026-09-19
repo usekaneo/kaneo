@@ -105,6 +105,7 @@ function makeTask(overrides: Partial<Task>): Task {
     priority: null,
     startDate: null,
     dueDate: null,
+    timeEstimate: null,
     position: null,
     createdAt: "2026-01-01T00:00:00.000Z",
     userId: null,

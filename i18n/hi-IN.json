@@ -153,7 +153,9 @@
 					"terracotta": "टेराकोटा",
 					"rose": "गुलाब",
 					"crimson": "किरमिज़ी"
-				}
+				},
+				"timeEstimate": "Time estimate",
+				"setTimeEstimate": "Set"
 			}
 		},
 		"boolean": {
@@ -532,7 +534,9 @@
 			"labels": "लेबल",
 			"labelsDescription": "कार्य लेबल और टैग दिखाएँ",
 			"priority": "प्राथमिकता",
-			"priorityDescription": "प्राथमिकता संकेतक दिखाएँ"
+			"priorityDescription": "प्राथमिकता संकेतक दिखाएँ",
+			"timeEstimates": "Time Estimates",
+			"timeEstimatesDescription": "Show time estimates on tasks"
 		},
 		"developerPage": {
 			"pageTitle": "डेवलपर सेटिंग",
@@ -1166,7 +1170,8 @@
 				"taskDueDateChanged": "नियत तारीख बदली",
 				"taskAssigneeChanged": "सौंपा गया बदला",
 				"taskUnassigned": "कार्य असाइन हटाया",
-				"dueDateReminder": "नियत तारीख अनुस्मारक"
+				"dueDateReminder": "नियत तारीख अनुस्मारक",
+				"taskTimeEstimateChanged": "Time estimate changed"
 			},
 			"reminderLeadTimeLabel": "इतने घंटे पहले वेबहुक भेजें",
 			"connect": "वेबहुक कनेक्ट करें",
@@ -1632,7 +1637,10 @@
 					"renderFailed": "Mermaid डायग्राम प्रस्तुत नहीं किया जा सका"
 				}
 			}
-		}
+		},
+		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
+		"clearedTimeEstimate": "cleared the time estimate",
+		"setTimeEstimate": "set time estimate to {{estimate}}"
 	},
 	"tasks": {
 		"title": "कार्य",
@@ -1814,7 +1822,9 @@
 			"copyTaskBranch": "कार्य शाखा कॉपी करें",
 			"start": "शुरू",
 			"startDate": "शुरू की तारीख",
-			"noDate": "कोई तारीख नहीं"
+			"noDate": "कोई तारीख नहीं",
+			"noEstimate": "No estimate",
+			"timeEstimate": "Time estimate"
 		},
 		"move": {
 			"title": "कार्य ले जाएँ",
@@ -1869,6 +1879,14 @@
 					"rose": "गुलाब",
 					"crimson": "किरमिज़ी"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
+				"placeholder": "e.g. 2h 30m",
+				"save": "Save",
+				"title": "Time estimate",
+				"updateError": "Failed to update task time estimate",
+				"updateSuccess": "Task time estimate updated successfully"
 			}
 		},
 		"backlog": {
@@ -2038,7 +2056,9 @@
 			"actions": "कार्रवाइयाँ",
 			"searchActions": "कार्रवाइयाँ खोजें...",
 			"noActionsFound": "कोई कार्रवाई नहीं मिली।",
-			"changeStatus": "स्थिति बदलें"
+			"changeStatus": "स्थिति बदलें",
+			"setTimeEstimate": "Set Time Estimate",
+			"updateTimeEstimateError": "Failed to update time estimate"
 		},
 		"editor": {
 			"table": {
@@ -2063,6 +2083,9 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"timeEstimate": {
+			"label": "Time estimate"
 		}
 	},
 	"invitations": {

@@ -78,6 +78,7 @@ const task: Task = {
   priority: null,
   startDate: null,
   dueDate: null,
+  timeEstimate: null,
   position: 1,
   createdAt: "2026-08-05T00:00:00.000Z",
   userId: null,

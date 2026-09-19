@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type Task from "@/types/task";
 import TaskCardContextMenuContent from "./task-card-context-menu-content";
@@ -85,6 +85,12 @@ vi.mock("@/hooks/mutations/task/use-update-task-title", () => ({
   useUpdateTaskTitle: () => ({ mutateAsync: vi.fn() }),
 }));
 
+const updateTaskTimeEstimate = vi.fn();
+
+vi.mock("@/hooks/mutations/task/use-update-task-time-estimate", () => ({
+  useUpdateTaskTimeEstimate: () => ({ mutateAsync: updateTaskTimeEstimate }),
+}));
+
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({
     canUpdateTasks: () => true,
@@ -116,6 +122,7 @@ const task = {
   priority: null,
   startDate: null,
   dueDate: null,
+  timeEstimate: null,
   position: 1,
   createdAt: "2026-08-05T00:00:00.000Z",
   userId: null,
@@ -155,5 +162,27 @@ describe("TaskCardContextMenuContent", () => {
     renderTask(task);
 
     expect(screen.getByText("tasks:actions.markAsPlanned")).toBeInTheDocument();
+  });
+
+  it("shows the time estimate label in the submenu", () => {
+    renderTask(task);
+
+    expect(screen.getByText("tasks:timeEstimate.label")).toBeInTheDocument();
+  });
+
+  it("saves the time estimate from the submenu form", async () => {
+    renderTask(task);
+
+    fireEvent.change(
+      screen.getByPlaceholderText("tasks:popover.timeEstimate.placeholder"),
+      { target: { value: "45m" } },
+    );
+    fireEvent.click(screen.getByText("tasks:popover.timeEstimate.save"));
+
+    await vi.waitFor(() => {
+      expect(updateTaskTimeEstimate).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "task-1", timeEstimate: 2700 }),
+      );
+    });
   });
 });

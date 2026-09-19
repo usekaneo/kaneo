@@ -153,7 +153,9 @@
 					"terracotta": "Bişmiş gil rəngi",
 					"rose": "Çəhrayı",
 					"crimson": "Tünd qırmızı"
-				}
+				},
+				"timeEstimate": "Time estimate",
+				"setTimeEstimate": "Set"
 			}
 		},
 		"boolean": {
@@ -532,7 +534,9 @@
 			"labels": "Etiketlər",
 			"labelsDescription": "Tapşırıq etiketlərini göstər",
 			"priority": "Prioritet",
-			"priorityDescription": "Prioritet göstəricilərini göstər"
+			"priorityDescription": "Prioritet göstəricilərini göstər",
+			"timeEstimates": "Time Estimates",
+			"timeEstimatesDescription": "Show time estimates on tasks"
 		},
 		"developerPage": {
 			"pageTitle": "Proqramçı parametrləri",
@@ -1204,7 +1208,8 @@
 				"taskDueDateChanged": "Son tarix dəyişdi",
 				"taskAssigneeChanged": "İcraçı dəyişdi",
 				"taskUnassigned": "Tapşırığın icraçısı çıxarıldı",
-				"dueDateReminder": "Son tarix xatırlatmaları"
+				"dueDateReminder": "Son tarix xatırlatmaları",
+				"taskTimeEstimateChanged": "Time estimate changed"
 			},
 			"reminderLeadTimeLabel": "Webhook-u bu qədər saat əvvəl göndər",
 			"connect": "Webhook-a qoşul",
@@ -1632,7 +1637,10 @@
 					"renderFailed": "Mermaid diaqramını göstərmək mümkün olmadı"
 				}
 			}
-		}
+		},
+		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
+		"clearedTimeEstimate": "cleared the time estimate",
+		"setTimeEstimate": "set time estimate to {{estimate}}"
 	},
 	"tasks": {
 		"title": "Tapşırıqlar",
@@ -1814,7 +1822,9 @@
 			"copyTaskBranch": "Tapşırığın budağını kopyala",
 			"start": "Başlat",
 			"startDate": "Başlama tarixi",
-			"noDate": "Tarix yoxdur"
+			"noDate": "Tarix yoxdur",
+			"noEstimate": "No estimate",
+			"timeEstimate": "Time estimate"
 		},
 		"move": {
 			"title": "Tapşırığı köçür",
@@ -1869,6 +1879,14 @@
 					"rose": "Çəhrayı",
 					"crimson": "Tünd qırmızı"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
+				"placeholder": "e.g. 2h 30m",
+				"save": "Save",
+				"title": "Time estimate",
+				"updateError": "Failed to update task time estimate",
+				"updateSuccess": "Task time estimate updated successfully"
 			}
 		},
 		"backlog": {
@@ -2051,7 +2069,9 @@
 			"actions": "Əməliyyatlar",
 			"searchActions": "Əməliyyatları axtar...",
 			"noActionsFound": "Əməliyyat tapılmadı.",
-			"changeStatus": "Vəziyyəti dəyiş"
+			"changeStatus": "Vəziyyəti dəyiş",
+			"setTimeEstimate": "Set Time Estimate",
+			"updateTimeEstimateError": "Failed to update time estimate"
 		},
 		"editor": {
 			"table": {
@@ -2063,6 +2083,9 @@
 				"deleteRow": "Sətri sil",
 				"deleteTable": "Cədvəli sil"
 			}
+		},
+		"timeEstimate": {
+			"label": "Time estimate"
 		}
 	},
 	"invitations": {

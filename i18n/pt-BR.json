@@ -153,7 +153,9 @@
 					"terracotta": "Terracota",
 					"rose": "Rosa",
 					"crimson": "Carmesim"
-				}
+				},
+				"timeEstimate": "Time estimate",
+				"setTimeEstimate": "Set"
 			}
 		},
 		"boolean": {
@@ -532,7 +534,9 @@
 			"labels": "Etiquetas",
 			"labelsDescription": "Mostrar etiquetas e marcadores das tarefas",
 			"priority": "Prioridade",
-			"priorityDescription": "Exibir indicadores de prioridade"
+			"priorityDescription": "Exibir indicadores de prioridade",
+			"timeEstimates": "Time Estimates",
+			"timeEstimatesDescription": "Show time estimates on tasks"
 		},
 		"developerPage": {
 			"pageTitle": "Configurações de desenvolvedor",
@@ -1167,7 +1171,8 @@
 				"taskDueDateChanged": "Data de vencimento alterada",
 				"taskAssigneeChanged": "Responsável alterado",
 				"taskUnassigned": "Tarefa sem responsável",
-				"dueDateReminder": "Lembretes de vencimento"
+				"dueDateReminder": "Lembretes de vencimento",
+				"taskTimeEstimateChanged": "Time estimate changed"
 			},
 			"reminderLeadTimeLabel": "Enviar o webhook quantas horas antes",
 			"connect": "Conectar webhook",
@@ -1637,7 +1642,10 @@
 					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
 			}
-		}
+		},
+		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
+		"clearedTimeEstimate": "cleared the time estimate",
+		"setTimeEstimate": "set time estimate to {{estimate}}"
 	},
 	"tasks": {
 		"title": "Tarefas",
@@ -1819,7 +1827,9 @@
 			"copyTaskBranch": "Copiar branch da tarefa",
 			"start": "Início",
 			"startDate": "Data de início",
-			"noDate": "Sem data"
+			"noDate": "Sem data",
+			"noEstimate": "No estimate",
+			"timeEstimate": "Time estimate"
 		},
 		"move": {
 			"title": "Mover tarefa",
@@ -1874,6 +1884,14 @@
 					"rose": "Rosa",
 					"crimson": "Carmesim"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
+				"placeholder": "e.g. 2h 30m",
+				"save": "Save",
+				"title": "Time estimate",
+				"updateError": "Failed to update task time estimate",
+				"updateSuccess": "Task time estimate updated successfully"
 			}
 		},
 		"backlog": {
@@ -2044,7 +2062,9 @@
 			"actions": "Ações",
 			"searchActions": "Buscar ações...",
 			"noActionsFound": "Nenhuma ação encontrada.",
-			"changeStatus": "Mudar status"
+			"changeStatus": "Mudar status",
+			"setTimeEstimate": "Set Time Estimate",
+			"updateTimeEstimateError": "Failed to update time estimate"
 		},
 		"editor": {
 			"table": {
@@ -2069,6 +2089,9 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"timeEstimate": {
+			"label": "Time estimate"
 		}
 	},
 	"invitations": {

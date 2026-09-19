@@ -275,6 +275,7 @@ const taskUpdateEvents = [
   "task.due_date_changed",
   "task.title_changed",
   "task.description_changed",
+  "task.time_estimate_changed",
   "task.label_assigned",
   "task.label_unassigned",
   "task.label_created",

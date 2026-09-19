@@ -153,7 +153,9 @@
 					"terracotta": "Đất nung",
 					"rose": "Hồng",
 					"crimson": "Đỏ thẫm"
-				}
+				},
+				"timeEstimate": "Time estimate",
+				"setTimeEstimate": "Set"
 			}
 		},
 		"boolean": {
@@ -532,7 +534,9 @@
 			"labels": "Nhãn",
 			"labelsDescription": "Hiển thị nhãn và thẻ của công việc",
 			"priority": "Mức ưu tiên",
-			"priorityDescription": "Hiển thị chỉ báo mức ưu tiên"
+			"priorityDescription": "Hiển thị chỉ báo mức ưu tiên",
+			"timeEstimates": "Time Estimates",
+			"timeEstimatesDescription": "Show time estimates on tasks"
 		},
 		"developerPage": {
 			"pageTitle": "Cài đặt nhà phát triển",
@@ -1165,7 +1169,8 @@
 				"taskDueDateChanged": "Thay đổi ngày đến hạn",
 				"taskAssigneeChanged": "Thay đổi người được giao",
 				"taskUnassigned": "Hủy giao công việc",
-				"dueDateReminder": "Nhắc nhở ngày đến hạn"
+				"dueDateReminder": "Nhắc nhở ngày đến hạn",
+				"taskTimeEstimateChanged": "Time estimate changed"
 			},
 			"reminderLeadTimeLabel": "Gửi webhook trước bao nhiêu giờ",
 			"connect": "Kết nối webhook",
@@ -1627,7 +1632,10 @@
 					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
 			}
-		}
+		},
+		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
+		"clearedTimeEstimate": "cleared the time estimate",
+		"setTimeEstimate": "set time estimate to {{estimate}}"
 	},
 	"tasks": {
 		"title": "Nhiệm vụ",
@@ -1809,7 +1817,9 @@
 			"copyTaskBranch": "Sao chép nhánh công việc",
 			"start": "Bắt đầu",
 			"startDate": "Ngày bắt đầu",
-			"noDate": "Không có ngày"
+			"noDate": "Không có ngày",
+			"noEstimate": "No estimate",
+			"timeEstimate": "Time estimate"
 		},
 		"move": {
 			"title": "Di chuyển công việc",
@@ -1864,6 +1874,14 @@
 					"rose": "Hồng",
 					"crimson": "Đỏ thẫm"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
+				"placeholder": "e.g. 2h 30m",
+				"save": "Save",
+				"title": "Time estimate",
+				"updateError": "Failed to update task time estimate",
+				"updateSuccess": "Task time estimate updated successfully"
 			}
 		},
 		"backlog": {
@@ -2032,7 +2050,9 @@
 			"actions": "Hành động",
 			"searchActions": "Tìm hành động...",
 			"noActionsFound": "Không tìm thấy hành động nào.",
-			"changeStatus": "Đổi trạng thái"
+			"changeStatus": "Đổi trạng thái",
+			"setTimeEstimate": "Set Time Estimate",
+			"updateTimeEstimateError": "Failed to update time estimate"
 		},
 		"editor": {
 			"table": {
@@ -2057,6 +2077,9 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"timeEstimate": {
+			"label": "Time estimate"
 		}
 	},
 	"invitations": {

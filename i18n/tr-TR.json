@@ -153,7 +153,9 @@
 					"terracotta": "Terakota",
 					"rose": "Gül Kurusu",
 					"crimson": "Koyu Kırmızı"
-				}
+				},
+				"timeEstimate": "Time estimate",
+				"setTimeEstimate": "Set"
 			}
 		},
 		"boolean": {
@@ -532,7 +534,9 @@
 			"labels": "Etiketler",
 			"labelsDescription": "Talep etiketlerini ve etiketleri göster",
 			"priority": "Öncelik",
-			"priorityDescription": "Öncelik göstergelerini görüntüle"
+			"priorityDescription": "Öncelik göstergelerini görüntüle",
+			"timeEstimates": "Time Estimates",
+			"timeEstimatesDescription": "Show time estimates on tasks"
 		},
 		"developerPage": {
 			"pageTitle": "Geliştirici Ayarları",
@@ -1004,7 +1008,8 @@
 				"taskDueDateChanged": "Bitiş tarihi değişti",
 				"taskAssigneeChanged": "Atanan kişi değişti",
 				"taskUnassigned": "Atama kaldırıldı",
-				"dueDateReminder": "Bitiş tarihi hatırlatmaları"
+				"dueDateReminder": "Bitiş tarihi hatırlatmaları",
+				"taskTimeEstimateChanged": "Time estimate changed"
 			},
 			"connect": "Webhook bağla",
 			"saveChanges": "Değişiklikleri kaydet",
@@ -1632,7 +1637,10 @@
 					"renderFailed": "Mermaid diyagramı oluşturulamadı"
 				}
 			}
-		}
+		},
+		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
+		"clearedTimeEstimate": "cleared the time estimate",
+		"setTimeEstimate": "set time estimate to {{estimate}}"
 	},
 	"tasks": {
 		"title": "Görevler",
@@ -1814,7 +1822,9 @@
 			"copyTaskBranch": "Talep dalını kopyala",
 			"start": "Başlat",
 			"startDate": "Başlangıç tarihi",
-			"noDate": "Tarih yok"
+			"noDate": "Tarih yok",
+			"noEstimate": "No estimate",
+			"timeEstimate": "Time estimate"
 		},
 		"move": {
 			"title": "Talebi taşı",
@@ -1869,6 +1879,14 @@
 					"rose": "Gül Kurusu",
 					"crimson": "Koyu Kırmızı"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
+				"placeholder": "e.g. 2h 30m",
+				"save": "Save",
+				"title": "Time estimate",
+				"updateError": "Failed to update task time estimate",
+				"updateSuccess": "Task time estimate updated successfully"
 			}
 		},
 		"backlog": {
@@ -2038,7 +2056,9 @@
 			"actions": "İşlemler",
 			"searchActions": "İşlem ara...",
 			"noActionsFound": "İşlem bulunamadı.",
-			"changeStatus": "Durumu Değiştir"
+			"changeStatus": "Durumu Değiştir",
+			"setTimeEstimate": "Set Time Estimate",
+			"updateTimeEstimateError": "Failed to update time estimate"
 		},
 		"editor": {
 			"table": {
@@ -2063,6 +2083,9 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"timeEstimate": {
+			"label": "Time estimate"
 		}
 	},
 	"invitations": {

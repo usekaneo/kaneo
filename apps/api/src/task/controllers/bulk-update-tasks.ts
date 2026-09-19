@@ -25,7 +25,8 @@ type BulkOperation =
   | "delete"
   | "addLabel"
   | "removeLabel"
-  | "updateDueDate";
+  | "updateDueDate"
+  | "updateTimeEstimate";
 
 async function bulkUpdateTasks({
   taskIds,
@@ -45,6 +46,7 @@ async function bulkUpdateTasks({
       projectId: taskTable.projectId,
       userId: taskTable.userId,
       dueDate: taskTable.dueDate,
+      timeEstimate: taskTable.timeEstimate,
       workspaceId: projectTable.workspaceId,
     })
     .from(taskTable)
@@ -358,6 +360,45 @@ async function bulkUpdateTasks({
           newDueDate: parsedDate,
           title: task.title,
           type: "due_date_changed",
+        });
+      }
+      break;
+    }
+
+    case "updateTimeEstimate": {
+      let estimate: number | null = null;
+      if (value) {
+        estimate = Number(value);
+        if (
+          !Number.isInteger(estimate) ||
+          estimate < 0 ||
+          estimate > 2_147_483_647
+        ) {
+          throw new HTTPException(400, {
+            message: `Invalid time estimate value "${value}"`,
+          });
+        }
+      }
+
+      // Zero clears, like the single-task route.
+      const newEstimate = estimate || null;
+
+      const result = await db
+        .update(taskTable)
+        .set({ timeEstimate: newEstimate })
+        .where(inArray(taskTable.id, foundIds));
+
+      updatedCount = result.rowCount ?? foundIds.length;
+
+      for (const task of tasks) {
+        await publishEvent("task.time_estimate_changed", {
+          taskId: task.id,
+          projectId: task.projectId,
+          userId,
+          oldTimeEstimate: task.timeEstimate,
+          newTimeEstimate: newEstimate,
+          title: task.title,
+          type: "time_estimate_changed",
         });
       }
       break;

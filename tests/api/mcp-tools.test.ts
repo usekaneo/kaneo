@@ -147,6 +147,36 @@ describe("MCP tool catalog", () => {
     expect(apiFetch).not.toHaveBeenCalled();
   });
 
+  it("sets and clears a time estimate", async () => {
+    await call("update_task_time_estimate", {
+      taskId: "t1",
+      timeEstimate: 5400,
+    });
+    expect(lastRequest()).toMatchObject({
+      url: "http://api.test/api/task/time-estimate/t1",
+      method: "PUT",
+      body: { timeEstimate: 5400 },
+    });
+
+    await call("update_task_time_estimate", {
+      taskId: "t1",
+      timeEstimate: null,
+    });
+    expect(lastRequest().body).toEqual({ timeEstimate: null });
+  });
+
+  it("rejects a time estimate that is not a non-negative integer", async () => {
+    for (const timeEstimate of [-5, 1.5]) {
+      const result = await call("update_task_time_estimate", {
+        taskId: "t1",
+        timeEstimate,
+      });
+
+      expect(result.isError).toBe(true);
+    }
+    expect(apiFetch).not.toHaveBeenCalled();
+  });
+
   it("reads time entries for a task and by id", async () => {
     await call("list_task_time_entries", { taskId: "t1" });
     expect(lastRequest().url).toBe("http://api.test/api/time-entry/task/t1");

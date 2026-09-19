@@ -123,6 +123,31 @@ describe("registerTools", () => {
     expect(result?.isError).toBe(false);
   });
 
+  it("sets and clears a task time estimate", async () => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn().mockResolvedValue({ id: "task-1" }) };
+
+    registerTools(server as never, { client: client as never });
+
+    await tools.get("update_task_time_estimate")?.handler({
+      taskId: "task-1",
+      timeEstimate: 5400,
+    });
+    expect(client.json).toHaveBeenCalledWith("/api/task/time-estimate/task-1", {
+      method: "PUT",
+      body: JSON.stringify({ timeEstimate: 5400 }),
+    });
+
+    await tools.get("update_task_time_estimate")?.handler({
+      taskId: "task-1",
+      timeEstimate: null,
+    });
+    expect(client.json).toHaveBeenCalledWith("/api/task/time-estimate/task-1", {
+      method: "PUT",
+      body: JSON.stringify({ timeEstimate: null }),
+    });
+  });
+
   it("fetches the current project and sends a full body for update_project", async () => {
     const { server, tools } = createServerMock();
     const client = {

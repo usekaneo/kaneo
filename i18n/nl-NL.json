@@ -153,7 +153,9 @@
 					"terracotta": "Terracotta",
 					"rose": "Roos",
 					"crimson": "Karmozijn"
-				}
+				},
+				"timeEstimate": "Time estimate",
+				"setTimeEstimate": "Set"
 			}
 		},
 		"boolean": {
@@ -429,7 +431,9 @@
 			"labels": "Labels",
 			"labelsDescription": "Toon taaklabels en tags",
 			"priority": "Prioriteit",
-			"priorityDescription": "Toon prioriteitsindicatoren"
+			"priorityDescription": "Toon prioriteitsindicatoren",
+			"timeEstimates": "Time Estimates",
+			"timeEstimatesDescription": "Show time estimates on tasks"
 		},
 		"developerPage": {
 			"pageTitle": "Ontwikkelaarsinstellingen",
@@ -825,7 +829,8 @@
 				"taskDueDateChanged": "Einddatum gewijzigd",
 				"taskAssigneeChanged": "Toewijzing gewijzigd",
 				"taskUnassigned": "Toewijzing verwijderd",
-				"dueDateReminder": "Einddatum-herinneringen"
+				"dueDateReminder": "Einddatum-herinneringen",
+				"taskTimeEstimateChanged": "Time estimate changed"
 			},
 			"connect": "Webhook verbinden",
 			"saveChanges": "Wijzigingen opslaan",
@@ -1632,7 +1637,10 @@
 					"renderFailed": "Mermaid-diagram kon niet worden weergegeven"
 				}
 			}
-		}
+		},
+		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
+		"clearedTimeEstimate": "cleared the time estimate",
+		"setTimeEstimate": "set time estimate to {{estimate}}"
 	},
 	"tasks": {
 		"title": "Taken",
@@ -1814,7 +1822,9 @@
 			"copyTaskBranch": "Taakbranch kopiëren",
 			"start": "Start",
 			"startDate": "Startdatum",
-			"noDate": "Geen datum"
+			"noDate": "Geen datum",
+			"noEstimate": "No estimate",
+			"timeEstimate": "Time estimate"
 		},
 		"popover": {
 			"assignee": {
@@ -1858,6 +1868,14 @@
 					"rose": "Roos",
 					"crimson": "Karmozijn"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
+				"placeholder": "e.g. 2h 30m",
+				"save": "Save",
+				"title": "Time estimate",
+				"updateError": "Failed to update task time estimate",
+				"updateSuccess": "Task time estimate updated successfully"
 			}
 		},
 		"backlog": {
@@ -2027,7 +2045,9 @@
 			"actions": "Acties",
 			"searchActions": "Acties zoeken...",
 			"noActionsFound": "Geen acties gevonden.",
-			"changeStatus": "Status wijzigen"
+			"changeStatus": "Status wijzigen",
+			"setTimeEstimate": "Set Time Estimate",
+			"updateTimeEstimateError": "Failed to update time estimate"
 		},
 		"move": {
 			"title": "Taak verplaatsen",
@@ -2063,6 +2083,9 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"timeEstimate": {
+			"label": "Time estimate"
 		}
 	},
 	"invitations": {
