@@ -1324,7 +1324,9 @@
 			"title": "Preferencje",
 			"weekStartsOnMonday": "Poniedziałek",
 			"weekStartsOnSaturday": "Sobota",
-			"weekStartsOnSunday": "Niedziela"
+			"weekStartsOnSunday": "Niedziela",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"projectGeneral": {
 			"dangerZone": "Strefa niebezpieczna",
@@ -1363,7 +1365,16 @@
 				"keyMax": "Klucz może mieć maksymalnie 8 znaków",
 				"keyRequired": "Klucz jest wymagany",
 				"nameRequired": "Nazwa projektu jest wymagana"
-			}
+			},
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundLabel": "Board background",
+			"backgroundRemove": "Remove image",
+			"backgroundRemoveError": "Failed to remove project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundReplace": "Replace image",
+			"backgroundUpload": "Upload image",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundUploadSuccess": "Project background updated"
 		},
 		"projectIntegrations": {
 			"discordSectionSubtitle": "Wysyłaj aktualizacje zadań projektu na kanał Discord za pomocą webhooka.",
