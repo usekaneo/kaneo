@@ -1377,7 +1377,8 @@
 			"members": "Μέλη",
 			"invitations": "Προσκλήσεις",
 			"more": "Περισσότερα",
-			"backToBoard": "Επιστροφή στον πίνακα"
+			"backToBoard": "Επιστροφή στον πίνακα",
+			"myTasks": "Οι εργασίες μου"
 		},
 		"projectList": {
 			"viewProject": "Προβολή έργου",
@@ -1925,12 +1926,14 @@
 				"priority": "Προτεραιότητα",
 				"assignee": "Ανατεθειμένος",
 				"dueDate": "Ημερομηνία λήξης",
-				"labels": "Ετικέτες"
+				"labels": "Ετικέτες",
+				"project": "Έργο"
 			},
 			"operators": {
 				"isAnyOf": "είναι ένα από",
 				"includeAnyOf": "περιλαμβάνει κάποιο από"
 			},
+			"allProjects": "Όλα τα έργα",
 			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
@@ -2063,6 +2066,15 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"myTasks": {
+			"empty": "Δεν σας έχει ανατεθεί τίποτα",
+			"emptySubtitle": "Οι εργασίες που σας ανατίθενται σε οποιονδήποτε από τους χώρους εργασίας σας θα εμφανίζονται εδώ.",
+			"loadError": "Η φόρτωση των εργασιών σας απέτυχε.",
+			"pageTitle": "Οι εργασίες μου · {{view}}",
+			"title": "Οι εργασίες μου",
+			"noMatches": "Καμία εργασία δεν ταιριάζει",
+			"noMatchesSubtitle": "Δοκιμάστε μια διαφορετική αναζήτηση ή καθαρίστε τα ενεργά φίλτρα."
 		}
 	},
 	"invitations": {

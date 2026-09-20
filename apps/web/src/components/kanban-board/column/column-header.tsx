@@ -3,6 +3,7 @@ import { Archive, Plus } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
+import { useTaskViewCapabilities } from "@/components/task/task-view-context";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
@@ -20,8 +21,9 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
   const { project, setProject } = useProjectStore();
   const { mutate: updateTask } = useUpdateTask();
   const { canUpdateTasks, canCreateTasks } = useWorkspacePermission();
-  const canTask = canUpdateTasks();
-  const canCreate = canCreateTasks();
+  const { columnActions } = useTaskViewCapabilities();
+  const canTask = columnActions && canUpdateTasks();
+  const canCreate = columnActions && canCreateTasks();
 
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
