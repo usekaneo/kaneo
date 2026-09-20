@@ -1,52 +1,59 @@
 import { eq } from "drizzle-orm";
-import { HTTPException } from "hono/http-exception";
-import db from "../../database";
+import { Effect } from "effect";
 import {
   customFieldDefinitionTable,
   projectTable,
 } from "../../database/schema";
+import { Database } from "../../effect/database";
+import { NotFound } from "../../effect/errors";
+import {
+  CustomFieldOrProjectNotFound,
+  ProjectWithoutWorkspace,
+} from "../errors";
 
-async function deleteCustomField(id: string) {
-  const [field] = await db
-    .select({
-      projectId: customFieldDefinitionTable.projectId,
-      workspaceId: projectTable.workspaceId,
-    })
-    .from(customFieldDefinitionTable)
-    .innerJoin(
-      projectTable,
-      eq(projectTable.id, customFieldDefinitionTable.projectId),
-    )
-    .where(eq(customFieldDefinitionTable.id, id))
-    .limit(1);
+const deleteCustomField = Effect.fn("customField.deleteCustomField")(function* (
+  id: string,
+) {
+  const database = yield* Database;
+
+  const [field] = yield* database.query((db) =>
+    db
+      .select({
+        projectId: customFieldDefinitionTable.projectId,
+        workspaceId: projectTable.workspaceId,
+      })
+      .from(customFieldDefinitionTable)
+      .innerJoin(
+        projectTable,
+        eq(projectTable.id, customFieldDefinitionTable.projectId),
+      )
+      .where(eq(customFieldDefinitionTable.id, id))
+      .limit(1),
+  );
 
   if (!field) {
-    throw new HTTPException(404, {
-      message: "Custom field or project not found",
-    });
+    return yield* new CustomFieldOrProjectNotFound({ id });
   }
 
   if (!field.workspaceId) {
-    throw new HTTPException(400, {
-      message: "The project is not associated with a workspace",
-    });
+    return yield* new ProjectWithoutWorkspace({ projectId: field.projectId });
   }
 
-  const [deleted] = await db
-    .delete(customFieldDefinitionTable)
-    .where(eq(customFieldDefinitionTable.id, id))
-    .returning();
+  const [deleted] = yield* database.query((db) =>
+    db
+      .delete(customFieldDefinitionTable)
+      .where(eq(customFieldDefinitionTable.id, id))
+      .returning(),
+  );
 
   if (!deleted) {
-    throw new HTTPException(404, {
-      message: "Custom field not found",
-    });
+    return yield* new NotFound({ entity: "Custom field", id });
   }
 
   return {
     ...deleted,
     workspaceId: field.workspaceId,
   };
-}
+});
 
 export default deleteCustomField;

@@ -1,32 +1,31 @@
 import { eq, sql } from "drizzle-orm";
-import { HTTPException } from "hono/http-exception";
-import db from "../../database";
+import { Effect } from "effect";
 import { columnTable, taskTable } from "../../database/schema";
+import { Database } from "../../effect/database";
+import { columnById } from "../../effect/lookups";
+import { ColumnHasTasks } from "../errors";
 
-async function deleteColumn(id: string) {
-  const existing = await db.query.columnTable.findFirst({
-    where: eq(columnTable.id, id),
-  });
+const deleteColumn = Effect.fn("column.deleteColumn")(function* (id: string) {
+  const database = yield* Database;
 
-  if (!existing) {
-    throw new HTTPException(404, { message: "Column not found" });
-  }
+  const existing = yield* columnById(id);
 
-  const [taskCount] = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(taskTable)
-    .where(eq(taskTable.columnId, id));
+  const [taskCount] = yield* database.query((db) =>
+    db
+      .select({ count: sql<number>`count(*)` })
+      .from(taskTable)
+      .where(eq(taskTable.columnId, id)),
+  );
 
   if (taskCount && taskCount.count > 0) {
-    throw new HTTPException(409, {
-      message:
-        "Cannot delete column that contains tasks. Move or delete tasks first.",
-    });
+    return yield* new ColumnHasTasks({ id, count: taskCount.count });
   }
 
-  await db.delete(columnTable).where(eq(columnTable.id, id));
+  yield* database.query((db) =>
+    db.delete(columnTable).where(eq(columnTable.id, id)),
+  );
 
   return existing;
-}
+});
 
 export default deleteColumn;

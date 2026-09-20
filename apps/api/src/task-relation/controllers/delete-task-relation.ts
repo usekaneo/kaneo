@@ -1,54 +1,50 @@
 import { eq } from "drizzle-orm";
-import { HTTPException } from "hono/http-exception";
-import db from "../../database";
+import { Effect } from "effect";
 import { taskRelationTable, taskTable } from "../../database/schema";
-import { publishEvent } from "../../events";
+import { Database } from "../../effect/database";
+import { NotFound } from "../../effect/errors";
+import { Events } from "../../effect/events";
+import { taskRelationById } from "../../effect/lookups";
 
-async function deleteTaskRelation(id: string, userId: string) {
-  const [rel] = await db
-    .select({
-      sourceTaskId: taskRelationTable.sourceTaskId,
-      targetTaskId: taskRelationTable.targetTaskId,
-    })
-    .from(taskRelationTable)
-    .where(eq(taskRelationTable.id, id))
-    .limit(1);
+const deleteTaskRelation = Effect.fn("taskRelation.deleteTaskRelation")(
+  function* (id: string, userId: string) {
+    const database = yield* Database;
+    const events = yield* Events;
 
-  if (!rel) {
-    throw new HTTPException(404, {
-      message: "Task relation not found",
-    });
-  }
+    const rel = yield* taskRelationById(id);
 
-  const [task] = await db
-    .select({ projectId: taskTable.projectId })
-    .from(taskTable)
-    .where(eq(taskTable.id, rel.sourceTaskId))
-    .limit(1);
+    const [task] = yield* database.query((db) =>
+      db
+        .select({ projectId: taskTable.projectId })
+        .from(taskTable)
+        .where(eq(taskTable.id, rel.sourceTaskId))
+        .limit(1),
+    );
 
-  const [relation] = await db
-    .delete(taskRelationTable)
-    .where(eq(taskRelationTable.id, id))
-    .returning();
+    const [relation] = yield* database.query((db) =>
+      db
+        .delete(taskRelationTable)
+        .where(eq(taskRelationTable.id, id))
+        .returning(),
+    );
 
-  if (!relation) {
-    throw new HTTPException(404, {
-      message: "Task relation not found",
-    });
-  }
+    if (!relation) {
+      return yield* new NotFound({ entity: "Task relation", id });
+    }
 
-  if (task) {
-    await publishEvent("task-relation.deleted", {
-      ...relation,
-      taskId: rel.sourceTaskId,
-      sourceTaskId: rel.sourceTaskId,
-      targetTaskId: rel.targetTaskId,
-      projectId: task.projectId,
-      userId,
-    });
-  }
+    if (task) {
+      yield* events.publish("task-relation.deleted", {
+        ...relation,
+        taskId: rel.sourceTaskId,
+        sourceTaskId: rel.sourceTaskId,
+        targetTaskId: rel.targetTaskId,
+        projectId: task.projectId,
+        userId,
+      });
+    }
 
-  return relation;
-}
+    return relation;
+  },
+);
 
 export default deleteTaskRelation;

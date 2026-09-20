@@ -1,8 +1,14 @@
 import { eq, sql } from "drizzle-orm";
-import { HTTPException } from "hono/http-exception";
-import db from "../../database";
+import { Effect } from "effect";
 import { columnTable } from "../../database/schema";
+import { Database } from "../../effect/database";
 import { VIRTUAL_STATUSES } from "../../task/validate-task-fields";
+import {
+  ColumnCreateFailed,
+  DuplicateColumnSlug,
+  InvalidColumnName,
+  ReservedColumnSlug,
+} from "../errors";
 
 export function toSlug(name: string): string {
   const slug = name
@@ -15,7 +21,7 @@ export function toSlug(name: string): string {
   return /[\p{L}\p{N}]/u.test(slug) ? slug : "";
 }
 
-async function createColumn({
+const createColumn = Effect.fn("column.createColumn")(function* ({
   projectId,
   name,
   icon,
@@ -28,60 +34,62 @@ async function createColumn({
   color?: string;
   isFinal?: boolean;
 }) {
+  const database = yield* Database;
+
   const slug = toSlug(name);
 
   if (!slug) {
-    throw new HTTPException(400, {
-      message: "Column name must contain at least one alphanumeric character",
-    });
+    return yield* new InvalidColumnName({ name });
   }
 
   if ((VIRTUAL_STATUSES as readonly string[]).includes(slug)) {
-    throw new HTTPException(409, {
-      message: `Column slug "${slug}" is reserved for virtual task statuses`,
-    });
+    return yield* new ReservedColumnSlug({ slug });
   }
 
-  const existing = await db
-    .select({ id: columnTable.id })
-    .from(columnTable)
-    .where(
-      sql`${columnTable.projectId} = ${projectId} AND ${columnTable.slug} = ${slug}`,
-    );
+  const existing = yield* database.query((db) =>
+    db
+      .select({ id: columnTable.id })
+      .from(columnTable)
+      .where(
+        sql`${columnTable.projectId} = ${projectId} AND ${columnTable.slug} = ${slug}`,
+      ),
+  );
 
   if (existing.length > 0) {
-    throw new HTTPException(409, {
-      message: `Column with slug "${slug}" already exists in this project`,
-    });
+    return yield* new DuplicateColumnSlug({ projectId, slug });
   }
 
-  const [maxPos] = await db
-    .select({
-      maxPosition: sql<number>`COALESCE(MAX(${columnTable.position}), -1)`,
-    })
-    .from(columnTable)
-    .where(eq(columnTable.projectId, projectId));
+  const [maxPos] = yield* database.query((db) =>
+    db
+      .select({
+        maxPosition: sql<number>`COALESCE(MAX(${columnTable.position}), -1)`,
+      })
+      .from(columnTable)
+      .where(eq(columnTable.projectId, projectId)),
+  );
 
   const position = (maxPos?.maxPosition ?? -1) + 1;
 
-  const [created] = await db
-    .insert(columnTable)
-    .values({
-      projectId,
-      name,
-      slug,
-      position,
-      icon: icon || null,
-      color: color || null,
-      isFinal: isFinal ?? false,
-    })
-    .returning();
+  const [created] = yield* database.query((db) =>
+    db
+      .insert(columnTable)
+      .values({
+        projectId,
+        name,
+        slug,
+        position,
+        icon: icon || null,
+        color: color || null,
+        isFinal: isFinal ?? false,
+      })
+      .returning(),
+  );
 
   if (!created) {
-    throw new HTTPException(500, { message: "Failed to create column" });
+    return yield* new ColumnCreateFailed({ projectId });
   }
 
   return created;
-}
+});
 
 export default createColumn;

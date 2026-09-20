@@ -1,15 +1,20 @@
 import { asc, eq } from "drizzle-orm";
-import db from "../../database";
+import { Effect } from "effect";
 import { columnTable } from "../../database/schema";
+import { Database } from "../../effect/database";
 
-async function getColumns(projectId: string) {
-  const columns = await db
-    .select()
-    .from(columnTable)
-    .where(eq(columnTable.projectId, projectId))
-    .orderBy(asc(columnTable.position));
+const getColumns = Effect.fn("column.getColumns")(function* (
+  projectId: string,
+) {
+  const database = yield* Database;
 
-  return columns;
-}
+  return yield* database.query((db) =>
+    db
+      .select()
+      .from(columnTable)
+      .where(eq(columnTable.projectId, projectId))
+      .orderBy(asc(columnTable.position)),
+  );
+});
 
 export default getColumns;

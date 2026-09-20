@@ -22,6 +22,7 @@ import {
   reorderCustomFieldsResponseSchema,
   setCustomFieldValueResponseSchema,
 } from "./response";
+import { runCustomField } from "./runtime";
 import {
   createCustomFieldBody,
   customFieldIdParam,
@@ -226,20 +227,34 @@ const deleteCustomFieldRoute = createRoute({
 
 const customField = apiRouter()
   .openapi(getCustomFieldsRoute, async (c) =>
-    c.json(await getCustomFieldsByProject(c.req.valid("param").projectId), 200),
+    c.json(
+      await runCustomField(
+        getCustomFieldsByProject(c.req.valid("param").projectId),
+      ),
+      200,
+    ),
   )
   .openapi(getCustomFieldValuesByProjectRoute, async (c) =>
     c.json(
-      await getCustomFieldValuesByProject(c.req.valid("param").projectId),
+      await runCustomField(
+        getCustomFieldValuesByProject(c.req.valid("param").projectId),
+      ),
       200,
     ),
   )
   .openapi(getCustomFieldValuesByTaskRoute, async (c) =>
-    c.json(await getCustomFieldValuesByTask(c.req.valid("param").taskId), 200),
+    c.json(
+      await runCustomField(
+        getCustomFieldValuesByTask(c.req.valid("param").taskId),
+      ),
+      200,
+    ),
   )
   .openapi(getCustomFieldFilterValuesRoute, async (c) =>
     c.json(
-      await getCustomFieldFilterValues(c.req.valid("param").projectId),
+      await runCustomField(
+        getCustomFieldFilterValues(c.req.valid("param").projectId),
+      ),
       200,
     ),
   )
@@ -248,13 +263,15 @@ const customField = apiRouter()
       c.req.valid("json");
 
     return c.json(
-      await createCustomField(
-        projectId,
-        name,
-        type,
-        required,
-        defaultValue,
-        options,
+      await runCustomField(
+        createCustomField(
+          projectId,
+          name,
+          type,
+          required,
+          defaultValue,
+          options,
+        ),
       ),
       200,
     );
@@ -263,15 +280,24 @@ const customField = apiRouter()
     const { projectId } = c.req.valid("param");
     const { fields } = c.req.valid("json");
 
-    return c.json(await reorderCustomFields(projectId, fields), 200);
+    return c.json(
+      await runCustomField(reorderCustomFields(projectId, fields)),
+      200,
+    );
   })
   .openapi(setCustomFieldValueRoute, async (c) => {
     const { taskId, fieldId, value } = c.req.valid("json");
 
-    return c.json(await setCustomFieldValue(taskId, fieldId, value), 200);
+    return c.json(
+      await runCustomField(setCustomFieldValue(taskId, fieldId, value)),
+      200,
+    );
   })
   .openapi(deleteCustomFieldRoute, async (c) =>
-    c.json(await deleteCustomField(c.req.valid("param").id), 200),
+    c.json(
+      await runCustomField(deleteCustomField(c.req.valid("param").id)),
+      200,
+    ),
   );
 
 export default customField;

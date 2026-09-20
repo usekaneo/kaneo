@@ -53,6 +53,7 @@
     "croner": "^10.0.1",
     "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.45.2",
+    "effect": "4.0.0-rc.115",
     "hono": "^4.13.0",
     "ioredis": "^6.0.0",
     "octokit": "^5.0.5",

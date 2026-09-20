@@ -1,28 +1,36 @@
 import { and, eq, inArray, or } from "drizzle-orm";
-import db from "../../database";
+import { Effect } from "effect";
 import {
   projectTable,
   taskRelationTable,
   taskTable,
   userTable,
 } from "../../database/schema";
+import { Database } from "../../effect/database";
 
-async function getTaskRelations(taskId: string, workspaceId: string) {
-  const relations = await db
-    .select({
-      id: taskRelationTable.id,
-      sourceTaskId: taskRelationTable.sourceTaskId,
-      targetTaskId: taskRelationTable.targetTaskId,
-      relationType: taskRelationTable.relationType,
-      createdAt: taskRelationTable.createdAt,
-    })
-    .from(taskRelationTable)
-    .where(
-      or(
-        eq(taskRelationTable.sourceTaskId, taskId),
-        eq(taskRelationTable.targetTaskId, taskId),
+const getTaskRelations = Effect.fn("taskRelation.getTaskRelations")(function* (
+  taskId: string,
+  workspaceId: string,
+) {
+  const database = yield* Database;
+
+  const relations = yield* database.query((db) =>
+    db
+      .select({
+        id: taskRelationTable.id,
+        sourceTaskId: taskRelationTable.sourceTaskId,
+        targetTaskId: taskRelationTable.targetTaskId,
+        relationType: taskRelationTable.relationType,
+        createdAt: taskRelationTable.createdAt,
+      })
+      .from(taskRelationTable)
+      .where(
+        or(
+          eq(taskRelationTable.sourceTaskId, taskId),
+          eq(taskRelationTable.targetTaskId, taskId),
+        ),
       ),
-    );
+  );
 
   const taskIds = new Set<string>();
   for (const rel of relations) {
@@ -45,26 +53,28 @@ async function getTaskRelations(taskId: string, workspaceId: string) {
   >();
 
   if (taskIds.size > 0) {
-    const taskRows = await db
-      .select({
-        id: taskTable.id,
-        title: taskTable.title,
-        status: taskTable.status,
-        priority: taskTable.priority,
-        number: taskTable.number,
-        projectId: taskTable.projectId,
-        userId: taskTable.userId,
-        assigneeName: userTable.name,
-      })
-      .from(taskTable)
-      .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
-      .leftJoin(userTable, eq(taskTable.userId, userTable.id))
-      .where(
-        and(
-          inArray(taskTable.id, [...taskIds]),
-          eq(projectTable.workspaceId, workspaceId),
+    const taskRows = yield* database.query((db) =>
+      db
+        .select({
+          id: taskTable.id,
+          title: taskTable.title,
+          status: taskTable.status,
+          priority: taskTable.priority,
+          number: taskTable.number,
+          projectId: taskTable.projectId,
+          userId: taskTable.userId,
+          assigneeName: userTable.name,
+        })
+        .from(taskTable)
+        .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+        .leftJoin(userTable, eq(taskTable.userId, userTable.id))
+        .where(
+          and(
+            inArray(taskTable.id, [...taskIds]),
+            eq(projectTable.workspaceId, workspaceId),
+          ),
         ),
-      );
+    );
 
     for (const task of taskRows) {
       tasks.set(task.id, task);
@@ -78,6 +88,6 @@ async function getTaskRelations(taskId: string, workspaceId: string) {
       sourceTask: tasks.get(rel.sourceTaskId) ?? null,
       targetTask: tasks.get(rel.targetTaskId) ?? null,
     }));
-}
+});
 
 export default getTaskRelations;
