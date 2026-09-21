@@ -22,12 +22,9 @@ if (!packageManager) {
 }
 const RUN = {
   stdio: ["ignore", "ignore", "inherit"],
-  // The exporter boots the app to serialize route metadata. It never issues or
-  // verifies a token, but the app refuses to start without a secret.
   env: {
     ...process.env,
-    AUTH_SECRET:
-      process.env.AUTH_SECRET ?? "openapi-export-only-secret-not-for-serving",
+    AUTH_SECRET: "openapi-export-only-secret-not-for-serving",
   },
 };
 

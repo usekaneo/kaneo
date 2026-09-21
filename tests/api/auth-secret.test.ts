@@ -7,8 +7,6 @@ describe("AUTH_SECRET resolution", () => {
   it.each([undefined, ""])(
     "refuses to start when AUTH_SECRET is %p",
     (value) => {
-      // Better Auth would otherwise fall back to its published default secret,
-      // which makes every session cookie forgeable offline.
       expect(() => resolveAuthSecret(value)).toThrow(/AUTH_SECRET is not set/);
     },
   );
