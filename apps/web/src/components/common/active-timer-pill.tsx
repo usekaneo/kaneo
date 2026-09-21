@@ -59,14 +59,14 @@ export default function ActiveTimerPill() {
             <button
               type="button"
               onClick={handleOpenTask}
-              className="flex min-w-0 items-center gap-1.5 text-left"
+              className="flex min-w-0 cursor-pointer items-center gap-1.5 rounded px-1 py-0.5 text-left transition-colors hover:bg-accent/60"
             >
               <span className="relative flex h-2 w-2 shrink-0">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
               </span>
               <Timer className="size-3.5 shrink-0 text-muted-foreground" />
-              <span className="max-w-24 truncate text-xs font-medium text-foreground">
+              <span className="max-w-24 truncate text-xs font-medium text-foreground hover:text-primary hover:underline">
                 {running.taskTitle ?? t("tasks:common.selectTask")}
               </span>
               <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
