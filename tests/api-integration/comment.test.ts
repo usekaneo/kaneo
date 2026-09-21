@@ -95,8 +95,8 @@ describe("API integration: task comments", () => {
     expect(legacyComments).toHaveLength(0);
   });
 
-  it("records an external author when both name and source are given", async () => {
-    const member = await createWorkspaceMember();
+  it("records an external author for an authorized workspace administrator", async () => {
+    const member = await createWorkspaceMember({ role: "admin" });
     const { project, columns } = await createProjectFixture({
       workspaceId: member.workspace.id,
     });

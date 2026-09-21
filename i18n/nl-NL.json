@@ -709,7 +709,13 @@
 			"importSectionHint": "Importeer bestaande issues van GitHub als taken",
 			"importing": "Importeren...",
 			"importIssues": "Issues importeren",
-			"importDisabledHint": "Voltooi de configuratie hierboven om importeren mogelijk te maken"
+			"importDisabledHint": "Voltooi de configuratie hierboven om importeren mogelijk te maken",
+			"accountVerificationHint": "Koppel je GitHub-account om te controleren of je deze repository beheert.",
+			"enableGithubSignInHint": "Vraag de beheerder van je instantie om aanmelden via GitHub in te schakelen.",
+			"reverifyHint": "Koppel deze repository opnieuw om de toegang te controleren en de synchronisatie te hervatten.",
+			"resumeImport": "Resume import",
+			"importPaused": "This import has saved progress. You can resume it.",
+			"importSummary": "Created: {{imported}} · Updated: {{updated}} · Skipped: {{skipped}}"
 		},
 		"slackIntegration": {
 			"validation": {
@@ -1034,7 +1040,12 @@
 				"project": "Projecten",
 				"task": "Taken",
 				"label": "Labels",
-				"workspace": "Werkruimte"
+				"workspace": "Werkruimte",
+				"organization": "Workspace administration",
+				"member": "Members",
+				"invitation": "Invitations",
+				"team": "Teams",
+				"ac": "Roles and permissions"
 			},
 			"permissions": {
 				"project": {
@@ -1116,6 +1127,72 @@
 						"label": "Instellingen beheren",
 						"description": "Kan werkruimte-instellingen beheren"
 					}
+				},
+				"organization": {
+					"update": {
+						"label": "Edit workspace administration",
+						"description": "Change workspace settings through the account service."
+					},
+					"delete": {
+						"label": "Delete workspace",
+						"description": "Permanently delete the workspace through the account service."
+					}
+				},
+				"member": {
+					"create": {
+						"label": "Add members",
+						"description": "Add users to this workspace."
+					},
+					"update": {
+						"label": "Change member roles",
+						"description": "Change the roles assigned to workspace members."
+					},
+					"delete": {
+						"label": "Remove members",
+						"description": "Remove users from this workspace."
+					}
+				},
+				"invitation": {
+					"create": {
+						"label": "Invite members",
+						"description": "Send workspace invitations."
+					},
+					"cancel": {
+						"label": "Cancel invitations",
+						"description": "Revoke pending workspace invitations."
+					}
+				},
+				"team": {
+					"create": {
+						"label": "Create teams",
+						"description": "Create teams in this workspace."
+					},
+					"update": {
+						"label": "Edit teams",
+						"description": "Change teams and team membership."
+					},
+					"delete": {
+						"label": "Delete teams",
+						"description": "Delete teams in this workspace."
+					}
+				},
+				"ac": {
+					"create": {
+						"label": "Create roles",
+						"description": "Create workspace roles and assign their permissions."
+					},
+					"read": {
+						"label": "View roles",
+						"description": "Read the workspace roles and their permissions."
+					},
+					"update": {
+						"label": "Change role permissions",
+						"description": "Change role permissions, including administrative access."
+					},
+					"delete": {
+						"label": "Delete roles",
+						"description": "Delete custom workspace roles."
+					}
 				}
 			},
 			"validation": {
@@ -1159,7 +1236,9 @@
 			"createError": "Aanmaken label mislukt",
 			"updateError": "Bijwerken label mislukt",
 			"deleteError": "Verwijderen label mislukt",
-			"nameRequired": "Labelnaam is verplicht"
+			"nameRequired": "Labelnaam is verplicht",
+			"deletionPending": "Deletion pending",
+			"resumeDeletion": "Resume deletion"
 		},
 		"giteaIntegration": {
 			"validation": {
@@ -1631,7 +1710,9 @@
 				"mermaid": {
 					"renderFailed": "Mermaid-diagram kon niet worden weergegeven"
 				}
-			}
+			},
+			"importedFrom": "Imported from {{source}}",
+			"importedBy": "Imported by {{name}}"
 		}
 	},
 	"tasks": {
@@ -1940,7 +2021,11 @@
 			"resizeStart": "Startdatum wijzigen",
 			"resizeDue": "Einddatum wijzigen",
 			"taskAriaLabel": "{{title}}: openen of slepen om te verplaatsen",
-			"jumpToToday": "Jump to today"
+			"jumpToToday": "Jump to today",
+			"previousPeriod": "Previous period",
+			"nextPeriod": "Next period",
+			"periodStart": "Timeline start date",
+			"showTaskDates": "Show task dates"
 		},
 		"delete": {
 			"title": "Taak verwijderen?",
@@ -2063,7 +2148,12 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
-		}
+		},
+		"descriptionSearchLoading": "Searching full descriptions…",
+		"descriptionSearchError": "Description search failed. Results may be incomplete.",
+		"descriptionRetry": "Retry",
+		"descriptionLoading": "Loading description…",
+		"descriptionLoadError": "The description could not be loaded. Retry to load the current version."
 	},
 	"invitations": {
 		"email": {

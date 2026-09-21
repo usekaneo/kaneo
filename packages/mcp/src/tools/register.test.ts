@@ -61,11 +61,12 @@ describe("registerTools", () => {
       projectId: "project 1",
       status: "open",
       page: 2,
+      relatedPage: 3,
       sortOrder: "desc",
     });
 
     expect(client.json).toHaveBeenCalledWith(
-      "/api/task/tasks/project%201?status=open&page=2&sortOrder=desc",
+      "/api/task/tasks/project%201?status=open&page=2&relatedPage=3&sortOrder=desc",
       { method: "GET" },
     );
     expect(result).toEqual({

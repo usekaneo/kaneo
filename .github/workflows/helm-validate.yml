@@ -49,7 +49,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -57,7 +57,7 @@ jobs:
         uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5
 
       - name: Lint chart
-        run: helm lint "$CHART_PATH"
+        run: helm lint "$CHART_PATH" --set kaneo.env.clientUrl=https://kaneo.example.com ${{ matrix.args }}
 
       - name: Render chart (${{ matrix.name }})
-        run: helm template kaneo "$CHART_PATH" ${{ matrix.args }}
+        run: helm template kaneo "$CHART_PATH" --set kaneo.env.clientUrl=https://kaneo.example.com ${{ matrix.args }}

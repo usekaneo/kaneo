@@ -812,7 +812,13 @@
 			"importSectionHint": "Εισαγάγετε υπάρχοντα issues από το αποθετήριο GitHub ως εργασίες",
 			"importing": "Γίνεται εισαγωγή...",
 			"importIssues": "Εισαγωγή issues",
-			"importDisabledHint": "Ολοκληρώστε τη ρύθμιση του αποθετηρίου παραπάνω για να ενεργοποιήσετε την εισαγωγή"
+			"importDisabledHint": "Ολοκληρώστε τη ρύθμιση του αποθετηρίου παραπάνω για να ενεργοποιήσετε την εισαγωγή",
+			"accountVerificationHint": "Συνδέστε τον λογαριασμό σας στο GitHub για να επαληθεύσετε ότι διαχειρίζεστε αυτό το αποθετήριο.",
+			"enableGithubSignInHint": "Ζητήστε από τον διαχειριστή της εγκατάστασής σας να ενεργοποιήσει τη σύνδεση μέσω GitHub.",
+			"reverifyHint": "Συνδέστε ξανά αυτό το αποθετήριο για να επαληθεύσετε την πρόσβαση και να συνεχίσετε τον συγχρονισμό.",
+			"resumeImport": "Resume import",
+			"importPaused": "This import has saved progress. You can resume it.",
+			"importSummary": "Created: {{imported}} · Updated: {{updated}} · Skipped: {{skipped}}"
 		},
 		"giteaIntegration": {
 			"validation": {
@@ -1156,7 +1162,12 @@
 				"project": "Έργα",
 				"task": "Εργασίες",
 				"label": "Ετικέτες",
-				"workspace": "Χώρος εργασίας"
+				"workspace": "Χώρος εργασίας",
+				"organization": "Workspace administration",
+				"member": "Members",
+				"invitation": "Invitations",
+				"team": "Teams",
+				"ac": "Roles and permissions"
 			},
 			"permissions": {
 				"project": {
@@ -1238,6 +1249,72 @@
 						"label": "Διαχείριση ρυθμίσεων",
 						"description": "Μπορεί να διαχειρίζεται τις ρυθμίσεις του χώρου εργασίας"
 					}
+				},
+				"organization": {
+					"update": {
+						"label": "Edit workspace administration",
+						"description": "Change workspace settings through the account service."
+					},
+					"delete": {
+						"label": "Delete workspace",
+						"description": "Permanently delete the workspace through the account service."
+					}
+				},
+				"member": {
+					"create": {
+						"label": "Add members",
+						"description": "Add users to this workspace."
+					},
+					"update": {
+						"label": "Change member roles",
+						"description": "Change the roles assigned to workspace members."
+					},
+					"delete": {
+						"label": "Remove members",
+						"description": "Remove users from this workspace."
+					}
+				},
+				"invitation": {
+					"create": {
+						"label": "Invite members",
+						"description": "Send workspace invitations."
+					},
+					"cancel": {
+						"label": "Cancel invitations",
+						"description": "Revoke pending workspace invitations."
+					}
+				},
+				"team": {
+					"create": {
+						"label": "Create teams",
+						"description": "Create teams in this workspace."
+					},
+					"update": {
+						"label": "Edit teams",
+						"description": "Change teams and team membership."
+					},
+					"delete": {
+						"label": "Delete teams",
+						"description": "Delete teams in this workspace."
+					}
+				},
+				"ac": {
+					"create": {
+						"label": "Create roles",
+						"description": "Create workspace roles and assign their permissions."
+					},
+					"read": {
+						"label": "View roles",
+						"description": "Read the workspace roles and their permissions."
+					},
+					"update": {
+						"label": "Change role permissions",
+						"description": "Change role permissions, including administrative access."
+					},
+					"delete": {
+						"label": "Delete roles",
+						"description": "Delete custom workspace roles."
+					}
 				}
 			},
 			"validation": {
@@ -1281,7 +1358,9 @@
 			"createError": "Αποτυχία δημιουργίας ετικέτας",
 			"updateError": "Αποτυχία ενημέρωσης ετικέτας",
 			"deleteError": "Αποτυχία διαγραφής ετικέτας",
-			"nameRequired": "Το όνομα ετικέτας είναι υποχρεωτικό"
+			"nameRequired": "Το όνομα ετικέτας είναι υποχρεωτικό",
+			"deletionPending": "Deletion pending",
+			"resumeDeletion": "Resume deletion"
 		},
 		"mattermostIntegration": {
 			"channelHint": "Optional label for your reference. Mattermost controls the actual destination channel from the webhook setup.",
@@ -1631,7 +1710,9 @@
 				"mermaid": {
 					"renderFailed": "Δεν ήταν δυνατή η απόδοση του διαγράμματος Mermaid"
 				}
-			}
+			},
+			"importedFrom": "Imported from {{source}}",
+			"importedBy": "Imported by {{name}}"
 		}
 	},
 	"tasks": {
@@ -1951,7 +2032,11 @@
 			"resizeStart": "Αλλαγή μεγέθους ημερομηνίας έναρξης",
 			"resizeDue": "Αλλαγή μεγέθους ημερομηνίας λήξης",
 			"taskAriaLabel": "{{title}}: άνοιγμα ή σύρσιμο για μετακίνηση",
-			"jumpToToday": "Jump to today"
+			"jumpToToday": "Jump to today",
+			"previousPeriod": "Previous period",
+			"nextPeriod": "Next period",
+			"periodStart": "Timeline start date",
+			"showTaskDates": "Show task dates"
 		},
 		"delete": {
 			"title": "Διαγραφή εργασίας;",
@@ -2063,7 +2148,12 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
-		}
+		},
+		"descriptionSearchLoading": "Searching full descriptions…",
+		"descriptionSearchError": "Description search failed. Results may be incomplete.",
+		"descriptionRetry": "Retry",
+		"descriptionLoading": "Loading description…",
+		"descriptionLoadError": "The description could not be loaded. Retry to load the current version."
 	},
 	"invitations": {
 		"email": {

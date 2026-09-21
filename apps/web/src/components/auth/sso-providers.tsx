@@ -14,6 +14,8 @@ type Props = {
   errorCallbackURL: string;
   lastLoginMethod?: string | null;
   disabled?: boolean;
+  turnstileToken?: string | null;
+  onAttemptComplete?: () => void;
 };
 
 export function SSOProviders({
@@ -22,6 +24,8 @@ export function SSOProviders({
   errorCallbackURL,
   lastLoginMethod,
   disabled = false,
+  turnstileToken,
+  onAttemptComplete,
 }: Props) {
   const { t } = useTranslation();
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
@@ -30,29 +34,46 @@ export function SSOProviders({
     provider: "google" | "github" | "discord",
     errorKey: string,
   ) => {
+    if (disabled) return;
     setLoadingProvider(provider);
     try {
-      const result = await authClient.signIn.social({
-        provider,
-        callbackURL,
-        errorCallbackURL,
-      });
+      const result = await authClient.signIn.social(
+        {
+          provider,
+          callbackURL,
+          errorCallbackURL,
+        },
+        {
+          headers: turnstileToken
+            ? { "x-turnstile-token": turnstileToken }
+            : undefined,
+        },
+      );
       if (result.error) throw new Error(result.error.message);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : t(errorKey));
     } finally {
       setLoadingProvider(null);
+      onAttemptComplete?.();
     }
   };
 
   const handleCustomOAuth = async () => {
+    if (disabled) return;
     setLoadingProvider("custom");
     try {
-      const result = await authClient.signIn.oauth2({
-        providerId: "custom",
-        callbackURL,
-        errorCallbackURL,
-      });
+      const result = await authClient.signIn.oauth2(
+        {
+          providerId: "custom",
+          callbackURL,
+          errorCallbackURL,
+        },
+        {
+          headers: turnstileToken
+            ? { "x-turnstile-token": turnstileToken }
+            : undefined,
+        },
+      );
       if (result.error) throw new Error(result.error.message);
     } catch (error) {
       toast.error(
@@ -60,6 +81,7 @@ export function SSOProviders({
       );
     } finally {
       setLoadingProvider(null);
+      onAttemptComplete?.();
     }
   };
 

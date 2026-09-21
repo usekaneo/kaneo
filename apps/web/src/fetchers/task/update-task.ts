@@ -13,7 +13,9 @@ async function updateTask(taskId: string, task: Task) {
     json: {
       userId: task.userId || "",
       title: task.title,
-      description: task.description || "",
+      description: task.descriptionDeferred
+        ? undefined
+        : task.description || "",
       status: task.status,
       // The API validates priority against a picklist that has no empty
       // member, so a task carrying no priority has to be sent as the explicit

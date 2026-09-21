@@ -7,13 +7,23 @@ export type ListRepositoriesResponse = InferResponseType<
   200
 >;
 
+export type RepositoryPage = {
+  installationPage: number;
+  repositoryPage: number;
+};
+
 async function listRepositories(
   projectId: string,
+  page: RepositoryPage = { installationPage: 1, repositoryPage: 1 },
 ): Promise<ListRepositoriesResponse> {
   const response = await client["github-integration"].repositories[
     ":projectId"
   ].$get({
     param: { projectId },
+    query: {
+      installationPage: String(page.installationPage),
+      repositoryPage: String(page.repositoryPage),
+    },
   });
 
   if (!response.ok) {

@@ -54,12 +54,13 @@ Kaneo is open source. If you find it useful, consider [sponsoring the project](h
 
 ## Getting Started
 
-### One-Click Deployment with drim
+### Deployment with drim
 
 For straightforward deployments, use [drim](https://github.com/usekaneo/drim) - a CLI tool that handles everything for you:
 
+Install drim using the [version-pinned download and checksum verification](https://kaneo.app/docs/core/installation/drim#installation), then run:
+
 ```bash
-curl -fsSL https://assets.kaneo.app/install.sh | sh
 drim setup
 ```
 
@@ -77,13 +78,14 @@ services:
     image: postgres:16-alpine
     env_file:
       - .env
-    ports:
-      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-kaneo}
+      POSTGRES_DB: ${POSTGRES_DB:-kaneo}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U kaneo -d kaneo"]
+      test: ["CMD-SHELL", 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -106,7 +108,7 @@ volumes:
 Save this as `compose.yml`, copy `.env.sample` to `.env`, uncomment `KANEO_CLIENT_URL=http://localhost:5173`, and set `POSTGRES_PASSWORD=<password>` and `AUTH_SECRET=<output of openssl rand -hex 32>`, run `docker compose up -d`, and open [http://localhost:5173](http://localhost:5173).
 
 In Docker Compose, the bundled Kaneo container reaches PostgreSQL at the service hostname `postgres`.
-If you run the API on your host instead of inside Compose, use `localhost` or set `DATABASE_URL` explicitly.
+The database is reachable only inside the Compose network. If you run the API on your host, explicitly add a loopback-only database mapping (`127.0.0.1:5432:5432`) for development and configure `DATABASE_URL` accordingly.
 
 > **Important:** See our [full documentation](https://kaneo.app/docs/core) for detailed setup instructions, environment variable configuration, and troubleshooting guides.
 
