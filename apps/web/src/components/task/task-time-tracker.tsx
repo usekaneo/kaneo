@@ -15,6 +15,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import type { TimeEntryItem } from "@/fetchers/time-entry/get-time-entries";
 import useCreateTimeEntry from "@/hooks/mutations/time-entry/use-create-time-entry";
 import useDeleteTimeEntry from "@/hooks/mutations/time-entry/use-delete-time-entry";
 import useStartTimeEntry from "@/hooks/mutations/time-entry/use-start-time-entry";
@@ -29,10 +30,7 @@ import { formatDuration, formatDurationExact } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
 import { toast } from "@/lib/toast";
 import TimeEntryForm, { type TimeEntryFormValue } from "./time-entry-form";
-import TimeEntryRow, {
-  resolveEntryMember,
-  type TimeEntryItem,
-} from "./time-entry-row";
+import TimeEntryRow, { resolveEntryMember } from "./time-entry-row";
 
 type TaskTimeTrackerProps = {
   taskId: string;
@@ -70,7 +68,7 @@ function useTaskTimeView(taskId: string, workspaceId: string) {
     useStopTimeEntry(taskId);
   const { mutateAsync: deleteTimeEntry } = useDeleteTimeEntry(taskId);
 
-  const items = entries as TimeEntryItem[];
+  const items: TimeEntryItem[] = entries;
   const runningItems = useMemo(
     () => items.filter((entry) => entry.endTime === null),
     [items],

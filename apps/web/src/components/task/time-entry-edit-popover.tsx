@@ -5,12 +5,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import type { TimeEntryItem } from "@/fetchers/time-entry/get-time-entries";
 import useUpdateTimeEntry from "@/hooks/mutations/time-entry/use-update-time-entry";
 import { formatDuration } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
 import { toast } from "@/lib/toast";
 import TimeEntryForm, { type TimeEntryFormValue } from "./time-entry-form";
-import type { TimeEntryItem } from "./time-entry-row";
 
 type TimeEntryEditPopoverProps = {
   entry: TimeEntryItem;

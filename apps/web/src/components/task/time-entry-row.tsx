@@ -3,21 +3,10 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import type { TimeEntryItem } from "@/fetchers/time-entry/get-time-entries";
 import { formatDuration, formatElapsed, formatEntryRange } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
 import TimeEntryEditPopover from "./time-entry-edit-popover";
-
-export type TimeEntryItem = {
-  id: string;
-  taskId: string;
-  userId: string | null;
-  userName: string | null;
-  description: string | null;
-  billable: boolean;
-  startTime: string;
-  endTime: string | null;
-  duration: number | null;
-};
 
 type WorkspaceMember = {
   userId: string;

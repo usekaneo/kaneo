@@ -14,4 +14,8 @@ async function getTimeEntriesByTaskId(taskId: string) {
   return data;
 }
 
+export type TimeEntryItem = Awaited<
+  ReturnType<typeof getTimeEntriesByTaskId>
+>[number];
+
 export default getTimeEntriesByTaskId;
