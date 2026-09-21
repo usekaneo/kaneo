@@ -2077,6 +2077,12 @@
 						},
 						"priorityDescription": {
 							"type": "string"
+						},
+						"timeTracking": {
+							"type": "string"
+						},
+						"timeTrackingDescription": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -2118,7 +2124,9 @@
 						"labels",
 						"labelsDescription",
 						"priority",
-						"priorityDescription"
+						"priorityDescription",
+						"timeTracking",
+						"timeTrackingDescription"
 					]
 				},
 				"developerPage": {
@@ -4341,6 +4349,9 @@
 								},
 								"taskCommentCreated": {
 									"type": "string"
+								},
+								"timeEntryCreated": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -4349,7 +4360,8 @@
 								"taskPriorityChanged",
 								"taskTitleChanged",
 								"taskDescriptionChanged",
-								"taskCommentCreated"
+								"taskCommentCreated",
+								"timeEntryCreated"
 							]
 						},
 						"connect": {
@@ -4494,6 +4506,9 @@
 								},
 								"taskCommentCreated": {
 									"type": "string"
+								},
+								"timeEntryCreated": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -4502,7 +4517,8 @@
 								"taskPriorityChanged",
 								"taskTitleChanged",
 								"taskDescriptionChanged",
-								"taskCommentCreated"
+								"taskCommentCreated",
+								"timeEntryCreated"
 							]
 						},
 						"connect": {
@@ -4647,6 +4663,9 @@
 								},
 								"taskCommentCreated": {
 									"type": "string"
+								},
+								"timeEntryCreated": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -4655,7 +4674,8 @@
 								"taskPriorityChanged",
 								"taskTitleChanged",
 								"taskDescriptionChanged",
-								"taskCommentCreated"
+								"taskCommentCreated",
+								"timeEntryCreated"
 							]
 						},
 						"connect": {
@@ -4821,6 +4841,9 @@
 								},
 								"dueDateReminder": {
 									"type": "string"
+								},
+								"timeEntryCreated": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -4835,7 +4858,8 @@
 								"taskDueDateChanged",
 								"taskAssigneeChanged",
 								"taskUnassigned",
-								"dueDateReminder"
+								"dueDateReminder",
+								"timeEntryCreated"
 							]
 						},
 						"reminderLeadTimeLabel": {
@@ -5012,6 +5036,9 @@
 								},
 								"taskCommentCreated": {
 									"type": "string"
+								},
+								"timeEntryCreated": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -5020,7 +5047,8 @@
 								"taskPriorityChanged",
 								"taskTitleChanged",
 								"taskDescriptionChanged",
-								"taskCommentCreated"
+								"taskCommentCreated",
+								"timeEntryCreated"
 							]
 						},
 						"connect": {
