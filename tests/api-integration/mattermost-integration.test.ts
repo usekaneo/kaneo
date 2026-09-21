@@ -65,7 +65,7 @@ describe("API integration: Mattermost", () => {
     const updated = await request("PATCH", {
       isActive: false,
       channelName: null,
-      events: { taskCreated: false },
+      events: { taskCreated: false, timeEntryCreated: true },
     });
     expect(updated.status).toBe(200);
     expect(await updated.json()).toMatchObject({
@@ -73,6 +73,7 @@ describe("API integration: Mattermost", () => {
       channelName: null,
       events: {
         taskCreated: false,
+        timeEntryCreated: true,
         taskStatusChanged: true,
         taskCommentCreated: true,
       },

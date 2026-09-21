@@ -11726,6 +11726,9 @@
                       "taskCreated": {
                         "type": "boolean"
                       },
+                      "timeEntryCreated": {
+                        "type": "boolean"
+                      },
                       "taskStatusChanged": {
                         "type": "boolean"
                       },
@@ -11852,6 +11855,9 @@
                     "type": "object",
                     "properties": {
                       "taskCreated": {
+                        "type": "boolean"
+                      },
+                      "timeEntryCreated": {
                         "type": "boolean"
                       },
                       "taskStatusChanged": {
@@ -12109,6 +12115,9 @@
                       "taskCreated": {
                         "type": "boolean"
                       },
+                      "timeEntryCreated": {
+                        "type": "boolean"
+                      },
                       "taskStatusChanged": {
                         "type": "boolean"
                       },
@@ -12210,6 +12219,9 @@
                     "type": "object",
                     "properties": {
                       "taskCreated": {
+                        "type": "boolean"
+                      },
+                      "timeEntryCreated": {
                         "type": "boolean"
                       },
                       "taskStatusChanged": {
@@ -12443,6 +12455,9 @@
                       "taskCreated": {
                         "type": "boolean"
                       },
+                      "timeEntryCreated": {
+                        "type": "boolean"
+                      },
                       "taskStatusChanged": {
                         "type": "boolean"
                       },
@@ -12544,6 +12559,9 @@
                     "type": "object",
                     "properties": {
                       "taskCreated": {
+                        "type": "boolean"
+                      },
+                      "timeEntryCreated": {
                         "type": "boolean"
                       },
                       "taskStatusChanged": {
@@ -12777,6 +12795,9 @@
                       "taskCreated": {
                         "type": "boolean"
                       },
+                      "timeEntryCreated": {
+                        "type": "boolean"
+                      },
                       "taskStatusChanged": {
                         "type": "boolean"
                       },
@@ -12878,6 +12899,9 @@
                     "type": "object",
                     "properties": {
                       "taskCreated": {
+                        "type": "boolean"
+                      },
+                      "timeEntryCreated": {
                         "type": "boolean"
                       },
                       "taskStatusChanged": {
@@ -13119,6 +13143,9 @@
                       "taskCreated": {
                         "type": "boolean"
                       },
+                      "timeEntryCreated": {
+                        "type": "boolean"
+                      },
                       "taskStatusChanged": {
                         "type": "boolean"
                       },
@@ -13230,6 +13257,9 @@
                     "type": "object",
                     "properties": {
                       "taskCreated": {
+                        "type": "boolean"
+                      },
+                      "timeEntryCreated": {
                         "type": "boolean"
                       },
                       "taskStatusChanged": {
