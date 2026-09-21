@@ -55,7 +55,6 @@ export function formatDateTime(value: DateInput, locale?: string) {
   );
 }
 
-/** Compact tracked-time label: `42s` under a minute, otherwise `1h 24m` or `24m`. */
 export function formatDuration(totalSeconds: number) {
   const seconds = Math.max(0, Math.floor(totalSeconds));
   if (seconds < 60) {
