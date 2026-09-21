@@ -33,7 +33,7 @@ async function startTimeEntry(params: StartTimeEntryParams) {
     // Serialize starts per user. NOW() is transaction-stable in Postgres, so
     // the auto-stop and the insert below share one timestamp by construction.
     await tx.execute(
-      sql`SELECT pg_advisory_xact_lock(hashtext(${userId})::bigint)`,
+      sql`SELECT pg_advisory_xact_lock(hashtext(${`time_tracking:${userId}`})::bigint)`,
     );
 
     const [running] = await tx
@@ -76,11 +76,19 @@ async function startTimeEntry(params: StartTimeEntryParams) {
 
     if (running) {
       if (running.ageSeconds < MIN_KEPT_SECONDS) {
-        await tx
+        const [discarded] = await tx
           .delete(timeEntryTable)
-          .where(eq(timeEntryTable.id, running.entry.id));
-        discardedEntryId = running.entry.id;
-        discardedTaskId = running.entry.taskId;
+          .where(
+            and(
+              eq(timeEntryTable.id, running.entry.id),
+              isNull(timeEntryTable.endTime),
+            ),
+          )
+          .returning();
+        if (discarded) {
+          discardedEntryId = discarded.id;
+          discardedTaskId = discarded.taskId;
+        }
       } else {
         const [closed] = await tx
           .update(timeEntryTable)
@@ -88,30 +96,31 @@ async function startTimeEntry(params: StartTimeEntryParams) {
             endTime: sql`NOW()`,
             duration: sql<number>`LEAST(${MAX_DURATION_SECONDS}, GREATEST(0, FLOOR(EXTRACT(EPOCH FROM (NOW() - ${timeEntryTable.startTime})))))`,
           })
-          .where(eq(timeEntryTable.id, running.entry.id))
+          .where(
+            and(
+              eq(timeEntryTable.id, running.entry.id),
+              isNull(timeEntryTable.endTime),
+            ),
+          )
           .returning();
 
-        if (!closed) {
-          throw new HTTPException(500, {
-            message: "Failed to start time tracking",
+        if (closed) {
+          // Same transaction as the close: a concurrent delete or edit sees
+          // both rows or neither, so no ghost feed row can ever land.
+          await tx.insert(activityTable).values({
+            taskId: closed.taskId,
+            type: "time_tracked",
+            userId,
+            content: null,
+            eventData: {
+              timeEntryId: closed.id,
+              duration: closed.duration,
+              billable: closed.billable,
+            },
           });
+
+          stopped = closed;
         }
-
-        // Same transaction as the close: a concurrent delete or edit sees
-        // both rows or neither, so no ghost feed row can ever land.
-        await tx.insert(activityTable).values({
-          taskId: closed.taskId,
-          type: "time_tracked",
-          userId,
-          content: null,
-          eventData: {
-            timeEntryId: closed.id,
-            duration: closed.duration,
-            billable: closed.billable,
-          },
-        });
-
-        stopped = closed;
       }
     }
 

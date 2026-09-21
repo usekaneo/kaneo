@@ -627,6 +627,63 @@ describe("active time tracking", () => {
     expect(rows.filter((row) => row.endTime === null)).toHaveLength(1);
   });
 
+  it("records one activity when a switch races with stop", async () => {
+    const { user, workspace } = await createWorkspaceMember({ role: "owner" });
+    const { tasks } = await seedTasksFor(workspace.id, 2);
+    const [running] = await db
+      .insert(schema.timeEntryTable)
+      .values({
+        taskId: tasks[0].id,
+        userId: user.id,
+        description: "",
+        billable: true,
+        startTime: new Date(Date.now() - 30_000),
+        endTime: null,
+        duration: null,
+      })
+      .returning();
+
+    mockAuthenticatedSession(user);
+    const { app } = createApp();
+
+    const [startResponse, stopResponse] = await Promise.all([
+      postJson(app, "/api/time-entry/start", { taskId: tasks[1].id }),
+      app.request(`/api/time-entry/task/${tasks[0].id}/stop`, {
+        method: "POST",
+      }),
+    ]);
+
+    expect(startResponse.status).toBe(200);
+    expect([200, 404]).toContain(stopResponse.status);
+
+    const [closed] = await db
+      .select()
+      .from(schema.timeEntryTable)
+      .where(eq(schema.timeEntryTable.id, running.id));
+    expect(closed?.endTime).not.toBeNull();
+
+    const activities = await db
+      .select()
+      .from(schema.activityTable)
+      .where(
+        and(
+          eq(schema.activityTable.taskId, tasks[0].id),
+          eq(schema.activityTable.type, "time_tracked"),
+        ),
+      );
+    expect(activities).toHaveLength(1);
+
+    const entries = await db
+      .select()
+      .from(schema.timeEntryTable)
+      .where(eq(schema.timeEntryTable.userId, user.id));
+    expect(
+      entries.filter(
+        (entry) => entry.taskId === tasks[1].id && entry.endTime === null,
+      ),
+    ).toHaveLength(1);
+  });
+
   it("lets a removed member stop their own running timer", async () => {
     const { user, workspace } = await createWorkspaceMember({ role: "owner" });
     const { tasks } = await seedTasksFor(workspace.id, 1);

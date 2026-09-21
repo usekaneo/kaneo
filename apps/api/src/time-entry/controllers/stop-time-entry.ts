@@ -22,6 +22,11 @@ async function stopTimeEntry(params: StopTimeEntryParams) {
   // land regardless of request overlap. NOW() is transaction-stable, so the
   // stamped end and the derived duration share one timestamp by construction.
   const [stopped] = await db.transaction(async (tx) => {
+    // Start and stop both change this user's one global running timer.
+    await tx.execute(
+      sql`SELECT pg_advisory_xact_lock(hashtext(${`time_tracking:${userId}`})::bigint)`,
+    );
+
     const [closed] = await tx
       .update(timeEntryTable)
       .set({
