@@ -1,6 +1,6 @@
 import { HTTPException } from "hono/http-exception";
 
-const MAX_DURATION_SECONDS = 2_147_483_647;
+export const MAX_DURATION_SECONDS = 2_147_483_647;
 
 export function resolveDuration(startTime: Date, endTime?: Date) {
   if (!endTime) {

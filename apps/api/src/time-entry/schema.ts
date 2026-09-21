@@ -35,14 +35,31 @@ export const timeEntryParam = z.object({ id: z.string() });
 export const createTimeEntryBody = z.object({
   taskId: z.string(),
   startTime: timestamp,
-  endTime: timestamp.optional().openapi({
-    description: "Omit to start an open-ended entry that is still running.",
+  endTime: timestamp.openapi({
+    description:
+      "Manual entries are always closed. Active tracking uses POST /start.",
   }),
   description: z.string().optional(),
+  billable: z.boolean().optional().openapi({
+    description: "Whether the time is billable. Defaults to true.",
+  }),
+});
+
+export const startTimeEntryBody = z.object({
+  taskId: z.string(),
+  description: z.string().optional(),
+  billable: z.boolean().optional().openapi({
+    description: "Whether the time is billable. Defaults to true.",
+  }),
 });
 
 export const updateTimeEntryBody = z.object({
-  startTime: timestamp,
+  startTime: timestamp.optional(),
   endTime: timestamp.optional(),
+  duration: z.number().int().nonnegative().optional().openapi({
+    description:
+      "Elapsed seconds. When given, the end time is derived as startTime plus this duration.",
+  }),
   description: z.string().optional(),
+  billable: z.boolean().optional(),
 });
