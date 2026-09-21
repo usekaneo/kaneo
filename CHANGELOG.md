@@ -1,5 +1,31 @@
 ### Features
 
+- add maintainer-triggered Peekareview code reviews: [65bb146](https://github.com/usekaneo/kaneo/commit/65bb146c74f5c5118e7a54951c1584ec065f0960)
+- **peekareq:** add budgeted private code-review evaluation: [a8151a8](https://github.com/usekaneo/kaneo/commit/a8151a8d6c51af1227095482c1d5297db5f5ffbb)
+
+### Bug Fixes
+
+- require AUTH_SECRET and gate project visibility changes: [156b72b](https://github.com/usekaneo/kaneo/commit/156b72b3b66415bffee6732788631bdcb11781f3)
+- enforce security boundaries and bound integration workloads: [71bd198](https://github.com/usekaneo/kaneo/commit/71bd1983a77f5e5a13bcc1b483894f6b8523dbb5)
+- handle review relay redirects and explicit reruns: [a6ea057](https://github.com/usekaneo/kaneo/commit/a6ea05715d5eedaded5c1ee94ea715e093a97a21)
+- **web:** use HttpError across fetchers: #1751
+- **web:** prevent 404 on activity query when taskId is undefined: #1750
+
+### Reverts
+
+- remove Peekareq code-review experiment: [4169b98](https://github.com/usekaneo/kaneo/commit/4169b98f4f9f273a0ba524b5fd058d0a235ea22a)
+
+### Documentation
+
+- update contributors and sponsors: [0982593](https://github.com/usekaneo/kaneo/commit/0982593b8206622c6f7e9bf774d39207bcf002b9)
+- update contributors and sponsors: [f94a27e](https://github.com/usekaneo/kaneo/commit/f94a27e63019e98481de616ef95f039d84b3ec96)
+
+### Credits
+
+Huge thanks to @randoneering for helping!
+
+### Features
+
 - add focused Peekareq previews and accessibility findings: [6e01c0f](https://github.com/usekaneo/kaneo/commit/6e01c0f0d579c1a5fc3b602206e95f2478232ca8)
 - **ci:** add maintainer-triggered Peekareq screenshots: [2d8a4c6](https://github.com/usekaneo/kaneo/commit/2d8a4c6fe5727a96a550380995aa5bb57775b669)
 
