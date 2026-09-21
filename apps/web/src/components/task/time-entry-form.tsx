@@ -17,14 +17,18 @@ import {
   parseDurationString,
 } from "@/lib/format";
 
-function startOfDay(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+function daysBetween(start: Date, end: Date) {
+  return (
+    (Date.UTC(end.getFullYear(), end.getMonth(), end.getDate()) -
+      Date.UTC(start.getFullYear(), start.getMonth(), start.getDate())) /
+    86_400_000
+  );
 }
 
-function daysBetween(start: Date, end: Date) {
-  return Math.round(
-    (startOfDay(end).getTime() - startOfDay(start).getTime()) / 86_400_000,
-  );
+function addCalendarDays(date: Date, days: number) {
+  const next = new Date(date);
+  next.setDate(next.getDate() + days);
+  return next;
 }
 
 function DatePicker({
@@ -225,10 +229,12 @@ export default function TimeEntryForm({
   };
 
   const handleStartDate = (next: Date) => {
-    const nextEnd = new Date(
-      startOfDay(next).getTime() +
-        dayOffset * 86_400_000 +
-        (end.getTime() - startOfDay(end).getTime()),
+    const nextEnd = addCalendarDays(next, dayOffset);
+    nextEnd.setHours(
+      end.getHours(),
+      end.getMinutes(),
+      end.getSeconds(),
+      end.getMilliseconds(),
     );
     setStart(next);
     setEnd(nextEnd);
@@ -249,16 +255,8 @@ export default function TimeEntryForm({
 
   const handleEndTime = (next: Date) => {
     // End time is confirmed on the end day derived from the start day.
-    const endDay = new Date(
-      startOfDay(start).getTime() + dayOffset * 86_400_000,
-    );
-    const nextEnd = new Date(
-      endDay.getFullYear(),
-      endDay.getMonth(),
-      endDay.getDate(),
-      next.getHours(),
-      next.getMinutes(),
-    );
+    const nextEnd = addCalendarDays(start, dayOffset);
+    nextEnd.setHours(next.getHours(), next.getMinutes(), 0, 0);
     setEnd(nextEnd);
     syncDurationText(start, nextEnd);
   };

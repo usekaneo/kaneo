@@ -31,6 +31,7 @@ vi.mock("@/components/providers/auth-provider/hooks/use-auth", () => ({
 const permissions = {
   canUpdate: true,
 };
+const initialTimezone = process.env.TZ;
 
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({
@@ -48,6 +49,14 @@ vi.mock(
 
 vi.mock("@/lib/toast", () => ({
   toast: { error: vi.fn(), success: vi.fn() },
+}));
+
+vi.mock("@/components/ui/calendar", () => ({
+  Calendar: ({ onSelect }: { onSelect: (date: Date) => void }) => (
+    <button type="button" onClick={() => onSelect(new Date(2026, 2, 29))}>
+      select DST date
+    </button>
+  ),
 }));
 
 type Entry = {
@@ -123,6 +132,7 @@ afterEach(() => {
   server.entries = [];
   server.failEntriesNext = false;
   permissions.canUpdate = true;
+  process.env.TZ = initialTimezone;
 });
 
 function renderBoth() {
@@ -345,6 +355,38 @@ describe("billable start", () => {
 
     await waitFor(() =>
       expect(onToggle).toHaveBeenCalledWith("deep work", false),
+    );
+  });
+});
+
+describe("date ranges", () => {
+  it("keeps the end clock time when moving a range across DST", () => {
+    process.env.TZ = "Europe/Rome";
+    const onSave = vi.fn();
+    render(
+      <TimeEntryForm
+        initialStart={new Date(2026, 2, 27, 9, 30)}
+        initialEnd={new Date(2026, 2, 28, 11, 45)}
+        initialNotes=""
+        initialBillable={false}
+        isPending={false}
+        onSave={onSave}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "tasks:timeTracking.startTime" }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "select DST date" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "tasks:timeTracking.save" }),
+    );
+
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({
+        start: new Date(2026, 2, 29, 9, 30),
+        end: new Date(2026, 2, 30, 11, 45),
+      }),
     );
   });
 });
