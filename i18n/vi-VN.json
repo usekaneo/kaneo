@@ -532,7 +532,9 @@
 			"labels": "Nhãn",
 			"labelsDescription": "Hiển thị nhãn và thẻ của công việc",
 			"priority": "Mức ưu tiên",
-			"priorityDescription": "Hiển thị chỉ báo mức ưu tiên"
+			"priorityDescription": "Hiển thị chỉ báo mức ưu tiên",
+			"timeTracking": "Time tracking",
+			"timeTrackingDescription": "Show the time tracked property on tasks and the live timer in the header"
 		},
 		"developerPage": {
 			"pageTitle": "Cài đặt nhà phát triển",
@@ -1082,7 +1084,8 @@
 				"taskPriorityChanged": "Thay đổi mức ưu tiên",
 				"taskTitleChanged": "Thay đổi tiêu đề",
 				"taskDescriptionChanged": "Thay đổi mô tả",
-				"taskCommentCreated": "Bình luận mới"
+				"taskCommentCreated": "Bình luận mới",
+				"timeEntryCreated": "Đã ghi nhận thời gian"
 			},
 			"connect": "Kết nối Slack",
 			"saveChanges": "Lưu thay đổi",
@@ -1120,7 +1123,8 @@
 				"taskPriorityChanged": "Thay đổi mức ưu tiên",
 				"taskTitleChanged": "Thay đổi tiêu đề",
 				"taskDescriptionChanged": "Thay đổi mô tả",
-				"taskCommentCreated": "Bình luận mới"
+				"taskCommentCreated": "Bình luận mới",
+				"timeEntryCreated": "Đã ghi nhận thời gian"
 			},
 			"connect": "Kết nối Discord",
 			"saveChanges": "Lưu thay đổi",
@@ -1165,7 +1169,8 @@
 				"taskDueDateChanged": "Thay đổi ngày đến hạn",
 				"taskAssigneeChanged": "Thay đổi người được giao",
 				"taskUnassigned": "Hủy giao công việc",
-				"dueDateReminder": "Nhắc nhở ngày đến hạn"
+				"dueDateReminder": "Nhắc nhở ngày đến hạn",
+				"timeEntryCreated": "Đã ghi nhận thời gian"
 			},
 			"reminderLeadTimeLabel": "Gửi webhook trước bao nhiêu giờ",
 			"connect": "Kết nối webhook",
@@ -1212,7 +1217,8 @@
 				"taskPriorityChanged": "Thay đổi mức ưu tiên",
 				"taskTitleChanged": "Thay đổi tiêu đề",
 				"taskDescriptionChanged": "Thay đổi mô tả",
-				"taskCommentCreated": "Bình luận mới"
+				"taskCommentCreated": "Bình luận mới",
+				"timeEntryCreated": "Đã ghi nhận thời gian"
 			},
 			"connect": "Kết nối Telegram",
 			"saveChanges": "Lưu thay đổi",
@@ -1297,7 +1303,8 @@
 				"taskDescriptionChanged": "Description changes",
 				"taskPriorityChanged": "Priority changes",
 				"taskStatusChanged": "Status changes",
-				"taskTitleChanged": "Title changes"
+				"taskTitleChanged": "Title changes",
+				"timeEntryCreated": "Đã ghi nhận thời gian"
 			},
 			"eventsHint": "Choose which project changes should post to Mattermost.",
 			"eventsTitle": "Event notifications",
@@ -1510,9 +1517,9 @@
 				"content": "{{taskTitle}} đã quá ngày đến hạn"
 			},
 			"time_entry_created": {
-				"title": "Đã bắt đầu theo dõi thời gian",
-				"contentWithTask": "Đã bắt đầu theo dõi thời gian trên công việc: {{taskTitle}}",
-				"contentWithoutTask": "Đã bắt đầu theo dõi thời gian trên một công việc"
+				"title": "Đã ghi nhận thời gian",
+				"contentWithTask": "Đã ghi nhận thời gian cho công việc: {{taskTitle}}",
+				"contentWithoutTask": "Đã ghi nhận thời gian cho một công việc"
 			}
 		}
 	},
@@ -1627,7 +1634,8 @@
 					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
 			}
-		}
+		},
+		"trackedTime": "đã ghi {{duration}}"
 	},
 	"tasks": {
 		"title": "Nhiệm vụ",
@@ -1809,7 +1817,8 @@
 			"copyTaskBranch": "Sao chép nhánh công việc",
 			"start": "Bắt đầu",
 			"startDate": "Ngày bắt đầu",
-			"noDate": "Không có ngày"
+			"noDate": "Không có ngày",
+			"timeTracked": "Thời gian đã ghi nhận"
 		},
 		"move": {
 			"title": "Di chuyển công việc",
@@ -2057,6 +2066,36 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"timeTracking": {
+			"billable": "Có tính phí",
+			"currentTimer": "Bộ hẹn giờ hiện tại",
+			"deleteEntry": "Xóa mục thời gian",
+			"deleteEntryConfirm": "Xóa mục thời gian này? Bạn không thể hoàn tác thao tác này.",
+			"deleteError": "Không thể xóa mục thời gian",
+			"description": "Mô tả",
+			"descriptionPlaceholder": "Ghi chú",
+			"duration": "Thời lượng",
+			"endTime": "Kết thúc",
+			"logManually": "Ghi thời gian thủ công",
+			"noEntries": "Chưa có thời gian nào được ghi nhận",
+			"nonBillable": "Không tính phí",
+			"restart": "Khởi động lại bộ hẹn giờ",
+			"save": "Lưu",
+			"start": "Bắt đầu theo dõi",
+			"startError": "Không thể bắt đầu theo dõi",
+			"startTime": "Bắt đầu",
+			"stop": "Dừng",
+			"stopError": "Không thể dừng theo dõi",
+			"switchHere": "Chuyển sang đây",
+			"total": "Tổng",
+			"trackingElsewhere": "Đang theo dõi {{taskTitle}}",
+			"updateError": "Không thể cập nhật mục thời gian",
+			"timeEntries": "Các mục thời gian",
+			"timeOnTask": "Thời gian cho công việc này",
+			"durationInputPlaceholder": "ví dụ: 1h 20m 50s",
+			"noTimeMatch": "Không có thời gian phù hợp",
+			"loadError": "Không thể tải các mục thời gian"
 		}
 	},
 	"invitations": {

@@ -12,6 +12,9 @@ function useCreateTimeEntry() {
       queryClient.invalidateQueries({
         queryKey: ["time-entries", variables.taskId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["activities", variables.taskId],
+      });
     },
   });
 }

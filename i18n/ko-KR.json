@@ -532,7 +532,9 @@
 			"labels": "라벨",
 			"labelsDescription": "작업 라벨과 태그를 표시합니다",
 			"priority": "우선순위",
-			"priorityDescription": "우선순위 표시기를 표시합니다"
+			"priorityDescription": "우선순위 표시기를 표시합니다",
+			"timeTracking": "Time tracking",
+			"timeTrackingDescription": "Show the time tracked property on tasks and the live timer in the header"
 		},
 		"developerPage": {
 			"pageTitle": "개발자 설정",
@@ -921,7 +923,8 @@
 				"taskPriorityChanged": "우선순위 변경",
 				"taskTitleChanged": "제목 변경",
 				"taskDescriptionChanged": "설명 변경",
-				"taskCommentCreated": "새 댓글"
+				"taskCommentCreated": "새 댓글",
+				"timeEntryCreated": "시간 기록됨"
 			},
 			"connect": "Slack 연결",
 			"saveChanges": "변경사항 저장",
@@ -959,7 +962,8 @@
 				"taskPriorityChanged": "우선순위 변경",
 				"taskTitleChanged": "제목 변경",
 				"taskDescriptionChanged": "설명 변경",
-				"taskCommentCreated": "새 댓글"
+				"taskCommentCreated": "새 댓글",
+				"timeEntryCreated": "시간 기록됨"
 			},
 			"connect": "Discord 연결",
 			"saveChanges": "변경사항 저장",
@@ -1004,7 +1008,8 @@
 				"taskDueDateChanged": "마감일 변경",
 				"taskAssigneeChanged": "담당자 변경",
 				"taskUnassigned": "할당 해제",
-				"dueDateReminder": "마감일 미리 알림"
+				"dueDateReminder": "마감일 미리 알림",
+				"timeEntryCreated": "시간 기록됨"
 			},
 			"connect": "웹훅 연결",
 			"saveChanges": "변경사항 저장",
@@ -1051,7 +1056,8 @@
 				"taskPriorityChanged": "우선순위 변경",
 				"taskTitleChanged": "제목 변경",
 				"taskDescriptionChanged": "설명 변경",
-				"taskCommentCreated": "새 댓글"
+				"taskCommentCreated": "새 댓글",
+				"timeEntryCreated": "시간 기록됨"
 			},
 			"connect": "Telegram 연결",
 			"saveChanges": "변경사항 저장",
@@ -1297,7 +1303,8 @@
 				"taskDescriptionChanged": "Description changes",
 				"taskPriorityChanged": "Priority changes",
 				"taskStatusChanged": "Status changes",
-				"taskTitleChanged": "Title changes"
+				"taskTitleChanged": "Title changes",
+				"timeEntryCreated": "시간 기록됨"
 			},
 			"eventsHint": "Choose which project changes should post to Mattermost.",
 			"eventsTitle": "Event notifications",
@@ -1489,9 +1496,9 @@
 				"content": "다음 작업이 할당되었습니다: {{taskTitle}}"
 			},
 			"time_entry_created": {
-				"title": "시간 추적 시작됨",
-				"contentWithTask": "다음 작업의 시간 추적이 시작되었습니다: {{taskTitle}}",
-				"contentWithoutTask": "작업의 시간 추적이 시작되었습니다"
+				"title": "시간 기록됨",
+				"contentWithTask": "작업에 시간을 기록했습니다: {{taskTitle}}",
+				"contentWithoutTask": "작업에 시간을 기록했습니다"
 			},
 			"task_mention": {
 				"title": "{{mentionerName}}님이 나를 멘션했습니다",
@@ -1627,7 +1634,8 @@
 					"renderFailed": "Mermaid 다이어그램을 렌더링할 수 없습니다"
 				}
 			}
-		}
+		},
+		"trackedTime": "{{duration}} 기록됨"
 	},
 	"tasks": {
 		"title": "작업",
@@ -1809,7 +1817,8 @@
 			"copyTaskBranch": "작업 브랜치 복사",
 			"start": "시작",
 			"startDate": "시작일",
-			"noDate": "날짜 없음"
+			"noDate": "날짜 없음",
+			"timeTracked": "기록된 시간"
 		},
 		"move": {
 			"title": "작업 이동",
@@ -2057,6 +2066,36 @@
 				"deleteRow": "행 삭제",
 				"deleteTable": "표 삭제"
 			}
+		},
+		"timeTracking": {
+			"billable": "청구 가능",
+			"currentTimer": "현재 타이머",
+			"deleteEntry": "시간 기록 삭제",
+			"deleteEntryConfirm": "이 시간 기록을 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.",
+			"deleteError": "시간 기록을 삭제하지 못했습니다",
+			"description": "설명",
+			"descriptionPlaceholder": "메모",
+			"duration": "기간",
+			"endTime": "종료",
+			"logManually": "수동으로 시간 기록",
+			"noEntries": "기록된 시간이 없습니다",
+			"nonBillable": "청구 불가",
+			"restart": "타이머 다시 시작",
+			"save": "저장",
+			"start": "시간 기록 시작",
+			"startError": "시간 기록을 시작하지 못했습니다",
+			"startTime": "시작",
+			"stop": "중지",
+			"stopError": "시간 기록을 중지하지 못했습니다",
+			"switchHere": "여기로 전환",
+			"total": "합계",
+			"trackingElsewhere": "{{taskTitle}}에서 시간 기록 중",
+			"updateError": "시간 기록을 업데이트하지 못했습니다",
+			"timeEntries": "시간 기록",
+			"timeOnTask": "이 작업의 기록 시간",
+			"durationInputPlaceholder": "예: 1h 20m 50s",
+			"noTimeMatch": "일치하는 시간이 없습니다",
+			"loadError": "시간 기록을 불러오지 못했습니다"
 		}
 	},
 	"invitations": {

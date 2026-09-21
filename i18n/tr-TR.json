@@ -532,7 +532,9 @@
 			"labels": "Etiketler",
 			"labelsDescription": "Talep etiketlerini ve etiketleri göster",
 			"priority": "Öncelik",
-			"priorityDescription": "Öncelik göstergelerini görüntüle"
+			"priorityDescription": "Öncelik göstergelerini görüntüle",
+			"timeTracking": "Time tracking",
+			"timeTrackingDescription": "Show the time tracked property on tasks and the live timer in the header"
 		},
 		"developerPage": {
 			"pageTitle": "Geliştirici Ayarları",
@@ -921,7 +923,8 @@
 				"taskPriorityChanged": "Öncelik değişiklikleri",
 				"taskTitleChanged": "Başlık değişiklikleri",
 				"taskDescriptionChanged": "Açıklama değişiklikleri",
-				"taskCommentCreated": "Yeni yorumlar"
+				"taskCommentCreated": "Yeni yorumlar",
+				"timeEntryCreated": "Zaman kaydedildi"
 			},
 			"connect": "Slack bağla",
 			"saveChanges": "Değişiklikleri kaydet",
@@ -959,7 +962,8 @@
 				"taskPriorityChanged": "Öncelik değişiklikleri",
 				"taskTitleChanged": "Başlık değişiklikleri",
 				"taskDescriptionChanged": "Açıklama değişiklikleri",
-				"taskCommentCreated": "Yeni yorumlar"
+				"taskCommentCreated": "Yeni yorumlar",
+				"timeEntryCreated": "Zaman kaydedildi"
 			},
 			"connect": "Discord bağla",
 			"saveChanges": "Değişiklikleri kaydet",
@@ -1004,7 +1008,8 @@
 				"taskDueDateChanged": "Bitiş tarihi değişti",
 				"taskAssigneeChanged": "Atanan kişi değişti",
 				"taskUnassigned": "Atama kaldırıldı",
-				"dueDateReminder": "Bitiş tarihi hatırlatmaları"
+				"dueDateReminder": "Bitiş tarihi hatırlatmaları",
+				"timeEntryCreated": "Zaman kaydedildi"
 			},
 			"connect": "Webhook bağla",
 			"saveChanges": "Değişiklikleri kaydet",
@@ -1051,7 +1056,8 @@
 				"taskPriorityChanged": "Öncelik değişiklikleri",
 				"taskTitleChanged": "Başlık değişiklikleri",
 				"taskDescriptionChanged": "Açıklama değişiklikleri",
-				"taskCommentCreated": "Yeni yorumlar"
+				"taskCommentCreated": "Yeni yorumlar",
+				"timeEntryCreated": "Zaman kaydedildi"
 			},
 			"connect": "Telegram bağla",
 			"saveChanges": "Değişiklikleri kaydet",
@@ -1298,7 +1304,8 @@
 				"taskDescriptionChanged": "Description changes",
 				"taskPriorityChanged": "Priority changes",
 				"taskStatusChanged": "Status changes",
-				"taskTitleChanged": "Title changes"
+				"taskTitleChanged": "Title changes",
+				"timeEntryCreated": "Zaman kaydedildi"
 			},
 			"eventsHint": "Choose which project changes should post to Mattermost.",
 			"eventsTitle": "Event notifications",
@@ -1495,9 +1502,9 @@
 				"content": "{{mentionerName}} sizden şu talepte bahsetti: {{taskTitle}}"
 			},
 			"time_entry_created": {
-				"title": "Zaman takibi başlatıldı",
-				"contentWithTask": "Şu talepte zaman takibi başlatıldı: {{taskTitle}}",
-				"contentWithoutTask": "Bir talepte zaman takibi başlatıldı"
+				"title": "Zaman kaydedildi",
+				"contentWithTask": "Görevde kaydedilen zaman: {{taskTitle}}",
+				"contentWithoutTask": "Bir görevde kaydedilen zaman"
 			},
 			"task_comment": {
 				"title": "{{commenterName}} talebinize yorum yaptı",
@@ -1632,7 +1639,8 @@
 					"renderFailed": "Mermaid diyagramı oluşturulamadı"
 				}
 			}
-		}
+		},
+		"trackedTime": "{{duration}} kaydetti"
 	},
 	"tasks": {
 		"title": "Görevler",
@@ -1814,7 +1822,8 @@
 			"copyTaskBranch": "Talep dalını kopyala",
 			"start": "Başlat",
 			"startDate": "Başlangıç tarihi",
-			"noDate": "Tarih yok"
+			"noDate": "Tarih yok",
+			"timeTracked": "Kaydedilen zaman"
 		},
 		"move": {
 			"title": "Talebi taşı",
@@ -2063,6 +2072,36 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"timeTracking": {
+			"billable": "Ücretlendirilebilir",
+			"currentTimer": "Geçerli zamanlayıcı",
+			"deleteEntry": "Zaman kaydını sil",
+			"deleteEntryConfirm": "Bu zaman kaydı silinsin mi? Bu işlem geri alınamaz.",
+			"deleteError": "Zaman kaydı silinemedi",
+			"description": "Açıklama",
+			"descriptionPlaceholder": "Ne üzerinde çalıştınız?",
+			"duration": "Süre",
+			"endTime": "Bitiş",
+			"logManually": "Zamanı manuel kaydet",
+			"noEntries": "Henüz kaydedilmiş zaman yok",
+			"nonBillable": "Ücretlendirilemez",
+			"restart": "Zamanlayıcıyı yeniden başlat",
+			"save": "Kaydet",
+			"start": "Takibi başlat",
+			"startError": "Takip başlatılamadı",
+			"startTime": "Başlangıç",
+			"stop": "Durdur",
+			"stopError": "Takip durdurulamadı",
+			"switchHere": "Buraya geç",
+			"total": "Toplam",
+			"trackingElsewhere": "{{taskTitle}} takip ediliyor",
+			"updateError": "Zaman kaydı güncellenemedi",
+			"timeEntries": "Zaman kayıtları",
+			"timeOnTask": "Bu görevde geçirilen süre",
+			"durationInputPlaceholder": "ör. 1h 20m 50s",
+			"noTimeMatch": "Eşleşen zaman bulunamadı",
+			"loadError": "Zaman kayıtları yüklenemedi"
 		}
 	},
 	"invitations": {

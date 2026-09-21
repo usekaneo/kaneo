@@ -27,6 +27,7 @@ type GenericWebhookIntegrationFormValues = {
   webhookUrl: string;
   secret: string;
   taskCreated: boolean;
+  timeEntryCreated: boolean;
   taskStatusChanged: boolean;
   taskPriorityChanged: boolean;
   taskTitleChanged: boolean;
@@ -53,6 +54,7 @@ function EventToggle({
     GenericWebhookIntegrationFormValues,
     | "taskCreated"
     | "taskStatusChanged"
+    | "timeEntryCreated"
     | "taskPriorityChanged"
     | "taskTitleChanged"
     | "taskDescriptionChanged"
@@ -98,6 +100,7 @@ export function GenericWebhookIntegrationSettings({
           webhookUrl: z.string(),
           secret: z.string(),
           taskCreated: z.boolean(),
+          timeEntryCreated: z.boolean(),
           taskStatusChanged: z.boolean(),
           taskPriorityChanged: z.boolean(),
           taskTitleChanged: z.boolean(),
@@ -135,6 +138,7 @@ export function GenericWebhookIntegrationSettings({
       webhookUrl: "",
       secret: "",
       taskCreated: integration?.events?.taskCreated ?? true,
+      timeEntryCreated: integration?.events?.timeEntryCreated ?? false,
       taskStatusChanged: integration?.events?.taskStatusChanged ?? true,
       taskPriorityChanged: integration?.events?.taskPriorityChanged ?? false,
       taskTitleChanged: integration?.events?.taskTitleChanged ?? false,
@@ -172,6 +176,7 @@ export function GenericWebhookIntegrationSettings({
       const trimmedSecret = values.secret.trim();
       const events = {
         taskCreated: values.taskCreated,
+        timeEntryCreated: values.timeEntryCreated,
         taskStatusChanged: values.taskStatusChanged,
         taskPriorityChanged: values.taskPriorityChanged,
         taskTitleChanged: values.taskTitleChanged,
@@ -270,6 +275,7 @@ export function GenericWebhookIntegrationSettings({
         webhookUrl: "",
         secret: "",
         taskCreated: true,
+        timeEntryCreated: false,
         taskStatusChanged: true,
         taskPriorityChanged: false,
         taskTitleChanged: false,
@@ -411,6 +417,13 @@ export function GenericWebhookIntegrationSettings({
               control={form.control}
               label={t("settings:genericWebhookIntegration.events.taskCreated")}
               name="taskCreated"
+            />
+            <EventToggle
+              control={form.control}
+              label={t(
+                "settings:genericWebhookIntegration.events.timeEntryCreated",
+              )}
+              name="timeEntryCreated"
             />
             <EventToggle
               control={form.control}

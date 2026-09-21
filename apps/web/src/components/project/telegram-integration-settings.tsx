@@ -29,6 +29,7 @@ type TelegramIntegrationFormValues = {
   threadId: string;
   chatLabel: string;
   taskCreated: boolean;
+  timeEntryCreated: boolean;
   taskStatusChanged: boolean;
   taskPriorityChanged: boolean;
   taskTitleChanged: boolean;
@@ -46,6 +47,7 @@ function EventToggle({
     TelegramIntegrationFormValues,
     | "taskCreated"
     | "taskStatusChanged"
+    | "timeEntryCreated"
     | "taskPriorityChanged"
     | "taskTitleChanged"
     | "taskDescriptionChanged"
@@ -94,6 +96,7 @@ export function TelegramIntegrationSettings({
         threadId: z.string(),
         chatLabel: z.string(),
         taskCreated: z.boolean(),
+        timeEntryCreated: z.boolean(),
         taskStatusChanged: z.boolean(),
         taskPriorityChanged: z.boolean(),
         taskTitleChanged: z.boolean(),
@@ -121,6 +124,7 @@ export function TelegramIntegrationSettings({
       threadId: integration?.threadId ? String(integration.threadId) : "",
       chatLabel: integration?.chatLabel ?? "",
       taskCreated: integration?.events?.taskCreated ?? true,
+      timeEntryCreated: integration?.events?.timeEntryCreated ?? false,
       taskStatusChanged: integration?.events?.taskStatusChanged ?? true,
       taskPriorityChanged: integration?.events?.taskPriorityChanged ?? false,
       taskTitleChanged: integration?.events?.taskTitleChanged ?? false,
@@ -139,6 +143,7 @@ export function TelegramIntegrationSettings({
       threadId: "",
       chatLabel: "",
       taskCreated: true,
+      timeEntryCreated: false,
       taskStatusChanged: true,
       taskPriorityChanged: false,
       taskTitleChanged: false,
@@ -186,6 +191,7 @@ export function TelegramIntegrationSettings({
         : undefined;
       const events = {
         taskCreated: values.taskCreated,
+        timeEntryCreated: values.timeEntryCreated,
         taskStatusChanged: values.taskStatusChanged,
         taskPriorityChanged: values.taskPriorityChanged,
         taskTitleChanged: values.taskTitleChanged,
@@ -294,6 +300,7 @@ export function TelegramIntegrationSettings({
         threadId: "",
         chatLabel: "",
         taskCreated: true,
+        timeEntryCreated: false,
         taskStatusChanged: true,
         taskPriorityChanged: false,
         taskTitleChanged: false,
@@ -486,6 +493,11 @@ export function TelegramIntegrationSettings({
               control={form.control}
               label={t("settings:telegramIntegration.events.taskCreated")}
               name="taskCreated"
+            />
+            <EventToggle
+              control={form.control}
+              label={t("settings:telegramIntegration.events.timeEntryCreated")}
+              name="timeEntryCreated"
             />
             <EventToggle
               control={form.control}

@@ -27,6 +27,7 @@ type SlackIntegrationFormValues = {
   webhookUrl: string;
   channelName: string;
   taskCreated: boolean;
+  timeEntryCreated: boolean;
   taskStatusChanged: boolean;
   taskPriorityChanged: boolean;
   taskTitleChanged: boolean;
@@ -44,6 +45,7 @@ function EventToggle({
     SlackIntegrationFormValues,
     | "taskCreated"
     | "taskStatusChanged"
+    | "timeEntryCreated"
     | "taskPriorityChanged"
     | "taskTitleChanged"
     | "taskDescriptionChanged"
@@ -87,6 +89,7 @@ export function SlackIntegrationSettings({ projectId }: { projectId: string }) {
         webhookUrl: z.string(),
         channelName: z.string(),
         taskCreated: z.boolean(),
+        timeEntryCreated: z.boolean(),
         taskStatusChanged: z.boolean(),
         taskPriorityChanged: z.boolean(),
         taskTitleChanged: z.boolean(),
@@ -108,6 +111,7 @@ export function SlackIntegrationSettings({ projectId }: { projectId: string }) {
       webhookUrl: "",
       channelName: integration?.channelName ?? "",
       taskCreated: integration?.events?.taskCreated ?? true,
+      timeEntryCreated: integration?.events?.timeEntryCreated ?? false,
       taskStatusChanged: integration?.events?.taskStatusChanged ?? true,
       taskPriorityChanged: integration?.events?.taskPriorityChanged ?? false,
       taskTitleChanged: integration?.events?.taskTitleChanged ?? false,
@@ -124,6 +128,7 @@ export function SlackIntegrationSettings({ projectId }: { projectId: string }) {
       webhookUrl: "",
       channelName: "",
       taskCreated: true,
+      timeEntryCreated: false,
       taskStatusChanged: true,
       taskPriorityChanged: false,
       taskTitleChanged: false,
@@ -152,6 +157,7 @@ export function SlackIntegrationSettings({ projectId }: { projectId: string }) {
       const trimmedWebhookUrl = values.webhookUrl.trim();
       const events = {
         taskCreated: values.taskCreated,
+        timeEntryCreated: values.timeEntryCreated,
         taskStatusChanged: values.taskStatusChanged,
         taskPriorityChanged: values.taskPriorityChanged,
         taskTitleChanged: values.taskTitleChanged,
@@ -234,6 +240,7 @@ export function SlackIntegrationSettings({ projectId }: { projectId: string }) {
         webhookUrl: "",
         channelName: "",
         taskCreated: true,
+        timeEntryCreated: false,
         taskStatusChanged: true,
         taskPriorityChanged: false,
         taskTitleChanged: false,
@@ -368,6 +375,11 @@ export function SlackIntegrationSettings({ projectId }: { projectId: string }) {
               control={form.control}
               label={t("settings:slackIntegration.events.taskCreated")}
               name="taskCreated"
+            />
+            <EventToggle
+              control={form.control}
+              label={t("settings:slackIntegration.events.timeEntryCreated")}
+              name="timeEntryCreated"
             />
             <EventToggle
               control={form.control}

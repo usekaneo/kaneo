@@ -532,7 +532,9 @@
 			"labels": "Etichette",
 			"labelsDescription": "Mostra etichette e tag delle attività",
 			"priority": "Priorità",
-			"priorityDescription": "Visualizza indicatori di priorità"
+			"priorityDescription": "Visualizza indicatori di priorità",
+			"timeTracking": "Time tracking",
+			"timeTrackingDescription": "Show the time tracked property on tasks and the live timer in the header"
 		},
 		"developerPage": {
 			"pageTitle": "Impostazioni Sviluppatore",
@@ -1084,7 +1086,8 @@
 				"taskPriorityChanged": "Cambiamenti di priorità",
 				"taskTitleChanged": "Cambiamenti di titolo",
 				"taskDescriptionChanged": "Cambiamenti di descrizione",
-				"taskCommentCreated": "Nuovi commenti"
+				"taskCommentCreated": "Nuovi commenti",
+				"timeEntryCreated": "Tempo registrato"
 			},
 			"connect": "Connetti Slack",
 			"saveChanges": "Salva modifiche",
@@ -1122,7 +1125,8 @@
 				"taskPriorityChanged": "Cambiamenti di priorità",
 				"taskTitleChanged": "Cambiamenti di titolo",
 				"taskDescriptionChanged": "Cambiamenti di descrizione",
-				"taskCommentCreated": "Nuovi commenti"
+				"taskCommentCreated": "Nuovi commenti",
+				"timeEntryCreated": "Tempo registrato"
 			},
 			"connect": "Connetti Discord",
 			"saveChanges": "Salva modifiche",
@@ -1167,7 +1171,8 @@
 				"taskDueDateChanged": "Data scadenza cambiata",
 				"taskAssigneeChanged": "Assegnatario cambiato",
 				"taskUnassigned": "Attività non assegnata",
-				"dueDateReminder": "Promemoria scadenza"
+				"dueDateReminder": "Promemoria scadenza",
+				"timeEntryCreated": "Tempo registrato"
 			},
 			"reminderLeadTimeLabel": "Invia il webhook questo numero di ore prima",
 			"connect": "Connetti webhook",
@@ -1214,7 +1219,8 @@
 				"taskPriorityChanged": "Cambiamenti di priorità",
 				"taskTitleChanged": "Cambiamenti di titolo",
 				"taskDescriptionChanged": "Cambiamenti di descrizione",
-				"taskCommentCreated": "Nuovi commenti"
+				"taskCommentCreated": "Nuovi commenti",
+				"timeEntryCreated": "Tempo registrato"
 			},
 			"connect": "Connetti Telegram",
 			"saveChanges": "Salva modifiche",
@@ -1299,7 +1305,8 @@
 				"taskDescriptionChanged": "Description changes",
 				"taskPriorityChanged": "Priority changes",
 				"taskStatusChanged": "Status changes",
-				"taskTitleChanged": "Title changes"
+				"taskTitleChanged": "Title changes",
+				"timeEntryCreated": "Tempo registrato"
 			},
 			"eventsHint": "Choose which project changes should post to Mattermost.",
 			"eventsTitle": "Event notifications",
@@ -1519,9 +1526,9 @@
 				"content": "{{taskTitle}} è oltre la data di scadenza"
 			},
 			"time_entry_created": {
-				"title": "Tracciamento tempo iniziato",
-				"contentWithTask": "Tracciamento tempo iniziato sull'attività: {{taskTitle}}",
-				"contentWithoutTask": "Tracciamento tempo iniziato su un'attività"
+				"title": "Tempo registrato",
+				"contentWithTask": "Tempo registrato sull'attività: {{taskTitle}}",
+				"contentWithoutTask": "Tempo registrato su un'attività"
 			}
 		},
 		"newCount_many": "{{count}} nuove"
@@ -1637,7 +1644,8 @@
 					"renderFailed": "Impossibile eseguire il rendering del diagramma Mermaid"
 				}
 			}
-		}
+		},
+		"trackedTime": "ha registrato {{duration}}"
 	},
 	"tasks": {
 		"title": "Attività",
@@ -1819,7 +1827,8 @@
 			"copyTaskBranch": "Copia ramo attività",
 			"start": "Inizio",
 			"startDate": "Data inizio",
-			"noDate": "Nessuna data"
+			"noDate": "Nessuna data",
+			"timeTracked": "Tempo registrato"
 		},
 		"move": {
 			"title": "Sposta attività",
@@ -2069,6 +2078,36 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"timeTracking": {
+			"billable": "Fatturabile",
+			"currentTimer": "Timer attuale",
+			"deleteEntry": "Elimina voce di tempo",
+			"deleteEntryConfirm": "Eliminare questa voce di tempo? L'operazione non può essere annullata.",
+			"deleteError": "Impossibile eliminare la voce di tempo",
+			"description": "Descrizione",
+			"descriptionPlaceholder": "A cosa hai lavorato?",
+			"duration": "Durata",
+			"endTime": "Fine",
+			"logManually": "Registra tempo manualmente",
+			"noEntries": "Nessun tempo registrato",
+			"nonBillable": "Non fatturabile",
+			"restart": "Riavvia timer",
+			"save": "Salva",
+			"start": "Inizia monitoraggio",
+			"startError": "Impossibile avviare il monitoraggio",
+			"startTime": "Inizio",
+			"stop": "Interrompi",
+			"stopError": "Impossibile interrompere il monitoraggio",
+			"switchHere": "Passa qui",
+			"total": "Totale",
+			"trackingElsewhere": "Monitoraggio di {{taskTitle}}",
+			"updateError": "Impossibile aggiornare la voce di tempo",
+			"timeEntries": "Voci di tempo",
+			"timeOnTask": "Tempo su questa attività",
+			"durationInputPlaceholder": "ad es. 1h 20m 50s",
+			"noTimeMatch": "Nessuna corrispondenza di tempo",
+			"loadError": "Impossibile caricare le voci di tempo"
 		}
 	},
 	"invitations": {

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import ActiveTimerPill from "@/components/common/active-timer-pill";
 import Layout from "@/components/common/layout";
 import {
   Breadcrumb,
@@ -78,6 +79,7 @@ export default function WorkspaceLayout({
             </Breadcrumb>
           </div>
           <div className={`${cn("flex items-center gap-1.5", className)}`}>
+            <ActiveTimerPill />
             {headerActions}
           </div>
         </div>

@@ -532,7 +532,9 @@
 			"labels": "लेबल",
 			"labelsDescription": "कार्य लेबल और टैग दिखाएँ",
 			"priority": "प्राथमिकता",
-			"priorityDescription": "प्राथमिकता संकेतक दिखाएँ"
+			"priorityDescription": "प्राथमिकता संकेतक दिखाएँ",
+			"timeTracking": "Time tracking",
+			"timeTrackingDescription": "Show the time tracked property on tasks and the live timer in the header"
 		},
 		"developerPage": {
 			"pageTitle": "डेवलपर सेटिंग",
@@ -1083,7 +1085,8 @@
 				"taskPriorityChanged": "प्राथमिकता परिवर्तन",
 				"taskTitleChanged": "शीर्षक परिवर्तन",
 				"taskDescriptionChanged": "विवरण परिवर्तन",
-				"taskCommentCreated": "नई टिप्पणियाँ"
+				"taskCommentCreated": "नई टिप्पणियाँ",
+				"timeEntryCreated": "समय ट्रैक किया गया"
 			},
 			"connect": "Slack कनेक्ट करें",
 			"saveChanges": "परिवर्तन सहेजें",
@@ -1121,7 +1124,8 @@
 				"taskPriorityChanged": "प्राथमिकता परिवर्तन",
 				"taskTitleChanged": "शीर्षक परिवर्तन",
 				"taskDescriptionChanged": "विवरण परिवर्तन",
-				"taskCommentCreated": "नई टिप्पणियाँ"
+				"taskCommentCreated": "नई टिप्पणियाँ",
+				"timeEntryCreated": "समय ट्रैक किया गया"
 			},
 			"connect": "Discord कनेक्ट करें",
 			"saveChanges": "परिवर्तन सहेजें",
@@ -1166,7 +1170,8 @@
 				"taskDueDateChanged": "नियत तारीख बदली",
 				"taskAssigneeChanged": "सौंपा गया बदला",
 				"taskUnassigned": "कार्य असाइन हटाया",
-				"dueDateReminder": "नियत तारीख अनुस्मारक"
+				"dueDateReminder": "नियत तारीख अनुस्मारक",
+				"timeEntryCreated": "समय ट्रैक किया गया"
 			},
 			"reminderLeadTimeLabel": "इतने घंटे पहले वेबहुक भेजें",
 			"connect": "वेबहुक कनेक्ट करें",
@@ -1213,7 +1218,8 @@
 				"taskPriorityChanged": "प्राथमिकता परिवर्तन",
 				"taskTitleChanged": "शीर्षक परिवर्तन",
 				"taskDescriptionChanged": "विवरण परिवर्तन",
-				"taskCommentCreated": "नई टिप्पणियाँ"
+				"taskCommentCreated": "नई टिप्पणियाँ",
+				"timeEntryCreated": "समय ट्रैक किया गया"
 			},
 			"connect": "Telegram कनेक्ट करें",
 			"saveChanges": "परिवर्तन सहेजें",
@@ -1298,7 +1304,8 @@
 				"taskDescriptionChanged": "Description changes",
 				"taskPriorityChanged": "Priority changes",
 				"taskStatusChanged": "Status changes",
-				"taskTitleChanged": "Title changes"
+				"taskTitleChanged": "Title changes",
+				"timeEntryCreated": "समय ट्रैक किया गया"
 			},
 			"eventsHint": "Choose which project changes should post to Mattermost.",
 			"eventsTitle": "Event notifications",
@@ -1515,9 +1522,9 @@
 				"content": "{{taskTitle}} अपनी नियत तारीख से आगे है"
 			},
 			"time_entry_created": {
-				"title": "समय ट्रैकिंग शुरू",
-				"contentWithTask": "कार्य पर समय ट्रैकिंग शुरू: {{taskTitle}}",
-				"contentWithoutTask": "एक कार्य पर समय ट्रैकिंग शुरू"
+				"title": "समय ट्रैक किया गया",
+				"contentWithTask": "कार्य पर समय ट्रैक किया गया: {{taskTitle}}",
+				"contentWithoutTask": "किसी कार्य पर समय ट्रैक किया गया"
 			}
 		}
 	},
@@ -1632,7 +1639,8 @@
 					"renderFailed": "Mermaid डायग्राम प्रस्तुत नहीं किया जा सका"
 				}
 			}
-		}
+		},
+		"trackedTime": "ट्रैक किया गया {{duration}}"
 	},
 	"tasks": {
 		"title": "कार्य",
@@ -1814,7 +1822,8 @@
 			"copyTaskBranch": "कार्य शाखा कॉपी करें",
 			"start": "शुरू",
 			"startDate": "शुरू की तारीख",
-			"noDate": "कोई तारीख नहीं"
+			"noDate": "कोई तारीख नहीं",
+			"timeTracked": "ट्रैक किया गया समय"
 		},
 		"move": {
 			"title": "कार्य ले जाएँ",
@@ -2063,6 +2072,36 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"timeTracking": {
+			"billable": "बिल योग्य",
+			"currentTimer": "वर्तमान टाइमर",
+			"deleteEntry": "समय प्रविष्टि हटाएं",
+			"deleteEntryConfirm": "क्या यह समय प्रविष्टि हटानी है? इसे पूर्ववत नहीं किया जा सकता।",
+			"deleteError": "समय प्रविष्टि हटाई नहीं जा सकी",
+			"description": "विवरण",
+			"descriptionPlaceholder": "नोट",
+			"duration": "अवधि",
+			"endTime": "समाप्ति",
+			"logManually": "समय मैन्युअल रूप से लॉग करें",
+			"noEntries": "अभी तक कोई समय लॉग नहीं किया गया",
+			"nonBillable": "गैर-बिल योग्य",
+			"restart": "टाइमर फिर शुरू करें",
+			"save": "सहेजें",
+			"start": "ट्रैकिंग शुरू करें",
+			"startError": "ट्रैकिंग शुरू नहीं की जा सकी",
+			"startTime": "शुरू",
+			"stop": "रोकें",
+			"stopError": "ट्रैकिंग रोकी नहीं जा सकी",
+			"switchHere": "यहां स्विच करें",
+			"total": "कुल",
+			"trackingElsewhere": "{{taskTitle}} पर ट्रैकिंग",
+			"updateError": "समय प्रविष्टि अपडेट नहीं की जा सकी",
+			"timeEntries": "समय प्रविष्टियां",
+			"timeOnTask": "इस कार्य पर समय",
+			"durationInputPlaceholder": "जैसे 1h 20m 50s",
+			"noTimeMatch": "कोई मेल खाता समय नहीं मिला",
+			"loadError": "समय प्रविष्टियां लोड नहीं की जा सकीं"
 		}
 	},
 	"invitations": {

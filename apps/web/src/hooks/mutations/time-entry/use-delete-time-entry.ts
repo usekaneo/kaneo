@@ -1,13 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import updateTimeEntry, {
-  type UpdateTimeEntryRequest,
-} from "@/fetchers/time-entry/update-time-entry";
+import deleteTimeEntry from "@/fetchers/time-entry/delete-time-entry";
 
-function useUpdateTimeEntry(taskId: string) {
+function useDeleteTimeEntry(taskId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: UpdateTimeEntryRequest) => updateTimeEntry(data),
+    mutationFn: (id: string) => deleteTimeEntry(id),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["time-entries", taskId],
@@ -19,4 +17,4 @@ function useUpdateTimeEntry(taskId: string) {
   });
 }
 
-export default useUpdateTimeEntry;
+export default useDeleteTimeEntry;

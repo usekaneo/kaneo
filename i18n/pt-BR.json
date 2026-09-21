@@ -532,7 +532,9 @@
 			"labels": "Etiquetas",
 			"labelsDescription": "Mostrar etiquetas e marcadores das tarefas",
 			"priority": "Prioridade",
-			"priorityDescription": "Exibir indicadores de prioridade"
+			"priorityDescription": "Exibir indicadores de prioridade",
+			"timeTracking": "Time tracking",
+			"timeTrackingDescription": "Show the time tracked property on tasks and the live timer in the header"
 		},
 		"developerPage": {
 			"pageTitle": "Configurações de desenvolvedor",
@@ -1084,7 +1086,8 @@
 				"taskPriorityChanged": "Mudanças de prioridade",
 				"taskTitleChanged": "Mudanças de título",
 				"taskDescriptionChanged": "Mudanças de descrição",
-				"taskCommentCreated": "Novos comentários"
+				"taskCommentCreated": "Novos comentários",
+				"timeEntryCreated": "Tempo registrado"
 			},
 			"connect": "Conectar Slack",
 			"saveChanges": "Salvar alterações",
@@ -1122,7 +1125,8 @@
 				"taskPriorityChanged": "Mudanças de prioridade",
 				"taskTitleChanged": "Mudanças de título",
 				"taskDescriptionChanged": "Mudanças de descrição",
-				"taskCommentCreated": "Novos comentários"
+				"taskCommentCreated": "Novos comentários",
+				"timeEntryCreated": "Tempo registrado"
 			},
 			"connect": "Conectar Discord",
 			"saveChanges": "Salvar alterações",
@@ -1167,7 +1171,8 @@
 				"taskDueDateChanged": "Data de vencimento alterada",
 				"taskAssigneeChanged": "Responsável alterado",
 				"taskUnassigned": "Tarefa sem responsável",
-				"dueDateReminder": "Lembretes de vencimento"
+				"dueDateReminder": "Lembretes de vencimento",
+				"timeEntryCreated": "Tempo registrado"
 			},
 			"reminderLeadTimeLabel": "Enviar o webhook quantas horas antes",
 			"connect": "Conectar webhook",
@@ -1214,7 +1219,8 @@
 				"taskPriorityChanged": "Mudanças de prioridade",
 				"taskTitleChanged": "Mudanças de título",
 				"taskDescriptionChanged": "Mudanças de descrição",
-				"taskCommentCreated": "Novos comentários"
+				"taskCommentCreated": "Novos comentários",
+				"timeEntryCreated": "Tempo registrado"
 			},
 			"connect": "Conectar Telegram",
 			"saveChanges": "Salvar alterações",
@@ -1299,7 +1305,8 @@
 				"taskDescriptionChanged": "Description changes",
 				"taskPriorityChanged": "Priority changes",
 				"taskStatusChanged": "Status changes",
-				"taskTitleChanged": "Title changes"
+				"taskTitleChanged": "Title changes",
+				"timeEntryCreated": "Tempo registrado"
 			},
 			"eventsHint": "Choose which project changes should post to Mattermost.",
 			"eventsTitle": "Event notifications",
@@ -1519,9 +1526,9 @@
 				"content": "{{taskTitle}} está com o prazo vencido"
 			},
 			"time_entry_created": {
-				"title": "Registro de tempo iniciado",
-				"contentWithTask": "Registro de tempo iniciado na tarefa: {{taskTitle}}",
-				"contentWithoutTask": "Registro de tempo iniciado em uma tarefa"
+				"title": "Tempo registrado",
+				"contentWithTask": "Tempo registrado na tarefa: {{taskTitle}}",
+				"contentWithoutTask": "Tempo registrado em uma tarefa"
 			}
 		},
 		"newCount_many": "{{count}} novas"
@@ -1637,7 +1644,8 @@
 					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
 			}
-		}
+		},
+		"trackedTime": "registrou {{duration}}"
 	},
 	"tasks": {
 		"title": "Tarefas",
@@ -1819,7 +1827,8 @@
 			"copyTaskBranch": "Copiar branch da tarefa",
 			"start": "Início",
 			"startDate": "Data de início",
-			"noDate": "Sem data"
+			"noDate": "Sem data",
+			"timeTracked": "Tempo registrado"
 		},
 		"move": {
 			"title": "Mover tarefa",
@@ -2069,6 +2078,36 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"timeTracking": {
+			"billable": "Faturável",
+			"currentTimer": "Cronômetro atual",
+			"deleteEntry": "Excluir registro de tempo",
+			"deleteEntryConfirm": "Excluir este registro de tempo? Esta ação não pode ser desfeita.",
+			"deleteError": "Falha ao excluir o registro de tempo",
+			"description": "Descrição",
+			"descriptionPlaceholder": "No que você trabalhou?",
+			"duration": "Duração",
+			"endTime": "Fim",
+			"logManually": "Registrar tempo manualmente",
+			"noEntries": "Nenhum tempo registrado ainda",
+			"nonBillable": "Não faturável",
+			"restart": "Reiniciar cronômetro",
+			"save": "Salvar",
+			"start": "Iniciar registro",
+			"startError": "Falha ao iniciar o registro",
+			"startTime": "Início",
+			"stop": "Parar",
+			"stopError": "Falha ao parar o registro",
+			"switchHere": "Trocar para cá",
+			"total": "Total",
+			"trackingElsewhere": "Registrando {{taskTitle}}",
+			"updateError": "Falha ao atualizar o registro de tempo",
+			"timeEntries": "Registros de tempo",
+			"timeOnTask": "Tempo nesta tarefa",
+			"durationInputPlaceholder": "ex.: 1h 20m 50s",
+			"noTimeMatch": "Nenhum tempo correspondente",
+			"loadError": "Falha ao carregar os registros de tempo"
 		}
 	},
 	"invitations": {

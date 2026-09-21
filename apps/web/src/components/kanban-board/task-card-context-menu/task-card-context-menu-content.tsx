@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { TaskTimeTrackerContent } from "@/components/task/task-time-tracker";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -169,6 +170,30 @@ export default function TaskCardContextMenuContent({
                 <span className="capitalize">{getPriorityLabel(priority)}</span>
               </ContextMenuCheckboxItem>
             ))}
+          </ContextMenuSubContent>
+        </ContextMenuSub>
+      )}
+
+      {canEdit && (
+        <ContextMenuSub>
+          <ContextMenuSubTrigger className="gap-2">
+            <span>{t("tasks:properties.timeTracked")}</span>
+          </ContextMenuSubTrigger>
+          <ContextMenuSubContent className="w-70 p-2">
+            {/*
+              The menu owns the keyboard (typeahead, arrows, Esc) and swallows
+              keystrokes bubbling out of form fields, including ones portaled
+              out by nested popovers. Stop that here so inputs behave natively.
+              Trade-off: menu keyboard patterns pause while focus is inside.
+            */}
+            {/* biome-ignore lint/a11y/noStaticElementInteractions: wrapper only shields form keys from menu handlers, it is not itself interactive */}
+            <div onKeyDown={(event) => event.stopPropagation()}>
+              <TaskTimeTrackerContent
+                taskId={task.id}
+                taskTitle={task.title ?? ""}
+                workspaceId={taskCardContext.worskpaceId}
+              />
+            </div>
           </ContextMenuSubContent>
         </ContextMenuSub>
       )}

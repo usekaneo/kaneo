@@ -532,7 +532,9 @@
 			"labels": "Мітки",
 			"labelsDescription": "Показувати мітки та теґи завдань",
 			"priority": "Пріоритет",
-			"priorityDescription": "Відображати індикатори пріоритету"
+			"priorityDescription": "Відображати індикатори пріоритету",
+			"timeTracking": "Time tracking",
+			"timeTrackingDescription": "Show the time tracked property on tasks and the live timer in the header"
 		},
 		"developerPage": {
 			"pageTitle": "Налаштування розробника",
@@ -921,7 +923,8 @@
 				"taskPriorityChanged": "Зміни пріоритету",
 				"taskTitleChanged": "Зміни назви",
 				"taskDescriptionChanged": "Зміни опису",
-				"taskCommentCreated": "Нові коментарі"
+				"taskCommentCreated": "Нові коментарі",
+				"timeEntryCreated": "Час зафіксовано"
 			},
 			"connect": "Підключити Slack",
 			"saveChanges": "Зберегти зміни",
@@ -959,7 +962,8 @@
 				"taskPriorityChanged": "Зміни пріоритету",
 				"taskTitleChanged": "Зміни назви",
 				"taskDescriptionChanged": "Зміни опису",
-				"taskCommentCreated": "Нові коментарі"
+				"taskCommentCreated": "Нові коментарі",
+				"timeEntryCreated": "Час зафіксовано"
 			},
 			"connect": "Підключити Discord",
 			"saveChanges": "Зберегти зміни",
@@ -1004,7 +1008,8 @@
 				"taskDueDateChanged": "Змінено дату завершення",
 				"taskAssigneeChanged": "Змінено виконавця",
 				"taskUnassigned": "Призначення знято",
-				"dueDateReminder": "Нагадування про дату завершення"
+				"dueDateReminder": "Нагадування про дату завершення",
+				"timeEntryCreated": "Час зафіксовано"
 			},
 			"connect": "Підключити вебхук",
 			"saveChanges": "Зберегти зміни",
@@ -1051,7 +1056,8 @@
 				"taskPriorityChanged": "Зміни пріоритету",
 				"taskTitleChanged": "Зміни назви",
 				"taskDescriptionChanged": "Зміни опису",
-				"taskCommentCreated": "Нові коментарі"
+				"taskCommentCreated": "Нові коментарі",
+				"timeEntryCreated": "Час зафіксовано"
 			},
 			"connect": "Підключити Telegram",
 			"saveChanges": "Зберегти зміни",
@@ -1300,7 +1306,8 @@
 				"taskDescriptionChanged": "Description changes",
 				"taskPriorityChanged": "Priority changes",
 				"taskStatusChanged": "Status changes",
-				"taskTitleChanged": "Title changes"
+				"taskTitleChanged": "Title changes",
+				"timeEntryCreated": "Час зафіксовано"
 			},
 			"eventsHint": "Choose which project changes should post to Mattermost.",
 			"eventsTitle": "Event notifications",
@@ -1495,9 +1502,9 @@
 				"content": "Вас призначено на завдання: {{taskTitle}}"
 			},
 			"time_entry_created": {
-				"title": "Відлік часу розпочато",
-				"contentWithTask": "Відлік часу розпочато для завдання: {{taskTitle}}",
-				"contentWithoutTask": "Відлік часу розпочато для завдання"
+				"title": "Час зафіксовано",
+				"contentWithTask": "Зафіксовано час для завдання: {{taskTitle}}",
+				"contentWithoutTask": "Зафіксовано час для завдання"
 			},
 			"task_mention": {
 				"title": "{{mentionerName}} згадав вас",
@@ -1642,7 +1649,8 @@
 			}
 		},
 		"moved": "перемістив завдання з «{{from}}» до «{{to}}»",
-		"created": "створив це завдання"
+		"created": "створив це завдання",
+		"trackedTime": "зафіксував {{duration}}"
 	},
 	"tasks": {
 		"title": "Завдання",
@@ -1824,7 +1832,8 @@
 			"copyTaskBranch": "Копіювати гілку завдання",
 			"start": "Початок",
 			"startDate": "Дата початку",
-			"noDate": "Немає дати"
+			"noDate": "Немає дати",
+			"timeTracked": "Час зафіксовано"
 		},
 		"move": {
 			"title": "Перемістити завдання",
@@ -2075,6 +2084,36 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"timeTracking": {
+			"billable": "Оплачуваний",
+			"currentTimer": "Поточний таймер",
+			"deleteEntry": "Видалити запис часу",
+			"deleteEntryConfirm": "Видалити цей запис часу? Цю дію неможливо скасувати.",
+			"deleteError": "Не вдалося видалити запис часу",
+			"description": "Опис",
+			"descriptionPlaceholder": "Над чим ви працювали?",
+			"duration": "Тривалість",
+			"endTime": "Завершення",
+			"logManually": "Додати час вручну",
+			"noEntries": "Час ще не зафіксовано",
+			"nonBillable": "Неоплачуваний",
+			"restart": "Перезапустити таймер",
+			"save": "Зберегти",
+			"start": "Почати відстеження",
+			"startError": "Не вдалося почати відстеження часу",
+			"startTime": "Початок",
+			"stop": "Зупинити",
+			"stopError": "Не вдалося зупинити відстеження часу",
+			"switchHere": "Переключитися сюди",
+			"total": "Усього",
+			"trackingElsewhere": "Відстежується {{taskTitle}}",
+			"updateError": "Не вдалося оновити запис часу",
+			"timeEntries": "Записи часу",
+			"timeOnTask": "Час на це завдання",
+			"durationInputPlaceholder": "напр., 1h 20m 50s",
+			"noTimeMatch": "Відповідний час не знайдено",
+			"loadError": "Не вдалося завантажити записи часу"
 		}
 	},
 	"invitations": {

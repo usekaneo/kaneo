@@ -532,7 +532,9 @@
 			"labels": "Labels",
 			"labelsDescription": "Aufgabenlabels und Tags anzeigen",
 			"priority": "Priorität",
-			"priorityDescription": "Prioritätsindikatoren anzeigen"
+			"priorityDescription": "Prioritätsindikatoren anzeigen",
+			"timeTracking": "Time tracking",
+			"timeTrackingDescription": "Show the time tracked property on tasks and the live timer in the header"
 		},
 		"developerPage": {
 			"pageTitle": "Entwicklereinstellungen",
@@ -921,7 +923,8 @@
 				"taskPriorityChanged": "Prioritätsänderungen",
 				"taskTitleChanged": "Titeländerungen",
 				"taskDescriptionChanged": "Beschreibungsänderungen",
-				"taskCommentCreated": "Neue Kommentare"
+				"taskCommentCreated": "Neue Kommentare",
+				"timeEntryCreated": "Zeit erfasst"
 			},
 			"connect": "Slack verbinden",
 			"saveChanges": "Änderungen speichern",
@@ -959,7 +962,8 @@
 				"taskPriorityChanged": "Prioritätsänderungen",
 				"taskTitleChanged": "Titeländerungen",
 				"taskDescriptionChanged": "Beschreibungsänderungen",
-				"taskCommentCreated": "Neue Kommentare"
+				"taskCommentCreated": "Neue Kommentare",
+				"timeEntryCreated": "Zeit erfasst"
 			},
 			"connect": "Discord verbinden",
 			"saveChanges": "Änderungen speichern",
@@ -1004,7 +1008,8 @@
 				"taskDueDateChanged": "Fälligkeitsdatum geändert",
 				"taskAssigneeChanged": "Zuweisung geändert",
 				"taskUnassigned": "Zuweisung entfernt",
-				"dueDateReminder": "Erinnerungen an Fälligkeitstermine"
+				"dueDateReminder": "Erinnerungen an Fälligkeitstermine",
+				"timeEntryCreated": "Zeit erfasst"
 			},
 			"reminderLeadTimeLabel": "Webhook so viele Stunden vorher senden",
 			"connect": "Webhook verbinden",
@@ -1051,7 +1056,8 @@
 				"taskPriorityChanged": "Prioritätsänderungen",
 				"taskTitleChanged": "Titeländerungen",
 				"taskDescriptionChanged": "Beschreibungsänderungen",
-				"taskCommentCreated": "Neue Kommentare"
+				"taskCommentCreated": "Neue Kommentare",
+				"timeEntryCreated": "Zeit erfasst"
 			},
 			"connect": "Telegram verbinden",
 			"saveChanges": "Änderungen speichern",
@@ -1298,7 +1304,8 @@
 				"taskDescriptionChanged": "Description changes",
 				"taskPriorityChanged": "Priority changes",
 				"taskStatusChanged": "Status changes",
-				"taskTitleChanged": "Title changes"
+				"taskTitleChanged": "Title changes",
+				"timeEntryCreated": "Zeit erfasst"
 			},
 			"eventsHint": "Choose which project changes should post to Mattermost.",
 			"eventsTitle": "Event notifications",
@@ -1515,9 +1522,9 @@
 				"content": "„{{taskTitle}}“ ist überfällig"
 			},
 			"time_entry_created": {
-				"title": "Zeiterfassung gestartet",
-				"contentWithTask": "Die Zeiterfassung für die Aufgabe \"{{taskTitle}}\" wurde gestartet",
-				"contentWithoutTask": "Die Zeiterfassung für eine Aufgabe wurde gestartet"
+				"title": "Zeit erfasst",
+				"contentWithTask": "Zeit für Aufgabe erfasst: {{taskTitle}}",
+				"contentWithoutTask": "Zeit für eine Aufgabe erfasst"
 			}
 		}
 	},
@@ -1632,7 +1639,8 @@
 					"renderFailed": "Mermaid-Diagramm konnte nicht gerendert werden"
 				}
 			}
-		}
+		},
+		"trackedTime": "erfasst {{duration}}"
 	},
 	"tasks": {
 		"title": "Aufgaben",
@@ -1814,7 +1822,8 @@
 			"copyTaskBranch": "Aufgaben-Branch kopieren",
 			"start": "Start",
 			"startDate": "Startdatum",
-			"noDate": "Kein Datum"
+			"noDate": "Kein Datum",
+			"timeTracked": "Zeit erfasst"
 		},
 		"move": {
 			"title": "Aufgabe verschieben",
@@ -2063,6 +2072,36 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"timeTracking": {
+			"billable": "Abrechenbar",
+			"currentTimer": "Aktueller Timer",
+			"deleteEntry": "Zeiteintrag löschen",
+			"deleteEntryConfirm": "Diesen Zeiteintrag löschen? Dies kann nicht rückgängig gemacht werden.",
+			"deleteError": "Zeiteintrag konnte nicht gelöscht werden",
+			"description": "Beschreibung",
+			"descriptionPlaceholder": "Woran hast du gearbeitet?",
+			"duration": "Dauer",
+			"endTime": "Ende",
+			"logManually": "Zeit manuell erfassen",
+			"noEntries": "Noch keine Zeit erfasst",
+			"nonBillable": "Nicht abrechenbar",
+			"restart": "Timer neu starten",
+			"save": "Speichern",
+			"start": "Zeiterfassung starten",
+			"startError": "Zeiterfassung konnte nicht gestartet werden",
+			"startTime": "Beginn",
+			"stop": "Stoppen",
+			"stopError": "Zeiterfassung konnte nicht beendet werden",
+			"switchHere": "Hierher wechseln",
+			"total": "Gesamt",
+			"trackingElsewhere": "Zeiterfassung für {{taskTitle}}",
+			"updateError": "Zeiteintrag konnte nicht aktualisiert werden",
+			"timeEntries": "Zeiteinträge",
+			"timeOnTask": "Zeit für diese Aufgabe",
+			"durationInputPlaceholder": "z. B. 1h 20m 50s",
+			"noTimeMatch": "Keine passende Zeit",
+			"loadError": "Zeiteinträge konnten nicht geladen werden"
 		}
 	},
 	"invitations": {

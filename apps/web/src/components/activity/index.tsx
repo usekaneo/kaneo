@@ -2,7 +2,11 @@ import { Calendar, CircleAlert, History, UserRound } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import useGetWorkspaceUsers from "@/hooks/queries/workspace-users/use-get-workspace-users";
-import { formatDateMedium, formatRelativeTime } from "@/lib/format";
+import {
+  formatDateMedium,
+  formatDuration,
+  formatRelativeTime,
+} from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel, getStatusLabel } from "@/lib/i18n/domain";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -401,6 +405,18 @@ function renderActivityContent({
         </span>
       );
     }
+  }
+
+  if (activity.type === "time_tracked") {
+    const seconds =
+      typeof eventData?.duration === "number" ? eventData.duration : null;
+    return (
+      <span className="text-sm text-muted-foreground">
+        {seconds === null
+          ? toDisplayCase(activity.type)
+          : t("activity:trackedTime", { duration: formatDuration(seconds) })}
+      </span>
+    );
   }
 
   return (

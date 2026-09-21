@@ -532,7 +532,9 @@
 			"labels": "Labels",
 			"labelsDescription": "Afficher les labels et tags des tâches",
 			"priority": "Priorité",
-			"priorityDescription": "Afficher les indicateurs de priorité"
+			"priorityDescription": "Afficher les indicateurs de priorité",
+			"timeTracking": "Time tracking",
+			"timeTrackingDescription": "Show the time tracked property on tasks and the live timer in the header"
 		},
 		"developerPage": {
 			"pageTitle": "Paramètres développeur",
@@ -921,7 +923,8 @@
 				"taskPriorityChanged": "Changements de priorité",
 				"taskTitleChanged": "Changements de titre",
 				"taskDescriptionChanged": "Changements de description",
-				"taskCommentCreated": "Nouveaux commentaires"
+				"taskCommentCreated": "Nouveaux commentaires",
+				"timeEntryCreated": "Temps enregistré"
 			},
 			"connect": "Connecter Slack",
 			"saveChanges": "Enregistrer les modifications",
@@ -959,7 +962,8 @@
 				"taskPriorityChanged": "Changements de priorité",
 				"taskTitleChanged": "Changements de titre",
 				"taskDescriptionChanged": "Changements de description",
-				"taskCommentCreated": "Nouveaux commentaires"
+				"taskCommentCreated": "Nouveaux commentaires",
+				"timeEntryCreated": "Temps enregistré"
 			},
 			"connect": "Connecter Discord",
 			"saveChanges": "Enregistrer les modifications",
@@ -1004,7 +1008,8 @@
 				"taskDueDateChanged": "Date d'échéance modifiée",
 				"taskAssigneeChanged": "Assigné modifié",
 				"taskUnassigned": "Tâche désassignée",
-				"dueDateReminder": "Rappels d'échéance"
+				"dueDateReminder": "Rappels d'échéance",
+				"timeEntryCreated": "Temps enregistré"
 			},
 			"connect": "Connecter le webhook",
 			"saveChanges": "Enregistrer les modifications",
@@ -1051,7 +1056,8 @@
 				"taskPriorityChanged": "Changements de priorité",
 				"taskTitleChanged": "Changements de titre",
 				"taskDescriptionChanged": "Changements de description",
-				"taskCommentCreated": "Nouveaux commentaires"
+				"taskCommentCreated": "Nouveaux commentaires",
+				"timeEntryCreated": "Temps enregistré"
 			},
 			"connect": "Connecter Telegram",
 			"saveChanges": "Enregistrer les modifications",
@@ -1299,7 +1305,8 @@
 				"taskDescriptionChanged": "Description changes",
 				"taskPriorityChanged": "Priority changes",
 				"taskStatusChanged": "Status changes",
-				"taskTitleChanged": "Title changes"
+				"taskTitleChanged": "Title changes",
+				"timeEntryCreated": "Temps enregistré"
 			},
 			"eventsHint": "Choose which project changes should post to Mattermost.",
 			"eventsTitle": "Event notifications",
@@ -1496,9 +1503,9 @@
 				"content": "{{mentionerName}} vous a mentionné dans : {{taskTitle}}"
 			},
 			"time_entry_created": {
-				"title": "Suivi du temps démarré",
-				"contentWithTask": "Le suivi du temps a démarré sur la tâche : {{taskTitle}}",
-				"contentWithoutTask": "Le suivi du temps a démarré sur une tâche"
+				"title": "Temps enregistré",
+				"contentWithTask": "Temps enregistré sur la tâche : {{taskTitle}}",
+				"contentWithoutTask": "Temps enregistré sur une tâche"
 			},
 			"task_comment": {
 				"title": "{{commenterName}} a commenté votre tâche",
@@ -1637,7 +1644,8 @@
 					"renderFailed": "Impossible d'afficher le diagramme Mermaid"
 				}
 			}
-		}
+		},
+		"trackedTime": "a enregistré {{duration}}"
 	},
 	"tasks": {
 		"title": "Tâches",
@@ -1819,7 +1827,8 @@
 			"copyTaskBranch": "Copier la branche de la tâche",
 			"start": "Début",
 			"startDate": "Date de début",
-			"noDate": "Pas de date"
+			"noDate": "Pas de date",
+			"timeTracked": "Temps enregistré"
 		},
 		"move": {
 			"title": "Déplacer la tâche",
@@ -2069,6 +2078,36 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"timeTracking": {
+			"billable": "Facturable",
+			"currentTimer": "Minuteur actuel",
+			"deleteEntry": "Supprimer le relevé de temps",
+			"deleteEntryConfirm": "Supprimer ce relevé de temps ? Cette action est irréversible.",
+			"deleteError": "Impossible de supprimer le relevé de temps",
+			"description": "Description",
+			"descriptionPlaceholder": "Sur quoi avez-vous travaillé ?",
+			"duration": "Durée",
+			"endTime": "Fin",
+			"logManually": "Saisir du temps manuellement",
+			"noEntries": "Aucun temps enregistré pour le moment",
+			"nonBillable": "Non facturable",
+			"restart": "Redémarrer le minuteur",
+			"save": "Enregistrer",
+			"start": "Démarrer le suivi",
+			"startError": "Impossible de démarrer le suivi",
+			"startTime": "Début",
+			"stop": "Arrêter",
+			"stopError": "Impossible d'arrêter le suivi",
+			"switchHere": "Basculer ici",
+			"total": "Total",
+			"trackingElsewhere": "Suivi de {{taskTitle}}",
+			"updateError": "Impossible de mettre à jour le relevé de temps",
+			"timeEntries": "Relevés de temps",
+			"timeOnTask": "Temps consacré à cette tâche",
+			"durationInputPlaceholder": "ex. 1h 20m 50s",
+			"noTimeMatch": "Aucun temps correspondant",
+			"loadError": "Impossible de charger les relevés de temps"
 		}
 	},
 	"invitations": {

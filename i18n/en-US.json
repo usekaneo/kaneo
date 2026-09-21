@@ -532,7 +532,9 @@
 			"labels": "Labels",
 			"labelsDescription": "Show task labels and tags",
 			"priority": "Priority",
-			"priorityDescription": "Display priority indicators"
+			"priorityDescription": "Display priority indicators",
+			"timeTracking": "Time tracking",
+			"timeTrackingDescription": "Show the time tracked property on tasks and the live timer in the header"
 		},
 		"developerPage": {
 			"pageTitle": "Developer Settings",
@@ -1109,7 +1111,8 @@
 				"taskPriorityChanged": "Priority changes",
 				"taskTitleChanged": "Title changes",
 				"taskDescriptionChanged": "Description changes",
-				"taskCommentCreated": "New comments"
+				"taskCommentCreated": "New comments",
+				"timeEntryCreated": "Time tracked"
 			},
 			"connect": "Connect Slack",
 			"saveChanges": "Save changes",
@@ -1147,7 +1150,8 @@
 				"taskPriorityChanged": "Priority changes",
 				"taskTitleChanged": "Title changes",
 				"taskDescriptionChanged": "Description changes",
-				"taskCommentCreated": "New comments"
+				"taskCommentCreated": "New comments",
+				"timeEntryCreated": "Time tracked"
 			},
 			"connect": "Connect Discord",
 			"saveChanges": "Save changes",
@@ -1185,7 +1189,8 @@
 				"taskPriorityChanged": "Priority changes",
 				"taskTitleChanged": "Title changes",
 				"taskDescriptionChanged": "Description changes",
-				"taskCommentCreated": "New comments"
+				"taskCommentCreated": "New comments",
+				"timeEntryCreated": "Time tracked"
 			},
 			"connect": "Connect Mattermost",
 			"saveChanges": "Save changes",
@@ -1230,7 +1235,8 @@
 				"taskDueDateChanged": "Due date changed",
 				"taskAssigneeChanged": "Assignee changed",
 				"taskUnassigned": "Task unassigned",
-				"dueDateReminder": "Due-date reminders"
+				"dueDateReminder": "Due-date reminders",
+				"timeEntryCreated": "Time tracked"
 			},
 			"reminderLeadTimeLabel": "Send the webhook this many hours before",
 			"connect": "Connect webhook",
@@ -1277,7 +1283,8 @@
 				"taskPriorityChanged": "Priority changes",
 				"taskTitleChanged": "Title changes",
 				"taskDescriptionChanged": "Description changes",
-				"taskCommentCreated": "New comments"
+				"taskCommentCreated": "New comments",
+				"timeEntryCreated": "Time tracked"
 			},
 			"connect": "Connect Telegram",
 			"saveChanges": "Save changes",
@@ -1515,9 +1522,9 @@
 				"content": "{{taskTitle}} is past its due date"
 			},
 			"time_entry_created": {
-				"title": "Time tracking started",
-				"contentWithTask": "Time tracking started on task: {{taskTitle}}",
-				"contentWithoutTask": "Time tracking started on a task"
+				"title": "Time tracked",
+				"contentWithTask": "Tracked time on task: {{taskTitle}}",
+				"contentWithoutTask": "Tracked time on a task"
 			}
 		}
 	},
@@ -1632,7 +1639,8 @@
 					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
 			}
-		}
+		},
+		"trackedTime": "tracked {{duration}}"
 	},
 	"tasks": {
 		"title": "Tasks",
@@ -1814,7 +1822,8 @@
 			"copyTaskBranch": "Copy task branch",
 			"start": "Start",
 			"startDate": "Start date",
-			"noDate": "No date"
+			"noDate": "No date",
+			"timeTracked": "Time tracked"
 		},
 		"move": {
 			"title": "Move task",
@@ -2063,6 +2072,36 @@
 				"deleteRow": "Delete row",
 				"deleteTable": "Delete table"
 			}
+		},
+		"timeTracking": {
+			"start": "Start tracking",
+			"stop": "Stop",
+			"switchHere": "Switch here",
+			"trackingElsewhere": "Tracking {{taskTitle}}",
+			"total": "Total",
+			"billable": "Billable",
+			"nonBillable": "Non-billable",
+			"noEntries": "No time logged yet",
+			"logManually": "Log time manually",
+			"description": "Description",
+			"descriptionPlaceholder": "Note",
+			"duration": "Duration",
+			"startTime": "Start",
+			"endTime": "End",
+			"save": "Save",
+			"deleteEntry": "Delete time entry",
+			"deleteEntryConfirm": "Delete this time entry? This cannot be undone.",
+			"currentTimer": "Current timer",
+			"restart": "Restart timer",
+			"startError": "Failed to start tracking",
+			"stopError": "Failed to stop tracking",
+			"updateError": "Failed to update time entry",
+			"deleteError": "Failed to delete time entry",
+			"timeOnTask": "Time on this task",
+			"timeEntries": "Time Entries",
+			"durationInputPlaceholder": "e.g. 1h 20m 50s",
+			"noTimeMatch": "No matching time",
+			"loadError": "Could not load time entries"
 		}
 	},
 	"invitations": {

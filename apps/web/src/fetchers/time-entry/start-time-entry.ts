@@ -1,23 +1,19 @@
 import { client } from "@kaneo/libs";
 import type { InferRequestType } from "hono/client";
 
-export type CreateTimeEntryRequest = InferRequestType<
-  (typeof client)["time-entry"]["$post"]
+export type StartTimeEntryRequest = InferRequestType<
+  (typeof client)["time-entry"]["start"]["$post"]
 >["json"];
 
-async function createTimeEntry({
+async function startTimeEntry({
   taskId,
   description,
-  startTime,
-  endTime,
   billable,
-}: CreateTimeEntryRequest) {
-  const response = await client["time-entry"].$post({
+}: StartTimeEntryRequest) {
+  const response = await client["time-entry"].start.$post({
     json: {
       taskId,
       description,
-      startTime,
-      endTime,
       billable,
     },
   });
@@ -31,4 +27,4 @@ async function createTimeEntry({
   return data;
 }
 
-export default createTimeEntry;
+export default startTimeEntry;

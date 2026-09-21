@@ -429,7 +429,9 @@
 			"labels": "Etiquetas",
 			"labelsDescription": "Mostrar descripción y etiquetas de las tareas",
 			"priority": "Prioridad",
-			"priorityDescription": "Mostrar indicador de prioridad"
+			"priorityDescription": "Mostrar indicador de prioridad",
+			"timeTracking": "Time tracking",
+			"timeTrackingDescription": "Show the time tracked property on tasks and the live timer in the header"
 		},
 		"developerPage": {
 			"pageTitle": "Ajustes de Desarrollador",
@@ -742,7 +744,8 @@
 				"taskPriorityChanged": "Cambios de prioridad",
 				"taskTitleChanged": "Cambios en el título",
 				"taskDescriptionChanged": "Cambios en la descripción",
-				"taskCommentCreated": "Nuevos comentarios"
+				"taskCommentCreated": "Nuevos comentarios",
+				"timeEntryCreated": "Tiempo registrado"
 			},
 			"connect": "Conectar con Slack",
 			"saveChanges": "Guardar cambios",
@@ -780,7 +783,8 @@
 				"taskPriorityChanged": "Cambios de prioridad",
 				"taskTitleChanged": "Cambios en el título",
 				"taskDescriptionChanged": "Cambios en la descripción",
-				"taskCommentCreated": "Nuevos comentarios"
+				"taskCommentCreated": "Nuevos comentarios",
+				"timeEntryCreated": "Tiempo registrado"
 			},
 			"connect": "Conectar con Discord",
 			"saveChanges": "Guardar cambios",
@@ -825,7 +829,8 @@
 				"taskDueDateChanged": "Cambio de fecha de vencimiento",
 				"taskAssigneeChanged": "Cambio de asignado",
 				"taskUnassigned": "Tarea desasignada",
-				"dueDateReminder": "Recordatorios de fecha de vencimiento"
+				"dueDateReminder": "Recordatorios de fecha de vencimiento",
+				"timeEntryCreated": "Tiempo registrado"
 			},
 			"connect": "Conectar al webhook",
 			"saveChanges": "Guardar cambios",
@@ -1278,7 +1283,8 @@
 				"taskPriorityChanged": "Cambios de prioridad",
 				"taskTitleChanged": "Cambios de título",
 				"taskDescriptionChanged": "Cambios de descripción",
-				"taskCommentCreated": "Nuevos comentarios"
+				"taskCommentCreated": "Nuevos comentarios",
+				"timeEntryCreated": "Tiempo registrado"
 			},
 			"connect": "Conectar Telegram",
 			"saveChanges": "Guardar cambios",
@@ -1299,7 +1305,8 @@
 				"taskDescriptionChanged": "Description changes",
 				"taskPriorityChanged": "Priority changes",
 				"taskStatusChanged": "Status changes",
-				"taskTitleChanged": "Title changes"
+				"taskTitleChanged": "Title changes",
+				"timeEntryCreated": "Tiempo registrado"
 			},
 			"eventsHint": "Choose which project changes should post to Mattermost.",
 			"eventsTitle": "Event notifications",
@@ -1492,9 +1499,9 @@
 				"content": "Se te ha asignado la tarea: {{taskTitle}}"
 			},
 			"time_entry_created": {
-				"title": "Monitoreo de tiempo activado",
-				"contentWithTask": "El monitoreo de la tarea se ha activado para: {{taskTitle}}",
-				"contentWithoutTask": "Se ha activado el monitoreo de una tarea"
+				"title": "Tiempo registrado",
+				"contentWithTask": "Tiempo registrado en la tarea: {{taskTitle}}",
+				"contentWithoutTask": "Tiempo registrado en una tarea"
 			},
 			"task_mention": {
 				"title": "{{mentionerName}} te ha mencionado",
@@ -1637,7 +1644,8 @@
 					"renderFailed": "No se pudo renderizar el diagrama de Mermaid"
 				}
 			}
-		}
+		},
+		"trackedTime": "ha registrado {{duration}}"
 	},
 	"tasks": {
 		"title": "Tareas",
@@ -1819,7 +1827,8 @@
 			"copyTaskBranch": "Copiar la rama de la tarea",
 			"start": "Comenzar",
 			"startDate": "Fecha de inicio",
-			"noDate": "Sin fecha"
+			"noDate": "Sin fecha",
+			"timeTracked": "Tiempo registrado"
 		},
 		"popover": {
 			"assignee": {
@@ -2069,6 +2078,36 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"timeTracking": {
+			"billable": "Facturable",
+			"currentTimer": "Temporizador actual",
+			"deleteEntry": "Eliminar registro de tiempo",
+			"deleteEntryConfirm": "¿Eliminar este registro de tiempo? Esta acción no se puede deshacer.",
+			"deleteError": "No se pudo eliminar el registro de tiempo",
+			"description": "Descripción",
+			"descriptionPlaceholder": "¿En qué has trabajado?",
+			"duration": "Duración",
+			"endTime": "Fin",
+			"logManually": "Registrar tiempo manualmente",
+			"noEntries": "Aún no se ha registrado tiempo",
+			"nonBillable": "No facturable",
+			"restart": "Reiniciar temporizador",
+			"save": "Guardar",
+			"start": "Iniciar seguimiento",
+			"startError": "No se pudo iniciar el seguimiento",
+			"startTime": "Inicio",
+			"stop": "Detener",
+			"stopError": "No se pudo detener el seguimiento",
+			"switchHere": "Cambiar aquí",
+			"total": "Total",
+			"trackingElsewhere": "Registrando tiempo en {{taskTitle}}",
+			"updateError": "No se pudo actualizar el registro de tiempo",
+			"timeEntries": "Registros de tiempo",
+			"timeOnTask": "Tiempo en esta tarea",
+			"durationInputPlaceholder": "p. ej., 1h 20m 50s",
+			"noTimeMatch": "No hay coincidencias de tiempo",
+			"loadError": "No se pudieron cargar los registros de tiempo"
 		}
 	},
 	"invitations": {

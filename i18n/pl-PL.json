@@ -517,9 +517,9 @@
 				"content": "Termin zadania {{taskTitle}} już minął"
 			},
 			"time_entry_created": {
-				"title": "Rozpoczęto śledzenie czasu",
-				"contentWithTask": "Rozpoczęto śledzenie czasu dla zadania: {{taskTitle}}",
-				"contentWithoutTask": "Rozpoczęto śledzenie czasu dla zadania"
+				"title": "Zarejestrowano czas",
+				"contentWithTask": "Zarejestrowano czas dla zadania: {{taskTitle}}",
+				"contentWithoutTask": "Zarejestrowano czas dla zadania"
 			}
 		}
 	},
@@ -816,7 +816,8 @@
 		"githubUser": "Użytkownik GitHub",
 		"moved": "przeniósł(ęła) zadanie z \"{{from}}\" do \"{{to}}\"",
 		"setDueDate": "ustawił(a) termin na {{date}}",
-		"unassigned": "usunął(ęła) przypisanie zadania"
+		"unassigned": "usunął(ęła) przypisanie zadania",
+		"trackedTime": "zarejestrował {{duration}}"
 	},
 	"settings": {
 		"account": "Konto",
@@ -925,7 +926,8 @@
 				"taskDescriptionChanged": "Zmiany opisu",
 				"taskPriorityChanged": "Zmiany priorytetu",
 				"taskStatusChanged": "Zmiany statusu",
-				"taskTitleChanged": "Zmiany tytułu"
+				"taskTitleChanged": "Zmiany tytułu",
+				"timeEntryCreated": "Zarejestrowano czas"
 			},
 			"eventsHint": "Wybierz zmiany projektu, które mają być publikowane na Discordzie.",
 			"eventsTitle": "Powiadomienia o zdarzeniach",
@@ -974,7 +976,8 @@
 				"taskPriorityChanged": "Zmiany priorytetu",
 				"taskStatusChanged": "Zmiany statusu",
 				"taskTitleChanged": "Zmiany tytułu",
-				"taskUnassigned": "Usunięto przypisanie zadania"
+				"taskUnassigned": "Usunięto przypisanie zadania",
+				"timeEntryCreated": "Zarejestrowano czas"
 			},
 			"eventsHint": "Wybierz zmiany projektu, które mają uruchamiać wychodzące webhooki.",
 			"eventsTitle": "Powiadomienia o zdarzeniach",
@@ -1324,7 +1327,9 @@
 			"title": "Preferencje",
 			"weekStartsOnMonday": "Poniedziałek",
 			"weekStartsOnSaturday": "Sobota",
-			"weekStartsOnSunday": "Niedziela"
+			"weekStartsOnSunday": "Niedziela",
+			"timeTracking": "Time tracking",
+			"timeTrackingDescription": "Show the time tracked property on tasks and the live timer in the header"
 		},
 		"projectGeneral": {
 			"dangerZone": "Strefa niebezpieczna",
@@ -1448,7 +1453,8 @@
 				"taskDescriptionChanged": "Zmiany opisu",
 				"taskPriorityChanged": "Zmiany priorytetu",
 				"taskStatusChanged": "Zmiany statusu",
-				"taskTitleChanged": "Zmiany tytułu"
+				"taskTitleChanged": "Zmiany tytułu",
+				"timeEntryCreated": "Zarejestrowano czas"
 			},
 			"eventsHint": "Wybierz, które zmiany w projekcie mają być publikowane na Slacku.",
 			"eventsTitle": "Powiadomienia o zdarzeniach",
@@ -1512,7 +1518,8 @@
 				"taskDescriptionChanged": "Zmiany opisu",
 				"taskPriorityChanged": "Zmiany priorytetu",
 				"taskStatusChanged": "Zmiany statusu",
-				"taskTitleChanged": "Zmiany tytułu"
+				"taskTitleChanged": "Zmiany tytułu",
+				"timeEntryCreated": "Zarejestrowano czas"
 			},
 			"eventsHint": "Wybierz, które zmiany w projekcie mają być publikowane na Telegramie.",
 			"eventsTitle": "Powiadomienia o zdarzeniach",
@@ -1776,7 +1783,8 @@
 				"taskDescriptionChanged": "Description changes",
 				"taskPriorityChanged": "Priority changes",
 				"taskStatusChanged": "Status changes",
-				"taskTitleChanged": "Title changes"
+				"taskTitleChanged": "Title changes",
+				"timeEntryCreated": "Zarejestrowano czas"
 			},
 			"eventsHint": "Choose which project changes should post to Mattermost.",
 			"eventsTitle": "Event notifications",
@@ -2193,7 +2201,8 @@
 			"noDate": "Brak daty",
 			"start": "Początek",
 			"startDate": "Data rozpoczęcia",
-			"title": "Właściwości"
+			"title": "Właściwości",
+			"timeTracked": "Zarejestrowano czas"
 		},
 		"relations": {
 			"blocks": "Blokuje",
@@ -2257,6 +2266,36 @@
 		"view": {
 			"board": "Tablica",
 			"list": "Lista"
+		},
+		"timeTracking": {
+			"billable": "Rozliczany",
+			"currentTimer": "Bieżący licznik",
+			"deleteEntry": "Usuń wpis czasu",
+			"deleteEntryConfirm": "Usunąć ten wpis czasu? Tej operacji nie można cofnąć.",
+			"deleteError": "Nie udało się usunąć wpisu czasu",
+			"description": "Opis",
+			"descriptionPlaceholder": "Nad czym pracowałeś?",
+			"duration": "Czas trwania",
+			"endTime": "Koniec",
+			"logManually": "Dodaj czas ręcznie",
+			"noEntries": "Nie zarejestrowano jeszcze czasu",
+			"nonBillable": "Nierozliczany",
+			"restart": "Uruchom licznik ponownie",
+			"save": "Zapisz",
+			"start": "Rozpocznij rejestrowanie",
+			"startError": "Nie udało się rozpocząć rejestrowania czasu",
+			"startTime": "Początek",
+			"stop": "Zatrzymaj",
+			"stopError": "Nie udało się zatrzymać rejestrowania czasu",
+			"switchHere": "Przełącz tutaj",
+			"total": "Suma",
+			"trackingElsewhere": "Rejestrowanie czasu dla {{taskTitle}}",
+			"updateError": "Nie udało się zaktualizować wpisu czasu",
+			"timeEntries": "Wpisy czasu",
+			"timeOnTask": "Czas na tym zadaniu",
+			"durationInputPlaceholder": "np. 1h 20m 50s",
+			"noTimeMatch": "Brak pasującego czasu",
+			"loadError": "Nie udało się wczytać wpisów czasu"
 		}
 	}
 }
