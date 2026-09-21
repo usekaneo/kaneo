@@ -9419,7 +9419,7 @@
           "Time Entries"
         ],
         "summary": "Stop tracking time",
-        "description": "Stop the caller's running entry on a task with the server clock. Returns 404 when nothing is running.",
+        "description": "Stop the caller's own running entry on a task with the server clock. This remains available after workspace access or task:update is removed so a running timer can always be closed. Returns 404 when the caller has no running entry on the task.",
         "parameters": [
           {
             "schema": {
@@ -9441,31 +9441,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown task",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Missing or invalid credentials"
           },
-          "403": {
-            "description": "No workspace access, or missing task:update permission",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "404": {
-            "description": "No running timer found for this task",
+            "description": "No running entry for the caller on this task",
             "content": {
               "text/plain": {
                 "schema": {

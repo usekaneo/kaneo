@@ -154,19 +154,19 @@ const stopTimeEntryRoute = createRoute({
   tags: ["Time Entries"],
   summary: "Stop tracking time",
   description:
-    "Stop the caller's running entry on a task with the server clock. Returns 404 when nothing is running.",
-  middleware: [
-    workspaceAccess.fromTaskId(),
-    requireWorkspacePermission({ task: ["update"] }),
-  ] as const,
+    "Stop the caller's own running entry on a task with the server clock. This remains available after workspace access or task:update is removed so a running timer can always be closed. Returns 404 when the caller has no running entry on the task.",
+  // A running timer stays caller-owned until it ends. Do not add workspace
+  // access or task:update middleware here: demoted users must be able to stop it.
+  // This avoids the heavier lifecycle work of immediately closing timers when
+  // either check starts failing; that cleanup can be added deliberately later.
+  // middleware: [
+  //   workspaceAccess.fromTaskId(),
+  //   requireWorkspacePermission({ task: ["update"] }),
+  // ] as const,
   request: { params: taskIdParam },
   responses: {
     200: jsonResponse("The ended time entry", timeEntrySchema),
-    400: errorResponse("Unknown task"),
-    403: errorResponse(
-      "No workspace access, or missing task:update permission",
-    ),
-    404: errorResponse("No running timer found for this task"),
+    404: errorResponse("No running entry for the caller on this task"),
   },
 });
 

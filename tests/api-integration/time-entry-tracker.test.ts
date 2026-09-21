@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import db, { schema } from "../../apps/api/src/database";
 import { subscribeToEvent } from "../../apps/api/src/events";
@@ -627,11 +627,56 @@ describe("active time tracking", () => {
     expect(rows.filter((row) => row.endTime === null)).toHaveLength(1);
   });
 
-  it("rejects stops across workspaces", async () => {
-    const { workspace } = await createWorkspaceMember({ role: "owner" });
+  it("lets a removed member stop their own running timer", async () => {
+    const { user, workspace } = await createWorkspaceMember({ role: "owner" });
+    const { tasks } = await seedTasksFor(workspace.id, 1);
+    const [running] = await db
+      .insert(schema.timeEntryTable)
+      .values({
+        taskId: tasks[0].id,
+        userId: user.id,
+        description: "",
+        billable: true,
+        startTime: new Date(Date.now() - 30_000),
+        endTime: null,
+        duration: null,
+      })
+      .returning();
+
+    await db
+      .delete(schema.workspaceUserTable)
+      .where(
+        and(
+          eq(schema.workspaceUserTable.workspaceId, workspace.id),
+          eq(schema.workspaceUserTable.userId, user.id),
+        ),
+      );
+
+    mockAuthenticatedSession(user);
+    const { app } = createApp();
+
+    const response = await app.request(
+      `/api/time-entry/task/${tasks[0].id}/stop`,
+      { method: "POST" },
+    );
+    expect(response.status).toBe(200);
+    expect((await response.json()).id).toBe(running.id);
+  });
+
+  it("does not let another user stop a running timer", async () => {
+    const { user, workspace } = await createWorkspaceMember({ role: "owner" });
     const outsider = await addWorkspaceMember(workspace.id, "Outsider");
-    const foreign = await createWorkspaceMember({ role: "owner" });
-    const { tasks } = await seedTasksFor(foreign.workspace.id, 1);
+    const { tasks } = await seedTasksFor(workspace.id, 1);
+
+    await db.insert(schema.timeEntryTable).values({
+      taskId: tasks[0].id,
+      userId: user.id,
+      description: "",
+      billable: true,
+      startTime: new Date(Date.now() - 30_000),
+      endTime: null,
+      duration: null,
+    });
 
     mockAuthenticatedSession(outsider);
     const { app } = createApp();
@@ -640,7 +685,7 @@ describe("active time tracking", () => {
       `/api/time-entry/task/${tasks[0].id}/stop`,
       { method: "POST" },
     );
-    expect(response.status).toBe(403);
+    expect(response.status).toBe(404);
   });
 
   it("announces the new task on a discarded switch", async () => {
