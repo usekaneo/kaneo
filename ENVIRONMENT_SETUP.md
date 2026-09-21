@@ -25,7 +25,7 @@ For development, you'll need at minimum:
 
 - `KANEO_CLIENT_URL` - The URL of the web application (e.g., `http://localhost:5173`)
 - `KANEO_API_URL` - The URL of the API (e.g., `http://localhost:1337`)
-- `AUTH_SECRET` - Secret key for JWT token generation (**must be at least 32 characters long**; use a long, random value in production)
+- `AUTH_SECRET` - **Required.** Secret key for JWT token generation (**must be at least 32 characters long**; use a long, random value in production). The API refuses to start without it, because an unset secret would fall back to a publicly known default and make every session cookie forgeable. The Docker entrypoint generates a random one per session if you do not set it, so sessions will not survive a restart until you do. Generate one with `openssl rand -hex 32`.
 - `DEVICE_AUTH_CLIENT_IDS` - **Optional.** Comma-separated list of allowed device-flow OAuth client IDs. When unset, Kaneo implicitly allows `kaneo-cli` and `kaneo-mcp` by default (no extra configuration for the CLI or MCP). Override only when you need additional trusted clients, for example `kaneo-cli,kaneo-mcp,my-desktop-app`.
 - `DATABASE_URL` - PostgreSQL connection string
 - `POSTGRES_DB` - PostgreSQL database name

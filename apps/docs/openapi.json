@@ -6532,7 +6532,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing project:update permission",
+            "description": "No workspace access, missing project:update, or missing project:share when visibility changes",
             "content": {
               "text/plain": {
                 "schema": {

@@ -43,6 +43,7 @@ import { syncWorkspaceSeats } from "./billing/controllers/sync-seats";
 import db, { schema } from "./database";
 import { publishEvent } from "./events";
 import deleteAccountData from "./user/controllers/delete-account-data";
+import { resolveAuthSecret } from "./utils/auth-secret";
 import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
 import { checkWorkspaceName } from "./utils/check-workspace-name";
 import { mapCustomOAuthProfileToUser } from "./utils/custom-oauth-profile";
@@ -99,12 +100,14 @@ const baseURLWithoutPath = (() => {
   }
 })();
 
-if (process.env.AUTH_SECRET && process.env.AUTH_SECRET.length < 32) {
-  console.error(
-    "AUTH_SECRET is less than 32 characters, please generate a new one.",
-  );
-  process.exit(1);
-}
+const authSecret = (() => {
+  try {
+    return resolveAuthSecret();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  }
+})();
 
 async function getUserLocale(email: string) {
   const [user] = await db
@@ -175,7 +178,7 @@ function getDeviceAuthVerificationUri(): string {
 export const auth = betterAuth({
   baseURL: baseURLWithoutPath,
   trustedOrigins,
-  secret: process.env.AUTH_SECRET || "",
+  secret: authSecret,
   basePath: "/api/auth",
   database: drizzleAdapter(db, {
     provider: "pg",
