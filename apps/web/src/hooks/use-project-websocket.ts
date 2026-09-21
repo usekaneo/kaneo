@@ -56,6 +56,23 @@ export function useProjectWebSocket(projectId: string) {
       ws.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data);
+          if (message.type === "TIME_ENTRY_UPDATED") {
+            // Task responses do not yet carry a normalized timeTracked value.
+            // Re-enable these when task cards render that persisted total.
+            // queryClient.invalidateQueries({
+            //   queryKey: ["tasks", message.projectId],
+            // });
+            // queryClient.invalidateQueries({
+            //   queryKey: ["task", message.taskId],
+            // });
+            queryClient.invalidateQueries({
+              queryKey: ["time-entries", message.taskId],
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["activities", message.taskId],
+            });
+          }
+
           if (
             message.type === "TASK_UPDATED" ||
             message.type === "TASK_CREATED" ||
@@ -63,8 +80,7 @@ export function useProjectWebSocket(projectId: string) {
             message.type === "TASK_LABEL_UPDATED" ||
             message.type === "TASK_MOVED" ||
             message.type === "TASK_RELATION_UPDATED" ||
-            message.type === "COMMENT_UPDATED" ||
-            message.type === "TIME_ENTRY_UPDATED"
+            message.type === "COMMENT_UPDATED"
           ) {
             queryClient.invalidateQueries({
               queryKey: ["tasks", message.projectId],
@@ -110,15 +126,6 @@ export function useProjectWebSocket(projectId: string) {
               });
               queryClient.invalidateQueries({
                 queryKey: ["comments", message.taskId],
-              });
-            }
-
-            if (message.type === "TIME_ENTRY_UPDATED") {
-              queryClient.invalidateQueries({
-                queryKey: ["time-entries", message.taskId],
-              });
-              queryClient.invalidateQueries({
-                queryKey: ["activities", message.taskId],
               });
             }
           }
