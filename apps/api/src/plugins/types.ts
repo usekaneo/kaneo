@@ -94,6 +94,16 @@ export type TaskAssigneeChangedEvent = {
   newAssigneeId: string;
 };
 
+export type TimeEntryCreatedEvent = {
+  taskId: string;
+  projectId: string;
+  userId: string | null;
+  title: string;
+  timeEntryId: string;
+  duration: number | null;
+  billable: boolean;
+};
+
 export type TaskUnassignedEvent = {
   taskId: string;
   projectId: string;
@@ -103,6 +113,7 @@ export type TaskUnassignedEvent = {
 
 export type TaskEvent =
   | TaskCreatedEvent
+  | TimeEntryCreatedEvent
   | TaskStatusChangedEvent
   | TaskPriorityChangedEvent
   | TaskTitleChangedEvent
@@ -148,6 +159,7 @@ export type IntegrationPlugin = {
   name: string;
 
   onTaskCreated?: TaskEventHandler<TaskCreatedEvent>;
+  onTimeEntryCreated?: TaskEventHandler<TimeEntryCreatedEvent>;
   onTaskStatusChanged?: TaskEventHandler<TaskStatusChangedEvent>;
   onTaskPriorityChanged?: TaskEventHandler<TaskPriorityChangedEvent>;
   onTaskTitleChanged?: TaskEventHandler<TaskTitleChangedEvent>;

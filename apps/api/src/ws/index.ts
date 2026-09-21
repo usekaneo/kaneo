@@ -343,6 +343,33 @@ subscribeToEvent<{ notificationId: string; userId: string }>(
   },
 );
 
+for (const eventName of [
+  "time-entry.created",
+  "time-entry.updated",
+  "time-entry.started",
+  "time-entry.deleted",
+] as const) {
+  subscribeToEvent<{
+    timeEntryId: string;
+    taskId: string;
+    userId: string;
+    projectId?: string;
+    initiatorId?: string;
+  }>(eventName, async (data) => {
+    const { projectId, taskId, userId, initiatorId } = data;
+    if (projectId && taskId) {
+      broadcastToProject(
+        projectId,
+        { type: "TIME_ENTRY_UPDATED", projectId, taskId },
+        initiatorId,
+      );
+    }
+    if (userId) {
+      broadcastToUser(userId, { type: "TIME_ENTRY_UPDATED", taskId });
+    }
+  });
+}
+
 for (const eventName of taskUpdateEvents) {
   subscribeToEvent<TaskEvent>(eventName, async (data) => {
     const { projectId, initiatorId } = data;

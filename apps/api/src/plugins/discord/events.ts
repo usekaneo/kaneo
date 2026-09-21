@@ -15,6 +15,7 @@ import type {
   TaskPriorityChangedEvent,
   TaskStatusChangedEvent,
   TaskTitleChangedEvent,
+  TimeEntryCreatedEvent,
 } from "../types";
 import { postToDiscord, sanitizeDiscordContent } from "./client";
 import type { DiscordConfig, DiscordEventKey } from "./config";
@@ -48,6 +49,18 @@ function truncate(value: string, maxLength: number): string {
   }
 
   return `${value.slice(0, maxLength - 1)}…`;
+}
+
+function formatTrackedDuration(totalSeconds: number | null): string {
+  if (totalSeconds === null || totalSeconds <= 0) {
+    return "no time";
+  }
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  if (hours === 0) {
+    return `${minutes}m`;
+  }
+  return minutes === 0 ? `${hours}h` : `${hours}h ${minutes}m`;
 }
 
 function redactWebhookUrl(value: string): string {
@@ -229,6 +242,16 @@ export async function handleTaskCreated(
   await runDiscordHandler(context, event, "taskCreated", () => ({
     title: "New task created",
     body: `A new task was added: **${event.title}**`,
+  }));
+}
+
+export async function handleTimeEntryCreated(
+  event: TimeEntryCreatedEvent,
+  context: PluginContext,
+): Promise<void> {
+  await runDiscordHandler(context, event, "timeEntryCreated", () => ({
+    title: "Time tracked",
+    body: `**${formatTrackedDuration(event.duration)}** tracked on **${event.title}**${event.billable ? "" : " (non-billable)"}.`,
   }));
 }
 

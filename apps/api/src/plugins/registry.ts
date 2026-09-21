@@ -16,6 +16,7 @@ import type {
   TaskStatusChangedEvent,
   TaskTitleChangedEvent,
   TaskUnassignedEvent,
+  TimeEntryCreatedEvent,
 } from "./types";
 
 const plugins = new Map<string, IntegrationPlugin>();
@@ -53,6 +54,30 @@ export function initializeEventSubscriptions(): void {
       priority: data.priority,
       status: data.status,
       number: data.number,
+    });
+  });
+
+  subscribeToEvent<{
+    timeEntryId: string;
+    taskId: string;
+    userId: string;
+    taskOwnerId?: string;
+    taskTitle?: string;
+    projectId?: string;
+    duration?: number | null;
+    billable?: boolean;
+  }>("time-entry.created", async (data) => {
+    if (!data.projectId || !data.taskId) {
+      return;
+    }
+    await broadcastTimeEntryCreated({
+      taskId: data.taskId,
+      projectId: data.projectId,
+      userId: data.userId ?? null,
+      title: data.taskTitle ?? "",
+      timeEntryId: data.timeEntryId,
+      duration: data.duration ?? null,
+      billable: data.billable ?? true,
     });
   });
 
@@ -278,6 +303,30 @@ export async function broadcastTaskCreated(
       await plugin.onTaskCreated(event, context);
     } catch (error) {
       console.error(`Plugin ${plugin.type} error on task.created:`, error);
+    }
+  }
+}
+
+// Completed timers broadcast like status changes: potentially chatty, one
+// message per tracked session, and tunable per integration like the rest.
+export async function broadcastTimeEntryCreated(
+  event: TimeEntryCreatedEvent,
+): Promise<void> {
+  const integrations = await getActiveIntegrations(event.projectId);
+
+  for (const integration of integrations) {
+    const plugin = getPlugin(integration.type);
+    if (!plugin?.onTimeEntryCreated) continue;
+
+    const context = createContext(integration);
+
+    try {
+      await plugin.onTimeEntryCreated(event, context);
+    } catch (error) {
+      console.error(
+        `Plugin ${plugin.type} error on time-entry.created:`,
+        error,
+      );
     }
   }
 }

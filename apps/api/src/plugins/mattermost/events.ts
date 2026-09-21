@@ -14,6 +14,7 @@ import type {
   TaskPriorityChangedEvent,
   TaskStatusChangedEvent,
   TaskTitleChangedEvent,
+  TimeEntryCreatedEvent,
 } from "../types";
 import { postToMattermost } from "./client";
 import type { MattermostConfig, MattermostEventKey } from "./config";
@@ -53,6 +54,18 @@ function truncate(value: string, maxLength: number): string {
   }
 
   return `${value.slice(0, maxLength - 1)}…`;
+}
+
+function formatTrackedDuration(totalSeconds: number | null): string {
+  if (totalSeconds === null || totalSeconds <= 0) {
+    return "no time";
+  }
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  if (hours === 0) {
+    return `${minutes}m`;
+  }
+  return minutes === 0 ? `${hours}h` : `${hours}h ${minutes}m`;
 }
 
 async function getMattermostEventData(
@@ -165,6 +178,28 @@ export async function handleTaskCreated(
     config,
     "New task created",
     `A new task was added: ${event.title}`,
+    data,
+  );
+}
+
+export async function handleTimeEntryCreated(
+  event: TimeEntryCreatedEvent,
+  context: PluginContext,
+): Promise<void> {
+  const config = normalizeMattermostConfig(context.config as MattermostConfig);
+  if (!isEnabled(config, "timeEntryCreated")) return;
+
+  const data = await getMattermostEventData(
+    event.taskId,
+    event.projectId,
+    event.userId,
+  );
+  if (!data) return;
+
+  await sendMattermostMessage(
+    config,
+    "Time tracked",
+    `*${formatTrackedDuration(event.duration)}* tracked on *${event.title}*${event.billable ? "" : " (non-billable)"}.`,
     data,
   );
 }
