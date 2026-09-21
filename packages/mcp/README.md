@@ -119,7 +119,7 @@ For headless or sandboxed environments where opening a browser is impractical, s
 - Search: `search`
 - Projects: `list_projects`, `get_project`, `create_project`, `update_project`, `list_project_columns`
 - Tasks: `list_tasks`, `get_task`, `create_task`, `update_task`, `delete_task`, `move_task`, `update_task_status`, `update_task_assignee`, `update_task_due_date`, `list_task_activity`
-- Time entries: `list_task_time_entries`, `get_time_entry`, `create_time_entry`, `update_time_entry`
+- Time entries: `list_task_time_entries`, `get_time_entry`, `create_time_entry`, `update_time_entry`, `start_task_timer`, `stop_task_timer`, `get_running_timer`, `delete_time_entry`
 - Comments: `list_task_comments`, `create_task_comment`, `update_task_comment`, `delete_task_comment`
 - Labels: `list_workspace_labels`, `create_label`, `attach_label_to_task`, `detach_label_from_task`, `delete_label`
 - Task relations: `create_task_relation`, `get_task_relations`, `delete_task_relation`
@@ -127,8 +127,6 @@ For headless or sandboxed environments where opening a browser is impractical, s
 Call `list_project_columns` before setting a status: the column slugs it
 returns are the values `create_task` and `update_task_status` accept.
 `list_workspace_members` resolves the user IDs the assignee tools expect.
-Time entries have no delete endpoint on the API, so there is no
-`delete_time_entry` tool.
 
 ## Releasing
 
