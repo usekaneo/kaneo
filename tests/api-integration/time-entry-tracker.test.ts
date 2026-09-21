@@ -191,7 +191,12 @@ describe("active time tracking", () => {
     const activities = await db
       .select()
       .from(schema.activityTable)
-      .where(eq(schema.activityTable.taskId, tasks[0].id));
+      .where(
+        and(
+          eq(schema.activityTable.taskId, tasks[0].id),
+          eq(schema.activityTable.type, "time_tracked"),
+        ),
+      );
     expect(activities).toHaveLength(0);
   });
 
@@ -312,7 +317,7 @@ describe("active time tracking", () => {
 
   it("deletes an ended entry with its activity row, and refuses running ones", async () => {
     const { user, workspace } = await createWorkspaceMember({ role: "owner" });
-    const { tasks } = await seedTasksFor(workspace.id, 1);
+    const { tasks } = await seedTasksFor(workspace.id, 2);
 
     mockAuthenticatedSession(user);
     const { app } = createApp();
@@ -337,6 +342,25 @@ describe("active time tracking", () => {
     expect(entries).toHaveLength(1);
     expect(entries[0].billable).toBe(true);
 
+    const [sameTaskComment] = await db
+      .insert(schema.activityTable)
+      .values({
+        taskId: tasks[0].id,
+        type: "comment",
+        content: "Keep this comment",
+        eventData: { timeEntryId: entries[0].id },
+      })
+      .returning();
+    const [otherTaskActivity] = await db
+      .insert(schema.activityTable)
+      .values({
+        taskId: tasks[1].id,
+        type: "time_tracked",
+        content: null,
+        eventData: { timeEntryId: entries[0].id },
+      })
+      .returning();
+
     const deleteResponse = await app.request(
       `/api/time-entry/${entries[0].id}`,
       { method: "DELETE" },
@@ -349,11 +373,13 @@ describe("active time tracking", () => {
       .where(eq(schema.timeEntryTable.id, entries[0].id));
     expect(remaining).toHaveLength(0);
 
-    const activities = await db
+    const remainingActivities = await db
       .select()
       .from(schema.activityTable)
-      .where(eq(schema.activityTable.taskId, tasks[0].id));
-    expect(activities).toHaveLength(0);
+      .where(
+        sql`${schema.activityTable.id} IN (${sameTaskComment.id}, ${otherTaskActivity.id})`,
+      );
+    expect(remainingActivities).toHaveLength(2);
   });
 
   it("rejects open entries on the manual path while a timer runs", async () => {
@@ -399,7 +425,7 @@ describe("active time tracking", () => {
 
   it("syncs the activity snapshot when an entry is edited", async () => {
     const { user, workspace } = await createWorkspaceMember({ role: "owner" });
-    const { tasks } = await seedTasksFor(workspace.id, 1);
+    const { tasks } = await seedTasksFor(workspace.id, 2);
 
     mockAuthenticatedSession(user);
     const { app } = createApp();
@@ -412,6 +438,25 @@ describe("active time tracking", () => {
       })
     ).json();
 
+    const [sameTaskComment] = await db
+      .insert(schema.activityTable)
+      .values({
+        taskId: tasks[0].id,
+        type: "comment",
+        content: "Keep this comment",
+        eventData: { timeEntryId: created.id, duration: 3600 },
+      })
+      .returning();
+    const [otherTaskActivity] = await db
+      .insert(schema.activityTable)
+      .values({
+        taskId: tasks[1].id,
+        type: "time_tracked",
+        content: null,
+        eventData: { timeEntryId: created.id, duration: 3600 },
+      })
+      .returning();
+
     await app.request(`/api/time-entry/${created.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -421,12 +466,29 @@ describe("active time tracking", () => {
     const activities = await db
       .select()
       .from(schema.activityTable)
-      .where(eq(schema.activityTable.taskId, tasks[0].id));
+      .where(
+        and(
+          eq(schema.activityTable.taskId, tasks[0].id),
+          eq(schema.activityTable.type, "time_tracked"),
+        ),
+      );
     expect(activities).toHaveLength(1);
     expect(activities[0].eventData).toMatchObject({
       timeEntryId: created.id,
       duration: 1800,
     });
+
+    const untouchedActivities = await db
+      .select()
+      .from(schema.activityTable)
+      .where(
+        sql`${schema.activityTable.id} IN (${sameTaskComment.id}, ${otherTaskActivity.id})`,
+      );
+    expect(untouchedActivities).toHaveLength(2);
+    expect(untouchedActivities.map((activity) => activity.eventData)).toEqual([
+      { timeEntryId: created.id, duration: 3600 },
+      { timeEntryId: created.id, duration: 3600 },
+    ]);
   });
 
   it("announces a start for realtime only, with no activity row", async () => {

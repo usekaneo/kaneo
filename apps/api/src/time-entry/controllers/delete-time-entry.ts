@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
@@ -43,7 +43,13 @@ async function deleteTimeEntry(timeEntryId: string) {
     // the feed never shows hours that no longer exist.
     await tx
       .delete(activityTable)
-      .where(sql`${activityTable.eventData}->>'timeEntryId' = ${timeEntryId}`);
+      .where(
+        and(
+          eq(activityTable.taskId, deleted.taskId),
+          eq(activityTable.type, "time_tracked"),
+          sql`${activityTable.eventData}->>'timeEntryId' = ${timeEntryId}`,
+        ),
+      );
 
     return [deleted];
   });

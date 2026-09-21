@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
@@ -151,7 +151,13 @@ async function updateTimeEntry(params: UpdateTimeEntryParams) {
           billable: updated.billable,
         },
       })
-      .where(sql`${activityTable.eventData}->>'timeEntryId' = ${timeEntryId}`);
+      .where(
+        and(
+          eq(activityTable.taskId, updated.taskId),
+          eq(activityTable.type, "time_tracked"),
+          sql`${activityTable.eventData}->>'timeEntryId' = ${timeEntryId}`,
+        ),
+      );
 
     return updated;
   });
