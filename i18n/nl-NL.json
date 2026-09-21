@@ -2099,7 +2099,7 @@
 			"updateError": "Tijdregistratie bijwerken mislukt",
 			"timeEntries": "Tijdregistraties",
 			"timeOnTask": "Tijd aan deze taak",
-			"durationInputPlaceholder": "bijv. 1u 20m 50s",
+			"durationInputPlaceholder": "bijv. 1h 20m 50s",
 			"noTimeMatch": "Geen overeenkomende tijd",
 			"loadError": "Tijdregistraties laden mislukt"
 		}
