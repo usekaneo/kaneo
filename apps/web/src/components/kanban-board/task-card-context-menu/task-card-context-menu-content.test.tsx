@@ -42,6 +42,10 @@ vi.mock("@/components/ui/context-menu", () => ({
   }): React.JSX.Element => <div>{children}</div>,
 }));
 
+vi.mock("@/components/task/task-time-tracker", () => ({
+  TaskTimeTrackerContent: () => null,
+}));
+
 vi.mock("@/hooks/queries/column/use-get-columns", () => ({
   useGetColumns: () => ({
     data: [],
@@ -101,11 +105,15 @@ vi.mock("@/store/project", () => ({
   }),
 }));
 
-vi.mock("react-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-  }),
-}));
+vi.mock("react-i18next", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react-i18next")>();
+  return {
+    ...actual,
+    useTranslation: () => ({
+      t: (key: string) => key,
+    }),
+  };
+});
 
 const task = {
   id: "task-1",
