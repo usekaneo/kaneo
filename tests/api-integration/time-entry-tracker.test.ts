@@ -688,13 +688,17 @@ describe("active time tracking", () => {
     expect(response.status).toBe(404);
   });
 
-  it("announces the new task on a discarded switch", async () => {
+  it("announces both tasks on a discarded switch", async () => {
     const { user, workspace } = await createWorkspaceMember({ role: "owner" });
     const { tasks } = await seedTasksFor(workspace.id, 2);
 
-    const seen: Array<Record<string, unknown>> = [];
+    const started: Array<Record<string, unknown>> = [];
+    const discarded: Array<Record<string, unknown>> = [];
     await subscribeToEvent("time-entry.started", async (data) => {
-      seen.push(data as Record<string, unknown>);
+      started.push(data as Record<string, unknown>);
+    });
+    await subscribeToEvent("time-entry.deleted", async (data) => {
+      discarded.push(data as Record<string, unknown>);
     });
 
     mockAuthenticatedSession(user);
@@ -703,9 +707,16 @@ describe("active time tracking", () => {
     await postJson(app, "/api/time-entry/start", { taskId: tasks[0].id });
     await postJson(app, "/api/time-entry/start", { taskId: tasks[1].id });
 
-    const announcement = seen.find((event) => event.taskId === tasks[1].id);
+    const announcement = started.find((event) => event.taskId === tasks[1].id);
     expect(announcement).toBeDefined();
     expect(announcement?.userId).toBe(user.id);
+    expect(discarded).toEqual([
+      expect.objectContaining({
+        taskId: tasks[0].id,
+        userId: user.id,
+        type: "delete",
+      }),
+    ]);
   });
 
   it("ignores a fresh manual entry on stop", async () => {

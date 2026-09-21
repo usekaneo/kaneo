@@ -175,6 +175,22 @@ async function startTimeEntry(params: StartTimeEntryParams) {
     .where(eq(taskTable.id, taskId))
     .limit(1);
 
+  if (result.discardedEntryId && result.discardedTaskId) {
+    const [discardedTask] = await db
+      .select({ projectId: taskTable.projectId })
+      .from(taskTable)
+      .where(eq(taskTable.id, result.discardedTaskId))
+      .limit(1);
+
+    await publishEvent("time-entry.deleted", {
+      timeEntryId: result.discardedEntryId,
+      taskId: result.discardedTaskId,
+      userId,
+      type: "delete",
+      projectId: discardedTask?.projectId,
+    });
+  }
+
   await publishEvent("time-entry.started", {
     timeEntryId: result.entry.id,
     taskId,
