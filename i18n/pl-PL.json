@@ -817,7 +817,7 @@
 		"moved": "przeniósł(ęła) zadanie z \"{{from}}\" do \"{{to}}\"",
 		"setDueDate": "ustawił(a) termin na {{date}}",
 		"unassigned": "usunął(ęła) przypisanie zadania",
-		"trackedTime": "zarejestrował {{duration}}"
+		"trackedTime": "zarejestrował(a) {{duration}}"
 	},
 	"settings": {
 		"account": "Konto",
