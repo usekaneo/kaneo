@@ -376,6 +376,17 @@ for (const eventName of taskUpdateEvents) {
         type = "TASK_UPDATED";
     }
 
+    if (eventName === "task.label_deleted") {
+      // Cascade deletion waits for this adapter operation rather than growing
+      // the ordinary 100ms broadcast queue behind a slow Redis connection.
+      await adapter?.publish({
+        projectId,
+        message: { type, projectId, taskId },
+        excludeInitiatorId: initiatorId,
+      });
+      return;
+    }
+
     broadcastToProject(
       projectId,
       {

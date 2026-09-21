@@ -296,13 +296,19 @@ describe("assignLabelToTask", () => {
     const insertChain = makeInsertMock(undefined);
     mockInsert.mockReturnValue(insertChain);
     mockFindFirst.mockResolvedValueOnce(WORKSPACE_LABEL);
-    mockFindFirst.mockResolvedValueOnce(WORKSPACE_LABEL);
+    mockFindFirst.mockResolvedValueOnce(TASK_LABEL);
 
-    await assignLabelToTask("label-ws-1", "task-1", "user-1");
+    const result = await assignLabelToTask("label-ws-1", "task-1", "user-1");
 
+    expect(result).toEqual(TASK_LABEL);
+    expect(result.taskId).toBe("task-1");
     expect(mockTransaction).toHaveBeenCalledTimes(1);
     expect(mockInsert).toHaveBeenCalledTimes(1);
     expect(mockFindFirst).toHaveBeenCalledTimes(3);
+    expect(mockDelete).not.toHaveBeenCalled();
+    expect(mockSyncLabelToGitHub).not.toHaveBeenCalled();
+    expect(mockSyncLabelToGitea).not.toHaveBeenCalled();
+    expect(mockPublishEvent).not.toHaveBeenCalled();
   });
 
   it("throws HTTP 500 when the insert and fallback lookup both return no row", async () => {

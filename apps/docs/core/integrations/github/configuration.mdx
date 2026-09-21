@@ -172,6 +172,10 @@ Once connected, new tasks created in this project will automatically generate Gi
 </Step>
 </Steps>
 
+### Changing the connected repository
+
+Disconnect the existing integration before connecting a different repository. This preserves local tasks but removes their old external links and any unfinished import progress. Reconnecting the same verified repository, including after a rename or reinstall, preserves its links and project preferences. Legacy integrations without a verified numeric identity can be reverified for the same repository name; review their existing links before enabling synchronization.
+
 ## Testing the Integration
 
 After connecting a repository, test the integration thoroughly:
@@ -291,3 +295,13 @@ If you need to connect repositories from multiple GitHub organizations:
 ---
 
 **Having issues?** Check our [troubleshooting guide](/core/integrations/github/troubleshooting) for common problems and solutions.
+
+## Import existing issues
+
+Select **Import Issues** in the project's GitHub integration settings to import open issues and their labels and comments. Existing linked tasks are updated; matching open pull requests are linked to their tasks. Bot comments are excluded.
+
+Large imports run in small, sequential steps. Keep the page open until the completion message appears. If the connection fails or you close the page, the saved progress remains available: return to these settings and select **Resume import**. The completion message lists created, updated and skipped issues. A skipped issue may have lost its source or linked task during the import, or have a legacy link to another project.
+
+Each run uses its start time as a cutoff for newly created issues, pull requests and comments. Label and comment counts are bounded by the first page observed for each issue, so additions during an import may require a new import after the current run completes. GitHub can change during a run; this is not an exact point-in-time snapshot. Reimporting does not duplicate already linked tasks or comments.
+
+If GitHub is unavailable or rate limits requests, wait before resuming. Reconnect the integration if its repository verification no longer succeeds. Unlinking the integration also removes saved import progress; already imported tasks remain.

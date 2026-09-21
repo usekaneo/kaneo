@@ -30,32 +30,36 @@ const redirectUriSchema = z
 // Clients such as Claude also ask for refresh_token. The server never issues
 // one, so the grant is accepted here and omitted from the registration response.
 export const clientRegistrationSchema = z.object({
-  redirect_uris: z.array(redirectUriSchema).min(1),
+  redirect_uris: z.array(redirectUriSchema).min(1).max(10),
   client_name: z.string().max(100).optional(),
   token_endpoint_auth_method: z.literal("none").optional(),
   grant_types: z
     .array(z.enum(["authorization_code", "refresh_token"]))
+    .max(2)
     .refine(
       (types) => types.includes("authorization_code"),
       "grant_types must include authorization_code",
     )
     .optional(),
-  response_types: z.array(z.literal("code")).min(1).optional(),
+  response_types: z.array(z.literal("code")).min(1).max(1).optional(),
 });
 
 export const authorizationQuerySchema = z.object({
   response_type: z.literal("code"),
-  client_id: z.string(),
+  client_id: z.string().min(1).max(128),
   redirect_uri: redirectUriSchema,
-  code_challenge: z.string().min(1).openapi({
-    description: "PKCE challenge; only S256 is accepted.",
-  }),
+  code_challenge: z
+    .string()
+    .regex(/^[A-Za-z0-9_-]{43}$/)
+    .openapi({
+      description: "PKCE challenge; only S256 is accepted.",
+    }),
   code_challenge_method: z.literal("S256"),
-  state: z.string().optional(),
+  state: z.string().max(1024).optional(),
 });
 
 export const authorizationRequestParamSchema = z.object({
-  requestId: z.string(),
+  requestId: z.string().min(1).max(128),
 });
 
 export const authorizationDecisionSchema = z.object({

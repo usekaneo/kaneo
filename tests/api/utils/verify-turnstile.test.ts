@@ -1,87 +1,100 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { verifyTurnstile } from "../../../apps/api/src/utils/verify-turnstile";
 
-describe("verifyTurnstile", () => {
-  const originalSecret = process.env.TURNSTILE_SECRET_KEY;
-  const originalFetch = globalThis.fetch;
-
-  beforeEach(() => {
-    process.env.TURNSTILE_SECRET_KEY = "test-secret";
-  });
-
-  afterEach(() => {
-    if (originalSecret === undefined) {
-      delete process.env.TURNSTILE_SECRET_KEY;
-    } else {
-      process.env.TURNSTILE_SECRET_KEY = originalSecret;
-    }
-    globalThis.fetch = originalFetch;
-    vi.restoreAllMocks();
-  });
-
-  it("returns ok when no secret is configured (self-hosted opt-out)", async () => {
-    delete process.env.TURNSTILE_SECRET_KEY;
-    const result = await verifyTurnstile("any-token", "1.2.3.4");
-    expect(result.ok).toBe(true);
-  });
-
-  it("fails when the token is missing", async () => {
-    const result = await verifyTurnstile(null);
-    expect(result.ok).toBe(false);
-  });
-
-  it("posts the secret, token, and remoteip to Cloudflare", async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
-      json: async () => ({ success: true }),
-    });
-    globalThis.fetch = fetchMock as unknown as typeof fetch;
-
-    const result = await verifyTurnstile("good-token", "203.0.113.7");
-
-    expect(result.ok).toBe(true);
-    expect(fetchMock).toHaveBeenCalledOnce();
-    const [url, init] = fetchMock.mock.calls[0] ?? [];
-    expect(url).toBe(
-      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+beforeEach(() => {
+  vi.stubEnv("TURNSTILE_SECRET_KEY", "secret");
+  vi.stubEnv("KANEO_CLIENT_URL", "https://app.example.com");
+});
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
+});
+describe("Turnstile verification contract", () => {
+  it.each([null, undefined, {}, "", "x".repeat(2049)])(
+    "rejects missing or malformed tokens before network access (%s)",
+    async (token) => {
+      const fetchMock = vi.fn();
+      vi.stubGlobal("fetch", fetchMock);
+      expect((await verifyTurnstile(token)).ok).toBe(false);
+      expect(fetchMock).not.toHaveBeenCalled();
+    },
+  );
+  it.each([
+    { success: true, hostname: "other.example.com", action: "auth" },
+    { success: true, hostname: "app.example.com", action: "other" },
+    { success: true, hostname: "app.example.com" },
+    { success: "true", hostname: "app.example.com", action: "auth" },
+    { success: false, hostname: "app.example.com", action: "auth" },
+  ])("rejects invalid verification context %j", async (payload) => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(JSON.stringify(payload))),
     );
-    const body = (init as { body: URLSearchParams }).body;
-    expect(body.get("secret")).toBe("test-secret");
-    expect(body.get("response")).toBe("good-token");
-    expect(body.get("remoteip")).toBe("203.0.113.7");
+    expect((await verifyTurnstile("token")).ok).toBe(false);
   });
-
-  it("returns the cloudflare error codes on failure", async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue({
-      json: async () => ({
-        success: false,
-        "error-codes": ["invalid-input-response"],
+  it("requires strict success, the auth action and exact deployment hostname", async () => {
+    const fetchMock = vi.fn(
+      async (_url: unknown, _options: unknown) =>
+        new Response(
+          JSON.stringify({
+            success: true,
+            hostname: "app.example.com",
+            action: "auth",
+          }),
+        ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    expect(await verifyTurnstile("token")).toEqual({ ok: true });
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        redirect: "error",
+        signal: expect.any(AbortSignal),
       }),
-    }) as unknown as typeof fetch;
-
-    const result = await verifyTurnstile("bad-token");
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.reason).toContain("invalid-input-response");
-    }
+    );
+    const options = fetchMock.mock.calls[0]?.[1] as RequestInit | undefined;
+    const body = options?.body;
+    if (!(body instanceof URLSearchParams))
+      throw new Error("Expected verification form body");
+    expect(body.get("response")).toBe("token");
+    expect(body.get("secret")).toBe("secret");
+    expect(body.has("remoteip")).toBe(false);
   });
-
-  it("fails gracefully when the fetch throws", async () => {
-    globalThis.fetch = vi
+  it("fails closed on malformed JSON, HTTP failure or transport errors", async () => {
+    const fetchMock = vi
       .fn()
-      .mockRejectedValue(new Error("network down")) as unknown as typeof fetch;
-
-    const result = await verifyTurnstile("token");
-    expect(result.ok).toBe(false);
+      .mockResolvedValueOnce(new Response("invalid json"))
+      .mockResolvedValueOnce(new Response("upstream secret", { status: 500 }))
+      .mockRejectedValueOnce(new Error("upstream secret"));
+    vi.stubGlobal("fetch", fetchMock);
+    for (let i = 0; i < 3; i++)
+      expect(await verifyTurnstile("token")).toEqual({
+        ok: false,
+        reason: "Captcha verification failed.",
+      });
+  });
+  it("preserves explicit opt-out when no secret is configured", async () => {
+    vi.stubEnv("TURNSTILE_SECRET_KEY", "");
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    expect(await verifyTurnstile(null)).toEqual({ ok: true });
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it.each(["5000ms", "1e3", "", "abc", "-100", "0", "5000"])(
-    "ignores malformed TURNSTILE_TIMEOUT_MS=%p",
+    "keeps the bounded verifier contract with legacy TURNSTILE_TIMEOUT_MS=%p",
     async (raw) => {
-      process.env.TURNSTILE_TIMEOUT_MS = raw;
-      const fetchMock = vi.fn().mockResolvedValue({
-        json: async () => ({ success: true }),
-      });
-      globalThis.fetch = fetchMock as unknown as typeof fetch;
+      vi.stubEnv("TURNSTILE_TIMEOUT_MS", raw);
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            success: true,
+            action: "auth",
+            hostname: "app.example.com",
+          }),
+        ),
+      );
+      vi.stubGlobal("fetch", fetchMock);
 
       const result = await verifyTurnstile("token");
 

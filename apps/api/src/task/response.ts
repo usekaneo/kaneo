@@ -18,6 +18,10 @@ export const taskSchema = z
       .openapi({ description: "The assignee, if any." }),
     title: z.string(),
     description: z.string().nullable(),
+    descriptionDeferred: z.boolean().optional().openapi({
+      description:
+        "True when the list omits a large description; load the task detail or description pages to read it. Do not replace stored text with this null summary.",
+    }),
     status: z.string().openapi({
       description: "The slug of the column the task sits in.",
     }),
@@ -66,6 +70,10 @@ export const boardTaskSchema = z
     title: z.string(),
     number: z.number().nullable(),
     description: z.string().nullable(),
+    descriptionDeferred: z.boolean().optional().openapi({
+      description:
+        "True when the list omits a large description; load the task detail or description pages to read it. Do not replace stored text with this null summary.",
+    }),
     status: z.string(),
     priority: z.string().openapi({ description: priorityDescription }),
     startDate: nullableResponseTimestamp,
@@ -89,6 +97,7 @@ export const boardColumnSchema = z
     name: z.string(),
     icon: z.string().nullable(),
     isFinal: z.boolean(),
+    position: z.number().optional(),
     tasks: z.array(boardTaskSchema),
   })
   .openapi("BoardColumn");
@@ -102,6 +111,10 @@ export const boardSchema = z
         slug: z.string(),
         icon: z.string().nullable(),
         description: z.string().nullable(),
+        descriptionDeferred: z.boolean().optional().openapi({
+          description:
+            "True when a project description above 64 KiB is omitted; use project detail or public project description pages for full text.",
+        }),
         isPublic: z.boolean().nullable(),
         workspaceId: z.string(),
         columns: z.array(boardColumnSchema),
@@ -115,10 +128,13 @@ export const boardSchema = z
         page: z.number(),
         pageSize: z.number(),
         totalPages: z.number(),
+        relatedPage: z.number(),
+        relatedPageSize: z.number(),
+        relatedTotalPages: z.number(),
       })
       .openapi({
         description:
-          "When no page/limit is given, everything is returned on a single page.",
+          "Always paginated: 50 tasks by default, at most 100 per page. Continue through totalPages to retrieve all tasks. For each task page, follow relatedPage through relatedTotalPages to retrieve all labels, external links and columns (100 related rows per kind per request, plus up to 100 columns needed to represent the tasks).",
       })
       .openapi("BoardPagination"),
   })
@@ -209,3 +225,14 @@ export const finalizedAssetSchema = z
     }),
   })
   .openapi("TaskImageAsset");
+
+export const descriptionPageSchema = z
+  .object({
+    content: z.string(),
+    version: z.string(),
+    nextOffset: z.number().nullable(),
+  })
+  .openapi("TaskDescriptionPage");
+export const descriptionMatchesSchema = z
+  .object({ ids: z.array(z.string()), nextCursor: z.string().nullable() })
+  .openapi("TaskDescriptionMatches");

@@ -2,9 +2,11 @@ import { and, between, eq, isNotNull, isNull, ne, or, sql } from "drizzle-orm";
 import db from "../database";
 import {
   columnTable,
+  projectTable,
   taskReminderSentTable,
   taskTable,
   userNotificationPreferenceTable,
+  workspaceUserTable,
 } from "../database/schema";
 import createNotification from "../notification/controllers/create-notification";
 import { REMINDER_WINDOW_MINUTES } from "./reminder-timing";
@@ -48,6 +50,14 @@ async function getTasksNeedingReminder(
         userNotificationPreferenceTable.dueDateReminderLeadTimeMinutes,
     })
     .from(taskTable)
+    .innerJoin(projectTable, eq(projectTable.id, taskTable.projectId))
+    .innerJoin(
+      workspaceUserTable,
+      and(
+        eq(workspaceUserTable.workspaceId, projectTable.workspaceId),
+        eq(workspaceUserTable.userId, taskTable.userId),
+      ),
+    )
     .leftJoin(columnTable, eq(taskTable.columnId, columnTable.id))
     .leftJoin(
       userNotificationPreferenceTable,

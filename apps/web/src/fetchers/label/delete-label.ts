@@ -7,17 +7,21 @@ export type DeleteLabelRequest = InferRequestType<
 >["param"];
 
 async function deleteLabel({ id }: DeleteLabelRequest) {
-  const response = await client.label[":id"].$delete({
-    param: { id },
-  });
-
-  if (!response.ok) {
-    throw new HttpError(response.status, await response.text());
+  let busyRetries = 0;
+  for (;;) {
+    const response = await client.label[":id"].$delete({ param: { id } });
+    if (response.status === 429 && busyRetries < 5) {
+      busyRetries++;
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      continue;
+    }
+    if (!response.ok)
+      throw new HttpError(response.status, await response.text());
+    const data = await response.json();
+    if (response.status !== 202) return data;
+    busyRetries = 0;
+    // Each successful step persists its progress. Continue the same operation;
+    // a later call with this ID also resumes after a failed or closed client.
   }
-
-  const data = await response.json();
-
-  return data;
 }
-
 export default deleteLabel;

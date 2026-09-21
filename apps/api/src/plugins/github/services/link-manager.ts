@@ -2,6 +2,8 @@ import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import { externalLinkTable } from "../../../database/schema";
 
+type DbOrTx = typeof db | Parameters<Parameters<typeof db.transaction>[0]>[0];
+
 export type CreateExternalLinkParams = {
   taskId: string;
   integrationId: string;
@@ -20,8 +22,9 @@ export type UpdateExternalLinkParams = {
 
 export async function createExternalLink(
   params: CreateExternalLinkParams,
+  database: DbOrTx = db,
 ): Promise<{ id: string }> {
-  const result = await db
+  const result = await database
     .insert(externalLinkTable)
     .values({
       taskId: params.taskId,
@@ -46,8 +49,9 @@ export async function findExternalLink(
   integrationId: string,
   resourceType: string,
   externalId: string,
+  database: DbOrTx = db,
 ) {
-  return db.query.externalLinkTable.findFirst({
+  return database.query.externalLinkTable.findFirst({
     where: and(
       eq(externalLinkTable.integrationId, integrationId),
       eq(externalLinkTable.resourceType, resourceType),
