@@ -6,6 +6,7 @@ import {
   userTable,
   workspaceTable,
 } from "../../database/schema";
+import { formatTrackedDuration } from "../format-tracked-duration";
 import type {
   PluginContext,
   TaskCommentCreatedEvent,
@@ -54,18 +55,6 @@ function truncate(value: string, maxLength: number): string {
   }
 
   return `${value.slice(0, maxLength - 1)}…`;
-}
-
-function formatTrackedDuration(totalSeconds: number | null): string {
-  if (totalSeconds === null || totalSeconds <= 0) {
-    return "no time";
-  }
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  if (hours === 0) {
-    return `${minutes}m`;
-  }
-  return minutes === 0 ? `${hours}h` : `${hours}h ${minutes}m`;
 }
 
 async function getSlackEventData(
