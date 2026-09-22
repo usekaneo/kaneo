@@ -589,7 +589,7 @@ describe("active time tracking", () => {
     expect((await response.json()).description).toBe("");
   });
 
-  it("runs the shipped 0046 cleanup before the running index", async () => {
+  it("runs the shipped 0051 cleanup before the running index", async () => {
     const { user, workspace } = await createWorkspaceMember({ role: "owner" });
     const { tasks } = await seedTasksFor(workspace.id, 2);
 
@@ -621,7 +621,7 @@ describe("active time tracking", () => {
     ]);
 
     const file = new URL(
-      "../../apps/api/drizzle/0046_demonic_ego.sql",
+      "../../apps/api/drizzle/0051_time-entry-billable-running.sql",
       import.meta.url,
     );
     const statements = readFileSync(file, "utf8")
