@@ -89,6 +89,8 @@ For a private SMTP certificate authority, configure Node's `NODE_EXTRA_CA_CERTS`
 
 When SMTP is configured, sign-in uses email verification codes by default. Set `DISABLE_EMAIL_OTP_SIGN_IN=true` to use email/password sign-in instead (workspace invitation emails still use SMTP).
 
+When `DISABLE_REGISTRATION=true`, sign-in emails (OTP codes and magic links) are only sent to addresses that already have an account or hold a pending workspace invitation — unknown addresses get a generic success response with no email. When `DISABLE_PASSWORD_REGISTRATION=true`, only existing accounts receive them.
+
 #### Cloud-mode abuse mitigations
 
 Hosted multi-tenant instances should enable the cloud abuse gates. Self-hosted instances can leave these unset.

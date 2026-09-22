@@ -44,7 +44,11 @@ import db, { schema } from "./database";
 import { publishEvent } from "./events";
 import deleteAccountData from "./user/controllers/delete-account-data";
 import { resolveAuthSecret } from "./utils/auth-secret";
-import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
+import {
+  canSendSignInEmail,
+  checkRegistrationAllowed,
+  userExistsByEmail,
+} from "./utils/check-registration-allowed";
 import { checkWorkspaceName } from "./utils/check-workspace-name";
 import { mapCustomOAuthProfileToUser } from "./utils/custom-oauth-profile";
 import { generateDemoName } from "./utils/generate-demo-name";
@@ -125,6 +129,22 @@ function getLocaleKey(locale?: string | null) {
   if (normalized?.startsWith("vi")) return "vi";
   if (normalized?.startsWith("ja")) return "ja";
   return "en";
+}
+
+// Reads env at call time (not module scope) so tests can stub it.
+async function shouldDeliverSignInEmail(email: string) {
+  if (process.env.DISABLE_PASSWORD_REGISTRATION === "true") {
+    return userExistsByEmail(email);
+  }
+  if (process.env.DISABLE_REGISTRATION === "true") {
+    // Mirror `assertUserRegistrationAllowed`: the first non-guest user can
+    // always complete initial instance setup.
+    if (!(await hasRegisteredUsers())) {
+      return true;
+    }
+    return canSendSignInEmail(email);
+  }
+  return true;
 }
 
 function getAuthEmailCopy(locale?: string | null) {
@@ -266,6 +286,9 @@ export const auth = betterAuth({
       disableSignUp: isPasswordRegistrationDisabled,
       sendMagicLink: async ({ email, url }) => {
         try {
+          if (!(await shouldDeliverSignInEmail(email))) {
+            return;
+          }
           const locale = await getUserLocale(email);
           const copy = getAuthEmailCopy(locale);
           await sendMagicLinkEmail(email, copy.magicLinkSubject, {
@@ -285,6 +308,9 @@ export const auth = betterAuth({
             disableSignUp: isPasswordRegistrationDisabled,
             async sendVerificationOTP({ email, otp, type }) {
               if (type === "sign-in") {
+                if (!(await shouldDeliverSignInEmail(email))) {
+                  return;
+                }
                 const locale = await getUserLocale(email);
                 const copy = getAuthEmailCopy(locale);
                 await sendOtpEmail(email, copy.otpSubject, {

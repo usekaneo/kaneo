@@ -204,6 +204,9 @@ describe("auth registration and bootstrap boundaries", () => {
     const member = await createWorkspaceMember();
     vi.stubEnv("DISABLE_PASSWORD_REGISTRATION", "true");
     const send = vi.spyOn(email, "sendOtpEmail").mockResolvedValue(undefined);
+    const sendMagicLink = vi
+      .spyOn(email, "sendMagicLinkEmail")
+      .mockResolvedValue(undefined);
     for (const address of ["new-otp@example.com", member.user.email]) {
       expect(
         (
@@ -213,15 +216,96 @@ describe("auth registration and bootstrap boundaries", () => {
           })
         ).status,
       ).toBe(200);
-      const data = send.mock.lastCall?.[2] as { otp: string } | undefined;
-      expect(data?.otp).toBeTruthy();
-      const response = await post("/sign-in/email-otp", {
-        email: address,
-        otp: data?.otp,
-      });
-      expect(response.status).toBe(address === member.user.email ? 200 : 403);
+      expect(
+        (await post("/sign-in/magic-link", { email: address })).status,
+      ).toBe(200);
     }
+    expect(send).toHaveBeenCalledTimes(1);
+    expect(send.mock.lastCall?.[0]).toBe(member.user.email);
+    expect(sendMagicLink).toHaveBeenCalledTimes(1);
+    expect(sendMagicLink.mock.lastCall?.[0]).toBe(member.user.email);
+    const data = send.mock.lastCall?.[2] as { otp: string } | undefined;
+    expect(data?.otp).toBeTruthy();
+    const response = await post("/sign-in/email-otp", {
+      email: member.user.email,
+      otp: data?.otp,
+    });
+    expect(response.status).toBe(200);
     expect(await db.select().from(schema.userTable)).toHaveLength(1);
+  });
+
+  it("still emails the first user's OTP and magic link for initial setup when registration is disabled", async () => {
+    vi.stubEnv("DISABLE_REGISTRATION", "true");
+    const sendOtp = vi
+      .spyOn(email, "sendOtpEmail")
+      .mockResolvedValue(undefined);
+    const sendMagicLink = vi
+      .spyOn(email, "sendMagicLinkEmail")
+      .mockResolvedValue(undefined);
+
+    expect(
+      (
+        await post("/email-otp/send-verification-otp", {
+          email: "first@example.com",
+          type: "sign-in",
+        })
+      ).status,
+    ).toBe(200);
+    expect(
+      (await post("/sign-in/magic-link", { email: "first@example.com" }))
+        .status,
+    ).toBe(200);
+    expect(sendOtp.mock.calls.map((call) => call[0])).toEqual([
+      "first@example.com",
+    ]);
+    expect(sendMagicLink.mock.calls.map((call) => call[0])).toEqual([
+      "first@example.com",
+    ]);
+
+    const data = sendOtp.mock.lastCall?.[2] as { otp: string };
+    const response = await post("/sign-in/email-otp", {
+      email: "first@example.com",
+      otp: data.otp,
+    });
+    expect(response.status).toBe(200);
+    expect(await db.select().from(schema.userTable)).toHaveLength(1);
+  });
+
+  it("only emails sign-in OTPs and magic links to existing or invited addresses when registration is disabled", async () => {
+    const member = await createWorkspaceMember();
+    const invite = await invitation("invitee@example.com");
+    vi.stubEnv("DISABLE_REGISTRATION", "true");
+    const sendOtp = vi
+      .spyOn(email, "sendOtpEmail")
+      .mockResolvedValue(undefined);
+    const sendMagicLink = vi
+      .spyOn(email, "sendMagicLinkEmail")
+      .mockResolvedValue(undefined);
+
+    for (const address of [
+      member.user.email,
+      invite.email,
+      "stranger@example.com",
+    ]) {
+      expect(
+        (
+          await post("/email-otp/send-verification-otp", {
+            email: address,
+            type: "sign-in",
+          })
+        ).status,
+      ).toBe(200);
+      expect(
+        (await post("/sign-in/magic-link", { email: address })).status,
+      ).toBe(200);
+    }
+
+    const expectedRecipients = [invite.email, member.user.email].sort();
+    const recipients = (mock: {
+      mock: { calls: [to: string, subject: string, data: unknown][] };
+    }) => mock.mock.calls.map((call) => call[0]).sort();
+    expect(recipients(sendOtp)).toEqual(expectedRecipients);
+    expect(recipients(sendMagicLink)).toEqual(expectedRecipients);
   });
 
   it("stores a five-minute OTP expiry and rejects an expired code", async () => {
