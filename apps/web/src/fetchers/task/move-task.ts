@@ -1,5 +1,7 @@
 import { client } from "@kaneo/libs";
 
+import { HttpError } from "@/lib/http-error";
+
 async function moveTask({
   taskId,
   destinationProjectId,
@@ -30,7 +32,7 @@ async function moveTask({
         (await response.text().catch(() => "")) ||
         `API error ${response.status}`;
     }
-    throw new Error(message);
+    throw new HttpError(response.status, message);
   }
 
   return response.json();

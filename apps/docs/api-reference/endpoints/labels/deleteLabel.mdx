@@ -3,3 +3,18 @@ title: deleteLabel
 description: Delete a label by ID
 openapi: 'DELETE /label/{id}'
 ---
+
+Workspace label deletion runs in steps of at most 25 task assignments. After a
+`202 Accepted` response with `pendingDeletion: true`, repeat `DELETE /label/{id}`
+with the same ID until the server returns `200 OK`. Do not mark the label as
+deleted after the first `202` response.
+
+The server stores the deletion start time. Retrying after a connection failure
+or API restart resumes the remaining assignments. Assignments created after
+that boundary by a concurrent import or webhook are not part of this operation.
+During deletion, attempts to edit the workspace label or attach it to another
+task return `409 Conflict`.
+
+Concurrent deletion work is limited across API replicas. A `429` response includes
+`Retry-After`; retry after that interval. Each request still requires label-delete
+permission. Single task-label deletion completes with `200 OK`.

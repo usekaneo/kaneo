@@ -9,7 +9,7 @@ overrides:
   esbuild: 0.28.1
   express-rate-limit: 8.2.2
   hono: '>=4.12.25'
-  lodash: 4.18.0
+  lodash: 4.18.1
   markdown-it: 14.1.1
   minimatch: 10.2.3
   rollup: 4.59.0

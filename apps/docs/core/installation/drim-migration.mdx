@@ -105,11 +105,11 @@ Record the names of your existing volumes and your current environment values:
 docker volume ls | grep -i kaneo
 ```
 
-Stop the current stack, then install drim and run setup in a new directory:
+Complete the [verified drim installation](/core/installation/drim#installation)
+before stopping the current stack. Then run setup in a new directory:
 
 ```bash
 docker compose down
-curl -fsSL https://assets.kaneo.app/install.sh | sh
 mkdir ~/kaneo && cd ~/kaneo
 drim setup --domain=your-domain.com
 drim stop

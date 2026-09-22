@@ -25,19 +25,18 @@ type PRClosedPayload = {
       ref: string;
     };
   };
+  installation?: { id: number };
   repository: {
+    id: number;
     owner: { login: string };
     name: string;
   };
 };
 
 export async function handlePullRequestClosed(payload: PRClosedPayload) {
-  const { pull_request, repository } = payload;
+  const { pull_request } = payload;
 
-  const integrations = await findAllIntegrationsByRepo(
-    repository.owner.login,
-    repository.name,
-  );
+  const integrations = await findAllIntegrationsByRepo(payload);
 
   for (const integration of integrations) {
     const config = JSON.parse(integration.config) as GitHubConfig;

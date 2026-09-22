@@ -2686,9 +2686,34 @@
 								},
 								"workspace": {
 									"type": "string"
+								},
+								"organization": {
+									"type": "string"
+								},
+								"member": {
+									"type": "string"
+								},
+								"invitation": {
+									"type": "string"
+								},
+								"team": {
+									"type": "string"
+								},
+								"ac": {
+									"type": "string"
 								}
 							},
-							"required": ["project", "task", "label", "workspace"]
+							"required": [
+								"project",
+								"task",
+								"label",
+								"workspace",
+								"organization",
+								"member",
+								"invitation",
+								"team",
+								"ac"
+							]
 						},
 						"permissions": {
 							"type": "object",
@@ -2955,9 +2980,236 @@
 										}
 									},
 									"required": ["read", "update", "delete", "manage_settings"]
+								},
+								"organization": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"update": {
+											"type": "object",
+											"additionalProperties": false,
+											"properties": {
+												"label": {
+													"type": "string"
+												},
+												"description": {
+													"type": "string"
+												}
+											},
+											"required": ["label", "description"]
+										},
+										"delete": {
+											"type": "object",
+											"additionalProperties": false,
+											"properties": {
+												"label": {
+													"type": "string"
+												},
+												"description": {
+													"type": "string"
+												}
+											},
+											"required": ["label", "description"]
+										}
+									},
+									"required": ["update", "delete"]
+								},
+								"member": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"create": {
+											"type": "object",
+											"additionalProperties": false,
+											"properties": {
+												"label": {
+													"type": "string"
+												},
+												"description": {
+													"type": "string"
+												}
+											},
+											"required": ["label", "description"]
+										},
+										"update": {
+											"type": "object",
+											"additionalProperties": false,
+											"properties": {
+												"label": {
+													"type": "string"
+												},
+												"description": {
+													"type": "string"
+												}
+											},
+											"required": ["label", "description"]
+										},
+										"delete": {
+											"type": "object",
+											"additionalProperties": false,
+											"properties": {
+												"label": {
+													"type": "string"
+												},
+												"description": {
+													"type": "string"
+												}
+											},
+											"required": ["label", "description"]
+										}
+									},
+									"required": ["create", "update", "delete"]
+								},
+								"invitation": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"create": {
+											"type": "object",
+											"additionalProperties": false,
+											"properties": {
+												"label": {
+													"type": "string"
+												},
+												"description": {
+													"type": "string"
+												}
+											},
+											"required": ["label", "description"]
+										},
+										"cancel": {
+											"type": "object",
+											"additionalProperties": false,
+											"properties": {
+												"label": {
+													"type": "string"
+												},
+												"description": {
+													"type": "string"
+												}
+											},
+											"required": ["label", "description"]
+										}
+									},
+									"required": ["create", "cancel"]
+								},
+								"team": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"create": {
+											"type": "object",
+											"additionalProperties": false,
+											"properties": {
+												"label": {
+													"type": "string"
+												},
+												"description": {
+													"type": "string"
+												}
+											},
+											"required": ["label", "description"]
+										},
+										"update": {
+											"type": "object",
+											"additionalProperties": false,
+											"properties": {
+												"label": {
+													"type": "string"
+												},
+												"description": {
+													"type": "string"
+												}
+											},
+											"required": ["label", "description"]
+										},
+										"delete": {
+											"type": "object",
+											"additionalProperties": false,
+											"properties": {
+												"label": {
+													"type": "string"
+												},
+												"description": {
+													"type": "string"
+												}
+											},
+											"required": ["label", "description"]
+										}
+									},
+									"required": ["create", "update", "delete"]
+								},
+								"ac": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"create": {
+											"type": "object",
+											"additionalProperties": false,
+											"properties": {
+												"label": {
+													"type": "string"
+												},
+												"description": {
+													"type": "string"
+												}
+											},
+											"required": ["label", "description"]
+										},
+										"read": {
+											"type": "object",
+											"additionalProperties": false,
+											"properties": {
+												"label": {
+													"type": "string"
+												},
+												"description": {
+													"type": "string"
+												}
+											},
+											"required": ["label", "description"]
+										},
+										"update": {
+											"type": "object",
+											"additionalProperties": false,
+											"properties": {
+												"label": {
+													"type": "string"
+												},
+												"description": {
+													"type": "string"
+												}
+											},
+											"required": ["label", "description"]
+										},
+										"delete": {
+											"type": "object",
+											"additionalProperties": false,
+											"properties": {
+												"label": {
+													"type": "string"
+												},
+												"description": {
+													"type": "string"
+												}
+											},
+											"required": ["label", "description"]
+										}
+									},
+									"required": ["create", "read", "update", "delete"]
 								}
 							},
-							"required": ["project", "task", "label", "workspace"]
+							"required": [
+								"project",
+								"task",
+								"label",
+								"workspace",
+								"organization",
+								"member",
+								"invitation",
+								"team",
+								"ac"
+							]
 						},
 						"validation": {
 							"type": "object",
@@ -3125,6 +3377,12 @@
 						},
 						"nameRequired": {
 							"type": "string"
+						},
+						"deletionPending": {
+							"type": "string"
+						},
+						"resumeDeletion": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -3150,7 +3408,9 @@
 						"createError",
 						"updateError",
 						"deleteError",
-						"nameRequired"
+						"nameRequired",
+						"deletionPending",
+						"resumeDeletion"
 					]
 				},
 				"projectGeneral": {
@@ -3894,6 +4154,24 @@
 						},
 						"importDisabledHint": {
 							"type": "string"
+						},
+						"accountVerificationHint": {
+							"type": "string"
+						},
+						"enableGithubSignInHint": {
+							"type": "string"
+						},
+						"reverifyHint": {
+							"type": "string"
+						},
+						"resumeImport": {
+							"type": "string"
+						},
+						"importPaused": {
+							"type": "string"
+						},
+						"importSummary": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -3933,7 +4211,13 @@
 						"importSectionHint",
 						"importing",
 						"importIssues",
-						"importDisabledHint"
+						"importDisabledHint",
+						"accountVerificationHint",
+						"enableGithubSignInHint",
+						"reverifyHint",
+						"resumeImport",
+						"importPaused",
+						"importSummary"
 					]
 				},
 				"giteaIntegration": {
@@ -6598,6 +6882,12 @@
 								"table",
 								"mermaid"
 							]
+						},
+						"importedFrom": {
+							"type": "string"
+						},
+						"importedBy": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -6616,7 +6906,9 @@
 						"leavePlaceholder",
 						"attachFile",
 						"submitShortcut",
-						"editor"
+						"editor",
+						"importedFrom",
+						"importedBy"
 					]
 				},
 				"trackedTime": {
@@ -7993,6 +8285,18 @@
 						},
 						"taskAriaLabel": {
 							"type": "string"
+						},
+						"previousPeriod": {
+							"type": "string"
+						},
+						"nextPeriod": {
+							"type": "string"
+						},
+						"periodStart": {
+							"type": "string"
+						},
+						"showTaskDates": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -8010,7 +8314,11 @@
 						"updateDatesError",
 						"resizeStart",
 						"resizeDue",
-						"taskAriaLabel"
+						"taskAriaLabel",
+						"previousPeriod",
+						"nextPeriod",
+						"periodStart",
+						"showTaskDates"
 					]
 				},
 				"delete": {
@@ -8669,6 +8977,21 @@
 						"noTimeMatch",
 						"loadError"
 					]
+				},
+				"descriptionSearchLoading": {
+					"type": "string"
+				},
+				"descriptionSearchError": {
+					"type": "string"
+				},
+				"descriptionRetry": {
+					"type": "string"
+				},
+				"descriptionLoading": {
+					"type": "string"
+				},
+				"descriptionLoadError": {
+					"type": "string"
 				}
 			},
 			"required": [
@@ -8703,7 +9026,12 @@
 				"actions",
 				"bulk",
 				"editor",
-				"timeTracking"
+				"timeTracking",
+				"descriptionSearchLoading",
+				"descriptionSearchError",
+				"descriptionRetry",
+				"descriptionLoading",
+				"descriptionLoadError"
 			]
 		},
 		"invitations": {

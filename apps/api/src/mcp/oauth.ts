@@ -2,13 +2,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { createId } from "@paralleldrive/cuid2";
 import db from "../database";
 import { sessionTable } from "../database/schema";
-import {
-  consumeState,
-  deleteExpiredStates,
-  enforceStateCap,
-  getState,
-  putState,
-} from "./oauth-store";
+import { consumeState, getState, putState } from "./oauth-store";
 
 type RegisteredClient = {
   clientId: string;
@@ -35,8 +29,6 @@ export type AuthorizationRequest = {
 const clientTtlMs = 30 * 24 * 60 * 60 * 1000;
 const codeTtlMs = 5 * 60 * 1000;
 const requestTtlMs = 10 * 60 * 1000;
-// Same bound the in-memory store enforced; authorize is reachable without a session.
-const maxAuthorizationRequests = 10_000;
 
 export async function getClient(
   clientId: string,
@@ -64,17 +56,24 @@ export async function registerClient(params: {
   return client;
 }
 
-export async function createAuthCode(params: AuthCode): Promise<string> {
+export async function createAuthCode(
+  params: AuthCode,
+  requestId?: string,
+): Promise<string> {
   const code = randomUUID();
-  await putState("code", code, params, new Date(Date.now() + codeTtlMs));
+  await putState(
+    "code",
+    code,
+    params,
+    new Date(Date.now() + codeTtlMs),
+    requestId,
+  );
   return code;
 }
 
 export async function createAuthorizationRequest(
   params: AuthorizationRequest,
 ): Promise<string> {
-  await deleteExpiredStates();
-  await enforceStateCap("request", maxAuthorizationRequests);
   const requestId = randomUUID();
   await putState(
     "request",

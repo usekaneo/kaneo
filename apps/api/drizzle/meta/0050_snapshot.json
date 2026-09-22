@@ -1,6 +1,6 @@
 {
-	"id": "a7815aa8-c958-4444-8e79-d261f4ce2818",
-	"prevId": "b8b6dffe-46c4-4ef5-9dc1-2242cc1fa9ab",
+	"id": "f9757406-e33b-407b-9849-36c7af901b05",
+	"prevId": "330dc3f0-66d6-4ebb-bfd5-0e40aac5a651",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
@@ -1581,6 +1581,54 @@
 			"checkConstraints": {},
 			"isRLSEnabled": false
 		},
+		"public.github_import": {
+			"name": "github_import",
+			"schema": "",
+			"columns": {
+				"integration_id": {
+					"name": "integration_id",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"run_id": {
+					"name": "run_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"state": {
+					"name": "state",
+					"type": "jsonb",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"github_import_integration_id_integration_id_fk": {
+					"name": "github_import_integration_id_integration_id_fk",
+					"tableFrom": "github_import",
+					"tableTo": "integration",
+					"columnsFrom": ["integration_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "cascade"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
 		"public.github_integration": {
 			"name": "github_integration",
 			"schema": "",
@@ -1967,6 +2015,12 @@
 					"notNull": true,
 					"default": "now()"
 				},
+				"deletion_started_at": {
+					"name": "deletion_started_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": false
+				},
 				"task_id": {
 					"name": "task_id",
 					"type": "text",
@@ -2007,6 +2061,40 @@
 						}
 					],
 					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"label_workspace_cascade_idx": {
+					"name": "label_workspace_cascade_idx",
+					"columns": [
+						{
+							"expression": "workspace_id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "name",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "created_at",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"where": "\"label\".\"task_id\" is not null",
 					"concurrently": false,
 					"method": "btree",
 					"with": {}
@@ -3148,13 +3236,6 @@
 					"primaryKey": false,
 					"notNull": false
 				},
-				"billable": {
-					"name": "billable",
-					"type": "boolean",
-					"primaryKey": false,
-					"notNull": true,
-					"default": true
-				},
 				"start_time": {
 					"name": "start_time",
 					"type": "timestamp",
@@ -3216,22 +3297,6 @@
 						}
 					],
 					"isUnique": false,
-					"concurrently": false,
-					"method": "btree",
-					"with": {}
-				},
-				"time_entry_running_user_unique": {
-					"name": "time_entry_running_user_unique",
-					"columns": [
-						{
-							"expression": "user_id",
-							"isExpression": false,
-							"asc": true,
-							"nulls": "last"
-						}
-					],
-					"isUnique": true,
-					"where": "\"time_entry\".\"end_time\" IS NULL",
 					"concurrently": false,
 					"method": "btree",
 					"with": {}
