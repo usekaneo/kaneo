@@ -8,6 +8,7 @@ import {
   CalendarX,
   GitMerge,
   GitPullRequest,
+  Timer,
 } from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -39,6 +40,7 @@ import {
 import { getExternalWebUrl, openExternalWebUrl } from "@/lib/external-url";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
+import { formatTimeEstimate } from "@/lib/time-estimate";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
@@ -74,6 +76,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     showDueDates,
     showLabels,
     showTaskNumbers,
+    showTimeEstimates,
   } = useUserPreferencesStore();
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
   const { mutateAsync: deleteTask } = useDeleteTask();
@@ -344,6 +347,13 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
                   getDueDateStatus(task.dueDate, taskIsCompleted) ===
                     "no-due-date") && <Calendar className="w-3 h-3" />}
                 <span>{format(new Date(task.dueDate), "MMM d")}</span>
+              </div>
+            )}
+
+            {showTimeEstimates && task.timeEstimate != null && (
+              <div className="flex items-center gap-1 text-[10px] px-2 py-1 rounded flex-shrink-0 bg-muted/50 text-muted-foreground">
+                <Timer className="w-3 h-3" />
+                <span>{formatTimeEstimate(task.timeEstimate)}</span>
               </div>
             )}
 

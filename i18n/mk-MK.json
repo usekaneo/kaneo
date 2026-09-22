@@ -153,7 +153,9 @@
 					"terracotta": "Теракота",
 					"rose": "Роза",
 					"crimson": "Гримизна"
-				}
+				},
+				"setTimeEstimate": "Set",
+				"timeEstimate": "Time estimate"
 			}
 		},
 		"boolean": {
@@ -532,7 +534,9 @@
 			"labels": "Етикети",
 			"labelsDescription": "Прикажи етикети и тагови на задачите",
 			"priority": "Приоритет",
-			"priorityDescription": "Прикажи индикатори за приоритет"
+			"priorityDescription": "Прикажи индикатори за приоритет",
+			"timeEstimates": "Time Estimates",
+			"timeEstimatesDescription": "Show time estimates on tasks"
 		},
 		"developerPage": {
 			"pageTitle": "Програмерски поставки",
@@ -1010,7 +1014,8 @@
 				"taskDueDateChanged": "Променет краен рок",
 				"taskAssigneeChanged": "Променето доделување",
 				"taskUnassigned": "Одземено доделување",
-				"dueDateReminder": "Потсетници за краен рок"
+				"dueDateReminder": "Потсетници за краен рок",
+				"taskTimeEstimateChanged": "Time estimate changed"
 			},
 			"connect": "Поврзи webhook",
 			"saveChanges": "Зачувај промени",
@@ -1713,7 +1718,10 @@
 			},
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
-		}
+		},
+		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
+		"clearedTimeEstimate": "cleared the time estimate",
+		"setTimeEstimate": "set time estimate to {{estimate}}"
 	},
 	"tasks": {
 		"title": "Задачи",
@@ -1895,7 +1903,9 @@
 			"copyTaskBranch": "Копирај гранка на задача",
 			"start": "Почеток",
 			"startDate": "Почетен датум",
-			"noDate": "Без датум"
+			"noDate": "Без датум",
+			"noEstimate": "No estimate",
+			"timeEstimate": "Time estimate"
 		},
 		"move": {
 			"title": "Премести задача",
@@ -1950,6 +1960,14 @@
 					"rose": "Роза",
 					"crimson": "Гримизна"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
+				"placeholder": "e.g. 2h 30m",
+				"save": "Save",
+				"title": "Time estimate",
+				"updateError": "Failed to update task time estimate",
+				"updateSuccess": "Task time estimate updated successfully"
 			}
 		},
 		"backlog": {
@@ -2123,7 +2141,9 @@
 			"actions": "Акции",
 			"searchActions": "Пребарај акции...",
 			"noActionsFound": "Не се пронајдени акции.",
-			"changeStatus": "Промени статус"
+			"changeStatus": "Промени статус",
+			"setTimeEstimate": "Set Time Estimate",
+			"updateTimeEstimateError": "Failed to update time estimate"
 		},
 		"editor": {
 			"table": {
@@ -2153,7 +2173,10 @@
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
-		"descriptionLoadError": "The description could not be loaded. Retry to load the current version."
+		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"timeEstimate": {
+			"label": "Time estimate"
+		}
 	},
 	"invitations": {
 		"email": {

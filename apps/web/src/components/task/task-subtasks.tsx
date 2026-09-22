@@ -126,6 +126,7 @@ export default function TaskSubtasks({
     priority: subtask.task.priority,
     startDate: null,
     dueDate: null,
+    timeEstimate: null,
     position: null,
     createdAt: "",
     userId: subtask.task.userId,

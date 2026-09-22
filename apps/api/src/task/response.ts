@@ -28,6 +28,9 @@ export const taskSchema = z
     priority: z.string().openapi({ description: priorityDescription }),
     startDate: nullableResponseTimestamp,
     dueDate: nullableResponseTimestamp,
+    timeEstimate: z.number().int().nullable().openapi({
+      description: "Estimated seconds, if any.",
+    }),
     createdAt: responseTimestamp,
     customFields: z
       .array(z.object({ fieldId: z.string(), value: z.string() }))
@@ -78,6 +81,9 @@ export const boardTaskSchema = z
     priority: z.string().openapi({ description: priorityDescription }),
     startDate: nullableResponseTimestamp,
     dueDate: nullableResponseTimestamp,
+    timeEstimate: z.number().int().nullable().openapi({
+      description: "Estimated seconds, if any.",
+    }),
     position: z.number().nullable(),
     createdAt: responseTimestamp,
     userId: z.string().nullable(),
@@ -171,6 +177,7 @@ export const taskExportSchema = z
           priority: z.string(),
           dueDate: z.string().nullable().openapi({ format: "date-time" }),
           startDate: z.string().nullable().openapi({ format: "date-time" }),
+          timeEstimate: z.number().int().nullable(),
           userId: z.string().nullable(),
           labels: z
             .array(

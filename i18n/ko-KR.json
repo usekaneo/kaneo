@@ -153,7 +153,9 @@
 					"terracotta": "테라코타",
 					"rose": "로즈",
 					"crimson": "크림슨"
-				}
+				},
+				"setTimeEstimate": "Set",
+				"timeEstimate": "Time estimate"
 			}
 		},
 		"boolean": {
@@ -532,7 +534,9 @@
 			"labels": "라벨",
 			"labelsDescription": "작업 라벨과 태그를 표시합니다",
 			"priority": "우선순위",
-			"priorityDescription": "우선순위 표시기를 표시합니다"
+			"priorityDescription": "우선순위 표시기를 표시합니다",
+			"timeEstimates": "Time Estimates",
+			"timeEstimatesDescription": "Show time estimates on tasks"
 		},
 		"developerPage": {
 			"pageTitle": "개발자 설정",
@@ -1010,7 +1014,8 @@
 				"taskDueDateChanged": "마감일 변경",
 				"taskAssigneeChanged": "담당자 변경",
 				"taskUnassigned": "할당 해제",
-				"dueDateReminder": "마감일 미리 알림"
+				"dueDateReminder": "마감일 미리 알림",
+				"taskTimeEstimateChanged": "Time estimate changed"
 			},
 			"connect": "웹훅 연결",
 			"saveChanges": "변경사항 저장",
@@ -1708,7 +1713,10 @@
 			},
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
-		}
+		},
+		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
+		"clearedTimeEstimate": "cleared the time estimate",
+		"setTimeEstimate": "set time estimate to {{estimate}}"
 	},
 	"tasks": {
 		"title": "작업",
@@ -1890,7 +1898,9 @@
 			"copyTaskBranch": "작업 브랜치 복사",
 			"start": "시작",
 			"startDate": "시작일",
-			"noDate": "날짜 없음"
+			"noDate": "날짜 없음",
+			"noEstimate": "No estimate",
+			"timeEstimate": "Time estimate"
 		},
 		"move": {
 			"title": "작업 이동",
@@ -1945,6 +1955,14 @@
 					"rose": "로즈",
 					"crimson": "크림슨"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
+				"placeholder": "e.g. 2h 30m",
+				"save": "Save",
+				"title": "Time estimate",
+				"updateError": "Failed to update task time estimate",
+				"updateSuccess": "Task time estimate updated successfully"
 			}
 		},
 		"backlog": {
@@ -2130,7 +2148,9 @@
 			"actions": "작업",
 			"searchActions": "작업 검색...",
 			"noActionsFound": "작업을 찾을 수 없습니다.",
-			"changeStatus": "상태 변경"
+			"changeStatus": "상태 변경",
+			"setTimeEstimate": "Set Time Estimate",
+			"updateTimeEstimateError": "Failed to update time estimate"
 		},
 		"editor": {
 			"table": {
@@ -2147,7 +2167,10 @@
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
-		"descriptionLoadError": "The description could not be loaded. Retry to load the current version."
+		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"timeEstimate": {
+			"label": "Time estimate"
+		}
 	},
 	"invitations": {
 		"email": {

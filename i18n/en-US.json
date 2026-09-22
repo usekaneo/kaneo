@@ -159,7 +159,9 @@
 					"terracotta": "Terracotta",
 					"rose": "Rose",
 					"crimson": "Crimson"
-				}
+				},
+				"timeEstimate": "Time estimate",
+				"setTimeEstimate": "Set"
 			}
 		}
 	},
@@ -532,7 +534,9 @@
 			"labels": "Labels",
 			"labelsDescription": "Show task labels and tags",
 			"priority": "Priority",
-			"priorityDescription": "Display priority indicators"
+			"priorityDescription": "Display priority indicators",
+			"timeEstimates": "Time Estimates",
+			"timeEstimatesDescription": "Show time estimates on tasks"
 		},
 		"developerPage": {
 			"pageTitle": "Developer Settings",
@@ -1309,7 +1313,8 @@
 				"taskDueDateChanged": "Due date changed",
 				"taskAssigneeChanged": "Assignee changed",
 				"taskUnassigned": "Task unassigned",
-				"dueDateReminder": "Due-date reminders"
+				"dueDateReminder": "Due-date reminders",
+				"taskTimeEstimateChanged": "Time estimate changed"
 			},
 			"reminderLeadTimeLabel": "Send the webhook this many hours before",
 			"connect": "Connect webhook",
@@ -1713,7 +1718,10 @@
 			},
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
-		}
+		},
+		"clearedTimeEstimate": "cleared the time estimate",
+		"setTimeEstimate": "set time estimate to {{estimate}}",
+		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}"
 	},
 	"tasks": {
 		"title": "Tasks",
@@ -1895,7 +1903,9 @@
 			"copyTaskBranch": "Copy task branch",
 			"start": "Start",
 			"startDate": "Start date",
-			"noDate": "No date"
+			"noDate": "No date",
+			"timeEstimate": "Time estimate",
+			"noEstimate": "No estimate"
 		},
 		"move": {
 			"title": "Move task",
@@ -1950,6 +1960,14 @@
 					"rose": "Rose",
 					"crimson": "Crimson"
 				}
+			},
+			"timeEstimate": {
+				"title": "Time estimate",
+				"placeholder": "e.g. 2h 30m",
+				"save": "Save",
+				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
+				"updateSuccess": "Task time estimate updated successfully",
+				"updateError": "Failed to update task time estimate"
 			}
 		},
 		"backlog": {
@@ -2089,6 +2107,9 @@
 			"clearSuccess": "Task due date cleared",
 			"clearError": "Failed to clear due date"
 		},
+		"timeEstimate": {
+			"label": "Time estimate"
+		},
 		"labels": {
 			"label": "Labels",
 			"empty": "No labels available"
@@ -2136,7 +2157,9 @@
 			"actions": "Actions",
 			"searchActions": "Search actions...",
 			"noActionsFound": "No actions found.",
-			"changeStatus": "Change Status"
+			"changeStatus": "Change Status",
+			"setTimeEstimate": "Set Time Estimate",
+			"updateTimeEstimateError": "Failed to update time estimate"
 		},
 		"editor": {
 			"table": {

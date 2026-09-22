@@ -153,7 +153,9 @@
 					"terracotta": "Τερακότα",
 					"rose": "Ροζ",
 					"crimson": "Βυσσινί"
-				}
+				},
+				"setTimeEstimate": "Set",
+				"timeEstimate": "Time estimate"
 			}
 		},
 		"boolean": {
@@ -532,7 +534,9 @@
 			"labels": "Ετικέτες",
 			"labelsDescription": "Εμφάνιση ετικετών και tags εργασιών",
 			"priority": "Προτεραιότητα",
-			"priorityDescription": "Εμφάνιση ενδείξεων προτεραιότητας"
+			"priorityDescription": "Εμφάνιση ενδείξεων προτεραιότητας",
+			"timeEstimates": "Time Estimates",
+			"timeEstimatesDescription": "Show time estimates on tasks"
 		},
 		"developerPage": {
 			"pageTitle": "Ρυθμίσεις προγραμματιστή",
@@ -990,7 +994,8 @@
 				"taskStatusChanged": "Αλλαγές κατάστασης",
 				"taskTitleChanged": "Αλλαγές τίτλου",
 				"taskUnassigned": "Αφαίρεση ανάθεσης",
-				"dueDateReminder": "Υπενθυμίσεις ημερομηνίας λήξης"
+				"dueDateReminder": "Υπενθυμίσεις ημερομηνίας λήξης",
+				"taskTimeEstimateChanged": "Time estimate changed"
 			},
 			"eventsHint": "Επιλέξτε ποιες αλλαγές έργου θα ενεργοποιούν εξερχόμενα webhooks.",
 			"eventsTitle": "Ειδοποιήσεις γεγονότων",
@@ -1713,7 +1718,10 @@
 			},
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
-		}
+		},
+		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
+		"clearedTimeEstimate": "cleared the time estimate",
+		"setTimeEstimate": "set time estimate to {{estimate}}"
 	},
 	"tasks": {
 		"title": "Εργασίες",
@@ -1895,7 +1903,9 @@
 			"copyTaskBranch": "Αντιγραφή κλάδου εργασίας",
 			"start": "Έναρξη",
 			"startDate": "Ημερομηνία έναρξης",
-			"noDate": "Χωρίς ημερομηνία"
+			"noDate": "Χωρίς ημερομηνία",
+			"noEstimate": "No estimate",
+			"timeEstimate": "Time estimate"
 		},
 		"move": {
 			"title": "Μετακίνηση εργασίας",
@@ -1950,6 +1960,14 @@
 					"rose": "Ροζ",
 					"crimson": "Βυσσινί"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
+				"placeholder": "e.g. 2h 30m",
+				"save": "Save",
+				"title": "Time estimate",
+				"updateError": "Failed to update task time estimate",
+				"updateSuccess": "Task time estimate updated successfully"
 			}
 		},
 		"backlog": {
@@ -2123,7 +2141,9 @@
 			"actions": "Ενέργειες",
 			"searchActions": "Αναζήτηση ενεργειών...",
 			"noActionsFound": "Δεν βρέθηκαν ενέργειες.",
-			"changeStatus": "Αλλαγή κατάστασης"
+			"changeStatus": "Αλλαγή κατάστασης",
+			"setTimeEstimate": "Set Time Estimate",
+			"updateTimeEstimateError": "Failed to update time estimate"
 		},
 		"editor": {
 			"table": {
@@ -2153,7 +2173,10 @@
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
-		"descriptionLoadError": "The description could not be loaded. Retry to load the current version."
+		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"timeEstimate": {
+			"label": "Time estimate"
+		}
 	},
 	"invitations": {
 		"email": {

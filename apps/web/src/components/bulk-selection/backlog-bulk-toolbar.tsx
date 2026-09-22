@@ -4,6 +4,7 @@ import {
   CalendarIcon,
   ChevronDown,
   Menu,
+  Timer,
   Trash2,
   X,
 } from "lucide-react";
@@ -32,6 +33,7 @@ import {
   CommandPanel,
   CommandSeparator,
 } from "@/components/ui/command";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,6 +55,7 @@ import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel } from "@/lib/i18n/domain";
 import { resolveLabelColor } from "@/lib/label-color";
 import { getPriorityIcon } from "@/lib/priority";
+import { parseTimeEstimate } from "@/lib/time-estimate";
 import { toast } from "@/lib/toast";
 import useBacklogBulkSelectionStore from "@/store/backlog-bulk-selection";
 import useProjectStore from "@/store/project";
@@ -96,6 +99,7 @@ function BacklogBulkToolbar() {
     bulkPriority,
     bulkAddLabel,
     bulkDueDate,
+    bulkTimeEstimate,
   } = useBulkOperations();
   const { data: workspace } = useActiveWorkspace();
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
@@ -112,6 +116,7 @@ function BacklogBulkToolbar() {
   const canEditLabels = canUpdateLabels();
   const [isActionsOpen, setIsActionsOpen] = useState(false);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [isEstimateOpen, setIsEstimateOpen] = useState(false);
 
   const selectedCount = selectedTaskIds.size;
 
@@ -260,6 +265,30 @@ function BacklogBulkToolbar() {
       }
     },
     [bulkDueDate, selectedTaskIds, selectedCount, clearSelection, t],
+  );
+
+  const handleBulkTimeEstimate = useCallback(
+    async (estimate: string) => {
+      const trimmed = estimate.trim();
+      // Empty or zero clears the estimate on every selected task.
+      const seconds = trimmed ? parseTimeEstimate(trimmed) : null;
+      if (trimmed && seconds == null) {
+        toast.error(t("tasks:popover.timeEstimate.invalid"));
+        return;
+      }
+      try {
+        await bulkTimeEstimate({
+          taskIds: Array.from(selectedTaskIds),
+          timeEstimate: seconds && seconds > 0 ? seconds : null,
+        });
+        toast.success(t("tasks:bulk.updateSuccess", { count: selectedCount }));
+        clearSelection();
+        setIsEstimateOpen(false);
+      } catch (_error) {
+        toast.error(t("tasks:bulk.updateTimeEstimateError"));
+      }
+    },
+    [bulkTimeEstimate, selectedTaskIds, selectedCount, clearSelection, t],
   );
 
   const groupedItems = useMemo<BacklogActionGroup[]>(() => {
@@ -439,6 +468,39 @@ function BacklogBulkToolbar() {
                       {t("tasks:dueDate.clear")}
                     </Button>
                   </div>
+                </PopoverContent>
+              </Popover>
+              <Popover open={isEstimateOpen} onOpenChange={setIsEstimateOpen}>
+                <PopoverTrigger asChild>
+                  <Button size="sm" variant="ghost">
+                    <Timer className="size-4" />
+                    {t("tasks:bulk.setTimeEstimate")}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="p-0" align="center">
+                  <form
+                    className="flex flex-col gap-2 p-2"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const value = new FormData(e.currentTarget).get(
+                        "estimate",
+                      );
+                      void handleBulkTimeEstimate(
+                        typeof value === "string" ? value : "",
+                      );
+                    }}
+                  >
+                    <Input
+                      autoFocus
+                      autoComplete="off"
+                      name="estimate"
+                      placeholder={t("tasks:popover.timeEstimate.placeholder")}
+                      inputMode="text"
+                    />
+                    <Button type="submit" size="sm" className="w-full">
+                      {t("tasks:popover.timeEstimate.save")}
+                    </Button>
+                  </form>
                 </PopoverContent>
               </Popover>
             </ToolbarGroup>

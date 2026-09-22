@@ -153,7 +153,9 @@
 					"terracotta": "Терракота",
 					"rose": "Роза",
 					"crimson": "Малиновый"
-				}
+				},
+				"setTimeEstimate": "Set",
+				"timeEstimate": "Time estimate"
 			}
 		},
 		"boolean": {
@@ -532,7 +534,9 @@
 			"labels": "Метки",
 			"labelsDescription": "Показывать метки и теги задач",
 			"priority": "Приоритет",
-			"priorityDescription": "Показывать индикаторы приоритета"
+			"priorityDescription": "Показывать индикаторы приоритета",
+			"timeEstimates": "Time Estimates",
+			"timeEstimatesDescription": "Show time estimates on tasks"
 		},
 		"developerPage": {
 			"pageTitle": "Настройки разработчика",
@@ -1010,7 +1014,8 @@
 				"taskDueDateChanged": "Изменен срок выполнения",
 				"taskAssigneeChanged": "Изменен исполнитель",
 				"taskUnassigned": "Назначение снято",
-				"dueDateReminder": "Напоминания о сроках"
+				"dueDateReminder": "Напоминания о сроках",
+				"taskTimeEstimateChanged": "Time estimate changed"
 			},
 			"connect": "Подключить вебхук",
 			"saveChanges": "Сохранить изменения",
@@ -1731,7 +1736,10 @@
 			"importedBy": "Imported by {{name}}"
 		},
 		"moved": "переместил задачу из «{{from}}» в «{{to}}»",
-		"created": "создал эту задачу"
+		"created": "создал эту задачу",
+		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
+		"clearedTimeEstimate": "cleared the time estimate",
+		"setTimeEstimate": "set time estimate to {{estimate}}"
 	},
 	"tasks": {
 		"title": "Задачи",
@@ -1913,7 +1921,9 @@
 			"copyTaskBranch": "Скопировать ветку задачи",
 			"start": "Начало",
 			"startDate": "Дата начала",
-			"noDate": "Без даты"
+			"noDate": "Без даты",
+			"noEstimate": "No estimate",
+			"timeEstimate": "Time estimate"
 		},
 		"move": {
 			"title": "Переместить задачу",
@@ -1968,6 +1978,14 @@
 					"rose": "Роза",
 					"crimson": "Малиновый"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
+				"placeholder": "e.g. 2h 30m",
+				"save": "Save",
+				"title": "Time estimate",
+				"updateError": "Failed to update task time estimate",
+				"updateSuccess": "Task time estimate updated successfully"
 			}
 		},
 		"backlog": {
@@ -2191,7 +2209,9 @@
 			"archiveSuccess": "{{count}} задач архивировано",
 			"updateSuccess": "{{count}} задач обновлено",
 			"assignSuccess": "{{count}} задач назначено",
-			"addLabelSuccess": "Метка добавлена к {{count}} задачам"
+			"addLabelSuccess": "Метка добавлена к {{count}} задачам",
+			"setTimeEstimate": "Set Time Estimate",
+			"updateTimeEstimateError": "Failed to update time estimate"
 		},
 		"editor": {
 			"table": {
@@ -2221,7 +2241,10 @@
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
-		"descriptionLoadError": "The description could not be loaded. Retry to load the current version."
+		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"timeEstimate": {
+			"label": "Time estimate"
+		}
 	},
 	"invitations": {
 		"email": {

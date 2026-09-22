@@ -153,7 +153,9 @@
 					"terracotta": "Terracota",
 					"rose": "Rosa",
 					"crimson": "Carmesí"
-				}
+				},
+				"setTimeEstimate": "Set",
+				"timeEstimate": "Time estimate"
 			}
 		},
 		"boolean": {
@@ -429,7 +431,9 @@
 			"labels": "Etiquetas",
 			"labelsDescription": "Mostrar descripción y etiquetas de las tareas",
 			"priority": "Prioridad",
-			"priorityDescription": "Mostrar indicador de prioridad"
+			"priorityDescription": "Mostrar indicador de prioridad",
+			"timeEstimates": "Time Estimates",
+			"timeEstimatesDescription": "Show time estimates on tasks"
 		},
 		"developerPage": {
 			"pageTitle": "Ajustes de Desarrollador",
@@ -831,7 +835,8 @@
 				"taskDueDateChanged": "Cambio de fecha de vencimiento",
 				"taskAssigneeChanged": "Cambio de asignado",
 				"taskUnassigned": "Tarea desasignada",
-				"dueDateReminder": "Recordatorios de fecha de vencimiento"
+				"dueDateReminder": "Recordatorios de fecha de vencimiento",
+				"taskTimeEstimateChanged": "Time estimate changed"
 			},
 			"connect": "Conectar al webhook",
 			"saveChanges": "Guardar cambios",
@@ -1718,7 +1723,10 @@
 			},
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
-		}
+		},
+		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
+		"clearedTimeEstimate": "cleared the time estimate",
+		"setTimeEstimate": "set time estimate to {{estimate}}"
 	},
 	"tasks": {
 		"title": "Tareas",
@@ -1900,7 +1908,9 @@
 			"copyTaskBranch": "Copiar la rama de la tarea",
 			"start": "Comenzar",
 			"startDate": "Fecha de inicio",
-			"noDate": "Sin fecha"
+			"noDate": "Sin fecha",
+			"noEstimate": "No estimate",
+			"timeEstimate": "Time estimate"
 		},
 		"popover": {
 			"assignee": {
@@ -1944,6 +1954,14 @@
 					"rose": "Rosa",
 					"crimson": "Carmesí"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
+				"placeholder": "e.g. 2h 30m",
+				"save": "Save",
+				"title": "Time estimate",
+				"updateError": "Failed to update task time estimate",
+				"updateSuccess": "Task time estimate updated successfully"
 			}
 		},
 		"backlog": {
@@ -2118,7 +2136,9 @@
 			"actions": "Actiones",
 			"searchActions": "Buscar acciones...",
 			"noActionsFound": "No se han encontrado acciones.",
-			"changeStatus": "Cambiar estado"
+			"changeStatus": "Cambiar estado",
+			"setTimeEstimate": "Set Time Estimate",
+			"updateTimeEstimateError": "Failed to update time estimate"
 		},
 		"move": {
 			"title": "Mover tarea",
@@ -2159,7 +2179,10 @@
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
-		"descriptionLoadError": "The description could not be loaded. Retry to load the current version."
+		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"timeEstimate": {
+			"label": "Time estimate"
+		}
 	},
 	"invitations": {
 		"email": {

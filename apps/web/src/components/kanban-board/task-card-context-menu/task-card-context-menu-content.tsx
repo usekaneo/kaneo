@@ -1,7 +1,8 @@
 import { X } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
   ContextMenuCheckboxItem,
@@ -12,12 +13,14 @@ import {
   ContextMenuSubContent,
   ContextMenuSubTrigger,
 } from "@/components/ui/context-menu";
+import { Input } from "@/components/ui/input";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useUpdateTaskAssignee } from "@/hooks/mutations/task/use-update-task-assignee";
 import { useUpdateTaskDescription } from "@/hooks/mutations/task/use-update-task-description";
 import { useUpdateTaskDueDate } from "@/hooks/mutations/task/use-update-task-due-date";
 import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-status";
 import { useUpdateTaskPriority } from "@/hooks/mutations/task/use-update-task-status-priority";
+import { useUpdateTaskTimeEstimate } from "@/hooks/mutations/task/use-update-task-time-estimate";
 import { useUpdateTaskTitle } from "@/hooks/mutations/task/use-update-task-title";
 import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
@@ -27,6 +30,7 @@ import { generateLink } from "@/lib/generate-link";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
+import { formatTimeEstimate, parseTimeEstimate } from "@/lib/time-estimate";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
@@ -74,6 +78,7 @@ export default function TaskCardContextMenuContent({
   const { mutateAsync: updateTaskTitle } = useUpdateTaskTitle();
   const { mutateAsync: updateTaskDescription } = useUpdateTaskDescription();
   const { mutateAsync: updateTaskDueDate } = useUpdateTaskDueDate();
+  const { mutateAsync: updateTaskTimeEstimate } = useUpdateTaskTimeEstimate();
   const { canUpdateTasks, canDeleteTasks, canAssignTasks } =
     useWorkspacePermission();
   const canEdit = canUpdateTasks();
@@ -88,6 +93,8 @@ export default function TaskCardContextMenuContent({
       name: member?.user?.name ?? "",
     }));
   }, [workspaceUsers]);
+
+  const estimateInputRef = useRef<HTMLInputElement>(null);
 
   const handleCopyTaskLink = () => {
     const path = `/dashboard/workspace/${taskCardContext.worskpaceId}/project/${taskCardContext.projectId}/task/${task.id}`;
@@ -291,6 +298,77 @@ export default function TaskCardContextMenuContent({
                 {user.label}
               </ContextMenuCheckboxItem>
             ))}
+          </ContextMenuSubContent>
+        </ContextMenuSub>
+      )}
+
+      {canEdit && (
+        <ContextMenuSub>
+          <ContextMenuSubTrigger>
+            <span>{t("tasks:timeEstimate.label")}</span>
+          </ContextMenuSubTrigger>
+          <ContextMenuSubContent className="w-64 p-0">
+            <form
+              className="flex flex-col gap-2 p-2"
+              // The card is dnd-sortable and portal events still bubble
+              // through the React tree, so selecting text (or pressing)
+              // here would start dragging the card. Stop it like the
+              // buttons elsewhere in the card do.
+              onPointerDown={(e) => e.stopPropagation()}
+              onSubmit={(e) => {
+                e.preventDefault();
+                void (async () => {
+                  const trimmed = estimateInputRef.current?.value.trim() ?? "";
+                  // Empty or zero clears the estimate.
+                  const seconds = trimmed ? parseTimeEstimate(trimmed) : null;
+                  if (trimmed && seconds == null) {
+                    toast.error(t("tasks:popover.timeEstimate.invalid"));
+                    return;
+                  }
+                  try {
+                    const next = seconds && seconds > 0 ? seconds : null;
+                    await updateTaskTimeEstimate({
+                      ...task,
+                      timeEstimate: next,
+                    });
+                    if (estimateInputRef.current) {
+                      estimateInputRef.current.value =
+                        next != null ? formatTimeEstimate(next) : "";
+                    }
+                    toast.success(
+                      t("tasks:popover.timeEstimate.updateSuccess"),
+                    );
+                  } catch (error) {
+                    toast.error(
+                      error instanceof Error
+                        ? error.message
+                        : t("tasks:popover.timeEstimate.updateError"),
+                    );
+                  }
+                })();
+              }}
+            >
+              <Input
+                ref={estimateInputRef}
+                defaultValue={
+                  task.timeEstimate != null
+                    ? formatTimeEstimate(task.timeEstimate)
+                    : ""
+                }
+                onKeyDown={(e) => {
+                  // The menu steals printable keys for typeahead; keep them
+                  // local so the input stays editable. Escape still bubbles
+                  // so the menu can close. Enter submits via the form.
+                  if (e.key !== "Escape") e.stopPropagation();
+                }}
+                placeholder={t("tasks:popover.timeEstimate.placeholder")}
+                autoComplete="off"
+                inputMode="text"
+              />
+              <Button type="submit" size="sm" className="w-full">
+                {t("tasks:popover.timeEstimate.save")}
+              </Button>
+            </form>
           </ContextMenuSubContent>
         </ContextMenuSub>
       )}

@@ -24,6 +24,7 @@ async function updateTask(
   position: number,
   userId?: string,
   currentUserId?: string,
+  timeEstimate?: number,
 ) {
   assertTaskPosition(position);
 
@@ -77,6 +78,7 @@ async function updateTask(
       columnId: column?.id ?? null,
       startDate: startDate || null,
       dueDate: dueDate || null,
+      timeEstimate: timeEstimate || null,
       projectId,
       description,
       priority,

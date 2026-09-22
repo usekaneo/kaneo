@@ -6,6 +6,7 @@ import {
   Copy,
   GitBranch,
   Plus,
+  Timer,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -38,6 +39,7 @@ import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel, getStatusDisplayLabel } from "@/lib/i18n/domain";
 import { resolveLabelColor } from "@/lib/label-color";
 import { getPriorityIcon } from "@/lib/priority";
+import { formatTimeEstimate } from "@/lib/time-estimate";
 import { toast } from "@/lib/toast";
 import TaskAssigneePopover from "./task-assignee-popover";
 import TaskDueDatePopover from "./task-due-date-popover";
@@ -46,6 +48,7 @@ import TaskMovePopover from "./task-move-popover";
 import TaskPriorityPopover from "./task-priority-popover";
 import TaskStartDatePopover from "./task-start-date-popover";
 import TaskStatusPopover from "./task-status-popover";
+import TaskTimeEstimatePopover from "./task-time-estimate-popover";
 
 function slugify(text: string | undefined): string {
   if (!text) return "";
@@ -324,6 +327,24 @@ export default function TaskPropertiesSidebar({
                   </Button>
                 </TaskDueDatePopover>
               )}
+              {task && (
+                <TaskTimeEstimatePopover task={task}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start h-7 px-1.5 gap-1.5"
+                  >
+                    <Timer className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span
+                      className={`text-xs font-semibold ${task.timeEstimate != null ? "" : "text-muted-foreground"}`}
+                    >
+                      {task.timeEstimate != null
+                        ? formatTimeEstimate(task.timeEstimate)
+                        : t("tasks:properties.noEstimate")}
+                    </span>
+                  </Button>
+                </TaskTimeEstimatePopover>
+              )}
             </div>
           </div>
         )}
@@ -514,6 +535,24 @@ export default function TaskPropertiesSidebar({
                       )}
                     </Button>
                   </TaskDueDatePopover>
+                )}
+                {task && (
+                  <TaskTimeEstimatePopover task={task}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="justify-start h-7 px-1.5 gap-1.5"
+                    >
+                      <Timer className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span
+                        className={`text-xs font-semibold ${task.timeEstimate != null ? "" : "text-muted-foreground"}`}
+                      >
+                        {task.timeEstimate != null
+                          ? formatTimeEstimate(task.timeEstimate)
+                          : t("tasks:properties.noEstimate")}
+                      </span>
+                    </Button>
+                  </TaskTimeEstimatePopover>
                 )}
               </div>
             </div>
@@ -707,6 +746,24 @@ export default function TaskPropertiesSidebar({
                       )}
                     </Button>
                   </TaskDueDatePopover>
+                )}
+                {task && (
+                  <TaskTimeEstimatePopover task={task}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="justify-start h-7 px-1.5 gap-1.5 w-full"
+                    >
+                      <Timer className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span
+                        className={`text-xs font-semibold ${task.timeEstimate != null ? "" : "text-muted-foreground"}`}
+                      >
+                        {task.timeEstimate != null
+                          ? formatTimeEstimate(task.timeEstimate)
+                          : t("tasks:properties.noEstimate")}
+                      </span>
+                    </Button>
+                  </TaskTimeEstimatePopover>
                 )}
               </div>
             </div>

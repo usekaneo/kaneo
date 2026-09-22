@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { and, eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { and, desc, eq } from "drizzle-orm";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { mockAnonymousSession, mockAuthenticatedSession } from "./helpers/auth";
@@ -417,4 +417,348 @@ describe("API integration: task creation", () => {
       expect(persistedTask?.userId).toBeNull();
     },
   );
+});
+
+describe("API integration: task time estimate", () => {
+  beforeEach(async () => {
+    await resetTestDatabase();
+  });
+
+  async function createTask(
+    app: ReturnType<typeof createApp>["app"],
+    projectId: string,
+    body: Record<string, unknown>,
+  ) {
+    const response = await app.request(`/api/task/${projectId}`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    expect(response.status).toBe(200);
+    return (await response.json()) as {
+      id: string;
+      timeEstimate: number | null;
+    };
+  }
+
+  it("sets and clears a task time estimate in seconds", async () => {
+    const member = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const created = await createTask(app, project.id, {
+      title: "Estimated task",
+      description: "Has a time estimate",
+      priority: "medium",
+      status: "to-do",
+      timeEstimate: 9000,
+    });
+
+    expect(created.timeEstimate).toBe(9000);
+
+    const setResponse = await app.request(
+      `/api/task/time-estimate/${created.id}`,
+      {
+        method: "PUT",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ timeEstimate: 5400 }),
+      },
+    );
+
+    expect(setResponse.status).toBe(200);
+    await expect(setResponse.json()).resolves.toMatchObject({
+      id: created.id,
+      timeEstimate: 5400,
+    });
+
+    const persisted = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, created.id),
+    });
+    expect(persisted?.timeEstimate).toBe(5400);
+
+    // Event subscribers run detached from the request (EventEmitter does not
+    // await async listeners), so poll until the activity row lands.
+    await vi.waitFor(async () => {
+      const rows = await db
+        .select()
+        .from(schema.activityTable)
+        .where(
+          and(
+            eq(schema.activityTable.taskId, created.id),
+            eq(schema.activityTable.type, "time_estimate_changed"),
+          ),
+        );
+
+      expect(rows.length).toBeGreaterThanOrEqual(1);
+    });
+
+    const activities = await db
+      .select()
+      .from(schema.activityTable)
+      .where(
+        and(
+          eq(schema.activityTable.taskId, created.id),
+          eq(schema.activityTable.type, "time_estimate_changed"),
+        ),
+      );
+
+    expect(activities[activities.length - 1]).toMatchObject({
+      taskId: created.id,
+      userId: member.user.id,
+      type: "time_estimate_changed",
+      eventData: {
+        oldTimeEstimate: 9000,
+        newTimeEstimate: 5400,
+      },
+    });
+
+    const clearResponse = await app.request(
+      `/api/task/time-estimate/${created.id}`,
+      {
+        method: "PUT",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ timeEstimate: null }),
+      },
+    );
+
+    expect(clearResponse.status).toBe(200);
+    await expect(clearResponse.json()).resolves.toMatchObject({
+      id: created.id,
+      timeEstimate: null,
+    });
+
+    const cleared = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, created.id),
+    });
+    expect(cleared?.timeEstimate).toBeNull();
+
+    await vi.waitFor(async () => {
+      const rows = await db
+        .select()
+        .from(schema.activityTable)
+        .where(
+          and(
+            eq(schema.activityTable.taskId, created.id),
+            eq(schema.activityTable.type, "time_estimate_changed"),
+          ),
+        )
+        .orderBy(desc(schema.activityTable.createdAt));
+
+      expect(rows.length).toBeGreaterThanOrEqual(2);
+      expect(rows).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: "time_estimate_changed",
+            eventData: expect.objectContaining({
+              oldTimeEstimate: 5400,
+              newTimeEstimate: null,
+            }),
+          }),
+        ]),
+      );
+    });
+  });
+
+  it("applies a time estimate to many tasks with bulk update", async () => {
+    const member = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const first = await createTask(app, project.id, {
+      title: "Bulk estimate one",
+      description: "First bulk task",
+      priority: "low",
+      status: "to-do",
+    });
+    const second = await createTask(app, project.id, {
+      title: "Bulk estimate two",
+      description: "Second bulk task",
+      priority: "low",
+      status: "to-do",
+    });
+
+    const response = await app.request("/api/task/bulk", {
+      method: "PATCH",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        taskIds: [first.id, second.id],
+        operation: "updateTimeEstimate",
+        value: "3600",
+      }),
+    });
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      success: true,
+      updatedCount: 2,
+    });
+
+    const persisted = await db.query.taskTable.findMany({
+      where: eq(schema.taskTable.projectId, project.id),
+    });
+    expect(persisted.map((task) => task.timeEstimate).sort()).toEqual([
+      3600, 3600,
+    ]);
+
+    await vi.waitFor(async () => {
+      const rows = await db
+        .select()
+        .from(schema.activityTable)
+        .where(eq(schema.activityTable.type, "time_estimate_changed"));
+
+      expect(rows).toHaveLength(2);
+    });
+
+    const clearResponse = await app.request("/api/task/bulk", {
+      method: "PATCH",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        taskIds: [first.id, second.id],
+        operation: "updateTimeEstimate",
+        value: null,
+      }),
+    });
+
+    expect(clearResponse.status).toBe(200);
+    const cleared = await db.query.taskTable.findMany({
+      where: eq(schema.taskTable.projectId, project.id),
+    });
+    expect(cleared.map((task) => task.timeEstimate)).toEqual([null, null]);
+  });
+
+  it("rejects a negative time estimate", async () => {
+    const member = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const created = await createTask(app, project.id, {
+      title: "Invalid estimate task",
+      description: "Negative estimate should fail",
+      priority: "low",
+      status: "to-do",
+    });
+
+    const response = await app.request(
+      `/api/task/time-estimate/${created.id}`,
+      {
+        method: "PUT",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ timeEstimate: -5 }),
+      },
+    );
+
+    expect(response.status).toBe(400);
+
+    const persistedTask = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, created.id),
+    });
+    expect(persistedTask?.timeEstimate).toBeNull();
+
+    const activities = await db
+      .select()
+      .from(schema.activityTable)
+      .where(
+        and(
+          eq(schema.activityTable.taskId, created.id),
+          eq(schema.activityTable.type, "time_estimate_changed"),
+        ),
+      );
+    expect(activities).toHaveLength(0);
+  });
+
+  it("preserves the estimate through a full task update", async () => {
+    const member = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const created = await createTask(app, project.id, {
+      title: "Full update task",
+      description: "Estimate must survive full replaces",
+      priority: "medium",
+      status: "to-do",
+      timeEstimate: 7200,
+    });
+
+    const response = await app.request(`/api/task/${created.id}`, {
+      method: "PUT",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        title: "Full update task",
+        description: "Estimate must survive full replaces",
+        priority: "medium",
+        status: "to-do",
+        projectId: project.id,
+        position: 1,
+        timeEstimate: 7200,
+      }),
+    });
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      id: created.id,
+      timeEstimate: 7200,
+    });
+  });
+
+  it("rejects unauthenticated time estimate updates", async () => {
+    const member = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const created = await createTask(app, project.id, {
+      title: "Auth estimate task",
+      description: "Estimate updates need a session",
+      priority: "low",
+      status: "to-do",
+    });
+
+    mockAnonymousSession();
+    const response = await app.request(
+      `/api/task/time-estimate/${created.id}`,
+      {
+        method: "PUT",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ timeEstimate: 3600 }),
+      },
+    );
+
+    expect(response.status).toBe(401);
+  });
 });

@@ -7,6 +7,7 @@ import {
   Plus,
   Search,
   Tag,
+  Timer,
   UserIcon,
   X,
 } from "lucide-react";
@@ -70,6 +71,7 @@ import { formatDateMedium } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
 import { resolveLabelColor } from "@/lib/label-color";
 import { getPriorityIcon } from "@/lib/priority";
+import { formatTimeEstimate, parseTimeEstimate } from "@/lib/time-estimate";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
@@ -131,6 +133,7 @@ function normalizeTask(
     priority: task.priority ?? null,
     startDate: task.startDate ?? null,
     dueDate: task.dueDate ?? null,
+    timeEstimate: task.timeEstimate ?? null,
     position: task.position ?? 0,
     userId: task.userId ?? null,
     assigneeId: task.assigneeId ?? task.userId ?? null,
@@ -223,6 +226,8 @@ function CreateTaskModalContent({
   const [assigneeId, setAssigneeId] = useState("");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+  const [timeEstimateInput, setTimeEstimateInput] = useState("");
+  const [estimateOpen, setEstimateOpen] = useState(false);
   const [createMore, setCreateMore] = useState(false);
   const [labels, setLabels] = useState<Label[]>([]);
   const [draftTask, setDraftTask] = useState<Task | null>(null);
@@ -321,6 +326,13 @@ function CreateTaskModalContent({
     }, {});
   }, [customFields]);
 
+  const trimmedTimeEstimateInput = timeEstimateInput.trim();
+  const parsedTimeEstimate = trimmedTimeEstimateInput
+    ? parseTimeEstimate(trimmedTimeEstimateInput)
+    : null;
+  const timeEstimateInvalid =
+    trimmedTimeEstimateInput !== "" && parsedTimeEstimate == null;
+
   const hasUnsavedChanges = Boolean(
     title.trim() ||
       description.trim() ||
@@ -328,6 +340,7 @@ function CreateTaskModalContent({
       assigneeId ||
       startDate ||
       dueDate ||
+      trimmedTimeEstimateInput ||
       selectedProjectId ||
       labels.length > 0 ||
       draftTask,
@@ -456,6 +469,7 @@ function CreateTaskModalContent({
       projectId: resolvedProjectId,
       startDate: startDate ? startDate.toISOString() : undefined,
       dueDate: dueDate ? dueDate.toISOString() : undefined,
+      timeEstimate: parsedTimeEstimate || undefined,
       status: draftStatus,
       customFields: Object.entries(customFieldValues)
         .filter(([_, value]) => value.trim() !== "")
@@ -497,6 +511,7 @@ function CreateTaskModalContent({
     deleteTask,
     startDate,
     dueDate,
+    parsedTimeEstimate,
     priority,
     resolvedProjectId,
     title,
@@ -539,6 +554,7 @@ function CreateTaskModalContent({
               priority,
               startDate: startDate ? startDate.toISOString() : null,
               dueDate: dueDate ? dueDate.toISOString() : null,
+              timeEstimate: parsedTimeEstimate || null,
               projectId: resolvedProjectId,
               customFieldValues: Object.entries(customFieldValues)
                 .filter(([_, value]) => value.trim() !== "")
@@ -554,6 +570,7 @@ function CreateTaskModalContent({
               projectId: resolvedProjectId,
               startDate: startDate ? startDate.toISOString() : undefined,
               dueDate: dueDate ? dueDate.toISOString() : undefined,
+              timeEstimate: parsedTimeEstimate || undefined,
               status: taskStatus,
               customFields: Object.entries(customFieldValues)
                 .filter(([_, value]) => value.trim() !== "")
@@ -606,6 +623,7 @@ function CreateTaskModalContent({
         setAssigneeId("");
         setStartDate(undefined);
         setDueDate(undefined);
+        setTimeEstimateInput("");
         setLabels([]);
         setLabelsStep("select");
         setSearchValue("");
@@ -1214,6 +1232,58 @@ function CreateTaskModalContent({
                       </Button>
                     </div>
                   )}
+                </PopoverContent>
+              </Popover>
+
+              <Popover open={estimateOpen} onOpenChange={setEstimateOpen}>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className={cn(
+                      "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors border border-border hover:bg-accent/50",
+                      parsedTimeEstimate
+                        ? "bg-accent/30 text-foreground"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    <Timer className="w-3.5 h-3.5" />
+                    <span>
+                      {parsedTimeEstimate
+                        ? formatTimeEstimate(parsedTimeEstimate)
+                        : t("common:modals.createTask.timeEstimate")}
+                    </span>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-3" align="start">
+                  <div className="flex flex-col gap-2">
+                    <Input
+                      value={timeEstimateInput}
+                      onChange={(e) => setTimeEstimateInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          setEstimateOpen(false);
+                        }
+                      }}
+                      placeholder={t("tasks:popover.timeEstimate.placeholder")}
+                      autoComplete="off"
+                      inputMode="text"
+                      aria-invalid={timeEstimateInvalid ? true : undefined}
+                    />
+                    {timeEstimateInvalid && (
+                      <p className="text-xs text-destructive">
+                        {t("tasks:popover.timeEstimate.invalid")}
+                      </p>
+                    )}
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => setEstimateOpen(false)}
+                    >
+                      {t("common:modals.createTask.setTimeEstimate")}
+                    </Button>
+                  </div>
                 </PopoverContent>
               </Popover>
 

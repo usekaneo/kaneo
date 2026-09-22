@@ -35,6 +35,7 @@ type GenericWebhookIntegrationFormValues = {
   taskDeleted: boolean;
   taskMoved: boolean;
   taskDueDateChanged: boolean;
+  taskTimeEstimateChanged: boolean;
   taskAssigneeChanged: boolean;
   taskUnassigned: boolean;
   dueDateReminder: boolean;
@@ -60,6 +61,7 @@ function EventToggle({
     | "taskDeleted"
     | "taskMoved"
     | "taskDueDateChanged"
+    | "taskTimeEstimateChanged"
     | "taskAssigneeChanged"
     | "taskUnassigned"
     | "dueDateReminder"
@@ -106,6 +108,7 @@ export function GenericWebhookIntegrationSettings({
           taskDeleted: z.boolean(),
           taskMoved: z.boolean(),
           taskDueDateChanged: z.boolean(),
+          taskTimeEstimateChanged: z.boolean(),
           taskAssigneeChanged: z.boolean(),
           taskUnassigned: z.boolean(),
           dueDateReminder: z.boolean(),
@@ -144,6 +147,8 @@ export function GenericWebhookIntegrationSettings({
       taskDeleted: integration?.events?.taskDeleted ?? false,
       taskMoved: integration?.events?.taskMoved ?? false,
       taskDueDateChanged: integration?.events?.taskDueDateChanged ?? false,
+      taskTimeEstimateChanged:
+        integration?.events?.taskTimeEstimateChanged ?? false,
       taskAssigneeChanged: integration?.events?.taskAssigneeChanged ?? false,
       taskUnassigned: integration?.events?.taskUnassigned ?? false,
       dueDateReminder: integration?.events?.dueDateReminder ?? false,
@@ -180,6 +185,7 @@ export function GenericWebhookIntegrationSettings({
         taskDeleted: values.taskDeleted,
         taskMoved: values.taskMoved,
         taskDueDateChanged: values.taskDueDateChanged,
+        taskTimeEstimateChanged: values.taskTimeEstimateChanged,
         taskAssigneeChanged: values.taskAssigneeChanged,
         taskUnassigned: values.taskUnassigned,
         dueDateReminder: values.dueDateReminder,
@@ -278,6 +284,7 @@ export function GenericWebhookIntegrationSettings({
         taskDeleted: false,
         taskMoved: false,
         taskDueDateChanged: false,
+        taskTimeEstimateChanged: false,
         taskAssigneeChanged: false,
         taskUnassigned: false,
         dueDateReminder: false,
@@ -463,6 +470,13 @@ export function GenericWebhookIntegrationSettings({
                 "settings:genericWebhookIntegration.events.taskDueDateChanged",
               )}
               name="taskDueDateChanged"
+            />
+            <EventToggle
+              control={form.control}
+              label={t(
+                "settings:genericWebhookIntegration.events.taskTimeEstimateChanged",
+              )}
+              name="taskTimeEstimateChanged"
             />
             <EventToggle
               control={form.control}

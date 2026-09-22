@@ -269,6 +269,82 @@ describe("CreateTaskModal", () => {
       screen.queryByText("common:modals.createTask.selectProject"),
     ).toBeNull();
   });
+
+  it("sends the time estimate entered in the create form", async () => {
+    useLocation.mockReturnValue({
+      pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
+    });
+
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+
+    fireEvent.click(screen.getByText("common:modals.createTask.timeEstimate"));
+    const estimateInput = await screen.findByPlaceholderText(
+      "tasks:popover.timeEstimate.placeholder",
+    );
+    fireEvent.change(estimateInput, { target: { value: "1h 30m" } });
+    fireEvent.change(
+      screen.getByPlaceholderText(
+        "common:modals.createTask.taskTitlePlaceholder",
+      ),
+      { target: { value: "Estimated task" } },
+    );
+
+    fireEvent.keyDown(estimateInput, { key: "Enter" });
+    expect(createTask).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByText("1h 30m"));
+    fireEvent.click(
+      await screen.findByText("common:modals.createTask.setTimeEstimate"),
+    );
+    fireEvent.submit(document.querySelector("form") as HTMLFormElement);
+
+    await vi.waitFor(() => {
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Estimated task",
+          projectId: "project-1",
+          timeEstimate: 5400,
+        }),
+      );
+    });
+  });
+
+  it("treats an unparseable estimate like an empty one on submit", async () => {
+    useLocation.mockReturnValue({
+      pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
+    });
+
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+
+    fireEvent.click(screen.getByText("common:modals.createTask.timeEstimate"));
+    fireEvent.change(
+      await screen.findByPlaceholderText(
+        "tasks:popover.timeEstimate.placeholder",
+      ),
+      { target: { value: "not a duration" } },
+    );
+    fireEvent.change(
+      screen.getByPlaceholderText(
+        "common:modals.createTask.taskTitlePlaceholder",
+      ),
+      { target: { value: "Invalid estimate task" } },
+    );
+    fireEvent.submit(document.querySelector("form") as HTMLFormElement);
+
+    await vi.waitFor(() => {
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Invalid estimate task",
+          projectId: "project-1",
+          timeEstimate: undefined,
+        }),
+      );
+    });
+  });
 });
 
 function enterTitle(title = "Private task") {
