@@ -2,6 +2,8 @@ import { Readable } from "node:stream";
 import {
   DeleteObjectCommand,
   GetObjectCommand,
+  HeadObjectCommand,
+  type HeadObjectCommandOutput,
   PutObjectCommand,
   S3Client,
   type S3ClientConfig,
@@ -275,8 +277,8 @@ export function validateTaskAssetUploadInput(
     throw new Error("A valid content type is required.");
   }
 
-  if (size <= 0) {
-    throw new Error("Upload size must be greater than zero.");
+  if (!Number.isSafeInteger(size) || size <= 0) {
+    throw new Error("Upload size must be a positive safe integer.");
   }
 
   if (size > maxImageUploadBytes) {
@@ -287,8 +289,9 @@ export function validateTaskAssetUploadInput(
 }
 
 export async function createTaskImageUploadUrl(
-  context: TaskImageUploadContext,
+  context: TaskImageUploadContext & { size: number },
 ): Promise<TaskImageUploadUrl> {
+  validateTaskAssetUploadInput(context.contentType, context.size);
   const config = getStorageConfig();
   const client = getClient(config);
   const rawKey = buildObjectKey(context);
@@ -298,19 +301,84 @@ export async function createTaskImageUploadUrl(
     Bucket: config.bucket,
     Key: key,
     ContentType: context.contentType,
+    ContentLength: context.size,
   });
 
   const uploadUrl = await getSignedUrl(client, command, {
     expiresIn: config.presignTtlSeconds,
+    signableHeaders: new Set(["content-length", "content-type"]),
   });
 
   return {
     key,
     uploadUrl,
     headers: {
+      // The browser supplies Content-Length from the File body. It is signed,
+      // but must not be set by JS because it is a forbidden request header.
       "Content-Type": context.contentType,
     },
   };
+}
+
+export class InvalidUploadedAssetError extends Error {}
+
+/** Call only after checking the object's task/workspace key prefix. */
+export async function verifyTaskAssetUpload(
+  key: string,
+  expected: { size: number; contentType: string },
+) {
+  const config = getStorageConfig();
+  const client = getClient(config);
+  const abortSignal = AbortSignal.timeout(10_000);
+  let object: HeadObjectCommandOutput;
+  try {
+    object = await client.send(
+      new HeadObjectCommand({ Bucket: config.bucket, Key: key }),
+      { abortSignal },
+    );
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      (error.name === "NotFound" ||
+        error.name === "NoSuchKey" ||
+        ("$metadata" in error &&
+          (error.$metadata as { httpStatusCode?: number }).httpStatusCode ===
+            404))
+    ) {
+      throw new InvalidUploadedAssetError("Uploaded object was not found.");
+    }
+    // Provider errors may include endpoints, signed URLs or other secrets.
+    throw new Error("Unable to verify uploaded object.");
+  }
+
+  const size = object.ContentLength;
+  if (typeof size === "number" && size > config.maxImageUploadBytes) {
+    // Also remove oversized objects made with a still-valid older upload URL.
+    // Invalid client size claims never cause deletion of an in-limit object.
+    try {
+      await client.send(
+        new DeleteObjectCommand({ Bucket: config.bucket, Key: key }),
+        { abortSignal },
+      );
+    } catch {
+      throw new Error("Unable to remove oversized uploaded object.");
+    }
+    throw new InvalidUploadedAssetError(
+      "Uploaded object exceeds the maximum upload size.",
+    );
+  }
+  if (
+    !Number.isSafeInteger(size) ||
+    !size ||
+    size !== expected.size ||
+    !object.ContentType ||
+    object.ContentType.toLowerCase() !== expected.contentType.toLowerCase()
+  ) {
+    throw new InvalidUploadedAssetError(
+      "Uploaded object does not match the declared size and content type.",
+    );
+  }
+  return { size, contentType: object.ContentType };
 }
 
 export function assertStorageConfigured() {

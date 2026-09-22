@@ -8,6 +8,8 @@ import {
   taskTable,
 } from "../../database/schema";
 
+import { validateCustomFieldValue } from "../../task/validate-task-fields";
+
 async function createCustomField(
   projectId: string,
   name: string,
@@ -67,15 +69,9 @@ async function createCustomField(
           });
         }
       } else if (type === "date") {
-        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-        if (!dateRegex.test(trimmedValue)) {
-          const parsedDate = new Date(trimmedValue);
-          if (Number.isNaN(parsedDate.getTime())) {
-            throw new HTTPException(400, {
-              message:
-                "Default value must be a valid date in ISO format (YYYY-MM-DD)",
-            });
-          }
+        const error = validateCustomFieldValue(trimmedValue, "date", name);
+        if (error) {
+          throw new HTTPException(400, { message: error });
         }
       } else if (type === "dropdown") {
         if (options && options.length > 0) {
@@ -96,8 +92,6 @@ async function createCustomField(
     });
   }
 
-  let finalOptions = options ?? null;
-
   if (type === "multiselect") {
     const normalizedOptions = Array.from(
       new Set(
@@ -112,9 +106,10 @@ async function createCustomField(
         message: "Multiselect fields must have at least 2 options",
       });
     }
-
-    finalOptions = normalizedOptions;
   }
+
+  const storedDefaultValue =
+    type === "date" ? defaultValue?.trim() : defaultValue;
 
   const [maxPositionResult] = await db
     .select({ maxPosition: max(customFieldDefinitionTable.position) })
@@ -129,8 +124,8 @@ async function createCustomField(
         name,
         type,
         required,
-        defaultValue: defaultValue ?? null,
-        options: finalOptions,
+        defaultValue: storedDefaultValue ?? null,
+        options: options ?? null,
         position: (maxPositionResult?.maxPosition ?? 0) + 1,
       })
       .returning();
@@ -141,7 +136,7 @@ async function createCustomField(
       });
     }
 
-    if (defaultValue != null && defaultValue.trim() !== "") {
+    if (storedDefaultValue != null && storedDefaultValue.trim() !== "") {
       const tasks = await tx
         .select({ id: taskTable.id })
         .from(taskTable)
@@ -155,7 +150,7 @@ async function createCustomField(
             tasks.slice(i, i + CHUNK_SIZE).map((task) => ({
               taskId: task.id,
               fieldId: created.id,
-              value: defaultValue,
+              value: storedDefaultValue,
             })),
           )
           .onConflictDoNothing();

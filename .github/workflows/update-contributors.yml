@@ -12,18 +12,21 @@ on:
 
 jobs:
   update-contributors:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
-      actions: write
+      pull-requests: read
+
+    outputs:
+      pushed: ${{ steps.commit.outputs.pushed }}
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Generate Contributors Images
-        uses: jaywcjlove/github-action-contributors@main
+        uses: jaywcjlove/github-action-contributors@86707f6d4c2469ce6b46bc3367253ebd41ee242c # main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           filter-author: (renovate\[bot\]|renovate-bot|dependabot\[bot\])
@@ -32,7 +35,7 @@ jobs:
 
       - name: Generate Sponsors Section
         if: ${{ github.repository_owner == 'usekaneo' }}
-        uses: JamesIves/github-sponsors-readme-action@v1
+        uses: JamesIves/github-sponsors-readme-action@02650b8cd445fc16dfef73195f9c406dce041623 # v1
         with:
           token: ${{ secrets.GH_ANDREJ }}
           file: 'README.md'
@@ -58,8 +61,14 @@ jobs:
             echo "pushed=false" >> "$GITHUB_OUTPUT"
           fi
 
+  deploy-site:
+    needs: update-contributors
+    if: needs.update-contributors.outputs.pushed == 'true' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+    steps:
       - name: Deploy Site
-        if: ${{ steps.commit.outputs.pushed == 'true' }}
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run deploy-site.yml --repo "${GITHUB_REPOSITORY}" --ref main 
+        run: gh workflow run deploy-site.yml --repo "$GITHUB_REPOSITORY" --ref main

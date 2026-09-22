@@ -29,7 +29,7 @@ function request(payload = event, signature = true, kind = "issue_comment") {
     },
   });
 }
-function setup(permission = "write") {
+function setup(permission = "write", commandBody = "/peekareq") {
   const writes = [];
   let tokens = 0;
   const ids = new Set();
@@ -52,6 +52,7 @@ function setup(permission = "write") {
     if (endpoint.endsWith("/comments/456"))
       return {
         ...event.comment,
+        body: commandBody,
         issue_url: "https://api.github.com/repos/usekaneo/kaneo/issues/1720",
       };
     if (endpoint.endsWith("/permission")) return { permission };
@@ -100,6 +101,43 @@ test("ordinary comments, bot comments, edits and other events cause zero GitHub 
   );
   assert.equal(s.tokens(), 0);
   assert.equal(s.writes.length, 0);
+});
+
+test("/peekareview routes only its own live maintainer command and is deduplicated", async () => {
+  const payload = {
+    ...event,
+    comment: { ...event.comment, body: "/peekareview" },
+  };
+  const s = setup("maintain", "/peekareview");
+  await Promise.all([
+    handleWebhook(request(payload), s.env, s.dependencies),
+    handleWebhook(request(payload), s.env, s.dependencies),
+  ]);
+  assert.deepEqual(s.writes, [
+    {
+      event_type: "peekareview",
+      client_payload: { pr: 1720, comment_id: 456 },
+    },
+  ]);
+  const denied = setup("read", "/peekareview");
+  await handleWebhook(request(payload), denied.env, denied.dependencies);
+  assert.equal(denied.writes.length, 0);
+  const changed = setup("write", "/peekareq");
+  await handleWebhook(request(payload), changed.env, changed.dependencies);
+  assert.equal(changed.writes.length, 0);
+  const ignored = setup();
+  for (const body of [
+    "/peekareview please",
+    "> /peekareview",
+    "constructor",
+    "/peekareview\n/peekareq",
+  ])
+    await handleWebhook(
+      request({ ...payload, comment: { ...payload.comment, body } }),
+      ignored.env,
+      ignored.dependencies,
+    );
+  assert.equal(ignored.tokens(), 0);
 });
 
 test("invalid signatures and wrong installations cannot dispatch", async () => {

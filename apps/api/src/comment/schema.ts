@@ -10,10 +10,11 @@ export const createCommentBody = z.object({
   // impersonation of a real account.
   externalUserName: z.string().max(120).optional().openapi({
     description:
-      "Attribution for an imported comment. Ignored unless externalSource is also given.",
+      "Attribution for an imported comment. Requires workspace:manage_settings and externalSource; otherwise ignored.",
   }),
   externalSource: z.enum(["planka", "trello", "jira"]).optional().openapi({
-    description: "The tool the comment was imported from.",
+    description:
+      "The tool the comment was imported from. Supplying external attribution requires workspace:manage_settings.",
   }),
 });
 

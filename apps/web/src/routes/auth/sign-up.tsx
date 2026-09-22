@@ -40,6 +40,11 @@ function SignUp() {
   const search = useSearch({ from: "/auth/sign-up" });
   const [isGuestLoading, setIsGuestLoading] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [captchaKey, setCaptchaKey] = useState(0);
+  const resetCaptcha = useCallback(() => {
+    setTurnstileToken(null);
+    setCaptchaKey((key) => key + 1);
+  }, []);
   const handleTurnstileVerify = useCallback((token: string) => {
     setTurnstileToken(token);
   }, []);
@@ -82,7 +87,14 @@ function SignUp() {
     if (captchaPending) return;
     setIsGuestLoading(true);
     try {
-      const result = await authClient.signIn.anonymous();
+      const result = await authClient.signIn.anonymous(
+        {},
+        {
+          headers: turnstileToken
+            ? { "x-turnstile-token": turnstileToken }
+            : undefined,
+        },
+      );
       if (result.error) {
         throw new Error(result.error.message);
       }
@@ -94,6 +106,7 @@ function SignUp() {
       );
     } finally {
       setIsGuestLoading(false);
+      resetCaptcha();
     }
   };
 
@@ -155,6 +168,8 @@ function SignUp() {
                 callbackURL={callbackURL}
                 errorCallbackURL={errorCallbackURL}
                 disabled={captchaPending}
+                turnstileToken={turnstileToken}
+                onAttemptComplete={resetCaptcha}
               />
             );
             // Hide self-service alternatives (guest + SSO) when registration
@@ -213,10 +228,12 @@ function SignUp() {
               invitationId={invitationId}
               defaultEmail={prefillEmail}
               turnstileToken={captchaConfigured ? turnstileToken : undefined}
+              onAttemptComplete={resetCaptcha}
             />
           )}
           {captchaConfigured && TURNSTILE_SITE_KEY && (
             <Turnstile
+              key={captchaKey}
               siteKey={TURNSTILE_SITE_KEY}
               onVerify={handleTurnstileVerify}
               onExpire={handleTurnstileExpire}

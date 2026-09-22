@@ -65,6 +65,7 @@ export function useTaskFiltersWithLabelsSupport(
   project: ProjectWithTasks | null | undefined,
   projectId?: string,
   textQuery?: string,
+  descriptionMatches?: ReadonlySet<string>,
 ) {
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   const storageKey = projectId ? `kaneo:board-filters:${projectId}` : null;
@@ -90,7 +91,11 @@ export function useTaskFiltersWithLabelsSupport(
 
   useEffect(() => {
     if (!storageKey || typeof window === "undefined") return;
-    window.localStorage.setItem(storageKey, JSON.stringify(filters));
+    try {
+      window.localStorage.setItem(storageKey, JSON.stringify(filters));
+    } catch {
+      // Storage may be unavailable or full; keep filters working in memory.
+    }
   }, [filters, storageKey]);
 
   const filterTasks = useCallback(
@@ -108,6 +113,7 @@ export function useTaskFiltersWithLabelsSupport(
               : "";
           const taskShortIdentifier = taskNumber ? `#${taskNumber}` : "";
           const matchesText =
+            descriptionMatches?.has(task.id) ||
             title.includes(normalizedTextQuery) ||
             description.includes(normalizedTextQuery) ||
             taskNumber.includes(normalizedTextQuery) ||
@@ -233,7 +239,14 @@ export function useTaskFiltersWithLabelsSupport(
         return true;
       });
     },
-    [filters, project?.slug, textQuery, weekStartsOn, getValuesForTask],
+    [
+      filters,
+      project?.slug,
+      textQuery,
+      weekStartsOn,
+      getValuesForTask,
+      descriptionMatches,
+    ],
   );
 
   const filteredProject = useMemo(() => {

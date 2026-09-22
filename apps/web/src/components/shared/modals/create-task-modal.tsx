@@ -1,4 +1,4 @@
-import { useLocation } from "@tanstack/react-router";
+import { useLocation, useParams } from "@tanstack/react-router";
 import { produce } from "immer";
 import {
   CalendarIcon,
@@ -168,7 +168,7 @@ function normalizeTask(
   };
 }
 
-function CreateTaskModal({
+function CreateTaskModalContent({
   open,
   onClose,
   status,
@@ -265,17 +265,24 @@ function CreateTaskModal({
     location.pathname.match(/\/project\/([^/]+)/)?.[1] ?? null;
   const explicitProjectId = projectId || routeProjectId || "";
   const [selectedProjectId, setSelectedProjectId] = useState("");
-  const resolvedProjectId =
-    explicitProjectId || selectedProjectId || project?.id || "";
   const { data: workspaceProjects } = useGetProjects({
     workspaceId: workspace?.id || "",
   });
-  const resolvedProject = explicitProjectId
-    ? project
-    : (workspaceProjects?.find((p) => p.id === resolvedProjectId) ?? null);
+  // Only a project from this workspace's query may receive new content.
+  // The global project store can still contain the last visited workspace.
+  const resolvedProject = workspaceProjects?.find(
+    (candidate) => candidate.id === (explicitProjectId || selectedProjectId),
+  );
+  const resolvedProjectId = resolvedProject?.id ?? "";
 
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const draftCreationPromiseRef = useRef<Promise<Task> | null>(null);
+  const draftCreationPromiseRef = useRef<Promise<Task | null> | null>(null);
+  const draftTaskRef = useRef<Task | null>(null);
+  const activeRef = useRef(true);
+  const submittingRef = useRef(false);
+  const [isPreparingDraft, setIsPreparingDraft] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editorVersion, setEditorVersion] = useState(0);
   const didSubmitRef = useRef(false);
 
   const { mutateAsync: createTask } = useCreateTask();
@@ -353,32 +360,33 @@ function CreateTaskModal({
       draftTask,
   );
 
-  const closeAndReset = () => {
-    const shouldDeleteDraft = draftTask && !didSubmitRef.current;
-
-    setDiscardConfirmationOpen(false);
-    setTitle("");
-    setDescription("");
-    setPriority("no-priority");
-    setAssigneeId("");
-    setStartDate(undefined);
-    setDueDate(undefined);
-    setSelectedProjectId("");
-    setCreateMore(false);
-    setLabels([]);
-    setLabelsStep("select");
-    setSearchValue("");
-    setSelectedColor("gray");
-    setNewLabelName("");
-    draftCreationPromiseRef.current = null;
-    didSubmitRef.current = false;
-    setDraftTask(null);
-    setCustomFieldValues(buildDefaultCustomFieldValues());
-    onClose();
-
-    if (shouldDeleteDraft) {
-      void deleteTask(draftTask.id).catch(() => {});
+  const discardDraft = useCallback(() => {
+    const abandoned = draftTaskRef.current;
+    if (abandoned && !didSubmitRef.current) {
+      draftTaskRef.current = null;
+      void deleteTask(abandoned.id).catch(() => {
+        // An expired session can prevent cleanup; never reuse the draft.
+      });
     }
+  }, [deleteTask]);
+
+  useEffect(() => {
+    activeRef.current = true;
+    return () => {
+      activeRef.current = false;
+      discardDraft();
+    };
+  }, [discardDraft]);
+
+  const handleClose = () => {
+    activeRef.current = false;
+    discardDraft();
+    onClose();
+  };
+
+  const closeAndReset = () => {
+    setDiscardConfirmationOpen(false);
+    handleClose();
   };
 
   const handleOpenChange = (nextOpen: boolean) => {
@@ -394,7 +402,7 @@ function CreateTaskModal({
 
   const syncTaskIntoProject = useCallback(
     (task: Task) => {
-      if (!project) return;
+      if (!activeRef.current || project?.id !== task.projectId) return;
 
       const updatedProject = produce(project, (draft) => {
         let existingTask:
@@ -448,13 +456,16 @@ function CreateTaskModal({
   );
 
   const ensureDraftTask = useCallback(async () => {
-    if (draftTask) {
-      return draftTask.id;
+    if (!activeRef.current || submittingRef.current) return null;
+    if (draftTaskRef.current) {
+      return draftTaskRef.current.projectId === resolvedProjectId
+        ? draftTaskRef.current.id
+        : null;
     }
 
     if (draftCreationPromiseRef.current) {
       const pendingTask = await draftCreationPromiseRef.current;
-      return pendingTask.id;
+      return activeRef.current ? (pendingTask?.id ?? null) : null;
     }
 
     if (!resolvedProjectId) {
@@ -462,6 +473,7 @@ function CreateTaskModal({
       return null;
     }
 
+    setIsPreparingDraft(true);
     const draftStatus = "planned";
     const draftPromise = createTask({
       title: title.trim() || t("common:modals.createTask.untitledTask"),
@@ -478,14 +490,22 @@ function CreateTaskModal({
           fieldId,
           value,
         })),
-    }).then((task) => normalizeTask(task));
+    }).then((task) => {
+      const createdTask = normalizeTask(task);
+      if (!activeRef.current) {
+        void deleteTask(createdTask.id).catch(() => {});
+        return null;
+      }
+      draftTaskRef.current = createdTask;
+      setDraftTask(createdTask);
+      return createdTask;
+    });
 
     draftCreationPromiseRef.current = draftPromise;
 
     try {
       const createdTask = await draftPromise;
-      setDraftTask(createdTask);
-      return createdTask.id;
+      return activeRef.current ? (createdTask?.id ?? null) : null;
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -495,12 +515,13 @@ function CreateTaskModal({
       return null;
     } finally {
       draftCreationPromiseRef.current = null;
+      if (activeRef.current) setIsPreparingDraft(false);
     }
   }, [
     assigneeId,
     createTask,
     description,
-    draftTask,
+    deleteTask,
     startDate,
     dueDate,
     priority,
@@ -512,16 +533,32 @@ function CreateTaskModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !resolvedProjectId || !workspace?.id) return;
+    if (
+      !activeRef.current ||
+      submittingRef.current ||
+      !canCreateTaskCapability ||
+      !title.trim() ||
+      !resolvedProjectId ||
+      !workspace?.id
+    )
+      return;
 
+    submittingRef.current = true;
+    setIsSubmitting(true);
     try {
+      // Submitting while a file prepares its draft must update that same task.
+      const pendingDraft = draftCreationPromiseRef.current;
+      if (pendingDraft) await pendingDraft;
+      if (!activeRef.current) return;
+      const currentDraft = draftTaskRef.current;
+      if (currentDraft && currentDraft.projectId !== resolvedProjectId) return;
       const taskStatus = status ?? "to-do";
       didSubmitRef.current = true;
 
-      const savedTask = draftTask
+      const savedTask = currentDraft
         ? normalizeTask(
             await updateTask({
-              ...draftTask,
+              ...currentDraft,
               title: title.trim(),
               description: description.trim() || "",
               userId: assigneeId || null,
@@ -567,16 +604,20 @@ function CreateTaskModal({
         }
       }
 
-      if (draftTask) {
+      if (currentDraft) {
         for (const [fieldId, value] of Object.entries(customFieldValues)) {
-          await setCustomFieldValue({
-            taskId: savedTask.id,
-            fieldId,
-            value: String(value ?? ""),
-          });
+          if (value) {
+            await setCustomFieldValue({
+              taskId: savedTask.id,
+              fieldId,
+              value: String(value),
+            });
+          }
         }
       }
 
+      draftTaskRef.current = null;
+      if (!activeRef.current) return;
       setDraftTask(savedTask);
       syncTaskIntoProject(savedTask);
       toast.success(
@@ -598,6 +639,7 @@ function CreateTaskModal({
         setSelectedColor("gray");
         setNewLabelName("");
         draftCreationPromiseRef.current = null;
+        setEditorVersion((version) => version + 1);
         didSubmitRef.current = false;
         setDraftTask(null);
         setCustomFieldValues(buildDefaultCustomFieldValues());
@@ -606,11 +648,18 @@ function CreateTaskModal({
       }
     } catch (error) {
       didSubmitRef.current = false;
+      if (!activeRef.current) {
+        discardDraft();
+        return;
+      }
       toast.error(
         error instanceof Error
           ? error.message
           : t("common:modals.createTask.createError"),
       );
+    } finally {
+      submittingRef.current = false;
+      if (activeRef.current) setIsSubmitting(false);
     }
   };
 
@@ -768,7 +817,7 @@ function CreateTaskModal({
             <SelectContent>
               {options.map((opt) => (
                 <SelectItem key={opt} value={opt}>
-                  <span className="block max-w-38 truncate">{opt}</span>
+                  <span className="block max-w-50 truncate">{opt}</span>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -956,7 +1005,7 @@ function CreateTaskModal({
                     key={`field_option_${option}`}
                     value={option}
                   >
-                    <span className="block max-w-38 truncate">{option}</span>
+                    <span className="block max-w-50 truncate">{option}</span>
                   </ComboboxItem>
                 )}
               </ComboboxList>
@@ -979,6 +1028,9 @@ function CreateTaskModal({
     }
   };
 
+  // Defense-in-depth: if the user lacks task-create permission, don't render
+  // the modal even if a stale trigger somehow opens it (e.g., keyboard
+  // shortcut after the capability has changed).
   if (!canCreateTaskCapability) return null;
 
   return (
@@ -1024,6 +1076,7 @@ function CreateTaskModal({
 
             <div className="min-h-[200px]">
               <TaskDescriptionEditor
+                key={editorVersion}
                 value={description}
                 onChange={setDescription}
                 placeholder={t(
@@ -1141,9 +1194,18 @@ function CreateTaskModal({
                           key={workspaceProject.id}
                           type="button"
                           className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
-                          onClick={() =>
-                            setSelectedProjectId(workspaceProject.id)
+                          disabled={
+                            isPreparingDraft || !!draftTask || isSubmitting
                           }
+                          onClick={() => {
+                            if (
+                              !draftCreationPromiseRef.current &&
+                              !draftTaskRef.current &&
+                              !submittingRef.current
+                            ) {
+                              setSelectedProjectId(workspaceProject.id);
+                            }
+                          }}
                         >
                           <span className="text-sm truncate">
                             {workspaceProject.name}
@@ -1530,7 +1592,7 @@ function CreateTaskModal({
             </Button>
             <Button
               type="submit"
-              disabled={!title.trim()}
+              disabled={!title.trim() || !resolvedProjectId || isSubmitting}
               size="sm"
               className="disabled:opacity-50"
             >
@@ -1571,6 +1633,31 @@ function CreateTaskModal({
         </AlertDialogContent>
       </AlertDialog>
     </Dialog>
+  );
+}
+
+function CreateTaskModal(props: CreateTaskModalProps) {
+  const { data: workspace } = useActiveWorkspace();
+  const location = useLocation();
+  const routeWorkspaceId = useParams({
+    strict: false,
+    select: (params) =>
+      "workspaceId" in params && typeof params.workspaceId === "string"
+        ? params.workspaceId
+        : undefined,
+  });
+  // useActiveWorkspace may temporarily fall back to the previous organization
+  // while the new route's organization list is loading.
+  if (!props.open || (routeWorkspaceId && routeWorkspaceId !== workspace?.id))
+    return null;
+
+  // Closing or navigating ends the whole editing session, including pending
+  // upload drafts, instead of carrying confidential fields into a new context.
+  return (
+    <CreateTaskModalContent
+      key={JSON.stringify([workspace?.id, location.pathname, props.projectId])}
+      {...props}
+    />
   );
 }
 

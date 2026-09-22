@@ -1,8 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   buildAvatarUrl,
   decodeAvatarUpload,
   MAX_AVATAR_BYTES,
+  MAX_AVATAR_INPUT_CHARS,
   normalizeAvatarMimeType,
 } from "../../../apps/api/src/user/avatar";
 
@@ -102,6 +103,44 @@ describe("decodeAvatarUpload", () => {
         data: pngOfSize(MAX_AVATAR_BYTES + 1),
       }),
     ).toThrow(/maximum avatar size/);
+  });
+
+  it("accepts an avatar at the exact decoded byte limit", () => {
+    expect(
+      decodeAvatarUpload({
+        contentType: "image/png",
+        data: pngOfSize(MAX_AVATAR_BYTES),
+      }).bytes.length,
+    ).toBe(MAX_AVATAR_BYTES);
+  });
+
+  it.each([" ", "A"])(
+    "rejects oversized raw %s data before cleanup or decoding",
+    (character) => {
+      const data = character.repeat(MAX_AVATAR_INPUT_CHARS + 1);
+      const from = vi.spyOn(Buffer, "from");
+      try {
+        expect(() =>
+          decodeAvatarUpload({ contentType: "image/png", data }),
+        ).toThrow(/maximum avatar size/);
+        expect(from).not.toHaveBeenCalled();
+      } finally {
+        from.mockRestore();
+      }
+    },
+  );
+
+  it("rejects a decoded-size overflow before allocating its Buffer", () => {
+    const data = pngOfSize(MAX_AVATAR_BYTES + 1);
+    const from = vi.spyOn(Buffer, "from");
+    try {
+      expect(() =>
+        decodeAvatarUpload({ contentType: "image/png", data }),
+      ).toThrow(/maximum avatar size/);
+      expect(from).not.toHaveBeenCalled();
+    } finally {
+      from.mockRestore();
+    }
   });
 
   it("rejects bytes that do not match the declared type", () => {

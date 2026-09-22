@@ -1,5 +1,6 @@
 import { REPO } from "../identity.mjs";
-import { authorizeRequest } from "../request-policy.mjs";
+import { authorizeRequest, commandName } from "../request-policy.mjs";
+import { reviewModel } from "./review-model.mjs";
 
 const encoder = new TextEncoder();
 const response = (status, result) => Response.json({ result }, { status });
@@ -132,7 +133,7 @@ export async function handleWebhook(request, env, dependencies = {}) {
     !event.issue?.pull_request ||
     event.comment?.user?.type !== "User" ||
     typeof event.comment?.body !== "string" ||
-    event.comment.body.trim() !== "/peekareq"
+    !commandName(event.comment.body)
   )
     return response(200, "ignored");
   if (String(event.installation?.id) !== env.INSTALLATION_ID)
@@ -160,7 +161,12 @@ export async function handleWebhook(request, env, dependencies = {}) {
       dependencies.api ||
       ((endpoint, body) => github(endpoint, token, signal, body));
     stage = "authorize";
-    const decision = await authorizeRequest(eventName, event, api);
+    const decision = await authorizeRequest(
+      eventName,
+      event,
+      api,
+      commandName(event.comment.body),
+    );
     if (!decision.allowed) return response(200, "ignored");
     stage = "claim";
     const claim = await env.DB.prepare(
@@ -172,7 +178,7 @@ export async function handleWebhook(request, env, dependencies = {}) {
     claimed = true;
     stage = "dispatch";
     await api(`repos/${REPO}/dispatches`, {
-      event_type: "peekareq",
+      event_type: decision.command,
       client_payload: { pr: decision.pr, comment_id: event.comment.id },
     });
     return response(200, "dispatched");
@@ -194,4 +200,9 @@ export async function handleWebhook(request, env, dependencies = {}) {
   }
 }
 
-export default { fetch: (request, env) => handleWebhook(request, env) };
+export default {
+  fetch: (request, env) =>
+    new URL(request.url).pathname === "/review-model"
+      ? reviewModel(request, env)
+      : handleWebhook(request, env),
+};

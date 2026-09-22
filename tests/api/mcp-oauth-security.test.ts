@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { HTTPException } from "hono/http-exception";
 import { describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
@@ -43,7 +44,12 @@ vi.mock("../../apps/api/src/mcp/oauth-store", () => {
       key: string,
       payload: unknown,
       expiresAt: Date,
+      requestId?: string,
     ) => {
+      if (requestId) {
+        if (!rows.delete(keyOf("request", requestId)))
+          throw new HTTPException(404);
+      }
       rows.set(keyOf(kind, key), { payload, expiresAt });
     },
     getState: async (kind: string, key: string) => {
@@ -59,7 +65,6 @@ vi.mock("../../apps/api/src/mcp/oauth-store", () => {
       if (row.expiresAt.getTime() < Date.now()) return null;
       return row.payload;
     },
-    enforceStateCap: async () => {},
     deleteExpiredStates: async () => {
       const now = Date.now();
       for (const [key, row] of rows) {

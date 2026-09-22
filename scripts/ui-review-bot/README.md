@@ -19,7 +19,7 @@ The final job authenticates as `<app-slug>[bot]`. PNGs are stored on a dedicated
 
 ## Local use
 
-Requires Node 20.19+, pnpm, git, and authenticated `gh` with contents and PR-comment write access. Workflows use Node 24.
+Requires Node 24, pnpm, git, and authenticated `gh` with contents and PR-comment write access. Workflows use Node 24.
 
 ```sh
 npm --prefix scripts/ui-review-bot ci --ignore-scripts
@@ -54,7 +54,7 @@ Local capture executes PR code as your OS user; it is not an OS sandbox. Use Git
 
 ## Cloudflare webhook
 
-The Worker is `peekareq-webhook`; endpoint: `https://peekareq-webhook.marmeladenjunge.workers.dev/webhook`. It uses the Workers Free-compatible request path and a small D1 table to deduplicate command comment IDs. No OpenRouter key or browser runs in the Worker. Its installation token is restricted to `kaneo` with Contents write and Pull requests read; repository dispatch uses the existing Contents permission.
+The Worker is `peekareq-webhook`; endpoint: `https://peekareq-webhook.marmeladenjunge.workers.dev/webhook`. It uses the Workers Free-compatible request path and a small D1 table to deduplicate command comment IDs. The optional code-review relay also uses this Worker; browser captures continue to run in Actions. Its installation token is restricted to `kaneo` with Contents write and Pull requests read; repository dispatch uses the existing Contents permission.
 
 ```sh
 npx wrangler@4.133.0 d1 execute peekareq-commands --remote --file scripts/ui-review-bot/worker/schema.sql --config scripts/ui-review-bot/worker/wrangler.jsonc
@@ -64,3 +64,23 @@ npx wrangler@4.133.0 deploy --config scripts/ui-review-bot/worker/wrangler.jsonc
 ```
 
 Store the App key as PKCS#8 PEM (convert a downloaded PKCS#1 key with `openssl pkcs8 -topk8 -nocrypt`). Keep secrets out of source control. For a new account, create a D1 database and update its ID in `wrangler.jsonc`. The Worker checks the configured installation ID and repository before using App credentials. If dispatch times out after claiming a command, it deliberately does not replay it: check Actions first, then post a fresh command if needed.
+
+## Code review (Beta)
+
+`/peekareview` requests a source-based review of an open PR. It uses the same live maintainer authorization and webhook filtering as `/peekareq`. Ordinary comments do not start either workflow. Re-runs update one Peekareq comment containing collapsed **Findings (Beta)** and **Run info**, including model, new AI cost, duration, and reviewed revision.
+
+The code reviewer uses `deepseek/deepseek-v4-flash` through OpenRouter. It reads immutable base/head source without checking out or executing PR code. It retrieves callers, guards, constraints, and related tests; a second pass challenges each candidate, then a base-only pass checks that the behavior is newly introduced. Findings need validated source citations. Missing evidence, malformed responses, timeouts, and omitted files produce explicitly incomplete results. An empty review is not an approval.
+
+Deployment requires `code-review.yml`, the updated Worker/schema, Worker secrets `OPENROUTER_API_KEY` and `REVIEW_PROXY_TOKEN`, Actions secret `PEEKAREVIEW_PROXY_TOKEN` with the same 64-character hexadecimal token, and Actions variable `PEEKAREVIEW_MODEL_URL` pointing to the Worker's `/review-model` endpoint. The provider key stays in the Worker for code reviews. The existing screenshot workflow keeps its separate provider-key configuration.
+
+The relay requires an initialized `review_budget` row with `id = 1`, `ceiling = 850000`, and `initial_spend` equal to the already committed trial spending in integer microdollars. It refuses inference without initialization. The $0.85 trial ceiling includes prior development spend and a 15% allowance; it never resets automatically. Requests reserve maximum cost atomically before inference, and unknown charges remain reserved. Successful identical requests are cached; unresolved requests are not automatically retried within a run. An explicitly requested new run can try again while retaining the earlier reservation. A local review also has a $0.10 limit and a 12-minute deadline.
+
+For a private local review:
+
+```sh
+node scripts/ui-review-bot/code-review/cli.mjs 1735
+node scripts/ui-review-bot/code-review/cli.mjs --base BASE_SHA --head HEAD_SHA
+node scripts/ui-review-bot/code-review/cli.mjs --budget
+```
+
+Reports are saved under `.cache/code-review/`; the local CLI does not post to GitHub. The Actions publisher rechecks the original command, current maintainer access, PR head, and base immediately before posting.
