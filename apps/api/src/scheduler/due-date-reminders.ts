@@ -1,4 +1,4 @@
-import { and, between, eq, isNotNull, isNull, ne, or, sql } from "drizzle-orm";
+import { and, eq, isNotNull, isNull, ne, or, sql } from "drizzle-orm";
 import db from "../database";
 import {
   columnTable,
@@ -75,8 +75,8 @@ async function getTasksNeedingReminder(
         isNotNull(taskTable.userId),
         isNotNull(taskTable.dueDate),
         reminderType === "configured_before"
-          ? sql`${taskTable.dueDate} - (COALESCE(${userNotificationPreferenceTable.dueDateReminderLeadTimeMinutes}, 1440) * interval '1 minute') BETWEEN ${windowStart.toISOString()} AND ${windowEnd.toISOString()}`
-          : between(taskTable.dueDate, windowStart, windowEnd),
+          ? sql`${taskTable.dueDate} + interval '1 day' - (COALESCE(${userNotificationPreferenceTable.dueDateReminderLeadTimeMinutes}, 1440) * interval '1 minute') BETWEEN ${windowStart.toISOString()} AND ${windowEnd.toISOString()}`
+          : sql`${taskTable.dueDate} + interval '1 day' BETWEEN ${windowStart.toISOString()} AND ${windowEnd.toISOString()}`,
         isNull(taskReminderSentTable.id),
         or(
           isNull(userNotificationPreferenceTable.id),

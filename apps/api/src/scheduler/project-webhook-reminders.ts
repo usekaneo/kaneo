@@ -1,4 +1,4 @@
-import { and, between, eq, isNotNull, isNull, ne, or } from "drizzle-orm";
+import { and, eq, isNotNull, isNull, ne, or, sql } from "drizzle-orm";
 import db from "../database";
 import {
   columnTable,
@@ -62,7 +62,7 @@ export async function checkProjectWebhookReminders(): Promise<{
           and(
             eq(taskTable.projectId, integration.projectId),
             isNotNull(taskTable.dueDate),
-            between(taskTable.dueDate, windowStart, windowEnd),
+            sql`${taskTable.dueDate} + interval '1 day' BETWEEN ${windowStart.toISOString()} AND ${windowEnd.toISOString()}`,
             isNull(taskReminderSentTable.id),
             or(isNull(columnTable.isFinal), eq(columnTable.isFinal, false)),
             ne(taskTable.status, "archived"),

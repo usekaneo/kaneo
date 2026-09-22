@@ -39,11 +39,13 @@ const { createProjectFixture, createWorkspaceMember } = await import(
 const MINUTE_MS = 60 * 1000;
 const DEFAULT_LEAD_TIME_MINUTES = 1440;
 
-// Both schedulers fire when `dueDate - leadTime` lands in the trailing
-// REMINDER_WINDOW_MINUTES. Sitting five minutes inside keeps the fixture off
-// both edges of that window regardless of how long the suite takes to run.
+// Both schedulers treat a date-only due date as expiring one day later, then
+// fire when `deadline - leadTime` lands in the trailing reminder window.
+// Sitting five minutes inside keeps the fixture off both window edges.
 function dueDateInsideReminderWindow() {
-  return new Date(Date.now() + (DEFAULT_LEAD_TIME_MINUTES - 5) * MINUTE_MS);
+  return new Date(
+    Date.now() + (DEFAULT_LEAD_TIME_MINUTES - 24 * 60 - 5) * MINUTE_MS,
+  );
 }
 
 type Scene = Awaited<ReturnType<typeof seedScene>>;
