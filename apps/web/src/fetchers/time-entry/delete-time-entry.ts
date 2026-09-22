@@ -1,4 +1,5 @@
 import { client } from "@kaneo/libs";
+import { HttpError } from "@/lib/http-error";
 
 async function deleteTimeEntry(id: string) {
   const response = await client["time-entry"][":id"].$delete({
@@ -6,8 +7,7 @@ async function deleteTimeEntry(id: string) {
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    throw new HttpError(response.status, await response.text());
   }
 
   const data = await response.json();
