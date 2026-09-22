@@ -8,6 +8,7 @@ import {
   userTable,
   workspaceTable,
 } from "../../database/schema";
+import { safeOutboundError } from "../../utils/outbound-request";
 import type {
   PluginContext,
   TaskAssigneeChangedEvent,
@@ -140,9 +141,9 @@ async function persistWebhookHealth(
         updatedAt: new Date(),
       })
       .where(eq(integrationTable.id, integration.id));
-  } catch (error) {
+  } catch {
     console.error("persistWebhookHealth failed", {
-      error,
+      error: "Webhook health update failed",
       projectId,
     });
   }
@@ -159,7 +160,7 @@ async function deliverWebhookEvent(
     eventName,
     taskId,
     projectId,
-    webhookUrl: config.webhookUrl,
+    webhookUrl: "configured destination",
   };
 
   try {
@@ -176,8 +177,7 @@ async function deliverWebhookEvent(
     }));
     return true;
   } catch (error) {
-    const message =
-      error instanceof Error ? (error.stack ?? error.message) : String(error);
+    const message = safeOutboundError(error);
 
     void persistWebhookHealth(projectId, (currentConfig) => ({
       ...currentConfig,
@@ -191,11 +191,11 @@ async function deliverWebhookEvent(
     }));
 
     console.error("postToGenericWebhook failed", {
-      error,
+      error: message,
       eventName,
       taskId,
       projectId,
-      webhookUrl: config.webhookUrl,
+      webhookUrl: "configured destination",
     });
     return false;
   }

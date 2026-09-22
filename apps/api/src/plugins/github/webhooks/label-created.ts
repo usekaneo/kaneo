@@ -10,19 +10,18 @@ type LabelCreatedPayload = {
     color: string;
     description?: string | null;
   };
+  installation?: { id: number };
   repository: {
+    id: number;
     owner: { login: string };
     name: string;
   };
 };
 
 export async function handleLabelCreated(payload: LabelCreatedPayload) {
-  const { repository, label } = payload;
+  const { label } = payload;
 
-  const integrations = await findAllIntegrationsByRepo(
-    repository.owner.login,
-    repository.name,
-  );
+  const integrations = await findAllIntegrationsByRepo(payload);
 
   for (const integration of integrations) {
     if (!integration.project) {

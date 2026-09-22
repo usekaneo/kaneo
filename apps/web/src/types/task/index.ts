@@ -25,6 +25,7 @@ type Task = {
   title: string;
   number: number | null;
   description: string | null;
+  descriptionDeferred?: boolean;
   status: string;
   priority: string | null;
   startDate: string | null;

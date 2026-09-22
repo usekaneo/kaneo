@@ -32,6 +32,29 @@ stateless and self-contained, while 2025-era clients keep the sessionful
 `initialize` flow. See [MCP 2026-07-28 stateless compatibility](/core/integrations/mcp-stateless)
 for the exact contract, tests, Codex configuration, limitations, and rollback.
 
+### OAuth request limits
+
+The HTTP OAuth endpoints accept bodies up to 32 KiB and URLs up to 8 KiB.
+Client registration accepts at most 10 redirect URIs. Request bodies must arrive
+within five seconds. Each API process allows up to 16 concurrent requests in
+each of the registration, authorization, and token endpoint groups.
+
+Instances sharing a database also share OAuth storage and issuance limits:
+
+| State | Stored entries | New entries per minute | Pending entries per client |
+| --- | --- | --- | --- |
+| Registered clients | 1,000 | 60 | — |
+| Authorization requests | 10,000 | 300 | 20 |
+| Authorization codes | 10,000 | 300 | 20 |
+
+When capacity is exhausted, the endpoint returns HTTP 429 with `Retry-After`.
+Clients should wait before retrying. Existing, unexpired entries are retained;
+an approval that cannot issue a code leaves its authorization request available
+for retry until it expires. Expired entries are cleaned up in bounded batches
+when new state is created, so a previously oversized store may need multiple
+attempts before accepting new entries. These limits complement reverse-proxy
+connection and request limits for internet-facing installations.
+
 ## Stdio package
 
 The `@kaneo/mcp` package runs a local stdio MCP server and authenticates with Kaneo using device authorization. Use this when your MCP client requires stdio transport.

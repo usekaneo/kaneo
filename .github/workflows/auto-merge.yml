@@ -1,41 +1,59 @@
 name: Dependabot Auto-Merge
 
-on: pull_request
+# Never check out or execute pull-request content in this privileged workflow.
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
+  pull-requests: read
 
 jobs:
   dependabot:
-    name: Dependabot Auto-Merge
-    runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]' && github.event.pull_request.user.login == 'dependabot[bot]'
-
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    if: >-
+      github.actor == 'dependabot[bot]' &&
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: read
+      statuses: read
     steps:
       - name: Dependabot Metadata
         id: metadata
-        uses: dependabot/fetch-metadata@v3
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3
         with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          github-token: ${{ github.token }}
 
-      - name: Auto-Merge Dependabot PR
-        if: steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor'
-        run: |
-          # Wait a bit for any checks to start
-          sleep 30
-          
-          # Check if all required checks have passed
-          if gh pr view "$PR_URL" --json statusCheckRollup --jq '.statusCheckRollup | all(.conclusion == "SUCCESS")'; then
-            echo "All checks passed, merging..."
-            gh pr merge --squash "$PR_URL"
-          elif gh pr view "$PR_URL" --json statusCheckRollup --jq '.statusCheckRollup | length == 0'; then
-            echo "No status checks required, merging..."
-            gh pr merge --squash "$PR_URL"
-          else
-            echo "Status checks not passed, skipping merge"
-            gh pr view "$PR_URL" --json statusCheckRollup
-          fi
+      - name: Merge eligible npm updates after required checks pass
+        if: >-
+          steps.metadata.outputs.package-ecosystem == 'npm_and_yarn' &&
+          (steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+           steps.metadata.outputs.update-type == 'version-update:semver-minor')
         env:
-          PR_URL: ${{github.event.pull_request.html_url}}
-          GH_TOKEN: ${{secrets.AUTO_MERGE_PAT}}
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          # Only manifests and the lockfile are eligible, including on renames.
+          gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/files" \
+            | jq -se 'add | length > 0 and all(.[];
+                .status != "renamed" and
+                (.filename == "pnpm-lock.yaml" or
+                 .filename == "package.json" or
+                 (.filename | test("^(apps|packages)/[^/]+/package\\.json$"))))'
+
+          # No configured/visible required checks is a failure, never permission to merge.
+          gh pr checks "$PR_URL" --required --watch --fail-fast --interval 20
+          gh pr checks "$PR_URL" --required --json name,bucket \
+            | jq -e 'length > 0 and all(.[]; .bucket == "pass")'
+          gh pr view "$PR_URL" --json headRefOid \
+            | jq -e --arg sha "$EXPECTED_HEAD" '.headRefOid == $sha'
+          gh pr merge "$PR_URL" --auto --squash --match-head-commit "$EXPECTED_HEAD"

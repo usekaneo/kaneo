@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Chart version to publish (e.g. 1.0.0)"
+        description: "Existing released version to publish from its reviewed vX.Y.Z tag"
         required: true
         type: string
 
@@ -31,7 +31,7 @@ jobs:
     uses: ./.github/workflows/helm-validate.yml
 
   publish:
-    if: inputs.version != ''
+    if: github.ref == 'refs/heads/main' && inputs.version != ''
     runs-on: ubuntu-24.04
     needs: validate
     permissions:
@@ -40,22 +40,36 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
+          ref: ${{ github.sha }}
+
+      - name: Verify publication source
+        id: source
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: node scripts/security/verify-release-source.mjs released "$RELEASE_VERSION"
+
+      - name: Checkout verified release tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ steps.source.outputs.source_sha }}
 
       - name: Set up Helm
         uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5
 
-      - name: Resolve chart version
-        env:
-          INPUT_VERSION: ${{ inputs.version }}
-        run: echo "CHART_VERSION=$INPUT_VERSION" >> "$GITHUB_ENV"
+      - name: Validate the release chart
+        run: |
+          helm lint "$CHART_PATH" --set kaneo.env.authSecret=validation-only-secret-at-least-32-characters --set kaneo.env.clientUrl=https://kaneo.example.com
+          helm template kaneo "$CHART_PATH" --set kaneo.env.authSecret=validation-only-secret-at-least-32-characters --set kaneo.env.clientUrl=https://kaneo.example.com > /dev/null
 
       - name: Package chart
         run: |
           mkdir -p dist
-          helm package "$CHART_PATH" --version "$CHART_VERSION" --app-version "$CHART_VERSION" --destination dist
+          helm package "$CHART_PATH" --destination dist
 
       - name: Log in to GHCR
         env:
@@ -64,6 +78,8 @@ jobs:
         run: echo "$GH_TOKEN" | helm registry login "$REGISTRY" --username "$GH_ACTOR" --password-stdin
 
       - name: Publish chart
+        env:
+          CHART_VERSION: ${{ inputs.version }}
         run: |
           OWNER="${GITHUB_REPOSITORY_OWNER,,}"
           CHART_REF="oci://$REGISTRY/$OWNER/charts/kaneo"

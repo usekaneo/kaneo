@@ -33,7 +33,7 @@ vi.mock("../../../apps/api/src/utils/validate-workspace-access", () => ({
   },
 }));
 
-const { authorizeAssetAccess } = await import(
+const { authorizeAssetAccess, isPublicAsset } = await import(
   "../../../apps/api/src/utils/authorize-asset-access"
 );
 
@@ -59,6 +59,7 @@ describe("authorizeAssetAccess", () => {
     const status = await statusOf(
       authorizeAssetAccess(context, {
         workspaceId: "workspace-1",
+        surface: "description",
         isPublic: true,
       }),
     );
@@ -73,6 +74,7 @@ describe("authorizeAssetAccess", () => {
     const status = await statusOf(
       authorizeAssetAccess(context, {
         workspaceId: "workspace-1",
+        surface: "description",
         isPublic: false,
       }),
     );
@@ -86,6 +88,7 @@ describe("authorizeAssetAccess", () => {
     const status = await statusOf(
       authorizeAssetAccess(context, {
         workspaceId: "workspace-1",
+        surface: "description",
         isPublic: null,
       }),
     );
@@ -99,6 +102,7 @@ describe("authorizeAssetAccess", () => {
     const status = await statusOf(
       authorizeAssetAccess(context, {
         workspaceId: "workspace-1",
+        surface: "description",
         isPublic: false,
       }),
     );
@@ -108,4 +112,16 @@ describe("authorizeAssetAccess", () => {
       { userId: "user-member", workspaceId: "workspace-1" },
     ]);
   });
+  it.each(["comment", "unknown"])(
+    "keeps %s assets private even in a public project",
+    async (surface) => {
+      const asset = { workspaceId: "workspace-1", isPublic: true, surface };
+      expect(isPublicAsset(asset)).toBe(false);
+      expect(await statusOf(authorizeAssetAccess(context, asset))).toBe(401);
+      state.caller = "outsider";
+      expect(await statusOf(authorizeAssetAccess(context, asset))).toBe(403);
+      state.caller = "member";
+      expect(await statusOf(authorizeAssetAccess(context, asset))).toBe(200);
+    },
+  );
 });
