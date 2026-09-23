@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { sendDueDateReminder } = vi.hoisted(() => ({
   sendDueDateReminder: vi.fn<
@@ -169,6 +169,51 @@ describe("due date reminders", () => {
 
     expect(await notificationsFor(task.id)).toHaveLength(0);
   });
+
+  describe("deadline for a date-only due date", () => {
+    const dueDate = new Date("2026-09-24T00:00:00.000Z");
+
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    async function runAt(iso: string) {
+      vi.setSystemTime(new Date(iso));
+      await checkDueDateReminders();
+    }
+
+    async function typesFor(taskId: string) {
+      return (await notificationsFor(taskId)).map(({ type }) => type);
+    }
+
+    it("sends the overdue notice at the next midnight, not during the due day", async () => {
+      const scene = await seedScene();
+      const task = await seedTask(scene, { status: "to-do", dueDate });
+
+      await runAt("2026-09-24T00:00:00.000Z");
+      await runAt("2026-09-24T23:59:59.000Z");
+      expect(await typesFor(task.id)).not.toContain("task_overdue");
+
+      await runAt("2026-09-25T00:00:00.000Z");
+      expect(await typesFor(task.id)).toContain("task_overdue");
+    });
+
+    it("sends the advance reminder one lead time before the next midnight", async () => {
+      const scene = await seedScene();
+      const task = await seedTask(scene, { status: "to-do", dueDate });
+
+      await runAt("2026-09-23T00:00:00.000Z");
+      await runAt("2026-09-23T23:59:59.000Z");
+      expect(await typesFor(task.id)).toEqual([]);
+
+      await runAt("2026-09-24T00:00:00.000Z");
+      expect(await typesFor(task.id)).toEqual(["due_date_reminder"]);
+    });
+  });
 });
 
 describe("project webhook due date reminders", () => {
@@ -224,5 +269,37 @@ describe("project webhook due date reminders", () => {
         reminderType: `generic_webhook:${integration.id}`,
       }),
     ]);
+  });
+
+  describe("deadline for a date-only due date", () => {
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("posts one lead time before the next midnight, not a day early", async () => {
+      const scene = await seedScene();
+      await seedWebhookIntegration(scene.project.id);
+      const task = await seedTask(scene, {
+        status: "to-do",
+        dueDate: new Date("2026-09-24T00:00:00.000Z"),
+      });
+
+      for (const iso of [
+        "2026-09-23T00:00:00.000Z",
+        "2026-09-23T23:59:59.000Z",
+      ]) {
+        vi.setSystemTime(new Date(iso));
+        await checkProjectWebhookReminders();
+      }
+      expect(remindedTaskIds()).toEqual([]);
+
+      vi.setSystemTime(new Date("2026-09-24T00:00:00.000Z"));
+      await checkProjectWebhookReminders();
+      expect(remindedTaskIds()).toEqual([task.id]);
+    });
   });
 });
