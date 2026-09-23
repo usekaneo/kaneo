@@ -26,6 +26,8 @@ const getCurrentUserRoute = createRoute({
   description: "Return the currently authenticated user.",
   responses: {
     200: jsonResponse("Current user", currentUserSchema),
+    401: errorResponse("Unauthorized"),
+    404: errorResponse("User not found"),
   },
 });
 

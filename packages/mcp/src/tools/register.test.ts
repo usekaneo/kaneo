@@ -67,6 +67,12 @@ describe("registerTools", () => {
       method: "GET",
     });
     expect(result?.isError).toBe(false);
+    expect(result?.content).toEqual([
+      {
+        type: "text",
+        text: JSON.stringify({ id: "user-1", name: "Mohiuddin" }, null, 2),
+      },
+    ]);
   });
 
   it("uses the session endpoint for whoami with device authentication", async () => {
@@ -87,6 +93,16 @@ describe("registerTools", () => {
       method: "GET",
     });
     expect(result?.isError).toBe(false);
+    expect(result?.content).toEqual([
+      {
+        type: "text",
+        text: JSON.stringify(
+          { user: { id: "user-1" }, session: { id: "session-1" } },
+          null,
+          2,
+        ),
+      },
+    ]);
   });
 
   it("builds the expected query string for list_tasks", async () => {

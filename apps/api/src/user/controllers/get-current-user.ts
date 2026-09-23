@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { userTable } from "../../database/schema";
 
@@ -16,7 +17,7 @@ export async function getCurrentUser(userId: string) {
     .limit(1);
 
   if (!user) {
-    throw new Error("User not found");
+    throw new HTTPException(404, { message: "User not found" });
   }
 
   return user;

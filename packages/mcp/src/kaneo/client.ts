@@ -17,7 +17,7 @@ export class KaneoClient {
     this.auth = options.auth;
   }
 
-  get usingApiKey(): boolean {
+  get usingApiKey() {
     return this.auth.usingApiKey;
   }
 
