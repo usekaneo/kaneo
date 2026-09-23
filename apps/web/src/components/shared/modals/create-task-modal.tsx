@@ -348,6 +348,14 @@ function CreateTaskModalContent({
     }, {});
   }, [customFields]);
 
+  const hasCustomFieldChanges = Object.entries(customFieldValues).some(
+    ([fieldId, value]) => {
+      const field = customFields.find((f) => f.id === fieldId);
+      const defaultValue = field?.defaultValue ?? "";
+      return value !== defaultValue;
+    },
+  );
+
   const hasUnsavedChanges = Boolean(
     title.trim() ||
       description.trim() ||
@@ -357,7 +365,8 @@ function CreateTaskModalContent({
       dueDate ||
       selectedProjectId ||
       labels.length > 0 ||
-      draftTask,
+      draftTask ||
+      hasCustomFieldChanges,
   );
 
   const discardDraft = useCallback(() => {
