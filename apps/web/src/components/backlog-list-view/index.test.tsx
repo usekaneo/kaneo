@@ -77,9 +77,13 @@ const project: ProjectWithTasks = {
   description: null,
   isPublic: false,
   columns: [],
-  plannedTasks: makeTasks("planned", 200),
-  archivedTasks: makeTasks("archived", 600),
+  // Exact lifecycle counts catch remounts without a large DOM slowing CI.
+  plannedTasks: makeTasks("planned", 2),
+  archivedTasks: makeTasks("archived", 3),
 };
+
+const totalTaskCount =
+  project.plannedTasks.length + project.archivedTasks.length;
 
 beforeEach(() => {
   useBacklogBulkSelectionStore.setState(
@@ -94,7 +98,7 @@ describe("backlog row lifecycle", () => {
     render(<BacklogListView project={project} />, {
       wrapper: KeyboardShortcutsProvider,
     });
-    expect(mountRow).toHaveBeenCalledTimes(800);
+    expect(mountRow).toHaveBeenCalledTimes(totalTaskCount);
     expect(unmountRow).not.toHaveBeenCalled();
 
     const archivedRow = screen.getByLabelText("archived-0");
@@ -107,7 +111,7 @@ describe("backlog row lifecycle", () => {
 
     expect(plannedToggle).toHaveAttribute("aria-expanded", "false");
     expect(mountRow).not.toHaveBeenCalled();
-    expect(unmountRow).toHaveBeenCalledTimes(200);
+    expect(unmountRow).toHaveBeenCalledTimes(project.plannedTasks.length);
     expect(screen.getByLabelText("archived-0")).toBe(archivedRow);
     expect(archivedRow).toHaveValue("Local row state");
     expect(useBacklogBulkSelectionStore.getState().availableTaskIds).toEqual(
@@ -116,12 +120,12 @@ describe("backlog row lifecycle", () => {
 
     fireEvent.click(plannedToggle);
     expect(plannedToggle).toHaveAttribute("aria-expanded", "true");
-    expect(mountRow).toHaveBeenCalledTimes(200);
-    expect(unmountRow).toHaveBeenCalledTimes(200);
+    expect(mountRow).toHaveBeenCalledTimes(project.plannedTasks.length);
+    expect(unmountRow).toHaveBeenCalledTimes(project.plannedTasks.length);
     expect(archivedRow).toHaveValue("Local row state");
     expect(
       useBacklogBulkSelectionStore.getState().availableTaskIds,
-    ).toHaveLength(800);
+    ).toHaveLength(totalTaskCount);
   });
 
   it("does not render the list again on selection or keyboard focus changes", () => {
