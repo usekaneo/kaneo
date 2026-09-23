@@ -42,13 +42,8 @@ function timestamp(date: Date) {
     .replace(/\.\d{3}Z$/, "Z");
 }
 
-function calendarDate(date: Date, timeZone: string) {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(date);
+function calendarDate(date: Date, formatter: Intl.DateTimeFormat) {
+  const parts = formatter.formatToParts(date);
   return ["year", "month", "day"]
     .map((type) => parts.find((part) => part.type === type)?.value)
     .join("");
@@ -71,6 +66,12 @@ export function buildCalendar({
   timeZone: string;
   tasks: CalendarTask[];
 }) {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -81,8 +82,8 @@ export function buildCalendar({
   for (const task of tasks) {
     const scheduledDate = task.startDate ?? task.dueDate;
     if (!scheduledDate) continue;
-    const start = calendarDate(scheduledDate, timeZone);
-    const due = calendarDate(task.dueDate ?? scheduledDate, timeZone);
+    const start = calendarDate(scheduledDate, formatter);
+    const due = calendarDate(task.dueDate ?? scheduledDate, formatter);
     lines.push(
       "BEGIN:VEVENT",
       `UID:${task.id}@kaneo`,

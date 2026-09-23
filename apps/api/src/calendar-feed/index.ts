@@ -6,7 +6,10 @@ import {
   jsonResponse,
   z,
 } from "../openapi";
-import { requireWorkspacePermission } from "../utils/require-workspace-permission";
+import {
+  hasWorkspacePermission,
+  requireWorkspacePermission,
+} from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import { calendarFeedSchema } from "./response";
 import {
@@ -96,7 +99,7 @@ const calendarFeed = apiRouter<BaseVariables & { workspaceId: string }>()
       tags: ["Calendar feeds"],
       summary: "Create a calendar feed",
       description:
-        "Create a calendar subscription matching any selected label. Tasks need a start or due date. All-day dates use the supplied time zone.",
+        "Create a calendar subscription matching any selected label. Tasks need a start or due date. All-day dates use the supplied time zone. Creating a missing workspace label definition also requires label:create permission.",
       middleware: sharingMiddleware,
       request: {
         params: calendarFeedProjectParam,
@@ -108,6 +111,9 @@ const calendarFeed = apiRouter<BaseVariables & { workspaceId: string }>()
       responses: {
         201: jsonResponse("Calendar feed created", calendarFeedSchema),
         ...managementErrors,
+        403: errorResponse(
+          "No workspace access, missing project:share permission, or missing label:create permission for a new workspace label definition",
+        ),
       },
     }),
     async (c) => {
@@ -119,6 +125,7 @@ const calendarFeed = apiRouter<BaseVariables & { workspaceId: string }>()
           c.get("workspaceId"),
           labelIds,
           timeZone,
+          await hasWorkspacePermission(c, { label: ["create"] }),
         ),
         201,
       );

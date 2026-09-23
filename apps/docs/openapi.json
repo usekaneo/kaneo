@@ -6959,7 +6959,7 @@
           "Calendar feeds"
         ],
         "summary": "Create a calendar feed",
-        "description": "Create a calendar subscription matching any selected label. Tasks need a start or due date. All-day dates use the supplied time zone.",
+        "description": "Create a calendar subscription matching any selected label. Tasks need a start or due date. All-day dates use the supplied time zone. Creating a missing workspace label definition also requires label:create permission.",
         "parameters": [
           {
             "schema": {
@@ -7030,7 +7030,7 @@
             }
           },
           "403": {
-            "description": "No workspace access or missing project sharing permission",
+            "description": "No workspace access, missing project:share permission, or missing label:create permission for a new workspace label definition",
             "content": {
               "text/plain": {
                 "schema": {

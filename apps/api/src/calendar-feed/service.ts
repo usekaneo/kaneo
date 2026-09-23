@@ -15,6 +15,7 @@ export async function createCalendarFeed(
   workspaceId: string,
   labelIds: string[],
   timeZone: string,
+  canCreateLabels: boolean,
 ) {
   return db.transaction(async (tx) => {
     const ids = [...new Set(labelIds)];
@@ -42,20 +43,22 @@ export async function createCalendarFeed(
     const definitions = [
       ...new Map(labels.map((label) => [label.name, label])).values(),
     ].sort((a, b) => a.name.localeCompare(b.name));
-    await tx
-      .insert(labelTable)
-      .values(
-        definitions.map(({ name, color }) => ({
-          name,
-          color,
-          workspaceId,
-          taskId: null,
-        })),
-      )
-      .onConflictDoNothing({
-        target: [labelTable.workspaceId, labelTable.name],
-        where: isNull(labelTable.taskId),
-      });
+    if (canCreateLabels) {
+      await tx
+        .insert(labelTable)
+        .values(
+          definitions.map(({ name, color }) => ({
+            name,
+            color,
+            workspaceId,
+            taskId: null,
+          })),
+        )
+        .onConflictDoNothing({
+          target: [labelTable.workspaceId, labelTable.name],
+          where: isNull(labelTable.taskId),
+        });
+    }
     const roots = await tx
       .select({ id: labelTable.id })
       .from(labelTable)
@@ -72,6 +75,12 @@ export async function createCalendarFeed(
       )
       .orderBy(asc(labelTable.name));
     if (roots.length !== definitions.length) {
+      if (!canCreateLabels) {
+        throw new HTTPException(403, {
+          message:
+            "Creating a workspace label definition requires label:create permission",
+        });
+      }
       throw new HTTPException(400, {
         message: "Select labels that are not being deleted",
       });

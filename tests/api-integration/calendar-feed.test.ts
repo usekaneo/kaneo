@@ -244,6 +244,47 @@ describe("API integration: calendar feeds", () => {
     },
   );
 
+  it("requires label creation permission only when a workspace definition is missing", async () => {
+    const { member, project, labels, create } =
+      await setup("calendar-publisher");
+    const [role] = await db
+      .insert(schema.workspaceRoleTable)
+      .values({
+        workspaceId: member.workspace.id,
+        role: "calendar-publisher",
+        permission: JSON.stringify({ project: ["share"] }),
+      })
+      .returning();
+    expect((await create({ labelIds: [labels[0].id] })).status).toBe(201);
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({ title: "Legacy assignment", projectId: project.id })
+      .returning();
+    const [copy] = await db
+      .insert(schema.labelTable)
+      .values({
+        name: "Legacy",
+        color: "gray",
+        workspaceId: member.workspace.id,
+        taskId: task.id,
+      })
+      .returning();
+    expect((await create({ labelIds: [copy.id] })).status).toBe(403);
+    expect(
+      await db
+        .select()
+        .from(schema.labelTable)
+        .where(eq(schema.labelTable.name, "Legacy")),
+    ).toHaveLength(1);
+    await db
+      .update(schema.workspaceRoleTable)
+      .set({
+        permission: JSON.stringify({ project: ["share"], label: ["create"] }),
+      })
+      .where(eq(schema.workspaceRoleTable.id, role.id));
+    expect((await create({ labelIds: [copy.id] })).status).toBe(201);
+  });
+
   it("revokes one link without affecting others and cascades project deletion", async () => {
     const { app, project, endpoint, create } = await setup();
     const first = (await (await create()).json()) as Feed;
