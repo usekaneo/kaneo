@@ -5,7 +5,7 @@ import {
   useLocation,
   useNavigate,
 } from "@tanstack/react-router";
-import { Eye, GitBranch, Plug, Settings } from "lucide-react";
+import { CalendarDays, Eye, GitBranch, Plug, Settings } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import SettingsSidebar from "@/components/SettingsSidebar";
@@ -50,6 +50,11 @@ function RouteComponent() {
       title: t("settings:projectVisibility.title"),
       icon: Eye,
       segment: "visibility",
+    },
+    {
+      title: t("settings:calendarFeeds.title"),
+      icon: CalendarDays,
+      segment: "calendar",
     },
     {
       title: t("settings:projectIntegrations.title"),

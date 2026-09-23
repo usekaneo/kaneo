@@ -360,6 +360,26 @@ export const workflowRuleTable = pgTable(
   ],
 );
 
+export const calendarFeedTable = pgTable(
+  "calendar_feed",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projectTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    token: text("token").notNull().unique(),
+    labelIds: jsonb("label_ids").$type<string[]>().notNull(),
+    timeZone: text("time_zone").notNull().default("UTC"),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [index("calendar_feed_project_id_idx").on(table.projectId)],
+);
+
 export const taskTable = pgTable(
   "task",
   {

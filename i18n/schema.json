@@ -4818,6 +4818,118 @@
 						"draft",
 						"open"
 					]
+				},
+				"calendarFeeds": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"title": {
+							"type": "string"
+						},
+						"subtitle": {
+							"type": "string"
+						},
+						"createTitle": {
+							"type": "string"
+						},
+						"filterHint": {
+							"type": "string"
+						},
+						"labels": {
+							"type": "string"
+						},
+						"selectLabels": {
+							"type": "string"
+						},
+						"noLabels": {
+							"type": "string"
+						},
+						"timeZoneHint": {
+							"type": "string"
+						},
+						"accessHint": {
+							"type": "string"
+						},
+						"create": {
+							"type": "string"
+						},
+						"creating": {
+							"type": "string"
+						},
+						"created": {
+							"type": "string"
+						},
+						"createError": {
+							"type": "string"
+						},
+						"activeFeeds": {
+							"type": "string"
+						},
+						"subscribeHint": {
+							"type": "string"
+						},
+						"empty": {
+							"type": "string"
+						},
+						"feedUrl": {
+							"type": "string"
+						},
+						"copy": {
+							"type": "string"
+						},
+						"copied": {
+							"type": "string"
+						},
+						"copyError": {
+							"type": "string"
+						},
+						"revoke": {
+							"type": "string"
+						},
+						"revoked": {
+							"type": "string"
+						},
+						"revokeError": {
+							"type": "string"
+						},
+						"loadError": {
+							"type": "string"
+						},
+						"deletedLabel": {
+							"type": "string"
+						},
+						"permissionRequired": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"title",
+						"subtitle",
+						"createTitle",
+						"filterHint",
+						"labels",
+						"selectLabels",
+						"noLabels",
+						"timeZoneHint",
+						"accessHint",
+						"create",
+						"creating",
+						"created",
+						"createError",
+						"activeFeeds",
+						"subscribeHint",
+						"empty",
+						"feedUrl",
+						"copy",
+						"copied",
+						"copyError",
+						"revoke",
+						"revoked",
+						"revokeError",
+						"loadError",
+						"deletedLabel",
+						"permissionRequired"
+					]
 				}
 			},
 			"required": [
@@ -4850,7 +4962,8 @@
 				"repositoryBrowser",
 				"tasksImportExport",
 				"workflowEditor",
-				"externalLinks"
+				"externalLinks",
+				"calendarFeeds"
 			]
 		},
 		"navigation": {

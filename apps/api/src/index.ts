@@ -21,6 +21,7 @@ import * as v from "valibot";
 import activity from "./activity";
 import { auth } from "./auth";
 import billing from "./billing";
+import calendarFeed, { publicCalendarFeed } from "./calendar-feed";
 import column from "./column";
 import comment from "./comment";
 import config from "./config";
@@ -244,6 +245,8 @@ export function createApp() {
 
     return c.json(project);
   });
+
+  api.route("/calendar-feed", publicCalendarFeed);
 
   api.post("/github-integration/webhook", handleGithubWebhookRoute);
 
@@ -554,6 +557,7 @@ export function createApp() {
 
   const billingApi = api.route("/billing", billing);
   const projectApi = api.route("/project", project);
+  const calendarFeedApi = api.route("/calendar-feed", calendarFeed);
   const taskApi = api.route("/task", task);
   const columnApi = api.route("/column", column);
   const activityApi = api.route("/activity", activity);
@@ -744,6 +748,7 @@ export function createApp() {
     notificationApi,
     notificationPreferencesApi,
     projectApi,
+    calendarFeedApi,
     publicProjectApi,
     searchApi,
     slackIntegrationApi,
@@ -861,6 +866,7 @@ const {
   notificationApi,
   notificationPreferencesApi,
   projectApi,
+  calendarFeedApi,
   publicProjectApi,
   searchApi,
   slackIntegrationApi,
@@ -887,6 +893,7 @@ export type AppType =
   | typeof billingApi
   | typeof configApi
   | typeof projectApi
+  | typeof calendarFeedApi
   | typeof taskApi
   | typeof columnApi
   | typeof activityApi
