@@ -116,9 +116,78 @@ jobs:
       contents: read
     uses: ./.github/workflows/helm-validate.yml
 
+  artifacts:
+    name: Assets
+    needs: plan
+    if: ${{ !inputs.dry_run && needs.plan.outputs.version != '' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify publication source
+        id: source
+        env:
+          SOURCE_MODE: planned
+          RELEASE_VERSION: ${{ needs.plan.outputs.version }}
+        run: node scripts/security/verify-release-source.mjs "$SOURCE_MODE" "$RELEASE_VERSION"
+
+      - name: Checkout verified source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ steps.source.outputs.source_sha }}
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+        with:
+          version: 10.32.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.19.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # A release builds its assets before the release commit exists, and the
+      # archives self-report their version.
+      - name: Stamp release version
+        env:
+          RELEASE_VERSION: ${{ needs.plan.outputs.version }}
+        run: node scripts/release/apply-version.mjs "$RELEASE_VERSION"
+
+      - name: Build release assets
+        env:
+          VERSION: ${{ needs.plan.outputs.version }}
+        run: |
+          pnpm --filter @kaneo/permissions build
+          pnpm --filter @kaneo/web build
+          assets="${RUNNER_TEMP}/release-assets"
+          web="kaneo-web-${VERSION}"
+          mkdir -p "${assets}/${web}"
+          cp -R apps/web/dist "${assets}/${web}/dist"
+          cp apps/web/env.sh apps/web/env.awk "${assets}/${web}/"
+          tar -czf "${assets}/${web}.tar.gz" -C "${assets}" "${web}"
+          rm -rf "${assets}/${web}"
+
+      - name: Upload release assets
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: release-assets
+          path: ${{ runner.temp }}/release-assets
+          if-no-files-found: error
+
   release:
     name: Release
-    needs: [plan, images, chart]
+    needs: [plan, images, chart, artifacts]
     if: ${{ !inputs.dry_run && needs.plan.outputs.version != '' }}
     runs-on: ubuntu-24.04
     permissions:
@@ -176,19 +245,11 @@ jobs:
             exit 1
           fi
 
-      - name: Build release assets
-        env:
-          VERSION: ${{ steps.release.outputs.version }}
-        run: |
-          pnpm --filter @kaneo/permissions build
-          pnpm --filter @kaneo/web build
-          assets="${RUNNER_TEMP}/release-assets"
-          web="kaneo-web-${VERSION}"
-          mkdir -p "${assets}/${web}"
-          cp -R apps/web/dist "${assets}/${web}/dist"
-          cp apps/web/env.sh apps/web/env.awk "${assets}/${web}/"
-          tar -czf "${assets}/${web}.tar.gz" -C "${assets}" "${web}"
-          rm -rf "${assets}/${web}"
+      - name: Download release assets
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-assets
+          path: ${{ runner.temp }}/release-assets
 
       - name: Attach release assets
         env:
