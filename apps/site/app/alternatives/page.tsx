@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { BlogPostCard } from "@/components/landing/blog-post-card";
 import { ContentCard } from "@/components/landing/content-card";
-import { FadeIn } from "@/components/landing/fade-in";
 import { Footer } from "@/components/landing/footer";
 import { breadcrumbJsonLd, JsonLd } from "@/components/landing/json-ld";
 import { Navbar } from "@/components/landing/navbar";
+import { PageIntro } from "@/components/landing/page-intro";
 import { SectionSeparator } from "@/components/landing/section-separator";
 import { getPosts } from "@/lib/blog";
 import { formatBlogDateShort } from "@/lib/blog/format";
@@ -59,26 +59,13 @@ export default function Page() {
       />
       <Navbar />
       <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-        <section className="px-6 pt-14 pb-12 md:pt-20 md:pb-16">
+        <section className="px-6 pt-14 pb-12 md:pt-20 md:pb-16 lg:pt-24">
           <div className="mx-auto w-full max-w-6xl">
-            <div className="max-w-2xl">
-              <FadeIn delay={0}>
-                <p className="font-medium text-primary text-sm">Comparisons</p>
-              </FadeIn>
-              <FadeIn delay={60}>
-                <h1 className="mt-3 text-balance font-medium text-4xl leading-[1.06] md:text-5xl">
-                  How Kaneo compares
-                </h1>
-              </FadeIn>
-              <FadeIn delay={120}>
-                <p className="mt-5 text-balance text-foreground/70 text-lg leading-relaxed">
-                  Kaneo Cloud is managed, EU-hosted project management from $4 a
-                  month, and it is open source if you would rather run it
-                  yourself. Here is how it sits next to the tools people usually
-                  weigh it against, and where each of them is the better answer.
-                </p>
-              </FadeIn>
-            </div>
+            <PageIntro
+              eyebrow="Comparisons"
+              title={<>How Kaneo compares</>}
+              description="Kaneo Cloud is managed, EU-hosted project management from $4 a month, and it is open source if you would rather run it yourself. Here is how it sits next to the tools people usually weigh it against, and where each of them is the better answer."
+            />
           </div>
         </section>
 
@@ -90,7 +77,7 @@ export default function Page() {
                   <h2 className="font-medium text-2xl md:text-3xl">
                     {group.title}
                   </h2>
-                  <p className="mt-3 text-foreground/70 leading-relaxed">
+                  <p className="mt-3 text-muted-foreground leading-relaxed">
                     {group.body}
                   </p>
                 </div>
@@ -125,7 +112,7 @@ export default function Page() {
                   Guides worth reading first
                 </h2>
                 <a
-                  className="text-foreground/60 text-sm transition-colors hover:text-foreground"
+                  className="text-muted-foreground text-sm transition-colors hover:text-foreground"
                   href="/guides"
                 >
                   All guides
@@ -160,7 +147,7 @@ export default function Page() {
                     Round-ups from the blog
                   </h2>
                   <a
-                    className="text-foreground/60 text-sm transition-colors hover:text-foreground"
+                    className="text-muted-foreground text-sm transition-colors hover:text-foreground"
                     href="/blog"
                   >
                     All posts

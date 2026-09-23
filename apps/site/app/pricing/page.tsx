@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { FadeIn } from "@/components/landing/fade-in";
 import { Footer } from "@/components/landing/footer";
 import { Navbar } from "@/components/landing/navbar";
+import { PageIntro } from "@/components/landing/page-intro";
 import { PricingPlans } from "@/components/landing/pricing-plans";
 import { SectionSeparator } from "@/components/landing/section-separator";
 
@@ -35,32 +35,23 @@ export default function PricingPage() {
     <>
       <Navbar />
       <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-        <section className="relative overflow-hidden px-6 pt-14 pb-16 md:pt-20 md:pb-20">
+        <section className="relative overflow-hidden px-6 pt-14 pb-16 md:pt-20 md:pb-20 lg:pt-24">
           <div className="mx-auto w-full max-w-6xl">
-            <div className="max-w-2xl">
-              <FadeIn delay={0}>
-                <p className="font-medium text-primary text-sm">Pricing</p>
-              </FadeIn>
-              <FadeIn delay={60}>
-                <h1 className="mt-3 text-balance text-4xl font-medium leading-[1.06] md:text-5xl">
+            <PageIntro
+              eyebrow="Pricing"
+              title={
+                <>
                   Free to run yourself.
                   <br />
                   Fair when we run it for you.
-                </h1>
-              </FadeIn>
-              <FadeIn delay={120}>
-                <p className="mt-5 text-balance text-foreground/70 text-lg leading-relaxed">
-                  Self-hosting is free forever. Kaneo Cloud starts with a 14-day
-                  free trial, no credit card required.
-                </p>
-              </FadeIn>
-            </div>
+                </>
+              }
+              description="Self-hosting is free forever. Kaneo Cloud starts with a 14-day free trial, no credit card required."
+            />
 
-            <FadeIn delay={200}>
-              <div className="mt-12">
-                <PricingPlans />
-              </div>
-            </FadeIn>
+            <div className="mt-12">
+              <PricingPlans />
+            </div>
           </div>
         </section>
 
@@ -70,7 +61,7 @@ export default function PricingPage() {
               {notes.map((note) => (
                 <div key={note.title} className="space-y-2">
                   <h3 className="font-medium text-sm">{note.title}</h3>
-                  <p className="text-foreground/70 text-sm leading-relaxed">
+                  <p className="text-muted-foreground text-sm leading-relaxed">
                     {note.body}
                     {note.email && (
                       <>

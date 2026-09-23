@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { BlogPostCard } from "@/components/landing/blog-post-card";
 import { ContentCard } from "@/components/landing/content-card";
-import { FadeIn } from "@/components/landing/fade-in";
 import { Footer } from "@/components/landing/footer";
 import { breadcrumbJsonLd, JsonLd } from "@/components/landing/json-ld";
 import { Navbar } from "@/components/landing/navbar";
+import { PageIntro } from "@/components/landing/page-intro";
 import { SectionSeparator } from "@/components/landing/section-separator";
 import { getPosts } from "@/lib/blog";
 import { formatBlogDateShort } from "@/lib/blog/format";
@@ -43,25 +43,13 @@ export default function Page() {
       />
       <Navbar />
       <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-        <section className="px-6 pt-14 pb-16 md:pt-20 md:pb-20">
+        <section className="px-6 pt-14 pb-16 md:pt-20 md:pb-20 lg:pt-24">
           <div className="mx-auto w-full max-w-6xl">
-            <div className="max-w-2xl">
-              <FadeIn delay={0}>
-                <p className="font-medium text-primary text-sm">Guides</p>
-              </FadeIn>
-              <FadeIn delay={60}>
-                <h1 className="mt-3 text-balance font-medium text-4xl leading-[1.06] md:text-5xl">
-                  Straight answers about project tools
-                </h1>
-              </FadeIn>
-              <FadeIn delay={120}>
-                <p className="mt-5 text-balance text-foreground/70 text-lg leading-relaxed">
-                  The questions people actually ask before choosing a project
-                  manager, answered without pretending Kaneo is the answer to
-                  all of them.
-                </p>
-              </FadeIn>
-            </div>
+            <PageIntro
+              eyebrow="Guides"
+              title={<>Straight answers about project tools</>}
+              description="The questions people actually ask before choosing a project manager, answered without pretending Kaneo is the answer to all of them."
+            />
 
             <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {guideList.map((guide) => (
@@ -91,7 +79,7 @@ export default function Page() {
                     Latest from the blog
                   </h2>
                   <a
-                    className="text-foreground/60 text-sm transition-colors hover:text-foreground"
+                    className="text-muted-foreground text-sm transition-colors hover:text-foreground"
                     href="/blog"
                   >
                     All posts

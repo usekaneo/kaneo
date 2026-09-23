@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Footer } from "@/components/landing/footer";
 import { Navbar } from "@/components/landing/navbar";
+import { PageIntro } from "@/components/landing/page-intro";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
@@ -27,17 +28,17 @@ export default function TermsPage() {
     <>
       <Navbar />
       <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-        <section className="relative px-6 pt-14 pb-16 md:pt-20 md:pb-20">
+        <section className="relative px-6 pt-14 pb-16 md:pt-20 md:pb-20 lg:pt-24">
           <div className="mx-auto w-full max-w-6xl">
-            <div className="max-w-2xl pb-12">
-              <p className="font-medium text-primary text-sm">Legal</p>
-              <h1 className="mt-3 text-4xl font-medium leading-[1.06] md:text-5xl">
-                Terms of Service
-              </h1>
+            <PageIntro
+              eyebrow="Legal"
+              title="Terms of Service"
+              className="pb-12"
+            >
               <p className="mt-4 text-foreground/60 text-sm">
                 Last updated: July 28, 2026
               </p>
-              <p className="mt-5 text-foreground/85 text-base leading-relaxed">
+              <p className="mt-5 max-w-2xl text-muted-foreground text-base leading-relaxed">
                 These terms govern your use of the managed Kaneo Cloud service
                 at cloud.kaneo.app, operated by Andrej Acevski (sole proprietor,
                 Macedonia), referred to as “we” or “us”. By creating an account
@@ -45,7 +46,7 @@ export default function TermsPage() {
                 is separately licensed under the MIT license, and self-hosted
                 installations are not covered by these terms.
               </p>
-            </div>
+            </PageIntro>
 
             <Section title="1. The service">
               <p>
