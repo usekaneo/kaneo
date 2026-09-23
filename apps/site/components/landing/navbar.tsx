@@ -1,5 +1,7 @@
 "use client";
 
+import { ArrowUpRight, Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Logo } from "@/components/landing/logo";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,16 +13,17 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+  Sheet,
+  SheetClose,
+  SheetPopup,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { landing } from "@/lib/landing";
 
 type LinkItem = {
   href: string;
   label: string;
-  description?: string;
 };
 
 type NavigationLink =
@@ -32,88 +35,26 @@ type NavigationLink =
   | {
       label: string;
       submenu: true;
-      type: "description" | "simple";
       items: LinkItem[];
     };
 
 const navigationLinks: NavigationLink[] = [
+  { href: "/#features", label: landing.navigation.product },
+  { href: "/pricing", label: landing.navigation.pricing },
+  { href: "/blog", label: landing.navigation.blog },
   {
-    items: [
-      {
-        description:
-          "Understand the product model and day-to-day workflows end to end.",
-        href: "/docs/core/functional",
-        label: "Functional Guides",
-      },
-      {
-        description:
-          "Set up your workspace structure and initial project configuration.",
-        href: "/docs/core/functional/create-workspace-and-project",
-        label: "Create Workspace & Project",
-      },
-      {
-        description:
-          "Run tasks across board and list views with clear ownership and status.",
-        href: "/docs/core/functional/plan-and-execute-tasks",
-        label: "Plan & Execute Tasks",
-      },
-      {
-        description:
-          "Use backlog planning to organize upcoming work and sequencing.",
-        href: "/docs/core/functional/backlog-planning",
-        label: "Backlog Planning",
-      },
-      {
-        description:
-          "Define and evolve project workflows to match your delivery process.",
-        href: "/docs/core/functional/configure-workflows",
-        label: "Configure Workflows",
-      },
-    ],
-    label: "Product",
+    label: landing.navigation.resources,
     submenu: true,
-    type: "description",
-  },
-  {
     items: [
-      { href: "/docs/core", label: "Quick Start" },
-      { href: "/docs/core/installation", label: "Installation" },
-      { href: "/docs/core/functional", label: "Functional Guide" },
-      { href: "/docs/api-reference/introduction", label: "API Reference" },
-    ],
-    label: "Docs",
-    submenu: true,
-    type: "simple",
-  },
-  {
-    items: [
-      { href: "#why", label: "Why Kaneo" },
-      { href: "https://github.com/usekaneo/kaneo", label: "Open Source" },
+      { href: "/docs/core", label: landing.navigation.docs },
+      { href: "/guides", label: landing.navigation.guides },
+      { href: "/alternatives", label: landing.navigation.comparisons },
       {
         href: "https://cloud.kaneo.app/public-project/vlu4ak2w8rs9rn1r4lirj2u1",
-        label: "Roadmap",
-      },
-      {
-        href: "https://github.com/usekaneo/kaneo/blob/main/CONTRIBUTING.md",
-        label: "Contributing",
+        label: landing.navigation.roadmap,
       },
     ],
-    label: "About",
-    submenu: true,
-    type: "simple",
   },
-  {
-    items: [
-      { href: "/blog", label: "Latest posts" },
-      { href: "/blog/category/alternatives", label: "Alternatives" },
-      { href: "/guides", label: "Guides" },
-      { href: "/alternatives", label: "Compare tools" },
-    ],
-    label: "Blog",
-    submenu: true,
-    type: "simple",
-  },
-  { href: "/pricing", label: "Pricing" },
 ];
 
 export function Navbar() {
@@ -121,86 +62,11 @@ export function Navbar() {
     <header className="sticky top-0 z-50 border-b bg-background/85 px-4 backdrop-blur-md md:px-6">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <Popover>
-            <PopoverTrigger
-              render={
-                <Button
-                  className="group size-8 md:hidden"
-                  size="icon"
-                  variant="ghost"
-                />
-              }
-            >
-              <svg
-                className="pointer-events-none"
-                fill="none"
-                height={16}
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-                width={16}
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <title>Menu</title>
-                <path
-                  className="-translate-y-[7px] origin-center transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.1)] group-aria-expanded:translate-x-0 group-aria-expanded:translate-y-0 group-aria-expanded:rotate-315"
-                  d="M4 12L20 12"
-                />
-                <path
-                  className="origin-center transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.8)] group-aria-expanded:rotate-45"
-                  d="M4 12H20"
-                />
-                <path
-                  className="origin-center translate-y-[7px] transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.1)] group-aria-expanded:translate-y-0 group-aria-expanded:rotate-135"
-                  d="M4 12H20"
-                />
-              </svg>
-            </PopoverTrigger>
-            <PopoverContent align="start" className="w-64 p-1 md:hidden">
-              <NavigationMenu className="max-w-none *:w-full" viewport={false}>
-                <NavigationMenuList className="flex-col items-start gap-0 md:gap-2">
-                  {navigationLinks.map((link) => (
-                    <NavigationMenuItem className="w-full" key={link.label}>
-                      {link.submenu ? (
-                        <>
-                          <div className="px-2 py-1.5 font-medium text-muted-foreground text-xs">
-                            {link.label}
-                          </div>
-                          <ul>
-                            {link.items.map((item) => (
-                              <li key={item.label}>
-                                <NavigationMenuLink
-                                  className="rounded-none py-1.5"
-                                  href={item.href}
-                                >
-                                  {item.label}
-                                </NavigationMenuLink>
-                              </li>
-                            ))}
-                          </ul>
-                        </>
-                      ) : (
-                        <NavigationMenuLink
-                          className="rounded-none py-1.5"
-                          href={link.href}
-                        >
-                          {link.label}
-                        </NavigationMenuLink>
-                      )}
-                    </NavigationMenuItem>
-                  ))}
-                </NavigationMenuList>
-              </NavigationMenu>
-            </PopoverContent>
-          </Popover>
-
           <div className="flex items-center gap-6">
             <a
               className="flex h-8 items-center text-primary hover:text-primary"
               href="/"
-              aria-label="Kaneo home"
+              aria-label={landing.navigation.home}
             >
               <Logo />
             </a>
@@ -219,32 +85,14 @@ export function Navbar() {
                           {link.label}
                         </NavigationMenuTrigger>
                         <NavigationMenuContent className="data-[motion=from-end]:slide-in-from-right-16! data-[motion=from-start]:slide-in-from-left-16! data-[motion=to-end]:slide-out-to-right-16! data-[motion=to-start]:slide-out-to-left-16! z-50 rounded-md border bg-popover p-1 text-popover-foreground shadow-md">
-                          <ul
-                            className={cn(
-                              link.type === "description"
-                                ? "min-w-64"
-                                : "min-w-48",
-                            )}
-                          >
+                          <ul className="min-w-48">
                             {link.items.map((item) => (
                               <li key={item.label}>
                                 <NavigationMenuLink
                                   className="rounded-none py-1.5"
                                   href={item.href}
                                 >
-                                  {link.type === "description" &&
-                                  "description" in item ? (
-                                    <div className="space-y-1">
-                                      <div className="font-medium">
-                                        {item.label}
-                                      </div>
-                                      <p className="line-clamp-2 text-muted-foreground text-xs">
-                                        {item.description}
-                                      </p>
-                                    </div>
-                                  ) : (
-                                    <span>{item.label}</span>
-                                  )}
+                                  {item.label}
                                 </NavigationMenuLink>
                               </li>
                             ))}
@@ -268,24 +116,14 @@ export function Navbar() {
 
         <div className="flex items-center gap-2">
           <Button
-            className="text-sm max-sm:hidden"
-            size="sm"
-            variant="ghost"
-            onClick={() => {
-              window.location.href = "https://github.com/sponsors/andrejsshell";
-            }}
-          >
-            Sponsor
-          </Button>
-          <Button
-            className="text-sm"
+            className="hidden text-sm md:inline-flex"
             size="sm"
             variant="ghost"
             onClick={() => {
               window.location.href = "https://cloud.kaneo.app/auth/sign-in";
             }}
           >
-            Sign In
+            {landing.navigation.signIn}
           </Button>
           <Button
             className="text-sm"
@@ -294,10 +132,108 @@ export function Navbar() {
               window.location.href = "https://cloud.kaneo.app";
             }}
           >
-            Get Started
+            {landing.navigation.getStarted}
           </Button>
+          <MobileNavigation />
         </div>
       </div>
     </header>
+  );
+}
+
+function MobileNavigation() {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 768px)");
+    const closeOnDesktop = () => {
+      if (desktop.matches) setOpen(false);
+    };
+    desktop.addEventListener("change", closeOnDesktop);
+    return () => desktop.removeEventListener("change", closeOnDesktop);
+  }, []);
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger
+        aria-label={landing.navigation.menu}
+        render={
+          <Button className="size-11 md:hidden" size="icon" variant="ghost" />
+        }
+      >
+        <Menu className="size-5" />
+      </SheetTrigger>
+      <SheetPopup
+        side="top"
+        showCloseButton={false}
+        className="max-h-dvh overflow-y-auto bg-background pb-[env(safe-area-inset-bottom)] motion-reduce:transition-none"
+      >
+        <SheetTitle className="sr-only">{landing.navigation.menu}</SheetTitle>
+        <div className="flex h-16 shrink-0 items-center justify-between border-b px-4">
+          <a
+            href="/"
+            aria-label={landing.navigation.home}
+            onClick={() => setOpen(false)}
+          >
+            <Logo />
+          </a>
+          <SheetClose
+            aria-label={landing.navigation.closeMenu}
+            render={<Button className="size-11" size="icon" variant="ghost" />}
+          >
+            <X className="size-5" />
+          </SheetClose>
+        </div>
+        <nav aria-label={landing.navigation.menu} className="px-6 py-4">
+          {navigationLinks.map((link) =>
+            link.submenu ? (
+              <div key={link.label} className="mt-4 border-t pt-5">
+                <p className="mb-2 text-xs font-medium text-muted-foreground">
+                  {link.label}
+                </p>
+                <ul className="grid grid-cols-2 gap-x-4">
+                  {link.items.map((item) => (
+                    <li key={item.href}>
+                      <a
+                        href={item.href}
+                        onClick={() => setOpen(false)}
+                        className="flex min-h-12 items-center rounded-md text-sm text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-4"
+                      >
+                        {item.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={() => setOpen(false)}
+                className="flex min-h-14 items-center justify-between rounded-md text-2xl font-medium tracking-tight hover:text-muted-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-4"
+              >
+                {link.label}
+                <ArrowUpRight className="size-5 text-muted-foreground" />
+              </a>
+            ),
+          )}
+        </nav>
+        <div className="grid grid-cols-2 gap-3 border-t px-6 py-5">
+          <Button
+            className="h-11"
+            variant="outline"
+            render={<a href="https://cloud.kaneo.app/auth/sign-in" />}
+          >
+            {landing.navigation.signIn}
+          </Button>
+          <Button
+            className="h-11"
+            render={<a href="https://cloud.kaneo.app/auth/sign-up" />}
+          >
+            {landing.navigation.getStarted}
+          </Button>
+        </div>
+      </SheetPopup>
+    </Sheet>
   );
 }

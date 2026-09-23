@@ -70,6 +70,7 @@ import {
   normalizeUrl,
 } from "@/lib/editor-url-utils";
 import { isInCodeBlockLanguagePicker } from "@/lib/is-in-codeblock-language-picker";
+import { normalizeCommentMarkdown } from "@/lib/normalize-comment-markdown";
 import { toast } from "@/lib/toast";
 import { uploadTaskImage } from "@/lib/upload-task-image";
 
@@ -149,15 +150,6 @@ const COMMENT_SHIKI_LANGUAGE_ALIASES: Record<string, string> = {
   plaintext: "text",
 };
 
-function normalizeMarkdown(markdown: string) {
-  return markdown
-    .replace(/\r\n/g, "\n")
-    .replace(/&nbsp;/g, " ")
-    .replace(/\u00A0/g, " ")
-    .replace(/\n{3,}/g, "\n\n")
-    .replace(/\n{2,}$/g, "\n");
-}
-
 type EmbedComposerState = {
   mode: "choice" | "input";
   url: string;
@@ -209,7 +201,7 @@ export default function CommentEditor({
   const dragDepthRef = useRef(0);
   const isSyncingRef = useRef(false);
   const hasHydratedRef = useRef(false);
-  const latestValueRef = useRef(normalizeMarkdown(value || ""));
+  const latestValueRef = useRef(normalizeCommentMarkdown(value || ""));
   const lastEditorRef = useRef<Editor | null>(null);
   const taskIdRef = useRef(taskId);
   const ensureTaskIdRef = useRef(ensureTaskId);
@@ -907,7 +899,7 @@ export default function CommentEditor({
       },
       onUpdate: ({ editor: activeEditor }) => {
         if (readOnly || disabled || !onChange || isSyncingRef.current) return;
-        const markdown = normalizeMarkdown(activeEditor.getMarkdown());
+        const markdown = normalizeCommentMarkdown(activeEditor.getMarkdown());
         latestValueRef.current = markdown;
         onChange(markdown);
       },
@@ -1057,7 +1049,7 @@ export default function CommentEditor({
       lastEditorRef.current = editor;
     }
 
-    const incoming = normalizeMarkdown(value || "");
+    const incoming = normalizeCommentMarkdown(value || "");
     if (!hasHydratedRef.current) {
       isSyncingRef.current = true;
       latestValueRef.current = incoming;

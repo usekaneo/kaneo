@@ -9584,6 +9584,529 @@
 				"copyUrl",
 				"branding"
 			]
+		},
+		"press": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"title": {
+					"type": "string"
+				},
+				"headline": {
+					"type": "string"
+				},
+				"intro": {
+					"type": "string"
+				},
+				"description": {
+					"type": "string"
+				},
+				"downloadKit": {
+					"type": "string"
+				},
+				"boilerplateTitle": {
+					"type": "string"
+				},
+				"boilerplate": {
+					"type": "string"
+				},
+				"logosTitle": {
+					"type": "string"
+				},
+				"darkLogo": {
+					"type": "string"
+				},
+				"darkLogoAlt": {
+					"type": "string"
+				},
+				"darkLogoDetail": {
+					"type": "string"
+				},
+				"lightLogo": {
+					"type": "string"
+				},
+				"lightLogoAlt": {
+					"type": "string"
+				},
+				"lightLogoDetail": {
+					"type": "string"
+				},
+				"icon": {
+					"type": "string"
+				},
+				"iconAlt": {
+					"type": "string"
+				},
+				"iconDetail": {
+					"type": "string"
+				},
+				"download": {
+					"type": "string"
+				},
+				"screenshotsTitle": {
+					"type": "string"
+				},
+				"lightScreenshot": {
+					"type": "string"
+				},
+				"lightScreenshotAlt": {
+					"type": "string"
+				},
+				"darkScreenshot": {
+					"type": "string"
+				},
+				"darkScreenshotAlt": {
+					"type": "string"
+				},
+				"lightListScreenshot": {
+					"type": "string"
+				},
+				"lightListScreenshotAlt": {
+					"type": "string"
+				},
+				"darkListScreenshot": {
+					"type": "string"
+				},
+				"darkListScreenshotAlt": {
+					"type": "string"
+				},
+				"lightTimelineScreenshot": {
+					"type": "string"
+				},
+				"lightTimelineScreenshotAlt": {
+					"type": "string"
+				},
+				"darkTimelineScreenshot": {
+					"type": "string"
+				},
+				"darkTimelineScreenshotAlt": {
+					"type": "string"
+				},
+				"lightTaskScreenshot": {
+					"type": "string"
+				},
+				"lightTaskScreenshotAlt": {
+					"type": "string"
+				},
+				"darkTaskScreenshot": {
+					"type": "string"
+				},
+				"darkTaskScreenshotAlt": {
+					"type": "string"
+				},
+				"contactTitle": {
+					"type": "string"
+				},
+				"contactBody": {
+					"type": "string"
+				},
+				"usageContrast": {
+					"type": "string"
+				},
+				"usageProportions": {
+					"type": "string"
+				},
+				"usageSpace": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"title",
+				"headline",
+				"intro",
+				"description",
+				"downloadKit",
+				"boilerplateTitle",
+				"boilerplate",
+				"logosTitle",
+				"darkLogo",
+				"darkLogoAlt",
+				"darkLogoDetail",
+				"lightLogo",
+				"lightLogoAlt",
+				"lightLogoDetail",
+				"icon",
+				"iconAlt",
+				"iconDetail",
+				"download",
+				"screenshotsTitle",
+				"lightScreenshot",
+				"lightScreenshotAlt",
+				"darkScreenshot",
+				"darkScreenshotAlt",
+				"lightListScreenshot",
+				"lightListScreenshotAlt",
+				"darkListScreenshot",
+				"darkListScreenshotAlt",
+				"lightTimelineScreenshot",
+				"lightTimelineScreenshotAlt",
+				"darkTimelineScreenshot",
+				"darkTimelineScreenshotAlt",
+				"lightTaskScreenshot",
+				"lightTaskScreenshotAlt",
+				"darkTaskScreenshot",
+				"darkTaskScreenshotAlt",
+				"contactTitle",
+				"contactBody",
+				"usageContrast",
+				"usageProportions",
+				"usageSpace"
+			]
+		},
+		"landing": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"founder": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"title": {
+							"type": "string"
+						},
+						"intro": {
+							"type": "string"
+						},
+						"problem": {
+							"type": "string"
+						},
+						"principle": {
+							"type": "string"
+						}
+					},
+					"required": ["title", "intro", "problem", "principle"]
+				},
+				"hero": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"cloudCta": {
+							"type": "string"
+						},
+						"selfHostCta": {
+							"type": "string"
+						},
+						"trialNote": {
+							"type": "string"
+						},
+						"github": {
+							"type": "string"
+						},
+						"productHunt": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"cloudCta",
+						"selfHostCta",
+						"trialNote",
+						"github",
+						"productHunt"
+					]
+				},
+				"navigation": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"product": {
+							"type": "string"
+						},
+						"pricing": {
+							"type": "string"
+						},
+						"resources": {
+							"type": "string"
+						},
+						"docs": {
+							"type": "string"
+						},
+						"blog": {
+							"type": "string"
+						},
+						"guides": {
+							"type": "string"
+						},
+						"comparisons": {
+							"type": "string"
+						},
+						"roadmap": {
+							"type": "string"
+						},
+						"menu": {
+							"type": "string"
+						},
+						"closeMenu": {
+							"type": "string"
+						},
+						"home": {
+							"type": "string"
+						},
+						"signIn": {
+							"type": "string"
+						},
+						"getStarted": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"product",
+						"pricing",
+						"resources",
+						"docs",
+						"blog",
+						"guides",
+						"comparisons",
+						"roadmap",
+						"menu",
+						"closeMenu",
+						"home",
+						"signIn",
+						"getStarted"
+					]
+				},
+				"showcase": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"label": {
+							"type": "string"
+						},
+						"controls": {
+							"type": "string"
+						},
+						"play": {
+							"type": "string"
+						},
+						"pause": {
+							"type": "string"
+						},
+						"board": {
+							"type": "string"
+						},
+						"list": {
+							"type": "string"
+						},
+						"gantt": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"label",
+						"controls",
+						"play",
+						"pause",
+						"board",
+						"list",
+						"gantt"
+					]
+				},
+				"features": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"tasks": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["label", "title", "description"]
+						},
+						"github": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"link": {
+									"type": "string"
+								}
+							},
+							"required": ["label", "title", "description", "link"]
+						},
+						"hosting": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"link": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description", "link"]
+						},
+						"source": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"link": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description", "link"]
+						},
+						"preview": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"taskAlt": {
+									"type": "string"
+								},
+								"githubAlt": {
+									"type": "string"
+								},
+								"taskTitle": {
+									"type": "string"
+								},
+								"taskDescription": {
+									"type": "string"
+								},
+								"checklistDone": {
+									"type": "string"
+								},
+								"checklistOpen": {
+									"type": "string"
+								},
+								"inProgress": {
+									"type": "string"
+								},
+								"high": {
+									"type": "string"
+								},
+								"date": {
+									"type": "string"
+								},
+								"design": {
+									"type": "string"
+								},
+								"done": {
+									"type": "string"
+								},
+								"relationsAlt": {
+									"type": "string"
+								},
+								"inReview": {
+									"type": "string"
+								},
+								"trySubtasks": {
+									"type": "string"
+								},
+								"tryGithub": {
+									"type": "string"
+								},
+								"tryRelations": {
+									"type": "string"
+								},
+								"mergeAction": {
+									"type": "string"
+								},
+								"resetAction": {
+									"type": "string"
+								},
+								"mergedHint": {
+									"type": "string"
+								},
+								"progress": {
+									"type": "string"
+								},
+								"backToTask": {
+									"type": "string"
+								},
+								"releaseNotes": {
+									"type": "string"
+								},
+								"dependencyDescription": {
+									"type": "string"
+								},
+								"mobileDescription": {
+									"type": "string"
+								},
+								"notesDescription": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"taskAlt",
+								"githubAlt",
+								"taskTitle",
+								"taskDescription",
+								"checklistDone",
+								"checklistOpen",
+								"inProgress",
+								"high",
+								"date",
+								"design",
+								"done",
+								"relationsAlt",
+								"inReview",
+								"trySubtasks",
+								"tryGithub",
+								"tryRelations",
+								"mergeAction",
+								"resetAction",
+								"mergedHint",
+								"progress",
+								"backToTask",
+								"releaseNotes",
+								"dependencyDescription",
+								"mobileDescription",
+								"notesDescription"
+							]
+						},
+						"relations": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["label", "title", "description"]
+						}
+					},
+					"required": [
+						"tasks",
+						"github",
+						"hosting",
+						"source",
+						"preview",
+						"relations"
+					]
+				}
+			},
+			"required": ["founder", "hero", "navigation", "showcase", "features"]
 		}
 	},
 	"required": [
@@ -9597,6 +10120,8 @@
 		"invitations",
 		"workspace",
 		"team",
-		"publicProject"
+		"publicProject",
+		"press",
+		"landing"
 	]
 }

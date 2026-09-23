@@ -22,7 +22,14 @@ import {
   SquircleDashed,
 } from "lucide-react";
 import type * as React from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import BoardToolbar from "@/components/project-board-toolbar";
 import { PrivateKanbanView } from "@/components/project-private-kanban-view";
 import { PrivateListView } from "@/components/project-private-list-view";
@@ -69,7 +76,7 @@ import {
 const PREVIEW_W = 1400;
 const PREVIEW_H = 860;
 
-type PreviewMode = "board" | "list" | "gantt";
+export type PreviewMode = "board" | "list" | "gantt";
 
 type ScheduledTask = Task & {
   scheduleStart: Date;
@@ -487,6 +494,11 @@ function MockSidebar({
                   {MOCK_PROJECTS.map((project) => (
                     <SidebarMenuItem key={project.id}>
                       <SidebarMenuButton
+                        data-tour-target={
+                          project.id === MOCK_PROJECTS[0].id
+                            ? "project-main"
+                            : "project-other"
+                        }
                         isActive={project.id === activeProjectId}
                         size="default"
                         className="group/proj h-8 text-sm"
@@ -520,15 +532,60 @@ function MockSidebar({
 // ─────────────────────────────────────────────────────────────────────────────
 // AppPreview
 // ─────────────────────────────────────────────────────────────────────────────
-export function AppPreview() {
+export type AppPreviewHandle = {
+  moveTask: (taskId: string, status: string) => void;
+};
+
+export function AppPreview({
+  mode,
+  onModeChange,
+  tourRef,
+}: {
+  mode?: PreviewMode;
+  onModeChange?: (mode: PreviewMode) => void;
+  tourRef?: React.Ref<AppPreviewHandle>;
+}) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
 
   const [activeProjectId, setActiveProjectId] = useState(MOCK_PROJECTS[0].id);
-  const [viewMode, setViewMode] = useState<PreviewMode>("board");
+  const [selectedViewMode, setSelectedViewMode] =
+    useState<PreviewMode>("board");
+  const setViewMode = useCallback(
+    (next: PreviewMode) => {
+      setSelectedViewMode(next);
+      onModeChange?.(next);
+    },
+    [onModeChange],
+  );
+  const viewMode = mode ?? selectedViewMode;
 
-  const activeProject =
-    MOCK_PROJECTS.find((p) => p.id === activeProjectId) ?? MOCK_PROJECTS[0];
+  const [taskStatuses, setTaskStatuses] = useState<Record<string, string>>({});
+  useImperativeHandle(
+    tourRef,
+    () => ({
+      moveTask: (taskId, status) =>
+        setTaskStatuses((current) => ({ ...current, [taskId]: status })),
+    }),
+    [],
+  );
+  const activeProject = useMemo(() => {
+    const project =
+      MOCK_PROJECTS.find((p) => p.id === activeProjectId) ?? MOCK_PROJECTS[0];
+    const tasks = project.columns
+      .flatMap((column) => column.tasks)
+      .map((task) => ({
+        ...task,
+        status: taskStatuses[task.id] ?? task.status,
+      }));
+    return {
+      ...project,
+      columns: project.columns.map((column) => ({
+        ...column,
+        tasks: tasks.filter((task) => task.status === column.id),
+      })),
+    };
+  }, [activeProjectId, taskStatuses]);
 
   const {
     filters,
@@ -543,16 +600,19 @@ export function AppPreview() {
     setActiveProjectId(id);
   }, []);
 
-  const setBoardToolbarMode = useCallback((mode: "board" | "list") => {
-    setViewMode(mode);
-  }, []);
+  const setBoardToolbarMode = useCallback(
+    (mode: "board" | "list") => {
+      setViewMode(mode);
+    },
+    [setViewMode],
+  );
 
   // Scale preview to fill the container width; boost on mobile for legibility
   useEffect(() => {
     const el = wrapperRef.current;
     if (!el) return;
     const update = () => {
-      const w = el.getBoundingClientRect().width;
+      const w = el.clientWidth;
       if (w > 0) {
         const boost = w < 768 ? 2.5 : 1;
         setScale((w / PREVIEW_W) * boost);
@@ -615,6 +675,7 @@ export function AppPreview() {
                     <Button
                       variant={viewMode === "list" ? "secondary" : "ghost"}
                       size="xs"
+                      data-tour-target="list"
                       onClick={() => setViewMode("list")}
                       className={cn(
                         "h-6 gap-1.5 rounded-md px-2 text-xs",
@@ -627,6 +688,7 @@ export function AppPreview() {
                     <Button
                       variant={viewMode === "board" ? "secondary" : "ghost"}
                       size="xs"
+                      data-tour-target="board"
                       onClick={() => setViewMode("board")}
                       className={cn(
                         "h-6 gap-1.5 rounded-md px-2 text-xs",
@@ -639,6 +701,7 @@ export function AppPreview() {
                     <Button
                       variant={viewMode === "gantt" ? "secondary" : "ghost"}
                       size="xs"
+                      data-tour-target="gantt"
                       onClick={() => setViewMode("gantt")}
                       className={cn(
                         "h-6 gap-1.5 rounded-md px-2 text-xs",
