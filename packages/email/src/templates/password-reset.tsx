@@ -48,6 +48,17 @@ const messages = {
       "Nếu bạn không yêu cầu điều này, sẽ không có thay đổi nào được thực hiện.",
     footer: "Email bảo mật Kaneo",
   },
+  ja: {
+    preview: "Kaneo のパスワードをリセット",
+    title: "パスワードのリセット",
+    subtitleWithName: (name: string) =>
+      `${name} さん、下のボタンから新しいパスワードを設定してください。`,
+    subtitleDefault: "下のボタンから新しいパスワードを設定してください。",
+    cta: "パスワードをリセット",
+    expiry: "このリンクの有効期限は1時間です。",
+    ignore: "心当たりがない場合は、変更は行われません。",
+    footer: "Kaneo セキュリティメール",
+  },
 } as const;
 
 const PasswordResetEmail = ({

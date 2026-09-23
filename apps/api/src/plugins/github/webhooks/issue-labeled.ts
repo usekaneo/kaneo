@@ -22,19 +22,18 @@ type IssueLabeledPayload = {
     name: string;
     color: string;
   };
+  installation?: { id: number };
   repository: {
+    id: number;
     owner: { login: string };
     name: string;
   };
 };
 
 export async function handleIssueLabeled(payload: IssueLabeledPayload) {
-  const { issue, repository, label: addedLabel } = payload;
+  const { issue, label: addedLabel } = payload;
 
-  const integrations = await findAllIntegrationsByRepo(
-    repository.owner.login,
-    repository.name,
-  );
+  const integrations = await findAllIntegrationsByRepo(payload);
 
   for (const integration of integrations) {
     const existingLink = await findExternalLink(

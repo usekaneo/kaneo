@@ -13,13 +13,14 @@ services:
     image: postgres:16-alpine
     env_file:
       - .env
-    ports:
-      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-kaneo}
+      POSTGRES_DB: ${POSTGRES_DB:-kaneo}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U kaneo -d kaneo"]
+      test: ["CMD-SHELL", 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -73,7 +74,7 @@ AUTH_SECRET=                             # generate: openssl rand -hex 32
 This keeps the browser on one origin while the container proxies `/api` requests to the internal API process.
 
 For this Compose setup, the bundled Kaneo container reaches PostgreSQL at the service hostname `postgres`.
-If you run the API directly on your host instead, use `localhost` or set `DATABASE_URL` explicitly.
+The database is reachable only inside the Compose network. For host-based development, explicitly add a loopback-only mapping (`127.0.0.1:5432:5432`) and configure `DATABASE_URL` accordingly.
 
 ## Notes on object storage
 

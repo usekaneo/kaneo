@@ -8,3 +8,15 @@
 {{- if and .Values.autoscaling.enabled .Values.autoscaling.targetCPUUtilizationPercentage (not (dig "requests" "cpu" "" .Values.kaneo.resources)) -}}
 {{- fail "kaneo.resources.requests.cpu must be set when autoscaling CPU utilization is enabled" -}}
 {{- end -}}
+
+{{- if and .Values.kaneo.env.existingSecret.enabled (or (not .Values.kaneo.env.existingSecret.name) (not .Values.kaneo.env.existingSecret.key)) -}}
+{{- fail "kaneo.env.existingSecret requires a non-empty name and key" -}}
+{{- end -}}
+{{- $clientUrl := .Values.kaneo.env.clientUrl | trim -}}
+{{- if not $clientUrl -}}
+{{- fail "kaneo.env.clientUrl is required: set the public HTTP(S) origin used to access Kaneo (for example https://kaneo.example.com)" -}}
+{{- end -}}
+{{- $parsedClientUrl := urlParse $clientUrl -}}
+{{- if or (not (has $parsedClientUrl.scheme (list "http" "https"))) (not $parsedClientUrl.host) $parsedClientUrl.userinfo $parsedClientUrl.query $parsedClientUrl.fragment (not (has $parsedClientUrl.path (list "" "/"))) -}}
+{{- fail "kaneo.env.clientUrl must be an HTTP(S) origin without credentials, a path, a query or a fragment" -}}
+{{- end -}}

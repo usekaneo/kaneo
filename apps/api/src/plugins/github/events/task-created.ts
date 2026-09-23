@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import db from "../../../database";
 import { projectTable } from "../../../database/schema";
 import type { PluginContext, TaskCreatedEvent } from "../../types";
-import type { GitHubConfig } from "../config";
+import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
 import {
   createExternalLink,
   findExternalLinkByTaskAndType,
@@ -12,7 +12,10 @@ import {
   formatIssueTitle,
   getLabelsForIssue,
 } from "../utils/format";
-import { getGithubApp, getInstallationIdForRepo } from "../utils/github-app";
+import {
+  getGithubApp,
+  getVerifiedInstallationOctokit,
+} from "../utils/github-app";
 import { addLabelsToIssue } from "../utils/labels";
 
 export async function handleTaskCreated(
@@ -25,6 +28,7 @@ export async function handleTaskCreated(
   }
 
   const config = context.config as GitHubConfig;
+  if (!hasVerifiedGitHubBinding(config)) return;
   const { repositoryOwner, repositoryName } = config;
 
   const existingLink = await findExternalLinkByTaskAndType(
@@ -38,15 +42,7 @@ export async function handleTaskCreated(
   }
 
   try {
-    let installationId = config.installationId;
-    if (!installationId) {
-      installationId = await getInstallationIdForRepo(
-        repositoryOwner,
-        repositoryName,
-      );
-    }
-
-    const octokit = await githubApp.getInstallationOctokit(installationId);
+    const octokit = await getVerifiedInstallationOctokit(config);
 
     const createdIssue = await octokit.rest.issues.create({
       owner: repositoryOwner,

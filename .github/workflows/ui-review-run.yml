@@ -1,0 +1,133 @@
+name: Peekareq screenshot runner
+
+on:
+  workflow_call:
+    inputs:
+      pr:
+        required: true
+        type: string
+      model:
+        required: true
+        type: string
+    secrets:
+      OPENROUTER_API_KEY:
+        required: true
+      APP_PRIVATE_KEY:
+        required: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      artifact: ${{ steps.plan-artifact.outputs.artifact-id }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.workflow_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.19.0
+          package-manager-cache: false
+      - run: npm --prefix scripts/ui-review-bot ci --ignore-scripts
+      - name: Plan scenarios from PR text (no PR code execution)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          UI_REVIEW_PR: ${{ inputs.pr }}
+          UI_REVIEW_MODEL: ${{ inputs.model }}
+        run: node scripts/ui-review-bot/ci.mjs plan ui-review-plan
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        id: plan-artifact
+        with:
+          name: ui-review-plan-${{ github.run_attempt }}
+          path: ui-review-plan/plan.json
+          if-no-files-found: error
+          retention-days: 1
+
+  capture:
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    # PR code executes only on this disposable runner, without provider secrets or write permissions.
+    outputs:
+      artifact: ${{ steps.capture-artifact.outputs.artifact-id }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.workflow_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.19.0
+          package-manager-cache: false
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+        with:
+          version: 10.32.1
+          run_install: false
+      - run: npm --prefix scripts/ui-review-bot ci --ignore-scripts
+      - run: scripts/ui-review-bot/node_modules/.bin/playwright install --with-deps chromium
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ needs.plan.outputs.artifact }}
+          path: ui-review-plan
+          merge-multiple: true
+      - name: Capture base and PR screenshots
+        run: node scripts/ui-review-bot/ci.mjs capture ui-review-plan ui-review-capture
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        id: capture-artifact
+        with:
+          name: ui-review-capture-${{ github.run_attempt }}
+          path: ui-review-capture/
+          if-no-files-found: error
+          retention-days: 1
+
+  review-and-post:
+    needs: [plan, capture]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.workflow_sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.19.0
+          package-manager-cache: false
+      - run: npm --prefix scripts/ui-review-bot ci --ignore-scripts
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ needs.plan.outputs.artifact }}
+          path: ui-review-plan
+          merge-multiple: true
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ needs.capture.outputs.artifact }}
+          path: ui-review-capture
+          merge-multiple: true
+      - name: Validate images and review them (no PR code execution)
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: node scripts/ui-review-bot/ci.mjs review ui-review-plan ui-review-capture ui-review-report
+      - name: Authenticate as the screenshot bot
+        id: bot-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+      - name: Automatically publish or update the PR comment
+        env:
+          GH_TOKEN: ${{ steps.bot-token.outputs.token }}
+          UI_REVIEW_BOT_LOGIN: ${{ steps.bot-token.outputs.app-slug }}[bot]
+        run: node scripts/ui-review-bot/publish.mjs ui-review-report/report.json

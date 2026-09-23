@@ -138,36 +138,28 @@ describe("buildDescription", () => {
 });
 
 describe("formatComment", () => {
-  it("preserves the original author and date", () => {
-    const result = formatComment(
-      {
-        id: "c1",
-        cardId: "a",
-        userId: "u1",
-        text: "Looks good",
-        createdAt: "2026-03-04T10:00:00.000Z",
-      },
-      { id: "u1", email: "sam@example.com", name: "Sam", username: null },
-    );
+  it("keeps the body clean and notes the original date", () => {
+    const result = formatComment({
+      id: "c1",
+      cardId: "a",
+      userId: "u1",
+      text: "Looks good",
+      createdAt: "2026-03-04T10:00:00.000Z",
+    });
 
-    expect(result).toBe(
-      "**Sam** on 2026-03-04 (imported from PLANKA)\n\nLooks good",
-    );
+    expect(result).toBe("Looks good\n\n_Originally posted on 2026-03-04._");
   });
 
-  it("falls back when the author is unknown", () => {
-    const result = formatComment(
-      {
-        id: "c1",
-        cardId: "a",
-        userId: null,
-        text: "Orphaned",
-        createdAt: null,
-      },
-      undefined,
-    );
+  it("returns the text unchanged when there is no date", () => {
+    const result = formatComment({
+      id: "c1",
+      cardId: "a",
+      userId: null,
+      text: "Orphaned",
+      createdAt: null,
+    });
 
-    expect(result).toBe("**Unknown user** (imported from PLANKA)\n\nOrphaned");
+    expect(result).toBe("Orphaned");
   });
 });
 

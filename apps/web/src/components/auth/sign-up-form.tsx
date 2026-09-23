@@ -34,12 +34,14 @@ type SignUpFormProps = {
    * `undefined` means captcha isn't required at all (self-hosted).
    */
   turnstileToken?: string | null;
+  onAttemptComplete?: () => void;
 };
 
 export function SignUpForm({
   invitationId,
   defaultEmail,
   turnstileToken,
+  onAttemptComplete,
 }: SignUpFormProps) {
   const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
@@ -69,6 +71,7 @@ export function SignUpForm({
   });
 
   const onSubmit = async (data: SignUpFormValues) => {
+    if (captchaRequired && !turnstileToken) return;
     setIsPending(true);
     try {
       const headers: Record<string, string> = {};
@@ -108,6 +111,7 @@ export function SignUpForm({
       );
     } finally {
       setIsPending(false);
+      onAttemptComplete?.();
     }
   };
 

@@ -4,7 +4,7 @@ import getPublicProject from "@/fetchers/project/get-public-project";
 function useGetPublicProject(id: string) {
   return useQuery({
     queryKey: ["public-project", id],
-    queryFn: () => getPublicProject({ id }),
+    queryFn: ({ signal }) => getPublicProject({ id }, signal),
   });
 }
 

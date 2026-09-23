@@ -1,8 +1,20 @@
-import { Hono } from "hono";
-import { describeRoute, resolver, validator } from "hono-openapi";
-import * as v from "valibot";
+import {
+  apiRouter,
+  type BaseVariables,
+  createRoute,
+  errorResponse,
+  jsonResponse,
+  z,
+} from "../openapi";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
+import { calendarFeedSchema } from "./response";
+import {
+  calendarFeedDeleteParam,
+  calendarFeedProjectParam,
+  calendarFeedTokenParam,
+  createCalendarFeedBody,
+} from "./schema";
 import {
   createCalendarFeed,
   getCalendarFeed,
@@ -10,112 +22,94 @@ import {
   revokeCalendarFeed,
 } from "./service";
 
-const feedSchema = v.object({
-  id: v.string(),
-  projectId: v.string(),
-  token: v.string(),
-  labelIds: v.array(v.string()),
-  timeZone: v.string(),
-  createdAt: v.date(),
-});
-const projectParam = v.object({ projectId: v.string() });
-const sharePermission = requireWorkspacePermission({ project: ["share"] });
+const sharingMiddleware = [
+  workspaceAccess.fromProject("projectId"),
+  requireWorkspacePermission({ project: ["share"] }),
+];
+const managementErrors = {
+  400: errorResponse("Invalid request or unknown project"),
+  401: errorResponse("Authentication required"),
+  403: errorResponse(
+    "No workspace access or missing project sharing permission",
+  ),
+};
 
-export const publicCalendarFeed = new Hono().get(
-  "/:token/calendar.ics",
-  describeRoute({
+export const publicCalendarFeed = apiRouter().openapi(
+  createRoute({
+    method: "get",
+    path: "/{token}/calendar.ics",
     operationId: "getCalendarFeed",
     tags: ["Calendar feeds"],
+    summary: "Subscribe to a calendar feed",
     description:
-      "Subscribe to scheduled project tasks using a secret calendar feed link",
+      "Read scheduled project tasks using a secret calendar feed link. Anyone with the link can read matching task titles, descriptions, and dates.",
     security: [],
+    request: { params: calendarFeedTokenParam },
     responses: {
       200: {
         description: "iCalendar feed",
-        content: { "text/calendar": { schema: { type: "string" } } },
+        content: { "text/calendar": { schema: z.string() } },
       },
+      400: errorResponse("Invalid feed token"),
+      404: errorResponse("Calendar feed not found or revoked"),
     },
   }),
-  validator(
-    "param",
-    v.object({ token: v.pipe(v.string(), v.regex(/^[a-f0-9]{64}$/)) }),
-  ),
   async (c) => {
     c.header("Cache-Control", "private, no-store");
     c.header("X-Content-Type-Options", "nosniff");
     c.header("Content-Type", "text/calendar; charset=utf-8");
     c.header("Content-Disposition", 'inline; filename="kaneo.ics"');
-    return c.body(await getCalendarFeed(c.req.valid("param").token));
+    return c.body(await getCalendarFeed(c.req.valid("param").token), 200);
   },
 );
 
-const calendarFeed = new Hono<{
-  Variables: { userId: string; workspaceId: string };
-}>()
-  .get(
-    "/project/:projectId",
-    describeRoute({
+const calendarFeed = apiRouter<BaseVariables & { workspaceId: string }>()
+  .openapi(
+    createRoute({
+      method: "get",
+      path: "/project/{projectId}",
       operationId: "listCalendarFeeds",
       tags: ["Calendar feeds"],
+      summary: "List project calendar feeds",
       description:
-        "List project calendar subscriptions (requires project sharing permission)",
+        "List secret calendar subscription links. Requires project sharing permission.",
+      middleware: sharingMiddleware,
+      request: { params: calendarFeedProjectParam },
       responses: {
-        200: {
-          description: "Calendar feeds",
-          content: {
-            "application/json": { schema: resolver(v.array(feedSchema)) },
-          },
-        },
+        200: jsonResponse("Calendar feeds", z.array(calendarFeedSchema)),
+        ...managementErrors,
       },
     }),
-    validator("param", projectParam),
-    workspaceAccess.fromProject("projectId"),
-    sharePermission,
     async (c) => {
       c.header("Cache-Control", "private, no-store");
-      return c.json(await listCalendarFeeds(c.req.valid("param").projectId));
+      return c.json(
+        await listCalendarFeeds(c.req.valid("param").projectId),
+        200,
+      );
     },
   )
-  .post(
-    "/project/:projectId",
-    describeRoute({
+  .openapi(
+    createRoute({
+      method: "post",
+      path: "/project/{projectId}",
       operationId: "createCalendarFeed",
       tags: ["Calendar feeds"],
-      description: "Create a calendar subscription matching any selected label",
-      responses: {
-        201: {
-          description: "Calendar feed created",
-          content: { "application/json": { schema: resolver(feedSchema) } },
+      summary: "Create a calendar feed",
+      description:
+        "Create a calendar subscription matching any selected label. Tasks need a start or due date. All-day dates use the supplied time zone.",
+      middleware: sharingMiddleware,
+      request: {
+        params: calendarFeedProjectParam,
+        body: {
+          required: true,
+          content: { "application/json": { schema: createCalendarFeedBody } },
         },
       },
+      responses: {
+        201: jsonResponse("Calendar feed created", calendarFeedSchema),
+        ...managementErrors,
+      },
     }),
-    validator("param", projectParam),
-    validator(
-      "json",
-      v.object({
-        labelIds: v.pipe(
-          v.array(v.pipe(v.string(), v.minLength(1))),
-          v.minLength(1),
-          v.maxLength(100),
-        ),
-        timeZone: v.optional(
-          v.pipe(
-            v.string(),
-            v.check((value) => {
-              try {
-                new Intl.DateTimeFormat("en-US", { timeZone: value });
-                return true;
-              } catch {
-                return false;
-              }
-            }, "Invalid time zone"),
-          ),
-          "UTC",
-        ),
-      }),
-    ),
-    workspaceAccess.fromProject("projectId"),
-    sharePermission,
     async (c) => {
       const { labelIds, timeZone } = c.req.valid("json");
       c.header("Cache-Control", "private, no-store");
@@ -130,32 +124,33 @@ const calendarFeed = new Hono<{
       );
     },
   )
-  .delete(
-    "/project/:projectId/:id",
-    describeRoute({
+  .openapi(
+    createRoute({
+      method: "delete",
+      path: "/project/{projectId}/{id}",
       operationId: "revokeCalendarFeed",
       tags: ["Calendar feeds"],
-      description: "Revoke a calendar subscription link",
+      summary: "Revoke a calendar feed",
+      description:
+        "Revoke a calendar subscription link, preventing further access through it.",
+      middleware: sharingMiddleware,
+      request: { params: calendarFeedDeleteParam },
       responses: {
-        200: {
-          description: "Calendar feed revoked",
-          content: {
-            "application/json": {
-              schema: resolver(v.object({ success: v.boolean() })),
-            },
-          },
-        },
+        200: jsonResponse(
+          "Calendar feed revoked",
+          z.object({ success: z.boolean() }),
+        ),
+        404: errorResponse("Calendar feed not found in this project"),
+        ...managementErrors,
       },
     }),
-    validator("param", v.object({ projectId: v.string(), id: v.string() })),
-    workspaceAccess.fromProject("projectId"),
-    sharePermission,
     async (c) =>
       c.json(
         await revokeCalendarFeed(
           c.req.valid("param").projectId,
           c.req.valid("param").id,
         ),
+        200,
       ),
   );
 

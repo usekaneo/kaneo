@@ -1,10 +1,12 @@
-import { and, between, eq, isNotNull, isNull, or, sql } from "drizzle-orm";
+import { and, between, eq, isNotNull, isNull, ne, or, sql } from "drizzle-orm";
 import db from "../database";
 import {
   columnTable,
+  projectTable,
   taskReminderSentTable,
   taskTable,
   userNotificationPreferenceTable,
+  workspaceUserTable,
 } from "../database/schema";
 import createNotification from "../notification/controllers/create-notification";
 import { REMINDER_WINDOW_MINUTES } from "./reminder-timing";
@@ -48,6 +50,14 @@ async function getTasksNeedingReminder(
         userNotificationPreferenceTable.dueDateReminderLeadTimeMinutes,
     })
     .from(taskTable)
+    .innerJoin(projectTable, eq(projectTable.id, taskTable.projectId))
+    .innerJoin(
+      workspaceUserTable,
+      and(
+        eq(workspaceUserTable.workspaceId, projectTable.workspaceId),
+        eq(workspaceUserTable.userId, taskTable.userId),
+      ),
+    )
     .leftJoin(columnTable, eq(taskTable.columnId, columnTable.id))
     .leftJoin(
       userNotificationPreferenceTable,
@@ -74,6 +84,8 @@ async function getTasksNeedingReminder(
         ),
         // Exclude tasks in final columns (completed); include tasks with no column
         or(isNull(columnTable.isFinal), eq(columnTable.isFinal, false)),
+        // Archived tasks keep their due date but should not notify anyone
+        ne(taskTable.status, "archived"),
       ),
     );
 
@@ -134,9 +146,10 @@ async function processReminder(
   });
 }
 
-export async function checkDueDateReminders(): Promise<void> {
+export async function checkDueDateReminders(): Promise<{ degraded: boolean }> {
   const now = new Date();
   const windows = buildWindows(now);
+  let degraded = false;
 
   for (const window of Object.values(windows)) {
     try {
@@ -150,6 +163,7 @@ export async function checkDueDateReminders(): Promise<void> {
         try {
           await processReminder(task, window.type, window.notificationType);
         } catch (error) {
+          degraded = true;
           console.error("Failed to process due date reminder", {
             taskId: task.id,
             reminderType: window.type,
@@ -158,10 +172,13 @@ export async function checkDueDateReminders(): Promise<void> {
         }
       }
     } catch (error) {
+      degraded = true;
       console.error("Failed to query tasks for due date reminders", {
         reminderType: window.type,
         error,
       });
     }
   }
+
+  return { degraded };
 }

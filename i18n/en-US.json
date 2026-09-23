@@ -35,6 +35,12 @@
 			"label": "Breadcrumb",
 			"more": "More"
 		},
+		"boolean": {
+			"true": "True",
+			"false": "False",
+			"undefined": "Undefined",
+			"notSet": "Not Set"
+		},
 		"language": {
 			"english": "English",
 			"german": "German",
@@ -53,10 +59,33 @@
 		},
 		"error": {
 			"title": "Something went wrong",
+			"description": "The page crashed unexpectedly. Refreshing usually fixes it.",
 			"troubleshooting": "Troubleshooting steps:",
 			"tryAgain": "Try Again",
 			"viewDeploymentGuide": "View Deployment Guide",
-			"refreshPage": "Refresh Page"
+			"refreshPage": "Refresh Page",
+			"messages": {
+				"cors": "Unable to connect to the server. This might be due to CORS configuration issues.",
+				"network": "Network error. Please check your internet connection and try again.",
+				"auth": "Authentication failed. Please sign in again.",
+				"server": "Server error. Please try again later.",
+				"unknown": "An unexpected error occurred."
+			},
+			"troubleshootingSteps": {
+				"cors": {
+					"checkApiRunning": "Make sure your API server is running",
+					"checkApiUrl": "Check that VITE_API_URL in your frontend .env matches your API server URL",
+					"verifyCorsOrigins": "Verify CORS_ORIGINS in your API .env includes your frontend URL",
+					"checkProtocol": "Ensure both frontend and API are using the same protocol (http/https)",
+					"checkAccessibility": "Check that your API server is accessible from your browser"
+				},
+				"network": {
+					"checkConnection": "Check your internet connection",
+					"verifyApiRunning": "Verify the API server is running and accessible",
+					"tryRefresh": "Try refreshing the page",
+					"checkFirewall": "Check if there are any firewall or proxy issues"
+				}
+			}
 		},
 		"formats": {
 			"never": "Never"
@@ -116,6 +145,9 @@
 				"labelCreateError": "Failed to create label",
 				"createMore": "Create more",
 				"createButton": "Create Task",
+				"discardTitle": "Discard task?",
+				"discardDescription": "Your unsaved task details will be lost.",
+				"discardButton": "Discard task",
 				"untitledTask": "Untitled task",
 				"labelColors": {
 					"stone": "Stone",
@@ -334,6 +366,29 @@
 				"nameRequired": "Name is required",
 				"nameShort": "Name must be at least 2 characters",
 				"invalidEmail": "Invalid email address"
+			},
+			"avatar": {
+				"hint": "Click your picture to change or remove it. Cropped to a square and resized to 256x256.",
+				"remove": "Remove avatar",
+				"updateSuccess": "Profile picture updated",
+				"updateError": "Failed to update profile picture",
+				"removeSuccess": "Profile picture removed",
+				"removeError": "Failed to remove profile picture",
+				"edit": "Change your profile picture",
+				"change": "Change avatar"
+			},
+			"deleteAccount": {
+				"sectionTitle": "Danger zone",
+				"sectionSubtitle": "Permanent actions that affect your whole account.",
+				"title": "Delete account",
+				"description": "Workspaces only you belong to are deleted with your account. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"modalTitle": "Delete your account?",
+				"modalDescription": "This permanently deletes your account and cannot be undone.",
+				"confirmLabel": "Type {{email}} to confirm",
+				"confirm": "Delete account",
+				"success": "Your account has been deleted",
+				"error": "Failed to delete account",
+				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			}
 		},
 		"notificationsPage": {
@@ -623,7 +678,12 @@
 				"project": "Projects",
 				"task": "Tasks",
 				"label": "Labels",
-				"workspace": "Workspace"
+				"workspace": "Workspace",
+				"organization": "Workspace administration",
+				"member": "Members",
+				"invitation": "Invitations",
+				"team": "Teams",
+				"ac": "Roles and permissions"
 			},
 			"permissions": {
 				"project": {
@@ -705,6 +765,72 @@
 						"label": "Manage Settings",
 						"description": "Can manage workspace settings"
 					}
+				},
+				"organization": {
+					"update": {
+						"label": "Edit workspace administration",
+						"description": "Change workspace settings through the account service."
+					},
+					"delete": {
+						"label": "Delete workspace",
+						"description": "Permanently delete the workspace through the account service."
+					}
+				},
+				"member": {
+					"create": {
+						"label": "Add members",
+						"description": "Add users to this workspace."
+					},
+					"update": {
+						"label": "Change member roles",
+						"description": "Change the roles assigned to workspace members."
+					},
+					"delete": {
+						"label": "Remove members",
+						"description": "Remove users from this workspace."
+					}
+				},
+				"invitation": {
+					"create": {
+						"label": "Invite members",
+						"description": "Send workspace invitations."
+					},
+					"cancel": {
+						"label": "Cancel invitations",
+						"description": "Revoke pending workspace invitations."
+					}
+				},
+				"team": {
+					"create": {
+						"label": "Create teams",
+						"description": "Create teams in this workspace."
+					},
+					"update": {
+						"label": "Edit teams",
+						"description": "Change teams and team membership."
+					},
+					"delete": {
+						"label": "Delete teams",
+						"description": "Delete teams in this workspace."
+					}
+				},
+				"ac": {
+					"create": {
+						"label": "Create roles",
+						"description": "Create workspace roles and assign their permissions."
+					},
+					"read": {
+						"label": "View roles",
+						"description": "Read the workspace roles and their permissions."
+					},
+					"update": {
+						"label": "Change role permissions",
+						"description": "Change role permissions, including administrative access."
+					},
+					"delete": {
+						"label": "Delete roles",
+						"description": "Delete custom workspace roles."
+					}
 				}
 			},
 			"validation": {
@@ -748,7 +874,9 @@
 			"createError": "Failed to create label",
 			"updateError": "Failed to update label",
 			"deleteError": "Failed to delete label",
-			"nameRequired": "Label name is required"
+			"nameRequired": "Label name is required",
+			"deletionPending": "Deletion pending",
+			"resumeDeletion": "Resume deletion"
 		},
 		"projectGeneral": {
 			"pageTitle": "Project Settings",
@@ -803,6 +931,8 @@
 			"genericWebhookSectionSubtitle": "Send project task events to any HTTP endpoint as JSON.",
 			"slackSectionTitle": "Slack Integration",
 			"slackSectionSubtitle": "Send project task updates into a Slack channel with an incoming webhook.",
+			"mattermostSectionTitle": "Mattermost Integration",
+			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook.",
 			"telegramSectionTitle": "Telegram Integration",
 			"telegramSectionSubtitle": "Send project task updates into a Telegram chat or topic with a bot."
 		},
@@ -827,6 +957,8 @@
 			"subtitle": "Configure board columns and automation rules for this project.",
 			"columnsTitle": "Columns",
 			"columnsDescription": "Manage the columns that appear on your board. Drag to reorder. Turn on \"Done column\" for stages that represent completed work.",
+			"customFieldsTitle": "Custom Fields",
+			"customFieldsDescription": "Manage the custom fields for this project. Drag  to reorder.",
 			"automationTitle": "Automation Rules",
 			"automationDescription": "Map integration events to columns. When an event occurs, the linked task moves to the specified column."
 		},
@@ -855,6 +987,32 @@
 			"off": "Off",
 			"newColumnPlaceholder": "New column name...",
 			"add": "Add"
+		},
+		"customFields": {
+			"namePlaceholder": "Field name",
+			"typePlaceholder": "Select field type",
+			"noOptionsPlaceholder": "No options",
+			"defaultValuePlaceholder": "Default value",
+			"optionsPlaceholder": "Options separated by commas",
+			"required": "Required",
+			"addButton": "Add",
+			"creating": "Creating...",
+			"loading": "Loading custom fields...",
+			"empty": "No custom fields configured yet.",
+			"defaultLabel": "Default",
+			"createSuccess": "Custom field created.",
+			"createError": "Failed to create custom field.",
+			"deleteButton": "Delete",
+			"deleting": "Deleting...",
+			"deleteSuccess": "Custom field deleted.",
+			"deleteError": "Failed to delete custom field.",
+			"types": {
+				"text": "Text",
+				"number": "Number",
+				"date": "Date",
+				"dropdown": "Dropdown",
+				"boolean": "Boolean"
+			}
 		},
 		"githubIntegration": {
 			"validation": {
@@ -915,7 +1073,13 @@
 			"importSectionHint": "Import existing issues from your GitHub repository as tasks",
 			"importing": "Importing...",
 			"importIssues": "Import Issues",
-			"importDisabledHint": "Complete the repository configuration above to enable importing"
+			"importDisabledHint": "Complete the repository configuration above to enable importing",
+			"accountVerificationHint": "Connect your GitHub account to verify that you administer this repository.",
+			"enableGithubSignInHint": "Ask your instance administrator to enable GitHub sign-in.",
+			"reverifyHint": "Reconnect this repository to verify access and resume synchronization.",
+			"resumeImport": "Resume import",
+			"importPaused": "This import has saved progress. You can resume it.",
+			"importSummary": "Created: {{imported}} · Updated: {{updated}} · Skipped: {{skipped}}"
 		},
 		"giteaIntegration": {
 			"validation": {
@@ -1067,6 +1231,44 @@
 			"connect": "Connect Discord",
 			"saveChanges": "Save changes",
 			"update": "Update Discord",
+			"disconnect": "Disconnect"
+		},
+		"mattermostIntegration": {
+			"validation": {
+				"webhookInvalid": "Enter a valid Mattermost webhook URL"
+			},
+			"toast": {
+				"saved": "Mattermost integration saved successfully",
+				"saveError": "Failed to save Mattermost integration",
+				"enabled": "Mattermost notifications enabled",
+				"disabled": "Mattermost notifications paused",
+				"updateError": "Failed to update Mattermost integration",
+				"removed": "Mattermost integration removed successfully",
+				"removeError": "Failed to remove Mattermost integration"
+			},
+			"connectionTitle": "Mattermost webhook connection",
+			"connectionHint": "Paste a Mattermost incoming webhook URL and choose which task events should be posted.",
+			"connected": "Connected",
+			"paused": "Paused",
+			"webhookLabel": "Incoming webhook URL",
+			"webhookPlaceholder": "https://your-mattermost-server.com/hooks/...",
+			"webhookHint": "Create an Incoming Webhook in Mattermost and paste the generated URL here.",
+			"channelLabel": "Channel name",
+			"channelPlaceholder": "#team-updates",
+			"channelHint": "Optional label for your reference. Mattermost controls the actual destination channel from the webhook setup.",
+			"eventsTitle": "Event notifications",
+			"eventsHint": "Choose which project changes should post to Mattermost.",
+			"events": {
+				"taskCreated": "New tasks",
+				"taskStatusChanged": "Status changes",
+				"taskPriorityChanged": "Priority changes",
+				"taskTitleChanged": "Title changes",
+				"taskDescriptionChanged": "Description changes",
+				"taskCommentCreated": "New comments"
+			},
+			"connect": "Connect Mattermost",
+			"saveChanges": "Save changes",
+			"update": "Update Mattermost",
 			"disconnect": "Disconnect"
 		},
 		"genericWebhookIntegration": {
@@ -1358,6 +1560,7 @@
 				"boardView": "Switch to board view",
 				"listView": "Switch to list view",
 				"backlogView": "Switch to backlog view",
+				"calendarView": "Switch to calendar view",
 				"nextTask": "Next task",
 				"prevTask": "Previous task",
 				"openTask": "Open selected task",
@@ -1535,10 +1738,13 @@
 				"mermaid": {
 					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
-			}
+			},
+			"importedFrom": "Imported from {{source}}",
+			"importedBy": "Imported by {{name}}"
 		}
 	},
 	"tasks": {
+		"title": "Tasks",
 		"status": {
 			"label": "Status",
 			"to-do": "To Do",
@@ -1565,10 +1771,13 @@
 			"selectTask": "Select task",
 			"loadingTask": "Loading task...",
 			"taskNotFound": "Task not found",
-			"taskNotFoundDescription": "The task you are looking for does not exist or has been deleted."
+			"taskNotFoundDescription": "The task you are looking for does not exist or has been deleted.",
+			"customFields": "Custom Fields"
 		},
 		"detail": {
 			"subtaskOf": "Subtask of",
+			"customFieldUpdated": "Field updated",
+			"selectOption": "Select option",
 			"activity": "Activity",
 			"noActivity": "No activity found",
 			"openInFullPage": "Open in full page",
@@ -1819,7 +2028,11 @@
 			"allAssignees": "All assignees",
 			"allDueDates": "All due dates",
 			"allLabels": "All labels",
+			"noValuesUsedYet": "No values used yet",
+			"noCustomFieldValues": "No custom field values",
+			"allCustomFieldValues": "All values",
 			"selectedCount": "{{count}} selected",
+			"all": "All",
 			"subjects": {
 				"status": "Status",
 				"priority": "Priority",
@@ -1832,9 +2045,23 @@
 				"includeAnyOf": "include any of"
 			}
 		},
+		"calendar": {
+			"pageTitle": "{{name}} – Calendar",
+			"title": "Calendar",
+			"previousMonth": "Previous month",
+			"nextMonth": "Next month",
+			"today": "Today",
+			"noTasks": "No scheduled tasks",
+			"noTasksSubtitle": "Add a start date, due date, or both to tasks to place them on the calendar.",
+			"moreTasks": "+{{count}} more",
+			"loadError": "Failed to load tasks.",
+			"dayTasksAriaLabel": "Show all tasks for {{date}}",
+			"taskAriaLabel": "{{title}}, {{range}}: open task"
+		},
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",
 			"title": "Gantt Timeline",
+			"jumpToToday": "Jump to today",
 			"searchPlaceholder": "Search scheduled tickets...",
 			"hideTasks": "Hide tasks",
 			"showTasks": "Show tasks",
@@ -1846,7 +2073,11 @@
 			"updateDatesError": "Failed to update task dates",
 			"resizeStart": "Resize start date",
 			"resizeDue": "Resize due date",
-			"taskAriaLabel": "{{title}}: open or drag to move"
+			"taskAriaLabel": "{{title}}: open or drag to move",
+			"previousPeriod": "Previous period",
+			"nextPeriod": "Next period",
+			"periodStart": "Timeline start date",
+			"showTaskDates": "Show task dates"
 		},
 		"delete": {
 			"title": "Delete Task?",
@@ -1945,7 +2176,12 @@
 				"deleteRow": "Delete row",
 				"deleteTable": "Delete table"
 			}
-		}
+		},
+		"descriptionSearchLoading": "Searching full descriptions…",
+		"descriptionSearchError": "Description search failed. Results may be incomplete.",
+		"descriptionRetry": "Retry",
+		"descriptionLoading": "Loading description…",
+		"descriptionLoadError": "The description could not be loaded. Retry to load the current version."
 	},
 	"invitations": {
 		"email": {

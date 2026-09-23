@@ -1,0 +1,121 @@
+name: Build images
+
+on:
+  workflow_call:
+    inputs:
+      tags:
+        description: "docker/metadata-action tag directives, one per line"
+        required: true
+        type: string
+      version:
+        description: "Release version to verify or stamp, according to source_mode (blank only for nightly)"
+        required: false
+        type: string
+        default: ""
+      source_mode:
+        description: "released checks out an existing reviewed tag; planned builds a new release from the run SHA; nightly uses the run SHA without a release version"
+        required: false
+        type: string
+        default: released
+      platforms:
+        required: false
+        type: string
+        default: linux/amd64,linux/arm64
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/main'
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: kaneo
+            dockerfile: ./Dockerfile.kaneo
+            image: ghcr.io/${{ github.repository_owner }}/kaneo
+          - name: web
+            dockerfile: ./apps/web/Dockerfile
+            image: ghcr.io/${{ github.repository_owner }}/web
+          - name: api
+            dockerfile: ./apps/api/Dockerfile
+            image: ghcr.io/${{ github.repository_owner }}/api
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+          ref: ${{ github.sha }}
+
+      - name: Verify publication source
+        id: source
+        env:
+          SOURCE_MODE: ${{ inputs.source_mode }}
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: node scripts/security/verify-release-source.mjs "$SOURCE_MODE" "$RELEASE_VERSION"
+
+      - name: Checkout verified source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ steps.source.outputs.source_sha }}
+
+      # A release builds its images before the release commit exists, and the
+      # artifacts self-report their version.
+      - name: Stamp release version
+        if: inputs.source_mode == 'planned'
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: node scripts/release/apply-version.mjs "$RELEASE_VERSION"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_PACKAGE_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6
+        with:
+          images: ${{ matrix.image }}
+          tags: ${{ inputs.tags }}
+
+      - name: Prepare Sentry auth token for source-map upload
+        if: matrix.name == 'web'
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: |
+          mkdir -p /tmp/sentry-build-secrets
+          printf '%s' "$SENTRY_AUTH_TOKEN" > /tmp/sentry-build-secrets/SENTRY_AUTH_TOKEN
+          chmod 600 /tmp/sentry-build-secrets/SENTRY_AUTH_TOKEN
+
+      - name: Build and push
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          platforms: ${{ inputs.platforms }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            SENTRY_ORG=${{ vars.SENTRY_ORG }}
+            SENTRY_PROJECT=${{ vars.SENTRY_PROJECT }}
+          # secret-files mounts the file contents; 'secrets:' would pass the
+          # path string as the value.
+          secret-files: ${{ matrix.name == 'web' && 'SENTRY_AUTH_TOKEN=/tmp/sentry-build-secrets/SENTRY_AUTH_TOKEN' || '' }}

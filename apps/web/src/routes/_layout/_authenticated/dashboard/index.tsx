@@ -2,12 +2,23 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { getPendingInvitations } from "@/fetchers/invitation/get-pending-invitations";
 import getWorkspaces from "@/fetchers/workspace/get-workspaces";
 import { authClient } from "@/lib/auth-client";
+import { handleUnauthorized, isUnauthorizedError } from "@/lib/http-error";
 import type Workspace from "@/types/workspace";
 
 export const Route = createFileRoute("/_layout/_authenticated/dashboard/")({
   beforeLoad: async () => {
-    const workspaces: Workspace[] = await getWorkspaces();
-    const invitations = await getPendingInvitations();
+    let workspaces: Workspace[];
+    let invitations: Awaited<ReturnType<typeof getPendingInvitations>>;
+    try {
+      workspaces = await getWorkspaces();
+      invitations = await getPendingInvitations();
+    } catch (error) {
+      if (isUnauthorizedError(error)) {
+        handleUnauthorized();
+        return;
+      }
+      throw error;
+    }
 
     if (invitations && invitations.length > 0 && !workspaces.length) {
       throw redirect({ to: "/invitations" });

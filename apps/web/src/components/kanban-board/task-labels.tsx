@@ -1,36 +1,6 @@
 import { Badge } from "@/components/ui/badge";
+import { resolveLabelColor } from "@/lib/label-color";
 import type Task from "@/types/task";
-
-const labelColors = [
-  { value: "gray", label: "Stone", color: "var(--color-stone-500)" },
-  { value: "dark-gray", label: "Slate", color: "var(--color-slate-500)" },
-  { value: "purple", label: "Lavender", color: "var(--color-violet-500)" },
-  { value: "teal", label: "Sage", color: "var(--color-emerald-600)" },
-  { value: "green", label: "Forest", color: "var(--color-green-600)" },
-  { value: "yellow", label: "Amber", color: "var(--color-amber-600)" },
-  { value: "orange", label: "Terracotta", color: "var(--color-orange-600)" },
-  { value: "pink", label: "Rose", color: "var(--color-rose-600)" },
-  { value: "red", label: "Crimson", color: "var(--color-red-600)" },
-];
-
-function isValidHtmlColor(color: string): boolean {
-  const s = new Option().style;
-  s.color = color;
-  return s.color !== "";
-}
-
-function validColor(value: string): string {
-  const mapped = labelColors.find((c) => c.value === value)?.color;
-  if (mapped) {
-    return mapped;
-  }
-
-  if (isValidHtmlColor(value)) {
-    return value;
-  }
-
-  return "var(--color-neutral-400)";
-}
 
 export function TaskLabels({
   labels,
@@ -40,20 +10,23 @@ export function TaskLabels({
   if (!labels.length) return null;
 
   return (
-    <div className="flex flex-wrap gap-1">
-      {labels.map((label: { id: string; name: string; color: string }) => (
+    <div className="flex min-w-0 flex-wrap gap-1">
+      {labels.map((label) => (
         <Badge
           key={label.id}
           variant="outline"
-          className="px-2 py-0.5 text-[10px] flex items-center"
+          className="max-w-full min-w-0 px-2 py-0.5 text-[10px] flex items-center"
         >
           <span
-            className="inline-block w-1.5 h-1.5 mr-1 rounded-full"
+            aria-hidden="true"
+            className="inline-block w-1.5 h-1.5 mr-1 shrink-0 rounded-full"
             style={{
-              backgroundColor: validColor(label.color),
+              backgroundColor: resolveLabelColor(label.color),
             }}
           />
-          <span className="max-w-20 truncate">{label.name}</span>
+          <span className="min-w-0 truncate" title={label.name}>
+            {label.name}
+          </span>
         </Badge>
       ))}
     </div>

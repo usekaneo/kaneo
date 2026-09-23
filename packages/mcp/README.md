@@ -8,7 +8,7 @@ It runs over stdio, signs in with Kaneo's device flow, and then calls the Kaneo 
 
 ## Prerequisites
 
-- Node.js 20+
+- Node.js 24+
 - A running Kaneo API (for example `http://localhost:1337`) and web app (for device approval UI).
 
 Kaneo allows `kaneo-cli` and `kaneo-mcp` by default, so you usually do not need extra server configuration.

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   eventContext,
   publishEvent,
@@ -7,6 +7,50 @@ import {
 } from "../../../apps/api/src/events/index";
 
 describe("publishEvent / subscribeToEvent", () => {
+  it("awaits subscriber completion in sequence when requested", async () => {
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const calls: string[] = [];
+    await subscribeToEvent("test.bounded", async () => {
+      calls.push("first-start");
+      await gate;
+      calls.push("first-end");
+    });
+    await subscribeToEvent("test.bounded", async () => {
+      calls.push("second");
+    });
+    let completed = false;
+    const operation = publishEvent(
+      "test.bounded",
+      {},
+      { waitForHandlers: true },
+    ).then(() => {
+      completed = true;
+    });
+    expect(calls).toEqual(["first-start"]);
+    expect(completed).toBe(false);
+    release();
+    await operation;
+    expect(calls).toEqual(["first-start", "first-end", "second"]);
+  });
+
+  it("keeps best-effort error isolation for awaited subscribers", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    const next = vi.fn(async () => {});
+    try {
+      await subscribeToEvent("test.failure", async () => {
+        throw new Error("subscriber failed");
+      });
+      await subscribeToEvent("test.failure", next);
+      await publishEvent("test.failure", {}, { waitForHandlers: true });
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(log).toHaveBeenCalledTimes(1);
+    } finally {
+      log.mockRestore();
+    }
+  });
   afterEach(async () => {
     await shutdownEventBus();
   });

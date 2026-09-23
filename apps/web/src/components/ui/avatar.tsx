@@ -3,6 +3,7 @@
 import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar";
 
 import { cn } from "@/lib/cn";
+import { resolveAvatarSrc } from "@/lib/resolve-avatar-src";
 
 function Avatar({ className, ...props }: AvatarPrimitive.Root.Props) {
   return (
@@ -17,11 +18,16 @@ function Avatar({ className, ...props }: AvatarPrimitive.Root.Props) {
   );
 }
 
-function AvatarImage({ className, ...props }: AvatarPrimitive.Image.Props) {
+function AvatarImage({
+  className,
+  src,
+  ...props
+}: AvatarPrimitive.Image.Props) {
   return (
     <AvatarPrimitive.Image
       className={cn("size-full object-cover", className)}
       data-slot="avatar-image"
+      src={typeof src === "string" ? resolveAvatarSrc(src) : src}
       {...props}
     />
   );

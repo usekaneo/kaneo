@@ -1,5 +1,5 @@
 {
-	"id": "0ea9a390-61b7-425a-935f-85eada83c031",
+	"id": "eb4129b3-ee2f-481a-adca-914b218c6458",
 	"prevId": "0069b9f8-30bf-42e6-9603-13b0db606552",
 	"version": "7",
 	"dialect": "postgresql",
@@ -756,8 +756,8 @@
 			"checkConstraints": {},
 			"isRLSEnabled": false
 		},
-		"public.calendar_feed": {
-			"name": "calendar_feed",
+		"public.billing_reminder_sent": {
+			"name": "billing_reminder_sent",
 			"schema": "",
 			"columns": {
 				"id": {
@@ -766,30 +766,23 @@
 					"primaryKey": true,
 					"notNull": true
 				},
-				"project_id": {
-					"name": "project_id",
+				"workspace_id": {
+					"name": "workspace_id",
 					"type": "text",
 					"primaryKey": false,
 					"notNull": true
 				},
-				"token": {
-					"name": "token",
+				"reminder_type": {
+					"name": "reminder_type",
 					"type": "text",
 					"primaryKey": false,
 					"notNull": true
 				},
-				"label_ids": {
-					"name": "label_ids",
-					"type": "jsonb",
+				"trial_ends_at": {
+					"name": "trial_ends_at",
+					"type": "timestamp",
 					"primaryKey": false,
-					"notNull": true
-				},
-				"time_zone": {
-					"name": "time_zone",
-					"type": "text",
-					"primaryKey": false,
-					"notNull": true,
-					"default": "'UTC'"
+					"notNull": false
 				},
 				"created_at": {
 					"name": "created_at",
@@ -797,14 +790,21 @@
 					"primaryKey": false,
 					"notNull": true,
 					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
 				}
 			},
 			"indexes": {
-				"calendar_feed_project_id_idx": {
-					"name": "calendar_feed_project_id_idx",
+				"billing_reminder_sent_workspaceId_idx": {
+					"name": "billing_reminder_sent_workspaceId_idx",
 					"columns": [
 						{
-							"expression": "project_id",
+							"expression": "workspace_id",
 							"isExpression": false,
 							"asc": true,
 							"nulls": "last"
@@ -817,11 +817,11 @@
 				}
 			},
 			"foreignKeys": {
-				"calendar_feed_project_id_project_id_fk": {
-					"name": "calendar_feed_project_id_project_id_fk",
-					"tableFrom": "calendar_feed",
-					"tableTo": "project",
-					"columnsFrom": ["project_id"],
+				"billing_reminder_sent_workspace_id_workspace_id_fk": {
+					"name": "billing_reminder_sent_workspace_id_workspace_id_fk",
+					"tableFrom": "billing_reminder_sent",
+					"tableTo": "workspace",
+					"columnsFrom": ["workspace_id"],
 					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "cascade"
@@ -829,10 +829,10 @@
 			},
 			"compositePrimaryKeys": {},
 			"uniqueConstraints": {
-				"calendar_feed_token_unique": {
-					"name": "calendar_feed_token_unique",
+				"billing_reminder_sent_workspace_type_unique": {
+					"name": "billing_reminder_sent_workspace_type_unique",
 					"nullsNotDistinct": false,
-					"columns": ["token"]
+					"columns": ["workspace_id", "reminder_type"]
 				}
 			},
 			"policies": {},

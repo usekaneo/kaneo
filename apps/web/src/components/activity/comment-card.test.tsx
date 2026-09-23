@@ -1,9 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactElement, ReactNode } from "react";
 import { cloneElement, isValidElement } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import CommentCard from "./comment-card";
+
+afterEach(cleanup);
 
 vi.mock("@/components/activity/comment-editor", () => ({
   default: ({ value }: { value: string }) => <div>{value}</div>,
@@ -22,7 +24,8 @@ vi.mock("@/hooks/mutations/comment/use-update-comment", () => ({
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
-    t: (key: string) => key,
+    t: (key: string, values?: Record<string, string>) =>
+      `${key}${values ? ` ${Object.values(values).join(" ")}` : ""}`,
   }),
 }));
 
@@ -93,7 +96,7 @@ vi.mock("@/components/ui/tooltip", async () => {
   };
 });
 
-function renderCommentCard() {
+function renderCommentCard(externalSource?: string, importedBy?: string) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -104,6 +107,8 @@ function renderCommentCard() {
   return render(
     <QueryClientProvider client={queryClient}>
       <CommentCard
+        externalSource={externalSource}
+        importedBy={importedBy}
         commentId="comment-1"
         taskId="task-1"
         content="Test comment"
@@ -120,6 +125,24 @@ function renderCommentCard() {
 }
 
 describe("CommentCard", () => {
+  it.each(["planka", "trello", "jira", "github"])(
+    "visibly identifies %s authors as imported without hovering",
+    (source) => {
+      renderCommentCard(source, "Actual Importer");
+      expect(screen.getByText(/activity:comment.importedFrom/)).toBeVisible();
+      expect(
+        screen.getByText(/activity:comment.importedBy Actual Importer/),
+      ).toBeVisible();
+    },
+  );
+
+  it("does not label ordinary comments as imports", () => {
+    renderCommentCard();
+    expect(
+      screen.queryByText(/activity:comment.importedFrom/),
+    ).not.toBeInTheDocument();
+  });
+
   it("shows full date+short time in tooltip on hover/focus", async () => {
     renderCommentCard();
 
