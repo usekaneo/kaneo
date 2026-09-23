@@ -1,9 +1,11 @@
+import { HTTPException } from "hono/http-exception";
 import { subscribeToEvent } from "../events";
 import {
   apiRouter,
   createRoute,
   errorResponse,
   jsonResponse,
+  z,
 } from "../openapi";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
@@ -60,7 +62,14 @@ const createActivityRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The created activity", activitySchema),
-    400: errorResponse("Invalid body, or unknown task"),
+    400: {
+      description:
+        "Invalid body, unknown task, or comment activity submitted through the generic endpoint",
+      content: {
+        "text/plain": { schema: z.string() },
+        "application/json": { schema: z.object({ message: z.string() }) },
+      },
+    },
     403: errorResponse(
       "No workspace access, or missing task:update permission",
     ),
@@ -144,6 +153,14 @@ const activity = apiRouter()
   )
   .openapi(createActivityRoute, async (c) => {
     const { taskId, message, type, eventData } = c.req.valid("json");
+    if (type === "comment") {
+      throw new HTTPException(400, {
+        res: c.json(
+          { message: "Use the comment endpoint to create comments" },
+          400,
+        ),
+      });
+    }
     return c.json(
       await createActivity(taskId, type, c.get("userId"), message, eventData),
       200,
