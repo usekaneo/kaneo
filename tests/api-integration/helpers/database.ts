@@ -79,39 +79,36 @@ export async function ensureTestDatabaseMigrated() {
   }
 }
 
+// Ponytail: query Postgres directly. The catalog is the canonical source of
+// what tables actually exist after migrations run. Reflecting on the schema
+// object in apps/api/src/database misses any table that is not exported from
+// the index.ts registry (for example mcp_oauth_state and task_reminder_sent).
+async function listPublicTableNames(): Promise<string[]> {
+  const result = await db.execute<{ table_name: string }>(sql`
+    SELECT table_name
+    FROM information_schema.tables
+    WHERE table_schema = 'public'
+      AND table_type = 'BASE TABLE'
+    ORDER BY table_name
+  `);
+
+  return result.rows.map((row) => row.table_name);
+}
+
 export async function resetTestDatabase() {
   await ensureTestDatabaseMigrated();
 
+  const tableNames = await listPublicTableNames();
+
+  if (tableNames.length === 0) {
+    throw new Error(
+      "resetTestDatabase found no tables to truncate. Did migrations run?",
+    );
+  }
+
+  const formattedTableNames = tableNames.map(quoteIdentifier).join(", ");
+
   await db.execute(
-    sql.raw(`
-      TRUNCATE TABLE
-        "activity",
-        "account",
-        "apikey",
-        "asset",
-        "billing_event",
-        "column",
-        "comment",
-        "external_link",
-        "github_integration",
-        "integration",
-        "invitation",
-        "label",
-        "mcp_oauth_state",
-        "notification",
-        "project",
-        "session",
-        "task",
-        "task_relation",
-        "team",
-        "team_member",
-        "time_entry",
-        "verification",
-        "workflow_rule",
-        "workspace",
-        "workspace_member",
-        "user"
-      RESTART IDENTITY CASCADE
-    `),
+    sql.raw(`TRUNCATE TABLE ${formattedTableNames} RESTART IDENTITY CASCADE`),
   );
 }

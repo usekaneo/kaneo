@@ -1,5 +1,6 @@
 import { client } from "@kaneo/libs";
 
+import { HttpError } from "@/lib/http-error";
 export type CreateGiteaIntegrationRequest = {
   baseUrl: string;
   accessToken?: string;
@@ -25,7 +26,8 @@ async function createGiteaIntegration(
       .catch(async () => ({
         message: (await response.text()) || "Request failed",
       }));
-    throw new Error(
+    throw new HttpError(
+      response.status,
       typeof error === "object" && error && "message" in error
         ? String(error.message)
         : "Request failed",

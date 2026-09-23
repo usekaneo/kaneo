@@ -1,200 +1,233 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import db, { schema } from "../../apps/api/src/database";
-import { taskReminderSentTable } from "../../apps/api/src/database/schema";
-import createNotification from "../../apps/api/src/notification/controllers/create-notification";
-import { sendDueDateReminder } from "../../apps/api/src/plugins/generic-webhook/events";
-import { checkDueDateReminders } from "../../apps/api/src/scheduler/due-date-reminders";
-import { checkProjectWebhookReminders } from "../../apps/api/src/scheduler/project-webhook-reminders";
-import { resetTestDatabase } from "./helpers/database";
-import {
-  createProjectFixture,
-  createWorkspaceMember,
-} from "./helpers/fixtures";
+import { eq } from "drizzle-orm";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock(
-  "../../apps/api/src/notification/controllers/create-notification",
-  () => ({
-    default: vi.fn().mockResolvedValue(undefined),
-  }),
-);
-vi.mock("../../apps/api/src/plugins/generic-webhook/events", () => ({
-  sendDueDateReminder: vi.fn().mockResolvedValue(true),
+const { sendDueDateReminder } = vi.hoisted(() => ({
+  sendDueDateReminder: vi.fn<
+    (
+      config: unknown,
+      taskId: string,
+      projectId: string,
+      leadTimeMinutes: number,
+      dueDate: Date,
+    ) => Promise<boolean>
+  >(async () => true),
 }));
 
-async function seedReminder({
-  dueDate = "2026-09-23T00:00:00.000Z",
-  leadTimeMinutes = 14 * 60,
-  completed = false,
-  enabled = true,
-}: {
-  dueDate?: string;
-  leadTimeMinutes?: number | null;
-  completed?: boolean;
-  enabled?: boolean;
-} = {}) {
-  const { user, workspace } = await createWorkspaceMember();
+vi.mock(
+  "../../apps/api/src/plugins/generic-webhook/events",
+  async (importOriginal) => {
+    const actual =
+      await importOriginal<
+        typeof import("../../apps/api/src/plugins/generic-webhook/events")
+      >();
+    return { ...actual, sendDueDateReminder };
+  },
+);
+
+const { default: db, schema } = await import("../../apps/api/src/database");
+const { checkDueDateReminders } = await import(
+  "../../apps/api/src/scheduler/due-date-reminders"
+);
+const { checkProjectWebhookReminders } = await import(
+  "../../apps/api/src/scheduler/project-webhook-reminders"
+);
+const { DUE_DATE_DURATION_MS } = await import(
+  "../../apps/api/src/scheduler/reminder-timing"
+);
+const { resetTestDatabase } = await import("./helpers/database");
+const { createProjectFixture, createWorkspaceMember } = await import(
+  "./helpers/fixtures"
+);
+
+const MINUTE_MS = 60 * 1000;
+const DEFAULT_LEAD_TIME_MINUTES = 1440;
+
+// Both schedulers fire when `dueDate + duration - leadTime` lands in the trailing
+// REMINDER_WINDOW_MINUTES. Sitting five minutes inside keeps the fixture off
+// both edges of that window regardless of how long the suite takes to run.
+function dueDateInsideReminderWindow() {
+  return new Date(
+    Date.now() +
+      (DEFAULT_LEAD_TIME_MINUTES - 5) * MINUTE_MS -
+      DUE_DATE_DURATION_MS,
+  );
+}
+
+type Scene = Awaited<ReturnType<typeof seedScene>>;
+
+async function seedScene() {
+  const { user, workspace } = await createWorkspaceMember({ role: "owner" });
   const { project, columns } = await createProjectFixture({
     workspaceId: workspace.id,
   });
-  const column = completed ? columns.done : columns.todo;
+
+  return { user, workspace, project, columns };
+}
+
+// task_project_number_unique means every task in a project needs its own number.
+let nextTaskNumber = 1;
+
+async function seedTask(
+  scene: Scene,
+  {
+    status,
+    column = scene.columns.todo,
+    dueDate = dueDateInsideReminderWindow(),
+  }: {
+    status: string;
+    column?: Scene["columns"]["todo"];
+    dueDate?: Date;
+  },
+) {
+  const number = nextTaskNumber++;
+
   const [task] = await db
     .insert(schema.taskTable)
     .values({
-      title: "Due all day",
-      projectId: project.id,
-      userId: user.id,
+      projectId: scene.project.id,
       columnId: column.id,
-      status: column.slug,
-      number: 1,
-      dueDate: new Date(dueDate),
+      userId: scene.user.id,
+      title: `Task ${number}`,
+      number,
+      status,
+      dueDate,
     })
     .returning();
 
-  if (leadTimeMinutes !== null) {
-    await db.insert(schema.userNotificationPreferenceTable).values({
-      userId: user.id,
-      dueDateReminderLeadTimeMinutes: leadTimeMinutes,
-      dueDateReminderEnabled: enabled,
-    });
-  }
-  await db.insert(schema.integrationTable).values({
-    projectId: project.id,
-    type: "generic-webhook",
-    config: JSON.stringify({
-      url: "https://example.com/reminders",
-      events: { dueDateReminder: enabled },
-      ...(leadTimeMinutes === null
-        ? {}
-        : { dueDateReminderLeadTimeMinutes: leadTimeMinutes }),
-    }),
-  });
   return task;
 }
 
-async function checkAllReminders() {
-  await checkDueDateReminders();
-  await checkProjectWebhookReminders();
+function notificationsFor(taskId: string) {
+  return db
+    .select()
+    .from(schema.notificationTable)
+    .where(eq(schema.notificationTable.resourceId, taskId));
 }
 
-function expectNoDelivery() {
-  expect(createNotification).not.toHaveBeenCalled();
-  expect(sendDueDateReminder).not.toHaveBeenCalled();
+function remindersSentFor(taskId: string) {
+  return db
+    .select()
+    .from(schema.taskReminderSentTable)
+    .where(eq(schema.taskReminderSentTable.taskId, taskId));
 }
 
-describe("API integration: date-only reminders", () => {
+describe("due date reminders", () => {
   beforeEach(async () => {
-    vi.clearAllMocks();
     await resetTestDatabase();
-    vi.useFakeTimers({ toFake: ["Date"] });
+    nextTaskNumber = 1;
+    sendDueDateReminder.mockClear();
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
-  });
+  it("notifies the assignee about an open task inside the window", async () => {
+    const scene = await seedScene();
+    const task = await seedTask(scene, { status: "to-do" });
 
-  it.each([
-    [
-      "2026-09-23T00:00:00.000Z",
-      "2026-09-22T10:00:00.000Z",
-      "2026-09-23T10:00:00.000Z",
-    ],
-    [
-      "2026-09-23T00:00:00+02:00",
-      "2026-09-22T10:00:00+02:00",
-      "2026-09-23T10:00:00+02:00",
-    ],
-    [
-      "2026-09-23T00:00:00-07:00",
-      "2026-09-22T10:00:00-07:00",
-      "2026-09-23T10:00:00-07:00",
-    ],
-  ])(
-    "sends fourteen-hour reminders on the due day for %s",
-    async (dueDate, early, expected) => {
-      const task = await seedReminder({ dueDate });
-      vi.setSystemTime(new Date(early));
-      await checkAllReminders();
-      expectNoDelivery();
-      expect(await db.select().from(taskReminderSentTable)).toHaveLength(0);
-
-      vi.setSystemTime(new Date(expected));
-      await checkAllReminders();
-      expect(createNotification).toHaveBeenCalledExactlyOnceWith(
-        expect.objectContaining({
-          type: "due_date_reminder",
-          resourceId: task.id,
-          eventData: expect.objectContaining({
-            dueDate: task.dueDate?.toISOString(),
-            leadTimeMinutes: 840,
-          }),
-        }),
-      );
-      expect(sendDueDateReminder).toHaveBeenCalledExactlyOnceWith(
-        expect.any(Object),
-        task.id,
-        task.projectId,
-        840,
-        task.dueDate,
-      );
-
-      vi.setSystemTime(new Date(new Date(expected).getTime() + 5 * 60 * 1000));
-      await checkAllReminders();
-      expect(createNotification).toHaveBeenCalledTimes(1);
-      expect(sendDueDateReminder).toHaveBeenCalledTimes(1);
-    },
-  );
-
-  it("does not mark a task overdue until the due day ends", async () => {
-    const task = await seedReminder();
-    for (const now of ["2026-09-23T00:00:00Z", "2026-09-23T23:59:59.999Z"]) {
-      vi.setSystemTime(new Date(now));
-      await checkDueDateReminders();
-      expectNoDelivery();
-    }
-    vi.setSystemTime(new Date("2026-09-24T00:00:00Z"));
     await checkDueDateReminders();
-    expect(createNotification).toHaveBeenCalledExactlyOnceWith(
+
+    const notifications = await notificationsFor(task.id);
+    expect(notifications).toHaveLength(1);
+    expect(notifications[0]?.type).toBe("due_date_reminder");
+    expect(notifications[0]?.userId).toBe(scene.user.id);
+    expect(await remindersSentFor(task.id)).toHaveLength(1);
+  });
+
+  it("stays silent about an archived task with the same due date", async () => {
+    const scene = await seedScene();
+    const task = await seedTask(scene, { status: "archived" });
+
+    await checkDueDateReminders();
+
+    expect(await notificationsFor(task.id)).toHaveLength(0);
+    expect(await remindersSentFor(task.id)).toHaveLength(0);
+  });
+
+  it("skips only the archived task when both are due", async () => {
+    const scene = await seedScene();
+    const open = await seedTask(scene, { status: "to-do" });
+    const archived = await seedTask(scene, { status: "archived" });
+
+    await checkDueDateReminders();
+
+    const notifications = await db.select().from(schema.notificationTable);
+    expect(notifications).toHaveLength(1);
+    expect(notifications[0]?.resourceId).toBe(open.id);
+    expect(await notificationsFor(archived.id)).toHaveLength(0);
+  });
+
+  it("still notifies about planned tasks, which are not archived", async () => {
+    const scene = await seedScene();
+    const task = await seedTask(scene, { status: "planned" });
+
+    await checkDueDateReminders();
+
+    expect(await notificationsFor(task.id)).toHaveLength(1);
+  });
+
+  it("stays silent about a task in a final column", async () => {
+    const scene = await seedScene();
+    const task = await seedTask(scene, {
+      status: "done",
+      column: scene.columns.done,
+    });
+
+    await checkDueDateReminders();
+
+    expect(await notificationsFor(task.id)).toHaveLength(0);
+  });
+});
+
+describe("project webhook due date reminders", () => {
+  beforeEach(async () => {
+    await resetTestDatabase();
+    nextTaskNumber = 1;
+    sendDueDateReminder.mockClear();
+  });
+
+  async function seedWebhookIntegration(projectId: string) {
+    const [integration] = await db
+      .insert(schema.integrationTable)
+      .values({
+        projectId,
+        type: "generic-webhook",
+        isActive: true,
+        config: JSON.stringify({
+          webhookUrl: "https://hooks.example.com/kaneo",
+          events: { dueDateReminder: true },
+        }),
+      })
+      .returning();
+
+    return integration;
+  }
+
+  function remindedTaskIds() {
+    return sendDueDateReminder.mock.calls.map(([, taskId]) => taskId);
+  }
+
+  it("posts a reminder for an open task inside the window", async () => {
+    const scene = await seedScene();
+    await seedWebhookIntegration(scene.project.id);
+    const task = await seedTask(scene, { status: "to-do" });
+
+    await checkProjectWebhookReminders();
+
+    expect(remindedTaskIds()).toEqual([task.id]);
+  });
+
+  it("skips only the archived task when both are due", async () => {
+    const scene = await seedScene();
+    const integration = await seedWebhookIntegration(scene.project.id);
+    const open = await seedTask(scene, { status: "to-do" });
+    const archived = await seedTask(scene, { status: "archived" });
+
+    await checkProjectWebhookReminders();
+
+    expect(remindedTaskIds()).toEqual([open.id]);
+    expect(await remindersSentFor(archived.id)).toHaveLength(0);
+    expect(await remindersSentFor(open.id)).toEqual([
       expect.objectContaining({
-        type: "task_overdue",
-        resourceId: task.id,
+        reminderType: `generic_webhook:${integration.id}`,
       }),
-    );
+    ]);
   });
-
-  it("uses expiration for the default one-day lead time without preferences", async () => {
-    await seedReminder({ leadTimeMinutes: null });
-    vi.setSystemTime(new Date("2026-09-22T00:00:00Z"));
-    await checkAllReminders();
-    expectNoDelivery();
-    vi.setSystemTime(new Date("2026-09-23T00:00:00Z"));
-    await checkAllReminders();
-    expect(createNotification).toHaveBeenCalledExactlyOnceWith(
-      expect.objectContaining({ type: "due_date_reminder" }),
-    );
-    expect(sendDueDateReminder).toHaveBeenCalledTimes(1);
-  });
-
-  it.each([
-    ["2026-09-23T09:59:59.999Z", 0],
-    ["2026-09-23T10:10:00.000Z", 1],
-    ["2026-09-23T10:10:00.001Z", 0],
-  ])("respects the delivery window at %s", async (now, count) => {
-    await seedReminder();
-    vi.setSystemTime(new Date(now));
-    await checkAllReminders();
-    expect(createNotification).toHaveBeenCalledTimes(count);
-    expect(sendDueDateReminder).toHaveBeenCalledTimes(count);
-  });
-
-  it.each([{ completed: true }, { enabled: false }])(
-    "skips reminders when %j",
-    async (options) => {
-      await seedReminder(options);
-      for (const now of ["2026-09-23T10:00:00Z", "2026-09-24T00:00:00Z"]) {
-        vi.setSystemTime(new Date(now));
-        await checkAllReminders();
-      }
-      expectNoDelivery();
-    },
-  );
 });

@@ -1,8 +1,15 @@
-import { eq } from "drizzle-orm";
+import { and, eq, isNotNull, min } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { workspaceBillingTable, workspaceTable } from "../../database/schema";
+import {
+  trialGrantTable,
+  userTable,
+  workspaceBillingTable,
+  workspaceTable,
+  workspaceUserTable,
+} from "../../database/schema";
 import { foundingCutoff, isBillingEnabled, trialDays } from "../config";
+import { hashTrialEmail } from "../trial-identity";
 
 const ACTIVE_STATUSES = new Set([
   "active",
@@ -10,6 +17,75 @@ const ACTIVE_STATUSES = new Set([
   "past_due",
   "scheduled_cancel",
 ]);
+
+const PAID_THROUGH_PERIOD_STATUSES = new Set(["canceled"]);
+
+export async function resolveTrialEndsAt(
+  workspaceId: string,
+): Promise<Date | null> {
+  const [owner] = await db
+    .select({
+      userId: workspaceUserTable.userId,
+      email: userTable.email,
+    })
+    .from(workspaceUserTable)
+    .innerJoin(userTable, eq(userTable.id, workspaceUserTable.userId))
+    .where(
+      and(
+        eq(workspaceUserTable.workspaceId, workspaceId),
+        eq(workspaceUserTable.role, "owner"),
+      ),
+    )
+    .limit(1);
+
+  if (owner) {
+    const [earlier] = await db
+      .select({ trialEndsAt: min(workspaceBillingTable.trialEndsAt) })
+      .from(workspaceBillingTable)
+      .innerJoin(
+        workspaceUserTable,
+        eq(workspaceUserTable.workspaceId, workspaceBillingTable.workspaceId),
+      )
+      .where(
+        and(
+          eq(workspaceUserTable.userId, owner.userId),
+          eq(workspaceUserTable.role, "owner"),
+          isNotNull(workspaceBillingTable.trialEndsAt),
+        ),
+      );
+
+    if (earlier?.trialEndsAt) {
+      return new Date(earlier.trialEndsAt);
+    }
+
+    return claimTrial(owner.email);
+  }
+
+  return new Date(Date.now() + trialDays() * 24 * 60 * 60 * 1000);
+}
+
+async function claimTrial(email: string): Promise<Date> {
+  const emailHash = hashTrialEmail(email);
+  const trialEndsAt = new Date(Date.now() + trialDays() * 24 * 60 * 60 * 1000);
+
+  const [claimed] = await db
+    .insert(trialGrantTable)
+    .values({ emailHash, trialEndsAt })
+    .onConflictDoNothing({ target: trialGrantTable.emailHash })
+    .returning({ trialEndsAt: trialGrantTable.trialEndsAt });
+
+  if (claimed) {
+    return claimed.trialEndsAt;
+  }
+
+  const [granted] = await db
+    .select({ trialEndsAt: trialGrantTable.trialEndsAt })
+    .from(trialGrantTable)
+    .where(eq(trialGrantTable.emailHash, emailHash))
+    .limit(1);
+
+  return granted?.trialEndsAt ?? trialEndsAt;
+}
 
 export async function getOrCreateWorkspaceBilling(workspaceId: string) {
   const [existing] = await db
@@ -31,9 +107,7 @@ export async function getOrCreateWorkspaceBilling(workspaceId: string) {
 
   const cutoff = foundingCutoff();
   const isFounding = cutoff !== null && workspace.createdAt <= cutoff;
-  const trialEndsAt = isFounding
-    ? null
-    : new Date(Date.now() + trialDays() * 24 * 60 * 60 * 1000);
+  const trialEndsAt = isFounding ? null : await resolveTrialEndsAt(workspaceId);
 
   const [created] = await db
     .insert(workspaceBillingTable)
@@ -73,6 +147,14 @@ export function computeEntitlement(
   }
   if (billing.status && ACTIVE_STATUSES.has(billing.status)) {
     return { active: true, reason: "subscription" as const };
+  }
+  if (
+    billing.status &&
+    PAID_THROUGH_PERIOD_STATUSES.has(billing.status) &&
+    billing.currentPeriodEnd &&
+    billing.currentPeriodEnd.getTime() > Date.now()
+  ) {
+    return { active: true, reason: "paid_period" as const };
   }
   if (billing.trialEndsAt && billing.trialEndsAt.getTime() > Date.now()) {
     return { active: true, reason: "trial" as const };

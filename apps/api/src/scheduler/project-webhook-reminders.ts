@@ -1,4 +1,4 @@
-import { and, between, eq, isNotNull, isNull, or } from "drizzle-orm";
+import { and, between, eq, isNotNull, isNull, ne, or } from "drizzle-orm";
 import db from "../database";
 import {
   columnTable,
@@ -18,7 +18,9 @@ import {
 
 const MINUTE_MS = 60 * 1000;
 
-export async function checkProjectWebhookReminders(): Promise<void> {
+export async function checkProjectWebhookReminders(): Promise<{
+  degraded: boolean;
+}> {
   const now = new Date();
   const integrations = await db
     .select({
@@ -33,6 +35,7 @@ export async function checkProjectWebhookReminders(): Promise<void> {
         eq(integrationTable.isActive, true),
       ),
     );
+  let degraded = false;
 
   for (const integration of integrations) {
     try {
@@ -68,6 +71,7 @@ export async function checkProjectWebhookReminders(): Promise<void> {
             between(taskTable.dueDate, windowStart, windowEnd),
             isNull(taskReminderSentTable.id),
             or(isNull(columnTable.isFinal), eq(columnTable.isFinal, false)),
+            ne(taskTable.status, "archived"),
           ),
         );
 
@@ -101,6 +105,7 @@ export async function checkProjectWebhookReminders(): Promise<void> {
         }
       }
     } catch (error) {
+      degraded = true;
       console.error("Failed to process project webhook reminder", {
         integrationId: integration.id,
         projectId: integration.projectId,
@@ -108,4 +113,6 @@ export async function checkProjectWebhookReminders(): Promise<void> {
       });
     }
   }
+
+  return { degraded };
 }

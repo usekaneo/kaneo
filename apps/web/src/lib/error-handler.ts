@@ -13,21 +13,20 @@ export function parseApiError(error: unknown): ApiError {
       error.message.includes("CORS")
     ) {
       return {
-        message:
-          "Unable to connect to the server. This might be due to CORS configuration issues.",
+        message: "common:error.messages.cors",
         type: "cors",
         originalError: error,
       };
     }
 
     if (
+      error.message.includes("Load failed") ||
       error.message.includes("fetch") ||
       error.message.includes("network") ||
       error.message.includes("connection")
     ) {
       return {
-        message:
-          "Network error. Please check your internet connection and try again.",
+        message: "common:error.messages.network",
         type: "network",
         originalError: error,
       };
@@ -39,7 +38,7 @@ export function parseApiError(error: unknown): ApiError {
       error.message.includes("authentication")
     ) {
       return {
-        message: "Authentication failed. Please sign in again.",
+        message: "common:error.messages.auth",
         type: "auth",
         status: 401,
         originalError: error,
@@ -53,41 +52,46 @@ export function parseApiError(error: unknown): ApiError {
       error.message.includes("internal")
     ) {
       return {
-        message: "Server error. Please try again later.",
+        message: "common:error.messages.server",
         type: "server",
         status: 500,
         originalError: error,
       };
     }
 
+    // Don't surface `error.message` here: this branch covers both genuine
+    // API unknowns and any non-API error passed in (e.g. a React render
+    // error bubbled up to ErrorBoundary), and a raw `error.message` from
+    // the latter can leak internal implementation details to end users.
+    // The original error is preserved on `originalError` for Sentry.
     return {
-      message: error.message || "An unexpected error occurred.",
+      message: "common:error.messages.unknown",
       type: "unknown",
       originalError: error,
     };
   }
 
   return {
-    message: "An unexpected error occurred.",
+    message: "common:error.messages.unknown",
     type: "unknown",
   };
 }
 
 export function getCorsTroubleshootingSteps(): string[] {
   return [
-    "Make sure your API server is running",
-    "Check that VITE_API_URL in your frontend .env matches your API server URL",
-    "Verify CORS_ORIGINS in your API .env includes your frontend URL",
-    "Ensure both frontend and API are using the same protocol (http/https)",
-    "Check that your API server is accessible from your browser",
+    "common:error.troubleshootingSteps.cors.checkApiRunning",
+    "common:error.troubleshootingSteps.cors.checkApiUrl",
+    "common:error.troubleshootingSteps.cors.verifyCorsOrigins",
+    "common:error.troubleshootingSteps.cors.checkProtocol",
+    "common:error.troubleshootingSteps.cors.checkAccessibility",
   ];
 }
 
 export function getNetworkTroubleshootingSteps(): string[] {
   return [
-    "Check your internet connection",
-    "Verify the API server is running and accessible",
-    "Try refreshing the page",
-    "Check if there are any firewall or proxy issues",
+    "common:error.troubleshootingSteps.network.checkConnection",
+    "common:error.troubleshootingSteps.network.verifyApiRunning",
+    "common:error.troubleshootingSteps.network.tryRefresh",
+    "common:error.troubleshootingSteps.network.checkFirewall",
   ];
 }

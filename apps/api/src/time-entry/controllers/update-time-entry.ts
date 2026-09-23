@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { timeEntryTable } from "../../database/schema";
+import { resolveDuration } from "../duration";
 
 type UpdateTimeEntryParams = {
   timeEntryId: string;
@@ -26,19 +27,7 @@ async function updateTimeEntry(params: UpdateTimeEntryParams) {
 
   const effectiveEndTime = endTime ?? existingTimeEntry.endTime;
 
-  if (effectiveEndTime && startTime.getTime() > effectiveEndTime.getTime()) {
-    throw new HTTPException(400, {
-      message:
-        "Start time cannot be after end time. Please adjust the time range.",
-    });
-  }
-
-  let duration: number | null = null;
-  if (effectiveEndTime) {
-    duration = Math.floor(
-      (effectiveEndTime.getTime() - startTime.getTime()) / 1000,
-    ); // duration in seconds
-  }
+  const duration = resolveDuration(startTime, effectiveEndTime ?? undefined);
 
   const [updatedTimeEntry] = await db
     .update(timeEntryTable)

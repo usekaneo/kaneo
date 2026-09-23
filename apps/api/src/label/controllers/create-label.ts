@@ -13,6 +13,16 @@ async function createLabel(
   workspaceId: string,
   userId: string,
 ) {
+  const deleting = await db.query.labelTable.findFirst({
+    where: and(
+      eq(labelTable.workspaceId, workspaceId),
+      eq(labelTable.name, name),
+      isNull(labelTable.taskId),
+    ),
+  });
+  if (deleting?.deletionStartedAt)
+    throw new HTTPException(409, { message: "This label is being deleted" });
+
   if (taskId) {
     const [task] = await db
       .select({

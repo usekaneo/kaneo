@@ -1,59 +1,69 @@
+import {
+  blogCategoryPath,
+  blogPath,
+  getPosts,
+  getUsedCategories,
+} from "@/lib/blog";
+import { alternativePath, comparisonList } from "@/lib/comparisons";
+import { guideList, guidePath } from "@/lib/guides";
+
 export const dynamic = "force-static";
 
 const SITE = "https://kaneo.app";
 
+type Entry = { path: string; changefreq: string; priority: string };
+
+const staticEntries: Entry[] = [
+  { path: "/", changefreq: "weekly", priority: "1.0" },
+  { path: "/pricing", changefreq: "monthly", priority: "0.8" },
+  { path: "/alternatives", changefreq: "weekly", priority: "0.8" },
+  { path: "/guides", changefreq: "weekly", priority: "0.8" },
+  { path: "/blog", changefreq: "weekly", priority: "0.8" },
+  { path: "/privacy", changefreq: "yearly", priority: "0.3" },
+  { path: "/terms", changefreq: "yearly", priority: "0.3" },
+];
+
 export function GET() {
   const lastmod = new Date().toISOString();
+
+  const entries: Entry[] = [
+    ...staticEntries,
+    ...comparisonList.map((comparison) => ({
+      path: alternativePath(comparison.slug),
+      changefreq: "monthly",
+      priority: "0.7",
+    })),
+    ...guideList.map((guide) => ({
+      path: guidePath(guide.slug),
+      changefreq: "monthly",
+      priority: "0.7",
+    })),
+    ...getUsedCategories().map((category) => ({
+      path: blogCategoryPath(category.slug),
+      changefreq: "weekly",
+      priority: "0.5",
+    })),
+    ...getPosts().map((post) => ({
+      path: blogPath(post.slug),
+      changefreq: "monthly",
+      priority: "0.7",
+    })),
+  ];
+
+  const urls = entries
+    .map(
+      (entry) => `  <url>
+    <loc>${SITE}${entry.path}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>${entry.changefreq}</changefreq>
+    <priority>${entry.priority}</priority>
+  </url>`,
+    )
+    .join("\n");
+
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>${SITE}/</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>${SITE}/pricing</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>${SITE}/privacy</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>${SITE}/terms</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>${SITE}/jira-alternative</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>${SITE}/trello-alternative</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>${SITE}/linear-alternative</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>${SITE}/planka-alternative</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
+${urls}
 </urlset>`;
 
   return new Response(xml, {

@@ -2,7 +2,7 @@
 import { writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import prompts from "prompts";
-import { HELP_TEXT, parseArgs } from "./args.js";
+import { DEFAULT_KANEO_URL, HELP_TEXT, parseArgs } from "./args.js";
 import { KaneoClient } from "./kaneo.js";
 import { type BoardReport, type BoardTarget, migrate } from "./migrate.js";
 import { PlankaClient } from "./planka.js";
@@ -106,7 +106,7 @@ async function main(): Promise<number> {
   }
 
   const kaneo = new KaneoClient({
-    baseUrl: args.kaneoUrl ?? "https://app.kaneo.app",
+    baseUrl: args.kaneoUrl ?? DEFAULT_KANEO_URL,
     apiKey: kaneoApiKey ?? "",
   });
 

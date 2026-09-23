@@ -56,7 +56,30 @@
 			"troubleshooting": "समस्या निवारण कदम:",
 			"tryAgain": "पुनः प्रयास करें",
 			"viewDeploymentGuide": "डिप्लॉयमेंट गाइड देखें",
-			"refreshPage": "पेज रिफ़्रेश करें"
+			"refreshPage": "पेज रिफ़्रेश करें",
+			"description": "The page crashed unexpectedly. Refreshing usually fixes it.",
+			"messages": {
+				"auth": "Authentication failed. Please sign in again.",
+				"cors": "Unable to connect to the server. This might be due to CORS configuration issues.",
+				"network": "Network error. Please check your internet connection and try again.",
+				"server": "Server error. Please try again later.",
+				"unknown": "An unexpected error occurred."
+			},
+			"troubleshootingSteps": {
+				"cors": {
+					"checkAccessibility": "Check that your API server is accessible from your browser",
+					"checkApiRunning": "Make sure your API server is running",
+					"checkApiUrl": "Check that VITE_API_URL in your frontend .env matches your API server URL",
+					"checkProtocol": "Ensure both frontend and API are using the same protocol (http/https)",
+					"verifyCorsOrigins": "Verify CORS_ORIGINS in your API .env includes your frontend URL"
+				},
+				"network": {
+					"checkConnection": "Check your internet connection",
+					"checkFirewall": "Check if there are any firewall or proxy issues",
+					"tryRefresh": "Try refreshing the page",
+					"verifyApiRunning": "Verify the API server is running and accessible"
+				}
+			}
 		},
 		"formats": {
 			"never": "कभी नहीं"
@@ -116,6 +139,9 @@
 				"labelCreateError": "लेबल बनाने में विफल",
 				"createMore": "और बनाएँ",
 				"createButton": "कार्य बनाएँ",
+				"discardTitle": "कार्य छोड़ें?",
+				"discardDescription": "आपके सहेजे नहीं गए कार्य विवरण खो जाएँगे।",
+				"discardButton": "कार्य छोड़ें",
 				"untitledTask": "बिना शीर्षक कार्य",
 				"labelColors": {
 					"stone": "पत्थर",
@@ -129,6 +155,12 @@
 					"crimson": "किरमिज़ी"
 				}
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -334,6 +366,29 @@
 				"nameRequired": "नाम आवश्यक है",
 				"nameShort": "नाम कम से कम 2 अक्षरों का होना चाहिए",
 				"invalidEmail": "अमान्य ईमेल पता"
+			},
+			"avatar": {
+				"hint": "PNG, JPEG, or WebP. Cropped to a square and resized to 256x256.",
+				"remove": "Remove",
+				"removeError": "Failed to remove profile picture",
+				"removeSuccess": "Profile picture removed",
+				"updateError": "Failed to update profile picture",
+				"updateSuccess": "Profile picture updated",
+				"change": "Change avatar",
+				"edit": "Change your profile picture"
+			},
+			"deleteAccount": {
+				"confirm": "Delete account",
+				"confirmLabel": "Confirm your email address",
+				"description": "Workspaces only you belong to are deleted with your account. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
+				"error": "Failed to delete account",
+				"modalDescription": "This cannot be undone. Type {{email}} to confirm.",
+				"modalTitle": "Delete your account?",
+				"sectionSubtitle": "Permanent actions that affect your whole account.",
+				"sectionTitle": "Danger zone",
+				"success": "Your account has been deleted",
+				"title": "Delete account",
+				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
 			}
 		},
 		"notificationsPage": {
@@ -623,7 +678,12 @@
 				"project": "प्रोजेक्ट",
 				"task": "कार्य",
 				"label": "लेबल",
-				"workspace": "वर्कस्पेस"
+				"workspace": "वर्कस्पेस",
+				"organization": "Workspace administration",
+				"member": "Members",
+				"invitation": "Invitations",
+				"team": "Teams",
+				"ac": "Roles and permissions"
 			},
 			"permissions": {
 				"project": {
@@ -705,6 +765,72 @@
 						"label": "सेटिंग प्रबंधित करें",
 						"description": "वर्कस्पेस सेटिंग प्रबंधित कर सकते हैं"
 					}
+				},
+				"organization": {
+					"update": {
+						"label": "Edit workspace administration",
+						"description": "Change workspace settings through the account service."
+					},
+					"delete": {
+						"label": "Delete workspace",
+						"description": "Permanently delete the workspace through the account service."
+					}
+				},
+				"member": {
+					"create": {
+						"label": "Add members",
+						"description": "Add users to this workspace."
+					},
+					"update": {
+						"label": "Change member roles",
+						"description": "Change the roles assigned to workspace members."
+					},
+					"delete": {
+						"label": "Remove members",
+						"description": "Remove users from this workspace."
+					}
+				},
+				"invitation": {
+					"create": {
+						"label": "Invite members",
+						"description": "Send workspace invitations."
+					},
+					"cancel": {
+						"label": "Cancel invitations",
+						"description": "Revoke pending workspace invitations."
+					}
+				},
+				"team": {
+					"create": {
+						"label": "Create teams",
+						"description": "Create teams in this workspace."
+					},
+					"update": {
+						"label": "Edit teams",
+						"description": "Change teams and team membership."
+					},
+					"delete": {
+						"label": "Delete teams",
+						"description": "Delete teams in this workspace."
+					}
+				},
+				"ac": {
+					"create": {
+						"label": "Create roles",
+						"description": "Create workspace roles and assign their permissions."
+					},
+					"read": {
+						"label": "View roles",
+						"description": "Read the workspace roles and their permissions."
+					},
+					"update": {
+						"label": "Change role permissions",
+						"description": "Change role permissions, including administrative access."
+					},
+					"delete": {
+						"label": "Delete roles",
+						"description": "Delete custom workspace roles."
+					}
 				}
 			},
 			"validation": {
@@ -748,7 +874,9 @@
 			"createError": "लेबल बनाने में विफल",
 			"updateError": "लेबल अपडेट करने में विफल",
 			"deleteError": "लेबल हटाने में विफल",
-			"nameRequired": "लेबल का नाम आवश्यक है"
+			"nameRequired": "लेबल का नाम आवश्यक है",
+			"deletionPending": "Deletion pending",
+			"resumeDeletion": "Resume deletion"
 		},
 		"projectGeneral": {
 			"pageTitle": "प्रोजेक्ट सेटिंग",
@@ -804,7 +932,9 @@
 			"slackSectionTitle": "Slack एकीकरण",
 			"slackSectionSubtitle": "इनकमिंग वेबहुक के साथ Slack चैनल में प्रोजेक्ट कार्य अपडेट भेजें।",
 			"telegramSectionTitle": "Telegram एकीकरण",
-			"telegramSectionSubtitle": "बॉट के साथ Telegram चैट या टॉपिक में प्रोजेक्ट कार्य अपडेट भेजें।"
+			"telegramSectionSubtitle": "बॉट के साथ Telegram चैट या टॉपिक में प्रोजेक्ट कार्य अपडेट भेजें।",
+			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook.",
+			"mattermostSectionTitle": "Mattermost Integration"
 		},
 		"projectVisibility": {
 			"pageTitle": "प्रोजेक्ट दृश्यता",
@@ -828,7 +958,9 @@
 			"columnsTitle": "कॉलम",
 			"columnsDescription": "अपने बोर्ड पर दिखाई देने वाले कॉलम प्रबंधित करें। पुनर्क्रम के लिए खींचें। पूर्ण कार्य को दर्शाने वाले चरणों के लिए \"Done column\" चालू करें।",
 			"automationTitle": "ऑटोमेशन नियम",
-			"automationDescription": "एकीकरण इवेंट को कॉलम से मैप करें। जब कोई इवेंट होता है, तो लिंक किया गया कार्य निर्दिष्ट कॉलम में चला जाता है।"
+			"automationDescription": "एकीकरण इवेंट को कॉलम से मैप करें। जब कोई इवेंट होता है, तो लिंक किया गया कार्य निर्दिष्ट कॉलम में चला जाता है।",
+			"customFieldsDescription": "Manage the custom fields for this project. Drag  to reorder.",
+			"customFieldsTitle": "Custom Fields"
 		},
 		"projectSwitcher": {
 			"selectProject": "प्रोजेक्ट चुनें",
@@ -915,7 +1047,13 @@
 			"importSectionHint": "अपनी GitHub रिपॉज़िटरी से मौजूदा issues को कार्यों के रूप में आयात करें",
 			"importing": "आयात हो रहा है...",
 			"importIssues": "Issues आयात करें",
-			"importDisabledHint": "आयात सक्षम करने के लिए ऊपर रिपॉज़िटरी कॉन्फ़िगरेशन पूरा करें"
+			"importDisabledHint": "आयात सक्षम करने के लिए ऊपर रिपॉज़िटरी कॉन्फ़िगरेशन पूरा करें",
+			"accountVerificationHint": "इस रिपॉज़िटरी पर अपने व्यवस्थापक अधिकार सत्यापित करने के लिए अपना GitHub खाता कनेक्ट करें।",
+			"enableGithubSignInHint": "अपने इंस्टेंस के व्यवस्थापक से GitHub साइन-इन सक्षम करने को कहें।",
+			"reverifyHint": "पहुँच सत्यापित करने और सिंक्रोनाइज़ेशन फिर से शुरू करने के लिए इस रिपॉज़िटरी को दोबारा कनेक्ट करें।",
+			"resumeImport": "Resume import",
+			"importPaused": "This import has saved progress. You can resume it.",
+			"importSummary": "Created: {{imported}} · Updated: {{updated}} · Skipped: {{skipped}}"
 		},
 		"giteaIntegration": {
 			"validation": {
@@ -1223,6 +1361,70 @@
 			"merged": "मर्ज किया",
 			"draft": "ड्राफ़्ट",
 			"open": "खुला"
+		},
+		"mattermostIntegration": {
+			"channelHint": "Optional label for your reference. Mattermost controls the actual destination channel from the webhook setup.",
+			"channelLabel": "Channel name",
+			"channelPlaceholder": "#team-updates",
+			"connect": "Connect Mattermost",
+			"connected": "Connected",
+			"connectionHint": "Paste a Mattermost incoming webhook URL and choose which task events should be posted.",
+			"connectionTitle": "Mattermost webhook connection",
+			"disconnect": "Disconnect",
+			"events": {
+				"taskCommentCreated": "New comments",
+				"taskCreated": "New tasks",
+				"taskDescriptionChanged": "Description changes",
+				"taskPriorityChanged": "Priority changes",
+				"taskStatusChanged": "Status changes",
+				"taskTitleChanged": "Title changes"
+			},
+			"eventsHint": "Choose which project changes should post to Mattermost.",
+			"eventsTitle": "Event notifications",
+			"paused": "Paused",
+			"saveChanges": "Save changes",
+			"toast": {
+				"disabled": "Mattermost notifications paused",
+				"enabled": "Mattermost notifications enabled",
+				"removed": "Mattermost integration removed successfully",
+				"removeError": "Failed to remove Mattermost integration",
+				"saved": "Mattermost integration saved successfully",
+				"saveError": "Failed to save Mattermost integration",
+				"updateError": "Failed to update Mattermost integration"
+			},
+			"update": "Update Mattermost",
+			"validation": {
+				"webhookInvalid": "Enter a valid Mattermost webhook URL"
+			},
+			"webhookHint": "Create an Incoming Webhook in Mattermost and paste the generated URL here.",
+			"webhookLabel": "Incoming webhook URL",
+			"webhookPlaceholder": "https://your-mattermost-server.com/hooks/..."
+		},
+		"customFields": {
+			"addButton": "Add",
+			"createError": "Failed to create custom field.",
+			"createSuccess": "Custom field created.",
+			"creating": "Creating...",
+			"defaultLabel": "Default",
+			"defaultValuePlaceholder": "Default value",
+			"deleteButton": "Delete",
+			"deleteError": "Failed to delete custom field.",
+			"deleteSuccess": "Custom field deleted.",
+			"deleting": "Deleting...",
+			"empty": "No custom fields configured yet.",
+			"loading": "Loading custom fields...",
+			"namePlaceholder": "Field name",
+			"noOptionsPlaceholder": "No options",
+			"optionsPlaceholder": "Options separated by commas",
+			"required": "Required",
+			"typePlaceholder": "Select field type",
+			"types": {
+				"boolean": "Boolean",
+				"date": "Date",
+				"dropdown": "Dropdown",
+				"number": "Number",
+				"text": "Text"
+			}
 		}
 	},
 	"navigation": {
@@ -1333,7 +1535,8 @@
 				"nextTask": "अगला कार्य",
 				"prevTask": "पिछला कार्य",
 				"openTask": "चयनित कार्य खोलें",
-				"quickSelectNumber": "संख्या द्वारा विकल्प चुनें"
+				"quickSelectNumber": "संख्या द्वारा विकल्प चुनें",
+				"calendarView": "Switch to calendar view"
 			}
 		}
 	},
@@ -1507,10 +1710,13 @@
 				"mermaid": {
 					"renderFailed": "Mermaid डायग्राम प्रस्तुत नहीं किया जा सका"
 				}
-			}
+			},
+			"importedFrom": "Imported from {{source}}",
+			"importedBy": "Imported by {{name}}"
 		}
 	},
 	"tasks": {
+		"title": "कार्य",
 		"status": {
 			"label": "स्थिति",
 			"to-do": "करना है",
@@ -1537,7 +1743,8 @@
 			"selectTask": "कार्य चुनें",
 			"loadingTask": "कार्य लोड हो रहा है...",
 			"taskNotFound": "कार्य नहीं मिला",
-			"taskNotFoundDescription": "जो कार्य आप खोज रहे हैं वह मौजूद नहीं है या हटा दिया गया है।"
+			"taskNotFoundDescription": "जो कार्य आप खोज रहे हैं वह मौजूद नहीं है या हटा दिया गया है।",
+			"customFields": "Custom Fields"
 		},
 		"detail": {
 			"subtaskOf": "उप-कार्य",
@@ -1643,7 +1850,9 @@
 				"mermaid": {
 					"renderFailed": "Mermaid डायग्राम प्रस्तुत नहीं किया जा सका"
 				}
-			}
+			},
+			"customFieldUpdated": "Field updated",
+			"selectOption": "Select option"
 		},
 		"entity": {
 			"task": "कार्य"
@@ -1802,7 +2011,11 @@
 			"operators": {
 				"isAnyOf": "में से कोई है",
 				"includeAnyOf": "में से कोई शामिल है"
-			}
+			},
+			"all": "All",
+			"allCustomFieldValues": "All values",
+			"noCustomFieldValues": "No custom field values",
+			"noValuesUsedYet": "No values used yet"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – गैंट",
@@ -1818,7 +2031,12 @@
 			"updateDatesError": "कार्य की तारीखें अपडेट करने में विफल",
 			"resizeStart": "शुरू तारीख बदलें",
 			"resizeDue": "नियत तारीख बदलें",
-			"taskAriaLabel": "{{title}}: खोलें या ले जाने के लिए खींचें"
+			"taskAriaLabel": "{{title}}: खोलें या ले जाने के लिए खींचें",
+			"jumpToToday": "Jump to today",
+			"previousPeriod": "Previous period",
+			"nextPeriod": "Next period",
+			"periodStart": "Timeline start date",
+			"showTaskDates": "Show task dates"
 		},
 		"delete": {
 			"title": "कार्य हटाएँ?",
@@ -1917,7 +2135,25 @@
 				"deleteRow": "पंक्ति हटाएँ",
 				"deleteTable": "तालिका हटाएँ"
 			}
-		}
+		},
+		"calendar": {
+			"dayTasksAriaLabel": "Show all tasks for {{date}}",
+			"moreTasks": "+{{count}} more",
+			"nextMonth": "Next month",
+			"noTasks": "No scheduled tasks",
+			"noTasksSubtitle": "Add a start date, due date, or both to tasks to place them on the calendar.",
+			"pageTitle": "{{name}} – Calendar",
+			"previousMonth": "Previous month",
+			"taskAriaLabel": "{{title}}, {{range}}: open task",
+			"title": "Calendar",
+			"today": "Today",
+			"loadError": "Failed to load tasks."
+		},
+		"descriptionSearchLoading": "Searching full descriptions…",
+		"descriptionSearchError": "Description search failed. Results may be incomplete.",
+		"descriptionRetry": "Retry",
+		"descriptionLoading": "Loading description…",
+		"descriptionLoadError": "The description could not be loaded. Retry to load the current version."
 	},
 	"invitations": {
 		"email": {

@@ -1,5 +1,45 @@
 ---
 title: listTasks
-description: Get all tasks for a specific project
+description: Get a bounded page of tasks for a specific project
 openapi: 'GET /task/tasks/{projectId}'
 ---
+
+
+Every response is paginated: the default is **50 tasks**, with a maximum `limit` of **100**. Inspect `pagination.totalPages` and request subsequent `page` values to retrieve the entire project. Filters and sorting are applied before pagination. The page includes tasks across regular columns, planned tasks and archived tasks; it is not a separate limit for every column.
+
+The web app fetches these pages sequentially and combines them for its board, list, calendar and Gantt views. Custom clients that previously omitted pagination to receive every task must now follow the pagination metadata. MCP `list_tasks` uses the same paginated contract.
+
+The unauthenticated `GET /public-project/{id}` route also returns bounded pages. Its `pagination` object is alongside the board fields. Public visibility is checked before loading tasks and again for each subsequent request.
+
+
+Descriptions larger than 64 KiB are returned as `description: null` with
+`descriptionDeferred: true`. This means the text was omitted, not deleted. Load
+`GET /api/task/{id}` for the task detail, or follow
+`GET /api/task/{id}/description?offset=0` and its `nextOffset` values for bounded
+text pages. Send the first page's `version` on subsequent requests; a `409`
+requires restarting from offset zero. Omit `description` in generic task updates
+when editing a list summary. Sending an explicit empty string clears the text.
+
+The web board searches omitted descriptions through
+`GET /api/task/description-matches/{projectId}?query=…`, following `nextCursor`
+as `after` until it is null. Searches match literal case-insensitive substrings;
+`%` and `_` have no wildcard meaning. This endpoint requires project access.
+Public details use `/api/public-project/{id}/task/{taskId}/description`; visibility
+and task ownership are checked on every page. A description timeout returns `503`
+and can be retried.
+
+
+Each task page also has `pagination.relatedTotalPages`. Request `relatedPage=2`,
+`3`, and so on for the **same task page and filters**, merging labels and external
+links by ID and columns by slug. Each response contains at most 100 labels and
+100 external links, a page of 100 columns, and up to 100 additional columns needed
+to represent the selected tasks. The web client completes these continuations
+before showing a successful refresh. Use returned column `position` to retain
+ordering. Both task and related pagination describe a live collection; concurrent
+changes are picked up on a later refresh, not an immutable snapshot.
+
+Board-level project descriptions use the same 64 KiB omission flag. Authorized
+clients can use the project detail endpoint; public clients can follow
+`GET /api/public-project/{id}/description` with `offset` and `version`, just like
+public task descriptions. Every database statement in a board read has a
+three-second timeout; expensive counts or offsets return a retryable `503`.

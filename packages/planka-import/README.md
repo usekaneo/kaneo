@@ -18,7 +18,7 @@ plan looks right, add your Kaneo credentials and drop `--dry-run`:
 ```bash
 npx @kaneo/planka-import \
   --planka-url https://planka.example.com \
-  --kaneo-url https://app.kaneo.app \
+  --kaneo-url https://cloud.kaneo.app \
   --kaneo-api-key kaneo_xxx \
   --workspace ws_123
 ```
@@ -37,6 +37,7 @@ Create a Kaneo API key under **Settings → API keys**. Self-hosting? Point
 | Card | Task |
 | Card description | Task description |
 | Checklists (task lists) | Markdown checkboxes appended to the description |
+| Checklist items linked to another card | Task relations (subtask) |
 | Labels | Labels, with their original colors |
 | Card members | Assignee, matched by email address |
 | Due date | Due date |
@@ -51,14 +52,18 @@ named `Project - Board`.
 - **Attachments.** Counted and reported, but not transferred.
 - **Archive and trash lists.** Skipped by design; only active and closed lists
   are migrated.
-- **Comment authorship.** Kaneo attributes every imported comment to the owner
-  of the API key, so the original author and date are preserved in the comment
-  body instead.
+- **Comment authorship.** The comment is created by the API key's owner, but the
+  original PLANKA author is recorded and displayed alongside it. Requires Kaneo
+  2.17.6 or newer.
 - **Priorities.** PLANKA has no priority field, so every task starts at
   `no-priority`.
 - **Custom fields, stopwatches, and card subscriptions.** No Kaneo equivalent.
 
-Assignees only match when the person already exists in the target Kaneo
+**Run the import as a PLANKA admin.** PLANKA hides other users' email addresses
+from non-admin accounts, and assignees are matched by email, so a non-admin
+import leaves every task unassigned.
+
+Assignees also only match when the person already exists in the target Kaneo
 workspace with the same email address. Invite your team first, then import, and
 assignments come across on the first run.
 
@@ -71,7 +76,7 @@ assignments come across on the first run.
 | `--planka-password <pass>` | Password (or set `PLANKA_PASSWORD`) |
 | `--planka-token <token>` | Use an existing access token instead of logging in |
 | `--planka-api-key <key>` | Use a PLANKA API key (or `PLANKA_API_KEY`). Works for SSO-only accounts |
-| `--kaneo-url <url>` | Kaneo instance URL (default `https://app.kaneo.app`) |
+| `--kaneo-url <url>` | Kaneo instance URL (default `https://cloud.kaneo.app`) |
 | `--kaneo-api-key <key>` | Kaneo API key (or set `KANEO_API_KEY`) |
 | `--workspace <id>` | Target workspace (prompted if omitted) |
 | `--project <name\|id>` | Migrate only this PLANKA project (repeatable) |

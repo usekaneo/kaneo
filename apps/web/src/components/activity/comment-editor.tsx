@@ -1,6 +1,5 @@
 import type { Editor } from "@tiptap/core";
 import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Table } from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
@@ -36,7 +35,7 @@ import {
 import type { MouseEvent as ReactMouseEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { bundledLanguages, type Highlighter } from "shiki";
+import type { Highlighter } from "shiki";
 import { AttachmentCard } from "@/components/task/extensions/attachment-card";
 import { EmbedBlock } from "@/components/task/extensions/embed-block";
 import { KaneoIssueLink } from "@/components/task/extensions/kaneo-issue-link";
@@ -71,7 +70,7 @@ import {
   normalizeUrl,
 } from "@/lib/editor-url-utils";
 import { isInCodeBlockLanguagePicker } from "@/lib/is-in-codeblock-language-picker";
-import { getSharedShikiHighlighter } from "@/lib/shiki-highlighter";
+import { normalizeCommentMarkdown } from "@/lib/normalize-comment-markdown";
 import { toast } from "@/lib/toast";
 import { uploadTaskImage } from "@/lib/upload-task-image";
 
@@ -151,15 +150,6 @@ const COMMENT_SHIKI_LANGUAGE_ALIASES: Record<string, string> = {
   plaintext: "text",
 };
 
-function normalizeMarkdown(markdown: string) {
-  return markdown
-    .replace(/\r\n/g, "\n")
-    .replace(/&nbsp;/g, " ")
-    .replace(/\u00A0/g, " ")
-    .replace(/\n{3,}/g, "\n\n")
-    .replace(/\n{2,}$/g, "\n");
-}
-
 type EmbedComposerState = {
   mode: "choice" | "input";
   url: string;
@@ -211,7 +201,7 @@ export default function CommentEditor({
   const dragDepthRef = useRef(0);
   const isSyncingRef = useRef(false);
   const hasHydratedRef = useRef(false);
-  const latestValueRef = useRef(normalizeMarkdown(value || ""));
+  const latestValueRef = useRef(normalizeCommentMarkdown(value || ""));
   const lastEditorRef = useRef<Editor | null>(null);
   const taskIdRef = useRef(taskId);
   const ensureTaskIdRef = useRef(ensureTaskId);
@@ -220,6 +210,8 @@ export default function CommentEditor({
   const onCancelShortcutRef = useRef(onCancelShortcut);
   onSubmitShortcutRef.current = onSubmitShortcut;
   onCancelShortcutRef.current = onCancelShortcut;
+  const readOnlyRef = useRef(readOnly);
+  readOnlyRef.current = readOnly;
   const pendingImageInsertRef = useRef<{
     editor: Editor;
     range?: SlashRange;
@@ -254,9 +246,8 @@ export default function CommentEditor({
       })),
     [t],
   );
-  const availableShikiLanguages = useMemo(
-    () => new Set(Object.keys(bundledLanguages)),
-    [],
+  const [availableShikiLanguages, setAvailableShikiLanguages] = useState(
+    () => new Set<string>(),
   );
   const toShikiLanguage = useCallback(
     (language: string) => {
@@ -573,11 +564,24 @@ export default function CommentEditor({
   useEffect(() => {
     let mounted = true;
 
-    void getSharedShikiHighlighter().then((instance) => {
-      if (!mounted) return;
-      shikiHighlighterRef.current = instance;
-      setShikiHighlighter(instance);
-    });
+    void Promise.all([
+      import("@/lib/shiki-highlighter").then(({ getSharedShikiHighlighter }) =>
+        getSharedShikiHighlighter(),
+      ),
+      import("shiki"),
+    ])
+      .then(([instance, { bundledLanguages: languages }]) => {
+        if (!mounted) return;
+        shikiHighlighterRef.current = instance;
+        setShikiHighlighter(instance);
+        setAvailableShikiLanguages(new Set(Object.keys(languages)));
+      })
+      .catch((err) => {
+        // Shared initializer resets its cached promise on rejection so a
+        // later attempt can retry. If this attempt also fails, swallow it
+        // and render without syntax highlighting.
+        console.error("Failed to initialize Shiki highlighter:", err);
+      });
 
     return () => {
       mounted = false;
@@ -605,12 +609,6 @@ export default function CommentEditor({
           codeBlock: {
             HTMLAttributes: { class: "kaneo-tiptap-codeblock" },
           },
-        }),
-        Link.configure({
-          autolink: true,
-          defaultProtocol: "https",
-          linkOnPaste: true,
-          openOnClick: readOnly,
         }),
         Markdown.configure({
           markedOptions: {
@@ -735,6 +733,16 @@ export default function CommentEditor({
           });
           setEmbedComposerError(null);
           return true;
+        },
+        handleClick: (_view, _pos, event) => {
+          if (!readOnlyRef.current) return false;
+          const target = event.target as HTMLElement;
+          const anchor = target.closest("a");
+          if (anchor?.href) {
+            window.open(anchor.href, "_blank", "noopener,noreferrer");
+            return true;
+          }
+          return false;
         },
         handleDrop: (view, event) => {
           if (readOnly || disabled) return false;
@@ -891,7 +899,7 @@ export default function CommentEditor({
       },
       onUpdate: ({ editor: activeEditor }) => {
         if (readOnly || disabled || !onChange || isSyncingRef.current) return;
-        const markdown = normalizeMarkdown(activeEditor.getMarkdown());
+        const markdown = normalizeCommentMarkdown(activeEditor.getMarkdown());
         latestValueRef.current = markdown;
         onChange(markdown);
       },
@@ -1041,7 +1049,7 @@ export default function CommentEditor({
       lastEditorRef.current = editor;
     }
 
-    const incoming = normalizeMarkdown(value || "");
+    const incoming = normalizeCommentMarkdown(value || "");
     if (!hasHydratedRef.current) {
       isSyncingRef.current = true;
       latestValueRef.current = incoming;
@@ -1157,7 +1165,7 @@ export default function CommentEditor({
       const resolvedLanguage = language === "auto" ? "" : language;
       const { nodePos } = hoveredCodeBlock;
       const node = editor.state.doc.nodeAt(nodePos);
-      if (!node || node.type.name !== "codeBlock") return;
+      if (node?.type.name !== "codeBlock") return;
 
       editor
         .chain()
@@ -1404,7 +1412,7 @@ export default function CommentEditor({
   const copyHoveredCodeBlock = useCallback(async () => {
     if (!editor || !hoveredCodeBlock) return;
     const node = editor.state.doc.nodeAt(hoveredCodeBlock.nodePos);
-    if (!node || node.type.name !== "codeBlock") return;
+    if (node?.type.name !== "codeBlock") return;
 
     const content = node.textContent || "";
     if (!content) return;

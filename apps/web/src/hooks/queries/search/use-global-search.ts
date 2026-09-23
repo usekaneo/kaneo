@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { skipToken, useQuery } from "@tanstack/react-query";
 import globalSearch from "@/fetchers/search/global-search";
 
 type SearchParams = {
@@ -10,15 +10,17 @@ type SearchParams = {
     | "workspaces"
     | "comments"
     | "activities";
-  workspaceId?: string;
+  workspaceId: string | undefined;
   projectId?: string;
   limit?: number;
 };
 
-function useGlobalSearch(params: SearchParams) {
+function useGlobalSearch({ workspaceId, ...params }: SearchParams) {
   return useQuery({
-    queryKey: ["search", params],
-    queryFn: () => globalSearch(params),
+    queryKey: ["search", { ...params, workspaceId }],
+    queryFn: workspaceId
+      ? () => globalSearch({ ...params, workspaceId })
+      : skipToken,
     enabled: !!params.q && params.q.length >= 1,
     staleTime: 1000 * 30, // 30 seconds
   });

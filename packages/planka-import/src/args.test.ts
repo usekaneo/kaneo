@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseArgs } from "./args.js";
+import { DEFAULT_KANEO_URL, parseArgs } from "./args.js";
 
 describe("parseArgs", () => {
   it("returns defaults for an empty argv", () => {
@@ -60,5 +60,14 @@ describe("parseArgs", () => {
     expect(() => parseArgs(["--workspace"])).toThrow(
       "--workspace requires a value",
     );
+  });
+});
+
+describe("DEFAULT_KANEO_URL", () => {
+  it("points at Kaneo Cloud and is echoed in the help text", async () => {
+    const { HELP_TEXT } = await import("./args.js");
+
+    expect(DEFAULT_KANEO_URL).toBe("https://cloud.kaneo.app");
+    expect(HELP_TEXT).toContain(DEFAULT_KANEO_URL);
   });
 });
