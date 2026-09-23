@@ -176,6 +176,26 @@ jobs:
             exit 1
           fi
 
+      - name: Build release assets
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          pnpm --filter @kaneo/permissions build
+          pnpm --filter @kaneo/web build
+          assets="${RUNNER_TEMP}/release-assets"
+          web="kaneo-web-${VERSION}"
+          mkdir -p "${assets}/${web}"
+          cp -R apps/web/dist "${assets}/${web}/dist"
+          cp apps/web/env.sh apps/web/env.awk "${assets}/${web}/"
+          tar -czf "${assets}/${web}.tar.gz" -C "${assets}" "${web}"
+          rm -rf "${assets}/${web}"
+
+      - name: Attach release assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.release.outputs.version }}
+        run: gh release upload "v${VERSION}" "${RUNNER_TEMP}"/release-assets/*.tar.gz
+
   promote:
     name: Promote
     needs: [plan, release]
