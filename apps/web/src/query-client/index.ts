@@ -64,7 +64,13 @@ const queryClient = new QueryClient({
     },
   }),
   mutationCache: new MutationCache({
-    onError: (error) => captureCacheError(error, "mutation"),
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        handleUnauthorized();
+        return;
+      }
+      captureCacheError(error, "mutation");
+    },
   }),
   defaultOptions: {
     queries: {

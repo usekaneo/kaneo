@@ -14,6 +14,23 @@ Uploads use an S3-compatible object storage backend:
 - Kaneo finalizes uploads into private asset records
 - Kaneo serves uploaded files back through its own API
 
+Upload URLs bind the declared byte length and content type. The browser supplies
+`Content-Length` from the selected file automatically; custom clients must send
+that exact length and the returned `Content-Type`. A streaming request without
+`Content-Length`, a larger body, or a changed content type is rejected by storage.
+
+Before creating an asset record, Kaneo retrieves object metadata with `HeadObject`
+and checks existence, size and content type. Missing or mismatched objects are
+not finalized. Oversized objects are removed. The storage credentials therefore
+need read (`s3:GetObject`, also used by HEAD), write and delete access. Configure
+storage CORS to allow your frontend origin and PUT with `Content-Type`.
+
+After upgrading, check an upload through your actual browser, storage provider
+and reverse proxy. The provider must enforce SigV4 signed `Content-Length` and
+`Content-Type`; do not work around incompatibility by removing those signed
+headers. Previously issued upload URLs retain their old constraints until their
+configured expiry, so account for `S3_PRESIGN_TTL_SECONDS` during rollout.
+
 This means Kaneo can work with multiple backends as long as they expose a compatible S3-style API.
 
 Current behavior:

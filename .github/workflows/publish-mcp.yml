@@ -24,17 +24,28 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
+
+      - name: Require reviewed release source
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = push ] && [ "$GITHUB_REF" != refs/heads/main ]; then
+            exit 1
+          fi
+          git merge-base --is-ancestor "$GITHUB_SHA" refs/remotes/origin/main
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
         with:
           version: 10.32.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 24.19.0
           cache: pnpm
@@ -81,21 +92,6 @@ jobs:
           cd packages/mcp
           npm publish --access public --provenance
 
-      - name: Publish to the MCP Registry
-        run: |
-          PACKAGE_VERSION=$(node -p "require('./packages/mcp/package.json').version")
-          IN_REGISTRY=$(curl -s "https://registry.modelcontextprotocol.io/v0/servers?search=io.github.usekaneo/kaneo" \
-            | jq -r --arg v "$PACKAGE_VERSION" '[.servers[]? | (.server // .) | select(.name == "io.github.usekaneo/kaneo" and .version == $v)] | length')
-          if [ "$IN_REGISTRY" != "0" ]; then
-            echo "io.github.usekaneo/kaneo@${PACKAGE_VERSION} is already in the MCP Registry; skipping."
-            exit 0
-          fi
-          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
-          cd packages/mcp
-          jq --arg v "$PACKAGE_VERSION" '.version = $v | .packages[0].version = $v' server.json > server.tmp && mv server.tmp server.json
-          ../../mcp-publisher login github-oidc
-          ../../mcp-publisher publish
-
       - name: Create MCP release
         if: ${{ github.event_name == 'push' }}
         run: |
@@ -113,3 +109,37 @@ jobs:
             --latest=false
         env:
           GH_TOKEN: ${{ github.token }}
+
+  publish-registry:
+    needs: publish
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Publish to the MCP Registry
+        run: |
+          set -euo pipefail
+          PACKAGE_VERSION=$(jq -r .version packages/mcp/package.json)
+          IN_REGISTRY=$(curl --fail --silent --show-error --max-time 30 \
+            "https://registry.modelcontextprotocol.io/v0/servers?search=io.github.usekaneo/kaneo" \
+            | jq -er --arg v "$PACKAGE_VERSION" '[.servers[]? | (.server // .) | select(.name == "io.github.usekaneo/kaneo" and .version == $v)] | length')
+          if [ "$IN_REGISTRY" != "0" ]; then
+            echo "MCP version already registered; skipping."
+            exit 0
+          fi
+          curl --fail --silent --show-error --location --max-time 120 \
+            --output "$RUNNER_TEMP/mcp-publisher.tar.gz" \
+            "https://github.com/modelcontextprotocol/registry/releases/download/v1.8.1/mcp-publisher_linux_amd64.tar.gz"
+          echo "a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc  $RUNNER_TEMP/mcp-publisher.tar.gz" | sha256sum --check --strict
+          tar -xzf "$RUNNER_TEMP/mcp-publisher.tar.gz" -C "$RUNNER_TEMP" mcp-publisher
+          cd packages/mcp
+          jq --arg v "$PACKAGE_VERSION" '.version = $v | .packages[0].version = $v' server.json > server.tmp
+          mv server.tmp server.json
+          "$RUNNER_TEMP/mcp-publisher" login github-oidc
+          "$RUNNER_TEMP/mcp-publisher" publish

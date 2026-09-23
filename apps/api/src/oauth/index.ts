@@ -1,8 +1,10 @@
 import { apiRouter, createRoute, jsonResponse } from "../openapi";
+import { requireUserSession } from "../utils/require-user-session";
 import getIdToken from "./controllers/get-id-token";
 import { idTokenSchema } from "./response";
 
 const getIdTokenRoute = createRoute({
+  middleware: [requireUserSession] as const,
   method: "get",
   operationId: "getOAuthIdToken",
   path: "/id-token",

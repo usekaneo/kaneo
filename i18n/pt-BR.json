@@ -678,7 +678,12 @@
 				"project": "Projetos",
 				"task": "Tarefas",
 				"label": "Etiquetas",
-				"workspace": "Espaço de trabalho"
+				"workspace": "Espaço de trabalho",
+				"organization": "Workspace administration",
+				"member": "Members",
+				"invitation": "Invitations",
+				"team": "Teams",
+				"ac": "Roles and permissions"
 			},
 			"permissions": {
 				"project": {
@@ -760,6 +765,72 @@
 						"label": "Gerenciar configurações",
 						"description": "Pode gerenciar configurações do espaço de trabalho"
 					}
+				},
+				"organization": {
+					"update": {
+						"label": "Edit workspace administration",
+						"description": "Change workspace settings through the account service."
+					},
+					"delete": {
+						"label": "Delete workspace",
+						"description": "Permanently delete the workspace through the account service."
+					}
+				},
+				"member": {
+					"create": {
+						"label": "Add members",
+						"description": "Add users to this workspace."
+					},
+					"update": {
+						"label": "Change member roles",
+						"description": "Change the roles assigned to workspace members."
+					},
+					"delete": {
+						"label": "Remove members",
+						"description": "Remove users from this workspace."
+					}
+				},
+				"invitation": {
+					"create": {
+						"label": "Invite members",
+						"description": "Send workspace invitations."
+					},
+					"cancel": {
+						"label": "Cancel invitations",
+						"description": "Revoke pending workspace invitations."
+					}
+				},
+				"team": {
+					"create": {
+						"label": "Create teams",
+						"description": "Create teams in this workspace."
+					},
+					"update": {
+						"label": "Edit teams",
+						"description": "Change teams and team membership."
+					},
+					"delete": {
+						"label": "Delete teams",
+						"description": "Delete teams in this workspace."
+					}
+				},
+				"ac": {
+					"create": {
+						"label": "Create roles",
+						"description": "Create workspace roles and assign their permissions."
+					},
+					"read": {
+						"label": "View roles",
+						"description": "Read the workspace roles and their permissions."
+					},
+					"update": {
+						"label": "Change role permissions",
+						"description": "Change role permissions, including administrative access."
+					},
+					"delete": {
+						"label": "Delete roles",
+						"description": "Delete custom workspace roles."
+					}
 				}
 			},
 			"validation": {
@@ -804,7 +875,9 @@
 			"createError": "Falha ao criar etiqueta",
 			"updateError": "Falha ao atualizar etiqueta",
 			"deleteError": "Falha ao excluir etiqueta",
-			"nameRequired": "O nome da etiqueta é obrigatório"
+			"nameRequired": "O nome da etiqueta é obrigatório",
+			"deletionPending": "Deletion pending",
+			"resumeDeletion": "Resume deletion"
 		},
 		"projectGeneral": {
 			"pageTitle": "Configurações do projeto",
@@ -975,7 +1048,13 @@
 			"importSectionHint": "Importe issues existentes do seu repositório do GitHub como tarefas",
 			"importing": "Importando...",
 			"importIssues": "Importar issues",
-			"importDisabledHint": "Conclua a configuração do repositório acima para ativar a importação"
+			"importDisabledHint": "Conclua a configuração do repositório acima para ativar a importação",
+			"accountVerificationHint": "Conecte sua conta do GitHub para verificar se você administra este repositório.",
+			"enableGithubSignInHint": "Peça ao administrador da sua instância para habilitar o login com GitHub.",
+			"reverifyHint": "Reconecte este repositório para verificar o acesso e retomar a sincronização.",
+			"resumeImport": "Resume import",
+			"importPaused": "This import has saved progress. You can resume it.",
+			"importSummary": "Created: {{imported}} · Updated: {{updated}} · Skipped: {{skipped}}"
 		},
 		"giteaIntegration": {
 			"validation": {
@@ -1636,7 +1715,9 @@
 				"mermaid": {
 					"renderFailed": "Mermaid diagram couldn't be rendered"
 				}
-			}
+			},
+			"importedFrom": "Imported from {{source}}",
+			"importedBy": "Imported by {{name}}"
 		}
 	},
 	"tasks": {
@@ -1956,7 +2037,11 @@
 			"resizeStart": "Redimensionar data de início",
 			"resizeDue": "Redimensionar data de vencimento",
 			"taskAriaLabel": "{{title}}: abrir ou arrastar para mover",
-			"jumpToToday": "Jump to today"
+			"jumpToToday": "Jump to today",
+			"previousPeriod": "Previous period",
+			"nextPeriod": "Next period",
+			"periodStart": "Timeline start date",
+			"showTaskDates": "Show task dates"
 		},
 		"delete": {
 			"title": "Excluir tarefa?",
@@ -2069,7 +2154,12 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
-		}
+		},
+		"descriptionSearchLoading": "Searching full descriptions…",
+		"descriptionSearchError": "Description search failed. Results may be incomplete.",
+		"descriptionRetry": "Retry",
+		"descriptionLoading": "Loading description…",
+		"descriptionLoadError": "The description could not be loaded. Retry to load the current version."
 	},
 	"invitations": {
 		"email": {

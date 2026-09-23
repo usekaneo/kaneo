@@ -3,3 +3,12 @@ title: importGitHubIssues
 description: Import GitHub issues as tasks
 openapi: 'POST /github-integration/import-issues'
 ---
+
+
+This endpoint processes at most four provider pages per request. It returns **202** while work remains and **200** when the run is complete. Send the returned `runId` with the same `projectId` on each continuation. Retrying a completed `runId` returns its final summary without starting another run.
+
+Without `runId`, the endpoint resumes an unfinished run or starts a new run after the previous one completes. `GET /github-integration/project/{projectId}` exposes the saved `importProgress` summary, including its `runId` and `pending` flag. Provider cursors remain on the server. Workspace access and task creation permission are checked on every request.
+
+**429** means an import is busy; honor `Retry-After`. **502** pauses work on a provider failure; previously committed pages are retained. **409** indicates that the integration or run changed; refresh its configuration before retrying. A successful response includes `imported`, `updated` and `skipped` counts. Do not treat a 202 response as completion.
+
+API and web clients must be upgraded together. Custom clients that previously expected one synchronous 200 response must implement this continuation loop.

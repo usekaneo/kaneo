@@ -812,7 +812,13 @@
 			"importSectionHint": "GitHub 저장소의 기존 이슈를 작업으로 가져옵니다",
 			"importing": "가져오는 중...",
 			"importIssues": "이슈 가져오기",
-			"importDisabledHint": "가져오기를 활성화하려면 위의 저장소 구성을 완료하세요"
+			"importDisabledHint": "가져오기를 활성화하려면 위의 저장소 구성을 완료하세요",
+			"accountVerificationHint": "이 저장소의 관리자 권한을 확인하려면 GitHub 계정을 연결하세요.",
+			"enableGithubSignInHint": "인스턴스 관리자에게 GitHub 로그인을 활성화해 달라고 요청하세요.",
+			"reverifyHint": "접근 권한을 확인하고 동기화를 재개하려면 이 저장소를 다시 연결하세요.",
+			"resumeImport": "Resume import",
+			"importPaused": "This import has saved progress. You can resume it.",
+			"importSummary": "Created: {{imported}} · Updated: {{updated}} · Skipped: {{skipped}}"
 		},
 		"giteaIntegration": {
 			"validation": {
@@ -1155,7 +1161,12 @@
 				"project": "프로젝트",
 				"task": "작업",
 				"label": "라벨",
-				"workspace": "워크스페이스"
+				"workspace": "워크스페이스",
+				"organization": "Workspace administration",
+				"member": "Members",
+				"invitation": "Invitations",
+				"team": "Teams",
+				"ac": "Roles and permissions"
 			},
 			"permissions": {
 				"project": {
@@ -1237,6 +1248,72 @@
 						"label": "설정 관리",
 						"description": "워크스페이스 설정을 관리할 수 있습니다"
 					}
+				},
+				"organization": {
+					"update": {
+						"label": "Edit workspace administration",
+						"description": "Change workspace settings through the account service."
+					},
+					"delete": {
+						"label": "Delete workspace",
+						"description": "Permanently delete the workspace through the account service."
+					}
+				},
+				"member": {
+					"create": {
+						"label": "Add members",
+						"description": "Add users to this workspace."
+					},
+					"update": {
+						"label": "Change member roles",
+						"description": "Change the roles assigned to workspace members."
+					},
+					"delete": {
+						"label": "Remove members",
+						"description": "Remove users from this workspace."
+					}
+				},
+				"invitation": {
+					"create": {
+						"label": "Invite members",
+						"description": "Send workspace invitations."
+					},
+					"cancel": {
+						"label": "Cancel invitations",
+						"description": "Revoke pending workspace invitations."
+					}
+				},
+				"team": {
+					"create": {
+						"label": "Create teams",
+						"description": "Create teams in this workspace."
+					},
+					"update": {
+						"label": "Edit teams",
+						"description": "Change teams and team membership."
+					},
+					"delete": {
+						"label": "Delete teams",
+						"description": "Delete teams in this workspace."
+					}
+				},
+				"ac": {
+					"create": {
+						"label": "Create roles",
+						"description": "Create workspace roles and assign their permissions."
+					},
+					"read": {
+						"label": "View roles",
+						"description": "Read the workspace roles and their permissions."
+					},
+					"update": {
+						"label": "Change role permissions",
+						"description": "Change role permissions, including administrative access."
+					},
+					"delete": {
+						"label": "Delete roles",
+						"description": "Delete custom workspace roles."
+					}
 				}
 			},
 			"validation": {
@@ -1280,7 +1357,9 @@
 			"createError": "라벨 생성에 실패했습니다",
 			"updateError": "라벨 업데이트에 실패했습니다",
 			"deleteError": "라벨 삭제에 실패했습니다",
-			"nameRequired": "라벨 이름은 필수입니다"
+			"nameRequired": "라벨 이름은 필수입니다",
+			"deletionPending": "Deletion pending",
+			"resumeDeletion": "Resume deletion"
 		},
 		"mattermostIntegration": {
 			"channelHint": "Optional label for your reference. Mattermost controls the actual destination channel from the webhook setup.",
@@ -1626,7 +1705,9 @@
 				"mermaid": {
 					"renderFailed": "Mermaid 다이어그램을 렌더링할 수 없습니다"
 				}
-			}
+			},
+			"importedFrom": "Imported from {{source}}",
+			"importedBy": "Imported by {{name}}"
 		}
 	},
 	"tasks": {
@@ -1959,7 +2040,11 @@
 			"resizeStart": "시작일 크기 조정",
 			"resizeDue": "마감일 크기 조정",
 			"taskAriaLabel": "{{title}}: 열거나 드래그하여 이동",
-			"jumpToToday": "Jump to today"
+			"jumpToToday": "Jump to today",
+			"previousPeriod": "Previous period",
+			"nextPeriod": "Next period",
+			"periodStart": "Timeline start date",
+			"showTaskDates": "Show task dates"
 		},
 		"delete": {
 			"title": "작업을 삭제하시겠습니까?",
@@ -2057,7 +2142,12 @@
 				"deleteRow": "행 삭제",
 				"deleteTable": "표 삭제"
 			}
-		}
+		},
+		"descriptionSearchLoading": "Searching full descriptions…",
+		"descriptionSearchError": "Description search failed. Results may be incomplete.",
+		"descriptionRetry": "Retry",
+		"descriptionLoading": "Loading description…",
+		"descriptionLoadError": "The description could not be loaded. Retry to load the current version."
 	},
 	"invitations": {
 		"email": {

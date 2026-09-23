@@ -812,7 +812,13 @@
 			"importSectionHint": "Importiere vorhandene Issues aus deinem GitHub-Repository als Aufgaben",
 			"importing": "Wird importiert...",
 			"importIssues": "Issues importieren",
-			"importDisabledHint": "Vervollständige die Repository-Konfiguration oben, um den Import zu aktivieren"
+			"importDisabledHint": "Vervollständige die Repository-Konfiguration oben, um den Import zu aktivieren",
+			"accountVerificationHint": "Verbinde dein GitHub-Konto, damit deine Administrationsrechte für dieses Repository geprüft werden können.",
+			"enableGithubSignInHint": "Bitte die Administration deiner Instanz, die GitHub-Anmeldung zu aktivieren.",
+			"reverifyHint": "Verbinde dieses Repository erneut, um den Zugriff zu bestätigen und die Synchronisierung fortzusetzen.",
+			"resumeImport": "Import fortsetzen",
+			"importPaused": "Der Fortschritt dieses Imports ist gespeichert. Du kannst ihn fortsetzen.",
+			"importSummary": "Erstellt: {{imported}} · Aktualisiert: {{updated}} · Übersprungen: {{skipped}}"
 		},
 		"giteaIntegration": {
 			"validation": {
@@ -1156,7 +1162,12 @@
 				"project": "Projekte",
 				"task": "Aufgaben",
 				"label": "Labels",
-				"workspace": "Workspace"
+				"workspace": "Workspace",
+				"organization": "Workspace-Verwaltung",
+				"member": "Mitglieder",
+				"invitation": "Einladungen",
+				"team": "Teams",
+				"ac": "Rollen und Berechtigungen"
 			},
 			"permissions": {
 				"project": {
@@ -1238,6 +1249,72 @@
 						"label": "Einstellungen verwalten",
 						"description": "Kann Workspace-Einstellungen verwalten"
 					}
+				},
+				"organization": {
+					"update": {
+						"label": "Workspace-Verwaltung bearbeiten",
+						"description": "Workspace-Einstellungen über den Kontodienst ändern."
+					},
+					"delete": {
+						"label": "Workspace löschen",
+						"description": "Den Workspace über den Kontodienst dauerhaft löschen."
+					}
+				},
+				"member": {
+					"create": {
+						"label": "Mitglieder hinzufügen",
+						"description": "Benutzer zu diesem Workspace hinzufügen."
+					},
+					"update": {
+						"label": "Mitgliederrollen ändern",
+						"description": "Die zugewiesenen Rollen von Workspace-Mitgliedern ändern."
+					},
+					"delete": {
+						"label": "Mitglieder entfernen",
+						"description": "Benutzer aus diesem Workspace entfernen."
+					}
+				},
+				"invitation": {
+					"create": {
+						"label": "Mitglieder einladen",
+						"description": "Einladungen zu diesem Workspace senden."
+					},
+					"cancel": {
+						"label": "Einladungen widerrufen",
+						"description": "Ausstehende Workspace-Einladungen widerrufen."
+					}
+				},
+				"team": {
+					"create": {
+						"label": "Teams erstellen",
+						"description": "Teams in diesem Workspace erstellen."
+					},
+					"update": {
+						"label": "Teams bearbeiten",
+						"description": "Teams und Teammitgliedschaften ändern."
+					},
+					"delete": {
+						"label": "Teams löschen",
+						"description": "Teams in diesem Workspace löschen."
+					}
+				},
+				"ac": {
+					"create": {
+						"label": "Rollen erstellen",
+						"description": "Workspace-Rollen erstellen und ihnen Berechtigungen zuweisen."
+					},
+					"read": {
+						"label": "Rollen anzeigen",
+						"description": "Workspace-Rollen und ihre Berechtigungen anzeigen."
+					},
+					"update": {
+						"label": "Rollenberechtigungen ändern",
+						"description": "Rollenberechtigungen einschließlich administrativer Rechte ändern."
+					},
+					"delete": {
+						"label": "Rollen löschen",
+						"description": "Benutzerdefinierte Workspace-Rollen löschen."
+					}
 				}
 			},
 			"validation": {
@@ -1281,7 +1358,9 @@
 			"createError": "Label konnte nicht erstellt werden",
 			"updateError": "Label konnte nicht aktualisiert werden",
 			"deleteError": "Label konnte nicht gelöscht werden",
-			"nameRequired": "Label-Name ist erforderlich"
+			"nameRequired": "Label-Name ist erforderlich",
+			"deletionPending": "Löschung ausstehend",
+			"resumeDeletion": "Löschung fortsetzen"
 		},
 		"mattermostIntegration": {
 			"channelHint": "Optional label for your reference. Mattermost controls the actual destination channel from the webhook setup.",
@@ -1631,7 +1710,9 @@
 				"mermaid": {
 					"renderFailed": "Mermaid-Diagramm konnte nicht gerendert werden"
 				}
-			}
+			},
+			"importedFrom": "Importiert aus {{source}}",
+			"importedBy": "Importiert von {{name}}"
 		}
 	},
 	"tasks": {
@@ -1951,7 +2032,11 @@
 			"resizeStart": "Startdatum anpassen",
 			"resizeDue": "Fälligkeitsdatum anpassen",
 			"taskAriaLabel": "{{title}}: öffnen oder ziehen zum Verschieben",
-			"jumpToToday": "Jump to today"
+			"jumpToToday": "Jump to today",
+			"previousPeriod": "Vorheriger Zeitraum",
+			"nextPeriod": "Nächster Zeitraum",
+			"periodStart": "Startdatum der Zeitleiste",
+			"showTaskDates": "Aufgabendaten anzeigen"
 		},
 		"delete": {
 			"title": "Aufgabe löschen?",
@@ -2063,7 +2148,12 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
-		}
+		},
+		"descriptionSearchLoading": "Vollständige Beschreibungen werden durchsucht…",
+		"descriptionSearchError": "Die Suche in Beschreibungen ist fehlgeschlagen. Ergebnisse sind möglicherweise unvollständig.",
+		"descriptionRetry": "Erneut versuchen",
+		"descriptionLoading": "Beschreibung wird geladen…",
+		"descriptionLoadError": "Die Beschreibung konnte nicht geladen werden. Versuche es erneut, um die aktuelle Version zu laden."
 	},
 	"invitations": {
 		"email": {

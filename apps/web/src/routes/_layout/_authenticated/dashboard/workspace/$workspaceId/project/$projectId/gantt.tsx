@@ -1,16 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import {
-  addDays,
-  eachDayOfInterval,
-  endOfWeek,
-  format,
-  isSameMonth,
-  isToday,
-  isWeekend,
-  parseISO,
-  startOfWeek,
-  subDays,
-} from "date-fns";
+import { addDays, format, isSameMonth, isToday, isWeekend } from "date-fns";
 import { Calendar, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import {
   useCallback,
@@ -23,6 +12,11 @@ import {
 import { useTranslation } from "react-i18next";
 import ProjectLayout from "@/components/common/project-layout";
 import { GanttTaskBar } from "@/components/gantt/gantt-task-bar";
+import {
+  buildGanttTimeline,
+  GANTT_WINDOW_DAYS,
+  parseTaskDate,
+} from "@/components/gantt/timeline";
 import PageTitle from "@/components/page-title";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
 import { Button } from "@/components/ui/button";
@@ -46,12 +40,6 @@ export const Route = createFileRoute(
   }),
 });
 
-function parseTaskDate(value: string | null) {
-  if (!value) return null;
-  const parsed = parseISO(value);
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
-}
-
 function RouteComponent() {
   const { t } = useTranslation();
   const { projectId, workspaceId } = Route.useParams();
@@ -60,6 +48,15 @@ function RouteComponent() {
   const { data: project } = useGetTasks(projectId);
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   const [searchQuery, setSearchQuery] = useState("");
+  const [windowStart, setWindowStart] = useState<{
+    projectId: string;
+    date: Date;
+  } | null>(null);
+  const requestedStart =
+    windowStart && windowStart.projectId === projectId
+      ? windowStart.date
+      : null;
+  const showDate = (date: Date) => setWindowStart({ projectId, date });
   const isMobile = useIsMobile();
   const [isTaskRailOpen, setIsTaskRailOpen] = useState(false);
 
@@ -145,36 +142,16 @@ function RouteComponent() {
     });
   }, [parsedTasks, project?.slug, searchQuery]);
 
-  const timeline = useMemo(() => {
-    if (parsedTasks.length === 0) return null;
-
-    const earliest = parsedTasks.reduce(
-      (current, task) =>
-        task.scheduleStart < current ? task.scheduleStart : current,
-      parsedTasks[0].scheduleStart,
-    );
-    const latest = parsedTasks.reduce(
-      (current, task) =>
-        task.scheduleEnd > current ? task.scheduleEnd : current,
-      parsedTasks[0].scheduleEnd,
-    );
-
-    // Week-aligned bounds around task dates, then pad with extra days so bars can
-    // be resized or moved past the current last task without running out of grid.
-    const weekStart = startOfWeek(earliest, { weekStartsOn });
-    const weekEnd = endOfWeek(latest, { weekStartsOn });
-    const rangeStart = subDays(weekStart, 7);
-    const rangeEnd = addDays(weekEnd, 28);
-
-    const days = eachDayOfInterval({ start: rangeStart, end: rangeEnd });
-
-    return {
-      days,
-      rangeStart,
-      gridTemplateColumns: `repeat(${days.length}, minmax(${dayColumnWidthRem}rem, ${dayColumnWidthRem}rem))`,
-      timelineMinWidthRem: days.length * dayColumnWidthRem,
-    };
-  }, [parsedTasks, dayColumnWidthRem, weekStartsOn]);
+  const timeline = useMemo(
+    () =>
+      buildGanttTimeline(
+        parsedTasks,
+        weekStartsOn,
+        dayColumnWidthRem,
+        requestedStart,
+      ),
+    [parsedTasks, weekStartsOn, dayColumnWidthRem, requestedStart],
+  );
 
   // Whether "today" actually falls inside the computed date range. A project
   // made up entirely of past or far-future tasks has no "today" column to
@@ -275,6 +252,48 @@ function RouteComponent() {
                 className="h-9 min-h-11 touch-manipulation sm:h-8 sm:min-h-0 [&_[data-slot=input]]:pl-8 [&_[data-slot=input]]:text-xs"
               />
             </div>
+
+            {timeline && (
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="icon-sm"
+                  aria-label={t("tasks:gantt.previousPeriod")}
+                  disabled={!timeline.hasPrevious}
+                  onClick={() =>
+                    showDate(addDays(timeline.rangeStart, -GANTT_WINDOW_DAYS))
+                  }
+                >
+                  <ChevronLeft className="size-4" />
+                </Button>
+                <input
+                  type="date"
+                  aria-label={t("tasks:gantt.periodStart")}
+                  className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+                  min={format(timeline.minimumStart, "yyyy-MM-dd")}
+                  max={format(timeline.maximumStart, "yyyy-MM-dd")}
+                  value={format(timeline.rangeStart, "yyyy-MM-dd")}
+                  onChange={(event) => {
+                    const date = parseTaskDate(event.target.value);
+                    if (date) showDate(date);
+                  }}
+                />
+                <span className="text-xs text-muted-foreground">
+                  – {format(timeline.rangeEnd, "MMM d, yyyy")}
+                </span>
+                <Button
+                  variant="outline"
+                  size="icon-sm"
+                  aria-label={t("tasks:gantt.nextPeriod")}
+                  disabled={!timeline.hasNext}
+                  onClick={() =>
+                    showDate(addDays(timeline.rangeStart, GANTT_WINDOW_DAYS))
+                  }
+                >
+                  <ChevronRight className="size-4" />
+                </Button>
+              </div>
+            )}
 
             <Button
               variant="outline"
@@ -452,13 +471,25 @@ function RouteComponent() {
                                 {task.title}
                               </p>
                               <p className="w-full truncate text-[11px] leading-tight text-muted-foreground">
-                                {format(task.scheduleStart, "MMM d")} -{" "}
-                                {format(task.scheduleEnd, "MMM d")}
+                                {format(task.scheduleStart, "MMM d, yyyy")} -{" "}
+                                {format(task.scheduleEnd, "MMM d, yyyy")}
                                 {task.assigneeName
                                   ? ` • ${task.assigneeName}`
                                   : ""}
                               </p>
                             </button>
+                            {(task.scheduleEnd < timeline.rangeStart ||
+                              task.scheduleStart > timeline.rangeEnd) && (
+                              <button
+                                type="button"
+                                className="px-3 pb-2 text-xs text-primary underline"
+                                onClick={() =>
+                                  showDate(addDays(task.scheduleStart, -7))
+                                }
+                              >
+                                {t("tasks:gantt.showTaskDates")}
+                              </button>
+                            )}
                           </div>
                         ) : null}
 

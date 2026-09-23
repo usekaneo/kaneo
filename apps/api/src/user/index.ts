@@ -5,7 +5,8 @@ import {
   errorResponse,
   jsonResponse,
 } from "../openapi";
-import { MAX_AVATAR_BYTES } from "./avatar";
+import { boundedRequestBody } from "../utils/bounded-request-body";
+import { MAX_AVATAR_BYTES, MAX_AVATAR_REQUEST_BYTES } from "./avatar";
 import deleteAvatar from "./controllers/delete-avatar";
 import saveAvatar from "./controllers/save-avatar";
 import { avatarDeletedSchema, avatarSchema } from "./response";
@@ -20,6 +21,7 @@ const uploadAvatarRoute = createRoute({
   description: `Store a base64 encoded avatar (PNG, JPEG, or WebP, up to ${Math.floor(
     MAX_AVATAR_BYTES / 1024,
   )}KB) for the current user and return its public URL. Replaces any existing avatar.`,
+  middleware: [boundedRequestBody(MAX_AVATAR_REQUEST_BYTES)] as const,
   request: {
     body: {
       required: true,
@@ -28,6 +30,8 @@ const uploadAvatarRoute = createRoute({
   },
   responses: {
     200: jsonResponse("Avatar stored", avatarSchema),
+    408: errorResponse("Request body timed out"),
+    413: errorResponse("Request body exceeds the upload limit"),
     400: errorResponse(
       "Unsupported content type, malformed base64, or too large",
     ),
