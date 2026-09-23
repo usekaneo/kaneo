@@ -89,6 +89,48 @@
 }
 .cursor[data-pressed="true"][data-hand="pointing"] .clickPulse { opacity: 0.35; transform: scale(1); }
 
+.poof {
+  position: absolute;
+  z-index: 40;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+.poofParticle {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--foreground);
+  animation: cursor-poof 200ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+.poof::before {
+  content: "";
+  position: absolute;
+  top: -16px;
+  left: -16px;
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--foreground);
+  border-radius: 50%;
+  animation: cursor-poof-ring 200ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+@keyframes cursor-poof {
+  from { opacity: 1; transform: translate(calc(var(--poof-x) * 0.2), calc(var(--poof-y) * 0.2)) scale(0.95); }
+  35% { opacity: 1; }
+  to { opacity: 0; transform: translate(var(--poof-x), var(--poof-y)) scale(0.2); }
+}
+@keyframes cursor-poof-ring {
+  from { opacity: 0.85; transform: scale(0.95); }
+  60%, to { opacity: 0; transform: scale(1.8); }
+}
+@keyframes cursor-poof-fade {
+  from { opacity: 0.5; }
+  to { opacity: 0; }
+}
+
 @media (hover: hover) and (pointer: fine) {
   .sceneButton:hover,
   .playButton:hover { background: var(--muted); color: var(--foreground); }
@@ -99,4 +141,6 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .cursor { display: none; transition: none; }
+  .poof::before { display: none; }
+  .poofParticle { animation: cursor-poof-fade 160ms ease both; }
 }

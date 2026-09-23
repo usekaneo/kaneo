@@ -8,7 +8,13 @@ import {
   SquareKanban,
 } from "lucide-react";
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   AppPreview,
   type AppPreviewHandle,
@@ -32,6 +38,17 @@ const tourTargets = [
   "project-other",
   "project-main",
 ];
+
+const poofParticles = [
+  [0, -34],
+  [25, -25],
+  [36, 0],
+  [25, 25],
+  [0, 34],
+  [-25, 25],
+  [-36, 0],
+  [-25, -25],
+] as const;
 
 type CursorState = {
   x: number;
@@ -58,6 +75,7 @@ function waitForTour(ms: number, signal: AbortSignal) {
 export function ProductShowcase() {
   const root = useRef<HTMLElement>(null);
   const screen = useRef<HTMLDivElement>(null);
+  const cursorElement = useRef<HTMLDivElement>(null);
   const preview = useRef<AppPreviewHandle>(null);
   const movedTask = useRef<string | null>(null);
   const interrupted = useRef(false);
@@ -68,6 +86,7 @@ export function ProductShowcase() {
   const [reducedMotion, setReducedMotion] = useState(true);
   const [pageVisible, setPageVisible] = useState(true);
   const [cursorReady, setCursorReady] = useState(false);
+  const [poof, setPoof] = useState<{ x: number; y: number } | null>(null);
   const [cursor, setCursor] = useState<CursorState>({
     x: 0,
     y: 0,
@@ -256,13 +275,30 @@ export function ProductShowcase() {
         ref={screen}
         id="product-scene"
         className={styles.screen}
-        onPointerDownCapture={stopTour}
+        onPointerDownCapture={() => {
+          if (playing && cursorReady && !interrupted.current) {
+            const hand = cursorElement.current?.querySelector(
+              `[data-pose="${cursor.hand}"]`,
+            );
+            const bounds = screen.current?.getBoundingClientRect();
+            const rect = hand?.getBoundingClientRect();
+            // Read the rendered position while the cursor may still be in transit.
+            if (bounds && rect) {
+              setPoof({
+                x: rect.left - bounds.left + rect.width / 2,
+                y: rect.top - bounds.top + rect.height / 2,
+              });
+            }
+          }
+          stopTour();
+        }}
         onKeyDownCapture={stopTour}
         onFocusCapture={stopTour}
       >
         <AppPreview mode={active} onModeChange={setActive} tourRef={preview} />
         {playing && cursorReady && (
           <div
+            ref={cursorElement}
             className={styles.cursor}
             style={{ transform: `translate(${cursor.x}px, ${cursor.y}px)` }}
             data-pressed={cursor.pressed}
@@ -282,6 +318,27 @@ export function ProductShowcase() {
                 draggable={false}
                 unoptimized
                 loading="eager"
+              />
+            ))}
+          </div>
+        )}
+        {poof && (
+          <div
+            className={styles.poof}
+            style={{ transform: `translate(${poof.x}px, ${poof.y}px)` }}
+            onAnimationEnd={() => setPoof(null)}
+            aria-hidden="true"
+          >
+            {poofParticles.map(([x, y]) => (
+              <span
+                key={`${x},${y}`}
+                className={styles.poofParticle}
+                style={
+                  {
+                    "--poof-x": `${x}px`,
+                    "--poof-y": `${y}px`,
+                  } as CSSProperties
+                }
               />
             ))}
           </div>
@@ -315,6 +372,7 @@ export function ProductShowcase() {
             aria-label={paused ? landing.showcase.play : landing.showcase.pause}
             onClick={() => {
               interrupted.current = !paused;
+              setPoof(null);
               setCursorReady(false);
               setPaused(!paused);
             }}
