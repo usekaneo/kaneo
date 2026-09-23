@@ -2,9 +2,14 @@ import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { projectTable } from "../../database/schema";
-import getTasks from "../../task/controllers/get-tasks";
+import getTasks, {
+  type GetTasksOptions,
+} from "../../task/controllers/get-tasks";
 
-export async function getPublicProject(id: string) {
+export async function getPublicProject(
+  id: string,
+  options: GetTasksOptions = {},
+) {
   const [project] = await db
     .select({ isPublic: projectTable.isPublic })
     .from(projectTable)
@@ -23,7 +28,7 @@ export async function getPublicProject(id: string) {
     });
   }
 
-  const result = await getTasks(id);
+  const result = await getTasks(id, options);
 
   if (!result.data) {
     throw new HTTPException(404, {
@@ -37,5 +42,5 @@ export async function getPublicProject(id: string) {
     });
   }
 
-  return result.data;
+  return { ...result.data, pagination: result.pagination };
 }

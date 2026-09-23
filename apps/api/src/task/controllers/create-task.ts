@@ -1,4 +1,4 @@
-import { and, eq, max } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
@@ -18,6 +18,7 @@ import {
   assertValidTaskStatus,
 } from "../validate-task-fields";
 import { claimTaskNumber } from "./claim-task-numbers";
+import { nextTaskPosition } from "./next-task-position";
 
 type CustomFieldInput = {
   fieldId: string;
@@ -116,22 +117,14 @@ async function createTask({
     ),
   });
 
-  const [maxPositionResult] = await db
-    .select({ maxPosition: max(taskTable.position) })
-    .from(taskTable)
-    .where(
-      and(
-        eq(taskTable.projectId, projectId),
-        column?.id
-          ? eq(taskTable.columnId, column.id)
-          : eq(taskTable.status, resolvedStatus),
-      ),
-    );
-
-  const nextPosition = (maxPositionResult?.maxPosition ?? 0) + 1;
-
   const createdTask = await db.transaction(async (tx) => {
     const taskNumber = await claimTaskNumber(projectId, tx);
+    const nextPosition = await nextTaskPosition(
+      tx,
+      projectId,
+      resolvedStatus,
+      column?.id ?? null,
+    );
 
     const [task] = await tx
       .insert(taskTable)

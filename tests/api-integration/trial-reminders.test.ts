@@ -189,6 +189,37 @@ describe("trial reminder emails", () => {
     expect(sendTrialReminderEmail).toHaveBeenCalledTimes(2);
   });
 
+  it("shares one cap across both reminder types and leaves unsent rows for the next run", async () => {
+    for (let i = 0; i < 2; i++) {
+      await seedTrial(new Date(Date.now() + 2.5 * DAY));
+      await seedTrial(new Date(Date.now() - DAY));
+    }
+    await checkTrialReminders();
+    expect(sendTrialReminderEmail).toHaveBeenCalledTimes(2);
+    expect(
+      await db.select().from(schema.billingReminderSentTable),
+    ).toHaveLength(2);
+    await checkTrialReminders();
+    expect(sendTrialReminderEmail).toHaveBeenCalledTimes(4);
+    expect(new Set(recipients()).size).toBe(4);
+    expect(
+      await db.select().from(schema.billingReminderSentTable),
+    ).toHaveLength(4);
+  });
+
+  it("spends only the remaining budget on the second reminder type", async () => {
+    const ending = await seedTrial(new Date(Date.now() + 2.5 * DAY));
+    for (let i = 0; i < 3; i++) await seedTrial(new Date(Date.now() - DAY));
+    await checkTrialReminders();
+    expect(sendTrialReminderEmail).toHaveBeenCalledTimes(2);
+    expect(recipients()).toContain(ending.user.email);
+    const rows = await db.select().from(schema.billingReminderSentTable);
+    expect(rows.map((row) => row.reminderType).sort()).toEqual([
+      "trial_ending",
+      "trial_expired",
+    ]);
+  });
+
   it("sends the most urgent trials first", async () => {
     const soonest = await seedTrial(new Date(Date.now() - 9 * DAY));
     await seedTrial(new Date(Date.now() - 2 * DAY));

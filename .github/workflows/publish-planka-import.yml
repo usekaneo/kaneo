@@ -23,12 +23,23 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
+
+      - name: Require reviewed release source
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = push ] && [ "$GITHUB_REF" != refs/heads/main ]; then
+            exit 1
+          fi
+          git merge-base --is-ancestor "$GITHUB_SHA" refs/remotes/origin/main
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
         with:
           version: 10.32.1
 
@@ -36,7 +47,7 @@ jobs:
       # NODE_AUTH_TOKEN, and npm only attempts the tokenless OIDC exchange when
       # no auth is configured. Node 24 is required for npm >= 11.5.1 (OIDC).
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 24
           cache: pnpm

@@ -1,5 +1,7 @@
 import { client } from "@kaneo/libs";
 
+import { HttpError } from "@/lib/http-error";
+
 async function createColumn(
   projectId: string,
   data: { name: string; icon?: string; color?: string; isFinal?: boolean },
@@ -10,8 +12,7 @@ async function createColumn(
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    throw new HttpError(response.status, await response.text());
   }
 
   return response.json();

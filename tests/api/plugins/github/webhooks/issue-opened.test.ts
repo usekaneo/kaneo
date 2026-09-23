@@ -13,10 +13,15 @@ const mocks = vi.hoisted(() => {
   const mockGetInstallationOctokit = vi.fn();
   const mockColumnFindFirst = vi.fn();
   const mockProjectFindFirst = vi.fn();
+  const mockLockedIntegration = vi.fn();
 
   const insertedValues: Array<Record<string, unknown>> = [];
 
   const mockDb = {
+    transaction: async (run: (tx: unknown) => Promise<unknown>) => run(mockDb),
+    select: () => ({
+      from: () => ({ where: () => ({ for: mockLockedIntegration }) }),
+    }),
     insert: () => ({
       values: (values: Record<string, unknown>) => {
         insertedValues.push(values);
@@ -56,6 +61,7 @@ const mocks = vi.hoisted(() => {
     mockColumnFindFirst,
     mockProjectFindFirst,
     mockDb,
+    mockLockedIntegration,
     insertedValues,
     mockOctokit,
     mockGithubApp,
@@ -153,6 +159,7 @@ beforeEach(() => {
   mocks.mockGetGithubApp.mockReturnValue(mocks.mockGithubApp);
   mocks.mockFindAllIntegrationsByRepo.mockResolvedValue([integration]);
   mocks.mockFindExternalLink.mockResolvedValue(null);
+  mocks.mockLockedIntegration.mockResolvedValue([integration]);
   mocks.mockClaimTaskNumber.mockResolvedValue(7);
   mocks.mockResolveTargetStatus.mockResolvedValue("to-do");
   mocks.mockColumnFindFirst.mockResolvedValue(null);

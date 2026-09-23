@@ -4,9 +4,12 @@ on:
   issues:
     types: [opened]
 
+permissions: {}
+
 jobs:
   notify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - name: Post to Discord
         env:
@@ -21,5 +24,5 @@ jobs:
             --arg url "$ISSUE_URL" \
             --arg number "$ISSUE_NUMBER" \
             --arg author "$AUTHOR" \
-            '{content: "New issue #\($number) by **\($author)**: \($title)\n\($url)"}')
-          curl -fsS -H "Content-Type: application/json" -d "$payload" "$WEBHOOK"
+            '{allowed_mentions: {parse: []}, content: "New issue #\($number) by **\($author)**: \($title)\n\($url)"}')
+          curl --connect-timeout 5 --max-time 30 -fsS -H "Content-Type: application/json" -d "$payload" "$WEBHOOK"

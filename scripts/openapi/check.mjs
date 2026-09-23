@@ -22,6 +22,10 @@ if (!packageManager) {
 }
 const RUN = {
   stdio: ["ignore", "ignore", "inherit"],
+  env: {
+    ...process.env,
+    AUTH_SECRET: "openapi-export-only-secret-not-for-serving",
+  },
 };
 
 function generate(into) {

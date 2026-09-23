@@ -93,6 +93,7 @@ function RouteComponent() {
   const [deletingLabel, setDeletingLabel] = useState<{
     id: string;
     name: string;
+    deletionStartedAt?: string | null;
   } | null>(null);
 
   const resetCreate = () => {
@@ -186,7 +187,11 @@ function RouteComponent() {
     }
   };
 
-  const openDelete = (label: { id: string; name: string }) => {
+  const openDelete = (label: {
+    id: string;
+    name: string;
+    deletionStartedAt?: string | null;
+  }) => {
     setDeletingLabel(label);
     setDeleteOpen(true);
   };
@@ -288,6 +293,11 @@ function RouteComponent() {
                           }}
                         />
                         <span className="text-sm truncate">{label.name}</span>
+                        {label.deletionStartedAt && (
+                          <span className="text-xs text-muted-foreground">
+                            {t("settings:workspaceLabels.deletionPending")}
+                          </span>
+                        )}
                       </div>
                       {(canUpdate || canDelete) && (
                         <div className="flex items-center gap-1 flex-shrink-0">
@@ -300,6 +310,10 @@ function RouteComponent() {
                                 { defaultValue: "Edit Label" },
                               )}
                               className="h-8 w-8"
+                              disabled={
+                                !!label.deletionStartedAt ||
+                                deleteLabel.isPending
+                              }
                               onClick={() =>
                                 openEdit({
                                   id: label.id,
@@ -315,15 +329,20 @@ function RouteComponent() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              aria-label={t(
-                                "settings:workspaceLabels.deleteLabel",
-                                { defaultValue: "Delete" },
-                              )}
+                              aria-label={
+                                label.deletionStartedAt
+                                  ? t("settings:workspaceLabels.resumeDeletion")
+                                  : t("settings:workspaceLabels.deleteLabel", {
+                                      defaultValue: "Delete",
+                                    })
+                              }
+                              disabled={deleteLabel.isPending}
                               className="h-8 w-8 text-destructive hover:text-destructive"
                               onClick={() =>
                                 openDelete({
                                   id: label.id,
                                   name: label.name,
+                                  deletionStartedAt: label.deletionStartedAt,
                                 })
                               }
                             >
@@ -561,9 +580,13 @@ function RouteComponent() {
               onClick={handleDelete}
               disabled={deleteLabel.isPending}
             >
-              {t("settings:workspaceLabels.deleteLabel", {
-                defaultValue: "Delete",
-              })}
+              {deleteLabel.isPending
+                ? t("common:actions.deleting")
+                : deletingLabel?.deletionStartedAt
+                  ? t("settings:workspaceLabels.resumeDeletion")
+                  : t("settings:workspaceLabels.deleteLabel", {
+                      defaultValue: "Delete",
+                    })}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

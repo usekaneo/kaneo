@@ -810,7 +810,9 @@
 			"save": "Zapisz",
 			"submitShortcut": "Wyślij komentarz",
 			"updated": "Zaktualizowano komentarz",
-			"viewGithubProfile": "Wyświetl profil GitHub"
+			"viewGithubProfile": "Wyświetl profil GitHub",
+			"importedFrom": "Imported from {{source}}",
+			"importedBy": "Imported by {{name}}"
 		},
 		"created": "utworzył(a) to zadanie",
 		"githubUser": "Użytkownik GitHub",
@@ -1136,7 +1138,13 @@
 				"ownerInvalid": "Nieprawidłowy format nazwy właściciela repozytorium",
 				"ownerRequired": "Właściciel repozytorium jest wymagany"
 			},
-			"verify": "Zweryfikuj"
+			"verify": "Zweryfikuj",
+			"accountVerificationHint": "Connect your GitHub account to verify that you administer this repository.",
+			"enableGithubSignInHint": "Ask your instance administrator to enable GitHub sign-in.",
+			"reverifyHint": "Reconnect this repository to verify access and resume synchronization.",
+			"resumeImport": "Resume import",
+			"importPaused": "This import has saved progress. You can resume it.",
+			"importSummary": "Created: {{imported}} · Updated: {{updated}} · Skipped: {{skipped}}"
 		},
 		"information": "Informacje",
 		"informationPage": {
@@ -1620,7 +1628,9 @@
 			"subtitle": "Twórz, edytuj i usuwaj etykiety na poziomie obszaru roboczego.",
 			"title": "Etykiety",
 			"updateError": "Nie udało się zaktualizować etykiety",
-			"updateSuccess": "Zaktualizowano etykietę"
+			"updateSuccess": "Zaktualizowano etykietę",
+			"deletionPending": "Deletion pending",
+			"resumeDeletion": "Resume deletion"
 		},
 		"workspaceRoles": {
 			"allChangesSaved": "Wszystkie zmiany zostały zapisane",
@@ -1732,13 +1742,84 @@
 						"description": "Może aktualizować ustawienia obszaru roboczego",
 						"label": "Zaktualizuj"
 					}
+				},
+				"organization": {
+					"update": {
+						"label": "Edit workspace administration",
+						"description": "Change workspace settings through the account service."
+					},
+					"delete": {
+						"label": "Delete workspace",
+						"description": "Permanently delete the workspace through the account service."
+					}
+				},
+				"member": {
+					"create": {
+						"label": "Add members",
+						"description": "Add users to this workspace."
+					},
+					"update": {
+						"label": "Change member roles",
+						"description": "Change the roles assigned to workspace members."
+					},
+					"delete": {
+						"label": "Remove members",
+						"description": "Remove users from this workspace."
+					}
+				},
+				"invitation": {
+					"create": {
+						"label": "Invite members",
+						"description": "Send workspace invitations."
+					},
+					"cancel": {
+						"label": "Cancel invitations",
+						"description": "Revoke pending workspace invitations."
+					}
+				},
+				"team": {
+					"create": {
+						"label": "Create teams",
+						"description": "Create teams in this workspace."
+					},
+					"update": {
+						"label": "Edit teams",
+						"description": "Change teams and team membership."
+					},
+					"delete": {
+						"label": "Delete teams",
+						"description": "Delete teams in this workspace."
+					}
+				},
+				"ac": {
+					"create": {
+						"label": "Create roles",
+						"description": "Create workspace roles and assign their permissions."
+					},
+					"read": {
+						"label": "View roles",
+						"description": "Read the workspace roles and their permissions."
+					},
+					"update": {
+						"label": "Change role permissions",
+						"description": "Change role permissions, including administrative access."
+					},
+					"delete": {
+						"label": "Delete roles",
+						"description": "Delete custom workspace roles."
+					}
 				}
 			},
 			"resources": {
 				"label": "Etykiety",
 				"project": "Projekty",
 				"task": "Zadania",
-				"workspace": "Obszar roboczy"
+				"workspace": "Obszar roboczy",
+				"organization": "Workspace administration",
+				"member": "Members",
+				"invitation": "Invitations",
+				"team": "Teams",
+				"ac": "Roles and permissions"
 			},
 			"saveChanges": "Zapisz zmiany",
 			"sectionSubtitle": "Edytuj role domyślne lub dodaj własną. Członkowie zachowują przypisaną nazwę roli podczas edycji.",
@@ -2099,7 +2180,11 @@
 			"taskAriaLabel": "{{title}}: otwórz lub przeciągnij, aby przenieść",
 			"taskHeader": "Zadanie",
 			"title": "Oś czasu Gantta",
-			"updateDatesError": "Nie udało się zaktualizować dat zadania"
+			"updateDatesError": "Nie udało się zaktualizować dat zadania",
+			"previousPeriod": "Previous period",
+			"nextPeriod": "Next period",
+			"periodStart": "Timeline start date",
+			"showTaskDates": "Show task dates"
 		},
 		"kanban": {
 			"addTask": "Dodaj zadanie"
@@ -2257,6 +2342,11 @@
 		"view": {
 			"board": "Tablica",
 			"list": "Lista"
-		}
+		},
+		"descriptionSearchLoading": "Searching full descriptions…",
+		"descriptionSearchError": "Description search failed. Results may be incomplete.",
+		"descriptionRetry": "Retry",
+		"descriptionLoading": "Loading description…",
+		"descriptionLoadError": "The description could not be loaded. Retry to load the current version."
 	}
 }

@@ -1,66 +1,60 @@
+import { sendOutboundRequest } from "./outbound-request";
+
 const TURNSTILE_VERIFY_URL =
   "https://challenges.cloudflare.com/turnstile/v0/siteverify";
-
-const DEFAULT_TIMEOUT_MS = 5000;
-
 export type TurnstileResult = { ok: true } | { ok: false; reason: string };
 
-// Verifies a Cloudflare Turnstile token against the siteverify endpoint.
-// Returns { ok: true } when the token is valid OR when no secret is configured
-// (self-hosted instances opt out by leaving TURNSTILE_SECRET_KEY unset).
+export const authCaptchaPaths = new Set([
+  "/sign-up/email",
+  "/sign-in/social",
+  "/sign-in/oauth2",
+  "/sign-in/anonymous",
+  "/sign-in/magic-link",
+  "/email-otp/send-verification-otp",
+]);
+
+// One token is redeemed at initiation, never again at the OAuth callback or
+// OTP redemption. Better Auth verifies the corresponding state/code there.
 export async function verifyTurnstile(
-  token: string | null | undefined,
-  remoteIp?: string | null,
+  token: unknown,
 ): Promise<TurnstileResult> {
   const secret = process.env.TURNSTILE_SECRET_KEY;
-  if (!secret) {
-    return { ok: true };
-  }
-  if (!token) {
-    return { ok: false, reason: "Captcha token missing." };
-  }
-
-  const raw = (process.env.TURNSTILE_TIMEOUT_MS ?? "").trim();
-  const parsed = Number.parseInt(raw, 10);
-  const timeoutMs =
-    Number.isSafeInteger(parsed) && parsed > 0 && String(parsed) === raw
-      ? parsed
-      : DEFAULT_TIMEOUT_MS;
-
-  const body = new URLSearchParams();
-  body.set("secret", secret);
-  body.set("response", token);
-  if (remoteIp) {
-    body.set("remoteip", remoteIp);
-  }
+  if (!secret) return { ok: true };
+  const failure = {
+    ok: false,
+    reason: "Captcha verification failed.",
+  } as const;
+  if (typeof token !== "string" || token.length === 0 || token.length > 2048)
+    return failure;
 
   try {
-    const res = await fetch(TURNSTILE_VERIFY_URL, {
-      method: "POST",
-      body,
-      signal: AbortSignal.timeout(timeoutMs),
-    });
-    const data = (await res.json()) as {
-      success?: boolean;
-      "error-codes"?: string[];
-    };
-    if (data.success === true) {
-      return { ok: true };
-    }
-    const errorCodes = data["error-codes"]?.join(",") ?? "unknown";
-    return {
-      ok: false,
-      reason: `Captcha verification failed (${errorCodes}).`,
-    };
-  } catch (error) {
+    const hostname = new URL(process.env.KANEO_CLIENT_URL || "").hostname;
     if (
-      error instanceof DOMException &&
-      (error.name === "TimeoutError" || error.name === "AbortError")
-    ) {
-      console.error("Turnstile verification timed out", error);
-      return { ok: false, reason: "Captcha verification timed out." };
-    }
-    console.error("Turnstile verification request failed", error);
-    return { ok: false, reason: "Captcha verification failed." };
+      process.env.KANEO_CLOUD === "true" &&
+      process.env.NODE_ENV === "production" &&
+      ["localhost", "127.0.0.1", "[::1]"].includes(hostname)
+    )
+      return failure;
+    const data = await sendOutboundRequest(
+      TURNSTILE_VERIFY_URL,
+      {
+        body: new URLSearchParams({ secret, response: token }),
+      },
+      { readJson: true },
+    );
+    if (
+      data &&
+      typeof data === "object" &&
+      "success" in data &&
+      data.success === true &&
+      "action" in data &&
+      data.action === "auth" &&
+      "hostname" in data &&
+      data.hostname === hostname
+    )
+      return { ok: true };
+  } catch {
+    // Fail closed without retaining token, secret or an upstream error body.
   }
+  return failure;
 }

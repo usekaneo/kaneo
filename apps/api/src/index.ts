@@ -41,7 +41,7 @@ import { migrateColumns } from "./migrations/column-migration";
 import notification from "./notification";
 import notificationPreferences from "./notification-preferences";
 import oauth from "./oauth";
-import { createRoute, jsonResponse, z } from "./openapi";
+import { createRoute, errorResponse, jsonResponse, z } from "./openapi";
 import { initializePlugins } from "./plugins";
 import { migrateGitHubIntegration } from "./plugins/github/migration";
 import project from "./project";
@@ -51,14 +51,24 @@ import search from "./search";
 import slackIntegration from "./slack-integration";
 import { getPrivateObject } from "./storage/s3";
 import task from "./task";
+import {
+  getDescriptionPage,
+  getPublicProjectDescriptionPage,
+} from "./task/description-pages";
+import { boardSchema, descriptionPageSchema } from "./task/response";
+import { descriptionPageQuery, listTasksQuery } from "./task/schema";
 import taskRelation from "./task-relation";
 import telegramIntegration from "./telegram-integration";
 import timeEntry from "./time-entry";
 import user from "./user";
 import getAvatar from "./user/controllers/get-avatar";
 import { authenticateApiRequest } from "./utils/authenticate-api-request";
-import { authorizeAssetAccess } from "./utils/authorize-asset-access";
+import {
+  authorizeAssetAccess,
+  isPublicAsset,
+} from "./utils/authorize-asset-access";
 import { getInvitationDetails } from "./utils/check-registration-allowed";
+import { clientIpMiddleware } from "./utils/client-ip";
 import { migrateApiKeyReferenceId } from "./utils/migrate-apikey-reference-id";
 import { migrateNotificationPreferencesSchema } from "./utils/migrate-notification-preferences-schema";
 import { migrateSessionColumn } from "./utils/migrate-session-column";
@@ -76,6 +86,11 @@ import {
   removeUserConnection,
   shutdownWebSocketAdapter,
 } from "./ws";
+import {
+  assertWebSocketOrigin,
+  handleWebSocketMessage,
+  MAX_WEBSOCKET_MESSAGE_BYTES,
+} from "./ws/security";
 
 type ApiKey = {
   id: string;
@@ -140,6 +155,7 @@ function buildContentDisposition(filename: string, inline: boolean) {
 
 export function createApp() {
   const app = new Hono<AppVariables>();
+  app.use("*", clientIpMiddleware());
 
   app.onError((err, c) => {
     if (err instanceof HTTPException) {
@@ -154,6 +170,11 @@ export function createApp() {
     return c.json({ message: "Internal Server Error" }, 500);
   });
   const nodeWs = createNodeWebSocket({ app });
+  // node-ws exposes its ws server, but does not accept constructor options.
+  // Set the receiver limit before any connection can upgrade, including
+  // fragmented messages, before node-ws converts text buffers to strings.
+  nodeWs.wss.options.maxPayload = MAX_WEBSOCKET_MESSAGE_BYTES;
+  nodeWs.wss.options.perMessageDeflate = false;
   const { upgradeWebSocket, injectWebSocket } = nodeWs;
   const corsOriginSource = [
     process.env.CORS_ORIGINS,
@@ -225,12 +246,124 @@ export function createApp() {
     async (c) => c.json(await getInstanceStatus(), 200),
   );
 
-  const publicProjectApi = api.get("/public-project/:id", async (c) => {
-    const { id } = c.req.param();
-    const project = await getPublicProject(id);
-
-    return c.json(project);
-  });
+  const publicProjectApi = api
+    .openapi(
+      createRoute({
+        method: "get",
+        operationId: "getPublicProject",
+        path: "/public-project/{id}",
+        tags: ["Projects"],
+        summary: "Get a public project board",
+        description:
+          "Read a public board in bounded task pages. Visibility is checked before loading tasks. Continue through pagination.totalPages for all tasks and through relatedPage/pagination.relatedTotalPages for their complete related records.",
+        security: [],
+        request: {
+          params: z.object({ id: z.string() }),
+          query: listTasksQuery,
+        },
+        responses: {
+          200: jsonResponse(
+            "A public board page",
+            boardSchema.shape.data
+              .extend({ pagination: boardSchema.shape.pagination })
+              .openapi("PublicBoardPage"),
+          ),
+          403: errorResponse("Project is not public"),
+          404: errorResponse("Project not found"),
+          400: errorResponse("Invalid pagination or filters"),
+          503: errorResponse("Task list request timed out"),
+        },
+      }),
+      async (c) => {
+        const { id } = c.req.valid("param");
+        const project = await getPublicProject(id, c.req.valid("query"));
+        return c.json(project, 200);
+      },
+      (result) => {
+        if (!result.success)
+          throw new HTTPException(400, {
+            message: "Invalid task pagination or filters",
+          });
+      },
+    )
+    .openapi(
+      createRoute({
+        method: "get",
+        operationId: "getPublicProjectDescriptionPage",
+        path: "/public-project/{id}/description",
+        tags: ["Projects"],
+        summary: "Read a public project description page",
+        security: [],
+        request: {
+          params: z.object({ id: z.string() }),
+          query: descriptionPageQuery,
+        },
+        responses: {
+          200: jsonResponse(
+            "Public project description page",
+            descriptionPageSchema,
+          ),
+          400: errorResponse("Invalid description cursor"),
+          404: errorResponse("Public project not found"),
+          409: errorResponse("Description changed or no longer public"),
+          503: errorResponse("Description request timed out"),
+        },
+      }),
+      async (c) =>
+        c.json(
+          await getPublicProjectDescriptionPage(
+            c.req.valid("param").id,
+            c.req.valid("query"),
+          ),
+          200,
+        ),
+      (result) => {
+        if (!result.success)
+          throw new HTTPException(400, {
+            message: "Invalid description cursor",
+          });
+      },
+    )
+    .openapi(
+      createRoute({
+        method: "get",
+        operationId: "getPublicTaskDescriptionPage",
+        path: "/public-project/{id}/task/{taskId}/description",
+        tags: ["Projects"],
+        summary: "Read a public task description page",
+        security: [],
+        request: {
+          params: z.object({ id: z.string(), taskId: z.string() }),
+          query: descriptionPageQuery,
+        },
+        responses: {
+          200: jsonResponse(
+            "Public task description page",
+            descriptionPageSchema,
+          ),
+          400: errorResponse("Invalid description cursor"),
+          404: errorResponse("Public task not found"),
+          409: errorResponse("Description changed or no longer public"),
+          503: errorResponse("Description request timed out"),
+        },
+      }),
+      async (c) => {
+        const { id, taskId } = c.req.valid("param");
+        return c.json(
+          await getDescriptionPage(taskId, {
+            ...c.req.valid("query"),
+            publicProjectId: id,
+          }),
+          200,
+        );
+      },
+      (result) => {
+        if (!result.success)
+          throw new HTTPException(400, {
+            message: "Invalid description cursor",
+          });
+      },
+    );
 
   api.post("/github-integration/webhook", handleGithubWebhookRoute);
 
@@ -293,6 +426,7 @@ export function createApp() {
           objectKey: schema.assetTable.objectKey,
           mimeType: schema.assetTable.mimeType,
           filename: schema.assetTable.filename,
+          surface: schema.assetTable.surface,
           workspaceId: schema.assetTable.workspaceId,
           isPublic: schema.projectTable.isPublic,
         })
@@ -321,7 +455,7 @@ export function createApp() {
 
         return new Response(object.body as BodyInit, {
           headers: {
-            "Cache-Control": asset.isPublic
+            "Cache-Control": isPublicAsset(asset)
               ? "public, max-age=300"
               : "private, max-age=120",
             "Content-Disposition": buildContentDisposition(
@@ -632,6 +766,7 @@ export function createApp() {
   api.get(
     "/ws/user",
     upgradeWebSocket(async (c) => {
+      assertWebSocketOrigin(c.req.raw.headers);
       try {
         await authenticateApiRequest(c);
       } catch (error) {
@@ -651,24 +786,7 @@ export function createApp() {
             conn = addUserConnection(userId, ws);
           }
         },
-        onMessage(evt) {
-          try {
-            const raw =
-              typeof evt.data === "string"
-                ? evt.data
-                : Buffer.isBuffer(evt.data)
-                  ? evt.data.toString()
-                  : null;
-            if (raw) {
-              const msg = JSON.parse(raw) as { type?: string };
-              if (msg?.type === "ping") {
-                // keepalive, no-op
-              }
-            }
-          } catch {
-            // Ignore malformed messages
-          }
-        },
+        onMessage: handleWebSocketMessage,
         onClose() {
           if (conn && userId) {
             removeUserConnection(userId, conn);
@@ -681,6 +799,7 @@ export function createApp() {
   api.get(
     "/ws/:projectId",
     upgradeWebSocket(async (c) => {
+      assertWebSocketOrigin(c.req.raw.headers);
       const projectId = c.req.param("projectId");
 
       try {
@@ -719,27 +838,7 @@ export function createApp() {
             conn = addConnection(projectId, ws, userId, initiatorId);
           }
         },
-        onMessage(evt) {
-          // Respond to client keepalive pings (sent every 30s to prevent
-          // Cloudflare from closing idle connections at 100s timeout)
-          try {
-            const raw =
-              typeof evt.data === "string"
-                ? evt.data
-                : Buffer.isBuffer(evt.data)
-                  ? evt.data.toString()
-                  : null;
-            if (raw) {
-              const msg = JSON.parse(raw) as { type?: string };
-              if (msg?.type === "ping") {
-                // No-op: receiving the ping is enough to satisfy Cloudflare.
-                // A pong response is optional but helps confirm liveness.
-              }
-            }
-          } catch {
-            // Ignore malformed messages
-          }
-        },
+        onMessage: handleWebSocketMessage,
         onClose() {
           if (conn && projectId) {
             removeConnection(projectId, conn);

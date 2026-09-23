@@ -25,7 +25,7 @@ For development, you'll need at minimum:
 
 - `KANEO_CLIENT_URL` - The URL of the web application (e.g., `http://localhost:5173`)
 - `KANEO_API_URL` - The URL of the API (e.g., `http://localhost:1337`)
-- `AUTH_SECRET` - Secret key for JWT token generation (**must be at least 32 characters long**; use a long, random value in production)
+- `AUTH_SECRET` - **Required.** Secret key for JWT token generation (**must be at least 32 characters long**; use a long, random value in production). The API refuses to start without it, because an unset secret would fall back to a publicly known default and make every session cookie forgeable. The Docker entrypoint generates a random one per session if you do not set it, so sessions will not survive a restart until you do. Generate one with `openssl rand -hex 32`.
 - `DEVICE_AUTH_CLIENT_IDS` - **Optional.** Comma-separated list of allowed device-flow OAuth client IDs. When unset, Kaneo implicitly allows `kaneo-cli` and `kaneo-mcp` by default (no extra configuration for the CLI or MCP). Override only when you need additional trusted clients, for example `kaneo-cli,kaneo-mcp,my-desktop-app`.
 - `DATABASE_URL` - PostgreSQL connection string
 - `POSTGRES_DB` - PostgreSQL database name
@@ -81,11 +81,11 @@ For sending emails (workspace invitations, magic links, etc.), configure these v
 - `SMTP_USER` - SMTP username
 - `SMTP_PASSWORD` - SMTP password
 - `SMTP_FROM` - From email address
-- `SMTP_SECURE` - Use TLS (default: `true`, set to `false` to disable)
-- `SMTP_REQUIRE_TLS` - Require TLS (default: `false`, set to `true` to require)
-- `SMTP_IGNORE_TLS` - Ignore TLS certificate errors (default: `false`, set to `true` for self-signed certificates)
+- `SMTP_SECURE` - Use TLS immediately (default: `true`, typically port 465). Set to `false` for STARTTLS, typically on port 587.
+- `SMTP_REQUIRE_TLS` - Require a STARTTLS upgrade when `SMTP_SECURE=false` (default: `true`). Sending fails if the server cannot upgrade. Only set to `false` for an intentionally unencrypted local development relay.
+- `SMTP_IGNORE_TLS` - Removed: `true` is rejected because this option disabled STARTTLS and could send credentials and emails in plaintext.
 
-> **Note:** If you're using an SMTP server with a self-signed or invalid TLS certificate, set `SMTP_IGNORE_TLS=true` to bypass certificate validation.
+For a private SMTP certificate authority, configure Node's `NODE_EXTRA_CA_CERTS` with the path to a trusted CA PEM file before starting the API. Fix expired certificates or hostname mismatches instead of bypassing validation. When upgrading an existing installation, remove `SMTP_IGNORE_TLS=true` and check SMTP delivery with the corrected trust configuration before rollout.
 
 When SMTP is configured, sign-in uses email verification codes by default. Set `DISABLE_EMAIL_OTP_SIGN_IN=true` to use email/password sign-in instead (workspace invitation emails still use SMTP).
 
@@ -131,7 +131,7 @@ For a complete list of all environment variables, their descriptions, and config
      ```
      CORS_ORIGINS=http://localhost:5173,https://yourdomain.com
      ```
-   - For development, you can leave `CORS_ORIGINS` empty to allow all origins
+   - In development, unconfigured HTTP CORS may reflect origins. WebSocket connections always require an allowed origin (`KANEO_CLIENT_URL`, `KANEO_API_URL`, or an explicit `CORS_ORIGINS` entry).
    - **Note:** `CORS_ORIGINS` should match `KANEO_CLIENT_URL` for proper authentication
 
 3. **Check Protocol Consistency:**
@@ -210,7 +210,7 @@ For a complete list of all environment variables, their descriptions, and config
 
 ### Development
 - Use `http://localhost` for both frontend and API
-- Leave `CORS_ORIGINS` empty to allow all origins (or set it to match your local URLs)
+- Set `KANEO_CLIENT_URL` and `KANEO_API_URL` to your local URLs; list any additional frontend origins in `CORS_ORIGINS`. WebSocket origins are checked even in development (defaults are `http://localhost:5173` and `http://localhost:1337` when the corresponding URL is unset).
 - Use simple secrets for `AUTH_SECRET` (not for production)
 - The web app will use `VITE_API_URL` if set, otherwise defaults to `http://localhost:1337`
 

@@ -46,16 +46,33 @@ describe("getSmtpTransportOptions", () => {
     expect(options.port).toBeUndefined();
   });
 
-  it("defaults to a secure connection and honours the TLS flags", () => {
+  it("defaults to encrypted delivery and keeps certificate validation enabled", () => {
     expect(getSmtpTransportOptions({ SMTP_HOST: "h" }).secure).toBe(true);
-    expect(
-      getSmtpTransportOptions({ SMTP_HOST: "h", SMTP_REQUIRE_TLS: "true" })
-        .requireTLS,
-    ).toBe(true);
-    expect(
-      getSmtpTransportOptions({ SMTP_HOST: "h", SMTP_IGNORE_TLS: "true" })
-        .ignoreTLS,
-    ).toBe(true);
+    const options = getSmtpTransportOptions({ SMTP_SECURE: "false" });
+    expect(options.requireTLS).toBe(true);
+    expect(options.ignoreTLS).toBe(false);
+    expect(options.tls?.rejectUnauthorized).not.toBe(false);
+  });
+
+  it("rejects the formerly misleading flag instead of disabling STARTTLS", () => {
+    for (const secure of ["true", "false"]) {
+      expect(() =>
+        getSmtpTransportOptions({
+          SMTP_SECURE: secure,
+          SMTP_IGNORE_TLS: "true",
+        }),
+      ).toThrow("SMTP_IGNORE_TLS=true is no longer supported");
+    }
+  });
+
+  it("requires an explicit opt-out for relays without TLS", () => {
+    const options = getSmtpTransportOptions({
+      SMTP_SECURE: "false",
+      SMTP_REQUIRE_TLS: "false",
+      SMTP_IGNORE_TLS: "false",
+    });
+    expect(options.requireTLS).toBe(false);
+    expect(options.ignoreTLS).toBe(false);
   });
 });
 
