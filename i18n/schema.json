@@ -9658,6 +9658,42 @@
 				"darkScreenshotAlt": {
 					"type": "string"
 				},
+				"lightListScreenshot": {
+					"type": "string"
+				},
+				"lightListScreenshotAlt": {
+					"type": "string"
+				},
+				"darkListScreenshot": {
+					"type": "string"
+				},
+				"darkListScreenshotAlt": {
+					"type": "string"
+				},
+				"lightTimelineScreenshot": {
+					"type": "string"
+				},
+				"lightTimelineScreenshotAlt": {
+					"type": "string"
+				},
+				"darkTimelineScreenshot": {
+					"type": "string"
+				},
+				"darkTimelineScreenshotAlt": {
+					"type": "string"
+				},
+				"lightTaskScreenshot": {
+					"type": "string"
+				},
+				"lightTaskScreenshotAlt": {
+					"type": "string"
+				},
+				"darkTaskScreenshot": {
+					"type": "string"
+				},
+				"darkTaskScreenshotAlt": {
+					"type": "string"
+				},
 				"contactTitle": {
 					"type": "string"
 				},
@@ -9698,6 +9734,18 @@
 				"lightScreenshotAlt",
 				"darkScreenshot",
 				"darkScreenshotAlt",
+				"lightListScreenshot",
+				"lightListScreenshotAlt",
+				"darkListScreenshot",
+				"darkListScreenshotAlt",
+				"lightTimelineScreenshot",
+				"lightTimelineScreenshotAlt",
+				"darkTimelineScreenshot",
+				"darkTimelineScreenshotAlt",
+				"lightTaskScreenshot",
+				"lightTaskScreenshotAlt",
+				"darkTaskScreenshot",
+				"darkTaskScreenshotAlt",
 				"contactTitle",
 				"contactBody",
 				"usageContrast",
