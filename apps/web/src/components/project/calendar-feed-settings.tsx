@@ -61,6 +61,9 @@ export function CalendarFeedSettings({ projectId }: { projectId: string }) {
       ),
     onSuccess: async () => {
       setSelected([]);
+      await queryClient.invalidateQueries({
+        queryKey: ["labels", workspace?.id],
+      });
       await queryClient.invalidateQueries({ queryKey });
       toast.success(t("settings:calendarFeeds.created"));
     },

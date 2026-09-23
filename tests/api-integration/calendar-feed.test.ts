@@ -181,6 +181,69 @@ describe("API integration: calendar feeds", () => {
     expect(result).not.toContain("BEGIN:VEVENT");
   });
 
+  it.each([true, false])(
+    "keeps feeds stable after a task label is removed (workspace definition: %s)",
+    async (hasDefinition) => {
+      const { member, project, labels, app, create } = await setup();
+      const tasks = await db
+        .insert(schema.taskTable)
+        .values([
+          {
+            title: "Original assignment",
+            projectId: project.id,
+            number: 1,
+            dueDate: new Date(),
+          },
+          {
+            title: "Remaining assignment",
+            projectId: project.id,
+            number: 2,
+            dueDate: new Date(),
+          },
+        ])
+        .returning();
+      const copies = await db
+        .insert(schema.labelTable)
+        .values(
+          tasks.map((task) => ({
+            name: labels[0].name,
+            color: "gray",
+            workspaceId: member.workspace.id,
+            taskId: task.id,
+          })),
+        )
+        .returning();
+      if (!hasDefinition)
+        await db
+          .delete(schema.labelTable)
+          .where(eq(schema.labelTable.id, labels[0].id));
+      const response = await create({ labelIds: [copies[0].id, copies[1].id] });
+      expect(response.status).toBe(201);
+      const feed = (await response.json()) as Feed;
+      const root = await db.query.labelTable.findFirst({
+        where: eq(schema.labelTable.id, feed.labelIds[0]),
+      });
+      expect(root?.taskId).toBeNull();
+      expect(root?.name).toBe(labels[0].name);
+      expect(feed.labelIds).toHaveLength(1);
+      if (hasDefinition) expect(root?.id).toBe(labels[0].id);
+      await updateLabel(copies[0].id, "Unrelated", "gray");
+      expect(await (await app.request(feedPath(feed))).text()).toContain(
+        "SUMMARY:Remaining assignment",
+      );
+      await db
+        .delete(schema.labelTable)
+        .where(eq(schema.labelTable.id, copies[0].id));
+      expect(await (await app.request(feedPath(feed))).text()).toContain(
+        "SUMMARY:Remaining assignment",
+      );
+      await updateLabel(feed.labelIds[0], "Renamed workspace label", "gray");
+      expect(await (await app.request(feedPath(feed))).text()).toContain(
+        "SUMMARY:Remaining assignment",
+      );
+    },
+  );
+
   it("revokes one link without affecting others and cascades project deletion", async () => {
     const { app, project, endpoint, create } = await setup();
     const first = (await (await create()).json()) as Feed;

@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { and, asc, eq, inArray, isNotNull, or } from "drizzle-orm";
+import { and, asc, eq, inArray, isNotNull, isNull, or } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../database";
 import {
@@ -16,28 +16,77 @@ export async function createCalendarFeed(
   labelIds: string[],
   timeZone: string,
 ) {
-  const ids = [...new Set(labelIds)];
-  const labels = await db
-    .select({ id: labelTable.id })
-    .from(labelTable)
-    .where(
-      and(eq(labelTable.workspaceId, workspaceId), inArray(labelTable.id, ids)),
-    );
-  if (labels.length !== ids.length) {
-    throw new HTTPException(400, {
-      message: "Select labels from this workspace",
-    });
-  }
-  const [feed] = await db
-    .insert(calendarFeedTable)
-    .values({
-      projectId,
-      labelIds: ids,
-      timeZone,
-      token: randomBytes(32).toString("hex"),
-    })
-    .returning();
-  return feed;
+  return db.transaction(async (tx) => {
+    const ids = [...new Set(labelIds)];
+    const labels = await tx
+      .select({
+        id: labelTable.id,
+        name: labelTable.name,
+        color: labelTable.color,
+      })
+      .from(labelTable)
+      .where(
+        and(
+          eq(labelTable.workspaceId, workspaceId),
+          inArray(labelTable.id, ids),
+          isNull(labelTable.deletionStartedAt),
+        ),
+      );
+    if (labels.length !== ids.length) {
+      throw new HTTPException(400, {
+        message: "Select labels from this workspace",
+      });
+    }
+    // Task assignments are disposable. Older workspaces may have no definition,
+    // so materialize one and keep subscriptions tied to that persistent row.
+    const definitions = [
+      ...new Map(labels.map((label) => [label.name, label])).values(),
+    ].sort((a, b) => a.name.localeCompare(b.name));
+    await tx
+      .insert(labelTable)
+      .values(
+        definitions.map(({ name, color }) => ({
+          name,
+          color,
+          workspaceId,
+          taskId: null,
+        })),
+      )
+      .onConflictDoNothing({
+        target: [labelTable.workspaceId, labelTable.name],
+        where: isNull(labelTable.taskId),
+      });
+    const roots = await tx
+      .select({ id: labelTable.id })
+      .from(labelTable)
+      .where(
+        and(
+          eq(labelTable.workspaceId, workspaceId),
+          inArray(
+            labelTable.name,
+            definitions.map((label) => label.name),
+          ),
+          isNull(labelTable.taskId),
+          isNull(labelTable.deletionStartedAt),
+        ),
+      )
+      .orderBy(asc(labelTable.name));
+    if (roots.length !== definitions.length) {
+      throw new HTTPException(400, {
+        message: "Select labels that are not being deleted",
+      });
+    }
+    const [feed] = await tx
+      .insert(calendarFeedTable)
+      .values({
+        projectId,
+        labelIds: roots.map((label) => label.id),
+        timeZone,
+        token: randomBytes(32).toString("hex"),
+      })
+      .returning();
+    return feed;
+  });
 }
 
 export function listCalendarFeeds(projectId: string) {
