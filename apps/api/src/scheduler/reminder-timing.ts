@@ -1,5 +1,5 @@
 const MINUTE_MS = 60 * 1000;
-const DAY_MS = 24 * 60 * MINUTE_MS;
+export const DUE_DATE_DURATION_MS = 24 * 60 * MINUTE_MS;
 
 export const REMINDER_WINDOW_MINUTES = 10;
 
@@ -13,7 +13,8 @@ export function isReminderDue({
   now: Date;
 }) {
   // Due dates represent a full day; reminders count back from its expiration.
-  const targetTime = dueDate.getTime() + DAY_MS - leadTimeMinutes * MINUTE_MS;
+  const targetTime =
+    dueDate.getTime() + DUE_DATE_DURATION_MS - leadTimeMinutes * MINUTE_MS;
   const elapsedSinceTarget = now.getTime() - targetTime;
 
   return (

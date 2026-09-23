@@ -1,4 +1,4 @@
-import { and, eq, isNotNull, isNull, or, sql } from "drizzle-orm";
+import { and, between, eq, isNotNull, isNull, or } from "drizzle-orm";
 import db from "../database";
 import {
   columnTable,
@@ -11,7 +11,10 @@ import {
   normalizeGenericWebhookConfig,
 } from "../plugins/generic-webhook/config";
 import { sendDueDateReminder } from "../plugins/generic-webhook/events";
-import { REMINDER_WINDOW_MINUTES } from "./reminder-timing";
+import {
+  DUE_DATE_DURATION_MS,
+  REMINDER_WINDOW_MINUTES,
+} from "./reminder-timing";
 
 const MINUTE_MS = 60 * 1000;
 
@@ -39,7 +42,10 @@ export async function checkProjectWebhookReminders(): Promise<void> {
       if (!config.events?.dueDateReminder) continue;
 
       const leadTimeMinutes = config.dueDateReminderLeadTimeMinutes ?? 1440;
-      const windowEnd = new Date(now.getTime() + leadTimeMinutes * MINUTE_MS);
+      // Count back from expiration while keeping the indexed due date unmodified.
+      const windowEnd = new Date(
+        now.getTime() + leadTimeMinutes * MINUTE_MS - DUE_DATE_DURATION_MS,
+      );
       const windowStart = new Date(
         windowEnd.getTime() - REMINDER_WINDOW_MINUTES * MINUTE_MS,
       );
@@ -59,8 +65,7 @@ export async function checkProjectWebhookReminders(): Promise<void> {
           and(
             eq(taskTable.projectId, integration.projectId),
             isNotNull(taskTable.dueDate),
-            // Match personal reminders: a due date expires the following day.
-            sql`${taskTable.dueDate} + interval '1 day' BETWEEN ${windowStart.toISOString()} AND ${windowEnd.toISOString()}`,
+            between(taskTable.dueDate, windowStart, windowEnd),
             isNull(taskReminderSentTable.id),
             or(isNull(columnTable.isFinal), eq(columnTable.isFinal, false)),
           ),
