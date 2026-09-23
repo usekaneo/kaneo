@@ -2,6 +2,7 @@
 
 import {
   CalendarDays,
+  CalendarRange,
   ListTodo,
   Pause,
   Play,
@@ -21,17 +22,24 @@ import {
   type PreviewMode,
 } from "@/components/landing/app-preview";
 import { landing } from "@/lib/landing";
+import messages from "../../../../i18n/en-US.json";
 import styles from "./product-showcase.module.css";
 
 const scenes = [
   { mode: "board", icon: SquareKanban, label: landing.showcase.board },
   { mode: "list", icon: ListTodo, label: landing.showcase.list },
+  {
+    mode: "calendar",
+    icon: CalendarRange,
+    label: messages.tasks.calendar.title,
+  },
   { mode: "gantt", icon: CalendarDays, label: landing.showcase.gantt },
 ] satisfies { mode: PreviewMode; icon: typeof SquareKanban; label: string }[];
 
 const tourTargets = [
   "drag-forward",
   "list",
+  "calendar",
   "gantt",
   "board",
   "drag-back",

@@ -136,8 +136,9 @@
   .playButton:hover { background: var(--muted); color: var(--foreground); }
 }
 @media (max-width: 600px) {
-  .controls { gap: 2px; }
-  .sceneButton, .playButton { min-height: 44px; }
+  .controls { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) auto; gap: 2px; }
+  .sceneButton, .playButton { min-height: 44px; padding-inline: 4px; gap: 4px; font-size: 11px; }
+  .playButton { width: 36px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .cursor { display: none; transition: none; }
