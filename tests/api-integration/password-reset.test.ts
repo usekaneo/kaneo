@@ -101,6 +101,42 @@ describe("password reset with email OTP disabled", () => {
     ).toBe(400);
   });
 
+  it("immediately rejects old cached cookies on session and protected API requests", async () => {
+    const context = await auth.$context;
+    const cookieCache = context.options.session?.cookieCache;
+    if (!cookieCache) throw new Error("Missing cookie cache configuration");
+    const originalEnabled = cookieCache.enabled;
+    let cookie: string;
+    try {
+      // Model a cookie issued before upgrading from the cached-session config.
+      cookieCache.enabled = true;
+      const signIn = await post("/sign-in/email", { email: address, password });
+      expect(signIn.status).toBe(200);
+      cookie = signIn.headers
+        .getSetCookie()
+        .map((value) => value.split(";")[0])
+        .join("; ");
+      expect(cookie.includes("session_data=")).toBe(true);
+    } finally {
+      cookieCache.enabled = originalEnabled;
+    }
+    const headers = { Cookie: cookie, Origin: origin };
+    const { app } = createApp();
+    expect((await app.request("/api/notification", { headers })).status).toBe(
+      200,
+    );
+    const { token } = await requestReset();
+    expect((await post("/reset-password", { token, newPassword })).status).toBe(
+      200,
+    );
+    expect(await db.select().from(schema.sessionTable)).toHaveLength(0);
+    expect((await app.request("/api/notification", { headers })).status).toBe(
+      401,
+    );
+    const session = await app.request("/api/auth/get-session", { headers });
+    expect(await session.json()).toBeNull();
+  });
+
   it("gives the same confirmation for existing and unknown accounts without sending unknown-account mail", async () => {
     const known = await post("/request-password-reset", {
       email: address,

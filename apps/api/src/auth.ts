@@ -385,14 +385,8 @@ export const auth = betterAuth({
       // (owner/admin/member/viewer) don't apply until after a workspace
       // is joined.
       //
-      // `user` here comes from the session, which may be served out of
-      // the cookie cache (see `session.cookieCache` below). The
-      // first-user bootstrap promotes the user to admin in
-      // `databaseHooks.user.create.after`, but that happens after
-      // `signUpEmail` has already returned/cached the pre-promotion
-      // role, so a cached session can still say `role: "user"` for up
-      // to `cookieCache.maxAge`. Re-read the role from the database
-      // instead of trusting the (possibly stale) cached role.
+      // Read the current instance role rather than a session's user snapshot,
+      // which can predate first-user promotion or an administrator's changes.
       allowUserToCreateOrganization: isWorkspaceCreationDisabled
         ? async (user) => {
             const [freshUser] = await db
@@ -559,8 +553,9 @@ export const auth = betterAuth({
   ],
   session: {
     cookieCache: {
-      enabled: true,
-      maxAge: 5 * 60,
+      // Consult the session store on every request so password recovery
+      // immediately rejects revoked cookies, including caches issued before upgrade.
+      enabled: false,
     },
   },
   rateLimit: {
