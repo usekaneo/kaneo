@@ -11,53 +11,44 @@ export const dynamic = "force-static";
 
 const SITE = "https://kaneo.app";
 
-type Entry = { path: string; changefreq: string; priority: string };
+type Entry = { path: string; lastmod?: string };
 
 const staticEntries: Entry[] = [
-  { path: "/", changefreq: "weekly", priority: "1.0" },
-  { path: "/pricing", changefreq: "monthly", priority: "0.8" },
-  { path: "/press", changefreq: "monthly", priority: "0.5" },
-  { path: "/alternatives", changefreq: "weekly", priority: "0.8" },
-  { path: "/guides", changefreq: "weekly", priority: "0.8" },
-  { path: "/blog", changefreq: "weekly", priority: "0.8" },
-  { path: "/privacy", changefreq: "yearly", priority: "0.3" },
-  { path: "/terms", changefreq: "yearly", priority: "0.3" },
+  { path: "/" },
+  { path: "/pricing" },
+  { path: "/press" },
+  { path: "/alternatives" },
+  { path: "/guides" },
+  { path: "/blog" },
+  { path: "/privacy" },
+  { path: "/terms" },
 ];
 
 export function GET() {
-  const lastmod = new Date().toISOString();
-
+  // Only dated editorial content has a reliable lastmod. Build times and
+  // competitor verification dates do not track every change to a page.
   const entries: Entry[] = [
     ...staticEntries,
     ...comparisonList.map((comparison) => ({
       path: alternativePath(comparison.slug),
-      changefreq: "monthly",
-      priority: "0.7",
     })),
     ...guideList.map((guide) => ({
       path: guidePath(guide.slug),
-      changefreq: "monthly",
-      priority: "0.7",
+      lastmod: guide.updatedOn,
     })),
     ...getUsedCategories().map((category) => ({
       path: blogCategoryPath(category.slug),
-      changefreq: "weekly",
-      priority: "0.5",
     })),
     ...getPosts().map((post) => ({
       path: blogPath(post.slug),
-      changefreq: "monthly",
-      priority: "0.7",
+      lastmod: post.updatedOn ?? post.date,
     })),
   ];
 
   const urls = entries
     .map(
       (entry) => `  <url>
-    <loc>${SITE}${entry.path}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>${entry.changefreq}</changefreq>
-    <priority>${entry.priority}</priority>
+    <loc>${SITE}${entry.path}</loc>${entry.lastmod ? `\n    <lastmod>${entry.lastmod}</lastmod>` : ""}
   </url>`,
     )
     .join("\n");

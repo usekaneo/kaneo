@@ -3,14 +3,15 @@ import type { ReactNode } from "react";
 import { Footer } from "@/components/landing/footer";
 import { Navbar } from "@/components/landing/navbar";
 import { PageIntro } from "@/components/landing/page-intro";
+import { withSocialMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withSocialMetadata({
   title: "Terms of Service",
   description: "The terms that govern your use of Kaneo Cloud.",
   alternates: {
     canonical: "/terms",
   },
-};
+});
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (

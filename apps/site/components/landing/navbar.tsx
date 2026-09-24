@@ -119,18 +119,14 @@ export function Navbar() {
             className="hidden text-sm md:inline-flex"
             size="sm"
             variant="ghost"
-            onClick={() => {
-              window.location.href = "https://cloud.kaneo.app/auth/sign-in";
-            }}
+            render={<a href="https://cloud.kaneo.app/auth/sign-in" />}
           >
             {landing.navigation.signIn}
           </Button>
           <Button
             className="text-sm"
             size="sm"
-            onClick={() => {
-              window.location.href = "https://cloud.kaneo.app";
-            }}
+            render={<a href="https://cloud.kaneo.app/auth/sign-up" />}
           >
             {landing.navigation.getStarted}
           </Button>

@@ -15,16 +15,15 @@ export function Hero() {
         <div className="mb-10 max-w-4xl">
           <FadeIn delay={0}>
             <h1 className="text-balance text-4xl font-medium leading-[1.06] md:text-5xl">
-              Project management{" "}
+              {landing.hero.title}{" "}
               <span className="text-primary md:block md:whitespace-nowrap">
-                that doesn&apos;t become the project.
+                {landing.hero.titleAccent}
               </span>
             </h1>
           </FadeIn>
           <FadeIn delay={80}>
             <p className="mt-5 max-w-2xl text-balance text-lg text-muted-foreground leading-relaxed md:text-xl">
-              Plan work, keep ownership clear, and move from backlog to release
-              without adding process for process&apos;s sake.
+              {landing.hero.description}
             </p>
           </FadeIn>
 

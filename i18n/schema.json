@@ -9794,6 +9794,15 @@
 						},
 						"productHunt": {
 							"type": "string"
+						},
+						"title": {
+							"type": "string"
+						},
+						"titleAccent": {
+							"type": "string"
+						},
+						"description": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -9801,7 +9810,10 @@
 						"selfHostCta",
 						"trialNote",
 						"github",
-						"productHunt"
+						"productHunt",
+						"title",
+						"titleAccent",
+						"description"
 					]
 				},
 				"navigation": {
@@ -10104,9 +10116,265 @@
 						"preview",
 						"relations"
 					]
+				},
+				"seo": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"title": {
+							"type": "string"
+						},
+						"description": {
+							"type": "string"
+						}
+					},
+					"required": ["title", "description"]
+				},
+				"resources": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"eyebrow": {
+							"type": "string"
+						},
+						"title": {
+							"type": "string"
+						},
+						"description": {
+							"type": "string"
+						},
+						"docker": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description"]
+						},
+						"sso": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description"]
+						},
+						"mcp": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description"]
+						},
+						"linear": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description"]
+						}
+					},
+					"required": [
+						"eyebrow",
+						"title",
+						"description",
+						"docker",
+						"sso",
+						"mcp",
+						"linear"
+					]
+				},
+				"product": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"title": {
+							"type": "string"
+						},
+						"description": {
+							"type": "string"
+						},
+						"overview": {
+							"type": "string"
+						},
+						"hosting": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"question": {
+									"type": "string"
+								},
+								"answer": {
+									"type": "string"
+								},
+								"link": {
+									"type": "string"
+								}
+							},
+							"required": ["question", "answer", "link"]
+						},
+						"planning": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"question": {
+									"type": "string"
+								},
+								"answer": {
+									"type": "string"
+								},
+								"link": {
+									"type": "string"
+								}
+							},
+							"required": ["question", "answer", "link"]
+						},
+						"sso": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"question": {
+									"type": "string"
+								},
+								"answer": {
+									"type": "string"
+								},
+								"link": {
+									"type": "string"
+								}
+							},
+							"required": ["question", "answer", "link"]
+						},
+						"agents": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"question": {
+									"type": "string"
+								},
+								"answer": {
+									"type": "string"
+								},
+								"link": {
+									"type": "string"
+								}
+							},
+							"required": ["question", "answer", "link"]
+						}
+					},
+					"required": [
+						"title",
+						"description",
+						"overview",
+						"hosting",
+						"planning",
+						"sso",
+						"agents"
+					]
+				},
+				"comparison": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"feature": {
+							"type": "string"
+						},
+						"yes": {
+							"type": "string"
+						},
+						"no": {
+							"type": "string"
+						}
+					},
+					"required": ["feature", "yes", "no"]
+				},
+				"selfHostingGuide": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"summary": {
+							"type": "string"
+						},
+						"answer": {
+							"type": "string"
+						},
+						"requirements": {
+							"type": "string"
+						},
+						"compose": {
+							"type": "string"
+						},
+						"backups": {
+							"type": "string"
+						},
+						"worth": {
+							"type": "string"
+						},
+						"minimum": {
+							"type": "string"
+						},
+						"composeLink": {
+							"type": "string"
+						},
+						"composeLinkDescription": {
+							"type": "string"
+						},
+						"startLink": {
+							"type": "string"
+						},
+						"startLinkDescription": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"summary",
+						"answer",
+						"requirements",
+						"compose",
+						"backups",
+						"worth",
+						"minimum",
+						"composeLink",
+						"composeLinkDescription",
+						"startLink",
+						"startLinkDescription"
+					]
 				}
 			},
-			"required": ["founder", "hero", "navigation", "showcase", "features"]
+			"required": [
+				"founder",
+				"hero",
+				"navigation",
+				"showcase",
+				"features",
+				"seo",
+				"resources",
+				"product",
+				"comparison",
+				"selfHostingGuide"
+			]
 		}
 	},
 	"required": [

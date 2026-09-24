@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "biome check --write .",
     "typecheck": "tsc --noEmit -p tsconfig.json",
+    "seo:check": "node scripts/check-seo.mjs",
     "og:generate": "node scripts/generate-og.mjs",
     "press:generate": "node scripts/generate-press-kit.mjs"
   },
