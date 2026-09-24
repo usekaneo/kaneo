@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
@@ -252,6 +252,65 @@ describe("API integration: project templates and duplication", () => {
     expect(value).toMatchObject({ fieldId: field.id, value: "Large" });
   });
 
+  it("copies tasks, labels, and field values across insert batches", async () => {
+    const member = await createWorkspaceMember();
+    const source = await seedSource(member.workspace.id);
+    const extra = await db
+      .insert(schema.taskTable)
+      .values(
+        Array.from({ length: 501 }, (_, index) => ({
+          projectId: source.project.id,
+          columnId: source.columns.todo.id,
+          number: index + 8,
+          title: `Task ${index}`,
+        })),
+      )
+      .returning({ id: schema.taskTable.id });
+    await db.insert(schema.labelTable).values(
+      extra.map(({ id }) => ({
+        taskId: id,
+        workspaceId: member.workspace.id,
+        name: "Batch",
+        color: "#123456",
+      })),
+    );
+    await db.insert(schema.customFieldValueTable).values(
+      extra.map(({ id }) => ({
+        taskId: id,
+        fieldId: source.field.id,
+        value: "Small",
+      })),
+    );
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const response = await app.request(
+      createRequest(member.workspace.id, source.project.id, {
+        includeTasks: true,
+      }),
+    );
+    expect(response.status).toBe(200);
+    const created = (await response.json()) as Project;
+    const tasks = await db.query.taskTable.findMany({
+      where: eq(schema.taskTable.projectId, created.id),
+      orderBy: (task, { asc }) => [asc(task.number)],
+    });
+    expect(tasks).toHaveLength(502);
+    expect(tasks[501]).toMatchObject({ number: 502, title: "Task 500" });
+    expect(created.lastTaskNumber).toBe(502);
+    const taskIds = tasks.map(({ id }) => id);
+    const labels = await db.query.labelTable.findMany({
+      where: inArray(schema.labelTable.taskId, taskIds),
+    });
+    const values = await db.query.customFieldValueTable.findMany({
+      where: inArray(schema.customFieldValueTable.taskId, taskIds),
+    });
+    expect(labels).toHaveLength(502);
+    expect(values).toHaveLength(502);
+    expect(labels.some((label) => label.taskId === tasks[501]?.id)).toBe(true);
+    expect(values.some((value) => value.taskId === tasks[501]?.id)).toBe(true);
+  });
+
   it("keeps saved templates out of ordinary and archived project lists, scoped to their workspace", async () => {
     const owner = await createWorkspaceMember({ role: "admin" });
     const other = await createWorkspaceMember();
@@ -361,6 +420,49 @@ describe("API integration: project templates and duplication", () => {
         )
       ).json(),
     ).toEqual([]);
+  });
+
+  it("requires project read access for sources and saved templates", async () => {
+    const member = await createWorkspaceMember({ role: "limited" });
+    const source = await seedSource(member.workspace.id);
+    await db.insert(schema.workspaceRoleTable).values({
+      workspaceId: member.workspace.id,
+      role: "limited",
+      permission: JSON.stringify({ project: ["create"] }),
+    });
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    expect(
+      (
+        await app.request(
+          `/api/project/templates?workspaceId=${member.workspace.id}`,
+        )
+      ).status,
+    ).toBe(403);
+    expect(
+      (await app.request(createRequest(member.workspace.id, source.project.id)))
+        .status,
+    ).toBe(403);
+    expect(
+      (
+        await app.request(
+          createRequest(member.workspace.id, source.project.id, {
+            asTemplate: true,
+          }),
+        )
+      ).status,
+    ).toBe(403);
+    expect((await app.request(createRequest(member.workspace.id))).status).toBe(
+      200,
+    );
+    expect(
+      (
+        await db.query.projectTable.findMany({
+          where: eq(schema.projectTable.workspaceId, member.workspace.id),
+        })
+      ).map((project) => project.isTemplate),
+    ).toEqual([false, false]);
   });
 
   it("denies a source outside the destination workspace without creating a project", async () => {

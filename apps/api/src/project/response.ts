@@ -32,6 +32,10 @@ export const projectSchema = z
   })
   .openapi("Project");
 
+export const projectTemplateListSchema = z
+  .array(projectSchema)
+  .openapi("ProjectTemplateList");
+
 export const projectStatisticsSchema = z
   .object({
     completionPercentage: z.number(),

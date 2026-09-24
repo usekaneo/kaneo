@@ -1,3 +1,4 @@
+import { createId } from "@paralleldrive/cuid2";
 import { and, asc, eq, inArray, max, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
@@ -17,6 +18,8 @@ export const DEFAULT_PROJECT_COLUMNS = [
   { name: "In Review", slug: "in-review", position: 2, isFinal: false },
   { name: "Done", slug: "done", position: 3, isFinal: true },
 ] as const;
+
+const COPY_BATCH_SIZE = 500;
 
 type CreateProjectOptions = {
   sourceProjectId?: string;
@@ -165,24 +168,23 @@ async function createProject(
     if (sourceTasks.length === 0) return createdProject;
 
     const taskIds = new Map<string, string>();
-    for (const [index, task] of sourceTasks.entries()) {
-      const [copy] = await tx
-        .insert(taskTable)
-        .values({
-          projectId: createdProject.id,
-          number: index + 1,
-          title: task.title,
-          description: task.description,
-          status: task.status,
-          priority: task.priority,
-          position: task.position,
-          columnId: task.columnId
-            ? (columnIds.get(task.columnId) ?? null)
-            : null,
-        })
-        .returning({ id: taskTable.id });
-      if (!copy) throw new Error("Failed to copy task");
-      taskIds.set(task.id, copy.id);
+    const copies = sourceTasks.map((task, index) => {
+      const id = createId();
+      taskIds.set(task.id, id);
+      return {
+        id,
+        projectId: createdProject.id,
+        number: index + 1,
+        title: task.title,
+        description: task.description,
+        status: task.status,
+        priority: task.priority,
+        position: task.position,
+        columnId: task.columnId ? (columnIds.get(task.columnId) ?? null) : null,
+      };
+    });
+    for (let i = 0; i < copies.length; i += COPY_BATCH_SIZE) {
+      await tx.insert(taskTable).values(copies.slice(i, i + COPY_BATCH_SIZE));
     }
 
     const sourceTaskIds = sourceTasks.map((task) => task.id);
@@ -198,8 +200,10 @@ async function createProject(
         ? [{ taskId, workspaceId, name: label.name, color: label.color }]
         : [];
     });
-    if (copiedLabels.length > 0) {
-      await tx.insert(labelTable).values(copiedLabels);
+    for (let i = 0; i < copiedLabels.length; i += COPY_BATCH_SIZE) {
+      await tx
+        .insert(labelTable)
+        .values(copiedLabels.slice(i, i + COPY_BATCH_SIZE));
     }
 
     const values = await tx.query.customFieldValueTable.findMany({
@@ -210,8 +214,10 @@ async function createProject(
       const fieldId = fieldIds.get(value.fieldId);
       return taskId && fieldId ? [{ taskId, fieldId, value: value.value }] : [];
     });
-    if (copiedValues.length > 0) {
-      await tx.insert(customFieldValueTable).values(copiedValues);
+    for (let i = 0; i < copiedValues.length; i += COPY_BATCH_SIZE) {
+      await tx
+        .insert(customFieldValueTable)
+        .values(copiedValues.slice(i, i + COPY_BATCH_SIZE));
     }
 
     const [updatedProject] = await tx

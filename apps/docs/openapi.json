@@ -737,6 +737,12 @@
           "lastTaskNumber"
         ]
       },
+      "ProjectTemplateList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Project"
+        }
+      },
       "TaskDescriptionMatches": {
         "type": "object",
         "properties": {
@@ -6407,7 +6413,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing project:create permission",
+            "description": "No workspace access, missing project:create, or missing project:read for a source",
             "content": {
               "text/plain": {
                 "schema": {
@@ -6453,10 +6459,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Project"
-                  }
+                  "$ref": "#/components/schemas/ProjectTemplateList"
                 }
               }
             }
@@ -6475,7 +6478,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No access to the workspace",
+            "description": "No workspace access or missing project:read permission",
             "content": {
               "text/plain": {
                 "schema": {
