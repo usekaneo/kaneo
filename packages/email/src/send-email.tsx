@@ -2,6 +2,7 @@ import { render } from "@react-email/components";
 import { config } from "dotenv-mono";
 import * as nodemailer from "nodemailer";
 import { getSmtpTransportOptions, isSmtpConfigured } from "./smtp-config";
+import { getSmtpErrorDetails } from "./smtp-error-details";
 import type { MagicLinkEmailProps } from "./templates/magic-link";
 import MagicLinkEmail from "./templates/magic-link";
 import NotificationEmail, {
@@ -64,7 +65,13 @@ export const sendPasswordResetEmail = async (
   subject: string,
   data: PasswordResetEmailProps,
 ) => {
-  const emailTemplate = await render(PasswordResetEmail(data));
+  let emailTemplate: string;
+  try {
+    emailTemplate = await render(PasswordResetEmail(data));
+  } catch {
+    console.error("Error rendering password reset email");
+    return;
+  }
   try {
     await transporter.sendMail({
       from: process.env.SMTP_FROM,
@@ -72,8 +79,11 @@ export const sendPasswordResetEmail = async (
       subject,
       html: emailTemplate,
     });
-  } catch {
-    console.error("Error sending password reset email");
+  } catch (error) {
+    console.error(
+      "Error sending password reset email",
+      getSmtpErrorDetails(error),
+    );
   }
 };
 

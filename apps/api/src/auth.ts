@@ -61,6 +61,7 @@ import {
 import { isCloud } from "./utils/is-cloud";
 import { isDisposableEmail } from "./utils/is-disposable-email";
 import { isLocalSignInPath } from "./utils/is-local-sign-in-path";
+import { trackPasswordResetDelivery } from "./utils/password-reset-delivery";
 import {
   assertGuestRegistrationAllowed,
   assertUserRegistrationAllowed,
@@ -238,17 +239,15 @@ export const auth = betterAuth({
     resetPasswordTokenExpiresIn: 60 * 60,
     sendResetPassword: async ({ user, url }) => {
       // Keep SMTP latency out of the response so it cannot reveal accounts.
-      void getUserLocale(user.email)
-        .then((locale) =>
+      trackPasswordResetDelivery(
+        getUserLocale(user.email).then((locale) =>
           sendPasswordResetEmail(
             user.email,
             getAuthEmailCopy(locale).passwordResetSubject,
             { resetLink: url, userName: user.name, locale },
           ),
-        )
-        .catch(() => {
-          console.error("Failed to send password reset email");
-        });
+        ),
+      );
     },
     password: {
       hash: async (password) => {
