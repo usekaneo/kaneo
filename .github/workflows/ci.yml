@@ -345,7 +345,7 @@ jobs:
             --entrypoint /opt/bitnami/minio/bin/minio \
             bitnamilegacy/minio@sha256:8935e75fa5d11295c17171e4aa49efe390a1193cd7f12e4d21b92af9ffef09d7 \
             server /tmp/minio --address :9000
-          curl --fail --retry 30 --retry-connrefused --retry-delay 1 --max-time 5 \
+          curl --fail --retry 30 --retry-all-errors --retry-delay 1 --max-time 5 \
             http://127.0.0.1:59039/minio/health/ready
       - name: Verify signed uploads against real storage
         env:
