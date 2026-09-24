@@ -97,7 +97,27 @@
 				"keyHint": "Używany w identyfikatorach zadań (np. {{example}}-123)",
 				"createButton": "Utwórz projekt",
 				"successToast": "Projekt został utworzony",
-				"errorToast": "Nie udało się utworzyć projektu"
+				"errorToast": "Nie udało się utworzyć projektu",
+				"duplicateTitle": "Duplicate project",
+				"templateTitle": "Save as template",
+				"duplicateName": "{{name}} copy",
+				"templateName": "{{name}} template",
+				"duplicateButton": "Duplicate project",
+				"templateButton": "Save template",
+				"templateSuccessToast": "Template saved",
+				"templateSource": "Start from a template",
+				"blankSource": "Blank project",
+				"noTemplates": "No saved templates in this workspace yet.",
+				"templatesLoadError": "Couldn't load templates. Retry",
+				"copyScope": "Copies column order, icons, colors and final states, custom fields, and workflow rules. The new project is private.",
+				"includeTasks": "Include tasks",
+				"taskScope": "Only task title, description, status, priority, column, position, labels, and custom field values. No assignees, dates, comments, activity, links, relations, attachments, time entries, or notifications.",
+				"templateVisibility": "Saved templates appear in this workspace's template picker, not the project list.",
+				"deleteTemplate": "Delete template",
+				"deleteTemplateTitle": "Delete template?",
+				"deleteTemplateDescription": "This permanently deletes “{{name}}” and any tasks saved in it. Projects created from it are unaffected.",
+				"templateDeletedToast": "Template deleted",
+				"templateDeleteError": "Failed to delete template"
 			},
 			"createWorkspace": {
 				"breadcrumbKaneo": "KANEO",
@@ -382,7 +402,9 @@
 			"deleteConfirmTitle": "Usunąć projekt?",
 			"deleteConfirmDescription": "Spowoduje to trwałe usunięcie projektu i wszystkich jego danych. Nie można tego cofnąć.",
 			"deletedToast": "Projekt usunięty",
-			"deleteProject": "Usuń projekt"
+			"deleteProject": "Usuń projekt",
+			"duplicateProject": "Duplicate project",
+			"saveAsTemplate": "Save as template"
 		},
 		"search": {
 			"inputPlaceholder": "Szukaj zadań, projektów i komentarzy...",

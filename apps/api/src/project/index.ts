@@ -16,6 +16,7 @@ import archiveProjectCtrl from "./controllers/archive-project";
 import createProjectCtrl from "./controllers/create-project";
 import deleteProjectCtrl from "./controllers/delete-project";
 import getProjectCtrl from "./controllers/get-project";
+import getProjectTemplatesCtrl from "./controllers/get-project-templates";
 import getProjectsCtrl from "./controllers/get-projects";
 import reorderProjectsCtrl from "./controllers/reorder-projects";
 import unarchiveProjectCtrl from "./controllers/unarchive-project";
@@ -37,11 +38,27 @@ const listProjectsRoute = createRoute({
   tags: ["Projects"],
   summary: "List projects",
   description:
-    "List a workspace's projects in sidebar order, each with rollup task statistics. Archived projects are excluded unless includeArchived is set.",
+    "List a workspace's non-template projects in sidebar order, each with rollup task statistics. Archived projects are excluded unless includeArchived is set.",
   middleware: [workspaceAccess.fromQuery()] as const,
   request: { query: listProjectsQuery },
   responses: {
     200: jsonResponse("List of projects", projectListSchema),
+    400: errorResponse("Workspace ID could not be determined"),
+    403: errorResponse("No access to the workspace"),
+  },
+});
+
+const listProjectTemplatesRoute = createRoute({
+  method: "get",
+  operationId: "listProjectTemplates",
+  path: "/templates",
+  tags: ["Projects"],
+  summary: "List project templates",
+  description: "List the saved project templates in a workspace.",
+  middleware: [workspaceAccess.fromQuery()] as const,
+  request: { query: workspaceIdQuery },
+  responses: {
+    200: jsonResponse("Project templates", z.array(projectSchema)),
     400: errorResponse("Workspace ID could not be determined"),
     403: errorResponse("No access to the workspace"),
   },
@@ -54,7 +71,7 @@ const createProjectRoute = createRoute({
   tags: ["Projects"],
   summary: "Create project",
   description:
-    "Create a project in a workspace. The slug becomes the prefix of its task identifiers.",
+    "Create a private project in a workspace. Optionally copy configuration and tasks from a source project in that workspace, or save the copy as a template. The slug becomes the prefix of its task identifiers.",
   middleware: [
     workspaceAccess.fromBody(),
     requireWorkspacePermission({ project: ["create"] }),
@@ -72,6 +89,7 @@ const createProjectRoute = createRoute({
     403: errorResponse(
       "No workspace access, or missing project:create permission",
     ),
+    404: errorResponse("Source project not found in this workspace"),
   },
 });
 
@@ -232,10 +250,20 @@ const project = apiRouter<BaseVariables & { workspaceId: string }>()
     );
     return c.json(projects, 200);
   })
-  .openapi(createProjectRoute, async (c) => {
-    const { name, icon, slug } = c.req.valid("json");
+  .openapi(listProjectTemplatesRoute, async (c) => {
     const workspaceId = c.get("workspaceId");
-    const newProject = await createProjectCtrl(workspaceId, name, icon, slug);
+    const templates = await getProjectTemplatesCtrl(workspaceId);
+    return c.json(templates, 200);
+  })
+  .openapi(createProjectRoute, async (c) => {
+    const { name, icon, slug, sourceProjectId, includeTasks, asTemplate } =
+      c.req.valid("json");
+    const workspaceId = c.get("workspaceId");
+    const newProject = await createProjectCtrl(workspaceId, name, icon, slug, {
+      sourceProjectId,
+      includeTasks,
+      asTemplate,
+    });
     return c.json(newProject, 200);
   })
   .openapi(getProjectRoute, async (c) => {

@@ -16,6 +16,10 @@ export const projectSchema = z
       description:
         "When true the project's board is readable without signing in, via /api/public-project/{id}.",
     }),
+    isTemplate: z.boolean().openapi({
+      description:
+        "When true the project is a reusable template, omitted from ordinary project lists.",
+    }),
     archivedAt: nullableResponseTimestamp.openapi({
       description:
         "Non-null once archived; archived projects are hidden by default.",

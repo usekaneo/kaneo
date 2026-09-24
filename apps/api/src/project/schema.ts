@@ -16,6 +16,18 @@ export const createProjectBody = z.object({
   workspaceId: z.string(),
   icon: z.string(),
   slug: z.string(),
+  sourceProjectId: z.string().optional().openapi({
+    description:
+      "Copy columns, custom fields, and workflow rules from a project in this workspace.",
+  }),
+  includeTasks: z.boolean().optional().openapi({
+    description:
+      "Also copy task content, task labels, and custom field values. Defaults to false.",
+  }),
+  asTemplate: z.boolean().optional().openapi({
+    description:
+      "Save the copy as a reusable template; requires sourceProjectId.",
+  }),
 });
 
 export const updateProjectBody = z.object({
