@@ -48,14 +48,32 @@ export function getBrowserLocale(): string | null {
 // so cache it once per locale to avoid a fresh dynamic import per namespace.
 const localeResources = new Map<AppLocale, Promise<Record<string, unknown>>>();
 
+const RELOAD_FLAG = "locale-chunk-reload";
+
 function loadLocaleResources(
   locale: AppLocale,
 ): Promise<Record<string, unknown>> {
   const cached = localeResources.get(locale);
   if (cached) return cached;
-  const pending = loadLocale(locale).then(
-    (resources) => resources as Record<string, unknown>,
-  );
+  const pending = loadLocale(locale)
+    .then((resources) => {
+      // Successful load — clear any stale-deployment reload flag.
+      sessionStorage.removeItem(RELOAD_FLAG);
+      return resources as Record<string, unknown>;
+    })
+    .catch((err: unknown) => {
+      // Evict the failed promise so future attempts are not permanently stuck.
+      localeResources.delete(locale);
+
+      // If this looks like a stale-deployment chunk-load failure, reload once
+      // so the browser picks up the new bundle with fresh asset URLs.
+      if (!sessionStorage.getItem(RELOAD_FLAG)) {
+        sessionStorage.setItem(RELOAD_FLAG, "1");
+        window.location.reload();
+      }
+
+      throw err;
+    });
   localeResources.set(locale, pending);
   return pending;
 }
