@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "charts/kaneo/**"
+      - "scripts/security/check-helm-secrets.rb"
       - ".github/workflows/helm-chart.yml"
       - ".github/workflows/helm-validate.yml"
   workflow_call:
