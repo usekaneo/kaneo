@@ -28,9 +28,11 @@ await context.tracing.start({
   snapshots: true,
   sources: true,
 });
-const page = await context.newPage();
 const failures = [];
-page.on("pageerror", (error) => failures.push(error.message));
+context.on("page", (page) => {
+  page.on("pageerror", (error) => failures.push(error.message));
+});
+const page = await context.newPage();
 try {
   await page.goto(`${origin}/auth/sign-in`);
   await page.getByLabel("Email", { exact: true }).fill(owner.email);

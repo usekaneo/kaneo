@@ -23,14 +23,20 @@ services:
       timeout: 5s
       retries: 30
   minio:
-    image: quay.io/minio/minio@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
-    command: server /data --address :9000
+    image: bitnamilegacy/minio@sha256:8935e75fa5d11295c17171e4aa49efe390a1193cd7f12e4d21b92af9ffef09d7
+    entrypoint: /opt/bitnami/minio/bin/minio
+    command: server /tmp/minio --address :9000
     environment:
       MINIO_ROOT_USER: local-test-access
       MINIO_ROOT_PASSWORD: local-test-secret-only
       MINIO_BROWSER: "off"
       MINIO_UPDATE: "off"
     ports: ["127.0.0.1:59040:9000"]
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:9000/minio/health/ready"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
   app:
     image: ${KANEO_CI_IMAGE:-kaneo:ci}
     environment: &app-env
@@ -51,6 +57,7 @@ services:
     ports: ["127.0.0.1:55173:5173"]
     depends_on:
       postgres: {condition: service_healthy}
+      minio: {condition: service_healthy}
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:5173/api/health"]
       interval: 2s
@@ -83,6 +90,7 @@ services:
     ports: ["127.0.0.1:55175:5173"]
     depends_on:
       postgres: {condition: service_healthy}
+      minio: {condition: service_healthy}
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:5173/api/health"]
       interval: 2s

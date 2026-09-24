@@ -7,6 +7,10 @@ against disposable PostgreSQL and MinIO services for browser, realtime and
 upgrade tests. Runtime failures retain container logs, a browser screenshot and
 a Playwright trace for seven days.
 
+The disposable S3 fixture pins Bitnami's archived MinIO 2025.7.23 image by its
+multi-platform digest because the upstream public registries no longer serve
+the previous image. It runs the MinIO binary directly with temporary test data.
+
 - `browser.mjs`: real sign-in, project/task creation, status changes, another
   tab's realtime cache update, reload persistence and cross-workspace denial.
 - `realtime.mjs`: authenticated clients receive the same mutation with no Redis,
