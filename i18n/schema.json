@@ -1343,6 +1343,102 @@
 						"toast",
 						"validation"
 					]
+				},
+				"passwordReset": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"forgotPassword": {
+							"type": "string"
+						},
+						"requestTitle": {
+							"type": "string"
+						},
+						"requestSubtitle": {
+							"type": "string"
+						},
+						"sendLink": {
+							"type": "string"
+						},
+						"sending": {
+							"type": "string"
+						},
+						"sent": {
+							"type": "string"
+						},
+						"requestError": {
+							"type": "string"
+						},
+						"unavailable": {
+							"type": "string"
+						},
+						"configError": {
+							"type": "string"
+						},
+						"resetTitle": {
+							"type": "string"
+						},
+						"resetSubtitle": {
+							"type": "string"
+						},
+						"newPassword": {
+							"type": "string"
+						},
+						"confirmPassword": {
+							"type": "string"
+						},
+						"passwordMismatch": {
+							"type": "string"
+						},
+						"passwordLength": {
+							"type": "string"
+						},
+						"resetPassword": {
+							"type": "string"
+						},
+						"resetting": {
+							"type": "string"
+						},
+						"invalidLink": {
+							"type": "string"
+						},
+						"requestNewLink": {
+							"type": "string"
+						},
+						"resetError": {
+							"type": "string"
+						},
+						"success": {
+							"type": "string"
+						},
+						"backToSignIn": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"forgotPassword",
+						"requestTitle",
+						"requestSubtitle",
+						"sendLink",
+						"sending",
+						"sent",
+						"requestError",
+						"unavailable",
+						"configError",
+						"resetTitle",
+						"resetSubtitle",
+						"newPassword",
+						"confirmPassword",
+						"passwordMismatch",
+						"passwordLength",
+						"resetPassword",
+						"resetting",
+						"invalidLink",
+						"requestNewLink",
+						"resetError",
+						"success",
+						"backToSignIn"
+					]
 				}
 			},
 			"required": [
@@ -1357,7 +1453,8 @@
 				"signUpForm",
 				"invitation",
 				"onboarding",
-				"profileSetup"
+				"profileSetup",
+				"passwordReset"
 			]
 		},
 		"settings": {

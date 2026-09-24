@@ -1,4 +1,5 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import { Link } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -25,6 +26,7 @@ export type SignInFormValues = {
 type SignInFormProps = {
   onSuccess?: () => void;
   defaultEmail?: string;
+  canResetPassword?: boolean;
 };
 
 const signInSchema = z.object({
@@ -32,7 +34,11 @@ const signInSchema = z.object({
   password: z.string(),
 });
 
-export function SignInForm({ onSuccess, defaultEmail }: SignInFormProps) {
+export function SignInForm({
+  onSuccess,
+  defaultEmail,
+  canResetPassword = false,
+}: SignInFormProps) {
   const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, setIsPending] = useState(false);
@@ -133,6 +139,17 @@ export function SignInForm({ onSuccess, defaultEmail }: SignInFormProps) {
             )}
           />
         </div>
+
+        {canResetPassword && (
+          <div className="text-right">
+            <Link
+              to="/auth/forgot-password"
+              className="text-sm text-muted-foreground hover:text-foreground hover:underline"
+            >
+              {t("auth:passwordReset.forgotPassword")}
+            </Link>
+          </div>
+        )}
 
         <Button
           type="submit"

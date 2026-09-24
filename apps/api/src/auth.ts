@@ -1,8 +1,10 @@
 import { apiKey } from "@better-auth/api-key";
 import {
+  isSmtpConfigured,
   OTP_EXPIRY_SECONDS,
   sendMagicLinkEmail,
   sendOtpEmail,
+  sendPasswordResetEmail,
   sendWorkspaceInvitationEmail,
 } from "@kaneo/email";
 import {
@@ -134,6 +136,7 @@ function getAuthEmailCopy(locale?: string | null) {
     return {
       magicLinkSubject: "Anmeldelink für Kaneo",
       otpSubject: "Bestätigungscode für Kaneo",
+      passwordResetSubject: "Kaneo-Passwort zurücksetzen",
     };
   }
 
@@ -141,6 +144,7 @@ function getAuthEmailCopy(locale?: string | null) {
     return {
       magicLinkSubject: "Liên kết đăng nhập Kaneo",
       otpSubject: "Mã xác minh Kaneo",
+      passwordResetSubject: "Đặt lại mật khẩu Kaneo",
     };
   }
 
@@ -148,12 +152,14 @@ function getAuthEmailCopy(locale?: string | null) {
     return {
       magicLinkSubject: "Kaneo ログインリンク",
       otpSubject: "Kaneo 認証コード",
+      passwordResetSubject: "Kaneo のパスワードをリセット",
     };
   }
 
   return {
     magicLinkSubject: "Login for Kaneo",
     otpSubject: "Authentication code for Kaneo",
+    passwordResetSubject: "Reset your Kaneo password",
   };
 }
 
@@ -228,6 +234,22 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
+    revokeSessionsOnPasswordReset: true,
+    resetPasswordTokenExpiresIn: 60 * 60,
+    sendResetPassword: async ({ user, url }) => {
+      // Keep SMTP latency out of the response so it cannot reveal accounts.
+      void getUserLocale(user.email)
+        .then((locale) =>
+          sendPasswordResetEmail(
+            user.email,
+            getAuthEmailCopy(locale).passwordResetSubject,
+            { resetLink: url, userName: user.name, locale },
+          ),
+        )
+        .catch(() => {
+          console.error("Failed to send password reset email");
+        });
+    },
     password: {
       hash: async (password) => {
         return await bcrypt.hash(password, 10);
@@ -592,6 +614,12 @@ export const auth = betterAuth({
         throw new APIError("FORBIDDEN", {
           message:
             "Local sign-in is disabled. Please use a configured social or OIDC sign-in method.",
+        });
+      }
+
+      if (ctx.path === "/request-password-reset" && !isSmtpConfigured()) {
+        throw new APIError("FORBIDDEN", {
+          message: "Password reset requires email delivery to be configured.",
         });
       }
 
