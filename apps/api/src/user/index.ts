@@ -1,4 +1,6 @@
+import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
+import db, { schema } from "../database";
 import {
   apiRouter,
   createRoute,
@@ -9,7 +11,11 @@ import { boundedRequestBody } from "../utils/bounded-request-body";
 import { MAX_AVATAR_BYTES, MAX_AVATAR_REQUEST_BYTES } from "./avatar";
 import deleteAvatar from "./controllers/delete-avatar";
 import saveAvatar from "./controllers/save-avatar";
-import { avatarDeletedSchema, avatarSchema } from "./response";
+import {
+  avatarDeletedSchema,
+  avatarSchema,
+  currentUserSchema,
+} from "./response";
 import { uploadAvatarBody } from "./schema";
 
 const uploadAvatarRoute = createRoute({
@@ -51,7 +57,31 @@ const deleteAvatarRoute = createRoute({
   },
 });
 
+const currentUserRoute = createRoute({
+  method: "get",
+  operationId: "getCurrentUser",
+  path: "/me",
+  tags: ["User"],
+  summary: "Get current user",
+  description: "Return the authenticated user's public profile.",
+  responses: { 200: jsonResponse("Current user", currentUserSchema) },
+});
+
 const user = apiRouter()
+  .openapi(currentUserRoute, async (c) => {
+    const [currentUser] = await db
+      .select({
+        id: schema.userTable.id,
+        name: schema.userTable.name,
+        email: schema.userTable.email,
+        image: schema.userTable.image,
+      })
+      .from(schema.userTable)
+      .where(eq(schema.userTable.id, c.get("userId")))
+      .limit(1);
+    if (!currentUser) throw new HTTPException(401, { message: "Unauthorized" });
+    return c.json(currentUser, 200);
+  })
   .openapi(uploadAvatarRoute, async (c) => {
     const { contentType, data } = c.req.valid("json");
     try {

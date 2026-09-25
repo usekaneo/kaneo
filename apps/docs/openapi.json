@@ -3433,6 +3433,32 @@
           "value"
         ]
       },
+      "CurrentUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "image": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "image"
+        ]
+      },
       "UserAvatar": {
         "type": "object",
         "properties": {
@@ -14998,6 +15024,31 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/user/me": {
+      "get": {
+        "operationId": "getCurrentUser",
+        "tags": [
+          "User"
+        ],
+        "summary": "Get current user",
+        "description": "Return the authenticated user's public profile.",
+        "responses": {
+          "200": {
+            "description": "Current user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentUser"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
           }
         }
       }
