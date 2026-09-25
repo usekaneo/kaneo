@@ -1,4 +1,4 @@
-import { and, between, eq, isNotNull, isNull, or } from "drizzle-orm";
+import { and, between, eq, isNotNull, isNull, ne, or } from "drizzle-orm";
 import db from "../database";
 import {
   columnTable,
@@ -11,11 +11,16 @@ import {
   normalizeGenericWebhookConfig,
 } from "../plugins/generic-webhook/config";
 import { sendDueDateReminder } from "../plugins/generic-webhook/events";
-import { REMINDER_WINDOW_MINUTES } from "./reminder-timing";
+import {
+  DUE_DATE_DURATION_MS,
+  REMINDER_WINDOW_MINUTES,
+} from "./reminder-timing";
 
 const MINUTE_MS = 60 * 1000;
 
-export async function checkProjectWebhookReminders(): Promise<void> {
+export async function checkProjectWebhookReminders(): Promise<{
+  degraded: boolean;
+}> {
   const now = new Date();
   const integrations = await db
     .select({
@@ -30,6 +35,7 @@ export async function checkProjectWebhookReminders(): Promise<void> {
         eq(integrationTable.isActive, true),
       ),
     );
+  let degraded = false;
 
   for (const integration of integrations) {
     try {
@@ -39,7 +45,10 @@ export async function checkProjectWebhookReminders(): Promise<void> {
       if (!config.events?.dueDateReminder) continue;
 
       const leadTimeMinutes = config.dueDateReminderLeadTimeMinutes ?? 1440;
-      const windowEnd = new Date(now.getTime() + leadTimeMinutes * MINUTE_MS);
+      // Count back from expiration while keeping the indexed due date unmodified.
+      const windowEnd = new Date(
+        now.getTime() + leadTimeMinutes * MINUTE_MS - DUE_DATE_DURATION_MS,
+      );
       const windowStart = new Date(
         windowEnd.getTime() - REMINDER_WINDOW_MINUTES * MINUTE_MS,
       );
@@ -62,6 +71,7 @@ export async function checkProjectWebhookReminders(): Promise<void> {
             between(taskTable.dueDate, windowStart, windowEnd),
             isNull(taskReminderSentTable.id),
             or(isNull(columnTable.isFinal), eq(columnTable.isFinal, false)),
+            ne(taskTable.status, "archived"),
           ),
         );
 
@@ -95,6 +105,7 @@ export async function checkProjectWebhookReminders(): Promise<void> {
         }
       }
     } catch (error) {
+      degraded = true;
       console.error("Failed to process project webhook reminder", {
         integrationId: integration.id,
         projectId: integration.projectId,
@@ -102,4 +113,6 @@ export async function checkProjectWebhookReminders(): Promise<void> {
       });
     }
   }
+
+  return { degraded };
 }

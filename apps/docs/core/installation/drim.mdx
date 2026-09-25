@@ -11,26 +11,52 @@ It suits straightforward deployments. If you need a custom topology, extra servi
 
 ## Installation
 
-```bash
-curl -fsSL https://assets.kaneo.app/install.sh | sh
+Install Docker and Docker Compose using your operating system's signed packages
+before running setup. Then install the fixed [drim v0.1.8 release](https://github.com/usekaneo/drim/releases/tag/v0.1.8)
+using the reviewed checksums below. The download is saved to a temporary file and
+verified before it is made executable; it does not run an installation script.
+
+```sh
+(
+  set -eu
+  case "$(uname -s)-$(uname -m)" in
+    Linux-x86_64)
+      drim_asset=drim_Linux_x86_64
+      drim_sha256=dbc57af416dac4d6f4302a77cac22c0e1887afcfdf55173c3113ae1f4712bd89 ;;
+    Linux-aarch64|Linux-arm64)
+      drim_asset=drim_Linux_arm64
+      drim_sha256=dd78bea7b40c4e071887605823f6d999829c7500787f27a86ab2166697f0520f ;;
+    Darwin-x86_64)
+      drim_asset=drim_Darwin_x86_64
+      drim_sha256=d2d6f8e1ab3e7725de0a559626a10660b6507cd85955c5bfcd1419de07e8ad29 ;;
+    Darwin-arm64)
+      drim_asset=drim_Darwin_arm64
+      drim_sha256=065d0611b61e83284f3ffa620c9cc12b83ebdab74ce09f402ed70eea795713ea ;;
+    *) echo "Unsupported platform; use a supported Linux or macOS system." >&2; exit 1 ;;
+  esac
+  drim_tmp=$(mktemp -d)
+  trap 'rm -rf "$drim_tmp"' EXIT HUP INT TERM
+  cd "$drim_tmp"
+  curl --fail --show-error --silent --location \
+    --proto '=https' --proto-redir '=https' --tlsv1.2 \
+    "https://github.com/usekaneo/drim/releases/download/v0.1.8/$drim_asset" \
+    --output drim
+  if command -v sha256sum >/dev/null 2>&1; then
+    printf '%s  drim\n' "$drim_sha256" | sha256sum -c -
+  else
+    printf '%s  drim\n' "$drim_sha256" | shasum -a 256 -c -
+  fi
+  mkdir -p "$HOME/.local/bin"
+  install -m 755 drim "$HOME/.local/bin/drim"
+)
 ```
 
-Or download a binary from [releases](https://github.com/usekaneo/drim/releases/latest).
-
-### Install script options
-
-| Option | Description |
-| --- | --- |
-| `--silent` | Suppress output |
-| `--setup` | Run `drim setup` after installing |
-| `--domain=DOMAIN` | Deploy on this domain, implies `--setup` |
-
-```bash
-# Install, deploy, and configure HTTPS for a domain in one command
-curl -fsSL https://assets.kaneo.app/install.sh | sh -s -- --setup --domain=kaneo.example.com
-```
-
-The script detects your platform, downloads the matching binary, and installs it to `/usr/local/bin`. It supports Linux and macOS on amd64 and arm64, and Windows through WSL.
+Add `~/.local/bin` to your shell's `PATH`, or use `~/.local/bin/drim` in place of
+`drim` below. WSL uses the Linux asset matching its architecture. Stop on a
+checksum mismatch; do not replace the expected checksum with one supplied by
+the failed download. These fixed digests pin the published bytes, not a claim
+that the release was independently audited. Upgrading drim requires selecting
+and reviewing a new release and updating its expected digest.
 
 ## Quick start
 
@@ -63,7 +89,6 @@ drim start       # Start services
 drim stop        # Stop services
 drim restart     # Restart services
 drim upgrade     # Pull the latest Kaneo images and restart
-drim update      # Update the drim CLI itself
 drim configure   # Edit .env, then apply the changes
 drim uninstall   # Remove Kaneo
 ```
@@ -130,11 +155,9 @@ drim upgrade
 
 This pulls the latest images and restarts the changed services. Your data lives in Docker volumes and is not touched.
 
-To update drim itself:
-
-```bash
-drim update
-```
+To update drim itself, repeat the verified installation procedure with a newly
+reviewed release and its fixed checksum. The built-in updater follows the latest
+release and is not part of this pinned installation procedure.
 
 <Warning>
 Deployments created before Kaneo moved to a single container still run the older two-image layout, and `drim upgrade` does not rewrite an existing `docker-compose.yml`. See [migrating to drim](/core/installation/drim-migration) to move to the current layout.
@@ -145,7 +168,9 @@ Deployments created before Kaneo moved to a single container still run the older
 ```bash
 git clone https://github.com/usekaneo/drim.git
 cd drim
-go build -o drim .
+git checkout --detach 2c21e713869c97dda413e4135ffaf89ece8156c8
+# Review this fixed source revision and its dependencies before building.
+go build -mod=readonly -o drim .
 ```
 
 `make build-all` cross-compiles for every supported platform.

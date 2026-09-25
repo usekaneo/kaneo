@@ -36,16 +36,16 @@
 			"more": "更多"
 		},
 		"language": {
-			"chinese": "中文",
-			"dutch": "荷兰语",
 			"english": "英语",
-			"french": "法语",
 			"german": "德语",
 			"greek": "希腊语",
-			"italian": "意大利语",
-			"korean": "韩语",
 			"macedonian": "马其顿语",
-			"spanish": "西班牙语"
+			"french": "法语",
+			"spanish": "西班牙语",
+			"dutch": "荷兰语",
+			"korean": "韩语",
+			"chinese": "中文",
+			"italian": "意大利语"
 		},
 		"people": {
 			"someone": "某人",
@@ -53,10 +53,33 @@
 		},
 		"error": {
 			"title": "出错了",
+			"description": "页面意外崩溃，刷新一下通常就能恢复。",
 			"troubleshooting": "故障排查步骤：",
 			"tryAgain": "重试",
 			"viewDeploymentGuide": "查看部署指南",
-			"refreshPage": "刷新页面"
+			"refreshPage": "刷新页面",
+			"messages": {
+				"cors": "无法连接服务器，可能是 CORS 配置问题。",
+				"network": "网络异常，请检查网络连接后重试。",
+				"auth": "身份验证失败，请重新登录。",
+				"server": "服务器错误，请稍后重试。",
+				"unknown": "发生未知错误。"
+			},
+			"troubleshootingSteps": {
+				"cors": {
+					"checkApiRunning": "确认 API 服务器已经启动",
+					"checkApiUrl": "检查前端 .env 中 VITE_API_URL 是否与 API 服务器地址一致",
+					"verifyCorsOrigins": "检查 API 的 .env 中 CORS_ORIGINS 是否包含前端地址",
+					"checkProtocol": "确保前端和 API 使用相同的协议（http/https）",
+					"checkAccessibility": "确认浏览器能访问到 API 服务器"
+				},
+				"network": {
+					"checkConnection": "检查网络连接",
+					"verifyApiRunning": "确认 API 服务器运行中且可访问",
+					"tryRefresh": "刷新页面重试",
+					"checkFirewall": "排查防火墙或代理是否拦截了请求"
+				}
+			}
 		},
 		"formats": {
 			"never": "永不过期"
@@ -116,6 +139,9 @@
 				"labelCreateError": "创建标签失败",
 				"createMore": "继续创建",
 				"createButton": "创建任务",
+				"discardTitle": "放弃任务？",
+				"discardDescription": "未保存的任务详情将会丢失。",
+				"discardButton": "放弃任务",
 				"untitledTask": "未命名任务",
 				"labelColors": {
 					"stone": "石板灰",
@@ -129,6 +155,12 @@
 					"crimson": "深红"
 				}
 			}
+		},
+		"boolean": {
+			"false": "False",
+			"notSet": "Not Set",
+			"true": "True",
+			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -288,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "工作区名称不能为空"
-			}
+			},
+			"restrictedSubtitle": "在此实例中只有管理员可以创建工作区。请联系管理员邀请你，然后刷新此页面。",
+			"restrictedCheckInvitations": "查看邀请",
+			"restrictedTitle": "你需要一份邀请"
 		},
 		"profileSetup": {
 			"pageTitle": "完善资料",
@@ -308,6 +343,30 @@
 				"nameRequired": "名称不能为空",
 				"nameShort": "姓名至少需要 2 个字符"
 			}
+		},
+		"passwordReset": {
+			"forgotPassword": "Forgot password?",
+			"requestTitle": "Reset your password",
+			"requestSubtitle": "Enter your email and we’ll send you a password reset link.",
+			"sendLink": "Send reset link",
+			"sending": "Sending…",
+			"sent": "If an account exists for this email, you’ll receive a password reset link. Check your inbox and spam folder.",
+			"requestError": "Could not request a reset link. Please try again.",
+			"unavailable": "Password reset is unavailable. Contact your instance administrator.",
+			"configError": "Could not reach the server. Please reload the page to try again.",
+			"resetTitle": "Choose a new password",
+			"resetSubtitle": "Use 8–128 characters for your new password.",
+			"newPassword": "New password",
+			"confirmPassword": "Confirm new password",
+			"passwordMismatch": "The passwords do not match.",
+			"passwordLength": "Use between 8 and 128 characters.",
+			"resetPassword": "Reset password",
+			"resetting": "Resetting…",
+			"invalidLink": "This reset link is invalid or has expired. Request a new link to continue.",
+			"requestNewLink": "Request a new link",
+			"resetError": "Could not reset your password. Please try again.",
+			"success": "Your password has been reset. Sign in with your new password.",
+			"backToSignIn": "Back to sign in"
 		}
 	},
 	"settings": {
@@ -336,27 +395,27 @@
 				"invalidEmail": "邮箱地址无效"
 			},
 			"avatar": {
-				"hint": "PNG, JPEG, or WebP. Cropped to a square and resized to 256x256.",
-				"remove": "Remove",
-				"removeError": "Failed to remove profile picture",
-				"removeSuccess": "Profile picture removed",
-				"updateError": "Failed to update profile picture",
-				"updateSuccess": "Profile picture updated",
-				"change": "Change avatar",
-				"edit": "Change your profile picture"
+				"hint": "点击头像即可更换或移除，图片会裁成正方形并缩放到 256x256。",
+				"remove": "移除头像",
+				"updateSuccess": "头像已更新",
+				"updateError": "更新头像失败",
+				"removeSuccess": "头像已移除",
+				"removeError": "移除头像失败",
+				"edit": "更换头像",
+				"change": "更换头像"
 			},
 			"deleteAccount": {
-				"confirm": "Delete account",
-				"confirmLabel": "Confirm your email address",
-				"description": "Workspaces only you belong to are deleted with your account. Elsewhere, your tasks stay and become unassigned, and your comments are removed.",
-				"error": "Failed to delete account",
-				"modalDescription": "This cannot be undone. Type {{email}} to confirm.",
-				"modalTitle": "Delete your account?",
-				"sectionSubtitle": "Permanent actions that affect your whole account.",
-				"sectionTitle": "Danger zone",
-				"success": "Your account has been deleted",
-				"title": "Delete account",
-				"sessionTooOld": "For security, sign out and sign back in before deleting your account."
+				"sectionTitle": "危险区域",
+				"sectionSubtitle": "以下操作会永久影响你的整个账户。",
+				"title": "删除账户",
+				"description": "只有你一个人的工作区会随账户一起删除；其他工作区中，你的任务会保留并转为未指派，你发表的评论会被移除。",
+				"modalTitle": "删除你的账户？",
+				"modalDescription": "你的账户将被永久删除，此操作无法撤销。",
+				"confirmLabel": "请输入 {{email}} 以确认",
+				"confirm": "删除账户",
+				"success": "账户已删除",
+				"error": "删除账户失败",
+				"sessionTooOld": "为安全起见，请先退出并重新登录，之后才能删除账户。"
 			}
 		},
 		"notificationsPage": {
@@ -625,7 +684,6 @@
 			"emptyTitle": "暂无角色",
 			"emptyDescription": "默认角色在为该工作区初始化后显示在这里。",
 			"defaultBadge": "默认",
-			"permissionCount_one": "{{count}} 个权限",
 			"permissionCount_other": "{{count}} 个权限",
 			"nameLabel": "姓名",
 			"nameHint": "小写，保存后不可更改。",
@@ -646,7 +704,12 @@
 				"project": "项目",
 				"task": "任务",
 				"label": "标签",
-				"workspace": "工作区"
+				"workspace": "工作区",
+				"organization": "Workspace administration",
+				"member": "Members",
+				"invitation": "Invitations",
+				"team": "Teams",
+				"ac": "Roles and permissions"
 			},
 			"permissions": {
 				"project": {
@@ -728,6 +791,72 @@
 						"label": "管理设置",
 						"description": "可以管理工作区设置"
 					}
+				},
+				"organization": {
+					"update": {
+						"label": "Edit workspace administration",
+						"description": "Change workspace settings through the account service."
+					},
+					"delete": {
+						"label": "Delete workspace",
+						"description": "Permanently delete the workspace through the account service."
+					}
+				},
+				"member": {
+					"create": {
+						"label": "Add members",
+						"description": "Add users to this workspace."
+					},
+					"update": {
+						"label": "Change member roles",
+						"description": "Change the roles assigned to workspace members."
+					},
+					"delete": {
+						"label": "Remove members",
+						"description": "Remove users from this workspace."
+					}
+				},
+				"invitation": {
+					"create": {
+						"label": "Invite members",
+						"description": "Send workspace invitations."
+					},
+					"cancel": {
+						"label": "Cancel invitations",
+						"description": "Revoke pending workspace invitations."
+					}
+				},
+				"team": {
+					"create": {
+						"label": "Create teams",
+						"description": "Create teams in this workspace."
+					},
+					"update": {
+						"label": "Edit teams",
+						"description": "Change teams and team membership."
+					},
+					"delete": {
+						"label": "Delete teams",
+						"description": "Delete teams in this workspace."
+					}
+				},
+				"ac": {
+					"create": {
+						"label": "Create roles",
+						"description": "Create workspace roles and assign their permissions."
+					},
+					"read": {
+						"label": "View roles",
+						"description": "Read the workspace roles and their permissions."
+					},
+					"update": {
+						"label": "Change role permissions",
+						"description": "Change role permissions, including administrative access."
+					},
+					"delete": {
+						"label": "Delete roles",
+						"description": "Delete custom workspace roles."
+					}
 				}
 			},
 			"validation": {
@@ -771,7 +900,9 @@
 			"createError": "创建标签失败",
 			"updateError": "更新标签失败",
 			"deleteError": "删除标签失败",
-			"nameRequired": "标签名称不能为空"
+			"nameRequired": "标签名称不能为空",
+			"deletionPending": "Deletion pending",
+			"resumeDeletion": "Resume deletion"
 		},
 		"projectGeneral": {
 			"pageTitle": "项目设置",
@@ -826,6 +957,8 @@
 			"genericWebhookSectionSubtitle": "将项目任务事件以 JSON 形式发送到任意 HTTP 端点。",
 			"slackSectionTitle": "Slack 集成",
 			"slackSectionSubtitle": "通过 Incoming Webhook 将项目任务更新发送到 Slack 频道。",
+			"mattermostSectionTitle": "Mattermost 集成",
+			"mattermostSectionSubtitle": "借助 Incoming Webhook，把项目任务动态推送到 Mattermost 频道。",
 			"telegramSectionTitle": "Telegram 集成",
 			"telegramSectionSubtitle": "通过 Bot 将项目任务更新发送到 Telegram 聊天或话题。"
 		},
@@ -851,7 +984,9 @@
 			"columnsTitle": "列",
 			"columnsDescription": "管理看板上显示的列，可拖拽排序。打开“完成列”以表示已完成阶段。",
 			"automationTitle": "自动化规则",
-			"automationDescription": "将集成事件映射到列。当事件发生时，关联的任务会移动到指定的列。"
+			"automationDescription": "将集成事件映射到列。当事件发生时，关联的任务会移动到指定的列。",
+			"customFieldsDescription": "Manage the custom fields for this project. Drag  to reorder.",
+			"customFieldsTitle": "Custom Fields"
 		},
 		"projectSwitcher": {
 			"selectProject": "选择项目",
@@ -938,7 +1073,13 @@
 			"importSectionHint": "将 GitHub 仓库中已有的 Issue 导入为任务",
 			"importing": "导入中…",
 			"importIssues": "导入 Issues",
-			"importDisabledHint": "完成上方仓库配置后即可启用导入"
+			"importDisabledHint": "完成上方仓库配置后即可启用导入",
+			"accountVerificationHint": "连接你的 GitHub 账户，以验证你拥有此仓库的管理员权限。",
+			"enableGithubSignInHint": "请联系实例管理员启用 GitHub 登录。",
+			"reverifyHint": "重新连接此仓库，以验证访问权限并恢复同步。",
+			"resumeImport": "Resume import",
+			"importPaused": "This import has saved progress. You can resume it.",
+			"importSummary": "Created: {{imported}} · Updated: {{updated}} · Skipped: {{skipped}}"
 		},
 		"giteaIntegration": {
 			"validation": {
@@ -953,6 +1094,8 @@
 				"verifyOk": "Gitea 令牌可访问此仓库",
 				"verifyWarning": "请检查令牌权限或仓库访问",
 				"repoNotFound": "未找到仓库或无法访问",
+				"redirected": "Gitea 地址发生重定向（通常转为 HTTPS），请直接使用重定向后的最终地址。",
+				"notGiteaInstance": "该 URL 不指向 Gitea 实例",
 				"verifyError": "验证 Gitea 访问失败",
 				"tokenRequired": "个人访问令牌不能为空",
 				"tokenRequiredVerify": "输入令牌以验证",
@@ -967,9 +1110,7 @@
 				"commentOnDisabled": "新 Issue 的任务链接评论已关闭",
 				"settingsUpdateError": "更新 Gitea 集成失败",
 				"secretCopied": "已复制",
-				"unableToCopySecret": "无法复制密钥",
-				"notGiteaInstance": "The URL does not point to a Gitea instance",
-				"redirected": "Gitea URL redirected (usually to HTTPS). Use the final URL directly."
+				"unableToCopySecret": "无法复制密钥"
 			},
 			"webhookShow": "显示",
 			"webhookHide": "隐藏",
@@ -1033,7 +1174,7 @@
 			"connectionHint": "粘贴 Slack Incoming Webhook URL 并选择应发布的任务事件。",
 			"connected": "已连接",
 			"paused": "已暂停",
-			"webhookLabel": "Incoming Webhook URL",
+			"webhookLabel": "Incoming webhook URL",
 			"webhookPlaceholder": "https://hooks.slack.com/services/...",
 			"webhookHint": "在 Slack 中创建 Incoming Webhook，然后粘贴生成的 URL。",
 			"channelLabel": "频道名称",
@@ -1090,6 +1231,44 @@
 			"connect": "连接 Discord",
 			"saveChanges": "保存更改",
 			"update": "更新 Discord",
+			"disconnect": "断开连接"
+		},
+		"mattermostIntegration": {
+			"validation": {
+				"webhookInvalid": "请输入有效的 Mattermost Webhook URL"
+			},
+			"toast": {
+				"saved": "Mattermost 集成保存成功",
+				"saveError": "保存 Mattermost 集成失败",
+				"enabled": "Mattermost 通知已启用",
+				"disabled": "Mattermost 通知已暂停",
+				"updateError": "更新 Mattermost 集成失败",
+				"removed": "Mattermost 集成已移除",
+				"removeError": "移除 Mattermost 集成失败"
+			},
+			"connectionTitle": "Mattermost Webhook 连接",
+			"connectionHint": "粘贴 Mattermost 的 Incoming Webhook URL，再勾选要推送哪些任务动态。",
+			"connected": "已连接",
+			"paused": "已暂停",
+			"webhookLabel": "Incoming webhook URL",
+			"webhookPlaceholder": "https://your-mattermost-server.com/hooks/...",
+			"webhookHint": "先在 Mattermost 中创建 Incoming Webhook，再把生成的 URL 粘贴到此处。",
+			"channelLabel": "频道名称",
+			"channelPlaceholder": "#team-updates",
+			"channelHint": "仅作参考的备注名称，消息实际发到哪个频道由 Mattermost 侧的 Webhook 设置决定。",
+			"eventsTitle": "事件通知",
+			"eventsHint": "勾选要推送到 Mattermost 的项目事件。",
+			"events": {
+				"taskCreated": "新任务",
+				"taskStatusChanged": "状态变更",
+				"taskPriorityChanged": "优先级变更",
+				"taskTitleChanged": "标题变更",
+				"taskDescriptionChanged": "描述变更",
+				"taskCommentCreated": "新评论"
+			},
+			"connect": "连接 Mattermost",
+			"saveChanges": "保存更改",
+			"update": "更新 Mattermost",
 			"disconnect": "断开连接"
 		},
 		"genericWebhookIntegration": {
@@ -1245,7 +1424,148 @@
 			"branch": "分支",
 			"merged": "已合并",
 			"draft": "草稿",
-			"open": "打开"
+			"open": "打开",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL",
+			"remove": "Remove {{title}}",
+			"removeError": "Failed to remove the resource link."
+		},
+		"customFields": {
+			"addButton": "Add",
+			"createError": "Failed to create custom field.",
+			"createSuccess": "Custom field created.",
+			"creating": "Creating...",
+			"defaultLabel": "Default",
+			"defaultValuePlaceholder": "Default value",
+			"deleteButton": "Delete",
+			"deleteError": "Failed to delete custom field.",
+			"deleteSuccess": "Custom field deleted.",
+			"deleting": "Deleting...",
+			"empty": "No custom fields configured yet.",
+			"loading": "Loading custom fields...",
+			"namePlaceholder": "Field name",
+			"noOptionsPlaceholder": "No options",
+			"optionsPlaceholder": "Options separated by commas",
+			"required": "Required",
+			"typePlaceholder": "Select field type",
+			"types": {
+				"boolean": "Boolean",
+				"date": "Date",
+				"dropdown": "Dropdown",
+				"number": "Number",
+				"text": "Text"
+			}
+		},
+		"administration": "Administration",
+		"adminUsers": {
+			"actions": {
+				"deactivate": "Deactivate account",
+				"edit": "Edit account",
+				"open": "Actions for {{name}}",
+				"reactivate": "Reactivate account"
+			},
+			"clearSearch": "Clear search",
+			"columns": {
+				"actions": "Actions",
+				"joined": "Joined",
+				"role": "Global role",
+				"status": "Status",
+				"user": "User"
+			},
+			"confirm": {
+				"deactivate": {
+					"action": "Deactivate account",
+					"description": "{{name}} will be signed out and unable to sign in until an administrator reactivates the account.",
+					"title": "Deactivate this account?"
+				},
+				"delete": {
+					"action": "Delete permanently",
+					"description": "This permanently deletes {{name}}, their sessions, memberships, and associated data. This cannot be undone.",
+					"title": "Permanently delete this account?"
+				},
+				"reactivate": {
+					"action": "Reactivate account",
+					"description": "{{name}} will be able to sign in and access their workspaces again.",
+					"title": "Reactivate this account?"
+				},
+				"working": "Working…"
+			},
+			"directoryTitle": "User directory",
+			"edit": {
+				"description": "Update this account's identity and instance-wide access.",
+				"email": "Email address",
+				"name": "Full name",
+				"role": "Global role",
+				"save": "Save changes",
+				"saving": "Saving…",
+				"selfRoleHint": "You cannot change your own global role.",
+				"title": "Edit user"
+			},
+			"emptyDescription": "Try another name or email address.",
+			"emptyTitle": "No users found",
+			"instanceBadge": "Instance",
+			"loadError": "Users could not be loaded.",
+			"next": "Next",
+			"pagination": "Page {{current}} of {{total}}",
+			"previous": "Previous",
+			"refreshing": "Refreshing users",
+			"retry": "Retry",
+			"roles": {
+				"admin": "Instance admin",
+				"user": "User"
+			},
+			"searchCount_other": "{{count}} matching users",
+			"searchLabel": "Search users",
+			"searchPlaceholder": "Search name or email…",
+			"status": {
+				"active": "Active",
+				"deactivated": "Deactivated"
+			},
+			"subtitle": "Manage every account registered on this Kaneo instance.",
+			"title": "User management",
+			"toast": {
+				"actionError": "Failed to update user status",
+				"deactivated": "User deactivated",
+				"deleted": "User deleted",
+				"reactivated": "User reactivated",
+				"updated": "User updated",
+				"updateError": "Failed to update user"
+			},
+			"userCount_other": "{{count}} registered users",
+			"you": "(you)"
+		},
+		"security": "Security",
+		"securityPage": {
+			"confirmPassword": "Confirm new password",
+			"confirmPasswordPlaceholder": "Re-enter your new password",
+			"currentPassword": "Current password",
+			"currentPasswordPlaceholder": "Enter your current password",
+			"newPassword": "New password",
+			"newPasswordPlaceholder": "Enter a new password",
+			"noPassword": {
+				"description": "Your account signs in with a different method, so there is no password to change.",
+				"title": "Password change isn't available"
+			},
+			"pageTitle": "Security",
+			"sectionSubtitle": "Change the password you use to sign in.",
+			"sectionTitle": "Password",
+			"submit": "Update password",
+			"submitting": "Updating...",
+			"subtitle": "Manage your password and account security.",
+			"title": "Security",
+			"updateError": "Failed to update password.",
+			"updateSuccess": "Password updated.",
+			"validation": {
+				"confirmRequired": "Confirm your new password.",
+				"currentRequired": "Enter your current password.",
+				"mismatch": "Passwords do not match.",
+				"tooShort": "New password must be at least 8 characters.",
+				"sameAsCurrent": "New password must be different from your current password."
+			}
 		}
 	},
 	"navigation": {
@@ -1327,7 +1647,7 @@
 			"settingsWorkspaceTab": "工作区"
 		},
 		"projectSettings": {
-			"projectLabel": "Project"
+			"projectLabel": "项目"
 		},
 		"keyboardShortcuts": {
 			"title": "键盘快捷键",
@@ -1353,6 +1673,7 @@
 				"boardView": "切换到看板视图",
 				"listView": "切换到列表视图",
 				"backlogView": "切换到待办视图",
+				"calendarView": "切换到日历视图",
 				"nextTask": "下一任务",
 				"prevTask": "上一任务",
 				"openTask": "打开所选任务",
@@ -1362,7 +1683,6 @@
 	},
 	"notifications": {
 		"title": "通知",
-		"newCount_one": "{{count}} 条新通知",
 		"newCount_other": "{{count}} 条新通知",
 		"emptyTitle": "暂无通知",
 		"emptySubtitle": "更新和活动将显示在这里。",
@@ -1373,11 +1693,8 @@
 			"open": "打开通知"
 		},
 		"reminderLeadTime": {
-			"minutes_one": "{{count}} 分钟",
 			"minutes_other": "{{count}} 分钟",
-			"hours_one": "{{count}} 小时",
 			"hours_other": "{{count}} 小时",
-			"days_one": "{{count}} 天",
 			"days_other": "{{count}} 天"
 		},
 		"events": {
@@ -1502,21 +1819,21 @@
 					"csharp": "C#",
 					"cpp": "C++",
 					"css": "CSS",
-					"go": "Go",
+					"go": "Golang",
 					"graphql": "GraphQL",
 					"html": "HTML",
 					"json": "JSON",
 					"java": "Java",
 					"javascript": "JavaScript",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"plaintext": "纯文本",
 					"python": "Python",
 					"rust": "Rust",
 					"sql": "SQL",
 					"swift": "Swift",
 					"typescript": "TypeScript",
-					"yaml": "YAML",
-					"mermaid": "Mermaid"
+					"yaml": "YAML"
 				},
 				"table": {
 					"addColumnBefore": "在左侧插入列",
@@ -1528,12 +1845,15 @@
 					"deleteTable": "删除表格"
 				},
 				"mermaid": {
-					"renderFailed": "Mermaid diagram couldn't be rendered"
+					"renderFailed": "Mermaid 图渲染失败"
 				}
-			}
+			},
+			"importedFrom": "Imported from {{source}}",
+			"importedBy": "Imported by {{name}}"
 		}
 	},
 	"tasks": {
+		"title": "任务",
 		"status": {
 			"label": "状态",
 			"to-do": "待办",
@@ -1560,7 +1880,8 @@
 			"selectTask": "选择任务",
 			"loadingTask": "正在加载任务…",
 			"taskNotFound": "未找到任务",
-			"taskNotFoundDescription": "你查找的任务不存在或已删除。"
+			"taskNotFoundDescription": "你查找的任务不存在或已删除。",
+			"customFields": "Custom Fields"
 		},
 		"detail": {
 			"subtaskOf": "子任务属于",
@@ -1620,7 +1941,7 @@
 					"diff": "Diff",
 					"elixir": "Elixir",
 					"excel": "Excel",
-					"go": "Go",
+					"go": "Golang",
 					"graphql": "GraphQL",
 					"html": "HTML",
 					"haskell": "Haskell",
@@ -1630,6 +1951,7 @@
 					"kotlin": "Kotlin",
 					"makefile": "Makefile",
 					"markdown": "Markdown",
+					"mermaid": "Mermaid",
 					"ocaml": "OCaml",
 					"php": "PHP",
 					"perl": "Perl",
@@ -1645,8 +1967,7 @@
 					"terraform": "Terraform",
 					"typescript": "TypeScript",
 					"xml": "XML",
-					"yaml": "YAML",
-					"mermaid": "Mermaid"
+					"yaml": "YAML"
 				},
 				"embed": {
 					"choice": {
@@ -1664,9 +1985,18 @@
 					"onlyYoutubeInline": "仅支持嵌入 YouTube URL，请改用链接模式。"
 				},
 				"mermaid": {
-					"renderFailed": "Mermaid diagram couldn't be rendered"
+					"renderFailed": "Mermaid 图渲染失败"
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
-			}
+			},
+			"customFieldUpdated": "Field updated",
+			"selectOption": "Select option"
 		},
 		"entity": {
 			"task": "任务"
@@ -1825,11 +2155,29 @@
 			"operators": {
 				"isAnyOf": "为以下任一",
 				"includeAnyOf": "包含以下任一"
-			}
+			},
+			"all": "All",
+			"allCustomFieldValues": "All values",
+			"noCustomFieldValues": "No custom field values",
+			"noValuesUsedYet": "No values used yet"
+		},
+		"calendar": {
+			"pageTitle": "{{name}} – 日历",
+			"title": "日历",
+			"previousMonth": "上个月",
+			"nextMonth": "下个月",
+			"today": "今天",
+			"noTasks": "暂无安排的任务",
+			"noTasksSubtitle": "给任务加上开始日期或截止日期（或两者），它就会出现在日历上。",
+			"moreTasks": "+{{count}} 项",
+			"loadError": "任务加载失败。",
+			"dayTasksAriaLabel": "查看 {{date}} 的全部任务",
+			"taskAriaLabel": "{{title}}，{{range}}：打开任务"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – 甘特图",
 			"title": "甘特图时间线",
+			"jumpToToday": "回到今天",
 			"searchPlaceholder": "搜索已排期工单…",
 			"hideTasks": "隐藏任务",
 			"showTasks": "显示任务",
@@ -1841,7 +2189,11 @@
 			"updateDatesError": "更新任务日期失败",
 			"resizeStart": "调整开始日期",
 			"resizeDue": "调整截止日期",
-			"taskAriaLabel": "{{title}}：打开或拖动以移动"
+			"taskAriaLabel": "{{title}}：打开或拖动以移动",
+			"previousPeriod": "Previous period",
+			"nextPeriod": "Next period",
+			"periodStart": "Timeline start date",
+			"showTaskDates": "Show task dates"
 		},
 		"delete": {
 			"title": "删除任务？",
@@ -1871,7 +2223,6 @@
 			"draft": "草稿",
 			"open": "打开",
 			"label": "Pull Request",
-			"count_one": "{{count}} 个 PR",
 			"count_other": "{{count}} 个 PR"
 		},
 		"assignee": {
@@ -1946,7 +2297,12 @@
 				"deleteRow": "删除行",
 				"deleteTable": "删除表格"
 			}
-		}
+		},
+		"descriptionSearchLoading": "Searching full descriptions…",
+		"descriptionSearchError": "Description search failed. Results may be incomplete.",
+		"descriptionRetry": "Retry",
+		"descriptionLoading": "Loading description…",
+		"descriptionLoadError": "The description could not be loaded. Retry to load the current version."
 	},
 	"invitations": {
 		"email": {
@@ -2005,7 +2361,6 @@
 			"placeholder": "按任务标题或短 ID 搜索（例如 DEP-23）…",
 			"hint": "在此工作区的所有项目中搜索。使用类似 DEP-23 的短 ID 来定位任务。",
 			"searching": "搜索中…",
-			"resultsFound_one": "找到 {{count}} 条结果",
 			"resultsFound_other": "找到 {{count}} 条结果",
 			"noResultsTitle": "未找到结果",
 			"noResultsDescription": "请调整搜索条件或搜索其他内容",
@@ -2126,6 +2481,216 @@
 		},
 		"branding": {
 			"poweredBy": "由以下技术提供支持"
+		}
+	},
+	"press": {
+		"title": "Press kit",
+		"headline": "Kaneo press kit",
+		"intro": "Kaneo logos and product screenshots for articles, videos, and other media.",
+		"description": "Kaneo press resources: product information, logos, screenshots, and contact details for journalists and creators.",
+		"downloadKit": "Download all assets",
+		"boilerplateTitle": "About Kaneo",
+		"boilerplate": "Kaneo is an open-source project management platform created by Andrej Acevski. Teams can organize tasks in board and list views, assign work, set priorities and due dates, and connect GitHub. Kaneo is available under the MIT license for self-hosting, or as a managed service through Kaneo Cloud.",
+		"logosTitle": "Logos",
+		"darkLogo": "Dark wordmark",
+		"darkLogoAlt": "Dark Kaneo logo on a light background",
+		"darkLogoDetail": "SVG",
+		"lightLogo": "Light wordmark",
+		"lightLogoAlt": "Light Kaneo logo on a dark background",
+		"lightLogoDetail": "SVG",
+		"icon": "App icon",
+		"iconAlt": "Kaneo app icon",
+		"iconDetail": "PNG, 512 × 512",
+		"download": "Download",
+		"screenshotsTitle": "Screenshots",
+		"lightScreenshot": "Board (light)",
+		"lightScreenshotAlt": "Kaneo board in light theme, with task cards arranged by status",
+		"darkScreenshot": "Board (dark)",
+		"darkScreenshotAlt": "Kaneo board in dark theme, with task cards arranged by status",
+		"contactTitle": "Press enquiries",
+		"contactBody": "Contact the Kaneo team for product questions, interviews, or additional materials.",
+		"usageContrast": "Choose the light wordmark for dark backgrounds and the dark wordmark for light backgrounds.",
+		"usageProportions": "Keep the original proportions and colours, without stretching or adding effects.",
+		"usageSpace": "Leave enough space around the logo to keep it clear and readable.",
+		"darkListScreenshot": "List (dark)",
+		"darkListScreenshotAlt": "Kaneo task list in dark theme, grouped by status with assignees, priorities, labels, and due dates",
+		"darkTaskScreenshot": "Task details (dark)",
+		"darkTaskScreenshotAlt": "Kaneo task details in dark theme, with a description, checklist, team comment, and task properties",
+		"darkTimelineScreenshot": "Timeline (dark)",
+		"darkTimelineScreenshotAlt": "Kaneo Gantt timeline in dark theme, showing scheduled tasks and their durations",
+		"lightListScreenshot": "List (light)",
+		"lightListScreenshotAlt": "Kaneo task list in light theme, grouped by status with assignees, priorities, labels, and due dates",
+		"lightTaskScreenshot": "Task details (light)",
+		"lightTaskScreenshotAlt": "Kaneo task details in light theme, with a description, checklist, team comment, and task properties",
+		"lightTimelineScreenshot": "Timeline (light)",
+		"lightTimelineScreenshotAlt": "Kaneo Gantt timeline in light theme, showing scheduled tasks and their durations"
+	},
+	"landing": {
+		"sponsors": {
+			"ciSponsor": "合作伙伴"
+		},
+		"founder": {
+			"title": "Why Kaneo exists",
+			"intro": "I'm Andrej, and I created Kaneo because I was tired of project management tools that got in the way more than they helped. After years of using bloated, overcomplicated platforms that distracted from actual work, I knew there had to be a better way.",
+			"problem": "The problem wasn't that these tools lacked features - it was that they had too many. Every notification, every unnecessary button, every complex workflow was pulling my team away from what mattered: building great products.",
+			"principle": "I believe the best tools are invisible. They should amplify your team's natural workflow, not force you to adapt to theirs. Kaneo is built on the principle that less is more - every feature exists because it solves a real problem, not because it looks impressive in a demo."
+		},
+		"hero": {
+			"cloudCta": "Try Kaneo Cloud",
+			"selfHostCta": "Self-host Kaneo",
+			"trialNote": "14-day cloud trial. No credit card required.",
+			"github": "GitHub",
+			"productHunt": "Product Hunt",
+			"title": "Project management",
+			"titleAccent": "that doesn't become the project.",
+			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting."
+		},
+		"navigation": {
+			"product": "Product",
+			"pricing": "Pricing",
+			"resources": "Resources",
+			"docs": "Documentation",
+			"blog": "Blog",
+			"guides": "Guides",
+			"comparisons": "Compare tools",
+			"roadmap": "Roadmap",
+			"menu": "Menu",
+			"closeMenu": "Close menu",
+			"home": "Kaneo home",
+			"signIn": "Sign In",
+			"getStarted": "Get Started"
+		},
+		"showcase": {
+			"label": "Kaneo product views",
+			"controls": "Choose a product view",
+			"play": "Play product views",
+			"pause": "Pause product views",
+			"board": "Board",
+			"list": "Backlog",
+			"gantt": "Gantt"
+		},
+		"features": {
+			"tasks": {
+				"label": "Subtasks & context",
+				"title": "Big tasks. Clear next steps.",
+				"description": "Break work into subtasks, assign each one, and track progress without losing the original brief. Every detail stays with the work."
+			},
+			"github": {
+				"label": "GitHub integration",
+				"title": "From pull request to done.",
+				"description": "Issues and labels sync both ways. Linked pull requests move tasks through review to done as your code is opened and merged.",
+				"link": "Set up GitHub"
+			},
+			"hosting": {
+				"title": "Run it on your own server.",
+				"description": "Deploy with Docker and keep your workspace on infrastructure you control.",
+				"link": "Self-host Kaneo"
+			},
+			"source": {
+				"title": "The code is open, too.",
+				"description": "Read the source, report an issue, or contribute a change. Development happens on GitHub.",
+				"link": "View the source"
+			},
+			"preview": {
+				"taskAlt": "Interactive Kaneo task and subtask preview.",
+				"githubAlt": "Interactive preview of a GitHub merge updating a Kaneo task.",
+				"taskTitle": "Publish the new homepage",
+				"taskDescription": "Update the copy and check the layout before the next release.",
+				"checklistDone": "Review the copy",
+				"checklistOpen": "Check the mobile layout",
+				"inProgress": "In Progress",
+				"high": "High",
+				"date": "Oct 12",
+				"design": "design",
+				"done": "Done",
+				"relationsAlt": "Interactive Kaneo task dependencies preview.",
+				"inReview": "In Review",
+				"trySubtasks": "Try checking off a subtask.",
+				"tryGithub": "Preview a merge to see the task update.",
+				"tryRelations": "Open a linked task to follow the connection.",
+				"mergeAction": "Preview merge",
+				"resetAction": "Reset preview",
+				"mergedHint": "Pull request merged. Task moved to Done.",
+				"progress": "{{completed}} of {{total}} subtasks complete",
+				"backToTask": "Back to the homepage task",
+				"releaseNotes": "Write the release notes",
+				"dependencyDescription": "The homepage is waiting on the mobile review. Keep the launch notes linked for context.",
+				"mobileDescription": "Check the new homepage on narrow screens before it goes live.",
+				"notesDescription": "Capture what changed for the launch announcement."
+			},
+			"relations": {
+				"label": "Linked tasks & dependencies",
+				"title": "See what’s holding things up.",
+				"description": "Connect blockers, follow dependencies, and keep related work close. Open a linked task to see the context behind the next step."
+			}
+		},
+		"seo": {
+			"title": "Kaneo — Open-source, self-hosted project management",
+			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or use Kaneo Cloud."
+		},
+		"resources": {
+			"eyebrow": "Make it your own",
+			"title": "A clear path from trying it to using it.",
+			"description": "Set up your server, connect your tools, or compare Kaneo with your current tracker.",
+			"docker": {
+				"title": "Self-host with Docker",
+				"description": "Installation, backups, and updates for a setup you control."
+			},
+			"sso": {
+				"title": "Bring your own identity provider",
+				"description": "Configure OIDC single sign-on in the free self-hosted build."
+			},
+			"mcp": {
+				"title": "Connect your AI tools",
+				"description": "Use MCP to work with tasks and projects through an AI client."
+			},
+			"linear": {
+				"title": "Compare Kaneo and Linear",
+				"description": "See the differences in hosting, licensing, and workflow."
+			}
+		},
+		"product": {
+			"title": "Before you get started",
+			"description": "The practical details about hosting, planning, and connecting your team.",
+			"overview": "Kaneo is an open-source, MIT-licensed project management platform with boards, backlog, Gantt and calendar views, custom fields, time tracking, and GitHub integration. Self-host it on your own infrastructure or use Kaneo Cloud.",
+			"hosting": {
+				"question": "Is Kaneo free to self-host?",
+				"answer": "Yes. Kaneo is MIT licensed and free to self-host, with single sign-on included. Run the application alongside PostgreSQL using Docker Compose, or deploy with the official Helm chart. You manage infrastructure, updates, and backups.",
+				"link": "Read the installation guide"
+			},
+			"planning": {
+				"question": "Does Kaneo have Gantt charts?",
+				"answer": "Yes. Kaneo includes Gantt and calendar views alongside boards, lists, and backlog planning. Use task start dates and due dates to plan work on a timeline. Budgeting, baseline comparisons, and sprint burndown reports are outside its current scope.",
+				"link": "Compare planning features"
+			},
+			"sso": {
+				"question": "Is single sign-on included?",
+				"answer": "Yes. The free self-hosted build supports Google, GitHub, Discord, and custom OAuth/OIDC providers. Configure your provider on your instance without purchasing a separate Kaneo edition.",
+				"link": "Configure OIDC"
+			},
+			"agents": {
+				"question": "Can AI clients work with Kaneo?",
+				"answer": "Yes. Kaneo provides an MCP server through the @kaneo/mcp package and an HTTP endpoint. Compatible AI clients can read and update tasks using an API key tied to a user, subject to workspace permissions.",
+				"link": "Read the MCP guide"
+			}
+		},
+		"comparison": {
+			"feature": "Feature",
+			"yes": "Yes",
+			"no": "No"
+		},
+		"selfHostingGuide": {
+			"summary": "What self-hosting involves, with links to the maintained Docker Compose configuration and installation steps.",
+			"answer": "To self-host Kaneo, run the application and PostgreSQL with Docker Compose, configure your public URL and secrets, and put a TLS reverse proxy in front. The installation guide specifies at least 2 GB of RAM and 10 GB of disk space. Plan for ongoing updates, database backups, and storage for uploaded files.",
+			"requirements": "The documented minimum is 2 GB of RAM and 10 GB of disk space, with Docker 20.10 or newer and Docker Compose V2. Allow more capacity for your workload, database growth, and uploaded files.",
+			"compose": "Use the maintained compose.yml in the Docker Compose guide. It defines PostgreSQL, a persistent database volume, the Kaneo application, and health checks. Configure the environment file before starting the services; for production, pin an image version so updates are deliberate.",
+			"backups": "Back up both PostgreSQL and any object storage used for uploads. Choose a schedule based on how much work your team can afford to lose, store copies off the application server, and test restoring them before you need them.",
+			"worth": "Self-hosting makes sense when you need control over infrastructure and data, and someone can own maintenance. Include server capacity, storage, backups, and that maintenance time when comparing costs with a managed service.",
+			"minimum": "The installation guide specifies Docker 20.10 or newer, Docker Compose V2, at least 2 GB of RAM, and 10 GB of disk space. The Compose setup includes PostgreSQL. Redis is optional for a single API instance.",
+			"composeLink": "Docker Compose configuration",
+			"composeLinkDescription": "The maintained compose.yml with persistent storage and health checks.",
+			"startLink": "Start and verify the services",
+			"startLinkDescription": "Start the stack, inspect its status, and check that the application is available."
 		}
 	}
 }

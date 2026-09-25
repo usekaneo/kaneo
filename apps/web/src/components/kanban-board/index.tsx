@@ -187,7 +187,7 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
     setActiveId(null);
   };
 
-  if (!project || !project?.columns) {
+  if (!project?.columns) {
     return (
       <div className="flex h-full w-full flex-col bg-linear-to-b from-muted/25 to-background">
         <header className="mb-6 mt-6 space-y-6 shrink-0 px-6">

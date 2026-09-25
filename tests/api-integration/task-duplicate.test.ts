@@ -2,15 +2,24 @@ import { randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { copyTaskAssetObject } = vi.hoisted(() => ({
-  copyTaskAssetObject: vi.fn(),
-}));
+const { copyTaskAssetObject, deleteS3Object, publishEvent } = vi.hoisted(
+  () => ({
+    deleteS3Object: vi.fn(async () => undefined),
+    publishEvent: vi.fn(async () => undefined),
+    copyTaskAssetObject: vi.fn(),
+  }),
+);
 
 vi.mock("../../apps/api/src/storage/s3", async (importOriginal) => {
   const actual =
     await importOriginal<typeof import("../../apps/api/src/storage/s3")>();
-  return { ...actual, copyTaskAssetObject };
+  return { ...actual, copyTaskAssetObject, deleteS3Object };
 });
+
+vi.mock("../../apps/api/src/events", async (original) => ({
+  ...(await original<object>()),
+  publishEvent,
+}));
 
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
@@ -80,6 +89,8 @@ function requestDuplicate(
 describe("API integration: task duplication", () => {
   beforeEach(async () => {
     await resetTestDatabase();
+    vi.clearAllMocks();
+    copyTaskAssetObject.mockReset();
     copyTaskAssetObject.mockImplementation(async () => DUPLICATED_OBJECT_KEY);
   });
 
@@ -450,5 +461,247 @@ describe("API integration: task duplication", () => {
     });
 
     expect(duplicatedTask?.title).toBe("Release checklist");
+  });
+
+  async function fixture() {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const task = await seedTask({
+      projectId: project.id,
+      columnId: columns.todo.id,
+    });
+    mockAuthenticatedSession(member.user);
+    return { ...member, project, columns, task, app: createApp().app };
+  }
+
+  it("copies project custom fields and fills missing required defaults", async () => {
+    const own = await fixture();
+    const definitions = await db
+      .insert(schema.customFieldDefinitionTable)
+      .values([
+        {
+          projectId: own.project.id,
+          name: "Estimate",
+          type: "number",
+          required: true,
+        },
+        { projectId: own.project.id, name: "Approved", type: "boolean" },
+        { projectId: own.project.id, name: "Note", type: "text" },
+        {
+          projectId: own.project.id,
+          name: "Category",
+          type: "dropdown",
+          required: true,
+          defaultValue: "Work",
+          options: ["Work", "Personal"],
+        },
+      ])
+      .returning();
+    await db.insert(schema.customFieldValueTable).values([
+      { taskId: own.task.id, fieldId: definitions[0].id, value: "5" },
+      { taskId: own.task.id, fieldId: definitions[1].id, value: "false" },
+      { taskId: own.task.id, fieldId: definitions[2].id, value: null },
+    ]);
+    const { project: otherProject } = await createProjectFixture({
+      workspaceId: own.workspace.id,
+    });
+    const [foreignField] = await db
+      .insert(schema.customFieldDefinitionTable)
+      .values({ projectId: otherProject.id, name: "Foreign", type: "text" })
+      .returning();
+    await db.insert(schema.customFieldValueTable).values({
+      taskId: own.task.id,
+      fieldId: foreignField.id,
+      value: "do not copy",
+    });
+    const response = await requestDuplicate(own.app, own.task.id);
+    expect(response.status).toBe(200);
+    const copy = (await response.json()) as { id: string };
+    const values = await db.query.customFieldValueTable.findMany({
+      where: eq(schema.customFieldValueTable.taskId, copy.id),
+    });
+    expect(new Map(values.map((v) => [v.fieldId, v.value]))).toEqual(
+      new Map([
+        [definitions[0].id, "5"],
+        [definitions[1].id, "false"],
+        [definitions[2].id, ""],
+        [definitions[3].id, "Work"],
+      ]),
+    );
+    await db
+      .delete(schema.taskTable)
+      .where(eq(schema.taskTable.id, own.task.id));
+    expect(
+      await db.query.customFieldValueTable.findMany({
+        where: eq(schema.customFieldValueTable.taskId, copy.id),
+      }),
+    ).toHaveLength(4);
+  });
+
+  it("rejects missing required fields before creating a task or copying storage", async () => {
+    const own = await fixture();
+    await db.insert(schema.customFieldDefinitionTable).values({
+      projectId: own.project.id,
+      name: "Required",
+      type: "text",
+      required: true,
+    });
+    const response = await requestDuplicate(own.app, own.task.id);
+    expect(response.status).toBe(400);
+    expect(await response.text()).toContain("required");
+    expect(await db.query.taskTable.findMany()).toHaveLength(1);
+    expect(copyTaskAssetObject).not.toHaveBeenCalled();
+    expect(publishEvent).not.toHaveBeenCalled();
+  });
+
+  it("rejects an obsolete custom-field dropdown value", async () => {
+    const own = await fixture();
+    const [field] = await db
+      .insert(schema.customFieldDefinitionTable)
+      .values({
+        projectId: own.project.id,
+        name: "Category",
+        type: "dropdown",
+        options: ["new"],
+      })
+      .returning();
+    await db
+      .insert(schema.customFieldValueTable)
+      .values({ taskId: own.task.id, fieldId: field.id, value: "old" });
+    expect((await requestDuplicate(own.app, own.task.id)).status).toBe(400);
+    expect(await db.query.taskTable.findMany()).toHaveLength(1);
+  });
+
+  it("copies only same-workspace parents and labels from legacy mixed data", async () => {
+    const own = await fixture();
+    const other = await createWorkspaceMember();
+    const { project: foreignProject, columns: foreignColumns } =
+      await createProjectFixture({ workspaceId: other.workspace.id });
+    const foreignParent = await seedTask({
+      projectId: foreignProject.id,
+      columnId: foreignColumns.todo.id,
+    });
+    const { project: siblingProject, columns: siblingColumns } =
+      await createProjectFixture({ workspaceId: own.workspace.id });
+    const parent = await seedTask({
+      projectId: siblingProject.id,
+      columnId: siblingColumns.todo.id,
+    });
+    await db.insert(schema.taskRelationTable).values(
+      [parent, foreignParent].map((p) => ({
+        sourceTaskId: p.id,
+        targetTaskId: own.task.id,
+        relationType: "subtask",
+      })),
+    );
+    await db.insert(schema.labelTable).values([
+      {
+        taskId: own.task.id,
+        workspaceId: own.workspace.id,
+        name: "Local",
+        color: "blue",
+      },
+      {
+        taskId: own.task.id,
+        workspaceId: other.workspace.id,
+        name: "Foreign",
+        color: "red",
+      },
+    ]);
+    const response = await requestDuplicate(own.app, own.task.id);
+    expect(response.status).toBe(200);
+    const copy = (await response.json()) as { id: string };
+    expect(
+      await db.query.taskRelationTable.findMany({
+        where: eq(schema.taskRelationTable.targetTaskId, copy.id),
+      }),
+    ).toMatchObject([{ sourceTaskId: parent.id }]);
+    const labels = await db.query.labelTable.findMany({
+      where: eq(schema.labelTable.taskId, copy.id),
+    });
+    expect(labels).toHaveLength(1);
+    expect(labels[0].name).toBe("Local");
+    const relationEvents = publishEvent.mock.calls.filter(
+      ([name]) => name === "task-relation.created",
+    );
+    expect(relationEvents).toHaveLength(1);
+    expect(relationEvents[0][1]).toMatchObject({
+      sourceTaskId: parent.id,
+      projectId: siblingProject.id,
+    });
+  });
+
+  it("allocates distinct task numbers and positions for simultaneous copies", async () => {
+    const own = await fixture();
+    const responses = await Promise.all([
+      requestDuplicate(own.app, own.task.id),
+      requestDuplicate(own.app, own.task.id),
+    ]);
+    expect(responses.map((r) => r.status)).toEqual([200, 200]);
+    const copies = (await Promise.all(responses.map((r) => r.json()))) as {
+      number: number;
+      position: number;
+    }[];
+    expect(copies.map((c) => c.number).sort()).toEqual([2, 3]);
+    expect(copies.map((c) => c.position).sort()).toEqual([2, 3]);
+  });
+
+  it("repairs a full position range before appending the copy", async () => {
+    const own = await fixture();
+    await db
+      .update(schema.taskTable)
+      .set({ position: 2147483647 })
+      .where(eq(schema.taskTable.id, own.task.id));
+    const response = await requestDuplicate(own.app, own.task.id);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ position: 2 });
+  });
+
+  it("does not carry a foreign assignee into a new task", async () => {
+    const own = await fixture();
+    const other = await createWorkspaceMember();
+    await db
+      .update(schema.taskTable)
+      .set({ userId: other.user.id })
+      .where(eq(schema.taskTable.id, own.task.id));
+    expect((await requestDuplicate(own.app, own.task.id)).status).toBe(403);
+    expect(await db.query.taskTable.findMany()).toHaveLength(1);
+  });
+
+  it("cleans up partial asset copies and returns a safe error", async () => {
+    const own = await fixture();
+    const ids = ["firstasset", "secondasset"];
+    await db
+      .update(schema.taskTable)
+      .set({
+        description: ids.map((id) => `![Image](/api/asset/${id})`).join("\n"),
+      })
+      .where(eq(schema.taskTable.id, own.task.id));
+    await db.insert(schema.assetTable).values(
+      ids.map((id) => ({
+        id,
+        taskId: own.task.id,
+        projectId: own.project.id,
+        workspaceId: own.workspace.id,
+        objectKey: id,
+        filename: "image.png",
+        mimeType: "image/png",
+        size: 10,
+        kind: "image",
+        surface: "description",
+        createdBy: own.user.id,
+      })),
+    );
+    copyTaskAssetObject
+      .mockResolvedValueOnce("copied-first")
+      .mockRejectedValueOnce(new Error("private bucket details"));
+    const response = await requestDuplicate(own.app, own.task.id);
+    expect(response.status).toBe(503);
+    expect(await response.text()).toBe("Failed to copy the task attachments");
+    expect(deleteS3Object).toHaveBeenCalledWith("copied-first");
+    expect(await db.query.taskTable.findMany()).toHaveLength(1);
+    expect(publishEvent).not.toHaveBeenCalled();
   });
 });

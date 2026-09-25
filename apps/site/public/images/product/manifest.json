@@ -1,0 +1,67 @@
+{
+	"description": "Real Kaneo UI with fictional Studio North project data.",
+	"viewport": {
+		"width": 1728,
+		"height": 1000
+	},
+	"deviceScaleFactor": 2,
+	"date": "2026-09-23T10:00:00.000Z",
+	"screenshots": [
+		{
+			"file": "board-light.png",
+			"width": 3456,
+			"height": 2000,
+			"theme": "light",
+			"view": "board"
+		},
+		{
+			"file": "list-light.png",
+			"width": 3456,
+			"height": 2000,
+			"theme": "light",
+			"view": "list"
+		},
+		{
+			"file": "timeline-light.png",
+			"width": 3456,
+			"height": 2000,
+			"theme": "light",
+			"view": "timeline"
+		},
+		{
+			"file": "task-light.png",
+			"width": 3456,
+			"height": 2000,
+			"theme": "light",
+			"view": "task"
+		},
+		{
+			"file": "board-dark.png",
+			"width": 3456,
+			"height": 2000,
+			"theme": "dark",
+			"view": "board"
+		},
+		{
+			"file": "list-dark.png",
+			"width": 3456,
+			"height": 2000,
+			"theme": "dark",
+			"view": "list"
+		},
+		{
+			"file": "timeline-dark.png",
+			"width": 3456,
+			"height": 2000,
+			"theme": "dark",
+			"view": "timeline"
+		},
+		{
+			"file": "task-dark.png",
+			"width": 3456,
+			"height": 2000,
+			"theme": "dark",
+			"view": "task"
+		}
+	]
+}

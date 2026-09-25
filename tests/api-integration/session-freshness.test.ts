@@ -53,7 +53,7 @@ describe("API integration: session freshness after profile updates", () => {
     await resetTestDatabase();
   });
 
-  it("serves the updated user when the session cookie cache is bypassed", async () => {
+  it("serves the updated user with and without a cookie-cache bypass", async () => {
     const { app } = createApp();
     const cookies = await signUp(app);
 
@@ -64,12 +64,12 @@ describe("API integration: session freshness after profile updates", () => {
     });
     expect(update.status).toBe(200);
 
-    const cached = (await (
+    const current = (await (
       await app.request("/api/auth/get-session", {
         headers: { cookie: cookies },
       })
     ).json()) as SessionResponse;
-    expect(cached?.user.image).toBeNull();
+    expect(current?.user.image).toBe("/api/user/avatar/new-avatar-id");
 
     const fresh = (await (
       await app.request("/api/auth/get-session?disableCookieCache=true", {
@@ -79,7 +79,7 @@ describe("API integration: session freshness after profile updates", () => {
     expect(fresh?.user.image).toBe("/api/user/avatar/new-avatar-id");
   });
 
-  it("refreshes the cached session cookie on get-session", async () => {
+  it("keeps profile changes fresh without issuing session-data cookies", async () => {
     const { app } = createApp();
     const cookies = await signUp(app);
 
@@ -94,15 +94,19 @@ describe("API integration: session freshness after profile updates", () => {
       { headers: { cookie: cookies } },
     );
 
-    expect(refreshed.headers.getSetCookie().length).toBeGreaterThan(0);
+    expect(
+      refreshed.headers
+        .getSetCookie()
+        .some((cookie) => cookie.includes("session_data=")),
+    ).toBe(false);
 
     const nextCookies = applyCookies(cookies, refreshed);
-    const cached = (await (
+    const current = (await (
       await app.request("/api/auth/get-session", {
         headers: { cookie: nextCookies },
       })
     ).json()) as SessionResponse;
 
-    expect(cached?.user.name).toBe("Renamed User");
+    expect(current?.user.name).toBe("Renamed User");
   });
 });

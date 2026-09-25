@@ -1,49 +1,130 @@
 import { eq } from "drizzle-orm";
-import { Hono } from "hono";
-import { describeRoute, resolver, validator } from "hono-openapi";
-import * as v from "valibot";
 import db from "../database";
 import { externalLinkTable } from "../database/schema";
+import {
+  apiRouter,
+  type BaseVariables,
+  createRoute,
+  errorResponse,
+  jsonResponse,
+} from "../openapi";
+import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
+import createExternalLink from "./controllers/create-external-link";
+import deleteExternalLink from "./controllers/delete-external-link";
+import {
+  createdExternalLinkSchema,
+  deletedExternalLinkSchema,
+  externalLinkListSchema,
+} from "./response";
+import {
+  createExternalLinkBody,
+  deleteExternalLinkParam,
+  taskIdParam,
+} from "./schema";
 
-const externalLinkSchema = v.object({
-  id: v.string(),
-  taskId: v.string(),
-  integrationId: v.string(),
-  resourceType: v.string(),
-  externalId: v.string(),
-  url: v.string(),
-  title: v.nullable(v.string()),
-  metadata: v.any(),
-  createdAt: v.date(),
-  updatedAt: v.date(),
-});
-
-const externalLink = new Hono<{
-  Variables: {
-    userId: string;
-    workspaceId: string;
-  };
-}>().get(
-  "/task/:taskId",
-  describeRoute({
-    operationId: "getExternalLinksByTask",
-    tags: ["External Links"],
-    description: "Get all external links for a task",
-    responses: {
-      200: {
-        description: "External links for the task",
-        content: {
-          "application/json": {
-            schema: resolver(v.array(externalLinkSchema)),
-          },
+const createExternalLinkRoute = createRoute({
+  method: "post",
+  operationId: "createExternalLink",
+  path: "/task/{taskId}",
+  tags: ["External Links"],
+  summary: "Create an external link",
+  description: "Add a resource link to a task",
+  middleware: [
+    workspaceAccess.fromTaskId("taskId"),
+    requireWorkspacePermission({ task: ["update"] }),
+  ] as const,
+  request: {
+    params: taskIdParam,
+    body: {
+      required: true,
+      content: {
+        "application/json": {
+          schema: createExternalLinkBody,
         },
       },
     },
-  }),
-  validator("param", v.object({ taskId: v.string() })),
-  workspaceAccess.fromTaskId("taskId"),
-  async (c) => {
+  },
+  responses: {
+    200: jsonResponse(
+      "External link created successfully",
+      createdExternalLinkSchema,
+    ),
+    400: errorResponse("Invalid external link data"),
+    401: errorResponse("Unauthorized"),
+    403: errorResponse("No permission to update the task"),
+  },
+});
+
+const deleteExternalLinkRoute = createRoute({
+  method: "delete",
+  operationId: "deleteExternalLink",
+  path: "/task/{taskId}/{id}",
+  tags: ["External Links"],
+  summary: "Remove a manual resource link",
+  description:
+    "Remove a manually added link from a task. Integration-managed links cannot be removed through this endpoint.",
+  middleware: [
+    workspaceAccess.fromTaskId("taskId"),
+    requireWorkspacePermission({ task: ["update"] }),
+  ] as const,
+  request: { params: deleteExternalLinkParam },
+  responses: {
+    200: jsonResponse("Resource link removed", deletedExternalLinkSchema),
+    400: errorResponse("Unknown task or invalid link data"),
+    401: errorResponse("Unauthorized"),
+    403: errorResponse("No permission to update the task"),
+    404: errorResponse("Manual resource link not found on this task"),
+  },
+});
+
+const getExternalLinksByTaskRoute = createRoute({
+  method: "get",
+  operationId: "getExternalLinksByTask",
+  path: "/task/{taskId}",
+  tags: ["External Links"],
+  summary: "Get task external links",
+  description:
+    "Get manually added resource links and links from connected integrations, such as GitHub or Gitea issues.",
+  middleware: [workspaceAccess.fromTaskId("taskId")] as const,
+  request: { params: taskIdParam },
+  responses: {
+    200: jsonResponse("External links for the task", externalLinkListSchema),
+    400: errorResponse(
+      "Unknown task, or its workspace could not be determined",
+    ),
+    403: errorResponse("No access to the task's workspace"),
+  },
+});
+
+const externalLink = apiRouter<BaseVariables & { workspaceId: string }>()
+  .openapi(createExternalLinkRoute, async (c) => {
+    const { taskId } = c.req.valid("param");
+    const { url, title } = c.req.valid("json");
+
+    const link = await createExternalLink({
+      taskId,
+      url,
+      title,
+      userId: c.get("userId"),
+    });
+
+    return c.json(
+      {
+        ...link,
+        metadata: link.metadata ? JSON.parse(link.metadata) : null,
+      },
+      200,
+    );
+  })
+  .openapi(deleteExternalLinkRoute, async (c) => {
+    const { taskId, id } = c.req.valid("param");
+    return c.json(
+      await deleteExternalLink({ taskId, id, userId: c.get("userId") }),
+      200,
+    );
+  })
+  .openapi(getExternalLinksByTaskRoute, async (c) => {
     const { taskId } = c.req.valid("param");
 
     const links = await db.query.externalLinkTable.findMany({
@@ -55,13 +136,13 @@ const externalLink = new Hono<{
       },
     });
 
-    const formattedLinks = links.map((link) => ({
-      ...link,
-      metadata: link.metadata ? JSON.parse(link.metadata) : null,
-    }));
-
-    return c.json(formattedLinks);
-  },
-);
+    return c.json(
+      links.map((link) => ({
+        ...link,
+        metadata: link.metadata ? JSON.parse(link.metadata) : null,
+      })),
+      200,
+    );
+  });
 
 export default externalLink;

@@ -143,7 +143,9 @@ describe("API integration: seat reconciliation", () => {
       throw new Error("provider unavailable");
     });
 
-    await expect(reconcileWorkspaceSeats()).resolves.toBeUndefined();
+    await expect(reconcileWorkspaceSeats()).resolves.toEqual({
+      degraded: true,
+    });
 
     expect(updateSubscriptionSeats).toHaveBeenCalledTimes(2);
     const seats = [

@@ -2,6 +2,21 @@ import { describe, expect, it } from "vitest";
 import { getTaskLabelOptions } from "./get-task-label-options";
 
 describe("getTaskLabelOptions", () => {
+  it("excludes a pending workspace label and its remaining task copy", () => {
+    const labels = [
+      { id: "copy", name: "Bug", taskId: "task-1" },
+      {
+        id: "root",
+        name: "Bug",
+        taskId: null,
+        deletionStartedAt: "2026-09-19T12:00:00Z",
+      },
+      { id: "other", name: "Ready", taskId: null },
+    ];
+    expect(
+      getTaskLabelOptions(labels, "task-1").map((label) => label.id),
+    ).toEqual(["other"]);
+  });
   it("excludes labels assigned to other tasks", () => {
     const labels = [
       { id: "workspace", name: "Bug", taskId: null },

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import type { BroadcastMessage } from "../../../apps/api/src/ws/broadcast-adapter";
+import type {
+  BroadcastMessage,
+  UserBroadcast,
+} from "../../../apps/api/src/ws/broadcast-adapter";
 import { InMemoryBroadcastAdapter } from "../../../apps/api/src/ws/in-memory-broadcast-adapter";
 
 describe("InMemoryBroadcastAdapter", () => {
@@ -83,5 +86,28 @@ describe("InMemoryBroadcastAdapter", () => {
 
     expect(first).toHaveLength(0);
     expect(second).toHaveLength(1);
+  });
+
+  it("delivers user-targeted messages to the user handler only", async () => {
+    const adapter = new InMemoryBroadcastAdapter();
+    const projectMessages: BroadcastMessage[] = [];
+    const userMessages: UserBroadcast[] = [];
+
+    await adapter.subscribe((msg) => {
+      projectMessages.push(msg);
+    });
+    await adapter.subscribeToUser((msg) => {
+      userMessages.push(msg);
+    });
+
+    await adapter.publishToUser({
+      userId: "user-1",
+      message: { type: "NOTIFICATION_CREATED" },
+    });
+
+    expect(userMessages).toEqual([
+      { userId: "user-1", message: { type: "NOTIFICATION_CREATED" } },
+    ]);
+    expect(projectMessages).toHaveLength(0);
   });
 });

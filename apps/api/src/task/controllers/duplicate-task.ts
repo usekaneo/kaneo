@@ -1,9 +1,12 @@
 import { createId } from "@paralleldrive/cuid2";
-import { and, eq, max } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
   assetTable,
+  columnTable,
+  customFieldDefinitionTable,
+  customFieldValueTable,
   labelTable,
   projectTable,
   taskRelationTable,
@@ -13,7 +16,13 @@ import {
 import { publishEvent } from "../../events";
 import { contentReferencesAsset } from "../../storage/cleanup-assets";
 import { copyTaskAssetObject, deleteS3Object } from "../../storage/s3";
+import { assertAssignableUser } from "../../utils/assert-assignable-user";
+import {
+  assertRequiredCustomFields,
+  assertValidTaskStatus,
+} from "../validate-task-fields";
 import { claimTaskNumber } from "./claim-task-numbers";
+import { nextTaskPosition } from "./next-task-position";
 
 async function discardCopiedObjects(objectKeys: string[]) {
   await Promise.all(
@@ -46,7 +55,13 @@ async function duplicateDescriptionAssets({
   const sourceAssets = await db
     .select()
     .from(assetTable)
-    .where(eq(assetTable.taskId, sourceTask.id));
+    .where(
+      and(
+        eq(assetTable.taskId, sourceTask.id),
+        eq(assetTable.projectId, sourceTask.projectId),
+        eq(assetTable.workspaceId, workspaceId),
+      ),
+    );
 
   const referencedAssets = sourceAssets.filter((asset) =>
     contentReferencesAsset(description, asset.id),
@@ -92,11 +107,9 @@ async function duplicateDescriptionAssets({
   } catch (error) {
     await discardCopiedObjects(assets.map((asset) => asset.objectKey));
 
+    console.error("Failed to copy task attachments:", error);
     throw new HTTPException(503, {
-      message:
-        error instanceof Error
-          ? error.message
-          : "Failed to copy the task attachments",
+      message: "Failed to copy the task attachments",
     });
   }
 
@@ -134,19 +147,56 @@ async function duplicateTask({
     });
   }
 
-  const [maxPositionResult] = await db
-    .select({ maxPosition: max(taskTable.position) })
-    .from(taskTable)
+  await assertValidTaskStatus(sourceTask.status, sourceTask.projectId);
+  if (sourceTask.userId)
+    await assertAssignableUser(sourceTask.userId, project.workspaceId);
+  const column = await db.query.columnTable.findFirst({
+    where: and(
+      eq(columnTable.projectId, sourceTask.projectId),
+      eq(columnTable.slug, sourceTask.status),
+    ),
+  });
+
+  const fieldDefinitions = await db
+    .select()
+    .from(customFieldDefinitionTable)
+    .where(eq(customFieldDefinitionTable.projectId, sourceTask.projectId));
+  const sourceCustomFields = await db
+    .select({
+      fieldId: customFieldValueTable.fieldId,
+      value: customFieldValueTable.value,
+    })
+    .from(customFieldValueTable)
+    .innerJoin(
+      customFieldDefinitionTable,
+      eq(customFieldValueTable.fieldId, customFieldDefinitionTable.id),
+    )
     .where(
       and(
-        eq(taskTable.projectId, sourceTask.projectId),
-        sourceTask.columnId
-          ? eq(taskTable.columnId, sourceTask.columnId)
-          : eq(taskTable.status, sourceTask.status),
+        eq(customFieldValueTable.taskId, sourceTask.id),
+        eq(customFieldDefinitionTable.projectId, sourceTask.projectId),
       ),
     );
-
-  const nextPosition = (maxPositionResult?.maxPosition ?? 0) + 1;
+  const customFields = sourceCustomFields.map(({ fieldId, value }) => ({
+    fieldId,
+    value: value ?? "",
+  }));
+  // Older tasks may predate a required field. Apply its current default or fail
+  // validation, just as creation does, before copying anything in storage.
+  for (const definition of fieldDefinitions) {
+    if (!definition.required || !definition.defaultValue?.trim()) continue;
+    const existing = customFields.find(
+      (field) => field.fieldId === definition.id,
+    );
+    if (!existing)
+      customFields.push({
+        fieldId: definition.id,
+        value: definition.defaultValue.trim(),
+      });
+    else if (!existing.value.trim())
+      existing.value = definition.defaultValue.trim();
+  }
+  await assertRequiredCustomFields(sourceTask.projectId, customFields);
 
   const sourceLabels = await db
     .select({
@@ -155,7 +205,12 @@ async function duplicateTask({
       workspaceId: labelTable.workspaceId,
     })
     .from(labelTable)
-    .where(eq(labelTable.taskId, sourceTask.id));
+    .where(
+      and(
+        eq(labelTable.taskId, sourceTask.id),
+        eq(labelTable.workspaceId, project.workspaceId),
+      ),
+    );
 
   // A duplicated subtask stays a subtask of the same parents. The source's own
   // subtasks are not duplicated: a copy is one task, not a tree.
@@ -167,9 +222,11 @@ async function duplicateTask({
     })
     .from(taskRelationTable)
     .innerJoin(taskTable, eq(taskRelationTable.sourceTaskId, taskTable.id))
+    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
     .where(
       and(
         eq(taskRelationTable.targetTaskId, sourceTask.id),
+        eq(projectTable.workspaceId, project.workspaceId),
         eq(taskRelationTable.relationType, "subtask"),
       ),
     );
@@ -192,6 +249,12 @@ async function duplicateTask({
   try {
     duplicated = await db.transaction(async (tx) => {
       const taskNumber = await claimTaskNumber(sourceTask.projectId, tx);
+      const nextPosition = await nextTaskPosition(
+        tx,
+        sourceTask.projectId,
+        sourceTask.status,
+        column?.id ?? null,
+      );
 
       const [task] = await tx
         .insert(taskTable)
@@ -201,7 +264,7 @@ async function duplicateTask({
           userId: sourceTask.userId,
           title: title?.trim() || sourceTask.title,
           status: sourceTask.status,
-          columnId: sourceTask.columnId,
+          columnId: column?.id ?? null,
           startDate: sourceTask.startDate,
           dueDate: sourceTask.dueDate,
           description,
@@ -215,6 +278,12 @@ async function duplicateTask({
         throw new HTTPException(500, {
           message: "Failed to duplicate task",
         });
+      }
+
+      if (customFields.length > 0) {
+        await tx
+          .insert(customFieldValueTable)
+          .values(customFields.map((field) => ({ ...field, taskId: task.id })));
       }
 
       if (sourceLabels.length > 0) {

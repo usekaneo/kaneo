@@ -27,7 +27,7 @@ We want everyone to feel welcome here. Please be respectful and follow our [Code
 
 ### What You'll Need
 
-- **Node.js** (20.19 or newer)
+- **Node.js** (24 or newer)
 - **pnpm** (we use this instead of npm/yarn)
 - **Git**
 - **Docker** (optional, for testing full deployments)

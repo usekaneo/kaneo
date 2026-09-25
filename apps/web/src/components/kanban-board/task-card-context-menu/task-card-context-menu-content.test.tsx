@@ -1,22 +1,74 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import type Task from "@/types/task";
 import TaskCardContextMenuContent from "./task-card-context-menu-content";
 
 const duplicateTask = vi.fn();
 const canCreateTasks = vi.fn(() => true);
-
-afterEach(() => {
-  cleanup();
-  document.body.innerHTML = "";
-  vi.clearAllMocks();
-  canCreateTasks.mockReturnValue(true);
-});
-
 vi.mock("@/hooks/mutations/task/use-duplicate-task", () => ({
   useDuplicateTask: () => ({ mutate: duplicateTask }),
 }));
+
+afterEach(() => {
+  canCreateTasks.mockReturnValue(true);
+  cleanup();
+  vi.clearAllMocks();
+});
+
+vi.mock("@/components/ui/context-menu", () => ({
+  ContextMenuContent: ({
+    children,
+  }: {
+    children: React.ReactNode;
+  }): React.JSX.Element => <div>{children}</div>,
+  ContextMenuItem: ({
+    children,
+    onClick,
+  }: {
+    children: React.ReactNode;
+    onClick?: () => void;
+  }): React.JSX.Element => (
+    <button type="button" onClick={onClick}>
+      {children}
+    </button>
+  ),
+  ContextMenuSeparator: (): React.JSX.Element => <div />,
+  ContextMenuSub: ({
+    children,
+  }: {
+    children: React.ReactNode;
+  }): React.JSX.Element => <div>{children}</div>,
+  ContextMenuSubContent: ({
+    children,
+  }: {
+    children: React.ReactNode;
+  }): React.JSX.Element => <div>{children}</div>,
+  ContextMenuSubTrigger: ({
+    children,
+  }: {
+    children: React.ReactNode;
+  }): React.JSX.Element => <div>{children}</div>,
+  ContextMenuCheckboxItem: ({
+    children,
+  }: {
+    children: React.ReactNode;
+  }): React.JSX.Element => <div>{children}</div>,
+}));
+
+vi.mock("@/hooks/queries/column/use-get-columns", () => ({
+  useGetColumns: () => ({
+    data: [],
+  }),
+}));
+
+vi.mock(
+  "@/hooks/queries/workspace-users/use-get-active-workspace-users",
+  () => ({
+    useGetActiveWorkspaceUsers: () => ({
+      data: { members: [] },
+    }),
+  }),
+);
 
 vi.mock("@/hooks/mutations/task/use-update-task", () => ({
   useUpdateTask: () => ({ mutateAsync: vi.fn() }),
@@ -46,17 +98,6 @@ vi.mock("@/hooks/mutations/task/use-update-task-title", () => ({
   useUpdateTaskTitle: () => ({ mutateAsync: vi.fn() }),
 }));
 
-vi.mock("@/hooks/queries/column/use-get-columns", () => ({
-  useGetColumns: () => ({ data: [] }),
-}));
-
-vi.mock(
-  "@/hooks/queries/workspace-users/use-get-active-workspace-users",
-  () => ({
-    useGetActiveWorkspaceUsers: () => ({ data: { members: [] } }),
-  }),
-);
-
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({
     canCreateTasks,
@@ -67,7 +108,11 @@ vi.mock("@/hooks/use-workspace-permission", () => ({
 }));
 
 vi.mock("@/store/project", () => ({
-  default: () => ({ project: { id: "project-1", slug: "kan", columns: [] } }),
+  default: () => ({
+    project: {
+      columns: [],
+    },
+  }),
 }));
 
 vi.mock("react-i18next", () => ({
@@ -77,13 +122,13 @@ vi.mock("react-i18next", () => ({
   }),
 }));
 
-const task: Task = {
+const task = {
   id: "task-1",
-  title: "Release checklist",
-  number: 4,
+  title: "Test task",
+  number: 1,
   description: null,
   status: "to-do",
-  priority: "high",
+  priority: null,
   startDate: null,
   dueDate: null,
   position: 1,
@@ -92,43 +137,54 @@ const task: Task = {
   assigneeId: null,
   assigneeName: null,
   projectId: "project-1",
+} as const satisfies Task;
+
+const taskCardContext = {
+  projectId: "project-1",
+  worskpaceId: "workspace-1",
 };
 
-function renderMenu() {
+function renderTask(taskToRender: Task) {
   render(
-    <ContextMenu>
-      <ContextMenuTrigger>
-        <button type="button">Card</button>
-      </ContextMenuTrigger>
-      <TaskCardContextMenuContent
-        task={task}
-        taskCardContext={{ projectId: "project-1", worskpaceId: "workspace-1" }}
-        onDeleteClick={vi.fn()}
-      />
-    </ContextMenu>,
+    <TaskCardContextMenuContent
+      task={taskToRender}
+      taskCardContext={taskCardContext}
+      onDeleteClick={vi.fn()}
+    />,
   );
-
-  fireEvent.contextMenu(screen.getByRole("button", { name: "Card" }));
 }
 
 describe("TaskCardContextMenuContent", () => {
-  it("duplicates the task with the copy suffix applied to its title", async () => {
-    renderMenu();
-
-    const duplicateItem = await screen.findByText("tasks:actions.duplicate");
-    fireEvent.click(duplicateItem);
-
-    expect(duplicateTask).toHaveBeenCalledWith({
-      taskId: "task-1",
-      title: "tasks:duplicate.titleSuffix|Release checklist",
+  it("hides Mark as planned for planned tasks", () => {
+    renderTask({
+      ...task,
+      status: "planned",
     });
+
+    expect(
+      screen.queryByText("tasks:actions.markAsPlanned"),
+    ).not.toBeInTheDocument();
   });
 
-  it("hides the duplicate action from users who cannot create tasks", async () => {
-    canCreateTasks.mockReturnValue(false);
-    renderMenu();
+  it("shows Mark as planned for tasks that are not planned", () => {
+    renderTask(task);
 
-    expect(await screen.findByText("tasks:actions.archive")).toBeVisible();
-    expect(screen.queryByText("tasks:actions.duplicate")).toBeNull();
+    expect(screen.getByText("tasks:actions.markAsPlanned")).toBeInTheDocument();
   });
+});
+
+it("duplicates using the localized title suffix", () => {
+  renderTask(task);
+  fireEvent.click(
+    screen.getByRole("button", { name: "tasks:actions.duplicate" }),
+  );
+  expect(duplicateTask).toHaveBeenCalledWith({
+    taskId: task.id,
+    title: `tasks:duplicate.titleSuffix|${task.title}`,
+  });
+});
+it("hides duplication without task-create permission", () => {
+  canCreateTasks.mockReturnValue(false);
+  renderTask(task);
+  expect(screen.queryByText("tasks:actions.duplicate")).toBeNull();
 });

@@ -2,28 +2,51 @@ name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
+  workflow_call:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 permissions:
   contents: read
 
 jobs:
+  peekareq-tests:
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 5
+    steps:
+      - uses: useblacksmith/checkout@v1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.19.0
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts
+        working-directory: scripts/ui-review-bot
+      - run: npm test
+        working-directory: scripts/ui-review-bot
+
   lint:
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7.0.1
+        uses: useblacksmith/checkout@v1 # v7.0.1
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
         with:
           version: 10.32.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: 20.20.2
+          node-version: 24.19.0
           cache: pnpm
 
       - name: Install dependencies
@@ -32,21 +55,74 @@ jobs:
       - name: Run Biome
         run: pnpm exec biome ci .
 
-  typecheck:
-    runs-on: ubuntu-24.04
+  i18n:
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7.0.1
+        uses: useblacksmith/checkout@v1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
         with:
           version: 10.32.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: 20.20.2
+          node-version: 24.19.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check locale files against en-US
+        run: pnpm i18n:check
+
+  openapi:
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: useblacksmith/checkout@v1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+        with:
+          version: 10.32.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.19.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check the API reference against the routes
+        run: pnpm openapi:check
+
+  typecheck:
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: useblacksmith/checkout@v1 # v7.0.1
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+        with:
+          version: 10.32.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.19.0
           cache: pnpm
 
       - name: Install dependencies
@@ -56,43 +132,53 @@ jobs:
         run: pnpm typecheck
 
   unit:
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7.0.1
+        uses: useblacksmith/checkout@v1 # v7.0.1
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
         with:
           version: 10.32.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: 20.20.2
+          node-version: 24.19.0
           cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Test release security controls
+        run: |
+          docker pull nginx:1.29.5-alpine
+          node --test scripts/security/*.test.mjs scripts/ci/*.test.mjs
+
       - name: Run unit tests
+        env:
+          # Let jsdom supply browser storage instead of Node's native storage.
+          NODE_OPTIONS: --no-experimental-webstorage
         run: pnpm test
 
   build:
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7.0.1
+        uses: useblacksmith/checkout@v1 # v7.0.1
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
         with:
           version: 10.32.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: 20.20.2
+          node-version: 24.19.0
           cache: pnpm
 
       - name: Install dependencies
@@ -101,8 +187,12 @@ jobs:
       - name: Build monorepo
         run: pnpm build
 
+      - name: Check site metadata and internal links
+        run: pnpm --filter @kaneo/site seo:check
+
   integration:
-    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     services:
       postgres:
         image: postgres:16
@@ -126,17 +216,17 @@ jobs:
       DISABLE_GUEST_ACCESS: "false"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7.0.1
+        uses: useblacksmith/checkout@v1 # v7.0.1
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
         with:
           version: 10.32.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: 20.20.2
+          node-version: 24.19.0
           cache: pnpm
 
       - name: Install dependencies
@@ -146,20 +236,234 @@ jobs:
         run: pnpm test:integration
 
   docker-build:
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 30
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7.0.1
+        uses: useblacksmith/checkout@v1 # v7.0.1
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+      - name: Setup Blacksmith Builder
+        uses: useblacksmith/setup-docker-builder@v1
 
-      - name: Build kaneo image (smoke test)
-        uses: docker/build-push-action@v7
+      - name: Build bundled image for runtime tests
+        uses: useblacksmith/build-push-action@v2 # v7
         with:
           context: .
           file: ./Dockerfile.kaneo
           platforms: linux/amd64
           push: false
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          load: true
+          tags: kaneo:ci
+
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+        with:
+          version: 10.32.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.19.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --ignore-scripts --filter @kaneo/api...
+      - run: npm ci --ignore-scripts
+        working-directory: scripts/ui-review-bot
+      - run: scripts/ui-review-bot/node_modules/.bin/playwright install --with-deps chromium
+      - name: Start bundled image without Redis
+        run: docker compose --env-file /dev/null -p kaneo-ci -f scripts/ci/compose.yml up -d --wait --wait-timeout 120 postgres minio app
+      - name: Browser regression and workspace isolation
+        run: node scripts/ci/browser.mjs http://127.0.0.1:55173
+      - name: Verify realtime without Redis
+        run: node scripts/ci/realtime.mjs http://127.0.0.1:55173
+      - name: Start two API instances with Redis
+        env:
+          KANEO_CI_REDIS_URL: redis://redis:6379
+        run: docker compose --env-file /dev/null -p kaneo-ci -f scripts/ci/compose.yml --profile realtime up -d --wait --wait-timeout 120 app second redis
+      - name: Verify Redis fan-out
+        run: node scripts/ci/realtime.mjs http://127.0.0.1:55173 http://127.0.0.1:55174
+      - name: Upgrade from the latest stable release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/ci/upgrade.sh
+      - name: Save container logs
+        if: always()
+        run: |
+          mkdir -p .cache/ci-results
+          docker compose --env-file /dev/null -p kaneo-ci -f scripts/ci/compose.yml --profile realtime --profile upgrade logs --no-color > .cache/ci-results/containers.log
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: failure()
+        with:
+          name: runtime-failures
+          path: .cache/ci-results/
+          include-hidden-files: true
+          retention-days: 7
+      - name: Remove disposable test services and data
+        if: always()
+        run: docker compose --env-file /dev/null -p kaneo-ci -f scripts/ci/compose.yml --profile realtime --profile upgrade down -v
+
+  workflows:
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 5
+    steps:
+      - uses: useblacksmith/checkout@v1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install verified actionlint
+        run: |
+          curl --fail --silent --show-error --location --max-time 60 \
+            https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz \
+            -o "$RUNNER_TEMP/actionlint.tar.gz"
+          echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  $RUNNER_TEMP/actionlint.tar.gz" | sha256sum --check --strict
+          tar -xzf "$RUNNER_TEMP/actionlint.tar.gz" -C "$RUNNER_TEMP" actionlint
+      - name: Lint workflows and embedded shell scripts
+        run: |
+          shellcheck --version
+          "$RUNNER_TEMP/actionlint" -color
+          shellcheck scripts/ci/*.sh
+
+  storage:
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 10
+    steps:
+      - uses: useblacksmith/checkout@v1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+        with:
+          version: 10.32.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.19.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Start disposable S3 storage
+        run: |
+          docker run -d --name kaneo-storage-ci \
+            -p 127.0.0.1:59039:9000 \
+            -e MINIO_ROOT_USER=local-test-access \
+            -e MINIO_ROOT_PASSWORD=local-test-secret-only \
+            -e MINIO_BROWSER=off -e MINIO_UPDATE=off \
+            --entrypoint /opt/bitnami/minio/bin/minio \
+            bitnamilegacy/minio@sha256:8935e75fa5d11295c17171e4aa49efe390a1193cd7f12e4d21b92af9ffef09d7 \
+            server /tmp/minio --address :9000
+          curl --fail --retry 30 --retry-all-errors --retry-delay 1 --max-time 5 \
+            http://127.0.0.1:59039/minio/health/ready
+      - name: Verify signed uploads against real storage
+        env:
+          KANEO_STORAGE_TEST_ENDPOINT: http://127.0.0.1:59039
+        run: pnpm --filter @kaneo/api exec vitest run --config vitest.storage.config.ts
+      - name: Storage logs
+        if: failure()
+        run: docker logs kaneo-storage-ci
+      - name: Remove disposable storage
+        if: always()
+        run: docker rm -f -v kaneo-storage-ci
+
+  split-images:
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        name: [api, web]
+    steps:
+      - uses: useblacksmith/checkout@v1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup Blacksmith Builder
+        uses: useblacksmith/setup-docker-builder@v1
+      - name: Build standalone image
+        uses: useblacksmith/build-push-action@v2 # v7
+        with:
+          context: .
+          file: ./apps/${{ matrix.name }}/Dockerfile
+          platforms: linux/amd64
+          push: false
+
+  secret-scan:
+    # Scheduled runs get a dedicated full-history scan in nightly.yml instead,
+    # so the default diff scan here does not duplicate the entire-branch scan.
+    if: ${{ github.event_name != 'schedule' }}
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout repository
+        uses: useblacksmith/checkout@v1 # v7.0.1
+        with:
+          persist-credentials: false
+          # TruffleHog resolves the diff base locally, so the base commit must exist.
+          fetch-depth: 0
+      - name: Install TruffleHog
+        run: |
+          curl --fail --silent --show-error --location --max-time 120 \
+            https://github.com/trufflesecurity/trufflehog/releases/download/v3.97.9/trufflehog_3.97.9_linux_amd64.tar.gz \
+            -o "$RUNNER_TEMP/trufflehog.tar.gz"
+          echo "40377e6572495412fb9ba0bc21c9401f73b72f1d2afd11b9931bc4a5ed622866  $RUNNER_TEMP/trufflehog.tar.gz" | sha256sum --check --strict
+          tar -xzf "$RUNNER_TEMP/trufflehog.tar.gz" -C "$RUNNER_TEMP" trufflehog
+      - name: Scan for leaked credentials
+        env:
+          # Pull requests: scan only the commits introduced by the branch.
+          # Pushes: scan only the pushed commits. Everything else: full history.
+          BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_REF: ${{ github.event.pull_request.head.sha || github.event.after || github.ref_name }}
+        run: |
+          base="$(git rev-parse --verify --quiet "$BASE_REF" 2>/dev/null || true)"
+          head="$(git rev-parse --verify --quiet "$HEAD_REF" 2>/dev/null || true)"
+          # Runs as a downloaded binary instead of the trufflesecurity/trufflehog
+          # action or its container: the action hard-codes --github-actions
+          # (conflicts with --sarif), and a container cannot resolve the
+          # Blacksmith git mirror backing this checkout, so cloning it there fails.
+          # --fail still writes a complete SARIF file before exiting 183.
+          "$RUNNER_TEMP/trufflehog" git "file://$PWD" \
+            --results=verified,unknown \
+            --exclude-paths=.trufflehog-exclude \
+            --since-commit "$base" \
+            --branch "$head" \
+            --fail \
+            --sarif > trufflehog-results.sarif
+      - name: Upload results to GitHub Code Scanning
+        # Fork pull requests hold a read-only token and cannot write code scanning data.
+        if: ${{ always() && !github.event.pull_request.head.repo.fork }}
+        uses: github/codeql-action/upload-sarif@1190a975f95ce23525efb6a3fc21ea29567c1b52 # v3
+        with:
+          sarif_file: trufflehog-results.sarif
+      - name: Notify Discord on findings
+        if: ${{ failure() && !github.event.pull_request.head.repo.fork }}
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          BRANCH: ${{ github.ref_name }}
+          TITLE: "🚨 Secret scan found credentials"
+        run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "DISCORD_WEBHOOK_URL is not configured; skipping notification."
+            exit 0
+          fi
+          if [ ! -f trufflehog-results.sarif ]; then
+            echo "No SARIF results file; skipping notification."
+            exit 0
+          fi
+          findings="$(jq -r '.runs[0].results | length' trufflehog-results.sarif 2>/dev/null || echo 0)"
+          if [ "$findings" -eq 0 ]; then
+            echo "No findings to report."
+            exit 0
+          fi
+          details="$(jq -r '.runs[0].results[] | "\(.ruleId) — \(.locations[0].physicalLocation.artifactLocation.uri):\(.locations[0].physicalLocation.region.startLine)"' trufflehog-results.sarif | head -10)"
+          more=""
+          if [ "$findings" -gt 10 ]; then
+            more=$'\n'"…and $((findings - 10)) more — see the run for the full list"
+          fi
+          jq -n \
+            --arg title "$TITLE" \
+            --arg url "$RUN_URL" \
+            --arg branch "$BRANCH" \
+            --arg findings "$findings" \
+            --arg details "$details$more" \
+            '{embeds: [{title: $title, url: $url, color: 15158332, description: ("TruffleHog found **" + $findings + "** potential secret(s) on `" + $branch + "`.\n\n" + $details)}]}' \
+            > "$RUNNER_TEMP/discord-payload.json"
+          # Best effort: a delivery failure must not mask the scan result.
+          curl --fail --silent --show-error --max-time 15 \
+            -H "Content-Type: application/json" \
+            --data-binary @"$RUNNER_TEMP/discord-payload.json" \
+            "$DISCORD_WEBHOOK_URL" \
+            || echo "::warning::Discord notification could not be delivered."

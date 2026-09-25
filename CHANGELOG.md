@@ -1,3 +1,251 @@
+### Features
+
+- **site:** bring product preview up to date with current app: [dd855f7](https://github.com/usekaneo/kaneo/commit/dd855f775b28842f6441936491b28c8ebb52d615)
+- **site:** refresh marketing site and interactive product previews: [90aec99](https://github.com/usekaneo/kaneo/commit/90aec997d45bde4479e4d82c0a6a271a95c4bef4)
+
+### Bug Fixes
+
+- **web:** allow non-root runtime configuration writes: #1767
+- **site:** poof away preview cursor on interaction: [08dcaee](https://github.com/usekaneo/kaneo/commit/08dcaee01a97b800d8a45c43f8c2158cc091497c)
+- **nginx:** allow larger OAuth session headers: #1761
+- **deps:** resolve open dependabot advisories: [b8432a0](https://github.com/usekaneo/kaneo/commit/b8432a060011bf1d740cf07e6481d67c5aab64a4)
+- **web:** preserve comment markdown spacing: #1521
+
+### Documentation
+
+- **site:** refresh press kit with product screenshots: [3470b0a](https://github.com/usekaneo/kaneo/commit/3470b0af2fb79d8c4705ee28638032d176893e7d)
+- update blog comparisons for current Kaneo features: [b97bf7d](https://github.com/usekaneo/kaneo/commit/b97bf7df05a6403f0bfedb224fb1c1ecdc119c00)
+
+### Credits
+
+Huge thanks to @tinsever for helping!
+
+### Features
+
+- add maintainer-triggered Peekareview code reviews: [65bb146](https://github.com/usekaneo/kaneo/commit/65bb146c74f5c5118e7a54951c1584ec065f0960)
+- **peekareq:** add budgeted private code-review evaluation: [a8151a8](https://github.com/usekaneo/kaneo/commit/a8151a8d6c51af1227095482c1d5297db5f5ffbb)
+
+### Bug Fixes
+
+- require AUTH_SECRET and gate project visibility changes: [156b72b](https://github.com/usekaneo/kaneo/commit/156b72b3b66415bffee6732788631bdcb11781f3)
+- enforce security boundaries and bound integration workloads: [71bd198](https://github.com/usekaneo/kaneo/commit/71bd1983a77f5e5a13bcc1b483894f6b8523dbb5)
+- handle review relay redirects and explicit reruns: [a6ea057](https://github.com/usekaneo/kaneo/commit/a6ea05715d5eedaded5c1ee94ea715e093a97a21)
+- **web:** use HttpError across fetchers: #1751
+- **web:** prevent 404 on activity query when taskId is undefined: #1750
+
+### Reverts
+
+- remove Peekareq code-review experiment: [4169b98](https://github.com/usekaneo/kaneo/commit/4169b98f4f9f273a0ba524b5fd058d0a235ea22a)
+
+### Documentation
+
+- update contributors and sponsors: [0982593](https://github.com/usekaneo/kaneo/commit/0982593b8206622c6f7e9bf774d39207bcf002b9)
+- update contributors and sponsors: [f94a27e](https://github.com/usekaneo/kaneo/commit/f94a27e63019e98481de616ef95f039d84b3ec96)
+
+### Credits
+
+Huge thanks to @randoneering for helping!
+
+### Features
+
+- add focused Peekareq previews and accessibility findings: [6e01c0f](https://github.com/usekaneo/kaneo/commit/6e01c0f0d579c1a5fc3b602206e95f2478232ca8)
+- **ci:** add maintainer-triggered Peekareq screenshots: [2d8a4c6](https://github.com/usekaneo/kaneo/commit/2d8a4c6fe5727a96a550380995aa5bb57775b669)
+
+### Bug Fixes
+
+- **billing:** keep cancelled subscriptions entitled until the paid period ends: #1741
+- fall back when Peekareq's model provider is throttled: [145c13a](https://github.com/usekaneo/kaneo/commit/145c13a11bd508659ee6396a95058cf468845ef5)
+- ground Peekareq custom-field screenshots in fixtures: [4b684e7](https://github.com/usekaneo/kaneo/commit/4b684e79441055a12a79579443551ecf8a19fa84)
+- **ci:** use Cloudflare-compatible GitHub requests: [9740bf8](https://github.com/usekaneo/kaneo/commit/9740bf8402d79b806e9115180aca7b5e3354f9a5)
+- **ci:** filter Peekareq commands with a Cloudflare webhook: [34ee59e](https://github.com/usekaneo/kaneo/commit/34ee59e12343b80ab6beae94ba06c36e0f7cc813)
+
+### Documentation
+
+- update contributors and sponsors: [508bd4b](https://github.com/usekaneo/kaneo/commit/508bd4b89ade880527e01408aaec332102cafa4b)
+- update contributors and sponsors: [a750d01](https://github.com/usekaneo/kaneo/commit/a750d01a2f420992d5321918c9f57750f3326e01)
+- update contributors and sponsors: [16fcd5f](https://github.com/usekaneo/kaneo/commit/16fcd5fc5103ec3ce7187dcb780ef5ac360e1375)
+- update contributors and sponsors: [93cb471](https://github.com/usekaneo/kaneo/commit/93cb4712367e5cbb7ac6f9c5ec20e6a037c227bc)
+
+### Credits
+
+Huge thanks to @andrejsshell for helping!
+
+### Features
+
+- custom fields configuration: #1542
+- redirect to default project: #1640
+- **i18n:** add Azerbaijani (az-AZ) translation: #1704
+
+### Bug Fixes
+
+- **web:** defer Shiki highlighter loading on task page: #1713
+- **i18n:** restore Simplified Chinese translations for Mattermost integration: #1701
+- **i18n:** sync Mattermost keys across locales: #1710
+- **npm:** fixing CVE-2026-75604: #1709
+- **api:** skip archived tasks in due date reminders: #1702
+
+### Documentation
+
+- update contributors and sponsors: [d7f1c46](https://github.com/usekaneo/kaneo/commit/d7f1c4664d55bdea1f3b9e27d1f26607a053c00e)
+- update contributors and sponsors: [243f9d8](https://github.com/usekaneo/kaneo/commit/243f9d8e16793d2bbc3d22d66ba53bc21eed0867)
+- update contributors and sponsors: [41b72df](https://github.com/usekaneo/kaneo/commit/41b72df7cdfefd89f0adf643f249aa3ad6ea28d8)
+
+### Credits
+
+Huge thanks to @MonsPropre, @ApplesBear-X, @randoneering, @jamalkamaladdin, and @mmilanovic4 for helping!
+
+### Bug Fixes
+
+- **mcp:** accept refresh_token grant on register: [59314c1](https://github.com/usekaneo/kaneo/commit/59314c15aded93fe65170eb7ca94d00bc1af5174)
+
+### Documentation
+
+- update contributors and sponsors: [e5a4675](https://github.com/usekaneo/kaneo/commit/e5a4675e7d49e634de4cef4171e3925666bb6c8c)
+
+### Bug Fixes
+
+- **web:** use location.href for the sign-in redirect param: [7483d37](https://github.com/usekaneo/kaneo/commit/7483d37ea059a76f298cbd66cb3eb9903e0ce44f)
+
+### Features
+
+- **mattermost:** add native Mattermost integration: #1325
+- center Gantt view on today by default: #1686
+- task item counters: #1638
+- **i18n:** add polish locale: #1639
+- **i18n:** add Japanese (ja-JP) translation: #1662
+
+### Bug Fixes
+
+- **ci:** preserve OpenAPI checker argument boundaries: #1657
+- **web:** preserve imported label colors: #1695
+- project nav width in different language: #1641
+- make task removal discoverable and calendar states distinct: #1685
+- **web:** protect unsaved task input: #1694
+- **auth:** prevent 401 retry storm for pending invitations: #1677
+- **auth:** prevent 401 retry storm and redirect to sign-in: #1676
+- hide "Mark as planned" for backlog tasks: #1675
+- **api:** close the remaining gaps in the auth schema emitter: #1655
+- **web:** resolve the root error boundary's translation keys: #1648
+- **api:** replace the seat-reconciliation advisory lock with a job lease: [cf701d0](https://github.com/usekaneo/kaneo/commit/cf701d02415412b91c28ea608c144f6673c6e4b8)
+- **api:** close five workspace-scoping gaps: #1646
+- **api:** correct five defects that fail silently: #1647
+- **api:** make notifications and seat reconciliation survive replicas: #1649
+- **chart:** Added more values: #1636
+- **web:** let task labels use card width: #1635
+
+### Documentation
+
+- update contributors and sponsors: [8083ab2](https://github.com/usekaneo/kaneo/commit/8083ab2a65257da6552f07cf52149ad12434d0bf)
+- update contributors and sponsors: [2ad7533](https://github.com/usekaneo/kaneo/commit/2ad753396331d964310d5ddd3ef112d9a0bede3e)
+- update contributors and sponsors: [ee36e49](https://github.com/usekaneo/kaneo/commit/ee36e499a9d4e8520d8f8cdf5cd685e48fae48f9)
+- update contributors and sponsors: [4653916](https://github.com/usekaneo/kaneo/commit/46539164c68669cec15b1528835c10ad0a66355e)
+- update contributors and sponsors: [22e7da2](https://github.com/usekaneo/kaneo/commit/22e7da2db1c41b9449f4768000bf1504e0d343be)
+- update contributors and sponsors: [48e87e4](https://github.com/usekaneo/kaneo/commit/48e87e4f8749474e940081708320dc75eb84afe8)
+- update contributors and sponsors: [b760dce](https://github.com/usekaneo/kaneo/commit/b760dcec37edf22c390ec973d7fbed9a4c110578)
+- update contributors and sponsors: [8100f3b](https://github.com/usekaneo/kaneo/commit/8100f3b1ab47a0b49c7ac6deabe64eb0d1d9970d)
+
+### Credits
+
+Huge thanks to @shockalotti, @reachsanjivbhagat-gif, @andrejsshell, @tinsever, @TymekV, @MonsPropre, @krudo-taco, @mohiuddin000, @sinsky, and @hydraxman for helping!
+
+## [2.22.0](https://github.com/usekaneo/kaneo/compare/v2.21.0...v2.22.0) (2026-08-21)
+
+### Features
+
+* **site:** add blog section with alternatives round-ups ([ddc242f](https://github.com/usekaneo/kaneo/commit/ddc242f51eb549a75ab69c7dda4d4c594f3bacb1))
+
+### Bug Fixes
+
+* **api:** return 404 when a label does not exist ([442a382](https://github.com/usekaneo/kaneo/commit/442a38230291edb7784343dc8cf576705a32c737))
+* **ci:** stop the release chart gate requesting packages write ([6ebb762](https://github.com/usekaneo/kaneo/commit/6ebb762cf346fb4a862819ca0dd180994e905664))
+
+### Documentation
+
+* describe the release flow in the agent guide ([56a9eab](https://github.com/usekaneo/kaneo/commit/56a9eabf7e78dfd51664285b801ae8c1fd22dcdc))
+* update contributors and sponsors ([012778e](https://github.com/usekaneo/kaneo/commit/012778e4e64c1d18c84fde192e025ae798f3df33))
+
+# [2.21.0](https://github.com/usekaneo/kaneo/compare/v2.20.0...v2.21.0) (2026-08-20)
+
+
+### Bug Fixes
+
+* **api:** add timeout to Turnstile verification ([2f22623](https://github.com/usekaneo/kaneo/commit/2f226236ffe40b072c5fff007416ce80d956a80f))
+* **api:** gzip API responses to shrink large board payloads ([b1a4ac9](https://github.com/usekaneo/kaneo/commit/b1a4ac953ac86253e983675067c0573c2a91144f)), closes [#1630](https://github.com/usekaneo/kaneo/issues/1630)
+* **api:** reject malformed Turnstile timeout env values ([2e43a53](https://github.com/usekaneo/kaneo/commit/2e43a5354e32947e88a69db1fcc583b1e8b3d9c0))
+* apply CodeRabbit auto-fixes ([b100997](https://github.com/usekaneo/kaneo/commit/b100997c567be4f5ee43ab6801c214a9b52365e5))
+* apply CodeRabbit auto-fixes ([9520a44](https://github.com/usekaneo/kaneo/commit/9520a4466f11dda3d675ae5d1cf1378b2a867588))
+* apply CodeRabbit auto-fixes ([ac10128](https://github.com/usekaneo/kaneo/commit/ac10128382bd6a4d787a2e2e5be6f325351f00c0))
+* **auth:** address coderabbit/qodo review on workspace-creation gating ([e70d541](https://github.com/usekaneo/kaneo/commit/e70d5417d44ebea04be29755a32da4d5c67c0a2f))
+* **coolify:** pin the Kaneo image to a release tag ([fe92bd6](https://github.com/usekaneo/kaneo/commit/fe92bd6d7402667c57aa6fbe27ecc4d8f0e92e6d))
+* **coolify:** track the latest release instead of a broken pinned tag ([7aec7d6](https://github.com/usekaneo/kaneo/commit/7aec7d623dba40778b3d7b5e62e6793121ac2948))
+* **docker:** preserve web runtime placeholders ([ee03ea9](https://github.com/usekaneo/kaneo/commit/ee03ea9b608b4fe4de29b4a999839c7c1e1e1308))
+* **email:** let the workspace invitation template render without copy ([f3ea6b5](https://github.com/usekaneo/kaneo/commit/f3ea6b51f3dc50635e667e46f05683610550e072))
+* increase card title font size ([e9fb4a8](https://github.com/usekaneo/kaneo/commit/e9fb4a8ef6e4d31e0c0aad8cd473257d1da32f75))
+* remove text-sm ([fc5c3ad](https://github.com/usekaneo/kaneo/commit/fc5c3ad1f290473ce8082186d1ab34d4f8f8188b))
+* **web,i18n:** preload all namespaces after init and locale change ([4f51e5c](https://github.com/usekaneo/kaneo/commit/4f51e5c1b69abc51db6879da27e54dcba230a22a))
+* **web,sentry:** handle Safari "TypeError: Load failed" network errors ([e7dfcfa](https://github.com/usekaneo/kaneo/commit/e7dfcfa44a8f6cf517316089ec7d05892e9a63cf))
+* **web,sentry:** ignore third-party adware/extension errors from cdn77.org ([0ee58dc](https://github.com/usekaneo/kaneo/commit/0ee58dc45c39899d9a9090e4c564f9e2171fd0b1))
+* **web,sentry:** narrow Safari 'Load failed' suppression to auth-session path ([636ad39](https://github.com/usekaneo/kaneo/commit/636ad3914e3ec5eeb1f33401141aca9a21261d2d))
+* **web:** address calendar view review feedback ([93b78a0](https://github.com/usekaneo/kaneo/commit/93b78a0df9b593bddcf96a756668411476b82c4e))
+* **web:** announce the scheduled range in calendar task bars ([12dae3b](https://github.com/usekaneo/kaneo/commit/12dae3b806bca4eb18a9cba0cda46251d67ce44e))
+* **web:** classify Safari 'Load failed' as a network error ([6b5afd5](https://github.com/usekaneo/kaneo/commit/6b5afd5747c6501ac90b549f432aa296387668ab))
+* **web:** clear shiki stale-chunk reload flag after successful init ([c8c2d91](https://github.com/usekaneo/kaneo/commit/c8c2d91ae06c5cad7146a12fb6b7c93fa36c17a5))
+* **web:** preserve MIME metadata for unknown files ([b34474c](https://github.com/usekaneo/kaneo/commit/b34474cd893c1dcf01e69bd3fdd3a033508bb75c))
+* **web:** prevent auth client timeout by optimizing i18n loading ([4522365](https://github.com/usekaneo/kaneo/commit/4522365e6e9b92edac1dfbee70ea0f2730fb2f5c))
+* **web:** prevent Shiki highlighter crash on stale dynamic module load ([6be4428](https://github.com/usekaneo/kaneo/commit/6be44282dfa479bfbe27dd58491b4f9dc3af16c3))
+* **web:** prevent Tiptap TransformError from duplicate Link extension ([83702ee](https://github.com/usekaneo/kaneo/commit/83702eea120f36b2978e700a5379646fcaf98ff2))
+* **web:** track readOnly in ref so handleClick sees current mode ([2879021](https://github.com/usekaneo/kaneo/commit/2879021f895cebd911216a7c3ae02a7c94060082))
+
+
+### Features
+
+* **auth:** let admins restrict workspace creation to instance admins ([fb8c332](https://github.com/usekaneo/kaneo/commit/fb8c332600f5e8ce4cff6227e2f0bfbb1c859f69))
+* **site:** add comparison and guide content engine ([8f334ef](https://github.com/usekaneo/kaneo/commit/8f334ef9169a20d1b96e5a2ee4b5b19ad2d08010))
+* **web:** add a monthly calendar view to projects ([50f4590](https://github.com/usekaneo/kaneo/commit/50f459083e20b8d89d1880988a042fcddca7e426))
+# [2.20.0](https://github.com/usekaneo/kaneo/compare/v2.19.1...v2.20.0) (2026-08-19)
+
+
+### Bug Fixes
+
+* apply CodeRabbit auto-fixes ([b25a644](https://github.com/usekaneo/kaneo/commit/b25a64486c625c4a5e57b6a8eb925422ddf08283))
+* apply CodeRabbit auto-fixes ([6c088da](https://github.com/usekaneo/kaneo/commit/6c088dad2cdf3378e029948586731ad658662fee))
+* **ci:** failing test ([46c5f9b](https://github.com/usekaneo/kaneo/commit/46c5f9bff043a0fa59d0f5332eba90f8216e6b6b))
+* **ci:** failing test and code review recommendations ([1de8146](https://github.com/usekaneo/kaneo/commit/1de8146306266b0149daae1c4fec6c290a0000c8))
+* **review:** qodo/coderabbit suggestions ([270bc04](https://github.com/usekaneo/kaneo/commit/270bc047615716d61c0e9cfe9ef562ee91c38dfe))
+* **review:** qodo/coderabbit suggestions ([9656036](https://github.com/usekaneo/kaneo/commit/965603628284239f77a0d23b9123fe5f3680ed9f))
+* **review:** qodo/coderabbit suggestions ([089d2a2](https://github.com/usekaneo/kaneo/commit/089d2a201ffdb2936db48b1b49dd0c1b6cb29e0a))
+* **scripts:** inject datasetSource + conditions fields Sentry requires ([8f662ba](https://github.com/usekaneo/kaneo/commit/8f662bafbf44f7ac4b41dc70e0e0da31a07d3fac))
+* **scripts:** surface Sentry API errors in provision-sentry-alerts ([3f55456](https://github.com/usekaneo/kaneo/commit/3f55456b1837238a50c43cdf9d8b85ff162af082))
+* **seer:** removed throw ([2a023c4](https://github.com/usekaneo/kaneo/commit/2a023c456a5fc345514a7e7033021e46f0d06443))
+* **sentry/alerts:** add missing API fields and URL-encode GET params ([e43550f](https://github.com/usekaneo/kaneo/commit/e43550ffff0e051c9284ad59ed3428e5634c0f93))
+* **sentry/alerts:** add resolution condition + drop tokenized query params ([45c4ab2](https://github.com/usekaneo/kaneo/commit/45c4ab25e55f5e710f22ca7f2ff3216ac8df750a))
+* **sentry/alerts:** declare cron SLUGS as an array ([a922c91](https://github.com/usekaneo/kaneo/commit/a922c91e3e7276695e127a1f60cafd08adb7c0e2))
+* **sentry/alerts:** drop /projects/ prefix from detector endpoint ([97a27a5](https://github.com/usekaneo/kaneo/commit/97a27a53098db1b66b038064ae3039872a9284cf))
+* **sentry/alerts:** migrate to span dataset, add triggers to metric workflows ([884de66](https://github.com/usekaneo/kaneo/commit/884de66cae2c10012f3130be3a40288ea37cd8a4))
+* **sentry/alerts:** propagate detector lookup failures ([2012b6d](https://github.com/usekaneo/kaneo/commit/2012b6d7b14c2e2a077ca9afb6f0700cd38e8441))
+* **sentry/dashboards:** add limit:10 to every query ([5eb66a3](https://github.com/usekaneo/kaneo/commit/5eb66a3c229f1d607134481ed339a00f8e9a8b17))
+* **sentry/dashboards:** inject limit:10 on time-series widgets ([cba033a](https://github.com/usekaneo/kaneo/commit/cba033a4a053c539aed2f35e161ce9a7d26f6e56))
+* **sentry:** ignore Safari extension runtime.sendMessage() errors ([3b04cc2](https://github.com/usekaneo/kaneo/commit/3b04cc2f8b937e9f90d3307dcfef5575ede88b55))
+* **sentry:** Qodo review-batch (issue projects, cron coverage, region) ([c367d4f](https://github.com/usekaneo/kaneo/commit/c367d4f685b7ee8a5b528af1d38ee8c832786009)), closes [#2](https://github.com/usekaneo/kaneo/issues/2) [#4](https://github.com/usekaneo/kaneo/issues/4) [#1](https://github.com/usekaneo/kaneo/issues/1) [#3](https://github.com/usekaneo/kaneo/issues/3) [#6](https://github.com/usekaneo/kaneo/issues/6)
+* **sentry:** review-batch fixes across provision scripts and specs ([a6792e6](https://github.com/usekaneo/kaneo/commit/a6792e6b1b4f4884abdf16815211e7702f171b5b))
+* **test:** stop integration test hook and case timeouts ([71dfe19](https://github.com/usekaneo/kaneo/commit/71dfe19669ee726927f87d791752e2968464f526))
+* **web,sentry:** handle authClient.getSession() network errors in workspace settings ([08059ba](https://github.com/usekaneo/kaneo/commit/08059ba7002afd0ce5225b9d5ee8d96612ca843a))
+* **web,sentry:** ignore Facebook in-app browser postMessage errors ([37d13fa](https://github.com/usekaneo/kaneo/commit/37d13face441c57511c6a090335419fdb79e4697))
+* **web,sentry:** reduce noise from auth fetch errors and validate API URL ([f59194e](https://github.com/usekaneo/kaneo/commit/f59194e3623cc8f3ebd6e5379a0e21533b83bb40))
+* **web,sentry:** remove unnecessary Sentry capture for auth fetch errors ([92693ab](https://github.com/usekaneo/kaneo/commit/92693abfcb834670955e7c83e510edac203d07b5))
+* **web:** handle shiki initializer rejection in comment editor ([7a7120e](https://github.com/usekaneo/kaneo/commit/7a7120ed37d9ddd062926b92e061b7be389ad519))
+* **web:** prevent Shiki highlighter crash on dynamic module load failure ([f48f4a4](https://github.com/usekaneo/kaneo/commit/f48f4a478170a0dc552c5b8c51255113cd8c028f))
+* **web:** track session-fetch failure and skip setActive fallback ([6d8d2a6](https://github.com/usekaneo/kaneo/commit/6d8d2a6ae76852bf4d1cceb77a6fec6b097e295b))
+
+
+### Features
+
+* **api:** drop workspace identifiers from Sentry integration breadcrumbs ([92f67ad](https://github.com/usekaneo/kaneo/commit/92f67ad846c177ddb82e828e3f82bf29717b3435))
+* **design:** replace Cal Sans and Paper Mono with Geist ([017efe2](https://github.com/usekaneo/kaneo/commit/017efe215c1dad8a10053b82a5f902d0e30bd5ce))
+* provision Sentry alert rules from sentry/alerts.json ([eb00753](https://github.com/usekaneo/kaneo/commit/eb00753888d537a5386aca8a9c18cfe5c214a553))
+* provision Sentry dashboards from sentry/dashboards.json ([2d91232](https://github.com/usekaneo/kaneo/commit/2d912320365c058f72841aac28c1c22eb55465ef))
+* **scripts:** update existing alerts instead of skipping ([7690073](https://github.com/usekaneo/kaneo/commit/7690073f03e2a7fec8f5258340b32cded0a9ab56))
+* **web:** emit source maps, switch to captureReactException, mount a safe root crash fallback ([01004a3](https://github.com/usekaneo/kaneo/commit/01004a33d559a430fb58e86a1fc6dc80d8cb4c6a))
 ## [2.19.1](https://github.com/usekaneo/kaneo/compare/v2.19.0...v2.19.1) (2026-08-15)
 
 
