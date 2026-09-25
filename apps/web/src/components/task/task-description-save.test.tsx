@@ -12,6 +12,7 @@ import {
   it,
   vi,
 } from "vitest";
+import { toast } from "@/lib/toast";
 import { uploadTaskImage } from "@/lib/upload-task-image";
 import TaskDescription from "./task-description";
 
@@ -152,6 +153,9 @@ beforeEach(() => {
   mocks.editors.length = 0;
   mocks.t = (key: string) => key;
   uploadMock.mockReset();
+  vi.mocked(toast.error).mockClear();
+  vi.mocked(toast.success).mockClear();
+  vi.mocked(toast.dismiss).mockClear();
   mocks.tasks.set("task-a", {
     id: "task-a",
     projectId: "project-1",
@@ -199,6 +203,63 @@ describe("TaskDescription pending saves", () => {
         ).toBe(true),
       { timeout: DEBOUNCE_MS * 4 },
     );
+  });
+
+  it("reports an error when no live editor remains on the active task", async () => {
+    const resolveUpload = deferredUpload();
+    const { container } = render(<TaskDescription taskId="task-a" />);
+    await waitFor(() => expect(container.textContent).toContain("alpha"));
+    await settle();
+
+    const editor = latestEditor();
+    pasteFile(editor);
+    await waitFor(() => expect(uploadMock).toHaveBeenCalledOnce());
+    act(() => editor.destroy());
+    await act(async () => resolveUpload());
+
+    expect(toast.error).toHaveBeenCalledWith(
+      "tasks:detail.editor.upload.failed",
+    );
+    expect(toast.dismiss).toHaveBeenCalled();
+    expect(toast.success).not.toHaveBeenCalled();
+    expect(mocks.mutateAsync).not.toHaveBeenCalled();
+  });
+
+  it("quietly cancels an upload after the description unmounts", async () => {
+    const resolveUpload = deferredUpload();
+    const { container, unmount } = render(<TaskDescription taskId="task-a" />);
+    await waitFor(() => expect(container.textContent).toContain("alpha"));
+    await settle();
+    pasteFile(latestEditor());
+    await waitFor(() => expect(uploadMock).toHaveBeenCalledOnce());
+
+    unmount();
+    await act(async () => resolveUpload());
+
+    expect(toast.dismiss).toHaveBeenCalled();
+    expect(toast.error).not.toHaveBeenCalled();
+    expect(toast.success).not.toHaveBeenCalled();
+    expect(mocks.mutateAsync).not.toHaveBeenCalled();
+  });
+
+  it("quietly cancels an upload after navigating to another task", async () => {
+    const resolveUpload = deferredUpload();
+    const { container, rerender } = render(<TaskDescription taskId="task-a" />);
+    await waitFor(() => expect(container.textContent).toContain("alpha"));
+    await settle();
+    pasteFile(latestEditor());
+    await waitFor(() => expect(uploadMock).toHaveBeenCalledOnce());
+
+    rerender(<TaskDescription taskId="task-b" />);
+    await waitFor(() => expect(container.textContent).toContain("bravo"));
+    await settle();
+    await act(async () => resolveUpload());
+
+    expect(latestEditor().getHTML()).not.toContain(asset.url);
+    expect(toast.dismiss).toHaveBeenCalled();
+    expect(toast.error).not.toHaveBeenCalled();
+    expect(toast.success).not.toHaveBeenCalled();
+    expect(mocks.mutateAsync).not.toHaveBeenCalled();
   });
 
   it("saves an edit to the task it was typed in, not the one navigated to", async () => {

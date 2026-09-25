@@ -129,7 +129,9 @@ beforeAll(() => {
 
 beforeEach(() => {
   mocks.editors.length = 0;
-  toastError.mockClear();
+  vi.mocked(toast.error).mockClear();
+  vi.mocked(toast.success).mockClear();
+  vi.mocked(toast.dismiss).mockClear();
   uploadMock.mockReset();
 });
 
@@ -191,6 +193,8 @@ describe("CommentEditor image upload insertion", () => {
     await act(async () => resolveUpload());
 
     expect(currentEditor.getHTML()).not.toContain("/api/asset/asset-9");
+    expect(toastError).not.toHaveBeenCalled();
+    expect(toast.success).not.toHaveBeenCalled();
   });
 
   it("does not insert an ensured draft upload into another task", async () => {
@@ -215,6 +219,47 @@ describe("CommentEditor image upload insertion", () => {
     await act(async () => resolveUpload());
 
     expect(currentEditor.getHTML()).not.toContain("/api/asset/asset-9");
+    expect(toastError).not.toHaveBeenCalled();
+    expect(toast.success).not.toHaveBeenCalled();
+  });
+
+  it("reports an error when no live editor remains on the active task", async () => {
+    const resolveUpload = deferredUpload();
+    render(<CommentEditor value="" onChange={() => {}} taskId="task-1" />);
+    await waitFor(() => expect(latestEditor()).toBeDefined());
+
+    const editor = latestEditor();
+    pasteFile(editor);
+    await waitFor(() => expect(uploadMock).toHaveBeenCalledOnce());
+    // The upload finishes before a replacement editor is available.
+    act(() => editor.destroy());
+    await act(async () => resolveUpload());
+
+    expect(toastError).toHaveBeenCalledWith(
+      "activity:comment.editor.failedToUploadFile",
+    );
+    expect(toast.dismiss).toHaveBeenCalled();
+    expect(toast.success).not.toHaveBeenCalled();
+  });
+
+  it("quietly cancels an upload after the editor surface unmounts", async () => {
+    const resolveUpload = deferredUpload();
+    const onChange = vi.fn();
+    const { unmount } = render(
+      <CommentEditor value="" onChange={onChange} taskId="task-1" />,
+    );
+    await waitFor(() => expect(latestEditor()).toBeDefined());
+    pasteFile(latestEditor());
+    await waitFor(() => expect(uploadMock).toHaveBeenCalledOnce());
+    onChange.mockClear();
+
+    unmount();
+    await act(async () => resolveUpload());
+
+    expect(toast.dismiss).toHaveBeenCalled();
+    expect(toastError).not.toHaveBeenCalled();
+    expect(toast.success).not.toHaveBeenCalled();
+    expect(onChange).not.toHaveBeenCalled();
   });
 
   it("reports an error when the insert command does not execute", async () => {

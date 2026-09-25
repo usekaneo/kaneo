@@ -211,6 +211,13 @@ export default function CommentEditor({
   const hasHydratedRef = useRef(false);
   const latestValueRef = useRef(normalizeMarkdown(value || ""));
   const lastEditorRef = useRef<Editor | null>(null);
+  const isMountedRef = useRef(false);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
   const taskIdRef = useRef(taskId);
   const ensureTaskIdRef = useRef(ensureTaskId);
   const uploadSurfaceRef = useRef(uploadSurface);
@@ -373,9 +380,12 @@ export default function CommentEditor({
             ? taskIdRef.current !== undefined &&
               taskIdRef.current !== resolvedTaskId
             : taskIdRef.current !== initialTaskId;
-        if (taskChanged || !currentEditor || currentEditor.isDestroyed) {
+        if (!isMountedRef.current || taskChanged) {
           toast.dismiss(loadingToast);
           return;
+        }
+        if (!currentEditor || currentEditor.isDestroyed) {
+          throw new Error(t("activity:comment.editor.failedToUploadFile"));
         }
 
         // Only report success when the image actually landed in the document;

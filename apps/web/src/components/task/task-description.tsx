@@ -311,6 +311,13 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   const updateTaskRef = useRef(updateTaskDescription);
   const activeTaskIdRef = useRef<string | null>(null);
   const lastEditorRef = useRef<Editor | null>(null);
+  const isMountedRef = useRef(false);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
   const pendingImageInsertRef = useRef<{
     editor: Editor;
     range?: SlashRange;
@@ -456,18 +463,16 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         });
 
         // The captured editor can be destroyed and replaced while the upload
-        // is in flight; fall back to the current instance, and bail out
-        // quietly when the task changed or no live editor remains.
+        // is in flight; fall back to the current instance for the same task.
         const currentEditor = !activeEditor.isDestroyed
           ? activeEditor
           : lastEditorRef.current;
-        if (
-          taskIdRef.current !== uploadTaskId ||
-          !currentEditor ||
-          currentEditor.isDestroyed
-        ) {
+        if (!isMountedRef.current || taskIdRef.current !== uploadTaskId) {
           toast.dismiss(loadingToast);
           return;
+        }
+        if (!currentEditor || currentEditor.isDestroyed) {
+          throw new Error(t("tasks:detail.editor.upload.failed"));
         }
 
         // insertUploadedAsset throws on failure and the catch below reports
