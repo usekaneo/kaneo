@@ -6100,6 +6100,30 @@
 						},
 						"open": {
 							"type": "string"
+						},
+						"addResource": {
+							"type": "string"
+						},
+						"url": {
+							"type": "string"
+						},
+						"titleOptional": {
+							"type": "string"
+						},
+						"cancel": {
+							"type": "string"
+						},
+						"adding": {
+							"type": "string"
+						},
+						"empty": {
+							"type": "string"
+						},
+						"remove": {
+							"type": "string"
+						},
+						"removeError": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -6108,7 +6132,15 @@
 						"branch",
 						"merged",
 						"draft",
-						"open"
+						"open",
+						"addResource",
+						"url",
+						"titleOptional",
+						"cancel",
+						"adding",
+						"empty",
+						"remove",
+						"removeError"
 					]
 				},
 				"security": {
@@ -7956,13 +7988,10 @@
 									"type": "object",
 									"additionalProperties": false,
 									"properties": {
-										"small": {
+										"large": {
 											"type": "string"
 										},
 										"medium": {
-											"type": "string"
-										},
-										"large": {
 											"type": "string"
 										},
 										"reset": {
@@ -7970,14 +7999,17 @@
 										},
 										"resizeHandle": {
 											"type": "string"
+										},
+										"small": {
+											"type": "string"
 										}
 									},
 									"required": [
-										"small",
-										"medium",
 										"large",
+										"medium",
 										"reset",
-										"resizeHandle"
+										"resizeHandle",
+										"small"
 									]
 								}
 							},

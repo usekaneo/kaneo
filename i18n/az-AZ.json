@@ -1425,7 +1425,15 @@
 			"branch": "Budaq",
 			"merged": "Birləşdirilib",
 			"draft": "Qaralama",
-			"open": "Açıq"
+			"open": "Açıq",
+			"adding": "Əlavə edilir...",
+			"addResource": "Resurs əlavə et",
+			"cancel": "Ləğv et",
+			"empty": "Bu tapşırıqla əlaqəli resurs yoxdur.",
+			"titleOptional": "Başlıq (ixtiyari)",
+			"url": "URL",
+			"remove": "Remove {{title}}",
+			"removeError": "Failed to remove the resource link."
 		},
 		"customFields": {
 			"addButton": "Add",

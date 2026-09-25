@@ -1160,7 +1160,15 @@
 			"branch": "Ветка",
 			"merged": "Влит",
 			"draft": "Черновик",
-			"open": "Открыт"
+			"open": "Открыт",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL",
+			"remove": "Remove {{title}}",
+			"removeError": "Failed to remove the resource link."
 		},
 		"workspaceRoles": {
 			"pageTitle": "Роли",

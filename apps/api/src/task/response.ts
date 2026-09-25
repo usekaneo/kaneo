@@ -50,7 +50,7 @@ const taskExternalLinkSchema = z
   .object({
     id: z.string(),
     taskId: z.string(),
-    integrationId: z.string(),
+    integrationId: z.string().nullable(),
     resourceType: z.string(),
     externalId: z.string(),
     url: z.string(),
