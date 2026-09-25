@@ -2000,7 +2000,8 @@
 				"related": "связана с",
 				"blocked_by": "заблокирована"
 			},
-			"tasksInOtherProject": "In {{project}}"
+			"tasksInOtherProject": "In {{project}}",
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project"
 		},
 		"subtasks": {
 			"title": "Подзадачи",

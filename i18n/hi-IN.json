@@ -1978,7 +1978,8 @@
 				"blocked_by": "ब्लॉक किया गया",
 				"related": "संबंधित है"
 			},
-			"tasksInOtherProject": "In {{project}}"
+			"tasksInOtherProject": "In {{project}}",
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project"
 		},
 		"subtasks": {
 			"title": "उप-कार्य",

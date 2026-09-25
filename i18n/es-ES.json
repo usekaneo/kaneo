@@ -1985,7 +1985,8 @@
 				"related": "relacionada con",
 				"blocked_by": "bloqueada por"
 			},
-			"tasksInOtherProject": "In {{project}}"
+			"tasksInOtherProject": "In {{project}}",
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project"
 		},
 		"subtasks": {
 			"title": "Sub-tareas",

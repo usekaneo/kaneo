@@ -2409,7 +2409,8 @@
 				"blocks": "blokuje",
 				"related": "powiązane z"
 			},
-			"tasksInOtherProject": "In {{project}}"
+			"tasksInOtherProject": "In {{project}}",
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project"
 		},
 		"sort": {
 			"ascending": "Rosnąco",

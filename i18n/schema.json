@@ -7880,6 +7880,9 @@
 						"tasksInOtherProject": {
 							"type": "string"
 						},
+						"crossProjectStatusReadOnly": {
+							"type": "string"
+						},
 						"linkError": {
 							"type": "string"
 						},
@@ -7928,6 +7931,7 @@
 						"title",
 						"tasksInProject",
 						"tasksInOtherProject",
+						"crossProjectStatusReadOnly",
 						"linkError",
 						"empty",
 						"searchPlaceholder",

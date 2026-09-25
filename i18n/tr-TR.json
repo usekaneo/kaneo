@@ -1978,7 +1978,8 @@
 				"blocked_by": "engellenen",
 				"related": "ilişkilidir"
 			},
-			"tasksInOtherProject": "In {{project}}"
+			"tasksInOtherProject": "In {{project}}",
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project"
 		},
 		"subtasks": {
 			"title": "Alt talepler",

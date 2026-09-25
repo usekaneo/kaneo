@@ -1971,7 +1971,8 @@
 				"blocked_by": "bị chặn bởi",
 				"related": "liên quan đến"
 			},
-			"tasksInOtherProject": "In {{project}}"
+			"tasksInOtherProject": "In {{project}}",
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project"
 		},
 		"subtasks": {
 			"title": "Công việc con",
