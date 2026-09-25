@@ -76,6 +76,34 @@ This keeps the browser on one origin while the container proxies `/api` requests
 For this Compose setup, the bundled Kaneo container reaches PostgreSQL at the service hostname `postgres`.
 The database is reachable only inside the Compose network. For host-based development, explicitly add a loopback-only mapping (`127.0.0.1:5432:5432`) and configure `DATABASE_URL` accordingly.
 
+### Using files for secrets
+
+If your deployment supplies Docker secret files, leave `POSTGRES_PASSWORD` and `AUTH_SECRET` unset in `.env` and mount the files into the containers. For example, add these entries to the Compose file above:
+
+```yml
+services:
+  postgres:
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_password
+  kaneo:
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      AUTH_SECRET_FILE: /run/secrets/auth_secret
+    secrets:
+      - postgres_password
+      - auth_secret
+
+secrets:
+  postgres_password:
+    file: ./secrets/postgres_password
+  auth_secret:
+    file: ./secrets/auth_secret
+```
+
+Mount `CUSTOM_OAUTH_CLIENT_SECRET_FILE` in the `kaneo` service the same way when using custom OAuth. The direct value variables take precedence when both forms are set. See the [environment variable reference](/core/installation/environment-variables) for file behavior and error handling.
+
 ## Notes on object storage
 
 Kaneo uses S3-compatible object storage for private uploads in task descriptions and comments.

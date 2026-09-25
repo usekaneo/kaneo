@@ -49,6 +49,7 @@ import { resolveAuthSecret } from "./utils/auth-secret";
 import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
 import { checkWorkspaceName } from "./utils/check-workspace-name";
 import { mapCustomOAuthProfileToUser } from "./utils/custom-oauth-profile";
+import { resolveFileSecret } from "./utils/file-secret";
 import { generateDemoName } from "./utils/generate-demo-name";
 import { getDefaultCookieAttributes } from "./utils/get-default-cookie-attributes";
 import { getInvitationEmailSubject } from "./utils/get-invitation-email-subject";
@@ -516,7 +517,7 @@ export const auth = betterAuth({
         {
           providerId: "custom",
           clientId: process.env.CUSTOM_OAUTH_CLIENT_ID || "",
-          clientSecret: process.env.CUSTOM_OAUTH_CLIENT_SECRET,
+          clientSecret: resolveFileSecret("CUSTOM_OAUTH_CLIENT_SECRET"),
           authorizationUrl: process.env.CUSTOM_OAUTH_AUTHORIZATION_URL || "",
           tokenUrl: process.env.CUSTOM_OAUTH_TOKEN_URL || "",
           userInfoUrl: process.env.CUSTOM_OAUTH_USER_INFO_URL || "",
