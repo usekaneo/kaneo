@@ -365,6 +365,13 @@
       "when": 1790359342635,
       "tag": "0051_nifty_mongoose",
       "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "7",
+      "when": 1790370057082,
+      "tag": "0052_majestic_ted_forrester",
+      "breakpoints": true
     }
   ]
 }

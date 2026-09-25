@@ -7925,6 +7925,82 @@
 								}
 							},
 							"required": ["blocks", "blocked_by", "related"]
+						},
+						"dependency": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"typeLabel": {
+									"type": "string"
+								},
+								"lagLabel": {
+									"type": "string"
+								},
+								"lagHint": {
+									"type": "string"
+								},
+								"save": {
+									"type": "string"
+								},
+								"updateError": {
+									"type": "string"
+								},
+								"types": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"fs": {
+											"type": "string"
+										},
+										"ss": {
+											"type": "string"
+										},
+										"ff": {
+											"type": "string"
+										},
+										"sf": {
+											"type": "string"
+										}
+									},
+									"required": ["fs", "ss", "ff", "sf"]
+								},
+								"typesShort": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"fs": {
+											"type": "string"
+										},
+										"ss": {
+											"type": "string"
+										},
+										"ff": {
+											"type": "string"
+										},
+										"sf": {
+											"type": "string"
+										}
+									},
+									"required": ["fs", "ss", "ff", "sf"]
+								},
+								"summary": {
+									"type": "string"
+								},
+								"lagSuffix": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"typeLabel",
+								"lagLabel",
+								"lagHint",
+								"save",
+								"updateError",
+								"types",
+								"typesShort",
+								"summary",
+								"lagSuffix"
+							]
 						}
 					},
 					"required": [
@@ -7941,7 +8017,8 @@
 						"related",
 						"blocks",
 						"selectTask",
-						"types"
+						"types",
+						"dependency"
 					]
 				},
 				"subtasks": {

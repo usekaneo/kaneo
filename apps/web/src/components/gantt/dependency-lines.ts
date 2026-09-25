@@ -5,11 +5,20 @@
 
 export type GanttDependencyRelationType = "blocks" | "related";
 
+// The four standard project-management dependency types. Only meaningful on
+// a "blocks" edge (see resolveDependencyType below); a "related" edge always
+// anchors finish-to-start, same as before this type existed.
+export type GanttDependencyType = "fs" | "ss" | "ff" | "sf";
+
 export type DependencyEdgeInput = {
   id: string;
   sourceTaskId: string;
   targetTaskId: string;
   relationType: GanttDependencyRelationType;
+  dependencyType?: GanttDependencyType;
+  /** Lag (positive) or lead (negative) in days. Only rendered as a small
+   * "+Nd"/"-Nd" label; it doesn't otherwise change the anchoring. */
+  lagDays?: number;
 };
 
 export type TaskBarBox = {
@@ -27,9 +36,13 @@ export type DependencyEdgeGeometry = DependencyEdgeInput & {
   path: string;
   sourcePoint: { x: number; y: number };
   targetPoint: { x: number; y: number };
+  /** Where to draw a lag/lead label, or null when there's nothing to show
+   * (a zero lag, or a "related" edge, which never carries one). */
+  lagLabelPoint: { x: number; y: number } | null;
 };
 
 type Point = { x: number; y: number };
+type AnchorSide = "start" | "end";
 
 // How far a connector travels out of a bar's edge (into the row's own
 // horizontal gutter — the empty space in that row before/after the bar)
@@ -48,6 +61,37 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
+// Which edge of each bar a dependency type anchors to. `fs` (the default —
+// also what a "related" edge always uses) is source-end to target-start,
+// i.e. exactly the original finish-to-start behavior.
+function anchorSides(dependencyType: GanttDependencyType): {
+  source: AnchorSide;
+  target: AnchorSide;
+} {
+  switch (dependencyType) {
+    case "ss":
+      return { source: "start", target: "start" };
+    case "ff":
+      return { source: "end", target: "end" };
+    case "sf":
+      return { source: "start", target: "end" };
+    default:
+      return { source: "end", target: "start" };
+  }
+}
+
+function anchorX(box: TaskBarBox, side: AnchorSide) {
+  return side === "end" ? box.right : box.left;
+}
+
+// The direction a connector travels leaving (source) or arriving at (target)
+// a given anchor side: away from the bar past its "end" edge is +x, past its
+// "start" edge is -x. Exit and entry points are both `anchor + GAP * dir`,
+// which is why buildElbowPoints can compute either with the same formula.
+function sideDir(side: AnchorSide): 1 | -1 {
+  return side === "end" ? 1 : -1;
+}
+
 // A small margin added around an obstacle's x-range in pickClearMidX so the
 // step's vertical run visibly clears the bar rather than grazing its edge.
 const OBSTACLE_CLEARANCE = 4;
@@ -61,14 +105,12 @@ const OBSTACLE_CLEARANCE = 4;
 // obstacle-avoidance, so a sufficiently cluttered chart can still fall back
 // to the default midpoint (see the `best ?? defaultMid` below).
 function pickClearMidX(
-  sourceX: number,
-  targetX: number,
+  rangeMin: number,
+  rangeMax: number,
   obstacles: readonly TaskBarBox[],
 ): number {
-  const rangeMin = sourceX + EXIT_GAP;
-  const rangeMax = targetX - EXIT_GAP;
   const defaultMid = clamp(
-    sourceX + (targetX - sourceX) / 2,
+    rangeMin + (rangeMax - rangeMin) / 2,
     rangeMin,
     rangeMax,
   );
@@ -145,21 +187,37 @@ export function buildElbowPoints(
   source: TaskBarBox,
   target: TaskBarBox,
   obstacles: readonly TaskBarBox[] = [],
+  dependencyType: GanttDependencyType = "fs",
 ): Point[] {
-  const sourceX = source.right;
+  const { source: sourceSide, target: targetSide } =
+    anchorSides(dependencyType);
+  const sourceAnchorX = anchorX(source, sourceSide);
+  const targetAnchorX = anchorX(target, targetSide);
   const sourceY = verticalCenter(source);
-  const targetX = target.left;
   const targetY = verticalCenter(target);
+  const sourcePoint = { x: sourceAnchorX, y: sourceY };
+  const targetPoint = { x: targetAnchorX, y: targetY };
 
   if (Math.abs(sourceY - targetY) < 0.5) {
-    return [
-      { x: sourceX, y: sourceY },
-      { x: targetX, y: targetY },
-    ];
+    return [sourcePoint, targetPoint];
   }
 
-  const gap = targetX - sourceX;
-  if (gap >= EXIT_GAP * 2) {
+  const sourceDir = sideDir(sourceSide);
+  const targetDir = sideDir(targetSide);
+  // Both exit (leaving the source) and entry (approaching the target) points
+  // sit `EXIT_GAP` past the anchor, in the direction that anchor's own side
+  // faces — an "end" anchor exits/enters from further right, a "start"
+  // anchor from further left.
+  const exitX = sourceAnchorX + EXIT_GAP * sourceDir;
+  const entryX = targetAnchorX + EXIT_GAP * targetDir;
+
+  // A clean forward step (out, across, in) only works when the whole
+  // horizontal run keeps moving away from the source in the direction it
+  // exits — otherwise it would double back across the source's own bar. For
+  // the default finish-to-start case this is just "the target is clearly to
+  // the right", same as before this function anchored anywhere else.
+  const forwardProgress = (entryX - exitX) * sourceDir;
+  if (forwardProgress >= 0) {
     const minY = Math.min(sourceY, targetY);
     const maxY = Math.max(sourceY, targetY);
     // Only bars whose row actually lies within the vertical run the elbow
@@ -175,22 +233,22 @@ export function buildElbowPoints(
         box.top < maxY &&
         box.top + box.height > minY,
     );
-    const midX = pickClearMidX(sourceX, targetX, intermediateObstacles);
+    const [rangeMin, rangeMax] =
+      exitX <= entryX ? [exitX, entryX] : [entryX, exitX];
+    const midX = pickClearMidX(rangeMin, rangeMax, intermediateObstacles);
     return [
-      { x: sourceX, y: sourceY },
+      sourcePoint,
       { x: midX, y: sourceY },
       { x: midX, y: targetY },
-      { x: targetX, y: targetY },
+      targetPoint,
     ];
   }
 
-  // Not enough horizontal room for a clean step (including the backward
-  // case, where the target sits at or before the source): go around instead
-  // of through. `below`/`above` are lanes that clear BOTH boxes entirely —
-  // below the lower of the two bottoms, or above the higher of the two tops
-  // — so the long horizontal run never crosses either bar.
-  const exitX = sourceX + EXIT_GAP;
-  const approachX = targetX - EXIT_GAP;
+  // Not enough clear room for a direct step: go around instead of through.
+  // `below`/`above` are lanes that clear BOTH boxes entirely — below the
+  // lower of the two bottoms, or above the higher of the two tops —
+  // whichever is the shorter detour, so the long horizontal run never
+  // crosses either bar regardless of which side each one is entered from.
   const below =
     Math.max(source.top + source.height, target.top + target.height) + EXIT_GAP;
   const above = Math.min(source.top, target.top) - EXIT_GAP;
@@ -199,12 +257,12 @@ export function buildElbowPoints(
   const laneY = belowTravel <= aboveTravel ? below : above;
 
   return [
-    { x: sourceX, y: sourceY },
+    sourcePoint,
     { x: exitX, y: sourceY },
     { x: exitX, y: laneY },
-    { x: approachX, y: laneY },
-    { x: approachX, y: targetY },
-    { x: targetX, y: targetY },
+    { x: entryX, y: laneY },
+    { x: entryX, y: targetY },
+    targetPoint,
   ];
 }
 
@@ -243,9 +301,10 @@ export function roundedPolylinePath(points: Point[], radius: number): string {
   return d;
 }
 
-// A finish-to-start connector from the source bar's right edge to the
-// target bar's left edge, routed as a rounded elbow through the gaps around
-// bars (see buildElbowPoints) rather than a straight diagonal across them.
+// Anchors each edge by its dependency type (finish-to-start by default —
+// also always used for a "related" edge) and routes it as a rounded elbow
+// through the gaps around bars (see buildElbowPoints) rather than a
+// straight diagonal across them.
 export function buildDependencyEdges(
   edges: DependencyEdgeInput[],
   taskBoxes: ReadonlyMap<string, TaskBarBox>,
@@ -266,12 +325,35 @@ export function buildDependencyEdges(
     const target = taskBoxes.get(edge.targetTaskId);
     if (!source || !target) continue;
 
-    const points = buildElbowPoints(source, target, allBoxes);
+    // Dependency type/lag are only meaningful on a "blocks" edge — a
+    // "related" edge keeps its original finish-to-start look regardless of
+    // whatever the row it came from happens to store.
+    const dependencyType: GanttDependencyType =
+      edge.relationType === "blocks" ? (edge.dependencyType ?? "fs") : "fs";
+    const lagDays = edge.relationType === "blocks" ? (edge.lagDays ?? 0) : 0;
+
+    // Pass the shared, unfiltered box list: buildElbowPoints already excludes
+    // this edge's own source/target while walking it for intermediate
+    // obstacles, so filtering here first would just allocate a throwaway
+    // array per edge for no behavioral difference (see allBoxes above).
+    const points = buildElbowPoints(source, target, allBoxes, dependencyType);
     const path = roundedPolylinePath(points, CORNER_RADIUS);
     const sourcePoint = points[0];
     const targetPoint = points[points.length - 1];
+    // The first turn the elbow makes past the source (or, for a same-row
+    // straight hop, the target point itself) — close enough to "near the
+    // source end" to read as belonging to this edge without measuring the
+    // whole path.
+    const lagLabelPoint =
+      lagDays !== 0 ? points[Math.min(1, points.length - 1)] : null;
 
-    geometry.push({ ...edge, path, sourcePoint, targetPoint });
+    geometry.push({
+      ...edge,
+      path,
+      sourcePoint,
+      targetPoint,
+      lagLabelPoint,
+    });
   }
 
   return geometry;

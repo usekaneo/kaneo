@@ -3,6 +3,16 @@ import { nullableResponseTimestamp, responseTimestamp, z } from "../openapi";
 const relationTypeDescription =
   "How the two tasks relate: `subtask`, `blocks`, or `related`.";
 
+const dependencyTypeDescription =
+  "The scheduling dependency type (Finish-to-Start, Start-to-Start, " +
+  "Finish-to-Finish, or Start-to-Finish). Only meaningful when relationType " +
+  "is `blocks`; a `related`/`subtask` relation always reports `fs`.";
+
+const lagDaysDescription =
+  "Lag (positive) or lead (negative) in days applied to the dependency. " +
+  "Only meaningful when relationType is `blocks`; a `related`/`subtask` " +
+  "relation always reports 0.";
+
 const relatedTaskSchema = z
   .object({
     id: z.string(),
@@ -33,6 +43,10 @@ export const taskRelationSchema = z
     sourceTaskId: z.string(),
     targetTaskId: z.string(),
     relationType: z.string().openapi({ description: relationTypeDescription }),
+    dependencyType: z
+      .string()
+      .openapi({ description: dependencyTypeDescription }),
+    lagDays: z.number().openapi({ description: lagDaysDescription }),
     createdAt: responseTimestamp,
   })
   .openapi("TaskRelation");

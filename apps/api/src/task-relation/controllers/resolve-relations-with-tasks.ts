@@ -7,6 +7,8 @@ type RelationRow = {
   sourceTaskId: string;
   targetTaskId: string;
   relationType: string;
+  dependencyType: string;
+  lagDays: number;
   createdAt: Date;
 };
 

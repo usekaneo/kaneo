@@ -17,6 +17,7 @@ import createTaskRelation from "./controllers/create-task-relation";
 import deleteTaskRelation from "./controllers/delete-task-relation";
 import getTaskRelations from "./controllers/get-task-relations";
 import getTaskRelationsByProject from "./controllers/get-task-relations-by-project";
+import updateTaskRelation from "./controllers/update-task-relation";
 import {
   taskRelationSchema,
   taskRelationWithTasksListSchema,
@@ -26,6 +27,7 @@ import {
   projectIdParam,
   taskIdParam,
   taskRelationParam,
+  updateTaskRelationBody,
 } from "./schema";
 
 async function workspaceIdOfTask(taskId: string) {
@@ -169,6 +171,35 @@ const createTaskRelationRoute = createRoute({
   },
 });
 
+const updateTaskRelationRoute = createRoute({
+  method: "patch",
+  operationId: "updateTaskRelation",
+  path: "/{id}",
+  tags: ["Task Relations"],
+  summary: "Update task relation",
+  description:
+    "Change a 'blocks' relation's dependency type and/or lag. Rejected for a 'related'/'subtask' relation, which has no dependency type/lag to edit.",
+  middleware: [
+    scopeToRelation,
+    requireWorkspacePermission({ task: ["update"] }),
+  ] as const,
+  request: {
+    params: taskRelationParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: updateTaskRelationBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("The updated relation", taskRelationSchema),
+    400: errorResponse("Invalid body, or the relation is not a 'blocks' one"),
+    403: errorResponse(
+      "No workspace access, or missing task:update permission",
+    ),
+    404: errorResponse("Task relation not found, or its source task is gone"),
+  },
+});
+
 const deleteTaskRelationRoute = createRoute({
   method: "delete",
   operationId: "deleteTaskRelation",
@@ -207,18 +238,37 @@ const taskRelation = apiRouter<BaseVariables & { workspaceId: string }>()
     ),
   )
   .openapi(createTaskRelationRoute, async (c) => {
-    const { sourceTaskId, targetTaskId, relationType } = c.req.valid("json");
+    const {
+      sourceTaskId,
+      targetTaskId,
+      relationType,
+      dependencyType,
+      lagDays,
+    } = c.req.valid("json");
     return c.json(
       await createTaskRelation({
         sourceTaskId,
         targetTaskId,
         relationType,
+        dependencyType,
+        lagDays,
         userId: c.get("userId"),
         workspaceId: c.get("workspaceId"),
       }),
       200,
     );
   })
+  .openapi(updateTaskRelationRoute, async (c) =>
+    c.json(
+      await updateTaskRelation(
+        c.req.valid("param").id,
+        c.req.valid("json"),
+        c.get("userId"),
+        c.get("workspaceId"),
+      ),
+      200,
+    ),
+  )
   .openapi(deleteTaskRelationRoute, async (c) =>
     c.json(
       await deleteTaskRelation(

@@ -138,6 +138,54 @@ describe("buildElbowPoints", () => {
   });
 });
 
+describe("buildElbowPoints — dependency type anchoring", () => {
+  // Same two boxes throughout, so only the anchor (and therefore the
+  // resulting points) differ between the four types.
+  const source: TaskBarBox = { left: 0, right: 100, top: 0, height: 40 };
+  const target: TaskBarBox = { left: 200, right: 300, top: 80, height: 40 };
+
+  it("fs (the default) anchors source-end to target-start", () => {
+    const points = buildElbowPoints(source, target, [], "fs");
+    expect(points[0]).toEqual({ x: 100, y: 20 });
+    expect(points[points.length - 1]).toEqual({ x: 200, y: 100 });
+  });
+
+  it("ss anchors source-start to target-start", () => {
+    const points = buildElbowPoints(source, target, [], "ss");
+    expect(points[0]).toEqual({ x: 0, y: 20 });
+    expect(points[points.length - 1]).toEqual({ x: 200, y: 100 });
+  });
+
+  it("ff anchors source-end to target-end", () => {
+    const points = buildElbowPoints(source, target, [], "ff");
+    expect(points[0]).toEqual({ x: 100, y: 20 });
+    expect(points[points.length - 1]).toEqual({ x: 300, y: 100 });
+  });
+
+  it("sf anchors source-start to target-end", () => {
+    const points = buildElbowPoints(source, target, [], "sf");
+    expect(points[0]).toEqual({ x: 0, y: 20 });
+    expect(points[points.length - 1]).toEqual({ x: 300, y: 100 });
+  });
+
+  it("leaves the source box in the anchor's own direction before it ever turns", () => {
+    for (const type of ["fs", "ss", "ff", "sf"] as const) {
+      const points = buildElbowPoints(source, target, [], type);
+      // The first point after the source anchor (the exit point) sits on the
+      // correct side of the source box for that anchor's direction — a
+      // regression here would mean the elbow immediately doubles back across
+      // the bar it just left.
+      const exitsRight = type === "fs" || type === "ff";
+      const exitPoint = points[1];
+      if (exitsRight) {
+        expect(exitPoint.x).toBeGreaterThanOrEqual(source.right);
+      } else {
+        expect(exitPoint.x).toBeLessThanOrEqual(source.left);
+      }
+    }
+  });
+});
+
 describe("roundedPolylinePath", () => {
   it("returns a plain two-point line as-is", () => {
     expect(
@@ -326,6 +374,99 @@ describe("buildDependencyEdges", () => {
     const cornerX = Number(edge.path.match(/Q ([\d.]+) /)?.[1]);
     expect(Number.isNaN(cornerX)).toBe(false);
     expect(cornerX <= 196 || cornerX >= 304).toBe(true);
+  });
+
+  it("anchors a 'blocks' edge by its stored dependencyType", () => {
+    const boxes = new Map<string, TaskBarBox>([
+      ["a", { left: 0, right: 100, top: 0, height: 40 }],
+      ["b", { left: 200, right: 300, top: 80, height: 40 }],
+    ]);
+    const edges: DependencyEdgeInput[] = [
+      {
+        id: "e1",
+        sourceTaskId: "a",
+        targetTaskId: "b",
+        relationType: "blocks",
+        dependencyType: "ss",
+      },
+    ];
+
+    const [edge] = buildDependencyEdges(edges, boxes);
+    expect(edge.sourcePoint).toEqual({ x: 0, y: 20 });
+    expect(edge.targetPoint).toEqual({ x: 200, y: 100 });
+  });
+
+  it("ignores a 'related' edge's stored dependencyType and always anchors fs", () => {
+    const boxes = new Map<string, TaskBarBox>([
+      ["a", { left: 0, right: 100, top: 0, height: 40 }],
+      ["b", { left: 200, right: 300, top: 80, height: 40 }],
+    ]);
+    const edges: DependencyEdgeInput[] = [
+      {
+        id: "e1",
+        sourceTaskId: "a",
+        targetTaskId: "b",
+        relationType: "related",
+        // A "related" relation always stores the fs/0 defaults server-side,
+        // but even a stray non-default value must never change its anchor.
+        dependencyType: "ff",
+      },
+    ];
+
+    const [edge] = buildDependencyEdges(edges, boxes);
+    expect(edge.sourcePoint).toEqual({ x: 100, y: 20 });
+    expect(edge.targetPoint).toEqual({ x: 200, y: 100 });
+  });
+
+  it("carries a lag label point only for a 'blocks' edge with a non-zero lag", () => {
+    const boxes = new Map<string, TaskBarBox>([
+      ["a", { left: 0, right: 100, top: 0, height: 40 }],
+      ["b", { left: 200, right: 300, top: 80, height: 40 }],
+    ]);
+
+    const [zeroLag] = buildDependencyEdges(
+      [
+        {
+          id: "e1",
+          sourceTaskId: "a",
+          targetTaskId: "b",
+          relationType: "blocks",
+          lagDays: 0,
+        },
+      ],
+      boxes,
+    );
+    expect(zeroLag.lagLabelPoint).toBeNull();
+
+    const [withLag] = buildDependencyEdges(
+      [
+        {
+          id: "e2",
+          sourceTaskId: "a",
+          targetTaskId: "b",
+          relationType: "blocks",
+          lagDays: 3,
+        },
+      ],
+      boxes,
+    );
+    expect(withLag.lagLabelPoint).not.toBeNull();
+
+    // A "related" edge never carries lag, even if the row happened to store
+    // a non-zero value.
+    const [related] = buildDependencyEdges(
+      [
+        {
+          id: "e3",
+          sourceTaskId: "a",
+          targetTaskId: "b",
+          relationType: "related",
+          lagDays: 5,
+        },
+      ],
+      boxes,
+    );
+    expect(related.lagLabelPoint).toBeNull();
   });
 
   it("never routes to the left of the leftmost bar by more than the small exit gap, so the connector cannot bleed toward the task rail", () => {

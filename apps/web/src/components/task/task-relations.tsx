@@ -38,6 +38,13 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import useCreateTaskRelation from "@/hooks/mutations/task-relation/use-create-task-relation";
 import useDeleteTaskRelation from "@/hooks/mutations/task-relation/use-delete-task-relation";
 import useGetProject from "@/hooks/queries/project/use-get-project";
@@ -53,12 +60,17 @@ import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
 import SubtaskAssigneePopover from "./subtask-assignee-popover";
 import SubtaskStatusPopover from "./subtask-status-popover";
+import TaskRelationDependencyPopover, {
+  type GanttDependencyType,
+} from "./task-relation-dependency-popover";
 import {
   buildCrossProjectTaskGroups,
   isOtherProjectItem,
   type PickerTaskGroup as TaskGroup,
   type PickerTaskItem as TaskItem,
 } from "./task-relations-cross-project";
+
+const DEPENDENCY_TYPES: GanttDependencyType[] = ["fs", "ss", "ff", "sf"];
 
 type TaskRelationsProps = {
   taskId: string;
@@ -85,6 +97,11 @@ export default function TaskRelations({
   const [selectedRelationType, setSelectedRelationType] = useState<
     "blocks" | "related"
   >("related");
+  // Only meaningful once selectedRelationType is "blocks" — see the footer
+  // controls below.
+  const [newDependencyType, setNewDependencyType] =
+    useState<GanttDependencyType>("fs");
+  const [newLagDaysInput, setNewLagDaysInput] = useState("0");
 
   const { data: relations = [] } = useGetTaskRelations(taskId);
   const { data: projectData } = useGetTasks(projectId);
@@ -116,6 +133,8 @@ export default function TaskRelations({
   useEffect(() => {
     if (!commandOpen) {
       setSearchQuery("");
+      setNewDependencyType("fs");
+      setNewLagDaysInput("0");
     }
   }, [commandOpen]);
 
@@ -133,6 +152,8 @@ export default function TaskRelations({
       Array<{
         id: string;
         relationType: string;
+        dependencyType: string;
+        lagDays: number;
         task: NonNullable<(typeof nonSubtaskRelations)[number]["sourceTask"]>;
       }>
     > = {};
@@ -154,6 +175,8 @@ export default function TaskRelations({
       groups[type].push({
         id: rel.id,
         relationType: rel.relationType,
+        dependencyType: rel.dependencyType,
+        lagDays: rel.lagDays,
         task: linkedTask,
       });
     }
@@ -246,11 +269,18 @@ export default function TaskRelations({
   }, [filteredTasks, crossProjectGroups, t]);
 
   const handleLinkTask = async (targetTaskId: string) => {
+    const parsedLagDays = Number.parseInt(newLagDaysInput, 10);
     try {
       await createRelation.mutateAsync({
         sourceTaskId: taskId,
         targetTaskId,
         relationType: selectedRelationType,
+        ...(selectedRelationType === "blocks"
+          ? {
+              dependencyType: newDependencyType,
+              lagDays: Number.isNaN(parsedLagDays) ? 0 : parsedLagDays,
+            }
+          : {}),
       });
       setCommandOpen(false);
       setSearchQuery("");
@@ -436,6 +466,38 @@ export default function TaskRelations({
                             </span>
                           </button>
 
+                          {(type === "blocks" || type === "blocked_by") && (
+                            <TaskRelationDependencyPopover
+                              relationId={item.id}
+                              taskId={taskId}
+                              dependencyType={item.dependencyType}
+                              lagDays={item.lagDays}
+                            >
+                              <button
+                                type="button"
+                                className="shrink-0 rounded px-1 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground/80 border border-border/60 hover:text-foreground hover:border-border transition-colors outline-none"
+                                title={t(
+                                  `tasks:relations.dependency.types.${item.dependencyType}`,
+                                )}
+                              >
+                                {t(
+                                  `tasks:relations.dependency.typesShort.${item.dependencyType}`,
+                                  {
+                                    defaultValue:
+                                      item.dependencyType.toUpperCase(),
+                                  },
+                                )}
+                                {item.lagDays !== 0 &&
+                                  t("tasks:relations.dependency.lagSuffix", {
+                                    days:
+                                      item.lagDays > 0
+                                        ? `+${item.lagDays}`
+                                        : item.lagDays,
+                                  })}
+                              </button>
+                            </TaskRelationDependencyPopover>
+                          )}
+
                           <SubtaskAssigneePopover
                             tasks={[taskObj]}
                             workspaceId={workspaceId}
@@ -570,28 +632,73 @@ export default function TaskRelations({
                 )}
               </CommandList>
             </CommandPanel>
-            <CommandFooter>
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-md transition-colors ${selectedRelationType === "related" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                  onClick={() => setSelectedRelationType("related")}
-                >
-                  <Link2 className="size-3" />
-                  {t("tasks:relations.related")}
-                </button>
-                <button
-                  type="button"
-                  className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-md transition-colors ${selectedRelationType === "blocks" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                  onClick={() => setSelectedRelationType("blocks")}
-                >
-                  <X className="size-3" />
-                  {t("tasks:relations.blocks")}
-                </button>
+            <CommandFooter className="flex-col items-stretch gap-2">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-md transition-colors ${selectedRelationType === "related" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                    onClick={() => setSelectedRelationType("related")}
+                  >
+                    <Link2 className="size-3" />
+                    {t("tasks:relations.related")}
+                  </button>
+                  <button
+                    type="button"
+                    className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-md transition-colors ${selectedRelationType === "blocks" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                    onClick={() => setSelectedRelationType("blocks")}
+                  >
+                    <X className="size-3" />
+                    {t("tasks:relations.blocks")}
+                  </button>
+                </div>
+                <span className="text-muted-foreground/60">
+                  {t("tasks:relations.selectTask")}
+                </span>
               </div>
-              <span className="text-muted-foreground/60">
-                {t("tasks:relations.selectTask")}
-              </span>
+
+              {/* Dependency type/lag only apply to a "blocks" relation — the
+                  Gantt's scheduling dependency; a plain "related" link has no
+                  ordering to configure. */}
+              {selectedRelationType === "blocks" && (
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={newDependencyType}
+                    onValueChange={(value) =>
+                      setNewDependencyType(String(value) as GanttDependencyType)
+                    }
+                  >
+                    <SelectTrigger
+                      className="h-7 min-w-0 flex-1 text-xs"
+                      size="sm"
+                    >
+                      <SelectValue>
+                        {t(
+                          `tasks:relations.dependency.types.${newDependencyType}`,
+                        )}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DEPENDENCY_TYPES.map((option) => (
+                        <SelectItem key={option} value={option}>
+                          {t(`tasks:relations.dependency.types.${option}`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <input
+                    type="number"
+                    value={newLagDaysInput}
+                    onChange={(e) => setNewLagDaysInput(e.target.value)}
+                    placeholder="0"
+                    aria-label={t("tasks:relations.dependency.lagLabel")}
+                    className="h-7 w-16 shrink-0 rounded-md border border-input bg-background px-2 text-xs text-foreground outline-none focus-visible:border-ring"
+                  />
+                  <span className="shrink-0 text-[11px] text-muted-foreground/60">
+                    {t("tasks:relations.dependency.lagLabel")}
+                  </span>
+                </div>
+              )}
             </CommandFooter>
           </Command>
         </CommandDialogPopup>

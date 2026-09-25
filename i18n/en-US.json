@@ -1979,6 +1979,27 @@
 				"blocks": "blocks",
 				"blocked_by": "blocked by",
 				"related": "relates to"
+			},
+			"dependency": {
+				"typeLabel": "Dependency type",
+				"lagLabel": "Lag (days)",
+				"lagHint": "Positive delays the start; negative (lead) allows overlap.",
+				"save": "Save",
+				"updateError": "Failed to update dependency",
+				"types": {
+					"fs": "Finish → Start",
+					"ss": "Start → Start",
+					"ff": "Finish → Finish",
+					"sf": "Start → Finish"
+				},
+				"typesShort": {
+					"fs": "FS",
+					"ss": "SS",
+					"ff": "FF",
+					"sf": "SF"
+				},
+				"summary": "{{type}}{{lag}}",
+				"lagSuffix": " {{days}}d"
 			}
 		},
 		"subtasks": {
