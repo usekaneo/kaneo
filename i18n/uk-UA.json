@@ -1991,7 +1991,8 @@
 				"blocks": "блокує",
 				"related": "пов'язано з",
 				"blocked_by": "заблоковано"
-			}
+			},
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Підзавдання",

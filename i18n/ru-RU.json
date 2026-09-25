@@ -1999,7 +1999,8 @@
 				"blocks": "блокирует",
 				"related": "связана с",
 				"blocked_by": "заблокирована"
-			}
+			},
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Подзадачи",

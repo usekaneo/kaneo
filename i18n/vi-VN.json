@@ -1970,7 +1970,8 @@
 				"blocks": "chặn",
 				"blocked_by": "bị chặn bởi",
 				"related": "liên quan đến"
-			}
+			},
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Công việc con",

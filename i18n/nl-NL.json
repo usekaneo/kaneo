@@ -1977,7 +1977,8 @@
 				"blocks": "blokkeert",
 				"related": "is gerelateerd aan",
 				"blocked_by": "geblokkeerd door"
-			}
+			},
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Subtaken",

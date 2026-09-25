@@ -1977,7 +1977,8 @@
 				"blocks": "μπλοκάρει",
 				"related": "σχετίζεται με",
 				"blocked_by": "μπλοκάρεται από"
-			}
+			},
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Υποεργασίες",

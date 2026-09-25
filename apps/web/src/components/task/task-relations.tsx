@@ -41,6 +41,7 @@ import {
 import useCreateTaskRelation from "@/hooks/mutations/task-relation/use-create-task-relation";
 import useDeleteTaskRelation from "@/hooks/mutations/task-relation/use-delete-task-relation";
 import useGetProject from "@/hooks/queries/project/use-get-project";
+import useGlobalSearch from "@/hooks/queries/search/use-global-search";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import useGetTaskRelations from "@/hooks/queries/task-relation/use-get-task-relations";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
@@ -52,6 +53,11 @@ import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
 import SubtaskAssigneePopover from "./subtask-assignee-popover";
 import SubtaskStatusPopover from "./subtask-status-popover";
+import {
+  buildCrossProjectTaskGroups,
+  type PickerTaskGroup as TaskGroup,
+  type PickerTaskItem as TaskItem,
+} from "./task-relations-cross-project";
 
 type TaskRelationsProps = {
   taskId: string;
@@ -59,18 +65,11 @@ type TaskRelationsProps = {
   workspaceId: string;
 };
 
-type TaskItem = {
-  id: string;
-  title: string;
-  number: number | null;
-  status: string;
-};
-
-type TaskGroup = {
-  value: string;
-  label: string;
-  items: TaskItem[];
-};
+// A workspace can hold far more tasks than any one project, so the
+// cross-project half of the picker is server-searched (via the existing
+// global search endpoint, scoped to this workspace) rather than loaded
+// client-side. This threshold keeps that request off single keystrokes.
+const CROSS_PROJECT_SEARCH_MIN_CHARS = 2;
 
 export default function TaskRelations({
   taskId,
@@ -97,6 +96,17 @@ export default function TaskRelations({
   const deleteRelation = useDeleteTaskRelation(taskId);
   const { canUpdateTasks } = useWorkspacePermission();
   const canEdit = canUpdateTasks();
+
+  const trimmedSearchQuery = searchQuery.trim();
+  const { data: crossProjectSearch } = useGlobalSearch({
+    q:
+      trimmedSearchQuery.length >= CROSS_PROJECT_SEARCH_MIN_CHARS
+        ? searchQuery
+        : "",
+    type: "tasks",
+    workspaceId,
+    limit: 20,
+  });
 
   useEffect(() => {
     if (!commandOpen) {
@@ -196,6 +206,19 @@ export default function TaskRelations({
     (t) => !existingRelatedTaskIds.has(t.id),
   );
 
+  const crossProjectGroups = useMemo<TaskGroup[]>(() => {
+    const results = crossProjectSearch?.results ?? [];
+    if (results.length === 0) return [];
+
+    return buildCrossProjectTaskGroups({
+      results,
+      currentProjectId: projectId,
+      excludedTaskIds: existingRelatedTaskIds,
+      labelForProject: (projectName) =>
+        t("tasks:relations.tasksInOtherProject", { project: projectName }),
+    });
+  }, [crossProjectSearch, projectId, existingRelatedTaskIds, t]);
+
   const commandGroups = useMemo<TaskGroup[]>(() => {
     return [
       {
@@ -203,8 +226,9 @@ export default function TaskRelations({
         label: t("tasks:relations.tasksInProject"),
         items: filteredTasks,
       },
+      ...crossProjectGroups,
     ];
-  }, [filteredTasks, t]);
+  }, [filteredTasks, crossProjectGroups, t]);
 
   const handleLinkTask = async (targetTaskId: string) => {
     try {
@@ -429,26 +453,33 @@ export default function TaskRelations({
                     <CommandGroup items={group.items}>
                       <CommandGroupLabel>{group.label}</CommandGroupLabel>
                       <CommandCollection>
-                        {(item: TaskItem) => (
-                          <CommandItem
-                            key={item.id}
-                            value={`${project?.slug}-${item.number} ${item.title}`}
-                            onClick={() => handleLinkTask(item.id)}
-                            className="flex items-center gap-3 py-2"
-                          >
-                            {getColumnIcon(
-                              item.status,
-                              false,
-                              columnIconBySlug.get(item.status),
-                            )}
-                            <span className="text-xs text-muted-foreground shrink-0 font-mono">
-                              {project?.slug}-{item.number}
-                            </span>
-                            <span className="text-sm truncate flex-1">
-                              {item.title}
-                            </span>
-                          </CommandItem>
-                        )}
+                        {(item: TaskItem) => {
+                          // Cross-project items carry their own project slug;
+                          // same-project items fall back to the current project.
+                          const slug = item.projectSlug ?? project?.slug;
+                          return (
+                            <CommandItem
+                              key={item.id}
+                              value={`${slug}-${item.number} ${item.title} ${item.description ?? ""}`}
+                              onClick={() => handleLinkTask(item.id)}
+                              className="flex items-center gap-3 py-2"
+                            >
+                              {getColumnIcon(
+                                item.status,
+                                false,
+                                item.projectId
+                                  ? undefined
+                                  : columnIconBySlug.get(item.status),
+                              )}
+                              <span className="text-xs text-muted-foreground shrink-0 font-mono">
+                                {slug}-{item.number}
+                              </span>
+                              <span className="text-sm truncate flex-1">
+                                {item.title}
+                              </span>
+                            </CommandItem>
+                          );
+                        }}
                       </CommandCollection>
                     </CommandGroup>
                     {groupIndex < commandGroups.length - 1 && (

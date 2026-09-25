@@ -1977,7 +1977,8 @@
 				"blocks": "блокира",
 				"related": "е поврзана со",
 				"blocked_by": "блокирана од"
-			}
+			},
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Подзадачи",

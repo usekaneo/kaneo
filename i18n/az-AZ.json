@@ -1977,7 +1977,8 @@
 				"blocks": "Mane olur",
 				"blocked_by": "Mane olan",
 				"related": "Əlaqəlidir"
-			}
+			},
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Alt tapşırıqlar",

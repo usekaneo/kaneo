@@ -1977,7 +1977,8 @@
 				"blocks": "blockiert",
 				"related": "steht in Beziehung zu",
 				"blocked_by": "blockiert von"
-			}
+			},
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Teilaufgaben",
