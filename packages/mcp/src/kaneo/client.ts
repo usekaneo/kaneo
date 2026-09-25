@@ -12,6 +12,10 @@ export class KaneoClient {
   readonly baseUrl: string;
   private readonly auth: AuthService;
 
+  get usingApiKey() {
+    return this.auth.usingApiKey;
+  }
+
   constructor(options: { baseUrl: string; auth: AuthService }) {
     this.baseUrl = options.baseUrl;
     this.auth = options.auth;

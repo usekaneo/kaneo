@@ -49,6 +49,34 @@ describe("registerTools", () => {
     );
   });
 
+  it("uses the API-key current-user endpoint for whoami", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      usingApiKey: true,
+      json: vi.fn().mockResolvedValue({ id: "user-1" }),
+    };
+    registerTools(server as never, { client: client as never });
+
+    await tools.get("whoami")?.handler({});
+
+    expect(client.json).toHaveBeenCalledWith("/api/user/me", { method: "GET" });
+  });
+
+  it("preserves session identity endpoint for whoami", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      usingApiKey: false,
+      json: vi.fn().mockResolvedValue({ user: { id: "user-1" } }),
+    };
+    registerTools(server as never, { client: client as never });
+
+    await tools.get("whoami")?.handler({});
+
+    expect(client.json).toHaveBeenCalledWith("/api/auth/get-session", {
+      method: "GET",
+    });
+  });
+
   it("builds the expected query string for list_tasks", async () => {
     const { server, tools } = createServerMock();
     const client = {

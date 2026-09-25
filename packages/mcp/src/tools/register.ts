@@ -46,11 +46,16 @@ export function registerTools(
     "whoami",
     {
       description:
-        "Return the current Kaneo session and user for the cached device token.",
+        "Return the current authenticated Kaneo user (API key or device session).",
       inputSchema: z.object({}),
     },
     async () =>
-      run(() => client.json("/api/auth/get-session", { method: "GET" })),
+      run(() =>
+        client.json(
+          client.usingApiKey ? "/api/user/me" : "/api/auth/get-session",
+          { method: "GET" },
+        ),
+      ),
   );
 
   server.registerTool(
