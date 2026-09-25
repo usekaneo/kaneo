@@ -55,6 +55,7 @@ import SubtaskAssigneePopover from "./subtask-assignee-popover";
 import SubtaskStatusPopover from "./subtask-status-popover";
 import {
   buildCrossProjectTaskGroups,
+  isOtherProjectItem,
   type PickerTaskGroup as TaskGroup,
   type PickerTaskItem as TaskItem,
 } from "./task-relations-cross-project";
@@ -105,6 +106,10 @@ export default function TaskRelations({
         : "",
     type: "tasks",
     workspaceId,
+    // Excluded server-side so a query that matches 20+ tasks in the current
+    // project doesn't crowd out the other-project matches this group exists
+    // to surface (the current project already has its own group above).
+    excludeProjectId: projectId,
     limit: 20,
   });
 
@@ -114,8 +119,12 @@ export default function TaskRelations({
     }
   }, [commandOpen]);
 
-  const nonSubtaskRelations = relations.filter(
-    (rel) => rel.relationType !== "subtask",
+  // Memoized so its reference only changes when `relations` actually does —
+  // otherwise every render would hand groupedRelations and
+  // existingRelatedTaskIds a fresh array and defeat their own memoization.
+  const nonSubtaskRelations = useMemo(
+    () => relations.filter((rel) => rel.relationType !== "subtask"),
+    [relations],
   );
 
   const groupedRelations = useMemo(() => {
@@ -152,10 +161,16 @@ export default function TaskRelations({
     return groups;
   }, [nonSubtaskRelations, taskId]);
 
-  const existingRelatedTaskIds = new Set(
-    nonSubtaskRelations.flatMap((rel) => [rel.sourceTaskId, rel.targetTaskId]),
-  );
-  existingRelatedTaskIds.add(taskId);
+  const existingRelatedTaskIds = useMemo(() => {
+    const ids = new Set(
+      nonSubtaskRelations.flatMap((rel) => [
+        rel.sourceTaskId,
+        rel.targetTaskId,
+      ]),
+    );
+    ids.add(taskId);
+    return ids;
+  }, [nonSubtaskRelations, taskId]);
 
   const allTasks = useMemo(() => {
     if (!projectData) return [];
@@ -457,6 +472,10 @@ export default function TaskRelations({
                           // Cross-project items carry their own project slug;
                           // same-project items fall back to the current project.
                           const slug = item.projectSlug ?? project?.slug;
+                          const isOtherProject = isOtherProjectItem(
+                            item,
+                            projectId,
+                          );
                           return (
                             <CommandItem
                               key={item.id}
@@ -467,7 +486,7 @@ export default function TaskRelations({
                               {getColumnIcon(
                                 item.status,
                                 false,
-                                item.projectId
+                                isOtherProject
                                   ? undefined
                                   : columnIconBySlug.get(item.status),
                               )}

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildCrossProjectTaskGroups,
   type CrossProjectSearchResult,
+  isOtherProjectItem,
 } from "./task-relations-cross-project";
 
 function result(
@@ -130,5 +131,58 @@ describe("buildCrossProjectTaskGroups", () => {
     });
 
     expect(groups[0]?.label).toBe("In OTHER");
+  });
+
+  it("still surfaces other-project matches when the current project alone fills the result page", () => {
+    // Regression guard for search starvation: even if every returned result
+    // happened to be same-project (e.g. an un-scoped search), the ones that
+    // aren't must still make it into a cross-project group.
+    const results: CrossProjectSearchResult[] = [
+      ...Array.from({ length: 19 }, (_, i) =>
+        result({
+          id: `same-project-${i}`,
+          projectId: "project-current",
+          projectName: "Current",
+        }),
+      ),
+      result({
+        id: "other-project-match",
+        projectId: "project-other",
+        projectName: "Other",
+      }),
+    ];
+
+    const groups = buildCrossProjectTaskGroups({
+      results,
+      currentProjectId: "project-current",
+      excludedTaskIds: new Set(),
+      labelForProject: (name) => name,
+    });
+
+    expect(groups).toHaveLength(1);
+    expect(groups[0]?.items.map((i) => i.id)).toEqual(["other-project-match"]);
+  });
+});
+
+describe("isOtherProjectItem", () => {
+  it("is false for a same-project item even though it carries a projectId", () => {
+    // Same-project items (from the current project's own column data) carry
+    // a projectId at runtime too, so truthiness alone must not be used to
+    // decide "this is a cross-project result" (that regressed the column icon).
+    expect(
+      isOtherProjectItem({ projectId: "project-current" }, "project-current"),
+    ).toBe(false);
+  });
+
+  it("is true for an item from a different project", () => {
+    expect(
+      isOtherProjectItem({ projectId: "project-other" }, "project-current"),
+    ).toBe(true);
+  });
+
+  it("is false when projectId is absent", () => {
+    expect(
+      isOtherProjectItem({ projectId: undefined }, "project-current"),
+    ).toBe(false);
   });
 });

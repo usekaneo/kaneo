@@ -92,3 +92,17 @@ export function buildCrossProjectTaskGroups({
       items: group.items,
     }));
 }
+
+/**
+ * Whether a picker item is a genuine other-project result, as opposed to a
+ * same-project task. Same-project items (from the current project's own
+ * column data) also carry a `projectId` at runtime, so it is not enough to
+ * check that the field is merely present — it must differ from the task
+ * being viewed's own project.
+ */
+export function isOtherProjectItem(
+  item: Pick<PickerTaskItem, "projectId">,
+  currentProjectId: string,
+): boolean {
+  return !!item.projectId && item.projectId !== currentProjectId;
+}
