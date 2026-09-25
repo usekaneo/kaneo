@@ -376,3 +376,26 @@ jobs:
           file: ./apps/${{ matrix.name }}/Dockerfile
           platforms: linux/amd64
           push: false
+
+  secret-scan:
+    # Scheduled runs get a dedicated full-history scan in nightly.yml instead,
+    # so the default diff scan here does not duplicate the entire-branch scan.
+    if: ${{ github.event_name != 'schedule' }}
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: useblacksmith/checkout@v1 # v7.0.1
+        with:
+          persist-credentials: false
+          # TruffleHog resolves the diff base locally, so the base commit must exist.
+          fetch-depth: 0
+      - name: Scan for leaked credentials
+        # Pull requests: scans only the commits introduced by the branch.
+        # Pushes to main: scans only the pushed commits.
+        uses: trufflesecurity/trufflehog@4dd8831c5f12599465d4d45c3c447b4018a34c85 # v3.97.9
+        with:
+          # Report only verified and unknown results; skip unverified false positives.
+          # .trufflehog-exclude allowlists files carrying placeholder credentials
+          # (compose examples, docs, generated CONTRIBUTORS.svg, tests).
+          extra_args: --results=verified,unknown --exclude-paths=.trufflehog-exclude
