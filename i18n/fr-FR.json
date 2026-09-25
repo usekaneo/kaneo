@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "Le nom de l'espace de travail est requis"
-			}
+			},
+			"restrictedSubtitle": "Seul un administrateur de l'instance peut créer des espaces de travail ici. Demandez une invitation, puis rechargez cette page.",
+			"restrictedCheckInvitations": "Voir les invitations",
+			"restrictedTitle": "Vous avez besoin d'une invitation"
 		},
 		"profileSetup": {
 			"pageTitle": "Compléter le profil",

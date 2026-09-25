@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "工作区名称不能为空"
-			}
+			},
+			"restrictedSubtitle": "在此实例中只有管理员可以创建工作区。请联系管理员邀请你，然后刷新此页面。",
+			"restrictedCheckInvitations": "查看邀请",
+			"restrictedTitle": "你需要一份邀请"
 		},
 		"profileSetup": {
 			"pageTitle": "完善资料",

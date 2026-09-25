@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "Назва робочого простору є обов'язковою"
-			}
+			},
+			"restrictedSubtitle": "Тут створювати робочі простори може лише адміністратор інстансу. Попросіть запрошення й оновіть цю сторінку.",
+			"restrictedCheckInvitations": "Переглянути запрошення",
+			"restrictedTitle": "Потрібне запрошення"
 		},
 		"profileSetup": {
 			"pageTitle": "Заповнення профілю",

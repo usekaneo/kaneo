@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "वर्कस्पेस का नाम आवश्यक है"
-			}
+			},
+			"restrictedSubtitle": "यहाँ केवल इंस्टेंस व्यवस्थापक ही कार्यक्षेत्र बना सकता है। आमंत्रण के लिए कहें, फिर यह पृष्ठ पुनः लोड करें।",
+			"restrictedCheckInvitations": "आमंत्रण देखें",
+			"restrictedTitle": "आपको आमंत्रण चाहिए"
 		},
 		"profileSetup": {
 			"pageTitle": "प्रोफ़ाइल पूरा करें",

@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "ワークスペース名を入力してください"
-			}
+			},
+			"restrictedSubtitle": "このインスタンスでワークスペースを作成できるのは管理者だけです。招待を依頼してから、このページを再読み込みしてください。",
+			"restrictedCheckInvitations": "招待を確認",
+			"restrictedTitle": "招待が必要です"
 		},
 		"profileSetup": {
 			"pageTitle": "プロフィール設定",
