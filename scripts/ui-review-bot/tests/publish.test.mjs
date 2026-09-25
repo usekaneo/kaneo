@@ -97,13 +97,19 @@ async function screenshots(t) {
   return folder;
 }
 
-test("comment contains exactly the requested line and a three-screenshot table", () => {
+test("comment contains the requested attribution, three screenshots, and collapsed findings and run info", () => {
   const text = commentBody(run, { images });
   assert.equal(text.split("\n")[0], ATTRIBUTION);
   assert.equal((text.match(/!\[Screenshot\]/g) || []).length, 3);
-  assert.equal(text.includes("INTERNAL_"), false);
+  assert.equal(text.includes("INTERNAL_DIAGNOSTICS"), false);
+  assert.equal(text.includes("INTERNAL_REVIEW"), false);
+  assert.equal(text.includes("INTERNAL_COVERAGE"), false);
   assert.equal(text.includes("123"), false);
-  assert.equal(text.replace(`\n\n${MARKER}`, "").split("\n").length, 7);
+  assert.equal(text.split("<details>")[0].trim().split("\n").length, 7);
+  assert.equal((text.match(/<details>/g) || []).length, 2);
+  assert.ok(text.includes("<summary>Findings (Beta)</summary>"));
+  assert.ok(text.includes("<summary>Run info</summary>"));
+  assert.ok(!text.includes("<details open"));
   assert.throws(() => commentBody(run), /Upload the PR screenshots/);
 });
 
@@ -324,6 +330,50 @@ test("closed PRs cannot receive an outdated screenshot comment", async () => {
       },
     ),
     /closed/,
+  );
+  assert.equal(writes.length, 0);
+});
+
+test("focused previews are uploaded instead of full captures, with concise fallback captions", async (t) => {
+  const folder = await screenshots(t);
+  const focused = structuredClone(run);
+  for (const [i, item] of focused.results.entries()) {
+    item.focus = { by: "text", name: "Feature" };
+    item.after.preview = true;
+    item.review.caption = "Generic long caption ".repeat(10);
+    const png = new PNG({ width: 784, height: 200 + i });
+    await writeFile(path.join(folder, `${i}-preview.png`), PNG.sync.write(png));
+  }
+  const { api, writes } = mock();
+  await publishReport(focused, { actor: "tinsever", folder }, api);
+  const uploaded = writes.filter((w) => w.endpoint.endsWith("/blobs"));
+  assert.equal(uploaded.length, 3);
+  assert.equal(
+    PNG.sync.read(Buffer.from(uploaded[0].body.content, "base64")).width,
+    784,
+  );
+  assert.ok(!writes.at(-1).body.body.includes("Generic long"));
+  assert.ok(writes.at(-1).body.body.includes("Account navigation"));
+});
+
+test("duplicate or missing focused previews fail before uploading anything", async (t) => {
+  const folder = await screenshots(t);
+  const focused = structuredClone(run);
+  const bytes = PNG.sync.write(new PNG({ width: 784, height: 200 }));
+  for (const [i, item] of focused.results.entries()) {
+    item.focus = { by: "text", name: "Feature" };
+    item.after.preview = true;
+    await writeFile(path.join(folder, `${i}-preview.png`), bytes);
+  }
+  const { api, writes } = mock();
+  await assert.rejects(
+    publishReport(focused, { actor: "tinsever", folder }, api),
+    /Duplicate previews/,
+  );
+  focused.results[0].after.preview = false;
+  await assert.rejects(
+    publishReport(focused, { actor: "tinsever", folder }, api),
+    /Missing focused preview/,
   );
   assert.equal(writes.length, 0);
 });

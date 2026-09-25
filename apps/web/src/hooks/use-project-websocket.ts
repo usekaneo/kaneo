@@ -1,6 +1,6 @@
 import { windowId } from "@kaneo/libs";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { getApiUrl } from "@/fetchers/get-api-url";
 import { authClient } from "@/lib/auth-client";
 
@@ -20,33 +20,38 @@ const WS_PING_INTERVAL_MS = 30_000;
 export function useProjectWebSocket(projectId: string) {
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
-  const wsRef = useRef<WebSocket | null>(null);
-  const retriesRef = useRef(0);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (!projectId || !session?.user?.id) return;
 
-    retriesRef.current = 0;
+    // Each effect owns its sockets and timers. Late events from an old project
+    // or session must not alter the next effect's connection or reconnect it.
+    let disposed = false;
+    let activeSocket: WebSocket | null = null;
+    let retries = 0;
+    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
+    let pingInterval: ReturnType<typeof setInterval> | null = null;
 
     function clearPing() {
-      if (pingIntervalRef.current) {
-        clearInterval(pingIntervalRef.current);
-        pingIntervalRef.current = null;
+      if (pingInterval !== null) {
+        clearInterval(pingInterval);
+        pingInterval = null;
       }
     }
 
     function connect() {
+      if (disposed) return;
+      retryTimeout = null;
       const url = getWsUrl(projectId);
       const ws = new WebSocket(url);
-      wsRef.current = ws;
+      activeSocket = ws;
 
       ws.onopen = () => {
-        retriesRef.current = 0; // Reset retries on successful connection
+        if (disposed || activeSocket !== ws) return;
+        retries = 0; // Reset retries on successful connection
         // Start keepalive pings to prevent Cloudflare idle timeout (100s)
         clearPing();
-        pingIntervalRef.current = setInterval(() => {
+        pingInterval = setInterval(() => {
           if (ws.readyState === WebSocket.OPEN) {
             ws.send(JSON.stringify({ type: "ping" }));
           }
@@ -54,6 +59,7 @@ export function useProjectWebSocket(projectId: string) {
       };
 
       ws.onmessage = (event) => {
+        if (disposed || activeSocket !== ws) return;
         try {
           const message = JSON.parse(event.data);
           if (
@@ -118,25 +124,26 @@ export function useProjectWebSocket(projectId: string) {
       };
 
       ws.onclose = () => {
+        if (disposed || activeSocket !== ws) return;
         clearPing();
-        wsRef.current = null;
+        activeSocket = null;
 
-        if (retriesRef.current < MAX_RETRIES) {
-          const delay = BASE_DELAY * 2 ** retriesRef.current; // 1s, 2s, 4s, 8s, 16s
-          retriesRef.current += 1;
-          timeoutRef.current = setTimeout(connect, delay);
+        if (retries < MAX_RETRIES) {
+          const delay = BASE_DELAY * 2 ** retries; // 1s, 2s, 4s, 8s, 16s
+          retries += 1;
+          retryTimeout = setTimeout(connect, delay);
         }
       };
     }
     connect();
 
     return () => {
-      retriesRef.current = MAX_RETRIES; // Prevent reconnect after unmount
+      disposed = true;
       clearPing();
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      if (retryTimeout !== null) {
+        clearTimeout(retryTimeout);
       }
-      wsRef.current?.close();
+      activeSocket?.close();
     };
   }, [projectId, session?.user?.id, queryClient]);
 }

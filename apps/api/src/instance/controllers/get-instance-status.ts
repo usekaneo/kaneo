@@ -1,5 +1,6 @@
 import { count, eq } from "drizzle-orm";
 import db, { schema } from "../../database";
+import { hasRegisteredUsers } from "../../utils/instance-bootstrap";
 
 export type InstanceStatus = {
   hasUsers: boolean;
@@ -7,14 +8,14 @@ export type InstanceStatus = {
 };
 
 async function getInstanceStatus(): Promise<InstanceStatus> {
-  const [totalRow] = await db.select({ value: count() }).from(schema.userTable);
+  const hasUsers = await hasRegisteredUsers();
   const [adminRow] = await db
     .select({ value: count() })
     .from(schema.userTable)
     .where(eq(schema.userTable.role, "admin"));
 
   return {
-    hasUsers: (totalRow?.value ?? 0) > 0,
+    hasUsers,
     hasAdmin: (adminRow?.value ?? 0) > 0,
   };
 }

@@ -81,12 +81,53 @@ describe("computeEntitlement", () => {
     expect(result).toEqual({ active: false, reason: "expired" });
   });
 
-  it("denies access for canceled/expired subscriptions", () => {
+  it("denies access for canceled/expired subscriptions with no paid period left", () => {
     expect(computeEntitlement(billing({ status: "canceled" })).active).toBe(
       false,
     );
     expect(computeEntitlement(billing({ status: "expired" })).active).toBe(
       false,
     );
+  });
+
+  it("keeps a canceled subscription entitled until its paid period ends", () => {
+    const currentPeriodEnd = new Date(Date.now() + 60_000);
+
+    const result = computeEntitlement(
+      billing({ status: "canceled", currentPeriodEnd }),
+    );
+
+    expect(result).toEqual({ active: true, reason: "paid_period" });
+  });
+
+  it("denies a canceled subscription once the paid period has passed", () => {
+    const currentPeriodEnd = new Date(Date.now() - 60_000);
+
+    const result = computeEntitlement(
+      billing({ status: "canceled", currentPeriodEnd }),
+    );
+
+    expect(result).toEqual({ active: false, reason: "expired" });
+  });
+
+  it("does not extend the paid period to expired subscriptions", () => {
+    const currentPeriodEnd = new Date(Date.now() + 60_000);
+
+    const result = computeEntitlement(
+      billing({ status: "expired", currentPeriodEnd }),
+    );
+
+    expect(result.active).toBe(false);
+  });
+
+  it("keeps a canceled subscription entitled even after its trial expired", () => {
+    const result = computeEntitlement(
+      billing({
+        status: "canceled",
+        currentPeriodEnd: new Date(Date.now() + 60_000),
+        trialEndsAt: new Date(Date.now() - 60_000),
+      }),
+    );
+    expect(result).toEqual({ active: true, reason: "paid_period" });
   });
 });

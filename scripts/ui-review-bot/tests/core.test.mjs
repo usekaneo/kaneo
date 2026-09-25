@@ -208,3 +208,118 @@ test("CLI requires an explicit PR and rejects misspelled flags before spending o
   assert.equal(options.post, false);
   assert.equal(options.mode, "capture");
 });
+
+test("temporary provider throttling retries within the five-request budget", async () => {
+  const original = globalThis.fetch;
+  const run = {
+    calls: 0,
+    usage: { input: 0, output: 0, cost: 0, costKnown: true },
+  };
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls++;
+    return calls === 1
+      ? new Response('{"error":{"code":429}}', {
+          status: 429,
+          headers: { "retry-after": "0" },
+        })
+      : Response.json({
+          choices: [{ message: { content: '{"caption":"Captured"}' } }],
+          usage: { cost: 0 },
+        });
+  };
+  try {
+    const args = {
+      token: "test",
+      model: "test",
+      messages: [],
+      run,
+      signal: new AbortController().signal,
+    };
+    assert.deepEqual(await completion(args), { caption: "Captured" });
+    assert.equal(run.calls, 2);
+    globalThis.fetch = async () =>
+      new Response('{"error":{"code":429}}', {
+        status: 429,
+        headers: { "retry-after": "0" },
+      });
+    run.calls = 4;
+    await assert.rejects(completion(args), /429/);
+    assert.equal(run.calls, 5);
+    await assert.rejects(completion(args), /five-call limit/);
+    assert.equal(run.calls, 5);
+  } finally {
+    globalThis.fetch = original;
+  }
+});
+
+test("default provider outage switches to a vision fallback and keeps it for the run", async () => {
+  const original = globalThis.fetch;
+  const requests = [];
+  const run = {
+    calls: 0,
+    reasoning: { max_tokens: 512 },
+    usage: { input: 0, output: 0, cost: 0, costKnown: true },
+  };
+  globalThis.fetch = async (_, options) => {
+    const body = JSON.parse(options.body);
+    requests.push(body);
+    return body.model === "qwen/qwen3.8-flash"
+      ? new Response('{"error":{"code":429}}', {
+          status: 429,
+          headers: { "retry-after": "0" },
+        })
+      : Response.json({
+          choices: [{ message: { content: '{"caption":"Captured"}' } }],
+          usage: { cost: 0 },
+        });
+  };
+  try {
+    const args = {
+      token: "test",
+      model: "qwen/qwen3.8-flash",
+      messages: [],
+      run,
+      signal: new AbortController().signal,
+    };
+    await completion(args);
+    await completion(args);
+    assert.equal(run.calls, 3);
+    assert.deepEqual(
+      requests.map((x) => x.model),
+      [
+        "qwen/qwen3.8-flash",
+        "google/gemini-2.5-flash-lite",
+        "google/gemini-2.5-flash-lite",
+      ],
+    );
+    assert.equal(requests[1].reasoning, undefined);
+    assert.deepEqual(run.modelsUsed, ["google/gemini-2.5-flash-lite"]);
+  } finally {
+    globalThis.fetch = original;
+  }
+});
+
+test("framing accepts only bounded semantic targets, never selectors or executable code", () => {
+  const scenario = samplePlan().scenarios[0];
+  for (const focus of [
+    { by: "css", name: "body" },
+    { by: "text", name: "" },
+    { by: "text", name: "x".repeat(201) },
+  ])
+    assert.throws(
+      () => validatePlan({ scenarios: [{ ...scenario, focus }] }),
+      /Invalid screenshot target/,
+    );
+  const plan = validatePlan({
+    scenarios: [
+      {
+        ...scenario,
+        focus: { by: "role", role: "heading", name: "Account" },
+        visible: [{ by: "label", name: "Email" }],
+      },
+    ],
+  });
+  assert.equal(plan.scenarios[0].focus.role, "heading");
+  assert.equal(plan.scenarios[0].visible[0].name, "Email");
+});

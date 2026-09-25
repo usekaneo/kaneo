@@ -1,5 +1,6 @@
 import { client } from "@kaneo/libs";
 import type { InferRequestType } from "hono/client";
+import { HttpError } from "@/lib/http-error";
 
 export type UpdateLabelRequest = InferRequestType<
   (typeof client)["label"][":id"]["$put"]
@@ -13,8 +14,7 @@ async function updateLabel({ id, name, color }: UpdateLabelRequest) {
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    throw new HttpError(response.status, await response.text());
   }
 
   const data = await response.json();

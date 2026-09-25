@@ -44,9 +44,9 @@ export const projectManagementForSmallTeams: Guide = {
           body: "Linear, if cloud-only is acceptable. Kaneo or Plane if you want something open source you can host, with Kaneo the smaller of the two.",
         },
         {
-          name: "You need real project management",
+          name: "You need budgets and project controls",
           href: "/openproject-alternative",
-          body: "Gantt charts, budgets, and cost reporting mean OpenProject among open-source tools. Most small teams do not need this, and buying it early is a common mistake.",
+          body: "Kaneo includes Gantt and calendar views for scheduling tasks. If you also need budgets, cost reporting, and baseline comparisons, consider OpenProject. Decide based on the project controls your team actually uses.",
         },
       ],
     },
@@ -93,5 +93,5 @@ export const projectManagementForSmallTeams: Guide = {
     },
     { label: "Pricing", href: "/pricing" },
   ],
-  updatedOn: "2026-08-19",
+  updatedOn: "2026-09-23",
 };

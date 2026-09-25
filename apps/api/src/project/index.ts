@@ -7,7 +7,10 @@ import {
   jsonResponse,
   z,
 } from "../openapi";
-import { requireWorkspacePermission } from "../utils/require-workspace-permission";
+import {
+  hasWorkspacePermission,
+  requireWorkspacePermission,
+} from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import archiveProjectCtrl from "./controllers/archive-project";
 import createProjectCtrl from "./controllers/create-project";
@@ -143,7 +146,7 @@ const updateProjectRoute = createRoute({
     200: jsonResponse("The updated project", projectSchema),
     400: errorResponse("Invalid body, or unknown project"),
     403: errorResponse(
-      "No workspace access, or missing project:update permission",
+      "No workspace access, missing project:update, or missing project:share when visibility changes",
     ),
   },
 });
@@ -259,6 +262,7 @@ const project = apiRouter<BaseVariables & { workspaceId: string }>()
       description,
       isPublic,
       workspaceId,
+      await hasWorkspacePermission(c, { project: ["share"] }),
     );
     return c.json(updatedProject, 200);
   })

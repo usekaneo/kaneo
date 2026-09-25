@@ -49,6 +49,55 @@ test("new exact command authorizes write, maintain, and admin users using live p
   }
 });
 
+test("code review dispatch cannot be confused with a screenshot command", async () => {
+  const payload = {
+    action: "peekareview",
+    repository: event.repository,
+    sender: { login: "peekareq[bot]", type: "Bot" },
+    client_payload: { pr: 1719, comment_id: 123 },
+  };
+  const result = await authorizeRequest(
+    "repository_dispatch",
+    payload,
+    mock({ body: "/peekareview" }).api,
+    "peekareview",
+  );
+  assert.equal(result.allowed, true);
+  assert.equal(result.command, "peekareview");
+  assert.equal(
+    (
+      await authorizeRequest(
+        "repository_dispatch",
+        payload,
+        mock({ body: "/peekareview" }).api,
+      )
+    ).allowed,
+    false,
+  );
+  assert.equal(
+    (
+      await authorizeRequest(
+        "repository_dispatch",
+        payload,
+        mock().api,
+        "peekareview",
+      )
+    ).allowed,
+    false,
+  );
+  assert.equal(
+    (
+      await authorizeRequest(
+        "repository_dispatch",
+        payload,
+        mock({ body: "/peekareview", permission: "triage" }).api,
+        "peekareview",
+      )
+    ).allowed,
+    false,
+  );
+});
+
 test("membership and contributor association never substitute for write permission", async () => {
   for (const permission of ["read", "triage", "none", undefined]) {
     const { api, calls } = mock({ permission: permission ?? "" });

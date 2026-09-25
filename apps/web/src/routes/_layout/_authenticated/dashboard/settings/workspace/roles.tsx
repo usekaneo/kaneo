@@ -1,7 +1,7 @@
 import { DEFAULT_ROLE_NAMES, statement } from "@kaneo/permissions";
 import { createFileRoute } from "@tanstack/react-router";
 import { Plus, Shield, Trash2, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
 import {
@@ -46,25 +46,14 @@ export const Route = createFileRoute(
   component: RouteComponent,
 });
 
-// Resources our app contributes on top of better-auth's defaults
-// (organization/member/team/invitation). Derive the list from the shared
-// `@kaneo/permissions` statement so adding a new resource there picks it
-// up here automatically.
-// "ac" is better-auth's meta-resource for managing roles themselves; we don't
-// surface it. Organization/member/team/invitation are likewise managed by the
-// org plugin, not by our workspace permissions UI.
-const BUILT_IN_RESOURCES = new Set([
-  "organization",
-  "member",
-  "team",
-  "invitation",
-  "ac",
-]);
-const CUSTOM_RESOURCES = (
-  Object.keys(statement) as (keyof typeof statement)[]
-).filter((key) => !BUILT_IN_RESOURCES.has(key));
-
+// Every permission that can be saved must also be visible and removable.
+// Include provider-owned resources and persisted unknown entries in the editor.
 const RESOURCE_LABELS: Record<string, string> = {
+  organization: "Workspace administration",
+  member: "Members",
+  invitation: "Invitations",
+  team: "Teams",
+  ac: "Roles and permissions",
   project: "Projects",
   task: "Tasks",
   label: "Labels",
@@ -75,6 +64,63 @@ const PERMISSION_LABELS: Record<
   string,
   { label: string; description: string }
 > = {
+  "organization:update": {
+    label: "Edit workspace administration",
+    description: "Change workspace settings through the account service.",
+  },
+  "organization:delete": {
+    label: "Delete workspace",
+    description:
+      "Permanently delete the workspace through the account service.",
+  },
+  "member:create": {
+    label: "Add members",
+    description: "Add users to this workspace.",
+  },
+  "member:update": {
+    label: "Change member roles",
+    description: "Change the roles assigned to workspace members.",
+  },
+  "member:delete": {
+    label: "Remove members",
+    description: "Remove users from this workspace.",
+  },
+  "invitation:create": {
+    label: "Invite members",
+    description: "Send workspace invitations.",
+  },
+  "invitation:cancel": {
+    label: "Cancel invitations",
+    description: "Revoke pending workspace invitations.",
+  },
+  "team:create": {
+    label: "Create teams",
+    description: "Create teams in this workspace.",
+  },
+  "team:update": {
+    label: "Edit teams",
+    description: "Change teams and team membership.",
+  },
+  "team:delete": {
+    label: "Delete teams",
+    description: "Delete teams in this workspace.",
+  },
+  "ac:create": {
+    label: "Create roles",
+    description: "Create workspace roles and assign their permissions.",
+  },
+  "ac:read": {
+    label: "View roles",
+    description: "Read the workspace roles and their permissions.",
+  },
+  "ac:update": {
+    label: "Change role permissions",
+    description: "Change role permissions, including administrative access.",
+  },
+  "ac:delete": {
+    label: "Delete roles",
+    description: "Delete custom workspace roles.",
+  },
   "project:create": {
     label: "Create projects",
     description: "Create new projects in this workspace.",
@@ -445,7 +491,7 @@ function RouteComponent() {
   );
 }
 
-function PermissionList({
+export function PermissionList({
   permissions,
   selected,
   onToggle,
@@ -459,17 +505,36 @@ function PermissionList({
   disabled?: boolean;
 }) {
   const { t } = useTranslation();
-  const groups = useMemo(
-    () =>
-      CUSTOM_RESOURCES.map((resource) => ({
-        resource,
-        actions: [...(statement[resource] ?? [])] as string[],
-      })),
-    [],
-  );
+  const id = useId();
+  const groups = useMemo(() => {
+    const known = statement as Record<string, readonly string[]>;
+    const resources = new Set([
+      ...Object.keys(known),
+      ...Object.keys(permissions),
+      ...Object.keys(selected ?? {}),
+    ]);
+    return [...resources].map((resource) => ({
+      resource,
+      actions: [
+        ...new Set([
+          ...(Object.hasOwn(known, resource) ? (known[resource] ?? []) : []),
+          ...(Object.hasOwn(permissions, resource)
+            ? (permissions[resource] ?? [])
+            : []),
+          ...(selected && Object.hasOwn(selected, resource)
+            ? (selected[resource] ?? [])
+            : []),
+        ]),
+      ],
+    }));
+  }, [permissions, selected]);
 
   const isChecked = (resource: string, action: string) => {
-    if (selected) return selected[resource]?.has(action) ?? false;
+    if (selected)
+      return (
+        Object.hasOwn(selected, resource) &&
+        (selected[resource]?.has(action) ?? false)
+      );
     return permissions[resource]?.includes(action) ?? false;
   };
 
@@ -481,9 +546,9 @@ function PermissionList({
           <div className="space-y-4 p-4">
             <p className="text-sm font-medium capitalize">
               {t(`settings:workspaceRoles.resources.${resource}`, {
-                defaultValue:
-                  RESOURCE_LABELS[resource] ??
-                  resource.charAt(0).toUpperCase() + resource.slice(1),
+                defaultValue: Object.hasOwn(RESOURCE_LABELS, resource)
+                  ? RESOURCE_LABELS[resource]
+                  : resource.charAt(0).toUpperCase() + resource.slice(1),
               })}
             </p>
             <div className="space-y-4">
@@ -499,7 +564,10 @@ function PermissionList({
                     {idx > 0 && <Separator className="mb-4" />}
                     <div className="flex items-center justify-between gap-6">
                       <div className="space-y-0.5 flex-1 min-w-0">
-                        <Label className="text-sm font-medium">
+                        <Label
+                          className="text-sm font-medium"
+                          htmlFor={`${id}-${resource}-${action}`}
+                        >
                           {t(
                             `settings:workspaceRoles.permissions.${labelKey}`,
                             {
@@ -519,6 +587,7 @@ function PermissionList({
                         )}
                       </div>
                       <Switch
+                        id={`${id}-${resource}-${action}`}
                         checked={isChecked(resource, action)}
                         onCheckedChange={
                           readOnly || !onToggle
@@ -648,7 +717,7 @@ function DraftEditor({
   );
 }
 
-function CustomRoleEditor({
+export function CustomRoleEditor({
   workspaceId,
   role,
   isDefault,
@@ -662,7 +731,7 @@ function CustomRoleEditor({
   const { t } = useTranslation();
   const [permissions, setPermissions] = useState<Record<string, Set<string>>>(
     () => {
-      const out: Record<string, Set<string>> = {};
+      const out: Record<string, Set<string>> = Object.create(null);
       for (const [r, actions] of Object.entries(role.permission)) {
         out[r] = new Set(actions);
       }
@@ -672,7 +741,7 @@ function CustomRoleEditor({
   const { mutateAsync: updateRole, isPending } = useUpdateWorkspaceRole();
 
   const currentPermissions = useMemo(() => {
-    const out: Record<string, string[]> = {};
+    const out: Record<string, string[]> = Object.create(null);
     for (const [r, set] of Object.entries(permissions)) {
       if (set.size > 0) out[r] = Array.from(set);
     }
@@ -693,10 +762,6 @@ function CustomRoleEditor({
   };
 
   const handleSave = async () => {
-    if (Object.keys(currentPermissions).length === 0) {
-      toast.error(t("settings:workspaceRoles.validation.permissionRequired"));
-      return;
-    }
     try {
       await updateRole({
         workspaceId,

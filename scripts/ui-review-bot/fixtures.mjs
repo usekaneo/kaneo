@@ -81,7 +81,32 @@ const columns = [
   },
 ];
 
-export function createFixtureSession() {
+export function createFixtureSession({
+  customFields = false,
+  multiselect = false,
+} = {}) {
+  const field = {
+    id: "ui-review-audience",
+    projectId: project.id,
+    name: "Audience",
+    type: multiselect ? "multiselect" : "dropdown",
+    required: false,
+    defaultValue: null,
+    options: ["Design", "Engineering", "Product"],
+    position: 0,
+    createdAt: date,
+    updatedAt: date,
+  };
+  const fieldValue = {
+    id: "ui-review-field-value",
+    taskId: task.id,
+    fieldId: field.id,
+    value: multiselect ? JSON.stringify(["Design"]) : "Design",
+    fieldName: field.name,
+    fieldType: field.type,
+    fieldPosition: 0,
+    fieldOptions: field.options,
+  };
   const entries = [
     {
       id: "ui-review-time-entry",
@@ -97,6 +122,18 @@ export function createFixtureSession() {
   ];
   return (url, method, body = {}) => {
     const p = new URL(url).pathname;
+    if (customFields) {
+      if (p === `/api/custom-field/project/${project.id}` && method === "GET")
+        return structuredClone([field]);
+      if (p === `/api/custom-field/task/${task.id}` && method === "GET")
+        return structuredClone([fieldValue]);
+      if (p === "/api/custom-field/value" && method === "PUT") {
+        if (body.taskId !== task.id || body.fieldId !== field.id)
+          return undefined;
+        fieldValue.value = body.value;
+        return structuredClone(fieldValue);
+      }
+    }
     if (p === `/api/time-entry/task/${task.id}` && method === "GET")
       return entries.map((entry) => ({ ...entry }));
     if (
@@ -196,6 +233,7 @@ export function fixture(url, method) {
     if (
       [
         `/api/activity/${task.id}`,
+        `/api/workflow-rule/${project.id}`,
         `/api/task-relation/${task.id}`,
         `/api/external-link/task/${task.id}`,
         `/api/custom-field/project/${project.id}`,
@@ -219,8 +257,8 @@ export function fixture(url, method) {
   return undefined;
 }
 
-export async function installFixtures(context, origin, diagnostics) {
-  const sessionFixture = createFixtureSession();
+export async function installFixtures(context, origin, diagnostics, options) {
+  const sessionFixture = createFixtureSession(options);
   await context.addInitScript(() => {
     localStorage.setItem("theme", "light");
     localStorage.setItem("vite-ui-theme", "light");

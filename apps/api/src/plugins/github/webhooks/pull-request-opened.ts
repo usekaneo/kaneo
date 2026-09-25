@@ -24,7 +24,9 @@ type PROpenedPayload = {
     };
     user: { login: string } | null;
   };
+  installation?: { id: number };
   repository: {
+    id: number;
     owner: { login: string };
     name: string;
   };
@@ -33,10 +35,7 @@ type PROpenedPayload = {
 export async function handlePullRequestOpened(payload: PROpenedPayload) {
   const { pull_request, repository } = payload;
 
-  const integrations = await findAllIntegrationsByRepo(
-    repository.owner.login,
-    repository.name,
-  );
+  const integrations = await findAllIntegrationsByRepo(payload);
 
   const candidates = [];
   for (const integration of integrations) {

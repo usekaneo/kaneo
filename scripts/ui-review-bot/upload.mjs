@@ -14,13 +14,31 @@ export async function uploadScreenshots(run, folder, api) {
       throw new Error(
         "Only successfully captured PR screenshots can be published.",
       );
-    const filename = path.join(folder, `${index}-after.png`);
-    const png = await readScreenshot(filename);
+    const preview = Boolean(item.focus);
+    if (preview && item.after.preview !== true)
+      throw new Error("Missing focused preview.");
+    const filename = path.join(
+      folder,
+      `${index}-${preview ? "preview" : "after"}.png`,
+    );
+    const png = await readScreenshot(filename, { preview });
+    const bytes = PNG.sync.write(png);
+    if (preview && files.some((file) => file.bytes.equals(bytes)))
+      throw new Error(
+        "Duplicate previews: choose distinct visible states before publishing.",
+      );
+    const caption = String(
+      ["custom-fields", "time-tracking"].includes(run.fixtureProfile)
+        ? item.name
+        : item.review?.caption || "",
+    ).trim();
     files.push({
       path: `screenshots/pr-${run.prNumber}/${run.id}/${index + 1}.png`,
-      bytes: PNG.sync.write(png),
+      bytes,
       description:
-        item.review?.caption || item.name || `Screenshot ${index + 1}`,
+        caption && caption.length <= 70
+          ? caption
+          : String(item.name || `Screenshot ${index + 1}`).slice(0, 70),
     });
   }
   const prefix = `repos/${REPO}/git`;

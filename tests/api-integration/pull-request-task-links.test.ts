@@ -7,6 +7,7 @@ import { importIssues } from "../../apps/api/src/github-integration/controllers/
 import { handleGiteaWebhookRequest } from "../../apps/api/src/plugins/gitea/webhook-handler";
 import { handleGiteaPullRequestClosed } from "../../apps/api/src/plugins/gitea/webhooks/pull-request-closed";
 import { handleGiteaPullRequestOpened } from "../../apps/api/src/plugins/gitea/webhooks/pull-request-opened";
+import { resolvePullRequestTask } from "../../apps/api/src/plugins/github/services/resolve-pull-request-task";
 import { handlePullRequestClosed } from "../../apps/api/src/plugins/github/webhooks/pull-request-closed";
 import { handlePullRequestOpened } from "../../apps/api/src/plugins/github/webhooks/pull-request-opened";
 import { resetTestDatabase } from "./helpers/database";
@@ -17,13 +18,45 @@ import {
 
 const remote = vi.hoisted(() => ({ listIssues: vi.fn(), listPulls: vi.fn() }));
 vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
-  getInstallationOctokit: async () => ({
-    rest: {
-      issues: {
-        listForRepo: async () => ({ data: await remote.listIssues() }),
+  getVerifiedInstallationOctokit: async () => ({
+    graphql: async (query: string) => ({
+      repository: {
+        databaseId: 2,
+        ...(query.includes("query ImportIssues(")
+          ? {
+              issues: {
+                totalCount: 0,
+                pageInfo: { hasNextPage: false, endCursor: null },
+                nodes: [],
+              },
+            }
+          : {
+              pullRequests: {
+                totalCount: (await remote.listPulls()).length,
+                pageInfo: { hasNextPage: false, endCursor: null },
+                nodes: (await remote.listPulls()).map(
+                  (pull: {
+                    number: number;
+                    title: string;
+                    body: string | null;
+                    html_url: string;
+                    state: string;
+                    head: { ref: string };
+                  }) => ({
+                    number: pull.number,
+                    title: pull.title,
+                    body: pull.body,
+                    url: pull.html_url,
+                    state: pull.state.toUpperCase(),
+                    headRefName: pull.head.ref,
+                    createdAt: "2020-01-01T00:00:00Z",
+                    author: null,
+                  }),
+                ),
+              },
+            }),
       },
-      pulls: { list: async () => ({ data: await remote.listPulls() }) },
-    },
+    }),
   }),
 }));
 vi.mock("../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
@@ -53,6 +86,9 @@ async function createFixture(
         repositoryOwner: "acme",
         repositoryName: repo,
         installationId: 1,
+        repositoryId: repo === "repo" ? 2 : 3,
+        verifiedGithubAccountId: "4",
+        verifiedByUserId: member.user.id,
         accessToken: "test-only-token",
         webhookSecret: "test-only-webhook-secret",
         baseUrl: "https://git.example.com",
@@ -97,7 +133,9 @@ describe.each(["github", "gitea"] as const)(
       branch = "unmatched-branch",
     ) => ({
       action: "opened",
+      installation: { id: 1 },
       repository: {
+        id: 2,
         owner: { login: "acme" },
         name: "repo",
         html_url: repositoryUrl,
@@ -114,6 +152,18 @@ describe.each(["github", "gitea"] as const)(
         user: { login: "octocat" },
       },
     });
+    const runImport = async () => {
+      if (provider === "gitea") {
+        const result = await importGiteaIssues(fixture.project.id);
+        expect(result.errors).toBeUndefined();
+        return;
+      }
+      let result = await importIssues(fixture.project.id);
+      for (let attempt = 0; result.pending && attempt < 10; attempt++) {
+        result = await importIssues(fixture.project.id, result.runId);
+      }
+      expect(result.pending).toBe(false);
+    };
     const open = (event = payload()) =>
       provider === "github"
         ? handlePullRequestOpened(event)
@@ -220,21 +270,44 @@ describe.each(["github", "gitea"] as const)(
 
     it("imports a PR using the remote issue mapping", async () => {
       await linkIssue(fixture.intended.id);
-      const result =
-        provider === "github"
-          ? await importIssues(fixture.project.id)
-          : await importGiteaIssues(fixture.project.id);
-      expect(result.errors).toBeUndefined();
+      await runImport();
       expect(await links()).toMatchObject([{ taskId: fixture.intended.id }]);
       expect((await task(fixture.unrelated.id))?.status).toBe("to-do");
     });
 
+    it("imports an explicit task key without an issue link", async () => {
+      remote.listPulls.mockResolvedValue([
+        payload("KAN-42: Fix copy", "").pull_request,
+      ]);
+      await runImport();
+      expect(await links()).toMatchObject([{ taskId: fixture.intended.id }]);
+      expect((await task(fixture.unrelated.id))?.status).toBe("to-do");
+    });
+
+    it("resolves issue links written inside the import transaction", async () => {
+      await db.transaction(async (tx) => {
+        await tx.insert(schema.externalLinkTable).values({
+          taskId: fixture.intended.id,
+          integrationId: fixture.integration.id,
+          resourceType: "issue",
+          externalId: "61",
+          url: `${repositoryUrl}/issues/61`,
+        });
+        const resolved = await resolvePullRequestTask({
+          integrationId: fixture.integration.id,
+          projectId: fixture.project.id,
+          projectSlug: fixture.project.slug,
+          config: { branchPattern: "{slug}-{number}" },
+          repositoryUrl,
+          pullRequest: payload().pull_request,
+          database: tx,
+        });
+        expect(resolved?.id).toBe(fixture.intended.id);
+      });
+    });
+
     it("does not import a PR without a matching issue link", async () => {
-      const result =
-        provider === "github"
-          ? await importIssues(fixture.project.id)
-          : await importGiteaIssues(fixture.project.id);
-      expect(result.errors).toBeUndefined();
+      await runImport();
       await expectUnchanged();
     });
 
@@ -246,11 +319,7 @@ describe.each(["github", "gitea"] as const)(
         fixture.integration.id,
         "pull_request",
       );
-      const result =
-        provider === "github"
-          ? await importIssues(fixture.project.id)
-          : await importGiteaIssues(fixture.project.id);
-      expect(result.errors).toBeUndefined();
+      await runImport();
       expect(await links()).toMatchObject([{ taskId: fixture.unrelated.id }]);
       expect((await task(fixture.intended.id))?.status).toBe("to-do");
       expect((await task(fixture.unrelated.id))?.status).toBe("to-do");

@@ -4,7 +4,6 @@ import { externalLinkTable, taskTable } from "../../../database/schema";
 import type { GitHubConfig } from "../config";
 import { extractTaskNumber } from "../utils/branch-matcher";
 import { extractIssueReferences } from "../utils/issue-references";
-import { findTaskByNumber } from "./task-service";
 
 export async function resolvePullRequestTask({
   integrationId,
@@ -13,7 +12,9 @@ export async function resolvePullRequestTask({
   config,
   repositoryUrl,
   pullRequest,
+  database = db,
 }: {
+  database?: Pick<typeof db, "selectDistinct" | "query">;
   integrationId: string;
   projectId: string;
   projectSlug: string;
@@ -33,7 +34,14 @@ export async function resolvePullRequestTask({
     config,
     projectSlug,
   );
-  if (taskNumber !== null) return findTaskByNumber(projectId, taskNumber);
+  if (taskNumber !== null) {
+    return database.query.taskTable.findFirst({
+      where: and(
+        eq(taskTable.projectId, projectId),
+        eq(taskTable.number, taskNumber),
+      ),
+    });
+  }
 
   const issueNumbers = extractIssueReferences(
     pullRequest.title,
@@ -42,7 +50,7 @@ export async function resolvePullRequestTask({
   );
   if (issueNumbers.length === 0) return;
 
-  const matches = await db
+  const matches = await database
     .selectDistinct({ task: taskTable })
     .from(externalLinkTable)
     .innerJoin(taskTable, eq(taskTable.id, externalLinkTable.taskId))

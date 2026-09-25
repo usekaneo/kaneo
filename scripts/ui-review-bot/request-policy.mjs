@@ -1,16 +1,27 @@
+import { MODEL as REVIEW_MODEL } from "./code-review/limits.mjs";
 import { prNumber, REPO } from "./identity.mjs";
 
 const DEFAULT_MODEL = "qwen/qwen3.8-flash";
-const isCommand = (body) =>
-  typeof body === "string" && body.trim() === "/peekareq";
+export const commandName = (body) => {
+  if (typeof body !== "string") return null;
+  const value = body.trim();
+  return ["/peekareq", "/peekareview"].includes(value) ? value.slice(1) : null;
+};
 
-export async function authorizeRequest(eventName, event, request) {
+export async function authorizeRequest(
+  eventName,
+  event,
+  request,
+  command = "peekareq",
+) {
   const deny = (reason) => ({ allowed: false, reason });
+  if (!["peekareq", "peekareview"].includes(command))
+    return deny("Unknown command.");
   if (event.repository?.full_name !== REPO)
     return deny("Different repository.");
   if (eventName === "repository_dispatch") {
     if (
-      event.action !== "peekareq" ||
+      event.action !== command ||
       event.sender?.type !== "Bot" ||
       event.sender?.login !== "peekareq[bot]"
     )
@@ -29,19 +40,20 @@ export async function authorizeRequest(eventName, event, request) {
         comment: { ...comment, id },
       },
       request,
+      command,
     );
   }
   let number;
   let login;
-  let model = DEFAULT_MODEL;
+  let model = command === "peekareview" ? REVIEW_MODEL : DEFAULT_MODEL;
   if (eventName === "issue_comment") {
     if (
       event.action !== "created" ||
       !event.issue?.pull_request ||
       event.comment?.user?.type !== "User" ||
-      !isCommand(event.comment?.body)
+      commandName(event.comment?.body) !== command
     )
-      return deny("Not a new /peekareq command on a PR.");
+      return deny(`Not a new /${command} command on a PR.`);
     number = prNumber(event.issue.number);
     login = event.comment.user.login;
     if (!Number.isSafeInteger(event.comment.id) || event.comment.id <= 0)
@@ -54,7 +66,7 @@ export async function authorizeRequest(eventName, event, request) {
       current.user?.type !== "User" ||
       current.issue_url !==
         `https://api.github.com/repos/${REPO}/issues/${number}` ||
-      !isCommand(current.body)
+      commandName(current.body) !== command
     )
       return deny("Command comment changed.");
   } else if (eventName === "workflow_dispatch") {
@@ -62,7 +74,7 @@ export async function authorizeRequest(eventName, event, request) {
       return deny("A human maintainer must request the run.");
     login = event.sender.login;
     number = prNumber(event.inputs?.pr);
-    model = event.inputs?.model || DEFAULT_MODEL;
+    if (command === "peekareq") model = event.inputs?.model || DEFAULT_MODEL;
     if (
       typeof model !== "string" ||
       model.length > 150 ||
@@ -81,5 +93,11 @@ export async function authorizeRequest(eventName, event, request) {
   const pr = await request(`repos/${REPO}/pulls/${number}`);
   if (pr.state !== "open" || pr.base?.repo?.full_name !== REPO)
     return deny("The command requires an open PR in this repository.");
-  return { allowed: true, pr: number, model, reason: "Maintainer authorized." };
+  return {
+    allowed: true,
+    pr: number,
+    model,
+    command,
+    reason: "Maintainer authorized.",
+  };
 }

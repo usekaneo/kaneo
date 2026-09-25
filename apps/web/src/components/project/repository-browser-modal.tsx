@@ -26,8 +26,11 @@ import { Separator } from "@/components/ui/separator";
 import getGitHubAppInfo from "@/fetchers/github-integration/get-app-info";
 import listRepositories, {
   type ListRepositoriesResponse,
+  type RepositoryPage,
 } from "@/fetchers/github-integration/list-repositories";
+import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/cn";
+import { openExternalWebUrl } from "@/lib/external-url";
 import { getInitials } from "@/lib/get-initials";
 
 type RepositoryBrowserModalProps = {
@@ -47,15 +50,23 @@ export function RepositoryBrowserModal({
 }: RepositoryBrowserModalProps) {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = React.useState("");
+  const { data: session } = authClient.useSession();
+  const [pageHistory, setPageHistory] = React.useState<RepositoryPage[]>([
+    { installationPage: 1, repositoryPage: 1 },
+  ]);
+  const page = pageHistory[pageHistory.length - 1] ?? {
+    installationPage: 1,
+    repositoryPage: 1,
+  };
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["github-repositories", projectId],
-    queryFn: () => listRepositories(projectId),
-    enabled: open,
+    queryKey: ["github-repositories", projectId, session?.user.id, page],
+    queryFn: () => listRepositories(projectId, page),
+    enabled: open && Boolean(session?.user.id),
   });
 
   const { data: appInfo } = useQuery({
-    queryKey: ["github-app-info"],
+    queryKey: ["github-app-info", session?.user.id],
     queryFn: getGitHubAppInfo,
     enabled: open,
   });
@@ -112,6 +123,7 @@ export function RepositoryBrowserModal({
   const resetAndCloseModal = (open: boolean) => {
     if (!open) {
       setSearchTerm("");
+      setPageHistory([{ installationPage: 1, repositoryPage: 1 }]);
     }
     onOpenChange(open);
   };
@@ -269,7 +281,7 @@ export function RepositoryBrowserModal({
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
-                              window.open(repository.html_url, "_blank");
+                              openExternalWebUrl(repository.html_url);
                             }}
                             className="opacity-0 group-hover:opacity-100 transition-opacity"
                           >
@@ -298,6 +310,29 @@ export function RepositoryBrowserModal({
           )}
         </div>
 
+        {data && (
+          <div className="flex items-center justify-between gap-2 border-t px-6 py-3">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={pageHistory.length <= 1}
+              onClick={() => setPageHistory((pages) => pages.slice(0, -1))}
+            >
+              {t("common:pagination.previous")}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!data.nextPage}
+              onClick={() => {
+                const next = data.nextPage;
+                if (next) setPageHistory((pages) => [...pages, next]);
+              }}
+            >
+              {t("common:pagination.next")}
+            </Button>
+          </div>
+        )}
         {data && data.installations.length > 0 && (
           <>
             <Separator />
