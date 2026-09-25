@@ -9,19 +9,13 @@ import {
   MouseSensor,
   TouchSensor,
   type UniqueIdentifier,
-  useDroppable,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
 import { snapCenterToCursor } from "@dnd-kit/modifiers";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
 import { useNavigate } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "framer-motion";
 import { produce } from "immer";
-import { Archive, ChevronRight, Flag, Plus } from "lucide-react";
+import { Flag } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
@@ -29,12 +23,11 @@ import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import useGetProjectTaskRelations from "@/hooks/queries/task-relation/use-get-project-task-relations";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
-import { getColumnIcon } from "@/lib/column";
 import {
   readExpandedRows,
   writeExpandedRows,
 } from "@/lib/expanded-rows-storage";
-import { buildSubtaskChildren, flattenSubtaskRows } from "@/lib/subtask-tree";
+import { buildSubtaskChildren } from "@/lib/subtask-tree";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
@@ -42,7 +35,7 @@ import type { ProjectWithTasks } from "@/types/project";
 import BulkToolbar from "../bulk-selection/bulk-toolbar";
 import { ArchiveTasksModal } from "../shared/modals/archive-tasks-modal";
 import CreateTaskModal from "../shared/modals/create-task-modal";
-import TaskRow from "./task-row";
+import ColumnSection from "./column-section";
 
 type ListViewProps = {
   project: ProjectWithTasks;
@@ -343,151 +336,6 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
     setColumnToArchive(null);
   };
 
-  function ColumnSection({
-    column,
-  }: {
-    column: ProjectWithTasks["columns"][number];
-  }) {
-    const { setNodeRef } = useDroppable({
-      id: column.id,
-      data: {
-        type: "column",
-        column,
-      },
-    });
-
-    const showDropIndicator = activeId && overColumnId === column.id;
-
-    // A dragged parent collapses for the duration: moving a row while its
-    // children are rendered beneath it has no single correct outcome, and
-    // hiding them keeps the drag to the one row the user grabbed.
-    // Reserving the toggle column on every row keeps the titles aligned, but
-    // only where the group actually has subtasks; a project without any keeps
-    // the original left edge.
-    const rows = flattenSubtaskRows({
-      tasks: column.tasks,
-      children: subtaskChildren,
-      tasksById,
-      // Nothing stays expanded while a drag is in flight. Nested repeats are
-      // not in the SortableContext, so they never receive the transforms
-      // applied to the top-level rows: dragging any task past an expanded
-      // parent would slide the parent while its children stayed put, and the
-      // subtree would visibly split. Collapsing happens once, as the drag
-      // starts, rather than shifting rows under a moving pointer.
-      isExpanded: (rowId) => !activeId && Boolean(expandedTasks[rowId]),
-    });
-
-    // Until the relations arrive, every task looks childless. Holding the
-    // toggle column open means the chevrons appear in place instead of
-    // shifting every title sideways, and aria-busy below says the region is
-    // still resolving rather than settled and flat.
-    const groupHasSubtasks =
-      relationsLoading ||
-      rows.some((row) => row.childCount > 0 || row.depth > 0);
-
-    return (
-      <div
-        className={cn(
-          "border-b border-border/50 transition-colors duration-150 overflow-auto",
-          showDropIndicator && "border-l-4 border-l-ring bg-accent/35",
-        )}
-      >
-        <div className="flex items-center justify-between py-2 px-4 bg-muted/60 border-b border-border/50">
-          <button
-            type="button"
-            onClick={() => toggleSection(column.id)}
-            className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-foreground transition-colors"
-          >
-            <ChevronRight
-              className={cn(
-                "w-3 h-3 transition-transform",
-                expandedSections[column.id] && "rotate-90",
-              )}
-            />
-            <div className="flex items-center gap-2 h-4">
-              {getColumnIcon(column.id, column.isFinal, column.icon)}
-              <div className="flex items-center gap-1">
-                <span className="mt-1 mr-1">{column.name}</span>
-                <span className="text-xs text-muted-foreground mt-0.5">
-                  {column.tasks.length}
-                </span>
-              </div>
-            </div>
-          </button>
-
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => {
-                setIsTaskModalOpen(true);
-                setActiveColumn(column.id);
-              }}
-              className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
-              title={t("tasks:listView.addTask")}
-            >
-              <Plus className="w-3 h-3" />
-            </button>
-
-            {column.isFinal && column.tasks.length > 0 && (
-              <button
-                type="button"
-                onClick={() => handleArchiveClick(column)}
-                className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
-                title={t("tasks:listView.archiveAllTooltip")}
-              >
-                <Archive className="w-3 h-3" />
-              </button>
-            )}
-          </div>
-        </div>
-
-        {expandedSections[column.id] && (
-          <div
-            ref={setNodeRef}
-            className="bg-card transition-[translate,opacity] duration-150 ease-out starting:-translate-y-1 starting:opacity-0 motion-reduce:starting:translate-y-0"
-          >
-            {/* Only the top-level rows are sortable; the nested repeats share
-                their task id with one of them. */}
-            <SortableContext
-              items={column.tasks}
-              strategy={verticalListSortingStrategy}
-            >
-              <AnimatePresence initial={false} mode="popLayout">
-                {rows.map((row) => (
-                  <motion.div
-                    key={row.rowId}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
-                  >
-                    <TaskRow
-                      task={row.task}
-                      projectSlug={project?.slug ?? ""}
-                      reserveToggleSpace={groupHasSubtasks}
-                      isTaskDragging={activeId === row.task.id}
-                      depth={row.depth}
-                      rowId={row.rowId}
-                      childCount={row.childCount}
-                      isExpanded={row.isExpanded}
-                      onToggleExpanded={() => toggleTaskExpanded(row.rowId)}
-                    />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </SortableContext>
-
-            {column.tasks.length === 0 && (
-              <div className="py-6 px-4 text-center text-xs text-muted-foreground">
-                {t("tasks:listView.noTasks")}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  }
-
   if (!project?.columns) {
     return null;
   }
@@ -511,7 +359,25 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
       <div className="w-full h-full overflow-auto bg-muted/20">
         <div aria-busy={relationsLoading} className="divide-y divide-border/50">
           {project.columns.map((column) => (
-            <ColumnSection key={column.id} column={column} />
+            <ColumnSection
+              key={column.id}
+              column={column}
+              projectSlug={project.slug}
+              activeId={activeId}
+              overColumnId={overColumnId}
+              isExpanded={expandedSections[column.id]}
+              expandedTasks={expandedTasks}
+              subtaskChildren={subtaskChildren}
+              tasksById={tasksById}
+              relationsLoading={relationsLoading}
+              toggleSection={toggleSection}
+              toggleTaskExpanded={toggleTaskExpanded}
+              onAddTask={(columnId) => {
+                setIsTaskModalOpen(true);
+                setActiveColumn(columnId);
+              }}
+              handleArchiveClick={handleArchiveClick}
+            />
           ))}
         </div>
       </div>
