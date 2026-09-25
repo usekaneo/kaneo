@@ -20,6 +20,10 @@ const relatedTaskSchema = z
     assigneeName: z.string().nullable(),
     startDate: nullableResponseTimestamp,
     dueDate: nullableResponseTimestamp,
+    isMilestone: z.boolean().openapi({
+      description:
+        "Renders as a diamond marker on the Gantt chart, same as an own task.",
+    }),
   })
   .openapi("RelatedTask");
 

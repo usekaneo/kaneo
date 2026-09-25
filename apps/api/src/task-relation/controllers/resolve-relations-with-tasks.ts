@@ -23,6 +23,7 @@ type TaskSummary = {
   assigneeName: string | null;
   startDate: Date | null;
   dueDate: Date | null;
+  isMilestone: boolean;
 };
 
 // Shared by every task-relation read: expands relation rows with a summary of
@@ -56,6 +57,7 @@ async function resolveRelationsWithTasks(
         assigneeName: userTable.name,
         startDate: taskTable.startDate,
         dueDate: taskTable.dueDate,
+        isMilestone: taskTable.isMilestone,
       })
       .from(taskTable)
       .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))

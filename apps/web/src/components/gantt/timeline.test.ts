@@ -139,6 +139,16 @@ describe("getBarGridColumns", () => {
     expect(result.barInView).toBe(false);
   });
 
+  it("places a single-day span (e.g. a milestone) on exactly one grid line", () => {
+    const result = getBarGridColumns(
+      parseISO("2026-09-05"),
+      parseISO("2026-09-05"),
+      rangeStart,
+      10,
+    );
+    expect(result).toEqual({ barInView: true, lineStart: 5, lineEnd: 6 });
+  });
+
   it("reports out of view for an empty track", () => {
     const result = getBarGridColumns(
       parseISO("2026-09-03"),

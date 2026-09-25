@@ -2001,7 +2001,10 @@
 			"copyTaskBranch": "कार्य शाखा कॉपी करें",
 			"start": "शुरू",
 			"startDate": "शुरू की तारीख",
-			"noDate": "कोई तारीख नहीं"
+			"noDate": "कोई तारीख नहीं",
+			"baseline": "Baseline",
+			"milestone": "Milestone",
+			"progress": "Progress"
 		},
 		"move": {
 			"title": "कार्य ले जाएँ",
@@ -2056,6 +2059,29 @@
 					"rose": "गुलाब",
 					"crimson": "किरमिज़ी"
 				}
+			},
+			"baseline": {
+				"clear": "Clear baseline",
+				"clearError": "Failed to clear baseline",
+				"clearSuccess": "Baseline cleared",
+				"label": "Baseline",
+				"none": "No baseline set",
+				"range": "{{start}} – {{end}}",
+				"set": "Set baseline",
+				"setError": "Failed to set baseline",
+				"setSuccess": "Baseline set from current dates"
+			},
+			"milestone": {
+				"description": "Mark this task as a single-date milestone on the Gantt chart",
+				"label": "Milestone",
+				"updateError": "Failed to update task milestone",
+				"updateSuccess": "Task milestone updated"
+			},
+			"progress": {
+				"label": "Progress",
+				"percentLabel": "Percent complete",
+				"updateError": "Failed to update task progress",
+				"updateSuccess": "Task progress updated"
 			}
 		},
 		"backlog": {
@@ -2146,7 +2172,11 @@
 			"legendBlocking": "Blocking",
 			"legendRelated": "Related",
 			"externalProjectBadge": "in {{projectName}}",
-			"externalTaskTitle": "{{title}} — related task in {{projectName}} (read-only here)"
+			"externalTaskTitle": "{{title}} — related task in {{projectName}} (read-only here)",
+			"legendBaseline": "Baseline",
+			"legendMilestone": "Milestone",
+			"milestoneAriaLabel": "{{title}}: milestone, open task",
+			"progressLabel": "{{progress}}% complete"
 		},
 		"delete": {
 			"title": "कार्य हटाएँ?",

@@ -1994,7 +1994,10 @@
 			"copyTaskBranch": "작업 브랜치 복사",
 			"start": "시작",
 			"startDate": "시작일",
-			"noDate": "날짜 없음"
+			"noDate": "날짜 없음",
+			"baseline": "Baseline",
+			"milestone": "Milestone",
+			"progress": "Progress"
 		},
 		"move": {
 			"title": "작업 이동",
@@ -2049,6 +2052,29 @@
 					"rose": "로즈",
 					"crimson": "크림슨"
 				}
+			},
+			"baseline": {
+				"clear": "Clear baseline",
+				"clearError": "Failed to clear baseline",
+				"clearSuccess": "Baseline cleared",
+				"label": "Baseline",
+				"none": "No baseline set",
+				"range": "{{start}} – {{end}}",
+				"set": "Set baseline",
+				"setError": "Failed to set baseline",
+				"setSuccess": "Baseline set from current dates"
+			},
+			"milestone": {
+				"description": "Mark this task as a single-date milestone on the Gantt chart",
+				"label": "Milestone",
+				"updateError": "Failed to update task milestone",
+				"updateSuccess": "Task milestone updated"
+			},
+			"progress": {
+				"label": "Progress",
+				"percentLabel": "Percent complete",
+				"updateError": "Failed to update task progress",
+				"updateSuccess": "Task progress updated"
 			}
 		},
 		"backlog": {
@@ -2152,7 +2178,11 @@
 			"legendBlocking": "Blocking",
 			"legendRelated": "Related",
 			"externalProjectBadge": "in {{projectName}}",
-			"externalTaskTitle": "{{title}} — related task in {{projectName}} (read-only here)"
+			"externalTaskTitle": "{{title}} — related task in {{projectName}} (read-only here)",
+			"legendBaseline": "Baseline",
+			"legendMilestone": "Milestone",
+			"milestoneAriaLabel": "{{title}}: milestone, open task",
+			"progressLabel": "{{progress}}% complete"
 		},
 		"delete": {
 			"title": "작업을 삭제하시겠습니까?",

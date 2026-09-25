@@ -1,3 +1,4 @@
+import { Diamond } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/cn";
 import { getBarGridColumns } from "./timeline";
@@ -12,6 +13,7 @@ export type ExternalGanttTask = {
   projectSlug: string;
   scheduleStart: Date;
   scheduleEnd: Date;
+  isMilestone: boolean;
 };
 
 type GanttExternalTaskBarProps = {
@@ -39,14 +41,55 @@ export function GanttExternalTaskBar({
 }: GanttExternalTaskBarProps) {
   const { t } = useTranslation();
   const trackCount = timeline.days.length;
-  const { barInView, lineStart, lineEnd } = getBarGridColumns(
-    task.scheduleStart,
-    task.scheduleEnd,
-    timeline.rangeStart,
-    trackCount,
-  );
+  // A milestone renders at its own date rather than whatever span
+  // scheduleStart/scheduleEnd resolved to — see the matching comment in
+  // GanttTaskBar.
+  const { barInView, lineStart, lineEnd } = task.isMilestone
+    ? getBarGridColumns(
+        task.scheduleStart,
+        task.scheduleStart,
+        timeline.rangeStart,
+        trackCount,
+      )
+    : getBarGridColumns(
+        task.scheduleStart,
+        task.scheduleEnd,
+        timeline.rangeStart,
+        trackCount,
+      );
 
   if (!barInView) return null;
+
+  const title = t("tasks:gantt.externalTaskTitle", {
+    title: task.title,
+    projectName: task.projectName,
+  });
+
+  if (task.isMilestone) {
+    return (
+      <div
+        className="pointer-events-none absolute inset-0 z-[1] grid items-center"
+        style={{ gridTemplateColumns: timeline.gridTemplateColumns }}
+      >
+        {/* biome-ignore lint/a11y/noStaticElementInteractions: hover/focus tracking drives dependency-line highlighting, matching GanttTaskBar; there is nothing to activate here since the task isn't editable from this board. */}
+        <div
+          style={{ gridColumn: `${lineStart} / ${lineEnd}` }}
+          onMouseEnter={() => onHoverChange?.(true)}
+          onMouseLeave={() => onHoverChange?.(false)}
+          className="pointer-events-auto relative flex min-h-[44px] cursor-default items-center justify-center sm:min-h-0"
+          title={title}
+        >
+          <Diamond
+            className={cn(
+              "size-4 shrink-0 fill-muted-foreground/20 text-muted-foreground/70",
+              emphasis === "highlighted" && "ring-2 ring-primary/30",
+              emphasis === "dimmed" && "opacity-35",
+            )}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -64,10 +107,7 @@ export function GanttExternalTaskBar({
             "border-primary/50 ring-2 ring-primary/30",
           emphasis === "dimmed" && "opacity-35",
         )}
-        title={t("tasks:gantt.externalTaskTitle", {
-          title: task.title,
-          projectName: task.projectName,
-        })}
+        title={title}
       >
         <span className="shrink-0 truncate rounded-full bg-secondary/60 px-1.5 py-px text-[10px] font-medium uppercase tracking-wide text-secondary-foreground">
           {task.projectSlug}

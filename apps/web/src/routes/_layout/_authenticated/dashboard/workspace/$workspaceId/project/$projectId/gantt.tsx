@@ -317,6 +317,7 @@ function RouteComponent() {
           projectSlug: candidate.projectSlug,
           scheduleStart: schedule.start,
           scheduleEnd: schedule.end,
+          isMilestone: candidate.isMilestone,
           isExternal: true as const,
         });
       }
@@ -1055,7 +1056,16 @@ function RouteComponent() {
                         ) : null}
 
                         <div
-                          className="relative min-h-11 shrink-0 select-none"
+                          className={cn(
+                            "relative shrink-0 select-none",
+                            // Extra room below the bar for the baseline
+                            // underlay (see GanttTaskBar); rows without a
+                            // baseline stay at the usual height.
+                            !task.isExternal &&
+                              (task.baselineStartDate || task.baselineDueDate)
+                              ? "min-h-14"
+                              : "min-h-11",
+                          )}
                           style={{
                             minWidth: `${timeline.timelineMinWidthRem}rem`,
                           }}

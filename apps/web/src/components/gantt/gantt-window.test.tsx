@@ -76,7 +76,12 @@ beforeEach(() => {
   );
   vi.stubGlobal("PointerEvent", MouseEvent);
 });
-function task(id: string, startDate: string, dueDate: string) {
+function task(
+  id: string,
+  startDate: string,
+  dueDate: string,
+  overrides: Record<string, unknown> = {},
+) {
   return {
     id,
     projectId: "project",
@@ -89,6 +94,11 @@ function task(id: string, startDate: string, dueDate: string) {
     labels: [],
     priority: "low",
     position: 1,
+    progress: 0,
+    isMilestone: false,
+    baselineStartDate: null,
+    baselineDueDate: null,
+    ...overrides,
   };
 }
 function show() {
@@ -166,5 +176,55 @@ describe("Gantt window UI", () => {
     expect(
       container.querySelectorAll('[style*="repeat(91,"]').length,
     ).toBeGreaterThan(0);
+  });
+
+  it("shades the completed portion of a task bar according to its progress", () => {
+    m.tasks = [task("Partial", "2026-09-14", "2026-09-18", { progress: 40 })];
+    const { container } = show();
+    expect(
+      container.querySelector('[style*="width: 40%"]'),
+    ).toBeInTheDocument();
+  });
+
+  it("does not shade a task bar with no progress", () => {
+    m.tasks = [task("Fresh", "2026-09-14", "2026-09-18", { progress: 0 })];
+    const { container } = show();
+    expect(container.querySelector('[style*="width: 0%"]')).toBeNull();
+  });
+
+  it("renders a milestone task as a diamond marker instead of a span bar", () => {
+    m.tasks = [
+      task("Kickoff", "2026-09-15", "2026-09-15", { isMilestone: true }),
+    ];
+    show();
+    expect(
+      screen.getByRole("button", {
+        name: "tasks:gantt.milestoneAriaLabel",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "tasks:gantt.resizeStart" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders a thin baseline underlay beneath a task that has one set", () => {
+    m.tasks = [
+      task("Drifted", "2026-09-16", "2026-09-20", {
+        baselineStartDate: "2026-09-14",
+        baselineDueDate: "2026-09-18",
+      }),
+    ];
+    const { container } = show();
+    expect(
+      container.querySelector('[title="tasks:properties.baseline"]'),
+    ).toBeInTheDocument();
+  });
+
+  it("omits the baseline underlay when no baseline is set", () => {
+    m.tasks = [task("NoBaseline", "2026-09-16", "2026-09-20")];
+    const { container } = show();
+    expect(
+      container.querySelector('[title="tasks:properties.baseline"]'),
+    ).toBeNull();
   });
 });

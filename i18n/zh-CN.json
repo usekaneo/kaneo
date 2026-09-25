@@ -1994,7 +1994,10 @@
 			"copyTaskBranch": "复制任务分支",
 			"start": "开始",
 			"startDate": "开始日期",
-			"noDate": "无日期"
+			"noDate": "无日期",
+			"baseline": "Baseline",
+			"milestone": "Milestone",
+			"progress": "Progress"
 		},
 		"move": {
 			"title": "移动任务",
@@ -2049,6 +2052,29 @@
 					"rose": "玫红",
 					"crimson": "深红"
 				}
+			},
+			"baseline": {
+				"clear": "Clear baseline",
+				"clearError": "Failed to clear baseline",
+				"clearSuccess": "Baseline cleared",
+				"label": "Baseline",
+				"none": "No baseline set",
+				"range": "{{start}} – {{end}}",
+				"set": "Set baseline",
+				"setError": "Failed to set baseline",
+				"setSuccess": "Baseline set from current dates"
+			},
+			"milestone": {
+				"description": "Mark this task as a single-date milestone on the Gantt chart",
+				"label": "Milestone",
+				"updateError": "Failed to update task milestone",
+				"updateSuccess": "Task milestone updated"
+			},
+			"progress": {
+				"label": "Progress",
+				"percentLabel": "Percent complete",
+				"updateError": "Failed to update task progress",
+				"updateSuccess": "Task progress updated"
 			}
 		},
 		"backlog": {
@@ -2152,7 +2178,11 @@
 			"legendBlocking": "Blocking",
 			"legendRelated": "Related",
 			"externalProjectBadge": "in {{projectName}}",
-			"externalTaskTitle": "{{title}} — related task in {{projectName}} (read-only here)"
+			"externalTaskTitle": "{{title}} — related task in {{projectName}} (read-only here)",
+			"legendBaseline": "Baseline",
+			"legendMilestone": "Milestone",
+			"milestoneAriaLabel": "{{title}}: milestone, open task",
+			"progressLabel": "{{progress}}% complete"
 		},
 		"delete": {
 			"title": "删除任务？",

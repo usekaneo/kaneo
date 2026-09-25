@@ -1,11 +1,12 @@
 import { addDays, differenceInCalendarDays, startOfDay } from "date-fns";
+import { Diamond } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
-import { getBarGridColumns } from "./timeline";
+import { deriveTaskSchedule, getBarGridColumns } from "./timeline";
 
 const CLICK_MOVE_THRESHOLD_PX = 4;
 const MOBILE_MOVE_THRESHOLD_PX = 14;
@@ -275,7 +276,38 @@ export function GanttTaskBar({
     window.addEventListener("pointercancel", onCancel);
   };
 
-  if (!barInView) {
+  // A milestone is a point in time, not a span: it renders at its own date
+  // (task.scheduleStart already resolves to startDate, or dueDate if start is
+  // absent — see deriveTaskSchedule) rather than at whatever range
+  // barInView/lineStart/lineEnd above computed from displayStart/displayEnd,
+  // which for a milestone that still carries both dates from before it was
+  // marked one would otherwise draw a multi-day span.
+  const milestoneGrid = getBarGridColumns(
+    task.scheduleStart,
+    task.scheduleStart,
+    timeline.rangeStart,
+    trackCount,
+  );
+
+  // Baseline (plan vs actual): a thin, muted underlay spanning the snapshot
+  // taken when the baseline was last set, independent of barInView above —
+  // it has its own date range and its own in-view check.
+  const baselineSchedule = deriveTaskSchedule(
+    task.baselineStartDate,
+    task.baselineDueDate,
+  );
+  const baselineGrid = baselineSchedule
+    ? getBarGridColumns(
+        baselineSchedule.start,
+        baselineSchedule.end,
+        timeline.rangeStart,
+        trackCount,
+      )
+    : null;
+
+  const isInView = task.isMilestone ? milestoneGrid.barInView : barInView;
+
+  if (!isInView) {
     return null;
   }
 
@@ -295,65 +327,136 @@ export function GanttTaskBar({
     onHoverChange?.(false);
   };
 
-  return (
+  const baselineUnderlay = baselineGrid?.barInView ? (
     <div
-      className="pointer-events-none absolute inset-0 z-[1] grid items-center"
-      style={{
-        gridTemplateColumns: timeline.gridTemplateColumns,
-      }}
+      className="pointer-events-none absolute inset-x-0 bottom-0.5 z-0 grid"
+      style={{ gridTemplateColumns: timeline.gridTemplateColumns }}
     >
-      {/* biome-ignore lint/a11y/noStaticElementInteractions: hover/focus tracking drives dependency-line highlighting; the actual interactive controls are the buttons nested below */}
       <div
-        style={{ gridColumn: `${lineStart} / ${lineEnd}` }}
-        onMouseEnter={() => onHoverChange?.(true)}
-        onMouseLeave={() => onHoverChange?.(false)}
-        onFocus={() => onHoverChange?.(true)}
-        onBlur={handleBlur}
-        className={cn(
-          "group pointer-events-auto relative mx-1 flex min-h-[44px] min-w-0 items-stretch overflow-hidden rounded-md border border-primary/25 bg-background text-left text-sm font-medium leading-none text-foreground shadow-sm transition-[opacity,border-color] hover:border-primary/40 sm:h-11 sm:min-h-0",
-          emphasis === "highlighted" &&
-            "border-primary/60 ring-2 ring-primary/40",
-          emphasis === "dimmed" && "opacity-35",
-        )}
-      >
-        <button
-          type="button"
-          aria-label={t("tasks:gantt.resizeStart")}
-          disabled={!startIsVisible}
-          onPointerDown={handleResizeLeftPointerDown}
-          className={cn(
-            "relative z-20 shrink-0 cursor-ew-resize touch-none border-r border-primary/15 bg-primary/8 hover:bg-primary/18",
-            "min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 sm:w-2",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-          )}
-        />
-        <button
-          type="button"
-          aria-label={t("tasks:gantt.taskAriaLabel", { title: task.title })}
-          className="relative z-10 min-h-[44px] min-w-0 flex-1 cursor-grab touch-manipulation overflow-hidden px-2 text-left active:cursor-grabbing sm:min-h-0 sm:px-2.5"
-          onPointerDown={handleMovePointerDown}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              onOpenTask();
-            }
-          }}
-        >
-          <div className="absolute inset-0 z-0 bg-primary/12 transition-colors group-hover:bg-primary/18" />
-          <span className="relative z-10 block truncate">{task.title}</span>
-        </button>
-        <button
-          type="button"
-          aria-label={t("tasks:gantt.resizeDue")}
-          disabled={!endIsVisible}
-          onPointerDown={handleResizeRightPointerDown}
-          className={cn(
-            "relative z-20 shrink-0 cursor-ew-resize touch-none border-l border-primary/15 bg-primary/8 hover:bg-primary/18",
-            "min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 sm:w-2",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-          )}
-        />
-      </div>
+        style={{
+          gridColumn: `${baselineGrid.lineStart} / ${baselineGrid.lineEnd}`,
+        }}
+        className="mx-1 h-1 rounded-full bg-muted-foreground/40 dark:bg-muted-foreground/50"
+        title={t("tasks:properties.baseline")}
+        aria-hidden="true"
+      />
     </div>
+  ) : null;
+
+  if (task.isMilestone) {
+    return (
+      <>
+        {baselineUnderlay}
+        <div
+          className="pointer-events-none absolute inset-0 z-[1] grid items-center"
+          style={{ gridTemplateColumns: timeline.gridTemplateColumns }}
+        >
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: hover/focus tracking drives dependency-line highlighting; the actual interactive control is the button nested below */}
+          <div
+            style={{
+              gridColumn: `${milestoneGrid.lineStart} / ${milestoneGrid.lineEnd}`,
+            }}
+            onMouseEnter={() => onHoverChange?.(true)}
+            onMouseLeave={() => onHoverChange?.(false)}
+            onFocus={() => onHoverChange?.(true)}
+            onBlur={handleBlur}
+            className="pointer-events-auto relative flex min-h-[44px] items-center justify-center sm:min-h-0"
+          >
+            <button
+              type="button"
+              aria-label={t("tasks:gantt.milestoneAriaLabel", {
+                title: task.title,
+              })}
+              onClick={onOpenTask}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onOpenTask();
+                }
+              }}
+              className={cn(
+                "flex size-5 shrink-0 touch-manipulation items-center justify-center rounded-sm text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 sm:size-4",
+                emphasis === "highlighted" && "ring-2 ring-primary/40",
+                emphasis === "dimmed" && "opacity-35",
+              )}
+            >
+              <Diamond className="size-full fill-primary/30" />
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      {baselineUnderlay}
+      <div
+        className="pointer-events-none absolute inset-0 z-[1] grid items-center"
+        style={{
+          gridTemplateColumns: timeline.gridTemplateColumns,
+        }}
+      >
+        {/* biome-ignore lint/a11y/noStaticElementInteractions: hover/focus tracking drives dependency-line highlighting; the actual interactive controls are the buttons nested below */}
+        <div
+          style={{ gridColumn: `${lineStart} / ${lineEnd}` }}
+          onMouseEnter={() => onHoverChange?.(true)}
+          onMouseLeave={() => onHoverChange?.(false)}
+          onFocus={() => onHoverChange?.(true)}
+          onBlur={handleBlur}
+          className={cn(
+            "group pointer-events-auto relative mx-1 flex min-h-[44px] min-w-0 items-stretch overflow-hidden rounded-md border border-primary/25 bg-background text-left text-sm font-medium leading-none text-foreground shadow-sm transition-[opacity,border-color] hover:border-primary/40 sm:h-11 sm:min-h-0",
+            emphasis === "highlighted" &&
+              "border-primary/60 ring-2 ring-primary/40",
+            emphasis === "dimmed" && "opacity-35",
+          )}
+        >
+          {task.progress > 0 && (
+            <div
+              className="pointer-events-none absolute inset-y-0 left-0 z-0 bg-primary/30 dark:bg-primary/40"
+              style={{ width: `${Math.min(100, Math.max(0, task.progress))}%` }}
+              aria-hidden="true"
+            />
+          )}
+          <button
+            type="button"
+            aria-label={t("tasks:gantt.resizeStart")}
+            disabled={!startIsVisible}
+            onPointerDown={handleResizeLeftPointerDown}
+            className={cn(
+              "relative z-20 shrink-0 cursor-ew-resize touch-none border-r border-primary/15 bg-primary/8 hover:bg-primary/18",
+              "min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 sm:w-2",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+            )}
+          />
+          <button
+            type="button"
+            aria-label={t("tasks:gantt.taskAriaLabel", { title: task.title })}
+            className="relative z-10 min-h-[44px] min-w-0 flex-1 cursor-grab touch-manipulation overflow-hidden px-2 text-left active:cursor-grabbing sm:min-h-0 sm:px-2.5"
+            onPointerDown={handleMovePointerDown}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onOpenTask();
+              }
+            }}
+          >
+            <div className="absolute inset-0 z-0 bg-primary/12 transition-colors group-hover:bg-primary/18" />
+            <span className="relative z-10 block truncate">{task.title}</span>
+          </button>
+          <button
+            type="button"
+            aria-label={t("tasks:gantt.resizeDue")}
+            disabled={!endIsVisible}
+            onPointerDown={handleResizeRightPointerDown}
+            className={cn(
+              "relative z-20 shrink-0 cursor-ew-resize touch-none border-l border-primary/15 bg-primary/8 hover:bg-primary/18",
+              "min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 sm:w-2",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+            )}
+          />
+        </div>
+      </div>
+    </>
   );
 }

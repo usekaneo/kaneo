@@ -145,6 +145,30 @@
             ],
             "format": "date-time"
           },
+          "progress": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Percent complete, 0-100."
+          },
+          "isMilestone": {
+            "type": "boolean",
+            "description": "Renders as a diamond marker on the Gantt chart at its date instead of a spanning bar."
+          },
+          "baselineStartDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "baselineDueDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
           "position": {
             "type": [
               "number",
@@ -204,6 +228,10 @@
           "priority",
           "startDate",
           "dueDate",
+          "progress",
+          "isMilestone",
+          "baselineStartDate",
+          "baselineDueDate",
           "position",
           "createdAt",
           "userId",
@@ -848,6 +876,32 @@
             ],
             "format": "date-time"
           },
+          "progress": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Percent complete, 0-100."
+          },
+          "isMilestone": {
+            "type": "boolean",
+            "description": "Renders as a diamond marker on the Gantt chart at its date instead of a spanning bar."
+          },
+          "baselineStartDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Snapshotted startDate from when the baseline was last set; null if no baseline."
+          },
+          "baselineDueDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Snapshotted dueDate from when the baseline was last set; null if no baseline."
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -883,6 +937,10 @@
           "priority",
           "startDate",
           "dueDate",
+          "progress",
+          "isMilestone",
+          "baselineStartDate",
+          "baselineDueDate",
           "createdAt"
         ]
       },
@@ -2981,6 +3039,10 @@
               "null"
             ],
             "format": "date-time"
+          },
+          "isMilestone": {
+            "type": "boolean",
+            "description": "Renders as a diamond marker on the Gantt chart, same as an own task."
           }
         },
         "required": [
@@ -2995,7 +3057,8 @@
           "userId",
           "assigneeName",
           "startDate",
-          "dueDate"
+          "dueDate",
+          "isMilestone"
         ]
       },
       "TaskRelation": {
@@ -7323,6 +7386,16 @@
                     "type": "string",
                     "description": "Assignee, if any."
                   },
+                  "progress": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "Defaults to 0."
+                  },
+                  "isMilestone": {
+                    "type": "boolean",
+                    "description": "Defaults to false."
+                  },
                   "customFields": {
                     "type": "array",
                     "items": {
@@ -7503,6 +7576,15 @@
                   },
                   "userId": {
                     "type": "string"
+                  },
+                  "progress": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "Percent complete, 0-100."
+                  },
+                  "isMilestone": {
+                    "type": "boolean"
                   }
                 },
                 "required": [
@@ -8219,6 +8301,114 @@
           },
           "400": {
             "description": "Invalid body, or unknown task",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/task/{id}/baseline": {
+      "post": {
+        "operationId": "setTaskBaseline",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Set task baseline",
+        "description": "Snapshot the task's current startDate/dueDate as its baseline, for plan-vs-actual comparison on the Gantt chart.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The updated task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown task",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "clearTaskBaseline",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Clear task baseline",
+        "description": "Remove the task's stored baseline dates, if any.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The updated task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown task",
             "content": {
               "text/plain": {
                 "schema": {

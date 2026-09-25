@@ -28,6 +28,21 @@ export const taskSchema = z
     priority: z.string().openapi({ description: priorityDescription }),
     startDate: nullableResponseTimestamp,
     dueDate: nullableResponseTimestamp,
+    progress: z.number().int().min(0).max(100).openapi({
+      description: "Percent complete, 0-100.",
+    }),
+    isMilestone: z.boolean().openapi({
+      description:
+        "Renders as a diamond marker on the Gantt chart at its date instead of a spanning bar.",
+    }),
+    baselineStartDate: nullableResponseTimestamp.openapi({
+      description:
+        "Snapshotted startDate from when the baseline was last set; null if no baseline.",
+    }),
+    baselineDueDate: nullableResponseTimestamp.openapi({
+      description:
+        "Snapshotted dueDate from when the baseline was last set; null if no baseline.",
+    }),
     createdAt: responseTimestamp,
     customFields: z
       .array(z.object({ fieldId: z.string(), value: z.string() }))
@@ -78,6 +93,15 @@ export const boardTaskSchema = z
     priority: z.string().openapi({ description: priorityDescription }),
     startDate: nullableResponseTimestamp,
     dueDate: nullableResponseTimestamp,
+    progress: z.number().int().min(0).max(100).openapi({
+      description: "Percent complete, 0-100.",
+    }),
+    isMilestone: z.boolean().openapi({
+      description:
+        "Renders as a diamond marker on the Gantt chart at its date instead of a spanning bar.",
+    }),
+    baselineStartDate: nullableResponseTimestamp,
+    baselineDueDate: nullableResponseTimestamp,
     position: z.number().nullable(),
     createdAt: responseTimestamp,
     userId: z.string().nullable(),

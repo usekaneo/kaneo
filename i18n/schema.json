@@ -8020,6 +8020,15 @@
 						},
 						"noDate": {
 							"type": "string"
+						},
+						"progress": {
+							"type": "string"
+						},
+						"milestone": {
+							"type": "string"
+						},
+						"baseline": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -8029,7 +8038,10 @@
 						"copyTaskBranch",
 						"start",
 						"startDate",
-						"noDate"
+						"noDate",
+						"progress",
+						"milestone",
+						"baseline"
 					]
 				},
 				"move": {
@@ -8145,6 +8157,98 @@
 							},
 							"required": ["updateSuccess", "updateError", "clear"]
 						},
+						"progress": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"percentLabel": {
+									"type": "string"
+								},
+								"updateSuccess": {
+									"type": "string"
+								},
+								"updateError": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"label",
+								"percentLabel",
+								"updateSuccess",
+								"updateError"
+							]
+						},
+						"milestone": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"updateSuccess": {
+									"type": "string"
+								},
+								"updateError": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"label",
+								"description",
+								"updateSuccess",
+								"updateError"
+							]
+						},
+						"baseline": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"none": {
+									"type": "string"
+								},
+								"set": {
+									"type": "string"
+								},
+								"clear": {
+									"type": "string"
+								},
+								"setSuccess": {
+									"type": "string"
+								},
+								"setError": {
+									"type": "string"
+								},
+								"clearSuccess": {
+									"type": "string"
+								},
+								"clearError": {
+									"type": "string"
+								},
+								"range": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"label",
+								"none",
+								"set",
+								"clear",
+								"setSuccess",
+								"setError",
+								"clearSuccess",
+								"clearError",
+								"range"
+							]
+						},
 						"labels": {
 							"type": "object",
 							"additionalProperties": false,
@@ -8241,6 +8345,9 @@
 						"priority",
 						"dueDate",
 						"startDate",
+						"progress",
+						"milestone",
+						"baseline",
 						"labels"
 					]
 				},
@@ -8690,10 +8797,22 @@
 						"legendRelated": {
 							"type": "string"
 						},
+						"legendMilestone": {
+							"type": "string"
+						},
+						"legendBaseline": {
+							"type": "string"
+						},
 						"externalProjectBadge": {
 							"type": "string"
 						},
 						"externalTaskTitle": {
+							"type": "string"
+						},
+						"milestoneAriaLabel": {
+							"type": "string"
+						},
+						"progressLabel": {
 							"type": "string"
 						}
 					},
@@ -8719,8 +8838,12 @@
 						"showTaskDates",
 						"legendBlocking",
 						"legendRelated",
+						"legendMilestone",
+						"legendBaseline",
 						"externalProjectBadge",
-						"externalTaskTitle"
+						"externalTaskTitle",
+						"milestoneAriaLabel",
+						"progressLabel"
 					]
 				},
 				"delete": {
