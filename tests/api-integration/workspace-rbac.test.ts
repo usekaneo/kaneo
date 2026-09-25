@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { and, eq, inArray } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { mockAuthenticatedSession } from "./helpers/auth";
@@ -9,6 +9,16 @@ import {
   createProjectFixture,
   createWorkspaceMember,
 } from "./helpers/fixtures";
+
+// Assignment notifications run in the background and can otherwise race the
+// next test's TRUNCATE. Notification access/delivery has its own DB suite;
+// these tests exercise the real authorization and resource mutations.
+vi.mock(
+  "../../apps/api/src/notification/controllers/create-notification",
+  () => ({
+    default: vi.fn(async () => null),
+  }),
+);
 
 type CreateTaskBody = {
   title: string;

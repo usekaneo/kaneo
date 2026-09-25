@@ -15,6 +15,9 @@ function useChangePassword() {
       const { data, error } = await authClient.changePassword({
         currentPassword,
         newPassword,
+        // Sign out the account's other sessions on a password change; better-auth
+        // keeps the current session, so the user stays signed in on this device.
+        revokeOtherSessions: true,
       });
 
       if (error) {

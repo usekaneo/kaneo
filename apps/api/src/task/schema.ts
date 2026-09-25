@@ -1,4 +1,5 @@
 import { z } from "../openapi";
+import { MAX_TASK_POSITION } from "./controllers/next-task-position";
 import { VALID_PRIORITIES } from "./validate-task-fields";
 
 const pagingNumber = (min: number, max: number) =>
@@ -21,7 +22,8 @@ export const listTasksQuery = z.object({
   assigneeId: z.string().optional(),
   // Number("abc") is NaN, which used to reach the limit/offset clause unchecked.
   page: pagingNumber(1, 1_000_000).optional(),
-  limit: pagingNumber(1, 200).optional(),
+  relatedPage: pagingNumber(1, 1_000_000).optional(),
+  limit: pagingNumber(1, 100).optional(),
   sortBy: z
     .enum(["createdAt", "priority", "dueDate", "position", "title", "number"])
     .optional(),
@@ -55,17 +57,23 @@ export const createTaskBody = z.object({
   priority,
   status: z.string().openapi({ description: "The target column's slug." }),
   userId: z.string().optional().openapi({ description: "Assignee, if any." }),
+  customFields: z
+    .array(z.object({ fieldId: z.string(), value: z.string() }))
+    .optional(),
 });
 
 export const updateTaskBody = z.object({
   title: z.string(),
-  description: z.string(),
+  description: z.string().optional().openapi({
+    description:
+      "Omit to preserve the existing description when updating a list summary.",
+  }),
   startDate: z.string().optional(),
   dueDate: z.string().optional(),
   priority,
   status: z.string(),
   projectId: z.string(),
-  position: z.number(),
+  position: z.number().int().min(0).max(MAX_TASK_POSITION),
   userId: z.string().optional(),
 });
 
@@ -118,4 +126,16 @@ export const finalizeImageUploadBody = z.object({
   contentType: z.string(),
   size: z.number(),
   surface,
+});
+
+export const descriptionPageQuery = z.object({
+  offset: pagingNumber(0, 2_000_000_000).default(0),
+  version: z
+    .string()
+    .regex(/^[0-9]{1,10}$/)
+    .optional(),
+});
+export const descriptionMatchesQuery = z.object({
+  query: z.string().trim().min(1).max(256),
+  after: z.string().min(1).max(128).optional(),
 });

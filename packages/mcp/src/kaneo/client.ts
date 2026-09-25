@@ -17,6 +17,10 @@ export class KaneoClient {
     this.auth = options.auth;
   }
 
+  get usingApiKey() {
+    return this.auth.usingApiKey;
+  }
+
   private async authorizedFetch(
     path: string,
     init?: RequestInit,

@@ -10,11 +10,14 @@ export const getColumnIcon = (
 ) => {
   const resolvedIconName =
     iconName ||
-    DEFAULT_COLUMN_ICON_NAMES[
-      columnId as keyof typeof DEFAULT_COLUMN_ICON_NAMES
-    ];
+    (Object.hasOwn(DEFAULT_COLUMN_ICON_NAMES, columnId)
+      ? DEFAULT_COLUMN_ICON_NAMES[
+          columnId as keyof typeof DEFAULT_COLUMN_ICON_NAMES
+        ]
+      : undefined);
   const Icon =
-    resolvedIconName &&
+    typeof resolvedIconName === "string" &&
+    Object.hasOwn(columnIcons, resolvedIconName) &&
     columnIcons[resolvedIconName as keyof typeof columnIcons];
 
   if (Icon) {

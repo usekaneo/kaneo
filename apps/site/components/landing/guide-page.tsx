@@ -6,7 +6,9 @@ import {
   JsonLd,
 } from "@/components/landing/json-ld";
 import { Navbar } from "@/components/landing/navbar";
+import { PageIntro } from "@/components/landing/page-intro";
 import { SectionSeparator } from "@/components/landing/section-separator";
+import { Button } from "@/components/ui/button";
 import type { Guide } from "@/lib/guides";
 import { guidePath } from "@/lib/guides";
 
@@ -49,25 +51,18 @@ export function GuidePage({ data }: { data: Guide }) {
       />
       <Navbar />
       <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-        <section className="px-6 pt-14 pb-12 md:pt-20 md:pb-16">
+        <section className="px-6 pt-14 pb-12 md:pt-20 md:pb-16 lg:pt-24">
           <div className="mx-auto w-full max-w-3xl">
-            <FadeIn delay={0}>
-              <p className="font-medium text-primary text-sm">Guide</p>
-            </FadeIn>
-            <FadeIn delay={60}>
-              <h1 className="mt-3 text-balance text-3xl font-medium leading-[1.1] md:text-4xl">
-                {data.question}
-              </h1>
-            </FadeIn>
+            <PageIntro eyebrow="Guide" title={data.question} />
             <FadeIn delay={120}>
-              <div className="mt-6 rounded-2xl border border-border/70 bg-card/70 p-5 md:p-6">
+              <div className="mt-8 border-l-2 border-foreground/20 py-1 pl-6">
                 <h2 className="font-medium text-sm">Short answer</h2>
                 <p className="mt-2 text-foreground/80 leading-relaxed">
                   {data.answer}
                 </p>
               </div>
             </FadeIn>
-            <p className="mt-4 text-foreground/50 text-xs">
+            <p className="mt-4 text-muted-foreground text-xs">
               Last updated {formatUpdatedOn(data.updatedOn)}. Written by the
               Kaneo team, who also build one of the tools mentioned.
             </p>
@@ -85,7 +80,7 @@ export function GuidePage({ data }: { data: Guide }) {
                   {section.body?.map((paragraph) => (
                     <p
                       key={paragraph.slice(0, 40)}
-                      className="mt-4 text-foreground/70 leading-relaxed"
+                      className="mt-4 text-muted-foreground leading-relaxed"
                     >
                       {paragraph}
                     </p>
@@ -93,10 +88,7 @@ export function GuidePage({ data }: { data: Guide }) {
                   {section.items ? (
                     <div className="mt-6 space-y-5">
                       {section.items.map((item) => (
-                        <div
-                          key={item.name}
-                          className="rounded-xl border border-border/70 bg-card/70 p-5"
-                        >
+                        <div key={item.name} className="border-t py-5">
                           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                             <h3 className="font-medium text-sm">
                               {item.href ? (
@@ -111,12 +103,12 @@ export function GuidePage({ data }: { data: Guide }) {
                               )}
                             </h3>
                             {item.meta ? (
-                              <span className="text-foreground/50 text-xs">
+                              <span className="text-muted-foreground text-xs">
                                 {item.meta}
                               </span>
                             ) : null}
                           </div>
-                          <p className="mt-2 text-foreground/70 text-sm leading-relaxed">
+                          <p className="mt-2 text-muted-foreground text-sm leading-relaxed">
                             {item.body}
                           </p>
                         </div>
@@ -139,7 +131,7 @@ export function GuidePage({ data }: { data: Guide }) {
                 {data.faq.map((entry) => (
                   <div key={entry.question} className="space-y-2">
                     <h3 className="font-medium text-sm">{entry.question}</h3>
-                    <p className="text-foreground/70 text-sm leading-relaxed">
+                    <p className="text-muted-foreground text-sm leading-relaxed">
                       {entry.answer}
                     </p>
                   </div>
@@ -152,7 +144,7 @@ export function GuidePage({ data }: { data: Guide }) {
                   {data.related.map((link) => (
                     <a
                       key={link.href}
-                      className="inline-flex h-8 items-center rounded-lg border border-border/70 px-3 text-foreground/70 text-sm transition-colors hover:bg-accent hover:text-foreground"
+                      className="inline-flex min-h-11 items-center rounded-lg border border-border/70 px-3 py-2 text-muted-foreground text-sm transition-colors focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-4 hover:bg-accent hover:text-foreground"
                       href={link.href}
                     >
                       {link.label}
@@ -162,18 +154,22 @@ export function GuidePage({ data }: { data: Guide }) {
               </div>
 
               <div className="mt-12 flex flex-wrap items-center gap-3">
-                <a
-                  className="inline-flex h-10 items-center justify-center rounded-lg border border-transparent bg-primary px-4 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary/90"
-                  href={SIGN_UP}
+                <Button
+                  variant="default"
+                  size="lg"
+                  className="h-12 px-5 text-sm sm:h-12"
+                  render={<a href={SIGN_UP} />}
                 >
                   Try Kaneo Cloud free
-                </a>
-                <a
-                  className="inline-flex h-10 items-center justify-center rounded-lg border border-border bg-transparent px-4 font-medium text-sm transition-colors hover:bg-accent"
-                  href="/docs/core/installation"
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="h-12 px-5 text-sm sm:h-12"
+                  render={<a href="/docs/core/installation" />}
                 >
                   Self-host for free
-                </a>
+                </Button>
               </div>
             </div>
           </section>
