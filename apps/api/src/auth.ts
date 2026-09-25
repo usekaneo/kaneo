@@ -46,7 +46,11 @@ import { authDatabaseAdapter } from "./database/auth-adapter";
 import { publishEvent } from "./events";
 import deleteAccountData from "./user/controllers/delete-account-data";
 import { resolveAuthSecret } from "./utils/auth-secret";
-import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
+import {
+  canSendSignInEmail,
+  checkRegistrationAllowed,
+  userExistsByEmail,
+} from "./utils/check-registration-allowed";
 import { checkWorkspaceName } from "./utils/check-workspace-name";
 import { mapCustomOAuthProfileToUser } from "./utils/custom-oauth-profile";
 import { generateDemoName } from "./utils/generate-demo-name";
@@ -67,6 +71,7 @@ import {
   assertUserRegistrationAllowed,
   normalizeInvitationId,
 } from "./utils/registration-policy";
+import { queueSignInEmail } from "./utils/sign-in-email-tasks";
 import { authCaptchaPaths, verifyTurnstile } from "./utils/verify-turnstile";
 
 config();
@@ -128,6 +133,22 @@ function getLocaleKey(locale?: string | null) {
   if (normalized?.startsWith("vi")) return "vi";
   if (normalized?.startsWith("ja")) return "ja";
   return "en";
+}
+
+// Reads env at call time (not module scope) so tests can stub it.
+async function shouldDeliverSignInEmail(email: string) {
+  if (process.env.DISABLE_PASSWORD_REGISTRATION === "true") {
+    return userExistsByEmail(email);
+  }
+  if (process.env.DISABLE_REGISTRATION === "true") {
+    // Mirror `assertUserRegistrationAllowed`: the first non-guest user can
+    // always complete initial instance setup.
+    if (!(await hasRegisteredUsers())) {
+      return true;
+    }
+    return canSendSignInEmail(email);
+  }
+  return true;
 }
 
 function getAuthEmailCopy(locale?: string | null) {
@@ -286,16 +307,17 @@ export const auth = betterAuth({
     magicLink({
       disableSignUp: isPasswordRegistrationDisabled,
       sendMagicLink: async ({ email, url }) => {
-        try {
+        queueSignInEmail(async () => {
+          if (!(await shouldDeliverSignInEmail(email))) {
+            return;
+          }
           const locale = await getUserLocale(email);
           const copy = getAuthEmailCopy(locale);
           await sendMagicLinkEmail(email, copy.magicLinkSubject, {
             magicLink: url,
             locale,
           });
-        } catch (error) {
-          console.error(error);
-        }
+        });
       },
     }),
     ...(isEmailOtpSignInDisabled
@@ -306,11 +328,16 @@ export const auth = betterAuth({
             disableSignUp: isPasswordRegistrationDisabled,
             async sendVerificationOTP({ email, otp, type }) {
               if (type === "sign-in") {
-                const locale = await getUserLocale(email);
-                const copy = getAuthEmailCopy(locale);
-                await sendOtpEmail(email, copy.otpSubject, {
-                  otp,
-                  locale,
+                queueSignInEmail(async () => {
+                  if (!(await shouldDeliverSignInEmail(email))) {
+                    return;
+                  }
+                  const locale = await getUserLocale(email);
+                  const copy = getAuthEmailCopy(locale);
+                  await sendOtpEmail(email, copy.otpSubject, {
+                    otp,
+                    locale,
+                  });
                 });
               }
             },
