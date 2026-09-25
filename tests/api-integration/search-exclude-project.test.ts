@@ -66,6 +66,50 @@ describe("search excludeProjectId", () => {
     );
   });
 
+  it("leaves out the excluded project itself from projects and all results", async () => {
+    const member = await createWorkspaceMember();
+    const { project: currentProject } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      slug: "CUR",
+      name: "Widget current project",
+    });
+    const { project: otherProject } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      slug: "OTH",
+      name: "Widget other project",
+    });
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    for (const type of ["projects", "all"] as const) {
+      const response = await app.request(
+        `/api/search?${new URLSearchParams({
+          q: "widget",
+          workspaceId: member.workspace.id,
+          type,
+          excludeProjectId: currentProject.id,
+        })}`,
+      );
+
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      const projectResults = body.results.filter(
+        (result: { type: string }) => result.type === "project",
+      );
+      expect(
+        projectResults.some(
+          (result: { id: string }) => result.id === currentProject.id,
+        ),
+      ).toBe(false);
+      expect(
+        projectResults.some(
+          (result: { id: string }) => result.id === otherProject.id,
+        ),
+      ).toBe(true);
+    }
+  });
+
   it("ignores excludeProjectId when projectId scopes the search to that same project", async () => {
     const member = await createWorkspaceMember();
     const { project } = await createProjectFixture({
