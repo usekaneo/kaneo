@@ -1,6 +1,6 @@
 import { windowId } from "@kaneo/libs";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { getApiUrl } from "@/fetchers/get-api-url";
 import { authClient } from "@/lib/auth-client";
 
@@ -22,32 +22,35 @@ const WS_PING_INTERVAL_MS = 30_000;
 export function useUserWebSocket() {
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
-  const wsRef = useRef<WebSocket | null>(null);
-  const retriesRef = useRef(0);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
   useEffect(() => {
     if (!session?.user?.id) return;
 
-    retriesRef.current = 0;
+    // A previous session's delayed socket events must not control this session.
+    let disposed = false;
+    let activeSocket: WebSocket | null = null;
+    let retries = 0;
+    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
+    let pingInterval: ReturnType<typeof setInterval> | null = null;
 
     function clearPing() {
-      if (pingIntervalRef.current) {
-        clearInterval(pingIntervalRef.current);
-        pingIntervalRef.current = null;
+      if (pingInterval !== null) {
+        clearInterval(pingInterval);
+        pingInterval = null;
       }
     }
 
     function connect() {
+      if (disposed) return;
+      retryTimeout = null;
       const url = getUserWsUrl();
       const ws = new WebSocket(url);
-      wsRef.current = ws;
+      activeSocket = ws;
 
       ws.onopen = () => {
-        retriesRef.current = 0;
+        if (disposed || activeSocket !== ws) return;
+        retries = 0;
         clearPing();
-        pingIntervalRef.current = setInterval(() => {
+        pingInterval = setInterval(() => {
           if (ws.readyState === WebSocket.OPEN) {
             ws.send(JSON.stringify({ type: "ping" }));
           }
@@ -55,6 +58,7 @@ export function useUserWebSocket() {
       };
 
       ws.onmessage = (event) => {
+        if (disposed || activeSocket !== ws) return;
         try {
           const message = JSON.parse(event.data as string) as {
             type?: string;
@@ -68,13 +72,14 @@ export function useUserWebSocket() {
       };
 
       ws.onclose = () => {
+        if (disposed || activeSocket !== ws) return;
         clearPing();
-        wsRef.current = null;
+        activeSocket = null;
 
-        if (retriesRef.current < MAX_RETRIES) {
-          const delay = BASE_DELAY * 2 ** retriesRef.current;
-          retriesRef.current += 1;
-          timeoutRef.current = setTimeout(connect, delay);
+        if (retries < MAX_RETRIES) {
+          const delay = BASE_DELAY * 2 ** retries;
+          retries += 1;
+          retryTimeout = setTimeout(connect, delay);
         }
       };
     }
@@ -82,12 +87,12 @@ export function useUserWebSocket() {
     connect();
 
     return () => {
-      retriesRef.current = MAX_RETRIES; // prevent reconnect after unmount
+      disposed = true;
       clearPing();
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      if (retryTimeout !== null) {
+        clearTimeout(retryTimeout);
       }
-      wsRef.current?.close();
+      activeSocket?.close();
     };
   }, [session?.user?.id, queryClient]);
 }

@@ -16,6 +16,7 @@ function useCreateTask() {
       startDate,
       dueDate,
       priority,
+      customFields,
     }: CreateTaskRequest) =>
       createTask(
         title,
@@ -26,10 +27,14 @@ function useCreateTask() {
         startDate ? new Date(startDate) : undefined,
         dueDate ? new Date(dueDate) : undefined,
         priority,
+        customFields,
       ),
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({
         queryKey: ["tasks", variables.projectId],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["custom-field-values", variables.projectId],
       });
     },
   });

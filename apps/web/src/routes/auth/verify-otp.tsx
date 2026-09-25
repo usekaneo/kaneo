@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
+import { Turnstile } from "@/components/auth/turnstile";
 import PageTitle from "@/components/page-title";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,10 @@ function VerifyOtp() {
     from: "/auth/verify-otp",
   });
   const [isPending, setIsPending] = useState(false);
+  const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [captchaKey, setCaptchaKey] = useState(0);
+  const captchaPending = Boolean(siteKey) && !turnstileToken;
 
   const verifyOtpSchema = useMemo(
     () =>
@@ -128,12 +133,20 @@ function VerifyOtp() {
   }, [form, isPending, onSubmit]);
 
   const handleResendOtp = async () => {
+    if (captchaPending) return;
     setIsPending(true);
     try {
-      const result = await authClient.emailOtp.sendVerificationOtp({
-        email,
-        type: "sign-in",
-      });
+      const result = await authClient.emailOtp.sendVerificationOtp(
+        {
+          email,
+          type: "sign-in",
+        },
+        {
+          headers: turnstileToken
+            ? { "x-turnstile-token": turnstileToken }
+            : undefined,
+        },
+      );
 
       if (result.error) {
         toast.error(
@@ -152,6 +165,8 @@ function VerifyOtp() {
       );
     } finally {
       setIsPending(false);
+      setTurnstileToken(null);
+      setCaptchaKey((key) => key + 1);
     }
   };
 
@@ -163,6 +178,15 @@ function VerifyOtp() {
         subtitle={t("auth:verifyOtp.subtitle")}
       >
         <div className="space-y-4">
+          {siteKey && (
+            <Turnstile
+              key={captchaKey}
+              siteKey={siteKey}
+              onVerify={setTurnstileToken}
+              onExpire={() => setTurnstileToken(null)}
+              onError={() => setTurnstileToken(null)}
+            />
+          )}
           <Alert>
             <AlertDescription className="text-xs">
               {t("auth:verifyOtp.codeSentTo", { email })}
@@ -225,7 +249,7 @@ function VerifyOtp() {
                   type="button"
                   variant="secondary"
                   onClick={handleResendOtp}
-                  disabled={isPending}
+                  disabled={isPending || captchaPending}
                   className="w-full"
                 >
                   <RefreshCcw className="size-4" />

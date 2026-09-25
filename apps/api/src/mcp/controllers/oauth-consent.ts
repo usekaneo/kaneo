@@ -65,10 +65,10 @@ export async function registerMcpClient(input: ClientRegistrationInput) {
     client_id_issued_at: client.issuedAt,
     redirect_uris: client.redirectUris,
     client_name: client.clientName,
-    token_endpoint_auth_method: input.token_endpoint_auth_method ?? "none",
-    grant_types: input.grant_types ?? ["authorization_code"],
-    response_types: input.response_types ?? ["code"],
-  } as const;
+    token_endpoint_auth_method: "none" as const,
+    grant_types: ["authorization_code" as const],
+    response_types: ["code" as const],
+  };
 }
 
 export async function beginMcpAuthorization(
@@ -117,7 +117,7 @@ export async function decideMcpAuthorizationRequest(params: {
   const session = await auth.api.getSession({ headers: params.headers });
   if (!session?.user?.id) throwOAuthError(401, "unauthorized");
 
-  const request = await consumeAuthorizationRequest(params.requestId);
+  const request = await getAuthorizationRequest(params.requestId);
   if (!request) throwOAuthError(404, "invalid_or_expired_request");
 
   const client = await getClient(request.clientId);
@@ -126,15 +126,20 @@ export async function decideMcpAuthorizationRequest(params: {
   }
 
   if (!params.decision.approved) {
+    if (!(await consumeAuthorizationRequest(params.requestId)))
+      throwOAuthError(404, "invalid_or_expired_request");
     return buildAuthorizationRedirect(request, { error: "access_denied" });
   }
 
-  const code = await createAuthCode({
-    clientId: request.clientId,
-    userId: session.user.id,
-    codeChallenge: request.codeChallenge,
-    redirectUri: request.redirectUri,
-  });
+  const code = await createAuthCode(
+    {
+      clientId: request.clientId,
+      userId: session.user.id,
+      codeChallenge: request.codeChallenge,
+      redirectUri: request.redirectUri,
+    },
+    params.requestId,
+  );
   await publishEvent("mcp.authorization_code_issued", {
     clientId: request.clientId,
     userId: session.user.id,

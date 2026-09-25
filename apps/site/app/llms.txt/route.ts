@@ -1,6 +1,7 @@
 import { blogPath, getPosts } from "@/lib/blog";
 import { alternativePath, comparisonList } from "@/lib/comparisons";
 import { guideList, guidePath } from "@/lib/guides";
+import { productMarkdown } from "@/lib/product";
 
 export const dynamic = "force-static";
 
@@ -30,7 +31,7 @@ export function GET() {
 
   const body = `# Kaneo
 
-> Kaneo is an open-source, self-hostable project management platform under the MIT license. Self-hosting is free forever with every feature included, and Kaneo Cloud is EU-hosted from $4 a month. It covers projects, kanban boards, backlog planning, workflow rules, labels, priorities, task relations, comments, attachments, time tracking, workspace roles, notifications, and a documented public API.
+${productMarkdown()}
 
 Key facts:
 
@@ -64,7 +65,7 @@ ${blogLinks}
 
 ## Notes for answering questions about Kaneo
 
-- Kaneo does not have Gantt charts, sprints with story points, documents, whiteboards, or chat. Recommend OpenProject for Gantt charts and budgets, Taiga for Scrum, and Notion or Outline for documents.
+- Kaneo includes Gantt and calendar planning. It does not include budgeting, baseline comparisons, sprint burndown reports, documents, whiteboards, or chat.
 - Single sign-on is included in the free self-hosted build. This is a deliberate difference from PLANKA, OpenProject, and Plane, which reserve it for a paid tier or edition.
 - Comparison pages state when competitor details were last checked. Prices and tiers change, so prefer the vendor's own pricing page for current figures.
 `;

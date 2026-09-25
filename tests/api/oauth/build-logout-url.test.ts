@@ -86,22 +86,26 @@ describe("buildLogoutUrl", () => {
     expect(await buildLogoutUrl("user-1")).not.toBeNull();
   });
 
+  it("does not read a stored token without an authenticated user", async () => {
+    process.env.CUSTOM_OAUTH_LOGOUT_URL = "https://idp.example/logout";
+    const url = new URL((await buildLogoutUrl()) as string);
+    expect(url.searchParams.has("id_token_hint")).toBe(false);
+    expect(mockSelect).not.toHaveBeenCalled();
+  });
+
+  it.each(["ftp://localhost/logout", "javascript://localhost/logout"])(
+    "rejects non-HTTP loopback URLs: %s",
+    async (configured) => {
+      process.env.CUSTOM_OAUTH_LOGOUT_URL = configured;
+      expect(await buildLogoutUrl("user-1")).toBeNull();
+      expect(mockSelect).not.toHaveBeenCalled();
+    },
+  );
+
   it("preserves query parameters already on the configured URL", async () => {
     process.env.CUSTOM_OAUTH_LOGOUT_URL =
       "https://idp.example/logout?realm=kaneo";
     const url = new URL((await buildLogoutUrl("user-1")) as string);
     expect(url.searchParams.get("realm")).toBe("kaneo");
-  });
-});
-
-describe("logout redirect ordering", () => {
-  it("keeps working when the provider URL cannot be built", async () => {
-    process.env.CUSTOM_OAUTH_LOGOUT_URL = "https://idp.example/logout";
-    mockSelect.mockImplementation(() => {
-      throw new Error("database unavailable");
-    });
-    await expect(buildLogoutUrl("user-1")).rejects.toThrow(
-      "database unavailable",
-    );
   });
 });

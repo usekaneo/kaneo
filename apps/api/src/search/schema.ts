@@ -1,7 +1,10 @@
 import { z } from "../openapi";
 
 export const searchQuery = z.object({
-  q: z.string().min(1, "Query must be at least 1 character"),
+  q: z
+    .string()
+    .min(1, "Query must be at least 1 character")
+    .max(512, "Query must not exceed 512 characters"),
   type: z
     .enum(["all", "tasks", "projects", "workspaces", "comments", "activities"])
     .optional()

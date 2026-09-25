@@ -19,7 +19,7 @@ type RegistrationCheckResult = {
 export async function checkRegistrationAllowed(
   email?: string,
   invitationId?: string,
-  options?: { allowInvitationByEmail?: boolean },
+  options?: { allowInvitationByEmail?: boolean; emailVerified?: boolean },
 ): Promise<RegistrationCheckResult> {
   const isRegistrationDisabled = process.env.DISABLE_REGISTRATION === "true";
 
@@ -30,7 +30,9 @@ export async function checkRegistrationAllowed(
     };
   }
 
-  const canMatchByEmail = Boolean(options?.allowInvitationByEmail && email);
+  const canMatchByEmail = Boolean(
+    options?.allowInvitationByEmail && options.emailVerified === true && email,
+  );
 
   if (!invitationId && !canMatchByEmail) {
     return {
@@ -194,6 +196,22 @@ export async function getInvitationDetails(
     valid: true,
     invitation: baseInvitation,
   };
+}
+
+export async function userExistsByEmail(email: string): Promise<boolean> {
+  const [user] = await db
+    .select({ id: userTable.id })
+    .from(userTable)
+    .where(eq(userTable.email, email.toLowerCase()))
+    .limit(1);
+  return Boolean(user);
+}
+
+export async function canSendSignInEmail(email: string): Promise<boolean> {
+  if (await userExistsByEmail(email)) {
+    return true;
+  }
+  return (await getUserPendingInvitations(email)).length > 0;
 }
 
 export async function getUserPendingInvitations(userEmail: string) {

@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { HTTPException } from "hono/http-exception";
 import { describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
@@ -43,7 +44,12 @@ vi.mock("../../apps/api/src/mcp/oauth-store", () => {
       key: string,
       payload: unknown,
       expiresAt: Date,
+      requestId?: string,
     ) => {
+      if (requestId) {
+        if (!rows.delete(keyOf("request", requestId)))
+          throw new HTTPException(404);
+      }
       rows.set(keyOf(kind, key), { payload, expiresAt });
     },
     getState: async (kind: string, key: string) => {
@@ -59,7 +65,6 @@ vi.mock("../../apps/api/src/mcp/oauth-store", () => {
       if (row.expiresAt.getTime() < Date.now()) return null;
       return row.payload;
     },
-    enforceStateCap: async () => {},
     deleteExpiredStates: async () => {
       const now = Date.now();
       for (const [key, row] of rows) {
@@ -166,6 +171,66 @@ describe("MCP OAuth security", () => {
       }),
     });
     expect(remoteHttp.status).toBe(400);
+  });
+
+  it("accepts Claude-style registration metadata and never grants refresh tokens", async () => {
+    const response = await mcpRoutes.request("/mcp/register", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        client_name: "Claude",
+        redirect_uris: ["https://claude.ai/api/mcp/auth_callback"],
+        token_endpoint_auth_method: "none",
+        grant_types: ["authorization_code", "refresh_token"],
+        response_types: ["code"],
+        client_uri: "https://claude.ai",
+      }),
+    });
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      grant_types: ["authorization_code"],
+      response_types: ["code"],
+      token_endpoint_auth_method: "none",
+    });
+  });
+
+  it("returns RFC 7591 JSON errors for invalid registration metadata", async () => {
+    const missingGrant = await mcpRoutes.request("/mcp/register", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        redirect_uris: ["https://client.example/callback"],
+        grant_types: ["refresh_token"],
+      }),
+    });
+    expect(missingGrant.status).toBe(400);
+    await expect(missingGrant.json()).resolves.toMatchObject({
+      error: "invalid_client_metadata",
+    });
+
+    const badRedirect = await mcpRoutes.request("/mcp/register", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        redirect_uris: ["http://attacker.example/callback"],
+      }),
+    });
+    expect(badRedirect.status).toBe(400);
+    await expect(badRedirect.json()).resolves.toMatchObject({
+      error: "invalid_redirect_uri",
+    });
+  });
+
+  it("returns RFC 6749 JSON errors for malformed authorization requests", async () => {
+    const response = await mcpRoutes.request(
+      "/mcp/authorize?response_type=code&client_id=x&redirect_uri=https%3A%2F%2Fclient.example%2Fcb&code_challenge=abc&code_challenge_method=plain",
+      { redirect: "manual" },
+    );
+    expect(response.status).toBe(400);
+    expect(response.headers.get("content-type")).toContain("application/json");
+    await expect(response.json()).resolves.toMatchObject({
+      error: "invalid_request",
+    });
   });
 
   it("requires an exact registered redirect URI", async () => {

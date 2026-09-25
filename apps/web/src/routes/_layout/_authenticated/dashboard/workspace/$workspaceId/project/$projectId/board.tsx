@@ -7,11 +7,15 @@ import ProjectLayout from "@/components/common/project-layout";
 import KanbanBoard from "@/components/kanban-board";
 import ListView from "@/components/list-view";
 import PageTitle from "@/components/page-title";
+import type { CustomFieldDefinition } from "@/components/project/custom-field-editor";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
 import { Input } from "@/components/ui/input";
 import { shortcuts } from "@/constants/shortcuts";
+import useGetCustomFieldFilterValues from "@/hooks/queries/custom-field/use-get-custom-field-filter-values";
+import useGetCustomFieldsByProject from "@/hooks/queries/custom-field/use-get-custom-fields-by-project";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
+import { useDescriptionMatches } from "@/hooks/queries/task/use-description-matches";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useBoardSort } from "@/hooks/use-board-sort";
@@ -93,6 +97,28 @@ function RouteComponent() {
   const { data: users } = useGetActiveWorkspaceUsers(workspaceId);
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);
 
+  const { data: rawCustomFields = [] } = useGetCustomFieldsByProject(projectId);
+
+  const { data: filterValuesData = [] } =
+    useGetCustomFieldFilterValues(projectId);
+
+  const customFieldDefinitions = useMemo<CustomFieldDefinition[]>(
+    () =>
+      rawCustomFields.map((f, index) => ({
+        ...f,
+        type: f.type as CustomFieldDefinition["type"],
+        options: Array.isArray(f.options) ? (f.options as string[]) : null,
+        position: index,
+      })),
+    [rawCustomFields],
+  );
+
+  const usedCustomFieldValues = useMemo<Record<string, string[]>>(() => {
+    return Object.fromEntries(
+      filterValuesData.map((f) => [f.fieldId, f.values]),
+    );
+  }, [filterValuesData]);
+
   const handleCloseTaskSheet = useCallback(() => {
     navigate({
       to: ".",
@@ -161,14 +187,26 @@ function RouteComponent() {
     window.requestAnimationFrame(() => boardSearchInput?.focus());
   }, [isBoardSearchMounted, boardSearchInput]);
 
+  const descriptionSearch = useDescriptionMatches(
+    projectId,
+    project,
+    boardSearchQuery,
+  );
+
   const {
     filters,
     updateFilter,
     updateLabelFilter,
+    updateCustomFieldFilter,
     filteredProject,
     hasActiveFilters,
     clearFilters,
-  } = useTaskFiltersWithLabelsSupport(project, projectId, boardSearchQuery);
+  } = useTaskFiltersWithLabelsSupport(
+    project,
+    projectId,
+    boardSearchQuery,
+    descriptionSearch.ids,
+  );
 
   const sortedProject = useMemo(() => {
     if (!filteredProject || sort.field === "position") return filteredProject;
@@ -193,6 +231,7 @@ function RouteComponent() {
       <Input
         ref={setBoardSearchInput}
         value={boardSearchQuery}
+        maxLength={256}
         onChange={(event) => setBoardSearchQuery(event.target.value)}
         onKeyDown={(event) => {
           if (event.key === "Escape" && !boardSearchQuery.trim()) {
@@ -227,6 +266,7 @@ function RouteComponent() {
           filters={filters}
           updateFilter={updateFilter}
           updateLabelFilter={updateLabelFilter}
+          updateCustomFieldFilter={updateCustomFieldFilter}
           clearFilters={clearFilters}
           hasActiveFilters={hasActiveFilters}
           users={users}
@@ -235,7 +275,27 @@ function RouteComponent() {
           setViewMode={setViewMode}
           sort={sort}
           onSortChange={setSort}
+          customFieldDefinitions={customFieldDefinitions}
+          usedCustomFieldValues={usedCustomFieldValues}
         />
+
+        {descriptionSearch.isLoading && (
+          <p role="status" className="px-4 py-2 text-sm text-muted-foreground">
+            {t("tasks:descriptionSearchLoading")}
+          </p>
+        )}
+        {descriptionSearch.isError && (
+          <p role="alert" className="px-4 py-2 text-sm text-destructive">
+            {t("tasks:descriptionSearchError")}{" "}
+            <button
+              type="button"
+              className="underline"
+              onClick={() => void descriptionSearch.retry()}
+            >
+              {t("tasks:descriptionRetry")}
+            </button>
+          </p>
+        )}
 
         <div className="flex h-full flex-1 overflow-hidden bg-background">
           {sortedProject ? (

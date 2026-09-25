@@ -12,25 +12,42 @@ import { join, resolve } from "node:path";
 
 const COMMITTED = resolve("apps/docs/openapi.json");
 const FIX = process.argv.includes("--fix");
+// Invoke pnpm through Node so Windows paths and arguments never pass through cmd.exe.
+// biome-ignore lint/suspicious/noUndeclaredEnvVars: this entrypoint runs outside Turbo's task cache.
+const packageManager = process.env.npm_execpath;
+if (!packageManager) {
+  throw new Error(
+    "Run this check with pnpm openapi:check or pnpm openapi:check:fix",
+  );
+}
 const RUN = {
   stdio: ["ignore", "ignore", "inherit"],
-  shell: process.platform === "win32",
+  env: {
+    ...process.env,
+    AUTH_SECRET: "openapi-export-only-secret-not-for-serving",
+  },
 };
 
+// Standalone pnpm (@pnpm/exe) exposes a native binary as npm_execpath, which Node cannot load.
+const runsViaNode = /\.[cm]?js$/.test(packageManager);
+function pnpm(args) {
+  if (runsViaNode) {
+    execFileSync(process.execPath, [packageManager, ...args], RUN);
+  } else {
+    execFileSync(packageManager, args, RUN);
+  }
+}
+
 function generate(into) {
-  execFileSync("pnpm", ["turbo", "build", "--filter=@kaneo/api^..."], RUN);
-  execFileSync(
-    "pnpm",
-    [
-      "--filter",
-      "@kaneo/api",
-      "exec",
-      "tsx",
-      "scripts/export-openapi.ts",
-      into,
-    ],
-    RUN,
-  );
+  pnpm(["turbo", "build", "--filter=@kaneo/api^..."]);
+  pnpm([
+    "--filter",
+    "@kaneo/api",
+    "exec",
+    "tsx",
+    "scripts/export-openapi.ts",
+    into,
+  ]);
 }
 
 function run() {

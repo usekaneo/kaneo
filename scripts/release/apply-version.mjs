@@ -7,7 +7,9 @@ import { fileURLToPath } from "node:url";
 
 const version = process.argv[2] ?? "";
 
-if (!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(version)) {
+const versionPattern =
+  /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?$/;
+if (version.length > 128 || versionPattern.exec(version)?.[0] !== version) {
   console.error(
     `apply-version: expected a semver version, received ${JSON.stringify(version)}`,
   );

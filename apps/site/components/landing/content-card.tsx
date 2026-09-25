@@ -1,3 +1,4 @@
+import { ArrowUpRight } from "lucide-react";
 import { Fragment, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
@@ -23,13 +24,21 @@ export function ContentCard({
   return (
     <a
       className={cn(
-        "group flex flex-col rounded-xl border border-border/70 bg-card/70 p-5 transition-colors hover:border-border hover:bg-accent/40",
-        featured && "gap-2 p-6 md:p-8",
+        "group relative flex flex-col border-t py-7 pr-8 transition-colors hover:border-foreground/30 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-4",
+        featured &&
+          "gap-2 rounded-xl border bg-sidebar p-6 pr-12 md:p-10 md:pr-16",
       )}
       href={href}
     >
+      <ArrowUpRight
+        aria-hidden="true"
+        className={cn(
+          "absolute right-0 top-7 size-4 text-muted-foreground group-hover:text-foreground",
+          featured && "right-6 top-6 md:right-10 md:top-10",
+        )}
+      />
       {meta?.length ? (
-        <div className="flex flex-wrap items-center gap-2 text-foreground/50 text-xs">
+        <div className="flex flex-wrap items-center gap-2 text-muted-foreground text-xs">
           {meta.map((item, index) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: meta entries are a fixed, ordered list per card.
             <Fragment key={index}>
@@ -43,10 +52,10 @@ export function ContentCard({
       <h3
         className={cn(
           "text-balance font-medium leading-snug transition-colors group-hover:text-primary",
-          meta?.length ? "mt-2" : "",
+          meta?.length ? "mt-4" : "",
           featured
             ? "max-w-3xl text-2xl md:text-[2rem] md:leading-[1.15]"
-            : "text-base",
+            : "text-lg",
         )}
       >
         {title}
@@ -54,7 +63,7 @@ export function ContentCard({
 
       <p
         className={cn(
-          "mt-2 text-foreground/70 leading-relaxed",
+          "mt-3 text-muted-foreground leading-relaxed",
           featured ? "max-w-2xl text-base md:text-lg" : "line-clamp-3 text-sm",
         )}
       >
@@ -64,7 +73,7 @@ export function ContentCard({
       {footer ? (
         <div
           className={cn(
-            "flex items-center gap-2.5 text-foreground/60 text-xs",
+            "flex items-center gap-2.5 text-muted-foreground text-xs",
             featured ? "mt-6" : "mt-5 pt-1",
           )}
         >

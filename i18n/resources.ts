@@ -1,4 +1,5 @@
 export const supportedLocales = [
+  "az-AZ",
   "mk-MK",
   "nl-NL",
   "de-DE",
@@ -9,7 +10,9 @@ export const supportedLocales = [
   "hi-IN",
   "id-ID",
   "it-IT",
+  "ja-JP",
   "ko-KR",
+  "pl-PL",
   "pt-BR",
   "ru-RU",
   "tr-TR",
@@ -28,6 +31,8 @@ export function isSupportedLocale(locale: string): locale is AppLocale {
 
 export async function loadLocale(locale: AppLocale): Promise<object> {
   switch (locale) {
+    case "az-AZ":
+      return (await import("./az-AZ.json")).default;
     case "de-DE":
       return (await import("./de-DE.json")).default;
     case "el-GR":
@@ -44,12 +49,16 @@ export async function loadLocale(locale: AppLocale): Promise<object> {
       return (await import("./id-ID.json")).default;
     case "it-IT":
       return (await import("./it-IT.json")).default;
+    case "ja-JP":
+      return (await import("./ja-JP.json")).default;
     case "ko-KR":
       return (await import("./ko-KR.json")).default;
     case "mk-MK":
       return (await import("./mk-MK.json")).default;
     case "nl-NL":
       return (await import("./nl-NL.json")).default;
+    case "pl-PL":
+      return (await import("./pl-PL.json")).default;
     case "pt-BR":
       return (await import("./pt-BR.json")).default;
     case "ru-RU":

@@ -39,8 +39,9 @@ const logoutRoute = createRoute({
   path: "/logout",
   tags: ["Authentication"],
   summary: "Log out",
+  security: [],
   description:
-    "Ends the Kaneo session and redirects to the identity provider's end-session endpoint so the provider closes its session too. The id_token_hint the provider needs is attached server-side, so navigate to this URL rather than fetching it. Redirects to the sign-in page when no custom OAuth logout URL is configured.",
+    "Ends the Kaneo session and redirects to the identity provider's end-session endpoint so the provider closes its session too. The id_token_hint the provider needs is attached server-side, so navigate to this URL rather than fetching it. Accepts an expired or missing browser session, in which case no stored identity token is used. Redirects to the sign-in page when no custom OAuth logout URL is configured.",
   responses: {
     302: { description: "Redirect to the identity provider, or to sign-in" },
     403: { description: "API keys, or a navigation from an untrusted origin" },
@@ -49,7 +50,11 @@ const logoutRoute = createRoute({
 });
 
 const oauth = apiRouter().openapi(logoutRoute, async (c) => {
-  if (c.get("apiKey") || c.req.header("authorization")) {
+  c.header("Cache-Control", "no-store");
+  if (
+    c.req.raw.headers.has("x-api-key") ||
+    c.req.raw.headers.has("authorization")
+  ) {
     throw new HTTPException(403, {
       message: "Log out from the browser session that created it",
     });
@@ -57,9 +62,11 @@ const oauth = apiRouter().openapi(logoutRoute, async (c) => {
 
   assertSameSiteNavigation(c.req.header("referer"));
 
+  const session = await auth.api.getSession({ headers: c.req.raw.headers });
+
   let providerLogoutUrl: string | null = null;
   try {
-    providerLogoutUrl = await buildLogoutUrl(c.get("userId"));
+    providerLogoutUrl = await buildLogoutUrl(session?.user.id);
   } catch (error) {
     console.error("Failed to build the provider logout URL:", error);
   }
@@ -70,6 +77,9 @@ const oauth = apiRouter().openapi(logoutRoute, async (c) => {
       headers: c.req.raw.headers,
       asResponse: true,
     });
+    if (!signedOut.ok) {
+      throw new Error(`Sign out returned HTTP ${signedOut.status}`);
+    }
     clearedCookies = signedOut.headers.getSetCookie();
   } catch (error) {
     console.error("Failed to end the session during logout:", error);

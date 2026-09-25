@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version to tag the images (e.g., 1.0.0)"
+        description: "Existing released version to rebuild from its reviewed vX.Y.Z tag"
         required: true
         type: string
       latest:
@@ -15,12 +15,14 @@ on:
 
 jobs:
   build:
+    if: github.ref == 'refs/heads/main'
     permissions:
       contents: read
       packages: write
     uses: ./.github/workflows/build-images.yml
     secrets: inherit
     with:
+      source_mode: released
       version: ${{ inputs.version }}
       tags: |
         type=raw,value=${{ inputs.version }}

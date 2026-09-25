@@ -15,7 +15,7 @@ async function storedIdToken(userId: string) {
   return account?.idToken ?? null;
 }
 
-async function buildLogoutUrl(userId: string) {
+async function buildLogoutUrl(userId?: string) {
   const configured = process.env.CUSTOM_OAUTH_LOGOUT_URL;
   if (!configured) {
     return null;
@@ -30,7 +30,7 @@ async function buildLogoutUrl(userId: string) {
   }
 
   const isLoopback = ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
-  if (url.protocol !== "https:" && !isLoopback) {
+  if (url.protocol !== "https:" && !(url.protocol === "http:" && isLoopback)) {
     console.error(
       "CUSTOM_OAUTH_LOGOUT_URL must use https; id_token_hint would otherwise be sent in cleartext",
     );
@@ -45,7 +45,7 @@ async function buildLogoutUrl(userId: string) {
     );
   }
 
-  const idToken = await storedIdToken(userId);
+  const idToken = userId ? await storedIdToken(userId) : null;
   if (idToken) {
     url.searchParams.set("id_token_hint", idToken);
   }

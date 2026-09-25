@@ -6,6 +6,7 @@ import {
   isLegacyRequest,
 } from "@modelcontextprotocol/server";
 import { Hono } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { auth } from "../auth";
 import { apiRouter, createRoute, jsonResponse } from "../openapi";
 import {
@@ -16,6 +17,7 @@ import {
 } from "./controllers/oauth-consent";
 import { createModernMcpHandler } from "./modern";
 import { exchangeCode } from "./oauth";
+import { oauthRequestBounds } from "./request-bounds";
 import {
   authorizationDecisionResponseSchema,
   authorizationDecisionSchema,
@@ -71,9 +73,44 @@ async function validateBearerToken(
 }
 
 const mcp = apiRouter();
+for (const path of [
+  "/mcp/register",
+  "/mcp/authorize",
+  "/mcp/authorize/request/*",
+  "/mcp/token",
+]) {
+  mcp.use(path, oauthRequestBounds);
+}
 
 const jsonError = (description: string) =>
   jsonResponse(description, oauthErrorSchema);
+
+// OAuth clients parse validation failures, so these routes answer with the
+// RFC 6749 / RFC 7591 JSON error shape instead of the router's text default.
+type ValidationResult = { success: boolean; error?: { issues: unknown[] } };
+
+const oauthValidationHook =
+  (error: "invalid_request" | "invalid_client_metadata") =>
+  (result: ValidationResult): undefined => {
+    if (result.success) return;
+    const issue = result.error?.issues[0] as
+      | { path?: PropertyKey[]; message?: string }
+      | undefined;
+    const field = issue?.path?.map(String).join(".");
+    throw new HTTPException(400, {
+      res: Response.json(
+        {
+          error: field?.startsWith("redirect_uri")
+            ? "invalid_redirect_uri"
+            : error,
+          error_description: issue
+            ? `${field || "request"}: ${issue.message}`
+            : "Invalid request",
+        },
+        { status: 400 },
+      ),
+    });
+  };
 
 const registerRoute = createRoute({
   method: "post",
@@ -163,27 +200,38 @@ const decideAuthorizationRequestRoute = createRoute({
 });
 
 mcp
-  .openapi(registerRoute, async (c) =>
-    c.json(await registerMcpClient(c.req.valid("json")), 200),
+  .openapi(
+    registerRoute,
+    async (c) => c.json(await registerMcpClient(c.req.valid("json")), 200),
+    oauthValidationHook("invalid_client_metadata"),
   )
-  .openapi(authorizeRoute, async (c) =>
-    c.redirect(await beginMcpAuthorization(c.req.valid("query"))),
+  .openapi(
+    authorizeRoute,
+    async (c) => c.redirect(await beginMcpAuthorization(c.req.valid("query"))),
+    oauthValidationHook("invalid_request"),
   )
-  .openapi(getAuthorizationRequestRoute, async (c) =>
-    c.json(
-      await getMcpAuthorizationRequest(c.req.valid("param").requestId),
-      200,
-    ),
+  .openapi(
+    getAuthorizationRequestRoute,
+    async (c) =>
+      c.json(
+        await getMcpAuthorizationRequest(c.req.valid("param").requestId),
+        200,
+      ),
+    oauthValidationHook("invalid_request"),
   )
-  .openapi(decideAuthorizationRequestRoute, async (c) => {
-    const redirect = await decideMcpAuthorizationRequest({
-      requestId: c.req.valid("param").requestId,
-      decision: c.req.valid("json"),
-      headers: c.req.raw.headers,
-      origin: c.req.header("origin"),
-    });
-    return c.json({ redirect }, 200);
-  });
+  .openapi(
+    decideAuthorizationRequestRoute,
+    async (c) => {
+      const redirect = await decideMcpAuthorizationRequest({
+        requestId: c.req.valid("param").requestId,
+        decision: c.req.valid("json"),
+        headers: c.req.raw.headers,
+        origin: c.req.header("origin"),
+      });
+      return c.json({ redirect }, 200);
+    },
+    oauthValidationHook("invalid_request"),
+  );
 
 mcp.all("/mcp", async (c) => {
   const authResult = await validateBearerToken(c.req.raw);
@@ -250,13 +298,19 @@ mcp.all("/mcp", async (c) => {
 
 mcp.post("/mcp/token", async (c) => {
   const contentType = c.req.header("content-type") || "";
-  let params: Record<string, string>;
+  let params: Record<string, unknown>;
 
-  if (contentType.includes("application/x-www-form-urlencoded")) {
-    const body = await c.req.text();
-    params = Object.fromEntries(new URLSearchParams(body));
-  } else {
-    params = await c.req.json();
+  try {
+    if (contentType.includes("application/x-www-form-urlencoded")) {
+      params = Object.fromEntries(new URLSearchParams(await c.req.text()));
+    } else {
+      const input: unknown = await c.req.json();
+      if (!input || typeof input !== "object" || Array.isArray(input))
+        return c.json({ error: "invalid_request" }, 400);
+      params = input as Record<string, unknown>;
+    }
+  } catch {
+    return c.json({ error: "invalid_request" }, 400);
   }
 
   const { grant_type, code, client_id, code_verifier, redirect_uri } = params;
@@ -264,7 +318,20 @@ mcp.post("/mcp/token", async (c) => {
   if (grant_type !== "authorization_code") {
     return c.json({ error: "unsupported_grant_type" }, 400);
   }
-  if (!code || !client_id || !code_verifier || !redirect_uri) {
+  if (
+    typeof code !== "string" ||
+    !code ||
+    code.length > 128 ||
+    typeof client_id !== "string" ||
+    !client_id ||
+    client_id.length > 128 ||
+    typeof code_verifier !== "string" ||
+    !code_verifier ||
+    code_verifier.length > 128 ||
+    typeof redirect_uri !== "string" ||
+    !redirect_uri ||
+    redirect_uri.length > 2048
+  ) {
     return c.json({ error: "invalid_request" }, 400);
   }
 
