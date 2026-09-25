@@ -46,11 +46,16 @@ export function registerTools(
     "whoami",
     {
       description:
-        "Return the current Kaneo session and user for the cached device token.",
+        "Return the current Kaneo user for the configured authentication method.",
       inputSchema: z.object({}),
     },
     async () =>
-      run(() => client.json("/api/auth/get-session", { method: "GET" })),
+      run(() =>
+        client.json(
+          client.usingApiKey ? "/api/user/me" : "/api/auth/get-session",
+          { method: "GET" },
+        ),
+      ),
   );
 
   server.registerTool(
@@ -190,8 +195,9 @@ export function registerTools(
     status: optionalNonEmptyString,
     priority: prioritySchema.optional(),
     assigneeId: optionalNonEmptyString,
-    page: z.number().int().positive().optional(),
-    limit: z.number().int().positive().optional(),
+    page: z.number().int().min(1).max(1_000_000).optional(),
+    relatedPage: z.number().int().min(1).max(1_000_000).optional(),
+    limit: z.number().int().min(1).max(100).optional(),
     sortBy: z
       .enum(["createdAt", "priority", "dueDate", "position", "title", "number"])
       .optional(),
@@ -203,7 +209,8 @@ export function registerTools(
   server.registerTool(
     "list_tasks",
     {
-      description: "List tasks for a project (optionally filtered/sorted).",
+      description:
+        "List a bounded page of tasks for a project (50 by default, maximum 100). Use pagination.totalPages and page to retrieve the rest; filters and sorting apply before pagination. For every task page, also follow relatedPage through pagination.relatedTotalPages for complete labels, links and column metadata.",
       inputSchema: listTasksSchema,
     },
     async (args) => {

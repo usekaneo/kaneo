@@ -17,6 +17,9 @@ export const githubConfigSchema = v.object({
   repositoryOwner: v.string(),
   repositoryName: v.string(),
   installationId: v.nullable(v.number()),
+  repositoryId: v.optional(v.number()),
+  verifiedGithubAccountId: v.optional(v.string()),
+  verifiedByUserId: v.optional(v.string()),
   branchPattern: v.optional(v.string()),
   customBranchRegex: v.optional(v.string()),
   commentTaskLinkOnGitHubIssue: v.optional(v.boolean()),
@@ -72,4 +75,18 @@ export function getDefaultConfig(
     installationId,
     ...defaultGitHubConfig,
   };
+}
+
+/** Legacy integrations require explicit re-verification by a repository administrator. */
+export function hasVerifiedGitHubBinding(config: GitHubConfig): boolean {
+  return (
+    Number.isSafeInteger(config.installationId) &&
+    (config.installationId ?? 0) > 0 &&
+    Number.isSafeInteger(config.repositoryId) &&
+    (config.repositoryId ?? 0) > 0 &&
+    typeof config.verifiedGithubAccountId === "string" &&
+    /^[1-9][0-9]*$/.test(config.verifiedGithubAccountId) &&
+    typeof config.verifiedByUserId === "string" &&
+    config.verifiedByUserId.length > 0
+  );
 }

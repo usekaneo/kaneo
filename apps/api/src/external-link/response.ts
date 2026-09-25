@@ -7,10 +7,11 @@ export const externalLinkSchema = z
     integrationId: z.string().nullable(),
     resourceType: z.string().openapi({
       description:
-        "The kind of remote resource, e.g. `issue` or `pull_request`.",
+        "The resource kind: `url` for a manual link, or an integration resource such as `issue` or `pull_request`.",
     }),
     externalId: z.string().openapi({
-      description: "The provider's own identifier for the linked resource.",
+      description:
+        "The provider's resource identifier, or the URL for a manual link.",
     }),
     url: z.string(),
     title: z.string().nullable(),
@@ -29,8 +30,14 @@ export const externalLinkSchema = z
   })
   .openapi("ExternalLink");
 
-export const createdExternalLinkSchema = externalLinkSchema.omit({
-  integration: true,
-});
+export const createdExternalLinkSchema = externalLinkSchema
+  .omit({
+    integration: true,
+  })
+  .openapi("CreatedExternalLink");
 
 export const externalLinkListSchema = z.array(externalLinkSchema);
+
+export const deletedExternalLinkSchema = z
+  .object({ id: z.string() })
+  .openapi("DeletedExternalLink");

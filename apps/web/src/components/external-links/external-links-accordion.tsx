@@ -6,6 +6,7 @@ import {
   GitPullRequest,
   Link,
   Plus,
+  X,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -26,6 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import useCreateExternalLink from "@/hooks/mutations/external-link/use-create-external-link";
+import useDeleteExternalLink from "@/hooks/mutations/external-link/use-delete-external-link";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import type { ExternalLink } from "@/types/external-link";
 
@@ -58,6 +60,7 @@ export function ExternalLinksAccordion({
   const [title, setTitle] = useState("");
 
   const createExternalLink = useCreateExternalLink();
+  const deleteExternalLink = useDeleteExternalLink();
 
   const linksWithoutRedundantBranches = useMemo(() => {
     const hasPR = externalLinks.some(
@@ -193,33 +196,52 @@ export function ExternalLinksAccordion({
           {isLoading ? null : linksWithoutRedundantBranches.length > 0 ? (
             <div className="flex flex-col gap-2 mt-2">
               {linksWithoutRedundantBranches.map((link) => (
-                <a
-                  key={link.id}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center gap-3 py-2 px-3 rounded-md hover:bg-accent/50 transition-colors"
-                >
-                  {isGiteaResourceLink(link) ? (
-                    <FolderGit className="size-4 flex-shrink-0 text-muted-foreground" />
-                  ) : link.resourceType === "url" ? (
-                    <Link className="size-4 flex-shrink-0 text-muted-foreground" />
-                  ) : (
-                    <GithubIcon className="size-4 flex-shrink-0 text-muted-foreground" />
-                  )}
+                <div key={link.id} className="flex items-center gap-1">
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex min-w-0 flex-1 items-center gap-3 py-2 px-3 rounded-md hover:bg-accent/50 transition-colors"
+                  >
+                    {isGiteaResourceLink(link) ? (
+                      <FolderGit className="size-4 flex-shrink-0 text-muted-foreground" />
+                    ) : link.resourceType === "url" ? (
+                      <Link className="size-4 flex-shrink-0 text-muted-foreground" />
+                    ) : (
+                      <GithubIcon className="size-4 flex-shrink-0 text-muted-foreground" />
+                    )}
 
-                  <span className="text-sm truncate flex-1 text-foreground/90 group-hover:text-foreground">
-                    {link.title || link.externalId}
-                    {link.resourceType !== "branch" &&
-                      link.resourceType !== "url" && (
-                        <span className="text-muted-foreground ml-2">
-                          #{link.externalId}
-                        </span>
-                      )}
-                  </span>
+                    <span className="text-sm truncate flex-1 text-foreground/90 group-hover:text-foreground">
+                      {link.title || link.externalId}
+                      {link.resourceType !== "branch" &&
+                        link.resourceType !== "url" && (
+                          <span className="text-muted-foreground ml-2">
+                            #{link.externalId}
+                          </span>
+                        )}
+                    </span>
 
-                  {getStatusBadge(link)}
-                </a>
+                    {getStatusBadge(link)}
+                  </a>
+                  {canAddResource &&
+                    link.integrationId === null &&
+                    link.resourceType === "url" && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label={t("settings:externalLinks.remove", {
+                          title: link.title || link.url,
+                        })}
+                        disabled={deleteExternalLink.isPending}
+                        onClick={() =>
+                          deleteExternalLink.mutate({ taskId, id: link.id })
+                        }
+                      >
+                        <X aria-hidden="true" />
+                      </Button>
+                    )}
+                </div>
               ))}
             </div>
           ) : (

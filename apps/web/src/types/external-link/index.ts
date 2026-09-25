@@ -28,5 +28,5 @@ export type ExternalLink = {
   integration?: {
     id: string;
     type: string;
-  };
+  } | null;
 };

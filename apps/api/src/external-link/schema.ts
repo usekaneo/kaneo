@@ -10,3 +10,5 @@ export const createExternalLinkBody = z.object({
     .describe("An HTTP or HTTPS URL"),
   title: z.string().max(200).optional(),
 });
+
+export const deleteExternalLinkParam = taskIdParam.extend({ id: z.string() });

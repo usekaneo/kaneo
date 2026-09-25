@@ -1,5 +1,6 @@
 import { client } from "@kaneo/libs";
 import type { InferRequestType } from "hono/client";
+import { HttpError } from "@/lib/http-error";
 
 export type CreateCustomFieldRequest = InferRequestType<
   (typeof client)["custom-field"]["$post"]
@@ -25,8 +26,7 @@ async function createCustomField({
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    throw new HttpError(response.status, await response.text());
   }
 
   return response.json();
