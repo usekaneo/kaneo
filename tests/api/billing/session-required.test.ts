@@ -6,7 +6,6 @@ const mocks = vi.hoisted(() => ({
     checkoutUrl: "https://example.invalid/checkout",
   })),
   portal: vi.fn(async () => ({ portalUrl: "https://example.invalid/portal" })),
-  token: vi.fn(async () => ({ idToken: "sensitive-id-token" })),
   access: vi.fn(async () => {}),
 }));
 vi.mock("../../../apps/api/src/database", () => ({
@@ -35,12 +34,8 @@ vi.mock("../../../apps/api/src/billing/controllers/handle-webhook", () => ({
 vi.mock("../../../apps/api/src/billing/creem-client", () => ({
   createCustomerPortalLink: mocks.portal,
 }));
-vi.mock("../../../apps/api/src/oauth/controllers/get-id-token", () => ({
-  default: mocks.token,
-}));
 
 const { default: billing } = await import("../../../apps/api/src/billing");
-const { default: oauth } = await import("../../../apps/api/src/oauth");
 
 function appFor(apiKey: object | null, session = true) {
   const app = new Hono();
@@ -55,14 +50,12 @@ function appFor(apiKey: object | null, session = true) {
     await next();
   });
   app.route("/billing", billing);
-  app.route("/oauth", oauth);
   return app;
 }
 
 const endpoints = [
   ["/billing/workspace/checkout", "POST", mocks.checkout],
   ["/billing/workspace/portal", "POST", mocks.portal],
-  ["/oauth/id-token", "GET", mocks.token],
 ] as const;
 
 function request(app: ReturnType<typeof appFor>, url: string, method: string) {

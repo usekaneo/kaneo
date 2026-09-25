@@ -678,6 +678,10 @@ export function createApp() {
 
   api.route("/", mcpRoutes);
 
+  // Logout must clear cookies even after the session has expired. The route
+  // validates browser origin and resolves its own optional cookie session.
+  const oauthApi = api.route("/oauth", oauth);
+
   api.use("*", async (c, next) => {
     const path = c.req.path;
     if (
@@ -706,8 +710,6 @@ export function createApp() {
       }
     });
   });
-
-  const oauthApi = api.route("/oauth", oauth);
 
   const billingApi = api.route("/billing", billing);
   const projectApi = api.route("/project", project);
