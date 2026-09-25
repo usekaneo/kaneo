@@ -257,6 +257,18 @@ You can also provide a custom regex pattern for more complex matching.
 The `{slug}` variable is your project's slug (case-insensitive), `{number}` is the task number, and `{title}` is an optional slug of the task title.
 </Tip>
 
+### Pull Request Task References
+
+Kaneo checks the configured branch pattern first, then explicit task references in the PR title and body. Use your project key, such as `PROJ-42` or `fix(PROJ-42): correct the link`, or an explicit `task: 42` marker. Task markers require a separator after `task`; words such as `task42` do not identify a task.
+
+Issue references use the remote repository's numbering. A title containing `#61` or a body containing `Closes #61` resolves through the issue link recorded by this integration. If GitHub issue 61 is linked to Kaneo task `PROJ-42`, the PR belongs to `PROJ-42`, even if `PROJ-61` also exists. Same-repository `owner/repo#61` references and issue URLs are also supported. References to another repository are ignored.
+
+Without an explicit task reference, unmapped issues do not create PR associations. References that map to multiple tasks within the integration are skipped. Repeated issue links to the same task are accepted. Bare numeric title shortcuts such as `[42]`, `(42)`, or `42: ...` are not task identifiers; use the project key instead.
+
+GitHub webhooks also skip conflicting candidates or an existing PR association across projects connected to the repository. Signed Gitea webhooks resolve only within their authenticated integration; another project's mappings or PR links do not block that integration. Direct Gitea handler calls without an integration ID use the repository-wide checks. Imports for both providers remain scoped to the selected project.
+
+These rules apply to new associations from webhooks and imports. Existing PR associations within the applicable scope are preserved; historical incorrect links require separate correction.
+
 ### Status Transition Configuration
 
 Customize when tasks automatically change status:
