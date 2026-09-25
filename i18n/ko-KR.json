@@ -2187,7 +2187,10 @@
 			"unitDay": "Day",
 			"unitMonth": "Month",
 			"unitQuarter": "Quarter",
-			"unitWeek": "Week"
+			"unitWeek": "Week",
+			"collapseSubtasks": "Collapse subtasks",
+			"expandSubtasks": "Expand subtasks",
+			"summaryAriaLabel": "{{title}}: summary of subtasks, open task"
 		},
 		"delete": {
 			"title": "작업을 삭제하시겠습니까?",

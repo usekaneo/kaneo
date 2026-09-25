@@ -8829,6 +8829,15 @@
 						},
 						"unitQuarter": {
 							"type": "string"
+						},
+						"summaryAriaLabel": {
+							"type": "string"
+						},
+						"expandSubtasks": {
+							"type": "string"
+						},
+						"collapseSubtasks": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -8863,7 +8872,10 @@
 						"unitDay",
 						"unitWeek",
 						"unitMonth",
-						"unitQuarter"
+						"unitQuarter",
+						"summaryAriaLabel",
+						"expandSubtasks",
+						"collapseSubtasks"
 					]
 				},
 				"delete": {

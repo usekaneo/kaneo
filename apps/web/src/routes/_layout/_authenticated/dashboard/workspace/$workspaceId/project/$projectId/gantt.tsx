@@ -1,6 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { addDays, format, isSameMonth, isToday, isWeekend } from "date-fns";
-import { Calendar, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import {
+  Calendar,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+} from "lucide-react";
 import {
   useCallback,
   useEffect,
@@ -19,6 +25,13 @@ import { buildDependencyEdges } from "@/components/gantt/dependency-lines";
 import { GanttDependencyOverlay } from "@/components/gantt/gantt-dependency-overlay";
 import type { ExternalGanttTask } from "@/components/gantt/gantt-external-task-bar";
 import { GanttExternalTaskBar } from "@/components/gantt/gantt-external-task-bar";
+import {
+  buildTaskHierarchy,
+  computeParentSummarySpans,
+  flattenGanttRows,
+  type ScheduleSpan,
+} from "@/components/gantt/gantt-hierarchy";
+import { GanttSummaryTaskBar } from "@/components/gantt/gantt-summary-task-bar";
 import { GanttTaskBar } from "@/components/gantt/gantt-task-bar";
 import { computePanScrollPosition } from "@/components/gantt/pan";
 import {
@@ -55,6 +68,11 @@ type OwnScheduledTask = Task & {
   scheduleStart: Date;
   scheduleEnd: Date;
   isExternal: false;
+  // Rollup metadata (see gantt-hierarchy.ts). A row is either a summary
+  // parent (isSummary, scheduleStart/scheduleEnd already overridden to the
+  // rolled-up span) or a one-level child (parentTaskId set), never both.
+  isSummary: boolean;
+  parentTaskId: string | null;
 };
 
 type ExternalScheduledTask = ExternalGanttTask & { isExternal: true };
@@ -226,10 +244,31 @@ function RouteComponent() {
   // by the time the auto-center layout effect below runs for this project,
   // instead of one render later.
   const previousProjectIdRef = useRef(projectId);
+  // Which summary-parent rows (see gantt-hierarchy.ts) are collapsed, hiding
+  // their children. Not persisted: it's a per-visit display toggle, default
+  // expanded, the same way task-subtasks.tsx's own subtasks panel defaults
+  // open. Ids are task ids, so stale entries from a previously viewed
+  // project are simply inert rather than actively wrong, but they're cleared
+  // below anyway to keep a freshly opened project's rows expanded.
+  const [collapsedParentIds, setCollapsedParentIds] = useState<Set<string>>(
+    new Set(),
+  );
   if (previousProjectIdRef.current !== projectId) {
     previousProjectIdRef.current = projectId;
     hasCenteredOnTodayRef.current = false;
+    setCollapsedParentIds(new Set());
   }
+  const toggleParentCollapsed = useCallback((parentId: string) => {
+    setCollapsedParentIds((current) => {
+      const next = new Set(current);
+      if (next.has(parentId)) {
+        next.delete(parentId);
+      } else {
+        next.add(parentId);
+      }
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     if (!isMobile) {
@@ -248,10 +287,67 @@ function RouteComponent() {
     [project],
   );
 
+  // Declared here (rather than down with the other relation-derived values
+  // below) because the hierarchy/rollup step just below needs it to build
+  // `parsedTasks` — a "subtask" relation is hierarchy, not a dependency line
+  // (see the dependencyEdges comment further down), but it still comes from
+  // this same per-project relations fetch.
+  const { data: taskRelations } = useGetProjectTaskRelations(projectId);
+
+  // Parent -> children (and back) from this project's own "subtask"
+  // relations. Built from every own task id (not just ones with a schedule
+  // of their own) since a parent with no dates of its own can still gain one
+  // via rollup below. See gantt-hierarchy.ts for the one-level-of-nesting
+  // limit.
+  const taskHierarchy = useMemo(() => {
+    const subtaskRelations = (taskRelations ?? []).flatMap((relation) =>
+      relation.relationType === "subtask"
+        ? [
+            {
+              sourceTaskId: relation.sourceTaskId,
+              targetTaskId: relation.targetTaskId,
+            },
+          ]
+        : [],
+    );
+    return buildTaskHierarchy(
+      allTasks.map((task) => task.id),
+      subtaskRelations,
+    );
+  }, [allTasks, taskRelations]);
+
+  // Every own task's OWN derived schedule (its own startDate/dueDate only —
+  // never a rolled-up span). This is what summary rollup reads a parent's
+  // children from, and what a plain/child row uses directly.
+  const ownScheduleByTaskId = useMemo(() => {
+    const map = new Map<string, ScheduleSpan>();
+    for (const task of allTasks) {
+      const schedule = deriveTaskSchedule(task.startDate, task.dueDate);
+      if (schedule) map.set(task.id, schedule);
+    }
+    return map;
+  }, [allTasks]);
+
+  const summarySpanByParentId = useMemo(
+    () => computeParentSummarySpans(taskHierarchy, ownScheduleByTaskId),
+    [taskHierarchy, ownScheduleByTaskId],
+  );
+
   const parsedTasks = useMemo<OwnScheduledTask[]>(() => {
     return allTasks
       .map((task) => {
-        const schedule = deriveTaskSchedule(task.startDate, task.dueDate);
+        const parentTaskId =
+          taskHierarchy.parentIdByChildId.get(task.id) ?? null;
+        const summarySpan = summarySpanByParentId.get(task.id);
+        // A summary parent's span always comes from its children (see
+        // computeParentSummarySpans) — its own startDate/dueDate, if any,
+        // are ignored once it has at least one spanned child, so the bar
+        // always reads as "the span of the children", never a mix of the
+        // two.
+        const isSummary = summarySpan !== undefined;
+        const schedule = isSummary
+          ? summarySpan
+          : (ownScheduleByTaskId.get(task.id) ?? null);
         if (!schedule) return null;
 
         return {
@@ -259,6 +355,8 @@ function RouteComponent() {
           scheduleStart: schedule.start,
           scheduleEnd: schedule.end,
           isExternal: false as const,
+          isSummary,
+          parentTaskId,
         };
       })
       .filter((task): task is NonNullable<typeof task> => task !== null)
@@ -266,7 +364,7 @@ function RouteComponent() {
         (left, right) =>
           left.scheduleStart.getTime() - right.scheduleStart.getTime(),
       );
-  }, [allTasks]);
+  }, [allTasks, taskHierarchy, summarySpanByParentId, ownScheduleByTaskId]);
 
   const scheduledTasks = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -282,6 +380,48 @@ function RouteComponent() {
       );
     });
   }, [parsedTasks, project?.slug, searchQuery]);
+
+  // Every scheduled own task id currently passing the search filter — used
+  // just below to tell a genuinely nested child from one whose parent the
+  // search filtered out.
+  const scheduledTaskIds = useMemo(
+    () => new Set(scheduledTasks.map((task) => task.id)),
+    [scheduledTasks],
+  );
+
+  // A child renders nested under its parent only while that parent is ALSO
+  // still showing. A search that matches a child but not its parent — e.g.
+  // searching a subtask's own title — would otherwise make that child
+  // vanish entirely (flattenGanttRows only visits a parent's children when
+  // the parent itself is in the top-level list): treating it as an ordinary
+  // top-level row instead keeps every search match visible, the same as
+  // before this feature existed.
+  const isNestedChild = useCallback(
+    (task: OwnScheduledTask) =>
+      task.parentTaskId !== null && scheduledTaskIds.has(task.parentTaskId),
+    [scheduledTaskIds],
+  );
+
+  // Top-level own rows (not a one-level, still-visible child of another row)
+  // versus each visible parent's own (search-filtered) children — split out
+  // of `scheduledTasks` so the render below can place children directly
+  // under their parent (via flattenGanttRows) instead of interleaving them
+  // into the flat chronological sort every other row uses.
+  const topLevelOwnTasks = useMemo(
+    () => scheduledTasks.filter((task) => !isNestedChild(task)),
+    [scheduledTasks, isNestedChild],
+  );
+
+  const childOwnTasksByParentId = useMemo(() => {
+    const map = new Map<string, OwnScheduledTask[]>();
+    for (const task of scheduledTasks) {
+      if (!isNestedChild(task) || !task.parentTaskId) continue;
+      const siblings = map.get(task.parentTaskId);
+      if (siblings) siblings.push(task);
+      else map.set(task.parentTaskId, [task]);
+    }
+    return map;
+  }, [scheduledTasks, isNestedChild]);
 
   // The date window (which 91 days are in view, and the paging bounds
   // around them) depends only on the task list, the week-start preference,
@@ -345,11 +485,12 @@ function RouteComponent() {
     [range],
   );
 
-  // "subtask" relations describe hierarchy, not scheduling dependency, and
-  // the task rail already communicates hierarchy elsewhere; drawing lines
-  // for them here would only clutter the chart, so only "blocks" and
-  // "related" become dependency edges.
-  const { data: taskRelations } = useGetProjectTaskRelations(projectId);
+  // "subtask" relations describe hierarchy (built into summary rows above),
+  // not scheduling dependency, and the task rail already communicates
+  // hierarchy via indentation/collapse; drawing dependency lines for them
+  // here would only clutter the chart, so only "blocks" and "related" become
+  // dependency edges. (`taskRelations` itself is fetched further up, where
+  // the hierarchy is built from it.)
   const dependencyEdges = useMemo<DependencyEdgeInput[]>(() => {
     return (taskRelations ?? []).flatMap((relation) => {
       if (
@@ -430,19 +571,42 @@ function RouteComponent() {
     );
   }, [isSearchActive, externalRelatedTasks, scheduledTasks, dependencyEdges]);
 
-  // Every row the grid actually draws: this project's own (search-filtered)
-  // tasks plus the (also search-aware, see above) external related tasks, in
-  // one chronological list so the two kinds of rows interleave by date
-  // rather than externals always trailing at the bottom. When the search
-  // matches zero own tasks, this is empty too (no own task is "visible" to
-  // connect an external row to), so the "no tasks found" state below and the
-  // chart's row list agree on when there's nothing to show.
+  // Every row the grid actually draws: this project's own top-level
+  // (search-filtered) tasks plus the (also search-aware, see above) external
+  // related tasks, chronologically interleaved so the two kinds of rows sort
+  // by date rather than externals always trailing at the bottom — then each
+  // expanded parent's own children spliced in directly after it (see
+  // flattenGanttRows) so a child always sits under its parent regardless of
+  // how its date compares to whatever unrelated row would otherwise land
+  // between them. A collapsed parent's children are left out of this list
+  // entirely: they never get a row, a measured box, or therefore a
+  // dependency line (buildDependencyEdges above already skips any edge
+  // missing either endpoint's box), rather than rendering hidden or
+  // rerouting their lines to the summary bar — the same "no box, no line"
+  // rule every other hidden-row case (out of window, search-filtered) here
+  // already relies on. When the search matches zero own tasks, this is empty
+  // too (no own task is "visible" to connect an external row to), so the "no
+  // tasks found" state below and the chart's row list agree on when there's
+  // nothing to show.
   const renderedTasks = useMemo<GanttRowTask[]>(() => {
-    return [...scheduledTasks, ...visibleExternalRelatedTasks].sort(
+    const topLevelChronological = [
+      ...topLevelOwnTasks,
+      ...visibleExternalRelatedTasks,
+    ].sort(
       (left, right) =>
         left.scheduleStart.getTime() - right.scheduleStart.getTime(),
     );
-  }, [scheduledTasks, visibleExternalRelatedTasks]);
+    return flattenGanttRows(
+      topLevelChronological,
+      childOwnTasksByParentId,
+      collapsedParentIds,
+    );
+  }, [
+    topLevelOwnTasks,
+    visibleExternalRelatedTasks,
+    childOwnTasksByParentId,
+    collapsedParentIds,
+  ]);
 
   // A hovered bar can unmount without ever firing its own onMouseLeave/onBlur
   // — most commonly a search change filtering its task out of
@@ -1159,36 +1323,78 @@ function RouteComponent() {
                                 </p>
                               </div>
                             ) : (
-                              <button
-                                type="button"
-                                className="flex min-h-[44px] w-full min-w-0 flex-col items-start justify-center gap-0.5 px-2 py-2 text-left transition-colors hover:bg-muted sm:min-h-0 sm:px-3 sm:py-1.5"
-                                onClick={() =>
-                                  navigate({
-                                    to: ".",
-                                    search: { taskId: task.id },
-                                    replace: true,
-                                  })
-                                }
-                              >
-                                <div className="flex w-full items-center gap-1.5">
-                                  <span className="max-w-[7rem] truncate rounded-full bg-secondary px-1.5 py-px text-[10px] font-medium uppercase tracking-wide text-secondary-foreground sm:max-w-none">
-                                    {getStatusLabel(task.status)}
-                                  </span>
-                                  <span className="truncate text-[10px] text-muted-foreground">
-                                    {project?.slug}-{task.number}
-                                  </span>
-                                </div>
-                                <p className="w-full line-clamp-1 text-xs font-medium leading-tight text-foreground">
-                                  {task.title}
-                                </p>
-                                <p className="w-full truncate text-[11px] leading-tight text-muted-foreground">
-                                  {format(task.scheduleStart, "MMM d, yyyy")} -{" "}
-                                  {format(task.scheduleEnd, "MMM d, yyyy")}
-                                  {task.assigneeName
-                                    ? ` • ${task.assigneeName}`
-                                    : ""}
-                                </p>
-                              </button>
+                              <div className="flex w-full min-w-0 items-stretch">
+                                {childOwnTasksByParentId.has(task.id) ? (
+                                  <button
+                                    type="button"
+                                    aria-expanded={
+                                      !collapsedParentIds.has(task.id)
+                                    }
+                                    aria-label={
+                                      collapsedParentIds.has(task.id)
+                                        ? t("tasks:gantt.expandSubtasks")
+                                        : t("tasks:gantt.collapseSubtasks")
+                                    }
+                                    onClick={() =>
+                                      toggleParentCollapsed(task.id)
+                                    }
+                                    className="flex min-h-[44px] shrink-0 touch-manipulation items-center justify-center self-stretch px-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:min-h-0"
+                                  >
+                                    <ChevronDown
+                                      className={cn(
+                                        "size-3.5 transition-transform",
+                                        collapsedParentIds.has(task.id) &&
+                                          "-rotate-90",
+                                      )}
+                                    />
+                                  </button>
+                                ) : isNestedChild(task) ? (
+                                  // Indent spacer: a one-level child has no
+                                  // chevron of its own (see the
+                                  // one-level-of-nesting limit in
+                                  // gantt-hierarchy.ts), but still steps its
+                                  // title in under its parent's. A child
+                                  // whose parent the search filtered out
+                                  // (isNestedChild is false) skips this and
+                                  // renders like an ordinary top-level row —
+                                  // see the isNestedChild comment above.
+                                  <span
+                                    aria-hidden="true"
+                                    className="w-4 shrink-0"
+                                  />
+                                ) : null}
+                                <button
+                                  type="button"
+                                  className="flex min-h-[44px] w-full min-w-0 flex-col items-start justify-center gap-0.5 px-2 py-2 text-left transition-colors hover:bg-muted sm:min-h-0 sm:px-3 sm:py-1.5"
+                                  onClick={() =>
+                                    navigate({
+                                      to: ".",
+                                      search: { taskId: task.id },
+                                      replace: true,
+                                    })
+                                  }
+                                >
+                                  <div className="flex w-full items-center gap-1.5">
+                                    <span className="max-w-[7rem] truncate rounded-full bg-secondary px-1.5 py-px text-[10px] font-medium uppercase tracking-wide text-secondary-foreground sm:max-w-none">
+                                      {getStatusLabel(task.status)}
+                                    </span>
+                                    <span className="truncate text-[10px] text-muted-foreground">
+                                      {project?.slug}-{task.number}
+                                    </span>
+                                  </div>
+                                  <p className="w-full line-clamp-1 text-xs font-medium leading-tight text-foreground">
+                                    {task.title}
+                                  </p>
+                                  <p className="w-full truncate text-[11px] leading-tight text-muted-foreground">
+                                    {format(task.scheduleStart, "MMM d, yyyy")}{" "}
+                                    -{" "}
+                                    {format(task.scheduleEnd, "MMM d, yyyy")}
+                                    {task.assigneeName
+                                      ? ` • ${task.assigneeName}`
+                                      : ""}
+                                  </p>
+                                </button>
+                              </div>
                             )}
                             {(task.scheduleEnd < timeline.rangeStart ||
                               task.scheduleStart > timeline.rangeEnd) && (
@@ -1210,8 +1416,11 @@ function RouteComponent() {
                             "relative shrink-0 select-none",
                             // Extra room below the bar for the baseline
                             // underlay (see GanttTaskBar); rows without a
-                            // baseline stay at the usual height.
+                            // baseline stay at the usual height. A summary
+                            // row never renders one (see GanttSummaryTaskBar)
+                            // regardless of the parent's own baseline dates.
                             !task.isExternal &&
+                              !task.isSummary &&
                               (task.baselineStartDate || task.baselineDueDate)
                               ? "min-h-14"
                               : "min-h-11",
@@ -1227,6 +1436,24 @@ function RouteComponent() {
                               emphasis={emphasisFor(task.id)}
                               onHoverChange={(hovering) =>
                                 handleBarHoverChange(task.id, hovering)
+                              }
+                            />
+                          ) : task.isSummary ? (
+                            <GanttSummaryTaskBar
+                              title={task.title}
+                              scheduleStart={task.scheduleStart}
+                              scheduleEnd={task.scheduleEnd}
+                              timeline={timeline}
+                              emphasis={emphasisFor(task.id)}
+                              onHoverChange={(hovering) =>
+                                handleBarHoverChange(task.id, hovering)
+                              }
+                              onOpenTask={() =>
+                                navigate({
+                                  to: ".",
+                                  search: { taskId: task.id },
+                                  replace: true,
+                                })
                               }
                             />
                           ) : (

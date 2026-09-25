@@ -2194,7 +2194,10 @@
 			"unitDay": "Day",
 			"unitWeek": "Week",
 			"unitMonth": "Month",
-			"unitQuarter": "Quarter"
+			"unitQuarter": "Quarter",
+			"summaryAriaLabel": "{{title}}: summary of subtasks, open task",
+			"expandSubtasks": "Expand subtasks",
+			"collapseSubtasks": "Collapse subtasks"
 		},
 		"delete": {
 			"title": "Delete Task?",
