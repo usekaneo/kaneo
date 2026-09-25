@@ -383,6 +383,9 @@ jobs:
     if: ${{ github.event_name != 'schedule' }}
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - name: Checkout repository
         uses: useblacksmith/checkout@v1 # v7.0.1
@@ -391,11 +394,29 @@ jobs:
           # TruffleHog resolves the diff base locally, so the base commit must exist.
           fetch-depth: 0
       - name: Scan for leaked credentials
-        # Pull requests: scans only the commits introduced by the branch.
-        # Pushes to main: scans only the pushed commits.
-        uses: trufflesecurity/trufflehog@4dd8831c5f12599465d4d45c3c447b4018a34c85 # v3.97.9
+        env:
+          # Pull requests: scan only the commits introduced by the branch.
+          # Pushes: scan only the pushed commits. Everything else: full history.
+          BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_REF: ${{ github.event.pull_request.head.sha || github.event.after || github.ref_name }}
+        run: |
+          base="$(git rev-parse --verify --quiet "$BASE_REF" 2>/dev/null || true)"
+          head="$(git rev-parse --verify --quiet "$HEAD_REF" 2>/dev/null || true)"
+          # Runs directly instead of via trufflesecurity/trufflehog because that
+          # action hard-codes --github-actions, which conflicts with --sarif.
+          # --fail still writes a complete SARIF file before exiting 183.
+          docker run --rm -v "$PWD:/tmp" -w /tmp \
+            ghcr.io/trufflesecurity/trufflehog:v3.97.9 \
+            git file:///tmp/ \
+            --results=verified,unknown \
+            --exclude-paths=.trufflehog-exclude \
+            --since-commit "$base" \
+            --branch "$head" \
+            --fail \
+            --sarif > trufflehog-results.sarif
+      - name: Upload results to GitHub Code Scanning
+        # Fork pull requests hold a read-only token and cannot write code scanning data.
+        if: ${{ always() && !github.event.pull_request.head.repo.fork }}
+        uses: github/codeql-action/upload-sarif@1190a975f95ce23525efb6a3fc21ea29567c1b52 # v3
         with:
-          # Report only verified and unknown results; skip unverified false positives.
-          # .trufflehog-exclude allowlists files carrying placeholder credentials
-          # (compose examples, docs, generated CONTRIBUTORS.svg, tests).
-          extra_args: --results=verified,unknown --exclude-paths=.trufflehog-exclude
+          sarif_file: trufflehog-results.sarif
