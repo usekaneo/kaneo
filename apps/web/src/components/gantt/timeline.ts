@@ -13,6 +13,29 @@ export const GANTT_WINDOW_DAYS = 91;
 const minimumDate = parseISO("0001-01-01");
 const maximumDate = parseISO("9999-12-31");
 
+// Shared by the task bar and the dependency-line overlay: which grid lines
+// (1-indexed, CSS Grid style) a task's schedule occupies in the current
+// window, and whether any part of it falls inside that window at all.
+export function getBarGridColumns(
+  scheduleStart: Date,
+  scheduleEnd: Date,
+  rangeStart: Date,
+  trackCount: number,
+): { barInView: boolean; lineStart: number; lineEnd: number } {
+  const startIndex = differenceInCalendarDays(scheduleStart, rangeStart);
+  const endIndex = differenceInCalendarDays(scheduleEnd, rangeStart);
+  const barInView = endIndex >= 0 && startIndex < trackCount && trackCount > 0;
+  if (!barInView) {
+    return { barInView: false, lineStart: 1, lineEnd: 1 };
+  }
+  const lineStart = Math.max(1, Math.min(startIndex + 1, trackCount));
+  const lineEnd = Math.max(
+    lineStart + 1,
+    Math.min(endIndex + 2, trackCount + 1),
+  );
+  return { barInView: true, lineStart, lineEnd };
+}
+
 export function parseTaskDate(value: string | null) {
   if (!value) return null;
   const parsed = parseISO(value);

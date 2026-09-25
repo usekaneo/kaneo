@@ -8675,6 +8675,12 @@
 						},
 						"showTaskDates": {
 							"type": "string"
+						},
+						"legendBlocking": {
+							"type": "string"
+						},
+						"legendRelated": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -8696,7 +8702,9 @@
 						"previousPeriod",
 						"nextPeriod",
 						"periodStart",
-						"showTaskDates"
+						"showTaskDates",
+						"legendBlocking",
+						"legendRelated"
 					]
 				},
 				"delete": {

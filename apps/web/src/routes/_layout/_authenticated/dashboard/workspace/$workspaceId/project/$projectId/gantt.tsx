@@ -11,10 +11,17 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import ProjectLayout from "@/components/common/project-layout";
+import type {
+  DependencyEdgeInput,
+  TaskBarBox,
+} from "@/components/gantt/dependency-lines";
+import { buildDependencyEdges } from "@/components/gantt/dependency-lines";
+import { GanttDependencyOverlay } from "@/components/gantt/gantt-dependency-overlay";
 import { GanttTaskBar } from "@/components/gantt/gantt-task-bar";
 import {
   buildGanttTimeline,
   GANTT_WINDOW_DAYS,
+  getBarGridColumns,
   parseTaskDate,
 } from "@/components/gantt/timeline";
 import PageTitle from "@/components/page-title";
@@ -22,6 +29,7 @@ import TaskDetailsSheet from "@/components/task/task-details-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
+import useGetProjectTaskRelations from "@/hooks/queries/task-relation/use-get-project-task-relations";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/cn";
 import { getStatusLabel } from "@/lib/i18n/domain";
@@ -66,7 +74,22 @@ function RouteComponent() {
   const showTaskRail = !isMobile || isTaskRailOpen;
   const timelineTrackRef = useRef<HTMLDivElement>(null);
   const [pixelsPerDay, setPixelsPerDay] = useState(44);
+  // Pixels from the rows container's left edge to where the day columns
+  // start — i.e. the task rail's rendered width, measured rather than
+  // recomputed from its rem value so it always matches the actual layout
+  // (rail hidden, mobile width, etc).
+  const [barsLeftPx, setBarsLeftPx] = useState(0);
   const todayCellRef = useRef<HTMLDivElement>(null);
+  const rowsContainerRef = useRef<HTMLDivElement>(null);
+  const rowElementsRef = useRef(new Map<string, HTMLDivElement>());
+  // Each row's rendered top offset and height, relative to `rowsContainerRef`
+  // — measured rather than assumed, because a row's height depends on its
+  // task-rail content (title wrapping, the "show task dates" link for
+  // out-of-window tasks), which isn't uniform across rows.
+  const [rowLayout, setRowLayout] = useState<
+    Map<string, { top: number; height: number }>
+  >(new Map());
+  const [hoveredTaskId, setHoveredTaskId] = useState<string | null>(null);
   // Only auto-scroll once per visit to the view: re-running on every timeline
   // recalculation (e.g. a browser resize crossing the mobile breakpoint) would
   // yank the grid back to today out from under someone who deliberately
@@ -162,6 +185,99 @@ function RouteComponent() {
     [timeline],
   );
 
+  // "subtask" relations describe hierarchy, not scheduling dependency, and
+  // the task rail already communicates hierarchy elsewhere; drawing lines
+  // for them here would only clutter the chart, so only "blocks" and
+  // "related" become dependency edges.
+  const { data: taskRelations } = useGetProjectTaskRelations(projectId);
+  const dependencyEdges = useMemo<DependencyEdgeInput[]>(() => {
+    return (taskRelations ?? []).flatMap((relation) => {
+      if (
+        relation.relationType !== "blocks" &&
+        relation.relationType !== "related"
+      ) {
+        return [];
+      }
+      return [
+        {
+          id: relation.id,
+          sourceTaskId: relation.sourceTaskId,
+          targetTaskId: relation.targetTaskId,
+          relationType: relation.relationType,
+        },
+      ];
+    });
+  }, [taskRelations]);
+
+  // A dependency line can only be drawn between two bars that are both
+  // actually on screen: in the current timeline window, passing the search
+  // filter, and wide enough to render (mirrors GanttTaskBar's own
+  // barInView / lineEnd > lineStart guard). Anything else — a cross-project
+  // link, a task scrolled out of the date window, a search miss — simply
+  // has no box here, and buildDependencyEdges skips edges missing either end.
+  const taskBoxes = useMemo(() => {
+    const boxes = new Map<string, TaskBarBox>();
+    if (!timeline) return boxes;
+    const trackCount = timeline.days.length;
+
+    for (const task of scheduledTasks) {
+      const row = rowLayout.get(task.id);
+      if (!row) continue;
+      const { barInView, lineStart, lineEnd } = getBarGridColumns(
+        task.scheduleStart,
+        task.scheduleEnd,
+        timeline.rangeStart,
+        trackCount,
+      );
+      if (!barInView || lineEnd <= lineStart) continue;
+      boxes.set(task.id, {
+        left: barsLeftPx + (lineStart - 1) * pixelsPerDay,
+        right: barsLeftPx + (lineEnd - 1) * pixelsPerDay,
+        top: row.top,
+        height: row.height,
+      });
+    }
+    return boxes;
+  }, [scheduledTasks, rowLayout, timeline, barsLeftPx, pixelsPerDay]);
+
+  const dependencyEdgeGeometry = useMemo(
+    () => buildDependencyEdges(dependencyEdges, taskBoxes),
+    [dependencyEdges, taskBoxes],
+  );
+
+  // The task ids that should read as "connected" to the hovered bar: itself,
+  // plus every task at the other end of one of its edges — regardless of
+  // whether that other task's bar is currently visible/drawable.
+  const highlightedTaskIds = useMemo(() => {
+    if (!hoveredTaskId) return null;
+    const ids = new Set<string>([hoveredTaskId]);
+    for (const edge of dependencyEdges) {
+      if (edge.sourceTaskId === hoveredTaskId) ids.add(edge.targetTaskId);
+      if (edge.targetTaskId === hoveredTaskId) ids.add(edge.sourceTaskId);
+    }
+    return ids;
+  }, [hoveredTaskId, dependencyEdges]);
+
+  const emphasisFor = useCallback(
+    (taskId: string): "normal" | "highlighted" | "dimmed" => {
+      if (!highlightedTaskIds) return "normal";
+      return highlightedTaskIds.has(taskId) ? "highlighted" : "dimmed";
+    },
+    [highlightedTaskIds],
+  );
+
+  const handleBarHoverChange = useCallback(
+    (taskId: string, hovering: boolean) => {
+      setHoveredTaskId((current) => {
+        if (hovering) return taskId;
+        // A stale leave from a bar the pointer already moved away from
+        // must not clobber whichever bar is hovered now.
+        return current === taskId ? null : current;
+      });
+    },
+    [],
+  );
+
   // The task rail is `position: sticky; left: 0`, so it stays pinned over the
   // left edge of the scroll container's viewport rather than scrolling away
   // with the timeline underneath it. `scrollIntoView({ inline: "center" })`
@@ -193,6 +309,7 @@ function RouteComponent() {
       const count = timeline.days.length;
       if (count <= 0) return;
       setPixelsPerDay(element.clientWidth / count);
+      setBarsLeftPx(element.offsetLeft);
     };
 
     update();
@@ -200,6 +317,58 @@ function RouteComponent() {
     observer.observe(element);
     return () => observer.disconnect();
   }, [timeline]);
+
+  const measureRows = useCallback(() => {
+    const next = new Map<string, { top: number; height: number }>();
+    for (const [taskId, element] of rowElementsRef.current) {
+      next.set(taskId, {
+        top: element.offsetTop,
+        height: element.offsetHeight,
+      });
+    }
+    setRowLayout((current) => {
+      // A `Map` is a new reference every measurement, which would otherwise
+      // force a render on every effect run (including ones triggered by
+      // unrelated re-renders, e.g. `project` data getting a fresh reference
+      // from the query cache). Bailing out on unchanged content keeps this
+      // from re-rendering — or re-triggering ResizeObserver-driven effects —
+      // when nothing actually moved.
+      if (current.size === next.size) {
+        let unchanged = true;
+        for (const [taskId, box] of next) {
+          const previous = current.get(taskId);
+          if (
+            !previous ||
+            previous.top !== box.top ||
+            previous.height !== box.height
+          ) {
+            unchanged = false;
+            break;
+          }
+        }
+        if (unchanged) return current;
+      }
+      return next;
+    });
+  }, []);
+
+  // Row heights depend on task-rail content, not a fixed rhythm, so they're
+  // measured directly rather than derived from an index. Re-measure whenever
+  // the visible rows themselves could have changed (search, timeline window,
+  // rail layout) and via ResizeObserver for organic content changes (font
+  // load, text wrapping) the dependency list above wouldn't catch.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: measureRows reads rowElementsRef (a plain ref, not a reactive value), so these are listed to force a re-measure whenever they could change row layout, not because the effect body reads them directly.
+  useLayoutEffect(() => {
+    measureRows();
+  }, [measureRows, scheduledTasks, timeline, showTaskRail, isMobile]);
+
+  useEffect(() => {
+    const element = rowsContainerRef.current;
+    if (!element) return;
+    const observer = new ResizeObserver(measureRows);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [measureRows]);
 
   // Center the view on today the first time it becomes available, so opening
   // the Gantt chart on a long-running project doesn't drop you at the start
@@ -241,6 +410,18 @@ function RouteComponent() {
               <h1 className="text-sm font-semibold text-foreground">
                 {t("tasks:gantt.title")}
               </h1>
+              {dependencyEdges.length > 0 && (
+                <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <span className="h-0.5 w-4 rounded-full bg-destructive" />
+                    {t("tasks:gantt.legendBlocking")}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="h-0.5 w-4 rounded-full bg-muted-foreground" />
+                    {t("tasks:gantt.legendRelated")}
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="relative w-full max-w-sm">
@@ -432,11 +613,26 @@ function RouteComponent() {
                   ))}
                 </div>
 
-                <div className="relative z-10 flex flex-col">
+                <div
+                  ref={rowsContainerRef}
+                  className="relative z-10 flex flex-col"
+                >
+                  <GanttDependencyOverlay
+                    edges={dependencyEdgeGeometry}
+                    hoveredTaskId={hoveredTaskId}
+                    clipLeftPx={barsLeftPx}
+                  />
                   {scheduledTasks.map((task) => {
                     return (
                       <div
                         key={task.id}
+                        ref={(element) => {
+                          if (element) {
+                            rowElementsRef.current.set(task.id, element);
+                          } else {
+                            rowElementsRef.current.delete(task.id);
+                          }
+                        }}
                         className="grid items-stretch border-b border-border/70"
                         style={{
                           gridTemplateColumns: showTaskRail
@@ -504,6 +700,10 @@ function RouteComponent() {
                             timeline={timeline}
                             pixelsPerDay={pixelsPerDay}
                             isMobile={isMobile}
+                            emphasis={emphasisFor(task.id)}
+                            onHoverChange={(hovering) =>
+                              handleBarHoverChange(task.id, hovering)
+                            }
                             onOpenTask={() =>
                               navigate({
                                 to: ".",

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildGanttTimeline,
   GANTT_WINDOW_DAYS,
+  getBarGridColumns,
   parseTaskDate,
 } from "./timeline";
 
@@ -79,4 +80,71 @@ describe("bounded Gantt timeline", () => {
       expect(parseTaskDate(value)).toBeNull();
     },
   );
+});
+
+describe("getBarGridColumns", () => {
+  const rangeStart = parseISO("2026-09-01");
+
+  it("places a bar fully inside the window on the matching grid lines", () => {
+    const result = getBarGridColumns(
+      parseISO("2026-09-03"),
+      parseISO("2026-09-05"),
+      rangeStart,
+      10,
+    );
+    expect(result).toEqual({ barInView: true, lineStart: 3, lineEnd: 6 });
+  });
+
+  it("clips a bar that starts before the window to the first line", () => {
+    const result = getBarGridColumns(
+      parseISO("2026-08-25"),
+      parseISO("2026-09-03"),
+      rangeStart,
+      10,
+    );
+    expect(result.barInView).toBe(true);
+    expect(result.lineStart).toBe(1);
+    expect(result.lineEnd).toBe(4);
+  });
+
+  it("clips a bar that ends after the window to the last line", () => {
+    const result = getBarGridColumns(
+      parseISO("2026-09-08"),
+      parseISO("2026-09-30"),
+      rangeStart,
+      10,
+    );
+    expect(result.barInView).toBe(true);
+    expect(result.lineEnd).toBe(11);
+  });
+
+  it("reports out of view for a bar entirely before the window", () => {
+    const result = getBarGridColumns(
+      parseISO("2026-08-01"),
+      parseISO("2026-08-20"),
+      rangeStart,
+      10,
+    );
+    expect(result.barInView).toBe(false);
+  });
+
+  it("reports out of view for a bar entirely after the window", () => {
+    const result = getBarGridColumns(
+      parseISO("2026-10-01"),
+      parseISO("2026-10-05"),
+      rangeStart,
+      10,
+    );
+    expect(result.barInView).toBe(false);
+  });
+
+  it("reports out of view for an empty track", () => {
+    const result = getBarGridColumns(
+      parseISO("2026-09-03"),
+      parseISO("2026-09-05"),
+      rangeStart,
+      0,
+    );
+    expect(result.barInView).toBe(false);
+  });
 });

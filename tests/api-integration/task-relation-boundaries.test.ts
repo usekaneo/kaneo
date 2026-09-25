@@ -149,3 +149,62 @@ describe("task relation tenant boundaries", () => {
     );
   });
 });
+
+describe("GET /task-relation/project/:projectId", () => {
+  it("returns every relation touching the project's tasks, in either direction", async () => {
+    const own = await context();
+    const { project: otherProject } = await createProjectFixture({
+      workspaceId: own.workspace.id,
+    });
+    const [siblingTask] = await db
+      .insert(schema.taskTable)
+      .values({ projectId: own.task.projectId, title: "Sibling", number: 2 })
+      .returning();
+    const [outsideTask] = await db
+      .insert(schema.taskTable)
+      .values({ projectId: otherProject.id, title: "Outside", number: 1 })
+      .returning();
+
+    // own.task -> siblingTask (both in the project) and own.task -> outsideTask
+    // (source in the project, target outside it) should both come back;
+    // relations with neither end in the project must not.
+    const inProject = await seedRelation(own.task.id, siblingTask.id);
+    const crossProject = await seedRelation(own.task.id, outsideTask.id);
+    const outsideOnly = await db
+      .insert(schema.taskRelationTable)
+      .values({
+        sourceTaskId: outsideTask.id,
+        targetTaskId: outsideTask.id,
+        relationType: "related",
+      })
+      .returning();
+
+    mockAuthenticatedSession(own.user);
+    const response = await request(`/project/${own.task.projectId}`, "GET");
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { id: string }[];
+    const ids = body.map((relation) => relation.id);
+    expect(ids).toContain(inProject.id);
+    expect(ids).toContain(crossProject.id);
+    expect(ids).not.toContain(outsideOnly[0]?.id);
+  });
+
+  it("rejects a caller without access to the project's workspace", async () => {
+    const own = await context();
+    const foreign = await context();
+    mockAuthenticatedSession(foreign.user);
+    const response = await request(`/project/${own.task.projectId}`, "GET");
+    expect(response.status).toBe(403);
+  });
+
+  it("returns an empty list for a project with no tasks", async () => {
+    const own = await context();
+    const { project: emptyProject } = await createProjectFixture({
+      workspaceId: own.workspace.id,
+    });
+    mockAuthenticatedSession(own.user);
+    const response = await request(`/project/${emptyProject.id}`, "GET");
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual([]);
+  });
+});
