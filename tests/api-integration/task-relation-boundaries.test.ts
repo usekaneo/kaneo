@@ -148,6 +148,118 @@ describe("task relation tenant boundaries", () => {
       }),
     );
   });
+
+  it("notifies both projects when a relation links tasks across two projects", async () => {
+    // A relation's source and target tasks can live in different projects of
+    // the same workspace (see the same-workspace cross-project test above).
+    // Regression coverage for a bug where only the source project's realtime
+    // channel was notified: a viewer on the target project's Gantt chart
+    // (which reads GET /task-relation/project/{targetProjectId}) never saw
+    // its dependency line/external row refresh without a manual reload.
+    const own = await context();
+    const { project: targetProject } = await createProjectFixture({
+      workspaceId: own.workspace.id,
+    });
+    const [target] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: targetProject.id,
+        title: "Cross-project",
+        number: 1,
+      })
+      .returning();
+    mockAuthenticatedSession(own.user);
+
+    const created = await request("", "POST", {
+      sourceTaskId: own.task.id,
+      targetTaskId: target.id,
+      relationType: "blocks",
+    });
+    expect(created.status).toBe(200);
+    const relation = (await created.json()) as { id: string };
+
+    // The source project's own channel is still notified.
+    expect(m.publish).toHaveBeenCalledWith(
+      "task-relation.created",
+      expect.objectContaining({
+        projectId: own.task.projectId,
+        sourceTaskId: own.task.id,
+        targetTaskId: target.id,
+      }),
+    );
+    // The target task's project must ALSO be notified, since it renders its
+    // own project-scoped task-relations cache.
+    expect(m.publish).toHaveBeenCalledWith(
+      "task-relation.created",
+      expect.objectContaining({
+        projectId: targetProject.id,
+        sourceTaskId: own.task.id,
+        targetTaskId: target.id,
+      }),
+    );
+    expect(
+      m.publish.mock.calls.filter(([type]) => type === "task-relation.created")
+        .length,
+    ).toBe(2);
+
+    vi.clearAllMocks();
+    expect((await request(`/${relation.id}`, "DELETE")).status).toBe(200);
+
+    expect(m.publish).toHaveBeenCalledWith(
+      "task-relation.deleted",
+      expect.objectContaining({
+        projectId: own.task.projectId,
+        sourceTaskId: own.task.id,
+        targetTaskId: target.id,
+      }),
+    );
+    expect(m.publish).toHaveBeenCalledWith(
+      "task-relation.deleted",
+      expect.objectContaining({
+        projectId: targetProject.id,
+        sourceTaskId: own.task.id,
+        targetTaskId: target.id,
+      }),
+    );
+    expect(
+      m.publish.mock.calls.filter(([type]) => type === "task-relation.deleted")
+        .length,
+    ).toBe(2);
+  });
+
+  it("publishes exactly one event per lifecycle step for a same-project relation", async () => {
+    // Dedup guard: when both ends of the relation share a project, the
+    // cross-project notification must not fire a second, redundant event.
+    const own = await context();
+    const [target] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: own.task.projectId,
+        title: "Same project",
+        number: 2,
+      })
+      .returning();
+    mockAuthenticatedSession(own.user);
+
+    const created = await request("", "POST", {
+      sourceTaskId: own.task.id,
+      targetTaskId: target.id,
+      relationType: "related",
+    });
+    expect(created.status).toBe(200);
+    const relation = (await created.json()) as { id: string };
+    expect(
+      m.publish.mock.calls.filter(([type]) => type === "task-relation.created")
+        .length,
+    ).toBe(1);
+
+    vi.clearAllMocks();
+    expect((await request(`/${relation.id}`, "DELETE")).status).toBe(200);
+    expect(
+      m.publish.mock.calls.filter(([type]) => type === "task-relation.deleted")
+        .length,
+    ).toBe(1);
+  });
 });
 
 describe("GET /task-relation/project/:projectId", () => {

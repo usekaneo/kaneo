@@ -115,6 +115,19 @@ async function createTaskRelation({
     userId,
   });
 
+  // A relation can link tasks across two projects in the same workspace.
+  // Notify the target project's subscribers too, so their Gantt/dependency
+  // views (which read the target project's task-relations cache) refresh
+  // without a manual reload.
+  if (targetTask.projectId !== sourceTask.projectId) {
+    await publishEvent("task-relation.created", {
+      ...relation,
+      taskId: sourceTaskId,
+      projectId: targetTask.projectId,
+      userId,
+    });
+  }
+
   return relation;
 }
 
