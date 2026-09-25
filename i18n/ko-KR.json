@@ -1971,7 +1971,8 @@
 				"related": "관련됨",
 				"blocked_by": "차단됨"
 			},
-			"tasksInOtherProject": "In {{project}}"
+			"tasksInOtherProject": "In {{project}}",
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project"
 		},
 		"subtasks": {
 			"title": "하위 작업",

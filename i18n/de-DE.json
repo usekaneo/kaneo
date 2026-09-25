@@ -1978,7 +1978,8 @@
 				"related": "steht in Beziehung zu",
 				"blocked_by": "blockiert von"
 			},
-			"tasksInOtherProject": "In {{project}}"
+			"tasksInOtherProject": "In {{project}}",
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project"
 		},
 		"subtasks": {
 			"title": "Teilaufgaben",
