@@ -80,6 +80,8 @@ export function GanttDependencyOverlay({
               isBlocking ? "var(--destructive)" : "var(--muted-foreground)"
             }
             strokeWidth={isIncident ? EMPHASIZED_WIDTH : REST_WIDTH}
+            strokeLinecap="round"
+            strokeLinejoin="round"
             strokeOpacity={
               isDimmed ? DIMMED_OPACITY : isIncident ? 1 : REST_OPACITY
             }
