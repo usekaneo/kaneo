@@ -275,7 +275,7 @@ export function GanttTaskBar({
     window.addEventListener("pointercancel", onCancel);
   };
 
-  if (!barInView || lineEnd <= lineStart) {
+  if (!barInView) {
     return null;
   }
 

@@ -30,7 +30,13 @@ export function GanttDependencyOverlay({
   return (
     <svg
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 z-20 h-full w-full overflow-visible"
+      // Below the per-row sticky task rail (z-[11] in the gantt route) so a
+      // curve that scrolls under the pinned rail is occluded by it rather
+      // than painting on top — that relationship holds at any scrollLeft,
+      // unlike the clip-path below (which is expressed in the overlay's own,
+      // scrolling coordinate space and only lines up with the rail pre-scroll).
+      // Still above the day-grid background and the task bars themselves.
+      className="pointer-events-none absolute inset-0 z-[9] h-full w-full overflow-visible"
       style={{ clipPath: `inset(0 0 0 ${Math.max(clipLeftPx, 0)}px)` }}
     >
       <defs>

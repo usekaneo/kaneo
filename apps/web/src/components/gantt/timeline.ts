@@ -46,6 +46,24 @@ export function parseTaskDate(value: string | null) {
     : parsed;
 }
 
+// Shared by the Gantt route for both the project's own tasks and related
+// tasks pulled in from other projects: a task with only one of
+// startDate/dueDate is scheduled as a single-day bar on that date, and a
+// task with neither has no usable schedule at all (the caller skips it).
+export function deriveTaskSchedule(
+  startDate: string | null,
+  dueDate: string | null,
+): { start: Date; end: Date } | null {
+  const parsedStart = parseTaskDate(startDate) ?? parseTaskDate(dueDate);
+  const parsedEnd = parseTaskDate(dueDate) ?? parseTaskDate(startDate);
+  if (!parsedStart || !parsedEnd) return null;
+
+  return {
+    start: parsedStart <= parsedEnd ? parsedStart : parsedEnd,
+    end: parsedEnd >= parsedStart ? parsedEnd : parsedStart,
+  };
+}
+
 function clampDate(date: Date, minimum: Date, maximum: Date) {
   return new Date(
     Math.max(minimum.getTime(), Math.min(date.getTime(), maximum.getTime())),

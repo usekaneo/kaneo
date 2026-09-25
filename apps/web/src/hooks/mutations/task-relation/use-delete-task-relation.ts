@@ -10,6 +10,12 @@ function useDeleteTaskRelation(taskId: string) {
       queryClient.invalidateQueries({
         queryKey: ["task-relations", taskId],
       });
+      // Same reasoning as the create mutation: the deleted relation's other
+      // endpoint (and its project) isn't known here, so every project's
+      // Gantt cache is invalidated rather than none of them.
+      queryClient.invalidateQueries({
+        queryKey: ["task-relations", "project"],
+      });
     },
   });
 }

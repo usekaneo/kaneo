@@ -2149,7 +2149,9 @@
 			"periodStart": "Timeline start date",
 			"showTaskDates": "Show task dates",
 			"legendBlocking": "Blocking",
-			"legendRelated": "Related"
+			"legendRelated": "Related",
+			"externalProjectBadge": "in {{projectName}}",
+			"externalTaskTitle": "{{title}} — related task in {{projectName}} (read-only here)"
 		},
 		"delete": {
 			"title": "Excluir tarefa?",

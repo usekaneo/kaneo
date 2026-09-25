@@ -189,6 +189,77 @@ describe("GET /task-relation/project/:projectId", () => {
     expect(ids).not.toContain(outsideOnly[0]?.id);
   });
 
+  // Powers the Gantt chart's cross-project rows (see PRIORITY 3): the far
+  // end of a cross-project relation needs its own dates and its project's
+  // name/slug to be placed on the timeline and labeled, in addition to the
+  // fields the single-task endpoint already returned.
+  it("includes the related task's dates and project name/slug, for both same- and cross-project relations", async () => {
+    const own = await context();
+    const { project: otherProject } = await createProjectFixture({
+      workspaceId: own.workspace.id,
+      name: "Other Project",
+      slug: "other-project",
+    });
+    const [siblingTask] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: own.task.projectId,
+        title: "Sibling",
+        number: 2,
+        startDate: new Date("2026-08-20T00:00:00.000Z"),
+        dueDate: new Date("2026-08-25T00:00:00.000Z"),
+      })
+      .returning();
+    const [outsideTask] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: otherProject.id,
+        title: "Outside",
+        number: 1,
+        startDate: new Date("2026-09-01T00:00:00.000Z"),
+        dueDate: new Date("2026-09-05T00:00:00.000Z"),
+      })
+      .returning();
+
+    const inProject = await seedRelation(own.task.id, siblingTask.id);
+    const crossProject = await seedRelation(own.task.id, outsideTask.id);
+
+    mockAuthenticatedSession(own.user);
+    const response = await request(`/project/${own.task.projectId}`, "GET");
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      id: string;
+      targetTask: {
+        startDate: string | null;
+        dueDate: string | null;
+        projectName: string;
+        projectSlug: string;
+      } | null;
+    }[];
+
+    const sameProjectRelation = body.find(
+      (relation) => relation.id === inProject.id,
+    );
+    expect(sameProjectRelation?.targetTask).toMatchObject({
+      startDate: "2026-08-20T00:00:00.000Z",
+      dueDate: "2026-08-25T00:00:00.000Z",
+      projectName: "Integration Project",
+    });
+    expect(sameProjectRelation?.targetTask?.projectSlug).toEqual(
+      expect.any(String),
+    );
+
+    const crossProjectRelation = body.find(
+      (relation) => relation.id === crossProject.id,
+    );
+    expect(crossProjectRelation?.targetTask).toMatchObject({
+      startDate: "2026-09-01T00:00:00.000Z",
+      dueDate: "2026-09-05T00:00:00.000Z",
+      projectName: "Other Project",
+      projectSlug: "other-project",
+    });
+  });
+
   it("rejects a caller without access to the project's workspace", async () => {
     const own = await context();
     const foreign = await context();

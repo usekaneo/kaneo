@@ -17,9 +17,12 @@ import type {
 } from "@/components/gantt/dependency-lines";
 import { buildDependencyEdges } from "@/components/gantt/dependency-lines";
 import { GanttDependencyOverlay } from "@/components/gantt/gantt-dependency-overlay";
+import type { ExternalGanttTask } from "@/components/gantt/gantt-external-task-bar";
+import { GanttExternalTaskBar } from "@/components/gantt/gantt-external-task-bar";
 import { GanttTaskBar } from "@/components/gantt/gantt-task-bar";
 import {
   buildGanttTimeline,
+  deriveTaskSchedule,
   GANTT_WINDOW_DAYS,
   getBarGridColumns,
   parseTaskDate,
@@ -34,10 +37,31 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/cn";
 import { getStatusLabel } from "@/lib/i18n/domain";
 import { useUserPreferencesStore } from "@/store/user-preferences";
+import type Task from "@/types/task";
 
 type GanttSearchParams = {
   taskId?: string;
 };
+
+type OwnScheduledTask = Task & {
+  scheduleStart: Date;
+  scheduleEnd: Date;
+  isExternal: false;
+};
+
+type ExternalScheduledTask = ExternalGanttTask & { isExternal: true };
+
+// A Gantt row is either one of this project's own tasks or a related task
+// pulled in from another project (see `externalRelatedTasks` below) — the
+// discriminant lets the row-rendering loop pick the right bar and rail cell
+// without a type assertion.
+type GanttRowTask = OwnScheduledTask | ExternalScheduledTask;
+
+// Bars render with `mx-1` (see gantt-task-bar.tsx / gantt-external-task-bar.tsx),
+// so the visible edge sits 4px inside the grid-column boundary a box's
+// left/right are otherwise measured against; without this a dependency line
+// lands a few pixels short of (or past) the bar it's supposed to touch.
+const BAR_EDGE_INSET_PX = 4;
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/gantt",
@@ -124,23 +148,17 @@ function RouteComponent() {
     [project],
   );
 
-  const parsedTasks = useMemo(() => {
+  const parsedTasks = useMemo<OwnScheduledTask[]>(() => {
     return allTasks
       .map((task) => {
-        const parsedStart =
-          parseTaskDate(task.startDate) ?? parseTaskDate(task.dueDate);
-        const parsedEnd =
-          parseTaskDate(task.dueDate) ?? parseTaskDate(task.startDate);
-
-        if (!parsedStart || !parsedEnd) return null;
-
-        const start = parsedStart <= parsedEnd ? parsedStart : parsedEnd;
-        const end = parsedEnd >= parsedStart ? parsedEnd : parsedStart;
+        const schedule = deriveTaskSchedule(task.startDate, task.dueDate);
+        if (!schedule) return null;
 
         return {
           ...task,
-          scheduleStart: start,
-          scheduleEnd: end,
+          scheduleStart: schedule.start,
+          scheduleEnd: schedule.end,
+          isExternal: false as const,
         };
       })
       .filter((task): task is NonNullable<typeof task> => task !== null)
@@ -209,18 +227,64 @@ function RouteComponent() {
     });
   }, [taskRelations]);
 
+  // A related/blocking task from another project has no row of its own on
+  // this board, so a cross-project edge would otherwise always be dropped
+  // for lack of a box. Pull in the far end of every such relation as an
+  // extra, read-only Gantt row instead — as long as it actually has a date
+  // to place it by; one with neither startDate nor dueDate still can't be
+  // positioned here and is left out, same as any own task with no dates.
+  const externalRelatedTasks = useMemo<ExternalScheduledTask[]>(() => {
+    const external = new Map<string, ExternalScheduledTask>();
+    for (const relation of taskRelations ?? []) {
+      if (relation.relationType === "subtask") continue;
+      for (const candidate of [relation.sourceTask, relation.targetTask]) {
+        if (!candidate || candidate.projectId === projectId) continue;
+        if (external.has(candidate.id)) continue;
+        const schedule = deriveTaskSchedule(
+          candidate.startDate,
+          candidate.dueDate,
+        );
+        if (!schedule) continue;
+        external.set(candidate.id, {
+          id: candidate.id,
+          title: candidate.title,
+          number: candidate.number,
+          projectName: candidate.projectName,
+          projectSlug: candidate.projectSlug,
+          scheduleStart: schedule.start,
+          scheduleEnd: schedule.end,
+          isExternal: true as const,
+        });
+      }
+    }
+    return [...external.values()];
+  }, [taskRelations, projectId]);
+
+  // Every row the grid actually draws: this project's own (search-filtered)
+  // tasks plus the external related tasks above, in one chronological list
+  // so the two kinds of rows interleave by date rather than externals always
+  // trailing at the bottom.
+  const renderedTasks = useMemo<GanttRowTask[]>(() => {
+    return [...scheduledTasks, ...externalRelatedTasks].sort(
+      (left, right) =>
+        left.scheduleStart.getTime() - right.scheduleStart.getTime(),
+    );
+  }, [scheduledTasks, externalRelatedTasks]);
+
   // A dependency line can only be drawn between two bars that are both
   // actually on screen: in the current timeline window, passing the search
-  // filter, and wide enough to render (mirrors GanttTaskBar's own
-  // barInView / lineEnd > lineStart guard). Anything else — a cross-project
-  // link, a task scrolled out of the date window, a search miss — simply
-  // has no box here, and buildDependencyEdges skips edges missing either end.
+  // filter, and wide enough to render (mirrors GanttTaskBar's own barInView
+  // guard — lineEnd > lineStart always holds once barInView is true, so
+  // there is nothing further to guard there). Anything else — an external
+  // task with no box yet, a task scrolled out of the date window, a search
+  // miss — simply has no box here, and buildDependencyEdges skips edges
+  // missing either end.
   const taskBoxes = useMemo(() => {
     const boxes = new Map<string, TaskBarBox>();
     if (!timeline) return boxes;
     const trackCount = timeline.days.length;
 
-    for (const task of scheduledTasks) {
+    for (const task of renderedTasks) {
       const row = rowLayout.get(task.id);
       if (!row) continue;
       const { barInView, lineStart, lineEnd } = getBarGridColumns(
@@ -229,16 +293,16 @@ function RouteComponent() {
         timeline.rangeStart,
         trackCount,
       );
-      if (!barInView || lineEnd <= lineStart) continue;
+      if (!barInView) continue;
       boxes.set(task.id, {
-        left: barsLeftPx + (lineStart - 1) * pixelsPerDay,
-        right: barsLeftPx + (lineEnd - 1) * pixelsPerDay,
+        left: barsLeftPx + (lineStart - 1) * pixelsPerDay + BAR_EDGE_INSET_PX,
+        right: barsLeftPx + (lineEnd - 1) * pixelsPerDay - BAR_EDGE_INSET_PX,
         top: row.top,
         height: row.height,
       });
     }
     return boxes;
-  }, [scheduledTasks, rowLayout, timeline, barsLeftPx, pixelsPerDay]);
+  }, [renderedTasks, rowLayout, timeline, barsLeftPx, pixelsPerDay]);
 
   const dependencyEdgeGeometry = useMemo(
     () => buildDependencyEdges(dependencyEdges, taskBoxes),
@@ -301,6 +365,13 @@ function RouteComponent() {
     });
   }, []);
 
+  // ResizeObserver only fires on a *size* change, but toggling the task rail
+  // (mobile Hide/Show, or crossing the mobile breakpoint) changes the
+  // track's left offset without changing its size — so showTaskRail and
+  // isMobile are listed here purely to force a re-measure of offsetLeft on
+  // those transitions, the same way measureRows lists its own layout inputs
+  // below.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: showTaskRail/isMobile force a re-measure on rail-position changes; see comment above.
   useLayoutEffect(() => {
     const element = timelineTrackRef.current;
     if (!element || !timeline) return;
@@ -316,7 +387,7 @@ function RouteComponent() {
     const observer = new ResizeObserver(update);
     observer.observe(element);
     return () => observer.disconnect();
-  }, [timeline]);
+  }, [timeline, showTaskRail, isMobile]);
 
   const measureRows = useCallback(() => {
     const next = new Map<string, { top: number; height: number }>();
@@ -360,7 +431,7 @@ function RouteComponent() {
   // biome-ignore lint/correctness/useExhaustiveDependencies: measureRows reads rowElementsRef (a plain ref, not a reactive value), so these are listed to force a re-measure whenever they could change row layout, not because the effect body reads them directly.
   useLayoutEffect(() => {
     measureRows();
-  }, [measureRows, scheduledTasks, timeline, showTaskRail, isMobile]);
+  }, [measureRows, renderedTasks, timeline, showTaskRail, isMobile]);
 
   useEffect(() => {
     const element = rowsContainerRef.current;
@@ -410,7 +481,7 @@ function RouteComponent() {
               <h1 className="text-sm font-semibold text-foreground">
                 {t("tasks:gantt.title")}
               </h1>
-              {dependencyEdges.length > 0 && (
+              {dependencyEdgeGeometry.length > 0 && (
                 <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <span className="h-0.5 w-4 rounded-full bg-destructive" />
@@ -622,7 +693,7 @@ function RouteComponent() {
                     hoveredTaskId={hoveredTaskId}
                     clipLeftPx={barsLeftPx}
                   />
-                  {scheduledTasks.map((task) => {
+                  {renderedTasks.map((task) => {
                     return (
                       <div
                         key={task.id}
@@ -644,48 +715,72 @@ function RouteComponent() {
                       >
                         {showTaskRail ? (
                           <div className="sticky left-0 z-[11] h-full border-r border-border bg-background">
-                            <button
-                              type="button"
-                              className="flex min-h-[44px] w-full min-w-0 flex-col items-start justify-center gap-0.5 px-2 py-2 text-left transition-colors hover:bg-muted sm:min-h-0 sm:px-3 sm:py-1.5"
-                              onClick={() =>
-                                navigate({
-                                  to: ".",
-                                  search: { taskId: task.id },
-                                  replace: true,
-                                })
-                              }
-                            >
-                              <div className="flex w-full items-center gap-1.5">
-                                <span className="max-w-[7rem] truncate rounded-full bg-secondary px-1.5 py-px text-[10px] font-medium uppercase tracking-wide text-secondary-foreground sm:max-w-none">
-                                  {getStatusLabel(task.status)}
-                                </span>
-                                <span className="truncate text-[10px] text-muted-foreground">
-                                  {project?.slug}-{task.number}
-                                </span>
+                            {task.isExternal ? (
+                              <div className="flex min-h-[44px] w-full min-w-0 flex-col items-start justify-center gap-0.5 px-2 py-2 text-left opacity-80 sm:min-h-0 sm:px-3 sm:py-1.5">
+                                <div className="flex w-full items-center gap-1.5">
+                                  <span className="max-w-[7rem] truncate rounded-full bg-secondary/60 px-1.5 py-px text-[10px] font-medium uppercase tracking-wide text-secondary-foreground sm:max-w-none">
+                                    {task.projectSlug}
+                                    {task.number ? `-${task.number}` : ""}
+                                  </span>
+                                  <span className="truncate text-[10px] text-muted-foreground">
+                                    {t("tasks:gantt.externalProjectBadge", {
+                                      projectName: task.projectName,
+                                    })}
+                                  </span>
+                                </div>
+                                <p className="w-full line-clamp-1 text-xs font-medium leading-tight text-muted-foreground">
+                                  {task.title}
+                                </p>
+                                <p className="w-full truncate text-[11px] leading-tight text-muted-foreground">
+                                  {format(task.scheduleStart, "MMM d, yyyy")} -{" "}
+                                  {format(task.scheduleEnd, "MMM d, yyyy")}
+                                </p>
                               </div>
-                              <p className="w-full line-clamp-1 text-xs font-medium leading-tight text-foreground">
-                                {task.title}
-                              </p>
-                              <p className="w-full truncate text-[11px] leading-tight text-muted-foreground">
-                                {format(task.scheduleStart, "MMM d, yyyy")} -{" "}
-                                {format(task.scheduleEnd, "MMM d, yyyy")}
-                                {task.assigneeName
-                                  ? ` • ${task.assigneeName}`
-                                  : ""}
-                              </p>
-                            </button>
-                            {(task.scheduleEnd < timeline.rangeStart ||
-                              task.scheduleStart > timeline.rangeEnd) && (
+                            ) : (
                               <button
                                 type="button"
-                                className="px-3 pb-2 text-xs text-primary underline"
+                                className="flex min-h-[44px] w-full min-w-0 flex-col items-start justify-center gap-0.5 px-2 py-2 text-left transition-colors hover:bg-muted sm:min-h-0 sm:px-3 sm:py-1.5"
                                 onClick={() =>
-                                  showDate(addDays(task.scheduleStart, -7))
+                                  navigate({
+                                    to: ".",
+                                    search: { taskId: task.id },
+                                    replace: true,
+                                  })
                                 }
                               >
-                                {t("tasks:gantt.showTaskDates")}
+                                <div className="flex w-full items-center gap-1.5">
+                                  <span className="max-w-[7rem] truncate rounded-full bg-secondary px-1.5 py-px text-[10px] font-medium uppercase tracking-wide text-secondary-foreground sm:max-w-none">
+                                    {getStatusLabel(task.status)}
+                                  </span>
+                                  <span className="truncate text-[10px] text-muted-foreground">
+                                    {project?.slug}-{task.number}
+                                  </span>
+                                </div>
+                                <p className="w-full line-clamp-1 text-xs font-medium leading-tight text-foreground">
+                                  {task.title}
+                                </p>
+                                <p className="w-full truncate text-[11px] leading-tight text-muted-foreground">
+                                  {format(task.scheduleStart, "MMM d, yyyy")} -{" "}
+                                  {format(task.scheduleEnd, "MMM d, yyyy")}
+                                  {task.assigneeName
+                                    ? ` • ${task.assigneeName}`
+                                    : ""}
+                                </p>
                               </button>
                             )}
+                            {!task.isExternal &&
+                              (task.scheduleEnd < timeline.rangeStart ||
+                                task.scheduleStart > timeline.rangeEnd) && (
+                                <button
+                                  type="button"
+                                  className="px-3 pb-2 text-xs text-primary underline"
+                                  onClick={() =>
+                                    showDate(addDays(task.scheduleStart, -7))
+                                  }
+                                >
+                                  {t("tasks:gantt.showTaskDates")}
+                                </button>
+                              )}
                           </div>
                         ) : null}
 
@@ -695,23 +790,34 @@ function RouteComponent() {
                             minWidth: `${timeline.timelineMinWidthRem}rem`,
                           }}
                         >
-                          <GanttTaskBar
-                            task={task}
-                            timeline={timeline}
-                            pixelsPerDay={pixelsPerDay}
-                            isMobile={isMobile}
-                            emphasis={emphasisFor(task.id)}
-                            onHoverChange={(hovering) =>
-                              handleBarHoverChange(task.id, hovering)
-                            }
-                            onOpenTask={() =>
-                              navigate({
-                                to: ".",
-                                search: { taskId: task.id },
-                                replace: true,
-                              })
-                            }
-                          />
+                          {task.isExternal ? (
+                            <GanttExternalTaskBar
+                              task={task}
+                              timeline={timeline}
+                              emphasis={emphasisFor(task.id)}
+                              onHoverChange={(hovering) =>
+                                handleBarHoverChange(task.id, hovering)
+                              }
+                            />
+                          ) : (
+                            <GanttTaskBar
+                              task={task}
+                              timeline={timeline}
+                              pixelsPerDay={pixelsPerDay}
+                              isMobile={isMobile}
+                              emphasis={emphasisFor(task.id)}
+                              onHoverChange={(hovering) =>
+                                handleBarHoverChange(task.id, hovering)
+                              }
+                              onOpenTask={() =>
+                                navigate({
+                                  to: ".",
+                                  search: { taskId: task.id },
+                                  replace: true,
+                                })
+                              }
+                            />
+                          )}
                         </div>
                       </div>
                     );

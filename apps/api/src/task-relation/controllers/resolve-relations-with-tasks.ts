@@ -17,8 +17,12 @@ type TaskSummary = {
   priority: string | null;
   number: number | null;
   projectId: string;
+  projectName: string;
+  projectSlug: string;
   userId: string | null;
   assigneeName: string | null;
+  startDate: Date | null;
+  dueDate: Date | null;
 };
 
 // Shared by every task-relation read: expands relation rows with a summary of
@@ -46,8 +50,12 @@ async function resolveRelationsWithTasks(
         priority: taskTable.priority,
         number: taskTable.number,
         projectId: taskTable.projectId,
+        projectName: projectTable.name,
+        projectSlug: projectTable.slug,
         userId: taskTable.userId,
         assigneeName: userTable.name,
+        startDate: taskTable.startDate,
+        dueDate: taskTable.dueDate,
       })
       .from(taskTable)
       .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))

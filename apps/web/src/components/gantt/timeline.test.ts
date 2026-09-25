@@ -2,6 +2,7 @@ import { addDays, differenceInCalendarDays, parseISO } from "date-fns";
 import { describe, expect, it } from "vitest";
 import {
   buildGanttTimeline,
+  deriveTaskSchedule,
   GANTT_WINDOW_DAYS,
   getBarGridColumns,
   parseTaskDate,
@@ -146,5 +147,29 @@ describe("getBarGridColumns", () => {
       0,
     );
     expect(result.barInView).toBe(false);
+  });
+});
+
+describe("deriveTaskSchedule", () => {
+  it("returns null when neither date is set (unpositionable)", () => {
+    expect(deriveTaskSchedule(null, null)).toBeNull();
+  });
+
+  it("falls back to the one date present for a single-day schedule", () => {
+    expect(deriveTaskSchedule("2026-09-10", null)).toEqual({
+      start: parseISO("2026-09-10"),
+      end: parseISO("2026-09-10"),
+    });
+    expect(deriveTaskSchedule(null, "2026-09-12")).toEqual({
+      start: parseISO("2026-09-12"),
+      end: parseISO("2026-09-12"),
+    });
+  });
+
+  it("normalizes a due date that precedes the start date", () => {
+    expect(deriveTaskSchedule("2026-09-20", "2026-09-10")).toEqual({
+      start: parseISO("2026-09-10"),
+      end: parseISO("2026-09-20"),
+    });
   });
 });

@@ -8681,6 +8681,12 @@
 						},
 						"legendRelated": {
 							"type": "string"
+						},
+						"externalProjectBadge": {
+							"type": "string"
+						},
+						"externalTaskTitle": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -8704,7 +8710,9 @@
 						"periodStart",
 						"showTaskDates",
 						"legendBlocking",
-						"legendRelated"
+						"legendRelated",
+						"externalProjectBadge",
+						"externalTaskTitle"
 					]
 				},
 				"delete": {

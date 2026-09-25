@@ -2950,6 +2950,12 @@
           "projectId": {
             "type": "string"
           },
+          "projectName": {
+            "type": "string"
+          },
+          "projectSlug": {
+            "type": "string"
+          },
           "userId": {
             "type": [
               "string",
@@ -2961,6 +2967,20 @@
               "string",
               "null"
             ]
+          },
+          "startDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "dueDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
           }
         },
         "required": [
@@ -2970,8 +2990,12 @@
           "priority",
           "number",
           "projectId",
+          "projectName",
+          "projectSlug",
           "userId",
-          "assigneeName"
+          "assigneeName",
+          "startDate",
+          "dueDate"
         ]
       },
       "TaskRelation": {
