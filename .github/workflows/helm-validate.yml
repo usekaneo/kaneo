@@ -9,6 +9,7 @@ env:
 jobs:
   validate:
     name: ${{ matrix.name }}
+    timeout-minutes: 5
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -61,3 +62,7 @@ jobs:
 
       - name: Render chart (${{ matrix.name }})
         run: helm template kaneo "$CHART_PATH" --set kaneo.env.clientUrl=https://kaneo.example.com ${{ matrix.args }}
+
+      - name: Check secret preservation and security settings
+        if: matrix.name == 'default'
+        run: ruby scripts/security/check-helm-secrets.rb

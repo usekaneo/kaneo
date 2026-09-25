@@ -26,6 +26,7 @@ jobs:
   build:
     if: github.ref == 'refs/heads/main'
     name: ${{ matrix.name }}
+    timeout-minutes: 45
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -111,8 +112,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}
           build-args: |
             SENTRY_ORG=${{ vars.SENTRY_ORG }}
             SENTRY_PROJECT=${{ vars.SENTRY_PROJECT }}

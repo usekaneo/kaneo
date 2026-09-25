@@ -10,8 +10,9 @@ docker run --rm -d --name kaneo-storage-contract-test \
   -e MINIO_ROOT_USER=local-test-access \
   -e MINIO_ROOT_PASSWORD=local-test-secret-only \
   -e MINIO_BROWSER=off -e MINIO_UPDATE=off \
-  quay.io/minio/minio@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e \
-  server /data --address :9000
+  --entrypoint /opt/bitnami/minio/bin/minio \
+  bitnamilegacy/minio@sha256:8935e75fa5d11295c17171e4aa49efe390a1193cd7f12e4d21b92af9ffef09d7 \
+  server /tmp/minio --address :9000
 ```
 
 Once the service is ready, run:

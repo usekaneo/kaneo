@@ -31,6 +31,7 @@ permissions: {}
 jobs:
   plan:
     name: Plan
+    timeout-minutes: 15
     runs-on: ubuntu-24.04
     permissions:
       contents: write # semantic-release verifies push permission even on a dry run
@@ -94,9 +95,31 @@ jobs:
             echo "</details>"
           } >> "$GITHUB_STEP_SUMMARY"
 
+  verify-ci:
+    name: Verify CI for release source
+    needs: plan
+    if: ${{ !inputs.dry_run && needs.plan.outputs.version != '' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.19.0
+          package-manager-cache: false
+      - name: Wait for successful main CI on this exact commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/ci/require-ci.mjs
+
   images:
     name: Images
-    needs: plan
+    needs: [plan, verify-ci]
     if: ${{ !inputs.dry_run && needs.plan.outputs.version != '' }}
     permissions:
       contents: read
@@ -120,6 +143,7 @@ jobs:
     name: Release
     needs: [plan, images, chart]
     if: ${{ !inputs.dry_run && needs.plan.outputs.version != '' }}
+    timeout-minutes: 15
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -179,6 +203,7 @@ jobs:
   promote:
     name: Promote
     needs: [plan, release]
+    timeout-minutes: 15
     runs-on: ubuntu-24.04
     permissions:
       contents: read
