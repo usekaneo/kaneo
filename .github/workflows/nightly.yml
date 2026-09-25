@@ -19,6 +19,9 @@ jobs:
     if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - name: Checkout repository
         uses: useblacksmith/checkout@v1 # v7.0.1
@@ -27,15 +30,20 @@ jobs:
           # The entire-branch scan needs the full commit history.
           fetch-depth: 0
       - name: Scan the full git history for leaked credentials
-        uses: trufflesecurity/trufflehog@4dd8831c5f12599465d4d45c3c447b4018a34c85 # v3.97.9
+        run: |
+          docker run --rm -v "$PWD:/tmp" -w /tmp \
+            ghcr.io/trufflesecurity/trufflehog:v3.97.9 \
+            git file:///tmp/ \
+            --results=verified,unknown \
+            --exclude-paths=.trufflehog-exclude \
+            --branch "${{ github.ref_name }}" \
+            --fail \
+            --sarif > trufflehog-results.sarif
+      - name: Upload results to GitHub Code Scanning
+        if: always()
+        uses: github/codeql-action/upload-sarif@1190a975f95ce23525efb6a3fc21ea29567c1b52 # v3
         with:
-          # Empty base scans every commit on the branch, not just new ones.
-          base: ""
-          head: ${{ github.ref_name }}
-          # Report only verified and unknown results; skip unverified false positives.
-          # .trufflehog-exclude allowlists files carrying placeholder credentials
-          # (compose examples, docs, generated CONTRIBUTORS.svg, tests).
-          extra_args: --results=verified,unknown --exclude-paths=.trufflehog-exclude
+          sarif_file: trufflehog-results.sarif
 
   verify:
     name: Verify nightly build
