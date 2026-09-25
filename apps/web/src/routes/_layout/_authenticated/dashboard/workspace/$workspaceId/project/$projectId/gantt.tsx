@@ -20,6 +20,7 @@ import { GanttDependencyOverlay } from "@/components/gantt/gantt-dependency-over
 import type { ExternalGanttTask } from "@/components/gantt/gantt-external-task-bar";
 import { GanttExternalTaskBar } from "@/components/gantt/gantt-external-task-bar";
 import { GanttTaskBar } from "@/components/gantt/gantt-task-bar";
+import { computePanScrollPosition } from "@/components/gantt/pan";
 import {
   buildGanttTimeline,
   deriveTaskSchedule,
@@ -27,6 +28,7 @@ import {
   getBarGridColumns,
   parseTaskDate,
 } from "@/components/gantt/timeline";
+import { nextGanttZoom, scrollLeftForZoom } from "@/components/gantt/zoom";
 import PageTitle from "@/components/page-title";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
 import { Button } from "@/components/ui/button";
@@ -93,7 +95,11 @@ function RouteComponent() {
   const [isTaskRailOpen, setIsTaskRailOpen] = useState(false);
 
   // Wider day columns on small screens so dragging and reading dates is easier.
-  const dayColumnWidthRem = isMobile ? 3.125 : 2.75;
+  const baseDayColumnWidthRem = isMobile ? 3.125 : 2.75;
+  // Mouse-wheel zoom scales the base width by this factor (see the wheel
+  // listener below); 1 is the default, unzoomed scale.
+  const [zoom, setZoom] = useState(1);
+  const dayColumnWidthRem = baseDayColumnWidthRem * zoom;
   const taskColumnWidthRem = isMobile ? 12 : 14;
   const showTaskRail = !isMobile || isTaskRailOpen;
   const timelineTrackRef = useRef<HTMLDivElement>(null);
@@ -103,6 +109,28 @@ function RouteComponent() {
   // recomputed from its rem value so it always matches the actual layout
   // (rail hidden, mobile width, etc).
   const [barsLeftPx, setBarsLeftPx] = useState(0);
+  // Mirrors `barsLeftPx` for the wheel-zoom handler below: that handler is a
+  // native (non-passive) listener living outside React's render cycle, so it
+  // reads this ref rather than closing over possibly-stale state.
+  const barsLeftPxRef = useRef(0);
+  // The scrollable viewport (drag-to-pan reads/writes its scrollLeft and
+  // scrollTop directly) and the chart's own root (drag-to-pan and wheel-zoom
+  // are both scoped to pointer/wheel events inside it, not the toolbar above).
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const chartRootRef = useRef<HTMLDivElement>(null);
+  const [isPanning, setIsPanning] = useState(false);
+  const panStateRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    startScrollLeft: number;
+    startScrollTop: number;
+  } | null>(null);
+  // Set by the wheel handler when a zoom step changes the day-column width;
+  // applied by a layout effect once the grid has actually re-rendered at the
+  // new width, since the target scrollLeft has to be computed (and clamped
+  // by the browser) against the NEW scrollWidth, not the one at wheel time.
+  const pendingScrollLeftRef = useRef<number | null>(null);
   const todayCellRef = useRef<HTMLDivElement>(null);
   const rowsContainerRef = useRef<HTMLDivElement>(null);
   const rowElementsRef = useRef(new Map<string, HTMLDivElement>());
@@ -365,6 +393,131 @@ function RouteComponent() {
     });
   }, []);
 
+  // Whether the chart itself (as opposed to a "no tasks"/"no matches" empty
+  // state) is actually mounted — used to (re)attach the wheel-zoom listener
+  // once it appears, e.g. after tasks finish loading.
+  const chartIsMounted = Boolean(timeline) && scheduledTasks.length > 0;
+
+  // A pointerdown here should start a drag-to-pan only when it lands on
+  // genuinely empty timeline background or the day-header — not on a task
+  // bar (which has its own drag-to-move/resize), the sticky task rail, or
+  // any other interactive control. Task-bar handles are `<button>`s, so
+  // matching `button`/`input`/`a`/`[role="button"]` already excludes them
+  // without needing to know anything about the bar itself.
+  const isPannableTarget = useCallback((target: EventTarget | null) => {
+    if (!(target instanceof Element)) return true;
+    return !target.closest(
+      'button, input, a, [role="button"], [data-gantt-rail]',
+    );
+  }, []);
+
+  // Drag-to-pan on empty timeline background or the day-header row. Scoped
+  // to mouse input (`pointerType === "mouse"`) so it never competes with the
+  // existing native touch scrolling (`touch-pan-x`/`touch-pan-y` below) that
+  // mobile relies on.
+  const handleChartPointerDown = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (event.button !== 0 || event.pointerType !== "mouse") return;
+      if (!isPannableTarget(event.target)) return;
+      const scrollEl = scrollContainerRef.current;
+      if (!scrollEl) return;
+      panStateRef.current = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        startScrollLeft: scrollEl.scrollLeft,
+        startScrollTop: scrollEl.scrollTop,
+      };
+      event.currentTarget.setPointerCapture?.(event.pointerId);
+      setIsPanning(true);
+    },
+    [isPannableTarget],
+  );
+
+  const handleChartPointerMove = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      const state = panStateRef.current;
+      const scrollEl = scrollContainerRef.current;
+      if (!state || state.pointerId !== event.pointerId || !scrollEl) return;
+      const next = computePanScrollPosition({
+        startScrollLeft: state.startScrollLeft,
+        startScrollTop: state.startScrollTop,
+        deltaX: event.clientX - state.startX,
+        deltaY: event.clientY - state.startY,
+      });
+      scrollEl.scrollLeft = next.scrollLeft;
+      scrollEl.scrollTop = next.scrollTop;
+    },
+    [],
+  );
+
+  const endChartPan = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      const state = panStateRef.current;
+      if (!state || state.pointerId !== event.pointerId) return;
+      panStateRef.current = null;
+      setIsPanning(false);
+      event.currentTarget.releasePointerCapture?.(event.pointerId);
+    },
+    [],
+  );
+
+  // Mouse-wheel zoom over the chart. Attached as a plain (non-passive) DOM
+  // listener rather than React's onWheel: React marks wheel listeners
+  // passive by default, which silently ignores preventDefault() and would
+  // leave the page scrolling underneath the zoom.
+  //
+  // Wheeling over the sticky task rail is left alone (native vertical
+  // scroll of the row list) since that's the one part of the chart that
+  // isn't "the timeline" being zoomed; shift+wheel is also left alone so it
+  // still works as the browser's own horizontal-scroll gesture, alongside
+  // drag-to-pan.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: chartIsMounted forces the listener to (re)attach once the chart mounts; the closure itself only reads refs, not this value.
+  useEffect(() => {
+    const root = chartRootRef.current;
+    const scrollEl = scrollContainerRef.current;
+    if (!root || !scrollEl) return;
+
+    const handleWheel = (event: WheelEvent) => {
+      if (event.shiftKey) return;
+      if (
+        event.target instanceof Element &&
+        event.target.closest("[data-gantt-rail]")
+      ) {
+        return;
+      }
+      event.preventDefault();
+      setZoom((currentZoom) => {
+        const next = nextGanttZoom(currentZoom, event.deltaY);
+        if (next === currentZoom) return currentZoom;
+        const rect = scrollEl.getBoundingClientRect();
+        pendingScrollLeftRef.current = scrollLeftForZoom({
+          scrollLeft: scrollEl.scrollLeft,
+          pointerX: event.clientX - rect.left,
+          railWidthPx: barsLeftPxRef.current,
+          oldZoom: currentZoom,
+          newZoom: next,
+        });
+        return next;
+      });
+    };
+
+    root.addEventListener("wheel", handleWheel, { passive: false });
+    return () => root.removeEventListener("wheel", handleWheel);
+  }, [chartIsMounted]);
+
+  // Applies the scrollLeft computed above, once (after this render commits
+  // the new, zoomed day-column width to the DOM) rather than at wheel time —
+  // otherwise it would be computed and clamped against the OLD width.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: zoom is listed to force this to run right after the zoomed grid commits; the body itself only reads the pending-scroll ref.
+  useLayoutEffect(() => {
+    const pending = pendingScrollLeftRef.current;
+    if (pending == null) return;
+    pendingScrollLeftRef.current = null;
+    const scrollEl = scrollContainerRef.current;
+    if (scrollEl) scrollEl.scrollLeft = pending;
+  }, [zoom]);
+
   // ResizeObserver only fires on a *size* change, but toggling the task rail
   // (mobile Hide/Show, or crossing the mobile breakpoint) changes the
   // track's left offset without changing its size — so showTaskRail and
@@ -381,6 +534,7 @@ function RouteComponent() {
       if (count <= 0) return;
       setPixelsPerDay(element.clientWidth / count);
       setBarsLeftPx(element.offsetLeft);
+      barsLeftPxRef.current = element.offsetLeft;
     };
 
     update();
@@ -600,14 +754,26 @@ function RouteComponent() {
           </div>
         ) : (
           <div
+            ref={scrollContainerRef}
             data-testid="gantt-scroll-container"
             className="min-h-0 flex-1 overflow-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]"
             style={{ scrollPaddingLeft: `${scrollPaddingLeftRem}rem` }}
           >
-            <div className="relative min-w-max touch-pan-x touch-pan-y">
+            <div
+              ref={chartRootRef}
+              className={cn(
+                "relative min-w-max touch-pan-x touch-pan-y",
+                isPanning ? "cursor-grabbing" : "cursor-grab",
+              )}
+              onPointerDown={handleChartPointerDown}
+              onPointerMove={handleChartPointerMove}
+              onPointerUp={endChartPan}
+              onPointerCancel={endChartPan}
+            >
               <div className="sticky top-0 z-20 flex border-b border-border bg-background/95 backdrop-blur">
                 {showTaskRail ? (
                   <div
+                    data-gantt-rail=""
                     className="sticky left-0 z-30 shrink-0 border-r border-border bg-background px-2 py-2.5 sm:w-80 sm:px-4 sm:py-3"
                     style={{
                       width: isMobile ? `${taskColumnWidthRem}rem` : undefined,
@@ -714,7 +880,10 @@ function RouteComponent() {
                         }}
                       >
                         {showTaskRail ? (
-                          <div className="sticky left-0 z-[11] h-full border-r border-border bg-background">
+                          <div
+                            data-gantt-rail=""
+                            className="sticky left-0 z-[11] h-full border-r border-border bg-background"
+                          >
                             {task.isExternal ? (
                               <div className="flex min-h-[44px] w-full min-w-0 flex-col items-start justify-center gap-0.5 px-2 py-2 text-left opacity-80 sm:min-h-0 sm:px-3 sm:py-1.5">
                                 <div className="flex w-full items-center gap-1.5">
