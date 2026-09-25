@@ -232,41 +232,6 @@ function RouteComponent() {
     });
   }, [parsedTasks, project?.slug, searchQuery]);
 
-  // The date window (which 91 days are in view, and the paging bounds
-  // around them) depends only on the task list, the week-start preference,
-  // and which page is requested — never on the zoomed day-column width.
-  // Keeping it in its own memo means `range.days` (and its 91 Date objects)
-  // stays referentially stable across zoom changes, so wheel-zooming
-  // doesn't rebuild the whole date range on every notch; only the grid
-  // metrics below (a string template and a multiplication) actually need to
-  // recompute with the zoomed width.
-  const range = useMemo(
-    () => buildGanttRange(parsedTasks, weekStartsOn, requestedStart),
-    [parsedTasks, weekStartsOn, requestedStart],
-  );
-
-  const gridMetrics = useMemo(
-    () =>
-      range
-        ? buildGanttGridMetrics(range.days.length, dayColumnWidthRem)
-        : null,
-    [range, dayColumnWidthRem],
-  );
-
-  const timeline = useMemo(
-    () => (range && gridMetrics ? { ...range, ...gridMetrics } : null),
-    [range, gridMetrics],
-  );
-
-  // Whether "today" actually falls inside the computed date range. A project
-  // made up entirely of past or far-future tasks has no "today" column to
-  // jump to, so the button below is disabled in that case instead of doing
-  // nothing silently.
-  const todayInRange = useMemo(
-    () => range?.days.some((day) => isToday(day)) ?? false,
-    [range],
-  );
-
   // "subtask" relations describe hierarchy, not scheduling dependency, and
   // the task rail already communicates hierarchy elsewhere; drawing lines
   // for them here would only clutter the chart, so only "blocks" and
@@ -323,6 +288,51 @@ function RouteComponent() {
     }
     return [...external.values()];
   }, [taskRelations, projectId]);
+
+  // The date window (which 91 days are in view, and the paging bounds
+  // around them) depends only on the task list, the week-start preference,
+  // and which page is requested — never on the zoomed day-column width.
+  // Keeping it in its own memo means `range.days` (and its 91 Date objects)
+  // stays referentially stable across zoom changes, so wheel-zooming
+  // doesn't rebuild the whole date range on every notch; only the grid
+  // metrics below (a string template and a multiplication) actually need to
+  // recompute with the zoomed width. `externalRelatedTasks` only widens the
+  // reachable paging bounds (see buildGanttRange) so an external row dated
+  // outside this project's own tasks can still be paged/jumped to — it never
+  // moves the default page own tasks alone would open to.
+  const range = useMemo(
+    () =>
+      buildGanttRange(
+        parsedTasks,
+        weekStartsOn,
+        requestedStart,
+        undefined,
+        externalRelatedTasks,
+      ),
+    [parsedTasks, weekStartsOn, requestedStart, externalRelatedTasks],
+  );
+
+  const gridMetrics = useMemo(
+    () =>
+      range
+        ? buildGanttGridMetrics(range.days.length, dayColumnWidthRem)
+        : null,
+    [range, dayColumnWidthRem],
+  );
+
+  const timeline = useMemo(
+    () => (range && gridMetrics ? { ...range, ...gridMetrics } : null),
+    [range, gridMetrics],
+  );
+
+  // Whether "today" actually falls inside the computed date range. A project
+  // made up entirely of past or far-future tasks has no "today" column to
+  // jump to, so the button below is disabled in that case instead of doing
+  // nothing silently.
+  const todayInRange = useMemo(
+    () => range?.days.some((day) => isToday(day)) ?? false,
+    [range],
+  );
 
   const isSearchActive = searchQuery.trim().length > 0;
 
@@ -487,11 +497,15 @@ function RouteComponent() {
   // bar (which has its own drag-to-move/resize), the sticky task rail, or
   // any other interactive control. Task-bar handles are `<button>`s, so
   // matching `button`/`input`/`a`/`[role="button"]` already excludes them
-  // without needing to know anything about the bar itself.
+  // without needing to know anything about the bar itself. An external
+  // (cross-project) bar has no such button — it's read-only, so it isn't
+  // draggable/resizable — but a pointerdown on it must still be excluded
+  // from pan-start, or dragging it just pans the whole chart instead of
+  // doing nothing; `[data-gantt-external-bar]` marks it for that.
   const isPannableTarget = useCallback((target: EventTarget | null) => {
     if (!(target instanceof Element)) return true;
     return !target.closest(
-      'button, input, a, [role="button"], [data-gantt-rail]',
+      'button, input, a, [role="button"], [data-gantt-rail], [data-gantt-external-bar]',
     );
   }, []);
 

@@ -82,6 +82,14 @@ export function buildGanttRange(
   weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6,
   requestedStart: Date | null = null,
   today: Date = new Date(),
+  // Widens the paging bounds (minimumStart/maximumStart/maximumEnd) so a
+  // date outside `tasks`' own span is still reachable via paging, the date
+  // picker, or a "show task dates" jump — without moving anchor/defaultStart
+  // (the page shown with no explicit request), which stay based on `tasks`
+  // alone. The Gantt route passes its external (cross-project) related
+  // tasks here: they get their own row, but the window would otherwise never
+  // be able to scroll to one dated outside this project's own tasks.
+  extraBoundsTasks: { scheduleStart: Date; scheduleEnd: Date }[] = [],
 ) {
   if (tasks.length === 0) return null;
   let earliest = tasks[0].scheduleStart;
@@ -90,13 +98,36 @@ export function buildGanttRange(
     if (task.scheduleStart < earliest) earliest = task.scheduleStart;
     if (task.scheduleEnd > latest) latest = task.scheduleEnd;
   }
-  const minimumStart = clampDate(
+  let boundsEarliest = earliest;
+  let boundsLatest = latest;
+  for (const task of extraBoundsTasks) {
+    if (task.scheduleStart < boundsEarliest)
+      boundsEarliest = task.scheduleStart;
+    if (task.scheduleEnd > boundsLatest) boundsLatest = task.scheduleEnd;
+  }
+  // `fits`/`anchor`/`defaultStart` (which page opens with no explicit
+  // request) are computed from `tasks` alone, same as before extraBoundsTasks
+  // existed — an out-of-window external related task must never shift where
+  // the chart first opens. Only the reachable minimumStart/maximumStart/
+  // maximumEnd widen to include it, so paging, the date picker, and a "show
+  // task dates" jump can still reach it.
+  const ownMinimumStart = clampDate(
     subDays(startOfWeek(earliest, { weekStartsOn }), 7),
     minimumDate,
     maximumDate,
   );
-  const maximumEnd = clampDate(
+  const ownMaximumEnd = clampDate(
     startOfDay(addDays(endOfWeek(latest, { weekStartsOn }), 28)),
+    minimumDate,
+    maximumDate,
+  );
+  const minimumStart = clampDate(
+    subDays(startOfWeek(boundsEarliest, { weekStartsOn }), 7),
+    minimumDate,
+    maximumDate,
+  );
+  const maximumEnd = clampDate(
+    startOfDay(addDays(endOfWeek(boundsLatest, { weekStartsOn }), 28)),
     minimumDate,
     maximumDate,
   );
@@ -107,10 +138,11 @@ export function buildGanttRange(
     ),
   );
   const fits =
-    differenceInCalendarDays(maximumEnd, minimumStart) < GANTT_WINDOW_DAYS;
+    differenceInCalendarDays(ownMaximumEnd, ownMinimumStart) <
+    GANTT_WINDOW_DAYS;
   const anchor = today >= earliest && today <= latest ? today : earliest;
   const defaultStart = fits
-    ? minimumStart
+    ? ownMinimumStart
     : subDays(startOfWeek(anchor, { weekStartsOn }), 7);
   const rangeStart = startOfDay(
     clampDate(

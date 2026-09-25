@@ -12,15 +12,14 @@ async function getTaskRelationsByProject(
   projectId: string,
   workspaceId: string,
 ) {
-  const projectTasks = await db
+  // A subquery rather than a materialized ID list: `inArray` with tens of
+  // thousands of literal values can overflow Postgres's bind-parameter
+  // limit on a large project, while a subquery lets the DB filter server-side
+  // with a single parameter.
+  const projectTaskIds = db
     .select({ id: taskTable.id })
     .from(taskTable)
     .where(eq(taskTable.projectId, projectId));
-
-  const projectTaskIds = projectTasks.map((task) => task.id);
-  if (projectTaskIds.length === 0) {
-    return [];
-  }
 
   const relations = await db
     .select({

@@ -37,7 +37,15 @@ export function GanttDependencyOverlay({
       // scrolling coordinate space and only lines up with the rail pre-scroll).
       // Still above the day-grid background and the task bars themselves.
       className="pointer-events-none absolute inset-0 z-[9] h-full w-full overflow-visible"
-      style={{ clipPath: `inset(0 0 0 ${Math.max(clipLeftPx, 0)}px)` }}
+      // Only the left edge is meant to protect the sticky task rail; top and
+      // bottom stay wide open (a large negative inset, rather than 0) so a
+      // backward or looping connector that routes above the first row or
+      // below the last row (see buildElbowPoints's "above"/"below" lanes)
+      // still renders in full instead of being cut off at the overlay's own
+      // vertical bounds.
+      style={{
+        clipPath: `inset(-2000px 0 -2000px ${Math.max(clipLeftPx, 0)}px)`,
+      }}
     >
       <defs>
         <marker

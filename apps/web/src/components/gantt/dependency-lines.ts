@@ -48,12 +48,93 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
+// A small margin added around an obstacle's x-range in pickClearMidX so the
+// step's vertical run visibly clears the bar rather than grazing its edge.
+const OBSTACLE_CLEARANCE = 4;
+
+// Chooses the vertical run's x position for the "clear forward step" case
+// below. Defaults to the midpoint of the gap, same as before, but steps
+// aside when an intermediate task's bar — one that sits in a row between the
+// source and target rows, not the source or target themselves — would
+// otherwise have the line cut straight through it. This only avoids bars
+// whose row lies between the two endpoints; it isn't full graph
+// obstacle-avoidance, so a sufficiently cluttered chart can still fall back
+// to the default midpoint (see the `best ?? defaultMid` below).
+function pickClearMidX(
+  sourceX: number,
+  targetX: number,
+  obstacles: readonly TaskBarBox[],
+): number {
+  const rangeMin = sourceX + EXIT_GAP;
+  const rangeMax = targetX - EXIT_GAP;
+  const defaultMid = clamp(
+    sourceX + (targetX - sourceX) / 2,
+    rangeMin,
+    rangeMax,
+  );
+  if (obstacles.length === 0) return defaultMid;
+
+  const blocked = obstacles
+    .map(
+      (box) =>
+        [box.left - OBSTACLE_CLEARANCE, box.right + OBSTACLE_CLEARANCE] as [
+          number,
+          number,
+        ],
+    )
+    .filter(([left, right]) => right > rangeMin && left < rangeMax)
+    .sort((a, b) => a[0] - b[0]);
+
+  const isBlocked = (x: number) =>
+    blocked.some(([left, right]) => x > left && x < right);
+  if (!isBlocked(defaultMid)) return defaultMid;
+
+  // Merge overlapping/adjacent blocked intervals, then read off the open
+  // gaps between them (clipped to the routable [rangeMin, rangeMax] span).
+  const merged: [number, number][] = [];
+  for (const [left, right] of blocked) {
+    const last = merged[merged.length - 1];
+    if (last && left <= last[1]) {
+      last[1] = Math.max(last[1], right);
+    } else {
+      merged.push([left, right]);
+    }
+  }
+
+  const gaps: [number, number][] = [];
+  let cursor = rangeMin;
+  for (const [left, right] of merged) {
+    if (left > cursor) gaps.push([cursor, Math.min(left, rangeMax)]);
+    cursor = Math.max(cursor, right);
+  }
+  if (cursor < rangeMax) gaps.push([cursor, rangeMax]);
+
+  // Whichever open gap's closest point sits nearest the default midpoint —
+  // keeps the elbow as close to a straight, centered step as the obstacles
+  // allow, rather than always preferring the leftmost or rightmost gap.
+  let best: number | null = null;
+  let bestDistance = Number.POSITIVE_INFINITY;
+  for (const [left, right] of gaps) {
+    if (right <= left) continue;
+    const candidate = clamp(defaultMid, left, right);
+    const distance = Math.abs(candidate - defaultMid);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      best = candidate;
+    }
+  }
+
+  return best ?? defaultMid;
+}
+
 // The polyline a dependency connector travels, routed so it runs through the
 // gaps around bars rather than diagonally across them:
 //  - same row: a single straight hop, source edge to target edge.
 //  - target clearly to the right: leave the source's end edge, run one
 //    horizontal-then-vertical-then-horizontal "step" through the inter-row
-//    gutter at the midpoint, and arrive at the target's start edge.
+//    gutter, and arrive at the target's start edge. The vertical run sits at
+//    the gap's midpoint unless an intermediate task's bar occupies it, in
+//    which case it steps aside to the nearest clear gap (pickClearMidX).
 //  - target behind the source (a backward-scheduled edge) or too close to
 //    fit a clean step: leave the source to the right, drop into a
 //    horizontal lane that clears both bars entirely (above whichever box is
@@ -63,6 +144,7 @@ function clamp(value: number, min: number, max: number) {
 export function buildElbowPoints(
   source: TaskBarBox,
   target: TaskBarBox,
+  obstacles: readonly TaskBarBox[] = [],
 ): Point[] {
   const sourceX = source.right;
   const sourceY = verticalCenter(source);
@@ -78,11 +160,14 @@ export function buildElbowPoints(
 
   const gap = targetX - sourceX;
   if (gap >= EXIT_GAP * 2) {
-    const midX = clamp(
-      sourceX + gap / 2,
-      sourceX + EXIT_GAP,
-      targetX - EXIT_GAP,
+    const minY = Math.min(sourceY, targetY);
+    const maxY = Math.max(sourceY, targetY);
+    // Only bars whose row actually lies within the vertical run the elbow
+    // travels through can be crossed by it.
+    const intermediateObstacles = obstacles.filter(
+      (box) => box.top < maxY && box.top + box.height > minY,
     );
+    const midX = pickClearMidX(sourceX, targetX, intermediateObstacles);
     return [
       { x: sourceX, y: sourceY },
       { x: midX, y: sourceY },
@@ -158,13 +243,20 @@ export function buildDependencyEdges(
   taskBoxes: ReadonlyMap<string, TaskBarBox>,
 ): DependencyEdgeGeometry[] {
   const geometry: DependencyEdgeGeometry[] = [];
+  // Every other visible bar is a potential intermediate obstacle for a given
+  // edge; buildElbowPoints itself narrows this down to the ones whose row
+  // actually sits between that edge's two endpoints.
+  const allBoxes = [...taskBoxes.values()];
 
   for (const edge of edges) {
     const source = taskBoxes.get(edge.sourceTaskId);
     const target = taskBoxes.get(edge.targetTaskId);
     if (!source || !target) continue;
 
-    const points = buildElbowPoints(source, target);
+    const obstacles = allBoxes.filter(
+      (box) => box !== source && box !== target,
+    );
+    const points = buildElbowPoints(source, target, obstacles);
     const path = roundedPolylinePath(points, CORNER_RADIUS);
     const sourcePoint = points[0];
     const targetPoint = points[points.length - 1];
