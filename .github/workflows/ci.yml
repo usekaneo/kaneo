@@ -420,3 +420,43 @@ jobs:
         uses: github/codeql-action/upload-sarif@1190a975f95ce23525efb6a3fc21ea29567c1b52 # v3
         with:
           sarif_file: trufflehog-results.sarif
+      - name: Notify Discord on findings
+        if: ${{ failure() && !github.event.pull_request.head.repo.fork }}
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          BRANCH: ${{ github.ref_name }}
+          TITLE: "🚨 Secret scan found credentials"
+        run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "DISCORD_WEBHOOK_URL is not configured; skipping notification."
+            exit 0
+          fi
+          if [ ! -f trufflehog-results.sarif ]; then
+            echo "No SARIF results file; skipping notification."
+            exit 0
+          fi
+          findings="$(jq -r '.runs[0].results | length' trufflehog-results.sarif 2>/dev/null || echo 0)"
+          if [ "$findings" -eq 0 ]; then
+            echo "No findings to report."
+            exit 0
+          fi
+          details="$(jq -r '.runs[0].results[] | "\(.ruleId) — \(.locations[0].physicalLocation.artifactLocation.uri):\(.locations[0].physicalLocation.region.startLine)"' trufflehog-results.sarif | head -10)"
+          more=""
+          if [ "$findings" -gt 10 ]; then
+            more=$'\n'"…and $((findings - 10)) more — see the run for the full list"
+          fi
+          jq -n \
+            --arg title "$TITLE" \
+            --arg url "$RUN_URL" \
+            --arg branch "$BRANCH" \
+            --arg findings "$findings" \
+            --arg details "$details$more" \
+            '{embeds: [{title: $title, url: $url, color: 15158332, description: ("TruffleHog found **" + $findings + "** potential secret(s) on `" + $branch + "`.\n\n" + $details)}]}' \
+            > "$RUNNER_TEMP/discord-payload.json"
+          # Best effort: a delivery failure must not mask the scan result.
+          curl --fail --silent --show-error --max-time 15 \
+            -H "Content-Type: application/json" \
+            --data-binary @"$RUNNER_TEMP/discord-payload.json" \
+            "$DISCORD_WEBHOOK_URL" \
+            || echo "::warning::Discord notification could not be delivered."
