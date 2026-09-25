@@ -556,7 +556,9 @@
 			"labels": "Label",
 			"labelsDescription": "Tampilkan label dan tag tugas",
 			"priority": "Prioritas",
-			"priorityDescription": "Tampilkan indikator prioritas"
+			"priorityDescription": "Tampilkan indikator prioritas",
+			"timeTracking": "Time tracking",
+			"timeTrackingDescription": "Show the time tracked property on tasks and the live timer in the header"
 		},
 		"developerPage": {
 			"pageTitle": "Pengaturan Pengembang",
@@ -951,7 +953,8 @@
 				"taskPriorityChanged": "Perubahan prioritas",
 				"taskTitleChanged": "Perubahan judul",
 				"taskDescriptionChanged": "Perubahan deskripsi",
-				"taskCommentCreated": "Komentar baru"
+				"taskCommentCreated": "Komentar baru",
+				"timeEntryCreated": "Waktu tercatat"
 			},
 			"connect": "Hubungkan Slack",
 			"saveChanges": "Simpan perubahan",
@@ -989,7 +992,8 @@
 				"taskPriorityChanged": "Perubahan prioritas",
 				"taskTitleChanged": "Perubahan judul",
 				"taskDescriptionChanged": "Perubahan deskripsi",
-				"taskCommentCreated": "Komentar baru"
+				"taskCommentCreated": "Komentar baru",
+				"timeEntryCreated": "Waktu tercatat"
 			},
 			"connect": "Hubungkan Discord",
 			"saveChanges": "Simpan perubahan",
@@ -1034,7 +1038,8 @@
 				"taskDueDateChanged": "Tenggat diubah",
 				"taskAssigneeChanged": "Penanggung jawab diubah",
 				"taskUnassigned": "Penugasan dihapus",
-				"dueDateReminder": "Pengingat tenggat"
+				"dueDateReminder": "Pengingat tenggat",
+				"timeEntryCreated": "Waktu tercatat"
 			},
 			"connect": "Hubungkan webhook",
 			"saveChanges": "Simpan perubahan",
@@ -1081,7 +1086,8 @@
 				"taskPriorityChanged": "Perubahan prioritas",
 				"taskTitleChanged": "Perubahan judul",
 				"taskDescriptionChanged": "Perubahan deskripsi",
-				"taskCommentCreated": "Komentar baru"
+				"taskCommentCreated": "Komentar baru",
+				"timeEntryCreated": "Waktu tercatat"
 			},
 			"connect": "Hubungkan Telegram",
 			"saveChanges": "Simpan perubahan",
@@ -1400,7 +1406,8 @@
 				"taskDescriptionChanged": "Description changes",
 				"taskPriorityChanged": "Priority changes",
 				"taskStatusChanged": "Status changes",
-				"taskTitleChanged": "Title changes"
+				"taskTitleChanged": "Title changes",
+				"timeEntryCreated": "Waktu tercatat"
 			},
 			"eventsHint": "Choose which project changes should post to Mattermost.",
 			"eventsTitle": "Event notifications",
@@ -1674,9 +1681,9 @@
 				"content": "{{mentionerName}} menyebut Anda di: {{taskTitle}}"
 			},
 			"time_entry_created": {
-				"title": "Pelacakan waktu dimulai",
-				"contentWithTask": "Pelacakan waktu dimulai pada tugas: {{taskTitle}}",
-				"contentWithoutTask": "Pelacakan waktu dimulai pada sebuah tugas"
+				"title": "Waktu tercatat",
+				"contentWithTask": "Waktu yang dicatat pada tugas: {{taskTitle}}",
+				"contentWithoutTask": "Waktu yang dicatat pada tugas"
 			},
 			"task_comment": {
 				"title": "{{commenterName}} mengomentari tugas Anda",
@@ -1810,7 +1817,8 @@
 			},
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
-		}
+		},
+		"trackedTime": "tercatat {{duration}}"
 	},
 	"tasks": {
 		"title": "Tugas",
@@ -1992,7 +2000,8 @@
 			"copyTaskBranch": "Salin branch tugas",
 			"start": "Mulai",
 			"startDate": "Tanggal mulai",
-			"noDate": "Tanpa tanggal"
+			"noDate": "Tanpa tanggal",
+			"timeTracked": "Waktu tercatat"
 		},
 		"move": {
 			"title": "Pindahkan tugas",
@@ -2244,6 +2253,36 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"timeTracking": {
+			"billable": "Dapat ditagihkan",
+			"currentTimer": "Pengatur waktu saat ini",
+			"deleteEntry": "Hapus entri waktu",
+			"deleteEntryConfirm": "Hapus entri waktu ini? Tindakan ini tidak dapat dibatalkan.",
+			"deleteError": "Gagal menghapus entri waktu",
+			"description": "Deskripsi",
+			"descriptionPlaceholder": "Catatan",
+			"duration": "Durasi",
+			"endTime": "Selesai",
+			"logManually": "Catat waktu secara manual",
+			"noEntries": "Belum ada waktu yang dicatat",
+			"nonBillable": "Tidak dapat ditagihkan",
+			"restart": "Mulai ulang pengatur waktu",
+			"save": "Simpan",
+			"start": "Mulai melacak",
+			"startError": "Gagal memulai pelacakan",
+			"startTime": "Mulai",
+			"stop": "Berhenti",
+			"stopError": "Gagal menghentikan pelacakan",
+			"switchHere": "Beralih ke sini",
+			"total": "Total",
+			"trackingElsewhere": "Melacak {{taskTitle}}",
+			"updateError": "Gagal memperbarui entri waktu",
+			"timeEntries": "Entri waktu",
+			"timeOnTask": "Waktu pada tugas ini",
+			"durationInputPlaceholder": "mis. 1h 20m 50s",
+			"noTimeMatch": "Tidak ada waktu yang cocok",
+			"loadError": "Gagal memuat entri waktu"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

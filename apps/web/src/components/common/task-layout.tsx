@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import ActiveTimerPill from "@/components/common/active-timer-pill";
 import TaskCrumbSelect from "@/components/common/header/task-crumb-select";
 import Layout from "@/components/common/layout";
 import { KbdSequence } from "@/components/ui/kbd";
@@ -103,6 +104,7 @@ export default function TaskLayout({
             </div>
 
             <div className="flex shrink-0 items-center gap-1.5">
+              <ActiveTimerPill />
               {headerActions}
             </div>
           </div>

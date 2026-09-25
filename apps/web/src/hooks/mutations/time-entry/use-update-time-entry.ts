@@ -12,6 +12,9 @@ function useUpdateTimeEntry(taskId: string) {
       queryClient.invalidateQueries({
         queryKey: ["time-entries", taskId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["activities", taskId],
+      });
     },
   });
 }

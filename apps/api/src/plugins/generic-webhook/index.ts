@@ -12,12 +12,14 @@ import {
   handleTaskStatusChanged,
   handleTaskTitleChanged,
   handleTaskUnassigned,
+  handleTimeEntryCreated,
 } from "./events";
 
 export const genericWebhookPlugin: IntegrationPlugin = {
   type: "generic-webhook",
   name: "Generic Webhook",
   onTaskCreated: handleTaskCreated,
+  onTimeEntryCreated: handleTimeEntryCreated,
   onTaskStatusChanged: handleTaskStatusChanged,
   onTaskPriorityChanged: handleTaskPriorityChanged,
   onTaskTitleChanged: handleTaskTitleChanged,

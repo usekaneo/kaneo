@@ -62,6 +62,23 @@ export function useProjectWebSocket(projectId: string) {
         if (disposed || activeSocket !== ws) return;
         try {
           const message = JSON.parse(event.data);
+          if (message.type === "TIME_ENTRY_UPDATED") {
+            // Task responses do not yet carry a normalized timeTracked value.
+            // Re-enable these when task cards render that persisted total.
+            // queryClient.invalidateQueries({
+            //   queryKey: ["tasks", message.projectId],
+            // });
+            // queryClient.invalidateQueries({
+            //   queryKey: ["task", message.taskId],
+            // });
+            queryClient.invalidateQueries({
+              queryKey: ["time-entries", message.taskId],
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["activities", message.taskId],
+            });
+          }
+
           if (
             message.type === "TASK_UPDATED" ||
             message.type === "TASK_CREATED" ||

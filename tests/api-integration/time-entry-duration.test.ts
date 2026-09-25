@@ -75,7 +75,7 @@ describe("time entry duration", () => {
     expect(entry.duration).toBe(5400);
   });
 
-  it("leaves duration unset while the entry is still running", async () => {
+  it("rejects manual entries without an end time", async () => {
     const { user, workspace } = await createWorkspaceMember({ role: "owner" });
     const task = await seedTaskFor(workspace.id);
 
@@ -91,9 +91,7 @@ describe("time entry duration", () => {
       }),
     });
 
-    expect(response.status).toBe(200);
-    const entry = await response.json();
-    expect(entry.duration).toBeNull();
+    expect(response.status).toBe(400);
   });
 });
 

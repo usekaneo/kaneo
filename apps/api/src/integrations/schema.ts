@@ -4,6 +4,7 @@ export const projectIdParam = z.object({ projectId: z.string() });
 
 export const integrationEventToggles = z.object({
   taskCreated: z.boolean().optional(),
+  timeEntryCreated: z.boolean().optional(),
   taskStatusChanged: z.boolean().optional(),
   taskPriorityChanged: z.boolean().optional(),
   taskTitleChanged: z.boolean().optional(),

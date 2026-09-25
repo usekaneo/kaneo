@@ -556,7 +556,9 @@
 			"labels": "标签",
 			"labelsDescription": "显示任务的标签和标记",
 			"priority": "优先级",
-			"priorityDescription": "显示优先级指示"
+			"priorityDescription": "显示优先级指示",
+			"timeTracking": "Time tracking",
+			"timeTrackingDescription": "Show the time tracked property on tasks and the live timer in the header"
 		},
 		"developerPage": {
 			"pageTitle": "开发者设置",
@@ -1185,7 +1187,8 @@
 				"taskPriorityChanged": "优先级变更",
 				"taskTitleChanged": "标题变更",
 				"taskDescriptionChanged": "描述变更",
-				"taskCommentCreated": "新评论"
+				"taskCommentCreated": "新评论",
+				"timeEntryCreated": "已记录时间"
 			},
 			"connect": "连接 Slack",
 			"saveChanges": "保存更改",
@@ -1223,7 +1226,8 @@
 				"taskPriorityChanged": "优先级变更",
 				"taskTitleChanged": "标题变更",
 				"taskDescriptionChanged": "描述变更",
-				"taskCommentCreated": "新评论"
+				"taskCommentCreated": "新评论",
+				"timeEntryCreated": "已记录时间"
 			},
 			"connect": "连接 Discord",
 			"saveChanges": "保存更改",
@@ -1261,7 +1265,8 @@
 				"taskPriorityChanged": "优先级变更",
 				"taskTitleChanged": "标题变更",
 				"taskDescriptionChanged": "描述变更",
-				"taskCommentCreated": "新评论"
+				"taskCommentCreated": "新评论",
+				"timeEntryCreated": "已记录时间"
 			},
 			"connect": "连接 Mattermost",
 			"saveChanges": "保存更改",
@@ -1306,7 +1311,8 @@
 				"taskDueDateChanged": "截止日期已变更",
 				"taskAssigneeChanged": "负责人已变更",
 				"taskUnassigned": "任务已取消指派",
-				"dueDateReminder": "截止日期提醒"
+				"dueDateReminder": "截止日期提醒",
+				"timeEntryCreated": "已记录时间"
 			},
 			"reminderLeadTimeLabel": "提前这么多小时发送 Webhook",
 			"connect": "连接 Webhook",
@@ -1353,7 +1359,8 @@
 				"taskPriorityChanged": "优先级变更",
 				"taskTitleChanged": "标题变更",
 				"taskDescriptionChanged": "描述变更",
-				"taskCommentCreated": "新评论"
+				"taskCommentCreated": "新评论",
+				"timeEntryCreated": "已记录时间"
 			},
 			"connect": "连接 Telegram",
 			"saveChanges": "保存更改",
@@ -1691,9 +1698,9 @@
 				"content": "{{taskTitle}} 已超过截止日期"
 			},
 			"time_entry_created": {
-				"title": "已开始计时",
-				"contentWithTask": "已开始为任务 {{taskTitle}} 计时",
-				"contentWithoutTask": "已开始为某个任务计时"
+				"title": "已记录时间",
+				"contentWithTask": "已记录任务用时：{{taskTitle}}",
+				"contentWithoutTask": "已记录某个任务的时间"
 			}
 		}
 	},
@@ -1810,7 +1817,8 @@
 			},
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
-		}
+		},
+		"trackedTime": "已记录 {{duration}}"
 	},
 	"tasks": {
 		"title": "任务",
@@ -1992,7 +2000,8 @@
 			"copyTaskBranch": "复制任务分支",
 			"start": "开始",
 			"startDate": "开始日期",
-			"noDate": "无日期"
+			"noDate": "无日期",
+			"timeTracked": "已记录时间"
 		},
 		"move": {
 			"title": "移动任务",
@@ -2244,6 +2253,36 @@
 				"deleteRow": "删除行",
 				"deleteTable": "删除表格"
 			}
+		},
+		"timeTracking": {
+			"billable": "可计费",
+			"currentTimer": "当前计时器",
+			"deleteEntry": "删除时间记录",
+			"deleteEntryConfirm": "删除此时间记录？此操作无法撤销。",
+			"deleteError": "无法删除时间记录",
+			"description": "描述",
+			"descriptionPlaceholder": "备注",
+			"duration": "时长",
+			"endTime": "结束",
+			"logManually": "手动记录时间",
+			"noEntries": "尚未记录时间",
+			"nonBillable": "不可计费",
+			"restart": "重新开始计时",
+			"save": "保存",
+			"start": "开始记录",
+			"startError": "无法开始记录时间",
+			"startTime": "开始",
+			"stop": "停止",
+			"stopError": "无法停止记录时间",
+			"switchHere": "切换到这里",
+			"total": "总计",
+			"trackingElsewhere": "正在记录 {{taskTitle}} 的时间",
+			"updateError": "无法更新时间记录",
+			"timeEntries": "时间记录",
+			"timeOnTask": "此任务的用时",
+			"durationInputPlaceholder": "例如：1h 20m 50s",
+			"noTimeMatch": "没有匹配的时间",
+			"loadError": "无法加载时间记录"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

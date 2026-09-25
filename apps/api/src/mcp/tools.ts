@@ -889,12 +889,13 @@ export function registerMcpTools(
     "create_time_entry",
     {
       description:
-        "Log time against a task. Omit endTime to leave the entry running.",
+        "Log completed time against a task. Both timestamps are required. Use start_task_timer for active tracking.",
       inputSchema: z.object({
         taskId: nonEmptyString,
         startTime: isoDateTimeSchema,
-        endTime: optionalIsoDateTimeSchema,
-        description: optionalNonEmptyString,
+        endTime: isoDateTimeSchema,
+        description: z.string().optional(),
+        billable: z.boolean().optional(),
       }),
     },
     async (args) =>
@@ -904,8 +905,11 @@ export function registerMcpTools(
           body: JSON.stringify({
             taskId: args.taskId,
             startTime: args.startTime,
-            ...(args.endTime ? { endTime: args.endTime } : {}),
-            ...(args.description ? { description: args.description } : {}),
+            endTime: args.endTime,
+            ...(args.description !== undefined
+              ? { description: args.description }
+              : {}),
+            ...(args.billable !== undefined ? { billable: args.billable } : {}),
           }),
         }),
       ),
@@ -915,12 +919,14 @@ export function registerMcpTools(
     "update_time_entry",
     {
       description:
-        "Update a time entry. startTime is required; omitting endTime keeps the stored one. startTime cannot be later than the end time.",
+        "Edit an ended entry's start, end, duration, description, or billable flag. Passing duration derives the end time from the start.",
       inputSchema: z.object({
         id: nonEmptyString,
-        startTime: isoDateTimeSchema,
+        startTime: optionalIsoDateTimeSchema,
         endTime: optionalIsoDateTimeSchema,
-        description: optionalNonEmptyString,
+        duration: z.number().int().nonnegative().optional(),
+        description: z.string().optional(),
+        billable: z.boolean().optional(),
       }),
     },
     async (args) =>
@@ -928,10 +934,79 @@ export function registerMcpTools(
         client.json(`/api/time-entry/${encodeURIComponent(args.id)}`, {
           method: "PUT",
           body: JSON.stringify({
-            startTime: args.startTime,
+            ...(args.startTime ? { startTime: args.startTime } : {}),
             ...(args.endTime ? { endTime: args.endTime } : {}),
-            ...(args.description ? { description: args.description } : {}),
+            ...(args.duration !== undefined ? { duration: args.duration } : {}),
+            ...(args.description !== undefined
+              ? { description: args.description }
+              : {}),
+            ...(args.billable !== undefined ? { billable: args.billable } : {}),
           }),
+        }),
+      ),
+  );
+
+  registerTool(
+    "start_task_timer",
+    {
+      description:
+        "Start tracking time on a task with the server clock. A previously running timer is auto-stopped.",
+      inputSchema: z.object({
+        taskId: nonEmptyString,
+        description: optionalNonEmptyString,
+        billable: z.boolean().optional(),
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json("/api/time-entry/start", {
+          method: "POST",
+          body: JSON.stringify({
+            taskId: args.taskId,
+            ...(args.description ? { description: args.description } : {}),
+            ...(args.billable !== undefined ? { billable: args.billable } : {}),
+          }),
+        }),
+      ),
+  );
+
+  registerTool(
+    "stop_task_timer",
+    {
+      description:
+        "Stop the signed-in user's running timer on a task with the server clock. Returns 404 when nothing is running.",
+      inputSchema: z.object({ taskId: nonEmptyString }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(
+          `/api/time-entry/task/${encodeURIComponent(args.taskId)}/stop`,
+          { method: "POST" },
+        ),
+      ),
+  );
+
+  registerTool(
+    "get_running_timer",
+    {
+      description:
+        "Get the signed-in user's running timer across workspaces, or null when nothing is running.",
+      inputSchema: z.object({}),
+    },
+    async () => run(() => client.json("/api/time-entry/running/me")),
+  );
+
+  registerTool(
+    "delete_time_entry",
+    {
+      description:
+        "Permanently delete an ended time entry and its activity row. A running entry must be stopped first.",
+      inputSchema: z.object({ id: nonEmptyString }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/time-entry/${encodeURIComponent(args.id)}`, {
+          method: "DELETE",
         }),
       ),
   );

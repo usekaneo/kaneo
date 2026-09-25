@@ -556,7 +556,9 @@
 			"labels": "Ετικέτες",
 			"labelsDescription": "Εμφάνιση ετικετών και tags εργασιών",
 			"priority": "Προτεραιότητα",
-			"priorityDescription": "Εμφάνιση ενδείξεων προτεραιότητας"
+			"priorityDescription": "Εμφάνιση ενδείξεων προτεραιότητας",
+			"timeTracking": "Time tracking",
+			"timeTrackingDescription": "Show the time tracked property on tasks and the live timer in the header"
 		},
 		"developerPage": {
 			"pageTitle": "Ρυθμίσεις προγραμματιστή",
@@ -935,7 +937,8 @@
 				"taskDescriptionChanged": "Αλλαγές περιγραφής",
 				"taskPriorityChanged": "Αλλαγές προτεραιότητας",
 				"taskStatusChanged": "Αλλαγές κατάστασης",
-				"taskTitleChanged": "Αλλαγές τίτλου"
+				"taskTitleChanged": "Αλλαγές τίτλου",
+				"timeEntryCreated": "Χρόνος καταγράφηκε"
 			},
 			"eventsHint": "Επιλέξτε ποιες αλλαγές έργου θα δημοσιεύονται στο Slack.",
 			"eventsTitle": "Ειδοποιήσεις γεγονότων",
@@ -973,7 +976,8 @@
 				"taskDescriptionChanged": "Αλλαγές περιγραφής",
 				"taskPriorityChanged": "Αλλαγές προτεραιότητας",
 				"taskStatusChanged": "Αλλαγές κατάστασης",
-				"taskTitleChanged": "Αλλαγές τίτλου"
+				"taskTitleChanged": "Αλλαγές τίτλου",
+				"timeEntryCreated": "Χρόνος καταγράφηκε"
 			},
 			"eventsHint": "Επιλέξτε ποιες αλλαγές έργου θα δημοσιεύονται στο Discord.",
 			"eventsTitle": "Ειδοποιήσεις γεγονότων",
@@ -1014,7 +1018,8 @@
 				"taskStatusChanged": "Αλλαγές κατάστασης",
 				"taskTitleChanged": "Αλλαγές τίτλου",
 				"taskUnassigned": "Αφαίρεση ανάθεσης",
-				"dueDateReminder": "Υπενθυμίσεις ημερομηνίας λήξης"
+				"dueDateReminder": "Υπενθυμίσεις ημερομηνίας λήξης",
+				"timeEntryCreated": "Χρόνος καταγράφηκε"
 			},
 			"eventsHint": "Επιλέξτε ποιες αλλαγές έργου θα ενεργοποιούν εξερχόμενα webhooks.",
 			"eventsTitle": "Ειδοποιήσεις γεγονότων",
@@ -1081,7 +1086,8 @@
 				"taskPriorityChanged": "Αλλαγές προτεραιότητας",
 				"taskTitleChanged": "Αλλαγές τίτλου",
 				"taskDescriptionChanged": "Αλλαγές περιγραφής",
-				"taskCommentCreated": "Νέα σχόλια"
+				"taskCommentCreated": "Νέα σχόλια",
+				"timeEntryCreated": "Χρόνος καταγράφηκε"
 			},
 			"connect": "Σύνδεση Telegram",
 			"saveChanges": "Αποθήκευση αλλαγών",
@@ -1401,7 +1407,8 @@
 				"taskDescriptionChanged": "Description changes",
 				"taskPriorityChanged": "Priority changes",
 				"taskStatusChanged": "Status changes",
-				"taskTitleChanged": "Title changes"
+				"taskTitleChanged": "Title changes",
+				"timeEntryCreated": "Χρόνος καταγράφηκε"
 			},
 			"eventsHint": "Choose which project changes should post to Mattermost.",
 			"eventsTitle": "Event notifications",
@@ -1674,9 +1681,9 @@
 				"content": "Σας ανατέθηκε η εργασία: {{taskTitle}}"
 			},
 			"time_entry_created": {
-				"title": "Η χρονομέτρηση ξεκίνησε",
-				"contentWithTask": "Η χρονομέτρηση ξεκίνησε για την εργασία: {{taskTitle}}",
-				"contentWithoutTask": "Η χρονομέτρηση ξεκίνησε για μια εργασία"
+				"title": "Ο χρόνος καταγράφηκε",
+				"contentWithTask": "Καταγράφηκε χρόνος στην εργασία: {{taskTitle}}",
+				"contentWithoutTask": "Καταγράφηκε χρόνος σε μια εργασία"
 			},
 			"task_mention": {
 				"title": "Ο/Η {{mentionerName}} σας ανέφερε",
@@ -1817,7 +1824,8 @@
 			},
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
-		}
+		},
+		"trackedTime": "καταγράφηκε {{duration}}"
 	},
 	"tasks": {
 		"title": "Εργασίες",
@@ -1999,7 +2007,8 @@
 			"copyTaskBranch": "Αντιγραφή κλάδου εργασίας",
 			"start": "Έναρξη",
 			"startDate": "Ημερομηνία έναρξης",
-			"noDate": "Χωρίς ημερομηνία"
+			"noDate": "Χωρίς ημερομηνία",
+			"timeTracked": "Καταγεγραμμένος χρόνος"
 		},
 		"move": {
 			"title": "Μετακίνηση εργασίας",
@@ -2252,6 +2261,36 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"timeTracking": {
+			"billable": "Χρεώσιμος χρόνος",
+			"currentTimer": "Τρέχον χρονόμετρο",
+			"deleteEntry": "Διαγραφή καταχώρισης χρόνου",
+			"deleteEntryConfirm": "Να διαγραφεί αυτή η καταχώριση χρόνου; Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.",
+			"deleteError": "Αποτυχία διαγραφής καταχώρισης χρόνου",
+			"description": "Περιγραφή",
+			"descriptionPlaceholder": "Σημείωση",
+			"duration": "Διάρκεια",
+			"endTime": "Λήξη",
+			"logManually": "Καταγραφή χρόνου χειροκίνητα",
+			"noEntries": "Δεν έχει καταγραφεί χρόνος ακόμη",
+			"nonBillable": "Μη χρεώσιμος χρόνος",
+			"restart": "Επανεκκίνηση χρονομέτρου",
+			"save": "Αποθήκευση",
+			"start": "Έναρξη καταγραφής",
+			"startError": "Αποτυχία έναρξης καταγραφής",
+			"startTime": "Έναρξη",
+			"stop": "Διακοπή",
+			"stopError": "Αποτυχία διακοπής καταγραφής",
+			"switchHere": "Εναλλαγή εδώ",
+			"total": "Σύνολο",
+			"trackingElsewhere": "Καταγραφή χρόνου στο {{taskTitle}}",
+			"updateError": "Αποτυχία ενημέρωσης καταχώρισης χρόνου",
+			"timeEntries": "Καταχωρίσεις χρόνου",
+			"timeOnTask": "Χρόνος σε αυτή την εργασία",
+			"durationInputPlaceholder": "π.χ. 1h 20m 50s",
+			"noTimeMatch": "Δεν βρέθηκε αντίστοιχος χρόνος",
+			"loadError": "Δεν ήταν δυνατή η φόρτωση των καταχωρίσεων χρόνου"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

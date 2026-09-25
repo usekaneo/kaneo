@@ -2489,6 +2489,12 @@
 						},
 						"priorityDescription": {
 							"type": "string"
+						},
+						"timeTracking": {
+							"type": "string"
+						},
+						"timeTrackingDescription": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -2530,7 +2536,9 @@
 						"labels",
 						"labelsDescription",
 						"priority",
-						"priorityDescription"
+						"priorityDescription",
+						"timeTracking",
+						"timeTrackingDescription"
 					]
 				},
 				"developerPage": {
@@ -5037,6 +5045,9 @@
 								},
 								"taskCommentCreated": {
 									"type": "string"
+								},
+								"timeEntryCreated": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -5045,7 +5056,8 @@
 								"taskPriorityChanged",
 								"taskTitleChanged",
 								"taskDescriptionChanged",
-								"taskCommentCreated"
+								"taskCommentCreated",
+								"timeEntryCreated"
 							]
 						},
 						"connect": {
@@ -5190,6 +5202,9 @@
 								},
 								"taskCommentCreated": {
 									"type": "string"
+								},
+								"timeEntryCreated": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -5198,7 +5213,8 @@
 								"taskPriorityChanged",
 								"taskTitleChanged",
 								"taskDescriptionChanged",
-								"taskCommentCreated"
+								"taskCommentCreated",
+								"timeEntryCreated"
 							]
 						},
 						"connect": {
@@ -5343,6 +5359,9 @@
 								},
 								"taskCommentCreated": {
 									"type": "string"
+								},
+								"timeEntryCreated": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -5351,7 +5370,8 @@
 								"taskPriorityChanged",
 								"taskTitleChanged",
 								"taskDescriptionChanged",
-								"taskCommentCreated"
+								"taskCommentCreated",
+								"timeEntryCreated"
 							]
 						},
 						"connect": {
@@ -5517,6 +5537,9 @@
 								},
 								"dueDateReminder": {
 									"type": "string"
+								},
+								"timeEntryCreated": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -5531,7 +5554,8 @@
 								"taskDueDateChanged",
 								"taskAssigneeChanged",
 								"taskUnassigned",
-								"dueDateReminder"
+								"dueDateReminder",
+								"timeEntryCreated"
 							]
 						},
 						"reminderLeadTimeLabel": {
@@ -5708,6 +5732,9 @@
 								},
 								"taskCommentCreated": {
 									"type": "string"
+								},
+								"timeEntryCreated": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -5716,7 +5743,8 @@
 								"taskPriorityChanged",
 								"taskTitleChanged",
 								"taskDescriptionChanged",
-								"taskCommentCreated"
+								"taskCommentCreated",
+								"timeEntryCreated"
 							]
 						},
 						"connect": {
@@ -7296,6 +7324,9 @@
 						"importedFrom",
 						"importedBy"
 					]
+				},
+				"trackedTime": {
+					"type": "string"
 				}
 			},
 			"required": [
@@ -7311,7 +7342,8 @@
 				"moved",
 				"created",
 				"githubUser",
-				"comment"
+				"comment",
+				"trackedTime"
 			]
 		},
 		"tasks": {
@@ -8012,6 +8044,9 @@
 						},
 						"noDate": {
 							"type": "string"
+						},
+						"timeTracked": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -8021,7 +8056,8 @@
 						"copyTaskBranch",
 						"start",
 						"startDate",
-						"noDate"
+						"noDate",
+						"timeTracked"
 					]
 				},
 				"move": {
@@ -9236,6 +9272,126 @@
 					},
 					"required": ["table"]
 				},
+				"timeTracking": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"start": {
+							"type": "string"
+						},
+						"stop": {
+							"type": "string"
+						},
+						"switchHere": {
+							"type": "string"
+						},
+						"trackingElsewhere": {
+							"type": "string"
+						},
+						"total": {
+							"type": "string"
+						},
+						"billable": {
+							"type": "string"
+						},
+						"nonBillable": {
+							"type": "string"
+						},
+						"noEntries": {
+							"type": "string"
+						},
+						"logManually": {
+							"type": "string"
+						},
+						"description": {
+							"type": "string"
+						},
+						"descriptionPlaceholder": {
+							"type": "string"
+						},
+						"duration": {
+							"type": "string"
+						},
+						"startTime": {
+							"type": "string"
+						},
+						"endTime": {
+							"type": "string"
+						},
+						"save": {
+							"type": "string"
+						},
+						"deleteEntry": {
+							"type": "string"
+						},
+						"deleteEntryConfirm": {
+							"type": "string"
+						},
+						"currentTimer": {
+							"type": "string"
+						},
+						"restart": {
+							"type": "string"
+						},
+						"startError": {
+							"type": "string"
+						},
+						"stopError": {
+							"type": "string"
+						},
+						"updateError": {
+							"type": "string"
+						},
+						"deleteError": {
+							"type": "string"
+						},
+						"timeOnTask": {
+							"type": "string"
+						},
+						"timeEntries": {
+							"type": "string"
+						},
+						"durationInputPlaceholder": {
+							"type": "string"
+						},
+						"noTimeMatch": {
+							"type": "string"
+						},
+						"loadError": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"start",
+						"stop",
+						"switchHere",
+						"trackingElsewhere",
+						"total",
+						"billable",
+						"nonBillable",
+						"noEntries",
+						"logManually",
+						"description",
+						"descriptionPlaceholder",
+						"duration",
+						"startTime",
+						"endTime",
+						"save",
+						"deleteEntry",
+						"deleteEntryConfirm",
+						"currentTimer",
+						"restart",
+						"startError",
+						"stopError",
+						"updateError",
+						"deleteError",
+						"timeOnTask",
+						"timeEntries",
+						"durationInputPlaceholder",
+						"noTimeMatch",
+						"loadError"
+					]
+				},
 				"descriptionSearchLoading": {
 					"type": "string"
 				},
@@ -9284,6 +9440,7 @@
 				"actions",
 				"bulk",
 				"editor",
+				"timeTracking",
 				"descriptionSearchLoading",
 				"descriptionSearchError",
 				"descriptionRetry",

@@ -3,6 +3,7 @@ import { z } from "../openapi";
 export const integrationEventsSchema = z
   .object({
     taskCreated: z.boolean(),
+    timeEntryCreated: z.boolean(),
     taskStatusChanged: z.boolean(),
     taskPriorityChanged: z.boolean(),
     taskTitleChanged: z.boolean(),

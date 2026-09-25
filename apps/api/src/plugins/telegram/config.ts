@@ -2,6 +2,7 @@ import * as v from "valibot";
 
 export const telegramEventKeys = [
   "taskCreated",
+  "timeEntryCreated",
   "taskStatusChanged",
   "taskPriorityChanged",
   "taskTitleChanged",
@@ -43,6 +44,7 @@ export type TelegramConfig = v.InferOutput<typeof telegramConfigSchema>;
 
 export const defaultTelegramEvents: Record<TelegramEventKey, boolean> = {
   taskCreated: true,
+  timeEntryCreated: false,
   taskStatusChanged: true,
   taskPriorityChanged: false,
   taskTitleChanged: false,

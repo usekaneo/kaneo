@@ -36,6 +36,9 @@ type UserPreferencesStore = {
   showPriority: boolean;
   setShowPriority: (show: boolean) => void;
   togglePriority: () => void;
+  showTimeTracking: boolean;
+  setShowTimeTracking: (show: boolean) => void;
+  toggleTimeTracking: () => void;
   showTaskItemCounts: boolean;
   setShowTaskItemCounts: (show: boolean) => void;
   toggleTaskItemCounts: () => void;
@@ -104,6 +107,10 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
       setShowPriority: (show) => set({ showPriority: show }),
       togglePriority: () =>
         set((state) => ({ showPriority: !state.showPriority })),
+      showTimeTracking: true,
+      setShowTimeTracking: (show) => set({ showTimeTracking: show }),
+      toggleTimeTracking: () =>
+        set((state) => ({ showTimeTracking: !state.showTimeTracking })),
       showTaskItemCounts: true,
       setShowTaskItemCounts: (show) => set({ showTaskItemCounts: show }),
       toggleTaskItemCounts: () =>
@@ -116,6 +123,7 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
           showTaskNumbers: true,
           showPriority: true,
           showTaskItemCounts: true,
+          showTimeTracking: true,
         }),
 
       sidebarDefaultOpen: true,

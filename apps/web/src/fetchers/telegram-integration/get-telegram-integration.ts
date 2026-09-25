@@ -11,6 +11,7 @@ export type TelegramIntegration = {
   maskedBotToken: string;
   events: {
     taskCreated: boolean;
+    timeEntryCreated: boolean;
     taskStatusChanged: boolean;
     taskPriorityChanged: boolean;
     taskTitleChanged: boolean;

@@ -7,12 +7,14 @@ import {
   handleTaskPriorityChanged,
   handleTaskStatusChanged,
   handleTaskTitleChanged,
+  handleTimeEntryCreated,
 } from "./events";
 
 export const discordPlugin: IntegrationPlugin = {
   type: "discord",
   name: "Discord",
   onTaskCreated: handleTaskCreated,
+  onTimeEntryCreated: handleTimeEntryCreated,
   onTaskStatusChanged: handleTaskStatusChanged,
   onTaskPriorityChanged: handleTaskPriorityChanged,
   onTaskTitleChanged: handleTaskTitleChanged,

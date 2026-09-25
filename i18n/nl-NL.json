@@ -453,7 +453,9 @@
 			"labels": "Labels",
 			"labelsDescription": "Toon taaklabels en tags",
 			"priority": "Prioriteit",
-			"priorityDescription": "Toon prioriteitsindicatoren"
+			"priorityDescription": "Toon prioriteitsindicatoren",
+			"timeTracking": "Time tracking",
+			"timeTrackingDescription": "Show the time tracked property on tasks and the live timer in the header"
 		},
 		"developerPage": {
 			"pageTitle": "Ontwikkelaarsinstellingen",
@@ -772,7 +774,8 @@
 				"taskPriorityChanged": "Prioriteitswijzigingen",
 				"taskTitleChanged": "Titelwijzigingen",
 				"taskDescriptionChanged": "Beschrijvingswijzigingen",
-				"taskCommentCreated": "Nieuwe reacties"
+				"taskCommentCreated": "Nieuwe reacties",
+				"timeEntryCreated": "Tijd geregistreerd"
 			},
 			"connect": "Verbind Slack",
 			"saveChanges": "Wijzigingen opslaan",
@@ -810,7 +813,8 @@
 				"taskPriorityChanged": "Prioriteitswijzigingen",
 				"taskTitleChanged": "Titelwijzigingen",
 				"taskDescriptionChanged": "Beschrijvingswijzigingen",
-				"taskCommentCreated": "Nieuwe reacties"
+				"taskCommentCreated": "Nieuwe reacties",
+				"timeEntryCreated": "Tijd geregistreerd"
 			},
 			"connect": "Verbind Discord",
 			"saveChanges": "Wijzigingen opslaan",
@@ -855,7 +859,8 @@
 				"taskDueDateChanged": "Einddatum gewijzigd",
 				"taskAssigneeChanged": "Toewijzing gewijzigd",
 				"taskUnassigned": "Toewijzing verwijderd",
-				"dueDateReminder": "Einddatum-herinneringen"
+				"dueDateReminder": "Einddatum-herinneringen",
+				"timeEntryCreated": "Tijd geregistreerd"
 			},
 			"connect": "Webhook verbinden",
 			"saveChanges": "Wijzigingen opslaan",
@@ -1380,7 +1385,8 @@
 				"taskPriorityChanged": "Prioriteitswijzigingen",
 				"taskTitleChanged": "Titelwijzigingen",
 				"taskDescriptionChanged": "Beschrijvingswijzigingen",
-				"taskCommentCreated": "Nieuwe reacties"
+				"taskCommentCreated": "Nieuwe reacties",
+				"timeEntryCreated": "Tijd geregistreerd"
 			},
 			"connect": "Verbind Telegram",
 			"saveChanges": "Wijzigingen opslaan",
@@ -1401,7 +1407,8 @@
 				"taskDescriptionChanged": "Description changes",
 				"taskPriorityChanged": "Priority changes",
 				"taskStatusChanged": "Status changes",
-				"taskTitleChanged": "Title changes"
+				"taskTitleChanged": "Title changes",
+				"timeEntryCreated": "Tijd geregistreerd"
 			},
 			"eventsHint": "Choose which project changes should post to Mattermost.",
 			"eventsTitle": "Event notifications",
@@ -1674,9 +1681,9 @@
 				"content": "Je bent toegewezen aan taak: {{taskTitle}}"
 			},
 			"time_entry_created": {
-				"title": "Tijdregistratie gestart",
-				"contentWithTask": "Tijdregistratie gestart voor taak: {{taskTitle}}",
-				"contentWithoutTask": "Tijdregistratie gestart voor een taak"
+				"title": "Tijd geregistreerd",
+				"contentWithTask": "Tijd geregistreerd voor taak: {{taskTitle}}",
+				"contentWithoutTask": "Tijd geregistreerd voor een taak"
 			},
 			"task_mention": {
 				"title": "{{mentionerName}} heeft je vermeld",
@@ -1817,7 +1824,8 @@
 			},
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
-		}
+		},
+		"trackedTime": "heeft {{duration}} geregistreerd"
 	},
 	"tasks": {
 		"title": "Taken",
@@ -1999,7 +2007,8 @@
 			"copyTaskBranch": "Taakbranch kopiëren",
 			"start": "Start",
 			"startDate": "Startdatum",
-			"noDate": "Geen datum"
+			"noDate": "Geen datum",
+			"timeTracked": "Tijd geregistreerd"
 		},
 		"popover": {
 			"assignee": {
@@ -2252,6 +2261,36 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"timeTracking": {
+			"billable": "Facturabel",
+			"currentTimer": "Huidige timer",
+			"deleteEntry": "Tijdregistratie verwijderen",
+			"deleteEntryConfirm": "Deze tijdregistratie verwijderen? Dit kan niet ongedaan worden gemaakt.",
+			"deleteError": "Tijdregistratie verwijderen mislukt",
+			"description": "Beschrijving",
+			"descriptionPlaceholder": "Waar heb je aan gewerkt?",
+			"duration": "Duur",
+			"endTime": "Einde",
+			"logManually": "Tijd handmatig registreren",
+			"noEntries": "Nog geen tijd geregistreerd",
+			"nonBillable": "Niet-facturabel",
+			"restart": "Timer opnieuw starten",
+			"save": "Opslaan",
+			"start": "Tijdregistratie starten",
+			"startError": "Tijdregistratie starten mislukt",
+			"startTime": "Start",
+			"stop": "Stoppen",
+			"stopError": "Tijdregistratie stoppen mislukt",
+			"switchHere": "Hierheen schakelen",
+			"total": "Totaal",
+			"trackingElsewhere": "Tijdregistratie voor {{taskTitle}}",
+			"updateError": "Tijdregistratie bijwerken mislukt",
+			"timeEntries": "Tijdregistraties",
+			"timeOnTask": "Tijd aan deze taak",
+			"durationInputPlaceholder": "bijv. 1h 20m 50s",
+			"noTimeMatch": "Geen overeenkomende tijd",
+			"loadError": "Tijdregistraties laden mislukt"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

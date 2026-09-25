@@ -556,7 +556,9 @@
 			"labels": "ラベル",
 			"labelsDescription": "タスクのラベルとタグを表示します",
 			"priority": "優先度",
-			"priorityDescription": "優先度インジケーターを表示します"
+			"priorityDescription": "優先度インジケーターを表示します",
+			"timeTracking": "Time tracking",
+			"timeTrackingDescription": "Show the time tracked property on tasks and the live timer in the header"
 		},
 		"developerPage": {
 			"pageTitle": "開発者設定",
@@ -1185,7 +1187,8 @@
 				"taskPriorityChanged": "優先度の変更",
 				"taskTitleChanged": "タイトルの変更",
 				"taskDescriptionChanged": "説明の変更",
-				"taskCommentCreated": "新しいコメント"
+				"taskCommentCreated": "新しいコメント",
+				"timeEntryCreated": "時間を記録"
 			},
 			"connect": "Slack に接続",
 			"saveChanges": "変更を保存",
@@ -1223,7 +1226,8 @@
 				"taskPriorityChanged": "優先度の変更",
 				"taskTitleChanged": "タイトルの変更",
 				"taskDescriptionChanged": "説明の変更",
-				"taskCommentCreated": "新しいコメント"
+				"taskCommentCreated": "新しいコメント",
+				"timeEntryCreated": "時間を記録"
 			},
 			"connect": "Discord に接続",
 			"saveChanges": "変更を保存",
@@ -1268,7 +1272,8 @@
 				"taskDueDateChanged": "期限の変更",
 				"taskAssigneeChanged": "担当者の変更",
 				"taskUnassigned": "担当者の解除",
-				"dueDateReminder": "期限リマインダー"
+				"dueDateReminder": "期限リマインダー",
+				"timeEntryCreated": "時間を記録"
 			},
 			"reminderLeadTimeLabel": "期限の何時間前に Webhook を送信するか（時間）",
 			"connect": "Webhook を接続",
@@ -1315,7 +1320,8 @@
 				"taskPriorityChanged": "優先度の変更",
 				"taskTitleChanged": "タイトルの変更",
 				"taskDescriptionChanged": "説明の変更",
-				"taskCommentCreated": "新しいコメント"
+				"taskCommentCreated": "新しいコメント",
+				"timeEntryCreated": "時間を記録"
 			},
 			"connect": "Telegram に接続",
 			"saveChanges": "変更を保存",
@@ -1400,7 +1406,8 @@
 				"taskDescriptionChanged": "Description changes",
 				"taskPriorityChanged": "Priority changes",
 				"taskStatusChanged": "Status changes",
-				"taskTitleChanged": "Title changes"
+				"taskTitleChanged": "Title changes",
+				"timeEntryCreated": "時間を記録"
 			},
 			"eventsHint": "Choose which project changes should post to Mattermost.",
 			"eventsTitle": "Event notifications",
@@ -1691,9 +1698,9 @@
 				"content": "「{{taskTitle}}」の期限が過ぎています"
 			},
 			"time_entry_created": {
-				"title": "時間計測を開始しました",
-				"contentWithTask": "タスク「{{taskTitle}}」の時間計測を開始しました",
-				"contentWithoutTask": "タスクの時間計測を開始しました"
+				"title": "時間を記録しました",
+				"contentWithTask": "タスクの時間を記録しました: {{taskTitle}}",
+				"contentWithoutTask": "タスクの時間を記録しました"
 			}
 		}
 	},
@@ -1810,7 +1817,8 @@
 			},
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
-		}
+		},
+		"trackedTime": "{{duration}}を記録"
 	},
 	"tasks": {
 		"title": "タスク",
@@ -1992,7 +2000,8 @@
 			"copyTaskBranch": "タスクのブランチ名をコピー",
 			"start": "開始",
 			"startDate": "開始日",
-			"noDate": "日付なし"
+			"noDate": "日付なし",
+			"timeTracked": "記録時間"
 		},
 		"move": {
 			"title": "タスクを移動",
@@ -2244,6 +2253,36 @@
 				"deleteRow": "行を削除",
 				"deleteTable": "表を削除"
 			}
+		},
+		"timeTracking": {
+			"billable": "請求対象",
+			"currentTimer": "現在のタイマー",
+			"deleteEntry": "時間記録を削除",
+			"deleteEntryConfirm": "この時間記録を削除しますか？この操作は元に戻せません。",
+			"deleteError": "時間記録の削除に失敗しました",
+			"description": "説明",
+			"descriptionPlaceholder": "メモ",
+			"duration": "所要時間",
+			"endTime": "終了",
+			"logManually": "手動で時間を記録",
+			"noEntries": "まだ時間が記録されていません",
+			"nonBillable": "請求対象外",
+			"restart": "タイマーを再開",
+			"save": "保存",
+			"start": "計測を開始",
+			"startError": "計測の開始に失敗しました",
+			"startTime": "開始",
+			"stop": "停止",
+			"stopError": "計測の停止に失敗しました",
+			"switchHere": "ここに切り替え",
+			"total": "合計",
+			"trackingElsewhere": "{{taskTitle}}を計測中",
+			"updateError": "時間記録の更新に失敗しました",
+			"timeEntries": "時間記録",
+			"timeOnTask": "このタスクの時間",
+			"durationInputPlaceholder": "例: 1h 20m 50s",
+			"noTimeMatch": "一致する時間がありません",
+			"loadError": "時間記録を読み込めませんでした"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

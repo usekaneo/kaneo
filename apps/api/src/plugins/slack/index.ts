@@ -7,12 +7,14 @@ import {
   handleTaskPriorityChanged,
   handleTaskStatusChanged,
   handleTaskTitleChanged,
+  handleTimeEntryCreated,
 } from "./events";
 
 export const slackPlugin: IntegrationPlugin = {
   type: "slack",
   name: "Slack",
   onTaskCreated: handleTaskCreated,
+  onTimeEntryCreated: handleTimeEntryCreated,
   onTaskStatusChanged: handleTaskStatusChanged,
   onTaskPriorityChanged: handleTaskPriorityChanged,
   onTaskTitleChanged: handleTaskTitleChanged,

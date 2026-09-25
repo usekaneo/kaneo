@@ -529,6 +529,7 @@ export const timeEntryTable = pgTable(
       onUpdate: "cascade",
     }),
     description: text("description"),
+    billable: boolean("billable").default(true).notNull(),
     startTime: timestamp("start_time", { mode: "date" }).notNull(),
     endTime: timestamp("end_time", { mode: "date" }),
     duration: integer("duration").default(0),
@@ -541,6 +542,11 @@ export const timeEntryTable = pgTable(
   (table) => [
     index("time_entry_taskId_idx").on(table.taskId),
     index("time_entry_userId_idx").on(table.userId),
+    // One running entry per user. The partial index doubles as the lookup
+    // for the current-user running query (`user_id = ? AND end_time IS NULL`).
+    uniqueIndex("time_entry_running_user_unique")
+      .on(table.userId)
+      .where(sql`${table.endTime} IS NULL`),
   ],
 );
 

@@ -3,6 +3,7 @@ import { postToGenericWebhook } from "../../../../apps/api/src/plugins/generic-w
 import {
   handleTaskDeleted,
   handleTaskUnassigned,
+  handleTimeEntryCreated,
 } from "../../../../apps/api/src/plugins/generic-webhook/events";
 
 const { selectMock, findFirstMock } = vi.hoisted(() => ({
@@ -26,13 +27,14 @@ vi.mock("../../../../apps/api/src/database", () => ({
 }));
 
 function selectChain(rows: unknown[]) {
-  return {
-    from: () => ({
-      where: () => ({
-        limit: () => Promise.resolve(rows),
-      }),
-    }),
+  const chain: Record<string, (...args: unknown[]) => unknown> = {
+    from: () => chain,
+    innerJoin: () => chain,
+    leftJoin: () => chain,
+    where: () => chain,
+    limit: () => Promise.resolve(rows),
   };
+  return chain;
 }
 
 const context = {
@@ -85,6 +87,78 @@ describe("generic webhook event handlers", () => {
     await handleTaskDeleted(deletedEvent, context);
 
     expect(postToGenericWebhook).not.toHaveBeenCalled();
+  });
+
+  it("does not post time_entry.created when timeEntryCreated is disabled", async () => {
+    await handleTimeEntryCreated(
+      {
+        taskId: "task-1",
+        projectId: "project-1",
+        userId: "user-1",
+        title: "Ship the release",
+        timeEntryId: "entry-1",
+        duration: 5400,
+        billable: true,
+      },
+      context,
+    );
+
+    expect(postToGenericWebhook).not.toHaveBeenCalled();
+  });
+
+  it("posts a project-scoped time_entry.created envelope when enabled", async () => {
+    selectMock
+      .mockImplementationOnce(() =>
+        selectChain([
+          {
+            id: "task-1",
+            title: "Ship the release",
+            number: 7,
+            status: "done",
+            priority: "high",
+            columnName: "Done",
+            projectId: "project-1",
+            projectName: "Roadmap",
+            workspaceId: "workspace-1",
+          },
+        ]),
+      )
+      .mockImplementationOnce(() =>
+        selectChain([{ id: "user-1", name: "Andrej" }]),
+      );
+
+    await handleTimeEntryCreated(
+      {
+        taskId: "task-1",
+        projectId: "project-1",
+        userId: "user-1",
+        title: "Ship the release",
+        timeEntryId: "entry-1",
+        duration: 5400,
+        billable: true,
+      },
+      {
+        ...enabledContext,
+        config: {
+          ...enabledContext.config,
+          events: { timeEntryCreated: true },
+        },
+      },
+    );
+
+    expect(postToGenericWebhook).toHaveBeenCalledTimes(1);
+    const [, payload] = vi.mocked(postToGenericWebhook).mock.calls[0] ?? [];
+    expect(payload).toMatchObject({
+      event: "time_entry.created",
+      integration: { type: "generic-webhook" },
+      task: { id: "task-1", title: "Ship the release" },
+      actor: { id: "user-1", name: "Andrej" },
+      data: {
+        timeEntryId: "entry-1",
+        duration: 5400,
+        billable: true,
+      },
+    });
   });
 
   it("posts a project-scoped task.deleted envelope when enabled", async () => {

@@ -556,7 +556,9 @@
 			"labels": "Etiketlər",
 			"labelsDescription": "Tapşırıq etiketlərini göstər",
 			"priority": "Prioritet",
-			"priorityDescription": "Prioritet göstəricilərini göstər"
+			"priorityDescription": "Prioritet göstəricilərini göstər",
+			"timeTracking": "Time tracking",
+			"timeTrackingDescription": "Show the time tracked property on tasks and the live timer in the header"
 		},
 		"developerPage": {
 			"pageTitle": "Proqramçı parametrləri",
@@ -1186,7 +1188,8 @@
 				"taskPriorityChanged": "Prioritet dəyişiklikləri",
 				"taskTitleChanged": "Başlıq dəyişiklikləri",
 				"taskDescriptionChanged": "Təsvir dəyişiklikləri",
-				"taskCommentCreated": "Yeni şərhlər"
+				"taskCommentCreated": "Yeni şərhlər",
+				"timeEntryCreated": "Vaxt izlənildi"
 			},
 			"connect": "Slack-ə qoşul",
 			"saveChanges": "Dəyişiklikləri yadda saxla",
@@ -1224,7 +1227,8 @@
 				"taskPriorityChanged": "Prioritet dəyişiklikləri",
 				"taskTitleChanged": "Başlıq dəyişiklikləri",
 				"taskDescriptionChanged": "Təsvir dəyişiklikləri",
-				"taskCommentCreated": "Yeni şərhlər"
+				"taskCommentCreated": "Yeni şərhlər",
+				"timeEntryCreated": "Vaxt izlənildi"
 			},
 			"connect": "Discord-a qoşul",
 			"saveChanges": "Dəyişiklikləri yadda saxla",
@@ -1262,7 +1266,8 @@
 				"taskPriorityChanged": "Prioritet dəyişiklikləri",
 				"taskTitleChanged": "Başlıq dəyişiklikləri",
 				"taskDescriptionChanged": "Təsvir dəyişiklikləri",
-				"taskCommentCreated": "Yeni şərhlər"
+				"taskCommentCreated": "Yeni şərhlər",
+				"timeEntryCreated": "Vaxt izlənildi"
 			},
 			"connect": "Mattermost-a qoşul",
 			"saveChanges": "Dəyişiklikləri yadda saxla",
@@ -1307,7 +1312,8 @@
 				"taskDueDateChanged": "Son tarix dəyişdi",
 				"taskAssigneeChanged": "İcraçı dəyişdi",
 				"taskUnassigned": "Tapşırığın icraçısı çıxarıldı",
-				"dueDateReminder": "Son tarix xatırlatmaları"
+				"dueDateReminder": "Son tarix xatırlatmaları",
+				"timeEntryCreated": "Vaxt izlənildi"
 			},
 			"reminderLeadTimeLabel": "Webhook-u bu qədər saat əvvəl göndər",
 			"connect": "Webhook-a qoşul",
@@ -1354,7 +1360,8 @@
 				"taskPriorityChanged": "Prioritet dəyişiklikləri",
 				"taskTitleChanged": "Başlıq dəyişiklikləri",
 				"taskDescriptionChanged": "Təsvir dəyişiklikləri",
-				"taskCommentCreated": "Yeni şərhlər"
+				"taskCommentCreated": "Yeni şərhlər",
+				"timeEntryCreated": "Vaxt izlənildi"
 			},
 			"connect": "Telegram-a qoşul",
 			"saveChanges": "Dəyişiklikləri yadda saxla",
@@ -1698,9 +1705,9 @@
 				"content": "{{taskTitle}} tapşırığının son tarixi keçib"
 			},
 			"time_entry_created": {
-				"title": "Vaxtın izlənməsi başladı",
-				"contentWithTask": "Tapşırıqda vaxtın izlənməsi başladı: {{taskTitle}}",
-				"contentWithoutTask": "Tapşırıqda vaxtın izlənməsi başladı"
+				"title": "Vaxt izlənildi",
+				"contentWithTask": "Tapşırıqda vaxt izlənildi: {{taskTitle}}",
+				"contentWithoutTask": "Tapşırıqda vaxt izlənildi"
 			}
 		}
 	},
@@ -1817,7 +1824,8 @@
 			},
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
-		}
+		},
+		"trackedTime": "{{duration}} vaxt qeyd etdi"
 	},
 	"tasks": {
 		"title": "Tapşırıqlar",
@@ -1999,7 +2007,8 @@
 			"copyTaskBranch": "Tapşırığın budağını kopyala",
 			"start": "Başlat",
 			"startDate": "Başlama tarixi",
-			"noDate": "Tarix yoxdur"
+			"noDate": "Tarix yoxdur",
+			"timeTracked": "İzlənilən vaxt"
 		},
 		"move": {
 			"title": "Tapşırığı köçür",
@@ -2252,6 +2261,36 @@
 				"deleteRow": "Sətri sil",
 				"deleteTable": "Cədvəli sil"
 			}
+		},
+		"timeTracking": {
+			"billable": "Ödənişli",
+			"currentTimer": "Cari taymer",
+			"deleteEntry": "Vaxt qeydini sil",
+			"deleteEntryConfirm": "Bu vaxt qeydini silmək istəyirsiniz? Bu əməliyyat geri qaytarıla bilməz.",
+			"deleteError": "Vaxt qeydini silmək alınmadı",
+			"description": "Təsvir",
+			"descriptionPlaceholder": "Nə üzərində işlədiniz?",
+			"duration": "Müddət",
+			"endTime": "Son",
+			"logManually": "Vaxtı əl ilə qeyd et",
+			"noEntries": "Hələ vaxt qeydə alınmayıb",
+			"nonBillable": "Ödənişsiz",
+			"restart": "Taymeri yenidən başlat",
+			"save": "Yadda saxla",
+			"start": "Vaxtı izləməyə başla",
+			"startError": "Vaxt izləməsini başlatmaq alınmadı",
+			"startTime": "Başlanğıc",
+			"stop": "Dayandır",
+			"stopError": "Vaxt izləməsini dayandırmaq alınmadı",
+			"switchHere": "Buraya keç",
+			"total": "Cəmi",
+			"trackingElsewhere": "{{taskTitle}} izlənilir",
+			"updateError": "Vaxt qeydini yeniləmək alınmadı",
+			"timeEntries": "Vaxt qeydləri",
+			"timeOnTask": "Bu tapşırığa sərf olunan vaxt",
+			"durationInputPlaceholder": "məs., 1h 20m 50s",
+			"noTimeMatch": "Uyğun vaxt tapılmadı",
+			"loadError": "Vaxt qeydlərini yükləmək mümkün olmadı"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

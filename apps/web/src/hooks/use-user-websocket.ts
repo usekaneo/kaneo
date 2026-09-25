@@ -66,6 +66,11 @@ export function useUserWebSocket() {
           if (message.type === "NOTIFICATION_CREATED") {
             queryClient.invalidateQueries({ queryKey: ["notifications"] });
           }
+          if (message.type === "TIME_ENTRY_UPDATED") {
+            queryClient.invalidateQueries({
+              queryKey: ["time-entries", "running", "me"],
+            });
+          }
         } catch {
           // Ignore malformed messages
         }

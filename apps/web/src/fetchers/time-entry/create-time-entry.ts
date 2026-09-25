@@ -10,12 +10,16 @@ async function createTimeEntry({
   taskId,
   description,
   startTime,
+  endTime,
+  billable,
 }: CreateTimeEntryRequest) {
   const response = await client["time-entry"].$post({
     json: {
       taskId,
       description,
       startTime,
+      endTime,
+      billable,
     },
   });
 

@@ -22,6 +22,7 @@ import type {
   TaskStatusChangedEvent,
   TaskTitleChangedEvent,
   TaskUnassignedEvent,
+  TimeEntryCreatedEvent,
 } from "../types";
 import { postToGenericWebhook } from "./client";
 import type { GenericWebhookConfig, GenericWebhookEventKey } from "./config";
@@ -282,6 +283,30 @@ export async function handleTaskCreated(
       priority: event.priority,
       status: event.status,
       number: event.number,
+    },
+  );
+}
+
+export async function handleTimeEntryCreated(
+  event: TimeEntryCreatedEvent,
+  context: PluginContext,
+): Promise<void> {
+  const config = normalizeGenericWebhookConfig(
+    context.config as GenericWebhookConfig,
+  );
+  if (!isEnabled(config, "timeEntryCreated")) return;
+
+  await sendEvent(
+    config,
+    "time_entry.created",
+    event.taskId,
+    event.projectId,
+    event.userId,
+    {
+      title: event.title,
+      timeEntryId: event.timeEntryId,
+      duration: event.duration,
+      billable: event.billable,
     },
   );
 }

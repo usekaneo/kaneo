@@ -155,18 +155,22 @@ describe("MCP tool catalog", () => {
     expect(lastRequest().url).toBe("http://api.test/api/time-entry/te1");
   });
 
-  it("creates a running time entry when endTime is omitted", async () => {
+  it("creates a closed time entry", async () => {
     await call("create_time_entry", {
       taskId: "t1",
       startTime: "2026-08-10T09:00:00Z",
+      endTime: "2026-08-10T10:00:00Z",
     });
 
     expect(lastRequest()).toMatchObject({
       url: "http://api.test/api/time-entry",
       method: "POST",
-      body: { taskId: "t1", startTime: "2026-08-10T09:00:00Z" },
+      body: {
+        taskId: "t1",
+        startTime: "2026-08-10T09:00:00Z",
+        endTime: "2026-08-10T10:00:00Z",
+      },
     });
-    expect(lastRequest().body).not.toHaveProperty("endTime");
   });
 
   it("updates a time entry", async () => {

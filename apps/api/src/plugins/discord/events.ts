@@ -7,6 +7,7 @@ import {
   userTable,
   workspaceTable,
 } from "../../database/schema";
+import { formatTrackedDuration } from "../format-tracked-duration";
 import type {
   PluginContext,
   TaskCommentCreatedEvent,
@@ -15,6 +16,7 @@ import type {
   TaskPriorityChangedEvent,
   TaskStatusChangedEvent,
   TaskTitleChangedEvent,
+  TimeEntryCreatedEvent,
 } from "../types";
 import { postToDiscord, sanitizeDiscordContent } from "./client";
 import type { DiscordConfig, DiscordEventKey } from "./config";
@@ -229,6 +231,16 @@ export async function handleTaskCreated(
   await runDiscordHandler(context, event, "taskCreated", () => ({
     title: "New task created",
     body: `A new task was added: **${event.title}**`,
+  }));
+}
+
+export async function handleTimeEntryCreated(
+  event: TimeEntryCreatedEvent,
+  context: PluginContext,
+): Promise<void> {
+  await runDiscordHandler(context, event, "timeEntryCreated", () => ({
+    title: "Time tracked",
+    body: `**${formatTrackedDuration(event.duration)}** tracked on **${event.title}**${event.billable ? "" : " (non-billable)"}.`,
   }));
 }
 

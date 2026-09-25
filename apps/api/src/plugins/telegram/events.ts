@@ -8,6 +8,7 @@ import {
   workspaceTable,
 } from "../../database/schema";
 import { safeOutboundError } from "../../utils/outbound-request";
+import { formatTrackedDuration } from "../format-tracked-duration";
 import type {
   PluginContext,
   TaskCommentCreatedEvent,
@@ -16,6 +17,7 @@ import type {
   TaskPriorityChangedEvent,
   TaskStatusChangedEvent,
   TaskTitleChangedEvent,
+  TimeEntryCreatedEvent,
 } from "../types";
 import { postToTelegram } from "./client";
 import type { TelegramConfig, TelegramEventKey } from "./config";
@@ -227,6 +229,16 @@ export async function handleTaskCreated(
   await runTelegramHandler(context, event, "taskCreated", () => ({
     title: "New task created",
     body: `A new task was added: ${event.title}`,
+  }));
+}
+
+export async function handleTimeEntryCreated(
+  event: TimeEntryCreatedEvent,
+  context: PluginContext,
+): Promise<void> {
+  await runTelegramHandler(context, event, "timeEntryCreated", () => ({
+    title: "Time tracked",
+    body: `${formatTrackedDuration(event.duration)} tracked on ${event.title}${event.billable ? "" : " (non-billable)"}.`,
   }));
 }
 

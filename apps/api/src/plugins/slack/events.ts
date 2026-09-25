@@ -6,6 +6,7 @@ import {
   userTable,
   workspaceTable,
 } from "../../database/schema";
+import { formatTrackedDuration } from "../format-tracked-duration";
 import type {
   PluginContext,
   TaskCommentCreatedEvent,
@@ -14,6 +15,7 @@ import type {
   TaskPriorityChangedEvent,
   TaskStatusChangedEvent,
   TaskTitleChangedEvent,
+  TimeEntryCreatedEvent,
 } from "../types";
 import { postToSlack } from "./client";
 import type { SlackConfig, SlackEventKey } from "./config";
@@ -179,6 +181,28 @@ export async function handleTaskCreated(
     config,
     "New task created",
     `A new task was added: *${event.title}*`,
+    data,
+  );
+}
+
+export async function handleTimeEntryCreated(
+  event: TimeEntryCreatedEvent,
+  context: PluginContext,
+): Promise<void> {
+  const config = normalizeSlackConfig(context.config as SlackConfig);
+  if (!isEnabled(config, "timeEntryCreated")) return;
+
+  const data = await getSlackEventData(
+    event.taskId,
+    event.projectId,
+    event.userId,
+  );
+  if (!data) return;
+
+  await sendSlackMessage(
+    config,
+    "Time tracked",
+    `*${formatTrackedDuration(event.duration)}* tracked on *${event.title}*${event.billable ? "" : " (non-billable)"}.`,
     data,
   );
 }

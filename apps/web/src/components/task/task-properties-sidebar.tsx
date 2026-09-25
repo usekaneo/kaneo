@@ -46,6 +46,7 @@ import TaskMovePopover from "./task-move-popover";
 import TaskPriorityPopover from "./task-priority-popover";
 import TaskStartDatePopover from "./task-start-date-popover";
 import TaskStatusPopover from "./task-status-popover";
+import TaskTimeTracker from "./task-time-tracker";
 
 function slugify(text: string | undefined): string {
   if (!text) return "";
@@ -324,6 +325,14 @@ export default function TaskPropertiesSidebar({
                   </Button>
                 </TaskDueDatePopover>
               )}
+              {taskId && (
+                <TaskTimeTracker
+                  taskId={taskId}
+                  taskTitle={task?.title ?? ""}
+                  workspaceId={workspaceId}
+                  compact
+                />
+              )}
             </div>
           </div>
         )}
@@ -514,6 +523,14 @@ export default function TaskPropertiesSidebar({
                       )}
                     </Button>
                   </TaskDueDatePopover>
+                )}
+                {taskId && (
+                  <TaskTimeTracker
+                    taskId={taskId}
+                    taskTitle={task?.title ?? ""}
+                    workspaceId={workspaceId}
+                    compact
+                  />
                 )}
               </div>
             </div>
@@ -707,6 +724,13 @@ export default function TaskPropertiesSidebar({
                       )}
                     </Button>
                   </TaskDueDatePopover>
+                )}
+                {taskId && (
+                  <TaskTimeTracker
+                    taskId={taskId}
+                    taskTitle={task?.title ?? ""}
+                    workspaceId={workspaceId}
+                  />
                 )}
               </div>
             </div>

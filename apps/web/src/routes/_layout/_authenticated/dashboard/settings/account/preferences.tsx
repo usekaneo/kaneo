@@ -369,6 +369,33 @@ function RouteComponent() {
             </div>
             <Switch checked={showPriority} onCheckedChange={setShowPriority} />
           </div>
+
+          {/*
+            Time tracking toggle, parked for now. Display toggles in this app
+            gate properties on outside task views (board cards, list rows),
+            never the details sidebar, and nothing outside renders tracked
+            time yet. Wire this up once totals have a home there (batched
+            totals query or task column). The store field, setter, and i18n
+            keys already exist for that moment.
+          */}
+          {/*
+          <Separator />
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-sm font-medium">
+                {t("settings:preferencesPage.timeTracking")}
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                {t("settings:preferencesPage.timeTrackingDescription")}
+              </p>
+            </div>
+            <Switch
+              checked={showTimeTracking}
+              onCheckedChange={setShowTimeTracking}
+            />
+          </div>
+          */}
         </div>
       </div>
     </div>

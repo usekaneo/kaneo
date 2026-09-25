@@ -556,7 +556,9 @@
 			"labels": "Метки",
 			"labelsDescription": "Показывать метки и теги задач",
 			"priority": "Приоритет",
-			"priorityDescription": "Показывать индикаторы приоритета"
+			"priorityDescription": "Показывать индикаторы приоритета",
+			"timeTracking": "Time tracking",
+			"timeTrackingDescription": "Show the time tracked property on tasks and the live timer in the header"
 		},
 		"developerPage": {
 			"pageTitle": "Настройки разработчика",
@@ -951,7 +953,8 @@
 				"taskPriorityChanged": "Изменения приоритета",
 				"taskTitleChanged": "Изменения названия",
 				"taskDescriptionChanged": "Изменения описания",
-				"taskCommentCreated": "Новые комментарии"
+				"taskCommentCreated": "Новые комментарии",
+				"timeEntryCreated": "Время зафиксировано"
 			},
 			"connect": "Подключить Slack",
 			"saveChanges": "Сохранить изменения",
@@ -989,7 +992,8 @@
 				"taskPriorityChanged": "Изменения приоритета",
 				"taskTitleChanged": "Изменения названия",
 				"taskDescriptionChanged": "Изменения описания",
-				"taskCommentCreated": "Новые комментарии"
+				"taskCommentCreated": "Новые комментарии",
+				"timeEntryCreated": "Время зафиксировано"
 			},
 			"connect": "Подключить Discord",
 			"saveChanges": "Сохранить изменения",
@@ -1034,7 +1038,8 @@
 				"taskDueDateChanged": "Изменен срок выполнения",
 				"taskAssigneeChanged": "Изменен исполнитель",
 				"taskUnassigned": "Назначение снято",
-				"dueDateReminder": "Напоминания о сроках"
+				"dueDateReminder": "Напоминания о сроках",
+				"timeEntryCreated": "Время зафиксировано"
 			},
 			"connect": "Подключить вебхук",
 			"saveChanges": "Сохранить изменения",
@@ -1081,7 +1086,8 @@
 				"taskPriorityChanged": "Изменения приоритета",
 				"taskTitleChanged": "Изменения названия",
 				"taskDescriptionChanged": "Изменения описания",
-				"taskCommentCreated": "Новые комментарии"
+				"taskCommentCreated": "Новые комментарии",
+				"timeEntryCreated": "Время зафиксировано"
 			},
 			"connect": "Подключить Telegram",
 			"saveChanges": "Сохранить изменения",
@@ -1411,7 +1417,8 @@
 				"taskDescriptionChanged": "Description changes",
 				"taskPriorityChanged": "Priority changes",
 				"taskStatusChanged": "Status changes",
-				"taskTitleChanged": "Title changes"
+				"taskTitleChanged": "Title changes",
+				"timeEntryCreated": "Время зафиксировано"
 			},
 			"eventsHint": "Choose which project changes should post to Mattermost.",
 			"eventsTitle": "Event notifications",
@@ -1690,9 +1697,9 @@
 				"content": "Вам назначена задача: {{taskTitle}}"
 			},
 			"time_entry_created": {
-				"title": "Трекинг времени начат",
-				"contentWithTask": "Трекинг времени начат для задачи: {{taskTitle}}",
-				"contentWithoutTask": "Трекинг времени начат для задачи"
+				"title": "Время зафиксировано",
+				"contentWithTask": "Зафиксировано время по задаче: {{taskTitle}}",
+				"contentWithoutTask": "Зафиксировано время по задаче"
 			},
 			"task_mention": {
 				"title": "{{mentionerName}} упомянул вас",
@@ -1839,7 +1846,8 @@
 			"importedBy": "Imported by {{name}}"
 		},
 		"moved": "переместил задачу из «{{from}}» в «{{to}}»",
-		"created": "создал эту задачу"
+		"created": "создал эту задачу",
+		"trackedTime": "зафиксировал {{duration}}"
 	},
 	"tasks": {
 		"title": "Задачи",
@@ -2021,7 +2029,8 @@
 			"copyTaskBranch": "Скопировать ветку задачи",
 			"start": "Начало",
 			"startDate": "Дата начала",
-			"noDate": "Без даты"
+			"noDate": "Без даты",
+			"timeTracked": "Время зафиксировано"
 		},
 		"move": {
 			"title": "Переместить задачу",
@@ -2324,6 +2333,36 @@
 			"title": "Calendar",
 			"today": "Today",
 			"loadError": "Failed to load tasks."
+		},
+		"timeTracking": {
+			"billable": "Оплачиваемое",
+			"currentTimer": "Текущий таймер",
+			"deleteEntry": "Удалить запись времени",
+			"deleteEntryConfirm": "Удалить эту запись времени? Это действие нельзя отменить.",
+			"deleteError": "Не удалось удалить запись времени",
+			"description": "Описание",
+			"descriptionPlaceholder": "Над чем вы работали?",
+			"duration": "Длительность",
+			"endTime": "Окончание",
+			"logManually": "Добавить время вручную",
+			"noEntries": "Время ещё не зафиксировано",
+			"nonBillable": "Неоплачиваемое",
+			"restart": "Перезапустить таймер",
+			"save": "Сохранить",
+			"start": "Начать отслеживание",
+			"startError": "Не удалось начать отслеживание времени",
+			"startTime": "Начало",
+			"stop": "Остановить",
+			"stopError": "Не удалось остановить отслеживание времени",
+			"switchHere": "Переключиться сюда",
+			"total": "Итого",
+			"trackingElsewhere": "Отслеживается {{taskTitle}}",
+			"updateError": "Не удалось обновить запись времени",
+			"timeEntries": "Записи времени",
+			"timeOnTask": "Время на эту задачу",
+			"durationInputPlaceholder": "например, 1h 20m 50s",
+			"noTimeMatch": "Подходящее время не найдено",
+			"loadError": "Не удалось загрузить записи времени"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

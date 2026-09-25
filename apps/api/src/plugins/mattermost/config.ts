@@ -5,6 +5,7 @@ const mattermostWebhookUrlPattern = /^https:\/\/[^\s]+$/;
 
 export const mattermostEventKeys = [
   "taskCreated",
+  "timeEntryCreated",
   "taskStatusChanged",
   "taskPriorityChanged",
   "taskTitleChanged",
@@ -23,6 +24,7 @@ export const mattermostConfigSchema = v.object({
   events: v.optional(
     v.object({
       taskCreated: v.optional(v.boolean()),
+      timeEntryCreated: v.optional(v.boolean()),
       taskStatusChanged: v.optional(v.boolean()),
       taskPriorityChanged: v.optional(v.boolean()),
       taskTitleChanged: v.optional(v.boolean()),
@@ -36,6 +38,7 @@ export type MattermostConfig = v.InferOutput<typeof mattermostConfigSchema>;
 
 export const defaultMattermostEvents: Record<MattermostEventKey, boolean> = {
   taskCreated: true,
+  timeEntryCreated: false,
   taskStatusChanged: true,
   taskPriorityChanged: false,
   taskTitleChanged: false,

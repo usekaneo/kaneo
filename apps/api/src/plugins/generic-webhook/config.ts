@@ -9,6 +9,7 @@ export async function assertPublicWebhookDestination(
 
 export const genericWebhookEventKeys = [
   "taskCreated",
+  "timeEntryCreated",
   "taskStatusChanged",
   "taskPriorityChanged",
   "taskTitleChanged",
@@ -53,6 +54,7 @@ export const genericWebhookConfigSchema = v.object({
   events: v.optional(
     v.object({
       taskCreated: v.optional(v.boolean()),
+      timeEntryCreated: v.optional(v.boolean()),
       taskStatusChanged: v.optional(v.boolean()),
       taskPriorityChanged: v.optional(v.boolean()),
       taskTitleChanged: v.optional(v.boolean()),
@@ -80,6 +82,7 @@ export const defaultGenericWebhookEvents: Record<
   boolean
 > = {
   taskCreated: true,
+  timeEntryCreated: false,
   taskStatusChanged: true,
   taskPriorityChanged: false,
   taskTitleChanged: false,
