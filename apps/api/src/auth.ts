@@ -68,6 +68,7 @@ import {
   assertUserRegistrationAllowed,
   normalizeInvitationId,
 } from "./utils/registration-policy";
+import { queueSignInEmail } from "./utils/sign-in-email-tasks";
 import { authCaptchaPaths, verifyTurnstile } from "./utils/verify-turnstile";
 
 config();
@@ -285,7 +286,7 @@ export const auth = betterAuth({
     magicLink({
       disableSignUp: isPasswordRegistrationDisabled,
       sendMagicLink: async ({ email, url }) => {
-        try {
+        queueSignInEmail(async () => {
           if (!(await shouldDeliverSignInEmail(email))) {
             return;
           }
@@ -295,9 +296,7 @@ export const auth = betterAuth({
             magicLink: url,
             locale,
           });
-        } catch (error) {
-          console.error(error);
-        }
+        });
       },
     }),
     ...(isEmailOtpSignInDisabled
@@ -308,14 +307,16 @@ export const auth = betterAuth({
             disableSignUp: isPasswordRegistrationDisabled,
             async sendVerificationOTP({ email, otp, type }) {
               if (type === "sign-in") {
-                if (!(await shouldDeliverSignInEmail(email))) {
-                  return;
-                }
-                const locale = await getUserLocale(email);
-                const copy = getAuthEmailCopy(locale);
-                await sendOtpEmail(email, copy.otpSubject, {
-                  otp,
-                  locale,
+                queueSignInEmail(async () => {
+                  if (!(await shouldDeliverSignInEmail(email))) {
+                    return;
+                  }
+                  const locale = await getUserLocale(email);
+                  const copy = getAuthEmailCopy(locale);
+                  await sendOtpEmail(email, copy.otpSubject, {
+                    otp,
+                    locale,
+                  });
                 });
               }
             },

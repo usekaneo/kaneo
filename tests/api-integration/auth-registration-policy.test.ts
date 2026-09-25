@@ -6,6 +6,7 @@ import { createApp } from "../../apps/api/src/index";
 import getInstanceStatus from "../../apps/api/src/instance/controllers/get-instance-status";
 import { promoteInitialAdministrator } from "../../apps/api/src/utils/instance-bootstrap";
 import { assertUserRegistrationAllowed } from "../../apps/api/src/utils/registration-policy";
+import { drainSignInEmails } from "../../apps/api/src/utils/sign-in-email-tasks";
 import { resetTestDatabase } from "./helpers/database";
 import { createWorkspaceMember } from "./helpers/fixtures";
 
@@ -13,16 +14,19 @@ const headers = {
   "content-type": "application/json",
   Origin: "http://localhost:5173",
 };
-function post(
+async function post(
   path: string,
   body: unknown,
   extraHeaders: Record<string, string> = {},
+  waitForEmail = true,
 ) {
-  return createApp().app.request(`/api/auth${path}`, {
+  const response = await createApp().app.request(`/api/auth${path}`, {
     method: "POST",
     headers: { ...headers, ...extraHeaders },
     body: JSON.stringify(body),
   });
+  if (waitForEmail) await drainSignInEmails();
+  return response;
 }
 function signup(email: string, extraHeaders?: Record<string, string>) {
   return post(
@@ -307,6 +311,59 @@ describe("auth registration and bootstrap boundaries", () => {
     expect(recipients(sendOtp)).toEqual(expectedRecipients);
     expect(recipients(sendMagicLink)).toEqual(expectedRecipients);
   });
+
+  it.each([
+    ["/email-otp/send-verification-otp", "sendOtpEmail"],
+    ["/sign-in/magic-link", "sendMagicLinkEmail"],
+  ] as const)(
+    "returns from %s without waiting for SMTP",
+    async (path, method) => {
+      const member = await createWorkspaceMember();
+      const invite = await invitation("timing-invitee@example.com");
+      vi.stubEnv("DISABLE_REGISTRATION", "true");
+      let releaseDelivery!: () => void;
+      const blockedDelivery = new Promise<void>((resolve) => {
+        releaseDelivery = resolve;
+      });
+      const send = vi.spyOn(email, method).mockReturnValue(blockedDelivery);
+      const responses: { status: number; body: unknown }[] = [];
+      const requests: Promise<Response>[] = [];
+
+      try {
+        for (const address of [
+          member.user.email,
+          invite.email,
+          "unknown@example.com",
+        ]) {
+          const request = post(
+            path,
+            { email: address, type: "sign-in" },
+            {},
+            false,
+          );
+          requests.push(request);
+          void request.then(async (response) => {
+            responses.push({
+              status: response.status,
+              body: await response.json(),
+            });
+          });
+        }
+        // The SMTP promise stays unresolved until all three HTTP responses arrive.
+        await vi.waitFor(() => expect(responses).toHaveLength(3));
+        expect(responses[0].status).toBe(200);
+        expect(responses).toEqual([responses[0], responses[0], responses[0]]);
+        await vi.waitFor(() => expect(send).toHaveBeenCalledTimes(2));
+        expect(send.mock.calls.map(([address]) => address).sort()).toEqual(
+          [member.user.email, invite.email].sort(),
+        );
+      } finally {
+        releaseDelivery();
+        await Promise.all(requests);
+        await drainSignInEmails();
+      }
+    },
+  );
 
   it("stores a five-minute OTP expiry and rejects an expired code", async () => {
     const member = await createWorkspaceMember();
