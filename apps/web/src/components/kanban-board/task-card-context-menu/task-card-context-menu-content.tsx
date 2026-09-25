@@ -12,6 +12,7 @@ import {
   ContextMenuSubContent,
   ContextMenuSubTrigger,
 } from "@/components/ui/context-menu";
+import { useDuplicateTask } from "@/hooks/mutations/task/use-duplicate-task";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useUpdateTaskAssignee } from "@/hooks/mutations/task/use-update-task-assignee";
 import { useUpdateTaskDescription } from "@/hooks/mutations/task/use-update-task-description";
@@ -74,8 +75,12 @@ export default function TaskCardContextMenuContent({
   const { mutateAsync: updateTaskTitle } = useUpdateTaskTitle();
   const { mutateAsync: updateTaskDescription } = useUpdateTaskDescription();
   const { mutateAsync: updateTaskDueDate } = useUpdateTaskDueDate();
-  const { canManageTasks, canAssignTasks } = useWorkspacePermission();
-  const canEdit = canManageTasks();
+  const { mutate: duplicateTask } = useDuplicateTask();
+  const { canCreateTasks, canUpdateTasks, canDeleteTasks, canAssignTasks } =
+    useWorkspacePermission();
+  const canCreate = canCreateTasks();
+  const canEdit = canUpdateTasks();
+  const canDelete = canDeleteTasks();
   const canAssign = canAssignTasks();
 
   const usersOptions = useMemo(() => {
@@ -93,6 +98,13 @@ export default function TaskCardContextMenuContent({
 
     navigator.clipboard.writeText(taskLink);
     toast.success(t("tasks:contextMenu.copyLinkSuccess"));
+  };
+
+  const handleDuplicateTask = () => {
+    duplicateTask({
+      taskId: task.id,
+      title: t("tasks:duplicate.titleSuffix", { title: task.title }),
+    });
   };
 
   const handleChange = async (field: keyof Task, value: string | Date) => {
@@ -293,31 +305,54 @@ export default function TaskCardContextMenuContent({
         </ContextMenuSub>
       )}
 
-      {canEdit && (
+      {(canCreate || canEdit || canDelete) && (
         <>
-          <ContextMenuSeparator />
+          {(canCreate || canEdit) && (
+            <>
+              <ContextMenuSeparator />
 
-          <ContextMenuItem onClick={() => handleChange("status", "archived")}>
-            <span>{t("tasks:actions.archive")}</span>
-          </ContextMenuItem>
+              {canCreate && (
+                <ContextMenuItem onClick={handleDuplicateTask}>
+                  <span>{t("tasks:actions.duplicate")}</span>
+                </ContextMenuItem>
+              )}
 
-          <ContextMenuItem onClick={() => handleChange("status", "planned")}>
-            <span>{t("tasks:actions.markAsPlanned")}</span>
-          </ContextMenuItem>
+              {canEdit && (
+                <>
+                  <ContextMenuItem
+                    onClick={() => handleChange("status", "archived")}
+                  >
+                    <span>{t("tasks:actions.archive")}</span>
+                  </ContextMenuItem>
+                  {task.status !== "planned" && (
+                    <ContextMenuItem
+                      onClick={() => handleChange("status", "planned")}
+                    >
+                      <span>{t("tasks:actions.markAsPlanned")}</span>
+                    </ContextMenuItem>
+                  )}
+                </>
+              )}
+            </>
+          )}
 
-          <ContextMenuSeparator />
+          {canDelete && (
+            <>
+              <ContextMenuSeparator />
 
-          <ContextMenuItem
-            className="text-destructive"
-            onClick={(e) => {
-              e.preventDefault();
-              setTimeout(() => {
-                onDeleteClick();
-              }, 0);
-            }}
-          >
-            <span>{t("tasks:actions.delete")}</span>
-          </ContextMenuItem>
+              <ContextMenuItem
+                className="text-destructive"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setTimeout(() => {
+                    onDeleteClick();
+                  }, 0);
+                }}
+              >
+                <span>{t("tasks:actions.delete")}</span>
+              </ContextMenuItem>
+            </>
+          )}
         </>
       )}
     </ContextMenuContent>

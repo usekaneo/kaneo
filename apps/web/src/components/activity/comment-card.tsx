@@ -35,6 +35,7 @@ type CommentCardProps = {
     image?: string | null;
   } | null;
   createdAt: string;
+  importedBy?: string;
   externalSource?: string | null;
   externalUrl?: string | null;
 };
@@ -47,6 +48,7 @@ export default function CommentCard({
   createdAt,
   externalSource,
   externalUrl,
+  importedBy,
 }: CommentCardProps) {
   const { t } = useTranslation();
   const { user: currentUser } = useAuth();
@@ -58,6 +60,16 @@ export default function CommentCard({
   const queryClient = useQueryClient();
 
   const canEdit = currentUser?.id === user?.id;
+  const sourceName =
+    externalSource === "github"
+      ? "GitHub"
+      : externalSource === "planka"
+        ? "Planka"
+        : externalSource === "trello"
+          ? "Trello"
+          : externalSource === "jira"
+            ? "Jira"
+            : externalSource;
   const isFromGitHub = externalSource === "github";
   const githubProfileUrl =
     isFromGitHub && user?.name ? `https://github.com/${user.name}` : null;
@@ -111,7 +123,7 @@ export default function CommentCard({
   return (
     <TooltipProvider>
       <div className="group relative w-full rounded-xl border border-border/80 bg-card/60">
-        <div className="flex items-center gap-2 px-3 pt-2.5">
+        <div className="flex flex-wrap items-center gap-2 px-3 pt-2.5">
           <HoverCard>
             <HoverCardTrigger>
               <div className="flex cursor-pointer items-center gap-2">
@@ -167,6 +179,13 @@ export default function CommentCard({
             </HoverCardContent>
           </HoverCard>
 
+          {sourceName && (
+            <span className="rounded border px-1.5 py-0.5 text-xs text-muted-foreground">
+              {t("activity:comment.importedFrom", { source: sourceName })}
+              {importedBy &&
+                ` · ${t("activity:comment.importedBy", { name: importedBy })}`}
+            </span>
+          )}
           <Tooltip>
             <TooltipTrigger asChild>
               <button

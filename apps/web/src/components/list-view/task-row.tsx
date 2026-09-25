@@ -36,10 +36,10 @@ import {
   getDueDateStatus,
   isTaskCompleted,
 } from "@/lib/due-date-status";
+import { getExternalWebUrl, openExternalWebUrl } from "@/lib/external-url";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
-import queryClient from "@/query-client";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
@@ -93,7 +93,9 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
 
   const pullRequests = useMemo(() => {
     return (task.externalLinks ?? []).filter(
-      (link) => link.resourceType === "pull_request",
+      (link) =>
+        link.resourceType === "pull_request" &&
+        getExternalWebUrl(link.url) !== null,
     );
   }, [task.externalLinks]);
 
@@ -165,15 +167,11 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
   const handleDeleteTask = async () => {
     try {
       await deleteTask(task.id);
-      queryClient.invalidateQueries({
-        queryKey: ["tasks", project?.id],
-      });
+      toast.success(t("tasks:delete.success"));
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : t("tasks:delete.error"),
       );
-    } finally {
-      toast.success(t("tasks:delete.success"));
     }
   };
 
@@ -228,7 +226,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            window.open(pullRequests[0].url, "_blank");
+                            openExternalWebUrl(pullRequests[0].url);
                           }}
                           className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-sidebar text-[10px] font-medium text-muted-foreground"
                         >
@@ -306,9 +304,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
                                   )}
                                   <button
                                     type="button"
-                                    onClick={() =>
-                                      window.open(pr.url, "_blank")
-                                    }
+                                    onClick={() => openExternalWebUrl(pr.url)}
                                     className="w-full px-2 py-1.5 text-left hover:bg-muted/50 rounded transition-colors"
                                   >
                                     <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">

@@ -8,6 +8,8 @@ import {
   CalendarX,
   GitMerge,
   GitPullRequest,
+  SlidersHorizontal,
+  SquareCheck,
 } from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -21,29 +23,32 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/preview-card";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
+import useGetCustomFieldValuesByProject from "@/hooks/queries/custom-field/use-get-custom-field-values-by-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import { cn } from "@/lib/cn";
 import {
   dueDateStatusColors,
   getDueDateStatus,
   isTaskCompleted,
 } from "@/lib/due-date-status";
+import { getExternalWebUrl, openExternalWebUrl } from "@/lib/external-url";
 import { getInitials } from "@/lib/get-initials";
+import { getTaskItemStats } from "@/lib/get-task-item-stats";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
-import queryClient from "@/query-client";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
-import { Button } from "../ui/button";
-import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
 import TaskCardContextMenuContent from "./task-card-context-menu/task-card-context-menu-content";
 import { TaskLabels } from "./task-labels";
 
@@ -73,15 +78,25 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
     showDueDates,
     showLabels,
     showTaskNumbers,
+    showTaskItemCounts,
   } = useUserPreferencesStore();
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
   const { toggleSelection, isSelected, isFocused } = useBulkSelectionStore();
   const isTaskSelected = isSelected(task.id);
   const isTaskFocused = isFocused(task.id);
+  const taskItemStats = useMemo(
+    () =>
+      showTaskItemCounts && !task.descriptionDeferred
+        ? getTaskItemStats(task.description)
+        : null,
+    [task.description, task.descriptionDeferred, showTaskItemCounts],
+  );
 
   const pullRequests = useMemo(() => {
     return (task.externalLinks ?? []).filter(
-      (link) => link.resourceType === "pull_request",
+      (link) =>
+        link.resourceType === "pull_request" &&
+        getExternalWebUrl(link.url) !== null,
     );
   }, [task.externalLinks]);
 
@@ -111,6 +126,25 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
       statusClass: "text-success-foreground",
     };
   };
+
+  const { data: projectCustomFieldValues = [] } =
+    useGetCustomFieldValuesByProject(task.projectId);
+
+  const customFieldValues = useMemo(
+    () =>
+      projectCustomFieldValues
+        .filter((field) => field.taskId === task.id)
+        .sort((a, b) => a.fieldPosition - b.fieldPosition),
+    [projectCustomFieldValues, task.id],
+  );
+
+  const activeCustomFieldValues = useMemo(
+    () =>
+      customFieldValues.filter(
+        (field) => field.value !== null && field.value !== "",
+      ),
+    [customFieldValues],
+  );
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -166,15 +200,11 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
   const handleDeleteTask = async () => {
     try {
       await deleteTask(task.id);
-      queryClient.invalidateQueries({
-        queryKey: ["tasks", project?.id],
-      });
+      toast.success(t("tasks:delete.success"));
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : t("tasks:delete.error"),
       );
-    } finally {
-      toast.success(t("tasks:delete.success"));
     }
   };
 
@@ -237,7 +267,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
 
             <div className="mb-2.5 pr-6">
               <div
-                className="overflow-hidden break-words text-sm leading-5 font-medium text-foreground/95"
+                className="overflow-hidden break-words leading-5 font-medium text-foreground/95 text-[15px]"
                 style={{
                   display: "-webkit-box",
                   WebkitLineClamp: 3,
@@ -258,14 +288,76 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
 
             <div className="flex items-center gap-1.5">
               {showPriority && (
-                <span className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground">
+                <span className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground h-5.5">
                   {getPriorityIcon(task.priority ?? "")}
+                </span>
+              )}
+
+              {activeCustomFieldValues.length > 0 && (
+                <HoverCard openDelay={200} closeDelay={100}>
+                  <HoverCardTrigger asChild>
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground cursor-default focus:outline-none focus:ring-2 focus:ring-ring/50 focus:ring-offset-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                      }}
+                      onPointerDown={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                      }}
+                      aria-label={t("tasks:customFields.ariaLabel", {
+                        count: activeCustomFieldValues.length,
+                      })}
+                    >
+                      <SlidersHorizontal className="w-3 h-3" />
+                      <span>{activeCustomFieldValues.length}</span>
+                    </button>
+                  </HoverCardTrigger>
+                  <HoverCardContent
+                    className="w-fit p-2.5"
+                    side="bottom"
+                    onClick={(e) => e.stopPropagation()}
+                    onPointerDown={(e) => e.stopPropagation()}
+                  >
+                    <div className="space-y-1.5">
+                      {activeCustomFieldValues.map((field) => (
+                        <div
+                          key={field.id}
+                          className="flex items-center justify-between gap-2 text-xs"
+                        >
+                          <span className="font-medium text-muted-foreground truncate">
+                            {field.fieldName}
+                          </span>
+                          <span className="text-foreground truncate max-w-24">
+                            {field.value}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+              )}
+
+              {taskItemStats && taskItemStats.total > 0 && (
+                <span
+                  className={cn(
+                    "flex items-center gap-1 text-[10px] px-2 py-1 rounded bg-muted/50 text-muted-foreground h-5.5",
+                    {
+                      "bg-success/10 text-success-foreground":
+                        taskItemStats.completed === taskItemStats.total,
+                    },
+                  )}
+                >
+                  <SquareCheck className="h-[12px] w-[12px]" />
+                  {taskItemStats.completed}/{taskItemStats.total}
                 </span>
               )}
 
               {showDueDates && task.dueDate && (
                 <div
-                  className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded ${dueDateStatusColors[getDueDateStatus(task.dueDate, taskIsCompleted)]}`}
+                  className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded h-5.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate, taskIsCompleted)]}`}
                 >
                   {getDueDateStatus(task.dueDate, taskIsCompleted) ===
                     "overdue" && <CalendarX className="w-3 h-3" />}
@@ -286,7 +378,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        window.open(pullRequests[0].url, "_blank");
+                        openExternalWebUrl(pullRequests[0].url);
                       }}
                       className="inline-flex items-center gap-1.5 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground"
                     >
@@ -364,7 +456,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                               )}
                               <button
                                 type="button"
-                                onClick={() => window.open(pr.url, "_blank")}
+                                onClick={() => openExternalWebUrl(pr.url)}
                                 className="w-full px-2 py-1.5 text-left hover:bg-muted/50 rounded transition-colors"
                               >
                                 <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">

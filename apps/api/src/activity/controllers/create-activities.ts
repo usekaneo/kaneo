@@ -8,9 +8,12 @@ type NewActivity = typeof activityTable.$inferInsert;
 // to be chunked rather than sent as one statement.
 const INSERT_CHUNK_SIZE = 500;
 
-async function createActivities(activities: NewActivity[]) {
+async function createActivities(
+  activities: NewActivity[],
+  database: Pick<typeof db, "insert"> = db,
+) {
   for (let index = 0; index < activities.length; index += INSERT_CHUNK_SIZE) {
-    await db
+    await database
       .insert(activityTable)
       .values(activities.slice(index, index + INSERT_CHUNK_SIZE));
   }

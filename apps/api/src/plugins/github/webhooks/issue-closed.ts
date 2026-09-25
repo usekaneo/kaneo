@@ -7,6 +7,7 @@ import {
   findAllIntegrationsByRepo,
   updateTaskStatus,
 } from "../services/task-service";
+import { parseLinkMetadata } from "../utils/parse-link-metadata";
 import { resolveTargetStatus } from "../utils/resolve-column";
 
 type IssueClosedPayload = {
@@ -17,7 +18,9 @@ type IssueClosedPayload = {
     html_url: string;
     state: string;
   };
+  installation?: { id: number };
   repository: {
+    id: number;
     owner: { login: string };
     name: string;
     full_name: string;
@@ -25,12 +28,9 @@ type IssueClosedPayload = {
 };
 
 export async function handleIssueClosed(payload: IssueClosedPayload) {
-  const { issue, repository } = payload;
+  const { issue } = payload;
 
-  const integrations = await findAllIntegrationsByRepo(
-    repository.owner.login,
-    repository.name,
-  );
+  const integrations = await findAllIntegrationsByRepo(payload);
 
   for (const integration of integrations) {
     const externalLink = await db.query.externalLinkTable.findFirst({
@@ -53,9 +53,10 @@ export async function handleIssueClosed(payload: IssueClosedPayload) {
       continue;
     }
 
-    const existingMetadata = externalLink.metadata
-      ? JSON.parse(externalLink.metadata)
-      : {};
+    const existingMetadata = parseLinkMetadata(externalLink.metadata, {
+      externalLinkId: externalLink.id,
+      source: "issue_closed",
+    });
 
     if (existingMetadata.createdFrom === "kaneo") {
       continue;
@@ -90,7 +91,5 @@ export async function handleIssueClosed(payload: IssueClosedPayload) {
         state: "closed",
       },
     });
-
-    return;
   }
 }

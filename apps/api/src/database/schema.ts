@@ -13,6 +13,7 @@ import {
   unique,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import type { GitHubImportState } from "../github-integration/import-state";
 
 const bytea = customType<{ data: Buffer; driverData: Buffer }>({
   dataType() {
@@ -423,7 +424,7 @@ export const taskTable = pgTable(
       onDelete: "set null",
       onUpdate: "cascade",
     }),
-    priority: text("priority").default("low"),
+    priority: text("priority").default("low").notNull(),
     startDate: timestamp("start_date", { mode: "date" }),
     dueDate: timestamp("due_date", { mode: "date" }),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
@@ -476,6 +477,12 @@ export const billingReminderSentTable = pgTable(
     ),
   ],
 );
+
+export const jobLeaseTable = pgTable("job_lease", {
+  name: text("name").primaryKey(),
+  owner: text("owner").notNull(),
+  expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+});
 
 export const taskReminderSentTable = pgTable(
   "task_reminder_sent",
@@ -637,6 +644,7 @@ export const labelTable = pgTable(
       .defaultNow()
       .$onUpdate(() => new Date())
       .notNull(),
+    deletionStartedAt: timestamp("deletion_started_at", { mode: "date" }),
     taskId: text("task_id").references(() => taskTable.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
@@ -649,6 +657,9 @@ export const labelTable = pgTable(
   (table) => [
     index("label_task_id_idx").on(table.taskId),
     index("label_workspace_id_idx").on(table.workspaceId),
+    index("label_workspace_cascade_idx")
+      .on(table.workspaceId, table.name, table.createdAt, table.id)
+      .where(sql`${table.taskId} is not null`),
     unique("label_task_name_unique").on(table.taskId, table.name),
     uniqueIndex("label_workspace_name_unique")
       .on(table.workspaceId, table.name)
@@ -886,6 +897,23 @@ export const integrationTable = pgTable(
   ],
 );
 
+export const githubImportTable = pgTable("github_import", {
+  integrationId: text("integration_id")
+    .primaryKey()
+    .references(() => integrationTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  runId: text("run_id")
+    .notNull()
+    .$defaultFn(() => createId()),
+  state: jsonb("state").$type<GitHubImportState>().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .defaultNow()
+    .notNull()
+    .$onUpdate(() => new Date()),
+});
+
 export const externalLinkTable = pgTable(
   "external_link",
   {
@@ -898,12 +926,13 @@ export const externalLinkTable = pgTable(
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
-    integrationId: text("integration_id")
-      .notNull()
-      .references(() => integrationTable.id, {
+    integrationId: text("integration_id").references(
+      () => integrationTable.id,
+      {
         onDelete: "cascade",
         onUpdate: "cascade",
-      }),
+      },
+    ),
     resourceType: text("resource_type").notNull(),
     externalId: text("external_id").notNull(),
     url: text("url").notNull(),
@@ -1170,4 +1199,66 @@ export const organizationRoleRelations = relations(
       references: [workspace.id],
     }),
   }),
+);
+
+export const customFieldDefinitionTable = pgTable(
+  "custom_field_definition",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projectTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    name: text("name").notNull(),
+    type: text("type").notNull(), // 'text' | 'number' | 'date' | 'dropdown' | 'boolean'
+    required: boolean("required").default(false).notNull(),
+    defaultValue: text("default_value"),
+    options: jsonb("options"),
+    position: integer("position").default(0).notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [index("custom_field_def_projectId_idx").on(table.projectId)],
+);
+
+export const customFieldValueTable = pgTable(
+  "custom_field_value",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    taskId: text("task_id")
+      .notNull()
+      .references(() => taskTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    fieldId: text("field_id")
+      .notNull()
+      .references(() => customFieldDefinitionTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    value: text("value"),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("custom_field_value_taskId_idx").on(table.taskId),
+    index("custom_field_value_fieldId_idx").on(table.fieldId),
+    unique("custom_field_value_task_field_unique").on(
+      table.taskId,
+      table.fieldId,
+    ),
+  ],
 );

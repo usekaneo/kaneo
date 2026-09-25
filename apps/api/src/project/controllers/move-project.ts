@@ -15,11 +15,13 @@ import {
   assetTable,
   labelTable,
   projectTable,
+  taskRelationTable,
   taskTable,
   userNotificationWorkspaceProjectTable,
   workspaceUserTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { closeProjectConnections } from "../../ws";
 
 async function moveProject(
   id: string,
@@ -34,6 +36,13 @@ async function moveProject(
   }
 
   const { movedProject, unassignedTasks } = await db.transaction(async (tx) => {
+    // Use a stable order for both workspaces before locking the project row.
+    // This also keeps source reorders from updating a project after it moves.
+    for (const workspaceId of [sourceWorkspaceId, targetWorkspaceId].sort()) {
+      await tx.execute(
+        sql`SELECT pg_advisory_xact_lock(1524, hashtext(${workspaceId}))`,
+      );
+    }
     // Locked for the life of the transaction: the request was authorized
     // against the source workspace, so a concurrent move would invalidate that
     // basis while this one is still deciding what side data to rewrite.
@@ -54,16 +63,6 @@ async function moveProject(
           "Project doesn't exist or doesn't belong to the specified workspace",
       });
     }
-
-    // Serializes this move against creates, reorders, and other moves landing
-    // in the target: without it the key check below and the `max(position)`
-    // read further down are both read-then-write races. `createProject` and
-    // `reorderProjects` take the same lock with the same key. Only the target
-    // is locked — the source merely ends up with a gap, the same as a delete —
-    // so two moves in opposite directions can't deadlock on each other.
-    await tx.execute(
-      sql`SELECT pg_advisory_xact_lock(1524, hashtext(${targetWorkspaceId}))`,
-    );
 
     // The key doubles as the ticket-id prefix (KAN-12), and short-id lookup
     // resolves it per workspace with a limit of 1. Two projects sharing a key
@@ -88,6 +87,20 @@ async function moveProject(
         message: `The target workspace already has a project using the key "${existingProject.slug}" (${keyConflict.name}). Change this project's key before moving it.`,
       });
     }
+
+    const linked = await tx.execute(sql`
+      SELECT 1 FROM ${taskRelationTable} relation
+      JOIN ${taskTable} source ON source.id = relation.source_task_id
+      JOIN ${taskTable} target ON target.id = relation.target_task_id
+      WHERE (source.project_id = ${id} AND target.project_id <> ${id})
+         OR (target.project_id = ${id} AND source.project_id <> ${id})
+      LIMIT 1
+    `);
+    if (linked.rows.length)
+      throw new HTTPException(409, {
+        message:
+          "Remove task relationships to other projects before moving this project.",
+      });
 
     // These rows point at both the project and a notification rule via
     // composite foreign keys carrying workspace_id. Updating the project's
@@ -208,29 +221,24 @@ async function moveProject(
         ),
       );
 
-    return { movedProject, unassignedTasks: unassigned };
-  });
-
-  // Written after the transaction commits, so a rollback can't leave behind
-  // activity for a move that never happened.
-  //
-  // Not one `task.unassigned` event per task: unlike a bulk assignee change,
-  // this set isn't a client-supplied batch but every task in the project.
-  // `publishEvent` is a synchronous emit into detached async subscribers, so a
-  // project-sized loop would fire that many activity inserts, webhook
-  // deliveries, and board broadcasts in a single tick. The history is written
-  // as chunked bulk inserts instead, and clients get one refresh.
-  if (unassignedTasks.length > 0) {
+    // Keep history atomic with the move while bounding each insert's size.
     await createActivities(
-      unassignedTasks.map((task) => ({
+      unassigned.map((task) => ({
         taskId: task.id,
         type: "unassigned",
         userId: currentUserId,
         content: null,
         eventData: {},
       })),
+      tx,
     );
 
+    return { movedProject, unassignedTasks: unassigned };
+  });
+
+  await closeProjectConnections(id);
+
+  if (unassignedTasks.length > 0) {
     await publishEvent("task.bulk_unassigned", {
       projectId: id,
       userId: currentUserId,

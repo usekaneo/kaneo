@@ -9,6 +9,7 @@ import {
   findTaskById,
   updateTaskStatus,
 } from "../services/task-service";
+import { parseLinkMetadata } from "../utils/parse-link-metadata";
 import { resolveTargetStatus } from "../utils/resolve-column";
 
 type PRClosedPayload = {
@@ -24,19 +25,18 @@ type PRClosedPayload = {
       ref: string;
     };
   };
+  installation?: { id: number };
   repository: {
+    id: number;
     owner: { login: string };
     name: string;
   };
 };
 
 export async function handlePullRequestClosed(payload: PRClosedPayload) {
-  const { pull_request, repository } = payload;
+  const { pull_request } = payload;
 
-  const integrations = await findAllIntegrationsByRepo(
-    repository.owner.login,
-    repository.name,
-  );
+  const integrations = await findAllIntegrationsByRepo(payload);
 
   for (const integration of integrations) {
     const config = JSON.parse(integration.config) as GitHubConfig;
@@ -59,9 +59,10 @@ export async function handlePullRequestClosed(payload: PRClosedPayload) {
       continue;
     }
 
-    const existingMetadata = externalLink.metadata
-      ? JSON.parse(externalLink.metadata)
-      : {};
+    const existingMetadata = parseLinkMetadata(externalLink.metadata, {
+      externalLinkId: externalLink.id,
+      source: "pull_request_closed",
+    });
 
     await updateExternalLink(externalLink.id, {
       metadata: {
@@ -82,7 +83,10 @@ export async function handlePullRequestClosed(payload: PRClosedPayload) {
 
       const hasOpenPRs = allTaskPRs.some((pr) => {
         if (pr.id === externalLink.id) return false;
-        const metadata = pr.metadata ? JSON.parse(pr.metadata) : {};
+        const metadata = parseLinkMetadata(pr.metadata, {
+          externalLinkId: pr.id,
+          source: "pull_request_closed",
+        });
         return metadata.state === "open";
       });
 

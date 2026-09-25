@@ -38,7 +38,13 @@ afterEach(() => {
 });
 
 function trackAdd(projectId: string, userId: string, initiatorId: string) {
-  const conn = addConnection(projectId, makeFakeWs(), userId, initiatorId);
+  const conn = addConnection(
+    projectId,
+    makeFakeWs(),
+    userId,
+    initiatorId,
+    "workspace",
+  );
   tracked.push({ projectId, conn });
   return conn;
 }
@@ -46,13 +52,14 @@ function trackAdd(projectId: string, userId: string, initiatorId: string) {
 describe("addConnection / removeConnection", () => {
   it("returns a ProjectConnection object with the provided values", () => {
     const ws = makeFakeWs();
-    const conn = addConnection("proj-1", ws, "user-1", "init-1");
+    const conn = addConnection("proj-1", ws, "user-1", "init-1", "workspace");
     tracked.push({ projectId: "proj-1", conn });
 
     expect(conn).toEqual({
       ws,
       userId: "user-1",
       initiatorId: "init-1",
+      workspaceId: "workspace",
     });
   });
 

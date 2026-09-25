@@ -1,0 +1,204 @@
+{
+	"version": 2,
+	"organization": "kaneo",
+	"region": "de",
+	"api_base": "https://de.sentry.io/api/0",
+	"_comment_actions": "Actions are intentionally minimal. After the script applies this config, configure per-alert notifications in the Sentry UI (Settings > Alerts). Recommended: Slack #engineering or email on-call.",
+	"_comment_condition_result": "The Sentry API requires `conditionResult` on every condition. For issue alerts it's a boolean (true fires). For metric alerts it maps to issue priority: 75 = high, 50 = low, 0 = resolved.",
+	"_comment_event_types": "dataSources need `eventTypes`. Errors: [\"default\", \"error\"]. Transactions: [\"trace_item_span\"].",
+	"_comment_condition_group": "Detectors need a top-level `conditionGroup` defining the threshold (gt/lte/anomaly_detection).",
+	"_comment_dataset": "Sentry is migrating transaction-based alerts away from `dataset: transactions`. Use `dataset: events_analytics_platform` (with `is_transaction:true` in the query) for transaction-based metrics.",
+	"alerts": [
+		{
+			"name": "Kaneo API: New issue",
+			"description": "First time a new issue is seen in kaneo-api. Triages everything that isn't yet bucketed.",
+			"kind": "issue",
+			"projects": ["kaneo-api"],
+			"workflow": {
+				"name": "Kaneo API: New issue",
+				"enabled": true,
+				"triggers": {
+					"logicType": "any-short",
+					"conditions": [
+						{
+							"type": "first_seen_event",
+							"comparison": true,
+							"conditionResult": true
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Kaneo API: New error spike",
+			"description": "More than 50 error events in 5 minutes. Detector is created alongside this workflow.",
+			"kind": "metric",
+			"project": "kaneo-api",
+			"detector": {
+				"name": "Kaneo API: Error spike detector",
+				"description": "count(error events) > 50 in a 5-minute window",
+				"type": "metric_issue",
+				"config": {
+					"detectionType": "static"
+				},
+				"dataSources": [
+					{
+						"dataset": "events",
+						"query": "event.type:error",
+						"queryType": 0,
+						"aggregate": "count()",
+						"timeWindow": 300,
+						"environment": "production",
+						"eventTypes": ["default", "error"]
+					}
+				],
+				"conditionGroup": {
+					"logicType": "any",
+					"conditions": [
+						{
+							"type": "gt",
+							"comparison": 50,
+							"conditionResult": 75
+						},
+						{
+							"type": "lte",
+							"comparison": 50,
+							"conditionResult": 0
+						}
+					],
+					"actions": []
+				}
+			},
+			"workflow": {
+				"name": "Kaneo API: New error spike",
+				"enabled": true
+			}
+		},
+		{
+			"name": "Cron: missed check-in (any)",
+			"description": "A monitored cron job missed its check-in (or reported an error). Covers all 4 crons created by Sentry.captureCheckIn in apps/api/src/scheduler/index.ts.",
+			"kind": "metric",
+			"detector_slugs": [
+				"due-date-reminders",
+				"project-webhook-reminders",
+				"seat-reconciliation",
+				"trial-reminders"
+			],
+			"_comment_detector_slugs": "Slugs are the human-readable identifiers from the captureCheckIn calls. The provisioning script resolves these to numeric detector IDs via GET /api/0/organizations/{org}/monitors/.",
+			"workflow": {
+				"name": "Cron: missed check-in (any)",
+				"enabled": true
+			}
+		},
+		{
+			"name": "Kaneo API: Slow p95 latency",
+			"description": "p95 of transaction.duration > 1500ms in any 10-minute window on /api/* routes.",
+			"kind": "metric",
+			"project": "kaneo-api",
+			"detector": {
+				"name": "Kaneo API: Slow p95 latency detector",
+				"description": "p95(transaction.duration) > 1500ms over 10 minutes",
+				"type": "metric_issue",
+				"config": {
+					"detectionType": "static"
+				},
+				"dataSources": [
+					{
+						"dataset": "events_analytics_platform",
+						"query": "transaction.duration:>0 transaction:*/api/* is_transaction:true",
+						"queryType": 1,
+						"aggregate": "p95(transaction.duration)",
+						"timeWindow": 600,
+						"environment": "production",
+						"eventTypes": ["trace_item_span"]
+					}
+				],
+				"conditionGroup": {
+					"logicType": "any",
+					"conditions": [
+						{
+							"type": "gt",
+							"comparison": 1500,
+							"conditionResult": 50
+						},
+						{
+							"type": "lte",
+							"comparison": 1500,
+							"conditionResult": 0
+						}
+					],
+					"actions": []
+				}
+			},
+			"workflow": {
+				"name": "Kaneo API: Slow p95 latency",
+				"enabled": true
+			}
+		},
+		{
+			"name": "Kaneo API: MCP error rate",
+			"description": "MCP tool errors exceed 5% over a 1h window. Helps catch regressions before users do.",
+			"kind": "metric",
+			"project": "kaneo-api",
+			"detector": {
+				"name": "Kaneo API: MCP error rate detector",
+				"description": "MCP error rate > 5% over 1 hour",
+				"type": "metric_issue",
+				"config": {
+					"detectionType": "static"
+				},
+				"dataSources": [
+					{
+						"dataset": "events_analytics_platform",
+						"query": "transaction:*/api/mcp/* is_transaction:true",
+						"queryType": 1,
+						"aggregate": "failure_rate()",
+						"timeWindow": 3600,
+						"environment": "production",
+						"eventTypes": ["trace_item_span"]
+					}
+				],
+				"conditionGroup": {
+					"logicType": "any",
+					"conditions": [
+						{
+							"type": "gt",
+							"comparison": 0.05,
+							"conditionResult": 75
+						},
+						{
+							"type": "lte",
+							"comparison": 0.05,
+							"conditionResult": 0
+						}
+					],
+					"actions": []
+				}
+			},
+			"workflow": {
+				"name": "Kaneo API: MCP error rate",
+				"enabled": true
+			}
+		},
+		{
+			"name": "Kaneo Web: New issue",
+			"description": "New React ErrorBoundary or unhandled exception in kaneo-web.",
+			"kind": "issue",
+			"projects": ["kaneo-web"],
+			"workflow": {
+				"name": "Kaneo Web: New issue",
+				"enabled": true,
+				"triggers": {
+					"logicType": "any-short",
+					"conditions": [
+						{
+							"type": "first_seen_event",
+							"comparison": true,
+							"conditionResult": true
+						}
+					]
+				}
+			}
+		}
+	]
+}

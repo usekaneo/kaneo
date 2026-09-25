@@ -2,6 +2,7 @@ import { discordPlugin } from "./discord";
 import { genericWebhookPlugin } from "./generic-webhook";
 import { giteaPlugin } from "./gitea";
 import { githubPlugin, initializeGitHubPlugin } from "./github";
+import { mattermostPlugin } from "./mattermost";
 import { initializeEventSubscriptions, registerPlugin } from "./registry";
 import { slackPlugin } from "./slack";
 import { telegramPlugin } from "./telegram";
@@ -12,6 +13,7 @@ export function initializePlugins() {
   registerPlugin(githubPlugin);
   registerPlugin(giteaPlugin);
   registerPlugin(slackPlugin);
+  registerPlugin(mattermostPlugin);
   registerPlugin(discordPlugin);
   registerPlugin(genericWebhookPlugin);
   registerPlugin(telegramPlugin);

@@ -1,8 +1,11 @@
 import { randomUUID } from "node:crypto";
-import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { eq, sql } from "drizzle-orm";
+import type { WSContext } from "hono/ws";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
+import createTaskRelation from "../../apps/api/src/task-relation/controllers/create-task-relation";
+import { addConnection, removeConnection } from "../../apps/api/src/ws";
 import { mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
 import {
@@ -536,5 +539,163 @@ describe("API integration: moving a project between workspaces", () => {
       .from(schema.taskTable)
       .where(eq(schema.taskTable.id, untouchedTask.id));
     expect(untouched.userId).toBe(outsider.user.id);
+  });
+});
+
+describe("project move task relationships", () => {
+  beforeEach(resetTestDatabase);
+  it.each(["incoming", "outgoing", "internal"])(
+    "protects %s relationships",
+    async (direction) => {
+      const owner = await createWorkspaceMember({ role: "owner" });
+      const target = await createTargetWorkspace();
+      await addMember(target.id, owner.user.id, "owner");
+      const { project } = await createProjectFixture({
+        workspaceId: owner.workspace.id,
+      });
+      const { project: other } = await createProjectFixture({
+        workspaceId: owner.workspace.id,
+      });
+      const tasks = await db
+        .insert(schema.taskTable)
+        .values([
+          { title: "Moving", projectId: project.id, number: 1 },
+          {
+            title: "Related",
+            projectId: direction === "internal" ? project.id : other.id,
+            number: 2,
+          },
+        ])
+        .returning();
+      const [relation] = await db
+        .insert(schema.taskRelationTable)
+        .values({
+          sourceTaskId: tasks[direction === "incoming" ? 1 : 0].id,
+          targetTaskId: tasks[direction === "incoming" ? 0 : 1].id,
+          relationType: "blocks",
+        })
+        .returning();
+      mockAuthenticatedSession(owner.user);
+      const { app } = createApp();
+      const response = await app.request(
+        `/api/project/${project.id}/move`,
+        moveRequest(target.id),
+      );
+      expect(response.status).toBe(direction === "internal" ? 200 : 409);
+      const [after] = await db
+        .select()
+        .from(schema.projectTable)
+        .where(eq(schema.projectTable.id, project.id));
+      expect(after.workspaceId).toBe(
+        direction === "internal" ? target.id : owner.workspace.id,
+      );
+      expect(
+        await db
+          .select()
+          .from(schema.taskRelationTable)
+          .where(eq(schema.taskRelationTable.id, relation.id)),
+      ).toHaveLength(1);
+    },
+  );
+});
+
+describe("project move concurrency and realtime access", () => {
+  beforeEach(resetTestDatabase);
+  it("closes old project sockets even when there are no tasks to unassign", async () => {
+    const owner = await createWorkspaceMember({ role: "owner" });
+    const target = await createTargetWorkspace();
+    await addMember(target.id, owner.user.id, "owner");
+    const { project } = await createProjectFixture({
+      workspaceId: owner.workspace.id,
+    });
+    const socket = { send: vi.fn(), close: vi.fn() };
+    const conn = addConnection(
+      project.id,
+      socket as unknown as WSContext,
+      owner.user.id,
+      "window",
+      owner.workspace.id,
+    );
+    try {
+      mockAuthenticatedSession(owner.user);
+      const { app } = createApp();
+      const response = await app.request(
+        `/api/project/${project.id}/move`,
+        moveRequest(target.id),
+      );
+      expect(response.status).toBe(200);
+      expect(socket.close).toHaveBeenCalledWith(
+        1008,
+        "Project workspace changed",
+      );
+      expect(socket.send).toHaveBeenCalledWith(
+        JSON.stringify({ type: "PROJECT_MOVED", projectId: project.id }),
+      );
+    } finally {
+      removeConnection(project.id, conn);
+    }
+  });
+
+  it("relation creation waits for a moving project and rechecks the workspace", async () => {
+    const owner = await createWorkspaceMember({ role: "owner" });
+    const target = await createTargetWorkspace();
+    const { project } = await createProjectFixture({
+      workspaceId: owner.workspace.id,
+    });
+    const { project: other } = await createProjectFixture({
+      workspaceId: owner.workspace.id,
+    });
+    const tasks = await db
+      .insert(schema.taskTable)
+      .values([
+        { title: "Moving", projectId: project.id, number: 1 },
+        { title: "Staying", projectId: other.id, number: 1 },
+      ])
+      .returning();
+    let locked!: () => void;
+    let release!: () => void;
+    const ready = new Promise<void>((resolve) => {
+      locked = resolve;
+    });
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const move = db.transaction(async (tx) => {
+      await tx
+        .select()
+        .from(schema.projectTable)
+        .where(eq(schema.projectTable.id, project.id))
+        .for("update");
+      locked();
+      await gate;
+      await tx
+        .update(schema.projectTable)
+        .set({ workspaceId: target.id })
+        .where(eq(schema.projectTable.id, project.id));
+    });
+    await ready;
+    const relation = createTaskRelation({
+      sourceTaskId: tasks[0].id,
+      targetTaskId: tasks[1].id,
+      relationType: "blocks",
+      userId: owner.user.id,
+      workspaceId: owner.workspace.id,
+    }).then(
+      () => null,
+      (error: unknown) => error,
+    );
+    try {
+      await vi.waitFor(async () => {
+        const waiting = await db.execute(
+          sql`SELECT 1 FROM pg_stat_activity WHERE datname = current_database() AND wait_event_type = 'Lock' AND query LIKE '%for share%'`,
+        );
+        expect(waiting.rows.length).toBeGreaterThan(0);
+      });
+    } finally {
+      release();
+    }
+    await move;
+    expect(await relation).toMatchObject({ status: 404 });
+    expect(await db.select().from(schema.taskRelationTable)).toHaveLength(0);
   });
 });

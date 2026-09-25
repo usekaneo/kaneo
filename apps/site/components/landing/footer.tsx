@@ -1,4 +1,5 @@
 import { Logo } from "@/components/landing/logo";
+import { press } from "@/lib/press";
 
 export function Footer() {
   return (
@@ -10,7 +11,7 @@ export function Footer() {
               <Logo />
             </a>
             <p className="max-w-sm text-balance text-muted-foreground text-sm">
-              All you need. Nothing you don&apos;t.
+              Project management that doesn&apos;t become the project.
             </p>
           </div>
 
@@ -31,7 +32,7 @@ export function Footer() {
               </a>
               <a
                 className="block text-muted-foreground transition-colors hover:text-foreground"
-                href="#features"
+                href="/#features"
               >
                 Features
               </a>
@@ -43,15 +44,27 @@ export function Footer() {
               </a>
               <a
                 className="block text-muted-foreground transition-colors hover:text-foreground"
-                href="/jira-alternative"
+                href="/alternatives"
               >
-                vs Jira
+                Comparisons
               </a>
               <a
                 className="block text-muted-foreground transition-colors hover:text-foreground"
-                href="/trello-alternative"
+                href="/guides"
               >
-                vs Trello
+                Guides
+              </a>
+              <a
+                className="block text-muted-foreground transition-colors hover:text-foreground"
+                href="/blog"
+              >
+                Blog
+              </a>
+              <a
+                className="block text-muted-foreground transition-colors hover:text-foreground"
+                href="/jira-alternative"
+              >
+                vs Jira
               </a>
               <a
                 className="block text-muted-foreground transition-colors hover:text-foreground"
@@ -59,16 +72,16 @@ export function Footer() {
               >
                 vs Linear
               </a>
-              <a
-                className="block text-muted-foreground transition-colors hover:text-foreground"
-                href="/planka-alternative"
-              >
-                vs PLANKA
-              </a>
             </div>
 
             <div className="space-y-3 text-sm">
               <p className="font-medium">Resources</p>
+              <a
+                className="block text-muted-foreground transition-colors hover:text-foreground"
+                href="/press"
+              >
+                {press.title}
+              </a>
               <a
                 className="block text-muted-foreground transition-colors hover:text-foreground"
                 href="https://github.com/usekaneo/kaneo"

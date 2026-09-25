@@ -1,0 +1,43 @@
+import { responseTimestamp, z } from "../openapi";
+
+export const externalLinkSchema = z
+  .object({
+    id: z.string(),
+    taskId: z.string(),
+    integrationId: z.string().nullable(),
+    resourceType: z.string().openapi({
+      description:
+        "The resource kind: `url` for a manual link, or an integration resource such as `issue` or `pull_request`.",
+    }),
+    externalId: z.string().openapi({
+      description:
+        "The provider's resource identifier, or the URL for a manual link.",
+    }),
+    url: z.string(),
+    title: z.string().nullable(),
+    metadata: z.unknown().nullable().openapi({
+      description:
+        "Provider-specific payload, parsed from the stored JSON string. Null when the link has no metadata.",
+    }),
+    createdAt: responseTimestamp,
+    updatedAt: responseTimestamp,
+    // The route selects only id/type here on purpose: integration.config holds
+    // plaintext provider secrets and any workspace member can read this route.
+    integration: z
+      .object({ id: z.string(), type: z.string() })
+      .nullable()
+      .openapi("ExternalLinkIntegration"),
+  })
+  .openapi("ExternalLink");
+
+export const createdExternalLinkSchema = externalLinkSchema
+  .omit({
+    integration: true,
+  })
+  .openapi("CreatedExternalLink");
+
+export const externalLinkListSchema = z.array(externalLinkSchema);
+
+export const deletedExternalLinkSchema = z
+  .object({ id: z.string() })
+  .openapi("DeletedExternalLink");
