@@ -56,6 +56,7 @@ import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
 import { getInitials } from "@/lib/get-initials";
+import { HttpError } from "@/lib/http-error";
 import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
 import SubtaskAssigneePopover from "./subtask-assignee-popover";
@@ -284,8 +285,22 @@ export default function TaskRelations({
       });
       setCommandOpen(false);
       setSearchQuery("");
-    } catch {
-      toast.error(t("tasks:relations.linkError"));
+    } catch (error) {
+      // The API returns a 409 both for an exact duplicate and for a "blocks"/
+      // "subtask" edge that would close a cycle; only the latter carries
+      // "circular" in its message, so callers see the specific reason rather
+      // than the generic fallback.
+      const isCircularDependency =
+        error instanceof HttpError &&
+        error.status === 409 &&
+        error.message.toLowerCase().includes("circular");
+      toast.error(
+        t(
+          isCircularDependency
+            ? "tasks:relations.circularDependencyError"
+            : "tasks:relations.linkError",
+        ),
+      );
     }
   };
 

@@ -14333,7 +14333,7 @@
             }
           },
           "409": {
-            "description": "This relation already exists",
+            "description": "This relation already exists, or (for a 'blocks'/'subtask' relation) would create a circular dependency",
             "content": {
               "text/plain": {
                 "schema": {

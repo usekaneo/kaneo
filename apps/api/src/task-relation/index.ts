@@ -167,7 +167,9 @@ const createTaskRelationRoute = createRoute({
       "No workspace access, or missing task:update permission",
     ),
     404: errorResponse("Source or target task not found"),
-    409: errorResponse("This relation already exists"),
+    409: errorResponse(
+      "This relation already exists, or (for a 'blocks'/'subtask' relation) would create a circular dependency",
+    ),
   },
 });
 

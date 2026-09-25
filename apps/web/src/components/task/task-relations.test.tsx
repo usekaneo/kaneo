@@ -1,5 +1,12 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { HttpError } from "@/lib/http-error";
 import TaskRelations from "./task-relations";
 
 const mocks = vi.hoisted(() => ({
@@ -11,6 +18,7 @@ const mocks = vi.hoisted(() => ({
   projectTasks: vi.fn(),
   project: vi.fn(),
   globalSearch: vi.fn(),
+  toastError: vi.fn(),
 }));
 
 vi.mock("@tanstack/react-router", () => ({
@@ -52,7 +60,9 @@ vi.mock(
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({ canUpdateTasks: mocks.canUpdateTasks }),
 }));
-vi.mock("@/lib/toast", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
+vi.mock("@/lib/toast", () => ({
+  toast: { error: mocks.toastError, success: vi.fn() },
+}));
 vi.mock("./subtask-status-popover", () => ({
   default: (props: { projectId: string; children: React.ReactNode }) => (
     <div data-testid="status-popover" data-project-id={props.projectId}>
@@ -225,5 +235,63 @@ describe("TaskRelations cross-project correctness", () => {
     const lastCall =
       mocks.globalSearch.mock.calls[mocks.globalSearch.mock.calls.length - 1];
     expect(lastCall[0]).toEqual(expect.objectContaining({ q: "bug" }));
+  });
+});
+
+describe("TaskRelations link errors", () => {
+  function availableTask() {
+    return {
+      id: "task-b",
+      title: "Task B",
+      status: "done",
+      priority: null,
+      number: 2,
+      projectId: CURRENT_PROJECT_ID,
+      userId: null,
+      assigneeName: null,
+    };
+  }
+
+  function openPickerAndLinkTask() {
+    renderRelations();
+    fireEvent.click(screen.getByRole("button", { name: "" }));
+    fireEvent.click(screen.getByText("Task B"));
+  }
+
+  beforeEach(() => {
+    mocks.taskRelations.mockReturnValue({ data: [] });
+    mocks.projectTasks.mockReturnValue({
+      data: {
+        columns: [{ ...CURRENT_PROJECT_COLUMNS[0], tasks: [availableTask()] }],
+      },
+    });
+  });
+
+  it("shows the circular-dependency message for a 409 that would close a cycle", async () => {
+    mocks.createRelation.mockRejectedValueOnce(
+      new HttpError(409, "This dependency would create a circular dependency"),
+    );
+
+    openPickerAndLinkTask();
+
+    await waitFor(() =>
+      expect(mocks.toastError).toHaveBeenCalledWith(
+        "tasks:relations.circularDependencyError",
+      ),
+    );
+  });
+
+  it("falls back to the generic link-error message for any other failure", async () => {
+    mocks.createRelation.mockRejectedValueOnce(
+      new HttpError(409, "This relation already exists"),
+    );
+
+    openPickerAndLinkTask();
+
+    await waitFor(() =>
+      expect(mocks.toastError).toHaveBeenCalledWith(
+        "tasks:relations.linkError",
+      ),
+    );
   });
 });

@@ -2000,7 +2000,8 @@
 					"ss": "SS"
 				},
 				"updateError": "Failed to update dependency"
-			}
+			},
+			"circularDependencyError": "This dependency would create a circular dependency"
 		},
 		"subtasks": {
 			"title": "उप-कार्य",

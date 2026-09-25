@@ -7,6 +7,7 @@ import {
   taskTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { wouldCreateCycle } from "./detect-relation-cycle";
 
 async function createTaskRelation({
   sourceTaskId,
@@ -95,6 +96,23 @@ async function createTaskRelation({
     throw new HTTPException(409, {
       message: "This relation already exists",
     });
+  }
+
+  // "blocks" (scheduling dependency) and "subtask" (parent/child hierarchy)
+  // are both directional graphs where a cycle is a modeling error; "related"
+  // is bidirectional and has no cycle concept.
+  if (relationType === "blocks" || relationType === "subtask") {
+    const createsCycle = await wouldCreateCycle({
+      workspaceId,
+      relationType,
+      sourceTaskId,
+      targetTaskId,
+    });
+    if (createsCycle) {
+      throw new HTTPException(409, {
+        message: "This dependency would create a circular dependency",
+      });
+    }
   }
 
   // dependencyType/lagDays are only meaningful for a "blocks" relation (the
