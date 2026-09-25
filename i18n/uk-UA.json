@@ -1991,7 +1991,9 @@
 				"blocks": "блокує",
 				"related": "пов'язано з",
 				"blocked_by": "заблоковано"
-			}
+			},
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project",
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Підзавдання",

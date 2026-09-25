@@ -41,6 +41,7 @@ import {
 import useCreateTaskRelation from "@/hooks/mutations/task-relation/use-create-task-relation";
 import useDeleteTaskRelation from "@/hooks/mutations/task-relation/use-delete-task-relation";
 import useGetProject from "@/hooks/queries/project/use-get-project";
+import useGlobalSearch from "@/hooks/queries/search/use-global-search";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import useGetTaskRelations from "@/hooks/queries/task-relation/use-get-task-relations";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
@@ -52,6 +53,12 @@ import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
 import SubtaskAssigneePopover from "./subtask-assignee-popover";
 import SubtaskStatusPopover from "./subtask-status-popover";
+import {
+  buildCrossProjectTaskGroups,
+  isOtherProjectItem,
+  type PickerTaskGroup as TaskGroup,
+  type PickerTaskItem as TaskItem,
+} from "./task-relations-cross-project";
 
 type TaskRelationsProps = {
   taskId: string;
@@ -59,18 +66,11 @@ type TaskRelationsProps = {
   workspaceId: string;
 };
 
-type TaskItem = {
-  id: string;
-  title: string;
-  number: number | null;
-  status: string;
-};
-
-type TaskGroup = {
-  value: string;
-  label: string;
-  items: TaskItem[];
-};
+// A workspace can hold far more tasks than any one project, so the
+// cross-project half of the picker is server-searched (via the existing
+// global search endpoint, scoped to this workspace) rather than loaded
+// client-side. This threshold keeps that request off single keystrokes.
+const CROSS_PROJECT_SEARCH_MIN_CHARS = 2;
 
 export default function TaskRelations({
   taskId,
@@ -98,14 +98,33 @@ export default function TaskRelations({
   const { canUpdateTasks } = useWorkspacePermission();
   const canEdit = canUpdateTasks();
 
+  const trimmedSearchQuery = searchQuery.trim();
+  const { data: crossProjectSearch } = useGlobalSearch({
+    q:
+      trimmedSearchQuery.length >= CROSS_PROJECT_SEARCH_MIN_CHARS
+        ? trimmedSearchQuery
+        : "",
+    type: "tasks",
+    workspaceId,
+    // Excluded server-side so a query that matches 20+ tasks in the current
+    // project doesn't crowd out the other-project matches this group exists
+    // to surface (the current project already has its own group above).
+    excludeProjectId: projectId,
+    limit: 20,
+  });
+
   useEffect(() => {
     if (!commandOpen) {
       setSearchQuery("");
     }
   }, [commandOpen]);
 
-  const nonSubtaskRelations = relations.filter(
-    (rel) => rel.relationType !== "subtask",
+  // Memoized so its reference only changes when `relations` actually does —
+  // otherwise every render would hand groupedRelations and
+  // existingRelatedTaskIds a fresh array and defeat their own memoization.
+  const nonSubtaskRelations = useMemo(
+    () => relations.filter((rel) => rel.relationType !== "subtask"),
+    [relations],
   );
 
   const groupedRelations = useMemo(() => {
@@ -142,10 +161,16 @@ export default function TaskRelations({
     return groups;
   }, [nonSubtaskRelations, taskId]);
 
-  const existingRelatedTaskIds = new Set(
-    nonSubtaskRelations.flatMap((rel) => [rel.sourceTaskId, rel.targetTaskId]),
-  );
-  existingRelatedTaskIds.add(taskId);
+  const existingRelatedTaskIds = useMemo(() => {
+    const ids = new Set(
+      nonSubtaskRelations.flatMap((rel) => [
+        rel.sourceTaskId,
+        rel.targetTaskId,
+      ]),
+    );
+    ids.add(taskId);
+    return ids;
+  }, [nonSubtaskRelations, taskId]);
 
   const allTasks = useMemo(() => {
     if (!projectData) return [];
@@ -196,6 +221,19 @@ export default function TaskRelations({
     (t) => !existingRelatedTaskIds.has(t.id),
   );
 
+  const crossProjectGroups = useMemo<TaskGroup[]>(() => {
+    const results = crossProjectSearch?.results ?? [];
+    if (results.length === 0) return [];
+
+    return buildCrossProjectTaskGroups({
+      results,
+      currentProjectId: projectId,
+      excludedTaskIds: existingRelatedTaskIds,
+      labelForProject: (projectName) =>
+        t("tasks:relations.tasksInOtherProject", { project: projectName }),
+    });
+  }, [crossProjectSearch, projectId, existingRelatedTaskIds, t]);
+
   const commandGroups = useMemo<TaskGroup[]>(() => {
     return [
       {
@@ -203,8 +241,9 @@ export default function TaskRelations({
         label: t("tasks:relations.tasksInProject"),
         items: filteredTasks,
       },
+      ...crossProjectGroups,
     ];
-  }, [filteredTasks, t]);
+  }, [filteredTasks, crossProjectGroups, t]);
 
   const handleLinkTask = async (targetTaskId: string) => {
     try {
@@ -224,10 +263,21 @@ export default function TaskRelations({
     deleteRelation.mutate(relationId);
   };
 
-  const handleNavigateToTask = (linkedTaskId: string) => {
+  // Related tasks can live in another project (cross-project linking), so the
+  // route must use that task's own project id rather than the project this
+  // panel is rendered for, or a cross-project item opens the wrong project
+  // context (or 404s).
+  const handleNavigateToTask = (
+    linkedTaskId: string,
+    linkedTaskProjectId: string,
+  ) => {
     navigate({
       to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
-      params: { workspaceId, projectId, taskId: linkedTaskId },
+      params: {
+        workspaceId,
+        projectId: linkedTaskProjectId,
+        taskId: linkedTaskId,
+      },
     });
   };
 
@@ -307,34 +357,69 @@ export default function TaskRelations({
                 {items.map((item) => {
                   const assignee = getAssignee(item.task.userId);
                   const taskObj = buildTaskObject(item);
+                  // Column ids/slugs and "final" status are specific to one
+                  // project's board, so a related task from another project
+                  // must not be rendered with the current project's column
+                  // metadata (its status id may not even exist there).
+                  const isOtherProject = isOtherProjectItem(
+                    item.task,
+                    projectId,
+                  );
+                  const statusIcon = getColumnIcon(
+                    item.task.status,
+                    !isOtherProject && finalStatusSlugs.has(item.task.status),
+                    isOtherProject
+                      ? undefined
+                      : columnIconBySlug.get(item.task.status),
+                  );
+                  const isFinalStatus =
+                    !isOtherProject && finalStatusSlugs.has(item.task.status);
 
                   return (
                     <ContextMenu key={item.id}>
                       <ContextMenuTrigger asChild>
                         <div className="group flex items-center gap-2 py-1 px-2 rounded-md hover:bg-accent/50 transition-colors cursor-default">
-                          <SubtaskStatusPopover
-                            tasks={[taskObj]}
-                            projectId={projectId}
-                          >
+                          {isOtherProject ? (
+                            // The status columns belong to the other project's
+                            // board, which isn't loaded here; rather than apply
+                            // this project's columns to a task that lives
+                            // elsewhere (and risk writing an invalid status),
+                            // the control is read-only for cross-project items.
                             <button
                               type="button"
-                              className="shrink-0 flex items-center justify-center rounded p-0.5 transition-colors outline-none [&_svg]:text-muted-foreground hover:[&_svg]:text-foreground"
-                            >
-                              {getColumnIcon(
-                                item.task.status,
-                                finalStatusSlugs.has(item.task.status),
-                                columnIconBySlug.get(item.task.status),
+                              title={t(
+                                "tasks:relations.crossProjectStatusReadOnly",
                               )}
+                              className="shrink-0 flex items-center justify-center rounded p-0.5 outline-none cursor-default [&_svg]:text-muted-foreground"
+                            >
+                              {statusIcon}
                             </button>
-                          </SubtaskStatusPopover>
+                          ) : (
+                            <SubtaskStatusPopover
+                              tasks={[taskObj]}
+                              projectId={projectId}
+                            >
+                              <button
+                                type="button"
+                                className="shrink-0 flex items-center justify-center rounded p-0.5 transition-colors outline-none [&_svg]:text-muted-foreground hover:[&_svg]:text-foreground"
+                              >
+                                {statusIcon}
+                              </button>
+                            </SubtaskStatusPopover>
+                          )}
 
                           <button
                             type="button"
                             className="flex-1 min-w-0 text-left outline-none"
-                            onClick={() => handleNavigateToTask(item.task.id)}
+                            onClick={() =>
+                              handleNavigateToTask(
+                                item.task.id,
+                                item.task.projectId,
+                              )
+                            }
                           >
                             <span
-                              className={`text-sm truncate block ${finalStatusSlugs.has(item.task.status) ? "line-through text-muted-foreground" : "text-foreground/90"}`}
+                              className={`text-sm truncate block ${isFinalStatus ? "line-through text-muted-foreground" : "text-foreground/90"}`}
                             >
                               {item.task.title}
                             </span>
@@ -375,7 +460,12 @@ export default function TaskRelations({
 
                       <ContextMenuContent className="w-40">
                         <ContextMenuItem
-                          onClick={() => handleNavigateToTask(item.task.id)}
+                          onClick={() =>
+                            handleNavigateToTask(
+                              item.task.id,
+                              item.task.projectId,
+                            )
+                          }
                         >
                           <span>{t("tasks:relations.openTask")}</span>
                         </ContextMenuItem>
@@ -429,26 +519,37 @@ export default function TaskRelations({
                     <CommandGroup items={group.items}>
                       <CommandGroupLabel>{group.label}</CommandGroupLabel>
                       <CommandCollection>
-                        {(item: TaskItem) => (
-                          <CommandItem
-                            key={item.id}
-                            value={`${project?.slug}-${item.number} ${item.title}`}
-                            onClick={() => handleLinkTask(item.id)}
-                            className="flex items-center gap-3 py-2"
-                          >
-                            {getColumnIcon(
-                              item.status,
-                              false,
-                              columnIconBySlug.get(item.status),
-                            )}
-                            <span className="text-xs text-muted-foreground shrink-0 font-mono">
-                              {project?.slug}-{item.number}
-                            </span>
-                            <span className="text-sm truncate flex-1">
-                              {item.title}
-                            </span>
-                          </CommandItem>
-                        )}
+                        {(item: TaskItem) => {
+                          // Cross-project items carry their own project slug;
+                          // same-project items fall back to the current project.
+                          const slug = item.projectSlug ?? project?.slug;
+                          const isOtherProject = isOtherProjectItem(
+                            item,
+                            projectId,
+                          );
+                          return (
+                            <CommandItem
+                              key={item.id}
+                              value={`${slug}-${item.number} ${item.title} ${item.description ?? ""}`}
+                              onClick={() => handleLinkTask(item.id)}
+                              className="flex items-center gap-3 py-2"
+                            >
+                              {getColumnIcon(
+                                item.status,
+                                false,
+                                isOtherProject
+                                  ? undefined
+                                  : columnIconBySlug.get(item.status),
+                              )}
+                              <span className="text-xs text-muted-foreground shrink-0 font-mono">
+                                {slug}-{item.number}
+                              </span>
+                              <span className="text-sm truncate flex-1">
+                                {item.title}
+                              </span>
+                            </CommandItem>
+                          );
+                        }}
                       </CommandCollection>
                     </CommandGroup>
                     {groupIndex < commandGroups.length - 1 && (

@@ -1977,7 +1977,9 @@
 				"blocks": "блокира",
 				"related": "е поврзана со",
 				"blocked_by": "блокирана од"
-			}
+			},
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project",
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Подзадачи",

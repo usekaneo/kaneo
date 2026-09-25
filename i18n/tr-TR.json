@@ -1977,7 +1977,9 @@
 				"blocks": "engeller",
 				"blocked_by": "engellenen",
 				"related": "ilişkilidir"
-			}
+			},
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project",
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Alt talepler",

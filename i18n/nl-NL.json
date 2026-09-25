@@ -1977,7 +1977,9 @@
 				"blocks": "blokkeert",
 				"related": "is gerelateerd aan",
 				"blocked_by": "geblokkeerd door"
-			}
+			},
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project",
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Subtaken",

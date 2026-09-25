@@ -1984,7 +1984,9 @@
 				"blocks": "blocca",
 				"blocked_by": "bloccata da",
 				"related": "correlata a"
-			}
+			},
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project",
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Sotto-attività",
