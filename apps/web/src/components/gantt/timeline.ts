@@ -22,6 +22,73 @@ export const GANTT_WINDOW_DAYS = 91;
 // seven ordinary day-tracks placed under one label.
 export type GanttUnit = "day" | "week" | "month" | "quarter";
 
+// Single source of truth for "every unit, in display order" — the Gantt
+// route's segmented control iterates this to render its buttons, and the
+// user-preferences store's persisted-value guard (isGanttUnit) validates
+// against it; previously each kept its own separately-typed copy of the same
+// four literals.
+export const GANTT_UNITS: readonly GanttUnit[] = [
+  "day",
+  "week",
+  "month",
+  "quarter",
+];
+
+// How a Gantt bar renders relative to a hovered dependency: dimmed/
+// highlighted when hovering a bar connected to it by an edge, normal
+// otherwise. Shared by every bar variant (own/summary/external) rather than
+// each declaring its own identical union.
+export type GanttBarEmphasis = "normal" | "highlighted" | "dimmed";
+
+// Bars render with `mx-1` (0.25rem — see gantt-task-bar.tsx /
+// gantt-external-task-bar.tsx), so the visible edge sits inset from the
+// grid-column boundary a box's left/right are otherwise measured against;
+// without this a dependency line lands a few pixels short of (or past) the
+// bar it's supposed to touch. 0.25rem scales with the root font size, so the
+// inset is measured from it rather than assumed to be the default 16px (4px)
+// — otherwise it drifts out of alignment under a non-default browser/OS
+// font-size setting.
+export function getBarEdgeInsetPx(): number {
+  if (typeof document === "undefined") return 4;
+  const rootFontSizePx = Number.parseFloat(
+    getComputedStyle(document.documentElement).fontSize,
+  );
+  return (Number.isFinite(rootFontSizePx) ? rootFontSizePx : 16) * 0.25;
+}
+
+// The smallest on-screen width (px) a bar's box is allowed to end up at,
+// regardless of how narrow the day-column grid gets. Month/Quarter can
+// compress a single day-track down to a fraction of a pixel, at which point
+// the usual edge inset alone (see getBarEdgeInsetPx) would eat the entire
+// track — the bar would render with zero (or negative, before clamping)
+// content width, i.e. invisible, and a dependency-line box built from the
+// same two numbers would invert (right < left). Clamping both the bar's own
+// rendered box and its dependency-line box to this minimum keeps a
+// single-day task visible (if slightly wider than its literal day-track) and
+// keeps the box's left/right from ever inverting.
+export const MIN_BAR_CONTENT_PX = 6;
+
+// Turns a grid track's raw pixel bounds (before inset) into the bar's actual
+// rendered/measured box: the usual inset on each side, shrunk (never
+// negative) so the box never ends up narrower than MIN_BAR_CONTENT_PX. Used
+// both for the bar's own visual margin/min-width and for the pixel box the
+// dependency-line overlay measures it by, so the two always agree on where
+// the bar's edges actually are.
+export function computeInsetBarBox(
+  trackLeftPx: number,
+  trackRightPx: number,
+  desiredInsetPx: number,
+): { left: number; right: number; insetPx: number } {
+  const grossWidth = trackRightPx - trackLeftPx;
+  const insetPx = Math.max(
+    0,
+    Math.min(desiredInsetPx, (grossWidth - MIN_BAR_CONTENT_PX) / 2),
+  );
+  const left = trackLeftPx + insetPx;
+  const right = Math.max(left + MIN_BAR_CONTENT_PX, trackRightPx - insetPx);
+  return { left, right, insetPx };
+}
+
 // Roughly how much history+future a full window shows at each unit, chosen
 // so the chart stays readable rather than either cramped or mostly empty:
 // Day ~13 weeks, Week ~6 months, Month ~1.5 years, Quarter ~3 years. These
@@ -60,6 +127,46 @@ export function getBarGridColumns(
     Math.min(endIndex + 2, trackCount + 1),
   );
   return { barInView: true, lineStart, lineEnd };
+}
+
+// The progress-fill width, as a percentage of the bar's VISIBLE (window-
+// clipped) box — i.e. what a caller should actually set the fill div's
+// `width: %` to — representing true progress over the task's FULL span
+// rather than a percentage of the clipped box itself. A long task whose bar
+// extends past either window edge would otherwise have its fill computed
+// against just the visible sliver, showing far more (or less) of the bar
+// filled than the task's real progress: e.g. a task 10% done, entirely past
+// the window's right edge so only its tail 5% is visible, would render as
+// 10% of that tiny visible sliver filled — which visually reads as "100% of
+// the way across what's on screen" rather than "10% of the whole task".
+// `visibleLineStart`/`visibleLineEnd` are the bar's own (already
+// window-clipped) `getBarGridColumns` result for the same schedule.
+export function computeProgressFillPercent(
+  progress: number,
+  scheduleStart: Date,
+  scheduleEnd: Date,
+  rangeStart: Date,
+  visibleLineStart: number,
+  visibleLineEnd: number,
+): number {
+  const visibleSpan = visibleLineEnd - visibleLineStart;
+  if (visibleSpan <= 0) return 0;
+  const clampedProgress = Math.min(100, Math.max(0, progress));
+
+  const startIndex = differenceInCalendarDays(scheduleStart, rangeStart);
+  const endIndex = differenceInCalendarDays(scheduleEnd, rangeStart);
+  const fullLineStart = startIndex + 1;
+  // Mirrors getBarGridColumns' own lineEnd >= lineStart + 1 guard (a
+  // single-day task still has a positive span to compute a fraction of).
+  const fullLineEnd = Math.max(fullLineStart + 1, endIndex + 2);
+  const totalSpan = fullLineEnd - fullLineStart;
+
+  const progressLine = fullLineStart + (clampedProgress / 100) * totalSpan;
+  const clippedProgressLine = Math.min(
+    visibleLineEnd,
+    Math.max(visibleLineStart, progressLine),
+  );
+  return ((clippedProgressLine - visibleLineStart) / visibleSpan) * 100;
 }
 
 export function parseTaskDate(value: string | null) {
@@ -143,11 +250,20 @@ export function buildGanttRange(
   // be able to scroll to one dated outside this project's own tasks.
   extraBoundsTasks: { scheduleStart: Date; scheduleEnd: Date }[] = [],
 ) {
-  if (tasks.length === 0) return null;
+  // A project can have externally-related (cross-project) rows to show even
+  // when it has no scheduled tasks of its own — falling back to
+  // extraBoundsTasks here (rather than bailing out to `null`, which the
+  // Gantt route treats as "nothing to show at all") is what lets those rows
+  // still get a timeline to render on. `fits`/`anchor`/`defaultStart` below
+  // stay derived from whichever list actually anchors the window, same as
+  // before; this only changes what happens when `tasks` (this project's own)
+  // is empty.
+  const anchorTasks = tasks.length > 0 ? tasks : extraBoundsTasks;
+  if (anchorTasks.length === 0) return null;
   const windowDays = GANTT_UNIT_WINDOW_DAYS[unit];
-  let earliest = tasks[0].scheduleStart;
-  let latest = tasks[0].scheduleEnd;
-  for (const task of tasks) {
+  let earliest = anchorTasks[0].scheduleStart;
+  let latest = anchorTasks[0].scheduleEnd;
+  for (const task of anchorTasks) {
     if (task.scheduleStart < earliest) earliest = task.scheduleStart;
     if (task.scheduleEnd > latest) latest = task.scheduleEnd;
   }

@@ -1,8 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/cn";
+import type { GanttBarEmphasis } from "./timeline";
 import { getBarGridColumns } from "./timeline";
-
-type GanttBarEmphasis = "normal" | "highlighted" | "dimmed";
 
 type GanttSummaryTaskBarProps = {
   title: string;

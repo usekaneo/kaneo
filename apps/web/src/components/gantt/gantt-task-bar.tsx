@@ -6,7 +6,15 @@ import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
-import { deriveTaskSchedule, getBarGridColumns } from "./timeline";
+import {
+  computeInsetBarBox,
+  computeProgressFillPercent,
+  deriveTaskSchedule,
+  type GanttBarEmphasis,
+  getBarEdgeInsetPx,
+  getBarGridColumns,
+  MIN_BAR_CONTENT_PX,
+} from "./timeline";
 
 const CLICK_MOVE_THRESHOLD_PX = 4;
 const MOBILE_MOVE_THRESHOLD_PX = 14;
@@ -15,8 +23,6 @@ type ScheduledTask = Task & {
   scheduleStart: Date;
   scheduleEnd: Date;
 };
-
-type GanttBarEmphasis = "normal" | "highlighted" | "dimmed";
 
 type GanttTaskBarProps = {
   task: ScheduledTask;
@@ -305,10 +311,32 @@ export function GanttTaskBar({
       )
     : null;
 
+  // Baseline underlay is independent of the bar's own in-view state (below):
+  // a task that has drifted far enough off its baseline to have scrolled
+  // out of the current window — the exact case this feature exists to show
+  // — must not lose its baseline underlay just because the actual bar isn't
+  // on screen. Computed here, before the `isInView` bailout, so that
+  // bailout can still return it instead of `null`.
+  const baselineUnderlay = baselineGrid?.barInView ? (
+    <div
+      className="pointer-events-none absolute inset-x-0 bottom-0.5 z-0 grid"
+      style={{ gridTemplateColumns: timeline.gridTemplateColumns }}
+    >
+      <div
+        style={{
+          gridColumn: `${baselineGrid.lineStart} / ${baselineGrid.lineEnd}`,
+        }}
+        className="mx-1 h-1 rounded-full bg-muted-foreground/40 dark:bg-muted-foreground/50"
+        title={t("tasks:properties.baseline")}
+        aria-hidden="true"
+      />
+    </div>
+  ) : null;
+
   const isInView = task.isMilestone ? milestoneGrid.barInView : barInView;
 
   if (!isInView) {
-    return null;
+    return baselineUnderlay;
   }
 
   // React's onBlur/onFocus fire from bubbling focusout/focusin, so tabbing
@@ -326,22 +354,6 @@ export function GanttTaskBar({
     if (next instanceof Node && event.currentTarget.contains(next)) return;
     onHoverChange?.(false);
   };
-
-  const baselineUnderlay = baselineGrid?.barInView ? (
-    <div
-      className="pointer-events-none absolute inset-x-0 bottom-0.5 z-0 grid"
-      style={{ gridTemplateColumns: timeline.gridTemplateColumns }}
-    >
-      <div
-        style={{
-          gridColumn: `${baselineGrid.lineStart} / ${baselineGrid.lineEnd}`,
-        }}
-        className="mx-1 h-1 rounded-full bg-muted-foreground/40 dark:bg-muted-foreground/50"
-        title={t("tasks:properties.baseline")}
-        aria-hidden="true"
-      />
-    </div>
-  ) : null;
 
   if (task.isMilestone) {
     return (
@@ -388,6 +400,28 @@ export function GanttTaskBar({
     );
   }
 
+  // Own tasks' bars always know their real pixel width (pixelsPerDay is
+  // measured from the actual rendered grid), so the margin/min-width that
+  // keeps a bar visible at very narrow Month/Quarter columns (see
+  // computeInsetBarBox in timeline.ts) can be computed directly here, rather
+  // than relying on a fixed CSS margin that would just clamp to invisible
+  // once the day-column width shrinks below it.
+  const trackWidthPx = pixelsPerDay * (lineEnd - lineStart);
+  const insetBox = computeInsetBarBox(0, trackWidthPx, getBarEdgeInsetPx());
+
+  // True progress over the task's FULL span, clipped to what's currently on
+  // screen (see computeProgressFillPercent) — not a percentage of the
+  // window-clipped bar itself, which would misrepresent progress once the
+  // bar extends past either window edge.
+  const progressFillPercent = computeProgressFillPercent(
+    task.progress,
+    displayStart,
+    displayEnd,
+    timeline.rangeStart,
+    lineStart,
+    lineEnd,
+  );
+
   return (
     <>
       {baselineUnderlay}
@@ -399,22 +433,26 @@ export function GanttTaskBar({
       >
         {/* biome-ignore lint/a11y/noStaticElementInteractions: hover/focus tracking drives dependency-line highlighting; the actual interactive controls are the buttons nested below */}
         <div
-          style={{ gridColumn: `${lineStart} / ${lineEnd}` }}
+          style={{
+            gridColumn: `${lineStart} / ${lineEnd}`,
+            marginInline: `${insetBox.insetPx}px`,
+            minWidth: `${MIN_BAR_CONTENT_PX}px`,
+          }}
           onMouseEnter={() => onHoverChange?.(true)}
           onMouseLeave={() => onHoverChange?.(false)}
           onFocus={() => onHoverChange?.(true)}
           onBlur={handleBlur}
           className={cn(
-            "group pointer-events-auto relative mx-1 flex min-h-[44px] min-w-0 items-stretch overflow-hidden rounded-md border border-primary/25 bg-background text-left text-sm font-medium leading-none text-foreground shadow-sm transition-[opacity,border-color] hover:border-primary/40 sm:h-11 sm:min-h-0",
+            "group pointer-events-auto relative flex min-h-[44px] min-w-0 items-stretch overflow-hidden rounded-md border border-primary/25 bg-background text-left text-sm font-medium leading-none text-foreground shadow-sm transition-[opacity,border-color] hover:border-primary/40 sm:h-11 sm:min-h-0",
             emphasis === "highlighted" &&
               "border-primary/60 ring-2 ring-primary/40",
             emphasis === "dimmed" && "opacity-35",
           )}
         >
-          {task.progress > 0 && (
+          {progressFillPercent > 0 && (
             <div
               className="pointer-events-none absolute inset-y-0 left-0 z-0 bg-primary/30 dark:bg-primary/40"
-              style={{ width: `${Math.min(100, Math.max(0, task.progress))}%` }}
+              style={{ width: `${progressFillPercent}%` }}
               aria-hidden="true"
             />
           )}

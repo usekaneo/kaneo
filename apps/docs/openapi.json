@@ -8354,8 +8354,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown task",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing task:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8364,11 +8367,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No workspace access, or missing task:update permission",
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8407,8 +8407,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown task",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing task:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8417,11 +8420,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No workspace access, or missing task:update permission",
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {

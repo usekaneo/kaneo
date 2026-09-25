@@ -72,6 +72,49 @@ describe("deleting a task with a cross-project relation", () => {
     }
   });
 
+  it("never publishes onto a foreign workspace's project channel for a legacy cross-workspace relation", async () => {
+    // Two separate workspaces (never a supported way to create a relation
+    // today, but a legacy row from before that boundary was enforced) —
+    // deleting the task in workspace A must not leak this workspace's task
+    // ids onto workspace B's project channel.
+    const memberA = await createWorkspaceMember({ role: "admin" });
+    const memberB = await createWorkspaceMember({ role: "admin" });
+    const { project: projectA } = await createProjectFixture({
+      workspaceId: memberA.workspace.id,
+    });
+    const { project: projectB } = await createProjectFixture({
+      workspaceId: memberB.workspace.id,
+    });
+
+    const [taskA] = await db
+      .insert(schema.taskTable)
+      .values({ projectId: projectA.id, title: "Task A", number: 1 })
+      .returning();
+    const [taskB] = await db
+      .insert(schema.taskTable)
+      .values({ projectId: projectB.id, title: "Task B", number: 1 })
+      .returning();
+    await db.insert(schema.taskRelationTable).values({
+      sourceTaskId: taskA.id,
+      targetTaskId: taskB.id,
+      relationType: "blocks",
+    });
+
+    mockAuthenticatedSession(memberA.user);
+    const response = await deleteTask(taskA.id);
+    expect(response.status).toBe(200);
+
+    const relationDeletedCalls = m.publish.mock.calls.filter(
+      ([eventName]) => eventName === "task-relation.deleted",
+    );
+    const notifiedProjectIds = relationDeletedCalls.map(
+      ([, payload]) => (payload as { projectId: string }).projectId,
+    );
+    // Only this workspace's own project hears about it — never the foreign
+    // workspace's project, and never a second event for the same relation.
+    expect(notifiedProjectIds).toEqual([projectA.id]);
+  });
+
   it("publishes only once for a same-project relation (no duplicate event for the same project)", async () => {
     const member = await createWorkspaceMember({ role: "admin" });
     const { project } = await createProjectFixture({

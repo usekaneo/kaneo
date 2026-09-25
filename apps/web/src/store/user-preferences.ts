@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import type { GanttUnit } from "@/components/gantt/timeline";
+import { GANTT_UNITS, type GanttUnit } from "@/components/gantt/timeline";
 
 export const WEEK_START_DAYS = [0, 1, 6] as const;
 export type WeekStartDay = (typeof WEEK_START_DAYS)[number];
@@ -8,8 +8,6 @@ export type WeekStartDay = (typeof WEEK_START_DAYS)[number];
 export function isWeekStartDay(value: number): value is WeekStartDay {
   return WEEK_START_DAYS.some((day) => day === value);
 }
-
-const GANTT_UNITS: readonly GanttUnit[] = ["day", "week", "month", "quarter"];
 
 export function isGanttUnit(value: unknown): value is GanttUnit {
   return GANTT_UNITS.includes(value as GanttUnit);

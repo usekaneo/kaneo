@@ -336,4 +336,30 @@ describe("buildDependencyEdges", () => {
     const minX = Math.min(...points.map((p) => p.x));
     expect(minX).toBeGreaterThanOrEqual(480 - 14 - 1);
   });
+
+  // buildDependencyEdges shares one obstacle array (every visible box)
+  // across every edge, rather than building a fresh "all-but-this-edge's-
+  // own-two" array per edge — buildElbowPoints itself excludes an edge's own
+  // source/target by reference (see its intermediateObstacles filter). This
+  // proves that sharing doesn't leak one edge's own endpoints into another
+  // edge's obstacle avoidance.
+  it("computes correct, independent geometry for multiple edges sharing the same obstacle set", () => {
+    const boxes = new Map<string, TaskBarBox>([
+      ["a", { left: 0, right: 100, top: 0, height: 40 }],
+      ["b", { left: 400, right: 500, top: 80, height: 40 }],
+      ["c", { left: 0, right: 100, top: 160, height: 40 }],
+      ["d", { left: 400, right: 500, top: 240, height: 40 }],
+    ]);
+    const edges: DependencyEdgeInput[] = [
+      { id: "e1", sourceTaskId: "a", targetTaskId: "b", relationType: "blocks" },
+      { id: "e2", sourceTaskId: "c", targetTaskId: "d", relationType: "related" },
+    ];
+
+    const geometry = buildDependencyEdges(edges, boxes);
+    expect(geometry).toHaveLength(2);
+    expect(geometry[0].sourcePoint).toEqual({ x: 100, y: 20 });
+    expect(geometry[0].targetPoint).toEqual({ x: 400, y: 100 });
+    expect(geometry[1].sourcePoint).toEqual({ x: 100, y: 180 });
+    expect(geometry[1].targetPoint).toEqual({ x: 400, y: 260 });
+  });
 });

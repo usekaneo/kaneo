@@ -1,7 +1,7 @@
-import { eq, inArray, or } from "drizzle-orm";
+import { and, eq, inArray, or } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { taskRelationTable, taskTable } from "../../database/schema";
+import { projectTable, taskRelationTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { deleteS3Keys, getTaskAssetKeys } from "../../storage/cleanup-assets";
 import getTask from "./get-task";
@@ -24,7 +24,10 @@ async function deleteTask(taskId: string, currentUserId: string) {
   // project's own tasks/projectId are looked up up front so the deletion
   // loop below can notify it too, same as the standalone relation-delete
   // endpoint does — otherwise its Gantt/dependency view never learns the
-  // relation (and the far end's own row) is gone.
+  // relation (and the far end's own row) is gone. Scoped to this task's own
+  // workspace (a join through projectTable, matching delete-task-relation.ts)
+  // so a legacy cross-workspace relation can't publish an event carrying
+  // this workspace's task ids onto a foreign workspace's project channel.
   const otherTaskIds = [
     ...new Set(
       relations.map((relation) =>
@@ -36,12 +39,25 @@ async function deleteTask(taskId: string, currentUserId: string) {
   ];
   const otherProjectIdByTaskId = new Map<string, string>();
   if (otherTaskIds.length > 0) {
-    const otherTasks = await db
-      .select({ id: taskTable.id, projectId: taskTable.projectId })
-      .from(taskTable)
-      .where(inArray(taskTable.id, otherTaskIds));
-    for (const otherTask of otherTasks) {
-      otherProjectIdByTaskId.set(otherTask.id, otherTask.projectId);
+    const [ownProject] = await db
+      .select({ workspaceId: projectTable.workspaceId })
+      .from(projectTable)
+      .where(eq(projectTable.id, task.projectId))
+      .limit(1);
+    if (ownProject) {
+      const otherTasks = await db
+        .select({ id: taskTable.id, projectId: taskTable.projectId })
+        .from(taskTable)
+        .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+        .where(
+          and(
+            inArray(taskTable.id, otherTaskIds),
+            eq(projectTable.workspaceId, ownProject.workspaceId),
+          ),
+        );
+      for (const otherTask of otherTasks) {
+        otherProjectIdByTaskId.set(otherTask.id, otherTask.projectId);
+      }
     }
   }
 

@@ -163,9 +163,17 @@ export function buildElbowPoints(
     const minY = Math.min(sourceY, targetY);
     const maxY = Math.max(sourceY, targetY);
     // Only bars whose row actually lies within the vertical run the elbow
-    // travels through can be crossed by it.
+    // travels through can be crossed by it — source/target themselves are
+    // excluded here (rather than by the caller pre-filtering the whole
+    // shared obstacle set per edge, an O(edges x boxes) allocation on every
+    // call) since this same pass already has to walk every box to check its
+    // row.
     const intermediateObstacles = obstacles.filter(
-      (box) => box.top < maxY && box.top + box.height > minY,
+      (box) =>
+        box !== source &&
+        box !== target &&
+        box.top < maxY &&
+        box.top + box.height > minY,
     );
     const midX = pickClearMidX(sourceX, targetX, intermediateObstacles);
     return [
@@ -243,9 +251,14 @@ export function buildDependencyEdges(
   taskBoxes: ReadonlyMap<string, TaskBarBox>,
 ): DependencyEdgeGeometry[] {
   const geometry: DependencyEdgeGeometry[] = [];
-  // Every other visible bar is a potential intermediate obstacle for a given
-  // edge; buildElbowPoints itself narrows this down to the ones whose row
-  // actually sits between that edge's two endpoints.
+  // Built once and passed to every edge's buildElbowPoints call as-is: every
+  // other visible bar is a potential intermediate obstacle for a given edge,
+  // and buildElbowPoints itself narrows this down (and excludes that edge's
+  // own source/target) to the ones whose row actually sits between its two
+  // endpoints. Re-filtering this whole array per edge (to drop that edge's
+  // source/target first) would allocate an O(edges x boxes) amount of
+  // throwaway arrays on a chart with many dependency lines, re-run on every
+  // zoom notch — sharing the one array instead keeps this O(boxes) overall.
   const allBoxes = [...taskBoxes.values()];
 
   for (const edge of edges) {
@@ -253,10 +266,7 @@ export function buildDependencyEdges(
     const target = taskBoxes.get(edge.targetTaskId);
     if (!source || !target) continue;
 
-    const obstacles = allBoxes.filter(
-      (box) => box !== source && box !== target,
-    );
-    const points = buildElbowPoints(source, target, obstacles);
+    const points = buildElbowPoints(source, target, allBoxes);
     const path = roundedPolylinePath(points, CORNER_RADIUS);
     const sourcePoint = points[0];
     const targetPoint = points[points.length - 1];

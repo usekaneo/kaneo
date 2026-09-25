@@ -38,12 +38,16 @@ import {
   buildGanttGridMetrics,
   buildGanttHeaderColumns,
   buildGanttRange,
+  computeInsetBarBox,
   deriveTaskSchedule,
+  GANTT_UNITS,
   type GanttUnit,
+  getBarEdgeInsetPx,
   getBarGridColumns,
   parseTaskDate,
 } from "@/components/gantt/timeline";
 import {
+  isZoomWheelGesture,
   nextGanttZoom,
   normalizeWheelDeltaY,
   scrollLeftForZoom,
@@ -83,8 +87,6 @@ type ExternalScheduledTask = ExternalGanttTask & { isExternal: true };
 // without a type assertion.
 type GanttRowTask = OwnScheduledTask | ExternalScheduledTask;
 
-const GANTT_UNITS: readonly GanttUnit[] = ["day", "week", "month", "quarter"];
-
 // Static i18n keys (never built from `unit` at the call site) for each
 // segmented-control option, per AGENTS.md's static-keys rule.
 const GANTT_UNIT_LABEL_KEYS: Record<GanttUnit, string> = {
@@ -111,22 +113,6 @@ const UNIT_BASE_DAY_COLUMN_WIDTH_REM: Record<
   month: { desktop: 0.185, mobile: 0.22 },
   quarter: { desktop: 0.076, mobile: 0.09 },
 };
-
-// Bars render with `mx-1` (0.25rem — see gantt-task-bar.tsx /
-// gantt-external-task-bar.tsx), so the visible edge sits inset from the
-// grid-column boundary a box's left/right are otherwise measured against;
-// without this a dependency line lands a few pixels short of (or past) the
-// bar it's supposed to touch. 0.25rem scales with the root font size, so
-// the inset is measured from it rather than assumed to be the default 16px
-// (4px) — otherwise it drifts out of alignment under a non-default
-// browser/OS font-size setting.
-function getBarEdgeInsetPx(): number {
-  if (typeof document === "undefined") return 4;
-  const rootFontSizePx = Number.parseFloat(
-    getComputedStyle(document.documentElement).fontSize,
-  );
-  return (Number.isFinite(rootFontSizePx) ? rootFontSizePx : 16) * 0.25;
-}
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/gantt",
@@ -645,16 +631,36 @@ function RouteComponent() {
     for (const task of renderedTasks) {
       const row = rowLayout.get(task.id);
       if (!row) continue;
-      const { barInView, lineStart, lineEnd } = getBarGridColumns(
-        task.scheduleStart,
-        task.scheduleEnd,
-        timeline.rangeStart,
-        trackCount,
-      );
+      // A milestone renders as a single diamond AT scheduleStart, never a
+      // span (see GanttTaskBar/GanttExternalTaskBar) — including one that
+      // still carries both startDate/dueDate from before it was marked a
+      // milestone. Measuring its box from the full scheduleStart..scheduleEnd
+      // span here (rather than the same start..start point the diamond
+      // itself uses) would anchor its dependency line at the wrong end of
+      // that span, and could even draw a line into the window from a
+      // diamond that's actually out of view.
+      const { barInView, lineStart, lineEnd } = task.isMilestone
+        ? getBarGridColumns(
+            task.scheduleStart,
+            task.scheduleStart,
+            timeline.rangeStart,
+            trackCount,
+          )
+        : getBarGridColumns(
+            task.scheduleStart,
+            task.scheduleEnd,
+            timeline.rangeStart,
+            trackCount,
+          );
       if (!barInView) continue;
+      const box = computeInsetBarBox(
+        barsLeftPx + (lineStart - 1) * pixelsPerDay,
+        barsLeftPx + (lineEnd - 1) * pixelsPerDay,
+        barEdgeInsetPx,
+      );
       boxes.set(task.id, {
-        left: barsLeftPx + (lineStart - 1) * pixelsPerDay + barEdgeInsetPx,
-        right: barsLeftPx + (lineEnd - 1) * pixelsPerDay - barEdgeInsetPx,
+        left: box.left,
+        right: box.right,
         top: row.top,
         height: row.height,
       });
@@ -732,8 +738,13 @@ function RouteComponent() {
 
   // Whether the chart itself (as opposed to a "no tasks"/"no matches" empty
   // state) is actually mounted — used to (re)attach the wheel-zoom listener
-  // once it appears, e.g. after tasks finish loading.
-  const chartIsMounted = Boolean(timeline) && scheduledTasks.length > 0;
+  // once it appears, e.g. after tasks finish loading. Mirrors the same
+  // "anything to render" condition the empty-state branches below use: a
+  // project with no own scheduled tasks but at least one cross-project
+  // related row still mounts the real chart, not the empty state.
+  const chartIsMounted =
+    Boolean(timeline) &&
+    (scheduledTasks.length > 0 || visibleExternalRelatedTasks.length > 0);
 
   // A pointerdown here should start a drag-to-pan only when it lands on
   // genuinely empty timeline background or the day-header — not on a task
@@ -812,7 +823,10 @@ function RouteComponent() {
   // scroll of the row list) since that's the one part of the chart that
   // isn't "the timeline" being zoomed; shift+wheel is also left alone so it
   // still works as the browser's own horizontal-scroll gesture, alongside
-  // drag-to-pan.
+  // drag-to-pan. A horizontal (trackpad two-finger) swipe over the timeline
+  // itself is a scroll gesture too, not a zoom one (see isZoomWheelGesture)
+  // — preventDefault-ing it here would otherwise block native horizontal
+  // scrolling even though no zoom happens.
   // biome-ignore lint/correctness/useExhaustiveDependencies: chartIsMounted forces the listener to (re)attach once the chart mounts; the closure itself only reads refs, not this value.
   useEffect(() => {
     const root = chartRootRef.current;
@@ -825,6 +839,9 @@ function RouteComponent() {
         event.target instanceof Element &&
         event.target.closest("[data-gantt-rail]")
       ) {
+        return;
+      }
+      if (!isZoomWheelGesture(event.deltaX, event.deltaY, event.ctrlKey)) {
         return;
       }
       event.preventDefault();
@@ -969,13 +986,20 @@ function RouteComponent() {
     if (
       hasCenteredOnTodayRef.current ||
       !todayInRange ||
-      scheduledTasks.length === 0 ||
+      (scheduledTasks.length === 0 &&
+        visibleExternalRelatedTasks.length === 0) ||
       !todayCellRef.current
     )
       return;
     hasCenteredOnTodayRef.current = true;
     scrollToToday("auto");
-  }, [todayInRange, scrollToToday, projectId, scheduledTasks.length]);
+  }, [
+    todayInRange,
+    scrollToToday,
+    projectId,
+    scheduledTasks.length,
+    visibleExternalRelatedTasks.length,
+  ]);
 
   return (
     <ProjectLayout
@@ -1087,7 +1111,11 @@ function RouteComponent() {
               size="xs"
               className="min-h-11 touch-manipulation sm:min-h-0"
               onClick={() => scrollToToday()}
-              disabled={!todayInRange || scheduledTasks.length === 0}
+              disabled={
+                !todayInRange ||
+                (scheduledTasks.length === 0 &&
+                  visibleExternalRelatedTasks.length === 0)
+              }
             >
               <Calendar className="size-3.5" />
               {t("tasks:gantt.jumpToToday")}
@@ -1111,7 +1139,8 @@ function RouteComponent() {
           </div>
         </div>
 
-        {!timeline || parsedTasks.length === 0 ? (
+        {!timeline ||
+        (parsedTasks.length === 0 && externalRelatedTasks.length === 0) ? (
           <div className="flex flex-1 items-center justify-center px-6">
             <div className="max-w-sm text-center">
               <h2 className="text-sm font-semibold text-foreground">
@@ -1122,7 +1151,8 @@ function RouteComponent() {
               </p>
             </div>
           </div>
-        ) : scheduledTasks.length === 0 ? (
+        ) : scheduledTasks.length === 0 &&
+          visibleExternalRelatedTasks.length === 0 ? (
           <div className="flex flex-1 items-center justify-center px-6">
             <div className="max-w-sm text-center">
               <h2 className="text-sm font-semibold text-foreground">

@@ -455,10 +455,10 @@ const setTaskBaselineRoute = createRoute({
   request: { params: taskParam },
   responses: {
     200: jsonResponse("The updated task", taskSchema),
-    400: errorResponse("Unknown task"),
     403: errorResponse(
       "No workspace access, or missing task:update permission",
     ),
+    404: errorResponse("Task not found"),
   },
 });
 
@@ -477,10 +477,10 @@ const clearTaskBaselineRoute = createRoute({
   request: { params: taskParam },
   responses: {
     200: jsonResponse("The updated task", taskSchema),
-    400: errorResponse("Unknown task"),
     403: errorResponse(
       "No workspace access, or missing task:update permission",
     ),
+    404: errorResponse("Task not found"),
   },
 });
 

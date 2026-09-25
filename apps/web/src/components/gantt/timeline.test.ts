@@ -11,10 +11,14 @@ import {
   buildGanttHeaderColumns,
   buildGanttRange,
   buildGanttTimeline,
+  computeInsetBarBox,
+  computeProgressFillPercent,
   deriveTaskSchedule,
   GANTT_UNIT_WINDOW_DAYS,
+  GANTT_UNITS,
   GANTT_WINDOW_DAYS,
   getBarGridColumns,
+  MIN_BAR_CONTENT_PX,
   parseTaskDate,
 } from "./timeline";
 
@@ -167,6 +171,28 @@ describe("buildGanttRange extraBoundsTasks (external related tasks)", () => {
     );
     const implicit = buildGanttRange(ownTasks, 1, null, parseISO("2026-09-20"));
     expect(explicit).toEqual(implicit);
+  });
+
+  it("falls back to the bounds tasks to build a window when the project has no scheduled own tasks at all", () => {
+    // A project with zero own scheduled tasks but at least one cross-project
+    // related row (externalBoundsTasks) must still get a real window — not
+    // `null`, which the Gantt route reads as "nothing to show at all" and
+    // would otherwise hide those external rows entirely.
+    const externalTasks = [span("2026-09-14", "2026-09-18")];
+    const range = buildGanttRange(
+      [],
+      1,
+      null,
+      parseISO("2026-09-20"),
+      "day",
+      externalTasks,
+    );
+    expect(range).not.toBeNull();
+    expect(range?.days.some((day) => day.getTime() === parseISO("2026-09-14").getTime())).toBe(true);
+  });
+
+  it("still returns null when both the own tasks and the bounds tasks are empty", () => {
+    expect(buildGanttRange([], 1, null, parseISO("2026-09-20"))).toBeNull();
   });
 });
 
@@ -426,5 +452,110 @@ describe("GANTT_UNIT_WINDOW_DAYS and unit-aware buildGanttRange", () => {
     );
     expect(timeline?.days.length).toBe(GANTT_WINDOW_DAYS);
     expect(timeline?.windowDays).toBe(GANTT_WINDOW_DAYS);
+  });
+});
+
+describe("GANTT_UNITS", () => {
+  it("lists every unit exactly once, in display order", () => {
+    expect(GANTT_UNITS).toEqual(["day", "week", "month", "quarter"]);
+  });
+});
+
+describe("computeInsetBarBox", () => {
+  it("insets both edges by the requested amount when the track is comfortably wide", () => {
+    const box = computeInsetBarBox(100, 200, 4);
+    expect(box).toEqual({ left: 104, right: 196, insetPx: 4 });
+  });
+
+  it("shrinks the inset (never negative) so the box never ends up narrower than MIN_BAR_CONTENT_PX", () => {
+    // A track only 4px wide — narrower than 2x the desired 4px inset alone
+    // (a single day-track at deep Month/Quarter zoom-out) would otherwise
+    // invert (right < left) or collapse to nothing.
+    const box = computeInsetBarBox(100, 104, 4);
+    expect(box.right - box.left).toBe(MIN_BAR_CONTENT_PX);
+    expect(box.right).toBeGreaterThan(box.left);
+    expect(box.insetPx).toBeGreaterThanOrEqual(0);
+  });
+
+  it("never inverts even for a zero- or negative-width track", () => {
+    const zeroWidth = computeInsetBarBox(100, 100, 4);
+    expect(zeroWidth.right).toBeGreaterThan(zeroWidth.left);
+    expect(zeroWidth.right - zeroWidth.left).toBe(MIN_BAR_CONTENT_PX);
+
+    const negativeWidth = computeInsetBarBox(100, 98, 4);
+    expect(negativeWidth.right).toBeGreaterThan(negativeWidth.left);
+  });
+});
+
+describe("computeProgressFillPercent", () => {
+  const rangeStart = parseISO("2026-09-01");
+
+  it("matches a plain percentage when the whole task is on screen", () => {
+    // A 10-day task (lines 1..11), fully visible, 50% done.
+    const percent = computeProgressFillPercent(
+      50,
+      parseISO("2026-09-01"),
+      parseISO("2026-09-10"),
+      rangeStart,
+      1,
+      11,
+    );
+    expect(percent).toBeCloseTo(50, 5);
+  });
+
+  it("fills the entire visible sliver once progress has passed beyond it", () => {
+    // A 100-day task, window only shows its FIRST 10 days (lines 1..11);
+    // 50% progress (the halfway point of the full 100-day span) is well
+    // past that early sliver, so what's on screen should already read as
+    // fully caught up rather than a % of just the clipped bar.
+    const percent = computeProgressFillPercent(
+      50,
+      parseISO("2026-09-01"),
+      addDays(parseISO("2026-09-01"), 99),
+      rangeStart,
+      1,
+      11,
+    );
+    expect(percent).toBe(100);
+  });
+
+  it("shows no fill when progress hasn't reached the visible sliver yet", () => {
+    // Same 100-day task, but the window shows its LAST 10 days (lines
+    // 91..101); the task is only 50% done, well before that late sliver, so
+    // nothing on screen is "ahead of" the progress line yet.
+    const percent = computeProgressFillPercent(
+      50,
+      parseISO("2026-09-01"),
+      addDays(parseISO("2026-09-01"), 99),
+      rangeStart,
+      91,
+      101,
+    );
+    expect(percent).toBe(0);
+  });
+
+  it("is a no-op (0) for a degenerate zero-width visible box", () => {
+    expect(
+      computeProgressFillPercent(
+        50,
+        parseISO("2026-09-01"),
+        parseISO("2026-09-10"),
+        rangeStart,
+        5,
+        5,
+      ),
+    ).toBe(0);
+  });
+
+  it("clamps out-of-range progress the same way the bar's own fill width does", () => {
+    const over = computeProgressFillPercent(
+      150,
+      parseISO("2026-09-01"),
+      parseISO("2026-09-10"),
+      rangeStart,
+      1,
+      11,
+    );
+    expect(over).toBe(100);
   });
 });

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   clampGanttZoom,
+  isZoomWheelGesture,
   MAX_GANTT_ZOOM,
   MIN_GANTT_ZOOM,
   nextGanttZoom,
@@ -131,5 +132,27 @@ describe("scrollLeftForZoom", () => {
     });
     // dayContentX = 400; scaled = 200; scrollLeft = 200 - 100 = 100.
     expect(result).toBe(100);
+  });
+});
+
+describe("isZoomWheelGesture", () => {
+  it("treats a vertical wheel (no deltaX) as a zoom gesture", () => {
+    expect(isZoomWheelGesture(0, 100, false)).toBe(true);
+  });
+
+  it("treats a deltaX-dominant trackpad swipe as a scroll gesture, not zoom", () => {
+    expect(isZoomWheelGesture(100, 10, false)).toBe(false);
+  });
+
+  it("treats an equal deltaX/deltaY as zoom (deltaY wins ties)", () => {
+    expect(isZoomWheelGesture(50, 50, false)).toBe(true);
+  });
+
+  it("always treats ctrl+wheel as zoom, even with a deltaX-dominant delta", () => {
+    expect(isZoomWheelGesture(100, 10, true)).toBe(true);
+  });
+
+  it("treats a pure horizontal wheel (deltaY exactly 0) as scroll", () => {
+    expect(isZoomWheelGesture(50, 0, false)).toBe(false);
   });
 });

@@ -42,6 +42,7 @@ import { getPriorityLabel, getStatusDisplayLabel } from "@/lib/i18n/domain";
 import { resolveLabelColor } from "@/lib/label-color";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
+import type Task from "@/types/task";
 import TaskAssigneePopover from "./task-assignee-popover";
 import TaskBaselinePopover from "./task-baseline-popover";
 import TaskDueDatePopover from "./task-due-date-popover";
@@ -73,6 +74,78 @@ function generateBranchName(
     .replace("{slug}", projectSlug.toLowerCase())
     .replace("{number}", taskNumber.toString())
     .replace("{title}", slugify(taskTitle));
+}
+
+type TaskScheduleButtonsProps = {
+  task: Task;
+  /** Desktop's stacked layout wants each button full-width; compact/mobile
+   * lay them out in a wrapping row instead. */
+  fullWidth?: boolean;
+};
+
+// The progress/milestone/baseline trio: identical across the compact,
+// mobile, and desktop layout variants below (only the container/button width
+// differs), so it's extracted once here rather than repeated three times.
+function TaskScheduleButtons({
+  task,
+  fullWidth = false,
+}: TaskScheduleButtonsProps) {
+  const { t } = useTranslation();
+  const buttonClassName = cn(
+    "justify-start h-7 px-1.5 gap-1.5",
+    fullWidth && "w-full",
+  );
+
+  return (
+    <>
+      <TaskProgressPopover task={task}>
+        <Button
+          variant="ghost"
+          size="sm"
+          aria-label={t("tasks:popover.progress.label")}
+          className={buttonClassName}
+        >
+          <Percent className="w-3.5 h-3.5 text-muted-foreground" />
+          <span className="text-xs font-semibold">{task.progress ?? 0}%</span>
+        </Button>
+      </TaskProgressPopover>
+      <TaskMilestonePopover task={task}>
+        <Button
+          variant="ghost"
+          size="sm"
+          aria-label={t("tasks:popover.milestone.label")}
+          className={cn(buttonClassName, task.isMilestone && "text-primary")}
+        >
+          <Diamond
+            className={cn(
+              "w-3.5 h-3.5",
+              task.isMilestone
+                ? "fill-primary/20 text-primary"
+                : "text-muted-foreground",
+            )}
+          />
+          <span className="text-xs font-semibold">
+            {t("tasks:properties.milestone")}
+          </span>
+        </Button>
+      </TaskMilestonePopover>
+      <TaskBaselinePopover task={task}>
+        <Button
+          variant="ghost"
+          size="sm"
+          aria-label={t("tasks:popover.baseline.label")}
+          className={buttonClassName}
+        >
+          <History className="w-3.5 h-3.5 text-muted-foreground" />
+          <span className="text-xs font-semibold text-muted-foreground">
+            {task.baselineStartDate || task.baselineDueDate
+              ? t("tasks:properties.baseline")
+              : t("tasks:popover.baseline.set")}
+          </span>
+        </Button>
+      </TaskBaselinePopover>
+    </>
+  );
 }
 
 type TaskPropertiesSidebarProps = {
@@ -330,63 +403,7 @@ export default function TaskPropertiesSidebar({
                   </Button>
                 </TaskDueDatePopover>
               )}
-              {task && (
-                <TaskProgressPopover task={task}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    aria-label={t("tasks:popover.progress.label")}
-                    className="justify-start h-7 px-1.5 gap-1.5"
-                  >
-                    <Percent className="w-3.5 h-3.5 text-muted-foreground" />
-                    <span className="text-xs font-semibold">
-                      {task.progress ?? 0}%
-                    </span>
-                  </Button>
-                </TaskProgressPopover>
-              )}
-              {task && (
-                <TaskMilestonePopover task={task}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    aria-label={t("tasks:popover.milestone.label")}
-                    className={cn(
-                      "justify-start h-7 px-1.5 gap-1.5",
-                      task.isMilestone && "text-primary",
-                    )}
-                  >
-                    <Diamond
-                      className={cn(
-                        "w-3.5 h-3.5",
-                        task.isMilestone
-                          ? "fill-primary/20 text-primary"
-                          : "text-muted-foreground",
-                      )}
-                    />
-                    <span className="text-xs font-semibold">
-                      {t("tasks:properties.milestone")}
-                    </span>
-                  </Button>
-                </TaskMilestonePopover>
-              )}
-              {task && (
-                <TaskBaselinePopover task={task}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    aria-label={t("tasks:popover.baseline.label")}
-                    className="justify-start h-7 px-1.5 gap-1.5"
-                  >
-                    <History className="w-3.5 h-3.5 text-muted-foreground" />
-                    <span className="text-xs font-semibold text-muted-foreground">
-                      {task.baselineStartDate || task.baselineDueDate
-                        ? t("tasks:properties.baseline")
-                        : t("tasks:popover.baseline.set")}
-                    </span>
-                  </Button>
-                </TaskBaselinePopover>
-              )}
+              {task && <TaskScheduleButtons task={task} />}
             </div>
           </div>
         )}
@@ -578,63 +595,7 @@ export default function TaskPropertiesSidebar({
                     </Button>
                   </TaskDueDatePopover>
                 )}
-                {task && (
-                  <TaskProgressPopover task={task}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      aria-label={t("tasks:popover.progress.label")}
-                      className="justify-start h-7 px-1.5 gap-1.5"
-                    >
-                      <Percent className="w-3.5 h-3.5 text-muted-foreground" />
-                      <span className="text-xs font-semibold">
-                        {task.progress ?? 0}%
-                      </span>
-                    </Button>
-                  </TaskProgressPopover>
-                )}
-                {task && (
-                  <TaskMilestonePopover task={task}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      aria-label={t("tasks:popover.milestone.label")}
-                      className={cn(
-                        "justify-start h-7 px-1.5 gap-1.5",
-                        task.isMilestone && "text-primary",
-                      )}
-                    >
-                      <Diamond
-                        className={cn(
-                          "w-3.5 h-3.5",
-                          task.isMilestone
-                            ? "fill-primary/20 text-primary"
-                            : "text-muted-foreground",
-                        )}
-                      />
-                      <span className="text-xs font-semibold">
-                        {t("tasks:properties.milestone")}
-                      </span>
-                    </Button>
-                  </TaskMilestonePopover>
-                )}
-                {task && (
-                  <TaskBaselinePopover task={task}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      aria-label={t("tasks:popover.baseline.label")}
-                      className="justify-start h-7 px-1.5 gap-1.5"
-                    >
-                      <History className="w-3.5 h-3.5 text-muted-foreground" />
-                      <span className="text-xs font-semibold text-muted-foreground">
-                        {task.baselineStartDate || task.baselineDueDate
-                          ? t("tasks:properties.baseline")
-                          : t("tasks:popover.baseline.set")}
-                      </span>
-                    </Button>
-                  </TaskBaselinePopover>
-                )}
+                {task && <TaskScheduleButtons task={task} />}
               </div>
             </div>
 
@@ -828,63 +789,7 @@ export default function TaskPropertiesSidebar({
                     </Button>
                   </TaskDueDatePopover>
                 )}
-                {task && (
-                  <TaskProgressPopover task={task}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      aria-label={t("tasks:popover.progress.label")}
-                      className="justify-start h-7 px-1.5 gap-1.5 w-full"
-                    >
-                      <Percent className="w-3.5 h-3.5 text-muted-foreground" />
-                      <span className="text-xs font-semibold">
-                        {task.progress ?? 0}%
-                      </span>
-                    </Button>
-                  </TaskProgressPopover>
-                )}
-                {task && (
-                  <TaskMilestonePopover task={task}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      aria-label={t("tasks:popover.milestone.label")}
-                      className={cn(
-                        "justify-start h-7 px-1.5 gap-1.5 w-full",
-                        task.isMilestone && "text-primary",
-                      )}
-                    >
-                      <Diamond
-                        className={cn(
-                          "w-3.5 h-3.5",
-                          task.isMilestone
-                            ? "fill-primary/20 text-primary"
-                            : "text-muted-foreground",
-                        )}
-                      />
-                      <span className="text-xs font-semibold">
-                        {t("tasks:properties.milestone")}
-                      </span>
-                    </Button>
-                  </TaskMilestonePopover>
-                )}
-                {task && (
-                  <TaskBaselinePopover task={task}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      aria-label={t("tasks:popover.baseline.label")}
-                      className="justify-start h-7 px-1.5 gap-1.5 w-full"
-                    >
-                      <History className="w-3.5 h-3.5 text-muted-foreground" />
-                      <span className="text-xs font-semibold text-muted-foreground">
-                        {task.baselineStartDate || task.baselineDueDate
-                          ? t("tasks:properties.baseline")
-                          : t("tasks:popover.baseline.set")}
-                      </span>
-                    </Button>
-                  </TaskBaselinePopover>
-                )}
+                {task && <TaskScheduleButtons task={task} fullWidth />}
               </div>
             </div>
           </>

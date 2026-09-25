@@ -51,6 +51,24 @@ export function clampGanttZoom(zoom: number): number {
   return Math.min(MAX_GANTT_ZOOM, Math.max(MIN_GANTT_ZOOM, zoom));
 }
 
+// Whether a wheel event should drive Gantt zoom rather than be left alone
+// for the browser's own native scroll. A trackpad's two-finger horizontal
+// swipe is a scroll gesture, not a zoom one — it reports a deltaX-dominant
+// event, and treating it as zoom (which preventDefaults the event) would
+// also block native horizontal scrolling over the timeline. A vertical
+// wheel (the common case: a physical mouse wheel, which never reports
+// deltaX, or a trackpad's vertical swipe) or an explicit ctrl+wheel (the
+// standard trackpad-pinch/ctrl-zoom signal browsers report) is the "clear
+// zoom gesture" that should actually zoom.
+export function isZoomWheelGesture(
+  deltaX: number,
+  deltaY: number,
+  ctrlKey: boolean,
+): boolean {
+  if (ctrlKey) return true;
+  return Math.abs(deltaY) >= Math.abs(deltaX);
+}
+
 // `deltaY > 0` (scrolling down/away) zooms out; `deltaY < 0` zooms in — the
 // same direction convention as maps and code editors.
 export function nextGanttZoom(currentZoom: number, deltaY: number): number {
