@@ -1,5 +1,4 @@
 import type { Editor } from "@tiptap/core";
-import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Table } from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
@@ -48,7 +47,7 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { bundledLanguages, type Highlighter } from "shiki";
+import type { Highlighter } from "shiki";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogPopup } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -72,7 +71,6 @@ import {
   normalizeUrl,
 } from "@/lib/editor-url-utils";
 import { isInCodeBlockLanguagePicker } from "@/lib/is-in-codeblock-language-picker";
-import { getSharedShikiHighlighter } from "@/lib/shiki-highlighter";
 import { toast } from "@/lib/toast";
 import { uploadTaskImage } from "@/lib/upload-task-image";
 import { AttachmentCard } from "./extensions/attachment-card";
@@ -80,6 +78,7 @@ import { EmbedBlock } from "./extensions/embed-block";
 import { KaneoIssueLink } from "./extensions/kaneo-issue-link";
 import { MermaidBlock } from "./extensions/mermaid-block";
 import { ResizableImage } from "./extensions/resizable-image";
+import { SafeHardBreak } from "./extensions/safe-hard-break";
 import {
   SHIKI_CODEBLOCK_REFRESH_META,
   ShikiCodeBlock,
@@ -313,6 +312,13 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   const updateTaskRef = useRef(updateTaskDescription);
   const activeTaskIdRef = useRef<string | null>(null);
   const lastEditorRef = useRef<Editor | null>(null);
+  const isMountedRef = useRef(false);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
   const pendingImageInsertRef = useRef<{
     editor: Editor;
     range?: SlashRange;
@@ -349,9 +355,8 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     updateTaskRef.current = updateTaskDescription;
   }, [task, taskId, updateTaskDescription]);
 
-  const shikiSupportedLanguages = useMemo(
-    () => new Set([...Object.keys(bundledLanguages), "text"]),
-    [],
+  const [shikiSupportedLanguages, setShikiSupportedLanguages] = useState(
+    () => new Set<string>(["text"]),
   );
   const toShikiLanguage = useCallback(
     (language: string) => SHIKI_LANGUAGE_ALIASES[language] || language,
@@ -404,16 +409,21 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
       }
 
       if (asset.kind === "image") {
-        chain
+        const ran = chain
           .setImage({
             src: asset.url,
             alt: asset.alt,
           })
           .run();
+        // Chain commands report silent failure via false rather than
+        // throwing; convert it so the caller's catch reports it.
+        if (!ran) {
+          throw new Error(t("tasks:detail.editor.upload.failed"));
+        }
         return;
       }
 
-      chain
+      const ran = chain
         .insertContent({
           type: "attachmentCard",
           attrs: {
@@ -424,8 +434,11 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           },
         })
         .run();
+      if (!ran) {
+        throw new Error(t("tasks:detail.editor.upload.failed"));
+      }
     },
-    [],
+    [t],
   );
 
   const handleAssetFileUpload = useCallback(
@@ -450,12 +463,22 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           file,
         });
 
-        if (activeEditor.isDestroyed || taskIdRef.current !== uploadTaskId) {
+        // The captured editor can be destroyed and replaced while the upload
+        // is in flight; fall back to the current instance for the same task.
+        const currentEditor = !activeEditor.isDestroyed
+          ? activeEditor
+          : lastEditorRef.current;
+        if (!isMountedRef.current || taskIdRef.current !== uploadTaskId) {
           toast.dismiss(loadingToast);
           return;
         }
+        if (!currentEditor || currentEditor.isDestroyed) {
+          throw new Error(t("tasks:detail.editor.upload.failed"));
+        }
 
-        insertUploadedAsset(activeEditor, uploadedAsset, range);
+        // insertUploadedAsset throws on failure and the catch below reports
+        // it, so reaching the toast means the image is in the document.
+        insertUploadedAsset(currentEditor, uploadedAsset, range);
 
         toast.dismiss(loadingToast);
         toast.success(
@@ -560,11 +583,19 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   useEffect(() => {
     let isDisposed = false;
 
-    void getSharedShikiHighlighter()
-      .then((nextHighlighter) => {
+    void Promise.all([
+      import("@/lib/shiki-highlighter").then(({ getSharedShikiHighlighter }) =>
+        getSharedShikiHighlighter(),
+      ),
+      import("shiki"),
+    ])
+      .then(([nextHighlighter, { bundledLanguages: languages }]) => {
         shikiHighlighterRef.current = nextHighlighter;
         if (!isDisposed) {
           setShikiHighlighter(nextHighlighter);
+          setShikiSupportedLanguages(
+            new Set([...Object.keys(languages), "text"]),
+          );
         }
       })
       .catch((error) => {
@@ -623,13 +654,9 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           },
           trailingNode: false,
           heading: { levels: [1, 2, 3] },
+          hardBreak: false,
         }),
-        Link.configure({
-          autolink: true,
-          defaultProtocol: "https",
-          linkOnPaste: true,
-          openOnClick: false,
-        }),
+        SafeHardBreak,
         Markdown.configure({
           markedOptions: {
             breaks: true,
@@ -872,7 +899,10 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   }, [editor]);
 
   useEffect(() => {
-    if (!editor) return;
+    // The editor instance can be destroyed and replaced while effects are
+    // flushing (e.g. a language change recreates it via useEditor deps). The
+    // next run attaches to the replacement instance.
+    if (!editor || editor.isDestroyed) return;
 
     const handleImagePreviewClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement | null;

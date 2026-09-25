@@ -73,17 +73,17 @@ function RootCrashFallback({
     <div className="flex min-h-screen items-center justify-center bg-background p-6">
       <div className="max-w-md text-center">
         <h1 className="text-2xl font-semibold text-foreground">
-          {t("common.error.title")}
+          {t("common:error.title")}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          {t("common.error.description")}
+          {t("common:error.description")}
         </p>
         <button
           type="button"
           onClick={resetError}
           className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
         >
-          {t("common.error.refreshPage")}
+          {t("common:error.refreshPage")}
         </button>
       </div>
     </div>

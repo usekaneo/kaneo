@@ -110,6 +110,24 @@ describe("ResizableImage", () => {
     expect(instance.getJSON().content?.[0]?.attrs?.width).toBeNull();
   });
 
+  it.each(["9".repeat(400), "9007199254740993"])(
+    "ignores an overflowing or imprecise HTML width: %s",
+    (width) => {
+      const instance = createEditor();
+      instance.commands.setContent(`<img src="${SRC}" width="${width}">`);
+      expect(instance.getJSON().content?.[0]?.attrs?.width).toBeNull();
+    },
+  );
+
+  it.each([Number.POSITIVE_INFINITY, Number.MAX_SAFE_INTEGER + 1])(
+    "does not serialize an invalid numeric width: %s",
+    (width) => {
+      const instance = createEditor();
+      setImage(instance, { alt: "Diagram", width });
+      expect(instance.getMarkdown()).toContain(`![Diagram](${SRC})`);
+    },
+  );
+
   it("ignores a percentage in the width attribute", () => {
     const instance = createEditor();
     instance.commands.setContent(`<img src="${SRC}" width="50%">`);

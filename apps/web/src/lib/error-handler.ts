@@ -20,6 +20,7 @@ export function parseApiError(error: unknown): ApiError {
     }
 
     if (
+      error.message.includes("Load failed") ||
       error.message.includes("fetch") ||
       error.message.includes("network") ||
       error.message.includes("connection")

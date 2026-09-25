@@ -1,97 +1,52 @@
-import type { User } from "better-auth/types";
-import { Hono } from "hono";
-import { describeRoute, resolver, validator } from "hono-openapi";
-import * as v from "valibot";
+import { apiRouter, createRoute, jsonResponse } from "../openapi";
 import getInvitationDetailsController from "./controllers/get-invitation-details";
 import getUserPendingInvitations from "./controllers/get-user-pending-invitations";
+import {
+  invitationDetailsSchema,
+  pendingInvitationListSchema,
+} from "./response";
+import { invitationParam } from "./schema";
 
-const invitation = new Hono<{
-  Variables: {
-    user: User | null;
-    userId: string;
-    userEmail: string;
-  };
-}>()
-  .get(
-    "/pending",
-    describeRoute({
-      operationId: "getUserPendingInvitations",
-      tags: ["Invitations"],
-      description: "Get all pending invitations for the current user",
-      responses: {
-        200: {
-          description: "List of pending invitations",
-          content: {
-            "application/json": {
-              schema: resolver(
-                v.array(
-                  v.object({
-                    id: v.string(),
-                    email: v.string(),
-                    workspaceId: v.string(),
-                    workspaceName: v.string(),
-                    inviterName: v.string(),
-                    expiresAt: v.string(),
-                    createdAt: v.string(),
-                    status: v.string(),
-                  }),
-                ),
-              ),
-            },
-          },
-        },
-      },
-    }),
-    async (c) => {
-      const user = c.get("user");
-      if (!user?.emailVerified) {
-        return c.json([]);
-      }
+const getPendingRoute = createRoute({
+  method: "get",
+  operationId: "getUserPendingInvitations",
+  path: "/pending",
+  tags: ["Invitations"],
+  summary: "Get pending invitations",
+  description:
+    "Get the current user's unexpired, unaccepted invitations. Returns an empty list until the user's email is verified.",
+  responses: {
+    200: jsonResponse(
+      "List of pending invitations",
+      pendingInvitationListSchema,
+    ),
+  },
+});
 
-      const userEmail = c.get("userEmail");
-      const invitations = await getUserPendingInvitations(userEmail);
-      return c.json(invitations);
-    },
-  )
-  .get(
-    "/:id",
-    describeRoute({
-      operationId: "getInvitationDetails",
-      tags: ["Invitations"],
-      description: "Get details of a specific invitation by ID",
-      responses: {
-        200: {
-          description: "Invitation details",
-          content: {
-            "application/json": {
-              schema: resolver(
-                v.object({
-                  valid: v.boolean(),
-                  invitation: v.optional(
-                    v.object({
-                      id: v.string(),
-                      email: v.string(),
-                      workspaceName: v.string(),
-                      inviterName: v.string(),
-                      expiresAt: v.string(),
-                      status: v.string(),
-                      expired: v.boolean(),
-                    }),
-                  ),
-                  error: v.optional(v.string()),
-                }),
-              ),
-            },
-          },
-        },
-      },
-    }),
-    validator("param", v.object({ id: v.string() })),
-    async (c) => {
-      const { id } = c.req.valid("param");
-      const result = await getInvitationDetailsController(id);
-      return c.json(result);
-    },
+const getInvitationRoute = createRoute({
+  method: "get",
+  operationId: "getInvitationDetails",
+  path: "/{id}",
+  tags: ["Invitations"],
+  summary: "Get invitation details",
+  description:
+    "Look up an invitation by ID. Always 200 -- an unusable invitation is reported with valid: false and a reason rather than an error status.",
+  request: { params: invitationParam },
+  responses: {
+    200: jsonResponse("Invitation details", invitationDetailsSchema),
+  },
+});
+
+const invitation = apiRouter()
+  .openapi(getPendingRoute, async (c) => {
+    const user = c.get("user");
+    if (!user?.emailVerified) {
+      return c.json([], 200);
+    }
+    return c.json(await getUserPendingInvitations(c.get("userEmail")), 200);
+  })
+  .openapi(getInvitationRoute, async (c) =>
+    c.json(await getInvitationDetailsController(c.req.valid("param").id), 200),
   );
 
 export default invitation;

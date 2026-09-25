@@ -1,0 +1,259 @@
+{
+	"version": 1,
+	"organization": "kaneo",
+	"region": "de",
+	"api_base": "https://de.sentry.io/api/0",
+	"_comment": "Each dashboard here becomes a top-level dashboard in Sentry. The script creates-or-updates by title. Widgets are versioned here so dashboard changes are auditable.",
+	"_comment_field_types": "Widget queries use Sentry's discover query syntax. Performance widgets use dataset: events_analytics_platform (with is_transaction:true) per the current Sentry API. Error widgets use dataset: events.",
+	"dashboards": [
+		{
+			"title": "Kaneo: Backend Overview",
+			"description": "API errors, latency, and request volume for kaneo-api.",
+			"widgets": [
+				{
+					"title": "Error events (count over time)",
+					"displayType": "line",
+					"interval": "1h",
+					"queries": [
+						{
+							"fields": ["count()", "time"],
+							"aggregates": ["count()"],
+							"columns": ["time"],
+							"query": "event.type:error project:kaneo-api",
+							"orderby": "time",
+							"limit": 10
+						}
+					]
+				},
+				{
+					"title": "API p95 latency (ms)",
+					"displayType": "line",
+					"interval": "1h",
+					"queries": [
+						{
+							"fields": ["p95(transaction.duration)", "time"],
+							"aggregates": ["p95(transaction.duration)"],
+							"columns": ["time"],
+							"query": "transaction:*/api/* is_transaction:true project:kaneo-api",
+							"orderby": "time",
+							"limit": 10
+						}
+					]
+				},
+				{
+					"title": "API request volume",
+					"displayType": "line",
+					"interval": "1h",
+					"queries": [
+						{
+							"fields": ["count()", "time"],
+							"aggregates": ["count()"],
+							"columns": ["time"],
+							"query": "transaction:*/api/* is_transaction:true project:kaneo-api",
+							"orderby": "time",
+							"limit": 10
+						}
+					]
+				},
+				{
+					"title": "Top errors by exception type",
+					"displayType": "table",
+					"interval": "24h",
+					"queries": [
+						{
+							"fields": ["exception.type", "count()"],
+							"aggregates": ["count()"],
+							"columns": ["exception.type"],
+							"query": "event.type:error project:kaneo-api",
+							"orderby": "-count()",
+							"limit": 10
+						}
+					]
+				}
+			]
+		},
+		{
+			"title": "Kaneo: Frontend Overview",
+			"description": "Web errors, page loads, and web vitals for kaneo-web.",
+			"widgets": [
+				{
+					"title": "Web error events (count over time)",
+					"displayType": "line",
+					"interval": "1h",
+					"queries": [
+						{
+							"fields": ["count()", "time"],
+							"aggregates": ["count()"],
+							"columns": ["time"],
+							"query": "event.type:error project:kaneo-web",
+							"orderby": "time",
+							"limit": 10
+						}
+					]
+				},
+				{
+					"title": "Page load p95 (ms)",
+					"displayType": "line",
+					"interval": "1h",
+					"queries": [
+						{
+							"fields": ["p95(transaction.duration)", "time"],
+							"aggregates": ["p95(transaction.duration)"],
+							"columns": ["time"],
+							"query": "project:kaneo-web is_transaction:true",
+							"orderby": "time",
+							"limit": 10
+						}
+					]
+				},
+				{
+					"title": "LCP (p75, ms)",
+					"displayType": "line",
+					"interval": "1h",
+					"queries": [
+						{
+							"fields": ["p75(measurements.lcp)", "time"],
+							"aggregates": ["p75(measurements.lcp)"],
+							"columns": ["time"],
+							"query": "project:kaneo-web is_transaction:true",
+							"orderby": "time",
+							"limit": 10
+						}
+					]
+				},
+				{
+					"title": "Top error pages",
+					"displayType": "table",
+					"interval": "24h",
+					"queries": [
+						{
+							"fields": ["transaction", "count()"],
+							"aggregates": ["count()"],
+							"columns": ["transaction"],
+							"query": "event.type:error project:kaneo-web",
+							"orderby": "-count()",
+							"limit": 10
+						}
+					]
+				}
+			]
+		},
+		{
+			"title": "Kaneo: MCP",
+			"description": "MCP tool traffic, error rate, and latency.",
+			"widgets": [
+				{
+					"title": "MCP request volume",
+					"displayType": "line",
+					"interval": "1h",
+					"queries": [
+						{
+							"fields": ["count()", "time"],
+							"aggregates": ["count()"],
+							"columns": ["time"],
+							"query": "transaction:*/api/mcp/* is_transaction:true",
+							"orderby": "time",
+							"limit": 10
+						}
+					]
+				},
+				{
+					"title": "MCP error rate",
+					"displayType": "line",
+					"interval": "1h",
+					"queries": [
+						{
+							"fields": ["failure_rate()", "time"],
+							"aggregates": ["failure_rate()"],
+							"columns": ["time"],
+							"query": "transaction:*/api/mcp/* is_transaction:true",
+							"orderby": "time",
+							"limit": 10
+						}
+					]
+				},
+				{
+					"title": "MCP tool usage (top 10)",
+					"displayType": "table",
+					"interval": "24h",
+					"queries": [
+						{
+							"fields": ["transaction", "count()"],
+							"aggregates": ["count()"],
+							"columns": ["transaction"],
+							"query": "transaction:*/api/mcp/* is_transaction:true",
+							"orderby": "-count()",
+							"limit": 10
+						}
+					]
+				},
+				{
+					"title": "MCP p95 latency (ms)",
+					"displayType": "line",
+					"interval": "1h",
+					"queries": [
+						{
+							"fields": ["p95(transaction.duration)", "time"],
+							"aggregates": ["p95(transaction.duration)"],
+							"columns": ["time"],
+							"query": "transaction:*/api/mcp/* is_transaction:true",
+							"orderby": "time",
+							"limit": 10
+						}
+					]
+				}
+			]
+		},
+		{
+			"title": "Kaneo: Cron Monitors",
+			"description": "Scheduled-job check-ins from apps/api/src/scheduler/index.ts. Monitors appear in Sentry once each cron has run at least once.",
+			"widgets": [
+				{
+					"title": "Check-in status by monitor",
+					"displayType": "table",
+					"interval": "24h",
+					"queries": [
+						{
+							"fields": ["monitor.slug", "count()"],
+							"aggregates": ["count()"],
+							"columns": ["monitor.slug"],
+							"query": "event.type:transaction monitor.check_in_id:*",
+							"orderby": "-count()",
+							"limit": 10
+						}
+					]
+				},
+				{
+					"title": "Check-in events over time",
+					"displayType": "line",
+					"interval": "1h",
+					"queries": [
+						{
+							"fields": ["count()", "time"],
+							"aggregates": ["count()"],
+							"columns": ["time"],
+							"query": "event.type:transaction monitor.check_in_id:*",
+							"orderby": "time",
+							"limit": 10
+						}
+					]
+				},
+				{
+					"title": "Check-in errors over time",
+					"displayType": "line",
+					"interval": "1h",
+					"queries": [
+						{
+							"fields": ["count()", "time"],
+							"aggregates": ["count()"],
+							"columns": ["time"],
+							"query": "event.type:transaction monitor.check_in_id:* (monitor.status:missed OR monitor.status:error)",
+							"orderby": "time",
+							"limit": 10
+						}
+					]
+				}
+			]
+		}
+	]
+}

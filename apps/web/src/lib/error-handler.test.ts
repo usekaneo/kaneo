@@ -25,4 +25,16 @@ describe("parseApiError", () => {
     expect(result.type).toBe("cors");
     expect(result.message).toBe("common:error.messages.cors");
   });
+
+  it("classifies Safari's 'Load failed' as a network error, not CORS", () => {
+    const originalMessage = "TypeError: Load failed";
+    const error = new Error(originalMessage);
+
+    const result = parseApiError(error);
+
+    expect(result.type).toBe("network");
+    expect(result.message).toBe("common:error.messages.network");
+    expect(result.originalError).toBe(error);
+    expect(result.originalError?.message).toBe(originalMessage);
+  });
 });

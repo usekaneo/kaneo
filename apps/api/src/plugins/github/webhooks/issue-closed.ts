@@ -18,7 +18,9 @@ type IssueClosedPayload = {
     html_url: string;
     state: string;
   };
+  installation?: { id: number };
   repository: {
+    id: number;
     owner: { login: string };
     name: string;
     full_name: string;
@@ -26,12 +28,9 @@ type IssueClosedPayload = {
 };
 
 export async function handleIssueClosed(payload: IssueClosedPayload) {
-  const { issue, repository } = payload;
+  const { issue } = payload;
 
-  const integrations = await findAllIntegrationsByRepo(
-    repository.owner.login,
-    repository.name,
-  );
+  const integrations = await findAllIntegrationsByRepo(payload);
 
   for (const integration of integrations) {
     const externalLink = await db.query.externalLinkTable.findFirst({

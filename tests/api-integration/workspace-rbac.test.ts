@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { and, eq, inArray } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { mockAuthenticatedSession } from "./helpers/auth";
@@ -9,6 +9,16 @@ import {
   createProjectFixture,
   createWorkspaceMember,
 } from "./helpers/fixtures";
+
+// Assignment notifications run in the background and can otherwise race the
+// next test's TRUNCATE. Notification access/delivery has its own DB suite;
+// these tests exercise the real authorization and resource mutations.
+vi.mock(
+  "../../apps/api/src/notification/controllers/create-notification",
+  () => ({
+    default: vi.fn(async () => null),
+  }),
+);
 
 type CreateTaskBody = {
   title: string;
@@ -21,6 +31,7 @@ async function seedTask(
   projectId: string,
   columnId: string | null,
   userId?: string,
+  status = "to-do",
 ) {
   const [task] = await db
     .insert(schema.taskTable)
@@ -29,7 +40,7 @@ async function seedTask(
       title: "Seeded task",
       description: "Existing",
       priority: "medium",
-      status: "to-do",
+      status,
       columnId,
       number: 1,
       position: 1,
@@ -153,21 +164,43 @@ describe("API integration: workspace RBAC enforcement", () => {
       expect(gone).toBeUndefined();
     });
 
-    it("allows an owner to delete a task (owner role grants task:delete)", async () => {
-      const member = await createWorkspaceMember({ role: "owner" });
-      const { project, columns } = await createProjectFixture({
-        workspaceId: member.workspace.id,
-      });
-      const task = await seedTask(project.id, columns.todo.id);
+    it.each([
+      ["To Do", "to-do", "todo"],
+      ["In Progress", "in-progress", "inProgress"],
+      ["In Review", "in-review", "inReview"],
+      ["Done", "done", "done"],
+    ] as const)(
+      "allows an owner to delete a task from %s",
+      async (_label, status, columnKey) => {
+        const member = await createWorkspaceMember({ role: "owner" });
+        const { project, columns } = await createProjectFixture({
+          workspaceId: member.workspace.id,
+        });
+        const task = await seedTask(
+          project.id,
+          columns[columnKey].id,
+          undefined,
+          status,
+        );
 
-      mockAuthenticatedSession(member.user);
-      const { app } = createApp();
+        mockAuthenticatedSession(member.user);
+        const { app } = createApp();
 
-      const response = await app.request(`/api/task/${task.id}`, {
-        method: "DELETE",
-      });
-      expect(response.status).toBe(200);
-    });
+        const response = await app.request(`/api/task/${task.id}`, {
+          method: "DELETE",
+        });
+        expect(response.status).toBe(200);
+        await expect(response.json()).resolves.toMatchObject({
+          id: task.id,
+          status,
+        });
+
+        const deletedTask = await db.query.taskTable.findFirst({
+          where: eq(schema.taskTable.id, task.id),
+        });
+        expect(deletedTask).toBeUndefined();
+      },
+    );
 
     it("returns 403 when the user has no row in workspace_member for the workspace", async () => {
       const member = await createWorkspaceMember({ role: "admin" });

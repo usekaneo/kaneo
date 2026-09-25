@@ -2,14 +2,16 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Footer } from "@/components/landing/footer";
 import { Navbar } from "@/components/landing/navbar";
+import { PageIntro } from "@/components/landing/page-intro";
+import { withSocialMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withSocialMetadata({
   title: "Privacy Policy",
   description: "How Kaneo Cloud collects, uses, and protects your data.",
   alternates: {
     canonical: "/privacy",
   },
-};
+});
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -27,17 +29,13 @@ export default function PrivacyPage() {
     <>
       <Navbar />
       <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-        <section className="relative px-6 pt-14 pb-16 md:pt-20 md:pb-20">
+        <section className="relative px-6 pt-14 pb-16 md:pt-20 md:pb-20 lg:pt-24">
           <div className="mx-auto w-full max-w-6xl">
-            <div className="max-w-2xl pb-12">
-              <p className="font-medium text-primary text-sm">Legal</p>
-              <h1 className="mt-3 text-4xl font-medium leading-[1.06] md:text-5xl">
-                Privacy Policy
-              </h1>
+            <PageIntro eyebrow="Legal" title="Privacy Policy" className="pb-12">
               <p className="mt-4 text-foreground/60 text-sm">
                 Last updated: July 28, 2026
               </p>
-              <p className="mt-5 text-foreground/85 text-base leading-relaxed">
+              <p className="mt-5 max-w-2xl text-muted-foreground text-base leading-relaxed">
                 This policy describes how the Kaneo website (kaneo.app) and the
                 managed Kaneo Cloud service (cloud.kaneo.app) handle your data.
                 The service is operated by Andrej Acevski (sole proprietor,
@@ -45,7 +43,7 @@ export default function PrivacyPage() {
                 this policy does not apply: your instance is under your control
                 and we receive no data from it.
               </p>
-            </div>
+            </PageIntro>
 
             <Section title="Data we collect">
               <p>

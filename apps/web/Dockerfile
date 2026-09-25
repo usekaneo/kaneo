@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Build stage
-FROM --platform=$BUILDPLATFORM node:20-alpine AS builder
+FROM --platform=$BUILDPLATFORM node:24.19.0-alpine AS builder
 
 # Sentry org/project are public identifiers (not secrets). The auth token
 # is the only real secret; it is mounted via `--mount=type=secret` during
@@ -45,7 +45,7 @@ WORKDIR /app/apps/web
 # secret still succeed; the build just runs without it.
 RUN --mount=type=secret,id=SENTRY_AUTH_TOKEN,required=false \
     if [ -f /run/secrets/SENTRY_AUTH_TOKEN ]; then export SENTRY_AUTH_TOKEN="$(cat /run/secrets/SENTRY_AUTH_TOKEN)"; fi; \
-    pnpm run build
+    pnpm run build && find dist -type f -name '*.map' -delete
 
 # Production stage with specific version
 FROM nginx:1.29.5-alpine AS runtime
@@ -71,13 +71,16 @@ RUN addgroup -g 1001 appuser && \
 
 # Copy built files from builder stage
 COPY --from=builder --chown=appuser:appuser /app/apps/web/dist /usr/share/nginx/html
+# The inherited web root must be writable for atomic runtime configuration updates.
+RUN chown appuser:appuser /usr/share/nginx/html
 
-# Copy nginx configuration (writable so env.sh can substitute placeholders at runtime)
+# Copy nginx configuration and public runtime configuration renderer
 COPY --chown=appuser:appuser apps/web/nginx.conf /etc/nginx/conf.d/default.conf
 RUN chown -R appuser:appuser /etc/nginx/conf.d
 
 # Copy and set permissions for environment script
 COPY --chown=appuser:appuser apps/web/env.sh /docker-entrypoint.d/env.sh
+COPY --chown=appuser:appuser apps/web/env.awk /docker-entrypoint.d/env.awk
 RUN chmod +x /docker-entrypoint.d/env.sh
 
 # Switch to non-root user

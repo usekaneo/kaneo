@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/react";
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
+import { handleUnauthorized, isUnauthorizedError } from "@/lib/http-error";
 
 // TanStack raises these before any fetcher-level message exists; CORS rejections
 // from the browser also surface here. Used both to skip auto-retry and to tag
@@ -54,17 +55,33 @@ function captureCacheError(error: unknown, context: "query" | "mutation") {
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
-    onError: (error) => captureCacheError(error, "query"),
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        // Keep the 401 in query state so polling guards stay stopped while
+        // navigation completes. Better Auth's session is a separate store.
+        handleUnauthorized();
+        return;
+      }
+      captureCacheError(error, "query");
+    },
   }),
   mutationCache: new MutationCache({
-    onError: (error) => captureCacheError(error, "mutation"),
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        handleUnauthorized();
+        return;
+      }
+      captureCacheError(error, "mutation");
+    },
   }),
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
       refetchOnMount: false,
       retry: (failureCount, error) =>
-        isNetworkError(error) ? false : failureCount < 2,
+        isNetworkError(error) || isUnauthorizedError(error)
+          ? false
+          : failureCount < 2,
     },
     mutations: {
       retry: false,

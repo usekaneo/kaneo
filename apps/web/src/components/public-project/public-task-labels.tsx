@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import labelColors from "@/constants/label-colors";
+import { resolveLabelColor } from "@/lib/label-color";
 
 type PublicTaskLabelsProps = {
   labels: Array<{ id: string; name: string; color: string }>;
@@ -19,9 +19,7 @@ export function PublicTaskLabels({ labels }: PublicTaskLabelsProps) {
           <span
             className="inline-block w-1.5 h-1.5 mr-1 rounded-full"
             style={{
-              backgroundColor:
-                labelColors.find((c) => c.value === label.color)?.color ||
-                "var(--color-neutral-400)",
+              backgroundColor: resolveLabelColor(label.color),
             }}
           />
           <span className="max-w-20 truncate">{label.name}</span>

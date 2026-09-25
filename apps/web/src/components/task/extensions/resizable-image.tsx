@@ -1,6 +1,10 @@
 import Image from "@tiptap/extension-image";
 import type { NodeViewProps } from "@tiptap/react";
-import { NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react";
+import {
+  NodeViewWrapper,
+  ReactNodeViewRenderer,
+  useEditorState,
+} from "@tiptap/react";
 import {
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
@@ -27,7 +31,7 @@ const SIZE_PRESETS = [
 
 function parseWidth(value: unknown) {
   if (typeof value === "number") {
-    return Number.isInteger(value) && value > 0 ? value : null;
+    return Number.isSafeInteger(value) && value > 0 ? value : null;
   }
 
   // `Number.parseInt` stops at the first non-digit and discards the rest, so it
@@ -37,7 +41,7 @@ function parseWidth(value: unknown) {
   if (!match) return null;
 
   const width = Number.parseInt(match[1], 10);
-  return width > 0 ? width : null;
+  return Number.isSafeInteger(width) && width > 0 ? width : null;
 }
 
 function ResizableImageNodeView({
@@ -54,7 +58,10 @@ function ResizableImageNodeView({
   const [draftWidth, setDraftWidth] = useState<number | null>(null);
   const draftWidthRef = useRef<number | null>(null);
   const width = draftWidth ?? parseWidth(node.attrs.width);
-  const isEditable = editor.isEditable;
+  const isEditable = useEditorState({
+    editor,
+    selector: ({ editor }) => editor.isEditable,
+  });
 
   const maxWidth = () => editor.view.dom.clientWidth || MIN_WIDTH;
 

@@ -5,7 +5,7 @@
 {{- else if $corsOrigins -}}
   {{- $corsOriginsValue = $corsOrigins -}}
 {{- else if .Values.kaneo.env.clientUrl -}}
-  {{- $corsOriginsValue = .Values.kaneo.env.clientUrl -}}
+  {{- $corsOriginsValue = .Values.kaneo.env.clientUrl | trim | trimSuffix "/" -}}
 {{- end }}
 apiVersion: apps/v1
 kind: Deployment
@@ -30,9 +30,14 @@ spec:
         {{- include "kaneo.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: kaneo
     spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       serviceAccountName: {{ include "kaneo.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      enableServiceLinks: {{ default false .Values.enableServiceLinks }}
       containers:
         - name: kaneo
           securityContext:
@@ -45,7 +50,7 @@ spec:
               protocol: TCP
           env:
             - name: KANEO_CLIENT_URL
-              value: "{{ .Values.kaneo.env.clientUrl }}"
+              value: {{ .Values.kaneo.env.clientUrl | trim | trimSuffix "/" | quote }}
             - name: CORS_ORIGINS
               value: {{ $corsOriginsValue | quote }}
             - name: AUTH_SECRET
@@ -55,7 +60,10 @@ spec:
                   name: {{ .Values.kaneo.env.existingSecret.name }}
                   key: {{ .Values.kaneo.env.existingSecret.key }}
               {{- else }}
-              value: {{ .Values.kaneo.env.authSecret | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "kaneo.fullname" . }}-auth
+                  key: auth-secret
               {{- end }}
             {{- if and (not .Values.kaneo.env.database.external.enabled) .Values.postgresql.auth.existingSecret }}
             - name: KANEO_POSTGRES_PASSWORD
@@ -90,6 +98,10 @@ spec:
             {{- with .Values.kaneo.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
+          {{- with .Values.kaneo.extraEnvFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           livenessProbe:
             {{- toYaml .Values.kaneo.livenessProbe | nindent 12 }}
           readinessProbe:
@@ -107,5 +119,9 @@ spec:
       {{- end }}
       {{- with .Values.tolerations }}
       tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
         {{- toYaml . | nindent 8 }}
       {{- end }}

@@ -1,5 +1,5 @@
 # Build stage
-FROM --platform=$BUILDPLATFORM node:20.20.2-alpine AS builder
+FROM --platform=$BUILDPLATFORM node:24.19.0-alpine AS builder
 
 # Install build dependencies in a single layer
 RUN apk add --no-cache python3 make g++ && \
@@ -43,7 +43,7 @@ RUN sed -i 's/"extends": "@kaneo\/typescript-config\/base.json"/"extends": "..\/
 # Production dependencies stage - runs on the BUILD platform (native, no QEMU emulation).
 # All API runtime deps are pure JavaScript (bcrypt was replaced with bcryptjs), so the
 # resulting node_modules is architecture-independent and safe to copy into the arm64 runtime.
-FROM --platform=$BUILDPLATFORM node:20.20.2-alpine AS prod-deps
+FROM --platform=$BUILDPLATFORM node:24.19.0-alpine AS prod-deps
 
 RUN corepack enable && corepack prepare pnpm@10.7.0 --activate
 
@@ -60,7 +60,7 @@ RUN sed -i 's/"prepare": "husky"/"prepare": ""/g' package.json && \
   HUSKY=0 NODE_ENV=production pnpm install --prod --frozen-lockfile --no-optional
 
 # Production stage - use specific version tag without SHA256
-FROM node:20.20.2-alpine AS runtime
+FROM node:24.19.0-alpine AS runtime
 
 # Set up user in a single layer
 RUN addgroup -g 1001 appuser && \

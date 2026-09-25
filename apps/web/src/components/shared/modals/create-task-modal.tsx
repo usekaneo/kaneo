@@ -1,4 +1,4 @@
-import { useLocation } from "@tanstack/react-router";
+import { useLocation, useParams } from "@tanstack/react-router";
 import { produce } from "immer";
 import {
   CalendarIcon,
@@ -13,6 +13,15 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import TaskDescriptionEditor from "@/components/task/task-description-editor";
+import {
+  AlertDialog,
+  AlertDialogClose,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -37,10 +46,20 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import useSetCustomFieldValue from "@/hooks/mutations/custom-field/use-set-custom-field-value";
 import useCreateLabel from "@/hooks/mutations/label/use-create-label";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import useGetCustomFieldsByProject from "@/hooks/queries/custom-field/use-get-custom-fields-by-project";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
@@ -49,6 +68,7 @@ import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { formatDateMedium } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
+import { resolveLabelColor } from "@/lib/label-color";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
@@ -85,6 +105,21 @@ type Label = {
 
 type PopoverStep = "select" | "color";
 
+type CustomFieldType = "text" | "number" | "date" | "dropdown" | "boolean";
+
+type CustomFieldDefinition = {
+  id: string;
+  projectId: string;
+  name: string;
+  type: CustomFieldType;
+  required: boolean;
+  defaultValue: string | null;
+  options: string[] | null;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
 function normalizeTask(
   task: Partial<Task> &
     Pick<Task, "id" | "title" | "status" | "projectId" | "createdAt">,
@@ -106,7 +141,7 @@ function normalizeTask(
   };
 }
 
-function CreateTaskModal({
+function CreateTaskModalContent({
   open,
   onClose,
   status,
@@ -191,6 +226,7 @@ function CreateTaskModal({
   const [createMore, setCreateMore] = useState(false);
   const [labels, setLabels] = useState<Label[]>([]);
   const [draftTask, setDraftTask] = useState<Task | null>(null);
+  const [discardConfirmationOpen, setDiscardConfirmationOpen] = useState(false);
 
   const [labelsOpen, setLabelsOpen] = useState(false);
   const [labelsStep, setLabelsStep] = useState<PopoverStep>("select");
@@ -202,22 +238,59 @@ function CreateTaskModal({
     location.pathname.match(/\/project\/([^/]+)/)?.[1] ?? null;
   const explicitProjectId = projectId || routeProjectId || "";
   const [selectedProjectId, setSelectedProjectId] = useState("");
-  const resolvedProjectId =
-    explicitProjectId || selectedProjectId || project?.id || "";
   const { data: workspaceProjects } = useGetProjects({
     workspaceId: workspace?.id || "",
   });
-  const resolvedProject = explicitProjectId
-    ? project
-    : (workspaceProjects?.find((p) => p.id === resolvedProjectId) ?? null);
+  // Only a project from this workspace's query may receive new content.
+  // The global project store can still contain the last visited workspace.
+  const resolvedProject = workspaceProjects?.find(
+    (candidate) => candidate.id === (explicitProjectId || selectedProjectId),
+  );
+  const resolvedProjectId = resolvedProject?.id ?? "";
 
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const draftCreationPromiseRef = useRef<Promise<Task> | null>(null);
+  const draftCreationPromiseRef = useRef<Promise<Task | null> | null>(null);
+  const draftTaskRef = useRef<Task | null>(null);
+  const activeRef = useRef(true);
+  const submittingRef = useRef(false);
+  const [isPreparingDraft, setIsPreparingDraft] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editorVersion, setEditorVersion] = useState(0);
   const didSubmitRef = useRef(false);
 
   const { mutateAsync: createTask } = useCreateTask();
   const { mutateAsync: updateTask } = useUpdateTask();
   const { mutateAsync: deleteTask } = useDeleteTask();
+
+  const { data: rawCustomFields } = useGetCustomFieldsByProject(
+    resolvedProjectId,
+  ) as { data: CustomFieldDefinition[] | undefined };
+
+  const customFields = useMemo(() => rawCustomFields ?? [], [rawCustomFields]);
+
+  const { mutateAsync: setCustomFieldValue } = useSetCustomFieldValue();
+
+  const [customFieldValues, setCustomFieldValues] = useState<
+    Record<string, string>
+  >({});
+
+  const handleCustomFieldChange = (fieldId: string, value: string) => {
+    setCustomFieldValues((prev) => ({
+      ...prev,
+      [fieldId]: value,
+    }));
+  };
+
+  useEffect(() => {
+    setCustomFieldValues((previousValues) =>
+      Object.fromEntries(
+        customFields.map((field) => [
+          field.id,
+          previousValues[field.id] ?? field.defaultValue ?? "",
+        ]),
+      ),
+    );
+  }, [customFields]);
 
   const filteredLabels = (() => {
     const searchFiltered = workspaceLabels.filter((label) =>
@@ -241,36 +314,68 @@ function CreateTaskModal({
       (label) => label.name.toLowerCase() === searchValue.toLowerCase(),
     );
 
-  const handleClose = () => {
-    const shouldDeleteDraft = draftTask && !didSubmitRef.current;
+  const buildDefaultCustomFieldValues = useCallback(() => {
+    return customFields.reduce<Record<string, string>>((acc, field) => {
+      acc[field.id] = field.defaultValue ?? "";
+      return acc;
+    }, {});
+  }, [customFields]);
 
-    setTitle("");
-    setDescription("");
-    setPriority("no-priority");
-    setAssigneeId("");
-    setStartDate(undefined);
-    setDueDate(undefined);
-    setCreateMore(false);
-    setLabels([]);
-    setLabelsStep("select");
-    setSearchValue("");
-    setSelectedColor("gray");
-    setNewLabelName("");
-    draftCreationPromiseRef.current = null;
-    didSubmitRef.current = false;
-    setDraftTask(null);
-    onClose();
+  const hasUnsavedChanges = Boolean(
+    title.trim() ||
+      description.trim() ||
+      priority !== "no-priority" ||
+      assigneeId ||
+      startDate ||
+      dueDate ||
+      selectedProjectId ||
+      labels.length > 0 ||
+      draftTask,
+  );
 
-    if (shouldDeleteDraft) {
-      void deleteTask(draftTask.id).catch(() => {
-        // ignore cleanup failures for abandoned empty drafts
+  const discardDraft = useCallback(() => {
+    const abandoned = draftTaskRef.current;
+    if (abandoned && !didSubmitRef.current) {
+      draftTaskRef.current = null;
+      void deleteTask(abandoned.id).catch(() => {
+        // An expired session can prevent cleanup; never reuse the draft.
       });
     }
+  }, [deleteTask]);
+
+  useEffect(() => {
+    activeRef.current = true;
+    return () => {
+      activeRef.current = false;
+      discardDraft();
+    };
+  }, [discardDraft]);
+
+  const handleClose = () => {
+    activeRef.current = false;
+    discardDraft();
+    onClose();
+  };
+
+  const closeAndReset = () => {
+    setDiscardConfirmationOpen(false);
+    handleClose();
+  };
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) return;
+
+    if (hasUnsavedChanges && !didSubmitRef.current) {
+      setDiscardConfirmationOpen(true);
+      return;
+    }
+
+    closeAndReset();
   };
 
   const syncTaskIntoProject = useCallback(
     (task: Task) => {
-      if (!project) return;
+      if (!activeRef.current || project?.id !== task.projectId) return;
 
       const updatedProject = produce(project, (draft) => {
         let existingTask:
@@ -324,13 +429,16 @@ function CreateTaskModal({
   );
 
   const ensureDraftTask = useCallback(async () => {
-    if (draftTask) {
-      return draftTask.id;
+    if (!activeRef.current || submittingRef.current) return null;
+    if (draftTaskRef.current) {
+      return draftTaskRef.current.projectId === resolvedProjectId
+        ? draftTaskRef.current.id
+        : null;
     }
 
     if (draftCreationPromiseRef.current) {
       const pendingTask = await draftCreationPromiseRef.current;
-      return pendingTask.id;
+      return activeRef.current ? (pendingTask?.id ?? null) : null;
     }
 
     if (!resolvedProjectId) {
@@ -338,6 +446,7 @@ function CreateTaskModal({
       return null;
     }
 
+    setIsPreparingDraft(true);
     const draftStatus = "planned";
     const draftPromise = createTask({
       title: title.trim() || t("common:modals.createTask.untitledTask"),
@@ -348,14 +457,28 @@ function CreateTaskModal({
       startDate: startDate ? startDate.toISOString() : undefined,
       dueDate: dueDate ? dueDate.toISOString() : undefined,
       status: draftStatus,
-    }).then((task) => normalizeTask(task));
+      customFields: Object.entries(customFieldValues)
+        .filter(([_, value]) => value.trim() !== "")
+        .map(([fieldId, value]) => ({
+          fieldId,
+          value,
+        })),
+    }).then((task) => {
+      const createdTask = normalizeTask(task);
+      if (!activeRef.current) {
+        void deleteTask(createdTask.id).catch(() => {});
+        return null;
+      }
+      draftTaskRef.current = createdTask;
+      setDraftTask(createdTask);
+      return createdTask;
+    });
 
     draftCreationPromiseRef.current = draftPromise;
 
     try {
       const createdTask = await draftPromise;
-      setDraftTask(createdTask);
-      return createdTask.id;
+      return activeRef.current ? (createdTask?.id ?? null) : null;
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -365,32 +488,50 @@ function CreateTaskModal({
       return null;
     } finally {
       draftCreationPromiseRef.current = null;
+      if (activeRef.current) setIsPreparingDraft(false);
     }
   }, [
     assigneeId,
     createTask,
     description,
-    draftTask,
+    deleteTask,
     startDate,
     dueDate,
     priority,
     resolvedProjectId,
     title,
     t,
+    customFieldValues,
   ]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !resolvedProjectId || !workspace?.id) return;
+    if (
+      !activeRef.current ||
+      submittingRef.current ||
+      !canCreateTaskCapability ||
+      !title.trim() ||
+      !resolvedProjectId ||
+      !workspace?.id
+    )
+      return;
 
+    submittingRef.current = true;
+    setIsSubmitting(true);
     try {
+      // Submitting while a file prepares its draft must update that same task.
+      const pendingDraft = draftCreationPromiseRef.current;
+      if (pendingDraft) await pendingDraft;
+      if (!activeRef.current) return;
+      const currentDraft = draftTaskRef.current;
+      if (currentDraft && currentDraft.projectId !== resolvedProjectId) return;
       const taskStatus = status ?? "to-do";
       didSubmitRef.current = true;
 
-      const savedTask = draftTask
+      const savedTask = currentDraft
         ? normalizeTask(
             await updateTask({
-              ...draftTask,
+              ...currentDraft,
               title: title.trim(),
               description: description.trim() || "",
               userId: assigneeId || null,
@@ -399,6 +540,9 @@ function CreateTaskModal({
               startDate: startDate ? startDate.toISOString() : null,
               dueDate: dueDate ? dueDate.toISOString() : null,
               projectId: resolvedProjectId,
+              customFieldValues: Object.entries(customFieldValues)
+                .filter(([_, value]) => value.trim() !== "")
+                .map(([fieldId, value]) => ({ fieldId, value })),
             }),
           )
         : normalizeTask(
@@ -411,6 +555,12 @@ function CreateTaskModal({
               startDate: startDate ? startDate.toISOString() : undefined,
               dueDate: dueDate ? dueDate.toISOString() : undefined,
               status: taskStatus,
+              customFields: Object.entries(customFieldValues)
+                .filter(([_, value]) => value.trim() !== "")
+                .map(([fieldId, value]) => ({
+                  fieldId,
+                  value,
+                })),
             }),
           );
 
@@ -427,6 +577,20 @@ function CreateTaskModal({
         }
       }
 
+      if (currentDraft) {
+        for (const [fieldId, value] of Object.entries(customFieldValues)) {
+          if (value) {
+            await setCustomFieldValue({
+              taskId: savedTask.id,
+              fieldId,
+              value: String(value),
+            });
+          }
+        }
+      }
+
+      draftTaskRef.current = null;
+      if (!activeRef.current) return;
       setDraftTask(savedTask);
       syncTaskIntoProject(savedTask);
       toast.success(
@@ -448,18 +612,27 @@ function CreateTaskModal({
         setSelectedColor("gray");
         setNewLabelName("");
         draftCreationPromiseRef.current = null;
+        setEditorVersion((version) => version + 1);
         didSubmitRef.current = false;
         setDraftTask(null);
+        setCustomFieldValues(buildDefaultCustomFieldValues());
       } else {
-        handleClose();
+        closeAndReset();
       }
     } catch (error) {
       didSubmitRef.current = false;
+      if (!activeRef.current) {
+        discardDraft();
+        return;
+      }
       toast.error(
         error instanceof Error
           ? error.message
           : t("common:modals.createTask.createError"),
       );
+    } finally {
+      submittingRef.current = false;
+      if (activeRef.current) setIsSubmitting(false);
     }
   };
 
@@ -494,7 +667,7 @@ function CreateTaskModal({
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (!open) return;
+      if (!open || discardConfirmationOpen) return;
 
       if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
         e.preventDefault();
@@ -508,7 +681,7 @@ function CreateTaskModal({
         }
       }
     },
-    [open, title, resolvedProjectId, workspace?.id],
+    [open, discardConfirmationOpen, title, resolvedProjectId, workspace?.id],
   );
 
   useEffect(() => {
@@ -592,13 +765,97 @@ function CreateTaskModal({
     setLabels(labels.filter((l) => l.name !== labelName));
   };
 
+  const renderCustomFieldInput = (field: CustomFieldDefinition) => {
+    const value = customFieldValues[field.id] ?? "";
+
+    switch (field.type) {
+      case "dropdown": {
+        const options = field.options || [];
+
+        return (
+          <Select
+            value={value}
+            onValueChange={(val) =>
+              handleCustomFieldChange(field.id, val as string)
+            }
+          >
+            <SelectTrigger className="h-9 w-full text-sm bg-background">
+              <SelectValue
+                placeholder={t(
+                  "common:modals.createTask.selectOptionPlaceholder",
+                  "Select an option",
+                )}
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {options.map((opt) => (
+                <SelectItem key={opt} value={opt}>
+                  {opt}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
+      }
+
+      case "date":
+        return (
+          <Input
+            type="date"
+            value={value}
+            onChange={(e) => handleCustomFieldChange(field.id, e.target.value)}
+            required={field.required}
+            className="h-9 w-full text-sm bg-background"
+          />
+        );
+
+      case "number":
+        return (
+          <Input
+            type="number"
+            value={value}
+            onChange={(e) => handleCustomFieldChange(field.id, e.target.value)}
+            placeholder={field.defaultValue || ""}
+            required={field.required}
+            className="h-9 w-full text-sm bg-background"
+          />
+        );
+
+      case "boolean":
+        return (
+          <div className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 text-sm">
+            <span className="text-sm text-foreground capitalize">{value}</span>
+
+            <Switch
+              checked={value === "true"}
+              onCheckedChange={(checked) =>
+                handleCustomFieldChange(field.id, checked ? "true" : "false")
+              }
+            />
+          </div>
+        );
+
+      default:
+        return (
+          <Input
+            type="text"
+            value={value}
+            onChange={(e) => handleCustomFieldChange(field.id, e.target.value)}
+            placeholder={field.defaultValue || ""}
+            required={field.required}
+            className="h-9 w-full text-sm bg-background"
+          />
+        );
+    }
+  };
+
   // Defense-in-depth: if the user lacks task-create permission, don't render
   // the modal even if a stale trigger somehow opens it (e.g., keyboard
   // shortcut after the capability has changed).
   if (!canCreateTaskCapability) return null;
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         className="kaneo-create-task-modal max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
         showCloseButton={false}
@@ -640,6 +897,7 @@ function CreateTaskModal({
 
             <div className="min-h-[200px]">
               <TaskDescriptionEditor
+                key={editorVersion}
                 value={description}
                 onChange={setDescription}
                 placeholder={t(
@@ -649,6 +907,33 @@ function CreateTaskModal({
                 ensureTaskId={ensureDraftTask}
               />
             </div>
+
+            {customFields.length > 0 && (
+              <div className="space-y-4 pt-4 border-t border-border">
+                <h4 className="text-sm font-semibold text-foreground">
+                  {t("tasks:common.customFields")}
+                </h4>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {customFields.map((field) => (
+                    <div
+                      key={`custom-field_${field.id}`}
+                      className="space-y-1.5"
+                    >
+                      <label
+                        htmlFor={`custom-field_${field.id}`}
+                        className="text-xs font-medium text-muted-foreground flex items-center gap-1"
+                      >
+                        {field.name}
+                        {field.required && (
+                          <span className="text-destructive">*</span>
+                        )}
+                      </label>
+                      {renderCustomFieldInput(field)}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {labels.length > 0 && (
               <div className="flex flex-wrap mb-2">
@@ -663,9 +948,7 @@ function CreateTaskModal({
                     <span
                       className="inline-block w-2 h-2 mr-1.5 rounded-full"
                       style={{
-                        backgroundColor:
-                          labelColors.find((c) => c.value === label.color)
-                            ?.color || "var(--color-neutral-400)",
+                        backgroundColor: resolveLabelColor(label.color),
                       }}
                     />
                     <span className="max-w-20 truncate">{label.name}</span>
@@ -701,9 +984,18 @@ function CreateTaskModal({
                           key={workspaceProject.id}
                           type="button"
                           className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
-                          onClick={() =>
-                            setSelectedProjectId(workspaceProject.id)
+                          disabled={
+                            isPreparingDraft || !!draftTask || isSubmitting
                           }
+                          onClick={() => {
+                            if (
+                              !draftCreationPromiseRef.current &&
+                              !draftTaskRef.current &&
+                              !submittingRef.current
+                            ) {
+                              setSelectedProjectId(workspaceProject.id);
+                            }
+                          }}
                         >
                           <span className="text-sm truncate">
                             {workspaceProject.name}
@@ -978,10 +1270,7 @@ function CreateTaskModal({
                             <span
                               className="w-2 h-2 rounded-full flex-shrink-0"
                               style={{
-                                backgroundColor:
-                                  labelColors.find(
-                                    (c) => c.value === label.color,
-                                  )?.color || "var(--color-neutral-400)",
+                                backgroundColor: resolveLabelColor(label.color),
                               }}
                             />
                             <span className="max-w-20 truncate">
@@ -1084,7 +1373,7 @@ function CreateTaskModal({
 
             <Button
               type="button"
-              onClick={handleClose}
+              onClick={() => handleOpenChange(false)}
               variant="outline"
               size="sm"
               className="border-border text-foreground hover:bg-accent"
@@ -1093,7 +1382,7 @@ function CreateTaskModal({
             </Button>
             <Button
               type="submit"
-              disabled={!title.trim()}
+              disabled={!title.trim() || !resolvedProjectId || isSubmitting}
               size="sm"
               className="disabled:opacity-50"
             >
@@ -1102,7 +1391,63 @@ function CreateTaskModal({
           </DialogFooter>
         </form>
       </DialogContent>
+
+      <AlertDialog
+        open={discardConfirmationOpen}
+        onOpenChange={setDiscardConfirmationOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("common:modals.createTask.discardTitle")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("common:modals.createTask.discardDescription")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogClose
+              render={<Button type="button" variant="outline" size="sm" />}
+            >
+              {t("common:actions.cancel")}
+            </AlertDialogClose>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={closeAndReset}
+            >
+              {t("common:modals.createTask.discardButton")}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
+  );
+}
+
+function CreateTaskModal(props: CreateTaskModalProps) {
+  const { data: workspace } = useActiveWorkspace();
+  const location = useLocation();
+  const routeWorkspaceId = useParams({
+    strict: false,
+    select: (params) =>
+      "workspaceId" in params && typeof params.workspaceId === "string"
+        ? params.workspaceId
+        : undefined,
+  });
+  // useActiveWorkspace may temporarily fall back to the previous organization
+  // while the new route's organization list is loading.
+  if (!props.open || (routeWorkspaceId && routeWorkspaceId !== workspace?.id))
+    return null;
+
+  // Closing or navigating ends the whole editing session, including pending
+  // upload drafts, instead of carrying confidential fields into a new context.
+  return (
+    <CreateTaskModalContent
+      key={JSON.stringify([workspace?.id, location.pathname, props.projectId])}
+      {...props}
+    />
   );
 }
 
