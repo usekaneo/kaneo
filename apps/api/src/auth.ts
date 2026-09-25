@@ -1,8 +1,10 @@
 import { apiKey } from "@better-auth/api-key";
 import {
+  isSmtpConfigured,
   OTP_EXPIRY_SECONDS,
   sendMagicLinkEmail,
   sendOtpEmail,
+  sendPasswordResetEmail,
   sendWorkspaceInvitationEmail,
 } from "@kaneo/email";
 import {
@@ -59,6 +61,7 @@ import {
 import { isCloud } from "./utils/is-cloud";
 import { isDisposableEmail } from "./utils/is-disposable-email";
 import { isLocalSignInPath } from "./utils/is-local-sign-in-path";
+import { trackPasswordResetDelivery } from "./utils/password-reset-delivery";
 import {
   assertGuestRegistrationAllowed,
   assertUserRegistrationAllowed,
@@ -134,6 +137,7 @@ function getAuthEmailCopy(locale?: string | null) {
     return {
       magicLinkSubject: "Anmeldelink für Kaneo",
       otpSubject: "Bestätigungscode für Kaneo",
+      passwordResetSubject: "Kaneo-Passwort zurücksetzen",
     };
   }
 
@@ -141,6 +145,7 @@ function getAuthEmailCopy(locale?: string | null) {
     return {
       magicLinkSubject: "Liên kết đăng nhập Kaneo",
       otpSubject: "Mã xác minh Kaneo",
+      passwordResetSubject: "Đặt lại mật khẩu Kaneo",
     };
   }
 
@@ -148,12 +153,14 @@ function getAuthEmailCopy(locale?: string | null) {
     return {
       magicLinkSubject: "Kaneo ログインリンク",
       otpSubject: "Kaneo 認証コード",
+      passwordResetSubject: "Kaneo のパスワードをリセット",
     };
   }
 
   return {
     magicLinkSubject: "Login for Kaneo",
     otpSubject: "Authentication code for Kaneo",
+    passwordResetSubject: "Reset your Kaneo password",
   };
 }
 
@@ -228,6 +235,20 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
+    revokeSessionsOnPasswordReset: true,
+    resetPasswordTokenExpiresIn: 60 * 60,
+    sendResetPassword: async ({ user, url }) => {
+      // Keep SMTP latency out of the response so it cannot reveal accounts.
+      trackPasswordResetDelivery(
+        getUserLocale(user.email).then((locale) =>
+          sendPasswordResetEmail(
+            user.email,
+            getAuthEmailCopy(locale).passwordResetSubject,
+            { resetLink: url, userName: user.name, locale },
+          ),
+        ),
+      );
+    },
     password: {
       hash: async (password) => {
         return await bcrypt.hash(password, 10);
@@ -364,14 +385,8 @@ export const auth = betterAuth({
       // (owner/admin/member/viewer) don't apply until after a workspace
       // is joined.
       //
-      // `user` here comes from the session, which may be served out of
-      // the cookie cache (see `session.cookieCache` below). The
-      // first-user bootstrap promotes the user to admin in
-      // `databaseHooks.user.create.after`, but that happens after
-      // `signUpEmail` has already returned/cached the pre-promotion
-      // role, so a cached session can still say `role: "user"` for up
-      // to `cookieCache.maxAge`. Re-read the role from the database
-      // instead of trusting the (possibly stale) cached role.
+      // Read the current instance role rather than a session's user snapshot,
+      // which can predate first-user promotion or an administrator's changes.
       allowUserToCreateOrganization: isWorkspaceCreationDisabled
         ? async (user) => {
             const [freshUser] = await db
@@ -538,8 +553,9 @@ export const auth = betterAuth({
   ],
   session: {
     cookieCache: {
-      enabled: true,
-      maxAge: 5 * 60,
+      // Consult the session store on every request so password recovery
+      // immediately rejects revoked cookies, including caches issued before upgrade.
+      enabled: false,
     },
   },
   rateLimit: {
@@ -592,6 +608,12 @@ export const auth = betterAuth({
         throw new APIError("FORBIDDEN", {
           message:
             "Local sign-in is disabled. Please use a configured social or OIDC sign-in method.",
+        });
+      }
+
+      if (ctx.path === "/request-password-reset" && !isSmtpConfigured()) {
+        throw new APIError("FORBIDDEN", {
+          message: "Password reset requires email delivery to be configured.",
         });
       }
 

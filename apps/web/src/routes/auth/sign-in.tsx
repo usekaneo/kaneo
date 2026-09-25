@@ -523,6 +523,7 @@ function SignIn() {
               />
             ) : (
               <SignInForm
+                canResetPassword={config?.hasSmtp}
                 defaultEmail={defaultEmail}
                 onSuccess={handleSignInSuccess}
               />

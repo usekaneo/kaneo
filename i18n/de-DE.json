@@ -340,6 +340,30 @@
 				"nameRequired": "Name ist erforderlich",
 				"nameShort": "Der Name muss mindestens 2 Zeichen lang sein"
 			}
+		},
+		"passwordReset": {
+			"forgotPassword": "Passwort vergessen?",
+			"requestTitle": "Passwort zurücksetzen",
+			"requestSubtitle": "Gib deine E-Mail-Adresse ein. Wir senden dir einen Link zum Zurücksetzen deines Passworts.",
+			"sendLink": "Link senden",
+			"sending": "Wird gesendet…",
+			"sent": "Wenn ein Konto mit dieser E-Mail-Adresse existiert, erhältst du einen Link zum Zurücksetzen deines Passworts. Prüfe deinen Posteingang und Spamordner.",
+			"requestError": "Der Link konnte nicht angefordert werden. Bitte versuche es erneut.",
+			"unavailable": "Das Zurücksetzen des Passworts ist nicht verfügbar. Wende dich an die Administration deiner Instanz.",
+			"configError": "Der Server ist nicht erreichbar. Lade die Seite neu, um es erneut zu versuchen.",
+			"resetTitle": "Neues Passwort wählen",
+			"resetSubtitle": "Verwende 8–128 Zeichen für dein neues Passwort.",
+			"newPassword": "Neues Passwort",
+			"confirmPassword": "Neues Passwort bestätigen",
+			"passwordMismatch": "Die Passwörter stimmen nicht überein.",
+			"passwordLength": "Verwende zwischen 8 und 128 Zeichen.",
+			"resetPassword": "Passwort zurücksetzen",
+			"resetting": "Wird zurückgesetzt…",
+			"invalidLink": "Dieser Link ist ungültig oder abgelaufen. Fordere einen neuen Link an.",
+			"requestNewLink": "Neuen Link anfordern",
+			"resetError": "Das Passwort konnte nicht zurückgesetzt werden. Bitte versuche es erneut.",
+			"success": "Dein Passwort wurde zurückgesetzt. Melde dich mit deinem neuen Passwort an.",
+			"backToSignIn": "Zurück zur Anmeldung"
 		}
 	},
 	"settings": {

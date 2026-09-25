@@ -1,3 +1,4 @@
+import { drainPasswordResetDeliveries } from "./utils/password-reset-delivery";
 import "./instrument";
 
 import { dirname } from "node:path";
@@ -958,6 +959,7 @@ export async function startServer(
     shutdownScheduler();
     await shutdownWebSocketAdapter();
     server.close();
+    await drainPasswordResetDeliveries();
     process.exit(0);
   };
 
