@@ -97,6 +97,14 @@ export function useProjectWebSocket(projectId: string) {
                   queryKey: ["task-relations"],
                 });
               }
+              // The Gantt chart's dependency lines read a project-scoped cache
+              // (["task-relations", "project", projectId]) that the per-task
+              // keys above don't reach — a relation can be created or deleted
+              // from a task in this project without either endpoint's task
+              // being the one currently open on the Gantt view.
+              queryClient.invalidateQueries({
+                queryKey: ["task-relations", "project", message.projectId],
+              });
             } else {
               queryClient.invalidateQueries({
                 queryKey: ["task", message.taskId],

@@ -16,12 +16,14 @@ import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createTaskRelation from "./controllers/create-task-relation";
 import deleteTaskRelation from "./controllers/delete-task-relation";
 import getTaskRelations from "./controllers/get-task-relations";
+import getTaskRelationsByProject from "./controllers/get-task-relations-by-project";
 import {
   taskRelationSchema,
   taskRelationWithTasksListSchema,
 } from "./response";
 import {
   createTaskRelationBody,
+  projectIdParam,
   taskIdParam,
   taskRelationParam,
 } from "./schema";
@@ -113,6 +115,31 @@ const getTaskRelationsRoute = createRoute({
   },
 });
 
+const getTaskRelationsByProjectRoute = createRoute({
+  method: "get",
+  operationId: "getTaskRelationsByProject",
+  path: "/project/{projectId}",
+  tags: ["Task Relations"],
+  summary: "Get project task relations",
+  description:
+    "Get every relation touching one of the project's tasks, each with a summary of both linked tasks, in a single call. Powers the Gantt chart's dependency lines. Relations pointing outside the caller's workspace are omitted.",
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ task: ["read"] }),
+  ] as const,
+  request: { params: projectIdParam },
+  responses: {
+    200: jsonResponse(
+      "Task relations with the linked task summaries",
+      taskRelationWithTasksListSchema,
+    ),
+    400: errorResponse(
+      "Unknown project, or its workspace could not be determined",
+    ),
+    403: errorResponse("No workspace access or missing read permission"),
+  },
+});
+
 const createTaskRelationRoute = createRoute({
   method: "post",
   operationId: "createTaskRelation",
@@ -167,6 +194,15 @@ const taskRelation = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(getTaskRelationsRoute, async (c) =>
     c.json(
       await getTaskRelations(c.req.valid("param").taskId, c.get("workspaceId")),
+      200,
+    ),
+  )
+  .openapi(getTaskRelationsByProjectRoute, async (c) =>
+    c.json(
+      await getTaskRelationsByProject(
+        c.req.valid("param").projectId,
+        c.get("workspaceId"),
+      ),
       200,
     ),
   )

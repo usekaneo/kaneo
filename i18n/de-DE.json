@@ -2140,7 +2140,11 @@
 			"previousPeriod": "Vorheriger Zeitraum",
 			"nextPeriod": "Nächster Zeitraum",
 			"periodStart": "Startdatum der Zeitleiste",
-			"showTaskDates": "Aufgabendaten anzeigen"
+			"showTaskDates": "Aufgabendaten anzeigen",
+			"externalProjectBadge": "in {{projectName}}",
+			"externalTaskTitle": "{{title}} — related task in {{projectName}} (read-only here)",
+			"legendBlocking": "Blocking",
+			"legendRelated": "Related"
 		},
 		"delete": {
 			"title": "Aufgabe löschen?",

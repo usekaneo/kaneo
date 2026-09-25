@@ -38,7 +38,7 @@ async function deleteTaskRelation(
     });
   }
 
-  const [task] = await db
+  const [sourceTask] = await db
     .select({ projectId: taskTable.projectId })
     .from(taskTable)
     .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
@@ -50,11 +50,36 @@ async function deleteTaskRelation(
     )
     .limit(1);
 
-  if (task) {
+  if (sourceTask) {
     await publishEvent("task-relation.deleted", {
       ...relation,
       taskId: relation.sourceTaskId,
-      projectId: task.projectId,
+      projectId: sourceTask.projectId,
+      userId,
+    });
+  }
+
+  // A relation can link tasks across two projects in the same workspace.
+  // Notify the target project's subscribers too (when it differs from the
+  // source project), so their Gantt/dependency views refresh without a
+  // manual reload.
+  const [targetTask] = await db
+    .select({ projectId: taskTable.projectId })
+    .from(taskTable)
+    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+    .where(
+      and(
+        eq(taskTable.id, relation.targetTaskId),
+        eq(projectTable.workspaceId, workspaceId),
+      ),
+    )
+    .limit(1);
+
+  if (targetTask && targetTask.projectId !== sourceTask?.projectId) {
+    await publishEvent("task-relation.deleted", {
+      ...relation,
+      taskId: relation.sourceTaskId,
+      projectId: targetTask.projectId,
       userId,
     });
   }

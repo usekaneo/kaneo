@@ -5,6 +5,7 @@ import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
+import { getBarGridColumns } from "./timeline";
 
 const CLICK_MOVE_THRESHOLD_PX = 4;
 const MOBILE_MOVE_THRESHOLD_PX = 14;
@@ -13,6 +14,8 @@ type ScheduledTask = Task & {
   scheduleStart: Date;
   scheduleEnd: Date;
 };
+
+type GanttBarEmphasis = "normal" | "highlighted" | "dimmed";
 
 type GanttTaskBarProps = {
   task: ScheduledTask;
@@ -24,27 +27,11 @@ type GanttTaskBarProps = {
   pixelsPerDay: number;
   isMobile?: boolean;
   onOpenTask: () => void;
+  /** How this bar renders relative to a hovered dependency (default "normal"). */
+  emphasis?: GanttBarEmphasis;
+  /** Notified on hover and keyboard focus, to drive dependency-line highlighting. */
+  onHoverChange?: (hovering: boolean) => void;
 };
-
-function getBarGridColumns(
-  scheduleStart: Date,
-  scheduleEnd: Date,
-  rangeStart: Date,
-  trackCount: number,
-): { barInView: boolean; lineStart: number; lineEnd: number } {
-  const startIndex = differenceInCalendarDays(scheduleStart, rangeStart);
-  const endIndex = differenceInCalendarDays(scheduleEnd, rangeStart);
-  const barInView = endIndex >= 0 && startIndex < trackCount && trackCount > 0;
-  if (!barInView) {
-    return { barInView: false, lineStart: 1, lineEnd: 1 };
-  }
-  const lineStart = Math.max(1, Math.min(startIndex + 1, trackCount));
-  const lineEnd = Math.max(
-    lineStart + 1,
-    Math.min(endIndex + 2, trackCount + 1),
-  );
-  return { barInView: true, lineStart, lineEnd };
-}
 
 function toIsoDay(d: Date) {
   return startOfDay(d).toISOString();
@@ -56,6 +43,8 @@ export function GanttTaskBar({
   pixelsPerDay,
   isMobile = false,
   onOpenTask,
+  emphasis = "normal",
+  onHoverChange,
 }: GanttTaskBarProps) {
   const { t } = useTranslation();
   const { mutateAsync: updateTask } = useUpdateTask();
@@ -286,9 +275,25 @@ export function GanttTaskBar({
     window.addEventListener("pointercancel", onCancel);
   };
 
-  if (!barInView || lineEnd <= lineStart) {
+  if (!barInView) {
     return null;
   }
+
+  // React's onBlur/onFocus fire from bubbling focusout/focusin, so tabbing
+  // between this bar's own resize-start/move/resize-due buttons fires a
+  // blur on the outgoing button immediately followed by a focus on the
+  // incoming one — both bubbling up to this wrapper. Treated naively that's
+  // an onHoverChange(false) then (true), which briefly clears (and
+  // flickers) the dependency-line highlight for a focus move that never
+  // actually left the bar. `relatedTarget` is the element focus is moving
+  // to, so only report a real "left the bar" blur when it's outside this
+  // wrapper; a focus move within the bar is silently absorbed (the
+  // subsequent onFocus below is a harmless no-op re-affirmation).
+  const handleBlur = (event: React.FocusEvent<HTMLDivElement>) => {
+    const next = event.relatedTarget;
+    if (next instanceof Node && event.currentTarget.contains(next)) return;
+    onHoverChange?.(false);
+  };
 
   return (
     <div
@@ -297,9 +302,19 @@ export function GanttTaskBar({
         gridTemplateColumns: timeline.gridTemplateColumns,
       }}
     >
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: hover/focus tracking drives dependency-line highlighting; the actual interactive controls are the buttons nested below */}
       <div
         style={{ gridColumn: `${lineStart} / ${lineEnd}` }}
-        className="group pointer-events-auto relative mx-1 flex min-h-[44px] min-w-0 items-stretch overflow-hidden rounded-md border border-primary/25 bg-background text-left text-sm font-medium leading-none text-foreground shadow-sm transition-colors hover:border-primary/40 sm:h-11 sm:min-h-0"
+        onMouseEnter={() => onHoverChange?.(true)}
+        onMouseLeave={() => onHoverChange?.(false)}
+        onFocus={() => onHoverChange?.(true)}
+        onBlur={handleBlur}
+        className={cn(
+          "group pointer-events-auto relative mx-1 flex min-h-[44px] min-w-0 items-stretch overflow-hidden rounded-md border border-primary/25 bg-background text-left text-sm font-medium leading-none text-foreground shadow-sm transition-[opacity,border-color] hover:border-primary/40 sm:h-11 sm:min-h-0",
+          emphasis === "highlighted" &&
+            "border-primary/60 ring-2 ring-primary/40",
+          emphasis === "dimmed" && "opacity-35",
+        )}
       >
         <button
           type="button"
