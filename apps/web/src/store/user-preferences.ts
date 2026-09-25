@@ -1,11 +1,18 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import type { GanttUnit } from "@/components/gantt/timeline";
 
 export const WEEK_START_DAYS = [0, 1, 6] as const;
 export type WeekStartDay = (typeof WEEK_START_DAYS)[number];
 
 export function isWeekStartDay(value: number): value is WeekStartDay {
   return WEEK_START_DAYS.some((day) => day === value);
+}
+
+const GANTT_UNITS: readonly GanttUnit[] = ["day", "week", "month", "quarter"];
+
+export function isGanttUnit(value: unknown): value is GanttUnit {
+  return GANTT_UNITS.includes(value as GanttUnit);
 }
 
 type UserPreferencesStore = {
@@ -46,6 +53,9 @@ type UserPreferencesStore = {
 
   weekStartsOn: WeekStartDay;
   setWeekStartsOn: (weekStartsOn: WeekStartDay) => void;
+
+  ganttTimelineUnit: GanttUnit;
+  setGanttTimelineUnit: (unit: GanttUnit) => void;
 };
 
 export const useUserPreferencesStore = create<UserPreferencesStore>()(
@@ -123,6 +133,9 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
 
       weekStartsOn: 0,
       setWeekStartsOn: (weekStartsOn) => set({ weekStartsOn }),
+
+      ganttTimelineUnit: "day",
+      setGanttTimelineUnit: (ganttTimelineUnit) => set({ ganttTimelineUnit }),
     }),
     {
       name: "user-preferences",
@@ -130,6 +143,9 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
       onRehydrateStorage: () => (state) => {
         if (state && !isWeekStartDay(state.weekStartsOn)) {
           state.setWeekStartsOn(0);
+        }
+        if (state && !isGanttUnit(state.ganttTimelineUnit)) {
+          state.setGanttTimelineUnit("day");
         }
       },
     },

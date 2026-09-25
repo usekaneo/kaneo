@@ -2182,7 +2182,12 @@
 			"legendBaseline": "Baseline",
 			"legendMilestone": "Milestone",
 			"milestoneAriaLabel": "{{title}}: milestone, open task",
-			"progressLabel": "{{progress}}% complete"
+			"progressLabel": "{{progress}}% complete",
+			"unitControlAriaLabel": "Timeline granularity",
+			"unitDay": "Day",
+			"unitMonth": "Month",
+			"unitQuarter": "Quarter",
+			"unitWeek": "Week"
 		},
 		"delete": {
 			"title": "删除任务？",

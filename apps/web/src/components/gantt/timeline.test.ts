@@ -1,8 +1,17 @@
-import { addDays, differenceInCalendarDays, parseISO } from "date-fns";
+import {
+  addDays,
+  differenceInCalendarDays,
+  eachDayOfInterval,
+  parseISO,
+} from "date-fns";
 import { describe, expect, it } from "vitest";
 import {
+  alignRangeStartToUnit,
+  buildGanttHeaderColumns,
+  buildGanttRange,
   buildGanttTimeline,
   deriveTaskSchedule,
+  GANTT_UNIT_WINDOW_DAYS,
   GANTT_WINDOW_DAYS,
   getBarGridColumns,
   parseTaskDate,
@@ -181,5 +190,163 @@ describe("deriveTaskSchedule", () => {
       start: parseISO("2026-09-10"),
       end: parseISO("2026-09-20"),
     });
+  });
+});
+
+describe("alignRangeStartToUnit", () => {
+  const wednesday = parseISO("2026-09-16"); // mid-week, mid-month, mid-quarter
+
+  it("leaves a Day-unit date untouched", () => {
+    expect(alignRangeStartToUnit(wednesday, "day", 1)).toEqual(wednesday);
+  });
+
+  it("snaps to the week start for Week", () => {
+    expect(alignRangeStartToUnit(wednesday, "week", 1)).toEqual(
+      parseISO("2026-09-14"),
+    );
+  });
+
+  it("snaps to the month start for Month", () => {
+    expect(alignRangeStartToUnit(wednesday, "month", 1)).toEqual(
+      parseISO("2026-09-01"),
+    );
+  });
+
+  it("snaps to the quarter start for Quarter", () => {
+    expect(alignRangeStartToUnit(wednesday, "quarter", 1)).toEqual(
+      parseISO("2026-07-01"),
+    );
+  });
+});
+
+describe("buildGanttHeaderColumns", () => {
+  const days = (start: string, end: string) =>
+    eachDayOfInterval({ start: parseISO(start), end: parseISO(end) });
+
+  it("returns nothing for an empty day list", () => {
+    expect(buildGanttHeaderColumns([], "week", 1)).toEqual([]);
+  });
+
+  it("gives Day one column per day, matching the day itself", () => {
+    const columns = buildGanttHeaderColumns(
+      days("2026-09-14", "2026-09-16"),
+      "day",
+      1,
+    );
+    expect(columns).toEqual([
+      { label: "14", startIndex: 0, endIndex: 0 },
+      { label: "15", startIndex: 1, endIndex: 1 },
+      { label: "16", startIndex: 2, endIndex: 2 },
+    ]);
+  });
+
+  it("groups Week columns by ISO week and labels each by its start date", () => {
+    // Mon 2026-09-14 .. Sun 2026-09-27: exactly two Monday-starting weeks.
+    const columns = buildGanttHeaderColumns(
+      days("2026-09-14", "2026-09-27"),
+      "week",
+      1,
+    );
+    expect(columns).toEqual([
+      { label: "Sep 14", startIndex: 0, endIndex: 6 },
+      { label: "Sep 21", startIndex: 7, endIndex: 13 },
+    ]);
+  });
+
+  it("gives a week column a partial span when the day list cuts it off", () => {
+    // Starts on a Wednesday, so the first "week" column only covers the 3
+    // remaining days of that week.
+    const columns = buildGanttHeaderColumns(
+      days("2026-09-16", "2026-09-21"),
+      "week",
+      1,
+    );
+    expect(columns).toEqual([
+      { label: "Sep 14", startIndex: 0, endIndex: 4 },
+      { label: "Sep 21", startIndex: 5, endIndex: 5 },
+    ]);
+  });
+
+  it("groups Month columns by calendar month regardless of month length", () => {
+    // August (31 days) then September (30 days) then a few days of October.
+    const columns = buildGanttHeaderColumns(
+      days("2026-08-01", "2026-10-03"),
+      "month",
+      1,
+    );
+    expect(columns).toEqual([
+      { label: "Aug 2026", startIndex: 0, endIndex: 30 },
+      { label: "Sep 2026", startIndex: 31, endIndex: 60 },
+      { label: "Oct 2026", startIndex: 61, endIndex: 63 },
+    ]);
+  });
+
+  it("groups Quarter columns by calendar quarter across a year boundary", () => {
+    const columns = buildGanttHeaderColumns(
+      days("2026-11-15", "2027-02-15"),
+      "quarter",
+      1,
+    );
+    expect(columns).toEqual([
+      { label: "Q4 2026", startIndex: 0, endIndex: 46 },
+      { label: "Q1 2027", startIndex: 47, endIndex: 92 },
+    ]);
+  });
+});
+
+describe("GANTT_UNIT_WINDOW_DAYS and unit-aware buildGanttRange", () => {
+  it("keeps Day's window at the existing 91-day constant", () => {
+    expect(GANTT_UNIT_WINDOW_DAYS.day).toBe(GANTT_WINDOW_DAYS);
+  });
+
+  it("widens the window as the unit gets coarser", () => {
+    expect(GANTT_UNIT_WINDOW_DAYS.week).toBeGreaterThan(
+      GANTT_UNIT_WINDOW_DAYS.day,
+    );
+    expect(GANTT_UNIT_WINDOW_DAYS.month).toBeGreaterThan(
+      GANTT_UNIT_WINDOW_DAYS.week,
+    );
+    expect(GANTT_UNIT_WINDOW_DAYS.quarter).toBeGreaterThan(
+      GANTT_UNIT_WINDOW_DAYS.month,
+    );
+  });
+
+  it("reports the unit's window length on the built range", () => {
+    // A task spanning the full supported date range so the window is never
+    // clipped by padding — days.length is then exactly the unit's window.
+    const range = buildGanttRange(
+      [span("0001-01-01", "9999-12-31")],
+      1,
+      null,
+      parseISO("2026-09-19"),
+      "quarter",
+    );
+    expect(range?.windowDays).toBe(GANTT_UNIT_WINDOW_DAYS.quarter);
+    expect(range?.days.length).toBe(GANTT_UNIT_WINDOW_DAYS.quarter);
+  });
+
+  it("aligns an explicitly requested start to the unit before clamping", () => {
+    // A wide task span so the quarter window (~3 years) has room to land on
+    // the requested quarter without the page bounds clamping it away.
+    const range = buildGanttRange(
+      [span("2020-01-01", "2032-12-31")],
+      1,
+      parseISO("2026-09-16"), // mid-quarter
+      undefined,
+      "quarter",
+    );
+    expect(range?.rangeStart).toEqual(parseISO("2026-07-01"));
+  });
+
+  it("defaults buildGanttTimeline to Day when no unit is passed", () => {
+    const timeline = buildGanttTimeline(
+      [span("0001-01-01", "9999-12-31")],
+      1,
+      3,
+      null,
+      parseISO("2026-09-19"),
+    );
+    expect(timeline?.days.length).toBe(GANTT_WINDOW_DAYS);
+    expect(timeline?.windowDays).toBe(GANTT_WINDOW_DAYS);
   });
 });

@@ -2189,7 +2189,12 @@
 			"externalProjectBadge": "in {{projectName}}",
 			"externalTaskTitle": "{{title}} — related task in {{projectName}} (read-only here)",
 			"milestoneAriaLabel": "{{title}}: milestone, open task",
-			"progressLabel": "{{progress}}% complete"
+			"progressLabel": "{{progress}}% complete",
+			"unitControlAriaLabel": "Timeline granularity",
+			"unitDay": "Day",
+			"unitWeek": "Week",
+			"unitMonth": "Month",
+			"unitQuarter": "Quarter"
 		},
 		"delete": {
 			"title": "Delete Task?",

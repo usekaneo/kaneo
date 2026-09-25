@@ -42,8 +42,15 @@ vi.mock("@/hooks/queries/task-relation/use-get-project-task-relations", () => ({
   default: () => ({ data: [] }),
 }));
 vi.mock("@/hooks/use-mobile", () => ({ useIsMobile: () => false }));
+const preferencesState = vi.hoisted(() => ({
+  weekStartsOn: 1 as const,
+  ganttTimelineUnit: "day" as const,
+  setGanttTimelineUnit: vi.fn(),
+}));
 vi.mock("@/store/user-preferences", () => ({
-  useUserPreferencesStore: () => 1,
+  useUserPreferencesStore: (
+    selector: (state: typeof preferencesState) => unknown,
+  ) => selector(preferencesState),
 }));
 vi.mock("@/lib/i18n/domain", () => ({
   getStatusLabel: (status: string) => status,

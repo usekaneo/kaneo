@@ -8814,6 +8814,21 @@
 						},
 						"progressLabel": {
 							"type": "string"
+						},
+						"unitControlAriaLabel": {
+							"type": "string"
+						},
+						"unitDay": {
+							"type": "string"
+						},
+						"unitWeek": {
+							"type": "string"
+						},
+						"unitMonth": {
+							"type": "string"
+						},
+						"unitQuarter": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -8843,7 +8858,12 @@
 						"externalProjectBadge",
 						"externalTaskTitle",
 						"milestoneAriaLabel",
-						"progressLabel"
+						"progressLabel",
+						"unitControlAriaLabel",
+						"unitDay",
+						"unitWeek",
+						"unitMonth",
+						"unitQuarter"
 					]
 				},
 				"delete": {

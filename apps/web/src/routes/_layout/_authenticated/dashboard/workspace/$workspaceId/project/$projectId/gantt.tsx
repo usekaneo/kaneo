@@ -23,9 +23,10 @@ import { GanttTaskBar } from "@/components/gantt/gantt-task-bar";
 import { computePanScrollPosition } from "@/components/gantt/pan";
 import {
   buildGanttGridMetrics,
+  buildGanttHeaderColumns,
   buildGanttRange,
   deriveTaskSchedule,
-  GANTT_WINDOW_DAYS,
+  type GanttUnit,
   getBarGridColumns,
   parseTaskDate,
 } from "@/components/gantt/timeline";
@@ -64,6 +65,35 @@ type ExternalScheduledTask = ExternalGanttTask & { isExternal: true };
 // without a type assertion.
 type GanttRowTask = OwnScheduledTask | ExternalScheduledTask;
 
+const GANTT_UNITS: readonly GanttUnit[] = ["day", "week", "month", "quarter"];
+
+// Static i18n keys (never built from `unit` at the call site) for each
+// segmented-control option, per AGENTS.md's static-keys rule.
+const GANTT_UNIT_LABEL_KEYS: Record<GanttUnit, string> = {
+  day: "tasks:gantt.unitDay",
+  week: "tasks:gantt.unitWeek",
+  month: "tasks:gantt.unitMonth",
+  quarter: "tasks:gantt.unitQuarter",
+};
+
+// Base (unzoomed) day-column width per unit and screen size, in rem. The
+// underlying grid is always per-day (see timeline.ts), so these are chosen
+// to make one grid *column group* — a day/week/month/quarter — land at a
+// sensible on-screen width once the header groups days under it: roughly
+// 44px/2.75rem for a day, ~64px for a week, ~90px for an average month,
+// ~110px for a quarter (desktop; mobile is a little wider throughout for
+// touch dragging). Wheel-zoom (see `zoom` below) then scales this further
+// within the chosen unit.
+const UNIT_BASE_DAY_COLUMN_WIDTH_REM: Record<
+  GanttUnit,
+  { desktop: number; mobile: number }
+> = {
+  day: { desktop: 2.75, mobile: 3.125 },
+  week: { desktop: 0.82, mobile: 0.92 },
+  month: { desktop: 0.185, mobile: 0.22 },
+  quarter: { desktop: 0.076, mobile: 0.09 },
+};
+
 // Bars render with `mx-1` (0.25rem — see gantt-task-bar.tsx /
 // gantt-external-task-bar.tsx), so the visible edge sits inset from the
 // grid-column boundary a box's left/right are otherwise measured against;
@@ -96,6 +126,14 @@ function RouteComponent() {
   const navigate = useNavigate();
   const { data: project } = useGetTasks(projectId);
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
+  // Persisted (localStorage, via the same zustand store as weekStartsOn/
+  // viewMode) so the chosen granularity survives a reload — a per-viewer
+  // preference, not per-project state, matching how the rest of this store's
+  // display preferences behave.
+  const ganttUnit = useUserPreferencesStore((state) => state.ganttTimelineUnit);
+  const setGanttUnit = useUserPreferencesStore(
+    (state) => state.setGanttTimelineUnit,
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [windowStart, setWindowStart] = useState<{
     projectId: string;
@@ -110,11 +148,24 @@ function RouteComponent() {
   const [isTaskRailOpen, setIsTaskRailOpen] = useState(false);
 
   // Wider day columns on small screens so dragging and reading dates is easier.
-  const baseDayColumnWidthRem = isMobile ? 3.125 : 2.75;
+  const baseDayColumnWidthRem = isMobile
+    ? UNIT_BASE_DAY_COLUMN_WIDTH_REM[ganttUnit].mobile
+    : UNIT_BASE_DAY_COLUMN_WIDTH_REM[ganttUnit].desktop;
   // Mouse-wheel zoom scales the base width by this factor (see the wheel
-  // listener below); 1 is the default, unzoomed scale.
+  // listener below); 1 is the default, unzoomed scale. Zoom stays a *within*
+  // -unit fine adjustment — switching units (the segmented control below) is
+  // the coarse control, and resets zoom back to 1 so the new unit's base
+  // width is what you see first.
   const [zoom, setZoom] = useState(1);
   const dayColumnWidthRem = baseDayColumnWidthRem * zoom;
+  const handleUnitChange = useCallback(
+    (unit: GanttUnit) => {
+      if (unit === ganttUnit) return;
+      setGanttUnit(unit);
+      setZoom(1);
+    },
+    [ganttUnit, setGanttUnit],
+  );
   const taskColumnWidthRem = isMobile ? 12 : 14;
   const showTaskRail = !isMobile || isTaskRailOpen;
   const timelineTrackRef = useRef<HTMLDivElement>(null);
@@ -241,8 +292,15 @@ function RouteComponent() {
   // metrics below (a string template and a multiplication) actually need to
   // recompute with the zoomed width.
   const range = useMemo(
-    () => buildGanttRange(parsedTasks, weekStartsOn, requestedStart),
-    [parsedTasks, weekStartsOn, requestedStart],
+    () =>
+      buildGanttRange(
+        parsedTasks,
+        weekStartsOn,
+        requestedStart,
+        undefined,
+        ganttUnit,
+      ),
+    [parsedTasks, weekStartsOn, requestedStart, ganttUnit],
   );
 
   const gridMetrics = useMemo(
@@ -256,6 +314,26 @@ function RouteComponent() {
   const timeline = useMemo(
     () => (range && gridMetrics ? { ...range, ...gridMetrics } : null),
     [range, gridMetrics],
+  );
+
+  // The header's own grouping (a week/month/quarter under one label) — kept
+  // separate from `range`/`timeline` above so it only recomputes when the
+  // visible days or the unit/week-start actually change, not on every zoom
+  // step. See buildGanttHeaderColumns for why the underlying per-day grid
+  // doesn't need to know about this at all.
+  const headerColumns = useMemo(
+    () =>
+      range ? buildGanttHeaderColumns(range.days, ganttUnit, weekStartsOn) : [],
+    [range, ganttUnit, weekStartsOn],
+  );
+
+  // Which day indices sit at the END of a header column (always every index
+  // for Day, since each day is its own column) — the background day-track at
+  // that index gets a divider border, so Week/Month/Quarter draw a line
+  // between groups instead of between every single day.
+  const headerColumnEndIndices = useMemo(
+    () => new Set(headerColumns.map((column) => column.endIndex)),
+    [headerColumns],
   );
 
   // Whether "today" actually falls inside the computed date range. A project
@@ -762,6 +840,28 @@ function RouteComponent() {
               />
             </div>
 
+            <fieldset className="flex shrink-0 items-center gap-0.5 rounded-md border border-border bg-background p-0.5">
+              <legend className="sr-only">
+                {t("tasks:gantt.unitControlAriaLabel")}
+              </legend>
+              {GANTT_UNITS.map((unit) => (
+                <button
+                  key={unit}
+                  type="button"
+                  aria-pressed={ganttUnit === unit}
+                  onClick={() => handleUnitChange(unit)}
+                  className={cn(
+                    "min-h-9 touch-manipulation rounded-sm px-2.5 py-1 text-xs font-medium transition-colors sm:min-h-0",
+                    ganttUnit === unit
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  )}
+                >
+                  {t(GANTT_UNIT_LABEL_KEYS[unit])}
+                </button>
+              ))}
+            </fieldset>
+
             {timeline && (
               <div className="flex flex-wrap items-center gap-2">
                 <Button
@@ -770,7 +870,7 @@ function RouteComponent() {
                   aria-label={t("tasks:gantt.previousPeriod")}
                   disabled={!timeline.hasPrevious}
                   onClick={() =>
-                    showDate(addDays(timeline.rangeStart, -GANTT_WINDOW_DAYS))
+                    showDate(addDays(timeline.rangeStart, -timeline.windowDays))
                   }
                 >
                   <ChevronLeft className="size-4" />
@@ -796,7 +896,7 @@ function RouteComponent() {
                   aria-label={t("tasks:gantt.nextPeriod")}
                   disabled={!timeline.hasNext}
                   onClick={() =>
-                    showDate(addDays(timeline.rangeStart, GANTT_WINDOW_DAYS))
+                    showDate(addDays(timeline.rangeStart, timeline.windowDays))
                   }
                 >
                   <ChevronRight className="size-4" />
@@ -894,37 +994,76 @@ function RouteComponent() {
                     minWidth: `${timeline.timelineMinWidthRem}rem`,
                   }}
                 >
-                  {timeline.days.map((day, index) => {
-                    const showMonth =
-                      index === 0 ||
-                      !isSameMonth(day, timeline.days[index - 1] ?? day);
+                  {ganttUnit === "day"
+                    ? timeline.days.map((day, index) => {
+                        const showMonth =
+                          index === 0 ||
+                          !isSameMonth(day, timeline.days[index - 1] ?? day);
 
-                    const isCurrentDay = isToday(day);
+                        const isCurrentDay = isToday(day);
 
-                    return (
-                      <div
-                        key={day.toISOString()}
-                        ref={isCurrentDay ? todayCellRef : undefined}
-                        className={cn(
-                          "border-r border-border/70 px-0.5 py-2 text-center sm:px-1",
-                          isWeekend(day) && "bg-muted/25",
-                        )}
-                      >
-                        <div className="h-4 text-[10px] font-medium text-muted-foreground">
-                          {showMonth ? format(day, "MMM") : ""}
-                        </div>
-                        <div
-                          className={cn(
-                            "mx-auto flex size-6 items-center justify-center rounded-full text-xs font-medium",
-                            isCurrentDay &&
-                              "bg-primary text-primary-foreground",
-                          )}
-                        >
-                          {format(day, "d")}
-                        </div>
-                      </div>
-                    );
-                  })}
+                        return (
+                          <div
+                            key={day.toISOString()}
+                            ref={isCurrentDay ? todayCellRef : undefined}
+                            className={cn(
+                              "border-r border-border/70 px-0.5 py-2 text-center sm:px-1",
+                              isWeekend(day) && "bg-muted/25",
+                            )}
+                          >
+                            <div className="h-4 text-[10px] font-medium text-muted-foreground">
+                              {showMonth ? format(day, "MMM") : ""}
+                            </div>
+                            <div
+                              className={cn(
+                                "mx-auto flex size-6 items-center justify-center rounded-full text-xs font-medium",
+                                isCurrentDay &&
+                                  "bg-primary text-primary-foreground",
+                              )}
+                            >
+                              {format(day, "d")}
+                            </div>
+                          </div>
+                        );
+                      })
+                    : // Week/Month/Quarter: one grouped cell per header column,
+                      // spanning that column's day-tracks (see
+                      // buildGanttHeaderColumns) rather than one cell per day —
+                      // the day-tracks underneath still exist for bar/line
+                      // positioning, they're just not individually labeled here.
+                      headerColumns.map((column) => {
+                        const columnDays = timeline.days.slice(
+                          column.startIndex,
+                          column.endIndex + 1,
+                        );
+                        const containsToday = columnDays.some((day) =>
+                          isToday(day),
+                        );
+
+                        return (
+                          <div
+                            key={`${column.startIndex}-${column.label}`}
+                            ref={containsToday ? todayCellRef : undefined}
+                            style={{
+                              gridColumn: `${column.startIndex + 1} / ${column.endIndex + 2}`,
+                            }}
+                            className={cn(
+                              "flex items-center justify-center border-r border-border/70 px-1 py-2 text-center text-xs font-medium",
+                              containsToday
+                                ? "text-foreground"
+                                : "text-muted-foreground",
+                            )}
+                          >
+                            {containsToday ? (
+                              <span className="rounded-full bg-primary px-2 py-0.5 text-primary-foreground">
+                                {column.label}
+                              </span>
+                            ) : (
+                              column.label
+                            )}
+                          </div>
+                        );
+                      })}
                 </div>
               </div>
 
@@ -942,12 +1081,23 @@ function RouteComponent() {
                     width: `${timeline.timelineMinWidthRem}rem`,
                   }}
                 >
-                  {timeline.days.map((day) => (
+                  {timeline.days.map((day, index) => (
                     <div
                       key={`bg-line-${day.toISOString()}`}
                       className={cn(
-                        "h-full min-h-0 border-r border-border/60",
-                        isWeekend(day) && "bg-muted/25",
+                        "h-full min-h-0",
+                        // A divider only at the END of each header column (see
+                        // buildGanttHeaderColumns) — every day for Day (where
+                        // every day IS its own column), but only between
+                        // weeks/months/quarters at coarser units, so the
+                        // background doesn't turn into a wall of day lines
+                        // once each column covers dozens of days.
+                        headerColumnEndIndices.has(index) &&
+                          "border-r border-border/60",
+                        // Weekend tint is only meaningful at Day granularity —
+                        // at Week/Month/Quarter it would render as a sliver a
+                        // fraction of a pixel wide.
+                        ganttUnit === "day" && isWeekend(day) && "bg-muted/25",
                       )}
                     />
                   ))}

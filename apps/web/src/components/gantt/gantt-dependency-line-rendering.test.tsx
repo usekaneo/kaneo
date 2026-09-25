@@ -11,6 +11,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const m = vi.hoisted(() => ({
   component: (() => null) as ComponentType,
   relations: [] as Record<string, unknown>[],
+  preferencesState: {
+    weekStartsOn: 1 as const,
+    ganttTimelineUnit: "day" as const,
+    setGanttTimelineUnit: (() => {}) as (unit: string) => void,
+  },
 }));
 
 vi.mock("@tanstack/react-router", () => ({
@@ -80,7 +85,9 @@ vi.mock("@/hooks/queries/task-relation/use-get-project-task-relations", () => ({
 }));
 vi.mock("@/hooks/use-mobile", () => ({ useIsMobile: () => false }));
 vi.mock("@/store/user-preferences", () => ({
-  useUserPreferencesStore: () => 1,
+  useUserPreferencesStore: (
+    selector: (state: typeof m.preferencesState) => unknown,
+  ) => selector(m.preferencesState),
 }));
 vi.mock("@/lib/i18n/domain", () => ({
   getStatusLabel: (status: string) => status,

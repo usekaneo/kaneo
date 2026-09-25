@@ -51,8 +51,17 @@ vi.mock("@/hooks/use-mobile", () => ({
 
 vi.mock("@/store/user-preferences", () => ({
   useUserPreferencesStore: (
-    selector: (state: { weekStartsOn: number }) => unknown,
-  ) => selector({ weekStartsOn: 0 }),
+    selector: (state: {
+      weekStartsOn: number;
+      ganttTimelineUnit: string;
+      setGanttTimelineUnit: (unit: string) => void;
+    }) => unknown,
+  ) =>
+    selector({
+      weekStartsOn: 0,
+      ganttTimelineUnit: "day",
+      setGanttTimelineUnit: () => {},
+    }),
 }));
 
 vi.mock("@/components/common/project-layout", () => ({
