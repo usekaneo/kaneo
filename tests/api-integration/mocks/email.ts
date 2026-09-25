@@ -29,3 +29,11 @@ export async function sendWorkspaceInvitationEmail(
 export function isSmtpConfigured(): boolean {
   return false;
 }
+
+export async function sendPasswordResetEmail(
+  _to: string,
+  _subject: string,
+  _data: unknown,
+): Promise<void> {
+  return undefined;
+}

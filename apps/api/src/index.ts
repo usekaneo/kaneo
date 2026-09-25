@@ -1,3 +1,4 @@
+import { drainPasswordResetDeliveries } from "./utils/password-reset-delivery";
 import "./instrument";
 
 import { dirname } from "node:path";
@@ -959,7 +960,11 @@ export async function startServer(
     shutdownScheduler();
     await shutdownWebSocketAdapter();
     server.close();
-    if (!(await drainSignInEmails())) {
+    const [, signInEmailsDrained] = await Promise.all([
+      drainPasswordResetDeliveries(),
+      drainSignInEmails(),
+    ]);
+    if (!signInEmailsDrained) {
       console.warn("Timed out waiting for pending sign-in emails");
     }
     process.exit(0);

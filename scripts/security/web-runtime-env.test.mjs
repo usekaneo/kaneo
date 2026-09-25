@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 import {
   chmodSync,
   copyFileSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
@@ -34,6 +35,83 @@ const scenarios = [
   },
   { name: "unset public values", api: "", client: "", key: "" },
 ];
+
+test("production runtime starts and serves configuration as its default non-root user", () => {
+  const fixture = mkdtempSync(resolve(tmpdir(), "kaneo-web-runtime-"));
+  const runtimeImage = `kaneo-web-runtime-test:${process.pid}`;
+  const container = `kaneo-web-runtime-test-${process.pid}`;
+  const docker = (args, timeout = 30_000) => {
+    const result = spawnSync("docker", args, { encoding: "utf8", timeout });
+    assert.equal(result.status, 0, result.error?.message ?? result.stderr);
+    return result.stdout;
+  };
+  try {
+    mkdirSync(resolve(fixture, "dist/assets"), { recursive: true });
+    mkdirSync(resolve(fixture, "apps/web"), { recursive: true });
+    writeFileSync(resolve(fixture, "dist/index.html"), "runtime fixture");
+    for (const asset of ["root.js", "assets/app.js"]) {
+      writeFileSync(resolve(fixture, "dist", asset), '"KANEO_API_URL"');
+    }
+    for (const file of ["nginx.conf", "env.sh", "env.awk"]) {
+      copyFileSync(
+        resolve(root, "apps/web", file),
+        resolve(fixture, "apps/web", file),
+      );
+    }
+    // Exercise the real runtime stage, substituting only the frontend build.
+    // A writable bind mount over the web root would hide image ownership bugs.
+    const dockerfile = readFileSync(
+      resolve(root, "apps/web/Dockerfile"),
+      "utf8",
+    );
+    const runtime = dockerfile.match(/^FROM nginx:.* AS runtime\r?\n[\s\S]*/m);
+    assert.ok(runtime, "standalone web runtime stage must exist");
+    writeFileSync(
+      resolve(fixture, "Dockerfile"),
+      `FROM scratch AS builder\nCOPY dist /app/apps/web/dist\n${runtime[0]}`,
+    );
+    docker(["image", "inspect", image]);
+    docker(["build", "--network=none", "-t", runtimeImage, fixture], 120_000);
+    const output = docker([
+      "run",
+      "--rm",
+      "--name",
+      container,
+      "--pull=never",
+      "--network=none",
+      "--env",
+      "KANEO_API_URL=https://api.example.test/api",
+      runtimeImage,
+      "sh",
+      "-eu",
+      "-c",
+      [
+        'test "$(id -u)" = 1001',
+        "/docker-entrypoint.sh nginx -t",
+        "nginx > /tmp/nginx-output.log 2>&1",
+        'test "$(wget -qO- http://127.0.0.1:5173/)" = "runtime fixture"',
+        "wget -qO- http://127.0.0.1:5173/root.js",
+        "wget -qO- http://127.0.0.1:5173/assets/app.js",
+        "wget -qO- http://127.0.0.1:5173/.well-known/oauth-protected-resource/api/mcp",
+        "wget -qO- http://127.0.0.1:5173/.well-known/oauth-authorization-server/api",
+        "nginx -s quit",
+      ].join("; "),
+    ]);
+    const responses = output
+      .trim()
+      .split("\n")
+      .slice(-4)
+      .map((line) => JSON.parse(line));
+    assert.equal(responses[0], "https://api.example.test/api");
+    assert.equal(responses[1], "https://api.example.test/api");
+    assert.equal(responses[2].resource, "https://api.example.test/api/mcp");
+    assert.equal(responses[3].issuer, "https://api.example.test/api");
+  } finally {
+    spawnSync("docker", ["rm", "-f", container], { timeout: 30_000 });
+    spawnSync("docker", ["image", "rm", runtimeImage], { timeout: 30_000 });
+    rmSync(fixture, { recursive: true, force: true });
+  }
+});
 
 for (const scenario of scenarios) {
   test(scenario.name, () => {

@@ -8,7 +8,7 @@ reviews:
   poem: false
   collapse_walkthrough: true
   auto_review:
-    enabled: true
+    enabled: false
     drafts: false
   path_filters:
     - "!apps/api/drizzle/**"
@@ -17,4 +17,4 @@ reviews:
     - "!**/*.md"
 
 chat:
-  auto_reply: true
+  auto_reply: false

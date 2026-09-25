@@ -31,7 +31,8 @@ permissions: {}
 jobs:
   plan:
     name: Plan
-    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     permissions:
       contents: write # semantic-release verifies push permission even on a dry run
     outputs:
@@ -45,7 +46,7 @@ jobs:
           fi
 
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: useblacksmith/checkout@v1 # v7.0.1
         with:
           fetch-depth: 0
 
@@ -94,9 +95,31 @@ jobs:
             echo "</details>"
           } >> "$GITHUB_STEP_SUMMARY"
 
+  verify-ci:
+    name: Verify CI for release source
+    needs: plan
+    if: ${{ !inputs.dry_run && needs.plan.outputs.version != '' }}
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 35
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: useblacksmith/checkout@v1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.19.0
+          package-manager-cache: false
+      - name: Wait for successful main CI on this exact commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/ci/require-ci.mjs
+
   images:
     name: Images
-    needs: plan
+    needs: [plan, verify-ci]
     if: ${{ !inputs.dry_run && needs.plan.outputs.version != '' }}
     permissions:
       contents: read
@@ -120,7 +143,8 @@ jobs:
     name: Release
     needs: [plan, images, chart]
     if: ${{ !inputs.dry_run && needs.plan.outputs.version != '' }}
-    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     permissions:
       contents: write
       issues: write
@@ -131,7 +155,7 @@ jobs:
       # The same token the API calls use, so the release commit and tag are not
       # pushed under a different identity than the one that was verified.
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: useblacksmith/checkout@v1 # v7.0.1
         with:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
@@ -179,7 +203,8 @@ jobs:
   promote:
     name: Promote
     needs: [plan, release]
-    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     permissions:
       contents: read
       packages: write

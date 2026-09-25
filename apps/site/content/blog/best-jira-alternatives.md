@@ -3,7 +3,7 @@ title: "11 Best Jira Alternatives in 2026 (Free and Self-Hosted Options)"
 description: "The best Jira alternatives in 2026, compared on licensing, self-hosting, single sign-on, and price. Includes free open-source options you can run yourself and hosted tools that replace Jira without the admin console."
 excerpt: "Jira can run a 500-person organisation. Most teams do not need that, and pay for it anyway. Here are 11 alternatives that actually replace it, what each one costs, and which of them you can host yourself for free."
 date: 2026-08-18
-updatedOn: 2026-08-20
+updatedOn: 2026-09-23
 author: andrej
 category: alternatives
 featured: true
@@ -19,7 +19,7 @@ This is a comparison of the 11 tools that genuinely replace Jira for a small or 
 
 ## TL;DR: the 11 best Jira alternatives
 
-1. **[Kaneo](/jira-alternative)** for teams who want boards, backlog, and workflows with nothing to administer. MIT licensed and free to self-host.
+1. **[Kaneo](/jira-alternative)** for teams who want boards, backlog, Gantt planning, and custom fields with less configuration. MIT licensed and free to self-host.
 2. **[Linear](/linear-alternative)** for product teams who want the most polished cloud tracker and do not need to host it.
 3. **[Plane](/plane-alternative)** for teams who want a Linear-shaped product they can run themselves.
 4. **[OpenProject](/openproject-alternative)** for organisations that actually used Jira's structure, including Gantt charts and budgets.
@@ -75,31 +75,33 @@ We are the team behind Kaneo, which is one of the tools on this list. Rather tha
 
 ### 1. Kaneo
 
-Kaneo covers the parts of Jira that teams actually use every day: boards, backlog planning, configurable workflow columns, labels, priorities, task relations, comments, attachments, time tracking, and workspace roles. It deliberately leaves out the configuration layer that turns Jira into somebody's part-time job.
+Kaneo brings boards, backlog planning, Gantt and calendar views, custom fields, and time tracking into one focused tracker. Teams can plan dates, capture project-specific details, and move tasks through their own workflow columns, with integration events keeping statuses in sync. Workspace roles, labels, priorities, task relations, comments, and attachments cover the daily collaboration around that work.
 
 Most teams run it on Kaneo Cloud, which is hosted in the EU and starts at $4 a month, with automatic backups, automatic updates, single sign-on, and email support. Kaneo is also open source under the MIT licence, which matters less for how you use it day to day and more for what happens if you ever want out: you can export everything or move the whole thing onto your own server, so the switching cost that keeps teams stuck on Jira does not apply here.
 
 **Key features**
 
 - Kanban boards and list views with realtime updates
-- Backlog planning and configurable workflow columns per project
+- Gantt and calendar views for tasks with start and due dates
+- Project custom fields: text, number, date, dropdown, and checkbox
+- Backlog planning, configurable workflow columns, and rules that move tasks on integration events
 - Workspace roles and permissions, labels, priorities, and task relations
 - Time tracking, comments, and attachments
 - Single sign-on with Google, GitHub, Discord, or any OIDC provider, on every plan
 - Automatic backups, updates, and email support on Kaneo Cloud
 - Documented public REST API, API keys, webhooks, and an MCP server for AI agents
-- GitHub, Gitea, Slack, Discord, and Telegram integrations
+- GitHub and Gitea integrations, plus notifications in Slack, Discord, Telegram, and Mattermost
 - Per-project JSON export and import
 
-**Pros:** Nothing to administer, single sign-on on every plan rather than an Enterprise line item, EU hosting with backups and updates handled for you, pricing by exact headcount with no seat blocks, and an open-source escape hatch if you ever want to leave.
+**Pros:** Boards, Gantt, calendar, custom fields, and time tracking in the same product, with single sign-on on every plan. Choose EU-hosted cloud with backups and updates handled, or run the MIT-licensed build yourself. Cloud pricing follows exact headcount with no seat blocks.
 
-**Cons:** No Gantt charts, no sprints with story points, no marketplace, no service desk. It is deliberately smaller than Jira.
+**Cons:** No dedicated sprint planning with story points or burndown reports, no app marketplace, and no service desk with SLAs. Custom fields and workflow rules cover project-level needs, but do not reproduce Jira's issue-type and permission schemes.
 
 **Pricing:** Kaneo Cloud is $4 a month for a single user and $5 per user a month for teams, billed on exact headcount, with a 14-day trial and no credit card required. Annual billing works out at $3.33 and $4.17 a month. Self-hosting under MIT is available if you would rather run it yourself.
 
 **Best for:** Small and mid-sized teams who want to plan and ship work without administering a tool.
 
-**Why choose it over Jira:** A ten-person team is $50 a month on Kaneo Cloud, against Jira's per-user pricing plus an Atlassian Guard subscription to get single sign-on, and there is no admin console for anyone to own. You keep the board, the backlog, the workflows, and the roles, and lose the schemes.
+**Why choose it over Jira:** A ten-person team is $50 a month on Kaneo Cloud, against Jira's per-user pricing plus an Atlassian Guard subscription to get single sign-on, and there is no admin console for anyone to own. You get boards, backlog, Gantt and calendar planning, custom fields, workflow rules, and roles in one product.
 
 ### 2. Linear
 
@@ -267,7 +269,7 @@ A short decision guide, since eleven options is a lot.
 
 - **You want the least to administer.** Kaneo, Linear, or Shortcut.
 - **You must self-host.** Kaneo, Plane, OpenProject, Redmine, or Taiga.
-- **You need Gantt charts and budgets.** OpenProject. Nothing else here does it properly.
+- **You need a project timeline.** Kaneo includes Gantt and calendar views. For budgets, cost reporting, and baseline comparisons alongside scheduling, consider OpenProject.
 - **You run Scrum with story points.** Taiga.
 - **Single sign-on without an Enterprise contract.** Kaneo includes it on every plan. Taiga and Redmine (with a plugin) also manage it. Check our [free SSO guide](/guides/project-management-tools-with-free-sso) before committing.
 - **Your work is not engineering work.** Asana or ClickUp.
@@ -295,7 +297,7 @@ Do a dry run into a scratch project first, check that assignees resolve by email
 
 ### What is the best free alternative to Jira?
 
-If you want to run it yourself, Kaneo is MIT licensed and self-hostable, OpenProject's Community edition is the better choice when you need Gantt charts, and Taiga is the one to pick for Scrum. Worth being honest about the trade: "free" means you take on the server, the upgrades, and the backups. Kaneo Cloud starts at $4 a month and hands all of that back to us, which is why most teams end up there.
+Kaneo is MIT licensed and free to self-host, including Gantt and calendar views, custom fields, and time tracking. Consider OpenProject if you also need budgets and cost reporting, or Taiga for Scrum. Self-hosting means taking on the server, upgrades, and backups. Kaneo Cloud starts at $4 a month if you want those handled for you.
 
 ### Can Jira be self-hosted for free?
 
@@ -321,6 +323,6 @@ No, and you probably should not. Move one active project first, keep Jira readab
 
 If you need Jira's full scope, keep Jira. It earns its complexity at the scale it was designed for.
 
-If you are a team of five to fifty who wants a board, a backlog, workflows you can change yourself, and single sign-on that is not a separate line item, most of that complexity is working against you.
+If you are a team of five to fifty who wants boards, backlog, Gantt and calendar planning, custom fields, and single sign-on included, most of that complexity is working against you.
 
 Kaneo Cloud gives you all of that, hosted in the EU from $4 a month, with backups and updates handled and nothing for anyone to administer. There is a 14-day trial and no credit card, and because Kaneo is open source you can export everything or move it onto your own server whenever you like.

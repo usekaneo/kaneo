@@ -5,6 +5,7 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+  workflow_call:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -15,10 +16,10 @@ permissions:
 
 jobs:
   peekareq-tests:
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: useblacksmith/checkout@v1 # v7.0.1
         with:
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
@@ -31,10 +32,11 @@ jobs:
         working-directory: scripts/ui-review-bot
 
   lint:
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: useblacksmith/checkout@v1 # v7.0.1
 
       - name: Setup pnpm
         uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
@@ -54,10 +56,11 @@ jobs:
         run: pnpm exec biome ci .
 
   i18n:
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: useblacksmith/checkout@v1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -79,10 +82,11 @@ jobs:
         run: pnpm i18n:check
 
   openapi:
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: useblacksmith/checkout@v1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -104,10 +108,11 @@ jobs:
         run: pnpm openapi:check
 
   typecheck:
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: useblacksmith/checkout@v1 # v7.0.1
 
       - name: Setup pnpm
         uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
@@ -127,10 +132,11 @@ jobs:
         run: pnpm typecheck
 
   unit:
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: useblacksmith/checkout@v1 # v7.0.1
 
       - name: Setup pnpm
         uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
@@ -149,7 +155,7 @@ jobs:
       - name: Test release security controls
         run: |
           docker pull nginx:1.29.5-alpine
-          node --test scripts/security/*.test.mjs
+          node --test scripts/security/*.test.mjs scripts/ci/*.test.mjs
 
       - name: Run unit tests
         env:
@@ -158,10 +164,11 @@ jobs:
         run: pnpm test
 
   build:
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: useblacksmith/checkout@v1 # v7.0.1
 
       - name: Setup pnpm
         uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
@@ -180,8 +187,12 @@ jobs:
       - name: Build monorepo
         run: pnpm build
 
+      - name: Check site metadata and internal links
+        run: pnpm --filter @kaneo/site seo:check
+
   integration:
-    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     services:
       postgres:
         image: postgres:16
@@ -205,7 +216,7 @@ jobs:
       DISABLE_GUEST_ACCESS: "false"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: useblacksmith/checkout@v1 # v7.0.1
 
       - name: Setup pnpm
         uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
@@ -225,20 +236,143 @@ jobs:
         run: pnpm test:integration
 
   docker-build:
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 30
     steps:
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: useblacksmith/checkout@v1 # v7.0.1
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+      - name: Setup Blacksmith Builder
+        uses: useblacksmith/setup-docker-builder@v1
 
-      - name: Build kaneo image (smoke test)
-        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
+      - name: Build bundled image for runtime tests
+        uses: useblacksmith/build-push-action@v2 # v7
         with:
           context: .
           file: ./Dockerfile.kaneo
           platforms: linux/amd64
           push: false
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          load: true
+          tags: kaneo:ci
+
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+        with:
+          version: 10.32.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.19.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --ignore-scripts --filter @kaneo/api...
+      - run: npm ci --ignore-scripts
+        working-directory: scripts/ui-review-bot
+      - run: scripts/ui-review-bot/node_modules/.bin/playwright install --with-deps chromium
+      - name: Start bundled image without Redis
+        run: docker compose --env-file /dev/null -p kaneo-ci -f scripts/ci/compose.yml up -d --wait --wait-timeout 120 postgres minio app
+      - name: Browser regression and workspace isolation
+        run: node scripts/ci/browser.mjs http://127.0.0.1:55173
+      - name: Verify realtime without Redis
+        run: node scripts/ci/realtime.mjs http://127.0.0.1:55173
+      - name: Start two API instances with Redis
+        env:
+          KANEO_CI_REDIS_URL: redis://redis:6379
+        run: docker compose --env-file /dev/null -p kaneo-ci -f scripts/ci/compose.yml --profile realtime up -d --wait --wait-timeout 120 app second redis
+      - name: Verify Redis fan-out
+        run: node scripts/ci/realtime.mjs http://127.0.0.1:55173 http://127.0.0.1:55174
+      - name: Upgrade from the latest stable release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/ci/upgrade.sh
+      - name: Save container logs
+        if: always()
+        run: |
+          mkdir -p .cache/ci-results
+          docker compose --env-file /dev/null -p kaneo-ci -f scripts/ci/compose.yml --profile realtime --profile upgrade logs --no-color > .cache/ci-results/containers.log
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: failure()
+        with:
+          name: runtime-failures
+          path: .cache/ci-results/
+          include-hidden-files: true
+          retention-days: 7
+      - name: Remove disposable test services and data
+        if: always()
+        run: docker compose --env-file /dev/null -p kaneo-ci -f scripts/ci/compose.yml --profile realtime --profile upgrade down -v
+
+  workflows:
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 5
+    steps:
+      - uses: useblacksmith/checkout@v1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install verified actionlint
+        run: |
+          curl --fail --silent --show-error --location --max-time 60 \
+            https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz \
+            -o "$RUNNER_TEMP/actionlint.tar.gz"
+          echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  $RUNNER_TEMP/actionlint.tar.gz" | sha256sum --check --strict
+          tar -xzf "$RUNNER_TEMP/actionlint.tar.gz" -C "$RUNNER_TEMP" actionlint
+      - name: Lint workflows and embedded shell scripts
+        run: |
+          shellcheck --version
+          "$RUNNER_TEMP/actionlint" -color
+          shellcheck scripts/ci/*.sh
+
+  storage:
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 10
+    steps:
+      - uses: useblacksmith/checkout@v1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+        with:
+          version: 10.32.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.19.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Start disposable S3 storage
+        run: |
+          docker run -d --name kaneo-storage-ci \
+            -p 127.0.0.1:59039:9000 \
+            -e MINIO_ROOT_USER=local-test-access \
+            -e MINIO_ROOT_PASSWORD=local-test-secret-only \
+            -e MINIO_BROWSER=off -e MINIO_UPDATE=off \
+            --entrypoint /opt/bitnami/minio/bin/minio \
+            bitnamilegacy/minio@sha256:8935e75fa5d11295c17171e4aa49efe390a1193cd7f12e4d21b92af9ffef09d7 \
+            server /tmp/minio --address :9000
+          curl --fail --retry 30 --retry-all-errors --retry-delay 1 --max-time 5 \
+            http://127.0.0.1:59039/minio/health/ready
+      - name: Verify signed uploads against real storage
+        env:
+          KANEO_STORAGE_TEST_ENDPOINT: http://127.0.0.1:59039
+        run: pnpm --filter @kaneo/api exec vitest run --config vitest.storage.config.ts
+      - name: Storage logs
+        if: failure()
+        run: docker logs kaneo-storage-ci
+      - name: Remove disposable storage
+        if: always()
+        run: docker rm -f -v kaneo-storage-ci
+
+  split-images:
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        name: [api, web]
+    steps:
+      - uses: useblacksmith/checkout@v1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup Blacksmith Builder
+        uses: useblacksmith/setup-docker-builder@v1
+      - name: Build standalone image
+        uses: useblacksmith/build-push-action@v2 # v7
+        with:
+          context: .
+          file: ./apps/${{ matrix.name }}/Dockerfile
+          platforms: linux/amd64
+          push: false

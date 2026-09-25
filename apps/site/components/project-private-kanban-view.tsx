@@ -32,6 +32,7 @@ export function PrivateKanbanView({
         {columns.map((column) => (
           <div
             key={column.id}
+            data-column-id={column.id}
             className="h-full max-w-96 min-w-80 shrink-0 flex-1"
           >
             {/* Column wrapper (private style) */}

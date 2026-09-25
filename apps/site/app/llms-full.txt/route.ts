@@ -2,10 +2,15 @@ import { blogPath, getPosts } from "@/lib/blog";
 import { alternativePath, comparisonList } from "@/lib/comparisons";
 import type { Cell } from "@/lib/comparisons/types";
 import { guideList, guidePath } from "@/lib/guides";
+import { productMarkdown } from "@/lib/product";
 
 export const dynamic = "force-static";
 
 const SITE = "https://kaneo.app";
+
+function link(label: string, href: string) {
+  return `[${label}](${new URL(href, SITE).href})`;
+}
 
 function cell(value: Cell) {
   if (value === true) return "Yes";
@@ -46,7 +51,9 @@ ${reasons}
 
 When ${data.competitor} is the better choice: ${data.honestNote}
 
-${faq}`;
+${faq}
+
+Sources: ${data.sources.map((source) => link(source.label, source.href)).join(", ")}`;
     })
     .join("\n\n---\n\n");
 }
@@ -61,7 +68,7 @@ function guideMarkdown() {
             section.items
               ?.map(
                 (item) =>
-                  `- **${item.name}**${item.meta ? ` (${item.meta})` : ""}: ${item.body}`,
+                  `- **${item.href ? link(item.name, item.href) : item.name}**${item.meta ? ` (${item.meta})` : ""}: ${item.body}`,
               )
               .join("\n") ?? "";
           return `### ${section.heading}\n\n${[body, items].filter(Boolean).join("\n\n")}`;
@@ -81,7 +88,9 @@ ${guide.answer}
 
 ${sections}
 
-${faq}`;
+${faq}
+
+Related: ${guide.related.map((item) => link(item.label, item.href)).join(", ")}`;
     })
     .join("\n\n---\n\n");
 }
@@ -105,6 +114,10 @@ export function GET() {
   const body = `# Kaneo, full content
 
 > Kaneo is an open-source, self-hostable project management platform under the MIT license. This file contains the full text of Kaneo's comparison pages, guides, and blog posts. Written by the Kaneo team, who build one of the tools discussed.
+
+## Product facts
+
+${productMarkdown()}
 
 # Comparisons
 
