@@ -386,6 +386,66 @@
 								},
 								"errorToast": {
 									"type": "string"
+								},
+								"duplicateTitle": {
+									"type": "string"
+								},
+								"templateTitle": {
+									"type": "string"
+								},
+								"duplicateName": {
+									"type": "string"
+								},
+								"templateName": {
+									"type": "string"
+								},
+								"duplicateButton": {
+									"type": "string"
+								},
+								"templateButton": {
+									"type": "string"
+								},
+								"templateSuccessToast": {
+									"type": "string"
+								},
+								"templateSource": {
+									"type": "string"
+								},
+								"blankSource": {
+									"type": "string"
+								},
+								"noTemplates": {
+									"type": "string"
+								},
+								"templatesLoadError": {
+									"type": "string"
+								},
+								"copyScope": {
+									"type": "string"
+								},
+								"includeTasks": {
+									"type": "string"
+								},
+								"taskScope": {
+									"type": "string"
+								},
+								"templateVisibility": {
+									"type": "string"
+								},
+								"deleteTemplate": {
+									"type": "string"
+								},
+								"deleteTemplateTitle": {
+									"type": "string"
+								},
+								"deleteTemplateDescription": {
+									"type": "string"
+								},
+								"templateDeletedToast": {
+									"type": "string"
+								},
+								"templateDeleteError": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -400,7 +460,27 @@
 								"keyHint",
 								"createButton",
 								"successToast",
-								"errorToast"
+								"errorToast",
+								"duplicateTitle",
+								"templateTitle",
+								"duplicateName",
+								"templateName",
+								"duplicateButton",
+								"templateButton",
+								"templateSuccessToast",
+								"templateSource",
+								"blankSource",
+								"noTemplates",
+								"templatesLoadError",
+								"copyScope",
+								"includeTasks",
+								"taskScope",
+								"templateVisibility",
+								"deleteTemplate",
+								"deleteTemplateTitle",
+								"deleteTemplateDescription",
+								"templateDeletedToast",
+								"templateDeleteError"
 							]
 						},
 						"createWorkspace": {
@@ -6287,6 +6367,12 @@
 						},
 						"deleteProject": {
 							"type": "string"
+						},
+						"duplicateProject": {
+							"type": "string"
+						},
+						"saveAsTemplate": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -6298,7 +6384,9 @@
 						"deleteConfirmTitle",
 						"deleteConfirmDescription",
 						"deletedToast",
-						"deleteProject"
+						"deleteProject",
+						"duplicateProject",
+						"saveAsTemplate"
 					]
 				},
 				"search": {

@@ -1,19 +1,17 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import createProject from "@/fetchers/project/create-project";
 
-function useCreateProject({
-  name,
-  slug,
-  workspaceId,
-  icon,
-}: {
-  name: string;
-  slug: string;
-  workspaceId: string;
-  icon: string;
-}) {
+function useCreateProject() {
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => createProject({ name, slug, workspaceId, icon }),
+    mutationFn: createProject,
+    onSuccess: (_, { workspaceId }) =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["projects", workspaceId] }),
+        queryClient.invalidateQueries({
+          queryKey: ["project-templates", workspaceId],
+        }),
+      ]),
   });
 }
 

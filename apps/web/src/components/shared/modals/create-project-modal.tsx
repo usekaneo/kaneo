@@ -3,12 +3,22 @@ import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  AlertDialog,
+  AlertDialogClose,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -18,14 +28,25 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import icons from "@/constants/project-icons";
 import useCreateProject from "@/hooks/mutations/project/use-create-project";
+import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
+import useGetProjectTemplates from "@/hooks/queries/project/use-get-project-templates";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import generateProjectSlug from "@/lib/generate-project-id";
 import { toast } from "@/lib/toast";
@@ -33,23 +54,58 @@ import { toast } from "@/lib/toast";
 type CreateProjectModalProps = {
   open: boolean;
   onClose: () => void;
+  mode?: "create" | "duplicate" | "template";
+  sourceProject?: { id: string; name: string; icon: string | null };
 };
 
-function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
+function CreateProjectModal({
+  open,
+  onClose,
+  mode = "create",
+  sourceProject,
+}: CreateProjectModalProps) {
   const { t } = useTranslation();
-  const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
-  const [selectedIcon, setSelectedIcon] = useState("Layout");
+  const title =
+    mode === "duplicate"
+      ? t("common:modals.createProject.duplicateTitle")
+      : mode === "template"
+        ? t("common:modals.createProject.templateTitle")
+        : t("common:modals.createProject.title");
+  const initialName = sourceProject
+    ? t(
+        mode === "duplicate"
+          ? "common:modals.createProject.duplicateName"
+          : "common:modals.createProject.templateName",
+        { name: sourceProject.name },
+      )
+    : "";
+  const [name, setName] = useState(initialName);
+  const [slug, setSlug] = useState(() => generateProjectSlug(initialName));
+  const [selectedIcon, setSelectedIcon] = useState(
+    sourceProject?.icon ?? "Layout",
+  );
   const [iconPopoverOpen, setIconPopoverOpen] = useState(false);
   const [iconSearch, setIconSearch] = useState("");
+  const [selectedTemplateId, setSelectedTemplateId] = useState("");
+  const [includeTasks, setIncludeTasks] = useState(false);
+  const [templateToDelete, setTemplateToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const queryClient = useQueryClient();
   const { data: workspace } = useActiveWorkspace();
-  const { mutateAsync } = useCreateProject({
-    name,
-    slug,
+  const {
+    data: templates,
+    isError: templatesFailed,
+    refetch: refetchTemplates,
+  } = useGetProjectTemplates({
     workspaceId: workspace?.id ?? "",
-    icon: selectedIcon,
+    enabled: open && mode === "create",
   });
+  const { canDeleteProjects } = useWorkspacePermission();
+  const { mutateAsync, isPending: isCreating } = useCreateProject();
+  const { mutateAsync: deleteProject, isPending: isDeleting } =
+    useDeleteProject();
   const SelectedIcon =
     icons[selectedIcon as keyof typeof icons] || icons.Layout;
   const filteredIcons = Object.entries(icons).filter(([iconName]) =>
@@ -57,38 +113,81 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
   );
   const navigate = useNavigate();
 
+  const sourceProjectId =
+    mode === "create" ? selectedTemplateId : sourceProject?.id;
+  const selectedTemplate = templates?.find(
+    (template) => template.id === selectedTemplateId,
+  );
+
   const handleClose = () => {
     setName("");
     setSlug("");
     setSelectedIcon("Layout");
     setIconPopoverOpen(false);
     setIconSearch("");
+    setSelectedTemplateId("");
+    setIncludeTasks(false);
+    setTemplateToDelete(null);
     onClose();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || !slug.trim() || !workspace?.id || isCreating) return;
+    if (mode !== "create" && !sourceProjectId) return;
 
     try {
-      const { id } = await mutateAsync();
-      toast.success("Project created successfully");
-      await queryClient.invalidateQueries({ queryKey: ["projects"] });
-
-      navigate({
-        to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
-        params: {
-          workspaceId: workspace?.id ?? "",
-          projectId: id,
-        },
+      const { id } = await mutateAsync({
+        name: name.trim(),
+        slug: slug.trim(),
+        workspaceId: workspace.id,
+        icon: selectedIcon,
+        ...(sourceProjectId ? { sourceProjectId, includeTasks } : {}),
+        ...(mode === "template" ? { asTemplate: true } : {}),
       });
 
+      if (mode === "template") {
+        toast.success(t("common:modals.createProject.templateSuccessToast"));
+      } else {
+        toast.success(t("common:modals.createProject.successToast"));
+        await navigate({
+          to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
+          params: { workspaceId: workspace.id, projectId: id },
+        });
+      }
       handleClose();
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
           : t("common:modals.createProject.errorToast"),
+      );
+    }
+  };
+
+  const handleDeleteTemplate = async () => {
+    if (!templateToDelete || !workspace?.id || !canDeleteProjects()) return;
+
+    try {
+      await deleteProject({ id: templateToDelete.id });
+      if (selectedTemplateId === templateToDelete.id) {
+        setSelectedTemplateId("");
+        setIncludeTasks(false);
+        setSelectedIcon("Layout");
+      }
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["projects", workspace.id] }),
+        queryClient.invalidateQueries({
+          queryKey: ["project-templates", workspace.id],
+        }),
+      ]);
+      toast.success(t("common:modals.createProject.templateDeletedToast"));
+      setTemplateToDelete(null);
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("common:modals.createProject.templateDeleteError"),
       );
     }
   };
@@ -100,12 +199,15 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen && !isCreating) handleClose();
+      }}
+    >
       <DialogContent className="max-w-md" showCloseButton={false}>
         <DialogHeader className="px-3 pt-4 pb-1 gap-1.5">
-          <DialogTitle className="sr-only">
-            {t("common:modals.createProject.title")}
-          </DialogTitle>
+          <DialogTitle className="sr-only">{title}</DialogTitle>
           <Breadcrumb>
             <BreadcrumbList className="gap-1 text-xs">
               <BreadcrumbItem className="text-muted-foreground font-medium tracking-wide">
@@ -114,12 +216,16 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
               </BreadcrumbItem>
               <BreadcrumbSeparator className="[&>svg]:size-3.5" />
               <BreadcrumbItem className="text-foreground font-medium">
-                {t("common:modals.createProject.breadcrumbNew")}
+                {title}
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
           <DialogDescription className="sr-only">
-            {t("common:modals.createProject.description")}
+            {mode === "create"
+              ? t("common:modals.createProject.description")
+              : mode === "template"
+                ? t("common:modals.createProject.templateVisibility")
+                : t("common:modals.createProject.copyScope")}
           </DialogDescription>
         </DialogHeader>
 
@@ -217,12 +323,111 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
                 })}
               </div>
             </div>
+            {mode === "create" && (
+              <div className="space-y-2">
+                <Label htmlFor="project-template">
+                  {t("common:modals.createProject.templateSource")}
+                </Label>
+                <Select
+                  value={selectedTemplateId}
+                  onValueChange={(value) => {
+                    const nextId = String(value ?? "");
+                    setSelectedTemplateId(nextId);
+                    setIncludeTasks(false);
+                    setSelectedIcon(
+                      templates?.find((template) => template.id === nextId)
+                        ?.icon ?? "Layout",
+                    );
+                  }}
+                >
+                  <SelectTrigger id="project-template" className="w-full">
+                    <SelectValue
+                      placeholder={t("common:modals.createProject.blankSource")}
+                    >
+                      {selectedTemplate?.name}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">
+                      {t("common:modals.createProject.blankSource")}
+                    </SelectItem>
+                    {templates?.map((template) => (
+                      <SelectItem key={template.id} value={template.id}>
+                        {template.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {templatesFailed ? (
+                  <Button
+                    type="button"
+                    variant="link"
+                    size="sm"
+                    className="h-auto p-0"
+                    onClick={() => refetchTemplates()}
+                  >
+                    {t("common:modals.createProject.templatesLoadError")}
+                  </Button>
+                ) : !templates?.length ? (
+                  <p className="text-xs text-muted-foreground">
+                    {t("common:modals.createProject.noTemplates")}
+                  </p>
+                ) : null}
+                {selectedTemplate && canDeleteProjects() && (
+                  <Button
+                    type="button"
+                    variant="link"
+                    size="sm"
+                    className="h-auto p-0 text-destructive"
+                    onClick={() =>
+                      setTemplateToDelete({
+                        id: selectedTemplate.id,
+                        name: selectedTemplate.name,
+                      })
+                    }
+                  >
+                    {t("common:modals.createProject.deleteTemplate")}
+                  </Button>
+                )}
+              </div>
+            )}
+            {sourceProjectId && (
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">
+                  {t("common:modals.createProject.copyScope")}
+                </p>
+                <div className="flex items-start gap-2">
+                  <Checkbox
+                    id="project-include-tasks"
+                    checked={includeTasks}
+                    onCheckedChange={(checked) =>
+                      setIncludeTasks(checked === true)
+                    }
+                  />
+                  <Label
+                    htmlFor="project-include-tasks"
+                    className="min-w-0 flex-col items-start gap-0.5"
+                  >
+                    <span>{t("common:modals.createProject.includeTasks")}</span>
+                    <span className="block text-xs font-normal text-muted-foreground">
+                      {t("common:modals.createProject.taskScope")}
+                    </span>
+                  </Label>
+                </div>
+              </div>
+            )}
+            {mode === "template" && (
+              <p className="text-xs text-muted-foreground">
+                {t("common:modals.createProject.templateVisibility")}
+              </p>
+            )}
           </div>
 
           <DialogFooter>
             <Button
               type="button"
               onClick={handleClose}
+              disabled={isCreating}
               variant="outline"
               size="sm"
               className="border-border text-foreground hover:bg-accent"
@@ -231,15 +436,58 @@ function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
             </Button>
             <Button
               type="submit"
-              disabled={!name.trim() || !slug.trim()}
+              disabled={
+                isCreating ||
+                !workspace?.id ||
+                !name.trim() ||
+                !slug.trim() ||
+                (mode !== "create" && !sourceProjectId)
+              }
               size="sm"
-              className="bg-primary hover:bg-primary/90  disabled:opacity-50"
+              className="bg-primary hover:bg-primary/90 disabled:opacity-50"
             >
-              {t("common:modals.createProject.createButton")}
+              {mode === "duplicate"
+                ? t("common:modals.createProject.duplicateButton")
+                : mode === "template"
+                  ? t("common:modals.createProject.templateButton")
+                  : t("common:modals.createProject.createButton")}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
+      <AlertDialog
+        open={!!templateToDelete}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen && !isDeleting) setTemplateToDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("common:modals.createProject.deleteTemplateTitle")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("common:modals.createProject.deleteTemplateDescription", {
+                name: templateToDelete?.name,
+              })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogClose render={<Button variant="outline" size="sm" />}>
+              {t("common:actions.cancel")}
+            </AlertDialogClose>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              disabled={isDeleting}
+              onClick={handleDeleteTemplate}
+            >
+              {t("common:modals.createProject.deleteTemplate")}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }

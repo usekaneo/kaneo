@@ -39,9 +39,13 @@ async function getProjectStatistics(
     .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
     .where(
       includeArchived
-        ? eq(projectTable.workspaceId, workspaceId)
+        ? and(
+            eq(projectTable.workspaceId, workspaceId),
+            eq(projectTable.isTemplate, false),
+          )
         : and(
             eq(projectTable.workspaceId, workspaceId),
+            eq(projectTable.isTemplate, false),
             isNull(projectTable.archivedAt),
           ),
     )
@@ -65,9 +69,13 @@ async function getProjectStatistics(
 async function getProjects(workspaceId: string, includeArchived = false) {
   const projects = await db.query.projectTable.findMany({
     where: includeArchived
-      ? eq(projectTable.workspaceId, workspaceId)
+      ? and(
+          eq(projectTable.workspaceId, workspaceId),
+          eq(projectTable.isTemplate, false),
+        )
       : and(
           eq(projectTable.workspaceId, workspaceId),
+          eq(projectTable.isTemplate, false),
           isNull(projectTable.archivedAt),
         ),
     // `id` is the deterministic tie-breaker: without it, rows sharing both a

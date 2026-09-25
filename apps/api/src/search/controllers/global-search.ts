@@ -144,9 +144,12 @@ async function globalSearch(params: SearchParams): Promise<{
   const results: SearchResult[] = [];
   const searchPattern = `%${query.toLowerCase()}%`;
 
-  const workspaceFilter = workspaceId
-    ? eq(projectTable.workspaceId, workspaceId)
-    : inArray(projectTable.workspaceId, accessibleWorkspaceIds);
+  const workspaceFilter = and(
+    eq(projectTable.isTemplate, false),
+    workspaceId
+      ? eq(projectTable.workspaceId, workspaceId)
+      : inArray(projectTable.workspaceId, accessibleWorkspaceIds),
+  );
 
   // Check if query matches short-id pattern (e.g. "DEP-23"). `generateProjectSlug`
   // normalizes to NFKC before it stores a key, so the query is normalized too,

@@ -701,6 +701,10 @@
             ],
             "description": "When true the project's board is readable without signing in, via /api/public-project/{id}."
           },
+          "isTemplate": {
+            "type": "boolean",
+            "description": "When true the project is a reusable template, omitted from ordinary project lists."
+          },
           "archivedAt": {
             "type": [
               "string",
@@ -727,10 +731,17 @@
           "description",
           "createdAt",
           "isPublic",
+          "isTemplate",
           "archivedAt",
           "position",
           "lastTaskNumber"
         ]
+      },
+      "ProjectTemplateList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Project"
+        }
       },
       "TaskDescriptionMatches": {
         "type": "object",
@@ -6268,7 +6279,7 @@
           "Projects"
         ],
         "summary": "List projects",
-        "description": "List a workspace's projects in sidebar order, each with rollup task statistics. Archived projects are excluded unless includeArchived is set.",
+        "description": "List a workspace's non-template projects in sidebar order, each with rollup task statistics. Archived projects are excluded unless includeArchived is set.",
         "parameters": [
           {
             "schema": {
@@ -6334,7 +6345,7 @@
           "Projects"
         ],
         "summary": "Create project",
-        "description": "Create a project in a workspace. The slug becomes the prefix of its task identifiers.",
+        "description": "Create a private project in a workspace. Optionally copy configuration and tasks from a source project in that workspace, or save the copy as a template. The slug becomes the prefix of its task identifiers.",
         "requestBody": {
           "required": true,
           "content": {
@@ -6353,6 +6364,18 @@
                   },
                   "slug": {
                     "type": "string"
+                  },
+                  "sourceProjectId": {
+                    "type": "string",
+                    "description": "Copy columns, custom fields, and workflow rules from a project in this workspace."
+                  },
+                  "includeTasks": {
+                    "type": "boolean",
+                    "description": "Also copy task content, task labels, and custom field values. Defaults to false."
+                  },
+                  "asTemplate": {
+                    "type": "boolean",
+                    "description": "Save the copy as a reusable template; requires sourceProjectId."
                   }
                 },
                 "required": [
@@ -6390,7 +6413,72 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing project:create permission",
+            "description": "No workspace access, missing project:create, or missing project:read for a source",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Source project not found in this workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/project/templates": {
+      "get": {
+        "operationId": "listProjectTemplates",
+        "tags": [
+          "Projects"
+        ],
+        "summary": "List project templates",
+        "description": "List the saved project templates in a workspace.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Project templates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectTemplateList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Workspace ID could not be determined",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access or missing project:read permission",
             "content": {
               "text/plain": {
                 "schema": {
