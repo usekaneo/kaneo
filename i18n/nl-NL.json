@@ -927,7 +927,15 @@
 			"branch": "Branch",
 			"merged": "Samengevoegd",
 			"draft": "Concept",
-			"open": "Open"
+			"open": "Open",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL",
+			"remove": "Remove {{title}}",
+			"removeError": "Failed to remove the resource link."
 		},
 		"notifications": "Meldingen",
 		"notificationsPage": {
@@ -1985,6 +1993,13 @@
 				},
 				"mermaid": {
 					"renderFailed": "Mermaid-diagram kon niet worden weergegeven"
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
 			},
 			"customFieldUpdated": "Field updated",

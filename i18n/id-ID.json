@@ -1152,7 +1152,15 @@
 			"branch": "Branch",
 			"merged": "Digabung",
 			"draft": "Draf",
-			"open": "Terbuka"
+			"open": "Terbuka",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL",
+			"remove": "Remove {{title}}",
+			"removeError": "Failed to remove the resource link."
 		},
 		"workspaceRoles": {
 			"pageTitle": "Peran",
@@ -1978,6 +1986,13 @@
 				},
 				"mermaid": {
 					"renderFailed": "Diagram Mermaid tidak dapat dirender"
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
 			},
 			"customFieldUpdated": "Field updated",

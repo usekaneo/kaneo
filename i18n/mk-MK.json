@@ -1152,7 +1152,15 @@
 			"branch": "Гранка",
 			"merged": "Споен",
 			"draft": "Нацрт",
-			"open": "Отворен"
+			"open": "Отворен",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL",
+			"remove": "Remove {{title}}",
+			"removeError": "Failed to remove the resource link."
 		},
 		"workspaceRoles": {
 			"pageTitle": "Улоги",
@@ -1985,6 +1993,13 @@
 				},
 				"mermaid": {
 					"renderFailed": "Mermaid дијаграмот не можеше да се прикаже"
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
 			},
 			"customFieldUpdated": "Field updated",

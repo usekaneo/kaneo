@@ -6100,6 +6100,30 @@
 						},
 						"open": {
 							"type": "string"
+						},
+						"addResource": {
+							"type": "string"
+						},
+						"url": {
+							"type": "string"
+						},
+						"titleOptional": {
+							"type": "string"
+						},
+						"cancel": {
+							"type": "string"
+						},
+						"adding": {
+							"type": "string"
+						},
+						"empty": {
+							"type": "string"
+						},
+						"remove": {
+							"type": "string"
+						},
+						"removeError": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -6108,7 +6132,15 @@
 						"branch",
 						"merged",
 						"draft",
-						"open"
+						"open",
+						"addResource",
+						"url",
+						"titleOptional",
+						"cancel",
+						"adding",
+						"empty",
+						"remove",
+						"removeError"
 					]
 				},
 				"security": {
@@ -7951,6 +7983,34 @@
 										}
 									},
 									"required": ["renderFailed"]
+								},
+								"image": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"large": {
+											"type": "string"
+										},
+										"medium": {
+											"type": "string"
+										},
+										"reset": {
+											"type": "string"
+										},
+										"resizeHandle": {
+											"type": "string"
+										},
+										"small": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"large",
+										"medium",
+										"reset",
+										"resizeHandle",
+										"small"
+									]
 								}
 							},
 							"required": [
@@ -7969,7 +8029,8 @@
 								"slash",
 								"languages",
 								"embed",
-								"mermaid"
+								"mermaid",
+								"image"
 							]
 						}
 					},

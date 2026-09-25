@@ -927,7 +927,15 @@
 			"branch": "Rama",
 			"merged": "Merged",
 			"draft": "Borrador",
-			"open": "Abierta"
+			"open": "Abierta",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL",
+			"remove": "Remove {{title}}",
+			"removeError": "Failed to remove the resource link."
 		},
 		"notifications": "Notificaciones",
 		"notificationsPage": {
@@ -1992,6 +2000,13 @@
 				},
 				"mermaid": {
 					"renderFailed": "No se pudo renderizar el diagrama de Mermaid"
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
 			},
 			"customFieldUpdated": "Field updated",

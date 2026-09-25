@@ -978,12 +978,20 @@
 			"webhookPlaceholder": "https://discord.com/api/webhooks/..."
 		},
 		"externalLinks": {
+			"adding": "Dodawanie...",
+			"addResource": "Dodaj zasób",
 			"branch": "Gałąź",
+			"cancel": "Anuluj",
 			"draft": "Wersja robocza",
+			"empty": "Brak zasobów powiązanych z tym zadaniem.",
 			"issue": "Zgłoszenie",
 			"merged": "Scalone",
 			"open": "Otwarte",
-			"resources": "Zasoby"
+			"resources": "Zasoby",
+			"titleOptional": "Tytuł (opcjonalnie)",
+			"url": "URL",
+			"remove": "Remove {{title}}",
+			"removeError": "Failed to remove the resource link."
 		},
 		"genericWebhookIntegration": {
 			"connect": "Połącz webhook",
@@ -2261,6 +2269,13 @@
 					"fileSuccess": "Dołączono plik",
 					"imageSuccess": "Przesłano obraz",
 					"loading": "Przesyłanie pliku..."
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
 			},
 			"noActivity": "Nie znaleziono aktywności",
