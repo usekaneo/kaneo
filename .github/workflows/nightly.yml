@@ -29,11 +29,21 @@ jobs:
           persist-credentials: false
           # The entire-branch scan needs the full commit history.
           fetch-depth: 0
+      - name: Install TruffleHog
+        run: |
+          curl --fail --silent --show-error --location --max-time 120 \
+            https://github.com/trufflesecurity/trufflehog/releases/download/v3.97.9/trufflehog_3.97.9_linux_amd64.tar.gz \
+            -o "$RUNNER_TEMP/trufflehog.tar.gz"
+          echo "40377e6572495412fb9ba0bc21c9401f73b72f1d2afd11b9931bc4a5ed622866  $RUNNER_TEMP/trufflehog.tar.gz" | sha256sum --check --strict
+          tar -xzf "$RUNNER_TEMP/trufflehog.tar.gz" -C "$RUNNER_TEMP" trufflehog
       - name: Scan the full git history for leaked credentials
         run: |
-          docker run --rm -v "$PWD:/tmp" -w /tmp \
-            ghcr.io/trufflesecurity/trufflehog:3.97.9 \
-            git file:///tmp/ \
+          # Runs as a downloaded binary instead of the trufflesecurity/trufflehog
+          # action or its container: the action hard-codes --github-actions
+          # (conflicts with --sarif), and a container cannot resolve the
+          # Blacksmith git mirror backing this checkout, so cloning it there fails.
+          # --fail still writes a complete SARIF file before exiting 183.
+          "$RUNNER_TEMP/trufflehog" git "file://$PWD" \
             --results=verified,unknown \
             --exclude-paths=.trufflehog-exclude \
             --branch "${{ github.ref_name }}" \
