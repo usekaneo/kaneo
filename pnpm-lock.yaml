@@ -150,7 +150,7 @@ importers:
         version: 3.0.3
       better-auth:
         specifier: 1.6.25
-        version: 1.6.25(cdbb2b6587814fec3716647cf5477731)
+        version: 1.6.25(df449a996fc4c4a6112c372d264be731)
       creem:
         specifier: ^1.6.0
         version: 1.6.0
@@ -393,6 +393,9 @@ importers:
       '@tiptap/extension-code-block-lowlight':
         specifier: ^3.31.3
         version: 3.31.3(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))(@tiptap/extension-code-block@3.31.3(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))(@tiptap/pm@3.31.3))(@tiptap/pm@3.31.3)(highlight.js@11.11.1)(lowlight@3.3.0)
+      '@tiptap/extension-hard-break':
+        specifier: ^3.31.3
+        version: 3.31.3(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))
       '@tiptap/extension-image':
         specifier: ^3.31.3
         version: 3.31.3(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))
@@ -452,7 +455,7 @@ importers:
         version: 1.0.0
       better-auth:
         specifier: 1.6.25
-        version: 1.6.25(cdbb2b6587814fec3716647cf5477731)
+        version: 1.6.25(df449a996fc4c4a6112c372d264be731)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -716,7 +719,7 @@ importers:
     dependencies:
       better-auth:
         specifier: 1.6.25
-        version: 1.6.25(cdbb2b6587814fec3716647cf5477731)
+        version: 1.6.25(df449a996fc4c4a6112c372d264be731)
     devDependencies:
       '@kaneo/typescript-config':
         specifier: workspace:*
@@ -9331,7 +9334,7 @@ snapshots:
     dependencies:
       '@better-auth/core': 1.6.25(@better-auth/utils@0.4.2)(@better-fetch/fetch@1.3.1)(@opentelemetry/api@1.9.1)(better-call@1.3.7(zod@4.4.3))(jose@6.2.8)(kysely@0.29.4)(nanostores@1.4.2)
       '@better-auth/utils': 0.4.2
-      better-auth: 1.6.25(cdbb2b6587814fec3716647cf5477731)
+      better-auth: 1.6.25(df449a996fc4c4a6112c372d264be731)
       better-call: 1.3.7(zod@4.4.3)
       zod: 4.4.3
 
@@ -9339,7 +9342,7 @@ snapshots:
     dependencies:
       '@better-auth/core': 1.6.25(@better-auth/utils@0.4.2)(@better-fetch/fetch@1.3.1)(@opentelemetry/api@1.9.1)(better-call@1.3.7(zod@4.4.3))(jose@6.2.8)(kysely@0.29.4)(nanostores@1.4.2)
       '@better-auth/utils': 0.4.2
-      better-auth: 1.6.25(cdbb2b6587814fec3716647cf5477731)
+      better-auth: 1.6.25(df449a996fc4c4a6112c372d264be731)
       better-call: 1.3.7(zod@4.4.3)
       zod: 4.4.3
 
@@ -12920,7 +12923,7 @@ snapshots:
 
   before-after-hook@4.0.0: {}
 
-  better-auth@1.6.25(cdbb2b6587814fec3716647cf5477731):
+  better-auth@1.6.25(df449a996fc4c4a6112c372d264be731):
     dependencies:
       '@better-auth/core': 1.6.25(@better-auth/utils@0.4.2)(@better-fetch/fetch@1.3.1)(@opentelemetry/api@1.9.1)(better-call@1.3.7(zod@4.4.3))(jose@6.2.8)(kysely@0.29.4)(nanostores@1.4.2)
       '@better-auth/drizzle-adapter': 1.6.25(@better-auth/core@1.6.25(@better-auth/utils@0.4.2)(@better-fetch/fetch@1.3.1)(@opentelemetry/api@1.9.1)(better-call@1.3.7(zod@4.4.3))(jose@6.2.8)(kysely@0.29.4)(nanostores@1.4.2))(@better-auth/utils@0.4.2)(drizzle-orm@0.45.2(@electric-sql/pglite@0.3.15)(@opentelemetry/api@1.9.1)(@prisma/client@7.4.2(prisma@7.4.2(@types/node@26.1.2)(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@7.0.2))(typescript@7.0.2))(@types/pg@8.21.0)(kysely@0.29.4)(mysql2@3.24.4(@types/node@26.1.2))(pg@8.22.0)(postgres@3.4.7)(prisma@7.4.2(@types/node@26.1.2)(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@7.0.2)))

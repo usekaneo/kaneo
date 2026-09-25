@@ -43,6 +43,7 @@ import { KaneoMention } from "@/components/task/extensions/kaneo-mention";
 import type { MentionMember } from "@/components/task/extensions/mention-list";
 import { MentionSuggestion } from "@/components/task/extensions/mention-suggestion";
 import { MermaidBlock } from "@/components/task/extensions/mermaid-block";
+import { SafeHardBreak } from "@/components/task/extensions/safe-hard-break";
 import {
   SHIKI_CODEBLOCK_REFRESH_META,
   ShikiCodeBlock,
@@ -609,7 +610,9 @@ export default function CommentEditor({
           codeBlock: {
             HTMLAttributes: { class: "kaneo-tiptap-codeblock" },
           },
+          hardBreak: false,
         }),
+        SafeHardBreak,
         Markdown.configure({
           markedOptions: {
             breaks: true,

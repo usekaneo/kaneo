@@ -78,6 +78,7 @@ import { AttachmentCard } from "./extensions/attachment-card";
 import { EmbedBlock } from "./extensions/embed-block";
 import { KaneoIssueLink } from "./extensions/kaneo-issue-link";
 import { MermaidBlock } from "./extensions/mermaid-block";
+import { SafeHardBreak } from "./extensions/safe-hard-break";
 import {
   SHIKI_CODEBLOCK_REFRESH_META,
   ShikiCodeBlock,
@@ -628,7 +629,9 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           },
           trailingNode: false,
           heading: { levels: [1, 2, 3] },
+          hardBreak: false,
         }),
+        SafeHardBreak,
         Markdown.configure({
           markedOptions: {
             breaks: true,
