@@ -3,6 +3,7 @@ import {
   differenceInCalendarDays,
   eachDayOfInterval,
   parseISO,
+  subDays,
 } from "date-fns";
 import { describe, expect, it } from "vitest";
 import {
@@ -90,6 +91,83 @@ describe("bounded Gantt timeline", () => {
       expect(parseTaskDate(value)).toBeNull();
     },
   );
+});
+
+describe("buildGanttRange extraBoundsTasks (external related tasks)", () => {
+  it("widens minimumStart/maximumStart/maximumEnd to reach a bounds task dated outside the own tasks' span, without moving the default page", () => {
+    const ownTasks = [span("2026-09-14", "2026-09-18")];
+    const withoutExternal = buildGanttRange(
+      ownTasks,
+      1,
+      null,
+      parseISO("2026-09-20"),
+    );
+    const farFutureExternal = [span("2027-06-01", "2027-06-05")];
+    const withExternal = buildGanttRange(
+      ownTasks,
+      1,
+      null,
+      parseISO("2026-09-20"),
+      "day",
+      farFutureExternal,
+    );
+
+    // The default page (no explicit requestedStart) is unchanged: an
+    // out-of-window external task never shifts where the chart first opens.
+    expect(withExternal?.rangeStart).toEqual(withoutExternal?.rangeStart);
+    // But the reachable bound now extends far enough to actually page or
+    // jump to the external task's own date.
+    expect(
+      (withExternal?.maximumStart.getTime() ?? 0) >
+        (withoutExternal?.maximumStart.getTime() ?? 0),
+    ).toBe(true);
+    // Jumping toward the external task's own date (e.g. the "show task
+    // dates" affordance) actually reaches a window that contains it, once
+    // the bounds are widened — the exact requested day may still get
+    // clamped to `maximumStart`, but the resulting window covers the
+    // external task either way.
+    const externalStart = parseISO("2027-06-01");
+    const jumpWithoutExternal = buildGanttRange(
+      ownTasks,
+      1,
+      subDays(externalStart, 7),
+      parseISO("2026-09-20"),
+    );
+    expect(
+      (jumpWithoutExternal?.rangeStart.getTime() ?? 0) <=
+        externalStart.getTime() &&
+        externalStart.getTime() <=
+          (jumpWithoutExternal?.rangeEnd.getTime() ?? 0),
+    ).toBe(false);
+
+    const jumpWithExternal = buildGanttRange(
+      ownTasks,
+      1,
+      subDays(externalStart, 7),
+      parseISO("2026-09-20"),
+      "day",
+      farFutureExternal,
+    );
+    expect(
+      (jumpWithExternal?.rangeStart.getTime() ?? 0) <=
+        externalStart.getTime() &&
+        externalStart.getTime() <= (jumpWithExternal?.rangeEnd.getTime() ?? 0),
+    ).toBe(true);
+  });
+
+  it("without any bounds tasks, behaves exactly as before (bounds tasks default to none)", () => {
+    const ownTasks = [span("2026-09-14", "2026-09-18")];
+    const explicit = buildGanttRange(
+      ownTasks,
+      1,
+      null,
+      parseISO("2026-09-20"),
+      "day",
+      [],
+    );
+    const implicit = buildGanttRange(ownTasks, 1, null, parseISO("2026-09-20"));
+    expect(explicit).toEqual(implicit);
+  });
 });
 
 describe("getBarGridColumns", () => {

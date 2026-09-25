@@ -98,6 +98,7 @@ export function GanttExternalTaskBar({
     >
       {/* biome-ignore lint/a11y/noStaticElementInteractions: hover/focus tracking drives dependency-line highlighting, matching GanttTaskBar; there is nothing to activate here since the task isn't editable from this board. */}
       <div
+        data-gantt-external-bar=""
         style={{ gridColumn: `${lineStart} / ${lineEnd}` }}
         onMouseEnter={() => onHoverChange?.(true)}
         onMouseLeave={() => onHoverChange?.(false)}

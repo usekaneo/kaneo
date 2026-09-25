@@ -65,8 +65,9 @@ vi.mock("@/hooks/queries/task/use-get-tasks", () => ({
 vi.mock("@/hooks/mutations/task/use-update-task", () => ({
   useUpdateTask: () => ({ mutateAsync: vi.fn() }),
 }));
+const relationsMock = vi.hoisted(() => ({ data: [] as unknown[] }));
 vi.mock("@/hooks/queries/task-relation/use-get-project-task-relations", () => ({
-  default: () => ({ data: [] }),
+  default: () => relationsMock,
 }));
 vi.mock("@/hooks/use-mobile", () => ({ useIsMobile: () => false }));
 vi.mock("@/store/user-preferences", () => ({
@@ -137,6 +138,7 @@ afterEach(() => {
   cleanup();
   vi.useRealTimers();
   vi.unstubAllGlobals();
+  relationsMock.data = [];
   for (const prop of ["clientWidth", "offsetLeft", "getBoundingClientRect"]) {
     delete (HTMLElement.prototype as unknown as Record<string, unknown>)[prop];
   }
@@ -301,6 +303,58 @@ describe("Gantt drag-to-pan", () => {
       clientY: 100,
     });
 
+    expect(scrollContainer.scrollLeft).toBe(200);
+  });
+
+  it("does not start a pan from a pointerdown on an external (cross-project) task bar", () => {
+    relationsMock.data = [
+      {
+        id: "relation-1",
+        sourceTaskId: "task-a",
+        targetTaskId: "external-task",
+        relationType: "blocks",
+        sourceTask: { id: "task-a", projectId: "project" },
+        targetTask: {
+          id: "external-task",
+          title: "Other project's task",
+          number: 7,
+          projectId: "other-project",
+          projectName: "Other Project",
+          projectSlug: "OTHER",
+          status: "to-do",
+          priority: null,
+          userId: null,
+          assigneeName: null,
+          startDate: "2026-08-21",
+          dueDate: "2026-08-22",
+        },
+      },
+    ];
+    const { container } = show();
+    const scrollContainer = screen.getByTestId("gantt-scroll-container");
+    scrollContainer.scrollLeft = 200;
+
+    const externalBar = container.querySelector(
+      "[data-gantt-external-bar]",
+    ) as HTMLElement;
+    expect(externalBar).toBeTruthy();
+    fireEvent.pointerDown(externalBar, {
+      button: 0,
+      pointerId: 5,
+      pointerType: "mouse",
+      clientX: 500,
+      clientY: 100,
+    });
+    fireEvent.pointerMove(externalBar, {
+      pointerId: 5,
+      pointerType: "mouse",
+      clientX: 300,
+      clientY: 100,
+    });
+
+    // The external bar is read-only (no drag of its own); a pointerdown on
+    // it must still be excluded from pan-start, or dragging it just pans the
+    // whole chart instead of doing nothing.
     expect(scrollContainer.scrollLeft).toBe(200);
   });
 

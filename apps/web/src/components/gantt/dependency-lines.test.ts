@@ -61,6 +61,69 @@ describe("buildElbowPoints", () => {
     expect(points[3].y).toBe(points[2].y);
   });
 
+  it("steps aside to clear an intermediate task's bar sitting between the two endpoints, instead of cutting straight through it", () => {
+    const source: TaskBarBox = { left: 0, right: 100, top: 0, height: 40 };
+    const target: TaskBarBox = { left: 400, right: 500, top: 80, height: 40 };
+    // Sits in the row between source and target, spanning the default
+    // midpoint (250) the un-obstructed case would otherwise pick.
+    const intermediate: TaskBarBox = {
+      left: 200,
+      right: 300,
+      top: 40,
+      height: 40,
+    };
+
+    const [, { x: midXWithObstacle }] = buildElbowPoints(source, target, [
+      intermediate,
+    ]);
+    const [, { x: midXWithoutObstacle }] = buildElbowPoints(source, target);
+
+    // Without the obstacle the default midpoint (250) sits inside it.
+    expect(midXWithoutObstacle).toBeGreaterThan(200);
+    expect(midXWithoutObstacle).toBeLessThan(300);
+    // With it, the vertical run steps clear of the intermediate bar's
+    // x-range entirely (plus its small clearance margin).
+    expect(midXWithObstacle <= 196 || midXWithObstacle >= 304).toBe(true);
+    // Still a valid, routable position between the two endpoints.
+    expect(midXWithObstacle).toBeGreaterThanOrEqual(114);
+    expect(midXWithObstacle).toBeLessThanOrEqual(386);
+  });
+
+  it("ignores an obstacle whose row doesn't fall between the two endpoints", () => {
+    const source: TaskBarBox = { left: 0, right: 100, top: 0, height: 40 };
+    const target: TaskBarBox = { left: 400, right: 500, top: 80, height: 40 };
+    // Below the target's row entirely — outside [sourceY, targetY], so it
+    // can't be crossed by the elbow's vertical run.
+    const belowBothRows: TaskBarBox = {
+      left: 200,
+      right: 300,
+      top: 200,
+      height: 40,
+    };
+
+    const [, { x: midX }] = buildElbowPoints(source, target, [belowBothRows]);
+    const [, { x: defaultMidX }] = buildElbowPoints(source, target);
+    expect(midX).toBe(defaultMidX);
+  });
+
+  it("falls back to the default midpoint when every position between the endpoints is blocked (residual case — full obstacle avoidance is out of scope)", () => {
+    const source: TaskBarBox = { left: 0, right: 100, top: 0, height: 40 };
+    const target: TaskBarBox = { left: 400, right: 500, top: 80, height: 40 };
+    // Covers the entire routable span between the two bars.
+    const wallToWallObstacle: TaskBarBox = {
+      left: 100,
+      right: 400,
+      top: 40,
+      height: 40,
+    };
+
+    const [, { x: midX }] = buildElbowPoints(source, target, [
+      wallToWallObstacle,
+    ]);
+    const [, { x: defaultMidX }] = buildElbowPoints(source, target);
+    expect(midX).toBe(defaultMidX);
+  });
+
   it("loops around an overlapping pair (same-ish dates, small horizontal gap) instead of drawing a near-vertical cut through them", () => {
     // Mirrors the reported "overlapping pair": target starts before source
     // ends, so there's no room for a clean forward step.
@@ -239,6 +302,30 @@ describe("buildDependencyEdges", () => {
     const [edge] = buildDependencyEdges(edges, boxes);
     expect(edge.id).toBe("rel-42");
     expect(edge.relationType).toBe("related");
+  });
+
+  it("routes an edge's elbow around a third task's bar that sits between its two endpoints", () => {
+    const boxes = new Map<string, TaskBarBox>([
+      ["a", { left: 0, right: 100, top: 0, height: 40 }],
+      ["b", { left: 400, right: 500, top: 80, height: 40 }],
+      ["c", { left: 200, right: 300, top: 40, height: 40 }],
+    ]);
+    const edges: DependencyEdgeInput[] = [
+      {
+        id: "e1",
+        sourceTaskId: "a",
+        targetTaskId: "b",
+        relationType: "blocks",
+      },
+    ];
+
+    const [edge] = buildDependencyEdges(edges, boxes);
+    // Both interior corners of the elbow (source-row turn and target-row
+    // turn) sit at the same x — the chosen vertical run's position — as the
+    // first number after each rounded corner's `Q`.
+    const cornerX = Number(edge.path.match(/Q ([\d.]+) /)?.[1]);
+    expect(Number.isNaN(cornerX)).toBe(false);
+    expect(cornerX <= 196 || cornerX >= 304).toBe(true);
   });
 
   it("never routes to the left of the leftmost bar by more than the small exit gap, so the connector cannot bleed toward the task rail", () => {
