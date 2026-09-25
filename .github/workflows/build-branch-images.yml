@@ -15,6 +15,8 @@ on:
     branches:
       - claude/gantt-dependency-lines
       - claude/cross-project-relations
+      - claude/gantt-plus-cross-project
+      - claude/gantt-pan-zoom
   workflow_dispatch:
     inputs:
       platforms:
@@ -76,6 +78,7 @@ jobs:
             type=sha,format=short
 
       - name: Build and push
+        id: build
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -84,5 +87,21 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # Per-image cache scope so the parallel matrix legs don't overwrite
+          # each other's layers in the shared GitHub Actions cache.
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,scope=${{ matrix.name }},mode=max
+
+      - name: Summarize published tags
+        run: |
+          {
+            echo "### Published \`${{ matrix.name }}\` image"
+            echo ""
+            echo "Digest: \`${{ steps.build.outputs.digest }}\`"
+            echo ""
+            echo "Tags:"
+            echo ""
+            echo '```'
+            echo "${{ steps.meta.outputs.tags }}"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
