@@ -4,6 +4,7 @@ import {
   MAX_GANTT_ZOOM,
   MIN_GANTT_ZOOM,
   nextGanttZoom,
+  normalizeWheelDeltaY,
   scrollLeftForZoom,
 } from "./zoom";
 
@@ -16,6 +17,31 @@ describe("clampGanttZoom", () => {
   });
   it("clamps to the maximum", () => {
     expect(clampGanttZoom(50)).toBe(MAX_GANTT_ZOOM);
+  });
+});
+
+describe("normalizeWheelDeltaY", () => {
+  it("passes a pixel-mode (0) delta through unchanged", () => {
+    expect(normalizeWheelDeltaY(120, 0, 800)).toBe(120);
+  });
+
+  it("scales a line-mode (1) delta up to an equivalent pixel delta", () => {
+    // Firefox reports a physical mouse-wheel notch as deltaY ≈ 3 in line
+    // mode; fed straight into the pixel-tuned zoom curve that barely moves
+    // the zoom at all, so it must be scaled up first.
+    expect(normalizeWheelDeltaY(3, 1, 800)).toBe(48);
+    expect(normalizeWheelDeltaY(-3, 1, 800)).toBe(-48);
+  });
+
+  it("scales a page-mode (2) delta by the viewport height", () => {
+    expect(normalizeWheelDeltaY(1, 2, 800)).toBe(800);
+    expect(normalizeWheelDeltaY(-1, 2, 600)).toBe(-600);
+  });
+
+  it("a normalized line-mode delta changes the zoom by roughly as much as an equivalent pixel-mode delta", () => {
+    const pixelZoom = nextGanttZoom(1, normalizeWheelDeltaY(100, 0, 800));
+    const lineZoom = nextGanttZoom(1, normalizeWheelDeltaY(100 / 16, 1, 800));
+    expect(lineZoom).toBeCloseTo(pixelZoom, 5);
   });
 });
 

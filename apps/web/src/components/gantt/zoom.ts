@@ -12,6 +12,41 @@ export const MAX_GANTT_ZOOM = 3;
 // always feels like the same relative step, near the minimum or the maximum.
 const ZOOM_SENSITIVITY = 0.0015;
 
+// WheelEvent.deltaMode values (not read from the DOM WheelEvent constants so
+// this stays usable in a non-DOM test environment): most browsers/mice
+// report DOM_DELTA_PIXEL, but Firefox reports DOM_DELTA_LINE for a physical
+// mouse wheel, and DOM_DELTA_PAGE shows up for some trackpad/OS gestures.
+// `deltaY` is only pixels in the first mode — treating it as pixels in the
+// other two either barely moves the zoom (line mode, deltaY of ~3) or slams
+// it straight to the clamp (page mode, deltaY of ~1).
+// DOM_DELTA_PIXEL (0) needs no case: it's the `default`, since deltaY is
+// already pixels in that mode.
+const DOM_DELTA_LINE = 1;
+const DOM_DELTA_PAGE = 2;
+
+// An approximate CSS line-height in pixels, used to convert a line-mode
+// delta to pixels; browsers don't expose the actual value a line-mode event
+// was computed from.
+const WHEEL_LINE_HEIGHT_PX = 16;
+
+// Converts a wheel event's deltaY to an equivalent pixel delta based on its
+// deltaMode, so `nextGanttZoom` always receives a pixel-scale value
+// regardless of which mode the browser reported.
+export function normalizeWheelDeltaY(
+  deltaY: number,
+  deltaMode: number,
+  viewportHeightPx: number,
+): number {
+  switch (deltaMode) {
+    case DOM_DELTA_LINE:
+      return deltaY * WHEEL_LINE_HEIGHT_PX;
+    case DOM_DELTA_PAGE:
+      return deltaY * viewportHeightPx;
+    default:
+      return deltaY;
+  }
+}
+
 export function clampGanttZoom(zoom: number): number {
   return Math.min(MAX_GANTT_ZOOM, Math.max(MIN_GANTT_ZOOM, zoom));
 }
