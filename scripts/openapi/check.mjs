@@ -28,25 +28,26 @@ const RUN = {
   },
 };
 
+// Standalone pnpm (@pnpm/exe) exposes a native binary as npm_execpath, which Node cannot load.
+const runsViaNode = /\.[cm]?js$/.test(packageManager);
+function pnpm(args) {
+  if (runsViaNode) {
+    execFileSync(process.execPath, [packageManager, ...args], RUN);
+  } else {
+    execFileSync(packageManager, args, RUN);
+  }
+}
+
 function generate(into) {
-  execFileSync(
-    process.execPath,
-    [packageManager, "turbo", "build", "--filter=@kaneo/api^..."],
-    RUN,
-  );
-  execFileSync(
-    process.execPath,
-    [
-      packageManager,
-      "--filter",
-      "@kaneo/api",
-      "exec",
-      "tsx",
-      "scripts/export-openapi.ts",
-      into,
-    ],
-    RUN,
-  );
+  pnpm(["turbo", "build", "--filter=@kaneo/api^..."]);
+  pnpm([
+    "--filter",
+    "@kaneo/api",
+    "exec",
+    "tsx",
+    "scripts/export-openapi.ts",
+    into,
+  ]);
 }
 
 function run() {
