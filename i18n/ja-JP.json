@@ -941,7 +941,18 @@
 				"iconRequired": "アイコンは必須です"
 			},
 			"importExportTasks": "インポート/エクスポート",
-			"importExportTasksDescription": "タスクのインポートとエクスポートを行います。"
+			"importExportTasksDescription": "タスクのインポートとエクスポートを行います。",
+			"moveModalConfirm": "Move Project",
+			"moveModalDescription": "This will move the project \"{{name}}\" and all of its tasks to \"{{workspace}}\". Tasks assigned to people who aren't members of that workspace will be unassigned, and notification subscriptions for this project will be cleared.",
+			"moveModalTitle": "Move Project?",
+			"moveProject": "Move to workspace",
+			"moveProjectAction": "Move",
+			"moveProjectDescription": "Move this project, with all of its tasks, to another workspace.",
+			"moveProjectPlaceholder": "Select workspace",
+			"moveTargetsError": "Couldn't check which workspaces you can move this project to. Reload to try again.",
+			"toastMoved": "Project moved successfully",
+			"toastMovedWithUnassigned": "Project moved successfully. {{taskCount}} task(s) were unassigned.",
+			"toastMoveError": "Failed to move project"
 		},
 		"projectIntegrations": {
 			"pageTitle": "プロジェクト連携",

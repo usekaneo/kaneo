@@ -44,6 +44,7 @@ describe("awaited label deletion broadcasts", () => {
           observer as unknown as WSContext,
           "observer",
           "other",
+          "workspace",
         ),
       ],
       [
@@ -53,6 +54,7 @@ describe("awaited label deletion broadcasts", () => {
           initiator as unknown as WSContext,
           "initiator",
           "self",
+          "workspace",
         ),
       ],
       [
@@ -62,6 +64,7 @@ describe("awaited label deletion broadcasts", () => {
           foreign as unknown as WSContext,
           "foreign",
           "another",
+          "workspace",
         ),
       ],
     ] as const;
@@ -118,3 +121,13 @@ describe("awaited label deletion broadcasts", () => {
     expect(completed).toBe(true);
   });
 });
+
+vi.mock("../../../apps/api/src/database", () => ({
+  default: {
+    select: () => ({
+      from: () => ({
+        where: () => ({ limit: async () => [{ workspaceId: "workspace" }] }),
+      }),
+    }),
+  },
+}));

@@ -816,6 +816,7 @@ export function createApp() {
 
       const userId = c.get("userId");
 
+      let workspaceId: string | undefined;
       if (projectId) {
         const [project] = await db
           .select({ workspaceId: schema.projectTable.workspaceId })
@@ -828,6 +829,7 @@ export function createApp() {
         }
 
         await validateWorkspaceAccess(userId, project.workspaceId);
+        workspaceId = project.workspaceId;
       }
 
       const windowId = c.req.query("windowId");
@@ -836,8 +838,14 @@ export function createApp() {
 
       return {
         onOpen(_evt, ws) {
-          if (projectId) {
-            conn = addConnection(projectId, ws, userId, initiatorId);
+          if (projectId && workspaceId) {
+            conn = addConnection(
+              projectId,
+              ws,
+              userId,
+              initiatorId,
+              workspaceId,
+            );
           }
         },
         onMessage: handleWebSocketMessage,

@@ -1406,7 +1406,18 @@
 				"keyMax": "Klucz może mieć maksymalnie 8 znaków",
 				"keyRequired": "Klucz jest wymagany",
 				"nameRequired": "Nazwa projektu jest wymagana"
-			}
+			},
+			"moveModalConfirm": "Move Project",
+			"moveModalDescription": "This will move the project \"{{name}}\" and all of its tasks to \"{{workspace}}\". Tasks assigned to people who aren't members of that workspace will be unassigned, and notification subscriptions for this project will be cleared.",
+			"moveModalTitle": "Move Project?",
+			"moveProject": "Move to workspace",
+			"moveProjectAction": "Move",
+			"moveProjectDescription": "Move this project, with all of its tasks, to another workspace.",
+			"moveProjectPlaceholder": "Select workspace",
+			"moveTargetsError": "Couldn't check which workspaces you can move this project to. Reload to try again.",
+			"toastMoved": "Project moved successfully",
+			"toastMovedWithUnassigned": "Project moved successfully. {{taskCount}} task(s) were unassigned.",
+			"toastMoveError": "Failed to move project"
 		},
 		"projectIntegrations": {
 			"discordSectionSubtitle": "Wysyłaj aktualizacje zadań projektu na kanał Discord za pomocą webhooka.",

@@ -599,7 +599,7 @@
           "idToken"
         ]
       },
-      "ProjectListItem": {
+      "MovedProject": {
         "allOf": [
           {
             "$ref": "#/components/schemas/Project"
@@ -607,62 +607,14 @@
           {
             "type": "object",
             "properties": {
-              "statistics": {
-                "$ref": "#/components/schemas/ProjectStatistics"
-              },
-              "archivedTasks": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/BoardTask"
-                },
-                "description": "Always empty."
-              },
-              "plannedTasks": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/BoardTask"
-                },
-                "description": "Always empty."
-              },
-              "columns": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/BoardColumn"
-                },
-                "description": "Always empty."
+              "unassignedTaskCount": {
+                "type": "number"
               }
             },
             "required": [
-              "statistics",
-              "archivedTasks",
-              "plannedTasks",
-              "columns"
+              "unassignedTaskCount"
             ]
           }
-        ]
-      },
-      "ProjectStatistics": {
-        "type": "object",
-        "properties": {
-          "completionPercentage": {
-            "type": "number"
-          },
-          "totalTasks": {
-            "type": "number"
-          },
-          "dueDate": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "format": "date-time",
-            "description": "The soonest due date among the project's open tasks."
-          }
-        },
-        "required": [
-          "completionPercentage",
-          "totalTasks",
-          "dueDate"
         ]
       },
       "Project": {
@@ -733,6 +685,72 @@
           "archivedAt",
           "position",
           "lastTaskNumber"
+        ]
+      },
+      "ProjectListItem": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Project"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "statistics": {
+                "$ref": "#/components/schemas/ProjectStatistics"
+              },
+              "archivedTasks": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/BoardTask"
+                },
+                "description": "Always empty."
+              },
+              "plannedTasks": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/BoardTask"
+                },
+                "description": "Always empty."
+              },
+              "columns": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/BoardColumn"
+                },
+                "description": "Always empty."
+              }
+            },
+            "required": [
+              "statistics",
+              "archivedTasks",
+              "plannedTasks",
+              "columns"
+            ]
+          }
+        ]
+      },
+      "ProjectStatistics": {
+        "type": "object",
+        "properties": {
+          "completionPercentage": {
+            "type": "number"
+          },
+          "totalTasks": {
+            "type": "number"
+          },
+          "dueDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "The soonest due date among the project's open tasks."
+          }
+        },
+        "required": [
+          "completionPercentage",
+          "totalTasks",
+          "dueDate"
         ]
       },
       "TaskDescriptionMatches": {
@@ -6366,6 +6384,117 @@
           },
           "401": {
             "description": "Missing or invalid credentials"
+          }
+        }
+      }
+    },
+    "/project/{id}/move": {
+      "put": {
+        "operationId": "moveProject",
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Move a project to another workspace",
+        "description": "Move a project and its tasks. Requires update and delete permission in the source and create permission in the destination. Remove cross-project task relationships before moving.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "workspaceId": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "workspaceId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Project moved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovedProject"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid destination or same workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Destination workspace plan has expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing workspace access or permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found in the source workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Project key conflict or cross-project task relationships",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
