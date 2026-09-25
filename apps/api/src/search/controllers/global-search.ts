@@ -336,6 +336,9 @@ async function globalSearch(params: SearchParams): Promise<{
       .where(
         and(
           workspaceFilter,
+          effectiveExcludeProjectId
+            ? ne(projectTable.id, effectiveExcludeProjectId)
+            : undefined,
           or(
             ilike(projectTable.name, searchPattern),
             ilike(projectTable.description, searchPattern),
