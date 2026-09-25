@@ -385,15 +385,21 @@ export default function TaskRelations({
                             // this project's columns to a task that lives
                             // elsewhere (and risk writing an invalid status),
                             // the control is read-only for cross-project items.
-                            <button
-                              type="button"
+                            // Rendered as a non-interactive span (not a
+                            // button) so it isn't a focusable, actionless
+                            // stop for keyboard users.
+                            <span
+                              role="img"
+                              aria-label={t(
+                                "tasks:relations.crossProjectStatusReadOnly",
+                              )}
                               title={t(
                                 "tasks:relations.crossProjectStatusReadOnly",
                               )}
-                              className="shrink-0 flex items-center justify-center rounded p-0.5 outline-none cursor-default [&_svg]:text-muted-foreground"
+                              className="shrink-0 flex items-center justify-center rounded p-0.5 [&_svg]:text-muted-foreground"
                             >
                               {statusIcon}
-                            </button>
+                            </span>
                           ) : (
                             <SubtaskStatusPopover
                               tasks={[taskObj]}
