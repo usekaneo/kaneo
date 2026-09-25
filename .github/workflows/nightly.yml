@@ -14,6 +14,87 @@ permissions:
   contents: read
 
 jobs:
+  secret-scan-history:
+    name: Full-history secret scan
+    if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout repository
+        uses: useblacksmith/checkout@v1 # v7.0.1
+        with:
+          persist-credentials: false
+          # The entire-branch scan needs the full commit history.
+          fetch-depth: 0
+      - name: Install TruffleHog
+        run: |
+          curl --fail --silent --show-error --location --max-time 120 \
+            https://github.com/trufflesecurity/trufflehog/releases/download/v3.97.9/trufflehog_3.97.9_linux_amd64.tar.gz \
+            -o "$RUNNER_TEMP/trufflehog.tar.gz"
+          echo "40377e6572495412fb9ba0bc21c9401f73b72f1d2afd11b9931bc4a5ed622866  $RUNNER_TEMP/trufflehog.tar.gz" | sha256sum --check --strict
+          tar -xzf "$RUNNER_TEMP/trufflehog.tar.gz" -C "$RUNNER_TEMP" trufflehog
+      - name: Scan the full git history for leaked credentials
+        run: |
+          # Runs as a downloaded binary instead of the trufflesecurity/trufflehog
+          # action or its container: the action hard-codes --github-actions
+          # (conflicts with --sarif), and a container cannot resolve the
+          # Blacksmith git mirror backing this checkout, so cloning it there fails.
+          # --fail still writes a complete SARIF file before exiting 183.
+          "$RUNNER_TEMP/trufflehog" git "file://$PWD" \
+            --results=verified,unknown \
+            --exclude-paths=.trufflehog-exclude \
+            --branch "${{ github.ref_name }}" \
+            --fail \
+            --sarif > trufflehog-results.sarif
+      - name: Upload results to GitHub Code Scanning
+        if: always()
+        uses: github/codeql-action/upload-sarif@1190a975f95ce23525efb6a3fc21ea29567c1b52 # v3
+        with:
+          sarif_file: trufflehog-results.sarif
+      - name: Notify Discord on findings
+        if: failure()
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          BRANCH: ${{ github.ref_name }}
+          TITLE: "🌙 Nightly full-history secret scan found credentials"
+        run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "DISCORD_WEBHOOK_URL is not configured; skipping notification."
+            exit 0
+          fi
+          if [ ! -f trufflehog-results.sarif ]; then
+            echo "No SARIF results file; skipping notification."
+            exit 0
+          fi
+          findings="$(jq -r '.runs[0].results | length' trufflehog-results.sarif 2>/dev/null || echo 0)"
+          if [ "$findings" -eq 0 ]; then
+            echo "No findings to report."
+            exit 0
+          fi
+          details="$(jq -r '.runs[0].results[] | "\(.ruleId) — \(.locations[0].physicalLocation.artifactLocation.uri):\(.locations[0].physicalLocation.region.startLine)"' trufflehog-results.sarif | head -10)"
+          more=""
+          if [ "$findings" -gt 10 ]; then
+            more=$'\n'"…and $((findings - 10)) more — see the run for the full list"
+          fi
+          jq -n \
+            --arg title "$TITLE" \
+            --arg url "$RUN_URL" \
+            --arg branch "$BRANCH" \
+            --arg findings "$findings" \
+            --arg details "$details$more" \
+            '{embeds: [{title: $title, url: $url, color: 15158332, description: ("TruffleHog found **" + $findings + "** potential secret(s) on `" + $branch + "`.\n\n" + $details)}]}' \
+            > "$RUNNER_TEMP/discord-payload.json"
+          # Best effort: a delivery failure must not mask the scan result.
+          curl --fail --silent --show-error --max-time 15 \
+            -H "Content-Type: application/json" \
+            --data-binary @"$RUNNER_TEMP/discord-payload.json" \
+            "$DISCORD_WEBHOOK_URL" \
+            || echo "::warning::Discord notification could not be delivered."
+
   verify:
     name: Verify nightly build
     if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
