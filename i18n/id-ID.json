@@ -1970,7 +1970,8 @@
 				"blocks": "memblokir",
 				"blocked_by": "diblokir oleh",
 				"related": "terkait dengan"
-			}
+			},
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Subtugas",

@@ -1,4 +1,4 @@
-import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, ne, or, sql } from "drizzle-orm";
 import db from "../../database";
 import {
   activityTable,
@@ -24,6 +24,8 @@ type SearchParams = {
     | "activities";
   workspaceId?: string;
   projectId?: string;
+  /** Leave out results scoped to this project. Ignored when `projectId` is also set. */
+  excludeProjectId?: string;
   limit?: number;
 };
 
@@ -108,8 +110,13 @@ async function globalSearch(params: SearchParams): Promise<{
     type = "all",
     workspaceId,
     projectId,
+    excludeProjectId,
     limit = 20,
   } = params;
+
+  // `projectId` scopes to one project; excluding one only makes sense when
+  // the caller isn't already scoping, so a scoped request wins.
+  const effectiveExcludeProjectId = projectId ? undefined : excludeProjectId;
 
   let resolvedUserId = userId;
   if (!resolvedUserId && userEmail) {
@@ -196,6 +203,9 @@ async function globalSearch(params: SearchParams): Promise<{
           and(
             workspaceFilter,
             projectId ? eq(taskTable.projectId, projectId) : undefined,
+            effectiveExcludeProjectId
+              ? ne(taskTable.projectId, effectiveExcludeProjectId)
+              : undefined,
             // A project key may hold `_`, which `ilike` reads as "any one
             // character", so `DE_-23` would also match a task in `DEP` and the
             // `limit(1)` below would pick whichever came back first. Escaping
@@ -264,6 +274,9 @@ async function globalSearch(params: SearchParams): Promise<{
         and(
           workspaceFilter,
           projectId ? eq(taskTable.projectId, projectId) : undefined,
+          effectiveExcludeProjectId
+            ? ne(taskTable.projectId, effectiveExcludeProjectId)
+            : undefined,
           or(
             ilike(taskTable.title, searchPattern),
             ilike(taskTable.description, searchPattern),
@@ -438,6 +451,9 @@ async function globalSearch(params: SearchParams): Promise<{
         and(
           workspaceFilter,
           projectId ? eq(taskTable.projectId, projectId) : undefined,
+          effectiveExcludeProjectId
+            ? ne(taskTable.projectId, effectiveExcludeProjectId)
+            : undefined,
           or(
             ilike(searchableActivityText, searchPattern),
             ilike(taskTable.title, searchPattern),

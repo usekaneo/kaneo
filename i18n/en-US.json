@@ -1964,6 +1964,7 @@
 		"relations": {
 			"title": "Relations",
 			"tasksInProject": "Tasks in project",
+			"tasksInOtherProject": "In {{project}}",
 			"linkError": "Failed to link task",
 			"empty": "No related tasks",
 			"searchPlaceholder": "Search tasks to link...",

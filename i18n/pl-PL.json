@@ -2408,7 +2408,8 @@
 				"blocked_by": "blokowane przez",
 				"blocks": "blokuje",
 				"related": "powiązane z"
-			}
+			},
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"sort": {
 			"ascending": "Rosnąco",

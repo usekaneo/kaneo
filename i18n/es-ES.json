@@ -1984,7 +1984,8 @@
 				"blocks": "bloquea",
 				"related": "relacionada con",
 				"blocked_by": "bloqueada por"
-			}
+			},
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Sub-tareas",

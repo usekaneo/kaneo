@@ -1970,7 +1970,8 @@
 				"blocks": "ブロック中",
 				"blocked_by": "ブロックされている",
 				"related": "関連"
-			}
+			},
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "サブタスク",

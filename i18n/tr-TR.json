@@ -1977,7 +1977,8 @@
 				"blocks": "engeller",
 				"blocked_by": "engellenen",
 				"related": "ilişkilidir"
-			}
+			},
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Alt talepler",

@@ -7877,6 +7877,9 @@
 						"tasksInProject": {
 							"type": "string"
 						},
+						"tasksInOtherProject": {
+							"type": "string"
+						},
 						"linkError": {
 							"type": "string"
 						},
@@ -7924,6 +7927,7 @@
 					"required": [
 						"title",
 						"tasksInProject",
+						"tasksInOtherProject",
 						"linkError",
 						"empty",
 						"searchPlaceholder",

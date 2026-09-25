@@ -1970,7 +1970,8 @@
 				"blocks": "차단함",
 				"related": "관련됨",
 				"blocked_by": "차단됨"
-			}
+			},
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "하위 작업",
