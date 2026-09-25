@@ -154,8 +154,8 @@
 					"rose": "玫红",
 					"crimson": "深红"
 				},
-				"setTimeEstimate": "Set",
-				"timeEstimate": "Time estimate"
+				"setTimeEstimate": "设置",
+				"timeEstimate": "时间估算"
 			}
 		},
 		"boolean": {
@@ -535,8 +535,8 @@
 			"labelsDescription": "显示任务的标签和标记",
 			"priority": "优先级",
 			"priorityDescription": "显示优先级指示",
-			"timeEstimates": "Time Estimates",
-			"timeEstimatesDescription": "Show time estimates on tasks"
+			"timeEstimates": "时间估算",
+			"timeEstimatesDescription": "在任务上显示时间估算"
 		},
 		"developerPage": {
 			"pageTitle": "开发者设置",
@@ -1287,7 +1287,7 @@
 				"taskAssigneeChanged": "负责人已变更",
 				"taskUnassigned": "任务已取消指派",
 				"dueDateReminder": "截止日期提醒",
-				"taskTimeEstimateChanged": "Time estimate changed"
+				"taskTimeEstimateChanged": "时间估算已变更"
 			},
 			"reminderLeadTimeLabel": "提前这么多小时发送 Webhook",
 			"connect": "连接 Webhook",
@@ -1714,9 +1714,9 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
 		},
-		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
-		"clearedTimeEstimate": "cleared the time estimate",
-		"setTimeEstimate": "set time estimate to {{estimate}}"
+		"changedTimeEstimate": "将时间估算从 {{from}} 改为 {{to}}",
+		"clearedTimeEstimate": "清除了时间估算",
+		"setTimeEstimate": "将时间估算设为 {{estimate}}"
 	},
 	"tasks": {
 		"title": "任务",
@@ -1899,8 +1899,8 @@
 			"start": "开始",
 			"startDate": "开始日期",
 			"noDate": "无日期",
-			"noEstimate": "No estimate",
-			"timeEstimate": "Time estimate"
+			"noEstimate": "无估算",
+			"timeEstimate": "时间估算"
 		},
 		"move": {
 			"title": "移动任务",
@@ -1957,12 +1957,12 @@
 				}
 			},
 			"timeEstimate": {
-				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
-				"placeholder": "e.g. 2h 30m",
-				"save": "Save",
-				"title": "Time estimate",
-				"updateError": "Failed to update task time estimate",
-				"updateSuccess": "Task time estimate updated successfully"
+				"invalid": "请使用类似 2h 30m、90m 或 1.5h 的格式。",
+				"placeholder": "例如 2h 30m",
+				"save": "保存",
+				"title": "时间估算",
+				"updateError": "任务时间估算更新失败",
+				"updateSuccess": "任务时间估算更新成功"
 			}
 		},
 		"backlog": {
@@ -2149,8 +2149,8 @@
 			"searchActions": "搜索操作…",
 			"noActionsFound": "未找到操作。",
 			"changeStatus": "更改状态",
-			"setTimeEstimate": "Set Time Estimate",
-			"updateTimeEstimateError": "Failed to update time estimate"
+			"setTimeEstimate": "设置时间估算",
+			"updateTimeEstimateError": "更新时间估算失败"
 		},
 		"editor": {
 			"table": {
@@ -2169,7 +2169,7 @@
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"timeEstimate": {
-			"label": "Time estimate"
+			"label": "时间估算"
 		}
 	},
 	"invitations": {

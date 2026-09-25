@@ -154,8 +154,8 @@
 					"rose": "गुलाब",
 					"crimson": "किरमिज़ी"
 				},
-				"setTimeEstimate": "Set",
-				"timeEstimate": "Time estimate"
+				"setTimeEstimate": "सेट करें",
+				"timeEstimate": "समय अनुमान"
 			}
 		},
 		"boolean": {
@@ -535,8 +535,8 @@
 			"labelsDescription": "कार्य लेबल और टैग दिखाएँ",
 			"priority": "प्राथमिकता",
 			"priorityDescription": "प्राथमिकता संकेतक दिखाएँ",
-			"timeEstimates": "Time Estimates",
-			"timeEstimatesDescription": "Show time estimates on tasks"
+			"timeEstimates": "समय अनुमान",
+			"timeEstimatesDescription": "कार्यों पर समय अनुमान दिखाएँ"
 		},
 		"developerPage": {
 			"pageTitle": "डेवलपर सेटिंग",
@@ -1250,7 +1250,7 @@
 				"taskAssigneeChanged": "सौंपा गया बदला",
 				"taskUnassigned": "कार्य असाइन हटाया",
 				"dueDateReminder": "नियत तारीख अनुस्मारक",
-				"taskTimeEstimateChanged": "Time estimate changed"
+				"taskTimeEstimateChanged": "समय अनुमान बदला"
 			},
 			"reminderLeadTimeLabel": "इतने घंटे पहले वेबहुक भेजें",
 			"connect": "वेबहुक कनेक्ट करें",
@@ -1719,9 +1719,9 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
 		},
-		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
-		"clearedTimeEstimate": "cleared the time estimate",
-		"setTimeEstimate": "set time estimate to {{estimate}}"
+		"changedTimeEstimate": "समय अनुमान {{from}} से {{to}} में बदला",
+		"clearedTimeEstimate": "समय अनुमान साफ़ किया",
+		"setTimeEstimate": "समय अनुमान {{estimate}} सेट किया"
 	},
 	"tasks": {
 		"title": "कार्य",
@@ -1904,8 +1904,8 @@
 			"start": "शुरू",
 			"startDate": "शुरू की तारीख",
 			"noDate": "कोई तारीख नहीं",
-			"noEstimate": "No estimate",
-			"timeEstimate": "Time estimate"
+			"noEstimate": "कोई अनुमान नहीं",
+			"timeEstimate": "समय अनुमान"
 		},
 		"move": {
 			"title": "कार्य ले जाएँ",
@@ -1962,12 +1962,12 @@
 				}
 			},
 			"timeEstimate": {
-				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
-				"placeholder": "e.g. 2h 30m",
-				"save": "Save",
-				"title": "Time estimate",
-				"updateError": "Failed to update task time estimate",
-				"updateSuccess": "Task time estimate updated successfully"
+				"invalid": "2h 30m, 90m या 1.5h जैसा प्रारूप इस्तेमाल करें।",
+				"placeholder": "जैसे 2h 30m",
+				"save": "सहेजें",
+				"title": "समय अनुमान",
+				"updateError": "कार्य का समय अनुमान अपडेट करने में विफल",
+				"updateSuccess": "कार्य का समय अनुमान सफलतापूर्वक अपडेट किया गया"
 			}
 		},
 		"backlog": {
@@ -2142,8 +2142,8 @@
 			"searchActions": "कार्रवाइयाँ खोजें...",
 			"noActionsFound": "कोई कार्रवाई नहीं मिली।",
 			"changeStatus": "स्थिति बदलें",
-			"setTimeEstimate": "Set Time Estimate",
-			"updateTimeEstimateError": "Failed to update time estimate"
+			"setTimeEstimate": "समय अनुमान सेट करें",
+			"updateTimeEstimateError": "समय अनुमान अपडेट करने में विफल"
 		},
 		"editor": {
 			"table": {
@@ -2175,7 +2175,7 @@
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"timeEstimate": {
-			"label": "Time estimate"
+			"label": "समय अनुमान"
 		}
 	},
 	"invitations": {

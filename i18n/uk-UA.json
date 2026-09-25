@@ -154,8 +154,8 @@
 					"rose": "Троянда",
 					"crimson": "Багряний"
 				},
-				"setTimeEstimate": "Set",
-				"timeEstimate": "Time estimate"
+				"setTimeEstimate": "Задати",
+				"timeEstimate": "Оцінка часу"
 			}
 		},
 		"boolean": {
@@ -535,8 +535,8 @@
 			"labelsDescription": "Показувати мітки та теґи завдань",
 			"priority": "Пріоритет",
 			"priorityDescription": "Відображати індикатори пріоритету",
-			"timeEstimates": "Time Estimates",
-			"timeEstimatesDescription": "Show time estimates on tasks"
+			"timeEstimates": "Оцінки часу",
+			"timeEstimatesDescription": "Показувати оцінки часу в задачах"
 		},
 		"developerPage": {
 			"pageTitle": "Налаштування розробника",
@@ -1015,7 +1015,7 @@
 				"taskAssigneeChanged": "Змінено виконавця",
 				"taskUnassigned": "Призначення знято",
 				"dueDateReminder": "Нагадування про дату завершення",
-				"taskTimeEstimateChanged": "Time estimate changed"
+				"taskTimeEstimateChanged": "Оцінку часу змінено"
 			},
 			"connect": "Підключити вебхук",
 			"saveChanges": "Зберегти зміни",
@@ -1729,9 +1729,9 @@
 		},
 		"moved": "перемістив завдання з «{{from}}» до «{{to}}»",
 		"created": "створив це завдання",
-		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
-		"clearedTimeEstimate": "cleared the time estimate",
-		"setTimeEstimate": "set time estimate to {{estimate}}"
+		"changedTimeEstimate": "змінив оцінку часу з {{from}} на {{to}}",
+		"clearedTimeEstimate": "очистив оцінку часу",
+		"setTimeEstimate": "встановив оцінку часу на {{estimate}}"
 	},
 	"tasks": {
 		"title": "Завдання",
@@ -1914,8 +1914,8 @@
 			"start": "Початок",
 			"startDate": "Дата початку",
 			"noDate": "Немає дати",
-			"noEstimate": "No estimate",
-			"timeEstimate": "Time estimate"
+			"noEstimate": "Без оцінки",
+			"timeEstimate": "Оцінка часу"
 		},
 		"move": {
 			"title": "Перемістити завдання",
@@ -1972,12 +1972,12 @@
 				}
 			},
 			"timeEstimate": {
-				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
-				"placeholder": "e.g. 2h 30m",
-				"save": "Save",
-				"title": "Time estimate",
-				"updateError": "Failed to update task time estimate",
-				"updateSuccess": "Task time estimate updated successfully"
+				"invalid": "Використовуйте формат, наприклад 2h 30m, 90m або 1.5h.",
+				"placeholder": "наприклад, 2h 30m",
+				"save": "Зберегти",
+				"title": "Оцінка часу",
+				"updateError": "Не вдалося оновити оцінку часу задачі",
+				"updateSuccess": "Оцінку часу задачі успішно оновлено"
 			}
 		},
 		"backlog": {
@@ -2154,8 +2154,8 @@
 			"searchActions": "Пошук дій...",
 			"noActionsFound": "Дій не знайдено.",
 			"changeStatus": "Змінити статус",
-			"setTimeEstimate": "Set Time Estimate",
-			"updateTimeEstimateError": "Failed to update time estimate"
+			"setTimeEstimate": "Встановити оцінку часу",
+			"updateTimeEstimateError": "Не вдалося оновити оцінку часу"
 		},
 		"editor": {
 			"table": {
@@ -2187,7 +2187,7 @@
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"timeEstimate": {
-			"label": "Time estimate"
+			"label": "Оцінка часу"
 		}
 	},
 	"invitations": {

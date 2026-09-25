@@ -154,8 +154,8 @@
 					"rose": "Róża",
 					"crimson": "Karmazyn"
 				},
-				"setTimeEstimate": "Set",
-				"timeEstimate": "Time estimate"
+				"setTimeEstimate": "Ustaw",
+				"timeEstimate": "Szacowany czas"
 			}
 		},
 		"boolean": {
@@ -821,9 +821,9 @@
 		"moved": "przeniósł(ęła) zadanie z \"{{from}}\" do \"{{to}}\"",
 		"setDueDate": "ustawił(a) termin na {{date}}",
 		"unassigned": "usunął(ęła) przypisanie zadania",
-		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
-		"clearedTimeEstimate": "cleared the time estimate",
-		"setTimeEstimate": "set time estimate to {{estimate}}"
+		"changedTimeEstimate": "zmienił(a) szacowany czas z {{from}} na {{to}}",
+		"clearedTimeEstimate": "usunął(ęła) szacowany czas",
+		"setTimeEstimate": "ustawił(a) szacowany czas na {{estimate}}"
 	},
 	"settings": {
 		"account": "Konto",
@@ -982,7 +982,7 @@
 				"taskStatusChanged": "Zmiany statusu",
 				"taskTitleChanged": "Zmiany tytułu",
 				"taskUnassigned": "Usunięto przypisanie zadania",
-				"taskTimeEstimateChanged": "Time estimate changed"
+				"taskTimeEstimateChanged": "Zmieniono szacowany czas"
 			},
 			"eventsHint": "Wybierz zmiany projektu, które mają uruchamiać wychodzące webhooki.",
 			"eventsTitle": "Powiadomienia o zdarzeniach",
@@ -1339,8 +1339,8 @@
 			"weekStartsOnMonday": "Poniedziałek",
 			"weekStartsOnSaturday": "Sobota",
 			"weekStartsOnSunday": "Niedziela",
-			"timeEstimates": "Time Estimates",
-			"timeEstimatesDescription": "Show time estimates on tasks"
+			"timeEstimates": "Szacunki czasu",
+			"timeEstimatesDescription": "Pokazuj szacunki czasu na zadaniach"
 		},
 		"projectGeneral": {
 			"dangerZone": "Strefa niebezpieczna",
@@ -2011,8 +2011,8 @@
 			"updateError": "Nie udało się zaktualizować zadań",
 			"updatePriorityError": "Nie udało się zaktualizować priorytetu",
 			"updateSuccess": "Zaktualizowano zadań: {{count}}",
-			"setTimeEstimate": "Set Time Estimate",
-			"updateTimeEstimateError": "Failed to update time estimate"
+			"setTimeEstimate": "Ustaw szacowany czas",
+			"updateTimeEstimateError": "Nie udało się zaktualizować szacowanego czasu"
 		},
 		"common": {
 			"loadingTask": "Ładowanie zadania...",
@@ -2263,12 +2263,12 @@
 				"updateError": "Nie udało się zaktualizować statusu zadania"
 			},
 			"timeEstimate": {
-				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
-				"placeholder": "e.g. 2h 30m",
-				"save": "Save",
-				"title": "Time estimate",
-				"updateError": "Failed to update task time estimate",
-				"updateSuccess": "Task time estimate updated successfully"
+				"invalid": "Użyj formatu np. 2h 30m, 90m lub 1.5h.",
+				"placeholder": "np. 2h 30m",
+				"save": "Zapisz",
+				"title": "Szacowany czas",
+				"updateError": "Nie udało się zaktualizować szacowanego czasu zadania",
+				"updateSuccess": "Pomyślnie zaktualizowano szacowany czas zadania"
 			}
 		},
 		"pr": {
@@ -2297,8 +2297,8 @@
 			"start": "Początek",
 			"startDate": "Data rozpoczęcia",
 			"title": "Właściwości",
-			"noEstimate": "No estimate",
-			"timeEstimate": "Time estimate"
+			"noEstimate": "Brak szacunku",
+			"timeEstimate": "Szacowany czas"
 		},
 		"relations": {
 			"blocks": "Blokuje",
@@ -2369,7 +2369,7 @@
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"timeEstimate": {
-			"label": "Time estimate"
+			"label": "Szacowany czas"
 		}
 	}
 }

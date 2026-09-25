@@ -154,8 +154,8 @@
 					"rose": "Merah Mawar",
 					"crimson": "Merah Tua"
 				},
-				"setTimeEstimate": "Set",
-				"timeEstimate": "Time estimate"
+				"setTimeEstimate": "Atur",
+				"timeEstimate": "Estimasi waktu"
 			}
 		},
 		"boolean": {
@@ -535,8 +535,8 @@
 			"labelsDescription": "Tampilkan label dan tag tugas",
 			"priority": "Prioritas",
 			"priorityDescription": "Tampilkan indikator prioritas",
-			"timeEstimates": "Time Estimates",
-			"timeEstimatesDescription": "Show time estimates on tasks"
+			"timeEstimates": "Estimasi waktu",
+			"timeEstimatesDescription": "Tampilkan estimasi waktu pada tugas"
 		},
 		"developerPage": {
 			"pageTitle": "Pengaturan Pengembang",
@@ -1015,7 +1015,7 @@
 				"taskAssigneeChanged": "Penanggung jawab diubah",
 				"taskUnassigned": "Penugasan dihapus",
 				"dueDateReminder": "Pengingat tenggat",
-				"taskTimeEstimateChanged": "Time estimate changed"
+				"taskTimeEstimateChanged": "Estimasi waktu diubah"
 			},
 			"connect": "Hubungkan webhook",
 			"saveChanges": "Simpan perubahan",
@@ -1714,9 +1714,9 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
 		},
-		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
-		"clearedTimeEstimate": "cleared the time estimate",
-		"setTimeEstimate": "set time estimate to {{estimate}}"
+		"changedTimeEstimate": "mengubah estimasi waktu dari {{from}} menjadi {{to}}",
+		"clearedTimeEstimate": "menghapus estimasi waktu",
+		"setTimeEstimate": "mengatur estimasi waktu ke {{estimate}}"
 	},
 	"tasks": {
 		"title": "Tugas",
@@ -1899,8 +1899,8 @@
 			"start": "Mulai",
 			"startDate": "Tanggal mulai",
 			"noDate": "Tanpa tanggal",
-			"noEstimate": "No estimate",
-			"timeEstimate": "Time estimate"
+			"noEstimate": "Tanpa estimasi",
+			"timeEstimate": "Estimasi waktu"
 		},
 		"move": {
 			"title": "Pindahkan tugas",
@@ -1957,12 +1957,12 @@
 				}
 			},
 			"timeEstimate": {
-				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
-				"placeholder": "e.g. 2h 30m",
-				"save": "Save",
-				"title": "Time estimate",
-				"updateError": "Failed to update task time estimate",
-				"updateSuccess": "Task time estimate updated successfully"
+				"invalid": "Gunakan format seperti 2h 30m, 90m, atau 1.5h.",
+				"placeholder": "cth. 2h 30m",
+				"save": "Simpan",
+				"title": "Estimasi waktu",
+				"updateError": "Gagal memperbarui estimasi waktu tugas",
+				"updateSuccess": "Estimasi waktu tugas berhasil diperbarui"
 			}
 		},
 		"backlog": {
@@ -2136,8 +2136,8 @@
 			"searchActions": "Cari aksi...",
 			"noActionsFound": "Tidak ada aksi ditemukan.",
 			"changeStatus": "Ubah Status",
-			"setTimeEstimate": "Set Time Estimate",
-			"updateTimeEstimateError": "Failed to update time estimate"
+			"setTimeEstimate": "Atur Estimasi Waktu",
+			"updateTimeEstimateError": "Gagal memperbarui estimasi waktu"
 		},
 		"editor": {
 			"table": {
@@ -2169,7 +2169,7 @@
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"timeEstimate": {
-			"label": "Time estimate"
+			"label": "Estimasi waktu"
 		}
 	},
 	"invitations": {

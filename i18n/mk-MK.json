@@ -154,8 +154,8 @@
 					"rose": "Роза",
 					"crimson": "Гримизна"
 				},
-				"setTimeEstimate": "Set",
-				"timeEstimate": "Time estimate"
+				"setTimeEstimate": "Постави",
+				"timeEstimate": "Проценка на време"
 			}
 		},
 		"boolean": {
@@ -535,8 +535,8 @@
 			"labelsDescription": "Прикажи етикети и тагови на задачите",
 			"priority": "Приоритет",
 			"priorityDescription": "Прикажи индикатори за приоритет",
-			"timeEstimates": "Time Estimates",
-			"timeEstimatesDescription": "Show time estimates on tasks"
+			"timeEstimates": "Проценки на време",
+			"timeEstimatesDescription": "Прикажи проценки на време на задачите"
 		},
 		"developerPage": {
 			"pageTitle": "Програмерски поставки",
@@ -1015,7 +1015,7 @@
 				"taskAssigneeChanged": "Променето доделување",
 				"taskUnassigned": "Одземено доделување",
 				"dueDateReminder": "Потсетници за краен рок",
-				"taskTimeEstimateChanged": "Time estimate changed"
+				"taskTimeEstimateChanged": "Променета проценка на време"
 			},
 			"connect": "Поврзи webhook",
 			"saveChanges": "Зачувај промени",
@@ -1719,9 +1719,9 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
 		},
-		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
-		"clearedTimeEstimate": "cleared the time estimate",
-		"setTimeEstimate": "set time estimate to {{estimate}}"
+		"changedTimeEstimate": "ја промени проценката на време од {{from}} во {{to}}",
+		"clearedTimeEstimate": "ја исчисти проценката на време",
+		"setTimeEstimate": "ја постави проценката на време на {{estimate}}"
 	},
 	"tasks": {
 		"title": "Задачи",
@@ -1904,8 +1904,8 @@
 			"start": "Почеток",
 			"startDate": "Почетен датум",
 			"noDate": "Без датум",
-			"noEstimate": "No estimate",
-			"timeEstimate": "Time estimate"
+			"noEstimate": "Без проценка",
+			"timeEstimate": "Проценка на време"
 		},
 		"move": {
 			"title": "Премести задача",
@@ -1962,12 +1962,12 @@
 				}
 			},
 			"timeEstimate": {
-				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
-				"placeholder": "e.g. 2h 30m",
-				"save": "Save",
-				"title": "Time estimate",
-				"updateError": "Failed to update task time estimate",
-				"updateSuccess": "Task time estimate updated successfully"
+				"invalid": "Користете формат како 2h 30m, 90m или 1.5h.",
+				"placeholder": "на пр. 2h 30m",
+				"save": "Зачувај",
+				"title": "Проценка на време",
+				"updateError": "Неуспешно ажурирање на проценката на време на задачата",
+				"updateSuccess": "Проценката на време на задачата е успешно ажурирана"
 			}
 		},
 		"backlog": {
@@ -2142,8 +2142,8 @@
 			"searchActions": "Пребарај акции...",
 			"noActionsFound": "Не се пронајдени акции.",
 			"changeStatus": "Промени статус",
-			"setTimeEstimate": "Set Time Estimate",
-			"updateTimeEstimateError": "Failed to update time estimate"
+			"setTimeEstimate": "Постави проценка на време",
+			"updateTimeEstimateError": "Неуспешно ажурирање на проценка на време"
 		},
 		"editor": {
 			"table": {
@@ -2175,7 +2175,7 @@
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"timeEstimate": {
-			"label": "Time estimate"
+			"label": "Проценка на време"
 		}
 	},
 	"invitations": {

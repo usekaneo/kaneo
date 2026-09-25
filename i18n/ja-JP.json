@@ -154,8 +154,8 @@
 					"rose": "ローズ",
 					"crimson": "クリムゾン"
 				},
-				"setTimeEstimate": "Set",
-				"timeEstimate": "Time estimate"
+				"setTimeEstimate": "設定",
+				"timeEstimate": "作業時間の見積もり"
 			}
 		},
 		"boolean": {
@@ -535,8 +535,8 @@
 			"labelsDescription": "タスクのラベルとタグを表示します",
 			"priority": "優先度",
 			"priorityDescription": "優先度インジケーターを表示します",
-			"timeEstimates": "Time Estimates",
-			"timeEstimatesDescription": "Show time estimates on tasks"
+			"timeEstimates": "作業時間の見積もり",
+			"timeEstimatesDescription": "タスクに作業時間の見積もりを表示する"
 		},
 		"developerPage": {
 			"pageTitle": "開発者設定",
@@ -1249,7 +1249,7 @@
 				"taskAssigneeChanged": "担当者の変更",
 				"taskUnassigned": "担当者の解除",
 				"dueDateReminder": "期限リマインダー",
-				"taskTimeEstimateChanged": "Time estimate changed"
+				"taskTimeEstimateChanged": "作業時間の見積もりの変更"
 			},
 			"reminderLeadTimeLabel": "期限の何時間前に Webhook を送信するか（時間）",
 			"connect": "Webhook を接続",
@@ -1714,9 +1714,9 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
 		},
-		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
-		"clearedTimeEstimate": "cleared the time estimate",
-		"setTimeEstimate": "set time estimate to {{estimate}}"
+		"changedTimeEstimate": "が作業時間の見積もりを {{from}} から {{to}} に変更しました",
+		"clearedTimeEstimate": "が作業時間の見積もりをクリアしました",
+		"setTimeEstimate": "が作業時間の見積もりを {{estimate}} に設定しました"
 	},
 	"tasks": {
 		"title": "タスク",
@@ -1899,8 +1899,8 @@
 			"start": "開始",
 			"startDate": "開始日",
 			"noDate": "日付なし",
-			"noEstimate": "No estimate",
-			"timeEstimate": "Time estimate"
+			"noEstimate": "見積もりなし",
+			"timeEstimate": "作業時間の見積もり"
 		},
 		"move": {
 			"title": "タスクを移動",
@@ -1957,12 +1957,12 @@
 				}
 			},
 			"timeEstimate": {
-				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
-				"placeholder": "e.g. 2h 30m",
-				"save": "Save",
-				"title": "Time estimate",
-				"updateError": "Failed to update task time estimate",
-				"updateSuccess": "Task time estimate updated successfully"
+				"invalid": "2h 30m、90m、1.5h のような形式で入力してください。",
+				"placeholder": "例: 2h 30m",
+				"save": "保存",
+				"title": "作業時間の見積もり",
+				"updateError": "タスクの作業時間の見積もりの更新に失敗しました",
+				"updateSuccess": "タスクの作業時間の見積もりを更新しました"
 			}
 		},
 		"backlog": {
@@ -2149,8 +2149,8 @@
 			"searchActions": "操作を検索...",
 			"noActionsFound": "操作が見つかりません。",
 			"changeStatus": "ステータスを変更",
-			"setTimeEstimate": "Set Time Estimate",
-			"updateTimeEstimateError": "Failed to update time estimate"
+			"setTimeEstimate": "作業時間の見積もりを設定",
+			"updateTimeEstimateError": "作業時間の見積もりの更新に失敗しました"
 		},
 		"editor": {
 			"table": {
@@ -2169,7 +2169,7 @@
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"timeEstimate": {
-			"label": "Time estimate"
+			"label": "作業時間の見積もり"
 		}
 	},
 	"invitations": {

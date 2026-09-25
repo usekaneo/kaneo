@@ -154,8 +154,8 @@
 					"rose": "Gül Kurusu",
 					"crimson": "Koyu Kırmızı"
 				},
-				"setTimeEstimate": "Set",
-				"timeEstimate": "Time estimate"
+				"setTimeEstimate": "Belirle",
+				"timeEstimate": "Süre tahmini"
 			}
 		},
 		"boolean": {
@@ -535,8 +535,8 @@
 			"labelsDescription": "Talep etiketlerini ve etiketleri göster",
 			"priority": "Öncelik",
 			"priorityDescription": "Öncelik göstergelerini görüntüle",
-			"timeEstimates": "Time Estimates",
-			"timeEstimatesDescription": "Show time estimates on tasks"
+			"timeEstimates": "Süre tahminleri",
+			"timeEstimatesDescription": "Görevlerde süre tahminlerini göster"
 		},
 		"developerPage": {
 			"pageTitle": "Geliştirici Ayarları",
@@ -1015,7 +1015,7 @@
 				"taskAssigneeChanged": "Atanan kişi değişti",
 				"taskUnassigned": "Atama kaldırıldı",
 				"dueDateReminder": "Bitiş tarihi hatırlatmaları",
-				"taskTimeEstimateChanged": "Time estimate changed"
+				"taskTimeEstimateChanged": "Süre tahmini değişti"
 			},
 			"connect": "Webhook bağla",
 			"saveChanges": "Değişiklikleri kaydet",
@@ -1719,9 +1719,9 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
 		},
-		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
-		"clearedTimeEstimate": "cleared the time estimate",
-		"setTimeEstimate": "set time estimate to {{estimate}}"
+		"changedTimeEstimate": "süre tahminini {{from}} yerine {{to}} olarak değiştirdi",
+		"clearedTimeEstimate": "süre tahminini temizledi",
+		"setTimeEstimate": "süre tahminini {{estimate}} olarak ayarladı"
 	},
 	"tasks": {
 		"title": "Görevler",
@@ -1904,8 +1904,8 @@
 			"start": "Başlat",
 			"startDate": "Başlangıç tarihi",
 			"noDate": "Tarih yok",
-			"noEstimate": "No estimate",
-			"timeEstimate": "Time estimate"
+			"noEstimate": "Tahmin yok",
+			"timeEstimate": "Süre tahmini"
 		},
 		"move": {
 			"title": "Talebi taşı",
@@ -1962,12 +1962,12 @@
 				}
 			},
 			"timeEstimate": {
-				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
-				"placeholder": "e.g. 2h 30m",
-				"save": "Save",
-				"title": "Time estimate",
-				"updateError": "Failed to update task time estimate",
-				"updateSuccess": "Task time estimate updated successfully"
+				"invalid": "2h 30m, 90m veya 1.5h gibi bir biçim kullanın.",
+				"placeholder": "örn. 2h 30m",
+				"save": "Kaydet",
+				"title": "Süre tahmini",
+				"updateError": "Görev süre tahmini güncellenemedi",
+				"updateSuccess": "Görev süre tahmini başarıyla güncellendi"
 			}
 		},
 		"backlog": {
@@ -2142,8 +2142,8 @@
 			"searchActions": "İşlem ara...",
 			"noActionsFound": "İşlem bulunamadı.",
 			"changeStatus": "Durumu Değiştir",
-			"setTimeEstimate": "Set Time Estimate",
-			"updateTimeEstimateError": "Failed to update time estimate"
+			"setTimeEstimate": "Süre Tahmini Belirle",
+			"updateTimeEstimateError": "Süre tahmini güncellenemedi"
 		},
 		"editor": {
 			"table": {
@@ -2175,7 +2175,7 @@
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"timeEstimate": {
-			"label": "Time estimate"
+			"label": "Süre tahmini"
 		}
 	},
 	"invitations": {

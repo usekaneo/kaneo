@@ -154,8 +154,8 @@
 					"rose": "Çəhrayı",
 					"crimson": "Tünd qırmızı"
 				},
-				"setTimeEstimate": "Set",
-				"timeEstimate": "Time estimate"
+				"setTimeEstimate": "Təyin et",
+				"timeEstimate": "Vaxt təxmini"
 			}
 		},
 		"boolean": {
@@ -535,8 +535,8 @@
 			"labelsDescription": "Tapşırıq etiketlərini göstər",
 			"priority": "Prioritet",
 			"priorityDescription": "Prioritet göstəricilərini göstər",
-			"timeEstimates": "Time Estimates",
-			"timeEstimatesDescription": "Show time estimates on tasks"
+			"timeEstimates": "Vaxt təxminləri",
+			"timeEstimatesDescription": "Tapşırıqlarda vaxt təxminlərini göstər"
 		},
 		"developerPage": {
 			"pageTitle": "Proqramçı parametrləri",
@@ -1288,7 +1288,7 @@
 				"taskAssigneeChanged": "İcraçı dəyişdi",
 				"taskUnassigned": "Tapşırığın icraçısı çıxarıldı",
 				"dueDateReminder": "Son tarix xatırlatmaları",
-				"taskTimeEstimateChanged": "Time estimate changed"
+				"taskTimeEstimateChanged": "Vaxt təxmini dəyişdi"
 			},
 			"reminderLeadTimeLabel": "Webhook-u bu qədər saat əvvəl göndər",
 			"connect": "Webhook-a qoşul",
@@ -1719,9 +1719,9 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
 		},
-		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
-		"clearedTimeEstimate": "cleared the time estimate",
-		"setTimeEstimate": "set time estimate to {{estimate}}"
+		"changedTimeEstimate": "Vaxt təxminini {{from}}-dən {{to}}-yə dəyişdi",
+		"clearedTimeEstimate": "Vaxt təxminini təmizlədi",
+		"setTimeEstimate": "Vaxt təxminini {{estimate}} olaraq təyin etdi"
 	},
 	"tasks": {
 		"title": "Tapşırıqlar",
@@ -1904,8 +1904,8 @@
 			"start": "Başlat",
 			"startDate": "Başlama tarixi",
 			"noDate": "Tarix yoxdur",
-			"noEstimate": "No estimate",
-			"timeEstimate": "Time estimate"
+			"noEstimate": "Təxmin yoxdur",
+			"timeEstimate": "Vaxt təxmini"
 		},
 		"move": {
 			"title": "Tapşırığı köçür",
@@ -1962,12 +1962,12 @@
 				}
 			},
 			"timeEstimate": {
-				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
-				"placeholder": "e.g. 2h 30m",
-				"save": "Save",
-				"title": "Time estimate",
-				"updateError": "Failed to update task time estimate",
-				"updateSuccess": "Task time estimate updated successfully"
+				"invalid": "2h 30m, 90m və ya 1.5h kimi formatdan istifadə edin.",
+				"placeholder": "məs. 2h 30m",
+				"save": "Yadda saxla",
+				"title": "Vaxt təxmini",
+				"updateError": "Tapşırığın vaxt təxminini yeniləmək alınmadı",
+				"updateSuccess": "Tapşırığın vaxt təxmini uğurla yeniləndi"
 			}
 		},
 		"backlog": {
@@ -2155,8 +2155,8 @@
 			"searchActions": "Əməliyyatları axtar...",
 			"noActionsFound": "Əməliyyat tapılmadı.",
 			"changeStatus": "Vəziyyəti dəyiş",
-			"setTimeEstimate": "Set Time Estimate",
-			"updateTimeEstimateError": "Failed to update time estimate"
+			"setTimeEstimate": "Vaxt təxmini təyin et",
+			"updateTimeEstimateError": "Vaxt təxminini yeniləmək alınmadı"
 		},
 		"editor": {
 			"table": {
@@ -2175,7 +2175,7 @@
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"timeEstimate": {
-			"label": "Time estimate"
+			"label": "Vaxt təxmini"
 		}
 	},
 	"invitations": {

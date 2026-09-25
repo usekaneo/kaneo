@@ -154,8 +154,8 @@
 					"rose": "Rosa",
 					"crimson": "Carmesim"
 				},
-				"setTimeEstimate": "Set",
-				"timeEstimate": "Time estimate"
+				"setTimeEstimate": "Definir",
+				"timeEstimate": "Estimativa de tempo"
 			}
 		},
 		"boolean": {
@@ -535,8 +535,8 @@
 			"labelsDescription": "Mostrar etiquetas e marcadores das tarefas",
 			"priority": "Prioridade",
 			"priorityDescription": "Exibir indicadores de prioridade",
-			"timeEstimates": "Time Estimates",
-			"timeEstimatesDescription": "Show time estimates on tasks"
+			"timeEstimates": "Estimativas de tempo",
+			"timeEstimatesDescription": "Mostrar estimativas de tempo nas tarefas"
 		},
 		"developerPage": {
 			"pageTitle": "Configurações de desenvolvedor",
@@ -1251,7 +1251,7 @@
 				"taskAssigneeChanged": "Responsável alterado",
 				"taskUnassigned": "Tarefa sem responsável",
 				"dueDateReminder": "Lembretes de vencimento",
-				"taskTimeEstimateChanged": "Time estimate changed"
+				"taskTimeEstimateChanged": "Estimativa de tempo alterada"
 			},
 			"reminderLeadTimeLabel": "Enviar o webhook quantas horas antes",
 			"connect": "Conectar webhook",
@@ -1724,9 +1724,9 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
 		},
-		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
-		"clearedTimeEstimate": "cleared the time estimate",
-		"setTimeEstimate": "set time estimate to {{estimate}}"
+		"changedTimeEstimate": "mudou a estimativa de tempo de {{from}} para {{to}}",
+		"clearedTimeEstimate": "limpou a estimativa de tempo",
+		"setTimeEstimate": "definiu a estimativa de tempo para {{estimate}}"
 	},
 	"tasks": {
 		"title": "Tarefas",
@@ -1909,8 +1909,8 @@
 			"start": "Início",
 			"startDate": "Data de início",
 			"noDate": "Sem data",
-			"noEstimate": "No estimate",
-			"timeEstimate": "Time estimate"
+			"noEstimate": "Sem estimativa",
+			"timeEstimate": "Estimativa de tempo"
 		},
 		"move": {
 			"title": "Mover tarefa",
@@ -1967,12 +1967,12 @@
 				}
 			},
 			"timeEstimate": {
-				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
-				"placeholder": "e.g. 2h 30m",
-				"save": "Save",
-				"title": "Time estimate",
-				"updateError": "Failed to update task time estimate",
-				"updateSuccess": "Task time estimate updated successfully"
+				"invalid": "Use um formato como 2h 30m, 90m ou 1.5h.",
+				"placeholder": "ex.: 2h 30m",
+				"save": "Salvar",
+				"title": "Estimativa de tempo",
+				"updateError": "Falha ao atualizar a estimativa de tempo da tarefa",
+				"updateSuccess": "Estimativa de tempo da tarefa atualizada com sucesso"
 			}
 		},
 		"backlog": {
@@ -2148,8 +2148,8 @@
 			"searchActions": "Buscar ações...",
 			"noActionsFound": "Nenhuma ação encontrada.",
 			"changeStatus": "Mudar status",
-			"setTimeEstimate": "Set Time Estimate",
-			"updateTimeEstimateError": "Failed to update time estimate"
+			"setTimeEstimate": "Definir estimativa de tempo",
+			"updateTimeEstimateError": "Falha ao atualizar a estimativa de tempo"
 		},
 		"editor": {
 			"table": {
@@ -2181,7 +2181,7 @@
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"timeEstimate": {
-			"label": "Time estimate"
+			"label": "Estimativa de tempo"
 		}
 	},
 	"invitations": {

@@ -154,8 +154,8 @@
 					"rose": "Roos",
 					"crimson": "Karmozijn"
 				},
-				"setTimeEstimate": "Set",
-				"timeEstimate": "Time estimate"
+				"setTimeEstimate": "Instellen",
+				"timeEstimate": "Tijdschatting"
 			}
 		},
 		"boolean": {
@@ -432,8 +432,8 @@
 			"labelsDescription": "Toon taaklabels en tags",
 			"priority": "Prioriteit",
 			"priorityDescription": "Toon prioriteitsindicatoren",
-			"timeEstimates": "Time Estimates",
-			"timeEstimatesDescription": "Show time estimates on tasks"
+			"timeEstimates": "Tijdschattingen",
+			"timeEstimatesDescription": "Toon tijdschattingen op taken"
 		},
 		"developerPage": {
 			"pageTitle": "Ontwikkelaarsinstellingen",
@@ -836,7 +836,7 @@
 				"taskAssigneeChanged": "Toewijzing gewijzigd",
 				"taskUnassigned": "Toewijzing verwijderd",
 				"dueDateReminder": "Einddatum-herinneringen",
-				"taskTimeEstimateChanged": "Time estimate changed"
+				"taskTimeEstimateChanged": "Tijdschatting gewijzigd"
 			},
 			"connect": "Webhook verbinden",
 			"saveChanges": "Wijzigingen opslaan",
@@ -1719,9 +1719,9 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
 		},
-		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
-		"clearedTimeEstimate": "cleared the time estimate",
-		"setTimeEstimate": "set time estimate to {{estimate}}"
+		"changedTimeEstimate": "heeft de tijdschatting gewijzigd van {{from}} naar {{to}}",
+		"clearedTimeEstimate": "heeft de tijdschatting verwijderd",
+		"setTimeEstimate": "heeft de tijdschatting ingesteld op {{estimate}}"
 	},
 	"tasks": {
 		"title": "Taken",
@@ -1904,8 +1904,8 @@
 			"start": "Start",
 			"startDate": "Startdatum",
 			"noDate": "Geen datum",
-			"noEstimate": "No estimate",
-			"timeEstimate": "Time estimate"
+			"noEstimate": "Geen schatting",
+			"timeEstimate": "Tijdschatting"
 		},
 		"popover": {
 			"assignee": {
@@ -1951,12 +1951,12 @@
 				}
 			},
 			"timeEstimate": {
-				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
-				"placeholder": "e.g. 2h 30m",
-				"save": "Save",
-				"title": "Time estimate",
-				"updateError": "Failed to update task time estimate",
-				"updateSuccess": "Task time estimate updated successfully"
+				"invalid": "Gebruik een formaat zoals 2h 30m, 90m of 1.5h.",
+				"placeholder": "bijv. 2h 30m",
+				"save": "Opslaan",
+				"title": "Tijdschatting",
+				"updateError": "Bijwerken van tijdschatting van taak mislukt",
+				"updateSuccess": "Tijdschatting van taak succesvol bijgewerkt"
 			}
 		},
 		"backlog": {
@@ -2131,8 +2131,8 @@
 			"searchActions": "Acties zoeken...",
 			"noActionsFound": "Geen acties gevonden.",
 			"changeStatus": "Status wijzigen",
-			"setTimeEstimate": "Set Time Estimate",
-			"updateTimeEstimateError": "Failed to update time estimate"
+			"setTimeEstimate": "Tijdschatting instellen",
+			"updateTimeEstimateError": "Bijwerken tijdschatting mislukt"
 		},
 		"move": {
 			"title": "Taak verplaatsen",
@@ -2175,7 +2175,7 @@
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"timeEstimate": {
-			"label": "Time estimate"
+			"label": "Tijdschatting"
 		}
 	},
 	"invitations": {

@@ -154,8 +154,8 @@
 					"rose": "Ροζ",
 					"crimson": "Βυσσινί"
 				},
-				"setTimeEstimate": "Set",
-				"timeEstimate": "Time estimate"
+				"setTimeEstimate": "Ορισμός",
+				"timeEstimate": "Εκτίμηση χρόνου"
 			}
 		},
 		"boolean": {
@@ -535,8 +535,8 @@
 			"labelsDescription": "Εμφάνιση ετικετών και tags εργασιών",
 			"priority": "Προτεραιότητα",
 			"priorityDescription": "Εμφάνιση ενδείξεων προτεραιότητας",
-			"timeEstimates": "Time Estimates",
-			"timeEstimatesDescription": "Show time estimates on tasks"
+			"timeEstimates": "Εκτιμήσεις χρόνου",
+			"timeEstimatesDescription": "Εμφάνιση εκτιμήσεων χρόνου στις εργασίες"
 		},
 		"developerPage": {
 			"pageTitle": "Ρυθμίσεις προγραμματιστή",
@@ -995,7 +995,7 @@
 				"taskTitleChanged": "Αλλαγές τίτλου",
 				"taskUnassigned": "Αφαίρεση ανάθεσης",
 				"dueDateReminder": "Υπενθυμίσεις ημερομηνίας λήξης",
-				"taskTimeEstimateChanged": "Time estimate changed"
+				"taskTimeEstimateChanged": "Αλλαγή εκτίμησης χρόνου"
 			},
 			"eventsHint": "Επιλέξτε ποιες αλλαγές έργου θα ενεργοποιούν εξερχόμενα webhooks.",
 			"eventsTitle": "Ειδοποιήσεις γεγονότων",
@@ -1719,9 +1719,9 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
 		},
-		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
-		"clearedTimeEstimate": "cleared the time estimate",
-		"setTimeEstimate": "set time estimate to {{estimate}}"
+		"changedTimeEstimate": "άλλαξε την εκτίμηση χρόνου από {{from}} σε {{to}}",
+		"clearedTimeEstimate": "αφαίρεσε την εκτίμηση χρόνου",
+		"setTimeEstimate": "όρισε ως εκτίμηση χρόνου την {{estimate}}"
 	},
 	"tasks": {
 		"title": "Εργασίες",
@@ -1904,8 +1904,8 @@
 			"start": "Έναρξη",
 			"startDate": "Ημερομηνία έναρξης",
 			"noDate": "Χωρίς ημερομηνία",
-			"noEstimate": "No estimate",
-			"timeEstimate": "Time estimate"
+			"noEstimate": "Χωρίς εκτίμηση",
+			"timeEstimate": "Εκτίμηση χρόνου"
 		},
 		"move": {
 			"title": "Μετακίνηση εργασίας",
@@ -1962,12 +1962,12 @@
 				}
 			},
 			"timeEstimate": {
-				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
-				"placeholder": "e.g. 2h 30m",
-				"save": "Save",
-				"title": "Time estimate",
-				"updateError": "Failed to update task time estimate",
-				"updateSuccess": "Task time estimate updated successfully"
+				"invalid": "Χρησιμοποιήστε μορφή όπως 2h 30m, 90m ή 1.5h.",
+				"placeholder": "π.χ. 2h 30m",
+				"save": "Αποθήκευση",
+				"title": "Εκτίμηση χρόνου",
+				"updateError": "Αποτυχία ενημέρωσης εκτίμησης χρόνου της εργασίας",
+				"updateSuccess": "Η εκτίμηση χρόνου της εργασίας ενημερώθηκε με επιτυχία"
 			}
 		},
 		"backlog": {
@@ -2142,8 +2142,8 @@
 			"searchActions": "Αναζήτηση ενεργειών...",
 			"noActionsFound": "Δεν βρέθηκαν ενέργειες.",
 			"changeStatus": "Αλλαγή κατάστασης",
-			"setTimeEstimate": "Set Time Estimate",
-			"updateTimeEstimateError": "Failed to update time estimate"
+			"setTimeEstimate": "Ορισμός εκτίμησης χρόνου",
+			"updateTimeEstimateError": "Αποτυχία ενημέρωσης εκτίμησης χρόνου"
 		},
 		"editor": {
 			"table": {
@@ -2175,7 +2175,7 @@
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"timeEstimate": {
-			"label": "Time estimate"
+			"label": "Εκτίμηση χρόνου"
 		}
 	},
 	"invitations": {

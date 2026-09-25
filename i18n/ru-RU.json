@@ -154,8 +154,8 @@
 					"rose": "Роза",
 					"crimson": "Малиновый"
 				},
-				"setTimeEstimate": "Set",
-				"timeEstimate": "Time estimate"
+				"setTimeEstimate": "Задать",
+				"timeEstimate": "Оценка времени"
 			}
 		},
 		"boolean": {
@@ -535,8 +535,8 @@
 			"labelsDescription": "Показывать метки и теги задач",
 			"priority": "Приоритет",
 			"priorityDescription": "Показывать индикаторы приоритета",
-			"timeEstimates": "Time Estimates",
-			"timeEstimatesDescription": "Show time estimates on tasks"
+			"timeEstimates": "Оценки времени",
+			"timeEstimatesDescription": "Показывать оценки времени в задачах"
 		},
 		"developerPage": {
 			"pageTitle": "Настройки разработчика",
@@ -1015,7 +1015,7 @@
 				"taskAssigneeChanged": "Изменен исполнитель",
 				"taskUnassigned": "Назначение снято",
 				"dueDateReminder": "Напоминания о сроках",
-				"taskTimeEstimateChanged": "Time estimate changed"
+				"taskTimeEstimateChanged": "Оценка времени изменена"
 			},
 			"connect": "Подключить вебхук",
 			"saveChanges": "Сохранить изменения",
@@ -1737,9 +1737,9 @@
 		},
 		"moved": "переместил задачу из «{{from}}» в «{{to}}»",
 		"created": "создал эту задачу",
-		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
-		"clearedTimeEstimate": "cleared the time estimate",
-		"setTimeEstimate": "set time estimate to {{estimate}}"
+		"changedTimeEstimate": "изменил оценку времени с {{from}} на {{to}}",
+		"clearedTimeEstimate": "очистил оценку времени",
+		"setTimeEstimate": "установил оценку времени: {{estimate}}"
 	},
 	"tasks": {
 		"title": "Задачи",
@@ -1922,8 +1922,8 @@
 			"start": "Начало",
 			"startDate": "Дата начала",
 			"noDate": "Без даты",
-			"noEstimate": "No estimate",
-			"timeEstimate": "Time estimate"
+			"noEstimate": "Без оценки",
+			"timeEstimate": "Оценка времени"
 		},
 		"move": {
 			"title": "Переместить задачу",
@@ -1980,12 +1980,12 @@
 				}
 			},
 			"timeEstimate": {
-				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
-				"placeholder": "e.g. 2h 30m",
-				"save": "Save",
-				"title": "Time estimate",
-				"updateError": "Failed to update task time estimate",
-				"updateSuccess": "Task time estimate updated successfully"
+				"invalid": "Используйте формат, например 2h 30m, 90m или 1.5h.",
+				"placeholder": "например, 2h 30m",
+				"save": "Сохранить",
+				"title": "Оценка времени",
+				"updateError": "Не удалось обновить оценку времени задачи",
+				"updateSuccess": "Оценка времени задачи успешно обновлена"
 			}
 		},
 		"backlog": {
@@ -2210,8 +2210,8 @@
 			"updateSuccess": "{{count}} задач обновлено",
 			"assignSuccess": "{{count}} задач назначено",
 			"addLabelSuccess": "Метка добавлена к {{count}} задачам",
-			"setTimeEstimate": "Set Time Estimate",
-			"updateTimeEstimateError": "Failed to update time estimate"
+			"setTimeEstimate": "Установить оценку времени",
+			"updateTimeEstimateError": "Не удалось обновить оценку времени"
 		},
 		"editor": {
 			"table": {
@@ -2243,7 +2243,7 @@
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"timeEstimate": {
-			"label": "Time estimate"
+			"label": "Оценка времени"
 		}
 	},
 	"invitations": {

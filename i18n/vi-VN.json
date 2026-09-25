@@ -154,8 +154,8 @@
 					"rose": "Hồng",
 					"crimson": "Đỏ thẫm"
 				},
-				"setTimeEstimate": "Set",
-				"timeEstimate": "Time estimate"
+				"setTimeEstimate": "Đặt",
+				"timeEstimate": "Ước tính thời gian"
 			}
 		},
 		"boolean": {
@@ -535,8 +535,8 @@
 			"labelsDescription": "Hiển thị nhãn và thẻ của công việc",
 			"priority": "Mức ưu tiên",
 			"priorityDescription": "Hiển thị chỉ báo mức ưu tiên",
-			"timeEstimates": "Time Estimates",
-			"timeEstimatesDescription": "Show time estimates on tasks"
+			"timeEstimates": "Ước tính thời gian",
+			"timeEstimatesDescription": "Hiển thị ước tính thời gian trên các nhiệm vụ"
 		},
 		"developerPage": {
 			"pageTitle": "Cài đặt nhà phát triển",
@@ -1249,7 +1249,7 @@
 				"taskAssigneeChanged": "Thay đổi người được giao",
 				"taskUnassigned": "Hủy giao công việc",
 				"dueDateReminder": "Nhắc nhở ngày đến hạn",
-				"taskTimeEstimateChanged": "Time estimate changed"
+				"taskTimeEstimateChanged": "Thay đổi ước tính thời gian"
 			},
 			"reminderLeadTimeLabel": "Gửi webhook trước bao nhiêu giờ",
 			"connect": "Kết nối webhook",
@@ -1714,9 +1714,9 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
 		},
-		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
-		"clearedTimeEstimate": "cleared the time estimate",
-		"setTimeEstimate": "set time estimate to {{estimate}}"
+		"changedTimeEstimate": "đã thay đổi ước tính thời gian từ {{from}} sang {{to}}",
+		"clearedTimeEstimate": "đã xóa ước tính thời gian",
+		"setTimeEstimate": "đã đặt ước tính thời gian thành {{estimate}}"
 	},
 	"tasks": {
 		"title": "Nhiệm vụ",
@@ -1899,8 +1899,8 @@
 			"start": "Bắt đầu",
 			"startDate": "Ngày bắt đầu",
 			"noDate": "Không có ngày",
-			"noEstimate": "No estimate",
-			"timeEstimate": "Time estimate"
+			"noEstimate": "Không có ước tính",
+			"timeEstimate": "Ước tính thời gian"
 		},
 		"move": {
 			"title": "Di chuyển công việc",
@@ -1957,12 +1957,12 @@
 				}
 			},
 			"timeEstimate": {
-				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
-				"placeholder": "e.g. 2h 30m",
-				"save": "Save",
-				"title": "Time estimate",
-				"updateError": "Failed to update task time estimate",
-				"updateSuccess": "Task time estimate updated successfully"
+				"invalid": "Dùng định dạng như 2h 30m, 90m hoặc 1.5h.",
+				"placeholder": "vd. 2h 30m",
+				"save": "Lưu",
+				"title": "Ước tính thời gian",
+				"updateError": "Không thể cập nhật ước tính thời gian của nhiệm vụ",
+				"updateSuccess": "Đã cập nhật ước tính thời gian của nhiệm vụ"
 			}
 		},
 		"backlog": {
@@ -2136,8 +2136,8 @@
 			"searchActions": "Tìm hành động...",
 			"noActionsFound": "Không tìm thấy hành động nào.",
 			"changeStatus": "Đổi trạng thái",
-			"setTimeEstimate": "Set Time Estimate",
-			"updateTimeEstimateError": "Failed to update time estimate"
+			"setTimeEstimate": "Đặt ước tính thời gian",
+			"updateTimeEstimateError": "Không thể cập nhật ước tính thời gian"
 		},
 		"editor": {
 			"table": {
@@ -2169,7 +2169,7 @@
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"timeEstimate": {
-			"label": "Time estimate"
+			"label": "Ước tính thời gian"
 		}
 	},
 	"invitations": {

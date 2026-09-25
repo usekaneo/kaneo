@@ -154,8 +154,8 @@
 					"rose": "Rosa",
 					"crimson": "Karmesinrot"
 				},
-				"setTimeEstimate": "Set",
-				"timeEstimate": "Time estimate"
+				"setTimeEstimate": "Festlegen",
+				"timeEstimate": "Zeitschätzung"
 			}
 		},
 		"boolean": {
@@ -535,8 +535,8 @@
 			"labelsDescription": "Aufgabenlabels und Tags anzeigen",
 			"priority": "Priorität",
 			"priorityDescription": "Prioritätsindikatoren anzeigen",
-			"timeEstimates": "Time Estimates",
-			"timeEstimatesDescription": "Show time estimates on tasks"
+			"timeEstimates": "Zeitschätzungen",
+			"timeEstimatesDescription": "Zeitschätzungen auf Aufgaben anzeigen"
 		},
 		"developerPage": {
 			"pageTitle": "Entwicklereinstellungen",
@@ -1015,7 +1015,7 @@
 				"taskAssigneeChanged": "Zuweisung geändert",
 				"taskUnassigned": "Zuweisung entfernt",
 				"dueDateReminder": "Erinnerungen an Fälligkeitstermine",
-				"taskTimeEstimateChanged": "Time estimate changed"
+				"taskTimeEstimateChanged": "Zeitschätzung geändert"
 			},
 			"reminderLeadTimeLabel": "Webhook so viele Stunden vorher senden",
 			"connect": "Webhook verbinden",
@@ -1719,9 +1719,9 @@
 			"importedFrom": "Importiert aus {{source}}",
 			"importedBy": "Importiert von {{name}}"
 		},
-		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}",
-		"clearedTimeEstimate": "cleared the time estimate",
-		"setTimeEstimate": "set time estimate to {{estimate}}"
+		"changedTimeEstimate": "hat die Zeitschätzung von {{from}} zu {{to}} geändert",
+		"clearedTimeEstimate": "hat die Zeitschätzung entfernt",
+		"setTimeEstimate": "hat die Zeitschätzung auf {{estimate}} gesetzt"
 	},
 	"tasks": {
 		"title": "Aufgaben",
@@ -1904,8 +1904,8 @@
 			"start": "Start",
 			"startDate": "Startdatum",
 			"noDate": "Kein Datum",
-			"noEstimate": "No estimate",
-			"timeEstimate": "Time estimate"
+			"noEstimate": "Keine Schätzung",
+			"timeEstimate": "Zeitschätzung"
 		},
 		"move": {
 			"title": "Aufgabe verschieben",
@@ -1962,12 +1962,12 @@
 				}
 			},
 			"timeEstimate": {
-				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
-				"placeholder": "e.g. 2h 30m",
-				"save": "Save",
-				"title": "Time estimate",
-				"updateError": "Failed to update task time estimate",
-				"updateSuccess": "Task time estimate updated successfully"
+				"invalid": "Verwende ein Format wie 2h 30m, 90m oder 1.5h.",
+				"placeholder": "z.B. 2h 30m",
+				"save": "Speichern",
+				"title": "Zeitschätzung",
+				"updateError": "Zeitschätzung der Aufgabe konnte nicht aktualisiert werden",
+				"updateSuccess": "Zeitschätzung der Aufgabe erfolgreich aktualisiert"
 			}
 		},
 		"backlog": {
@@ -2142,8 +2142,8 @@
 			"searchActions": "Aktionen suchen...",
 			"noActionsFound": "Keine Aktionen gefunden.",
 			"changeStatus": "Status ändern",
-			"setTimeEstimate": "Set Time Estimate",
-			"updateTimeEstimateError": "Failed to update time estimate"
+			"setTimeEstimate": "Zeitschätzung festlegen",
+			"updateTimeEstimateError": "Zeitschätzung konnte nicht aktualisiert werden"
 		},
 		"editor": {
 			"table": {
@@ -2175,7 +2175,7 @@
 		"descriptionLoading": "Beschreibung wird geladen…",
 		"descriptionLoadError": "Die Beschreibung konnte nicht geladen werden. Versuche es erneut, um die aktuelle Version zu laden.",
 		"timeEstimate": {
-			"label": "Time estimate"
+			"label": "Zeitschätzung"
 		}
 	},
 	"invitations": {
