@@ -2196,6 +2196,11 @@
 			"success": "Aufgabe erfolgreich gelöscht",
 			"error": "Aufgabe konnte nicht gelöscht werden"
 		},
+		"duplicate": {
+			"titleSuffix": "{{title}} (Kopie)",
+			"success": "Aufgabe erfolgreich dupliziert",
+			"error": "Aufgabe konnte nicht dupliziert werden"
+		},
 		"archive": {
 			"success": "{{count}} Aufgaben archiviert"
 		},
@@ -2240,6 +2245,7 @@
 			"copyLinkSuccess": "Aufgabenlink kopiert!"
 		},
 		"actions": {
+			"duplicate": "Duplizieren",
 			"archive": "Archivieren",
 			"markAsPlanned": "Als geplant markieren",
 			"delete": "Löschen..."

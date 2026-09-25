@@ -2060,7 +2060,8 @@
 		"actions": {
 			"archive": "Archiwizuj",
 			"delete": "Usuń...",
-			"markAsPlanned": "Oznacz jako zaplanowane"
+			"markAsPlanned": "Oznacz jako zaplanowane",
+			"duplicate": "Duplicate"
 		},
 		"archive": {
 			"success": "Zarchiwizowano zadań: {{count}}"
@@ -2502,7 +2503,12 @@
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
-		"descriptionLoadError": "The description could not be loaded. Retry to load the current version."
+		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"duplicate": {
+			"error": "Failed to duplicate task",
+			"success": "Task duplicated successfully",
+			"titleSuffix": "{{title}} (copy)"
+		}
 	},
 	"press": {
 		"title": "Press kit",

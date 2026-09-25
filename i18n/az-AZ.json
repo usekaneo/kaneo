@@ -2255,7 +2255,8 @@
 		"actions": {
 			"archive": "Arxivlə",
 			"markAsPlanned": "Planlaşdırılmış kimi işarələ",
-			"delete": "Sil..."
+			"delete": "Sil...",
+			"duplicate": "Duplicate"
 		},
 		"bulk": {
 			"selectedCount": "{{count}} seçilib",
@@ -2304,7 +2305,12 @@
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
-		"descriptionLoadError": "The description could not be loaded. Retry to load the current version."
+		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"duplicate": {
+			"error": "Failed to duplicate task",
+			"success": "Task duplicated successfully",
+			"titleSuffix": "{{title}} (copy)"
+		}
 	},
 	"invitations": {
 		"email": {

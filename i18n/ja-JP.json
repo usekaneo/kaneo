@@ -2247,7 +2247,8 @@
 		"actions": {
 			"archive": "アーカイブ",
 			"markAsPlanned": "計画中に設定",
-			"delete": "削除..."
+			"delete": "削除...",
+			"duplicate": "Duplicate"
 		},
 		"bulk": {
 			"selectedCount": "{{count}} 件選択中",
@@ -2296,7 +2297,12 @@
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
-		"descriptionLoadError": "The description could not be loaded. Retry to load the current version."
+		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"duplicate": {
+			"error": "Failed to duplicate task",
+			"success": "Task duplicated successfully",
+			"titleSuffix": "{{title}} (copy)"
+		}
 	},
 	"invitations": {
 		"email": {

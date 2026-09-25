@@ -8910,6 +8910,22 @@
 					},
 					"required": ["title", "description", "action", "success", "error"]
 				},
+				"duplicate": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"titleSuffix": {
+							"type": "string"
+						},
+						"success": {
+							"type": "string"
+						},
+						"error": {
+							"type": "string"
+						}
+					},
+					"required": ["titleSuffix", "success", "error"]
+				},
 				"archive": {
 					"type": "object",
 					"additionalProperties": false,
@@ -9089,6 +9105,9 @@
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
+						"duplicate": {
+							"type": "string"
+						},
 						"archive": {
 							"type": "string"
 						},
@@ -9099,7 +9118,7 @@
 							"type": "string"
 						}
 					},
-					"required": ["archive", "markAsPlanned", "delete"]
+					"required": ["duplicate", "archive", "markAsPlanned", "delete"]
 				},
 				"bulk": {
 					"type": "object",
@@ -9461,6 +9480,7 @@
 				"calendar",
 				"gantt",
 				"delete",
+				"duplicate",
 				"archive",
 				"listView",
 				"kanban",

@@ -2203,6 +2203,11 @@
 			"success": "Tâche supprimée avec succès",
 			"error": "Échec de la suppression de la tâche"
 		},
+		"duplicate": {
+			"titleSuffix": "{{title}} (copie)",
+			"success": "Tâche dupliquée avec succès",
+			"error": "Échec de la duplication de la tâche"
+		},
 		"archive": {
 			"success": "{{count}} tâches archivées"
 		},
@@ -2248,6 +2253,7 @@
 			"copyLinkSuccess": "Lien de la tâche copié !"
 		},
 		"actions": {
+			"duplicate": "Dupliquer",
 			"archive": "Archiver",
 			"markAsPlanned": "Marquer comme planifié",
 			"delete": "Supprimer..."
