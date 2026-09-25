@@ -763,7 +763,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
     const { id } = c.req.valid("param");
 
     const currentUserId = c.get("userId");
-    const task = await deleteTask(id, currentUserId);
+    const task = await deleteTask(id, currentUserId, c.get("workspaceId"));
 
     return c.json(task, 200);
   })

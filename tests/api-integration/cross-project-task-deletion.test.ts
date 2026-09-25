@@ -72,6 +72,53 @@ describe("deleting a task with a cross-project relation", () => {
     }
   });
 
+  it("does not publish a foreign-project event for a legacy cross-workspace relation", async () => {
+    const own = await createWorkspaceMember({ role: "admin" });
+    const foreign = await createWorkspaceMember({ role: "admin" });
+    const { project: ownProject } = await createProjectFixture({
+      workspaceId: own.workspace.id,
+    });
+    const { project: foreignProject } = await createProjectFixture({
+      workspaceId: foreign.workspace.id,
+    });
+
+    const [ownTask] = await db
+      .insert(schema.taskTable)
+      .values({ projectId: ownProject.id, title: "Own task", number: 1 })
+      .returning();
+    const [foreignTask] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: foreignProject.id,
+        title: "Foreign task",
+        number: 1,
+      })
+      .returning();
+
+    // Bypasses app-level validation on purpose: this row could only exist
+    // today as a legacy artifact predating the workspace boundary check on
+    // relation creation.
+    await db.insert(schema.taskRelationTable).values({
+      sourceTaskId: ownTask.id,
+      targetTaskId: foreignTask.id,
+      relationType: "blocks",
+    });
+
+    mockAuthenticatedSession(own.user);
+    const response = await deleteTask(ownTask.id);
+    expect(response.status).toBe(200);
+
+    const relationDeletedCalls = m.publish.mock.calls.filter(
+      ([eventName]) => eventName === "task-relation.deleted",
+    );
+    const notifiedProjectIds = relationDeletedCalls.map(
+      ([, payload]) => (payload as { projectId: string }).projectId,
+    );
+    expect(notifiedProjectIds).toContain(ownProject.id);
+    expect(notifiedProjectIds).not.toContain(foreignProject.id);
+    expect(relationDeletedCalls).toHaveLength(1);
+  });
+
   it("publishes only once for a same-project relation (no duplicate event for the same project)", async () => {
     const member = await createWorkspaceMember({ role: "admin" });
     const { project } = await createProjectFixture({
