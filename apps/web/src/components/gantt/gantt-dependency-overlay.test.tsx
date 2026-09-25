@@ -12,6 +12,7 @@ function edge(overrides: Partial<DependencyEdgeGeometry> = {}) {
     path: "M 0 0 L 10 10",
     sourcePoint: { x: 0, y: 0 },
     targetPoint: { x: 10, y: 10 },
+    lagLabelPoint: null,
     ...overrides,
   };
 }

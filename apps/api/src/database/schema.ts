@@ -1020,6 +1020,13 @@ export const taskRelationTable = pgTable(
         onUpdate: "cascade",
       }),
     relationType: text("relation_type").notNull(),
+    // Only meaningful for a "blocks" relation (the scheduling dependency the
+    // Gantt chart draws); `related`/`subtask` rows keep the fs/0 defaults.
+    // Kept as text, like relationType, with the fs|ss|ff|sf enum enforced in
+    // the Zod layer rather than the database.
+    dependencyType: text("dependency_type").default("fs").notNull(),
+    // Lag (positive) or lead (negative) in days applied to the dependency.
+    lagDays: integer("lag_days").default(0).notNull(),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
   },
   (table) => [

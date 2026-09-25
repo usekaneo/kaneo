@@ -12,12 +12,16 @@ async function createTaskRelation({
   sourceTaskId,
   targetTaskId,
   relationType,
+  dependencyType,
+  lagDays,
   userId,
   workspaceId,
 }: {
   sourceTaskId: string;
   targetTaskId: string;
   relationType: string;
+  dependencyType?: string;
+  lagDays?: number;
   userId: string;
   workspaceId: string;
 }) {
@@ -93,12 +97,21 @@ async function createTaskRelation({
     });
   }
 
+  // dependencyType/lagDays are only meaningful for a "blocks" relation (the
+  // Gantt's scheduling dependency); a "related"/"subtask" row keeps the
+  // fs/0 defaults regardless of what the caller sent.
   const [relation] = await db
     .insert(taskRelationTable)
     .values({
       sourceTaskId,
       targetTaskId,
       relationType,
+      ...(relationType === "blocks"
+        ? {
+            dependencyType: dependencyType ?? "fs",
+            lagDays: lagDays ?? 0,
+          }
+        : {}),
     })
     .returning();
 

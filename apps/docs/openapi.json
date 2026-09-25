@@ -3077,6 +3077,14 @@
             "type": "string",
             "description": "How the two tasks relate: `subtask`, `blocks`, or `related`."
           },
+          "dependencyType": {
+            "type": "string",
+            "description": "The scheduling dependency type (Finish-to-Start, Start-to-Start, Finish-to-Finish, or Start-to-Finish). Only meaningful when relationType is `blocks`; a `related`/`subtask` relation always reports `fs`."
+          },
+          "lagDays": {
+            "type": "number",
+            "description": "Lag (positive) or lead (negative) in days applied to the dependency. Only meaningful when relationType is `blocks`; a `related`/`subtask` relation always reports 0."
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -3087,6 +3095,8 @@
           "sourceTaskId",
           "targetTaskId",
           "relationType",
+          "dependencyType",
+          "lagDays",
           "createdAt"
         ]
       },
@@ -14253,6 +14263,20 @@
                       "blocks",
                       "related"
                     ]
+                  },
+                  "dependencyType": {
+                    "type": "string",
+                    "enum": [
+                      "fs",
+                      "ss",
+                      "ff",
+                      "sf"
+                    ]
+                  },
+                  "lagDays": {
+                    "type": "integer",
+                    "minimum": -3650,
+                    "maximum": 3650
                   }
                 },
                 "required": [
@@ -14322,6 +14346,95 @@
       }
     },
     "/task-relation/{id}": {
+      "patch": {
+        "operationId": "updateTaskRelation",
+        "tags": [
+          "Task Relations"
+        ],
+        "summary": "Update task relation",
+        "description": "Change a 'blocks' relation's dependency type and/or lag. Rejected for a 'related'/'subtask' relation, which has no dependency type/lag to edit.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "dependencyType": {
+                    "type": "string",
+                    "enum": [
+                      "fs",
+                      "ss",
+                      "ff",
+                      "sf"
+                    ]
+                  },
+                  "lagDays": {
+                    "type": "integer",
+                    "minimum": -3650,
+                    "maximum": 3650
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated relation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskRelation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, or the relation is not a 'blocks' one",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task relation not found, or its source task is gone",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
       "delete": {
         "operationId": "deleteTaskRelation",
         "tags": [

@@ -80,22 +80,37 @@ export function GanttDependencyOverlay({
         const isDimmed = hoveredTaskId !== null && !isIncident;
 
         return (
-          <path
-            key={edge.id}
-            d={edge.path}
-            fill="none"
-            stroke={
-              isBlocking ? "var(--destructive)" : "var(--muted-foreground)"
-            }
-            strokeWidth={isIncident ? EMPHASIZED_WIDTH : REST_WIDTH}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeOpacity={
-              isDimmed ? DIMMED_OPACITY : isIncident ? 1 : REST_OPACITY
-            }
-            markerEnd={`url(#gantt-dependency-arrow-${isBlocking ? "blocks" : "related"})`}
-            className="transition-[stroke-opacity,stroke-width] duration-150 ease-out"
-          />
+          <g key={edge.id}>
+            <path
+              d={edge.path}
+              fill="none"
+              stroke={
+                isBlocking ? "var(--destructive)" : "var(--muted-foreground)"
+              }
+              strokeWidth={isIncident ? EMPHASIZED_WIDTH : REST_WIDTH}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeOpacity={
+                isDimmed ? DIMMED_OPACITY : isIncident ? 1 : REST_OPACITY
+              }
+              markerEnd={`url(#gantt-dependency-arrow-${isBlocking ? "blocks" : "related"})`}
+              className="transition-[stroke-opacity,stroke-width] duration-150 ease-out"
+            />
+            {edge.lagLabelPoint && edge.lagDays !== undefined && (
+              <text
+                x={edge.lagLabelPoint.x}
+                y={edge.lagLabelPoint.y - 4}
+                textAnchor="middle"
+                fontSize={9}
+                fontWeight={600}
+                fill="var(--destructive)"
+                fillOpacity={isDimmed ? DIMMED_OPACITY : 1}
+                className="select-none transition-[fill-opacity] duration-150 ease-out"
+              >
+                {edge.lagDays > 0 ? `+${edge.lagDays}d` : `${edge.lagDays}d`}
+              </text>
+            )}
+          </g>
         );
       })}
     </svg>

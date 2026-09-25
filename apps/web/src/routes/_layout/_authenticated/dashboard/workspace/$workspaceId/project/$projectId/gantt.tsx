@@ -443,6 +443,8 @@ function RouteComponent() {
           sourceTaskId: relation.sourceTaskId,
           targetTaskId: relation.targetTaskId,
           relationType: relation.relationType,
+          dependencyType: relation.dependencyType as "fs" | "ss" | "ff" | "sf",
+          lagDays: relation.lagDays,
         },
       ];
     });
@@ -1401,8 +1403,7 @@ function RouteComponent() {
                                   </p>
                                   <p className="w-full truncate text-[11px] leading-tight text-muted-foreground">
                                     {format(task.scheduleStart, "MMM d, yyyy")}{" "}
-                                    -{" "}
-                                    {format(task.scheduleEnd, "MMM d, yyyy")}
+                                    - {format(task.scheduleEnd, "MMM d, yyyy")}
                                     {task.assigneeName
                                       ? ` • ${task.assigneeName}`
                                       : ""}
