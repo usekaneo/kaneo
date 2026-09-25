@@ -57,11 +57,8 @@ const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error) => {
       if (isUnauthorizedError(error)) {
-        // Clear all cached query data (including session) before redirecting so
-        // that any session-dependent hooks (e.g. usePendingInvitations) see
-        // enabled=false immediately and do not fire further unauthorized requests
-        // during the brief window before window.location.replace() completes.
-        queryClient.clear();
+        // Keep the 401 in query state so polling guards stay stopped while
+        // navigation completes. Better Auth's session is a separate store.
         handleUnauthorized();
         return;
       }

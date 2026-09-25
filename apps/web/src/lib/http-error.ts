@@ -10,10 +10,15 @@ export class HttpError extends Error {
 
 export function isUnauthorizedError(error: unknown): boolean {
   if (error instanceof HttpError) return error.status === 401;
-  // Fallback for cross-chunk instanceof failures caused by Vite code-splitting:
-  // the HttpError class may live in a different chunk than the caller, making
-  // instanceof return false even for genuine HttpError instances.
-  return (error as any)?.name === "HttpError" && (error as any)?.status === 401;
+  // Recognize HttpError-shaped values even when their prototype differs.
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    error.name === "HttpError" &&
+    "status" in error &&
+    error.status === 401
+  );
 }
 
 // Shared unauthorized redirect for both the React Query error cache and direct
