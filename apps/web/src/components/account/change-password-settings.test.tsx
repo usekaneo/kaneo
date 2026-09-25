@@ -100,6 +100,32 @@ describe("ChangePasswordSettings", () => {
     ).toBeTruthy();
   });
 
+  it("connects password inputs to labels and validation errors", async () => {
+    render(<ChangePasswordSettings />);
+
+    const currentPassword = screen.getByLabelText(
+      "settings:securityPage.currentPassword",
+    );
+    expect(
+      screen.getByLabelText("settings:securityPage.newPassword"),
+    ).toHaveAttribute("type", "password");
+    expect(
+      screen.getByLabelText("settings:securityPage.confirmPassword"),
+    ).toHaveAttribute("type", "password");
+
+    submit();
+
+    const error = await screen.findByText(
+      "settings:securityPage.validation.currentRequired",
+    );
+    expect(currentPassword).toHaveAttribute("aria-invalid", "true");
+    expect(
+      currentPassword.getAttribute("aria-describedby")?.split(" "),
+    ).toContain(error.id);
+    await waitFor(() => expect(currentPassword).toHaveFocus());
+    expect(changePassword).not.toHaveBeenCalled();
+  });
+
   it("blocks the submit when the confirmation does not match", async () => {
     render(<ChangePasswordSettings />);
 

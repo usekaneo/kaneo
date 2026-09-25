@@ -18,7 +18,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Input, type InputProps } from "@/components/ui/input";
 import useChangePassword from "@/hooks/mutations/use-change-password";
 import useListAccounts from "@/hooks/queries/use-list-accounts";
 import { toast } from "@/lib/toast";
@@ -32,24 +32,16 @@ type ChangePasswordFormValues = {
 // A local password input so the show/hide toggle isn't copy-pasted three times.
 function PasswordInput<T extends FieldValues>({
   field,
-  autoComplete,
-  placeholder,
+  ...inputProps
 }: {
   field: ControllerRenderProps<T, Path<T>>;
-  autoComplete: string;
-  placeholder: string;
-}) {
+} & Omit<InputProps, "type">) {
   const { t } = useTranslation();
   const [show, setShow] = useState(false);
 
   return (
     <div className="relative">
-      <Input
-        type={show ? "text" : "password"}
-        autoComplete={autoComplete}
-        placeholder={placeholder}
-        {...field}
-      />
+      <Input type={show ? "text" : "password"} {...inputProps} {...field} />
       <button
         type="button"
         onClick={() => setShow((prev) => !prev)}
