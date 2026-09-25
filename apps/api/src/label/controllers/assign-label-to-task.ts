@@ -30,6 +30,9 @@ async function assignLabelToTask(id: string, taskId: string, userId: string) {
     });
   }
 
+  if (label.deletionStartedAt)
+    throw new HTTPException(409, { message: "This label is being deleted" });
+
   const [task] = await db
     .select({
       id: taskTable.id,
@@ -74,6 +77,11 @@ async function assignLabelToTask(id: string, taskId: string, userId: string) {
           message: "Label not found",
         });
       }
+
+      if (currentLabel.deletionStartedAt)
+        throw new HTTPException(409, {
+          message: "This label is being deleted",
+        });
 
       if (
         currentLabel.workspaceId &&

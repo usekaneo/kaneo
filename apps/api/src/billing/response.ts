@@ -10,12 +10,13 @@ export const billingEntitlementSchema = z
         "billing_disabled",
         "founding_free",
         "subscription",
+        "paid_period",
         "trial",
         "expired",
       ])
       .openapi({
         description:
-          "Why access is granted or denied. `billing_disabled` means the instance is not running billing at all, so everything is unlocked.",
+          "Why access is granted or denied. `billing_disabled` means the instance is not running billing at all, so everything is unlocked. `paid_period` means the subscription is cancelled but its paid period has not ended yet.",
       }),
   })
   .openapi("BillingEntitlement");

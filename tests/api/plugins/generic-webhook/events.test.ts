@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { postToGenericWebhook } from "../../../../apps/api/src/plugins/generic-webhook/client";
 import {
   handleTaskDeleted,
@@ -59,6 +59,7 @@ const deletedEvent = {
 };
 
 describe("generic webhook event handlers", () => {
+  afterEach(() => vi.restoreAllMocks());
   beforeEach(() => {
     vi.mocked(postToGenericWebhook).mockClear();
     selectMock.mockReset();
@@ -110,6 +111,30 @@ describe("generic webhook event handlers", () => {
       actor: { id: "user-1", name: "Andrej" },
       data: {},
     });
+  });
+
+  it("does not log a credential-bearing URL or unknown transport error", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    const secretUrl =
+      "https://example.com/hooks/private-token?key=secret-value";
+    selectMock
+      .mockImplementationOnce(() =>
+        selectChain([
+          { id: "project-1", name: "Roadmap", workspaceId: "workspace-1" },
+        ]),
+      )
+      .mockImplementationOnce(() =>
+        selectChain([{ id: "user-1", name: "User" }]),
+      );
+    vi.mocked(postToGenericWebhook).mockRejectedValueOnce(new Error(secretUrl));
+    await handleTaskDeleted(deletedEvent, {
+      ...enabledContext,
+      config: { ...enabledContext.config, webhookUrl: secretUrl },
+    });
+    expect(log).toHaveBeenCalled();
+    expect(JSON.stringify(log.mock.calls)).not.toContain("private-token");
+    expect(JSON.stringify(log.mock.calls)).not.toContain("secret-value");
+    expect(JSON.stringify(log.mock.calls)).toContain("Outbound request failed");
   });
 
   it("skips task.deleted when the project row no longer exists", async () => {

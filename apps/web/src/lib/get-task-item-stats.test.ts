@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getTaskItemStats } from "./get-task-item-stats";
+import { getTaskItemStats, MAX_TASK_STATS_CHARS } from "./get-task-item-stats";
 
 describe("getTaskItemStats", () => {
   it("returns zeroes for an empty description", () => {
@@ -40,6 +40,22 @@ describe("getTaskItemStats", () => {
       total: 1,
       completed: 1,
     });
+  });
+
+  it("omits counts for huge stored descriptions rather than reporting partial totals", () => {
+    expect(
+      getTaskItemStats(`- [x] Real\n${"\n".repeat(10 * 1024 * 1024)}`),
+    ).toBeNull();
+    expect(getTaskItemStats(" ".repeat(MAX_TASK_STATS_CHARS + 1))).toBeNull();
+  });
+
+  it("handles the exact budget and CRLF without allocating a line array", () => {
+    const prefix = "- [x] Complete\r\n- [ ] Open\r\n";
+    expect(
+      getTaskItemStats(
+        prefix + "\n".repeat(MAX_TASK_STATS_CHARS - prefix.length),
+      ),
+    ).toEqual({ total: 2, completed: 1 });
   });
 
   it.each(["```", "~~~"])(

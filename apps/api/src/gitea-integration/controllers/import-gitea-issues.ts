@@ -1,4 +1,4 @@
-import { and, eq, inArray, max, notInArray } from "drizzle-orm";
+import { and, eq, inArray, notInArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
@@ -27,6 +27,7 @@ import {
   extractIssueStatus,
 } from "../../plugins/github/utils/extract-priority";
 import { formatTaskDescriptionFromIssue } from "../../plugins/github/utils/format";
+import { claimTaskNumber } from "../../task/controllers/claim-task-numbers";
 
 type ImportResult = {
   imported: number;
@@ -235,22 +236,7 @@ async function importSingleIssue(
   }
 
   const createdTask = await db.transaction(async (tx) => {
-    const [lockedProject] = await tx
-      .select()
-      .from(projectTable)
-      .where(eq(projectTable.id, projectId))
-      .for("update");
-
-    if (!lockedProject) {
-      throw new Error("Project not found");
-    }
-
-    const [result] = await tx
-      .select({ maxNumber: max(taskTable.number) })
-      .from(taskTable)
-      .where(eq(taskTable.projectId, projectId));
-
-    const nextNumber = (result?.maxNumber ?? 0) + 1;
+    const nextNumber = await claimTaskNumber(projectId, tx);
 
     const taskValues: typeof taskTable.$inferInsert = {
       projectId,

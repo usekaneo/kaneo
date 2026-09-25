@@ -1,10 +1,13 @@
 import * as Sentry from "@sentry/node";
 import { config } from "dotenv-mono";
-import { App } from "octokit";
+import { App, Octokit } from "octokit";
+import { boundedGithubFetch } from "../../../utils/bounded-github-fetch";
+import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
 
 config();
 
 let githubAppInstance: App | null = null;
+let githubImportAppInstance: App | null = null;
 
 // Resolve the GitHub App private key from env in whichever form the host
 // can carry. Orchestrators like Portainer's form-based stack editor strip
@@ -28,9 +31,10 @@ export function resolveGithubPrivateKey(): string {
   return raw;
 }
 
-export function getGithubApp(): App | null {
-  if (githubAppInstance) {
-    return githubAppInstance;
+export function getGithubApp(boundedImport = false): App | null {
+  const existing = boundedImport ? githubImportAppInstance : githubAppInstance;
+  if (existing) {
+    return existing;
   }
 
   const privateKey = resolveGithubPrivateKey();
@@ -42,7 +46,16 @@ export function getGithubApp(): App | null {
     return null;
   }
 
-  githubAppInstance = new App({
+  const app = new App({
+    ...(boundedImport
+      ? {
+          Octokit: Octokit.defaults({
+            throttle: { enabled: false },
+            retry: { enabled: false },
+            request: { fetch: boundedGithubFetch, timeout: 10_000 },
+          }),
+        }
+      : {}),
     appId: process.env.GITHUB_APP_ID ?? "",
     privateKey,
     webhooks: {
@@ -50,11 +63,16 @@ export function getGithubApp(): App | null {
     },
   });
 
-  return githubAppInstance;
+  if (boundedImport) githubImportAppInstance = app;
+  else githubAppInstance = app;
+  return app;
 }
 
-export async function getInstallationOctokit(installationId: number) {
-  const app = getGithubApp();
+export async function getInstallationOctokit(
+  installationId: number,
+  boundedImport = false,
+) {
+  const app = getGithubApp(boundedImport);
   if (!app) {
     throw new Error("GitHub App not configured");
   }
@@ -91,4 +109,29 @@ export async function getInstallationIdForRepo(
     });
 
   return installation.id;
+}
+
+/** Prevent name reuse or transfer from redirecting writes to a different repository. */
+export async function getVerifiedInstallationOctokit(
+  config: GitHubConfig,
+  boundedImport = false,
+) {
+  if (!hasVerifiedGitHubBinding(config) || !config.installationId) {
+    throw new Error("GitHub integration requires verification");
+  }
+  const octokit = await getInstallationOctokit(
+    config.installationId,
+    boundedImport,
+  );
+  const { data: repository } = await octokit.rest.repos.get({
+    owner: config.repositoryOwner,
+    repo: config.repositoryName,
+    request: { timeout: 10_000 },
+  });
+  if (repository.id !== config.repositoryId) {
+    throw new Error(
+      "GitHub repository identity changed; reconnect the integration",
+    );
+  }
+  return octokit;
 }

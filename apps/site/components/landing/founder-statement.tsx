@@ -1,51 +1,20 @@
 import { FadeIn } from "@/components/landing/fade-in";
+import { landing } from "@/lib/landing";
 
 export function FounderStatement() {
   return (
     <section id="why" className="px-6 py-16 md:py-20">
-      <div className="mx-auto w-full max-w-6xl">
+      <div className="mx-auto grid w-full max-w-6xl items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,40rem)] lg:gap-16">
         <FadeIn>
-          <h2 className="text-3xl font-semibold md:text-4xl">
-            Why Kaneo exists
+          <h2 className="text-balance text-3xl font-semibold md:text-4xl">
+            {landing.founder.title}
           </h2>
         </FadeIn>
-        <FadeIn delay={80}>
-          <div className="mt-6 space-y-6 text-lg leading-relaxed text-muted-foreground">
-            <p>
-              I&apos;m{" "}
-              <strong className="font-medium text-foreground">Andrej</strong>,
-              and I created Kaneo because I was tired of project management
-              tools that got in the way more than they helped. After years of
-              using bloated, overcomplicated platforms that
-              <strong className="font-medium text-foreground">
-                {" "}
-                distracted from actual work
-              </strong>
-              , I knew there had to be a better way.
-            </p>
-            <p>
-              The problem wasn&apos;t that these tools lacked features - it was
-              that they had
-              <strong className="font-medium text-foreground"> too many</strong>
-              . Every notification, every unnecessary button, every complex
-              workflow was pulling my team away from what mattered:{" "}
-              <strong className="font-medium text-foreground">
-                building great products
-              </strong>
-              .
-            </p>
-            <p>
-              I believe the best tools are{" "}
-              <strong className="font-medium text-foreground">invisible</strong>
-              . They should amplify your team&apos;s natural workflow, not force
-              you to adapt to theirs. Kaneo is built on the principle that
-              <strong className="font-medium text-foreground">
-                {" "}
-                less is more
-              </strong>{" "}
-              - every feature exists because it solves a real problem, not
-              because it looks impressive in a demo.
-            </p>
+        <FadeIn delay={80} className="max-w-[40rem] lg:pt-1">
+          <div className="space-y-6 text-lg font-normal leading-relaxed text-foreground">
+            <p>{landing.founder.intro}</p>
+            <p>{landing.founder.problem}</p>
+            <p>{landing.founder.principle}</p>
           </div>
         </FadeIn>
       </div>
