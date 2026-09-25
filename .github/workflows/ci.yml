@@ -405,8 +405,9 @@ jobs:
           # Runs directly instead of via trufflesecurity/trufflehog because that
           # action hard-codes --github-actions, which conflicts with --sarif.
           # --fail still writes a complete SARIF file before exiting 183.
+          # Note: ghcr tags carry no "v" prefix.
           docker run --rm -v "$PWD:/tmp" -w /tmp \
-            ghcr.io/trufflesecurity/trufflehog:v3.97.9 \
+            ghcr.io/trufflesecurity/trufflehog:3.97.9 \
             git file:///tmp/ \
             --results=verified,unknown \
             --exclude-paths=.trufflehog-exclude \

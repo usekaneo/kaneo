@@ -32,7 +32,7 @@ jobs:
       - name: Scan the full git history for leaked credentials
         run: |
           docker run --rm -v "$PWD:/tmp" -w /tmp \
-            ghcr.io/trufflesecurity/trufflehog:v3.97.9 \
+            ghcr.io/trufflesecurity/trufflehog:3.97.9 \
             git file:///tmp/ \
             --results=verified,unknown \
             --exclude-paths=.trufflehog-exclude \
