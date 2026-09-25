@@ -279,6 +279,22 @@ export function GanttTaskBar({
     return null;
   }
 
+  // React's onBlur/onFocus fire from bubbling focusout/focusin, so tabbing
+  // between this bar's own resize-start/move/resize-due buttons fires a
+  // blur on the outgoing button immediately followed by a focus on the
+  // incoming one — both bubbling up to this wrapper. Treated naively that's
+  // an onHoverChange(false) then (true), which briefly clears (and
+  // flickers) the dependency-line highlight for a focus move that never
+  // actually left the bar. `relatedTarget` is the element focus is moving
+  // to, so only report a real "left the bar" blur when it's outside this
+  // wrapper; a focus move within the bar is silently absorbed (the
+  // subsequent onFocus below is a harmless no-op re-affirmation).
+  const handleBlur = (event: React.FocusEvent<HTMLDivElement>) => {
+    const next = event.relatedTarget;
+    if (next instanceof Node && event.currentTarget.contains(next)) return;
+    onHoverChange?.(false);
+  };
+
   return (
     <div
       className="pointer-events-none absolute inset-0 z-[1] grid items-center"
@@ -292,7 +308,7 @@ export function GanttTaskBar({
         onMouseEnter={() => onHoverChange?.(true)}
         onMouseLeave={() => onHoverChange?.(false)}
         onFocus={() => onHoverChange?.(true)}
-        onBlur={() => onHoverChange?.(false)}
+        onBlur={handleBlur}
         className={cn(
           "group pointer-events-auto relative mx-1 flex min-h-[44px] min-w-0 items-stretch overflow-hidden rounded-md border border-primary/25 bg-background text-left text-sm font-medium leading-none text-foreground shadow-sm transition-[opacity,border-color] hover:border-primary/40 sm:h-11 sm:min-h-0",
           emphasis === "highlighted" &&

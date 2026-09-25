@@ -22,13 +22,18 @@ import { GanttExternalTaskBar } from "@/components/gantt/gantt-external-task-bar
 import { GanttTaskBar } from "@/components/gantt/gantt-task-bar";
 import { computePanScrollPosition } from "@/components/gantt/pan";
 import {
-  buildGanttTimeline,
+  buildGanttGridMetrics,
+  buildGanttRange,
   deriveTaskSchedule,
   GANTT_WINDOW_DAYS,
   getBarGridColumns,
   parseTaskDate,
 } from "@/components/gantt/timeline";
-import { nextGanttZoom, scrollLeftForZoom } from "@/components/gantt/zoom";
+import {
+  nextGanttZoom,
+  normalizeWheelDeltaY,
+  scrollLeftForZoom,
+} from "@/components/gantt/zoom";
 import PageTitle from "@/components/page-title";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
 import { Button } from "@/components/ui/button";
@@ -59,11 +64,21 @@ type ExternalScheduledTask = ExternalGanttTask & { isExternal: true };
 // without a type assertion.
 type GanttRowTask = OwnScheduledTask | ExternalScheduledTask;
 
-// Bars render with `mx-1` (see gantt-task-bar.tsx / gantt-external-task-bar.tsx),
-// so the visible edge sits 4px inside the grid-column boundary a box's
-// left/right are otherwise measured against; without this a dependency line
-// lands a few pixels short of (or past) the bar it's supposed to touch.
-const BAR_EDGE_INSET_PX = 4;
+// Bars render with `mx-1` (0.25rem — see gantt-task-bar.tsx /
+// gantt-external-task-bar.tsx), so the visible edge sits inset from the
+// grid-column boundary a box's left/right are otherwise measured against;
+// without this a dependency line lands a few pixels short of (or past) the
+// bar it's supposed to touch. 0.25rem scales with the root font size, so
+// the inset is measured from it rather than assumed to be the default 16px
+// (4px) — otherwise it drifts out of alignment under a non-default
+// browser/OS font-size setting.
+function getBarEdgeInsetPx(): number {
+  if (typeof document === "undefined") return 4;
+  const rootFontSizePx = Number.parseFloat(
+    getComputedStyle(document.documentElement).fontSize,
+  );
+  return (Number.isFinite(rootFontSizePx) ? rootFontSizePx : 16) * 0.25;
+}
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/gantt",
@@ -142,6 +157,12 @@ function RouteComponent() {
     Map<string, { top: number; height: number }>
   >(new Map());
   const [hoveredTaskId, setHoveredTaskId] = useState<string | null>(null);
+  // Measured once at mount rather than kept live: the root font size a
+  // dependency line's edge inset is derived from (see getBarEdgeInsetPx)
+  // only changes with a browser/OS zoom or text-size setting, which is
+  // effectively always in place before the chart is opened, not something
+  // that changes while looking at it.
+  const [barEdgeInsetPx] = useState(getBarEdgeInsetPx);
   // Only auto-scroll once per visit to the view: re-running on every timeline
   // recalculation (e.g. a browser resize crossing the mobile breakpoint) would
   // yank the grid back to today out from under someone who deliberately
@@ -211,15 +232,30 @@ function RouteComponent() {
     });
   }, [parsedTasks, project?.slug, searchQuery]);
 
-  const timeline = useMemo(
+  // The date window (which 91 days are in view, and the paging bounds
+  // around them) depends only on the task list, the week-start preference,
+  // and which page is requested — never on the zoomed day-column width.
+  // Keeping it in its own memo means `range.days` (and its 91 Date objects)
+  // stays referentially stable across zoom changes, so wheel-zooming
+  // doesn't rebuild the whole date range on every notch; only the grid
+  // metrics below (a string template and a multiplication) actually need to
+  // recompute with the zoomed width.
+  const range = useMemo(
+    () => buildGanttRange(parsedTasks, weekStartsOn, requestedStart),
+    [parsedTasks, weekStartsOn, requestedStart],
+  );
+
+  const gridMetrics = useMemo(
     () =>
-      buildGanttTimeline(
-        parsedTasks,
-        weekStartsOn,
-        dayColumnWidthRem,
-        requestedStart,
-      ),
-    [parsedTasks, weekStartsOn, dayColumnWidthRem, requestedStart],
+      range
+        ? buildGanttGridMetrics(range.days.length, dayColumnWidthRem)
+        : null,
+    [range, dayColumnWidthRem],
+  );
+
+  const timeline = useMemo(
+    () => (range && gridMetrics ? { ...range, ...gridMetrics } : null),
+    [range, gridMetrics],
   );
 
   // Whether "today" actually falls inside the computed date range. A project
@@ -227,8 +263,8 @@ function RouteComponent() {
   // jump to, so the button below is disabled in that case instead of doing
   // nothing silently.
   const todayInRange = useMemo(
-    () => timeline?.days.some((day) => isToday(day)) ?? false,
-    [timeline],
+    () => range?.days.some((day) => isToday(day)) ?? false,
+    [range],
   );
 
   // "subtask" relations describe hierarchy, not scheduling dependency, and
@@ -288,16 +324,57 @@ function RouteComponent() {
     return [...external.values()];
   }, [taskRelations, projectId]);
 
+  const isSearchActive = searchQuery.trim().length > 0;
+
+  // An external row exists only to give a cross-project dependency line
+  // somewhere to land, so once a search is active it's only kept when it's
+  // still connected (by a "blocks"/"related" edge — see dependencyEdges
+  // below) to one of THIS project's own tasks that the search actually
+  // matched; an external row whose only connected own task got filtered out
+  // is an orphan with no line to attach to and would otherwise show up
+  // unfiltered regardless of the query. With no search active, every
+  // related external task shows as before.
+  const visibleExternalRelatedTasks = useMemo(() => {
+    if (!isSearchActive) return externalRelatedTasks;
+    const visibleOwnTaskIds = new Set(scheduledTasks.map((task) => task.id));
+    const connectedExternalIds = new Set<string>();
+    for (const edge of dependencyEdges) {
+      if (visibleOwnTaskIds.has(edge.sourceTaskId)) {
+        connectedExternalIds.add(edge.targetTaskId);
+      }
+      if (visibleOwnTaskIds.has(edge.targetTaskId)) {
+        connectedExternalIds.add(edge.sourceTaskId);
+      }
+    }
+    return externalRelatedTasks.filter((task) =>
+      connectedExternalIds.has(task.id),
+    );
+  }, [isSearchActive, externalRelatedTasks, scheduledTasks, dependencyEdges]);
+
   // Every row the grid actually draws: this project's own (search-filtered)
-  // tasks plus the external related tasks above, in one chronological list
-  // so the two kinds of rows interleave by date rather than externals always
-  // trailing at the bottom.
+  // tasks plus the (also search-aware, see above) external related tasks, in
+  // one chronological list so the two kinds of rows interleave by date
+  // rather than externals always trailing at the bottom. When the search
+  // matches zero own tasks, this is empty too (no own task is "visible" to
+  // connect an external row to), so the "no tasks found" state below and the
+  // chart's row list agree on when there's nothing to show.
   const renderedTasks = useMemo<GanttRowTask[]>(() => {
-    return [...scheduledTasks, ...externalRelatedTasks].sort(
+    return [...scheduledTasks, ...visibleExternalRelatedTasks].sort(
       (left, right) =>
         left.scheduleStart.getTime() - right.scheduleStart.getTime(),
     );
-  }, [scheduledTasks, externalRelatedTasks]);
+  }, [scheduledTasks, visibleExternalRelatedTasks]);
+
+  // A hovered bar can unmount without ever firing its own onMouseLeave/onBlur
+  // — most commonly a search change filtering its task out of
+  // `renderedTasks` — which would otherwise leave `hoveredTaskId` (and every
+  // non-incident dependency line's dimmed state) stuck forever. Clear it as
+  // soon as the hovered task is no longer one of the rendered rows.
+  useEffect(() => {
+    if (!hoveredTaskId) return;
+    if (renderedTasks.some((task) => task.id === hoveredTaskId)) return;
+    setHoveredTaskId(null);
+  }, [hoveredTaskId, renderedTasks]);
 
   // A dependency line can only be drawn between two bars that are both
   // actually on screen: in the current timeline window, passing the search
@@ -323,14 +400,21 @@ function RouteComponent() {
       );
       if (!barInView) continue;
       boxes.set(task.id, {
-        left: barsLeftPx + (lineStart - 1) * pixelsPerDay + BAR_EDGE_INSET_PX,
-        right: barsLeftPx + (lineEnd - 1) * pixelsPerDay - BAR_EDGE_INSET_PX,
+        left: barsLeftPx + (lineStart - 1) * pixelsPerDay + barEdgeInsetPx,
+        right: barsLeftPx + (lineEnd - 1) * pixelsPerDay - barEdgeInsetPx,
         top: row.top,
         height: row.height,
       });
     }
     return boxes;
-  }, [renderedTasks, rowLayout, timeline, barsLeftPx, pixelsPerDay]);
+  }, [
+    renderedTasks,
+    rowLayout,
+    timeline,
+    barsLeftPx,
+    pixelsPerDay,
+    barEdgeInsetPx,
+  ]);
 
   const dependencyEdgeGeometry = useMemo(
     () => buildDependencyEdges(dependencyEdges, taskBoxes),
@@ -487,8 +571,19 @@ function RouteComponent() {
         return;
       }
       event.preventDefault();
+      // deltaY is only pixels under the default DOM_DELTA_PIXEL mode.
+      // Firefox reports a physical mouse wheel as DOM_DELTA_LINE (deltaY of
+      // roughly ±3), and some trackpad/OS gestures report DOM_DELTA_PAGE
+      // (deltaY of roughly ±1) — feeding either straight into a
+      // pixel-tuned zoom curve barely moves it (line mode) or slams it
+      // straight to the clamp (page mode).
+      const normalizedDeltaY = normalizeWheelDeltaY(
+        event.deltaY,
+        event.deltaMode,
+        window.innerHeight,
+      );
       setZoom((currentZoom) => {
-        const next = nextGanttZoom(currentZoom, event.deltaY);
+        const next = nextGanttZoom(currentZoom, normalizedDeltaY);
         if (next === currentZoom) return currentZoom;
         const rect = scrollEl.getBoundingClientRect();
         pendingScrollLeftRef.current = scrollLeftForZoom({
@@ -523,14 +618,19 @@ function RouteComponent() {
   // track's left offset without changing its size — so showTaskRail and
   // isMobile are listed here purely to force a re-measure of offsetLeft on
   // those transitions, the same way measureRows lists its own layout inputs
-  // below.
+  // below. Depending on `range` rather than the full `timeline` means this
+  // effect (and the observer it (re)creates) doesn't tear down and rebuild
+  // on every zoom step — the day *count* only changes with `range`, and the
+  // observer it sets up here keeps reporting live `clientWidth` changes
+  // (including the ones zoom itself causes) without needing to be
+  // recreated.
   // biome-ignore lint/correctness/useExhaustiveDependencies: showTaskRail/isMobile force a re-measure on rail-position changes; see comment above.
   useLayoutEffect(() => {
     const element = timelineTrackRef.current;
-    if (!element || !timeline) return;
+    if (!element || !range) return;
 
     const update = () => {
-      const count = timeline.days.length;
+      const count = range.days.length;
       if (count <= 0) return;
       setPixelsPerDay(element.clientWidth / count);
       setBarsLeftPx(element.offsetLeft);
@@ -541,7 +641,7 @@ function RouteComponent() {
     const observer = new ResizeObserver(update);
     observer.observe(element);
     return () => observer.disconnect();
-  }, [timeline, showTaskRail, isMobile]);
+  }, [range, showTaskRail, isMobile]);
 
   const measureRows = useCallback(() => {
     const next = new Map<string, { top: number; height: number }>();
@@ -581,11 +681,13 @@ function RouteComponent() {
   // measured directly rather than derived from an index. Re-measure whenever
   // the visible rows themselves could have changed (search, timeline window,
   // rail layout) and via ResizeObserver for organic content changes (font
-  // load, text wrapping) the dependency list above wouldn't catch.
+  // load, text wrapping) the dependency list above wouldn't catch. `range`
+  // rather than `timeline`, since row height doesn't depend on the zoomed
+  // day-column width, only on which window/rows are showing.
   // biome-ignore lint/correctness/useExhaustiveDependencies: measureRows reads rowElementsRef (a plain ref, not a reactive value), so these are listed to force a re-measure whenever they could change row layout, not because the effect body reads them directly.
   useLayoutEffect(() => {
     measureRows();
-  }, [measureRows, renderedTasks, timeline, showTaskRail, isMobile]);
+  }, [measureRows, renderedTasks, range, showTaskRail, isMobile]);
 
   useEffect(() => {
     const element = rowsContainerRef.current;
@@ -937,19 +1039,18 @@ function RouteComponent() {
                                 </p>
                               </button>
                             )}
-                            {!task.isExternal &&
-                              (task.scheduleEnd < timeline.rangeStart ||
-                                task.scheduleStart > timeline.rangeEnd) && (
-                                <button
-                                  type="button"
-                                  className="px-3 pb-2 text-xs text-primary underline"
-                                  onClick={() =>
-                                    showDate(addDays(task.scheduleStart, -7))
-                                  }
-                                >
-                                  {t("tasks:gantt.showTaskDates")}
-                                </button>
-                              )}
+                            {(task.scheduleEnd < timeline.rangeStart ||
+                              task.scheduleStart > timeline.rangeEnd) && (
+                              <button
+                                type="button"
+                                className="px-3 pb-2 text-xs text-primary underline"
+                                onClick={() =>
+                                  showDate(addDays(task.scheduleStart, -7))
+                                }
+                              >
+                                {t("tasks:gantt.showTaskDates")}
+                              </button>
+                            )}
                           </div>
                         ) : null}
 

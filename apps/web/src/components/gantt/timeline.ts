@@ -70,10 +70,16 @@ function clampDate(date: Date, minimum: Date, maximum: Date) {
   );
 }
 
-export function buildGanttTimeline(
+// The date window itself (which days are in view, and the paging bounds
+// around them) depends only on the task list, the week-start preference,
+// and which page is requested — never on the day-column width. Splitting it
+// out from `buildGanttTimeline` lets a caller memoize it separately from
+// zoom, so wheel-zooming (which only changes `dayColumnWidthRem`) doesn't
+// re-run `eachDayOfInterval` and allocate a fresh 91-day `Date[]` on every
+// wheel notch.
+export function buildGanttRange(
   tasks: { scheduleStart: Date; scheduleEnd: Date }[],
   weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6,
-  dayColumnWidthRem: number,
   requestedStart: Date | null = null,
   today: Date = new Date(),
 ) {
@@ -131,7 +137,33 @@ export function buildGanttTimeline(
     maximumStart,
     hasPrevious: rangeStart > minimumStart,
     hasNext: rangeEnd < maximumEnd,
-    gridTemplateColumns: `repeat(${days.length}, minmax(${dayColumnWidthRem}rem, ${dayColumnWidthRem}rem))`,
-    timelineMinWidthRem: days.length * dayColumnWidthRem,
+  };
+}
+
+// The width-dependent half of the timeline: cheap to recompute (a string
+// template and a multiplication), unlike the day range above, so this is
+// fine to re-derive on every zoom step.
+export function buildGanttGridMetrics(
+  dayCount: number,
+  dayColumnWidthRem: number,
+) {
+  return {
+    gridTemplateColumns: `repeat(${dayCount}, minmax(${dayColumnWidthRem}rem, ${dayColumnWidthRem}rem))`,
+    timelineMinWidthRem: dayCount * dayColumnWidthRem,
+  };
+}
+
+export function buildGanttTimeline(
+  tasks: { scheduleStart: Date; scheduleEnd: Date }[],
+  weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6,
+  dayColumnWidthRem: number,
+  requestedStart: Date | null = null,
+  today: Date = new Date(),
+) {
+  const range = buildGanttRange(tasks, weekStartsOn, requestedStart, today);
+  if (!range) return null;
+  return {
+    ...range,
+    ...buildGanttGridMetrics(range.days.length, dayColumnWidthRem),
   };
 }
