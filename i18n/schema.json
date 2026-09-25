@@ -10171,6 +10171,16 @@
 			"type": "object",
 			"additionalProperties": false,
 			"properties": {
+				"sponsors": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"ciSponsor": {
+							"type": "string"
+						}
+					},
+					"required": ["ciSponsor"]
+				},
 				"founder": {
 					"type": "object",
 					"additionalProperties": false,
@@ -10778,6 +10788,7 @@
 				}
 			},
 			"required": [
+				"sponsors",
 				"founder",
 				"hero",
 				"navigation",
