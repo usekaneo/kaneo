@@ -2007,6 +2007,13 @@
 				},
 				"mermaid": {
 					"renderFailed": "Не удалось отобразить диаграмму Mermaid"
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
 			},
 			"customFieldUpdated": "Field updated",
