@@ -12,7 +12,7 @@ export class KaneoClient {
   readonly baseUrl: string;
   private readonly auth: AuthService;
 
-  get usingApiKey(): boolean {
+  get usingApiKey() {
     return this.auth.usingApiKey;
   }
 

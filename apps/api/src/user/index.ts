@@ -1,6 +1,4 @@
-import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
-import db, { schema } from "../database";
 import {
   apiRouter,
   createRoute,
@@ -10,6 +8,7 @@ import {
 import { boundedRequestBody } from "../utils/bounded-request-body";
 import { MAX_AVATAR_BYTES, MAX_AVATAR_REQUEST_BYTES } from "./avatar";
 import deleteAvatar from "./controllers/delete-avatar";
+import getCurrentUser from "./controllers/get-current-user";
 import saveAvatar from "./controllers/save-avatar";
 import {
   avatarDeletedSchema,
@@ -69,17 +68,10 @@ const currentUserRoute = createRoute({
 
 const user = apiRouter()
   .openapi(currentUserRoute, async (c) => {
-    const [currentUser] = await db
-      .select({
-        id: schema.userTable.id,
-        name: schema.userTable.name,
-        email: schema.userTable.email,
-        image: schema.userTable.image,
-      })
-      .from(schema.userTable)
-      .where(eq(schema.userTable.id, c.get("userId")))
-      .limit(1);
-    if (!currentUser) throw new HTTPException(401, { message: "Unauthorized" });
+    const currentUser = await getCurrentUser(c.get("userId"));
+    if (!currentUser) {
+      throw new HTTPException(401, { message: "Unauthorized" });
+    }
     return c.json(currentUser, 200);
   })
   .openapi(uploadAvatarRoute, async (c) => {
