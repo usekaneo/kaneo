@@ -69,15 +69,20 @@ async function createTask(page: Page, title: string) {
 
 async function editTask(page: Page, title: string, updated: string) {
   await page.getByText(title, { exact: true }).click();
-  const saved = page.waitForResponse(
-    (response) =>
-      response.url().includes("/api/task/title/") &&
-      response.request().method() === "PUT",
-  );
-  await page
-    .getByPlaceholder("Click to add a title", { exact: true })
-    .fill(updated);
-  expect((await saved).ok()).toBe(true);
+  const input = page.getByPlaceholder("Click to add a title", { exact: true });
+  // Task data and edit permissions load independently when the detail panel opens.
+  await expect(input).toHaveValue(title);
+  await expect(input).toBeEditable();
+  const [saved] = await Promise.all([
+    page.waitForResponse(
+      (response) =>
+        response.url().includes("/api/task/title/") &&
+        response.request().method() === "PUT" &&
+        response.request().postDataJSON().title === updated,
+    ),
+    input.fill(updated),
+  ]);
+  expect(saved.ok()).toBe(true);
 }
 
 test("create a project and task, then persist a task edit", async ({
@@ -150,8 +155,10 @@ test("another workspace member receives task edits in realtime", async ({
       const message = JSON.parse(String(payload));
       return message.type === "TASK_UPDATED" && message.projectId === projectId;
     });
-    await editTask(page, "Collaborative task", "Updated by my teammate");
-    await update;
+    await Promise.all([
+      update,
+      editTask(page, "Collaborative task", "Updated by my teammate"),
+    ]);
     // Keep this page open: no reload, navigation, or focus change to trigger a refetch.
     await expect(
       observer.getByText("Updated by my teammate", { exact: true }),
