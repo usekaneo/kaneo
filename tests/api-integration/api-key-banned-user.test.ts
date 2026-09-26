@@ -118,6 +118,22 @@ describe("API integration: API keys of banned users", () => {
       expect(banned.status).toBe(401);
     });
 
+    it("does not let a browser cookie rescue a banned bearer key", async () => {
+      const { app } = createApp();
+      const viewer = await signUpWithSession(app, {
+        email: `${randomUUID()}@example.com`,
+        name: "Cookie Holder",
+      });
+      const { userId, key } = await mintKey();
+      await ban(userId);
+
+      const response = await app.request("/api/auth/api-key/list", {
+        headers: { authorization: `Bearer ${key}`, cookie: viewer.cookies },
+      });
+
+      expect(response.status).toBe(401);
+    });
+
     it("applies the same rule to a bearer key on other auth routes", async () => {
       const { app, userId, key } = await mintKey();
       const headers = { authorization: `Bearer ${key}` };

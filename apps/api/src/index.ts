@@ -673,29 +673,23 @@ export function createApp() {
     const bearerToken = authHeader?.match(/^Bearer\s+(\S+)$/i)?.[1];
 
     if (bearerToken && !apiKeyHeader) {
-      const session = await auth.api.getSession({
-        headers: c.req.raw.headers,
-      });
+      const headers = new Headers(c.req.raw.headers);
+      headers.delete("cookie");
+      const session = await auth.api.getSession({ headers });
 
       // Preserve Better Auth bearer session tokens on auth routes.
       if (session?.session && session.user) {
-        return auth.handler(c.req.raw);
+        return auth.handler(new Request(c.req.raw, { headers }));
       }
 
       if (!(await verifyApiKey(bearerToken))) {
         throw new HTTPException(401, { message: "Unauthorized" });
       }
 
-      const headers = new Headers(c.req.raw.headers);
-
       // Better Auth API key plugin validates from x-api-key by default.
       headers.set("x-api-key", bearerToken);
 
-      return auth.handler(
-        new Request(c.req.raw, {
-          headers,
-        }),
-      );
+      return auth.handler(new Request(c.req.raw, { headers }));
     }
 
     return auth.handler(c.req.raw);
