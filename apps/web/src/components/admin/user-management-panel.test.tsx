@@ -4,6 +4,7 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import useAdminUsers, {
@@ -24,8 +25,11 @@ vi.mock("@/hooks/queries/admin/use-admin-users", async (importOriginal) => ({
   >()),
   default: vi.fn(),
 }));
+const { updateUserMock } = vi.hoisted(() => ({
+  updateUserMock: vi.fn(),
+}));
 vi.mock("@/hooks/mutations/admin/use-update-admin-user", () => ({
-  default: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  default: () => ({ mutateAsync: updateUserMock, isPending: false }),
 }));
 vi.mock("@/hooks/mutations/admin/use-toggle-admin-user-status", () => ({
   default: () => ({ mutateAsync: vi.fn(), isPending: false }),
@@ -87,9 +91,39 @@ function goToThirdPage() {
   expect(lastPageArgument()).toBe(2);
 }
 
+function openEditDialog() {
+  fireEvent.click(
+    screen.getByRole("button", { name: "settings:adminUsers.actions.open" }),
+  );
+  fireEvent.click(screen.getByText("settings:adminUsers.actions.edit"));
+  const trigger = document.getElementById("admin-user-role");
+  expect(trigger).not.toBeNull();
+  return trigger as HTMLElement;
+}
+
+async function selectRole(trigger: HTMLElement, role: "admin" | "user") {
+  fireEvent.click(trigger, { detail: 1 });
+  const option = await screen.findByRole("option", {
+    name: `settings:adminUsers.roles.${role}`,
+  });
+  fireEvent.pointerDown(option);
+  fireEvent.mouseDown(option);
+  fireEvent.pointerUp(option);
+  fireEvent.mouseUp(option);
+  fireEvent.click(option, { detail: 1 });
+}
+
+function submitEdit() {
+  fireEvent.click(
+    screen.getByRole("button", { name: "settings:adminUsers.edit.save" }),
+  );
+}
+
 beforeEach(() => {
   vi.useFakeTimers();
   useAdminUsersMock.mockReset();
+  updateUserMock.mockReset();
+  updateUserMock.mockResolvedValue(undefined);
 });
 
 afterEach(() => {
@@ -136,16 +170,65 @@ describe("UserManagementPanel", () => {
     const badge = screen.getByText("settings:adminUsers.roles.admin");
     expect(badge.closest('[data-slot="badge"]')).not.toBeNull();
 
-    fireEvent.click(
-      screen.getByRole("button", { name: "settings:adminUsers.actions.open" }),
-    );
-    fireEvent.click(screen.getByText("settings:adminUsers.actions.edit"));
+    const trigger = openEditDialog();
+    expect(trigger.textContent).toContain("settings:adminUsers.roles.admin");
+    expect(trigger.textContent).not.toContain("settings:adminUsers.roles.user");
+  });
 
-    const trigger = document.getElementById("admin-user-role");
-    expect(trigger).not.toBeNull();
-    expect(trigger?.textContent).toContain("settings:adminUsers.roles.admin");
-    expect(trigger?.textContent).not.toContain(
-      "settings:adminUsers.roles.user",
+  it("omits the role when a multi-role account is edited without changing it", async () => {
+    vi.useRealTimers();
+    useAdminUsersMock.mockReturnValue(
+      success(1, [user({ role: "user,admin" })]),
     );
+    render(<UserManagementPanel />);
+
+    openEditDialog();
+    submitEdit();
+
+    await waitFor(() => expect(updateUserMock).toHaveBeenCalledTimes(1));
+    expect(updateUserMock).toHaveBeenCalledWith({
+      userId: "user-1",
+      name: "Ada Lovelace",
+      email: "ada@example.com",
+    });
+    expect(updateUserMock.mock.calls[0]?.[0]).not.toHaveProperty("role");
+  });
+
+  it("strips only the admin token when a multi-role account is demoted", async () => {
+    vi.useRealTimers();
+    useAdminUsersMock.mockReturnValue(
+      success(1, [user({ role: "user,admin" })]),
+    );
+    render(<UserManagementPanel />);
+
+    const trigger = openEditDialog();
+    await selectRole(trigger, "user");
+    submitEdit();
+
+    await waitFor(() => expect(updateUserMock).toHaveBeenCalledTimes(1));
+    expect(updateUserMock).toHaveBeenCalledWith({
+      userId: "user-1",
+      name: "Ada Lovelace",
+      email: "ada@example.com",
+      role: "user",
+    });
+  });
+
+  it("appends the admin token when a plain user is promoted", async () => {
+    vi.useRealTimers();
+    useAdminUsersMock.mockReturnValue(success(1, [user({ role: "user" })]));
+    render(<UserManagementPanel />);
+
+    const trigger = openEditDialog();
+    await selectRole(trigger, "admin");
+    submitEdit();
+
+    await waitFor(() => expect(updateUserMock).toHaveBeenCalledTimes(1));
+    expect(updateUserMock).toHaveBeenCalledWith({
+      userId: "user-1",
+      name: "Ada Lovelace",
+      email: "ada@example.com",
+      role: "user,admin",
+    });
   });
 });

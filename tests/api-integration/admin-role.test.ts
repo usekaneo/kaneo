@@ -116,15 +116,18 @@ describe.each(["/admin/set-role", "/admin/update-user"])(
       expect(await getRole(other.id)).toBe("user");
     });
 
-    it("counts an admin whose role list has padding as remaining", async () => {
+    it("counts an admin stored as a role list as remaining", async () => {
       const admin = await createUser("admin");
-      const padded = await createUser(" admin , user");
+      const listed = await createUser("user,admin");
       const headers = { Cookie: admin.cookie };
 
       expect(
-        (await request(path, body(padded.id, "user"), headers)).status,
+        (await request(path, body(listed.id, "user"), headers)).status,
       ).toBe(200);
-      expect(await getRole(padded.id)).toBe("user");
+      expect(await getRole(listed.id)).toBe("user");
+      expect(
+        (await request(path, body(admin.id, "user"), headers)).status,
+      ).toBe(400);
       expect(await getRole(admin.id)).toBe("admin");
     });
 

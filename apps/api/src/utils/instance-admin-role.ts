@@ -1,15 +1,9 @@
 import { type AnyColumn, sql } from "drizzle-orm";
 
 export function hasInstanceAdminRole(role: unknown) {
-  return (
-    typeof role === "string" &&
-    role
-      .split(",")
-      .map((entry) => entry.trim())
-      .includes("admin")
-  );
+  return typeof role === "string" && role.split(",").includes("admin");
 }
 
 export function instanceAdminRoleSql(column: AnyColumn) {
-  return sql`EXISTS (SELECT 1 FROM unnest(string_to_array(${column}, ',')) AS entry WHERE btrim(entry) = 'admin')`;
+  return sql`'admin' = ANY(string_to_array(${column}, ','))`;
 }

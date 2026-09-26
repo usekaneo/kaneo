@@ -77,7 +77,10 @@ import useAdminUsers, {
 } from "@/hooks/queries/admin/use-admin-users";
 import { formatDateMedium } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
-import { hasInstanceAdminRole } from "@/lib/instance-admin";
+import {
+  hasInstanceAdminRole,
+  withInstanceAdminRole,
+} from "@/lib/instance-admin";
 
 type PendingAction = {
   type: "deactivate" | "reactivate" | "delete";
@@ -179,13 +182,18 @@ function UserManagementPanel() {
     const email = editValues.email.trim().toLowerCase();
     if (!name || !email) return;
 
+    const wantsAdmin = editValues.role === "admin";
+    const roleChanged =
+      editingUser.id !== currentUser?.id &&
+      hasInstanceAdminRole(editingUser.role) !== wantsAdmin;
+
     try {
       await updateUser({
         userId: editingUser.id,
         name,
         email,
-        ...(editingUser.id !== currentUser?.id
-          ? { role: editValues.role }
+        ...(roleChanged
+          ? { role: withInstanceAdminRole(editingUser.role, wantsAdmin) }
           : {}),
       });
       setEditingUser(null);

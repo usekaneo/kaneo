@@ -28,15 +28,17 @@ describe("API integration: instance admin role in SQL", () => {
 
   it("reports an admin when the only one has a role list", async () => {
     await createUser("user");
-    await createUser(" admin , user");
+    await createUser("user,admin");
 
     const status = await getInstanceStatus();
 
     expect(status).toEqual({ hasUsers: true, hasAdmin: true });
   });
 
-  it("does not count administrator-like roles that are not admin", async () => {
+  it("does not count administrator-like or padded roles", async () => {
     await createUser("administrator");
+    await createUser(" admin , user");
+    await createUser("admin\t");
     await createUser(null);
 
     const status = await getInstanceStatus();
