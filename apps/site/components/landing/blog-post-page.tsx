@@ -9,6 +9,7 @@ import { FadeIn } from "./fade-in";
 import { Footer } from "./footer";
 import { breadcrumbJsonLd, JsonLd } from "./json-ld";
 import { Navbar } from "./navbar";
+import { PageIntro } from "./page-intro";
 import { SectionSeparator } from "./section-separator";
 
 const SITE = "https://kaneo.app";
@@ -80,41 +81,29 @@ export function BlogPostPage({
       />
       <Navbar />
       <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-        <section className="px-6 pt-14 pb-10 md:pt-20 md:pb-12">
+        <section className="px-6 pt-14 pb-10 md:pt-20 md:pb-16 lg:pt-24">
           <div className="mx-auto w-full max-w-6xl">
-            <div className="mx-auto w-full max-w-3xl lg:mx-0">
-              <FadeIn delay={0}>
-                <div className="flex items-center gap-2 text-sm">
+            <PageIntro
+              eyebrow={
+                <div className="flex flex-wrap items-center gap-2">
                   <a
-                    className="text-foreground/50 transition-colors hover:text-foreground"
+                    className="hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-4"
                     href="/blog"
                   >
                     Blog
                   </a>
-                  <span aria-hidden="true" className="text-foreground/30">
-                    /
-                  </span>
+                  <span aria-hidden="true">/</span>
                   <a
-                    className="font-medium text-primary"
+                    className="hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-4"
                     href={blogCategoryPath(post.category.slug)}
                   >
                     {post.category.name}
                   </a>
                 </div>
-              </FadeIn>
-
-              <FadeIn delay={60}>
-                <h1 className="mt-3 text-balance text-3xl font-medium leading-[1.1] md:text-[2.75rem]">
-                  {post.title}
-                </h1>
-              </FadeIn>
-
-              <FadeIn delay={120}>
-                <p className="mt-5 text-balance text-foreground/70 text-lg leading-relaxed">
-                  {post.description}
-                </p>
-              </FadeIn>
-
+              }
+              title={post.title}
+              description={post.description}
+            >
               <FadeIn delay={180}>
                 <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-3">
                   <BlogByline author={post.author} />
@@ -131,7 +120,7 @@ export function BlogPostPage({
                   </p>
                 </div>
               </FadeIn>
-            </div>
+            </PageIntro>
           </div>
         </section>
 

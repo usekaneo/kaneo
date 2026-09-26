@@ -32,6 +32,29 @@ stateless and self-contained, while 2025-era clients keep the sessionful
 `initialize` flow. See [MCP 2026-07-28 stateless compatibility](/core/integrations/mcp-stateless)
 for the exact contract, tests, Codex configuration, limitations, and rollback.
 
+### OAuth request limits
+
+The HTTP OAuth endpoints accept bodies up to 32 KiB and URLs up to 8 KiB.
+Client registration accepts at most 10 redirect URIs. Request bodies must arrive
+within five seconds. Each API process allows up to 16 concurrent requests in
+each of the registration, authorization, and token endpoint groups.
+
+Instances sharing a database also share OAuth storage and issuance limits:
+
+| State | Stored entries | New entries per minute | Pending entries per client |
+| --- | --- | --- | --- |
+| Registered clients | 1,000 | 60 | — |
+| Authorization requests | 10,000 | 300 | 20 |
+| Authorization codes | 10,000 | 300 | 20 |
+
+When capacity is exhausted, the endpoint returns HTTP 429 with `Retry-After`.
+Clients should wait before retrying. Existing, unexpired entries are retained;
+an approval that cannot issue a code leaves its authorization request available
+for retry until it expires. Expired entries are cleaned up in bounded batches
+when new state is created, so a previously oversized store may need multiple
+attempts before accepting new entries. These limits complement reverse-proxy
+connection and request limits for internet-facing installations.
+
 ## Stdio package
 
 The `@kaneo/mcp` package runs a local stdio MCP server and authenticates with Kaneo using device authorization. Use this when your MCP client requires stdio transport.
@@ -105,7 +128,7 @@ Both the HTTP endpoint and stdio package expose the same tools:
 - Session: `whoami`, `list_workspaces`, `list_workspace_members`, `list_notifications`
 - Search: `search`
 - Projects: `list_projects`, `get_project`, `create_project`, `update_project`, `list_project_columns`
-- Tasks: `list_tasks`, `get_task`, `create_task`, `update_task`, `delete_task`, `move_task`, `update_task_status`, `update_task_assignee`, `update_task_due_date`, `list_task_activity`
+- Tasks: `list_tasks`, `get_task`, `create_task`, `duplicate_task`, `update_task`, `delete_task`, `move_task`, `update_task_status`, `update_task_assignee`, `update_task_due_date`, `list_task_activity`
 - Time entries: `list_task_time_entries`, `get_time_entry`, `create_time_entry`, `update_time_entry`
 - Comments: `list_task_comments`, `create_task_comment`
 - Labels: `list_workspace_labels`, `create_label`, `attach_label_to_task`, `detach_label_from_task`, `delete_label`

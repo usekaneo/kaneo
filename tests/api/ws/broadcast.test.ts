@@ -15,6 +15,12 @@ import {
   shutdownWebSocketAdapter,
 } from "../../../apps/api/src/ws/index";
 
+const projectUpdateHandler = vi
+  .mocked(subscribeToEvent)
+  .mock.calls.find(
+    ([eventName]: [string]) => eventName === "project.updated",
+  )?.[1];
+
 function makeFakeWs() {
   return {
     send: vi.fn(),
@@ -39,7 +45,7 @@ describe("broadcastToProject", () => {
 
   it("delivers messages to connected clients after batch timeout", async () => {
     const ws = makeFakeWs();
-    const conn = addConnection("proj-1", ws, "user-1", "init-1");
+    const conn = addConnection("proj-1", ws, "user-1", "init-1", "workspace");
 
     broadcastToProject("proj-1", {
       type: "TASK_CREATED",
@@ -74,8 +80,20 @@ describe("broadcastToProject", () => {
   it("excludes connections matching excludeInitiatorId", async () => {
     const ws1 = makeFakeWs();
     const ws2 = makeFakeWs();
-    const conn1 = addConnection("proj-1", ws1, "user-1", "init-excluded");
-    const conn2 = addConnection("proj-1", ws2, "user-2", "init-other");
+    const conn1 = addConnection(
+      "proj-1",
+      ws1,
+      "user-1",
+      "init-excluded",
+      "workspace",
+    );
+    const conn2 = addConnection(
+      "proj-1",
+      ws2,
+      "user-2",
+      "init-other",
+      "workspace",
+    );
 
     broadcastToProject(
       "proj-1",
@@ -102,7 +120,7 @@ describe("broadcastToProject", () => {
 
   it("deduplicates messages with the same key in a batch window", async () => {
     const ws = makeFakeWs();
-    const conn = addConnection("proj-1", ws, "user-1", "init-1");
+    const conn = addConnection("proj-1", ws, "user-1", "init-1", "workspace");
 
     // Send two messages with the same type+taskId; they should be deduplicated
     broadcastToProject("proj-1", {
@@ -135,12 +153,7 @@ describe("broadcastToProject", () => {
 
   it("broadcasts project updates to connected clients", async () => {
     const ws = makeFakeWs();
-    const conn = addConnection("proj-1", ws, "user-1", "init-1");
-    const projectUpdateHandler = vi
-      .mocked(subscribeToEvent)
-      .mock.calls.find(
-        ([eventName]: [string]) => eventName === "project.updated",
-      )?.[1];
+    const conn = addConnection("proj-1", ws, "user-1", "init-1", "workspace");
 
     expect(projectUpdateHandler).toBeDefined();
     await projectUpdateHandler?.({ projectId: "proj-1" });
@@ -167,7 +180,7 @@ describe("broadcastToProject", () => {
 
   it("does not deliver to connections on a different project", async () => {
     const ws = makeFakeWs();
-    const conn = addConnection("proj-2", ws, "user-1", "init-1");
+    const conn = addConnection("proj-2", ws, "user-1", "init-1", "workspace");
 
     broadcastToProject("proj-1", {
       type: "TASK_CREATED",
@@ -199,3 +212,13 @@ describe("broadcastToProject", () => {
     warnSpy.mockRestore();
   });
 });
+
+vi.mock("../../../apps/api/src/database", () => ({
+  default: {
+    select: () => ({
+      from: () => ({
+        where: () => ({ limit: async () => [{ workspaceId: "workspace" }] }),
+      }),
+    }),
+  },
+}));

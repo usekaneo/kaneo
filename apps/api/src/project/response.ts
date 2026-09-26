@@ -1,3 +1,4 @@
+import { HTTPException } from "hono/http-exception";
 import { nullableResponseTimestamp, responseTimestamp, z } from "../openapi";
 import { boardColumnSchema, boardTaskSchema } from "../task/response";
 
@@ -5,6 +6,7 @@ export const projectSchema = z
   .object({
     id: z.string(),
     workspaceId: z.string(),
+    backgroundVersion: z.string().nullable(),
     slug: z.string().openapi({
       description: "Short prefix used in task identifiers, e.g. KAN-12.",
     }),
@@ -68,3 +70,26 @@ export const projectBackgroundUploadSchema = z
 export const projectBackgroundFinalizeSchema = z
   .object({ url: z.string() })
   .openapi("ProjectBackgroundFinalize");
+export const movedProjectSchema = projectSchema
+  .extend({ unassignedTaskCount: z.number() })
+  .openapi("MovedProject");
+
+// Storage coordinates are private implementation details, even on mutations
+// that return a full database row. Preserve each endpoint's other fields.
+export function toPublicProject<
+  T extends {
+    backgroundObjectKey: string | null;
+    backgroundMimeType: string | null;
+  },
+>(project: T | undefined) {
+  if (!project)
+    throw new HTTPException(500, {
+      message: "Project mutation returned no result",
+    });
+  const {
+    backgroundObjectKey: _key,
+    backgroundMimeType: _mime,
+    ...publicProject
+  } = project;
+  return publicProject;
+}

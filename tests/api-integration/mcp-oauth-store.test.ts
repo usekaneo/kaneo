@@ -1,66 +1,192 @@
-import { describe, expect, it } from "vitest";
+import { and, count, eq, sql } from "drizzle-orm";
+import { beforeEach, describe, expect, it } from "vitest";
+import db from "../../apps/api/src/database";
+import { mcpOauthStateTable } from "../../apps/api/src/database/schema";
 import {
   consumeState,
   deleteExpiredStates,
-  enforceStateCap,
+  EXPIRED_STATE_BATCH,
   getState,
+  OAUTH_STATE_LIMITS,
   putState,
 } from "../../apps/api/src/mcp/oauth-store";
 import { resetTestDatabase } from "./helpers/database";
 
-describe("mcp oauth store", () => {
-  it("stores and returns state by kind and key", async () => {
-    const key = `client-${Date.now()}`;
-    const payload = { clientId: key, redirectUris: ["https://a.example/cb"] };
-    await putState("client", key, payload, new Date(Date.now() + 60_000));
+beforeEach(async () => {
+  await resetTestDatabase();
+});
+const future = () => new Date(Date.now() + 60_000);
+async function seed(
+  kind: "client" | "request" | "code",
+  total: number,
+  expired = false,
+  clientId = "seed-client",
+) {
+  await db.execute(sql`INSERT INTO mcp_oauth_state (id,kind,key,payload,expires_at)
+    SELECT ${kind} || '-' || i, ${kind}, ${kind} || '-' || i,
+      jsonb_build_object('clientId', ${clientId}::text),
+      CASE WHEN ${expired} THEN now() - interval '1 hour' ELSE now() + interval '1 hour' END
+    FROM generate_series(1, ${total}::integer) AS i`);
+}
+async function total(kind: string) {
+  const [row] = await db
+    .select({ count: count() })
+    .from(mcpOauthStateTable)
+    .where(eq(mcpOauthStateTable.kind, kind));
+  return row.count;
+}
 
-    await expect(getState("client", key)).resolves.toEqual(payload);
-    await expect(getState("code", key)).resolves.toBeNull();
+describe("bounded shared MCP OAuth store", () => {
+  it("stores by kind and consumes exactly once", async () => {
+    const payload = { clientId: "client", userId: "user" };
+    await putState("code", "code", payload, future());
+    expect(await getState("client", "code")).toBeNull();
+    expect(await getState("code", "code")).toEqual(payload);
+    expect(await consumeState("code", "code")).toEqual(payload);
+    expect(await consumeState("code", "code")).toBeNull();
   });
 
-  it("consumes state exactly once", async () => {
-    const key = `code-${Date.now()}`;
-    const payload = { clientId: "c", userId: "u" };
-    await putState("code", key, payload, new Date(Date.now() + 60_000));
-
-    await expect(consumeState("code", key)).resolves.toEqual(payload);
-    await expect(consumeState("code", key)).resolves.toBeNull();
-    await expect(getState("code", key)).resolves.toBeNull();
-  });
-
-  it("treats expired rows as absent and sweeps them", async () => {
-    const key = `request-${Date.now()}`;
-    await putState("request", key, { clientId: "c" }, new Date(Date.now() - 1));
-
-    await expect(getState("request", key)).resolves.toBeNull();
-    await expect(consumeState("request", `${key}-other`)).resolves.toBeNull();
-
-    await putState(
-      "request",
-      `${key}-expired`,
-      { clientId: "c" },
-      new Date(Date.now() - 1),
-    );
+  it("bounds each cleanup batch, including registration-only traffic", async () => {
+    await seed("client", EXPIRED_STATE_BATCH * 2 + 1, true);
+    expect(await getState("client", "client-1")).toBeNull();
     await deleteExpiredStates();
-    await expect(getState("request", `${key}-expired`)).resolves.toBeNull();
+    expect(await total("client")).toBe(EXPIRED_STATE_BATCH + 1);
+    await putState("client", "fresh", {}, future());
+    expect(await total("client")).toBe(2);
   });
 
-  it("evicts the oldest rows of a kind once the cap is reached", async () => {
-    await resetTestDatabase();
-    const base = Date.now();
-    const payload = { clientId: "c" };
-    await putState("request", "cap-old", payload, new Date(base + 10_000));
-    await putState("request", "cap-mid", payload, new Date(base + 20_000));
-    await putState("request", "cap-new", payload, new Date(base + 30_000));
-    await putState("client", "cap-client", payload, new Date(base + 30_000));
+  it("commits bounded cleanup even when a legacy over-cap table denies the insert", async () => {
+    await seed(
+      "client",
+      OAUTH_STATE_LIMITS.client.rows + EXPIRED_STATE_BATCH * 2,
+      true,
+    );
+    await expect(
+      putState("client", "denied", {}, future()),
+    ).rejects.toMatchObject({ status: 429 });
+    expect(await total("client")).toBe(
+      OAUTH_STATE_LIMITS.client.rows + EXPIRED_STATE_BATCH,
+    );
+    await expect(
+      putState("client", "denied", {}, future()),
+    ).rejects.toMatchObject({ status: 429 });
+    expect(await total("client")).toBe(OAUTH_STATE_LIMITS.client.rows);
+    await expect(
+      putState("client", "accepted", {}, future()),
+    ).resolves.toBeUndefined();
+  });
 
-    await enforceStateCap("request", 100);
-    await expect(getState("request", "cap-old")).resolves.toEqual(payload);
+  it.each(["client", "request", "code"] as const)(
+    "enforces the real global %s cap atomically under parallel attempts without evicting live state",
+    async (kind) => {
+      const limit = OAUTH_STATE_LIMITS[kind].rows;
+      await seed(kind, limit - 1);
+      const results = await Promise.allSettled(
+        Array.from({ length: 12 }, (_, index) =>
+          putState(
+            kind,
+            `new-${index}`,
+            { clientId: `new-client-${index}` },
+            future(),
+          ),
+        ),
+      );
+      expect(
+        results.filter((result) => result.status === "fulfilled"),
+      ).toHaveLength(1);
+      for (const result of results)
+        if (result.status === "rejected")
+          expect(result.reason).toMatchObject({ status: 429 });
+      expect(await total(kind)).toBe(limit);
+      expect(await getState(kind, `${kind}-1`)).toEqual({
+        clientId: "seed-client",
+      });
+    },
+  );
 
-    await enforceStateCap("request", 3);
-    await expect(getState("request", "cap-old")).resolves.toBeNull();
-    await expect(getState("request", "cap-mid")).resolves.toEqual(payload);
-    await expect(getState("request", "cap-new")).resolves.toEqual(payload);
-    await expect(getState("client", "cap-client")).resolves.toEqual(payload);
+  it("limits outstanding state per client while allowing another client", async () => {
+    await seed("request", OAUTH_STATE_LIMITS.request.perClient);
+    await expect(
+      putState("request", "denied", { clientId: "seed-client" }, future()),
+    ).rejects.toMatchObject({ status: 429 });
+    await expect(
+      putState("request", "other", { clientId: "other-client" }, future()),
+    ).resolves.toBeUndefined();
+    expect(await total("request")).toBe(
+      OAUTH_STATE_LIMITS.request.perClient + 1,
+    );
+  });
+
+  it("enforces durable registration rate limits and reuses one counter after its window expires", async () => {
+    await db.insert(mcpOauthStateTable).values({
+      kind: "rate",
+      key: "client",
+      payload: { count: OAUTH_STATE_LIMITS.client.perMinute },
+      expiresAt: future(),
+    });
+    await expect(
+      putState("client", "denied", {}, future()),
+    ).rejects.toMatchObject({ status: 429 });
+    expect(await total("client")).toBe(0);
+    await db
+      .update(mcpOauthStateTable)
+      .set({ expiresAt: new Date(0) })
+      .where(eq(mcpOauthStateTable.kind, "rate"));
+    await putState("client", "allowed", {}, future());
+    expect(await total("rate")).toBe(1);
+    expect(await total("client")).toBe(1);
+  });
+
+  it("keeps a consent request on code quota failure and atomically consumes it on success", async () => {
+    await putState("request", "consent", { clientId: "client" }, future());
+    await db.insert(mcpOauthStateTable).values({
+      kind: "rate",
+      key: "code",
+      payload: { count: OAUTH_STATE_LIMITS.code.perMinute },
+      expiresAt: future(),
+    });
+    await expect(
+      putState("code", "denied", { clientId: "client" }, future(), "consent"),
+    ).rejects.toMatchObject({ status: 429 });
+    expect(await getState("request", "consent")).not.toBeNull();
+    await db
+      .delete(mcpOauthStateTable)
+      .where(
+        and(
+          eq(mcpOauthStateTable.kind, "rate"),
+          eq(mcpOauthStateTable.key, "code"),
+        ),
+      );
+    await putState(
+      "code",
+      "issued",
+      { clientId: "client" },
+      future(),
+      "consent",
+    );
+    expect(await getState("request", "consent")).toBeNull();
+    await expect(
+      putState("code", "replayed", { clientId: "client" }, future(), "consent"),
+    ).rejects.toMatchObject({ status: 404 });
+    expect(await total("code")).toBe(1);
+  });
+  it("issues only one code when multiple replicas approve the same consent", async () => {
+    await putState("request", "race", { clientId: "client" }, future());
+    const results = await Promise.allSettled(
+      Array.from({ length: 12 }, (_, index) =>
+        putState(
+          "code",
+          `code-${index}`,
+          { clientId: "client" },
+          future(),
+          "race",
+        ),
+      ),
+    );
+    expect(
+      results.filter((result) => result.status === "fulfilled"),
+    ).toHaveLength(1);
+    expect(await total("code")).toBe(1);
+    expect(await getState("request", "race")).toBeNull();
   });
 });

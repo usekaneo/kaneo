@@ -1,8 +1,10 @@
 import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
+import { requireWorkspaceEntitlement } from "../billing/controllers/require-entitlement";
 import { requireEntitlement } from "../billing/require-entitlement-middleware";
 import db from "../database";
 import { projectTable } from "../database/schema";
+import { publishEvent } from "../events";
 import {
   apiRouter,
   type BaseVariables,
@@ -20,32 +22,72 @@ import {
   validateProjectBackgroundUploadInput,
 } from "../storage/s3";
 import { normalizeApiServerUrl } from "../utils/openapi-spec";
-import { requireWorkspacePermission } from "../utils/require-workspace-permission";
+import {
+  hasWorkspacePermission,
+  requireWorkspacePermission,
+} from "../utils/require-workspace-permission";
+import { validateWorkspaceAccess } from "../utils/validate-workspace-access";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import archiveProjectCtrl from "./controllers/archive-project";
 import createProjectCtrl from "./controllers/create-project";
 import deleteProjectCtrl from "./controllers/delete-project";
 import getProjectCtrl from "./controllers/get-project";
 import getProjectsCtrl from "./controllers/get-projects";
+import moveProjectCtrl from "./controllers/move-project";
 import reorderProjectsCtrl from "./controllers/reorder-projects";
 import unarchiveProjectCtrl from "./controllers/unarchive-project";
 import updateProjectCtrl from "./controllers/update-project";
 import {
+  movedProjectSchema,
   projectBackgroundFinalizeSchema,
   projectBackgroundUploadSchema,
   projectListSchema,
   projectSchema,
+  toPublicProject,
 } from "./response";
 import {
   createProjectBody,
   finalizeProjectBackgroundBody,
   listProjectsQuery,
+  moveProjectBody,
   projectParam,
   reorderProjectsBody,
   updateProjectBody,
   uploadProjectBackgroundBody,
   workspaceIdQuery,
 } from "./schema";
+
+const moveProjectRoute = createRoute({
+  method: "put",
+  path: "/{id}/move",
+  operationId: "moveProject",
+  tags: ["Projects"],
+  summary: "Move a project to another workspace",
+  description:
+    "Move a project and its tasks. Requires update and delete permission in the source and create permission in the destination. Remove cross-project task relationships before moving.",
+  middleware: [
+    workspaceAccess.fromProject(),
+    requireWorkspacePermission({ project: ["update", "delete"] }),
+  ] as const,
+  request: {
+    params: projectParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: moveProjectBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("Project moved", movedProjectSchema),
+    400: errorResponse("Invalid destination or same workspace"),
+    401: errorResponse("Unauthorized"),
+    402: errorResponse("Destination workspace plan has expired"),
+    403: errorResponse("Missing workspace access or permission"),
+    404: errorResponse("Project not found in the source workspace"),
+    409: errorResponse(
+      "Project key conflict or cross-project task relationships",
+    ),
+  },
+});
 
 const listProjectsRoute = createRoute({
   method: "get",
@@ -163,7 +205,7 @@ const updateProjectRoute = createRoute({
     200: jsonResponse("The updated project", projectSchema),
     400: errorResponse("Invalid body, or unknown project"),
     403: errorResponse(
-      "No workspace access, or missing project:update permission",
+      "No workspace access, missing project:update, or missing project:share when visibility changes",
     ),
   },
 });
@@ -358,6 +400,34 @@ const deleteProjectBackgroundRoute = createRoute({
 });
 
 const project = apiRouter<BaseVariables & { workspaceId: string }>()
+  .openapi(moveProjectRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    const { workspaceId: targetWorkspaceId } = c.req.valid("json");
+    const sourceWorkspaceId = c.get("workspaceId");
+    const userId = c.get("userId");
+    await validateWorkspaceAccess(
+      userId,
+      targetWorkspaceId,
+      c.get("apiKey")?.id,
+    );
+    if (
+      !(await hasWorkspacePermission(
+        c,
+        { project: ["create"] },
+        targetWorkspaceId,
+      ))
+    )
+      throw new HTTPException(403, {
+        message: "Insufficient permissions in the target workspace",
+      });
+    await requireWorkspaceEntitlement(targetWorkspaceId);
+    return c.json(
+      toPublicProject(
+        await moveProjectCtrl(id, sourceWorkspaceId, targetWorkspaceId, userId),
+      ),
+      200,
+    );
+  })
   .openapi(listProjectsRoute, async (c) => {
     const workspaceId = c.get("workspaceId");
     const { includeArchived } = c.req.valid("query");
@@ -365,19 +435,19 @@ const project = apiRouter<BaseVariables & { workspaceId: string }>()
       workspaceId,
       includeArchived === "true",
     );
-    return c.json(projects, 200);
+    return c.json(projects.map(toPublicProject), 200);
   })
   .openapi(createProjectRoute, async (c) => {
     const { name, icon, slug } = c.req.valid("json");
     const workspaceId = c.get("workspaceId");
     const newProject = await createProjectCtrl(workspaceId, name, icon, slug);
-    return c.json(newProject, 200);
+    return c.json(toPublicProject(newProject), 200);
   })
   .openapi(getProjectRoute, async (c) => {
     const { id } = c.req.valid("param");
     const workspaceId = c.get("workspaceId");
     const projectData = await getProjectCtrl(id, workspaceId);
-    return c.json(projectData, 200);
+    return c.json(toPublicProject(projectData), 200);
   })
   .openapi(getProjectBackgroundRoute, async (c) => {
     const { id } = c.req.valid("param");
@@ -448,7 +518,7 @@ const project = apiRouter<BaseVariables & { workspaceId: string }>()
     const workspaceId = c.get("workspaceId");
     const { projects } = c.req.valid("json");
     const reordered = await reorderProjectsCtrl(workspaceId, projects);
-    return c.json(reordered, 200);
+    return c.json(reordered.map(toPublicProject), 200);
   })
   .openapi(updateProjectRoute, async (c) => {
     const { id } = c.req.valid("param");
@@ -462,26 +532,27 @@ const project = apiRouter<BaseVariables & { workspaceId: string }>()
       description,
       isPublic,
       workspaceId,
+      await hasWorkspacePermission(c, { project: ["share"] }),
     );
-    return c.json(updatedProject, 200);
+    return c.json(toPublicProject(updatedProject), 200);
   })
   .openapi(deleteProjectRoute, async (c) => {
     const { id } = c.req.valid("param");
     const workspaceId = c.get("workspaceId");
     const deletedProject = await deleteProjectCtrl(id, workspaceId);
-    return c.json(deletedProject, 200);
+    return c.json(toPublicProject(deletedProject), 200);
   })
   .openapi(archiveProjectRoute, async (c) => {
     const { id } = c.req.valid("param");
     const workspaceId = c.get("workspaceId");
     const archivedProject = await archiveProjectCtrl(id, workspaceId);
-    return c.json(archivedProject, 200);
+    return c.json(toPublicProject(archivedProject), 200);
   })
   .openapi(unarchiveProjectRoute, async (c) => {
     const { id } = c.req.valid("param");
     const workspaceId = c.get("workspaceId");
     const unarchivedProject = await unarchiveProjectCtrl(id, workspaceId);
-    return c.json(unarchivedProject, 200);
+    return c.json(toPublicProject(unarchivedProject), 200);
   })
   .openapi(uploadProjectBackgroundRoute, async (c) => {
     const { id } = c.req.valid("param");
@@ -598,6 +669,8 @@ const project = apiRouter<BaseVariables & { workspaceId: string }>()
       });
     }
 
+    await publishEvent("project.updated", { projectId: id });
+
     const apiBaseUrl = normalizeApiServerUrl(
       process.env.KANEO_API_URL || new URL(c.req.url).origin,
     );
@@ -628,6 +701,10 @@ const project = apiRouter<BaseVariables & { workspaceId: string }>()
 
     if (updatedProject && currentProject?.backgroundObjectKey) {
       deleteS3Object(currentProject.backgroundObjectKey).catch(() => {});
+    }
+
+    if (updatedProject) {
+      await publishEvent("project.updated", { projectId: id });
     }
 
     return c.body(null, 204);
