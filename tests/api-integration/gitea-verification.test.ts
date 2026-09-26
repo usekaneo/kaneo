@@ -28,7 +28,7 @@ beforeEach(async () => {
   await resetTestDatabase();
   vi.clearAllMocks();
 });
-async function fixture() {
+async function fixture(baseUrl = "https://gitea.example") {
   const owner = await createWorkspaceMember({ role: "owner" });
   const { project } = await createProjectFixture({
     workspaceId: owner.workspace.id,
@@ -37,7 +37,7 @@ async function fixture() {
     projectId: project.id,
     type: "gitea",
     config: JSON.stringify({
-      baseUrl: "https://gitea.example",
+      baseUrl,
       accessToken: "saved-secret",
     }),
   });
@@ -74,6 +74,30 @@ describe("saved Gitea token verification route", () => {
     expect((await verify(project.id, "https://other.example")).status).toBe(
       400,
     );
+    expect(verifyGiteaAccess).not.toHaveBeenCalled();
+  });
+  it.each([
+    "ftp://gitea.example",
+    "https://gitea.example?token=secret",
+    "https://gitea.example#fragment",
+    "https://user:secret@gitea.example",
+  ])(
+    "rejects invalid submitted URL %s without verification",
+    async (baseUrl) => {
+      const { project } = await fixture();
+      const response = await verify(project.id, baseUrl);
+      expect(response.status).toBe(400);
+      expect(await response.text()).not.toContain("secret");
+      expect(verifyGiteaAccess).not.toHaveBeenCalled();
+    },
+  );
+  it("reports malformed saved configuration without revealing it", async () => {
+    const { project } = await fixture("https://user:secret@gitea.example");
+    const response = await verify(project.id);
+    expect(response.status).toBe(400);
+    const body = await response.text();
+    expect(body).toContain("Reconnect the integration");
+    expect(body).not.toContain("secret");
     expect(verifyGiteaAccess).not.toHaveBeenCalled();
   });
   it("requires workspace management permission to use stored credentials", async () => {
