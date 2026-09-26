@@ -51,6 +51,7 @@ export const updateCustomFieldBody = z
       .array(
         z.object({
           originalValue: z.string().optional(),
+          hidden: z.boolean().optional(),
           value: z.string().trim().min(1),
         }),
       )

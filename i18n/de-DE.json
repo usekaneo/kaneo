@@ -1585,7 +1585,12 @@
 			"removeOption": "Option {{number}} entfernen",
 			"addOption": "Option hinzufügen",
 			"optionsEditHint": "Umbenennungen aktualisieren die Auswahl in bestehenden Aufgaben und die Standardwerte. Verwendete Optionen können nicht entfernt werden.",
-			"saveButton": "Speichern"
+			"saveButton": "Speichern",
+			"hideOption": "Option {{number}} ausblenden",
+			"showOption": "Option {{number}} wieder einblenden",
+			"hidden": "Ausgeblendet",
+			"hiddenOptionsHint": "Ausgeblendete Optionen bleiben in bestehenden Aufgaben erhalten, werden aber aus der Auswahl und den Standardwerten entfernt. Bei Pflichtfeldern muss mindestens eine Option sichtbar bleiben.",
+			"removeHiddenSelection": "{{option}} entfernen"
 		},
 		"security": "Security",
 		"securityPage": {

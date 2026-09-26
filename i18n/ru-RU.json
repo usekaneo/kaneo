@@ -1515,7 +1515,12 @@
 			"removeOption": "Remove option {{number}}",
 			"updateError": "Failed to update custom field",
 			"updateSuccess": "Custom field updated",
-			"saveButton": "Save changes"
+			"saveButton": "Save changes",
+			"hideOption": "Hide option {{number}}",
+			"showOption": "Show option {{number}}",
+			"hidden": "Hidden",
+			"hiddenOptionsHint": "Hidden options remain on existing tasks but are excluded from new selections and defaults. Required fields must keep at least one visible option.",
+			"removeHiddenSelection": "Remove {{option}}"
 		},
 		"administration": "Administration",
 		"adminUsers": {

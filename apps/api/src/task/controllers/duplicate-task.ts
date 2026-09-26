@@ -1,6 +1,7 @@
 import { createId } from "@paralleldrive/cuid2";
 import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
+import { withoutHiddenOptions } from "../../custom-field/hidden-options";
 import db from "../../database";
 import {
   assetTable,
@@ -181,10 +182,19 @@ async function duplicateTask({
           eq(customFieldDefinitionTable.projectId, sourceTask.projectId),
         ),
       );
-    const customFields = sourceCustomFields.map(({ fieldId, value }) => ({
-      fieldId,
-      value: value ?? "",
-    }));
+    const customFields = sourceCustomFields.map(({ fieldId, value }) => {
+      const definition = fieldDefinitions.find((field) => field.id === fieldId);
+      return {
+        fieldId,
+        value: definition
+          ? withoutHiddenOptions(
+              value ?? "",
+              definition.type,
+              definition.hiddenOptions,
+            )
+          : (value ?? ""),
+      };
+    });
     // Older tasks may predate a required field. Apply its current default or fail
     // validation, just as creation does, before copying anything in storage.
     for (const definition of fieldDefinitions) {

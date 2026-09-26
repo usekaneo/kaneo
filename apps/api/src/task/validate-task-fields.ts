@@ -135,6 +135,7 @@ export async function assertRequiredCustomFields(
       required: customFieldDefinitionTable.required,
       defaultValue: customFieldDefinitionTable.defaultValue,
       options: customFieldDefinitionTable.options,
+      hiddenOptions: customFieldDefinitionTable.hiddenOptions,
     })
     .from(customFieldDefinitionTable)
     .where(eq(customFieldDefinitionTable.projectId, projectId));
@@ -173,7 +174,9 @@ export async function assertRequiredCustomFields(
       cf.value,
       type,
       def.name,
-      def.options,
+      Array.isArray(def.options)
+        ? def.options.filter((option) => !def.hiddenOptions.includes(option))
+        : def.options,
     );
 
     if (error) {

@@ -142,6 +142,7 @@ type CustomFieldDefinition = {
   required: boolean;
   defaultValue: string | null;
   options: string[] | null;
+  hiddenOptions: string[];
   position: number;
   createdAt: string;
   updatedAt: string;
@@ -311,10 +312,29 @@ function CreateTaskModalContent({
   useEffect(() => {
     setCustomFieldValues((previousValues) =>
       Object.fromEntries(
-        customFields.map((field) => [
-          field.id,
-          previousValues[field.id] ?? field.defaultValue ?? "",
-        ]),
+        customFields.map((field) => {
+          let value = previousValues[field.id] ?? field.defaultValue ?? "";
+          const hidden = field.hiddenOptions ?? [];
+          if (
+            hidden.length &&
+            field.type === "dropdown" &&
+            hidden.includes(value)
+          ) {
+            value = "";
+          } else if (hidden.length && field.type === "multiselect" && value) {
+            try {
+              const selected: unknown = JSON.parse(value);
+              if (Array.isArray(selected)) {
+                value = JSON.stringify(
+                  selected.filter((option) => !hidden.includes(option)),
+                );
+              }
+            } catch {
+              // Leave invalid input for the normal field validation.
+            }
+          }
+          return [field.id, value];
+        }),
       ),
     );
   }, [customFields]);
@@ -806,7 +826,9 @@ function CreateTaskModalContent({
 
     switch (field.type) {
       case "dropdown": {
-        const options = field.options || [];
+        const options = (field.options ?? []).filter(
+          (option) => !(field.hiddenOptions ?? []).includes(option),
+        );
 
         return (
           <Select
@@ -887,7 +909,9 @@ function CreateTaskModalContent({
           <Combobox
             multiple={true}
             autoHighlight
-            items={Array.from(new Set(field.options ?? []))}
+            items={Array.from(new Set(field.options ?? [])).filter(
+              (option) => !(field.hiddenOptions ?? []).includes(option),
+            )}
             value={selectedValues}
             onValueChange={(val) =>
               handleCustomFieldChange(field.id, JSON.stringify(val))

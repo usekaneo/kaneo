@@ -62,6 +62,7 @@ export type CustomFieldDefinition = {
   required: boolean;
   defaultValue: string | null;
   options: string[] | null;
+  hiddenOptions: string[];
   position: number;
   createdAt: string;
   updatedAt: string;

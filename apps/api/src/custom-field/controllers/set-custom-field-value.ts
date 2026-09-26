@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 
 import db from "../../database";
@@ -123,6 +123,52 @@ async function setCustomFieldValue(
             message: "Invalid option(s) for this custom field",
           });
         }
+      }
+    }
+
+    if (
+      field.hiddenOptions.length &&
+      (field.type === "dropdown" || field.type === "multiselect")
+    ) {
+      const [previous] = await tx
+        .select({ value: customFieldValueTable.value })
+        .from(customFieldValueTable)
+        .where(
+          and(
+            eq(customFieldValueTable.taskId, taskId),
+            eq(customFieldValueTable.fieldId, fieldId),
+          ),
+        )
+        .for("update");
+      const oldSelections: string[] =
+        field.type === "dropdown"
+          ? [previous?.value ?? ""]
+          : (() => {
+              try {
+                const parsed: unknown = JSON.parse(previous?.value || "[]");
+                return Array.isArray(parsed)
+                  ? parsed.filter(
+                      (item): item is string => typeof item === "string",
+                    )
+                  : [];
+              } catch {
+                return [];
+              }
+            })();
+      const incoming: string[] =
+        field.type === "dropdown"
+          ? [normalizedValue]
+          : JSON.parse(normalizedValue || "[]");
+      if (
+        incoming.some(
+          (option) =>
+            field.hiddenOptions.includes(option) &&
+            !oldSelections.includes(option),
+        )
+      ) {
+        throw new HTTPException(400, {
+          message: "Hidden options cannot be selected for this task",
+        });
       }
     }
 

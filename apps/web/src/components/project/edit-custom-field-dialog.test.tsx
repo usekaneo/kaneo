@@ -32,6 +32,7 @@ const field = {
   required: false,
   defaultValue: null,
   options: ["Alice", "Bob"],
+  hiddenOptions: [],
   position: 0,
   createdAt: "2026-09-26T00:00:00.000Z",
   updatedAt: "2026-09-26T00:00:00.000Z",
@@ -64,8 +65,8 @@ describe("edit custom field dialog", () => {
         name: "Attendees",
         updatedAt: field.updatedAt,
         options: [
-          { originalValue: "Alice", value: "Alex" },
-          { originalValue: "Bob", value: "Bob" },
+          { originalValue: "Alice", value: "Alex", hidden: false },
+          { originalValue: "Bob", value: "Bob", hidden: false },
         ],
       },
     });
@@ -118,4 +119,33 @@ describe("edit custom field dialog", () => {
     expect(onClose).not.toHaveBeenCalled();
     expect(screen.getAllByRole("textbox")).toHaveLength(3);
   });
+});
+
+it("toggles option visibility independently of deletion", async () => {
+  mutateAsync.mockResolvedValue({});
+  render(<EditCustomFieldDialog field={field} onClose={vi.fn()} />);
+  fireEvent.click(
+    screen.getByRole("button", { name: "settings:customFields.hideOption 1" }),
+  );
+  expect(
+    screen.getByRole("button", { name: "settings:customFields.showOption 1" }),
+  ).toBeVisible();
+  expect(
+    screen.getByLabelText("settings:customFields.optionLabel 1"),
+  ).toHaveValue("Alice");
+  fireEvent.click(
+    screen.getByRole("button", { name: "settings:customFields.saveButton" }),
+  );
+  await waitFor(() =>
+    expect(mutateAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        json: expect.objectContaining({
+          options: [
+            { originalValue: "Alice", value: "Alice", hidden: true },
+            { originalValue: "Bob", value: "Bob", hidden: false },
+          ],
+        }),
+      }),
+    ),
+  );
 });

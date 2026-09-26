@@ -42,6 +42,10 @@ async function fixture(type = "multiselect", role = "admin") {
     fieldId: field.id,
     value: type === "multiselect" ? '["Alice","Bob"]' : "Alice",
   });
+  await db
+    .update(schema.projectTable)
+    .set({ lastTaskNumber: 1 })
+    .where(eq(schema.projectTable.id, project.id));
   mockAuthenticatedSession(member.user);
   const { app } = createApp();
   const update = (body: Record<string, unknown> = {}) =>
@@ -210,5 +214,153 @@ describe("custom field editing", () => {
     expect((await update()).status).toBe(403);
     mockAnonymousSession();
     expect([401, 403]).toContain((await update()).status);
+  });
+});
+
+describe("hidden custom field options", () => {
+  it.each(["dropdown", "multiselect"])(
+    "hides and restores %s options while preserving history",
+    async (type) => {
+      const { update, readValue, field, task, app } = await fixture(type);
+      const options = [
+        { originalValue: "Alice", value: "Alice", hidden: true },
+        { originalValue: "Bob", value: "Bob" },
+        { originalValue: "Unused", value: "Unused" },
+      ];
+      const response = await update({ options });
+      expect(response.status).toBe(200);
+      const hidden = await response.json();
+      expect(hidden).toMatchObject({
+        hiddenOptions: ["Alice"],
+        defaultValue: null,
+      });
+      const original = type === "multiselect" ? '["Alice","Bob"]' : "Alice";
+      expect(await readValue()).toBe(original);
+      const metadata = await app.request(`/api/custom-field/task/${task.id}`);
+      expect(await metadata.json()).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            fieldHiddenOptions: ["Alice"],
+            value: original,
+          }),
+        ]),
+      );
+      const set = (value: string) =>
+        app.request("/api/custom-field/value", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ taskId: task.id, fieldId: field.id, value }),
+        });
+      expect((await set(original)).status).toBe(200);
+      expect(
+        (await set(type === "multiselect" ? '["Bob"]' : "Bob")).status,
+      ).toBe(200);
+      expect((await set(original)).status).toBe(400);
+      const shown = await update({
+        updatedAt: hidden.updatedAt,
+        options: options.map((option) => ({ ...option, hidden: false })),
+      });
+      expect(shown.status).toBe(200);
+      expect(await shown.json()).toMatchObject({ hiddenOptions: [] });
+      expect((await set(original)).status).toBe(200);
+    },
+  );
+
+  it("does not allow hidden selections on a new task or copy them to a duplicate", async () => {
+    const { update, field, task, app, project } = await fixture();
+    await update({
+      options: [
+        { originalValue: "Alice", value: "Alice", hidden: true },
+        { originalValue: "Bob", value: "Bob" },
+      ],
+    });
+    for (const [value, status] of [
+      ['["Alice"]', 400],
+      ['["Bob"]', 200],
+    ] as const) {
+      const response = await app.request(`/api/task/${project.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: "New task",
+          description: "",
+          status: "to-do",
+          priority: "no-priority",
+          customFields: [{ fieldId: field.id, value }],
+        }),
+      });
+      expect(response.status, await response.clone().text()).toBe(status);
+    }
+    const duplicate = await app.request(`/api/task/duplicate/${task.id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{}",
+    });
+    expect(duplicate.status, await duplicate.clone().text()).toBe(200);
+    const copied = await duplicate.json();
+    const value = await db.query.customFieldValueTable.findFirst({
+      where: eq(schema.customFieldValueTable.taskId, copied.id),
+    });
+    expect(value?.value).toBe('["Bob"]');
+  });
+
+  it("preserves hidden status when an older client renames options", async () => {
+    const { update, readValue } = await fixture();
+    const hidden = await (
+      await update({
+        options: [
+          { originalValue: "Alice", value: "Alice", hidden: true },
+          { originalValue: "Bob", value: "Bob" },
+        ],
+      })
+    ).json();
+    const response = await update({
+      updatedAt: hidden.updatedAt,
+      options: [
+        { originalValue: "Alice", value: "Alex" },
+        { originalValue: "Bob", value: "Bob" },
+      ],
+    });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ hiddenOptions: ["Alex"] });
+    expect(await readValue()).toBe('["Alex","Bob"]');
+  });
+
+  it("allows hiding every option only for optional fields", async () => {
+    const { update, field } = await fixture();
+    const options = [
+      { originalValue: "Alice", value: "Alice", hidden: true },
+      { originalValue: "Bob", value: "Bob", hidden: true },
+    ];
+    expect((await update({ options })).status).toBe(200);
+    const [required] = await db
+      .update(schema.customFieldDefinitionTable)
+      .set({ required: true })
+      .where(eq(schema.customFieldDefinitionTable.id, field.id))
+      .returning();
+    expect(
+      (await update({ options, updatedAt: required.updatedAt.toISOString() }))
+        .status,
+    ).toBe(400);
+  });
+
+  it("clears only hidden defaults and keeps visible default selections", async () => {
+    const { update, field } = await fixture();
+    const [changed] = await db
+      .update(schema.customFieldDefinitionTable)
+      .set({ defaultValue: '["Alice","Bob"]' })
+      .where(eq(schema.customFieldDefinitionTable.id, field.id))
+      .returning();
+    const response = await update({
+      updatedAt: changed.updatedAt.toISOString(),
+      options: [
+        { originalValue: "Alice", value: "Alice", hidden: true },
+        { originalValue: "Bob", value: "Bob" },
+      ],
+    });
+    expect(await response.json()).toMatchObject({
+      defaultValue: '["Bob"]',
+      hiddenOptions: ["Alice"],
+    });
   });
 });

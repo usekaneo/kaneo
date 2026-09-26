@@ -1,4 +1,4 @@
-import { Plus, Trash2 } from "lucide-react";
+import { Eye, EyeOff, Plus, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,7 @@ export default function EditCustomFieldDialog({
     (field.options ?? []).map((value, key) => ({
       key,
       originalValue: value as string | undefined,
+      hidden: (field.hiddenOptions ?? []).includes(value),
       value,
     })),
   );
@@ -42,7 +43,8 @@ export default function EditCustomFieldDialog({
     (!hasOptions ||
       (options.length >= (field.type === "multiselect" ? 2 : 1) &&
         normalizedOptions.every(Boolean) &&
-        new Set(normalizedOptions).size === options.length));
+        new Set(normalizedOptions).size === options.length &&
+        (!field.required || options.some((option) => !option.hidden))));
 
   async function save() {
     if (!valid || isPending) return;
@@ -55,8 +57,9 @@ export default function EditCustomFieldDialog({
           updatedAt: field.updatedAt,
           ...(hasOptions
             ? {
-                options: options.map(({ originalValue, value }) => ({
+                options: options.map(({ originalValue, value, hidden }) => ({
                   originalValue,
+                  hidden,
                   value: value.trim(),
                 })),
               }
@@ -133,6 +136,43 @@ export default function EditCustomFieldDialog({
                         )
                       }
                     />
+                    {option.hidden && (
+                      <span className="text-xs text-muted-foreground">
+                        {t("settings:customFields.hidden")}
+                      </span>
+                    )}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label={t(
+                        option.hidden
+                          ? "settings:customFields.showOption"
+                          : "settings:customFields.hideOption",
+                        { number: index + 1 },
+                      )}
+                      title={t(
+                        option.hidden
+                          ? "settings:customFields.showOption"
+                          : "settings:customFields.hideOption",
+                        { number: index + 1 },
+                      )}
+                      onClick={() =>
+                        setOptions((current) =>
+                          current.map((item) =>
+                            item.key === option.key
+                              ? { ...item, hidden: !item.hidden }
+                              : item,
+                          ),
+                        )
+                      }
+                    >
+                      {option.hidden ? (
+                        <Eye className="size-4" />
+                      ) : (
+                        <EyeOff className="size-4" />
+                      )}
+                    </Button>
                     <Button
                       type="button"
                       variant="ghost"
@@ -158,7 +198,12 @@ export default function EditCustomFieldDialog({
                     const key = nextOptionKey.current++;
                     setOptions((current) => [
                       ...current,
-                      { key, originalValue: undefined, value: "" },
+                      {
+                        key,
+                        originalValue: undefined,
+                        value: "",
+                        hidden: false,
+                      },
                     ]);
                   }}
                 >
@@ -166,7 +211,8 @@ export default function EditCustomFieldDialog({
                   {t("settings:customFields.addOption")}
                 </Button>
                 <p className="text-xs text-muted-foreground">
-                  {t("settings:customFields.optionsEditHint")}
+                  {t("settings:customFields.optionsEditHint")}{" "}
+                  {t("settings:customFields.hiddenOptionsHint")}
                 </p>
               </fieldset>
             )}

@@ -65,6 +65,7 @@ type CustomFieldDefinition = {
   required: boolean;
   defaultValue: string | null;
   options: string[] | null;
+  hiddenOptions: string[];
   position: number;
   createdAt: string;
   updatedAt: string;
@@ -274,6 +275,10 @@ export default function TaskDetailsContent({
 
                         {field.type === "dropdown" ? (
                           <Select
+                            items={(field.options ?? []).map((option) => ({
+                              value: option,
+                              label: option,
+                            }))}
                             value={textVal}
                             onValueChange={(newVal) => {
                               handleLocalChange(field.id, newVal as string);
@@ -283,11 +288,12 @@ export default function TaskDetailsContent({
                           >
                             <SelectTrigger className="h-9 w-full bg-background text-sm">
                               <SelectValue
-                                placeholder={t(
-                                  "tasks:detail.selectOption",
-                                  "Select option",
-                                )}
-                              />
+                                placeholder={t("tasks:detail.selectOption")}
+                              >
+                                {textVal
+                                  ? `${textVal}${(field.hiddenOptions ?? []).includes(textVal) ? ` · ${t("settings:customFields.hidden")}` : ""}`
+                                  : t("tasks:detail.selectOption")}
+                              </SelectValue>
                             </SelectTrigger>
                             <SelectContent
                               alignItemWithTrigger={false}
@@ -298,15 +304,20 @@ export default function TaskDetailsContent({
                                   {t("tasks:detail.selectOption")}
                                 </SelectItem>
                               )}
-                              {Array.from(new Set(field.options || [])).map(
-                                (opt) => (
+                              {Array.from(new Set(field.options || []))
+                                .filter(
+                                  (option) =>
+                                    !(field.hiddenOptions ?? []).includes(
+                                      option,
+                                    ),
+                                )
+                                .map((opt) => (
                                   <SelectItem key={opt} value={opt}>
                                     <span className="block min-w-0 whitespace-normal break-words text-left">
                                       {opt}
                                     </span>
                                   </SelectItem>
-                                ),
-                              )}
+                                ))}
                             </SelectContent>
                           </Select>
                         ) : field.type === "date" ? (
@@ -458,6 +469,8 @@ export default function TaskDetailsContent({
                         ) : field.type === "multiselect" ? (
                           <CustomFieldMultiSelect
                             name={field.name}
+                            hiddenOptions={field.hiddenOptions}
+                            required={field.required}
                             options={Array.from(new Set(field.options ?? []))}
                             value={multiselectVal}
                             disabled={!canEdit}

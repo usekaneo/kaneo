@@ -4535,6 +4535,21 @@
 						},
 						"saveButton": {
 							"type": "string"
+						},
+						"hideOption": {
+							"type": "string"
+						},
+						"showOption": {
+							"type": "string"
+						},
+						"hidden": {
+							"type": "string"
+						},
+						"hiddenOptionsHint": {
+							"type": "string"
+						},
+						"removeHiddenSelection": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -4571,7 +4586,12 @@
 						"removeOption",
 						"addOption",
 						"optionsEditHint",
-						"saveButton"
+						"saveButton",
+						"hideOption",
+						"showOption",
+						"hidden",
+						"hiddenOptionsHint",
+						"removeHiddenSelection"
 					]
 				},
 				"githubIntegration": {

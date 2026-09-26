@@ -6,6 +6,7 @@ import {
   customFieldValueTable,
 } from "../../database/schema";
 import type { z } from "../../openapi";
+import { withoutHiddenOptions } from "../hidden-options";
 import type { updateCustomFieldBody } from "../schema";
 
 export default async function updateCustomField(
@@ -28,6 +29,7 @@ export default async function updateCustomField(
 
     let options = field.options;
     let defaultValue = field.defaultValue;
+    let hiddenOptions = field.hiddenOptions;
     if (input.options !== undefined) {
       if (field.type !== "dropdown" && field.type !== "multiselect") {
         throw new HTTPException(400, {
@@ -55,6 +57,22 @@ export default async function updateCustomField(
       if (newOptions.length < (field.type === "multiselect" ? 2 : 1)) {
         throw new HTTPException(400, {
           message: "Not enough options for this field type",
+        });
+      }
+      hiddenOptions = input.options
+        .filter(
+          (option) =>
+            option.hidden ??
+            (option.originalValue !== undefined &&
+              field.hiddenOptions.includes(option.originalValue)),
+        )
+        .map((option) => option.value);
+      if (
+        field.required &&
+        newOptions.every((option) => hiddenOptions.includes(option))
+      ) {
+        throw new HTTPException(400, {
+          message: "Required fields must have at least one visible option",
         });
       }
       const replacements = new Map(
@@ -96,6 +114,10 @@ export default async function updateCustomField(
         return JSON.stringify(selected.map(replace));
       };
       defaultValue = transform(defaultValue);
+      if (defaultValue !== null) {
+        defaultValue =
+          withoutHiddenOptions(defaultValue, field.type, hiddenOptions) || null;
+      }
       const values = await tx
         .select()
         .from(customFieldValueTable)
@@ -121,7 +143,13 @@ export default async function updateCustomField(
     }
     const [updated] = await tx
       .update(customFieldDefinitionTable)
-      .set({ name: input.name, options, defaultValue, updatedAt: new Date() })
+      .set({
+        name: input.name,
+        options,
+        hiddenOptions,
+        defaultValue,
+        updatedAt: new Date(),
+      })
       .where(eq(customFieldDefinitionTable.id, id))
       .returning();
     if (!updated)

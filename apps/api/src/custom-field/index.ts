@@ -223,7 +223,7 @@ const updateCustomFieldRoute = createRoute({
   tags: ["Custom Fields"],
   summary: "Edit custom field",
   description:
-    "Rename a field or edit its selection options. Supply originalValue for existing options to preserve task selections and defaults when renaming. Omitted existing options are removed only when unused. The type and required setting are preserved. updatedAt must match the current definition.",
+    "Rename a field or edit its selection options. Supply originalValue for existing options to preserve task selections and defaults when renaming. Omitted existing options are removed only when unused. Hidden options remain on existing tasks but cannot be newly selected, and are removed from defaults. Required fields must retain a visible option. The type and required setting are preserved. updatedAt must match the current definition.",
   middleware: [
     workspaceAccess.fromCustomField("id"),
     requireWorkspacePermission({ project: ["update"] }),
