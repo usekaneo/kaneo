@@ -2160,7 +2160,9 @@
 				"blocks": "chặn",
 				"blocked_by": "bị chặn bởi",
 				"related": "liên quan đến"
-			}
+			},
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project",
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Công việc con",

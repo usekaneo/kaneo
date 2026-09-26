@@ -2155,6 +2155,8 @@
 		"relations": {
 			"title": "Relations",
 			"tasksInProject": "Tasks in project",
+			"tasksInOtherProject": "In {{project}}",
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project",
 			"linkError": "Failed to link task",
 			"empty": "No related tasks",
 			"searchPlaceholder": "Search tasks to link...",

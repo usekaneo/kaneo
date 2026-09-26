@@ -2167,7 +2167,9 @@
 				"blocks": "μπλοκάρει",
 				"related": "σχετίζεται με",
 				"blocked_by": "μπλοκάρεται από"
-			}
+			},
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project",
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Υποεργασίες",

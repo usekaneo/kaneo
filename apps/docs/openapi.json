@@ -12301,6 +12301,16 @@
           {
             "schema": {
               "type": "string",
+              "description": "Leave out results scoped to this project, e.g. to search other projects in the workspace for a cross-project picker. Ignored together with `projectId`."
+            },
+            "required": false,
+            "description": "Leave out results scoped to this project, e.g. to search other projects in the workspace for a cross-project picker. Ignored together with `projectId`.",
+            "name": "excludeProjectId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
               "default": "20"
             },
             "required": false,

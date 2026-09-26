@@ -2189,7 +2189,9 @@
 				"blocks": "блокирует",
 				"related": "связана с",
 				"blocked_by": "заблокирована"
-			}
+			},
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project",
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Подзадачи",

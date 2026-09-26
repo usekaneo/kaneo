@@ -2160,7 +2160,9 @@
 				"blocks": "차단함",
 				"related": "관련됨",
 				"blocked_by": "차단됨"
-			}
+			},
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project",
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "하위 작업",

@@ -2160,7 +2160,9 @@
 				"blocks": "阻塞",
 				"blocked_by": "被阻塞",
 				"related": "关联"
-			}
+			},
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project",
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "子任务",

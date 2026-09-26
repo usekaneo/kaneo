@@ -2167,7 +2167,9 @@
 				"blocks": "Mane olur",
 				"blocked_by": "Mane olan",
 				"related": "Əlaqəlidir"
-			}
+			},
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project",
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Alt tapşırıqlar",

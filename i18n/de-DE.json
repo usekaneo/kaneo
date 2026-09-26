@@ -2167,7 +2167,9 @@
 				"blocks": "blockiert",
 				"related": "steht in Beziehung zu",
 				"blocked_by": "blockiert von"
-			}
+			},
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project",
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Teilaufgaben",
