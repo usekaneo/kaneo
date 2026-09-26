@@ -17,8 +17,6 @@ export default function useUpdateCustomField() {
           ["custom-fields", field.projectId],
           ["custom-field-values"],
           ["custom-field-filter-values", field.projectId],
-          ["tasks", field.projectId],
-          ["task"],
         ].map((queryKey) => queryClient.invalidateQueries({ queryKey })),
       );
     },

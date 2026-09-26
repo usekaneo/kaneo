@@ -53,7 +53,7 @@ describe("project WebSocket lifecycle", () => {
     vi.unstubAllEnvs();
   });
 
-  it("refreshes definitions, selections, filters and tasks after an option rename", () => {
+  it("refreshes definitions, selections, filters after an option rename", () => {
     renderHook(() => useProjectWebSocket("project-a"));
     act(() =>
       TestSocket.instances[0].onmessage?.({
@@ -63,12 +63,11 @@ describe("project WebSocket lifecycle", () => {
         }),
       }),
     );
+    expect(client.invalidateQueries).toHaveBeenCalledTimes(3);
     for (const queryKey of [
       ["custom-fields", "project-a"],
       ["custom-field-values"],
       ["custom-field-filter-values", "project-a"],
-      ["tasks", "project-a"],
-      ["task"],
     ]) {
       expect(client.invalidateQueries).toHaveBeenCalledWith({ queryKey });
     }

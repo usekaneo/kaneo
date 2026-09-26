@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
+import { useValidCustomFieldFilters } from "./use-valid-custom-field-filters";
 
 export type BoardFilters = {
   status: string[] | null;
@@ -96,6 +97,8 @@ export function useTaskFilters(
       // Storage may be unavailable or full; keep filters working in memory.
     }
   }, [filters, storageKey]);
+
+  useValidCustomFieldFilters(projectId, setFilters);
 
   const filterTasks = (tasks: Task[]): Task[] => {
     return tasks.filter((task) => {

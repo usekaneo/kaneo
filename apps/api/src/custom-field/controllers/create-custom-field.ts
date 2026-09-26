@@ -132,7 +132,9 @@ async function createCustomField(
   }
 
   const storedDefaultValue =
-    type === "date" ? defaultValue?.trim() : defaultValue;
+    type === "date" || type === "dropdown"
+      ? defaultValue?.trim()
+      : defaultValue;
 
   const [maxPositionResult] = await db
     .select({ maxPosition: max(customFieldDefinitionTable.position) })

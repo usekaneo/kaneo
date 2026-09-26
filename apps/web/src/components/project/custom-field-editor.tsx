@@ -561,7 +561,9 @@ export default function CustomFieldEditor({
                   variant="ghost"
                   size="sm"
                   className="h-7 w-7 p-0 shrink-0"
-                  disabled={!canUpdateProjects || deletingField || isReordering}
+                  disabled={
+                    !canUpdateProjects() || deletingField || isReordering
+                  }
                   onClick={() => setEditingField(field)}
                   aria-label={t("settings:customFields.editButton")}
                 >

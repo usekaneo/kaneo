@@ -237,9 +237,7 @@ const updateCustomFieldRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The updated custom field", customFieldDefinitionSchema),
-    400: errorResponse(
-      "Invalid options, an option is in use, or unknown field",
-    ),
+    400: errorResponse("Invalid options or an option is in use"),
     403: errorResponse(
       "No workspace access or missing project:update permission",
     ),

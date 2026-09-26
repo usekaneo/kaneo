@@ -17091,7 +17091,7 @@
             }
           },
           "400": {
-            "description": "Invalid options, an option is in use, or unknown field",
+            "description": "Invalid options or an option is in use",
             "content": {
               "text/plain": {
                 "schema": {

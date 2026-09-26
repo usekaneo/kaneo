@@ -69,6 +69,23 @@ async function fixture(type = "multiselect", role = "admin") {
 }
 
 describe("custom field editing", () => {
+  it("normalizes legacy dropdown defaults before renaming options", async () => {
+    const { field, update } = await fixture("dropdown");
+    await db
+      .update(schema.customFieldDefinitionTable)
+      .set({ defaultValue: " Alice ", updatedAt: field.updatedAt })
+      .where(eq(schema.customFieldDefinitionTable.id, field.id));
+    const response = await update({
+      options: [
+        { originalValue: "Alice", value: "Alex" },
+        { originalValue: "Bob", value: "Bob" },
+        { originalValue: "Unused", value: "Unused" },
+      ],
+    });
+    expect(response.status).toBe(200);
+    expect((await response.json()).defaultValue).toBe("Alex");
+  });
+
   it.each(["dropdown", "multiselect"])(
     "renames %s selections and defaults together, and adds/removes unused options",
     async (type) => {

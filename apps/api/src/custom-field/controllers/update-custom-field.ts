@@ -94,7 +94,7 @@ export default async function updateCustomField(
           }
           return replacement;
         };
-        if (field.type === "dropdown") return replace(value);
+        if (field.type === "dropdown") return replace(value.trim());
         let selected: unknown;
         try {
           selected = JSON.parse(value);
@@ -118,11 +118,16 @@ export default async function updateCustomField(
         defaultValue =
           withoutHiddenOptions(defaultValue, field.type, hiddenOptions) || null;
       }
-      const values = await tx
-        .select()
-        .from(customFieldValueTable)
-        .where(eq(customFieldValueTable.fieldId, id))
-        .for("update");
+      const needsMigration = oldOptions.some(
+        (option) => replacements.get(option) !== option,
+      );
+      const values = needsMigration
+        ? await tx
+            .select()
+            .from(customFieldValueTable)
+            .where(eq(customFieldValueTable.fieldId, id))
+            .for("update")
+        : [];
       const changed = values
         .map((row) => ({
           id: row.id,

@@ -1,7 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { format, isValid, parseISO } from "date-fns";
 import { ArrowUpRight, CalendarIcon, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import Activity from "@/components/activity";
 import CommentInput from "@/components/activity/comment-input";
@@ -39,6 +39,7 @@ import useExternalLinks from "@/hooks/queries/external-link/use-external-links";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import useGetTaskRelations from "@/hooks/queries/task-relation/use-get-task-relations";
+import { useCustomFieldDrafts } from "@/hooks/use-custom-field-drafts";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
@@ -94,6 +95,9 @@ function safeParseMultiselect(raw: string | null | undefined): string[] {
   }
 }
 
+const EMPTY_CUSTOM_FIELDS: CustomFieldDefinition[] = [];
+const EMPTY_CUSTOM_FIELD_VALUES: never[] = [];
+
 export default function TaskDetailsContent({
   taskId,
   projectId,
@@ -110,21 +114,19 @@ export default function TaskDetailsContent({
   const { data: relations = [] } = useGetTaskRelations(taskId ?? "");
   const { user } = useAuth();
 
-  const { data: customFields = [] } = useGetCustomFieldsByProject(
-    projectId,
-  ) as { data: CustomFieldDefinition[] | undefined };
+  const { data: customFields = EMPTY_CUSTOM_FIELDS } =
+    useGetCustomFieldsByProject(projectId) as {
+      data: CustomFieldDefinition[] | undefined;
+    };
 
-  const { data: customFieldValues = [] } = useGetCustomFieldValuesByTask(
-    taskId ?? "",
-  );
+  const { data: customFieldValues = EMPTY_CUSTOM_FIELD_VALUES } =
+    useGetCustomFieldValuesByTask(taskId ?? "");
 
   const { mutateAsync: setCustomFieldValue } = useSetCustomFieldValue();
   const { canUpdateTasks } = useWorkspacePermission();
   const canEdit = canUpdateTasks();
 
-  const [localValues, setLocalValues] = useState<CustomFieldValueMap>({});
-
-  useEffect(() => {
+  const serverValues = useMemo(() => {
     const valuesMap: CustomFieldValueMap = {};
 
     for (const field of customFields) {
@@ -142,15 +144,14 @@ export default function TaskDetailsContent({
           : (val.value ?? "");
     }
 
-    setLocalValues(valuesMap);
+    return valuesMap;
   }, [customFields, customFieldValues]);
 
-  const handleLocalChange = (fieldId: string, val: string | string[]) => {
-    setLocalValues((prev: CustomFieldValueMap) => ({
-      ...prev,
-      [fieldId]: val,
-    }));
-  };
+  const {
+    values: localValues,
+    change: handleLocalChange,
+    finish,
+  } = useCustomFieldDrafts(taskId, serverValues);
 
   const handleSaveField = async (fieldId: string, value: string | string[]) => {
     if (!taskId) return;
@@ -169,7 +170,10 @@ export default function TaskDetailsContent({
       ? JSON.stringify(safeParseMultiselect(existingRaw))
       : existingRaw;
 
-    if (serializedValue === existingComparable) return;
+    if (serializedValue === existingComparable) {
+      finish(fieldId, value);
+      return;
+    }
 
     try {
       await setCustomFieldValue({
@@ -179,10 +183,12 @@ export default function TaskDetailsContent({
         projectId,
       });
 
+      finish(fieldId, value);
       toast.success(t("tasks:detail.customFieldUpdated", "Field updated"));
     } catch (error) {
-      handleLocalChange(
+      finish(
         fieldId,
+        value,
         isMultiselect ? safeParseMultiselect(existingRaw) : existingRaw,
       );
       toast.error(

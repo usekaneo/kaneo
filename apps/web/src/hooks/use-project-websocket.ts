@@ -67,8 +67,6 @@ export function useProjectWebSocket(projectId: string) {
               ["custom-fields", projectId],
               ["custom-field-values"],
               ["custom-field-filter-values", projectId],
-              ["tasks", projectId],
-              ["task"],
             ]) {
               void queryClient.invalidateQueries({ queryKey });
             }
