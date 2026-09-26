@@ -364,14 +364,16 @@ export function registerMcpTools(
   registerTool(
     "list_tasks",
     {
-      description: "List tasks for a project (optionally filtered/sorted).",
+      description:
+        "List a bounded page of tasks for a project (50 by default, maximum 100). Use pagination.totalPages and page to retrieve the rest; filters and sorting apply before pagination. For every task page, also follow relatedPage through pagination.relatedTotalPages for complete labels, links and column metadata.",
       inputSchema: z.object({
         projectId: nonEmptyString,
         status: optionalNonEmptyString,
         priority: prioritySchema.optional(),
         assigneeId: optionalNonEmptyString,
-        page: z.number().int().positive().optional(),
-        limit: z.number().int().positive().optional(),
+        page: z.number().int().min(1).max(1_000_000).optional(),
+        relatedPage: z.number().int().min(1).max(1_000_000).optional(),
+        limit: z.number().int().min(1).max(100).optional(),
         sortBy: z
           .enum([
             "createdAt",
@@ -444,6 +446,28 @@ export function registerMcpTools(
       if (args.userId !== undefined) body.userId = args.userId;
       return run(() =>
         client.json(`/api/task/${encodeURIComponent(args.projectId)}`, {
+          method: "POST",
+          body: JSON.stringify(body),
+        }),
+      );
+    },
+  );
+
+  registerTool(
+    "duplicate_task",
+    {
+      description:
+        "Duplicate a task in the same project, copying its fields and labels. Pass title to rename the copy.",
+      inputSchema: z.object({
+        taskId: nonEmptyString,
+        title: optionalNonEmptyString,
+      }),
+    },
+    async (args) => {
+      const body: Record<string, string> = {};
+      if (args.title !== undefined) body.title = args.title;
+      return run(() =>
+        client.json(`/api/task/duplicate/${encodeURIComponent(args.taskId)}`, {
           method: "POST",
           body: JSON.stringify(body),
         }),

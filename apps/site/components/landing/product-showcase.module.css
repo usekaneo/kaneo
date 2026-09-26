@@ -1,0 +1,147 @@
+.screen {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 0 80px 8px color-mix(in srgb, var(--foreground) 7%, transparent);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 16px;
+}
+
+.sceneButton,
+.playButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+
+.sceneButton[aria-pressed="true"] { color: var(--foreground); }
+.sceneButton:focus-visible,
+.playButton:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+.playButton { width: 40px; padding: 0; }
+.sceneButton[aria-pressed="true"]::after {
+  content: "";
+  position: absolute;
+  height: 1px;
+  bottom: 0;
+  left: 12px;
+  right: 12px;
+  background: var(--foreground);
+}
+
+.cursor {
+  position: absolute;
+  z-index: 40;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  transition: transform 700ms cubic-bezier(0.77, 0, 0.175, 1);
+}
+.cursorHand {
+  position: absolute;
+  top: -6px;
+  left: -18px;
+  width: 64px;
+  height: 68px;
+  max-width: none;
+  opacity: 0;
+  filter: drop-shadow(0 2px 3px rgb(0 0 0 / 25%));
+  transform-origin: 18px 6px;
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.cursor[data-hand="pointing"] [data-pose="pointing"],
+.cursor[data-hand="open"] [data-pose="open"],
+.cursor[data-hand="closed"] [data-pose="closed"] { opacity: 1; }
+.cursor[data-hand="closed"] { transition-duration: 1100ms; }
+.cursor[data-hand="open"] .cursorHand,
+.cursor[data-hand="closed"] .cursorHand { top: -30px; left: -30px; }
+.cursor[data-pressed="true"][data-hand="pointing"] .cursorHand { transform: scale(0.9); }
+.draggedCard {
+  position: absolute;
+  z-index: 30;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 12px rgb(0 0 0 / 20%));
+}
+.clickPulse {
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--foreground);
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0.7);
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), opacity 160ms ease;
+}
+.cursor[data-pressed="true"][data-hand="pointing"] .clickPulse { opacity: 0.35; transform: scale(1); }
+
+.poof {
+  position: absolute;
+  z-index: 40;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+.poofParticle {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--foreground);
+  animation: cursor-poof 200ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+.poof::before {
+  content: "";
+  position: absolute;
+  top: -16px;
+  left: -16px;
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--foreground);
+  border-radius: 50%;
+  animation: cursor-poof-ring 200ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+@keyframes cursor-poof {
+  from { opacity: 1; transform: translate(calc(var(--poof-x) * 0.2), calc(var(--poof-y) * 0.2)) scale(0.95); }
+  35% { opacity: 1; }
+  to { opacity: 0; transform: translate(var(--poof-x), var(--poof-y)) scale(0.2); }
+}
+@keyframes cursor-poof-ring {
+  from { opacity: 0.85; transform: scale(0.95); }
+  60%, to { opacity: 0; transform: scale(1.8); }
+}
+@keyframes cursor-poof-fade {
+  from { opacity: 0.5; }
+  to { opacity: 0; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sceneButton:hover,
+  .playButton:hover { background: var(--muted); color: var(--foreground); }
+}
+@media (max-width: 600px) {
+  .controls { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) auto; gap: 2px; }
+  .sceneButton, .playButton { min-height: 44px; padding-inline: 4px; gap: 4px; font-size: 11px; }
+  .playButton { width: 36px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cursor { display: none; transition: none; }
+  .poof::before { display: none; }
+  .poofParticle { animation: cursor-poof-fade 160ms ease both; }
+}

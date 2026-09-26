@@ -44,6 +44,7 @@ import {
 import useImportGitlabIssues from "@/hooks/mutations/gitlab-integration/use-import-gitlab-issues";
 import { useUpdateGitlabIntegration } from "@/hooks/mutations/gitlab-integration/use-update-gitlab-integration";
 import useGetGitlabIntegration from "@/hooks/queries/gitlab-integration/use-get-gitlab-integration";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
 
@@ -99,6 +100,7 @@ export function GitlabIntegrationSettings({
   projectId: string;
 }) {
   const { t } = useTranslation();
+  const { canCreateTasks, canUpdateTasks } = useWorkspacePermission();
 
   const gitlabIntegrationSchema = React.useMemo(
     () =>
@@ -443,7 +445,9 @@ export function GitlabIntegrationSettings({
     verificationResult?.result.isInstalled &&
     verificationResult.result.hasRequiredPermissions &&
     snapshotsMatch(verificationResult.verified, currentVerificationSnapshot);
-  const canImport = isConnected && Boolean(hasVerifiedCurrentValues);
+  const hasImportPermission = canCreateTasks() && canUpdateTasks();
+  const canImport =
+    isConnected && Boolean(hasVerifiedCurrentValues) && hasImportPermission;
 
   const gitlabProjectUrl = integration?.baseUrl
     ? `${integration.baseUrl.replace(/\/$/, "")}/${integration.projectPath}`
@@ -886,7 +890,9 @@ export function GitlabIntegrationSettings({
             <>
               <Separator />
               <p className="text-xs text-muted-foreground">
-                {t("settings:gitlabIntegration.importDisabledHint")}
+                {hasImportPermission
+                  ? t("settings:gitlabIntegration.importDisabledHint")
+                  : t("settings:gitlabIntegration.importPermissionHint")}
               </p>
             </>
           )}

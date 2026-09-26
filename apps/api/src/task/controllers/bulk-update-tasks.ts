@@ -43,6 +43,8 @@ async function bulkUpdateTasks({
     .select({
       id: taskTable.id,
       title: taskTable.title,
+      status: taskTable.status,
+      priority: taskTable.priority,
       projectId: taskTable.projectId,
       userId: taskTable.userId,
       dueDate: taskTable.dueDate,
@@ -111,9 +113,10 @@ async function bulkUpdateTasks({
           ),
         });
 
-        const projectTaskIds = tasks
-          .filter((t) => t.projectId === projectId)
-          .map((t) => t.id);
+        const projectTasks = tasks.filter(
+          (task) => task.projectId === projectId,
+        );
+        const projectTaskIds = projectTasks.map((task) => task.id);
 
         const result = await db
           .update(taskTable)
@@ -122,12 +125,15 @@ async function bulkUpdateTasks({
 
         updatedCount += result.rowCount ?? projectTaskIds.length;
 
-        for (const taskId of projectTaskIds) {
+        for (const task of projectTasks) {
           await publishEvent("task.status_changed", {
-            taskId,
+            taskId: task.id,
             projectId,
             userId,
+            oldStatus: task.status,
             newStatus: value,
+            title: task.title,
+            assigneeId: task.userId,
             type: "status_changed",
           });
         }
@@ -158,7 +164,9 @@ async function bulkUpdateTasks({
           taskId: task.id,
           projectId: task.projectId,
           userId,
+          oldPriority: task.priority,
           newPriority: value,
+          title: task.title,
           type: "priority_changed",
         });
       }

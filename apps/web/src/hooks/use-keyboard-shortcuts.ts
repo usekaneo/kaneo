@@ -92,13 +92,15 @@ export function KeyboardShortcutsProvider({
 
   const registerShortcut = useCallback(
     (key: string, handler: ShortcutHandler) => {
-      setShortcuts((prev) => new Map(prev).set(key, handler));
+      setShortcuts((prev) => new Map(prev).set(key.toLowerCase(), handler));
     },
     [],
   );
 
   const registerSequentialShortcut = useCallback(
-    (prefix: string, key: string, handler: ShortcutHandler) => {
+    (inputPrefix: string, inputKey: string, handler: ShortcutHandler) => {
+      const prefix = inputPrefix.toLowerCase();
+      const key = inputKey.toLowerCase();
       setSequentialShortcuts((prev) => {
         const newMap = new Map(prev);
         if (!newMap.has(prefix)) {
@@ -125,13 +127,15 @@ export function KeyboardShortcutsProvider({
   const unregisterShortcut = useCallback((key: string) => {
     setShortcuts((prev) => {
       const newMap = new Map(prev);
-      newMap.delete(key);
+      newMap.delete(key.toLowerCase());
       return newMap;
     });
   }, []);
 
   const unregisterSequentialShortcut = useCallback(
-    (prefix: string, key: string) => {
+    (inputPrefix: string, inputKey: string) => {
+      const prefix = inputPrefix.toLowerCase();
+      const key = inputKey.toLowerCase();
       setSequentialShortcuts((prev) => {
         const newMap = new Map(prev);
         if (newMap.has(prefix)) {

@@ -205,10 +205,10 @@ const importIssuesRoute = createRoute({
   tags: ["GitLab"],
   summary: "Import GitLab issues",
   description:
-    "Import the linked project's open issues as tasks. Issues that already have a task are refreshed rather than duplicated.",
+    "Import the linked project's open issues as tasks. Issues that already have a task are refreshed rather than duplicated. Requires task:create and task:update permissions.",
   middleware: [
     scopeToProjectFromBody,
-    requireWorkspacePermission({ task: ["create"] }),
+    requireWorkspacePermission({ task: ["create", "update"] }),
   ] as const,
   request: {
     body: {
@@ -220,7 +220,7 @@ const importIssuesRoute = createRoute({
     200: jsonResponse("Import summary", gitlabImportResultSchema),
     400: errorResponse("projectId is required"),
     403: errorResponse(
-      "No workspace access, or missing task:create permission",
+      "No workspace access, or missing task:create or task:update permission",
     ),
     404: errorResponse("Project not found"),
   },

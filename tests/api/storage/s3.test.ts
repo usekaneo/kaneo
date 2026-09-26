@@ -1,3 +1,4 @@
+import { S3Client } from "@aws-sdk/client-s3";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   applyKeyPrefix,
@@ -5,6 +6,7 @@ import {
   assertTaskImageKeyMatchesContext,
   buildObjectKey,
   buildObjectKeyPrefix,
+  copyTaskAssetObject,
   createTaskImageUploadUrl,
   getFileExtension,
   isImageContentType,
@@ -218,12 +220,25 @@ describe("S3 helpers", () => {
       "A valid content type is required.",
     );
     expect(() => validateTaskAssetUploadInput("image/png", 0)).toThrow(
-      "Upload size must be greater than zero.",
+      "Upload size must be a positive safe integer.",
     );
     expect(() =>
       validateTaskAssetUploadInput("image/png", 2 * 1024 * 1024),
     ).toThrow("Upload exceeds the maximum upload size of 1MB.");
     expect(() => validateTaskAssetUploadInput("image/png", 512)).not.toThrow();
+  });
+
+  it.each([
+    Number.NaN,
+    Number.POSITIVE_INFINITY,
+    Number.NEGATIVE_INFINITY,
+    -1,
+    0.5,
+    Number.MAX_SAFE_INTEGER + 1,
+  ])("rejects invalid byte length %s before signing", (size) => {
+    expect(() => validateTaskAssetUploadInput("image/png", size)).toThrow(
+      "Upload size must be a positive safe integer.",
+    );
   });
 
   it("creates presigned upload URLs without hoisted checksum query params", async () => {
@@ -242,11 +257,55 @@ describe("S3 helpers", () => {
       surface: "description",
       filename: "report.png",
       contentType: "image/png",
+      size: 512,
     });
 
     const searchParams = new URL(upload.uploadUrl).searchParams;
+    expect(searchParams.get("X-Amz-SignedHeaders")?.split(";")).toEqual(
+      expect.arrayContaining(["content-length", "content-type", "host"]),
+    );
+    expect(upload.headers).not.toHaveProperty("Content-Length");
     expect(searchParams.has("x-amz-checksum-crc32")).toBe(false);
     expect(searchParams.has("x-amz-sdk-checksum-algorithm")).toBe(false);
+  });
+
+  it("copies a stored object into the destination task prefix", async () => {
+    process.env.S3_ENDPOINT = "https://storage.example.test";
+    process.env.S3_BUCKET = "kaneo";
+    process.env.S3_ACCESS_KEY_ID = "test-access-key";
+    process.env.S3_SECRET_ACCESS_KEY = "test-secret-key";
+    process.env.S3_KEY_PREFIX = "kaneo-assets";
+
+    const send = vi
+      .spyOn(S3Client.prototype, "send")
+      .mockResolvedValue(undefined as never);
+
+    const key = await copyTaskAssetObject({
+      sourceKey: "workspace/w1/project/p1/task/t1/descriptions/report.png",
+      destination: {
+        workspaceId: "workspace-1",
+        projectId: "project-1",
+        taskId: "task-2",
+        surface: "description",
+        filename: "report.png",
+        contentType: "image/png",
+      },
+    });
+
+    expect(key).toMatch(
+      /^kaneo-assets\/workspace\/workspace-1\/project\/project-1\/task\/task-2\/descriptions\/report-\d+-[a-z0-9]+\.png$/,
+    );
+
+    const command = send.mock.calls[0]?.[0] as {
+      input: Record<string, string>;
+    };
+
+    expect(command.input).toMatchObject({
+      Bucket: "kaneo",
+      CopySource:
+        "kaneo/workspace/w1/project/p1/task/t1/descriptions/report.png",
+      Key: key,
+    });
   });
 
   it("resolveS3Credentials returns explicit credentials when both keys are set", () => {
@@ -359,6 +418,7 @@ describe("S3 credential provider chain (IAM role)", () => {
       surface: "description",
       filename: "report.png",
       contentType: "image/png",
+      size: 512,
     });
 
     const searchParams = new URL(upload.uploadUrl).searchParams;

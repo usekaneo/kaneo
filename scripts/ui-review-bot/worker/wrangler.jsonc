@@ -1,0 +1,20 @@
+{
+	"name": "peekareq-webhook",
+	"main": "index.mjs",
+	"compatibility_date": "2026-09-17",
+	"compatibility_flags": ["nodejs_compat"],
+	"workers_dev": true,
+	"preview_urls": false,
+	"observability": { "enabled": true, "head_sampling_rate": 1 },
+	"vars": {
+		"APP_CLIENT_ID": "Iv23lixp43MQ9wWMYBcK",
+		"INSTALLATION_ID": "162493570"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "peekareq-commands",
+			"database_id": "c0ab5e14-3cdb-43f2-bfc0-45e7604a3c99"
+		}
+	]
+}

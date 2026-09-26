@@ -62,6 +62,7 @@ async function syncGitlabLabelsToTask(
   taskId: string,
   workspaceId: string,
   gitlabLabels: Array<{ name: string; color: string }>,
+  previousLabels: GitlabWebhookLabel[] | undefined,
 ) {
   const desiredNames = new Set(gitlabLabels.map((l) => l.name));
   const existingRows = await db.query.labelTable.findMany({
@@ -104,10 +105,13 @@ async function syncGitlabLabelsToTask(
       });
   }
 
+  // Absence from GitLab alone does not imply removal: local labels may not
+  // have synced yet. Only delete names explicitly removed by this event.
+  const previousNames = new Set(
+    nonSystemLabels(previousLabels).map((label) => label.name),
+  );
   const labelsToDelete = existingRows
-    .filter(
-      (row) => !desiredNames.has(row.name) && !isSystemLabelName(row.name),
-    )
+    .filter((row) => previousNames.has(row.name) && !desiredNames.has(row.name))
     .map((row) => row.id);
 
   if (labelsToDelete.length > 0) {
@@ -215,7 +219,7 @@ export async function handleGitlabIssueUpdated(
         }
       }
 
-      if (!touchedLabels) {
+      if (!touchedLabels || !currentLabels) {
         continue;
       }
 
@@ -254,6 +258,7 @@ export async function handleGitlabIssueUpdated(
           task.id,
           task.project.workspaceId,
           nonSystemLabels(currentLabels),
+          changes?.labels?.previous,
         );
       }
     } catch (error) {

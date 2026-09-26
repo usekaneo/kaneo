@@ -1,13 +1,14 @@
 import { client } from "@kaneo/libs";
 
+import { HttpError } from "@/lib/http-error";
+
 async function importGiteaIssues(projectId: string) {
   const response = await client["gitea-integration"]["import-issues"].$post({
     json: { projectId },
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    throw new HttpError(response.status, await response.text());
   }
 
   return response.json();

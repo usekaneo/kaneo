@@ -40,6 +40,7 @@ import {
   getDueDateStatus,
   isTaskCompleted,
 } from "@/lib/due-date-status";
+import { getExternalWebUrl, openExternalWebUrl } from "@/lib/external-url";
 import { getInitials } from "@/lib/get-initials";
 import { getTaskItemStats } from "@/lib/get-task-item-stats";
 import { getPriorityIcon } from "@/lib/priority";
@@ -84,13 +85,18 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
   const isTaskSelected = isSelected(task.id);
   const isTaskFocused = isFocused(task.id);
   const taskItemStats = useMemo(
-    () => getTaskItemStats(task.description),
-    [task.description],
+    () =>
+      showTaskItemCounts && !task.descriptionDeferred
+        ? getTaskItemStats(task.description)
+        : null,
+    [task.description, task.descriptionDeferred, showTaskItemCounts],
   );
 
   const pullRequests = useMemo(() => {
     return (task.externalLinks ?? []).filter(
-      (link) => link.resourceType === "pull_request",
+      (link) =>
+        link.resourceType === "pull_request" &&
+        getExternalWebUrl(link.url) !== null,
     );
   }, [task.externalLinks]);
 
@@ -334,7 +340,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                 </HoverCard>
               )}
 
-              {showTaskItemCounts && taskItemStats.total > 0 && (
+              {taskItemStats && taskItemStats.total > 0 && (
                 <span
                   className={cn(
                     "flex items-center gap-1 text-[10px] px-2 py-1 rounded bg-muted/50 text-muted-foreground h-5.5",
@@ -372,7 +378,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        window.open(pullRequests[0].url, "_blank");
+                        openExternalWebUrl(pullRequests[0].url);
                       }}
                       className="inline-flex items-center gap-1.5 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground"
                     >
@@ -450,7 +456,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                               )}
                               <button
                                 type="button"
-                                onClick={() => window.open(pr.url, "_blank")}
+                                onClick={() => openExternalWebUrl(pr.url)}
                                 className="w-full px-2 py-1.5 text-left hover:bg-muted/50 rounded transition-colors"
                               >
                                 <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">

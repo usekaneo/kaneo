@@ -10,6 +10,7 @@ import {
   errorResponse,
   jsonResponse,
 } from "../openapi";
+import { requireUserSession } from "../utils/require-user-session";
 import { validateWorkspaceAccess } from "../utils/validate-workspace-access";
 import { creemWebhookSecret, isBillingEnabled } from "./config";
 import createCheckout from "./controllers/create-checkout";
@@ -92,6 +93,7 @@ const getWorkspaceBillingRoute = createRoute({
 });
 
 const createCheckoutRoute = createRoute({
+  middleware: [requireUserSession] as const,
   ...cloudOnly,
   method: "post",
   operationId: "createBillingCheckout",
@@ -115,6 +117,7 @@ const createCheckoutRoute = createRoute({
 });
 
 const createPortalRoute = createRoute({
+  middleware: [requireUserSession] as const,
   ...cloudOnly,
   method: "post",
   operationId: "createBillingPortalSession",

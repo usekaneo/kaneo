@@ -3,6 +3,7 @@ import { blogCategoryPath } from "@/lib/blog/types";
 import { cn } from "@/lib/utils";
 import { BlogPostCard } from "./blog-post-card";
 import { FadeIn } from "./fade-in";
+import { PageIntro } from "./page-intro";
 
 export function BlogCategoryFilter({
   categories,
@@ -12,7 +13,7 @@ export function BlogCategoryFilter({
   activeSlug?: string;
 }) {
   const chip =
-    "inline-flex h-8 items-center rounded-lg border px-3 text-sm transition-colors";
+    "inline-flex min-h-11 items-center rounded-lg border px-4 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-4";
 
   return (
     <nav aria-label="Blog categories" className="flex flex-wrap gap-2">
@@ -20,9 +21,10 @@ export function BlogCategoryFilter({
         className={cn(
           chip,
           activeSlug
-            ? "border-border/70 text-foreground/70 hover:bg-accent hover:text-foreground"
+            ? "border-border/70 text-muted-foreground hover:bg-accent hover:text-foreground"
             : "border-transparent bg-primary text-primary-foreground",
         )}
+        aria-current={!activeSlug ? "page" : undefined}
         href="/blog"
       >
         All posts
@@ -33,8 +35,9 @@ export function BlogCategoryFilter({
             chip,
             activeSlug === category.slug
               ? "border-transparent bg-primary text-primary-foreground"
-              : "border-border/70 text-foreground/70 hover:bg-accent hover:text-foreground",
+              : "border-border/70 text-muted-foreground hover:bg-accent hover:text-foreground",
           )}
+          aria-current={activeSlug === category.slug ? "page" : undefined}
           href={blogCategoryPath(category.slug)}
           key={category.slug}
         >
@@ -63,23 +66,9 @@ export function BlogIndex({
   posts: BlogPost[];
 }) {
   return (
-    <section className="px-6 pt-14 pb-16 md:pt-20 md:pb-20">
+    <section className="px-6 pt-14 pb-16 md:pt-20 md:pb-20 lg:pt-24">
       <div className="mx-auto w-full max-w-6xl">
-        <div className="max-w-2xl">
-          <FadeIn delay={0}>
-            <p className="font-medium text-primary text-sm">{eyebrow}</p>
-          </FadeIn>
-          <FadeIn delay={60}>
-            <h1 className="mt-3 text-balance text-4xl font-medium leading-[1.06] md:text-5xl">
-              {title}
-            </h1>
-          </FadeIn>
-          <FadeIn delay={120}>
-            <p className="mt-5 text-balance text-foreground/70 text-lg leading-relaxed">
-              {description}
-            </p>
-          </FadeIn>
-        </div>
+        <PageIntro eyebrow={eyebrow} title={title} description={description} />
 
         <FadeIn delay={180}>
           <div className="mt-10">
@@ -105,7 +94,7 @@ export function BlogIndex({
         ) : null}
 
         {!featured && posts.length === 0 ? (
-          <p className="mt-10 text-foreground/60">
+          <p className="mt-10 text-muted-foreground">
             Nothing here yet. Check back soon.
           </p>
         ) : null}
