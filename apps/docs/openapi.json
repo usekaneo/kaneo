@@ -7275,7 +7275,8 @@
                       "delete",
                       "addLabel",
                       "removeLabel",
-                      "updateDueDate"
+                      "updateDueDate",
+                      "updateSchedule"
                     ]
                   },
                   "value": {
@@ -7283,7 +7284,35 @@
                       "string",
                       "null"
                     ],
-                    "description": "The new value for the chosen operation. Unused by `delete`; null clears an assignee or due date."
+                    "description": "The new value for the chosen operation. Unused by `delete` and `updateSchedule`; null clears an assignee or due date."
+                  },
+                  "scheduleUpdates": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "taskId": {
+                          "type": "string"
+                        },
+                        "startDate": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "dueDate": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "taskId"
+                      ]
+                    },
+                    "minItems": 1,
+                    "description": "Per-task start/due dates for the `updateSchedule` operation — e.g. a Gantt drag that cascades forward through `blocks` dependencies. Required by that operation; ignored by every other one. Every taskId here must also be in `taskIds`."
                   }
                 },
                 "required": [

@@ -46,11 +46,29 @@ export const bulkUpdateBody = z.object({
     "addLabel",
     "removeLabel",
     "updateDueDate",
+    "updateSchedule",
   ]),
   value: z.string().nullable().optional().openapi({
     description:
-      "The new value for the chosen operation. Unused by `delete`; null clears an assignee or due date.",
+      "The new value for the chosen operation. Unused by `delete` and `updateSchedule`; null clears an assignee or due date.",
   }),
+  scheduleUpdates: z
+    .array(
+      z.object({
+        taskId: z.string(),
+        startDate: z.string().nullable().optional(),
+        dueDate: z.string().nullable().optional(),
+      }),
+    )
+    .min(1)
+    .optional()
+    .openapi({
+      description:
+        "Per-task start/due dates for the `updateSchedule` operation — e.g. " +
+        "a Gantt drag that cascades forward through `blocks` dependencies. " +
+        "Required by that operation; ignored by every other one. Every " +
+        "taskId here must also be in `taskIds`.",
+    }),
 });
 
 export const createTaskBody = z.object({

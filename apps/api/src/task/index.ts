@@ -663,7 +663,8 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
     return c.json(tasks, 200);
   })
   .openapi(bulkUpdateTasksRoute, async (c) => {
-    const { taskIds, operation, value } = c.req.valid("json");
+    const { taskIds, operation, value, scheduleUpdates } =
+      c.req.valid("json");
     const userId = c.get("userId");
 
     if (!userId) {
@@ -673,6 +674,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
     if (
       operation !== "delete" &&
       operation !== "updateDueDate" &&
+      operation !== "updateSchedule" &&
       value === undefined
     ) {
       throw new HTTPException(400, {
@@ -680,10 +682,17 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       });
     }
 
+    if (operation === "updateSchedule" && !scheduleUpdates?.length) {
+      throw new HTTPException(400, {
+        message: "scheduleUpdates is required for updateSchedule",
+      });
+    }
+
     const result = await bulkUpdateTasks({
       taskIds,
       operation,
       value,
+      scheduleUpdates,
       userId,
     });
 

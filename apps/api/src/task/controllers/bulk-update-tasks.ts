@@ -14,6 +14,10 @@ import { removeLabelFromGitea } from "../../plugins/gitea/utils/sync-label-to-gi
 import { removeLabelFromGitHub } from "../../plugins/github/utils/sync-label-to-github";
 import { assertAssignableUser } from "../../utils/assert-assignable-user";
 import {
+  validateAndParseDate,
+  validateDateRange,
+} from "../../utils/validate-dates";
+import {
   assertValidPriority,
   assertValidTaskStatus,
 } from "../validate-task-fields";
@@ -25,17 +29,26 @@ type BulkOperation =
   | "delete"
   | "addLabel"
   | "removeLabel"
-  | "updateDueDate";
+  | "updateDueDate"
+  | "updateSchedule";
+
+type ScheduleUpdate = {
+  taskId: string;
+  startDate?: string | null;
+  dueDate?: string | null;
+};
 
 async function bulkUpdateTasks({
   taskIds,
   operation,
   value,
+  scheduleUpdates,
   userId,
 }: {
   taskIds: string[];
   operation: BulkOperation;
   value?: string | null;
+  scheduleUpdates?: ScheduleUpdate[];
   userId: string;
 }) {
   const tasks = await db
@@ -366,6 +379,80 @@ async function bulkUpdateTasks({
           newDueDate: parsedDate,
           title: task.title,
           type: "due_date_changed",
+        });
+      }
+      break;
+    }
+
+    case "updateSchedule": {
+      if (!scheduleUpdates || scheduleUpdates.length === 0) {
+        throw new HTTPException(400, {
+          message: "scheduleUpdates is required for updateSchedule",
+        });
+      }
+
+      const scheduleByTaskId = new Map(
+        scheduleUpdates.map((update) => [update.taskId, update]),
+      );
+      // Only touch tasks that are both workspace-scoped above (`tasks`) and
+      // carry a schedule entry — an id in one list but not the other is
+      // silently ignored, same as every other case only ever acting on
+      // `tasks`/`foundIds`.
+      const scheduledTasks = tasks.filter((task) =>
+        scheduleByTaskId.has(task.id),
+      );
+
+      if (scheduledTasks.length === 0) {
+        throw new HTTPException(400, {
+          message: "No matching tasks for the given scheduleUpdates",
+        });
+      }
+
+      const parsedByTaskId = new Map<
+        string,
+        { startDate: Date | null; dueDate: Date | null }
+      >();
+      for (const task of scheduledTasks) {
+        const update = scheduleByTaskId.get(task.id);
+        if (!update) continue;
+        const startDate =
+          update.startDate != null
+            ? validateAndParseDate(update.startDate, "startDate")
+            : null;
+        const dueDate =
+          update.dueDate != null
+            ? validateAndParseDate(update.dueDate, "dueDate")
+            : null;
+        validateDateRange(startDate, dueDate);
+        parsedByTaskId.set(task.id, { startDate, dueDate });
+      }
+
+      await db.transaction(async (tx) => {
+        for (const task of scheduledTasks) {
+          const parsed = parsedByTaskId.get(task.id);
+          if (!parsed) continue;
+          await tx
+            .update(taskTable)
+            .set({ startDate: parsed.startDate, dueDate: parsed.dueDate })
+            .where(eq(taskTable.id, task.id));
+        }
+      });
+
+      updatedCount = scheduledTasks.length;
+
+      // Mirrors what a plain, single-task Gantt drag/resize already
+      // publishes on commit (see update-task.ts) — a generic "something
+      // about this task changed" event, not the dedicated
+      // `task.due_date_changed` one, so an auto-cascaded reschedule reads
+      // in realtime/WS the same way a manual one already does rather than
+      // gaining its own distinct activity-feed entry.
+      for (const task of scheduledTasks) {
+        await publishEvent("task.updated", {
+          taskId: task.id,
+          projectId: task.projectId,
+          title: task.title,
+          status: task.status,
+          userId,
         });
       }
       break;

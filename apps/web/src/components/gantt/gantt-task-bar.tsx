@@ -43,9 +43,15 @@ type GanttTaskBarProps = {
    * route, which can see every other bar's box) that creates a "blocks"
    * relation when released over another bar. */
   onLinkDragStart?: (event: React.PointerEvent, taskId: string) => void;
+  /** Notified after a drag-move or resize successfully persists this task's
+   * own new start/due date — never on a no-op or a failed persist. The
+   * Gantt route uses this to cascade a forward push through any "blocks"
+   * dependents (see gantt-dependency-cascade.ts); it never affects this
+   * bar's own rendering. */
+  onDatesCommitted?: (taskId: string, start: Date, end: Date) => void;
 };
 
-function toIsoDay(d: Date) {
+export function toIsoDay(d: Date) {
   return startOfDay(d).toISOString();
 }
 
@@ -58,6 +64,7 @@ export function GanttTaskBar({
   emphasis = "normal",
   onHoverChange,
   onLinkDragStart,
+  onDatesCommitted,
 }: GanttTaskBarProps) {
   const { t } = useTranslation();
   const { mutateAsync: updateTask } = useUpdateTask();
@@ -161,6 +168,8 @@ export function GanttTaskBar({
       const ok = await persistDates(nextStart, initialEnd);
       if (!ok) {
         setDragDisplay(null);
+      } else {
+        onDatesCommitted?.(task.id, nextStart, initialEnd);
       }
     };
 
@@ -211,6 +220,8 @@ export function GanttTaskBar({
       const ok = await persistDates(initialStart, nextEnd);
       if (!ok) {
         setDragDisplay(null);
+      } else {
+        onDatesCommitted?.(task.id, initialStart, nextEnd);
       }
     };
 
@@ -278,6 +289,8 @@ export function GanttTaskBar({
       const ok = await persistDates(nextStart, nextEnd);
       if (!ok) {
         setDragDisplay(null);
+      } else {
+        onDatesCommitted?.(task.id, nextStart, nextEnd);
       }
     };
 

@@ -2213,7 +2213,9 @@
 			"collapseSubtasks": "Collapse subtasks",
 			"expandSubtasks": "Expand subtasks",
 			"summaryAriaLabel": "{{title}}: summary of subtasks, open task",
-			"linkHandleAriaLabel": "{{title}}: drag to create a dependency"
+			"linkHandleAriaLabel": "{{title}}: drag to create a dependency",
+			"dependentsRescheduled": "Rescheduled {{count}} dependent tasks",
+			"dependentsRescheduleError": "Failed to reschedule dependent tasks"
 		},
 		"delete": {
 			"title": "删除任务？",

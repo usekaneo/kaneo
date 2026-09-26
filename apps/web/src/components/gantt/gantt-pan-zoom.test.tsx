@@ -65,6 +65,9 @@ vi.mock("@/hooks/queries/task/use-get-tasks", () => ({
 vi.mock("@/hooks/mutations/task/use-update-task", () => ({
   useUpdateTask: () => ({ mutateAsync: vi.fn() }),
 }));
+vi.mock("@/hooks/mutations/task/use-bulk-update-task-schedule", () => ({
+  useBulkUpdateTaskSchedule: () => ({ mutateAsync: vi.fn() }),
+}));
 vi.mock("@/hooks/mutations/task-relation/use-create-task-relation", () => ({
   default: () => ({ mutateAsync: vi.fn() }),
 }));

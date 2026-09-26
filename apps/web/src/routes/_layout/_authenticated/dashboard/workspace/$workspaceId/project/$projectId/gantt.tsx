@@ -22,6 +22,8 @@ import type {
   TaskBarBox,
 } from "@/components/gantt/dependency-lines";
 import { buildDependencyEdges } from "@/components/gantt/dependency-lines";
+import type { CascadeEdge } from "@/components/gantt/gantt-dependency-cascade";
+import { computeDependencyCascade } from "@/components/gantt/gantt-dependency-cascade";
 import { GanttDependencyOverlay } from "@/components/gantt/gantt-dependency-overlay";
 import type { ExternalGanttTask } from "@/components/gantt/gantt-external-task-bar";
 import { GanttExternalTaskBar } from "@/components/gantt/gantt-external-task-bar";
@@ -37,7 +39,7 @@ import {
   type LinkDropCandidate,
 } from "@/components/gantt/gantt-link-drag";
 import { GanttSummaryTaskBar } from "@/components/gantt/gantt-summary-task-bar";
-import { GanttTaskBar } from "@/components/gantt/gantt-task-bar";
+import { GanttTaskBar, toIsoDay } from "@/components/gantt/gantt-task-bar";
 import { computePanScrollPosition } from "@/components/gantt/pan";
 import {
   buildGanttGridMetrics,
@@ -61,6 +63,7 @@ import PageTitle from "@/components/page-title";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useBulkUpdateTaskSchedule } from "@/hooks/mutations/task/use-bulk-update-task-schedule";
 import useCreateTaskRelation from "@/hooks/mutations/task-relation/use-create-task-relation";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import useGetProjectTaskRelations from "@/hooks/queries/task-relation/use-get-project-task-relations";
@@ -455,6 +458,81 @@ function RouteComponent() {
       ];
     });
   }, [taskRelations]);
+
+  // Only "blocks" edges are scheduling constraints (see
+  // gantt-dependency-cascade.ts) — a "related" edge is purely informational
+  // and never pushes a dependent's dates. Kept separate from
+  // `dependencyEdges` above, which also draws "related" lines.
+  const blocksEdges = useMemo<CascadeEdge[]>(() => {
+    return (taskRelations ?? []).flatMap((relation) =>
+      relation.relationType === "blocks"
+        ? [
+            {
+              sourceTaskId: relation.sourceTaskId,
+              targetTaskId: relation.targetTaskId,
+              dependencyType: relation.dependencyType as
+                | "fs"
+                | "ss"
+                | "ff"
+                | "sf",
+              lagDays: relation.lagDays,
+            },
+          ]
+        : [],
+    );
+  }, [taskRelations]);
+
+  const bulkUpdateSchedule = useBulkUpdateTaskSchedule();
+
+  // Runs once a drag-move or resize has already persisted the DRAGGED task's
+  // own new dates (see onDatesCommitted on GanttTaskBar) — this only ever
+  // pushes its "blocks" DEPENDENTS later to keep the constraint satisfied,
+  // never touches the dragged task again, and never moves anything earlier
+  // (see gantt-dependency-cascade.ts for the full forward-only model).
+  //
+  // `ownScheduleByTaskId` is this project's own tasks with known dates —
+  // exactly the scope the cascade is allowed to shift (a cross-project
+  // dependent, or a same-project task with no dates, simply has no entry
+  // and is left alone). It can still be one render behind the task's actual
+  // new dates (the mutation that just resolved hasn't finished
+  // invalidating/refetching yet), so the moved task's own entry is
+  // overridden here with the dates it was just dragged/resized to, rather
+  // than trusting the stale cached copy.
+  const handleTaskDatesCommitted = useCallback(
+    (movedTaskId: string, start: Date, end: Date) => {
+      const tasksById = new Map(ownScheduleByTaskId);
+      tasksById.set(movedTaskId, { start, end });
+
+      const shifts = computeDependencyCascade({
+        movedTaskId,
+        edges: blocksEdges,
+        tasksById,
+      });
+      if (shifts.size === 0) return;
+
+      const scheduleUpdates = [...shifts.entries()].map(
+        ([taskId, schedule]) => ({
+          taskId,
+          startDate: toIsoDay(schedule.start),
+          dueDate: toIsoDay(schedule.end),
+        }),
+      );
+
+      bulkUpdateSchedule
+        .mutateAsync({ projectId, scheduleUpdates })
+        .then(() => {
+          toast.success(
+            t("tasks:gantt.dependentsRescheduled", {
+              count: scheduleUpdates.length,
+            }),
+          );
+        })
+        .catch(() => {
+          toast.error(t("tasks:gantt.dependentsRescheduleError"));
+        });
+    },
+    [ownScheduleByTaskId, blocksEdges, bulkUpdateSchedule, projectId, t],
+  );
 
   // A related/blocking task from another project has no row of its own on
   // this board, so a cross-project edge would otherwise always be dropped
@@ -1672,6 +1750,7 @@ function RouteComponent() {
                                 })
                               }
                               onLinkDragStart={handleLinkDragStart}
+                              onDatesCommitted={handleTaskDatesCommitted}
                             />
                           )}
                         </div>
