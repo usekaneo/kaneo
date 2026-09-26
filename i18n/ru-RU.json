@@ -518,7 +518,8 @@
 			"reminderLeadTimeUnitHours": "Часы",
 			"reminderLeadTimeUnitDays": "Дни",
 			"reminderLeadTimeInvalid": "Введите целое число от 1 до {{max}}.",
-			"saveEventPreferences": "Сохранить типы уведомлений"
+			"saveEventPreferences": "Сохранить типы уведомлений",
+			"recipientHint": "Комментарии и изменения статуса уведомляют вас о назначенных вам задачах. Упоминания уведомляют выбранного участника. Вы не получаете уведомлений о собственных комментариях, упоминаниях и изменениях статуса."
 		},
 		"preferencesPage": {
 			"title": "Настройки",

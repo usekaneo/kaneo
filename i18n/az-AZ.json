@@ -518,7 +518,8 @@
 			"toastPreferencesSaved": "Bildiriş tərcihləri yadda saxlanıldı",
 			"toastPreferencesSaveFailed": "Bildiriş tərcihlərini yadda saxlamaq alınmadı",
 			"toastRuleSavedGeneric": "İş sahəsinin bildiriş qaydası yadda saxlanıldı",
-			"toastRuleRemovedGeneric": "İş sahəsinin bildiriş qaydası çıxarıldı"
+			"toastRuleRemovedGeneric": "İş sahəsinin bildiriş qaydası çıxarıldı",
+			"recipientHint": "Şərhlər və status dəyişiklikləri sizə təyin edilmiş tapşırıqlar barədə bildiriş göndərir. Qeyd etmələr seçilmiş üzvə bildiriş göndərir. Öz şərhləriniz, qeyd etmələriniz və status dəyişiklikləriniz üçün bildiriş almırsınız."
 		},
 		"preferencesPage": {
 			"title": "Tərcihlər",

@@ -518,7 +518,8 @@
 			"reminderLeadTimeUnitHours": "Saat",
 			"reminderLeadTimeUnitDays": "Gün",
 			"reminderLeadTimeInvalid": "1 ile {{max}} arasında bir tam sayı girin.",
-			"saveEventPreferences": "Bildirim türlerini kaydet"
+			"saveEventPreferences": "Bildirim türlerini kaydet",
+			"recipientHint": "Yorumlar ve durum değişiklikleri, size atanan görevler hakkında bildirim gönderir. Bahsetmeler seçilen üyeye bildirim gönderir. Kendi yorumlarınız, bahsetmeleriniz ve durum değişiklikleriniz için bildirim almazsınız."
 		},
 		"preferencesPage": {
 			"title": "Tercihler",

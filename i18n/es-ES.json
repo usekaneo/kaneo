@@ -1064,7 +1064,8 @@
 			"toastPreferencesSaved": "Preferencias de notificación guardadas",
 			"toastPreferencesSaveFailed": "Error al guardar las preferencias de notificación",
 			"toastRuleSavedGeneric": "Regla de notificación del espacio de trabajo guardada",
-			"toastRuleRemovedGeneric": "Regla de notificación del espacio de trabajo eliminada"
+			"toastRuleRemovedGeneric": "Regla de notificación del espacio de trabajo eliminada",
+			"recipientHint": "Los comentarios y los cambios de estado te notifican sobre las tareas que tienes asignadas. Las menciones notifican al miembro seleccionado. Tus propios comentarios, menciones y cambios de estado no te envían notificaciones."
 		},
 		"workspaceRoles": {
 			"pageTitle": "Roles",

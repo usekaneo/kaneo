@@ -518,7 +518,8 @@
 			"toastPreferencesSaved": "Đã lưu tùy chọn thông báo",
 			"toastPreferencesSaveFailed": "Không thể lưu tùy chọn thông báo",
 			"toastRuleSavedGeneric": "Đã lưu quy tắc thông báo không gian làm việc",
-			"toastRuleRemovedGeneric": "Đã gỡ quy tắc thông báo không gian làm việc"
+			"toastRuleRemovedGeneric": "Đã gỡ quy tắc thông báo không gian làm việc",
+			"recipientHint": "Bình luận và thay đổi trạng thái thông báo cho bạn về các công việc được giao cho bạn. Lượt nhắc thông báo cho thành viên được chọn. Bạn không nhận thông báo về bình luận, lượt nhắc và thay đổi trạng thái do chính mình thực hiện."
 		},
 		"preferencesPage": {
 			"title": "Tùy chọn",

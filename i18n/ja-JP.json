@@ -518,7 +518,8 @@
 			"toastPreferencesSaved": "通知設定を保存しました",
 			"toastPreferencesSaveFailed": "通知設定の保存に失敗しました",
 			"toastRuleSavedGeneric": "ワークスペースの通知ルールを保存しました",
-			"toastRuleRemovedGeneric": "ワークスペースの通知ルールを削除しました"
+			"toastRuleRemovedGeneric": "ワークスペースの通知ルールを削除しました",
+			"recipientHint": "自分に割り当てられたタスクへのコメントやステータスの変更が通知されます。メンションは選択したメンバーに通知されます。自分のコメント、メンション、ステータスの変更は自分には通知されません。"
 		},
 		"preferencesPage": {
 			"title": "環境設定",

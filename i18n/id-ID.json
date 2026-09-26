@@ -518,7 +518,8 @@
 			"reminderLeadTimeUnitHours": "Jam",
 			"reminderLeadTimeUnitDays": "Hari",
 			"reminderLeadTimeInvalid": "Masukkan bilangan bulat antara 1 dan {{max}}.",
-			"saveEventPreferences": "Simpan jenis notifikasi"
+			"saveEventPreferences": "Simpan jenis notifikasi",
+			"recipientHint": "Komentar dan perubahan status memberi tahu Anda tentang tugas yang ditugaskan kepada Anda. Sebutan memberi tahu anggota yang dipilih. Komentar, sebutan, dan perubahan status Anda sendiri tidak mengirimkan notifikasi kepada Anda."
 		},
 		"preferencesPage": {
 			"title": "Preferensi",

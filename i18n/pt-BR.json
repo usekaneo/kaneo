@@ -518,7 +518,8 @@
 			"toastPreferencesSaved": "Preferências de notificação salvas",
 			"toastPreferencesSaveFailed": "Falha ao salvar preferências de notificação",
 			"toastRuleSavedGeneric": "Regra de notificação do espaço de trabalho salva",
-			"toastRuleRemovedGeneric": "Regra de notificação do espaço de trabalho removida"
+			"toastRuleRemovedGeneric": "Regra de notificação do espaço de trabalho removida",
+			"recipientHint": "Comentários e alterações de status notificam você sobre tarefas atribuídas a você. Menções notificam o membro selecionado. Seus próprios comentários, menções e alterações de status não enviam notificações a você."
 		},
 		"preferencesPage": {
 			"title": "Preferências",
