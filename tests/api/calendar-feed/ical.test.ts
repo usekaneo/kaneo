@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { buildCalendar } from "../../../apps/api/src/calendar-feed/ical";
+import {
+  buildCalendar,
+  streamCalendar,
+} from "../../../apps/api/src/calendar-feed/ical";
 
 const task: Parameters<typeof buildCalendar>[0]["tasks"][number] = {
   id: "task-1",
@@ -92,5 +95,58 @@ describe("iCalendar serialization", () => {
     expect(result.replaceAll("\r\n ", "")).toContain(`SUMMARY:${title}\r\n`);
     expect(result.replaceAll("\r\n", "")).not.toMatch(/[\r\n]/);
     expect(result.endsWith("END:VCALENDAR\r\n")).toBe(true);
+  });
+});
+
+describe("calendar streaming", () => {
+  it("matches the calendar format and reads tasks only as requested", async () => {
+    let reads = 0;
+    let closed = false;
+    async function* tasks() {
+      try {
+        for (let i = 0; i < 100; i++) {
+          reads++;
+          yield { ...task, id: String(i) };
+        }
+      } finally {
+        closed = true;
+      }
+    }
+    const stream = streamCalendar({
+      name: "Changes",
+      timeZone: "UTC",
+      tasks: tasks(),
+    });
+    const reader = stream.getReader();
+    expect(reads).toBe(0);
+    const header = await reader.read();
+    expect(new TextDecoder().decode(header.value)).toContain("BEGIN:VCALENDAR");
+    expect(reads).toBe(0);
+    const first = await reader.read();
+    expect(new TextDecoder().decode(first.value)).toContain("UID:0@kaneo");
+    expect(reads).toBe(1);
+    await reader.cancel();
+    expect(closed).toBe(true);
+    expect(reads).toBe(1);
+
+    async function* oneTask() {
+      yield task;
+    }
+    expect(
+      await new Response(
+        streamCalendar({ name: "Changes", timeZone: "UTC", tasks: oneTask() }),
+      ).text(),
+    ).toBe(calendar());
+  });
+
+  it("fails the response instead of completing a partial calendar when a batch fails", async () => {
+    async function* tasks() {
+      yield task;
+      throw new Error("Batch failed");
+    }
+    const response = new Response(
+      streamCalendar({ name: "Changes", timeZone: "UTC", tasks: tasks() }),
+    );
+    await expect(response.text()).rejects.toThrow("Batch failed");
   });
 });

@@ -50,6 +50,7 @@
 		"@tanstack/router-plugin": "^1.168.26",
 		"@tiptap/core": "^3.31.3",
 		"@tiptap/extension-code-block-lowlight": "^3.31.3",
+		"@tiptap/extension-hard-break": "^3.31.3",
 		"@tiptap/extension-image": "^3.31.3",
 		"@tiptap/extension-link": "^3.31.3",
 		"@tiptap/extension-list": "^3.31.3",
@@ -122,6 +123,6 @@
 		"tailwindcss": "^4.3.3",
 		"typescript": "~7.0.2",
 		"vite": "^8.2.0",
-		"vitest": "^4.1.11"
+		"vitest": "^5.0.1"
 	}
 }

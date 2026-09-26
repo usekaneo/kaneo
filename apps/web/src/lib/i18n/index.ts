@@ -48,14 +48,72 @@ export function getBrowserLocale(): string | null {
 // so cache it once per locale to avoid a fresh dynamic import per namespace.
 const localeResources = new Map<AppLocale, Promise<Record<string, unknown>>>();
 
+// One flag per locale so a successful load of the default locale does not
+// clear the guard for a different locale that is still failing.
+function reloadFlagKey(locale: AppLocale) {
+  return `locale-chunk-reload:${locale}`;
+}
+
+function getReloadFlag(locale: AppLocale): boolean {
+  try {
+    return sessionStorage.getItem(reloadFlagKey(locale)) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function setReloadFlag(locale: AppLocale): void {
+  try {
+    sessionStorage.setItem(reloadFlagKey(locale), "1");
+  } catch {
+    // sessionStorage unavailable — skip; reload guard will not work but that
+    // is safer than not reloading at all.
+  }
+}
+
+function clearReloadFlag(locale: AppLocale): void {
+  try {
+    sessionStorage.removeItem(reloadFlagKey(locale));
+  } catch {
+    // sessionStorage unavailable — nothing to clear.
+  }
+}
+
 function loadLocaleResources(
   locale: AppLocale,
 ): Promise<Record<string, unknown>> {
   const cached = localeResources.get(locale);
   if (cached) return cached;
-  const pending = loadLocale(locale).then(
-    (resources) => resources as Record<string, unknown>,
-  );
+  const pending = loadLocale(locale)
+    .then((resources) => {
+      // Successful load — clear the per-locale reload guard so a future
+      // stale-chunk failure in this same tab can still recover.
+      clearReloadFlag(locale);
+      return resources as Record<string, unknown>;
+    })
+    .catch((err: unknown) => {
+      // Evict the failed promise so future attempts are not permanently stuck.
+      localeResources.delete(locale);
+
+      // Only reload for recognised dynamic-import fetch failures (stale
+      // deployment). Network interruptions and other errors cannot be fixed
+      // by loading a newer bundle, so rethrow them without reloading.
+      if (
+        err instanceof TypeError &&
+        err.message.includes("Failed to fetch dynamically imported module")
+      ) {
+        if (!getReloadFlag(locale)) {
+          setReloadFlag(locale);
+          window.location.reload();
+          // Return a never-resolving promise so callers wait for the reload
+          // rather than receiving a rejected promise.
+          return new Promise<never>(() => {});
+        }
+        // Already reloaded once for this locale — fail without looping.
+      }
+
+      throw err;
+    });
   localeResources.set(locale, pending);
   return pending;
 }

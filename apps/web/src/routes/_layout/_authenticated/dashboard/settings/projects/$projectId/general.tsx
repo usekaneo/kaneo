@@ -5,7 +5,15 @@ import {
   useNavigate,
   useParams,
 } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ImageUp, Trash2 } from "lucide-react";
+import {
+  type ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
@@ -35,12 +43,25 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import icons from "@/constants/project-icons";
+import { getApiUrl } from "@/fetchers/get-api-url";
 import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
+import useMoveProject from "@/hooks/mutations/project/use-move-project";
+import useRemoveProjectBackground from "@/hooks/mutations/project/use-remove-project-background";
 import useUpdateProject from "@/hooks/mutations/project/use-update-project";
+import useUploadProjectBackground from "@/hooks/mutations/project/use-upload-project-background";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import useGetWorkspaces from "@/hooks/queries/workspace/use-get-workspaces";
+import { useWorkspacesWithPermission } from "@/hooks/queries/workspace/use-workspaces-with-permission";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
@@ -51,6 +72,11 @@ export const Route = createFileRoute(
 )({
   component: RouteComponent,
 });
+
+// Module-level so their identity stays stable across renders.
+const PROJECT_CREATE = { project: ["create"] };
+// Asked as one check: the endpoint requires both in the source workspace.
+const PROJECT_UPDATE_AND_DELETE = { project: ["update", "delete"] };
 
 type ProjectFormValues = {
   name: string;
@@ -104,16 +130,27 @@ function RouteComponent() {
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isSavingRef = useRef(false);
   const queuedSaveRef = useRef<ProjectFormValues | null>(null);
+  // The save currently in flight, so a caller that lands mid-save can await the
+  // real write instead of the queue hand-off returning immediately.
+  const inFlightSaveRef = useRef<Promise<boolean> | null>(null);
   const lastSavedRef = useRef<NormalizedProjectValues | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [iconPopoverOpen, setIconPopoverOpen] = useState(false);
   const [iconSearch, setIconSearch] = useState("");
+  const backgroundInputRef = useRef<HTMLInputElement>(null);
+  // Deliberately outside `projectForm`: the form auto-saves on every change,
+  // and the target workspace must only be applied from the confirm dialog.
+  const [targetWorkspaceId, setTargetWorkspaceId] = useState("");
+  const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
 
   const { data: workspace } = useActiveWorkspace();
   const { projectId: rawProjectId } = useParams({ strict: false });
   const projectId = rawProjectId ?? "";
   const { data: fetchedProject } = useGetTasks(projectId);
   const { project, setProject } = useProjectStore();
+  // The store is populated asynchronously from `useGetTasks`, so during a route
+  // transition it can still hold the previously viewed project.
+  const isCurrentProject = project?.id === projectId;
 
   useEffect(() => {
     if (fetchedProject) {
@@ -124,6 +161,54 @@ function RouteComponent() {
   const { mutateAsync: updateProject } = useUpdateProject();
   const { mutateAsync: deleteProject, isPending: isDeleting } =
     useDeleteProject();
+  const { mutate: uploadProjectBackground, isPending: isUploadingBackground } =
+    useUploadProjectBackground();
+  const { mutate: removeProjectBackground, isPending: isRemovingBackground } =
+    useRemoveProjectBackground();
+  const isUpdatingBackground = isUploadingBackground || isRemovingBackground;
+  const { mutateAsync: moveProject, isPending: isMoving } = useMoveProject();
+  const { data: workspaces } = useGetWorkspaces();
+  // Filtered against the project's own workspace rather than the active one:
+  // this route has no `workspaceId` param, so `useActiveWorkspace` falls back
+  // to the last-active organization, which can differ from where the project
+  // actually lives (deep link, bookmark, back after a workspace switch).
+  const moveCandidates = useMemo(
+    () => (workspaces ?? []).filter((item) => item.id !== project?.workspaceId),
+    [workspaces, project?.workspaceId],
+  );
+  // The endpoint also requires `project:create` in the target, so a workspace
+  // the user can't create in would only fail server-side after they picked it.
+  const moveCandidateIds = useMemo(
+    () => moveCandidates.map((item) => item.id),
+    [moveCandidates],
+  );
+  const { allowed: canCreateIn, isError: moveTargetsFailed } =
+    useWorkspacesWithPermission(moveCandidateIds, PROJECT_CREATE);
+  const moveTargets = useMemo(
+    () => moveCandidates.filter((item) => canCreateIn.has(item.id)),
+    [moveCandidates, canCreateIn],
+  );
+  // The API authorizes the move against the project's own workspace, which
+  // isn't necessarily the active one `useWorkspacePermission` answers for. It
+  // requires `delete` there on top of `update`, since a move takes the project
+  // out of that workspace.
+  const sourceWorkspaceIds = useMemo(
+    () => (project?.workspaceId ? [project.workspaceId] : []),
+    [project?.workspaceId],
+  );
+  const { allowed: canMoveOutOfSource } = useWorkspacesWithPermission(
+    sourceWorkspaceIds,
+    PROJECT_UPDATE_AND_DELETE,
+  );
+  const canMoveFromSource = Boolean(
+    project?.workspaceId && canMoveOutOfSource.has(project.workspaceId),
+  );
+  // Kept visible when the target lookup failed: an empty list would otherwise
+  // read as "you have nowhere to move this", which is a different answer.
+  const canShowMove =
+    canMoveFromSource &&
+    isCurrentProject &&
+    (moveTargets.length > 0 || moveTargetsFailed);
   const { canManageProjects, canDeleteProjects } = useWorkspacePermission();
   const canEdit = canManageProjects();
   const canDelete = canDeleteProjects();
@@ -160,8 +245,8 @@ function RouteComponent() {
   }, [project, projectForm]);
 
   const saveProject = useCallback(
-    async (data: ProjectFormValues) => {
-      if (!project?.id) return;
+    async (data: ProjectFormValues): Promise<boolean> => {
+      if (!project?.id) return false;
 
       const normalizedData = normalizeProjectValues(data);
       const nameChanged = lastSavedRef.current?.name !== normalizedData.name;
@@ -172,56 +257,81 @@ function RouteComponent() {
       const hasChanges =
         nameChanged || slugChanged || descriptionChanged || iconChanged;
 
-      if (!hasChanges) return;
+      if (!hasChanges) return true;
 
       if (isSavingRef.current) {
         queuedSaveRef.current = data;
-        return;
+        // The in-flight save drains the queue before it resolves, so its
+        // outcome covers this data too. Reporting success here instead would
+        // tell the caller the edit is persisted while it is still queued.
+        return inFlightSaveRef.current ?? false;
       }
 
       isSavingRef.current = true;
 
-      try {
-        const updatePayload = {
-          id: project.id,
-          name: nameChanged ? normalizedData.name : project.name,
-          slug: slugChanged ? normalizedData.slug : project.slug,
-          description: descriptionChanged
-            ? normalizedData.description
-            : (project.description ?? ""),
-          icon: iconChanged ? normalizedData.icon : (project.icon ?? "Layout"),
-          isPublic: !!project.isPublic,
-        };
+      const runSave = async (): Promise<boolean> => {
+        let succeeded = false;
 
-        await updateProject(updatePayload);
+        try {
+          const updatePayload = {
+            id: project.id,
+            name: nameChanged ? normalizedData.name : project.name,
+            slug: slugChanged ? normalizedData.slug : project.slug,
+            description: descriptionChanged
+              ? normalizedData.description
+              : (project.description ?? ""),
+            icon: iconChanged
+              ? normalizedData.icon
+              : (project.icon ?? "Layout"),
+            isPublic: !!project.isPublic,
+          };
 
-        projectForm.reset(normalizedData, { keepDirty: false });
-        lastSavedRef.current = normalizedData;
-        queuedSaveRef.current = null;
+          await updateProject(updatePayload);
 
-        await Promise.all([
-          queryClient.invalidateQueries({ queryKey: ["projects"] }),
-          queryClient.invalidateQueries({
-            queryKey: ["projects", workspace?.id],
-          }),
-          queryClient.invalidateQueries({
-            queryKey: ["projects", workspace?.id, project.id],
-          }),
-        ]);
-        toast.success(t("settings:projectGeneral.toastUpdated"));
-      } catch (error) {
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : t("settings:projectGeneral.toastUpdateError"),
-        );
-      } finally {
-        isSavingRef.current = false;
-
-        if (queuedSaveRef.current) {
-          const queuedData = queuedSaveRef.current;
+          projectForm.reset(normalizedData, { keepDirty: false });
+          lastSavedRef.current = normalizedData;
           queuedSaveRef.current = null;
-          await saveProject(queuedData);
+
+          await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ["projects"] }),
+            queryClient.invalidateQueries({
+              queryKey: ["projects", workspace?.id],
+            }),
+            queryClient.invalidateQueries({
+              queryKey: ["projects", workspace?.id, project.id],
+            }),
+          ]);
+          toast.success(t("settings:projectGeneral.toastUpdated"));
+          succeeded = true;
+        } catch (error) {
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : t("settings:projectGeneral.toastUpdateError"),
+          );
+        } finally {
+          isSavingRef.current = false;
+
+          if (queuedSaveRef.current) {
+            const queuedData = queuedSaveRef.current;
+            queuedSaveRef.current = null;
+            // The queue holds newer values than this save wrote, so its
+            // outcome is the one that describes the form's current state.
+            succeeded = await saveProject(queuedData);
+          }
+        }
+
+        return succeeded;
+      };
+
+      const pendingSave = runSave();
+      inFlightSaveRef.current = pendingSave;
+
+      try {
+        return await pendingSave;
+      } finally {
+        if (inFlightSaveRef.current === pendingSave) {
+          inFlightSaveRef.current = null;
         }
       }
     },
@@ -271,35 +381,92 @@ function RouteComponent() {
     return () => subscription.unsubscribe();
   }, [projectForm, debouncedSave, canEdit]);
 
-  useEffect(() => {
-    return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-        debounceTimeoutRef.current = null;
-      }
-      // Flush pending edits if the user navigates away before the debounce fires.
-      void (async () => {
-        const latest = projectFormRef.current.getValues() as ProjectFormValues;
-        const normalized = normalizeProjectValues(latest);
-        const last = lastSavedRef.current;
-        const hasPendingChanges =
-          !last ||
-          last.name !== normalized.name ||
-          last.slug !== normalized.slug ||
-          last.description !== normalized.description ||
-          last.icon !== normalized.icon;
-        if (!hasPendingChanges) return;
+  // Reads through the refs so its identity stays stable: the unmount effect
+  // below depends on it while keeping an empty dependency array.
+  // Resolves false when the pending edits were not persisted: either they are
+  // invalid, or the update they triggered failed.
+  const flushPendingSave = useCallback(async () => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+      debounceTimeoutRef.current = null;
+    }
 
-        const isValid = await projectFormRef.current.trigger();
-        if (isValid) {
-          await saveProjectRef.current(latest);
-        }
-      })();
-    };
+    const latest = projectFormRef.current.getValues() as ProjectFormValues;
+    const normalized = normalizeProjectValues(latest);
+    const last = lastSavedRef.current;
+    const hasPendingChanges =
+      !last ||
+      last.name !== normalized.name ||
+      last.slug !== normalized.slug ||
+      last.description !== normalized.description ||
+      last.icon !== normalized.icon;
+    if (!hasPendingChanges) return true;
+
+    const isValid = await projectFormRef.current.trigger();
+    if (!isValid) return false;
+
+    return saveProjectRef.current(latest);
   }, []);
 
+  useEffect(() => {
+    return () => {
+      // Flush pending edits if the user navigates away before the debounce fires.
+      void flushPendingSave();
+    };
+  }, [flushPendingSave]);
+
+  const handleMoveProject = useCallback(async () => {
+    if (!isCurrentProject || !project?.id || !targetWorkspaceId) return;
+
+    // The key doubles as the ticket-id prefix, and the server checks it for
+    // collisions in the target. Moving on a debounced edit would check the
+    // stale key and then persist the new one after navigation.
+    const flushed = await flushPendingSave();
+    // The dialog has already closed, so say why nothing happened. `trigger()`
+    // has surfaced the offending field errors in the form itself.
+    if (!flushed) {
+      toast.error(t("settings:projectGeneral.toastMoveError"));
+      return;
+    }
+
+    try {
+      const moved = await moveProject({
+        id: project.id,
+        workspaceId: targetWorkspaceId,
+      });
+
+      toast.success(
+        moved.unassignedTaskCount > 0
+          ? t("settings:projectGeneral.toastMovedWithUnassigned", {
+              taskCount: moved.unassignedTaskCount,
+            })
+          : t("settings:projectGeneral.toastMoved"),
+      );
+
+      // The current URL still carries the old workspace id.
+      navigate({
+        to: "/dashboard/workspace/$workspaceId/project/$projectId",
+        params: { workspaceId: targetWorkspaceId, projectId: project.id },
+      });
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("settings:projectGeneral.toastMoveError"),
+      );
+    }
+  }, [
+    isCurrentProject,
+    project?.id,
+    targetWorkspaceId,
+    flushPendingSave,
+    moveProject,
+    navigate,
+    t,
+  ]);
+
   const handleDeleteProject = useCallback(async () => {
-    if (!project?.id) return;
+    if (!isCurrentProject || !project?.id) return;
 
     try {
       await deleteProject({ id: project.id });
@@ -318,7 +485,32 @@ function RouteComponent() {
           : t("settings:projectGeneral.toastDeleteError"),
       );
     }
-  }, [project?.id, deleteProject, queryClient, navigate, workspace?.id, t]);
+  }, [
+    isCurrentProject,
+    project?.id,
+    deleteProject,
+    queryClient,
+    navigate,
+    workspace?.id,
+    t,
+  ]);
+
+  const handleBackgroundChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      event.target.value = "";
+      if (!file || !project?.id) return;
+
+      uploadProjectBackground({ projectId: project.id, file });
+    },
+    [project?.id, uploadProjectBackground],
+  );
+
+  const handleRemoveBackground = useCallback(() => {
+    if (!project?.id) return;
+
+    removeProjectBackground(project.id);
+  }, [project?.id, removeProjectBackground]);
 
   return (
     <>
@@ -539,6 +731,60 @@ function RouteComponent() {
               </form>
             </Form>
             <Separator />
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium">
+                  {t("settings:projectGeneral.backgroundLabel")}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {t("settings:projectGeneral.backgroundHint")}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                {project?.backgroundVersion && (
+                  <img
+                    src={getApiUrl(
+                      `project/${project.id}/background?v=${encodeURIComponent(project.backgroundVersion)}`,
+                    )}
+                    alt=""
+                    className="h-9 w-16 rounded border border-border object-cover"
+                  />
+                )}
+                <input
+                  ref={backgroundInputRef}
+                  type="file"
+                  accept="image/apng,image/avif,image/gif,image/heic,image/heif,image/jpeg,image/jpg,image/png,image/webp"
+                  className="hidden"
+                  onChange={handleBackgroundChange}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={!canEdit || isUpdatingBackground}
+                  onClick={() => backgroundInputRef.current?.click()}
+                >
+                  <ImageUp className="size-4" />
+                  {project?.backgroundVersion
+                    ? t("settings:projectGeneral.backgroundReplace")
+                    : t("settings:projectGeneral.backgroundUpload")}
+                </Button>
+                {project?.backgroundVersion && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    disabled={!canEdit || isUpdatingBackground}
+                    onClick={handleRemoveBackground}
+                    aria-label={t("settings:projectGeneral.backgroundRemove")}
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            <Separator />
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div className="space-y-0.5">
                 <p className="text-sm font-medium">
@@ -550,6 +796,67 @@ function RouteComponent() {
               </div>
               {project && <TasksImportExport project={project} />}
             </div>
+
+            {canShowMove && (
+              <>
+                <Separator />
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">
+                      {t("settings:projectGeneral.moveProject")}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {t("settings:projectGeneral.moveProjectDescription")}
+                    </p>
+                  </div>
+                  {moveTargetsFailed ? (
+                    <p className="text-xs text-destructive">
+                      {t("settings:projectGeneral.moveTargetsError")}
+                    </p>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Select
+                        value={targetWorkspaceId}
+                        onValueChange={(value) =>
+                          setTargetWorkspaceId(value ?? "")
+                        }
+                      >
+                        <SelectTrigger className="w-48 h-8 text-sm">
+                          <SelectValue
+                            placeholder={t(
+                              "settings:projectGeneral.moveProjectPlaceholder",
+                            )}
+                          >
+                            {moveTargets.find(
+                              (item) => item.id === targetWorkspaceId,
+                            )?.name ??
+                              t(
+                                "settings:projectGeneral.moveProjectPlaceholder",
+                              )}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {moveTargets.map((item) => (
+                            <SelectItem key={item.id} value={item.id}>
+                              {item.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        type="button"
+                        disabled={!targetWorkspaceId || !project || isMoving}
+                        onClick={() => setIsMoveModalOpen(true)}
+                      >
+                        {t("settings:projectGeneral.moveProjectAction")}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -580,7 +887,7 @@ function RouteComponent() {
                   className="text-destructive hover:text-destructive transition-colors"
                   type="button"
                   onClick={() => setIsDeleteModalOpen(true)}
-                  disabled={!project}
+                  disabled={!project || !isCurrentProject}
                 >
                   {t("settings:projectGeneral.deleteProject")}
                 </Button>
@@ -588,6 +895,40 @@ function RouteComponent() {
             </div>
           </div>
         )}
+
+        <AlertDialog open={isMoveModalOpen} onOpenChange={setIsMoveModalOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {t("settings:projectGeneral.moveModalTitle")}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {t("settings:projectGeneral.moveModalDescription", {
+                  name: project?.name ?? "",
+                  workspace:
+                    moveTargets.find((item) => item.id === targetWorkspaceId)
+                      ?.name ?? "",
+                })}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogClose render={<Button variant="outline" size="sm" />}>
+                {t("common:actions.cancel")}
+              </AlertDialogClose>
+              <AlertDialogClose
+                render={
+                  <Button
+                    size="sm"
+                    disabled={isMoving}
+                    onClick={handleMoveProject}
+                  />
+                }
+              >
+                {t("settings:projectGeneral.moveModalConfirm")}
+              </AlertDialogClose>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         <AlertDialog
           open={isDeleteModalOpen}

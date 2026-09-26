@@ -1,5 +1,18 @@
 import { randomBytes } from "node:crypto";
-import { and, asc, eq, inArray, isNotNull, isNull, or } from "drizzle-orm";
+import { setImmediate } from "node:timers/promises";
+import {
+  and,
+  asc,
+  eq,
+  exists,
+  gt,
+  inArray,
+  isNotNull,
+  isNull,
+  or,
+  type SQLWrapper,
+  sql,
+} from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../database";
 import {
@@ -8,7 +21,19 @@ import {
   projectTable,
   taskTable,
 } from "../database/schema";
-import { buildCalendar } from "./ical";
+import { boundedTaskRead } from "../task/bounded-read";
+import { type CalendarTask, streamCalendar } from "./ical";
+
+export const CALENDAR_TASK_BATCH_SIZE = 50;
+export const CALENDAR_DESCRIPTION_CHARACTERS = 4096;
+const CALENDAR_TITLE_CHARACTERS = 1024;
+
+// Limit text in PostgreSQL so oversized descriptions never enter API memory.
+function excerpt(column: SQLWrapper, characters: number) {
+  return sql<string>`case when char_length(${column}) > ${characters}
+    then left(${column}, ${characters}) || '…'
+    else ${column} end`;
+}
 
 export async function createCalendarFeed(
   projectId: string,
@@ -123,7 +148,14 @@ export async function revokeCalendarFeed(projectId: string, id: string) {
 
 export async function getCalendarFeed(token: string) {
   const [record] = await db
-    .select({ feed: calendarFeedTable, project: projectTable })
+    .select({
+      feed: calendarFeedTable,
+      project: {
+        id: projectTable.id,
+        workspaceId: projectTable.workspaceId,
+        name: excerpt(projectTable.name, CALENDAR_TITLE_CHARACTERS),
+      },
+    })
     .from(calendarFeedTable)
     .innerJoin(projectTable, eq(projectTable.id, calendarFeedTable.projectId))
     .where(eq(calendarFeedTable.token, token));
@@ -143,31 +175,61 @@ export async function getCalendarFeed(token: string) {
           ),
         )
     : [];
-  const tasks = labels.length
-    ? await db
-        .selectDistinct({
-          id: taskTable.id,
-          title: taskTable.title,
-          description: taskTable.description,
-          startDate: taskTable.startDate,
-          dueDate: taskTable.dueDate,
-          createdAt: taskTable.createdAt,
-          updatedAt: taskTable.updatedAt,
-        })
-        .from(taskTable)
-        .innerJoin(labelTable, eq(labelTable.taskId, taskTable.id))
-        .where(
-          and(
-            eq(taskTable.projectId, project.id),
-            eq(labelTable.workspaceId, project.workspaceId),
-            inArray(
-              labelTable.name,
-              labels.map((label) => label.name),
+  async function* tasks(): AsyncGenerator<CalendarTask> {
+    if (!labels.length) return;
+    let after: string | undefined;
+    while (true) {
+      const page: CalendarTask[] = await boundedTaskRead((tx) =>
+        tx
+          .select({
+            id: taskTable.id,
+            title: excerpt(taskTable.title, CALENDAR_TITLE_CHARACTERS),
+            description: excerpt(
+              taskTable.description,
+              CALENDAR_DESCRIPTION_CHARACTERS,
             ),
-            or(isNotNull(taskTable.startDate), isNotNull(taskTable.dueDate)),
-          ),
-        )
-        .orderBy(asc(taskTable.id))
-    : [];
-  return buildCalendar({ name: project.name, timeZone: feed.timeZone, tasks });
+            startDate: taskTable.startDate,
+            dueDate: taskTable.dueDate,
+            createdAt: taskTable.createdAt,
+            updatedAt: taskTable.updatedAt,
+          })
+          .from(taskTable)
+          .where(
+            and(
+              eq(taskTable.projectId, project.id),
+              after ? gt(taskTable.id, after) : undefined,
+              or(isNotNull(taskTable.startDate), isNotNull(taskTable.dueDate)),
+              exists(
+                tx
+                  .select({ id: labelTable.id })
+                  .from(labelTable)
+                  .where(
+                    and(
+                      eq(labelTable.taskId, taskTable.id),
+                      eq(labelTable.workspaceId, project.workspaceId),
+                      inArray(
+                        labelTable.name,
+                        labels.map((label) => label.name),
+                      ),
+                    ),
+                  ),
+              ),
+            ),
+          )
+          .orderBy(asc(taskTable.id))
+          .limit(CALENDAR_TASK_BATCH_SIZE),
+      );
+      yield* page;
+      const last = page.at(-1);
+      if (!last || page.length < CALENDAR_TASK_BATCH_SIZE) return;
+      after = last.id;
+      // Let pending requests run even when the subscriber consumes immediately.
+      await setImmediate();
+    }
+  }
+  return streamCalendar({
+    name: project.name,
+    timeZone: feed.timeZone,
+    tasks: tasks(),
+  });
 }

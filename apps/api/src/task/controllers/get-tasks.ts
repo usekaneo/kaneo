@@ -221,7 +221,7 @@ async function getTasksPage(
     Array<{
       id: string;
       taskId: string;
-      integrationId: string;
+      integrationId: string | null;
       resourceType: string;
       externalId: string;
       url: string;
@@ -338,6 +338,7 @@ async function getTasksPage(
       descriptionDeferred: project.descriptionDeferred,
       isPublic: project.isPublic,
       workspaceId: project.workspaceId,
+      backgroundVersion: project.backgroundVersion,
       columns,
       archivedTasks,
       plannedTasks,

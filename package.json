@@ -25,7 +25,7 @@
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/exec": "^7.1.0",
     "@semantic-release/git": "^10.0.1",
-    "conventional-changelog-conventionalcommits": "^9.1.0",
+    "conventional-changelog-conventionalcommits": "^10.4.0",
     "esbuild": "0.28.1",
     "husky": "^9.1.7",
     "linkifyjs": ">=4.3.3",
@@ -38,7 +38,7 @@
     "node": ">=24.0.0"
   },
   "packageManager": "pnpm@10.32.1",
-  "version": "2.26.0",
+  "version": "2.27.0",
   "dependencies": {
     "dotenv-mono": "^1.5.1"
   }

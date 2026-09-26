@@ -21,12 +21,12 @@ permissions:
 
 jobs:
   plan:
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 10
     outputs:
       artifact: ${{ steps.plan-artifact.outputs.artifact-id }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: useblacksmith/checkout@v1 # v7.0.1
         with:
           ref: ${{ github.workflow_sha }}
           fetch-depth: 0
@@ -53,13 +53,13 @@ jobs:
 
   capture:
     needs: plan
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 25
     # PR code executes only on this disposable runner, without provider secrets or write permissions.
     outputs:
       artifact: ${{ steps.capture-artifact.outputs.artifact-id }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: useblacksmith/checkout@v1 # v7.0.1
         with:
           ref: ${{ github.workflow_sha }}
           fetch-depth: 0
@@ -92,10 +92,10 @@ jobs:
 
   review-and-post:
     needs: [plan, capture]
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: useblacksmith/checkout@v1 # v7.0.1
         with:
           ref: ${{ github.workflow_sha }}
           persist-credentials: false

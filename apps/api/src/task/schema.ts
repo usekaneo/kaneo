@@ -139,3 +139,5 @@ export const descriptionMatchesQuery = z.object({
   query: z.string().trim().min(1).max(256),
   after: z.string().min(1).max(128).optional(),
 });
+
+export const duplicateTaskBody = z.object({ title: z.string().optional() });

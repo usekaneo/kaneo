@@ -19,6 +19,9 @@ import { produce } from "immer";
 import { useEffect, useState } from "react";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { useProjectBackground } from "@/hooks/use-project-background";
+import { cn } from "@/lib/cn";
+import { useBackgroundStore } from "@/store/background";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
@@ -43,7 +46,21 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
   } = useBulkSelectionStore();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const { mutate: updateTask } = useUpdateTask();
+  const background = useProjectBackground({
+    backgroundVersion: project.backgroundVersion,
+    projectId: project.id,
+    viewMode: "board",
+  });
+  const backgroundStore = useBackgroundStore();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    backgroundStore.setBackground(background);
+  }, [background, backgroundStore.setBackground]);
+
+  useEffect(() => {
+    return () => backgroundStore.setBackground(null);
+  }, [backgroundStore.setBackground]);
 
   useEffect(() => {
     if (project?.columns) {
@@ -248,13 +265,19 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex h-full w-full flex-col bg-linear-to-b from-muted/20 to-background">
+      <div
+        className={cn("flex h-full w-full flex-col", {
+          "bg-linear-to-b from-muted/20 to-background": !background,
+        })}
+      >
         <div className="min-h-0 flex-1 overflow-x-auto [-webkit-overflow-scrolling:touch]">
           <div className="flex h-full min-w-max gap-4 px-4 py-4 md:px-5">
             {project.columns?.map((column) => (
               <div
                 key={column.id}
-                className="h-full max-w-96 min-w-80 shrink-0 flex-1"
+                className={cn("h-full max-w-96 min-w-80 shrink-0 flex-1", {
+                  "h-fit": !!background,
+                })}
               >
                 <Column column={column} disableDragDrop={disableDragDrop} />
               </div>

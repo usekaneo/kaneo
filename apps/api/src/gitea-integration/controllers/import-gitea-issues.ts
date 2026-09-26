@@ -10,7 +10,6 @@ import {
 } from "../../database/schema";
 import { publishEvent } from "../../events";
 import type { GiteaConfig } from "../../plugins/gitea/config";
-import { extractTaskNumberGitea } from "../../plugins/gitea/utils/branch-matcher";
 import {
   createGiteaClient,
   type GiteaIssue,
@@ -21,7 +20,7 @@ import {
   createExternalLink,
   findExternalLink,
 } from "../../plugins/github/services/link-manager";
-import { findTaskByNumber } from "../../plugins/github/services/task-service";
+import { resolvePullRequestTask } from "../../plugins/github/services/resolve-pull-request-task";
 import {
   extractIssuePriority,
   extractIssueStatus,
@@ -446,33 +445,22 @@ async function linkPullRequestToTask(
   projectSlug: string,
   config: GiteaConfig,
 ): Promise<void> {
-  const taskNumber = extractTaskNumberGitea(
-    pr.head.ref,
-    pr.title,
-    pr.body ?? undefined,
-    config,
-    projectSlug,
-  );
-
-  if (!taskNumber) {
-    return;
-  }
-
-  const task = await findTaskByNumber(projectId, taskNumber);
-
-  if (!task) {
-    return;
-  }
-
   const existingLink = await findExternalLink(
     integrationId,
     "pull_request",
     pr.number.toString(),
   );
+  if (existingLink) return;
 
-  if (existingLink) {
-    return;
-  }
+  const task = await resolvePullRequestTask({
+    integrationId,
+    projectId,
+    projectSlug,
+    config,
+    repositoryUrl: `${config.baseUrl.replace(/\/$/, "")}/${config.repositoryOwner}/${config.repositoryName}`,
+    pullRequest: pr,
+  });
+  if (!task) return;
 
   await createExternalLink({
     taskId: task.id,

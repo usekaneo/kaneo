@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "charts/kaneo/**"
+      - "scripts/security/check-helm-secrets.rb"
       - ".github/workflows/helm-chart.yml"
       - ".github/workflows/helm-validate.yml"
   workflow_call:
@@ -28,11 +29,12 @@ jobs:
   validate:
     permissions:
       contents: read
-    uses: ./.github/workflows/helm-validate.yml
+
+    uses: ./.github/workflows/helm-validate.yml # zizmor: ignore[self-repository] $/-syntax not parsed by pinned actionlint v1.7.12; revisit when supported
 
   publish:
     if: github.ref == 'refs/heads/main' && inputs.version != ''
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     needs: validate
     permissions:
       contents: read
@@ -40,7 +42,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: useblacksmith/checkout@v1 # v7.0.1
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -53,7 +55,7 @@ jobs:
         run: node scripts/security/verify-release-source.mjs released "$RELEASE_VERSION"
 
       - name: Checkout verified release tag
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: useblacksmith/checkout@v1 # v7.0.1
         with:
           persist-credentials: false
           ref: ${{ steps.source.outputs.source_sha }}

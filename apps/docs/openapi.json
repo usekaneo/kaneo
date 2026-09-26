@@ -244,7 +244,10 @@
             "type": "string"
           },
           "integrationId": {
-            "type": "string"
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "resourceType": {
             "type": "string"
@@ -364,6 +367,12 @@
           "workspaceId": {
             "type": "string"
           },
+          "backgroundVersion": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "columns": {
             "type": "array",
             "items": {
@@ -391,6 +400,7 @@
           "description",
           "isPublic",
           "workspaceId",
+          "backgroundVersion",
           "columns",
           "archivedTasks",
           "plannedTasks"
@@ -596,6 +606,101 @@
           "idToken"
         ]
       },
+      "MovedProject": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Project"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "unassignedTaskCount": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "unassignedTaskCount"
+            ]
+          }
+        ]
+      },
+      "Project": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "backgroundVersion": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "slug": {
+            "type": "string",
+            "description": "Short prefix used in task identifiers, e.g. KAN-12."
+          },
+          "icon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isPublic": {
+            "type": [
+              "boolean",
+              "null"
+            ],
+            "description": "When true the project's board is readable without signing in, via /api/public-project/{id}."
+          },
+          "archivedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Non-null once archived; archived projects are hidden by default."
+          },
+          "position": {
+            "type": "number",
+            "description": "Sidebar order, ascending."
+          },
+          "lastTaskNumber": {
+            "type": "number",
+            "description": "Highest task number issued in this project; the next task gets this plus one."
+          }
+        },
+        "required": [
+          "id",
+          "workspaceId",
+          "backgroundVersion",
+          "slug",
+          "icon",
+          "name",
+          "description",
+          "createdAt",
+          "isPublic",
+          "archivedAt",
+          "position",
+          "lastTaskNumber"
+        ]
+      },
       "ProjectListItem": {
         "allOf": [
           {
@@ -662,74 +767,41 @@
           "dueDate"
         ]
       },
-      "Project": {
+      "ProjectBackgroundUpload": {
         "type": "object",
         "properties": {
-          "id": {
+          "key": {
             "type": "string"
           },
-          "workspaceId": {
+          "uploadUrl": {
             "type": "string"
           },
-          "slug": {
-            "type": "string",
-            "description": "Short prefix used in task identifiers, e.g. KAN-12."
-          },
-          "icon": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "name": {
+          "version": {
             "type": "string"
           },
-          "description": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "isPublic": {
-            "type": [
-              "boolean",
-              "null"
-            ],
-            "description": "When true the project's board is readable without signing in, via /api/public-project/{id}."
-          },
-          "archivedAt": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "format": "date-time",
-            "description": "Non-null once archived; archived projects are hidden by default."
-          },
-          "position": {
-            "type": "number",
-            "description": "Sidebar order, ascending."
-          },
-          "lastTaskNumber": {
-            "type": "number",
-            "description": "Highest task number issued in this project; the next task gets this plus one."
+          "headers": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
           }
         },
         "required": [
-          "id",
-          "workspaceId",
-          "slug",
-          "icon",
-          "name",
-          "description",
-          "createdAt",
-          "isPublic",
-          "archivedAt",
-          "position",
-          "lastTaskNumber"
+          "key",
+          "uploadUrl",
+          "version",
+          "headers"
+        ]
+      },
+      "ProjectBackgroundFinalize": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
         ]
       },
       "CalendarFeed": {
@@ -3038,6 +3110,73 @@
           "createdAt"
         ]
       },
+      "CreatedExternalLink": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "taskId": {
+            "type": "string"
+          },
+          "integrationId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "resourceType": {
+            "type": "string",
+            "description": "The resource kind: `url` for a manual link, or an integration resource such as `issue` or `pull_request`."
+          },
+          "externalId": {
+            "type": "string",
+            "description": "The provider's resource identifier, or the URL for a manual link."
+          },
+          "url": {
+            "type": "string"
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "metadata": {
+            "description": "Provider-specific payload, parsed from the stored JSON string. Null when the link has no metadata."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "taskId",
+          "integrationId",
+          "resourceType",
+          "externalId",
+          "url",
+          "title",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "DeletedExternalLink": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
       "ExternalLink": {
         "type": "object",
         "properties": {
@@ -3048,15 +3187,18 @@
             "type": "string"
           },
           "integrationId": {
-            "type": "string"
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "resourceType": {
             "type": "string",
-            "description": "The kind of remote resource, e.g. `issue` or `pull_request`."
+            "description": "The resource kind: `url` for a manual link, or an integration resource such as `issue` or `pull_request`."
           },
           "externalId": {
             "type": "string",
-            "description": "The provider's own identifier for the linked resource."
+            "description": "The provider's resource identifier, or the URL for a manual link."
           },
           "url": {
             "type": "string"
@@ -3096,7 +3238,10 @@
         ]
       },
       "ExternalLinkIntegration": {
-        "type": "object",
+        "type": [
+          "object",
+          "null"
+        ],
         "properties": {
           "id": {
             "type": "string"
@@ -3466,6 +3611,39 @@
           "taskId",
           "fieldId",
           "value"
+        ]
+      },
+      "CurrentUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "image": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "role": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "image",
+          "role"
         ]
       },
       "UserAvatar": {
@@ -3893,7 +4071,7 @@
           "Calendar feeds"
         ],
         "summary": "Subscribe to a calendar feed",
-        "description": "Read scheduled project tasks using a secret calendar feed link. Anyone with the link can read matching task titles, descriptions, and dates.",
+        "description": "Read scheduled project tasks using a secret calendar feed link. Anyone with the link can read matching task titles, descriptions, and dates. Responses are streamed; descriptions longer than 4096 characters and titles or calendar names longer than 1024 characters are truncated with an ellipsis.",
         "security": [],
         "parameters": [
           {
@@ -6350,6 +6528,117 @@
         }
       }
     },
+    "/project/{id}/move": {
+      "put": {
+        "operationId": "moveProject",
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Move a project to another workspace",
+        "description": "Move a project and its tasks. Requires update and delete permission in the source and create permission in the destination. Remove cross-project task relationships before moving.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "workspaceId": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "workspaceId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Project moved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovedProject"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid destination or same workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Destination workspace plan has expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing workspace access or permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found in the source workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Project key conflict or cross-project task relationships",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/project": {
       "get": {
         "operationId": "listProjects",
@@ -6686,6 +6975,121 @@
         }
       }
     },
+    "/project/{id}/background": {
+      "get": {
+        "operationId": "getProjectBackground",
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Download project background",
+        "description": "Download the current project board background image.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The project background image",
+            "content": {
+              "image/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Not modified"
+          },
+          "400": {
+            "description": "Unknown project, or its workspace could not be determined",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project's workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project background not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteProjectBackground",
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Delete project background",
+        "description": "Remove the current project board background image.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Project background removed"
+          },
+          "400": {
+            "description": "Unknown project, or its workspace could not be determined",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing project:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/project/reorder": {
       "put": {
         "operationId": "reorderProjects",
@@ -6878,6 +7282,208 @@
           },
           "403": {
             "description": "No workspace access, or missing project:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/project/{id}/background-upload": {
+      "put": {
+        "operationId": "uploadProjectBackground",
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Prepare project background upload",
+        "description": "Create a presigned background image upload URL for a project.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "contentType": {
+                    "type": "string"
+                  },
+                  "size": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "contentType",
+                  "size"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Background image upload URL",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectBackgroundUpload"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid image upload request, or unknown project",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing project:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Image uploads are not configured",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/project/{id}/background-upload/finalize": {
+      "post": {
+        "operationId": "finalizeProjectBackgroundUpload",
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Finalize project background upload",
+        "description": "Save an uploaded image as the project's board background.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string"
+                  },
+                  "contentType": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "string"
+                  },
+                  "size": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "key",
+                  "contentType",
+                  "version",
+                  "size"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Finalized project background",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectBackgroundFinalize"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid image upload request, or unknown project",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing project:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to save the project background",
             "content": {
               "text/plain": {
                 "schema": {
@@ -7684,6 +8290,113 @@
           },
           "403": {
             "description": "No workspace access, or missing task:create permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/task/duplicate/{id}": {
+      "post": {
+        "operationId": "duplicateTask",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Duplicate a task",
+        "description": "Copy a task into the same project and column, including custom fields, labels, description assets and same-workspace parent links. Comments, time entries and child tasks are not copied.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The duplicated task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid task fields or request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No workspace access or task:create permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task or project not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Task column has reached its capacity",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Unable to copy task attachments",
             "content": {
               "text/plain": {
                 "schema": {
@@ -14425,13 +15138,97 @@
       }
     },
     "/external-link/task/{taskId}": {
+      "post": {
+        "operationId": "createExternalLink",
+        "tags": [
+          "External Links"
+        ],
+        "summary": "Create an external link",
+        "description": "Add a resource link to a task",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "taskId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "An HTTP or HTTPS URL"
+                  },
+                  "title": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                },
+                "required": [
+                  "url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "External link created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedExternalLink"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid external link data",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No permission to update the task",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
       "get": {
         "operationId": "getExternalLinksByTask",
         "tags": [
           "External Links"
         ],
         "summary": "Get task external links",
-        "description": "Get all links from a task to resources in connected integrations, such as GitHub or Gitea issues.",
+        "description": "Get manually added resource links and links from connected integrations, such as GitHub or Gitea issues.",
         "parameters": [
           {
             "schema": {
@@ -14471,6 +15268,86 @@
           },
           "403": {
             "description": "No access to the task's workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/external-link/task/{taskId}/{id}": {
+      "delete": {
+        "operationId": "deleteExternalLink",
+        "tags": [
+          "External Links"
+        ],
+        "summary": "Remove a manual resource link",
+        "description": "Remove a manually added link from a task. Integration-managed links cannot be removed through this endpoint.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "taskId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resource link removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeletedExternalLink"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown task or invalid link data",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No permission to update the task",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Manual resource link not found on this task",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15055,7 +15932,8 @@
                       "number",
                       "date",
                       "dropdown",
-                      "boolean"
+                      "boolean",
+                      "multiselect"
                     ]
                   },
                   "required": {
@@ -15321,6 +16199,48 @@
           },
           "403": {
             "description": "No workspace access, or missing project:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/me": {
+      "get": {
+        "operationId": "getCurrentUser",
+        "tags": [
+          "User"
+        ],
+        "summary": "Get current user",
+        "description": "Return the currently authenticated user.",
+        "responses": {
+          "200": {
+            "description": "Current user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentUser"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
             "content": {
               "text/plain": {
                 "schema": {

@@ -25,7 +25,7 @@ export const openproject: Comparison = {
     { feature: "Self-hostable", kaneo: true, them: true },
     { feature: "SSO / OIDC in free build", kaneo: true, them: false },
     { feature: "Paid edition gates features", kaneo: false, them: true },
-    { feature: "Gantt charts", kaneo: false, them: true },
+    { feature: "Gantt charts", kaneo: true, them: true },
     { feature: "Time & cost reporting", kaneo: "Time tracking", them: true },
     { feature: "Setup", kaneo: "Minutes", them: "Involved" },
     { feature: "Cloud minimum users", kaneo: "1", them: "25" },
@@ -45,7 +45,7 @@ export const openproject: Comparison = {
     },
   ],
   honestNote:
-    "OpenProject is the more complete product for classical project management: Gantt charts, baselines, budgets, cost reporting, work-package hierarchies, and BIM support, backed by a company with a long track record and a real support offering. If you need any of that, choose OpenProject.",
+    "Both tools offer Gantt views. OpenProject goes further with baseline comparisons, budgets, cost reporting, work-package hierarchies, and BIM support. Those are reasons to choose it when project controls go beyond scheduling tasks. Kaneo combines Gantt and calendar planning with boards, custom fields, and time tracking in a smaller setup.",
   faq: [
     {
       question: "Is OpenProject completely free?",
@@ -60,7 +60,7 @@ export const openproject: Comparison = {
     {
       question: "Does Kaneo have Gantt charts?",
       answer:
-        "No. Kaneo has boards, a backlog, due dates, priorities, and task relations, but no Gantt or baseline view. If scheduling with dependencies is central to your work, OpenProject is the better tool.",
+        "Yes. Kaneo has a Gantt view for tasks with start and due dates, alongside calendar, board, and list views. It does not have baseline comparisons, budgets, or cost reporting. If those are central to your work, consider OpenProject.",
     },
     {
       question: "Can I migrate from OpenProject to Kaneo?",

@@ -15,7 +15,14 @@ export const customFieldIdParam = z.object({
 export const createCustomFieldBody = z.object({
   projectId: z.string(),
   name: z.string(),
-  type: z.enum(["text", "number", "date", "dropdown", "boolean"]),
+  type: z.enum([
+    "text",
+    "number",
+    "date",
+    "dropdown",
+    "boolean",
+    "multiselect",
+  ]),
   required: z.boolean().optional().default(false),
   defaultValue: z.string().optional(),
   options: z.array(z.string()).optional(),

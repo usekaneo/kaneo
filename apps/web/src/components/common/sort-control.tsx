@@ -1,3 +1,4 @@
+import { cva } from "class-variance-authority";
 import { ArrowDownAZ, ArrowUpAZ } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -9,7 +10,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/menu";
+import { cn } from "@/lib/cn";
 import type { SortConfig, SortDirection, SortField } from "@/lib/sort-tasks";
+import { useBackgroundStore } from "@/store/background";
 
 type SortControlProps = {
   sort: SortConfig;
@@ -30,8 +33,46 @@ function CheckSlot({ checked }: { checked: boolean }) {
   );
 }
 
+const sortControlVariants = cva(
+  "inline-flex h-7 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium outline-none ring-0",
+  {
+    variants: {
+      isActive: {
+        true: "text-primary",
+        false: "text-foreground",
+      },
+      backgroundImage: {
+        true: "",
+      },
+    },
+    compoundVariants: [
+      {
+        isActive: false,
+        backgroundImage: false,
+        class: "border-border bg-background hover:bg-accent/60",
+      },
+      {
+        isActive: true,
+        backgroundImage: false,
+        class: "border-primary/30 bg-primary/10 hover:bg-primary/15",
+      },
+      {
+        isActive: false,
+        backgroundImage: true,
+        class: "border-border bg-accent hover:bg-input",
+      },
+      {
+        isActive: true,
+        backgroundImage: true,
+        class: "border-primary/30 bg-primary/15 hover:bg-primary/20",
+      },
+    ],
+  },
+);
+
 export default function SortControl({ sort, onSortChange }: SortControlProps) {
   const { t } = useTranslation();
+  const { background } = useBackgroundStore();
   const sortFields: { field: SortField; label: string }[] = [
     { field: "position", label: t("tasks:sort.fields.position") },
     { field: "createdAt", label: t("tasks:sort.fields.createdAt") },
@@ -67,11 +108,10 @@ export default function SortControl({ sort, onSortChange }: SortControlProps) {
           render={
             <button
               type="button"
-              className={`inline-flex h-7 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium outline-none ring-0 ${
-                isActive
-                  ? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15"
-                  : "border-border bg-background text-foreground hover:bg-accent/60"
-              }`}
+              className={sortControlVariants({
+                isActive,
+                backgroundImage: !!background,
+              })}
             />
           }
         >
@@ -131,7 +171,12 @@ export default function SortControl({ sort, onSortChange }: SortControlProps) {
         <button
           type="button"
           onClick={toggleDirection}
-          className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-border bg-background text-foreground hover:bg-accent/60"
+          className={cn(
+            "inline-flex h-7 w-7 items-center justify-center rounded-md border border-border bg-background text-foreground hover:bg-accent/60",
+            {
+              "bg-accent hover:bg-input": !!background,
+            },
+          )}
           title={
             sort.direction === "asc"
               ? t("tasks:sort.ascending")

@@ -1,4 +1,4 @@
-type CalendarTask = {
+export type CalendarTask = {
   id: string;
   title: string;
   description: string | null;
@@ -57,34 +57,29 @@ function nextDay(date: string) {
   return day.toISOString().slice(0, 10).replaceAll("-", "");
 }
 
-export function buildCalendar({
-  name,
-  timeZone,
-  tasks,
-}: {
-  name: string;
-  timeZone: string;
-  tasks: CalendarTask[];
-}) {
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-  const lines = [
+function calendarHeader(name: string) {
+  return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
     "PRODID:-//Kaneo//Calendar Feed//EN",
     "CALSCALE:GREGORIAN",
     `X-WR-CALNAME:${escapeText(name)}`,
   ];
-  for (const task of tasks) {
+}
+
+function eventFormatter(timeZone: string) {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  return (task: CalendarTask) => {
     const scheduledDate = task.startDate ?? task.dueDate;
-    if (!scheduledDate) continue;
+    if (!scheduledDate) return [];
     const start = calendarDate(scheduledDate, formatter);
     const due = calendarDate(task.dueDate ?? scheduledDate, formatter);
-    lines.push(
+    return [
       "BEGIN:VEVENT",
       `UID:${task.id}@kaneo`,
       `DTSTAMP:${timestamp(task.updatedAt)}`,
@@ -99,8 +94,66 @@ export function buildCalendar({
         : []),
       "TRANSP:TRANSPARENT",
       "END:VEVENT",
-    );
+    ];
+  };
+}
+
+function serializeLines(lines: string[]) {
+  return lines.length ? `${lines.map(foldLine).join("\r\n")}\r\n` : "";
+}
+
+export function buildCalendar({
+  name,
+  timeZone,
+  tasks,
+}: {
+  name: string;
+  timeZone: string;
+  tasks: CalendarTask[];
+}) {
+  const event = eventFormatter(timeZone);
+  return serializeLines([
+    ...calendarHeader(name),
+    ...tasks.flatMap(event),
+    "END:VCALENDAR",
+  ]);
+}
+
+export function streamCalendar({
+  name,
+  timeZone,
+  tasks,
+}: {
+  name: string;
+  timeZone: string;
+  tasks: AsyncIterable<CalendarTask>;
+}) {
+  const event = eventFormatter(timeZone);
+  const encoder = new TextEncoder();
+  async function* chunks() {
+    yield encoder.encode(serializeLines(calendarHeader(name)));
+    for await (const task of tasks) {
+      yield encoder.encode(serializeLines(event(task)));
+    }
+    yield encoder.encode("END:VCALENDAR\r\n");
   }
-  lines.push("END:VCALENDAR");
-  return `${lines.map(foldLine).join("\r\n")}\r\n`;
+  const iterator = chunks();
+  return new ReadableStream<Uint8Array>(
+    {
+      async pull(controller) {
+        try {
+          const result = await iterator.next();
+          if (result.done) controller.close();
+          else controller.enqueue(result.value);
+        } catch (error) {
+          await iterator.return();
+          controller.error(error);
+        }
+      },
+      async cancel() {
+        await iterator.return();
+      },
+    },
+    { highWaterMark: 0 },
+  );
 }

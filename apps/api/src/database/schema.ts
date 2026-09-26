@@ -330,6 +330,9 @@ export const projectTable = pgTable(
     archivedAt: timestamp("archived_at", { mode: "date" }),
     lastTaskNumber: integer("last_task_number").notNull().default(0),
     position: integer("position").notNull().default(0),
+    backgroundObjectKey: text("background_object_key"),
+    backgroundMimeType: text("background_mime_type"),
+    backgroundVersion: text("background_version"),
   },
   (table) => [
     unique("project_workspace_id_id_unique").on(table.workspaceId, table.id),
@@ -946,12 +949,13 @@ export const externalLinkTable = pgTable(
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
-    integrationId: text("integration_id")
-      .notNull()
-      .references(() => integrationTable.id, {
+    integrationId: text("integration_id").references(
+      () => integrationTable.id,
+      {
         onDelete: "cascade",
         onUpdate: "cascade",
-      }),
+      },
+    ),
     resourceType: text("resource_type").notNull(),
     externalId: text("external_id").notNull(),
     url: text("url").notNull(),

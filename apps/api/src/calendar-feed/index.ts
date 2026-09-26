@@ -45,7 +45,7 @@ export const publicCalendarFeed = apiRouter().openapi(
     tags: ["Calendar feeds"],
     summary: "Subscribe to a calendar feed",
     description:
-      "Read scheduled project tasks using a secret calendar feed link. Anyone with the link can read matching task titles, descriptions, and dates.",
+      "Read scheduled project tasks using a secret calendar feed link. Anyone with the link can read matching task titles, descriptions, and dates. Responses are streamed; descriptions longer than 4096 characters and titles or calendar names longer than 1024 characters are truncated with an ellipsis.",
     security: [],
     request: { params: calendarFeedTokenParam },
     responses: {

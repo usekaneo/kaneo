@@ -1,5 +1,5 @@
 {
-	"id": "8e8f1f62-0993-4806-840d-216caadc66e1",
+	"id": "de1aba3a-dd83-48d6-93a3-c53b2ff18aee",
 	"prevId": "f9757406-e33b-407b-9849-36c7af901b05",
 	"version": "7",
 	"dialect": "postgresql",
@@ -869,89 +869,6 @@
 			"checkConstraints": {},
 			"isRLSEnabled": false
 		},
-		"public.calendar_feed": {
-			"name": "calendar_feed",
-			"schema": "",
-			"columns": {
-				"id": {
-					"name": "id",
-					"type": "text",
-					"primaryKey": true,
-					"notNull": true
-				},
-				"project_id": {
-					"name": "project_id",
-					"type": "text",
-					"primaryKey": false,
-					"notNull": true
-				},
-				"token": {
-					"name": "token",
-					"type": "text",
-					"primaryKey": false,
-					"notNull": true
-				},
-				"label_ids": {
-					"name": "label_ids",
-					"type": "jsonb",
-					"primaryKey": false,
-					"notNull": true
-				},
-				"time_zone": {
-					"name": "time_zone",
-					"type": "text",
-					"primaryKey": false,
-					"notNull": true,
-					"default": "'UTC'"
-				},
-				"created_at": {
-					"name": "created_at",
-					"type": "timestamp",
-					"primaryKey": false,
-					"notNull": true,
-					"default": "now()"
-				}
-			},
-			"indexes": {
-				"calendar_feed_project_id_idx": {
-					"name": "calendar_feed_project_id_idx",
-					"columns": [
-						{
-							"expression": "project_id",
-							"isExpression": false,
-							"asc": true,
-							"nulls": "last"
-						}
-					],
-					"isUnique": false,
-					"concurrently": false,
-					"method": "btree",
-					"with": {}
-				}
-			},
-			"foreignKeys": {
-				"calendar_feed_project_id_project_id_fk": {
-					"name": "calendar_feed_project_id_project_id_fk",
-					"tableFrom": "calendar_feed",
-					"tableTo": "project",
-					"columnsFrom": ["project_id"],
-					"columnsTo": ["id"],
-					"onDelete": "cascade",
-					"onUpdate": "cascade"
-				}
-			},
-			"compositePrimaryKeys": {},
-			"uniqueConstraints": {
-				"calendar_feed_token_unique": {
-					"name": "calendar_feed_token_unique",
-					"nullsNotDistinct": false,
-					"columns": ["token"]
-				}
-			},
-			"policies": {},
-			"checkConstraints": {},
-			"isRLSEnabled": false
-		},
 		"public.column": {
 			"name": "column",
 			"schema": "",
@@ -1529,7 +1446,7 @@
 					"name": "integration_id",
 					"type": "text",
 					"primaryKey": false,
-					"notNull": true
+					"notNull": false
 				},
 				"resource_type": {
 					"name": "resource_type",
