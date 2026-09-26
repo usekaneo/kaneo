@@ -83,6 +83,7 @@ import { normalizeApiServerUrl } from "./utils/openapi-spec";
 import { seedDefaultWorkspaceRoles } from "./utils/seed-default-workspace-roles";
 import { drainSignInEmails } from "./utils/sign-in-email-tasks";
 import { validateWorkspaceAccess } from "./utils/validate-workspace-access";
+import { verifyApiKey } from "./utils/verify-api-key";
 import workflowRule from "./workflow-rule";
 import workspace from "./workspace";
 import {
@@ -392,6 +393,14 @@ export function createApp() {
     return c.json(result);
   });
 
+  api.use("/auth/*", async (c, next) => {
+    const apiKeyHeader = c.req.header("x-api-key")?.trim();
+    if (apiKeyHeader && !(await verifyApiKey(apiKeyHeader))) {
+      throw new HTTPException(401, { message: "Unauthorized" });
+    }
+    return next();
+  });
+
   api.openapi(
     createRoute({
       method: "get",
@@ -660,7 +669,7 @@ export function createApp() {
 
   api.on(["POST", "GET", "PUT", "PATCH", "DELETE"], "/auth/*", async (c) => {
     const authHeader = c.req.header("Authorization");
-    const apiKeyHeader = c.req.header("x-api-key");
+    const apiKeyHeader = c.req.header("x-api-key")?.trim();
     const bearerToken = authHeader?.match(/^Bearer\s+(\S+)$/i)?.[1];
 
     if (bearerToken && !apiKeyHeader) {
@@ -671,6 +680,10 @@ export function createApp() {
       // Preserve Better Auth bearer session tokens on auth routes.
       if (session?.session && session.user) {
         return auth.handler(c.req.raw);
+      }
+
+      if (!(await verifyApiKey(bearerToken))) {
+        throw new HTTPException(401, { message: "Unauthorized" });
       }
 
       const headers = new Headers(c.req.raw.headers);
