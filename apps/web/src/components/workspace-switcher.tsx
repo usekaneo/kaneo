@@ -29,6 +29,7 @@ import {
 } from "@/hooks/use-keyboard-shortcuts";
 import { useUserWebSocket } from "@/hooks/use-user-websocket";
 import { authClient } from "@/lib/auth-client";
+import { hasInstanceAdminRole } from "@/lib/instance-admin";
 import type { Workspace } from "@/types/workspace";
 import CreateWorkspaceModal from "./shared/modals/create-workspace-modal";
 
@@ -41,7 +42,7 @@ export function WorkspaceSwitcher() {
   const { data: workspaces } = useGetWorkspaces();
   const { data: session } = authClient.useSession();
   const { data: config } = useGetConfig();
-  const isAdmin = session?.user?.role === "admin";
+  const isAdmin = hasInstanceAdminRole(session?.user?.role);
   const canCreateWorkspace =
     isAdmin || (config !== undefined && !config.disableWorkspaceCreation);
   const navigate = useNavigate();

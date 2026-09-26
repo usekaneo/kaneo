@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
 import { authClient } from "@/lib/auth-client";
+import { hasInstanceAdminRole } from "@/lib/instance-admin";
 
 // "stale" is a refresh that failed: the cached role is all there is.
 type RoleStatus = "pending" | "fresh" | "stale";
@@ -67,10 +68,11 @@ export default function useWorkspaceCreationAccess(): WorkspaceCreationAccess {
   }, []);
 
   // The re-read answer when there is one, the cached role when there is not.
-  const isInstanceAdmin =
+  const isInstanceAdmin = hasInstanceAdminRole(
     roleStatus === "fresh"
-      ? refreshedRole === "admin"
-      : (user as { role?: string | null } | null | undefined)?.role === "admin";
+      ? refreshedRole
+      : (user as { role?: string | null } | null | undefined)?.role,
+  );
 
   // Only a confirmed non-admin under a confirmed restriction loses anything.
   // Every other combination — a role that could not be re-read, a config

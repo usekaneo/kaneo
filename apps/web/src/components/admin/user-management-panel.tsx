@@ -72,9 +72,15 @@ import useToggleAdminUserStatus from "@/hooks/mutations/admin/use-toggle-admin-u
 import useUpdateAdminUser from "@/hooks/mutations/admin/use-update-admin-user";
 import useAdminUsers, {
   ADMIN_USERS_PAGE_SIZE,
+  ADMIN_USERS_SEARCH_MAX_LENGTH,
   type AdminUser,
 } from "@/hooks/queries/admin/use-admin-users";
 import { formatDateMedium } from "@/lib/format";
+import { getInitials } from "@/lib/get-initials";
+import {
+  hasInstanceAdminRole,
+  withInstanceAdminRole,
+} from "@/lib/instance-admin";
 
 type PendingAction = {
   type: "deactivate" | "reactivate" | "delete";
@@ -86,17 +92,6 @@ type EditValues = {
   email: string;
   role: "admin" | "user";
 };
-
-function getUserInitials(name: string) {
-  return (
-    name
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase())
-      .join("") || "?"
-  );
-}
 
 function UserManagementPanel() {
   const { t } = useTranslation();
@@ -118,6 +113,31 @@ function UserManagementPanel() {
     debouncedSearch,
     page,
   );
+  const confirmCopy = pendingAction
+    ? {
+        deactivate: {
+          title: t("settings:adminUsers.confirm.deactivate.title"),
+          description: t("settings:adminUsers.confirm.deactivate.description", {
+            name: pendingAction.user.name,
+          }),
+          action: t("settings:adminUsers.confirm.deactivate.action"),
+        },
+        reactivate: {
+          title: t("settings:adminUsers.confirm.reactivate.title"),
+          description: t("settings:adminUsers.confirm.reactivate.description", {
+            name: pendingAction.user.name,
+          }),
+          action: t("settings:adminUsers.confirm.reactivate.action"),
+        },
+        delete: {
+          title: t("settings:adminUsers.confirm.delete.title"),
+          description: t("settings:adminUsers.confirm.delete.description", {
+            name: pendingAction.user.name,
+          }),
+          action: t("settings:adminUsers.confirm.delete.action"),
+        },
+      }[pendingAction.type]
+    : null;
   const { mutateAsync: updateUser, isPending: isUpdating } =
     useUpdateAdminUser();
   const { mutateAsync: toggleUserStatus, isPending: isTogglingStatus } =
@@ -139,7 +159,7 @@ function UserManagementPanel() {
     setEditValues({
       name: editingUser.name,
       email: editingUser.email,
-      role: editingUser.role === "admin" ? "admin" : "user",
+      role: hasInstanceAdminRole(editingUser.role) ? "admin" : "user",
     });
   }, [editingUser]);
 
@@ -149,10 +169,10 @@ function UserManagementPanel() {
   const isBusy = isTogglingStatus || isDeleting;
 
   useEffect(() => {
-    if (page >= pageCount) {
+    if (data && page >= pageCount) {
       setPage(pageCount - 1);
     }
-  }, [page, pageCount]);
+  }, [data, page, pageCount]);
 
   const handleEditSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -162,13 +182,18 @@ function UserManagementPanel() {
     const email = editValues.email.trim().toLowerCase();
     if (!name || !email) return;
 
+    const wantsAdmin = editValues.role === "admin";
+    const roleChanged =
+      editingUser.id !== currentUser?.id &&
+      hasInstanceAdminRole(editingUser.role) !== wantsAdmin;
+
     try {
       await updateUser({
         userId: editingUser.id,
         name,
         email,
-        ...(editingUser.id !== currentUser?.id
-          ? { role: editValues.role }
+        ...(roleChanged
+          ? { role: withInstanceAdminRole(editingUser.role, wantsAdmin) }
           : {}),
       });
       setEditingUser(null);
@@ -245,6 +270,7 @@ function UserManagementPanel() {
               type="search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
+              maxLength={ADMIN_USERS_SEARCH_MAX_LENGTH}
               placeholder={t("settings:adminUsers.searchPlaceholder")}
               aria-label={t("settings:adminUsers.searchLabel")}
             />
@@ -336,7 +362,7 @@ function UserManagementPanel() {
               {!isLoading && !isError
                 ? data?.users.map((managedUser) => {
                     const isSelf = managedUser.id === currentUser?.id;
-                    const isAdmin = managedUser.role === "admin";
+                    const isAdmin = hasInstanceAdminRole(managedUser.role);
                     const isDeactivated = managedUser.banned === true;
 
                     return (
@@ -351,7 +377,7 @@ function UserManagementPanel() {
                                 />
                               ) : null}
                               <AvatarFallback className="text-xs font-medium">
-                                {getUserInitials(managedUser.name)}
+                                {getInitials(managedUser.name, "?")}
                               </AvatarFallback>
                             </Avatar>
                             <div className="min-w-0">
@@ -646,18 +672,9 @@ function UserManagementPanel() {
       >
         <AlertDialogPopup>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              {pendingAction
-                ? t(`settings:adminUsers.confirm.${pendingAction.type}.title`)
-                : ""}
-            </AlertDialogTitle>
+            <AlertDialogTitle>{confirmCopy?.title ?? ""}</AlertDialogTitle>
             <AlertDialogDescription>
-              {pendingAction
-                ? t(
-                    `settings:adminUsers.confirm.${pendingAction.type}.description`,
-                    { name: pendingAction.user.name },
-                  )
-                : ""}
+              {confirmCopy?.description ?? ""}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -677,11 +694,7 @@ function UserManagementPanel() {
             >
               {isBusy
                 ? t("settings:adminUsers.confirm.working")
-                : pendingAction
-                  ? t(
-                      `settings:adminUsers.confirm.${pendingAction.type}.action`,
-                    )
-                  : ""}
+                : (confirmCopy?.action ?? "")}
             </Button>
           </AlertDialogFooter>
         </AlertDialogPopup>

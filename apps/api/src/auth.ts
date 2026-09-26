@@ -44,7 +44,9 @@ import { syncWorkspaceSeats } from "./billing/controllers/sync-seats";
 import db, { schema } from "./database";
 import { authDatabaseAdapter } from "./database/auth-adapter";
 import { publishEvent } from "./events";
+import clearEmailVerificationOnAdminChange from "./user/controllers/clear-email-verification-on-admin-change";
 import deleteAccountData from "./user/controllers/delete-account-data";
+import prepareAdminUserRemoval from "./user/controllers/prepare-admin-user-removal";
 import { resolveAuthSecret } from "./utils/auth-secret";
 import {
   canSendSignInEmail,
@@ -58,6 +60,7 @@ import { getDefaultCookieAttributes } from "./utils/get-default-cookie-attribute
 import { getInvitationEmailSubject } from "./utils/get-invitation-email-subject";
 import { getWorkspaceInvitationEmailCopy } from "./utils/get-workspace-invitation-email-copy";
 import { getGithubSsoOAuthCredentials } from "./utils/github-sso-env";
+import { hasInstanceAdminRole } from "./utils/instance-admin-role";
 import {
   hasRegisteredUsers,
   promoteInitialAdministrator,
@@ -405,7 +408,7 @@ export const auth = betterAuth({
         },
       },
       // When `DISABLE_WORKSPACE_CREATION` is set, only instance admins
-      // (`user.role === "admin"`) may create workspaces — mirrors the
+      // (role list includes "admin") may create workspaces — mirrors the
       // implicit-exemption shape of `DISABLE_REGISTRATION` above. This
       // check runs before any workspace membership exists, so only the
       // instance-wide role is meaningful here; per-workspace roles
@@ -420,7 +423,7 @@ export const auth = betterAuth({
               .select({ role: schema.userTable.role })
               .from(schema.userTable)
               .where(eq(schema.userTable.id, user.id));
-            return freshUser?.role === "admin";
+            return hasInstanceAdminRole(freshUser?.role);
           }
         : true,
       // Better Auth defaults this to `true`, which blocks any user whose email
@@ -613,6 +616,7 @@ export const auth = betterAuth({
               message: "You cannot change your own role.",
             });
           }
+          return clearEmailVerificationOnAdminChange(user, ctx);
         },
       },
       create: {
@@ -646,6 +650,10 @@ export const auth = betterAuth({
   },
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === "/admin/remove-user") {
+        await prepareAdminUserRemoval(ctx);
+      }
+
       if (ctx.path === "/organization/invite-member") {
         // Better Auth swallows email failures in runInBackgroundOrAwait.
         // Invitation callers need the delivery result, including on resend.

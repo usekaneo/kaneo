@@ -15,6 +15,7 @@ import { compress } from "hono/compress";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import activity from "./activity";
+import admin from "./admin";
 import { auth } from "./auth";
 import { organizationRoutes } from "./auth-openapi";
 import billing from "./billing";
@@ -82,6 +83,7 @@ import { normalizeApiServerUrl } from "./utils/openapi-spec";
 import { seedDefaultWorkspaceRoles } from "./utils/seed-default-workspace-roles";
 import { drainSignInEmails } from "./utils/sign-in-email-tasks";
 import { validateWorkspaceAccess } from "./utils/validate-workspace-access";
+import { verifyApiKey } from "./utils/verify-api-key";
 import workflowRule from "./workflow-rule";
 import workspace from "./workspace";
 import {
@@ -391,6 +393,14 @@ export function createApp() {
     return c.json(result);
   });
 
+  api.use("/auth/*", async (c, next) => {
+    const apiKeyHeader = c.req.header("x-api-key")?.trim();
+    if (apiKeyHeader && !(await verifyApiKey(apiKeyHeader))) {
+      throw new HTTPException(401, { message: "Unauthorized" });
+    }
+    return next();
+  });
+
   api.openapi(
     createRoute({
       method: "get",
@@ -659,29 +669,27 @@ export function createApp() {
 
   api.on(["POST", "GET", "PUT", "PATCH", "DELETE"], "/auth/*", async (c) => {
     const authHeader = c.req.header("Authorization");
-    const apiKeyHeader = c.req.header("x-api-key");
+    const apiKeyHeader = c.req.header("x-api-key")?.trim();
     const bearerToken = authHeader?.match(/^Bearer\s+(\S+)$/i)?.[1];
 
     if (bearerToken && !apiKeyHeader) {
-      const session = await auth.api.getSession({
-        headers: c.req.raw.headers,
-      });
+      const headers = new Headers(c.req.raw.headers);
+      headers.delete("cookie");
+      const session = await auth.api.getSession({ headers });
 
       // Preserve Better Auth bearer session tokens on auth routes.
       if (session?.session && session.user) {
-        return auth.handler(c.req.raw);
+        return auth.handler(new Request(c.req.raw, { headers }));
       }
 
-      const headers = new Headers(c.req.raw.headers);
+      if (!(await verifyApiKey(bearerToken))) {
+        throw new HTTPException(401, { message: "Unauthorized" });
+      }
 
       // Better Auth API key plugin validates from x-api-key by default.
       headers.set("x-api-key", bearerToken);
 
-      return auth.handler(
-        new Request(c.req.raw, {
-          headers,
-        }),
-      );
+      return auth.handler(new Request(c.req.raw, { headers }));
     }
 
     return auth.handler(c.req.raw);
@@ -768,6 +776,7 @@ export function createApp() {
   const workspaceApi = api.route("/workspace", workspace);
   const customFieldApi = api.route("/custom-field", customField);
   const userApi = api.route("/user", user);
+  const adminApi = api.route("/admin", admin);
 
   app.route(
     "/",
@@ -907,6 +916,7 @@ export function createApp() {
     telegramIntegrationApi,
     timeEntryApi,
     userApi,
+    adminApi,
     workflowRuleApi,
     workspaceApi,
     customFieldApi,
@@ -1036,6 +1046,7 @@ const {
   telegramIntegrationApi,
   timeEntryApi,
   userApi,
+  adminApi,
   workflowRuleApi,
   workspaceApi,
   customFieldApi,
@@ -1081,6 +1092,7 @@ export type AppType =
   | typeof workspaceApi
   | typeof customFieldApi
   | typeof userApi
+  | typeof adminApi
   | typeof publicProjectApi
   | typeof invitationPublicApi
   | typeof oauthApi;

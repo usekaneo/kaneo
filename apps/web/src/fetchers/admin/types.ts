@@ -1,29 +1,17 @@
+import type { getAdminUsers } from "./get-admin-users";
+
 export const ADMIN_USERS_PAGE_SIZE = 20;
+export const ADMIN_USERS_SEARCH_MAX_LENGTH = 200;
 
-export type AdminUser = {
-  id: string;
-  name: string;
-  email: string;
-  emailVerified: boolean;
-  image?: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  role?: string | null;
-  banned: boolean | null;
-  banReason?: string | null;
-  banExpires?: Date | null;
-};
+export type AdminUsersResult = Awaited<ReturnType<typeof getAdminUsers>>;
 
-export type AdminUsersResult = {
-  users: AdminUser[];
-  total: number;
-};
+export type AdminUser = AdminUsersResult["users"][number];
 
 export type UpdateAdminUserRequest = {
   userId: string;
   name: string;
   email: string;
-  role?: "admin" | "user";
+  role?: string;
 };
 
 export type ToggleAdminUserStatusRequest = {

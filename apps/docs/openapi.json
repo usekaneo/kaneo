@@ -3925,6 +3925,91 @@
         "required": [
           "deleted"
         ]
+      },
+      "AdminUserList": {
+        "type": "object",
+        "properties": {
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminUser"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "Number of users matching the search, across all pages."
+          }
+        },
+        "required": [
+          "users",
+          "total"
+        ]
+      },
+      "AdminUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "emailVerified": {
+            "type": "boolean"
+          },
+          "image": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "role": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "banned": {
+            "type": "boolean"
+          },
+          "banReason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "banExpires": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "emailVerified",
+          "image",
+          "createdAt",
+          "updatedAt",
+          "role",
+          "banned",
+          "banReason",
+          "banExpires"
+        ]
       }
     },
     "parameters": {}
@@ -3997,8 +4082,9 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^\\d+$"
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000
             },
             "required": false,
             "name": "page",
@@ -4006,8 +4092,9 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^\\d+$"
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000
             },
             "required": false,
             "name": "relatedPage",
@@ -4015,8 +4102,9 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^\\d+$"
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
             },
             "required": false,
             "name": "limit",
@@ -4140,8 +4228,9 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^\\d+$",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2000000000,
               "default": 0
             },
             "required": false,
@@ -4239,8 +4328,9 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^\\d+$",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2000000000,
               "default": 0
             },
             "required": false,
@@ -8026,8 +8116,9 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^\\d+$",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2000000000,
               "default": 0
             },
             "required": false,
@@ -8238,8 +8329,9 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^\\d+$"
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000
             },
             "required": false,
             "name": "page",
@@ -8247,8 +8339,9 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^\\d+$"
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000
             },
             "required": false,
             "name": "relatedPage",
@@ -8256,8 +8349,9 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^\\d+$"
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
             },
             "required": false,
             "name": "limit",
@@ -17199,6 +17293,86 @@
           },
           "401": {
             "description": "Missing or invalid credentials"
+          }
+        }
+      }
+    },
+    "/admin/users": {
+      "get": {
+        "operationId": "listAdminUsers",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "List instance users",
+        "description": "Page through every user account on this instance, optionally filtered by a case-insensitive name or email search. Requires an instance administrator session; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "Case-insensitive match against user name or email."
+            },
+            "required": false,
+            "description": "Case-insensitive match against user name or email.",
+            "name": "search",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000,
+              "default": 1
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users matching the search",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUserList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid search, page, or limit",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }

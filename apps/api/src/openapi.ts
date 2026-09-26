@@ -38,6 +38,22 @@ export function apiRouter<V extends BaseVariables = BaseVariables>() {
   });
 }
 
+export const pagingNumber = (min: number, max: number, fallback?: number) => {
+  const parsed = z
+    .string()
+    .regex(/^\d+$/, "Expected a positive integer")
+    .transform(Number)
+    .pipe(z.number().int().min(min).max(max));
+  return fallback === undefined
+    ? parsed.openapi({ type: "integer", minimum: min, maximum: max })
+    : parsed.default(fallback).openapi({
+        type: "integer",
+        minimum: min,
+        maximum: max,
+        default: fallback,
+      });
+};
+
 export const responseTimestamp = z
   .date()
   .openapi({ type: "string", format: "date-time" });
