@@ -395,6 +395,7 @@ export default function TaskRelations({
                             // sighted user gets from the native `title`
                             // tooltip.
                             <span
+                              role="img"
                               title={t(
                                 "tasks:relations.crossProjectStatusReadOnly",
                               )}

@@ -46,9 +46,7 @@ describe("buildTaskHierarchy", () => {
       ],
     );
 
-    expect(hierarchy.childrenByParentId.get("grandparent")).toEqual([
-      "parent",
-    ]);
+    expect(hierarchy.childrenByParentId.get("grandparent")).toEqual(["parent"]);
     expect(hierarchy.childrenByParentId.has("parent")).toBe(false);
     expect(hierarchy.parentIdByChildId.get("parent")).toBe("grandparent");
     // The grandchild is simply not part of the hierarchy at all — it stays
@@ -101,13 +99,22 @@ describe("computeParentSummarySpans", () => {
       ],
     );
     const ownSpanByTaskId = new Map<string, ScheduleSpan>([
-      ["child-a", { start: new Date("2026-02-01"), end: new Date("2026-02-05") }],
-      ["child-b", { start: new Date("2026-02-03"), end: new Date("2026-02-10") }],
+      [
+        "child-a",
+        { start: new Date("2026-02-01"), end: new Date("2026-02-05") },
+      ],
+      [
+        "child-b",
+        { start: new Date("2026-02-03"), end: new Date("2026-02-10") },
+      ],
       // A parent's own dates are intentionally not looked at here — only
       // its children's — since the Gantt route's rollup is meant to always
       // reflect "the span of the children", never a mix with the parent's
       // own dates.
-      ["parent", { start: new Date("2026-01-01"), end: new Date("2026-01-02") }],
+      [
+        "parent",
+        { start: new Date("2026-01-01"), end: new Date("2026-01-02") },
+      ],
     ]);
 
     const spans = computeParentSummarySpans(hierarchy, ownSpanByTaskId);

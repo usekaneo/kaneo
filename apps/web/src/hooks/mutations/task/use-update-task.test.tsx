@@ -84,15 +84,13 @@ describe("useUpdateTask cache invalidation", () => {
     });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    expect(client.getQueryState(["task", "task-1"])?.isInvalidated).toBe(
+    expect(client.getQueryState(["task", "task-1"])?.isInvalidated).toBe(true);
+    expect(client.getQueryState(["tasks", "project-1"])?.isInvalidated).toBe(
       true,
     );
-    expect(
-      client.getQueryState(["tasks", "project-1"])?.isInvalidated,
-    ).toBe(true);
-    expect(
-      client.getQueryState(["activities", "task-1"])?.isInvalidated,
-    ).toBe(true);
+    expect(client.getQueryState(["activities", "task-1"])?.isInvalidated).toBe(
+      true,
+    );
     client.clear();
   });
 });
