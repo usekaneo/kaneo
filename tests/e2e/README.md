@@ -3,6 +3,8 @@
 These Playwright tests run against a disposable, bundled Kaneo instance built
 from the current checkout. They exercise real authentication, workspace creation,
 persistence after a reload, and authentication after clearing the session cookie.
+They also create projects and tasks, persist task edits, and verify that another
+workspace member receives edits through a real WebSocket without reloading.
 PostgreSQL uses temporary storage; no existing database or root `.env` is used.
 
 ## Local run
@@ -21,7 +23,8 @@ The test instance binds to `http://localhost:18173`. Tests create unique synthet
 users and workspaces. Stop the Compose stack after testing, including failed runs;
 its temporary database is discarded. The stack's project name is
 `kaneo-browserstack-e2e`; do not run two copies simultaneously on the same machine.
-Reports, failure screenshots, and traces are stored in `.cache/e2e/`.
+Reports, failure screenshots, and local Playwright traces are stored in `.cache/e2e/`.
+BrowserStack disables native Playwright tracing; use its session recordings for cloud runs.
 
 ## BrowserStack Automate
 
@@ -58,12 +61,22 @@ videos appear in the Automate dashboard under **Kaneo**.
 1. Add repository Actions secrets `BROWSERSTACK_USERNAME` and
    `BROWSERSTACK_ACCESS_KEY`.
 2. Merge this integration into `main`.
-3. Open **Actions → BrowserStack → Run workflow**, selecting `main`.
+3. Every push to `main` now runs **BrowserStack** automatically. To rerun it,
+   open **Actions → BrowserStack → Run workflow**, selecting `main`.
 
-The workflow is manual and accepts only `main`. It builds the checked-out revision,
-runs the tests through BrowserStack Local, uploads the Playwright report, and tears
-down the temporary stack even after failure. Credentials are passed only to the
-credential check and BrowserStack test step. It does not run on pull requests.
+**Browser tests** runs the same suite in Chromium for every pull request, including
+forks, without cloud credentials. **BrowserStack** runs Chrome on Windows and
+WebKit on macOS after a push to `main`, or a manual dispatch on `main`. Cloud runs
+are serialized to stay within the two-session limit; obsolete PR runs are cancelled.
+
+Both workflows build the checked-out revision, use a disposable database, upload
+reports for seven days, and tear down the stack even after failure. BrowserStack
+credentials are passed only to its credential check and cloud test step. No
+production instance is contacted. Tests use synthetic accounts; invitation setup
+uses the normal API without sending email because SMTP is not configured.
+
+Add the **Browser tests / smoke** check to branch protection when it has proven
+stable. The cloud check runs after merge and does not currently gate releases.
 
 References:
 

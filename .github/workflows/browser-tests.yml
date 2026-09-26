@@ -1,35 +1,22 @@
-name: BrowserStack
+name: Browser tests
 
 on:
-  push:
-    branches: [main, feat/browserstack-integration]
-  workflow_dispatch:
+  pull_request:
 
 permissions:
   contents: read
 
 concurrency:
-  group: browserstack
-  cancel-in-progress: false
+  group: browser-tests-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   smoke:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feat/browserstack-integration'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      KANEO_E2E_HOST: bs-local.com
+      KANEO_E2E_HOST: localhost
     steps:
-      - name: Check BrowserStack credentials
-        env:
-          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-        run: |
-          if [ -z "$BROWSERSTACK_USERNAME" ] || [ -z "$BROWSERSTACK_ACCESS_KEY" ]; then
-            echo '::error::Set BROWSERSTACK_USERNAME and BROWSERSTACK_ACCESS_KEY in repository Actions secrets.'
-            exit 1
-          fi
-
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -43,6 +30,8 @@ jobs:
           cache-dependency-path: tests/e2e/pnpm-lock.yaml
       - run: pnpm --dir tests/e2e install --frozen-lockfile --ignore-scripts
 
+      - run: pnpm --dir tests/e2e exec playwright install --with-deps chromium
+
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
       - name: Build this revision of Kaneo
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
@@ -51,16 +40,13 @@ jobs:
           file: Dockerfile.kaneo
           load: true
           tags: kaneo-browserstack:test
-          cache-from: type=gha,scope=browserstack
-          cache-to: type=gha,mode=max,scope=browserstack
+          cache-from: type=gha,scope=browser-tests
+          cache-to: type=gha,mode=max,scope=browser-tests
 
       - name: Start disposable test instance
         run: docker compose -f tests/e2e/compose.yml up --no-build --wait --wait-timeout 180
       - name: Run browser smoke tests
-        env:
-          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-        run: pnpm test:browserstack
+        run: pnpm test:e2e
 
       - name: Collect instance logs
         if: failure()
@@ -70,7 +56,7 @@ jobs:
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
-          name: browserstack-results
+          name: browser-test-results
           path: .cache/e2e/
           if-no-files-found: ignore
           retention-days: 7
