@@ -748,7 +748,9 @@
 			"telegramSectionTitle": "Интеграция с Telegram",
 			"telegramSectionSubtitle": "Отправка обновлений по задачам проекта в чат или тему Telegram через бота.",
 			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook.",
-			"mattermostSectionTitle": "Mattermost Integration"
+			"mattermostSectionTitle": "Mattermost Integration",
+			"gitlabSectionSubtitle": "Синхронизация задач с GitLab.com или self-managed экземпляром (issues, merge requests, вебхуки).",
+			"gitlabSectionTitle": "Интеграция с GitLab"
 		},
 		"projectVisibility": {
 			"pageTitle": "Видимость проекта",
@@ -1174,7 +1176,9 @@
 				"pr_merged": "PR влит",
 				"issue_opened": "Issue открыт",
 				"issue_closed": "Issue закрыт"
-			}
+			},
+			"gitlabHeading": "GitLab",
+			"gitlabHint": "Когда происходит событие вебхука GitLab, перевести связанную задачу в колонку."
 		},
 		"externalLinks": {
 			"resources": "Ресурсы",
@@ -1615,6 +1619,85 @@
 				"sameAsCurrent": "New password must be different from your current password."
 			}
 		},
+		"gitlabIntegration": {
+			"actionsHint": "Проверьте доступ и подключите",
+			"actionsTitle": "Действия",
+			"badgeConnected": "Подключено",
+			"badgeNotConnected": "Не подключено",
+			"baseUrlHint": "https://gitlab.com или корневой URL вашего экземпляра",
+			"baseUrlLabel": "URL GitLab",
+			"browse": "Обзор",
+			"browseModalHint": "Проекты, участником которых является владелец токена",
+			"browseModalTitle": "Ваши проекты",
+			"browseNeedsCredentials": "Введите URL GitLab и токен для просмотра",
+			"commentTaskLinkHint": "Когда включено, Kaneo оставляет ссылку на задачу в каждом issue, созданном в GitLab.",
+			"commentTaskLinkTitle": "Комментировать ссылкой Kaneo issues, созданные в GitLab",
+			"connect": "Подключить",
+			"connectedActive": "Проект подключён и активен",
+			"connectionStatus": "Статус подключения",
+			"currentToken": "сохранён",
+			"disconnect": "Отключить",
+			"importDisabledHint": "Проверьте проект выше, чтобы включить импорт",
+			"importing": "Импорт…",
+			"importIssues": "Импортировать issues",
+			"importSectionHint": "Импортировать открытые issues и merge requests из проекта",
+			"importSectionTitle": "Импорт issues из GitLab",
+			"loadingProjects": "Загрузка проектов…",
+			"loadProjectsError": "Не удалось загрузить проекты",
+			"notConnectedHint": "Проект GitLab не подключён",
+			"openInGitlab": "Открыть {{project}} в GitLab",
+			"project": "Проект",
+			"projectHint": "Подключённый проект GitLab",
+			"projectPathHint": "Полный путь со всеми группами, например group/subgroup/project",
+			"projectPathLabel": "Путь проекта",
+			"retry": "Повторить",
+			"searchProjects": "Поиск…",
+			"toast": {
+				"commentOnDisabled": "Комментарии со ссылкой на задачу в issues из GitLab отключены",
+				"commentOnEnabled": "Kaneo будет оставлять ссылку на задачу в issues, созданных в GitLab",
+				"importError": "Не удалось импортировать issues",
+				"issuesImported": "Issues успешно импортированы",
+				"notGitlabInstance": "URL не указывает на экземпляр GitLab",
+				"projectNotFound": "Проект не найден или недоступен",
+				"redirected": "URL GitLab перенаправлен (обычно на HTTPS). Укажите конечный URL напрямую.",
+				"removed": "Интеграция с GitLab удалена",
+				"removeError": "Не удалось удалить интеграцию с GitLab",
+				"secretCopied": "Скопировано",
+				"settingsUpdateError": "Не удалось обновить интеграцию с GitLab",
+				"tokenRequired": "Требуется токен доступа",
+				"tokenRequiredVerify": "Введите токен для проверки",
+				"unableToCopySecret": "Не удалось скопировать секрет",
+				"updated": "Интеграция с GitLab сохранена",
+				"updateError": "Не удалось сохранить интеграцию с GitLab",
+				"verifyError": "Не удалось проверить доступ к GitLab",
+				"verifyFirst": "Проверка доступа не удалась. Проверьте URL, токен и путь проекта",
+				"verifyOk": "Токен GitLab имеет доступ к этому проекту",
+				"verifyWarning": "Проверьте права токена или доступ к проекту"
+			},
+			"tokenHint": "Токен со скоупом api и правами не ниже Developer в проекте",
+			"tokenLabel": "Токен доступа",
+			"tokenPlaceholder": "Вставьте токен",
+			"tokenPlaceholderUpdate": "Вставьте новый токен для замены",
+			"tokenTypeBearer": "Токен OAuth2",
+			"tokenTypeHint": "Как передаётся токен. Токены доступа идут в PRIVATE-TOKEN, токен OAuth2 — в Authorization.",
+			"tokenTypeLabel": "Тип токена",
+			"tokenTypePrivate": "Персональный, проектный или групповой токен доступа",
+			"update": "Обновить",
+			"validation": {
+				"baseUrlInvalid": "Введите корректный URL (например, https://gitlab.com)",
+				"baseUrlRequired": "URL GitLab обязателен",
+				"pathInvalid": "Введите полный путь, например group/project",
+				"pathRequired": "Путь проекта обязателен"
+			},
+			"verify": "Проверить",
+			"webhookCopy": "Копировать",
+			"webhookHide": "Скрыть",
+			"webhookHint": "В своём проекте GitLab добавьте вебхук с этим URL и секретным токеном. Включите события push, issues, комментарии и merge request.",
+			"webhookSecretLabel": "Секретный токен (должен совпадать с указанным в вебхуке GitLab)",
+			"webhookShow": "Показать",
+			"webhookTitle": "Вебхук",
+			"importPermissionHint": "Importing requires permission to create and update tasks."
+		},
 		"calendarFeeds": {
 			"title": "Calendar feeds",
 			"subtitle": "Subscribe to scheduled project tasks in your calendar app.",
@@ -1837,9 +1920,7 @@
 		"changedTitle": "изменил название с «{{from}}» на «{{to}}»",
 		"githubUser": "Пользователь GitHub",
 		"comment": {
-			"github": "GitHub",
 			"viewGithubProfile": "Открыть профиль GitHub",
-			"commentedOnGithub": "прокомментировал на GitHub",
 			"cannotBeEmpty": "Комментарий не может быть пустым",
 			"mustBeLoggedInToEdit": "Для редактирования комментариев необходимо войти в систему",
 			"updated": "Комментарий обновлён",
@@ -1935,7 +2016,8 @@
 				}
 			},
 			"importedFrom": "Imported from {{source}}",
-			"importedBy": "Imported by {{name}}"
+			"importedBy": "Imported by {{name}}",
+			"commentedOnForge": "прокомментировал на {{forge}}"
 		},
 		"moved": "переместил задачу из «{{from}}» в «{{to}}»",
 		"created": "создал эту задачу"

@@ -1,9 +1,10 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { ExternalLink, Pencil, Trash2 } from "lucide-react";
+import { ExternalLink, FolderGit, Pencil, Trash2 } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import CommentEditor from "@/components/activity/comment-editor";
 import { GithubIcon } from "@/components/icons/github-icon";
+import { GitlabIcon } from "@/components/icons/gitlab-icon";
 import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,19 @@ import useUpdateComment from "@/hooks/mutations/comment/use-update-comment";
 import { formatDateTime, formatRelativeTime } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
 import { toast } from "@/lib/toast";
+
+const forges = {
+  github: { name: "GitHub", Icon: GithubIcon },
+  gitea: { name: "Gitea", Icon: FolderGit },
+  gitlab: { name: "GitLab", Icon: GitlabIcon },
+} as const;
+
+function forgeOf(externalSource: string | null | undefined) {
+  if (!externalSource) {
+    return null;
+  }
+  return forges[externalSource as keyof typeof forges] ?? null;
+}
 
 type CommentCardProps = {
   commentId: string;
@@ -60,19 +74,21 @@ export default function CommentCard({
   const queryClient = useQueryClient();
 
   const canEdit = currentUser?.id === user?.id;
-  const sourceName =
-    externalSource === "github"
-      ? "GitHub"
-      : externalSource === "planka"
-        ? "Planka"
-        : externalSource === "trello"
-          ? "Trello"
-          : externalSource === "jira"
-            ? "Jira"
-            : externalSource;
-  const isFromGitHub = externalSource === "github";
+  const forge = forgeOf(externalSource);
+  const sourceName = forge
+    ? forge.name
+    : externalSource === "planka"
+      ? "Planka"
+      : externalSource === "trello"
+        ? "Trello"
+        : externalSource === "jira"
+          ? "Jira"
+          : externalSource;
+  // Gitea and GitLab profile URLs depend on the instance.
   const githubProfileUrl =
-    isFromGitHub && user?.name ? `https://github.com/${user.name}` : null;
+    forge?.name === "GitHub" && user?.name
+      ? `https://github.com/${user.name}`
+      : null;
   const commentUrl = externalUrl || null;
   const fullTimestamp = formatDateTime(createdAt);
 
@@ -155,11 +171,11 @@ export default function CommentCard({
                       {user.email}
                     </p>
                   )}
-                  {isFromGitHub && (
+                  {forge && (
                     <div className="mt-1.5 flex items-center gap-1">
-                      <GithubIcon className="size-3 text-muted-foreground" />
+                      <forge.Icon className="size-3 text-muted-foreground" />
                       <span className="text-xs text-muted-foreground">
-                        {t("activity:comment.github")}
+                        {forge.name}
                       </span>
                     </div>
                   )}
@@ -204,7 +220,7 @@ export default function CommentCard({
             </TooltipContent>
           </Tooltip>
 
-          {commentUrl && (
+          {commentUrl && forge && (
             <>
               <span className="text-xs text-muted-foreground/40">·</span>
               <a
@@ -213,8 +229,8 @@ export default function CommentCard({
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
               >
-                <GithubIcon className="size-3" />
-                {t("activity:comment.commentedOnGithub")}
+                <forge.Icon className="size-3" />
+                {t("activity:comment.commentedOnForge", { forge: forge.name })}
               </a>
             </>
           )}
