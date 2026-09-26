@@ -13,8 +13,9 @@ jobs:
   dependabot:
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 45
+    # The pull request author's login is authoritative for this check;
+    # github.actor would be spoofable and adds nothing on top of it.
     if: >-
-      github.actor == 'dependabot[bot]' &&
       github.event.pull_request.user.login == 'dependabot[bot]' &&
       github.event.pull_request.base.ref == 'main' &&
       github.event.pull_request.head.repo.full_name == github.repository
