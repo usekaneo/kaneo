@@ -23,7 +23,7 @@ export type UpdateAdminUserRequest = {
   userId: string;
   name: string;
   email: string;
-  role: "admin" | "user";
+  role?: "admin" | "user";
 };
 
 export type ToggleAdminUserStatusRequest = {

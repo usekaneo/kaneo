@@ -167,12 +167,9 @@ function UserManagementPanel() {
         userId: editingUser.id,
         name,
         email,
-        role:
-          editingUser.id === currentUser?.id
-            ? editingUser.role === "admin"
-              ? "admin"
-              : "user"
-            : editValues.role,
+        ...(editingUser.id !== currentUser?.id
+          ? { role: editValues.role }
+          : {}),
       });
       setEditingUser(null);
     } catch {
