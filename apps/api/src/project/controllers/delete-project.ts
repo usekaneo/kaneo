@@ -2,11 +2,15 @@ import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { projectTable } from "../../database/schema";
+import { publishEvent } from "../../events";
 import { deleteS3Object } from "../../storage/s3";
+import { getProjectSubtaskParentProjects } from "../../task/get-subtask-parent-projects";
 import getProject from "./get-project";
 
 async function deleteProject(id: string, workspaceId: string) {
   const existingProject = await getProject(id, workspaceId);
+
+  const parents = await getProjectSubtaskParentProjects(id);
 
   const [deletedProject] = await db
     .delete(projectTable)
@@ -19,6 +23,9 @@ async function deleteProject(id: string, workspaceId: string) {
     });
   }
 
+  await publishEvent("subtask-parents.refresh", {
+    projects: parents.filter((parent) => parent.projectId !== id),
+  });
   if (deletedProject.backgroundObjectKey) {
     deleteS3Object(deletedProject.backgroundObjectKey).catch(() => {});
   }

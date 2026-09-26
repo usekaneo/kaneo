@@ -1919,6 +1919,7 @@
 		}
 	},
 	"tasks": {
+		"checklistProgress": "{{completed}} of {{total}} checklist items completed",
 		"title": "Tasks",
 		"status": {
 			"label": "Status",
@@ -2086,6 +2087,8 @@
 			}
 		},
 		"subtasks": {
+			"progress": "{{completed}} of {{total}} subtasks completed",
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask.",
 			"title": "Sub-tasks",
 			"inputPlaceholder": "Subtask title...",
 			"addAction": "Add",

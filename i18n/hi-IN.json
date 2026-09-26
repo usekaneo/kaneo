@@ -2096,7 +2096,9 @@
 			"deleteDialogTitle": "कार्य हटाएँ?",
 			"deleteDialogDescription": "यह कार्य और इसका सभी डेटा स्थायी रूप से हटा दिया जाएगा। यह कार्रवाई पूर्ववत नहीं की जा सकती।",
 			"deleteAction": "कार्य हटाएँ",
-			"completeAria": "उप-कार्य को पूर्ण चिह्नित करें"
+			"completeAria": "उप-कार्य को पूर्ण चिह्नित करें",
+			"progress": "{{total}} में से {{completed}} उपकार्य पूरे हुए",
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
 		},
 		"properties": {
 			"title": "गुण",
@@ -2370,6 +2372,7 @@
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"checklistProgress": "चेकलिस्ट के {{total}} में से {{completed}} आइटम पूरे हुए",
 		"customFields": {
 			"ariaLabel": "Custom fields"
 		}

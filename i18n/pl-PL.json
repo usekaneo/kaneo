@@ -2548,7 +2548,9 @@
 			"deleteSuccess": "Zadanie usunięto pomyślnie",
 			"empty": "Brak podzadań",
 			"inputPlaceholder": "Tytuł podzadania...",
-			"title": "Podzadania"
+			"title": "Podzadania",
+			"progress": "Ukończone podzadania: {{completed}} z {{total}}",
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
 		},
 		"update": {
 			"error": "Nie udało się zaktualizować zadania",
@@ -2568,6 +2570,7 @@
 			"success": "Task duplicated successfully",
 			"titleSuffix": "{{title}} (copy)"
 		},
+		"checklistProgress": "Ukończone elementy listy kontrolnej: {{completed}} z {{total}}",
 		"customFields": {
 			"ariaLabel": "Custom fields"
 		}

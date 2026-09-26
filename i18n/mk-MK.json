@@ -2096,7 +2096,9 @@
 			"deleteDialogTitle": "Избриши задача?",
 			"deleteDialogDescription": "Ова трајно ќе ја отстрани задачата и сите нејзини податоци. Не можеш да ја вратиш оваа акција.",
 			"deleteAction": "Избриши задача",
-			"completeAria": "Означи ја подзадачата како завршена"
+			"completeAria": "Означи ја подзадачата како завршена",
+			"progress": "Завршени се {{completed}} од {{total}} подзадачи",
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
 		},
 		"properties": {
 			"title": "Својства",
@@ -2370,6 +2372,7 @@
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"checklistProgress": "Завршени се {{completed}} од {{total}} ставки од списокот",
 		"customFields": {
 			"ariaLabel": "Custom fields"
 		}

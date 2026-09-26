@@ -2118,7 +2118,9 @@
 			"deleteDialogTitle": "Удалить задачу?",
 			"deleteDialogDescription": "Задача и все её данные будут безвозвратно удалены. Это действие нельзя отменить.",
 			"deleteAction": "Удалить задачу",
-			"completeAria": "Отметить подзадачу выполненной"
+			"completeAria": "Отметить подзадачу выполненной",
+			"progress": "Выполнено подзадач: {{completed}} из {{total}}",
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
 		},
 		"properties": {
 			"title": "Свойства",
@@ -2442,6 +2444,7 @@
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"checklistProgress": "Выполнено пунктов списка: {{completed}} из {{total}}",
 		"customFields": {
 			"ariaLabel": "Custom fields"
 		}

@@ -2096,7 +2096,9 @@
 			"deleteDialogTitle": "Taak verwijderen?",
 			"deleteDialogDescription": "Dit zal de taak en alle data permanent verwijderen. Dit kan niet ongedaan worden gemaakt.",
 			"deleteAction": "Taak verwijderen",
-			"completeAria": "Markeer subtaak als voltooid"
+			"completeAria": "Markeer subtaak als voltooid",
+			"progress": "{{completed}} van {{total}} subtaken voltooid",
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
 		},
 		"properties": {
 			"title": "Eigenschappen",
@@ -2370,6 +2372,7 @@
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"checklistProgress": "{{completed}} van {{total}} checklistitems voltooid",
 		"customFields": {
 			"ariaLabel": "Custom fields"
 		}

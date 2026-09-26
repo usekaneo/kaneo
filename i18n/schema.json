@@ -7755,6 +7755,9 @@
 			"type": "object",
 			"additionalProperties": false,
 			"properties": {
+				"checklistProgress": {
+					"type": "string"
+				},
 				"title": {
 					"type": "string"
 				},
@@ -8406,6 +8409,12 @@
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
+						"progress": {
+							"type": "string"
+						},
+						"noCompletionColumn": {
+							"type": "string"
+						},
 						"title": {
 							"type": "string"
 						},
@@ -8441,6 +8450,8 @@
 						}
 					},
 					"required": [
+						"progress",
+						"noCompletionColumn",
 						"title",
 						"inputPlaceholder",
 						"addAction",
@@ -9748,6 +9759,7 @@
 				}
 			},
 			"required": [
+				"checklistProgress",
 				"title",
 				"status",
 				"priority",

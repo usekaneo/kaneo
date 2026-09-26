@@ -2103,7 +2103,9 @@
 			"deleteDialogTitle": "Supprimer la tâche ?",
 			"deleteDialogDescription": "Cela supprimera définitivement la tâche et toutes ses données. Vous ne pouvez pas annuler cette action.",
 			"deleteAction": "Supprimer la tâche",
-			"completeAria": "Marquer la sous-tâche comme terminée"
+			"completeAria": "Marquer la sous-tâche comme terminée",
+			"progress": "{{completed}} sous-tâches terminées sur {{total}}",
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
 		},
 		"properties": {
 			"title": "Propriétés",
@@ -2378,6 +2380,7 @@
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"checklistProgress": "{{completed}} éléments de la liste terminés sur {{total}}",
 		"customFields": {
 			"ariaLabel": "Custom fields"
 		}

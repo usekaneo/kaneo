@@ -2089,7 +2089,9 @@
 			"deleteDialogTitle": "Hapus Tugas?",
 			"deleteDialogDescription": "Ini akan menghapus tugas dan semua datanya secara permanen. Anda tidak dapat membatalkan tindakan ini.",
 			"deleteAction": "Hapus Tugas",
-			"completeAria": "Tandai subtugas selesai"
+			"completeAria": "Tandai subtugas selesai",
+			"progress": "{{completed}} dari {{total}} subtugas selesai",
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
 		},
 		"properties": {
 			"title": "Properti",
@@ -2362,6 +2364,7 @@
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"checklistProgress": "{{completed}} dari {{total}} item daftar periksa selesai",
 		"customFields": {
 			"ariaLabel": "Custom fields"
 		}

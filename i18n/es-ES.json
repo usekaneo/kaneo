@@ -2103,7 +2103,9 @@
 			"deleteDialogTitle": "¿Eliminar tarea?",
 			"deleteDialogDescription": "Esto eliminará permanentemente la tarea y sus datos. Esta acción no puede deshacerse.",
 			"deleteAction": "Eliminar tarea",
-			"completeAria": "Marcar subtarea como completada"
+			"completeAria": "Marcar subtarea como completada",
+			"progress": "{{completed}} de {{total}} subtareas completadas",
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
 		},
 		"properties": {
 			"title": "Propiedades",
@@ -2378,6 +2380,7 @@
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"checklistProgress": "{{completed}} de {{total}} elementos de la lista completados",
 		"customFields": {
 			"ariaLabel": "Custom fields"
 		}

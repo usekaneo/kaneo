@@ -9,10 +9,10 @@ import {
   GitMerge,
   GitPullRequest,
   SlidersHorizontal,
-  SquareCheck,
 } from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { TaskProgressBadges } from "@/components/task/task-progress-badges";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -34,7 +34,6 @@ import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import useGetCustomFieldValuesByProject from "@/hooks/queries/custom-field/use-get-custom-field-values-by-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
-import { cn } from "@/lib/cn";
 import {
   dueDateStatusColors,
   getDueDateStatus,
@@ -42,7 +41,6 @@ import {
 } from "@/lib/due-date-status";
 import { getExternalWebUrl, openExternalWebUrl } from "@/lib/external-url";
 import { getInitials } from "@/lib/get-initials";
-import { getTaskItemStats } from "@/lib/get-task-item-stats";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
@@ -78,19 +76,11 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
     showDueDates,
     showLabels,
     showTaskNumbers,
-    showTaskItemCounts,
   } = useUserPreferencesStore();
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
   const { toggleSelection, isSelected, isFocused } = useBulkSelectionStore();
   const isTaskSelected = isSelected(task.id);
   const isTaskFocused = isFocused(task.id);
-  const taskItemStats = useMemo(
-    () =>
-      showTaskItemCounts && !task.descriptionDeferred
-        ? getTaskItemStats(task.description)
-        : null,
-    [task.description, task.descriptionDeferred, showTaskItemCounts],
-  );
 
   const pullRequests = useMemo(() => {
     return (task.externalLinks ?? []).filter(
@@ -295,7 +285,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
               </div>
             )}
 
-            <div className="flex items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5">
               {showPriority && (
                 <span className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground h-5.5">
                   {getPriorityIcon(task.priority ?? "")}
@@ -367,20 +357,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                 </HoverCard>
               )}
 
-              {taskItemStats && taskItemStats.total > 0 && (
-                <span
-                  className={cn(
-                    "flex items-center gap-1 text-[10px] px-2 py-1 rounded bg-muted/50 text-muted-foreground h-5.5",
-                    {
-                      "bg-success/10 text-success-foreground":
-                        taskItemStats.completed === taskItemStats.total,
-                    },
-                  )}
-                >
-                  <SquareCheck className="h-[12px] w-[12px]" />
-                  {taskItemStats.completed}/{taskItemStats.total}
-                </span>
-              )}
+              <TaskProgressBadges task={task} />
 
               {showDueDates && task.dueDate && (
                 <div

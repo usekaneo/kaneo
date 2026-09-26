@@ -1,5 +1,6 @@
 import { Calendar, CalendarClock, CalendarX } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { TaskProgressBadges } from "@/components/task/task-progress-badges";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   dueDateStatusColors,
@@ -58,7 +59,8 @@ export function PublicTaskRow({
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <TaskProgressBadges task={task} asText />
         {task.assigneeName && (
           <div className="flex items-center gap-1.5">
             <Avatar className="h-5 w-5">
