@@ -38,6 +38,9 @@ vi.mock("@/hooks/queries/task/use-get-tasks", () => ({
 vi.mock("@/hooks/mutations/task/use-update-task", () => ({
   useUpdateTask: () => ({ mutateAsync: m.update }),
 }));
+vi.mock("@/hooks/mutations/task-relation/use-create-task-relation", () => ({
+  default: () => ({ mutateAsync: vi.fn() }),
+}));
 vi.mock("@/hooks/queries/task-relation/use-get-project-task-relations", () => ({
   default: () => ({ data: [] }),
 }));

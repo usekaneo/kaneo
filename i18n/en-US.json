@@ -2219,7 +2219,8 @@
 			"unitQuarter": "Quarter",
 			"summaryAriaLabel": "{{title}}: summary of subtasks, open task",
 			"expandSubtasks": "Expand subtasks",
-			"collapseSubtasks": "Collapse subtasks"
+			"collapseSubtasks": "Collapse subtasks",
+			"linkHandleAriaLabel": "{{title}}: drag to create a dependency"
 		},
 		"delete": {
 			"title": "Delete Task?",

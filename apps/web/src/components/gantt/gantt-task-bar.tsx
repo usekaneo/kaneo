@@ -1,5 +1,5 @@
 import { addDays, differenceInCalendarDays, startOfDay } from "date-fns";
-import { Diamond } from "lucide-react";
+import { Diamond, Link2 as Link2Icon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
@@ -38,6 +38,11 @@ type GanttTaskBarProps = {
   emphasis?: GanttBarEmphasis;
   /** Notified on hover and keyboard focus, to drive dependency-line highlighting. */
   onHoverChange?: (hovering: boolean) => void;
+  /** Pointerdown on the "drag to link" handle at the bar's finish edge —
+   * distinct from move/resize, this starts a gesture (owned by the Gantt
+   * route, which can see every other bar's box) that creates a "blocks"
+   * relation when released over another bar. */
+  onLinkDragStart?: (event: React.PointerEvent, taskId: string) => void;
 };
 
 function toIsoDay(d: Date) {
@@ -52,6 +57,7 @@ export function GanttTaskBar({
   onOpenTask,
   emphasis = "normal",
   onHoverChange,
+  onLinkDragStart,
 }: GanttTaskBarProps) {
   const { t } = useTranslation();
   const { mutateAsync: updateTask } = useUpdateTask();
@@ -282,6 +288,21 @@ export function GanttTaskBar({
     window.addEventListener("pointercancel", onCancel);
   };
 
+  // The link handle only starts the gesture; the Gantt route (which can see
+  // every other bar's measured box) owns the preview line, drop hit-testing,
+  // and the mutation itself — see handleLinkDragStart in gantt.tsx.
+  // stopPropagation keeps this pointerdown from ever reaching the move
+  // button's own handler or the chart's drag-to-pan listener (the latter
+  // already excludes any `<button>` target, but this is a plain button and
+  // sits inside the bar the same way the resize handles do, so it follows
+  // their same preventDefault+stopPropagation convention).
+  const handleLinkHandlePointerDown = (event: React.PointerEvent) => {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    event.stopPropagation();
+    onLinkDragStart?.(event, task.id);
+  };
+
   // A milestone is a point in time, not a span: it renders at its own date
   // (task.scheduleStart already resolves to startDate, or dueDate if start is
   // absent — see deriveTaskSchedule) rather than at whatever range
@@ -431,68 +452,113 @@ export function GanttTaskBar({
           gridTemplateColumns: timeline.gridTemplateColumns,
         }}
       >
-        {/* biome-ignore lint/a11y/noStaticElementInteractions: hover/focus tracking drives dependency-line highlighting; the actual interactive controls are the buttons nested below */}
+        {/* The outer cell only places this bar on the grid and hosts the link
+            handle below; "group" lives here (not on the inner, clipped bar)
+            so the handle — a sibling positioned outside the inner div's
+            overflow-hidden bounds — still lights up on `group-hover`/
+            `group-focus-within`, since a descendant's :hover/:focus-within
+            bubbles up to this ancestor regardless of which child is
+            hovered/focused. */}
         <div
-          style={{
-            gridColumn: `${lineStart} / ${lineEnd}`,
-            marginInline: `${insetBox.insetPx}px`,
-            minWidth: `${MIN_BAR_CONTENT_PX}px`,
-          }}
-          onMouseEnter={() => onHoverChange?.(true)}
-          onMouseLeave={() => onHoverChange?.(false)}
-          onFocus={() => onHoverChange?.(true)}
-          onBlur={handleBlur}
-          className={cn(
-            "group pointer-events-auto relative flex min-h-[44px] min-w-0 items-stretch overflow-hidden rounded-md border border-primary/25 bg-background text-left text-sm font-medium leading-none text-foreground shadow-sm transition-[opacity,border-color] hover:border-primary/40 sm:h-11 sm:min-h-0",
-            emphasis === "highlighted" &&
-              "border-primary/60 ring-2 ring-primary/40",
-            emphasis === "dimmed" && "opacity-35",
-          )}
+          style={{ gridColumn: `${lineStart} / ${lineEnd}` }}
+          className="group relative"
         >
-          {progressFillPercent > 0 && (
-            <div
-              className="pointer-events-none absolute inset-y-0 left-0 z-0 bg-primary/30 dark:bg-primary/40"
-              style={{ width: `${progressFillPercent}%` }}
-              aria-hidden="true"
-            />
-          )}
-          <button
-            type="button"
-            aria-label={t("tasks:gantt.resizeStart")}
-            disabled={!startIsVisible}
-            onPointerDown={handleResizeLeftPointerDown}
-            className={cn(
-              "relative z-20 shrink-0 cursor-ew-resize touch-none border-r border-primary/15 bg-primary/8 hover:bg-primary/18",
-              "min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 sm:w-2",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-            )}
-          />
-          <button
-            type="button"
-            aria-label={t("tasks:gantt.taskAriaLabel", { title: task.title })}
-            className="relative z-10 min-h-[44px] min-w-0 flex-1 cursor-grab touch-manipulation overflow-hidden px-2 text-left active:cursor-grabbing sm:min-h-0 sm:px-2.5"
-            onPointerDown={handleMovePointerDown}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                onOpenTask();
-              }
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: hover/focus tracking drives dependency-line highlighting; the actual interactive controls are the buttons nested below */}
+          <div
+            style={{
+              marginInline: `${insetBox.insetPx}px`,
+              minWidth: `${MIN_BAR_CONTENT_PX}px`,
             }}
+            onMouseEnter={() => onHoverChange?.(true)}
+            onMouseLeave={() => onHoverChange?.(false)}
+            onFocus={() => onHoverChange?.(true)}
+            onBlur={handleBlur}
+            className={cn(
+              "pointer-events-auto relative flex min-h-[44px] min-w-0 items-stretch overflow-hidden rounded-md border border-primary/25 bg-background text-left text-sm font-medium leading-none text-foreground shadow-sm transition-[opacity,border-color] hover:border-primary/40 sm:h-11 sm:min-h-0",
+              emphasis === "highlighted" &&
+                "border-primary/60 ring-2 ring-primary/40",
+              emphasis === "dimmed" && "opacity-35",
+            )}
           >
-            <div className="absolute inset-0 z-0 bg-primary/12 transition-colors group-hover:bg-primary/18" />
-            <span className="relative z-10 block truncate">{task.title}</span>
-          </button>
+            {progressFillPercent > 0 && (
+              <div
+                className="pointer-events-none absolute inset-y-0 left-0 z-0 bg-primary/30 dark:bg-primary/40"
+                style={{ width: `${progressFillPercent}%` }}
+                aria-hidden="true"
+              />
+            )}
+            <button
+              type="button"
+              aria-label={t("tasks:gantt.resizeStart")}
+              disabled={!startIsVisible}
+              onPointerDown={handleResizeLeftPointerDown}
+              className={cn(
+                "relative z-20 shrink-0 cursor-ew-resize touch-none border-r border-primary/15 bg-primary/8 hover:bg-primary/18",
+                "min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 sm:w-2",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+              )}
+            />
+            <button
+              type="button"
+              aria-label={t("tasks:gantt.taskAriaLabel", { title: task.title })}
+              className="relative z-10 min-h-[44px] min-w-0 flex-1 cursor-grab touch-manipulation overflow-hidden px-2 text-left active:cursor-grabbing sm:min-h-0 sm:px-2.5"
+              onPointerDown={handleMovePointerDown}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onOpenTask();
+                }
+              }}
+            >
+              <div className="absolute inset-0 z-0 bg-primary/12 transition-colors group-hover:bg-primary/18" />
+              <span className="relative z-10 block truncate">
+                {task.title}
+              </span>
+            </button>
+            <button
+              type="button"
+              aria-label={t("tasks:gantt.resizeDue")}
+              disabled={!endIsVisible}
+              onPointerDown={handleResizeRightPointerDown}
+              className={cn(
+                "relative z-20 shrink-0 cursor-ew-resize touch-none border-l border-primary/15 bg-primary/8 hover:bg-primary/18",
+                "min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 sm:w-2",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+              )}
+            />
+          </div>
+          {/* "Drag to link" handle: a small dot at the bar's finish edge,
+              hidden until the bar is hovered/focused so it doesn't compete
+              visually with the move/resize affordances. Positioned at
+              insetBox.right — the same edge the dependency-line overlay
+              itself anchors a finish-to-start line to (see taskBoxes in
+              gantt.tsx, built from this same computeInsetBarBox call) — and
+              outside the inner bar's overflow-hidden bounds so it isn't
+              clipped. onPointerDown only starts the gesture; gantt.tsx owns
+              the preview line, drop hit-testing, and the mutation. */}
           <button
             type="button"
-            aria-label={t("tasks:gantt.resizeDue")}
-            disabled={!endIsVisible}
-            onPointerDown={handleResizeRightPointerDown}
+            aria-label={t("tasks:gantt.linkHandleAriaLabel", {
+              title: task.title,
+            })}
+            title={t("tasks:gantt.linkHandleAriaLabel", { title: task.title })}
+            onPointerDown={handleLinkHandlePointerDown}
+            style={{ left: `${insetBox.right}px`, top: "50%" }}
             className={cn(
-              "relative z-20 shrink-0 cursor-ew-resize touch-none border-l border-primary/15 bg-primary/8 hover:bg-primary/18",
-              "min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 sm:w-2",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+              // The grandparent grid wrapper (see the outer per-bar grid
+              // above) sets pointer-events-none so it never intercepts clicks
+              // meant for a bar below/beside it; every interactive element
+              // inside re-enables it explicitly (the inner bar div does via
+              // pointer-events-auto in its own class list) — this handle,
+              // living outside that div, needs its own or it renders
+              // visible but is entirely unclickable.
+              "pointer-events-auto absolute z-30 size-4 -translate-x-1/2 -translate-y-1/2 touch-none cursor-crosshair rounded-full border border-primary/50 bg-background text-primary opacity-0 shadow-sm transition-opacity",
+              "flex items-center justify-center",
+              "group-hover:opacity-100 group-focus-within:opacity-100 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
             )}
-          />
+          >
+            <Link2Icon className="size-2.5" aria-hidden="true" />
+          </button>
         </div>
       </div>
     </>

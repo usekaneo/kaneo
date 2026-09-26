@@ -47,6 +47,9 @@ vi.mock("@/hooks/queries/task/use-get-tasks", () => ({
 vi.mock("@/hooks/mutations/task/use-update-task", () => ({
   useUpdateTask: () => ({ mutateAsync: vi.fn() }),
 }));
+vi.mock("@/hooks/mutations/task-relation/use-create-task-relation", () => ({
+  default: () => ({ mutateAsync: vi.fn() }),
+}));
 // But it has a "related" relation to a task that lives in another project,
 // with its own dates — the only reason this project's Gantt has anything to
 // show at all.

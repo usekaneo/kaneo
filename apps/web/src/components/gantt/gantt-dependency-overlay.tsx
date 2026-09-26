@@ -1,4 +1,5 @@
 import type { DependencyEdgeGeometry } from "./dependency-lines";
+import type { Point } from "./gantt-link-drag";
 
 type GanttDependencyOverlayProps = {
   edges: DependencyEdgeGeometry[];
@@ -8,6 +9,12 @@ type GanttDependencyOverlayProps = {
    * target point, and this clips it so it never bleeds into the sticky task
    * rail beside it. */
   clipLeftPx: number;
+  /** The in-progress "drag to create a dependency" gesture (see
+   * handleLinkDragStart in gantt.tsx): a straight line from the source bar's
+   * finish edge to the current pointer position, drawn while the gesture is
+   * live and gone once it ends (dropped, cancelled, or completed — the real
+   * edge then appears via the usual relations refetch). */
+  preview?: { source: Point; pointer: Point } | null;
 };
 
 // Resting/emphasized/dimmed visual states for the connector lines. Hovering
@@ -24,8 +31,9 @@ export function GanttDependencyOverlay({
   edges,
   hoveredTaskId,
   clipLeftPx,
+  preview = null,
 }: GanttDependencyOverlayProps) {
-  if (edges.length === 0) return null;
+  if (edges.length === 0 && !preview) return null;
 
   return (
     <svg
@@ -113,6 +121,17 @@ export function GanttDependencyOverlay({
           </g>
         );
       })}
+      {preview && (
+        <path
+          data-testid="gantt-link-preview"
+          d={`M ${preview.source.x} ${preview.source.y} L ${preview.pointer.x} ${preview.pointer.y}`}
+          fill="none"
+          stroke="var(--primary)"
+          strokeWidth={2}
+          strokeDasharray="4 3"
+          strokeLinecap="round"
+        />
+      )}
     </svg>
   );
 }

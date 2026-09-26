@@ -31,6 +31,11 @@ import {
   flattenGanttRows,
   type ScheduleSpan,
 } from "@/components/gantt/gantt-hierarchy";
+import {
+  findLinkDropTarget,
+  linkSourceAnchorPoint,
+  type LinkDropCandidate,
+} from "@/components/gantt/gantt-link-drag";
 import { GanttSummaryTaskBar } from "@/components/gantt/gantt-summary-task-bar";
 import { GanttTaskBar } from "@/components/gantt/gantt-task-bar";
 import { computePanScrollPosition } from "@/components/gantt/pan";
@@ -56,11 +61,14 @@ import PageTitle from "@/components/page-title";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import useCreateTaskRelation from "@/hooks/mutations/task-relation/use-create-task-relation";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import useGetProjectTaskRelations from "@/hooks/queries/task-relation/use-get-project-task-relations";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/cn";
+import { HttpError } from "@/lib/http-error";
 import { getStatusLabel } from "@/lib/i18n/domain";
+import { toast } from "@/lib/toast";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
 
@@ -212,6 +220,18 @@ function RouteComponent() {
     Map<string, { top: number; height: number }>
   >(new Map());
   const [hoveredTaskId, setHoveredTaskId] = useState<string | null>(null);
+  // The in-progress "drag to create a dependency" gesture (see
+  // handleLinkDragStart below): which task the drag started from, the
+  // preview line's fixed source point (the bar's finish edge at drag-start —
+  // it doesn't track that bar afterward, since neither move/resize can run
+  // at the same time as this gesture), and the live pointer position. Null
+  // whenever no such gesture is in progress.
+  const [linkDrag, setLinkDrag] = useState<{
+    sourceTaskId: string;
+    sourcePoint: { x: number; y: number };
+    pointerPoint: { x: number; y: number };
+  } | null>(null);
+  const createTaskRelation = useCreateTaskRelation();
   // Measured once at mount rather than kept live: the root font size a
   // dependency line's edge inset is derived from (see getBarEdgeInsetPx)
   // only changes with a browser/OS zoom or text-size setting, which is
@@ -713,6 +733,131 @@ function RouteComponent() {
       });
     },
     [],
+  );
+
+  // Valid drop targets for a link-drag: this project's own, currently
+  // visible bars — never an external (cross-project) row, which is
+  // read-only here (see the AGENTS.md-driven decision recorded on
+  // handleLinkDragStart below), and never a bar with no box at all (out of
+  // window, search-filtered, or a search that filtered out an external row's
+  // only connecting own task — the same "no box, no line" rule taskBoxes
+  // itself already applies).
+  const linkDropCandidates = useMemo<LinkDropCandidate[]>(() => {
+    const ownTaskIds = new Set(
+      renderedTasks.filter((task) => !task.isExternal).map((task) => task.id),
+    );
+    const candidates: LinkDropCandidate[] = [];
+    for (const [taskId, box] of taskBoxes) {
+      if (ownTaskIds.has(taskId)) candidates.push({ taskId, box });
+    }
+    return candidates;
+  }, [renderedTasks, taskBoxes]);
+  // Read from inside the window-level pointermove/pointerup listeners a
+  // link-drag installs (see handleLinkDragStart) — those listeners live for
+  // the gesture's whole duration, so they'd otherwise close over whichever
+  // `linkDropCandidates` existed at drag-start and miss a box that only
+  // becomes measured (or moves) while the drag is in progress.
+  const linkDropCandidatesRef = useRef<LinkDropCandidate[]>(linkDropCandidates);
+  useEffect(() => {
+    linkDropCandidatesRef.current = linkDropCandidates;
+  }, [linkDropCandidates]);
+
+  // Starts the "drag to create a dependency" gesture from a task bar's link
+  // handle (see onLinkDragStart on GanttTaskBar). Mirrors the window-listener
+  // pattern GanttTaskBar's own move/resize handlers use, rather than relying
+  // on pointer capture + bubbling, since this gesture's state (the preview
+  // line, the drop hit-test) lives up here where every other bar's box is
+  // known, not inside the bar the drag started from.
+  //
+  // Cross-project scope: only this project's own bars are ever valid drop
+  // targets (linkDropCandidates above already excludes external rows), so
+  // dropping a link-drag on a cross-project related row silently cancels —
+  // keeping this first version scoped to same-project linking rather than
+  // teaching it to resolve a relation against another project's board.
+  const handleLinkDragStart = useCallback(
+    (event: React.PointerEvent, sourceTaskId: string) => {
+      const container = rowsContainerRef.current;
+      const sourceBox = taskBoxes.get(sourceTaskId);
+      if (!container || !sourceBox) return;
+
+      const toLocalPoint = (clientX: number, clientY: number) => {
+        const rect = container.getBoundingClientRect();
+        return { x: clientX - rect.left, y: clientY - rect.top };
+      };
+
+      const sourcePoint = linkSourceAnchorPoint(sourceBox);
+      setLinkDrag({
+        sourceTaskId,
+        sourcePoint,
+        pointerPoint: toLocalPoint(event.clientX, event.clientY),
+      });
+
+      const onMove = (moveEvent: PointerEvent) => {
+        setLinkDrag((current) =>
+          current && current.sourceTaskId === sourceTaskId
+            ? {
+                ...current,
+                pointerPoint: toLocalPoint(
+                  moveEvent.clientX,
+                  moveEvent.clientY,
+                ),
+              }
+            : current,
+        );
+      };
+
+      const finish = (endEvent: PointerEvent, shouldLink: boolean) => {
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+        window.removeEventListener("pointercancel", onCancel);
+        setLinkDrag(null);
+        if (!shouldLink) return;
+
+        const dropPoint = toLocalPoint(endEvent.clientX, endEvent.clientY);
+        const targetTaskId = findLinkDropTarget(
+          dropPoint,
+          linkDropCandidatesRef.current,
+          sourceTaskId,
+        );
+        // Dropped on empty space or back on the source bar itself: a no-op,
+        // per spec — nothing to link, and no error to report.
+        if (!targetTaskId) return;
+
+        createTaskRelation
+          .mutateAsync({
+            sourceTaskId,
+            targetTaskId,
+            relationType: "blocks",
+            dependencyType: "fs",
+            lagDays: 0,
+          })
+          .catch((error) => {
+            // Same distinction task-relations.tsx's own link flow makes: the
+            // API returns a 409 both for an exact duplicate and for an edge
+            // that would close a cycle, and only the latter's message
+            // mentions "circular".
+            const isCircularDependency =
+              error instanceof HttpError &&
+              error.status === 409 &&
+              error.message.toLowerCase().includes("circular");
+            toast.error(
+              t(
+                isCircularDependency
+                  ? "tasks:relations.circularDependencyError"
+                  : "tasks:relations.linkError",
+              ),
+            );
+          });
+      };
+
+      const onUp = (endEvent: PointerEvent) => finish(endEvent, true);
+      const onCancel = (endEvent: PointerEvent) => finish(endEvent, false);
+
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+      window.addEventListener("pointercancel", onCancel);
+    },
+    [taskBoxes, createTaskRelation, t],
   );
 
   // The task rail is `position: sticky; left: 0`, so it stays pinned over the
@@ -1321,6 +1466,14 @@ function RouteComponent() {
                     edges={dependencyEdgeGeometry}
                     hoveredTaskId={hoveredTaskId}
                     clipLeftPx={barsLeftPx}
+                    preview={
+                      linkDrag
+                        ? {
+                            source: linkDrag.sourcePoint,
+                            pointer: linkDrag.pointerPoint,
+                          }
+                        : null
+                    }
                   />
                   {renderedTasks.map((task) => {
                     return (
@@ -1518,6 +1671,7 @@ function RouteComponent() {
                                   replace: true,
                                 })
                               }
+                              onLinkDragStart={handleLinkDragStart}
                             />
                           )}
                         </div>
