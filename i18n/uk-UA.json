@@ -1497,7 +1497,17 @@
 			"multiple": "Multiple",
 			"options": "{{count}} option(s)",
 			"reorderError": "Failed to reorder fields",
-			"selectPlaceholder": "Select option(s)"
+			"selectPlaceholder": "Select option(s)",
+			"addOption": "Add option",
+			"editButton": "Edit custom field",
+			"editDescription": "Update the field name and selection options.",
+			"editTitle": "Edit custom field",
+			"optionLabel": "Option {{number}}",
+			"optionsEditHint": "Renaming an option updates existing task selections and defaults. Options in use cannot be removed.",
+			"removeOption": "Remove option {{number}}",
+			"updateError": "Failed to update custom field",
+			"updateSuccess": "Custom field updated",
+			"saveButton": "Save changes"
 		},
 		"administration": "Administration",
 		"adminUsers": {

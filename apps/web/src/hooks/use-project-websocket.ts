@@ -62,6 +62,18 @@ export function useProjectWebSocket(projectId: string) {
         if (disposed || activeSocket !== ws) return;
         try {
           const message = JSON.parse(event.data);
+          if (message.type === "CUSTOM_FIELD_UPDATED") {
+            for (const queryKey of [
+              ["custom-fields", projectId],
+              ["custom-field-values"],
+              ["custom-field-filter-values", projectId],
+              ["tasks", projectId],
+              ["task"],
+            ]) {
+              void queryClient.invalidateQueries({ queryKey });
+            }
+            return;
+          }
           if (message.type === "PROJECT_MOVED") {
             for (const queryKey of [
               ["projects"],

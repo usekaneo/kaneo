@@ -159,46 +159,55 @@ async function duplicateTask({
     ),
   });
 
-  const fieldDefinitions = await db
-    .select()
-    .from(customFieldDefinitionTable)
-    .where(eq(customFieldDefinitionTable.projectId, sourceTask.projectId));
-  const sourceCustomFields = await db
-    .select({
-      fieldId: customFieldValueTable.fieldId,
-      value: customFieldValueTable.value,
-    })
-    .from(customFieldValueTable)
-    .innerJoin(
-      customFieldDefinitionTable,
-      eq(customFieldValueTable.fieldId, customFieldDefinitionTable.id),
-    )
-    .where(
-      and(
-        eq(customFieldValueTable.taskId, sourceTask.id),
-        eq(customFieldDefinitionTable.projectId, sourceTask.projectId),
-      ),
+  const readCustomFields = async (connection: Pick<typeof db, "select">) => {
+    const fieldDefinitions = await connection
+      .select()
+      .from(customFieldDefinitionTable)
+      .where(eq(customFieldDefinitionTable.projectId, sourceTask.projectId))
+      .orderBy(customFieldDefinitionTable.id);
+    const sourceCustomFields = await connection
+      .select({
+        fieldId: customFieldValueTable.fieldId,
+        value: customFieldValueTable.value,
+      })
+      .from(customFieldValueTable)
+      .innerJoin(
+        customFieldDefinitionTable,
+        eq(customFieldValueTable.fieldId, customFieldDefinitionTable.id),
+      )
+      .where(
+        and(
+          eq(customFieldValueTable.taskId, sourceTask.id),
+          eq(customFieldDefinitionTable.projectId, sourceTask.projectId),
+        ),
+      );
+    const customFields = sourceCustomFields.map(({ fieldId, value }) => ({
+      fieldId,
+      value: value ?? "",
+    }));
+    // Older tasks may predate a required field. Apply its current default or fail
+    // validation, just as creation does, before copying anything in storage.
+    for (const definition of fieldDefinitions) {
+      if (!definition.required || !definition.defaultValue?.trim()) continue;
+      const existing = customFields.find(
+        (field) => field.fieldId === definition.id,
+      );
+      if (!existing)
+        customFields.push({
+          fieldId: definition.id,
+          value: definition.defaultValue.trim(),
+        });
+      else if (!existing.value.trim())
+        existing.value = definition.defaultValue.trim();
+    }
+    await assertRequiredCustomFields(
+      sourceTask.projectId,
+      customFields,
+      connection,
     );
-  const customFields = sourceCustomFields.map(({ fieldId, value }) => ({
-    fieldId,
-    value: value ?? "",
-  }));
-  // Older tasks may predate a required field. Apply its current default or fail
-  // validation, just as creation does, before copying anything in storage.
-  for (const definition of fieldDefinitions) {
-    if (!definition.required || !definition.defaultValue?.trim()) continue;
-    const existing = customFields.find(
-      (field) => field.fieldId === definition.id,
-    );
-    if (!existing)
-      customFields.push({
-        fieldId: definition.id,
-        value: definition.defaultValue.trim(),
-      });
-    else if (!existing.value.trim())
-      existing.value = definition.defaultValue.trim();
-  }
-  await assertRequiredCustomFields(sourceTask.projectId, customFields);
+    return customFields;
+  };
+  await readCustomFields(db);
 
   const sourceLabels = await db
     .select({
@@ -256,6 +265,15 @@ async function duplicateTask({
 
   try {
     duplicated = await db.transaction(async (tx) => {
+      // Storage calls may outlast an option rename; reread selections while holding definition locks.
+      await tx
+        .select({ id: customFieldDefinitionTable.id })
+        .from(customFieldDefinitionTable)
+        .where(eq(customFieldDefinitionTable.projectId, sourceTask.projectId))
+        .orderBy(customFieldDefinitionTable.id)
+        .for("share");
+      const customFields = await readCustomFields(tx);
+
       const taskNumber = await claimTaskNumber(sourceTask.projectId, tx);
       const nextPosition = await nextTaskPosition(
         tx,

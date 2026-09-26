@@ -16,27 +16,12 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  Combobox,
-  ComboboxChips,
-  ComboboxChipsInput,
-  ComboboxEmpty,
-  ComboboxItem,
-  ComboboxList,
-  ComboboxPopup,
-  ComboboxValue,
-} from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/preview-card";
 import {
   Select,
   SelectContent,
@@ -58,6 +43,7 @@ import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
 import type { ExternalLink } from "@/types/external-link";
+import CustomFieldMultiSelect from "./custom-field-multi-select";
 import TaskDescription from "./task-description";
 import TaskRelations from "./task-relations";
 import TaskSubtasks from "./task-subtasks";
@@ -303,7 +289,10 @@ export default function TaskDetailsContent({
                                 )}
                               />
                             </SelectTrigger>
-                            <SelectContent className="max-w-[25rem]">
+                            <SelectContent
+                              alignItemWithTrigger={false}
+                              className="w-(--anchor-width)"
+                            >
                               {!field.required && (
                                 <SelectItem key="empty" value="">
                                   {t("tasks:detail.selectOption")}
@@ -312,7 +301,7 @@ export default function TaskDetailsContent({
                               {Array.from(new Set(field.options || [])).map(
                                 (opt) => (
                                   <SelectItem key={opt} value={opt}>
-                                    <span className="block max-w-38 truncate">
+                                    <span className="block min-w-0 whitespace-normal break-words text-left">
                                       {opt}
                                     </span>
                                   </SelectItem>
@@ -467,165 +456,18 @@ export default function TaskDetailsContent({
                             )}
                           </div>
                         ) : field.type === "multiselect" ? (
-                          <Combobox
-                            multiple={true}
-                            autoHighlight
-                            items={Array.from(new Set(field.options ?? []))}
+                          <CustomFieldMultiSelect
+                            name={field.name}
+                            options={Array.from(new Set(field.options ?? []))}
                             value={multiselectVal}
-                            onValueChange={(newVal) => {
-                              const nextVal = newVal as string[];
-                              handleLocalChange(field.id, nextVal);
-                            }}
-                            onOpenChange={(open) => {
-                              if (!open) {
-                                handleLocalChange(field.id, multiselectVal);
-                                void handleSaveField(field.id, multiselectVal);
-                              }
-                            }}
                             disabled={!canEdit}
-                          >
-                            <ComboboxChips className="h-9 w-full flex-[2_0_0] select-none cursor-default text-sm disabled:opacity-50">
-                              <ComboboxValue>
-                                {(values: string[]) => {
-                                  const MAX_VISIBLE_CHIPS = 3;
-                                  const visibleChips = values.slice(
-                                    0,
-                                    MAX_VISIBLE_CHIPS,
-                                  );
-                                  const hiddenCount =
-                                    values.length - MAX_VISIBLE_CHIPS;
-
-                                  return (
-                                    <>
-                                      {visibleChips.map((value) => (
-                                        <div
-                                          key={value}
-                                          className={cn(
-                                            "min-w-0 max-w-full flex-1 shrink basis-0",
-                                            "inline-flex items-center overflow-hidden",
-                                            "rounded-md bg-secondary px-1.5 py-0.5",
-                                            "select-none cursor-default",
-                                          )}
-                                        >
-                                          <span className="block min-w-0 max-w-full truncate text-xs text-secondary-foreground">
-                                            {value}
-                                          </span>
-                                        </div>
-                                      ))}
-                                      {values.length > MAX_VISIBLE_CHIPS && (
-                                        <HoverCard>
-                                          <HoverCardTrigger asChild>
-                                            <button
-                                              type="button"
-                                              className="shrink-0 inline-flex items-center gap-1 text-xs font-medium cursor-pointer text-foreground/50 pe-1"
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                e.preventDefault();
-                                              }}
-                                              onPointerDown={(e) => {
-                                                e.stopPropagation();
-                                                e.preventDefault();
-                                              }}
-                                            >
-                                              {t(
-                                                "settings:customFields.moreOptions",
-                                                {
-                                                  hiddenCount,
-                                                },
-                                              )}
-                                            </button>
-                                          </HoverCardTrigger>
-
-                                          <HoverCardContent
-                                            side="top"
-                                            align="start"
-                                            className="flex max-w-xs flex-wrap gap-1"
-                                          >
-                                            <div className="space-y-1.5">
-                                              <div className="text-xs font-medium text-muted-foreground">
-                                                {t(
-                                                  "settings:customFields.availableOptions",
-                                                  "Available options",
-                                                )}
-                                              </div>
-
-                                              <div className="flex min-w-0 max-h-48 flex-wrap gap-x-1.5 gap-y-1.5 overflow-y-auto overflow-x-hidden">
-                                                {values
-                                                  .slice(MAX_VISIBLE_CHIPS)
-                                                  .map((value) => (
-                                                    <div
-                                                      key={value}
-                                                      className={cn(
-                                                        "min-w-0 max-w-full",
-                                                        "inline-flex items-center overflow-hidden",
-                                                        "rounded bg-secondary px-1.5 py-0.5",
-                                                        "select-none cursor-default",
-                                                      )}
-                                                    >
-                                                      <span className="block min-w-0 max-w-[13rem] truncate text-xs">
-                                                        {value}
-                                                      </span>
-                                                    </div>
-                                                  ))}
-                                              </div>
-                                            </div>
-                                          </HoverCardContent>
-                                        </HoverCard>
-                                      )}
-
-                                      <ComboboxChipsInput
-                                        className={cn(
-                                          "min-w-0 flex-1 caret-transparent",
-                                          values.length > 0 && "hidden",
-                                          "pointer-events-none",
-                                          "placeholder:text-foreground/50",
-                                          "text-transparent",
-                                        )}
-                                        placeholder={
-                                          Array.from(
-                                            new Set(field.options ?? []),
-                                          ).length === 0
-                                            ? t(
-                                                "settings:customFields.noOptionsPlaceholder",
-                                                "No options",
-                                              )
-                                            : values.length === 0
-                                              ? t(
-                                                  "settings:customFields.defaultValuePlaceholder",
-                                                  "Default value",
-                                                )
-                                              : undefined
-                                        }
-                                      />
-                                    </>
-                                  );
-                                }}
-                              </ComboboxValue>
-                            </ComboboxChips>
-
-                            <ComboboxPopup>
-                              <ComboboxEmpty>
-                                {t(
-                                  "settings:customFields.noOptionsPlaceholder",
-                                  "No options",
-                                )}
-                              </ComboboxEmpty>
-
-                              <ComboboxList>
-                                {(option: string) => (
-                                  <ComboboxItem
-                                    className="min-w-0 max-w-full"
-                                    key={`field_option_${option}`}
-                                    value={option}
-                                  >
-                                    <span className="block max-w-38 truncate">
-                                      {option}
-                                    </span>
-                                  </ComboboxItem>
-                                )}
-                              </ComboboxList>
-                            </ComboboxPopup>
-                          </Combobox>
+                            onChange={(value) =>
+                              handleLocalChange(field.id, value)
+                            }
+                            onCommit={(value) =>
+                              void handleSaveField(field.id, value)
+                            }
+                          />
                         ) : (
                           <Input
                             type="text"

@@ -1575,7 +1575,17 @@
 			"multiple": "Multiple",
 			"options": "{{count}} option(s)",
 			"reorderError": "Failed to reorder fields",
-			"selectPlaceholder": "Select option(s)"
+			"selectPlaceholder": "Select option(s)",
+			"editButton": "Benutzerdefiniertes Feld bearbeiten",
+			"editTitle": "Benutzerdefiniertes Feld bearbeiten",
+			"editDescription": "Feldnamen und Auswahloptionen bearbeiten.",
+			"updateSuccess": "Benutzerdefiniertes Feld aktualisiert",
+			"updateError": "Benutzerdefiniertes Feld konnte nicht aktualisiert werden",
+			"optionLabel": "Option {{number}}",
+			"removeOption": "Option {{number}} entfernen",
+			"addOption": "Option hinzufügen",
+			"optionsEditHint": "Umbenennungen aktualisieren die Auswahl in bestehenden Aufgaben und die Standardwerte. Verwendete Optionen können nicht entfernt werden.",
+			"saveButton": "Speichern"
 		},
 		"security": "Security",
 		"securityPage": {

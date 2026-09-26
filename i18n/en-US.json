@@ -1153,7 +1153,17 @@
 				"boolean": "Boolean",
 				"multiselect": "Multi-Select"
 			},
-			"multiple": "Multiple"
+			"multiple": "Multiple",
+			"editButton": "Edit custom field",
+			"editTitle": "Edit custom field",
+			"editDescription": "Update the field name and selection options.",
+			"updateSuccess": "Custom field updated",
+			"updateError": "Failed to update custom field",
+			"optionLabel": "Option {{number}}",
+			"removeOption": "Remove option {{number}}",
+			"addOption": "Add option",
+			"optionsEditHint": "Renaming an option updates existing task selections and defaults. Options in use cannot be removed.",
+			"saveButton": "Save changes"
 		},
 		"githubIntegration": {
 			"validation": {
