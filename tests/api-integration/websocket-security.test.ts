@@ -5,8 +5,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { serve } from "../../apps/api/node_modules/@hono/node-server";
 import type { NodeWebSocket } from "../../apps/api/node_modules/@hono/node-ws";
 import { auth } from "../../apps/api/src/auth";
+import { publishEvent } from "../../apps/api/src/events";
 import { createApp } from "../../apps/api/src/index";
-import { broadcastToUser } from "../../apps/api/src/ws";
+import {
+  broadcastToUser,
+  initializeWebSocketAdapter,
+  shutdownWebSocketAdapter,
+} from "../../apps/api/src/ws";
 import { handleWebSocketMessage } from "../../apps/api/src/ws/security";
 import { mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
@@ -215,4 +220,20 @@ it("still rejects access to a foreign project with a valid Origin", async () => 
       })
     ).status,
   ).toBe(403);
+});
+
+it("delivers custom field changes through the project broadcast adapter", async () => {
+  await initializeWebSocketAdapter();
+  const { socket, status } = await connect(projectId, {
+    cookie: "test-session=valid",
+    origin: "http://localhost:5173",
+  });
+  expect(status).toBe(101);
+  const message = once(socket, "message");
+  await publishEvent("custom-field.updated", { projectId });
+  expect(JSON.parse((await message)[0].toString())).toEqual({
+    type: "CUSTOM_FIELD_UPDATED",
+    projectId,
+  });
+  await shutdownWebSocketAdapter();
 });

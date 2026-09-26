@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { customFieldDefinitionTable } from "../../database/schema";
@@ -8,6 +8,21 @@ async function reorderCustomFields(
   customFields: Array<{ id: string; position: number }>,
 ) {
   await db.transaction(async (tx) => {
+    // Match creation/duplication lock order before applying the requested display order.
+    await tx
+      .select({ id: customFieldDefinitionTable.id })
+      .from(customFieldDefinitionTable)
+      .where(
+        and(
+          eq(customFieldDefinitionTable.projectId, projectId),
+          inArray(
+            customFieldDefinitionTable.id,
+            customFields.map((field) => field.id),
+          ),
+        ),
+      )
+      .orderBy(customFieldDefinitionTable.id)
+      .for("update");
     for (const field of customFields) {
       const [updated] = await tx
         .update(customFieldDefinitionTable)

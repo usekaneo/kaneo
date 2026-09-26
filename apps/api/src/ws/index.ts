@@ -544,3 +544,14 @@ for (const eventName of taskUpdateEvents) {
     }
   });
 }
+
+subscribeToEvent<{ projectId: string; initiatorId?: string }>(
+  "custom-field.updated",
+  async ({ projectId, initiatorId }) => {
+    broadcastToProject(
+      projectId,
+      { type: "CUSTOM_FIELD_UPDATED", projectId },
+      initiatorId,
+    );
+  },
+);

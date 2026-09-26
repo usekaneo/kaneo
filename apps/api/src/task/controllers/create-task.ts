@@ -73,38 +73,6 @@ async function createTask({
 
   await assertValidTaskStatus(resolvedStatus, projectId);
 
-  const allFields = await db
-    .select()
-    .from(customFieldDefinitionTable)
-    .where(eq(customFieldDefinitionTable.projectId, projectId));
-
-  const mergedCustomFields: CustomFieldInput[] = normalizedCustomFields ?? [];
-  const providedFieldIds = new Set(mergedCustomFields.map((f) => f.fieldId));
-
-  for (const field of allFields) {
-    if (
-      !providedFieldIds.has(field.id) &&
-      field.required &&
-      field.defaultValue != null &&
-      !isCustomFieldValueEmpty(
-        field.defaultValue,
-        field.type as
-          | "number"
-          | "boolean"
-          | "date"
-          | "dropdown"
-          | "multiselect",
-      )
-    ) {
-      mergedCustomFields.push({
-        fieldId: field.id,
-        value: field.defaultValue,
-      });
-    }
-  }
-
-  await assertRequiredCustomFields(projectId, mergedCustomFields);
-
   let assignee: { name: string } | undefined;
 
   if (normalizedUserId) {
@@ -127,6 +95,41 @@ async function createTask({
   });
 
   const createdTask = await db.transaction(async (tx) => {
+    // Hold definitions through validation and insertion so option renames cannot leave stale values.
+    const allFields = await tx
+      .select()
+      .from(customFieldDefinitionTable)
+      .where(eq(customFieldDefinitionTable.projectId, projectId))
+      .orderBy(customFieldDefinitionTable.id)
+      .for("share");
+
+    const mergedCustomFields: CustomFieldInput[] = normalizedCustomFields ?? [];
+    const providedFieldIds = new Set(mergedCustomFields.map((f) => f.fieldId));
+
+    for (const field of allFields) {
+      if (
+        !providedFieldIds.has(field.id) &&
+        field.required &&
+        field.defaultValue != null &&
+        !isCustomFieldValueEmpty(
+          field.defaultValue,
+          field.type as
+            | "number"
+            | "boolean"
+            | "date"
+            | "dropdown"
+            | "multiselect",
+        )
+      ) {
+        mergedCustomFields.push({
+          fieldId: field.id,
+          value: field.defaultValue,
+        });
+      }
+    }
+
+    await assertRequiredCustomFields(projectId, mergedCustomFields, tx);
+
     const taskNumber = await claimTaskNumber(projectId, tx);
     const nextPosition = await nextTaskPosition(
       tx,

@@ -142,6 +142,7 @@ type CustomFieldDefinition = {
   required: boolean;
   defaultValue: string | null;
   options: string[] | null;
+  hiddenOptions: string[];
   position: number;
   createdAt: string;
   updatedAt: string;
@@ -311,10 +312,31 @@ function CreateTaskModalContent({
   useEffect(() => {
     setCustomFieldValues((previousValues) =>
       Object.fromEntries(
-        customFields.map((field) => [
-          field.id,
-          previousValues[field.id] ?? field.defaultValue ?? "",
-        ]),
+        customFields.map((field) => {
+          let value = previousValues[field.id] ?? field.defaultValue ?? "";
+          const hidden = field.hiddenOptions ?? [];
+          const visibleOptions = (field.options ?? []).filter(
+            (option) => !hidden.includes(option),
+          );
+          if (field.type === "dropdown") {
+            value = visibleOptions.includes(value)
+              ? value
+              : (visibleOptions.find((option) => option === value.trim()) ??
+                "");
+          } else if (field.type === "multiselect" && value) {
+            try {
+              const selected: unknown = JSON.parse(value);
+              if (Array.isArray(selected)) {
+                value = JSON.stringify(
+                  selected.filter((option) => visibleOptions.includes(option)),
+                );
+              }
+            } catch {
+              // Leave invalid input for the normal field validation.
+            }
+          }
+          return [field.id, value];
+        }),
       ),
     );
   }, [customFields]);
@@ -540,6 +562,19 @@ function CreateTaskModalContent({
     customFieldValues,
   ]);
 
+  const missingRequiredField = customFields.find((field) => {
+    if (!field.required) return false;
+    const value = customFieldValues[field.id]?.trim();
+    if (!value) return true;
+    if (field.type !== "multiselect") return false;
+    try {
+      const selected: unknown = JSON.parse(value);
+      return !Array.isArray(selected) || selected.length === 0;
+    } catch {
+      return true;
+    }
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (
@@ -551,6 +586,13 @@ function CreateTaskModalContent({
       !workspace?.id
     )
       return;
+
+    if (missingRequiredField) {
+      toast.error(
+        `${missingRequiredField.name}: ${t("settings:customFields.required")}`,
+      );
+      return;
+    }
 
     submittingRef.current = true;
     setIsSubmitting(true);
@@ -615,13 +657,11 @@ function CreateTaskModalContent({
 
       if (currentDraft) {
         for (const [fieldId, value] of Object.entries(customFieldValues)) {
-          if (value) {
-            await setCustomFieldValue({
-              taskId: savedTask.id,
-              fieldId,
-              value: String(value),
-            });
-          }
+          await setCustomFieldValue({
+            taskId: savedTask.id,
+            fieldId,
+            value: String(value),
+          });
         }
       }
 
@@ -806,7 +846,9 @@ function CreateTaskModalContent({
 
     switch (field.type) {
       case "dropdown": {
-        const options = field.options || [];
+        const options = (field.options ?? []).filter(
+          (option) => !(field.hiddenOptions ?? []).includes(option),
+        );
 
         return (
           <Select
@@ -887,7 +929,9 @@ function CreateTaskModalContent({
           <Combobox
             multiple={true}
             autoHighlight
-            items={Array.from(new Set(field.options ?? []))}
+            items={Array.from(new Set(field.options ?? [])).filter(
+              (option) => !(field.hiddenOptions ?? []).includes(option),
+            )}
             value={selectedValues}
             onValueChange={(val) =>
               handleCustomFieldChange(field.id, JSON.stringify(val))
@@ -1601,7 +1645,12 @@ function CreateTaskModalContent({
             </Button>
             <Button
               type="submit"
-              disabled={!title.trim() || !resolvedProjectId || isSubmitting}
+              disabled={
+                !title.trim() ||
+                !resolvedProjectId ||
+                isSubmitting ||
+                !!missingRequiredField
+              }
               size="sm"
               className="disabled:opacity-50"
             >

@@ -5,6 +5,7 @@ import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import useGetCachedCustomFieldValues from "./queries/custom-field/use-get-all-custom-field-values-by-project";
 import { type BoardFilters, DUE_DATE_FILTER_VALUES } from "./use-task-filters";
+import { useValidCustomFieldFilters } from "./use-valid-custom-field-filters";
 
 const DEFAULT_FILTERS: BoardFilters = {
   status: null,
@@ -97,6 +98,8 @@ export function useTaskFiltersWithLabelsSupport(
       // Storage may be unavailable or full; keep filters working in memory.
     }
   }, [filters, storageKey]);
+
+  useValidCustomFieldFilters(projectId, setFilters);
 
   const filterTasks = useCallback(
     (tasks: Task[]): Task[] => {

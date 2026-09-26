@@ -16,6 +16,7 @@ async function getCustomFieldValuesByTask(taskId: string) {
       fieldPosition: customFieldDefinitionTable.position,
       fieldType: customFieldDefinitionTable.type,
       fieldOptions: customFieldDefinitionTable.options,
+      fieldHiddenOptions: customFieldDefinitionTable.hiddenOptions,
     })
     .from(customFieldValueTable)
     .innerJoin(

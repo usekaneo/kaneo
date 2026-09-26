@@ -5,6 +5,7 @@ import {
   GripVertical,
   Hash,
   List,
+  Pencil,
   Plus,
   Trash2,
   Type,
@@ -40,8 +41,10 @@ import useCreateCustomField from "@/hooks/mutations/custom-field/use-create-cust
 import useDeleteCustomField from "@/hooks/mutations/custom-field/use-delete-custom-field";
 import { useReorderCustomFields } from "@/hooks/mutations/custom-field/use-reorder-custom-field";
 import useGetCustomFieldsByProject from "@/hooks/queries/custom-field/use-get-custom-fields-by-project";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
+import EditCustomFieldDialog from "./edit-custom-field-dialog";
 
 type CustomFieldType =
   | "text"
@@ -59,6 +62,7 @@ export type CustomFieldDefinition = {
   required: boolean;
   defaultValue: string | null;
   options: string[] | null;
+  hiddenOptions: string[];
   position: number;
   createdAt: string;
   updatedAt: string;
@@ -85,6 +89,7 @@ export default function CustomFieldEditor({
   projectId,
 }: CustomFieldEditorProps) {
   const { t } = useTranslation();
+  const { canUpdateProjects } = useWorkspacePermission();
 
   const { data: customFields = [], isLoading: customFieldsLoading } =
     useGetCustomFieldsByProject(projectId) as {
@@ -98,6 +103,8 @@ export default function CustomFieldEditor({
     useDeleteCustomField(projectId);
   const { mutateAsync: reorderCustomFields } = useReorderCustomFields();
 
+  const [editingField, setEditingField] =
+    useState<CustomFieldDefinition | null>(null);
   const [name, setName] = useState("");
   const [type, setType] = useState<CustomFieldType>("text");
   const [required, setRequired] = useState(false);
@@ -387,6 +394,13 @@ export default function CustomFieldEditor({
 
   return (
     <div className="space-y-3">
+      {editingField && (
+        <EditCustomFieldDialog
+          key={editingField.id}
+          field={editingField}
+          onClose={() => setEditingField(null)}
+        />
+      )}
       <div className="space-y-1">
         {customFieldsLoading ? (
           <div className="text-sm text-muted-foreground">
@@ -542,6 +556,19 @@ export default function CustomFieldEditor({
                       ))}
                   </div>
                 </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 w-7 p-0 shrink-0"
+                  disabled={
+                    !canUpdateProjects() || deletingField || isReordering
+                  }
+                  onClick={() => setEditingField(field)}
+                  aria-label={t("settings:customFields.editButton")}
+                >
+                  <Pencil className="size-3.5" />
+                </Button>
                 <Button
                   type="button"
                   variant="ghost"
@@ -884,7 +911,9 @@ export default function CustomFieldEditor({
                       key={`field_option_${option}`}
                       value={option}
                     >
-                      <span className="block max-w-38 truncate">{option}</span>
+                      <span className="block min-w-0 whitespace-normal break-words text-left">
+                        {option}
+                      </span>
                     </ComboboxItem>
                   )}
                 </ComboboxList>

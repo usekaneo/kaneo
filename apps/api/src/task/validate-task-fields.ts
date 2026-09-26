@@ -125,8 +125,9 @@ export function validateCustomFieldValue(
 export async function assertRequiredCustomFields(
   projectId: string,
   customFields: { fieldId: string; value: string }[] = [],
+  connection: Pick<typeof db, "select"> = db,
 ): Promise<void> {
-  const allFields = await db
+  const allFields = await connection
     .select({
       id: customFieldDefinitionTable.id,
       name: customFieldDefinitionTable.name,
@@ -134,6 +135,7 @@ export async function assertRequiredCustomFields(
       required: customFieldDefinitionTable.required,
       defaultValue: customFieldDefinitionTable.defaultValue,
       options: customFieldDefinitionTable.options,
+      hiddenOptions: customFieldDefinitionTable.hiddenOptions,
     })
     .from(customFieldDefinitionTable)
     .where(eq(customFieldDefinitionTable.projectId, projectId));
@@ -172,7 +174,9 @@ export async function assertRequiredCustomFields(
       cf.value,
       type,
       def.name,
-      def.options,
+      Array.isArray(def.options)
+        ? def.options.filter((option) => !def.hiddenOptions.includes(option))
+        : def.options,
     );
 
     if (error) {

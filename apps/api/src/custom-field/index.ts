@@ -1,3 +1,4 @@
+import { publishEvent } from "../events";
 import {
   apiRouter,
   createRoute,
@@ -14,6 +15,7 @@ import getCustomFieldValuesByTask from "./controllers/get-custom-field-values-by
 import getCustomFieldsByProject from "./controllers/get-custom-fields-by-project";
 import reorderCustomFields from "./controllers/reorder-custom-field";
 import setCustomFieldValue from "./controllers/set-custom-field-value";
+import updateCustomField from "./controllers/update-custom-field";
 import {
   customFieldDefinitionListSchema,
   customFieldDefinitionSchema,
@@ -29,6 +31,7 @@ import {
   reorderCustomFieldsBody,
   setCustomFieldValueBody,
   taskIdParam,
+  updateCustomFieldBody,
 } from "./schema";
 
 const getCustomFieldsRoute = createRoute({
@@ -213,6 +216,36 @@ const setCustomFieldValueRoute = createRoute({
   },
 });
 
+const updateCustomFieldRoute = createRoute({
+  method: "patch",
+  operationId: "updateCustomField",
+  path: "/{id}",
+  tags: ["Custom Fields"],
+  summary: "Edit custom field",
+  description:
+    "Rename a field or edit its selection options. Supply originalValue for existing options to preserve task selections and defaults when renaming. Omitted existing options are removed only when unused. Hidden options remain on existing tasks but cannot be newly selected, and are removed from defaults. Required fields must retain a visible option. The type and required setting are preserved. updatedAt must match the current definition.",
+  middleware: [
+    workspaceAccess.fromCustomField("id"),
+    requireWorkspacePermission({ project: ["update"] }),
+  ] as const,
+  request: {
+    params: customFieldIdParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: updateCustomFieldBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("The updated custom field", customFieldDefinitionSchema),
+    400: errorResponse("Invalid options or an option is in use"),
+    403: errorResponse(
+      "No workspace access or missing project:update permission",
+    ),
+    404: errorResponse("Custom field not found"),
+    409: errorResponse("The custom field has changed since it was loaded"),
+  },
+});
+
 const deleteCustomFieldRoute = createRoute({
   method: "delete",
   operationId: "deleteCustomField",
@@ -281,6 +314,14 @@ const customField = apiRouter()
     const { taskId, fieldId, value } = c.req.valid("json");
 
     return c.json(await setCustomFieldValue(taskId, fieldId, value), 200);
+  })
+  .openapi(updateCustomFieldRoute, async (c) => {
+    const field = await updateCustomField(
+      c.req.valid("param").id,
+      c.req.valid("json"),
+    );
+    await publishEvent("custom-field.updated", { projectId: field.projectId });
+    return c.json(field, 200);
   })
   .openapi(deleteCustomFieldRoute, async (c) =>
     c.json(await deleteCustomField(c.req.valid("param").id), 200),

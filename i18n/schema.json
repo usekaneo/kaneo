@@ -4505,6 +4505,51 @@
 						},
 						"multiple": {
 							"type": "string"
+						},
+						"editButton": {
+							"type": "string"
+						},
+						"editTitle": {
+							"type": "string"
+						},
+						"editDescription": {
+							"type": "string"
+						},
+						"updateSuccess": {
+							"type": "string"
+						},
+						"updateError": {
+							"type": "string"
+						},
+						"optionLabel": {
+							"type": "string"
+						},
+						"removeOption": {
+							"type": "string"
+						},
+						"addOption": {
+							"type": "string"
+						},
+						"optionsEditHint": {
+							"type": "string"
+						},
+						"saveButton": {
+							"type": "string"
+						},
+						"hideOption": {
+							"type": "string"
+						},
+						"showOption": {
+							"type": "string"
+						},
+						"hidden": {
+							"type": "string"
+						},
+						"hiddenOptionsHint": {
+							"type": "string"
+						},
+						"removeHiddenSelection": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -4531,7 +4576,22 @@
 						"clearDefault",
 						"availableOptions",
 						"types",
-						"multiple"
+						"multiple",
+						"editButton",
+						"editTitle",
+						"editDescription",
+						"updateSuccess",
+						"updateError",
+						"optionLabel",
+						"removeOption",
+						"addOption",
+						"optionsEditHint",
+						"saveButton",
+						"hideOption",
+						"showOption",
+						"hidden",
+						"hiddenOptionsHint",
+						"removeHiddenSelection"
 					]
 				},
 				"githubIntegration": {

@@ -42,3 +42,19 @@ export const setCustomFieldValueBody = z.object({
   fieldId: z.string(),
   value: z.string(),
 });
+
+export const updateCustomFieldBody = z
+  .object({
+    name: z.string().trim().min(1),
+    updatedAt: z.iso.datetime(),
+    options: z
+      .array(
+        z.object({
+          originalValue: z.string().optional(),
+          hidden: z.boolean().optional(),
+          value: z.string().trim().min(1),
+        }),
+      )
+      .optional(),
+  })
+  .strict();
