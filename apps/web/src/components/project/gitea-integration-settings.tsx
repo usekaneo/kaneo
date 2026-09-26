@@ -168,9 +168,6 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
   const runVerify = React.useCallback(
     async (data: GiteaIntegrationFormValues, showToast = true) => {
       const token = data.accessToken.trim();
-      if (!token && integration) {
-        return;
-      }
       if (!token && !integration) {
         if (showToast) {
           toast.error(t("settings:giteaIntegration.toast.tokenRequiredVerify"));
@@ -183,7 +180,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
         const result = await verifyAccess({
           projectId,
           baseUrl: snapshot.baseUrl,
-          accessToken: snapshot.accessToken,
+          accessToken: snapshot.accessToken || undefined,
           repositoryOwner: snapshot.repositoryOwner,
           repositoryName: snapshot.repositoryName,
         });
@@ -302,7 +299,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
         const verification = await verifyAccess({
           projectId,
           baseUrl: snapshot.baseUrl,
-          accessToken: snapshot.accessToken,
+          accessToken: snapshot.accessToken || undefined,
           repositoryOwner: snapshot.repositoryOwner,
           repositoryName: snapshot.repositoryName,
         });
