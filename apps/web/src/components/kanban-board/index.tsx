@@ -32,11 +32,16 @@ import TaskCard from "./task-card";
 type KanbanBoardProps = {
   project: ProjectWithTasks;
   disableDragDrop?: boolean;
+  sortedByNumber?: boolean;
 };
 
-function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
+function KanbanBoard({
+  project,
+  disableDragDrop = false,
+  sortedByNumber = false,
+}: KanbanBoardProps) {
   const queryClient = useQueryClient();
-  const { setProject } = useProjectStore();
+  const { project: storedProject, setProject } = useProjectStore();
   const {
     setAvailableTasks,
     focusNext,
@@ -143,6 +148,62 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
 
     const activeId = active.id.toString();
     const overId = over.id.toString();
+
+    if (sortedByNumber) {
+      const sourceColumn = project.columns.find((column) =>
+        column.tasks.some((task) => task.id === activeId),
+      );
+      const destinationColumn = project.columns.find(
+        (column) =>
+          column.id === overId ||
+          column.tasks.some((task) => task.id === overId),
+      );
+
+      if (
+        !sourceColumn ||
+        !destinationColumn ||
+        sourceColumn.id === destinationColumn.id
+      ) {
+        return;
+      }
+
+      const currentProject = storedProject ?? project;
+      const currentDestination = currentProject.columns.find(
+        (column) => column.id === destinationColumn.id,
+      );
+      const position =
+        Math.max(
+          -1,
+          ...(currentDestination?.tasks.map((task) => task.position ?? -1) ??
+            []),
+        ) + 1;
+      const updatedProject = produce(currentProject, (draft) => {
+        const source = draft.columns.find((column) =>
+          column.tasks.some((task) => task.id === activeId),
+        );
+        const destination = draft.columns.find(
+          (column) => column.id === destinationColumn.id,
+        );
+        if (!source || !destination) return;
+
+        const taskIndex = source.tasks.findIndex(
+          (task) => task.id === activeId,
+        );
+        const [task] = source.tasks.splice(taskIndex, 1);
+        task.status = destination.slug;
+        task.position = position;
+        destination.tasks.push(task);
+      });
+
+      const movedTask = updatedProject.columns
+        .find((column) => column.id === destinationColumn.id)
+        ?.tasks.find((task) => task.id === activeId);
+      if (!movedTask) return;
+
+      setProject(updatedProject);
+      updateTask(movedTask);
+      return;
+    }
 
     const updatedProject = produce(project, (draft) => {
       const sourceColumn = draft?.columns?.find((col) =>
