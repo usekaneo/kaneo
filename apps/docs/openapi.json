@@ -13002,7 +13002,7 @@
           "Gitea"
         ],
         "summary": "Verify Gitea access",
-        "description": "Check that the base URL is a Gitea instance and that the token can reach the repository with the permissions Kaneo needs. Always 200 -- problems are reported in the body.",
+        "description": "Check that the base URL is a Gitea instance and that the token can reach the repository with the permissions Kaneo needs. Repository permission failures are reported in the body; invalid credentials and upstream errors return an error status. Omit accessToken to use the saved token for the unchanged base URL.",
         "requestBody": {
           "required": true,
           "content": {
@@ -13020,7 +13020,8 @@
                   },
                   "accessToken": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "description": "Omit to verify with this project's saved token. The base URL must match the saved integration."
                   },
                   "repositoryOwner": {
                     "type": "string",
@@ -13034,7 +13035,6 @@
                 "required": [
                   "projectId",
                   "baseUrl",
-                  "accessToken",
                   "repositoryOwner",
                   "repositoryName"
                 ]
@@ -13064,10 +13064,27 @@
             }
           },
           "401": {
-            "description": "Missing or invalid credentials"
+            "description": "Gitea rejected the token",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           },
           "403": {
             "description": "No workspace access, or missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Gitea verification failed",
             "content": {
               "text/plain": {
                 "schema": {
