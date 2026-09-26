@@ -29,7 +29,8 @@ jobs:
   validate:
     permissions:
       contents: read
-    uses: ./.github/workflows/helm-validate.yml
+
+    uses: ./.github/workflows/helm-validate.yml # zizmor: ignore[self-repository] $/-syntax not parsed by pinned actionlint v1.7.12; revisit when supported
 
   publish:
     if: github.ref == 'refs/heads/main' && inputs.version != ''

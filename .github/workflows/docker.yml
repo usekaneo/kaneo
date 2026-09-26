@@ -20,7 +20,7 @@ jobs:
       contents: read
       packages: write
 
-    uses: ./.github/workflows/build-images.yml
+    uses: ./.github/workflows/build-images.yml # zizmor: ignore[self-repository] $/-syntax not parsed by pinned actionlint v1.7.12; revisit when supported
     secrets:
       GH_PACKAGE_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
