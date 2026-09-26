@@ -123,9 +123,11 @@ export default async function updateCustomField(
         defaultValue =
           withoutHiddenOptions(defaultValue, field.type, hiddenOptions) || null;
       }
-      const needsMigration = oldOptions.some(
-        (option) => replacements.get(option) !== option,
-      );
+      const visibilityChanged =
+        JSON.stringify(hiddenOptions) !== JSON.stringify(field.hiddenOptions);
+      const needsMigration =
+        oldOptions.some((option) => replacements.get(option) !== option) ||
+        (field.type === "dropdown" && visibilityChanged);
       // Keep application memory bounded while the definition lock serializes assignments.
       let cursor: string | undefined;
       while (needsMigration) {

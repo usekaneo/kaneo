@@ -68,12 +68,8 @@ export default function EditCustomFieldDialog({
       });
       toast.success(t("settings:customFields.updateSuccess"));
       onClose();
-    } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : t("settings:customFields.updateError"),
-      );
+    } catch {
+      setError(t("settings:customFields.updateError"));
     }
   }
 

@@ -102,7 +102,7 @@ describe("custom field editing", () => {
   });
 
   it("omits hidden whitespace-padded legacy dropdown values when duplicating", async () => {
-    const { app, field, task, update } = await fixture("dropdown");
+    const { app, field, task, update, readValue } = await fixture("dropdown");
     await db
       .update(schema.customFieldValueTable)
       .set({ value: " Alice " })
@@ -118,6 +118,7 @@ describe("custom field editing", () => {
         })
       ).status,
     ).toBe(200);
+    expect(await readValue()).toBe("Alice");
     const response = await app.request(`/api/task/duplicate/${task.id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

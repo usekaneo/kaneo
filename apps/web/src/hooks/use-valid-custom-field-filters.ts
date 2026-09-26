@@ -32,11 +32,23 @@ export function reconcileCustomFieldFilters(
       const field = fields.find((candidate) => candidate.id === id);
       if (!field || !Array.isArray(values)) return [];
       const options = field.options;
-      const valid =
-        (field.type === "dropdown" || field.type === "multiselect") &&
-        Array.isArray(options)
-          ? values.filter((value) => options.includes(value))
-          : values;
+      const valid = values.filter((value) => {
+        if (!Array.isArray(options)) return true;
+        if (field.type === "dropdown") return options.includes(value);
+        if (field.type !== "multiselect") return true;
+        try {
+          const selected: unknown = JSON.parse(value);
+          return (
+            Array.isArray(selected) &&
+            selected.every(
+              (option) =>
+                typeof option === "string" && options.includes(option),
+            )
+          );
+        } catch {
+          return false;
+        }
+      });
       return valid.length ? [[id, valid]] : [];
     }),
   );

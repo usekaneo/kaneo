@@ -114,7 +114,7 @@ describe("edit custom field dialog", () => {
       screen.getByRole("button", { name: "settings:customFields.saveButton" }),
     );
     expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Option is in use",
+      "settings:customFields.updateError",
     );
     expect(onClose).not.toHaveBeenCalled();
     expect(screen.getAllByRole("textbox")).toHaveLength(3);

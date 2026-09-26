@@ -14,6 +14,20 @@ vi.mock("./queries/custom-field/use-get-custom-fields-by-project", () => ({
   default: () => ({ data: fields }),
 }));
 describe("persisted custom field filters", () => {
+  it("preserves serialized multiselect filters and drops combinations with obsolete choices", () => {
+    const valid = '["Alice", "Bob"]';
+    const old = '["Alice","Former"]';
+    const definitions = [
+      { id: "people", type: "multiselect", options: ["Alice", "Bob"] },
+    ];
+    expect(
+      reconcileCustomFieldFilters(
+        { people: [valid, old, "[]", "invalid"] },
+        definitions,
+      ),
+    ).toEqual({ people: [valid, "[]"] });
+  });
+
   it("reconciles the backlog's non-null filter map without changing empty state", () => {
     const empty = {};
     expect(reconcileCustomFieldFilters(empty, [])).toBe(empty);
@@ -41,7 +55,7 @@ describe("persisted custom field filters", () => {
     fields = [
       {
         id: "people",
-        type: "multiselect",
+        type: "dropdown",
         options: ["Alex", "Bob"],
         hiddenOptions: ["Bob"],
       },
