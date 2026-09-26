@@ -57,7 +57,9 @@ export async function updateIssueLabelsGitlab(
   changes: { add?: string[]; remove?: string[] },
 ) {
   const add = changes.add ?? [];
-  const remove = changes.remove ?? [];
+  // GitLab removes a label when it appears in both lists. Reapplying a
+  // priority or status must leave its label present.
+  const remove = (changes.remove ?? []).filter((label) => !add.includes(label));
 
   if (add.length === 0 && remove.length === 0) return;
 

@@ -1,3 +1,4 @@
+import { setTimeout as delay } from "node:timers/promises";
 import * as Sentry from "@sentry/node";
 import { assertPublicDestination } from "../../../utils/assert-public-destination";
 import type { GitlabConfig, GitlabTokenType } from "../config";
@@ -83,6 +84,18 @@ export class GitlabApiError extends Error {
   ) {
     super(message);
     this.name = "GitlabApiError";
+  }
+}
+
+function isResourceLock(error: unknown): boolean {
+  if (!(error instanceof GitlabApiError) || error.status !== 409) return false;
+  try {
+    return (
+      JSON.parse(error.body ?? "null")?.message ===
+      "409 Conflict: Resource lock"
+    );
+  } catch {
+    return false;
   }
 }
 
@@ -259,13 +272,24 @@ export function createGitlabClient(
       iid: number,
       body: Record<string, unknown>,
     ): Promise<GitlabIssue> {
-      return required(
-        await call<GitlabIssue>(`${project(projectPath)}/issues/${iid}`, {
-          method: "PUT",
-          body: JSON.stringify(body),
-        }),
-        "update issue",
-      );
+      for (let attempt = 0; ; attempt += 1) {
+        try {
+          return required(
+            await call<GitlabIssue>(`${project(projectPath)}/issues/${iid}`, {
+              method: "PUT",
+              body: JSON.stringify(body),
+            }),
+            "update issue",
+          );
+        } catch (error) {
+          // Concurrent edits can briefly lock an issue. Retry only this rejected
+          // update, not creates or ambiguous failures that may have succeeded.
+          if (attempt >= 3 || !isResourceLock(error)) {
+            throw error;
+          }
+          await delay(250 * 2 ** attempt);
+        }
+      }
     },
 
     async getIssue(projectPath: string, iid: number): Promise<GitlabIssue> {
