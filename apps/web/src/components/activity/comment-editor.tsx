@@ -7,7 +7,6 @@ import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import TaskList from "@tiptap/extension-task-list";
 import { Markdown } from "@tiptap/markdown";
-import { Fragment, Slice } from "@tiptap/pm/model";
 import { TextSelection } from "@tiptap/pm/state";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
@@ -63,7 +62,6 @@ import {
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { cn } from "@/lib/cn";
-import { parseTaskListMarkdownToNodes } from "@/lib/editor-task-list-paste";
 import {
   extractIssueKeyFromUrl,
   extractTaskIdFromUrl,
@@ -72,6 +70,7 @@ import {
 } from "@/lib/editor-url-utils";
 import { isInCodeBlockLanguagePicker } from "@/lib/is-in-codeblock-language-picker";
 import { normalizeCommentMarkdown } from "@/lib/normalize-comment-markdown";
+import { pasteMarkdown } from "@/lib/paste-markdown";
 import { toast } from "@/lib/toast";
 import { uploadTaskImage } from "@/lib/upload-task-image";
 
@@ -712,20 +711,7 @@ export default function CommentEditor({
           }
 
           const plainText = event.clipboardData?.getData("text/plain") || "";
-          const taskListNodes = parseTaskListMarkdownToNodes(plainText);
-          if (taskListNodes) {
-            event.preventDefault();
-            const nodes = taskListNodes.map((node) =>
-              view.state.schema.nodeFromJSON(node),
-            );
-            const fragment = Fragment.fromArray(nodes);
-            view.dispatch(
-              view.state.tr
-                .replaceSelection(new Slice(fragment, 0, 0))
-                .scrollIntoView(),
-            );
-            return true;
-          }
+          if (editor && pasteMarkdown(editor, event)) return true;
 
           const pastedText = plainText.trim();
           if (!pastedText || /\s/.test(pastedText)) return false;

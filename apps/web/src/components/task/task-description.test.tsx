@@ -6,6 +6,7 @@ import TaskDescription from "./task-description";
 
 const mocks = vi.hoisted(() => ({
   t: (key: string) => key,
+  save: vi.fn(),
   tasks: new Map<string, { id: string; description: string }>(),
 }));
 
@@ -45,7 +46,7 @@ vi.mock("@/hooks/queries/task/use-get-task", () => ({
   default: (taskId: string) => ({ data: mocks.tasks.get(taskId) }),
 }));
 vi.mock("@/hooks/mutations/task/use-update-task-description", () => ({
-  useUpdateTaskDescription: () => ({ mutateAsync: vi.fn() }),
+  useUpdateTaskDescription: () => ({ mutateAsync: mocks.save }),
 }));
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({ canUpdateTasks: () => true }),
@@ -64,6 +65,52 @@ vi.mock("@/lib/shiki-highlighter", () => ({
 }));
 
 describe("TaskDescription", () => {
+  it("preserves bold Markdown when pasting, saving and reopening a checklist (#1779)", async () => {
+    mocks.save.mockClear();
+    mocks.tasks.set("markdown-task", { id: "markdown-task", description: "" });
+    const { container, unmount } = render(
+      <TaskDescription taskId="markdown-task" />,
+    );
+    await waitFor(() =>
+      expect(
+        container.querySelector('[contenteditable="true"]'),
+      ).not.toBeNull(),
+    );
+    await new Promise(requestAnimationFrame);
+    const editable = container.querySelector<HTMLElement>(
+      '[contenteditable="true"]',
+    );
+    if (!editable) throw new Error("Editor missing");
+    fireEvent.paste(editable, {
+      clipboardData: {
+        files: [],
+        getData: (type: string) =>
+          type === "text/plain"
+            ? "- [ ] **Provide a staff-only interface.**"
+            : "",
+      },
+    });
+    await waitFor(() => expect(mocks.save).toHaveBeenCalled());
+    const saved = mocks.save.mock.calls[0][0].description;
+    expect(saved).toContain("**Provide a staff-only interface.**");
+    expect(saved).not.toContain("\\*");
+    expect(container.querySelector("strong")?.textContent).toBe(
+      "Provide a staff-only interface.",
+    );
+    unmount();
+    mocks.tasks.set("markdown-task", {
+      id: "markdown-task",
+      description: saved,
+    });
+    const reopened = render(<TaskDescription taskId="markdown-task" />);
+    await waitFor(() =>
+      expect(reopened.container.querySelector("strong")?.textContent).toBe(
+        "Provide a staff-only interface.",
+      ),
+    );
+    reopened.unmount();
+  });
+
   it("renders the parent description when navigating from a subtask (#1580)", async () => {
     mocks.tasks.set("child-task", {
       id: "child-task",
