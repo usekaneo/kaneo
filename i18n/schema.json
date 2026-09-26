@@ -6532,6 +6532,9 @@
 						"deletedLabel",
 						"permissionRequired"
 					]
+				},
+				"invitationEmailFailed": {
+					"type": "string"
 				}
 			},
 			"required": [
@@ -6571,7 +6574,8 @@
 				"externalLinks",
 				"security",
 				"securityPage",
-				"calendarFeeds"
+				"calendarFeeds",
+				"invitationEmailFailed"
 			]
 		},
 		"navigation": {

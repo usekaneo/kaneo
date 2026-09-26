@@ -5257,7 +5257,7 @@
         ],
         "operationId": "inviteOrganizationMember",
         "summary": "Invite Organization Member",
-        "description": "Create an invitation to an organization",
+        "description": "Create or resend an invitation. Email delivery failures return 502; the invitation remains pending and can be resent after correcting SMTP settings.",
         "requestBody": {
           "required": true,
           "content": {
@@ -5362,6 +5362,31 @@
           },
           "401": {
             "description": "Missing or invalid credentials"
+          },
+          "502": {
+            "description": "Invitation saved, but email delivery failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "enum": [
+                        "INVITATION_EMAIL_FAILED"
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                }
+              }
+            }
           }
         }
       }

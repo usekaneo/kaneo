@@ -1711,7 +1711,8 @@
 			"loadError": "Kalender-Feeds oder Labels konnten nicht geladen werden. Bitte versuche es erneut.",
 			"deletedLabel": "Gelöschtes Label",
 			"permissionRequired": "Du benötigst die Berechtigung zum Teilen von Projekten, um Kalender-Feeds zu verwalten."
-		}
+		},
+		"invitationEmailFailed": "Einladung gespeichert, aber der E-Mail-Versand ist fehlgeschlagen. Prüfe die SMTP-Einstellungen und sende die Einladung erneut."
 	},
 	"navigation": {
 		"commandPalette": {
