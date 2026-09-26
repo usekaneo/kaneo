@@ -15,6 +15,8 @@
     "lint": "turbo lint",
     "test": "turbo test",
     "test:integration": "turbo test:integration",
+    "test:e2e": "pnpm --dir tests/e2e test",
+    "test:browserstack": "pnpm --dir tests/e2e test:browserstack",
     "typecheck": "turbo typecheck",
     "prepare": "husky"
   },

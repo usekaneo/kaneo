@@ -1,0 +1,23 @@
+# Credentials come from BROWSERSTACK_USERNAME and BROWSERSTACK_ACCESS_KEY.
+framework: playwright
+projectName: Kaneo
+buildName: Kaneo browser smoke tests
+buildIdentifier: '${DATE_TIME}'
+platforms:
+  - os: Windows
+    osVersion: 11
+    browserName: chrome
+    browserVersion: latest
+  - os: OS X
+    osVersion: Sequoia
+    browserName: playwright-webkit
+    browserVersion: latest
+parallelsPerPlatform: 1
+browserstackLocal: true
+acceptInsecureCerts: true
+browserStackLocalOptions:
+  forceLocal: true
+testObservability: false
+debug: false
+networkLogs: false
+consoleLogs: errors
