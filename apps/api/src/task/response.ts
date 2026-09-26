@@ -117,6 +117,7 @@ export const boardSchema = z
         }),
         isPublic: z.boolean().nullable(),
         workspaceId: z.string(),
+        backgroundVersion: z.string().nullable(),
         columns: z.array(boardColumnSchema),
         archivedTasks: z.array(boardTaskSchema),
         plannedTasks: z.array(boardTaskSchema),

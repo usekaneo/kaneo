@@ -559,7 +559,9 @@
 			"labels": "Етикети",
 			"labelsDescription": "Прикажи етикети и тагови на задачите",
 			"priority": "Приоритет",
-			"priorityDescription": "Прикажи индикатори за приоритет"
+			"priorityDescription": "Прикажи индикатори за приоритет",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"developerPage": {
 			"pageTitle": "Програмерски поставки",
@@ -708,6 +710,15 @@
 			},
 			"importExportTasks": "Импортирање/Експортирање",
 			"importExportTasksDescription": "Импортирање/Експортирање на задачи",
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundLabel": "Board background",
+			"backgroundRemove": "Remove image",
+			"backgroundRemoveError": "Failed to remove project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundReplace": "Replace image",
+			"backgroundUpload": "Upload image",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundUploadSuccess": "Project background updated",
 			"moveModalConfirm": "Премести проект",
 			"moveModalDescription": "Ова ќе го премести проектот \"{{name}}\" и сите негови задачи во \"{{workspace}}\". Задачите доделени на луѓе што не се членови на тој работен простор ќе останат недоделени, а претплатите на известувања за овој проект ќе бидат отстранети.",
 			"moveModalTitle": "Премести проект?",

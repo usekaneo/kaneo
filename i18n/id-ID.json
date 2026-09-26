@@ -559,7 +559,9 @@
 			"labels": "Label",
 			"labelsDescription": "Tampilkan label dan tag tugas",
 			"priority": "Prioritas",
-			"priorityDescription": "Tampilkan indikator prioritas"
+			"priorityDescription": "Tampilkan indikator prioritas",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"developerPage": {
 			"pageTitle": "Pengaturan Pengembang",
@@ -708,6 +710,15 @@
 			},
 			"importExportTasks": "Impor/Ekspor",
 			"importExportTasksDescription": "Impor dan ekspor tugas.",
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundLabel": "Board background",
+			"backgroundRemove": "Remove image",
+			"backgroundRemoveError": "Failed to remove project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundReplace": "Replace image",
+			"backgroundUpload": "Upload image",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundUploadSuccess": "Project background updated",
 			"moveModalConfirm": "Pindahkan proyek",
 			"moveModalDescription": "Tindakan ini akan memindahkan proyek \"{{name}}\" beserta semua tugasnya ke \"{{workspace}}\". Tugas yang ditugaskan kepada orang yang bukan anggota ruang kerja tersebut akan dilepas penugasannya, dan langganan notifikasi untuk proyek ini akan dihapus.",
 			"moveModalTitle": "Pindahkan proyek?",

@@ -1367,7 +1367,9 @@
 			"title": "Preferencje",
 			"weekStartsOnMonday": "Poniedziałek",
 			"weekStartsOnSaturday": "Sobota",
-			"weekStartsOnSunday": "Niedziela"
+			"weekStartsOnSunday": "Niedziela",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"projectGeneral": {
 			"dangerZone": "Strefa niebezpieczna",
@@ -1407,6 +1409,15 @@
 				"keyRequired": "Klucz jest wymagany",
 				"nameRequired": "Nazwa projektu jest wymagana"
 			},
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundLabel": "Board background",
+			"backgroundRemove": "Remove image",
+			"backgroundRemoveError": "Failed to remove project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundReplace": "Replace image",
+			"backgroundUpload": "Upload image",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundUploadSuccess": "Project background updated",
 			"moveModalConfirm": "Move Project",
 			"moveModalDescription": "This will move the project \"{{name}}\" and all of its tasks to \"{{workspace}}\". Tasks assigned to people who aren't members of that workspace will be unassigned, and notification subscriptions for this project will be cleared.",
 			"moveModalTitle": "Move Project?",

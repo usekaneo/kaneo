@@ -456,7 +456,9 @@
 			"labels": "Labels",
 			"labelsDescription": "Toon taaklabels en tags",
 			"priority": "Prioriteit",
-			"priorityDescription": "Toon prioriteitsindicatoren"
+			"priorityDescription": "Toon prioriteitsindicatoren",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"developerPage": {
 			"pageTitle": "Ontwikkelaarsinstellingen",
@@ -605,6 +607,15 @@
 			},
 			"importExportTasks": "Importeren/Exporteren",
 			"importExportTasksDescription": "Importeren/Exporteren taken",
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundLabel": "Board background",
+			"backgroundRemove": "Remove image",
+			"backgroundRemoveError": "Failed to remove project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundReplace": "Replace image",
+			"backgroundUpload": "Upload image",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundUploadSuccess": "Project background updated",
 			"moveModalConfirm": "Project verplaatsen",
 			"moveModalDescription": "Hiermee worden het project \"{{name}}\" en al zijn taken verplaatst naar \"{{workspace}}\". Taken die zijn toegewezen aan personen die geen lid zijn van die werkruimte worden niet langer toegewezen, en meldingsabonnementen voor dit project worden verwijderd.",
 			"moveModalTitle": "Project verplaatsen?",

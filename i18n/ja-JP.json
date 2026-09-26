@@ -559,7 +559,9 @@
 			"labels": "ラベル",
 			"labelsDescription": "タスクのラベルとタグを表示します",
 			"priority": "優先度",
-			"priorityDescription": "優先度インジケーターを表示します"
+			"priorityDescription": "優先度インジケーターを表示します",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"developerPage": {
 			"pageTitle": "開発者設定",
@@ -942,6 +944,15 @@
 			},
 			"importExportTasks": "インポート/エクスポート",
 			"importExportTasksDescription": "タスクのインポートとエクスポートを行います。",
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundLabel": "Board background",
+			"backgroundRemove": "Remove image",
+			"backgroundRemoveError": "Failed to remove project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundReplace": "Replace image",
+			"backgroundUpload": "Upload image",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundUploadSuccess": "Project background updated",
 			"moveModalConfirm": "Move Project",
 			"moveModalDescription": "This will move the project \"{{name}}\" and all of its tasks to \"{{workspace}}\". Tasks assigned to people who aren't members of that workspace will be unassigned, and notification subscriptions for this project will be cleared.",
 			"moveModalTitle": "Move Project?",

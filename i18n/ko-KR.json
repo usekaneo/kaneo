@@ -559,7 +559,9 @@
 			"labels": "라벨",
 			"labelsDescription": "작업 라벨과 태그를 표시합니다",
 			"priority": "우선순위",
-			"priorityDescription": "우선순위 표시기를 표시합니다"
+			"priorityDescription": "우선순위 표시기를 표시합니다",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"developerPage": {
 			"pageTitle": "개발자 설정",
@@ -708,6 +710,15 @@
 			},
 			"importExportTasks": "가져오기/내보내기",
 			"importExportTasksDescription": "작업을 가져오고 내보냅니다.",
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundLabel": "Board background",
+			"backgroundRemove": "Remove image",
+			"backgroundRemoveError": "Failed to remove project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundReplace": "Replace image",
+			"backgroundUpload": "Upload image",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundUploadSuccess": "Project background updated",
 			"moveModalConfirm": "프로젝트 이동",
 			"moveModalDescription": "프로젝트 \"{{name}}\"과(와) 모든 작업이 \"{{workspace}}\"(으)로 이동됩니다. 해당 워크스페이스의 멤버가 아닌 사람에게 할당된 작업은 할당이 해제되며, 이 프로젝트의 알림 구독도 삭제됩니다.",
 			"moveModalTitle": "프로젝트를 이동할까요?",

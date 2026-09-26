@@ -559,7 +559,9 @@
 			"labels": "Nhãn",
 			"labelsDescription": "Hiển thị nhãn và thẻ của công việc",
 			"priority": "Mức ưu tiên",
-			"priorityDescription": "Hiển thị chỉ báo mức ưu tiên"
+			"priorityDescription": "Hiển thị chỉ báo mức ưu tiên",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"developerPage": {
 			"pageTitle": "Cài đặt nhà phát triển",
@@ -942,6 +944,15 @@
 			},
 			"importExportTasks": "Nhập/Xuất",
 			"importExportTasksDescription": "Nhập và xuất công việc.",
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundLabel": "Board background",
+			"backgroundRemove": "Remove image",
+			"backgroundRemoveError": "Failed to remove project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundReplace": "Replace image",
+			"backgroundUpload": "Upload image",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundUploadSuccess": "Project background updated",
 			"moveModalConfirm": "Chuyển dự án",
 			"moveModalDescription": "Thao tác này sẽ chuyển dự án \"{{name}}\" và tất cả công việc của nó sang \"{{workspace}}\". Những công việc được giao cho người không phải là thành viên của không gian làm việc đó sẽ bị hủy phân công, và các đăng ký thông báo cho dự án này sẽ bị xóa.",
 			"moveModalTitle": "Chuyển dự án?",

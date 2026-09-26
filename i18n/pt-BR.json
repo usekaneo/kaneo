@@ -559,7 +559,9 @@
 			"labels": "Etiquetas",
 			"labelsDescription": "Mostrar etiquetas e marcadores das tarefas",
 			"priority": "Prioridade",
-			"priorityDescription": "Exibir indicadores de prioridade"
+			"priorityDescription": "Exibir indicadores de prioridade",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"developerPage": {
 			"pageTitle": "Configurações de desenvolvedor",
@@ -944,6 +946,15 @@
 			},
 			"importExportTasks": "Importar/Exportar",
 			"importExportTasksDescription": "Importe e exporte tarefas.",
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundLabel": "Board background",
+			"backgroundRemove": "Remove image",
+			"backgroundRemoveError": "Failed to remove project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundReplace": "Replace image",
+			"backgroundUpload": "Upload image",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundUploadSuccess": "Project background updated",
 			"moveModalConfirm": "Mover projeto",
 			"moveModalDescription": "Isso moverá o projeto \"{{name}}\" e todas as suas tarefas para \"{{workspace}}\". As tarefas atribuídas a pessoas que não são membros desse espaço de trabalho ficarão sem responsável, e as inscrições de notificação deste projeto serão removidas.",
 			"moveModalTitle": "Mover projeto?",

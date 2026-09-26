@@ -559,7 +559,9 @@
 			"labels": "标签",
 			"labelsDescription": "显示任务的标签和标记",
 			"priority": "优先级",
-			"priorityDescription": "显示优先级指示"
+			"priorityDescription": "显示优先级指示",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"developerPage": {
 			"pageTitle": "开发者设置",
@@ -942,6 +944,15 @@
 			},
 			"importExportTasks": "导入/导出",
 			"importExportTasksDescription": "导入和导出任务。",
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundLabel": "Board background",
+			"backgroundRemove": "Remove image",
+			"backgroundRemoveError": "Failed to remove project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundReplace": "Replace image",
+			"backgroundUpload": "Upload image",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundUploadSuccess": "Project background updated",
 			"moveModalConfirm": "移动项目",
 			"moveModalDescription": "这将把项目 \"{{name}}\" 及其所有任务移动到 \"{{workspace}}\"。分配给非该工作区成员的任务将被取消分配，此项目的通知订阅也会被清除。",
 			"moveModalTitle": "移动项目？",

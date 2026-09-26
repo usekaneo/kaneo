@@ -639,7 +639,9 @@
 			"labels": "Labels",
 			"labelsDescription": "Aufgabenlabels und Tags anzeigen",
 			"priority": "Priorität",
-			"priorityDescription": "Prioritätsindikatoren anzeigen"
+			"priorityDescription": "Prioritätsindikatoren anzeigen",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"developerPage": {
 			"pageTitle": "Entwicklereinstellungen",
@@ -788,6 +790,15 @@
 			},
 			"importExportTasks": "Import/Export",
 			"importExportTasksDescription": "Importieren und Exportieren von Aufgaben.",
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundLabel": "Board background",
+			"backgroundRemove": "Remove image",
+			"backgroundRemoveError": "Failed to remove project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundReplace": "Replace image",
+			"backgroundUpload": "Upload image",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundUploadSuccess": "Project background updated",
 			"moveModalConfirm": "Projekt verschieben",
 			"moveModalDescription": "Dadurch werden das Projekt \"{{name}}\" und alle zugehörigen Aufgaben nach \"{{workspace}}\" verschoben. Bei Aufgaben, die Personen zugewiesen sind, die kein Mitglied dieses Workspaces sind, wird die Zuweisung aufgehoben, und Benachrichtigungs-Abonnements für dieses Projekt werden entfernt.",
 			"moveModalTitle": "Projekt verschieben?",

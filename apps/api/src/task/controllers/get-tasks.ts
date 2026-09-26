@@ -338,6 +338,7 @@ async function getTasksPage(
       descriptionDeferred: project.descriptionDeferred,
       isPublic: project.isPublic,
       workspaceId: project.workspaceId,
+      backgroundVersion: project.backgroundVersion,
       columns,
       archivedTasks,
       plannedTasks,
