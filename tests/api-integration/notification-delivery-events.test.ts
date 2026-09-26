@@ -22,6 +22,17 @@ vi.mock("../../apps/api/src/utils/outbound-request", async (original) => ({
   sendOutboundRequest: vi.fn(async () => new Response(null, { status: 200 })),
 }));
 
+vi.mock("../../apps/api/src/events", async (original) => {
+  const events = await original<typeof import("../../apps/api/src/events")>();
+  return {
+    ...events,
+    // Delivery assertions and the next test's TRUNCATE must wait for every
+    // subscriber, including work that continues after the mocked HTTP send.
+    publishEvent: (...args: Parameters<typeof events.publishEvent>) =>
+      events.publishEvent(args[0], args[1], { waitForHandlers: true }),
+  };
+});
+
 afterEach(() => vi.unstubAllEnvs());
 beforeEach(async () => {
   vi.stubEnv("NOTIFICATION_SECRET_ENCRYPTION_KEY", "notification-test-key");
