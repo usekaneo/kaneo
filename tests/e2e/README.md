@@ -31,18 +31,33 @@ BrowserStack disables native Playwright tracing; use its session recordings for 
 Set `BROWSERSTACK_USERNAME` and `BROWSERSTACK_ACCESS_KEY` in your shell's environment
 using the credentials from your BrowserStack account. Keep them out of source
 control and command-line arguments. Start the Compose stack with BrowserStack's
-local hostname so the app, API, and session cookies share the same origin:
+local hostname and the HTTPS override so the app, API, cookies, and WebSockets
+share the same secure origin. This also requires OpenSSL:
 
 ```sh
 export KANEO_E2E_HOST=bs-local.com
-docker compose -f tests/e2e/compose.yml up --build --wait --wait-timeout 180
+export KANEO_E2E_TLS=true
+export COMPOSE_FILE=tests/e2e/compose.yml:tests/e2e/compose.tls.yml
+mkdir -p .cache/e2e-tls
+openssl req -x509 -newkey rsa:2048 -nodes -days 1 \
+  -keyout .cache/e2e-tls/key.pem -out .cache/e2e-tls/cert.pem \
+  -subj '/CN=bs-local.com' -addext 'subjectAltName=DNS:bs-local.com'
+docker compose up --build --wait --wait-timeout 180
 pnpm test:browserstack
-docker compose -f tests/e2e/compose.yml down --volumes
-unset KANEO_E2E_HOST
+docker compose down --volumes
+unset KANEO_E2E_HOST KANEO_E2E_TLS COMPOSE_FILE
 ```
 
 BrowserStack rewrites `localhost` to `bs-local.com` for WebKit. Configuring that
 hostname explicitly avoids mixing the page's origin with a localhost API URL.
+The cloud endpoint is `https://bs-local.com:18174`. The test-only nginx gateway
+uses a freshly generated, one-day self-signed certificate; the cloud test contexts
+accept it. Certificate files stay outside uploaded reports. HTTPS avoids the HTTP
+400 WebSocket handshake failures observed with WebKit through the Local tunnel.
+Local Chromium PR runs continue to exercise the plain HTTP deployment.
+
+The realtime test waits for the application's own keepalive before editing, then
+asserts both the incoming task event and the updated board without reloading.
 
 The SDK starts and stops BrowserStack Local to connect remote browsers to the
 disposable instance. `tests/e2e/browserstack.yml` runs Chrome on Windows 11 and Playwright
