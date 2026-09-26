@@ -496,7 +496,8 @@ export function organizationRoutes(registry: OpenAPIHono["openAPIRegistry"]) {
     tags: ["Organization Management"],
     operationId: "inviteOrganizationMember",
     summary: "Invite Organization Member",
-    description: "Create an invitation to an organization",
+    description:
+      "Create or resend an invitation. Email delivery failures return 502; the invitation remains pending and can be resent after correcting SMTP settings.",
     request: {
       body: {
         required: true,
@@ -524,6 +525,17 @@ export function organizationRoutes(registry: OpenAPIHono["openAPIRegistry"]) {
       },
     },
     responses: {
+      502: {
+        description: "Invitation saved, but email delivery failed",
+        content: {
+          "application/json": {
+            schema: z.object({
+              code: z.literal("INVITATION_EMAIL_FAILED"),
+              message: z.string(),
+            }),
+          },
+        },
+      },
       200: {
         description: "Success",
         content: {

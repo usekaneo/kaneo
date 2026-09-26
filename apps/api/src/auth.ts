@@ -646,6 +646,22 @@ export const auth = betterAuth({
   },
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === "/organization/invite-member") {
+        // Better Auth swallows email failures in runInBackgroundOrAwait.
+        // Invitation callers need the delivery result, including on resend.
+        ctx.context.runInBackgroundOrAwait = async (promise) => {
+          try {
+            await promise;
+          } catch {
+            throw new APIError("BAD_GATEWAY", {
+              code: "INVITATION_EMAIL_FAILED",
+              message:
+                "Invitation saved, but email delivery failed. Check SMTP settings and resend the invitation.",
+            });
+          }
+        };
+      }
+
       if (isLoginFormDisabled && isLocalSignInPath(ctx.path)) {
         throw new APIError("FORBIDDEN", {
           message:
