@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "工作区名称不能为空"
-			}
+			},
+			"restrictedSubtitle": "在此实例中只有管理员可以创建工作区。请联系管理员邀请你，然后刷新此页面。",
+			"restrictedCheckInvitations": "查看邀请",
+			"restrictedTitle": "你需要一份邀请"
 		},
 		"profileSetup": {
 			"pageTitle": "完善资料",
@@ -938,7 +941,18 @@
 				"iconRequired": "图标不能为空"
 			},
 			"importExportTasks": "导入/导出",
-			"importExportTasksDescription": "导入和导出任务。"
+			"importExportTasksDescription": "导入和导出任务。",
+			"moveModalConfirm": "移动项目",
+			"moveModalDescription": "这将把项目 \"{{name}}\" 及其所有任务移动到 \"{{workspace}}\"。分配给非该工作区成员的任务将被取消分配，此项目的通知订阅也会被清除。",
+			"moveModalTitle": "移动项目？",
+			"moveProject": "移动到其他工作区",
+			"moveProjectAction": "移动",
+			"moveProjectDescription": "将此项目及其所有任务移动到其他工作区。",
+			"moveProjectPlaceholder": "选择工作区",
+			"toastMoved": "项目移动成功",
+			"toastMovedWithUnassigned": "项目移动成功。已取消分配 {{taskCount}} 个任务。",
+			"toastMoveError": "移动项目失败",
+			"moveTargetsError": "无法检查你可以将此项目移动到哪些工作区。请重新加载页面后重试。"
 		},
 		"projectIntegrations": {
 			"pageTitle": "项目集成",
@@ -1421,7 +1435,15 @@
 			"branch": "分支",
 			"merged": "已合并",
 			"draft": "草稿",
-			"open": "打开"
+			"open": "打开",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL",
+			"remove": "Remove {{title}}",
+			"removeError": "Failed to remove the resource link."
 		},
 		"customFields": {
 			"addButton": "Add",
@@ -1526,6 +1548,35 @@
 			},
 			"userCount_other": "{{count}} registered users",
 			"you": "(you)"
+		},
+		"security": "Security",
+		"securityPage": {
+			"confirmPassword": "Confirm new password",
+			"confirmPasswordPlaceholder": "Re-enter your new password",
+			"currentPassword": "Current password",
+			"currentPasswordPlaceholder": "Enter your current password",
+			"newPassword": "New password",
+			"newPasswordPlaceholder": "Enter a new password",
+			"noPassword": {
+				"description": "Your account signs in with a different method, so there is no password to change.",
+				"title": "Password change isn't available"
+			},
+			"pageTitle": "Security",
+			"sectionSubtitle": "Change the password you use to sign in.",
+			"sectionTitle": "Password",
+			"submit": "Update password",
+			"submitting": "Updating...",
+			"subtitle": "Manage your password and account security.",
+			"title": "Security",
+			"updateError": "Failed to update password.",
+			"updateSuccess": "Password updated.",
+			"validation": {
+				"confirmRequired": "Confirm your new password.",
+				"currentRequired": "Enter your current password.",
+				"mismatch": "Passwords do not match.",
+				"tooShort": "New password must be at least 8 characters.",
+				"sameAsCurrent": "New password must be different from your current password."
+			}
 		}
 	},
 	"navigation": {
@@ -1946,6 +1997,13 @@
 				},
 				"mermaid": {
 					"renderFailed": "Mermaid 图渲染失败"
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
 			},
 			"customFieldUpdated": "Field updated",
@@ -2159,6 +2217,11 @@
 			"success": "任务已删除",
 			"error": "删除任务失败"
 		},
+		"duplicate": {
+			"titleSuffix": "{{title}}（副本）",
+			"success": "已创建任务副本",
+			"error": "创建任务副本失败"
+		},
 		"archive": {
 			"success": "已归档 {{count}} 个任务"
 		},
@@ -2202,6 +2265,7 @@
 			"copyLinkSuccess": "任务链接已复制！"
 		},
 		"actions": {
+			"duplicate": "创建副本",
 			"archive": "归档",
 			"markAsPlanned": "标记为已计划",
 			"delete": "删除…"
@@ -2477,6 +2541,9 @@
 		"lightTimelineScreenshotAlt": "Kaneo Gantt timeline in light theme, showing scheduled tasks and their durations"
 	},
 	"landing": {
+		"sponsors": {
+			"ciSponsor": "合作伙伴"
+		},
 		"founder": {
 			"title": "Why Kaneo exists",
 			"intro": "I'm Andrej, and I created Kaneo because I was tired of project management tools that got in the way more than they helped. After years of using bloated, overcomplicated platforms that distracted from actual work, I knew there had to be a better way.",

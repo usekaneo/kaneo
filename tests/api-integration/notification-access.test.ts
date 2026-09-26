@@ -12,6 +12,7 @@ const { deliverNotification } = await vi.importActual<
 >("../../apps/api/src/notification-preferences/delivery");
 
 import { checkDueDateReminders } from "../../apps/api/src/scheduler/due-date-reminders";
+import { DUE_DATE_DURATION_MS } from "../../apps/api/src/scheduler/reminder-timing";
 import bulkUpdateTasks from "../../apps/api/src/task/controllers/bulk-update-tasks";
 import createTask from "../../apps/api/src/task/controllers/create-task";
 import importTasks from "../../apps/api/src/task/controllers/import-tasks";
@@ -113,7 +114,7 @@ describe("notification recipient boundaries", () => {
       );
     await db
       .update(schema.taskTable)
-      .set({ dueDate: new Date(Date.now() - 60_000) })
+      .set({ dueDate: new Date(Date.now() - DUE_DATE_DURATION_MS - 60_000) })
       .where(eq(schema.taskTable.id, task.id));
     await createComment(task.id, actor.user.id, "Private comment");
     await checkDueDateReminders();
@@ -126,7 +127,7 @@ describe("notification recipient boundaries", () => {
     const { member, task } = await fixture();
     await db
       .update(schema.taskTable)
-      .set({ dueDate: new Date(Date.now() - 60_000) })
+      .set({ dueDate: new Date(Date.now() - DUE_DATE_DURATION_MS - 60_000) })
       .where(eq(schema.taskTable.id, task.id));
     await checkDueDateReminders();
     expect(await getNotifications(member.user.id)).toEqual([

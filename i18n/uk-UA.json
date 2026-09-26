@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "Назва робочого простору є обов'язковою"
-			}
+			},
+			"restrictedSubtitle": "Тут створювати робочі простори може лише адміністратор інстансу. Попросіть запрошення й оновіть цю сторінку.",
+			"restrictedCheckInvitations": "Переглянути запрошення",
+			"restrictedTitle": "Потрібне запрошення"
 		},
 		"profileSetup": {
 			"pageTitle": "Заповнення профілю",
@@ -704,7 +707,18 @@
 				"iconRequired": "Іконка є обов'язковою"
 			},
 			"importExportTasks": "Імпорт/Експорт",
-			"importExportTasksDescription": "Імпортуйте та експортуйте завдання."
+			"importExportTasksDescription": "Імпортуйте та експортуйте завдання.",
+			"moveModalConfirm": "Перемістити проєкт",
+			"moveModalDescription": "Проєкт «{{name}}» і всі його завдання буде переміщено до «{{workspace}}». Із завдань, призначених людям, які не є учасниками цього робочого простору, буде знято призначення, а підписки на сповіщення для цього проєкту буде видалено.",
+			"moveModalTitle": "Перемістити проєкт?",
+			"moveProject": "Перемістити до робочого простору",
+			"moveProjectAction": "Перемістити",
+			"moveProjectDescription": "Перемістіть цей проєкт разом з усіма його завданнями до іншого робочого простору.",
+			"moveProjectPlaceholder": "Виберіть робочий простір",
+			"toastMoved": "Проєкт успішно переміщено",
+			"toastMovedWithUnassigned": "Проєкт успішно переміщено. Із {{taskCount}} завдань знято призначення.",
+			"toastMoveError": "Не вдалося перемістити проєкт",
+			"moveTargetsError": "Не вдалося перевірити, до яких робочих просторів можна перемістити цей проєкт. Перезавантажте сторінку, щоб спробувати ще раз."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Інтеґрації проєкту",
@@ -1149,7 +1163,15 @@
 			"branch": "Гілка",
 			"merged": "Змерджено",
 			"draft": "Чернетка",
-			"open": "Відкрито"
+			"open": "Відкрито",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL",
+			"remove": "Remove {{title}}",
+			"removeError": "Failed to remove the resource link."
 		},
 		"workspaceRoles": {
 			"pageTitle": "Ролі",
@@ -1535,6 +1557,35 @@
 			"userCount_one": "{{count}} registered user",
 			"userCount_other": "{{count}} registered users",
 			"you": "(you)"
+		},
+		"security": "Security",
+		"securityPage": {
+			"confirmPassword": "Confirm new password",
+			"confirmPasswordPlaceholder": "Re-enter your new password",
+			"currentPassword": "Current password",
+			"currentPasswordPlaceholder": "Enter your current password",
+			"newPassword": "New password",
+			"newPasswordPlaceholder": "Enter a new password",
+			"noPassword": {
+				"description": "Your account signs in with a different method, so there is no password to change.",
+				"title": "Password change isn't available"
+			},
+			"pageTitle": "Security",
+			"sectionSubtitle": "Change the password you use to sign in.",
+			"sectionTitle": "Password",
+			"submit": "Update password",
+			"submitting": "Updating...",
+			"subtitle": "Manage your password and account security.",
+			"title": "Security",
+			"updateError": "Failed to update password.",
+			"updateSuccess": "Password updated.",
+			"validation": {
+				"confirmRequired": "Confirm your new password.",
+				"currentRequired": "Enter your current password.",
+				"mismatch": "Passwords do not match.",
+				"tooShort": "New password must be at least 8 characters.",
+				"sameAsCurrent": "New password must be different from your current password."
+			}
 		}
 	},
 	"navigation": {
@@ -1967,6 +2018,13 @@
 				},
 				"mermaid": {
 					"renderFailed": "Не вдалося відобразити діаграму Mermaid"
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
 			},
 			"customFieldUpdated": "Field updated",
@@ -2167,6 +2225,11 @@
 			"success": "Завдання успішно видалено",
 			"error": "Не вдалося видалити завдання"
 		},
+		"duplicate": {
+			"titleSuffix": "{{title}} (копія)",
+			"success": "Завдання успішно дубльовано",
+			"error": "Не вдалося дублювати завдання"
+		},
 		"archive": {
 			"success": "Архівовано {{count}} завдань"
 		},
@@ -2213,6 +2276,7 @@
 			"copyLinkSuccess": "Посилання на завдання скопійовано!"
 		},
 		"actions": {
+			"duplicate": "Дублювати",
 			"archive": "Архівувати",
 			"markAsPlanned": "Позначити як заплановане",
 			"delete": "Видалити..."
@@ -2504,6 +2568,9 @@
 		"lightTimelineScreenshotAlt": "Kaneo Gantt timeline in light theme, showing scheduled tasks and their durations"
 	},
 	"landing": {
+		"sponsors": {
+			"ciSponsor": "Партнери"
+		},
 		"founder": {
 			"title": "Why Kaneo exists",
 			"intro": "I'm Andrej, and I created Kaneo because I was tired of project management tools that got in the way more than they helped. After years of using bloated, overcomplicated platforms that distracted from actual work, I knew there had to be a better way.",

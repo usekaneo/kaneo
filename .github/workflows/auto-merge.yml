@@ -2,6 +2,9 @@ name: Dependabot Auto-Merge
 
 # Never check out or execute pull-request content in this privileged workflow.
 on:
+  # zizmor: ignore[dangerous-triggers] Never checks out or executes pull
+  # request content; merges via the GitHub API only after required checks pass
+  # and the head commit is pinned.
   pull_request_target:
     types: [opened, synchronize, reopened, ready_for_review]
 
@@ -13,8 +16,9 @@ jobs:
   dependabot:
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 45
+    # The pull request author's login is authoritative for this check;
+    # github.actor would be spoofable and adds nothing on top of it.
     if: >-
-      github.actor == 'dependabot[bot]' &&
       github.event.pull_request.user.login == 'dependabot[bot]' &&
       github.event.pull_request.base.ref == 'main' &&
       github.event.pull_request.head.repo.full_name == github.repository

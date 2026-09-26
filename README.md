@@ -50,6 +50,14 @@ Learn more about Kaneo's features and capabilities in our [documentation](https:
 
 Kaneo is open source. If you find it useful, consider [sponsoring the project](https://github.com/sponsors/andrejsshell) to help support ongoing development.
 
+### Partners
+
+<p>
+  <img src="apps/site/public/images/blacksmith-powered.png" alt="CI powered by Blacksmith" width="368" />
+</p>
+
+### Community sponsors
+
 <!-- sponsors --><a href="https://github.com/danielsada"><img src="https:&#x2F;&#x2F;github.com&#x2F;danielsada.png" width="60px" alt="User avatar: Daniel Sada" /></a><a href="https://github.com/randoneering"><img src="https:&#x2F;&#x2F;github.com&#x2F;randoneering.png" width="60px" alt="User avatar: (justin)randoneering" /></a><a href="https://github.com/floreabogdan"><img src="https:&#x2F;&#x2F;github.com&#x2F;floreabogdan.png" width="60px" alt="User avatar: Bogdan FLOREA" /></a><a href="https://github.com/barbanet"><img src="https:&#x2F;&#x2F;github.com&#x2F;barbanet.png" width="60px" alt="User avatar: Damián Culotta" /></a><a href="https://github.com/t0yohei"><img src="https:&#x2F;&#x2F;github.com&#x2F;t0yohei.png" width="60px" alt="User avatar: t0yohei" /></a><!-- sponsors -->
 
 ## Getting Started

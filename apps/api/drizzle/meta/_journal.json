@@ -358,6 +358,13 @@
 			"when": 1789853277231,
 			"tag": "0050_resumable_github_import",
 			"breakpoints": true
+		},
+		{
+			"idx": 51,
+			"version": "7",
+			"when": 1790370789562,
+			"tag": "0051_modern_corsair",
+			"breakpoints": true
 		}
 	]
 }

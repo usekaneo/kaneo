@@ -33,6 +33,7 @@ import { workspaceAccess } from "../utils/workspace-access-middleware";
 import bulkUpdateTasks from "./controllers/bulk-update-tasks";
 import createTask from "./controllers/create-task";
 import deleteTask from "./controllers/delete-task";
+import duplicateTask from "./controllers/duplicate-task";
 import exportTasks from "./controllers/export-tasks";
 import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
@@ -72,6 +73,7 @@ import {
   createTaskBody,
   descriptionMatchesQuery,
   descriptionPageQuery,
+  duplicateTaskBody,
   finalizeImageUploadBody,
   imageUploadBody,
   importTasksBody,
@@ -165,6 +167,37 @@ const createTaskRoute = createRoute({
     403: errorResponse(
       "No workspace access, or missing task:create permission",
     ),
+  },
+});
+
+const duplicateTaskRoute = createRoute({
+  method: "post",
+  path: "/duplicate/{id}",
+  operationId: "duplicateTask",
+  tags: ["Tasks"],
+  summary: "Duplicate a task",
+  description:
+    "Copy a task into the same project and column, including custom fields, labels, description assets and same-workspace parent links. Comments, time entries and child tasks are not copied.",
+  middleware: [
+    workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["create"] }),
+    requireEntitlement,
+  ] as const,
+  request: {
+    params: taskParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: duplicateTaskBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("The duplicated task", taskSchema),
+    400: errorResponse("Invalid task fields or request"),
+    401: errorResponse("Unauthorized"),
+    403: errorResponse("No workspace access or task:create permission"),
+    404: errorResponse("Task or project not found"),
+    409: errorResponse("Task column has reached its capacity"),
+    503: errorResponse("Unable to copy task attachments"),
   },
 });
 
@@ -678,6 +711,18 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
     });
 
     return c.json(task, 200);
+  })
+  .openapi(duplicateTaskRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    const { title } = c.req.valid("json");
+    return c.json(
+      await duplicateTask({
+        taskId: id,
+        title,
+        currentUserId: c.get("userId"),
+      }),
+      200,
+    );
   })
   .openapi(getTaskRoute, async (c) => {
     const { id } = c.req.valid("param");

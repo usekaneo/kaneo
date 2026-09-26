@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "Το όνομα χώρου εργασίας είναι υποχρεωτικό"
-			}
+			},
+			"restrictedSubtitle": "Μόνο ένας διαχειριστής της εγκατάστασης μπορεί να δημιουργεί χώρους εργασίας εδώ. Ζητήστε πρόσκληση και ανανεώστε τη σελίδα.",
+			"restrictedCheckInvitations": "Έλεγχος προσκλήσεων",
+			"restrictedTitle": "Χρειάζεστε πρόσκληση"
 		},
 		"profileSetup": {
 			"pageTitle": "Ολοκλήρωση προφίλ",
@@ -704,7 +707,18 @@
 				"iconRequired": "Το εικονίδιο είναι υποχρεωτικό"
 			},
 			"importExportTasks": "Εισαγωγή/Εξαγωγή",
-			"importExportTasksDescription": "Εισαγωγή/Εξαγωγή Εργασιών"
+			"importExportTasksDescription": "Εισαγωγή/Εξαγωγή Εργασιών",
+			"moveModalConfirm": "Μετακίνηση έργου",
+			"moveModalDescription": "Αυτό θα μετακινήσει το έργο \"{{name}}\" και όλες τις εργασίες του στο \"{{workspace}}\". Οι εργασίες που έχουν ανατεθεί σε άτομα που δεν είναι μέλη αυτού του χώρου εργασίας θα αποδεσμευτούν και οι συνδρομές ειδοποιήσεων για αυτό το έργο θα διαγραφούν.",
+			"moveModalTitle": "Μετακίνηση έργου;",
+			"moveProject": "Μετακίνηση σε χώρο εργασίας",
+			"moveProjectAction": "Μετακίνηση",
+			"moveProjectDescription": "Μετακινήστε αυτό το έργο, μαζί με όλες τις εργασίες του, σε άλλο χώρο εργασίας.",
+			"moveProjectPlaceholder": "Επιλέξτε χώρο εργασίας",
+			"toastMoved": "Το έργο μετακινήθηκε με επιτυχία",
+			"toastMovedWithUnassigned": "Το έργο μετακινήθηκε με επιτυχία. Αφαιρέθηκε η ανάθεση από {{taskCount}} εργασίες.",
+			"toastMoveError": "Αποτυχία μετακίνησης του έργου",
+			"moveTargetsError": "Δεν ήταν δυνατός ο έλεγχος των χώρων εργασίας στους οποίους μπορείτε να μετακινήσετε αυτό το έργο. Ανανεώστε τη σελίδα για να δοκιμάσετε ξανά."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Ενσωματώσεις έργου",
@@ -1149,7 +1163,15 @@
 			"branch": "Κλάδος",
 			"merged": "Συγχωνευμένο",
 			"draft": "Πρόχειρο",
-			"open": "Ανοιχτό"
+			"open": "Ανοιχτό",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL",
+			"remove": "Remove {{title}}",
+			"removeError": "Failed to remove the resource link."
 		},
 		"workspaceRoles": {
 			"pageTitle": "Ρόλοι",
@@ -1529,6 +1551,35 @@
 			"userCount_one": "{{count}} registered user",
 			"userCount_other": "{{count}} registered users",
 			"you": "(you)"
+		},
+		"security": "Security",
+		"securityPage": {
+			"confirmPassword": "Confirm new password",
+			"confirmPasswordPlaceholder": "Re-enter your new password",
+			"currentPassword": "Current password",
+			"currentPasswordPlaceholder": "Enter your current password",
+			"newPassword": "New password",
+			"newPasswordPlaceholder": "Enter a new password",
+			"noPassword": {
+				"description": "Your account signs in with a different method, so there is no password to change.",
+				"title": "Password change isn't available"
+			},
+			"pageTitle": "Security",
+			"sectionSubtitle": "Change the password you use to sign in.",
+			"sectionTitle": "Password",
+			"submit": "Update password",
+			"submitting": "Updating...",
+			"subtitle": "Manage your password and account security.",
+			"title": "Security",
+			"updateError": "Failed to update password.",
+			"updateSuccess": "Password updated.",
+			"validation": {
+				"confirmRequired": "Confirm your new password.",
+				"currentRequired": "Enter your current password.",
+				"mismatch": "Passwords do not match.",
+				"tooShort": "New password must be at least 8 characters.",
+				"sameAsCurrent": "New password must be different from your current password."
+			}
 		}
 	},
 	"navigation": {
@@ -1953,6 +2004,13 @@
 				},
 				"mermaid": {
 					"renderFailed": "Δεν ήταν δυνατή η απόδοση του διαγράμματος Mermaid"
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
 			},
 			"customFieldUpdated": "Field updated",
@@ -2153,6 +2211,11 @@
 			"success": "Η εργασία διαγράφηκε με επιτυχία",
 			"error": "Αποτυχία διαγραφής εργασίας"
 		},
+		"duplicate": {
+			"titleSuffix": "{{title}} (αντίγραφο)",
+			"success": "Το αντίγραφο της εργασίας δημιουργήθηκε με επιτυχία",
+			"error": "Αποτυχία δημιουργίας αντιγράφου εργασίας"
+		},
 		"archive": {
 			"success": "Αρχειοθετήθηκαν {{count}} εργασίες"
 		},
@@ -2197,6 +2260,7 @@
 			"copyLinkSuccess": "Ο σύνδεσμος της εργασίας αντιγράφηκε!"
 		},
 		"actions": {
+			"duplicate": "Δημιουργία αντιγράφου",
 			"archive": "Αρχειοθέτηση",
 			"markAsPlanned": "Επισήμανση ως προγραμματισμένη",
 			"delete": "Διαγραφή..."
@@ -2486,6 +2550,9 @@
 		"lightTimelineScreenshotAlt": "Kaneo Gantt timeline in light theme, showing scheduled tasks and their durations"
 	},
 	"landing": {
+		"sponsors": {
+			"ciSponsor": "Συνεργάτες"
+		},
 		"founder": {
 			"title": "Why Kaneo exists",
 			"intro": "I'm Andrej, and I created Kaneo because I was tired of project management tools that got in the way more than they helped. After years of using bloated, overcomplicated platforms that distracted from actual work, I knew there had to be a better way.",
