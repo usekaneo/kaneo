@@ -8908,6 +8908,18 @@
 						},
 						"showTaskDates": {
 							"type": "string"
+						},
+						"legendBlocking": {
+							"type": "string"
+						},
+						"legendRelated": {
+							"type": "string"
+						},
+						"externalProjectBadge": {
+							"type": "string"
+						},
+						"externalTaskTitle": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -8929,7 +8941,11 @@
 						"previousPeriod",
 						"nextPeriod",
 						"periodStart",
-						"showTaskDates"
+						"showTaskDates",
+						"legendBlocking",
+						"legendRelated",
+						"externalProjectBadge",
+						"externalTaskTitle"
 					]
 				},
 				"delete": {

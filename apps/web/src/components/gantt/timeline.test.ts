@@ -1,8 +1,11 @@
-import { addDays, differenceInCalendarDays, parseISO } from "date-fns";
+import { addDays, differenceInCalendarDays, parseISO, subDays } from "date-fns";
 import { describe, expect, it } from "vitest";
 import {
+  buildGanttRange,
   buildGanttTimeline,
+  deriveTaskSchedule,
   GANTT_WINDOW_DAYS,
+  getBarGridColumns,
   parseTaskDate,
 } from "./timeline";
 
@@ -79,4 +82,169 @@ describe("bounded Gantt timeline", () => {
       expect(parseTaskDate(value)).toBeNull();
     },
   );
+});
+
+describe("buildGanttRange extraBoundsTasks (external related tasks)", () => {
+  it("widens minimumStart/maximumStart/maximumEnd to reach a bounds task dated outside the own tasks' span, without moving the default page", () => {
+    const ownTasks = [span("2026-09-14", "2026-09-18")];
+    const withoutExternal = buildGanttRange(
+      ownTasks,
+      1,
+      null,
+      parseISO("2026-09-20"),
+    );
+    const farFutureExternal = [span("2027-06-01", "2027-06-05")];
+    const withExternal = buildGanttRange(
+      ownTasks,
+      1,
+      null,
+      parseISO("2026-09-20"),
+      farFutureExternal,
+    );
+
+    // The default page (no explicit requestedStart) is unchanged: an
+    // out-of-window external task never shifts where the chart first opens.
+    expect(withExternal?.rangeStart).toEqual(withoutExternal?.rangeStart);
+    // But the reachable bound now extends far enough to actually page or
+    // jump to the external task's own date.
+    expect(
+      (withExternal?.maximumStart.getTime() ?? 0) >
+        (withoutExternal?.maximumStart.getTime() ?? 0),
+    ).toBe(true);
+    // Jumping toward the external task's own date (e.g. the "show task
+    // dates" affordance) actually reaches a window that contains it, once
+    // the bounds are widened — the exact requested day may still get
+    // clamped to `maximumStart`, but the resulting window covers the
+    // external task either way.
+    const externalStart = parseISO("2027-06-01");
+    const jumpWithoutExternal = buildGanttRange(
+      ownTasks,
+      1,
+      subDays(externalStart, 7),
+      parseISO("2026-09-20"),
+    );
+    expect(
+      (jumpWithoutExternal?.rangeStart.getTime() ?? 0) <=
+        externalStart.getTime() &&
+        externalStart.getTime() <=
+          (jumpWithoutExternal?.rangeEnd.getTime() ?? 0),
+    ).toBe(false);
+
+    const jumpWithExternal = buildGanttRange(
+      ownTasks,
+      1,
+      subDays(externalStart, 7),
+      parseISO("2026-09-20"),
+      farFutureExternal,
+    );
+    expect(
+      (jumpWithExternal?.rangeStart.getTime() ?? 0) <=
+        externalStart.getTime() &&
+        externalStart.getTime() <= (jumpWithExternal?.rangeEnd.getTime() ?? 0),
+    ).toBe(true);
+  });
+
+  it("without any bounds tasks, behaves exactly as before (bounds tasks default to none)", () => {
+    const ownTasks = [span("2026-09-14", "2026-09-18")];
+    const explicit = buildGanttRange(
+      ownTasks,
+      1,
+      null,
+      parseISO("2026-09-20"),
+      [],
+    );
+    const implicit = buildGanttRange(ownTasks, 1, null, parseISO("2026-09-20"));
+    expect(explicit).toEqual(implicit);
+  });
+});
+
+describe("getBarGridColumns", () => {
+  const rangeStart = parseISO("2026-09-01");
+
+  it("places a bar fully inside the window on the matching grid lines", () => {
+    const result = getBarGridColumns(
+      parseISO("2026-09-03"),
+      parseISO("2026-09-05"),
+      rangeStart,
+      10,
+    );
+    expect(result).toEqual({ barInView: true, lineStart: 3, lineEnd: 6 });
+  });
+
+  it("clips a bar that starts before the window to the first line", () => {
+    const result = getBarGridColumns(
+      parseISO("2026-08-25"),
+      parseISO("2026-09-03"),
+      rangeStart,
+      10,
+    );
+    expect(result.barInView).toBe(true);
+    expect(result.lineStart).toBe(1);
+    expect(result.lineEnd).toBe(4);
+  });
+
+  it("clips a bar that ends after the window to the last line", () => {
+    const result = getBarGridColumns(
+      parseISO("2026-09-08"),
+      parseISO("2026-09-30"),
+      rangeStart,
+      10,
+    );
+    expect(result.barInView).toBe(true);
+    expect(result.lineEnd).toBe(11);
+  });
+
+  it("reports out of view for a bar entirely before the window", () => {
+    const result = getBarGridColumns(
+      parseISO("2026-08-01"),
+      parseISO("2026-08-20"),
+      rangeStart,
+      10,
+    );
+    expect(result.barInView).toBe(false);
+  });
+
+  it("reports out of view for a bar entirely after the window", () => {
+    const result = getBarGridColumns(
+      parseISO("2026-10-01"),
+      parseISO("2026-10-05"),
+      rangeStart,
+      10,
+    );
+    expect(result.barInView).toBe(false);
+  });
+
+  it("reports out of view for an empty track", () => {
+    const result = getBarGridColumns(
+      parseISO("2026-09-03"),
+      parseISO("2026-09-05"),
+      rangeStart,
+      0,
+    );
+    expect(result.barInView).toBe(false);
+  });
+});
+
+describe("deriveTaskSchedule", () => {
+  it("returns null when neither date is set (unpositionable)", () => {
+    expect(deriveTaskSchedule(null, null)).toBeNull();
+  });
+
+  it("falls back to the one date present for a single-day schedule", () => {
+    expect(deriveTaskSchedule("2026-09-10", null)).toEqual({
+      start: parseISO("2026-09-10"),
+      end: parseISO("2026-09-10"),
+    });
+    expect(deriveTaskSchedule(null, "2026-09-12")).toEqual({
+      start: parseISO("2026-09-12"),
+      end: parseISO("2026-09-12"),
+    });
+  });
+
+  it("normalizes a due date that precedes the start date", () => {
+    expect(deriveTaskSchedule("2026-09-20", "2026-09-10")).toEqual({
+      start: parseISO("2026-09-10"),
+      end: parseISO("2026-09-20"),
+    });
+  });
 });

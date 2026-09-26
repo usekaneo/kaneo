@@ -41,6 +41,10 @@ vi.mock("@/hooks/queries/task/use-get-tasks", () => ({
   useGetTasks: (projectId: string) => useGetTasks(projectId),
 }));
 
+vi.mock("@/hooks/queries/task-relation/use-get-project-task-relations", () => ({
+  default: () => ({ data: [] }),
+}));
+
 vi.mock("@/hooks/use-mobile", () => ({
   useIsMobile: () => false,
 }));

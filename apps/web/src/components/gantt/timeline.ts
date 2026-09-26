@@ -13,6 +13,29 @@ export const GANTT_WINDOW_DAYS = 91;
 const minimumDate = parseISO("0001-01-01");
 const maximumDate = parseISO("9999-12-31");
 
+// Shared by the task bar and the dependency-line overlay: which grid lines
+// (1-indexed, CSS Grid style) a task's schedule occupies in the current
+// window, and whether any part of it falls inside that window at all.
+export function getBarGridColumns(
+  scheduleStart: Date,
+  scheduleEnd: Date,
+  rangeStart: Date,
+  trackCount: number,
+): { barInView: boolean; lineStart: number; lineEnd: number } {
+  const startIndex = differenceInCalendarDays(scheduleStart, rangeStart);
+  const endIndex = differenceInCalendarDays(scheduleEnd, rangeStart);
+  const barInView = endIndex >= 0 && startIndex < trackCount && trackCount > 0;
+  if (!barInView) {
+    return { barInView: false, lineStart: 1, lineEnd: 1 };
+  }
+  const lineStart = Math.max(1, Math.min(startIndex + 1, trackCount));
+  const lineEnd = Math.max(
+    lineStart + 1,
+    Math.min(endIndex + 2, trackCount + 1),
+  );
+  return { barInView: true, lineStart, lineEnd };
+}
+
 export function parseTaskDate(value: string | null) {
   if (!value) return null;
   const parsed = parseISO(value);
@@ -23,18 +46,50 @@ export function parseTaskDate(value: string | null) {
     : parsed;
 }
 
+// Shared by the Gantt route for both the project's own tasks and related
+// tasks pulled in from other projects: a task with only one of
+// startDate/dueDate is scheduled as a single-day bar on that date, and a
+// task with neither has no usable schedule at all (the caller skips it).
+export function deriveTaskSchedule(
+  startDate: string | null,
+  dueDate: string | null,
+): { start: Date; end: Date } | null {
+  const parsedStart = parseTaskDate(startDate) ?? parseTaskDate(dueDate);
+  const parsedEnd = parseTaskDate(dueDate) ?? parseTaskDate(startDate);
+  if (!parsedStart || !parsedEnd) return null;
+
+  return {
+    start: parsedStart <= parsedEnd ? parsedStart : parsedEnd,
+    end: parsedEnd >= parsedStart ? parsedEnd : parsedStart,
+  };
+}
+
 function clampDate(date: Date, minimum: Date, maximum: Date) {
   return new Date(
     Math.max(minimum.getTime(), Math.min(date.getTime(), maximum.getTime())),
   );
 }
 
-export function buildGanttTimeline(
+// The date window itself (which days are in view, and the paging bounds
+// around them) depends only on the task list, the week-start preference,
+// and which page is requested — never on the day-column width. Splitting it
+// out from `buildGanttTimeline` lets a caller memoize it separately from
+// zoom, so wheel-zooming (which only changes `dayColumnWidthRem`) doesn't
+// re-run `eachDayOfInterval` and allocate a fresh 91-day `Date[]` on every
+// wheel notch.
+export function buildGanttRange(
   tasks: { scheduleStart: Date; scheduleEnd: Date }[],
   weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6,
-  dayColumnWidthRem: number,
   requestedStart: Date | null = null,
   today: Date = new Date(),
+  // Widens the paging bounds (minimumStart/maximumStart/maximumEnd) so a
+  // date outside `tasks`' own span is still reachable via paging, the date
+  // picker, or a "show task dates" jump — without moving anchor/defaultStart
+  // (the page shown with no explicit request), which stay based on `tasks`
+  // alone. The Gantt route passes its external (cross-project) related
+  // tasks here: they get their own row, but the window would otherwise never
+  // be able to scroll to one dated outside this project's own tasks.
+  extraBoundsTasks: { scheduleStart: Date; scheduleEnd: Date }[] = [],
 ) {
   if (tasks.length === 0) return null;
   let earliest = tasks[0].scheduleStart;
@@ -43,13 +98,36 @@ export function buildGanttTimeline(
     if (task.scheduleStart < earliest) earliest = task.scheduleStart;
     if (task.scheduleEnd > latest) latest = task.scheduleEnd;
   }
-  const minimumStart = clampDate(
+  let boundsEarliest = earliest;
+  let boundsLatest = latest;
+  for (const task of extraBoundsTasks) {
+    if (task.scheduleStart < boundsEarliest)
+      boundsEarliest = task.scheduleStart;
+    if (task.scheduleEnd > boundsLatest) boundsLatest = task.scheduleEnd;
+  }
+  // `fits`/`anchor`/`defaultStart` (which page opens with no explicit
+  // request) are computed from `tasks` alone, same as before extraBoundsTasks
+  // existed — an out-of-window external related task must never shift where
+  // the chart first opens. Only the reachable minimumStart/maximumStart/
+  // maximumEnd widen to include it, so paging, the date picker, and a "show
+  // task dates" jump can still reach it.
+  const ownMinimumStart = clampDate(
     subDays(startOfWeek(earliest, { weekStartsOn }), 7),
     minimumDate,
     maximumDate,
   );
-  const maximumEnd = clampDate(
+  const ownMaximumEnd = clampDate(
     startOfDay(addDays(endOfWeek(latest, { weekStartsOn }), 28)),
+    minimumDate,
+    maximumDate,
+  );
+  const minimumStart = clampDate(
+    subDays(startOfWeek(boundsEarliest, { weekStartsOn }), 7),
+    minimumDate,
+    maximumDate,
+  );
+  const maximumEnd = clampDate(
+    startOfDay(addDays(endOfWeek(boundsLatest, { weekStartsOn }), 28)),
     minimumDate,
     maximumDate,
   );
@@ -60,10 +138,11 @@ export function buildGanttTimeline(
     ),
   );
   const fits =
-    differenceInCalendarDays(maximumEnd, minimumStart) < GANTT_WINDOW_DAYS;
+    differenceInCalendarDays(ownMaximumEnd, ownMinimumStart) <
+    GANTT_WINDOW_DAYS;
   const anchor = today >= earliest && today <= latest ? today : earliest;
   const defaultStart = fits
-    ? minimumStart
+    ? ownMinimumStart
     : subDays(startOfWeek(anchor, { weekStartsOn }), 7);
   const rangeStart = startOfDay(
     clampDate(
@@ -90,7 +169,33 @@ export function buildGanttTimeline(
     maximumStart,
     hasPrevious: rangeStart > minimumStart,
     hasNext: rangeEnd < maximumEnd,
-    gridTemplateColumns: `repeat(${days.length}, minmax(${dayColumnWidthRem}rem, ${dayColumnWidthRem}rem))`,
-    timelineMinWidthRem: days.length * dayColumnWidthRem,
+  };
+}
+
+// The width-dependent half of the timeline: cheap to recompute (a string
+// template and a multiplication), unlike the day range above, so this is
+// fine to re-derive on every zoom step.
+export function buildGanttGridMetrics(
+  dayCount: number,
+  dayColumnWidthRem: number,
+) {
+  return {
+    gridTemplateColumns: `repeat(${dayCount}, minmax(${dayColumnWidthRem}rem, ${dayColumnWidthRem}rem))`,
+    timelineMinWidthRem: dayCount * dayColumnWidthRem,
+  };
+}
+
+export function buildGanttTimeline(
+  tasks: { scheduleStart: Date; scheduleEnd: Date }[],
+  weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6,
+  dayColumnWidthRem: number,
+  requestedStart: Date | null = null,
+  today: Date = new Date(),
+) {
+  const range = buildGanttRange(tasks, weekStartsOn, requestedStart, today);
+  if (!range) return null;
+  return {
+    ...range,
+    ...buildGanttGridMetrics(range.days.length, dayColumnWidthRem),
   };
 }

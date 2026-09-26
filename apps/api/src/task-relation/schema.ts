@@ -2,6 +2,8 @@ import { z } from "../openapi";
 
 export const taskIdParam = z.object({ taskId: z.string() });
 
+export const projectIdParam = z.object({ projectId: z.string() });
+
 export const taskRelationParam = z.object({ id: z.string() });
 
 export const createTaskRelationBody = z.object({

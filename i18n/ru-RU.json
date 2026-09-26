@@ -2228,7 +2228,11 @@
 			"previousPeriod": "Previous period",
 			"nextPeriod": "Next period",
 			"periodStart": "Timeline start date",
-			"showTaskDates": "Show task dates"
+			"showTaskDates": "Show task dates",
+			"externalProjectBadge": "in {{projectName}}",
+			"externalTaskTitle": "{{title}} — related task in {{projectName}} (read-only here)",
+			"legendBlocking": "Blocking",
+			"legendRelated": "Related"
 		},
 		"delete": {
 			"title": "Удалить задачу?",
