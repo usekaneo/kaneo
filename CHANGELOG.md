@@ -1,3 +1,7 @@
+### Bug Fixes
+
+- **admin:** allow updating your own email without changing role: [3d57439](https://github.com/usekaneo/kaneo/commit/3d57439d59c7e66aa9b63ec673a5b5f7b23008f6)
+
 ### Features
 
 - gitlab integration: #1727
