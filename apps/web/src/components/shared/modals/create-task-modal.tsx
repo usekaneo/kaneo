@@ -559,6 +559,19 @@ function CreateTaskModalContent({
     customFieldValues,
   ]);
 
+  const missingRequiredField = customFields.find((field) => {
+    if (!field.required) return false;
+    const value = customFieldValues[field.id]?.trim();
+    if (!value) return true;
+    if (field.type !== "multiselect") return false;
+    try {
+      const selected: unknown = JSON.parse(value);
+      return !Array.isArray(selected) || selected.length === 0;
+    } catch {
+      return true;
+    }
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (
@@ -570,6 +583,13 @@ function CreateTaskModalContent({
       !workspace?.id
     )
       return;
+
+    if (missingRequiredField) {
+      toast.error(
+        `${missingRequiredField.name}: ${t("settings:customFields.required")}`,
+      );
+      return;
+    }
 
     submittingRef.current = true;
     setIsSubmitting(true);
@@ -1622,7 +1642,12 @@ function CreateTaskModalContent({
             </Button>
             <Button
               type="submit"
-              disabled={!title.trim() || !resolvedProjectId || isSubmitting}
+              disabled={
+                !title.trim() ||
+                !resolvedProjectId ||
+                isSubmitting ||
+                !!missingRequiredField
+              }
               size="sm"
               className="disabled:opacity-50"
             >

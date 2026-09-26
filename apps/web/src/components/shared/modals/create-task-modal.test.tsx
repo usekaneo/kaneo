@@ -238,6 +238,44 @@ describe("CreateTaskModal", () => {
     });
   });
 
+  it.each(["dropdown", "multiselect"])(
+    "blocks incomplete required %s values before updating an upload draft",
+    async (type) => {
+      useLocation.mockReturnValue({
+        pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
+      });
+      customFields = [
+        {
+          id: "people",
+          name: "People",
+          type,
+          options: ["Former", "Current"],
+          hiddenOptions: [],
+          defaultValue: type === "dropdown" ? "Former" : '["Former"]',
+          required: true,
+        },
+      ];
+      const view = render(<CreateTaskModal open onClose={vi.fn()} />, {
+        wrapper: createWrapper(),
+      });
+      enterTitle();
+      await act(async () => {
+        await ensureTaskId?.();
+      });
+      customFields = customFields.map((field) => ({
+        ...field,
+        hiddenOptions: ["Former"],
+        defaultValue: "",
+      }));
+      view.rerender(<CreateTaskModal open onClose={vi.fn()} />);
+      await act(async () => {
+        submit();
+      });
+      expect(updateTask).not.toHaveBeenCalled();
+      expect(setCustomFieldValue).not.toHaveBeenCalled();
+    },
+  );
+
   it("keeps unsaved input while discard confirmation is open", async () => {
     useLocation.mockReturnValue({
       pathname: "/dashboard/workspace/workspace-1/project/project-1/board",

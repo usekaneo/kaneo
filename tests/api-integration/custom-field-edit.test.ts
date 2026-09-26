@@ -160,6 +160,52 @@ describe("custom field editing", () => {
     },
   );
 
+  it("reorders fields in reverse ID order while creating tasks", async () => {
+    const { project, field, app } = await fixture();
+    const [other] = await db
+      .insert(schema.customFieldDefinitionTable)
+      .values({
+        projectId: project.id,
+        name: "Other",
+        type: "text",
+        required: false,
+      })
+      .returning();
+    const reversed = [field, other]
+      .sort((a, b) => b.id.localeCompare(a.id))
+      .map((item, position) => ({ id: item.id, position }));
+    const results = await Promise.all([
+      app.request(`/api/custom-field/reorder/${project.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fields: reversed }),
+      }),
+      app.request(`/api/task/${project.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectId: project.id,
+          title: "Concurrent task",
+          priority: "no-priority",
+          description: "",
+          status: "to-do",
+        }),
+      }),
+    ]);
+    expect(
+      results.map((result) => result.status),
+      await results[1].clone().text(),
+    ).toEqual([200, 200]);
+    expect(
+      (await results[0].json()).map(
+        (item: { id: string; position: number }) => ({
+          id: item.id,
+          position: item.position,
+        }),
+      ),
+    ).toEqual(reversed);
+  });
+
   it("handles simultaneous swaps without collapsing selections", async () => {
     const { update, readValue } = await fixture();
     expect(
