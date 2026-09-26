@@ -32,9 +32,7 @@ export function pasteMarkdown(editor: Editor, event: ClipboardEvent): boolean {
   const hasFormatting = (nodes: typeof document.content): boolean =>
     (nodes ?? []).some(
       (node) =>
-        (node.type !== "paragraph" &&
-          node.type !== "text" &&
-          node.type !== "hardBreak") ||
+        (node.type !== "paragraph" && node.type !== "text") ||
         Boolean(node.marks?.length) ||
         hasFormatting(node.content),
     );

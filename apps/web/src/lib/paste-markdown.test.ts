@@ -80,6 +80,14 @@ describe("Markdown paste and edit round trips", () => {
     expect(event.preventDefault).not.toHaveBeenCalled();
     expect(editor.getHTML()).toBe("<p><code>literal</code></p>");
   });
+  it.each(["line  \nbreak", "line\\\nbreak"])(
+    "preserves explicit hard breaks in %s",
+    (markdown) => {
+      setup();
+      expect(pasteMarkdown(editor, clipboard(markdown))).toBe(true);
+      expect(editor.getHTML()).toBe("<p>line<br>break</p>");
+    },
+  );
   it("does not unescape deliberately literal Markdown on load", () => {
     setup("\\*\\*literal\\*\\*");
     expect(editor.getHTML()).not.toContain("<strong>");
