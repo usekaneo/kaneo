@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { addDays, format, isSameMonth, isToday, isWeekend } from "date-fns";
+import { addDays, format, isSameMonth, isToday } from "date-fns";
 import {
   Calendar,
   ChevronDown,
@@ -38,11 +38,16 @@ import {
 } from "@/components/gantt/gantt-hierarchy";
 import {
   findLinkDropTarget,
-  linkSourceAnchorPoint,
   type LinkDropCandidate,
+  linkSourceAnchorPoint,
 } from "@/components/gantt/gantt-link-drag";
 import { GanttSummaryTaskBar } from "@/components/gantt/gantt-summary-task-bar";
 import { GanttTaskBar, toIsoDay } from "@/components/gantt/gantt-task-bar";
+import {
+  buildHolidayDateKeySet,
+  DEFAULT_WORKING_DAYS,
+  isWorkingDay,
+} from "@/components/gantt/gantt-working-calendar";
 import { computePanScrollPosition } from "@/components/gantt/pan";
 import {
   buildGanttGridMetrics,
@@ -68,6 +73,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useBulkUpdateTaskSchedule } from "@/hooks/mutations/task/use-bulk-update-task-schedule";
 import useCreateTaskRelation from "@/hooks/mutations/task-relation/use-create-task-relation";
+import useGetCalendar from "@/hooks/queries/calendar/use-get-calendar";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import useGetProjectTaskRelations from "@/hooks/queries/task-relation/use-get-project-task-relations";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -143,6 +149,21 @@ function RouteComponent() {
   const { taskId } = Route.useSearch();
   const navigate = useNavigate();
   const { data: project } = useGetTasks(projectId);
+  // Workspace working calendar (weekends + holidays): shades non-working day
+  // columns below and, via `workingDayPredicate`, keeps the auto-reschedule
+  // cascade from landing a pushed task's start on one. Defaults to the
+  // standard Mon-Fri bitmask with no holidays while the query is still
+  // loading, rather than shading nothing.
+  const { data: calendar } = useGetCalendar(workspaceId);
+  const workingDays = calendar?.workingDays ?? DEFAULT_WORKING_DAYS;
+  const holidayDateSet = useMemo(
+    () => buildHolidayDateKeySet(calendar?.holidays ?? []),
+    [calendar?.holidays],
+  );
+  const workingDayPredicate = useCallback(
+    (date: Date) => isWorkingDay(date, workingDays, holidayDateSet),
+    [workingDays, holidayDateSet],
+  );
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   // Persisted (localStorage, via the same zustand store as weekStartsOn/
   // viewMode) so the chosen granularity survives a reload — a per-viewer
@@ -560,6 +581,7 @@ function RouteComponent() {
         movedTaskId,
         edges: blocksEdges,
         tasksById,
+        isWorkingDay: workingDayPredicate,
       });
       if (shifts.size === 0) return;
 
@@ -584,7 +606,14 @@ function RouteComponent() {
           toast.error(t("tasks:gantt.dependentsRescheduleError"));
         });
     },
-    [ownScheduleByTaskId, blocksEdges, bulkUpdateSchedule, projectId, t],
+    [
+      ownScheduleByTaskId,
+      blocksEdges,
+      bulkUpdateSchedule,
+      projectId,
+      t,
+      workingDayPredicate,
+    ],
   );
 
   // A related/blocking task from another project has no row of its own on
@@ -1523,7 +1552,7 @@ function RouteComponent() {
                             ref={isCurrentDay ? todayCellRef : undefined}
                             className={cn(
                               "border-r border-border/70 px-0.5 py-2 text-center sm:px-1",
-                              isWeekend(day) && "bg-muted/25",
+                              !workingDayPredicate(day) && "bg-muted",
                             )}
                           >
                             <div className="h-4 text-[10px] font-medium text-muted-foreground">
@@ -1609,10 +1638,13 @@ function RouteComponent() {
                         // once each column covers dozens of days.
                         headerColumnEndIndices.has(index) &&
                           "border-r border-border/60",
-                        // Weekend tint is only meaningful at Day granularity —
-                        // at Week/Month/Quarter it would render as a sliver a
-                        // fraction of a pixel wide.
-                        ganttUnit === "day" && isWeekend(day) && "bg-muted/25",
+                        // Non-working-day tint (weekend per the workspace's
+                        // bitmask, or a holiday) is only meaningful at Day
+                        // granularity — at Week/Month/Quarter it would render
+                        // as a sliver a fraction of a pixel wide.
+                        ganttUnit === "day" &&
+                          !workingDayPredicate(day) &&
+                          "bg-muted",
                       )}
                     />
                   ))}

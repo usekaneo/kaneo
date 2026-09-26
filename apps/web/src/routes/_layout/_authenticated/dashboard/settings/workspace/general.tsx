@@ -1,10 +1,12 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
+import { DEFAULT_WORKING_DAYS } from "@/components/gantt/gantt-working-calendar";
 import PageTitle from "@/components/page-title";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import {
@@ -17,6 +19,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -26,6 +29,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -34,12 +38,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import useCreateHoliday from "@/hooks/mutations/calendar/use-create-holiday";
+import useDeleteHoliday from "@/hooks/mutations/calendar/use-delete-holiday";
+import useUpdateWorkingDays from "@/hooks/mutations/calendar/use-update-working-days";
 import useDeleteWorkspace from "@/hooks/mutations/workspace/use-delete-workspace";
 import useTransferWorkspaceOwnership from "@/hooks/mutations/workspace/use-transfer-workspace-ownership";
 import useUpdateWorkspace from "@/hooks/mutations/workspace/use-update-workspace";
+import useGetCalendar from "@/hooks/queries/calendar/use-get-calendar";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import useGetFullWorkspace from "@/hooks/queries/workspace/use-get-full-workspace";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
+import { HttpError } from "@/lib/http-error";
 import { toast } from "@/lib/toast";
 
 export const Route = createFileRoute(
@@ -129,6 +138,16 @@ function RouteComponent() {
   const canEdit = canManageWorkspace();
   const canDelete = canDeleteWorkspace();
   const workspaceDescription = getWorkspaceDescription(workspace);
+
+  const { data: calendar } = useGetCalendar(workspace?.id);
+  const updateWorkingDays = useUpdateWorkingDays();
+  const createHoliday = useCreateHoliday();
+  const deleteHoliday = useDeleteHoliday();
+  const workingDays = calendar?.workingDays ?? DEFAULT_WORKING_DAYS;
+  const holidays = calendar?.holidays ?? [];
+  const [newHolidayDate, setNewHolidayDate] = useState("");
+  const [newHolidayName, setNewHolidayName] = useState("");
+  const [holidayError, setHolidayError] = useState("");
 
   // Ownership transfer is owner-only. Eligible recipients are any current
   // member who isn't the owner themselves.
@@ -279,6 +298,92 @@ function RouteComponent() {
     }
   }, [workspace?.id, deleteWorkspace, queryClient, navigate, t]);
 
+  const handleToggleWorkingDay = useCallback(
+    (bit: number, checked: boolean) => {
+      if (!workspace?.id) return;
+      const nextWorkingDays = checked
+        ? workingDays | (1 << bit)
+        : workingDays & ~(1 << bit);
+
+      updateWorkingDays
+        .mutateAsync({
+          workspaceId: workspace.id,
+          workingDays: nextWorkingDays,
+        })
+        .then(() => {
+          toast.success(
+            t("settings:workspaceCalendar.toastWorkingDaysUpdated"),
+          );
+        })
+        .catch((error) => {
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : t("settings:workspaceCalendar.toastWorkingDaysUpdateError"),
+          );
+        });
+    },
+    [workspace?.id, workingDays, updateWorkingDays, t],
+  );
+
+  const handleAddHoliday = useCallback(async () => {
+    if (!workspace?.id) return;
+
+    if (!newHolidayDate) {
+      setHolidayError(t("settings:workspaceCalendar.dateRequired"));
+      return;
+    }
+
+    const trimmedName = newHolidayName.trim();
+    if (!trimmedName) {
+      setHolidayError(t("settings:workspaceCalendar.holidayNameRequired"));
+      return;
+    }
+
+    try {
+      await createHoliday.mutateAsync({
+        workspaceId: workspace.id,
+        date: newHolidayDate,
+        name: trimmedName,
+      });
+      toast.success(t("settings:workspaceCalendar.toastHolidayCreated"));
+      setNewHolidayDate("");
+      setNewHolidayName("");
+      setHolidayError("");
+    } catch (error) {
+      if (error instanceof HttpError && error.status === 409) {
+        toast.error(t("settings:workspaceCalendar.toastHolidayDuplicateError"));
+        return;
+      }
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("settings:workspaceCalendar.toastHolidayCreateError"),
+      );
+    }
+  }, [workspace?.id, newHolidayDate, newHolidayName, createHoliday, t]);
+
+  const handleDeleteHoliday = useCallback(
+    async (holidayId: string) => {
+      if (!workspace?.id) return;
+
+      try {
+        await deleteHoliday.mutateAsync({
+          workspaceId: workspace.id,
+          holidayId,
+        });
+        toast.success(t("settings:workspaceCalendar.toastHolidayDeleted"));
+      } catch (error) {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : t("settings:workspaceCalendar.toastHolidayDeleteError"),
+        );
+      }
+    },
+    [workspace?.id, deleteHoliday, t],
+  );
+
   const debouncedSave = useCallback(
     (data: WorkspaceFormValues) => {
       if (debounceTimeoutRef.current) {
@@ -400,6 +505,158 @@ function RouteComponent() {
                 />
               </form>
             </Form>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="space-y-1">
+            <h2 className="text-md font-medium">
+              {t("settings:workspaceCalendar.title")}
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              {t("settings:workspaceCalendar.subtitle")}
+            </p>
+          </div>
+
+          <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+            <div className="space-y-1">
+              <p className="text-sm font-medium">
+                {t("settings:workspaceCalendar.workingDaysTitle")}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {t("settings:workspaceCalendar.workingDaysSubtitle")}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-4">
+              {[0, 1, 2, 3, 4, 5, 6].map((bit) => {
+                const checked = (workingDays & (1 << bit)) !== 0;
+                return (
+                  <label
+                    key={bit}
+                    className="flex items-center gap-2 text-sm"
+                    htmlFor={`working-day-${bit}`}
+                  >
+                    <Checkbox
+                      id={`working-day-${bit}`}
+                      checked={checked}
+                      disabled={!canEdit || updateWorkingDays.isPending}
+                      onCheckedChange={(value) =>
+                        handleToggleWorkingDay(bit, value)
+                      }
+                    />
+                    {t(`settings:workspaceCalendar.day_${bit}`)}
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+            <div className="space-y-1">
+              <p className="text-sm font-medium">
+                {t("settings:workspaceCalendar.holidaysTitle")}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {t("settings:workspaceCalendar.holidaysSubtitle")}
+              </p>
+            </div>
+
+            {canEdit && (
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+                <div className="space-y-1">
+                  <Label
+                    htmlFor="new-holiday-date"
+                    className="text-xs text-muted-foreground"
+                  >
+                    {t("settings:workspaceCalendar.dateLabel")}
+                  </Label>
+                  <Input
+                    id="new-holiday-date"
+                    type="date"
+                    className="w-full sm:w-44"
+                    value={newHolidayDate}
+                    onChange={(e) => {
+                      setNewHolidayDate(e.target.value);
+                      setHolidayError("");
+                    }}
+                  />
+                </div>
+                <div className="flex-1 space-y-1">
+                  <Label
+                    htmlFor="new-holiday-name"
+                    className="text-xs text-muted-foreground"
+                  >
+                    {t("settings:workspaceCalendar.nameLabel")}
+                  </Label>
+                  <Input
+                    id="new-holiday-name"
+                    className="w-full"
+                    placeholder={t(
+                      "settings:workspaceCalendar.namePlaceholder",
+                    )}
+                    value={newHolidayName}
+                    onChange={(e) => {
+                      setNewHolidayName(e.target.value);
+                      setHolidayError("");
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !createHoliday.isPending) {
+                        handleAddHoliday();
+                      }
+                    }}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={createHoliday.isPending}
+                  onClick={handleAddHoliday}
+                >
+                  {t("settings:workspaceCalendar.addHoliday")}
+                </Button>
+              </div>
+            )}
+            {holidayError && (
+              <p className="text-sm text-destructive">{holidayError}</p>
+            )}
+
+            {holidays.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                {t("settings:workspaceCalendar.empty")}
+              </p>
+            ) : (
+              <div className="divide-y divide-border">
+                {holidays.map((holiday) => (
+                  <div
+                    key={holiday.id}
+                    className="flex items-center justify-between py-2 px-1"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="text-sm text-muted-foreground shrink-0">
+                        {new Date(holiday.date).toLocaleDateString(undefined, {
+                          timeZone: "UTC",
+                        })}
+                      </span>
+                      <span className="text-sm truncate">{holiday.name}</span>
+                    </div>
+                    {canEdit && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={t(
+                          "settings:workspaceCalendar.deleteHoliday",
+                        )}
+                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        disabled={deleteHoliday.isPending}
+                        onClick={() => handleDeleteHoliday(holiday.id)}
+                      >
+                        <Trash2 className="size-3.5" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

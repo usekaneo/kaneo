@@ -84,6 +84,9 @@ vi.mock("@/hooks/queries/task-relation/use-get-project-task-relations", () => ({
     ],
   }),
 }));
+vi.mock("@/hooks/queries/calendar/use-get-calendar", () => ({
+  default: () => ({ data: undefined }),
+}));
 vi.mock("@/hooks/use-mobile", () => ({ useIsMobile: () => false }));
 vi.mock("@/store/user-preferences", () => ({
   useUserPreferencesStore: (

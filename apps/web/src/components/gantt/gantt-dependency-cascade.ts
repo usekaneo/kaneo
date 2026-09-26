@@ -23,6 +23,13 @@
 //    out of the result, the same "no box, no data" rule the rest of the
 //    Gantt already applies to those tasks. Callers should therefore build
 //    `tasksById` from only this project's own scheduled tasks.
+//  - WORKING-CALENDAR NUDGE (opt-in via the `isWorkingDay` predicate): once a
+//    constraint has pushed a task's start onto a non-working day (weekend or
+//    workspace holiday), it's nudged FORWARD to the next working day, with
+//    its end carried along by the same number of days — duration-preserving
+//    like every other shift here. The moved task itself is never nudged
+//    (see above). Downstream tasks see this nudged schedule, so a nudge can
+//    itself force a further shift on anything blocked by it.
 
 /** The four standard scheduling dependency types a "blocks" edge can carry. */
 export type CascadeDependencyType = "fs" | "ss" | "ff" | "sf";
@@ -54,6 +61,15 @@ export type ComputeDependencyCascadeInput = {
    * is out of scope: it can neither be shifted nor gate anything downstream
    * of it. */
   tasksById: ReadonlyMap<string, CascadeSchedule>;
+  /** Workspace working-calendar predicate (see gantt-working-calendar.ts):
+   * true when `d` is a working day (not a weekend per the workspace's
+   * bitmask, and not a holiday). When a "blocks" constraint pushes a task's
+   * start onto a non-working day, that task is nudged FORWARD to the next
+   * working day, with its end moving by the same total delta so its span
+   * length is preserved (see finalizeNode below). `movedTaskId` itself is
+   * NEVER nudged — only tasks this cascade actually shifts. Omitted (the
+   * default): no nudging, exactly today's behavior. */
+  isWorkingDay?: (d: Date) => boolean;
 };
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -110,6 +126,7 @@ export function computeDependencyCascade({
   movedTaskId,
   edges,
   tasksById,
+  isWorkingDay,
 }: ComputeDependencyCascadeInput): Map<string, CascadeSchedule> {
   const shifts = new Map<string, CascadeSchedule>();
   if (!tasksById.has(movedTaskId)) return shifts;
@@ -198,10 +215,32 @@ export function computeDependencyCascade({
       return;
     }
 
-    const shifted: CascadeSchedule = {
-      start: addDaysExact(original.start, deltaDays),
-      end: addDaysExact(original.end, deltaDays),
-    };
+    let shiftedStart = addDaysExact(original.start, deltaDays);
+    let shiftedEnd = addDaysExact(original.end, deltaDays);
+
+    // Working-calendar nudge: a constraint can only push a task LATER, never
+    // land it exactly on a day nobody works — so if the forced start falls
+    // on a non-working day, walk forward to the next working one and carry
+    // the end along by the same number of extra days (duration-preserving,
+    // same as the constraint shift itself). Capped well beyond a year of
+    // consecutive non-working days as a defensive bound; a real calendar
+    // (weekends + a finite holiday list) always has a working day within a
+    // week.
+    if (isWorkingDay) {
+      let nudgeDays = 0;
+      while (
+        nudgeDays < 366 &&
+        !isWorkingDay(addDaysExact(shiftedStart, nudgeDays))
+      ) {
+        nudgeDays++;
+      }
+      if (nudgeDays > 0) {
+        shiftedStart = addDaysExact(shiftedStart, nudgeDays);
+        shiftedEnd = addDaysExact(shiftedEnd, nudgeDays);
+      }
+    }
+
+    const shifted: CascadeSchedule = { start: shiftedStart, end: shiftedEnd };
     finalSchedule.set(taskId, shifted);
     shifts.set(taskId, shifted);
   }

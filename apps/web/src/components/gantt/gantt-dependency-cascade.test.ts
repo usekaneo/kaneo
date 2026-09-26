@@ -318,6 +318,144 @@ describe("computeDependencyCascade", () => {
     expect(shifts.get("c")).toEqual(schedule(20, 23));
   });
 
+  it("nudges a shifted task's start forward off a weekend, preserving its span", () => {
+    // day(2) = 2026-01-03 = Saturday, day(3) = Sunday, day(4) = Monday. A
+    // (ending day 2) forces B's start onto the Saturday; B must land on the
+    // following Monday instead, with its original 3-day span intact.
+    const edges: CascadeEdge[] = [
+      {
+        sourceTaskId: "a",
+        targetTaskId: "b",
+        dependencyType: "fs",
+        lagDays: 0,
+      },
+    ];
+    const tasksById = new Map([
+      ["a", schedule(0, 2)],
+      ["b", schedule(0, 3)],
+    ]);
+
+    const isWorkingDay = (d: Date) => {
+      const dow = d.getUTCDay();
+      return dow !== 0 && dow !== 6;
+    };
+
+    const shifts = computeDependencyCascade({
+      movedTaskId: "a",
+      edges,
+      tasksById,
+      isWorkingDay,
+    });
+
+    // Forced start = A.end (day 2, Saturday), delta = 2 - 0 = 2. Nudged
+    // forward 2 more days (Sat, Sun) to day 4 (Monday); end carries the same
+    // +4 total, from day 3 to day 7.
+    expect(shifts.get("b")).toEqual(schedule(4, 7));
+  });
+
+  it("nudges a shifted task's start forward off a workspace holiday", () => {
+    // day(5) = 2026-01-06 (Tuesday) is declared a holiday for this test.
+    const holiday = day(5).getTime();
+    const isWorkingDay = (d: Date) => {
+      if (d.getTime() === holiday) return false;
+      const dow = d.getUTCDay();
+      return dow !== 0 && dow !== 6;
+    };
+
+    const edges: CascadeEdge[] = [
+      {
+        sourceTaskId: "a",
+        targetTaskId: "b",
+        dependencyType: "fs",
+        lagDays: 0,
+      },
+    ];
+    const tasksById = new Map([
+      ["a", schedule(0, 5)], // ends on the holiday, day(5)
+      ["b", schedule(0, 2)],
+    ]);
+
+    const shifts = computeDependencyCascade({
+      movedTaskId: "a",
+      edges,
+      tasksById,
+      isWorkingDay,
+    });
+
+    // Forced start = day(5) (the holiday); day(6) is Wednesday, a working
+    // day, so B nudges forward exactly one day.
+    expect(shifts.get("b")).toEqual(schedule(6, 8));
+  });
+
+  it("propagates a nudged schedule further downstream through the chain", () => {
+    // A pushes B onto Saturday (day 2); B nudges to Monday (day 4). C is
+    // blocked by B FS with 0 lag, originally comfortably after B's
+    // PRE-nudge schedule but not its POST-nudge one, so C must also shift.
+    const edges: CascadeEdge[] = [
+      {
+        sourceTaskId: "a",
+        targetTaskId: "b",
+        dependencyType: "fs",
+        lagDays: 0,
+      },
+      {
+        sourceTaskId: "b",
+        targetTaskId: "c",
+        dependencyType: "fs",
+        lagDays: 0,
+      },
+    ];
+    const tasksById = new Map([
+      ["a", schedule(0, 2)],
+      ["b", schedule(0, 3)],
+      // C originally starts at day 3: satisfies B's pre-nudge end (3) but
+      // not its post-nudge end (7).
+      ["c", schedule(3, 5)],
+    ]);
+
+    const isWorkingDay = (d: Date) => {
+      const dow = d.getUTCDay();
+      return dow !== 0 && dow !== 6;
+    };
+
+    const shifts = computeDependencyCascade({
+      movedTaskId: "a",
+      edges,
+      tasksById,
+      isWorkingDay,
+    });
+
+    // B: forced start day 2 (Saturday) -> nudged to day 4 (Monday), end day 7.
+    expect(shifts.get("b")).toEqual(schedule(4, 7));
+    // C: forced start >= B.end (7); original start 3, delta 4 -> (7, 9).
+    // day(7) is Wednesday, a working day, so no further nudge.
+    expect(shifts.get("c")).toEqual(schedule(7, 9));
+  });
+
+  it("never nudges when no isWorkingDay predicate is given (unchanged behavior)", () => {
+    const edges: CascadeEdge[] = [
+      {
+        sourceTaskId: "a",
+        targetTaskId: "b",
+        dependencyType: "fs",
+        lagDays: 0,
+      },
+    ];
+    const tasksById = new Map([
+      ["a", schedule(0, 2)], // forces B.start to land on Saturday (day 2)
+      ["b", schedule(0, 3)],
+    ]);
+
+    const shifts = computeDependencyCascade({
+      movedTaskId: "a",
+      edges,
+      tasksById,
+    });
+
+    // No predicate supplied: B lands exactly on day 2, weekend or not.
+    expect(shifts.get("b")).toEqual(schedule(2, 5));
+  });
+
   it("returns nothing when the moved task itself is unscoped", () => {
     const edges: CascadeEdge[] = [
       {

@@ -28,6 +28,7 @@ import {
   userTable,
   verificationTable,
   workflowRuleTable,
+  workspaceHolidayTable,
   workspaceRoleTable,
   workspaceTable,
   workspaceUserTable,
@@ -78,6 +79,17 @@ export const workspaceTableRelations = relations(
     assets: many(assetTable),
     invitations: many(invitationTable),
     notificationWorkspaceRules: many(userNotificationWorkspaceRuleTable),
+    holidays: many(workspaceHolidayTable),
+  }),
+);
+
+export const workspaceHolidayTableRelations = relations(
+  workspaceHolidayTable,
+  ({ one }) => ({
+    workspace: one(workspaceTable, {
+      fields: [workspaceHolidayTable.workspaceId],
+      references: [workspaceTable.id],
+    }),
   }),
 );
 

@@ -150,7 +150,40 @@ export const workspaceTable = pgTable("workspace", {
   metadata: text("metadata"),
   description: text("description"),
   createdAt: timestamp("created_at", { mode: "date" }).notNull(),
+  // Bitmask of the workspace's working weekdays: bit i (i = 0..6, 0 = Sunday,
+  // matching JS Date#getDay()) set means weekday i is a WORKING day. Default
+  // 62 = 0b0111110 = Monday..Friday working, Saturday/Sunday off. Individual
+  // exceptions (specific non-working dates, e.g. public holidays) live in
+  // workspaceHolidayTable instead of this bitmask.
+  workingDays: integer("working_days").notNull().default(62),
 });
+
+export const workspaceHolidayTable = pgTable(
+  "workspace_holiday",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    // Date-only semantics: always stored at UTC midnight, never compared
+    // against a time-of-day.
+    date: timestamp("date", { mode: "date" }).notNull(),
+    name: text("name").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("workspace_holiday_workspaceId_idx").on(table.workspaceId),
+    unique("workspace_holiday_workspace_id_date_unique").on(
+      table.workspaceId,
+      table.date,
+    ),
+  ],
+);
 
 export const workspaceUserTable = pgTable(
   "workspace_member",
