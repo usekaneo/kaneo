@@ -148,7 +148,12 @@ describe("auth registration and bootstrap boundaries", () => {
   });
 
   it("does not give a new signup admin rights on an older instance lacking an admin", async () => {
-    await createWorkspaceMember();
+    const { user } = await createWorkspaceMember();
+    // Make the historical account unambiguously older across DB/app clocks.
+    await db
+      .update(schema.userTable)
+      .set({ createdAt: new Date("2020-01-01") })
+      .where(eq(schema.userTable.id, user.id));
     expect((await signup("new@example.com")).status).toBe(200);
     expect(
       await db
