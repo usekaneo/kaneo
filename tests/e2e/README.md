@@ -75,7 +75,7 @@ credentials are passed only to its credential check and cloud test step. No
 production instance is contacted. Tests use synthetic accounts; invitation setup
 uses the normal API without sending email because SMTP is not configured.
 
-Add the **Browser tests / smoke** check to branch protection when it has proven
+Add the **Chromium smoke tests** check to branch protection when it has proven
 stable. The cloud check runs after merge and does not currently gate releases.
 
 References:

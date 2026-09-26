@@ -4,6 +4,7 @@ import {
   expect,
   type Page,
   test,
+  type WebSocket,
 } from "@playwright/test";
 
 async function post(request: APIRequestContext, path: string, data: object) {
@@ -110,6 +111,7 @@ test("another workspace member receives task edits in realtime", async ({
   browser,
   baseURL,
 }) => {
+  test.setTimeout(120_000);
   const workspaceId = await createWorkspace(page);
   const boardUrl = await createProject(page);
   await createTask(page, "Collaborative task");
@@ -140,21 +142,53 @@ test("another workspace member receives task edits in realtime", async ({
     const projectId = new URL(boardUrl).pathname
       .split("/project/")[1]
       .split("/")[0];
-    const socketOpened = observer.waitForEvent(
-      "websocket",
-      (socket) => new URL(socket.url()).pathname === `/api/ws/${projectId}`,
-    );
+    let connectedSocket: WebSocket | undefined;
+    const socketErrors: string[] = [];
+    observer.on("console", (message) => {
+      if (message.type() === "error") socketErrors.push(message.text());
+    });
+    observer.on("websocket", (socket) => {
+      if (new URL(socket.url()).pathname !== `/api/ws/${projectId}`) return;
+      socket.on("socketerror", (error) => socketErrors.push(String(error)));
+      socket.on("framesent", ({ payload }) => {
+        if (String(payload) === '{"type":"ping"}') connectedSocket = socket;
+      });
+      socket.on("close", () => {
+        if (connectedSocket === socket) connectedSocket = undefined;
+      });
+    });
     await observer.goto(boardUrl);
-    const socket = await socketOpened;
     await expect(
       observer.getByText("Collaborative task", { exact: true }),
     ).toBeVisible();
 
+    // Playwright's websocket event fires before the handshake succeeds. The app's
+    // native keepalive proves it is open and also tolerates its normal reconnects.
+    await expect
+      .poll(() => Boolean(connectedSocket), {
+        timeout: 45_000,
+        message: "The project websocket must send its keepalive before editing",
+      })
+      .toBe(true)
+      .catch(async (error) => {
+        await test.info().attach("websocket-errors", {
+          body: JSON.stringify(socketErrors),
+          contentType: "application/json",
+        });
+        throw error;
+      });
+    if (!connectedSocket) throw new Error("Project websocket disconnected");
+
     // Observe the real event as well as the UI, so a refetch cannot hide a broken websocket.
-    const update = socket.waitForEvent("framereceived", ({ payload }) => {
-      const message = JSON.parse(String(payload));
-      return message.type === "TASK_UPDATED" && message.projectId === projectId;
-    });
+    const update = connectedSocket.waitForEvent(
+      "framereceived",
+      ({ payload }) => {
+        const message = JSON.parse(String(payload));
+        return (
+          message.type === "TASK_UPDATED" && message.projectId === projectId
+        );
+      },
+    );
     await Promise.all([
       update,
       editTask(page, "Collaborative task", "Updated by my teammate"),
