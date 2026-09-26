@@ -182,3 +182,45 @@ describe("GitLab label reconciliation", () => {
     },
   );
 });
+
+describe("GitLab status label snapshots", () => {
+  it.each([
+    { statusLabel: "status:to-do", expected: "done" },
+    { statusLabel: "status:in-progress", expected: "in-progress" },
+  ])(
+    "applies only changed status labels: $statusLabel → $expected",
+    async ({ statusLabel, expected }) => {
+      const { task, integration } = await setup();
+      await db
+        .update(schema.taskTable)
+        .set({ status: "done" })
+        .where(eq(schema.taskTable.id, task.id));
+      await handleGitlabIssueUpdated(
+        {
+          object_attributes: {
+            ...remoteIssue,
+            url: remoteIssue.web_url,
+            action: "update",
+          },
+          project: {
+            name: "project",
+            path_with_namespace: "group/project",
+            web_url: "https://gitlab.example/group/project",
+          },
+          changes: {
+            labels: {
+              previous: [label("status:to-do")],
+              current: [label(statusLabel), label("bug")],
+            },
+          },
+        },
+        integration.id,
+      );
+      expect(
+        await db.query.taskTable.findFirst({
+          where: eq(schema.taskTable.id, task.id),
+        }),
+      ).toMatchObject({ status: expected });
+    },
+  );
+});

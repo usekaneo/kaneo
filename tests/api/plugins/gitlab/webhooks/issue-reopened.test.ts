@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   updateTaskStatus: vi.fn(),
   updateExternalLink: vi.fn(),
+  publishEvent: vi.fn(),
 }));
 
 vi.mock("../../../../../apps/api/src/database", () => ({
@@ -52,7 +53,7 @@ vi.mock(
 );
 
 vi.mock("../../../../../apps/api/src/events", () => ({
-  publishEvent: async () => undefined,
+  publishEvent: (...args: unknown[]) => mocks.publishEvent(...args),
 }));
 
 const { handleGitlabIssueReopened } = await import(
@@ -106,5 +107,12 @@ describe("handleGitlabIssueReopened failures", () => {
     expect(mocks.updateExternalLink).toHaveBeenCalledWith("link-1", {
       metadata: { state: "opened" },
     });
+    expect(mocks.publishEvent).toHaveBeenCalledWith(
+      "task.status_changed",
+      expect.objectContaining({
+        sourceIntegrationId: "integration-1",
+        newStatus: "to-do",
+      }),
+    );
   });
 });

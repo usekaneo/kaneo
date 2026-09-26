@@ -12,6 +12,10 @@ export async function handleTaskStatusChanged(
   event: TaskStatusChangedEvent,
   context: PluginContext,
 ): Promise<void> {
+  // Keep activity and other integrations informed without echoing an issue
+  // webhook back to the GitLab project that produced it.
+  if (event.sourceIntegrationId === context.integrationId) return;
+
   const config = context.config as GitlabConfig;
   if (!config.baseUrl || !config.accessToken) {
     return;

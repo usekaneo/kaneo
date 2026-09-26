@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   issueLink: vi.fn(),
   updateExternalLink: vi.fn(),
   updateIssue: vi.fn(),
+  updateLabels: vi.fn(),
 }));
 
 vi.mock(
@@ -22,7 +23,7 @@ vi.mock("../../../../../apps/api/src/plugins/gitlab/utils/gitlab-api", () => ({
 }));
 
 vi.mock("../../../../../apps/api/src/plugins/gitlab/utils/labels", () => ({
-  updateIssueLabelsGitlab: async () => undefined,
+  updateIssueLabelsGitlab: (...args: unknown[]) => mocks.updateLabels(...args),
 }));
 
 const { handleTaskStatusChanged } = await import(
@@ -39,9 +40,10 @@ const context = {
   },
 };
 
-function closeTask() {
+function closeTask(sourceIntegrationId?: string) {
   return handleTaskStatusChanged(
     {
+      sourceIntegrationId,
       taskId: "task-1",
       projectId: "project-1",
       userId: "user-1",
@@ -107,6 +109,23 @@ describe("handleTaskStatusChanged link metadata", () => {
 
     expect(mocks.updateExternalLink).toHaveBeenCalledWith("link-1", {
       metadata: expect.objectContaining({ author: "octocat", state: "closed" }),
+    });
+  });
+});
+
+describe("GitLab status webhook feedback", () => {
+  it("does not echo a status change to its originating integration", async () => {
+    await closeTask("integration-1");
+    expect(mocks.issueLink).not.toHaveBeenCalled();
+    expect(mocks.updateLabels).not.toHaveBeenCalled();
+    expect(mocks.updateIssue).not.toHaveBeenCalled();
+  });
+  it("still syncs changes originating from another integration", async () => {
+    mocks.issueLink.mockReturnValue(linkWithMetadata(null));
+    await closeTask("another-integration");
+    expect(mocks.updateLabels).toHaveBeenCalledOnce();
+    expect(mocks.updateIssue).toHaveBeenCalledWith("acme/web", 3, {
+      state_event: "close",
     });
   });
 });

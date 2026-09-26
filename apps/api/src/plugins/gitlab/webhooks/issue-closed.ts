@@ -113,6 +113,7 @@ export async function handleGitlabIssueClosed(
       statusResult.before.status !== statusResult.after.status
     ) {
       await publishEvent("task.status_changed", {
+        sourceIntegrationId: integration.id,
         taskId: statusResult.after.id,
         projectId: statusResult.after.projectId,
         userId: null,

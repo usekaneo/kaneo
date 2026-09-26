@@ -234,13 +234,19 @@ export async function handleGitlabIssueUpdated(
           .where(eq(taskTable.id, task.id));
       }
 
-      if (status) {
+      // Unrelated label edits also include the full label snapshot. Its status
+      // can predate a close/reopen, so only apply an actual status-label change.
+      const previousStatus = extractIssueStatus(
+        labelTitles(changes?.labels?.previous),
+      );
+      if (status && status !== previousStatus) {
         const statusResult = await updateTaskStatus(task.id, status);
         if (
           statusResult.applied &&
           statusResult.before.status !== statusResult.after.status
         ) {
           await publishEvent("task.status_changed", {
+            sourceIntegrationId: integration.id,
             taskId: statusResult.after.id,
             projectId: statusResult.after.projectId,
             userId: null,
