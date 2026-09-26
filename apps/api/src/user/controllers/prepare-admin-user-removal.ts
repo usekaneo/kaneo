@@ -8,7 +8,7 @@ export async function prepareAdminUserRemoval(ctx: RemovalContext) {
   const session = await getSessionFromCtx(ctx, {
     disableCookieCache: true,
     disableRefresh: true,
-  }).catch(() => null);
+  });
   const caller = session?.user as { id: string; role?: unknown } | undefined;
 
   if (!caller || !hasInstanceAdminRole(caller.role)) {
