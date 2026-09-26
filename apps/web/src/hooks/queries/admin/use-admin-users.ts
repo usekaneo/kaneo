@@ -12,11 +12,15 @@ export const ADMIN_USERS_QUERY_KEY = ["admin", "users"] as const;
 
 function useAdminUsers(search: string, page: number) {
   const { user } = useAuth();
+  const userId = user?.id ?? "";
   return useQuery({
-    queryKey: [...ADMIN_USERS_QUERY_KEY, user?.id ?? "", search.trim(), page],
+    queryKey: [...ADMIN_USERS_QUERY_KEY, userId, search.trim(), page],
     queryFn: () => getAdminUsers(search, page),
-    enabled: Boolean(user?.id),
-    placeholderData: (previousData) => previousData,
+    enabled: userId !== "",
+    placeholderData: (previousData, previousQuery) =>
+      userId !== "" && previousQuery?.queryKey[2] === userId
+        ? previousData
+        : undefined,
   });
 }
 

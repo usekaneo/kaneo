@@ -9,6 +9,7 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { auth } from "../auth";
 import { apiRouter, createRoute, jsonResponse } from "../openapi";
+import { type BanState, isBanActive } from "../utils/user-ban";
 import {
   beginMcpAuthorization,
   decideMcpAuthorizationRequest,
@@ -69,6 +70,7 @@ async function validateBearerToken(
   const session = await auth.api.getSession({ headers });
 
   if (!session?.user?.id) return null;
+  if (isBanActive(session.user as BanState)) return null;
   return { userId: session.user.id, token };
 }
 
