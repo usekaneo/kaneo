@@ -127,7 +127,7 @@ Name | Description | Default |
 
 Name | Description | Default |
 --- | --- | --- |
-| `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS` | Allow outbound notification destinations (ntfy, Gotify, generic webhooks) and self-managed Gitea or GitLab instances that resolve to private or non-routable addresses. Off by default to prevent SSRF; the `http`/`https` requirement still applies. Only enable on a trusted, isolated deployment. | `false` |
+| `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS` | Allow outbound notification destinations (ntfy, Gotify, generic webhooks), self-managed Gitea or GitLab instances, and custom Telegram Bot API servers that resolve to private or non-routable addresses. Off by default to prevent SSRF; the `http`/`https` requirement still applies. Also lets GitLab and Telegram use plain `http`. Only enable on a trusted, isolated deployment. | `false` |
 
 ### GitHub SSO
 
