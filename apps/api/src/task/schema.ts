@@ -15,6 +15,10 @@ export const projectIdParam = z.object({ projectId: z.string() });
 
 const priority = z.enum(VALID_PRIORITIES);
 
+const progress = z.number().int().min(0).max(100).openapi({
+  description: "Percent complete, 0-100.",
+});
+
 // Required object of optional filters: a RouteParameter cannot itself be optional.
 export const listTasksQuery = z.object({
   status: z.string().optional(),
@@ -57,6 +61,12 @@ export const createTaskBody = z.object({
   priority,
   status: z.string().openapi({ description: "The target column's slug." }),
   userId: z.string().optional().openapi({ description: "Assignee, if any." }),
+  progress: progress.optional().openapi({
+    description: "Defaults to 0.",
+  }),
+  isMilestone: z.boolean().optional().openapi({
+    description: "Defaults to false.",
+  }),
   customFields: z
     .array(z.object({ fieldId: z.string(), value: z.string() }))
     .optional(),
@@ -75,6 +85,11 @@ export const updateTaskBody = z.object({
   projectId: z.string(),
   position: z.number().int().min(0).max(MAX_TASK_POSITION),
   userId: z.string().optional(),
+  // Optional and left untouched when omitted (unlike the other fields on
+  // this full-replace route): an older client that has never heard of
+  // progress/milestones must not silently reset them on every edit.
+  progress: progress.optional(),
+  isMilestone: z.boolean().optional(),
 });
 
 export const moveTaskBody = z.object({

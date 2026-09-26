@@ -22,6 +22,8 @@ async function updateTask(
   description: string | undefined,
   priority: string,
   position: number,
+  progress: number | undefined,
+  isMilestone: boolean | undefined,
   userId?: string,
   currentUserId?: string,
 ) {
@@ -81,6 +83,8 @@ async function updateTask(
       description,
       priority,
       position,
+      progress,
+      isMilestone,
       userId: normalizedUserId ?? null,
     })
     .where(eq(taskTable.id, id))

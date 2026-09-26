@@ -145,6 +145,30 @@
             ],
             "format": "date-time"
           },
+          "progress": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Percent complete, 0-100."
+          },
+          "isMilestone": {
+            "type": "boolean",
+            "description": "Renders as a diamond marker on the Gantt chart at its date instead of a spanning bar."
+          },
+          "baselineStartDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "baselineDueDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
           "position": {
             "type": [
               "number",
@@ -204,6 +228,10 @@
           "priority",
           "startDate",
           "dueDate",
+          "progress",
+          "isMilestone",
+          "baselineStartDate",
+          "baselineDueDate",
           "position",
           "createdAt",
           "userId",
@@ -869,6 +897,32 @@
             ],
             "format": "date-time"
           },
+          "progress": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Percent complete, 0-100."
+          },
+          "isMilestone": {
+            "type": "boolean",
+            "description": "Renders as a diamond marker on the Gantt chart at its date instead of a spanning bar."
+          },
+          "baselineStartDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Snapshotted startDate from when the baseline was last set; null if no baseline."
+          },
+          "baselineDueDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Snapshotted dueDate from when the baseline was last set; null if no baseline."
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -904,6 +958,10 @@
           "priority",
           "startDate",
           "dueDate",
+          "progress",
+          "isMilestone",
+          "baselineStartDate",
+          "baselineDueDate",
           "createdAt"
         ]
       },
@@ -2971,6 +3029,12 @@
           "projectId": {
             "type": "string"
           },
+          "projectName": {
+            "type": "string"
+          },
+          "projectSlug": {
+            "type": "string"
+          },
           "userId": {
             "type": [
               "string",
@@ -2982,6 +3046,24 @@
               "string",
               "null"
             ]
+          },
+          "startDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "dueDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "isMilestone": {
+            "type": "boolean",
+            "description": "Renders as a diamond marker on the Gantt chart, same as an own task."
           }
         },
         "required": [
@@ -2991,8 +3073,13 @@
           "priority",
           "number",
           "projectId",
+          "projectName",
+          "projectSlug",
           "userId",
-          "assigneeName"
+          "assigneeName",
+          "startDate",
+          "dueDate",
+          "isMilestone"
         ]
       },
       "TaskRelation": {
@@ -7537,6 +7624,16 @@
                     "type": "string",
                     "description": "Assignee, if any."
                   },
+                  "progress": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "Defaults to 0."
+                  },
+                  "isMilestone": {
+                    "type": "boolean",
+                    "description": "Defaults to false."
+                  },
                   "customFields": {
                     "type": "array",
                     "items": {
@@ -7824,6 +7921,15 @@
                   },
                   "userId": {
                     "type": "string"
+                  },
+                  "progress": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "Percent complete, 0-100."
+                  },
+                  "isMilestone": {
+                    "type": "boolean"
                   }
                 },
                 "required": [
@@ -8553,6 +8659,114 @@
           },
           "403": {
             "description": "No workspace access, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/task/{id}/baseline": {
+      "post": {
+        "operationId": "setTaskBaseline",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Set task baseline",
+        "description": "Snapshot the task's current startDate/dueDate as its baseline, for plan-vs-actual comparison on the Gantt chart.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The updated task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "clearTaskBaseline",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Clear task baseline",
+        "description": "Remove the task's stored baseline dates, if any.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The updated task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11324,6 +11538,16 @@
             },
             "required": false,
             "name": "projectId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Leave out results scoped to this project, e.g. to search other projects in the workspace for a cross-project picker. Ignored together with `projectId`."
+            },
+            "required": false,
+            "description": "Leave out results scoped to this project, e.g. to search other projects in the workspace for a cross-project picker. Ignored together with `projectId`.",
+            "name": "excludeProjectId",
             "in": "query"
           },
           {
@@ -14277,6 +14501,64 @@
           },
           "403": {
             "description": "No access to the task's workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/task-relation/project/{projectId}": {
+      "get": {
+        "operationId": "getTaskRelationsByProject",
+        "tags": [
+          "Task Relations"
+        ],
+        "summary": "Get project task relations",
+        "description": "Get every relation touching one of the project's tasks, each with a summary of both linked tasks, in a single call. Powers the Gantt chart's dependency lines. Relations pointing outside the caller's workspace are omitted.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Task relations with the linked task summaries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskRelationWithTasks"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown project, or its workspace could not be determined",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access or missing read permission",
             "content": {
               "text/plain": {
                 "schema": {

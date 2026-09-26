@@ -2042,7 +2042,9 @@
 				"blocks": "bloquea",
 				"related": "relacionada con",
 				"blocked_by": "bloqueada por"
-			}
+			},
+			"tasksInOtherProject": "In {{project}}",
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project"
 		},
 		"subtasks": {
 			"title": "Sub-tareas",
@@ -2064,7 +2066,10 @@
 			"copyTaskBranch": "Copiar la rama de la tarea",
 			"start": "Comenzar",
 			"startDate": "Fecha de inicio",
-			"noDate": "Sin fecha"
+			"noDate": "Sin fecha",
+			"baseline": "Baseline",
+			"milestone": "Milestone",
+			"progress": "Progress"
 		},
 		"popover": {
 			"assignee": {
@@ -2108,6 +2113,29 @@
 					"rose": "Rosa",
 					"crimson": "Carmesí"
 				}
+			},
+			"baseline": {
+				"clear": "Clear baseline",
+				"clearError": "Failed to clear baseline",
+				"clearSuccess": "Baseline cleared",
+				"label": "Baseline",
+				"none": "No baseline set",
+				"range": "{{start}} – {{end}}",
+				"set": "Set baseline",
+				"setError": "Failed to set baseline",
+				"setSuccess": "Baseline set from current dates"
+			},
+			"milestone": {
+				"description": "Mark this task as a single-date milestone on the Gantt chart",
+				"label": "Milestone",
+				"updateError": "Failed to update task milestone",
+				"updateSuccess": "Task milestone updated"
+			},
+			"progress": {
+				"label": "Progress",
+				"percentLabel": "Percent complete",
+				"updateError": "Failed to update task progress",
+				"updateSuccess": "Task progress updated"
 			}
 		},
 		"backlog": {
@@ -2194,7 +2222,23 @@
 			"previousPeriod": "Previous period",
 			"nextPeriod": "Next period",
 			"periodStart": "Timeline start date",
-			"showTaskDates": "Show task dates"
+			"showTaskDates": "Show task dates",
+			"legendBlocking": "Blocking",
+			"legendRelated": "Related",
+			"externalProjectBadge": "in {{projectName}}",
+			"externalTaskTitle": "{{title}} — related task in {{projectName}} (read-only here)",
+			"legendBaseline": "Baseline",
+			"legendMilestone": "Milestone",
+			"milestoneAriaLabel": "{{title}}: milestone, open task",
+			"progressLabel": "{{progress}}% complete",
+			"unitControlAriaLabel": "Timeline granularity",
+			"unitDay": "Day",
+			"unitMonth": "Month",
+			"unitQuarter": "Quarter",
+			"unitWeek": "Week",
+			"collapseSubtasks": "Collapse subtasks",
+			"expandSubtasks": "Expand subtasks",
+			"summaryAriaLabel": "{{title}}: summary of subtasks, open task"
 		},
 		"delete": {
 			"title": "¿Eliminar tarea?",

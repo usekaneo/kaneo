@@ -71,6 +71,10 @@ const task: Task = {
   assigneeId: null,
   assigneeName: null,
   projectId: "project-1",
+  progress: 0,
+  isMilestone: false,
+  baselineStartDate: null,
+  baselineDueDate: null,
   labels: [],
 };
 const otherTask = { ...task, id: "task-2", title: "Second task" };

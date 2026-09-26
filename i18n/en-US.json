@@ -2022,6 +2022,8 @@
 		"relations": {
 			"title": "Relations",
 			"tasksInProject": "Tasks in project",
+			"tasksInOtherProject": "In {{project}}",
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project",
 			"linkError": "Failed to link task",
 			"empty": "No related tasks",
 			"searchPlaceholder": "Search tasks to link...",
@@ -2057,7 +2059,10 @@
 			"copyTaskBranch": "Copy task branch",
 			"start": "Start",
 			"startDate": "Start date",
-			"noDate": "No date"
+			"noDate": "No date",
+			"progress": "Progress",
+			"milestone": "Milestone",
+			"baseline": "Baseline"
 		},
 		"move": {
 			"title": "Move task",
@@ -2090,6 +2095,29 @@
 				"updateSuccess": "Task start date updated successfully",
 				"updateError": "Failed to update task start date",
 				"clear": "Clear start date"
+			},
+			"progress": {
+				"label": "Progress",
+				"percentLabel": "Percent complete",
+				"updateSuccess": "Task progress updated",
+				"updateError": "Failed to update task progress"
+			},
+			"milestone": {
+				"label": "Milestone",
+				"description": "Mark this task as a single-date milestone on the Gantt chart",
+				"updateSuccess": "Task milestone updated",
+				"updateError": "Failed to update task milestone"
+			},
+			"baseline": {
+				"label": "Baseline",
+				"none": "No baseline set",
+				"set": "Set baseline",
+				"clear": "Clear baseline",
+				"setSuccess": "Baseline set from current dates",
+				"setError": "Failed to set baseline",
+				"clearSuccess": "Baseline cleared",
+				"clearError": "Failed to clear baseline",
+				"range": "{{start}} – {{end}}"
 			},
 			"labels": {
 				"searchPlaceholder": "Search labels...",
@@ -2211,7 +2239,23 @@
 			"previousPeriod": "Previous period",
 			"nextPeriod": "Next period",
 			"periodStart": "Timeline start date",
-			"showTaskDates": "Show task dates"
+			"showTaskDates": "Show task dates",
+			"legendBlocking": "Blocking",
+			"legendRelated": "Related",
+			"legendMilestone": "Milestone",
+			"legendBaseline": "Baseline",
+			"externalProjectBadge": "in {{projectName}}",
+			"externalTaskTitle": "{{title}} — related task in {{projectName}} (read-only here)",
+			"milestoneAriaLabel": "{{title}}: milestone, open task",
+			"progressLabel": "{{progress}}% complete",
+			"unitControlAriaLabel": "Timeline granularity",
+			"unitDay": "Day",
+			"unitWeek": "Week",
+			"unitMonth": "Month",
+			"unitQuarter": "Quarter",
+			"summaryAriaLabel": "{{title}}: summary of subtasks, open task",
+			"expandSubtasks": "Expand subtasks",
+			"collapseSubtasks": "Collapse subtasks"
 		},
 		"delete": {
 			"title": "Delete Task?",

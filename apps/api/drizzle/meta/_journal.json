@@ -365,6 +365,13 @@
 			"when": 1790370789562,
 			"tag": "0051_modern_corsair",
 			"breakpoints": true
+		},
+		{
+			"idx": 52,
+			"version": "7",
+			"when": 1790401817981,
+			"tag": "0052_first_darkhawk",
+			"breakpoints": true
 		}
 	]
 }
