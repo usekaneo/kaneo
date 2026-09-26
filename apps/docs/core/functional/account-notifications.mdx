@@ -1,168 +1,63 @@
 ---
-title: Account Notifications
-description: Deliver your personal Kaneo notifications by email, ntfy, Gotify, or a custom webhook with workspace and project scoping
+title: "Notifications"
+description: "Choose which workspaces can send updates to your email or another personal channel."
 ---
 
-Kaneo can keep the normal in-app notification inbox and also forward matching notifications to external channels for the signed-in user.
+Open **Settings → Account → Notifications** to choose how Kaneo reaches you. These settings belong to your account and do not change anyone else's notifications.
 
-You can configure this under:
+Your inbox in Kaneo keeps working whether or not you enable external delivery. For messages to a shared team channel, use a [project integration](/core/integrations/index).
 
-1. Open **Settings**
-2. Open **Account**
-3. Open **Notifications**
+## 1. Choose which events you want
 
-## Available channels
+Use the event preferences at the top of the page to control task assignments, comments and mentions, status changes, and due-date reminders. These categories are enabled by default. Turning one off stops new notifications in that category, including in the Kaneo inbox.
 
-Users can forward matching notifications through:
+Due-date reminders default to one day before the deadline. Choose a whole number of hours (1–720) or days (1–30), then save. External delivery still needs a channel and workspace rule below.
 
-- `Email`
-- `ntfy`
-- `Gotify`
-- `Custom webhook`
+<Frame caption="Choose notification categories and how early Kaneo should remind you about due dates.">
+  <img className="block dark:hidden" src="/images/product/notifications-light.png" alt="Choose notification categories and how early Kaneo should remind you about due dates." />
+  <img className="hidden dark:block" src="/images/product/notifications-dark.png" alt="Choose notification categories and how early Kaneo should remind you about due dates." />
+</Frame>
 
-These settings are personal to the signed-in account. They do not change notification routing for other users in the workspace.
+## 2. Connect a channel
 
-## How it works
+| Channel | What you need |
+| --- | --- |
+| Email | An email address on your account and SMTP configured by your instance operator |
+| [ntfy](/core/integrations/ntfy) | Your server URL, topic, and a bearer token if the server requires one |
+| [Gotify](/core/integrations/gotify) | Your server's base URL and an application token created in Gotify |
+| [Custom webhook](/core/integrations/personal-webhooks) | A destination URL and, optionally, a signing secret |
 
-Kaneo already stores in-app notifications in the notification inbox. Account notification delivery adds a separate preference layer on top of that behavior.
+For channels with tokens or signing secrets, the instance operator must first set `NOTIFICATION_SECRET_ENCRYPTION_KEY`. Configure and enable a channel on this page. Use the Gotify base URL, such as `https://gotify.example.com`, without adding its message API path.
 
-Important rules:
+For a signed custom webhook, Kaneo sends `X-Kaneo-Signature` as the HMAC-SHA256 hex digest of the raw JSON request body. Your receiver can verify it with the shared secret.
 
-- the in-app inbox remains the source of truth
-- outbound delivery only applies to newly created notifications
-- historical notifications are not replayed
-- delivery failures do not block notification creation
-- delivery can be scoped by workspace and, optionally, by selected projects
+## 3. Choose the workspaces and projects
 
-## Global channels
+Below the channel settings, add or edit a workspace delivery rule:
 
-The Notifications page includes separate connection cards for:
+1. Make the rule active.
+2. Enable the channels you want to use for that workspace.
+3. Choose **All projects** or **Selected projects**.
+4. Save your changes.
 
-- `Email`
-- `Gotify`
-- `ntfy`
-- `Custom webhook`
+For example, you can receive email for the website launch and use ntfy for another workspace. Configuring a channel alone is not enough; its workspace rule must also allow delivery.
 
-Configure each channel once at the account level, then decide which workspaces are allowed to use it.
+## Pause or stop delivery
 
-### Email
+Pause the workspace rule to stop forwarding that workspace's notifications. Disable a channel on the rule to stop only that destination. Disable the account-level channel to stop using it across your rules.
 
-Email delivery uses the signed-in account email address.
+Changes apply to new notifications. Kaneo does not replay older inbox items when you enable delivery again. If delivery fails, the notification still remains in your Kaneo inbox.
 
-Requirements:
+## Which notifications are forwarded?
 
-- the user must have an email on the account
-- SMTP must be configured on the server
+Forwarding uses the notifications Kaneo creates for your account and respects your event preferences. A project event does not automatically notify every member. Use a project integration when you want a shared feed of project activity.
 
-### ntfy
+A notification without a workspace or project context may stay in the inbox only.
 
-ntfy requires:
+## If a channel cannot be saved or delivery fails
 
-- a server URL
-- a topic
-- optionally, a bearer token
+Check the channel is enabled, the workspace rule is active, and the project is included. For email, ask the instance operator to check SMTP and its delivery logs.
 
-### Gotify
+HTTP destinations must be reachable from the Kaneo API. By default, local and private network addresses are rejected. On a trusted private deployment, an operator can choose to allow them with [`KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS`](/core/installation/environment-variables#notifications); this changes a server-side security boundary, not an account preference.
 
-Gotify requires:
-
-- a server URL
-- an application token (bearer token)
-
-Setup notes:
-
-- create an application in your Gotify server before connecting Kaneo
-- paste the base server URL, for example `https://gotify.example.com`
-- no extra topic or path is required because Kaneo sends directly to the Gotify message API using the application token
-- if your Gotify server uses a custom port or TLS, include that in the server URL
-
-### Custom webhook
-
-Custom webhook requires:
-
-- a destination URL
-- optionally, a signing secret
-
-When a signing secret is configured, Kaneo sends an `X-Kaneo-Signature` header containing the `HMAC-SHA256` hex digest of the raw JSON body.
-
-## Workspace delivery rules
-
-Below the global channel cards, Kaneo shows workspace delivery rules.
-
-Each workspace rule can:
-
-- be active or paused
-- enable or disable `Email`, `Gotify`, `ntfy`, and `Custom webhook`
-- apply to `All projects`
-- or apply to `Selected projects` only
-
-This lets a user receive notifications from one workspace in ntfy, another by email, and ignore the rest.
-
-## Supported notification sources
-
-V1 forwards the same notification types that currently create inbox notifications in Kaneo.
-
-That includes:
-
-- `task_created`
-- `workspace_created`
-- `task_status_changed`
-- `task_assignee_changed`
-- `time_entry_created`
-
-If Kaneo cannot resolve a notification to a workspace or project context, that notification stays inbox-only.
-
-## Reachability and security
-
-For security, Kaneo validates outbound HTTP destinations before saving or sending.
-
-Private or non-routable destinations are rejected, including examples like:
-
-- `localhost`
-- `127.0.0.1`
-- `10.x.x.x`
-- `172.16.x.x` to `172.31.x.x`
-- `192.168.x.x`
-
-This applies to:
-
-- `ntfy` server URLs
-- `Gotify` server URLs
-- custom webhook URLs
-
-If you are using a self-hosted ntfy instance, Gotify instance, or webhook receiver, it must be reachable from the API with an accepted public or routable hostname.
-
-If your receiver only exists on a private network, set `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS=true` on the API to bypass this guard. It is off by default, the `http`/`https` protocol requirement still applies, and enabling it re-opens the SSRF surface the check protects against. Only turn it on for a trusted, isolated deployment.
-
-## Troubleshooting
-
-### Notifications show in Kaneo but are not delivered
-
-Check that:
-
-- the global channel is configured and enabled
-- a workspace rule exists for the notification workspace
-- the workspace rule is active
-- the channel is enabled on that workspace rule
-- the project is included when using `Selected projects`
-
-### Email is enabled but nothing is sent
-
-Check that:
-
-- SMTP is configured correctly
-- the signed-in user has an email address
-- the server can reach the SMTP provider
-
-### ntfy, Gotify, or webhook save fails
-
-Check that:
-
-- the URL is valid
-- the destination is reachable from the API server
-- the hostname does not resolve to a blocked local or private address
-
-## Next
-
-- [Personalize Your Workspace](/core/functional/personalize-your-workspace)
-- [Outgoing webhooks](/core/integrations/outgoing-webhooks)
+If a notification appears in the inbox but never reaches your destination, check the destination service's logs and credentials next.

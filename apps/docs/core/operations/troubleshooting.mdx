@@ -1,0 +1,67 @@
+---
+title: "Troubleshooting"
+description: "Start with the symptom and check the part of the setup that controls it."
+---
+
+Run Compose commands from the directory containing your deployment file. The service names below match the bundled setup: `kaneo` and `postgres`.
+
+## Kaneo will not start
+
+```bash
+docker compose ps
+docker compose logs --tail=100 kaneo postgres
+```
+
+If PostgreSQL is unhealthy, check its logs and available disk space. If Kaneo cannot connect, check the database hostname and credentials. Inside Compose, the default hostname is `postgres`, not `localhost`.
+
+Changing `POSTGRES_PASSWORD` in `.env` does not change the password of an already initialized PostgreSQL user. Update the database credential deliberately and keep the application configuration in sync. Do not delete the volume to resolve a password mismatch.
+
+## The page opens, but requests or sign-in fail
+
+Check `KANEO_CLIENT_URL` against the URL in your browser. In the bundled deployment, leave `KANEO_API_URL` unset so it becomes the client URL plus `/api`.
+
+A browser on another computer cannot use your server's `localhost` URL. Use the public hostname and HTTPS, then recreate the container:
+
+```bash
+docker compose up -d --force-recreate kaneo
+```
+
+Check the browser's Network panel for the failed request and its status. A `401` usually calls for checking authentication; a `403` calls for checking workspace access or the required permission.
+
+## Changes only appear after refreshing
+
+Check that the reverse proxy forwards WebSocket upgrades. Use the [Nginx example](/core/reverse-proxy/nginx) and check for failed WebSocket requests in browser developer tools.
+
+With multiple API instances, configure [Redis](/core/installation/environment-variables#redis) for shared realtime delivery. A single API instance does not need it.
+
+## Uploads fail
+
+Check these in order:
+
+1. **Configuration:** the bucket exists and the `S3_*` values are set on the API.
+2. **Reachability:** the browser and API both resolve and reach `S3_ENDPOINT`. Docker-only names do not work for browser uploads.
+3. **HTTPS:** an HTTPS Kaneo page must not upload to an HTTP storage endpoint.
+4. **CORS:** storage allows the exact Kaneo origin, PUT, and the requested headers. For Silo, a bucket-specific policy overrides global CORS.
+5. **Permissions:** the credential can put, read, and delete objects in the bucket.
+6. **Limits:** the file fits Kaneo's upload limit and the proxy's body limit.
+7. **Signature:** the proxy preserves the host, path, query string, and signed headers. Check the storage server's clock too.
+
+An upload that reaches storage but cannot be finalized may have the wrong size or content type. Keep signed-header validation enabled and check the storage response.
+
+Use the [Silo guide](/core/installation/silo) for a complete self-hosted setup.
+
+## An invitation email does not arrive
+
+Check the pending invitation in **Members**. Copy its link and share it directly if email is not configured. If SMTP is configured but delivery fails, check the API logs and your mail provider's delivery logs.
+
+For SMTP on port 587, use `SMTP_SECURE=false` with STARTTLS. For implicit TLS, commonly on port 465, use `SMTP_SECURE=true`. Follow your provider's settings and the [SMTP reference](/core/installation/environment-variables#smtp-configuration).
+
+## Someone cannot see or change a project
+
+Check the selected workspace, their membership, and their role. Being able to read a task does not imply permission to assign or delete it. See [Members and roles](/core/functional/collaborate-with-team).
+
+## Ask for help
+
+Open a [GitHub issue](https://github.com/usekaneo/kaneo/issues) with the Kaneo version, deployment method, steps to reproduce, expected result, and the relevant error. Include a screenshot when it helps explain the problem.
+
+Remove passwords, tokens, connection strings, invitation links, and private task data from logs or screenshots before sharing them. Do not post your `.env` file.

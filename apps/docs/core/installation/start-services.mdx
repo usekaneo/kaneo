@@ -1,21 +1,20 @@
 ---
-title: Start the services
-description: Start the services to start using Kaneo
+title: "Start and check Kaneo"
+description: "Start the containers and confirm the instance is ready."
 ---
 
-## Start the services
+If you are installing for the first time, use the complete [Docker Compose guide](/core/installation/docker-compose). It includes the configuration, secrets, startup, and first sign-in.
 
-Congratulations! You have now set up the services to start using Kaneo. 
-
-To start the services, you can use the following command:
+From the directory containing your Compose file:
 
 ```bash
 docker compose up -d
+docker compose ps
+curl --fail http://localhost:5173/api/health
 ```
 
-You can now access the web application at [http://localhost:5173](http://localhost:5173).
+If a service is unhealthy, run `docker compose logs --tail=100 kaneo postgres` and follow [Troubleshooting](/core/operations/troubleshooting).
 
-The next logical step would be to set up a reverse proxy to access the web application from the internet.
+After changing `.env`, run `docker compose up -d --force-recreate kaneo` so the container receives the new values.
 
-- Nginx
-- Traefik
+For a public instance, continue with [Nginx and HTTPS](/core/reverse-proxy/nginx).

@@ -1,78 +1,85 @@
 ---
-title: Nginx
-description: Nginx is a web server that can be used as a reverse proxy.
+title: "Nginx and HTTPS"
+description: "Serve the bundled Kaneo container on one domain with working realtime updates."
 ---
 
-## Overview
+This example uses Nginx installed on the same host as the [Docker Compose deployment](/core/installation/docker-compose). The Kaneo container is available only at `127.0.0.1:5173`.
 
-This guide explains how to deploy Kaneo using Nginx as a reverse proxy. This setup is ideal for production environments where you want to expose Kaneo through a domain name with HTTPS.
+You need a domain pointing at the server and a valid TLS certificate. The paths below assume a certificate for `kaneo.example.com` already exists. Obtain one with your certificate manager before enabling the HTTPS server block.
 
-## Prerequisites
+## Configure one public origin
 
-- A domain name
-- A SSL certificate
-- A Nginx web server
+Set this in Kaneo's `.env`:
 
-## Installation
+```env
+KANEO_CLIENT_URL=https://kaneo.example.com
+```
 
-The first step is to make sure nginx is installed and running.
+Leave `KANEO_API_URL` unset for the bundled image. It serves the web app and `/api` through the same public origin.
 
 ```bash
-sudo apt update
-sudo apt install nginx
+docker compose up -d --force-recreate kaneo
 ```
 
-## Configuration
+## Configure Nginx
 
-The next step is to configure Nginx to proxy requests to the Kaneo services. We will create two servers, one for the web application and one for the API.
+Save this in your Nginx site's configuration. The `map` belongs in the `http` context, outside the `server` blocks; on a standard Debian or Ubuntu installation, `sites-enabled` is included there.
 
-1. Create a new file in the `/etc/nginx/sites-available/kaneo.conf` directory.
-
-```nginx title="kaneo.conf"
-server {
-  listen 80;
-  server_name kaneo.your-domain.com;
- 
-  location / {
-    proxy_pass http://localhost:5173;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-  }
+```nginx
+map $http_upgrade $kaneo_connection_upgrade {
+    default upgrade;
+    '' close;
 }
- 
+
 server {
-  listen 80;
-  server_name kaneo-api.your-domain.com;
- 
-  location / {
-    proxy_pass http://localhost:1337;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-  }
+    listen 80;
+    server_name kaneo.example.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name kaneo.example.com;
+    ssl_certificate /etc/letsencrypt/live/kaneo.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/kaneo.example.com/privkey.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:5173;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $kaneo_connection_upgrade;
+        proxy_read_timeout 300s;
+        proxy_buffering off;
+    }
 }
 ```
 
-2. Enable the configuration by creating a symlink to the `sites-enabled` directory.
+The upgrade headers follow [Nginx's WebSocket guidance](https://nginx.org/en/docs/http/websocket.html). They allow live task updates through the proxy. Disabling response buffering also lets streaming MCP responses arrive promptly.
 
-```bash
-sudo ln -s /etc/nginx/sites-available/kaneo.conf /etc/nginx/sites-enabled/
-```
-
-3. Test the configuration.
+Enable the site using your distribution's normal procedure, then validate and reload:
 
 ```bash
 sudo nginx -t
+sudo systemctl reload nginx
 ```
 
-4. Restart Nginx to apply the changes.
+## Check the public URL
 
 ```bash
-sudo systemctl restart nginx
+curl --fail https://kaneo.example.com/api/health
 ```
 
-## Key points
+Sign in and open a project in two browser sessions. Change a task in one and confirm the other receives the update without a refresh.
 
-- This configuration is for a single server, if you want to use a load balancer, you need to configure it accordingly.
-- This configuration is for a single domain, if you want to use a subdomain, you need to configure it accordingly.
+## Other network layouts
+
+If Nginx runs in another container, `127.0.0.1` refers to that proxy container. Put it on the same Docker network as Kaneo and use `http://kaneo:5173` as the upstream.
+
+Configure [`TRUSTED_PROXIES`](/core/installation/environment-variables#proxies) for your actual proxy chain when you need forwarded client addresses for rate limiting. Trust only the proxy addresses or a dedicated proxy subnet.
+
+If you deliberately host the API and web app separately, set their public URLs explicitly and configure allowed origins. The one-domain setup above does not require exposing port 1337.
+
+For uploads, give [Silo](/core/installation/silo) its own HTTPS hostname pointing to its S3 API.

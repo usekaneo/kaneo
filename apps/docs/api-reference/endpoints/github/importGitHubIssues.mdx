@@ -1,9 +1,7 @@
 ---
-title: importGitHubIssues
-description: Import GitHub issues as tasks
-openapi: 'POST /github-integration/import-issues'
+title: "Import GitHub issues"
+openapi: "POST /github-integration/import-issues"
 ---
-
 
 This endpoint processes at most four provider pages per request. It returns **202** while work remains and **200** when the run is complete. Send the returned `runId` with the same `projectId` on each continuation. Retrying a completed `runId` returns its final summary without starting another run.
 

@@ -1,0 +1,34 @@
+---
+title: ntfy
+description: Send personal Kaneo notifications through ntfy.
+---
+
+Use ntfy to receive your Kaneo account notifications on devices subscribed to a topic.
+
+## Connect ntfy
+
+1. Choose an ntfy server and a topic you can publish to. Subscribe to that topic in your ntfy client. Follow [ntfy’s publishing guide](https://docs.ntfy.sh/publish/) for topic access and tokens.
+2. Open **Settings → Account → Notifications** in Kaneo and find **ntfy**.
+3. Enter the server’s base URL, for example `https://ntfy.example.com`, and the topic in its separate field. Do not append the topic to the server URL.
+4. If the server requires authentication, enter a token with permission to publish to that topic.
+5. Enable the channel and choose **Connect ntfy**.
+
+Kaneo includes the notification title, message, and a task link when one is available. Choose a topic with access controls appropriate for the task information being sent.
+
+## Choose what reaches the topic
+
+Enable the notification categories you want at the top of the page. Add an active workspace rule below the channel settings, enable ntfy on it, and select all projects or specific ones. Save the rule.
+
+Ask a teammate to assign a test task to you in an included project. Check that it appears in both your Kaneo inbox and your ntfy client. Events you perform yourself may not notify you.
+
+## Change or disconnect
+
+Enter a replacement token and choose **Save changes** to rotate it. Leaving the token field empty keeps the stored token. Choose **Disconnect** to remove the saved server, topic, and token from Kaneo.
+
+If you disable the channel and later enable it again, review its workspace rules before resuming use.
+
+## Self-hosting requirements and troubleshooting
+
+The Kaneo API must be able to reach your notification server. Private network destinations require the operator to enable `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS`. To save a token, the API also needs a stable `NOTIFICATION_SECRET_ENCRYPTION_KEY`; see [notification server settings](/core/installation/environment-variables#notifications).
+
+If a notification stays in the inbox but is not delivered, check the channel, workspace rule, project selection, and destination credentials. If it never reaches the inbox, check your event preferences and whether that action should notify your account. See [Notifications](/core/functional/account-notifications) for the full flow.

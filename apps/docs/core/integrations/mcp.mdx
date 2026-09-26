@@ -20,7 +20,7 @@ Point your MCP client at:
 https://your-kaneo-instance.com/api/mcp
 ```
 
-On first connect, you will be redirected to Kaneo to sign in and explicitly approve the MCP client. After approval, all MCP tools run as your authenticated user.
+With an OAuth-capable client, you will be redirected to Kaneo to sign in and explicitly approve the MCP client. After approval, all MCP tools run as your authenticated user.
 
 The endpoint implements OAuth 2.1 with PKCE for authentication. Discovery metadata is available at:
 
@@ -29,31 +29,8 @@ The endpoint implements OAuth 2.1 with PKCE for authentication. Discovery metada
 
 The endpoint serves both MCP protocol eras: modern `2026-07-28` requests are
 stateless and self-contained, while 2025-era clients keep the sessionful
-`initialize` flow. See [MCP 2026-07-28 stateless compatibility](/core/integrations/mcp-stateless)
-for the exact contract, tests, Codex configuration, limitations, and rollback.
-
-### OAuth request limits
-
-The HTTP OAuth endpoints accept bodies up to 32 KiB and URLs up to 8 KiB.
-Client registration accepts at most 10 redirect URIs. Request bodies must arrive
-within five seconds. Each API process allows up to 16 concurrent requests in
-each of the registration, authorization, and token endpoint groups.
-
-Instances sharing a database also share OAuth storage and issuance limits:
-
-| State | Stored entries | New entries per minute | Pending entries per client |
-| --- | --- | --- | --- |
-| Registered clients | 1,000 | 60 | — |
-| Authorization requests | 10,000 | 300 | 20 |
-| Authorization codes | 10,000 | 300 | 20 |
-
-When capacity is exhausted, the endpoint returns HTTP 429 with `Retry-After`.
-Clients should wait before retrying. Existing, unexpired entries are retained;
-an approval that cannot issue a code leaves its authorization request available
-for retry until it expires. Expired entries are cleaned up in bounded batches
-when new state is created, so a previously oversized store may need multiple
-attempts before accepting new entries. These limits complement reverse-proxy
-connection and request limits for internet-facing installations.
+`initialize` flow. See [MCP protocol reference](/core/integrations/mcp-stateless)
+for transport behavior, proxy requirements, and request limits.
 
 ## Stdio package
 
@@ -72,7 +49,7 @@ By default, self-hosted Kaneo allows both `kaneo-cli` and `kaneo-mcp` as device 
 Use the recommended interactive installer:
 
 ```bash
-npx @kaneo/mcp
+npx -y @kaneo/mcp
 ```
 
 The installer lets you choose where to register the server configuration:
@@ -85,13 +62,13 @@ The installer lets you choose where to register the server configuration:
 You can also run the explicit install command:
 
 ```bash
-kaneo-mcp install --target cursor-user -y
+npx -y @kaneo/mcp install --target cursor-user -y
 ```
 
 Use `--help` to see all available targets and flags:
 
 ```bash
-kaneo-mcp install --help
+npx -y @kaneo/mcp install --help
 ```
 
 ### Point to a self-hosted instance
@@ -99,14 +76,14 @@ kaneo-mcp install --help
 When generating config, pass your Kaneo base URL:
 
 ```bash
-kaneo-mcp install --target cursor-user -y --api-url https://kaneo.example.com
+npx -y @kaneo/mcp install --target cursor-user -y --api-url https://kaneo.example.com
 ```
 
 Or set it via environment variable:
 
 | Variable | Description |
 | --- | --- |
-| `KANEO_API_URL` | Kaneo API origin. Default: `http://localhost:1337`. Do not include `/api`. |
+| `KANEO_API_URL` | Kaneo API base URL. Default: `http://localhost:1337`. A trailing `/api` is accepted and normalized. |
 | `KANEO_MCP_CLIENT_ID` | Device auth client ID. Default: `kaneo-mcp`. |
 
 If you override `KANEO_MCP_CLIENT_ID`, make sure it is included in [`DEVICE_AUTH_CLIENT_IDS`](/core/installation/environment-variables).
@@ -119,7 +96,7 @@ On the first tool call that needs Kaneo access, the MCP server:
 2. Prints a verification URL and user code
 3. Opens the browser when possible
 4. Polls until you approve sign-in
-5. Stores credentials in `~/.config/kaneo-mcp/credentials.json`
+5. Stores credentials in `$XDG_CONFIG_HOME/kaneo-mcp/credentials.json`, or `~/.config/kaneo-mcp/credentials.json` when `XDG_CONFIG_HOME` is unset
 
 ## Available tools
 
@@ -130,7 +107,7 @@ Both the HTTP endpoint and stdio package expose the same tools:
 - Projects: `list_projects`, `get_project`, `create_project`, `update_project`, `list_project_columns`
 - Tasks: `list_tasks`, `get_task`, `create_task`, `duplicate_task`, `update_task`, `delete_task`, `move_task`, `update_task_status`, `update_task_assignee`, `update_task_due_date`, `list_task_activity`
 - Time entries: `list_task_time_entries`, `get_time_entry`, `create_time_entry`, `update_time_entry`
-- Comments: `list_task_comments`, `create_task_comment`
+- Comments: `list_task_comments`, `create_task_comment`, `update_task_comment`, `delete_task_comment`
 - Labels: `list_workspace_labels`, `create_label`, `attach_label_to_task`, `detach_label_from_task`, `delete_label`
 - Task relations: `create_task_relation`, `get_task_relations`, `delete_task_relation`
 
@@ -145,7 +122,7 @@ tools expect. Time entries have no delete endpoint on the API, so there is no
 To run the stdio server directly:
 
 ```bash
-npx @kaneo/mcp serve
+npx -y @kaneo/mcp serve
 ```
 
 When running from source in this monorepo:

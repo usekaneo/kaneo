@@ -1,153 +1,62 @@
 ---
-title: Migrating to drim
-description: Move an existing Kaneo deployment onto the drim CLI, or update an older drim deployment to the current single-container layout
+title: Use drim with an existing deployment
+description: Manage an existing Compose stack without replacing its database or regenerating its secrets.
 ---
 
-Two migrations are covered here. Both reuse your existing Docker volumes, so your database and uploads stay where they are and no data is copied.
+The drim CLI runs Docker Compose commands in your deployment directory. You can use it with an existing stack; you do not need to run `drim setup` again.
 
-## Updating an older drim deployment
+## Adopt your existing Compose file
 
-Kaneo used to ship as two images, `api` and `web`, behind a reverse proxy that split traffic between them. It now ships as one container that serves the web app and the API together.
+1. Install [drim](/core/installation/drim) and back up your [database, files, and configuration](/core/operations/backups).
+2. Stay in the current deployment directory. Moving directories can change the Compose project name and cause Docker to create new volumes.
+3. Ensure the main Compose file is named `docker-compose.yml`. drim 0.1.15 checks for that filename. If yours is `compose.yml`, rename it in the same directory and update any scripts that refer to it. Avoid keeping two competing default Compose files.
+4. Keep the existing `.env`, `AUTH_SECRET`, database credentials, volumes, networks, and reverse proxy configuration.
+5. Validate the configuration with `docker compose config --quiet`.
 
-`drim upgrade` pulls new images but does not rewrite an existing `docker-compose.yml`, so a deployment created before that change keeps running the old layout indefinitely. Check which one you have:
+If your normal deployment uses `COMPOSE_FILE`, `COMPOSE_PROJECT_NAME`, profiles, or extra environment files, keep the same Compose context when running drim. For complex setups, direct Docker Compose commands may be clearer.
 
-```bash
-grep -E 'image:.*usekaneo' docker-compose.yml
-```
-
-Two lines with `usekaneo/api` and `usekaneo/web` mean you are on the old layout. A single `usekaneo/kaneo` line means you are already current and there is nothing to do.
-
-### Steps
-
-Back up the files you are about to edit, so you can put them back:
+Run these commands from that directory when needed:
 
 ```bash
-STAMP=$(date +%Y%m%d-%H%M%S)
-cp docker-compose.yml docker-compose.yml.bak-$STAMP
-cp Caddyfile Caddyfile.bak-$STAMP
+drim start       # docker compose up -d
+drim stop        # docker compose stop
+drim restart     # restart existing containers
+drim configure   # edit .env and offer to apply changes
 ```
 
-Pull the image first, so the switchover is a quick container swap rather than a download:
+Use `drim restart --recreate` after an environment change. A plain restart retains the container’s old environment. `drim upgrade` pulls the images selected in your Compose file and applies them; it does not rewrite the file or change a pinned version for you.
 
-```bash
-docker pull ghcr.io/usekaneo/kaneo:latest
-```
+## Replace an older two-container layout
 
-Replace the `api` and `web` services in `docker-compose.yml` with one `kaneo` service. Leave `postgres`, the volumes, and any services you added yourself untouched:
+If your Compose file still contains separate `usekaneo/api` and `usekaneo/web` images, follow [Move to the bundled container](/core/installation/migration). `drim upgrade` alone does not combine those services.
 
-```yaml
-  kaneo:
-    image: ghcr.io/usekaneo/kaneo:latest
-    env_file: .env
-    depends_on:
-      postgres:
-        condition: service_healthy
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:5173/api/health"]
-      interval: 30s
-      timeout: 5s
-      start_period: 60s
-      retries: 3
-    networks:
-      - kaneo
-```
-
-Update anything that pointed at the old services. In `depends_on` entries elsewhere, replace `api` and `web` with `kaneo`. In your reverse proxy, send everything to the one service instead of splitting on path, because the container routes `/api` internally:
+For a Caddy service on the same Docker network, the application upstream becomes:
 
 ```caddyfile
-your-domain.com {
-    reverse_proxy http://kaneo:5173
+kaneo.example.com {
+    reverse_proxy kaneo:5173
     encode gzip
 }
 ```
 
-Apply it:
-
-```bash
-docker compose up -d --remove-orphans
-```
-
-<Warning>
-If your reverse proxy config is bind-mounted as a single file, recreate that container rather than reloading it. Replacing the file with `mv` gives it a new inode, and the running container keeps reading the old one, so a reload silently applies stale config:
+Keep Caddy’s existing certificate volumes. If you replaced a bind-mounted Caddyfile, recreate the proxy container so it sees the current file:
 
 ```bash
 docker compose up -d --force-recreate caddy
 ```
-</Warning>
 
-### Verify
+Use your actual proxy service name. A host-based proxy uses the published application port instead of Docker’s `kaneo` hostname.
 
-```bash
-docker compose ps
-curl -s https://your-domain.com/api/health
-```
+## Check the result
 
-You want every service up, the Kaneo container reporting healthy once its start period elapses, and `{"status":"ok"}` from the health endpoint.
+Check `docker compose ps` and request `/api/health` through your public URL. Sign in, open existing tasks, and check an existing attachment. Confirm that the database is the original one before inviting anyone to use the instance.
 
-### Rollback
+| Problem | What to check |
+| --- | --- |
+| drim cannot find a deployment | Run it beside `docker-compose.yml`. |
+| Kaneo looks like a new installation | Check the Compose project name, mounted database volume, and database URL. Stop the application before creating new data. |
+| Database login fails | Use the original database credentials. Changing `.env` does not reset an existing PostgreSQL password. |
+| Everyone was signed out | Check whether `AUTH_SECRET` changed. |
+| Proxy cannot reach Kaneo | Check the service name, shared network, and port 5173. |
 
-Restore the backed-up files and recreate:
-
-```bash
-cp docker-compose.yml.bak-$STAMP docker-compose.yml
-cp Caddyfile.bak-$STAMP Caddyfile
-docker compose up -d --force-recreate
-```
-
-## Moving an existing Kaneo onto drim
-
-If you deployed Kaneo by hand and want drim to manage it, the goal is to have drim generate its files and then point them at the volumes you already have.
-
-Record the names of your existing volumes and your current environment values:
-
-```bash
-docker volume ls | grep -i kaneo
-```
-
-Complete the [verified drim installation](/core/installation/drim#installation)
-before stopping the current stack. Then run setup in a new directory:
-
-```bash
-docker compose down
-mkdir ~/kaneo && cd ~/kaneo
-drim setup --domain=your-domain.com
-drim stop
-```
-
-Point the generated `docker-compose.yml` at your existing database volume by declaring it external, using the exact name from `docker volume ls`:
-
-```yaml
-volumes:
-  postgres_data:
-    external: true
-    name: your_existing_volume_name
-```
-
-Copy your previous credentials into the generated `.env`, in particular `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `DATABASE_URL` and `AUTH_SECRET`. A different `AUTH_SECRET` invalidates every existing session, so reuse the old value unless you intend to sign everyone out.
-
-```bash
-drim configure   # opens .env, applies changes on save
-```
-
-Then start and verify as above.
-
-### Using your own reverse proxy
-
-If you already run nginx, Traefik or similar, choose `--no-reverse-proxy` at setup so drim does not start Caddy on ports 80 and 443, and point your proxy at Kaneo on port 5173.
-
-## Common issues
-
-**Database connection failed.** The credentials in `.env` do not match the ones the volume was created with. `DATABASE_URL` must agree with `POSTGRES_USER`, `POSTGRES_PASSWORD` and `POSTGRES_DB`.
-
-**Volume not found.** The `name:` under an external volume must match `docker volume ls` exactly, including any project-name prefix from the old deployment.
-
-**Port already in use.** Something else holds 80 or 443, usually a system nginx or the old stack still running. Stop it, or use `--no-reverse-proxy`.
-
-**Everyone was signed out.** `AUTH_SECRET` changed. Restore the previous value.
-
-## After migrating
-
-Keep the old containers' volumes until you are confident, then remove the stale containers and images. Volumes are the only thing holding your data, so remove those last and deliberately.
-
-Set up off-site backups if you have not already. A copy on the same machine does not survive losing that machine.
+Keep the backup and original configuration until the deployment is verified. If a newer image migrated the database, [recovery](/core/operations/backups) requires its matching backup, not just an older Compose file.

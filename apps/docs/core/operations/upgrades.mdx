@@ -1,0 +1,50 @@
+---
+title: "Upgrade Kaneo"
+description: "Choose a release, protect your data, and check the result."
+---
+
+Kaneo runs database migrations when the API starts. An upgrade can change your database as well as the application, so prepare a recovery point before changing the image.
+
+## Before you upgrade
+
+1. Read the [release notes](https://github.com/usekaneo/kaneo/releases) between your current and target versions.
+2. Record the current image tag or digest and keep a copy of your Compose file and environment files.
+3. Create a [database and file backup](/core/operations/backups), and check that you can restore it.
+4. Choose a short maintenance window. Try the new release against a restored copy first when the change is substantial.
+
+Do not change the PostgreSQL major version as part of an ordinary Kaneo image update. A database major upgrade needs its own migration procedure.
+
+## Docker Compose
+
+In the Compose setup from this guide, set `KANEO_IMAGE_TAG` in `.env` to the release you chose. If your Compose file hardcodes the image tag, edit that instead. Pulling an image does not restart the running container.
+
+```bash
+docker compose pull kaneo
+docker compose up -d kaneo
+docker compose ps
+docker compose logs --tail=100 kaneo
+```
+
+## drim
+
+Run `drim upgrade` from the deployment directory. It pulls the images selected by your existing Compose file. If those use `latest`, that means the newest published images. Review the file before running it.
+
+Older two-container deployments need the [layout migration](/core/installation/drim-migration); upgrading images does not rewrite their Compose file.
+
+## Check the result
+
+- Request `/api/health` and confirm the container becomes healthy.
+- Sign in, open an existing project, and create a test task.
+- Open the same project in another browser session and check a status change appears.
+- Upload and reopen an attachment if storage is configured.
+- Check email and the integrations your team uses.
+
+Keep the backup until you are satisfied with the result.
+
+## If the upgrade fails
+
+Capture the failing container logs and stop the new application container with `docker compose stop kaneo` while you investigate.
+
+Do not assume an old image can read a newly migrated database. Unless the release explicitly supports that downgrade, recover using the previous application image plus its matching database and file backup. Follow [Backups and recovery](/core/operations/backups), and account for any work created since the backup.
+
+Never use `docker compose down -v` as an upgrade or troubleshooting step. It removes the named data volumes.

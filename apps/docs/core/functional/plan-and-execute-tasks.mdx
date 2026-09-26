@@ -1,64 +1,73 @@
 ---
-title: Plan and Execute Tasks in Board and List
-description: Create tasks, set metadata, and execute work using Board and List views
+title: "Board, List, and task details"
+description: "Create tasks, keep them moving, and find the work that needs attention."
 ---
 
-Use this workflow to move from planning to execution with minimal overhead.
+Open a project and choose **Tasks**. Use **Board** or **List** at the top right to change how the same work is displayed.
 
-## 1. Create tasks quickly
+## Add a task
 
-In a project:
+On the board, choose **+** in the column where the task belongs. Give it a title that describes the work, then open the task to add details.
 
-1. Open **Board** or **List** view.
-2. Click **Create task**.
-3. Add a short, action-oriented title.
-4. Optionally set description, assignee, priority, due date, and labels.
+A title such as “Fix the mobile navigation” is easier to act on than “Mobile issues.” Use the description for context, links, and a checklist of smaller steps.
 
-## 2. Keep task data clean
+## Move work on the board
 
-When editing tasks, prioritize:
+Drag a task to another column when its status changes. You can also change its status inside the task.
 
-- Clear scope in the description
-- One owner (assignee)
-- Explicit priority
-- Realistic due dates
-- Reusable labels
+<Frame caption="Board view groups tasks by status. Cards show labels, priority, assignees, and dates.">
+  <img className="block dark:hidden" src="/images/product/board-light.png" alt="Board view groups tasks by status. Cards show labels, priority, assignees, and dates." />
+  <img className="hidden dark:block" src="/images/product/board-dark.png" alt="Board view groups tasks by status. Cards show labels, priority, assignees, and dates." />
+</Frame>
 
-## 3. Execute in Board view
+Your project's [workflow settings](/core/functional/configure-workflows) determine the columns and which ones count as done. Move a completed task back to an active column to reopen it.
 
-Board view is best for flow-based execution:
+## Scan work in List
 
-1. Pull tasks into active columns.
-2. Drag tasks across columns as status changes.
-3. Open a task to edit details without losing board context.
+Switch to **List** when you want to compare task properties without opening every task.
 
-## 4. Switch to List view for dense review
+<Frame caption="List view shows the same project tasks in rows for faster scanning.">
+  <img className="block dark:hidden" src="/images/product/list-light.png" alt="List view shows the same project tasks in rows for faster scanning." />
+  <img className="hidden dark:block" src="/images/product/list-dark.png" alt="List view shows the same project tasks in rows for faster scanning." />
+</Frame>
 
-List view is useful when you need to scan many tasks quickly.
+Use **Filter** to narrow the view by status, priority, assignee, dates, or labels. Use **Sort** to change the order. If a task seems to have disappeared, clear your filters and check the backlog before creating another one.
 
-Typical uses:
+## Add the details people need
 
-- Reviewing priorities across the project
-- Spotting overdue work
-- Finding unassigned or under-specified tasks
+Open a task to edit its description and properties. Use **Open in full page** from the task panel when you want more space.
 
-## 5. Use filters to focus
+<Frame caption="The full task page keeps the description, properties, and conversation together.">
+  <img className="block dark:hidden" src="/images/product/task-light.png" alt="The full task page keeps the description, properties, and conversation together." />
+  <img className="hidden dark:block" src="/images/product/task-dark.png" alt="The full task page keeps the description, properties, and conversation together." />
+</Frame>
 
-The board toolbar supports filtering by:
+- **Assignee:** choose the person responsible for the next step. Clear it to leave the task unassigned.
+- **Priority:** show what needs attention first. A task can have no priority.
+- **Dates:** add start and due dates when the work has a schedule.
+- **Labels:** group related work across projects. Removing a label from one task does not delete the workspace label.
+- **Comments:** ask questions and record decisions where everyone following the task can find them.
 
-- Status
-- Priority
-- Assignee
-- Due date
-- Labels
+Use the attachment button, paste, or drag a file into the editor to add supporting material. Images appear inline; other files appear as attachments. On self-hosted instances, an operator must [configure file storage](/core/installation/object-storage-and-image-uploads) first.
 
-Use filters aggressively during standups, planning, and triage.
+## Break work into subtasks
 
-## 6. Open full task page when needed
+In the task’s **Sub-tasks** section, enter a title and choose **Add**. Each subtask is a task with its own status and assignee. Open it to add more detail. The **Subtask of** link takes you back to its parent.
 
-From the task sheet, use **Open in full page** for deeper edits and focused context.
+Use checkboxes in the description for a simple checklist. Use subtasks when each piece needs its own owner or progress tracking.
 
-## Next
+## Link related work
 
-- [Plan work in Backlog](/core/functional/backlog-planning)
-- [Configure project workflows](/core/functional/configure-workflows)
+Open **Relations** and use the add button to find another task. Choose **Related** for a connection or **Blocks** when the current task must be resolved before the other one. The other task shows the inverse **blocked by** relationship.
+
+Use **Remove relation** to unlink the tasks without deleting either task.
+
+## Fill in custom fields
+
+If your project defines extra fields, open **Custom Fields** in task details. These can hold text, numbers, dates, dropdown choices, or a yes/no value. A project manager defines the fields in [Workflow settings](/core/functional/configure-workflows).
+
+## Delete a task
+
+Use **Delete Task** only when you want to remove the task, rather than mark it done. Check the confirmation before proceeding. If deletion or assignment is unavailable, your workspace role may not permit it.
+
+For work you want to keep but are not ready to start, use the [backlog](/core/functional/backlog-planning).

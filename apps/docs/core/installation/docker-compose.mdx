@@ -1,21 +1,27 @@
 ---
-title: The compose.yml file
-description: The Docker Compose file is used to start the required services.
+title: "Install with Docker Compose"
+description: "Run Kaneo and PostgreSQL, then sign in to your new instance."
 ---
 
-## The initial compose file
+This guide starts a local instance at `http://localhost:5173`. You need Docker with Compose V2 and a terminal. No repository clone is required.
 
-The first step is to create a Docker Compose file. We will call it `compose.yml`.
+## 1. Create a directory
 
-```yml
+```bash
+mkdir kaneo
+cd kaneo
+```
+
+Save the following as `compose.yml`:
+
+```yaml
 services:
   postgres:
     image: postgres:16-alpine
-    env_file:
-      - .env
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-kaneo}
       POSTGRES_DB: ${POSTGRES_DB:-kaneo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -26,9 +32,9 @@ services:
       retries: 5
 
   kaneo:
-    image: ghcr.io/usekaneo/kaneo:latest
+    image: ghcr.io/usekaneo/kaneo:${KANEO_IMAGE_TAG:-2.27.0}
     ports:
-      - "5173:5173"
+      - "127.0.0.1:5173:5173"
     env_file:
       - .env
     depends_on:
@@ -36,105 +42,79 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:5173/api/health"]
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:5173/api/health"]
       interval: 30s
       timeout: 5s
-      retries: 3
       start_period: 60s
+      retries: 3
 
 volumes:
   postgres_data:
 ```
 
-## The services and volumes
+This example pins Kaneo to a release so a pull does not unexpectedly upgrade it. See the [release notes](https://github.com/usekaneo/kaneo/releases) when choosing another version.
 
-Kaneo uses the following services:
+## 2. Add configuration
 
-- `postgres`: The PostgreSQL database.
-- `kaneo`: The combined API and web container.
+Run this twice to generate two different secrets:
 
-Additionally, the following volumes are used:
+```bash
+openssl rand -hex 32
+```
 
-- `postgres_data`: The PostgreSQL data.
-
-## Required URL configuration
-
-Copy `.env.sample` to `.env` and uncomment or set these values:
+Create `.env` beside `compose.yml`. Replace both placeholders with the generated values:
 
 ```env
+KANEO_IMAGE_TAG=2.27.0
 KANEO_CLIENT_URL=http://localhost:5173
 POSTGRES_DB=kaneo
 POSTGRES_USER=kaneo
-POSTGRES_PASSWORD=changeme
-AUTH_SECRET=                             # generate: openssl rand -hex 32
+POSTGRES_PASSWORD=replace-with-the-first-generated-secret
+AUTH_SECRET=replace-with-the-second-generated-secret
 ```
 
-`KANEO_API_URL` defaults to `KANEO_CLIENT_URL/api`; set it explicitly only if you need to override the default (e.g. a reverse proxy changes the path).
+Keep this file private. On Linux or macOS, run `chmod 600 .env`.
 
-This keeps the browser on one origin while the container proxies `/api` requests to the internal API process.
+The bundled image derives its database connection from `POSTGRES_*` and its API URL from `KANEO_CLIENT_URL`. You do not need to set `DATABASE_URL` or `KANEO_API_URL` for this setup.
 
-For this Compose setup, the bundled Kaneo container reaches PostgreSQL at the service hostname `postgres`.
-The database is reachable only inside the Compose network. For host-based development, explicitly add a loopback-only mapping (`127.0.0.1:5432:5432`) and configure `DATABASE_URL` accordingly.
+## 3. Start and check the services
 
-## Notes on object storage
-
-Kaneo uses S3-compatible object storage for private uploads in task descriptions and comments.
-
-- Object storage is optional. Kaneo runs without it, but uploads in task descriptions and comments will be unavailable.
-- For local/self-hosted setups, MinIO is the recommended option when you want uploads.
-- The Kaneo API creates presigned upload URLs and the browser uploads files directly to the configured storage backend.
-- Kaneo serves uploaded assets back through its own API, so the bucket does not need to be public.
-- If you do not configure object storage, leave the `S3_*` variables unset.
-- For a complete MinIO example and backend-specific setup notes, see the [storage backends guide](/core/installation/storage-backends).
-
-### Optional MinIO service
-
-Add this service and volume to your `compose.yml` only if you want uploads:
-
-```yml
-services:
-  minio:
-    image: minio/minio:latest
-    command: server /data --console-address ":9001"
-    env_file:
-      - .env
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    volumes:
-      - minio_data:/data
-    restart: unless-stopped
-
-volumes:
-  minio_data:
+```bash
+docker compose up -d
+docker compose ps
+curl --fail http://localhost:5173/api/health
 ```
 
-Set the matching `S3_*` environment variables in your `.env` file. See the [environment variables page](/core/installation/environment-variables).
+Allow time for the first database initialization and migrations. Both services should become healthy. If they do not, check:
 
-### Example `.env` values for MinIO
+```bash
+docker compose logs --tail=100 kaneo postgres
+```
+
+Open [localhost:5173](http://localhost:5173), create the initial account, and follow [Your first project](/core/index).
+
+## 4. Make it available to your team
+
+The port is bound to the host's loopback address. To serve Kaneo on a domain, follow the [Nginx and HTTPS guide](/core/reverse-proxy/nginx), then set:
 
 ```env
-MINIO_ROOT_USER=minioadmin
-MINIO_ROOT_PASSWORD=minioadmin
-
-S3_ENDPOINT=http://minio:9000
-S3_BUCKET=kaneo-uploads
-S3_ACCESS_KEY_ID=minioadmin
-S3_SECRET_ACCESS_KEY=minioadmin
-S3_REGION=us-east-1
-S3_FORCE_PATH_STYLE=true
+KANEO_CLIENT_URL=https://kaneo.example.com
 ```
 
-Create the bucket before testing uploads. With MinIO, you can do that from the MinIO Console at `http://localhost:9001`.
+Apply environment changes by recreating the container:
 
-### Using `fs` instead of MinIO
+```bash
+docker compose up -d --force-recreate kaneo
+```
 
-If you want to use [`fs`](https://github.com/ferdzo/fs), you can point the same `S3_*` variables at its endpoint instead of MinIO. Kaneo only needs an S3-compatible API endpoint, credentials, and a bucket.
+A plain restart keeps the old environment. If you use a proxy in another container, connect it to Kaneo's Docker network and proxy to `kaneo:5173` instead of the host's loopback address.
 
-When using `fs`, keep these differences in mind:
+## Optional features
 
-- Set `S3_FORCE_PATH_STYLE=true`.
-- Create buckets through the S3 API or CLI, not through a web console.
-- Browser uploads may require reverse-proxy CORS handling, because `fs` does not currently implement S3 CORS APIs.
+- [Silo](/core/installation/silo) stores images and attachments.
+- [SMTP](/core/installation/environment-variables#smtp-configuration) delivers sign-in codes, invitations, and notifications.
+- [Sign-in providers](/core/social-providers/custom-oauth) connect your identity provider.
 
-After creating the compose file, the next step is to set up the environment variables.
+PostgreSQL stays inside the Compose network. Do not publish its port for this deployment.
+
+Before storing work you care about, set up [backups](/core/operations/backups). Use the [upgrade guide](/core/operations/upgrades) when changing versions.
