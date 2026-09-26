@@ -309,7 +309,10 @@ function RouteComponent() {
             viewMode === "board" ? (
               <KanbanBoard
                 project={sortedProject}
-                disableDragDrop={sort.field !== "position"}
+                disableDragDrop={
+                  sort.field !== "position" && sort.field !== "number"
+                }
+                sortedByNumber={sort.field === "number"}
               />
             ) : (
               <ListView
