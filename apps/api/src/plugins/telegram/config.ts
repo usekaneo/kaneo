@@ -1,4 +1,7 @@
 import * as v from "valibot";
+import { privateDestinationsAllowed } from "../../utils/assert-public-destination";
+
+export const TELEGRAM_API_URL = "https://api.telegram.org";
 
 export const telegramEventKeys = [
   "taskCreated",
@@ -31,8 +34,33 @@ const telegramChatIdSchema = v.pipe(
   v.minLength(1, "Chat ID is required"),
 );
 
+// A query or fragment would swallow the /bot<token>/<method> path appended later
+function isPlainServerUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return (
+      ["http:", "https:"].includes(url.protocol) &&
+      !/[?#]/.test(value) &&
+      !url.username &&
+      !url.password
+    );
+  } catch {
+    return false;
+  }
+}
+
+const telegramServerUrlSchema = v.pipe(
+  v.string(),
+  v.url("Enter a valid Bot API server URL"),
+  v.check(
+    isPlainServerUrl,
+    "Bot API server URL must use http or https, without a query, fragment, or credentials",
+  ),
+);
+
 export const telegramConfigSchema = v.object({
   botToken: telegramBotTokenSchema,
+  serverUrl: v.optional(telegramServerUrlSchema),
   chatId: telegramChatIdSchema,
   threadId: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
   chatLabel: v.optional(v.string()),
@@ -55,6 +83,7 @@ export function normalizeTelegramConfig(
 ): TelegramConfig {
   return {
     ...config,
+    serverUrl: config.serverUrl?.trim().replace(/\/+$/, "") || undefined,
     threadId:
       typeof config.threadId === "number" && Number.isFinite(config.threadId)
         ? config.threadId
@@ -65,6 +94,19 @@ export function normalizeTelegramConfig(
       ...(config.events ?? {}),
     },
   };
+}
+
+// The bot token travels in the request path, so plain http is only accepted
+// for servers on a private network.
+export function assertTelegramTransport(serverUrl: string): void {
+  if (
+    new URL(serverUrl).protocol === "http:" &&
+    !privateDestinationsAllowed()
+  ) {
+    throw new Error(
+      "Bot API server URL must use https unless KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS is enabled",
+    );
+  }
 }
 
 export function validateTelegramConfig(config: unknown): {
