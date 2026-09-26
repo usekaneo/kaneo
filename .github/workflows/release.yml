@@ -124,8 +124,11 @@ jobs:
     permissions:
       contents: read
       packages: write
+
     uses: ./.github/workflows/build-images.yml
-    secrets: inherit
+    secrets:
+      GH_PACKAGE_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
     with:
       source_mode: planned
       version: ${{ needs.plan.outputs.version }}
@@ -137,6 +140,7 @@ jobs:
     if: ${{ !inputs.dry_run && needs.plan.outputs.version != '' }}
     permissions:
       contents: read
+
     uses: ./.github/workflows/helm-validate.yml
 
   release:
@@ -233,6 +237,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+
     uses: ./.github/workflows/helm-chart.yml
     with:
       version: ${{ needs.plan.outputs.version }}

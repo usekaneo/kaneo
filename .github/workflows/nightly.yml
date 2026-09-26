@@ -187,6 +187,7 @@ jobs:
   verify:
     name: Verify nightly build
     if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+
     uses: ./.github/workflows/ci.yml
 
   publish-images:
@@ -196,8 +197,11 @@ jobs:
     permissions:
       contents: read
       packages: write
+
     uses: ./.github/workflows/build-images.yml
-    secrets: inherit
+    secrets:
+      GH_PACKAGE_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
     with:
       source_mode: nightly
       tags: |
