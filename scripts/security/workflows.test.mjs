@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
@@ -69,7 +75,11 @@ test("issue notifications preserve untrusted text without Discord mentions", () 
 const ghMock = `#!/bin/sh
 set -eu
 case "$1 $2" in
-  'api --paginate') printf '%s' "$MOCK_FILES" ;;
+   'api --paginate')
+    case "$3" in
+      */events) printf '%s' "$MOCK_EVENTS" ;;
+      *) printf '%s' "$MOCK_FILES" ;;
+    esac ;;
   'pr checks')
     case "$*" in
       *--watch*) exit "$MOCK_WATCH_STATUS" ;;
@@ -86,6 +96,11 @@ const manifest = [
 ];
 for (const [name, overrides, allowed] of [
   ["passing required checks permit the verified head", {}, true],
+  [
+    "a previously closed PR rejects even after a bot update",
+    { events: [{ event: "closed" }, { event: "reopened" }] },
+    false,
+  ],
   ["missing required checks reject", { checks: [] }, false],
   ["failing checks reject", { checks: [{ bucket: "fail" }] }, false],
   ["pending checks reject", { checks: [{ bucket: "pending" }] }, false],
@@ -124,6 +139,7 @@ for (const [name, overrides, allowed] of [
           PR_NUMBER: "1",
           EXPECTED_HEAD: "reviewed-head",
           MOCK_FILES: JSON.stringify(overrides.files ?? manifest),
+          MOCK_EVENTS: JSON.stringify(overrides.events ?? []),
           MOCK_CHECKS: JSON.stringify(
             "checks" in overrides ? overrides.checks : success,
           ),
@@ -257,4 +273,32 @@ test("release packages reject a tag outside reviewed main history", () => {
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
+});
+
+test("Dependabot automation excludes human reopens and ready events", () => {
+  const source = readFileSync(
+    path.join(root, ".github/workflows/auto-merge.yml"),
+    "utf8",
+  );
+  assert.match(source, /types: \[opened, synchronize\]/);
+  assert.match(source, /github\.actor == 'dependabot\[bot\]'/);
+});
+
+test("Blacksmith actions use immutable commits with no scanner exemption", () => {
+  for (const file of readdirSync(path.join(root, ".github/workflows"))) {
+    if (!file.endsWith(".yml")) continue;
+    const source = readFileSync(
+      path.join(root, ".github/workflows", file),
+      "utf8",
+    );
+    for (const match of source.matchAll(
+      /uses: (useblacksmith\/[^@\s]+)@([^\s]+)/g,
+    )) {
+      assert.match(match[2], /^[a-f0-9]{40}$/, `${file}: ${match[1]}`);
+    }
+  }
+  assert.doesNotMatch(
+    readFileSync(path.join(root, "zizmor.yml"), "utf8"),
+    /ref-pin/,
+  );
 });

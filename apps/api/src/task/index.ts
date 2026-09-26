@@ -24,7 +24,10 @@ import {
   verifyTaskAssetUpload,
 } from "../storage/s3";
 import { normalizeApiServerUrl } from "../utils/openapi-spec";
-import { requireWorkspacePermission } from "../utils/require-workspace-permission";
+import {
+  hasWorkspacePermission,
+  requireWorkspacePermission,
+} from "../utils/require-workspace-permission";
 import {
   validateAndParseDate,
   validateDateRange,
@@ -177,7 +180,7 @@ const duplicateTaskRoute = createRoute({
   tags: ["Tasks"],
   summary: "Duplicate a task",
   description:
-    "Copy a task into the same project and column, including custom fields, labels, description assets and same-workspace parent links. Comments, time entries and child tasks are not copied.",
+    "Copy a task into the same project and column, including custom fields, labels, description assets and same-workspace parent links. Copying parent links also requires task:update. Comments, time entries and child tasks are not copied.",
   middleware: [
     workspaceAccess.fromTask(),
     requireWorkspacePermission({ task: ["create"] }),
@@ -194,7 +197,9 @@ const duplicateTaskRoute = createRoute({
     200: jsonResponse("The duplicated task", taskSchema),
     400: errorResponse("Invalid task fields or request"),
     401: errorResponse("Unauthorized"),
-    403: errorResponse("No workspace access or task:create permission"),
+    403: errorResponse(
+      "No workspace access, missing task:create, or missing task:update when copying parent links",
+    ),
     404: errorResponse("Task or project not found"),
     409: errorResponse("Task column has reached its capacity"),
     503: errorResponse("Unable to copy task attachments"),
@@ -720,6 +725,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
         taskId: id,
         title,
         currentUserId: c.get("userId"),
+        canUpdateTasks: await hasWorkspacePermission(c, { task: ["update"] }),
       }),
       200,
     );

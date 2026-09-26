@@ -54,7 +54,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: useblacksmith/checkout@v1 # v7.0.1
+        uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -68,7 +68,7 @@ jobs:
         run: node scripts/security/verify-release-source.mjs "$SOURCE_MODE" "$RELEASE_VERSION"
 
       - name: Checkout verified source
-        uses: useblacksmith/checkout@v1 # v7.0.1
+        uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
         with:
           persist-credentials: false
           ref: ${{ steps.source.outputs.source_sha }}
@@ -85,7 +85,7 @@ jobs:
         uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4
 
       - name: Setup Blacksmith Builder
-        uses: useblacksmith/setup-docker-builder@v1
+        uses: useblacksmith/setup-docker-builder@e4c1c000c95f9cc255f72940e9c56bcbd1239436 # v1
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
@@ -111,7 +111,7 @@ jobs:
           chmod 600 /tmp/sentry-build-secrets/SENTRY_AUTH_TOKEN
 
       - name: Build and push
-        uses: useblacksmith/build-push-action@v2 # v7
+        uses: useblacksmith/build-push-action@9b0579bbec7a6cad2f171596c57e7ac1e7658850 # v2
         with:
           context: .
           file: ${{ matrix.dockerfile }}

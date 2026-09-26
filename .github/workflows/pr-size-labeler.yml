@@ -21,7 +21,7 @@ jobs:
     steps:
       # Only read trusted base-branch configuration, including for fork PRs.
       - name: Checkout size configuration
-        uses: useblacksmith/checkout@v1 # v7.0.1
+        uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           persist-credentials: false
