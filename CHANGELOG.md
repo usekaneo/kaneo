@@ -1,5 +1,17 @@
 ### Bug Fixes
 
+- **admin:** harden the user administration panel: #1805
+
+### Documentation
+
+- acknowledge BrowserStack testing: [e389a68](https://github.com/usekaneo/kaneo/commit/e389a688c8323cdf6a4eadda127f94f6339e985d)
+
+### Credits
+
+Huge thanks to @andrejsshell for helping!
+
+### Bug Fixes
+
 - **admin:** allow updating your own email without changing role: [3d57439](https://github.com/usekaneo/kaneo/commit/3d57439d59c7e66aa9b63ec673a5b5f7b23008f6)
 
 ### Features
