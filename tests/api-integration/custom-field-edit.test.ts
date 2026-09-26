@@ -101,6 +101,59 @@ describe("custom field editing", () => {
     expect(task.status, await task.clone().text()).toBe(200);
   });
 
+  it("omits hidden whitespace-padded legacy dropdown values when duplicating", async () => {
+    const { app, field, task, update } = await fixture("dropdown");
+    await db
+      .update(schema.customFieldValueTable)
+      .set({ value: " Alice " })
+      .where(eq(schema.customFieldValueTable.fieldId, field.id));
+    expect(
+      (
+        await update({
+          options: [
+            { originalValue: "Alice", value: "Alice", hidden: true },
+            { originalValue: "Bob", value: "Bob" },
+            { originalValue: "Unused", value: "Unused" },
+          ],
+        })
+      ).status,
+    ).toBe(200);
+    const response = await app.request(`/api/task/duplicate/${task.id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{}",
+    });
+    expect(response.status, await response.clone().text()).toBe(200);
+    const duplicate = await response.json();
+    const values = await db
+      .select()
+      .from(schema.customFieldValueTable)
+      .where(eq(schema.customFieldValueTable.taskId, duplicate.id));
+    expect(values.every((value) => !value.value?.trim())).toBe(true);
+  });
+
+  it("edits legacy padded option labels with an unpadded default", async () => {
+    const { field, update, readValue } = await fixture("dropdown");
+    await db
+      .update(schema.customFieldDefinitionTable)
+      .set({
+        options: [" Alice ", "Bob", "Unused"],
+        defaultValue: "Alice",
+        updatedAt: field.updatedAt,
+      })
+      .where(eq(schema.customFieldDefinitionTable.id, field.id));
+    const response = await update({
+      options: [
+        { originalValue: " Alice ", value: "Alex" },
+        { originalValue: "Bob", value: "Bob" },
+        { originalValue: "Unused", value: "Unused" },
+      ],
+    });
+    expect(response.status, await response.clone().text()).toBe(200);
+    expect((await response.json()).defaultValue).toBe("Alex");
+    expect(await readValue()).toBe("Alex");
+  });
+
   it("normalizes legacy dropdown defaults before renaming options", async () => {
     const { field, update } = await fixture("dropdown");
     await db

@@ -94,8 +94,12 @@ export default async function updateCustomField(
           }
           return replacement;
         };
-        if (field.type === "dropdown")
-          return replace(replacements.has(value) ? value : value.trim());
+        if (field.type === "dropdown") {
+          const original = oldOptions.includes(value)
+            ? value
+            : oldOptions.find((option) => option.trim() === value.trim());
+          return replace(original ?? value);
+        }
         let selected: unknown;
         try {
           selected = JSON.parse(value);
