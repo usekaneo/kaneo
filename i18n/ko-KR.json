@@ -1073,7 +1073,9 @@
 			"validation": {
 				"botTokenInvalid": "유효한 Telegram 봇 토큰을 입력하세요",
 				"chatIdRequired": "채팅 ID는 필수입니다",
-				"threadIdInvalid": "유효한 Telegram 토픽 스레드 ID를 입력하세요"
+				"threadIdInvalid": "유효한 Telegram 토픽 스레드 ID를 입력하세요",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Telegram 연동이 저장되었습니다",
@@ -1113,7 +1115,10 @@
 			},
 			"connect": "Telegram 연결",
 			"saveChanges": "변경사항 저장",
-			"disconnect": "연결 해제"
+			"disconnect": "연결 해제",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org"
 		},
 		"repositoryBrowser": {
 			"title": "저장소 선택",

@@ -1345,7 +1345,9 @@
 			"validation": {
 				"botTokenInvalid": "请输入有效的 Telegram Bot 令牌",
 				"chatIdRequired": "聊天 ID 不能为空",
-				"threadIdInvalid": "请输入有效的 Telegram 话题 ID"
+				"threadIdInvalid": "请输入有效的 Telegram 话题 ID",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Telegram 集成保存成功",
@@ -1385,7 +1387,10 @@
 			},
 			"connect": "连接 Telegram",
 			"saveChanges": "保存更改",
-			"disconnect": "断开连接"
+			"disconnect": "断开连接",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org"
 		},
 		"repositoryBrowser": {
 			"title": "选择仓库",

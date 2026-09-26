@@ -1600,8 +1600,13 @@
 			"validation": {
 				"botTokenInvalid": "Wpisz prawidłowy token bota Telegram",
 				"chatIdRequired": "ID czatu jest wymagane",
-				"threadIdInvalid": "Wpisz prawidłowe ID wątku tematu Telegram"
-			}
+				"threadIdInvalid": "Wpisz prawidłowe ID wątku tematu Telegram",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
+			},
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org"
 		},
 		"workflowEditor": {
 			"createColumnsFirst": "Najpierw utwórz kolumny, aby skonfigurować reguły automatyzacji.",

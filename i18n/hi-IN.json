@@ -1308,7 +1308,9 @@
 			"validation": {
 				"botTokenInvalid": "वैध Telegram बॉट टोकन दर्ज करें",
 				"chatIdRequired": "चैट ID आवश्यक है",
-				"threadIdInvalid": "वैध Telegram टॉपिक थ्रेड ID दर्ज करें"
+				"threadIdInvalid": "वैध Telegram टॉपिक थ्रेड ID दर्ज करें",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Telegram एकीकरण सफलतापूर्वक सहेजा गया",
@@ -1348,7 +1350,10 @@
 			},
 			"connect": "Telegram कनेक्ट करें",
 			"saveChanges": "परिवर्तन सहेजें",
-			"disconnect": "डिस्कनेक्ट करें"
+			"disconnect": "डिस्कनेक्ट करें",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org"
 		},
 		"repositoryBrowser": {
 			"title": "रिपॉज़िटरी चुनें",

@@ -1073,7 +1073,9 @@
 			"validation": {
 				"botTokenInvalid": "Внеси валиден Telegram bot token",
 				"chatIdRequired": "Chat ID е задолжително",
-				"threadIdInvalid": "Внеси валиден Telegram ID за тема"
+				"threadIdInvalid": "Внеси валиден Telegram ID за тема",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Telegram интеграцијата е успешно зачувана",
@@ -1113,7 +1115,10 @@
 			},
 			"connect": "Поврзи Telegram",
 			"saveChanges": "Зачувај промени",
-			"disconnect": "Откачи"
+			"disconnect": "Откачи",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org"
 		},
 		"repositoryBrowser": {
 			"title": "Избери репозиториум",

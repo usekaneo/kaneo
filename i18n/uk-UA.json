@@ -1073,7 +1073,9 @@
 			"validation": {
 				"botTokenInvalid": "Введіть дійсний токен бота Telegram",
 				"chatIdRequired": "ID чату є обов'язковим",
-				"threadIdInvalid": "Введіть дійсний ID теми Telegram"
+				"threadIdInvalid": "Введіть дійсний ID теми Telegram",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Інтеґрацію з Telegram успішно збережено",
@@ -1113,7 +1115,10 @@
 			},
 			"connect": "Підключити Telegram",
 			"saveChanges": "Зберегти зміни",
-			"disconnect": "Від'єднати"
+			"disconnect": "Від'єднати",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org"
 		},
 		"repositoryBrowser": {
 			"title": "Обрати репозиторій",

@@ -4,6 +4,7 @@ import * as v from "valibot";
 import db from "../../database";
 import { integrationTable } from "../../database/schema";
 import {
+  assertTelegramTransport,
   defaultTelegramEvents,
   normalizeTelegramConfig,
   type TelegramConfig,
@@ -16,6 +17,7 @@ import {
 // the toggles it carries over the stored ones and leaves the rest alone.
 export type TelegramIntegrationPatchBody = {
   botToken?: string;
+  serverUrl?: string | null;
   chatId?: string;
   threadId?: number | null;
   chatLabel?: string | null;
@@ -33,6 +35,10 @@ export function buildNextTelegramConfigFromPatch(
     "chatId" in body ? (body.chatId?.trim() ?? "") : currentConfig.chatId;
   return {
     botToken: nextBotToken,
+    serverUrl:
+      body.serverUrl === undefined
+        ? currentConfig.serverUrl
+        : (body.serverUrl ?? undefined),
     chatId: nextChatId,
     threadId:
       body.threadId === undefined
@@ -48,6 +54,34 @@ export function buildNextTelegramConfigFromPatch(
       ...(body.events ?? {}),
     },
   };
+}
+
+// Saved bot token is only authorized for the server it was entered for
+export function assertTelegramServerChange(
+  nextConfig: TelegramConfig,
+  currentConfig: TelegramConfig | null,
+  tokenSupplied: boolean,
+): void {
+  if (nextConfig.serverUrl === currentConfig?.serverUrl) {
+    return;
+  }
+
+  if (currentConfig && !tokenSupplied) {
+    throw new HTTPException(400, {
+      message: "Enter the bot token again when changing the Bot API server URL",
+    });
+  }
+
+  if (nextConfig.serverUrl) {
+    try {
+      assertTelegramTransport(nextConfig.serverUrl);
+    } catch (error) {
+      throw new HTTPException(400, {
+        message:
+          error instanceof Error ? error.message : "Invalid Bot API server URL",
+      });
+    }
+  }
 }
 
 function maskBotToken(value: string): string {
@@ -117,6 +151,7 @@ export function toResponse(integration: TelegramIntegrationRecord) {
   return {
     id: integration.id,
     projectId: integration.projectId,
+    serverUrl: config.serverUrl ?? null,
     chatId: config.chatId,
     threadId: config.threadId ?? null,
     chatLabel: config.chatLabel ?? null,

@@ -3191,6 +3191,13 @@
           "projectId": {
             "type": "string"
           },
+          "serverUrl": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The self-hosted Bot API server, or null for https://api.telegram.org."
+          },
           "chatId": {
             "type": "string",
             "description": "The Telegram chat, group, or channel messages are sent to."
@@ -3236,6 +3243,7 @@
         "required": [
           "id",
           "projectId",
+          "serverUrl",
           "chatId",
           "threadId",
           "chatLabel",
@@ -15482,7 +15490,7 @@
           "Telegram"
         ],
         "summary": "Create Telegram integration",
-        "description": "Create or replace the Telegram integration for a project. The bot token and chat are checked for shape only, not against Telegram.",
+        "description": "Create or replace the Telegram integration for a project. The bot token and chat are checked for shape only, not against Telegram. A custom serverUrl must use https unless private destinations are allowed.",
         "parameters": [
           {
             "schema": {
@@ -15504,6 +15512,11 @@
                     "type": "string",
                     "minLength": 1,
                     "description": "A Telegram bot token, in the form 123456789:AA..."
+                  },
+                  "serverUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "An http(s) URL of a self-hosted Bot API server, without a query, fragment, or credentials. Defaults to https://api.telegram.org."
                   },
                   "chatId": {
                     "type": "string",
@@ -15559,7 +15572,7 @@
             }
           },
           "400": {
-            "description": "The bot token or chat failed validation",
+            "description": "The bot token, chat, or server URL failed validation",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15609,6 +15622,14 @@
                 "properties": {
                   "botToken": {
                     "type": "string"
+                  },
+                  "serverUrl": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "uri",
+                    "description": "An http(s) URL of a self-hosted Bot API server, without a query, fragment, or credentials, or null to use https://api.telegram.org. Changing it requires the bot token."
                   },
                   "chatId": {
                     "type": "string"
@@ -15668,7 +15689,7 @@
             }
           },
           "400": {
-            "description": "The resulting config failed validation",
+            "description": "The resulting config failed validation, or serverUrl changed without a bot token",
             "content": {
               "text/plain": {
                 "schema": {

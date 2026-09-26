@@ -25,6 +25,7 @@ import { toast } from "@/lib/toast";
 
 type TelegramIntegrationFormValues = {
   botToken: string;
+  serverUrl: string;
   chatId: string;
   threadId: string;
   chatLabel: string;
@@ -80,6 +81,15 @@ function isValidTelegramThreadId(value: string): boolean {
   return /^\d+$/.test(value) && Number(value) > 0;
 }
 
+function isValidServerUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 export function TelegramIntegrationSettings({
   projectId,
 }: {
@@ -90,6 +100,7 @@ export function TelegramIntegrationSettings({
     () =>
       z.object({
         botToken: z.string(),
+        serverUrl: z.string(),
         chatId: z.string(),
         threadId: z.string(),
         chatLabel: z.string(),
@@ -117,6 +128,7 @@ export function TelegramIntegrationSettings({
   const normalizedValues = React.useMemo<TelegramIntegrationFormValues>(
     () => ({
       botToken: "",
+      serverUrl: integration?.serverUrl ?? "",
       chatId: integration?.chatId ?? "",
       threadId: integration?.threadId ? String(integration.threadId) : "",
       chatLabel: integration?.chatLabel ?? "",
@@ -135,6 +147,7 @@ export function TelegramIntegrationSettings({
     resolver: standardSchemaResolver(schema),
     defaultValues: {
       botToken: "",
+      serverUrl: "",
       chatId: "",
       threadId: "",
       chatLabel: "",
@@ -179,6 +192,7 @@ export function TelegramIntegrationSettings({
   const onSubmit = async (values: TelegramIntegrationFormValues) => {
     try {
       const trimmedBotToken = values.botToken.trim();
+      const trimmedServerUrl = values.serverUrl.trim().replace(/\/+$/, "");
       const trimmedChatId = values.chatId.trim();
       const trimmedThreadId = values.threadId.trim();
       const parsedThreadId = trimmedThreadId
@@ -192,6 +206,15 @@ export function TelegramIntegrationSettings({
         taskDescriptionChanged: values.taskDescriptionChanged,
         taskCommentCreated: values.taskCommentCreated,
       };
+
+      if (trimmedServerUrl && !isValidServerUrl(trimmedServerUrl)) {
+        form.setError("serverUrl", {
+          message: t(
+            "settings:telegramIntegration.validation.serverUrlInvalid",
+          ),
+        });
+        return;
+      }
 
       if (!trimmedChatId) {
         form.setError("chatId", {
@@ -221,6 +244,7 @@ export function TelegramIntegrationSettings({
           projectId,
           data: {
             botToken: trimmedBotToken,
+            serverUrl: trimmedServerUrl || undefined,
             chatId: trimmedChatId,
             threadId: parsedThreadId,
             chatLabel: values.chatLabel || undefined,
@@ -237,10 +261,23 @@ export function TelegramIntegrationSettings({
           return;
         }
 
+        if (
+          !trimmedBotToken &&
+          trimmedServerUrl !== (integration?.serverUrl ?? "")
+        ) {
+          form.setError("botToken", {
+            message: t(
+              "settings:telegramIntegration.validation.botTokenRequiredForServer",
+            ),
+          });
+          return;
+        }
+
         await updateIntegration({
           projectId,
           json: {
             botToken: trimmedBotToken || undefined,
+            serverUrl: trimmedServerUrl || null,
             chatId: trimmedChatId,
             threadId: parsedThreadId ?? null,
             chatLabel: values.chatLabel || null,
@@ -252,6 +289,7 @@ export function TelegramIntegrationSettings({
       form.reset({
         ...values,
         botToken: "",
+        serverUrl: trimmedServerUrl,
         chatId: trimmedChatId,
         threadId: trimmedThreadId,
       });
@@ -290,6 +328,7 @@ export function TelegramIntegrationSettings({
       await deleteIntegration(projectId);
       form.reset({
         botToken: "",
+        serverUrl: "",
         chatId: "",
         threadId: "",
         chatLabel: "",
@@ -392,6 +431,32 @@ export function TelegramIntegrationSettings({
                           { token: integration.maskedBotToken },
                         )
                       : t("settings:telegramIntegration.botTokenHint")}
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="serverUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("settings:telegramIntegration.serverUrlLabel")}
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      autoComplete="off"
+                      inputMode="url"
+                      placeholder={t(
+                        "settings:telegramIntegration.serverUrlPlaceholder",
+                      )}
+                    />
+                  </FormControl>
+                  <p className="text-xs text-muted-foreground">
+                    {t("settings:telegramIntegration.serverUrlHint")}
                   </p>
                   <FormMessage />
                 </FormItem>

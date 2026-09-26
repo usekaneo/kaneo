@@ -1309,7 +1309,9 @@
 			"validation": {
 				"botTokenInvalid": "Digite um token de bot do Telegram válido",
 				"chatIdRequired": "O ID do chat é obrigatório",
-				"threadIdInvalid": "Digite um ID de tópico do Telegram válido"
+				"threadIdInvalid": "Digite um ID de tópico do Telegram válido",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Integração com o Telegram salva com sucesso",
@@ -1349,7 +1351,10 @@
 			},
 			"connect": "Conectar Telegram",
 			"saveChanges": "Salvar alterações",
-			"disconnect": "Desconectar"
+			"disconnect": "Desconectar",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org"
 		},
 		"repositoryBrowser": {
 			"title": "Selecionar repositório",

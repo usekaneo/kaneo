@@ -1540,7 +1540,9 @@
 			"validation": {
 				"botTokenInvalid": "Enter a valid Telegram bot token",
 				"chatIdRequired": "Chat ID is required",
-				"threadIdInvalid": "Enter a valid Telegram topic thread ID"
+				"threadIdInvalid": "Enter a valid Telegram topic thread ID",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server"
 			},
 			"toast": {
 				"saved": "Telegram integration saved successfully",
@@ -1559,6 +1561,9 @@
 			"botTokenPlaceholder": "123456789:AAExampleBotToken",
 			"botTokenHint": "Create a bot with BotFather and paste its token here.",
 			"botTokenHintConfigured": "A bot token is already configured ({{token}}). Enter a new one to replace it.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
 			"chatIdLabel": "Chat ID",
 			"chatIdPlaceholder": "-1001234567890 or @team_updates",
 			"chatIdHint": "Enter the Telegram chat ID or channel username where updates should be posted.",
