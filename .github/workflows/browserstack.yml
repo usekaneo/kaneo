@@ -2,8 +2,6 @@ name: BrowserStack
 
 on:
   workflow_dispatch:
-  push:
-    branches: [feat/browserstack-integration]
 
 permissions:
   contents: read
@@ -14,7 +12,7 @@ concurrency:
 
 jobs:
   smoke:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feat/browserstack-integration'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
