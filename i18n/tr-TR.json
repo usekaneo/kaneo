@@ -1073,7 +1073,9 @@
 			"validation": {
 				"botTokenInvalid": "Geçerli bir Telegram bot belirteci girin",
 				"chatIdRequired": "Sohbet kimliği gereklidir",
-				"threadIdInvalid": "Geçerli bir Telegram konu kimliği girin"
+				"threadIdInvalid": "Geçerli bir Telegram konu kimliği girin",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Telegram entegrasyonu başarıyla kaydedildi",
@@ -1113,7 +1115,10 @@
 			},
 			"connect": "Telegram bağla",
 			"saveChanges": "Değişiklikleri kaydet",
-			"disconnect": "Bağlantıyı kes"
+			"disconnect": "Bağlantıyı kes",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org"
 		},
 		"repositoryBrowser": {
 			"title": "Depo Seç",

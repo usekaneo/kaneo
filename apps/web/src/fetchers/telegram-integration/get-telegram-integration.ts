@@ -4,6 +4,7 @@ import { HttpError } from "@/lib/http-error";
 export type TelegramIntegration = {
   id: string;
   projectId: string;
+  serverUrl: string | null;
   chatId: string;
   threadId: number | null;
   chatLabel: string | null;

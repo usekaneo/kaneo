@@ -1346,7 +1346,9 @@
 			"validation": {
 				"botTokenInvalid": "Etibarlı Telegram bot giriş nişanı daxil edin",
 				"chatIdRequired": "Söhbət identifikatoru tələb olunur",
-				"threadIdInvalid": "Etibarlı Telegram mövzu identifikatoru daxil edin"
+				"threadIdInvalid": "Etibarlı Telegram mövzu identifikatoru daxil edin",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Telegram inteqrasiyası uğurla yadda saxlanıldı",
@@ -1386,7 +1388,10 @@
 			},
 			"connect": "Telegram-a qoşul",
 			"saveChanges": "Dəyişiklikləri yadda saxla",
-			"disconnect": "Ayır"
+			"disconnect": "Ayır",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org"
 		},
 		"repositoryBrowser": {
 			"title": "Repozitoriya seç",

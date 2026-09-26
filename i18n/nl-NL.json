@@ -1382,7 +1382,9 @@
 			"validation": {
 				"botTokenInvalid": "Voer een geldig Telegram-bottoken in",
 				"chatIdRequired": "Chat-ID is verplicht",
-				"threadIdInvalid": "Voer een geldig Telegram topic-thread-ID in"
+				"threadIdInvalid": "Voer een geldig Telegram topic-thread-ID in",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Telegram-integratie succesvol opgeslagen",
@@ -1422,7 +1424,10 @@
 			},
 			"connect": "Verbind Telegram",
 			"saveChanges": "Wijzigingen opslaan",
-			"disconnect": "Ontkoppelen"
+			"disconnect": "Ontkoppelen",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org"
 		},
 		"mattermostIntegration": {
 			"channelHint": "Optional label for your reference. Mattermost controls the actual destination channel from the webhook setup.",

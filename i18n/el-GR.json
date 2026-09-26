@@ -1073,7 +1073,9 @@
 			"validation": {
 				"botTokenInvalid": "Εισαγάγετε έγκυρο token bot Telegram",
 				"chatIdRequired": "Το αναγνωριστικό συνομιλίας είναι υποχρεωτικό",
-				"threadIdInvalid": "Εισαγάγετε έγκυρο αναγνωριστικό θέματος Telegram"
+				"threadIdInvalid": "Εισαγάγετε έγκυρο αναγνωριστικό θέματος Telegram",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Η ενσωμάτωση Telegram αποθηκεύτηκε με επιτυχία",
@@ -1113,7 +1115,10 @@
 			},
 			"connect": "Σύνδεση Telegram",
 			"saveChanges": "Αποθήκευση αλλαγών",
-			"disconnect": "Αποσύνδεση"
+			"disconnect": "Αποσύνδεση",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org"
 		},
 		"repositoryBrowser": {
 			"title": "Επιλογή αποθετηρίου",
