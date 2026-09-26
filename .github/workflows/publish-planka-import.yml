@@ -50,7 +50,9 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 24
-          cache: pnpm
+          # Publish workflows must not read cache content that a pull
+          # request could have poisoned (zizmor cache-poisoning).
+          package-manager-cache: false
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

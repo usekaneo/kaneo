@@ -21,6 +21,13 @@ on:
         required: false
         type: string
         default: linux/amd64,linux/arm64
+    secrets:
+      # GHCR login token with package push rights.
+      GH_PACKAGE_TOKEN:
+        required: true
+      # Source-map upload token; only the web image build uses it.
+      SENTRY_AUTH_TOKEN:
+        required: false
 
 jobs:
   build:
