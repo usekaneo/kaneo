@@ -61,13 +61,13 @@ jobs:
       - name: Notify Discord on findings
         if: failure()
         env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          TRUFFLEHOG_WEBHOOK: ${{ secrets.TRUFFLEHOG_WEBHOOK }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           BRANCH: ${{ github.ref_name }}
           TITLE: "🌙 Nightly full-history secret scan found credentials"
         run: |
-          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
-            echo "DISCORD_WEBHOOK_URL is not configured; skipping notification."
+          if [ -z "$TRUFFLEHOG_WEBHOOK" ]; then
+            echo "TRUFFLEHOG_WEBHOOK is not configured; skipping notification."
             exit 0
           fi
           if [ ! -f trufflehog-results.sarif ]; then
@@ -96,7 +96,7 @@ jobs:
           curl --fail --silent --show-error --max-time 15 \
             -H "Content-Type: application/json" \
             --data-binary @"$RUNNER_TEMP/discord-payload.json" \
-            "$DISCORD_WEBHOOK_URL" \
+            "$TRUFFLEHOG_WEBHOOK" \
             || echo "::warning::Discord notification could not be delivered."
 
   workflow-audit:
@@ -146,13 +146,16 @@ jobs:
       - name: Notify Discord on findings
         if: failure()
         env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          # The workflow audit posts to a dedicated Actions webhook (separate
+          # from the secrets channel) so workflow-security alerts stay out of
+          # the secrets incident channel. Skip silently if it is not set.
+          ZIZMOR_WEBHOOK: ${{ secrets.ZIZMOR_WEBHOOK }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           BRANCH: ${{ github.ref_name }}
           TITLE: "🌙 Nightly workflow audit found security issues"
         run: |
-          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
-            echo "DISCORD_WEBHOOK_URL is not configured; skipping notification."
+          if [ -z "$ZIZMOR_WEBHOOK" ]; then
+            echo "ZIZMOR_WEBHOOK is not configured; skipping notification."
             exit 0
           fi
           if [ ! -f zizmor-results.json ]; then
@@ -181,7 +184,7 @@ jobs:
           curl --fail --silent --show-error --max-time 15 \
             -H "Content-Type: application/json" \
             --data-binary @"$RUNNER_TEMP/discord-payload.json" \
-            "$DISCORD_WEBHOOK_URL" \
+            "$ZIZMOR_WEBHOOK" \
             || echo "::warning::Discord notification could not be delivered."
 
   verify:
