@@ -69,6 +69,38 @@ async function fixture(type = "multiselect", role = "admin") {
 }
 
 describe("custom field editing", () => {
+  it("stores canonical dropdown options and defaults for subsequent task creation", async () => {
+    const { app, project } = await fixture();
+    const created = await app.request("/api/custom-field", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        projectId: project.id,
+        name: "Spaced",
+        type: "dropdown",
+        required: false,
+        options: [" Alice ", "Alice", " ", "Bob"],
+        defaultValue: " Alice ",
+      }),
+    });
+    expect(created.status, await created.clone().text()).toBe(200);
+    expect(await created.json()).toMatchObject({
+      options: ["Alice", "Bob"],
+      defaultValue: "Alice",
+    });
+    const task = await app.request(`/api/task/${project.id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Uses defaults",
+        description: "",
+        priority: "no-priority",
+        status: "to-do",
+      }),
+    });
+    expect(task.status, await task.clone().text()).toBe(200);
+  });
+
   it("normalizes legacy dropdown defaults before renaming options", async () => {
     const { field, update } = await fixture("dropdown");
     await db

@@ -35,6 +35,7 @@ import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { DUE_DATE_FILTER_VALUES } from "@/hooks/use-task-filters";
+import { reconcileCustomFieldFilters } from "@/hooks/use-valid-custom-field-filters";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel } from "@/lib/i18n/domain";
 import { resolveLabelColor } from "@/lib/label-color";
@@ -139,6 +140,18 @@ function RouteComponent() {
     labels: [] as string[],
     customFields: {} as Record<string, string[]>,
   });
+
+  useEffect(() => {
+    setFilters((previous) => {
+      const customFields = reconcileCustomFieldFilters(
+        previous.customFields,
+        rawCustomFields,
+      );
+      return customFields === previous.customFields
+        ? previous
+        : { ...previous, customFields: customFields ?? {} };
+    });
+  }, [rawCustomFields]);
 
   const updateFilter = (key: string, value: string | null) => {
     setFilters((prev) => ({ ...prev, [key]: value }));

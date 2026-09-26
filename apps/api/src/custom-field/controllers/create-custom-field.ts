@@ -19,7 +19,7 @@ async function createCustomField(
   type: string,
   required: boolean,
   defaultValue?: string,
-  options?: string[],
+  inputOptions?: string[],
 ) {
   if (!name.trim())
     throw new HTTPException(400, { message: "Name cannot be empty" });
@@ -44,6 +44,15 @@ async function createCustomField(
       message: "Required fields must have a default value",
     });
   }
+
+  const options =
+    type === "dropdown"
+      ? Array.from(
+          new Set(
+            (inputOptions ?? []).map((option) => option.trim()).filter(Boolean),
+          ),
+        )
+      : inputOptions;
 
   if (defaultValue !== undefined && defaultValue !== null) {
     const trimmedValue = defaultValue.trim();
@@ -78,8 +87,7 @@ async function createCustomField(
         }
       } else if (type === "dropdown") {
         if (options && options.length > 0) {
-          const normalizedOptions = options.map((opt) => opt.trim());
-          if (!normalizedOptions.includes(trimmedValue)) {
+          if (!options.includes(trimmedValue)) {
             throw new HTTPException(400, {
               message: "Default value must be one of the dropdown options",
             });
