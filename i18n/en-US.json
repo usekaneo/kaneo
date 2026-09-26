@@ -1112,6 +1112,8 @@
 			"noOptionsPlaceholder": "No options",
 			"defaultValuePlaceholder": "Default value",
 			"optionsPlaceholder": "Options separated by commas",
+			"selectPlaceholder": "Select option(s)",
+			"defaultValues": "{{count}} default(s)",
 			"required": "Required",
 			"addButton": "Add",
 			"creating": "Creating...",
@@ -1124,13 +1126,20 @@
 			"deleting": "Deleting...",
 			"deleteSuccess": "Custom field deleted.",
 			"deleteError": "Failed to delete custom field.",
+			"reorderError": "Failed to reorder fields",
+			"moreOptions": "+{{hiddenCount}} more",
+			"clearDefault": "Clear",
+			"options": "{{count}} option(s)",
+			"availableOptions": "Available options",
 			"types": {
 				"text": "Text",
 				"number": "Number",
 				"date": "Date",
 				"dropdown": "Dropdown",
-				"boolean": "Boolean"
-			}
+				"boolean": "Boolean",
+				"multiselect": "Multi-Select"
+			},
+			"multiple": "Multiple"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2316,6 +2325,9 @@
 				"deleteRow": "Delete row",
 				"deleteTable": "Delete table"
 			}
+		},
+		"customFields": {
+			"ariaLabel": "Custom fields"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

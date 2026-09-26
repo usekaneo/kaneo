@@ -15234,7 +15234,8 @@
                       "number",
                       "date",
                       "dropdown",
-                      "boolean"
+                      "boolean",
+                      "multiselect"
                     ]
                   },
                   "required": {

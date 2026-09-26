@@ -1468,8 +1468,17 @@
 				"date": "Date",
 				"dropdown": "Dropdown",
 				"number": "Number",
-				"text": "Text"
-			}
+				"text": "Text",
+				"multiselect": "Multi-Select"
+			},
+			"availableOptions": "Available options",
+			"clearDefault": "Clear",
+			"defaultValues": "{{count}} default(s)",
+			"moreOptions": "+{{hiddenCount}} more",
+			"multiple": "Multiple",
+			"options": "{{count}} option(s)",
+			"reorderError": "Failed to reorder fields",
+			"selectPlaceholder": "Select option(s)"
 		},
 		"administration": "Administration",
 		"adminUsers": {
@@ -2313,6 +2322,9 @@
 			"error": "Failed to duplicate task",
 			"success": "Task duplicated successfully",
 			"titleSuffix": "{{title}} (copy)"
+		},
+		"customFields": {
+			"ariaLabel": "Custom fields"
 		}
 	},
 	"invitations": {
