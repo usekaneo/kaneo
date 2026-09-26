@@ -1,5 +1,5 @@
 import { and, count, eq, sql } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import db from "../../apps/api/src/database";
 import { mcpOauthStateTable } from "../../apps/api/src/database/schema";
 import {
@@ -11,6 +11,10 @@ import {
   putState,
 } from "../../apps/api/src/mcp/oauth-store";
 import { resetTestDatabase } from "./helpers/database";
+
+// Set this before the lazy database pool opens any connections, including in CI.
+vi.stubEnv("PGOPTIONS", "-c timezone=Europe/Paris");
+afterAll(() => vi.unstubAllEnvs());
 
 beforeEach(async () => {
   await resetTestDatabase();
@@ -41,10 +45,7 @@ describe("bounded shared MCP OAuth store", () => {
     const timezone = await db.execute<{ timezone: string }>(
       sql`SELECT current_setting('TimeZone') AS timezone`,
     );
-    // biome-ignore lint/suspicious/noUndeclaredEnvVars: this PostgreSQL timezone regression runs directly with Vitest, outside Turbo caching.
-    if (process.env.PGOPTIONS?.includes("timezone=Europe/Paris")) {
-      expect(timezone.rows[0].timezone).toBe("Europe/Paris");
-    }
+    expect(timezone.rows[0].timezone).toBe("Europe/Paris");
     await putState("request", "live-request", { clientId: "client" }, future());
     await db.insert(mcpOauthStateTable).values({
       kind: "request",
