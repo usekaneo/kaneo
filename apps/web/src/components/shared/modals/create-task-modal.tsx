@@ -315,18 +315,17 @@ function CreateTaskModalContent({
         customFields.map((field) => {
           let value = previousValues[field.id] ?? field.defaultValue ?? "";
           const hidden = field.hiddenOptions ?? [];
-          if (
-            hidden.length &&
-            field.type === "dropdown" &&
-            hidden.includes(value)
-          ) {
+          const visibleOptions = (field.options ?? []).filter(
+            (option) => !hidden.includes(option),
+          );
+          if (field.type === "dropdown" && !visibleOptions.includes(value)) {
             value = "";
-          } else if (hidden.length && field.type === "multiselect" && value) {
+          } else if (field.type === "multiselect" && value) {
             try {
               const selected: unknown = JSON.parse(value);
               if (Array.isArray(selected)) {
                 value = JSON.stringify(
-                  selected.filter((option) => !hidden.includes(option)),
+                  selected.filter((option) => visibleOptions.includes(option)),
                 );
               }
             } catch {

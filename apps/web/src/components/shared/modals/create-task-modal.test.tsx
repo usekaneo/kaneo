@@ -157,39 +157,43 @@ vi.mock("react-i18next", () => ({
 }));
 
 describe("CreateTaskModal", () => {
-  it("removes newly hidden selections from an open creation form", async () => {
-    useLocation.mockReturnValue({
-      pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
-    });
-    customFields = [
-      {
-        id: "people",
-        name: "People",
-        type: "multiselect",
-        options: ["Former", "Current"],
-        hiddenOptions: [],
-        defaultValue: '["Former","Current"]',
-        required: false,
-      },
-    ];
-    const view = render(<CreateTaskModal open onClose={vi.fn()} />, {
-      wrapper: createWrapper(),
-    });
-    enterTitle();
-    customFields = customFields.map((field) => ({
-      ...field,
-      hiddenOptions: ["Former"],
-    }));
-    view.rerender(<CreateTaskModal open onClose={vi.fn()} />);
-    await act(async () => {
-      submit();
-    });
-    expect(createTask).toHaveBeenCalledWith(
-      expect.objectContaining({
-        customFields: [{ fieldId: "people", value: '["Current"]' }],
-      }),
-    );
-  });
+  it.each(["hidden", "renamed"])(
+    "removes %s selections from an open creation form",
+    async (change) => {
+      useLocation.mockReturnValue({
+        pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
+      });
+      customFields = [
+        {
+          id: "people",
+          name: "People",
+          type: "multiselect",
+          options: ["Former", "Current"],
+          hiddenOptions: [],
+          defaultValue: '["Former","Current"]',
+          required: false,
+        },
+      ];
+      const view = render(<CreateTaskModal open onClose={vi.fn()} />, {
+        wrapper: createWrapper(),
+      });
+      enterTitle();
+      customFields = customFields.map((field) => ({
+        ...field,
+        hiddenOptions: change === "hidden" ? ["Former"] : [],
+        options: change === "renamed" ? ["Renamed", "Current"] : field.options,
+      }));
+      view.rerender(<CreateTaskModal open onClose={vi.fn()} />);
+      await act(async () => {
+        submit();
+      });
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({
+          customFields: [{ fieldId: "people", value: '["Current"]' }],
+        }),
+      );
+    },
+  );
 
   it("keeps unsaved input while discard confirmation is open", async () => {
     useLocation.mockReturnValue({
