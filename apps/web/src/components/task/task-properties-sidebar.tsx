@@ -5,6 +5,7 @@ import {
   CalendarX,
   Copy,
   Diamond,
+  Flag,
   GitBranch,
   History,
   Percent,
@@ -45,6 +46,7 @@ import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
 import TaskAssigneePopover from "./task-assignee-popover";
 import TaskBaselinePopover from "./task-baseline-popover";
+import TaskConstraintPopover from "./task-constraint-popover";
 import TaskDueDatePopover from "./task-due-date-popover";
 import TaskLabelsPopover from "./task-labels-popover";
 import TaskMilestonePopover from "./task-milestone-popover";
@@ -144,6 +146,33 @@ function TaskScheduleButtons({
           </span>
         </Button>
       </TaskBaselinePopover>
+      <TaskConstraintPopover task={task}>
+        <Button
+          variant="ghost"
+          size="sm"
+          aria-label={t("tasks:popover.constraint.label")}
+          className={cn(
+            buttonClassName,
+            task.constraintType &&
+              task.constraintType !== "none" &&
+              "text-primary",
+          )}
+        >
+          <Flag
+            className={cn(
+              "w-3.5 h-3.5",
+              task.constraintType && task.constraintType !== "none"
+                ? "fill-primary/20 text-primary"
+                : "text-muted-foreground",
+            )}
+          />
+          <span className="text-xs font-semibold">
+            {task.constraintType && task.constraintType !== "none"
+              ? t(`tasks:popover.constraint.type.${task.constraintType}`)
+              : t("tasks:properties.constraint")}
+          </span>
+        </Button>
+      </TaskConstraintPopover>
     </>
   );
 }

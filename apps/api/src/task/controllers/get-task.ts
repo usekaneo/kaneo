@@ -18,6 +18,8 @@ async function getTask(taskId: string) {
       isMilestone: taskTable.isMilestone,
       baselineStartDate: taskTable.baselineStartDate,
       baselineDueDate: taskTable.baselineDueDate,
+      constraintType: taskTable.constraintType,
+      constraintDate: taskTable.constraintDate,
       position: taskTable.position,
       createdAt: taskTable.createdAt,
       userId: taskTable.userId,

@@ -514,6 +514,18 @@ function RouteComponent() {
     );
   }, [taskRelations]);
 
+  // Every own task pinned by a must_start_on constraint (Phase 3c-ii) — the
+  // dependency cascade never shifts these, and a phantom shift never
+  // propagates through one to its own dependents (see the PINNED TASKS note
+  // in gantt-dependency-cascade.ts).
+  const pinnedTaskIds = useMemo(() => {
+    const pinned = new Set<string>();
+    for (const task of allTasks) {
+      if (task.constraintType === "must_start_on") pinned.add(task.id);
+    }
+    return pinned;
+  }, [allTasks]);
+
   // Same "blocks" edges as blocksEdges above, but keeping each relation's own
   // id (computeCriticalPath needs one to identify which edges came out
   // critical) — kept as a separate memo rather than folding the id into
@@ -582,6 +594,7 @@ function RouteComponent() {
         edges: blocksEdges,
         tasksById,
         isWorkingDay: workingDayPredicate,
+        pinnedTaskIds,
       });
       if (shifts.size === 0) return;
 
@@ -613,6 +626,7 @@ function RouteComponent() {
       projectId,
       t,
       workingDayPredicate,
+      pinnedTaskIds,
     ],
   );
 

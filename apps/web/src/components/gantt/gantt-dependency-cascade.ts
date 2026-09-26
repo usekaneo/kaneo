@@ -30,6 +30,20 @@
 //    like every other shift here. The moved task itself is never nudged
 //    (see above). Downstream tasks see this nudged schedule, so a nudge can
 //    itself force a further shift on anything blocked by it.
+//  - PINNED TASKS (opt-in via the `pinnedTaskIds` set — Phase 3c-ii task date
+//    constraints): a task with a `must_start_on` constraint is IMMOVABLE —
+//    this cascade never shifts it, no matter what forced delta an incoming
+//    edge would otherwise compute. Its dependents cascade from its ACTUAL
+//    (pinned) schedule, exactly as if it had never been pushed at all: the
+//    delta that would have shifted it is discarded, not propagated further,
+//    so a phantom "would-be" shift can never leak through a pinned task to
+//    its own dependents. `start_no_earlier_than`/`finish_no_later_than`
+//    constraints are NOT pinning and don't affect cascade movement at all —
+//    a forward-only push already respects a start floor, and a finish
+//    deadline is a violation the Gantt surfaces separately (see
+//    gantt-constraint-violations.ts), not something this cascade enforces by
+//    moving the task. Omitted (the default): no pinned tasks, exactly
+//    today's behavior.
 
 /** The four standard scheduling dependency types a "blocks" edge can carry. */
 export type CascadeDependencyType = "fs" | "ss" | "ff" | "sf";
@@ -70,6 +84,11 @@ export type ComputeDependencyCascadeInput = {
    * NEVER nudged — only tasks this cascade actually shifts. Omitted (the
    * default): no nudging, exactly today's behavior. */
   isWorkingDay?: (d: Date) => boolean;
+  /** Task ids pinned by a `must_start_on` constraint (see the PINNED TASKS
+   * note above) — immovable by this cascade, and never a conduit for a
+   * phantom shift onto their own dependents. Omitted (the default): no
+   * pinned tasks, exactly today's behavior. */
+  pinnedTaskIds?: ReadonlySet<string>;
 };
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -127,6 +146,7 @@ export function computeDependencyCascade({
   edges,
   tasksById,
   isWorkingDay,
+  pinnedTaskIds,
 }: ComputeDependencyCascadeInput): Map<string, CascadeSchedule> {
   const shifts = new Map<string, CascadeSchedule>();
   if (!tasksById.has(movedTaskId)) return shifts;
@@ -200,6 +220,17 @@ export function computeDependencyCascade({
   function finalizeNode(taskId: string) {
     const original = tasksById.get(taskId);
     if (!original) return; // Guarded by the subgraph construction above.
+
+    // Pinned (must_start_on): never shift it, and never propagate the delta
+    // that would have — finalSchedule keeps its real schedule, so any
+    // dependent's forced delta is computed against that real schedule, not a
+    // hypothetical shifted one. Deliberately returns before touching `shifts`
+    // (the map of what actually moved), so a pinned task is reported as
+    // unmoved even though it may have "wanted" to shift.
+    if (pinnedTaskIds?.has(taskId)) {
+      finalSchedule.set(taskId, original);
+      return;
+    }
 
     let deltaDays = 0;
     for (const edge of incomingByTarget.get(taskId) ?? []) {

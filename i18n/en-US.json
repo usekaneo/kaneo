@@ -2056,7 +2056,8 @@
 			"noDate": "No date",
 			"progress": "Progress",
 			"milestone": "Milestone",
-			"baseline": "Baseline"
+			"baseline": "Baseline",
+			"constraint": "Constraint"
 		},
 		"move": {
 			"title": "Move task",
@@ -2112,6 +2113,19 @@
 				"clearSuccess": "Baseline cleared",
 				"clearError": "Failed to clear baseline",
 				"range": "{{start}} – {{end}}"
+			},
+			"constraint": {
+				"label": "Constraint",
+				"updateSuccess": "Task constraint updated",
+				"updateError": "Failed to update task constraint",
+				"pickDate": "Pick a constraint date",
+				"currentDate": "{{date}}",
+				"type": {
+					"none": "No constraint",
+					"start_no_earlier_than": "Start no earlier than",
+					"finish_no_later_than": "Finish no later than",
+					"must_start_on": "Must start on"
+				}
 			},
 			"labels": {
 				"searchPlaceholder": "Search labels...",
@@ -2255,7 +2269,9 @@
 			"collapseSubtasks": "Collapse subtasks",
 			"linkHandleAriaLabel": "{{title}}: drag to create a dependency",
 			"dependentsRescheduled": "Rescheduled {{count}} dependent tasks",
-			"dependentsRescheduleError": "Failed to reschedule dependent tasks"
+			"dependentsRescheduleError": "Failed to reschedule dependent tasks",
+			"constraintMarkerAriaLabel": "{{title}}: {{type}}, {{date}}",
+			"constraintViolationAriaLabel": "{{title}}: constraint violated — {{type}}, {{date}}"
 		},
 		"delete": {
 			"title": "Delete Task?",

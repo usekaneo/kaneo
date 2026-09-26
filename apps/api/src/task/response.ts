@@ -2,6 +2,10 @@ import { nullableResponseTimestamp, responseTimestamp, z } from "../openapi";
 
 const priorityDescription = "One of: no-priority, low, medium, high, urgent.";
 
+const constraintTypeResponseDescription =
+  "The Gantt scheduling constraint: none, start_no_earlier_than (SNET), " +
+  "finish_no_later_than (FNLT), or must_start_on (MSO).";
+
 export const taskSchema = z
   .object({
     id: z.string(),
@@ -42,6 +46,12 @@ export const taskSchema = z
     baselineDueDate: nullableResponseTimestamp.openapi({
       description:
         "Snapshotted dueDate from when the baseline was last set; null if no baseline.",
+    }),
+    constraintType: z.string().openapi({
+      description: constraintTypeResponseDescription,
+    }),
+    constraintDate: nullableResponseTimestamp.openapi({
+      description: "Null unless constraintType is not none.",
     }),
     createdAt: responseTimestamp,
     customFields: z
@@ -102,6 +112,12 @@ export const boardTaskSchema = z
     }),
     baselineStartDate: nullableResponseTimestamp,
     baselineDueDate: nullableResponseTimestamp,
+    constraintType: z.string().openapi({
+      description: constraintTypeResponseDescription,
+    }),
+    constraintDate: nullableResponseTimestamp.openapi({
+      description: "Null unless constraintType is not none.",
+    }),
     position: z.number().nullable(),
     createdAt: responseTimestamp,
     userId: z.string().nullable(),

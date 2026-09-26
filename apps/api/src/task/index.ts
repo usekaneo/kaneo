@@ -26,6 +26,7 @@ import {
 import { normalizeApiServerUrl } from "../utils/openapi-spec";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import {
+  normalizeToUtcMidnight,
   validateAndParseDate,
   validateDateRange,
 } from "../utils/validate-dates";
@@ -776,6 +777,8 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       userId,
       progress,
       isMilestone,
+      constraintType,
+      constraintDate,
     } = c.req.valid("json");
 
     const currentUserId = c.get("userId");
@@ -791,6 +794,19 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
 
     validateDateRange(parsedStartDate, parsedDueDate);
 
+    // constraintType omitted: leave both columns untouched, like
+    // progress/isMilestone above. Provided and "none": clear constraintDate
+    // regardless of what (if anything) the caller sent for it — the schema's
+    // .refine only requires a constraintDate for a non-"none" type, it
+    // doesn't forbid a stray one alongside "none". Provided and non-"none":
+    // the schema already guarantees constraintDate is a non-empty string.
+    const normalizedConstraintDate =
+      constraintType === undefined
+        ? undefined
+        : constraintType === "none"
+          ? null
+          : normalizeToUtcMidnight(constraintDate as string, "constraintDate");
+
     const task = await updateTask(
       id,
       title,
@@ -803,6 +819,8 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       position,
       progress,
       isMilestone,
+      constraintType,
+      normalizedConstraintDate,
       userId,
       currentUserId,
     );

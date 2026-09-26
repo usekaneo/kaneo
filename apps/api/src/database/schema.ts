@@ -475,6 +475,18 @@ export const taskTable = pgTable(
     // Both null until a baseline is set; nulled together on clear.
     baselineStartDate: timestamp("baseline_start_date", { mode: "date" }),
     baselineDueDate: timestamp("baseline_due_date", { mode: "date" }),
+    // Scheduling constraint for the Gantt chart. One of:
+    //  - "none" (default): no constraint.
+    //  - "start_no_earlier_than": the task should not start before
+    //    constraintDate (SNET).
+    //  - "finish_no_later_than": a deadline — the task should not finish
+    //    (dueDate) after constraintDate (FNLT).
+    //  - "must_start_on": the task's start is pinned to constraintDate (MSO);
+    //    the dependency cascade never shifts it.
+    // constraintDate is date-only (UTC midnight), like startDate/dueDate, and
+    // is required whenever constraintType isn't "none".
+    constraintType: text("constraint_type").notNull().default("none"),
+    constraintDate: timestamp("constraint_date", { mode: "date" }),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { mode: "date" })
       .defaultNow()

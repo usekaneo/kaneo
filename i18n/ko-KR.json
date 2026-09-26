@@ -2049,7 +2049,8 @@
 			"noDate": "날짜 없음",
 			"baseline": "Baseline",
 			"milestone": "Milestone",
-			"progress": "Progress"
+			"progress": "Progress",
+			"constraint": "Constraint"
 		},
 		"move": {
 			"title": "작업 이동",
@@ -2127,6 +2128,19 @@
 				"percentLabel": "Percent complete",
 				"updateError": "Failed to update task progress",
 				"updateSuccess": "Task progress updated"
+			},
+			"constraint": {
+				"currentDate": "{{date}}",
+				"label": "Constraint",
+				"pickDate": "Pick a constraint date",
+				"type": {
+					"finish_no_later_than": "Finish no later than",
+					"must_start_on": "Must start on",
+					"none": "No constraint",
+					"start_no_earlier_than": "Start no earlier than"
+				},
+				"updateError": "Failed to update task constraint",
+				"updateSuccess": "Task constraint updated"
 			}
 		},
 		"backlog": {
@@ -2248,7 +2262,9 @@
 			"dependentsRescheduleError": "Failed to reschedule dependent tasks",
 			"criticalPathToggle": "Critical path",
 			"criticalPathToggleAriaLabel": "Highlight the critical path",
-			"legendCriticalPath": "Critical path"
+			"legendCriticalPath": "Critical path",
+			"constraintMarkerAriaLabel": "{{title}}: {{type}}, {{date}}",
+			"constraintViolationAriaLabel": "{{title}}: constraint violated — {{type}}, {{date}}"
 		},
 		"delete": {
 			"title": "작업을 삭제하시겠습니까?",

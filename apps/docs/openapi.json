@@ -169,6 +169,18 @@
             ],
             "format": "date-time"
           },
+          "constraintType": {
+            "type": "string",
+            "description": "The Gantt scheduling constraint: none, start_no_earlier_than (SNET), finish_no_later_than (FNLT), or must_start_on (MSO)."
+          },
+          "constraintDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Null unless constraintType is not none."
+          },
           "position": {
             "type": [
               "number",
@@ -232,6 +244,8 @@
           "isMilestone",
           "baselineStartDate",
           "baselineDueDate",
+          "constraintType",
+          "constraintDate",
           "position",
           "createdAt",
           "userId",
@@ -942,6 +956,18 @@
             "format": "date-time",
             "description": "Snapshotted dueDate from when the baseline was last set; null if no baseline."
           },
+          "constraintType": {
+            "type": "string",
+            "description": "The Gantt scheduling constraint: none, start_no_earlier_than (SNET), finish_no_later_than (FNLT), or must_start_on (MSO)."
+          },
+          "constraintDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Null unless constraintType is not none."
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -981,6 +1007,8 @@
           "isMilestone",
           "baselineStartDate",
           "baselineDueDate",
+          "constraintType",
+          "constraintDate",
           "createdAt"
         ]
       },
@@ -7973,6 +8001,23 @@
                   },
                   "isMilestone": {
                     "type": "boolean"
+                  },
+                  "constraintType": {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "start_no_earlier_than",
+                      "finish_no_later_than",
+                      "must_start_on"
+                    ],
+                    "description": "One of: none, start_no_earlier_than (SNET), finish_no_later_than (FNLT), must_start_on (MSO). Defaults to \"none\" for a new task; omit here to leave the existing constraint untouched."
+                  },
+                  "constraintDate": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "Required when constraintType is set to anything other than \"none\"; forced to null when constraintType is \"none\". Date-only, normalized server-side to UTC midnight."
                   }
                 },
                 "required": [

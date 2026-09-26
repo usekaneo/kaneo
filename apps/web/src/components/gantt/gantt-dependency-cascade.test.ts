@@ -456,6 +456,90 @@ describe("computeDependencyCascade", () => {
     expect(shifts.get("b")).toEqual(schedule(2, 5));
   });
 
+  it("never shifts a task pinned by a must_start_on constraint", () => {
+    // A blocks B (pinned) FS, 0 lag — would normally push B from 5 to 10.
+    const edges: CascadeEdge[] = [
+      {
+        sourceTaskId: "a",
+        targetTaskId: "b",
+        dependencyType: "fs",
+        lagDays: 0,
+      },
+    ];
+    const tasksById = new Map([
+      ["a", schedule(0, 10)],
+      ["b", schedule(5, 8)],
+    ]);
+
+    const shifts = computeDependencyCascade({
+      movedTaskId: "a",
+      edges,
+      tasksById,
+      pinnedTaskIds: new Set(["b"]),
+    });
+
+    expect(shifts.has("b")).toBe(false);
+  });
+
+  it("does not propagate a phantom shift through a pinned must_start_on task to its dependents", () => {
+    // A blocks B (pinned) blocks C, both FS 0 lag. Without pinning, B would
+    // shift to (10-13) and force C from (9-12) to (13-16). With B pinned, B
+    // stays at (5-8) and C's constraint against B's REAL end (8) is already
+    // satisfied (C starts at 9), so C must not move either.
+    const edges: CascadeEdge[] = [
+      {
+        sourceTaskId: "a",
+        targetTaskId: "b",
+        dependencyType: "fs",
+        lagDays: 0,
+      },
+      {
+        sourceTaskId: "b",
+        targetTaskId: "c",
+        dependencyType: "fs",
+        lagDays: 0,
+      },
+    ];
+    const tasksById = new Map([
+      ["a", schedule(0, 10)],
+      ["b", schedule(5, 8)],
+      ["c", schedule(9, 12)],
+    ]);
+
+    const shifts = computeDependencyCascade({
+      movedTaskId: "a",
+      edges,
+      tasksById,
+      pinnedTaskIds: new Set(["b"]),
+    });
+
+    expect(shifts.has("b")).toBe(false);
+    expect(shifts.has("c")).toBe(false);
+  });
+
+  it("omitting pinnedTaskIds behaves exactly like before this feature existed", () => {
+    const edges: CascadeEdge[] = [
+      {
+        sourceTaskId: "a",
+        targetTaskId: "b",
+        dependencyType: "fs",
+        lagDays: 0,
+      },
+    ];
+    const tasksById = new Map([
+      ["a", schedule(0, 10)],
+      ["b", schedule(5, 8)],
+    ]);
+
+    const shifts = computeDependencyCascade({
+      movedTaskId: "a",
+      edges,
+      tasksById,
+    });
+
+    expect(shifts.get("b")).toEqual(schedule(10, 13));
+  });
+
   it("returns nothing when the moved task itself is unscoped", () => {
     const edges: CascadeEdge[] = [
       {

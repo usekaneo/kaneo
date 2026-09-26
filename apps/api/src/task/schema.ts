@@ -19,6 +19,21 @@ const progress = z.number().int().min(0).max(100).openapi({
   description: "Percent complete, 0-100.",
 });
 
+// The only four constraint types the Gantt chart understands — see the
+// matching comment on taskTable.constraintType in database/schema.ts.
+export const VALID_TASK_CONSTRAINT_TYPES = [
+  "none",
+  "start_no_earlier_than",
+  "finish_no_later_than",
+  "must_start_on",
+] as const;
+
+const constraintTypeDescription =
+  "One of: none, start_no_earlier_than (SNET), finish_no_later_than " +
+  "(FNLT), must_start_on (MSO).";
+
+const constraintType = z.enum(VALID_TASK_CONSTRAINT_TYPES);
+
 // Required object of optional filters: a RouteParameter cannot itself be optional.
 export const listTasksQuery = z.object({
   status: z.string().optional(),
@@ -90,25 +105,53 @@ export const createTaskBody = z.object({
     .optional(),
 });
 
-export const updateTaskBody = z.object({
-  title: z.string(),
-  description: z.string().optional().openapi({
-    description:
-      "Omit to preserve the existing description when updating a list summary.",
-  }),
-  startDate: z.string().optional(),
-  dueDate: z.string().optional(),
-  priority,
-  status: z.string(),
-  projectId: z.string(),
-  position: z.number().int().min(0).max(MAX_TASK_POSITION),
-  userId: z.string().optional(),
-  // Optional and left untouched when omitted (unlike the other fields on
-  // this full-replace route): an older client that has never heard of
-  // progress/milestones must not silently reset them on every edit.
-  progress: progress.optional(),
-  isMilestone: z.boolean().optional(),
-});
+export const updateTaskBody = z
+  .object({
+    title: z.string(),
+    description: z.string().optional().openapi({
+      description:
+        "Omit to preserve the existing description when updating a list summary.",
+    }),
+    startDate: z.string().optional(),
+    dueDate: z.string().optional(),
+    priority,
+    status: z.string(),
+    projectId: z.string(),
+    position: z.number().int().min(0).max(MAX_TASK_POSITION),
+    userId: z.string().optional(),
+    // Optional and left untouched when omitted (unlike the other fields on
+    // this full-replace route): an older client that has never heard of
+    // progress/milestones must not silently reset them on every edit.
+    progress: progress.optional(),
+    isMilestone: z.boolean().optional(),
+    // Same "optional and left untouched when omitted" rule as
+    // progress/isMilestone above. Providing constraintType is what opts a
+    // request into touching either field at all: passing constraintDate
+    // alone, with constraintType omitted, leaves both columns untouched.
+    constraintType: constraintType.optional().openapi({
+      description: `${constraintTypeDescription} Defaults to "none" for a new task; omit here to leave the existing constraint untouched.`,
+    }),
+    constraintDate: z
+      .string()
+      .nullable()
+      .optional()
+      .openapi({
+        description:
+          "Required when constraintType is set to anything other than " +
+          '"none"; forced to null when constraintType is "none". ' +
+          "Date-only, normalized server-side to UTC midnight.",
+      }),
+  })
+  .refine(
+    (data) =>
+      data.constraintType === undefined ||
+      data.constraintType === "none" ||
+      !!data.constraintDate,
+    {
+      message: 'constraintDate is required when constraintType is not "none"',
+      path: ["constraintDate"],
+    },
+  );
 
 export const moveTaskBody = z.object({
   destinationProjectId: z.string(),

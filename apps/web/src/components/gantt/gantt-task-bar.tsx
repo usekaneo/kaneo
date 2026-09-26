@@ -1,11 +1,13 @@
 import { addDays, differenceInCalendarDays, startOfDay } from "date-fns";
-import { Diamond, Link2 as Link2Icon } from "lucide-react";
+import { AlertTriangle, Diamond, Flag, Link2 as Link2Icon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { cn } from "@/lib/cn";
+import { formatDateShort } from "@/lib/format";
 import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
+import { computeConstraintViolations } from "./gantt-constraint-violations";
 import {
   computeInsetBarBox,
   computeProgressFillPercent,
@@ -379,6 +381,96 @@ export function GanttTaskBar({
     return baselineUnderlay;
   }
 
+  // Task date constraint (Phase 3c-ii): a small pin at the constraint date,
+  // plus a distinct warning badge when the task's own dates violate it (see
+  // gantt-constraint-violations.ts) — kept visually apart from the red
+  // dependency lines (a line, not an icon), the amber critical-path outline,
+  // and the milestone diamond (a different shape/position), so all four can
+  // never be mistaken for one another.
+  const constraintType = task.constraintType ?? "none";
+  const constraintDateValue = task.constraintDate
+    ? new Date(task.constraintDate)
+    : null;
+  const hasConstraint =
+    constraintType !== "none" && constraintDateValue !== null;
+  const constraintGrid =
+    hasConstraint && constraintDateValue
+      ? getBarGridColumns(
+          constraintDateValue,
+          constraintDateValue,
+          timeline.rangeStart,
+          trackCount,
+        )
+      : null;
+  const isConstraintViolated = hasConstraint
+    ? computeConstraintViolations([task]).has(task.id)
+    : false;
+  const constraintTypeLabel = hasConstraint
+    ? t(`tasks:popover.constraint.type.${constraintType}`)
+    : "";
+  const constraintDateLabel = constraintDateValue
+    ? formatDateShort(constraintDateValue)
+    : "";
+
+  // The pin itself: always shown for a constrained task, positioned at its
+  // own constraint date (which need not fall inside the bar's own span —
+  // e.g. an SNET/FNLT violation puts it outside). A distinct sky color and
+  // shape (a small flag in a circle) from every other Gantt accent.
+  const constraintMarker = constraintGrid?.barInView ? (
+    <div
+      className="pointer-events-none absolute inset-x-0 top-0 z-[2] grid"
+      style={{ gridTemplateColumns: timeline.gridTemplateColumns }}
+    >
+      <div
+        style={{
+          gridColumn: `${constraintGrid.lineStart} / ${constraintGrid.lineEnd}`,
+        }}
+        className="pointer-events-auto relative flex justify-center"
+      >
+        <span
+          role="img"
+          aria-label={t("tasks:gantt.constraintMarkerAriaLabel", {
+            title: task.title,
+            type: constraintTypeLabel,
+            date: constraintDateLabel,
+          })}
+          title={t("tasks:gantt.constraintMarkerAriaLabel", {
+            title: task.title,
+            type: constraintTypeLabel,
+            date: constraintDateLabel,
+          })}
+          className="absolute -top-2 flex size-4 items-center justify-center rounded-full border border-sky-500/60 bg-background text-sky-600 shadow-sm dark:border-sky-400/50 dark:text-sky-400"
+        >
+          <Flag className="size-2.5" aria-hidden="true" />
+        </span>
+      </div>
+    </div>
+  ) : null;
+
+  // The violation badge: only when this task's own dates actually break its
+  // constraint. Red is reused here deliberately (see file header decision in
+  // gantt-constraint-violations.ts's caller) — it's a conventional
+  // "deadline missed" warning color, but as a small corner icon rather than
+  // a line, it can't be confused with a blocking dependency line.
+  const violationBadge = isConstraintViolated ? (
+    <span
+      role="img"
+      aria-label={t("tasks:gantt.constraintViolationAriaLabel", {
+        title: task.title,
+        type: constraintTypeLabel,
+        date: constraintDateLabel,
+      })}
+      title={t("tasks:gantt.constraintViolationAriaLabel", {
+        title: task.title,
+        type: constraintTypeLabel,
+        date: constraintDateLabel,
+      })}
+      className="pointer-events-auto absolute -top-1.5 -right-1.5 z-30 flex size-4 items-center justify-center rounded-full border border-destructive/70 bg-background text-destructive shadow-sm"
+    >
+      <AlertTriangle className="size-2.5" aria-hidden="true" />
+    </span>
+  ) : null;
+
   // React's onBlur/onFocus fire from bubbling focusout/focusin, so tabbing
   // between this bar's own resize-start/move/resize-due buttons fires a
   // blur on the outgoing button immediately followed by a focus on the
@@ -442,6 +534,7 @@ export function GanttTaskBar({
             >
               <Diamond className="size-full fill-primary/30" />
             </button>
+            {violationBadge}
           </div>
         </div>
       </>
@@ -473,6 +566,7 @@ export function GanttTaskBar({
   return (
     <>
       {baselineUnderlay}
+      {constraintMarker}
       <div
         className="pointer-events-none absolute inset-0 z-[1] grid items-center"
         style={{
@@ -490,6 +584,7 @@ export function GanttTaskBar({
           style={{ gridColumn: `${lineStart} / ${lineEnd}` }}
           className="group relative"
         >
+          {violationBadge}
           {/* biome-ignore lint/a11y/noStaticElementInteractions: hover/focus tracking drives dependency-line highlighting; the actual interactive controls are the buttons nested below */}
           <div
             style={{

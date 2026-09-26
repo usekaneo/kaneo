@@ -34,3 +34,23 @@ export function validateDateRange(
     });
   }
 }
+
+/**
+ * Date-only semantics (matching startDate/dueDate/workspace holidays):
+ * whatever time-of-day (or bare date) the caller sends, only the calendar
+ * date survives, normalized to UTC midnight so it compares equal regardless
+ * of the server or caller's local time zone.
+ */
+export function normalizeToUtcMidnight(
+  dateStr: string,
+  fieldName: string,
+): Date {
+  const parsed = validateAndParseDate(dateStr, fieldName);
+  return new Date(
+    Date.UTC(
+      parsed.getUTCFullYear(),
+      parsed.getUTCMonth(),
+      parsed.getUTCDate(),
+    ),
+  );
+}

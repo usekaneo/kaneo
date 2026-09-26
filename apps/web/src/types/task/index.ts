@@ -34,6 +34,11 @@ type Task = {
   isMilestone: boolean;
   baselineStartDate: string | null;
   baselineDueDate: string | null;
+  // Gantt scheduling constraint: "none" (default) | "start_no_earlier_than"
+  // | "finish_no_later_than" | "must_start_on". Optional so existing test
+  // fixtures/mocks built before this field existed keep compiling.
+  constraintType?: string;
+  constraintDate?: string | null;
   position: number | null;
   createdAt: string;
   updatedAt?: string;

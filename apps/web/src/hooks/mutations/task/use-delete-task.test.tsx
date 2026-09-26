@@ -25,6 +25,8 @@ function makeTask(id: string): Task {
     isMilestone: false,
     baselineStartDate: null,
     baselineDueDate: null,
+    constraintType: "none",
+    constraintDate: null,
     position: 0,
     createdAt: "2026-08-31T00:00:00.000Z",
     updatedAt: "2026-08-31T00:00:00.000Z",
@@ -91,6 +93,8 @@ describe("useDeleteTask", () => {
     const deletedTask = {
       ...makeTask("delete-me"),
       priority: "no-priority",
+      constraintType: "none" as const,
+      constraintDate: null as string | null,
     };
     queryClient.setQueryData(["tasks", project.id], project);
     queryClient.setQueryData(["task", deletedTask.id], deletedTask);
