@@ -4,6 +4,7 @@ import { getAdminUsers } from "@/fetchers/admin/get-admin-users";
 
 export {
   ADMIN_USERS_PAGE_SIZE,
+  ADMIN_USERS_SEARCH_MAX_LENGTH,
   type AdminUser,
 } from "@/fetchers/admin/types";
 

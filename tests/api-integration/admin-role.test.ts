@@ -5,7 +5,7 @@ import { auth } from "../../apps/api/src/auth";
 import db, { schema } from "../../apps/api/src/database";
 import { resetTestDatabase } from "./helpers/database";
 
-async function createUser(role: "admin" | "user") {
+async function createUser(role: string) {
   const email = `${randomUUID()}@example.com`;
   const password = "admin-role-test-password";
   const signUp = await request("/sign-up/email", {
@@ -114,6 +114,18 @@ describe.each(["/admin/set-role", "/admin/update-user"])(
       ).toBe(400);
       expect(await getRole(admin.id)).toBe("admin");
       expect(await getRole(other.id)).toBe("user");
+    });
+
+    it("counts an admin whose role list has padding as remaining", async () => {
+      const admin = await createUser("admin");
+      const padded = await createUser(" admin , user");
+      const headers = { Cookie: admin.cookie };
+
+      expect(
+        (await request(path, body(padded.id, "user"), headers)).status,
+      ).toBe(200);
+      expect(await getRole(padded.id)).toBe("user");
+      expect(await getRole(admin.id)).toBe("admin");
     });
 
     it("denies a demoted admin even with their old session cookie", async () => {

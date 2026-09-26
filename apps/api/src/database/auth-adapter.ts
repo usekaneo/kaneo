@@ -38,7 +38,7 @@ export function authDatabaseAdapter(config: DrizzleAdapterConfig) {
               .select({ value: count() })
               .from(schema.userTable)
               .where(
-                sql`'admin' = ANY(string_to_array(${schema.userTable.role}, ','))`,
+                sql`EXISTS (SELECT 1 FROM unnest(string_to_array(${schema.userTable.role}, ',')) AS entry WHERE btrim(entry) = 'admin')`,
               );
             if ((admins?.value ?? 0) <= 1) {
               throw new APIError("BAD_REQUEST", {

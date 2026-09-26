@@ -60,6 +60,14 @@ describe("getAdminUsers", () => {
     });
   });
 
+  it("caps the search at the API limit", async () => {
+    await getAdminUsers("a".repeat(250), 0);
+
+    expect(mocks.get).toHaveBeenCalledWith({
+      query: { search: "a".repeat(200), page: "1", limit: "20" },
+    });
+  });
+
   it("maps the zero-based page to the one-based API page", async () => {
     await getAdminUsers("", 3);
 

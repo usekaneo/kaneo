@@ -72,6 +72,7 @@ import useToggleAdminUserStatus from "@/hooks/mutations/admin/use-toggle-admin-u
 import useUpdateAdminUser from "@/hooks/mutations/admin/use-update-admin-user";
 import useAdminUsers, {
   ADMIN_USERS_PAGE_SIZE,
+  ADMIN_USERS_SEARCH_MAX_LENGTH,
   type AdminUser,
 } from "@/hooks/queries/admin/use-admin-users";
 import { formatDateMedium } from "@/lib/format";
@@ -261,6 +262,7 @@ function UserManagementPanel() {
               type="search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
+              maxLength={ADMIN_USERS_SEARCH_MAX_LENGTH}
               placeholder={t("settings:adminUsers.searchPlaceholder")}
               aria-label={t("settings:adminUsers.searchLabel")}
             />
