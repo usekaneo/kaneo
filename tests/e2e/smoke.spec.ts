@@ -13,7 +13,7 @@ test("sign up, create a workspace, and sign in again", async ({
   await page.goto("/auth/sign-up");
   await page.getByLabel("Full Name", { exact: true }).fill("Browser Tester");
   await page.getByLabel("Email", { exact: true }).fill(email);
-  await page.getByLabel("Password", { exact: true }).fill(password);
+  await page.locator('input[name="password"]').fill(password);
   await page
     .getByRole("button", { name: "Create Account", exact: true })
     .click();
@@ -37,7 +37,7 @@ test("sign up, create a workspace, and sign in again", async ({
   await page.goto(workspaceUrl);
   await expect(page).toHaveURL(/\/auth\/sign-in/);
   await page.getByLabel("Email", { exact: true }).fill(email);
-  await page.getByLabel("Password", { exact: true }).fill(password);
+  await page.locator('input[name="password"]').fill(password);
   await page.getByRole("button", { name: "Sign In", exact: true }).click();
   await expect(page).toHaveURL(workspaceUrl);
   await expect(

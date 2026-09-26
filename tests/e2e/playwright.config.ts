@@ -15,6 +15,7 @@ export default defineConfig({
     ["html", { outputFolder: "../../.cache/e2e/report", open: "never" }],
   ],
   use: {
+    actionTimeout: 15_000,
     // This port belongs to the disposable Compose stack, never a live instance.
     baseURL: "http://localhost:18173",
     locale: "en-US",
