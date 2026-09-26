@@ -1,0 +1,34 @@
+name: kaneo-browserstack-e2e
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: kaneo_e2e
+      POSTGRES_USER: kaneo_e2e
+      POSTGRES_PASSWORD: kaneo_e2e
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kaneo_e2e -d kaneo_e2e"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  kaneo:
+    image: kaneo-browserstack:test
+    build:
+      context: ../..
+      dockerfile: Dockerfile.kaneo
+    ports:
+      - "127.0.0.1:18173:5173"
+    environment:
+      DATABASE_URL: postgresql://kaneo_e2e:kaneo_e2e@postgres:5432/kaneo_e2e
+      AUTH_SECRET: browser-tests-only-not-a-production-secret
+      KANEO_CLIENT_URL: http://localhost:18173
+      DISABLE_WORKSPACE_CREATION: "false"
+      DISABLE_REGISTRATION: "false"
+      DISABLE_GUEST_ACCESS: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
