@@ -96,3 +96,35 @@ it("keeps hidden selections readable and removable outside the menu", async () =
   );
   expect(commit).toHaveBeenLastCalledWith([]);
 });
+
+it("retains a selection hidden remotely while its menu is open", async () => {
+  const commit = vi.fn();
+  const allOptions = [...options, "Third person"];
+  function Fixture({ hidden }: { hidden: string[] }) {
+    const [value, setValue] = useState([options[0]]);
+    return (
+      <CustomFieldMultiSelect
+        name="Attendees"
+        options={allOptions}
+        hiddenOptions={hidden}
+        value={value}
+        onChange={setValue}
+        onCommit={commit}
+      />
+    );
+  }
+  const view = render(<Fixture hidden={[]} />);
+  fireEvent.click(screen.getByRole("combobox", { name: "Attendees" }));
+  await screen.findByRole("option", { name: options[0] });
+  view.rerender(<Fixture hidden={[options[0]]} />);
+  await waitFor(() =>
+    expect(
+      screen.queryByRole("option", { name: options[0] }),
+    ).not.toBeInTheDocument(),
+  );
+  fireEvent.keyDown(screen.getByRole("option", { name: options[1] }), {
+    key: "Escape",
+  });
+  await waitFor(() => expect(commit).toHaveBeenLastCalledWith([options[0]]));
+  expect(screen.getByRole("listitem")).toHaveTextContent(options[0]);
+});

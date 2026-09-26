@@ -41,7 +41,7 @@ export default function CustomFieldMultiSelect({
     <div className="space-y-2">
       <Select
         multiple
-        items={visibleOptions.map((option) => ({
+        items={options.map((option) => ({
           value: option,
           label: option,
         }))}
@@ -80,11 +80,17 @@ export default function CustomFieldMultiSelect({
           alignItemWithTrigger={false}
           className="w-(--anchor-width)"
         >
-          {visibleOptions.map((option) => (
+          {options.map((option) => (
             <SelectItem
               key={option}
               value={option}
-              className="grid-cols-[1rem_minmax(0,1fr)] items-start py-1.5 leading-5"
+              hidden={hiddenOptions.includes(option)}
+              disabled={hiddenOptions.includes(option)}
+              className={
+                hiddenOptions.includes(option)
+                  ? "hidden"
+                  : "grid-cols-[1rem_minmax(0,1fr)] items-start py-1.5 leading-5"
+              }
             >
               <span className="block whitespace-normal break-words text-left">
                 {option}
