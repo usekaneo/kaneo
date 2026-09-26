@@ -492,8 +492,18 @@ describe("buildDependencyEdges", () => {
       ["d", { left: 400, right: 500, top: 240, height: 40 }],
     ]);
     const edges: DependencyEdgeInput[] = [
-      { id: "e1", sourceTaskId: "a", targetTaskId: "b", relationType: "blocks" },
-      { id: "e2", sourceTaskId: "c", targetTaskId: "d", relationType: "related" },
+      {
+        id: "e1",
+        sourceTaskId: "a",
+        targetTaskId: "b",
+        relationType: "blocks",
+      },
+      {
+        id: "e2",
+        sourceTaskId: "c",
+        targetTaskId: "d",
+        relationType: "related",
+      },
     ];
 
     const geometry = buildDependencyEdges(edges, boxes);

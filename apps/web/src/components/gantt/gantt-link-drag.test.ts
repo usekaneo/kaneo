@@ -8,7 +8,9 @@ function box(overrides: Partial<TaskBarBox> = {}): TaskBarBox {
 
 describe("linkSourceAnchorPoint", () => {
   it("anchors at the box's right edge, vertically centered", () => {
-    expect(linkSourceAnchorPoint(box({ left: 0, right: 100, top: 10, height: 30 }))).toEqual({
+    expect(
+      linkSourceAnchorPoint(box({ left: 0, right: 100, top: 10, height: 30 })),
+    ).toEqual({
       x: 100,
       y: 25,
     });
@@ -24,17 +26,21 @@ describe("findLinkDropTarget", () => {
   ];
 
   it("returns the task id of the bar the point is released over", () => {
-    expect(
-      findLinkDropTarget({ x: 250, y: 20 }, candidates, "source"),
-    ).toBe("target");
+    expect(findLinkDropTarget({ x: 250, y: 20 }, candidates, "source")).toBe(
+      "target",
+    );
   });
 
   it("returns null when released over empty space between bars", () => {
-    expect(findLinkDropTarget({ x: 150, y: 20 }, candidates, "source")).toBeNull();
+    expect(
+      findLinkDropTarget({ x: 150, y: 20 }, candidates, "source"),
+    ).toBeNull();
   });
 
   it("returns null (cancels) when released back over the source bar itself", () => {
-    expect(findLinkDropTarget({ x: 50, y: 20 }, candidates, "source")).toBeNull();
+    expect(
+      findLinkDropTarget({ x: 50, y: 20 }, candidates, "source"),
+    ).toBeNull();
   });
 
   it("returns null when there are no candidates at all", () => {
@@ -44,16 +50,19 @@ describe("findLinkDropTarget", () => {
   it("picks the first matching candidate when boxes overlap", () => {
     const overlapping = [
       { taskId: "back", box: box({ left: 0, right: 100, top: 0, height: 40 }) },
-      { taskId: "front", box: box({ left: 50, right: 150, top: 0, height: 40 }) },
+      {
+        taskId: "front",
+        box: box({ left: 50, right: 150, top: 0, height: 40 }),
+      },
     ];
-    expect(
-      findLinkDropTarget({ x: 75, y: 20 }, overlapping, "source"),
-    ).toBe("back");
+    expect(findLinkDropTarget({ x: 75, y: 20 }, overlapping, "source")).toBe(
+      "back",
+    );
   });
 
   it("treats the box bounds as inclusive at the edges", () => {
-    expect(
-      findLinkDropTarget({ x: 200, y: 0 }, candidates, "source"),
-    ).toBe("target");
+    expect(findLinkDropTarget({ x: 200, y: 0 }, candidates, "source")).toBe(
+      "target",
+    );
   });
 });

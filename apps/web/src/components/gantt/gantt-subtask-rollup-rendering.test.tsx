@@ -258,9 +258,9 @@ describe("Gantt subtask rollup rendering", () => {
     // once inside the child's own normal (non-summary) bar label — so these
     // use getAllByText rather than the single-match getByText.
     expect(screen.getAllByText("Ship the release").length).toBeGreaterThan(0);
-    expect(
-      screen.getAllByText("Write the changelog").length,
-    ).toBeGreaterThan(0);
+    expect(screen.getAllByText("Write the changelog").length).toBeGreaterThan(
+      0,
+    );
     expect(screen.getAllByText("Cut the tag").length).toBeGreaterThan(0);
 
     // The summary bar itself (its own button, tagged with the parent's
@@ -298,9 +298,9 @@ describe("Gantt subtask rollup rendering", () => {
     fireEvent.click(
       screen.getByRole("button", { name: "tasks:gantt.expandSubtasks" }),
     );
-    expect(
-      screen.getAllByText("Write the changelog").length,
-    ).toBeGreaterThan(0);
+    expect(screen.getAllByText("Write the changelog").length).toBeGreaterThan(
+      0,
+    );
     expect(document.querySelectorAll("svg path[stroke]")).toHaveLength(1);
   });
 
@@ -316,9 +316,9 @@ describe("Gantt subtask rollup rendering", () => {
     // than vanishing — a search matching only a child used to hide it
     // entirely, since flattenGanttRows only visits a parent's children when
     // the parent itself made it into the top-level list.
-    expect(
-      screen.getAllByText("Write the changelog").length,
-    ).toBeGreaterThan(0);
+    expect(screen.getAllByText("Write the changelog").length).toBeGreaterThan(
+      0,
+    );
     expect(screen.queryAllByText("Ship the release")).toHaveLength(0);
     expect(screen.queryAllByText("Cut the tag")).toHaveLength(0);
     expect(

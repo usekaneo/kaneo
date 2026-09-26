@@ -33,8 +33,8 @@ import {
 } from "@/components/gantt/gantt-hierarchy";
 import {
   findLinkDropTarget,
-  linkSourceAnchorPoint,
   type LinkDropCandidate,
+  linkSourceAnchorPoint,
 } from "@/components/gantt/gantt-link-drag";
 import { GanttSummaryTaskBar } from "@/components/gantt/gantt-summary-task-bar";
 import { GanttTaskBar } from "@/components/gantt/gantt-task-bar";

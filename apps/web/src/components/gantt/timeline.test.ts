@@ -188,7 +188,11 @@ describe("buildGanttRange extraBoundsTasks (external related tasks)", () => {
       externalTasks,
     );
     expect(range).not.toBeNull();
-    expect(range?.days.some((day) => day.getTime() === parseISO("2026-09-14").getTime())).toBe(true);
+    expect(
+      range?.days.some(
+        (day) => day.getTime() === parseISO("2026-09-14").getTime(),
+      ),
+    ).toBe(true);
   });
 
   it("still returns null when both the own tasks and the bounds tasks are empty", () => {
