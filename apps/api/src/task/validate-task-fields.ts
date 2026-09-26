@@ -12,9 +12,9 @@ export function isCustomFieldValueEmpty(
   if (type === "multiselect") {
     try {
       const parsed = JSON.parse(value);
-      return !Array.isArray(parsed) || parsed.length === 0;
+      return Array.isArray(parsed) && parsed.length === 0;
     } catch {
-      return true;
+      return false;
     }
   }
 

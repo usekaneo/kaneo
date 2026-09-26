@@ -466,6 +466,108 @@ describe("custom fields API", () => {
     }
   });
 
+  it("rejects invalid multiselect defaults before persisting the field", async () => {
+    const { app, project } = await createFixture();
+
+    for (const required of [false, true]) {
+      const invalidDefaults = [
+        "not-json",
+        "{}",
+        "null",
+        '"frontend"',
+        '["unknown"]',
+        "[1]",
+        "[{}]",
+      ];
+      if (required) invalidDefaults.push("[]");
+
+      for (const defaultValue of invalidDefaults) {
+        const response = await app.request("/api/custom-field", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            projectId: project.id,
+            name: "Category",
+            type: "multiselect",
+            required,
+            options: ["frontend", "backend"],
+            defaultValue,
+          }),
+        });
+        expect(response.status, await response.text()).toBe(400);
+      }
+    }
+
+    const fields = await db
+      .select()
+      .from(schema.customFieldDefinitionTable)
+      .where(eq(schema.customFieldDefinitionTable.projectId, project.id));
+    expect(fields).toEqual([]);
+  });
+
+  it("validates optional multiselect task values while allowing empty selections", async () => {
+    const { app, project } = await createFixture();
+    const fieldResponse = await app.request("/api/custom-field", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        projectId: project.id,
+        name: "Category",
+        type: "multiselect",
+        required: false,
+        options: ["frontend", "backend"],
+        defaultValue: "[]",
+      }),
+    });
+    expect(fieldResponse.status).toBe(200);
+    const field = await fieldResponse.json();
+    const status = await getProjectStatus(project.id);
+
+    for (const value of [
+      "not-json",
+      "{}",
+      "null",
+      '"frontend"',
+      '["unknown"]',
+      "[1]",
+      "[{}]",
+    ]) {
+      const response = await app.request(`/api/task/${project.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: "Invalid multiselect task",
+          description: "",
+          status,
+          priority: "no-priority",
+          customFields: [{ fieldId: field.id, value }],
+        }),
+      });
+      expect(response.status, await response.text()).toBe(400);
+    }
+
+    const tasks = await db
+      .select()
+      .from(schema.taskTable)
+      .where(eq(schema.taskTable.projectId, project.id));
+    expect(tasks).toEqual([]);
+
+    for (const value of ["", "[]", '["frontend"]']) {
+      const response = await app.request(`/api/task/${project.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: "Valid multiselect task",
+          description: "",
+          status,
+          priority: "no-priority",
+          customFields: [{ fieldId: field.id, value }],
+        }),
+      });
+      expect(response.status, await response.text()).toBe(200);
+    }
+  });
+
   it("creates a multiselect field with options and applies its default to existing tasks", async () => {
     const { app, project } = await createFixture();
 

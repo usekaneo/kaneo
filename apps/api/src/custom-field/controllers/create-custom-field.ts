@@ -8,7 +8,10 @@ import {
   taskTable,
 } from "../../database/schema";
 
-import { validateCustomFieldValue } from "../../task/validate-task-fields";
+import {
+  isCustomFieldValueEmpty,
+  validateCustomFieldValue,
+} from "../../task/validate-task-fields";
 
 async function createCustomField(
   projectId: string,
@@ -105,6 +108,26 @@ async function createCustomField(
       throw new HTTPException(400, {
         message: "Multiselect fields must have at least 2 options",
       });
+    }
+  }
+
+  if (type === "multiselect" && defaultValue != null) {
+    const empty = isCustomFieldValueEmpty(defaultValue, "multiselect");
+    if (required && empty) {
+      throw new HTTPException(400, {
+        message: "Required fields must have a default value",
+      });
+    }
+    if (!empty) {
+      const error = validateCustomFieldValue(
+        defaultValue,
+        "multiselect",
+        name,
+        options,
+      );
+      if (error) {
+        throw new HTTPException(400, { message: error });
+      }
     }
   }
 
