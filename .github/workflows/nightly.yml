@@ -146,13 +146,16 @@ jobs:
       - name: Notify Discord on findings
         if: failure()
         env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          # The workflow audit posts to a dedicated Actions webhook (separate
+          # from the secrets channel) so workflow-security alerts stay out of
+          # the secrets incident channel. Skip silently if it is not set.
+          DISCORD_ACTIONS_WEBHOOK_URL: ${{ secrets.DISCORD_ACTIONS_WEBHOOK_URL }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           BRANCH: ${{ github.ref_name }}
           TITLE: "🌙 Nightly workflow audit found security issues"
         run: |
-          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
-            echo "DISCORD_WEBHOOK_URL is not configured; skipping notification."
+          if [ -z "$DISCORD_ACTIONS_WEBHOOK_URL" ]; then
+            echo "DISCORD_ACTIONS_WEBHOOK_URL is not configured; skipping notification."
             exit 0
           fi
           if [ ! -f zizmor-results.json ]; then
@@ -181,7 +184,7 @@ jobs:
           curl --fail --silent --show-error --max-time 15 \
             -H "Content-Type: application/json" \
             --data-binary @"$RUNNER_TEMP/discord-payload.json" \
-            "$DISCORD_WEBHOOK_URL" \
+            "$DISCORD_ACTIONS_WEBHOOK_URL" \
             || echo "::warning::Discord notification could not be delivered."
 
   verify:
