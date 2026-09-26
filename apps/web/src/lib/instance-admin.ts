@@ -1,4 +1,4 @@
-export function hasInstanceAdminRole(role: unknown): boolean {
+export function hasInstanceAdminRole(role: unknown) {
   return (
     typeof role === "string" &&
     role

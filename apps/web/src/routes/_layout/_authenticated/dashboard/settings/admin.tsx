@@ -6,11 +6,16 @@ export const Route = createFileRoute(
 )({
   beforeLoad: async ({ context }) => {
     const userId = context.session?.user.id;
-    const hasAccess = userId
-      ? await context.queryClient.ensureQueryData(
-          adminAccessQueryOptions(userId),
-        )
-      : false;
+    if (!userId) {
+      if (context.sessionError) {
+        return;
+      }
+      throw redirect({ to: "/dashboard/settings/account/information" });
+    }
+
+    const hasAccess = await context.queryClient.ensureQueryData(
+      adminAccessQueryOptions(userId),
+    );
 
     if (!hasAccess) {
       throw redirect({ to: "/dashboard/settings/account/information" });
