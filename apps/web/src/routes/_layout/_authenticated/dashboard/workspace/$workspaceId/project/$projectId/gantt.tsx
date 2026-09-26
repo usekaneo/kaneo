@@ -1588,7 +1588,7 @@ function RouteComponent() {
                               // ~4%-alpha `bg-muted` token which is invisible on
                               // dark. Kept in sync with the track layer below.
                               !workingDayPredicate(day) &&
-                                "bg-foreground/[0.06]",
+                                "bg-foreground/[0.1]",
                             )}
                           >
                             <div className="h-4 text-[10px] font-medium text-muted-foreground">
@@ -1683,7 +1683,7 @@ function RouteComponent() {
                           // Theme-adaptive tint (see the header row above): a
                           // foreground tint stays visible on both dark and
                           // light, where the ~4%-alpha `bg-muted` token did not.
-                          "bg-foreground/[0.06]",
+                          "bg-foreground/[0.1]",
                       )}
                     />
                   ))}
