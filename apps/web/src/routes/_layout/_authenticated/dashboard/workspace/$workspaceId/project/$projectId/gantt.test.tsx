@@ -91,6 +91,7 @@ vi.mock("react-i18next", () => ({
       );
     },
   }),
+  initReactI18next: { type: "3rdParty", init: vi.fn() },
 }));
 
 const GanttRoute = (Route as unknown as { component: ComponentType }).component;
