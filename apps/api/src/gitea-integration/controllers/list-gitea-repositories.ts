@@ -26,7 +26,7 @@ async function listGiteaRepositories({
   try {
     await verifyGiteaToken(normalized, accessToken);
   } catch {
-    throw new HTTPException(401, {
+    throw new HTTPException(400, {
       message: "Invalid Gitea token or could not reach instance.",
     });
   }

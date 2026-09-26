@@ -1,6 +1,6 @@
 ---
-title: Manage Your Account
-description: Change your profile picture and understand what deleting your account does
+title: Your account
+description: Manage your profile, password, API keys, and account deletion
 ---
 
 Your profile picture and your account itself are both managed from **Settings -> Account -> Information**.
@@ -13,6 +13,21 @@ Your profile picture and your account itself are both managed from **Settings ->
 4. Pick any image. It is cropped to a square and resized to 256x256 before it is uploaded.
 
 Choose **Remove avatar** to go back to your initials. Pictures are stored in your Kaneo database, so self-hosted instances need no object storage for this and a normal database backup includes them.
+
+## Change your password
+
+Open **Settings → Account → Security**. If your account has a password, enter the current password, choose a new one, and confirm it. The new password must be between 8 and 128 characters.
+
+Accounts that sign in only through a provider or passwordless email do not have a current password to change here. If you forgot an existing password, use **Forgot password?** on the password sign-in form. Reset emails require SMTP and local sign-in to be enabled by your instance operator. Reset links expire after one hour; completing a reset revokes existing sessions.
+
+<Frame caption="Accounts with a password can change it under Account → Security.">
+  <img className="block dark:hidden" src="/images/product/security-light.png" alt="Accounts with a password can change it under Account → Security." />
+  <img className="hidden dark:block" src="/images/product/security-dark.png" alt="Accounts with a password can change it under Account → Security." />
+</Frame>
+
+## API keys
+
+Open **Settings → Account → API Keys** to create or revoke credentials for scripts and integrations. Follow [API authentication](/api-reference/authentication) before using a key.
 
 ## Delete your account
 

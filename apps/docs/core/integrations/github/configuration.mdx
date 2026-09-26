@@ -1,176 +1,43 @@
 ---
-title: Configuration & Setup
-description: Configure Kaneo with your GitHub App credentials and connect projects to repositories. Includes Docker Compose and Kubernetes examples.
+title: "Connect a GitHub repository"
+description: "Add the app credentials, connect a project, and verify synchronization."
 ---
 
+First [create and install a GitHub App](/core/integrations/github/setup). GitHub sign-in is separate and uses [OAuth settings](/core/social-providers/github).
 
-This guide covers configuring Kaneo with your GitHub App credentials and connecting projects to repositories.
+## Add the instance credentials
 
-<Info>
-Make sure you've completed the [GitHub App setup](/core/integrations/github/setup) before proceeding.
-</Info>
+For the bundled Compose deployment, add these values to `.env`:
 
-## Environment Variables
+```env
+GITHUB_APP_ID=your-app-id
+GITHUB_APP_NAME=your-app-slug
+GITHUB_WEBHOOK_SECRET=your-webhook-secret
+GITHUB_PRIVATE_KEY_BASE64=your-base64-encoded-private-key
+```
 
-Add the following environment variables to your Kaneo deployment:
+Encode the downloaded PEM file without printing it into logs or committing it. Alternatively, set `GITHUB_PRIVATE_KEY` to the full PEM with real line breaks or literal `\n` sequences. `GITHUB_PRIVATE_KEY_BASE64` takes precedence if both are present.
+
+Recreate the application container to apply the environment:
 
 ```bash
-# GitHub App (integration only: repository sync, webhooks)
-GITHUB_APP_ID=123456
-GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
-MIIEpAIBAAKCAQEA...
-[Full contents of your private key]
-...
------END RSA PRIVATE KEY-----"
-GITHUB_WEBHOOK_SECRET=your-webhook-secret-here
-
-# Optional: GitHub App slug for installation URLs in the UI
-GITHUB_APP_NAME=kaneo-your-instance-name
+docker compose up -d --force-recreate kaneo
 ```
 
-<Info>
-GitHub sign-in uses separate OAuth variables (`GITHUB_OAUTH_CLIENT_ID` / `GITHUB_OAUTH_CLIENT_SECRET`). You can run the integration without enabling GitHub SSO. See [GitHub SSO](/core/social-providers/github) and [Environment variables](/core/installation/environment-variables#github-sso).
-</Info>
+For Kubernetes, pass the same values through a Secret using your deployment's existing secret configuration. Do not create a second API deployment just for this integration.
 
-### Variable Reference
+## Connect the project
 
-| Variable | Description | Required | Example |
-|----------|-------------|----------|---------|
-| `GITHUB_APP_ID` | Your GitHub App's ID | ✅ | `123456` |
-| `GITHUB_PRIVATE_KEY` | Full private key content (with newlines) | ✅ | `-----BEGIN RSA...` |
-| `GITHUB_WEBHOOK_SECRET` | Secret for webhook verification | ✅ | `your-secret` |
-| `GITHUB_APP_NAME` | App slug for installation URLs in the UI | ⚠️ | `kaneo-mycompany` |
+1. Open **Settings → Projects**, select the project, then open **Integrations**.
+2. In GitHub, browse the repositories available to your installed app, or enter the owner and repository name.
+3. Verify the installation and connect the repository.
+4. Create a test task and check that its GitHub issue appears.
 
-<Warning>
-`GITHUB_APP_NAME` is optional but recommended. It's used to generate direct installation links in the UI.
-</Warning>
+Use a test repository for the first check, since synchronization creates real issues and comments. Review the event-to-column mappings under **Workflow → Automation Rules**.
 
-## Deployment Examples
+### Changing the connected repository
 
-### Docker Compose
-
-Update your `compose.yml` file:
-
-```yaml
-services:
-  backend:
-    image: ghcr.io/usekaneo/api:latest
-    environment:
-      # ... other environment variables
-      GITHUB_APP_ID: "123456"
-      GITHUB_PRIVATE_KEY: |
-        -----BEGIN RSA PRIVATE KEY-----
-        MIIEpAIBAAKCAQEA...
-        [Full contents of your private key]
-        ...
-        -----END RSA PRIVATE KEY-----
-      GITHUB_WEBHOOK_SECRET: "your-webhook-secret-here"
-      GITHUB_APP_NAME: "kaneo-mycompany"
-    # ... rest of configuration
-```
-
-<Tip>
-Use the `|` YAML syntax for multi-line environment variables like the private key.
-</Tip>
-
-### Kubernetes
-
-Create a secret for your GitHub credentials:
-
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: github-integration
-  namespace: kaneo
-type: Opaque
-stringData:
-  GITHUB_APP_ID: "123456"
-  GITHUB_PRIVATE_KEY: |
-    -----BEGIN RSA PRIVATE KEY-----
-    MIIEpAIBAAKCAQEA...
-    [Full contents of your private key]
-    ...
-    -----END RSA PRIVATE KEY-----
-  GITHUB_WEBHOOK_SECRET: "your-webhook-secret-here"
-  GITHUB_APP_NAME: "kaneo-mycompany"
-```
-
-Then reference it in your deployment:
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: kaneo-backend
-spec:
-  template:
-    spec:
-      containers:
-      - name: backend
-        image: ghcr.io/usekaneo/api:latest
-        envFrom:
-        - secretRef:
-            name: github-integration
-```
-
-### Environment File
-
-For development or simple deployments, create a `.env` file:
-
-```bash
-# .env file
-GITHUB_APP_ID=123456
-GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
-MIIEpAIBAAKCAQEA...
-[Full contents of your private key]
-...
------END RSA PRIVATE KEY-----"
-GITHUB_WEBHOOK_SECRET=your-webhook-secret-here
-GITHUB_APP_NAME=kaneo-mycompany
-```
-
-## Connecting Repositories
-
-Once your environment variables are configured and your backend is restarted, you can connect projects to GitHub repositories.
-
-<Steps>
-<Step>
-**Navigate to Project Settings**
-
-1. Open your Kaneo project
-2. Go to **Project Settings**
-3. Find the **GitHub Integration** section
-</Step>
-
-<Step>
-**Connect Repository**
-
-You have two options to connect a repository:
-
-**Option A: Browse Repositories**
-1. Click "Browse Repositories"
-2. Select from repositories where your GitHub App is installed
-3. Click on the desired repository
-
-**Option B: Manual Entry**
-1. Enter the **Repository Owner** (username or organization)
-2. Enter the **Repository Name**
-3. Click "Verify Installation"
-</Step>
-
-<Step>
-**Verify and Connect**
-
-1. Kaneo will verify that your GitHub App has access
-2. If successful, click "Connect Repository"
-3. You should see a green "Connected" status
-
-<Check>
-Once connected, new tasks created in this project will automatically generate GitHub issues!
-</Check>
-</Step>
-</Steps>
+Disconnect the existing integration before connecting a different repository. This preserves local tasks but removes their old external links and any unfinished import progress. Reconnecting the same verified repository, including after a rename or reinstall, preserves its links and project preferences. Legacy integrations without a verified numeric identity can be reverified for the same repository name; review their existing links before enabling synchronization.
 
 ## Testing the Integration
 
@@ -253,6 +120,18 @@ You can also provide a custom regex pattern for more complex matching.
 The `{slug}` variable is your project's slug (case-insensitive), `{number}` is the task number, and `{title}` is an optional slug of the task title.
 </Tip>
 
+### Pull Request Task References
+
+Kaneo checks the configured branch pattern first, then explicit task references in the PR title and body. Use your project key, such as `PROJ-42` or `fix(PROJ-42): correct the link`, or an explicit `task: 42` marker. Task markers require a separator after `task`; words such as `task42` do not identify a task.
+
+Issue references use the remote repository's numbering. A title containing `#61` or a body containing `Closes #61` resolves through the issue link recorded by this integration. If GitHub issue 61 is linked to Kaneo task `PROJ-42`, the PR belongs to `PROJ-42`, even if `PROJ-61` also exists. Same-repository `owner/repo#61` references and issue URLs are also supported. References to another repository are ignored.
+
+Without an explicit task reference, unmapped issues do not create PR associations. References that map to multiple tasks within the integration are skipped. Repeated issue links to the same task are accepted. Bare numeric title shortcuts such as `[42]`, `(42)`, or `42: ...` are not task identifiers; use the project key instead.
+
+GitHub webhooks also skip conflicting candidates or an existing PR association across projects connected to the repository. Signed Gitea webhooks resolve only within their authenticated integration; another project's mappings or PR links do not block that integration. Direct Gitea handler calls without an integration ID use the repository-wide checks. Imports for both providers remain scoped to the selected project.
+
+These rules apply to new associations from webhooks and imports. Existing PR associations within the applicable scope are preserved; historical incorrect links require separate correction.
+
 ### Status Transition Configuration
 
 Customize when tasks automatically change status:
@@ -291,3 +170,13 @@ If you need to connect repositories from multiple GitHub organizations:
 ---
 
 **Having issues?** Check our [troubleshooting guide](/core/integrations/github/troubleshooting) for common problems and solutions.
+
+## Import existing issues
+
+Select **Import Issues** in the project's GitHub integration settings to import open issues and their labels and comments. Existing linked tasks are updated; matching open pull requests are linked to their tasks. Bot comments are excluded.
+
+Large imports run in small, sequential steps. Keep the page open until the completion message appears. If the connection fails or you close the page, the saved progress remains available: return to these settings and select **Resume import**. The completion message lists created, updated and skipped issues. A skipped issue may have lost its source or linked task during the import, or have a legacy link to another project.
+
+Each run uses its start time as a cutoff for newly created issues, pull requests and comments. Label and comment counts are bounded by the first page observed for each issue, so additions during an import may require a new import after the current run completes. GitHub can change during a run; this is not an exact point-in-time snapshot. Reimporting does not duplicate already linked tasks or comments.
+
+If GitHub is unavailable or rate limits requests, wait before resuming. Reconnect the integration if its repository verification no longer succeeds. Unlinking the integration also removes saved import progress; already imported tasks remain.

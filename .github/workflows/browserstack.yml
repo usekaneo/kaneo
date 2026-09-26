@@ -1,0 +1,87 @@
+name: BrowserStack
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: browserstack
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      KANEO_E2E_HOST: bs-local.com
+      KANEO_E2E_TLS: "true"
+      COMPOSE_FILE: tests/e2e/compose.yml:tests/e2e/compose.tls.yml
+    steps:
+      - name: Check BrowserStack credentials
+        env:
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+        run: |
+          if [ -z "$BROWSERSTACK_USERNAME" ] || [ -z "$BROWSERSTACK_ACCESS_KEY" ]; then
+            echo '::error::Set BROWSERSTACK_USERNAME and BROWSERSTACK_ACCESS_KEY in repository Actions secrets.'
+            exit 1
+          fi
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+        with:
+          version: 10.32.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.19.0
+          cache: pnpm
+          cache-dependency-path: tests/e2e/pnpm-lock.yaml
+      - run: pnpm --dir tests/e2e install --frozen-lockfile --ignore-scripts
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+      - name: Build this revision of Kaneo
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
+        with:
+          context: .
+          file: Dockerfile.kaneo
+          load: true
+          tags: kaneo-browserstack:test
+          cache-from: type=gha,scope=browserstack
+          cache-to: type=gha,mode=max,scope=browserstack
+
+      - name: Create disposable test certificate
+        run: |
+          mkdir -p .cache/e2e-tls
+          openssl req -x509 -newkey rsa:2048 -nodes -days 1 \
+            -keyout .cache/e2e-tls/key.pem -out .cache/e2e-tls/cert.pem \
+            -subj '/CN=bs-local.com' -addext 'subjectAltName=DNS:bs-local.com'
+      - name: Start disposable test instance
+        run: docker compose up --no-build --wait --wait-timeout 180
+      - name: Run browser smoke tests
+        env:
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+        run: pnpm test:browserstack
+
+      - name: Collect instance logs
+        if: failure()
+        run: |
+          mkdir -p .cache/e2e
+          docker compose logs --no-color > .cache/e2e/instance.log
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: browserstack-results
+          path: .cache/e2e/
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Stop disposable test instance
+        if: always()
+        run: docker compose down --volumes

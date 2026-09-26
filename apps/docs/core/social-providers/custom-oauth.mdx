@@ -5,23 +5,27 @@ description: Configure Kaneo with your custom OpenID Connect (OIDC) provider.
 
 ## Overview
 
-Kaneo supports custom OAuth 2.0 and OpenID Connect (OIDC) providers, allowing you to integrate with any standards-compliant identity provider such as Keycloak, Auth0, Okta, Azure AD, or self-hosted solutions like Pocket ID.
+Kaneo supports custom OAuth 2.0 and OpenID Connect (OIDC) providers, allowing you to connect an identity provider such as Keycloak, Auth0, Okta, Azure AD, or self-hosted solutions like Pocket ID.
+
+Use the public callback URL shown below. If `KANEO_API_URL` already ends in `/api`, do not add another `/api` segment.
 
 ## Configuration
 
 To configure a custom OAuth/OIDC provider, you need to set the following environment variables in your `.env` file:
 
-### Required Variables
+### Provider settings
 
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `CUSTOM_OAUTH_CLIENT_ID` | OAuth client ID from your provider | `2b1ae9df-8d25-4dbc-8cc8-f8f2c1ef6bd0` |
-| `CUSTOM_OAUTH_CLIENT_SECRET` | OAuth client secret from your provider | `NzDjplDsdQyP062wTmkZ8kyiaziBag0N` |
+| `CUSTOM_OAUTH_CLIENT_SECRET` | OAuth client secret from your provider | `your-client-secret` |
 | `CUSTOM_OAUTH_AUTHORIZATION_URL` | Authorization endpoint URL | `https://id.example.com/authorize` |
 | `CUSTOM_OAUTH_TOKEN_URL` | Token exchange endpoint URL | `https://id.example.com/api/oidc/token` |
 | `CUSTOM_OAUTH_USER_INFO_URL` | User info endpoint URL | `https://id.example.com/api/oidc/userinfo` |
 
-### Optional Variables
+If you use a discovery URL, the provider can supply the authorization, token, and user-info endpoints. You still need the client ID and secret.
+
+### Optional settings
 
 | Variable | Description | Default |
 |----------|-------------|---------|
@@ -29,7 +33,7 @@ To configure a custom OAuth/OIDC provider, you need to set the following environ
 | `CUSTOM_OAUTH_SCOPES` | Comma-separated list of OAuth scopes | `profile,email` |
 | `CUSTOM_OAUTH_RESPONSE_TYPE` | OAuth response type | `code` |
 | `CUSTOM_AUTH_PKCE` | Enable/disable PKCE (Proof Key for Code Exchange) | `true` |
-| `CUSTOM_OAUTH_LOGOUT_URL` | Logout endpoint URL (optional) | `https://id.example.com/api/oidc/logout` |
+| `CUSTOM_OAUTH_LOGOUT_URL` | Provider logout endpoint, if needed | Unset |
 | `CUSTOM_OAUTH_AUTO_LOGIN` | Auto-redirect to the custom OAuth provider, bypassing the login page | `false` |
 
 ## Setup Steps
@@ -40,7 +44,7 @@ First, create an OAuth 2.0 or OIDC application in your identity provider:
 
 1. Log in to your identity provider's admin console
 2. Create a new OAuth 2.0 or OIDC application
-3. Set the redirect URI to: `{KANEO_API_URL}/api/auth/oauth2/callback/custom`
+3. Set the redirect URI to: `https://kaneo.example.com/api/auth/oauth2/callback/custom`
    - Example: `https://api.kaneo.example.com/api/auth/oauth2/callback/custom`
 4. Copy the client ID and client secret
 5. Note the authorization, token, and userinfo endpoint URLs
@@ -64,17 +68,16 @@ CUSTOM_OAUTH_DISCOVERY_URL=https://your-idp.com/.well-known/openid-configuration
 # Optional: Customize scopes
 CUSTOM_OAUTH_SCOPES=profile,email,openid
 
-# Optional: Disable PKCE if your provider doesn't support it
-CUSTOM_AUTH_PKCE=false
+# Keep PKCE enabled when your provider supports it
+CUSTOM_AUTH_PKCE=true
 ```
 
-### 3. Restart Services
+### 3. Apply the configuration
 
-After updating the environment variables, restart your Kaneo services:
+After updating the environment variables, recreate the bundled application container:
 
 ```bash
-docker compose down
-docker compose up -d
+docker compose up -d --force-recreate kaneo
 ```
 
 ## Example Configurations
@@ -83,12 +86,12 @@ docker compose up -d
 
 ```bash
 CUSTOM_OAUTH_CLIENT_ID=2b1ae9df-8d25-4dbc-8cc8-f8f2c1ef6bd0
-CUSTOM_OAUTH_CLIENT_SECRET=NzDjplDsdQyP062wTmkZ8kyiaziBag0N
-CUSTOM_OAUTH_AUTHORIZATION_URL=https://4c6332d2.demo.pocket-id.org/authorize
-CUSTOM_OAUTH_TOKEN_URL=https://4c6332d2.demo.pocket-id.org/api/oidc/token
-CUSTOM_OAUTH_USER_INFO_URL=https://4c6332d2.demo.pocket-id.org/api/oidc/userinfo
-CUSTOM_OAUTH_DISCOVERY_URL=https://4c6332d2.demo.pocket-id.org/.well-known/openid-configuration
-CUSTOM_OAUTH_SCOPES=profile,email
+CUSTOM_OAUTH_CLIENT_SECRET=your-client-secret
+CUSTOM_OAUTH_AUTHORIZATION_URL=https://id.example.com/authorize
+CUSTOM_OAUTH_TOKEN_URL=https://id.example.com/api/oidc/token
+CUSTOM_OAUTH_USER_INFO_URL=https://id.example.com/api/oidc/userinfo
+CUSTOM_OAUTH_DISCOVERY_URL=https://id.example.com/.well-known/openid-configuration
+CUSTOM_OAUTH_SCOPES=openid,profile,email
 ```
 
 ### Keycloak
@@ -124,26 +127,26 @@ If you want to bypass the login page entirely and automatically redirect users t
 CUSTOM_OAUTH_AUTO_LOGIN=true
 ```
 
-When enabled, users visiting the sign-in page will be immediately redirected to your custom OAuth provider without seeing the Kaneo login page. This is ideal for organizations that use a single identity provider for all authentication.
+When enabled, Kaneo redirects visitors to the custom provider. If CAPTCHA is configured, it first shows the sign-in page so the visitor can complete the challenge. Verify existing local accounts before enabling this option; see account linking below.
 
 ## Troubleshooting
 
 ### "Invalid code verifier" Error
 
-This error typically indicates a PKCE configuration issue. Try setting:
+Check that the provider and Kaneo both use PKCE and that the callback returns to the same public instance URL. Keep PKCE enabled for providers that support it:
 
 ```bash
-CUSTOM_AUTH_PKCE=false
+CUSTOM_AUTH_PKCE=true
 ```
 
-Some OAuth providers don't support PKCE or have it disabled by default.
+Only set `CUSTOM_AUTH_PKCE=false` when your provider's documentation requires a flow without PKCE.
 
 ### Missing User Information
 
 Ensure your OAuth scopes include at least `profile` and `email`:
 
 ```bash
-CUSTOM_OAUTH_SCOPES=profile,email
+CUSTOM_OAUTH_SCOPES=openid,profile,email
 ```
 
 Some providers require `openid` scope as well:
@@ -157,10 +160,10 @@ CUSTOM_OAUTH_SCOPES=openid,profile,email
 Verify that your redirect URI in the OAuth provider matches exactly:
 
 ```
-{KANEO_API_URL}/api/auth/oauth2/callback/custom
+https://kaneo.example.com/api/auth/oauth2/callback/custom
 ```
 
-For example, if `KANEO_API_URL=https://api.kaneo.example.com`, the redirect URI should be:
+For a separately hosted API at `https://api.kaneo.example.com`, use:
 
 ```
 https://api.kaneo.example.com/api/auth/oauth2/callback/custom
@@ -178,11 +181,11 @@ This will automatically discover the authorization, token, and userinfo endpoint
 
 ## Account linking
 
-When a user signs in with this provider using an email that already belongs to a Kaneo account (for example one created with email and password), Kaneo can link the OIDC identity to that existing account instead of failing with `error=account_not_linked`. GitHub, Google, and Discord are trusted because they verify email ownership. Kaneo also treats the configured custom provider as trusted, but it cannot verify the provider's email claims itself. Only use a custom provider that guarantees ownership of every returned email address; otherwise, an attacker-controlled email claim could be linked to an existing verified account.
+When a user signs in with this provider using an email that already belongs to a Kaneo account, Kaneo can link the OIDC identity to that account. The provider must return a verified email claim; being configured does not make an unverified email trusted. Configure your identity provider to return `email_verified: true` only after establishing ownership of the email address. An unverified claim cannot satisfy email-based invitation matching either.
 
-For safety, Kaneo only links to an existing local account if that account's email has already been verified. This prevents someone from pre-registering another person's email with a password account and retaining access after the real owner signs in through OIDC. If your instance allows password registration alongside OIDC, consider setting `DISABLE_PASSWORD_REGISTRATION=true` or requiring email verification for password users to avoid account-linking surprises.
+For safety, Kaneo only links to an existing local account if that account's email has already been verified. This prevents someone from pre-registering another person's email with a password account and retaining access after the real owner signs in through OIDC. If your instance allows password registration alongside OIDC, consider setting `DISABLE_PASSWORD_REGISTRATION=true` (which also blocks new OTP, magic-link and guest accounts) or requiring email verification for password users to avoid account-linking surprises.
 
-On existing installations, local accounts created before this requirement may still have an unverified email. Those users will receive `error=account_not_linked` until they verify the local account. Before enforcing SSO-only access, keep the login form available so affected users can sign in with an email OTP or magic link, which verifies the email. If users are already locked out, temporarily set `DISABLE_LOGIN_FORM=false` and `CUSTOM_OAUTH_AUTO_LOGIN=false`, restart Kaneo, and have them complete an email sign-in before enabling SSO-only access again.
+On existing installations, local accounts created before this requirement may still have an unverified email. Those users will receive `error=account_not_linked` until they verify the local account. Before enforcing SSO-only access, keep the login form available so affected users can sign in with an email OTP or magic link, which verifies the email. If users are already locked out, temporarily set `DISABLE_LOGIN_FORM=false` and `CUSTOM_OAUTH_AUTO_LOGIN=false`, recreate the Kaneo container, and have them complete an email sign-in before enabling SSO-only access again.
 
 ## Security Notes
 

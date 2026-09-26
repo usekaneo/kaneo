@@ -38,7 +38,10 @@ const getCustomFieldsRoute = createRoute({
   tags: ["Custom Fields"],
   summary: "Get custom fields",
   description: "Get all custom field definitions for a project.",
-  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ project: ["read"] }),
+  ] as const,
   request: { params: projectIdParam },
   responses: {
     200: jsonResponse(
@@ -48,7 +51,7 @@ const getCustomFieldsRoute = createRoute({
     400: errorResponse(
       "Unknown project, or its workspace could not be determined",
     ),
-    403: errorResponse("No access to the project's workspace"),
+    403: errorResponse("No workspace access or missing read permission"),
   },
 });
 
@@ -59,7 +62,10 @@ const getCustomFieldValuesByProjectRoute = createRoute({
   tags: ["Custom Fields"],
   summary: "Get project custom field values",
   description: "Get all custom field values for every task in a project.",
-  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ task: ["read"] }),
+  ] as const,
   request: { params: projectIdParam },
   responses: {
     200: jsonResponse(
@@ -69,7 +75,7 @@ const getCustomFieldValuesByProjectRoute = createRoute({
     400: errorResponse(
       "Unknown project, or its workspace could not be determined",
     ),
-    403: errorResponse("No access to the project's workspace"),
+    403: errorResponse("No workspace access or missing read permission"),
   },
 });
 
@@ -80,7 +86,10 @@ const getCustomFieldValuesByTaskRoute = createRoute({
   tags: ["Custom Fields"],
   summary: "Get task custom field values",
   description: "Get all custom field values for a task with their definitions.",
-  middleware: [workspaceAccess.fromTaskId("taskId")] as const,
+  middleware: [
+    workspaceAccess.fromTaskId("taskId"),
+    requireWorkspacePermission({ task: ["read"] }),
+  ] as const,
   request: { params: taskIdParam },
   responses: {
     200: jsonResponse(
@@ -90,7 +99,7 @@ const getCustomFieldValuesByTaskRoute = createRoute({
     400: errorResponse(
       "Unknown task, or its workspace could not be determined",
     ),
-    403: errorResponse("No access to the task's workspace"),
+    403: errorResponse("No workspace access or missing task:read permission"),
   },
 });
 
@@ -102,7 +111,10 @@ const getCustomFieldFilterValuesRoute = createRoute({
   summary: "Get custom field filter values",
   description:
     "Get distinct values used by tasks for each custom field of a project.",
-  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ task: ["read"] }),
+  ] as const,
   request: { params: projectIdParam },
   responses: {
     200: jsonResponse(
@@ -112,7 +124,7 @@ const getCustomFieldFilterValuesRoute = createRoute({
     400: errorResponse(
       "Unknown project, or its workspace could not be determined",
     ),
-    403: errorResponse("No access to the project's workspace"),
+    403: errorResponse("No workspace access or missing read permission"),
   },
 });
 

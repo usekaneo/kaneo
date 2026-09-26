@@ -12,7 +12,9 @@ import {
 import { publishEvent } from "../../events";
 import { removeLabelFromGitea } from "../../plugins/gitea/utils/sync-label-to-gitea";
 import { removeLabelFromGitHub } from "../../plugins/github/utils/sync-label-to-github";
+import { removeLabelFromGitlab } from "../../plugins/gitlab/utils/sync-label-to-gitlab";
 import { assertAssignableUser } from "../../utils/assert-assignable-user";
+import { getSubtaskParentProjects } from "../get-subtask-parent-projects";
 import {
   assertValidPriority,
   assertValidTaskStatus,
@@ -42,6 +44,8 @@ async function bulkUpdateTasks({
     .select({
       id: taskTable.id,
       title: taskTable.title,
+      status: taskTable.status,
+      priority: taskTable.priority,
       projectId: taskTable.projectId,
       userId: taskTable.userId,
       dueDate: taskTable.dueDate,
@@ -110,9 +114,10 @@ async function bulkUpdateTasks({
           ),
         });
 
-        const projectTaskIds = tasks
-          .filter((t) => t.projectId === projectId)
-          .map((t) => t.id);
+        const projectTasks = tasks.filter(
+          (task) => task.projectId === projectId,
+        );
+        const projectTaskIds = projectTasks.map((task) => task.id);
 
         const result = await db
           .update(taskTable)
@@ -121,13 +126,22 @@ async function bulkUpdateTasks({
 
         updatedCount += result.rowCount ?? projectTaskIds.length;
 
-        for (const taskId of projectTaskIds) {
+        const parentProjects = await getSubtaskParentProjects(projectTaskIds);
+        await publishEvent("subtask-parents.refresh", {
+          projects: parentProjects,
+        });
+
+        for (const task of projectTasks) {
           await publishEvent("task.status_changed", {
-            taskId,
+            taskId: task.id,
             projectId,
             userId,
+            oldStatus: task.status,
             newStatus: value,
+            title: task.title,
+            assigneeId: task.userId,
             type: "status_changed",
+            skipSubtaskParentRefresh: true,
           });
         }
 
@@ -157,7 +171,9 @@ async function bulkUpdateTasks({
           taskId: task.id,
           projectId: task.projectId,
           userId,
+          oldPriority: task.priority,
           newPriority: value,
+          title: task.title,
           type: "priority_changed",
         });
       }
@@ -207,6 +223,8 @@ async function bulkUpdateTasks({
     }
 
     case "delete": {
+      // Relations cascade away with the children, so capture parents first.
+      const parentProjects = await getSubtaskParentProjects(foundIds);
       const result = await db
         .delete(taskTable)
         .where(inArray(taskTable.id, foundIds));
@@ -221,6 +239,9 @@ async function bulkUpdateTasks({
           title: task.title,
         });
       }
+      await publishEvent("subtask-parents.refresh", {
+        projects: parentProjects,
+      });
       break;
     }
 
@@ -313,6 +334,11 @@ async function bulkUpdateTasks({
         removeLabelFromGitea(deletedLabel.taskId, deletedLabel.name).catch(
           (error) => {
             console.error("Failed to remove label from Gitea:", error);
+          },
+        );
+        removeLabelFromGitlab(deletedLabel.taskId, deletedLabel.name).catch(
+          (error) => {
+            console.error("Failed to remove label from GitLab:", error);
           },
         );
 

@@ -18,6 +18,7 @@ export async function shutdownEventBus(): Promise<void> {
 export async function publishEvent(
   eventType: string,
   data: unknown,
+  options?: { waitForHandlers?: boolean },
 ): Promise<void> {
   let enhancedData = null;
   if (typeof data === "object" && data !== null) {
@@ -32,7 +33,14 @@ export async function publishEvent(
   };
 
   try {
-    EVENTS.emit(eventType, payload);
+    if (options?.waitForHandlers) {
+      // EventEmitter.emit discards promises. Bounded producers must await the
+      // actual subscriber wrappers before starting their next item.
+      for (const listener of EVENTS.listeners(eventType))
+        await listener(payload);
+    } else {
+      EVENTS.emit(eventType, payload);
+    }
   } catch (error) {
     console.error("Failed to publish event:", error);
     throw error;

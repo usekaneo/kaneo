@@ -40,65 +40,63 @@
 	"navigation": {
 		"tabs": [
 			{
-				"tab": "Guides",
+				"tab": "Using Kaneo",
 				"groups": [
 					{
-						"group": "Overview",
-						"pages": ["index", "core/index"]
+						"group": "Start here",
+						"pages": [
+							"index",
+							"core/index",
+							"core/functional/index",
+							"core/functional/create-workspace-and-project"
+						]
 					},
 					{
-						"group": "Functional Guides",
+						"group": "Work with tasks",
 						"pages": [
-							"core/functional/index",
-							"core/functional/create-workspace-and-project",
 							"core/functional/plan-and-execute-tasks",
 							"core/functional/backlog-planning",
-							"core/functional/collaborate-with-team",
+							"core/functional/calendar-and-gantt",
 							"core/functional/configure-workflows",
-							"core/functional/account-notifications",
-							"core/functional/manage-your-account",
-							"core/functional/personalize-your-workspace",
 							"core/functional/manage-workspace-labels"
 						]
 					},
 					{
-						"group": "Installation",
+						"group": "Your team and account",
+						"pages": [
+							"core/functional/collaborate-with-team",
+							"core/functional/account-notifications",
+							"core/functional/personalize-your-workspace",
+							"core/functional/manage-your-account"
+						]
+					}
+				]
+			},
+			{
+				"tab": "Self-hosting",
+				"groups": [
+					{
+						"group": "Install",
 						"pages": [
 							"core/installation/index",
-							"core/installation/drim",
-							"core/installation/drim-migration",
 							"core/installation/docker-compose",
+							"core/installation/drim",
+							"core/deployments/coolify",
+							"core/deployments/railway"
+						]
+					},
+					{
+						"group": "Configure",
+						"pages": [
+							"core/reverse-proxy/nginx",
 							"core/installation/object-storage-and-image-uploads",
+							"core/installation/silo",
 							"core/installation/storage-backends",
-							"core/installation/environment-variables",
-							"core/installation/start-services"
+							"core/installation/environment-variables"
 						]
 					},
 					{
-						"group": "GitHub Integration",
-						"pages": [
-							"core/integrations/github/setup",
-							"core/integrations/github/configuration",
-							"core/integrations/github/troubleshooting"
-						]
-					},
-					{
-						"group": "Gitea Integration",
-						"pages": ["core/integrations/gitea/setup"]
-					},
-					{
-						"group": "Integrations",
-						"pages": [
-							"core/integrations/mcp",
-							"core/integrations/mcp-stateless",
-							"core/integrations/discord",
-							"core/integrations/slack",
-							"core/integrations/telegram",
-							"core/integrations/outgoing-webhooks"
-						]
-					},
-					{
-						"group": "Authentication Providers",
+						"group": "Sign-in providers",
 						"pages": [
 							"core/social-providers/github",
 							"core/social-providers/google",
@@ -107,22 +105,80 @@
 						]
 					},
 					{
-						"group": "Deployment & Operations",
+						"group": "Keep it running",
 						"pages": [
-							"core/reverse-proxy/nginx",
-							"core/deployments/railway",
-							"core/deployments/coolify"
+							"core/operations/backups",
+							"core/operations/upgrades",
+							"core/operations/troubleshooting"
 						]
 					},
 					{
-						"group": "Migration",
-						"pages": ["core/migrations/from-planka"]
+						"group": "Move to Kaneo",
+						"pages": [
+							"core/migrations/from-planka",
+							"core/installation/migration",
+							"core/installation/drim-migration"
+						]
 					}
 				]
 			},
 			{
-				"tab": "API Reference",
-				"openapi": "openapi.json"
+				"tab": "Integrations",
+				"groups": [
+					{
+						"group": "Overview",
+						"pages": ["core/integrations/index"]
+					},
+					{
+						"group": "Repositories",
+						"pages": [
+							"core/integrations/github/setup",
+							"core/integrations/github/configuration",
+							"core/integrations/github/troubleshooting",
+							"core/integrations/gitea/setup",
+							"core/integrations/gitlab/setup"
+						]
+					},
+					{
+						"group": "Team updates",
+						"pages": [
+							"core/integrations/slack",
+							"core/integrations/discord",
+							"core/integrations/mattermost",
+							"core/integrations/telegram",
+							"core/integrations/outgoing-webhooks"
+						]
+					},
+					{
+						"group": "Personal notifications",
+						"pages": [
+							"core/integrations/ntfy",
+							"core/integrations/gotify",
+							"core/integrations/personal-webhooks"
+						]
+					},
+					{
+						"group": "AI assistants",
+						"pages": ["core/integrations/mcp"]
+					}
+				]
+			},
+			{
+				"tab": "Developers",
+				"groups": [
+					{
+						"group": "Start building",
+						"pages": [
+							"api-reference/introduction",
+							"api-reference/authentication",
+							"core/integrations/mcp-stateless"
+						]
+					},
+					{
+						"group": "Endpoint reference",
+						"openapi": "openapi.json"
+					}
+				]
 			}
 		],
 		"global": {
@@ -150,7 +206,7 @@
 		"primary": {
 			"type": "button",
 			"label": "Open Kaneo",
-			"href": "https://kaneo.app"
+			"href": "https://cloud.kaneo.app"
 		}
 	},
 	"contextual": {

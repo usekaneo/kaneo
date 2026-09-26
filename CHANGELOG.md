@@ -1,3 +1,155 @@
+### Bug Fixes
+
+- **auth:** backfill instance admin on legacy installations: [b7c6aee](https://github.com/usekaneo/kaneo/commit/b7c6aee31ba1174583da5f7fa0aad48257cfc356)
+
+### Credits
+
+Huge thanks to @tinsever for helping!
+
+### Bug Fixes
+
+- **admin:** harden the user administration panel: #1805
+
+### Documentation
+
+- acknowledge BrowserStack testing: [e389a68](https://github.com/usekaneo/kaneo/commit/e389a688c8323cdf6a4eadda127f94f6339e985d)
+
+### Credits
+
+Huge thanks to @andrejsshell for helping!
+
+### Bug Fixes
+
+- **admin:** allow updating your own email without changing role: [3d57439](https://github.com/usekaneo/kaneo/commit/3d57439d59c7e66aa9b63ec673a5b5f7b23008f6)
+
+### Features
+
+- gitlab integration: #1727
+- **tasks:** show subtask progress on cards and list rows: #1703
+- added project backgrounds: #1654
+- multiselect for customfield: #1735
+- **ci:** discord actions webhook: #1792
+- **ci:** adding zizmor: #1790
+- **project:** move a project to another workspace: #1525
+- duplicate a task from the card context menu: #1609
+- allow manual external resource links: #1661
+- **ci:** trufflehog implementation: #1787
+- **task:** let images be resized in the task description: #1529
+- **web:** add a change-password screen under account settings: #1719
+- **auth:** add password recovery from the login screen: #1773
+- add instance user administration panel: #1400
+- **calendar:** add label-filtered project calendar feeds: #1763
+
+### Bug Fixes
+
+- **security:** close permission and integration gaps: #1802
+- **project:** secure integrations across workspace moves: #1801
+- **editor:** preserve formatting when pasting Markdown: #1797
+- **auth:** report invitation email delivery failures: #1798
+- **gitea:** verify saved repository connections: #1796
+- **mcp:** keep OAuth requests valid outside UTC: #1795
+- **i18n:** translate calendar in remaining locales: [1d61ceb](https://github.com/usekaneo/kaneo/commit/1d61ceb64537a30839039dd8c0a26866d6df1a70)
+- **ci:** zizmor findings: #1791
+- **integrations:** resolve PRs through linked issue identities: #1739
+- **auth:** prevent repeated 401s for pending invitations after session expiry: #1715
+- **auth:** gate sign-in emails to deliverable addresses: #1758
+- **web:** preserve image uploads across editor recreation: #1738
+- **reminders:** calculate deadlines from the end of the due day: #1762
+- **mcp:** support whoami with API keys: #1748
+- **web:** respect DISABLE_WORKSPACE_CREATION on the onboarding screen: #1744
+- **backlog:** prevent task remounts during list interactions: #1734
+- **auth:** prevent role changes from removing the last admin: #1733
+- **npm:** fixing GHSA-2xp9-vwfh-vxw4: #1777
+- **web:** guard tiptap setHardBreak against invalid-content schema error: [be3ffb5](https://github.com/usekaneo/kaneo/commit/be3ffb513a210c81ce10ea1332381de2bf27a475)
+- **i18n:** prevent locale module crash on stale dynamic import: #1775
+- **site:** improve search metadata and product discovery: [121183e](https://github.com/usekaneo/kaneo/commit/121183e93eb82d3372ccf1419a5fd59d4aacadba)
+
+### Performance Improvements
+
+- **project:** stop returning tasks with project details: #1800
+
+### Documentation
+
+- update contributors and sponsors: [fa07f10](https://github.com/usekaneo/kaneo/commit/fa07f10ea15a37a6fd414ce45a457e1cf9b7a6a9)
+- **site:** add Blacksmith partner badge to site and README: [08a93b8](https://github.com/usekaneo/kaneo/commit/08a93b8c47fa5fa48517c010c099c8f729d865dc)
+- update contributors and sponsors: [8432a45](https://github.com/usekaneo/kaneo/commit/8432a453ae5965e4bdbc1b874e82d974324fd494)
+
+### Credits
+
+Huge thanks to @tinsever, @zaralX, @TymekV, @MonsPropre, @randoneering, @rdlugs, @tbringuier, @mohiuddin000, @shiminshen, @yavilavi, @thejdubb02, @yigit-serin, @OmG3r, and @zerodarkzone for helping!
+
+### Features
+
+- **site:** bring product preview up to date with current app: [dd855f7](https://github.com/usekaneo/kaneo/commit/dd855f775b28842f6441936491b28c8ebb52d615)
+- **site:** refresh marketing site and interactive product previews: [90aec99](https://github.com/usekaneo/kaneo/commit/90aec997d45bde4479e4d82c0a6a271a95c4bef4)
+
+### Bug Fixes
+
+- **web:** allow non-root runtime configuration writes: #1767
+- **site:** poof away preview cursor on interaction: [08dcaee](https://github.com/usekaneo/kaneo/commit/08dcaee01a97b800d8a45c43f8c2158cc091497c)
+- **nginx:** allow larger OAuth session headers: #1761
+- **deps:** resolve open dependabot advisories: [b8432a0](https://github.com/usekaneo/kaneo/commit/b8432a060011bf1d740cf07e6481d67c5aab64a4)
+- **web:** preserve comment markdown spacing: #1521
+
+### Documentation
+
+- **site:** refresh press kit with product screenshots: [3470b0a](https://github.com/usekaneo/kaneo/commit/3470b0af2fb79d8c4705ee28638032d176893e7d)
+- update blog comparisons for current Kaneo features: [b97bf7d](https://github.com/usekaneo/kaneo/commit/b97bf7df05a6403f0bfedb224fb1c1ecdc119c00)
+
+### Credits
+
+Huge thanks to @tinsever for helping!
+
+### Features
+
+- add maintainer-triggered Peekareview code reviews: [65bb146](https://github.com/usekaneo/kaneo/commit/65bb146c74f5c5118e7a54951c1584ec065f0960)
+- **peekareq:** add budgeted private code-review evaluation: [a8151a8](https://github.com/usekaneo/kaneo/commit/a8151a8d6c51af1227095482c1d5297db5f5ffbb)
+
+### Bug Fixes
+
+- require AUTH_SECRET and gate project visibility changes: [156b72b](https://github.com/usekaneo/kaneo/commit/156b72b3b66415bffee6732788631bdcb11781f3)
+- enforce security boundaries and bound integration workloads: [71bd198](https://github.com/usekaneo/kaneo/commit/71bd1983a77f5e5a13bcc1b483894f6b8523dbb5)
+- handle review relay redirects and explicit reruns: [a6ea057](https://github.com/usekaneo/kaneo/commit/a6ea05715d5eedaded5c1ee94ea715e093a97a21)
+- **web:** use HttpError across fetchers: #1751
+- **web:** prevent 404 on activity query when taskId is undefined: #1750
+
+### Reverts
+
+- remove Peekareq code-review experiment: [4169b98](https://github.com/usekaneo/kaneo/commit/4169b98f4f9f273a0ba524b5fd058d0a235ea22a)
+
+### Documentation
+
+- update contributors and sponsors: [0982593](https://github.com/usekaneo/kaneo/commit/0982593b8206622c6f7e9bf774d39207bcf002b9)
+- update contributors and sponsors: [f94a27e](https://github.com/usekaneo/kaneo/commit/f94a27e63019e98481de616ef95f039d84b3ec96)
+
+### Credits
+
+Huge thanks to @randoneering for helping!
+
+### Features
+
+- add focused Peekareq previews and accessibility findings: [6e01c0f](https://github.com/usekaneo/kaneo/commit/6e01c0f0d579c1a5fc3b602206e95f2478232ca8)
+- **ci:** add maintainer-triggered Peekareq screenshots: [2d8a4c6](https://github.com/usekaneo/kaneo/commit/2d8a4c6fe5727a96a550380995aa5bb57775b669)
+
+### Bug Fixes
+
+- **billing:** keep cancelled subscriptions entitled until the paid period ends: #1741
+- fall back when Peekareq's model provider is throttled: [145c13a](https://github.com/usekaneo/kaneo/commit/145c13a11bd508659ee6396a95058cf468845ef5)
+- ground Peekareq custom-field screenshots in fixtures: [4b684e7](https://github.com/usekaneo/kaneo/commit/4b684e79441055a12a79579443551ecf8a19fa84)
+- **ci:** use Cloudflare-compatible GitHub requests: [9740bf8](https://github.com/usekaneo/kaneo/commit/9740bf8402d79b806e9115180aca7b5e3354f9a5)
+- **ci:** filter Peekareq commands with a Cloudflare webhook: [34ee59e](https://github.com/usekaneo/kaneo/commit/34ee59e12343b80ab6beae94ba06c36e0f7cc813)
+
+### Documentation
+
+- update contributors and sponsors: [508bd4b](https://github.com/usekaneo/kaneo/commit/508bd4b89ade880527e01408aaec332102cafa4b)
+- update contributors and sponsors: [a750d01](https://github.com/usekaneo/kaneo/commit/a750d01a2f420992d5321918c9f57750f3326e01)
+- update contributors and sponsors: [16fcd5f](https://github.com/usekaneo/kaneo/commit/16fcd5fc5103ec3ce7187dcb780ef5ac360e1375)
+- update contributors and sponsors: [93cb471](https://github.com/usekaneo/kaneo/commit/93cb4712367e5cbb7ac6f9c5ec20e6a037c227bc)
+
+### Credits
+
+Huge thanks to @andrejsshell for helping!
+
 ### Features
 
 - custom fields configuration: #1542

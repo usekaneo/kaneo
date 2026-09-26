@@ -14,6 +14,8 @@ node_modules
 
 # Testing
 coverage
+logs/
+browserstack-artifacts/
 
 # Turbo
 .turbo
@@ -55,6 +57,7 @@ compose.override.yml
 # TanStack Router generated cache
 apps/web/.tanstack/
 .pi/
+.superpowers/
 
 # TypeScript incremental build state
 *.tsbuildinfo

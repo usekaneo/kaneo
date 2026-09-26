@@ -1,43 +1,41 @@
 ---
-title: "Why Kaneo"
-description: "Why Kaneo is built around focused planning and real execution"
+title: "Kaneo docs"
+description: "Get your team started, find your way around, or run Kaneo on your own server."
 ---
 
-Kaneo (`/kəˈneɪ.oʊ/`) is project management that stays out of your way.  
-This docs site is built to get you from zero to a running instance fast, then help you operate it confidently.
+Keep your projects, tasks, and conversations in one place. Start with a small project and add the setup your team needs as you go.
 
-## Where to Begin
+<Frame caption="A website launch in Board view. Each column shows a stage of the work.">
+  <img className="block dark:hidden" src="/images/product/board-light.png" alt="A website launch in Board view. Each column shows a stage of the work." />
+  <img className="hidden dark:block" src="/images/product/board-dark.png" alt="A website launch in Board view. Each column shows a stage of the work." />
+</Frame>
 
-- [Quick Start](/core/index) for the fastest path to a running instance
-- [Installation Guide](/core/installation/index) to choose drim vs Docker Compose
-- [GitHub Integration Setup](/core/integrations/github/setup) for repo sync
-- [Gitea Integration Setup](/core/integrations/gitea/setup) for self-hosted Gitea
-- [Outgoing webhooks](/core/integrations/outgoing-webhooks) for Slack, Discord, and custom HTTP notifications
-- [API Introduction](/api-reference/introduction) for authenticated API usage
+<CardGroup cols={2}>
+  <Card title="Your first project" icon="rocket" href="/core/index">
+    Create a workspace, invite a teammate, and finish your first task.
+  </Card>
+  <Card title="Run your own instance" icon="server" href="/core/installation/index">
+    Install Kaneo with Docker Compose, drim, or your hosting platform.
+  </Card>
+  <Card title="Connect your tools" icon="plug" href="/core/integrations/index">
+    Sync repositories, send project updates, and connect an AI assistant.
+  </Card>
+  <Card title="Build with the API" icon="code" href="/api-reference/introduction">
+    Make your first request and explore the endpoint reference.
+  </Card>
+</CardGroup>
 
-## Why Kaneo Exists
+## How Kaneo is organized
 
-Kaneo follows a simple idea: **all you need, nothing you don’t**.
+A **workspace** holds your team, projects, and shared labels. A **project** holds a body of work, such as a website launch. A **task** is one piece of that work, with its own status, assignee, description, and conversation.
 
-I'm Andrej, and I created Kaneo because I was tired of project management tools that got in the way more than they helped. After years of using bloated, overcomplicated platforms that distracted from actual work, I knew there had to be a better way.
+If someone invited you, open their invitation link and sign in with the email address they invited. You can join their workspace without creating a new one.
 
-The problem wasn't that these tools lacked features. It was that they had too many. Every notification, every unnecessary button, every complex workflow was pulling my team away from what mattered: building great products.
+## Looking for something specific?
 
-I believe the best tools are invisible. They should amplify your team's natural workflow, not force you to adapt to theirs. Kaneo is built on the principle that less is more: every feature exists because it solves a real problem, not because it looks impressive in a demo.
+- [Board and List](/core/functional/plan-and-execute-tasks): create, find, and update tasks.
+- [Members and roles](/core/functional/collaborate-with-team): invite people and manage access.
+- [Backups and recovery](/core/operations/backups): protect a self-hosted installation.
+- [Troubleshooting](/core/operations/troubleshooting): work through common setup problems.
 
-## Planning in Kaneo
-
-Planning in Kaneo is intentionally lightweight: you define the work, assign clear ownership, and move forward without ceremony.
-
-Labels are central to that flow. Use labels to group initiatives, surface cross-cutting work, and keep prioritization clear across board and list views.
-
-- Use labels to represent streams like `onboarding`, `backend`, or `customer-feedback`
-- Combine labels with priority and due dates for sharper planning
-- Keep label naming consistent across the workspace so filtering stays useful
-
-## Continue
-
-- [Deployments](/core/deployments/railway)
-- [Authentication Providers](/core/social-providers/github)
-- [Migrating from PLANKA](/core/migrations/from-planka)
-- [Kaneo on GitHub](https://github.com/usekaneo/kaneo)
+Screenshots throughout these guides show the real app with a fictional team, Studio North.

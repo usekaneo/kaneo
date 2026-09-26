@@ -8,19 +8,33 @@ on:
         required: true
         type: string
       version:
-        description: "Release version to stamp into the tree before building (blank builds the tree as-is)"
+        description: "Release version to verify or stamp, according to source_mode (blank only for nightly)"
         required: false
         type: string
         default: ""
+      source_mode:
+        description: "released checks out an existing reviewed tag; planned builds a new release from the run SHA; nightly uses the run SHA without a release version"
+        required: false
+        type: string
+        default: released
       platforms:
         required: false
         type: string
         default: linux/amd64,linux/arm64
+    secrets:
+      # GHCR login token with package push rights.
+      GH_PACKAGE_TOKEN:
+        required: true
+      # Source-map upload token; only the web image build uses it.
+      SENTRY_AUTH_TOKEN:
+        required: false
 
 jobs:
   build:
+    if: github.ref == 'refs/heads/main'
     name: ${{ matrix.name }}
-    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     permissions:
       contents: read
       packages: write
@@ -40,24 +54,41 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7.0.1
+        uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
         with:
           persist-credentials: false
+          fetch-depth: 0
+          ref: ${{ github.sha }}
+
+      - name: Verify publication source
+        id: source
+        env:
+          SOURCE_MODE: ${{ inputs.source_mode }}
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: node scripts/security/verify-release-source.mjs "$SOURCE_MODE" "$RELEASE_VERSION"
+
+      - name: Checkout verified source
+        uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
+        with:
+          persist-credentials: false
+          ref: ${{ steps.source.outputs.source_sha }}
 
       # A release builds its images before the release commit exists, and the
       # artifacts self-report their version.
       - name: Stamp release version
-        if: inputs.version != ''
-        run: node scripts/release/apply-version.mjs "${{ inputs.version }}"
+        if: inputs.source_mode == 'planned'
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: node scripts/release/apply-version.mjs "$RELEASE_VERSION"
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+      - name: Setup Blacksmith Builder
+        uses: useblacksmith/setup-docker-builder@e4c1c000c95f9cc255f72940e9c56bcbd1239436 # v1
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v4
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -65,7 +96,7 @@ jobs:
 
       - name: Extract metadata
         id: meta
-        uses: docker/metadata-action@v6
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6
         with:
           images: ${{ matrix.image }}
           tags: ${{ inputs.tags }}
@@ -80,7 +111,7 @@ jobs:
           chmod 600 /tmp/sentry-build-secrets/SENTRY_AUTH_TOKEN
 
       - name: Build and push
-        uses: docker/build-push-action@v7
+        uses: useblacksmith/build-push-action@9b0579bbec7a6cad2f171596c57e7ac1e7658850 # v2
         with:
           context: .
           file: ${{ matrix.dockerfile }}
@@ -88,8 +119,6 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
           build-args: |
             SENTRY_ORG=${{ vars.SENTRY_ORG }}
             SENTRY_PROJECT=${{ vars.SENTRY_PROJECT }}

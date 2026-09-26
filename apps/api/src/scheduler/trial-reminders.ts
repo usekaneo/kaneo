@@ -53,7 +53,11 @@ function clientUrl() {
   );
 }
 
-async function getWorkspacesNeedingReminder(type: ReminderType, now: Date) {
+async function getWorkspacesNeedingReminder(
+  type: ReminderType,
+  now: Date,
+  limit: number,
+) {
   const windowStart =
     type === "trial_ending" ? new Date(now.getTime() + 2 * DAY_MS) : null;
   const windowEnd =
@@ -115,11 +119,7 @@ async function getWorkspacesNeedingReminder(type: ReminderType, now: Date) {
     )
     .as("owners");
 
-  return db
-    .select()
-    .from(owners)
-    .orderBy(asc(owners.trialEndsAt))
-    .limit(maxPerRun());
+  return db.select().from(owners).orderBy(asc(owners.trialEndsAt)).limit(limit);
 }
 
 export async function checkTrialReminders(): Promise<{ degraded: boolean }> {
@@ -128,13 +128,19 @@ export async function checkTrialReminders(): Promise<{ degraded: boolean }> {
   }
 
   const now = new Date();
+  const limit = maxPerRun();
   let sent = 0;
   let degraded = false;
 
   for (const reminder of REMINDERS) {
+    if (sent >= limit) break;
     let rows: Awaited<ReturnType<typeof getWorkspacesNeedingReminder>>;
     try {
-      rows = await getWorkspacesNeedingReminder(reminder.type, now);
+      rows = await getWorkspacesNeedingReminder(
+        reminder.type,
+        now,
+        limit - sent,
+      );
     } catch (error) {
       console.error(`Failed to query ${reminder.type} reminders`, error);
       degraded = true;

@@ -10,6 +10,10 @@ export const listGiteaRepositoriesBody = z.object(giteaCredentials);
 
 export const verifyGiteaBody = z.object({
   ...giteaCredentials,
+  accessToken: z.string().min(1).optional().openapi({
+    description:
+      "Omit to verify with this project's saved token. The base URL must match the saved integration.",
+  }),
   repositoryOwner: z.string().min(1),
   repositoryName: z.string().min(1),
 });

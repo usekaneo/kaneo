@@ -25,6 +25,7 @@ import { shortcuts } from "@/constants/shortcuts";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import { useProjectWebSocket } from "@/hooks/use-project-websocket";
 import { cn } from "@/lib/cn";
+import { useBackgroundStore } from "@/store/background";
 
 type ProjectLayoutProps = {
   projectId: string;
@@ -49,6 +50,7 @@ export default function ProjectLayout({
   const { data: project } = useGetProject({ id: projectId, workspaceId });
   const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] =
     useState(false);
+  const { background } = useBackgroundStore();
 
   useProjectWebSocket(projectId);
 
@@ -109,7 +111,11 @@ export default function ProjectLayout({
 
   return (
     <Layout>
-      <Layout.Header className="h-11 border-border/80 px-2">
+      <Layout.Header
+        className={cn("h-11 border-border/80 px-2", {
+          "bg-card/90 backdrop-blur": !!background,
+        })}
+      >
         <div className="flex w-full items-center justify-between gap-2">
           <div className="flex min-w-0 items-center gap-2">
             <TooltipProvider>

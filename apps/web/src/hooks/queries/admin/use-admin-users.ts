@@ -1,0 +1,27 @@
+import { useQuery } from "@tanstack/react-query";
+import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
+import { getAdminUsers } from "@/fetchers/admin/get-admin-users";
+
+export {
+  ADMIN_USERS_PAGE_SIZE,
+  ADMIN_USERS_SEARCH_MAX_LENGTH,
+  type AdminUser,
+} from "@/fetchers/admin/types";
+
+export const ADMIN_USERS_QUERY_KEY = ["admin", "users"] as const;
+
+function useAdminUsers(search: string, page: number) {
+  const { user } = useAuth();
+  const userId = user?.id ?? "";
+  return useQuery({
+    queryKey: [...ADMIN_USERS_QUERY_KEY, userId, search.trim(), page],
+    queryFn: () => getAdminUsers(search, page),
+    enabled: userId !== "",
+    placeholderData: (previousData, previousQuery) =>
+      userId !== "" && previousQuery?.queryKey[2] === userId
+        ? previousData
+        : undefined,
+  });
+}
+
+export default useAdminUsers;

@@ -3,12 +3,10 @@ title: Migrating from PLANKA
 description: Move your PLANKA boards into Kaneo with the @kaneo/planka-import CLI, including lists, cards, labels, assignees, checklists and comments
 ---
 
-PLANKA has no export feature, so there is no file to hand over. Instead,
 `@kaneo/planka-import` reads your boards directly from PLANKA's REST API and
 recreates them in Kaneo through Kaneo's public API.
 
-Nothing is written back to PLANKA, and your PLANKA credentials stay on your
-machine: the CLI talks to both servers itself, so no third party sees them.
+The CLI reads from PLANKA and writes directly to your Kaneo instance. It does not modify PLANKA or use an intermediary migration service.
 
 ## Before you start
 
@@ -17,8 +15,10 @@ You need:
 - A PLANKA account that can see the boards you want to move. If you sign in
   through SSO and have no password, create a PLANKA API key and use
   `--planka-api-key`.
-- A Kaneo workspace, and an API key from **Settings → API keys**.
+- A Kaneo workspace, and an API key from **Settings → Account → API Keys**.
 - Node.js 20 or newer.
+
+Use a PLANKA administrator account if you want to preserve assignees. PLANKA hides other users’ email addresses from non-administrators, which prevents email matching.
 
 Invite your team to the Kaneo workspace **before** importing. Assignees are
 matched by email address, so anyone who isn't a member yet will have their cards
@@ -46,13 +46,12 @@ Planned import:
 
 ## Run the import
 
-When the plan looks right, add your Kaneo credentials and drop `--dry-run`:
+When the plan looks right, set `KANEO_API_KEY` in your environment and drop `--dry-run`. The CLI reads the key from that variable:
 
 ```bash
 npx @kaneo/planka-import \
   --planka-url https://planka.example.com \
   --kaneo-url https://cloud.kaneo.app \
-  --kaneo-api-key kaneo_xxx \
   --workspace ws_123
 ```
 
@@ -65,7 +64,6 @@ To skip the prompts entirely, for example in a script:
 npx @kaneo/planka-import \
   --planka-url https://planka.example.com \
   --planka-user you@example.com \
-  --kaneo-api-key kaneo_xxx \
   --workspace ws_123 \
   --all --yes --report import-report.json
 ```
@@ -86,7 +84,7 @@ passing secrets on the command line, where they end up in your shell history.
 | Labels | Labels, with their original colors |
 | Card members | Assignee, matched by email |
 | Due date | Due date |
-| Comments | Comments, prefixed with the original author and date |
+| Comments | Comments, with the original author recorded separately and the original date added to the text |
 
 One Kaneo project is created per PLANKA **board**, because the board is what
 holds the lists and cards. When a PLANKA project has more than one board, each
@@ -102,9 +100,9 @@ resulting Kaneo project is named `Project - Board`.
   original PLANKA author is recorded on it and shown in Kaneo, the same way
   imported GitHub comments are. This needs Kaneo 2.17.6 or newer; against older
   instances the comment still imports, just without the original author.
-- **Priorities.** PLANKA has no priority field, so every task starts at
+- **Priorities.** The importer sets every task to
   `no-priority`.
-- **Custom fields, stopwatches, and card subscriptions.** No Kaneo equivalent.
+- **Custom fields, stopwatches, and card subscriptions.** The importer does not transfer these. Kaneo supports custom fields and time entries, but you need to recreate that information yourself.
 
 ## Troubleshooting
 
@@ -118,7 +116,7 @@ recommended credential: it doesn't expire the way a copied session token does.
 
 **A board failed partway**: failures are isolated per board, so the rest still
 import and the summary names the one that failed. Delete the half-created Kaneo
-project and re-run with `--project` to retry just that one.
+project and run the importer interactively again, selecting only the failed board. The `--project` flag filters PLANKA projects, which can contain several boards.
 
 ## Re-running
 

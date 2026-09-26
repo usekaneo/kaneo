@@ -1,0 +1,42 @@
+---
+title: Personal webhooks
+description: Forward your account notifications to an HTTP receiver.
+---
+
+A personal webhook forwards notifications created for your account. For a shared feed of project events, use a [project webhook](/core/integrations/outgoing-webhooks), which has a different payload.
+
+## Connect your receiver
+
+1. Open **Settings → Account → Notifications** and find **Webhook**.
+2. Enter your receiver’s HTTP or HTTPS URL.
+3. Enter a signing secret if your receiver will verify requests.
+4. Enable the channel and choose **Connect webhook**.
+5. Add an active workspace rule, enable the webhook channel, choose the projects to include, and save.
+
+Choose the notification categories you want at the top of the page. The same preferences control your inbox and forwarding.
+
+## Payload
+
+Kaneo sends a JSON POST with these fields:
+
+| Field | Contents |
+| --- | --- |
+| `notification` | ID, type, title, content, creation time, event data, resource ID, and resource type |
+| `workspace` | Workspace ID and name |
+| `project` | Project ID and name, or `null` |
+| `task` | Task ID, title, and URL, or `null` |
+| `user` | Your user ID, name, and email |
+
+A notification needs a resolvable workspace context for external delivery. It must also pass the active workspace rule and project selection.
+
+## Verify requests
+
+When a signing secret is set, Kaneo sends `X-Kaneo-Signature`: the lowercase hexadecimal HMAC-SHA256 digest of the exact JSON body. Verify the raw body before parsing it, using a constant-time comparison. Use the notification ID to avoid processing the same notification twice.
+
+The API needs `NOTIFICATION_SECRET_ENCRYPTION_KEY` to save the signing secret. Private receivers also need `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS`; see [server settings](/core/installation/environment-variables#notifications).
+
+## Check and disconnect
+
+Have a teammate trigger a notification for you in an included project. Inspect your receiver’s logs and compare it with the Kaneo inbox. A delivery failure does not remove the inbox item.
+
+To rotate the secret, enter a replacement and save it, then update your receiver. An empty secret field retains the saved value. **Disconnect** removes the stored URL and secret. Review workspace rules when reconnecting.

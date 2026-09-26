@@ -15,6 +15,8 @@
     "lint": "turbo lint",
     "test": "turbo test",
     "test:integration": "turbo test:integration",
+    "test:e2e": "pnpm --dir tests/e2e test",
+    "test:browserstack": "pnpm --dir tests/e2e test:browserstack",
     "typecheck": "turbo typecheck",
     "prepare": "husky"
   },
@@ -25,7 +27,7 @@
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/exec": "^7.1.0",
     "@semantic-release/git": "^10.0.1",
-    "conventional-changelog-conventionalcommits": "^9.1.0",
+    "conventional-changelog-conventionalcommits": "^10.4.0",
     "esbuild": "0.28.1",
     "husky": "^9.1.7",
     "linkifyjs": ">=4.3.3",
@@ -38,7 +40,7 @@
     "node": ">=24.0.0"
   },
   "packageManager": "pnpm@10.32.1",
-  "version": "2.24.0",
+  "version": "2.28.3",
   "dependencies": {
     "dotenv-mono": "^1.5.1"
   }

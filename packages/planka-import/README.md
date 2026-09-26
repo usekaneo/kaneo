@@ -2,9 +2,7 @@
 
 Migrate your [PLANKA](https://planka.app) boards into [Kaneo](https://kaneo.app).
 
-PLANKA has no export feature, so this tool reads your boards through PLANKA's
-REST API and recreates them in Kaneo through Kaneo's public API. Nothing is
-written to PLANKA, and your PLANKA credentials never leave your machine.
+The CLI reads boards directly from PLANKA’s REST API and creates them through Kaneo’s public API. It does not modify PLANKA or use an intermediary migration service.
 
 ## Usage
 
@@ -13,19 +11,18 @@ npx @kaneo/planka-import --planka-url https://planka.example.com --dry-run
 ```
 
 A dry run reads PLANKA only and prints exactly what would be created. When the
-plan looks right, add your Kaneo credentials and drop `--dry-run`:
+plan looks right, set `KANEO_API_KEY` in your environment and drop `--dry-run`:
 
 ```bash
 npx @kaneo/planka-import \
   --planka-url https://planka.example.com \
   --kaneo-url https://cloud.kaneo.app \
-  --kaneo-api-key kaneo_xxx \
   --workspace ws_123
 ```
 
 You'll be prompted for your PLANKA login and for which boards to migrate.
 
-Create a Kaneo API key under **Settings → API keys**. Self-hosting? Point
+Create a Kaneo API key under **Settings → Account → API Keys**. Self-hosting? Point
 `--kaneo-url` at your own instance.
 
 ## What carries over
@@ -41,7 +38,7 @@ Create a Kaneo API key under **Settings → API keys**. Self-hosting? Point
 | Labels | Labels, with their original colors |
 | Card members | Assignee, matched by email address |
 | Due date | Due date |
-| Comments | Comments, prefixed with the original author and date |
+| Comments | Comments, with the original author recorded separately and the original date added to the text |
 
 One Kaneo project is created per PLANKA **board**, since the board is what holds
 lists and cards. If a PLANKA project has several boards, each Kaneo project is
@@ -55,9 +52,9 @@ named `Project - Board`.
 - **Comment authorship.** The comment is created by the API key's owner, but the
   original PLANKA author is recorded and displayed alongside it. Requires Kaneo
   2.17.6 or newer.
-- **Priorities.** PLANKA has no priority field, so every task starts at
+- **Priorities.** The importer sets every task to
   `no-priority`.
-- **Custom fields, stopwatches, and card subscriptions.** No Kaneo equivalent.
+- **Custom fields, stopwatches, and card subscriptions.** The importer does not transfer these. Kaneo supports custom fields and time entries, but you need to recreate that information yourself.
 
 **Run the import as a PLANKA admin.** PLANKA hides other users' email addresses
 from non-admin accounts, and assignees are matched by email, so a non-admin

@@ -1,4 +1,4 @@
-import { useLocation } from "@tanstack/react-router";
+import { useLocation, useParams } from "@tanstack/react-router";
 import { produce } from "immer";
 import {
   CalendarIcon,
@@ -13,6 +13,12 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import TaskDescriptionEditor from "@/components/task/task-description-editor";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -33,6 +39,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
+  Combobox,
+  ComboboxChips,
+  ComboboxChipsInput,
+  ComboboxEmpty,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxPopup,
+  ComboboxValue,
+} from "@/components/ui/combobox";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -46,6 +62,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/preview-card";
 import {
   Select,
   SelectContent,
@@ -105,7 +126,13 @@ type Label = {
 
 type PopoverStep = "select" | "color";
 
-type CustomFieldType = "text" | "number" | "date" | "dropdown" | "boolean";
+type CustomFieldType =
+  | "text"
+  | "number"
+  | "date"
+  | "dropdown"
+  | "boolean"
+  | "multiselect";
 
 type CustomFieldDefinition = {
   id: string;
@@ -141,7 +168,7 @@ function normalizeTask(
   };
 }
 
-function CreateTaskModal({
+function CreateTaskModalContent({
   open,
   onClose,
   status,
@@ -238,17 +265,24 @@ function CreateTaskModal({
     location.pathname.match(/\/project\/([^/]+)/)?.[1] ?? null;
   const explicitProjectId = projectId || routeProjectId || "";
   const [selectedProjectId, setSelectedProjectId] = useState("");
-  const resolvedProjectId =
-    explicitProjectId || selectedProjectId || project?.id || "";
   const { data: workspaceProjects } = useGetProjects({
     workspaceId: workspace?.id || "",
   });
-  const resolvedProject = explicitProjectId
-    ? project
-    : (workspaceProjects?.find((p) => p.id === resolvedProjectId) ?? null);
+  // Only a project from this workspace's query may receive new content.
+  // The global project store can still contain the last visited workspace.
+  const resolvedProject = workspaceProjects?.find(
+    (candidate) => candidate.id === (explicitProjectId || selectedProjectId),
+  );
+  const resolvedProjectId = resolvedProject?.id ?? "";
 
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const draftCreationPromiseRef = useRef<Promise<Task> | null>(null);
+  const draftCreationPromiseRef = useRef<Promise<Task | null> | null>(null);
+  const draftTaskRef = useRef<Task | null>(null);
+  const activeRef = useRef(true);
+  const submittingRef = useRef(false);
+  const [isPreparingDraft, setIsPreparingDraft] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editorVersion, setEditorVersion] = useState(0);
   const didSubmitRef = useRef(false);
 
   const { mutateAsync: createTask } = useCreateTask();
@@ -314,6 +348,14 @@ function CreateTaskModal({
     }, {});
   }, [customFields]);
 
+  const hasCustomFieldChanges = Object.entries(customFieldValues).some(
+    ([fieldId, value]) => {
+      const field = customFields.find((f) => f.id === fieldId);
+      const defaultValue = field?.defaultValue ?? "";
+      return value !== defaultValue;
+    },
+  );
+
   const hasUnsavedChanges = Boolean(
     title.trim() ||
       description.trim() ||
@@ -323,37 +365,37 @@ function CreateTaskModal({
       dueDate ||
       selectedProjectId ||
       labels.length > 0 ||
-      draftTask,
+      draftTask ||
+      hasCustomFieldChanges,
   );
 
-  const closeAndReset = () => {
-    const shouldDeleteDraft = draftTask && !didSubmitRef.current;
-
-    setDiscardConfirmationOpen(false);
-    setTitle("");
-    setDescription("");
-    setPriority("no-priority");
-    setAssigneeId("");
-    setStartDate(undefined);
-    setDueDate(undefined);
-    setSelectedProjectId("");
-    setCreateMore(false);
-    setLabels([]);
-    setLabelsStep("select");
-    setSearchValue("");
-    setSelectedColor("gray");
-    setNewLabelName("");
-    draftCreationPromiseRef.current = null;
-    didSubmitRef.current = false;
-    setDraftTask(null);
-    setCustomFieldValues(buildDefaultCustomFieldValues());
-    onClose();
-
-    if (shouldDeleteDraft) {
-      void deleteTask(draftTask.id).catch(() => {
-        // ignore cleanup failures for abandoned empty drafts
+  const discardDraft = useCallback(() => {
+    const abandoned = draftTaskRef.current;
+    if (abandoned && !didSubmitRef.current) {
+      draftTaskRef.current = null;
+      void deleteTask(abandoned.id).catch(() => {
+        // An expired session can prevent cleanup; never reuse the draft.
       });
     }
+  }, [deleteTask]);
+
+  useEffect(() => {
+    activeRef.current = true;
+    return () => {
+      activeRef.current = false;
+      discardDraft();
+    };
+  }, [discardDraft]);
+
+  const handleClose = () => {
+    activeRef.current = false;
+    discardDraft();
+    onClose();
+  };
+
+  const closeAndReset = () => {
+    setDiscardConfirmationOpen(false);
+    handleClose();
   };
 
   const handleOpenChange = (nextOpen: boolean) => {
@@ -369,7 +411,7 @@ function CreateTaskModal({
 
   const syncTaskIntoProject = useCallback(
     (task: Task) => {
-      if (!project) return;
+      if (!activeRef.current || project?.id !== task.projectId) return;
 
       const updatedProject = produce(project, (draft) => {
         let existingTask:
@@ -423,13 +465,16 @@ function CreateTaskModal({
   );
 
   const ensureDraftTask = useCallback(async () => {
-    if (draftTask) {
-      return draftTask.id;
+    if (!activeRef.current || submittingRef.current) return null;
+    if (draftTaskRef.current) {
+      return draftTaskRef.current.projectId === resolvedProjectId
+        ? draftTaskRef.current.id
+        : null;
     }
 
     if (draftCreationPromiseRef.current) {
       const pendingTask = await draftCreationPromiseRef.current;
-      return pendingTask.id;
+      return activeRef.current ? (pendingTask?.id ?? null) : null;
     }
 
     if (!resolvedProjectId) {
@@ -437,6 +482,7 @@ function CreateTaskModal({
       return null;
     }
 
+    setIsPreparingDraft(true);
     const draftStatus = "planned";
     const draftPromise = createTask({
       title: title.trim() || t("common:modals.createTask.untitledTask"),
@@ -453,14 +499,22 @@ function CreateTaskModal({
           fieldId,
           value,
         })),
-    }).then((task) => normalizeTask(task));
+    }).then((task) => {
+      const createdTask = normalizeTask(task);
+      if (!activeRef.current) {
+        void deleteTask(createdTask.id).catch(() => {});
+        return null;
+      }
+      draftTaskRef.current = createdTask;
+      setDraftTask(createdTask);
+      return createdTask;
+    });
 
     draftCreationPromiseRef.current = draftPromise;
 
     try {
       const createdTask = await draftPromise;
-      setDraftTask(createdTask);
-      return createdTask.id;
+      return activeRef.current ? (createdTask?.id ?? null) : null;
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -470,12 +524,13 @@ function CreateTaskModal({
       return null;
     } finally {
       draftCreationPromiseRef.current = null;
+      if (activeRef.current) setIsPreparingDraft(false);
     }
   }, [
     assigneeId,
     createTask,
     description,
-    draftTask,
+    deleteTask,
     startDate,
     dueDate,
     priority,
@@ -487,16 +542,32 @@ function CreateTaskModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !resolvedProjectId || !workspace?.id) return;
+    if (
+      !activeRef.current ||
+      submittingRef.current ||
+      !canCreateTaskCapability ||
+      !title.trim() ||
+      !resolvedProjectId ||
+      !workspace?.id
+    )
+      return;
 
+    submittingRef.current = true;
+    setIsSubmitting(true);
     try {
+      // Submitting while a file prepares its draft must update that same task.
+      const pendingDraft = draftCreationPromiseRef.current;
+      if (pendingDraft) await pendingDraft;
+      if (!activeRef.current) return;
+      const currentDraft = draftTaskRef.current;
+      if (currentDraft && currentDraft.projectId !== resolvedProjectId) return;
       const taskStatus = status ?? "to-do";
       didSubmitRef.current = true;
 
-      const savedTask = draftTask
+      const savedTask = currentDraft
         ? normalizeTask(
             await updateTask({
-              ...draftTask,
+              ...currentDraft,
               title: title.trim(),
               description: description.trim() || "",
               userId: assigneeId || null,
@@ -542,7 +613,7 @@ function CreateTaskModal({
         }
       }
 
-      if (draftTask) {
+      if (currentDraft) {
         for (const [fieldId, value] of Object.entries(customFieldValues)) {
           if (value) {
             await setCustomFieldValue({
@@ -554,6 +625,8 @@ function CreateTaskModal({
         }
       }
 
+      draftTaskRef.current = null;
+      if (!activeRef.current) return;
       setDraftTask(savedTask);
       syncTaskIntoProject(savedTask);
       toast.success(
@@ -575,6 +648,7 @@ function CreateTaskModal({
         setSelectedColor("gray");
         setNewLabelName("");
         draftCreationPromiseRef.current = null;
+        setEditorVersion((version) => version + 1);
         didSubmitRef.current = false;
         setDraftTask(null);
         setCustomFieldValues(buildDefaultCustomFieldValues());
@@ -583,11 +657,18 @@ function CreateTaskModal({
       }
     } catch (error) {
       didSubmitRef.current = false;
+      if (!activeRef.current) {
+        discardDraft();
+        return;
+      }
       toast.error(
         error instanceof Error
           ? error.message
           : t("common:modals.createTask.createError"),
       );
+    } finally {
+      submittingRef.current = false;
+      if (activeRef.current) setIsSubmitting(false);
     }
   };
 
@@ -745,7 +826,7 @@ function CreateTaskModal({
             <SelectContent>
               {options.map((opt) => (
                 <SelectItem key={opt} value={opt}>
-                  {opt}
+                  <span className="block max-w-50 truncate">{opt}</span>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -789,6 +870,158 @@ function CreateTaskModal({
             />
           </div>
         );
+
+      case "multiselect": {
+        const selectedValues: string[] = (() => {
+          if (!value) return [];
+          try {
+            const parsed = JSON.parse(value);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch {
+            return value.split(",").filter((v) => v.length > 0);
+          }
+        })();
+        const MAX_VISIBLE_CHIPS = 3;
+
+        return (
+          <Combobox
+            multiple={true}
+            autoHighlight
+            items={Array.from(new Set(field.options ?? []))}
+            value={selectedValues}
+            onValueChange={(val) =>
+              handleCustomFieldChange(field.id, JSON.stringify(val))
+            }
+          >
+            <ComboboxChips className="h-9 w-full flex-[2_0_0] select-none cursor-default text-sm disabled:opacity-50">
+              <ComboboxValue>
+                {(values: string[]) => {
+                  const visibleChips = values.slice(0, MAX_VISIBLE_CHIPS);
+                  const hiddenCount = values.length - MAX_VISIBLE_CHIPS;
+
+                  return (
+                    <>
+                      {visibleChips.map((value) => (
+                        <div
+                          key={value}
+                          className={cn(
+                            "min-w-0 max-w-full flex-1 shrink basis-0",
+                            "inline-flex items-center overflow-hidden",
+                            "rounded-md bg-secondary px-1.5 py-0.5",
+                            "select-none cursor-default",
+                          )}
+                        >
+                          <span className="block min-w-0 max-w-full truncate text-xs text-secondary-foreground">
+                            {value}
+                          </span>
+                        </div>
+                      ))}
+                      {values.length > MAX_VISIBLE_CHIPS && (
+                        <HoverCard>
+                          <HoverCardTrigger asChild>
+                            <button
+                              type="button"
+                              className="shrink-0 inline-flex items-center gap-1 text-xs font-medium cursor-pointer text-foreground/50 pe-1"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                              }}
+                              onPointerDown={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                              }}
+                            >
+                              {t("settings:customFields.moreOptions", {
+                                hiddenCount,
+                              })}
+                            </button>
+                          </HoverCardTrigger>
+
+                          <HoverCardContent
+                            side="top"
+                            align="start"
+                            className="flex max-w-xs flex-wrap gap-1"
+                          >
+                            <div className="space-y-1.5">
+                              <div className="text-xs font-medium text-muted-foreground">
+                                {t(
+                                  "settings:customFields.availableOptions",
+                                  "Available options",
+                                )}
+                              </div>
+
+                              <div className="flex min-w-0 max-h-48 flex-wrap gap-x-1.5 gap-y-1.5 overflow-y-auto overflow-x-hidden">
+                                {values
+                                  .slice(MAX_VISIBLE_CHIPS)
+                                  .map((value) => (
+                                    <div
+                                      key={value}
+                                      className={cn(
+                                        "min-w-0 max-w-full",
+                                        "inline-flex items-center overflow-hidden",
+                                        "rounded bg-secondary px-1.5 py-0.5",
+                                        "select-none cursor-default",
+                                      )}
+                                    >
+                                      <span className="block min-w-0 max-w-[13rem] truncate text-xs">
+                                        {value}
+                                      </span>
+                                    </div>
+                                  ))}
+                              </div>
+                            </div>
+                          </HoverCardContent>
+                        </HoverCard>
+                      )}
+
+                      <ComboboxChipsInput
+                        className={cn(
+                          "min-w-0 flex-1 caret-transparent",
+                          values.length > 0 && "hidden",
+                          "pointer-events-none",
+                          "placeholder:text-foreground/50",
+                          "text-transparent",
+                        )}
+                        placeholder={
+                          Array.from(new Set(field.options ?? [])).length === 0
+                            ? t(
+                                "settings:customFields.noOptionsPlaceholder",
+                                "No options",
+                              )
+                            : values.length === 0
+                              ? t(
+                                  "settings:customFields.defaultValuePlaceholder",
+                                  "Default value",
+                                )
+                              : undefined
+                        }
+                      />
+                    </>
+                  );
+                }}
+              </ComboboxValue>
+            </ComboboxChips>
+
+            <ComboboxPopup>
+              <ComboboxEmpty>
+                {t("settings:customFields.noOptionsPlaceholder", "No options")}
+              </ComboboxEmpty>
+
+              <ComboboxList>
+                {(option: string) => (
+                  <ComboboxItem
+                    className="min-w-0 max-w-full"
+                    key={`field_option_${option}`}
+                    value={option}
+                  >
+                    <span className="block max-w-50 truncate">{option}</span>
+                  </ComboboxItem>
+                )}
+              </ComboboxList>
+            </ComboboxPopup>
+          </Combobox>
+        );
+      }
 
       default:
         return (
@@ -852,6 +1085,7 @@ function CreateTaskModal({
 
             <div className="min-h-[200px]">
               <TaskDescriptionEditor
+                key={editorVersion}
                 value={description}
                 onChange={setDescription}
                 placeholder={t(
@@ -863,29 +1097,60 @@ function CreateTaskModal({
             </div>
 
             {customFields.length > 0 && (
-              <div className="space-y-4 pt-4 border-t border-border">
-                <h4 className="text-sm font-semibold text-foreground">
-                  {t("tasks:common.customFields")}
-                </h4>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {customFields.map((field) => (
-                    <div
-                      key={`custom-field_${field.id}`}
-                      className="space-y-1.5"
-                    >
-                      <label
-                        htmlFor={`custom-field_${field.id}`}
-                        className="text-xs font-medium text-muted-foreground flex items-center gap-1"
-                      >
-                        {field.name}
-                        {field.required && (
-                          <span className="text-destructive">*</span>
-                        )}
-                      </label>
-                      {renderCustomFieldInput(field)}
-                    </div>
-                  ))}
-                </div>
+              <div className="mt-2">
+                <Accordion
+                  key={resolvedProjectId}
+                  className="w-full"
+                  defaultValue={
+                    customFields.some((field) => field.required)
+                      ? ["custom-fields"]
+                      : []
+                  }
+                >
+                  <AccordionItem
+                    value="custom-fields"
+                    className="rounded-lg border border-border bg-sidebar/30 px-4"
+                  >
+                    <AccordionTrigger className="py-4 hover:no-underline">
+                      <div className="flex items-center gap-2 text-left">
+                        <span className="text-sm font-semibold text-foreground">
+                          {t("tasks:common.customFields")}
+                        </span>
+                        <span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                          {customFields.length}
+                        </span>
+                      </div>
+                    </AccordionTrigger>
+
+                    <AccordionContent className="pb-4">
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="space-y-4 pt-4 border-t border-border sm:col-span-2">
+                          <div className="grid gap-4 sm:grid-cols-2">
+                            {customFields.map((field) => (
+                              <div
+                                key={`custom-field_${field.id}`}
+                                className="space-y-1.5"
+                              >
+                                <label
+                                  htmlFor={`custom-field_${field.id}`}
+                                  className="text-xs font-medium text-muted-foreground flex items-center gap-1"
+                                >
+                                  {field.name}
+                                  {field.required && (
+                                    <span className="text-destructive">*</span>
+                                  )}
+                                </label>
+                                <div className="w-full">
+                                  {renderCustomFieldInput(field)}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </div>
             )}
 
@@ -938,9 +1203,18 @@ function CreateTaskModal({
                           key={workspaceProject.id}
                           type="button"
                           className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
-                          onClick={() =>
-                            setSelectedProjectId(workspaceProject.id)
+                          disabled={
+                            isPreparingDraft || !!draftTask || isSubmitting
                           }
+                          onClick={() => {
+                            if (
+                              !draftCreationPromiseRef.current &&
+                              !draftTaskRef.current &&
+                              !submittingRef.current
+                            ) {
+                              setSelectedProjectId(workspaceProject.id);
+                            }
+                          }}
                         >
                           <span className="text-sm truncate">
                             {workspaceProject.name}
@@ -1327,7 +1601,7 @@ function CreateTaskModal({
             </Button>
             <Button
               type="submit"
-              disabled={!title.trim()}
+              disabled={!title.trim() || !resolvedProjectId || isSubmitting}
               size="sm"
               className="disabled:opacity-50"
             >
@@ -1368,6 +1642,31 @@ function CreateTaskModal({
         </AlertDialogContent>
       </AlertDialog>
     </Dialog>
+  );
+}
+
+function CreateTaskModal(props: CreateTaskModalProps) {
+  const { data: workspace } = useActiveWorkspace();
+  const location = useLocation();
+  const routeWorkspaceId = useParams({
+    strict: false,
+    select: (params) =>
+      "workspaceId" in params && typeof params.workspaceId === "string"
+        ? params.workspaceId
+        : undefined,
+  });
+  // useActiveWorkspace may temporarily fall back to the previous organization
+  // while the new route's organization list is loading.
+  if (!props.open || (routeWorkspaceId && routeWorkspaceId !== workspace?.id))
+    return null;
+
+  // Closing or navigating ends the whole editing session, including pending
+  // upload drafts, instead of carrying confidential fields into a new context.
+  return (
+    <CreateTaskModalContent
+      key={JSON.stringify([workspace?.id, location.pathname, props.projectId])}
+      {...props}
+    />
   );
 }
 

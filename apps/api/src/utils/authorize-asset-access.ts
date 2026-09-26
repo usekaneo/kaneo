@@ -5,22 +5,19 @@ import { validateWorkspaceAccess } from "./validate-workspace-access";
 type AssetAccessTarget = {
   workspaceId: string;
   isPublic: boolean | null;
+  surface: string;
 };
 
-/**
- * Authorizes a request for a stored asset.
- *
- * Assets that belong to a public project are readable by anyone, so the
- * credential check must be skipped entirely for them:
- * `resolveAssetBearerOrCookie` throws a 401 for anonymous callers rather than
- * returning an empty user, so calling it first makes the public case
- * unreachable.
- */
+/** Only description assets belong to the public project representation. */
+export function isPublicAsset(asset: AssetAccessTarget): boolean {
+  return asset.isPublic === true && asset.surface === "description";
+}
+
 export async function authorizeAssetAccess(
   c: Context,
   asset: AssetAccessTarget,
 ): Promise<void> {
-  if (asset.isPublic) {
+  if (isPublicAsset(asset)) {
     return;
   }
 
