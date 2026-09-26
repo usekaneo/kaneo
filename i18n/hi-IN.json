@@ -1822,7 +1822,7 @@
 				"prevTask": "पिछला कार्य",
 				"openTask": "चयनित कार्य खोलें",
 				"quickSelectNumber": "संख्या द्वारा विकल्प चुनें",
-				"calendarView": "Switch to calendar view"
+				"calendarView": "कैलेंडर दृश्य पर जाएँ"
 			}
 		}
 	},
@@ -2437,17 +2437,17 @@
 			}
 		},
 		"calendar": {
-			"dayTasksAriaLabel": "Show all tasks for {{date}}",
-			"moreTasks": "+{{count}} more",
-			"nextMonth": "Next month",
-			"noTasks": "No scheduled tasks",
-			"noTasksSubtitle": "Add a start date, due date, or both to tasks to place them on the calendar.",
-			"pageTitle": "{{name}} – Calendar",
-			"previousMonth": "Previous month",
-			"taskAriaLabel": "{{title}}, {{range}}: open task",
-			"title": "Calendar",
-			"today": "Today",
-			"loadError": "Failed to load tasks."
+			"dayTasksAriaLabel": "{{date}} के सभी कार्य दिखाएँ",
+			"moreTasks": "+{{count}} और",
+			"nextMonth": "अगला महीना",
+			"noTasks": "कोई शेड्यूल किए गए कार्य नहीं",
+			"noTasksSubtitle": "कार्यों को कैलेंडर पर दिखाने के लिए उनमें प्रारंभ तिथि, नियत तिथि या दोनों जोड़ें।",
+			"pageTitle": "{{name}} – कैलेंडर",
+			"previousMonth": "पिछला महीना",
+			"taskAriaLabel": "{{title}}, {{range}}: कार्य खोलें",
+			"title": "कैलेंडर",
+			"today": "आज",
+			"loadError": "कार्य लोड नहीं हो सके।"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

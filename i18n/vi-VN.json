@@ -1819,7 +1819,7 @@
 				"prevTask": "Công việc trước đó",
 				"openTask": "Mở công việc đã chọn",
 				"quickSelectNumber": "Chọn tùy chọn theo số",
-				"calendarView": "Switch to calendar view"
+				"calendarView": "Chuyển sang chế độ xem lịch"
 			}
 		}
 	},
@@ -2429,17 +2429,17 @@
 			}
 		},
 		"calendar": {
-			"dayTasksAriaLabel": "Show all tasks for {{date}}",
-			"moreTasks": "+{{count}} more",
-			"nextMonth": "Next month",
-			"noTasks": "No scheduled tasks",
-			"noTasksSubtitle": "Add a start date, due date, or both to tasks to place them on the calendar.",
-			"pageTitle": "{{name}} – Calendar",
-			"previousMonth": "Previous month",
-			"taskAriaLabel": "{{title}}, {{range}}: open task",
-			"title": "Calendar",
-			"today": "Today",
-			"loadError": "Failed to load tasks."
+			"dayTasksAriaLabel": "Hiện tất cả công việc cho ngày {{date}}",
+			"moreTasks": "+{{count}} công việc khác",
+			"nextMonth": "Tháng sau",
+			"noTasks": "Không có công việc đã lên lịch",
+			"noTasksSubtitle": "Thêm ngày bắt đầu, ngày đến hạn hoặc cả hai cho công việc để hiển thị chúng trên lịch.",
+			"pageTitle": "{{name}} – Lịch",
+			"previousMonth": "Tháng trước",
+			"taskAriaLabel": "{{title}}, {{range}}: mở công việc",
+			"title": "Lịch",
+			"today": "Hôm nay",
+			"loadError": "Không thể tải công việc."
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

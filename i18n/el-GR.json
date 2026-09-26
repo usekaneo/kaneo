@@ -1822,7 +1822,7 @@
 				"prevTask": "Προηγούμενη εργασία",
 				"openTask": "Άνοιγμα επιλεγμένης εργασίας",
 				"quickSelectNumber": "Επιλογή επιλογής με αριθμό",
-				"calendarView": "Switch to calendar view"
+				"calendarView": "Μετάβαση σε προβολή ημερολογίου"
 			}
 		}
 	},
@@ -2437,17 +2437,17 @@
 			}
 		},
 		"calendar": {
-			"dayTasksAriaLabel": "Show all tasks for {{date}}",
-			"moreTasks": "+{{count}} more",
-			"nextMonth": "Next month",
-			"noTasks": "No scheduled tasks",
-			"noTasksSubtitle": "Add a start date, due date, or both to tasks to place them on the calendar.",
-			"pageTitle": "{{name}} – Calendar",
-			"previousMonth": "Previous month",
-			"taskAriaLabel": "{{title}}, {{range}}: open task",
-			"title": "Calendar",
-			"today": "Today",
-			"loadError": "Failed to load tasks."
+			"dayTasksAriaLabel": "Εμφάνιση όλων των εργασιών για {{date}}",
+			"moreTasks": "+{{count}} ακόμη",
+			"nextMonth": "Επόμενος μήνας",
+			"noTasks": "Δεν υπάρχουν προγραμματισμένες εργασίες",
+			"noTasksSubtitle": "Προσθέστε ημερομηνία έναρξης, ημερομηνία λήξης ή και τις δύο στις εργασίες για να εμφανιστούν στο ημερολόγιο.",
+			"pageTitle": "{{name}} – Ημερολόγιο",
+			"previousMonth": "Προηγούμενος μήνας",
+			"taskAriaLabel": "{{title}}, {{range}}: άνοιγμα εργασίας",
+			"title": "Ημερολόγιο",
+			"today": "Σήμερα",
+			"loadError": "Αποτυχία φόρτωσης εργασιών."
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

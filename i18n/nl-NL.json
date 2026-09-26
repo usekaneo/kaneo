@@ -1822,7 +1822,7 @@
 				"prevTask": "Vorige taak",
 				"openTask": "Geselecteerde taak openen",
 				"quickSelectNumber": "Selecteer optie via nummer",
-				"calendarView": "Switch to calendar view"
+				"calendarView": "Naar kalenderweergave schakelen"
 			}
 		}
 	},
@@ -2437,17 +2437,17 @@
 			}
 		},
 		"calendar": {
-			"dayTasksAriaLabel": "Show all tasks for {{date}}",
-			"moreTasks": "+{{count}} more",
-			"nextMonth": "Next month",
-			"noTasks": "No scheduled tasks",
-			"noTasksSubtitle": "Add a start date, due date, or both to tasks to place them on the calendar.",
-			"pageTitle": "{{name}} – Calendar",
-			"previousMonth": "Previous month",
-			"taskAriaLabel": "{{title}}, {{range}}: open task",
-			"title": "Calendar",
-			"today": "Today",
-			"loadError": "Failed to load tasks."
+			"dayTasksAriaLabel": "Alle taken voor {{date}} weergeven",
+			"moreTasks": "+{{count}} meer",
+			"nextMonth": "Volgende maand",
+			"noTasks": "Geen geplande taken",
+			"noTasksSubtitle": "Voeg een startdatum, einddatum of beide toe aan taken om ze in de kalender weer te geven.",
+			"pageTitle": "{{name}} – Kalender",
+			"previousMonth": "Vorige maand",
+			"taskAriaLabel": "{{title}}, {{range}}: taak openen",
+			"title": "Kalender",
+			"today": "Vandaag",
+			"loadError": "Taken konden niet worden geladen."
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

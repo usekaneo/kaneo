@@ -1836,7 +1836,7 @@
 				"prevTask": "Предыдущая задача",
 				"openTask": "Открыть выбранную задачу",
 				"quickSelectNumber": "Выбрать вариант по номеру",
-				"calendarView": "Switch to calendar view"
+				"calendarView": "Переключиться на календарь"
 			}
 		}
 	},
@@ -2509,17 +2509,17 @@
 			}
 		},
 		"calendar": {
-			"dayTasksAriaLabel": "Show all tasks for {{date}}",
-			"moreTasks": "+{{count}} more",
-			"nextMonth": "Next month",
-			"noTasks": "No scheduled tasks",
-			"noTasksSubtitle": "Add a start date, due date, or both to tasks to place them on the calendar.",
-			"pageTitle": "{{name}} – Calendar",
-			"previousMonth": "Previous month",
-			"taskAriaLabel": "{{title}}, {{range}}: open task",
-			"title": "Calendar",
-			"today": "Today",
-			"loadError": "Failed to load tasks."
+			"dayTasksAriaLabel": "Показать все задачи на {{date}}",
+			"moreTasks": "Ещё {{count}}",
+			"nextMonth": "Следующий месяц",
+			"noTasks": "Нет запланированных задач",
+			"noTasksSubtitle": "Добавьте дату начала, срок выполнения или оба значения к задачам, чтобы они отображались в календаре.",
+			"pageTitle": "{{name}} – Календарь",
+			"previousMonth": "Предыдущий месяц",
+			"taskAriaLabel": "{{title}}, {{range}}: открыть задачу",
+			"title": "Календарь",
+			"today": "Сегодня",
+			"loadError": "Не удалось загрузить задачи."
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

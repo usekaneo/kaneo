@@ -1828,7 +1828,7 @@
 				"prevTask": "Попереднє завдання",
 				"openTask": "Відкрити обране завдання",
 				"quickSelectNumber": "Обрати варіант за номером",
-				"calendarView": "Switch to calendar view"
+				"calendarView": "Перемкнути на вигляд календаря"
 			}
 		}
 	},
@@ -2453,17 +2453,17 @@
 			}
 		},
 		"calendar": {
-			"dayTasksAriaLabel": "Show all tasks for {{date}}",
-			"moreTasks": "+{{count}} more",
-			"nextMonth": "Next month",
-			"noTasks": "No scheduled tasks",
-			"noTasksSubtitle": "Add a start date, due date, or both to tasks to place them on the calendar.",
-			"pageTitle": "{{name}} – Calendar",
-			"previousMonth": "Previous month",
-			"taskAriaLabel": "{{title}}, {{range}}: open task",
-			"title": "Calendar",
-			"today": "Today",
-			"loadError": "Failed to load tasks."
+			"dayTasksAriaLabel": "Показати всі завдання на {{date}}",
+			"moreTasks": "Ще {{count}}",
+			"nextMonth": "Наступний місяць",
+			"noTasks": "Немає запланованих завдань",
+			"noTasksSubtitle": "Додайте дату початку, дату завершення або обидві до завдань, щоб відобразити їх у календарі.",
+			"pageTitle": "{{name}} – Календар",
+			"previousMonth": "Попередній місяць",
+			"taskAriaLabel": "{{title}}, {{range}}: відкрити завдання",
+			"title": "Календар",
+			"today": "Сьогодні",
+			"loadError": "Не вдалося завантажити завдання."
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

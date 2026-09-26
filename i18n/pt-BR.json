@@ -1825,7 +1825,7 @@
 				"prevTask": "Tarefa anterior",
 				"openTask": "Abrir tarefa selecionada",
 				"quickSelectNumber": "Selecionar opção por número",
-				"calendarView": "Switch to calendar view"
+				"calendarView": "Mudar para visualização de calendário"
 			}
 		}
 	},
@@ -2445,17 +2445,17 @@
 			}
 		},
 		"calendar": {
-			"dayTasksAriaLabel": "Show all tasks for {{date}}",
-			"moreTasks": "+{{count}} more",
-			"nextMonth": "Next month",
-			"noTasks": "No scheduled tasks",
-			"noTasksSubtitle": "Add a start date, due date, or both to tasks to place them on the calendar.",
-			"pageTitle": "{{name}} – Calendar",
-			"previousMonth": "Previous month",
-			"taskAriaLabel": "{{title}}, {{range}}: open task",
-			"title": "Calendar",
-			"today": "Today",
-			"loadError": "Failed to load tasks."
+			"dayTasksAriaLabel": "Mostrar todas as tarefas de {{date}}",
+			"moreTasks": "+{{count}} mais",
+			"nextMonth": "Próximo mês",
+			"noTasks": "Nenhuma tarefa agendada",
+			"noTasksSubtitle": "Adicione uma data de início, uma data de vencimento ou ambas às tarefas para exibi-las no calendário.",
+			"pageTitle": "{{name}} – Calendário",
+			"previousMonth": "Mês anterior",
+			"taskAriaLabel": "{{title}}, {{range}}: abrir tarefa",
+			"title": "Calendário",
+			"today": "Hoje",
+			"loadError": "Falha ao carregar as tarefas."
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

@@ -1822,7 +1822,7 @@
 				"prevTask": "Vorherige Aufgabe",
 				"openTask": "Ausgewählte Aufgabe öffnen",
 				"quickSelectNumber": "Option per Nummer auswählen",
-				"calendarView": "Switch to calendar view"
+				"calendarView": "Zur Kalenderansicht wechseln"
 			}
 		}
 	},
@@ -2437,17 +2437,17 @@
 			}
 		},
 		"calendar": {
-			"dayTasksAriaLabel": "Show all tasks for {{date}}",
-			"moreTasks": "+{{count}} more",
-			"nextMonth": "Next month",
-			"noTasks": "No scheduled tasks",
-			"noTasksSubtitle": "Add a start date, due date, or both to tasks to place them on the calendar.",
-			"pageTitle": "{{name}} – Calendar",
-			"previousMonth": "Previous month",
-			"taskAriaLabel": "{{title}}, {{range}}: open task",
-			"title": "Calendar",
-			"today": "Today",
-			"loadError": "Failed to load tasks."
+			"dayTasksAriaLabel": "Alle Aufgaben für {{date}} anzeigen",
+			"moreTasks": "+{{count}} weitere",
+			"nextMonth": "Nächster Monat",
+			"noTasks": "Keine geplanten Aufgaben",
+			"noTasksSubtitle": "Füge Aufgaben ein Startdatum, ein Fälligkeitsdatum oder beides hinzu, um sie im Kalender anzuzeigen.",
+			"pageTitle": "{{name}} – Kalender",
+			"previousMonth": "Vorheriger Monat",
+			"taskAriaLabel": "{{title}}, {{range}}: Aufgabe öffnen",
+			"title": "Kalender",
+			"today": "Heute",
+			"loadError": "Aufgaben konnten nicht geladen werden."
 		},
 		"descriptionSearchLoading": "Vollständige Beschreibungen werden durchsucht…",
 		"descriptionSearchError": "Die Suche in Beschreibungen ist fehlgeschlagen. Ergebnisse sind möglicherweise unvollständig.",
