@@ -55,3 +55,7 @@ export const projectListItemSchema = projectSchema
   .openapi("ProjectListItem");
 
 export const projectListSchema = z.array(projectListItemSchema);
+
+export const movedProjectSchema = projectSchema
+  .extend({ unassignedTaskCount: z.number() })
+  .openapi("MovedProject");

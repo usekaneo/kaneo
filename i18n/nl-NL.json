@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "Werkruimtenaam is verplicht"
-			}
+			},
+			"restrictedSubtitle": "Alleen een instantiebeheerder kan hier workspaces aanmaken. Vraag om een uitnodiging en laad deze pagina opnieuw.",
+			"restrictedCheckInvitations": "Uitnodigingen bekijken",
+			"restrictedTitle": "Je hebt een uitnodiging nodig"
 		},
 		"profileSetup": {
 			"pageTitle": "Profiel Voltooien",
@@ -601,7 +604,18 @@
 				"iconRequired": "Icoon is verplicht"
 			},
 			"importExportTasks": "Importeren/Exporteren",
-			"importExportTasksDescription": "Importeren/Exporteren taken"
+			"importExportTasksDescription": "Importeren/Exporteren taken",
+			"moveModalConfirm": "Project verplaatsen",
+			"moveModalDescription": "Hiermee worden het project \"{{name}}\" en al zijn taken verplaatst naar \"{{workspace}}\". Taken die zijn toegewezen aan personen die geen lid zijn van die werkruimte worden niet langer toegewezen, en meldingsabonnementen voor dit project worden verwijderd.",
+			"moveModalTitle": "Project verplaatsen?",
+			"moveProject": "Naar werkruimte verplaatsen",
+			"moveProjectAction": "Verplaatsen",
+			"moveProjectDescription": "Verplaats dit project, met al zijn taken, naar een andere werkruimte.",
+			"moveProjectPlaceholder": "Selecteer werkruimte",
+			"toastMoved": "Project succesvol verplaatst",
+			"toastMovedWithUnassigned": "Project succesvol verplaatst. {{taskCount}} taak/taken zijn niet langer toegewezen.",
+			"toastMoveError": "Verplaatsen van project mislukt",
+			"moveTargetsError": "Kon niet controleren naar welke workspaces je dit project kunt verplaatsen. Herlaad de pagina om het opnieuw te proberen."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Projectintegraties",
@@ -924,7 +938,15 @@
 			"branch": "Branch",
 			"merged": "Samengevoegd",
 			"draft": "Concept",
-			"open": "Open"
+			"open": "Open",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL",
+			"remove": "Remove {{title}}",
+			"removeError": "Failed to remove the resource link."
 		},
 		"notifications": "Meldingen",
 		"notificationsPage": {
@@ -1529,6 +1551,35 @@
 			"userCount_one": "{{count}} registered user",
 			"userCount_other": "{{count}} registered users",
 			"you": "(you)"
+		},
+		"security": "Security",
+		"securityPage": {
+			"confirmPassword": "Confirm new password",
+			"confirmPasswordPlaceholder": "Re-enter your new password",
+			"currentPassword": "Current password",
+			"currentPasswordPlaceholder": "Enter your current password",
+			"newPassword": "New password",
+			"newPasswordPlaceholder": "Enter a new password",
+			"noPassword": {
+				"description": "Your account signs in with a different method, so there is no password to change.",
+				"title": "Password change isn't available"
+			},
+			"pageTitle": "Security",
+			"sectionSubtitle": "Change the password you use to sign in.",
+			"sectionTitle": "Password",
+			"submit": "Update password",
+			"submitting": "Updating...",
+			"subtitle": "Manage your password and account security.",
+			"title": "Security",
+			"updateError": "Failed to update password.",
+			"updateSuccess": "Password updated.",
+			"validation": {
+				"confirmRequired": "Confirm your new password.",
+				"currentRequired": "Enter your current password.",
+				"mismatch": "Passwords do not match.",
+				"tooShort": "New password must be at least 8 characters.",
+				"sameAsCurrent": "New password must be different from your current password."
+			}
 		}
 	},
 	"navigation": {
@@ -1953,6 +2004,13 @@
 				},
 				"mermaid": {
 					"renderFailed": "Mermaid-diagram kon niet worden weergegeven"
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
 			},
 			"customFieldUpdated": "Field updated",
@@ -2182,6 +2240,11 @@
 			"success": "Taak succesvol verwijderd",
 			"error": "Verwijderen taak mislukt"
 		},
+		"duplicate": {
+			"titleSuffix": "{{title}} (kopie)",
+			"success": "Taak succesvol gedupliceerd",
+			"error": "Dupliceren taak mislukt"
+		},
 		"archive": {
 			"success": "{{count}} taken gearchiveerd"
 		},
@@ -2226,6 +2289,7 @@
 			"copyLinkSuccess": "Taaklink gekopieerd!"
 		},
 		"actions": {
+			"duplicate": "Dupliceren",
 			"archive": "Archiveren",
 			"markAsPlanned": "Markeren als gepland",
 			"delete": "Verwijderen..."
@@ -2526,6 +2590,9 @@
 		"lightTimelineScreenshotAlt": "Kaneo Gantt timeline in light theme, showing scheduled tasks and their durations"
 	},
 	"landing": {
+		"sponsors": {
+			"ciSponsor": "Partners"
+		},
 		"founder": {
 			"title": "Why Kaneo exists",
 			"intro": "I'm Andrej, and I created Kaneo because I was tired of project management tools that got in the way more than they helped. After years of using bloated, overcomplicated platforms that distracted from actual work, I knew there had to be a better way.",

@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "ワークスペース名を入力してください"
-			}
+			},
+			"restrictedSubtitle": "このインスタンスでワークスペースを作成できるのは管理者だけです。招待を依頼してから、このページを再読み込みしてください。",
+			"restrictedCheckInvitations": "招待を確認",
+			"restrictedTitle": "招待が必要です"
 		},
 		"profileSetup": {
 			"pageTitle": "プロフィール設定",
@@ -938,7 +941,18 @@
 				"iconRequired": "アイコンは必須です"
 			},
 			"importExportTasks": "インポート/エクスポート",
-			"importExportTasksDescription": "タスクのインポートとエクスポートを行います。"
+			"importExportTasksDescription": "タスクのインポートとエクスポートを行います。",
+			"moveModalConfirm": "Move Project",
+			"moveModalDescription": "This will move the project \"{{name}}\" and all of its tasks to \"{{workspace}}\". Tasks assigned to people who aren't members of that workspace will be unassigned, and notification subscriptions for this project will be cleared.",
+			"moveModalTitle": "Move Project?",
+			"moveProject": "Move to workspace",
+			"moveProjectAction": "Move",
+			"moveProjectDescription": "Move this project, with all of its tasks, to another workspace.",
+			"moveProjectPlaceholder": "Select workspace",
+			"moveTargetsError": "Couldn't check which workspaces you can move this project to. Reload to try again.",
+			"toastMoved": "Project moved successfully",
+			"toastMovedWithUnassigned": "Project moved successfully. {{taskCount}} task(s) were unassigned.",
+			"toastMoveError": "Failed to move project"
 		},
 		"projectIntegrations": {
 			"pageTitle": "プロジェクト連携",
@@ -1383,7 +1397,15 @@
 			"branch": "ブランチ",
 			"merged": "マージ済み",
 			"draft": "下書き",
-			"open": "オープン"
+			"open": "オープン",
+			"adding": "追加中...",
+			"addResource": "リソースを追加",
+			"cancel": "キャンセル",
+			"empty": "このタスクにリンクされたリソースはありません。",
+			"titleOptional": "タイトル（任意）",
+			"url": "URL",
+			"remove": "Remove {{title}}",
+			"removeError": "Failed to remove the resource link."
 		},
 		"mattermostIntegration": {
 			"channelHint": "Optional label for your reference. Mattermost controls the actual destination channel from the webhook setup.",
@@ -1526,6 +1548,35 @@
 			},
 			"userCount_other": "{{count}} registered users",
 			"you": "(you)"
+		},
+		"security": "Security",
+		"securityPage": {
+			"confirmPassword": "Confirm new password",
+			"confirmPasswordPlaceholder": "Re-enter your new password",
+			"currentPassword": "Current password",
+			"currentPasswordPlaceholder": "Enter your current password",
+			"newPassword": "New password",
+			"newPasswordPlaceholder": "Enter a new password",
+			"noPassword": {
+				"description": "Your account signs in with a different method, so there is no password to change.",
+				"title": "Password change isn't available"
+			},
+			"pageTitle": "Security",
+			"sectionSubtitle": "Change the password you use to sign in.",
+			"sectionTitle": "Password",
+			"submit": "Update password",
+			"submitting": "Updating...",
+			"subtitle": "Manage your password and account security.",
+			"title": "Security",
+			"updateError": "Failed to update password.",
+			"updateSuccess": "Password updated.",
+			"validation": {
+				"confirmRequired": "Confirm your new password.",
+				"currentRequired": "Enter your current password.",
+				"mismatch": "Passwords do not match.",
+				"tooShort": "New password must be at least 8 characters.",
+				"sameAsCurrent": "New password must be different from your current password."
+			}
 		}
 	},
 	"navigation": {
@@ -1946,6 +1997,13 @@
 				},
 				"mermaid": {
 					"renderFailed": "Mermaid ダイアグラムを描画できませんでした"
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
 			},
 			"customFieldUpdated": "Field updated",
@@ -2244,7 +2302,8 @@
 		"actions": {
 			"archive": "アーカイブ",
 			"markAsPlanned": "計画中に設定",
-			"delete": "削除..."
+			"delete": "削除...",
+			"duplicate": "Duplicate"
 		},
 		"bulk": {
 			"selectedCount": "{{count}} 件選択中",
@@ -2293,7 +2352,12 @@
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
-		"descriptionLoadError": "The description could not be loaded. Retry to load the current version."
+		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"duplicate": {
+			"error": "Failed to duplicate task",
+			"success": "Task duplicated successfully",
+			"titleSuffix": "{{title}} (copy)"
+		}
 	},
 	"invitations": {
 		"email": {
@@ -2517,6 +2581,9 @@
 		"lightTimelineScreenshotAlt": "Kaneo Gantt timeline in light theme, showing scheduled tasks and their durations"
 	},
 	"landing": {
+		"sponsors": {
+			"ciSponsor": "パートナー"
+		},
 		"founder": {
 			"title": "Why Kaneo exists",
 			"intro": "I'm Andrej, and I created Kaneo because I was tired of project management tools that got in the way more than they helped. After years of using bloated, overcomplicated platforms that distracted from actual work, I knew there had to be a better way.",

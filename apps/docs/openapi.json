@@ -272,7 +272,10 @@
             "type": "string"
           },
           "integrationId": {
-            "type": "string"
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "resourceType": {
             "type": "string"
@@ -624,7 +627,7 @@
           "idToken"
         ]
       },
-      "ProjectListItem": {
+      "MovedProject": {
         "allOf": [
           {
             "$ref": "#/components/schemas/Project"
@@ -632,62 +635,14 @@
           {
             "type": "object",
             "properties": {
-              "statistics": {
-                "$ref": "#/components/schemas/ProjectStatistics"
-              },
-              "archivedTasks": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/BoardTask"
-                },
-                "description": "Always empty."
-              },
-              "plannedTasks": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/BoardTask"
-                },
-                "description": "Always empty."
-              },
-              "columns": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/BoardColumn"
-                },
-                "description": "Always empty."
+              "unassignedTaskCount": {
+                "type": "number"
               }
             },
             "required": [
-              "statistics",
-              "archivedTasks",
-              "plannedTasks",
-              "columns"
+              "unassignedTaskCount"
             ]
           }
-        ]
-      },
-      "ProjectStatistics": {
-        "type": "object",
-        "properties": {
-          "completionPercentage": {
-            "type": "number"
-          },
-          "totalTasks": {
-            "type": "number"
-          },
-          "dueDate": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "format": "date-time",
-            "description": "The soonest due date among the project's open tasks."
-          }
-        },
-        "required": [
-          "completionPercentage",
-          "totalTasks",
-          "dueDate"
         ]
       },
       "Project": {
@@ -758,6 +713,72 @@
           "archivedAt",
           "position",
           "lastTaskNumber"
+        ]
+      },
+      "ProjectListItem": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Project"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "statistics": {
+                "$ref": "#/components/schemas/ProjectStatistics"
+              },
+              "archivedTasks": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/BoardTask"
+                },
+                "description": "Always empty."
+              },
+              "plannedTasks": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/BoardTask"
+                },
+                "description": "Always empty."
+              },
+              "columns": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/BoardColumn"
+                },
+                "description": "Always empty."
+              }
+            },
+            "required": [
+              "statistics",
+              "archivedTasks",
+              "plannedTasks",
+              "columns"
+            ]
+          }
+        ]
+      },
+      "ProjectStatistics": {
+        "type": "object",
+        "properties": {
+          "completionPercentage": {
+            "type": "number"
+          },
+          "totalTasks": {
+            "type": "number"
+          },
+          "dueDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "The soonest due date among the project's open tasks."
+          }
+        },
+        "required": [
+          "completionPercentage",
+          "totalTasks",
+          "dueDate"
         ]
       },
       "TaskDescriptionMatches": {
@@ -3090,6 +3111,73 @@
           "createdAt"
         ]
       },
+      "CreatedExternalLink": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "taskId": {
+            "type": "string"
+          },
+          "integrationId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "resourceType": {
+            "type": "string",
+            "description": "The resource kind: `url` for a manual link, or an integration resource such as `issue` or `pull_request`."
+          },
+          "externalId": {
+            "type": "string",
+            "description": "The provider's resource identifier, or the URL for a manual link."
+          },
+          "url": {
+            "type": "string"
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "metadata": {
+            "description": "Provider-specific payload, parsed from the stored JSON string. Null when the link has no metadata."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "taskId",
+          "integrationId",
+          "resourceType",
+          "externalId",
+          "url",
+          "title",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "DeletedExternalLink": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
       "ExternalLink": {
         "type": "object",
         "properties": {
@@ -3100,15 +3188,18 @@
             "type": "string"
           },
           "integrationId": {
-            "type": "string"
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "resourceType": {
             "type": "string",
-            "description": "The kind of remote resource, e.g. `issue` or `pull_request`."
+            "description": "The resource kind: `url` for a manual link, or an integration resource such as `issue` or `pull_request`."
           },
           "externalId": {
             "type": "string",
-            "description": "The provider's own identifier for the linked resource."
+            "description": "The provider's resource identifier, or the URL for a manual link."
           },
           "url": {
             "type": "string"
@@ -3148,7 +3239,10 @@
         ]
       },
       "ExternalLinkIntegration": {
-        "type": "object",
+        "type": [
+          "object",
+          "null"
+        ],
         "properties": {
           "id": {
             "type": "string"
@@ -3518,6 +3612,39 @@
           "taskId",
           "fieldId",
           "value"
+        ]
+      },
+      "CurrentUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "image": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "role": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "image",
+          "role"
         ]
       },
       "UserAvatar": {
@@ -6348,6 +6475,117 @@
         }
       }
     },
+    "/project/{id}/move": {
+      "put": {
+        "operationId": "moveProject",
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Move a project to another workspace",
+        "description": "Move a project and its tasks. Requires update and delete permission in the source and create permission in the destination. Remove cross-project task relationships before moving.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "workspaceId": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "workspaceId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Project moved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovedProject"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid destination or same workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Destination workspace plan has expired",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing workspace access or permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found in the source workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Project key conflict or cross-project task relationships",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/project": {
       "get": {
         "operationId": "listProjects",
@@ -7451,6 +7689,113 @@
           },
           "403": {
             "description": "No workspace access, or missing task:create permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/task/duplicate/{id}": {
+      "post": {
+        "operationId": "duplicateTask",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Duplicate a task",
+        "description": "Copy a task into the same project and column, including custom fields, labels, description assets and same-workspace parent links. Comments, time entries and child tasks are not copied.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The duplicated task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid task fields or request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No workspace access or task:create permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task or project not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Task column has reached its capacity",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Unable to copy task attachments",
             "content": {
               "text/plain": {
                 "schema": {
@@ -14377,13 +14722,97 @@
       }
     },
     "/external-link/task/{taskId}": {
+      "post": {
+        "operationId": "createExternalLink",
+        "tags": [
+          "External Links"
+        ],
+        "summary": "Create an external link",
+        "description": "Add a resource link to a task",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "taskId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "An HTTP or HTTPS URL"
+                  },
+                  "title": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                },
+                "required": [
+                  "url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "External link created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedExternalLink"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid external link data",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No permission to update the task",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
       "get": {
         "operationId": "getExternalLinksByTask",
         "tags": [
           "External Links"
         ],
         "summary": "Get task external links",
-        "description": "Get all links from a task to resources in connected integrations, such as GitHub or Gitea issues.",
+        "description": "Get manually added resource links and links from connected integrations, such as GitHub or Gitea issues.",
         "parameters": [
           {
             "schema": {
@@ -14423,6 +14852,86 @@
           },
           "403": {
             "description": "No access to the task's workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/external-link/task/{taskId}/{id}": {
+      "delete": {
+        "operationId": "deleteExternalLink",
+        "tags": [
+          "External Links"
+        ],
+        "summary": "Remove a manual resource link",
+        "description": "Remove a manually added link from a task. Integration-managed links cannot be removed through this endpoint.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "taskId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resource link removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeletedExternalLink"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown task or invalid link data",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No permission to update the task",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Manual resource link not found on this task",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15273,6 +15782,48 @@
           },
           "403": {
             "description": "No workspace access, or missing project:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/me": {
+      "get": {
+        "operationId": "getCurrentUser",
+        "tags": [
+          "User"
+        ],
+        "summary": "Get current user",
+        "description": "Return the currently authenticated user.",
+        "responses": {
+          "200": {
+            "description": "Current user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentUser"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
             "content": {
               "text/plain": {
                 "schema": {

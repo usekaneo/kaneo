@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "Il nome del workspace è obbligatorio"
-			}
+			},
+			"restrictedSubtitle": "Qui solo un amministratore dell'istanza può creare spazi di lavoro. Chiedi un invito e ricarica questa pagina.",
+			"restrictedCheckInvitations": "Controlla gli inviti",
+			"restrictedTitle": "Ti serve un invito"
 		},
 		"profileSetup": {
 			"pageTitle": "Completa Profilo",
@@ -940,7 +943,18 @@
 				"iconRequired": "L'icona è obbligatoria"
 			},
 			"importExportTasks": "Importa/Esporta",
-			"importExportTasksDescription": "Importa ed esporta attività."
+			"importExportTasksDescription": "Importa ed esporta attività.",
+			"moveModalConfirm": "Sposta progetto",
+			"moveModalDescription": "Questa azione sposterà il progetto \"{{name}}\" e tutte le sue attività in \"{{workspace}}\". Le attività assegnate a persone che non sono membri di quel workspace resteranno senza assegnatario e le iscrizioni alle notifiche per questo progetto verranno eliminate.",
+			"moveModalTitle": "Spostare il progetto?",
+			"moveProject": "Sposta in un altro workspace",
+			"moveProjectAction": "Sposta",
+			"moveProjectDescription": "Sposta questo progetto, con tutte le sue attività, in un altro workspace.",
+			"moveProjectPlaceholder": "Seleziona workspace",
+			"toastMoved": "Progetto spostato con successo",
+			"toastMovedWithUnassigned": "Progetto spostato con successo. {{taskCount}} attività sono rimaste senza assegnatario.",
+			"toastMoveError": "Impossibile spostare il progetto",
+			"moveTargetsError": "Non è stato possibile verificare in quali spazi di lavoro puoi spostare questo progetto. Ricarica la pagina per riprovare."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Integrazioni Progetto",
@@ -1385,7 +1399,15 @@
 			"branch": "Ramo",
 			"merged": "Unito",
 			"draft": "Bozza",
-			"open": "Aperto"
+			"open": "Aperto",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL",
+			"remove": "Remove {{title}}",
+			"removeError": "Failed to remove the resource link."
 		},
 		"mattermostIntegration": {
 			"channelHint": "Optional label for your reference. Mattermost controls the actual destination channel from the webhook setup.",
@@ -1532,6 +1554,35 @@
 			"userCount_one": "{{count}} registered user",
 			"userCount_other": "{{count}} registered users",
 			"you": "(you)"
+		},
+		"security": "Security",
+		"securityPage": {
+			"confirmPassword": "Confirm new password",
+			"confirmPasswordPlaceholder": "Re-enter your new password",
+			"currentPassword": "Current password",
+			"currentPasswordPlaceholder": "Enter your current password",
+			"newPassword": "New password",
+			"newPasswordPlaceholder": "Enter a new password",
+			"noPassword": {
+				"description": "Your account signs in with a different method, so there is no password to change.",
+				"title": "Password change isn't available"
+			},
+			"pageTitle": "Security",
+			"sectionSubtitle": "Change the password you use to sign in.",
+			"sectionTitle": "Password",
+			"submit": "Update password",
+			"submitting": "Updating...",
+			"subtitle": "Manage your password and account security.",
+			"title": "Security",
+			"updateError": "Failed to update password.",
+			"updateSuccess": "Password updated.",
+			"validation": {
+				"confirmRequired": "Confirm your new password.",
+				"currentRequired": "Enter your current password.",
+				"mismatch": "Passwords do not match.",
+				"tooShort": "New password must be at least 8 characters.",
+				"sameAsCurrent": "New password must be different from your current password."
+			}
 		}
 	},
 	"navigation": {
@@ -1960,6 +2011,13 @@
 				},
 				"mermaid": {
 					"renderFailed": "Impossibile eseguire il rendering del diagramma Mermaid"
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
 			},
 			"customFieldUpdated": "Field updated",
@@ -2200,6 +2258,11 @@
 			"success": "Attività eliminata con successo",
 			"error": "Eliminazione attività fallita"
 		},
+		"duplicate": {
+			"titleSuffix": "{{title}} (copia)",
+			"success": "Attività duplicata con successo",
+			"error": "Duplicazione attività fallita"
+		},
 		"archive": {
 			"success": "{{count}} attività archiviate"
 		},
@@ -2245,6 +2308,7 @@
 			"copyLinkSuccess": "Link attività copiato!"
 		},
 		"actions": {
+			"duplicate": "Duplica",
 			"archive": "Archivia",
 			"markAsPlanned": "Segna come pianificata",
 			"delete": "Elimina..."
@@ -2535,6 +2599,9 @@
 		"lightTimelineScreenshotAlt": "Kaneo Gantt timeline in light theme, showing scheduled tasks and their durations"
 	},
 	"landing": {
+		"sponsors": {
+			"ciSponsor": "Partner"
+		},
 		"founder": {
 			"title": "Why Kaneo exists",
 			"intro": "I'm Andrej, and I created Kaneo because I was tired of project management tools that got in the way more than they helped. After years of using bloated, overcomplicated platforms that distracted from actual work, I knew there had to be a better way.",

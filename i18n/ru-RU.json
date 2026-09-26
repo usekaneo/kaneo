@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "Название рабочей области обязательно"
-			}
+			},
+			"restrictedSubtitle": "Здесь создавать рабочие пространства может только администратор экземпляра. Попросите приглашение и обновите страницу.",
+			"restrictedCheckInvitations": "Проверить приглашения",
+			"restrictedTitle": "Нужно приглашение"
 		},
 		"profileSetup": {
 			"pageTitle": "Заполнение профиля",
@@ -704,7 +707,18 @@
 				"iconRequired": "Иконка обязательна"
 			},
 			"importExportTasks": "Импорт/Экспорт",
-			"importExportTasksDescription": "Импортируйте и экспортируйте задачи."
+			"importExportTasksDescription": "Импортируйте и экспортируйте задачи.",
+			"moveModalConfirm": "Переместить проект",
+			"moveModalDescription": "Проект «{{name}}» и все его задачи будут перемещены в «{{workspace}}». С задач, назначенных пользователям, которые не состоят в этой рабочей области, назначение будет снято, а подписки на уведомления по этому проекту будут удалены.",
+			"moveModalTitle": "Переместить проект?",
+			"moveProject": "Переместить в другую рабочую область",
+			"moveProjectAction": "Переместить",
+			"moveProjectDescription": "Переместите этот проект вместе со всеми задачами в другую рабочую область.",
+			"moveProjectPlaceholder": "Выберите рабочую область",
+			"toastMoved": "Проект успешно перемещён",
+			"toastMovedWithUnassigned": "Проект успешно перемещён. С {{taskCount}} задач(и) снято назначение.",
+			"toastMoveError": "Не удалось переместить проект",
+			"moveTargetsError": "Не удалось проверить, в какие рабочие пространства можно переместить этот проект. Обновите страницу, чтобы повторить попытку."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Интеграции проекта",
@@ -1157,7 +1171,15 @@
 			"branch": "Ветка",
 			"merged": "Влит",
 			"draft": "Черновик",
-			"open": "Открыт"
+			"open": "Открыт",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL",
+			"remove": "Remove {{title}}",
+			"removeError": "Failed to remove the resource link."
 		},
 		"workspaceRoles": {
 			"pageTitle": "Роли",
@@ -1543,6 +1565,35 @@
 			"userCount_one": "{{count}} registered user",
 			"userCount_other": "{{count}} registered users",
 			"you": "(you)"
+		},
+		"security": "Security",
+		"securityPage": {
+			"confirmPassword": "Confirm new password",
+			"confirmPasswordPlaceholder": "Re-enter your new password",
+			"currentPassword": "Current password",
+			"currentPasswordPlaceholder": "Enter your current password",
+			"newPassword": "New password",
+			"newPasswordPlaceholder": "Enter a new password",
+			"noPassword": {
+				"description": "Your account signs in with a different method, so there is no password to change.",
+				"title": "Password change isn't available"
+			},
+			"pageTitle": "Security",
+			"sectionSubtitle": "Change the password you use to sign in.",
+			"sectionTitle": "Password",
+			"submit": "Update password",
+			"submitting": "Updating...",
+			"subtitle": "Manage your password and account security.",
+			"title": "Security",
+			"updateError": "Failed to update password.",
+			"updateSuccess": "Password updated.",
+			"validation": {
+				"confirmRequired": "Confirm your new password.",
+				"currentRequired": "Enter your current password.",
+				"mismatch": "Passwords do not match.",
+				"tooShort": "New password must be at least 8 characters.",
+				"sameAsCurrent": "New password must be different from your current password."
+			}
 		}
 	},
 	"navigation": {
@@ -1975,6 +2026,13 @@
 				},
 				"mermaid": {
 					"renderFailed": "Не удалось отобразить диаграмму Mermaid"
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
 			},
 			"customFieldUpdated": "Field updated",
@@ -2223,6 +2281,11 @@
 			"success": "Задача успешно удалена",
 			"error": "Не удалось удалить задачу"
 		},
+		"duplicate": {
+			"titleSuffix": "{{title}} (копия)",
+			"success": "Задача успешно дублирована",
+			"error": "Не удалось дублировать задачу"
+		},
 		"archive": {
 			"success_one": "{{count}} задача архивирована",
 			"success_few": "{{count}} задачи архивированы",
@@ -2273,6 +2336,7 @@
 			"copyLinkSuccess": "Ссылка на задачу скопирована!"
 		},
 		"actions": {
+			"duplicate": "Дублировать",
 			"archive": "Архивировать",
 			"markAsPlanned": "Отметить как запланированную",
 			"delete": "Удалить..."
@@ -2600,6 +2664,9 @@
 		"lightTimelineScreenshotAlt": "Kaneo Gantt timeline in light theme, showing scheduled tasks and their durations"
 	},
 	"landing": {
+		"sponsors": {
+			"ciSponsor": "Партнёры"
+		},
 		"founder": {
 			"title": "Why Kaneo exists",
 			"intro": "I'm Andrej, and I created Kaneo because I was tired of project management tools that got in the way more than they helped. After years of using bloated, overcomplicated platforms that distracted from actual work, I knew there had to be a better way.",
