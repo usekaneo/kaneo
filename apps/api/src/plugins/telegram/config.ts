@@ -35,7 +35,7 @@ const telegramChatIdSchema = v.pipe(
 );
 
 // A query or fragment would swallow the /bot<token>/<method> path appended later
-function isPlainServerUrl(value: string): boolean {
+export function isPlainServerUrl(value: string): boolean {
   try {
     const url = new URL(value);
     return (

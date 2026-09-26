@@ -15516,7 +15516,7 @@
                   "serverUrl": {
                     "type": "string",
                     "format": "uri",
-                    "description": "A self-hosted Bot API server. Defaults to https://api.telegram.org."
+                    "description": "An http(s) URL of a self-hosted Bot API server, without a query, fragment, or credentials. Defaults to https://api.telegram.org."
                   },
                   "chatId": {
                     "type": "string",
@@ -15629,7 +15629,7 @@
                       "null"
                     ],
                     "format": "uri",
-                    "description": "A self-hosted Bot API server, or null to use https://api.telegram.org. Changing it requires the bot token."
+                    "description": "An http(s) URL of a self-hosted Bot API server, without a query, fragment, or credentials, or null to use https://api.telegram.org. Changing it requires the bot token."
                   },
                   "chatId": {
                     "type": "string"

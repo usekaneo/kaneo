@@ -1,13 +1,21 @@
 import { integrationEventToggles } from "../integrations/schema";
 import { z } from "../openapi";
+import { isPlainServerUrl } from "../plugins/telegram/config";
+
+const telegramServerUrl = z
+  .url({ protocol: /^https?$/ })
+  .refine(
+    isPlainServerUrl,
+    "Bot API server URL must not contain a query, fragment, or credentials",
+  );
 
 export const createTelegramBody = z.object({
   botToken: z.string().min(1).openapi({
     description: "A Telegram bot token, in the form 123456789:AA...",
   }),
-  serverUrl: z.url().optional().openapi({
+  serverUrl: telegramServerUrl.optional().openapi({
     description:
-      "A self-hosted Bot API server. Defaults to https://api.telegram.org.",
+      "An http(s) URL of a self-hosted Bot API server, without a query, fragment, or credentials. Defaults to https://api.telegram.org.",
   }),
   chatId: z.string().min(1),
   threadId: z.number().optional(),
@@ -18,9 +26,9 @@ export const createTelegramBody = z.object({
 // Must match TelegramIntegrationPatchBody in controllers/telegram-controller.
 export const updateTelegramBody = z.object({
   botToken: z.string().optional(),
-  serverUrl: z.url().nullable().optional().openapi({
+  serverUrl: telegramServerUrl.nullable().optional().openapi({
     description:
-      "A self-hosted Bot API server, or null to use https://api.telegram.org. Changing it requires the bot token.",
+      "An http(s) URL of a self-hosted Bot API server, without a query, fragment, or credentials, or null to use https://api.telegram.org. Changing it requires the bot token.",
   }),
   chatId: z.string().optional(),
   threadId: z.number().nullable().optional(),

@@ -4,6 +4,10 @@ import {
   normalizeTelegramConfig,
   validateTelegramConfig,
 } from "../../../apps/api/src/plugins/telegram/config";
+import {
+  createTelegramBody,
+  updateTelegramBody,
+} from "../../../apps/api/src/telegram-integration/schema";
 
 const token = `12345678:${"x".repeat(35)}`;
 
@@ -51,6 +55,24 @@ describe("Telegram server URL config", () => {
       validateTelegramConfig({ botToken: token, chatId: "chat", serverUrl })
         .valid,
     ).toBe(false);
+    expect(
+      createTelegramBody.safeParse({ botToken: token, chatId: "c", serverUrl })
+        .success,
+    ).toBe(false);
+    expect(updateTelegramBody.safeParse({ serverUrl }).success).toBe(false);
+  });
+
+  it("lets the api schema accept a server with a path and clear it with null", () => {
+    expect(
+      createTelegramBody.safeParse({
+        botToken: token,
+        chatId: "c",
+        serverUrl: "https://tg.example.com/proxy",
+      }).success,
+    ).toBe(true);
+    expect(updateTelegramBody.safeParse({ serverUrl: null }).success).toBe(
+      true,
+    );
   });
 });
 
