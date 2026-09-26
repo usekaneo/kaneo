@@ -60,6 +60,7 @@ import { getDefaultCookieAttributes } from "./utils/get-default-cookie-attribute
 import { getInvitationEmailSubject } from "./utils/get-invitation-email-subject";
 import { getWorkspaceInvitationEmailCopy } from "./utils/get-workspace-invitation-email-copy";
 import { getGithubSsoOAuthCredentials } from "./utils/github-sso-env";
+import { hasInstanceAdminRole } from "./utils/instance-admin-role";
 import {
   hasRegisteredUsers,
   promoteInitialAdministrator,
@@ -407,7 +408,7 @@ export const auth = betterAuth({
         },
       },
       // When `DISABLE_WORKSPACE_CREATION` is set, only instance admins
-      // (`user.role === "admin"`) may create workspaces — mirrors the
+      // (role list includes "admin") may create workspaces — mirrors the
       // implicit-exemption shape of `DISABLE_REGISTRATION` above. This
       // check runs before any workspace membership exists, so only the
       // instance-wide role is meaningful here; per-workspace roles
@@ -422,7 +423,7 @@ export const auth = betterAuth({
               .select({ role: schema.userTable.role })
               .from(schema.userTable)
               .where(eq(schema.userTable.id, user.id));
-            return freshUser?.role === "admin";
+            return hasInstanceAdminRole(freshUser?.role);
           }
         : true,
       // Better Auth defaults this to `true`, which blocks any user whose email

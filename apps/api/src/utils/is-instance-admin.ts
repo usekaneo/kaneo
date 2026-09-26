@@ -2,16 +2,9 @@ import { eq } from "drizzle-orm";
 import type { Context } from "hono";
 import db from "../database";
 import { userTable } from "../database/schema";
+import { hasInstanceAdminRole } from "./instance-admin-role";
 
-export function hasInstanceAdminRole(role: unknown) {
-  return (
-    typeof role === "string" &&
-    role
-      .split(",")
-      .map((entry) => entry.trim())
-      .includes("admin")
-  );
-}
+export { hasInstanceAdminRole };
 
 export async function isInstanceAdmin(c: Context): Promise<boolean> {
   const user = c.get("user") as { role?: string | null } | null | undefined;

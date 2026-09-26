@@ -76,6 +76,7 @@ import useAdminUsers, {
 } from "@/hooks/queries/admin/use-admin-users";
 import { formatDateMedium } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
+import { hasInstanceAdminRole } from "@/lib/instance-admin";
 
 type PendingAction = {
   type: "deactivate" | "reactivate" | "delete";
@@ -154,7 +155,7 @@ function UserManagementPanel() {
     setEditValues({
       name: editingUser.name,
       email: editingUser.email,
-      role: editingUser.role === "admin" ? "admin" : "user",
+      role: hasInstanceAdminRole(editingUser.role) ? "admin" : "user",
     });
   }, [editingUser]);
 
@@ -351,7 +352,7 @@ function UserManagementPanel() {
               {!isLoading && !isError
                 ? data?.users.map((managedUser) => {
                     const isSelf = managedUser.id === currentUser?.id;
-                    const isAdmin = managedUser.role === "admin";
+                    const isAdmin = hasInstanceAdminRole(managedUser.role);
                     const isDeactivated = managedUser.banned === true;
 
                     return (

@@ -1,5 +1,5 @@
 import { APIError, getSessionFromCtx } from "better-auth/api";
-import { hasInstanceAdminRole } from "../../utils/is-instance-admin";
+import { hasInstanceAdminRole } from "../../utils/instance-admin-role";
 import deleteAccountData from "./delete-account-data";
 
 type RemovalContext = Parameters<typeof getSessionFromCtx>[0];

@@ -6,11 +6,8 @@ import {
 } from "better-auth/adapters/drizzle";
 import { APIError } from "better-auth/api";
 import { count, sql } from "drizzle-orm";
+import { hasInstanceAdminRole } from "../utils/instance-admin-role";
 import db, { schema } from ".";
-
-function isAdmin(role: unknown) {
-  return typeof role === "string" && role.split(",").includes("admin");
-}
 
 export function authDatabaseAdapter(config: DrizzleAdapterConfig) {
   return (options: BetterAuthOptions): DBAdapter => {
@@ -21,7 +18,7 @@ export function authDatabaseAdapter(config: DrizzleAdapterConfig) {
         if (
           data.model !== "user" ||
           !Object.hasOwn(data.update, "role") ||
-          isAdmin(data.update.role)
+          hasInstanceAdminRole(data.update.role)
         ) {
           return adapter.update<T>(data);
         }
@@ -36,7 +33,7 @@ export function authDatabaseAdapter(config: DrizzleAdapterConfig) {
             where: data.where,
           });
 
-          if (isAdmin(user?.role)) {
+          if (hasInstanceAdminRole(user?.role)) {
             const [admins] = await tx
               .select({ value: count() })
               .from(schema.userTable)
