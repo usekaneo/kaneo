@@ -27,11 +27,19 @@ Reports, failure screenshots, and traces are stored in `.cache/e2e/`.
 
 Set `BROWSERSTACK_USERNAME` and `BROWSERSTACK_ACCESS_KEY` in your shell's environment
 using the credentials from your BrowserStack account. Keep them out of source
-control and command-line arguments. Start the same Compose stack, then run:
+control and command-line arguments. Start the Compose stack with BrowserStack's
+local hostname so the app, API, and session cookies share the same origin:
 
 ```sh
+export KANEO_E2E_HOST=bs-local.com
+docker compose -f tests/e2e/compose.yml up --build --wait --wait-timeout 180
 pnpm test:browserstack
+docker compose -f tests/e2e/compose.yml down --volumes
+unset KANEO_E2E_HOST
 ```
+
+BrowserStack rewrites `localhost` to `bs-local.com` for WebKit. Configuring that
+hostname explicitly avoids mixing the page's origin with a localhost API URL.
 
 The SDK starts and stops BrowserStack Local to connect remote browsers to the
 disposable instance. `tests/e2e/browserstack.yml` runs Chrome on Windows 11 and Playwright

@@ -25,7 +25,7 @@ services:
     environment:
       DATABASE_URL: postgresql://kaneo_e2e:kaneo_e2e@postgres:5432/kaneo_e2e
       AUTH_SECRET: browser-tests-only-not-a-production-secret
-      KANEO_CLIENT_URL: http://localhost:18173
+      KANEO_CLIENT_URL: http://${KANEO_E2E_HOST:-localhost}:18173
       DISABLE_WORKSPACE_CREATION: "false"
       DISABLE_REGISTRATION: "false"
       DISABLE_GUEST_ACCESS: "true"

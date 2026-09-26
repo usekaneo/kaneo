@@ -1,5 +1,10 @@
 import { defineConfig } from "@playwright/test";
 
+const host = process.env.KANEO_E2E_HOST ?? "localhost";
+if (host !== "localhost" && host !== "bs-local.com") {
+  throw new Error("KANEO_E2E_HOST must be localhost or bs-local.com");
+}
+
 export default defineConfig({
   testDir: ".",
   testMatch: "*.spec.ts",
@@ -17,7 +22,7 @@ export default defineConfig({
   use: {
     actionTimeout: 15_000,
     // This port belongs to the disposable Compose stack, never a live instance.
-    baseURL: "http://localhost:18173",
+    baseURL: `http://${host}:18173`,
     locale: "en-US",
     timezoneId: "UTC",
     viewport: { width: 1440, height: 1000 },

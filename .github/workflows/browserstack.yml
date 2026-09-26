@@ -17,6 +17,8 @@ jobs:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feat/browserstack-integration'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    env:
+      KANEO_E2E_HOST: bs-local.com
     steps:
       - name: Check BrowserStack credentials
         env:
