@@ -8580,7 +8580,7 @@
           "Tasks"
         ],
         "summary": "Duplicate a task",
-        "description": "Copy a task into the same project and column, including custom fields, labels, description assets and same-workspace parent links. Comments, time entries and child tasks are not copied.",
+        "description": "Copy a task into the same project and column, including custom fields, labels, description assets and same-workspace parent links. Copying parent links also requires task:update. Comments, time entries and child tasks are not copied.",
         "parameters": [
           {
             "schema": {
@@ -8638,7 +8638,7 @@
             }
           },
           "403": {
-            "description": "No workspace access or task:create permission",
+            "description": "No workspace access, missing task:create, or missing task:update when copying parent links",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10663,7 +10663,8 @@
                 "properties": {
                   "content": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "maxLength": 10000
                   },
                   "externalUserName": {
                     "type": "string",
@@ -10751,7 +10752,8 @@
                 "properties": {
                   "content": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "maxLength": 10000
                   }
                 },
                 "required": [
@@ -12995,7 +12997,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown project",
+            "description": "Invalid body, unknown project, or invalid Gitea credentials",
             "content": {
               "text/plain": {
                 "schema": {
@@ -13079,7 +13081,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown project",
+            "description": "Invalid body, unknown project, or invalid Gitea credentials",
             "content": {
               "text/plain": {
                 "schema": {
@@ -13089,7 +13091,7 @@
             }
           },
           "401": {
-            "description": "Gitea rejected the token",
+            "description": "Kaneo authentication required",
             "content": {
               "text/plain": {
                 "schema": {
@@ -13747,7 +13749,7 @@
                   },
                   "accessToken": {
                     "type": "string",
-                    "description": "Omit to keep the token already stored for this project."
+                    "description": "Omit to keep the stored token only when the GitLab base URL is unchanged. A changed URL requires a new token."
                   },
                   "tokenType": {
                     "type": "string",

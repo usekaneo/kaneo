@@ -119,10 +119,12 @@ async function duplicateDescriptionAssets({
 async function duplicateTask({
   taskId,
   currentUserId,
+  canUpdateTasks,
   title,
 }: {
   taskId: string;
   currentUserId: string;
+  canUpdateTasks: boolean;
   title?: string;
 }) {
   const sourceTask = await db.query.taskTable.findFirst({
@@ -230,6 +232,12 @@ async function duplicateTask({
         eq(taskRelationTable.relationType, "subtask"),
       ),
     );
+
+  if (parentRelations.length > 0 && !canUpdateTasks) {
+    throw new HTTPException(403, {
+      message: "Duplicating parent links requires task:update permission",
+    });
+  }
 
   // The destination object keys embed the new task id, so it is generated up front
   // instead of being left to the insert.

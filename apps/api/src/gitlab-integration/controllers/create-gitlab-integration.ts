@@ -82,7 +82,22 @@ async function createGitlabIntegration({
     }
   }
 
-  const resolvedToken = accessToken?.trim() || previousConfig.accessToken || "";
+  const suppliedToken = accessToken?.trim();
+  // A saved credential is only authorized for its original server and path.
+  if (!suppliedToken && previousConfig.accessToken) {
+    let savedBase: string | undefined;
+    try {
+      savedBase = normalizeGitlabBaseUrl(previousConfig.baseUrl ?? "");
+    } catch {
+      // Invalid legacy destinations cannot authorize credential reuse.
+    }
+    if (savedBase !== normalizedBase) {
+      throw new HTTPException(400, {
+        message: "Enter a new access token when changing the GitLab URL",
+      });
+    }
+  }
+  const resolvedToken = suppliedToken || previousConfig.accessToken || "";
 
   if (!resolvedToken) {
     throw new HTTPException(400, {

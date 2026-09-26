@@ -92,11 +92,22 @@ async function getGitlabIssueContext(taskId: string) {
   };
 }
 
+function containsTaskFieldLabel(labelName: string) {
+  // GitLab interprets add_labels/remove_labels as comma-separated names.
+  return labelName.split(",").some((name) => {
+    const label = name.trim();
+    return label.startsWith("priority:") || label.startsWith("status:");
+  });
+}
+
 export async function syncLabelToGitlab(
   taskId: string,
   labelName: string,
   labelColor: string,
 ) {
+  // These labels drive task fields on the webhook return path. Ordinary label
+  // permissions must not grant the ability to update status or priority.
+  if (containsTaskFieldLabel(labelName)) return;
   const ctx = await getGitlabIssueContext(taskId);
   if (!ctx) return;
 
@@ -131,6 +142,7 @@ export async function syncLabelToGitlab(
 }
 
 export async function removeLabelFromGitlab(taskId: string, labelName: string) {
+  if (containsTaskFieldLabel(labelName)) return;
   const ctx = await getGitlabIssueContext(taskId);
   if (!ctx) return;
 

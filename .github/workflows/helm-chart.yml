@@ -42,7 +42,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: useblacksmith/checkout@v1 # v7.0.1
+        uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -55,7 +55,7 @@ jobs:
         run: node scripts/security/verify-release-source.mjs released "$RELEASE_VERSION"
 
       - name: Checkout verified release tag
-        uses: useblacksmith/checkout@v1 # v7.0.1
+        uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
         with:
           persist-credentials: false
           ref: ${{ steps.source.outputs.source_sha }}

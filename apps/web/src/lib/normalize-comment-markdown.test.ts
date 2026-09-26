@@ -53,3 +53,22 @@ describe("normalizeCommentMarkdown", () => {
     );
   });
 });
+
+it("preserves unequal and nested backtick runs without rescanning suffixes", () => {
+  const value = "Before&nbsp; ``a`&nbsp;b`` after&nbsp; `unmatched&nbsp;";
+  expect(normalizeCommentMarkdown(value)).toBe(
+    "Before  ``a`&nbsp;b`` after  `unmatched ",
+  );
+});
+
+it("handles a stored comment with thousands of unmatched delimiter lengths promptly", () => {
+  const delimiters = Array.from(
+    { length: 3000 },
+    (_, i) => `${"`".repeat(3000 - i)}&nbsp;`,
+  ).join(" ");
+  const value = `prefix ${delimiters}`;
+  const start = performance.now();
+  const result = normalizeCommentMarkdown(value);
+  expect(performance.now() - start).toBeLessThan(1000);
+  expect(result).toBe(value.replaceAll("&nbsp;", " "));
+});

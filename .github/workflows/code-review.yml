@@ -26,7 +26,7 @@ jobs:
       allowed: ${{ steps.request.outputs.allowed }}
       pr: ${{ steps.request.outputs.pr }}
     steps:
-      - uses: useblacksmith/checkout@v1
+      - uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
         with:
           ref: ${{ github.workflow_sha }}
           persist-credentials: false
@@ -49,7 +49,7 @@ jobs:
       group: peekareview-${{ needs.authorize.outputs.pr }}
       cancel-in-progress: false
     steps:
-      - uses: useblacksmith/checkout@v1
+      - uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
         with:
           ref: ${{ github.workflow_sha }}
           fetch-depth: 0

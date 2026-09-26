@@ -17,7 +17,7 @@ jobs:
     timeout-minutes: 5
     steps:
       # Validate using the target branch's policy, not code supplied by the PR.
-      - uses: useblacksmith/checkout@v1 # v7.0.1
+      - uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           persist-credentials: false

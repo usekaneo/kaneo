@@ -5,7 +5,7 @@ export const taskIdParam = z.object({ taskId: z.string() });
 export const commentParam = z.object({ id: z.string() });
 
 export const createCommentBody = z.object({
-  content: z.string().min(1),
+  content: z.string().min(1).max(10_000),
   // Both or neither: a name without a source would render as an unattributed
   // impersonation of a real account.
   externalUserName: z.string().max(120).optional().openapi({
@@ -18,4 +18,6 @@ export const createCommentBody = z.object({
   }),
 });
 
-export const updateCommentBody = z.object({ content: z.string().min(1) });
+export const updateCommentBody = z.object({
+  content: z.string().min(1).max(10_000),
+});

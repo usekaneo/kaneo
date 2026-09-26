@@ -77,3 +77,27 @@ describe("GitLab label sync", () => {
     expect(mocks.client.updateIssue).not.toHaveBeenCalled();
   });
 });
+
+it.each([
+  "priority:urgent",
+  "status:done",
+  "bug,priority:urgent",
+  "bug, status:done",
+])(
+  "does not add or remove task-field label %s with ordinary label permissions",
+  async (name) => {
+    mocks.externalLinkFindMany.mockResolvedValue([issueLink(true)]);
+    await syncLabelToGitlab("task-1", name, "red");
+    await removeLabelFromGitlab("task-1", name);
+    expect(mocks.createGitlabClient).not.toHaveBeenCalled();
+    expect(mocks.client.updateIssue).not.toHaveBeenCalled();
+  },
+);
+
+it("still removes ordinary labels", async () => {
+  mocks.externalLinkFindMany.mockResolvedValue([issueLink(true)]);
+  await removeLabelFromGitlab("task-1", "bug");
+  expect(mocks.client.updateIssue).toHaveBeenCalledWith("acme/web", 3, {
+    remove_labels: "bug",
+  });
+});

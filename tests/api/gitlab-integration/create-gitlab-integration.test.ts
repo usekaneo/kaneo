@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   existingIntegration: vi.fn(),
   updateSet: vi.fn(),
+  verifyToken: vi.fn(),
 }));
 
 vi.mock("../../../apps/api/src/database", () => ({
@@ -39,7 +40,7 @@ vi.mock("../../../apps/api/src/database", () => ({
 
 vi.mock("../../../apps/api/src/plugins/gitlab/utils/gitlab-api", () => ({
   GitlabApiError: class GitlabApiError extends Error {},
-  verifyGitlabToken: async () => ({ id: 1 }),
+  verifyGitlabToken: (...args: unknown[]) => mocks.verifyToken(...args),
   createGitlabClient: () => ({ getProject: async () => ({ id: 1 }) }),
 }));
 
@@ -54,6 +55,7 @@ function savedConfig() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.verifyToken.mockResolvedValue({ id: 1 });
 });
 
 describe("createGitlabIntegration on an existing integration", () => {
@@ -133,5 +135,63 @@ describe("createGitlabIntegration input", () => {
       }),
     ).rejects.toMatchObject({ status: 400 });
     expect(mocks.updateSet).not.toHaveBeenCalled();
+  });
+});
+
+describe("saved GitLab credential destination", () => {
+  const input = {
+    projectId: "project-1",
+    baseUrl: "https://gitlab.example/forge",
+    accessToken: undefined,
+    tokenType: "private" as const,
+    projectPath: "acme/web",
+  };
+
+  beforeEach(() => {
+    mocks.existingIntegration.mockResolvedValue({
+      id: "integration-1",
+      config: JSON.stringify({
+        baseUrl: input.baseUrl,
+        accessToken: "saved-secret",
+        projectPath: input.projectPath,
+      }),
+    });
+  });
+
+  it.each([
+    "https://attacker.example/forge",
+    "https://gitlab.example/other",
+    "https://gitlab.example:8443/forge",
+  ])(
+    "rejects changed destination %s before sending the saved credential",
+    async (baseUrl) => {
+      await expect(
+        createGitlabIntegration({ ...input, baseUrl }),
+      ).rejects.toMatchObject({ status: 400 });
+      expect(mocks.verifyToken).not.toHaveBeenCalled();
+      expect(mocks.updateSet).not.toHaveBeenCalled();
+    },
+  );
+
+  it("allows normalized equivalents of the saved destination", async () => {
+    await createGitlabIntegration({ ...input, baseUrl: `${input.baseUrl}/` });
+    expect(mocks.verifyToken).toHaveBeenCalledWith(
+      input.baseUrl,
+      "saved-secret",
+      "private",
+    );
+  });
+
+  it("uses only the freshly supplied token for a changed destination", async () => {
+    await createGitlabIntegration({
+      ...input,
+      baseUrl: "https://other.example",
+      accessToken: "new-token",
+    });
+    expect(mocks.verifyToken).toHaveBeenCalledWith(
+      "https://other.example",
+      "new-token",
+      "private",
+    );
   });
 });

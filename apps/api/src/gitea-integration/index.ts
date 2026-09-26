@@ -63,7 +63,9 @@ const listRepositoriesRoute = createRoute({
   },
   responses: {
     200: jsonResponse("Accessible repositories", giteaRepositoryListSchema),
-    400: errorResponse("Invalid body, or unknown project"),
+    400: errorResponse(
+      "Invalid body, unknown project, or invalid Gitea credentials",
+    ),
     403: errorResponse(
       "No workspace access, or missing workspace:manage_settings",
     ),
@@ -87,9 +89,11 @@ const verifyRoute = createRoute({
   },
   responses: {
     200: jsonResponse("Verification result", giteaVerificationResultSchema),
-    401: errorResponse("Gitea rejected the token"),
+    401: errorResponse("Kaneo authentication required"),
     500: errorResponse("Gitea verification failed"),
-    400: errorResponse("Invalid body, or unknown project"),
+    400: errorResponse(
+      "Invalid body, unknown project, or invalid Gitea credentials",
+    ),
     403: errorResponse(
       "No workspace access, or missing workspace:manage_settings",
     ),
