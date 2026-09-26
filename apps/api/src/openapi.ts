@@ -38,6 +38,13 @@ export function apiRouter<V extends BaseVariables = BaseVariables>() {
   });
 }
 
+export const pagingNumber = (min: number, max: number) =>
+  z
+    .string()
+    .regex(/^\d+$/, "Expected a positive integer")
+    .transform(Number)
+    .pipe(z.number().int().min(min).max(max));
+
 export const responseTimestamp = z
   .date()
   .openapi({ type: "string", format: "date-time" });

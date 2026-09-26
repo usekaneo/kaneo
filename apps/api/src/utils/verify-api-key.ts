@@ -1,5 +1,15 @@
 import { createHash } from "node:crypto";
-import { and, eq, exists, gt, isNull, or, sql } from "drizzle-orm";
+import {
+  and,
+  eq,
+  exists,
+  gt,
+  isNotNull,
+  isNull,
+  lt,
+  or,
+  sql,
+} from "drizzle-orm";
 import db, { schema } from "../database";
 
 async function hashApiKey(key: string): Promise<string> {
@@ -52,9 +62,19 @@ export async function verifyApiKey(key: string) {
             .select({ id: schema.userTable.id })
             .from(schema.userTable)
             .where(
-              eq(
-                schema.userTable.id,
-                sql`coalesce(${schema.apikeyTable.referenceId}, ${schema.apikeyTable.userId})`,
+              and(
+                eq(
+                  schema.userTable.id,
+                  sql`coalesce(${schema.apikeyTable.referenceId}, ${schema.apikeyTable.userId})`,
+                ),
+                or(
+                  isNull(schema.userTable.banned),
+                  eq(schema.userTable.banned, false),
+                  and(
+                    isNotNull(schema.userTable.banExpires),
+                    lt(schema.userTable.banExpires, new Date()),
+                  ),
+                ),
               ),
             ),
         ),

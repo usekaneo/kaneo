@@ -7,9 +7,10 @@ export {
 } from "@/fetchers/admin/types";
 
 export const ADMIN_USERS_QUERY_KEY = ["admin", "users"] as const;
+
 function useAdminUsers(search: string, page: number) {
   return useQuery({
-    queryKey: [...ADMIN_USERS_QUERY_KEY, search, page],
+    queryKey: [...ADMIN_USERS_QUERY_KEY, search.trim(), page],
     queryFn: () => getAdminUsers(search, page),
     placeholderData: (previousData) => previousData,
   });

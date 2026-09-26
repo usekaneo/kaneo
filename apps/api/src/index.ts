@@ -15,6 +15,7 @@ import { compress } from "hono/compress";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import activity from "./activity";
+import admin from "./admin";
 import { auth } from "./auth";
 import { organizationRoutes } from "./auth-openapi";
 import billing from "./billing";
@@ -768,6 +769,7 @@ export function createApp() {
   const workspaceApi = api.route("/workspace", workspace);
   const customFieldApi = api.route("/custom-field", customField);
   const userApi = api.route("/user", user);
+  const adminApi = api.route("/admin", admin);
 
   app.route(
     "/",
@@ -907,6 +909,7 @@ export function createApp() {
     telegramIntegrationApi,
     timeEntryApi,
     userApi,
+    adminApi,
     workflowRuleApi,
     workspaceApi,
     customFieldApi,
@@ -1036,6 +1039,7 @@ const {
   telegramIntegrationApi,
   timeEntryApi,
   userApi,
+  adminApi,
   workflowRuleApi,
   workspaceApi,
   customFieldApi,
@@ -1081,6 +1085,7 @@ export type AppType =
   | typeof workspaceApi
   | typeof customFieldApi
   | typeof userApi
+  | typeof adminApi
   | typeof publicProjectApi
   | typeof invitationPublicApi
   | typeof oauthApi;

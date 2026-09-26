@@ -44,7 +44,9 @@ import { syncWorkspaceSeats } from "./billing/controllers/sync-seats";
 import db, { schema } from "./database";
 import { authDatabaseAdapter } from "./database/auth-adapter";
 import { publishEvent } from "./events";
+import clearEmailVerificationOnAdminChange from "./user/controllers/clear-email-verification-on-admin-change";
 import deleteAccountData from "./user/controllers/delete-account-data";
+import prepareAdminUserRemoval from "./user/controllers/prepare-admin-user-removal";
 import { resolveAuthSecret } from "./utils/auth-secret";
 import {
   canSendSignInEmail,
@@ -613,6 +615,7 @@ export const auth = betterAuth({
               message: "You cannot change your own role.",
             });
           }
+          return clearEmailVerificationOnAdminChange(user, ctx);
         },
       },
       create: {
@@ -646,6 +649,10 @@ export const auth = betterAuth({
   },
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === "/admin/remove-user") {
+        await prepareAdminUserRemoval(ctx);
+      }
+
       if (ctx.path === "/organization/invite-member") {
         // Better Auth swallows email failures in runInBackgroundOrAwait.
         // Invitation callers need the delivery result, including on resend.

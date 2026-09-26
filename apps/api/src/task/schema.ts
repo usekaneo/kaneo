@@ -1,13 +1,6 @@
-import { z } from "../openapi";
+import { pagingNumber, z } from "../openapi";
 import { MAX_TASK_POSITION } from "./controllers/next-task-position";
 import { VALID_PRIORITIES } from "./validate-task-fields";
-
-const pagingNumber = (min: number, max: number) =>
-  z
-    .string()
-    .regex(/^\d+$/, "Expected a positive integer")
-    .transform(Number)
-    .pipe(z.number().int().min(min).max(max));
 
 export const taskParam = z.object({ id: z.string() });
 
