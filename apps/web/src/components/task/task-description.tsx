@@ -6,7 +6,6 @@ import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import TaskList from "@tiptap/extension-task-list";
 import { Markdown } from "@tiptap/markdown";
-import { Fragment, Slice } from "@tiptap/pm/model";
 import { EditorState, TextSelection } from "@tiptap/pm/state";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
@@ -63,7 +62,6 @@ import { useUpdateTaskDescription } from "@/hooks/mutations/task/use-update-task
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
-import { parseTaskListMarkdownToNodes } from "@/lib/editor-task-list-paste";
 import {
   extractIssueKeyFromUrl,
   extractTaskIdFromUrl,
@@ -71,6 +69,7 @@ import {
   normalizeUrl,
 } from "@/lib/editor-url-utils";
 import { isInCodeBlockLanguagePicker } from "@/lib/is-in-codeblock-language-picker";
+import { pasteMarkdown } from "@/lib/paste-markdown";
 import { toast } from "@/lib/toast";
 import { uploadTaskImage } from "@/lib/upload-task-image";
 import { AttachmentCard } from "./extensions/attachment-card";
@@ -708,20 +707,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           }
 
           const plainText = event.clipboardData?.getData("text/plain") || "";
-          const taskListNodes = parseTaskListMarkdownToNodes(plainText);
-          if (taskListNodes) {
-            event.preventDefault();
-            const nodes = taskListNodes.map((node) =>
-              view.state.schema.nodeFromJSON(node),
-            );
-            const fragment = Fragment.fromArray(nodes);
-            view.dispatch(
-              view.state.tr
-                .replaceSelection(new Slice(fragment, 0, 0))
-                .scrollIntoView(),
-            );
-            return true;
-          }
+          if (editor && pasteMarkdown(editor, event)) return true;
 
           const pastedText = plainText.trim();
           if (!pastedText || /\s/.test(pastedText)) return false;
