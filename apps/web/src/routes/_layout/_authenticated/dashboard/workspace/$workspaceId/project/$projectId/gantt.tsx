@@ -1552,7 +1552,12 @@ function RouteComponent() {
                             ref={isCurrentDay ? todayCellRef : undefined}
                             className={cn(
                               "border-r border-border/70 px-0.5 py-2 text-center sm:px-1",
-                              !workingDayPredicate(day) && "bg-muted",
+                              // Theme-adaptive so it reads on both dark and
+                              // light: a foreground tint darkens a light
+                              // background and lightens a dark one, unlike the
+                              // ~4%-alpha `bg-muted` token which is invisible on
+                              // dark. Kept in sync with the track layer below.
+                              !workingDayPredicate(day) && "bg-foreground/[0.06]",
                             )}
                           >
                             <div className="h-4 text-[10px] font-medium text-muted-foreground">
@@ -1644,7 +1649,10 @@ function RouteComponent() {
                         // as a sliver a fraction of a pixel wide.
                         ganttUnit === "day" &&
                           !workingDayPredicate(day) &&
-                          "bg-muted",
+                          // Theme-adaptive tint (see the header row above): a
+                          // foreground tint stays visible on both dark and
+                          // light, where the ~4%-alpha `bg-muted` token did not.
+                          "bg-foreground/[0.06]",
                       )}
                     />
                   ))}
