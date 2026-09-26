@@ -1,9 +1,9 @@
 ---
 title: Outgoing webhooks
-description: Send task activity from a Kaneo project to Slack, Discord, Telegram, or any HTTP endpoint. Configure per-project notifications and optional signing.
+description: Send task activity from a Kaneo project to Slack, Discord, Mattermost, Telegram, or any HTTP endpoint. Configure per-project notifications and optional signing.
 ---
 
-Kaneo can notify external systems when tasks change in a project. Each integration is per project and uses either an incoming webhook URL from the service you connect (Slack, Discord), a bot token plus chat ID (Telegram), or your own HTTP listener (generic webhook).
+Kaneo can notify external systems when tasks change in a project. Each integration is per project and uses either an incoming webhook URL from the service you connect (Slack, Discord, Mattermost), a bot token plus chat ID (Telegram), or your own HTTP listener (generic webhook).
 
 <Info>
 These integrations are outgoing only: Kaneo posts to your URL when events occur. They are separate from [GitHub integration](/core/integrations/github/setup), which syncs issues and repositories.
@@ -21,7 +21,7 @@ Notification messages and generic webhook payloads include links to the task in 
 
 ## Events you can subscribe to
 
-For Slack, Discord, Telegram, and generic webhooks you can toggle the same event types:
+For Slack, Discord, Mattermost, Telegram, and generic webhooks you can toggle the same event types:
 
 | Event | Default on | Description |
 | --- | --- | --- |
@@ -52,6 +52,10 @@ Create an incoming webhook for a Discord channel (Channel settings → Integrati
 
 (or the `discordapp.com` hostname). Paste it into the Discord section, optionally add a channel name label, select events, and save.
 
+## Mattermost
+
+Use an HTTPS incoming webhook URL from your Mattermost instance. Follow the [Mattermost setup guide](/core/integrations/mattermost) for connection and event settings.
+
 ## Telegram
 
 Create a Telegram bot with [`@BotFather`](https://t.me/BotFather), then add that bot to the destination chat, group, channel, or topic. Telegram requires:
@@ -72,6 +76,21 @@ Paste those values into the Telegram section, optionally add a chat label, choos
 
 Use a generic webhook when you want a JSON POST to your own service, automation, or middleware.
 
+Generic webhooks also support these events. They are off by default:
+
+| Event | Payload `event` |
+| --- | --- |
+| Task deleted | `task.deleted` |
+| Task moved to another project | `task.moved` |
+| Due date changed | `task.due_date_changed` |
+| Assignee changed | `task.assignee_changed` |
+| Task unassigned | `task.unassigned` |
+| Due-date reminder | `task.due_date_reminder` |
+
+When enabling due-date reminders, set how far ahead to send them. The default is 24 hours. These extra subscriptions are specific to the generic webhook integration; the chat integrations use the six-event table above.
+
+The destination must use HTTP or HTTPS and be reachable from the API. Private network destinations are blocked unless the operator enables `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS`.
+
 ### Delivery health
 
 After delivery attempts, Kaneo stores basic health metadata (for example last success, last failure message, failure count) so you can see whether recent posts succeeded. This does not replace monitoring on your endpoint.
@@ -80,15 +99,15 @@ After delivery attempts, Kaneo stores basic health metadata (for example last su
 
 Each POST has `Content-Type: application/json`. Top-level fields:
 
-- `event`: string, one of: `task.created`, `task.status_changed`, `task.priority_changed`, `task.title_changed`, `task.description_changed`, `task.comment_created`
+- `event`: string, one of: `task.created`, `task.status_changed`, `task.priority_changed`, `task.title_changed`, `task.description_changed`, `task.comment_created`, or one of the additional generic webhook events above
 - `timestamp`: ISO 8601 time when Kaneo sent the request
 - `integration`: `{ "type": "generic-webhook" }`
 - `project`: `id`, `name`, `workspaceId`
-- `task`: `id`, `number`, `title`, `status`, `priority`, `url` (link to the task in the web UI)
+- `task`: `id`, `number`, `title`, `status`, `statusName`, `priority`, `url` (link to the task in the web UI)
 - `actor`: `id` and `name` of the user when available, or nulls for automated actions
 - `data`: event-specific fields (for example `oldStatus` / `newStatus` for status changes, `comment` text for comments)
 
-Use these payloads to drive custom workflows, internal dashboards, or bridges to other tools.
+For `task.deleted`, the `task` object contains only `id` and `title`, and `data` is empty. Do not require the usual task URL or status fields when handling deletion. Move events include source and destination project IDs; reminders include `dueDate` and `leadTimeMinutes`.
 
 ### Signature verification
 

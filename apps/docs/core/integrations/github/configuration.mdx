@@ -1,176 +1,39 @@
 ---
-title: Configuration & Setup
-description: Configure Kaneo with your GitHub App credentials and connect projects to repositories. Includes Docker Compose and Kubernetes examples.
+title: "Connect a GitHub repository"
+description: "Add the app credentials, connect a project, and verify synchronization."
 ---
 
+First [create and install a GitHub App](/core/integrations/github/setup). GitHub sign-in is separate and uses [OAuth settings](/core/social-providers/github).
 
-This guide covers configuring Kaneo with your GitHub App credentials and connecting projects to repositories.
+## Add the instance credentials
 
-<Info>
-Make sure you've completed the [GitHub App setup](/core/integrations/github/setup) before proceeding.
-</Info>
+For the bundled Compose deployment, add these values to `.env`:
 
-## Environment Variables
+```env
+GITHUB_APP_ID=your-app-id
+GITHUB_APP_NAME=your-app-slug
+GITHUB_WEBHOOK_SECRET=your-webhook-secret
+GITHUB_PRIVATE_KEY_BASE64=your-base64-encoded-private-key
+```
 
-Add the following environment variables to your Kaneo deployment:
+Encode the downloaded PEM file without printing it into logs or committing it. Alternatively, set `GITHUB_PRIVATE_KEY` to the full PEM with real line breaks or literal `\n` sequences. `GITHUB_PRIVATE_KEY_BASE64` takes precedence if both are present.
+
+Recreate the application container to apply the environment:
 
 ```bash
-# GitHub App (integration only: repository sync, webhooks)
-GITHUB_APP_ID=123456
-GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
-MIIEpAIBAAKCAQEA...
-[Full contents of your private key]
-...
------END RSA PRIVATE KEY-----"
-GITHUB_WEBHOOK_SECRET=your-webhook-secret-here
-
-# Optional: GitHub App slug for installation URLs in the UI
-GITHUB_APP_NAME=kaneo-your-instance-name
+docker compose up -d --force-recreate kaneo
 ```
 
-<Info>
-GitHub sign-in uses separate OAuth variables (`GITHUB_OAUTH_CLIENT_ID` / `GITHUB_OAUTH_CLIENT_SECRET`). You can run the integration without enabling GitHub SSO. See [GitHub SSO](/core/social-providers/github) and [Environment variables](/core/installation/environment-variables#github-sso).
-</Info>
+For Kubernetes, pass the same values through a Secret using your deployment's existing secret configuration. Do not create a second API deployment just for this integration.
 
-### Variable Reference
+## Connect the project
 
-| Variable | Description | Required | Example |
-|----------|-------------|----------|---------|
-| `GITHUB_APP_ID` | Your GitHub App's ID | ✅ | `123456` |
-| `GITHUB_PRIVATE_KEY` | Full private key content (with newlines) | ✅ | `-----BEGIN RSA...` |
-| `GITHUB_WEBHOOK_SECRET` | Secret for webhook verification | ✅ | `your-secret` |
-| `GITHUB_APP_NAME` | App slug for installation URLs in the UI | ⚠️ | `kaneo-mycompany` |
+1. Open **Settings → Projects**, select the project, then open **Integrations**.
+2. In GitHub, browse the repositories available to your installed app, or enter the owner and repository name.
+3. Verify the installation and connect the repository.
+4. Create a test task and check that its GitHub issue appears.
 
-<Warning>
-`GITHUB_APP_NAME` is optional but recommended. It's used to generate direct installation links in the UI.
-</Warning>
-
-## Deployment Examples
-
-### Docker Compose
-
-Update your `compose.yml` file:
-
-```yaml
-services:
-  backend:
-    image: ghcr.io/usekaneo/api:latest
-    environment:
-      # ... other environment variables
-      GITHUB_APP_ID: "123456"
-      GITHUB_PRIVATE_KEY: |
-        -----BEGIN RSA PRIVATE KEY-----
-        MIIEpAIBAAKCAQEA...
-        [Full contents of your private key]
-        ...
-        -----END RSA PRIVATE KEY-----
-      GITHUB_WEBHOOK_SECRET: "your-webhook-secret-here"
-      GITHUB_APP_NAME: "kaneo-mycompany"
-    # ... rest of configuration
-```
-
-<Tip>
-Use the `|` YAML syntax for multi-line environment variables like the private key.
-</Tip>
-
-### Kubernetes
-
-Create a secret for your GitHub credentials:
-
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: github-integration
-  namespace: kaneo
-type: Opaque
-stringData:
-  GITHUB_APP_ID: "123456"
-  GITHUB_PRIVATE_KEY: |
-    -----BEGIN RSA PRIVATE KEY-----
-    MIIEpAIBAAKCAQEA...
-    [Full contents of your private key]
-    ...
-    -----END RSA PRIVATE KEY-----
-  GITHUB_WEBHOOK_SECRET: "your-webhook-secret-here"
-  GITHUB_APP_NAME: "kaneo-mycompany"
-```
-
-Then reference it in your deployment:
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: kaneo-backend
-spec:
-  template:
-    spec:
-      containers:
-      - name: backend
-        image: ghcr.io/usekaneo/api:latest
-        envFrom:
-        - secretRef:
-            name: github-integration
-```
-
-### Environment File
-
-For development or simple deployments, create a `.env` file:
-
-```bash
-# .env file
-GITHUB_APP_ID=123456
-GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
-MIIEpAIBAAKCAQEA...
-[Full contents of your private key]
-...
------END RSA PRIVATE KEY-----"
-GITHUB_WEBHOOK_SECRET=your-webhook-secret-here
-GITHUB_APP_NAME=kaneo-mycompany
-```
-
-## Connecting Repositories
-
-Once your environment variables are configured and your backend is restarted, you can connect projects to GitHub repositories.
-
-<Steps>
-<Step>
-**Navigate to Project Settings**
-
-1. Open your Kaneo project
-2. Go to **Project Settings**
-3. Find the **GitHub Integration** section
-</Step>
-
-<Step>
-**Connect Repository**
-
-You have two options to connect a repository:
-
-**Option A: Browse Repositories**
-1. Click "Browse Repositories"
-2. Select from repositories where your GitHub App is installed
-3. Click on the desired repository
-
-**Option B: Manual Entry**
-1. Enter the **Repository Owner** (username or organization)
-2. Enter the **Repository Name**
-3. Click "Verify Installation"
-</Step>
-
-<Step>
-**Verify and Connect**
-
-1. Kaneo will verify that your GitHub App has access
-2. If successful, click "Connect Repository"
-3. You should see a green "Connected" status
-
-<Check>
-Once connected, new tasks created in this project will automatically generate GitHub issues!
-</Check>
-</Step>
-</Steps>
+Use a test repository for the first check, since synchronization creates real issues and comments. Review the event-to-column mappings under **Workflow → Automation Rules**.
 
 ### Changing the connected repository
 

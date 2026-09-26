@@ -12,8 +12,8 @@ It suits straightforward deployments. If you need a custom topology, extra servi
 ## Installation
 
 Install Docker and Docker Compose using your operating system's signed packages
-before running setup. Then install the fixed [drim v0.1.8 release](https://github.com/usekaneo/drim/releases/tag/v0.1.8)
-using the reviewed checksums below. The download is saved to a temporary file and
+before running setup. Then install the fixed [drim v0.1.15 release](https://github.com/usekaneo/drim/releases/tag/v0.1.15)
+using the release-asset SHA-256 checksums below. The download is saved to a temporary file and
 verified before it is made executable; it does not run an installation script.
 
 ```sh
@@ -22,16 +22,16 @@ verified before it is made executable; it does not run an installation script.
   case "$(uname -s)-$(uname -m)" in
     Linux-x86_64)
       drim_asset=drim_Linux_x86_64
-      drim_sha256=dbc57af416dac4d6f4302a77cac22c0e1887afcfdf55173c3113ae1f4712bd89 ;;
+      drim_sha256=1961180bd6972e34c6ce9077cedc2524795d9fa717001e1bdec9e36817ca44a8 ;;
     Linux-aarch64|Linux-arm64)
       drim_asset=drim_Linux_arm64
-      drim_sha256=dd78bea7b40c4e071887605823f6d999829c7500787f27a86ab2166697f0520f ;;
+      drim_sha256=58ddb9ed25491c2593f9f6ac3dc27741df75d4f7f05ef9338ace86c6d5aa42a9 ;;
     Darwin-x86_64)
       drim_asset=drim_Darwin_x86_64
-      drim_sha256=d2d6f8e1ab3e7725de0a559626a10660b6507cd85955c5bfcd1419de07e8ad29 ;;
+      drim_sha256=2019ea560f62f5788c521f070013db5e7fa058ea01b2f2eb7cdbe77e5dae71cb ;;
     Darwin-arm64)
       drim_asset=drim_Darwin_arm64
-      drim_sha256=065d0611b61e83284f3ffa620c9cc12b83ebdab74ce09f402ed70eea795713ea ;;
+      drim_sha256=58f353ca36067756ef7796ac79cfddbc4ef9568e051295b8b464782b496b76ab ;;
     *) echo "Unsupported platform; use a supported Linux or macOS system." >&2; exit 1 ;;
   esac
   drim_tmp=$(mktemp -d)
@@ -39,7 +39,7 @@ verified before it is made executable; it does not run an installation script.
   cd "$drim_tmp"
   curl --fail --show-error --silent --location \
     --proto '=https' --proto-redir '=https' --tlsv1.2 \
-    "https://github.com/usekaneo/drim/releases/download/v0.1.8/$drim_asset" \
+    "https://github.com/usekaneo/drim/releases/download/v0.1.15/$drim_asset" \
     --output drim
   if command -v sha256sum >/dev/null 2>&1; then
     printf '%s  drim\n' "$drim_sha256" | sha256sum -c -
@@ -55,8 +55,7 @@ Add `~/.local/bin` to your shell's `PATH`, or use `~/.local/bin/drim` in place o
 `drim` below. WSL uses the Linux asset matching its architecture. Stop on a
 checksum mismatch; do not replace the expected checksum with one supplied by
 the failed download. These fixed digests pin the published bytes, not a claim
-that the release was independently audited. Upgrading drim requires selecting
-and reviewing a new release and updating its expected digest.
+that the release was independently audited. When updating drim, select a release and update its expected digest together.
 
 ## Quick start
 
@@ -123,6 +122,7 @@ GITHUB_OAUTH_CLIENT_SECRET=your_client_secret
 # Email
 SMTP_HOST=smtp.example.com
 SMTP_PORT=587
+SMTP_SECURE=false
 SMTP_USER=you@example.com
 SMTP_PASSWORD=your-password
 SMTP_FROM=you@example.com
@@ -153,7 +153,7 @@ sudo usermod -aG docker $USER
 drim upgrade
 ```
 
-This pulls the latest images and restarts the changed services. Your data lives in Docker volumes and is not touched.
+Back up your [database, files, and configuration](/core/operations/backups) first. This pulls the selected images and recreates changed services. Data volumes are retained, but the API can migrate the database when it starts. See [Upgrade Kaneo](/core/operations/upgrades) for checks and recovery.
 
 To update drim itself, repeat the verified installation procedure with a newly
 reviewed release and its fixed checksum. The built-in updater follows the latest
@@ -168,7 +168,7 @@ Deployments created before Kaneo moved to a single container still run the older
 ```bash
 git clone https://github.com/usekaneo/drim.git
 cd drim
-git checkout --detach 2c21e713869c97dda413e4135ffaf89ece8156c8
+git checkout --detach f1e404916304699404ca06e9c94b3cf9124b878f
 # Review this fixed source revision and its dependencies before building.
 go build -mod=readonly -o drim .
 ```

@@ -1,0 +1,87 @@
+---
+title: Integrations
+description: Find the right connection for repositories, team updates, personal notifications, and automation.
+---
+
+Connect the tools your team already uses. Repository connections and shared notifications belong to a project. Personal notification channels belong to your account.
+
+## Repositories
+
+<CardGroup cols={3}>
+  <Card title="GitHub" icon="github" href="/core/integrations/github/setup">
+    Sync issues and comments, link pull requests, and automate task status.
+  </Card>
+  <Card title="Gitea" icon="git-branch" href="/core/integrations/gitea/setup">
+    Connect your Gitea server for issue sync and workflow automation.
+  </Card>
+  <Card title="GitLab" icon="gitlab" href="/core/integrations/gitlab/setup">
+    Connect GitLab.com or your own instance to sync issues and track merge requests.
+  </Card>
+</CardGroup>
+
+GitHub, Gitea, and GitLab have connection forms under **Settings → Projects → your project → Integrations**. Follow the provider guide to connect a repository and configure its webhook.
+
+## Team notifications
+
+Send selected project events to a shared channel. Open **Settings → Projects → your project → Integrations** to connect these services.
+
+<CardGroup cols={2}>
+  <Card title="Slack" icon="slack" href="/core/integrations/slack">
+    Post task updates to a Slack channel through an incoming webhook.
+  </Card>
+  <Card title="Discord" icon="message-circle" href="/core/integrations/discord">
+    Send task activity to a Discord channel.
+  </Card>
+  <Card title="Mattermost" icon="messages-square" href="/core/integrations/mattermost">
+    Connect an incoming webhook on your Mattermost instance.
+  </Card>
+  <Card title="Telegram" icon="send" href="/core/integrations/telegram">
+    Send updates through a bot to a chat, group, channel, or forum topic.
+  </Card>
+</CardGroup>
+
+<Frame caption="Project integrations live together in Settings. Expand a service to configure its connection.">
+  <img className="block dark:hidden" src="/images/product/integrations-light.png" alt="Kaneo project settings showing the GitHub, Gitea, GitLab, and team notification integrations." />
+  <img className="hidden dark:block" src="/images/product/integrations-dark.png" alt="Kaneo project settings showing the GitHub, Gitea, GitLab, and team notification integrations." />
+</Frame>
+
+## Personal notifications
+
+Receive updates meant for you, such as assignments, mentions, and due-date reminders. Connect these under **Settings → Account → Notifications**, then choose the workspaces and projects that can send them.
+
+<CardGroup cols={2}>
+  <Card title="ntfy" icon="bell" href="/core/integrations/ntfy">
+    Publish your notifications to an ntfy topic.
+  </Card>
+  <Card title="Gotify" icon="smartphone" href="/core/integrations/gotify">
+    Receive notifications through your Gotify server.
+  </Card>
+  <Card title="Email" icon="mail" href="/core/functional/account-notifications#2-connect-a-channel">
+    Send updates to your account email. Self-hosted instances need SMTP.
+  </Card>
+  <Card title="Personal webhook" icon="webhook" href="/core/integrations/personal-webhooks">
+    Forward your own notifications to an HTTP endpoint.
+  </Card>
+</CardGroup>
+
+[Notification preferences](/core/functional/account-notifications) control the events and workspace rules for all four channels.
+
+## Automation and AI assistants
+
+<CardGroup cols={3}>
+  <Card title="Project webhooks" icon="radio" href="/core/integrations/outgoing-webhooks">
+    Send selected project events to your service as signed JSON requests.
+  </Card>
+  <Card title="MCP" icon="bot" href="/core/integrations/mcp">
+    Let an MCP client work with your Kaneo tasks and projects.
+  </Card>
+  <Card title="REST API" icon="code" href="/api-reference/introduction">
+    Create tasks, query projects, or build a connection to another service.
+  </Card>
+</CardGroup>
+
+## Looking for sign-in or file storage?
+
+Sign-in providers are configured by the instance operator: [GitHub](/core/social-providers/github), [Google](/core/social-providers/google), [Discord](/core/social-providers/discord), or [custom OAuth/OIDC](/core/social-providers/custom-oauth).
+
+For attachments, use [Silo](/core/installation/silo) or [another S3-compatible provider](/core/installation/storage-backends).

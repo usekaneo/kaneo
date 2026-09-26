@@ -1,9 +1,7 @@
 ---
-title: listTasks
-description: Get a bounded page of tasks for a specific project
-openapi: 'GET /task/tasks/{projectId}'
+title: "List tasks"
+openapi: "GET /task/tasks/{projectId}"
 ---
-
 
 Every response is paginated: the default is **50 tasks**, with a maximum `limit` of **100**. Inspect `pagination.totalPages` and request subsequent `page` values to retrieve the entire project. Filters and sorting are applied before pagination. The page includes tasks across regular columns, planned tasks and archived tasks; it is not a separate limit for every column.
 

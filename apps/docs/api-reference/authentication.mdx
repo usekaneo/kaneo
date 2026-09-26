@@ -1,101 +1,44 @@
 ---
-title: Authentication
-description: Learn how to authenticate API requests using API keys or the device authorization flow
+title: "Authentication"
+description: "Use an API key for scripts or device authorization for interactive clients."
 ---
 
+Most application requests need an `Authorization: Bearer` credential. Your credential is still subject to workspace membership and permissions.
 
-All API endpoints require authentication. Kaneo currently supports two authentication patterns for API access:
+## API keys
 
-- API keys for scripts, services, and long-lived integrations
-- Device authorization for CLIs and external apps that need browser-based sign-in
+1. Sign in and open **Settings → Account → API Keys**, under the Developer section.
+2. Create a key and give it a name that identifies the script or service using it.
+3. Copy the full key when it is shown. You cannot retrieve it again later.
+4. Store it in a secret manager or private environment variable.
 
-## Choose an Authentication Method
-
-### API keys
-
-Use API keys when you control secret storage and want a stable credential for a single Kaneo instance.
-
-### Device authorization
-
-Use the device flow when you are building a CLI, desktop app, or other client that should send the user to the browser to approve access.
-
-The device flow follows RFC 8628 and returns a Bearer token that can be used against that Kaneo instance's API.
-
-## Creating an API Key
-
-<Steps>
-<Step>
-**Sign in to Kaneo**
-
-Sign in to your Kaneo instance using your account credentials.
-</Step>
-
-<Step>
-**Navigate to Settings**
-
-Go to your account settings by clicking on your profile or navigating to the Settings page.
-</Step>
-
-<Step>
-**Open the Account Tab**
-
-In the Settings page, click on the **Account** tab to view your account settings.
-</Step>
-
-<Step>
-**Access API Keys Section**
-
-Scroll down to the **API Keys** section in the Account tab. This section is located under the Developer Settings.
-</Step>
-
-<Step>
-**Create a New API Key**
-
-Click the **Create API Key** button to generate a new API key. You'll be prompted to provide a name for your API key to help you identify it later.
-</Step>
-
-<Step>
-**Save Your API Key**
-
-After creating the API key, you'll be shown the full API key value. **Copy and save this key immediately** - it will not be shown again for security reasons.
-
-<Warning>
-**Important**: Store your API key securely. If you lose it, you'll need to create a new one. The API key cannot be retrieved after creation.
-</Warning>
-</Step>
-</Steps>
-
-## Using Your API Key
-
-Once you have your API key, include it in the `Authorization` header of all API requests using the Bearer token format:
+Send it with each request:
 
 ```bash
-Authorization: Bearer your-api-key-here
+curl --fail-with-body 'https://kaneo.example.com/api/task/tasks/PROJECT_ID' \
+  -H "Authorization: Bearer $KANEO_API_KEY"
 ```
 
-### Example Request
+Replace `PROJECT_ID` with the ID from a project URL. See [Make your first API request](/api-reference/introduction) for the complete sequence.
 
-Here's an example of making an authenticated API request using curl:
-
-```bash
-curl -X GET https://your-kaneo-instance.com/api/task?workspaceId=your-workspace-id \
-  -H "Authorization: Bearer your-api-key-here" \
-  -H "Content-Type: application/json"
-```
-
-### Example with JavaScript
+### JavaScript on a server
 
 ```javascript
-const response = await fetch('https://your-kaneo-instance.com/api/task?workspaceId=your-workspace-id', {
-  method: 'GET',
-  headers: {
-    'Authorization': 'Bearer your-api-key-here',
-    'Content-Type': 'application/json'
-  }
-});
+const response = await fetch(
+  'https://kaneo.example.com/api/task/tasks/PROJECT_ID',
+  { headers: { Authorization: `Bearer ${process.env.KANEO_API_KEY}` } }
+);
+if (!response.ok) {
+  throw new Error(`Kaneo request failed: ${response.status}`);
+}
+const board = await response.json();
 ```
 
-## Using Device Authorization
+### Revoke or rotate a key
+
+Return to **API Keys** to remove a credential you no longer use. To rotate one, create a replacement, update the service that uses it, check a request succeeds, then revoke the old key.
+
+## Device authorization
 
 By default, self-hosted Kaneo allows the built-in device clients `kaneo-cli` and `kaneo-mcp`.
 
@@ -113,9 +56,9 @@ If you want to use a different device client ID, the instance operator must allo
 ### Request a device code
 
 ```bash
-curl -X POST https://your-kaneo-instance.com/api/auth/device/code \
+curl -X POST https://kaneo.example.com/api/auth/device/code \
   -H "Content-Type: application/json" \
-  -d '{"client_id":"your-app-id"}'
+  -d '{"client_id":"kaneo-cli"}'
 ```
 
 Example response:
@@ -124,8 +67,8 @@ Example response:
 {
   "device_code": "dev_123",
   "user_code": "ABCD-1234",
-  "verification_uri": "https://your-kaneo-instance.com/device",
-  "verification_uri_complete": "https://your-kaneo-instance.com/device?user_code=ABCD-1234",
+  "verification_uri": "https://kaneo.example.com/device",
+  "verification_uri_complete": "https://kaneo.example.com/device?user_code=ABCD-1234",
   "interval": 5,
   "expires_in": 600
 }
@@ -134,12 +77,12 @@ Example response:
 ### Poll for a token
 
 ```bash
-curl -X POST https://your-kaneo-instance.com/api/auth/device/token \
+curl -X POST https://kaneo.example.com/api/auth/device/token \
   -H "Content-Type: application/json" \
   -d '{
     "grant_type":"urn:ietf:params:oauth:grant-type:device_code",
     "device_code":"dev_123",
-    "client_id":"your-app-id"
+    "client_id":"kaneo-cli"
   }'
 ```
 
@@ -162,20 +105,15 @@ Once approved, Kaneo returns an access token:
 ### Use the returned token
 
 ```bash
-curl -X GET https://your-kaneo-instance.com/api/task?workspaceId=your-workspace-id \
+curl -X GET https://kaneo.example.com/api/task/tasks/PROJECT_ID \
   -H "Authorization: Bearer your-access-token"
 ```
 
-## Security Best Practices
 
-- **Keep your API keys secret**: Never commit API keys to version control or share them publicly
-- **Use descriptive names**: Name your API keys clearly so you can identify their purpose (e.g., "Production Script", "Development Testing")
-- **Rotate keys regularly**: Periodically create new API keys and revoke old ones
-- **Limit key scope**: Only grant API keys to trusted applications and services
-- **Monitor usage**: Regularly review your API keys and remove any that are no longer needed
-- **Allow only trusted device clients**: Keep `DEVICE_AUTH_CLIENT_IDS` limited to approved client IDs on self-hosted deployments
-- **Treat Bearer device tokens like secrets**: Do not print or log them unnecessarily in production clients
+The examples use the built-in `kaneo-cli` client ID so they work with the default allowlist. A separately named client needs its own allowed ID in `DEVICE_AUTH_CLIENT_IDS`.
 
-<Warning>
-If you suspect your API key has been compromised, immediately revoke it in the API Keys section and create a new one.
-</Warning>
+Respect the polling interval returned by the server. On `slow_down`, increase the interval; stop when the code expires or access is denied. Do not log device codes or access tokens.
+
+## Keep credentials private
+
+Use a different key for each integration so you can revoke one without interrupting the others. If a key leaks, revoke it immediately and replace it in the affected service. Device access tokens are secrets too.

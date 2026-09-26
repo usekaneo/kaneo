@@ -1,223 +1,61 @@
 ---
-title: Object storage and uploads
-description: Configure S3-compatible storage for private images and attachments in task descriptions and comments.
+title: "Files and uploads"
+description: "Choose where task images and attachments are stored."
 ---
 
-## Overview
+File storage is optional. Kaneo works without it, but people cannot upload files into task descriptions or comments until you configure an S3-compatible backend.
 
-Kaneo supports private uploads in task descriptions and task comments.
+Use [Silo](/core/installation/silo) to host storage yourself. If you already use a managed service, follow [AWS S3 or Cloudflare R2](/core/installation/storage-backends).
 
-Uploads use an S3-compatible object storage backend:
+## How an upload works
 
-- the Kaneo API creates presigned upload URLs
-- the browser uploads files directly to the storage backend
-- Kaneo finalizes uploads into private asset records
-- Kaneo serves uploaded files back through its own API
+```mermaid
+sequenceDiagram
+  participant B as Browser
+  participant K as Kaneo API
+  participant S as S3 storage
+  B->>K: Request an upload URL
+  K-->>B: Signed URL with size and file type
+  B->>S: Upload the file directly
+  B->>K: Finish the upload
+  K->>S: Check the stored file
+  K-->>B: Private attachment
+```
 
-Upload URLs bind the declared byte length and content type. The browser supplies
-`Content-Length` from the selected file automatically; custom clients must send
-that exact length and the returned `Content-Type`. A streaming request without
-`Content-Length`, a larger body, or a changed content type is rejected by storage.
+The browser and the Kaneo API must both reach `S3_ENDPOINT`. Use a hostname such as `https://files.example.com`. An internal Docker name such as `http://silo:9000` will not work in a normal browser, even if the containers can reach one another.
 
-Before creating an asset record, Kaneo retrieves object metadata with `HeadObject`
-and checks existence, size and content type. Missing or mismatched objects are
-not finalized. Oversized objects are removed. The storage credentials therefore
-need read (`s3:GetObject`, also used by HEAD), write and delete access. Configure
-storage CORS to allow your frontend origin and PUT with `Content-Type`.
+The storage bucket stays private. Kaneo checks access and serves files through its own API. Images appear inline; PDFs, ZIPs, and other files appear as attachments.
 
-After upgrading, check an upload through your actual browser, storage provider
-and reverse proxy. The provider must enforce SigV4 signed `Content-Length` and
-`Content-Type`; do not work around incompatibility by removing those signed
-headers. Previously issued upload URLs retain their old constraints until their
-configured expiry, so account for `S3_PRESIGN_TTL_SECONDS` during rollout.
-
-This means Kaneo can work with multiple backends as long as they expose a compatible S3-style API.
-
-Current behavior:
-
-- images render inline
-- other files such as CSV, PDF, or ZIP are inserted as attachment cards/links
-- uploaded files are private by default and are not meant to be served from public bucket URLs
-
-If you want backend-specific setup examples, see the [storage backends guide](/core/installation/storage-backends).
-
-## Recommended local setup: MinIO
-
-For local or self-hosted deployments, MinIO is the recommended storage backend.
-
-It gives you:
-
-- a stable S3-compatible API
-- a web console for bucket management
-- a simple Docker setup
-- better compatibility for direct browser uploads
-
-Example `.env` values:
+## Required configuration
 
 ```env
-MINIO_ROOT_USER=kaneo-local
-MINIO_ROOT_PASSWORD=<choose-a-local-development-password>
-
-S3_ENDPOINT=http://minio:9000
+S3_ENDPOINT=https://files.example.com
 S3_BUCKET=kaneo-uploads
-S3_ACCESS_KEY_ID=kaneo-local
-S3_SECRET_ACCESS_KEY=<choose-a-local-development-password>
+S3_ACCESS_KEY_ID=your-bucket-access-key
+S3_SECRET_ACCESS_KEY=your-bucket-secret-key
 S3_REGION=us-east-1
 S3_FORCE_PATH_STYLE=true
 ```
 
-Create the bucket before using uploads.
+Use a dedicated credential with read, write, and delete access to this bucket. Kaneo uses `GetObject`, including HEAD requests, to check uploads and read files. It also needs `PutObject` and `DeleteObject`.
 
-You do not need to make the bucket public.
+On AWS you can [use an IAM role](/core/installation/storage-backends#aws-s3) instead of static keys. Set both key variables or leave both unset.
 
-## Important: internal Docker URLs are not enough in production
+## Limits and browser access
 
-When Kaneo generates a presigned upload URL, the browser uploads directly to your storage backend.
+The default upload limit is 10 MiB. Change `S3_MAX_IMAGE_UPLOAD_BYTES` to set another limit in bytes; despite its name, it also covers non-image attachments. Signed upload URLs expire after 300 seconds by default, controlled by `S3_PRESIGN_TTL_SECONDS`.
 
-That means `S3_ENDPOINT` must be reachable by the browser, not just by Docker containers.
+Configure storage CORS to allow your exact Kaneo origin and `PUT` requests with `Content-Type`. Both the storage endpoint and Kaneo should use HTTPS for a public deployment.
 
-For example:
+Custom upload clients must send the exact declared `Content-Length` and the returned `Content-Type`. Kaneo checks the stored object before finalizing it. Do not remove signed-header checks to work around an incompatible provider.
 
-- `http://minio:9000` works only inside Docker
-- `https://files.example.com` works from the browser
+## Check it works
 
-If your Kaneo deployment is public, do not leave `S3_ENDPOINT` set to `http://minio:9000`.
+1. Open a task and attach a small image to its description.
+2. Confirm the image appears, then reload the page.
+3. Add a PDF or text file to a comment and open the attachment.
+4. Check that a person without access cannot retrieve the private file.
 
-Use a public MinIO hostname instead, for example:
+Repeat this check after storage or proxy upgrades. If it fails, use [upload troubleshooting](/core/operations/troubleshooting#uploads-fail).
 
-```env
-S3_ENDPOINT=https://files.cloud.kaneo.app
-S3_BUCKET=kaneo-uploads
-S3_ACCESS_KEY_ID=kaneo
-S3_SECRET_ACCESS_KEY=<generate-a-strong-random-secret>
-S3_REGION=us-east-1
-S3_FORCE_PATH_STYLE=true
-```
-
-<Warning>
-  Never expose MinIO with its default `minioadmin` root credentials. Create a
-  dedicated, bucket-scoped user and generate unique credentials for every
-  deployment.
-</Warning>
-
-## Recommended public setup
-
-The simplest production setup is:
-
-- `cloud.kaneo.app` for Kaneo
-- `files.cloud.kaneo.app` for MinIO
-
-Expose MinIO on its own public hostname through your reverse proxy.
-
-Why this is needed:
-
-- Kaneo signs uploads against `S3_ENDPOINT`
-- the browser uses that signed URL directly
-- Docker-internal names like `minio` are not resolvable from a user's browser
-
-Using a dedicated subdomain is recommended over proxying MinIO under a path.
-
-Reads do not need a public bucket URL, because Kaneo serves uploaded assets back through `/api/asset/:id`.
-
-## Other S3-compatible backends
-
-Kaneo is not tied to MinIO. Any deployment can point Kaneo at another S3-compatible backend by changing the `S3_*` environment variables.
-
-Examples:
-
-- AWS S3
-- Cloudflare R2
-- MinIO
-- [`fs`](https://github.com/ferdzo/fs)
-
-## Using `fs`
-
-`fs` is another S3-compatible option if you want a lightweight local object store. It is built by friends of Kaneo.
-
-When using `fs`, configure Kaneo like this:
-
-```env
-S3_ENDPOINT=http://fs:2600
-S3_BUCKET=kaneo-uploads
-S3_ACCESS_KEY_ID=<your-access-key>
-S3_SECRET_ACCESS_KEY=<your-secret-key>
-S3_REGION=us-east-1
-S3_FORCE_PATH_STYLE=true
-```
-
-Important notes for `fs`:
-
-- buckets are created through the S3 API or CLI, not through a web dashboard
-- Kaneo still expects the bucket to exist before uploads start
-- direct browser uploads may need reverse-proxy CORS headers, because `fs` does not currently implement S3 CORS APIs
-
-## Required Kaneo storage variables
-
-Set these in your Kaneo deployment:
-
-| Name | Description |
-| --- | --- |
-| `S3_ENDPOINT` | S3-compatible API endpoint used by Kaneo |
-| `S3_BUCKET` | Bucket used for uploaded files |
-| `S3_ACCESS_KEY_ID` | Access key used to create presigned upload URLs. Optional when using an IAM role (see below) |
-| `S3_SECRET_ACCESS_KEY` | Secret key used to create presigned upload URLs. Optional when using an IAM role (see below) |
-| `S3_REGION` | Region used for signing |
-| `S3_FORCE_PATH_STYLE` | Usually `true` for MinIO and `fs` |
-
-Optional:
-
-| Name | Description |
-| --- | --- |
-| `S3_PUBLIC_BASE_URL` | Optional public asset base URL. Kaneo does not require this for the current private asset flow. |
-| `S3_MAX_IMAGE_UPLOAD_BYTES` | Maximum allowed upload size in bytes for images and other uploaded files |
-| `S3_PRESIGN_TTL_SECONDS` | Presigned upload URL lifetime |
-
-## Using an IAM role (AWS S3) instead of static keys
-
-When Kaneo runs on AWS (EC2, ECS, or EKS), you can let it authenticate with an
-IAM role instead of long-lived access keys.
-
-Leave both `S3_ACCESS_KEY_ID` and `S3_SECRET_ACCESS_KEY` unset. Kaneo then falls
-back to the AWS SDK's default credential provider chain, which automatically
-picks up credentials from:
-
-- an EC2 instance profile
-- an ECS task role
-- an EKS service account / IRSA (`AWS_WEB_IDENTITY_TOKEN_FILE`)
-- standard `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` environment variables
-- a shared `~/.aws/credentials` profile
-
-Example for AWS S3 with an attached IAM role:
-
-```env
-S3_ENDPOINT=https://s3.us-east-1.amazonaws.com
-S3_BUCKET=kaneo-uploads
-S3_REGION=us-east-1
-S3_FORCE_PATH_STYLE=false
-# S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY intentionally omitted
-```
-
-The IAM role must allow `s3:PutObject`, `s3:GetObject`, and `s3:DeleteObject`
-on the bucket.
-
-<Warning>
-  Set both keys or neither. Configuring only one of `S3_ACCESS_KEY_ID` /
-  `S3_SECRET_ACCESS_KEY` is treated as a misconfiguration and Kaneo will refuse
-  to start the storage client.
-</Warning>
-
-## Testing uploads
-
-Once storage is configured:
-
-1. Open a task.
-2. Paste, drag, or select a file inside the description or a comment.
-3. Confirm images render inline and other files render as attachment cards/links.
-
-If uploads fail:
-
-- confirm the bucket exists
-- confirm the credentials can write to the bucket
-- confirm the storage endpoint is reachable from the browser
-- confirm `S3_ENDPOINT` is a public URL, not an internal Docker hostname
-- if using direct browser uploads, confirm CORS is configured correctly for your storage endpoint
+Back up the [database and the files together](/core/operations/backups). A database backup contains attachment records, not their file contents.
