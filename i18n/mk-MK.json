@@ -519,7 +519,7 @@
 			"reminderLeadTimeUnitDays": "Денови",
 			"reminderLeadTimeInvalid": "Внеси цел број помеѓу 1 и {{max}}.",
 			"saveEventPreferences": "Зачувај типови на известувања",
-			"recipientHint": "Comments and status changes notify you about tasks assigned to you. Mentions notify the selected member. Your own comments, mentions, and status changes do not notify you."
+			"recipientHint": "Коментарите и промените на статусот ве известуваат за задачите што ви се доделени. Спомнувањата го известуваат избраниот член. Вашите сопствени коментари, спомнувања и промени на статусот не ви испраќаат известувања."
 		},
 		"preferencesPage": {
 			"title": "Преференции",

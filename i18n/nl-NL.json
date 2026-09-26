@@ -1065,7 +1065,7 @@
 			"toastPreferencesSaveFailed": "Opslaan meldingsvoorkeuren mislukt",
 			"toastRuleSavedGeneric": "Werkruimte-meldingsregel opgeslagen",
 			"toastRuleRemovedGeneric": "Werkruimte-meldingsregel verwijderd",
-			"recipientHint": "Comments and status changes notify you about tasks assigned to you. Mentions notify the selected member. Your own comments, mentions, and status changes do not notify you."
+			"recipientHint": "Reacties en statuswijzigingen geven je meldingen over taken die aan jou zijn toegewezen. Vermeldingen sturen een melding naar het geselecteerde lid. Je ontvangt geen meldingen over je eigen reacties, vermeldingen en statuswijzigingen."
 		},
 		"workspaceRoles": {
 			"pageTitle": "Rollen",

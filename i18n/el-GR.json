@@ -519,7 +519,7 @@
 			"reminderLeadTimeUnitDays": "Ημέρες",
 			"reminderLeadTimeInvalid": "Εισαγάγετε ακέραιο αριθμό μεταξύ 1 και {{max}}.",
 			"saveEventPreferences": "Αποθήκευση τύπων ειδοποιήσεων",
-			"recipientHint": "Comments and status changes notify you about tasks assigned to you. Mentions notify the selected member. Your own comments, mentions, and status changes do not notify you."
+			"recipientHint": "Τα σχόλια και οι αλλαγές κατάστασης σας ειδοποιούν για εργασίες που σας έχουν ανατεθεί. Οι αναφορές ειδοποιούν το επιλεγμένο μέλος. Τα δικά σας σχόλια, οι αναφορές και οι αλλαγές κατάστασης δεν σας στέλνουν ειδοποιήσεις."
 		},
 		"preferencesPage": {
 			"title": "Προτιμήσεις",

@@ -519,7 +519,7 @@
 			"reminderLeadTimeUnitDays": "일",
 			"reminderLeadTimeInvalid": "1에서 {{max}} 사이의 정수를 입력하세요.",
 			"saveEventPreferences": "알림 유형 저장",
-			"recipientHint": "Comments and status changes notify you about tasks assigned to you. Mentions notify the selected member. Your own comments, mentions, and status changes do not notify you."
+			"recipientHint": "본인에게 할당된 작업의 댓글과 상태 변경에 대한 알림을 받습니다. 멘션은 선택한 멤버에게 알림을 보냅니다. 본인이 작성한 댓글, 멘션 및 상태 변경에 대해서는 알림을 받지 않습니다."
 		},
 		"preferencesPage": {
 			"title": "환경설정",

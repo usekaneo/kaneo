@@ -28,7 +28,7 @@ beforeEach(async () => {
   await resetTestDatabase();
   vi.clearAllMocks();
 });
-async function fixture() {
+async function fixture(separateAssignee = false) {
   const actor = await createWorkspaceMember();
   const recipient = await createWorkspaceMember();
   await db.insert(schema.workspaceUserTable).values({
@@ -36,6 +36,14 @@ async function fixture() {
     userId: recipient.user.id,
     joinedAt: new Date(),
   });
+  const assignee = separateAssignee ? await createWorkspaceMember() : recipient;
+  if (separateAssignee) {
+    await db.insert(schema.workspaceUserTable).values({
+      workspaceId: actor.workspace.id,
+      userId: assignee.user.id,
+      joinedAt: new Date(),
+    });
+  }
   const { project } = await createProjectFixture({
     workspaceId: actor.workspace.id,
   });
@@ -44,7 +52,7 @@ async function fixture() {
     .values({
       projectId: project.id,
       title: "Notified task",
-      userId: recipient.user.id,
+      userId: assignee.user.id,
       status: "to-do",
     })
     .returning();
@@ -68,13 +76,15 @@ async function fixture() {
   const send = vi
     .spyOn(email, "sendNotificationEmail")
     .mockResolvedValue(undefined);
-  return { actor, recipient, task, send };
+  return { actor, recipient, assignee, task, send };
 }
 describe("status, comment and mention delivery", () => {
   it.each(["status", "comment", "mention"] as const)(
     "delivers %s notifications through the event, email and Gotify paths",
     async (kind) => {
-      const { actor, recipient, task, send } = await fixture();
+      const { actor, recipient, assignee, task, send } = await fixture(
+        kind === "mention",
+      );
       if (kind === "status") {
         await updateTaskStatus({
           id: task.id,
@@ -99,10 +109,25 @@ describe("status, comment and mention delivery", () => {
         "https://gotify.example/message",
       );
       const notifications = await db.select().from(schema.notificationTable);
-      expect(notifications).toHaveLength(1);
-      expect(notifications[0].type).toBe(
-        kind === "status" ? "task_status_changed" : `task_${kind}`,
+      expect(notifications).toHaveLength(kind === "mention" ? 2 : 1);
+      expect(notifications).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            userId: recipient.user.id,
+            type: kind === "status" ? "task_status_changed" : `task_${kind}`,
+          }),
+        ]),
       );
+      if (kind === "mention") {
+        expect(notifications).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              userId: assignee.user.id,
+              type: "task_comment",
+            }),
+          ]),
+        );
+      }
     },
   );
   it("suppresses an assignee's own status changes, comments and mentions", async () => {

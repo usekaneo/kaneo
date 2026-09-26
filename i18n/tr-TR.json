@@ -519,7 +519,7 @@
 			"reminderLeadTimeUnitDays": "Gün",
 			"reminderLeadTimeInvalid": "1 ile {{max}} arasında bir tam sayı girin.",
 			"saveEventPreferences": "Bildirim türlerini kaydet",
-			"recipientHint": "Comments and status changes notify you about tasks assigned to you. Mentions notify the selected member. Your own comments, mentions, and status changes do not notify you."
+			"recipientHint": "Yorumlar ve durum değişiklikleri, size atanan görevler hakkında bildirim gönderir. Bahsetmeler seçilen üyeye bildirim gönderir. Kendi yorumlarınız, bahsetmeleriniz ve durum değişiklikleriniz için bildirim almazsınız."
 		},
 		"preferencesPage": {
 			"title": "Tercihler",

@@ -519,7 +519,7 @@
 			"toastPreferencesSaveFailed": "Salvataggio preferenze notifiche fallito",
 			"toastRuleSavedGeneric": "Regola notifiche workspace salvata",
 			"toastRuleRemovedGeneric": "Regola notifiche workspace rimossa",
-			"recipientHint": "Comments and status changes notify you about tasks assigned to you. Mentions notify the selected member. Your own comments, mentions, and status changes do not notify you."
+			"recipientHint": "I commenti e le modifiche di stato ti avvisano delle attività assegnate a te. Le menzioni avvisano il membro selezionato. I tuoi commenti, le tue menzioni e le tue modifiche di stato non ti inviano notifiche."
 		},
 		"preferencesPage": {
 			"title": "Preferenze",

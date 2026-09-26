@@ -519,7 +519,7 @@
 			"toastPreferencesSaveFailed": "保存通知偏好失败",
 			"toastRuleSavedGeneric": "工作区通知规则已保存",
 			"toastRuleRemovedGeneric": "工作区通知规则已移除",
-			"recipientHint": "Comments and status changes notify you about tasks assigned to you. Mentions notify the selected member. Your own comments, mentions, and status changes do not notify you."
+			"recipientHint": "评论和状态变更会向你发送有关分配给你的任务的通知。提及会通知所选成员。你自己的评论、提及和状态变更不会向你发送通知。"
 		},
 		"preferencesPage": {
 			"title": "偏好设置",

@@ -519,7 +519,7 @@
 			"reminderLeadTimeUnitDays": "Дни",
 			"reminderLeadTimeInvalid": "Введите целое число от 1 до {{max}}.",
 			"saveEventPreferences": "Сохранить типы уведомлений",
-			"recipientHint": "Comments and status changes notify you about tasks assigned to you. Mentions notify the selected member. Your own comments, mentions, and status changes do not notify you."
+			"recipientHint": "Комментарии и изменения статуса уведомляют вас о назначенных вам задачах. Упоминания уведомляют выбранного участника. Вы не получаете уведомлений о собственных комментариях, упоминаниях и изменениях статуса."
 		},
 		"preferencesPage": {
 			"title": "Настройки",
