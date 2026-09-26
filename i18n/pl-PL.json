@@ -1324,7 +1324,8 @@
 			"workspaceCardLabelWebhook": "Niestandardowy webhook",
 			"workspaceEnabledLabel": "Włącz powiadomienia dla {{workspaceName}}",
 			"workspaceRulesDescription": "Użyj ponownie globalnych kanałów, a następnie wybierz obszary robocze i projekty, które mogą wysyłać powiadomienia konta.",
-			"workspaceRulesTitle": "Reguły dostarczania dla obszaru roboczego"
+			"workspaceRulesTitle": "Reguły dostarczania dla obszaru roboczego",
+			"recipientHint": "Comments and status changes notify you about tasks assigned to you. Mentions notify the selected member. Your own comments, mentions, and status changes do not notify you."
 		},
 		"preferences": "Preferencje",
 		"preferencesPage": {

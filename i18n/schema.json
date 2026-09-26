@@ -2276,6 +2276,9 @@
 						},
 						"toastRuleRemovedGeneric": {
 							"type": "string"
+						},
+						"recipientHint": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -2378,7 +2381,8 @@
 						"toastPreferencesSaved",
 						"toastPreferencesSaveFailed",
 						"toastRuleSavedGeneric",
-						"toastRuleRemovedGeneric"
+						"toastRuleRemovedGeneric",
+						"recipientHint"
 					]
 				},
 				"preferencesPage": {

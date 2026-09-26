@@ -518,7 +518,8 @@
 			"toastPreferencesSaved": "通知設定を保存しました",
 			"toastPreferencesSaveFailed": "通知設定の保存に失敗しました",
 			"toastRuleSavedGeneric": "ワークスペースの通知ルールを保存しました",
-			"toastRuleRemovedGeneric": "ワークスペースの通知ルールを削除しました"
+			"toastRuleRemovedGeneric": "ワークスペースの通知ルールを削除しました",
+			"recipientHint": "Comments and status changes notify you about tasks assigned to you. Mentions notify the selected member. Your own comments, mentions, and status changes do not notify you."
 		},
 		"preferencesPage": {
 			"title": "環境設定",

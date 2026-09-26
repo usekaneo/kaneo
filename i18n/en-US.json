@@ -598,7 +598,8 @@
 			"toastPreferencesSaved": "Notification preferences saved",
 			"toastPreferencesSaveFailed": "Failed to save notification preferences",
 			"toastRuleSavedGeneric": "Workspace notification rule saved",
-			"toastRuleRemovedGeneric": "Workspace notification rule removed"
+			"toastRuleRemovedGeneric": "Workspace notification rule removed",
+			"recipientHint": "Comments and status changes notify you about tasks assigned to you. Mentions notify the selected member. Your own comments, mentions, and status changes do not notify you."
 		},
 		"preferencesPage": {
 			"title": "Preferences",

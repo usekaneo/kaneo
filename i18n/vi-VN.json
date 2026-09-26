@@ -518,7 +518,8 @@
 			"toastPreferencesSaved": "Đã lưu tùy chọn thông báo",
 			"toastPreferencesSaveFailed": "Không thể lưu tùy chọn thông báo",
 			"toastRuleSavedGeneric": "Đã lưu quy tắc thông báo không gian làm việc",
-			"toastRuleRemovedGeneric": "Đã gỡ quy tắc thông báo không gian làm việc"
+			"toastRuleRemovedGeneric": "Đã gỡ quy tắc thông báo không gian làm việc",
+			"recipientHint": "Comments and status changes notify you about tasks assigned to you. Mentions notify the selected member. Your own comments, mentions, and status changes do not notify you."
 		},
 		"preferencesPage": {
 			"title": "Tùy chọn",

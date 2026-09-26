@@ -518,7 +518,8 @@
 			"toastPreferencesSaved": "सूचना प्राथमिकताएँ सहेजी गईं",
 			"toastPreferencesSaveFailed": "सूचना प्राथमिकताएँ सहेजने में विफल",
 			"toastRuleSavedGeneric": "वर्कस्पेस सूचना नियम सहेजा गया",
-			"toastRuleRemovedGeneric": "वर्कस्पेस सूचना नियम हटाया गया"
+			"toastRuleRemovedGeneric": "वर्कस्पेस सूचना नियम हटाया गया",
+			"recipientHint": "Comments and status changes notify you about tasks assigned to you. Mentions notify the selected member. Your own comments, mentions, and status changes do not notify you."
 		},
 		"preferencesPage": {
 			"title": "प्राथमिकताएँ",

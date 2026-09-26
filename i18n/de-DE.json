@@ -598,7 +598,8 @@
 			"toastPreferencesSaved": "Benachrichtigungseinstellungen gespeichert",
 			"toastPreferencesSaveFailed": "Benachrichtigungseinstellungen konnten nicht gespeichert werden",
 			"toastRuleSavedGeneric": "Arbeitsbereichs-Benachrichtigungsregel gespeichert",
-			"toastRuleRemovedGeneric": "Arbeitsbereichs-Benachrichtigungsregel entfernt"
+			"toastRuleRemovedGeneric": "Arbeitsbereichs-Benachrichtigungsregel entfernt",
+			"recipientHint": "Kommentare und Statusänderungen benachrichtigen dich über dir zugewiesene Aufgaben. Erwähnungen benachrichtigen das ausgewählte Mitglied. Deine eigenen Kommentare, Erwähnungen und Statusänderungen lösen keine Benachrichtigung an dich aus."
 		},
 		"preferencesPage": {
 			"title": "Einstellungen",

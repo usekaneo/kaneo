@@ -518,7 +518,8 @@
 			"reminderLeadTimeUnitHours": "Heures",
 			"reminderLeadTimeUnitDays": "Jours",
 			"reminderLeadTimeInvalid": "Entrez un nombre entier entre 1 et {{max}}.",
-			"saveEventPreferences": "Enregistrer les types de notification"
+			"saveEventPreferences": "Enregistrer les types de notification",
+			"recipientHint": "Comments and status changes notify you about tasks assigned to you. Mentions notify the selected member. Your own comments, mentions, and status changes do not notify you."
 		},
 		"preferencesPage": {
 			"title": "Préférences",

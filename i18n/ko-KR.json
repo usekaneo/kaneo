@@ -518,7 +518,8 @@
 			"reminderLeadTimeUnitHours": "시간",
 			"reminderLeadTimeUnitDays": "일",
 			"reminderLeadTimeInvalid": "1에서 {{max}} 사이의 정수를 입력하세요.",
-			"saveEventPreferences": "알림 유형 저장"
+			"saveEventPreferences": "알림 유형 저장",
+			"recipientHint": "Comments and status changes notify you about tasks assigned to you. Mentions notify the selected member. Your own comments, mentions, and status changes do not notify you."
 		},
 		"preferencesPage": {
 			"title": "환경설정",
