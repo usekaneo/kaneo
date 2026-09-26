@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "Το όνομα χώρου εργασίας είναι υποχρεωτικό"
-			}
+			},
+			"restrictedSubtitle": "Μόνο ένας διαχειριστής της εγκατάστασης μπορεί να δημιουργεί χώρους εργασίας εδώ. Ζητήστε πρόσκληση και ανανεώστε τη σελίδα.",
+			"restrictedCheckInvitations": "Έλεγχος προσκλήσεων",
+			"restrictedTitle": "Χρειάζεστε πρόσκληση"
 		},
 		"profileSetup": {
 			"pageTitle": "Ολοκλήρωση προφίλ",
@@ -704,7 +707,18 @@
 				"iconRequired": "Το εικονίδιο είναι υποχρεωτικό"
 			},
 			"importExportTasks": "Εισαγωγή/Εξαγωγή",
-			"importExportTasksDescription": "Εισαγωγή/Εξαγωγή Εργασιών"
+			"importExportTasksDescription": "Εισαγωγή/Εξαγωγή Εργασιών",
+			"moveModalConfirm": "Μετακίνηση έργου",
+			"moveModalDescription": "Αυτό θα μετακινήσει το έργο \"{{name}}\" και όλες τις εργασίες του στο \"{{workspace}}\". Οι εργασίες που έχουν ανατεθεί σε άτομα που δεν είναι μέλη αυτού του χώρου εργασίας θα αποδεσμευτούν και οι συνδρομές ειδοποιήσεων για αυτό το έργο θα διαγραφούν.",
+			"moveModalTitle": "Μετακίνηση έργου;",
+			"moveProject": "Μετακίνηση σε χώρο εργασίας",
+			"moveProjectAction": "Μετακίνηση",
+			"moveProjectDescription": "Μετακινήστε αυτό το έργο, μαζί με όλες τις εργασίες του, σε άλλο χώρο εργασίας.",
+			"moveProjectPlaceholder": "Επιλέξτε χώρο εργασίας",
+			"toastMoved": "Το έργο μετακινήθηκε με επιτυχία",
+			"toastMovedWithUnassigned": "Το έργο μετακινήθηκε με επιτυχία. Αφαιρέθηκε η ανάθεση από {{taskCount}} εργασίες.",
+			"toastMoveError": "Αποτυχία μετακίνησης του έργου",
+			"moveTargetsError": "Δεν ήταν δυνατός ο έλεγχος των χώρων εργασίας στους οποίους μπορείτε να μετακινήσετε αυτό το έργο. Ανανεώστε τη σελίδα για να δοκιμάσετε ξανά."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Ενσωματώσεις έργου",
@@ -1149,7 +1163,15 @@
 			"branch": "Κλάδος",
 			"merged": "Συγχωνευμένο",
 			"draft": "Πρόχειρο",
-			"open": "Ανοιχτό"
+			"open": "Ανοιχτό",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL",
+			"remove": "Remove {{title}}",
+			"removeError": "Failed to remove the resource link."
 		},
 		"workspaceRoles": {
 			"pageTitle": "Ρόλοι",
@@ -1530,6 +1552,35 @@
 			"userCount_other": "{{count}} registered users",
 			"you": "(you)"
 		},
+		"security": "Security",
+		"securityPage": {
+			"confirmPassword": "Confirm new password",
+			"confirmPasswordPlaceholder": "Re-enter your new password",
+			"currentPassword": "Current password",
+			"currentPasswordPlaceholder": "Enter your current password",
+			"newPassword": "New password",
+			"newPasswordPlaceholder": "Enter a new password",
+			"noPassword": {
+				"description": "Your account signs in with a different method, so there is no password to change.",
+				"title": "Password change isn't available"
+			},
+			"pageTitle": "Security",
+			"sectionSubtitle": "Change the password you use to sign in.",
+			"sectionTitle": "Password",
+			"submit": "Update password",
+			"submitting": "Updating...",
+			"subtitle": "Manage your password and account security.",
+			"title": "Security",
+			"updateError": "Failed to update password.",
+			"updateSuccess": "Password updated.",
+			"validation": {
+				"confirmRequired": "Confirm your new password.",
+				"currentRequired": "Enter your current password.",
+				"mismatch": "Passwords do not match.",
+				"tooShort": "New password must be at least 8 characters.",
+				"sameAsCurrent": "New password must be different from your current password."
+			}
+		},
 		"workspaceCalendar": {
 			"addHoliday": "Add holiday",
 			"dateLabel": "Date",
@@ -1546,6 +1597,7 @@
 			"holidayNameRequired": "Holiday name is required",
 			"holidaysSubtitle": "Dates the workspace doesn't work on, in addition to non-working weekdays.",
 			"holidaysTitle": "Holidays",
+			"loading": "Loading calendar…",
 			"nameLabel": "Name",
 			"namePlaceholder": "e.g. New Year's Day",
 			"subtitle": "Set which weekdays this workspace works on, and add holidays. The Gantt shades non-working days and the auto-reschedule cascade skips them.",
@@ -1558,8 +1610,7 @@
 			"toastWorkingDaysUpdated": "Working days updated",
 			"toastWorkingDaysUpdateError": "Failed to update working days",
 			"workingDaysSubtitle": "Toggle the weekdays this workspace is open for work.",
-			"workingDaysTitle": "Working days",
-			"loading": "Loading calendar…"
+			"workingDaysTitle": "Working days"
 		}
 	},
 	"navigation": {
@@ -1984,6 +2035,13 @@
 				},
 				"mermaid": {
 					"renderFailed": "Δεν ήταν δυνατή η απόδοση του διαγράμματος Mermaid"
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
 			},
 			"customFieldUpdated": "Field updated",
@@ -2009,7 +2067,7 @@
 				"related": "σχετίζεται με",
 				"blocked_by": "μπλοκάρεται από"
 			},
-			"tasksInOtherProject": "In {{project}}",
+			"circularDependencyError": "This dependency would create a circular dependency",
 			"crossProjectStatusReadOnly": "Status is managed in this task's own project",
 			"dependency": {
 				"lagHint": "Positive delays the start; negative (lead) allows overlap.",
@@ -2032,7 +2090,7 @@
 				},
 				"updateError": "Failed to update dependency"
 			},
-			"circularDependencyError": "This dependency would create a circular dependency"
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Υποεργασίες",
@@ -2056,9 +2114,9 @@
 			"startDate": "Ημερομηνία έναρξης",
 			"noDate": "Χωρίς ημερομηνία",
 			"baseline": "Baseline",
+			"constraint": "Constraint",
 			"milestone": "Milestone",
-			"progress": "Progress",
-			"constraint": "Constraint"
+			"progress": "Progress"
 		},
 		"move": {
 			"title": "Μετακίνηση εργασίας",
@@ -2125,6 +2183,19 @@
 				"setError": "Failed to set baseline",
 				"setSuccess": "Baseline set from current dates"
 			},
+			"constraint": {
+				"currentDate": "Current: {{date}}",
+				"label": "Constraint",
+				"pickDate": "Pick a constraint date",
+				"type": {
+					"finish_no_later_than": "Finish no later than",
+					"must_start_on": "Must start on",
+					"none": "No constraint",
+					"start_no_earlier_than": "Start no earlier than"
+				},
+				"updateError": "Failed to update task constraint",
+				"updateSuccess": "Task constraint updated"
+			},
 			"milestone": {
 				"description": "Mark this task as a single-date milestone on the Gantt chart",
 				"label": "Milestone",
@@ -2136,19 +2207,6 @@
 				"percentLabel": "Percent complete",
 				"updateError": "Failed to update task progress",
 				"updateSuccess": "Task progress updated"
-			},
-			"constraint": {
-				"currentDate": "{{date}}",
-				"label": "Constraint",
-				"pickDate": "Pick a constraint date",
-				"type": {
-					"finish_no_later_than": "Finish no later than",
-					"must_start_on": "Must start on",
-					"none": "No constraint",
-					"start_no_earlier_than": "Start no earlier than"
-				},
-				"updateError": "Failed to update task constraint",
-				"updateSuccess": "Task constraint updated"
 			}
 		},
 		"backlog": {
@@ -2236,31 +2294,31 @@
 			"nextPeriod": "Next period",
 			"periodStart": "Timeline start date",
 			"showTaskDates": "Show task dates",
-			"legendBlocking": "Blocking",
-			"legendRelated": "Related",
+			"collapseSubtasks": "Collapse subtasks",
+			"constraintMarkerAriaLabel": "{{title}}: {{type}}, {{date}}",
+			"constraintViolationAriaLabel": "{{title}}: constraint violated — {{type}}, {{date}}",
+			"criticalPathToggle": "Critical path",
+			"criticalPathToggleAriaLabel": "Highlight the critical path",
+			"dependentsRescheduled_one": "Rescheduled {{count}} dependent task",
+			"dependentsRescheduled_other": "Rescheduled {{count}} dependent tasks",
+			"dependentsRescheduleError": "Failed to reschedule dependent tasks",
+			"expandSubtasks": "Expand subtasks",
 			"externalProjectBadge": "in {{projectName}}",
 			"externalTaskTitle": "{{title}} — related task in {{projectName}} (read-only here)",
 			"legendBaseline": "Baseline",
+			"legendBlocking": "Blocking",
+			"legendCriticalPath": "Critical path",
 			"legendMilestone": "Milestone",
+			"legendRelated": "Related",
+			"linkHandleAriaLabel": "{{title}}: drag to create a dependency",
 			"milestoneAriaLabel": "{{title}}: milestone, open task",
 			"progressLabel": "{{progress}}% complete",
+			"summaryAriaLabel": "{{title}}: summary of subtasks, open task",
 			"unitControlAriaLabel": "Timeline granularity",
 			"unitDay": "Day",
 			"unitMonth": "Month",
 			"unitQuarter": "Quarter",
-			"unitWeek": "Week",
-			"collapseSubtasks": "Collapse subtasks",
-			"expandSubtasks": "Expand subtasks",
-			"summaryAriaLabel": "{{title}}: summary of subtasks, open task",
-			"linkHandleAriaLabel": "{{title}}: drag to create a dependency",
-			"dependentsRescheduleError": "Failed to reschedule dependent tasks",
-			"criticalPathToggle": "Critical path",
-			"criticalPathToggleAriaLabel": "Highlight the critical path",
-			"legendCriticalPath": "Critical path",
-			"constraintMarkerAriaLabel": "{{title}}: {{type}}, {{date}}",
-			"constraintViolationAriaLabel": "{{title}}: constraint violated — {{type}}, {{date}}",
-			"dependentsRescheduled_one": "Rescheduled {{count}} dependent task",
-			"dependentsRescheduled_other": "Rescheduled {{count}} dependent tasks"
+			"unitWeek": "Week"
 		},
 		"delete": {
 			"title": "Διαγραφή εργασίας;",
@@ -2268,6 +2326,11 @@
 			"action": "Διαγραφή εργασίας",
 			"success": "Η εργασία διαγράφηκε με επιτυχία",
 			"error": "Αποτυχία διαγραφής εργασίας"
+		},
+		"duplicate": {
+			"titleSuffix": "{{title}} (αντίγραφο)",
+			"success": "Το αντίγραφο της εργασίας δημιουργήθηκε με επιτυχία",
+			"error": "Αποτυχία δημιουργίας αντιγράφου εργασίας"
 		},
 		"archive": {
 			"success": "Αρχειοθετήθηκαν {{count}} εργασίες"
@@ -2313,6 +2376,7 @@
 			"copyLinkSuccess": "Ο σύνδεσμος της εργασίας αντιγράφηκε!"
 		},
 		"actions": {
+			"duplicate": "Δημιουργία αντιγράφου",
 			"archive": "Αρχειοθέτηση",
 			"markAsPlanned": "Επισήμανση ως προγραμματισμένη",
 			"delete": "Διαγραφή..."
@@ -2602,6 +2666,9 @@
 		"lightTimelineScreenshotAlt": "Kaneo Gantt timeline in light theme, showing scheduled tasks and their durations"
 	},
 	"landing": {
+		"sponsors": {
+			"ciSponsor": "Συνεργάτες"
+		},
 		"founder": {
 			"title": "Why Kaneo exists",
 			"intro": "I'm Andrej, and I created Kaneo because I was tired of project management tools that got in the way more than they helped. After years of using bloated, overcomplicated platforms that distracted from actual work, I knew there had to be a better way.",

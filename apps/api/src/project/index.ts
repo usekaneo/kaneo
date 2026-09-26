@@ -1,3 +1,5 @@
+import { HTTPException } from "hono/http-exception";
+import { requireWorkspaceEntitlement } from "../billing/controllers/require-entitlement";
 import { requireEntitlement } from "../billing/require-entitlement-middleware";
 import {
   apiRouter,
@@ -11,24 +13,63 @@ import {
   hasWorkspacePermission,
   requireWorkspacePermission,
 } from "../utils/require-workspace-permission";
+import { validateWorkspaceAccess } from "../utils/validate-workspace-access";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import archiveProjectCtrl from "./controllers/archive-project";
 import createProjectCtrl from "./controllers/create-project";
 import deleteProjectCtrl from "./controllers/delete-project";
 import getProjectCtrl from "./controllers/get-project";
 import getProjectsCtrl from "./controllers/get-projects";
+import moveProjectCtrl from "./controllers/move-project";
 import reorderProjectsCtrl from "./controllers/reorder-projects";
 import unarchiveProjectCtrl from "./controllers/unarchive-project";
 import updateProjectCtrl from "./controllers/update-project";
-import { projectListSchema, projectSchema } from "./response";
+import {
+  movedProjectSchema,
+  projectListSchema,
+  projectSchema,
+} from "./response";
 import {
   createProjectBody,
   listProjectsQuery,
+  moveProjectBody,
   projectParam,
   reorderProjectsBody,
   updateProjectBody,
   workspaceIdQuery,
 } from "./schema";
+
+const moveProjectRoute = createRoute({
+  method: "put",
+  path: "/{id}/move",
+  operationId: "moveProject",
+  tags: ["Projects"],
+  summary: "Move a project to another workspace",
+  description:
+    "Move a project and its tasks. Requires update and delete permission in the source and create permission in the destination. Remove cross-project task relationships before moving.",
+  middleware: [
+    workspaceAccess.fromProject(),
+    requireWorkspacePermission({ project: ["update", "delete"] }),
+  ] as const,
+  request: {
+    params: projectParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: moveProjectBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("Project moved", movedProjectSchema),
+    400: errorResponse("Invalid destination or same workspace"),
+    401: errorResponse("Unauthorized"),
+    402: errorResponse("Destination workspace plan has expired"),
+    403: errorResponse("Missing workspace access or permission"),
+    404: errorResponse("Project not found in the source workspace"),
+    409: errorResponse(
+      "Project key conflict or cross-project task relationships",
+    ),
+  },
+});
 
 const listProjectsRoute = createRoute({
   method: "get",
@@ -223,6 +264,32 @@ const unarchiveProjectRoute = createRoute({
 });
 
 const project = apiRouter<BaseVariables & { workspaceId: string }>()
+  .openapi(moveProjectRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    const { workspaceId: targetWorkspaceId } = c.req.valid("json");
+    const sourceWorkspaceId = c.get("workspaceId");
+    const userId = c.get("userId");
+    await validateWorkspaceAccess(
+      userId,
+      targetWorkspaceId,
+      c.get("apiKey")?.id,
+    );
+    if (
+      !(await hasWorkspacePermission(
+        c,
+        { project: ["create"] },
+        targetWorkspaceId,
+      ))
+    )
+      throw new HTTPException(403, {
+        message: "Insufficient permissions in the target workspace",
+      });
+    await requireWorkspaceEntitlement(targetWorkspaceId);
+    return c.json(
+      await moveProjectCtrl(id, sourceWorkspaceId, targetWorkspaceId, userId),
+      200,
+    );
+  })
   .openapi(listProjectsRoute, async (c) => {
     const workspaceId = c.get("workspaceId");
     const { includeArchived } = c.req.valid("query");

@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "Cần có tên không gian làm việc"
-			}
+			},
+			"restrictedSubtitle": "Tại đây chỉ quản trị viên hệ thống mới có thể tạo không gian làm việc. Hãy xin lời mời rồi tải lại trang này.",
+			"restrictedCheckInvitations": "Xem lời mời",
+			"restrictedTitle": "Bạn cần một lời mời"
 		},
 		"profileSetup": {
 			"pageTitle": "Hoàn tất hồ sơ",
@@ -938,7 +941,18 @@
 				"iconRequired": "Cần có biểu tượng"
 			},
 			"importExportTasks": "Nhập/Xuất",
-			"importExportTasksDescription": "Nhập và xuất công việc."
+			"importExportTasksDescription": "Nhập và xuất công việc.",
+			"moveModalConfirm": "Chuyển dự án",
+			"moveModalDescription": "Thao tác này sẽ chuyển dự án \"{{name}}\" và tất cả công việc của nó sang \"{{workspace}}\". Những công việc được giao cho người không phải là thành viên của không gian làm việc đó sẽ bị hủy phân công, và các đăng ký thông báo cho dự án này sẽ bị xóa.",
+			"moveModalTitle": "Chuyển dự án?",
+			"moveProject": "Chuyển đến không gian làm việc",
+			"moveProjectAction": "Chuyển",
+			"moveProjectDescription": "Chuyển dự án này, cùng với tất cả công việc của nó, sang không gian làm việc khác.",
+			"moveProjectPlaceholder": "Chọn không gian làm việc",
+			"toastMoved": "Đã chuyển dự án thành công",
+			"toastMovedWithUnassigned": "Đã chuyển dự án thành công. {{taskCount}} công việc đã bị hủy phân công.",
+			"toastMoveError": "Không thể chuyển dự án",
+			"moveTargetsError": "Không thể kiểm tra những không gian làm việc mà bạn có thể chuyển dự án này đến. Hãy tải lại trang để thử lại."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Tích hợp dự án",
@@ -1383,7 +1397,15 @@
 			"branch": "Nhánh",
 			"merged": "Đã gộp",
 			"draft": "Bản nháp",
-			"open": "Đang mở"
+			"open": "Đang mở",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL",
+			"remove": "Remove {{title}}",
+			"removeError": "Failed to remove the resource link."
 		},
 		"mattermostIntegration": {
 			"channelHint": "Optional label for your reference. Mattermost controls the actual destination channel from the webhook setup.",
@@ -1527,6 +1549,35 @@
 			"userCount_other": "{{count}} registered users",
 			"you": "(you)"
 		},
+		"security": "Security",
+		"securityPage": {
+			"confirmPassword": "Confirm new password",
+			"confirmPasswordPlaceholder": "Re-enter your new password",
+			"currentPassword": "Current password",
+			"currentPasswordPlaceholder": "Enter your current password",
+			"newPassword": "New password",
+			"newPasswordPlaceholder": "Enter a new password",
+			"noPassword": {
+				"description": "Your account signs in with a different method, so there is no password to change.",
+				"title": "Password change isn't available"
+			},
+			"pageTitle": "Security",
+			"sectionSubtitle": "Change the password you use to sign in.",
+			"sectionTitle": "Password",
+			"submit": "Update password",
+			"submitting": "Updating...",
+			"subtitle": "Manage your password and account security.",
+			"title": "Security",
+			"updateError": "Failed to update password.",
+			"updateSuccess": "Password updated.",
+			"validation": {
+				"confirmRequired": "Confirm your new password.",
+				"currentRequired": "Enter your current password.",
+				"mismatch": "Passwords do not match.",
+				"tooShort": "New password must be at least 8 characters.",
+				"sameAsCurrent": "New password must be different from your current password."
+			}
+		},
 		"workspaceCalendar": {
 			"addHoliday": "Add holiday",
 			"dateLabel": "Date",
@@ -1543,6 +1594,7 @@
 			"holidayNameRequired": "Holiday name is required",
 			"holidaysSubtitle": "Dates the workspace doesn't work on, in addition to non-working weekdays.",
 			"holidaysTitle": "Holidays",
+			"loading": "Loading calendar…",
 			"nameLabel": "Name",
 			"namePlaceholder": "e.g. New Year's Day",
 			"subtitle": "Set which weekdays this workspace works on, and add holidays. The Gantt shades non-working days and the auto-reschedule cascade skips them.",
@@ -1555,8 +1607,7 @@
 			"toastWorkingDaysUpdated": "Working days updated",
 			"toastWorkingDaysUpdateError": "Failed to update working days",
 			"workingDaysSubtitle": "Toggle the weekdays this workspace is open for work.",
-			"workingDaysTitle": "Working days",
-			"loading": "Loading calendar…"
+			"workingDaysTitle": "Working days"
 		}
 	},
 	"navigation": {
@@ -1977,6 +2028,13 @@
 				},
 				"mermaid": {
 					"renderFailed": "Mermaid diagram couldn't be rendered"
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
 			},
 			"customFieldUpdated": "Field updated",
@@ -2002,7 +2060,7 @@
 				"blocked_by": "bị chặn bởi",
 				"related": "liên quan đến"
 			},
-			"tasksInOtherProject": "In {{project}}",
+			"circularDependencyError": "This dependency would create a circular dependency",
 			"crossProjectStatusReadOnly": "Status is managed in this task's own project",
 			"dependency": {
 				"lagHint": "Positive delays the start; negative (lead) allows overlap.",
@@ -2025,7 +2083,7 @@
 				},
 				"updateError": "Failed to update dependency"
 			},
-			"circularDependencyError": "This dependency would create a circular dependency"
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Công việc con",
@@ -2049,9 +2107,9 @@
 			"startDate": "Ngày bắt đầu",
 			"noDate": "Không có ngày",
 			"baseline": "Baseline",
+			"constraint": "Constraint",
 			"milestone": "Milestone",
-			"progress": "Progress",
-			"constraint": "Constraint"
+			"progress": "Progress"
 		},
 		"move": {
 			"title": "Di chuyển công việc",
@@ -2118,6 +2176,19 @@
 				"setError": "Failed to set baseline",
 				"setSuccess": "Baseline set from current dates"
 			},
+			"constraint": {
+				"currentDate": "Current: {{date}}",
+				"label": "Constraint",
+				"pickDate": "Pick a constraint date",
+				"type": {
+					"finish_no_later_than": "Finish no later than",
+					"must_start_on": "Must start on",
+					"none": "No constraint",
+					"start_no_earlier_than": "Start no earlier than"
+				},
+				"updateError": "Failed to update task constraint",
+				"updateSuccess": "Task constraint updated"
+			},
 			"milestone": {
 				"description": "Mark this task as a single-date milestone on the Gantt chart",
 				"label": "Milestone",
@@ -2129,19 +2200,6 @@
 				"percentLabel": "Percent complete",
 				"updateError": "Failed to update task progress",
 				"updateSuccess": "Task progress updated"
-			},
-			"constraint": {
-				"currentDate": "{{date}}",
-				"label": "Constraint",
-				"pickDate": "Pick a constraint date",
-				"type": {
-					"finish_no_later_than": "Finish no later than",
-					"must_start_on": "Must start on",
-					"none": "No constraint",
-					"start_no_earlier_than": "Start no earlier than"
-				},
-				"updateError": "Failed to update task constraint",
-				"updateSuccess": "Task constraint updated"
 			}
 		},
 		"backlog": {
@@ -2229,30 +2287,30 @@
 			"nextPeriod": "Next period",
 			"periodStart": "Timeline start date",
 			"showTaskDates": "Show task dates",
-			"legendBlocking": "Blocking",
-			"legendRelated": "Related",
+			"collapseSubtasks": "Collapse subtasks",
+			"constraintMarkerAriaLabel": "{{title}}: {{type}}, {{date}}",
+			"constraintViolationAriaLabel": "{{title}}: constraint violated — {{type}}, {{date}}",
+			"criticalPathToggle": "Critical path",
+			"criticalPathToggleAriaLabel": "Highlight the critical path",
+			"dependentsRescheduled_other": "Rescheduled {{count}} dependent tasks",
+			"dependentsRescheduleError": "Failed to reschedule dependent tasks",
+			"expandSubtasks": "Expand subtasks",
 			"externalProjectBadge": "in {{projectName}}",
 			"externalTaskTitle": "{{title}} — related task in {{projectName}} (read-only here)",
 			"legendBaseline": "Baseline",
+			"legendBlocking": "Blocking",
+			"legendCriticalPath": "Critical path",
 			"legendMilestone": "Milestone",
+			"legendRelated": "Related",
+			"linkHandleAriaLabel": "{{title}}: drag to create a dependency",
 			"milestoneAriaLabel": "{{title}}: milestone, open task",
 			"progressLabel": "{{progress}}% complete",
+			"summaryAriaLabel": "{{title}}: summary of subtasks, open task",
 			"unitControlAriaLabel": "Timeline granularity",
 			"unitDay": "Day",
 			"unitMonth": "Month",
 			"unitQuarter": "Quarter",
-			"unitWeek": "Week",
-			"collapseSubtasks": "Collapse subtasks",
-			"expandSubtasks": "Expand subtasks",
-			"summaryAriaLabel": "{{title}}: summary of subtasks, open task",
-			"linkHandleAriaLabel": "{{title}}: drag to create a dependency",
-			"dependentsRescheduleError": "Failed to reschedule dependent tasks",
-			"criticalPathToggle": "Critical path",
-			"criticalPathToggleAriaLabel": "Highlight the critical path",
-			"legendCriticalPath": "Critical path",
-			"constraintMarkerAriaLabel": "{{title}}: {{type}}, {{date}}",
-			"constraintViolationAriaLabel": "{{title}}: constraint violated — {{type}}, {{date}}",
-			"dependentsRescheduled_other": "Rescheduled {{count}} dependent tasks"
+			"unitWeek": "Week"
 		},
 		"delete": {
 			"title": "Xóa công việc?",
@@ -2260,6 +2318,11 @@
 			"action": "Xóa công việc",
 			"success": "Xóa công việc thành công",
 			"error": "Không thể xóa công việc"
+		},
+		"duplicate": {
+			"titleSuffix": "{{title}} (bản sao)",
+			"success": "Nhân bản công việc thành công",
+			"error": "Không thể nhân bản công việc"
 		},
 		"archive": {
 			"success": "Đã lưu trữ {{count}} công việc"
@@ -2304,6 +2367,7 @@
 			"copyLinkSuccess": "Đã sao chép liên kết công việc!"
 		},
 		"actions": {
+			"duplicate": "Nhân bản",
 			"archive": "Lưu trữ",
 			"markAsPlanned": "Đánh dấu đã lên kế hoạch",
 			"delete": "Xóa..."
@@ -2592,6 +2656,9 @@
 		"lightTimelineScreenshotAlt": "Kaneo Gantt timeline in light theme, showing scheduled tasks and their durations"
 	},
 	"landing": {
+		"sponsors": {
+			"ciSponsor": "Đối tác"
+		},
 		"founder": {
 			"title": "Why Kaneo exists",
 			"intro": "I'm Andrej, and I created Kaneo because I was tired of project management tools that got in the way more than they helped. After years of using bloated, overcomplicated platforms that distracted from actual work, I knew there had to be a better way.",

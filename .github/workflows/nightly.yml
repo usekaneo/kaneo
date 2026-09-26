@@ -14,10 +14,184 @@ permissions:
   contents: read
 
 jobs:
+  secret-scan-history:
+    name: Full-history secret scan
+    if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout repository
+        uses: useblacksmith/checkout@v1 # v7.0.1
+        with:
+          persist-credentials: false
+          # The entire-branch scan needs the full commit history.
+          fetch-depth: 0
+      - name: Install TruffleHog
+        run: |
+          curl --fail --silent --show-error --location --max-time 120 \
+            https://github.com/trufflesecurity/trufflehog/releases/download/v3.97.9/trufflehog_3.97.9_linux_amd64.tar.gz \
+            -o "$RUNNER_TEMP/trufflehog.tar.gz"
+          echo "40377e6572495412fb9ba0bc21c9401f73b72f1d2afd11b9931bc4a5ed622866  $RUNNER_TEMP/trufflehog.tar.gz" | sha256sum --check --strict
+          tar -xzf "$RUNNER_TEMP/trufflehog.tar.gz" -C "$RUNNER_TEMP" trufflehog
+      - name: Scan the full git history for leaked credentials
+        env:
+          # Intermediated via env so a ref name can never be interpreted as a
+          # shell command (template injection).
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          # Runs as a downloaded binary instead of the trufflesecurity/trufflehog
+          # action or its container: the action hard-codes --github-actions
+          # (conflicts with --sarif), and a container cannot resolve the
+          # Blacksmith git mirror backing this checkout, so cloning it there fails.
+          # --fail still writes a complete SARIF file before exiting 183.
+          "$RUNNER_TEMP/trufflehog" git "file://$PWD" \
+            --results=verified,unknown \
+            --exclude-paths=.trufflehog-exclude \
+            --branch "$BRANCH" \
+            --fail \
+            --sarif > trufflehog-results.sarif
+      - name: Upload results to GitHub Code Scanning
+        if: always()
+        uses: github/codeql-action/upload-sarif@1190a975f95ce23525efb6a3fc21ea29567c1b52 # v3
+        with:
+          sarif_file: trufflehog-results.sarif
+      - name: Notify Discord on findings
+        if: failure()
+        env:
+          TRUFFLEHOG_WEBHOOK: ${{ secrets.TRUFFLEHOG_WEBHOOK }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          BRANCH: ${{ github.ref_name }}
+          TITLE: "🌙 Nightly full-history secret scan found credentials"
+        run: |
+          if [ -z "$TRUFFLEHOG_WEBHOOK" ]; then
+            echo "TRUFFLEHOG_WEBHOOK is not configured; skipping notification."
+            exit 0
+          fi
+          if [ ! -f trufflehog-results.sarif ]; then
+            echo "No SARIF results file; skipping notification."
+            exit 0
+          fi
+          findings="$(jq -r '.runs[0].results | length' trufflehog-results.sarif 2>/dev/null || echo 0)"
+          if [ "$findings" -eq 0 ]; then
+            echo "No findings to report."
+            exit 0
+          fi
+          details="$(jq -r '.runs[0].results[] | "\(.ruleId) — \(.locations[0].physicalLocation.artifactLocation.uri):\(.locations[0].physicalLocation.region.startLine)"' trufflehog-results.sarif | head -10)"
+          more=""
+          if [ "$findings" -gt 10 ]; then
+            more=$'\n'"…and $((findings - 10)) more — see the run for the full list"
+          fi
+          jq -n \
+            --arg title "$TITLE" \
+            --arg url "$RUN_URL" \
+            --arg branch "$BRANCH" \
+            --arg findings "$findings" \
+            --arg details "$details$more" \
+            '{embeds: [{title: $title, url: $url, color: 15158332, description: ("TruffleHog found **" + $findings + "** potential secret(s) on `" + $branch + "`.\n\n" + $details)}]}' \
+            > "$RUNNER_TEMP/discord-payload.json"
+          # Best effort: a delivery failure must not mask the scan result.
+          curl --fail --silent --show-error --max-time 15 \
+            -H "Content-Type: application/json" \
+            --data-binary @"$RUNNER_TEMP/discord-payload.json" \
+            "$TRUFFLEHOG_WEBHOOK" \
+            || echo "::warning::Discord notification could not be delivered."
+
+  workflow-audit:
+    name: Workflow security audit
+    if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout repository
+        uses: useblacksmith/checkout@v1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install zizmor
+        run: |
+          curl --fail --silent --show-error --location --max-time 120 \
+            https://github.com/zizmorcore/zizmor/releases/download/v1.30.1/zizmor-x86_64-unknown-linux-gnu.tar.gz \
+            -o "$RUNNER_TEMP/zizmor.tar.gz"
+          echo "e65324f4430c2717591937edcec90ccbefaf14c174f8ec9415e03ca875b46e1a  $RUNNER_TEMP/zizmor.tar.gz" | sha256sum --check --strict
+          tar -xzf "$RUNNER_TEMP/zizmor.tar.gz" -C "$RUNNER_TEMP" zizmor
+      - name: Audit all workflows
+        run: |
+          # Two runs: SARIF for Code Scanning, JSON for the severity-aware
+          # enforcement step below. zizmor exits 0 with findings in SARIF mode,
+          # so the enforce step decides the job outcome.
+          "$RUNNER_TEMP/zizmor" --no-online-audits --format sarif .github/workflows/ \
+            > zizmor-results.sarif
+          "$RUNNER_TEMP/zizmor" --no-online-audits --format json .github/workflows/ \
+            > zizmor-results.json || true
+      - name: Upload results to GitHub Code Scanning
+        if: always()
+        uses: github/codeql-action/upload-sarif@1190a975f95ce23525efb6a3fc21ea29567c1b52 # v3
+        with:
+          sarif_file: zizmor-results.sarif
+      - name: Enforce high-severity findings
+        run: |
+          total="$(jq 'length' zizmor-results.json)"
+          blocking="$(jq '[.[] | select(.determinations.severity == "High" and .determinations.confidence == "High")] | length' zizmor-results.json)"
+          echo "zizmor findings reported to Code Scanning: $total (blocking: $blocking)"
+          if [ "$blocking" -ne 0 ]; then
+            jq -r '.[] | select(.determinations.severity == "High" and .determinations.confidence == "High") | "\(.ident) — \(.locations[0].symbolic.key.Local.verbatim_path)"' \
+              zizmor-results.json
+            exit 1
+          fi
+      - name: Notify Discord on findings
+        if: failure()
+        env:
+          # The workflow audit posts to a dedicated Actions webhook (separate
+          # from the secrets channel) so workflow-security alerts stay out of
+          # the secrets incident channel. Skip silently if it is not set.
+          ZIZMOR_WEBHOOK: ${{ secrets.ZIZMOR_WEBHOOK }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          BRANCH: ${{ github.ref_name }}
+          TITLE: "🌙 Nightly workflow audit found security issues"
+        run: |
+          if [ -z "$ZIZMOR_WEBHOOK" ]; then
+            echo "ZIZMOR_WEBHOOK is not configured; skipping notification."
+            exit 0
+          fi
+          if [ ! -f zizmor-results.json ]; then
+            echo "No zizmor results file; skipping notification."
+            exit 0
+          fi
+          findings="$(jq '[.[] | select(.determinations.severity == "High" and .determinations.confidence == "High")] | length' zizmor-results.json 2>/dev/null || echo 0)"
+          if [ "$findings" -eq 0 ]; then
+            echo "No findings to report."
+            exit 0
+          fi
+          details="$(jq -r '.[] | select(.determinations.severity == "High" and .determinations.confidence == "High") | "\(.ident) — \(.locations[0].symbolic.key.Local.verbatim_path)"' zizmor-results.json | head -10)"
+          more=""
+          if [ "$findings" -gt 10 ]; then
+            more=$'\n'"…and $((findings - 10)) more — see Code Scanning for the full list"
+          fi
+          jq -n \
+            --arg title "$TITLE" \
+            --arg url "$RUN_URL" \
+            --arg branch "$BRANCH" \
+            --arg findings "$findings" \
+            --arg details "$details$more" \
+            '{embeds: [{title: $title, url: $url, color: 15158332, description: ("zizmor found **" + $findings + "** high-severity workflow security issue(s) on `" + $branch + "`.\n\n" + $details)}]}' \
+            > "$RUNNER_TEMP/discord-payload.json"
+          # Best effort: a delivery failure must not mask the audit result.
+          curl --fail --silent --show-error --max-time 15 \
+            -H "Content-Type: application/json" \
+            --data-binary @"$RUNNER_TEMP/discord-payload.json" \
+            "$ZIZMOR_WEBHOOK" \
+            || echo "::warning::Discord notification could not be delivered."
+
   verify:
     name: Verify nightly build
     if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
-    uses: ./.github/workflows/ci.yml
+
+    uses: ./.github/workflows/ci.yml # zizmor: ignore[self-repository] $/-syntax not parsed by pinned actionlint v1.7.12; revisit when supported
 
   publish-images:
     name: Publish nightly images
@@ -26,8 +200,11 @@ jobs:
     permissions:
       contents: read
       packages: write
-    uses: ./.github/workflows/build-images.yml
-    secrets: inherit
+
+    uses: ./.github/workflows/build-images.yml # zizmor: ignore[self-repository] $/-syntax not parsed by pinned actionlint v1.7.12; revisit when supported
+    secrets:
+      GH_PACKAGE_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
     with:
       source_mode: nightly
       tags: |

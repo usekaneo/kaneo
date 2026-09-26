@@ -16,7 +16,7 @@ import {
   type GitHubConfig,
   hasVerifiedGitHubBinding,
 } from "../../plugins/github/config";
-import { extractTaskNumber } from "../../plugins/github/utils/branch-matcher";
+import { resolvePullRequestTask } from "../../plugins/github/services/resolve-pull-request-task";
 import {
   extractIssuePriority,
   extractIssueStatus,
@@ -524,23 +524,20 @@ async function linkPull(
   project: typeof projectTable.$inferSelect,
   config: GitHubConfig,
 ) {
-  const number = extractTaskNumber(
-    pull.headRefName,
-    pull.title,
-    pull.body ?? undefined,
+  if (await findLink(tx, integrationId, "pull_request", pull.number)) return;
+  const task = await resolvePullRequestTask({
+    integrationId,
+    projectId: project.id,
+    projectSlug: project.slug,
     config,
-    project.slug,
-  );
-  if (
-    !number ||
-    (await findLink(tx, integrationId, "pull_request", pull.number))
-  )
-    return;
-  const task = await tx.query.taskTable.findFirst({
-    where: and(
-      eq(taskTable.projectId, project.id),
-      eq(taskTable.number, number),
-    ),
+    repositoryUrl: `https://github.com/${config.repositoryOwner}/${config.repositoryName}`,
+    pullRequest: {
+      number: pull.number,
+      title: pull.title,
+      body: pull.body,
+      head: { ref: pull.headRefName },
+    },
+    database: tx,
   });
   if (!task) return;
   await tx.insert(externalLinkTable).values({

@@ -312,6 +312,9 @@
 			"descriptionPlaceholder": "What does your team work on?",
 			"creating": "Creating...",
 			"createWorkspace": "Create workspace",
+			"restrictedTitle": "You need an invitation",
+			"restrictedSubtitle": "Only an instance administrator can create workspaces here. Ask one to invite you, then reload this page.",
+			"restrictedCheckInvitations": "Check invitations",
 			"workspaceCreatedTitle": "Workspace created",
 			"redirectingToWorkspace": "Taking you to <name>{{name}}</name>...",
 			"toast": {
@@ -1050,7 +1053,18 @@
 				"iconRequired": "Icon is required"
 			},
 			"importExportTasks": "Import/Export",
-			"importExportTasksDescription": "Import and export tasks."
+			"importExportTasksDescription": "Import and export tasks.",
+			"moveProject": "Move to workspace",
+			"moveProjectDescription": "Move this project, with all of its tasks, to another workspace.",
+			"moveProjectPlaceholder": "Select workspace",
+			"moveTargetsError": "Couldn't check which workspaces you can move this project to. Reload to try again.",
+			"moveProjectAction": "Move",
+			"moveModalTitle": "Move Project?",
+			"moveModalDescription": "This will move the project \"{{name}}\" and all of its tasks to \"{{workspace}}\". Tasks assigned to people who aren't members of that workspace will be unassigned, and notification subscriptions for this project will be cleared.",
+			"moveModalConfirm": "Move Project",
+			"toastMoved": "Project moved successfully",
+			"toastMovedWithUnassigned": "Project moved successfully. {{taskCount}} task(s) were unassigned.",
+			"toastMoveError": "Failed to move project"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Project Integrations",
@@ -1559,7 +1573,44 @@
 			"branch": "Branch",
 			"merged": "Merged",
 			"draft": "Draft",
-			"open": "Open"
+			"open": "Open",
+			"addResource": "Add resource",
+			"url": "URL",
+			"titleOptional": "Title (optional)",
+			"cancel": "Cancel",
+			"adding": "Adding...",
+			"empty": "No resources linked to this task.",
+			"remove": "Remove {{title}}",
+			"removeError": "Failed to remove the resource link."
+		},
+		"security": "Security",
+		"securityPage": {
+			"pageTitle": "Security",
+			"title": "Security",
+			"subtitle": "Manage your password and account security.",
+			"sectionTitle": "Password",
+			"sectionSubtitle": "Change the password you use to sign in.",
+			"currentPassword": "Current password",
+			"newPassword": "New password",
+			"confirmPassword": "Confirm new password",
+			"currentPasswordPlaceholder": "Enter your current password",
+			"newPasswordPlaceholder": "Enter a new password",
+			"confirmPasswordPlaceholder": "Re-enter your new password",
+			"submit": "Update password",
+			"submitting": "Updating...",
+			"updateSuccess": "Password updated.",
+			"updateError": "Failed to update password.",
+			"noPassword": {
+				"title": "Password change isn't available",
+				"description": "Your account signs in with a different method, so there is no password to change."
+			},
+			"validation": {
+				"currentRequired": "Enter your current password.",
+				"tooShort": "New password must be at least 8 characters.",
+				"confirmRequired": "Confirm your new password.",
+				"mismatch": "Passwords do not match.",
+				"sameAsCurrent": "New password must be different from your current password."
+			}
 		}
 	},
 	"navigation": {
@@ -1986,6 +2037,13 @@
 				},
 				"mermaid": {
 					"renderFailed": "Mermaid diagram couldn't be rendered"
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
 			}
 		},
@@ -2282,6 +2340,11 @@
 			"success": "Task deleted successfully",
 			"error": "Failed to delete task"
 		},
+		"duplicate": {
+			"titleSuffix": "{{title}} (copy)",
+			"success": "Task duplicated successfully",
+			"error": "Failed to duplicate task"
+		},
 		"archive": {
 			"success": "Archived {{count}} tasks"
 		},
@@ -2326,6 +2389,7 @@
 			"copyLinkSuccess": "Task link copied!"
 		},
 		"actions": {
+			"duplicate": "Duplicate",
 			"archive": "Archive",
 			"markAsPlanned": "Mark as planned",
 			"delete": "Delete..."
@@ -2602,6 +2666,9 @@
 		"usageSpace": "Leave enough space around the logo to keep it clear and readable."
 	},
 	"landing": {
+		"sponsors": {
+			"ciSponsor": "Partners"
+		},
 		"founder": {
 			"title": "Why Kaneo exists",
 			"intro": "I'm Andrej, and I created Kaneo because I was tired of project management tools that got in the way more than they helped. After years of using bloated, overcomplicated platforms that distracted from actual work, I knew there had to be a better way.",

@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "ワークスペース名を入力してください"
-			}
+			},
+			"restrictedSubtitle": "このインスタンスでワークスペースを作成できるのは管理者だけです。招待を依頼してから、このページを再読み込みしてください。",
+			"restrictedCheckInvitations": "招待を確認",
+			"restrictedTitle": "招待が必要です"
 		},
 		"profileSetup": {
 			"pageTitle": "プロフィール設定",
@@ -938,7 +941,18 @@
 				"iconRequired": "アイコンは必須です"
 			},
 			"importExportTasks": "インポート/エクスポート",
-			"importExportTasksDescription": "タスクのインポートとエクスポートを行います。"
+			"importExportTasksDescription": "タスクのインポートとエクスポートを行います。",
+			"moveModalConfirm": "Move Project",
+			"moveModalDescription": "This will move the project \"{{name}}\" and all of its tasks to \"{{workspace}}\". Tasks assigned to people who aren't members of that workspace will be unassigned, and notification subscriptions for this project will be cleared.",
+			"moveModalTitle": "Move Project?",
+			"moveProject": "Move to workspace",
+			"moveProjectAction": "Move",
+			"moveProjectDescription": "Move this project, with all of its tasks, to another workspace.",
+			"moveProjectPlaceholder": "Select workspace",
+			"moveTargetsError": "Couldn't check which workspaces you can move this project to. Reload to try again.",
+			"toastMoved": "Project moved successfully",
+			"toastMovedWithUnassigned": "Project moved successfully. {{taskCount}} task(s) were unassigned.",
+			"toastMoveError": "Failed to move project"
 		},
 		"projectIntegrations": {
 			"pageTitle": "プロジェクト連携",
@@ -1383,7 +1397,15 @@
 			"branch": "ブランチ",
 			"merged": "マージ済み",
 			"draft": "下書き",
-			"open": "オープン"
+			"open": "オープン",
+			"adding": "追加中...",
+			"addResource": "リソースを追加",
+			"cancel": "キャンセル",
+			"empty": "このタスクにリンクされたリソースはありません。",
+			"titleOptional": "タイトル（任意）",
+			"url": "URL",
+			"remove": "Remove {{title}}",
+			"removeError": "Failed to remove the resource link."
 		},
 		"mattermostIntegration": {
 			"channelHint": "Optional label for your reference. Mattermost controls the actual destination channel from the webhook setup.",
@@ -1527,6 +1549,35 @@
 			"userCount_other": "{{count}} registered users",
 			"you": "(you)"
 		},
+		"security": "Security",
+		"securityPage": {
+			"confirmPassword": "Confirm new password",
+			"confirmPasswordPlaceholder": "Re-enter your new password",
+			"currentPassword": "Current password",
+			"currentPasswordPlaceholder": "Enter your current password",
+			"newPassword": "New password",
+			"newPasswordPlaceholder": "Enter a new password",
+			"noPassword": {
+				"description": "Your account signs in with a different method, so there is no password to change.",
+				"title": "Password change isn't available"
+			},
+			"pageTitle": "Security",
+			"sectionSubtitle": "Change the password you use to sign in.",
+			"sectionTitle": "Password",
+			"submit": "Update password",
+			"submitting": "Updating...",
+			"subtitle": "Manage your password and account security.",
+			"title": "Security",
+			"updateError": "Failed to update password.",
+			"updateSuccess": "Password updated.",
+			"validation": {
+				"confirmRequired": "Confirm your new password.",
+				"currentRequired": "Enter your current password.",
+				"mismatch": "Passwords do not match.",
+				"tooShort": "New password must be at least 8 characters.",
+				"sameAsCurrent": "New password must be different from your current password."
+			}
+		},
 		"workspaceCalendar": {
 			"addHoliday": "Add holiday",
 			"dateLabel": "Date",
@@ -1543,6 +1594,7 @@
 			"holidayNameRequired": "Holiday name is required",
 			"holidaysSubtitle": "Dates the workspace doesn't work on, in addition to non-working weekdays.",
 			"holidaysTitle": "Holidays",
+			"loading": "Loading calendar…",
 			"nameLabel": "Name",
 			"namePlaceholder": "e.g. New Year's Day",
 			"subtitle": "Set which weekdays this workspace works on, and add holidays. The Gantt shades non-working days and the auto-reschedule cascade skips them.",
@@ -1555,8 +1607,7 @@
 			"toastWorkingDaysUpdated": "Working days updated",
 			"toastWorkingDaysUpdateError": "Failed to update working days",
 			"workingDaysSubtitle": "Toggle the weekdays this workspace is open for work.",
-			"workingDaysTitle": "Working days",
-			"loading": "Loading calendar…"
+			"workingDaysTitle": "Working days"
 		}
 	},
 	"navigation": {
@@ -1977,6 +2028,13 @@
 				},
 				"mermaid": {
 					"renderFailed": "Mermaid ダイアグラムを描画できませんでした"
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
 			},
 			"customFieldUpdated": "Field updated",
@@ -2002,7 +2060,7 @@
 				"blocked_by": "ブロックされている",
 				"related": "関連"
 			},
-			"tasksInOtherProject": "In {{project}}",
+			"circularDependencyError": "This dependency would create a circular dependency",
 			"crossProjectStatusReadOnly": "Status is managed in this task's own project",
 			"dependency": {
 				"lagHint": "Positive delays the start; negative (lead) allows overlap.",
@@ -2025,7 +2083,7 @@
 				},
 				"updateError": "Failed to update dependency"
 			},
-			"circularDependencyError": "This dependency would create a circular dependency"
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "サブタスク",
@@ -2049,9 +2107,9 @@
 			"startDate": "開始日",
 			"noDate": "日付なし",
 			"baseline": "Baseline",
+			"constraint": "Constraint",
 			"milestone": "Milestone",
-			"progress": "Progress",
-			"constraint": "Constraint"
+			"progress": "Progress"
 		},
 		"move": {
 			"title": "タスクを移動",
@@ -2118,6 +2176,19 @@
 				"setError": "Failed to set baseline",
 				"setSuccess": "Baseline set from current dates"
 			},
+			"constraint": {
+				"currentDate": "Current: {{date}}",
+				"label": "Constraint",
+				"pickDate": "Pick a constraint date",
+				"type": {
+					"finish_no_later_than": "Finish no later than",
+					"must_start_on": "Must start on",
+					"none": "No constraint",
+					"start_no_earlier_than": "Start no earlier than"
+				},
+				"updateError": "Failed to update task constraint",
+				"updateSuccess": "Task constraint updated"
+			},
 			"milestone": {
 				"description": "Mark this task as a single-date milestone on the Gantt chart",
 				"label": "Milestone",
@@ -2129,19 +2200,6 @@
 				"percentLabel": "Percent complete",
 				"updateError": "Failed to update task progress",
 				"updateSuccess": "Task progress updated"
-			},
-			"constraint": {
-				"currentDate": "{{date}}",
-				"label": "Constraint",
-				"pickDate": "Pick a constraint date",
-				"type": {
-					"finish_no_later_than": "Finish no later than",
-					"must_start_on": "Must start on",
-					"none": "No constraint",
-					"start_no_earlier_than": "Start no earlier than"
-				},
-				"updateError": "Failed to update task constraint",
-				"updateSuccess": "Task constraint updated"
 			}
 		},
 		"backlog": {
@@ -2242,30 +2300,30 @@
 			"nextPeriod": "Next period",
 			"periodStart": "Timeline start date",
 			"showTaskDates": "Show task dates",
-			"legendBlocking": "Blocking",
-			"legendRelated": "Related",
+			"collapseSubtasks": "Collapse subtasks",
+			"constraintMarkerAriaLabel": "{{title}}: {{type}}, {{date}}",
+			"constraintViolationAriaLabel": "{{title}}: constraint violated — {{type}}, {{date}}",
+			"criticalPathToggle": "Critical path",
+			"criticalPathToggleAriaLabel": "Highlight the critical path",
+			"dependentsRescheduled_other": "Rescheduled {{count}} dependent tasks",
+			"dependentsRescheduleError": "Failed to reschedule dependent tasks",
+			"expandSubtasks": "Expand subtasks",
 			"externalProjectBadge": "in {{projectName}}",
 			"externalTaskTitle": "{{title}} — related task in {{projectName}} (read-only here)",
 			"legendBaseline": "Baseline",
+			"legendBlocking": "Blocking",
+			"legendCriticalPath": "Critical path",
 			"legendMilestone": "Milestone",
+			"legendRelated": "Related",
+			"linkHandleAriaLabel": "{{title}}: drag to create a dependency",
 			"milestoneAriaLabel": "{{title}}: milestone, open task",
 			"progressLabel": "{{progress}}% complete",
+			"summaryAriaLabel": "{{title}}: summary of subtasks, open task",
 			"unitControlAriaLabel": "Timeline granularity",
 			"unitDay": "Day",
 			"unitMonth": "Month",
 			"unitQuarter": "Quarter",
-			"unitWeek": "Week",
-			"collapseSubtasks": "Collapse subtasks",
-			"expandSubtasks": "Expand subtasks",
-			"summaryAriaLabel": "{{title}}: summary of subtasks, open task",
-			"linkHandleAriaLabel": "{{title}}: drag to create a dependency",
-			"dependentsRescheduleError": "Failed to reschedule dependent tasks",
-			"criticalPathToggle": "Critical path",
-			"criticalPathToggleAriaLabel": "Highlight the critical path",
-			"legendCriticalPath": "Critical path",
-			"constraintMarkerAriaLabel": "{{title}}: {{type}}, {{date}}",
-			"constraintViolationAriaLabel": "{{title}}: constraint violated — {{type}}, {{date}}",
-			"dependentsRescheduled_other": "Rescheduled {{count}} dependent tasks"
+			"unitWeek": "Week"
 		},
 		"delete": {
 			"title": "タスクを削除しますか？",
@@ -2319,7 +2377,8 @@
 		"actions": {
 			"archive": "アーカイブ",
 			"markAsPlanned": "計画中に設定",
-			"delete": "削除..."
+			"delete": "削除...",
+			"duplicate": "Duplicate"
 		},
 		"bulk": {
 			"selectedCount": "{{count}} 件選択中",
@@ -2368,7 +2427,12 @@
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
-		"descriptionLoadError": "The description could not be loaded. Retry to load the current version."
+		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"duplicate": {
+			"error": "Failed to duplicate task",
+			"success": "Task duplicated successfully",
+			"titleSuffix": "{{title}} (copy)"
+		}
 	},
 	"invitations": {
 		"email": {
@@ -2592,6 +2656,9 @@
 		"lightTimelineScreenshotAlt": "Kaneo Gantt timeline in light theme, showing scheduled tasks and their durations"
 	},
 	"landing": {
+		"sponsors": {
+			"ciSponsor": "パートナー"
+		},
 		"founder": {
 			"title": "Why Kaneo exists",
 			"intro": "I'm Andrej, and I created Kaneo because I was tired of project management tools that got in the way more than they helped. After years of using bloated, overcomplicated platforms that distracted from actual work, I knew there had to be a better way.",

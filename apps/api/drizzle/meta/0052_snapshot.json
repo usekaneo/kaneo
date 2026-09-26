@@ -1,6 +1,6 @@
 {
-  "id": "771e6936-3e3e-4009-8eae-512f91333296",
-  "prevId": "22a94fb2-6c26-41ef-baca-88dd7fbb6eab",
+  "id": "836a142e-9430-47df-888d-15e5b21d8be2",
+  "prevId": "de1aba3a-dd83-48d6-93a3-c53b2ff18aee",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1534,7 +1534,7 @@
           "name": "integration_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "resource_type": {
           "name": "resource_type",
@@ -3142,6 +3142,19 @@
           "primaryKey": false,
           "notNull": false
         },
+        "constraint_type": {
+          "name": "constraint_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'none'"
+        },
+        "constraint_date": {
+          "name": "constraint_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -4538,6 +4551,13 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true
+        },
+        "working_days": {
+          "name": "working_days",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 62
         }
       },
       "indexes": {},
@@ -4701,6 +4721,89 @@
           "nullsNotDistinct": false,
           "columns": [
             "creem_subscription_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.workspace_holiday": {
+      "name": "workspace_holiday",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "date": {
+          "name": "date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "workspace_holiday_workspaceId_idx": {
+          "name": "workspace_holiday_workspaceId_idx",
+          "columns": [
+            {
+              "expression": "workspace_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "workspace_holiday_workspace_id_workspace_id_fk": {
+          "name": "workspace_holiday_workspace_id_workspace_id_fk",
+          "tableFrom": "workspace_holiday",
+          "tableTo": "workspace",
+          "columnsFrom": [
+            "workspace_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "workspace_holiday_workspace_id_date_unique": {
+          "name": "workspace_holiday_workspace_id_date_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "workspace_id",
+            "date"
           ]
         }
       },

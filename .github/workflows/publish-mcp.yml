@@ -10,8 +10,7 @@ on:
       - packages/mcp/server.json
 
 permissions:
-  contents: write
-  id-token: write
+  contents: read
 
 concurrency:
   group: publish-mcp
@@ -21,6 +20,10 @@ jobs:
   publish:
     runs-on: blacksmith-4vcpu-ubuntu-2404
     if: ${{ github.event_name == 'push' || startsWith(github.event.release.tag_name, 'mcp-v') }}
+    permissions:
+      # gh release create needs contents: write; npm publish --provenance needs id-token: write.
+      contents: write
+      id-token: write
 
     steps:
       - name: Checkout repository
@@ -48,7 +51,9 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 24.19.0
-          cache: pnpm
+          # Publish workflows must not read cache content that a pull
+          # request could have poisoned (zizmor cache-poisoning).
+          package-manager-cache: false
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

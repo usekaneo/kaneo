@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "Името на работниот простор е задолжително"
-			}
+			},
+			"restrictedSubtitle": "Овде само администратор на инстанцата може да создава работни простори. Побарајте покана и освежете ја страницата.",
+			"restrictedCheckInvitations": "Провери покани",
+			"restrictedTitle": "Ви треба покана"
 		},
 		"profileSetup": {
 			"pageTitle": "Заврши го профилот",
@@ -704,7 +707,18 @@
 				"iconRequired": "Иконата е задолжителна"
 			},
 			"importExportTasks": "Импортирање/Експортирање",
-			"importExportTasksDescription": "Импортирање/Експортирање на задачи"
+			"importExportTasksDescription": "Импортирање/Експортирање на задачи",
+			"moveModalConfirm": "Премести проект",
+			"moveModalDescription": "Ова ќе го премести проектот \"{{name}}\" и сите негови задачи во \"{{workspace}}\". Задачите доделени на луѓе што не се членови на тој работен простор ќе останат недоделени, а претплатите на известувања за овој проект ќе бидат отстранети.",
+			"moveModalTitle": "Премести проект?",
+			"moveProject": "Премести во работен простор",
+			"moveProjectAction": "Премести",
+			"moveProjectDescription": "Премести го овој проект, заедно со сите негови задачи, во друг работен простор.",
+			"moveProjectPlaceholder": "Избери работен простор",
+			"toastMoved": "Проектот е успешно преместен",
+			"toastMovedWithUnassigned": "Проектот е успешно преместен. {{taskCount}} задачи останаа недоделени.",
+			"toastMoveError": "Неуспешно преместување на проектот",
+			"moveTargetsError": "Не можеше да се провери во кои работни простори може да го преместите овој проект. Освежете ја страницата за да се обидете повторно."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Интеграции на проект",
@@ -1149,7 +1163,15 @@
 			"branch": "Гранка",
 			"merged": "Споен",
 			"draft": "Нацрт",
-			"open": "Отворен"
+			"open": "Отворен",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL",
+			"remove": "Remove {{title}}",
+			"removeError": "Failed to remove the resource link."
 		},
 		"workspaceRoles": {
 			"pageTitle": "Улоги",
@@ -1530,6 +1552,35 @@
 			"userCount_other": "{{count}} registered users",
 			"you": "(you)"
 		},
+		"security": "Security",
+		"securityPage": {
+			"confirmPassword": "Confirm new password",
+			"confirmPasswordPlaceholder": "Re-enter your new password",
+			"currentPassword": "Current password",
+			"currentPasswordPlaceholder": "Enter your current password",
+			"newPassword": "New password",
+			"newPasswordPlaceholder": "Enter a new password",
+			"noPassword": {
+				"description": "Your account signs in with a different method, so there is no password to change.",
+				"title": "Password change isn't available"
+			},
+			"pageTitle": "Security",
+			"sectionSubtitle": "Change the password you use to sign in.",
+			"sectionTitle": "Password",
+			"submit": "Update password",
+			"submitting": "Updating...",
+			"subtitle": "Manage your password and account security.",
+			"title": "Security",
+			"updateError": "Failed to update password.",
+			"updateSuccess": "Password updated.",
+			"validation": {
+				"confirmRequired": "Confirm your new password.",
+				"currentRequired": "Enter your current password.",
+				"mismatch": "Passwords do not match.",
+				"tooShort": "New password must be at least 8 characters.",
+				"sameAsCurrent": "New password must be different from your current password."
+			}
+		},
 		"workspaceCalendar": {
 			"addHoliday": "Add holiday",
 			"dateLabel": "Date",
@@ -1546,6 +1597,7 @@
 			"holidayNameRequired": "Holiday name is required",
 			"holidaysSubtitle": "Dates the workspace doesn't work on, in addition to non-working weekdays.",
 			"holidaysTitle": "Holidays",
+			"loading": "Loading calendar…",
 			"nameLabel": "Name",
 			"namePlaceholder": "e.g. New Year's Day",
 			"subtitle": "Set which weekdays this workspace works on, and add holidays. The Gantt shades non-working days and the auto-reschedule cascade skips them.",
@@ -1558,8 +1610,7 @@
 			"toastWorkingDaysUpdated": "Working days updated",
 			"toastWorkingDaysUpdateError": "Failed to update working days",
 			"workingDaysSubtitle": "Toggle the weekdays this workspace is open for work.",
-			"workingDaysTitle": "Working days",
-			"loading": "Loading calendar…"
+			"workingDaysTitle": "Working days"
 		}
 	},
 	"navigation": {
@@ -1984,6 +2035,13 @@
 				},
 				"mermaid": {
 					"renderFailed": "Mermaid дијаграмот не можеше да се прикаже"
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
 			},
 			"customFieldUpdated": "Field updated",
@@ -2009,7 +2067,7 @@
 				"related": "е поврзана со",
 				"blocked_by": "блокирана од"
 			},
-			"tasksInOtherProject": "In {{project}}",
+			"circularDependencyError": "This dependency would create a circular dependency",
 			"crossProjectStatusReadOnly": "Status is managed in this task's own project",
 			"dependency": {
 				"lagHint": "Positive delays the start; negative (lead) allows overlap.",
@@ -2032,7 +2090,7 @@
 				},
 				"updateError": "Failed to update dependency"
 			},
-			"circularDependencyError": "This dependency would create a circular dependency"
+			"tasksInOtherProject": "In {{project}}"
 		},
 		"subtasks": {
 			"title": "Подзадачи",
@@ -2056,9 +2114,9 @@
 			"startDate": "Почетен датум",
 			"noDate": "Без датум",
 			"baseline": "Baseline",
+			"constraint": "Constraint",
 			"milestone": "Milestone",
-			"progress": "Progress",
-			"constraint": "Constraint"
+			"progress": "Progress"
 		},
 		"move": {
 			"title": "Премести задача",
@@ -2125,6 +2183,19 @@
 				"setError": "Failed to set baseline",
 				"setSuccess": "Baseline set from current dates"
 			},
+			"constraint": {
+				"currentDate": "Current: {{date}}",
+				"label": "Constraint",
+				"pickDate": "Pick a constraint date",
+				"type": {
+					"finish_no_later_than": "Finish no later than",
+					"must_start_on": "Must start on",
+					"none": "No constraint",
+					"start_no_earlier_than": "Start no earlier than"
+				},
+				"updateError": "Failed to update task constraint",
+				"updateSuccess": "Task constraint updated"
+			},
 			"milestone": {
 				"description": "Mark this task as a single-date milestone on the Gantt chart",
 				"label": "Milestone",
@@ -2136,19 +2207,6 @@
 				"percentLabel": "Percent complete",
 				"updateError": "Failed to update task progress",
 				"updateSuccess": "Task progress updated"
-			},
-			"constraint": {
-				"currentDate": "{{date}}",
-				"label": "Constraint",
-				"pickDate": "Pick a constraint date",
-				"type": {
-					"finish_no_later_than": "Finish no later than",
-					"must_start_on": "Must start on",
-					"none": "No constraint",
-					"start_no_earlier_than": "Start no earlier than"
-				},
-				"updateError": "Failed to update task constraint",
-				"updateSuccess": "Task constraint updated"
 			}
 		},
 		"backlog": {
@@ -2236,31 +2294,31 @@
 			"nextPeriod": "Next period",
 			"periodStart": "Timeline start date",
 			"showTaskDates": "Show task dates",
-			"legendBlocking": "Blocking",
-			"legendRelated": "Related",
+			"collapseSubtasks": "Collapse subtasks",
+			"constraintMarkerAriaLabel": "{{title}}: {{type}}, {{date}}",
+			"constraintViolationAriaLabel": "{{title}}: constraint violated — {{type}}, {{date}}",
+			"criticalPathToggle": "Critical path",
+			"criticalPathToggleAriaLabel": "Highlight the critical path",
+			"dependentsRescheduled_one": "Rescheduled {{count}} dependent task",
+			"dependentsRescheduled_other": "Rescheduled {{count}} dependent tasks",
+			"dependentsRescheduleError": "Failed to reschedule dependent tasks",
+			"expandSubtasks": "Expand subtasks",
 			"externalProjectBadge": "in {{projectName}}",
 			"externalTaskTitle": "{{title}} — related task in {{projectName}} (read-only here)",
 			"legendBaseline": "Baseline",
+			"legendBlocking": "Blocking",
+			"legendCriticalPath": "Critical path",
 			"legendMilestone": "Milestone",
+			"legendRelated": "Related",
+			"linkHandleAriaLabel": "{{title}}: drag to create a dependency",
 			"milestoneAriaLabel": "{{title}}: milestone, open task",
 			"progressLabel": "{{progress}}% complete",
+			"summaryAriaLabel": "{{title}}: summary of subtasks, open task",
 			"unitControlAriaLabel": "Timeline granularity",
 			"unitDay": "Day",
 			"unitMonth": "Month",
 			"unitQuarter": "Quarter",
-			"unitWeek": "Week",
-			"collapseSubtasks": "Collapse subtasks",
-			"expandSubtasks": "Expand subtasks",
-			"summaryAriaLabel": "{{title}}: summary of subtasks, open task",
-			"linkHandleAriaLabel": "{{title}}: drag to create a dependency",
-			"dependentsRescheduleError": "Failed to reschedule dependent tasks",
-			"criticalPathToggle": "Critical path",
-			"criticalPathToggleAriaLabel": "Highlight the critical path",
-			"legendCriticalPath": "Critical path",
-			"constraintMarkerAriaLabel": "{{title}}: {{type}}, {{date}}",
-			"constraintViolationAriaLabel": "{{title}}: constraint violated — {{type}}, {{date}}",
-			"dependentsRescheduled_one": "Rescheduled {{count}} dependent task",
-			"dependentsRescheduled_other": "Rescheduled {{count}} dependent tasks"
+			"unitWeek": "Week"
 		},
 		"delete": {
 			"title": "Избриши задача?",
@@ -2268,6 +2326,11 @@
 			"action": "Избриши задача",
 			"success": "Задачата е успешно избришана",
 			"error": "Неуспешно бришење на задача"
+		},
+		"duplicate": {
+			"titleSuffix": "{{title}} (копија)",
+			"success": "Задачата е успешно дуплирана",
+			"error": "Неуспешно дуплирање на задача"
 		},
 		"archive": {
 			"success": "Архивирани {{count}} задачи"
@@ -2313,6 +2376,7 @@
 			"copyLinkSuccess": "Линкот на задачата е копиран!"
 		},
 		"actions": {
+			"duplicate": "Дуплирај",
 			"archive": "Архивирај",
 			"markAsPlanned": "Означи како планирана",
 			"delete": "Избриши..."
@@ -2602,6 +2666,9 @@
 		"lightTimelineScreenshotAlt": "Kaneo Gantt timeline in light theme, showing scheduled tasks and their durations"
 	},
 	"landing": {
+		"sponsors": {
+			"ciSponsor": "Партнери"
+		},
 		"founder": {
 			"title": "Why Kaneo exists",
 			"intro": "I'm Andrej, and I created Kaneo because I was tired of project management tools that got in the way more than they helped. After years of using bloated, overcomplicated platforms that distracted from actual work, I knew there had to be a better way.",

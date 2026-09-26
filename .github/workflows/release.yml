@@ -124,8 +124,11 @@ jobs:
     permissions:
       contents: read
       packages: write
-    uses: ./.github/workflows/build-images.yml
-    secrets: inherit
+
+    uses: ./.github/workflows/build-images.yml # zizmor: ignore[self-repository] $/-syntax not parsed by pinned actionlint v1.7.12; revisit when supported
+    secrets:
+      GH_PACKAGE_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
     with:
       source_mode: planned
       version: ${{ needs.plan.outputs.version }}
@@ -137,7 +140,8 @@ jobs:
     if: ${{ !inputs.dry_run && needs.plan.outputs.version != '' }}
     permissions:
       contents: read
-    uses: ./.github/workflows/helm-validate.yml
+
+    uses: ./.github/workflows/helm-validate.yml # zizmor: ignore[self-repository] $/-syntax not parsed by pinned actionlint v1.7.12; revisit when supported
 
   release:
     name: Release
@@ -233,6 +237,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-    uses: ./.github/workflows/helm-chart.yml
+
+    uses: ./.github/workflows/helm-chart.yml # zizmor: ignore[self-repository] $/-syntax not parsed by pinned actionlint v1.7.12; revisit when supported
     with:
       version: ${{ needs.plan.outputs.version }}

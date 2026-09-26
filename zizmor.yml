@@ -1,0 +1,10 @@
+# zizmor configuration: https://docs.zizmor.sh/configuration/
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        # Blacksmith's actions are pinned by tag with a version comment,
+        # matching this repository's existing pinning convention.
+        useblacksmith/*: ref-pin
+        # Everything else must be pinned to a commit hash.
+        "*": hash-pin
