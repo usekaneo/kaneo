@@ -2096,7 +2096,9 @@
 			"deleteDialogTitle": "Talep Silinsin mi?",
 			"deleteDialogDescription": "Bu, talebi ve tüm verilerini kalıcı olarak kaldıracak. Bu işlemi geri alamazsınız.",
 			"deleteAction": "Talebi Sil",
-			"completeAria": "Alt talebi tamamlandı olarak işaretle"
+			"completeAria": "Alt talebi tamamlandı olarak işaretle",
+			"progress": "{{total}} alt görevin {{completed}} tanesi tamamlandı",
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
 		},
 		"properties": {
 			"title": "Özellikler",
@@ -2370,6 +2372,7 @@
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"checklistProgress": "{{total}} kontrol listesi öğesinin {{completed}} tanesi tamamlandı",
 		"customFields": {
 			"ariaLabel": "Custom fields"
 		}

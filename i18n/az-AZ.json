@@ -2096,7 +2096,9 @@
 			"deleteDialogTitle": "Tapşırıq silinsin?",
 			"deleteDialogDescription": "Bu, tapşırığı və bütün məlumatlarını həmişəlik siləcək. Bu əməliyyatı geri qaytara bilməzsiniz.",
 			"deleteAction": "Tapşırığı sil",
-			"completeAria": "Alt tapşırığı tamamlanmış kimi işarələ"
+			"completeAria": "Alt tapşırığı tamamlanmış kimi işarələ",
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask.",
+			"progress": "{{completed}} of {{total}} subtasks completed"
 		},
 		"properties": {
 			"title": "Xüsusiyyətlər",
@@ -2370,6 +2372,7 @@
 			"success": "Task duplicated successfully",
 			"titleSuffix": "{{title}} (copy)"
 		},
+		"checklistProgress": "{{completed}} of {{total}} checklist items completed",
 		"customFields": {
 			"ariaLabel": "Custom fields"
 		}

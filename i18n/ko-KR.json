@@ -2089,7 +2089,9 @@
 			"deleteDialogTitle": "작업을 삭제하시겠습니까?",
 			"deleteDialogDescription": "작업과 모든 데이터가 영구적으로 제거됩니다. 이 작업은 취소할 수 없습니다.",
 			"deleteAction": "작업 삭제",
-			"completeAria": "하위 작업을 완료로 표시"
+			"completeAria": "하위 작업을 완료로 표시",
+			"progress": "하위 작업 {{total}}개 중 {{completed}}개 완료",
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
 		},
 		"properties": {
 			"title": "속성",
@@ -2362,6 +2364,7 @@
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"checklistProgress": "체크리스트 항목 {{total}}개 중 {{completed}}개 완료",
 		"customFields": {
 			"ariaLabel": "Custom fields"
 		}

@@ -2096,7 +2096,9 @@
 			"deleteDialogTitle": "Aufgabe löschen?",
 			"deleteDialogDescription": "Dadurch wird die Aufgabe und alle zugehörigen Daten dauerhaft entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
 			"deleteAction": "Aufgabe löschen",
-			"completeAria": "Teilaufgabe als erledigt markieren"
+			"completeAria": "Teilaufgabe als erledigt markieren",
+			"progress": "{{completed}} von {{total}} Unteraufgaben abgeschlossen",
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
 		},
 		"properties": {
 			"title": "Eigenschaften",
@@ -2370,6 +2372,7 @@
 		"descriptionRetry": "Erneut versuchen",
 		"descriptionLoading": "Beschreibung wird geladen…",
 		"descriptionLoadError": "Die Beschreibung konnte nicht geladen werden. Versuche es erneut, um die aktuelle Version zu laden.",
+		"checklistProgress": "{{completed}} von {{total}} Checklistenpunkten abgeschlossen",
 		"customFields": {
 			"ariaLabel": "Custom fields"
 		}

@@ -2110,7 +2110,9 @@
 			"deleteDialogTitle": "Видалити завдання?",
 			"deleteDialogDescription": "Це назавжди видалить завдання та всі його дані. Цю дію неможливо скасувати.",
 			"deleteAction": "Видалити завдання",
-			"completeAria": "Позначити підзавдання виконаним"
+			"completeAria": "Позначити підзавдання виконаним",
+			"progress": "Виконано підзавдань: {{completed}} із {{total}}",
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
 		},
 		"properties": {
 			"title": "Властивості",
@@ -2386,6 +2388,7 @@
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"checklistProgress": "Виконано пунктів списку: {{completed}} із {{total}}",
 		"customFields": {
 			"ariaLabel": "Custom fields"
 		}

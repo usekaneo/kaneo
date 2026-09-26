@@ -5,6 +5,7 @@ function useGetPublicProject(id: string) {
   return useQuery({
     queryKey: ["public-project", id],
     queryFn: ({ signal }) => getPublicProject({ id }, signal),
+    refetchOnMount: true,
   });
 }
 

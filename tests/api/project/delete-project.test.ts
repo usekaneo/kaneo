@@ -4,6 +4,8 @@ const mocks = vi.hoisted(() => ({
   findFirst: vi.fn(),
   delete: vi.fn(),
   deleteS3Object: vi.fn(),
+  publishEvent: vi.fn(),
+  getProjectSubtaskParentProjects: vi.fn(),
 }));
 
 vi.mock("../../../apps/api/src/database", () => ({
@@ -15,6 +17,14 @@ vi.mock("../../../apps/api/src/database", () => ({
 
 vi.mock("../../../apps/api/src/storage/s3", () => ({
   deleteS3Object: mocks.deleteS3Object,
+}));
+
+vi.mock("../../../apps/api/src/events", () => ({
+  publishEvent: mocks.publishEvent,
+}));
+
+vi.mock("../../../apps/api/src/task/get-subtask-parent-projects", () => ({
+  getProjectSubtaskParentProjects: mocks.getProjectSubtaskParentProjects,
 }));
 
 import deleteProject from "../../../apps/api/src/project/controllers/delete-project";
@@ -36,6 +46,10 @@ describe("deleteProject", () => {
       tasks: [],
     });
     mocks.deleteS3Object.mockResolvedValue(undefined);
+    mocks.getProjectSubtaskParentProjects.mockResolvedValue([
+      { projectId: "parent-project" },
+    ]);
+    mocks.publishEvent.mockResolvedValue(undefined);
   });
 
   it("deletes the background object after deleting its project", async () => {
@@ -45,6 +59,9 @@ describe("deleteProject", () => {
 
     await deleteProject("project-1", "workspace-1");
 
+    expect(mocks.publishEvent).toHaveBeenCalledWith("subtask-parents.refresh", {
+      projects: [{ projectId: "parent-project" }],
+    });
     expect(mocks.deleteS3Object).toHaveBeenCalledWith(
       "workspace/ws/project/project-1/backgrounds/background-v1",
     );

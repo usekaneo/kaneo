@@ -2089,7 +2089,9 @@
 			"deleteDialogTitle": "Xóa công việc?",
 			"deleteDialogDescription": "Thao tác này sẽ xóa vĩnh viễn công việc và toàn bộ dữ liệu của nó. Bạn không thể hoàn tác hành động này.",
 			"deleteAction": "Xóa công việc",
-			"completeAria": "Đánh dấu hoàn thành công việc con"
+			"completeAria": "Đánh dấu hoàn thành công việc con",
+			"progress": "Đã hoàn thành {{completed}} trên {{total}} công việc con",
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
 		},
 		"properties": {
 			"title": "Thuộc tính",
@@ -2362,6 +2364,7 @@
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"checklistProgress": "Đã hoàn thành {{completed}} trên {{total}} mục trong danh sách kiểm tra",
 		"customFields": {
 			"ariaLabel": "Custom fields"
 		}

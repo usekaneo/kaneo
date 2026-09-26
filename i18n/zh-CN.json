@@ -2089,7 +2089,9 @@
 			"deleteDialogTitle": "删除任务？",
 			"deleteDialogDescription": "这将永久删除任务及其所有数据，此操作不可撤销。",
 			"deleteAction": "删除任务",
-			"completeAria": "将子任务标记为完成"
+			"completeAria": "将子任务标记为完成",
+			"progress": "已完成 {{completed}}/{{total}} 个子任务",
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
 		},
 		"properties": {
 			"title": "属性",
@@ -2362,6 +2364,7 @@
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"checklistProgress": "已完成 {{completed}}/{{total}} 个清单项",
 		"customFields": {
 			"ariaLabel": "Custom fields"
 		}

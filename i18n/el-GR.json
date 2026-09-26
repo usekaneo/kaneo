@@ -2096,7 +2096,9 @@
 			"deleteDialogTitle": "Διαγραφή εργασίας;",
 			"deleteDialogDescription": "Αυτό θα αφαιρέσει οριστικά την εργασία και όλα τα δεδομένα της. Δεν μπορείτε να αναιρέσετε αυτήν την ενέργεια.",
 			"deleteAction": "Διαγραφή εργασίας",
-			"completeAria": "Επισήμανση υποεργασίας ως ολοκληρωμένης"
+			"completeAria": "Επισήμανση υποεργασίας ως ολοκληρωμένης",
+			"progress": "Ολοκληρώθηκαν {{completed}} από {{total}} υποεργασίες",
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
 		},
 		"properties": {
 			"title": "Ιδιότητες",
@@ -2370,6 +2372,7 @@
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"checklistProgress": "Ολοκληρώθηκαν {{completed}} από {{total}} στοιχεία λίστας ελέγχου",
 		"customFields": {
 			"ariaLabel": "Custom fields"
 		}

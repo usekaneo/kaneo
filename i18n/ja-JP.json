@@ -2089,7 +2089,9 @@
 			"deleteDialogTitle": "タスクを削除しますか？",
 			"deleteDialogDescription": "これにより、タスクとそのすべてのデータが完全に削除されます。この操作は取り消せません。",
 			"deleteAction": "タスクを削除",
-			"completeAria": "サブタスクを完了にする"
+			"completeAria": "サブタスクを完了にする",
+			"progress": "サブタスク {{total}} 件中 {{completed}} 件完了",
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
 		},
 		"properties": {
 			"title": "プロパティ",
@@ -2362,6 +2364,7 @@
 			"success": "Task duplicated successfully",
 			"titleSuffix": "{{title}} (copy)"
 		},
+		"checklistProgress": "チェックリスト {{total}} 項目中 {{completed}} 項目完了",
 		"customFields": {
 			"ariaLabel": "Custom fields"
 		}
