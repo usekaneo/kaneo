@@ -7,7 +7,13 @@ import {
 } from "@playwright/test";
 
 async function post(request: APIRequestContext, path: string, data: object) {
-  const response = await request.post(`/api/${path}`, { data });
+  const baseURL = test.info().project.use.baseURL;
+  if (!baseURL) throw new Error("Browser tests require a baseURL");
+  const response = await request.post(`/api/${path}`, {
+    data,
+    // Authenticated fixture requests must satisfy the same origin checks as the UI.
+    headers: { Origin: new URL(baseURL).origin },
+  });
   await expect(response).toBeOK();
   return response.json();
 }
