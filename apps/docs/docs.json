@@ -47,6 +47,7 @@
 						"pages": [
 							"index",
 							"core/index",
+							"core/functional/index",
 							"core/functional/create-workspace-and-project"
 						]
 					},
