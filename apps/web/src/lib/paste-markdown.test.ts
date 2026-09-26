@@ -43,6 +43,22 @@ describe("Markdown paste and edit round trips", () => {
     expect(editor.getMarkdown()).toBe(saved);
     expect(editor.getHTML()).toContain("<strong>");
   });
+  it("inserts inline formatting inside the existing paragraph", () => {
+    setup("Hello world");
+    editor.commands.setTextSelection(7);
+    expect(pasteMarkdown(editor, clipboard("**bold** "))).toBe(true);
+    expect(editor.getHTML()).toBe("<p>Hello <strong>bold</strong> world</p>");
+  });
+  it.each([
+    "www.youtube.com/watch?v=video",
+    "youtube.com/watch?v=video",
+    "www.example.com/issue/TEST-1",
+  ])("leaves %s to URL handlers", (url) => {
+    setup();
+    const event = clipboard(url);
+    expect(pasteMarkdown(editor, event)).toBe(false);
+    expect(event.preventDefault).not.toHaveBeenCalled();
+  });
   it("leaves rich text, plain text and code-block pastes alone", () => {
     setup();
     expect(

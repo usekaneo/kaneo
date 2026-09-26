@@ -16,6 +16,18 @@ export function pasteMarkdown(editor: Editor, event: ClipboardEvent): boolean {
   // Leave single URLs to the issue-link and video-embed paste handlers.
   if (/^https?:\/\/\S+$/i.test(text.trim())) return false;
   const document = editor.markdown.parse(text);
+  const soleParagraph =
+    document.content?.length === 1 && document.content[0].type === "paragraph"
+      ? document.content[0]
+      : undefined;
+  const soleInline =
+    soleParagraph?.content?.length === 1 ? soleParagraph.content[0] : undefined;
+  // GFM autolinks such as www.youtube.com must reach specialized URL handlers.
+  if (
+    soleInline?.text === text.trim() &&
+    soleInline.marks?.some((mark) => mark.type === "link")
+  )
+    return false;
   const hasFormatting = (nodes: typeof document.content): boolean =>
     (nodes ?? []).some(
       (node) =>
@@ -27,6 +39,8 @@ export function pasteMarkdown(editor: Editor, event: ClipboardEvent): boolean {
     );
   if (!hasFormatting(document.content)) return false;
   event.preventDefault();
-  editor.commands.insertContent(document.content ?? []);
+  editor.commands.insertContent(
+    soleParagraph?.content ?? document.content ?? [],
+  );
   return true;
 }
