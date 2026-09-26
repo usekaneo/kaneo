@@ -2,9 +2,11 @@ const INSTANCE_ADMIN_ROLE = "admin";
 const DEFAULT_ROLE = "user";
 
 function roleTokens(role: unknown) {
-  return typeof role === "string" && role.length > 0
-    ? role.split(",")
-    : [DEFAULT_ROLE];
+  const tokens =
+    typeof role === "string"
+      ? role.split(",").filter((token) => token !== "")
+      : [];
+  return tokens.length > 0 ? tokens : [DEFAULT_ROLE];
 }
 
 export function hasInstanceAdminRole(role: unknown) {

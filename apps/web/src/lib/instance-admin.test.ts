@@ -47,4 +47,12 @@ describe("withInstanceAdminRole", () => {
   it("leaves a list that already has admin unchanged", () => {
     expect(withInstanceAdminRole("user,admin", true)).toBe("user,admin");
   });
+
+  it("drops empty tokens so a demotion never stores an empty role", () => {
+    expect(withInstanceAdminRole("admin,", false)).toBe("user");
+    expect(withInstanceAdminRole(",admin", false)).toBe("user");
+    expect(withInstanceAdminRole("user,admin,", false)).toBe("user");
+    expect(withInstanceAdminRole("user,", true)).toBe("user,admin");
+    expect(withInstanceAdminRole("", true)).toBe("user,admin");
+  });
 });
