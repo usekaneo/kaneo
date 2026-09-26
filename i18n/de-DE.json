@@ -1600,6 +1600,34 @@
 				"tooShort": "New password must be at least 8 characters.",
 				"sameAsCurrent": "New password must be different from your current password."
 			}
+		},
+		"calendarFeeds": {
+			"title": "Kalender-Feeds",
+			"subtitle": "Abonniere geplante Projektaufgaben in deiner Kalender-App.",
+			"createTitle": "Kalender-Feed erstellen",
+			"filterHint": "Enthält Aufgaben mit einem Start- oder Fälligkeitsdatum und mindestens einem der ausgewählten Labels.",
+			"labels": "Labels",
+			"selectLabels": "Labels suchen und auswählen…",
+			"noLabels": "Keine Labels gefunden.",
+			"timeZoneHint": "Ganztägige Termine verwenden {{timeZone}}.",
+			"accessHint": "Jeder mit einem Feed-Link kann die Titel, Beschreibungen und Termine der passenden Aufgaben lesen. Widerrufe einen Link, um den künftigen Zugriff zu beenden.",
+			"create": "Feed erstellen",
+			"creating": "Wird erstellt…",
+			"created": "Kalender-Feed erstellt.",
+			"createError": "Kalender-Feed konnte nicht erstellt werden.",
+			"activeFeeds": "Aktive Feeds",
+			"subscribeHint": "Kopiere einen Link und füge ihn als Kalenderabonnement hinzu. Änderungen erscheinen, sobald deine Kalender-App den Feed aktualisiert.",
+			"empty": "Noch keine Kalender-Feeds.",
+			"feedUrl": "Kalender-Feed-URL",
+			"copy": "Link kopieren",
+			"copied": "Kalender-Feed-Link kopiert.",
+			"copyError": "Link konnte nicht kopiert werden. Wähle die URL aus und kopiere sie manuell.",
+			"revoke": "Widerrufen",
+			"revoked": "Kalender-Feed widerrufen.",
+			"revokeError": "Kalender-Feed konnte nicht widerrufen werden.",
+			"loadError": "Kalender-Feeds oder Labels konnten nicht geladen werden. Bitte versuche es erneut.",
+			"deletedLabel": "Gelöschtes Label",
+			"permissionRequired": "Du benötigst die Berechtigung zum Teilen von Projekten, um Kalender-Feeds zu verwalten."
 		}
 	},
 	"navigation": {

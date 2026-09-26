@@ -804,6 +804,41 @@
           "url"
         ]
       },
+      "CalendarFeed": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          },
+          "labelIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "projectId",
+          "token",
+          "labelIds",
+          "timeZone",
+          "createdAt"
+        ]
+      },
       "TaskDescriptionMatches": {
         "type": "object",
         "properties": {
@@ -4018,6 +4053,60 @@
           },
           "503": {
             "description": "Description request timed out",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/calendar-feed/{token}/calendar.ics": {
+      "get": {
+        "operationId": "getCalendarFeed",
+        "tags": [
+          "Calendar feeds"
+        ],
+        "summary": "Subscribe to a calendar feed",
+        "description": "Read scheduled project tasks using a secret calendar feed link. Anyone with the link can read matching task titles, descriptions, and dates. Responses are streamed; descriptions longer than 4096 characters and titles or calendar names longer than 1024 characters are truncated with an ellipsis.",
+        "security": [],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "required": true,
+            "name": "token",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "iCalendar feed",
+            "content": {
+              "text/calendar": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid feed token",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Calendar feed not found or revoked",
             "content": {
               "text/plain": {
                 "schema": {
@@ -7395,6 +7484,247 @@
           },
           "500": {
             "description": "Failed to save the project background",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/calendar-feed/project/{projectId}": {
+      "get": {
+        "operationId": "listCalendarFeeds",
+        "tags": [
+          "Calendar feeds"
+        ],
+        "summary": "List project calendar feeds",
+        "description": "List secret calendar subscription links. Requires project sharing permission.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Calendar feeds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CalendarFeed"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or unknown project",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No workspace access or missing project sharing permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createCalendarFeed",
+        "tags": [
+          "Calendar feeds"
+        ],
+        "summary": "Create a calendar feed",
+        "description": "Create a calendar subscription matching any selected label. Tasks need a start or due date. All-day dates use the supplied time zone. Creating a missing workspace label definition also requires label:create permission.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "labelIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 1,
+                    "maxItems": 100
+                  },
+                  "timeZone": {
+                    "type": "string",
+                    "default": "UTC"
+                  }
+                },
+                "required": [
+                  "labelIds"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Calendar feed created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarFeed"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or unknown project",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No workspace access, missing project:share permission, or missing label:create permission for a new workspace label definition",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/calendar-feed/project/{projectId}/{id}": {
+      "delete": {
+        "operationId": "revokeCalendarFeed",
+        "tags": [
+          "Calendar feeds"
+        ],
+        "summary": "Revoke a calendar feed",
+        "description": "Revoke a calendar subscription link, preventing further access through it.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Calendar feed revoked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or unknown project",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No workspace access or missing project sharing permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Calendar feed not found in this project",
             "content": {
               "text/plain": {
                 "schema": {
