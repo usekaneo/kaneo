@@ -639,7 +639,9 @@
 			"labels": "Labels",
 			"labelsDescription": "Show task labels and tags",
 			"priority": "Priority",
-			"priorityDescription": "Display priority indicators"
+			"priorityDescription": "Display priority indicators",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"developerPage": {
 			"pageTitle": "Developer Settings",
@@ -1004,6 +1006,15 @@
 			"descriptionLabel": "Description",
 			"descriptionHint": "A brief description of your project",
 			"descriptionPlaceholder": "Enter project description",
+			"backgroundLabel": "Board background",
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundUpload": "Upload image",
+			"backgroundReplace": "Replace image",
+			"backgroundRemove": "Remove image",
+			"backgroundUploadSuccess": "Project background updated",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundRemoveError": "Failed to remove project background",
 			"dangerZone": "Danger zone",
 			"dangerZoneSubtitle": "Irreversible and destructive actions.",
 			"deleteProject": "Delete project",
@@ -1114,6 +1125,8 @@
 			"noOptionsPlaceholder": "No options",
 			"defaultValuePlaceholder": "Default value",
 			"optionsPlaceholder": "Options separated by commas",
+			"selectPlaceholder": "Select option(s)",
+			"defaultValues": "{{count}} default(s)",
 			"required": "Required",
 			"addButton": "Add",
 			"creating": "Creating...",
@@ -1126,13 +1139,20 @@
 			"deleting": "Deleting...",
 			"deleteSuccess": "Custom field deleted.",
 			"deleteError": "Failed to delete custom field.",
+			"reorderError": "Failed to reorder fields",
+			"moreOptions": "+{{hiddenCount}} more",
+			"clearDefault": "Clear",
+			"options": "{{count}} option(s)",
+			"availableOptions": "Available options",
 			"types": {
 				"text": "Text",
 				"number": "Number",
 				"date": "Date",
 				"dropdown": "Dropdown",
-				"boolean": "Boolean"
-			}
+				"boolean": "Boolean",
+				"multiselect": "Multi-Select"
+			},
+			"multiple": "Multiple"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -1663,6 +1683,34 @@
 				"mismatch": "Passwords do not match.",
 				"sameAsCurrent": "New password must be different from your current password."
 			}
+		},
+		"calendarFeeds": {
+			"title": "Calendar feeds",
+			"subtitle": "Subscribe to scheduled project tasks in your calendar app.",
+			"createTitle": "Create a calendar feed",
+			"filterHint": "Include tasks with a start or due date and at least one of the selected labels.",
+			"labels": "Labels",
+			"selectLabels": "Search and select labels…",
+			"noLabels": "No labels found.",
+			"timeZoneHint": "All-day dates use {{timeZone}}.",
+			"accessHint": "Anyone with a feed link can read the matching task titles, descriptions, and dates. Revoke a link to stop future access.",
+			"create": "Create feed",
+			"creating": "Creating…",
+			"created": "Calendar feed created.",
+			"createError": "Could not create the calendar feed.",
+			"activeFeeds": "Active feeds",
+			"subscribeHint": "Copy a link and add it as a calendar subscription. Updates appear when your calendar app refreshes the feed.",
+			"empty": "No calendar feeds yet.",
+			"feedUrl": "Calendar feed URL",
+			"copy": "Copy link",
+			"copied": "Calendar feed link copied.",
+			"copyError": "Could not copy the link. Select the URL and copy it manually.",
+			"revoke": "Revoke",
+			"revoked": "Calendar feed revoked.",
+			"revokeError": "Could not revoke the calendar feed.",
+			"loadError": "Could not load calendar feeds or labels. Please try again.",
+			"deletedLabel": "Deleted label",
+			"permissionRequired": "You need project-sharing permission to manage calendar feeds."
 		}
 	},
 	"navigation": {
@@ -1953,6 +2001,7 @@
 		}
 	},
 	"tasks": {
+		"checklistProgress": "{{completed}} of {{total}} checklist items completed",
 		"title": "Tasks",
 		"status": {
 			"label": "Status",
@@ -2120,6 +2169,8 @@
 			}
 		},
 		"subtasks": {
+			"progress": "{{completed}} of {{total}} subtasks completed",
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask.",
 			"title": "Sub-tasks",
 			"inputPlaceholder": "Subtask title...",
 			"addAction": "Add",
@@ -2398,6 +2449,9 @@
 				"deleteRow": "Delete row",
 				"deleteTable": "Delete table"
 			}
+		},
+		"customFields": {
+			"ariaLabel": "Custom fields"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

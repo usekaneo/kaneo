@@ -20,6 +20,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
+import getColumns from "@/fetchers/column/get-columns";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-status";
@@ -72,17 +73,9 @@ export default function TaskSubtasks({
   const canEdit = canUpdateTasks();
   const canCreate = canCreateTasks();
 
-  // Map the completion checkbox to the project's actual column slugs (the API
-  // validates status against columns). A subtask counts as completed when its
-  // status is a final column.
-  const doneSlug = columns.find((c) => c.isFinal)?.slug ?? "done";
   const todoSlug = columns.find((c) => !c.isFinal)?.slug;
   const canCreateSubtask =
     parentStatus === "planned" || (!isLoadingColumns && Boolean(todoSlug));
-  const isCompleted = (status: string) =>
-    columns.length > 0
-      ? (columns.find((c) => c.slug === status)?.isFinal ?? false)
-      : status === "done";
 
   const subtasks = relations
     .filter(
@@ -94,9 +87,7 @@ export default function TaskSubtasks({
         item.task !== null,
     );
 
-  const completedCount = subtasks.filter((s) =>
-    isCompleted(s.task.status),
-  ).length;
+  const completedCount = subtasks.filter((s) => s.task.isCompleted).length;
   const totalCount = subtasks.length;
   const hasSelection = selectedIds.size > 0;
 
@@ -145,10 +136,23 @@ export default function TaskSubtasks({
 
   const handleToggleComplete = async (taskObj: Task) => {
     try {
-      await updateTaskStatus({
-        ...taskObj,
-        status: isCompleted(taskObj.status) ? (todoSlug ?? "to-do") : doneSlug,
+      // Fetch at activation so a cached workflow cannot send a stale status.
+      const taskColumns = await queryClient.fetchQuery({
+        queryKey: ["columns", taskObj.projectId],
+        queryFn: () => getColumns(taskObj.projectId),
+        staleTime: 0,
       });
+      const completed = taskColumns.some(
+        (column) => column.slug === taskObj.status && column.isFinal,
+      );
+      const nextColumn = taskColumns.find(
+        (column) => column.isFinal !== completed,
+      );
+      if (!nextColumn) {
+        toast.error(t("tasks:subtasks.noCompletionColumn"));
+        return;
+      }
+      await updateTaskStatus({ ...taskObj, status: nextColumn.slug });
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -224,7 +228,7 @@ export default function TaskSubtasks({
               to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
               params: {
                 workspaceId,
-                projectId,
+                projectId: subtasks[focusedIndex].task.projectId,
                 taskId: subtasks[focusedIndex].task.id,
               },
             });
@@ -254,7 +258,6 @@ export default function TaskSubtasks({
     clearSelection,
     navigate,
     workspaceId,
-    projectId,
     toggleSelection,
   ]);
 
@@ -373,11 +376,11 @@ export default function TaskSubtasks({
                     key={subtask.task.id}
                     task={taskObj}
                     tasks={getTargetTasks(taskObj)}
-                    projectId={projectId}
+                    projectId={subtask.task.projectId}
                     workspaceId={workspace?.id ?? workspaceId}
                     isSelected={isSelected}
                     isFocused={focusedIndex === index}
-                    isCompleted={isCompleted(subtask.task.status)}
+                    isCompleted={subtask.task.isCompleted}
                     canEdit={canEdit}
                     selectionRadius={getSelectionRadius(index, isSelected)}
                     assignee={getAssignee(subtask.task.userId)}
@@ -387,7 +390,7 @@ export default function TaskSubtasks({
                         to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
                         params: {
                           workspaceId,
-                          projectId,
+                          projectId: subtask.task.projectId,
                           taskId: subtask.task.id,
                         },
                       })

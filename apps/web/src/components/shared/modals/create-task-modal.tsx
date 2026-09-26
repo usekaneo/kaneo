@@ -14,6 +14,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import TaskDescriptionEditor from "@/components/task/task-description-editor";
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
   AlertDialog,
   AlertDialogClose,
   AlertDialogContent,
@@ -33,6 +39,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
+  Combobox,
+  ComboboxChips,
+  ComboboxChipsInput,
+  ComboboxEmpty,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxPopup,
+  ComboboxValue,
+} from "@/components/ui/combobox";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -46,6 +62,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/preview-card";
 import {
   Select,
   SelectContent,
@@ -105,7 +126,13 @@ type Label = {
 
 type PopoverStep = "select" | "color";
 
-type CustomFieldType = "text" | "number" | "date" | "dropdown" | "boolean";
+type CustomFieldType =
+  | "text"
+  | "number"
+  | "date"
+  | "dropdown"
+  | "boolean"
+  | "multiselect";
 
 type CustomFieldDefinition = {
   id: string;
@@ -321,6 +348,14 @@ function CreateTaskModalContent({
     }, {});
   }, [customFields]);
 
+  const hasCustomFieldChanges = Object.entries(customFieldValues).some(
+    ([fieldId, value]) => {
+      const field = customFields.find((f) => f.id === fieldId);
+      const defaultValue = field?.defaultValue ?? "";
+      return value !== defaultValue;
+    },
+  );
+
   const hasUnsavedChanges = Boolean(
     title.trim() ||
       description.trim() ||
@@ -330,7 +365,8 @@ function CreateTaskModalContent({
       dueDate ||
       selectedProjectId ||
       labels.length > 0 ||
-      draftTask,
+      draftTask ||
+      hasCustomFieldChanges,
   );
 
   const discardDraft = useCallback(() => {
@@ -790,7 +826,7 @@ function CreateTaskModalContent({
             <SelectContent>
               {options.map((opt) => (
                 <SelectItem key={opt} value={opt}>
-                  {opt}
+                  <span className="block max-w-50 truncate">{opt}</span>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -834,6 +870,158 @@ function CreateTaskModalContent({
             />
           </div>
         );
+
+      case "multiselect": {
+        const selectedValues: string[] = (() => {
+          if (!value) return [];
+          try {
+            const parsed = JSON.parse(value);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch {
+            return value.split(",").filter((v) => v.length > 0);
+          }
+        })();
+        const MAX_VISIBLE_CHIPS = 3;
+
+        return (
+          <Combobox
+            multiple={true}
+            autoHighlight
+            items={Array.from(new Set(field.options ?? []))}
+            value={selectedValues}
+            onValueChange={(val) =>
+              handleCustomFieldChange(field.id, JSON.stringify(val))
+            }
+          >
+            <ComboboxChips className="h-9 w-full flex-[2_0_0] select-none cursor-default text-sm disabled:opacity-50">
+              <ComboboxValue>
+                {(values: string[]) => {
+                  const visibleChips = values.slice(0, MAX_VISIBLE_CHIPS);
+                  const hiddenCount = values.length - MAX_VISIBLE_CHIPS;
+
+                  return (
+                    <>
+                      {visibleChips.map((value) => (
+                        <div
+                          key={value}
+                          className={cn(
+                            "min-w-0 max-w-full flex-1 shrink basis-0",
+                            "inline-flex items-center overflow-hidden",
+                            "rounded-md bg-secondary px-1.5 py-0.5",
+                            "select-none cursor-default",
+                          )}
+                        >
+                          <span className="block min-w-0 max-w-full truncate text-xs text-secondary-foreground">
+                            {value}
+                          </span>
+                        </div>
+                      ))}
+                      {values.length > MAX_VISIBLE_CHIPS && (
+                        <HoverCard>
+                          <HoverCardTrigger asChild>
+                            <button
+                              type="button"
+                              className="shrink-0 inline-flex items-center gap-1 text-xs font-medium cursor-pointer text-foreground/50 pe-1"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                              }}
+                              onPointerDown={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                              }}
+                            >
+                              {t("settings:customFields.moreOptions", {
+                                hiddenCount,
+                              })}
+                            </button>
+                          </HoverCardTrigger>
+
+                          <HoverCardContent
+                            side="top"
+                            align="start"
+                            className="flex max-w-xs flex-wrap gap-1"
+                          >
+                            <div className="space-y-1.5">
+                              <div className="text-xs font-medium text-muted-foreground">
+                                {t(
+                                  "settings:customFields.availableOptions",
+                                  "Available options",
+                                )}
+                              </div>
+
+                              <div className="flex min-w-0 max-h-48 flex-wrap gap-x-1.5 gap-y-1.5 overflow-y-auto overflow-x-hidden">
+                                {values
+                                  .slice(MAX_VISIBLE_CHIPS)
+                                  .map((value) => (
+                                    <div
+                                      key={value}
+                                      className={cn(
+                                        "min-w-0 max-w-full",
+                                        "inline-flex items-center overflow-hidden",
+                                        "rounded bg-secondary px-1.5 py-0.5",
+                                        "select-none cursor-default",
+                                      )}
+                                    >
+                                      <span className="block min-w-0 max-w-[13rem] truncate text-xs">
+                                        {value}
+                                      </span>
+                                    </div>
+                                  ))}
+                              </div>
+                            </div>
+                          </HoverCardContent>
+                        </HoverCard>
+                      )}
+
+                      <ComboboxChipsInput
+                        className={cn(
+                          "min-w-0 flex-1 caret-transparent",
+                          values.length > 0 && "hidden",
+                          "pointer-events-none",
+                          "placeholder:text-foreground/50",
+                          "text-transparent",
+                        )}
+                        placeholder={
+                          Array.from(new Set(field.options ?? [])).length === 0
+                            ? t(
+                                "settings:customFields.noOptionsPlaceholder",
+                                "No options",
+                              )
+                            : values.length === 0
+                              ? t(
+                                  "settings:customFields.defaultValuePlaceholder",
+                                  "Default value",
+                                )
+                              : undefined
+                        }
+                      />
+                    </>
+                  );
+                }}
+              </ComboboxValue>
+            </ComboboxChips>
+
+            <ComboboxPopup>
+              <ComboboxEmpty>
+                {t("settings:customFields.noOptionsPlaceholder", "No options")}
+              </ComboboxEmpty>
+
+              <ComboboxList>
+                {(option: string) => (
+                  <ComboboxItem
+                    className="min-w-0 max-w-full"
+                    key={`field_option_${option}`}
+                    value={option}
+                  >
+                    <span className="block max-w-50 truncate">{option}</span>
+                  </ComboboxItem>
+                )}
+              </ComboboxList>
+            </ComboboxPopup>
+          </Combobox>
+        );
+      }
 
       default:
         return (
@@ -909,29 +1097,60 @@ function CreateTaskModalContent({
             </div>
 
             {customFields.length > 0 && (
-              <div className="space-y-4 pt-4 border-t border-border">
-                <h4 className="text-sm font-semibold text-foreground">
-                  {t("tasks:common.customFields")}
-                </h4>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {customFields.map((field) => (
-                    <div
-                      key={`custom-field_${field.id}`}
-                      className="space-y-1.5"
-                    >
-                      <label
-                        htmlFor={`custom-field_${field.id}`}
-                        className="text-xs font-medium text-muted-foreground flex items-center gap-1"
-                      >
-                        {field.name}
-                        {field.required && (
-                          <span className="text-destructive">*</span>
-                        )}
-                      </label>
-                      {renderCustomFieldInput(field)}
-                    </div>
-                  ))}
-                </div>
+              <div className="mt-2">
+                <Accordion
+                  key={resolvedProjectId}
+                  className="w-full"
+                  defaultValue={
+                    customFields.some((field) => field.required)
+                      ? ["custom-fields"]
+                      : []
+                  }
+                >
+                  <AccordionItem
+                    value="custom-fields"
+                    className="rounded-lg border border-border bg-sidebar/30 px-4"
+                  >
+                    <AccordionTrigger className="py-4 hover:no-underline">
+                      <div className="flex items-center gap-2 text-left">
+                        <span className="text-sm font-semibold text-foreground">
+                          {t("tasks:common.customFields")}
+                        </span>
+                        <span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                          {customFields.length}
+                        </span>
+                      </div>
+                    </AccordionTrigger>
+
+                    <AccordionContent className="pb-4">
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="space-y-4 pt-4 border-t border-border sm:col-span-2">
+                          <div className="grid gap-4 sm:grid-cols-2">
+                            {customFields.map((field) => (
+                              <div
+                                key={`custom-field_${field.id}`}
+                                className="space-y-1.5"
+                              >
+                                <label
+                                  htmlFor={`custom-field_${field.id}`}
+                                  className="text-xs font-medium text-muted-foreground flex items-center gap-1"
+                                >
+                                  {field.name}
+                                  {field.required && (
+                                    <span className="text-destructive">*</span>
+                                  )}
+                                </label>
+                                <div className="w-full">
+                                  {renderCustomFieldInput(field)}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </div>
             )}
 

@@ -2501,6 +2501,12 @@
 						},
 						"priorityDescription": {
 							"type": "string"
+						},
+						"projectBackgrounds": {
+							"type": "string"
+						},
+						"projectBackgroundsDescription": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -2542,7 +2548,9 @@
 						"labels",
 						"labelsDescription",
 						"priority",
-						"priorityDescription"
+						"priorityDescription",
+						"projectBackgrounds",
+						"projectBackgroundsDescription"
 					]
 				},
 				"developerPage": {
@@ -3887,6 +3895,33 @@
 						"descriptionPlaceholder": {
 							"type": "string"
 						},
+						"backgroundLabel": {
+							"type": "string"
+						},
+						"backgroundHint": {
+							"type": "string"
+						},
+						"backgroundUpload": {
+							"type": "string"
+						},
+						"backgroundReplace": {
+							"type": "string"
+						},
+						"backgroundRemove": {
+							"type": "string"
+						},
+						"backgroundUploadSuccess": {
+							"type": "string"
+						},
+						"backgroundUploadError": {
+							"type": "string"
+						},
+						"backgroundRemoveSuccess": {
+							"type": "string"
+						},
+						"backgroundRemoveError": {
+							"type": "string"
+						},
 						"dangerZone": {
 							"type": "string"
 						},
@@ -4003,6 +4038,15 @@
 						"descriptionLabel",
 						"descriptionHint",
 						"descriptionPlaceholder",
+						"backgroundLabel",
+						"backgroundHint",
+						"backgroundUpload",
+						"backgroundReplace",
+						"backgroundRemove",
+						"backgroundUploadSuccess",
+						"backgroundUploadError",
+						"backgroundRemoveSuccess",
+						"backgroundRemoveError",
 						"dangerZone",
 						"dangerZoneSubtitle",
 						"deleteProject",
@@ -4330,6 +4374,30 @@
 						"optionsPlaceholder": {
 							"type": "string"
 						},
+						"selectPlaceholder": {
+							"type": "string"
+						},
+						"defaultValues": {
+							"type": "string"
+						},
+						"defaultValues_zero": {
+							"type": "string"
+						},
+						"defaultValues_one": {
+							"type": "string"
+						},
+						"defaultValues_two": {
+							"type": "string"
+						},
+						"defaultValues_few": {
+							"type": "string"
+						},
+						"defaultValues_many": {
+							"type": "string"
+						},
+						"defaultValues_other": {
+							"type": "string"
+						},
 						"required": {
 							"type": "string"
 						},
@@ -4366,6 +4434,39 @@
 						"deleteError": {
 							"type": "string"
 						},
+						"reorderError": {
+							"type": "string"
+						},
+						"moreOptions": {
+							"type": "string"
+						},
+						"clearDefault": {
+							"type": "string"
+						},
+						"options": {
+							"type": "string"
+						},
+						"options_zero": {
+							"type": "string"
+						},
+						"options_one": {
+							"type": "string"
+						},
+						"options_two": {
+							"type": "string"
+						},
+						"options_few": {
+							"type": "string"
+						},
+						"options_many": {
+							"type": "string"
+						},
+						"options_other": {
+							"type": "string"
+						},
+						"availableOptions": {
+							"type": "string"
+						},
 						"types": {
 							"type": "object",
 							"additionalProperties": false,
@@ -4384,9 +4485,22 @@
 								},
 								"boolean": {
 									"type": "string"
+								},
+								"multiselect": {
+									"type": "string"
 								}
 							},
-							"required": ["text", "number", "date", "dropdown", "boolean"]
+							"required": [
+								"text",
+								"number",
+								"date",
+								"dropdown",
+								"boolean",
+								"multiselect"
+							]
+						},
+						"multiple": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -4395,6 +4509,7 @@
 						"noOptionsPlaceholder",
 						"defaultValuePlaceholder",
 						"optionsPlaceholder",
+						"selectPlaceholder",
 						"required",
 						"addButton",
 						"creating",
@@ -4407,7 +4522,12 @@
 						"deleting",
 						"deleteSuccess",
 						"deleteError",
-						"types"
+						"reorderError",
+						"moreOptions",
+						"clearDefault",
+						"availableOptions",
+						"types",
+						"multiple"
 					]
 				},
 				"githubIntegration": {
@@ -6300,6 +6420,118 @@
 						"noPassword",
 						"validation"
 					]
+				},
+				"calendarFeeds": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"title": {
+							"type": "string"
+						},
+						"subtitle": {
+							"type": "string"
+						},
+						"createTitle": {
+							"type": "string"
+						},
+						"filterHint": {
+							"type": "string"
+						},
+						"labels": {
+							"type": "string"
+						},
+						"selectLabels": {
+							"type": "string"
+						},
+						"noLabels": {
+							"type": "string"
+						},
+						"timeZoneHint": {
+							"type": "string"
+						},
+						"accessHint": {
+							"type": "string"
+						},
+						"create": {
+							"type": "string"
+						},
+						"creating": {
+							"type": "string"
+						},
+						"created": {
+							"type": "string"
+						},
+						"createError": {
+							"type": "string"
+						},
+						"activeFeeds": {
+							"type": "string"
+						},
+						"subscribeHint": {
+							"type": "string"
+						},
+						"empty": {
+							"type": "string"
+						},
+						"feedUrl": {
+							"type": "string"
+						},
+						"copy": {
+							"type": "string"
+						},
+						"copied": {
+							"type": "string"
+						},
+						"copyError": {
+							"type": "string"
+						},
+						"revoke": {
+							"type": "string"
+						},
+						"revoked": {
+							"type": "string"
+						},
+						"revokeError": {
+							"type": "string"
+						},
+						"loadError": {
+							"type": "string"
+						},
+						"deletedLabel": {
+							"type": "string"
+						},
+						"permissionRequired": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"title",
+						"subtitle",
+						"createTitle",
+						"filterHint",
+						"labels",
+						"selectLabels",
+						"noLabels",
+						"timeZoneHint",
+						"accessHint",
+						"create",
+						"creating",
+						"created",
+						"createError",
+						"activeFeeds",
+						"subscribeHint",
+						"empty",
+						"feedUrl",
+						"copy",
+						"copied",
+						"copyError",
+						"revoke",
+						"revoked",
+						"revokeError",
+						"loadError",
+						"deletedLabel",
+						"permissionRequired"
+					]
 				}
 			},
 			"required": [
@@ -6338,7 +6570,8 @@
 				"workflowEditor",
 				"externalLinks",
 				"security",
-				"securityPage"
+				"securityPage",
+				"calendarFeeds"
 			]
 		},
 		"navigation": {
@@ -7522,6 +7755,9 @@
 			"type": "object",
 			"additionalProperties": false,
 			"properties": {
+				"checklistProgress": {
+					"type": "string"
+				},
 				"title": {
 					"type": "string"
 				},
@@ -8173,6 +8409,12 @@
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
+						"progress": {
+							"type": "string"
+						},
+						"noCompletionColumn": {
+							"type": "string"
+						},
 						"title": {
 							"type": "string"
 						},
@@ -8208,6 +8450,8 @@
 						}
 					},
 					"required": [
+						"progress",
+						"noCompletionColumn",
 						"title",
 						"inputPlaceholder",
 						"addAction",
@@ -9488,6 +9732,16 @@
 					},
 					"required": ["table"]
 				},
+				"customFields": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"ariaLabel": {
+							"type": "string"
+						}
+					},
+					"required": ["ariaLabel"]
+				},
 				"descriptionSearchLoading": {
 					"type": "string"
 				},
@@ -9505,6 +9759,7 @@
 				}
 			},
 			"required": [
+				"checklistProgress",
 				"title",
 				"status",
 				"priority",
@@ -9537,6 +9792,7 @@
 				"actions",
 				"bulk",
 				"editor",
+				"customFields",
 				"descriptionSearchLoading",
 				"descriptionSearchError",
 				"descriptionRetry",

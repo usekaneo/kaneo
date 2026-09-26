@@ -34,4 +34,15 @@ export const reorderProjectsBody = z.object({
     .min(1),
 });
 
+export const uploadProjectBackgroundBody = z.object({
+  contentType: z.string(),
+  size: z.number(),
+});
+
+export const finalizeProjectBackgroundBody = z.object({
+  key: z.string(),
+  contentType: z.string(),
+  version: z.string(),
+  size: z.number(),
+});
 export const moveProjectBody = z.object({ workspaceId: z.string().min(1) });

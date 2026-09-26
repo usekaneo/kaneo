@@ -5,6 +5,10 @@ import db from "../database";
 import { projectTable } from "../database/schema";
 import { subscribeToEvent } from "../events";
 import { isRedisConfigured } from "../redis";
+import {
+  getRelationSourceProject,
+  getSubtaskParentProjects,
+} from "../task/get-subtask-parent-projects";
 import type {
   BroadcastAdapter,
   BroadcastMessage,
@@ -330,6 +334,7 @@ export function broadcastToProject(
 }
 
 type TaskEvent = {
+  skipSubtaskParentRefresh?: boolean;
   id: string | undefined;
   projectId: string;
   userId: string;
@@ -338,6 +343,29 @@ type TaskEvent = {
   sourceTaskId: string | undefined;
   targetTaskId: string | undefined;
 };
+
+// Include the initiating window: its local mutation refreshes the child project,
+// while it may be displaying a different parent board. Never send child data.
+function refreshParentBoards(
+  projects: { projectId: string }[],
+  currentProjectId = "",
+) {
+  for (const { projectId } of projects) {
+    if (projectId === currentProjectId) continue;
+    broadcastToProject(projectId, {
+      type: "TASK_RELATION_UPDATED",
+      projectId,
+      taskId: "",
+    });
+  }
+}
+
+subscribeToEvent<{ projects: { projectId: string }[] }>(
+  "subtask-parents.refresh",
+  async ({ projects }) => {
+    refreshParentBoards(projects);
+  },
+);
 
 const taskUpdateEvents = [
   "task.created",
@@ -386,6 +414,7 @@ subscribeToEvent<{
     { type: "TASK_MOVED", projectId: fromProjectId, taskId },
     initiatorId,
   );
+  refreshParentBoards(await getSubtaskParentProjects([taskId]), fromProjectId);
 });
 
 subscribeToEvent<{
@@ -435,6 +464,20 @@ subscribeToEvent<{ notificationId: string; userId: string }>(
     }
   },
 );
+
+subscribeToEvent<{
+  projectId: string;
+  initiatorId?: string;
+}>("project.updated", async (data) => {
+  const { projectId, initiatorId } = data;
+  if (!projectId) return;
+
+  broadcastToProject(
+    projectId,
+    { type: "PROJECT_UPDATED", projectId },
+    initiatorId,
+  );
+});
 
 for (const eventName of taskUpdateEvents) {
   subscribeToEvent<TaskEvent>(eventName, async (data) => {
@@ -491,5 +534,13 @@ for (const eventName of taskUpdateEvents) {
       },
       initiatorId,
     );
+    if (eventName === "task.status_changed" && !data.skipSubtaskParentRefresh) {
+      refreshParentBoards(await getSubtaskParentProjects([taskId]), projectId);
+    } else if (eventName === "task-relation.deleted" && data.sourceTaskId) {
+      refreshParentBoards(
+        await getRelationSourceProject(data.sourceTaskId),
+        projectId,
+      );
+    }
   });
 }

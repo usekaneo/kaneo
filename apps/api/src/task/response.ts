@@ -85,6 +85,15 @@ export const boardTaskSchema = z
     assigneeId: z.string().nullable(),
     assigneeImage: z.string().nullable(),
     projectId: z.string(),
+    subtaskCounts: z
+      .object({
+        completed: z.number().int().nonnegative(),
+        total: z.number().int().nonnegative(),
+      })
+      .openapi({
+        description:
+          "Direct subtasks in the workspace; completed means a final column in the child project. Public boards count only children in public projects.",
+      }),
     labels: z.array(taskLabelSchema),
     externalLinks: z.array(taskExternalLinkSchema),
   })
@@ -117,6 +126,7 @@ export const boardSchema = z
         }),
         isPublic: z.boolean().nullable(),
         workspaceId: z.string(),
+        backgroundVersion: z.string().nullable(),
         columns: z.array(boardColumnSchema),
         archivedTasks: z.array(boardTaskSchema),
         plannedTasks: z.array(boardTaskSchema),

@@ -330,6 +330,9 @@ export const projectTable = pgTable(
     archivedAt: timestamp("archived_at", { mode: "date" }),
     lastTaskNumber: integer("last_task_number").notNull().default(0),
     position: integer("position").notNull().default(0),
+    backgroundObjectKey: text("background_object_key"),
+    backgroundMimeType: text("background_mime_type"),
+    backgroundVersion: text("background_version"),
   },
   (table) => [
     unique("project_workspace_id_id_unique").on(table.workspaceId, table.id),
@@ -397,6 +400,26 @@ export const workflowRuleTable = pgTable(
     index("workflow_rule_projectId_idx").on(table.projectId),
     index("workflow_rule_columnId_idx").on(table.columnId),
   ],
+);
+
+export const calendarFeedTable = pgTable(
+  "calendar_feed",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projectTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    token: text("token").notNull().unique(),
+    labelIds: jsonb("label_ids").$type<string[]>().notNull(),
+    timeZone: text("time_zone").notNull().default("UTC"),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [index("calendar_feed_project_id_idx").on(table.projectId)],
 );
 
 export const taskTable = pgTable(

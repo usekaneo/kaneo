@@ -559,7 +559,9 @@
 			"labels": "Labels",
 			"labelsDescription": "Afficher les labels et tags des tâches",
 			"priority": "Priorité",
-			"priorityDescription": "Afficher les indicateurs de priorité"
+			"priorityDescription": "Afficher les indicateurs de priorité",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"developerPage": {
 			"pageTitle": "Paramètres développeur",
@@ -708,6 +710,15 @@
 			},
 			"importExportTasks": "Importation/Exportation",
 			"importExportTasksDescription": "Importation/Exportation des Tâches",
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundLabel": "Board background",
+			"backgroundRemove": "Remove image",
+			"backgroundRemoveError": "Failed to remove project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundReplace": "Replace image",
+			"backgroundUpload": "Upload image",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundUploadSuccess": "Project background updated",
 			"moveModalConfirm": "Déplacer le projet",
 			"moveModalDescription": "Cette action déplacera le projet \"{{name}}\" et toutes ses tâches vers \"{{workspace}}\". Les tâches assignées à des personnes qui ne sont pas membres de cet espace de travail seront désassignées, et les abonnements aux notifications de ce projet seront supprimés.",
 			"moveModalTitle": "Déplacer le projet ?",
@@ -1452,30 +1463,39 @@
 			"webhookPlaceholder": "https://your-mattermost-server.com/hooks/..."
 		},
 		"customFields": {
-			"addButton": "Add",
-			"createError": "Failed to create custom field.",
-			"createSuccess": "Custom field created.",
-			"creating": "Creating...",
-			"defaultLabel": "Default",
-			"defaultValuePlaceholder": "Default value",
-			"deleteButton": "Delete",
-			"deleteError": "Failed to delete custom field.",
-			"deleteSuccess": "Custom field deleted.",
-			"deleting": "Deleting...",
-			"empty": "No custom fields configured yet.",
-			"loading": "Loading custom fields...",
-			"namePlaceholder": "Field name",
-			"noOptionsPlaceholder": "No options",
-			"optionsPlaceholder": "Options separated by commas",
-			"required": "Required",
-			"typePlaceholder": "Select field type",
+			"addButton": "Ajouter",
+			"createError": "Échec de la création du champ personnalisé.",
+			"createSuccess": "Champ personnalisé créé.",
+			"creating": "Création...",
+			"defaultLabel": "Par défaut",
+			"defaultValuePlaceholder": "Valeur par défaut",
+			"deleteButton": "Supprimer",
+			"deleteError": "Échec de la suppression du champ personnalisé.",
+			"deleteSuccess": "Champ personnalisé supprimé.",
+			"deleting": "Suppression...",
+			"empty": "Aucun champ personnalisé configuré pour le moment.",
+			"loading": "Chargement...",
+			"namePlaceholder": "Nom du champ",
+			"noOptionsPlaceholder": "Aucune option",
+			"optionsPlaceholder": "Options séparées par des virgules",
+			"required": "Requis",
+			"typePlaceholder": "Sélectionner un type de champ",
 			"types": {
-				"boolean": "Boolean",
+				"boolean": "Booléen",
 				"date": "Date",
-				"dropdown": "Dropdown",
-				"number": "Number",
-				"text": "Text"
-			}
+				"dropdown": "Sélecteur",
+				"number": "Nombre",
+				"text": "Texte",
+				"multiselect": "Sélection multiple"
+			},
+			"availableOptions": "Options disponibles",
+			"clearDefault": "Effacer",
+			"defaultValues": "{{count}} par défaut",
+			"moreOptions": "+{{hiddenCount}} de plus",
+			"multiple": "Multiple",
+			"options": "{{count}} option(s)",
+			"reorderError": "Échec du réagencement des champs",
+			"selectPlaceholder": "Sélectionner une option"
 		},
 		"administration": "Administration",
 		"adminUsers": {
@@ -1666,6 +1686,34 @@
 			"webhookTitle": "Webhook",
 			"loadProjectsError": "Failed to load projects",
 			"importPermissionHint": "Importing requires permission to create and update tasks."
+		},
+		"calendarFeeds": {
+			"title": "Calendar feeds",
+			"subtitle": "Subscribe to scheduled project tasks in your calendar app.",
+			"createTitle": "Create a calendar feed",
+			"filterHint": "Include tasks with a start or due date and at least one of the selected labels.",
+			"labels": "Labels",
+			"selectLabels": "Search and select labels…",
+			"noLabels": "No labels found.",
+			"timeZoneHint": "All-day dates use {{timeZone}}.",
+			"accessHint": "Anyone with a feed link can read the matching task titles, descriptions, and dates. Revoke a link to stop future access.",
+			"create": "Create feed",
+			"creating": "Creating…",
+			"created": "Calendar feed created.",
+			"createError": "Could not create the calendar feed.",
+			"activeFeeds": "Active feeds",
+			"subscribeHint": "Copy a link and add it as a calendar subscription. Updates appear when your calendar app refreshes the feed.",
+			"empty": "No calendar feeds yet.",
+			"feedUrl": "Calendar feed URL",
+			"copy": "Copy link",
+			"copied": "Calendar feed link copied.",
+			"copyError": "Could not copy the link. Select the URL and copy it manually.",
+			"revoke": "Revoke",
+			"revoked": "Calendar feed revoked.",
+			"revokeError": "Could not revoke the calendar feed.",
+			"loadError": "Could not load calendar feeds or labels. Please try again.",
+			"deletedLabel": "Deleted label",
+			"permissionRequired": "You need project-sharing permission to manage calendar feeds."
 		}
 	},
 	"navigation": {
@@ -2137,7 +2185,9 @@
 			"deleteDialogTitle": "Supprimer la tâche ?",
 			"deleteDialogDescription": "Cela supprimera définitivement la tâche et toutes ses données. Vous ne pouvez pas annuler cette action.",
 			"deleteAction": "Supprimer la tâche",
-			"completeAria": "Marquer la sous-tâche comme terminée"
+			"completeAria": "Marquer la sous-tâche comme terminée",
+			"progress": "{{completed}} sous-tâches terminées sur {{total}}",
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
 		},
 		"properties": {
 			"title": "Propriétés",
@@ -2411,7 +2461,11 @@
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
-		"descriptionLoadError": "The description could not be loaded. Retry to load the current version."
+		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"checklistProgress": "{{completed}} éléments de la liste terminés sur {{total}}",
+		"customFields": {
+			"ariaLabel": "Custom fields"
+		}
 	},
 	"invitations": {
 		"email": {
