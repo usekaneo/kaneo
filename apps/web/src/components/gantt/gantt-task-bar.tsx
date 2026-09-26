@@ -641,9 +641,7 @@ export function GanttTaskBar({
               }}
             >
               <div className="absolute inset-0 z-0 bg-primary/12 transition-colors group-hover:bg-primary/18" />
-              <span className="relative z-10 block truncate">
-                {task.title}
-              </span>
+              <span className="relative z-10 block truncate">{task.title}</span>
             </button>
             <button
               type="button"

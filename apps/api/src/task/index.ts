@@ -697,8 +697,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
     return c.json(tasks, 200);
   })
   .openapi(bulkUpdateTasksRoute, async (c) => {
-    const { taskIds, operation, value, scheduleUpdates } =
-      c.req.valid("json");
+    const { taskIds, operation, value, scheduleUpdates } = c.req.valid("json");
     const userId = c.get("userId");
 
     if (!userId) {

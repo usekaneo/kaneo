@@ -79,8 +79,7 @@ export function GanttSummaryTaskBar({
             aria-hidden="true"
             className={cn(
               "absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-sm bg-foreground/70 dark:bg-foreground/60",
-              emphasis === "highlighted" &&
-                "bg-primary ring-2 ring-primary/40",
+              emphasis === "highlighted" && "bg-primary ring-2 ring-primary/40",
               emphasis === "dimmed" && "opacity-35",
             )}
           />
