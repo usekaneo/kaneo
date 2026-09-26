@@ -118,6 +118,7 @@ test("another workspace member receives task edits in realtime", async ({
 
   const colleague = await browser.newContext({
     baseURL,
+    ignoreHTTPSErrors: test.info().project.use.ignoreHTTPSErrors,
     locale: "en-US",
     viewport: { width: 1440, height: 1000 },
   });

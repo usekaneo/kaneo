@@ -19,6 +19,8 @@ jobs:
     timeout-minutes: 30
     env:
       KANEO_E2E_HOST: bs-local.com
+      KANEO_E2E_TLS: "true"
+      COMPOSE_FILE: tests/e2e/compose.yml:tests/e2e/compose.tls.yml
     steps:
       - name: Check BrowserStack credentials
         env:
@@ -54,8 +56,14 @@ jobs:
           cache-from: type=gha,scope=browserstack
           cache-to: type=gha,mode=max,scope=browserstack
 
+      - name: Create disposable test certificate
+        run: |
+          mkdir -p .cache/e2e-tls
+          openssl req -x509 -newkey rsa:2048 -nodes -days 1 \
+            -keyout .cache/e2e-tls/key.pem -out .cache/e2e-tls/cert.pem \
+            -subj '/CN=bs-local.com' -addext 'subjectAltName=DNS:bs-local.com'
       - name: Start disposable test instance
-        run: docker compose -f tests/e2e/compose.yml up --no-build --wait --wait-timeout 180
+        run: docker compose up --no-build --wait --wait-timeout 180
       - name: Run browser smoke tests
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
@@ -66,7 +74,7 @@ jobs:
         if: failure()
         run: |
           mkdir -p .cache/e2e
-          docker compose -f tests/e2e/compose.yml logs --no-color > .cache/e2e/instance.log
+          docker compose logs --no-color > .cache/e2e/instance.log
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
@@ -76,4 +84,4 @@ jobs:
           retention-days: 7
       - name: Stop disposable test instance
         if: always()
-        run: docker compose -f tests/e2e/compose.yml down --volumes
+        run: docker compose down --volumes

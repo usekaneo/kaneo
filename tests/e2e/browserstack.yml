@@ -14,6 +14,7 @@ platforms:
     browserVersion: latest
 parallelsPerPlatform: 1
 browserstackLocal: true
+acceptInsecureCerts: true
 browserStackLocalOptions:
   forceLocal: true
 testObservability: false

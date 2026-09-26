@@ -1,0 +1,14 @@
+services:
+  kaneo:
+    environment:
+      KANEO_CLIENT_URL: https://bs-local.com:18174
+  tls:
+    image: nginx:1.30-alpine
+    ports:
+      - "127.0.0.1:18174:443"
+    volumes:
+      - ./nginx.tls.conf:/etc/nginx/conf.d/default.conf:ro
+      - ../../.cache/e2e-tls:/etc/nginx/e2e-tls:ro
+    depends_on:
+      kaneo:
+        condition: service_healthy

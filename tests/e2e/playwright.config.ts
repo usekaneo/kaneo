@@ -1,6 +1,7 @@
 import { defineConfig } from "@playwright/test";
 
 const host = process.env.KANEO_E2E_HOST ?? "localhost";
+const tls = process.env.KANEO_E2E_TLS === "true";
 if (host !== "localhost" && host !== "bs-local.com") {
   throw new Error("KANEO_E2E_HOST must be localhost or bs-local.com");
 }
@@ -22,7 +23,9 @@ export default defineConfig({
   use: {
     actionTimeout: 15_000,
     // This port belongs to the disposable Compose stack, never a live instance.
-    baseURL: `http://${host}:18173`,
+    baseURL: tls ? `https://${host}:18174` : `http://${host}:18173`,
+    // The optional cloud-test gateway uses a disposable self-signed certificate.
+    ignoreHTTPSErrors: tls,
     locale: "en-US",
     timezoneId: "UTC",
     viewport: { width: 1440, height: 1000 },
