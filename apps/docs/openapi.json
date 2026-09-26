@@ -4082,8 +4082,9 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^\\d+$"
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000
             },
             "required": false,
             "name": "page",
@@ -4091,8 +4092,9 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^\\d+$"
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000
             },
             "required": false,
             "name": "relatedPage",
@@ -4100,8 +4102,9 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^\\d+$"
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
             },
             "required": false,
             "name": "limit",
@@ -4225,8 +4228,9 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^\\d+$",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2000000000,
               "default": 0
             },
             "required": false,
@@ -4324,8 +4328,9 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^\\d+$",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2000000000,
               "default": 0
             },
             "required": false,
@@ -8111,8 +8116,9 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^\\d+$",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2000000000,
               "default": 0
             },
             "required": false,
@@ -8323,8 +8329,9 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^\\d+$"
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000
             },
             "required": false,
             "name": "page",
@@ -8332,8 +8339,9 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^\\d+$"
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000
             },
             "required": false,
             "name": "relatedPage",
@@ -8341,8 +8349,9 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^\\d+$"
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
             },
             "required": false,
             "name": "limit",
@@ -17310,8 +17319,9 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^\\d+$",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000,
               "default": 1
             },
             "required": false,
@@ -17320,8 +17330,9 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^\\d+$",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
               "default": 20
             },
             "required": false,

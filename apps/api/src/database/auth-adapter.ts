@@ -6,7 +6,10 @@ import {
 } from "better-auth/adapters/drizzle";
 import { APIError } from "better-auth/api";
 import { count, sql } from "drizzle-orm";
-import { hasInstanceAdminRole } from "../utils/instance-admin-role";
+import {
+  hasInstanceAdminRole,
+  instanceAdminRoleSql,
+} from "../utils/instance-admin-role";
 import db, { schema } from ".";
 
 export function authDatabaseAdapter(config: DrizzleAdapterConfig) {
@@ -37,9 +40,7 @@ export function authDatabaseAdapter(config: DrizzleAdapterConfig) {
             const [admins] = await tx
               .select({ value: count() })
               .from(schema.userTable)
-              .where(
-                sql`EXISTS (SELECT 1 FROM unnest(string_to_array(${schema.userTable.role}, ',')) AS entry WHERE btrim(entry) = 'admin')`,
-              );
+              .where(instanceAdminRoleSql(schema.userTable.role));
             if ((admins?.value ?? 0) <= 1) {
               throw new APIError("BAD_REQUEST", {
                 code: "CANNOT_REMOVE_LAST_ADMIN",
