@@ -64,7 +64,7 @@ const moveProjectRoute = createRoute({
   tags: ["Projects"],
   summary: "Move a project to another workspace",
   description:
-    "Move a project and its tasks. Requires update and delete permission in the source and create permission in the destination. Remove cross-project task relationships before moving.",
+    "Move a project and its tasks. Requires update and delete permission in the source, plus project creation and workspace settings management permission in the destination. Remove cross-project task relationships before moving.",
   middleware: [
     workspaceAccess.fromProject(),
     requireWorkspacePermission({ project: ["update", "delete"] }),
@@ -413,7 +413,7 @@ const project = apiRouter<BaseVariables & { workspaceId: string }>()
     if (
       !(await hasWorkspacePermission(
         c,
-        { project: ["create"] },
+        { project: ["create"], workspace: ["manage_settings"] },
         targetWorkspaceId,
       ))
     )

@@ -74,7 +74,10 @@ export const Route = createFileRoute(
 });
 
 // Module-level so their identity stays stable across renders.
-const PROJECT_CREATE = { project: ["create"] };
+const PROJECT_MOVE_TARGET = {
+  project: ["create"],
+  workspace: ["manage_settings"],
+};
 // Asked as one check: the endpoint requires both in the source workspace.
 const PROJECT_UPDATE_AND_DELETE = { project: ["update", "delete"] };
 
@@ -176,17 +179,17 @@ function RouteComponent() {
     () => (workspaces ?? []).filter((item) => item.id !== project?.workspaceId),
     [workspaces, project?.workspaceId],
   );
-  // The endpoint also requires `project:create` in the target, so a workspace
-  // the user can't create in would only fail server-side after they picked it.
+  // Moving retains project integrations, so the endpoint requires both project
+  // creation and settings management in the target workspace.
   const moveCandidateIds = useMemo(
     () => moveCandidates.map((item) => item.id),
     [moveCandidates],
   );
-  const { allowed: canCreateIn, isError: moveTargetsFailed } =
-    useWorkspacesWithPermission(moveCandidateIds, PROJECT_CREATE);
+  const { allowed: canMoveInto, isError: moveTargetsFailed } =
+    useWorkspacesWithPermission(moveCandidateIds, PROJECT_MOVE_TARGET);
   const moveTargets = useMemo(
-    () => moveCandidates.filter((item) => canCreateIn.has(item.id)),
-    [moveCandidates, canCreateIn],
+    () => moveCandidates.filter((item) => canMoveInto.has(item.id)),
+    [moveCandidates, canMoveInto],
   );
   // The API authorizes the move against the project's own workspace, which
   // isn't necessarily the active one `useWorkspacePermission` answers for. It
