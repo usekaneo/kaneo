@@ -157,10 +157,10 @@
 			}
 		},
 		"boolean": {
-			"false": "False",
-			"notSet": "Not Set",
-			"true": "True",
-			"undefined": "Undefined"
+			"false": "نادرست",
+			"notSet": "تنظیم‌نشده",
+			"true": "درست",
+			"undefined": "تعریف‌نشده"
 		}
 	},
 	"auth": {
@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "نام فضای کاری الزامی است"
-			}
+			},
+			"restrictedCheckInvitations": "بررسی دعوت‌نامه‌ها",
+			"restrictedSubtitle": "فقط مدیر نمونه می‌تواند این‌جا فضای کاری بسازد. از او بخواهید شما را دعوت کند، سپس این صفحه را دوباره بارگذاری کنید.",
+			"restrictedTitle": "به دعوت‌نامه نیاز دارید"
 		},
 		"profileSetup": {
 			"pageTitle": "تکمیل پروفایل",
@@ -340,6 +343,30 @@
 				"nameRequired": "نام الزامی است",
 				"nameShort": "نام باید حداقل ۲ کاراکتر باشد"
 			}
+		},
+		"passwordReset": {
+			"backToSignIn": "بازگشت به ورود",
+			"configError": "ارتباط با سرور برقرار نشد. برای تلاش دوباره، صفحه را بازآوری کنید.",
+			"confirmPassword": "تأیید رمز عبور جدید",
+			"forgotPassword": "رمز عبور را فراموش کرده‌اید؟",
+			"invalidLink": "این پیوند بازنشانی نامعتبر است یا منقضی شده است. برای ادامه، پیوند تازه‌ای درخواست کنید.",
+			"newPassword": "رمز عبور جدید",
+			"passwordLength": "بین ۸ تا ۱۲۸ نویسه وارد کنید.",
+			"passwordMismatch": "رمزهای عبور یکسان نیستند.",
+			"requestError": "درخواست پیوند بازنشانی ناموفق بود. دوباره تلاش کنید.",
+			"requestNewLink": "درخواست پیوند جدید",
+			"requestSubtitle": "ایمیل خود را وارد کنید تا پیوند بازنشانی رمز عبور برایتان بفرستیم.",
+			"requestTitle": "بازنشانی رمز عبور",
+			"resetError": "بازنشانی رمز عبور ناموفق بود. دوباره تلاش کنید.",
+			"resetPassword": "بازنشانی رمز عبور",
+			"resetSubtitle": "برای رمز عبور جدید ۸ تا ۱۲۸ نویسه به‌کار ببرید.",
+			"resetting": "در حال بازنشانی…",
+			"resetTitle": "رمز عبور جدیدی انتخاب کنید",
+			"sending": "در حال ارسال…",
+			"sendLink": "ارسال پیوند بازنشانی",
+			"sent": "اگر حسابی با این ایمیل وجود داشته باشد، پیوند بازنشانی رمز عبور دریافت می‌کنید. صندوق ورودی و پوشه هرزنامه را بررسی کنید.",
+			"success": "رمز عبور شما بازنشانی شد. با رمز عبور جدید وارد شوید.",
+			"unavailable": "بازنشانی رمز عبور در دسترس نیست. با مدیر نمونه خود تماس بگیرید."
 		}
 	},
 	"settings": {
@@ -491,7 +518,8 @@
 			"toastPreferencesSaved": "ترجیحات اعلان ذخیره شد",
 			"toastPreferencesSaveFailed": "ذخیره ترجیحات اعلان ناموفق بود",
 			"toastRuleSavedGeneric": "قانون اعلان فضای کاری ذخیره شد",
-			"toastRuleRemovedGeneric": "قانون اعلان فضای کاری حذف شد"
+			"toastRuleRemovedGeneric": "قانون اعلان فضای کاری حذف شد",
+			"recipientHint": "نظرها و تغییرات وضعیت، وظایف محول‌شده به شما را به شما اطلاع می‌دهند. اشاره‌ها به عضو انتخاب‌شده اطلاع داده می‌شوند. نظرها، اشاره‌ها و تغییرات وضعیت خودتان برای شما اعلان نمی‌شوند."
 		},
 		"preferencesPage": {
 			"title": "ترجیحات",
@@ -532,7 +560,9 @@
 			"labels": "برچسب‌ها",
 			"labelsDescription": "نمایش برچسب‌ها و تگ‌های تیکت",
 			"priority": "اولویت",
-			"priorityDescription": "نمایش شاخص‌های اولویت"
+			"priorityDescription": "نمایش شاخص‌های اولویت",
+			"projectBackgrounds": "پس‌زمینه‌های پروژه",
+			"projectBackgroundsDescription": "نمایش تصویرهای پس‌زمینه پروژه روی بردها"
 		},
 		"developerPage": {
 			"pageTitle": "تنظیمات توسعه‌دهنده",
@@ -678,7 +708,12 @@
 				"project": "پروژه‌ها",
 				"task": "تیکت‌ها",
 				"label": "برچسب‌ها",
-				"workspace": "فضای کاری"
+				"workspace": "فضای کاری",
+				"ac": "نقش‌ها و مجوزها",
+				"invitation": "دعوت‌نامه‌ها",
+				"member": "اعضا",
+				"organization": "مدیریت فضای کاری",
+				"team": "تیم‌ها"
 			},
 			"permissions": {
 				"project": {
@@ -760,6 +795,72 @@
 						"label": "مدیریت تنظیمات",
 						"description": "می‌تواند تنظیمات فضای کاری را مدیریت کند"
 					}
+				},
+				"ac": {
+					"create": {
+						"description": "ایجاد نقش‌های فضای کاری و تعیین مجوزهایشان.",
+						"label": "ایجاد نقش"
+					},
+					"delete": {
+						"description": "حذف نقش‌های سفارشی فضای کاری.",
+						"label": "حذف نقش‌ها"
+					},
+					"read": {
+						"description": "خواندن نقش‌های فضای کاری و مجوزهایشان.",
+						"label": "مشاهده نقش‌ها"
+					},
+					"update": {
+						"description": "تغییر مجوزهای نقش، از جمله دسترسی مدیریتی.",
+						"label": "تغییر مجوزهای نقش"
+					}
+				},
+				"invitation": {
+					"cancel": {
+						"description": "لغو دعوت‌نامه‌های در انتظار فضای کاری.",
+						"label": "لغو دعوت‌نامه‌ها"
+					},
+					"create": {
+						"description": "ارسال دعوت‌نامه‌های فضای کاری.",
+						"label": "دعوت اعضا"
+					}
+				},
+				"member": {
+					"create": {
+						"description": "افزودن کاربران به این فضای کاری.",
+						"label": "افزودن اعضا"
+					},
+					"delete": {
+						"description": "حذف کاربران از این فضای کاری.",
+						"label": "حذف اعضا"
+					},
+					"update": {
+						"description": "تغییر نقش‌های محول به اعضای فضای کاری.",
+						"label": "تغییر نقش اعضا"
+					}
+				},
+				"organization": {
+					"delete": {
+						"description": "حذف دائمی فضای کاری از طریق سرویس حساب.",
+						"label": "حذف فضای کاری"
+					},
+					"update": {
+						"description": "تغییر تنظیمات فضای کاری از طریق سرویس حساب.",
+						"label": "ویرایش مدیریت فضای کاری"
+					}
+				},
+				"team": {
+					"create": {
+						"description": "ایجاد تیم در این فضای کاری.",
+						"label": "ایجاد تیم"
+					},
+					"delete": {
+						"description": "حذف تیم‌ها در این فضای کاری.",
+						"label": "حذف تیم‌ها"
+					},
+					"update": {
+						"description": "تغییر تیم‌ها و عضویت اعضای تیم.",
+						"label": "ویرایش تیم‌ها"
+					}
 				}
 			},
 			"validation": {
@@ -803,7 +904,9 @@
 			"createError": "ایجاد برچسب ناموفق بود",
 			"updateError": "به‌روزرسانی برچسب ناموفق بود",
 			"deleteError": "حذف برچسب ناموفق بود",
-			"nameRequired": "نام برچسب الزامی است"
+			"nameRequired": "نام برچسب الزامی است",
+			"deletionPending": "در انتظار حذف",
+			"resumeDeletion": "ادامه حذف"
 		},
 		"projectGeneral": {
 			"pageTitle": "تنظیمات پروژه",
@@ -842,7 +945,27 @@
 				"iconRequired": "نماد الزامی است"
 			},
 			"importExportTasks": "وارد/صادر کردن",
-			"importExportTasksDescription": "وارد و صادر کردن تیکت‌ها."
+			"importExportTasksDescription": "وارد و صادر کردن تیکت‌ها.",
+			"backgroundHint": "تصویری که پشت برد این پروژه نمایش داده می‌شود را انتخاب کنید.",
+			"backgroundLabel": "پس‌زمینه برد",
+			"backgroundRemove": "حذف تصویر",
+			"backgroundRemoveError": "حذف پس‌زمینه پروژه ناموفق بود",
+			"backgroundRemoveSuccess": "پس‌زمینه پروژه حذف شد",
+			"backgroundReplace": "جایگزینی تصویر",
+			"backgroundUpload": "بارگذاری تصویر",
+			"backgroundUploadError": "به‌روزرسانی پس‌زمینه پروژه ناموفق بود",
+			"backgroundUploadSuccess": "پس‌زمینه پروژه به‌روزرسانی شد",
+			"moveModalConfirm": "جابه‌جایی پروژه",
+			"moveModalDescription": "این کار پروژه «{{name}}» و همه وظایفش را به «{{workspace}}» منتقل می‌کند. وظایف محول به افرادی که عضو آن فضای کاری نیستند بدون مسئول می‌شوند و اشتراک‌های اعلان این پروژه پاک می‌شوند.",
+			"moveModalTitle": "جابه‌جایی پروژه؟",
+			"moveProject": "انتقال به فضای کاری",
+			"moveProjectAction": "انتقال",
+			"moveProjectDescription": "این پروژه را با همه وظایفش به فضای کاری دیگری منتقل کنید.",
+			"moveProjectPlaceholder": "انتخاب فضای کاری",
+			"moveTargetsError": "بررسی فضاهای کاری مجاز برای انتقال این پروژه ممکن نشد. برای تلاش دوباره بازآوری کنید.",
+			"toastMoved": "پروژه با موفقیت منتقل شد",
+			"toastMovedWithUnassigned": "پروژه با موفقیت منتقل شد. {{taskCount}} وظیفه بدون مسئول شد.",
+			"toastMoveError": "انتقال پروژه ناموفق بود"
 		},
 		"projectIntegrations": {
 			"pageTitle": "ادغام‌های پروژه",
@@ -860,8 +983,10 @@
 			"slackSectionSubtitle": "ارسال به‌روزرسانی‌های تیکت پروژه به یک کانال اسلک با وب‌هوک ورودی.",
 			"telegramSectionTitle": "ادغام تلگرام",
 			"telegramSectionSubtitle": "ارسال به‌روزرسانی‌های تیکت پروژه به یک گفتگو یا موضوع تلگرام با ربات.",
-			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook.",
-			"mattermostSectionTitle": "Mattermost Integration"
+			"mattermostSectionSubtitle": "ارسال به‌روزرسانی‌های وظایف پروژه به کانال Mattermost با وب‌هوک ورودی.",
+			"mattermostSectionTitle": "ادغام Mattermost",
+			"gitlabSectionSubtitle": "همگام‌سازی وظایف با GitLab.com یا نمونه خودمدیریت‌شده (issueها، درخواست‌های ادغام، وب‌هوک‌ها).",
+			"gitlabSectionTitle": "ادغام GitLab"
 		},
 		"projectVisibility": {
 			"pageTitle": "قابلیت مشاهده پروژه",
@@ -886,8 +1011,8 @@
 			"columnsDescription": "ستون‌هایی را که در برد شما ظاهر می‌شوند مدیریت کنید. برای مرتب‌سازی مجدد بکشید. برای مراحلی که کار تکمیل‌شده را نشان می‌دهند، «ستون انجام‌شده» را فعال کنید.",
 			"automationTitle": "قوانین خودکارسازی",
 			"automationDescription": "رویدادهای ادغام را به ستون‌ها نگاشت کنید. وقتی رویدادی رخ می‌دهد، تیکت مرتبط به ستون مشخص‌شده منتقل می‌شود.",
-			"customFieldsDescription": "Manage the custom fields for this project. Drag  to reorder.",
-			"customFieldsTitle": "Custom Fields"
+			"customFieldsDescription": "مدیریت فیلدهای سفارشی این پروژه. برای بازچینش بکشید.",
+			"customFieldsTitle": "فیلدهای سفارشی"
 		},
 		"projectSwitcher": {
 			"selectProject": "انتخاب پروژه",
@@ -974,7 +1099,13 @@
 			"importSectionHint": "ایشوهای موجود را از مخزن گیت‌هاب خود به‌عنوان تیکت وارد کنید",
 			"importing": "در حال وارد کردن...",
 			"importIssues": "وارد کردن ایشوها",
-			"importDisabledHint": "برای فعال‌سازی وارد کردن، پیکربندی مخزن بالا را تکمیل کنید"
+			"importDisabledHint": "برای فعال‌سازی وارد کردن، پیکربندی مخزن بالا را تکمیل کنید",
+			"accountVerificationHint": "حساب GitHub خود را متصل کنید تا تأیید شود که مدیر این مخزن هستید.",
+			"enableGithubSignInHint": "از مدیر نمونه خود بخواهید ورود با GitHub را فعال کند.",
+			"importPaused": "این درون‌ریزی پیشرفت ذخیره‌شده دارد. می‌توانید آن را از سر بگیرید.",
+			"importSummary": "ایجادشده: {{imported}} · به‌روزرسانی‌شده: {{updated}} · ردشده: {{skipped}}",
+			"resumeImport": "از سر گرفتن درون‌ریزی",
+			"reverifyHint": "این مخزن را دوباره متصل کنید تا دسترسی تأیید و همگام‌سازی از سر گرفته شود."
 		},
 		"giteaIntegration": {
 			"validation": {
@@ -1273,7 +1404,9 @@
 				"pr_merged": "PR ادغام شد",
 				"issue_opened": "ایشو باز شد",
 				"issue_closed": "ایشو بسته شد"
-			}
+			},
+			"gitlabHeading": "GitLab",
+			"gitlabHint": "هنگام وقوع رویداد وب‌هوک GitLab، وظیفه متصل را به ستونی منتقل کنید."
 		},
 		"externalLinks": {
 			"resources": "منابع",
@@ -1281,70 +1414,304 @@
 			"branch": "شاخه",
 			"merged": "ادغام‌شده",
 			"draft": "پیش‌نویس",
-			"open": "باز"
+			"open": "باز",
+			"adding": "در حال افزودن…",
+			"addResource": "افزودن منبع",
+			"cancel": "لغو",
+			"empty": "هیچ منبعی به این وظیفه متصل نیست.",
+			"remove": "حذف {{title}}",
+			"removeError": "حذف پیوند منبع ناموفق بود.",
+			"titleOptional": "عنوان (اختیاری)",
+			"url": "نشانی"
 		},
 		"mattermostIntegration": {
-			"channelHint": "Optional label for your reference. Mattermost controls the actual destination channel from the webhook setup.",
-			"channelLabel": "Channel name",
+			"channelHint": "برچسبی اختیاری برای راهنمای خودتان. Mattermost مقصد واقعی کانال را از تنظیمات وب‌هوک تعیین می‌کند.",
+			"channelLabel": "نام کانال",
 			"channelPlaceholder": "#team-updates",
-			"connect": "Connect Mattermost",
-			"connected": "Connected",
-			"connectionHint": "Paste a Mattermost incoming webhook URL and choose which task events should be posted.",
-			"connectionTitle": "Mattermost webhook connection",
-			"disconnect": "Disconnect",
+			"connect": "اتصال Mattermost",
+			"connected": "متصل",
+			"connectionHint": "نشانی وب‌هوک ورودی Mattermost را بچسبانید و انتخاب کنید کدام رویدادهای وظیفه ارسال شوند.",
+			"connectionTitle": "اتصال وب‌هوک Mattermost",
+			"disconnect": "قطع اتصال",
 			"events": {
-				"taskCommentCreated": "New comments",
-				"taskCreated": "New tasks",
-				"taskDescriptionChanged": "Description changes",
-				"taskPriorityChanged": "Priority changes",
-				"taskStatusChanged": "Status changes",
-				"taskTitleChanged": "Title changes"
+				"taskCommentCreated": "نظرهای جدید",
+				"taskCreated": "وظایف جدید",
+				"taskDescriptionChanged": "تغییرات توضیحات",
+				"taskPriorityChanged": "تغییرات اولویت",
+				"taskStatusChanged": "تغییرات وضعیت",
+				"taskTitleChanged": "تغییرات عنوان"
 			},
-			"eventsHint": "Choose which project changes should post to Mattermost.",
-			"eventsTitle": "Event notifications",
-			"paused": "Paused",
-			"saveChanges": "Save changes",
+			"eventsHint": "انتخاب کنید کدام تغییرات پروژه در Mattermost اعلام شود.",
+			"eventsTitle": "اعلان‌های رویداد",
+			"paused": "متوقف‌شده",
+			"saveChanges": "ذخیره تغییرات",
 			"toast": {
-				"disabled": "Mattermost notifications paused",
-				"enabled": "Mattermost notifications enabled",
-				"removed": "Mattermost integration removed successfully",
-				"removeError": "Failed to remove Mattermost integration",
-				"saved": "Mattermost integration saved successfully",
-				"saveError": "Failed to save Mattermost integration",
-				"updateError": "Failed to update Mattermost integration"
+				"disabled": "اعلان‌های Mattermost متوقف شد",
+				"enabled": "اعلان‌های Mattermost فعال شد",
+				"removed": "ادغام Mattermost با موفقیت حذف شد",
+				"removeError": "حذف ادغام Mattermost ناموفق بود",
+				"saved": "ادغام Mattermost با موفقیت ذخیره شد",
+				"saveError": "ذخیره ادغام Mattermost ناموفق بود",
+				"updateError": "به‌روزرسانی ادغام Mattermost ناموفق بود"
 			},
-			"update": "Update Mattermost",
+			"update": "به‌روزرسانی Mattermost",
 			"validation": {
-				"webhookInvalid": "Enter a valid Mattermost webhook URL"
+				"webhookInvalid": "نشانی وب‌هوک معتبر Mattermost را وارد کنید"
 			},
-			"webhookHint": "Create an Incoming Webhook in Mattermost and paste the generated URL here.",
-			"webhookLabel": "Incoming webhook URL",
+			"webhookHint": "در Mattermost یک وب‌هوک ورودی بسازید و نشانی تولیدشده را این‌جا بچسبانید.",
+			"webhookLabel": "نشانی وب‌هوک ورودی",
 			"webhookPlaceholder": "https://your-mattermost-server.com/hooks/..."
 		},
 		"customFields": {
-			"addButton": "Add",
-			"createError": "Failed to create custom field.",
-			"createSuccess": "Custom field created.",
-			"creating": "Creating...",
-			"defaultLabel": "Default",
-			"defaultValuePlaceholder": "Default value",
-			"deleteButton": "Delete",
-			"deleteError": "Failed to delete custom field.",
-			"deleteSuccess": "Custom field deleted.",
-			"deleting": "Deleting...",
-			"empty": "No custom fields configured yet.",
-			"loading": "Loading custom fields...",
-			"namePlaceholder": "Field name",
-			"noOptionsPlaceholder": "No options",
-			"optionsPlaceholder": "Options separated by commas",
-			"required": "Required",
-			"typePlaceholder": "Select field type",
+			"addButton": "افزودن",
+			"createError": "ایجاد فیلد سفارشی ناموفق بود.",
+			"createSuccess": "فیلد سفارشی ایجاد شد.",
+			"creating": "در حال ایجاد…",
+			"defaultLabel": "پیش‌فرض",
+			"defaultValuePlaceholder": "مقدار پیش‌فرض",
+			"deleteButton": "حذف",
+			"deleteError": "حذف فیلد سفارشی ناموفق بود.",
+			"deleteSuccess": "فیلد سفارشی حذف شد.",
+			"deleting": "در حال حذف…",
+			"empty": "هنوز فیلد سفارشی‌ای تنظیم نشده است.",
+			"loading": "در حال بارگذاری فیلدهای سفارشی…",
+			"namePlaceholder": "نام فیلد",
+			"noOptionsPlaceholder": "بدون گزینه",
+			"optionsPlaceholder": "گزینه‌ها با ویرگول جدا می‌شوند",
+			"required": "اجباری",
+			"typePlaceholder": "انتخاب نوع فیلد",
 			"types": {
-				"boolean": "Boolean",
-				"date": "Date",
-				"dropdown": "Dropdown",
-				"number": "Number",
-				"text": "Text"
+				"boolean": "بولی",
+				"date": "تاریخ",
+				"dropdown": "فهرست کرکره‌ای",
+				"number": "عدد",
+				"text": "متن",
+				"multiselect": "چندانتخازی"
+			},
+			"availableOptions": "گزینه‌های موجود",
+			"clearDefault": "پاک‌کردن",
+			"defaultValues": "{{count}} مقدار پیش‌فرض",
+			"moreOptions": "+{{hiddenCount}} مورد دیگر",
+			"multiple": "چندگانه",
+			"options": "{{count}} گزینه",
+			"reorderError": "بازچینش فیلدها ناموفق بود",
+			"selectPlaceholder": "انتخاب گزینه(ها)"
+		},
+		"administration": "مدیریت",
+		"adminUsers": {
+			"actions": {
+				"deactivate": "غیرفعال‌کردن حساب",
+				"edit": "ویرایش حساب",
+				"open": "عملیات {{name}}",
+				"reactivate": "فعال‌سازی دوباره حساب"
+			},
+			"clearSearch": "پاک‌کردن جست‌وجو",
+			"columns": {
+				"actions": "عملیات",
+				"joined": "تاریخ عضویت",
+				"role": "نقش سراسری",
+				"status": "وضعیت",
+				"user": "کاربر"
+			},
+			"confirm": {
+				"deactivate": {
+					"action": "غیرفعال‌کردن حساب",
+					"description": "{{name}} از حساب خارج می‌شود و تا فعال‌سازی دوباره توسط مدیر نمی‌تواند وارد شود.",
+					"title": "این حساب غیرفعال شود؟"
+				},
+				"delete": {
+					"action": "حذف دائمی",
+					"description": "این کار {{name}} را با نشست‌ها، عضویت‌ها و داده‌های وابسته‌اش برای همیشه حذف می‌کند و بازگشت‌پذیر نیست.",
+					"title": "این حساب برای همیشه حذف شود؟"
+				},
+				"reactivate": {
+					"action": "فعال‌سازی دوباره حساب",
+					"description": "{{name}} دوباره می‌تواند وارد شود و به فضاهای کاری خود دسترسی داشته باشد.",
+					"title": "این حساب فعال شود؟"
+				},
+				"working": "در حال انجام…"
+			},
+			"directoryTitle": "فهرست کاربران",
+			"edit": {
+				"description": "هویت این حساب و دسترسی سراسری نمونه را به‌روزرسانی کنید.",
+				"email": "نشانی ایمیل",
+				"name": "نام کامل",
+				"role": "نقش سراسری",
+				"save": "ذخیره تغییرات",
+				"saving": "در حال ذخیره…",
+				"selfRoleHint": "نمی‌توانید نقش سراسری خودتان را تغییر دهید.",
+				"title": "ویرایش کاربر"
+			},
+			"emptyDescription": "نام یا ایمیل دیگری را جست‌وجو کنید.",
+			"emptyTitle": "کاربری پیدا نشد",
+			"instanceBadge": "نمونه",
+			"loadError": "کاربران بارگذاری نشدند.",
+			"next": "بعدی",
+			"pagination": "صفحه {{current}} از {{total}}",
+			"previous": "قبلی",
+			"refreshing": "در حال بازآوری کاربران",
+			"retry": "تلاش مجدد",
+			"roles": {
+				"admin": "مدیر نمونه",
+				"user": "کاربر"
+			},
+			"searchCount_one": "{{count}} کاربر منطبق",
+			"searchCount_other": "{{count}} کاربر منطبق",
+			"searchLabel": "جست‌وجوی کاربران",
+			"searchPlaceholder": "جست‌وجوی نام یا ایمیل…",
+			"status": {
+				"active": "فعال",
+				"deactivated": "غیرفعال"
+			},
+			"subtitle": "مدیریت همه حساب‌های ثبت‌شده در این نمونه Kaneo.",
+			"title": "مدیریت کاربران",
+			"toast": {
+				"actionError": "به‌روزرسانی وضعیت کاربر ناموفق بود",
+				"deactivated": "کاربر غیرفعال شد",
+				"deleted": "کاربر حذف شد",
+				"reactivated": "کاربر فعال شد",
+				"updated": "کاربر به‌روزرسانی شد",
+				"updateError": "به‌روزرسانی کاربر ناموفق بود"
+			},
+			"userCount_one": "{{count}} کاربر ثبت‌شده",
+			"userCount_other": "{{count}} کاربر ثبت‌شده",
+			"you": "(شما)"
+		},
+		"calendarFeeds": {
+			"accessHint": "هر کسی که پیوند خوراک را داشته باشد می‌تواند عنوان‌ها، توضیحات و تاریخ‌های وظایف منطبق را بخواند. برای قطع دسترسی، پیوند را لغو کنید.",
+			"activeFeeds": "خوراک‌های فعال",
+			"copied": "پیوند خوراک تقویم کپی شد.",
+			"copy": "کپی پیوند",
+			"copyError": "کپی پیوند ممکن نشد. نشانی را به‌صورت دستی انتخاب و کپی کنید.",
+			"create": "ایجاد خوراک",
+			"created": "خوراک تقویم ایجاد شد.",
+			"createError": "ایجاد خوراک تقویم ممکن نشد.",
+			"createTitle": "ایجاد خوراک تقویم",
+			"creating": "در حال ایجاد…",
+			"deletedLabel": "برچسب حذف‌شده",
+			"empty": "هنوز خوراک تقویمی وجود ندارد.",
+			"feedUrl": "نشانی خوراک تقویم",
+			"filterHint": "وظایفی درج می‌شوند که تاریخ شروع یا سررسید دارند و دست‌کم یکی از برچسب‌های انتخاب‌شده را دارند.",
+			"labels": "برچسب‌ها",
+			"loadError": "بارگذاری خوراک‌ها یا برچسب‌های تقویم ممکن نشد. دوباره تلاش کنید.",
+			"noLabels": "برچسبی پیدا نشد.",
+			"permissionRequired": "برای مدیریت خوراک‌های تقویم به مجوز اشتراک‌گذاری پروژه نیاز دارید.",
+			"revoke": "لغو",
+			"revoked": "خوراک تقویم لغو شد.",
+			"revokeError": "لغو خوراک تقویم ممکن نشد.",
+			"selectLabels": "جست‌وجو و انتخاب برچسب‌ها…",
+			"subscribeHint": "پیوند را کپی کنید و به‌عنوان اشتراک تقویم به برنامه تقویم خود اضافه کنید. به‌روزرسانی‌ها هنگام بازآوری خوراک در برنامه تقویم شما نمایان می‌شوند.",
+			"subtitle": "وظایف زمان‌بندی‌شده پروژه را در برنامه تقویم خود دنبال کنید.",
+			"timeZoneHint": "تاریخ‌های تمام‌روز از {{timeZone}} پیروی می‌کنند.",
+			"title": "خوراک‌های تقویم"
+		},
+		"gitlabIntegration": {
+			"actionsHint": "تأیید دسترسی و اتصال",
+			"actionsTitle": "عملیات",
+			"badgeConnected": "متصل",
+			"badgeNotConnected": "متصل نیست",
+			"baseUrlHint": "https://gitlab.com یا نشانی ریشه نمونه شما",
+			"baseUrlLabel": "نشانی GitLab",
+			"browse": "مرور",
+			"browseModalHint": "پروژه‌هایی که توکن شما عضو آن‌هاست",
+			"browseModalTitle": "پروژه‌های شما",
+			"browseNeedsCredentials": "برای مرور، نشانی و توکن GitLab را وارد کنید",
+			"commentTaskLinkHint": "وقتی فعال باشد، Kaneo روی هر issue که در GitLab باز شود نظری همراه با پیوند وظیفه ثبت می‌کند.",
+			"commentTaskLinkTitle": "ثبت پیوند Kaneo روی issueهای بازشده در GitLab",
+			"connect": "اتصال",
+			"connectedActive": "پروژه متصل و فعال است",
+			"connectionStatus": "وضعیت اتصال",
+			"currentToken": "ذخیره‌شده",
+			"disconnect": "قطع اتصال",
+			"importDisabledHint": "برای فعال‌شدن درون‌ریزی، پروژه بالا را تأیید کنید",
+			"importing": "در حال درون‌ریزی…",
+			"importIssues": "درون‌ریزی issueها",
+			"importPermissionHint": "درون‌ریزی به مجوز ایجاد و به‌روزرسانی وظایف نیاز دارد.",
+			"importSectionHint": "درون‌ریزی issueهای باز و درخواست‌های ادغام از پروژه",
+			"importSectionTitle": "درون‌ریزی issueهای GitLab",
+			"loadingProjects": "در حال بارگذاری پروژه‌ها…",
+			"loadProjectsError": "بارگذاری پروژه‌ها ناموفق بود",
+			"notConnectedHint": "هیچ پروژه GitLab متصل نیست",
+			"openInGitlab": "بازکردن {{project}} در GitLab",
+			"project": "پروژه",
+			"projectHint": "پروژه متصل GitLab",
+			"projectPathHint": "مسیر کامل شامل گروه‌ها، مثلاً group/subgroup/project",
+			"projectPathLabel": "مسیر پروژه",
+			"retry": "تلاش مجدد",
+			"searchProjects": "جست‌وجو…",
+			"toast": {
+				"commentOnDisabled": "نظرهای پیوند وظیفه روی issueهای بازشده در GitLab خاموش شد",
+				"commentOnEnabled": "Kaneo روی issueهای بازشده در GitLab پیوند وظیفه ثبت می‌کند",
+				"importError": "درون‌ریزی issueها ناموفق بود",
+				"issuesImported": "issueها با موفقیت درون‌ریزی شدند",
+				"notGitlabInstance": "نشانی به نمونه GitLab اشاره نمی‌کند",
+				"projectNotFound": "پروژه پیدا نشد یا در دسترس نیست",
+				"redirected": "نشانی GitLab بازگردانی شد (معمولاً به HTTPS). نشانی نهایی را مستقیم به‌کار ببرید.",
+				"removed": "ادغام GitLab حذف شد",
+				"removeError": "حذف ادغام GitLab ناموفق بود",
+				"secretCopied": "کپی شد",
+				"settingsUpdateError": "به‌روزرسانی ادغام GitLab ناموفق بود",
+				"tokenRequired": "توکن دسترسی الزامی است",
+				"tokenRequiredVerify": "برای تأیید، توکن را وارد کنید",
+				"unableToCopySecret": "کپی رمز ممکن نشد",
+				"updated": "ادغام GitLab ذخیره شد",
+				"updateError": "ذخیره ادغام GitLab ناموفق بود",
+				"verifyError": "تأیید دسترسی GitLab ناموفق بود",
+				"verifyFirst": "تأیید دسترسی ناموفق بود. نشانی، توکن و مسیر پروژه را بررسی کنید",
+				"verifyOk": "توکن GitLab به این پروژه دسترسی دارد",
+				"verifyWarning": "مجوزهای توکن یا دسترسی پروژه را بررسی کنید"
+			},
+			"tokenHint": "توکن با دامنه api و دست‌کم سطح Developer روی پروژه",
+			"tokenLabel": "توکن دسترسی",
+			"tokenPlaceholder": "توکن را بچسبانید",
+			"tokenPlaceholderUpdate": "برای جایگزینی، توکن جدید را بچسبانید",
+			"tokenTypeBearer": "توکن OAuth2",
+			"tokenTypeHint": "نحوه ارسال توکن. توکن‌های دسترسی از PRIVATE-TOKEN استفاده می‌کنند؛ توکن OAuth2 از Authorization.",
+			"tokenTypeLabel": "نوع توکن",
+			"tokenTypePrivate": "توکن دسترسی شخصی، پروژه یا گروه",
+			"update": "به‌روزرسانی",
+			"validation": {
+				"baseUrlInvalid": "نشانی معتبر وارد کنید (مثلاً https://gitlab.com)",
+				"baseUrlRequired": "نشانی پایه GitLab الزامی است",
+				"pathInvalid": "مسیر کامل را وارد کنید، مثلاً group/project",
+				"pathRequired": "مسیر پروژه الزامی است"
+			},
+			"verify": "تأیید",
+			"webhookCopy": "کپی",
+			"webhookHide": "مخفی‌کردن",
+			"webhookHint": "در پروژه GitLab خود وب‌هوکی با این نشانی و توکن رمزی اضافه کنید. رویدادهای push، issues، نظرات و درخواست‌های ادغام را فعال کنید.",
+			"webhookSecretLabel": "توکن رمزی (باید با توکن تنظیم‌شده روی وب‌هوک در GitLab یکسان باشد)",
+			"webhookShow": "نمایش",
+			"webhookTitle": "وب‌هوک"
+		},
+		"invitationEmailFailed": "دعوت‌نامه ذخیره شد، اما ارسال ایمیل ناموفق بود. تنظیمات SMTP را بررسی و دعوت‌نامه را دوباره بفرستید.",
+		"security": "امنیت",
+		"securityPage": {
+			"confirmPassword": "تأیید رمز عبور جدید",
+			"confirmPasswordPlaceholder": "رمز عبور جدید را دوباره وارد کنید",
+			"currentPassword": "رمز عبور فعلی",
+			"currentPasswordPlaceholder": "رمز عبور فعلی خود را وارد کنید",
+			"newPassword": "رمز عبور جدید",
+			"newPasswordPlaceholder": "رمز عبور جدیدی وارد کنید",
+			"noPassword": {
+				"description": "حساب شما با روش دیگری وارد می‌شود، پس رمز عبوری برای تغییر وجود ندارد.",
+				"title": "تغییر رمز عبور در دسترس نیست"
+			},
+			"pageTitle": "امنیت",
+			"sectionSubtitle": "رمز عبوری که با آن وارد می‌شوید را تغییر دهید.",
+			"sectionTitle": "رمز عبور",
+			"submit": "به‌روزرسانی رمز عبور",
+			"submitting": "در حال به‌روزرسانی…",
+			"subtitle": "مدیریت رمز عبور و امنیت حساب خود.",
+			"title": "امنیت",
+			"updateError": "به‌روزرسانی رمز عبور ناموفق بود.",
+			"updateSuccess": "رمز عبور به‌روزرسانی شد.",
+			"validation": {
+				"confirmRequired": "رمز عبور جدید خود را تأیید کنید.",
+				"currentRequired": "رمز عبور فعلی خود را وارد کنید.",
+				"mismatch": "رمزهای عبور یکسان نیستند.",
+				"sameAsCurrent": "رمز عبور جدید باید با رمز فعلی متفاوت باشد.",
+				"tooShort": "رمز عبور جدید باید دست‌کم ۸ نویسه باشد."
 			}
 		}
 	},
@@ -1535,9 +1902,7 @@
 		"created": "این تیکت را ایجاد کرد",
 		"githubUser": "کاربر گیت‌هاب",
 		"comment": {
-			"github": "گیت‌هاب",
 			"viewGithubProfile": "مشاهده پروفایل گیت‌هاب",
-			"commentedOnGithub": "در گیت‌هاب نظر داد",
 			"cannotBeEmpty": "نظر نمی‌تواند خالی باشد",
 			"mustBeLoggedInToEdit": "برای ویرایش نظرات باید وارد شده باشید",
 			"updated": "نظر به‌روزرسانی شد",
@@ -1631,7 +1996,10 @@
 				"mermaid": {
 					"renderFailed": "نمودار Mermaid قابل رندر نبود"
 				}
-			}
+			},
+			"commentedOnForge": "در {{forge}} نظر داد",
+			"importedBy": "واردشده توسط {{name}}",
+			"importedFrom": "واردشده از {{source}}"
 		}
 	},
 	"tasks": {
@@ -1667,7 +2035,7 @@
 			"loadingTask": "در حال بارگذاری تیکت...",
 			"taskNotFound": "تیکت یافت نشد",
 			"taskNotFoundDescription": "تیکتی که به دنبال آن هستید وجود ندارد یا حذف شده است.",
-			"customFields": "Custom Fields"
+			"customFields": "فیلدهای سفارشی"
 		},
 		"detail": {
 			"subtaskOf": "زیرتیکت از",
@@ -1772,10 +2140,17 @@
 				},
 				"mermaid": {
 					"renderFailed": "نمودار Mermaid قابل رندر نبود"
+				},
+				"image": {
+					"large": "بزرگ",
+					"medium": "متوسط",
+					"reset": "بازنشانی اندازه",
+					"resizeHandle": "تغییر اندازه تصویر",
+					"small": "کوچک"
 				}
 			},
-			"customFieldUpdated": "Field updated",
-			"selectOption": "Select option"
+			"customFieldUpdated": "فیلد به‌روزرسانی شد",
+			"selectOption": "انتخاب گزینه"
 		},
 		"entity": {
 			"task": "تیکت"
@@ -1809,7 +2184,9 @@
 			"deleteDialogTitle": "تیکت حذف شود؟",
 			"deleteDialogDescription": "این تیکت و تمام داده‌های آن به‌صورت دائمی حذف خواهد شد. نمی‌توانید این عمل را بازگردانید.",
 			"deleteAction": "حذف تیکت",
-			"completeAria": "علامت‌گذاری زیرتیکت به‌عنوان کامل"
+			"completeAria": "علامت‌گذاری زیرتیکت به‌عنوان کامل",
+			"noCompletionColumn": "این پروژه ستون منطبقی برای تکمیل یا باز‌گشودن این زیروظیفه ندارد.",
+			"progress": "{{completed}} از {{total}} زیروظیفه تکمیل شد"
 		},
 		"properties": {
 			"title": "ویژگی‌ها",
@@ -1935,10 +2312,10 @@
 				"isAnyOf": "یکی از موارد است",
 				"includeAnyOf": "شامل هر یک از موارد است"
 			},
-			"all": "All",
-			"allCustomFieldValues": "All values",
-			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"all": "همه",
+			"allCustomFieldValues": "همه مقادیر",
+			"noCustomFieldValues": "بدون مقدار فیلد سفارشی",
+			"noValuesUsedYet": "هنوز مقداری استفاده نشده است"
 		},
 		"calendar": {
 			"pageTitle": "{{name}} – تقویم",
@@ -1968,7 +2345,11 @@
 			"updateDatesError": "به‌روزرسانی تاریخ تیکت ناموفق بود",
 			"resizeStart": "تغییر اندازه تاریخ شروع",
 			"resizeDue": "تغییر اندازه تاریخ سررسید",
-			"taskAriaLabel": "{{title}}: باز کردن یا کشیدن برای انتقال"
+			"taskAriaLabel": "{{title}}: باز کردن یا کشیدن برای انتقال",
+			"nextPeriod": "دوره بعدی",
+			"periodStart": "تاریخ شروع خط زمانی",
+			"previousPeriod": "دوره قبلی",
+			"showTaskDates": "نمایش تاریخ وظایف"
 		},
 		"delete": {
 			"title": "تیکت حذف شود؟",
@@ -1992,8 +2373,8 @@
 			"merged": "ادغام‌شده",
 			"draft": "پیش‌نویس",
 			"open": "باز",
-			"label": "Pull Request",
-			"count_one": "{{count}} PR",
+			"label": "درخواست ادغام",
+			"count_one": "{{count}} درخواست ادغام",
 			"count_other": "{{count}} PR"
 		},
 		"assignee": {
@@ -2023,7 +2404,8 @@
 		"actions": {
 			"archive": "بایگانی",
 			"markAsPlanned": "علامت‌گذاری به‌عنوان برنامه‌ریزی‌شده",
-			"delete": "حذف..."
+			"delete": "حذف...",
+			"duplicate": "ایجاد کپی"
 		},
 		"bulk": {
 			"selectedCount": "{{count}} مورد انتخاب‌شده",
@@ -2067,6 +2449,20 @@
 				"deleteRow": "حذف ردیف",
 				"deleteTable": "حذف جدول"
 			}
+		},
+		"checklistProgress": "{{completed}} از {{total}} مورد فهرست بررسی تکمیل شد",
+		"customFields": {
+			"ariaLabel": "فیلدهای سفارشی"
+		},
+		"descriptionLoadError": "توضیحات بارگذاری نشد. برای دریافت نسخه فعلی دوباره تلاش کنید.",
+		"descriptionLoading": "در حال بارگذاری توضیحات…",
+		"descriptionRetry": "تلاش مجدد",
+		"descriptionSearchError": "جست‌وجو در توضیحات ناموفق بود. نتایج ممکن است کامل نباشد.",
+		"descriptionSearchLoading": "در حال جست‌وجو در توضیحات کامل…",
+		"duplicate": {
+			"error": "کپی‌کردن وظیفه ناموفق بود",
+			"success": "از وظیفه کپی ساخته شد",
+			"titleSuffix": "{{title}} (کپی)"
 		}
 	},
 	"invitations": {
@@ -2226,7 +2622,7 @@
 		"taskDetail": {
 			"labels": "برچسب‌ها",
 			"externalLinks": "پیوندهای خارجی",
-			"pullRequestFallback": "Pull Request",
+			"pullRequestFallback": "درخواست ادغام",
 			"issueFallback": "ایشو",
 			"prStatusMerged": "ادغام‌شده",
 			"prStatusDraft": "پیش‌نویس",
@@ -2248,5 +2644,215 @@
 		"branding": {
 			"poweredBy": "قدرت‌گرفته از"
 		}
+	},
+	"landing": {
+		"comparison": {
+			"feature": "قابلیت",
+			"no": "خیر",
+			"yes": "بله"
+		},
+		"features": {
+			"github": {
+				"description": "Issueها و برچسب‌ها دوطرفه همگام می‌شوند. درخواست‌های ادغام متصل، وظایف را هم‌زمان با باز و ادغام‌شدن کدتان از بازبینی تا انجام جابه‌جا می‌کنند.",
+				"label": "ادغام GitHub",
+				"link": "راه‌اندازی GitHub",
+				"title": "از درخواست ادغام تا انجام."
+			},
+			"hosting": {
+				"description": "با Docker مستقر کنید و فضای کاری خود را روی زیرساختی نگه دارید که در کنترل شماست.",
+				"link": "استقرار Kaneo روی سرور خود",
+				"title": "روی سرور خودتان اجرایش کنید."
+			},
+			"preview": {
+				"backToTask": "بازگشت به وظیفه صفحه اصلی",
+				"checklistDone": "بازبینی متن",
+				"checklistOpen": "بررسی چیدمان موبایل",
+				"date": "۱۲ اکتبر",
+				"dependencyDescription": "صفحه اصلی منتظر بازبینی موبایل است. یادداشت‌های راه‌اندازی را برای زمینه متصل نگه دارید.",
+				"design": "طراحی",
+				"done": "انجام‌شده",
+				"githubAlt": "پیش‌نمایش تعاملی ادغام GitHub که وظیفه Kaneo را به‌روزرسانی می‌کند.",
+				"high": "بالا",
+				"inProgress": "در حال انجام",
+				"inReview": "در حال بازبینی",
+				"mergeAction": "پیش‌نمایش ادغام",
+				"mergedHint": "درخواست ادغام ادغام شد. وظیفه به انجام‌شده منتقل شد.",
+				"mobileDescription": "صفحه اصلی جدید را پیش از انتشار روی صفحه‌های باریک بررسی کنید.",
+				"notesDescription": "برای اعلان راه‌اندازی ثبت کنید چه چیزی تغییر کرده است.",
+				"progress": "{{completed}} از {{total}} زیروظیفه کامل شد",
+				"relationsAlt": "پیش‌نمایش تعاملی وابستگی‌های وظیفه در Kaneo.",
+				"releaseNotes": "نوشتن یادداشت‌های انتشار",
+				"resetAction": "بازنشانی پیش‌نمایش",
+				"taskAlt": "پیش‌نمایش تعاملی وظیفه و زیروظیفه در Kaneo.",
+				"taskDescription": "پیش از انتشار بعدی، متن را به‌روزرسانی و چیدمان را بررسی کنید.",
+				"taskTitle": "انتشار صفحه اصلی جدید",
+				"tryGithub": "یک ادغام را پیش‌نمایش کنید تا به‌روزرسانی وظیفه را ببینید.",
+				"tryRelations": "وظیفه متصلی را باز کنید تا پیوند را دنبال کنید.",
+				"trySubtasks": "تیک‌زدن یک زیروظیفه را امتحان کنید."
+			},
+			"relations": {
+				"description": "مانع‌ها را متصل کنید، وابستگی‌ها را دنبال کنید و کارهای مرتبط را نزدیک نگه دارید. وظیفه متصلی را باز کنید تا زمینه پشت گام بعدی را ببینید.",
+				"label": "وظایف متصل و وابستگی‌ها",
+				"title": "ببینید چه چیزی کارها را نگه داشته است."
+			},
+			"source": {
+				"description": "کد را بخوانید، issue گزارش کنید یا تغییری مشارکت کنید. توسعه در GitHub انجام می‌شود.",
+				"link": "مشاهده کد",
+				"title": "کد هم باز است."
+			},
+			"tasks": {
+				"description": "کار را به زیروظیفه‌ها بشکنید، هر یک را محول کنید و پیشرفت را بدون گم‌شدن شرح اولیه دنبال کنید. هر جزئیات همراه خود کار می‌ماند.",
+				"label": "زیروظیفه‌ها و زمینه",
+				"title": "وظایف بزرگ. گام‌های بعدی روشن."
+			}
+		},
+		"founder": {
+			"intro": "من آندره هستم و Kaneo را ساختم چون از ابزارهای مدیریت پروژه‌ای که بیشتر مزاحم بودند تا کمک، خسته شده بودم. پس از سال‌ها استفاده از پلتفرم‌های سنگین و بیش‌ازحد پیچیده که حواس را از کار اصلی پرت می‌کردند، می‌دانستم باید راه بهتری باشد.",
+			"principle": "معتقدم بهترین ابزارها نامرئی‌اند. باید گردش کار طبیعی تیم شما را تقویت کنند، نه اینکه شما را وادار کنند خودتان را با آن‌ها وفق دهید. Kaneo بر این اصل ساخته شده که کمتر، بیشتر است — هر قابلیتی وجود دارد چون مشکلی واقعی را حل می‌کند، نه چون در دمو خوب به‌نظر می‌رسد.",
+			"problem": "مشکل این نبود که این ابزارها قابلیت کم دارند — این بود که زیادی دارند. هر اعلان، هر دکمه غیرضروری، هر گردش کار پیچیده تیمم را از آنچه اهمیت داشت دور می‌کرد: ساختن محصول‌های عالی.",
+			"title": "چرا Kaneo وجود دارد"
+		},
+		"hero": {
+			"cloudCta": "امتحان Kaneo Cloud",
+			"description": "مدیریت پروژه متن‌باز با برد، نمودار گانت و ادغام GitHub. رایگان و همراه با SSO روی سرور خود مستقر کنید، یا میزبانی را به Kaneo Cloud بسپارید.",
+			"github": "GitHub",
+			"productHunt": "Product Hunt",
+			"selfHostCta": "استقرار Kaneo روی سرور خود",
+			"title": "مدیریت پروژه‌ای",
+			"titleAccent": "که خودش پروژه نمی‌شود.",
+			"trialNote": "۱۴ روز آزمایش ابری. بدون نیاز به کارت بانکی."
+		},
+		"navigation": {
+			"blog": "وبلاگ",
+			"closeMenu": "بستن منو",
+			"comparisons": "مقایسه ابزارها",
+			"docs": "مستندات",
+			"getStarted": "شروع کنید",
+			"guides": "راهنماها",
+			"home": "خانه Kaneo",
+			"menu": "منو",
+			"pricing": "قیمت‌گذاری",
+			"product": "محصول",
+			"resources": "منابع",
+			"roadmap": "نقشه راه",
+			"signIn": "ورود"
+		},
+		"product": {
+			"agents": {
+				"answer": "بله. Kaneo از طریق بسته @kaneo/mcp و یک نقطه پایانی HTTP سرویس MCP فراهم می‌کند. کلاینت‌های هوش مصنوعی سازگار می‌توانند با کلید API متصل به یک کاربر، تابع مجوزهای فضای کاری، وظایف را بخوانند و به‌روزرسانی کنند.",
+				"link": "خواندن راهنمای MCP",
+				"question": "آیا کلاینت‌های هوش مصنوعی می‌توانند با Kaneo کار کنند؟"
+			},
+			"description": "جزئیات کاربردی درباره میزبانی، برنامه‌ریزی و اتصال تیم شما.",
+			"hosting": {
+				"answer": "بله. Kaneo با مجوز MIT و به‌صورت رایگان برای استقرار شخصی در دسترس است و ورود تک‌علامتی هم دارد. برنامه را همراه PostgreSQL با Docker Compose اجرا کنید یا با نمودار Helm رسمی مستقر کنید. مدیریت زیرساخت، به‌روزرسانی‌ها و پشتیبان‌ها با شماست.",
+				"link": "خواندن راهنمای نصب",
+				"question": "آیا استقرار شخصی Kaneo رایگان است؟"
+			},
+			"overview": "Kaneo یک پلتفرم مدیریت پروژه متن‌باز با مجوز MIT است با برد، بک‌لاگ، نمای گانت و تقویم، فیلدهای سفارشی، ثبت زمان و ادغام GitHub. آن را روی زیرساخت خودتان مستقر کنید یا از Kaneo Cloud استفاده کنید.",
+			"planning": {
+				"answer": "بله. Kaneo در کنار برد، فهرست و برنامه‌ریزی بک‌لاگ، نمای گانت و تقویم هم دارد. با تاریخ شروع و سررسید وظایف، کار را روی خط زمانی برنامه‌ریزی کنید. بودجه‌بندی، مقایسه خط پایه و گزارش‌های برنداون اسپرینت خارج از دامنه فعلی آن است.",
+				"link": "مقایسه قابلیت‌های برنامه‌ریزی",
+				"question": "آیا Kaneo نمودار گانت دارد؟"
+			},
+			"sso": {
+				"answer": "بله. نسخه رایگان استقرار شخصی از Google، GitHub، Discord و ارائه‌دهندگان OAuth/OIDC سفارشی پشتیبانی می‌کند. ارائه‌دهنده خود را روی نمونه‌تان پیکربندی کنید، بدون خرید نسخه جداگانه Kaneo.",
+				"link": "پیکربندی OIDC",
+				"question": "آیا ورود تک‌علامتی همراه است؟"
+			},
+			"title": "پیش از شروع"
+		},
+		"resources": {
+			"description": "سرور خود را راه بیندازید، ابزارهایتان را متصل کنید یا Kaneo را با ردیاب فعلی‌تان مقایسه کنید.",
+			"docker": {
+				"description": "نصب، پشتیبان‌گیری و به‌روزرسانی برای چیدمانی که در کنترل شماست.",
+				"title": "استقرار شخصی با Docker"
+			},
+			"eyebrow": "مخصوص خودتانش کنید",
+			"linear": {
+				"description": "تفاوت‌ها را در میزبانی، مجوز و گردش کار ببینید.",
+				"title": "مقایسه Kaneo و Linear"
+			},
+			"mcp": {
+				"description": "با MCP از طریق کلاینت هوش مصنوعی با وظایف و پروژه‌ها کار کنید.",
+				"title": "اتصال ابزارهای هوش مصنوعی شما"
+			},
+			"sso": {
+				"description": "ورود تک‌علامتی OIDC را در نسخه رایگان استقرار شخصی پیکربندی کنید.",
+				"title": "ارائه‌دهنده هویت خودتان را بیاورید"
+			},
+			"title": "مسیری روشن از امتحان‌کردن تا استفاده."
+		},
+		"selfHostingGuide": {
+			"answer": "برای استقرار شخصی Kaneo، برنامه و PostgreSQL را با Docker Compose اجرا کنید، نشانی عمومی و رمزهای خود را پیکربندی کنید و یک پروکسی معکوس TLS جلوی آن بگذارید. راهنمای نصب دست‌کم ۲ گیگابایت RAM و ۱۰ گیگابایت فضای دیسک را مشخص کرده است. برای به‌روزرسانی‌های مستمر، پشتیبان پایگاه داده و فضای ذخیره فایل‌های بارگذاری‌شده برنامه‌ریزی کنید.",
+			"backups": "هم PostgreSQL و هم فضای ذخیره‌سازی شیء استفاده‌شده برای بارگذاری‌ها را پشتیبان بگیرید. زمان‌بندی را بر اساس میزان کاری که تیم‌تان می‌تواند از دست بدهد انتخاب کنید، نسخه‌ها را بیرون از سرور برنامه نگه دارید و بازیابی را پیش از نیاز آزمایش کنید.",
+			"compose": "از compose.yml نگهداری‌شده در راهنمای Docker Compose استفاده کنید. این فایل PostgreSQL، حجم پایدار پایگاه داده، برنامه Kaneo و بررسی سلامت را تعریف می‌کند. پیش از راه‌اندازی سرویس‌ها فایل محیط را پیکربندی کنید؛ برای محیط عملیاتی، نسخه تصویر را قفل کنید تا به‌روزرسانی‌ها عمدی باشند.",
+			"composeLink": "پیکربندی Docker Compose",
+			"composeLinkDescription": "compose.yml نگهداری‌شده با ذخیره‌سازی پایدار و بررسی سلامت.",
+			"minimum": "راهنمای نصب Docker 20.10 یا جدیدتر، Docker Compose V2، دست‌کم ۲ گیگابایت RAM و ۱۰ گیگابایت فضای دیسک را مشخص کرده است. چیدمان Compose شامل PostgreSQL است. Redis برای نمونه تک‌کارهای API اختیاری است.",
+			"requirements": "حداقل مستندشده ۲ گیگابایت RAM و ۱۰ گیگابایت فضای دیسک است، همراه با Docker 20.10 یا جدیدتر و Docker Compose V2. برای بار کاری، رشد پایگاه داده و فایل‌های بارگذاری‌شده ظرفیت بیشتری در نظر بگیرید.",
+			"startLink": "راه‌اندازی و تأیید سرویس‌ها",
+			"startLinkDescription": "مجموعه را راه بیندازید، وضعیتش را بررسی کنید و مطمئن شوید برنامه در دسترس است.",
+			"summary": "استقرار شخصی چه در بر دارد، با پیوندهایی به پیکربندی Docker Compose نگهداری‌شده و مراحل نصب.",
+			"worth": "استقرار شخصی وقتی منطق دارد که به کنترل زیرساخت و داده نیاز داشته باشید و کسی مالکیت نگهداری را بپذیرد. هنگام مقایسه هزینه با سرویس مدیریت‌شده، ظرفیت سرور، ذخیره‌سازی، پشتیبان‌ها و زمان آن نگهداری را هم لحاظ کنید."
+		},
+		"seo": {
+			"description": "مدیریت پروژه متن‌باز با برد، نمودار گانت و ادغام GitHub. رایگان و همراه با SSO روی سرور خود مستقر کنید یا از Kaneo Cloud استفاده کنید.",
+			"title": "Kaneo — مدیریت پروژه متن‌باز با امکان استقرار شخصی"
+		},
+		"showcase": {
+			"board": "برد",
+			"controls": "انتخاب نمای محصول",
+			"gantt": "گانت",
+			"label": "نماهای محصول Kaneo",
+			"list": "بک‌لاگ",
+			"pause": "توقف نماهای محصول",
+			"play": "پخش نماهای محصول"
+		},
+		"sponsors": {
+			"ciSponsor": "شرکا"
+		}
+	},
+	"press": {
+		"boilerplate": "Kaneo یک پلتفرم مدیریت پروژه متن‌باز ساخته آندره آچفسکی است. تیم‌ها می‌توانند وظایف را در نمای برد و فهرست سازمان‌دهی کنند، کار محول کنند، اولویت و سررسید تعیین کنند و GitHub را متصل کنند. Kaneo با مجوز MIT برای استقرار شخصی و به‌عنوان سرویس مدیریت‌شده از طریق Kaneo Cloud در دسترس است.",
+		"boilerplateTitle": "درباره Kaneo",
+		"contactBody": "برای پرسش‌های محصول، مصاحبه یا مواد بیشتر با تیم Kaneo تماس بگیرید.",
+		"contactTitle": "استعلام‌های مطبوعاتی",
+		"darkListScreenshot": "فهرست (تیره)",
+		"darkListScreenshotAlt": "فهرست وظایف Kaneo در تم تیره، گروه‌بندی‌شده بر اساس وضعیت، همراه با مسئول، اولویت، برچسب و سررسید",
+		"darkLogo": "لوگوی تیره",
+		"darkLogoAlt": "لوگوی تیره Kaneo روی پس‌زمینه روشن",
+		"darkLogoDetail": "SVG",
+		"darkScreenshot": "برد (تیره)",
+		"darkScreenshotAlt": "برد Kaneo در تم تیره، با کارت‌های وظیفه چیده‌شده بر اساس وضعیت",
+		"darkTaskScreenshot": "جزئیات وظیفه (تیره)",
+		"darkTaskScreenshotAlt": "جزئیات وظیفه Kaneo در تم تیره، با توضیحات، فهرست بررسی، نظر تیم و ویژگی‌های وظیفه",
+		"darkTimelineScreenshot": "خط زمانی (تیره)",
+		"darkTimelineScreenshotAlt": "خط زمانی گانت Kaneo در تم تیره، با وظایف زمان‌بندی‌شده و مدت آن‌ها",
+		"description": "منابع مطبوعاتی Kaneo: اطلاعات محصول، لوگوها، اسکرین‌شات‌ها و اطلاعات تماس برای روزنامه‌نگاران و سازندگان محتوا.",
+		"download": "دانلود",
+		"downloadKit": "دانلود همه دارایی‌ها",
+		"headline": "کیت مطبوعاتی Kaneo",
+		"icon": "نشان برنامه",
+		"iconAlt": "نشان برنامه Kaneo",
+		"iconDetail": "PNG, 512 × 512",
+		"intro": "لوگوها و اسکرین‌شات‌های محصول Kaneo برای مقاله‌ها، ویدیوها و دیگر رسانه‌ها.",
+		"lightListScreenshot": "فهرست (روشن)",
+		"lightListScreenshotAlt": "فهرست وظایف Kaneo در تم روشن، گروه‌بندی‌شده بر اساس وضعیت، همراه با مسئول، اولویت، برچسب و سررسید",
+		"lightLogo": "لوگوی روشن",
+		"lightLogoAlt": "لوگوی روشن Kaneo روی پس‌زمینه تیره",
+		"lightLogoDetail": "SVG",
+		"lightScreenshot": "برد (روشن)",
+		"lightScreenshotAlt": "برد Kaneo در تم روشن، با کارت‌های وظیفه چیده‌شده بر اساس وضعیت",
+		"lightTaskScreenshot": "جزئیات وظیفه (روشن)",
+		"lightTaskScreenshotAlt": "جزئیات وظیفه Kaneo در تم روشن، با توضیحات، فهرست بررسی، نظر تیم و ویژگی‌های وظیفه",
+		"lightTimelineScreenshot": "خط زمانی (روشن)",
+		"lightTimelineScreenshotAlt": "خط زمانی گانت Kaneo در تم روشن، با وظایف زمان‌بندی‌شده و مدت آن‌ها",
+		"logosTitle": "لوگوها",
+		"screenshotsTitle": "اسکرین‌شات‌ها",
+		"title": "کیت مطبوعاتی",
+		"usageContrast": "برای پس‌زمینه‌های تیره لوگوی روشن و برای پس‌زمینه‌های روشن لوگوی تیره را انتخاب کنید.",
+		"usageProportions": "تناسبات و رنگ‌های اصلی را بدون کشیدگی یا افزودن جلوه حفظ کنید.",
+		"usageSpace": "دور لوگو فضای کافی بگذارید تا واضح و خوانا بماند."
 	}
 }
