@@ -1,3 +1,5 @@
+ALTER TABLE "task_relation" ADD COLUMN "dependency_type" text DEFAULT 'fs' NOT NULL;--> statement-breakpoint
+ALTER TABLE "task_relation" ADD COLUMN "lag_days" integer DEFAULT 0 NOT NULL;--> statement-breakpoint
 ALTER TABLE "task" ADD COLUMN "progress" integer DEFAULT 0 NOT NULL;--> statement-breakpoint
 ALTER TABLE "task" ADD COLUMN "is_milestone" boolean DEFAULT false NOT NULL;--> statement-breakpoint
 ALTER TABLE "task" ADD COLUMN "baseline_start_date" timestamp;--> statement-breakpoint

@@ -105,6 +105,24 @@ describe("project WebSocket lifecycle", () => {
     expect(vi.getTimerCount()).toBe(0);
   });
 
+  it("refreshes project and task caches when the workspace changes", () => {
+    renderHook(() => useProjectWebSocket("project-a"));
+    act(() =>
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({ type: "PROJECT_MOVED", projectId: "project-a" }),
+      }),
+    );
+    for (const queryKey of [
+      ["projects"],
+      ["project", "project-a"],
+      ["tasks", "project-a"],
+      ["task"],
+      ["task-relations"],
+    ]) {
+      expect(client.invalidateQueries).toHaveBeenCalledWith({ queryKey });
+    }
+  });
+
   it("preserves bounded exponential reconnects and active message invalidation", () => {
     const { unmount } = renderHook(() => useProjectWebSocket("project-a"));
     for (let retry = 0; retry < 5; retry++) {

@@ -1,6 +1,6 @@
 {
-  "id": "771e6936-3e3e-4009-8eae-512f91333296",
-  "prevId": "22a94fb2-6c26-41ef-baca-88dd7fbb6eab",
+  "id": "2b0ad52c-566b-44ad-9429-56d8da7defd2",
+  "prevId": "de1aba3a-dd83-48d6-93a3-c53b2ff18aee",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1534,7 +1534,7 @@
           "name": "integration_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "resource_type": {
           "name": "resource_type",

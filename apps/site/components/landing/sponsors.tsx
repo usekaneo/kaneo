@@ -1,5 +1,7 @@
+import Image from "next/image";
 import { FadeIn } from "@/components/landing/fade-in";
 import sponsors from "@/constants/sponsors.json";
+import { landing } from "@/lib/landing";
 import { cn } from "@/lib/utils";
 
 type Sponsor = {
@@ -52,6 +54,22 @@ export function Sponsors() {
           </p>
         </FadeIn>
         <FadeIn delay={160}>
+          <a
+            href="https://www.blacksmith.sh/"
+            target="_blank"
+            rel="noreferrer"
+            className="mt-10 inline-flex max-w-full flex-col items-start gap-4 rounded-lg text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-4"
+          >
+            <span className="text-base">{landing.sponsors.ciSponsor}</span>
+            <Image
+              src="/images/blacksmith-powered.png"
+              alt="CI powered by Blacksmith"
+              width={736}
+              height={252}
+              sizes="(max-width: 448px) calc(100vw - 48px), 400px"
+              className="h-auto w-100 max-w-full rounded-lg"
+            />
+          </a>
           {current.length > 0 && (
             <div className="mt-12">
               <p className="font-medium text-muted-foreground text-sm">

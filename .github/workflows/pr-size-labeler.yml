@@ -1,6 +1,8 @@
 name: PR Size Labeler
 
 on:
+  # zizmor: ignore[dangerous-triggers] Labels pull requests via the API;
+  # checks out only the trusted base-branch size configuration.
   pull_request_target:
     types: [opened, synchronize, reopened]
 

@@ -225,7 +225,7 @@ async function getTasksPage(
     Array<{
       id: string;
       taskId: string;
-      integrationId: string;
+      integrationId: string | null;
       resourceType: string;
       externalId: string;
       url: string;

@@ -320,7 +320,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "वर्कस्पेस का नाम आवश्यक है"
-			}
+			},
+			"restrictedSubtitle": "यहाँ केवल इंस्टेंस व्यवस्थापक ही कार्यक्षेत्र बना सकता है। आमंत्रण के लिए कहें, फिर यह पृष्ठ पुनः लोड करें।",
+			"restrictedCheckInvitations": "आमंत्रण देखें",
+			"restrictedTitle": "आपको आमंत्रण चाहिए"
 		},
 		"profileSetup": {
 			"pageTitle": "प्रोफ़ाइल पूरा करें",
@@ -939,7 +942,18 @@
 				"iconRequired": "आइकन आवश्यक है"
 			},
 			"importExportTasks": "आयात/निर्यात",
-			"importExportTasksDescription": "कार्यों को आयात और निर्यात करें।"
+			"importExportTasksDescription": "कार्यों को आयात और निर्यात करें।",
+			"moveModalConfirm": "प्रोजेक्ट ले जाएँ",
+			"moveModalDescription": "इससे प्रोजेक्ट \"{{name}}\" और उसके सभी कार्य \"{{workspace}}\" में चले जाएँगे। जो कार्य उन लोगों को सौंपे गए हैं जो उस वर्कस्पेस के सदस्य नहीं हैं, उनका असाइनमेंट हटा दिया जाएगा, और इस प्रोजेक्ट की सूचना सदस्यताएँ हटा दी जाएँगी।",
+			"moveModalTitle": "प्रोजेक्ट ले जाएँ?",
+			"moveProject": "वर्कस्पेस में ले जाएँ",
+			"moveProjectAction": "ले जाएँ",
+			"moveProjectDescription": "इस प्रोजेक्ट को उसके सभी कार्यों सहित किसी अन्य वर्कस्पेस में ले जाएँ।",
+			"moveProjectPlaceholder": "वर्कस्पेस चुनें",
+			"toastMoved": "प्रोजेक्ट सफलतापूर्वक ले जाया गया",
+			"toastMovedWithUnassigned": "प्रोजेक्ट सफलतापूर्वक ले जाया गया। {{taskCount}} कार्य का असाइनमेंट हटा दिया गया।",
+			"toastMoveError": "प्रोजेक्ट ले जाने में विफल",
+			"moveTargetsError": "यह जाँचा नहीं जा सका कि आप इस प्रोजेक्ट को किन वर्कस्पेस में ले जा सकते हैं। पुनः प्रयास करने के लिए पेज रीलोड करें।"
 		},
 		"projectIntegrations": {
 			"pageTitle": "प्रोजेक्ट एकीकरण",
@@ -1384,7 +1398,15 @@
 			"branch": "ब्रांच",
 			"merged": "मर्ज किया",
 			"draft": "ड्राफ़्ट",
-			"open": "खुला"
+			"open": "खुला",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL",
+			"remove": "Remove {{title}}",
+			"removeError": "Failed to remove the resource link."
 		},
 		"mattermostIntegration": {
 			"channelHint": "Optional label for your reference. Mattermost controls the actual destination channel from the webhook setup.",
@@ -1529,6 +1551,35 @@
 			"userCount_one": "{{count}} registered user",
 			"userCount_other": "{{count}} registered users",
 			"you": "(you)"
+		},
+		"security": "Security",
+		"securityPage": {
+			"confirmPassword": "Confirm new password",
+			"confirmPasswordPlaceholder": "Re-enter your new password",
+			"currentPassword": "Current password",
+			"currentPasswordPlaceholder": "Enter your current password",
+			"newPassword": "New password",
+			"newPasswordPlaceholder": "Enter a new password",
+			"noPassword": {
+				"description": "Your account signs in with a different method, so there is no password to change.",
+				"title": "Password change isn't available"
+			},
+			"pageTitle": "Security",
+			"sectionSubtitle": "Change the password you use to sign in.",
+			"sectionTitle": "Password",
+			"submit": "Update password",
+			"submitting": "Updating...",
+			"subtitle": "Manage your password and account security.",
+			"title": "Security",
+			"updateError": "Failed to update password.",
+			"updateSuccess": "Password updated.",
+			"validation": {
+				"confirmRequired": "Confirm your new password.",
+				"currentRequired": "Enter your current password.",
+				"mismatch": "Passwords do not match.",
+				"tooShort": "New password must be at least 8 characters.",
+				"sameAsCurrent": "New password must be different from your current password."
+			}
 		}
 	},
 	"navigation": {
@@ -1953,6 +2004,13 @@
 				},
 				"mermaid": {
 					"renderFailed": "Mermaid डायग्राम प्रस्तुत नहीं किया जा सका"
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
 			},
 			"customFieldUpdated": "Field updated",
@@ -2216,6 +2274,11 @@
 			"success": "कार्य सफलतापूर्वक हटाया गया",
 			"error": "कार्य हटाने में विफल"
 		},
+		"duplicate": {
+			"titleSuffix": "{{title}} (प्रतिलिपि)",
+			"success": "कार्य सफलतापूर्वक डुप्लिकेट किया गया",
+			"error": "कार्य डुप्लिकेट करने में विफल"
+		},
 		"archive": {
 			"success": "{{count}} कार्य संग्रहित किए गए"
 		},
@@ -2260,6 +2323,7 @@
 			"copyLinkSuccess": "कार्य लिंक कॉपी किया गया!"
 		},
 		"actions": {
+			"duplicate": "डुप्लिकेट करें",
 			"archive": "संग्रहित करें",
 			"markAsPlanned": "नियोजित चिह्नित करें",
 			"delete": "हटाएँ..."
@@ -2549,6 +2613,9 @@
 		"lightTimelineScreenshotAlt": "Kaneo Gantt timeline in light theme, showing scheduled tasks and their durations"
 	},
 	"landing": {
+		"sponsors": {
+			"ciSponsor": "साझेदार"
+		},
 		"founder": {
 			"title": "Why Kaneo exists",
 			"intro": "I'm Andrej, and I created Kaneo because I was tired of project management tools that got in the way more than they helped. After years of using bloated, overcomplicated platforms that distracted from actual work, I knew there had to be a better way.",

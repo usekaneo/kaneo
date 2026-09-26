@@ -7,7 +7,7 @@ type TaskLabel = {
 type TaskExternalLink = {
   id: string;
   taskId: string;
-  integrationId: string;
+  integrationId: string | null;
   resourceType: string;
   externalId: string;
   url: string;

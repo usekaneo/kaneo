@@ -1,0 +1,16 @@
+# TruffleHog path exclusions (regex, one per line).
+# These paths contain only placeholder / non-secret credentials:
+# - CONTRIBUTORS.svg is generated (update-contributors workflow); UnifyID hits
+#   are base64 avatar image data, not tokens.
+# - Compose files, docs, charts, and tests reference example credentials like
+#   postgres:postgres, ci-only-password, user:pass@example.test.
+#
+# NOTE: keep this list narrow. Do not add source directories (apps/, packages/).
+^CONTRIBUTORS\.svg$
+^README\.md$
+^compose(\.[a-z-]+)?\.yml$
+^scripts/ci/
+^charts/
+^tests/
+^\.cursor/
+^apps/docs/
