@@ -18,6 +18,7 @@ import activity from "./activity";
 import { auth } from "./auth";
 import { organizationRoutes } from "./auth-openapi";
 import billing from "./billing";
+import calendar from "./calendar";
 import column from "./column";
 import comment from "./comment";
 import config from "./config";
@@ -710,6 +711,7 @@ export function createApp() {
   const oauthApi = api.route("/oauth", oauth);
 
   const billingApi = api.route("/billing", billing);
+  const calendarApi = api.route("/calendar", calendar);
   const projectApi = api.route("/project", project);
   const taskApi = api.route("/task", task);
   const columnApi = api.route("/column", column);
@@ -866,6 +868,7 @@ export function createApp() {
     injectWebSocket,
     activityApi,
     billingApi,
+    calendarApi,
     columnApi,
     commentApi,
     configApi,
@@ -993,6 +996,7 @@ const {
   injectWebSocket,
   activityApi,
   billingApi,
+  calendarApi,
   columnApi,
   commentApi,
   configApi,
@@ -1034,6 +1038,7 @@ if (isMainModule) {
 
 export type AppType =
   | typeof billingApi
+  | typeof calendarApi
   | typeof configApi
   | typeof projectApi
   | typeof taskApi

@@ -145,6 +145,42 @@
             ],
             "format": "date-time"
           },
+          "progress": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Percent complete, 0-100."
+          },
+          "isMilestone": {
+            "type": "boolean",
+            "description": "Renders as a diamond marker on the Gantt chart at its date instead of a spanning bar."
+          },
+          "baselineStartDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "baselineDueDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "constraintType": {
+            "type": "string",
+            "description": "The Gantt scheduling constraint: none, start_no_earlier_than (SNET), finish_no_later_than (FNLT), or must_start_on (MSO)."
+          },
+          "constraintDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Null unless constraintType is not none."
+          },
           "position": {
             "type": [
               "number",
@@ -204,6 +240,12 @@
           "priority",
           "startDate",
           "dueDate",
+          "progress",
+          "isMilestone",
+          "baselineStartDate",
+          "baselineDueDate",
+          "constraintType",
+          "constraintDate",
           "position",
           "createdAt",
           "userId",
@@ -599,6 +641,46 @@
           "idToken"
         ]
       },
+      "WorkspaceCalendar": {
+        "type": "object",
+        "properties": {
+          "workingDays": {
+            "type": "number",
+            "description": "Bitmask of working weekdays; bit i (i = 0..6, 0 = Sunday) set means weekday i is a working day. Default 62 (Mon-Fri)."
+          },
+          "holidays": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceHoliday"
+            },
+            "description": "Workspace holidays, sorted by date ascending."
+          }
+        },
+        "required": [
+          "workingDays",
+          "holidays"
+        ]
+      },
+      "WorkspaceHoliday": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "date",
+          "name"
+        ]
+      },
       "MovedProject": {
         "allOf": [
           {
@@ -869,6 +951,44 @@
             ],
             "format": "date-time"
           },
+          "progress": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Percent complete, 0-100."
+          },
+          "isMilestone": {
+            "type": "boolean",
+            "description": "Renders as a diamond marker on the Gantt chart at its date instead of a spanning bar."
+          },
+          "baselineStartDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Snapshotted startDate from when the baseline was last set; null if no baseline."
+          },
+          "baselineDueDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Snapshotted dueDate from when the baseline was last set; null if no baseline."
+          },
+          "constraintType": {
+            "type": "string",
+            "description": "The Gantt scheduling constraint: none, start_no_earlier_than (SNET), finish_no_later_than (FNLT), or must_start_on (MSO)."
+          },
+          "constraintDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Null unless constraintType is not none."
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -904,6 +1024,12 @@
           "priority",
           "startDate",
           "dueDate",
+          "progress",
+          "isMilestone",
+          "baselineStartDate",
+          "baselineDueDate",
+          "constraintType",
+          "constraintDate",
           "createdAt"
         ]
       },
@@ -2971,6 +3097,12 @@
           "projectId": {
             "type": "string"
           },
+          "projectName": {
+            "type": "string"
+          },
+          "projectSlug": {
+            "type": "string"
+          },
           "userId": {
             "type": [
               "string",
@@ -2982,6 +3114,24 @@
               "string",
               "null"
             ]
+          },
+          "startDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "dueDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "isMilestone": {
+            "type": "boolean",
+            "description": "Renders as a diamond marker on the Gantt chart, same as an own task."
           }
         },
         "required": [
@@ -2991,8 +3141,13 @@
           "priority",
           "number",
           "projectId",
+          "projectName",
+          "projectSlug",
           "userId",
-          "assigneeName"
+          "assigneeName",
+          "startDate",
+          "dueDate",
+          "isMilestone"
         ]
       },
       "TaskRelation": {
@@ -3011,6 +3166,14 @@
             "type": "string",
             "description": "How the two tasks relate: `subtask`, `blocks`, or `related`."
           },
+          "dependencyType": {
+            "type": "string",
+            "description": "The scheduling dependency type (Finish-to-Start, Start-to-Start, Finish-to-Finish, or Start-to-Finish). Only meaningful when relationType is `blocks`; a `related`/`subtask` relation always reports `fs`."
+          },
+          "lagDays": {
+            "type": "number",
+            "description": "Lag (positive) or lead (negative) in days applied to the dependency. Only meaningful when relationType is `blocks`; a `related`/`subtask` relation always reports 0."
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -3021,6 +3184,8 @@
           "sourceTaskId",
           "targetTaskId",
           "relationType",
+          "dependencyType",
+          "lagDays",
           "createdAt"
         ]
       },
@@ -6388,6 +6553,316 @@
         }
       }
     },
+    "/calendar/{workspaceId}": {
+      "get": {
+        "operationId": "getWorkspaceCalendar",
+        "tags": [
+          "Calendar"
+        ],
+        "summary": "Get workspace calendar",
+        "description": "Get the workspace's working-days bitmask and holidays, sorted by date.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The workspace's working calendar",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceCalendar"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Workspace ID could not be determined",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateWorkspaceWorkingDays",
+        "tags": [
+          "Calendar"
+        ],
+        "summary": "Update working days",
+        "description": "Set the workspace's working-weekday bitmask (bit i, i = 0..6, 0 = Sunday).",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "workingDays": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 127
+                  }
+                },
+                "required": [
+                  "workingDays"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated working-days bitmask",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "workingDays": {
+                      "type": "number",
+                      "description": "Bitmask of working weekdays; bit i (i = 0..6, 0 = Sunday) set means weekday i is a working day. Default 62 (Mon-Fri)."
+                    }
+                  },
+                  "required": [
+                    "workingDays"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, or workspace ID could not be determined",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing workspace:manage_settings permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/calendar/{workspaceId}/holidays": {
+      "post": {
+        "operationId": "createWorkspaceHoliday",
+        "tags": [
+          "Calendar"
+        ],
+        "summary": "Add a holiday",
+        "description": "Add a non-working date to the workspace calendar. The date is normalized to UTC midnight.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "date": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  }
+                },
+                "required": [
+                  "date",
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The created holiday",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceHoliday"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, or workspace ID could not be determined",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing workspace:manage_settings permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A holiday already exists on this date",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/calendar/{workspaceId}/holidays/{holidayId}": {
+      "delete": {
+        "operationId": "deleteWorkspaceHoliday",
+        "tags": [
+          "Calendar"
+        ],
+        "summary": "Remove a holiday",
+        "description": "Remove a holiday from the workspace calendar.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "holidayId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The deleted holiday",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceHoliday"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing workspace:manage_settings permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Holiday not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/project/{id}/move": {
       "put": {
         "operationId": "moveProject",
@@ -7416,7 +7891,8 @@
                       "delete",
                       "addLabel",
                       "removeLabel",
-                      "updateDueDate"
+                      "updateDueDate",
+                      "updateSchedule"
                     ]
                   },
                   "value": {
@@ -7424,7 +7900,35 @@
                       "string",
                       "null"
                     ],
-                    "description": "The new value for the chosen operation. Unused by `delete`; null clears an assignee or due date."
+                    "description": "The new value for the chosen operation. Unused by `delete` and `updateSchedule`; null clears an assignee or due date."
+                  },
+                  "scheduleUpdates": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "taskId": {
+                          "type": "string"
+                        },
+                        "startDate": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "dueDate": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "taskId"
+                      ]
+                    },
+                    "minItems": 1,
+                    "description": "Per-task start/due dates for the `updateSchedule` operation — e.g. a Gantt drag that cascades forward through `blocks` dependencies. Required by that operation; ignored by every other one. Every taskId here must also be in `taskIds`."
                   }
                 },
                 "required": [
@@ -7536,6 +8040,16 @@
                   "userId": {
                     "type": "string",
                     "description": "Assignee, if any."
+                  },
+                  "progress": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "Defaults to 0."
+                  },
+                  "isMilestone": {
+                    "type": "boolean",
+                    "description": "Defaults to false."
                   },
                   "customFields": {
                     "type": "array",
@@ -7824,6 +8338,32 @@
                   },
                   "userId": {
                     "type": "string"
+                  },
+                  "progress": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "Percent complete, 0-100."
+                  },
+                  "isMilestone": {
+                    "type": "boolean"
+                  },
+                  "constraintType": {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "start_no_earlier_than",
+                      "finish_no_later_than",
+                      "must_start_on"
+                    ],
+                    "description": "One of: none, start_no_earlier_than (SNET), finish_no_later_than (FNLT), must_start_on (MSO). Defaults to \"none\" for a new task; omit here to leave the existing constraint untouched."
+                  },
+                  "constraintDate": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "Required when constraintType is set to anything other than \"none\"; forced to null when constraintType is \"none\". Date-only, normalized server-side to UTC midnight."
                   }
                 },
                 "required": [
@@ -8553,6 +9093,114 @@
           },
           "403": {
             "description": "No workspace access, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/task/{id}/baseline": {
+      "post": {
+        "operationId": "setTaskBaseline",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Set task baseline",
+        "description": "Snapshot the task's current startDate/dueDate as its baseline, for plan-vs-actual comparison on the Gantt chart.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The updated task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "clearTaskBaseline",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Clear task baseline",
+        "description": "Remove the task's stored baseline dates, if any.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The updated task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11324,6 +11972,16 @@
             },
             "required": false,
             "name": "projectId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Leave out results scoped to this project, e.g. to search other projects in the workspace for a cross-project picker. Ignored together with `projectId`."
+            },
+            "required": false,
+            "description": "Leave out results scoped to this project, e.g. to search other projects in the workspace for a cross-project picker. Ignored together with `projectId`.",
+            "name": "excludeProjectId",
             "in": "query"
           },
           {
@@ -14288,6 +14946,64 @@
         }
       }
     },
+    "/task-relation/project/{projectId}": {
+      "get": {
+        "operationId": "getTaskRelationsByProject",
+        "tags": [
+          "Task Relations"
+        ],
+        "summary": "Get project task relations",
+        "description": "Get every relation touching one of the project's tasks, each with a summary of both linked tasks, in a single call. Powers the Gantt chart's dependency lines. Relations pointing outside the caller's workspace are omitted.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Task relations with the linked task summaries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskRelationWithTasks"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown project, or its workspace could not be determined",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access or missing read permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/task-relation": {
       "post": {
         "operationId": "createTaskRelation",
@@ -14316,6 +15032,20 @@
                       "blocks",
                       "related"
                     ]
+                  },
+                  "dependencyType": {
+                    "type": "string",
+                    "enum": [
+                      "fs",
+                      "ss",
+                      "ff",
+                      "sf"
+                    ]
+                  },
+                  "lagDays": {
+                    "type": "integer",
+                    "minimum": -3650,
+                    "maximum": 3650
                   }
                 },
                 "required": [
@@ -14372,7 +15102,7 @@
             }
           },
           "409": {
-            "description": "This relation already exists",
+            "description": "This relation already exists, or (for a 'blocks'/'subtask' relation) would create a circular dependency",
             "content": {
               "text/plain": {
                 "schema": {
@@ -14385,6 +15115,95 @@
       }
     },
     "/task-relation/{id}": {
+      "patch": {
+        "operationId": "updateTaskRelation",
+        "tags": [
+          "Task Relations"
+        ],
+        "summary": "Update task relation",
+        "description": "Change a 'blocks' relation's dependency type and/or lag. Rejected for a 'related'/'subtask' relation, which has no dependency type/lag to edit.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "dependencyType": {
+                    "type": "string",
+                    "enum": [
+                      "fs",
+                      "ss",
+                      "ff",
+                      "sf"
+                    ]
+                  },
+                  "lagDays": {
+                    "type": "integer",
+                    "minimum": -3650,
+                    "maximum": 3650
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated relation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskRelation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, or the relation is not a 'blocks' one",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task relation not found, or its source task is gone",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
       "delete": {
         "operationId": "deleteTaskRelation",
         "tags": [

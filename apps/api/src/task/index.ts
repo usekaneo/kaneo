@@ -26,6 +26,7 @@ import {
 import { normalizeApiServerUrl } from "../utils/openapi-spec";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import {
+  normalizeToUtcMidnight,
   validateAndParseDate,
   validateDateRange,
 } from "../utils/validate-dates";
@@ -46,6 +47,10 @@ import {
 } from "./controllers/require-task-permission";
 import updateTask from "./controllers/update-task";
 import updateTaskAssignee from "./controllers/update-task-assignee";
+import {
+  clearTaskBaseline,
+  setTaskBaseline,
+} from "./controllers/update-task-baseline";
 import updateTaskDescription from "./controllers/update-task-description";
 import updateTaskDueDate from "./controllers/update-task-due-date";
 import updateTaskPriority from "./controllers/update-task-priority";
@@ -468,6 +473,51 @@ const updateTaskDueDateRoute = createRoute({
   },
 });
 
+const setTaskBaselineRoute = createRoute({
+  method: "post",
+  operationId: "setTaskBaseline",
+  path: "/{id}/baseline",
+  tags: ["Tasks"],
+  summary: "Set task baseline",
+  description:
+    "Snapshot the task's current startDate/dueDate as its baseline, for plan-vs-actual comparison on the Gantt chart.",
+  middleware: [
+    workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["update"] }),
+    requireEntitlement,
+  ] as const,
+  request: { params: taskParam },
+  responses: {
+    200: jsonResponse("The updated task", taskSchema),
+    403: errorResponse(
+      "No workspace access, or missing task:update permission",
+    ),
+    404: errorResponse("Task not found"),
+  },
+});
+
+const clearTaskBaselineRoute = createRoute({
+  method: "delete",
+  operationId: "clearTaskBaseline",
+  path: "/{id}/baseline",
+  tags: ["Tasks"],
+  summary: "Clear task baseline",
+  description: "Remove the task's stored baseline dates, if any.",
+  middleware: [
+    workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["update"] }),
+    requireEntitlement,
+  ] as const,
+  request: { params: taskParam },
+  responses: {
+    200: jsonResponse("The updated task", taskSchema),
+    403: errorResponse(
+      "No workspace access, or missing task:update permission",
+    ),
+    404: errorResponse("Task not found"),
+  },
+});
+
 const updateTaskTitleRoute = createRoute({
   method: "put",
   operationId: "updateTaskTitle",
@@ -647,7 +697,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
     return c.json(tasks, 200);
   })
   .openapi(bulkUpdateTasksRoute, async (c) => {
-    const { taskIds, operation, value } = c.req.valid("json");
+    const { taskIds, operation, value, scheduleUpdates } = c.req.valid("json");
     const userId = c.get("userId");
 
     if (!userId) {
@@ -657,6 +707,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
     if (
       operation !== "delete" &&
       operation !== "updateDueDate" &&
+      operation !== "updateSchedule" &&
       value === undefined
     ) {
       throw new HTTPException(400, {
@@ -664,10 +715,17 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       });
     }
 
+    if (operation === "updateSchedule" && !scheduleUpdates?.length) {
+      throw new HTTPException(400, {
+        message: "scheduleUpdates is required for updateSchedule",
+      });
+    }
+
     const result = await bulkUpdateTasks({
       taskIds,
       operation,
       value,
+      scheduleUpdates,
       userId,
     });
 
@@ -683,6 +741,8 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       priority,
       status,
       userId,
+      progress,
+      isMilestone,
       customFields,
     } = c.req.valid("json");
 
@@ -707,6 +767,8 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       dueDate: parsedDueDate,
       priority,
       status,
+      progress,
+      isMilestone,
       customFields,
     });
 
@@ -757,6 +819,10 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       projectId,
       position,
       userId,
+      progress,
+      isMilestone,
+      constraintType,
+      constraintDate,
     } = c.req.valid("json");
 
     const currentUserId = c.get("userId");
@@ -772,6 +838,19 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
 
     validateDateRange(parsedStartDate, parsedDueDate);
 
+    // constraintType omitted: leave both columns untouched, like
+    // progress/isMilestone above. Provided and "none": clear constraintDate
+    // regardless of what (if anything) the caller sent for it — the schema's
+    // .refine only requires a constraintDate for a non-"none" type, it
+    // doesn't forbid a stray one alongside "none". Provided and non-"none":
+    // the schema already guarantees constraintDate is a non-empty string.
+    const normalizedConstraintDate =
+      constraintType === undefined
+        ? undefined
+        : constraintType === "none"
+          ? null
+          : normalizeToUtcMidnight(constraintDate as string, "constraintDate");
+
     const task = await updateTask(
       id,
       title,
@@ -782,6 +861,10 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       description,
       priority,
       position,
+      progress,
+      isMilestone,
+      constraintType,
+      normalizedConstraintDate,
       userId,
       currentUserId,
     );
@@ -858,6 +941,22 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
     const currentUserId = c.get("userId");
 
     const task = await updateTaskTitle({ id, title, currentUserId });
+
+    return c.json(task, 200);
+  })
+  .openapi(setTaskBaselineRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    const currentUserId = c.get("userId");
+
+    const task = await setTaskBaseline({ id, currentUserId });
+
+    return c.json(task, 200);
+  })
+  .openapi(clearTaskBaselineRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    const currentUserId = c.get("userId");
+
+    const task = await clearTaskBaseline({ id, currentUserId });
 
     return c.json(task, 200);
   })

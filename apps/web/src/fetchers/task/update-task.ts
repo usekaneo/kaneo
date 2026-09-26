@@ -7,6 +7,10 @@ type UpdateTaskPriority = InferRequestType<
   (typeof client)["task"][":id"]["$put"]
 >["json"]["priority"];
 
+type UpdateTaskConstraintType = InferRequestType<
+  (typeof client)["task"][":id"]["$put"]
+>["json"]["constraintType"];
+
 async function updateTask(taskId: string, task: Task) {
   const response = await client.task[":id"].$put({
     param: { id: taskId },
@@ -26,6 +30,12 @@ async function updateTask(taskId: string, task: Task) {
       dueDate: task.dueDate?.toString(),
       position: task.position ?? 0,
       projectId: task.projectId,
+      progress: task.progress ?? 0,
+      isMilestone: task.isMilestone ?? false,
+      constraintType: task.constraintType as
+        | UpdateTaskConstraintType
+        | undefined,
+      constraintDate: task.constraintDate,
     },
   });
 

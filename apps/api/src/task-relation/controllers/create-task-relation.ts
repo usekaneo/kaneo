@@ -7,17 +7,22 @@ import {
   taskTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { wouldCreateCycle } from "./detect-relation-cycle";
 
 async function createTaskRelation({
   sourceTaskId,
   targetTaskId,
   relationType,
+  dependencyType,
+  lagDays,
   userId,
   workspaceId,
 }: {
   sourceTaskId: string;
   targetTaskId: string;
   relationType: string;
+  dependencyType?: string;
+  lagDays?: number;
   userId: string;
   workspaceId: string;
 }) {
@@ -27,106 +32,134 @@ async function createTaskRelation({
     });
   }
 
-  const { relation, sourceTask } = await db.transaction(async (tx) => {
-    // Serialize relation creation with project moves before validating either
-    // workspace. A move must see this relation or this request must see the move.
-    await tx
-      .select({ id: projectTable.id })
-      .from(projectTable)
-      .where(
-        inArray(
-          projectTable.id,
-          tx
-            .select({ projectId: taskTable.projectId })
-            .from(taskTable)
-            .where(inArray(taskTable.id, [sourceTaskId, targetTaskId])),
-        ),
-      )
-      .orderBy(projectTable.id)
-      .for("share");
-    const [sourceTask] = await tx
-      .select({
-        id: taskTable.id,
-        projectId: taskTable.projectId,
-        workspaceId: projectTable.workspaceId,
-      })
-      .from(taskTable)
-      .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
-      .where(
-        and(
-          eq(taskTable.id, sourceTaskId),
-          eq(projectTable.workspaceId, workspaceId),
-        ),
-      )
-      .limit(1);
+  const { relation, sourceTask, targetTask } = await db.transaction(
+    async (tx) => {
+      // Serialize relation creation with project moves before validating either
+      // workspace. A move must see this relation or this request must see the move.
+      await tx
+        .select({ id: projectTable.id })
+        .from(projectTable)
+        .where(
+          inArray(
+            projectTable.id,
+            tx
+              .select({ projectId: taskTable.projectId })
+              .from(taskTable)
+              .where(inArray(taskTable.id, [sourceTaskId, targetTaskId])),
+          ),
+        )
+        .orderBy(projectTable.id)
+        .for("share");
+      const [sourceTask] = await tx
+        .select({
+          id: taskTable.id,
+          projectId: taskTable.projectId,
+          workspaceId: projectTable.workspaceId,
+        })
+        .from(taskTable)
+        .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+        .where(
+          and(
+            eq(taskTable.id, sourceTaskId),
+            eq(projectTable.workspaceId, workspaceId),
+          ),
+        )
+        .limit(1);
 
-    if (!sourceTask) {
-      throw new HTTPException(404, { message: "Source task not found" });
-    }
+      if (!sourceTask) {
+        throw new HTTPException(404, { message: "Source task not found" });
+      }
 
-    const [targetTask] = await tx
-      .select({
-        id: taskTable.id,
-        projectId: taskTable.projectId,
-        workspaceId: projectTable.workspaceId,
-      })
-      .from(taskTable)
-      .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
-      .where(
-        and(
-          eq(taskTable.id, targetTaskId),
-          eq(projectTable.workspaceId, workspaceId),
-        ),
-      )
-      .limit(1);
+      const [targetTask] = await tx
+        .select({
+          id: taskTable.id,
+          projectId: taskTable.projectId,
+          workspaceId: projectTable.workspaceId,
+        })
+        .from(taskTable)
+        .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+        .where(
+          and(
+            eq(taskTable.id, targetTaskId),
+            eq(projectTable.workspaceId, workspaceId),
+          ),
+        )
+        .limit(1);
 
-    if (!targetTask) {
-      throw new HTTPException(404, { message: "Target task not found" });
-    }
+      if (!targetTask) {
+        throw new HTTPException(404, { message: "Target task not found" });
+      }
 
-    const existing = await tx
-      .select({ id: taskRelationTable.id })
-      .from(taskRelationTable)
-      .where(
-        and(
-          eq(taskRelationTable.relationType, relationType),
-          or(
-            and(
-              eq(taskRelationTable.sourceTaskId, sourceTaskId),
-              eq(taskRelationTable.targetTaskId, targetTaskId),
-            ),
-            and(
-              eq(taskRelationTable.sourceTaskId, targetTaskId),
-              eq(taskRelationTable.targetTaskId, sourceTaskId),
+      const existing = await tx
+        .select({ id: taskRelationTable.id })
+        .from(taskRelationTable)
+        .where(
+          and(
+            eq(taskRelationTable.relationType, relationType),
+            or(
+              and(
+                eq(taskRelationTable.sourceTaskId, sourceTaskId),
+                eq(taskRelationTable.targetTaskId, targetTaskId),
+              ),
+              and(
+                eq(taskRelationTable.sourceTaskId, targetTaskId),
+                eq(taskRelationTable.targetTaskId, sourceTaskId),
+              ),
             ),
           ),
-        ),
-      )
-      .limit(1);
+        )
+        .limit(1);
 
-    if (existing.length > 0) {
-      throw new HTTPException(409, {
-        message: "This relation already exists",
-      });
-    }
+      if (existing.length > 0) {
+        throw new HTTPException(409, {
+          message: "This relation already exists",
+        });
+      }
 
-    const [relation] = await tx
-      .insert(taskRelationTable)
-      .values({
-        sourceTaskId,
-        targetTaskId,
-        relationType,
-      })
-      .returning();
+      // "blocks" (scheduling dependency) and "subtask" (parent/child hierarchy)
+      // are both directional graphs where a cycle is a modeling error; "related"
+      // is bidirectional and has no cycle concept.
+      if (relationType === "blocks" || relationType === "subtask") {
+        const createsCycle = await wouldCreateCycle({
+          workspaceId,
+          relationType,
+          sourceTaskId,
+          targetTaskId,
+        });
+        if (createsCycle) {
+          throw new HTTPException(409, {
+            message: "This dependency would create a circular dependency",
+          });
+        }
+      }
 
-    if (!relation) {
-      throw new HTTPException(500, {
-        message: "Failed to create task relation",
-      });
-    }
+      // dependencyType/lagDays are only meaningful for a "blocks" relation (the
+      // Gantt's scheduling dependency); a "related"/"subtask" row keeps the
+      // fs/0 defaults regardless of what the caller sent.
+      const [relation] = await tx
+        .insert(taskRelationTable)
+        .values({
+          sourceTaskId,
+          targetTaskId,
+          relationType,
+          ...(relationType === "blocks"
+            ? {
+                dependencyType: dependencyType ?? "fs",
+                lagDays: lagDays ?? 0,
+              }
+            : {}),
+        })
+        .returning();
 
-    return { relation, sourceTask };
-  });
+      if (!relation) {
+        throw new HTTPException(500, {
+          message: "Failed to create task relation",
+        });
+      }
+
+      return { relation, sourceTask, targetTask };
+    },
+  );
 
   await publishEvent("task-relation.created", {
     ...relation,
@@ -134,6 +167,19 @@ async function createTaskRelation({
     projectId: sourceTask.projectId,
     userId,
   });
+
+  // A relation can link tasks across two projects in the same workspace.
+  // Notify the target project's subscribers too, so their Gantt/dependency
+  // views (which read the target project's task-relations cache) refresh
+  // without a manual reload.
+  if (targetTask.projectId !== sourceTask.projectId) {
+    await publishEvent("task-relation.created", {
+      ...relation,
+      taskId: sourceTaskId,
+      projectId: targetTask.projectId,
+      userId,
+    });
+  }
 
   return relation;
 }

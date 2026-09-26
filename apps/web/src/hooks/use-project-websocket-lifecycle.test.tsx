@@ -154,4 +154,29 @@ describe("project WebSocket lifecycle", () => {
     unmount();
     expect(vi.getTimerCount()).toBe(0);
   });
+
+  it("invalidates the project-scoped Gantt relations cache on TASK_RELATION_UPDATED", () => {
+    renderHook(() => useProjectWebSocket("project-a"));
+    act(() => TestSocket.instances[0].open());
+    act(() => {
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({
+          type: "TASK_RELATION_UPDATED",
+          projectId: "project-a",
+          sourceTaskId: "task-1",
+          targetTaskId: "task-2",
+        }),
+      });
+    });
+    expect(client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["task-relations", "project", "project-a"],
+    });
+    // The per-task keys the handler already covered must still fire too.
+    expect(client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["task-relations", "task-1"],
+    });
+    expect(client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["task-relations", "task-2"],
+    });
+  });
 });

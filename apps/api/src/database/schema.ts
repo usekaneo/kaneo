@@ -2,6 +2,7 @@ import { createId } from "@paralleldrive/cuid2";
 import { relations, sql } from "drizzle-orm";
 import {
   boolean,
+  check,
   customType,
   foreignKey,
   index,
@@ -149,7 +150,40 @@ export const workspaceTable = pgTable("workspace", {
   metadata: text("metadata"),
   description: text("description"),
   createdAt: timestamp("created_at", { mode: "date" }).notNull(),
+  // Bitmask of the workspace's working weekdays: bit i (i = 0..6, 0 = Sunday,
+  // matching JS Date#getDay()) set means weekday i is a WORKING day. Default
+  // 62 = 0b0111110 = Monday..Friday working, Saturday/Sunday off. Individual
+  // exceptions (specific non-working dates, e.g. public holidays) live in
+  // workspaceHolidayTable instead of this bitmask.
+  workingDays: integer("working_days").notNull().default(62),
 });
+
+export const workspaceHolidayTable = pgTable(
+  "workspace_holiday",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    // Date-only semantics: always stored at UTC midnight, never compared
+    // against a time-of-day.
+    date: timestamp("date", { mode: "date" }).notNull(),
+    name: text("name").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("workspace_holiday_workspaceId_idx").on(table.workspaceId),
+    unique("workspace_holiday_workspace_id_date_unique").on(
+      table.workspaceId,
+      table.date,
+    ),
+  ],
+);
 
 export const workspaceUserTable = pgTable(
   "workspace_member",
@@ -427,6 +461,32 @@ export const taskTable = pgTable(
     priority: text("priority").default("low").notNull(),
     startDate: timestamp("start_date", { mode: "date" }),
     dueDate: timestamp("due_date", { mode: "date" }),
+    // Percent complete, shown as a filled overlay on the Gantt bar. Clamped to
+    // 0..100 at the API layer; the column itself only enforces non-negative
+    // via the check constraint below (drizzle-orm has no built-in range check
+    // helper), so out-of-range values can only reach the database through a
+    // path that skips the API.
+    progress: integer("progress").default(0).notNull(),
+    // A milestone renders as a single diamond marker at its date rather than
+    // a spanning bar; see gantt-task-bar rendering on the web side.
+    isMilestone: boolean("is_milestone").default(false).notNull(),
+    // Baseline (plan vs actual): a snapshot of startDate/dueDate taken via the
+    // dedicated set/clear baseline route, not updated by ordinary task edits.
+    // Both null until a baseline is set; nulled together on clear.
+    baselineStartDate: timestamp("baseline_start_date", { mode: "date" }),
+    baselineDueDate: timestamp("baseline_due_date", { mode: "date" }),
+    // Scheduling constraint for the Gantt chart. One of:
+    //  - "none" (default): no constraint.
+    //  - "start_no_earlier_than": the task should not start before
+    //    constraintDate (SNET).
+    //  - "finish_no_later_than": a deadline — the task should not finish
+    //    (dueDate) after constraintDate (FNLT).
+    //  - "must_start_on": the task's start is pinned to constraintDate (MSO);
+    //    the dependency cascade never shifts it.
+    // constraintDate is date-only (UTC midnight), like startDate/dueDate, and
+    // is required whenever constraintType isn't "none".
+    constraintType: text("constraint_type").notNull().default("none"),
+    constraintDate: timestamp("constraint_date", { mode: "date" }),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { mode: "date" })
       .defaultNow()
@@ -439,6 +499,10 @@ export const taskTable = pgTable(
     index("task_assigneeId_idx").on(table.userId),
     index("task_columnId_idx").on(table.columnId),
     unique("task_project_number_unique").on(table.projectId, table.number),
+    check(
+      "task_progress_range",
+      sql`${table.progress} >= 0 AND ${table.progress} <= 100`,
+    ),
   ],
 );
 
@@ -1002,6 +1066,13 @@ export const taskRelationTable = pgTable(
         onUpdate: "cascade",
       }),
     relationType: text("relation_type").notNull(),
+    // Only meaningful for a "blocks" relation (the scheduling dependency the
+    // Gantt chart draws); `related`/`subtask` rows keep the fs/0 defaults.
+    // Kept as text, like relationType, with the fs|ss|ff|sf enum enforced in
+    // the Zod layer rather than the database.
+    dependencyType: text("dependency_type").default("fs").notNull(),
+    // Lag (positive) or lead (negative) in days applied to the dependency.
+    lagDays: integer("lag_days").default(0).notNull(),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
   },
   (table) => [

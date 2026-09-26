@@ -148,4 +148,246 @@ describe("task relation tenant boundaries", () => {
       }),
     );
   });
+
+  it("notifies both projects when a relation links tasks across two projects", async () => {
+    // A relation's source and target tasks can live in different projects of
+    // the same workspace (see the same-workspace cross-project test above).
+    // Regression coverage for a bug where only the source project's realtime
+    // channel was notified: a viewer on the target project's Gantt chart
+    // (which reads GET /task-relation/project/{targetProjectId}) never saw
+    // its dependency line/external row refresh without a manual reload.
+    const own = await context();
+    const { project: targetProject } = await createProjectFixture({
+      workspaceId: own.workspace.id,
+    });
+    const [target] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: targetProject.id,
+        title: "Cross-project",
+        number: 1,
+      })
+      .returning();
+    mockAuthenticatedSession(own.user);
+
+    const created = await request("", "POST", {
+      sourceTaskId: own.task.id,
+      targetTaskId: target.id,
+      relationType: "blocks",
+    });
+    expect(created.status).toBe(200);
+    const relation = (await created.json()) as { id: string };
+
+    // The source project's own channel is still notified.
+    expect(m.publish).toHaveBeenCalledWith(
+      "task-relation.created",
+      expect.objectContaining({
+        projectId: own.task.projectId,
+        sourceTaskId: own.task.id,
+        targetTaskId: target.id,
+      }),
+    );
+    // The target task's project must ALSO be notified, since it renders its
+    // own project-scoped task-relations cache.
+    expect(m.publish).toHaveBeenCalledWith(
+      "task-relation.created",
+      expect.objectContaining({
+        projectId: targetProject.id,
+        sourceTaskId: own.task.id,
+        targetTaskId: target.id,
+      }),
+    );
+    expect(
+      m.publish.mock.calls.filter(([type]) => type === "task-relation.created")
+        .length,
+    ).toBe(2);
+
+    vi.clearAllMocks();
+    expect((await request(`/${relation.id}`, "DELETE")).status).toBe(200);
+
+    expect(m.publish).toHaveBeenCalledWith(
+      "task-relation.deleted",
+      expect.objectContaining({
+        projectId: own.task.projectId,
+        sourceTaskId: own.task.id,
+        targetTaskId: target.id,
+      }),
+    );
+    expect(m.publish).toHaveBeenCalledWith(
+      "task-relation.deleted",
+      expect.objectContaining({
+        projectId: targetProject.id,
+        sourceTaskId: own.task.id,
+        targetTaskId: target.id,
+      }),
+    );
+    expect(
+      m.publish.mock.calls.filter(([type]) => type === "task-relation.deleted")
+        .length,
+    ).toBe(2);
+  });
+
+  it("publishes exactly one event per lifecycle step for a same-project relation", async () => {
+    // Dedup guard: when both ends of the relation share a project, the
+    // cross-project notification must not fire a second, redundant event.
+    const own = await context();
+    const [target] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: own.task.projectId,
+        title: "Same project",
+        number: 2,
+      })
+      .returning();
+    mockAuthenticatedSession(own.user);
+
+    const created = await request("", "POST", {
+      sourceTaskId: own.task.id,
+      targetTaskId: target.id,
+      relationType: "related",
+    });
+    expect(created.status).toBe(200);
+    const relation = (await created.json()) as { id: string };
+    expect(
+      m.publish.mock.calls.filter(([type]) => type === "task-relation.created")
+        .length,
+    ).toBe(1);
+
+    vi.clearAllMocks();
+    expect((await request(`/${relation.id}`, "DELETE")).status).toBe(200);
+    expect(
+      m.publish.mock.calls.filter(([type]) => type === "task-relation.deleted")
+        .length,
+    ).toBe(1);
+  });
+});
+
+describe("GET /task-relation/project/:projectId", () => {
+  it("returns every relation touching the project's tasks, in either direction", async () => {
+    const own = await context();
+    const { project: otherProject } = await createProjectFixture({
+      workspaceId: own.workspace.id,
+    });
+    const [siblingTask] = await db
+      .insert(schema.taskTable)
+      .values({ projectId: own.task.projectId, title: "Sibling", number: 2 })
+      .returning();
+    const [outsideTask] = await db
+      .insert(schema.taskTable)
+      .values({ projectId: otherProject.id, title: "Outside", number: 1 })
+      .returning();
+
+    // own.task -> siblingTask (both in the project) and own.task -> outsideTask
+    // (source in the project, target outside it) should both come back;
+    // relations with neither end in the project must not.
+    const inProject = await seedRelation(own.task.id, siblingTask.id);
+    const crossProject = await seedRelation(own.task.id, outsideTask.id);
+    const outsideOnly = await db
+      .insert(schema.taskRelationTable)
+      .values({
+        sourceTaskId: outsideTask.id,
+        targetTaskId: outsideTask.id,
+        relationType: "related",
+      })
+      .returning();
+
+    mockAuthenticatedSession(own.user);
+    const response = await request(`/project/${own.task.projectId}`, "GET");
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { id: string }[];
+    const ids = body.map((relation) => relation.id);
+    expect(ids).toContain(inProject.id);
+    expect(ids).toContain(crossProject.id);
+    expect(ids).not.toContain(outsideOnly[0]?.id);
+  });
+
+  // Powers the Gantt chart's cross-project rows (see PRIORITY 3): the far
+  // end of a cross-project relation needs its own dates and its project's
+  // name/slug to be placed on the timeline and labeled, in addition to the
+  // fields the single-task endpoint already returned.
+  it("includes the related task's dates and project name/slug, for both same- and cross-project relations", async () => {
+    const own = await context();
+    const { project: otherProject } = await createProjectFixture({
+      workspaceId: own.workspace.id,
+      name: "Other Project",
+      slug: "other-project",
+    });
+    const [siblingTask] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: own.task.projectId,
+        title: "Sibling",
+        number: 2,
+        startDate: new Date("2026-08-20T00:00:00.000Z"),
+        dueDate: new Date("2026-08-25T00:00:00.000Z"),
+      })
+      .returning();
+    const [outsideTask] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: otherProject.id,
+        title: "Outside",
+        number: 1,
+        startDate: new Date("2026-09-01T00:00:00.000Z"),
+        dueDate: new Date("2026-09-05T00:00:00.000Z"),
+      })
+      .returning();
+
+    const inProject = await seedRelation(own.task.id, siblingTask.id);
+    const crossProject = await seedRelation(own.task.id, outsideTask.id);
+
+    mockAuthenticatedSession(own.user);
+    const response = await request(`/project/${own.task.projectId}`, "GET");
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      id: string;
+      targetTask: {
+        startDate: string | null;
+        dueDate: string | null;
+        projectName: string;
+        projectSlug: string;
+      } | null;
+    }[];
+
+    const sameProjectRelation = body.find(
+      (relation) => relation.id === inProject.id,
+    );
+    expect(sameProjectRelation?.targetTask).toMatchObject({
+      startDate: "2026-08-20T00:00:00.000Z",
+      dueDate: "2026-08-25T00:00:00.000Z",
+      projectName: "Integration Project",
+    });
+    expect(sameProjectRelation?.targetTask?.projectSlug).toEqual(
+      expect.any(String),
+    );
+
+    const crossProjectRelation = body.find(
+      (relation) => relation.id === crossProject.id,
+    );
+    expect(crossProjectRelation?.targetTask).toMatchObject({
+      startDate: "2026-09-01T00:00:00.000Z",
+      dueDate: "2026-09-05T00:00:00.000Z",
+      projectName: "Other Project",
+      projectSlug: "other-project",
+    });
+  });
+
+  it("rejects a caller without access to the project's workspace", async () => {
+    const own = await context();
+    const foreign = await context();
+    mockAuthenticatedSession(foreign.user);
+    const response = await request(`/project/${own.task.projectId}`, "GET");
+    expect(response.status).toBe(403);
+  });
+
+  it("returns an empty list for a project with no tasks", async () => {
+    const own = await context();
+    const { project: emptyProject } = await createProjectFixture({
+      workspaceId: own.workspace.id,
+    });
+    mockAuthenticatedSession(own.user);
+    const response = await request(`/project/${emptyProject.id}`, "GET");
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual([]);
+  });
 });

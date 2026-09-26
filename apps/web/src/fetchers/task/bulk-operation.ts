@@ -9,19 +9,29 @@ type BulkOperationType =
   | "delete"
   | "addLabel"
   | "removeLabel"
-  | "updateDueDate";
+  | "updateDueDate"
+  | "updateSchedule";
+
+export type BulkScheduleUpdate = {
+  taskId: string;
+  startDate?: string | null;
+  dueDate?: string | null;
+};
 
 async function bulkOperation({
   taskIds,
   operation,
   value,
+  scheduleUpdates,
 }: {
   taskIds: string[];
   operation: BulkOperationType;
   value?: string | null;
+  /** Required (and only used) by the `updateSchedule` operation. */
+  scheduleUpdates?: BulkScheduleUpdate[];
 }) {
   const response = await client.task.bulk.$patch({
-    json: { taskIds, operation, value },
+    json: { taskIds, operation, value, scheduleUpdates },
   });
 
   if (!response.ok) {

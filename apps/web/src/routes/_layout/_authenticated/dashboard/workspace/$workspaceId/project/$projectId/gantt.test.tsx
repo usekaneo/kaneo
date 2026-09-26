@@ -41,14 +41,38 @@ vi.mock("@/hooks/queries/task/use-get-tasks", () => ({
   useGetTasks: (projectId: string) => useGetTasks(projectId),
 }));
 
+vi.mock("@/hooks/queries/task-relation/use-get-project-task-relations", () => ({
+  default: () => ({ data: [] }),
+}));
+vi.mock("@/hooks/queries/calendar/use-get-calendar", () => ({
+  default: () => ({ data: undefined }),
+}));
+
+vi.mock("@/hooks/mutations/task-relation/use-create-task-relation", () => ({
+  default: () => ({ mutateAsync: vi.fn() }),
+}));
+
+vi.mock("@/hooks/mutations/task/use-bulk-update-task-schedule", () => ({
+  useBulkUpdateTaskSchedule: () => ({ mutateAsync: vi.fn() }),
+}));
+
 vi.mock("@/hooks/use-mobile", () => ({
   useIsMobile: () => false,
 }));
 
 vi.mock("@/store/user-preferences", () => ({
   useUserPreferencesStore: (
-    selector: (state: { weekStartsOn: number }) => unknown,
-  ) => selector({ weekStartsOn: 0 }),
+    selector: (state: {
+      weekStartsOn: number;
+      ganttTimelineUnit: string;
+      setGanttTimelineUnit: (unit: string) => void;
+    }) => unknown,
+  ) =>
+    selector({
+      weekStartsOn: 0,
+      ganttTimelineUnit: "day",
+      setGanttTimelineUnit: () => {},
+    }),
 }));
 
 vi.mock("@/components/common/project-layout", () => ({
@@ -105,6 +129,10 @@ function makeTask(overrides: Partial<Task>): Task {
     priority: null,
     startDate: null,
     dueDate: null,
+    progress: 0,
+    isMilestone: false,
+    baselineStartDate: null,
+    baselineDueDate: null,
     position: null,
     createdAt: "2026-01-01T00:00:00.000Z",
     userId: null,

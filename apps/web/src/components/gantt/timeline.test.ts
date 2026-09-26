@@ -1,8 +1,24 @@
-import { addDays, differenceInCalendarDays, parseISO } from "date-fns";
+import {
+  addDays,
+  differenceInCalendarDays,
+  eachDayOfInterval,
+  parseISO,
+  subDays,
+} from "date-fns";
 import { describe, expect, it } from "vitest";
 import {
+  alignRangeStartToUnit,
+  buildGanttHeaderColumns,
+  buildGanttRange,
   buildGanttTimeline,
+  computeInsetBarBox,
+  computeProgressFillPercent,
+  deriveTaskSchedule,
+  GANTT_UNIT_WINDOW_DAYS,
+  GANTT_UNITS,
   GANTT_WINDOW_DAYS,
+  getBarGridColumns,
+  MIN_BAR_CONTENT_PX,
   parseTaskDate,
 } from "./timeline";
 
@@ -79,4 +95,471 @@ describe("bounded Gantt timeline", () => {
       expect(parseTaskDate(value)).toBeNull();
     },
   );
+});
+
+describe("buildGanttRange extraBoundsTasks (external related tasks)", () => {
+  it("widens minimumStart/maximumStart/maximumEnd to reach a bounds task dated outside the own tasks' span, without moving the default page", () => {
+    const ownTasks = [span("2026-09-14", "2026-09-18")];
+    const withoutExternal = buildGanttRange(
+      ownTasks,
+      1,
+      null,
+      parseISO("2026-09-20"),
+    );
+    const farFutureExternal = [span("2027-06-01", "2027-06-05")];
+    const withExternal = buildGanttRange(
+      ownTasks,
+      1,
+      null,
+      parseISO("2026-09-20"),
+      "day",
+      farFutureExternal,
+    );
+
+    // The default page (no explicit requestedStart) is unchanged: an
+    // out-of-window external task never shifts where the chart first opens.
+    expect(withExternal?.rangeStart).toEqual(withoutExternal?.rangeStart);
+    // But the reachable bound now extends far enough to actually page or
+    // jump to the external task's own date.
+    expect(
+      (withExternal?.maximumStart.getTime() ?? 0) >
+        (withoutExternal?.maximumStart.getTime() ?? 0),
+    ).toBe(true);
+    // Jumping toward the external task's own date (e.g. the "show task
+    // dates" affordance) actually reaches a window that contains it, once
+    // the bounds are widened — the exact requested day may still get
+    // clamped to `maximumStart`, but the resulting window covers the
+    // external task either way.
+    const externalStart = parseISO("2027-06-01");
+    const jumpWithoutExternal = buildGanttRange(
+      ownTasks,
+      1,
+      subDays(externalStart, 7),
+      parseISO("2026-09-20"),
+    );
+    expect(
+      (jumpWithoutExternal?.rangeStart.getTime() ?? 0) <=
+        externalStart.getTime() &&
+        externalStart.getTime() <=
+          (jumpWithoutExternal?.rangeEnd.getTime() ?? 0),
+    ).toBe(false);
+
+    const jumpWithExternal = buildGanttRange(
+      ownTasks,
+      1,
+      subDays(externalStart, 7),
+      parseISO("2026-09-20"),
+      "day",
+      farFutureExternal,
+    );
+    expect(
+      (jumpWithExternal?.rangeStart.getTime() ?? 0) <=
+        externalStart.getTime() &&
+        externalStart.getTime() <= (jumpWithExternal?.rangeEnd.getTime() ?? 0),
+    ).toBe(true);
+  });
+
+  it("without any bounds tasks, behaves exactly as before (bounds tasks default to none)", () => {
+    const ownTasks = [span("2026-09-14", "2026-09-18")];
+    const explicit = buildGanttRange(
+      ownTasks,
+      1,
+      null,
+      parseISO("2026-09-20"),
+      "day",
+      [],
+    );
+    const implicit = buildGanttRange(ownTasks, 1, null, parseISO("2026-09-20"));
+    expect(explicit).toEqual(implicit);
+  });
+
+  it("falls back to the bounds tasks to build a window when the project has no scheduled own tasks at all", () => {
+    // A project with zero own scheduled tasks but at least one cross-project
+    // related row (externalBoundsTasks) must still get a real window — not
+    // `null`, which the Gantt route reads as "nothing to show at all" and
+    // would otherwise hide those external rows entirely.
+    const externalTasks = [span("2026-09-14", "2026-09-18")];
+    const range = buildGanttRange(
+      [],
+      1,
+      null,
+      parseISO("2026-09-20"),
+      "day",
+      externalTasks,
+    );
+    expect(range).not.toBeNull();
+    expect(
+      range?.days.some(
+        (day) => day.getTime() === parseISO("2026-09-14").getTime(),
+      ),
+    ).toBe(true);
+  });
+
+  it("still returns null when both the own tasks and the bounds tasks are empty", () => {
+    expect(buildGanttRange([], 1, null, parseISO("2026-09-20"))).toBeNull();
+  });
+});
+
+describe("getBarGridColumns", () => {
+  const rangeStart = parseISO("2026-09-01");
+
+  it("places a bar fully inside the window on the matching grid lines", () => {
+    const result = getBarGridColumns(
+      parseISO("2026-09-03"),
+      parseISO("2026-09-05"),
+      rangeStart,
+      10,
+    );
+    expect(result).toEqual({ barInView: true, lineStart: 3, lineEnd: 6 });
+  });
+
+  it("clips a bar that starts before the window to the first line", () => {
+    const result = getBarGridColumns(
+      parseISO("2026-08-25"),
+      parseISO("2026-09-03"),
+      rangeStart,
+      10,
+    );
+    expect(result.barInView).toBe(true);
+    expect(result.lineStart).toBe(1);
+    expect(result.lineEnd).toBe(4);
+  });
+
+  it("clips a bar that ends after the window to the last line", () => {
+    const result = getBarGridColumns(
+      parseISO("2026-09-08"),
+      parseISO("2026-09-30"),
+      rangeStart,
+      10,
+    );
+    expect(result.barInView).toBe(true);
+    expect(result.lineEnd).toBe(11);
+  });
+
+  it("reports out of view for a bar entirely before the window", () => {
+    const result = getBarGridColumns(
+      parseISO("2026-08-01"),
+      parseISO("2026-08-20"),
+      rangeStart,
+      10,
+    );
+    expect(result.barInView).toBe(false);
+  });
+
+  it("reports out of view for a bar entirely after the window", () => {
+    const result = getBarGridColumns(
+      parseISO("2026-10-01"),
+      parseISO("2026-10-05"),
+      rangeStart,
+      10,
+    );
+    expect(result.barInView).toBe(false);
+  });
+
+  it("places a single-day span (e.g. a milestone) on exactly one grid line", () => {
+    const result = getBarGridColumns(
+      parseISO("2026-09-05"),
+      parseISO("2026-09-05"),
+      rangeStart,
+      10,
+    );
+    expect(result).toEqual({ barInView: true, lineStart: 5, lineEnd: 6 });
+  });
+
+  it("reports out of view for an empty track", () => {
+    const result = getBarGridColumns(
+      parseISO("2026-09-03"),
+      parseISO("2026-09-05"),
+      rangeStart,
+      0,
+    );
+    expect(result.barInView).toBe(false);
+  });
+});
+
+describe("deriveTaskSchedule", () => {
+  it("returns null when neither date is set (unpositionable)", () => {
+    expect(deriveTaskSchedule(null, null)).toBeNull();
+  });
+
+  it("falls back to the one date present for a single-day schedule", () => {
+    expect(deriveTaskSchedule("2026-09-10", null)).toEqual({
+      start: parseISO("2026-09-10"),
+      end: parseISO("2026-09-10"),
+    });
+    expect(deriveTaskSchedule(null, "2026-09-12")).toEqual({
+      start: parseISO("2026-09-12"),
+      end: parseISO("2026-09-12"),
+    });
+  });
+
+  it("normalizes a due date that precedes the start date", () => {
+    expect(deriveTaskSchedule("2026-09-20", "2026-09-10")).toEqual({
+      start: parseISO("2026-09-10"),
+      end: parseISO("2026-09-20"),
+    });
+  });
+});
+
+describe("alignRangeStartToUnit", () => {
+  const wednesday = parseISO("2026-09-16"); // mid-week, mid-month, mid-quarter
+
+  it("leaves a Day-unit date untouched", () => {
+    expect(alignRangeStartToUnit(wednesday, "day", 1)).toEqual(wednesday);
+  });
+
+  it("snaps to the week start for Week", () => {
+    expect(alignRangeStartToUnit(wednesday, "week", 1)).toEqual(
+      parseISO("2026-09-14"),
+    );
+  });
+
+  it("snaps to the month start for Month", () => {
+    expect(alignRangeStartToUnit(wednesday, "month", 1)).toEqual(
+      parseISO("2026-09-01"),
+    );
+  });
+
+  it("snaps to the quarter start for Quarter", () => {
+    expect(alignRangeStartToUnit(wednesday, "quarter", 1)).toEqual(
+      parseISO("2026-07-01"),
+    );
+  });
+});
+
+describe("buildGanttHeaderColumns", () => {
+  const days = (start: string, end: string) =>
+    eachDayOfInterval({ start: parseISO(start), end: parseISO(end) });
+
+  it("returns nothing for an empty day list", () => {
+    expect(buildGanttHeaderColumns([], "week", 1)).toEqual([]);
+  });
+
+  it("gives Day one column per day, matching the day itself", () => {
+    const columns = buildGanttHeaderColumns(
+      days("2026-09-14", "2026-09-16"),
+      "day",
+      1,
+    );
+    expect(columns).toEqual([
+      { label: "14", startIndex: 0, endIndex: 0 },
+      { label: "15", startIndex: 1, endIndex: 1 },
+      { label: "16", startIndex: 2, endIndex: 2 },
+    ]);
+  });
+
+  it("groups Week columns by ISO week and labels each by its start date", () => {
+    // Mon 2026-09-14 .. Sun 2026-09-27: exactly two Monday-starting weeks.
+    const columns = buildGanttHeaderColumns(
+      days("2026-09-14", "2026-09-27"),
+      "week",
+      1,
+    );
+    expect(columns).toEqual([
+      { label: "Sep 14", startIndex: 0, endIndex: 6 },
+      { label: "Sep 21", startIndex: 7, endIndex: 13 },
+    ]);
+  });
+
+  it("gives a week column a partial span when the day list cuts it off", () => {
+    // Starts on a Wednesday, so the first "week" column only covers the 3
+    // remaining days of that week.
+    const columns = buildGanttHeaderColumns(
+      days("2026-09-16", "2026-09-21"),
+      "week",
+      1,
+    );
+    expect(columns).toEqual([
+      { label: "Sep 14", startIndex: 0, endIndex: 4 },
+      { label: "Sep 21", startIndex: 5, endIndex: 5 },
+    ]);
+  });
+
+  it("groups Month columns by calendar month regardless of month length", () => {
+    // August (31 days) then September (30 days) then a few days of October.
+    const columns = buildGanttHeaderColumns(
+      days("2026-08-01", "2026-10-03"),
+      "month",
+      1,
+    );
+    expect(columns).toEqual([
+      { label: "Aug 2026", startIndex: 0, endIndex: 30 },
+      { label: "Sep 2026", startIndex: 31, endIndex: 60 },
+      { label: "Oct 2026", startIndex: 61, endIndex: 63 },
+    ]);
+  });
+
+  it("groups Quarter columns by calendar quarter across a year boundary", () => {
+    const columns = buildGanttHeaderColumns(
+      days("2026-11-15", "2027-02-15"),
+      "quarter",
+      1,
+    );
+    expect(columns).toEqual([
+      { label: "Q4 2026", startIndex: 0, endIndex: 46 },
+      { label: "Q1 2027", startIndex: 47, endIndex: 92 },
+    ]);
+  });
+});
+
+describe("GANTT_UNIT_WINDOW_DAYS and unit-aware buildGanttRange", () => {
+  it("keeps Day's window at the existing 91-day constant", () => {
+    expect(GANTT_UNIT_WINDOW_DAYS.day).toBe(GANTT_WINDOW_DAYS);
+  });
+
+  it("widens the window as the unit gets coarser", () => {
+    expect(GANTT_UNIT_WINDOW_DAYS.week).toBeGreaterThan(
+      GANTT_UNIT_WINDOW_DAYS.day,
+    );
+    expect(GANTT_UNIT_WINDOW_DAYS.month).toBeGreaterThan(
+      GANTT_UNIT_WINDOW_DAYS.week,
+    );
+    expect(GANTT_UNIT_WINDOW_DAYS.quarter).toBeGreaterThan(
+      GANTT_UNIT_WINDOW_DAYS.month,
+    );
+  });
+
+  it("reports the unit's window length on the built range", () => {
+    // A task spanning the full supported date range so the window is never
+    // clipped by padding — days.length is then exactly the unit's window.
+    const range = buildGanttRange(
+      [span("0001-01-01", "9999-12-31")],
+      1,
+      null,
+      parseISO("2026-09-19"),
+      "quarter",
+    );
+    expect(range?.windowDays).toBe(GANTT_UNIT_WINDOW_DAYS.quarter);
+    expect(range?.days.length).toBe(GANTT_UNIT_WINDOW_DAYS.quarter);
+  });
+
+  it("aligns an explicitly requested start to the unit before clamping", () => {
+    // A wide task span so the quarter window (~3 years) has room to land on
+    // the requested quarter without the page bounds clamping it away.
+    const range = buildGanttRange(
+      [span("2020-01-01", "2032-12-31")],
+      1,
+      parseISO("2026-09-16"), // mid-quarter
+      undefined,
+      "quarter",
+    );
+    expect(range?.rangeStart).toEqual(parseISO("2026-07-01"));
+  });
+
+  it("defaults buildGanttTimeline to Day when no unit is passed", () => {
+    const timeline = buildGanttTimeline(
+      [span("0001-01-01", "9999-12-31")],
+      1,
+      3,
+      null,
+      parseISO("2026-09-19"),
+    );
+    expect(timeline?.days.length).toBe(GANTT_WINDOW_DAYS);
+    expect(timeline?.windowDays).toBe(GANTT_WINDOW_DAYS);
+  });
+});
+
+describe("GANTT_UNITS", () => {
+  it("lists every unit exactly once, in display order", () => {
+    expect(GANTT_UNITS).toEqual(["day", "week", "month", "quarter"]);
+  });
+});
+
+describe("computeInsetBarBox", () => {
+  it("insets both edges by the requested amount when the track is comfortably wide", () => {
+    const box = computeInsetBarBox(100, 200, 4);
+    expect(box).toEqual({ left: 104, right: 196, insetPx: 4 });
+  });
+
+  it("shrinks the inset (never negative) so the box never ends up narrower than MIN_BAR_CONTENT_PX", () => {
+    // A track only 4px wide — narrower than 2x the desired 4px inset alone
+    // (a single day-track at deep Month/Quarter zoom-out) would otherwise
+    // invert (right < left) or collapse to nothing.
+    const box = computeInsetBarBox(100, 104, 4);
+    expect(box.right - box.left).toBe(MIN_BAR_CONTENT_PX);
+    expect(box.right).toBeGreaterThan(box.left);
+    expect(box.insetPx).toBeGreaterThanOrEqual(0);
+  });
+
+  it("never inverts even for a zero- or negative-width track", () => {
+    const zeroWidth = computeInsetBarBox(100, 100, 4);
+    expect(zeroWidth.right).toBeGreaterThan(zeroWidth.left);
+    expect(zeroWidth.right - zeroWidth.left).toBe(MIN_BAR_CONTENT_PX);
+
+    const negativeWidth = computeInsetBarBox(100, 98, 4);
+    expect(negativeWidth.right).toBeGreaterThan(negativeWidth.left);
+  });
+});
+
+describe("computeProgressFillPercent", () => {
+  const rangeStart = parseISO("2026-09-01");
+
+  it("matches a plain percentage when the whole task is on screen", () => {
+    // A 10-day task (lines 1..11), fully visible, 50% done.
+    const percent = computeProgressFillPercent(
+      50,
+      parseISO("2026-09-01"),
+      parseISO("2026-09-10"),
+      rangeStart,
+      1,
+      11,
+    );
+    expect(percent).toBeCloseTo(50, 5);
+  });
+
+  it("fills the entire visible sliver once progress has passed beyond it", () => {
+    // A 100-day task, window only shows its FIRST 10 days (lines 1..11);
+    // 50% progress (the halfway point of the full 100-day span) is well
+    // past that early sliver, so what's on screen should already read as
+    // fully caught up rather than a % of just the clipped bar.
+    const percent = computeProgressFillPercent(
+      50,
+      parseISO("2026-09-01"),
+      addDays(parseISO("2026-09-01"), 99),
+      rangeStart,
+      1,
+      11,
+    );
+    expect(percent).toBe(100);
+  });
+
+  it("shows no fill when progress hasn't reached the visible sliver yet", () => {
+    // Same 100-day task, but the window shows its LAST 10 days (lines
+    // 91..101); the task is only 50% done, well before that late sliver, so
+    // nothing on screen is "ahead of" the progress line yet.
+    const percent = computeProgressFillPercent(
+      50,
+      parseISO("2026-09-01"),
+      addDays(parseISO("2026-09-01"), 99),
+      rangeStart,
+      91,
+      101,
+    );
+    expect(percent).toBe(0);
+  });
+
+  it("is a no-op (0) for a degenerate zero-width visible box", () => {
+    expect(
+      computeProgressFillPercent(
+        50,
+        parseISO("2026-09-01"),
+        parseISO("2026-09-10"),
+        rangeStart,
+        5,
+        5,
+      ),
+    ).toBe(0);
+  });
+
+  it("clamps out-of-range progress the same way the bar's own fill width does", () => {
+    const over = computeProgressFillPercent(
+      150,
+      parseISO("2026-09-01"),
+      parseISO("2026-09-10"),
+      rangeStart,
+      1,
+      11,
+    );
+    expect(over).toBe(100);
+  });
 });

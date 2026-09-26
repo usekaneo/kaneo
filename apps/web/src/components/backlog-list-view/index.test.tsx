@@ -65,6 +65,10 @@ function makeTasks(status: string, count: number): Task[] {
     assigneeId: null,
     assigneeName: null,
     projectId: "project-1",
+    progress: 0,
+    isMilestone: false,
+    baselineStartDate: null,
+    baselineDueDate: null,
   }));
 }
 

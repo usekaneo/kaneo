@@ -16,14 +16,18 @@ import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createTaskRelation from "./controllers/create-task-relation";
 import deleteTaskRelation from "./controllers/delete-task-relation";
 import getTaskRelations from "./controllers/get-task-relations";
+import getTaskRelationsByProject from "./controllers/get-task-relations-by-project";
+import updateTaskRelation from "./controllers/update-task-relation";
 import {
   taskRelationSchema,
   taskRelationWithTasksListSchema,
 } from "./response";
 import {
   createTaskRelationBody,
+  projectIdParam,
   taskIdParam,
   taskRelationParam,
+  updateTaskRelationBody,
 } from "./schema";
 
 async function workspaceIdOfTask(taskId: string) {
@@ -113,6 +117,31 @@ const getTaskRelationsRoute = createRoute({
   },
 });
 
+const getTaskRelationsByProjectRoute = createRoute({
+  method: "get",
+  operationId: "getTaskRelationsByProject",
+  path: "/project/{projectId}",
+  tags: ["Task Relations"],
+  summary: "Get project task relations",
+  description:
+    "Get every relation touching one of the project's tasks, each with a summary of both linked tasks, in a single call. Powers the Gantt chart's dependency lines. Relations pointing outside the caller's workspace are omitted.",
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ task: ["read"] }),
+  ] as const,
+  request: { params: projectIdParam },
+  responses: {
+    200: jsonResponse(
+      "Task relations with the linked task summaries",
+      taskRelationWithTasksListSchema,
+    ),
+    400: errorResponse(
+      "Unknown project, or its workspace could not be determined",
+    ),
+    403: errorResponse("No workspace access or missing read permission"),
+  },
+});
+
 const createTaskRelationRoute = createRoute({
   method: "post",
   operationId: "createTaskRelation",
@@ -138,7 +167,38 @@ const createTaskRelationRoute = createRoute({
       "No workspace access, or missing task:update permission",
     ),
     404: errorResponse("Source or target task not found"),
-    409: errorResponse("This relation already exists"),
+    409: errorResponse(
+      "This relation already exists, or (for a 'blocks'/'subtask' relation) would create a circular dependency",
+    ),
+  },
+});
+
+const updateTaskRelationRoute = createRoute({
+  method: "patch",
+  operationId: "updateTaskRelation",
+  path: "/{id}",
+  tags: ["Task Relations"],
+  summary: "Update task relation",
+  description:
+    "Change a 'blocks' relation's dependency type and/or lag. Rejected for a 'related'/'subtask' relation, which has no dependency type/lag to edit.",
+  middleware: [
+    scopeToRelation,
+    requireWorkspacePermission({ task: ["update"] }),
+  ] as const,
+  request: {
+    params: taskRelationParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: updateTaskRelationBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("The updated relation", taskRelationSchema),
+    400: errorResponse("Invalid body, or the relation is not a 'blocks' one"),
+    403: errorResponse(
+      "No workspace access, or missing task:update permission",
+    ),
+    404: errorResponse("Task relation not found, or its source task is gone"),
   },
 });
 
@@ -170,19 +230,47 @@ const taskRelation = apiRouter<BaseVariables & { workspaceId: string }>()
       200,
     ),
   )
+  .openapi(getTaskRelationsByProjectRoute, async (c) =>
+    c.json(
+      await getTaskRelationsByProject(
+        c.req.valid("param").projectId,
+        c.get("workspaceId"),
+      ),
+      200,
+    ),
+  )
   .openapi(createTaskRelationRoute, async (c) => {
-    const { sourceTaskId, targetTaskId, relationType } = c.req.valid("json");
+    const {
+      sourceTaskId,
+      targetTaskId,
+      relationType,
+      dependencyType,
+      lagDays,
+    } = c.req.valid("json");
     return c.json(
       await createTaskRelation({
         sourceTaskId,
         targetTaskId,
         relationType,
+        dependencyType,
+        lagDays,
         userId: c.get("userId"),
         workspaceId: c.get("workspaceId"),
       }),
       200,
     );
   })
+  .openapi(updateTaskRelationRoute, async (c) =>
+    c.json(
+      await updateTaskRelation(
+        c.req.valid("param").id,
+        c.req.valid("json"),
+        c.get("userId"),
+        c.get("workspaceId"),
+      ),
+      200,
+    ),
+  )
   .openapi(deleteTaskRelationRoute, async (c) =>
     c.json(
       await deleteTaskRelation(
