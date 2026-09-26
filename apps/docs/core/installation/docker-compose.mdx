@@ -32,7 +32,7 @@ services:
       retries: 5
 
   kaneo:
-    image: ghcr.io/usekaneo/kaneo:${KANEO_IMAGE_TAG:-2.27.0}
+    image: ghcr.io/usekaneo/kaneo:${KANEO_IMAGE_TAG:-2.28.3}
     ports:
       - "127.0.0.1:5173:5173"
     env_file:
@@ -65,7 +65,7 @@ openssl rand -hex 32
 Create `.env` beside `compose.yml`. Replace both placeholders with the generated values:
 
 ```env
-KANEO_IMAGE_TAG=2.27.0
+KANEO_IMAGE_TAG=2.28.3
 KANEO_CLIENT_URL=http://localhost:5173
 POSTGRES_DB=kaneo
 POSTGRES_USER=kaneo

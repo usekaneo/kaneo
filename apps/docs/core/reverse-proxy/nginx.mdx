@@ -21,6 +21,30 @@ Leave `KANEO_API_URL` unset for the bundled image. It serves the web app and `/a
 docker compose up -d --force-recreate kaneo
 ```
 
+## Trust the proxy chain
+
+Configure `TRUSTED_PROXIES` for this host-Nginx setup before serving traffic. Requests pass through host Nginx, Docker's published port, and the bundled Nginx before reaching the API. The API trusts loopback by default, but the bundled Nginx also appends its Docker-side peer address. Without trusting that hop, visitors can share the gateway address in session records and IP-based rate limits.
+
+Find the gateway for the Kaneo container's network:
+
+```bash
+docker inspect "$(docker compose ps -q kaneo)" --format '{{range $name, $network := .NetworkSettings.Networks}}{{$name}} gateway={{$network.Gateway}}{{println}}{{end}}'
+```
+
+On a standard Linux Docker bridge, the host proxy reaches the container through that gateway. If the output shows `172.19.0.1`, add this to `.env`, replacing the example address with your actual gateway:
+
+```env
+TRUSTED_PROXIES=127.0.0.0/8,::1/128,172.19.0.1/32
+```
+
+Keep loopback in the list because the bundled Nginx connects to the API locally. Trust only the gateway or proxy addresses you control, not every private network. If Docker uses a different network mode or forwarding layer, confirm the peer address in the bundled Nginx access logs and trust that specific hop instead. Recheck this setting if you recreate the Docker network.
+
+Apply the setting:
+
+```bash
+docker compose up -d --force-recreate kaneo
+```
+
 ## Configure Nginx
 
 Save this in your Nginx site's configuration. The `map` belongs in the `http` context, outside the `server` blocks; on a standard Debian or Ubuntu installation, `sites-enabled` is included there.
@@ -78,7 +102,7 @@ Sign in and open a project in two browser sessions. Change a task in one and con
 
 If Nginx runs in another container, `127.0.0.1` refers to that proxy container. Put it on the same Docker network as Kaneo and use `http://kaneo:5173` as the upstream.
 
-Configure [`TRUSTED_PROXIES`](/core/installation/environment-variables#proxies) for your actual proxy chain when you need forwarded client addresses for rate limiting. Trust only the proxy addresses or a dedicated proxy subnet.
+Configure [`TRUSTED_PROXIES`](/core/installation/environment-variables#proxies) for this different proxy chain so client addresses remain correct. Trust only the proxy addresses or a dedicated proxy subnet.
 
 If you deliberately host the API and web app separately, set their public URLs explicitly and configure allowed origins. The one-domain setup above does not require exposing port 1337.
 
