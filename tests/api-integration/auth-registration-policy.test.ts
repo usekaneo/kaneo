@@ -6,6 +6,7 @@ import { createApp } from "../../apps/api/src/index";
 import getInstanceStatus from "../../apps/api/src/instance/controllers/get-instance-status";
 import { promoteInitialAdministrator } from "../../apps/api/src/utils/instance-bootstrap";
 import { assertUserRegistrationAllowed } from "../../apps/api/src/utils/registration-policy";
+import { drainSignInEmails } from "../../apps/api/src/utils/sign-in-email-tasks";
 import { resetTestDatabase } from "./helpers/database";
 import { createWorkspaceMember } from "./helpers/fixtures";
 
@@ -13,16 +14,19 @@ const headers = {
   "content-type": "application/json",
   Origin: "http://localhost:5173",
 };
-function post(
+async function post(
   path: string,
   body: unknown,
   extraHeaders: Record<string, string> = {},
+  waitForEmail = true,
 ) {
-  return createApp().app.request(`/api/auth${path}`, {
+  const response = await createApp().app.request(`/api/auth${path}`, {
     method: "POST",
     headers: { ...headers, ...extraHeaders },
     body: JSON.stringify(body),
   });
+  if (waitForEmail) await drainSignInEmails();
+  return response;
 }
 function signup(email: string, extraHeaders?: Record<string, string>) {
   return post(
@@ -204,6 +208,9 @@ describe("auth registration and bootstrap boundaries", () => {
     const member = await createWorkspaceMember();
     vi.stubEnv("DISABLE_PASSWORD_REGISTRATION", "true");
     const send = vi.spyOn(email, "sendOtpEmail").mockResolvedValue(undefined);
+    const sendMagicLink = vi
+      .spyOn(email, "sendMagicLinkEmail")
+      .mockResolvedValue(undefined);
     for (const address of ["new-otp@example.com", member.user.email]) {
       expect(
         (
@@ -213,16 +220,150 @@ describe("auth registration and bootstrap boundaries", () => {
           })
         ).status,
       ).toBe(200);
-      const data = send.mock.lastCall?.[2] as { otp: string } | undefined;
-      expect(data?.otp).toBeTruthy();
-      const response = await post("/sign-in/email-otp", {
-        email: address,
-        otp: data?.otp,
-      });
-      expect(response.status).toBe(address === member.user.email ? 200 : 403);
+      expect(
+        (await post("/sign-in/magic-link", { email: address })).status,
+      ).toBe(200);
     }
+    expect(send).toHaveBeenCalledTimes(1);
+    expect(send.mock.lastCall?.[0]).toBe(member.user.email);
+    expect(sendMagicLink).toHaveBeenCalledTimes(1);
+    expect(sendMagicLink.mock.lastCall?.[0]).toBe(member.user.email);
+    const data = send.mock.lastCall?.[2] as { otp: string } | undefined;
+    expect(data?.otp).toBeTruthy();
+    const response = await post("/sign-in/email-otp", {
+      email: member.user.email,
+      otp: data?.otp,
+    });
+    expect(response.status).toBe(200);
     expect(await db.select().from(schema.userTable)).toHaveLength(1);
   });
+
+  it("still emails the first user's OTP and magic link for initial setup when registration is disabled", async () => {
+    vi.stubEnv("DISABLE_REGISTRATION", "true");
+    const sendOtp = vi
+      .spyOn(email, "sendOtpEmail")
+      .mockResolvedValue(undefined);
+    const sendMagicLink = vi
+      .spyOn(email, "sendMagicLinkEmail")
+      .mockResolvedValue(undefined);
+
+    expect(
+      (
+        await post("/email-otp/send-verification-otp", {
+          email: "first@example.com",
+          type: "sign-in",
+        })
+      ).status,
+    ).toBe(200);
+    expect(
+      (await post("/sign-in/magic-link", { email: "first@example.com" }))
+        .status,
+    ).toBe(200);
+    expect(sendOtp.mock.calls.map((call) => call[0])).toEqual([
+      "first@example.com",
+    ]);
+    expect(sendMagicLink.mock.calls.map((call) => call[0])).toEqual([
+      "first@example.com",
+    ]);
+
+    const data = sendOtp.mock.lastCall?.[2] as { otp: string };
+    const response = await post("/sign-in/email-otp", {
+      email: "first@example.com",
+      otp: data.otp,
+    });
+    expect(response.status).toBe(200);
+    expect(await db.select().from(schema.userTable)).toHaveLength(1);
+  });
+
+  it("only emails sign-in OTPs and magic links to existing or invited addresses when registration is disabled", async () => {
+    const member = await createWorkspaceMember();
+    const invite = await invitation("invitee@example.com");
+    vi.stubEnv("DISABLE_REGISTRATION", "true");
+    const sendOtp = vi
+      .spyOn(email, "sendOtpEmail")
+      .mockResolvedValue(undefined);
+    const sendMagicLink = vi
+      .spyOn(email, "sendMagicLinkEmail")
+      .mockResolvedValue(undefined);
+
+    for (const address of [
+      member.user.email,
+      invite.email,
+      "stranger@example.com",
+    ]) {
+      expect(
+        (
+          await post("/email-otp/send-verification-otp", {
+            email: address,
+            type: "sign-in",
+          })
+        ).status,
+      ).toBe(200);
+      expect(
+        (await post("/sign-in/magic-link", { email: address })).status,
+      ).toBe(200);
+    }
+
+    const expectedRecipients = [invite.email, member.user.email].sort();
+    const recipients = (mock: {
+      mock: { calls: [to: string, subject: string, data: unknown][] };
+    }) => mock.mock.calls.map((call) => call[0]).sort();
+    expect(recipients(sendOtp)).toEqual(expectedRecipients);
+    expect(recipients(sendMagicLink)).toEqual(expectedRecipients);
+  });
+
+  it.each([
+    ["/email-otp/send-verification-otp", "sendOtpEmail"],
+    ["/sign-in/magic-link", "sendMagicLinkEmail"],
+  ] as const)(
+    "returns from %s without waiting for SMTP",
+    async (path, method) => {
+      const member = await createWorkspaceMember();
+      const invite = await invitation("timing-invitee@example.com");
+      vi.stubEnv("DISABLE_REGISTRATION", "true");
+      let releaseDelivery!: () => void;
+      const blockedDelivery = new Promise<void>((resolve) => {
+        releaseDelivery = resolve;
+      });
+      const send = vi.spyOn(email, method).mockReturnValue(blockedDelivery);
+      const responses: { status: number; body: unknown }[] = [];
+      const requests: Promise<Response>[] = [];
+
+      try {
+        for (const address of [
+          member.user.email,
+          invite.email,
+          "unknown@example.com",
+        ]) {
+          const request = post(
+            path,
+            { email: address, type: "sign-in" },
+            {},
+            false,
+          );
+          requests.push(request);
+          void request.then(async (response) => {
+            responses.push({
+              status: response.status,
+              body: await response.json(),
+            });
+          });
+        }
+        // The SMTP promise stays unresolved until all three HTTP responses arrive.
+        await vi.waitFor(() => expect(responses).toHaveLength(3));
+        expect(responses[0].status).toBe(200);
+        expect(responses).toEqual([responses[0], responses[0], responses[0]]);
+        await vi.waitFor(() => expect(send).toHaveBeenCalledTimes(2));
+        expect(send.mock.calls.map(([address]) => address).sort()).toEqual(
+          [member.user.email, invite.email].sort(),
+        );
+      } finally {
+        releaseDelivery();
+        await Promise.all(requests);
+        await drainSignInEmails();
+      }
+    },
+  );
 
   it("stores a five-minute OTP expiry and rejects an expired code", async () => {
     const member = await createWorkspaceMember();

@@ -10,13 +10,14 @@ import { getPosts } from "@/lib/blog";
 import { formatBlogDateShort } from "@/lib/blog/format";
 import { alternativePath, comparisonList } from "@/lib/comparisons";
 import { guideList, guidePath } from "@/lib/guides";
+import { withSocialMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withSocialMetadata({
   title: "Kaneo alternatives and comparisons",
   description:
     "How Kaneo compares to Jira, Trello, Linear, Asana, ClickUp, monday.com, PLANKA, Plane, OpenProject, Redmine, and other project management tools. Open source, self-hostable, MIT licensed.",
   alternates: { canonical: "/alternatives" },
-};
+});
 
 const groups = [
   {

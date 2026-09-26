@@ -62,6 +62,18 @@ export function useProjectWebSocket(projectId: string) {
         if (disposed || activeSocket !== ws) return;
         try {
           const message = JSON.parse(event.data);
+          if (message.type === "PROJECT_MOVED") {
+            for (const queryKey of [
+              ["projects"],
+              ["project", projectId],
+              ["tasks", projectId],
+              ["task"],
+              ["task-relations"],
+            ]) {
+              queryClient.invalidateQueries({ queryKey });
+            }
+            return;
+          }
           if (
             message.type === "TASK_UPDATED" ||
             message.type === "TASK_CREATED" ||
@@ -106,6 +118,12 @@ export function useProjectWebSocket(projectId: string) {
             if (message.type === "TASK_LABEL_UPDATED") {
               queryClient.invalidateQueries({
                 queryKey: ["labels", message.taskId],
+              });
+            }
+
+            if (message.type === "TASK_UPDATED" && message.taskId) {
+              queryClient.invalidateQueries({
+                queryKey: ["external-links", message.taskId],
               });
             }
 

@@ -3,12 +3,14 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import {
   CreateBucketCommand,
   DeleteBucketCommand,
+  GetObjectCommand,
   HeadObjectCommand,
   ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
 } from "../../apps/api/node_modules/@aws-sdk/client-s3";
 import {
+  copyTaskAssetObject,
   createTaskImageUploadUrl,
   deleteS3Object,
   verifyTaskAssetUpload,
@@ -79,6 +81,39 @@ function head(key: string) {
 }
 
 describe("presigned uploads against real local S3 storage", () => {
+  it("copies an attachment with reserved characters and survives source deletion", async () => {
+    const sourceKey = "source/report #1%.png";
+    const body = Buffer.from("independent attachment");
+    await client.send(
+      new PutObjectCommand({
+        Bucket: bucket,
+        Key: sourceKey,
+        Body: body,
+        ContentType: "image/png",
+      }),
+    );
+    const copiedKey = await copyTaskAssetObject({
+      sourceKey,
+      destination: {
+        workspaceId: "local",
+        projectId: "local",
+        taskId: "duplicate",
+        surface: "description",
+        filename: "report.png",
+        contentType: "image/png",
+      },
+    });
+    expect(copiedKey).toContain("/task/duplicate/");
+    await deleteS3Object(sourceKey);
+    const copied = await client.send(
+      new GetObjectCommand({ Bucket: bucket, Key: copiedKey }),
+    );
+    expect(copied.ContentType).toBe("image/png");
+    expect(await copied.Body?.transformToByteArray()).toEqual(
+      new Uint8Array(body),
+    );
+  });
+
   it("accepts an exact-size File upload and verifies stored metadata", async () => {
     const upload = await presign(64);
     const response = await fetch(upload.uploadUrl, {

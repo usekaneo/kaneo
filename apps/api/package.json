@@ -59,10 +59,10 @@
   "devDependencies": {
     "@types/node": "^26.1.2",
     "@types/pg": "^8.20.4",
-    "@vitest/coverage-v8": "^4.1.11",
+    "@vitest/coverage-v8": "^5.0.1",
     "esbuild": "0.28.1",
     "tsx": "^4.23.9",
     "typescript": "^7.0.2",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.1"
   }
 }

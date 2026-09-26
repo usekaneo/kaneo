@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { landing } from "@/lib/landing";
 import "./globals.css";
 
-const siteTitle = "Kaneo - Project management that doesn't become the project.";
-const siteDescription =
-  "Fast, open-source project management for teams that want clear ownership without heavy process. Use Kaneo Cloud or host it yourself.";
+const siteTitle = landing.seo.title;
+const siteDescription = landing.seo.description;
 
 export const viewport: Viewport = {
   themeColor: [

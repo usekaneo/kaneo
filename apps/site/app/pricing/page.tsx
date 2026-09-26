@@ -4,15 +4,16 @@ import { Navbar } from "@/components/landing/navbar";
 import { PageIntro } from "@/components/landing/page-intro";
 import { PricingPlans } from "@/components/landing/pricing-plans";
 import { SectionSeparator } from "@/components/landing/section-separator";
+import { withSocialMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withSocialMetadata({
   title: "Pricing",
   description:
     "Simple pricing for Kaneo Cloud. Self-hosting stays free and open source forever.",
   alternates: {
     canonical: "/pricing",
   },
-};
+});
 
 const notes = [
   {

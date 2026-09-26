@@ -100,6 +100,19 @@ describe("MCP tool catalog", () => {
     });
   });
 
+  it("duplicates a task and only sends a title when one is given", async () => {
+    await call("duplicate_task", { taskId: "t 1" });
+
+    expect(lastRequest()).toMatchObject({
+      url: "http://api.test/api/task/duplicate/t%201",
+      method: "POST",
+      body: {},
+    });
+
+    await call("duplicate_task", { taskId: "t1", title: "Checklist (copy)" });
+    expect(lastRequest().body).toEqual({ title: "Checklist (copy)" });
+  });
+
   it("assigns and unassigns a task", async () => {
     await call("update_task_assignee", { taskId: "t1", userId: "u1" });
     expect(lastRequest()).toMatchObject({

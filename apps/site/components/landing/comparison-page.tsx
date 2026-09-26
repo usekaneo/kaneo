@@ -12,6 +12,7 @@ import { SectionSeparator } from "@/components/landing/section-separator";
 import { Button } from "@/components/ui/button";
 import { alternativePath, comparisons } from "@/lib/comparisons";
 import type { Cell, Comparison } from "@/lib/comparisons/types";
+import { landing } from "@/lib/landing";
 
 const SIGN_UP = "https://cloud.kaneo.app/auth/sign-up";
 
@@ -19,15 +20,22 @@ export type { Comparison };
 
 function CellValue({ value, emphasize }: { value: Cell; emphasize?: boolean }) {
   if (typeof value === "boolean") {
-    return value ? (
-      <Check
-        aria-label="Yes"
-        className={
-          emphasize ? "size-4 text-primary" : "size-4 text-foreground/40"
-        }
-      />
-    ) : (
-      <Minus aria-label="No" className="size-4 text-foreground/30" />
+    return (
+      <span className="inline-flex items-center justify-center">
+        {value ? (
+          <Check
+            aria-hidden="true"
+            className={
+              emphasize ? "size-4 text-primary" : "size-4 text-foreground/40"
+            }
+          />
+        ) : (
+          <Minus aria-hidden="true" className="size-4 text-foreground/30" />
+        )}
+        <span className="sr-only">
+          {value ? landing.comparison.yes : landing.comparison.no}
+        </span>
+      </span>
     );
   }
   return (
@@ -128,29 +136,49 @@ export function ComparisonPage({ data }: { data: Comparison }) {
 
             <FadeIn delay={260}>
               <div className="mt-12 overflow-x-auto rounded-xl border bg-background">
-                <div className="grid min-w-[36rem] grid-cols-[1.4fr_1fr_1fr] text-sm">
-                  <div className="border-border/50 border-b px-4 py-3 font-medium sm:px-6" />
-                  <div className="border-border/50 border-b bg-sidebar px-4 py-3 text-center font-medium sm:px-6">
-                    Kaneo
-                  </div>
-                  <div className="border-border/50 border-b px-4 py-3 text-center font-medium text-muted-foreground sm:px-6">
-                    {data.competitor}
-                  </div>
-
-                  {data.rows.map((row) => (
-                    <div key={row.feature} className="contents">
-                      <div className="border-border/40 border-b px-4 py-3 text-foreground/80 sm:px-6">
-                        {row.feature}
-                      </div>
-                      <div className="flex items-center justify-center border-border/40 border-b bg-sidebar px-4 py-3 text-center sm:px-6">
-                        <CellValue value={row.kaneo} emphasize />
-                      </div>
-                      <div className="flex items-center justify-center border-border/40 border-b px-4 py-3 text-center sm:px-6">
-                        <CellValue value={row.them} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <table className="w-full min-w-[36rem] table-fixed text-sm">
+                  <caption className="sr-only">{data.heading}</caption>
+                  <thead>
+                    <tr>
+                      <th
+                        scope="col"
+                        className="w-[42%] border-border/50 border-b px-4 py-3 text-left font-medium sm:px-6"
+                      >
+                        {landing.comparison.feature}
+                      </th>
+                      <th
+                        scope="col"
+                        className="border-border/50 border-b bg-sidebar px-4 py-3 text-center font-medium sm:px-6"
+                      >
+                        Kaneo
+                      </th>
+                      <th
+                        scope="col"
+                        className="border-border/50 border-b px-4 py-3 text-center font-medium text-muted-foreground sm:px-6"
+                      >
+                        {data.competitor}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.rows.map((row) => (
+                      <tr key={row.feature}>
+                        <th
+                          scope="row"
+                          className="border-border/40 border-b px-4 py-3 text-left font-normal text-foreground/80 sm:px-6"
+                        >
+                          {row.feature}
+                        </th>
+                        <td className="border-border/40 border-b bg-sidebar px-4 py-3 text-center sm:px-6">
+                          <CellValue value={row.kaneo} emphasize />
+                        </td>
+                        <td className="border-border/40 border-b px-4 py-3 text-center sm:px-6">
+                          <CellValue value={row.them} />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </FadeIn>
 

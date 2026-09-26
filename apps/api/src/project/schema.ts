@@ -33,3 +33,5 @@ export const reorderProjectsBody = z.object({
     .array(z.object({ id: z.string(), position: z.number().int().min(0) }))
     .min(1),
 });
+
+export const moveProjectBody = z.object({ workspaceId: z.string().min(1) });

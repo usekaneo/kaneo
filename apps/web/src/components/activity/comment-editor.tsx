@@ -43,6 +43,7 @@ import { KaneoMention } from "@/components/task/extensions/kaneo-mention";
 import type { MentionMember } from "@/components/task/extensions/mention-list";
 import { MentionSuggestion } from "@/components/task/extensions/mention-suggestion";
 import { MermaidBlock } from "@/components/task/extensions/mermaid-block";
+import { SafeHardBreak } from "@/components/task/extensions/safe-hard-break";
 import {
   SHIKI_CODEBLOCK_REFRESH_META,
   ShikiCodeBlock,
@@ -203,6 +204,13 @@ export default function CommentEditor({
   const hasHydratedRef = useRef(false);
   const latestValueRef = useRef(normalizeCommentMarkdown(value || ""));
   const lastEditorRef = useRef<Editor | null>(null);
+  const isMountedRef = useRef(false);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
   const taskIdRef = useRef(taskId);
   const ensureTaskIdRef = useRef(ensureTaskId);
   const uploadSurfaceRef = useRef(uploadSurface);
@@ -300,16 +308,21 @@ export default function CommentEditor({
       }
 
       if (asset.kind === "image") {
-        chain
+        const ran = chain
           .setImage({
             src: asset.url,
             alt: asset.alt,
           })
           .run();
+        // Chain commands report silent failure via false rather than
+        // throwing; convert it so the caller's catch reports it.
+        if (!ran) {
+          throw new Error(t("activity:comment.editor.failedToUploadFile"));
+        }
         return;
       }
 
-      chain
+      const ran = chain
         .insertContent({
           type: "attachmentCard",
           attrs: {
@@ -320,15 +333,19 @@ export default function CommentEditor({
           },
         })
         .run();
+      if (!ran) {
+        throw new Error(t("activity:comment.editor.failedToUploadFile"));
+      }
     },
-    [],
+    [t],
   );
 
   const handleAssetFileUpload = useCallback(
     async (file: File, targetEditor?: Editor | null, range?: SlashRange) => {
       const activeEditor = targetEditor || lastEditorRef.current;
+      const initialTaskId = taskIdRef.current;
       const resolvedTaskId =
-        taskIdRef.current ?? (await ensureTaskIdRef.current?.());
+        initialTaskId ?? (await ensureTaskIdRef.current?.());
 
       if (!activeEditor || !resolvedTaskId) {
         toast.error(t("activity:comment.editor.uploadsOnlyOnSavedTasks"));
@@ -345,7 +362,28 @@ export default function CommentEditor({
           surface: uploadSurfaceRef.current,
           file,
         });
-        insertUploadedAsset(activeEditor, uploadedAsset, range);
+
+        // Reuse a replacement editor only while it still belongs to the task
+        // that owns the uploaded asset.
+        const currentEditor = !activeEditor.isDestroyed
+          ? activeEditor
+          : lastEditorRef.current;
+        const taskChanged =
+          initialTaskId === undefined
+            ? taskIdRef.current !== undefined &&
+              taskIdRef.current !== resolvedTaskId
+            : taskIdRef.current !== initialTaskId;
+        if (!isMountedRef.current || taskChanged) {
+          toast.dismiss(loadingToast);
+          return;
+        }
+        if (!currentEditor || currentEditor.isDestroyed) {
+          throw new Error(t("activity:comment.editor.failedToUploadFile"));
+        }
+
+        // Only report success when the image actually landed in the document;
+        // insertUploadedAsset throws otherwise and the catch below reports it.
+        insertUploadedAsset(currentEditor, uploadedAsset, range);
 
         toast.dismiss(loadingToast);
         toast.success(
@@ -609,7 +647,9 @@ export default function CommentEditor({
           codeBlock: {
             HTMLAttributes: { class: "kaneo-tiptap-codeblock" },
           },
+          hardBreak: false,
         }),
+        SafeHardBreak,
         Markdown.configure({
           markedOptions: {
             breaks: true,
@@ -950,7 +990,10 @@ export default function CommentEditor({
   }, [editor]);
 
   useEffect(() => {
-    if (!editor) return;
+    // The editor instance can be destroyed and replaced while effects are
+    // flushing (e.g. Shiki resolving recreates it via useEditor deps). The
+    // next run attaches to the replacement instance.
+    if (!editor || editor.isDestroyed) return;
 
     const handleImagePreviewClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement | null;

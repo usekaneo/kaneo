@@ -9,13 +9,14 @@ import { SectionSeparator } from "@/components/landing/section-separator";
 import { getPosts } from "@/lib/blog";
 import { formatBlogDateShort } from "@/lib/blog/format";
 import { guideList, guidePath } from "@/lib/guides";
+import { withSocialMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withSocialMetadata({
   title: "Guides",
   description:
     "Practical guides to open-source and self-hosted project management: choosing a tool, self-hosting with Docker, single sign-on, data residency, and AI agents.",
   alternates: { canonical: "/guides" },
-};
+});
 
 export default function Page() {
   const posts = getPosts().slice(0, 3);

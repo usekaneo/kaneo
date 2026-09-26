@@ -1,5 +1,8 @@
 import { randomUUID } from "node:crypto";
+import { eq } from "drizzle-orm";
 import type { WSContext } from "hono/ws";
+import db from "../database";
+import { projectTable } from "../database/schema";
 import { subscribeToEvent } from "../events";
 import { isRedisConfigured } from "../redis";
 import type {
@@ -18,6 +21,7 @@ type ProjectConnection = {
   ws: WSContext;
   userId: string;
   initiatorId: string;
+  workspaceId: string;
 };
 
 type UserConnection = {
@@ -113,7 +117,7 @@ export async function initializeWebSocketAdapter() {
 
   try {
     await nextAdapter.subscribe((msg: BroadcastMessage) => {
-      deliverToLocalConnections(
+      return deliverToLocalConnections(
         msg.projectId,
         msg.message,
         msg.excludeInitiatorId,
@@ -158,25 +162,95 @@ export async function shutdownWebSocketAdapter() {
   adapter = null;
 }
 
-function deliverToLocalConnections(
+function closeLocalProjectConnections(projectId: string) {
+  const timeout = projectBroadcastTimeouts.get(projectId);
+  if (timeout) clearTimeout(timeout);
+  projectBroadcastTimeouts.delete(projectId);
+  projectBroadcastQueues.delete(projectId);
+  const connections = projectConnections.get(projectId);
+  projectConnections.delete(projectId);
+  for (const conn of connections ?? []) {
+    try {
+      conn.ws.send(JSON.stringify({ type: "PROJECT_MOVED", projectId }));
+    } catch {
+      /* The socket may already be closed. */
+    }
+    try {
+      conn.ws.close(1008, "Project workspace changed");
+    } catch {
+      /* Already closed. */
+    }
+  }
+}
+
+export async function closeProjectConnections(projectId: string) {
+  closeLocalProjectConnections(projectId);
+  try {
+    await adapter?.publish({
+      projectId,
+      message: { type: "PROJECT_MOVED", projectId },
+    });
+  } catch (error) {
+    // Delivery also checks the workspace, so missed Redis notifications cannot
+    // leave old connections receiving future project updates.
+    console.error("Failed to publish project move:", error);
+  }
+}
+
+const workspaceLookups = new Map<string, Promise<string | null>>();
+function currentProjectWorkspace(projectId: string) {
+  let pending = workspaceLookups.get(projectId);
+  if (!pending) {
+    pending = db
+      .select({ workspaceId: projectTable.workspaceId })
+      .from(projectTable)
+      .where(eq(projectTable.id, projectId))
+      .limit(1)
+      .then(([project]) => project?.workspaceId ?? null)
+      .finally(() => workspaceLookups.delete(projectId));
+    workspaceLookups.set(projectId, pending);
+  }
+  return pending;
+}
+
+async function deliverToLocalConnections(
   projectId: string,
   message: ProjectBroadcastMessage,
   excludeInitiatorId?: string,
 ) {
+  if (message.type === "PROJECT_MOVED") {
+    closeLocalProjectConnections(projectId);
+    return;
+  }
   const connections = projectConnections.get(projectId);
   if (!connections) return;
-
+  const recipients = [...connections];
+  let workspaceId: string | null;
+  try {
+    workspaceId = await currentProjectWorkspace(projectId);
+  } catch (error) {
+    console.error("Failed to validate project broadcast access:", error);
+    workspaceId = null;
+  }
   const payload = JSON.stringify(message);
-  for (const conn of connections) {
+  for (const conn of recipients) {
+    // A move may have closed these connections while the lookup was in flight.
+    if (!projectConnections.get(projectId)?.has(conn)) continue;
+    if (conn.workspaceId !== workspaceId) {
+      removeConnection(projectId, conn);
+      try {
+        conn.ws.close(1008, "Project workspace changed");
+      } catch {
+        /* Already closed. */
+      }
+      continue;
+    }
     if (excludeInitiatorId && conn.initiatorId === excludeInitiatorId) continue;
     try {
       conn.ws.send(payload);
     } catch {
-      connections.delete(conn);
+      removeConnection(projectId, conn);
     }
-  }
-  if (connections.size === 0) {
-    projectConnections.delete(projectId);
   }
 }
 
@@ -185,11 +259,12 @@ export function addConnection(
   ws: WSContext,
   userId: string,
   initiatorId: string,
+  workspaceId: string,
 ) {
   if (!projectConnections.has(projectId)) {
     projectConnections.set(projectId, new Set());
   }
-  const conn: ProjectConnection = { ws, userId, initiatorId };
+  const conn: ProjectConnection = { ws, userId, initiatorId, workspaceId };
   projectConnections.get(projectId)?.add(conn);
   return conn;
 }
@@ -330,6 +405,24 @@ subscribeToEvent<{
       sourceTaskId: undefined,
       targetTaskId: undefined,
     },
+    initiatorId,
+  );
+});
+
+// Project-scoped rather than per task: a project move can unassign every task
+// in the project at once, so clients refetch the board once instead of
+// receiving one message per task.
+subscribeToEvent<{
+  projectId: string;
+  userId: string;
+  initiatorId?: string;
+}>("task.bulk_unassigned", async (data) => {
+  const { projectId, initiatorId } = data;
+  if (!projectId) return;
+
+  broadcastToProject(
+    projectId,
+    { type: "TASK_UPDATED", projectId, taskId: "" },
     initiatorId,
   );
 });
