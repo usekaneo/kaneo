@@ -6395,7 +6395,7 @@
           "Projects"
         ],
         "summary": "Move a project to another workspace",
-        "description": "Move a project and its tasks. Requires update and delete permission in the source and create permission in the destination. Remove cross-project task relationships before moving.",
+        "description": "Move a project and its tasks. Requires update and delete permission in the source, plus project creation and workspace settings management permission in the destination. Remove cross-project task relationships before moving.",
         "parameters": [
           {
             "schema": {

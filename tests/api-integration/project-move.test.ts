@@ -111,6 +111,33 @@ describe("API integration: moving a project between workspaces", () => {
     expect(response.status).toBe(403);
   });
 
+  it("rejects a move when the caller can't manage target workspace settings", async () => {
+    const owner = await createWorkspaceMember({ role: "owner" });
+    const target = await createTargetWorkspace();
+    // Members can create projects, but cannot bring retained integrations into
+    // a workspace because they lack workspace:manage_settings.
+    await addMember(target.id, owner.user.id, "member");
+    const { project } = await createProjectFixture({
+      workspaceId: owner.workspace.id,
+    });
+
+    mockAuthenticatedSession(owner.user);
+    const { app } = createApp();
+
+    const response = await app.request(
+      `/api/project/${project.id}/move`,
+      moveRequest(target.id),
+    );
+
+    expect(response.status).toBe(403);
+
+    const [unchanged] = await db
+      .select()
+      .from(schema.projectTable)
+      .where(eq(schema.projectTable.id, project.id));
+    expect(unchanged.workspaceId).toBe(owner.workspace.id);
+  });
+
   it("rejects a move when the target workspace already uses the project's key", async () => {
     const owner = await createWorkspaceMember({ role: "owner" });
     const target = await createTargetWorkspace();
