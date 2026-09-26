@@ -276,6 +276,38 @@ describe("CreateTaskModal", () => {
     },
   );
 
+  it.each([false, true])(
+    "applies legacy padded dropdown defaults (required: %s)",
+    async (required) => {
+      useLocation.mockReturnValue({
+        pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
+      });
+      customFields = [
+        {
+          id: "people",
+          name: "People",
+          type: "dropdown",
+          options: ["Alice", "Bob"],
+          hiddenOptions: [],
+          defaultValue: " Alice ",
+          required,
+        },
+      ];
+      render(<CreateTaskModal open onClose={vi.fn()} />, {
+        wrapper: createWrapper(),
+      });
+      enterTitle();
+      await act(async () => {
+        submit();
+      });
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({
+          customFields: [{ fieldId: "people", value: "Alice" }],
+        }),
+      );
+    },
+  );
+
   it("keeps unsaved input while discard confirmation is open", async () => {
     useLocation.mockReturnValue({
       pathname: "/dashboard/workspace/workspace-1/project/project-1/board",

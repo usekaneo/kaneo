@@ -318,8 +318,11 @@ function CreateTaskModalContent({
           const visibleOptions = (field.options ?? []).filter(
             (option) => !hidden.includes(option),
           );
-          if (field.type === "dropdown" && !visibleOptions.includes(value)) {
-            value = "";
+          if (field.type === "dropdown") {
+            value = visibleOptions.includes(value)
+              ? value
+              : (visibleOptions.find((option) => option === value.trim()) ??
+                "");
           } else if (field.type === "multiselect" && value) {
             try {
               const selected: unknown = JSON.parse(value);

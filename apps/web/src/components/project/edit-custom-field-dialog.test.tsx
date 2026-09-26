@@ -71,6 +71,29 @@ describe("edit custom field dialog", () => {
       },
     });
   });
+  it("allows name-only edits of legacy labels without rewriting their identities", async () => {
+    const onClose = vi.fn();
+    mutateAsync.mockResolvedValue({});
+    render(
+      <EditCustomFieldDialog
+        field={{ ...field, options: ["Alice", " Alice ", "Bob"] }}
+        onClose={onClose}
+      />,
+    );
+    fireEvent.change(
+      screen.getByLabelText("settings:customFields.namePlaceholder"),
+      { target: { value: "Attendees" } },
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "settings:customFields.saveButton" }),
+    );
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
+    expect(mutateAsync).toHaveBeenCalledWith({
+      param: { id: "field" },
+      json: { name: "Attendees", updatedAt: field.updatedAt },
+    });
+  });
+
   it("cancels without saving", () => {
     const onClose = vi.fn();
     render(<EditCustomFieldDialog field={field} onClose={onClose} />);

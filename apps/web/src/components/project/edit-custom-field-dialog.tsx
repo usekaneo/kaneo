@@ -37,10 +37,20 @@ export default function EditCustomFieldDialog({
   const [error, setError] = useState<string | null>(null);
   const { mutateAsync, isPending } = useUpdateCustomField();
   const hasOptions = field.type === "dropdown" || field.type === "multiselect";
+  const optionsChanged =
+    options.length !== (field.options?.length ?? 0) ||
+    options.some(
+      (option, index) =>
+        option.originalValue !== field.options?.[index] ||
+        option.value !== field.options?.[index] ||
+        option.hidden !==
+          (field.hiddenOptions ?? []).includes(option.originalValue ?? ""),
+    );
   const normalizedOptions = options.map((option) => option.value.trim());
   const valid =
     name.trim() &&
     (!hasOptions ||
+      !optionsChanged ||
       (options.length >= (field.type === "multiselect" ? 2 : 1) &&
         normalizedOptions.every(Boolean) &&
         new Set(normalizedOptions).size === options.length &&
@@ -55,7 +65,7 @@ export default function EditCustomFieldDialog({
         json: {
           name: name.trim(),
           updatedAt: field.updatedAt,
-          ...(hasOptions
+          ...(hasOptions && optionsChanged
             ? {
                 options: options.map(({ originalValue, value, hidden }) => ({
                   originalValue,
