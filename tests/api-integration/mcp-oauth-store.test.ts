@@ -25,7 +25,7 @@ async function seed(
   await db.execute(sql`INSERT INTO mcp_oauth_state (id,kind,key,payload,expires_at)
     SELECT ${kind} || '-' || i, ${kind}, ${kind} || '-' || i,
       jsonb_build_object('clientId', ${clientId}::text),
-      CASE WHEN ${expired} THEN now() - interval '1 hour' ELSE now() + interval '1 hour' END
+      CASE WHEN ${expired} THEN (now() AT TIME ZONE 'UTC') - interval '1 hour' ELSE (now() AT TIME ZONE 'UTC') + interval '1 hour' END
     FROM generate_series(1, ${total}::integer) AS i`);
 }
 async function total(kind: string) {
@@ -37,6 +37,35 @@ async function total(kind: string) {
 }
 
 describe("bounded shared MCP OAuth store", () => {
+  it("keeps live UTC timestamps through cleanup and consent approval in the configured database timezone", async () => {
+    const timezone = await db.execute<{ timezone: string }>(
+      sql`SELECT current_setting('TimeZone') AS timezone`,
+    );
+    // biome-ignore lint/suspicious/noUndeclaredEnvVars: this PostgreSQL timezone regression runs directly with Vitest, outside Turbo caching.
+    if (process.env.PGOPTIONS?.includes("timezone=Europe/Paris")) {
+      expect(timezone.rows[0].timezone).toBe("Europe/Paris");
+    }
+    await putState("request", "live-request", { clientId: "client" }, future());
+    await db.insert(mcpOauthStateTable).values({
+      kind: "request",
+      key: "expired-request",
+      payload: {},
+      expiresAt: new Date(Date.now() - 60_000),
+    });
+    await deleteExpiredStates();
+    expect(await total("request")).toBe(1);
+    await putState(
+      "code",
+      "approved-code",
+      { clientId: "client" },
+      future(),
+      "live-request",
+    );
+    expect(await consumeState("code", "approved-code")).toEqual({
+      clientId: "client",
+    });
+  });
+
   it("stores by kind and consumes exactly once", async () => {
     const payload = { clientId: "client", userId: "user" };
     await putState("code", "code", payload, future());
