@@ -2,12 +2,13 @@ import type { Editor } from "@tiptap/core";
 
 export function pasteMarkdown(editor: Editor, event: ClipboardEvent): boolean {
   const clipboard = event.clipboardData;
-  // Rich clipboard content and code blocks retain their native paste behavior.
+  // Rich clipboard content and code retain their native paste behavior.
   if (
     !editor.isEditable ||
     !clipboard ||
     clipboard.getData("text/html") ||
-    editor.isActive("codeBlock")
+    editor.isActive("codeBlock") ||
+    editor.isActive("code")
   ) {
     return false;
   }

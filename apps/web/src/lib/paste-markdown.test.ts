@@ -71,6 +71,15 @@ describe("Markdown paste and edit round trips", () => {
     editor.commands.setCodeBlock();
     expect(pasteMarkdown(editor, clipboard("**literal**"))).toBe(false);
   });
+  it("leaves formatted text literal inside inline code", () => {
+    setup("`literal`");
+    editor.commands.setTextSelection(4);
+    expect(editor.isActive("code")).toBe(true);
+    const event = clipboard("**bold**");
+    expect(pasteMarkdown(editor, event)).toBe(false);
+    expect(event.preventDefault).not.toHaveBeenCalled();
+    expect(editor.getHTML()).toBe("<p><code>literal</code></p>");
+  });
   it("does not unescape deliberately literal Markdown on load", () => {
     setup("\\*\\*literal\\*\\*");
     expect(editor.getHTML()).not.toContain("<strong>");
