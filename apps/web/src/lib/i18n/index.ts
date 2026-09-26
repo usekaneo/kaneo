@@ -42,6 +42,15 @@ export function getBrowserLocale(): string | null {
   return navigator.language || navigator.languages?.[0] || null;
 }
 
+function getLocaleDirectionFromScript(locale: AppLocale) {
+  // i18next resolves the direction from Intl or its built-in RTL language list.
+  return i18n.dir(locale) === "rtl" ? "rtl" : "ltr";
+}
+
+export function getLocaleDirection(locale: AppLocale) {
+  return getLocaleDirectionFromScript(locale);
+}
+
 // Components subscribe to the default namespace only, so any other namespace
 // they reference through `t("ns:key")` must be preloaded after init and on
 // every locale change. The lazy backend already returns the whole locale JSON,

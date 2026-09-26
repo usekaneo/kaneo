@@ -4103,6 +4103,12 @@
 						"giteaSectionSubtitle": {
 							"type": "string"
 						},
+						"gitlabSectionTitle": {
+							"type": "string"
+						},
+						"gitlabSectionSubtitle": {
+							"type": "string"
+						},
 						"discordSectionTitle": {
 							"type": "string"
 						},
@@ -4142,6 +4148,8 @@
 						"githubSectionSubtitle",
 						"giteaSectionTitle",
 						"giteaSectionSubtitle",
+						"gitlabSectionTitle",
+						"gitlabSectionSubtitle",
 						"discordSectionTitle",
 						"discordSectionSubtitle",
 						"genericWebhookSectionTitle",
@@ -5108,6 +5116,324 @@
 						"browseNeedsCredentials",
 						"loadingRepos",
 						"retry"
+					]
+				},
+				"gitlabIntegration": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"validation": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"baseUrlRequired": {
+									"type": "string"
+								},
+								"baseUrlInvalid": {
+									"type": "string"
+								},
+								"pathRequired": {
+									"type": "string"
+								},
+								"pathInvalid": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"baseUrlRequired",
+								"baseUrlInvalid",
+								"pathRequired",
+								"pathInvalid"
+							]
+						},
+						"toast": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"verifyOk": {
+									"type": "string"
+								},
+								"verifyWarning": {
+									"type": "string"
+								},
+								"projectNotFound": {
+									"type": "string"
+								},
+								"redirected": {
+									"type": "string"
+								},
+								"notGitlabInstance": {
+									"type": "string"
+								},
+								"verifyError": {
+									"type": "string"
+								},
+								"tokenRequired": {
+									"type": "string"
+								},
+								"tokenRequiredVerify": {
+									"type": "string"
+								},
+								"verifyFirst": {
+									"type": "string"
+								},
+								"updated": {
+									"type": "string"
+								},
+								"updateError": {
+									"type": "string"
+								},
+								"removed": {
+									"type": "string"
+								},
+								"removeError": {
+									"type": "string"
+								},
+								"issuesImported": {
+									"type": "string"
+								},
+								"importError": {
+									"type": "string"
+								},
+								"commentOnEnabled": {
+									"type": "string"
+								},
+								"commentOnDisabled": {
+									"type": "string"
+								},
+								"settingsUpdateError": {
+									"type": "string"
+								},
+								"secretCopied": {
+									"type": "string"
+								},
+								"unableToCopySecret": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"verifyOk",
+								"verifyWarning",
+								"projectNotFound",
+								"redirected",
+								"notGitlabInstance",
+								"verifyError",
+								"tokenRequired",
+								"tokenRequiredVerify",
+								"verifyFirst",
+								"updated",
+								"updateError",
+								"removed",
+								"removeError",
+								"issuesImported",
+								"importError",
+								"commentOnEnabled",
+								"commentOnDisabled",
+								"settingsUpdateError",
+								"secretCopied",
+								"unableToCopySecret"
+							]
+						},
+						"webhookShow": {
+							"type": "string"
+						},
+						"webhookHide": {
+							"type": "string"
+						},
+						"webhookCopy": {
+							"type": "string"
+						},
+						"connectionStatus": {
+							"type": "string"
+						},
+						"connectedActive": {
+							"type": "string"
+						},
+						"notConnectedHint": {
+							"type": "string"
+						},
+						"badgeConnected": {
+							"type": "string"
+						},
+						"badgeNotConnected": {
+							"type": "string"
+						},
+						"project": {
+							"type": "string"
+						},
+						"projectHint": {
+							"type": "string"
+						},
+						"commentTaskLinkTitle": {
+							"type": "string"
+						},
+						"commentTaskLinkHint": {
+							"type": "string"
+						},
+						"webhookTitle": {
+							"type": "string"
+						},
+						"webhookHint": {
+							"type": "string"
+						},
+						"webhookSecretLabel": {
+							"type": "string"
+						},
+						"baseUrlLabel": {
+							"type": "string"
+						},
+						"baseUrlHint": {
+							"type": "string"
+						},
+						"tokenTypeLabel": {
+							"type": "string"
+						},
+						"tokenTypeHint": {
+							"type": "string"
+						},
+						"tokenTypePrivate": {
+							"type": "string"
+						},
+						"tokenTypeBearer": {
+							"type": "string"
+						},
+						"tokenLabel": {
+							"type": "string"
+						},
+						"tokenHint": {
+							"type": "string"
+						},
+						"tokenPlaceholder": {
+							"type": "string"
+						},
+						"tokenPlaceholderUpdate": {
+							"type": "string"
+						},
+						"currentToken": {
+							"type": "string"
+						},
+						"projectPathLabel": {
+							"type": "string"
+						},
+						"projectPathHint": {
+							"type": "string"
+						},
+						"actionsTitle": {
+							"type": "string"
+						},
+						"actionsHint": {
+							"type": "string"
+						},
+						"browse": {
+							"type": "string"
+						},
+						"verify": {
+							"type": "string"
+						},
+						"update": {
+							"type": "string"
+						},
+						"connect": {
+							"type": "string"
+						},
+						"disconnect": {
+							"type": "string"
+						},
+						"importSectionTitle": {
+							"type": "string"
+						},
+						"importSectionHint": {
+							"type": "string"
+						},
+						"importing": {
+							"type": "string"
+						},
+						"importIssues": {
+							"type": "string"
+						},
+						"importDisabledHint": {
+							"type": "string"
+						},
+						"browseModalTitle": {
+							"type": "string"
+						},
+						"browseModalHint": {
+							"type": "string"
+						},
+						"searchProjects": {
+							"type": "string"
+						},
+						"browseNeedsCredentials": {
+							"type": "string"
+						},
+						"loadingProjects": {
+							"type": "string"
+						},
+						"loadProjectsError": {
+							"type": "string"
+						},
+						"openInGitlab": {
+							"type": "string"
+						},
+						"retry": {
+							"type": "string"
+						},
+						"importPermissionHint": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"validation",
+						"toast",
+						"webhookShow",
+						"webhookHide",
+						"webhookCopy",
+						"connectionStatus",
+						"connectedActive",
+						"notConnectedHint",
+						"badgeConnected",
+						"badgeNotConnected",
+						"project",
+						"projectHint",
+						"commentTaskLinkTitle",
+						"commentTaskLinkHint",
+						"webhookTitle",
+						"webhookHint",
+						"webhookSecretLabel",
+						"baseUrlLabel",
+						"baseUrlHint",
+						"tokenTypeLabel",
+						"tokenTypeHint",
+						"tokenTypePrivate",
+						"tokenTypeBearer",
+						"tokenLabel",
+						"tokenHint",
+						"tokenPlaceholder",
+						"tokenPlaceholderUpdate",
+						"currentToken",
+						"projectPathLabel",
+						"projectPathHint",
+						"actionsTitle",
+						"actionsHint",
+						"browse",
+						"verify",
+						"update",
+						"connect",
+						"disconnect",
+						"importSectionTitle",
+						"importSectionHint",
+						"importing",
+						"importIssues",
+						"importDisabledHint",
+						"browseModalTitle",
+						"browseModalHint",
+						"searchProjects",
+						"browseNeedsCredentials",
+						"loadingProjects",
+						"loadProjectsError",
+						"openInGitlab",
+						"retry",
+						"importPermissionHint"
 					]
 				},
 				"slackIntegration": {
@@ -6196,6 +6522,12 @@
 						"giteaHint": {
 							"type": "string"
 						},
+						"gitlabHeading": {
+							"type": "string"
+						},
+						"gitlabHint": {
+							"type": "string"
+						},
 						"selectColumnPlaceholder": {
 							"type": "string"
 						},
@@ -6241,6 +6573,8 @@
 						"githubHint",
 						"giteaHeading",
 						"giteaHint",
+						"gitlabHeading",
+						"gitlabHint",
 						"selectColumnPlaceholder",
 						"toastUpdated",
 						"toastError",
@@ -6567,6 +6901,7 @@
 				"customFields",
 				"githubIntegration",
 				"giteaIntegration",
+				"gitlabIntegration",
 				"slackIntegration",
 				"discordIntegration",
 				"mattermostIntegration",
@@ -7340,13 +7675,10 @@
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
-						"github": {
-							"type": "string"
-						},
 						"viewGithubProfile": {
 							"type": "string"
 						},
-						"commentedOnGithub": {
+						"commentedOnForge": {
 							"type": "string"
 						},
 						"cannotBeEmpty": {
@@ -7722,9 +8054,8 @@
 						}
 					},
 					"required": [
-						"github",
 						"viewGithubProfile",
-						"commentedOnGithub",
+						"commentedOnForge",
 						"cannotBeEmpty",
 						"mustBeLoggedInToEdit",
 						"updated",
@@ -7844,14 +8175,26 @@
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
+						"backlog": {
+							"type": "string"
+						},
 						"board": {
+							"type": "string"
+						},
+						"gantt": {
 							"type": "string"
 						},
 						"list": {
 							"type": "string"
+						},
+						"section": {
+							"type": "string"
+						},
+						"tasks": {
+							"type": "string"
 						}
 					},
-					"required": ["board", "list"]
+					"required": ["backlog", "board", "gantt", "list", "section", "tasks"]
 				},
 				"common": {
 					"type": "object",
