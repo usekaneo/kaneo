@@ -491,6 +491,10 @@ export function GanttTaskBar({
     return (
       <>
         {baselineUnderlay}
+        {/* A milestone can carry a date constraint too; render the same pin as
+            a normal bar so a satisfied constraint on a milestone isn't
+            invisible (only its violation badge would otherwise show). */}
+        {constraintMarker}
         <div
           className="pointer-events-none absolute inset-0 z-[1] grid items-center"
           style={{ gridTemplateColumns: timeline.gridTemplateColumns }}

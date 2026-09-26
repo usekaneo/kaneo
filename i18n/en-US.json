@@ -1003,6 +1003,7 @@
 			"nameLabel": "Name",
 			"namePlaceholder": "e.g. New Year's Day",
 			"empty": "No holidays yet.",
+			"loading": "Loading calendar…",
 			"deleteHoliday": "Delete holiday",
 			"toastHolidayCreated": "Holiday added",
 			"toastHolidayCreateError": "Failed to add holiday",
@@ -2119,7 +2120,7 @@
 				"updateSuccess": "Task constraint updated",
 				"updateError": "Failed to update task constraint",
 				"pickDate": "Pick a constraint date",
-				"currentDate": "{{date}}",
+				"currentDate": "Current: {{date}}",
 				"type": {
 					"none": "No constraint",
 					"start_no_earlier_than": "Start no earlier than",
@@ -2268,7 +2269,8 @@
 			"expandSubtasks": "Expand subtasks",
 			"collapseSubtasks": "Collapse subtasks",
 			"linkHandleAriaLabel": "{{title}}: drag to create a dependency",
-			"dependentsRescheduled": "Rescheduled {{count}} dependent tasks",
+			"dependentsRescheduled_one": "Rescheduled {{count}} dependent task",
+			"dependentsRescheduled_other": "Rescheduled {{count}} dependent tasks",
 			"dependentsRescheduleError": "Failed to reschedule dependent tasks",
 			"constraintMarkerAriaLabel": "{{title}}: {{type}}, {{date}}",
 			"constraintViolationAriaLabel": "{{title}}: constraint violated — {{type}}, {{date}}"

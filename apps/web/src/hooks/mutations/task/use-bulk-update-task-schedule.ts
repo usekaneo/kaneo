@@ -34,6 +34,20 @@ export function useBulkUpdateTaskSchedule() {
       });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       queryClient.invalidateQueries({ queryKey: ["projects"] });
+      // Each shifted task's own detail cache, so an open task view reflects
+      // the cascade-pushed dates.
+      for (const update of variables.scheduleUpdates) {
+        queryClient.invalidateQueries({
+          queryKey: ["task", update.taskId],
+        });
+      }
+      // A cascade moves task dates, which changes how a shifted task renders
+      // as an external (cross-project) row on ANOTHER project's Gantt chart.
+      // useUpdateTask invalidates this same key for the same reason; the bulk
+      // path must too, or the other project keeps showing pre-cascade dates.
+      queryClient.invalidateQueries({
+        queryKey: ["task-relations", "project"],
+      });
     },
   });
 }

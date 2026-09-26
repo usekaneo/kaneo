@@ -95,9 +95,10 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 // Whole-day difference, matching the day-granular arithmetic the rest of the
 // Gantt's drag/resize code uses (see gantt-task-bar.tsx's addDays/
-// differenceInCalendarDays). Schedules here are always startOfDay-normalized
-// by the caller (deriveTaskSchedule), so a plain millisecond division is
-// exact rather than needing date-fns' calendar-aware version.
+// differenceInCalendarDays). The two instants are the same task-schedule
+// dates the caller already works in, and `Math.round` absorbs any intra-day
+// offset between them, so a plain millisecond division yields the exact
+// whole-day delta without needing date-fns' calendar-aware version.
 function diffDays(a: Date, b: Date): number {
   return Math.round((a.getTime() - b.getTime()) / MS_PER_DAY);
 }

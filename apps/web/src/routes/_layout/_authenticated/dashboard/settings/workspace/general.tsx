@@ -139,7 +139,9 @@ function RouteComponent() {
   const canDelete = canDeleteWorkspace();
   const workspaceDescription = getWorkspaceDescription(workspace);
 
-  const { data: calendar } = useGetCalendar(workspace?.id);
+  const { data: calendar, isLoading: isCalendarLoading } = useGetCalendar(
+    workspace?.id,
+  );
   const updateWorkingDays = useUpdateWorkingDays();
   const createHoliday = useCreateHoliday();
   const deleteHoliday = useDeleteHoliday();
@@ -620,7 +622,11 @@ function RouteComponent() {
               <p className="text-sm text-destructive">{holidayError}</p>
             )}
 
-            {holidays.length === 0 ? (
+            {isCalendarLoading ? (
+              <p className="text-sm text-muted-foreground">
+                {t("settings:workspaceCalendar.loading")}
+              </p>
+            ) : holidays.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 {t("settings:workspaceCalendar.empty")}
               </p>

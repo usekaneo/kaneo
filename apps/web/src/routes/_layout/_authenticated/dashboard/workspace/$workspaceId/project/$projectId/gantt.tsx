@@ -1344,26 +1344,42 @@ function RouteComponent() {
               <h1 className="text-sm font-semibold text-foreground">
                 {t("tasks:gantt.title")}
               </h1>
-              {dependencyEdgeGeometry.length > 0 && (
-                <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <span className="h-0.5 w-4 rounded-full bg-destructive" />
-                    {t("tasks:gantt.legendBlocking")}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="h-0.5 w-4 rounded-full bg-muted-foreground" />
-                    {t("tasks:gantt.legendRelated")}
-                  </span>
-                  {showCriticalPath &&
+              {(() => {
+                const hasDependencyLines = dependencyEdgeGeometry.length > 0;
+                // Critical bars are outlined amber whenever there are critical
+                // tasks, regardless of whether any of their edges are drawn as
+                // lines in the current window — so the amber legend must not be
+                // gated on visible lines, or an amber-outlined bar could sit on
+                // screen with nothing explaining the color.
+                const hasCriticalHighlight = Boolean(
+                  showCriticalPath &&
                     criticalPath &&
-                    criticalPath.criticalTaskIds.size > 0 && (
+                    criticalPath.criticalTaskIds.size > 0,
+                );
+                if (!hasDependencyLines && !hasCriticalHighlight) return null;
+                return (
+                  <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+                    {hasDependencyLines && (
+                      <>
+                        <span className="flex items-center gap-1">
+                          <span className="h-0.5 w-4 rounded-full bg-destructive" />
+                          {t("tasks:gantt.legendBlocking")}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <span className="h-0.5 w-4 rounded-full bg-muted-foreground" />
+                          {t("tasks:gantt.legendRelated")}
+                        </span>
+                      </>
+                    )}
+                    {hasCriticalHighlight && (
                       <span className="flex items-center gap-1">
                         <span className="h-0.5 w-4 rounded-full bg-warning" />
                         {t("tasks:gantt.legendCriticalPath")}
                       </span>
                     )}
-                </div>
-              )}
+                  </div>
+                );
+              })()}
             </div>
 
             <div className="relative w-full max-w-sm">
@@ -1571,7 +1587,8 @@ function RouteComponent() {
                               // background and lightens a dark one, unlike the
                               // ~4%-alpha `bg-muted` token which is invisible on
                               // dark. Kept in sync with the track layer below.
-                              !workingDayPredicate(day) && "bg-foreground/[0.06]",
+                              !workingDayPredicate(day) &&
+                                "bg-foreground/[0.06]",
                             )}
                           >
                             <div className="h-4 text-[10px] font-medium text-muted-foreground">

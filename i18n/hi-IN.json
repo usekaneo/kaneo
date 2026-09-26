@@ -1558,7 +1558,8 @@
 			"toastWorkingDaysUpdated": "Working days updated",
 			"toastWorkingDaysUpdateError": "Failed to update working days",
 			"workingDaysSubtitle": "Toggle the weekdays this workspace is open for work.",
-			"workingDaysTitle": "Working days"
+			"workingDaysTitle": "Working days",
+			"loading": "Loading calendar…"
 		}
 	},
 	"navigation": {
@@ -2252,13 +2253,14 @@
 			"expandSubtasks": "Expand subtasks",
 			"summaryAriaLabel": "{{title}}: summary of subtasks, open task",
 			"linkHandleAriaLabel": "{{title}}: drag to create a dependency",
-			"dependentsRescheduled": "Rescheduled {{count}} dependent tasks",
 			"dependentsRescheduleError": "Failed to reschedule dependent tasks",
 			"criticalPathToggle": "Critical path",
 			"criticalPathToggleAriaLabel": "Highlight the critical path",
 			"legendCriticalPath": "Critical path",
 			"constraintMarkerAriaLabel": "{{title}}: {{type}}, {{date}}",
-			"constraintViolationAriaLabel": "{{title}}: constraint violated — {{type}}, {{date}}"
+			"constraintViolationAriaLabel": "{{title}}: constraint violated — {{type}}, {{date}}",
+			"dependentsRescheduled_one": "Rescheduled {{count}} dependent task",
+			"dependentsRescheduled_other": "Rescheduled {{count}} dependent tasks"
 		},
 		"delete": {
 			"title": "कार्य हटाएँ?",

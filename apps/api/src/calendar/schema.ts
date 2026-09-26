@@ -16,5 +16,7 @@ export const updateWorkingDaysBody = z.object({
 export const createHolidayBody = z.object({
   // ISO date (or date-time) string; normalized server-side to UTC midnight.
   date: z.string().min(1),
-  name: z.string().min(1),
+  // Bounded so a holiday label can't be an unbounded blob on this new,
+  // admin-writable surface; 120 chars is ample for a human-readable name.
+  name: z.string().min(1).max(120),
 });

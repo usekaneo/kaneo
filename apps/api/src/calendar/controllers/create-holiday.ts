@@ -2,23 +2,10 @@ import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { workspaceHolidayTable } from "../../database/schema";
-
-// Holidays are date-only: whatever time-of-day (or bare date) the caller
-// sends, only the calendar date survives, normalized to UTC midnight so it
-// compares equal regardless of the server or caller's local time zone.
-function normalizeToUtcMidnight(input: string): Date {
-  const parsed = new Date(input);
-  if (Number.isNaN(parsed.getTime())) {
-    throw new HTTPException(400, { message: "Invalid holiday date" });
-  }
-  return new Date(
-    Date.UTC(
-      parsed.getUTCFullYear(),
-      parsed.getUTCMonth(),
-      parsed.getUTCDate(),
-    ),
-  );
-}
+// Holidays are date-only, normalized to UTC midnight so they compare equal
+// regardless of the server or caller's local time zone — the shared helper
+// used for task startDate/dueDate/constraintDate does exactly this.
+import { normalizeToUtcMidnight } from "../../utils/validate-dates";
 
 function isUniqueViolation(error: unknown): boolean {
   return (
@@ -30,7 +17,7 @@ function isUniqueViolation(error: unknown): boolean {
 }
 
 async function createHoliday(workspaceId: string, date: string, name: string) {
-  const normalizedDate = normalizeToUtcMidnight(date);
+  const normalizedDate = normalizeToUtcMidnight(date, "holiday date");
 
   const [existing] = await db
     .select({ id: workspaceHolidayTable.id })
