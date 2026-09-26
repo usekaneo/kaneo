@@ -3,5 +3,4 @@ rules:
   unpinned-uses:
     config:
       policies:
-        # All actions, including build and checkout providers, use immutable commits.
         "*": hash-pin
