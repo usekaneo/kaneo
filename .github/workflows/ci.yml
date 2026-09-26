@@ -317,6 +317,27 @@ jobs:
           shellcheck --version
           "$RUNNER_TEMP/actionlint" -color
           shellcheck scripts/ci/*.sh
+      - name: Install zizmor
+        run: |
+          curl --fail --silent --show-error --location --max-time 120 \
+            https://github.com/zizmorcore/zizmor/releases/download/v1.30.1/zizmor-x86_64-unknown-linux-gnu.tar.gz \
+            -o "$RUNNER_TEMP/zizmor.tar.gz"
+          echo "e65324f4430c2717591937edcec90ccbefaf14c174f8ec9415e03ca875b46e1a  $RUNNER_TEMP/zizmor.tar.gz" | sha256sum --check --strict
+          tar -xzf "$RUNNER_TEMP/zizmor.tar.gz" -C "$RUNNER_TEMP" zizmor
+      - name: Audit workflows with zizmor
+        run: |
+          # High-severity, high-confidence findings block the change; lower
+          # severities surface via the nightly zizmor scan in Code Scanning.
+          # zizmor's exit code does not reflect filtered findings, so count them.
+          "$RUNNER_TEMP/zizmor" --no-online-audits --format json .github/workflows/ \
+            > "$RUNNER_TEMP/zizmor.json" || true
+          count="$(jq '[.[] | select(.determinations.severity == "High" and .determinations.confidence == "High")] | length' "$RUNNER_TEMP/zizmor.json")"
+          echo "High-severity, high-confidence zizmor findings: $count"
+          if [ "$count" -ne 0 ]; then
+            jq -r '.[] | select(.determinations.severity == "High" and .determinations.confidence == "High") | "\(.locations[0].symbolic.key.Local.verbatim_path): \(.ident)"' \
+              "$RUNNER_TEMP/zizmor.json"
+            exit 1
+          fi
 
   storage:
     runs-on: blacksmith-4vcpu-ubuntu-2404
