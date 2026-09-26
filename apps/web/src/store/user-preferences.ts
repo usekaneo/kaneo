@@ -54,6 +54,9 @@ type UserPreferencesStore = {
 
   ganttTimelineUnit: GanttUnit;
   setGanttTimelineUnit: (unit: GanttUnit) => void;
+
+  ganttShowCriticalPath: boolean;
+  setGanttShowCriticalPath: (show: boolean) => void;
 };
 
 export const useUserPreferencesStore = create<UserPreferencesStore>()(
@@ -134,6 +137,10 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
 
       ganttTimelineUnit: "day",
       setGanttTimelineUnit: (ganttTimelineUnit) => set({ ganttTimelineUnit }),
+
+      ganttShowCriticalPath: false,
+      setGanttShowCriticalPath: (ganttShowCriticalPath) =>
+        set({ ganttShowCriticalPath }),
     }),
     {
       name: "user-preferences",

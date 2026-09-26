@@ -36,6 +36,11 @@ type GanttTaskBarProps = {
   onOpenTask: () => void;
   /** How this bar renders relative to a hovered dependency (default "normal"). */
   emphasis?: GanttBarEmphasis;
+  /** Whether this task sits on the currently-highlighted critical path (see
+   * gantt-critical-path.ts) — an accent independent of `emphasis`, since a
+   * hovered dependency and the critical-path toggle can both be active at
+   * once and both need to stay legible. */
+  isCritical?: boolean;
   /** Notified on hover and keyboard focus, to drive dependency-line highlighting. */
   onHoverChange?: (hovering: boolean) => void;
   /** Pointerdown on the "drag to link" handle at the bar's finish edge —
@@ -62,6 +67,7 @@ export function GanttTaskBar({
   isMobile = false,
   onOpenTask,
   emphasis = "normal",
+  isCritical = false,
   onHoverChange,
   onLinkDragStart,
   onDatesCommitted,
@@ -424,6 +430,14 @@ export function GanttTaskBar({
                 "flex size-5 shrink-0 touch-manipulation items-center justify-center rounded-sm text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 sm:size-4",
                 emphasis === "highlighted" && "ring-2 ring-primary/40",
                 emphasis === "dimmed" && "opacity-35",
+                // Critical-path accent: a distinct outline (not a color swap
+                // and not red, which already means "blocking" on the
+                // dependency lines) so it reads on its own and layers
+                // cleanly with the hover ring above. `outline` is a separate
+                // box property from the box-shadow-based ring, so both can
+                // be visible together.
+                isCritical &&
+                  "outline outline-2 outline-offset-2 outline-warning",
               )}
             >
               <Diamond className="size-full fill-primary/30" />
@@ -491,6 +505,10 @@ export function GanttTaskBar({
               emphasis === "highlighted" &&
                 "border-primary/60 ring-2 ring-primary/40",
               emphasis === "dimmed" && "opacity-35",
+              // Critical-path accent (see the milestone diamond above for
+              // why this is `outline`, not a ring/color swap).
+              isCritical &&
+                "outline outline-2 outline-offset-2 outline-warning",
             )}
           >
             {progressFillPercent > 0 && (

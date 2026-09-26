@@ -13,6 +13,9 @@ type GanttSummaryTaskBarProps = {
     gridTemplateColumns: string;
   };
   emphasis?: GanttBarEmphasis;
+  /** Whether this task sits on the currently-highlighted critical path (see
+   * gantt-critical-path.ts and GanttTaskBar's own isCritical prop). */
+  isCritical?: boolean;
   /** Notified on hover/focus, same as GanttTaskBar, so hovering the summary
    * bar highlights its dependency lines too. */
   onHoverChange?: (hovering: boolean) => void;
@@ -31,6 +34,7 @@ export function GanttSummaryTaskBar({
   scheduleEnd,
   timeline,
   emphasis = "normal",
+  isCritical = false,
   onHoverChange,
   onOpenTask,
 }: GanttSummaryTaskBarProps) {
@@ -64,7 +68,12 @@ export function GanttSummaryTaskBar({
           aria-label={t("tasks:gantt.summaryAriaLabel", { title })}
           title={title}
           onClick={onOpenTask}
-          className="relative h-3 w-full touch-manipulation rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+          className={cn(
+            "relative h-3 w-full touch-manipulation rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+            // Critical-path accent (see GanttTaskBar's own isCritical prop
+            // for why this is `outline`, not a color swap).
+            isCritical && "outline outline-2 outline-offset-2 outline-warning",
+          )}
         >
           <span
             aria-hidden="true"

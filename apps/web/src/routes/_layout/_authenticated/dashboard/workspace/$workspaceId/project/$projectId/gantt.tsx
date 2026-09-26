@@ -5,6 +5,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Route as RouteIcon,
   Search,
 } from "lucide-react";
 import {
@@ -22,6 +23,8 @@ import type {
   TaskBarBox,
 } from "@/components/gantt/dependency-lines";
 import { buildDependencyEdges } from "@/components/gantt/dependency-lines";
+import type { CriticalPathEdgeInput } from "@/components/gantt/gantt-critical-path";
+import { computeCriticalPath } from "@/components/gantt/gantt-critical-path";
 import type { CascadeEdge } from "@/components/gantt/gantt-dependency-cascade";
 import { computeDependencyCascade } from "@/components/gantt/gantt-dependency-cascade";
 import { GanttDependencyOverlay } from "@/components/gantt/gantt-dependency-overlay";
@@ -148,6 +151,14 @@ function RouteComponent() {
   const ganttUnit = useUserPreferencesStore((state) => state.ganttTimelineUnit);
   const setGanttUnit = useUserPreferencesStore(
     (state) => state.setGanttTimelineUnit,
+  );
+  // Persisted the same way as ganttTimelineUnit above (localStorage, via this
+  // same store) — a per-viewer display preference, not per-project state.
+  const showCriticalPath = useUserPreferencesStore(
+    (state) => state.ganttShowCriticalPath,
+  );
+  const setShowCriticalPath = useUserPreferencesStore(
+    (state) => state.setGanttShowCriticalPath,
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [windowStart, setWindowStart] = useState<{
@@ -482,6 +493,48 @@ function RouteComponent() {
     );
   }, [taskRelations]);
 
+  // Same "blocks" edges as blocksEdges above, but keeping each relation's own
+  // id (computeCriticalPath needs one to identify which edges came out
+  // critical) — kept as a separate memo rather than folding the id into
+  // blocksEdges itself, since CascadeEdge's shape is also handed to
+  // computeDependencyCascade below and widening it isn't otherwise needed.
+  const criticalPathEdges = useMemo<CriticalPathEdgeInput[]>(() => {
+    return (taskRelations ?? []).flatMap((relation) =>
+      relation.relationType === "blocks"
+        ? [
+            {
+              id: relation.id,
+              sourceTaskId: relation.sourceTaskId,
+              targetTaskId: relation.targetTaskId,
+              dependencyType: relation.dependencyType as
+                | "fs"
+                | "ss"
+                | "ff"
+                | "sf",
+              lagDays: relation.lagDays,
+            },
+          ]
+        : [],
+    );
+  }, [taskRelations]);
+
+  // Only computed while the toggle is on — this project can have a lot of
+  // "blocks" edges, and there's no reason to run the CPM passes on every
+  // relations refetch when nobody's looking at the result. Depends only on
+  // each own task's OWN schedule (ownScheduleByTaskId, same scope the
+  // dependency cascade above uses — cross-project and dateless tasks never
+  // participate) and the edges themselves, never on zoom/pan/unit state, so
+  // toggling zoom doesn't recompute it.
+  const criticalPath = useMemo(() => {
+    if (!showCriticalPath) return null;
+    const tasksInput = [...ownScheduleByTaskId].map(([id, schedule]) => ({
+      id,
+      scheduleStart: schedule.start,
+      scheduleEnd: schedule.end,
+    }));
+    return computeCriticalPath(tasksInput, criticalPathEdges);
+  }, [showCriticalPath, ownScheduleByTaskId, criticalPathEdges]);
+
   const bulkUpdateSchedule = useBulkUpdateTaskSchedule();
 
   // Runs once a drag-move or resize has already persisted the DRAGGED task's
@@ -799,6 +852,11 @@ function RouteComponent() {
       return highlightedTaskIds.has(taskId) ? "highlighted" : "dimmed";
     },
     [highlightedTaskIds],
+  );
+
+  const isCriticalFor = useCallback(
+    (taskId: string) => criticalPath?.criticalTaskIds.has(taskId) ?? false,
+    [criticalPath],
   );
 
   const handleBarHoverChange = useCallback(
@@ -1253,6 +1311,14 @@ function RouteComponent() {
                     <span className="h-0.5 w-4 rounded-full bg-muted-foreground" />
                     {t("tasks:gantt.legendRelated")}
                   </span>
+                  {showCriticalPath &&
+                    criticalPath &&
+                    criticalPath.criticalTaskIds.size > 0 && (
+                      <span className="flex items-center gap-1">
+                        <span className="h-0.5 w-4 rounded-full bg-warning" />
+                        {t("tasks:gantt.legendCriticalPath")}
+                      </span>
+                    )}
                 </div>
               )}
             </div>
@@ -1266,6 +1332,22 @@ function RouteComponent() {
                 className="h-9 min-h-11 touch-manipulation sm:h-8 sm:min-h-0 [&_[data-slot=input]]:pl-8 [&_[data-slot=input]]:text-xs"
               />
             </div>
+
+            <Button
+              variant="outline"
+              size="xs"
+              className={cn(
+                "min-h-11 touch-manipulation sm:min-h-0",
+                showCriticalPath &&
+                  "border-warning/40 bg-warning/10 text-warning-foreground hover:bg-warning/15",
+              )}
+              aria-pressed={showCriticalPath}
+              aria-label={t("tasks:gantt.criticalPathToggleAriaLabel")}
+              onClick={() => setShowCriticalPath(!showCriticalPath)}
+            >
+              <RouteIcon className="size-3.5" />
+              {t("tasks:gantt.criticalPathToggle")}
+            </Button>
 
             <fieldset className="flex shrink-0 items-center gap-0.5 rounded-md border border-border bg-background p-0.5">
               <legend className="sr-only">
@@ -1543,6 +1625,7 @@ function RouteComponent() {
                   <GanttDependencyOverlay
                     edges={dependencyEdgeGeometry}
                     hoveredTaskId={hoveredTaskId}
+                    criticalEdgeIds={criticalPath?.criticalEdgeIds}
                     clipLeftPx={barsLeftPx}
                     preview={
                       linkDrag
@@ -1721,6 +1804,7 @@ function RouteComponent() {
                               scheduleEnd={task.scheduleEnd}
                               timeline={timeline}
                               emphasis={emphasisFor(task.id)}
+                              isCritical={isCriticalFor(task.id)}
                               onHoverChange={(hovering) =>
                                 handleBarHoverChange(task.id, hovering)
                               }
@@ -1739,6 +1823,7 @@ function RouteComponent() {
                               pixelsPerDay={pixelsPerDay}
                               isMobile={isMobile}
                               emphasis={emphasisFor(task.id)}
+                              isCritical={isCriticalFor(task.id)}
                               onHoverChange={(hovering) =>
                                 handleBarHoverChange(task.id, hovering)
                               }

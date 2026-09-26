@@ -2222,7 +2222,10 @@
 			"summaryAriaLabel": "{{title}}: summary of subtasks, open task",
 			"linkHandleAriaLabel": "{{title}}: drag to create a dependency",
 			"dependentsRescheduled": "Rescheduled {{count}} dependent tasks",
-			"dependentsRescheduleError": "Failed to reschedule dependent tasks"
+			"dependentsRescheduleError": "Failed to reschedule dependent tasks",
+			"criticalPathToggle": "Critical path",
+			"criticalPathToggleAriaLabel": "Highlight the critical path",
+			"legendCriticalPath": "Critical path"
 		},
 		"delete": {
 			"title": "Tapşırıq silinsin?",

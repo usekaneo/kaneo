@@ -4,6 +4,10 @@ import type { Point } from "./gantt-link-drag";
 type GanttDependencyOverlayProps = {
   edges: DependencyEdgeGeometry[];
   hoveredTaskId: string | null;
+  /** Edge ids on the currently-highlighted critical path (see
+   * gantt-critical-path.ts). Undefined/empty draws every line exactly as
+   * before — this is purely additive. */
+  criticalEdgeIds?: ReadonlySet<string>;
   /** Pixels from the overlay's left edge to where the timeline (day) columns
    * start — a backward-scheduled edge's curve can bow further left than its
    * target point, and this clips it so it never bleeds into the sticky task
@@ -30,6 +34,7 @@ const EMPHASIZED_WIDTH = 2.5;
 export function GanttDependencyOverlay({
   edges,
   hoveredTaskId,
+  criticalEdgeIds,
   clipLeftPx,
   preview = null,
 }: GanttDependencyOverlayProps) {
@@ -86,16 +91,36 @@ export function GanttDependencyOverlay({
           (edge.sourceTaskId === hoveredTaskId ||
             edge.targetTaskId === hoveredTaskId);
         const isDimmed = hoveredTaskId !== null && !isIncident;
+        const isCritical = criticalEdgeIds?.has(edge.id) ?? false;
+        const strokeWidth = isIncident ? EMPHASIZED_WIDTH : REST_WIDTH;
 
         return (
           <g key={edge.id}>
+            {/* Critical-path accent: a wider amber halo drawn BEHIND the
+                edge's own (red/gray) line, rather than recoloring it —
+                blocking lines are already red, so a plain color swap would
+                be indistinguishable from "blocking", and this reads
+                correctly regardless of hue perception since it differs in
+                shape (a visible halo), not only in color. */}
+            {isCritical && (
+              <path
+                d={edge.path}
+                fill="none"
+                stroke="var(--warning)"
+                strokeWidth={strokeWidth + 3}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeOpacity={isDimmed ? DIMMED_OPACITY : 0.85}
+                className="transition-[stroke-opacity] duration-150 ease-out"
+              />
+            )}
             <path
               d={edge.path}
               fill="none"
               stroke={
                 isBlocking ? "var(--destructive)" : "var(--muted-foreground)"
               }
-              strokeWidth={isIncident ? EMPHASIZED_WIDTH : REST_WIDTH}
+              strokeWidth={strokeWidth}
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeOpacity={
