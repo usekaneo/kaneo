@@ -2,6 +2,7 @@ import { createId } from "@paralleldrive/cuid2";
 import { relations, sql } from "drizzle-orm";
 import {
   boolean,
+  check,
   customType,
   foreignKey,
   index,
@@ -427,6 +428,20 @@ export const taskTable = pgTable(
     priority: text("priority").default("low").notNull(),
     startDate: timestamp("start_date", { mode: "date" }),
     dueDate: timestamp("due_date", { mode: "date" }),
+    // Percent complete, shown as a filled overlay on the Gantt bar. Clamped to
+    // 0..100 at the API layer; the column itself only enforces non-negative
+    // via the check constraint below (drizzle-orm has no built-in range check
+    // helper), so out-of-range values can only reach the database through a
+    // path that skips the API.
+    progress: integer("progress").default(0).notNull(),
+    // A milestone renders as a single diamond marker at its date rather than
+    // a spanning bar; see gantt-task-bar rendering on the web side.
+    isMilestone: boolean("is_milestone").default(false).notNull(),
+    // Baseline (plan vs actual): a snapshot of startDate/dueDate taken via the
+    // dedicated set/clear baseline route, not updated by ordinary task edits.
+    // Both null until a baseline is set; nulled together on clear.
+    baselineStartDate: timestamp("baseline_start_date", { mode: "date" }),
+    baselineDueDate: timestamp("baseline_due_date", { mode: "date" }),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { mode: "date" })
       .defaultNow()
@@ -439,6 +454,10 @@ export const taskTable = pgTable(
     index("task_assigneeId_idx").on(table.userId),
     index("task_columnId_idx").on(table.columnId),
     unique("task_project_number_unique").on(table.projectId, table.number),
+    check(
+      "task_progress_range",
+      sql`${table.progress} >= 0 AND ${table.progress} <= 100`,
+    ),
   ],
 );
 
@@ -1002,6 +1021,13 @@ export const taskRelationTable = pgTable(
         onUpdate: "cascade",
       }),
     relationType: text("relation_type").notNull(),
+    // Only meaningful for a "blocks" relation (the scheduling dependency the
+    // Gantt chart draws); `related`/`subtask` rows keep the fs/0 defaults.
+    // Kept as text, like relationType, with the fs|ss|ff|sf enum enforced in
+    // the Zod layer rather than the database.
+    dependencyType: text("dependency_type").default("fs").notNull(),
+    // Lag (positive) or lead (negative) in days applied to the dependency.
+    lagDays: integer("lag_days").default(0).notNull(),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
   },
   (table) => [

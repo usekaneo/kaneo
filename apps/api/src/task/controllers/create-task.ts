@@ -51,6 +51,8 @@ async function createTask({
   dueDate,
   description,
   priority,
+  progress,
+  isMilestone,
   customFields,
 }: {
   projectId: string;
@@ -62,6 +64,8 @@ async function createTask({
   dueDate?: Date;
   description?: string;
   priority?: string;
+  progress?: number;
+  isMilestone?: boolean;
   customFields?: CustomFieldInput[];
 }) {
   const resolvedStatus = status || "to-do";
@@ -138,6 +142,8 @@ async function createTask({
         dueDate: dueDate || null,
         description: description || "",
         priority: resolvedPriority,
+        progress: progress ?? 0,
+        isMilestone: isMilestone ?? false,
         number: taskNumber,
         position: nextPosition,
       })

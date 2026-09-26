@@ -30,6 +30,10 @@ type Task = {
   priority: string | null;
   startDate: string | null;
   dueDate: string | null;
+  progress: number;
+  isMilestone: boolean;
+  baselineStartDate: string | null;
+  baselineDueDate: string | null;
   position: number | null;
   createdAt: string;
   updatedAt?: string;

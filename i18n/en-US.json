@@ -2022,7 +2022,10 @@
 		"relations": {
 			"title": "Relations",
 			"tasksInProject": "Tasks in project",
+			"tasksInOtherProject": "In {{project}}",
+			"crossProjectStatusReadOnly": "Status is managed in this task's own project",
 			"linkError": "Failed to link task",
+			"circularDependencyError": "This dependency would create a circular dependency",
 			"empty": "No related tasks",
 			"searchPlaceholder": "Search tasks to link...",
 			"noTasksFound": "No tasks found",
@@ -2035,6 +2038,27 @@
 				"blocks": "blocks",
 				"blocked_by": "blocked by",
 				"related": "relates to"
+			},
+			"dependency": {
+				"typeLabel": "Dependency type",
+				"lagLabel": "Lag (days)",
+				"lagHint": "Positive delays the start; negative (lead) allows overlap.",
+				"save": "Save",
+				"updateError": "Failed to update dependency",
+				"types": {
+					"fs": "Finish → Start",
+					"ss": "Start → Start",
+					"ff": "Finish → Finish",
+					"sf": "Start → Finish"
+				},
+				"typesShort": {
+					"fs": "FS",
+					"ss": "SS",
+					"ff": "FF",
+					"sf": "SF"
+				},
+				"summary": "{{type}}{{lag}}",
+				"lagSuffix": " {{days}}d"
 			}
 		},
 		"subtasks": {
@@ -2057,7 +2081,10 @@
 			"copyTaskBranch": "Copy task branch",
 			"start": "Start",
 			"startDate": "Start date",
-			"noDate": "No date"
+			"noDate": "No date",
+			"progress": "Progress",
+			"milestone": "Milestone",
+			"baseline": "Baseline"
 		},
 		"move": {
 			"title": "Move task",
@@ -2090,6 +2117,29 @@
 				"updateSuccess": "Task start date updated successfully",
 				"updateError": "Failed to update task start date",
 				"clear": "Clear start date"
+			},
+			"progress": {
+				"label": "Progress",
+				"percentLabel": "Percent complete",
+				"updateSuccess": "Task progress updated",
+				"updateError": "Failed to update task progress"
+			},
+			"milestone": {
+				"label": "Milestone",
+				"description": "Mark this task as a single-date milestone on the Gantt chart",
+				"updateSuccess": "Task milestone updated",
+				"updateError": "Failed to update task milestone"
+			},
+			"baseline": {
+				"label": "Baseline",
+				"none": "No baseline set",
+				"set": "Set baseline",
+				"clear": "Clear baseline",
+				"setSuccess": "Baseline set from current dates",
+				"setError": "Failed to set baseline",
+				"clearSuccess": "Baseline cleared",
+				"clearError": "Failed to clear baseline",
+				"range": "{{start}} – {{end}}"
 			},
 			"labels": {
 				"searchPlaceholder": "Search labels...",
@@ -2211,7 +2261,24 @@
 			"previousPeriod": "Previous period",
 			"nextPeriod": "Next period",
 			"periodStart": "Timeline start date",
-			"showTaskDates": "Show task dates"
+			"showTaskDates": "Show task dates",
+			"legendBlocking": "Blocking",
+			"legendRelated": "Related",
+			"legendMilestone": "Milestone",
+			"legendBaseline": "Baseline",
+			"externalProjectBadge": "in {{projectName}}",
+			"externalTaskTitle": "{{title}} — related task in {{projectName}} (read-only here)",
+			"milestoneAriaLabel": "{{title}}: milestone, open task",
+			"progressLabel": "{{progress}}% complete",
+			"unitControlAriaLabel": "Timeline granularity",
+			"unitDay": "Day",
+			"unitWeek": "Week",
+			"unitMonth": "Month",
+			"unitQuarter": "Quarter",
+			"summaryAriaLabel": "{{title}}: summary of subtasks, open task",
+			"expandSubtasks": "Expand subtasks",
+			"collapseSubtasks": "Collapse subtasks",
+			"linkHandleAriaLabel": "{{title}}: drag to create a dependency"
 		},
 		"delete": {
 			"title": "Delete Task?",

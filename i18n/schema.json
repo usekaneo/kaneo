@@ -8110,6 +8110,12 @@
 						"tasksInProject": {
 							"type": "string"
 						},
+						"tasksInOtherProject": {
+							"type": "string"
+						},
+						"crossProjectStatusReadOnly": {
+							"type": "string"
+						},
 						"linkError": {
 							"type": "string"
 						},
@@ -8152,11 +8158,89 @@
 								}
 							},
 							"required": ["blocks", "blocked_by", "related"]
+						},
+						"dependency": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"typeLabel": {
+									"type": "string"
+								},
+								"lagLabel": {
+									"type": "string"
+								},
+								"lagHint": {
+									"type": "string"
+								},
+								"save": {
+									"type": "string"
+								},
+								"updateError": {
+									"type": "string"
+								},
+								"types": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"fs": {
+											"type": "string"
+										},
+										"ss": {
+											"type": "string"
+										},
+										"ff": {
+											"type": "string"
+										},
+										"sf": {
+											"type": "string"
+										}
+									},
+									"required": ["fs", "ss", "ff", "sf"]
+								},
+								"typesShort": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"fs": {
+											"type": "string"
+										},
+										"ss": {
+											"type": "string"
+										},
+										"ff": {
+											"type": "string"
+										},
+										"sf": {
+											"type": "string"
+										}
+									},
+									"required": ["fs", "ss", "ff", "sf"]
+								},
+								"summary": {
+									"type": "string"
+								},
+								"lagSuffix": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"typeLabel",
+								"lagLabel",
+								"lagHint",
+								"save",
+								"updateError",
+								"types",
+								"typesShort",
+								"summary",
+								"lagSuffix"
+							]
 						}
 					},
 					"required": [
 						"title",
 						"tasksInProject",
+						"tasksInOtherProject",
+						"crossProjectStatusReadOnly",
 						"linkError",
 						"empty",
 						"searchPlaceholder",
@@ -8166,7 +8250,8 @@
 						"related",
 						"blocks",
 						"selectTask",
-						"types"
+						"types",
+						"dependency"
 					]
 				},
 				"subtasks": {
@@ -8245,6 +8330,15 @@
 						},
 						"noDate": {
 							"type": "string"
+						},
+						"progress": {
+							"type": "string"
+						},
+						"milestone": {
+							"type": "string"
+						},
+						"baseline": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -8254,7 +8348,10 @@
 						"copyTaskBranch",
 						"start",
 						"startDate",
-						"noDate"
+						"noDate",
+						"progress",
+						"milestone",
+						"baseline"
 					]
 				},
 				"move": {
@@ -8370,6 +8467,98 @@
 							},
 							"required": ["updateSuccess", "updateError", "clear"]
 						},
+						"progress": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"percentLabel": {
+									"type": "string"
+								},
+								"updateSuccess": {
+									"type": "string"
+								},
+								"updateError": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"label",
+								"percentLabel",
+								"updateSuccess",
+								"updateError"
+							]
+						},
+						"milestone": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"updateSuccess": {
+									"type": "string"
+								},
+								"updateError": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"label",
+								"description",
+								"updateSuccess",
+								"updateError"
+							]
+						},
+						"baseline": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"none": {
+									"type": "string"
+								},
+								"set": {
+									"type": "string"
+								},
+								"clear": {
+									"type": "string"
+								},
+								"setSuccess": {
+									"type": "string"
+								},
+								"setError": {
+									"type": "string"
+								},
+								"clearSuccess": {
+									"type": "string"
+								},
+								"clearError": {
+									"type": "string"
+								},
+								"range": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"label",
+								"none",
+								"set",
+								"clear",
+								"setSuccess",
+								"setError",
+								"clearSuccess",
+								"clearError",
+								"range"
+							]
+						},
 						"labels": {
 							"type": "object",
 							"additionalProperties": false,
@@ -8466,6 +8655,9 @@
 						"priority",
 						"dueDate",
 						"startDate",
+						"progress",
+						"milestone",
+						"baseline",
 						"labels"
 					]
 				},
@@ -8908,6 +9100,54 @@
 						},
 						"showTaskDates": {
 							"type": "string"
+						},
+						"legendBlocking": {
+							"type": "string"
+						},
+						"legendRelated": {
+							"type": "string"
+						},
+						"legendMilestone": {
+							"type": "string"
+						},
+						"legendBaseline": {
+							"type": "string"
+						},
+						"externalProjectBadge": {
+							"type": "string"
+						},
+						"externalTaskTitle": {
+							"type": "string"
+						},
+						"milestoneAriaLabel": {
+							"type": "string"
+						},
+						"progressLabel": {
+							"type": "string"
+						},
+						"unitControlAriaLabel": {
+							"type": "string"
+						},
+						"unitDay": {
+							"type": "string"
+						},
+						"unitWeek": {
+							"type": "string"
+						},
+						"unitMonth": {
+							"type": "string"
+						},
+						"unitQuarter": {
+							"type": "string"
+						},
+						"summaryAriaLabel": {
+							"type": "string"
+						},
+						"expandSubtasks": {
+							"type": "string"
+						},
+						"collapseSubtasks": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -8929,7 +9169,23 @@
 						"previousPeriod",
 						"nextPeriod",
 						"periodStart",
-						"showTaskDates"
+						"showTaskDates",
+						"legendBlocking",
+						"legendRelated",
+						"legendMilestone",
+						"legendBaseline",
+						"externalProjectBadge",
+						"externalTaskTitle",
+						"milestoneAriaLabel",
+						"progressLabel",
+						"unitControlAriaLabel",
+						"unitDay",
+						"unitWeek",
+						"unitMonth",
+						"unitQuarter",
+						"summaryAriaLabel",
+						"expandSubtasks",
+						"collapseSubtasks"
 					]
 				},
 				"delete": {
