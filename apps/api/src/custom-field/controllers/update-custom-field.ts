@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, asc, eq, gt, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
@@ -121,28 +121,42 @@ export default async function updateCustomField(
       const needsMigration = oldOptions.some(
         (option) => replacements.get(option) !== option,
       );
-      const values = needsMigration
-        ? await tx
-            .select()
-            .from(customFieldValueTable)
-            .where(eq(customFieldValueTable.fieldId, id))
-            .for("update")
-        : [];
-      const changed = values
-        .map((row) => ({
-          id: row.id,
-          before: row.value,
-          value: transform(row.value),
-        }))
-        .filter((row) => row.before !== row.value);
-      // Batch updates preserve simultaneous renames (including swaps) without a query per task.
-      for (let i = 0; i < changed.length; i += 500) {
-        const rows = changed
-          .slice(i, i + 500)
-          .map((row) => sql`(${row.id}::text, ${row.value}::text)`);
-        await tx.execute(sql`UPDATE ${customFieldValueTable} AS target SET value = changes.value
-          FROM (VALUES ${sql.join(rows, sql`, `)}) AS changes(id, value)
-          WHERE target.id = changes.id`);
+      // Keep application memory bounded while the definition lock serializes assignments.
+      let cursor: string | undefined;
+      while (needsMigration) {
+        const values = await tx
+          .select({
+            id: customFieldValueTable.id,
+            value: customFieldValueTable.value,
+          })
+          .from(customFieldValueTable)
+          .where(
+            and(
+              eq(customFieldValueTable.fieldId, id),
+              cursor ? gt(customFieldValueTable.id, cursor) : undefined,
+            ),
+          )
+          .orderBy(asc(customFieldValueTable.id))
+          .limit(500)
+          .for("update");
+        const last = values.at(-1);
+        if (!last) break;
+        const changed = values
+          .map((row) => ({
+            id: row.id,
+            before: row.value,
+            value: transform(row.value),
+          }))
+          .filter((row) => row.before !== row.value);
+        if (changed.length) {
+          const rows = changed.map(
+            (row) => sql`(${row.id}::text, ${row.value}::text)`,
+          );
+          await tx.execute(sql`UPDATE ${customFieldValueTable} AS target SET value = changes.value
+            FROM (VALUES ${sql.join(rows, sql`, `)}) AS changes(id, value)
+            WHERE target.id = changes.id`);
+        }
+        cursor = last.id;
       }
       options = newOptions;
     }

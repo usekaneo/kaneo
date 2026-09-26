@@ -115,6 +115,51 @@ describe("custom field editing", () => {
     },
   );
 
+  it.each([false, true])(
+    "migrates bounded batches atomically (late invalid value: %s)",
+    async (invalid) => {
+      const { project, task, field, update } = await fixture();
+      const tasks = await db
+        .insert(schema.taskTable)
+        .values(
+          Array.from({ length: 501 }, (_, index) => ({
+            projectId: project.id,
+            title: "Batch task",
+            number: index + 2,
+            status: task.status,
+            columnId: task.columnId,
+          })),
+        )
+        .returning({ id: schema.taskTable.id });
+      await db.insert(schema.customFieldValueTable).values(
+        tasks.map((item, index) => ({
+          id: `batch-${String(index).padStart(4, "0")}`,
+          taskId: item.id,
+          fieldId: field.id,
+          value: invalid && index === 500 ? '["Unused"]' : '["Alice","Bob"]',
+        })),
+      );
+      const response = await update({
+        options: [
+          { originalValue: "Alice", value: "Bob" },
+          { originalValue: "Bob", value: "Alice" },
+        ],
+      });
+      expect(response.status).toBe(invalid ? 400 : 200);
+      const values = await db
+        .select({ value: schema.customFieldValueTable.value })
+        .from(schema.customFieldValueTable)
+        .where(eq(schema.customFieldValueTable.fieldId, field.id));
+      expect(values).toHaveLength(502);
+      expect(
+        values.filter(
+          (row) =>
+            row.value === (invalid ? '["Alice","Bob"]' : '["Bob","Alice"]'),
+        ),
+      ).toHaveLength(invalid ? 501 : 502);
+    },
+  );
+
   it("handles simultaneous swaps without collapsing selections", async () => {
     const { update, readValue } = await fixture();
     expect(

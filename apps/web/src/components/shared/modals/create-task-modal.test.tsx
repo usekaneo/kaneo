@@ -32,6 +32,10 @@ function createWrapper() {
 }
 
 const useLocation = vi.fn();
+const setCustomFieldValue = vi.fn(async () => ({}));
+vi.mock("@/hooks/mutations/custom-field/use-set-custom-field-value", () => ({
+  default: () => ({ mutateAsync: setCustomFieldValue }),
+}));
 const deleteTask = vi.fn(async () => {});
 const updateTask = vi.fn(async (input: Record<string, unknown>) => input);
 const setProject = vi.fn();
@@ -194,6 +198,45 @@ describe("CreateTaskModal", () => {
       );
     },
   );
+
+  it("clears hidden dropdown selections in an already persisted upload draft", async () => {
+    useLocation.mockReturnValue({
+      pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
+    });
+    customFields = [
+      {
+        id: "people",
+        name: "People",
+        type: "dropdown",
+        options: ["Former", "Current"],
+        hiddenOptions: [],
+        defaultValue: "Former",
+        required: false,
+      },
+    ];
+    const view = render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    enterTitle();
+    await act(async () => {
+      await ensureTaskId?.();
+    });
+    customFields = customFields.map((field) => ({
+      ...field,
+      hiddenOptions: ["Former"],
+      defaultValue: "",
+    }));
+    view.rerender(<CreateTaskModal open onClose={vi.fn()} />);
+    await act(async () => {
+      submit();
+    });
+    expect(updateTask).toHaveBeenCalled();
+    expect(setCustomFieldValue).toHaveBeenCalledWith({
+      taskId: "task-1",
+      fieldId: "people",
+      value: "",
+    });
+  });
 
   it("keeps unsaved input while discard confirmation is open", async () => {
     useLocation.mockReturnValue({
