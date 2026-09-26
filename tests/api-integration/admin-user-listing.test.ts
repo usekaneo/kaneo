@@ -79,6 +79,22 @@ describe("API integration: admin user listing", () => {
     expect(response.status).toBe(403);
   });
 
+  it("accepts administrators whose role list includes admin", async () => {
+    const admin = await createUser({
+      name: "Multi Role Admin",
+      email: "multi@example.com",
+      role: "user,admin",
+    });
+    mockAuthenticatedSession(admin);
+    const { app } = createApp();
+
+    const response = await listUsers(app);
+
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as AdminUserList;
+    expect(body.users.map((user) => user.id)).toEqual([admin.id]);
+  });
+
   it("searches name and email case-insensitively", async () => {
     const admin = await createUser({
       name: "Instance Admin",

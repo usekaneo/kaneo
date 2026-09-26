@@ -1,17 +1,8 @@
 import { APIError, getSessionFromCtx } from "better-auth/api";
+import { hasInstanceAdminRole } from "../../utils/is-instance-admin";
 import deleteAccountData from "./delete-account-data";
 
 type RemovalContext = Parameters<typeof getSessionFromCtx>[0];
-
-function hasAdminRole(role: unknown) {
-  return (
-    typeof role === "string" &&
-    role
-      .split(",")
-      .map((entry) => entry.trim())
-      .includes("admin")
-  );
-}
 
 export async function prepareAdminUserRemoval(ctx: RemovalContext) {
   const session = await getSessionFromCtx(ctx, {
@@ -20,7 +11,7 @@ export async function prepareAdminUserRemoval(ctx: RemovalContext) {
   }).catch(() => null);
   const caller = session?.user as { id: string; role?: unknown } | undefined;
 
-  if (!caller || !hasAdminRole(caller.role)) {
+  if (!caller || !hasInstanceAdminRole(caller.role)) {
     throw new APIError("FORBIDDEN", {
       message: "Only instance administrators can remove users.",
     });

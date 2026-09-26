@@ -3,10 +3,20 @@ import type { Context } from "hono";
 import db from "../database";
 import { userTable } from "../database/schema";
 
+export function hasInstanceAdminRole(role: unknown) {
+  return (
+    typeof role === "string" &&
+    role
+      .split(",")
+      .map((entry) => entry.trim())
+      .includes("admin")
+  );
+}
+
 export async function isInstanceAdmin(c: Context): Promise<boolean> {
   const user = c.get("user") as { role?: string | null } | null | undefined;
   if (user?.role) {
-    return user.role === "admin";
+    return hasInstanceAdminRole(user.role);
   }
 
   const userId = c.get("userId");
@@ -18,5 +28,5 @@ export async function isInstanceAdmin(c: Context): Promise<boolean> {
     .where(eq(userTable.id, userId))
     .limit(1);
 
-  return row?.role === "admin";
+  return hasInstanceAdminRole(row?.role);
 }
