@@ -15,7 +15,10 @@ function getLocale(locale?: string) {
 // formatter per locale+options combination so re-renders reuse it.
 const dateFormatterCache = new Map<string, Intl.DateTimeFormat>();
 
-function getDateFormatter(locale: string, options?: Intl.DateTimeFormatOptions) {
+function getDateFormatter(
+  locale: string,
+  options?: Intl.DateTimeFormatOptions,
+) {
   const key = `${locale}|${options ? JSON.stringify(options) : ""}`;
   let formatter = dateFormatterCache.get(key);
   if (!formatter) {
