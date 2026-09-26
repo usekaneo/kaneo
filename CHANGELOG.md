@@ -1,5 +1,13 @@
 ### Bug Fixes
 
+- **auth:** backfill instance admin on legacy installations: [b7c6aee](https://github.com/usekaneo/kaneo/commit/b7c6aee31ba1174583da5f7fa0aad48257cfc356)
+
+### Credits
+
+Huge thanks to @tinsever for helping!
+
+### Bug Fixes
+
 - **admin:** harden the user administration panel: #1805
 
 ### Documentation
