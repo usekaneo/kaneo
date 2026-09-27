@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "@/lib/toast";
@@ -7,12 +7,20 @@ import { toast } from "@/lib/toast";
 export function useOpenWorkspaceBilling(workspaceId: string | undefined) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [isOpening, setIsOpening] = useState(false);
+  const { data: activeOrganization } = authClient.useActiveOrganization();
+  const [isSwitching, setIsSwitching] = useState(false);
+  const [pendingId, setPendingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!pendingId || activeOrganization?.id !== pendingId) return;
+    setPendingId(null);
+    navigate({ to: "/dashboard/settings/workspace/billing" });
+  }, [pendingId, activeOrganization?.id, navigate]);
 
   const open = async () => {
-    if (!workspaceId || isOpening) return;
+    if (!workspaceId || isSwitching || pendingId) return;
 
-    setIsOpening(true);
+    setIsSwitching(true);
     try {
       const { error } = await authClient.organization.setActive({
         organizationId: workspaceId,
@@ -21,13 +29,13 @@ export function useOpenWorkspaceBilling(workspaceId: string | undefined) {
         toast.error(t("settings:billing.openFailed"));
         return;
       }
-      await navigate({ to: "/dashboard/settings/workspace/billing" });
+      setPendingId(workspaceId);
     } catch {
       toast.error(t("settings:billing.openFailed"));
     } finally {
-      setIsOpening(false);
+      setIsSwitching(false);
     }
   };
 
-  return { open, isOpening };
+  return { open, isOpening: isSwitching || pendingId !== null };
 }
