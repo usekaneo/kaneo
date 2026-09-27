@@ -36,16 +36,14 @@ export async function syncWorkspaceSeats(workspaceId: string) {
     return;
   }
 
-  const result = await updateSubscriptionSeats({
+  await updateSubscriptionSeats({
     subscriptionId: billing.creemSubscriptionId,
     productId: billing.creemProductId,
     units: seats,
   });
 
-  if (result.ok) {
-    await db
-      .update(workspaceBillingTable)
-      .set({ seats })
-      .where(eq(workspaceBillingTable.workspaceId, workspaceId));
-  }
+  await db
+    .update(workspaceBillingTable)
+    .set({ seats })
+    .where(eq(workspaceBillingTable.workspaceId, workspaceId));
 }
