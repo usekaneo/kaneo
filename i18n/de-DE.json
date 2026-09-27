@@ -213,6 +213,16 @@
 			"emailFallback": "deine E-Mail-Adresse",
 			"backToLogin": "Zurück zur Anmeldung"
 		},
+		"cloud": {
+			"signUp": {
+				"title": "Wie es weitergeht",
+				"description": "Nachdem du dein Konto erstellt hast, gibst du deinem Workspace einen Namen. Danach kannst du ein Projekt anlegen und Aufgaben schreiben."
+			},
+			"onboarding": {
+				"title": "Was ein Workspace ist",
+				"description": "Ein Workspace enthält deine Projekte, ihre Aufgaben und die Menschen, mit denen du zusammenarbeitest. Lade Teammitglieder ein, sobald er eingerichtet ist."
+			}
+		},
 		"signUp": {
 			"pageTitle": "Konto erstellen",
 			"title": "Konto erstellen",
@@ -323,7 +333,11 @@
 			},
 			"restrictedSubtitle": "Nur eine Instanzadministration kann hier Workspaces anlegen. Bitte um eine Einladung und lade diese Seite neu.",
 			"restrictedCheckInvitations": "Einladungen prüfen",
-			"restrictedTitle": "Du brauchst eine Einladung"
+			"restrictedTitle": "Du brauchst eine Einladung",
+			"cloud": {
+				"title": "Benenne deinen Workspace",
+				"subtitle": "Verwende den Namen deines Teams oder Unternehmens. Du kannst ihn später in den Einstellungen ändern."
+			}
 		},
 		"profileSetup": {
 			"pageTitle": "Profil vervollständigen",

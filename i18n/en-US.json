@@ -213,6 +213,16 @@
 			"emailFallback": "your email address",
 			"backToLogin": "Back to login"
 		},
+		"cloud": {
+			"signUp": {
+				"title": "What happens next",
+				"description": "After you create your account, you'll name a workspace. From there you can add a project and start writing tasks."
+			},
+			"onboarding": {
+				"title": "What a workspace is",
+				"description": "A workspace holds your projects, their tasks, and the people you work with. Invite teammates once it's set up."
+			}
+		},
 		"signUp": {
 			"pageTitle": "Create Account",
 			"title": "Create account",
@@ -323,6 +333,10 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "Workspace name is required"
+			},
+			"cloud": {
+				"title": "Name your workspace",
+				"subtitle": "Use your team or company name. You can change it later in settings."
 			}
 		},
 		"profileSetup": {

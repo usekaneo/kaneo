@@ -213,6 +213,16 @@
 			"emailFallback": "il tuo indirizzo email",
 			"backToLogin": "Torna al login"
 		},
+		"cloud": {
+			"signUp": {
+				"title": "Cosa succede dopo",
+				"description": "Dopo aver creato il tuo account, darai un nome a un workspace. Da lì puoi aggiungere un progetto e iniziare a scrivere attività."
+			},
+			"onboarding": {
+				"title": "Cos'è un workspace",
+				"description": "Un workspace contiene i tuoi progetti, le loro attività e le persone con cui lavori. Invita i colleghi una volta configurato."
+			}
+		},
 		"signUp": {
 			"pageTitle": "Crea Account",
 			"title": "Crea account",
@@ -323,7 +333,11 @@
 			},
 			"restrictedSubtitle": "Qui solo un amministratore dell'istanza può creare spazi di lavoro. Chiedi un invito e ricarica questa pagina.",
 			"restrictedCheckInvitations": "Controlla gli inviti",
-			"restrictedTitle": "Ti serve un invito"
+			"restrictedTitle": "Ti serve un invito",
+			"cloud": {
+				"title": "Dai un nome al tuo workspace",
+				"subtitle": "Usa il nome del tuo team o della tua azienda. Puoi cambiarlo più tardi nelle impostazioni."
+			}
 		},
 		"profileSetup": {
 			"pageTitle": "Completa Profilo",

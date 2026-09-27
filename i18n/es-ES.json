@@ -213,6 +213,16 @@
 			"emailFallback": "tu dirección de correo electrónico",
 			"backToLogin": "Volver a login"
 		},
+		"cloud": {
+			"signUp": {
+				"title": "Qué viene después",
+				"description": "Después de crear tu cuenta, le pondrás nombre a un espacio de trabajo. A partir de ahí puedes añadir un proyecto y empezar a escribir tareas."
+			},
+			"onboarding": {
+				"title": "Qué es un espacio de trabajo",
+				"description": "Un espacio de trabajo contiene tus proyectos, sus tareas y las personas con las que trabajas. Invita a tu equipo cuando esté listo."
+			}
+		},
 		"signUp": {
 			"pageTitle": "Crear Cuenta",
 			"title": "Crear cuenta",
@@ -323,7 +333,11 @@
 			},
 			"restrictedSubtitle": "Aquí solo un administrador de la instancia puede crear espacios de trabajo. Pide que te inviten y recarga esta página.",
 			"restrictedCheckInvitations": "Ver invitaciones",
-			"restrictedTitle": "Necesitas una invitación"
+			"restrictedTitle": "Necesitas una invitación",
+			"cloud": {
+				"title": "Ponle nombre a tu espacio de trabajo",
+				"subtitle": "Usa el nombre de tu equipo o empresa. Puedes cambiarlo más tarde en la configuración."
+			}
 		},
 		"profileSetup": {
 			"pageTitle": "Completar Perfil",

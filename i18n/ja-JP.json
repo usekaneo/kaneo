@@ -213,6 +213,16 @@
 			"emailFallback": "ご登録のメールアドレス",
 			"backToLogin": "サインインに戻る"
 		},
+		"cloud": {
+			"signUp": {
+				"title": "次のステップ",
+				"description": "アカウントを作成したら、ワークスペースに名前を付けます。その後、プロジェクトを追加してタスクを書き始められます。"
+			},
+			"onboarding": {
+				"title": "ワークスペースとは",
+				"description": "ワークスペースには、プロジェクト、そのタスク、一緒に働くメンバーがまとまります。準備ができたらチームメンバーを招待しましょう。"
+			}
+		},
 		"signUp": {
 			"pageTitle": "アカウント作成",
 			"title": "アカウントを作成",
@@ -323,7 +333,11 @@
 			},
 			"restrictedSubtitle": "このインスタンスでワークスペースを作成できるのは管理者だけです。招待を依頼してから、このページを再読み込みしてください。",
 			"restrictedCheckInvitations": "招待を確認",
-			"restrictedTitle": "招待が必要です"
+			"restrictedTitle": "招待が必要です",
+			"cloud": {
+				"title": "ワークスペースに名前を付ける",
+				"subtitle": "チーム名や会社名を使いましょう。名前は後から設定で変更できます。"
+			}
 		},
 		"profileSetup": {
 			"pageTitle": "プロフィール設定",

@@ -213,6 +213,16 @@
 			"emailFallback": "alamat email Anda",
 			"backToLogin": "Kembali ke masuk"
 		},
+		"cloud": {
+			"signUp": {
+				"title": "Apa selanjutnya",
+				"description": "Setelah membuat akun, Anda akan memberi nama ruang kerja. Dari sana Anda bisa menambahkan proyek dan mulai menulis tugas."
+			},
+			"onboarding": {
+				"title": "Apa itu ruang kerja",
+				"description": "Ruang kerja berisi proyek Anda, tugas-tugasnya, dan orang-orang yang bekerja dengan Anda. Undang rekan tim setelah ruang kerja siap."
+			}
+		},
 		"signUp": {
 			"pageTitle": "Buat Akun",
 			"title": "Buat akun",
@@ -323,7 +333,11 @@
 			},
 			"restrictedSubtitle": "Hanya administrator instance yang dapat membuat ruang kerja di sini. Minta undangan, lalu muat ulang halaman ini.",
 			"restrictedCheckInvitations": "Lihat undangan",
-			"restrictedTitle": "Anda perlu undangan"
+			"restrictedTitle": "Anda perlu undangan",
+			"cloud": {
+				"title": "Beri nama ruang kerja Anda",
+				"subtitle": "Gunakan nama tim atau perusahaan Anda. Anda bisa mengubahnya nanti di pengaturan."
+			}
 		},
 		"profileSetup": {
 			"pageTitle": "Lengkapi Profil",

@@ -213,6 +213,16 @@
 			"emailFallback": "你的邮箱",
 			"backToLogin": "返回登录"
 		},
+		"cloud": {
+			"signUp": {
+				"title": "接下来",
+				"description": "创建账户后，你需要为工作区命名。之后就可以添加项目并开始编写任务。"
+			},
+			"onboarding": {
+				"title": "什么是工作区",
+				"description": "工作区包含你的项目、项目中的任务以及与你协作的成员。设置完成后即可邀请团队成员。"
+			}
+		},
 		"signUp": {
 			"pageTitle": "创建账户",
 			"title": "创建账户",
@@ -323,7 +333,11 @@
 			},
 			"restrictedSubtitle": "在此实例中只有管理员可以创建工作区。请联系管理员邀请你，然后刷新此页面。",
 			"restrictedCheckInvitations": "查看邀请",
-			"restrictedTitle": "你需要一份邀请"
+			"restrictedTitle": "你需要一份邀请",
+			"cloud": {
+				"title": "为工作区命名",
+				"subtitle": "使用你的团队或公司名称。之后可以在设置中修改。"
+			}
 		},
 		"profileSetup": {
 			"pageTitle": "完善资料",

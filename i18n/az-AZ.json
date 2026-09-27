@@ -213,6 +213,16 @@
 			"emailFallback": "E-poçt ünvanınız",
 			"backToLogin": "Girişə qayıt"
 		},
+		"cloud": {
+			"signUp": {
+				"title": "Bundan sonra nə olacaq",
+				"description": "Hesabınızı yaratdıqdan sonra iş sahənizə ad verəcəksiniz. Oradan layihə əlavə edib tapşırıq yazmağa başlaya bilərsiniz."
+			},
+			"onboarding": {
+				"title": "İş sahəsi nədir",
+				"description": "İş sahəsi layihələrinizi, onların tapşırıqlarını və birlikdə işlədiyiniz insanları saxlayır. Qurulduqdan sonra komanda üzvlərini dəvət edin."
+			}
+		},
 		"signUp": {
 			"pageTitle": "Hesab yarat",
 			"title": "Hesab yarat",
@@ -323,7 +333,11 @@
 			},
 			"restrictedSubtitle": "Burada yalnız instans administratoru iş sahəsi yarada bilər. Sizi dəvət etməsini xahiş edin, sonra bu səhifəni yeniləyin.",
 			"restrictedCheckInvitations": "Dəvətlərə bax",
-			"restrictedTitle": "Dəvət lazımdır"
+			"restrictedTitle": "Dəvət lazımdır",
+			"cloud": {
+				"title": "İş sahənizə ad verin",
+				"subtitle": "Komandanızın və ya şirkətinizin adını istifadə edin. Onu sonra parametrlərdə dəyişə bilərsiniz."
+			}
 		},
 		"profileSetup": {
 			"pageTitle": "Profili tamamla",
