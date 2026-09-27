@@ -111,7 +111,7 @@ Both the HTTP endpoint and stdio package expose the same tools:
 - Labels: `list_workspace_labels`, `create_label`, `attach_label_to_task`, `detach_label_from_task`, `delete_label`
 - Task relations: `create_task_relation`, `get_task_relations`, `delete_task_relation`
 
-Use `get_task_by_ticket_id` with a key such as `KAN-12` to fetch one task directly. If the same key exists in multiple workspaces you can access, pass `workspaceId` to select one.
+Use `get_task_by_ticket_id` with a key such as `KAN-12` to fetch one task directly. If the same key identifies multiple accessible tasks, pass `workspaceId` or `projectId` to select one.
 
 `list_project_columns` is worth calling first when setting a status: the column
 slugs it returns are exactly the values `create_task` and `update_task_status`

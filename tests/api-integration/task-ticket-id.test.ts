@@ -64,7 +64,7 @@ describe("API integration: task ticket ID lookup", () => {
     expect(privateSelection.status).toBe(404);
   });
 
-  it("reports ambiguity only among accessible workspaces and accepts a workspace filter", async () => {
+  it("disambiguates accessible tasks by workspace or project", async () => {
     const member = await createWorkspaceMember();
     const other = await createWorkspaceMember();
     await db.insert(schema.workspaceUserTable).values({
@@ -77,12 +77,17 @@ describe("API integration: task ticket ID lookup", () => {
       workspaceId: member.workspace.id,
       slug: "KAN",
     });
+    const duplicate = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      slug: "kan",
+    });
     const second = await createProjectFixture({
       workspaceId: other.workspace.id,
       slug: "KAN",
     });
     await db.insert(schema.taskTable).values([
       { projectId: first.project.id, title: "First", number: 12 },
+      { projectId: duplicate.project.id, title: "Duplicate", number: 12 },
       { projectId: second.project.id, title: "Second", number: 12 },
     ]);
 
@@ -90,12 +95,41 @@ describe("API integration: task ticket ID lookup", () => {
     const { app } = createApp();
     const ambiguous = await app.request("/api/task/by-ticket-id/KAN-12");
     expect(ambiguous.status).toBe(409);
+    const ambiguousInWorkspace = await app.request(
+      `/api/task/by-ticket-id/KAN-12?workspaceId=${member.workspace.id}`,
+    );
+    expect(ambiguousInWorkspace.status).toBe(409);
+
+    const chosenProject = await app.request(
+      `/api/task/by-ticket-id/KAN-12?projectId=${duplicate.project.id}`,
+    );
+    expect(chosenProject.status).toBe(200);
+    expect(await chosenProject.json()).toMatchObject({ title: "Duplicate" });
 
     const selected = await app.request(
       `/api/task/by-ticket-id/KAN-12?workspaceId=${other.workspace.id}`,
     );
     expect(selected.status).toBe(200);
     expect(await selected.json()).toMatchObject({ title: "Second" });
+  });
+
+  it("accepts a ticket ID generated from a numeric-leading project name", async () => {
+    const member = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      slug: "123",
+    });
+    await db.insert(schema.taskTable).values({
+      projectId: project.id,
+      title: "Numeric key",
+      number: 1,
+    });
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+    const response = await app.request("/api/task/by-ticket-id/123-1");
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ title: "Numeric key" });
   });
 
   it("rejects invalid and unauthenticated lookups", async () => {

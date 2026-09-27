@@ -127,8 +127,8 @@ For headless or sandboxed environments where opening a browser is impractical, s
 Call `list_project_columns` before setting a status: the column slugs it
 returns are the values `create_task` and `update_task_status` accept.
 Call `get_task_by_ticket_id` with a key such as `KAN-12` to retrieve one task
-without listing a project. If the same key exists in multiple workspaces you
-can access, pass `workspaceId` to select one.
+without listing a project. If the same key identifies multiple accessible tasks,
+pass `workspaceId` or `projectId` to select one.
 `list_workspace_members` resolves the user IDs the assignee tools expect.
 Time entries have no delete endpoint on the API, so there is no
 `delete_time_entry` tool.

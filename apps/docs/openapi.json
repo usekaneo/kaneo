@@ -8785,13 +8785,12 @@
           "Tasks"
         ],
         "summary": "Get task by ticket ID",
-        "description": "Get a single task by its project key and number, such as KAN-12. If the same ticket ID exists in multiple accessible workspaces, provide workspaceId.",
+        "description": "Get a single task by its project key and number, such as KAN-12. If the ticket ID matches multiple accessible tasks, provide workspaceId or projectId to select one.",
         "parameters": [
           {
             "schema": {
               "type": "string",
               "maxLength": 128,
-              "pattern": "^(\\p{L}[\\p{L}\\p{N}\\p{M}_-]*)-(\\d+)$/u",
               "description": "Project key and task number, e.g. KAN-12."
             },
             "required": true,
@@ -8808,6 +8807,17 @@
             "required": false,
             "description": "Select a workspace if the ticket ID exists in more than one.",
             "name": "workspaceId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Select a project if the ticket ID exists more than once."
+            },
+            "required": false,
+            "description": "Select a project if the ticket ID exists more than once.",
+            "name": "projectId",
             "in": "query"
           }
         ],

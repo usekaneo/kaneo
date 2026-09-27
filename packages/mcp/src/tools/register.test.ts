@@ -147,6 +147,7 @@ describe("registerTools", () => {
     expect(tool).toBeDefined();
     await tool?.handler({ ticketId: "KAN-12" });
     await tool?.handler({ ticketId: "KAN-12", workspaceId: "workspace 1" });
+    await tool?.handler({ ticketId: "KAN-12", projectId: "project 1" });
 
     expect(client.json).toHaveBeenNthCalledWith(
       1,
@@ -156,6 +157,11 @@ describe("registerTools", () => {
     expect(client.json).toHaveBeenNthCalledWith(
       2,
       "/api/task/by-ticket-id/KAN-12?workspaceId=workspace+1",
+      { method: "GET" },
+    );
+    expect(client.json).toHaveBeenNthCalledWith(
+      3,
+      "/api/task/by-ticket-id/KAN-12?projectId=project+1",
       { method: "GET" },
     );
   });
