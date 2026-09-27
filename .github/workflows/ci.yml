@@ -445,7 +445,7 @@ jobs:
       - name: Upload results to GitHub Code Scanning
         # Fork pull requests hold a read-only token and cannot write code scanning data.
         if: ${{ always() && !github.event.pull_request.head.repo.fork }}
-        uses: github/codeql-action/upload-sarif@1190a975f95ce23525efb6a3fc21ea29567c1b52 # v3
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
         with:
           sarif_file: trufflehog-results.sarif
       - name: Notify Discord on findings
