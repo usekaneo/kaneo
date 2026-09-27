@@ -1,11 +1,13 @@
 import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/cn";
 
 type CloudAuthLayoutProps = {
   children: React.ReactNode;
   title: string;
   subtitle?: string;
   workspaceName?: string;
-  note?: "signUp" | "onboarding";
+  note?: "signUp" | "onboarding" | "invite" | "plan";
+  contentClassName?: string;
 };
 
 export function CloudAuthLayout({
@@ -14,6 +16,7 @@ export function CloudAuthLayout({
   subtitle,
   workspaceName,
   note = "signUp",
+  contentClassName,
 }: CloudAuthLayoutProps) {
   const { t } = useTranslation();
 
@@ -30,7 +33,7 @@ export function CloudAuthLayout({
         </header>
 
         <div className="flex flex-1 items-center justify-center py-12">
-          <div className="w-full max-w-sm">
+          <div className={cn("w-full max-w-sm", contentClassName)}>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
               {title}
             </h1>
@@ -48,14 +51,10 @@ export function CloudAuthLayout({
       >
         <div className="max-w-lg px-12 pt-[12vh]">
           <p className="text-xl font-medium tracking-tight text-foreground">
-            {note === "signUp"
-              ? t("auth:cloud.signUp.title")
-              : t("auth:cloud.onboarding.title")}
+            {t(`auth:cloud.${note}.title`)}
           </p>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
-            {note === "signUp"
-              ? t("auth:cloud.signUp.description")
-              : t("auth:cloud.onboarding.description")}
+            {t(`auth:cloud.${note}.description`)}
           </p>
         </div>
         <div className="relative mt-10 flex-1">
