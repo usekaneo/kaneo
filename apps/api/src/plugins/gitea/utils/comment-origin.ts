@@ -1,10 +1,11 @@
 // Persist the origin in Gitea so delayed webhooks and later imports also skip echoes.
-const KANEO_COMMENT_MARKER = "<!-- kaneo:comment -->";
+const KANEO_COMMENT_PREFIX = "<!-- kaneo:comment -->\n\n";
 
 export function markKaneoComment(body: string): string {
-  return `${body}\n\n${KANEO_COMMENT_MARKER}`;
+  // Keep the marker outside user-controlled Markdown, including unclosed code fences.
+  return `${KANEO_COMMENT_PREFIX}${body}`;
 }
 
 export function isKaneoComment(body: string): boolean {
-  return body.trimEnd().endsWith(KANEO_COMMENT_MARKER);
+  return body.startsWith(KANEO_COMMENT_PREFIX);
 }

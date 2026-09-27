@@ -83,13 +83,13 @@ async function deliverWebhook(body: string) {
   });
 }
 
-async function outboundBody() {
+async function outboundBody(comment = "A comment from Kaneo") {
   await handleTaskCommentCreated(
     {
       taskId: "task-1",
       projectId: "project-1",
       userId: "user-1",
-      comment: "A comment from Kaneo",
+      comment,
     },
     { integrationId: "integration-1", projectId: "project-1", config },
   );
@@ -97,7 +97,7 @@ async function outboundBody() {
     "owner",
     "repo",
     42,
-    expect.stringContaining("A comment from Kaneo"),
+    expect.stringContaining(comment),
   );
   return mocks.createIssueComment.mock.calls[0][3] as string;
 }
@@ -111,6 +111,33 @@ describe("Gitea comment sync", () => {
     await deliverWebhook(`${body}\n`);
     expect(mocks.values).not.toHaveBeenCalled();
   });
+
+  it("puts the hidden marker before unclosed Markdown code fences", async () => {
+    const body = await outboundBody("```ts\nconst example = 1;");
+    expect(body).toBe("<!-- kaneo:comment -->\n\n```ts\nconst example = 1;");
+    await deliverWebhook(body);
+    expect(mocks.values).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    "Discussing the marker: <!-- kaneo:comment -->",
+    "> <!-- kaneo:comment -->\n\nQuoted marker",
+    "```html\n<!-- kaneo:comment -->\n```",
+  ])(
+    "imports native comments discussing or quoting the marker: %s",
+    async (body) => {
+      await deliverWebhook(body);
+      expect(mocks.values).toHaveBeenCalledWith(
+        expect.objectContaining({ content: body }),
+      );
+      mocks.values.mockClear();
+      mocks.listIssueComments.mockResolvedValue([comment(body)]);
+      await importGiteaIssues("project-1");
+      expect(mocks.values).toHaveBeenCalledWith(
+        expect.objectContaining({ content: body }),
+      );
+    },
+  );
 
   it("still imports native Gitea comments from the same personal-token user", async () => {
     await deliverWebhook("A comment written in Gitea");
@@ -126,7 +153,7 @@ describe("Gitea comment sync", () => {
   it("skips outbound comments during bulk import while preserving native comments", async () => {
     const body = await outboundBody();
     mocks.listIssueComments.mockResolvedValue([
-      comment(body),
+      comment(`${body}\nAn edit appended in Gitea`),
       comment("Native comment", 2),
     ]);
     const result = await importGiteaIssues("project-1");
