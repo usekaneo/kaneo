@@ -42,7 +42,7 @@
     "@oslojs/encoding": "^1.1.0",
     "@paralleldrive/cuid2": "^3.3.0",
     "@sentry/node": "^10.70.0",
-    "@sentry/profiling-node": "^10.70.0",
+    "@sentry/profiling-node": "^11.0.0",
     "bcryptjs": "^3.0.2",
     "better-auth": "^1.6.26",
     "creem": "^1.6.0",
