@@ -109,6 +109,25 @@ describe("updateSubscriptionSeats", () => {
     });
   });
 
+  it("refuses to guess when several items exist and none match", async () => {
+    respondWith(
+      subscription([
+        { id: "sitem_personal", product_id: "prod_personal" },
+        { id: "sitem_addon", product_id: "prod_addon" },
+      ]),
+    );
+
+    await expect(
+      updateSubscriptionSeats({
+        subscriptionId: "sub_1",
+        productId: "prod_old",
+        units: 4,
+      }),
+    ).rejects.toThrow("no item for product prod_old");
+
+    expect(calls).toHaveLength(1);
+  });
+
   it("throws instead of reporting success when the subscription has no items", async () => {
     respondWith(subscription([]));
 
@@ -118,7 +137,7 @@ describe("updateSubscriptionSeats", () => {
         productId: "prod_team",
         units: 2,
       }),
-    ).rejects.toThrow("no item to resize");
+    ).rejects.toThrow("no item for product prod_team");
 
     expect(calls).toHaveLength(1);
   });
