@@ -1,3 +1,16 @@
+### Bug Fixes
+
+- **billing:** resize Creem seats by subscription item id: #1836
+- **gitea:** prevent outbound comment echoes: #1834
+
+### Documentation
+
+- **readme:** highlight cloud and current features: #1831
+
+### Credits
+
+Huge thanks to @andrejsshell and @tinsever for helping!
+
 ### Features
 
 - **web:** cloud sign-up and onboarding layout: #1832
