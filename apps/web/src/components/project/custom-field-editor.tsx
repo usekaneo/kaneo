@@ -427,7 +427,7 @@ export default function CustomFieldEditor({
                 : Boolean(defaultDisplayValue));
 
             return (
-              // biome-ignore lint/a11y/useSemanticElements: false positive for role="listitem"
+              // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- false positive for role="listitem"
               <div
                 key={field.id}
                 role="listitem"

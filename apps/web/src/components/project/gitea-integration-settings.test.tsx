@@ -5,7 +5,7 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { GiteaIntegrationSettings } from "./gitea-integration-settings";
 
 const { verify, success, failure, integration, translate } = vi.hoisted(() => ({
@@ -34,7 +34,9 @@ vi.mock(
 );
 vi.mock(
   "@/hooks/mutations/gitea-integration/use-update-gitea-integration",
-  () => ({ useUpdateGiteaIntegration: () => ({ mutateAsync: vi.fn() }) }),
+  () => ({
+    useUpdateGiteaIntegration: () => ({ mutateAsync: vi.fn() }),
+  }),
 );
 vi.mock("@/hooks/mutations/gitea-integration/use-import-gitea-issues", () => ({
   default: () => ({ mutateAsync: vi.fn() }),

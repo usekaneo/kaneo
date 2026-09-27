@@ -4,13 +4,13 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "vite",
-		"build": "vite build",
-		"preview": "vite preview",
-		"lint": "biome check --write .",
-		"typecheck": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
-		"test": "vitest run --config vitest.config.ts",
-		"test:watch": "vitest --config vitest.config.ts"
+		"dev": "vp dev",
+		"build": "vp run compile",
+		"preview": "vp preview",
+		"lint": "vp check .",
+		"typecheck": "vp run check:types",
+		"test": "vp run test:run",
+		"test:watch": "vp test --config vitest.config.ts"
 	},
 	"dependencies": {
 		"@base-ui/react": "^1.8.0",
@@ -122,7 +122,7 @@
 		"postcss": "^8.5.28",
 		"tailwindcss": "^4.3.3",
 		"typescript": "~7.0.2",
-		"vite": "^8.3.0",
-		"vitest": "^5.0.1"
+		"vite": "catalog:",
+		"vite-plus": "catalog:"
 	}
 }

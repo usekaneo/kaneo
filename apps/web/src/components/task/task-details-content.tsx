@@ -582,9 +582,8 @@ export default function TaskDetailsContent({
                                           "text-transparent",
                                         )}
                                         placeholder={
-                                          Array.from(
-                                            new Set(field.options ?? []),
-                                          ).length === 0
+                                          new Set(field.options ?? []).size ===
+                                          0
                                             ? t(
                                                 "settings:customFields.noOptionsPlaceholder",
                                                 "No options",

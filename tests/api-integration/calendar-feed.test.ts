@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 import {
   CALENDAR_DESCRIPTION_CHARACTERS,
   CALENDAR_TASK_BATCH_SIZE,
@@ -422,7 +422,9 @@ describe("API integration: calendar feeds", () => {
       (
         await app.request(
           `/api/calendar-feed/project/${outsiderProject.id}/${feed.id}`,
-          { method: "DELETE" },
+          {
+            method: "DELETE",
+          },
         )
       ).status,
     ).toBe(404);

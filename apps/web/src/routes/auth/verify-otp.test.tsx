@@ -15,7 +15,7 @@ import {
   expect,
   it,
   vi,
-} from "vitest";
+} from "vite-plus/test";
 import { Route } from "./verify-otp";
 
 // The OTP input measures itself on mount, which jsdom cannot do.

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 const mocks = vi.hoisted(() => ({
   existingIntegration: vi.fn(),
@@ -44,9 +44,8 @@ vi.mock("../../../apps/api/src/plugins/gitlab/utils/gitlab-api", () => ({
   createGitlabClient: () => ({ getProject: async () => ({ id: 1 }) }),
 }));
 
-const { default: createGitlabIntegration } = await import(
-  "../../../apps/api/src/gitlab-integration/controllers/create-gitlab-integration"
-);
+const { default: createGitlabIntegration } =
+  await import("../../../apps/api/src/gitlab-integration/controllers/create-gitlab-integration");
 
 function savedConfig() {
   const values = mocks.updateSet.mock.calls[0]?.[0] as { config: string };
@@ -167,7 +166,9 @@ describe("saved GitLab credential destination", () => {
     async (baseUrl) => {
       await expect(
         createGitlabIntegration({ ...input, baseUrl }),
-      ).rejects.toMatchObject({ status: 400 });
+      ).rejects.toMatchObject({
+        status: 400,
+      });
       expect(mocks.verifyToken).not.toHaveBeenCalled();
       expect(mocks.updateSet).not.toHaveBeenCalled();
     },

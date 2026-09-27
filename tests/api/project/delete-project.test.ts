@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 const mocks = vi.hoisted(() => ({
   findFirst: vi.fn(),
@@ -81,6 +81,8 @@ describe("deleteProject", () => {
 
     await expect(
       deleteProject("project-1", "workspace-1"),
-    ).resolves.toMatchObject({ id: "project-1" });
+    ).resolves.toMatchObject({
+      id: "project-1",
+    });
   });
 });

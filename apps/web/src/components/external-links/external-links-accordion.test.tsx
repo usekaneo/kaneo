@@ -6,7 +6,14 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import createExternalLink from "@/fetchers/external-link/create-external-link";
 import deleteExternalLink from "@/fetchers/external-link/delete-external-link";
 import { toast } from "@/lib/toast";
@@ -70,11 +77,15 @@ describe("manual task resources", () => {
     );
     fireEvent.change(
       await screen.findByLabelText("settings:externalLinks.url"),
-      { target: { value: "https://example.com/canceled" } },
+      {
+        target: { value: "https://example.com/canceled" },
+      },
     );
     fireEvent.change(
       screen.getByLabelText("settings:externalLinks.titleOptional"),
-      { target: { value: "Canceled title" } },
+      {
+        target: { value: "Canceled title" },
+      },
     );
     fireEvent.click(
       screen.getByRole("button", { name: "settings:externalLinks.cancel" }),

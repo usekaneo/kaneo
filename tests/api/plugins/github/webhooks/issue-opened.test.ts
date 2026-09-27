@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { handleIssueOpened } from "../../../../../apps/api/src/plugins/github/webhooks/issue-opened";
 
 const mocks = vi.hoisted(() => {

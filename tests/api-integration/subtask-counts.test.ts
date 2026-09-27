@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import updateColumn from "../../apps/api/src/column/controllers/update-column";
 import db, { schema } from "../../apps/api/src/database";
 import { eventContext } from "../../apps/api/src/events";

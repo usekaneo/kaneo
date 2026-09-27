@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 const m = vi.hoisted(() => ({
   account: vi.fn(),
@@ -50,15 +50,12 @@ vi.mock("../../../apps/api/src/plugins/github/utils/github-app", () => ({
     }),
   }),
 }));
-const { verifyRepositoryOwner } = await import(
-  "../../../apps/api/src/github-integration/controllers/verify-repository-owner"
-);
-const { default: createIntegration } = await import(
-  "../../../apps/api/src/github-integration/controllers/create-github-integration"
-);
-const { findAllIntegrationsByRepo } = await import(
-  "../../../apps/api/src/plugins/github/services/task-service"
-);
+const { verifyRepositoryOwner } =
+  await import("../../../apps/api/src/github-integration/controllers/verify-repository-owner");
+const { default: createIntegration } =
+  await import("../../../apps/api/src/github-integration/controllers/create-github-integration");
+const { findAllIntegrationsByRepo } =
+  await import("../../../apps/api/src/plugins/github/services/task-service");
 const binding = {
   repositoryOwner: "Victim",
   repositoryName: "Private",
@@ -109,7 +106,9 @@ describe("GitHub repository linking", () => {
     m.account.mockResolvedValue(null);
     await expect(
       verifyRepositoryOwner("user", "victim", "private"),
-    ).rejects.toMatchObject({ status: 403 });
+    ).rejects.toMatchObject({
+      status: 403,
+    });
     expect(m.installation).not.toHaveBeenCalled();
   });
   it("does not save a null installation after provider failure", async () => {
@@ -138,7 +137,9 @@ describe("GitHub repository linking", () => {
     m.user.mockResolvedValueOnce({ data: { id: 31, login: "somebody-else" } });
     await expect(
       verifyRepositoryOwner("user", "victim", "private"),
-    ).rejects.toMatchObject({ status: 403 });
+    ).rejects.toMatchObject({
+      status: 403,
+    });
     expect(m.permission).not.toHaveBeenCalled();
   });
 });
@@ -186,9 +187,8 @@ describe("GitHub webhook binding", () => {
   });
 });
 
-const { default: listUserRepositories } = await import(
-  "../../../apps/api/src/github-integration/controllers/list-user-repositories"
-);
+const { default: listUserRepositories } =
+  await import("../../../apps/api/src/github-integration/controllers/list-user-repositories");
 describe("authorized bounded repository listing", () => {
   const candidate = (id: number) => ({
     id,

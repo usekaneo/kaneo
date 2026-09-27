@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 import { createApp } from "../../apps/api/src/index";
 import { resetTestDatabase } from "./helpers/database";
 
@@ -91,7 +91,9 @@ describe("API integration: session freshness after profile updates", () => {
 
     const refreshed = await app.request(
       "/api/auth/get-session?disableCookieCache=true",
-      { headers: { cookie: cookies } },
+      {
+        headers: { cookie: cookies },
+      },
     );
 
     expect(

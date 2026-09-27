@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { handleGitlabWebhookRequest } from "../../../../apps/api/src/plugins/gitlab/webhook-handler";
 
 const mocks = vi.hoisted(() => ({

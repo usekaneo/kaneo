@@ -6,7 +6,14 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { RepositoryBrowserModal } from "./repository-browser-modal";
 
 const m = vi.hoisted(() => ({ list: vi.fn(), userId: "user-1" }));

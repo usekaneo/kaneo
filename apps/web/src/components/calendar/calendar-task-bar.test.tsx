@@ -1,6 +1,6 @@
 import enUS from "@i18n/en-US.json";
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import CalendarTaskBar from "./calendar-task-bar";
 
 afterEach(() => {

@@ -1,5 +1,12 @@
 import { act, cleanup, renderHook } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { useUserWebSocket } from "./use-user-websocket";
 
 const { client, auth } = vi.hoisted(() => ({

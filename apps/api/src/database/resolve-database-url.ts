@@ -21,8 +21,8 @@ export type ResolvedDatabaseConfig = {
 function getDerivationSignal(): boolean {
   return Boolean(
     process.env.POSTGRES_PASSWORD ||
-      process.env.POSTGRES_HOST ||
-      process.env.POSTGRES_PORT,
+    process.env.POSTGRES_HOST ||
+    process.env.POSTGRES_PORT,
   );
 }
 

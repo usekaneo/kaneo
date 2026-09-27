@@ -175,7 +175,7 @@ export async function handleGitlabIssueUpdated(
 
       if (touchedText) {
         const updateData: Record<string, unknown> = {};
-        const lastSync = { ...(metadata.lastSync ?? {}) };
+        const lastSync = { ...metadata.lastSync };
         const now = new Date().toISOString();
 
         if (

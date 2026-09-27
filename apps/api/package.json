@@ -12,14 +12,14 @@
   },
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "esbuild src/index.ts --bundle --platform=node --outdir=dist --format=esm --packages=external --external:fs --external:path --external:crypto --external:os --external:util --external:stream --external:buffer --external:events --external:url --external:querystring --external:http --external:https --external:net --external:tls --external:zlib --external:@modelcontextprotocol/sdk",
-    "lint": "biome check --write .",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "npm run test:unit",
-    "test:coverage": "vitest run --config vitest.config.ts --coverage",
-    "test:unit": "vitest run --config vitest.config.ts",
-    "test:integration": "vitest run --config vitest.integration.config.ts",
-    "test:watch": "vitest --config vitest.config.ts",
+    "build": "vp run compile",
+    "lint": "vp check .",
+    "typecheck": "vp run check:types",
+    "test": "vp run test:run",
+    "test:coverage": "vp test run --config vitest.config.ts --coverage",
+    "test:unit": "vp run test:run",
+    "test:integration": "vp run test:integration:run",
+    "test:watch": "vp test --config vitest.config.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
@@ -59,10 +59,11 @@
   "devDependencies": {
     "@types/node": "^26.6.2",
     "@types/pg": "^8.23.1",
-    "@vitest/coverage-v8": "^5.0.1",
+    "@vitest/coverage-v8": "catalog:",
     "esbuild": "0.28.2",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
-    "vitest": "^5.0.1"
+    "vitest": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

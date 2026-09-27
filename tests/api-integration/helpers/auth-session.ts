@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { expect } from "vitest";
+import { expect } from "vite-plus/test";
 import db, { schema } from "../../../apps/api/src/database";
 import type { createApp } from "../../../apps/api/src/index";
 

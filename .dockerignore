@@ -3,6 +3,8 @@
 .turbo
 **/.next
 **/.turbo
+**/.cache
+**/*.tsbuildinfo
 **/coverage
 **/dist
 **/node_modules

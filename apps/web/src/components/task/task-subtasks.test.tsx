@@ -6,7 +6,14 @@ import {
   waitFor,
 } from "@testing-library/react";
 import type { ComponentProps } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import type SubtaskRow from "./subtask-row";
 import { TaskProgressBadges } from "./task-progress-badges";
 import TaskSubtasks from "./task-subtasks";
@@ -109,7 +116,9 @@ describe("TaskSubtasks", () => {
     );
     fireEvent.change(
       screen.getByPlaceholderText("tasks:subtasks.inputPlaceholder"),
-      { target: { value: "Design login form" } },
+      {
+        target: { value: "Design login form" },
+      },
     );
     fireEvent.click(
       screen.getByRole("button", { name: "tasks:subtasks.addAction" }),
@@ -141,7 +150,9 @@ describe("TaskSubtasks", () => {
     );
     fireEvent.change(
       screen.getByPlaceholderText("tasks:subtasks.inputPlaceholder"),
-      { target: { value: "Implement login form" } },
+      {
+        target: { value: "Implement login form" },
+      },
     );
     fireEvent.click(
       screen.getByRole("button", { name: "tasks:subtasks.addAction" }),

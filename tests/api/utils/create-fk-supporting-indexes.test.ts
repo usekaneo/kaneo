@@ -1,10 +1,9 @@
 import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
-const migrationPath = resolve(
-  process.cwd(),
-  "drizzle/0029_fk_supporting_indexes.sql",
+const migrationPath = new URL(
+  "../../../apps/api/drizzle/0029_fk_supporting_indexes.sql",
+  import.meta.url,
 );
 const migrationSql = readFileSync(migrationPath, "utf8");
 

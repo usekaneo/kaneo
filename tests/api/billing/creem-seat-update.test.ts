@@ -1,4 +1,11 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { updateSubscriptionSeats } from "../../../apps/api/src/billing/creem-client";
 
 // Indexed rather than read literally so Biome does not demand a turbo.json

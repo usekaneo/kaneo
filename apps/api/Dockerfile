@@ -4,12 +4,12 @@ FROM --platform=$BUILDPLATFORM node:24.19.0-alpine AS builder
 # Install build dependencies in a single layer
 RUN apk add --no-cache python3 make g++ && \
   corepack enable && \
-  corepack prepare pnpm@10.7.0 --activate
+  corepack prepare pnpm@10.32.1 --activate
 
 WORKDIR /app
 
 # Copy only package files first for better caching
-COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml vite.config.ts ./
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/email/package.json ./packages/email/
 COPY packages/libs/package.json ./packages/libs/
@@ -45,11 +45,11 @@ RUN sed -i 's/"extends": "@kaneo\/typescript-config\/base.json"/"extends": "..\/
 # resulting node_modules is architecture-independent and safe to copy into the arm64 runtime.
 FROM --platform=$BUILDPLATFORM node:24.19.0-alpine AS prod-deps
 
-RUN corepack enable && corepack prepare pnpm@10.7.0 --activate
+RUN corepack enable && corepack prepare pnpm@10.32.1 --activate
 
 WORKDIR /app
 
-COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml vite.config.ts ./
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/libs/package.json ./packages/libs/
 COPY packages/email/package.json ./packages/email/
@@ -81,7 +81,7 @@ COPY --from=builder --chown=appuser:appuser /app/packages/email ./packages/email
 COPY --from=builder --chown=appuser:appuser /app/packages/permissions ./packages/permissions
 
 # Fail the build early if the runtime dependency layout is broken on the target architecture
-RUN cd /app/apps/api && node -e "const fs=require('fs');for(const m of ['bcryptjs','hono','pg','drizzle-orm','better-auth','ioredis','valibot','octokit','@modelcontextprotocol/sdk']){fs.accessSync('node_modules/'+m+'/package.json')}"
+RUN cd /app/apps/api && node -e "const fs=require('fs');for(const m of ['bcryptjs','hono','pg','drizzle-orm','better-auth','ioredis','valibot','octokit','@modelcontextprotocol/sdk']){fs.accessSync('node_modules/'+m+'/package.json')}for(const m of ['email','permissions']){fs.accessSync('node_modules/@kaneo/'+m+'/dist/index.js')}"
 
 # Switch to non-root user
 USER appuser

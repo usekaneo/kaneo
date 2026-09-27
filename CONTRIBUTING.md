@@ -27,8 +27,8 @@ We want everyone to feel welcome here. Please be respectful and follow our [Code
 
 ### What You'll Need
 
-- **Node.js** (24 or newer)
-- **pnpm** (we use this instead of npm/yarn)
+- **Node.js** (24.11 or newer in the 24.x line, or 26+)
+- **pnpm** 10.32.1
 - **Git**
 - **Docker** (optional, for testing full deployments)
 
@@ -96,13 +96,36 @@ Then open a pull request on GitHub with a clear description of what you changed 
 
 ### Code Style
 
-We use **Biome** for formatting and linting. Before you commit:
+We use **Vite+** for development, workspace tasks, testing, formatting, and linting.
+It is pinned in `pnpm-workspace.yaml`; a global `vp` installation is optional.
+Before you commit:
 
 ```bash
 pnpm run lint
+pnpm run typecheck
 ```
 
-This will check and automatically fix formatting issues. Most editors can auto-format on save if you install the Biome extension.
+`pnpm lint` checks formatting and lint rules without changing files. Use
+`pnpm format` to format the repository or `pnpm exec vp check --fix` to also apply
+safe lint fixes. Install the recommended Vite Plus extension pack for editor support.
+
+The existing `pnpm build`, `pnpm dev`, `pnpm test`, and `pnpm test:integration`
+commands use the Vite+ task runner. Package tasks in `vite.config.ts` build their
+workspace dependencies before compiling, testing, or checking types. Build and
+typecheck results are cached; tests and development servers always run. Web builds
+always run too, so a cached build cannot skip a Sentry source-map upload.
+
+Use `pnpm --filter @kaneo/web dev` to start just the web app, or
+`pnpm exec vp run --filter @kaneo/api test` to run API unit tests with dependency
+builds. `pnpm exec vp test run` runs the unit-test projects directly; PostgreSQL
+integration tests remain behind `pnpm test:integration`.
+
+Vite+ built-ins and package scripts are distinct: `vp build` builds a Vite app,
+while `vp run build` runs the package's build script. The API still uses esbuild,
+the site uses Next.js, and libraries use TypeScript to preserve their output.
+Typechecking remains an explicit package task so both web tsconfigs are covered.
+The root lint configuration preserves the previous policy where equivalents exist;
+additional React Compiler and accessibility rules are left for a separate review.
 
 ### Commit Messages
 

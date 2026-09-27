@@ -1,5 +1,5 @@
 import type { WSContext } from "hono/ws";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { eventContext, publishEvent } from "../../../apps/api/src/events";
 import {
   addConnection,

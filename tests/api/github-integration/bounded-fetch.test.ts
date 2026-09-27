@@ -1,5 +1,12 @@
 import { generateKeyPairSync } from "node:crypto";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import {
   boundedGithubFetch,
   GITHUB_IMPORT_REQUEST_TIMEOUT_MS,
@@ -148,9 +155,8 @@ describe("bounded GitHub import transport", () => {
         },
       );
     });
-    const { getVerifiedInstallationOctokit } = await import(
-      "../../../apps/api/src/plugins/github/utils/github-app"
-    );
+    const { getVerifiedInstallationOctokit } =
+      await import("../../../apps/api/src/plugins/github/utils/github-app");
     const octokit = await getVerifiedInstallationOctokit(
       {
         repositoryOwner: "example",
@@ -164,7 +170,9 @@ describe("bounded GitHub import transport", () => {
     );
     await expect(
       octokit.graphql("query { viewer { login } }"),
-    ).rejects.toMatchObject({ status: 403 });
+    ).rejects.toMatchObject({
+      status: 403,
+    });
     expect(request).toHaveBeenCalledTimes(3);
     for (const [, init] of request.mock.calls)
       expect(init).toMatchObject({

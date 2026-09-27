@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 const mocks = vi.hoisted(() => ({
   updateTaskStatus: vi.fn(),
@@ -56,9 +56,8 @@ vi.mock("../../../../../apps/api/src/events", () => ({
   publishEvent: (...args: unknown[]) => mocks.publishEvent(...args),
 }));
 
-const { handleGitlabIssueReopened } = await import(
-  "../../../../../apps/api/src/plugins/gitlab/webhooks/issue-reopened"
-);
+const { handleGitlabIssueReopened } =
+  await import("../../../../../apps/api/src/plugins/gitlab/webhooks/issue-reopened");
 
 const payload = {
   object_attributes: {

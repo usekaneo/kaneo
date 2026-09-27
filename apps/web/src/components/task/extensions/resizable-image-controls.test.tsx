@@ -2,7 +2,7 @@ import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { Editor } from "@tiptap/core";
 import { EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { afterEach, expect, it, vi } from "vitest";
+import { afterEach, expect, it, vi } from "vite-plus/test";
 import { ResizableImage } from "./resizable-image";
 
 vi.mock("react-i18next", () => ({

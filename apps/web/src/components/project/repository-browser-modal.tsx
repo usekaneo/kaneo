@@ -265,7 +265,9 @@ export function RepositoryBrowserModal({
                             <div className="flex items-center gap-4 text-xs text-muted-foreground">
                               <div className="flex items-center gap-1">
                                 <Clock className="w-3 h-3" />
-                                {t("settings:repositoryBrowser.updatedPrefix")}{" "}
+                                {t(
+                                  "settings:repositoryBrowser.updatedPrefix",
+                                )}{" "}
                                 {formatTimeAgo(repository.updated_at)}
                               </div>
                             </div>
