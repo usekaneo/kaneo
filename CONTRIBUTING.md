@@ -6,8 +6,6 @@ Thanks for wanting to contribute to Kaneo! Whether you're fixing bugs, adding fe
 
 - [Code of Conduct](#code-of-conduct)
 - [Getting Started](#getting-started)
-  - [What You'll Need](#what-youll-need)
-  - [Setting Up Your Dev Environment](#setting-up-your-dev-environment)
 - [Making Your First Contribution](#making-your-first-contribution)
   - [Finding Something to Work On](#finding-something-to-work-on)
   - [The Process](#the-process)
@@ -25,39 +23,14 @@ We want everyone to feel welcome here. Please be respectful and follow our [Code
 
 ## Getting Started
 
-### What You'll Need
+Fork and clone the repository:
 
-- **Node.js** (24 or newer)
-- **pnpm** (we use this instead of npm/yarn)
-- **Git**
-- **Docker** (optional, for testing full deployments)
-
-### Setting Up Your Dev Environment
-
-1. **Fork and clone the repo**:
 ```bash
 git clone https://github.com/yourusername/kaneo.git
 cd kaneo
 ```
 
-2. **Install dependencies**:
-```bash
-pnpm install
-```
-
-3. **Set up environment variables**:
-   Create a `.env` file in the repository root for server configuration. The web app includes localhost development defaults; put local Vite overrides such as `VITE_API_URL` in `apps/web/.env.local`. See [ENVIRONMENT_SETUP.md](ENVIRONMENT_SETUP.md) for the required variables and examples.
-
-4. **Start everything up**:
-```bash
-pnpm run dev
-```
-
-This starts both the API (port 1337) and web app (port 5173). Both will automatically reload when you make changes.
-
-> **Tip**: The web app at http://localhost:5173 will automatically connect to the API at http://localhost:1337
-
-> **Need help with setup?** See our [Environment Setup Guide](ENVIRONMENT_SETUP.md) for detailed instructions and troubleshooting tips.
+Follow the [local development setup guide](ENVIRONMENT_SETUP.md) for prerequisites, database and environment configuration, installation, startup, and troubleshooting.
 
 ## Making Your First Contribution
 
