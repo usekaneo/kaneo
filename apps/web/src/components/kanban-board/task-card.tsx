@@ -179,13 +179,13 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
   ) {
     if (!project || !task || !workspace) return;
 
-    if (e.type === "click" && e.shiftKey) {
+    if (e.shiftKey) {
       e.preventDefault();
       selectRange(task.id);
       return;
     }
 
-    if ((e as React.MouseEvent).metaKey || (e as React.KeyboardEvent).ctrlKey) {
+    if (e.metaKey || e.ctrlKey) {
       e.preventDefault();
       toggleSelection(task.id);
       return;

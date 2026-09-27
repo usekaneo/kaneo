@@ -143,11 +143,11 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     touchAction: isDragging ? "none" : "auto",
   };
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = (e: React.MouseEvent | React.KeyboardEvent) => {
     if (!project || !task) return;
     if (e.defaultPrevented) return;
 
-    if (e.type === "click" && e.shiftKey) {
+    if (e.shiftKey) {
       e.preventDefault();
       selectRange(task.id);
       return;
@@ -178,7 +178,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      handleClick(e as unknown as React.MouseEvent);
+      handleClick(e);
     }
   };
 

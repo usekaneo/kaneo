@@ -128,11 +128,11 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
     touchAction: isDragging ? "none" : "auto",
   };
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = (e: React.MouseEvent | React.KeyboardEvent) => {
     if (!projectId || !task) return;
     if (e.defaultPrevented) return;
 
-    if (e.type === "click" && e.shiftKey) {
+    if (e.shiftKey) {
       e.preventDefault();
       selectRange(task.id);
       return;
@@ -163,7 +163,7 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      handleClick(e as unknown as React.MouseEvent);
+      handleClick(e);
     }
   };
 

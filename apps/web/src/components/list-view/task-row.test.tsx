@@ -1,13 +1,18 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import type Task from "@/types/task";
 import BacklogTaskRow from "../backlog-list-view/backlog-task-row";
+import TaskCard from "../kanban-board/task-card";
 import { PublicTaskCard } from "../public-project/task-card";
 import { PublicTaskRow } from "../public-project/task-row";
 import TaskRow from "./task-row";
 
 const useExternalLinks = vi.fn((_taskId: string) => ({ data: [] }));
 const useGetLabelsByTask = vi.fn((_taskId: string) => ({ data: [] }));
+const { selectRange, navigate } = vi.hoisted(() => ({
+  selectRange: vi.fn(),
+  navigate: vi.fn(),
+}));
 
 afterEach(() => {
   cleanup();
@@ -15,7 +20,7 @@ afterEach(() => {
 });
 
 vi.mock("@tanstack/react-router", () => ({
-  useNavigate: () => vi.fn(),
+  useNavigate: () => navigate,
 }));
 
 vi.mock("@/hooks/queries/external-link/use-external-links", () => ({
@@ -64,7 +69,7 @@ vi.mock("@/store/bulk-selection", () => ({
   ) =>
     selector({
       toggleSelection: vi.fn(),
-      selectRange: vi.fn(),
+      selectRange,
       setSelectionAnchor: vi.fn(),
       selectedTaskIds: new Set<string>(),
       focusedTaskId: null,
@@ -128,6 +133,30 @@ const task: Task = {
 };
 
 describe("TaskRow", () => {
+  it.each(["board", "list"])(
+    "selects a range with Shift+Enter in the %s view",
+    (view) => {
+      render(
+        view === "board" ? (
+          <TaskCard task={task} />
+        ) : (
+          <TaskRow task={task} projectSlug="kan" />
+        ),
+      );
+
+      fireEvent.keyDown(screen.getByText("Row from payload"), {
+        key: "Enter",
+        shiftKey: true,
+      });
+
+      expect(selectRange).toHaveBeenCalledWith(task.id);
+      expect(navigate).not.toHaveBeenCalled();
+
+      fireEvent.keyDown(screen.getByText("Row from payload"), { key: "Enter" });
+      expect(navigate).toHaveBeenCalled();
+    },
+  );
+
   it.each([PublicTaskCard, PublicTaskRow])(
     "renders public progress without nesting interactive controls",
     (Component) => {

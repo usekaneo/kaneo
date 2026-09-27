@@ -135,6 +135,28 @@ describe("backlog row subscriptions", () => {
     },
   );
 
+  it("selects the visible range with Shift+Enter", () => {
+    useBacklogBulkSelectionStore
+      .getState()
+      .setAvailableTasks([task.id, otherTask.id]);
+    render(
+      <>
+        <BacklogTaskRow task={task} />
+        <BacklogTaskRow task={otherTask} />
+      </>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /First task/ }));
+    fireEvent.keyDown(screen.getByRole("button", { name: /Second task/ }), {
+      key: "Enter",
+      shiftKey: true,
+    });
+
+    expect(useBacklogBulkSelectionStore.getState().selectedTaskIds).toEqual(
+      new Set([task.id, otherTask.id]),
+    );
+  });
+
   it("only renders the row whose selection changes, including deselection", () => {
     render(
       <>
