@@ -1,6 +1,6 @@
 # Local development setup
 
-Use Node.js 24 or newer and pnpm 10.32.1, as declared in the root `package.json`. You also need a local PostgreSQL database. Redis and object storage are optional.
+Use Node.js 24.11 or newer in the 24.x line, or Node.js 26+, and pnpm 10.32.1, as declared in the root `package.json`. You also need a local PostgreSQL database. Redis and object storage are optional.
 
 ## Configure the API
 
