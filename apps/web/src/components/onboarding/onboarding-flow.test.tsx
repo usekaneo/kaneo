@@ -208,6 +208,20 @@ describe("OnboardingFlow", () => {
     );
     expect(screen.getByDisplayValue("b@example.com")).toBeInTheDocument();
     expect(navigate).not.toHaveBeenCalled();
+
+    inviteMember.mockClear();
+    inviteMember.mockResolvedValue({ id: "invite-2" });
+    fireEvent.click(
+      screen.getByRole("button", { name: "auth:onboarding.cloud.invite.send" }),
+    );
+
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith(toWorkspace));
+    expect(inviteMember).toHaveBeenCalledWith({
+      email: "b@example.com",
+      workspaceId: "workspace-1",
+      role: "member",
+      resend: true,
+    });
   });
 
   it("invites each filled address once and moves on", async () => {

@@ -24,6 +24,7 @@ export function InviteStep({ workspaceId, onDone }: InviteStepProps) {
   );
   const [invalid, setInvalid] = useState<Set<number>>(new Set());
   const [isSending, setIsSending] = useState(false);
+  const [isRetry, setIsRetry] = useState(false);
   const idPrefix = useId();
 
   const update = (index: number, value: string) => {
@@ -57,7 +58,12 @@ export function InviteStep({ workspaceId, onDone }: InviteStepProps) {
     setIsSending(true);
     const results = await Promise.allSettled(
       parsed.emails.map((email) =>
-        invite({ email, workspaceId, role: "member" }),
+        invite({
+          email,
+          workspaceId,
+          role: "member",
+          resend: isRetry || undefined,
+        }),
       ),
     );
     setIsSending(false);
@@ -85,6 +91,7 @@ export function InviteStep({ workspaceId, onDone }: InviteStepProps) {
     if (failed.length > 0) {
       setEmails(failed);
       setInvalid(new Set());
+      setIsRetry(true);
       return;
     }
 
