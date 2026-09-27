@@ -7465,6 +7465,9 @@
 								"memberDescription",
 								"action"
 							]
+						},
+						"openFailed": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -7492,7 +7495,8 @@
 						"features",
 						"status",
 						"trialCard",
-						"expiredCallout"
+						"expiredCallout",
+						"openFailed"
 					]
 				}
 			},

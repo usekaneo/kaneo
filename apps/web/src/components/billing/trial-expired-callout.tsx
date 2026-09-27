@@ -1,8 +1,8 @@
-import { Link } from "@tanstack/react-router";
 import { TriangleAlert } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useGetBilling } from "@/hooks/queries/billing/use-get-billing";
+import { useOpenWorkspaceBilling } from "@/hooks/use-open-workspace-billing";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getTrialState } from "@/lib/billing";
 import { cn } from "@/lib/cn";
@@ -17,6 +17,7 @@ export function TrialExpiredCallout({
   const { t } = useTranslation();
   const { data: billing } = useGetBilling(workspaceId);
   const { isAdmin } = useWorkspacePermission();
+  const billingLink = useOpenWorkspaceBilling(workspaceId);
 
   if (getTrialState(billing).kind !== "expired") {
     return null;
@@ -47,7 +48,8 @@ export function TrialExpiredCallout({
         <Button
           size="sm"
           className="shrink-0"
-          render={<Link to="/dashboard/settings/workspace/billing" />}
+          disabled={billingLink.isOpening}
+          onClick={billingLink.open}
         >
           {t("settings:billing.expiredCallout.action")}
         </Button>

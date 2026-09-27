@@ -1,9 +1,9 @@
-import { Link } from "@tanstack/react-router";
 import { Sparkles, TriangleAlert, X } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGetBilling } from "@/hooks/queries/billing/use-get-billing";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { useOpenWorkspaceBilling } from "@/hooks/use-open-workspace-billing";
 import { TRIAL_ENDING_DAYS } from "@/constants/billing";
 import {
   getTrialState,
@@ -17,6 +17,7 @@ export function TrialCard() {
   const { data: workspace } = useActiveWorkspace();
   const { data: billing } = useGetBilling(workspace?.id);
   const [dismissed, setDismissed] = useState(readDismissedTrialCards);
+  const billingLink = useOpenWorkspaceBilling(workspace?.id);
 
   const trial = getTrialState(billing);
   if (trial.kind === "none" || !workspace?.id) {
@@ -76,14 +77,16 @@ export function TrialCard() {
             ? t("settings:billing.trialCard.endingDescription")
             : t("settings:billing.trialCard.activeDescription")}
       </p>
-      <Link
-        to="/dashboard/settings/workspace/billing"
-        className="mt-2 inline-flex font-medium underline underline-offset-2 hover:no-underline"
+      <button
+        type="button"
+        disabled={billingLink.isOpening}
+        onClick={billingLink.open}
+        className="mt-2 inline-flex font-medium underline underline-offset-2 hover:no-underline disabled:opacity-60"
       >
         {ending
           ? t("settings:billing.trialCard.choosePlan")
           : t("settings:billing.trialCard.viewPlans")}
-      </Link>
+      </button>
     </div>
   );
 }

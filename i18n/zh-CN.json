@@ -1855,7 +1855,8 @@
 				"endingDescription": "Pick a plan now so your team isn't interrupted.",
 				"expiredDescription": "Subscribe to keep creating and editing.",
 				"viewPlans": "View plans"
-			}
+			},
+			"openFailed": "Couldn't open billing for this workspace"
 		}
 	},
 	"navigation": {

@@ -1862,7 +1862,8 @@
 				"adminDescription": "You can still view everything, but creating and editing are paused until you choose a plan. Nothing has been deleted.",
 				"memberDescription": "You can still view everything, but creating and editing are paused until a workspace owner or admin chooses a plan.",
 				"action": "Choose a plan"
-			}
+			},
+			"openFailed": "Couldn't open billing for this workspace"
 		}
 	},
 	"navigation": {
