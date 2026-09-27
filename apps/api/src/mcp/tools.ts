@@ -420,6 +420,29 @@ export function registerMcpTools(
   );
 
   registerTool(
+    "get_task_by_ticket_id",
+    {
+      description:
+        "Get one task by its ticket ID (project key and number, e.g. KAN-12). If the ID exists in multiple accessible workspaces, provide workspaceId.",
+      inputSchema: z.object({
+        ticketId: nonEmptyString,
+        workspaceId: optionalNonEmptyString,
+      }),
+    },
+    async ({ ticketId, workspaceId }) => {
+      const query = workspaceId
+        ? `?${new URLSearchParams({ workspaceId })}`
+        : "";
+      return run(() =>
+        client.json(
+          `/api/task/by-ticket-id/${encodeURIComponent(ticketId)}${query}`,
+          { method: "GET" },
+        ),
+      );
+    },
+  );
+
+  registerTool(
     "create_task",
     {
       description: "Create a task in a project.",
