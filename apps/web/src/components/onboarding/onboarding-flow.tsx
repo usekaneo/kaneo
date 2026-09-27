@@ -136,8 +136,6 @@ export function OnboardingFlow() {
       replace: true,
     });
 
-  // The plan step only helps someone who is on a trial and did not already
-  // choose a plan on the pricing page; that path checks out on arrival.
   const continueAfterInvites = async (workspaceId: string) => {
     if (readCheckoutIntent()) {
       await goToCreatedWorkspace(workspaceId);
@@ -152,9 +150,7 @@ export function OnboardingFlow() {
         setStep("plan");
         return;
       }
-    } catch {
-      // Billing is not worth blocking the way into a new workspace.
-    }
+    } catch {}
     await goToCreatedWorkspace(workspaceId);
   };
 

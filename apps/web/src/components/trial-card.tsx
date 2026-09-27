@@ -27,8 +27,6 @@ export function TrialCard() {
   }
 
   const expired = trial.kind === "expired";
-  // Dismissal is remembered per workspace, but the last few days and an
-  // expired trial always show since that is when a plan is actually needed.
   const ending = expired || trial.daysLeft <= TRIAL_ENDING_DAYS;
   if (!ending && dismissed.includes(workspace.id)) {
     return null;

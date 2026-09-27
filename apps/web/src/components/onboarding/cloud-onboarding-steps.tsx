@@ -152,8 +152,6 @@ export function InviteStep({
       }
     });
 
-    // Failed addresses can be retried from Members; holding the user here
-    // over one typo would stall the whole setup.
     onDone();
   };
 
@@ -273,7 +271,6 @@ export function PlanStep({
 
       <PlanPicker
         workspaceId={workspaceId}
-        // The creator is the workspace owner; the API still checks.
         canManage
         highlighted={recommended}
         highlightLabel={t("auth:onboarding.cloud.plan.recommended")}
