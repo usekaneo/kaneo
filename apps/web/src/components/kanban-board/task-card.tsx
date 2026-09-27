@@ -211,7 +211,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <ContextMenu>
         <ContextMenuTrigger asChild>
-          {/** biome-ignore lint/a11y/noStaticElementInteractions: false positive for onClick and onKeyDown */}
+          {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- false positive for onClick and onKeyDown */}
           <div
             onClick={handleTaskCardClick}
             className={`group relative rounded-lg border bg-background p-3 shadow-xs/5 transition-[background-color,border-color,box-shadow,scale] duration-150 ease-out active:scale-[0.98] ${

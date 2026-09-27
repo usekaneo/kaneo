@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 const mocks = vi.hoisted(() => ({
   issueLink: vi.fn(),
@@ -26,9 +26,8 @@ vi.mock("../../../../../apps/api/src/plugins/gitlab/utils/labels", () => ({
   updateIssueLabelsGitlab: (...args: unknown[]) => mocks.updateLabels(...args),
 }));
 
-const { handleTaskStatusChanged } = await import(
-  "../../../../../apps/api/src/plugins/gitlab/events/task-status-changed"
-);
+const { handleTaskStatusChanged } =
+  await import("../../../../../apps/api/src/plugins/gitlab/events/task-status-changed");
 
 const context = {
   integrationId: "integration-1",

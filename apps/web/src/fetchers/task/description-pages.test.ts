@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import type Task from "@/types/task";
 import { getDescriptionMatches } from "./get-description-matches";
 import {
@@ -65,7 +65,9 @@ describe("deferred descriptions", () => {
       .mockResolvedValueOnce(new Response("unavailable", { status: 409 }));
     await expect(
       getPublicTaskDescription("project", "task"),
-    ).rejects.toMatchObject({ status: 409 });
+    ).rejects.toMatchObject({
+      status: 409,
+    });
   });
   it("rejects changed versions and nonadvancing offsets", async () => {
     for (const next of [

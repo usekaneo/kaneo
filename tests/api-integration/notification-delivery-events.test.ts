@@ -1,5 +1,12 @@
 import * as email from "@kaneo/email";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import "../../apps/api/src/notification";
 import createComment from "../../apps/api/src/activity/controllers/create-comment";
 import db, { schema } from "../../apps/api/src/database";

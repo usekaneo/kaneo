@@ -1,5 +1,12 @@
 import { act, cleanup, renderHook } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { useProjectWebSocket } from "./use-project-websocket";
 
 const { client, auth } = vi.hoisted(() => ({
@@ -56,7 +63,9 @@ describe("project WebSocket lifecycle", () => {
   it("ignores late old-project events without stopping the new project's keepalive", () => {
     const { rerender, unmount } = renderHook(
       ({ id }) => useProjectWebSocket(id),
-      { initialProps: { id: "project-a" } },
+      {
+        initialProps: { id: "project-a" },
+      },
     );
     const old = TestSocket.instances[0];
     act(() => old.open());

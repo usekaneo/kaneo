@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { TASK_SHORT_ID_PATTERN } from "../../../apps/api/src/search/task-short-id";
 
 function parse(query: string) {

@@ -69,7 +69,7 @@ export function withLastSync(
   return {
     ...metadata,
     lastSync: {
-      ...(metadata.lastSync ?? {}),
+      ...metadata.lastSync,
       [field]: {
         timestamp: new Date().toISOString(),
         source,

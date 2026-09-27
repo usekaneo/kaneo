@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { importGiteaIssues } from "../../../../apps/api/src/gitea-integration/controllers/import-gitea-issues";
 import { handleTaskCommentCreated } from "../../../../apps/api/src/plugins/gitea/events/task-comment-created";
 import { handleGiteaIssueCommentCreated } from "../../../../apps/api/src/plugins/gitea/webhooks/issue-comment-created";

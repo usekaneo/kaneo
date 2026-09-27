@@ -1,7 +1,14 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { act, cleanup, renderHook } from "@testing-library/react";
 import type { PropsWithChildren } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { getPendingInvitations } from "@/fetchers/invitation/get-pending-invitations";
 import { HttpError, handleUnauthorized } from "@/lib/http-error";
 import queryClient from "@/query-client";

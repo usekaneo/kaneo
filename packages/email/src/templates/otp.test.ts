@@ -1,6 +1,6 @@
 import { render } from "@react-email/render";
 import { createElement } from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { OTP_EXPIRY_SECONDS } from "../otp-expiry";
 import OtpEmail from "./otp";
 

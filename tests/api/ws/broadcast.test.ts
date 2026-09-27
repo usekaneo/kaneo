@@ -1,4 +1,11 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 
 // Mock events to prevent side effects from ws/index.ts top-level subscriptions
 vi.mock("../../../apps/api/src/events", () => ({

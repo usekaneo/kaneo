@@ -139,12 +139,14 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
     },
   });
 
+  const { reset: resetForm, getValues: getFormValues, formState } = form;
+
   const resetIntegrationForm = React.useCallback(() => {
     if (!integration?.baseUrl) {
       return;
     }
 
-    form.reset({
+    resetForm({
       baseUrl: integration.baseUrl,
       accessToken: "",
       repositoryOwner: integration.repositoryOwner,
@@ -155,7 +157,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
     setVerificationResult(null);
     setShowWebhookSecret(false);
   }, [
-    form.reset,
+    resetForm,
     integration?.baseUrl,
     integration?.repositoryOwner,
     integration?.repositoryName,
@@ -250,19 +252,14 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
   }, [currentVerificationSnapshot]);
 
   React.useEffect(() => {
-    if (
-      !baseUrl ||
-      !repositoryOwner ||
-      !repositoryName ||
-      !form.formState.isValid
-    ) {
+    if (!baseUrl || !repositoryOwner || !repositoryName || !formState.isValid) {
       return;
     }
     if (!accessToken.trim()) {
       return;
     }
     const timeoutId = window.setTimeout(() => {
-      runVerify(form.getValues(), false);
+      runVerify(getFormValues(), false);
     }, 400);
 
     return () => {
@@ -273,9 +270,9 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
     repositoryOwner,
     repositoryName,
     accessToken,
-    form.formState.isValid,
+    formState.isValid,
     runVerify,
-    form.getValues,
+    getFormValues,
   ]);
 
   const onSubmit = async (data: GiteaIntegrationFormValues) => {
@@ -335,7 +332,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
   const handleDelete = async () => {
     try {
       await deleteIntegration(projectId);
-      form.reset({
+      resetForm({
         baseUrl: "",
         accessToken: "",
         repositoryOwner: "",
@@ -762,10 +759,10 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => runVerify(form.getValues())}
+                  onClick={() => runVerify(getFormValues())}
                   disabled={
                     isVerifying ||
-                    !form.formState.isValid ||
+                    !formState.isValid ||
                     (!accessToken.trim() && !integration)
                   }
                   className="gap-2"
@@ -782,7 +779,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
                   disabled={
                     isCreating ||
                     isDeleting ||
-                    !form.formState.isValid ||
+                    !formState.isValid ||
                     (verificationResult ? !hasVerifiedCurrentValues : false)
                   }
                   className="gap-2"

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import {
   isEchoOf,
   type LinkSyncState,
@@ -84,7 +84,10 @@ describe("parseLinkSyncMetadata", () => {
   it("keeps the fields a previous write left behind", () => {
     expect(
       parseLinkSyncMetadata('{"state":"open","createdFrom":"kaneo"}', context),
-    ).toEqual({ state: "open", createdFrom: "kaneo" });
+    ).toEqual({
+      state: "open",
+      createdFrom: "kaneo",
+    });
   });
 });
 

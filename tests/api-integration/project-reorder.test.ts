@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 import type { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { mockAuthenticatedSession } from "./helpers/auth";
@@ -13,9 +13,7 @@ type ProjectListEntry = typeof schema.projectTable.$inferSelect;
 async function listProjects(workspaceId: string, includeArchived = false) {
   const { app } = createApp();
   const response = await app.request(
-    `/api/project?workspaceId=${workspaceId}${
-      includeArchived ? "&includeArchived=true" : ""
-    }`,
+    `/api/project?workspaceId=${workspaceId}${includeArchived ? "&includeArchived=true" : ""}`,
   );
   return (await response.json()) as ProjectListEntry[];
 }

@@ -1,5 +1,12 @@
 import { and, eq } from "drizzle-orm";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import createComment from "../../apps/api/src/activity/controllers/create-comment";
 import db, { schema } from "../../apps/api/src/database";
 import { taskReminderSentTable } from "../../apps/api/src/database/schema";
@@ -207,7 +214,9 @@ describe("notification recipient boundaries", () => {
     expect(await getNotifications(member.user.id)).toEqual([]);
     await expect(
       markAsRead(notification.id, member.user.id),
-    ).rejects.toMatchObject({ status: 404 });
+    ).rejects.toMatchObject({
+      status: 404,
+    });
     await deliverNotification(notification.id);
     expect(sendEmail).toHaveBeenCalledTimes(1);
   });

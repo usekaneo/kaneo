@@ -1,5 +1,12 @@
 import { setTimeout as delay } from "node:timers/promises";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { createGitlabClient } from "../../../../../apps/api/src/plugins/gitlab/utils/gitlab-api";
 import { updateIssueLabelsGitlab } from "../../../../../apps/api/src/plugins/gitlab/utils/labels";
 
@@ -17,7 +24,9 @@ const fetchMock = vi.fn<typeof fetch>();
 const lock = () =>
   new Response(
     JSON.stringify({ message: "409 Conflict: Resource lock" }, null, 2),
-    { status: 409 },
+    {
+      status: 409,
+    },
   );
 const issue = { iid: 1, title: "Updated" };
 beforeEach(() => {
@@ -76,10 +85,14 @@ describe("GitLab issue update recovery", () => {
     fetchMock.mockImplementation(async () => lock());
     await expect(
       client.createIssue(config.projectPath, { title: "New" }),
-    ).rejects.toMatchObject({ status: 409 });
+    ).rejects.toMatchObject({
+      status: 409,
+    });
     await expect(
       client.createIssueNote(config.projectPath, 1, "Comment"),
-    ).rejects.toMatchObject({ status: 409 });
+    ).rejects.toMatchObject({
+      status: 409,
+    });
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(delay).not.toHaveBeenCalled();
   });

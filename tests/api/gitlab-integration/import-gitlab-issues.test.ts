@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 const mocks = vi.hoisted(() => ({
   listIssues: vi.fn(),
@@ -59,9 +59,8 @@ vi.mock("../../../apps/api/src/plugins/gitlab/utils/gitlab-api", () => ({
   }),
 }));
 
-const { importGitlabIssues } = await import(
-  "../../../apps/api/src/gitlab-integration/controllers/import-gitlab-issues"
-);
+const { importGitlabIssues } =
+  await import("../../../apps/api/src/gitlab-integration/controllers/import-gitlab-issues");
 
 function linkedIssue(labels: string[]) {
   return {

@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { validateWorkspaceAccess } from "../../apps/api/src/utils/validate-workspace-access";
 import { resetTestDatabase } from "./helpers/database";
@@ -40,6 +40,8 @@ describe("API integration: instance admin workspace access", () => {
 
     await expect(
       validateWorkspaceAccess(outsider.id, owner.workspace.id),
-    ).rejects.toMatchObject({ status: 403 });
+    ).rejects.toMatchObject({
+      status: 403,
+    });
   });
 });

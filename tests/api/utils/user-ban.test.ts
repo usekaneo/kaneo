@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { isBanActive } from "../../../apps/api/src/utils/user-ban";
 
 describe("isBanActive", () => {

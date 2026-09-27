@@ -13,10 +13,10 @@
 	},
 	"license": "MIT",
 	"scripts": {
-		"build": "tsc",
-		"lint": "biome check --write .",
-		"test": "vitest run --config vitest.config.ts",
-		"test:watch": "vitest --config vitest.config.ts"
+		"build": "vp run compile",
+		"lint": "vp check .",
+		"test": "vp run test:run",
+		"test:watch": "vp test --config vitest.config.ts"
 	},
 	"dependencies": {
 		"better-auth": "1.6.26"
@@ -24,7 +24,7 @@
 	"devDependencies": {
 		"@kaneo/typescript-config": "workspace:*",
 		"typescript": "^7.0.2",
-		"vite": "^8.3.0",
-		"vitest": "^5.0.1"
+		"vite": "catalog:",
+		"vite-plus": "catalog:"
 	}
 }

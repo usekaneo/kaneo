@@ -207,7 +207,7 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
     <div className="space-y-3">
       <div className="space-y-1">
         {columns?.map((col, index) => (
-          // biome-ignore lint/a11y/useSemanticElements: false positive for role="listitem"
+          // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- false positive for role="listitem"
           <div
             key={col.id}
             role="listitem"

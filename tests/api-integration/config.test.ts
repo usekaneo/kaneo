@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { createApp } from "../../apps/api/src/index";
 
 describe("API integration: config", () => {

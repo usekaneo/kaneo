@@ -1,4 +1,4 @@
-import { expect, it } from "vitest";
+import { expect, it } from "vite-plus/test";
 import { getSmtpErrorDetails } from "./smtp-error-details";
 
 it("retains safe SMTP diagnostics and omits private fields", () => {

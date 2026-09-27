@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { baseUrlFromProjectWebUrl } from "../../../../../apps/api/src/plugins/gitlab/utils/webhook-project";
 
 describe("baseUrlFromProjectWebUrl", () => {

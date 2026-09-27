@@ -1,6 +1,6 @@
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 const { state } = vi.hoisted(() => ({
   state: {
@@ -33,9 +33,8 @@ vi.mock("../../../apps/api/src/utils/validate-workspace-access", () => ({
   },
 }));
 
-const { authorizeAssetAccess, isPublicAsset } = await import(
-  "../../../apps/api/src/utils/authorize-asset-access"
-);
+const { authorizeAssetAccess, isPublicAsset } =
+  await import("../../../apps/api/src/utils/authorize-asset-access");
 
 const context = {} as Context;
 

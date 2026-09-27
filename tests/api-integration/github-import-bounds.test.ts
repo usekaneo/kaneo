@@ -1,5 +1,5 @@
 import { and, eq, sql } from "drizzle-orm";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { getDatabasePool, schema } from "../../apps/api/src/database";
 import { importIssues } from "../../apps/api/src/github-integration/controllers/import-issues";
 import { withGithubImportLock } from "../../apps/api/src/github-integration/import-lock";
@@ -523,7 +523,9 @@ describe("bounded resumable GitHub import", () => {
     try {
       await expect(
         withGithubImportLock("any", async () => {}),
-      ).rejects.toMatchObject({ status: 429 });
+      ).rejects.toMatchObject({
+        status: 429,
+      });
     } finally {
       await client.query("SELECT pg_advisory_unlock_all()");
       client.release();

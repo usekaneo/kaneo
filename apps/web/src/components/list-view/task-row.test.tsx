@@ -1,5 +1,5 @@
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import type Task from "@/types/task";
 import BacklogTaskRow from "../backlog-list-view/backlog-task-row";
 import { PublicTaskCard } from "../public-project/task-card";
@@ -19,11 +19,15 @@ vi.mock("@tanstack/react-router", () => ({
 }));
 
 vi.mock("@/hooks/queries/external-link/use-external-links", () => ({
-  default: (taskId: string) => useExternalLinks(taskId),
+  default: function useMockExternalLinks(taskId: string) {
+    return useExternalLinks(taskId);
+  },
 }));
 
 vi.mock("@/hooks/queries/label/use-get-labels-by-task", () => ({
-  default: (taskId: string) => useGetLabelsByTask(taskId),
+  default: function useMockTaskLabels(taskId: string) {
+    return useGetLabelsByTask(taskId);
+  },
 }));
 
 vi.mock("@/hooks/mutations/task/use-delete-task", () => ({
@@ -43,7 +47,9 @@ vi.mock(
 
 vi.mock(
   "../kanban-board/task-card-context-menu/task-card-context-menu-content",
-  () => ({ default: () => null }),
+  () => ({
+    default: () => null,
+  }),
 );
 
 vi.mock("@/store/bulk-selection", () => ({
@@ -160,5 +166,7 @@ describe("TaskRow", () => {
 
 vi.mock(
   "@/hooks/queries/custom-field/use-get-custom-field-values-by-project",
-  () => ({ default: () => ({ data: [] }) }),
+  () => ({
+    default: () => ({ data: [] }),
+  }),
 );

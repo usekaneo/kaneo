@@ -158,7 +158,12 @@ export async function prepare(pr, log, signal) {
 export async function launchApp(snapshot, signal) {
   const p = await port();
   const origin = `http://127.0.0.1:${p}`;
-  const bin = path.join(snapshot.dir, "apps/web/node_modules/vite/bin/vite.js");
+  const vp = path.join(snapshot.dir, "apps/web/node_modules/vite-plus/bin/vp");
+  const usesVitePlus = await exists(vp);
+  // Base snapshots can predate the Vite+ migration.
+  const bin = usesVitePlus
+    ? vp
+    : path.join(snapshot.dir, "apps/web/node_modules/vite/bin/vite.js");
   // Only the process essentials are inherited; provider/GitHub credentials stay out of PR processes.
   const env = {
     PATH: process.env.PATH,
@@ -171,7 +176,15 @@ export async function launchApp(snapshot, signal) {
   };
   const child = spawn(
     process.execPath,
-    [bin, "--host", "127.0.0.1", "--port", String(p), "--strictPort"],
+    [
+      bin,
+      ...(usesVitePlus ? ["dev"] : []),
+      "--host",
+      "127.0.0.1",
+      "--port",
+      String(p),
+      "--strictPort",
+    ],
     {
       cwd: path.join(snapshot.dir, "apps/web"),
       env,

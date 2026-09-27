@@ -161,12 +161,14 @@ export function GitlabIntegrationSettings({
     },
   });
 
+  const { reset: resetForm, getValues: getFormValues, formState } = form;
+
   const resetIntegrationForm = React.useCallback(() => {
     if (!integration?.baseUrl) {
       return;
     }
 
-    form.reset({
+    resetForm({
       baseUrl: integration.baseUrl,
       accessToken: "",
       tokenType: integration.tokenType,
@@ -177,7 +179,7 @@ export function GitlabIntegrationSettings({
     setVerificationResult(null);
     setShowWebhookSecret(false);
   }, [
-    form.reset,
+    resetForm,
     integration?.baseUrl,
     integration?.projectPath,
     integration?.tokenType,
@@ -271,7 +273,7 @@ export function GitlabIntegrationSettings({
   }, [currentVerificationSnapshot]);
 
   React.useEffect(() => {
-    if (!baseUrl || !projectPath || !form.formState.isValid) {
+    if (!baseUrl || !projectPath || !formState.isValid) {
       return;
     }
     if (!accessToken.trim()) {
@@ -289,7 +291,7 @@ export function GitlabIntegrationSettings({
     projectPath,
     accessToken,
     tokenType,
-    form.formState.isValid,
+    formState.isValid,
     runVerify,
   ]);
 
@@ -346,7 +348,7 @@ export function GitlabIntegrationSettings({
   const handleDelete = async () => {
     try {
       await deleteIntegration(projectId);
-      form.reset({
+      resetForm({
         baseUrl: GITLAB_CLOUD_URL,
         accessToken: "",
         tokenType: "private",
@@ -777,10 +779,10 @@ export function GitlabIntegrationSettings({
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => runVerify(form.getValues())}
+                  onClick={() => runVerify(getFormValues())}
                   disabled={
                     isVerifying ||
-                    !form.formState.isValid ||
+                    !formState.isValid ||
                     (!accessToken.trim() && !integration)
                   }
                   className="gap-2"
@@ -797,7 +799,7 @@ export function GitlabIntegrationSettings({
                   disabled={
                     isCreating ||
                     isDeleting ||
-                    !form.formState.isValid ||
+                    !formState.isValid ||
                     (verificationResult ? !hasVerifiedCurrentValues : false)
                   }
                   className="gap-2"

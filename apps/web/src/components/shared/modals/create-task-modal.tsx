@@ -358,15 +358,15 @@ function CreateTaskModalContent({
 
   const hasUnsavedChanges = Boolean(
     title.trim() ||
-      description.trim() ||
-      priority !== "no-priority" ||
-      assigneeId ||
-      startDate ||
-      dueDate ||
-      selectedProjectId ||
-      labels.length > 0 ||
-      draftTask ||
-      hasCustomFieldChanges,
+    description.trim() ||
+    priority !== "no-priority" ||
+    assigneeId ||
+    startDate ||
+    dueDate ||
+    selectedProjectId ||
+    labels.length > 0 ||
+    draftTask ||
+    hasCustomFieldChanges,
   );
 
   const discardDraft = useCallback(() => {
@@ -983,7 +983,7 @@ function CreateTaskModalContent({
                           "text-transparent",
                         )}
                         placeholder={
-                          Array.from(new Set(field.options ?? [])).length === 0
+                          new Set(field.options ?? []).size === 0
                             ? t(
                                 "settings:customFields.noOptionsPlaceholder",
                                 "No options",

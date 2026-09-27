@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 const { copyTaskAssetObject, deleteS3Object, publishEvent } = vi.hoisted(
   () => ({
@@ -640,13 +640,17 @@ describe("API integration: task duplication", () => {
     const own = await fixture();
     const other = await createWorkspaceMember();
     const { project: foreignProject, columns: foreignColumns } =
-      await createProjectFixture({ workspaceId: other.workspace.id });
+      await createProjectFixture({
+        workspaceId: other.workspace.id,
+      });
     const foreignParent = await seedTask({
       projectId: foreignProject.id,
       columnId: foreignColumns.todo.id,
     });
     const { project: siblingProject, columns: siblingColumns } =
-      await createProjectFixture({ workspaceId: own.workspace.id });
+      await createProjectFixture({
+        workspaceId: own.workspace.id,
+      });
     const parent = await seedTask({
       projectId: siblingProject.id,
       columnId: siblingColumns.todo.id,

@@ -6,7 +6,7 @@ import {
   it,
   type Mock,
   vi,
-} from "vitest";
+} from "vite-plus/test";
 
 const mockFindFirst = vi.fn();
 const mockSelect = vi.fn();

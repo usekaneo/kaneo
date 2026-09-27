@@ -93,7 +93,8 @@ await mkdir(output, { recursive: true });
 const server = spawn(
   process.execPath,
   [
-    "node_modules/vite/bin/vite.js",
+    "node_modules/vite-plus/bin/vp",
+    "dev",
     "--host",
     "127.0.0.1",
     "--port",

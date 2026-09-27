@@ -356,7 +356,7 @@ export default function TaskSubtasks({
         </div>
 
         <CollapsibleContent>
-          {/* biome-ignore lint/a11y/noStaticElementInteractions: keyboard nav managed via document listener */}
+          {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- keyboard nav managed via document listener */}
           <div
             ref={containerRef}
             className="flex flex-col mt-1"

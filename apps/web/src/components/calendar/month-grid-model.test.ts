@@ -1,5 +1,5 @@
 import { addDays } from "date-fns";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import {
   buildMonthWeeks,
   DAYS_PER_WEEK,
