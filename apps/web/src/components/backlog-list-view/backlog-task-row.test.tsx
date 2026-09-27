@@ -105,6 +105,36 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("backlog row subscriptions", () => {
+  it.each([
+    ["plain click", {}],
+    ["Ctrl+click", { ctrlKey: true }],
+  ])(
+    "selects the visible range after %s and Shift+click",
+    (_label, firstClick) => {
+      useBacklogBulkSelectionStore
+        .getState()
+        .setAvailableTasks([task.id, otherTask.id]);
+      render(
+        <>
+          <BacklogTaskRow task={task} />
+          <BacklogTaskRow task={otherTask} />
+        </>,
+      );
+
+      fireEvent.click(
+        screen.getByRole("button", { name: /First task/ }),
+        firstClick,
+      );
+      fireEvent.click(screen.getByRole("button", { name: /Second task/ }), {
+        shiftKey: true,
+      });
+
+      expect(useBacklogBulkSelectionStore.getState().selectedTaskIds).toEqual(
+        new Set([task.id, otherTask.id]),
+      );
+    },
+  );
+
   it("only renders the row whose selection changes, including deselection", () => {
     render(
       <>

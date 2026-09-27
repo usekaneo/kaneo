@@ -53,11 +53,22 @@ vi.mock(
 );
 
 vi.mock("@/store/bulk-selection", () => ({
-  default: () => ({
-    toggleSelection: vi.fn(),
-    isSelected: () => false,
-    isFocused: () => false,
-  }),
+  default: (
+    selector: (state: {
+      toggleSelection: (taskId: string) => void;
+      selectRange: (taskId: string) => void;
+      setSelectionAnchor: (taskId: string) => void;
+      selectedTaskIds: Set<string>;
+      focusedTaskId: string | null;
+    }) => unknown,
+  ) =>
+    selector({
+      toggleSelection: vi.fn(),
+      selectRange: vi.fn(),
+      setSelectionAnchor: vi.fn(),
+      selectedTaskIds: new Set<string>(),
+      focusedTaskId: null,
+    }),
 }));
 
 vi.mock("@/store/project", () => ({

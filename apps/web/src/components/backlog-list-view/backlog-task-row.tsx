@@ -83,6 +83,12 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
   const toggleSelection = useBacklogBulkSelectionStore(
     (state) => state.toggleSelection,
   );
+  const selectRange = useBacklogBulkSelectionStore(
+    (state) => state.selectRange,
+  );
+  const setSelectionAnchor = useBacklogBulkSelectionStore(
+    (state) => state.setSelectionAnchor,
+  );
   const isTaskSelected = useBacklogBulkSelectionStore((state) =>
     state.selectedTaskIds.has(task.id),
   );
@@ -126,12 +132,19 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
     if (!projectId || !task) return;
     if (e.defaultPrevented) return;
 
+    if (e.type === "click" && e.shiftKey) {
+      e.preventDefault();
+      selectRange(task.id);
+      return;
+    }
+
     if (e.metaKey || e.ctrlKey) {
       e.preventDefault();
       toggleSelection(task.id);
       return;
     }
 
+    setSelectionAnchor(task.id);
     const currentParams = new URLSearchParams(window.location.search);
     const currentTaskId = currentParams.get("taskId");
 
