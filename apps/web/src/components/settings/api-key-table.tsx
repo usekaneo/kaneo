@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useDeleteApiKey from "@/hooks/mutations/api-key/use-delete-api-key";
 import { cn } from "@/lib/cn";
+import { formatDateMedium } from "@/lib/format";
 import { toast } from "@/lib/toast";
 import type { ApiKey } from "@/types/api-key";
 import {
@@ -34,12 +35,7 @@ type ApiKeyTableProps = {
 function formatDate(value: Date | string | null) {
   if (!value) return "-";
 
-  const date = new Date(value);
-  return new Intl.DateTimeFormat(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(date);
+  return formatDateMedium(value);
 }
 
 export function ApiKeyTable({ apiKeys, isLoading }: ApiKeyTableProps) {

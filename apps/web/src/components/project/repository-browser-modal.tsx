@@ -31,6 +31,7 @@ import listRepositories, {
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/cn";
 import { openExternalWebUrl } from "@/lib/external-url";
+import { formatDate } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
 
 type RepositoryBrowserModalProps = {
@@ -117,7 +118,7 @@ export function RepositoryBrowserModal({
       });
     }
 
-    return date.toLocaleDateString();
+    return formatDate(date);
   };
 
   const resetAndCloseModal = (open: boolean) => {

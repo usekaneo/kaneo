@@ -10,14 +10,30 @@ function getLocale(locale?: string) {
   return locale || i18n.resolvedLanguage || i18n.language || "en-US";
 }
 
+// Constructing an Intl.DateTimeFormat is comparatively expensive, and these
+// helpers run per task on task-heavy boards and realtime views. Cache one
+// formatter per locale+options combination so re-renders reuse it.
+const dateFormatterCache = new Map<string, Intl.DateTimeFormat>();
+
+function getDateFormatter(
+  locale: string,
+  options?: Intl.DateTimeFormatOptions,
+) {
+  const key = `${locale}|${options ? JSON.stringify(options) : ""}`;
+  let formatter = dateFormatterCache.get(key);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat(locale, options);
+    dateFormatterCache.set(key, formatter);
+  }
+  return formatter;
+}
+
 export function formatDate(
   value: DateInput,
   options?: Intl.DateTimeFormatOptions,
   locale?: string,
 ) {
-  return new Intl.DateTimeFormat(getLocale(locale), options).format(
-    toDate(value),
-  );
+  return getDateFormatter(getLocale(locale), options).format(toDate(value));
 }
 
 export function formatDateShort(value: DateInput, locale?: string) {
@@ -55,6 +71,17 @@ export function formatDateTime(value: DateInput, locale?: string) {
   );
 }
 
+const relativeTimeFormatterCache = new Map<string, Intl.RelativeTimeFormat>();
+
+function getRelativeTimeFormatter(locale: string) {
+  let formatter = relativeTimeFormatterCache.get(locale);
+  if (!formatter) {
+    formatter = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
+    relativeTimeFormatterCache.set(locale, formatter);
+  }
+  return formatter;
+}
+
 export function formatRelativeTime(
   value: DateInput,
   locale?: string,
@@ -75,9 +102,7 @@ export function formatRelativeTime(
     ["second", 1],
   ];
 
-  const formatter = new Intl.RelativeTimeFormat(getLocale(locale), {
-    numeric: "auto",
-  });
+  const formatter = getRelativeTimeFormatter(getLocale(locale));
 
   for (const [unit, unitSeconds] of units) {
     if (absSeconds >= unitSeconds || unit === "second") {

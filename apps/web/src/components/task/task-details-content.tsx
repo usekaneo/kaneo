@@ -56,6 +56,7 @@ import useGetTask from "@/hooks/queries/task/use-get-task";
 import useGetTaskRelations from "@/hooks/queries/task-relation/use-get-task-relations";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
+import { formatDateMedium } from "@/lib/format";
 import { toast } from "@/lib/toast";
 import type { ExternalLink } from "@/types/external-link";
 import TaskDescription from "./task-description";
@@ -338,10 +339,7 @@ export default function TaskDetailsContent({
 
                                     <span className="truncate">
                                       {textVal && isValid(parseISO(textVal))
-                                        ? format(
-                                            parseISO(textVal),
-                                            "dd MMM yyyy",
-                                          )
+                                        ? formatDateMedium(parseISO(textVal))
                                         : t(
                                             "tasks:detail.pickDate",
                                             "Pick a date",

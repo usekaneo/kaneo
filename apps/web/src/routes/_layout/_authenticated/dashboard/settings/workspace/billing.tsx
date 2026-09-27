@@ -13,6 +13,7 @@ import {
 import { useGetBilling } from "@/hooks/queries/billing/use-get-billing";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
+import { formatDate as formatLocaleDate } from "@/lib/format";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/workspace/billing",
@@ -85,7 +86,7 @@ const STATUS: Record<
 
 function formatDate(value: string | null | undefined) {
   if (!value) return null;
-  return new Date(value).toLocaleDateString(undefined, {
+  return formatLocaleDate(value, {
     year: "numeric",
     month: "long",
     day: "numeric",

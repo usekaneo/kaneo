@@ -1,7 +1,6 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
-import { format } from "date-fns";
 import {
   Calendar,
   CalendarClock,
@@ -40,6 +39,7 @@ import {
   isTaskCompleted,
 } from "@/lib/due-date-status";
 import { getExternalWebUrl, openExternalWebUrl } from "@/lib/external-url";
+import { formatDateShort } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
@@ -371,7 +371,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                     "far-future" ||
                     getDueDateStatus(task.dueDate, taskIsCompleted) ===
                       "no-due-date") && <Calendar className="w-3 h-3" />}
-                  <span>{format(new Date(task.dueDate), "MMM d")}</span>
+                  <span>{formatDateShort(task.dueDate)}</span>
                 </div>
               )}
 
