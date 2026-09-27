@@ -875,9 +875,35 @@
 								}
 							},
 							"required": ["title", "description"]
+						},
+						"invite": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description"]
+						},
+						"plan": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description"]
 						}
 					},
-					"required": ["signUp", "onboarding"]
+					"required": ["signUp", "onboarding", "invite", "plan"]
 				},
 				"signUp": {
 					"type": "object",
@@ -1305,9 +1331,144 @@
 								},
 								"subtitle": {
 									"type": "string"
+								},
+								"usageLabel": {
+									"type": "string"
+								},
+								"usageSolo": {
+									"type": "string"
+								},
+								"usageSoloDescription": {
+									"type": "string"
+								},
+								"usageTeam": {
+									"type": "string"
+								},
+								"usageTeamDescription": {
+									"type": "string"
+								},
+								"continue": {
+									"type": "string"
+								},
+								"invite": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"title": {
+											"type": "string"
+										},
+										"subtitle": {
+											"type": "string"
+										},
+										"emailLabel": {
+											"type": "string"
+										},
+										"emailPlaceholder": {
+											"type": "string"
+										},
+										"addAnother": {
+											"type": "string"
+										},
+										"remove": {
+											"type": "string"
+										},
+										"send": {
+											"type": "string"
+										},
+										"sending": {
+											"type": "string"
+										},
+										"skip": {
+											"type": "string"
+										},
+										"invalidEmail": {
+											"type": "string"
+										},
+										"sent_one": {
+											"type": "string"
+										},
+										"sent_zero": {
+											"type": "string"
+										},
+										"sent_two": {
+											"type": "string"
+										},
+										"sent_few": {
+											"type": "string"
+										},
+										"sent_many": {
+											"type": "string"
+										},
+										"sent_other": {
+											"type": "string"
+										},
+										"failed": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"title",
+										"subtitle",
+										"emailLabel",
+										"emailPlaceholder",
+										"addAnother",
+										"remove",
+										"send",
+										"sending",
+										"skip",
+										"invalidEmail",
+										"failed"
+									]
+								},
+								"plan": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"title": {
+											"type": "string"
+										},
+										"trialActive": {
+											"type": "string"
+										},
+										"trialUsed": {
+											"type": "string"
+										},
+										"recommended": {
+											"type": "string"
+										},
+										"continueTrial": {
+											"type": "string"
+										},
+										"continueWithoutPlan": {
+											"type": "string"
+										},
+										"note": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"title",
+										"trialActive",
+										"trialUsed",
+										"recommended",
+										"continueTrial",
+										"continueWithoutPlan",
+										"note"
+									]
 								}
 							},
-							"required": ["title", "subtitle"]
+							"required": [
+								"title",
+								"subtitle",
+								"usageLabel",
+								"usageSolo",
+								"usageSoloDescription",
+								"usageTeam",
+								"usageTeamDescription",
+								"continue",
+								"invite",
+								"plan"
+							]
 						}
 					},
 					"required": [
@@ -6921,6 +7082,422 @@
 				},
 				"invitationEmailFailed": {
 					"type": "string"
+				},
+				"billing": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"pageTitle": {
+							"type": "string"
+						},
+						"subtitle": {
+							"type": "string"
+						},
+						"disabled": {
+							"type": "string"
+						},
+						"currentPlan": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"subtitle": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "subtitle"]
+						},
+						"foundingFree": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"badge": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "badge", "description"]
+						},
+						"planName": {
+							"type": "string"
+						},
+						"seats_one": {
+							"type": "string"
+						},
+						"seats_zero": {
+							"type": "string"
+						},
+						"seats_two": {
+							"type": "string"
+						},
+						"seats_few": {
+							"type": "string"
+						},
+						"seats_many": {
+							"type": "string"
+						},
+						"seats_other": {
+							"type": "string"
+						},
+						"accessEnds": {
+							"type": "string"
+						},
+						"renews": {
+							"type": "string"
+						},
+						"portalHint": {
+							"type": "string"
+						},
+						"manage": {
+							"type": "string"
+						},
+						"opening": {
+							"type": "string"
+						},
+						"trial": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"activeTitle": {
+									"type": "string"
+								},
+								"expiredTitle": {
+									"type": "string"
+								},
+								"expiredDescription": {
+									"type": "string"
+								},
+								"daysLeft_one": {
+									"type": "string"
+								},
+								"daysLeft_zero": {
+									"type": "string"
+								},
+								"daysLeft_two": {
+									"type": "string"
+								},
+								"daysLeft_few": {
+									"type": "string"
+								},
+								"daysLeft_many": {
+									"type": "string"
+								},
+								"daysLeft_other": {
+									"type": "string"
+								},
+								"noDate": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"activeTitle",
+								"expiredTitle",
+								"expiredDescription",
+								"noDate"
+							]
+						},
+						"choosePlan": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"subtitle": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "subtitle"]
+						},
+						"interval": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"monthly": {
+									"type": "string"
+								},
+								"annual": {
+									"type": "string"
+								},
+								"annualBadge": {
+									"type": "string"
+								}
+							},
+							"required": ["monthly", "annual", "annualBadge"]
+						},
+						"mostPopular": {
+							"type": "string"
+						},
+						"choose": {
+							"type": "string"
+						},
+						"starting": {
+							"type": "string"
+						},
+						"processedBy": {
+							"type": "string"
+						},
+						"adminsOnly": {
+							"type": "string"
+						},
+						"price": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"perMonth": {
+									"type": "string"
+								},
+								"perYear": {
+									"type": "string"
+								},
+								"perUserMonth": {
+									"type": "string"
+								},
+								"perUserYear": {
+									"type": "string"
+								},
+								"billedMonthly": {
+									"type": "string"
+								},
+								"billedYearly": {
+									"type": "string"
+								},
+								"billedYearlyPerUser": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"perMonth",
+								"perYear",
+								"perUserMonth",
+								"perUserYear",
+								"billedMonthly",
+								"billedYearly",
+								"billedYearlyPerUser"
+							]
+						},
+						"plans": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"personal": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"name": {
+											"type": "string"
+										},
+										"tagline": {
+											"type": "string"
+										}
+									},
+									"required": ["name", "tagline"]
+								},
+								"team": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"name": {
+											"type": "string"
+										},
+										"tagline": {
+											"type": "string"
+										}
+									},
+									"required": ["name", "tagline"]
+								}
+							},
+							"required": ["personal", "team"]
+						},
+						"features": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"singleUser": {
+									"type": "string"
+								},
+								"unlimitedMembers": {
+									"type": "string"
+								},
+								"unlimitedProjects": {
+									"type": "string"
+								},
+								"roles": {
+									"type": "string"
+								},
+								"backups": {
+									"type": "string"
+								},
+								"emailSupport": {
+									"type": "string"
+								},
+								"prioritySupport": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"singleUser",
+								"unlimitedMembers",
+								"unlimitedProjects",
+								"roles",
+								"backups",
+								"emailSupport",
+								"prioritySupport"
+							]
+						},
+						"status": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"active": {
+									"type": "string"
+								},
+								"trialing": {
+									"type": "string"
+								},
+								"past_due": {
+									"type": "string"
+								},
+								"scheduled_cancel": {
+									"type": "string"
+								},
+								"canceled": {
+									"type": "string"
+								},
+								"expired": {
+									"type": "string"
+								},
+								"paused": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"active",
+								"trialing",
+								"past_due",
+								"scheduled_cancel",
+								"canceled",
+								"expired",
+								"paused"
+							]
+						},
+						"trialCard": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"daysLeft_one": {
+									"type": "string"
+								},
+								"daysLeft_zero": {
+									"type": "string"
+								},
+								"daysLeft_two": {
+									"type": "string"
+								},
+								"daysLeft_few": {
+									"type": "string"
+								},
+								"daysLeft_many": {
+									"type": "string"
+								},
+								"daysLeft_other": {
+									"type": "string"
+								},
+								"ended": {
+									"type": "string"
+								},
+								"activeDescription": {
+									"type": "string"
+								},
+								"endingDescription": {
+									"type": "string"
+								},
+								"expiredDescription": {
+									"type": "string"
+								},
+								"viewPlans": {
+									"type": "string"
+								},
+								"choosePlan": {
+									"type": "string"
+								},
+								"dismiss": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"ended",
+								"activeDescription",
+								"endingDescription",
+								"expiredDescription",
+								"viewPlans",
+								"choosePlan",
+								"dismiss"
+							]
+						},
+						"expiredCallout": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"adminDescription": {
+									"type": "string"
+								},
+								"memberDescription": {
+									"type": "string"
+								},
+								"action": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"title",
+								"adminDescription",
+								"memberDescription",
+								"action"
+							]
+						},
+						"openFailed": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"pageTitle",
+						"subtitle",
+						"disabled",
+						"currentPlan",
+						"foundingFree",
+						"planName",
+						"accessEnds",
+						"renews",
+						"portalHint",
+						"manage",
+						"opening",
+						"trial",
+						"choosePlan",
+						"interval",
+						"mostPopular",
+						"choose",
+						"starting",
+						"processedBy",
+						"adminsOnly",
+						"price",
+						"plans",
+						"features",
+						"status",
+						"trialCard",
+						"expiredCallout",
+						"openFailed"
+					]
 				}
 			},
 			"required": [
@@ -6962,7 +7539,8 @@
 				"security",
 				"securityPage",
 				"calendarFeeds",
-				"invitationEmailFailed"
+				"invitationEmailFailed",
+				"billing"
 			]
 		},
 		"navigation": {

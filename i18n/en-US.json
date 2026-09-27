@@ -221,6 +221,14 @@
 			"onboarding": {
 				"title": "What a workspace is",
 				"description": "A workspace holds your projects, their tasks, and the people you work with. Invite teammates once it's set up."
+			},
+			"invite": {
+				"title": "Work better together",
+				"description": "Everyone in a workspace sees the same boards and gets live updates as tasks move. Roles control who can change what."
+			},
+			"plan": {
+				"title": "Try everything first",
+				"description": "Every plan includes unlimited projects and tasks, automatic backups, and updates. Cancel anytime from billing settings."
 			}
 		},
 		"signUp": {
@@ -336,7 +344,37 @@
 			},
 			"cloud": {
 				"title": "Name your workspace",
-				"subtitle": "Use your team or company name. You can change it later in settings."
+				"subtitle": "Use your team or company name. You can change it later in settings.",
+				"usageLabel": "Who will use this workspace?",
+				"usageSolo": "Just me",
+				"usageSoloDescription": "Keep track of your own work",
+				"usageTeam": "My team",
+				"usageTeamDescription": "Plan and ship work together",
+				"continue": "Continue",
+				"invite": {
+					"title": "Invite your teammates",
+					"subtitle": "They'll get an email with a link to join {{name}}. You can invite more people later from Members.",
+					"emailLabel": "Teammate email {{index}}",
+					"emailPlaceholder": "teammate@company.com",
+					"addAnother": "Add another",
+					"remove": "Remove email {{index}}",
+					"send": "Send invites",
+					"sending": "Sending...",
+					"skip": "Skip for now",
+					"invalidEmail": "Enter a valid email address",
+					"sent_one": "Invitation sent",
+					"sent_other": "{{count}} invitations sent",
+					"failed": "Couldn't invite {{email}}: {{message}}"
+				},
+				"plan": {
+					"title": "Pick a plan",
+					"trialActive": "Your free trial runs until {{date}}. No card needed, and you can pick a plan anytime before then.",
+					"trialUsed": "You've already used your free trial. Pick a plan to start creating projects and tasks.",
+					"recommended": "Recommended",
+					"continueTrial": "Start free trial",
+					"continueWithoutPlan": "Continue to workspace",
+					"note": "You can pick or change a plan anytime in Settings, under Billing."
+				}
 			}
 		},
 		"profileSetup": {
@@ -1727,7 +1765,106 @@
 			"deletedLabel": "Deleted label",
 			"permissionRequired": "You need project-sharing permission to manage calendar feeds."
 		},
-		"invitationEmailFailed": "Invitation saved, but email delivery failed. Check SMTP settings and resend the invitation."
+		"invitationEmailFailed": "Invitation saved, but email delivery failed. Check SMTP settings and resend the invitation.",
+		"billing": {
+			"pageTitle": "Billing",
+			"subtitle": "Manage the Kaneo Cloud subscription for this workspace.",
+			"disabled": "Billing isn't enabled on this instance. Self-hosted Kaneo includes every feature, free forever.",
+			"currentPlan": {
+				"title": "Current plan",
+				"subtitle": "Your workspace's active plan and billing status."
+			},
+			"foundingFree": {
+				"title": "Founding Free",
+				"badge": "Free",
+				"description": "This workspace has free access to Kaneo Cloud as an early supporter. Thank you for being here from the start."
+			},
+			"planName": "Kaneo Cloud {{plan}}",
+			"seats_one": "{{count}} seat",
+			"seats_other": "{{count}} seats",
+			"accessEnds": "Access ends",
+			"renews": "Renews",
+			"portalHint": "Update payment method, view invoices, or cancel anytime.",
+			"manage": "Manage billing",
+			"opening": "Opening...",
+			"trial": {
+				"activeTitle": "Free trial",
+				"expiredTitle": "Your trial has ended",
+				"expiredDescription": "Subscribe to a plan below to keep creating and editing. Your data stays safe and exportable in the meantime.",
+				"daysLeft_one": "You have {{count}} day left on your free trial. Choose a plan to continue without interruption.",
+				"daysLeft_other": "You have {{count}} days left on your free trial. Choose a plan to continue without interruption.",
+				"noDate": "Choose a plan below to continue after your trial."
+			},
+			"choosePlan": {
+				"title": "Choose a plan",
+				"subtitle": "Switch anytime. Cancel whenever you like."
+			},
+			"interval": {
+				"monthly": "Monthly",
+				"annual": "Annual",
+				"annualBadge": "2 months free"
+			},
+			"mostPopular": "Most popular",
+			"choose": "Choose {{plan}}",
+			"starting": "Starting...",
+			"processedBy": "Payments are securely processed by Creem. Prices exclude tax where applicable.",
+			"adminsOnly": "Only workspace owners and admins can manage billing.",
+			"price": {
+				"perMonth": "/ month",
+				"perYear": "/ year",
+				"perUserMonth": "/ user / month",
+				"perUserYear": "/ user / year",
+				"billedMonthly": "Billed monthly",
+				"billedYearly": "{{price}} / month, billed yearly",
+				"billedYearlyPerUser": "{{price}} / user / month, billed yearly"
+			},
+			"plans": {
+				"personal": {
+					"name": "Personal",
+					"tagline": "For individuals"
+				},
+				"team": {
+					"name": "Team",
+					"tagline": "For teams working together"
+				}
+			},
+			"features": {
+				"singleUser": "Single user",
+				"unlimitedMembers": "Unlimited team members",
+				"unlimitedProjects": "Unlimited projects and tasks",
+				"roles": "Workspace roles and permissions",
+				"backups": "Automatic backups and updates",
+				"emailSupport": "Email support",
+				"prioritySupport": "Priority email support"
+			},
+			"status": {
+				"active": "Active",
+				"trialing": "Trial",
+				"past_due": "Payment past due",
+				"scheduled_cancel": "Cancels soon",
+				"canceled": "Canceled",
+				"expired": "Expired",
+				"paused": "Paused"
+			},
+			"trialCard": {
+				"daysLeft_one": "{{count}} day left in trial",
+				"daysLeft_other": "{{count}} days left in trial",
+				"ended": "Trial ended",
+				"activeDescription": "Upgrade anytime to keep your workspace after the trial.",
+				"endingDescription": "Pick a plan now so your team isn't interrupted.",
+				"expiredDescription": "Subscribe to keep creating and editing.",
+				"viewPlans": "View plans",
+				"choosePlan": "Choose a plan",
+				"dismiss": "Dismiss"
+			},
+			"expiredCallout": {
+				"title": "Your free trial has ended",
+				"adminDescription": "You can still view everything, but creating and editing are paused until you choose a plan. Nothing has been deleted.",
+				"memberDescription": "You can still view everything, but creating and editing are paused until a workspace owner or admin chooses a plan.",
+				"action": "Choose a plan"
+			},
+			"openFailed": "Couldn't open billing for this workspace"
+		}
 	},
 	"navigation": {
 		"commandPalette": {

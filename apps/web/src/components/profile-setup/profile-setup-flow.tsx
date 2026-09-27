@@ -1,7 +1,7 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2, User } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -20,6 +20,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useFadeTransition } from "@/hooks/use-fade-transition";
 import useUpdateUserProfile from "@/hooks/mutations/use-update-user-profile";
 import { toast } from "@/lib/toast";
 
@@ -28,15 +29,6 @@ type ProfileSetupStep = "profile" | "success";
 export type ProfileFormValues = {
   name: string;
 };
-
-function useFadeTransition() {
-  const reduceMotion = useReducedMotion();
-  return {
-    initial: { opacity: 0, y: reduceMotion ? 0 : 20 },
-    animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: reduceMotion ? 0 : -20 },
-  };
-}
 
 export function ProfileSetupFlow() {
   const fadeTransition = useFadeTransition();
