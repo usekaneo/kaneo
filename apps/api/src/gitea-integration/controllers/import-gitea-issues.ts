@@ -10,6 +10,7 @@ import {
 } from "../../database/schema";
 import { publishEvent } from "../../events";
 import type { GiteaConfig } from "../../plugins/gitea/config";
+import { isKaneoComment } from "../../plugins/gitea/utils/comment-origin";
 import {
   createGiteaClient,
   type GiteaIssue,
@@ -402,7 +403,7 @@ async function importCommentsForTask(
 
   for (const comment of allComments) {
     const username = comment.user?.login ?? comment.user?.username ?? "";
-    if (username.endsWith("[bot]")) {
+    if (username.endsWith("[bot]") || isKaneoComment(comment.body)) {
       continue;
     }
 
