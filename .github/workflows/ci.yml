@@ -243,7 +243,7 @@ jobs:
         uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
 
       - name: Setup Blacksmith Builder
-        uses: useblacksmith/setup-docker-builder@e4c1c000c95f9cc255f72940e9c56bcbd1239436 # v1
+        uses: useblacksmith/setup-docker-builder@19215110ab936351210feebdfa5b440b4493e184 # v2.2.0
 
       - name: Build bundled image for runtime tests
         uses: useblacksmith/build-push-action@9b0579bbec7a6cad2f171596c57e7ac1e7658850 # v2
@@ -389,7 +389,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Setup Blacksmith Builder
-        uses: useblacksmith/setup-docker-builder@e4c1c000c95f9cc255f72940e9c56bcbd1239436 # v1
+        uses: useblacksmith/setup-docker-builder@19215110ab936351210feebdfa5b440b4493e184 # v2.2.0
       - name: Build standalone image
         uses: useblacksmith/build-push-action@9b0579bbec7a6cad2f171596c57e7ac1e7658850 # v2
         with:
