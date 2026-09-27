@@ -28,7 +28,8 @@ overrides:
   sharp: '>=0.35.4'
   engine.io: '>=6.6.7'
   valibot: '>=1.4.2'
-  better-auth: 1.6.25
+  better-auth: 1.6.26
+  '@better-auth/core': 1.6.26
   undici: '>=7.29.0 <8'
   js-yaml: '>=4.3.2 <5'
   '@babel/core': '>=7.29.6 <8'
