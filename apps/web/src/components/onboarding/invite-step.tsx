@@ -114,6 +114,7 @@ export function InviteStep({ workspaceId, onDone }: InviteStepProps) {
             invalid={invalid.has(index)}
             autoFocus={index === 0}
             removable={emails.length > 1}
+            disabled={isSending}
             onChange={(value) => update(index, value)}
             onRemove={() => remove(index)}
           />
@@ -126,6 +127,7 @@ export function InviteStep({ workspaceId, onDone }: InviteStepProps) {
           variant="ghost"
           size="sm"
           className="-ml-2"
+          disabled={isSending}
           onClick={() => setEmails((current) => [...current, ""])}
         >
           <Plus className="size-4" />

@@ -11,6 +11,7 @@ type InviteEmailFieldProps = {
   invalid: boolean;
   autoFocus: boolean;
   removable: boolean;
+  disabled: boolean;
   onChange: (value: string) => void;
   onRemove: () => void;
 };
@@ -22,6 +23,7 @@ export function InviteEmailField({
   invalid,
   autoFocus,
   removable,
+  disabled,
   onChange,
   onRemove,
 }: InviteEmailFieldProps) {
@@ -41,6 +43,7 @@ export function InviteEmailField({
           autoFocus={autoFocus}
           placeholder={t("auth:onboarding.cloud.invite.emailPlaceholder")}
           value={value}
+          disabled={disabled}
           aria-invalid={invalid || undefined}
           aria-describedby={invalid ? errorId : undefined}
           onChange={(event) => onChange(event.target.value)}
@@ -51,6 +54,7 @@ export function InviteEmailField({
             variant="ghost"
             size="icon"
             className="shrink-0"
+            disabled={disabled}
             aria-label={t("auth:onboarding.cloud.invite.remove", {
               index: position,
             })}
