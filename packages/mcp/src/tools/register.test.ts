@@ -481,6 +481,29 @@ describe("registerTools", () => {
     });
   });
 
+  it("ignores punctuation wrapping a pasted asset URL", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      baseUrl: "http://api.test",
+      raw: vi.fn().mockResolvedValue(
+        binaryResponse({
+          bytes: new Uint8Array([1]),
+          contentType: "image/png",
+        }),
+      ),
+    };
+
+    registerTools(server as never, { client: client as never });
+
+    await tools
+      .get("get_asset")
+      ?.handler({ assetId: "![Image](https://kaneo.test/api/asset/xyz789)" });
+
+    expect(client.raw).toHaveBeenCalledWith("/api/asset/xyz789", {
+      method: "GET",
+    });
+  });
+
   it("returns a non-image asset as an embedded resource", async () => {
     const { server, tools } = createServerMock();
     const client = {

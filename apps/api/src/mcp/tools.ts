@@ -53,7 +53,11 @@ class ApiClient {
     private token: string,
   ) {}
 
-  private async request(path: string, init?: RequestInit): Promise<Response> {
+  private async request(
+    path: string,
+    init?: RequestInit,
+    timeoutMs = 10_000,
+  ): Promise<Response> {
     const headers = new Headers(init?.headers);
     headers.set("Authorization", `Bearer ${this.token}`);
     if (init?.body != null && !headers.has("Content-Type")) {
@@ -64,13 +68,14 @@ class ApiClient {
     return fetch(url, {
       ...init,
       headers,
-      signal: AbortSignal.timeout(10_000),
+      signal: AbortSignal.timeout(timeoutMs),
     });
   }
 
   /** Returns the raw response for binary endpoints such as asset downloads. */
   async raw(path: string, init?: RequestInit): Promise<Response> {
-    return this.request(path, init);
+    // Binary downloads can be up to the asset size cap, so allow more time.
+    return this.request(path, init, 30_000);
   }
 
   async json<T = unknown>(path: string, init?: RequestInit): Promise<T> {
@@ -135,9 +140,11 @@ function extractAssetId(value: string): string {
   if (!trimmed) {
     throw new Error("assetId is required");
   }
-  const fromUrl = trimmed.match(/\/api\/asset\/([^/?#]+)/);
+  // Exclude punctuation that commonly wraps a URL (e.g. Markdown `)`,
+  // quotes, or angle brackets) so only the id is captured.
+  const fromUrl = trimmed.match(/\/api\/asset\/([^/?#\s"'<>()]+)/);
   const id = fromUrl?.[1] ?? trimmed;
-  if (!id || id.includes("/") || id.includes("?") || id.includes("#")) {
+  if (!id || /[/?#\s]/.test(id)) {
     throw new Error("assetId must be an asset ID or a /api/asset/<id> URL");
   }
   return id;
@@ -341,6 +348,9 @@ export function registerMcpTools(
   server: McpToolRegistrar,
   baseUrl: string,
   token: string,
+  // The origin shown to users in asset results. Defaults to the request origin
+  // but callers pass the public API URL so internal addresses never leak.
+  assetUrlBase: string = baseUrl,
 ): void {
   const client = new ApiClient(baseUrl, token);
   const registerTool = <InputSchema extends z.ZodObject>(
@@ -1151,7 +1161,7 @@ export function registerMcpTools(
             ),
             mimeType: normalizeContentType(res.headers.get("content-type")),
             size: bytes.byteLength,
-            url: `${baseUrl}/api/asset/${id}`,
+            url: `${assetUrlBase}/api/asset/${id}`,
           },
           bytes,
         );

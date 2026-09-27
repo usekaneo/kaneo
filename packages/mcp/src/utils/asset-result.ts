@@ -20,9 +20,11 @@ export function extractAssetId(value: string): string {
   if (!trimmed) {
     throw new Error("assetId is required");
   }
-  const fromUrl = trimmed.match(/\/api\/asset\/([^/?#]+)/);
+  // Exclude punctuation that commonly wraps a URL (e.g. Markdown `)`,
+  // quotes, or angle brackets) so only the id is captured.
+  const fromUrl = trimmed.match(/\/api\/asset\/([^/?#\s"'<>()]+)/);
   const id = fromUrl?.[1] ?? trimmed;
-  if (!id || id.includes("/") || id.includes("?") || id.includes("#")) {
+  if (!id || /[/?#\s]/.test(id)) {
     throw new Error("assetId must be an asset ID or a /api/asset/<id> URL");
   }
   return id;

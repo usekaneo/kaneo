@@ -46,12 +46,12 @@ function binaryResponse(options: {
   } as unknown as Response;
 }
 
-function collectTools() {
+function collectTools(baseUrl = "http://api.test", assetUrlBase?: string) {
   const tools = new Map<string, ToolCallback>();
   const registrar: McpToolRegistrar = {
     registerTool: (name, _config, callback) => tools.set(name, callback),
   };
-  registerMcpTools(registrar, "http://api.test", "test-token");
+  registerMcpTools(registrar, baseUrl, "test-token", assetUrlBase);
   return tools;
 }
 
@@ -346,6 +346,46 @@ describe("MCP tool catalog", () => {
 
     expect(result.isError).toBe(true);
     expect(apiFetch).not.toHaveBeenCalled();
+  });
+
+  it("shows the public API origin, not the internal request origin", async () => {
+    const publicTools = collectTools(
+      "http://internal.test",
+      "https://public.test",
+    );
+    apiFetch.mockResolvedValueOnce(
+      binaryResponse({
+        bytes: new Uint8Array([1]),
+        contentType: "application/pdf",
+      }),
+    );
+
+    const callback = publicTools.get("get_asset");
+    if (!callback) throw new Error("get_asset is not registered");
+    const result = await callback({ assetId: "doc1" });
+
+    expect(result.content[0]).toEqual({
+      type: "text",
+      text: JSON.stringify(
+        {
+          id: "doc1",
+          filename: null,
+          mimeType: "application/pdf",
+          size: 1,
+          url: "https://public.test/api/asset/doc1",
+        },
+        null,
+        2,
+      ),
+    });
+    expect(result.content[1]).toEqual({
+      type: "resource",
+      resource: {
+        uri: "https://public.test/api/asset/doc1",
+        mimeType: "application/pdf",
+        blob: Buffer.from([1]).toString("base64"),
+      },
+    });
   });
 
   it("refuses to inline an asset larger than the limit", async () => {
