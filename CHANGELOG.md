@@ -1,3 +1,22 @@
+### Features
+
+- **web:** cloud sign-up and onboarding layout: #1832
+
+### Bug Fixes
+
+- **deps:** migrate Sentry SDKs together to v11 (#1826): #1826
+- **ci:** grant nightly reusable CI scan permission: [0216067](https://github.com/usekaneo/kaneo/commit/0216067e37f5de9f8a10c85e05861056009628f3)
+- **board:** allow column moves while sorting by task number: #1816
+
+### Documentation
+
+- update contributors and sponsors: [c200d70](https://github.com/usekaneo/kaneo/commit/c200d70672b3a87b6b2e4bdcd43060198324fb7f)
+- rebuild guides around current Kaneo workflows: #1814
+
+### Credits
+
+Huge thanks to @tinsever and @andrejsshell for helping!
+
 ### Bug Fixes
 
 - **auth:** backfill instance admin on legacy installations: [b7c6aee](https://github.com/usekaneo/kaneo/commit/b7c6aee31ba1174583da5f7fa0aad48257cfc356)
