@@ -12,6 +12,11 @@ vi.mock("@/fetchers/workspace/get-workspaces", () => ({
   default: () => getWorkspaces(),
 }));
 
+vi.mock("@/lib/http-error", () => ({
+  isUnauthorizedError: () => false,
+  handleUnauthorized: vi.fn(),
+}));
+
 vi.mock("@/components/onboarding/onboarding-flow", () => ({
   OnboardingFlow: () => null,
 }));
@@ -36,8 +41,9 @@ describe("onboarding route", () => {
     await expect(beforeLoad()).resolves.toBeUndefined();
   });
 
-  it("shows the flow when workspaces cannot be read", async () => {
-    getWorkspaces.mockRejectedValue(new Error("offline"));
-    await expect(beforeLoad()).resolves.toBeUndefined();
+  it("surfaces a failed lookup instead of offering another workspace", async () => {
+    const error = new Error("offline");
+    getWorkspaces.mockRejectedValue(error);
+    await expect(beforeLoad()).rejects.toBe(error);
   });
 });

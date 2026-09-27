@@ -257,6 +257,10 @@ describe("OnboardingFlow", () => {
     expect(
       await screen.findByText("auth:onboarding.cloud.invite.invalidEmail"),
     ).toBeInTheDocument();
+    expect(first).toHaveFocus();
+    expect(first).toHaveAccessibleDescription(
+      "auth:onboarding.cloud.invite.invalidEmail",
+    );
     expect(inviteMember).not.toHaveBeenCalled();
     expect(navigate).not.toHaveBeenCalled();
   });

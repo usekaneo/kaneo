@@ -48,6 +48,9 @@ export function InviteStep({ workspaceId, onDone }: InviteStepProps) {
     const parsed = parseInviteEmails(emails);
     if (!parsed.ok) {
       setInvalid(new Set(parsed.invalidIndexes));
+      document
+        .getElementById(`${idPrefix}-${parsed.invalidIndexes[0]}`)
+        ?.focus();
       return;
     }
     if (parsed.emails.length === 0) {
