@@ -1,7 +1,7 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2, MailQuestion } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
@@ -21,8 +21,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useFadeTransition } from "@/hooks/use-fade-transition";
 import { Spinner } from "@/components/ui/spinner";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
+import {
+  DEFAULT_WORKSPACE_USAGE,
+  type WorkspaceUsage,
+} from "@/constants/onboarding";
 import { getBilling } from "@/fetchers/billing/get-billing";
 import useCreateWorkspace from "@/hooks/queries/workspace/use-create-workspace";
 import useWorkspaceCreationAccess from "@/hooks/use-workspace-creation-access";
@@ -30,12 +35,9 @@ import { authClient } from "@/lib/auth-client";
 import { getTrialState } from "@/lib/billing";
 import { readCheckoutIntent } from "@/lib/checkout-intent";
 import { toast } from "@/lib/toast";
-import {
-  InviteStep,
-  PlanStep,
-  UsagePicker,
-  type WorkspaceUsage,
-} from "./cloud-onboarding-steps";
+import { InviteStep } from "./invite-step";
+import { PlanStep } from "./plan-step";
+import { UsagePicker } from "./usage-picker";
 
 type OnboardingStep = "workspace" | "invite" | "plan" | "success";
 
@@ -43,15 +45,6 @@ export type WorkspaceFormValues = {
   name: string;
   description?: string;
 };
-
-function useFadeTransition() {
-  const reduceMotion = useReducedMotion();
-  return {
-    initial: { opacity: 0, y: reduceMotion ? 0 : 20 },
-    animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: reduceMotion ? 0 : -20 },
-  };
-}
 
 export function OnboardingFlow() {
   const fadeTransition = useFadeTransition();
@@ -61,7 +54,7 @@ export function OnboardingFlow() {
   const [createdWorkspaceId, setCreatedWorkspaceId] = useState<string | null>(
     null,
   );
-  const [usage, setUsage] = useState<WorkspaceUsage>("team");
+  const [usage, setUsage] = useState<WorkspaceUsage>(DEFAULT_WORKSPACE_USAGE);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { mutateAsync: createWorkspace, isPending } = useCreateWorkspace();

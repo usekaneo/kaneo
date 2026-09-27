@@ -4,22 +4,19 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGetBilling } from "@/hooks/queries/billing/use-get-billing";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
-import { getTrialState, TRIAL_ENDING_DAYS } from "@/lib/billing";
+import { TRIAL_ENDING_DAYS } from "@/constants/billing";
+import {
+  getTrialState,
+  readDismissedTrialCards,
+  writeDismissedTrialCards,
+} from "@/lib/billing";
 import { cn } from "@/lib/cn";
-
-const DISMISS_KEY = "kaneo:trial-card-dismissed";
 
 export function TrialCard() {
   const { t } = useTranslation();
   const { data: workspace } = useActiveWorkspace();
   const { data: billing } = useGetBilling(workspace?.id);
-  const [dismissed, setDismissed] = useState<string[]>(() => {
-    try {
-      return JSON.parse(localStorage.getItem(DISMISS_KEY) ?? "[]");
-    } catch {
-      return [];
-    }
-  });
+  const [dismissed, setDismissed] = useState(readDismissedTrialCards);
 
   const trial = getTrialState(billing);
   if (trial.kind === "none" || !workspace?.id) {
@@ -35,9 +32,7 @@ export function TrialCard() {
   const dismiss = () => {
     const next = [...dismissed, workspace.id];
     setDismissed(next);
-    try {
-      localStorage.setItem(DISMISS_KEY, JSON.stringify(next));
-    } catch {}
+    writeDismissedTrialCards(next);
   };
 
   return (
