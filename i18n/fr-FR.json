@@ -213,6 +213,16 @@
 			"emailFallback": "votre adresse email",
 			"backToLogin": "Retour à la connexion"
 		},
+		"cloud": {
+			"signUp": {
+				"title": "Et ensuite",
+				"description": "Après avoir créé votre compte, vous nommerez un espace de travail. Vous pourrez ensuite ajouter un projet et commencer à rédiger des tâches."
+			},
+			"onboarding": {
+				"title": "Qu'est-ce qu'un espace de travail",
+				"description": "Un espace de travail regroupe vos projets, leurs tâches et les personnes avec qui vous travaillez. Invitez vos collègues une fois qu'il est configuré."
+			}
+		},
 		"signUp": {
 			"pageTitle": "Créer un compte",
 			"title": "Créer un compte",
@@ -323,7 +333,11 @@
 			},
 			"restrictedSubtitle": "Seul un administrateur de l'instance peut créer des espaces de travail ici. Demandez une invitation, puis rechargez cette page.",
 			"restrictedCheckInvitations": "Voir les invitations",
-			"restrictedTitle": "Vous avez besoin d'une invitation"
+			"restrictedTitle": "Vous avez besoin d'une invitation",
+			"cloud": {
+				"title": "Nommez votre espace de travail",
+				"subtitle": "Utilisez le nom de votre équipe ou de votre entreprise. Vous pourrez le modifier plus tard dans les paramètres."
+			}
 		},
 		"profileSetup": {
 			"pageTitle": "Compléter le profil",

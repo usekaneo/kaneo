@@ -213,6 +213,16 @@
 			"emailFallback": "je e-mailadres",
 			"backToLogin": "Terug naar inloggen"
 		},
+		"cloud": {
+			"signUp": {
+				"title": "Wat er nu gebeurt",
+				"description": "Nadat je je account hebt gemaakt, geef je een werkruimte een naam. Daarna kun je een project toevoegen en taken gaan schrijven."
+			},
+			"onboarding": {
+				"title": "Wat een werkruimte is",
+				"description": "Een werkruimte bevat je projecten, hun taken en de mensen met wie je samenwerkt. Nodig teamgenoten uit zodra hij klaar is."
+			}
+		},
 		"signUp": {
 			"pageTitle": "Account aanmaken",
 			"title": "Maak account aan",
@@ -323,7 +333,11 @@
 			},
 			"restrictedSubtitle": "Alleen een instantiebeheerder kan hier workspaces aanmaken. Vraag om een uitnodiging en laad deze pagina opnieuw.",
 			"restrictedCheckInvitations": "Uitnodigingen bekijken",
-			"restrictedTitle": "Je hebt een uitnodiging nodig"
+			"restrictedTitle": "Je hebt een uitnodiging nodig",
+			"cloud": {
+				"title": "Geef je werkruimte een naam",
+				"subtitle": "Gebruik de naam van je team of bedrijf. Je kunt hem later wijzigen in de instellingen."
+			}
 		},
 		"profileSetup": {
 			"pageTitle": "Profiel Voltooien",

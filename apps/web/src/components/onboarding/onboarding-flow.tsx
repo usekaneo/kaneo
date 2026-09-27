@@ -4,9 +4,10 @@ import { useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { CheckCircle2, MailQuestion } from "lucide-react";
 import { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Trans, useTranslation } from "react-i18next";
 import { z } from "zod/v4";
+import { CloudAuthLayout } from "@/components/auth/cloud-auth-layout";
 import { Logo } from "@/components/common/logo";
 import PageTitle from "@/components/page-title";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
@@ -21,6 +22,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import useGetConfig from "@/hooks/queries/config/use-get-config";
 import useCreateWorkspace from "@/hooks/queries/workspace/use-create-workspace";
 import useWorkspaceCreationAccess from "@/hooks/use-workspace-creation-access";
 import { authClient } from "@/lib/auth-client";
@@ -52,6 +54,8 @@ export function OnboardingFlow() {
   const { mutateAsync: createWorkspace, isPending } = useCreateWorkspace();
   const { user } = useAuth();
   const { isCreationRestricted, isDecided } = useWorkspaceCreationAccess();
+  const { data: config } = useGetConfig();
+  const isCloud = config?.isCloud === true;
 
   const workspaceSchema = useMemo(
     () =>
@@ -84,18 +88,22 @@ export function OnboardingFlow() {
       await authClient.organization.setActive({
         organizationId: workspace.id,
       });
-      setCreatedWorkspaceName(data.name);
-      toast.success(t("auth:onboarding.toast.workspaceCreated"));
-
-      setStep("success");
-
-      setTimeout(() => {
+      const goToWorkspace = () =>
         navigate({
           to: "/dashboard/workspace/$workspaceId",
           params: { workspaceId: workspace.id },
           replace: true,
         });
-      }, 1500);
+
+      if (isCloud) {
+        await goToWorkspace();
+        return;
+      }
+
+      setCreatedWorkspaceName(data.name);
+      toast.success(t("auth:onboarding.toast.workspaceCreated"));
+      setStep("success");
+      setTimeout(goToWorkspace, 1500);
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -104,6 +112,62 @@ export function OnboardingFlow() {
       );
     }
   };
+
+  const isSubmitting = isPending || form.formState.isSubmitting;
+  const workspaceName = useWatch({ control: form.control, name: "name" });
+
+  const workspaceForm = (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+        <div className="space-y-3">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">
+                  {t("auth:onboarding.workspaceName")}
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder={t("auth:onboarding.workspaceNamePlaceholder")}
+                    autoFocus
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-muted-foreground">
+                  {t("auth:onboarding.descriptionOptional")}
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder={t("auth:onboarding.descriptionPlaceholder")}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <Button type="submit" disabled={isSubmitting} className="w-full mt-4">
+          {isSubmitting
+            ? t("auth:onboarding.creating")
+            : t("auth:onboarding.createWorkspace")}
+        </Button>
+      </form>
+    </Form>
+  );
 
   const renderWorkspaceStep = () => (
     <motion.div
@@ -127,60 +191,7 @@ export function OnboardingFlow() {
           </p>
         </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-            <div className="space-y-3">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium">
-                      {t("auth:onboarding.workspaceName")}
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder={t(
-                          "auth:onboarding.workspaceNamePlaceholder",
-                        )}
-                        autoFocus
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium text-muted-foreground">
-                      {t("auth:onboarding.descriptionOptional")}
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder={t(
-                          "auth:onboarding.descriptionPlaceholder",
-                        )}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <Button type="submit" disabled={isPending} className="w-full mt-4">
-              {isPending
-                ? t("auth:onboarding.creating")
-                : t("auth:onboarding.createWorkspace")}
-            </Button>
-          </form>
-        </Form>
+        {workspaceForm}
       </div>
     </motion.div>
   );
@@ -263,6 +274,21 @@ export function OnboardingFlow() {
       </div>
     </motion.div>
   );
+  if (isCloud && isDecided && !isCreationRestricted) {
+    return (
+      <>
+        <PageTitle title={t("auth:onboarding.workspacePageTitle")} />
+        <CloudAuthLayout
+          title={t("auth:onboarding.cloud.title")}
+          subtitle={t("auth:onboarding.cloud.subtitle")}
+          workspaceName={workspaceName.trim()}
+          note="onboarding"
+        >
+          {workspaceForm}
+        </CloudAuthLayout>
+      </>
+    );
+  }
 
   return (
     <>

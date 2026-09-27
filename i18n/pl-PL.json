@@ -213,6 +213,16 @@
 			"emailFallback": "twój adres e-mail",
 			"backToLogin": "Wróć do logowania"
 		},
+		"cloud": {
+			"signUp": {
+				"title": "Co dalej",
+				"description": "Po utworzeniu konta nadasz nazwę obszarowi roboczemu. Następnie możesz dodać projekt i zacząć pisać zadania."
+			},
+			"onboarding": {
+				"title": "Czym jest obszar roboczy",
+				"description": "Obszar roboczy zawiera Twoje projekty, ich zadania i osoby, z którymi pracujesz. Zaproś współpracowników, gdy będzie gotowy."
+			}
+		},
 		"signUp": {
 			"pageTitle": "Utwórz konto",
 			"title": "Utwórz konto",
@@ -323,7 +333,11 @@
 			},
 			"restrictedSubtitle": "Tutaj tylko administrator instancji może tworzyć przestrzenie robocze. Poproś o zaproszenie i odśwież tę stronę.",
 			"restrictedCheckInvitations": "Sprawdź zaproszenia",
-			"restrictedTitle": "Potrzebujesz zaproszenia"
+			"restrictedTitle": "Potrzebujesz zaproszenia",
+			"cloud": {
+				"title": "Nazwij obszar roboczy",
+				"subtitle": "Użyj nazwy swojego zespołu lub firmy. Możesz ją później zmienić w ustawieniach."
+			}
 		},
 		"profileSetup": {
 			"pageTitle": "Uzupełnij profil",

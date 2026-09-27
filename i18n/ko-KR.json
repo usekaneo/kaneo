@@ -213,6 +213,16 @@
 			"emailFallback": "이메일 주소",
 			"backToLogin": "로그인으로 돌아가기"
 		},
+		"cloud": {
+			"signUp": {
+				"title": "다음 단계",
+				"description": "계정을 만든 후 워크스페이스 이름을 정합니다. 그다음 프로젝트를 추가하고 작업을 작성할 수 있습니다."
+			},
+			"onboarding": {
+				"title": "워크스페이스란",
+				"description": "워크스페이스에는 프로젝트와 그 작업, 함께 일하는 사람들이 모입니다. 설정이 끝나면 팀원을 초대하세요."
+			}
+		},
 		"signUp": {
 			"pageTitle": "계정 만들기",
 			"title": "계정 만들기",
@@ -323,7 +333,11 @@
 			},
 			"restrictedSubtitle": "이 인스턴스에서는 관리자만 워크스페이스를 만들 수 있습니다. 초대를 요청한 뒤 이 페이지를 새로고침하세요.",
 			"restrictedCheckInvitations": "초대 확인",
-			"restrictedTitle": "초대가 필요합니다"
+			"restrictedTitle": "초대가 필요합니다",
+			"cloud": {
+				"title": "워크스페이스 이름 정하기",
+				"subtitle": "팀이나 회사 이름을 사용하세요. 나중에 설정에서 변경할 수 있습니다."
+			}
 		},
 		"profileSetup": {
 			"pageTitle": "프로필 완성",

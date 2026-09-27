@@ -213,6 +213,16 @@
 			"emailFallback": "e-posta adresiniz",
 			"backToLogin": "Girişe dön"
 		},
+		"cloud": {
+			"signUp": {
+				"title": "Sırada ne var",
+				"description": "Hesabınızı oluşturduktan sonra çalışma alanınıza bir ad vereceksiniz. Ardından bir proje ekleyip görev yazmaya başlayabilirsiniz."
+			},
+			"onboarding": {
+				"title": "Çalışma alanı nedir",
+				"description": "Çalışma alanı projelerinizi, bunların görevlerini ve birlikte çalıştığınız kişileri bir arada tutar. Kurulduktan sonra ekip arkadaşlarınızı davet edin."
+			}
+		},
 		"signUp": {
 			"pageTitle": "Hesap Oluştur",
 			"title": "Hesap oluştur",
@@ -323,7 +333,11 @@
 			},
 			"restrictedSubtitle": "Burada yalnızca örnek yöneticisi çalışma alanı oluşturabilir. Davet isteyin, ardından bu sayfayı yenileyin.",
 			"restrictedCheckInvitations": "Davetleri görüntüle",
-			"restrictedTitle": "Davet gerekiyor"
+			"restrictedTitle": "Davet gerekiyor",
+			"cloud": {
+				"title": "Çalışma alanınıza ad verin",
+				"subtitle": "Ekibinizin veya şirketinizin adını kullanın. Daha sonra ayarlardan değiştirebilirsiniz."
+			}
 		},
 		"profileSetup": {
 			"pageTitle": "Profili Tamamla",

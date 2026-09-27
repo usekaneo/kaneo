@@ -450,6 +450,9 @@
       "Config": {
         "type": "object",
         "properties": {
+          "isCloud": {
+            "type": "boolean"
+          },
           "disableRegistration": {
             "type": "boolean"
           },
@@ -500,6 +503,7 @@
           }
         },
         "required": [
+          "isCloud",
           "disableRegistration",
           "disablePasswordRegistration",
           "disableEmailOtpSignIn",

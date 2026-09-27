@@ -2,6 +2,7 @@ import { z } from "../openapi";
 
 export const configSchema = z
   .object({
+    isCloud: z.boolean(),
     disableRegistration: z.boolean(),
     disablePasswordRegistration: z.boolean(),
     disableEmailOtpSignIn: z.boolean(),

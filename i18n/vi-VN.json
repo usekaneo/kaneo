@@ -213,6 +213,16 @@
 			"emailFallback": "địa chỉ email của bạn",
 			"backToLogin": "Quay lại đăng nhập"
 		},
+		"cloud": {
+			"signUp": {
+				"title": "Tiếp theo là gì",
+				"description": "Sau khi tạo tài khoản, bạn sẽ đặt tên cho không gian làm việc. Từ đó bạn có thể thêm dự án và bắt đầu viết công việc."
+			},
+			"onboarding": {
+				"title": "Không gian làm việc là gì",
+				"description": "Không gian làm việc chứa các dự án, công việc của chúng và những người bạn làm việc cùng. Mời đồng đội sau khi thiết lập xong."
+			}
+		},
 		"signUp": {
 			"pageTitle": "Tạo tài khoản",
 			"title": "Tạo tài khoản",
@@ -323,7 +333,11 @@
 			},
 			"restrictedSubtitle": "Tại đây chỉ quản trị viên hệ thống mới có thể tạo không gian làm việc. Hãy xin lời mời rồi tải lại trang này.",
 			"restrictedCheckInvitations": "Xem lời mời",
-			"restrictedTitle": "Bạn cần một lời mời"
+			"restrictedTitle": "Bạn cần một lời mời",
+			"cloud": {
+				"title": "Đặt tên cho không gian làm việc",
+				"subtitle": "Dùng tên nhóm hoặc công ty của bạn. Bạn có thể đổi tên sau trong phần cài đặt."
+			}
 		},
 		"profileSetup": {
 			"pageTitle": "Hoàn tất hồ sơ",
