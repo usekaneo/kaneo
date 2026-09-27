@@ -2,20 +2,24 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   act,
   cleanup,
+  fireEvent,
   render as rtlRender,
   screen,
+  waitFor,
 } from "@testing-library/react";
 import { createElement, type ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { OnboardingFlow } from "./onboarding-flow";
 
+const navigate = vi.fn();
+const createWorkspace = vi.fn();
 const config = vi.fn();
 const authUser = vi.fn();
 const getSession = vi.fn();
 
 vi.mock("@tanstack/react-router", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@tanstack/react-router")>()),
-  useNavigate: () => vi.fn(),
+  useNavigate: () => navigate,
 }));
 
 // Renders a router Link, which needs a router context this test has no reason
@@ -36,7 +40,7 @@ vi.mock("@/lib/auth-client", () => ({
 }));
 
 vi.mock("@/hooks/queries/workspace/use-create-workspace", () => ({
-  default: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  default: () => ({ mutateAsync: createWorkspace, isPending: false }),
 }));
 
 vi.mock("@/components/providers/auth-provider/hooks/use-auth", () => ({
@@ -50,6 +54,7 @@ vi.mock("react-i18next", () => ({
 }));
 
 beforeEach(() => {
+  createWorkspace.mockResolvedValue({ id: "workspace-1" });
   authUser.mockReturnValue({ id: "u1", name: "Sam", role: "user" });
   // Better Auth resolves with `{ data, error }` and does not reject, which is
   // the whole reason the hook reads `error` rather than catching.
@@ -66,6 +71,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  vi.useRealTimers();
 });
 
 // A real client rather than a mocked one: the component reaches react-query
@@ -92,6 +98,60 @@ const restricted = () => screen.queryByText("auth:onboarding.restrictedTitle");
 const settled = () => act(async () => {});
 
 describe("OnboardingFlow", () => {
+  it("previews the cloud workspace name and navigates without the success step", async () => {
+    config.mockReturnValue({ data: { isCloud: true }, isPending: false });
+    render(<OnboardingFlow />);
+    await settled();
+    fireEvent.change(screen.getByLabelText("auth:onboarding.workspaceName"), {
+      target: { value: "My team" },
+    });
+    expect(screen.getAllByText("My team")).toHaveLength(2);
+    fireEvent.click(
+      screen.getByRole("button", { name: "auth:onboarding.createWorkspace" }),
+    );
+    await waitFor(() =>
+      expect(navigate).toHaveBeenCalledWith({
+        to: "/dashboard/workspace/$workspaceId",
+        params: { workspaceId: "workspace-1" },
+        replace: true,
+      }),
+    );
+    expect(
+      screen.queryByText("auth:onboarding.workspaceCreatedTitle"),
+    ).not.toBeInTheDocument();
+    expect(createWorkspace).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the self-hosted success step and delayed navigation", async () => {
+    vi.useFakeTimers();
+    const { rerender } = render(<OnboardingFlow />);
+    await settled();
+    fireEvent.change(screen.getByLabelText("auth:onboarding.workspaceName"), {
+      target: { value: "My team" },
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: "auth:onboarding.createWorkspace" }),
+    );
+    await settled();
+    expect(navigate).not.toHaveBeenCalled();
+    // A config recovery must not reveal the form again after creation.
+    config.mockReturnValue({ data: { isCloud: true }, isPending: false });
+    rerender(<OnboardingFlow />);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(500);
+    });
+    expect(
+      screen.getByText("auth:onboarding.workspaceCreatedTitle"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "auth:onboarding.createWorkspace" }),
+    ).not.toBeInTheDocument();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000);
+    });
+    expect(navigate).toHaveBeenCalledTimes(1);
+  });
+
   it("offers the creation form when anyone may create a workspace", async () => {
     render(<OnboardingFlow />);
     await settled();
@@ -137,9 +197,8 @@ describe("OnboardingFlow", () => {
     expect(restricted()).not.toBeInTheDocument();
   });
 
-  it("does not make an instance admin wait for the config", async () => {
-    // The setting cannot restrict an admin, so its value cannot change what
-    // they are shown. Waiting would delay a form they always get.
+  it("waits for config before choosing the layout for an instance admin", async () => {
+    // Cloud mode determines the layout even when creation is unrestricted.
     config.mockReturnValue({ data: undefined, isPending: true });
     getSession.mockResolvedValue({
       data: { user: { id: "u1", role: "admin" } },
@@ -149,7 +208,8 @@ describe("OnboardingFlow", () => {
     render(<OnboardingFlow />);
     await settled();
 
-    expect(creationForm()).toBeInTheDocument();
+    expect(creationForm()).not.toBeInTheDocument();
+    expect(screen.getByRole("status")).toBeInTheDocument();
     expect(restricted()).not.toBeInTheDocument();
   });
 

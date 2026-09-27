@@ -53,8 +53,10 @@ export function OnboardingFlow() {
   const queryClient = useQueryClient();
   const { mutateAsync: createWorkspace, isPending } = useCreateWorkspace();
   const { user } = useAuth();
-  const { isCreationRestricted, isDecided } = useWorkspaceCreationAccess();
-  const { data: config } = useGetConfig();
+  const { isCreationRestricted, isDecided: isAccessDecided } =
+    useWorkspaceCreationAccess();
+  const { data: config, isPending: isConfigPending } = useGetConfig();
+  const isDecided = isAccessDecided && !isConfigPending;
   const isCloud = config?.isCloud === true;
 
   const workspaceSchema = useMemo(
@@ -274,7 +276,7 @@ export function OnboardingFlow() {
       </div>
     </motion.div>
   );
-  if (isCloud && isDecided && !isCreationRestricted) {
+  if (step === "workspace" && isCloud && isDecided && !isCreationRestricted) {
     return (
       <>
         <PageTitle title={t("auth:onboarding.workspacePageTitle")} />

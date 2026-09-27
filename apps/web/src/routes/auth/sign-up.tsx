@@ -35,7 +35,7 @@ export const Route = createFileRoute("/auth/sign-up")({
   component: SignUp,
   validateSearch: signUpSearchSchema,
   loader: ({ context }) =>
-    context.queryClient.ensureQueryData({
+    context.queryClient.prefetchQuery({
       queryKey: ["config"],
       queryFn: getConfig,
     }),

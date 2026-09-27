@@ -18,7 +18,7 @@ export function CloudAuthLayout({
   const { t } = useTranslation();
 
   return (
-    <main className="grid min-h-svh w-full bg-background lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+    <main className="grid h-svh w-full overflow-y-auto bg-background lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
       <div className="flex min-w-0 flex-col px-6 py-6 sm:px-10 lg:px-14 lg:py-8">
         <header>
           <img src="/logo-dark.svg" alt="Kaneo" className="h-6 dark:hidden" />
@@ -48,10 +48,14 @@ export function CloudAuthLayout({
       >
         <div className="max-w-lg px-12 pt-[12vh]">
           <p className="text-xl font-medium tracking-tight text-foreground">
-            {t(`auth:cloud.${note}.title`)}
+            {note === "signUp"
+              ? t("auth:cloud.signUp.title")
+              : t("auth:cloud.onboarding.title")}
           </p>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
-            {t(`auth:cloud.${note}.description`)}
+            {note === "signUp"
+              ? t("auth:cloud.signUp.description")
+              : t("auth:cloud.onboarding.description")}
           </p>
         </div>
         <div className="relative mt-10 flex-1">

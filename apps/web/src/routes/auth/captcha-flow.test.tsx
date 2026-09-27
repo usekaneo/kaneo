@@ -1,3 +1,4 @@
+import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
   fireEvent,
@@ -22,7 +23,9 @@ const m = vi.hoisted(() => ({
   oauth2: vi.fn(),
   navigate: vi.fn(),
   isCloud: false,
+  getConfig: vi.fn(),
 }));
+vi.mock("@/fetchers/config/get-config", () => ({ getConfig: m.getConfig }));
 vi.mock("@/lib/auth-client", () => ({
   authClient: { signIn: m, getLastUsedLoginMethod: () => null },
 }));
@@ -87,6 +90,18 @@ beforeEach(() => {
     mock.mockResolvedValue({ error: { message: "Retry" } });
 });
 describe("sign-up layout", () => {
+  it("still renders the route when config preloading fails", async () => {
+    m.getConfig.mockRejectedValueOnce(new Error("offline"));
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const loader = signup.options.loader as (args: {
+      context: { queryClient: QueryClient };
+    }) => Promise<void>;
+    await expect(loader({ context: { queryClient } })).resolves.toBeUndefined();
+    expect(queryClient.getQueryState(["config"])?.status).toBe("error");
+  });
+
   const Page = signup.options.component as ComponentType;
 
   it("uses the existing layout for a self-hosted instance", () => {
