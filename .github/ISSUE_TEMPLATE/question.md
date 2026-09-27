@@ -1,7 +1,6 @@
 ---
 name: Question or help
 about: Ask a question about Kaneo
-title: 'question: '
 labels: question
 ---
 

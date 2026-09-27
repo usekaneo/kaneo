@@ -1,6 +1,6 @@
 name: Bug report
 description: Report something that is not working in Kaneo
-title: "[Bug]: "
+type: Bug
 labels: [bug]
 body:
   - type: textarea
