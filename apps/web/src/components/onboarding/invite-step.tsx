@@ -66,8 +66,10 @@ export function InviteStep({ workspaceId, onDone }: InviteStepProps) {
     if (sent > 0) {
       toast.success(t("auth:onboarding.cloud.invite.sent", { count: sent }));
     }
+    const failed: string[] = [];
     results.forEach((result, i) => {
       if (result.status === "rejected") {
+        failed.push(parsed.emails[i]);
         toast.error(
           t("auth:onboarding.cloud.invite.failed", {
             email: parsed.emails[i],
@@ -79,6 +81,12 @@ export function InviteStep({ workspaceId, onDone }: InviteStepProps) {
         );
       }
     });
+
+    if (failed.length > 0) {
+      setEmails(failed);
+      setInvalid(new Set());
+      return;
+    }
 
     onDone();
   };

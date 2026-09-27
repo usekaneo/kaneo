@@ -183,6 +183,33 @@ describe("OnboardingFlow", () => {
     expect(inviteMember).not.toHaveBeenCalled();
   });
 
+  it("keeps only failed addresses on the invite step for a retry", async () => {
+    inviteMember.mockImplementation(({ email }: { email: string }) =>
+      email === "b@example.com"
+        ? Promise.reject(new Error("already a member"))
+        : Promise.resolve({ id: "invite-1" }),
+    );
+    await createCloudWorkspace();
+    const [first, second] = await screen.findAllByPlaceholderText(
+      "auth:onboarding.cloud.invite.emailPlaceholder",
+    );
+    fireEvent.change(first, { target: { value: "a@example.com" } });
+    fireEvent.change(second, { target: { value: "b@example.com" } });
+    fireEvent.click(
+      screen.getByRole("button", { name: "auth:onboarding.cloud.invite.send" }),
+    );
+
+    await waitFor(() =>
+      expect(
+        screen.getAllByPlaceholderText(
+          "auth:onboarding.cloud.invite.emailPlaceholder",
+        ),
+      ).toHaveLength(1),
+    );
+    expect(screen.getByDisplayValue("b@example.com")).toBeInTheDocument();
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
   it("invites each filled address once and moves on", async () => {
     await createCloudWorkspace();
     const [first, second] = await screen.findAllByPlaceholderText(
