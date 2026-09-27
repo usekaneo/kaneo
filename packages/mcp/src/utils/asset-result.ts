@@ -1,0 +1,92 @@
+import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+
+/** Assets are capped at the API's default image upload limit (10 MiB). */
+export const MAX_ASSET_BYTES = 10 * 1024 * 1024;
+
+export type AssetMetadata = {
+  id: string;
+  filename: string | null;
+  mimeType: string;
+  size: number;
+  url: string;
+};
+
+/**
+ * Accepts either a bare asset id or the `/api/asset/<id>` URL that appears in
+ * task and comment content, and returns just the id.
+ */
+export function extractAssetId(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    throw new Error("assetId is required");
+  }
+  const fromUrl = trimmed.match(/\/api\/asset\/([^/?#]+)/);
+  const id = fromUrl?.[1] ?? trimmed;
+  if (!id || id.includes("/") || id.includes("?") || id.includes("#")) {
+    throw new Error("assetId must be an asset ID or a /api/asset/<id> URL");
+  }
+  return id;
+}
+
+/** Prefers the RFC 5987 `filename*` value, then the plain `filename`. */
+export function parseContentDispositionFilename(
+  header: string | null,
+): string | null {
+  if (!header) {
+    return null;
+  }
+  const encoded = header.match(/filename\*=UTF-8''([^;]+)/i);
+  if (encoded?.[1]) {
+    try {
+      return decodeURIComponent(encoded[1]);
+    } catch {
+      return encoded[1];
+    }
+  }
+  const plain = header.match(/filename="([^"]*)"/i);
+  return plain?.[1] || null;
+}
+
+export function normalizeContentType(header: string | null): string {
+  const value = (header ?? "").split(";")[0]?.trim().toLowerCase() ?? "";
+  return value || "application/octet-stream";
+}
+
+export function isImageContentType(contentType: string): boolean {
+  return contentType.startsWith("image/");
+}
+
+export function formatBytes(bytes: number): string {
+  if (bytes < 1024) {
+    return `${bytes}B`;
+  }
+  return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+}
+
+/**
+ * Images become MCP `image` content so a client can display them; every other
+ * type is an embedded resource blob. A short metadata block leads so callers
+ * can see the filename, size, and source URL without decoding the payload.
+ */
+export function buildAssetResult(
+  metadata: AssetMetadata,
+  bytes: Uint8Array,
+): CallToolResult {
+  const base64 = Buffer.from(bytes).toString("base64");
+  const content: CallToolResult["content"] = [
+    { type: "text", text: JSON.stringify(metadata, null, 2) },
+  ];
+  if (isImageContentType(metadata.mimeType)) {
+    content.push({ type: "image", data: base64, mimeType: metadata.mimeType });
+  } else {
+    content.push({
+      type: "resource",
+      resource: {
+        uri: metadata.url,
+        mimeType: metadata.mimeType,
+        blob: base64,
+      },
+    });
+  }
+  return { content, isError: false };
+}

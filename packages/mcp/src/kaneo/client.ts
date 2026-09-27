@@ -50,6 +50,11 @@ export class KaneoClient {
     return res;
   }
 
+  /** Returns the raw response for binary endpoints such as asset downloads. */
+  async raw(path: string, init?: RequestInit): Promise<Response> {
+    return this.authorizedFetch(path, init);
+  }
+
   async json<T = Json>(path: string, init?: RequestInit): Promise<T> {
     const res = await this.authorizedFetch(path, init);
     const text = await res.text();
