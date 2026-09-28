@@ -8,8 +8,9 @@ import {
   extractAssetId,
   formatBytes,
   MAX_ASSET_BYTES,
-  normalizeContentType,
   parseContentDispositionFilename,
+  readBodyWithLimit,
+  resolveAssetContentTypes,
 } from "../utils/asset-result.js";
 import { errorResult, textResult } from "../utils/mcp-result.js";
 
@@ -71,8 +72,12 @@ async function describeAssetFailure(
   return `Failed to fetch asset ${id}: ${detail}`;
 }
 
-function oversizedAssetMessage(size: number): string {
-  return `Asset is ${formatBytes(size)}, over the ${formatBytes(MAX_ASSET_BYTES)} MCP limit. Fetch it directly with: curl -H "Authorization: Bearer $KANEO_API_KEY" "$KANEO_API_URL/api/asset/<id>" -o out`;
+function oversizedAssetMessage(id: string, size?: number): string {
+  const lead =
+    size === undefined
+      ? "Asset is over"
+      : `Asset is ${formatBytes(size)}, over`;
+  return `${lead} the ${formatBytes(MAX_ASSET_BYTES)} MCP limit. Fetch it directly with: curl -H "Authorization: Bearer $KANEO_API_KEY" "$KANEO_API_URL/api/asset/${encodeURIComponent(id)}" -o out`;
 }
 
 export function registerTools(
@@ -886,11 +891,12 @@ export function registerTools(
           Number.isFinite(declaredLength) &&
           declaredLength > MAX_ASSET_BYTES
         ) {
-          return errorResult(oversizedAssetMessage(declaredLength));
+          return errorResult(oversizedAssetMessage(id, declaredLength));
         }
-        const bytes = new Uint8Array(await res.arrayBuffer());
-        if (bytes.byteLength > MAX_ASSET_BYTES) {
-          return errorResult(oversizedAssetMessage(bytes.byteLength));
+        const { mimeType, servedType } = resolveAssetContentTypes(res.headers);
+        const body = await readBodyWithLimit(res, MAX_ASSET_BYTES);
+        if ("exceeded" in body) {
+          return errorResult(oversizedAssetMessage(id));
         }
         return buildAssetResult(
           {
@@ -898,11 +904,12 @@ export function registerTools(
             filename: parseContentDispositionFilename(
               res.headers.get("content-disposition"),
             ),
-            mimeType: normalizeContentType(res.headers.get("content-type")),
-            size: bytes.byteLength,
+            mimeType,
+            size: body.bytes.byteLength,
             url: `${client.baseUrl}/api/asset/${id}`,
           },
-          bytes,
+          body.bytes,
+          servedType,
         );
       } catch (error) {
         return errorResult(

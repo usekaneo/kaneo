@@ -18,15 +18,31 @@ type RegisteredTool = {
   }>;
 };
 
+function bodyFromChunks(chunks: Uint8Array[]): ReadableStream<Uint8Array> {
+  return new ReadableStream({
+    start(controller) {
+      for (const chunk of chunks) {
+        controller.enqueue(chunk);
+      }
+      controller.close();
+    },
+  });
+}
+
 function binaryResponse(options: {
   bytes?: Uint8Array;
+  chunks?: Uint8Array[];
   contentType?: string;
+  assetMimeType?: string;
   filename?: string;
   contentLength?: number;
 }): Response {
   const headers = new Headers();
   if (options.contentType) {
     headers.set("content-type", options.contentType);
+  }
+  if (options.assetMimeType) {
+    headers.set("x-asset-mime-type", options.assetMimeType);
   }
   if (options.filename) {
     headers.set(
@@ -37,12 +53,12 @@ function binaryResponse(options: {
   if (options.contentLength !== undefined) {
     headers.set("content-length", String(options.contentLength));
   }
+  const chunks = options.chunks ?? [options.bytes ?? new Uint8Array()];
   return {
     ok: true,
     status: 200,
     headers,
-    arrayBuffer: async () =>
-      (options.bytes ?? new Uint8Array()).buffer as ArrayBuffer,
+    body: bodyFromChunks(chunks),
     text: async () => "",
   } as unknown as Response;
 }
@@ -511,7 +527,8 @@ describe("registerTools", () => {
       raw: vi.fn().mockResolvedValue(
         binaryResponse({
           bytes: new Uint8Array([10, 20, 30]),
-          contentType: "application/pdf",
+          contentType: "application/octet-stream",
+          assetMimeType: "application/pdf",
           filename: "report.pdf",
         }),
       ),
@@ -521,11 +538,25 @@ describe("registerTools", () => {
 
     const result = await tools.get("get_asset")?.handler({ assetId: "doc1" });
 
+    expect(result?.content[0]).toEqual({
+      type: "text",
+      text: JSON.stringify(
+        {
+          id: "doc1",
+          filename: "report.pdf",
+          mimeType: "application/pdf",
+          size: 3,
+          url: "http://api.test/api/asset/doc1",
+        },
+        null,
+        2,
+      ),
+    });
     expect(result?.content[1]).toEqual({
       type: "resource",
       resource: {
         uri: "http://api.test/api/asset/doc1",
-        mimeType: "application/pdf",
+        mimeType: "application/octet-stream",
         blob: Buffer.from([10, 20, 30]).toString("base64"),
       },
     });
@@ -589,8 +620,38 @@ describe("registerTools", () => {
     expect(result?.content).toHaveLength(1);
     const [content] = result?.content ?? [];
     expect(content).toMatchObject({ type: "text" });
-    expect(content?.type === "text" ? content.text : "").toContain(
-      "over the 10.0MB MCP limit",
-    );
+    const text = content?.type === "text" ? content.text : "";
+    expect(text).toContain("over the 10.0MB MCP limit");
+    expect(text).toContain("/api/asset/big");
+  });
+
+  it("refuses an oversized streamed asset without a declared length", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      baseUrl: "http://api.test",
+      raw: vi.fn().mockResolvedValue(
+        binaryResponse({
+          chunks: [
+            new Uint8Array(6 * 1024 * 1024),
+            new Uint8Array(5 * 1024 * 1024),
+          ],
+          contentType: "image/png",
+        }),
+      ),
+    };
+
+    registerTools(server as never, { client: client as never });
+
+    const result = await tools
+      .get("get_asset")
+      ?.handler({ assetId: "big-stream" });
+
+    expect(result?.isError).toBe(true);
+    expect(result?.content).toHaveLength(1);
+    const [content] = result?.content ?? [];
+    expect(content).toMatchObject({ type: "text" });
+    const text = content?.type === "text" ? content.text : "";
+    expect(text).toContain("over the 10.0MB MCP limit");
+    expect(text).toContain("/api/asset/big-stream");
   });
 });

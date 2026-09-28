@@ -172,6 +172,63 @@ function normalizeContentType(header: string | null): string {
   return value || "application/octet-stream";
 }
 
+/**
+ * The asset route serves unsafe (non-inline) types as `application/octet-stream`
+ * but reports the stored type in `X-Asset-Mime-Type`. Metadata should show the
+ * real type; the transmitted bytes keep the safe type.
+ */
+function resolveAssetContentTypes(headers: Headers): {
+  mimeType: string;
+  servedType: string;
+} {
+  const servedType = normalizeContentType(headers.get("content-type"));
+  const stored = headers.get("x-asset-mime-type");
+  return {
+    mimeType: stored ? normalizeContentType(stored) : servedType,
+    servedType,
+  };
+}
+
+type LimitedBody = { bytes: Uint8Array } | { exceeded: true };
+
+/**
+ * Reads the body chunk by chunk and aborts as soon as it passes `limit`, so a
+ * streamed asset with a missing or untrustworthy Content-Length cannot be
+ * buffered in full before rejection.
+ */
+async function readBodyWithLimit(
+  res: Response,
+  limit: number,
+): Promise<LimitedBody> {
+  if (!res.body) {
+    return { bytes: new Uint8Array(0) };
+  }
+  const reader = res.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+      if (!value) {
+        continue;
+      }
+      total += value.byteLength;
+      if (total > limit) {
+        await reader.cancel().catch(() => {});
+        return { exceeded: true };
+      }
+      chunks.push(value);
+    }
+  } catch (error) {
+    await reader.cancel().catch(() => {});
+    throw error;
+  }
+  return { bytes: Buffer.concat(chunks, total) };
+}
+
 function buildAssetResult(
   metadata: {
     id: string;
@@ -181,19 +238,20 @@ function buildAssetResult(
     url: string;
   },
   bytes: Uint8Array,
+  servedType: string,
 ): McpToolResult {
   const base64 = Buffer.from(bytes).toString("base64");
   const content: McpContentBlock[] = [
     { type: "text", text: JSON.stringify(metadata, null, 2) },
   ];
-  if (metadata.mimeType.startsWith("image/")) {
-    content.push({ type: "image", data: base64, mimeType: metadata.mimeType });
+  if (servedType.startsWith("image/")) {
+    content.push({ type: "image", data: base64, mimeType: servedType });
   } else {
     content.push({
       type: "resource",
       resource: {
         uri: metadata.url,
-        mimeType: metadata.mimeType,
+        mimeType: servedType,
         blob: base64,
       },
     });
@@ -228,8 +286,12 @@ async function describeAssetFailure(
   return `Failed to fetch asset ${id}: ${detail}`;
 }
 
-function oversizedAssetMessage(size: number): string {
-  return `Asset is ${formatBytes(size)}, over the ${formatBytes(MAX_ASSET_BYTES)} MCP limit. Fetch it directly with: curl -H "Authorization: Bearer $KANEO_API_KEY" "$KANEO_API_URL/api/asset/<id>" -o out`;
+function oversizedAssetMessage(id: string, size?: number): string {
+  const lead =
+    size === undefined
+      ? "Asset is over"
+      : `Asset is ${formatBytes(size)}, over`;
+  return `${lead} the ${formatBytes(MAX_ASSET_BYTES)} MCP limit. Fetch it directly with: curl -H "Authorization: Bearer $KANEO_API_KEY" "$KANEO_API_URL/api/asset/${encodeURIComponent(id)}" -o out`;
 }
 
 const PRIORITIES = ["no-priority", "low", "medium", "high", "urgent"] as const;
@@ -1147,11 +1209,12 @@ export function registerMcpTools(
           Number.isFinite(declaredLength) &&
           declaredLength > MAX_ASSET_BYTES
         ) {
-          return errorResult(oversizedAssetMessage(declaredLength));
+          return errorResult(oversizedAssetMessage(id, declaredLength));
         }
-        const bytes = new Uint8Array(await res.arrayBuffer());
-        if (bytes.byteLength > MAX_ASSET_BYTES) {
-          return errorResult(oversizedAssetMessage(bytes.byteLength));
+        const { mimeType, servedType } = resolveAssetContentTypes(res.headers);
+        const body = await readBodyWithLimit(res, MAX_ASSET_BYTES);
+        if ("exceeded" in body) {
+          return errorResult(oversizedAssetMessage(id));
         }
         return buildAssetResult(
           {
@@ -1159,11 +1222,12 @@ export function registerMcpTools(
             filename: parseContentDispositionFilename(
               res.headers.get("content-disposition"),
             ),
-            mimeType: normalizeContentType(res.headers.get("content-type")),
-            size: bytes.byteLength,
+            mimeType,
+            size: body.bytes.byteLength,
             url: `${assetUrlBase}/api/asset/${id}`,
           },
-          bytes,
+          body.bytes,
+          servedType,
         );
       } catch (error) {
         return errorResult(
