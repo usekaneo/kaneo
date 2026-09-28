@@ -1,7 +1,15 @@
 import { z } from "zod";
 
+type McpContentBlock =
+  | { type: "text"; text: string }
+  | { type: "image"; data: string; mimeType: string }
+  | {
+      type: "resource";
+      resource: { uri: string; mimeType?: string; blob: string };
+    };
+
 type McpToolResult = {
-  content: Array<{ type: "text"; text: string }>;
+  content: McpContentBlock[];
   isError?: boolean;
 };
 
@@ -45,7 +53,11 @@ class ApiClient {
     private token: string,
   ) {}
 
-  async json<T = unknown>(path: string, init?: RequestInit): Promise<T> {
+  private async request(
+    path: string,
+    init?: RequestInit,
+    timeoutMs = 10_000,
+  ): Promise<Response> {
     const headers = new Headers(init?.headers);
     headers.set("Authorization", `Bearer ${this.token}`);
     if (init?.body != null && !headers.has("Content-Type")) {
@@ -53,11 +65,21 @@ class ApiClient {
     }
 
     const url = `${this.baseUrl}${path.startsWith("/") ? path : `/${path}`}`;
-    const res = await fetch(url, {
+    return fetch(url, {
       ...init,
       headers,
-      signal: AbortSignal.timeout(10_000),
+      signal: AbortSignal.timeout(timeoutMs),
     });
+  }
+
+  /** Returns the raw response for binary endpoints such as asset downloads. */
+  async raw(path: string, init?: RequestInit): Promise<Response> {
+    // Binary downloads can be up to the asset size cap, so allow more time.
+    return this.request(path, init, 30_000);
+  }
+
+  async json<T = unknown>(path: string, init?: RequestInit): Promise<T> {
+    const res = await this.request(path, init);
 
     const text = await res.text();
     let body: unknown = null;
@@ -97,6 +119,179 @@ function run(fn: () => Promise<unknown>): Promise<McpToolResult> {
     .catch((e: unknown) =>
       errorResult(e instanceof Error ? e.message : String(e)),
     );
+}
+
+/** Assets are capped at the API's default image upload limit (10 MiB). */
+const MAX_ASSET_BYTES = 10 * 1024 * 1024;
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) {
+    return `${bytes}B`;
+  }
+  return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+}
+
+/**
+ * Accepts either a bare asset id or the `/api/asset/<id>` URL that appears in
+ * task and comment content, and returns just the id.
+ */
+function extractAssetId(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    throw new Error("assetId is required");
+  }
+  // Exclude punctuation that commonly wraps a URL (e.g. Markdown `)`,
+  // quotes, or angle brackets) so only the id is captured.
+  const fromUrl = trimmed.match(/\/api\/asset\/([^/?#\s"'<>()]+)/);
+  const id = fromUrl?.[1] ?? trimmed;
+  if (!id || /[/?#\s]/.test(id)) {
+    throw new Error("assetId must be an asset ID or a /api/asset/<id> URL");
+  }
+  return id;
+}
+
+/** Prefers the RFC 5987 `filename*` value, then the plain `filename`. */
+function parseContentDispositionFilename(header: string | null): string | null {
+  if (!header) {
+    return null;
+  }
+  const encoded = header.match(/filename\*=UTF-8''([^;]+)/i);
+  if (encoded?.[1]) {
+    try {
+      return decodeURIComponent(encoded[1]);
+    } catch {
+      return encoded[1];
+    }
+  }
+  const plain = header.match(/filename="([^"]*)"/i);
+  return plain?.[1] || null;
+}
+
+function normalizeContentType(header: string | null): string {
+  const value = (header ?? "").split(";")[0]?.trim().toLowerCase() ?? "";
+  return value || "application/octet-stream";
+}
+
+/**
+ * The asset route serves unsafe (non-inline) types as `application/octet-stream`
+ * but reports the stored type in `X-Asset-Mime-Type`. Metadata should show the
+ * real type; the transmitted bytes keep the safe type.
+ */
+function resolveAssetContentTypes(headers: Headers): {
+  mimeType: string;
+  servedType: string;
+} {
+  const servedType = normalizeContentType(headers.get("content-type"));
+  const stored = headers.get("x-asset-mime-type");
+  return {
+    mimeType: stored ? normalizeContentType(stored) : servedType,
+    servedType,
+  };
+}
+
+type LimitedBody = { bytes: Uint8Array } | { exceeded: true };
+
+/**
+ * Reads the body chunk by chunk and aborts as soon as it passes `limit`, so a
+ * streamed asset with a missing or untrustworthy Content-Length cannot be
+ * buffered in full before rejection.
+ */
+async function readBodyWithLimit(
+  res: Response,
+  limit: number,
+): Promise<LimitedBody> {
+  if (!res.body) {
+    return { bytes: new Uint8Array(0) };
+  }
+  const reader = res.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+      if (!value) {
+        continue;
+      }
+      total += value.byteLength;
+      if (total > limit) {
+        await reader.cancel().catch(() => {});
+        return { exceeded: true };
+      }
+      chunks.push(value);
+    }
+  } catch (error) {
+    await reader.cancel().catch(() => {});
+    throw error;
+  }
+  return { bytes: Buffer.concat(chunks, total) };
+}
+
+function buildAssetResult(
+  metadata: {
+    id: string;
+    filename: string | null;
+    mimeType: string;
+    size: number;
+    url: string;
+  },
+  bytes: Uint8Array,
+  servedType: string,
+): McpToolResult {
+  const base64 = Buffer.from(bytes).toString("base64");
+  const content: McpContentBlock[] = [
+    { type: "text", text: JSON.stringify(metadata, null, 2) },
+  ];
+  if (servedType.startsWith("image/")) {
+    content.push({ type: "image", data: base64, mimeType: servedType });
+  } else {
+    content.push({
+      type: "resource",
+      resource: {
+        uri: metadata.url,
+        mimeType: servedType,
+        blob: base64,
+      },
+    });
+  }
+  return { content, isError: false };
+}
+
+async function describeAssetFailure(
+  id: string,
+  res: Response,
+): Promise<string> {
+  let detail = `HTTP ${res.status}`;
+  const text = await res.text().catch(() => "");
+  if (text) {
+    try {
+      const body = JSON.parse(text) as { message?: unknown };
+      if (typeof body.message === "string" && body.message) {
+        detail = body.message;
+      }
+    } catch {
+      if (text.length <= 200) {
+        detail = text;
+      }
+    }
+  }
+  if (res.status === 404) {
+    return `Asset ${id} not found`;
+  }
+  if (res.status === 403) {
+    return `No access to asset ${id}: ${detail}`;
+  }
+  return `Failed to fetch asset ${id}: ${detail}`;
+}
+
+function oversizedAssetMessage(id: string, size?: number): string {
+  const lead =
+    size === undefined
+      ? "Asset is over"
+      : `Asset is ${formatBytes(size)}, over`;
+  return `${lead} the ${formatBytes(MAX_ASSET_BYTES)} MCP limit. Fetch it directly with: curl -H "Authorization: Bearer $KANEO_API_KEY" "$KANEO_API_URL/api/asset/${encodeURIComponent(id)}" -o out`;
 }
 
 const PRIORITIES = ["no-priority", "low", "medium", "high", "urgent"] as const;
@@ -215,6 +410,9 @@ export function registerMcpTools(
   server: McpToolRegistrar,
   baseUrl: string,
   token: string,
+  // The origin shown to users in asset results. Defaults to the request origin
+  // but callers pass the public API URL so internal addresses never leak.
+  assetUrlBase: string = baseUrl,
 ): void {
   const client = new ApiClient(baseUrl, token);
   const registerTool = <InputSchema extends z.ZodObject>(
@@ -977,5 +1175,65 @@ export function registerMcpTools(
       inputSchema: z.object({}),
     },
     async () => run(() => client.json("/api/notification")),
+  );
+
+  registerTool(
+    "get_asset",
+    {
+      description:
+        "Download an uploaded asset by ID, or by the /api/asset/<id> URL found in task and comment content. Images are returned as viewable image content; other types are returned as a base64 resource. Private assets require access to their workspace.",
+      inputSchema: z.object({
+        assetId: nonEmptyString.describe(
+          "Asset ID, or the full /api/asset/<id> URL from task content",
+        ),
+      }),
+    },
+    async (args) => {
+      let id: string;
+      try {
+        id = extractAssetId(args.assetId);
+      } catch (error) {
+        return errorResult(
+          error instanceof Error ? error.message : String(error),
+        );
+      }
+      try {
+        const res = await client.raw(`/api/asset/${encodeURIComponent(id)}`, {
+          method: "GET",
+        });
+        if (!res.ok) {
+          return errorResult(await describeAssetFailure(id, res));
+        }
+        const declaredLength = Number(res.headers.get("content-length") ?? "");
+        if (
+          Number.isFinite(declaredLength) &&
+          declaredLength > MAX_ASSET_BYTES
+        ) {
+          return errorResult(oversizedAssetMessage(id, declaredLength));
+        }
+        const { mimeType, servedType } = resolveAssetContentTypes(res.headers);
+        const body = await readBodyWithLimit(res, MAX_ASSET_BYTES);
+        if ("exceeded" in body) {
+          return errorResult(oversizedAssetMessage(id));
+        }
+        return buildAssetResult(
+          {
+            id,
+            filename: parseContentDispositionFilename(
+              res.headers.get("content-disposition"),
+            ),
+            mimeType,
+            size: body.bytes.byteLength,
+            url: `${assetUrlBase}/api/asset/${id}`,
+          },
+          body.bytes,
+          servedType,
+        );
+      } catch (error) {
+        return errorResult(
+          error instanceof Error ? error.message : String(error),
+        );
+      }
+    },
   );
 }

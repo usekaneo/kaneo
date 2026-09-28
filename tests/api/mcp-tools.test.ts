@@ -11,17 +11,70 @@ import {
   registerMcpTools,
 } from "../../apps/api/src/mcp/tools";
 
+type ToolContent =
+  | { type: "text"; text: string }
+  | { type: "image"; data: string; mimeType: string }
+  | {
+      type: "resource";
+      resource: { uri: string; mimeType?: string; blob: string };
+    };
+
 type ToolCallback = (args: unknown) => Promise<{
-  content: Array<{ text: string }>;
+  content: ToolContent[];
   isError?: boolean;
 }>;
 
-function collectTools() {
+function bodyFromChunks(chunks: Uint8Array[]): ReadableStream<Uint8Array> {
+  return new ReadableStream({
+    start(controller) {
+      for (const chunk of chunks) {
+        controller.enqueue(chunk);
+      }
+      controller.close();
+    },
+  });
+}
+
+function binaryResponse(options: {
+  bytes?: Uint8Array;
+  chunks?: Uint8Array[];
+  contentType?: string;
+  assetMimeType?: string;
+  filename?: string;
+  contentLength?: number;
+}): Response {
+  const headers = new Headers();
+  if (options.contentType) {
+    headers.set("content-type", options.contentType);
+  }
+  if (options.assetMimeType) {
+    headers.set("x-asset-mime-type", options.assetMimeType);
+  }
+  if (options.filename) {
+    headers.set(
+      "content-disposition",
+      `inline; filename="${options.filename}"`,
+    );
+  }
+  if (options.contentLength !== undefined) {
+    headers.set("content-length", String(options.contentLength));
+  }
+  const chunks = options.chunks ?? [options.bytes ?? new Uint8Array()];
+  return {
+    ok: true,
+    status: 200,
+    headers,
+    body: bodyFromChunks(chunks),
+    text: async () => "",
+  } as unknown as Response;
+}
+
+function collectTools(baseUrl = "http://api.test", assetUrlBase?: string) {
   const tools = new Map<string, ToolCallback>();
   const registrar: McpToolRegistrar = {
     registerTool: (name, _config, callback) => tools.set(name, callback),
   };
-  registerMcpTools(registrar, "http://api.test", "test-token");
+  registerMcpTools(registrar, baseUrl, "test-token", assetUrlBase);
   return tools;
 }
 
@@ -225,5 +278,194 @@ describe("MCP tool catalog", () => {
 
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toContain("Task not found");
+  });
+
+  it("downloads an image asset as image content", async () => {
+    apiFetch.mockResolvedValueOnce(
+      binaryResponse({
+        bytes: new Uint8Array([104, 105]),
+        contentType: "image/png",
+        filename: "pic.png",
+        contentLength: 2,
+      }),
+    );
+
+    const result = await call("get_asset", { assetId: "abc123" });
+
+    const request = lastRequest();
+    expect(request.url).toBe("http://api.test/api/asset/abc123");
+    expect(request.auth).toBe("Bearer test-token");
+    expect(result.isError).toBe(false);
+    expect(result.content[0]).toEqual({
+      type: "text",
+      text: JSON.stringify(
+        {
+          id: "abc123",
+          filename: "pic.png",
+          mimeType: "image/png",
+          size: 2,
+          url: "http://api.test/api/asset/abc123",
+        },
+        null,
+        2,
+      ),
+    });
+    expect(result.content[1]).toEqual({
+      type: "image",
+      data: "aGk=",
+      mimeType: "image/png",
+    });
+  });
+
+  it("extracts the asset id from a full /api/asset URL", async () => {
+    apiFetch.mockResolvedValueOnce(
+      binaryResponse({ bytes: new Uint8Array([1]), contentType: "image/png" }),
+    );
+
+    await call("get_asset", { assetId: "https://kaneo.test/api/asset/xyz789" });
+
+    expect(lastRequest().url).toBe("http://api.test/api/asset/xyz789");
+  });
+
+  it("returns a non-image asset as an embedded resource", async () => {
+    apiFetch.mockResolvedValueOnce(
+      binaryResponse({
+        bytes: new Uint8Array([10, 20, 30]),
+        contentType: "application/octet-stream",
+        assetMimeType: "application/pdf",
+        filename: "report.pdf",
+      }),
+    );
+
+    const result = await call("get_asset", { assetId: "doc1" });
+
+    expect(result.content[0]).toEqual({
+      type: "text",
+      text: JSON.stringify(
+        {
+          id: "doc1",
+          filename: "report.pdf",
+          mimeType: "application/pdf",
+          size: 3,
+          url: "http://api.test/api/asset/doc1",
+        },
+        null,
+        2,
+      ),
+    });
+    expect(result.content[1]).toEqual({
+      type: "resource",
+      resource: {
+        uri: "http://api.test/api/asset/doc1",
+        mimeType: "application/octet-stream",
+        blob: Buffer.from([10, 20, 30]).toString("base64"),
+      },
+    });
+  });
+
+  it("reports a missing asset", async () => {
+    apiFetch.mockResolvedValueOnce(
+      Response.json({ message: "Asset not found" }, { status: 404 }),
+    );
+
+    const result = await call("get_asset", { assetId: "gone" });
+
+    expect(result.isError).toBe(true);
+    expect(result.content[0]).toEqual({
+      type: "text",
+      text: JSON.stringify({ error: "Asset gone not found" }, null, 2),
+    });
+  });
+
+  it("rejects a malformed asset reference before making a request", async () => {
+    const result = await call("get_asset", {
+      assetId: "https://kaneo.test/not-an-asset",
+    });
+
+    expect(result.isError).toBe(true);
+    expect(apiFetch).not.toHaveBeenCalled();
+  });
+
+  it("shows the public API origin, not the internal request origin", async () => {
+    const publicTools = collectTools(
+      "http://internal.test",
+      "https://public.test",
+    );
+    apiFetch.mockResolvedValueOnce(
+      binaryResponse({
+        bytes: new Uint8Array([1]),
+        contentType: "application/octet-stream",
+        assetMimeType: "application/pdf",
+      }),
+    );
+
+    const callback = publicTools.get("get_asset");
+    if (!callback) throw new Error("get_asset is not registered");
+    const result = await callback({ assetId: "doc1" });
+
+    expect(result.content[0]).toEqual({
+      type: "text",
+      text: JSON.stringify(
+        {
+          id: "doc1",
+          filename: null,
+          mimeType: "application/pdf",
+          size: 1,
+          url: "https://public.test/api/asset/doc1",
+        },
+        null,
+        2,
+      ),
+    });
+    expect(result.content[1]).toEqual({
+      type: "resource",
+      resource: {
+        uri: "https://public.test/api/asset/doc1",
+        mimeType: "application/octet-stream",
+        blob: Buffer.from([1]).toString("base64"),
+      },
+    });
+  });
+
+  it("refuses to inline an asset larger than the limit", async () => {
+    apiFetch.mockResolvedValueOnce(
+      binaryResponse({
+        bytes: new Uint8Array([1]),
+        contentType: "image/png",
+        contentLength: 10 * 1024 * 1024 + 1,
+      }),
+    );
+
+    const result = await call("get_asset", { assetId: "big" });
+
+    expect(result.isError).toBe(true);
+    expect(result.content).toHaveLength(1);
+    const [content] = result.content;
+    expect(content).toMatchObject({ type: "text" });
+    const text = content?.type === "text" ? content.text : "";
+    expect(text).toContain("over the 10.0MB MCP limit");
+    expect(text).toContain("/api/asset/big");
+  });
+
+  it("refuses an oversized streamed asset without a declared length", async () => {
+    apiFetch.mockResolvedValueOnce(
+      binaryResponse({
+        chunks: [
+          new Uint8Array(6 * 1024 * 1024),
+          new Uint8Array(5 * 1024 * 1024),
+        ],
+        contentType: "image/png",
+      }),
+    );
+
+    const result = await call("get_asset", { assetId: "big-stream" });
+
+    expect(result.isError).toBe(true);
+    expect(result.content).toHaveLength(1);
+    const [content] = result.content;
+    expect(content).toMatchObject({ type: "text" });
+    const text = content?.type === "text" ? content.text : "";
+    expect(text).toContain("over the 10.0MB MCP limit");
+    expect(text).toContain("/api/asset/big-stream");
   });
 });
