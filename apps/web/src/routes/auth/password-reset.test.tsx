@@ -14,7 +14,7 @@ import {
   expect,
   it,
   vi,
-} from "vitest";
+} from "vite-plus/test";
 import { SignInForm } from "@/components/auth/sign-in-form";
 
 const mocks = vi.hoisted(() => ({
@@ -78,7 +78,9 @@ function submitPasswords(password = "new-password", confirmation = password) {
   });
   fireEvent.change(
     screen.getByLabelText("auth:passwordReset.confirmPassword"),
-    { target: { value: confirmation } },
+    {
+      target: { value: confirmation },
+    },
   );
   fireEvent.submit(
     screen

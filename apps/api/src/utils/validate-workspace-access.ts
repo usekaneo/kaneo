@@ -1,6 +1,7 @@
 import { and, eq, or } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../database";
+import { hasInstanceAdminRole } from "./instance-admin-role";
 
 export async function validateWorkspaceAccess(
   userId: string,
@@ -36,7 +37,7 @@ export async function validateWorkspaceAccess(
     .where(eq(schema.userTable.id, userId))
     .limit(1);
 
-  if (user?.role === "admin") {
+  if (hasInstanceAdminRole(user?.role)) {
     return;
   }
 

@@ -30,6 +30,8 @@ async function updateTask(
   const [existingTask] = await db
     .select({
       id: taskTable.id,
+      title: taskTable.title,
+      priority: taskTable.priority,
       description:
         description === undefined ? sql<null>`null` : taskTable.description,
       status: taskTable.status,
@@ -111,6 +113,40 @@ async function updateTask(
     await publishEvent("task-relation.refresh", {
       projectId: updatedTask.projectId,
       userId: currentUserId,
+    });
+  }
+
+  if (existingTask.title !== title) {
+    await publishEvent("task.title_changed", {
+      taskId: updatedTask.id,
+      projectId: updatedTask.projectId,
+      userId: currentUserId,
+      oldTitle: existingTask.title,
+      newTitle: title,
+      type: "title_changed",
+    });
+  }
+
+  if (description !== undefined && existingTask.description !== description) {
+    await publishEvent("task.description_changed", {
+      taskId: updatedTask.id,
+      projectId: updatedTask.projectId,
+      userId: currentUserId,
+      oldDescription: existingTask.description,
+      newDescription: description,
+      type: "description_changed",
+    });
+  }
+
+  if (existingTask.priority !== priority) {
+    await publishEvent("task.priority_changed", {
+      taskId: updatedTask.id,
+      projectId: updatedTask.projectId,
+      userId: currentUserId,
+      oldPriority: existingTask.priority,
+      newPriority: priority,
+      title: updatedTask.title,
+      type: "priority_changed",
     });
   }
 

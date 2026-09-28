@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { and, eq, inArray } from "drizzle-orm";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { mockAuthenticatedSession } from "./helpers/auth";
@@ -335,7 +335,9 @@ describe("API integration: workspace RBAC enforcement", () => {
         workspaceId: member.workspace.id,
       });
       const { project: foreignProject, columns: foreignColumns } =
-        await createProjectFixture({ workspaceId: foreign.workspace.id });
+        await createProjectFixture({
+          workspaceId: foreign.workspace.id,
+        });
       const task = await seedTask(project.id, columns.todo.id);
       const foreignTask = await seedTask(
         foreignProject.id,
@@ -1062,7 +1064,9 @@ describe("API integration: workspace RBAC enforcement", () => {
 
       const response = await app.request(
         `/api/slack-integration/project/${project.id}`,
-        { method: "DELETE" },
+        {
+          method: "DELETE",
+        },
       );
       expect(response.status).toBe(403);
     });

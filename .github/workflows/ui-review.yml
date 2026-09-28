@@ -33,7 +33,7 @@ jobs:
       pr: ${{ steps.request.outputs.pr }}
       model: ${{ steps.request.outputs.model }}
     steps:
-      - uses: useblacksmith/checkout@v1 # v7.0.1
+      - uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
         with:
           ref: ${{ github.workflow_sha }}
           persist-credentials: false
@@ -54,7 +54,8 @@ jobs:
     concurrency:
       group: peekareq-${{ needs.authorize.outputs.pr }}
       cancel-in-progress: true
-    uses: ./.github/workflows/ui-review-run.yml
+
+    uses: ./.github/workflows/ui-review-run.yml # zizmor: ignore[self-repository] $/-syntax not parsed by pinned actionlint v1.7.12; revisit when supported
     with:
       pr: ${{ needs.authorize.outputs.pr }}
       model: ${{ needs.authorize.outputs.model }}

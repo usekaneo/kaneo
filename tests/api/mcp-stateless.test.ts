@@ -1,5 +1,5 @@
 import { isLegacyRequest } from "@modelcontextprotocol/server";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import mcpRoutes from "../../apps/api/src/mcp";
 import { createModernMcpHandler } from "../../apps/api/src/mcp/modern";
 

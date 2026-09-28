@@ -1,25 +1,45 @@
 ---
-title: Google
-description: Google is a social provider for Kaneo.
+title: "Sign in with Google"
+description: "Let people use their Google account to sign in to Kaneo."
 ---
 
-## Overview
+This sets up sign-in for your instance. It does not connect a repository or send project notifications.
 
-Google is a social provider for Kaneo. It allows users to sign in to Kaneo using their Google account.
+## Register the application
 
-## Configuration
+Open the [Google developer console](https://console.cloud.google.com/). Choose a Google Cloud project, configure its OAuth consent screen and audience, and create an OAuth client of type **Web application**. Add the address below as an authorized redirect URI. If the app is in testing, add the people who will test it to the allowed test users.
 
-1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
-2. Create a new project.
-3. Enable the Google Sign In API.
-4. Create a new OAuth client ID.
-5. Set the redirect URI to `KANEO_API_URL/api/auth/callback/google`.
-6. Copy the client ID and client secret.
-7. Set the `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` environment variables.
+For a bundled Kaneo deployment at `https://kaneo.example.com`, the callback is:
 
+```text
+https://kaneo.example.com/api/auth/callback/google
+```
 
-For more information on what your `KANEO_API_URL` is, see the [Environment variables](/core/installation/environment-variables#google-sso--integration) page.
+Use your own hostname. If the API is hosted separately, use its public origin instead. The callback path is `/api/auth/callback/google`; do not append a second `/api` when your API URL already includes it.
 
-## Usage
+For provider-specific options, see the [official OAuth guide](https://developers.google.com/identity/protocols/oauth2/web-server).
 
-Once you have configured the social provider, you can sign in to Kaneo using your Google account.
+## Configure Kaneo
+
+Add the values from the provider to your server's `.env`:
+
+```env
+GOOGLE_CLIENT_ID=your-client-id
+GOOGLE_CLIENT_SECRET=your-client-secret
+```
+
+Apply the change to the bundled deployment:
+
+```bash
+docker compose up -d --force-recreate kaneo
+```
+
+## Test sign-in
+
+Open Kaneo in a private browser window and choose the Google sign-in option. Complete authorization and confirm you return to Kaneo.
+
+If the provider reports a redirect mismatch, compare the full URL, including the scheme, hostname, port, and path. If sign-in succeeds but joining a workspace fails, check the invitation email and instance registration settings.
+
+## Turn it off
+
+Remove the two environment variables and recreate Kaneo. Make sure people have another way to sign in before disabling the provider. Review [access settings](/core/installation/environment-variables#access-control) before enforcing SSO-only access.

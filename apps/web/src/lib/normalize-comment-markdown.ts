@@ -2,64 +2,34 @@ function normalizeSpaces(markdown: string) {
   return markdown.replace(/&nbsp;/g, " ").replace(/\u00A0/g, " ");
 }
 
-function findClosingBacktickRun(
-  markdown: string,
-  start: number,
-  delimiterLength: number,
-) {
-  let index = start;
-
-  while (index < markdown.length) {
-    if (markdown[index] !== "`") {
-      index += 1;
-      continue;
-    }
-
-    let runLength = 1;
-    while (markdown[index + runLength] === "`") {
-      runLength += 1;
-    }
-
-    if (runLength === delimiterLength) return index;
-    index += runLength;
-  }
-
-  return -1;
-}
-
 function normalizeInlineMarkdown(markdown: string) {
-  let output = "";
-  let textStart = 0;
-  let index = 0;
-
-  while (index < markdown.length) {
-    if (markdown[index] !== "`") {
-      index += 1;
-      continue;
-    }
-
-    let delimiterLength = 1;
-    while (markdown[index + delimiterLength] === "`") {
-      delimiterLength += 1;
-    }
-
-    const closingIndex = findClosingBacktickRun(
-      markdown,
-      index + delimiterLength,
-      delimiterLength,
-    );
-    if (closingIndex === -1) {
-      index += delimiterLength;
-      continue;
-    }
-
-    output += normalizeSpaces(markdown.slice(textStart, index));
-    output += markdown.slice(index, closingIndex + delimiterLength);
-    index = closingIndex + delimiterLength;
-    textStart = index;
+  const runs = Array.from(markdown.matchAll(/`+/g), (match) => ({
+    index: match.index,
+    length: match[0].length,
+    next: -1,
+  }));
+  // Index matching delimiters once. Restarting a suffix scan for each unmatched
+  // run makes descending run lengths quadratic in the number of delimiters.
+  const nextByLength = new Map<number, number>();
+  for (let index = runs.length - 1; index >= 0; index -= 1) {
+    const run = runs[index];
+    run.next = nextByLength.get(run.length) ?? -1;
+    nextByLength.set(run.length, index);
   }
 
-  return output + normalizeSpaces(markdown.slice(textStart));
+  const output: string[] = [];
+  let textStart = 0;
+  for (let index = 0; index < runs.length; index += 1) {
+    const opening = runs[index];
+    if (opening.next === -1) continue;
+    const closing = runs[opening.next];
+    output.push(normalizeSpaces(markdown.slice(textStart, opening.index)));
+    textStart = closing.index + closing.length;
+    output.push(markdown.slice(opening.index, textStart));
+    index = opening.next;
+  }
+  output.push(normalizeSpaces(markdown.slice(textStart)));
+  return output.join("");
 }
 
 export function normalizeCommentMarkdown(markdown: string) {

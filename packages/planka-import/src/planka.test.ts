@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { normalizeBaseUrl, PlankaClient } from "./planka.js";
 
 const realFetch = globalThis.fetch;

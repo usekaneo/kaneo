@@ -7,7 +7,7 @@ type TaskLabel = {
 type TaskExternalLink = {
   id: string;
   taskId: string;
-  integrationId: string;
+  integrationId: string | null;
   resourceType: string;
   externalId: string;
   url: string;
@@ -39,6 +39,7 @@ type Task = {
   assigneeImage?: string | null;
   projectId: string;
   columnId?: string | null;
+  subtaskCounts?: { completed: number; total: number };
   labels?: TaskLabel[];
   externalLinks?: TaskExternalLink[];
   customFieldValues?: TaskCustomFieldValue[];

@@ -846,6 +846,65 @@
 						"backToLogin"
 					]
 				},
+				"cloud": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"signUp": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description"]
+						},
+						"onboarding": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description"]
+						},
+						"invite": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description"]
+						},
+						"plan": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description"]
+						}
+					},
+					"required": ["signUp", "onboarding", "invite", "plan"]
+				},
 				"signUp": {
 					"type": "object",
 					"additionalProperties": false,
@@ -1225,6 +1284,15 @@
 						"createWorkspace": {
 							"type": "string"
 						},
+						"restrictedTitle": {
+							"type": "string"
+						},
+						"restrictedSubtitle": {
+							"type": "string"
+						},
+						"restrictedCheckInvitations": {
+							"type": "string"
+						},
 						"workspaceCreatedTitle": {
 							"type": "string"
 						},
@@ -1253,6 +1321,154 @@
 								}
 							},
 							"required": ["workspaceNameRequired"]
+						},
+						"cloud": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"subtitle": {
+									"type": "string"
+								},
+								"usageLabel": {
+									"type": "string"
+								},
+								"usageSolo": {
+									"type": "string"
+								},
+								"usageSoloDescription": {
+									"type": "string"
+								},
+								"usageTeam": {
+									"type": "string"
+								},
+								"usageTeamDescription": {
+									"type": "string"
+								},
+								"continue": {
+									"type": "string"
+								},
+								"invite": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"title": {
+											"type": "string"
+										},
+										"subtitle": {
+											"type": "string"
+										},
+										"emailLabel": {
+											"type": "string"
+										},
+										"emailPlaceholder": {
+											"type": "string"
+										},
+										"addAnother": {
+											"type": "string"
+										},
+										"remove": {
+											"type": "string"
+										},
+										"send": {
+											"type": "string"
+										},
+										"sending": {
+											"type": "string"
+										},
+										"skip": {
+											"type": "string"
+										},
+										"invalidEmail": {
+											"type": "string"
+										},
+										"sent_one": {
+											"type": "string"
+										},
+										"sent_zero": {
+											"type": "string"
+										},
+										"sent_two": {
+											"type": "string"
+										},
+										"sent_few": {
+											"type": "string"
+										},
+										"sent_many": {
+											"type": "string"
+										},
+										"sent_other": {
+											"type": "string"
+										},
+										"failed": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"title",
+										"subtitle",
+										"emailLabel",
+										"emailPlaceholder",
+										"addAnother",
+										"remove",
+										"send",
+										"sending",
+										"skip",
+										"invalidEmail",
+										"failed"
+									]
+								},
+								"plan": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"title": {
+											"type": "string"
+										},
+										"trialActive": {
+											"type": "string"
+										},
+										"trialUsed": {
+											"type": "string"
+										},
+										"recommended": {
+											"type": "string"
+										},
+										"continueTrial": {
+											"type": "string"
+										},
+										"continueWithoutPlan": {
+											"type": "string"
+										},
+										"note": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"title",
+										"trialActive",
+										"trialUsed",
+										"recommended",
+										"continueTrial",
+										"continueWithoutPlan",
+										"note"
+									]
+								}
+							},
+							"required": [
+								"title",
+								"subtitle",
+								"usageLabel",
+								"usageSolo",
+								"usageSoloDescription",
+								"usageTeam",
+								"usageTeamDescription",
+								"continue",
+								"invite",
+								"plan"
+							]
 						}
 					},
 					"required": [
@@ -1266,10 +1482,14 @@
 						"descriptionPlaceholder",
 						"creating",
 						"createWorkspace",
+						"restrictedTitle",
+						"restrictedSubtitle",
+						"restrictedCheckInvitations",
 						"workspaceCreatedTitle",
 						"redirectingToWorkspace",
 						"toast",
-						"validation"
+						"validation",
+						"cloud"
 					]
 				},
 				"profileSetup": {
@@ -1446,6 +1666,7 @@
 				"providers",
 				"forms",
 				"checkEmail",
+				"cloud",
 				"signUp",
 				"verifyOtp",
 				"otpSignIn",
@@ -2264,6 +2485,9 @@
 						},
 						"toastRuleRemovedGeneric": {
 							"type": "string"
+						},
+						"recipientHint": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -2366,7 +2590,8 @@
 						"toastPreferencesSaved",
 						"toastPreferencesSaveFailed",
 						"toastRuleSavedGeneric",
-						"toastRuleRemovedGeneric"
+						"toastRuleRemovedGeneric",
+						"recipientHint"
 					]
 				},
 				"preferencesPage": {
@@ -2489,6 +2714,12 @@
 						},
 						"priorityDescription": {
 							"type": "string"
+						},
+						"projectBackgrounds": {
+							"type": "string"
+						},
+						"projectBackgroundsDescription": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -2530,7 +2761,9 @@
 						"labels",
 						"labelsDescription",
 						"priority",
-						"priorityDescription"
+						"priorityDescription",
+						"projectBackgrounds",
+						"projectBackgroundsDescription"
 					]
 				},
 				"developerPage": {
@@ -3875,6 +4108,33 @@
 						"descriptionPlaceholder": {
 							"type": "string"
 						},
+						"backgroundLabel": {
+							"type": "string"
+						},
+						"backgroundHint": {
+							"type": "string"
+						},
+						"backgroundUpload": {
+							"type": "string"
+						},
+						"backgroundReplace": {
+							"type": "string"
+						},
+						"backgroundRemove": {
+							"type": "string"
+						},
+						"backgroundUploadSuccess": {
+							"type": "string"
+						},
+						"backgroundUploadError": {
+							"type": "string"
+						},
+						"backgroundRemoveSuccess": {
+							"type": "string"
+						},
+						"backgroundRemoveError": {
+							"type": "string"
+						},
 						"dangerZone": {
 							"type": "string"
 						},
@@ -3937,6 +4197,39 @@
 						},
 						"importExportTasksDescription": {
 							"type": "string"
+						},
+						"moveProject": {
+							"type": "string"
+						},
+						"moveProjectDescription": {
+							"type": "string"
+						},
+						"moveProjectPlaceholder": {
+							"type": "string"
+						},
+						"moveTargetsError": {
+							"type": "string"
+						},
+						"moveProjectAction": {
+							"type": "string"
+						},
+						"moveModalTitle": {
+							"type": "string"
+						},
+						"moveModalDescription": {
+							"type": "string"
+						},
+						"moveModalConfirm": {
+							"type": "string"
+						},
+						"toastMoved": {
+							"type": "string"
+						},
+						"toastMovedWithUnassigned": {
+							"type": "string"
+						},
+						"toastMoveError": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -3958,6 +4251,15 @@
 						"descriptionLabel",
 						"descriptionHint",
 						"descriptionPlaceholder",
+						"backgroundLabel",
+						"backgroundHint",
+						"backgroundUpload",
+						"backgroundReplace",
+						"backgroundRemove",
+						"backgroundUploadSuccess",
+						"backgroundUploadError",
+						"backgroundRemoveSuccess",
+						"backgroundRemoveError",
 						"dangerZone",
 						"dangerZoneSubtitle",
 						"deleteProject",
@@ -3971,7 +4273,18 @@
 						"toastDeleteError",
 						"validation",
 						"importExportTasks",
-						"importExportTasksDescription"
+						"importExportTasksDescription",
+						"moveProject",
+						"moveProjectDescription",
+						"moveProjectPlaceholder",
+						"moveTargetsError",
+						"moveProjectAction",
+						"moveModalTitle",
+						"moveModalDescription",
+						"moveModalConfirm",
+						"toastMoved",
+						"toastMovedWithUnassigned",
+						"toastMoveError"
 					]
 				},
 				"projectIntegrations": {
@@ -3997,6 +4310,12 @@
 							"type": "string"
 						},
 						"giteaSectionSubtitle": {
+							"type": "string"
+						},
+						"gitlabSectionTitle": {
+							"type": "string"
+						},
+						"gitlabSectionSubtitle": {
 							"type": "string"
 						},
 						"discordSectionTitle": {
@@ -4038,6 +4357,8 @@
 						"githubSectionSubtitle",
 						"giteaSectionTitle",
 						"giteaSectionSubtitle",
+						"gitlabSectionTitle",
+						"gitlabSectionSubtitle",
 						"discordSectionTitle",
 						"discordSectionSubtitle",
 						"genericWebhookSectionTitle",
@@ -4274,6 +4595,30 @@
 						"optionsPlaceholder": {
 							"type": "string"
 						},
+						"selectPlaceholder": {
+							"type": "string"
+						},
+						"defaultValues": {
+							"type": "string"
+						},
+						"defaultValues_zero": {
+							"type": "string"
+						},
+						"defaultValues_one": {
+							"type": "string"
+						},
+						"defaultValues_two": {
+							"type": "string"
+						},
+						"defaultValues_few": {
+							"type": "string"
+						},
+						"defaultValues_many": {
+							"type": "string"
+						},
+						"defaultValues_other": {
+							"type": "string"
+						},
 						"required": {
 							"type": "string"
 						},
@@ -4310,6 +4655,39 @@
 						"deleteError": {
 							"type": "string"
 						},
+						"reorderError": {
+							"type": "string"
+						},
+						"moreOptions": {
+							"type": "string"
+						},
+						"clearDefault": {
+							"type": "string"
+						},
+						"options": {
+							"type": "string"
+						},
+						"options_zero": {
+							"type": "string"
+						},
+						"options_one": {
+							"type": "string"
+						},
+						"options_two": {
+							"type": "string"
+						},
+						"options_few": {
+							"type": "string"
+						},
+						"options_many": {
+							"type": "string"
+						},
+						"options_other": {
+							"type": "string"
+						},
+						"availableOptions": {
+							"type": "string"
+						},
 						"types": {
 							"type": "object",
 							"additionalProperties": false,
@@ -4328,9 +4706,22 @@
 								},
 								"boolean": {
 									"type": "string"
+								},
+								"multiselect": {
+									"type": "string"
 								}
 							},
-							"required": ["text", "number", "date", "dropdown", "boolean"]
+							"required": [
+								"text",
+								"number",
+								"date",
+								"dropdown",
+								"boolean",
+								"multiselect"
+							]
+						},
+						"multiple": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -4339,6 +4730,7 @@
 						"noOptionsPlaceholder",
 						"defaultValuePlaceholder",
 						"optionsPlaceholder",
+						"selectPlaceholder",
 						"required",
 						"addButton",
 						"creating",
@@ -4351,7 +4743,12 @@
 						"deleting",
 						"deleteSuccess",
 						"deleteError",
-						"types"
+						"reorderError",
+						"moreOptions",
+						"clearDefault",
+						"availableOptions",
+						"types",
+						"multiple"
 					]
 				},
 				"githubIntegration": {
@@ -4928,6 +5325,324 @@
 						"browseNeedsCredentials",
 						"loadingRepos",
 						"retry"
+					]
+				},
+				"gitlabIntegration": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"validation": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"baseUrlRequired": {
+									"type": "string"
+								},
+								"baseUrlInvalid": {
+									"type": "string"
+								},
+								"pathRequired": {
+									"type": "string"
+								},
+								"pathInvalid": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"baseUrlRequired",
+								"baseUrlInvalid",
+								"pathRequired",
+								"pathInvalid"
+							]
+						},
+						"toast": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"verifyOk": {
+									"type": "string"
+								},
+								"verifyWarning": {
+									"type": "string"
+								},
+								"projectNotFound": {
+									"type": "string"
+								},
+								"redirected": {
+									"type": "string"
+								},
+								"notGitlabInstance": {
+									"type": "string"
+								},
+								"verifyError": {
+									"type": "string"
+								},
+								"tokenRequired": {
+									"type": "string"
+								},
+								"tokenRequiredVerify": {
+									"type": "string"
+								},
+								"verifyFirst": {
+									"type": "string"
+								},
+								"updated": {
+									"type": "string"
+								},
+								"updateError": {
+									"type": "string"
+								},
+								"removed": {
+									"type": "string"
+								},
+								"removeError": {
+									"type": "string"
+								},
+								"issuesImported": {
+									"type": "string"
+								},
+								"importError": {
+									"type": "string"
+								},
+								"commentOnEnabled": {
+									"type": "string"
+								},
+								"commentOnDisabled": {
+									"type": "string"
+								},
+								"settingsUpdateError": {
+									"type": "string"
+								},
+								"secretCopied": {
+									"type": "string"
+								},
+								"unableToCopySecret": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"verifyOk",
+								"verifyWarning",
+								"projectNotFound",
+								"redirected",
+								"notGitlabInstance",
+								"verifyError",
+								"tokenRequired",
+								"tokenRequiredVerify",
+								"verifyFirst",
+								"updated",
+								"updateError",
+								"removed",
+								"removeError",
+								"issuesImported",
+								"importError",
+								"commentOnEnabled",
+								"commentOnDisabled",
+								"settingsUpdateError",
+								"secretCopied",
+								"unableToCopySecret"
+							]
+						},
+						"webhookShow": {
+							"type": "string"
+						},
+						"webhookHide": {
+							"type": "string"
+						},
+						"webhookCopy": {
+							"type": "string"
+						},
+						"connectionStatus": {
+							"type": "string"
+						},
+						"connectedActive": {
+							"type": "string"
+						},
+						"notConnectedHint": {
+							"type": "string"
+						},
+						"badgeConnected": {
+							"type": "string"
+						},
+						"badgeNotConnected": {
+							"type": "string"
+						},
+						"project": {
+							"type": "string"
+						},
+						"projectHint": {
+							"type": "string"
+						},
+						"commentTaskLinkTitle": {
+							"type": "string"
+						},
+						"commentTaskLinkHint": {
+							"type": "string"
+						},
+						"webhookTitle": {
+							"type": "string"
+						},
+						"webhookHint": {
+							"type": "string"
+						},
+						"webhookSecretLabel": {
+							"type": "string"
+						},
+						"baseUrlLabel": {
+							"type": "string"
+						},
+						"baseUrlHint": {
+							"type": "string"
+						},
+						"tokenTypeLabel": {
+							"type": "string"
+						},
+						"tokenTypeHint": {
+							"type": "string"
+						},
+						"tokenTypePrivate": {
+							"type": "string"
+						},
+						"tokenTypeBearer": {
+							"type": "string"
+						},
+						"tokenLabel": {
+							"type": "string"
+						},
+						"tokenHint": {
+							"type": "string"
+						},
+						"tokenPlaceholder": {
+							"type": "string"
+						},
+						"tokenPlaceholderUpdate": {
+							"type": "string"
+						},
+						"currentToken": {
+							"type": "string"
+						},
+						"projectPathLabel": {
+							"type": "string"
+						},
+						"projectPathHint": {
+							"type": "string"
+						},
+						"actionsTitle": {
+							"type": "string"
+						},
+						"actionsHint": {
+							"type": "string"
+						},
+						"browse": {
+							"type": "string"
+						},
+						"verify": {
+							"type": "string"
+						},
+						"update": {
+							"type": "string"
+						},
+						"connect": {
+							"type": "string"
+						},
+						"disconnect": {
+							"type": "string"
+						},
+						"importSectionTitle": {
+							"type": "string"
+						},
+						"importSectionHint": {
+							"type": "string"
+						},
+						"importing": {
+							"type": "string"
+						},
+						"importIssues": {
+							"type": "string"
+						},
+						"importDisabledHint": {
+							"type": "string"
+						},
+						"browseModalTitle": {
+							"type": "string"
+						},
+						"browseModalHint": {
+							"type": "string"
+						},
+						"searchProjects": {
+							"type": "string"
+						},
+						"browseNeedsCredentials": {
+							"type": "string"
+						},
+						"loadingProjects": {
+							"type": "string"
+						},
+						"loadProjectsError": {
+							"type": "string"
+						},
+						"openInGitlab": {
+							"type": "string"
+						},
+						"retry": {
+							"type": "string"
+						},
+						"importPermissionHint": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"validation",
+						"toast",
+						"webhookShow",
+						"webhookHide",
+						"webhookCopy",
+						"connectionStatus",
+						"connectedActive",
+						"notConnectedHint",
+						"badgeConnected",
+						"badgeNotConnected",
+						"project",
+						"projectHint",
+						"commentTaskLinkTitle",
+						"commentTaskLinkHint",
+						"webhookTitle",
+						"webhookHint",
+						"webhookSecretLabel",
+						"baseUrlLabel",
+						"baseUrlHint",
+						"tokenTypeLabel",
+						"tokenTypeHint",
+						"tokenTypePrivate",
+						"tokenTypeBearer",
+						"tokenLabel",
+						"tokenHint",
+						"tokenPlaceholder",
+						"tokenPlaceholderUpdate",
+						"currentToken",
+						"projectPathLabel",
+						"projectPathHint",
+						"actionsTitle",
+						"actionsHint",
+						"browse",
+						"verify",
+						"update",
+						"connect",
+						"disconnect",
+						"importSectionTitle",
+						"importSectionHint",
+						"importing",
+						"importIssues",
+						"importDisabledHint",
+						"browseModalTitle",
+						"browseModalHint",
+						"searchProjects",
+						"browseNeedsCredentials",
+						"loadingProjects",
+						"loadProjectsError",
+						"openInGitlab",
+						"retry",
+						"importPermissionHint"
 					]
 				},
 				"slackIntegration": {
@@ -6016,6 +6731,12 @@
 						"giteaHint": {
 							"type": "string"
 						},
+						"gitlabHeading": {
+							"type": "string"
+						},
+						"gitlabHint": {
+							"type": "string"
+						},
 						"selectColumnPlaceholder": {
 							"type": "string"
 						},
@@ -6061,6 +6782,8 @@
 						"githubHint",
 						"giteaHeading",
 						"giteaHint",
+						"gitlabHeading",
+						"gitlabHint",
 						"selectColumnPlaceholder",
 						"toastUpdated",
 						"toastError",
@@ -6088,6 +6811,30 @@
 						},
 						"open": {
 							"type": "string"
+						},
+						"addResource": {
+							"type": "string"
+						},
+						"url": {
+							"type": "string"
+						},
+						"titleOptional": {
+							"type": "string"
+						},
+						"cancel": {
+							"type": "string"
+						},
+						"adding": {
+							"type": "string"
+						},
+						"empty": {
+							"type": "string"
+						},
+						"remove": {
+							"type": "string"
+						},
+						"removeError": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -6096,7 +6843,660 @@
 						"branch",
 						"merged",
 						"draft",
-						"open"
+						"open",
+						"addResource",
+						"url",
+						"titleOptional",
+						"cancel",
+						"adding",
+						"empty",
+						"remove",
+						"removeError"
+					]
+				},
+				"security": {
+					"type": "string"
+				},
+				"securityPage": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"pageTitle": {
+							"type": "string"
+						},
+						"title": {
+							"type": "string"
+						},
+						"subtitle": {
+							"type": "string"
+						},
+						"sectionTitle": {
+							"type": "string"
+						},
+						"sectionSubtitle": {
+							"type": "string"
+						},
+						"currentPassword": {
+							"type": "string"
+						},
+						"newPassword": {
+							"type": "string"
+						},
+						"confirmPassword": {
+							"type": "string"
+						},
+						"currentPasswordPlaceholder": {
+							"type": "string"
+						},
+						"newPasswordPlaceholder": {
+							"type": "string"
+						},
+						"confirmPasswordPlaceholder": {
+							"type": "string"
+						},
+						"submit": {
+							"type": "string"
+						},
+						"submitting": {
+							"type": "string"
+						},
+						"updateSuccess": {
+							"type": "string"
+						},
+						"updateError": {
+							"type": "string"
+						},
+						"noPassword": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description"]
+						},
+						"validation": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"currentRequired": {
+									"type": "string"
+								},
+								"tooShort": {
+									"type": "string"
+								},
+								"confirmRequired": {
+									"type": "string"
+								},
+								"mismatch": {
+									"type": "string"
+								},
+								"sameAsCurrent": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"currentRequired",
+								"tooShort",
+								"confirmRequired",
+								"mismatch",
+								"sameAsCurrent"
+							]
+						}
+					},
+					"required": [
+						"pageTitle",
+						"title",
+						"subtitle",
+						"sectionTitle",
+						"sectionSubtitle",
+						"currentPassword",
+						"newPassword",
+						"confirmPassword",
+						"currentPasswordPlaceholder",
+						"newPasswordPlaceholder",
+						"confirmPasswordPlaceholder",
+						"submit",
+						"submitting",
+						"updateSuccess",
+						"updateError",
+						"noPassword",
+						"validation"
+					]
+				},
+				"calendarFeeds": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"title": {
+							"type": "string"
+						},
+						"subtitle": {
+							"type": "string"
+						},
+						"createTitle": {
+							"type": "string"
+						},
+						"filterHint": {
+							"type": "string"
+						},
+						"labels": {
+							"type": "string"
+						},
+						"selectLabels": {
+							"type": "string"
+						},
+						"noLabels": {
+							"type": "string"
+						},
+						"timeZoneHint": {
+							"type": "string"
+						},
+						"accessHint": {
+							"type": "string"
+						},
+						"create": {
+							"type": "string"
+						},
+						"creating": {
+							"type": "string"
+						},
+						"created": {
+							"type": "string"
+						},
+						"createError": {
+							"type": "string"
+						},
+						"activeFeeds": {
+							"type": "string"
+						},
+						"subscribeHint": {
+							"type": "string"
+						},
+						"empty": {
+							"type": "string"
+						},
+						"feedUrl": {
+							"type": "string"
+						},
+						"copy": {
+							"type": "string"
+						},
+						"copied": {
+							"type": "string"
+						},
+						"copyError": {
+							"type": "string"
+						},
+						"revoke": {
+							"type": "string"
+						},
+						"revoked": {
+							"type": "string"
+						},
+						"revokeError": {
+							"type": "string"
+						},
+						"loadError": {
+							"type": "string"
+						},
+						"deletedLabel": {
+							"type": "string"
+						},
+						"permissionRequired": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"title",
+						"subtitle",
+						"createTitle",
+						"filterHint",
+						"labels",
+						"selectLabels",
+						"noLabels",
+						"timeZoneHint",
+						"accessHint",
+						"create",
+						"creating",
+						"created",
+						"createError",
+						"activeFeeds",
+						"subscribeHint",
+						"empty",
+						"feedUrl",
+						"copy",
+						"copied",
+						"copyError",
+						"revoke",
+						"revoked",
+						"revokeError",
+						"loadError",
+						"deletedLabel",
+						"permissionRequired"
+					]
+				},
+				"invitationEmailFailed": {
+					"type": "string"
+				},
+				"billing": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"pageTitle": {
+							"type": "string"
+						},
+						"subtitle": {
+							"type": "string"
+						},
+						"disabled": {
+							"type": "string"
+						},
+						"currentPlan": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"subtitle": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "subtitle"]
+						},
+						"foundingFree": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"badge": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "badge", "description"]
+						},
+						"planName": {
+							"type": "string"
+						},
+						"seats_one": {
+							"type": "string"
+						},
+						"seats_zero": {
+							"type": "string"
+						},
+						"seats_two": {
+							"type": "string"
+						},
+						"seats_few": {
+							"type": "string"
+						},
+						"seats_many": {
+							"type": "string"
+						},
+						"seats_other": {
+							"type": "string"
+						},
+						"accessEnds": {
+							"type": "string"
+						},
+						"renews": {
+							"type": "string"
+						},
+						"portalHint": {
+							"type": "string"
+						},
+						"manage": {
+							"type": "string"
+						},
+						"opening": {
+							"type": "string"
+						},
+						"trial": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"activeTitle": {
+									"type": "string"
+								},
+								"expiredTitle": {
+									"type": "string"
+								},
+								"expiredDescription": {
+									"type": "string"
+								},
+								"daysLeft_one": {
+									"type": "string"
+								},
+								"daysLeft_zero": {
+									"type": "string"
+								},
+								"daysLeft_two": {
+									"type": "string"
+								},
+								"daysLeft_few": {
+									"type": "string"
+								},
+								"daysLeft_many": {
+									"type": "string"
+								},
+								"daysLeft_other": {
+									"type": "string"
+								},
+								"noDate": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"activeTitle",
+								"expiredTitle",
+								"expiredDescription",
+								"noDate"
+							]
+						},
+						"choosePlan": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"subtitle": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "subtitle"]
+						},
+						"interval": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"monthly": {
+									"type": "string"
+								},
+								"annual": {
+									"type": "string"
+								},
+								"annualBadge": {
+									"type": "string"
+								}
+							},
+							"required": ["monthly", "annual", "annualBadge"]
+						},
+						"mostPopular": {
+							"type": "string"
+						},
+						"choose": {
+							"type": "string"
+						},
+						"starting": {
+							"type": "string"
+						},
+						"processedBy": {
+							"type": "string"
+						},
+						"adminsOnly": {
+							"type": "string"
+						},
+						"price": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"perMonth": {
+									"type": "string"
+								},
+								"perYear": {
+									"type": "string"
+								},
+								"perUserMonth": {
+									"type": "string"
+								},
+								"perUserYear": {
+									"type": "string"
+								},
+								"billedMonthly": {
+									"type": "string"
+								},
+								"billedYearly": {
+									"type": "string"
+								},
+								"billedYearlyPerUser": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"perMonth",
+								"perYear",
+								"perUserMonth",
+								"perUserYear",
+								"billedMonthly",
+								"billedYearly",
+								"billedYearlyPerUser"
+							]
+						},
+						"plans": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"personal": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"name": {
+											"type": "string"
+										},
+										"tagline": {
+											"type": "string"
+										}
+									},
+									"required": ["name", "tagline"]
+								},
+								"team": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"name": {
+											"type": "string"
+										},
+										"tagline": {
+											"type": "string"
+										}
+									},
+									"required": ["name", "tagline"]
+								}
+							},
+							"required": ["personal", "team"]
+						},
+						"features": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"singleUser": {
+									"type": "string"
+								},
+								"unlimitedMembers": {
+									"type": "string"
+								},
+								"unlimitedProjects": {
+									"type": "string"
+								},
+								"roles": {
+									"type": "string"
+								},
+								"backups": {
+									"type": "string"
+								},
+								"emailSupport": {
+									"type": "string"
+								},
+								"prioritySupport": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"singleUser",
+								"unlimitedMembers",
+								"unlimitedProjects",
+								"roles",
+								"backups",
+								"emailSupport",
+								"prioritySupport"
+							]
+						},
+						"status": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"active": {
+									"type": "string"
+								},
+								"trialing": {
+									"type": "string"
+								},
+								"past_due": {
+									"type": "string"
+								},
+								"scheduled_cancel": {
+									"type": "string"
+								},
+								"canceled": {
+									"type": "string"
+								},
+								"expired": {
+									"type": "string"
+								},
+								"paused": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"active",
+								"trialing",
+								"past_due",
+								"scheduled_cancel",
+								"canceled",
+								"expired",
+								"paused"
+							]
+						},
+						"trialCard": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"daysLeft_one": {
+									"type": "string"
+								},
+								"daysLeft_zero": {
+									"type": "string"
+								},
+								"daysLeft_two": {
+									"type": "string"
+								},
+								"daysLeft_few": {
+									"type": "string"
+								},
+								"daysLeft_many": {
+									"type": "string"
+								},
+								"daysLeft_other": {
+									"type": "string"
+								},
+								"ended": {
+									"type": "string"
+								},
+								"activeDescription": {
+									"type": "string"
+								},
+								"endingDescription": {
+									"type": "string"
+								},
+								"expiredDescription": {
+									"type": "string"
+								},
+								"viewPlans": {
+									"type": "string"
+								},
+								"choosePlan": {
+									"type": "string"
+								},
+								"dismiss": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"ended",
+								"activeDescription",
+								"endingDescription",
+								"expiredDescription",
+								"viewPlans",
+								"choosePlan",
+								"dismiss"
+							]
+						},
+						"expiredCallout": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"adminDescription": {
+									"type": "string"
+								},
+								"memberDescription": {
+									"type": "string"
+								},
+								"action": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"title",
+								"adminDescription",
+								"memberDescription",
+								"action"
+							]
+						},
+						"openFailed": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"pageTitle",
+						"subtitle",
+						"disabled",
+						"currentPlan",
+						"foundingFree",
+						"planName",
+						"accessEnds",
+						"renews",
+						"portalHint",
+						"manage",
+						"opening",
+						"trial",
+						"choosePlan",
+						"interval",
+						"mostPopular",
+						"choose",
+						"starting",
+						"processedBy",
+						"adminsOnly",
+						"price",
+						"plans",
+						"features",
+						"status",
+						"trialCard",
+						"expiredCallout",
+						"openFailed"
 					]
 				}
 			},
@@ -6126,6 +7526,7 @@
 				"customFields",
 				"githubIntegration",
 				"giteaIntegration",
+				"gitlabIntegration",
 				"slackIntegration",
 				"discordIntegration",
 				"mattermostIntegration",
@@ -6134,7 +7535,12 @@
 				"repositoryBrowser",
 				"tasksImportExport",
 				"workflowEditor",
-				"externalLinks"
+				"externalLinks",
+				"security",
+				"securityPage",
+				"calendarFeeds",
+				"invitationEmailFailed",
+				"billing"
 			]
 		},
 		"navigation": {
@@ -6895,13 +8301,10 @@
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
-						"github": {
-							"type": "string"
-						},
 						"viewGithubProfile": {
 							"type": "string"
 						},
-						"commentedOnGithub": {
+						"commentedOnForge": {
 							"type": "string"
 						},
 						"cannotBeEmpty": {
@@ -7277,9 +8680,8 @@
 						}
 					},
 					"required": [
-						"github",
 						"viewGithubProfile",
-						"commentedOnGithub",
+						"commentedOnForge",
 						"cannotBeEmpty",
 						"mustBeLoggedInToEdit",
 						"updated",
@@ -7318,6 +8720,9 @@
 			"type": "object",
 			"additionalProperties": false,
 			"properties": {
+				"checklistProgress": {
+					"type": "string"
+				},
 				"title": {
 					"type": "string"
 				},
@@ -7823,6 +9228,34 @@
 										}
 									},
 									"required": ["renderFailed"]
+								},
+								"image": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"large": {
+											"type": "string"
+										},
+										"medium": {
+											"type": "string"
+										},
+										"reset": {
+											"type": "string"
+										},
+										"resizeHandle": {
+											"type": "string"
+										},
+										"small": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"large",
+										"medium",
+										"reset",
+										"resizeHandle",
+										"small"
+									]
 								}
 							},
 							"required": [
@@ -7841,7 +9274,8 @@
 								"slash",
 								"languages",
 								"embed",
-								"mermaid"
+								"mermaid",
+								"image"
 							]
 						}
 					},
@@ -7940,6 +9374,12 @@
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
+						"progress": {
+							"type": "string"
+						},
+						"noCompletionColumn": {
+							"type": "string"
+						},
 						"title": {
 							"type": "string"
 						},
@@ -7975,6 +9415,8 @@
 						}
 					},
 					"required": [
+						"progress",
+						"noCompletionColumn",
 						"title",
 						"inputPlaceholder",
 						"addAction",
@@ -8721,6 +10163,22 @@
 					},
 					"required": ["title", "description", "action", "success", "error"]
 				},
+				"duplicate": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"titleSuffix": {
+							"type": "string"
+						},
+						"success": {
+							"type": "string"
+						},
+						"error": {
+							"type": "string"
+						}
+					},
+					"required": ["titleSuffix", "success", "error"]
+				},
 				"archive": {
 					"type": "object",
 					"additionalProperties": false,
@@ -8900,6 +10358,9 @@
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
+						"duplicate": {
+							"type": "string"
+						},
 						"archive": {
 							"type": "string"
 						},
@@ -8910,7 +10371,7 @@
 							"type": "string"
 						}
 					},
-					"required": ["archive", "markAsPlanned", "delete"]
+					"required": ["duplicate", "archive", "markAsPlanned", "delete"]
 				},
 				"bulk": {
 					"type": "object",
@@ -9236,6 +10697,16 @@
 					},
 					"required": ["table"]
 				},
+				"customFields": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"ariaLabel": {
+							"type": "string"
+						}
+					},
+					"required": ["ariaLabel"]
+				},
 				"descriptionSearchLoading": {
 					"type": "string"
 				},
@@ -9253,6 +10724,7 @@
 				}
 			},
 			"required": [
+				"checklistProgress",
 				"title",
 				"status",
 				"priority",
@@ -9272,6 +10744,7 @@
 				"calendar",
 				"gantt",
 				"delete",
+				"duplicate",
 				"archive",
 				"listView",
 				"kanban",
@@ -9284,6 +10757,7 @@
 				"actions",
 				"bulk",
 				"editor",
+				"customFields",
 				"descriptionSearchLoading",
 				"descriptionSearchError",
 				"descriptionRetry",
@@ -10171,6 +11645,16 @@
 			"type": "object",
 			"additionalProperties": false,
 			"properties": {
+				"sponsors": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"ciSponsor": {
+							"type": "string"
+						}
+					},
+					"required": ["ciSponsor"]
+				},
 				"founder": {
 					"type": "object",
 					"additionalProperties": false,
@@ -10778,6 +12262,7 @@
 				}
 			},
 			"required": [
+				"sponsors",
 				"founder",
 				"hero",
 				"navigation",

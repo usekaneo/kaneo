@@ -1,69 +1,55 @@
-import { Link } from "@tanstack/react-router";
 import { Sparkles, TriangleAlert, X } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useGetBilling } from "@/hooks/queries/billing/use-get-billing";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { useOpenWorkspaceBilling } from "@/hooks/use-open-workspace-billing";
+import { TRIAL_ENDING_DAYS } from "@/constants/billing";
+import {
+  getTrialState,
+  readDismissedTrialCards,
+  writeDismissedTrialCards,
+} from "@/lib/billing";
 import { cn } from "@/lib/cn";
 
-function daysLeft(value: string | null | undefined) {
-  if (!value) return null;
-  const ms = new Date(value).getTime() - Date.now();
-  return Math.max(0, Math.ceil(ms / (24 * 60 * 60 * 1000)));
-}
-
-const DISMISS_KEY = "kaneo:trial-card-dismissed";
-
 export function TrialCard() {
+  const { t } = useTranslation();
   const { data: workspace } = useActiveWorkspace();
   const { data: billing } = useGetBilling(workspace?.id);
-  const [dismissed, setDismissed] = useState<string[]>(() => {
-    try {
-      return JSON.parse(localStorage.getItem(DISMISS_KEY) ?? "[]");
-    } catch {
-      return [];
-    }
-  });
+  const [dismissed, setDismissed] = useState(readDismissedTrialCards);
+  const billingLink = useOpenWorkspaceBilling(workspace?.id);
 
-  if (!billing?.billingEnabled || billing.foundingFree) {
+  const trial = getTrialState(billing);
+  if (trial.kind === "none" || !workspace?.id) {
     return null;
   }
 
-  const hasSubscription = Boolean(billing.plan && billing.status);
-  if (hasSubscription || !billing.trialEndsAt || !workspace?.id) {
-    return null;
-  }
-
-  const left = daysLeft(billing.trialEndsAt);
-  const expired = left === 0;
-
-  // Dismissal is remembered per workspace, but an expired trial always shows
-  // since that is the moment a plan is actually required.
-  if (!expired && dismissed.includes(workspace.id)) {
+  const expired = trial.kind === "expired";
+  const ending = expired || trial.daysLeft <= TRIAL_ENDING_DAYS;
+  if (!ending && dismissed.includes(workspace.id)) {
     return null;
   }
 
   const dismiss = () => {
     const next = [...dismissed, workspace.id];
     setDismissed(next);
-    try {
-      localStorage.setItem(DISMISS_KEY, JSON.stringify(next));
-    } catch {}
+    writeDismissedTrialCards(next);
   };
 
   return (
     <div
       className={cn(
         "relative rounded-md border p-2.5 text-xs",
-        expired
+        ending
           ? "border-warning/30 bg-warning/10 text-warning-foreground"
           : "border-info/30 bg-info/10 text-info-foreground",
       )}
     >
-      {!expired ? (
+      {!ending ? (
         <button
           type="button"
           onClick={dismiss}
-          aria-label="Dismiss"
+          aria-label={t("settings:billing.trialCard.dismiss")}
           className="absolute top-1.5 right-1.5 rounded p-0.5 opacity-60 transition-opacity hover:opacity-100"
         >
           <X className="size-3" />
@@ -71,28 +57,36 @@ export function TrialCard() {
       ) : null}
 
       <div className="flex items-center gap-1.5 font-medium">
-        {expired ? (
+        {ending ? (
           <TriangleAlert className="size-3.5 shrink-0" />
         ) : (
           <Sparkles className="size-3.5 shrink-0" />
         )}
         <span>
           {expired
-            ? "Trial ended"
-            : `${left} ${left === 1 ? "day" : "days"} left in trial`}
+            ? t("settings:billing.trialCard.ended")
+            : t("settings:billing.trialCard.daysLeft", {
+                count: trial.daysLeft,
+              })}
         </span>
       </div>
       <p className="mt-1 text-[0.7rem] leading-snug opacity-80">
         {expired
-          ? "Subscribe to keep creating and editing."
-          : "Upgrade anytime to keep your workspace after the trial."}
+          ? t("settings:billing.trialCard.expiredDescription")
+          : ending
+            ? t("settings:billing.trialCard.endingDescription")
+            : t("settings:billing.trialCard.activeDescription")}
       </p>
-      <Link
-        to="/dashboard/settings/workspace/billing"
-        className="mt-2 inline-flex font-medium underline underline-offset-2 hover:no-underline"
+      <button
+        type="button"
+        disabled={billingLink.isOpening}
+        onClick={billingLink.open}
+        className="mt-2 inline-flex font-medium underline underline-offset-2 hover:no-underline disabled:opacity-60"
       >
-        {expired ? "Choose a plan" : "View plans"}
-      </Link>
+        {ending
+          ? t("settings:billing.trialCard.choosePlan")
+          : t("settings:billing.trialCard.viewPlans")}
+      </button>
     </div>
   );
 }

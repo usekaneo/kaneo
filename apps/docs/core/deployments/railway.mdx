@@ -1,73 +1,37 @@
 ---
-title: Railway
-description: Deploy Kaneo to Railway using the official template.
+title: "Deploy on Railway"
+description: "Deploy the Railway template, configure sign-in, and check the instance."
 ---
-## Railway Template
 
-Kaneo provides an official Railway template for easy deployment with a single click.
+The [Kaneo Railway template](https://railway.com/deploy/kaneo) provisions PostgreSQL, a Kaneo API service, and a web service. This template uses separate API and web images, unlike the bundled Docker Compose guide.
 
-[Deploy on Railway](https://railway.com/deploy/kaneo)
+## Deploy the template
 
-## What the Template Includes
+1. Open the template and sign in to Railway.
+2. Review the services, persistent database volume, and environment references.
+3. Generate a secret with `openssl rand -hex 32` and set it as `AUTH_SECRET` on the API service.
+4. Deploy and wait for the services to become healthy.
 
-The Railway template automatically configures:
+The template supplies the database connection and service URL references. Keep those references rather than replacing them with literal example credentials.
 
-- **PostgreSQL Database**: Managed PostgreSQL instance
-- **API Service**: Pre-configured Hono API server
-- **Web Service**: Pre-configured React web application
-- **Environment Variables**: All required variables with sensible defaults
-- **Networking**: Proper service discovery and internal communication
-- **Build Configuration**: Optimized Docker builds for both services
+## Open Kaneo
 
-## Deployment Steps
+Open the public web URL and create the initial administrator account. Make a project and task to check the API connection.
 
-1. **Click the Deploy Button** above to open the Railway template
-2. **Connect to Railway** (sign up or log in if needed)
-3. **Configure Environment Variables**:
-   - Set your `AUTH_SECRET` (minimum 32 characters)
-   - Review other environment variables as needed
-4. **Deploy** - Railway will build and deploy all services automatically
+If you add custom domains, update the public URL settings on the services that consume them. The browser must reach the public API URL; Railway's private service hostname is for server-to-server traffic.
 
-## Post-Deployment Setup
+## Add the features you need
 
-After deployment completes:
+Configure optional settings on the API service, then redeploy affected services:
 
-1. **Access Your Application**: Railway will provide URLs for both services
-2. **Create Admin Account**: Visit the web application to create your first user
-3. **Configure Domain** (optional): Add custom domains in Railway dashboard
-4. **Set Up SSO** (optional): Configure GitHub, Google, or other providers
+- [Email](/core/installation/environment-variables#smtp-configuration) for invitations and account notifications.
+- [Sign-in providers](/core/social-providers/custom-oauth) for your identity provider.
+- [File storage](/core/installation/object-storage-and-image-uploads) for task attachments.
 
-## Environment Variables
+## Keep it running
 
-The template includes these pre-configured variables:
+Review Railway's service logs when a health check fails. For browser failures, check the public API URL and allowed origins before redeploying.
 
-```
-# Railway automatically sets these
-DATABASE_URL=postgresql://postgres:password@host:port/database
-KANEO_API_URL=https://your-api.railway.app
-KANEO_CLIENT_URL=https://your-web.railway.app
+Set up database and storage backups using [Backups and recovery](/core/operations/backups) as a checklist. Record the deployed versions and read the [upgrade guide](/core/operations/upgrades) before changing images.
 
-# You may want to customize these
-AUTH_SECRET=your-32-character-secret-here
-CORS_ORIGINS=https://your-web.railway.app
-```
-
-## Monitoring and Scaling
-
-Railway provides built-in:
-
-- **Health Checks**: Automatic service monitoring
-- **Logs**: Centralized logging for all services
-- **Metrics**: Performance and usage analytics
-- **Scaling**: Easy horizontal scaling when needed
-
-## Troubleshooting
-
-If you encounter issues:
-
-1. **Check Logs**: Use Railway's log viewer to debug
-2. **Verify Environment**: Ensure all required variables are set
-3. **Redeploy**: Sometimes a fresh deployment resolves issues
-4. **Check Resource Usage**: Free tier has limitations
-
-For more detailed troubleshooting, see the [troubleshooting section](/core/installation/start-services).
+For connection, sign-in, and upload problems, see [Troubleshooting](/core/operations/troubleshooting).

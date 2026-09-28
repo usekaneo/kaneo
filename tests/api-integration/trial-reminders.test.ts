@@ -8,7 +8,7 @@ import {
   expect,
   it,
   vi,
-} from "vitest";
+} from "vite-plus/test";
 
 const sendTrialReminderEmail = vi.fn();
 
@@ -19,9 +19,8 @@ vi.mock("@kaneo/email", () => ({
 }));
 
 const { default: db, schema } = await import("../../apps/api/src/database");
-const { checkTrialReminders } = await import(
-  "../../apps/api/src/scheduler/trial-reminders"
-);
+const { checkTrialReminders } =
+  await import("../../apps/api/src/scheduler/trial-reminders");
 const { resetTestDatabase } = await import("./helpers/database");
 const { createWorkspaceMember } = await import("./helpers/fixtures");
 

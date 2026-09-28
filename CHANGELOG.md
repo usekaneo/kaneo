@@ -1,5 +1,133 @@
 ### Features
 
+- **web:** guide cloud users through invites and plan choice during onboarding: #1840
+- rank new issue priority with Jev: [594e016](https://github.com/usekaneo/kaneo/commit/594e0168dbf586b09d1b0a946e5da9148485b76c)
+
+### Documentation
+
+- assign issue types from templates: [4725cfa](https://github.com/usekaneo/kaneo/commit/4725cfaaabc07a3bf9557de9c0a219cffa980ff5)
+- simplify issue and pull request templates: [cb6ce20](https://github.com/usekaneo/kaneo/commit/cb6ce20252ac018c2b6d4e3df9e66b478da3a58d)
+- adopt Human Voice AI contribution policy: [b090123](https://github.com/usekaneo/kaneo/commit/b0901239925c0b633d29adf73de45d95c3fa3b6f)
+- overhaul agents.md: [4d619aa](https://github.com/usekaneo/kaneo/commit/4d619aa7658ed3388b459534c8a5db7bd9e7b365)
+
+### Credits
+
+Huge thanks to @andrejsshell and @tinsever for helping!
+
+### Bug Fixes
+
+- **billing:** resize Creem seats by subscription item id: #1836
+- **gitea:** prevent outbound comment echoes: #1834
+
+### Documentation
+
+- **readme:** highlight cloud and current features: #1831
+
+### Credits
+
+Huge thanks to @andrejsshell and @tinsever for helping!
+
+### Features
+
+- **web:** cloud sign-up and onboarding layout: #1832
+
+### Bug Fixes
+
+- **deps:** migrate Sentry SDKs together to v11 (#1826): #1826
+- **ci:** grant nightly reusable CI scan permission: [0216067](https://github.com/usekaneo/kaneo/commit/0216067e37f5de9f8a10c85e05861056009628f3)
+- **board:** allow column moves while sorting by task number: #1816
+
+### Documentation
+
+- update contributors and sponsors: [c200d70](https://github.com/usekaneo/kaneo/commit/c200d70672b3a87b6b2e4bdcd43060198324fb7f)
+- rebuild guides around current Kaneo workflows: #1814
+
+### Credits
+
+Huge thanks to @tinsever and @andrejsshell for helping!
+
+### Bug Fixes
+
+- **auth:** backfill instance admin on legacy installations: [b7c6aee](https://github.com/usekaneo/kaneo/commit/b7c6aee31ba1174583da5f7fa0aad48257cfc356)
+
+### Credits
+
+Huge thanks to @tinsever for helping!
+
+### Bug Fixes
+
+- **admin:** harden the user administration panel: #1805
+
+### Documentation
+
+- acknowledge BrowserStack testing: [e389a68](https://github.com/usekaneo/kaneo/commit/e389a688c8323cdf6a4eadda127f94f6339e985d)
+
+### Credits
+
+Huge thanks to @andrejsshell for helping!
+
+### Bug Fixes
+
+- **admin:** allow updating your own email without changing role: [3d57439](https://github.com/usekaneo/kaneo/commit/3d57439d59c7e66aa9b63ec673a5b5f7b23008f6)
+
+### Features
+
+- gitlab integration: #1727
+- **tasks:** show subtask progress on cards and list rows: #1703
+- added project backgrounds: #1654
+- multiselect for customfield: #1735
+- **ci:** discord actions webhook: #1792
+- **ci:** adding zizmor: #1790
+- **project:** move a project to another workspace: #1525
+- duplicate a task from the card context menu: #1609
+- allow manual external resource links: #1661
+- **ci:** trufflehog implementation: #1787
+- **task:** let images be resized in the task description: #1529
+- **web:** add a change-password screen under account settings: #1719
+- **auth:** add password recovery from the login screen: #1773
+- add instance user administration panel: #1400
+- **calendar:** add label-filtered project calendar feeds: #1763
+
+### Bug Fixes
+
+- **security:** close permission and integration gaps: #1802
+- **project:** secure integrations across workspace moves: #1801
+- **editor:** preserve formatting when pasting Markdown: #1797
+- **auth:** report invitation email delivery failures: #1798
+- **gitea:** verify saved repository connections: #1796
+- **mcp:** keep OAuth requests valid outside UTC: #1795
+- **i18n:** translate calendar in remaining locales: [1d61ceb](https://github.com/usekaneo/kaneo/commit/1d61ceb64537a30839039dd8c0a26866d6df1a70)
+- **ci:** zizmor findings: #1791
+- **integrations:** resolve PRs through linked issue identities: #1739
+- **auth:** prevent repeated 401s for pending invitations after session expiry: #1715
+- **auth:** gate sign-in emails to deliverable addresses: #1758
+- **web:** preserve image uploads across editor recreation: #1738
+- **reminders:** calculate deadlines from the end of the due day: #1762
+- **mcp:** support whoami with API keys: #1748
+- **web:** respect DISABLE_WORKSPACE_CREATION on the onboarding screen: #1744
+- **backlog:** prevent task remounts during list interactions: #1734
+- **auth:** prevent role changes from removing the last admin: #1733
+- **npm:** fixing GHSA-2xp9-vwfh-vxw4: #1777
+- **web:** guard tiptap setHardBreak against invalid-content schema error: [be3ffb5](https://github.com/usekaneo/kaneo/commit/be3ffb513a210c81ce10ea1332381de2bf27a475)
+- **i18n:** prevent locale module crash on stale dynamic import: #1775
+- **site:** improve search metadata and product discovery: [121183e](https://github.com/usekaneo/kaneo/commit/121183e93eb82d3372ccf1419a5fd59d4aacadba)
+
+### Performance Improvements
+
+- **project:** stop returning tasks with project details: #1800
+
+### Documentation
+
+- update contributors and sponsors: [fa07f10](https://github.com/usekaneo/kaneo/commit/fa07f10ea15a37a6fd414ce45a457e1cf9b7a6a9)
+- **site:** add Blacksmith partner badge to site and README: [08a93b8](https://github.com/usekaneo/kaneo/commit/08a93b8c47fa5fa48517c010c099c8f729d865dc)
+- update contributors and sponsors: [8432a45](https://github.com/usekaneo/kaneo/commit/8432a453ae5965e4bdbc1b874e82d974324fd494)
+
+### Credits
+
+Huge thanks to @tinsever, @zaralX, @TymekV, @MonsPropre, @randoneering, @rdlugs, @tbringuier, @mohiuddin000, @shiminshen, @yavilavi, @thejdubb02, @yigit-serin, @OmG3r, and @zerodarkzone for helping!
+
+### Features
+
 - **site:** bring product preview up to date with current app: [dd855f7](https://github.com/usekaneo/kaneo/commit/dd855f775b28842f6441936491b28c8ebb52d615)
 - **site:** refresh marketing site and interactive product previews: [90aec99](https://github.com/usekaneo/kaneo/commit/90aec997d45bde4479e4d82c0a6a271a95c4bef4)
 

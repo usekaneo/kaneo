@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { TaskProgressBadges } from "@/components/task/task-progress-badges";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -189,7 +190,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     >
       <ContextMenu>
         <ContextMenuTrigger asChild>
-          {/* biome-ignore lint/a11y/noStaticElementInteractions: false positive for onClick and onKeyDown */}
+          {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- false positive for onClick and onKeyDown */}
           <div
             onClick={handleClick}
             onKeyDown={handleKeyDown}
@@ -217,6 +218,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
                   {task.title}
                 </span>
                 <div className="flex items-center gap-1">
+                  <TaskProgressBadges task={task} />
                   {showLabels && <TaskLabels labels={task.labels ?? []} />}
 
                   {pullRequests.length === 1 && (

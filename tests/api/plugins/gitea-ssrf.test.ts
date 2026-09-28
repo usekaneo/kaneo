@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { normalizeGiteaBaseUrl } from "../../../apps/api/src/plugins/gitea/config";
 import { giteaFetch } from "../../../apps/api/src/plugins/gitea/utils/gitea-api";
 

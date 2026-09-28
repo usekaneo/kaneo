@@ -57,6 +57,8 @@ const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error) => {
       if (isUnauthorizedError(error)) {
+        // Keep the 401 in query state so polling guards stay stopped while
+        // navigation completes. Better Auth's session is a separate store.
         handleUnauthorized();
         return;
       }

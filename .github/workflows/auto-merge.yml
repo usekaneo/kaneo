@@ -2,8 +2,11 @@ name: Dependabot Auto-Merge
 
 # Never check out or execute pull-request content in this privileged workflow.
 on:
+  # zizmor: ignore[dangerous-triggers] Never checks out or executes pull
+  # request content; merges via the GitHub API only after required checks pass
+  # and the head commit is pinned.
   pull_request_target:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize]
 
 permissions:
   contents: read
@@ -13,6 +16,8 @@ jobs:
   dependabot:
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 45
+    # Only bot-created updates opt into automation. A maintainer reopening or
+    # marking a rejected PR ready must not override the earlier decision.
     if: >-
       github.actor == 'dependabot[bot]' &&
       github.event.pull_request.user.login == 'dependabot[bot]' &&
@@ -42,6 +47,9 @@ jobs:
           EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
+          # A later bot update must not re-enable automation on a rejected PR.
+          gh api --paginate "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/events" \
+            | jq -se 'add | all(.[]; .event != "closed")'
           # Only manifests and the lockfile are eligible, including on renames.
           gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/files" \
             | jq -se 'add | length > 0 and all(.[];

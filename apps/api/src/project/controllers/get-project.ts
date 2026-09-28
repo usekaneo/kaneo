@@ -9,9 +9,6 @@ async function getProject(id: string, workspaceId: string) {
       eq(projectTable.id, id),
       eq(projectTable.workspaceId, workspaceId),
     ),
-    with: {
-      tasks: true,
-    },
   });
 
   if (!project) {

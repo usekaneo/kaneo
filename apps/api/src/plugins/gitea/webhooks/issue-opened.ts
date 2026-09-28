@@ -17,6 +17,7 @@ import {
   findAllIntegrationsByGiteaRepo,
   repoOwnerLogin,
 } from "../services/integration-lookup";
+import { markKaneoComment } from "../utils/comment-origin";
 import { createGiteaClient } from "../utils/gitea-api";
 import { addLabelsToIssueGitea } from "../utils/labels";
 import { resolveTargetStatus } from "../utils/resolve-column";
@@ -190,7 +191,7 @@ export async function handleGiteaIssueOpened(
           config.repositoryOwner,
           config.repositoryName,
           issue.number,
-          `[${taskIdentifier}](${taskUrl})`,
+          markKaneoComment(`[${taskIdentifier}](${taskUrl})`),
         );
       }
     } catch (error) {

@@ -6,7 +6,10 @@ export async function getAdminAccess() {
   });
 
   if (error) {
-    return false;
+    if (error.status === 401 || error.status === 403) {
+      return false;
+    }
+    throw new Error(error.message ?? "");
   }
 
   return data?.success === true;

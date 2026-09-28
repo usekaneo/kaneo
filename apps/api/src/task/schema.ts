@@ -1,13 +1,6 @@
-import { z } from "../openapi";
+import { pagingNumber, z } from "../openapi";
 import { MAX_TASK_POSITION } from "./controllers/next-task-position";
 import { VALID_PRIORITIES } from "./validate-task-fields";
-
-const pagingNumber = (min: number, max: number) =>
-  z
-    .string()
-    .regex(/^\d+$/, "Expected a positive integer")
-    .transform(Number)
-    .pipe(z.number().int().min(min).max(max));
 
 export const taskParam = z.object({ id: z.string() });
 
@@ -129,7 +122,7 @@ export const finalizeImageUploadBody = z.object({
 });
 
 export const descriptionPageQuery = z.object({
-  offset: pagingNumber(0, 2_000_000_000).default(0),
+  offset: pagingNumber(0, 2_000_000_000, 0),
   version: z
     .string()
     .regex(/^[0-9]{1,10}$/)
@@ -139,3 +132,5 @@ export const descriptionMatchesQuery = z.object({
   query: z.string().trim().min(1).max(256),
   after: z.string().min(1).max(128).optional(),
 });
+
+export const duplicateTaskBody = z.object({ title: z.string().optional() });

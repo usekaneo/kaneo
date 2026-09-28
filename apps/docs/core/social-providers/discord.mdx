@@ -1,24 +1,45 @@
 ---
-title: Discord
-description: Discord is a social provider for Kaneo.
+title: "Sign in with Discord"
+description: "Let people use their Discord account to sign in to Kaneo."
 ---
 
-## Overview
+This sets up sign-in for your instance. It does not connect a repository or send project notifications.
 
-Discord is a social provider for Kaneo. It allows users to sign in to Kaneo using their Discord account.
+## Register the application
 
-## Configuration
+Open the [Discord developer console](https://discord.com/developers/applications). Create an application, open **OAuth2**, and add the address below under redirects. Copy the OAuth client ID and secret.
 
-1. Go to the [Discord Developer Portal](https://discord.com/developers/applications).
-2. Create a new application.
-3. Navigate to the "OAuth2" section in the left sidebar.
-4. Add a redirect URI: `KANEO_API_URL/api/auth/callback/discord.
-5. Copy the client ID and client secret from the OAuth2 page.
-6. Set the `DISCORD_CLIENT_ID` and `DISCORD_CLIENT_SECRET` environment variables.
+For a bundled Kaneo deployment at `https://kaneo.example.com`, the callback is:
 
-For more information on what your `KANEO_API_URL` is, see the [Environment variables](/core/installation/environment-variables#discord-sso) page.
+```text
+https://kaneo.example.com/api/auth/callback/discord
+```
 
-## Usage
+Use your own hostname. If the API is hosted separately, use its public origin instead. The callback path is `/api/auth/callback/discord`; do not append a second `/api` when your API URL already includes it.
 
-Once you have configured the social provider, you can sign in to Kaneo using your Discord account.
+For provider-specific options, see the [official OAuth guide](https://docs.discord.com/developers/topics/oauth2).
 
+## Configure Kaneo
+
+Add the values from the provider to your server's `.env`:
+
+```env
+DISCORD_CLIENT_ID=your-client-id
+DISCORD_CLIENT_SECRET=your-client-secret
+```
+
+Apply the change to the bundled deployment:
+
+```bash
+docker compose up -d --force-recreate kaneo
+```
+
+## Test sign-in
+
+Open Kaneo in a private browser window and choose the Discord sign-in option. Complete authorization and confirm you return to Kaneo.
+
+If the provider reports a redirect mismatch, compare the full URL, including the scheme, hostname, port, and path. If sign-in succeeds but joining a workspace fails, check the invitation email and instance registration settings.
+
+## Turn it off
+
+Remove the two environment variables and recreate Kaneo. Make sure people have another way to sign in before disabling the provider. Review [access settings](/core/installation/environment-variables#access-control) before enforcing SSO-only access.

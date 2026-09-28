@@ -1,4 +1,4 @@
-name: Update Contributors
+name: Update Sponsors
 
 on:
   workflow_dispatch:
@@ -23,15 +23,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: useblacksmith/checkout@v1 # v7.0.1
-
-      - name: Generate Contributors Images
-        uses: jaywcjlove/github-action-contributors@86707f6d4c2469ce6b46bc3367253ebd41ee242c # main
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          filter-author: (renovate\[bot\]|renovate-bot|dependabot\[bot\])
-          output: CONTRIBUTORS.svg
-          avatarSize: 42
+        uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
 
       - name: Generate Sponsors Section
         if: ${{ github.repository_owner == 'usekaneo' }}
@@ -53,8 +45,8 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add CONTRIBUTORS.svg README.md apps/site/constants/sponsors.json
-          if git commit -m "docs: update contributors and sponsors"; then
+          git add README.md apps/site/constants/sponsors.json
+          if git commit -m "docs: update sponsors"; then
             git push
             echo "pushed=true" >> "$GITHUB_OUTPUT"
           else

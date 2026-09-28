@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 import { runInNewContext } from "node:vm";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 function renderBundle(bundle: string, key = "") {
   return execFileSync(

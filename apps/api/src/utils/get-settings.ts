@@ -3,11 +3,13 @@ import { config } from "dotenv-mono";
 import { isBillingEnabled } from "../billing/config";
 import { resolveFileSecret } from "./file-secret";
 import { isGithubSsoConfigured } from "./github-sso-env";
+import { isCloud } from "./is-cloud";
 
 config();
 
 function getSettings() {
   return {
+    isCloud: isCloud(),
     disableRegistration: process.env.DISABLE_REGISTRATION === "true",
     disablePasswordRegistration:
       process.env.DISABLE_PASSWORD_REGISTRATION === "true",

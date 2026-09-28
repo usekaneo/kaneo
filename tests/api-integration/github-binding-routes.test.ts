@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { handleLabelCreated } from "../../apps/api/src/plugins/github/webhooks/label-created";

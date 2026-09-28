@@ -1,6 +1,13 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { GiteaRepositoryBrowserModal } from "./gitea-repository-browser-modal";
 
 const m = vi.hoisted(() => ({ list: vi.fn(), userId: "user-1" }));

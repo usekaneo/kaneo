@@ -8,9 +8,28 @@ import {
 import { boundedRequestBody } from "../utils/bounded-request-body";
 import { MAX_AVATAR_BYTES, MAX_AVATAR_REQUEST_BYTES } from "./avatar";
 import deleteAvatar from "./controllers/delete-avatar";
+import getCurrentUser from "./controllers/get-current-user";
 import saveAvatar from "./controllers/save-avatar";
-import { avatarDeletedSchema, avatarSchema } from "./response";
+import {
+  avatarDeletedSchema,
+  avatarSchema,
+  currentUserSchema,
+} from "./response";
 import { uploadAvatarBody } from "./schema";
+
+const getCurrentUserRoute = createRoute({
+  method: "get",
+  operationId: "getCurrentUser",
+  path: "/me",
+  tags: ["User"],
+  summary: "Get current user",
+  description: "Return the currently authenticated user.",
+  responses: {
+    200: jsonResponse("Current user", currentUserSchema),
+    401: errorResponse("Unauthorized"),
+    404: errorResponse("User not found"),
+  },
+});
 
 const uploadAvatarRoute = createRoute({
   method: "put",
@@ -52,6 +71,9 @@ const deleteAvatarRoute = createRoute({
 });
 
 const user = apiRouter()
+  .openapi(getCurrentUserRoute, async (c) =>
+    c.json(await getCurrentUser(c.get("userId")), 200),
+  )
   .openapi(uploadAvatarRoute, async (c) => {
     const { contentType, data } = c.req.valid("json");
     try {

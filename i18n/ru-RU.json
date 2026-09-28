@@ -213,6 +213,24 @@
 			"emailFallback": "ваш адрес электронной почты",
 			"backToLogin": "Вернуться к входу"
 		},
+		"cloud": {
+			"signUp": {
+				"title": "Что дальше",
+				"description": "После создания аккаунта вы дадите название рабочей области. Затем можно добавить проект и начать записывать задачи."
+			},
+			"onboarding": {
+				"title": "Что такое рабочая область",
+				"description": "Рабочая область объединяет ваши проекты, их задачи и людей, с которыми вы работаете. Пригласите коллег, когда она будет настроена."
+			},
+			"invite": {
+				"description": "Everyone in a workspace sees the same boards and gets live updates as tasks move. Roles control who can change what.",
+				"title": "Work better together"
+			},
+			"plan": {
+				"description": "Every plan includes unlimited projects and tasks, automatic backups, and updates. Cancel anytime from billing settings.",
+				"title": "Try everything first"
+			}
+		},
 		"signUp": {
 			"pageTitle": "Создание аккаунта",
 			"title": "Создать аккаунт",
@@ -320,6 +338,45 @@
 			},
 			"validation": {
 				"workspaceNameRequired": "Название рабочей области обязательно"
+			},
+			"restrictedSubtitle": "Здесь создавать рабочие пространства может только администратор экземпляра. Попросите приглашение и обновите страницу.",
+			"restrictedCheckInvitations": "Проверить приглашения",
+			"restrictedTitle": "Нужно приглашение",
+			"cloud": {
+				"title": "Назовите рабочую область",
+				"subtitle": "Используйте название вашей команды или компании. Его можно изменить позже в настройках.",
+				"continue": "Continue",
+				"invite": {
+					"addAnother": "Add another",
+					"emailLabel": "Teammate email {{index}}",
+					"emailPlaceholder": "teammate@company.com",
+					"failed": "Couldn't invite {{email}}: {{message}}",
+					"invalidEmail": "Enter a valid email address",
+					"remove": "Remove email {{index}}",
+					"send": "Send invites",
+					"sending": "Sending...",
+					"sent_few": "{{count}} invitations sent",
+					"sent_many": "{{count}} invitations sent",
+					"sent_one": "Invitation sent",
+					"sent_other": "{{count}} invitations sent",
+					"skip": "Skip for now",
+					"subtitle": "They'll get an email with a link to join {{name}}. You can invite more people later from Members.",
+					"title": "Invite your teammates"
+				},
+				"plan": {
+					"continueTrial": "Start free trial",
+					"continueWithoutPlan": "Continue to workspace",
+					"note": "You can pick or change a plan anytime in Settings, under Billing.",
+					"recommended": "Recommended",
+					"title": "Pick a plan",
+					"trialActive": "Your free trial runs until {{date}}. No card needed, and you can pick a plan anytime before then.",
+					"trialUsed": "You've already used your free trial. Pick a plan to start creating projects and tasks."
+				},
+				"usageLabel": "Who will use this workspace?",
+				"usageSolo": "Just me",
+				"usageSoloDescription": "Keep track of your own work",
+				"usageTeam": "My team",
+				"usageTeamDescription": "Plan and ship work together"
 			}
 		},
 		"profileSetup": {
@@ -515,7 +572,8 @@
 			"reminderLeadTimeUnitHours": "Часы",
 			"reminderLeadTimeUnitDays": "Дни",
 			"reminderLeadTimeInvalid": "Введите целое число от 1 до {{max}}.",
-			"saveEventPreferences": "Сохранить типы уведомлений"
+			"saveEventPreferences": "Сохранить типы уведомлений",
+			"recipientHint": "Комментарии и изменения статуса уведомляют вас о назначенных вам задачах. Упоминания уведомляют выбранного участника. Вы не получаете уведомлений о собственных комментариях, упоминаниях и изменениях статуса."
 		},
 		"preferencesPage": {
 			"title": "Настройки",
@@ -556,7 +614,9 @@
 			"labels": "Метки",
 			"labelsDescription": "Показывать метки и теги задач",
 			"priority": "Приоритет",
-			"priorityDescription": "Показывать индикаторы приоритета"
+			"priorityDescription": "Показывать индикаторы приоритета",
+			"projectBackgrounds": "Project backgrounds",
+			"projectBackgroundsDescription": "Show project background images on boards"
 		},
 		"developerPage": {
 			"pageTitle": "Настройки разработчика",
@@ -704,7 +764,27 @@
 				"iconRequired": "Иконка обязательна"
 			},
 			"importExportTasks": "Импорт/Экспорт",
-			"importExportTasksDescription": "Импортируйте и экспортируйте задачи."
+			"importExportTasksDescription": "Импортируйте и экспортируйте задачи.",
+			"backgroundHint": "Choose an image shown behind this project's board.",
+			"backgroundLabel": "Board background",
+			"backgroundRemove": "Remove image",
+			"backgroundRemoveError": "Failed to remove project background",
+			"backgroundRemoveSuccess": "Project background removed",
+			"backgroundReplace": "Replace image",
+			"backgroundUpload": "Upload image",
+			"backgroundUploadError": "Failed to update project background",
+			"backgroundUploadSuccess": "Project background updated",
+			"moveModalConfirm": "Переместить проект",
+			"moveModalDescription": "Проект «{{name}}» и все его задачи будут перемещены в «{{workspace}}». С задач, назначенных пользователям, которые не состоят в этой рабочей области, назначение будет снято, а подписки на уведомления по этому проекту будут удалены.",
+			"moveModalTitle": "Переместить проект?",
+			"moveProject": "Переместить в другую рабочую область",
+			"moveProjectAction": "Переместить",
+			"moveProjectDescription": "Переместите этот проект вместе со всеми задачами в другую рабочую область.",
+			"moveProjectPlaceholder": "Выберите рабочую область",
+			"toastMoved": "Проект успешно перемещён",
+			"toastMovedWithUnassigned": "Проект успешно перемещён. С {{taskCount}} задач(и) снято назначение.",
+			"toastMoveError": "Не удалось переместить проект",
+			"moveTargetsError": "Не удалось проверить, в какие рабочие пространства можно переместить этот проект. Обновите страницу, чтобы повторить попытку."
 		},
 		"projectIntegrations": {
 			"pageTitle": "Интеграции проекта",
@@ -723,7 +803,9 @@
 			"telegramSectionTitle": "Интеграция с Telegram",
 			"telegramSectionSubtitle": "Отправка обновлений по задачам проекта в чат или тему Telegram через бота.",
 			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook.",
-			"mattermostSectionTitle": "Mattermost Integration"
+			"mattermostSectionTitle": "Mattermost Integration",
+			"gitlabSectionSubtitle": "Синхронизация задач с GitLab.com или self-managed экземпляром (issues, merge requests, вебхуки).",
+			"gitlabSectionTitle": "Интеграция с GitLab"
 		},
 		"projectVisibility": {
 			"pageTitle": "Видимость проекта",
@@ -1149,7 +1231,9 @@
 				"pr_merged": "PR влит",
 				"issue_opened": "Issue открыт",
 				"issue_closed": "Issue закрыт"
-			}
+			},
+			"gitlabHeading": "GitLab",
+			"gitlabHint": "Когда происходит событие вебхука GitLab, перевести связанную задачу в колонку."
 		},
 		"externalLinks": {
 			"resources": "Ресурсы",
@@ -1157,7 +1241,15 @@
 			"branch": "Ветка",
 			"merged": "Влит",
 			"draft": "Черновик",
-			"open": "Открыт"
+			"open": "Открыт",
+			"adding": "Adding...",
+			"addResource": "Add resource",
+			"cancel": "Cancel",
+			"empty": "No resources linked to this task.",
+			"titleOptional": "Title (optional)",
+			"url": "URL",
+			"remove": "Remove {{title}}",
+			"removeError": "Failed to remove the resource link."
 		},
 		"workspaceRoles": {
 			"pageTitle": "Роли",
@@ -1457,8 +1549,17 @@
 				"date": "Date",
 				"dropdown": "Dropdown",
 				"number": "Number",
-				"text": "Text"
-			}
+				"text": "Text",
+				"multiselect": "Multi-Select"
+			},
+			"availableOptions": "Available options",
+			"clearDefault": "Clear",
+			"defaultValues": "{{count}} default(s)",
+			"moreOptions": "+{{hiddenCount}} more",
+			"multiple": "Multiple",
+			"options": "{{count}} option(s)",
+			"reorderError": "Failed to reorder fields",
+			"selectPlaceholder": "Select option(s)"
 		},
 		"administration": "Administration",
 		"adminUsers": {
@@ -1543,6 +1644,248 @@
 			"userCount_one": "{{count}} registered user",
 			"userCount_other": "{{count}} registered users",
 			"you": "(you)"
+		},
+		"security": "Security",
+		"securityPage": {
+			"confirmPassword": "Confirm new password",
+			"confirmPasswordPlaceholder": "Re-enter your new password",
+			"currentPassword": "Current password",
+			"currentPasswordPlaceholder": "Enter your current password",
+			"newPassword": "New password",
+			"newPasswordPlaceholder": "Enter a new password",
+			"noPassword": {
+				"description": "Your account signs in with a different method, so there is no password to change.",
+				"title": "Password change isn't available"
+			},
+			"pageTitle": "Security",
+			"sectionSubtitle": "Change the password you use to sign in.",
+			"sectionTitle": "Password",
+			"submit": "Update password",
+			"submitting": "Updating...",
+			"subtitle": "Manage your password and account security.",
+			"title": "Security",
+			"updateError": "Failed to update password.",
+			"updateSuccess": "Password updated.",
+			"validation": {
+				"confirmRequired": "Confirm your new password.",
+				"currentRequired": "Enter your current password.",
+				"mismatch": "Passwords do not match.",
+				"tooShort": "New password must be at least 8 characters.",
+				"sameAsCurrent": "New password must be different from your current password."
+			}
+		},
+		"gitlabIntegration": {
+			"actionsHint": "Проверьте доступ и подключите",
+			"actionsTitle": "Действия",
+			"badgeConnected": "Подключено",
+			"badgeNotConnected": "Не подключено",
+			"baseUrlHint": "https://gitlab.com или корневой URL вашего экземпляра",
+			"baseUrlLabel": "URL GitLab",
+			"browse": "Обзор",
+			"browseModalHint": "Проекты, участником которых является владелец токена",
+			"browseModalTitle": "Ваши проекты",
+			"browseNeedsCredentials": "Введите URL GitLab и токен для просмотра",
+			"commentTaskLinkHint": "Когда включено, Kaneo оставляет ссылку на задачу в каждом issue, созданном в GitLab.",
+			"commentTaskLinkTitle": "Комментировать ссылкой Kaneo issues, созданные в GitLab",
+			"connect": "Подключить",
+			"connectedActive": "Проект подключён и активен",
+			"connectionStatus": "Статус подключения",
+			"currentToken": "сохранён",
+			"disconnect": "Отключить",
+			"importDisabledHint": "Проверьте проект выше, чтобы включить импорт",
+			"importing": "Импорт…",
+			"importIssues": "Импортировать issues",
+			"importSectionHint": "Импортировать открытые issues и merge requests из проекта",
+			"importSectionTitle": "Импорт issues из GitLab",
+			"loadingProjects": "Загрузка проектов…",
+			"loadProjectsError": "Не удалось загрузить проекты",
+			"notConnectedHint": "Проект GitLab не подключён",
+			"openInGitlab": "Открыть {{project}} в GitLab",
+			"project": "Проект",
+			"projectHint": "Подключённый проект GitLab",
+			"projectPathHint": "Полный путь со всеми группами, например group/subgroup/project",
+			"projectPathLabel": "Путь проекта",
+			"retry": "Повторить",
+			"searchProjects": "Поиск…",
+			"toast": {
+				"commentOnDisabled": "Комментарии со ссылкой на задачу в issues из GitLab отключены",
+				"commentOnEnabled": "Kaneo будет оставлять ссылку на задачу в issues, созданных в GitLab",
+				"importError": "Не удалось импортировать issues",
+				"issuesImported": "Issues успешно импортированы",
+				"notGitlabInstance": "URL не указывает на экземпляр GitLab",
+				"projectNotFound": "Проект не найден или недоступен",
+				"redirected": "URL GitLab перенаправлен (обычно на HTTPS). Укажите конечный URL напрямую.",
+				"removed": "Интеграция с GitLab удалена",
+				"removeError": "Не удалось удалить интеграцию с GitLab",
+				"secretCopied": "Скопировано",
+				"settingsUpdateError": "Не удалось обновить интеграцию с GitLab",
+				"tokenRequired": "Требуется токен доступа",
+				"tokenRequiredVerify": "Введите токен для проверки",
+				"unableToCopySecret": "Не удалось скопировать секрет",
+				"updated": "Интеграция с GitLab сохранена",
+				"updateError": "Не удалось сохранить интеграцию с GitLab",
+				"verifyError": "Не удалось проверить доступ к GitLab",
+				"verifyFirst": "Проверка доступа не удалась. Проверьте URL, токен и путь проекта",
+				"verifyOk": "Токен GitLab имеет доступ к этому проекту",
+				"verifyWarning": "Проверьте права токена или доступ к проекту"
+			},
+			"tokenHint": "Токен со скоупом api и правами не ниже Developer в проекте",
+			"tokenLabel": "Токен доступа",
+			"tokenPlaceholder": "Вставьте токен",
+			"tokenPlaceholderUpdate": "Вставьте новый токен для замены",
+			"tokenTypeBearer": "Токен OAuth2",
+			"tokenTypeHint": "Как передаётся токен. Токены доступа идут в PRIVATE-TOKEN, токен OAuth2 — в Authorization.",
+			"tokenTypeLabel": "Тип токена",
+			"tokenTypePrivate": "Персональный, проектный или групповой токен доступа",
+			"update": "Обновить",
+			"validation": {
+				"baseUrlInvalid": "Введите корректный URL (например, https://gitlab.com)",
+				"baseUrlRequired": "URL GitLab обязателен",
+				"pathInvalid": "Введите полный путь, например group/project",
+				"pathRequired": "Путь проекта обязателен"
+			},
+			"verify": "Проверить",
+			"webhookCopy": "Копировать",
+			"webhookHide": "Скрыть",
+			"webhookHint": "В своём проекте GitLab добавьте вебхук с этим URL и секретным токеном. Включите события push, issues, комментарии и merge request.",
+			"webhookSecretLabel": "Секретный токен (должен совпадать с указанным в вебхуке GitLab)",
+			"webhookShow": "Показать",
+			"webhookTitle": "Вебхук",
+			"importPermissionHint": "Importing requires permission to create and update tasks."
+		},
+		"calendarFeeds": {
+			"title": "Calendar feeds",
+			"subtitle": "Subscribe to scheduled project tasks in your calendar app.",
+			"createTitle": "Create a calendar feed",
+			"filterHint": "Include tasks with a start or due date and at least one of the selected labels.",
+			"labels": "Labels",
+			"selectLabels": "Search and select labels…",
+			"noLabels": "No labels found.",
+			"timeZoneHint": "All-day dates use {{timeZone}}.",
+			"accessHint": "Anyone with a feed link can read the matching task titles, descriptions, and dates. Revoke a link to stop future access.",
+			"create": "Create feed",
+			"creating": "Creating…",
+			"created": "Calendar feed created.",
+			"createError": "Could not create the calendar feed.",
+			"activeFeeds": "Active feeds",
+			"subscribeHint": "Copy a link and add it as a calendar subscription. Updates appear when your calendar app refreshes the feed.",
+			"empty": "No calendar feeds yet.",
+			"feedUrl": "Calendar feed URL",
+			"copy": "Copy link",
+			"copied": "Calendar feed link copied.",
+			"copyError": "Could not copy the link. Select the URL and copy it manually.",
+			"revoke": "Revoke",
+			"revoked": "Calendar feed revoked.",
+			"revokeError": "Could not revoke the calendar feed.",
+			"loadError": "Could not load calendar feeds or labels. Please try again.",
+			"deletedLabel": "Deleted label",
+			"permissionRequired": "You need project-sharing permission to manage calendar feeds."
+		},
+		"invitationEmailFailed": "Invitation saved, but email delivery failed. Check SMTP settings and resend the invitation.",
+		"billing": {
+			"accessEnds": "Access ends",
+			"adminsOnly": "Only workspace owners and admins can manage billing.",
+			"choose": "Choose {{plan}}",
+			"choosePlan": {
+				"subtitle": "Switch anytime. Cancel whenever you like.",
+				"title": "Choose a plan"
+			},
+			"currentPlan": {
+				"subtitle": "Your workspace's active plan and billing status.",
+				"title": "Current plan"
+			},
+			"disabled": "Billing isn't enabled on this instance. Self-hosted Kaneo includes every feature, free forever.",
+			"expiredCallout": {
+				"action": "Choose a plan",
+				"adminDescription": "You can still view everything, but creating and editing are paused until you choose a plan. Nothing has been deleted.",
+				"memberDescription": "You can still view everything, but creating and editing are paused until a workspace owner or admin chooses a plan.",
+				"title": "Your free trial has ended"
+			},
+			"features": {
+				"backups": "Automatic backups and updates",
+				"emailSupport": "Email support",
+				"prioritySupport": "Priority email support",
+				"roles": "Workspace roles and permissions",
+				"singleUser": "Single user",
+				"unlimitedMembers": "Unlimited team members",
+				"unlimitedProjects": "Unlimited projects and tasks"
+			},
+			"foundingFree": {
+				"badge": "Free",
+				"description": "This workspace has free access to Kaneo Cloud as an early supporter. Thank you for being here from the start.",
+				"title": "Founding Free"
+			},
+			"interval": {
+				"annual": "Annual",
+				"annualBadge": "2 months free",
+				"monthly": "Monthly"
+			},
+			"manage": "Manage billing",
+			"mostPopular": "Most popular",
+			"opening": "Opening...",
+			"pageTitle": "Billing",
+			"planName": "Kaneo Cloud {{plan}}",
+			"plans": {
+				"personal": {
+					"name": "Personal",
+					"tagline": "For individuals"
+				},
+				"team": {
+					"name": "Team",
+					"tagline": "For teams working together"
+				}
+			},
+			"portalHint": "Update payment method, view invoices, or cancel anytime.",
+			"price": {
+				"billedMonthly": "Billed monthly",
+				"billedYearly": "{{price}} / month, billed yearly",
+				"billedYearlyPerUser": "{{price}} / user / month, billed yearly",
+				"perMonth": "/ month",
+				"perUserMonth": "/ user / month",
+				"perUserYear": "/ user / year",
+				"perYear": "/ year"
+			},
+			"processedBy": "Payments are securely processed by Creem. Prices exclude tax where applicable.",
+			"renews": "Renews",
+			"seats_few": "{{count}} seats",
+			"seats_many": "{{count}} seats",
+			"seats_one": "{{count}} seat",
+			"seats_other": "{{count}} seats",
+			"starting": "Starting...",
+			"status": {
+				"active": "Active",
+				"canceled": "Canceled",
+				"expired": "Expired",
+				"past_due": "Payment past due",
+				"paused": "Paused",
+				"scheduled_cancel": "Cancels soon",
+				"trialing": "Trial"
+			},
+			"subtitle": "Manage the Kaneo Cloud subscription for this workspace.",
+			"trial": {
+				"activeTitle": "Free trial",
+				"daysLeft_few": "You have {{count}} days left on your free trial. Choose a plan to continue without interruption.",
+				"daysLeft_many": "You have {{count}} days left on your free trial. Choose a plan to continue without interruption.",
+				"daysLeft_one": "You have {{count}} day left on your free trial. Choose a plan to continue without interruption.",
+				"daysLeft_other": "You have {{count}} days left on your free trial. Choose a plan to continue without interruption.",
+				"expiredDescription": "Subscribe to a plan below to keep creating and editing. Your data stays safe and exportable in the meantime.",
+				"expiredTitle": "Your trial has ended",
+				"noDate": "Choose a plan below to continue after your trial."
+			},
+			"trialCard": {
+				"activeDescription": "Upgrade anytime to keep your workspace after the trial.",
+				"choosePlan": "Choose a plan",
+				"daysLeft_few": "{{count}} days left in trial",
+				"daysLeft_many": "{{count}} days left in trial",
+				"daysLeft_one": "{{count}} day left in trial",
+				"daysLeft_other": "{{count}} days left in trial",
+				"dismiss": "Dismiss",
+				"ended": "Trial ended",
+				"endingDescription": "Pick a plan now so your team isn't interrupted.",
+				"expiredDescription": "Subscribe to keep creating and editing.",
+				"viewPlans": "View plans"
+			},
+			"openFailed": "Couldn't open billing for this workspace"
 		}
 	},
 	"navigation": {
@@ -1654,7 +1997,7 @@
 				"prevTask": "Предыдущая задача",
 				"openTask": "Открыть выбранную задачу",
 				"quickSelectNumber": "Выбрать вариант по номеру",
-				"calendarView": "Switch to calendar view"
+				"calendarView": "Переключиться на календарь"
 			}
 		}
 	},
@@ -1738,9 +2081,7 @@
 		"changedTitle": "изменил название с «{{from}}» на «{{to}}»",
 		"githubUser": "Пользователь GitHub",
 		"comment": {
-			"github": "GitHub",
 			"viewGithubProfile": "Открыть профиль GitHub",
-			"commentedOnGithub": "прокомментировал на GitHub",
 			"cannotBeEmpty": "Комментарий не может быть пустым",
 			"mustBeLoggedInToEdit": "Для редактирования комментариев необходимо войти в систему",
 			"updated": "Комментарий обновлён",
@@ -1836,7 +2177,8 @@
 				}
 			},
 			"importedFrom": "Imported from {{source}}",
-			"importedBy": "Imported by {{name}}"
+			"importedBy": "Imported by {{name}}",
+			"commentedOnForge": "прокомментировал на {{forge}}"
 		},
 		"moved": "переместил задачу из «{{from}}» в «{{to}}»",
 		"created": "создал эту задачу"
@@ -1975,6 +2317,13 @@
 				},
 				"mermaid": {
 					"renderFailed": "Не удалось отобразить диаграмму Mermaid"
+				},
+				"image": {
+					"large": "Large",
+					"medium": "Medium",
+					"reset": "Reset size",
+					"resizeHandle": "Resize image",
+					"small": "Small"
 				}
 			},
 			"customFieldUpdated": "Field updated",
@@ -2012,7 +2361,9 @@
 			"deleteDialogTitle": "Удалить задачу?",
 			"deleteDialogDescription": "Задача и все её данные будут безвозвратно удалены. Это действие нельзя отменить.",
 			"deleteAction": "Удалить задачу",
-			"completeAria": "Отметить подзадачу выполненной"
+			"completeAria": "Отметить подзадачу выполненной",
+			"progress": "Выполнено подзадач: {{completed}} из {{total}}",
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
 		},
 		"properties": {
 			"title": "Свойства",
@@ -2179,6 +2530,11 @@
 			"success": "Задача успешно удалена",
 			"error": "Не удалось удалить задачу"
 		},
+		"duplicate": {
+			"titleSuffix": "{{title}} (копия)",
+			"success": "Задача успешно дублирована",
+			"error": "Не удалось дублировать задачу"
+		},
 		"archive": {
 			"success_one": "{{count}} задача архивирована",
 			"success_few": "{{count}} задачи архивированы",
@@ -2229,6 +2585,7 @@
 			"copyLinkSuccess": "Ссылка на задачу скопирована!"
 		},
 		"actions": {
+			"duplicate": "Дублировать",
 			"archive": "Архивировать",
 			"markAsPlanned": "Отметить как запланированную",
 			"delete": "Удалить..."
@@ -2313,23 +2670,27 @@
 			}
 		},
 		"calendar": {
-			"dayTasksAriaLabel": "Show all tasks for {{date}}",
-			"moreTasks": "+{{count}} more",
-			"nextMonth": "Next month",
-			"noTasks": "No scheduled tasks",
-			"noTasksSubtitle": "Add a start date, due date, or both to tasks to place them on the calendar.",
-			"pageTitle": "{{name}} – Calendar",
-			"previousMonth": "Previous month",
-			"taskAriaLabel": "{{title}}, {{range}}: open task",
-			"title": "Calendar",
-			"today": "Today",
-			"loadError": "Failed to load tasks."
+			"dayTasksAriaLabel": "Показать все задачи на {{date}}",
+			"moreTasks": "Ещё {{count}}",
+			"nextMonth": "Следующий месяц",
+			"noTasks": "Нет запланированных задач",
+			"noTasksSubtitle": "Добавьте дату начала, срок выполнения или оба значения к задачам, чтобы они отображались в календаре.",
+			"pageTitle": "{{name}} – Календарь",
+			"previousMonth": "Предыдущий месяц",
+			"taskAriaLabel": "{{title}}, {{range}}: открыть задачу",
+			"title": "Календарь",
+			"today": "Сегодня",
+			"loadError": "Не удалось загрузить задачи."
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
-		"descriptionLoadError": "The description could not be loaded. Retry to load the current version."
+		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"checklistProgress": "Выполнено пунктов списка: {{completed}} из {{total}}",
+		"customFields": {
+			"ariaLabel": "Custom fields"
+		}
 	},
 	"invitations": {
 		"email": {
@@ -2556,6 +2917,9 @@
 		"lightTimelineScreenshotAlt": "Kaneo Gantt timeline in light theme, showing scheduled tasks and their durations"
 	},
 	"landing": {
+		"sponsors": {
+			"ciSponsor": "Партнёры"
+		},
 		"founder": {
 			"title": "Why Kaneo exists",
 			"intro": "I'm Andrej, and I created Kaneo because I was tired of project management tools that got in the way more than they helped. After years of using bloated, overcomplicated platforms that distracted from actual work, I knew there had to be a better way.",

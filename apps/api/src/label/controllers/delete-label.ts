@@ -5,6 +5,7 @@ import { labelTable, projectTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { removeLabelFromGitea } from "../../plugins/gitea/utils/sync-label-to-gitea";
 import { removeLabelFromGitHub } from "../../plugins/github/utils/sync-label-to-github";
+import { removeLabelFromGitlab } from "../../plugins/gitlab/utils/sync-label-to-gitlab";
 import { withLabelDeletionLock } from "../deletion-lock";
 
 export const LABEL_DELETE_BATCH_SIZE = 25;
@@ -29,7 +30,11 @@ async function notifyDeletion(label: Label, userId: string) {
     .limit(1);
   // Legacy inconsistent rows may be cleaned up, but never emit foreign events.
   if (!task) return;
-  for (const remove of [removeLabelFromGitHub, removeLabelFromGitea]) {
+  for (const remove of [
+    removeLabelFromGitHub,
+    removeLabelFromGitea,
+    removeLabelFromGitlab,
+  ]) {
     try {
       await remove(task.id, label.name);
     } catch {

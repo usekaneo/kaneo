@@ -1,6 +1,13 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ComponentType, ReactNode } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 
 const m = vi.hoisted(() => ({
   component: (() => null) as ComponentType,
@@ -51,9 +58,7 @@ vi.mock("react-i18next", () => ({
 }));
 vi.mock("@/lib/toast", () => ({ toast: { error: vi.fn() } }));
 
-await import(
-  "@/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/gantt"
-);
+await import("@/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/gantt");
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
@@ -114,7 +119,9 @@ describe("Gantt window UI", () => {
     ).toBeDisabled();
     fireEvent.pointerDown(
       screen.getByRole("button", { name: "tasks:gantt.taskAriaLabel" }),
-      { button: 0 },
+      {
+        button: 0,
+      },
     );
     expect(m.navigate).toHaveBeenCalledWith(
       expect.objectContaining({ search: { taskId: "Long-lived" } }),

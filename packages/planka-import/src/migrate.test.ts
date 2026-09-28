@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import type { KaneoClient } from "./kaneo.js";
 import { migrate } from "./migrate.js";
 import type { BoardBundle, PlankaClient } from "./planka.js";

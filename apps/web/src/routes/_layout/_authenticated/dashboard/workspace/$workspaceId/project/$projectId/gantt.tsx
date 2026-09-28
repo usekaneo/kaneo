@@ -211,7 +211,7 @@ function RouteComponent() {
   // re-running this effect since neither `todayInRange` nor `scrollToToday`
   // actually changed value, and the newly selected project would never get
   // its auto-center.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: projectId is intentionally listed to force a re-run on project switch; see comment above.
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- projectId is intentionally listed to force a re-run on project switch; see comment above.
   useLayoutEffect(() => {
     if (
       hasCenteredOnTodayRef.current ||
