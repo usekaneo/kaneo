@@ -44,16 +44,29 @@ export async function updateSubscriptionSeats(input: {
   productId: string;
   units: number;
 }) {
-  try {
-    await creemClient().subscriptions.update(input.subscriptionId, {
-      items: [{ productId: input.productId, units: input.units }],
-      updateBehavior: "proration-charge",
-    });
-    return { ok: true as const };
-  } catch (error) {
-    console.error("Creem seat update failed:", error);
-    return { ok: false as const };
+  const client = creemClient();
+
+  const subscription = await client.subscriptions.get(input.subscriptionId);
+  const items = subscription.items ?? [];
+  // A stale stored product id still resolves on a single-item subscription,
+  // which is the shape Kaneo sells. Guessing among several items would bill
+  // the wrong product, so that case has to be repaired by hand.
+  const item =
+    items.find((entry) => entry.productId === input.productId) ??
+    (items.length === 1 ? items[0] : undefined);
+
+  if (!item) {
+    throw new Error(
+      `Creem subscription ${input.subscriptionId} has no item for product ${input.productId}`,
+    );
   }
+
+  // Creem creates an additional item when the item id is omitted, and rejects
+  // the duplicate product with a 403, so the existing item id must be sent.
+  await client.subscriptions.update(input.subscriptionId, {
+    items: [{ id: item.id, units: input.units }],
+    updateBehavior: "proration-charge",
+  });
 }
 
 export async function createCustomerPortalLink(customerId: string) {

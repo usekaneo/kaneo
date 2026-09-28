@@ -1,5 +1,6 @@
 import { client } from "@kaneo/libs";
 import type { InferRequestType } from "hono/client";
+import { HttpError } from "@/lib/http-error";
 import type Task from "@/types/task";
 
 type UpdateTaskPriorityValue = InferRequestType<
@@ -15,8 +16,7 @@ async function updateTaskPriority(taskId: string, task: Task) {
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    throw new HttpError(response.status, await response.text());
   }
 
   const data = await response.json();

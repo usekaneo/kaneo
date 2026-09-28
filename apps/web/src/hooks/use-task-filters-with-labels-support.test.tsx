@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import { useTaskFiltersWithLabelsSupport } from "./use-task-filters-with-labels-support";
 
 function createTestQueryClient() {
@@ -261,6 +261,7 @@ describe("useTaskFiltersWithLabelsSupport", () => {
           mergedBoard,
           "my-tasks",
           "ops-7",
+          undefined,
           (candidate) => slugByProjectId[candidate.projectId],
         ),
       { wrapper: createWrapper() },

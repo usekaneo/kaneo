@@ -1,6 +1,6 @@
 import { columnSchema } from "../column/response";
 import { z } from "../openapi";
-import { boardTaskSchema, paginationSchema } from "../task/response";
+import { boardTaskSchema } from "../task/response";
 
 export const avatarSchema = z
   .object({
@@ -20,6 +20,27 @@ export const avatarDeletedSchema = z
     }),
   })
   .openapi("UserAvatarDeleted");
+
+export const currentUserSchema = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    email: z.string(),
+    image: z.string().nullable(),
+    role: z.string().nullable(),
+  })
+  .openapi("CurrentUser");
+
+export const paginationSchema = z
+  .object({
+    total: z.number().openapi({
+      description: "How many rows match in total, across all pages.",
+    }),
+    page: z.number(),
+    pageSize: z.number(),
+    totalPages: z.number().openapi({ description: "At least 1." }),
+  })
+  .openapi("Pagination");
 
 export const assignedTaskProjectSchema = z
   .object({

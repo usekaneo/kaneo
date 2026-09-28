@@ -12,6 +12,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogClose, DialogPopup } from "@/components/ui/dialog";
+import { usePublicTaskDescription } from "@/hooks/queries/task/use-public-task-description";
 import {
   dueDateStatusColors,
   getDueDateStatus,
@@ -49,6 +50,12 @@ export function PublicTaskDetailModal({
 }: PublicTaskDetailModalProps) {
   const taskIsCompleted = isTaskCompleted(task?.status ?? "", columns);
   const { t } = useTranslation();
+  const descriptionQuery = usePublicTaskDescription(task, open);
+  const description = task?.descriptionDeferred
+    ? descriptionQuery.isError
+      ? undefined
+      : descriptionQuery.data
+    : task?.description;
 
   const getPRStatus = useMemo(
     () => (pr: { metadata?: { merged?: boolean; draft?: boolean } | null }) => {
@@ -168,9 +175,24 @@ export function PublicTaskDetailModal({
               </div>
             </div>
 
-            {task.description && (
+            {task.descriptionDeferred && descriptionQuery.isLoading && (
+              <p role="status">{t("tasks:descriptionLoading")}</p>
+            )}
+            {task.descriptionDeferred && descriptionQuery.isError && (
+              <p role="alert">
+                {t("tasks:descriptionLoadError")}{" "}
+                <button
+                  type="button"
+                  className="underline"
+                  onClick={() => void descriptionQuery.refetch()}
+                >
+                  {t("tasks:descriptionRetry")}
+                </button>
+              </p>
+            )}
+            {description && (
               <div className="pt-1">
-                <MarkdownRenderer content={task.description} />
+                <MarkdownRenderer content={description} />
               </div>
             )}
 

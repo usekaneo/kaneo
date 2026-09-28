@@ -1,13 +1,14 @@
 import { inArray } from "drizzle-orm";
-import db from "../../database";
 import { externalLinkTable, labelTable } from "../../database/schema";
+import type { TaskReadDatabase } from "../bounded-read";
+import { parseMetadata } from "./get-tasks";
 
 export type TaskLabelDecoration = { id: string; name: string; color: string };
 
 export type TaskExternalLinkDecoration = {
   id: string;
   taskId: string;
-  integrationId: string;
+  integrationId: string | null;
   resourceType: string;
   externalId: string;
   url: string;
@@ -22,7 +23,10 @@ export type TaskExternalLinkDecoration = {
  * grouped by task id, so list endpoints stay at a fixed number of round-trips
  * regardless of how many tasks they return.
  */
-export async function loadTaskDecorations(taskIds: string[]) {
+export async function loadTaskDecorations(
+  db: TaskReadDatabase,
+  taskIds: string[],
+) {
   const labelsByTask = new Map<string, TaskLabelDecoration[]>();
   const externalLinksByTask = new Map<string, TaskExternalLinkDecoration[]>();
 
@@ -30,21 +34,20 @@ export async function loadTaskDecorations(taskIds: string[]) {
     return { labelsByTask, externalLinksByTask };
   }
 
-  const [labelsData, externalLinksData] = await Promise.all([
-    db
-      .select({
-        id: labelTable.id,
-        name: labelTable.name,
-        color: labelTable.color,
-        taskId: labelTable.taskId,
-      })
-      .from(labelTable)
-      .where(inArray(labelTable.taskId, taskIds)),
-    db
-      .select()
-      .from(externalLinkTable)
-      .where(inArray(externalLinkTable.taskId, taskIds)),
-  ]);
+  // Sequential: a transaction runs on one connection.
+  const labelsData = await db
+    .select({
+      id: labelTable.id,
+      name: labelTable.name,
+      color: labelTable.color,
+      taskId: labelTable.taskId,
+    })
+    .from(labelTable)
+    .where(inArray(labelTable.taskId, taskIds));
+  const externalLinksData = await db
+    .select()
+    .from(externalLinkTable)
+    .where(inArray(externalLinkTable.taskId, taskIds));
 
   for (const label of labelsData) {
     if (!label.taskId) continue;
@@ -57,9 +60,7 @@ export async function loadTaskDecorations(taskIds: string[]) {
     const links = externalLinksByTask.get(externalLink.taskId) ?? [];
     links.push({
       ...externalLink,
-      metadata: externalLink.metadata
-        ? JSON.parse(externalLink.metadata)
-        : null,
+      metadata: parseMetadata(externalLink.metadata),
     });
     externalLinksByTask.set(externalLink.taskId, links);
   }

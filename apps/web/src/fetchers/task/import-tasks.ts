@@ -1,5 +1,6 @@
 import { client } from "@kaneo/libs";
 
+import { HttpError } from "@/lib/http-error";
 export type TaskToImport = {
   title: string;
   description?: string;
@@ -17,8 +18,7 @@ async function importTasks(projectId: string, tasks: TaskToImport[]) {
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    throw new HttpError(response.status, await response.text());
   }
 
   const data = await response.json();

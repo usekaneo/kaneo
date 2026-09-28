@@ -102,7 +102,7 @@ async function verifyGiteaAccess({
     }
 
     if (err.status === 401) {
-      throw new HTTPException(401, {
+      throw new HTTPException(400, {
         message: "Invalid Gitea token or unauthorized.",
       });
     }

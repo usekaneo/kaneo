@@ -1,0 +1,12 @@
+# TruffleHog path exclusions (regex, one per line).
+# These paths contain only placeholder / non-secret credentials:
+# - Compose files, docs, charts, and tests reference example credentials like
+#   postgres:postgres, ci-only-password, user:pass@example.test.
+#
+# NOTE: keep this list narrow. Do not add source directories (apps/, packages/).
+^README\.md$
+^compose(\.[a-z-]+)?\.yml$
+^scripts/ci/
+^charts/
+^tests/
+^apps/docs/

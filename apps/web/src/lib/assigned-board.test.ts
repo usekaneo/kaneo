@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import type { AssignedTaskProject, AssignedTasksData } from "@/types/my-tasks";
 import type Task from "@/types/task";
 import { buildAssignedBoard, MY_TASKS_BOARD_ID } from "./assigned-board";

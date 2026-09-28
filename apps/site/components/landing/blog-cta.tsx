@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const SIGN_UP = "https://cloud.kaneo.app/auth/sign-up";
@@ -7,7 +8,7 @@ export function BlogCta({ compact = false }: { compact?: boolean }) {
   return (
     <aside
       className={cn(
-        "rounded-2xl border border-border/70 bg-card/70",
+        "rounded-xl border bg-sidebar",
         compact ? "p-6" : "p-6 md:p-8",
       )}
     >
@@ -21,7 +22,7 @@ export function BlogCta({ compact = false }: { compact?: boolean }) {
       </p>
       <p
         className={cn(
-          "mt-2.5 text-foreground/70 leading-relaxed",
+          "mt-2.5 text-muted-foreground leading-relaxed",
           compact ? "text-sm" : "",
         )}
       >
@@ -35,31 +36,23 @@ export function BlogCta({ compact = false }: { compact?: boolean }) {
           compact ? "mt-5" : "mt-6",
         )}
       >
-        <a
-          className={cn(
-            "inline-flex items-center justify-center rounded-lg border border-transparent bg-primary px-4 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary/90",
-            compact ? "h-10 w-full" : "h-10",
-          )}
-          href={SIGN_UP}
+        <Button
+          size="lg"
+          className={cn("h-12 px-5 text-sm sm:h-12", compact && "w-full")}
+          render={<a href={SIGN_UP} />}
         >
           Start a 14-day free trial
-        </a>
-        <a
-          className={cn(
-            "inline-flex items-center justify-center rounded-lg border border-border bg-transparent px-4 font-medium text-sm transition-colors hover:bg-accent",
-            compact ? "h-10 w-full" : "h-10",
-          )}
-          href={PRICING}
+        </Button>
+        <Button
+          variant="outline"
+          size="lg"
+          className={cn("h-12 px-5 text-sm sm:h-12", compact && "w-full")}
+          render={<a href={PRICING} />}
         >
           See pricing
-        </a>
+        </Button>
       </div>
-      <p
-        className={cn(
-          "mt-3 text-foreground/50",
-          compact ? "text-xs" : "text-xs",
-        )}
-      >
+      <p className="mt-3 text-xs text-muted-foreground">
         No credit card required.
       </p>
     </aside>

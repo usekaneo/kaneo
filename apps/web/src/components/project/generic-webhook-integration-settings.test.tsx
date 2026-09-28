@@ -5,7 +5,14 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { GenericWebhookIntegrationSettings } from "./generic-webhook-integration-settings";
 
 const createIntegration = vi.fn();
@@ -16,7 +23,9 @@ vi.mock("react-i18next", () => ({
 
 vi.mock(
   "@/hooks/queries/generic-webhook-integration/use-get-generic-webhook-integration",
-  () => ({ default: () => ({ data: null, isLoading: false }) }),
+  () => ({
+    default: () => ({ data: null, isLoading: false }),
+  }),
 );
 
 vi.mock(
@@ -54,7 +63,9 @@ describe("GenericWebhookIntegrationSettings", () => {
 
     fireEvent.change(
       screen.getByLabelText("settings:genericWebhookIntegration.webhookLabel"),
-      { target: { value: "https://example.com/hooks/kaneo" } },
+      {
+        target: { value: "https://example.com/hooks/kaneo" },
+      },
     );
     fireEvent.click(
       screen.getByRole("switch", {
@@ -97,7 +108,9 @@ describe("GenericWebhookIntegrationSettings", () => {
 
     fireEvent.change(
       screen.getByLabelText("settings:genericWebhookIntegration.webhookLabel"),
-      { target: { value: "https://example.com/hooks/kaneo" } },
+      {
+        target: { value: "https://example.com/hooks/kaneo" },
+      },
     );
     for (const event of [
       "taskDeleted",
@@ -139,7 +152,9 @@ describe("GenericWebhookIntegrationSettings", () => {
 
     fireEvent.change(
       screen.getByLabelText("settings:genericWebhookIntegration.webhookLabel"),
-      { target: { value: "https://example.com/hooks/kaneo" } },
+      {
+        target: { value: "https://example.com/hooks/kaneo" },
+      },
     );
     fireEvent.click(
       screen.getByRole("switch", {

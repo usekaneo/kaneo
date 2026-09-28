@@ -1,7 +1,10 @@
 import { apiKey } from "@better-auth/api-key";
 import {
+  isSmtpConfigured,
+  OTP_EXPIRY_SECONDS,
   sendMagicLinkEmail,
   sendOtpEmail,
+  sendPasswordResetEmail,
   sendWorkspaceInvitationEmail,
 } from "@kaneo/email";
 import {
@@ -12,7 +15,6 @@ import {
 } from "@kaneo/permissions";
 import bcrypt from "bcryptjs";
 import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import {
   APIError,
   createAuthMiddleware,
@@ -33,16 +35,24 @@ import {
 import type { AccessControl } from "better-auth/plugins/access";
 import type { UserWithAnonymous } from "better-auth/plugins/anonymous";
 import { config } from "dotenv-mono";
-import { count, eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import {
   findBillableWorkspaces,
   formatBillableWorkspacesMessage,
 } from "./billing/controllers/find-billable-workspaces";
 import { syncWorkspaceSeats } from "./billing/controllers/sync-seats";
 import db, { schema } from "./database";
+import { authDatabaseAdapter } from "./database/auth-adapter";
 import { publishEvent } from "./events";
+import clearEmailVerificationOnAdminChange from "./user/controllers/clear-email-verification-on-admin-change";
 import deleteAccountData from "./user/controllers/delete-account-data";
-import { checkRegistrationAllowed } from "./utils/check-registration-allowed";
+import prepareAdminUserRemoval from "./user/controllers/prepare-admin-user-removal";
+import { resolveAuthSecret } from "./utils/auth-secret";
+import {
+  canSendSignInEmail,
+  checkRegistrationAllowed,
+  userExistsByEmail,
+} from "./utils/check-registration-allowed";
 import { checkWorkspaceName } from "./utils/check-workspace-name";
 import { mapCustomOAuthProfileToUser } from "./utils/custom-oauth-profile";
 import { generateDemoName } from "./utils/generate-demo-name";
@@ -50,10 +60,22 @@ import { getDefaultCookieAttributes } from "./utils/get-default-cookie-attribute
 import { getInvitationEmailSubject } from "./utils/get-invitation-email-subject";
 import { getWorkspaceInvitationEmailCopy } from "./utils/get-workspace-invitation-email-copy";
 import { getGithubSsoOAuthCredentials } from "./utils/github-sso-env";
+import { hasInstanceAdminRole } from "./utils/instance-admin-role";
+import {
+  hasRegisteredUsers,
+  promoteInitialAdministrator,
+} from "./utils/instance-bootstrap";
 import { isCloud } from "./utils/is-cloud";
 import { isDisposableEmail } from "./utils/is-disposable-email";
 import { isLocalSignInPath } from "./utils/is-local-sign-in-path";
-import { verifyTurnstile } from "./utils/verify-turnstile";
+import { trackPasswordResetDelivery } from "./utils/password-reset-delivery";
+import {
+  assertGuestRegistrationAllowed,
+  assertUserRegistrationAllowed,
+  normalizeInvitationId,
+} from "./utils/registration-policy";
+import { queueSignInEmail } from "./utils/sign-in-email-tasks";
+import { authCaptchaPaths, verifyTurnstile } from "./utils/verify-turnstile";
 
 config();
 
@@ -67,18 +89,6 @@ const isEmailOtpSignInDisabled =
   process.env.DISABLE_EMAIL_OTP_SIGN_IN === "true";
 const isWorkspaceCreationDisabled =
   process.env.DISABLE_WORKSPACE_CREATION === "true";
-
-function normalizeInvitationId(value: unknown): string | undefined {
-  if (typeof value !== "string") return undefined;
-  const normalized = value.trim();
-  if (!/^[a-z0-9_-]{1,128}$/i.test(normalized)) return undefined;
-  return normalized;
-}
-
-function isOAuthCallbackPath(path: unknown): boolean {
-  if (typeof path !== "string") return false;
-  return path.startsWith("/callback/") || path.startsWith("/oauth2/callback/");
-}
 
 const apiUrl = process.env.KANEO_API_URL || "http://localhost:1337";
 const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
@@ -101,12 +111,14 @@ const baseURLWithoutPath = (() => {
   }
 })();
 
-if (process.env.AUTH_SECRET && process.env.AUTH_SECRET.length < 32) {
-  console.error(
-    "AUTH_SECRET is less than 32 characters, please generate a new one.",
-  );
-  process.exit(1);
-}
+const authSecret = (() => {
+  try {
+    return resolveAuthSecret();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  }
+})();
 
 async function getUserLocale(email: string) {
   const [user] = await db
@@ -126,13 +138,30 @@ function getLocaleKey(locale?: string | null) {
   return "en";
 }
 
+// Reads env at call time (not module scope) so tests can stub it.
+async function shouldDeliverSignInEmail(email: string) {
+  if (process.env.DISABLE_PASSWORD_REGISTRATION === "true") {
+    return userExistsByEmail(email);
+  }
+  if (process.env.DISABLE_REGISTRATION === "true") {
+    // Mirror `assertUserRegistrationAllowed`: the first non-guest user can
+    // always complete initial instance setup.
+    if (!(await hasRegisteredUsers())) {
+      return true;
+    }
+    return canSendSignInEmail(email);
+  }
+  return true;
+}
+
 function getAuthEmailCopy(locale?: string | null) {
   const localeKey = getLocaleKey(locale);
 
   if (localeKey === "de") {
     return {
-      magicLinkSubject: "Anmeldelink fuer Kaneo",
-      otpSubject: "Bestaetigungscode fuer Kaneo",
+      magicLinkSubject: "Anmeldelink für Kaneo",
+      otpSubject: "Bestätigungscode für Kaneo",
+      passwordResetSubject: "Kaneo-Passwort zurücksetzen",
     };
   }
 
@@ -140,6 +169,7 @@ function getAuthEmailCopy(locale?: string | null) {
     return {
       magicLinkSubject: "Liên kết đăng nhập Kaneo",
       otpSubject: "Mã xác minh Kaneo",
+      passwordResetSubject: "Đặt lại mật khẩu Kaneo",
     };
   }
 
@@ -147,12 +177,14 @@ function getAuthEmailCopy(locale?: string | null) {
     return {
       magicLinkSubject: "Kaneo ログインリンク",
       otpSubject: "Kaneo 認証コード",
+      passwordResetSubject: "Kaneo のパスワードをリセット",
     };
   }
 
   return {
     magicLinkSubject: "Login for Kaneo",
     otpSubject: "Authentication code for Kaneo",
+    passwordResetSubject: "Reset your Kaneo password",
   };
 }
 
@@ -169,25 +201,6 @@ function getDeviceAuthClientIds(): Set<string> {
   return new Set(["kaneo-cli", "kaneo-mcp"]);
 }
 
-const DEFAULT_TRUSTED_PROXIES = [
-  "127.0.0.0/8",
-  "::1/128",
-  "10.0.0.0/8",
-  "172.16.0.0/12",
-  "192.168.0.0/16",
-];
-
-function trustedProxies(): string[] {
-  const raw = process.env.TRUSTED_PROXIES?.trim();
-  if (!raw) {
-    return DEFAULT_TRUSTED_PROXIES;
-  }
-  return raw
-    .split(",")
-    .map((entry) => entry.trim())
-    .filter(Boolean);
-}
-
 function getDeviceAuthVerificationUri(): string {
   const base = clientUrl.replace(/\/$/, "");
   return `${base}/device`;
@@ -196,9 +209,9 @@ function getDeviceAuthVerificationUri(): string {
 export const auth = betterAuth({
   baseURL: baseURLWithoutPath,
   trustedOrigins,
-  secret: process.env.AUTH_SECRET || "",
+  secret: authSecret,
   basePath: "/api/auth",
-  database: drizzleAdapter(db, {
+  database: authDatabaseAdapter({
     provider: "pg",
     schema: {
       ...schema,
@@ -233,11 +246,9 @@ export const auth = betterAuth({
   },
   account: {
     accountLinking: {
-      // Link an OAuth/OIDC sign-in to an existing account that shares the same
-      // email instead of failing with error=account_not_linked. The listed
-      // providers verify the email on their side, so they are trusted to link.
+      // Require the provider's verified-email claim for implicit linking;
+      // configuration alone must not make an unverified identity trusted.
       enabled: true,
-      trustedProviders: ["github", "google", "discord", "custom"],
       // Only link to an existing local account after its email has been
       // verified. Without this check, an attacker could pre-register a victim's
       // email with a password account and retain access after the victim signs
@@ -248,6 +259,20 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
+    revokeSessionsOnPasswordReset: true,
+    resetPasswordTokenExpiresIn: 60 * 60,
+    sendResetPassword: async ({ user, url }) => {
+      // Keep SMTP latency out of the response so it cannot reveal accounts.
+      trackPasswordResetDelivery(
+        getUserLocale(user.email).then((locale) =>
+          sendPasswordResetEmail(
+            user.email,
+            getAuthEmailCopy(locale).passwordResetSubject,
+            { resetLink: url, userName: user.name, locale },
+          ),
+        ),
+      );
+    },
     password: {
       hash: async (password) => {
         return await bcrypt.hash(password, 10);
@@ -283,30 +308,39 @@ export const auth = betterAuth({
       : []),
     lastLoginMethod(),
     magicLink({
+      disableSignUp: isPasswordRegistrationDisabled,
       sendMagicLink: async ({ email, url }) => {
-        try {
+        queueSignInEmail(async () => {
+          if (!(await shouldDeliverSignInEmail(email))) {
+            return;
+          }
           const locale = await getUserLocale(email);
           const copy = getAuthEmailCopy(locale);
           await sendMagicLinkEmail(email, copy.magicLinkSubject, {
             magicLink: url,
             locale,
           });
-        } catch (error) {
-          console.error(error);
-        }
+        });
       },
     }),
     ...(isEmailOtpSignInDisabled
       ? []
       : [
           emailOTP({
+            expiresIn: OTP_EXPIRY_SECONDS,
+            disableSignUp: isPasswordRegistrationDisabled,
             async sendVerificationOTP({ email, otp, type }) {
               if (type === "sign-in") {
-                const locale = await getUserLocale(email);
-                const copy = getAuthEmailCopy(locale);
-                await sendOtpEmail(email, copy.otpSubject, {
-                  otp,
-                  locale,
+                queueSignInEmail(async () => {
+                  if (!(await shouldDeliverSignInEmail(email))) {
+                    return;
+                  }
+                  const locale = await getUserLocale(email);
+                  const copy = getAuthEmailCopy(locale);
+                  await sendOtpEmail(email, copy.otpSubject, {
+                    otp,
+                    locale,
+                  });
                 });
               }
             },
@@ -374,28 +408,22 @@ export const auth = betterAuth({
         },
       },
       // When `DISABLE_WORKSPACE_CREATION` is set, only instance admins
-      // (`user.role === "admin"`) may create workspaces — mirrors the
+      // (role list includes "admin") may create workspaces — mirrors the
       // implicit-exemption shape of `DISABLE_REGISTRATION` above. This
       // check runs before any workspace membership exists, so only the
       // instance-wide role is meaningful here; per-workspace roles
       // (owner/admin/member/viewer) don't apply until after a workspace
       // is joined.
       //
-      // `user` here comes from the session, which may be served out of
-      // the cookie cache (see `session.cookieCache` below). The
-      // first-user bootstrap promotes the user to admin in
-      // `databaseHooks.user.create.after`, but that happens after
-      // `signUpEmail` has already returned/cached the pre-promotion
-      // role, so a cached session can still say `role: "user"` for up
-      // to `cookieCache.maxAge`. Re-read the role from the database
-      // instead of trusting the (possibly stale) cached role.
+      // Read the current instance role rather than a session's user snapshot,
+      // which can predate first-user promotion or an administrator's changes.
       allowUserToCreateOrganization: isWorkspaceCreationDisabled
         ? async (user) => {
             const [freshUser] = await db
               .select({ role: schema.userTable.role })
               .from(schema.userTable)
               .where(eq(schema.userTable.id, user.id));
-            return freshUser?.role === "admin";
+            return hasInstanceAdminRole(freshUser?.role);
           }
         : true,
       // Better Auth defaults this to `true`, which blocks any user whose email
@@ -555,8 +583,9 @@ export const auth = betterAuth({
   ],
   session: {
     cookieCache: {
-      enabled: true,
-      maxAge: 5 * 60,
+      // Consult the session store on every request so password recovery
+      // immediately rejects revoked cookies, including caches issued before upgrade.
+      enabled: false,
     },
   },
   rateLimit: {
@@ -568,51 +597,40 @@ export const auth = betterAuth({
     max: 100,
     customRules: {
       "/sign-up/email": { window: 60, max: 3 },
+      "/sign-in/anonymous": { window: 60, max: 3 },
       "/organization/invite-member": { window: 60, max: 5 },
     },
   },
   databaseHooks: {
     user: {
-      create: {
+      update: {
         before: async (user, ctx) => {
-          // The anonymous() plugin creates ephemeral users for guest
-          // access; registration limits don't apply to them (guest
-          // availability is governed by DISABLE_GUEST_ACCESS instead).
-          // `isAnonymous` is `input: false` in the plugin schema, so a
-          // regular signup request cannot spoof it.
-          const userWithAnonymous = user as Partial<UserWithAnonymous>;
-          if (userWithAnonymous.isAnonymous) {
-            return;
-          }
-
-          // Allow the very first signup through even when registration
-          // is disabled: that's the instance-admin bootstrap flow.
-          // Otherwise a fresh instance with DISABLE_REGISTRATION=true
-          // could never be set up because `checkRegistrationAllowed`
-          // would reject the first user (qodo bot #3).
-          const [userCountRow] = await db
-            .select({ value: count() })
-            .from(schema.userTable);
-          const existingUserCount = userCountRow?.value ?? 0;
-          if (existingUserCount === 0) {
-            return;
-          }
-
-          const invitationId = normalizeInvitationId(
-            ctx?.body?.invitationId ||
-              ctx?.query?.invitationId ||
-              ctx?.headers?.get("x-invitation-id"),
-          );
-          const result = await checkRegistrationAllowed(
-            user.email,
-            invitationId,
-            { allowInvitationByEmail: isOAuthCallbackPath(ctx?.path) },
-          );
-          if (!result.allowed) {
-            throw new APIError("FORBIDDEN", {
-              message: result.reason,
+          if (
+            (ctx?.path === "/admin/set-role" ||
+              ctx?.path === "/admin/update-user") &&
+            Object.hasOwn(user, "role") &&
+            ctx.body?.userId === ctx.context.session?.user.id
+          ) {
+            throw new APIError("BAD_REQUEST", {
+              code: "YOU_CANNOT_CHANGE_YOUR_OWN_ROLE",
+              message: "You cannot change your own role.",
             });
           }
+          return clearEmailVerificationOnAdminChange(user, ctx);
+        },
+      },
+      create: {
+        before: async (user, ctx) => {
+          await assertUserRegistrationAllowed(
+            user as Partial<UserWithAnonymous> & { email: string },
+            {
+              path: ctx?.path,
+              invitationId:
+                ctx?.body?.invitationId ||
+                ctx?.query?.invitationId ||
+                ctx?.headers?.get("x-invitation-id"),
+            },
+          );
         },
         after: async (user) => {
           // The anonymous() plugin creates ephemeral users for guest
@@ -625,53 +643,56 @@ export const auth = betterAuth({
             return;
           }
 
-          // Promote the first user to instance admin atomically.
-          //
-          // A previous version of this code checked the user count in
-          // the `before` hook and returned `role: "admin"`, but the
-          // count and the eventual INSERT happened in separate
-          // transactions, so two concurrent first-signups could both
-          // see count=0 and both become admins (qodo bot #5).
-          //
-          // We now run the check + promote inside a single transaction
-          // guarded by a Postgres advisory lock. Whichever transaction
-          // wins the lock first promotes its user; any concurrent
-          // transaction then sees totalUserCount > 1 and skips.
-          //
-          // Note: we count total users (not admins) so that upgrading
-          // an existing instance (where every existing user has
-          // role=NULL from the new column) doesn't promote the next
-          // signup to admin (qodo bot #4).
-          await db.transaction(async (tx) => {
-            await tx.execute(sql`SELECT pg_advisory_xact_lock(2026)`);
-
-            const totalRows = await tx
-              .select({ value: count() })
-              .from(schema.userTable);
-            const totalUserCount = totalRows[0]?.value ?? 0;
-
-            // This hook runs after the user row is inserted, so the
-            // just-created user is included in the count. If they are
-            // the only row in the table, this is a fresh-instance
-            // bootstrap and they get promoted to admin.
-            if (totalUserCount === 1) {
-              await tx
-                .update(schema.userTable)
-                .set({ role: "admin" })
-                .where(eq(schema.userTable.id, user.id));
-            }
-          });
+          await promoteInitialAdministrator(user.id);
         },
       },
     },
   },
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === "/admin/remove-user") {
+        await prepareAdminUserRemoval(ctx);
+      }
+
+      if (ctx.path === "/organization/invite-member") {
+        // Better Auth swallows email failures in runInBackgroundOrAwait.
+        // Invitation callers need the delivery result, including on resend.
+        ctx.context.runInBackgroundOrAwait = async (promise) => {
+          try {
+            await promise;
+          } catch {
+            throw new APIError("BAD_GATEWAY", {
+              code: "INVITATION_EMAIL_FAILED",
+              message:
+                "Invitation saved, but email delivery failed. Check SMTP settings and resend the invitation.",
+            });
+          }
+        };
+      }
+
       if (isLoginFormDisabled && isLocalSignInPath(ctx.path)) {
         throw new APIError("FORBIDDEN", {
           message:
             "Local sign-in is disabled. Please use a configured social or OIDC sign-in method.",
         });
+      }
+
+      if (ctx.path === "/request-password-reset" && !isSmtpConfigured()) {
+        throw new APIError("FORBIDDEN", {
+          message: "Password reset requires email delivery to be configured.",
+        });
+      }
+
+      if (ctx.path === "/sign-in/anonymous") {
+        await assertGuestRegistrationAllowed();
+      }
+
+      if (authCaptchaPaths.has(ctx.path)) {
+        const verdict = await verifyTurnstile(
+          ctx.headers?.get("x-turnstile-token") ?? ctx.body?.turnstileToken,
+        );
+        if (!verdict.ok)
+          throw new APIError("FORBIDDEN", { message: verdict.reason });
       }
 
       // Block invite-member calls on cloud from anonymous users or to
@@ -711,11 +732,7 @@ export const auth = betterAuth({
         return;
       }
 
-      const userCountRows = await db
-        .select({ value: count() })
-        .from(schema.userTable);
-      const existingUserCount = userCountRows[0]?.value ?? 0;
-      const isInstanceAdminSetup = existingUserCount === 0;
+      const isInstanceAdminSetup = !(await hasRegisteredUsers());
 
       if (ctx.path === "/sign-up/email") {
         if (isPasswordRegistrationDisabled && !isInstanceAdminSetup) {
@@ -725,8 +742,8 @@ export const auth = betterAuth({
           });
         }
 
-        // Cloud-only abuse gates on password signup. Self-hosted instances
-        // leave KANEO_CLOUD/TURNSTILE_SECRET_KEY unset and skip both.
+        // Cloud-only disposable-email check; CAPTCHA is enforced above
+        // on every account-creation initiation when configured.
         if (isCloud() && !isInstanceAdminSetup) {
           const signupEmail = (ctx.body?.email as string | undefined) ?? "";
           if (signupEmail && isDisposableEmail(signupEmail)) {
@@ -734,19 +751,6 @@ export const auth = betterAuth({
               message:
                 "Sign-up with disposable email addresses is not allowed.",
             });
-          }
-
-          const turnstileToken =
-            (ctx.body?.turnstileToken as string | undefined) ??
-            ctx.headers?.get("x-turnstile-token") ??
-            null;
-          const remoteIp =
-            ctx.headers?.get("cf-connecting-ip") ??
-            ctx.headers?.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-            null;
-          const verdict = await verifyTurnstile(turnstileToken, remoteIp);
-          if (!verdict.ok) {
-            throw new APIError("FORBIDDEN", { message: verdict.reason });
           }
         }
       }
@@ -798,8 +802,9 @@ export const auth = betterAuth({
   },
   advanced: {
     ipAddress: {
-      ipAddressHeaders: ["cf-connecting-ip", "x-forwarded-for"],
-      trustedProxies: trustedProxies(),
+      // Set only by the Node transport middleware, never accepted from clients.
+      ipAddressHeaders: ["x-kaneo-client-ip"],
+      trustedProxies: [],
     },
     defaultCookieAttributes: getDefaultCookieAttributes({
       apiUrl,

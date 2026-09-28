@@ -1,6 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { landing } from "@/lib/landing";
 import "./globals.css";
+
+const siteTitle = landing.seo.title;
+const siteDescription = landing.seo.description;
 
 export const viewport: Viewport = {
   themeColor: [
@@ -12,11 +16,10 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://kaneo.app"),
   title: {
-    default: "Kaneo - All you need. Nothing you don't.",
+    default: siteTitle,
     template: "%s | Kaneo",
   },
-  description:
-    "All you need. Nothing you don't. Open source project management that works for you, not against you.",
+  description: siteDescription,
   keywords: [
     "kaneo",
     "project management",
@@ -34,9 +37,8 @@ export const metadata: Metadata = {
     type: "website",
     url: "https://kaneo.app",
     siteName: "Kaneo",
-    title: "Kaneo - All you need. Nothing you don't.",
-    description:
-      "Open source project management that works for you, not against you. Self-hosted, simple, and powerful.",
+    title: siteTitle,
+    description: siteDescription,
     images: [
       {
         url: "/images/hero.png",
@@ -48,9 +50,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kaneo - All you need. Nothing you don't.",
-    description:
-      "Open source project management that works for you, not against you. Self-hosted, simple, and powerful.",
+    title: siteTitle,
+    description: siteDescription,
     images: ["/images/hero.png"],
   },
   robots: {
@@ -89,8 +90,7 @@ const jsonLd = [
     name: "Kaneo",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web, Linux, macOS, Windows",
-    description:
-      "Open source project management that works for you, not against you. Self-hosted, simple, and powerful.",
+    description: siteDescription,
     url: "https://kaneo.app",
     image: "https://kaneo.app/images/hero.png",
     license: "https://github.com/usekaneo/kaneo/blob/main/LICENSE",
@@ -104,7 +104,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         <script
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: This is necessary to apply the user's preferred color scheme before React hydration to prevent a flash of incorrect theme.
+          // eslint-disable-next-line react/no-danger -- This is necessary to apply the user's preferred color scheme before React hydration to prevent a flash of incorrect theme.
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
@@ -128,7 +128,7 @@ export default function RootLayout({
         {children}
         <script
           type="application/ld+json"
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD structured data must be inlined as a script tag for search engines to parse.
+          // eslint-disable-next-line react/no-danger -- JSON-LD structured data must be inlined as a script tag for search engines to parse.
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <Script

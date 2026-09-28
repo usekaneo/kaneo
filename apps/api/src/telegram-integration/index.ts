@@ -165,7 +165,7 @@ const telegramIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
       chatId: body.chatId,
       threadId: body.threadId,
       chatLabel: body.chatLabel,
-      events: { ...defaultTelegramEvents, ...(body.events ?? {}) },
+      events: { ...defaultTelegramEvents, ...body.events },
     });
 
     const validation = validateTelegramConfig(config);

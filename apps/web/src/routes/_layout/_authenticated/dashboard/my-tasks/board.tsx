@@ -62,6 +62,7 @@ function RouteComponent() {
     board,
     MY_TASKS_BOARD_ID,
     searchQuery,
+    undefined,
     getProjectSlug,
   );
 

@@ -1,4 +1,5 @@
 import { getApiUrl } from "@/fetchers/get-api-url";
+import { HttpError } from "@/lib/http-error";
 import type { GenericWebhookIntegration } from "./get-generic-webhook-integration";
 
 export type CreateGenericWebhookIntegrationRequest = {
@@ -38,8 +39,7 @@ async function createGenericWebhookIntegration(
   );
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    throw new HttpError(response.status, await response.text());
   }
 
   return (await response.json()) as GenericWebhookIntegration;

@@ -39,6 +39,14 @@ export function getLabelsForIssue(
 
 export function formatTaskDescriptionFromIssue(
   issueBody: string | null,
+  taskId?: string,
 ): string {
-  return issueBody || "";
+  const body = issueBody || "";
+  // Only remove our exact trailing footer for the already-linked task.
+  // New imports and arbitrary Task mentions remain untouched.
+  if (!taskId) return body;
+  const footer = `<sub>Task: ${taskId}</sub>`;
+  if (body === footer) return "";
+  const suffix = `\n\n---\n${footer}`;
+  return body.endsWith(suffix) ? body.slice(0, -suffix.length) : body;
 }

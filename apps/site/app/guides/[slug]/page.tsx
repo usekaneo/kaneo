@@ -24,9 +24,17 @@ export async function generateMetadata({
     alternates: { canonical: guidePath(data.slug) },
     openGraph: {
       type: "article",
+      siteName: "Kaneo",
+      images: ["/images/hero.png"],
       title: `${data.title} | Kaneo`,
       description: data.description,
       url: `https://kaneo.app${guidePath(data.slug)}`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${data.title} | Kaneo`,
+      description: data.description,
+      images: ["/images/hero.png"],
     },
   };
 }

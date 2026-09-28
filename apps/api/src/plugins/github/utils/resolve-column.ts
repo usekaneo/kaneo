@@ -6,8 +6,11 @@ export async function resolveTargetStatus(
   projectId: string,
   eventType: string,
   fallbackStatus: string,
+  database:
+    | typeof db
+    | Parameters<Parameters<typeof db.transaction>[0]>[0] = db,
 ): Promise<string> {
-  const projectColumns = await db
+  const projectColumns = await database
     .select({
       id: columnTable.id,
       slug: columnTable.slug,
@@ -20,7 +23,7 @@ export async function resolveTargetStatus(
     return fallbackStatus;
   }
 
-  const rule = await db.query.workflowRuleTable.findFirst({
+  const rule = await database.query.workflowRuleTable.findFirst({
     where: and(
       eq(workflowRuleTable.projectId, projectId),
       eq(workflowRuleTable.integrationType, "github"),

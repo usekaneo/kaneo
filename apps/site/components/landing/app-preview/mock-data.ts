@@ -404,3 +404,60 @@ export const MOB_PROJECT: ProjectWithTasks = {
 };
 
 export const MOCK_PROJECTS: ProjectWithTasks[] = [WEB_PROJECT, MOB_PROJECT];
+
+export type PreviewTaskDetails = {
+  checklist: { id: string; title: string; completed: boolean }[];
+  fields: {
+    id: string;
+    name: string;
+    value: string;
+    type: "text" | "number";
+  }[];
+};
+
+// Local sample values for the app's checklist and project custom-field features.
+export const MOCK_TASK_DETAILS: Record<string, PreviewTaskDetails> = {
+  "t-101": {
+    checklist: [
+      { id: "venue", title: "Book Chili’s for the ceremony", completed: true },
+      { id: "trophies", title: "Order the Dundie trophies", completed: true },
+      { id: "slides", title: "Finish the awards slideshow", completed: false },
+      { id: "speech", title: "Rehearse the opening speech", completed: false },
+    ],
+    fields: [
+      { id: "budget", name: "Budget ($)", value: "500", type: "number" },
+      { id: "venue", name: "Venue", value: "Chili’s, Scranton", type: "text" },
+    ],
+  },
+  "t-103": {
+    checklist: [
+      { id: "vendor", title: "Confirm the pretzel vendor", completed: true },
+      { id: "queue", title: "Set up the queue at reception", completed: false },
+      {
+        id: "toppings",
+        title: "Collect everyone’s topping requests",
+        completed: false,
+      },
+    ],
+    fields: [
+      { id: "budget", name: "Budget ($)", value: "180", type: "number" },
+      {
+        id: "vendor",
+        name: "Vendor",
+        value: "Scranton Pretzel Co.",
+        type: "text",
+      },
+    ],
+  },
+  "t-201": {
+    checklist: [
+      { id: "cut", title: "Assemble the rough cut", completed: true },
+      { id: "sound", title: "Mix the casino soundtrack", completed: false },
+      { id: "review", title: "Review with Michael", completed: false },
+    ],
+    fields: [
+      { id: "scene", name: "Scene", value: "Casino heist", type: "text" },
+      { id: "runtime", name: "Runtime (minutes)", value: "8", type: "number" },
+    ],
+  },
+};

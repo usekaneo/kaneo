@@ -37,7 +37,9 @@ type IssueEditedPayload = {
       from: string;
     };
   };
+  installation?: { id: number };
   repository: {
+    id: number;
     owner: { login: string };
     name: string;
     full_name: string;
@@ -45,7 +47,7 @@ type IssueEditedPayload = {
 };
 
 export async function handleIssueEdited(payload: IssueEditedPayload) {
-  const { issue, repository, changes } = payload;
+  const { issue, changes } = payload;
 
   if (!changes?.title && !changes?.body) {
     console.log(
@@ -54,10 +56,7 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
     return;
   }
 
-  const integrations = await findAllIntegrationsByRepo(
-    repository.owner.login,
-    repository.name,
-  );
+  const integrations = await findAllIntegrationsByRepo(payload);
 
   for (const integration of integrations) {
     const externalLink = await findExternalLink(
@@ -133,7 +132,10 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
 
     if (changes.body) {
       const lastDescSync = metadata.lastSync?.description;
-      const formattedDescription = formatTaskDescriptionFromIssue(issue.body);
+      const formattedDescription = formatTaskDescriptionFromIssue(
+        issue.body,
+        task.id,
+      );
 
       let shouldUpdateDescription = true;
 

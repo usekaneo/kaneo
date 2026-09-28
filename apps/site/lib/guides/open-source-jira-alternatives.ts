@@ -26,7 +26,7 @@ export const openSourceJiraAlternatives: Guide = {
           name: "Kaneo",
           meta: "MIT, self-hosted free",
           href: "/jira-alternative",
-          body: "For teams who want the board, backlog, workflows, roles, and time tracking and nothing else. One container plus PostgreSQL, SSO through any OIDC provider in the free build, a documented public API, and an MCP server. No Gantt charts, no schemes, no marketplace.",
+          body: "For teams who want boards, backlog, Gantt and calendar planning, custom fields, workflow rules, roles, and time tracking in a focused tracker. One container plus PostgreSQL, SSO through any OIDC provider in the free build, a documented public API, and an MCP server. No dedicated sprint reports, issue-type schemes, or app marketplace.",
         },
         {
           name: "Plane",
@@ -100,5 +100,5 @@ export const openSourceJiraAlternatives: Guide = {
     },
     { label: "All comparisons", href: "/alternatives" },
   ],
-  updatedOn: "2026-08-19",
+  updatedOn: "2026-09-23",
 };

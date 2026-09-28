@@ -8,7 +8,6 @@ import {
   notInArray,
   sql,
 } from "drizzle-orm";
-import db from "../../database";
 import {
   columnTable,
   projectTable,
@@ -17,6 +16,9 @@ import {
   workspaceTable,
   workspaceUserTable,
 } from "../../database/schema";
+import { boundedTaskRead, type TaskReadDatabase } from "../bounded-read";
+import { boardDescription, descriptionDeferred } from "../description-pages";
+import { getSubtaskCounts } from "../get-subtask-counts";
 import { loadTaskDecorations } from "./load-task-decorations";
 
 // Statuses the project board hides as well: planned tasks live in the backlog,
@@ -65,12 +67,13 @@ type AssignedProject = {
  * admin bypass here: "my tasks" means the workspaces the user is a member of,
  * which is also what the workspace switcher shows.
  *
- * Paged like the project board: `page` and `limit` are optional, but unlike
- * the board there is no "everything" mode; the page size is capped.
+ * Paged like the project board: `page` and `limit` are optional and the page
+ * size is capped, at a higher limit than the board's.
  */
-async function getAssignedTasks(
+async function getAssignedTasksPage(
+  db: TaskReadDatabase,
   userId: string,
-  options: AssignedTasksOptions = {},
+  options: AssignedTasksOptions,
 ) {
   const isMember = exists(
     db
@@ -115,7 +118,8 @@ async function getAssignedTasks(
       id: taskTable.id,
       title: taskTable.title,
       number: taskTable.number,
-      description: taskTable.description,
+      description: boardDescription,
+      descriptionDeferred,
       status: taskTable.status,
       priority: taskTable.priority,
       startDate: taskTable.startDate,
@@ -149,43 +153,36 @@ async function getAssignedTasks(
 
   const projectIds = [...new Set(tasks.map((task) => task.projectId))];
 
-  const [projectRows, { labelsByTask, externalLinksByTask }] =
-    await Promise.all([
-      db
-        .select({
-          id: projectTable.id,
-          slug: projectTable.slug,
-          name: projectTable.name,
-          icon: projectTable.icon,
-          position: projectTable.position,
-          workspaceId: projectTable.workspaceId,
-          workspaceName: workspaceTable.name,
-          column: {
-            id: columnTable.id,
-            slug: columnTable.slug,
-            name: columnTable.name,
-            icon: columnTable.icon,
-            isFinal: columnTable.isFinal,
-            position: columnTable.position,
-          },
-        })
-        .from(projectTable)
-        .innerJoin(
-          workspaceTable,
-          eq(projectTable.workspaceId, workspaceTable.id),
-        )
-        .leftJoin(columnTable, eq(columnTable.projectId, projectTable.id))
-        .where(inArray(projectTable.id, projectIds))
-        // The first project to declare a column slug names the merged column on
-        // the client, so ties must resolve the same way on every request.
-        .orderBy(
-          asc(projectTable.position),
-          asc(projectTable.createdAt),
-          asc(projectTable.id),
-          asc(columnTable.position),
-        ),
-      loadTaskDecorations(tasks.map((task) => task.id)),
-    ]);
+  const projectRows = await db
+    .select({
+      id: projectTable.id,
+      slug: projectTable.slug,
+      name: projectTable.name,
+      icon: projectTable.icon,
+      position: projectTable.position,
+      workspaceId: projectTable.workspaceId,
+      workspaceName: workspaceTable.name,
+      column: {
+        id: columnTable.id,
+        slug: columnTable.slug,
+        name: columnTable.name,
+        icon: columnTable.icon,
+        isFinal: columnTable.isFinal,
+        position: columnTable.position,
+      },
+    })
+    .from(projectTable)
+    .innerJoin(workspaceTable, eq(projectTable.workspaceId, workspaceTable.id))
+    .leftJoin(columnTable, eq(columnTable.projectId, projectTable.id))
+    .where(inArray(projectTable.id, projectIds))
+    // The first project to declare a column slug names the merged column on
+    // the client, so ties must resolve the same way on every request.
+    .orderBy(
+      asc(projectTable.position),
+      asc(projectTable.createdAt),
+      asc(projectTable.id),
+      asc(columnTable.position),
+    );
 
   const projects = new Map<string, AssignedProject>();
   for (const row of projectRows) {
@@ -212,10 +209,31 @@ async function getAssignedTasks(
     projects.set(row.id, project);
   }
 
+  // Subtask counts are scoped to one workspace, and this page spans several.
+  const taskIdsByWorkspace = new Map<string, string[]>();
+  for (const task of tasks) {
+    const workspaceId = projects.get(task.projectId)?.workspaceId;
+    if (!workspaceId) continue;
+    const ids = taskIdsByWorkspace.get(workspaceId) ?? [];
+    ids.push(task.id);
+    taskIdsByWorkspace.set(workspaceId, ids);
+  }
+  const subtaskCounts = new Map<string, { completed: number; total: number }>();
+  for (const [workspaceId, ids] of taskIdsByWorkspace) {
+    const counts = await getSubtaskCounts(db, ids, workspaceId, false);
+    for (const [taskId, count] of counts) subtaskCounts.set(taskId, count);
+  }
+
+  const { labelsByTask, externalLinksByTask } = await loadTaskDecorations(
+    db,
+    tasks.map((task) => task.id),
+  );
+
   return {
     data: {
       tasks: tasks.map((task) => ({
         ...task,
+        subtaskCounts: subtaskCounts.get(task.id) ?? { completed: 0, total: 0 },
         labels: labelsByTask.get(task.id) ?? [],
         externalLinks: externalLinksByTask.get(task.id) ?? [],
       })),
@@ -225,4 +243,12 @@ async function getAssignedTasks(
   };
 }
 
-export default getAssignedTasks;
+export default function getAssignedTasks(
+  userId: string,
+  options: AssignedTasksOptions = {},
+) {
+  return boundedTaskRead(
+    (db) => getAssignedTasksPage(db, userId, options),
+    "Assigned tasks request took too long; retry later",
+  );
+}

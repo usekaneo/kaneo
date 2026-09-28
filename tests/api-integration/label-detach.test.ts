@@ -1,5 +1,5 @@
 import { and, eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { subscribeToEvent } from "../../apps/api/src/events";
 import { createApp } from "../../apps/api/src/index";
@@ -364,7 +364,9 @@ describe("API integration: label detach/attach", () => {
 
     const detachResponse = await app.request(
       `/api/label/${attachPayload.id}/task`,
-      { method: "DELETE" },
+      {
+        method: "DELETE",
+      },
     );
     expect(detachResponse.status).toBe(200);
 

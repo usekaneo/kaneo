@@ -7,6 +7,11 @@ function useDeleteLabel() {
 
   return useMutation({
     mutationFn: deleteLabel,
+    onError: () => {
+      // A preceding batch may have succeeded before the connection failed.
+      void queryClient.invalidateQueries({ queryKey: ["labels"] });
+      void queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
     onSuccess: (deletedLabel) => {
       queryClient.setQueryData(
         ["labels", deletedLabel.workspaceId],

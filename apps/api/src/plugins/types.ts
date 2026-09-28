@@ -16,6 +16,7 @@ export type TaskCreatedEvent = {
 };
 
 export type TaskStatusChangedEvent = {
+  sourceIntegrationId?: string;
   taskId: string;
   projectId: string;
   userId: string | null;

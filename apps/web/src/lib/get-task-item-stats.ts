@@ -3,6 +3,9 @@ type TaskItemsStats = {
   completed: number;
 };
 
+// Card metadata must not parse unbounded legacy/imported descriptions.
+export const MAX_TASK_STATS_CHARS = 64 * 1024;
+
 const TASK_ITEM_PATTERN =
   /^\s*(?:>\s*)*(?:[-+*]|\d{1,9}[.)])\s+\[([ xX])\](?:\s|$)/;
 const FENCE_PATTERN = /^\s*(?:>\s*)*(`{3,}|~{3,})/;
@@ -19,9 +22,12 @@ const FENCE_PATTERN = /^\s*(?:>\s*)*(`{3,}|~{3,})/;
  * character and be at least as long as its opening fence.
  *
  * @param description - Markdown task description, or null when absent.
- * @returns The total number of task items and the number marked complete.
+ * @returns Exact counts, or null when the description exceeds the card budget.
  */
-export function getTaskItemStats(description: string | null): TaskItemsStats {
+export function getTaskItemStats(
+  description: string | null,
+): TaskItemsStats | null {
+  if (description && description.length > MAX_TASK_STATS_CHARS) return null;
   if (!description) return { total: 0, completed: 0 };
 
   let total = 0;
@@ -29,7 +35,12 @@ export function getTaskItemStats(description: string | null): TaskItemsStats {
   let fenceChar: string | null = null;
   let fenceLen = 0;
 
-  for (const line of description.split(/\r\n|\n/)) {
+  let offset = 0;
+  while (offset < description.length) {
+    const newline = description.indexOf("\n", offset);
+    const end = newline === -1 ? description.length : newline;
+    const line = description.slice(offset, end).replace(/\r$/, "");
+    offset = end + 1;
     const fenceMatch = FENCE_PATTERN.exec(line);
 
     if (fenceMatch) {

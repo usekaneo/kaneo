@@ -61,10 +61,12 @@ export function initializeEventSubscriptions(): void {
     userId: string | null;
     oldStatus: string;
     newStatus: string;
+    sourceIntegrationId?: string;
     title: string;
     projectId: string;
   }>("task.status_changed", async (data) => {
     await broadcastTaskStatusChanged({
+      sourceIntegrationId: data.sourceIntegrationId,
       taskId: data.taskId,
       projectId: data.projectId,
       userId: data.userId,

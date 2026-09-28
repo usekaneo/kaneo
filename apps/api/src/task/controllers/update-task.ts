@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, getTableColumns, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable, taskTable } from "../../database/schema";
@@ -8,7 +8,9 @@ import {
   assertAssignableUser,
   getProjectWorkspaceId,
 } from "../../utils/assert-assignable-user";
+import { boardDescription, descriptionDeferred } from "../description-pages";
 import { assertValidTaskStatus } from "../validate-task-fields";
+import { assertTaskPosition } from "./next-task-position";
 
 async function updateTask(
   id: string,
@@ -17,16 +19,21 @@ async function updateTask(
   startDate: Date | undefined,
   dueDate: Date | undefined,
   projectId: string,
-  description: string,
+  description: string | undefined,
   priority: string,
   position: number,
   userId?: string,
   currentUserId?: string,
 ) {
+  assertTaskPosition(position);
+
   const [existingTask] = await db
     .select({
       id: taskTable.id,
-      description: taskTable.description,
+      title: taskTable.title,
+      priority: taskTable.priority,
+      description:
+        description === undefined ? sql<null>`null` : taskTable.description,
       status: taskTable.status,
       projectId: taskTable.projectId,
       userId: taskTable.userId,
@@ -80,7 +87,11 @@ async function updateTask(
       userId: normalizedUserId ?? null,
     })
     .where(eq(taskTable.id, id))
-    .returning();
+    .returning({
+      ...getTableColumns(taskTable),
+      description: boardDescription,
+      descriptionDeferred,
+    });
 
   if (!updatedTask) {
     throw new HTTPException(500, {
@@ -106,6 +117,40 @@ async function updateTask(
     });
   }
 
+  if (existingTask.title !== title) {
+    await publishEvent("task.title_changed", {
+      taskId: updatedTask.id,
+      projectId: updatedTask.projectId,
+      userId: currentUserId,
+      oldTitle: existingTask.title,
+      newTitle: title,
+      type: "title_changed",
+    });
+  }
+
+  if (description !== undefined && existingTask.description !== description) {
+    await publishEvent("task.description_changed", {
+      taskId: updatedTask.id,
+      projectId: updatedTask.projectId,
+      userId: currentUserId,
+      oldDescription: existingTask.description,
+      newDescription: description,
+      type: "description_changed",
+    });
+  }
+
+  if (existingTask.priority !== priority) {
+    await publishEvent("task.priority_changed", {
+      taskId: updatedTask.id,
+      projectId: updatedTask.projectId,
+      userId: currentUserId,
+      oldPriority: existingTask.priority,
+      newPriority: priority,
+      title: updatedTask.title,
+      type: "priority_changed",
+    });
+  }
+
   // A full update can reassign without going through the assignee endpoint,
   // so both sides of the change travel with the event.
   await publishEvent("task.updated", {
@@ -118,7 +163,7 @@ async function updateTask(
     previousAssigneeId: existingTask.userId,
   });
 
-  if (existingTask.description !== description) {
+  if (description !== undefined && existingTask.description !== description) {
     deleteOrphanedAssets(existingTask.description, description, {
       taskId: id,
     }).catch(() => {});

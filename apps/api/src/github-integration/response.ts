@@ -1,5 +1,18 @@
 import { responseTimestamp, z } from "../openapi";
 
+export const importResultSchema = z
+  .object({
+    runId: z.string(),
+    pending: z.boolean(),
+    imported: z.number(),
+    updated: z.number(),
+    skipped: z.number().openapi({
+      description:
+        "Issues whose linked task or source disappeared or belongs to another project.",
+    }),
+  })
+  .openapi("IssueImportResult");
+
 export const githubIntegrationSchema = z
   .object({
     id: z.string(),
@@ -10,6 +23,8 @@ export const githubIntegrationSchema = z
       description:
         "The GitHub App installation that grants access to the repository.",
     }),
+    requiresVerification: z.boolean(),
+    importProgress: importResultSchema.optional(),
     branchPattern: z.string().optional().openapi({
       description: "Template used to name branches created for a task.",
     }),
@@ -25,6 +40,8 @@ export const githubIntegrationSchema = z
 
 export const githubAppInfoSchema = z
   .object({
+    accountConnected: z.boolean(),
+    accountLinkingAvailable: z.boolean(),
     appName: z.string().nullable().openapi({
       description:
         "The configured GitHub App slug, or null when this instance has no App set up.",
@@ -84,6 +101,9 @@ export const githubRepositoryListSchema = z
     }),
     installations: z.array(githubInstallationSchema),
     total: z.number(),
+    nextPage: z
+      .object({ installationPage: z.number(), repositoryPage: z.number() })
+      .nullable(),
   })
   .openapi("GitHubRepositoryList");
 
@@ -112,16 +132,6 @@ export const verificationResultSchema = z
     }),
   })
   .openapi("GitHubVerificationResult");
-
-export const importResultSchema = z
-  .object({
-    imported: z.number(),
-    skipped: z.number().openapi({
-      description: "Issues that already had a task, or were not importable.",
-    }),
-    errors: z.array(z.string()).optional(),
-  })
-  .openapi("IssueImportResult");
 
 export const createdGithubIntegrationSchema = githubIntegrationSchema
   .partial({

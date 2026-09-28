@@ -9,6 +9,7 @@ import { PublicKanbanView } from "@/components/public-project/kanban-view";
 import { KaneoBranding } from "@/components/public-project/kaneo-branding";
 import { PublicListView } from "@/components/public-project/list-view";
 import { LoadingSkeleton } from "@/components/public-project/loading-skeleton";
+import { PublicProjectDescription } from "@/components/public-project/project-description";
 import { PublicTaskDetailModal } from "@/components/public-project/task-detail-modal";
 import { ThemeToggle } from "@/components/public-project/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -87,11 +88,7 @@ function RouteComponent() {
                       {t("publicProject:badge")}
                     </span>
                   </div>
-                  {project.description && (
-                    <p className="text-xs text-muted-foreground truncate">
-                      {project.description}
-                    </p>
-                  )}
+                  <PublicProjectDescription project={project} />
                 </div>
               </div>
 

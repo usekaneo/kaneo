@@ -17,12 +17,7 @@ async function deleteGithubIntegration(projectId: string) {
 
   await db
     .delete(integrationTable)
-    .where(
-      and(
-        eq(integrationTable.projectId, projectId),
-        eq(integrationTable.type, "github"),
-      ),
-    );
+    .where(eq(integrationTable.id, existingIntegration.id));
 
   return { success: true, message: "GitHub integration deleted" };
 }

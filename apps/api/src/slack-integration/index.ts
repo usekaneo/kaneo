@@ -54,7 +54,7 @@ function toResponse(integration: {
     maskedWebhookUrl: maskWebhookUrl(config.webhookUrl),
     events: {
       ...defaultSlackEvents,
-      ...(config.events ?? {}),
+      ...config.events,
     },
     isActive: integration.isActive,
     createdAt: integration.createdAt,
@@ -260,8 +260,8 @@ const slackIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
           ? currentConfig.channelName
           : (body.channelName ?? undefined),
       events: {
-        ...(currentConfig.events ?? {}),
-        ...(body.events ?? {}),
+        ...currentConfig.events,
+        ...body.events,
       },
     });
 

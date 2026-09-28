@@ -7,6 +7,7 @@ import {
   findAllIntegrationsByRepo,
   updateTaskStatus,
 } from "../services/task-service";
+import { parseLinkMetadata } from "../utils/parse-link-metadata";
 import { resolveTargetStatus } from "../utils/resolve-column";
 
 type IssueReopenedPayload = {
@@ -17,7 +18,9 @@ type IssueReopenedPayload = {
     html_url: string;
     state: string;
   };
+  installation?: { id: number };
   repository: {
+    id: number;
     owner: { login: string };
     name: string;
     full_name: string;
@@ -25,12 +28,9 @@ type IssueReopenedPayload = {
 };
 
 export async function handleIssueReopened(payload: IssueReopenedPayload) {
-  const { issue, repository } = payload;
+  const { issue } = payload;
 
-  const integrations = await findAllIntegrationsByRepo(
-    repository.owner.login,
-    repository.name,
-  );
+  const integrations = await findAllIntegrationsByRepo(payload);
 
   for (const integration of integrations) {
     const externalLink = await db.query.externalLinkTable.findFirst({
@@ -53,21 +53,10 @@ export async function handleIssueReopened(payload: IssueReopenedPayload) {
       continue;
     }
 
-    let existingMetadata: Record<string, unknown> = {};
-    if (externalLink.metadata) {
-      try {
-        existingMetadata = JSON.parse(externalLink.metadata) as Record<
-          string,
-          unknown
-        >;
-      } catch (error) {
-        console.warn("Failed to parse GitHub issue metadata for reopen sync", {
-          externalLinkId: externalLink.id,
-          metadata: externalLink.metadata,
-          error,
-        });
-      }
-    }
+    const existingMetadata = parseLinkMetadata(externalLink.metadata, {
+      externalLinkId: externalLink.id,
+      source: "issue_reopened",
+    });
 
     if (existingMetadata.createdFrom === "kaneo") {
       continue;

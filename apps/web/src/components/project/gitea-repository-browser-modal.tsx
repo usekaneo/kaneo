@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import listGiteaRepositories, {
   type ListGiteaRepositoriesResponse,
 } from "@/fetchers/gitea-integration/list-gitea-repositories";
+import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/cn";
 
 type GiteaRepositoryBrowserModalProps = {
@@ -38,14 +39,37 @@ export function GiteaRepositoryBrowserModal({
 }: GiteaRepositoryBrowserModalProps) {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = React.useState("");
+  const { data: session } = authClient.useSession();
+  // A credential change needs a fresh cache namespace without putting the
+  // secret itself into serializable query keys, logs or query devtools.
+  const credentials = React.useMemo(
+    () => ({ accessToken, cacheId: crypto.randomUUID() }),
+    [accessToken],
+  );
 
   const canFetch =
-    open && baseUrl.trim().length > 0 && accessToken.trim().length > 0;
+    open &&
+    Boolean(session?.user.id) &&
+    baseUrl.trim().length > 0 &&
+    accessToken.trim().length > 0;
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["gitea-repositories", projectId, baseUrl],
-    queryFn: () => listGiteaRepositories({ projectId, baseUrl, accessToken }),
+    queryKey: [
+      "gitea-repositories",
+      session?.user.id,
+      projectId,
+      baseUrl,
+      credentials.cacheId,
+    ],
+    queryFn: () =>
+      listGiteaRepositories({
+        projectId,
+        baseUrl,
+        accessToken: credentials.accessToken,
+      }),
     enabled: canFetch,
+    gcTime: 0,
+    placeholderData: () => undefined,
   });
 
   const filteredRepositories = React.useMemo(() => {

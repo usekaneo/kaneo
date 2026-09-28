@@ -5,7 +5,8 @@ import { isUnauthorizedError } from "@/lib/http-error";
 export function useGetTasks(projectId: string) {
   return useQuery({
     queryKey: ["tasks", projectId],
-    queryFn: () => getTasks(projectId),
+    queryFn: ({ signal }) => getTasks(projectId, signal),
+    refetchOnMount: true,
     refetchInterval: (query) =>
       isUnauthorizedError(query.state.error) ? false : 30000,
     enabled: !!projectId,

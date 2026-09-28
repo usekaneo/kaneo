@@ -1,5 +1,6 @@
 import { client } from "@kaneo/libs";
 import type { InferRequestType } from "hono";
+import { HttpError } from "@/lib/http-error";
 
 export type UpdateGithubIntegrationRequest = InferRequestType<
   (typeof client)["github-integration"]["project"][":projectId"]["$patch"]
@@ -17,8 +18,7 @@ async function updateGithubIntegration(
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    throw new HttpError(response.status, await response.text());
   }
 
   return response.json();

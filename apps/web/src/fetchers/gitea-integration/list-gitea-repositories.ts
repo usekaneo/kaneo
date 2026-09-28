@@ -1,5 +1,6 @@
 import { client } from "@kaneo/libs";
 import type { InferRequestType, InferResponseType } from "hono";
+import { HttpError } from "@/lib/http-error";
 
 export type ListGiteaRepositoriesRequest = InferRequestType<
   (typeof client)["gitea-integration"]["repositories"]["$post"]
@@ -18,8 +19,10 @@ async function listGiteaRepositories(
   });
 
   if (!response.ok) {
-    const err = await response.text();
-    throw new Error(err || "Request failed");
+    throw new HttpError(
+      response.status,
+      (await response.text()) || "Request failed",
+    );
   }
 
   return response.json();

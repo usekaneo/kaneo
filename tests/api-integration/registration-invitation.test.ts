@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { checkRegistrationAllowed } from "../../apps/api/src/utils/check-registration-allowed";
 import { resetTestDatabase } from "./helpers/database";
@@ -42,11 +42,25 @@ describe("API integration: invite-only registration", () => {
 
     const result = await checkRegistrationAllowed(email, undefined, {
       allowInvitationByEmail: true,
+      emailVerified: true,
     });
 
     expect(result.allowed).toBe(true);
     expect(result.invitation?.id).toBe(invitation.id);
   });
+
+  it.each([false, undefined])(
+    "rejects an unverified provider email (%s)",
+    async (emailVerified) => {
+      const email = `invited-${randomUUID()}@example.com`;
+      await seedInvitation(email);
+      const result = await checkRegistrationAllowed(email, undefined, {
+        allowInvitationByEmail: true,
+        emailVerified,
+      });
+      expect(result.allowed).toBe(false);
+    },
+  );
 
   it("matches the invitation regardless of email casing", async () => {
     const email = `invited-${randomUUID()}@example.com`;
@@ -55,7 +69,10 @@ describe("API integration: invite-only registration", () => {
     const result = await checkRegistrationAllowed(
       email.toUpperCase(),
       undefined,
-      { allowInvitationByEmail: true },
+      {
+        allowInvitationByEmail: true,
+        emailVerified: true,
+      },
     );
 
     expect(result.allowed).toBe(true);
@@ -67,7 +84,7 @@ describe("API integration: invite-only registration", () => {
     const result = await checkRegistrationAllowed(
       `stranger-${randomUUID()}@example.com`,
       undefined,
-      { allowInvitationByEmail: true },
+      { allowInvitationByEmail: true, emailVerified: true },
     );
 
     expect(result.allowed).toBe(false);
@@ -85,6 +102,7 @@ describe("API integration: invite-only registration", () => {
 
       const result = await checkRegistrationAllowed(email, undefined, {
         allowInvitationByEmail: true,
+        emailVerified: true,
       });
 
       expect(result.allowed).toBe(false);
@@ -107,6 +125,7 @@ describe("API integration: invite-only registration", () => {
 
     const result = await checkRegistrationAllowed(email, "does-not-exist", {
       allowInvitationByEmail: true,
+      emailVerified: true,
     });
 
     expect(result.allowed).toBe(false);

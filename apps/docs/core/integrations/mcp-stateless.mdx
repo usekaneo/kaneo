@@ -1,122 +1,74 @@
 ---
-title: MCP 2026-07-28 stateless compatibility
-description: Protocol contract, verification, limitations, and rollback for Kaneo's dual-era Streamable HTTP endpoint.
+title: MCP protocol reference
+description: Authentication, transport behavior, and deployment limits for Kaneo’s HTTP MCP endpoint.
 ---
 
-# MCP 2026-07-28 stateless compatibility
+Use the [MCP setup guide](/core/integrations/mcp) to connect a client. This page is for people operating Kaneo or building an MCP client.
 
-Research date: 2026-08-09.
+## Endpoint and authentication
 
-## Contract and primary sources
+The HTTP endpoint is `/api/mcp`. Every request requires a bearer token that Kaneo can resolve to an authenticated user. Tools make internal API requests as that user, so workspace permissions still apply.
 
-MCP revision `2026-07-28` changes Streamable HTTP from a protocol-session
-model to a per-request model. Modern clients do not call `initialize` or
-`notifications/initialized`, and the server does not mint `Mcp-Session-Id`.
-Every JSON-RPC message uses a separate HTTP POST and carries protocol version,
-client identity, and capabilities in request metadata.
+OAuth clients discover Kaneo’s authorization server, register a public client, and use the authorization code flow with PKCE (`S256`). The user must approve the connection in Kaneo. The token endpoint supports the authorization-code grant; it does not advertise a refresh-token grant.
 
-Primary sources:
+The discovery URLs at the public API origin are:
 
-- [MCP 2026-07-28 changelog](https://modelcontextprotocol.io/specification/2026-07-28/changelog)
-- [Streamable HTTP specification](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http)
-- [SEP-2575: Make MCP Stateless](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/seps/2575-stateless-mcp.md)
-- [OpenAI Codex support commit](https://github.com/openai/codex/commit/be2e4afcd739)
-- [Official OpenAI MCP documentation](https://learn.chatgpt.com/docs/extend/mcp)
+- `/.well-known/oauth-protected-resource/api/mcp`
+- `/.well-known/oauth-authorization-server/api`
 
-Required modern request fields include:
+The API also serves these under `/api/.well-known/`. Preserve discovery routes as well as `/api/mcp` when configuring your reverse proxy.
 
-- `MCP-Protocol-Version: 2026-07-28`
-- `Mcp-Method: <json-rpc-method>`
-- `Mcp-Name: <tool-name>` for `tools/call`
-- matching `params._meta["io.modelcontextprotocol/protocolVersion"]`
-- per-request client capabilities and, preferably, client information
+## Supported transports
 
-Kaneo validates the bearer token before protocol routing on every request.
-Modern requests use a fresh `McpServer` instance and hold no process-local
-protocol state. Requests classified as the 2025 era continue through the
-existing sessionful transport, preserving `initialize`,
-`notifications/initialized`, and `Mcp-Session-Id` behavior.
+| Client flow | Kaneo behavior |
+| --- | --- |
+| MCP 2026-07-28 | A fresh server handles each request. No protocol session is retained between requests. |
+| Legacy session flow | The client initializes a session, then sends the returned `Mcp-Session-Id` on later requests. |
+| Local stdio | The separate `@kaneo/mcp` package uses device authorization and communicates with the Kaneo API. |
 
-This dual-era split matters: treating a sessionful `2025-06-18` exchange as
-"stateless" because its POSTs use separate TCP connections does not implement
-the `2026-07-28` contract.
+Let your client negotiate its supported protocol. No Kaneo environment switch is needed to choose between HTTP protocol versions.
 
-## Automated verification
+Legacy sessions live in the API process. A restart loses them, and requests for an unknown session return HTTP 404. The client must initialize again. If you run multiple API replicas, route a legacy session back to the same replica. Redis distributes realtime application events; it does not share MCP protocol sessions.
 
-From the repository root:
+Modern requests do not need session affinity. OAuth registration and pending authorization state are stored in PostgreSQL and shared between API replicas.
 
-```bash
-pnpm --filter @kaneo/api test:unit
-pnpm --filter @kaneo/api typecheck
-pnpm --filter @kaneo/api build
-```
+## Reverse proxy and internal requests
 
-`tests/api/mcp-stateless.test.ts` verifies:
+Forward the client’s authorization, content type, and MCP headers unchanged. Allow streaming responses for clients that use them.
 
-1. repeated `tools/list` calls on independent requests without session IDs;
-2. concurrent read-only `tools/call` requests with bearer propagation;
-3. rejection of missing per-request metadata;
-4. an effectful `update_task_status` request;
-5. separation of modern traffic from legacy `initialize` traffic.
+HTTP MCP tools reach Kaneo’s API through `KANEO_INTERNAL_API_URL`, which defaults to `http://127.0.0.1:1337`. This is a server-side address, separate from the public URL used for discovery and sign-in. Set it only when that loopback address does not reach the API from its own process.
 
-The tests use an in-process handler and stub the internal Kaneo API fetch. They
-do not mutate a real Kaneo database.
+## Troubleshooting
 
-## Codex configuration and manual verification
+| Response | What to check |
+| --- | --- |
+| 401 | Complete OAuth sign-in again and check that the proxy forwards the bearer token. |
+| 404 with “Session not found” | Reconnect the client. For multiple replicas, check legacy session affinity. |
+| 405 | A request without a session must use POST. |
+| 415 | Send JSON with the correct content type. |
+| 429 | Wait for `Retry-After` before retrying. |
 
-Codex CLI `0.147.0` contains `mcp_2026_07_28`, but the feature is under
-development and disabled by default. Confirm the installed build before
-testing:
+A tool can also fail because the user lacks permission or its arguments do not match the project. Call `list_project_columns` before assigning a status and `list_workspace_members` before assigning a user.
 
-```bash
-which codex
-codex --version
-codex features list | grep '^mcp_2026_07_28'
-codex -c features.mcp_2026_07_28=true features list | grep '^mcp_2026_07_28'
-```
+### OAuth request limits
 
-Permanent configuration, once the operator chooses to enable the experimental
-client path:
+The HTTP OAuth endpoints accept bodies up to 32 KiB and URLs up to 8 KiB.
+Client registration accepts at most 10 redirect URIs. Request bodies must arrive
+within five seconds. Each API process allows up to 16 concurrent requests in
+each of the registration, authorization, and token endpoint groups.
 
-```toml
-[features]
-mcp_2026_07_28 = true
+Instances sharing a database also share OAuth storage and issuance limits:
 
-[mcp_servers.kaneo]
-url = "https://your-kaneo-instance.com/api/mcp"
-bearer_token_env_var = "KANEO_MCP_TOKEN"
-startup_timeout_sec = 20
-tool_timeout_sec = 60
-```
+| State | Stored entries | New entries per minute | Pending entries per client |
+| --- | --- | --- | --- |
+| Registered clients | 1,000 | 60 | Not applicable |
+| Authorization requests | 10,000 | 300 | 20 |
+| Authorization codes | 10,000 | 300 | 20 |
 
-Keep the token in the environment, not in `config.toml`. Then start a new Codex
-session, inspect `/mcp`, list Kaneo tools, call `whoami`, and perform one
-explicitly approved effectful call on test data. Capture traffic only with
-authorization values redacted. Modern traffic must show `server/discover`
-followed by self-contained calls, no `initialize`, and no `Mcp-Session-Id`.
-
-With the feature disabled, Codex uses its legacy MCP lifecycle. Kaneo should
-still complete `initialize`, return a session ID, accept
-`notifications/initialized`, and serve tools on later requests carrying that
-ID.
-
-## Limitations
-
-- OpenAI documentation confirms Streamable HTTP, bearer tokens, and OAuth, but
-  does not publish a Codex-release-to-MCP-revision matrix.
-- Modern Codex support remains experimental in `0.147.0`; dual-era serving is
-  required until deployed clients are confirmed.
-- The modern handler is request-local. Kaneo tools currently need no
-  server-to-client request channel or cross-request protocol state.
-- No production image or NAS stack is changed by the repository tests.
-
-## Rollback
-
-Code rollback removes the modern route and `@modelcontextprotocol/server` v2,
-leaving the existing v1 sessionful branch unchanged. Client rollback disables
-`features.mcp_2026_07_28` and starts a new Codex session. No database migration
-is involved.
-
-Production rollback must happen by deploying the previous Kaneo image through
-the normal operator-controlled stack workflow. Do not restart the host and do
-not remove persistent volumes.
+When capacity is exhausted, the endpoint returns HTTP 429 with `Retry-After`.
+Clients should wait before retrying. Existing, unexpired entries are retained;
+an approval that cannot issue a code leaves its authorization request available
+for retry until it expires. Expired entries are cleaned up in bounded batches
+when new state is created, so a previously oversized store may need multiple
+attempts before accepting new entries. These limits complement reverse-proxy
+connection and request limits for internet-facing installations.

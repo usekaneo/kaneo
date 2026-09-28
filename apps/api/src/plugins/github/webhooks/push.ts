@@ -18,7 +18,9 @@ type PushPayload = {
     author?: { name: string };
     timestamp: string;
   };
+  installation?: { id: number };
   repository: {
+    id: number;
     owner: { login: string };
     name: string;
     html_url: string;
@@ -44,10 +46,7 @@ export async function handlePush(payload: PushPayload) {
     return;
   }
 
-  const integrations = await findAllIntegrationsByRepo(
-    repository.owner.login,
-    repository.name,
-  );
+  const integrations = await findAllIntegrationsByRepo(payload);
 
   if (integrations.length === 0) {
     console.log(

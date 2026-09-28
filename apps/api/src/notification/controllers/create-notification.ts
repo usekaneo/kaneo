@@ -4,6 +4,9 @@ import { notificationTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { deliverNotification } from "../../notification-preferences/delivery";
 
+import { safeOutboundError } from "../../utils/outbound-request";
+import { canReceiveResourceNotification } from "../resource-access";
+
 async function createNotification({
   userId,
   title,
@@ -21,6 +24,12 @@ async function createNotification({
   resourceId?: string;
   resourceType?: string;
 }) {
+  if (
+    !(await canReceiveResourceNotification(userId, resourceId, resourceType))
+  ) {
+    return null;
+  }
+
   const preferenceKey =
     type === "task_assignee_changed" || type === "task_created"
       ? "taskAssignmentEnabled"
@@ -66,7 +75,7 @@ async function createNotification({
     void deliverNotification(notification.id).catch((error) => {
       console.error("Failed to deliver notification", {
         notificationId: notification.id,
-        error,
+        error: safeOutboundError(error),
       });
     });
   }

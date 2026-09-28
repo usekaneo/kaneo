@@ -18,7 +18,9 @@ type IssueCommentCreatedPayload = {
     } | null;
     created_at: string;
   };
+  installation?: { id: number };
   repository: {
+    id: number;
     owner: { login: string };
     name: string;
   };
@@ -27,7 +29,7 @@ type IssueCommentCreatedPayload = {
 export async function handleIssueCommentCreated(
   payload: IssueCommentCreatedPayload,
 ) {
-  const { issue, comment, repository } = payload;
+  const { issue, comment } = payload;
 
   if (payload.action !== "created") {
     return;
@@ -38,10 +40,7 @@ export async function handleIssueCommentCreated(
     return;
   }
 
-  const integrations = await findAllIntegrationsByRepo(
-    repository.owner.login,
-    repository.name,
-  );
+  const integrations = await findAllIntegrationsByRepo(payload);
 
   for (const integration of integrations) {
     const existingLink = await findExternalLink(

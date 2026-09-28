@@ -1,7 +1,19 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { createApp } from "../../apps/api/src/index";
 
 describe("API integration: config", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it.each(["true", "false", undefined])(
+    "returns cloud mode for KANEO_CLOUD=%s",
+    async (value) => {
+      vi.stubEnv("KANEO_CLOUD", value);
+      const response = await createApp().app.request("/api/config");
+      expect(response.status).toBe(200);
+      expect(await response.json()).toHaveProperty("isCloud", value === "true");
+    },
+  );
+
   it("returns the public config shape", async () => {
     const { app } = createApp();
 

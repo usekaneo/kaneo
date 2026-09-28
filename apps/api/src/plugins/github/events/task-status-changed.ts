@@ -1,10 +1,13 @@
 import type { PluginContext, TaskStatusChangedEvent } from "../../types";
-import type { GitHubConfig } from "../config";
+import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
 import {
   findExternalLinksByTask,
   updateExternalLink,
 } from "../services/link-manager";
-import { getGithubApp, getInstallationIdForRepo } from "../utils/github-app";
+import {
+  getGithubApp,
+  getVerifiedInstallationOctokit,
+} from "../utils/github-app";
 import { addLabelsToIssue, removeLabel } from "../utils/labels";
 
 export async function handleTaskStatusChanged(
@@ -17,6 +20,7 @@ export async function handleTaskStatusChanged(
   }
 
   const config = context.config as GitHubConfig;
+  if (!hasVerifiedGitHubBinding(config)) return;
   const { repositoryOwner, repositoryName } = config;
 
   try {
@@ -31,15 +35,7 @@ export async function handleTaskStatusChanged(
       return;
     }
 
-    let installationId = config.installationId;
-    if (!installationId) {
-      installationId = await getInstallationIdForRepo(
-        repositoryOwner,
-        repositoryName,
-      );
-    }
-
-    const octokit = await githubApp.getInstallationOctokit(installationId);
+    const octokit = await getVerifiedInstallationOctokit(config);
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
 
     await removeLabel(

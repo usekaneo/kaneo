@@ -14,7 +14,11 @@ import getLabelsByTaskId from "./controllers/get-labels-by-task-id";
 import getLabelsByWorkspaceId from "./controllers/get-labels-by-workspace-id";
 import unassignLabelFromTask from "./controllers/unassign-label-from-task";
 import updateLabel from "./controllers/update-label";
-import { labelListSchema, labelSchema } from "./response";
+import {
+  labelListSchema,
+  labelSchema,
+  pendingLabelDeletionSchema,
+} from "./response";
 import {
   attachLabelBody,
   createLabelBody,
@@ -82,6 +86,7 @@ const createLabelRoute = createRoute({
       "No workspace access, or missing label:create permission",
     ),
     404: errorResponse("Task not found"),
+    409: errorResponse("The workspace label is being deleted"),
   },
 });
 
@@ -130,6 +135,7 @@ const attachLabelToTaskRoute = createRoute({
       "No workspace access, or missing label:update permission",
     ),
     404: errorResponse("Task not found"),
+    409: errorResponse("The workspace label is being deleted"),
   },
 });
 
@@ -175,6 +181,7 @@ const updateLabelRoute = createRoute({
   },
   responses: {
     200: jsonResponse("Label updated successfully", labelSchema),
+    409: errorResponse("The workspace label is being deleted"),
     400: errorResponse("Invalid body, or unknown label"),
     403: errorResponse(
       "No workspace access, or missing label:update permission",
@@ -188,7 +195,8 @@ const deleteLabelRoute = createRoute({
   path: "/{id}",
   tags: ["Labels"],
   summary: "Delete label",
-  description: "Delete a label by ID",
+  description:
+    "Delete a label by ID. Large workspace cascades remove at most 25 task copies per request. Repeat DELETE with the same ID after HTTP 202 until HTTP 200 completes the operation. The persisted start boundary allows safe resumption after a disconnect. HTTP 429 asks the caller to retry later.",
   middleware: [
     workspaceAccess.fromLabel(),
     requireWorkspacePermission({ label: ["delete"] }),
@@ -196,6 +204,11 @@ const deleteLabelRoute = createRoute({
   request: { params: labelParam },
   responses: {
     200: jsonResponse("Label deleted successfully", labelSchema),
+    202: jsonResponse(
+      "Deletion has more batches; repeat the same request",
+      pendingLabelDeletionSchema,
+    ),
+    429: errorResponse("Deletion capacity is busy; retry after Retry-After"),
     400: errorResponse(
       "Unknown label, or its workspace could not be determined",
     ),
@@ -246,7 +259,10 @@ const label = apiRouter()
   .openapi(deleteLabelRoute, async (c) => {
     const { id } = c.req.valid("param");
     const userId = c.get("userId");
-    return c.json(await deleteLabel(id, userId), 200);
+    const result = await deleteLabel(id, userId);
+    if (result.pendingDeletion)
+      return c.json({ ...result, pendingDeletion: true as const }, 202);
+    return c.json(result, 200);
   });
 
 export default label;

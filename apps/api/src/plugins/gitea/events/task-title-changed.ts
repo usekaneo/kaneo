@@ -99,7 +99,7 @@ export async function handleTaskTitleChanged(
       metadata: {
         ...metadata,
         lastSync: {
-          ...(metadata.lastSync ?? {}),
+          ...metadata.lastSync,
           title: {
             timestamp: new Date().toISOString(),
             source: "kaneo",

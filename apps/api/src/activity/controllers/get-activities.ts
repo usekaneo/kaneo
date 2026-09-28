@@ -9,7 +9,7 @@ async function getActivitiesFromTaskId(taskId: string) {
   });
 
   activities.forEach((x) => {
-    if (x.content) {
+    if (x.content && x.type !== "comment") {
       x.content = x.content.replace(/\n+/g, "\n");
     }
   });

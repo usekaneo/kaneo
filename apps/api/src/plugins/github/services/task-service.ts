@@ -6,6 +6,7 @@ import {
   integrationTable,
   taskTable,
 } from "../../../database/schema";
+import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
 
 export type TaskRow = InferSelectModel<typeof taskTable>;
 
@@ -117,26 +118,34 @@ export async function getIntegrationWithProject(integrationId: string) {
   });
 }
 
-export async function findIntegrationByRepo(owner: string, repo: string) {
-  const integrations = await findAllIntegrationsByRepo(owner, repo);
-  return integrations[0] || null;
-}
+export type GitHubWebhookSource = {
+  installation?: { id: number };
+  repository: { id: number };
+};
 
-export async function findAllIntegrationsByRepo(owner: string, repo: string) {
+export async function findAllIntegrationsByRepo(source: GitHubWebhookSource) {
+  const installationId = source.installation?.id;
+  const repositoryId = source.repository.id;
+  if (
+    !Number.isSafeInteger(installationId) ||
+    !Number.isSafeInteger(repositoryId)
+  )
+    return [];
   const integrations = await db.query.integrationTable.findMany({
     where: and(
       eq(integrationTable.type, "github"),
       eq(integrationTable.isActive, true),
     ),
-    with: {
-      project: true,
-    },
+    with: { project: true },
   });
-
   return integrations.filter((integration) => {
     try {
-      const config = JSON.parse(integration.config);
-      return config.repositoryOwner === owner && config.repositoryName === repo;
+      const config = JSON.parse(integration.config) as GitHubConfig;
+      return (
+        hasVerifiedGitHubBinding(config) &&
+        config.installationId === installationId &&
+        config.repositoryId === repositoryId
+      );
     } catch {
       return false;
     }

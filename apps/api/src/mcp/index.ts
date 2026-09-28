@@ -9,6 +9,7 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { auth } from "../auth";
 import { apiRouter, createRoute, jsonResponse } from "../openapi";
+import { type BanState, isBanActive } from "../utils/user-ban";
 import {
   beginMcpAuthorization,
   decideMcpAuthorizationRequest,
@@ -17,6 +18,7 @@ import {
 } from "./controllers/oauth-consent";
 import { createModernMcpHandler } from "./modern";
 import { exchangeCode } from "./oauth";
+import { oauthRequestBounds } from "./request-bounds";
 import {
   authorizationDecisionResponseSchema,
   authorizationDecisionSchema,
@@ -68,10 +70,19 @@ async function validateBearerToken(
   const session = await auth.api.getSession({ headers });
 
   if (!session?.user?.id) return null;
+  if (isBanActive(session.user as BanState)) return null;
   return { userId: session.user.id, token };
 }
 
 const mcp = apiRouter();
+for (const path of [
+  "/mcp/register",
+  "/mcp/authorize",
+  "/mcp/authorize/request/*",
+  "/mcp/token",
+]) {
+  mcp.use(path, oauthRequestBounds);
+}
 
 const jsonError = (description: string) =>
   jsonResponse(description, oauthErrorSchema);
@@ -289,13 +300,19 @@ mcp.all("/mcp", async (c) => {
 
 mcp.post("/mcp/token", async (c) => {
   const contentType = c.req.header("content-type") || "";
-  let params: Record<string, string>;
+  let params: Record<string, unknown>;
 
-  if (contentType.includes("application/x-www-form-urlencoded")) {
-    const body = await c.req.text();
-    params = Object.fromEntries(new URLSearchParams(body));
-  } else {
-    params = await c.req.json();
+  try {
+    if (contentType.includes("application/x-www-form-urlencoded")) {
+      params = Object.fromEntries(new URLSearchParams(await c.req.text()));
+    } else {
+      const input: unknown = await c.req.json();
+      if (!input || typeof input !== "object" || Array.isArray(input))
+        return c.json({ error: "invalid_request" }, 400);
+      params = input as Record<string, unknown>;
+    }
+  } catch {
+    return c.json({ error: "invalid_request" }, 400);
   }
 
   const { grant_type, code, client_id, code_verifier, redirect_uri } = params;
@@ -303,7 +320,20 @@ mcp.post("/mcp/token", async (c) => {
   if (grant_type !== "authorization_code") {
     return c.json({ error: "unsupported_grant_type" }, 400);
   }
-  if (!code || !client_id || !code_verifier || !redirect_uri) {
+  if (
+    typeof code !== "string" ||
+    !code ||
+    code.length > 128 ||
+    typeof client_id !== "string" ||
+    !client_id ||
+    client_id.length > 128 ||
+    typeof code_verifier !== "string" ||
+    !code_verifier ||
+    code_verifier.length > 128 ||
+    typeof redirect_uri !== "string" ||
+    !redirect_uri ||
+    redirect_uri.length > 2048
+  ) {
     return c.json({ error: "invalid_request" }, 400);
   }
 

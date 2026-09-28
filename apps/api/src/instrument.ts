@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import * as Sentry from "@sentry/node";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
+import { isSensitiveOutboundRequest } from "./utils/sensitive-outbound";
 
 function parseSampleRate(value: string | undefined) {
   const n = Number(value);
@@ -30,9 +31,28 @@ if (process.env.SENTRY_DSN) {
     environment:
       process.env.SENTRY_ENVIRONMENT ?? process.env.NODE_ENV ?? "production",
     release: process.env.SENTRY_RELEASE ?? readAppVersion(),
-    sendDefaultPii: false,
+    dataCollection: {
+      userInfo: false,
+      cookies: false,
+      httpHeaders: { request: false, response: false },
+      httpBodies: [],
+      urlQueryParams: false,
+      genAI: { inputs: false, outputs: false },
+      databaseQueryData: false,
+      queues: false,
+      graphQL: { document: false, variables: false },
+    },
     tracesSampleRate,
-    profilesSampleRate,
-    integrations: [nodeProfilingIntegration()],
+    profileSessionSampleRate: profilesSampleRate,
+    profileLifecycle: "trace",
+    integrations: [
+      nodeProfilingIntegration(),
+      Sentry.httpIntegration({
+        ignoreOutgoingRequests: isSensitiveOutboundRequest,
+      }),
+      Sentry.nativeNodeFetchIntegration({
+        ignoreOutgoingRequests: isSensitiveOutboundRequest,
+      }),
+    ],
   });
 }

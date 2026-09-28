@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { TaskProgressBadges } from "@/components/task/task-progress-badges";
 import {
   useTaskProject,
   useTaskViewCapabilities,
@@ -39,6 +40,7 @@ import {
   getDueDateStatus,
   isTaskCompleted,
 } from "@/lib/due-date-status";
+import { getExternalWebUrl, openExternalWebUrl } from "@/lib/external-url";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
@@ -97,7 +99,9 @@ function TaskRow({ task, projectSlug, disableDragDrop = false }: TaskRowProps) {
 
   const pullRequests = useMemo(() => {
     return (task.externalLinks ?? []).filter(
-      (link) => link.resourceType === "pull_request",
+      (link) =>
+        link.resourceType === "pull_request" &&
+        getExternalWebUrl(link.url) !== null,
     );
   }, [task.externalLinks]);
 
@@ -191,7 +195,7 @@ function TaskRow({ task, projectSlug, disableDragDrop = false }: TaskRowProps) {
     >
       <ContextMenu>
         <ContextMenuTrigger asChild>
-          {/* biome-ignore lint/a11y/noStaticElementInteractions: false positive for onClick and onKeyDown */}
+          {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- false positive for onClick and onKeyDown */}
           <div
             onClick={handleClick}
             onKeyDown={handleKeyDown}
@@ -219,6 +223,7 @@ function TaskRow({ task, projectSlug, disableDragDrop = false }: TaskRowProps) {
                   {task.title}
                 </span>
                 <div className="flex items-center gap-1">
+                  <TaskProgressBadges task={task} />
                   {showLabels && <TaskLabels labels={task.labels ?? []} />}
 
                   {pullRequests.length === 1 && (
@@ -228,7 +233,7 @@ function TaskRow({ task, projectSlug, disableDragDrop = false }: TaskRowProps) {
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            window.open(pullRequests[0].url, "_blank");
+                            openExternalWebUrl(pullRequests[0].url);
                           }}
                           className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-sidebar text-[10px] font-medium text-muted-foreground"
                         >
@@ -306,9 +311,7 @@ function TaskRow({ task, projectSlug, disableDragDrop = false }: TaskRowProps) {
                                   )}
                                   <button
                                     type="button"
-                                    onClick={() =>
-                                      window.open(pr.url, "_blank")
-                                    }
+                                    onClick={() => openExternalWebUrl(pr.url)}
                                     className="w-full px-2 py-1.5 text-left hover:bg-muted/50 rounded transition-colors"
                                   >
                                     <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">

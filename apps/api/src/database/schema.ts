@@ -13,6 +13,7 @@ import {
   unique,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import type { GitHubImportState } from "../github-integration/import-state";
 
 const bytea = customType<{ data: Buffer; driverData: Buffer }>({
   dataType() {
@@ -329,6 +330,9 @@ export const projectTable = pgTable(
     archivedAt: timestamp("archived_at", { mode: "date" }),
     lastTaskNumber: integer("last_task_number").notNull().default(0),
     position: integer("position").notNull().default(0),
+    backgroundObjectKey: text("background_object_key"),
+    backgroundMimeType: text("background_mime_type"),
+    backgroundVersion: text("background_version"),
   },
   (table) => [
     unique("project_workspace_id_id_unique").on(table.workspaceId, table.id),
@@ -396,6 +400,26 @@ export const workflowRuleTable = pgTable(
     index("workflow_rule_projectId_idx").on(table.projectId),
     index("workflow_rule_columnId_idx").on(table.columnId),
   ],
+);
+
+export const calendarFeedTable = pgTable(
+  "calendar_feed",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projectTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    token: text("token").notNull().unique(),
+    labelIds: jsonb("label_ids").$type<string[]>().notNull(),
+    timeZone: text("time_zone").notNull().default("UTC"),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [index("calendar_feed_project_id_idx").on(table.projectId)],
 );
 
 export const taskTable = pgTable(
@@ -643,6 +667,7 @@ export const labelTable = pgTable(
       .defaultNow()
       .$onUpdate(() => new Date())
       .notNull(),
+    deletionStartedAt: timestamp("deletion_started_at", { mode: "date" }),
     taskId: text("task_id").references(() => taskTable.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
@@ -655,6 +680,9 @@ export const labelTable = pgTable(
   (table) => [
     index("label_task_id_idx").on(table.taskId),
     index("label_workspace_id_idx").on(table.workspaceId),
+    index("label_workspace_cascade_idx")
+      .on(table.workspaceId, table.name, table.createdAt, table.id)
+      .where(sql`${table.taskId} is not null`),
     unique("label_task_name_unique").on(table.taskId, table.name),
     uniqueIndex("label_workspace_name_unique")
       .on(table.workspaceId, table.name)
@@ -892,6 +920,23 @@ export const integrationTable = pgTable(
   ],
 );
 
+export const githubImportTable = pgTable("github_import", {
+  integrationId: text("integration_id")
+    .primaryKey()
+    .references(() => integrationTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  runId: text("run_id")
+    .notNull()
+    .$defaultFn(() => createId()),
+  state: jsonb("state").$type<GitHubImportState>().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .defaultNow()
+    .notNull()
+    .$onUpdate(() => new Date()),
+});
+
 export const externalLinkTable = pgTable(
   "external_link",
   {
@@ -904,12 +949,13 @@ export const externalLinkTable = pgTable(
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
-    integrationId: text("integration_id")
-      .notNull()
-      .references(() => integrationTable.id, {
+    integrationId: text("integration_id").references(
+      () => integrationTable.id,
+      {
         onDelete: "cascade",
         onUpdate: "cascade",
-      }),
+      },
+    ),
     resourceType: text("resource_type").notNull(),
     externalId: text("external_id").notNull(),
     url: text("url").notNull(),

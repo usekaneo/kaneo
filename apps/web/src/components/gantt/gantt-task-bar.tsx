@@ -87,6 +87,12 @@ export function GanttTaskBar({
     trackCount,
   );
 
+  const startIsVisible =
+    differenceInCalendarDays(task.scheduleStart, timeline.rangeStart) >= 0;
+  const endIsVisible =
+    differenceInCalendarDays(task.scheduleEnd, timeline.rangeStart) <
+    trackCount;
+
   const persistDates = useCallback(
     async (nextStart: Date, nextEnd: Date): Promise<boolean> => {
       try {
@@ -219,6 +225,10 @@ export function GanttTaskBar({
     const originX = event.clientX;
     const initialStart = task.scheduleStart;
     const initialEnd = task.scheduleEnd;
+    if (!startIsVisible || !endIsVisible) {
+      onOpenTask();
+      return;
+    }
     const durationDays = differenceInCalendarDays(initialEnd, initialStart);
     const startIdx = differenceInCalendarDays(
       initialStart,
@@ -294,6 +304,7 @@ export function GanttTaskBar({
         <button
           type="button"
           aria-label={t("tasks:gantt.resizeStart")}
+          disabled={!startIsVisible}
           onPointerDown={handleResizeLeftPointerDown}
           className={cn(
             "relative z-20 shrink-0 cursor-ew-resize touch-none border-r border-primary/15 bg-primary/8 hover:bg-primary/18",
@@ -319,6 +330,7 @@ export function GanttTaskBar({
         <button
           type="button"
           aria-label={t("tasks:gantt.resizeDue")}
+          disabled={!endIsVisible}
           onPointerDown={handleResizeRightPointerDown}
           className={cn(
             "relative z-20 shrink-0 cursor-ew-resize touch-none border-l border-primary/15 bg-primary/8 hover:bg-primary/18",

@@ -1,5 +1,6 @@
 import { Calendar, CalendarClock, CalendarX } from "lucide-react";
 import { useRef } from "react";
+import { TaskProgressBadges } from "@/components/task/task-progress-badges";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   dueDateStatusColors,
@@ -122,7 +123,8 @@ export function PublicTaskCard({
         </div>
       )}
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <TaskProgressBadges task={task} asText />
         {task.priority && (
           <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-sidebar text-[10px] font-medium text-muted-foreground">
             {getPriorityIcon(task.priority ?? "")}

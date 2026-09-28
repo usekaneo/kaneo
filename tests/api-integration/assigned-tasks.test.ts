@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import type { z } from "../../apps/api/src/openapi";
@@ -134,6 +134,32 @@ describe("API integration: tasks assigned to me", () => {
       taskId: soon.id,
       workspaceId: other.workspace.id,
     });
+    // Subtask counts are scoped to each parent's own workspace.
+    const doneChild = await insertTask({
+      projectId: second.project.id,
+      columnId: second.columns.done.id,
+      userId: null,
+      title: "Done child",
+      status: "done",
+    });
+    const openChild = await insertTask({
+      projectId: first.project.id,
+      columnId: first.columns.todo.id,
+      userId: null,
+      title: "Open child",
+    });
+    await db.insert(schema.taskRelationTable).values([
+      {
+        sourceTaskId: soon.id,
+        targetTaskId: doneChild.id,
+        relationType: "subtask",
+      },
+      {
+        sourceTaskId: later.id,
+        targetTaskId: openChild.id,
+        relationType: "subtask",
+      },
+    ]);
 
     mockAuthenticatedSession(me.user);
     const { app } = createApp();
@@ -149,6 +175,11 @@ describe("API integration: tasks assigned to me", () => {
     ]);
     expect(body.data.tasks[0]?.labels.map((label) => label.name)).toEqual([
       "urgent-ish",
+    ]);
+    expect(body.data.tasks.map((task) => task.subtaskCounts)).toEqual([
+      { completed: 1, total: 1 },
+      { completed: 0, total: 1 },
+      { completed: 0, total: 0 },
     ]);
     expect(body.pagination).toEqual({
       total: 3,

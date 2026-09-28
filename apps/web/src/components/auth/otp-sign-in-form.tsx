@@ -18,6 +18,8 @@ import { authClient } from "@/lib/auth-client";
 import { toast } from "@/lib/toast";
 
 type OtpSignInFormProps = {
+  turnstileToken?: string | null;
+  onAttemptComplete?: () => void;
   invitationId?: string;
   defaultEmail?: string;
   redirect?: string;
@@ -31,6 +33,8 @@ const emailSchema = z.object({
 type EmailFormValues = z.infer<typeof emailSchema>;
 
 export function OtpSignInForm({
+  turnstileToken,
+  onAttemptComplete,
   invitationId,
   defaultEmail,
   redirect,
@@ -45,12 +49,20 @@ export function OtpSignInForm({
   });
 
   const onSubmit = async (data: EmailFormValues) => {
+    if (turnstileToken !== undefined && !turnstileToken) return;
     setIsPending(true);
     try {
-      const result = await authClient.emailOtp.sendVerificationOtp({
-        email: data.email,
-        type: "sign-in",
-      });
+      const result = await authClient.emailOtp.sendVerificationOtp(
+        {
+          email: data.email,
+          type: "sign-in",
+        },
+        {
+          headers: turnstileToken
+            ? { "x-turnstile-token": turnstileToken }
+            : undefined,
+        },
+      );
 
       if (result.error) {
         toast.error(result.error.message || t("auth:otpSignIn.sendFailed"));
@@ -67,6 +79,7 @@ export function OtpSignInForm({
       history.push(`/auth/verify-otp?${searchParams.toString()}`);
     } finally {
       setIsPending(false);
+      onAttemptComplete?.();
     }
   };
 
@@ -94,7 +107,13 @@ export function OtpSignInForm({
           )}
         />
 
-        <Button type="submit" disabled={isPending} className="w-full mt-4">
+        <Button
+          type="submit"
+          disabled={
+            isPending || (turnstileToken !== undefined && !turnstileToken)
+          }
+          className="w-full mt-4"
+        >
           {isPending
             ? t("auth:otpSignIn.sending")
             : t("auth:otpSignIn.sendVerificationCode")}
