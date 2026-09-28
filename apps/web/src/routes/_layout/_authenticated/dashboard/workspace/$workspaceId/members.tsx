@@ -8,6 +8,7 @@ import InviteTeamMemberModal from "@/components/team/invite-team-member-modal";
 import MembersTable from "@/components/team/members-table";
 import { Button } from "@/components/ui/button";
 import useGetFullWorkspace from "@/hooks/queries/workspace/use-get-full-workspace";
+import useGetWorkspaceInvites from "@/hooks/queries/workspace-users/use-get-workspace-invites";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 
 export const Route = createFileRoute(
@@ -20,6 +21,11 @@ function RouteComponent() {
   const { t } = useTranslation();
   const { workspaceId } = Route.useParams();
   const { data: workspace } = useGetFullWorkspace({ workspaceId });
+  // `getFullOrganization` does not carry a usable `invitations` list, so
+  // pending invites come from the dedicated `listInvitations` query instead --
+  // the shape MembersTable is typed against, and the cache the invite mutations
+  // invalidate on both success and failure.
+  const { data: invitations } = useGetWorkspaceInvites({ workspaceId });
   const { canInviteUsers } = useWorkspacePermission();
   const canInvite = Boolean(canInviteUsers());
   const [isInviteOpen, setIsInviteOpen] = useState(false);
@@ -46,7 +52,7 @@ function RouteComponent() {
         <MembersTable
           workspaceId={workspaceId}
           users={workspace?.members ?? []}
-          invitations={workspace?.invitations ?? []}
+          invitations={invitations ?? []}
         />
 
         <InviteTeamMemberModal
