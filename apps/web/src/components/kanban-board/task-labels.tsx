@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { resolveLabelColor } from "@/lib/label-color";
 import type Task from "@/types/task";
+import { localeCompareSort } from "@/lib/format";
 
 export function TaskLabels({
   labels,
@@ -9,9 +10,13 @@ export function TaskLabels({
 }) {
   if (!labels.length) return null;
 
+  const sortedLabels = [...labels].sort((a, b) =>
+    localeCompareSort(a.name, b.name),
+  );
+
   return (
     <div className="flex min-w-0 flex-wrap gap-1">
-      {labels.map((label) => (
+      {sortedLabels.map((label) => (
         <Badge
           key={label.id}
           variant="outline"

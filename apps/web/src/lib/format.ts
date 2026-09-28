@@ -10,6 +10,29 @@ function getLocale(locale?: string) {
   return locale || i18n.resolvedLanguage || i18n.language || "en-US";
 }
 
+const collators = new Map<string, Intl.Collator>();
+
+function getSortLocales(): string[] {
+  if (typeof navigator !== "undefined" && navigator.languages?.length) {
+    return [...navigator.languages];
+  }
+  return [getLocale()];
+}
+
+export function localeCompareSort(a: string, b: string) {
+  const locales = getSortLocales();
+  const key = locales.join(",");
+  let collator = collators.get(key);
+  if (!collator) {
+    collator = new Intl.Collator(locales, {
+      sensitivity: "base",
+      numeric: true,
+    });
+    collators.set(key, collator);
+  }
+  return collator.compare(a, b);
+}
+
 export function formatDate(
   value: DateInput,
   options?: Intl.DateTimeFormatOptions,
