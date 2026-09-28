@@ -222,10 +222,11 @@ describe("MCP 2026-07-28 stateless HTTP", () => {
     expect(clone).not.toHaveBeenCalled();
   });
 
-  it("routes an existing session ID before cloning for classification", async () => {
+  it("handles a legacy request carrying an old session ID", async () => {
     const request = new Request("http://mcp.test/mcp", {
       method: "POST",
       headers: {
+        accept: "application/json, text/event-stream",
         authorization: "Bearer test-token",
         "content-type": "application/json",
         "mcp-session-id": "missing-session",
@@ -241,12 +242,29 @@ describe("MCP 2026-07-28 stateless HTTP", () => {
 
     const response = await mcpRoutes.request(request);
 
-    expect(response.status).toBe(404);
-    expect(clone).not.toHaveBeenCalled();
+    expect(response.status).toBe(200);
+    expect((await rpcBody(response)).result.tools).toContainEqual(
+      expect.objectContaining({ name: "whoami" }),
+    );
+    expect(clone).toHaveBeenCalledOnce();
+
+    const unauthenticated = new Request("http://mcp.test/mcp", {
+      method: "POST",
+      headers: {
+        accept: "application/json, text/event-stream",
+        "content-type": "application/json",
+        "mcp-session-id": "missing-session",
+      },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 2, method: "tools/list" }),
+    });
+    expect((await mcpRoutes.request(unauthenticated)).status).toBe(401);
   });
 
-  it("preserves the legacy session ID across separate requests", async () => {
-    const initialize = await mcpRoutes.request("/mcp", {
+  it("serves legacy requests across replicas without a session ID", async () => {
+    const replicaA = await import("../../apps/api/src/mcp");
+    vi.resetModules();
+    const replicaB = await import("../../apps/api/src/mcp");
+    const initialize = await replicaA.default.request("/mcp", {
       method: "POST",
       headers: {
         accept: "application/json, text/event-stream",
@@ -264,31 +282,27 @@ describe("MCP 2026-07-28 stateless HTTP", () => {
         },
       }),
     });
-    const sessionId = initialize.headers.get("mcp-session-id");
-
     expect(initialize.status).toBe(200);
-    expect(sessionId).toBeTruthy();
+    expect(initialize.headers.has("mcp-session-id")).toBe(false);
 
-    const initialized = await mcpRoutes.request("/mcp", {
+    const initialized = await replicaB.default.request("/mcp", {
       method: "POST",
       headers: {
         accept: "application/json, text/event-stream",
         authorization: "Bearer test-token",
         "content-type": "application/json",
-        "mcp-session-id": sessionId ?? "",
       },
       body: JSON.stringify({
         jsonrpc: "2.0",
         method: "notifications/initialized",
       }),
     });
-    const tools = await mcpRoutes.request("/mcp", {
+    const tools = await replicaB.default.request("/mcp", {
       method: "POST",
       headers: {
         accept: "application/json, text/event-stream",
         authorization: "Bearer test-token",
         "content-type": "application/json",
-        "mcp-session-id": sessionId ?? "",
       },
       body: JSON.stringify({
         jsonrpc: "2.0",
@@ -298,13 +312,36 @@ describe("MCP 2026-07-28 stateless HTTP", () => {
       }),
     });
     const toolsBody = await rpcBody(tools);
+    const apiFetch = vi.fn(async () =>
+      Response.json({ user: { id: "test-user" } }),
+    );
+    vi.stubGlobal("fetch", apiFetch);
+    const call = await replicaB.default.request("/mcp", {
+      method: "POST",
+      headers: {
+        accept: "application/json, text/event-stream",
+        authorization: "Bearer test-token",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 3,
+        method: "tools/call",
+        params: { name: "whoami", arguments: {} },
+      }),
+    });
+    const callBody = await rpcBody(call);
 
     expect(initialized.status).toBe(202);
     expect(tools.status).toBe(200);
+    expect(call.status).toBe(200);
+    expect(tools.headers.has("mcp-session-id")).toBe(false);
     expect(toolsBody.result.tools).toContainEqual(
       expect.objectContaining({ name: "whoami" }),
     );
-    expect(authMocks.getSession).toHaveBeenCalledTimes(3);
+    expect(callBody.result.content[0].text).toContain("test-user");
+    expect(apiFetch).toHaveBeenCalledOnce();
+    expect(authMocks.getSession).toHaveBeenCalledTimes(4);
   });
 
   it.each([
