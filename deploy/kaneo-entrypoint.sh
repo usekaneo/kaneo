@@ -58,7 +58,7 @@ node --enable-source-maps /app/apps/api/dist/index.js &
 api_pid=$!
 
 echo "Waiting for API to be ready..."
-until wget --spider --quiet http://127.0.0.1:1337/api/health 2>/dev/null; do
+until wget -Y off --spider --quiet http://127.0.0.1:1337/api/health 2>/dev/null; do
   if ! kill -0 "$api_pid" 2>/dev/null; then
     echo "API process exited unexpectedly"
     exit 1
