@@ -1,10 +1,11 @@
-import { and, asc, eq, isNotNull } from "drizzle-orm";
+import { and, asc, eq, notInArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
   assetTable,
   columnTable,
   externalLinkTable,
+  integrationTable,
   projectTable,
   taskTable,
 } from "../../database/schema";
@@ -166,7 +167,13 @@ async function moveTask({
       .where(
         and(
           eq(externalLinkTable.taskId, taskId),
-          isNotNull(externalLinkTable.integrationId),
+          notInArray(
+            externalLinkTable.integrationId,
+            tx
+              .select({ id: integrationTable.id })
+              .from(integrationTable)
+              .where(eq(integrationTable.projectId, destinationProjectId)),
+          ),
         ),
       );
 

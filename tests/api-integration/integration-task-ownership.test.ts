@@ -357,3 +357,27 @@ it("reports a concurrent move as a conflict without deleting links", async () =>
   ).rejects.toMatchObject({ status: 409 });
   expect(await db.query.externalLinkTable.findMany()).toHaveLength(1);
 });
+
+it("preserves legacy links belonging to the destination integration when moving back", async () => {
+  const f = await setup();
+  const [destinationIntegration] = await db
+    .insert(schema.integrationTable)
+    .values({ projectId: f.destination.id, type: "gitea", config: "{}" })
+    .returning();
+  const [compatible] = await db
+    .insert(schema.externalLinkTable)
+    .values({
+      taskId: f.task.id,
+      integrationId: destinationIntegration.id,
+      resourceType: "issue",
+      externalId: "legacy",
+      url: "https://gitea.example/legacy",
+    })
+    .returning();
+  await moveTask({
+    taskId: f.task.id,
+    destinationProjectId: f.destination.id,
+    userId: f.source.user.id,
+  });
+  expect(await db.query.externalLinkTable.findMany()).toEqual([compatible]);
+});
