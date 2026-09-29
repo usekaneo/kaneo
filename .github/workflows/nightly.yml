@@ -17,14 +17,14 @@ jobs:
   secret-scan-history:
     name: Full-history secret scan
     if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
       contents: read
       security-events: write
     steps:
       - name: Checkout repository
-        uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           # The entire-branch scan needs the full commit history.
@@ -42,10 +42,8 @@ jobs:
           # shell command (template injection).
           BRANCH: ${{ github.ref_name }}
         run: |
-          # Runs as a downloaded binary instead of the trufflesecurity/trufflehog
-          # action or its container: the action hard-codes --github-actions
-          # (conflicts with --sarif), and a container cannot resolve the
-          # Blacksmith git mirror backing this checkout, so cloning it there fails.
+          # The trufflesecurity/trufflehog action hard-codes --github-actions,
+          # which conflicts with --sarif, so run the downloaded binary directly.
           # --fail still writes a complete SARIF file before exiting 183.
           "$RUNNER_TEMP/trufflehog" git "file://$PWD" \
             --results=verified,unknown \
@@ -102,14 +100,14 @@ jobs:
   workflow-audit:
     name: Workflow security audit
     if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
       contents: read
       security-events: write
     steps:
       - name: Checkout repository
-        uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Install zizmor

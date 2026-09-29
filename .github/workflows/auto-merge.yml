@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   dependabot:
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     # Only Dependabot-created updates opt into automation. A maintainer reopening
     # or marking a rejected PR ready must not override the earlier decision.
