@@ -1,3 +1,5 @@
+import updateTaskStatus from "../../apps/api/src/task/controllers/update-task-status";
+import updateTaskAssignee from "../../apps/api/src/task/controllers/update-task-assignee";
 import updateTaskPriority from "../../apps/api/src/task/controllers/update-task-priority";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
@@ -240,3 +242,45 @@ it.each(["single", "bulk"])(
     );
   },
 );
+
+it("validates status and assignment without a second pool client inside the mutation transaction", async () => {
+  const { user, workspace } = await createWorkspaceMember();
+  const { project } = await createProjectFixture({ workspaceId: workspace.id });
+  const [task] = await db
+    .insert(schema.taskTable)
+    .values({ projectId: project.id, title: "pool safety" })
+    .returning();
+  let locked = false;
+  const select = getDatabase().select.bind(getDatabase());
+  vi.spyOn(getDatabase(), "select").mockImplementation((...args) => {
+    if (locked)
+      throw new Error("Validation attempted a second pool connection");
+    return select(...args);
+  });
+  const transaction = db.transaction.bind(db);
+  vi.spyOn(getDatabase(), "transaction").mockImplementation((apply, config) =>
+    transaction(async (tx) => {
+      locked = true;
+      try {
+        return await apply(tx);
+      } finally {
+        locked = false;
+      }
+    }, config),
+  );
+  await updateTaskStatus({
+    id: task.id,
+    status: "done",
+    currentUserId: user.id,
+  });
+  await updateTaskAssignee({
+    id: task.id,
+    userId: user.id,
+    currentUserId: user.id,
+  });
+  expect(
+    await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, task.id),
+    }),
+  ).toMatchObject({ status: "done", userId: user.id });
+});
