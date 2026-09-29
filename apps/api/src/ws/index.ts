@@ -8,7 +8,10 @@ import {
   workspaceUserTable,
 } from "../database/schema";
 import { subscribeToEvent } from "../events";
-import { instanceAdminRoleSql } from "../utils/instance-admin-role";
+import {
+  hasInstanceAdminRole,
+  instanceAdminRoleSql,
+} from "../utils/instance-admin-role";
 import { isRedisConfigured } from "../redis";
 import {
   getRelationSourceProject,
@@ -85,7 +88,6 @@ function deliverToLocalUserConnections(
     typeof message.workspaceId === "string"
   ) {
     revokeLocalWorkspaceConnections(userId, message.workspaceId);
-    return;
   }
   const connections = userConnections.get(userId);
   if (!connections) return;
@@ -230,8 +232,19 @@ function revokeLocalWorkspaceConnections(userId: string, workspaceId: string) {
 export async function revokeWorkspaceConnections(
   userId: string,
   workspaceId: string,
+  options: { force?: boolean } = {},
 ) {
-  revokeLocalWorkspaceConnections(userId, workspaceId);
+  if (!options.force) {
+    const [user] = await db
+      .select({ userId: userTable.id, role: userTable.role })
+      .from(userTable)
+      .where(eq(userTable.id, userId));
+    if (hasInstanceAdminRole(user?.role)) return;
+  }
+  deliverToLocalUserConnections(userId, {
+    type: "WORKSPACE_ACCESS_REVOKED",
+    workspaceId,
+  });
   try {
     await adapter?.publishToUser({
       userId,

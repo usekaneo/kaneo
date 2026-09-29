@@ -9,10 +9,16 @@ import {
 } from "vite-plus/test";
 import { useUserWebSocket } from "./use-user-websocket";
 
-const { client, auth } = vi.hoisted(() => ({
-  client: { invalidateQueries: vi.fn() },
+const { client, auth, navigate } = vi.hoisted(() => ({
+  client: {
+    invalidateQueries: vi.fn(),
+    cancelQueries: vi.fn(),
+    clear: vi.fn(),
+  },
+  navigate: vi.fn(),
   auth: { userId: "user-a" as string | null },
 }));
+vi.mock("@tanstack/react-router", () => ({ useNavigate: () => navigate }));
 vi.mock("@tanstack/react-query", () => ({ useQueryClient: () => client }));
 vi.mock("@/lib/auth-client", () => ({
   authClient: {
@@ -48,7 +54,7 @@ describe("user WebSocket lifecycle", () => {
     vi.stubEnv("VITE_API_URL", "http://localhost:1337");
     TestSocket.instances = [];
     auth.userId = "user-a";
-    client.invalidateQueries.mockClear();
+    vi.clearAllMocks();
   });
   afterEach(() => {
     cleanup();
@@ -56,6 +62,21 @@ describe("user WebSocket lifecycle", () => {
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
   });
+  it("clears revoked workspace data from the global user connection", () => {
+    renderHook(() => useUserWebSocket());
+    act(() =>
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({
+          type: "WORKSPACE_ACCESS_REVOKED",
+          workspaceId: "workspace",
+        }),
+      }),
+    );
+    expect(client.cancelQueries).toHaveBeenCalledOnce();
+    expect(client.clear).toHaveBeenCalledOnce();
+    expect(navigate).toHaveBeenCalledWith({ to: "/dashboard" });
+  });
+
   it("ignores events from an old account without stopping the new account's keepalive", () => {
     const { rerender, unmount } = renderHook(useUserWebSocket);
     const old = TestSocket.instances[0];

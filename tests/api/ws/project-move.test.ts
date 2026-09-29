@@ -9,6 +9,8 @@ import {
 } from "vite-plus/test";
 import {
   addConnection,
+  addUserConnection,
+  removeUserConnection,
   broadcastToProject,
   closeProjectConnections,
   initializeWebSocketAdapter,
@@ -166,6 +168,32 @@ describe("project move revocation", () => {
 });
 
 describe("workspace membership revocation", () => {
+  it("preserves instance-admin access after membership removal, but forces account revocation", async () => {
+    await initializeWebSocketAdapter();
+    const ws = connect();
+    m.admins.mockResolvedValue([{ userId: "user", role: "user,admin" }]);
+    await revokeWorkspaceConnections("user", "old");
+    expect(ws.close).not.toHaveBeenCalled();
+    await revokeWorkspaceConnections("user", "old", { force: true });
+    expect(ws.close).toHaveBeenCalled();
+  });
+  it("notifies user sockets even without an open project", async () => {
+    await initializeWebSocketAdapter();
+    const ws = { send: vi.fn(), close: vi.fn() };
+    const conn = addUserConnection("user", ws as unknown as WSContext);
+    try {
+      await revokeWorkspaceConnections("user", "old");
+      expect(ws.send).toHaveBeenCalledWith(
+        JSON.stringify({
+          type: "WORKSPACE_ACCESS_REVOKED",
+          workspaceId: "old",
+        }),
+      );
+    } finally {
+      removeUserConnection("user", conn);
+    }
+  });
+
   it("keeps instance admins connected without workspace membership", async () => {
     vi.useFakeTimers();
     await initializeWebSocketAdapter();

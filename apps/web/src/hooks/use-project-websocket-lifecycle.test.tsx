@@ -34,7 +34,7 @@ class TestSocket {
   static instances: TestSocket[] = [];
   readyState = 0;
   onopen: (() => void) | null = null;
-  onclose: ((event?: { code: number }) => void) | null = null;
+  onclose: ((event?: { code: number; reason?: string }) => void) | null = null;
   onmessage: ((event: { data: string }) => void) | null = null;
   send = vi.fn();
   // Deliberately delay close events to reproduce the project-switch race.
@@ -142,7 +142,10 @@ describe("project WebSocket lifecycle", () => {
     renderHook(() => useProjectWebSocket("project-a"));
     act(() => {
       TestSocket.instances[0].open();
-      TestSocket.instances[0].onclose?.({ code: 1008 });
+      TestSocket.instances[0].onclose?.({
+        code: 1008,
+        reason: "Workspace access revoked",
+      });
       vi.advanceTimersByTime(60_000);
     });
     expect(client.cancelQueries).toHaveBeenCalledOnce();
@@ -150,6 +153,20 @@ describe("project WebSocket lifecycle", () => {
     expect(navigate).toHaveBeenCalledWith({ to: "/dashboard" });
     expect(TestSocket.instances).toHaveLength(1);
     expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("reconnects after a project move without clearing authorized data", () => {
+    renderHook(() => useProjectWebSocket("project-a"));
+    act(() => {
+      TestSocket.instances[0].onclose?.({
+        code: 1008,
+        reason: "Project workspace changed",
+      });
+      vi.advanceTimersByTime(1000);
+    });
+    expect(client.clear).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
+    expect(TestSocket.instances).toHaveLength(2);
   });
 
   it("preserves bounded exponential reconnects and active message invalidation", () => {

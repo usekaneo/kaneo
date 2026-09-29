@@ -154,7 +154,10 @@ export function useProjectWebSocket(projectId: string) {
         clearPing();
         activeSocket = null;
 
-        if (event?.code === 1008) {
+        if (
+          event?.code === 1008 &&
+          event.reason === "Workspace access revoked"
+        ) {
           disposed = true;
           void queryClient.cancelQueries();
           queryClient.clear();

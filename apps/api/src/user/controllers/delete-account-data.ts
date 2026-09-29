@@ -110,7 +110,7 @@ export async function deleteAccountData(userId: string) {
     ...plan.workspaceIdsToDelete,
     ...plan.workspaceIdsToLeave,
   ]) {
-    await revokeWorkspaceConnections(userId, workspaceId);
+    await revokeWorkspaceConnections(userId, workspaceId, { force: true });
   }
 
   return plan;

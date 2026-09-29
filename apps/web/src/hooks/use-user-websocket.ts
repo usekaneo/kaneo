@@ -1,5 +1,6 @@
 import { windowId } from "@kaneo/libs";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { getApiUrl } from "@/fetchers/get-api-url";
 import { authClient } from "@/lib/auth-client";
@@ -21,6 +22,7 @@ const WS_PING_INTERVAL_MS = 30_000;
  */
 export function useUserWebSocket() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { data: session } = authClient.useSession();
   useEffect(() => {
     if (!session?.user?.id) return;
@@ -63,6 +65,11 @@ export function useUserWebSocket() {
           const message = JSON.parse(event.data as string) as {
             type?: string;
           };
+          if (message.type === "WORKSPACE_ACCESS_REVOKED") {
+            void queryClient.cancelQueries();
+            queryClient.clear();
+            void navigate({ to: "/dashboard" });
+          }
           if (message.type === "NOTIFICATION_CREATED") {
             queryClient.invalidateQueries({ queryKey: ["notifications"] });
           }
@@ -94,5 +101,5 @@ export function useUserWebSocket() {
       }
       activeSocket?.close();
     };
-  }, [session?.user?.id, queryClient]);
+  }, [session?.user?.id, queryClient, navigate]);
 }
