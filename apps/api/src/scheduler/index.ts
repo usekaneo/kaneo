@@ -50,6 +50,7 @@ export function initializeScheduler(): void {
   jobs.push(
     new Cron(
       "*/5 * * * *",
+      { protect: true },
       withCheckIn("storage-cleanup", retryStorageCleanup),
     ),
   );

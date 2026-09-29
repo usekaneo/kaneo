@@ -176,3 +176,26 @@ it.each(["single", "bulk"])(
     expect(await db.select().from(schema.storageCleanupTable)).toHaveLength(0);
   },
 );
+
+it("gives new objects a turn despite a full batch of permanent retries", async () => {
+  await db.insert(schema.storageCleanupTable).values(
+    Array.from({ length: 100 }, (_, index) => ({
+      objectKey: `failure-${index}`,
+      createdAt: new Date(0),
+      lastAttemptAt: new Date(1),
+    })),
+  );
+  await db
+    .insert(schema.storageCleanupTable)
+    .values({ objectKey: "new-object", createdAt: new Date(2) });
+  m.deleteS3Object.mockImplementation(async (key) => {
+    if (key !== "new-object") throw new Error("offline");
+  });
+  await retryStorageCleanup();
+  expect(m.deleteS3Object).toHaveBeenCalledWith("new-object");
+  expect(
+    await db.query.storageCleanupTable.findFirst({
+      where: eq(schema.storageCleanupTable.objectKey, "new-object"),
+    }),
+  ).toBeUndefined();
+});
