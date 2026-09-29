@@ -9256,6 +9256,18 @@
 										"resizeHandle",
 										"small"
 									]
+								},
+								"saved": {
+									"type": "string"
+								},
+								"saving": {
+									"type": "string"
+								},
+								"saveFailed": {
+									"type": "string"
+								},
+								"retrySave": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -9275,7 +9287,11 @@
 								"languages",
 								"embed",
 								"mermaid",
-								"image"
+								"image",
+								"saved",
+								"saving",
+								"saveFailed",
+								"retrySave"
 							]
 						}
 					},

@@ -3,7 +3,6 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { assetTable, projectTable } from "../../database/schema";
 import {
-  assertTaskImageKeyMatchesContext,
   createTaskImageUploadUrl,
   InvalidUploadedAssetError,
   isImageContentType,
@@ -40,26 +39,28 @@ export async function stageTaskAssetUpload(
 ) {
   validate(input);
   const context = await uploadContext(projectId, userId);
+  let upload: Awaited<ReturnType<typeof createTaskImageUploadUrl>>;
   try {
-    const upload = await createTaskImageUploadUrl({ ...context, ...input });
-    await db.insert(assetTable).values({
-      workspaceId: context.workspaceId,
-      projectId,
-      taskId: null,
-      objectKey: upload.key,
-      filename: input.filename,
-      mimeType: input.contentType,
-      size: input.size,
-      kind: isImageContentType(input.contentType) ? "image" : "attachment",
-      surface: "draft-pending",
-      createdBy: userId,
-    });
-    return upload;
+    upload = await createTaskImageUploadUrl({ ...context, ...input });
   } catch {
     throw new HTTPException(503, {
       message: "Image uploads are not configured",
     });
   }
+  await db.insert(assetTable).values({
+    workspaceId: context.workspaceId,
+    projectId,
+    taskId: null,
+    objectKey: upload.key,
+    filename: input.filename,
+    mimeType: input.contentType,
+    size: input.size,
+    kind: isImageContentType(input.contentType) ? "image" : "attachment",
+    surface: "draft-pending",
+    createdBy: userId,
+  });
+
+  return upload;
 }
 export async function finalizeStagedTaskAsset(
   projectId: string,
@@ -67,24 +68,10 @@ export async function finalizeStagedTaskAsset(
   input: Upload & { key: string },
 ) {
   validate(input);
-  const context = await uploadContext(projectId, userId);
+  await uploadContext(projectId, userId);
   const key = input.key.trim();
-  if (!assertTaskImageKeyMatchesContext(key, context))
-    throw new HTTPException(400, {
-      message: "Upload key does not match the draft owner and project",
-    });
-  let uploaded: Awaited<ReturnType<typeof verifyTaskAssetUpload>>;
-  try {
-    uploaded = await verifyTaskAssetUpload(key, input);
-  } catch (error) {
-    throw new HTTPException(
-      error instanceof InvalidUploadedAssetError ? 400 : 503,
-      {
-        message:
-          error instanceof Error ? error.message : "Unable to verify upload",
-      },
-    );
-  }
+  // The persisted key is the issuance record. Project moves update authorization
+  // metadata, but the object remains at its originally issued storage key.
   const existing = await db.query.assetTable.findFirst({
     where: eq(assetTable.objectKey, key),
   });
@@ -98,6 +85,18 @@ export async function finalizeStagedTaskAsset(
     throw new HTTPException(409, {
       message: "Upload is unavailable or already attached",
     });
+  let uploaded: Awaited<ReturnType<typeof verifyTaskAssetUpload>>;
+  try {
+    uploaded = await verifyTaskAssetUpload(key, input);
+  } catch (error) {
+    throw new HTTPException(
+      error instanceof InvalidUploadedAssetError ? 400 : 503,
+      {
+        message:
+          error instanceof Error ? error.message : "Unable to verify upload",
+      },
+    );
+  }
   const [asset] = await db
     .update(assetTable)
     .set({

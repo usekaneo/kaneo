@@ -158,3 +158,10 @@ export const descriptionMatchesQuery = z.object({
 });
 
 export const duplicateTaskBody = z.object({ title: z.string().optional() });
+
+export const stagedImageUploadBody = imageUploadBody.extend({
+  surface: z.literal("description"),
+});
+export const finalizeStagedImageUploadBody = finalizeImageUploadBody.extend({
+  surface: z.literal("description"),
+});

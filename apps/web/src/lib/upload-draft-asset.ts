@@ -1,3 +1,4 @@
+import { i18n } from "@/lib/i18n";
 import { client } from "@kaneo/libs";
 import { HttpError } from "@/lib/http-error";
 import { getImageAltText, isSupportedImageFile } from "@/lib/upload-task-image";
@@ -20,7 +21,8 @@ export async function uploadDraftAsset(projectId: string, file: File) {
     headers: upload.headers,
     body: file,
   });
-  if (!stored.ok) throw new Error("Failed to upload file to storage.");
+  if (!stored.ok)
+    throw new Error(i18n.t("activity:comment.editor.failedToUploadFile"));
   const finalized = await client.task["draft-upload"][
     ":projectId"
   ].finalize.$post({

@@ -1,6 +1,10 @@
 import { eq, sql } from "drizzle-orm";
 import db from "../database";
-import { storageCleanupTable } from "../database/schema";
+import {
+  assetTable,
+  projectTable,
+  storageCleanupTable,
+} from "../database/schema";
 import { deleteS3Object } from "./s3";
 
 export async function queueStorageCleanup(
@@ -20,25 +24,71 @@ export async function retryStorageCleanup(): Promise<{ degraded: boolean }> {
     .select()
     .from(storageCleanupTable)
     .orderBy(
-      sql`${storageCleanupTable.lastAttemptAt} nulls first`,
-      storageCleanupTable.createdAt,
+      sql`coalesce(${storageCleanupTable.lastAttemptAt}, ${storageCleanupTable.createdAt})`,
+      storageCleanupTable.objectKey,
     )
     .limit(100);
   let degraded = false;
   for (const item of pending) {
-    try {
-      await deleteS3Object(item.objectKey);
-      await db
-        .delete(storageCleanupTable)
-        .where(eq(storageCleanupTable.objectKey, item.objectKey));
-    } catch {
-      // Keep the durable key for the next tick, without logging uploaded paths.
-      degraded = true;
-      await db
-        .update(storageCleanupTable)
-        .set({ lastAttemptAt: new Date() })
-        .where(eq(storageCleanupTable.objectKey, item.objectKey));
-    }
+    await withStorageObject(item.objectKey, async (tx) => {
+      const queued = await tx.query.storageCleanupTable.findFirst({
+        where: eq(storageCleanupTable.objectKey, item.objectKey),
+      });
+      if (!queued) return;
+      const asset = await tx.query.assetTable.findFirst({
+        columns: { id: true },
+        where: eq(assetTable.objectKey, item.objectKey),
+      });
+      const background = await tx.query.projectTable.findFirst({
+        columns: { id: true },
+        where: eq(projectTable.backgroundObjectKey, item.objectKey),
+      });
+      if (asset || background) {
+        await tx
+          .delete(storageCleanupTable)
+          .where(eq(storageCleanupTable.objectKey, item.objectKey));
+        return;
+      }
+      try {
+        await deleteS3Object(item.objectKey);
+        await tx
+          .delete(storageCleanupTable)
+          .where(eq(storageCleanupTable.objectKey, item.objectKey));
+      } catch (error) {
+        degraded = true;
+        // Provider identifiers diagnose failures without exposing uploaded paths.
+        const failure = error as {
+          name?: string;
+          code?: string;
+          $metadata?: { httpStatusCode?: number };
+        } | null;
+        console.error("Storage cleanup failed", {
+          name: failure?.name,
+          code: failure?.code,
+          status: failure?.$metadata?.httpStatusCode,
+        });
+        await tx
+          .update(storageCleanupTable)
+          .set({ lastAttemptAt: new Date() })
+          .where(eq(storageCleanupTable.objectKey, item.objectKey));
+      }
+    });
   }
   return { degraded };
+}
+
+// Coordinate finalization and deletion of this object only. Verification runs
+// inside this lock so a finalizer waiting behind cleanup sees the missing object.
+export async function withStorageObject<T>(
+  objectKey: string,
+  apply: (
+    tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  ) => Promise<T>,
+): Promise<T> {
+  return db.transaction(async (tx) => {
+    await tx.execute(
+      sql`SELECT pg_advisory_xact_lock(hashtext('storage-object'), hashtext(${objectKey}))`,
+    );
+    return apply(tx);
+  });
 }

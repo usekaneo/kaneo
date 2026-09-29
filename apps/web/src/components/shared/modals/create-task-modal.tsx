@@ -496,7 +496,9 @@ function CreateTaskModalContent({
           startDate: startDate ? startDate.toISOString() : undefined,
           dueDate: dueDate ? dueDate.toISOString() : undefined,
           status: taskStatus,
-          draftAssetIds: stagedAssetsRef.current,
+          draftAssetIds: stagedAssetsRef.current.filter((id) =>
+            description.includes(`/asset/${id}`),
+          ),
           customFields: Object.entries(customFieldValues)
             .filter(([_, value]) => value.trim() !== "")
             .map(([fieldId, value]) => ({

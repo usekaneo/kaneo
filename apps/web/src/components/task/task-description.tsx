@@ -39,6 +39,7 @@ import {
 import type { MouseEvent as ReactMouseEvent } from "react";
 import {
   useCallback,
+  useContext,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -48,6 +49,7 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import type { Highlighter } from "shiki";
+import { AuthContext } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogPopup } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -606,16 +608,28 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     };
   }, []);
 
+  const ownerId = useContext(AuthContext).user?.id ?? "";
+  const ownerIdRef = useRef(ownerId);
+  ownerIdRef.current = ownerId;
   const saveState = useSyncExternalStore(
     descriptionSaveQueue.subscribe,
-    () => descriptionSaveQueue.get(taskId)?.state ?? "saved",
+    () => descriptionSaveQueue.get(taskId, ownerId)?.state ?? "saved",
   );
   const scheduleDescriptionSave = useCallback((markdown: string) => {
     if (!canEditRef.current) return;
     const editedTask = taskRef.current;
     if (!editedTask) return;
-    descriptionSaveQueue.schedule(editedTask.id, markdown, (description) =>
-      updateTaskRef.current({ ...editedTask, description }),
+    descriptionSaveQueue.schedule(
+      editedTask.id,
+      markdown,
+      (description) =>
+        updateTaskRef.current({
+          ...(taskRef.current?.id === editedTask.id
+            ? taskRef.current
+            : editedTask),
+          description,
+        }),
+      ownerIdRef.current,
     );
   }, []);
 
@@ -1036,7 +1050,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
       latestSyncedMarkdownRef.current = "";
     }
 
-    const pendingSave = descriptionSaveQueue.get(taskId);
+    const pendingSave = descriptionSaveQueue.get(taskId, ownerId);
     const incomingMarkdown = formatMarkdown(
       task?.id && pendingSave && pendingSave.state !== "saved"
         ? pendingSave.value
@@ -1066,7 +1080,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     requestAnimationFrame(() => {
       isSyncingExternalContentRef.current = false;
     });
-  }, [editor, taskId, task?.id, task?.description]);
+  }, [editor, taskId, task?.id, task?.description, ownerId]);
 
   useEffect(() => {
     if (!editor) return;
@@ -1431,7 +1445,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
             <Button
               size="xs"
               variant="ghost"
-              onClick={() => descriptionSaveQueue.retry(taskId)}
+              onClick={() => descriptionSaveQueue.retry(taskId, ownerId)}
             >
               {t("tasks:detail.editor.retrySave")}
             </Button>
