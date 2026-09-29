@@ -630,12 +630,19 @@ export function registerTools(
     async (args) =>
       run(async () => {
         let result: unknown;
+        const signal = AbortSignal.timeout(10_000);
         // Bound work per tool call. The API persists the continuation boundary.
         for (let page = 0; page < 100; page++) {
-          result = await client.json(
-            `/api/label/${encodeURIComponent(args.id)}`,
-            { method: "DELETE" },
-          );
+          if (page > 0 && signal.aborted) break;
+          try {
+            result = await client.json(
+              `/api/label/${encodeURIComponent(args.id)}`,
+              { method: "DELETE", signal },
+            );
+          } catch (error) {
+            if (signal.aborted && result) break;
+            throw error;
+          }
           if (
             !result ||
             typeof result !== "object" ||

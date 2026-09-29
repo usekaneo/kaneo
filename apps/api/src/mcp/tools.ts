@@ -44,7 +44,9 @@ class ApiClient {
     const res = await fetch(url, {
       ...init,
       headers,
-      signal: AbortSignal.timeout(10_000),
+      signal: init?.signal
+        ? AbortSignal.any([init.signal, AbortSignal.timeout(10_000)])
+        : AbortSignal.timeout(10_000),
     });
 
     const text = await res.text();

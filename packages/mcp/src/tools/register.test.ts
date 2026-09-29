@@ -376,6 +376,7 @@ describe("registerTools", () => {
     const result = await tools.get("delete_label")?.handler({ id: "label-1" });
     expect(client.json).toHaveBeenCalledExactlyOnceWith("/api/label/label-1", {
       method: "DELETE",
+      signal: expect.any(AbortSignal),
     });
     expect(result?.isError).toBe(false);
   });
@@ -398,7 +399,44 @@ describe("registerTools", () => {
     expect(client.json).toHaveBeenCalledTimes(2);
     expect(client.json).toHaveBeenNthCalledWith(2, "/api/label/label-1", {
       method: "DELETE",
+      signal: expect.any(AbortSignal),
     });
+  });
+
+  it("returns saved progress when the overall deletion deadline expires", async () => {
+    const { server, tools } = createServerMock();
+    const controller = new AbortController();
+    const timeout = vi
+      .spyOn(AbortSignal, "timeout")
+      .mockReturnValue(controller.signal);
+    const progress = { id: "large", pendingDeletion: true };
+    const client = {
+      json: vi
+        .fn()
+        .mockResolvedValueOnce(progress)
+        .mockImplementationOnce(async () => {
+          controller.abort();
+          throw new DOMException("Timed out", "TimeoutError");
+        }),
+    };
+    try {
+      registerTools(server as never, { client: client as never });
+      const result = await tools.get("delete_label")?.handler({ id: "large" });
+      expect(timeout).toHaveBeenCalledWith(10_000);
+      expect(result?.isError).toBe(false);
+      expect(client.json).toHaveBeenCalledTimes(2);
+      expect(client.json).toHaveBeenLastCalledWith("/api/label/large", {
+        method: "DELETE",
+        signal: controller.signal,
+      });
+      expect(result?.content).toEqual([
+        expect.objectContaining({
+          text: expect.stringContaining('"pendingDeletion": true'),
+        }),
+      ]);
+    } finally {
+      timeout.mockRestore();
+    }
   });
 
   it("returns resumable progress when a cascade exceeds one tool call", async () => {
