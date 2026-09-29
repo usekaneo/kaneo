@@ -13,6 +13,7 @@ import { resolveTargetStatus } from "../utils/resolve-column";
 import { baseUrlFromProjectWebUrl } from "../utils/webhook-project";
 
 type PushPayload = {
+  before?: string;
   ref: string;
   commits?: Array<{
     id: string;
@@ -132,9 +133,10 @@ export async function handleGitlabPush(
       config.statusTransitions?.onBranchPush || "in-progress",
     );
 
-    const isTaskFinal = await isTaskInFinalState(task);
+    const isNewBranch = /^0+$/.test(payload.before ?? "");
+    const canMove = isNewBranch || !(await isTaskInFinalState(task));
 
-    if (task.status !== targetStatus && !isTaskFinal) {
+    if (task.status !== targetStatus && canMove) {
       const statusResult = await updateTaskStatus(task.id, targetStatus);
       if (
         statusResult.applied &&

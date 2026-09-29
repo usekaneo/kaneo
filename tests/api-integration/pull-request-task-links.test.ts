@@ -10,6 +10,8 @@ import { handleGiteaPullRequestOpened } from "../../apps/api/src/plugins/gitea/w
 import { resolvePullRequestTask } from "../../apps/api/src/plugins/github/services/resolve-pull-request-task";
 import { handlePullRequestClosed } from "../../apps/api/src/plugins/github/webhooks/pull-request-closed";
 import { handlePullRequestOpened } from "../../apps/api/src/plugins/github/webhooks/pull-request-opened";
+import { handlePush } from "../../apps/api/src/plugins/github/webhooks/push";
+import { handleGiteaPush } from "../../apps/api/src/plugins/gitea/webhooks/push";
 import { resetTestDatabase } from "./helpers/database";
 import {
   createProjectFixture,
@@ -344,6 +346,21 @@ describe.each(["github", "gitea"] as const)(
       expect((await task(fixture.unrelated.id))?.status).toBe("to-do");
     });
 
+    it("links a PR whose description contains the task link", async () => {
+      const taskLink = `https://kaneo.example.com/dashboard/workspace/w/project/${fixture.project.id}/task/${fixture.intended.id}`;
+      await open(payload("Copy message text", `Implements ${taskLink}`));
+      expect(await links()).toMatchObject([{ taskId: fixture.intended.id }]);
+      expect((await task(fixture.unrelated.id))?.status).toBe("to-do");
+    });
+
+    it("does not follow a task link into another project", async () => {
+      const other = await createFixture(provider, "OTHER", "other-repo");
+      const taskLink = `https://kaneo.example.com/dashboard/workspace/w/project/${other.project.id}/task/${other.intended.id}`;
+      await open(payload("Copy message text", taskLink));
+      await expectUnchanged();
+      expect((await task(other.intended.id))?.status).toBe("to-do");
+    });
+
     it("does not infer a local task from an unmapped remote issue", async () => {
       await open();
       await expectUnchanged();
@@ -418,7 +435,7 @@ describe.each(["github", "gitea"] as const)(
       expect((await task(fixture.unrelated.id))?.status).toBe("to-do");
     });
 
-    it("links a final task without moving it back to review", async () => {
+    it("moves a completed task back to review when a new PR opens", async () => {
       await linkIssue(fixture.intended.id);
       await db
         .update(schema.taskTable)
@@ -426,7 +443,42 @@ describe.each(["github", "gitea"] as const)(
         .where(eq(schema.taskTable.id, fixture.intended.id));
       await open();
       expect(await links()).toMatchObject([{ taskId: fixture.intended.id }]);
-      expect((await task(fixture.intended.id))?.status).toBe("done");
+      expect(await task(fixture.intended.id)).toMatchObject({
+        status: "in-review",
+        columnId: fixture.columns.inReview.id,
+      });
+    });
+
+    describe("pushes to a completed task", () => {
+      const push = (before: string) => {
+        const { installation, repository } = payload();
+        const event = {
+          before,
+          ref: "refs/heads/kan-42-slice-2",
+          installation,
+          repository,
+        };
+        return provider === "github"
+          ? handlePush(event)
+          : handleGiteaPush(event, fixture.integration.id);
+      };
+
+      beforeEach(async () => {
+        await db
+          .update(schema.taskTable)
+          .set({ status: "done", columnId: fixture.columns.done.id })
+          .where(eq(schema.taskTable.id, fixture.intended.id));
+      });
+
+      it("moves the task back to progress when a push creates a branch", async () => {
+        await push("0".repeat(40));
+        expect((await task(fixture.intended.id))?.status).toBe("in-progress");
+      });
+
+      it("keeps the task done for a push to an existing branch", async () => {
+        await push("a".repeat(40));
+        expect((await task(fixture.intended.id))?.status).toBe("done");
+      });
     });
 
     it("skips ambiguous candidates across repository integrations for an unscoped delivery", async () => {

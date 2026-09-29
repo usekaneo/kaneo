@@ -4,7 +4,6 @@ import { createExternalLink, findExternalLink } from "../services/link-manager";
 import { resolvePullRequestTask } from "../services/resolve-pull-request-task";
 import {
   findAllIntegrationsByRepo,
-  isTaskInFinalState,
   updateTaskStatus,
 } from "../services/task-service";
 import { resolveTargetStatus } from "../utils/resolve-column";
@@ -89,9 +88,7 @@ export async function handlePullRequestOpened(payload: PROpenedPayload) {
     config.statusTransitions?.onPROpen || "in-review",
   );
 
-  const isTaskFinal = await isTaskInFinalState(task);
-
-  if (task.status !== targetStatus && !isTaskFinal) {
+  if (task.status !== targetStatus) {
     const statusResult = await updateTaskStatus(task.id, targetStatus);
     if (
       statusResult.applied &&

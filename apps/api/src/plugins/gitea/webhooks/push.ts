@@ -15,6 +15,7 @@ import { resolveTargetStatus } from "../utils/resolve-column";
 import { baseUrlFromRepositoryHtmlUrl } from "../utils/webhook-repo";
 
 type PushPayload = {
+  before?: string;
   ref: string;
   head_commit?: {
     id: string;
@@ -142,9 +143,10 @@ export async function handleGiteaPush(
       config.statusTransitions?.onBranchPush || "in-progress",
     );
 
-    const isTaskFinal = await isTaskInFinalState(task);
+    const isNewBranch = /^0+$/.test(payload.before ?? "");
+    const canMove = isNewBranch || !(await isTaskInFinalState(task));
 
-    if (task.status !== targetStatus && !isTaskFinal) {
+    if (task.status !== targetStatus && canMove) {
       const statusResult = await updateTaskStatus(task.id, targetStatus);
       if (
         statusResult.applied &&

@@ -1,5 +1,5 @@
 import type { InferSelectModel } from "drizzle-orm";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import db from "../../../database";
 import {
   columnTable,
@@ -7,6 +7,7 @@ import {
   taskTable,
 } from "../../../database/schema";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
+import { extractTaskIdsFromLinks } from "../utils/task-references";
 
 export type TaskRow = InferSelectModel<typeof taskTable>;
 
@@ -23,6 +24,22 @@ export async function findTaskByNumber(projectId: string, taskNumber: number) {
       eq(taskTable.number, taskNumber),
     ),
   });
+}
+
+export async function findTaskByLink(
+  projectId: string,
+  texts: (string | null | undefined)[],
+  database: Pick<typeof db, "query"> = db,
+) {
+  const ids = extractTaskIdsFromLinks(projectId, ...texts);
+  if (ids.length === 0) return;
+
+  const tasks = await database.query.taskTable.findMany({
+    where: and(eq(taskTable.projectId, projectId), inArray(taskTable.id, ids)),
+  });
+  return ids
+    .map((id) => tasks.find((task) => task.id === id))
+    .find((task) => task !== undefined);
 }
 
 export async function findTaskById(taskId: string) {

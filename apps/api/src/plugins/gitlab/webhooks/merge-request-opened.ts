@@ -5,6 +5,7 @@ import {
   updateExternalLink,
 } from "../../github/services/link-manager";
 import {
+  findTaskByLink,
   findTaskByNumber,
   isTaskInFinalState,
   updateTaskStatus,
@@ -80,11 +81,12 @@ export async function handleGitlabMergeRequestOpened(
       integration.project.slug,
     );
 
-    if (!taskNumber) {
-      continue;
-    }
-
-    const task = await findTaskByNumber(integration.projectId, taskNumber);
+    const task = taskNumber
+      ? await findTaskByNumber(integration.projectId, taskNumber)
+      : await findTaskByLink(integration.projectId, [
+          mergeRequest.title,
+          mergeRequest.description,
+        ]);
 
     if (!task) {
       continue;
@@ -133,9 +135,9 @@ export async function handleGitlabMergeRequestOpened(
       config.statusTransitions?.onPROpen || "in-review",
     );
 
-    const isTaskFinal = await isTaskInFinalState(task);
+    const canMove = !existingLink || !(await isTaskInFinalState(task));
 
-    if (task.status !== targetStatus && !isTaskFinal) {
+    if (task.status !== targetStatus && canMove) {
       const statusResult = await updateTaskStatus(task.id, targetStatus);
       if (
         statusResult.applied &&

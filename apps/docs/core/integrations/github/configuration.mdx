@@ -124,6 +124,8 @@ The `{slug}` variable is your project's slug (case-insensitive), `{number}` is t
 
 Kaneo checks the configured branch pattern first, then explicit task references in the PR title and body. Use your project key, such as `PROJ-42` or `fix(PROJ-42): correct the link`, or an explicit `task: 42` marker. Task markers require a separator after `task`; words such as `task42` do not identify a task.
 
+If none of those match, Kaneo looks for a task link in the PR title or body. Paste the link from **Copy task link** on the task, and the PR is linked to that task. Links to tasks in other projects are ignored.
+
 Issue references use the remote repository's numbering. A title containing `#61` or a body containing `Closes #61` resolves through the issue link recorded by this integration. If GitHub issue 61 is linked to Kaneo task `PROJ-42`, the PR belongs to `PROJ-42`, even if `PROJ-61` also exists. Same-repository `owner/repo#61` references and issue URLs are also supported. References to another repository are ignored.
 
 Without an explicit task reference, unmapped issues do not create PR associations. References that map to multiple tasks within the integration are skipped. Repeated issue links to the same task are accepted. Bare numeric title shortcuts such as `[42]`, `(42)`, or `42: ...` are not task identifiers; use the project key instead.
@@ -145,7 +147,7 @@ Customize when tasks automatically change status:
 Configure these in your project's GitHub integration settings to match your workflow.
 
 <Warning>
-Status transitions only apply if the task is not already in "done" status. This prevents accidentally reopening completed tasks.
+A completed task moves again only when new work starts on it: a push that creates a branch, or a pull request that is not yet linked to the task. More pushes to an existing branch, or reopening a pull request, leave a completed task where it is.
 </Warning>
 
 ### Label Synchronization

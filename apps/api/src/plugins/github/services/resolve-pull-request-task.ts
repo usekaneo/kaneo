@@ -4,6 +4,7 @@ import { externalLinkTable, taskTable } from "../../../database/schema";
 import type { GitHubConfig } from "../config";
 import { extractTaskNumber } from "../utils/branch-matcher";
 import { extractIssueReferences } from "../utils/issue-references";
+import { findTaskByLink } from "./task-service";
 
 export async function resolvePullRequestTask({
   integrationId,
@@ -42,6 +43,13 @@ export async function resolvePullRequestTask({
       ),
     });
   }
+
+  const linkedTask = await findTaskByLink(
+    projectId,
+    [pullRequest.title, pullRequest.body],
+    database,
+  );
+  if (linkedTask) return linkedTask;
 
   const issueNumbers = extractIssueReferences(
     pullRequest.title,

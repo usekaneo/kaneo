@@ -11,6 +11,7 @@ import { extractTaskNumberFromBranch } from "../utils/branch-matcher";
 import { resolveTargetStatus } from "../utils/resolve-column";
 
 type PushPayload = {
+  before?: string;
   ref: string;
   head_commit?: {
     id: string;
@@ -128,9 +129,10 @@ export async function handlePush(payload: PushPayload) {
       `[Push] Target status: ${targetStatus}, current: ${task.status}`,
     );
 
-    const isTaskFinal = await isTaskInFinalState(task);
+    const isNewBranch = /^0+$/.test(payload.before ?? "");
+    const canMove = isNewBranch || !(await isTaskInFinalState(task));
 
-    if (task.status !== targetStatus && !isTaskFinal) {
+    if (task.status !== targetStatus && canMove) {
       console.log(
         `[Push] Updating task ${task.id} status from ${task.status} to ${targetStatus}`,
       );
