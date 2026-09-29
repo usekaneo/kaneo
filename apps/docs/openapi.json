@@ -8578,6 +8578,34 @@
                   "projectId": {
                     "type": "string"
                   },
+                  "expectedTasks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "position": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 0,
+                          "maximum": 2147483646
+                        },
+                        "status": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "position",
+                        "status"
+                      ]
+                    },
+                    "description": "Previous complete contents of the affected columns; stale snapshots return 409"
+                  },
                   "tasks": {
                     "type": "array",
                     "items": {
@@ -8675,7 +8703,7 @@
             }
           },
           "409": {
-            "description": "Task moved concurrently",
+            "description": "Board changed or task moved; refresh before reordering",
             "content": {
               "text/plain": {
                 "schema": {

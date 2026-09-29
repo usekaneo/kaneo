@@ -297,7 +297,7 @@ export function broadcastToProject(
     projectBroadcastQueues.set(projectId, new Map());
   }
 
-  const messageKey = `${message.type}:${message.taskId ?? ""}:${message.sourceTaskId ?? ""}:${message.targetTaskId ?? ""}`;
+  const messageKey = `${message.type === "TASKS_REORDERED" ? `${message.type}:${crypto.randomUUID()}` : message.type}:${message.taskId ?? ""}:${message.sourceTaskId ?? ""}:${message.targetTaskId ?? ""}`;
   projectBroadcastQueues
     .get(projectId)
     ?.set(messageKey, { message, excludeInitiatorId });

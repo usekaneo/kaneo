@@ -175,7 +175,11 @@ function KanbanBoard({
     if (!moved || !moved.tasks.length) return;
     setProject(moved.project);
     queryClient.setQueryData(["tasks", project.id], moved.project);
-    reorder({ projectId: project.id, tasks: moved.tasks });
+    reorder({
+      projectId: project.id,
+      tasks: moved.tasks,
+      expectedTasks: moved.expectedTasks,
+    });
   };
 
   if (!project?.columns) {
