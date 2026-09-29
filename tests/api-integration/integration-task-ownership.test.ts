@@ -60,6 +60,8 @@ beforeEach(async () => {
   await resetTestDatabase();
   vi.clearAllMocks();
   m.listIssues.mockResolvedValue([remoteIssue]);
+  m.listIssueComments.mockResolvedValue([]);
+  m.listIssueNotes.mockResolvedValue([]);
 });
 async function setup(type = "gitea") {
   const source = await createWorkspaceMember({ role: "owner" });
@@ -158,6 +160,35 @@ describe("integration task ownership", () => {
       await expectPrivateTask(fixture.task.id);
     },
   );
+  it.each(["gitea", "gitlab"])(
+    "%s comment fetching leaves task moves unlocked and rechecks scope afterwards",
+    async (type) => {
+      const f = await setup(type);
+      const fetchComments =
+        type === "gitea" ? m.listIssueComments : m.listIssueNotes;
+      fetchComments.mockImplementationOnce(async () => {
+        await moveTask({
+          taskId: f.task.id,
+          destinationProjectId: f.destination.id,
+          currentUserId: f.source.user.id,
+        });
+        return [];
+      });
+      const result = await (
+        type === "gitea" ? importGiteaIssues : importGitlabIssues
+      )(f.project.id);
+      expect(result.updated).toBe(0);
+      await expectPrivateTask(f.task.id);
+      expect(
+        (
+          await db.query.taskTable.findFirst({
+            where: eq(schema.taskTable.id, f.task.id),
+          })
+        )?.projectId,
+      ).toBe(f.destination.id);
+    },
+  );
+
   it("gitea edits, labels and comments cannot follow stale links", async () => {
     const f = await setup();
     await moveWithoutCleanup(f);
@@ -204,6 +235,16 @@ describe("integration task ownership", () => {
   });
   it("moving a task removes links to its previous project's integration atomically", async () => {
     const f = await setup();
+    const [manual] = await db
+      .insert(schema.externalLinkTable)
+      .values({
+        taskId: f.task.id,
+        resourceType: "url",
+        integrationId: null,
+        url: "https://example.test/manual",
+        externalId: "manual",
+      })
+      .returning();
     await moveTask({
       taskId: f.task.id,
       destinationProjectId: f.destination.id,
@@ -213,7 +254,7 @@ describe("integration task ownership", () => {
       await db.query.externalLinkTable.findMany({
         where: eq(schema.externalLinkTable.taskId, f.task.id),
       }),
-    ).toEqual([]);
+    ).toEqual([manual]);
   });
   it("moving a project removes legacy links owned by another project", async () => {
     const f = await setup();
