@@ -27,8 +27,7 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 24.19.0
-          cache: pnpm
-          cache-dependency-path: tests/e2e/pnpm-lock.yaml
+          package-manager-cache: false
       - run: pnpm --dir tests/e2e install --frozen-lockfile --ignore-scripts
 
       - run: pnpm --dir tests/e2e exec playwright install --with-deps chromium
