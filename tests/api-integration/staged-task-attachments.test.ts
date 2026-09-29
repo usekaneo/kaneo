@@ -1,3 +1,4 @@
+import { createTaskImageUploadUrl } from "../../apps/api/src/storage/s3";
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
@@ -216,4 +217,71 @@ it("finalizes the issued object after its project moves to another workspace", a
     surface: "draft",
     objectKey: upload.key,
   });
+});
+
+it("records and claims assets in the current workspace after a move during presigning", async () => {
+  const source = await createWorkspaceMember();
+  const destination = await createWorkspaceMember();
+  const { project } = await createProjectFixture({
+    workspaceId: source.workspace.id,
+  });
+  vi.mocked(createTaskImageUploadUrl).mockImplementationOnce(async () => {
+    await db
+      .update(schema.projectTable)
+      .set({ workspaceId: destination.workspace.id })
+      .where(eq(schema.projectTable.id, project.id));
+    return {
+      key: "issued-in-source",
+      uploadUrl: "https://example.test/upload",
+      headers: {},
+    };
+  });
+  const input = { filename: "image.png", contentType: "image/png", size: 12 };
+  const upload = await stageTaskAssetUpload(project.id, source.user.id, input);
+  expect(await db.query.assetTable.findFirst()).toMatchObject({
+    workspaceId: destination.workspace.id,
+  });
+  const asset = await finalizeStagedTaskAsset(project.id, source.user.id, {
+    ...input,
+    key: upload.key,
+  });
+  await db
+    .update(schema.assetTable)
+    .set({ workspaceId: source.workspace.id })
+    .where(eq(schema.assetTable.id, asset.id));
+  await createTask({
+    projectId: project.id,
+    currentUserId: source.user.id,
+    title: "submitted",
+    status: "to-do",
+    description: `/api/asset/${asset.id}`,
+    draftAssetIds: [asset.id],
+  });
+  expect(await db.query.assetTable.findFirst()).toMatchObject({
+    workspaceId: destination.workspace.id,
+    surface: "description",
+  });
+});
+
+it("drains an expired backlog across multiple bounded transactions", async () => {
+  const { cleanupDraftUploads } =
+    await import("../../apps/api/src/scheduler/draft-upload-cleanup");
+  const { user, workspace } = await createWorkspaceMember();
+  const { project } = await createProjectFixture({ workspaceId: workspace.id });
+  await db.insert(schema.assetTable).values(
+    Array.from({ length: 1001 }, (_, i) => ({
+      workspaceId: workspace.id,
+      projectId: project.id,
+      surface: "draft-pending",
+      objectKey: `backlog-${i}`,
+      filename: "x.png",
+      mimeType: "image/png",
+      size: 1,
+      createdBy: user.id,
+      createdAt: new Date(Date.now() - 25 * 60 * 60 * 1000),
+    })),
+  );
+  await cleanupDraftUploads();
+  expect(await db.query.assetTable.findMany()).toHaveLength(0);
+  expect(await db.query.storageCleanupTable.findMany()).toHaveLength(1001);
 });

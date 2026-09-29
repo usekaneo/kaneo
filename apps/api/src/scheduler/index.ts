@@ -57,6 +57,7 @@ export function initializeScheduler(): void {
   jobs.push(
     new Cron(
       "31 * * * *",
+      { protect: true },
       withCheckIn("draft-upload-cleanup", cleanupDraftUploads),
     ),
   );

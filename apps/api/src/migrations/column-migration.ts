@@ -103,9 +103,10 @@ async function migrateProject(projectId: string, pending: Set<string>) {
           (!transitions ||
             typeof transitions !== "object" ||
             Array.isArray(transitions) ||
-            Object.values(transitions).some(
-              (value) => typeof value !== "string",
-            ))
+            Object.keys(EVENT_MAPPING)
+              .map((key) => transitions[key])
+              .filter((value) => value !== undefined)
+              .some((value) => typeof value !== "string"))
         )
           throw new Error("Invalid legacy status transitions");
       } catch {

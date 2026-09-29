@@ -47,19 +47,27 @@ export async function stageTaskAssetUpload(
       message: "Image uploads are not configured",
     });
   }
-  await db.insert(assetTable).values({
-    workspaceId: context.workspaceId,
-    projectId,
-    taskId: null,
-    objectKey: upload.key,
-    filename: input.filename,
-    mimeType: input.contentType,
-    size: input.size,
-    kind: isImageContentType(input.contentType) ? "image" : "attachment",
-    surface: "draft-pending",
-    createdBy: userId,
+  await db.transaction(async (tx) => {
+    const [currentProject] = await tx
+      .select({ workspaceId: projectTable.workspaceId })
+      .from(projectTable)
+      .where(eq(projectTable.id, projectId))
+      .for("share");
+    if (!currentProject)
+      throw new HTTPException(404, { message: "Project not found" });
+    await tx.insert(assetTable).values({
+      workspaceId: currentProject.workspaceId,
+      projectId,
+      taskId: null,
+      objectKey: upload.key,
+      filename: input.filename,
+      mimeType: input.contentType,
+      size: input.size,
+      kind: isImageContentType(input.contentType) ? "image" : "attachment",
+      surface: "draft-pending",
+      createdBy: userId,
+    });
   });
-
   return upload;
 }
 export async function finalizeStagedTaskAsset(
