@@ -1,3 +1,8 @@
+import {
+  queueStorageCleanup,
+  retryStorageCleanup,
+} from "../../storage/cleanup-queue";
+import { assetTable } from "../../database/schema";
 import { and, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
@@ -225,9 +230,23 @@ async function bulkUpdateTasks({
     case "delete": {
       // Relations cascade away with the children, so capture parents first.
       const parentProjects = await getSubtaskParentProjects(foundIds);
-      const result = await db
-        .delete(taskTable)
-        .where(inArray(taskTable.id, foundIds));
+      const result = await db.transaction(async (tx) => {
+        await tx
+          .select({ id: taskTable.id })
+          .from(taskTable)
+          .where(inArray(taskTable.id, foundIds))
+          .for("update");
+        const assets = await tx
+          .select({ objectKey: assetTable.objectKey })
+          .from(assetTable)
+          .where(inArray(assetTable.taskId, foundIds));
+        await queueStorageCleanup(
+          tx,
+          assets.map((asset) => asset.objectKey),
+        );
+        return tx.delete(taskTable).where(inArray(taskTable.id, foundIds));
+      });
+      await retryStorageCleanup().catch(() => {});
 
       updatedCount = result.rowCount ?? foundIds.length;
 

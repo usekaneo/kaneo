@@ -1286,6 +1286,13 @@ export const customFieldValueTable = pgTable(
   ],
 );
 
+// These records outlive their original owner so failed object deletion can retry.
+export const storageCleanupTable = pgTable("storage_cleanup", {
+  objectKey: text("object_key").primaryKey(),
+  lastAttemptAt: timestamp("last_attempt_at", { mode: "date" }),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});
+
 export const dataMigrationTable = pgTable("data_migration", {
   id: text("id").primaryKey(),
   completedAt: timestamp("completed_at", { mode: "date" })

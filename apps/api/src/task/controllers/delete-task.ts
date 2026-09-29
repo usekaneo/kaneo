@@ -1,9 +1,16 @@
 import { eq, or } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { taskRelationTable, taskTable } from "../../database/schema";
+import {
+  assetTable,
+  taskRelationTable,
+  taskTable,
+} from "../../database/schema";
 import { publishEvent } from "../../events";
-import { deleteS3Keys, getTaskAssetKeys } from "../../storage/cleanup-assets";
+import {
+  queueStorageCleanup,
+  retryStorageCleanup,
+} from "../../storage/cleanup-queue";
 import getTask from "./get-task";
 
 async function deleteTask(taskId: string, currentUserId: string) {
@@ -20,13 +27,27 @@ async function deleteTask(taskId: string, currentUserId: string) {
     )
     .execute();
 
-  const assetKeys = await getTaskAssetKeys(taskId);
-
-  const [deletedTask] = await db
-    .delete(taskTable)
-    .where(eq(taskTable.id, taskId))
-    .returning()
-    .execute();
+  const deletedTask = await db.transaction(async (tx) => {
+    const [locked] = await tx
+      .select({ id: taskTable.id })
+      .from(taskTable)
+      .where(eq(taskTable.id, taskId))
+      .for("update");
+    if (!locked) throw new HTTPException(404, { message: "Task not found" });
+    const assets = await tx
+      .select({ objectKey: assetTable.objectKey })
+      .from(assetTable)
+      .where(eq(assetTable.taskId, taskId));
+    await queueStorageCleanup(
+      tx,
+      assets.map((asset) => asset.objectKey),
+    );
+    const [deleted] = await tx
+      .delete(taskTable)
+      .where(eq(taskTable.id, taskId))
+      .returning();
+    return deleted;
+  });
 
   if (!deletedTask) {
     throw new HTTPException(404, {
@@ -51,10 +72,7 @@ async function deleteTask(taskId: string, currentUserId: string) {
     });
   }
 
-  // Fire-and-forget S3 cleanup after successful DB delete
-  if (assetKeys.length > 0) {
-    deleteS3Keys(assetKeys).catch(() => {});
-  }
+  await retryStorageCleanup().catch(() => {});
 
   return task;
 }

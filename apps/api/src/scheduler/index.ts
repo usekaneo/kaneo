@@ -1,3 +1,4 @@
+import { retryStorageCleanup } from "../storage/cleanup-queue";
 import * as Sentry from "@sentry/node";
 import { Cron } from "croner";
 import { checkDueDateReminders } from "./due-date-reminders";
@@ -45,6 +46,13 @@ function withCheckIn<T>(name: string, fn: () => Promise<T>) {
 }
 
 export function initializeScheduler(): void {
+  jobs.push(
+    new Cron(
+      "*/5 * * * *",
+      withCheckIn("storage-cleanup", retryStorageCleanup),
+    ),
+  );
+
   jobs.push(
     new Cron(
       "*/5 * * * *",

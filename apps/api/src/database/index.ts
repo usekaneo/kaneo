@@ -37,6 +37,7 @@ import {
 import { resolveDatabaseConnectionString } from "./resolve-database-url";
 import {
   dataMigrationTable,
+  storageCleanupTable,
   accountTable,
   activityTable,
   apikeyTable,
@@ -84,6 +85,7 @@ config();
 
 export const schema = {
   dataMigrationTable,
+  storageCleanupTable,
   accountTable,
   assetTable,
   activityTable,
