@@ -1,4 +1,4 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import db from "../database";
 import {
   columnTable,
@@ -22,152 +22,127 @@ const EVENT_MAPPING: Record<string, string> = {
   onPRMerge: "pr_merged",
 };
 
+const COMPLETION_ID = "column-workflow-v1";
+const PENDING_PREFIX = "column-workflow-pending:";
+
 export async function migrateColumns() {
-  await db.transaction(async (tx) => {
-    // Serialize boots across instances, and record completion in the same commit.
-    await tx.execute(
+  await db.transaction(async (coordinator) => {
+    // Only coordination lives in this transaction; project writes commit
+    // separately so startup does not retain every migrated task's row lock.
+    await coordinator.execute(
       sql`SELECT pg_advisory_xact_lock(hashtext('column-workflow-migration-v1'))`,
     );
-    const [completed] = await tx
-      .select()
-      .from(dataMigrationTable)
-      .where(eq(dataMigrationTable.id, "column-workflow-v1"))
-      .limit(1);
-    if (completed) return;
-    console.log("🔄 Starting column migration...");
-
-    const projects = await tx.select().from(projectTable);
-
-    if (projects.length === 0) {
-      console.log("No projects found, skipping column migration");
-      await tx.insert(dataMigrationTable).values({ id: "column-workflow-v1" });
-      return;
-    }
-
-    for (const project of projects) {
-      const projectColumns = await tx
-        .select({
-          id: columnTable.id,
-          slug: columnTable.slug,
-        })
-        .from(columnTable)
-        .where(eq(columnTable.projectId, project.id));
-
-      const columnMap = new Map<string, string>(
-        projectColumns.map((column) => [column.slug, column.id]),
-      );
-
-      // Only seed missing default slugs for legacy projects that have no columns yet.
-      // If the project already has columns, missing slugs are intentional (user removed them);
-      // re-inserting on every startup would undo deletions after each API restart.
-      if (projectColumns.length === 0) {
-        for (const defaultColumn of DEFAULT_COLUMNS) {
-          if (columnMap.has(defaultColumn.slug)) {
-            continue;
-          }
-
-          const [inserted] = await tx
-            .insert(columnTable)
-            .values({
-              projectId: project.id,
-              name: defaultColumn.name,
-              slug: defaultColumn.slug,
-              position: defaultColumn.position,
-              isFinal: defaultColumn.isFinal,
-            })
-            .returning({ id: columnTable.id, slug: columnTable.slug });
-
-          if (inserted) {
-            columnMap.set(inserted.slug, inserted.id);
-          }
-        }
-      }
-
-      for (const [slug, columnId] of columnMap) {
-        await tx
-          .update(taskTable)
-          .set({ columnId })
-          .where(
-            sql`${taskTable.projectId} = ${project.id}
-              AND ${taskTable.status} = ${slug}
-              AND ${taskTable.columnId} IS DISTINCT FROM ${columnId}`,
-          );
-      }
-
-      const integrations = await tx.query.integrationTable.findMany({
-        where: eq(integrationTable.projectId, project.id),
-      });
-
-      for (const integration of integrations) {
-        if (
-          (integration.type !== "github" && integration.type !== "gitea") ||
-          !integration.isActive
-        ) {
-          continue;
-        }
-
-        const forgeType = integration.type as "github" | "gitea";
-
-        let config: { statusTransitions?: Record<string, string> };
-        try {
-          config = JSON.parse(integration.config);
-          if (!config || typeof config !== "object") continue;
-        } catch {
-          console.error(
-            `Skipping invalid legacy integration config ${integration.id}`,
-          );
-          continue;
-        }
-        {
-          const transitions = config.statusTransitions || {};
-
-          for (const [configKey, eventType] of Object.entries(EVENT_MAPPING)) {
-            const targetSlug = transitions[configKey];
-            if (!targetSlug) continue;
-
-            const targetColumnId = columnMap.get(targetSlug);
-            if (!targetColumnId) continue;
-
-            await ensureMigrationWorkflowRule(
-              tx,
-              project.id,
-              forgeType,
-              eventType as string,
-              targetColumnId,
-            );
-          }
-
-          // Add default rules for issue events
-          const todoColumnId = columnMap.get("to-do");
-          const doneColumnId = columnMap.get("done");
-
-          if (projectColumns.length === 0 && todoColumnId) {
-            await ensureMigrationWorkflowRule(
-              tx,
-              project.id,
-              forgeType,
-              "issue_opened",
-              todoColumnId,
-            );
-          }
-
-          if (projectColumns.length === 0 && doneColumnId) {
-            await ensureMigrationWorkflowRule(
-              tx,
-              project.id,
-              forgeType,
-              "issue_closed",
-              doneColumnId,
-            );
-          }
-        }
-      }
-    }
-
-    console.log(
-      `✅ Column migration complete! Migrated ${projects.length} projects`,
+    const markers = await coordinator
+      .select({ id: dataMigrationTable.id })
+      .from(dataMigrationTable);
+    if (markers.some((marker) => marker.id === COMPLETION_ID)) return;
+    const pending = new Set(
+      markers
+        .filter((marker) => marker.id.startsWith(PENDING_PREFIX))
+        .map((marker) => marker.id.slice(PENDING_PREFIX.length)),
     );
-    await tx.insert(dataMigrationTable).values({ id: "column-workflow-v1" });
+    const projects = await coordinator
+      .select({ id: projectTable.id })
+      .from(projectTable);
+    let incomplete = false;
+    for (const project of projects) {
+      const complete = await migrateProject(project.id, pending);
+      if (!complete) incomplete = true;
+    }
+    if (!incomplete)
+      await coordinator
+        .insert(dataMigrationTable)
+        .values({ id: COMPLETION_ID });
+  });
+}
+
+async function migrateProject(projectId: string, pending: Set<string>) {
+  return db.transaction(async (tx) => {
+    const projectColumns = await tx
+      .select({ id: columnTable.id, slug: columnTable.slug })
+      .from(columnTable)
+      .where(eq(columnTable.projectId, projectId));
+    const legacy = projectColumns.length === 0;
+    // Existing columns are the durable evidence of the old migration. Without
+    // this inference the first upgrade would restore rules users already deleted.
+    if (!legacy && pending.size === 0) return true;
+    const integrations = await tx.query.integrationTable.findMany({
+      where: and(
+        eq(integrationTable.projectId, projectId),
+        inArray(integrationTable.type, ["github", "gitea"]),
+        legacy ? undefined : inArray(integrationTable.id, [...pending]),
+      ),
+    });
+    if (!legacy && integrations.length === 0) return true;
+    const columnMap = new Map(
+      projectColumns.map((column) => [column.slug, column.id]),
+    );
+    if (legacy) {
+      for (const column of DEFAULT_COLUMNS) {
+        const [created] = await tx
+          .insert(columnTable)
+          .values({ ...column, projectId })
+          .returning({ id: columnTable.id });
+        if (!created) throw new Error("Migration column was not created");
+        columnMap.set(column.slug, created.id);
+      }
+      for (const [slug, columnId] of columnMap) {
+        await tx.update(taskTable).set({ columnId })
+          .where(sql`${taskTable.projectId} = ${projectId}
+          AND ${taskTable.status} = ${slug} AND ${taskTable.columnId} IS DISTINCT FROM ${columnId}`);
+      }
+    }
+    let complete = true;
+    for (const integration of integrations) {
+      let config: { statusTransitions?: Record<string, string> };
+      try {
+        config = JSON.parse(integration.config);
+        if (!config || typeof config !== "object" || Array.isArray(config))
+          throw new Error("Invalid legacy configuration");
+      } catch {
+        console.error(
+          `Skipping invalid legacy integration config ${integration.id}`,
+        );
+        await tx
+          .insert(dataMigrationTable)
+          .values({ id: PENDING_PREFIX + integration.id })
+          .onConflictDoNothing();
+        complete = false;
+        continue;
+      }
+      const forgeType = integration.type as "github" | "gitea";
+      for (const [key, eventType] of Object.entries(EVENT_MAPPING)) {
+        const slug = config.statusTransitions?.[key];
+        const columnId = slug ? columnMap.get(slug) : undefined;
+        if (columnId)
+          await ensureMigrationWorkflowRule(
+            tx,
+            projectId,
+            forgeType,
+            eventType,
+            columnId,
+          );
+      }
+      for (const [slug, eventType] of [
+        ["to-do", "issue_opened"],
+        ["done", "issue_closed"],
+      ] as const) {
+        const columnId = columnMap.get(slug);
+        if (columnId)
+          await ensureMigrationWorkflowRule(
+            tx,
+            projectId,
+            forgeType,
+            eventType,
+            columnId,
+          );
+      }
+      if (pending.has(integration.id))
+        await tx
+          .delete(dataMigrationTable)
+          .where(eq(dataMigrationTable.id, PENDING_PREFIX + integration.id));
+    }
+    return complete;
   });
 }
 
