@@ -450,33 +450,31 @@ describe.each(["github", "gitea"] as const)(
     });
 
     describe("pushes to a completed task", () => {
-      const push = (before: string) => {
+      const branch = "kan-42-slice-2";
+      const push = () => {
         const { installation, repository } = payload();
-        const event = {
-          before,
-          ref: "refs/heads/kan-42-slice-2",
-          installation,
-          repository,
-        };
+        const event = { ref: `refs/heads/${branch}`, installation, repository };
         return provider === "github"
           ? handlePush(event)
           : handleGiteaPush(event, fixture.integration.id);
       };
-
-      beforeEach(async () => {
-        await db
+      const complete = () =>
+        db
           .update(schema.taskTable)
           .set({ status: "done", columnId: fixture.columns.done.id })
           .where(eq(schema.taskTable.id, fixture.intended.id));
-      });
 
-      it("moves the task back to progress when a push creates a branch", async () => {
-        await push("0".repeat(40));
+      beforeEach(complete);
+
+      it("moves the task back to progress for a new branch", async () => {
+        await push();
         expect((await task(fixture.intended.id))?.status).toBe("in-progress");
       });
 
-      it("keeps the task done for a push to an existing branch", async () => {
-        await push("a".repeat(40));
+      it("keeps the task done for a push to an already linked branch", async () => {
+        await push();
+        await complete();
+        await push();
         expect((await task(fixture.intended.id))?.status).toBe("done");
       });
     });

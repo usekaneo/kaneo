@@ -19,6 +19,16 @@ describe("extractTaskIdsFromLinks", () => {
     expect(extractTaskIdsFromLinks("p1", link("p2", "t1"))).toEqual([]);
   });
 
+  it("ignores paths that are not task links", () => {
+    expect(
+      extractTaskIdsFromLinks(
+        "p1",
+        "https://example.com/docs/project/p1/task/t1",
+        "/workspace/ws1/project/p1/task/t1",
+      ),
+    ).toEqual([]);
+  });
+
   it("deduplicates and tolerates missing text", () => {
     expect(
       extractTaskIdsFromLinks("p1", link("p1", "t1"), null, link("p1", "t1")),

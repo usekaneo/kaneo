@@ -15,7 +15,6 @@ import { resolveTargetStatus } from "../utils/resolve-column";
 import { baseUrlFromRepositoryHtmlUrl } from "../utils/webhook-repo";
 
 type PushPayload = {
-  before?: string;
   ref: string;
   head_commit?: {
     id: string;
@@ -117,7 +116,7 @@ export async function handleGiteaPush(
 
     const treeUrl = `${repository.html_url}/src/branch/${branchName}`;
 
-    await createOrUpdateExternalLink({
+    const branchLink = await createOrUpdateExternalLink({
       taskId: task.id,
       integrationId: integration.id,
       resourceType: "branch",
@@ -143,8 +142,7 @@ export async function handleGiteaPush(
       config.statusTransitions?.onBranchPush || "in-progress",
     );
 
-    const isNewBranch = /^0+$/.test(payload.before ?? "");
-    const canMove = isNewBranch || !(await isTaskInFinalState(task));
+    const canMove = branchLink.created || !(await isTaskInFinalState(task));
 
     if (task.status !== targetStatus && canMove) {
       const statusResult = await updateTaskStatus(task.id, targetStatus);

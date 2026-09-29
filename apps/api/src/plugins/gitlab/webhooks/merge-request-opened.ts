@@ -5,6 +5,7 @@ import {
   updateExternalLink,
 } from "../../github/services/link-manager";
 import {
+  findTaskById,
   findTaskByLink,
   findTaskByNumber,
   isTaskInFinalState,
@@ -73,30 +74,34 @@ export async function handleGitlabMergeRequestOpened(
       continue;
     }
 
-    const taskNumber = extractTaskNumberGitlab(
-      branchName,
-      mergeRequest.title,
-      mergeRequest.description ?? undefined,
-      config,
-      integration.project.slug,
-    );
-
-    const task = taskNumber
-      ? await findTaskByNumber(integration.projectId, taskNumber)
-      : await findTaskByLink(integration.projectId, [
-          mergeRequest.title,
-          mergeRequest.description,
-        ]);
-
-    if (!task) {
-      continue;
-    }
-
     const existingLink = await findExternalLink(
       integration.id,
       "pull_request",
       mergeRequest.iid.toString(),
     );
+
+    const taskNumber = existingLink
+      ? null
+      : extractTaskNumberGitlab(
+          branchName,
+          mergeRequest.title,
+          mergeRequest.description ?? undefined,
+          config,
+          integration.project.slug,
+        );
+
+    const task = existingLink
+      ? await findTaskById(existingLink.taskId)
+      : taskNumber
+        ? await findTaskByNumber(integration.projectId, taskNumber)
+        : await findTaskByLink(integration.projectId, [
+            mergeRequest.title,
+            mergeRequest.description,
+          ]);
+
+    if (!task) {
+      continue;
+    }
 
     const metadata = {
       state: mergeRequest.state,

@@ -147,7 +147,7 @@ Customize when tasks automatically change status:
 Configure these in your project's GitHub integration settings to match your workflow.
 
 <Warning>
-A completed task moves again only when new work starts on it: a push that creates a branch, or a pull request that is not yet linked to the task. More pushes to an existing branch, or reopening a pull request, leave a completed task where it is.
+A completed task moves again only when new work starts on it: the first push to a branch that is not yet linked to the task, or a pull request that is not yet linked to it. More pushes to a linked branch, or reopening a pull request, leave a completed task where it is.
 </Warning>
 
 ### Label Synchronization

@@ -13,7 +13,6 @@ import { resolveTargetStatus } from "../utils/resolve-column";
 import { baseUrlFromProjectWebUrl } from "../utils/webhook-project";
 
 type PushPayload = {
-  before?: string;
   ref: string;
   commits?: Array<{
     id: string;
@@ -108,7 +107,7 @@ export async function handleGitlabPush(
       continue;
     }
 
-    await createOrUpdateExternalLink({
+    const branchLink = await createOrUpdateExternalLink({
       taskId: task.id,
       integrationId: integration.id,
       resourceType: "branch",
@@ -133,8 +132,7 @@ export async function handleGitlabPush(
       config.statusTransitions?.onBranchPush || "in-progress",
     );
 
-    const isNewBranch = /^0+$/.test(payload.before ?? "");
-    const canMove = isNewBranch || !(await isTaskInFinalState(task));
+    const canMove = branchLink.created || !(await isTaskInFinalState(task));
 
     if (task.status !== targetStatus && canMove) {
       const statusResult = await updateTaskStatus(task.id, targetStatus);

@@ -11,7 +11,6 @@ import { extractTaskNumberFromBranch } from "../utils/branch-matcher";
 import { resolveTargetStatus } from "../utils/resolve-column";
 
 type PushPayload = {
-  before?: string;
   ref: string;
   head_commit?: {
     id: string;
@@ -101,7 +100,7 @@ export async function handlePush(payload: PushPayload) {
       `[Push] Found task: ${task.id}, current status: ${task.status}`,
     );
 
-    await createOrUpdateExternalLink({
+    const branchLink = await createOrUpdateExternalLink({
       taskId: task.id,
       integrationId: integration.id,
       resourceType: "branch",
@@ -129,8 +128,7 @@ export async function handlePush(payload: PushPayload) {
       `[Push] Target status: ${targetStatus}, current: ${task.status}`,
     );
 
-    const isNewBranch = /^0+$/.test(payload.before ?? "");
-    const canMove = isNewBranch || !(await isTaskInFinalState(task));
+    const canMove = branchLink.created || !(await isTaskInFinalState(task));
 
     if (task.status !== targetStatus && canMove) {
       console.log(

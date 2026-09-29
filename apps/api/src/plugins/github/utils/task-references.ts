@@ -1,4 +1,5 @@
-const taskLinkPattern = /\/project\/([\w-]+)\/task\/([\w-]+)/g;
+const taskLinkPattern =
+  /\/dashboard\/workspace\/[\w-]+\/project\/([\w-]+)\/task\/([\w-]+)(?![\w-])/g;
 
 export function extractTaskIdsFromLinks(
   projectId: string,
