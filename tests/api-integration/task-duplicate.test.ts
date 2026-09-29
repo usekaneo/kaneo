@@ -21,8 +21,9 @@ vi.mock("../../apps/api/src/events", async (original) => ({
   publishEvent,
 }));
 
-import db, { schema } from "../../apps/api/src/database";
+import db, { getDatabasePool, schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
+import * as taskFieldValidation from "../../apps/api/src/task/validate-task-fields";
 import { mockAnonymousSession, mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
 import {
@@ -525,8 +526,8 @@ describe("API integration: task duplication", () => {
     expect(duplicatedTask?.title).toBe("Release checklist");
   });
 
-  async function fixture() {
-    const member = await createWorkspaceMember();
+  async function fixture(role = "member") {
+    const member = await createWorkspaceMember({ role });
     const { project, columns } = await createProjectFixture({
       workspaceId: member.workspace.id,
     });
@@ -634,6 +635,106 @@ describe("API integration: task duplication", () => {
       .values({ taskId: own.task.id, fieldId: field.id, value: "old" });
     expect((await requestDuplicate(own.app, own.task.id)).status).toBe(400);
     expect(await db.query.taskTable.findMany()).toHaveLength(1);
+  });
+
+  it("keeps duplication validation consistent when an option is hidden concurrently", async () => {
+    const own = await fixture("admin");
+    const [field] = await db
+      .insert(schema.customFieldDefinitionTable)
+      .values({
+        projectId: own.project.id,
+        name: "People",
+        type: "dropdown",
+        options: ["Alice", "Bob"],
+      })
+      .returning();
+    await db.insert(schema.customFieldValueTable).values({
+      taskId: own.task.id,
+      fieldId: field.id,
+      value: "Alice",
+    });
+    const assetId = "concurrenthideasset";
+    await db
+      .update(schema.taskTable)
+      .set({ description: `![Image](/api/asset/${assetId})` })
+      .where(eq(schema.taskTable.id, own.task.id));
+    await db.insert(schema.assetTable).values({
+      id: assetId,
+      taskId: own.task.id,
+      projectId: own.project.id,
+      workspaceId: own.workspace.id,
+      objectKey: assetId,
+      filename: "image.png",
+      mimeType: "image/png",
+      size: 10,
+      kind: "image",
+      surface: "description",
+      createdBy: own.user.id,
+    });
+
+    const validate = taskFieldValidation.assertRequiredCustomFields;
+    let preflightProtected = false;
+    vi.spyOn(
+      taskFieldValidation,
+      "assertRequiredCustomFields",
+    ).mockImplementationOnce(async (...args) => {
+      // Attempt the edit after normalization but before validation, without timing sleeps.
+      const editor = await getDatabasePool().connect();
+      try {
+        await editor.query("BEGIN");
+        try {
+          await editor.query(
+            'SELECT id FROM "custom_field_definition" WHERE id = $1 FOR UPDATE NOWAIT',
+            [field.id],
+          );
+          await editor.query(
+            'UPDATE "custom_field_definition" SET hidden_options = $2::jsonb WHERE id = $1',
+            [field.id, JSON.stringify(["Alice"])],
+          );
+          await editor.query("COMMIT");
+        } catch (error) {
+          expect(error).toMatchObject({ code: "55P03" });
+          preflightProtected = true;
+        }
+      } finally {
+        await editor.query("ROLLBACK");
+        editor.release();
+      }
+      return validate(...args);
+    });
+    copyTaskAssetObject.mockImplementationOnce(async () => {
+      // Storage runs after the preflight locks are released; the final read must see this edit.
+      const hidden = await own.app.request(`/api/custom-field/${field.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: field.name,
+          updatedAt: field.updatedAt.toISOString(),
+          options: [
+            { originalValue: "Alice", value: "Alice", hidden: true },
+            { originalValue: "Bob", value: "Bob" },
+          ],
+        }),
+      });
+      expect(hidden.status, await hidden.clone().text()).toBe(200);
+      return DUPLICATED_OBJECT_KEY;
+    });
+
+    const response = await requestDuplicate(own.app, own.task.id);
+    expect(response.status, await response.clone().text()).toBe(200);
+    expect(preflightProtected).toBe(true);
+    expect(copyTaskAssetObject).toHaveBeenCalledTimes(1);
+    const copy = (await response.json()) as { id: string };
+    expect(
+      await db.query.customFieldValueTable.findFirst({
+        where: eq(schema.customFieldValueTable.taskId, copy.id),
+      }),
+    ).toMatchObject({ fieldId: field.id, value: "" });
+    expect(
+      await db.query.customFieldValueTable.findFirst({
+        where: eq(schema.customFieldValueTable.taskId, own.task.id),
+      }),
+    ).toMatchObject({ value: "Alice" });
   });
 
   it("copies only same-workspace parents and labels from legacy mixed data", async () => {

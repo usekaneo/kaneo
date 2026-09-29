@@ -160,12 +160,16 @@ async function duplicateTask({
     ),
   });
 
-  const readCustomFields = async (connection: Pick<typeof db, "select">) => {
+  const readCustomFields = async (
+    connection: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  ) => {
+    // Keep normalization, defaults, and validation on the same definition version.
     const fieldDefinitions = await connection
       .select()
       .from(customFieldDefinitionTable)
       .where(eq(customFieldDefinitionTable.projectId, sourceTask.projectId))
-      .orderBy(customFieldDefinitionTable.id);
+      .orderBy(customFieldDefinitionTable.id)
+      .for("share");
     const sourceCustomFields = await connection
       .select({
         fieldId: customFieldValueTable.fieldId,
@@ -217,7 +221,7 @@ async function duplicateTask({
     );
     return customFields;
   };
-  await readCustomFields(db);
+  await db.transaction(readCustomFields);
 
   const sourceLabels = await db
     .select({
@@ -276,12 +280,6 @@ async function duplicateTask({
   try {
     duplicated = await db.transaction(async (tx) => {
       // Storage calls may outlast an option rename; reread selections while holding definition locks.
-      await tx
-        .select({ id: customFieldDefinitionTable.id })
-        .from(customFieldDefinitionTable)
-        .where(eq(customFieldDefinitionTable.projectId, sourceTask.projectId))
-        .orderBy(customFieldDefinitionTable.id)
-        .for("share");
       const customFields = await readCustomFields(tx);
 
       const taskNumber = await claimTaskNumber(sourceTask.projectId, tx);
