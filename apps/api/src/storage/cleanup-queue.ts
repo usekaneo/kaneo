@@ -20,13 +20,20 @@ export async function queueStorageCleanup(
 }
 
 export async function retryStorageCleanup(): Promise<{ degraded: boolean }> {
+  const ranked = db
+    .select({
+      objectKey: storageCleanupTable.objectKey,
+      lastAttemptAt: storageCleanupTable.lastAttemptAt,
+      rank: sql<number>`row_number() over (partition by ${storageCleanupTable.lastAttemptAt} is null order by coalesce(${storageCleanupTable.lastAttemptAt}, ${storageCleanupTable.createdAt}), ${storageCleanupTable.objectKey})`.as(
+        "cleanup_rank",
+      ),
+    })
+    .from(storageCleanupTable)
+    .as("ranked_cleanup");
   const pending = await db
     .select()
-    .from(storageCleanupTable)
-    .orderBy(
-      sql`coalesce(${storageCleanupTable.lastAttemptAt}, ${storageCleanupTable.createdAt})`,
-      storageCleanupTable.objectKey,
-    )
+    .from(ranked)
+    .orderBy(ranked.rank, ranked.lastAttemptAt, ranked.objectKey)
     .limit(100);
   let degraded = false;
   for (const item of pending) {
