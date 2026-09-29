@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
-import db from "../../database";
+import { withLockedTask } from "./with-locked-task";
 import { taskTable } from "../../database/schema";
 import { publishTaskMutation } from "./task-mutation-effects";
 import {
@@ -17,39 +17,36 @@ async function updateTaskAssignee({
   userId: string | null;
   currentUserId: string;
 }) {
-  const existingTask = await db.query.taskTable.findFirst({
-    where: eq(taskTable.id, id),
-  });
+  const { before: existingTask, after: updatedTask } = await withLockedTask(
+    id,
+    async (tx, existingTask) => {
+      const nextAssigneeId = userId?.trim() || null;
+      if (existingTask.userId === nextAssigneeId) {
+        return existingTask;
+      }
 
-  if (!existingTask) {
-    throw new HTTPException(404, {
-      message: "Task not found",
-    });
-  }
+      if (nextAssigneeId) {
+        await assertAssignableUser(
+          nextAssigneeId,
+          await getProjectWorkspaceId(existingTask.projectId),
+        );
+      }
 
-  const nextAssigneeId = userId?.trim() || null;
-  if (existingTask.userId === nextAssigneeId) {
-    return existingTask;
-  }
+      const [updatedTask] = await tx
+        .update(taskTable)
+        .set({ userId: nextAssigneeId })
+        .where(eq(taskTable.id, id))
+        .returning();
 
-  if (nextAssigneeId) {
-    await assertAssignableUser(
-      nextAssigneeId,
-      await getProjectWorkspaceId(existingTask.projectId),
-    );
-  }
+      if (!updatedTask) {
+        throw new HTTPException(500, {
+          message: "Failed to update task assignee",
+        });
+      }
 
-  const [updatedTask] = await db
-    .update(taskTable)
-    .set({ userId: nextAssigneeId })
-    .where(eq(taskTable.id, id))
-    .returning();
-
-  if (!updatedTask) {
-    throw new HTTPException(500, {
-      message: "Failed to update task assignee",
-    });
-  }
+      return updatedTask;
+    },
+  );
 
   await publishTaskMutation(existingTask, updatedTask, currentUserId, {
     fields: ["userId"],
