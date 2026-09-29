@@ -119,7 +119,7 @@ export async function verifyApiKey(
       if (requestCount >= (apiKey.rateLimitMax ?? 100)) return null;
     }
     if (remaining !== null) remaining--;
-    requestCount++;
+    if (apiKey.rateLimitEnabled) requestCount++;
     await tx
       .update(schema.apikeyTable)
       .set({
