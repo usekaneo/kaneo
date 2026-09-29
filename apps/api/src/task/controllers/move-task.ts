@@ -1,4 +1,4 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, isNotNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
@@ -163,7 +163,12 @@ async function moveTask({
 
     await tx
       .delete(externalLinkTable)
-      .where(eq(externalLinkTable.taskId, taskId));
+      .where(
+        and(
+          eq(externalLinkTable.taskId, taskId),
+          isNotNull(externalLinkTable.integrationId),
+        ),
+      );
 
     await tx
       .update(assetTable)

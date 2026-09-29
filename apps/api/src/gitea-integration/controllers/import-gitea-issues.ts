@@ -14,6 +14,7 @@ import { isKaneoComment } from "../../plugins/gitea/utils/comment-origin";
 import {
   createGiteaClient,
   type GiteaIssue,
+  type GiteaComment,
   type GiteaLabel,
   type GiteaPullRequest,
 } from "../../plugins/gitea/utils/gitea-api";
@@ -215,6 +216,8 @@ async function importSingleIssue(
   const priority = extractIssuePriority(adaptedLabels);
   const status = extractIssueStatus(adaptedLabels);
 
+  const comments = await fetchIssueComments(issue.number, config, client);
+
   if (existingLink) {
     const result = await withIntegrationTask(
       existingLink.taskId,
@@ -240,13 +243,7 @@ async function importSingleIssue(
           database,
         );
 
-        await importCommentsForTask(
-          issue.number,
-          existingLink.taskId,
-          config,
-          client,
-          database,
-        );
+        await importCommentsForTask(comments, existingLink.taskId, database);
 
         return "updated" as const;
       },
@@ -298,7 +295,7 @@ async function importSingleIssue(
 
       await importLabelsForTask(labels, created.id, workspaceId, tx);
 
-      await importCommentsForTask(issue.number, created.id, config, client, tx);
+      await importCommentsForTask(comments, created.id, tx);
 
       return created;
     },
@@ -401,19 +398,12 @@ async function importLabelsForTask(
   }
 }
 
-async function importCommentsForTask(
+async function fetchIssueComments(
   issueNumber: number,
-  taskId: string,
   config: GiteaConfig,
   client: ReturnType<typeof createGiteaClient>,
-  database: IntegrationDatabase = db,
-): Promise<void> {
-  const allComments: Array<{
-    id: number;
-    body: string;
-    html_url: string;
-    user?: { login?: string; username?: string; avatar_url?: string } | null;
-  }> = [];
+): Promise<GiteaComment[]> {
+  const allComments: GiteaComment[] = [];
   let page = 1;
 
   while (true) {
@@ -433,6 +423,14 @@ async function importCommentsForTask(
     page++;
   }
 
+  return allComments;
+}
+
+async function importCommentsForTask(
+  allComments: GiteaComment[],
+  taskId: string,
+  database: IntegrationDatabase,
+): Promise<void> {
   for (const comment of allComments) {
     const username = comment.user?.login ?? comment.user?.username ?? "";
     if (username.endsWith("[bot]") || isKaneoComment(comment.body)) {

@@ -23,6 +23,7 @@ import { extractTaskNumberGitlab } from "../../plugins/gitlab/utils/branch-match
 import {
   createGitlabClient,
   type GitlabIssue,
+  type GitlabNote,
   type GitlabMergeRequest,
 } from "../../plugins/gitlab/utils/gitlab-api";
 import { taskDescriptionFromIssue } from "../../plugins/gitlab/utils/issue-description";
@@ -192,6 +193,8 @@ async function importSingleIssue(
   const priority = extractIssuePriority(labels);
   const status = extractIssueStatus(labels);
 
+  const notes = await fetchIssueNotes(issue, config, client);
+
   if (existingLink) {
     const result = await withIntegrationTask(
       existingLink.taskId,
@@ -216,13 +219,7 @@ async function importSingleIssue(
           workspaceId,
           database,
         );
-        await importNotesForTask(
-          issue,
-          existingLink.taskId,
-          config,
-          client,
-          database,
-        );
+        await importNotesForTask(issue, notes, existingLink.taskId, database);
 
         return "updated" as const;
       },
@@ -273,7 +270,7 @@ async function importSingleIssue(
       );
 
       await importLabelsForTask(labels, created.id, workspaceId, tx);
-      await importNotesForTask(issue, created.id, config, client, tx);
+      await importNotesForTask(issue, notes, created.id, tx);
 
       return created;
     },
@@ -337,13 +334,12 @@ async function importLabelsForTask(
   }
 }
 
-async function importNotesForTask(
+async function fetchIssueNotes(
   issue: GitlabIssue,
-  taskId: string,
   config: GitlabConfig,
   client: GitlabClient,
-  database: IntegrationDatabase = db,
-): Promise<void> {
+): Promise<GitlabNote[]> {
+  const allNotes: GitlabNote[] = [];
   for (let page = 1; page <= MAX_PAGES; page++) {
     const notes = await client.listIssueNotes(
       config.projectPath,
@@ -354,39 +350,48 @@ async function importNotesForTask(
 
     if (notes.length === 0) break;
 
-    for (const note of notes) {
-      // Skip system notes (label/state changes) and internal notes.
-      if (note.system || note.internal) {
-        continue;
-      }
+    allNotes.push(...notes);
+    if (notes.length < PER_PAGE) break;
+  }
+  return allNotes;
+}
 
-      const username = note.author?.username ?? note.author?.name ?? "";
-
-      await database
-        .insert(activityTable)
-        .values({
-          taskId,
-          type: "comment",
-          content: note.body,
-          externalUserName: username || "Unknown",
-          externalUserAvatar: note.author?.avatar_url ?? null,
-          externalSource: "gitlab",
-          // The notes API has no URL, so link to the anchor on the issue page.
-          externalUrl: `${issue.web_url}#note_${note.id}`,
-          eventData: {
-            externalCommentId: note.id,
-          },
-        })
-        .onConflictDoNothing({
-          target: [
-            activityTable.taskId,
-            activityTable.externalSource,
-            activityTable.externalUrl,
-          ],
-        });
+async function importNotesForTask(
+  issue: GitlabIssue,
+  notes: GitlabNote[],
+  taskId: string,
+  database: IntegrationDatabase,
+): Promise<void> {
+  for (const note of notes) {
+    // Skip system notes (label/state changes) and internal notes.
+    if (note.system || note.internal) {
+      continue;
     }
 
-    if (notes.length < PER_PAGE) break;
+    const username = note.author?.username ?? note.author?.name ?? "";
+
+    await database
+      .insert(activityTable)
+      .values({
+        taskId,
+        type: "comment",
+        content: note.body,
+        externalUserName: username || "Unknown",
+        externalUserAvatar: note.author?.avatar_url ?? null,
+        externalSource: "gitlab",
+        // The notes API has no URL, so link to the anchor on the issue page.
+        externalUrl: `${issue.web_url}#note_${note.id}`,
+        eventData: {
+          externalCommentId: note.id,
+        },
+      })
+      .onConflictDoNothing({
+        target: [
+          activityTable.taskId,
+          activityTable.externalSource,
+          activityTable.externalUrl,
+        ],
+      });
   }
 }
 
