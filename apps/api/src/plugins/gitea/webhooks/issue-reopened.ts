@@ -1,4 +1,10 @@
-import { isOutboundEcho, type SyncStamp } from "../../github/utils/sync-echo";
+import type { GiteaConfig } from "../config";
+import { createGiteaClient } from "../utils/gitea-api";
+import { parseLinkMetadata } from "../../github/utils/parse-link-metadata";
+import {
+  confirmedOutboundEcho,
+  type SyncStamp,
+} from "../../github/utils/sync-echo";
 import {
   linkedTaskScope,
   withIntegrationTask,
@@ -71,6 +77,25 @@ export async function handleGiteaIssueReopened(
         continue;
       }
 
+      const metadata = parseLinkMetadata<{ lastSync?: { state?: SyncStamp } }>(
+        externalLink.metadata,
+        { externalLinkId: externalLink.id, source: "gitea_issue_reopened" },
+      );
+      const stateEcho = await confirmedOutboundEcho(
+        metadata.lastSync?.state,
+        "open",
+        issue.updated_at,
+        async () => {
+          const config = JSON.parse(integration.config) as GiteaConfig;
+          return (
+            await createGiteaClient(config).getIssue(
+              config.repositoryOwner,
+              config.repositoryName,
+              issue.number,
+            )
+          ).state;
+        },
+      );
       await withIntegrationTask(
         externalLink.taskId,
         integration,
@@ -101,11 +126,7 @@ export async function handleGiteaIssueReopened(
               );
             }
           }
-
-          const stateStamp = (
-            existingMetadata.lastSync as { state?: SyncStamp } | undefined
-          )?.state;
-          if (isOutboundEcho(stateStamp, "open", issue.updated_at)) return;
+          if (stateEcho) return;
           const lastOutbound = existingMetadata.lastOutboundStateSyncAt;
           if (
             typeof lastOutbound === "number" &&

@@ -94,10 +94,13 @@ export async function handleGiteaIssueEdited(
     const descriptionEcho = changes.body
       ? await confirmedOutboundEcho(
           echoMetadata.lastSync?.description,
-          formatTaskDescriptionFromIssue(issue.body),
+          formatTaskDescriptionFromIssue(issue.body, externalLink.taskId),
           issue.updated_at,
           async () =>
-            formatTaskDescriptionFromIssue((await currentIssue()).body ?? null),
+            formatTaskDescriptionFromIssue(
+              (await currentIssue()).body ?? null,
+              externalLink.taskId,
+            ),
         )
       : false;
 
@@ -145,7 +148,10 @@ export async function handleGiteaIssueEdited(
 
       if (changes.body) {
         const lastDescSync = metadata.lastSync?.description;
-        const formattedDescription = formatTaskDescriptionFromIssue(issue.body);
+        const formattedDescription = formatTaskDescriptionFromIssue(
+          issue.body,
+          externalLink.taskId,
+        );
 
         let shouldUpdateDescription = true;
 

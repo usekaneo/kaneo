@@ -269,3 +269,38 @@ it("accepts a legitimate remote edit matching a historical outbound value within
   });
   expect(m.getIssue).toHaveBeenCalledTimes(1);
 });
+
+it("ignores the linked task footer when detecting a description echo", async () => {
+  await handleGiteaIssueEdited({
+    ...payload,
+    changes: { body: { from: "Old" } },
+    issue: {
+      ...payload.issue,
+      body: "Local description\n\n---\n<sub>Task: task</sub>",
+    },
+  });
+  expect(m.writes).not.toHaveBeenCalled();
+});
+it("accepts a same-timestamp remote close matching historical outbound state", async () => {
+  const { handleGiteaIssueClosed } =
+    await import("../../../../apps/api/src/plugins/gitea/webhooks/issue-closed");
+  const stamp = "2026-01-01T00:00:00Z";
+  m.metadata = JSON.stringify({
+    state: "open",
+    lastSync: {
+      state: outboundStamp(
+        outboundStamp(undefined, "closed", stamp),
+        "open",
+        stamp,
+      ),
+    },
+  });
+  m.getIssue.mockResolvedValue({ state: "closed" });
+  m.status.mockResolvedValue({ applied: false });
+  await handleGiteaIssueClosed({
+    ...payload,
+    action: "closed",
+    issue: { ...payload.issue, state: "closed", updated_at: stamp },
+  });
+  expect(m.status).toHaveBeenCalled();
+});
