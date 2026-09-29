@@ -797,15 +797,6 @@ export function createApp() {
     "/ws/user",
     upgradeWebSocket(async (c) => {
       assertWebSocketOrigin(c.req.raw.headers);
-      try {
-        await authenticateApiRequest(c);
-      } catch (error) {
-        if (error instanceof HTTPException) {
-          throw error;
-        }
-        console.error("API authentication failed:", error);
-        throw new HTTPException(500, { message: "Internal Server Error" });
-      }
 
       const userId = c.get("userId");
       let conn: ReturnType<typeof addUserConnection> | null = null;
@@ -831,16 +822,6 @@ export function createApp() {
     upgradeWebSocket(async (c) => {
       assertWebSocketOrigin(c.req.raw.headers);
       const projectId = c.req.param("projectId");
-
-      try {
-        await authenticateApiRequest(c);
-      } catch (error) {
-        if (error instanceof HTTPException) {
-          throw error;
-        }
-        console.error("API authentication failed:", error);
-        throw new HTTPException(500, { message: "Internal Server Error" });
-      }
 
       const userId = c.get("userId");
 

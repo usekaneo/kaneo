@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vite-plus/test";
+import { auth } from "../../apps/api/src/auth";
 import db, { schema } from "../../apps/api/src/database";
 import { verifyApiKey } from "../../apps/api/src/utils/verify-api-key";
 import { resetTestDatabase } from "./helpers/database";
@@ -83,4 +84,19 @@ it("charges an auth request once when the identity guard precedes Better Auth", 
     .from(schema.apikeyTable)
     .where(eq(schema.apikeyTable.id, row.id));
   expect(saved.remaining).toBe(0);
+});
+
+it("creates normal API keys with the configured 100-per-minute limit", async () => {
+  const { user } = await createWorkspaceMember();
+  const created = await auth.api.createApiKey({
+    body: { userId: user.id, name: "default limits" },
+  });
+  const [saved] = await db
+    .select()
+    .from(schema.apikeyTable)
+    .where(eq(schema.apikeyTable.id, created.id));
+  expect(saved.rateLimitMax).toBe(100);
+  expect(saved.rateLimitTimeWindow).toBe(60_000);
+  for (let i = 0; i < 11; i++)
+    expect(await verifyApiKey(created.key)).not.toBeNull();
 });
