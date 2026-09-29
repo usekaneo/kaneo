@@ -23,5 +23,6 @@ jobs:
       - name: Label and comment on flagged PRs
         uses: MatteoGabriele/agentscan-action@c7d61446e7aece6bdd3edcee4558bbfc0392615e
         with:
+          github-token: ${{ github.token }}
           mode: full
           auto-close: false
