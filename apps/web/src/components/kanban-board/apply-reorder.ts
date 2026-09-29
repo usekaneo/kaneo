@@ -7,6 +7,13 @@ export function applyBoardReorder(
 ): ProjectWithTasks {
   const changes = new Map(tasks.map((task) => [task.id, task]));
   return produce(project, (draft) => {
+    for (const bucket of [draft.plannedTasks, draft.archivedTasks]) {
+      for (const task of bucket) {
+        const change = changes.get(task.id);
+        if (change) task.position = change.position;
+      }
+      bucket.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+    }
     const moved: Array<{
       task: (typeof draft.columns)[number]["tasks"][number];
       slug: string;

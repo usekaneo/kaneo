@@ -119,3 +119,23 @@ it("preserves a newer remote order instead of rolling it back", () => {
     .find((task) => task.id === "a")!.position = 99;
   expect(rollbackBoardReorder(current, previous, moved.tasks)).toBeNull();
 });
+
+it("patches and sorts planned and archived task reorders", () => {
+  const project = board();
+  project.plannedTasks = [
+    { id: "p1", status: "planned", position: 0 },
+    { id: "p2", status: "planned", position: 1 },
+  ] as typeof project.plannedTasks;
+  project.archivedTasks = [
+    { id: "a1", status: "archived", position: 0 },
+    { id: "a2", status: "archived", position: 1 },
+  ] as typeof project.archivedTasks;
+  const updated = applyBoardReorder(project, [
+    { id: "p1", position: 1 },
+    { id: "p2", position: 0 },
+    { id: "a1", position: 1 },
+    { id: "a2", position: 0 },
+  ]);
+  expect(updated.plannedTasks.map((task) => task.id)).toEqual(["p2", "p1"]);
+  expect(updated.archivedTasks.map((task) => task.id)).toEqual(["a2", "a1"]);
+});
