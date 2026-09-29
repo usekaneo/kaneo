@@ -65,12 +65,10 @@ async function migrateProject(projectId: string, pending: Set<string>) {
     const legacy = projectColumns.length === 0;
     // Existing columns are the durable evidence of the old migration. Without
     // this inference the first upgrade would restore rules users already deleted.
-    if (!legacy && pending.size === 0) return true;
     const integrations = await tx.query.integrationTable.findMany({
       where: and(
         eq(integrationTable.projectId, projectId),
         inArray(integrationTable.type, ["github", "gitea"]),
-        legacy ? undefined : inArray(integrationTable.id, [...pending]),
       ),
     });
     if (!legacy && integrations.length === 0) return true;
@@ -99,6 +97,17 @@ async function migrateProject(projectId: string, pending: Set<string>) {
         config = JSON.parse(integration.config);
         if (!config || typeof config !== "object" || Array.isArray(config))
           throw new Error("Invalid legacy configuration");
+        const transitions = config.statusTransitions;
+        if (
+          transitions !== undefined &&
+          (!transitions ||
+            typeof transitions !== "object" ||
+            Array.isArray(transitions) ||
+            Object.values(transitions).some(
+              (value) => typeof value !== "string",
+            ))
+        )
+          throw new Error("Invalid legacy status transitions");
       } catch {
         console.error(
           `Skipping invalid legacy integration config ${integration.id}`,
@@ -110,6 +119,7 @@ async function migrateProject(projectId: string, pending: Set<string>) {
         complete = false;
         continue;
       }
+      if (!legacy && !pending.has(integration.id)) continue;
       const forgeType = integration.type as "github" | "gitea";
       for (const [key, eventType] of Object.entries(EVENT_MAPPING)) {
         const slug = config.statusTransitions?.[key];
