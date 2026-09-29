@@ -43,6 +43,9 @@ export function useProjectWebSocket(projectId: string) {
     let activeSocket: WebSocket | null = null;
     let retries = 0;
     let retryTimeout: ReturnType<typeof setTimeout> | null = null;
+    let healthyTimeout: ReturnType<typeof setTimeout> | null = null;
+    let requestSequence = 0;
+    const parentCountVersions = new Map<string, number>();
     let pingInterval: ReturnType<typeof setInterval> | null = null;
     let fallbackInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -64,11 +67,16 @@ export function useProjectWebSocket(projectId: string) {
         if (disposed || activeSocket !== ws) return;
         needsReconcile = true;
         flushPending();
-        if (fallbackInterval !== null) {
-          clearInterval(fallbackInterval);
-          fallbackInterval = null;
-        }
-        retries = 0; // Reset retries on successful connection
+        if (healthyTimeout !== null) clearTimeout(healthyTimeout);
+        healthyTimeout = setTimeout(() => {
+          healthyTimeout = null;
+          if (disposed || activeSocket !== ws) return;
+          retries = 0;
+          if (fallbackInterval !== null) {
+            clearInterval(fallbackInterval);
+            fallbackInterval = null;
+          }
+        }, WS_PING_INTERVAL_MS);
         // Start keepalive pings to prevent Cloudflare idle timeout (100s)
         clearPing();
         pingInterval = setInterval(() => {
@@ -180,6 +188,7 @@ export function useProjectWebSocket(projectId: string) {
               });
             } else if (message.taskId && message.type !== "COMMENT_UPDATED") {
               const taskId = message.taskId as string;
+              const sequence = ++requestSequence;
               const version = (taskVersions.get(taskId) ?? 0) + 1;
               taskVersions.set(taskId, version);
               markBoardCacheChanged(queryClient, projectId, taskId);
@@ -209,12 +218,21 @@ export function useProjectWebSocket(projectId: string) {
                         boardVersion
                     )
                       return;
+                    const staleOwnCounts =
+                      (parentCountVersions.get(taskId) ?? 0) > sequence;
+                    const { subtaskCounts, ...taskFields } = task;
+                    if (staleOwnCounts)
+                      void queryClient.invalidateQueries({
+                        queryKey: ["tasks", projectId],
+                      });
+                    else parentCountVersions.set(taskId, sequence);
                     queryClient.setQueryData<ProjectWithTasks>(
                       ["tasks", projectId],
                       (board) =>
                         board
                           ? (patchBoardTask(board, taskId, {
-                              ...task,
+                              ...taskFields,
+                              ...(!staleOwnCounts ? { subtaskCounts } : {}),
                               labels,
                               externalLinks: externalLinks.map((link) => ({
                                 ...link,
@@ -229,6 +247,16 @@ export function useProjectWebSocket(projectId: string) {
                           : board,
                     );
                     for (const progress of task.parentSubtaskCounts ?? []) {
+                      if (
+                        (parentCountVersions.get(progress.taskId) ?? 0) >
+                        sequence
+                      ) {
+                        void queryClient.invalidateQueries({
+                          queryKey: ["tasks", projectId],
+                        });
+                        continue;
+                      }
+                      parentCountVersions.set(progress.taskId, sequence);
                       queryClient.setQueryData<ProjectWithTasks>(
                         ["tasks", projectId],
                         (board) =>
@@ -323,6 +351,10 @@ export function useProjectWebSocket(projectId: string) {
       ws.onclose = () => {
         if (disposed || activeSocket !== ws) return;
         clearPing();
+        if (healthyTimeout !== null) {
+          clearTimeout(healthyTimeout);
+          healthyTimeout = null;
+        }
         activeSocket = null;
 
         if (retries < MAX_RETRIES) {
@@ -382,7 +414,9 @@ export function useProjectWebSocket(projectId: string) {
 
     return () => {
       unsubscribe();
+      if (healthyTimeout !== null) clearTimeout(healthyTimeout);
       pendingMessages.clear();
+      if (healthyTimeout !== null) clearTimeout(healthyTimeout);
       disposed = true;
       clearPing();
       if (fallbackInterval !== null) clearInterval(fallbackInterval);

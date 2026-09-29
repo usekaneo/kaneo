@@ -143,6 +143,7 @@ describe("project WebSocket lifecycle", () => {
     const { unmount } = renderHook(() => useProjectWebSocket("project-a"));
     for (let retry = 0; retry < 5; retry++) {
       act(() => {
+        TestSocket.instances.at(-1)?.open();
         TestSocket.instances.at(-1)?.onclose?.();
         vi.advanceTimersByTime(1000 * 2 ** retry);
       });

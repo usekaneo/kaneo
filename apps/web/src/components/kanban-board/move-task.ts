@@ -63,5 +63,14 @@ export function moveBoardTask(
         ? { status: task.status }
         : {}),
     }));
-  return { project: next, tasks };
+  const expectedTasks = project.columns
+    .filter((column) => column.id === source.id || column.id === destination.id)
+    .flatMap((column) =>
+      column.tasks.map((task) => ({
+        id: task.id,
+        position: task.position ?? null,
+        status: task.status,
+      })),
+    );
+  return { project: next, tasks, expectedTasks };
 }

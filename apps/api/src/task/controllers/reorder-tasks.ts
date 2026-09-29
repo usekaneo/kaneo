@@ -12,6 +12,7 @@ export default async function reorderTasks(
   projectId: string,
   tasks: Reorder[],
   userId: string,
+  expectedTasks?: { id: string; position: number | null; status: string }[],
 ) {
   if (new Set(tasks.map((task) => task.id)).size !== tasks.length)
     throw new HTTPException(400, { message: "Task IDs must be unique" });
@@ -33,23 +34,57 @@ export default async function reorderTasks(
     columns.set(status, column?.id ?? null);
   }
   const { before, after } = await db.transaction(async (tx) => {
+    // Serialize reorders before comparing the complete affected-column snapshot.
+    await tx.execute(
+      sql`select pg_advisory_xact_lock(hashtext(${projectId}), hashtext('task-reorder'))`,
+    );
     // Lock all affected cards together; a concurrent move cannot escape the
     // scope check between reading their current state and writing positions.
     const before = await tx
-      .select({ id: taskTable.id, status: taskTable.status })
+      .select({
+        id: taskTable.id,
+        status: taskTable.status,
+        position: taskTable.position,
+      })
       .from(taskTable)
       .where(
         and(
           eq(taskTable.projectId, projectId),
-          inArray(
-            taskTable.id,
-            tasks.map((task) => task.id),
-          ),
+          expectedTasks
+            ? inArray(taskTable.status, [
+                ...new Set([
+                  ...expectedTasks.map((task) => task.status),
+                  ...statuses,
+                ]),
+              ])
+            : inArray(
+                taskTable.id,
+                tasks.map((task) => task.id),
+              ),
         ),
       )
       .orderBy(asc(taskTable.id))
       .for("update");
-    if (before.length !== tasks.length)
+    if (expectedTasks) {
+      const expected = new Map(expectedTasks.map((task) => [task.id, task]));
+      if (
+        expected.size !== expectedTasks.length ||
+        before.length !== expectedTasks.length ||
+        before.some((task) => {
+          const old = expected.get(task.id);
+          return (
+            !old || old.status !== task.status || old.position !== task.position
+          );
+        })
+      )
+        throw new HTTPException(409, {
+          message: "Board changed; refresh before reordering",
+        });
+    }
+    const requestedIds = new Set(tasks.map((task) => task.id));
+    if (
+      before.filter((task) => requestedIds.has(task.id)).length !== tasks.length
+    )
       throw new HTTPException(404, {
         message: "Tasks must belong to the requested project",
       });

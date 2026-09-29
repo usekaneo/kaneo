@@ -20,8 +20,10 @@ export function updateBoardTaskCache(
     expectedVersion ?? getBoardCacheVersion(queryClient, projectId, taskId);
   const queryKey = ["tasks", projectId];
   const apply = () => {
-    if (getBoardCacheVersion(queryClient, projectId, taskId) !== version)
+    if (getBoardCacheVersion(queryClient, projectId, taskId) !== version) {
+      void queryClient.invalidateQueries({ queryKey });
       return;
+    }
     queryClient.setQueryData<ProjectWithTasks>(queryKey, (board) =>
       board
         ? (patchBoardTask(board, taskId, { ...fields, projectId }) ?? board)

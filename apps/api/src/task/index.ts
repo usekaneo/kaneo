@@ -180,7 +180,9 @@ const reorderTasksRoute = createRoute({
     400: errorResponse("Invalid positions or column"),
     403: errorResponse("Missing task:update permission"),
     404: errorResponse("Tasks do not belong to the project"),
-    409: errorResponse("Task moved concurrently"),
+    409: errorResponse(
+      "Board changed or task moved; refresh before reordering",
+    ),
   },
 });
 const createTaskRoute = createRoute({
@@ -739,8 +741,11 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
     return c.json(result, 200);
   })
   .openapi(reorderTasksRoute, async (c) => {
-    const { projectId, tasks } = c.req.valid("json");
-    return c.json(await reorderTasks(projectId, tasks, c.get("userId")), 200);
+    const { projectId, tasks, expectedTasks } = c.req.valid("json");
+    return c.json(
+      await reorderTasks(projectId, tasks, c.get("userId"), expectedTasks),
+      200,
+    );
   })
   .openapi(createTaskRoute, async (c) => {
     const { projectId } = c.req.param();

@@ -198,3 +198,82 @@ it("preserves distinct task effects across pagination and a disconnect before re
     vi.useRealTimers();
   }
 });
+
+it("does not overwrite a parent's newer progress with an older child's response", async () => {
+  let finish!: (value: unknown) => void;
+  mocks.getTask
+    .mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    )
+    .mockResolvedValueOnce({
+      id: "b",
+      projectId: "p",
+      status: "todo",
+      parentSubtaskCounts: [{ taskId: "a", completed: 2, total: 2 }],
+    });
+  renderHook(() => useProjectWebSocket("p"));
+  Socket.current.message("TASK_UPDATED", { taskId: "old-child" });
+  Socket.current.message("TASK_UPDATED", { taskId: "b" });
+  await Promise.resolve();
+  await Promise.resolve();
+  await Promise.resolve();
+  finish({
+    id: "old-child",
+    projectId: "p",
+    status: "todo",
+    parentSubtaskCounts: [{ taskId: "a", completed: 1, total: 2 }],
+  });
+  await Promise.resolve();
+  await Promise.resolve();
+  await Promise.resolve();
+  const task = (
+    mocks.board as {
+      columns: { tasks: { id: string; subtaskCounts?: unknown }[] }[];
+    }
+  ).columns[0].tasks.find((task) => task.id === "a");
+  expect(task?.subtaskCounts).toEqual({ completed: 2, total: 2 });
+  expect(mocks.client.invalidateQueries).toHaveBeenCalledWith({
+    queryKey: ["tasks", "p"],
+  });
+});
+
+it("preserves newer parent progress when an earlier parent refresh finishes last", async () => {
+  let finish!: (value: unknown) => void;
+  mocks.getTask
+    .mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    )
+    .mockResolvedValueOnce({
+      id: "b",
+      projectId: "p",
+      status: "todo",
+      parentSubtaskCounts: [{ taskId: "a", completed: 2, total: 2 }],
+    });
+  renderHook(() => useProjectWebSocket("p"));
+  Socket.current.message("TASK_UPDATED", { taskId: "a" });
+  Socket.current.message("TASK_UPDATED", { taskId: "b" });
+  await Promise.resolve();
+  await Promise.resolve();
+  await Promise.resolve();
+  finish({
+    id: "a",
+    projectId: "p",
+    status: "todo",
+    subtaskCounts: { completed: 1, total: 2 },
+  });
+  await Promise.resolve();
+  await Promise.resolve();
+  await Promise.resolve();
+  const task = (
+    mocks.board as {
+      columns: { tasks: { id: string; subtaskCounts?: unknown }[] }[];
+    }
+  ).columns[0].tasks.find((task) => task.id === "a");
+  expect(task?.subtaskCounts).toEqual({ completed: 2, total: 2 });
+});

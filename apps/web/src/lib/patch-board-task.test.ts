@@ -1,5 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect, it, vi } from "vite-plus/test";
 import type { ProjectWithTasks } from "@/types/project";
 import {
   getBoardCacheVersion,
@@ -92,6 +92,7 @@ it("rejects a late mutation response after a newer socket patch", () => {
   client.setQueryData(["tasks", "p"], board());
   markBoardCacheChanged(client, "p", "a");
   const version = getBoardCacheVersion(client, "p", "a");
+  const invalidate = vi.spyOn(client, "invalidateQueries");
   markBoardCacheChanged(client, "p", "a");
   client.setQueryData(
     ["tasks", "p"],
@@ -102,6 +103,7 @@ it("rejects a late mutation response after a newer socket patch", () => {
     client.getQueryData<ProjectWithTasks>(["tasks", "p"])?.columns[0].tasks[0]
       .title,
   ).toBe("remote");
+  expect(invalidate).toHaveBeenCalledWith({ queryKey: ["tasks", "p"] });
   client.clear();
 });
 it("defers descriptions exceeding the UTF-8 board limit", () => {
