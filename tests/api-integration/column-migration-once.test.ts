@@ -59,14 +59,32 @@ it("preserves missing user-managed default rules on an already migrated project"
 it("skips malformed legacy configuration without blocking startup", async () => {
   const { workspace } = await createWorkspaceMember();
   const { project } = await createProjectFixture({ workspaceId: workspace.id });
-  await db.insert(schema.integrationTable).values({
-    projectId: project.id,
-    type: "gitea",
-    isActive: true,
-    config: "{",
-  });
+  const [integration] = await db
+    .insert(schema.integrationTable)
+    .values({
+      projectId: project.id,
+      type: "gitea",
+      isActive: true,
+      config: "{",
+    })
+    .returning();
   await expect(migrateColumns()).resolves.toBeUndefined();
-  expect(await db.select().from(schema.dataMigrationTable)).toHaveLength(1);
+  expect(await db.select().from(schema.dataMigrationTable)).toEqual([
+    expect.objectContaining({
+      id: `column-workflow-pending:${integration.id}`,
+    }),
+  ]);
+  await db
+    .update(schema.integrationTable)
+    .set({
+      config: JSON.stringify({ statusTransitions: { onPROpen: "to-do" } }),
+    })
+    .where(eq(schema.integrationTable.id, integration.id));
+  await migrateColumns();
+  expect(await db.select().from(schema.workflowRuleTable)).toHaveLength(3);
+  expect(await db.select().from(schema.dataMigrationTable)).toEqual([
+    expect.objectContaining({ id: "column-workflow-v1" }),
+  ]);
 });
 
 it("migrates disabled legacy integrations and does not restore later deletions", async () => {
