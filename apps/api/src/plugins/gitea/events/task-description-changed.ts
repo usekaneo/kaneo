@@ -71,19 +71,6 @@ export async function handleTaskDescriptionChanged(
         console.log("Skipping description sync - already synced from Gitea");
         return;
       }
-
-      const timeSinceLastSync =
-        Date.now() - new Date(lastDescSync.timestamp).getTime();
-      if (
-        timeSinceLastSync < 2000 &&
-        lastDescSync.source === "gitea" &&
-        newDescNormalized === lastDescSync.value
-      ) {
-        console.log(
-          `Skipping description sync - recent sync detected (${timeSinceLastSync}ms ago)`,
-        );
-        return;
-      }
     }
 
     const client = createGiteaClient(config);

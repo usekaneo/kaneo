@@ -68,15 +68,6 @@ export async function handleTaskTitleChanged(
         console.log("Skipping title sync - already synced from Gitea");
         return;
       }
-
-      const timeSinceLastSync =
-        Date.now() - new Date(lastTitleSync.timestamp).getTime();
-      if (lastTitleSync.source === "gitea" && timeSinceLastSync < 2000) {
-        console.log(
-          `Skipping title sync - recent sync detected (${timeSinceLastSync}ms ago)`,
-        );
-        return;
-      }
     }
 
     const client = createGiteaClient(config);

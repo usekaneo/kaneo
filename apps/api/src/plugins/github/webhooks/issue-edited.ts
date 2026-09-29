@@ -109,14 +109,6 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
             console.log("Skipping title update - already synced from Kaneo");
             shouldUpdateTitle = false;
           }
-          const timeSinceLastSync =
-            Date.now() - new Date(lastTitleSync.timestamp ?? 0).getTime();
-          if (timeSinceLastSync < 2000 && shouldUpdateTitle) {
-            console.log(
-              `Skipping title update - recent sync detected (${timeSinceLastSync}ms ago)`,
-            );
-            shouldUpdateTitle = false;
-          }
         }
 
         if (shouldUpdateTitle) {
@@ -148,14 +140,6 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
           ) {
             console.log(
               "Skipping description update - already synced from Kaneo",
-            );
-            shouldUpdateDescription = false;
-          }
-          const timeSinceLastSync =
-            Date.now() - new Date(lastDescSync.timestamp ?? 0).getTime();
-          if (timeSinceLastSync < 2000 && shouldUpdateDescription) {
-            console.log(
-              `Skipping description update - recent sync detected (${timeSinceLastSync}ms ago)`,
             );
             shouldUpdateDescription = false;
           }

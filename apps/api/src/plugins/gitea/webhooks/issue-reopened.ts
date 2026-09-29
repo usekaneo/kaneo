@@ -104,7 +104,8 @@ export async function handleGiteaIssueReopened(
           const lastOutbound = existingMetadata.lastOutboundStateSyncAt;
           if (
             typeof lastOutbound === "number" &&
-            Number.isFinite(lastOutbound)
+            Number.isFinite(lastOutbound) &&
+            existingMetadata.state === "open"
           ) {
             const eventMs = parseIssueUpdatedAtMs(issue);
             if (

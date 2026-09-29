@@ -49,14 +49,6 @@ export async function handleTaskTitleChanged(
       }
 
       // Skip if recent sync (within 2 seconds) to prevent rapid loops
-      const timeSinceLastSync =
-        Date.now() - new Date(lastTitleSync.timestamp).getTime();
-      if (timeSinceLastSync < 2000) {
-        console.log(
-          `Skipping title sync - recent sync detected (${timeSinceLastSync}ms ago)`,
-        );
-        return;
-      }
     }
 
     const octokit = await getVerifiedInstallationOctokit(config);

@@ -97,11 +97,6 @@ export async function handleGiteaIssueEdited(
           ) {
             shouldUpdateTitle = false;
           }
-          const timeSinceLastSync =
-            Date.now() - new Date(lastTitleSync.timestamp).getTime();
-          if (timeSinceLastSync < 2000 && shouldUpdateTitle) {
-            shouldUpdateTitle = false;
-          }
         }
 
         if (shouldUpdateTitle) {
@@ -125,11 +120,6 @@ export async function handleGiteaIssueEdited(
             lastDescSync.value === formattedDescription &&
             lastDescSync.source === "kaneo"
           ) {
-            shouldUpdateDescription = false;
-          }
-          const timeSinceLastSync =
-            Date.now() - new Date(lastDescSync.timestamp).getTime();
-          if (timeSinceLastSync < 2000 && shouldUpdateDescription) {
             shouldUpdateDescription = false;
           }
         }
