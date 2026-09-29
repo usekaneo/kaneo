@@ -3,7 +3,7 @@ import type { ProjectWithTasks } from "@/types/project";
 
 export function applyBoardReorder(
   project: ProjectWithTasks,
-  tasks: Array<{ id: string; position: number; status?: string }>,
+  tasks: Array<{ id: string; position: number | null; status?: string }>,
 ): ProjectWithTasks {
   const changes = new Map(tasks.map((task) => [task.id, task]));
   return produce(project, (draft) => {
@@ -35,4 +35,45 @@ export function applyBoardReorder(
     for (const column of draft.columns)
       column.tasks.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
   });
+}
+
+export function rollbackBoardReorder(
+  current: ProjectWithTasks,
+  previous: ProjectWithTasks,
+  tasks: Array<{ id: string; position: number; status?: string }>,
+) {
+  const prior = new Map(
+    previous.columns
+      .flatMap((column) => column.tasks)
+      .map((task) => [task.id, task]),
+  );
+  const cards = new Map(
+    current.columns
+      .flatMap((column) => column.tasks)
+      .map((task) => [task.id, task]),
+  );
+  if (
+    !tasks.every(
+      (change) =>
+        cards.get(change.id)?.position === change.position &&
+        cards.get(change.id)?.status ===
+          (change.status ?? prior.get(change.id)?.status),
+    )
+  )
+    return null;
+  return applyBoardReorder(
+    current,
+    tasks.flatMap((change) => {
+      const task = prior.get(change.id);
+      return task
+        ? [
+            {
+              id: task.id,
+              position: task.position ?? null,
+              status: task.status,
+            },
+          ]
+        : [];
+    }),
+  );
 }

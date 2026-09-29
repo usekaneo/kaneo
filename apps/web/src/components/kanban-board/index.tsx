@@ -16,9 +16,10 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
-import reorderTasks from "@/fetchers/task/reorder-tasks";
+import reorderTasks, { type TaskReorder } from "@/fetchers/task/reorder-tasks";
 import { toast } from "@/lib/toast";
 import { useTranslation } from "react-i18next";
+import { rollbackBoardReorder } from "./apply-reorder";
 import { moveBoardTask } from "./move-task";
 import { useEffect, useState } from "react";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
@@ -55,7 +56,12 @@ function KanbanBoard({
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const { t } = useTranslation();
   const { mutate: reorder, isPending: isReordering } = useMutation({
-    mutationFn: reorderTasks,
+    mutationFn: ({
+      previousBoard: _previousBoard,
+      ...request
+    }: TaskReorder & { previousBoard: ProjectWithTasks }) =>
+      reorderTasks(request),
+    onMutate: (variables) => ({ previousBoard: variables.previousBoard }),
     onSuccess: (_result, variables) => {
       void queryClient.invalidateQueries({
         queryKey: ["tasks", variables.projectId],
@@ -63,7 +69,22 @@ function KanbanBoard({
       for (const task of variables.tasks)
         void queryClient.invalidateQueries({ queryKey: ["task", task.id] });
     },
-    onError: () => {
+    onError: (_error, variables, context) => {
+      const previous = context?.previousBoard;
+      if (previous) {
+        const current = queryClient.getQueryData<ProjectWithTasks>([
+          "tasks",
+          variables.projectId,
+        ]);
+        const restored = current
+          ? rollbackBoardReorder(current, previous, variables.tasks)
+          : null;
+        if (restored) {
+          queryClient.setQueryData(["tasks", variables.projectId], restored);
+          if (useProjectStore.getState().project?.id === variables.projectId)
+            setProject(restored);
+        }
+      }
       toast.error(t("tasks:board.reorderFailed"));
       void queryClient.invalidateQueries({ queryKey: ["tasks", project.id] });
     },
@@ -179,6 +200,7 @@ function KanbanBoard({
       projectId: project.id,
       tasks: moved.tasks,
       expectedTasks: moved.expectedTasks,
+      previousBoard: canonical,
     });
   };
 

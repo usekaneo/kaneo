@@ -17,7 +17,7 @@ async function updateTaskStatus({
   const { before: existingTask, after: updatedTask } = await withLockedTask(
     id,
     async (tx, existingTask) => {
-      await assertValidTaskStatus(status, existingTask.projectId);
+      await assertValidTaskStatus(status, existingTask.projectId, tx);
 
       const column = await tx.query.columnTable.findFirst({
         where: and(

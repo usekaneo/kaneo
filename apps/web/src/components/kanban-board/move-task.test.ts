@@ -1,4 +1,4 @@
-import { applyBoardReorder } from "./apply-reorder";
+import { applyBoardReorder, rollbackBoardReorder } from "./apply-reorder";
 import { describe, expect, it } from "vite-plus/test";
 import type { ProjectWithTasks } from "@/types/project";
 import { moveBoardTask } from "./move-task";
@@ -90,4 +90,32 @@ it("patches a remote reorder without removing hidden cards or replacing concurre
   expect(updated.columns[1].tasks.map((task) => task.id)).toEqual(["c", "a"]);
   expect(updated.columns[1].tasks[1].title).toBe("concurrent title");
   expect(current.columns[0].tasks).toHaveLength(3);
+});
+
+it("rolls back a failed drag while preserving a newer title edit", () => {
+  const previous = board();
+  const moved = moveBoardTask(previous, "a", "doing")!;
+  const current = structuredClone(moved.project);
+  const card = current.columns
+    .flatMap((column) => column.tasks)
+    .find((task) => task.id === "a")!;
+  card.title = "new title";
+  const restored = rollbackBoardReorder(current, previous, moved.tasks)!;
+  expect(
+    restored.columns[0].tasks.find((task) => task.id === "a"),
+  ).toMatchObject({
+    title: "new title",
+    status: "todo",
+    position: previous.columns[0].tasks.find((task) => task.id === "a")!
+      .position,
+  });
+});
+it("preserves a newer remote order instead of rolling it back", () => {
+  const previous = board();
+  const moved = moveBoardTask(previous, "a", "doing")!;
+  const current = structuredClone(moved.project);
+  current.columns
+    .flatMap((column) => column.tasks)
+    .find((task) => task.id === "a")!.position = 99;
+  expect(rollbackBoardReorder(current, previous, moved.tasks)).toBeNull();
 });
