@@ -1,4 +1,3 @@
-import { outboundStamp } from "../../github/utils/sync-echo";
 import {
   findExternalLinksByTask,
   updateExternalLink,
@@ -31,7 +30,6 @@ export async function handleTaskStatusChanged(
       return;
     }
 
-    const metadata = issueLink.metadata ? JSON.parse(issueLink.metadata) : {};
     const client = createGiteaClient(config);
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
 
@@ -52,19 +50,12 @@ export async function handleTaskStatusChanged(
       );
 
       await updateExternalLink(issueLink.id, {
-        metadata: {
-          ...(issueLink.metadata ? JSON.parse(issueLink.metadata) : {}),
-          state: "closed",
-          lastSync: {
-            ...metadata.lastSync,
-            state: outboundStamp(
-              metadata.lastSync?.state,
-              "closed",
-              response?.updated_at,
-            ),
-          },
-          lastOutboundStateSyncAt: Date.now(),
+        outbound: {
+          field: "state",
+          value: "closed",
+          updatedAt: response?.updated_at,
         },
+        metadata: { state: "closed", lastOutboundStateSyncAt: Date.now() },
       });
     } else if (event.oldStatus === "done" && event.newStatus !== "done") {
       const response = await client.updateIssue(
@@ -77,19 +68,12 @@ export async function handleTaskStatusChanged(
       );
 
       await updateExternalLink(issueLink.id, {
-        metadata: {
-          ...(issueLink.metadata ? JSON.parse(issueLink.metadata) : {}),
-          state: "open",
-          lastSync: {
-            ...metadata.lastSync,
-            state: outboundStamp(
-              metadata.lastSync?.state,
-              "open",
-              response?.updated_at,
-            ),
-          },
-          lastOutboundStateSyncAt: Date.now(),
+        outbound: {
+          field: "state",
+          value: "open",
+          updatedAt: response?.updated_at,
         },
+        metadata: { state: "open", lastOutboundStateSyncAt: Date.now() },
       });
     }
   } catch (error) {

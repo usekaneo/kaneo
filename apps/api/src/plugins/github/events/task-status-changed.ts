@@ -55,7 +55,7 @@ export async function handleTaskStatusChanged(
     );
 
     if (event.newStatus === "done") {
-      await octokit.rest.issues.update({
+      const response = await octokit.rest.issues.update({
         owner: repositoryOwner,
         repo: repositoryName,
         issue_number: issueNumber,
@@ -63,13 +63,15 @@ export async function handleTaskStatusChanged(
       });
 
       await updateExternalLink(issueLink.id, {
-        metadata: {
-          ...(issueLink.metadata ? JSON.parse(issueLink.metadata) : {}),
-          state: "closed",
+        outbound: {
+          field: "state",
+          value: "closed",
+          updatedAt: response?.data?.updated_at,
         },
+        metadata: { state: "closed" },
       });
     } else if (event.oldStatus === "done" && event.newStatus !== "done") {
-      await octokit.rest.issues.update({
+      const response = await octokit.rest.issues.update({
         owner: repositoryOwner,
         repo: repositoryName,
         issue_number: issueNumber,
@@ -77,10 +79,12 @@ export async function handleTaskStatusChanged(
       });
 
       await updateExternalLink(issueLink.id, {
-        metadata: {
-          ...(issueLink.metadata ? JSON.parse(issueLink.metadata) : {}),
-          state: "open",
+        outbound: {
+          field: "state",
+          value: "open",
+          updatedAt: response?.data?.updated_at,
         },
+        metadata: { state: "open" },
       });
     }
   } catch (error) {

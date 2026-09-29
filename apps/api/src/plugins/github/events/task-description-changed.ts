@@ -1,6 +1,5 @@
 import db from "../../../database";
 import { linkedTaskScope } from "../services/integration-task-scope";
-import { outboundStamp } from "../utils/sync-echo";
 import type { PluginContext, TaskDescriptionChangedEvent } from "../../types";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
 import {
@@ -80,16 +79,10 @@ export async function handleTaskDescriptionChanged(
 
     // Update metadata to track this sync
     await updateExternalLink(issueLink.id, {
-      metadata: {
-        ...metadata,
-        lastSync: {
-          ...metadata.lastSync,
-          description: outboundStamp(
-            metadata.lastSync?.description,
-            newDescNormalized,
-            response?.data?.updated_at,
-          ),
-        },
+      outbound: {
+        field: "description",
+        value: newDescNormalized,
+        updatedAt: response?.data?.updated_at,
       },
     });
 

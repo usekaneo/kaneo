@@ -381,3 +381,39 @@ it("preserves legacy links belonging to the destination integration when moving 
   });
   expect(await db.query.externalLinkTable.findMany()).toEqual([compatible]);
 });
+
+it("preserves outbound history and unrelated fields across concurrent sync completions", async () => {
+  const { updateExternalLink } =
+    await import("../../apps/api/src/plugins/github/services/link-manager");
+  const { isOutboundEcho } =
+    await import("../../apps/api/src/plugins/github/utils/sync-echo");
+  const { link } = await setup();
+  await db
+    .update(schema.externalLinkTable)
+    .set({ metadata: JSON.stringify({ remoteMarker: "keep" }) })
+    .where(eq(schema.externalLinkTable.id, link.id));
+  await Promise.all(
+    Array.from({ length: 12 }, (_, i) =>
+      updateExternalLink(link.id, {
+        outbound: {
+          field: i % 2 ? "description" : "title",
+          value: `edit-${i}`,
+          updatedAt: `time-${i}`,
+        },
+      }),
+    ),
+  );
+  const saved = await db.query.externalLinkTable.findFirst({
+    where: eq(schema.externalLinkTable.id, link.id),
+  });
+  const metadata = JSON.parse(saved!.metadata!);
+  expect(metadata.remoteMarker).toBe("keep");
+  for (let i = 0; i < 12; i++)
+    expect(
+      isOutboundEcho(
+        metadata.lastSync[i % 2 ? "description" : "title"],
+        `edit-${i}`,
+        `time-${i}`,
+      ),
+    ).toBe(true);
+});

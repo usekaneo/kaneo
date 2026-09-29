@@ -1,3 +1,4 @@
+import { outboundStamp, type SyncStamp } from "../utils/sync-echo";
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import {
@@ -21,6 +22,11 @@ export type CreateExternalLinkParams = {
 };
 
 export type UpdateExternalLinkParams = {
+  outbound?: {
+    field: "title" | "description" | "state";
+    value: string;
+    updatedAt?: string;
+  };
   title?: string | null;
   url?: string;
   metadata?: Record<string, unknown>;
@@ -116,6 +122,40 @@ export async function updateExternalLink(
   params: UpdateExternalLinkParams,
   database: DbOrTx = db,
 ) {
+  if (params.outbound) {
+    await db.transaction(async (tx) => {
+      const [link] = await tx
+        .select({ metadata: externalLinkTable.metadata })
+        .from(externalLinkTable)
+        .where(eq(externalLinkTable.id, id))
+        .for("update");
+      if (!link) return;
+      const metadata = (link.metadata ? JSON.parse(link.metadata) : {}) as {
+        lastSync?: Record<string, SyncStamp>;
+      };
+      const { field, value, updatedAt } = params.outbound!;
+      await tx
+        .update(externalLinkTable)
+        .set({
+          ...(params.title !== undefined ? { title: params.title } : {}),
+          ...(params.url !== undefined ? { url: params.url } : {}),
+          metadata: JSON.stringify({
+            ...metadata,
+            ...params.metadata,
+            lastSync: {
+              ...metadata.lastSync,
+              [field]: outboundStamp(
+                metadata.lastSync?.[field],
+                value,
+                updatedAt,
+              ),
+            },
+          }),
+        })
+        .where(eq(externalLinkTable.id, id));
+    });
+    return;
+  }
   const updateData: Record<string, unknown> = {};
 
   if (params.title !== undefined) {

@@ -1,6 +1,5 @@
 import db from "../../../database";
 import { linkedTaskScope } from "../../github/services/integration-task-scope";
-import { outboundStamp } from "../../github/utils/sync-echo";
 import {
   findExternalLinksByTask,
   updateExternalLink,
@@ -97,16 +96,10 @@ export async function handleTaskTitleChanged(
 
     await updateExternalLink(issueLink.id, {
       title: event.newTitle,
-      metadata: {
-        ...metadata,
-        lastSync: {
-          ...metadata.lastSync,
-          title: outboundStamp(
-            metadata.lastSync?.title,
-            event.newTitle,
-            response?.updated_at,
-          ),
-        },
+      outbound: {
+        field: "title",
+        value: event.newTitle,
+        updatedAt: response?.updated_at,
       },
     });
 
