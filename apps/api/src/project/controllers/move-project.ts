@@ -214,6 +214,7 @@ async function moveProject(
               .from(taskTable)
               .where(eq(taskTable.projectId, id)),
           ),
+          isNotNull(externalLinkTable.integrationId),
           notInArray(
             externalLinkTable.integrationId,
             tx
