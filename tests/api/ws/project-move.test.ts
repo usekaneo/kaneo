@@ -13,18 +13,24 @@ import {
   closeProjectConnections,
   initializeWebSocketAdapter,
   removeConnection,
+  revokeWorkspaceConnections,
   shutdownWebSocketAdapter,
 } from "../../../apps/api/src/ws";
 
 const m = vi.hoisted(() => ({
   lookup: vi.fn(),
+  members: vi.fn(),
   redis: false,
   publish: vi.fn(),
   on: vi.fn(),
 }));
 vi.mock("../../../apps/api/src/database", () => ({
   default: {
-    select: () => ({ from: () => ({ where: () => ({ limit: m.lookup }) }) }),
+    select: (fields: Record<string, unknown>) => ({
+      from: () => ({
+        where: () => (fields.userId ? m.members() : { limit: m.lookup }),
+      }),
+    }),
   },
 }));
 vi.mock("../../../apps/api/src/events", () => ({ subscribeToEvent: vi.fn() }));
@@ -61,6 +67,7 @@ const update = {
 };
 beforeEach(() => {
   m.redis = false;
+  m.members.mockResolvedValue([{ userId: "user" }]);
   m.lookup.mockResolvedValue([{ workspaceId: "old" }]);
   m.publish.mockResolvedValue(1);
 });
@@ -148,5 +155,45 @@ describe("project move revocation", () => {
     m.publish.mockRejectedValueOnce(new Error("Redis unavailable"));
     await expect(closeProjectConnections("project")).resolves.toBeUndefined();
     expect(old.close).toHaveBeenCalled();
+  });
+});
+
+describe("workspace membership revocation", () => {
+  it("stops broadcasts after membership removal even when fan-out was missed", async () => {
+    vi.useFakeTimers();
+    await initializeWebSocketAdapter();
+    const ws = connect();
+    m.members.mockResolvedValue([]);
+    broadcastToProject("project", update);
+    await vi.advanceTimersByTimeAsync(100);
+    expect(ws.send).not.toHaveBeenCalled();
+    expect(ws.close).toHaveBeenCalledWith(1008, "Workspace access revoked");
+  });
+  it("closes only the removed member's workspace subscriptions", async () => {
+    await initializeWebSocketAdapter();
+    const removed = connect();
+    const unrelated = connect("other-project", "other-workspace");
+    await revokeWorkspaceConnections("user", "old");
+    expect(removed.close).toHaveBeenCalledWith(
+      1008,
+      "Workspace access revoked",
+    );
+    expect(unrelated.close).not.toHaveBeenCalled();
+  });
+  it("revokes remote subscriptions through the user Redis channel", async () => {
+    m.redis = true;
+    await initializeWebSocketAdapter();
+    const ws = connect();
+    const handler = m.on.mock.calls[1][1];
+    handler(
+      "kaneo:ws-user:*:broadcast",
+      "kaneo:ws-user:user:broadcast",
+      JSON.stringify({
+        userId: "user",
+        origin: "remote-instance",
+        message: { type: "WORKSPACE_ACCESS_REVOKED", workspaceId: "old" },
+      }),
+    );
+    expect(ws.close).toHaveBeenCalledWith(1008, "Workspace access revoked");
   });
 });

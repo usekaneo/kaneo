@@ -1,3 +1,4 @@
+import { revokeWorkspaceConnections } from "./ws";
 import { apiKey } from "@better-auth/api-key";
 import {
   isSmtpConfigured,
@@ -502,6 +503,10 @@ export const auth = betterAuth({
         },
         afterRemoveMember: async ({ member }) => {
           if (member?.organizationId) {
+            await revokeWorkspaceConnections(
+              member.userId,
+              member.organizationId,
+            );
             void syncWorkspaceSeats(member.organizationId).catch((error) => {
               console.error("Seat sync after member remove failed:", error);
             });

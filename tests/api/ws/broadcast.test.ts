@@ -222,9 +222,16 @@ describe("broadcastToProject", () => {
 
 vi.mock("../../../apps/api/src/database", () => ({
   default: {
-    select: () => ({
+    select: (fields: Record<string, unknown>) => ({
       from: () => ({
-        where: () => ({ limit: async () => [{ workspaceId: "workspace" }] }),
+        where: () =>
+          fields.userId
+            ? Promise.resolve([
+                { userId: "user-1" },
+                { userId: "user-2" },
+                { userId: "user" },
+              ])
+            : { limit: async () => [{ workspaceId: "workspace" }] },
       }),
     }),
   },

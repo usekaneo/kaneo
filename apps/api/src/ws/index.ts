@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import type { WSContext } from "hono/ws";
 import db from "../database";
-import { projectTable } from "../database/schema";
+import { projectTable, workspaceUserTable } from "../database/schema";
 import { subscribeToEvent } from "../events";
 import { isRedisConfigured } from "../redis";
 import {
@@ -75,6 +75,13 @@ function deliverToLocalUserConnections(
   userId: string,
   message: UserBroadcastMessage,
 ) {
+  if (
+    message.type === "WORKSPACE_ACCESS_REVOKED" &&
+    typeof message.workspaceId === "string"
+  ) {
+    revokeLocalWorkspaceConnections(userId, message.workspaceId);
+    return;
+  }
   const connections = userConnections.get(userId);
   if (!connections) return;
 
@@ -201,6 +208,37 @@ export async function closeProjectConnections(projectId: string) {
   }
 }
 
+function revokeLocalWorkspaceConnections(userId: string, workspaceId: string) {
+  for (const [projectId, connections] of projectConnections) {
+    for (const conn of [...connections]) {
+      if (conn.userId !== userId || conn.workspaceId !== workspaceId) continue;
+      removeConnection(projectId, conn);
+      try {
+        conn.ws.close(1008, "Workspace access revoked");
+      } catch {
+        /* Already closed. */
+      }
+    }
+  }
+}
+
+export async function revokeWorkspaceConnections(
+  userId: string,
+  workspaceId: string,
+) {
+  revokeLocalWorkspaceConnections(userId, workspaceId);
+  try {
+    await adapter?.publishToUser({
+      userId,
+      message: { type: "WORKSPACE_ACCESS_REVOKED", workspaceId },
+      origin: INSTANCE_ID,
+    });
+  } catch (error) {
+    // Every delivery rechecks membership if a revocation message is lost.
+    console.error("Failed to publish workspace revocation:", error);
+  }
+}
+
 const workspaceLookups = new Map<string, Promise<string | null>>();
 function currentProjectWorkspace(projectId: string) {
   let pending = workspaceLookups.get(projectId);
@@ -236,14 +274,38 @@ async function deliverToLocalConnections(
     console.error("Failed to validate project broadcast access:", error);
     workspaceId = null;
   }
+  let members = new Set<string>();
+  if (workspaceId) {
+    try {
+      const rows = await db
+        .select({ userId: workspaceUserTable.userId })
+        .from(workspaceUserTable)
+        .where(
+          and(
+            eq(workspaceUserTable.workspaceId, workspaceId),
+            inArray(workspaceUserTable.userId, [
+              ...new Set(recipients.map((conn) => conn.userId)),
+            ]),
+          ),
+        );
+      members = new Set(rows.map((row) => row.userId));
+    } catch (error) {
+      console.error("Failed to validate broadcast membership:", error);
+    }
+  }
   const payload = JSON.stringify(message);
   for (const conn of recipients) {
     // A move may have closed these connections while the lookup was in flight.
     if (!projectConnections.get(projectId)?.has(conn)) continue;
-    if (conn.workspaceId !== workspaceId) {
+    if (conn.workspaceId !== workspaceId || !members.has(conn.userId)) {
       removeConnection(projectId, conn);
       try {
-        conn.ws.close(1008, "Project workspace changed");
+        conn.ws.close(
+          1008,
+          conn.workspaceId !== workspaceId
+            ? "Project workspace changed"
+            : "Workspace access revoked",
+        );
       } catch {
         /* Already closed. */
       }
