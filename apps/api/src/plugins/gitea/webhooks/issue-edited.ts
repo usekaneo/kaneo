@@ -1,4 +1,6 @@
-import { isOutboundEcho } from "../../github/utils/sync-echo";
+import type { GiteaConfig } from "../config";
+import { createGiteaClient } from "../utils/gitea-api";
+import { confirmedOutboundEcho } from "../../github/utils/sync-echo";
 import {
   linkedTaskScope,
   withIntegrationTask,
@@ -67,6 +69,38 @@ export async function handleGiteaIssueEdited(
       continue;
     }
 
+    const echoMetadata = externalLink.metadata
+      ? JSON.parse(externalLink.metadata)
+      : {};
+    const fetchCurrentIssue = async () => {
+      const config = JSON.parse(integration.config) as GiteaConfig;
+      return createGiteaClient(config).getIssue(
+        config.repositoryOwner,
+        config.repositoryName,
+        issue.number,
+      );
+    };
+    let current: ReturnType<typeof fetchCurrentIssue> | undefined;
+    const currentIssue = () => (current ??= fetchCurrentIssue());
+    // Read the provider before taking task/project locks.
+    const titleEcho = changes.title
+      ? await confirmedOutboundEcho(
+          echoMetadata.lastSync?.title,
+          issue.title,
+          issue.updated_at,
+          async () => (await currentIssue()).title,
+        )
+      : false;
+    const descriptionEcho = changes.body
+      ? await confirmedOutboundEcho(
+          echoMetadata.lastSync?.description,
+          formatTaskDescriptionFromIssue(issue.body),
+          issue.updated_at,
+          async () =>
+            formatTaskDescriptionFromIssue((await currentIssue()).body ?? null),
+        )
+      : false;
+
     await withIntegrationTask(externalLink.taskId, integration, async (db) => {
       const task = await db.query.taskTable.findFirst({
         where: linkedTaskScope(externalLink.taskId, integration.projectId),
@@ -93,7 +127,7 @@ export async function handleGiteaIssueEdited(
         let shouldUpdateTitle = true;
 
         if (lastTitleSync) {
-          if (isOutboundEcho(lastTitleSync, issue.title, issue.updated_at)) {
+          if (titleEcho) {
             shouldUpdateTitle = false;
           }
         }
@@ -116,9 +150,7 @@ export async function handleGiteaIssueEdited(
         let shouldUpdateDescription = true;
 
         if (lastDescSync) {
-          if (
-            isOutboundEcho(lastDescSync, formattedDescription, issue.updated_at)
-          ) {
+          if (descriptionEcho) {
             shouldUpdateDescription = false;
           }
         }

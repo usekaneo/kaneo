@@ -55,3 +55,15 @@ export function isOutboundEcho(
     entries.length === 0 && stamp.source === "kaneo" && stamp.value === value
   );
 }
+
+/** Provider timestamps can collide; historical values need current-provider confirmation. */
+export async function confirmedOutboundEcho(
+  stamp: SyncStamp | undefined,
+  value: string,
+  updatedAt: string | undefined,
+  readCurrent: () => Promise<string>,
+) {
+  if (!isOutboundEcho(stamp, value, updatedAt)) return false;
+  if (stamp?.value === value) return true;
+  return (await readCurrent()) !== value;
+}

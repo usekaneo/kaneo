@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { handleGiteaIssueEdited } from "../../../../apps/api/src/plugins/gitea/webhooks/issue-edited";
 const m = vi.hoisted(() => ({
   metadata: "",
+  getIssue: vi.fn(),
   status: vi.fn(),
   writes: vi.fn(),
   linkWrites: vi.fn(),
@@ -54,11 +55,23 @@ vi.mock(
   "../../../../apps/api/src/plugins/gitea/services/integration-lookup",
   () => ({
     findAllIntegrationsByGiteaRepo: async () => [
-      { id: "integration", projectId: "project" },
+      {
+        id: "integration",
+        projectId: "project",
+        config: JSON.stringify({
+          baseUrl: "https://gitea.example",
+          accessToken: "test",
+          repositoryOwner: "owner",
+          repositoryName: "repo",
+        }),
+      },
     ],
     repoOwnerLogin: () => "owner",
   }),
 );
+vi.mock("../../../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
+  createGiteaClient: () => ({ getIssue: m.getIssue }),
+}));
 const payload = {
   action: "edited",
   repository: {
@@ -76,6 +89,7 @@ const payload = {
 };
 beforeEach(() => {
   vi.clearAllMocks();
+  m.getIssue.mockResolvedValue({ title: "Newest title", body: "Newest body" });
   m.metadata = JSON.stringify({
     lastSync: {
       title: {
@@ -218,4 +232,40 @@ it("ignores an older reopen echo after a newer outbound close", async () => {
     },
   });
   expect(m.status).not.toHaveBeenCalled();
+});
+
+it("accepts a legitimate remote edit matching a historical outbound value within the same timestamp", async () => {
+  const stamp = "2026-01-01T00:00:00Z";
+  m.metadata = JSON.stringify({
+    lastSync: {
+      title: outboundStamp(
+        outboundStamp(undefined, "Earlier title", stamp),
+        "Newest title",
+        stamp,
+      ),
+      description: outboundStamp(
+        outboundStamp(undefined, "Earlier body", stamp),
+        "Newest body",
+        stamp,
+      ),
+    },
+  });
+  m.getIssue.mockResolvedValue({
+    title: "Earlier title",
+    body: "Earlier body",
+  });
+  await handleGiteaIssueEdited({
+    ...payload,
+    issue: {
+      ...payload.issue,
+      title: "Earlier title",
+      body: "Earlier body",
+      updated_at: stamp,
+    },
+  });
+  expect(m.writes).toHaveBeenCalledWith({
+    title: "Earlier title",
+    description: "Earlier body",
+  });
+  expect(m.getIssue).toHaveBeenCalledTimes(1);
 });

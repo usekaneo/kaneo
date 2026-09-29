@@ -1,4 +1,6 @@
-import { isOutboundEcho } from "../utils/sync-echo";
+import type { GitHubConfig } from "../config";
+import { getVerifiedInstallationOctokit } from "../utils/github-app";
+import { confirmedOutboundEcho } from "../utils/sync-echo";
 import {
   linkedTaskScope,
   withIntegrationTask,
@@ -69,6 +71,45 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
       continue;
     }
 
+    const echoMetadata = parseLinkMetadata<IssueEditedMetadata>(
+      externalLink.metadata,
+      { externalLinkId: externalLink.id, source: "issue_edited" },
+    );
+    const fetchCurrentIssue = async () => {
+      const config = JSON.parse(integration.config) as GitHubConfig;
+      const octokit = await getVerifiedInstallationOctokit(config);
+      return (
+        await octokit.rest.issues.get({
+          owner: config.repositoryOwner,
+          repo: config.repositoryName,
+          issue_number: issue.number,
+        })
+      ).data;
+    };
+    let current: ReturnType<typeof fetchCurrentIssue> | undefined;
+    const currentIssue = () => (current ??= fetchCurrentIssue());
+    // Read the provider before taking task/project locks.
+    const titleEcho = changes.title
+      ? await confirmedOutboundEcho(
+          echoMetadata.lastSync?.title,
+          issue.title,
+          issue.updated_at,
+          async () => (await currentIssue()).title,
+        )
+      : false;
+    const descriptionEcho = changes.body
+      ? await confirmedOutboundEcho(
+          echoMetadata.lastSync?.description,
+          formatTaskDescriptionFromIssue(issue.body, externalLink.taskId),
+          issue.updated_at,
+          async () =>
+            formatTaskDescriptionFromIssue(
+              (await currentIssue()).body ?? null,
+              externalLink.taskId,
+            ),
+        )
+      : false;
+
     await withIntegrationTask(externalLink.taskId, integration, async (db) => {
       const task = await db.query.taskTable.findFirst({
         where: linkedTaskScope(externalLink.taskId, integration.projectId),
@@ -100,7 +141,7 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
         let shouldUpdateTitle = true;
 
         if (lastTitleSync) {
-          if (isOutboundEcho(lastTitleSync, issue.title, issue.updated_at)) {
+          if (titleEcho) {
             console.log("Skipping title update - already synced from Kaneo");
             shouldUpdateTitle = false;
           }
@@ -130,9 +171,7 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
         let shouldUpdateDescription = true;
 
         if (lastDescSync) {
-          if (
-            isOutboundEcho(lastDescSync, formattedDescription, issue.updated_at)
-          ) {
+          if (descriptionEcho) {
             console.log(
               "Skipping description update - already synced from Kaneo",
             );

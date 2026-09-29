@@ -1,6 +1,13 @@
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import db, { schema } from "../../apps/api/src/database";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
+import db, { getDatabase, schema } from "../../apps/api/src/database";
 import { importGiteaIssues } from "../../apps/api/src/gitea-integration/controllers/import-gitea-issues";
 import { importGitlabIssues } from "../../apps/api/src/gitlab-integration/controllers/import-gitlab-issues";
 import { handleGiteaIssueEdited } from "../../apps/api/src/plugins/gitea/webhooks/issue-edited";
@@ -326,4 +333,27 @@ describe("integration task ownership", () => {
       }),
     ).toEqual([]);
   });
+});
+
+afterEach(() => vi.restoreAllMocks());
+it("reports a concurrent move as a conflict without deleting links", async () => {
+  const f = await setup();
+  const transaction = db.transaction.bind(db);
+  vi.spyOn(getDatabase(), "transaction").mockImplementationOnce(
+    async (apply, config) => {
+      await db
+        .update(schema.taskTable)
+        .set({ projectId: f.destination.id })
+        .where(eq(schema.taskTable.id, f.task.id));
+      return transaction(apply, config);
+    },
+  );
+  await expect(
+    moveTask({
+      taskId: f.task.id,
+      destinationProjectId: f.destination.id,
+      userId: f.source.user.id,
+    }),
+  ).rejects.toMatchObject({ status: 409 });
+  expect(await db.query.externalLinkTable.findMany()).toHaveLength(1);
 });
