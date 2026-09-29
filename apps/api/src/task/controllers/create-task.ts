@@ -8,6 +8,7 @@ import {
   customFieldDefinitionTable,
   customFieldValueTable,
   taskTable,
+  projectTable,
   userTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
@@ -162,9 +163,20 @@ async function createTask({
         referenced.has(id),
       );
       if (ids.length) {
+        // claimTaskNumber already holds the project row lock in this transaction.
+        const project = await tx.query.projectTable.findFirst({
+          columns: { workspaceId: true },
+          where: eq(projectTable.id, projectId),
+        });
+        if (!project)
+          throw new HTTPException(404, { message: "Project not found" });
         const claimed = await tx
           .update(assetTable)
-          .set({ taskId: task.id, surface: "description" })
+          .set({
+            taskId: task.id,
+            surface: "description",
+            workspaceId: project.workspaceId,
+          })
           .where(
             and(
               inArray(assetTable.id, ids),

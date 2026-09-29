@@ -651,6 +651,11 @@ export const assetTable = pgTable(
     index("asset_taskId_idx").on(table.taskId),
     index("asset_activityId_idx").on(table.activityId),
     index("asset_createdBy_idx").on(table.createdBy),
+    index("asset_draft_expiry_idx")
+      .on(table.createdAt, table.id)
+      .where(
+        sql`${table.taskId} is null and ${table.surface} in ('draft', 'draft-pending')`,
+      ),
   ],
 );
 
