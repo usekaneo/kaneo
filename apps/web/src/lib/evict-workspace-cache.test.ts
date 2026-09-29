@@ -13,6 +13,11 @@ it("evicts revoked and unscoped private data while preserving another workspace'
   });
   const active = { id: "active-project", workspaceId: "active", columns: [] };
   client.setQueryData(["tasks", "active-project"], active);
+  client.setQueryData(["projects", "active"], [active]);
+  client.setQueryData(
+    ["projects", "revoked"],
+    [{ id: "revoked-project", workspaceId: "revoked" }],
+  );
   client.setQueryData(["task", "revoked-task"], {
     id: "revoked-task",
     projectId: "revoked-project",
@@ -25,6 +30,8 @@ it("evicts revoked and unscoped private data while preserving another workspace'
   });
   evictWorkspaceCache(client, "revoked");
   expect(client.getQueryData(["tasks", "active-project"])).toEqual(active);
+  expect(client.getQueryData(["projects", "active"])).toEqual([active]);
+  expect(client.getQueryData(["projects", "revoked"])).toBeUndefined();
   expect(client.getQueryData(["tasks", "revoked-project"])).toBeUndefined();
   expect(client.getQueryData(["task", "revoked-task"])).toBeUndefined();
   expect(client.getQueryData(["task", "unscoped"])).toBeUndefined();

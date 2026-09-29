@@ -19,6 +19,8 @@ export function evictWorkspaceCache(client: QueryClient, workspaceId: string) {
   };
   for (const query of queries)
     visit(query.state.data, (record) => {
+      if (typeof record.workspaceId === "string")
+        scopes.set(record.workspaceId, record.workspaceId);
       if (
         typeof record.workspaceId === "string" &&
         typeof record.id === "string"
