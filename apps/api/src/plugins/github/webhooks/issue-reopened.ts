@@ -66,7 +66,10 @@ export async function handleIssueReopened(payload: IssueReopenedPayload) {
           source: "issue_reopened",
         });
 
-        if (existingMetadata.createdFrom === "kaneo") {
+        if (
+          existingMetadata.createdFrom === "kaneo" ||
+          existingMetadata.state === "open"
+        ) {
           return;
         }
 

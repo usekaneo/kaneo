@@ -2329,6 +2329,8 @@
 			"labels": "ラベル",
 			"copyTaskLink": "タスクのリンクをコピー",
 			"copyTaskBranch": "タスクのブランチ名をコピー",
+			"taskLinkCopied": "タスクのリンクをコピーしました",
+			"taskBranchCopied": "ブランチ名をコピーしました",
 			"start": "開始",
 			"startDate": "開始日",
 			"noDate": "日付なし"

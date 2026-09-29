@@ -2329,6 +2329,8 @@
 			"labels": "标签",
 			"copyTaskLink": "复制任务链接",
 			"copyTaskBranch": "复制任务分支",
+			"taskLinkCopied": "已复制任务链接",
+			"taskBranchCopied": "已复制分支名称",
 			"start": "开始",
 			"startDate": "开始日期",
 			"noDate": "无日期"

@@ -11,6 +11,7 @@ import { extractTaskNumberFromBranch } from "../utils/branch-matcher";
 import { resolveTargetStatus } from "../utils/resolve-column";
 
 type PushPayload = {
+  after?: string;
   ref: string;
   head_commit?: {
     id: string;
@@ -38,7 +39,15 @@ const PROTECTED_BRANCHES = [
 export async function handlePush(payload: PushPayload) {
   const { ref, repository, head_commit } = payload;
 
-  const branchName = ref.replace("refs/heads/", "");
+  if (/^0+$/.test(payload.after ?? "")) {
+    return;
+  }
+
+  if (!ref.startsWith("refs/heads/")) {
+    return;
+  }
+
+  const branchName = ref.slice("refs/heads/".length);
   console.log(`[Push] Processing branch: ${branchName}`);
 
   if (PROTECTED_BRANCHES.includes(branchName)) {
@@ -100,7 +109,7 @@ export async function handlePush(payload: PushPayload) {
       `[Push] Found task: ${task.id}, current status: ${task.status}`,
     );
 
-    await createOrUpdateExternalLink({
+    const branchLink = await createOrUpdateExternalLink({
       taskId: task.id,
       integrationId: integration.id,
       resourceType: "branch",
@@ -128,9 +137,9 @@ export async function handlePush(payload: PushPayload) {
       `[Push] Target status: ${targetStatus}, current: ${task.status}`,
     );
 
-    const isTaskFinal = await isTaskInFinalState(task);
+    const canMove = branchLink.created || !(await isTaskInFinalState(task));
 
-    if (task.status !== targetStatus && !isTaskFinal) {
+    if (task.status !== targetStatus && canMove) {
       console.log(
         `[Push] Updating task ${task.id} status from ${task.status} to ${targetStatus}`,
       );
