@@ -38,6 +38,7 @@ import createTask from "./controllers/create-task";
 import deleteTask from "./controllers/delete-task";
 import duplicateTask from "./controllers/duplicate-task";
 import exportTasks from "./controllers/export-tasks";
+import getTaskByTicketId from "./controllers/get-task-by-ticket-id";
 import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
 import importTasks from "./controllers/import-tasks";
@@ -84,6 +85,8 @@ import {
   moveTaskBody,
   projectIdParam,
   taskParam,
+  ticketIdParam,
+  ticketIdQuery,
   updateAssigneeBody,
   updateDescriptionBody,
   updateDueDateBody,
@@ -221,6 +224,23 @@ const getTaskRoute = createRoute({
       "Unknown task, or its workspace could not be determined",
     ),
     403: errorResponse("No access to the task's workspace"),
+  },
+});
+
+const getTaskByTicketIdRoute = createRoute({
+  method: "get",
+  operationId: "getTaskByTicketId",
+  path: "/by-ticket-id/{ticketId}",
+  tags: ["Tasks"],
+  summary: "Get task by ticket ID",
+  description:
+    "Get a single task by its project key and number, such as KAN-12. If the ticket ID matches multiple accessible tasks, provide workspaceId or projectId to select one.",
+  request: { params: ticketIdParam, query: ticketIdQuery },
+  responses: {
+    200: jsonResponse("Task details", taskWithAssigneeSchema),
+    400: errorResponse("Invalid ticket ID"),
+    404: errorResponse("No accessible task has this ticket ID"),
+    409: errorResponse("Ticket ID matches multiple accessible tasks"),
   },
 });
 
@@ -727,6 +747,19 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
         currentUserId: c.get("userId"),
         canUpdateTasks: await hasWorkspacePermission(c, { task: ["update"] }),
       }),
+      200,
+    );
+  })
+  .openapi(getTaskByTicketIdRoute, async (c) => {
+    const { ticketId } = c.req.valid("param");
+    const { workspaceId, projectId } = c.req.valid("query");
+    return c.json(
+      await getTaskByTicketId(
+        ticketId,
+        c.get("userId"),
+        workspaceId,
+        projectId,
+      ),
       200,
     );
   })

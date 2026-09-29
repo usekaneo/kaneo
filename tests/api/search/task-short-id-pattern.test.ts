@@ -10,6 +10,7 @@ describe("TASK_SHORT_ID_PATTERN", () => {
   it("matches an ASCII project key", () => {
     expect(parse("DEP-23")).toEqual({ slug: "DEP", number: "23" });
     expect(parse("S2-7")).toEqual({ slug: "S2", number: "7" });
+    expect(parse("123-1")).toEqual({ slug: "123", number: "1" });
   });
 
   it("matches keys generated from non-Latin project names", () => {
@@ -18,8 +19,7 @@ describe("TASK_SHORT_ID_PATTERN", () => {
     expect(parse("ΑΒΓ-9")).toEqual({ slug: "ΑΒΓ", number: "9" });
   });
 
-  it("still requires a leading letter and a trailing number", () => {
-    expect(parse("23-45")).toBeNull();
+  it("still requires a nonempty project key and a trailing number", () => {
     expect(parse("DEP-")).toBeNull();
     expect(parse("DEP")).toBeNull();
     expect(parse("-23")).toBeNull();
