@@ -1,4 +1,4 @@
-import { and, eq, getTableColumns, inArray, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable, taskTable } from "../../database/schema";
@@ -36,7 +36,7 @@ export default async function reorderTasks(
     // Lock all affected cards together; a concurrent move cannot escape the
     // scope check between reading their current state and writing positions.
     const before = await tx
-      .select({ ...getTableColumns(taskTable), description: sql<null>`null` })
+      .select({ id: taskTable.id, status: taskTable.status })
       .from(taskTable)
       .where(
         and(
@@ -47,48 +47,43 @@ export default async function reorderTasks(
           ),
         ),
       )
+      .orderBy(asc(taskTable.id))
       .for("update");
     if (before.length !== tasks.length)
       throw new HTTPException(404, {
         message: "Tasks must belong to the requested project",
       });
-    const statusChanges = tasks.filter(
-      (task): task is Reorder & { status: string } => task.status !== undefined,
-    );
-    const position = sql<number>`case ${taskTable.id} ${sql.join(
-      tasks.map((task) => sql`when ${task.id} then ${task.position}::integer`),
-      sql` `,
-    )} else ${taskTable.position} end`;
-    const status = statusChanges.length
-      ? sql<string>`case ${taskTable.id} ${sql.join(
-          statusChanges.map((task) => sql`when ${task.id} then ${task.status}`),
-          sql` `,
-        )} else ${taskTable.status} end`
-      : undefined;
-    const columnId = statusChanges.length
-      ? sql<string | null>`case ${taskTable.id} ${sql.join(
-          statusChanges.map(
-            (task) =>
-              sql`when ${task.id} then ${columns.get(task.status) ?? null}`,
-          ),
-          sql` `,
-        )} else ${taskTable.columnId} end`
-      : undefined;
+    const values = tasks.map((task) => ({
+      id: task.id,
+      position: task.position,
+      status: task.status ?? null,
+      column_id:
+        task.status === undefined ? null : (columns.get(task.status) ?? null),
+    }));
+    // One JSON parameter keeps large boards below PostgreSQL's bind limit.
     const after = await tx
       .update(taskTable)
-      .set({ position, ...(statusChanges.length ? { status, columnId } : {}) })
+      .set({
+        position: sql`changes.position`,
+        status: sql`coalesce(changes.status, ${taskTable.status})`,
+        columnId: sql`case when changes.status is null then ${taskTable.columnId} else changes.column_id end`,
+      })
+      .from(
+        sql`jsonb_to_recordset(${JSON.stringify(values)}::jsonb) as changes(id text, position integer, status text, column_id text)`,
+      )
       .where(
         and(
           eq(taskTable.projectId, projectId),
-          inArray(
-            taskTable.id,
-            tasks.map((task) => task.id),
-          ),
+          sql`${taskTable.id} = changes.id`,
         ),
       )
       .returning({
-        ...getTableColumns(taskTable),
-        description: sql<null>`null`,
+        id: taskTable.id,
+        position: taskTable.position,
+        status: taskTable.status,
+        projectId: taskTable.projectId,
+        title: taskTable.title,
+        userId: taskTable.userId,
       });
     if (after.length !== tasks.length)
       throw new HTTPException(409, {
@@ -96,19 +91,26 @@ export default async function reorderTasks(
       });
     return { before, after };
   });
-  for (const updated of after)
-    await publishTaskMutation(
-      {
-        ...before.find((task) => task.id === updated.id)!,
-        description: undefined,
-      },
-      updated,
-      userId,
-    );
+  const beforeById = new Map(before.map((task) => [task.id, task]));
+  let statusChanged = false;
+  for (const updated of after) {
+    const prior = beforeById.get(updated.id)!;
+    if (prior.status !== updated.status) statusChanged = true;
+    await publishTaskMutation(prior, updated, userId, {
+      fields: ["status"],
+      skipRelationRefresh: true,
+    });
+  }
+  if (statusChanged)
+    await publishEvent("task-relation.refresh", { projectId, userId });
   await publishEvent("tasks.reordered", {
     projectId,
     userId,
     tasks: after.map(({ id, position, status }) => ({ id, position, status })),
   });
-  return after.map((task) => ({ ...task, descriptionDeferred: true }));
+  return after.map(({ id, position, status }) => ({
+    id,
+    position: position ?? 0,
+    status,
+  }));
 }

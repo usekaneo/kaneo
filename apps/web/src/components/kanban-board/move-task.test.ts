@@ -1,3 +1,4 @@
+import { applyBoardReorder } from "./apply-reorder";
 import { describe, expect, it } from "vite-plus/test";
 import type { ProjectWithTasks } from "@/types/project";
 import { moveBoardTask } from "./move-task";
@@ -73,4 +74,20 @@ describe("board moves", () => {
       { id: "a", position: 1, status: "doing" },
     ]);
   });
+});
+
+it("patches a remote reorder without removing hidden cards or replacing concurrent fields", () => {
+  const current = board();
+  current.columns[0].tasks[0].title = "concurrent title";
+  const updated = applyBoardReorder(current, [
+    { id: "a", position: 1, status: "doing" },
+    { id: "b", position: 0 },
+  ]);
+  expect(updated.columns[0].tasks.map((task) => task.id)).toEqual([
+    "b",
+    "hidden",
+  ]);
+  expect(updated.columns[1].tasks.map((task) => task.id)).toEqual(["c", "a"]);
+  expect(updated.columns[1].tasks[1].title).toBe("concurrent title");
+  expect(current.columns[0].tasks).toHaveLength(3);
 });
