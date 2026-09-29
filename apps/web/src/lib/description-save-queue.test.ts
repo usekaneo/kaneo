@@ -94,3 +94,20 @@ it("isolates owners and prevents a cleared in-flight request from draining anoth
   expect(newSave).toHaveBeenCalledExactlyOnceWith("bob's edit");
   expect(queue.get("task", "alice")).toBeUndefined();
 });
+
+it("drains an unexpired debounce before sign-out and retains a failed drain for retry", async () => {
+  vi.useFakeTimers();
+  const queue = createDescriptionSaveQueue(700);
+  const save = vi.fn().mockResolvedValue(undefined);
+  queue.schedule("task", "recent edit", save, "alice");
+  expect(await queue.drain("alice")).toBe(true);
+  expect(save).toHaveBeenCalledExactlyOnceWith("recent edit");
+  const failing = vi.fn().mockRejectedValue(new Error("offline"));
+  queue.schedule("task", "unsaved edit", failing, "alice");
+  expect(await queue.drain("alice")).toBe(false);
+  expect(queue.get("task", "alice")).toMatchObject({
+    value: "unsaved edit",
+    state: "failed",
+  });
+  queue.clear();
+});
