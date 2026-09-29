@@ -91,6 +91,9 @@ type CommentEditorProps = {
   taskId?: string;
   uploadSurface?: "description" | "comment";
   ensureTaskId?: () => Promise<string | null>;
+  uploadAsset?: (
+    file: File,
+  ) => Promise<Awaited<ReturnType<typeof uploadTaskImage>>>;
   showQuickAttachButton?: boolean;
   onAttachActionChange?: (attach: (() => void) | null) => void;
 };
@@ -176,6 +179,7 @@ export default function CommentEditor({
   taskId,
   uploadSurface = "comment",
   ensureTaskId,
+  uploadAsset,
   showQuickAttachButton = true,
   onAttachActionChange,
 }: CommentEditorProps) {
@@ -212,6 +216,8 @@ export default function CommentEditor({
   }, []);
   const taskIdRef = useRef(taskId);
   const ensureTaskIdRef = useRef(ensureTaskId);
+  const uploadAssetRef = useRef(uploadAsset);
+  uploadAssetRef.current = uploadAsset;
   const uploadSurfaceRef = useRef(uploadSurface);
   const onSubmitShortcutRef = useRef(onSubmitShortcut);
   const onCancelShortcutRef = useRef(onCancelShortcut);
@@ -346,7 +352,7 @@ export default function CommentEditor({
       const resolvedTaskId =
         initialTaskId ?? (await ensureTaskIdRef.current?.());
 
-      if (!activeEditor || !resolvedTaskId) {
+      if (!activeEditor || (!resolvedTaskId && !uploadAssetRef.current)) {
         toast.error(t("activity:comment.editor.uploadsOnlyOnSavedTasks"));
         return;
       }
@@ -356,11 +362,13 @@ export default function CommentEditor({
       );
 
       try {
-        const uploadedAsset = await uploadTaskImage({
-          taskId: resolvedTaskId,
-          surface: uploadSurfaceRef.current,
-          file,
-        });
+        const uploadedAsset = uploadAssetRef.current
+          ? await uploadAssetRef.current(file)
+          : await uploadTaskImage({
+              taskId: resolvedTaskId!,
+              surface: uploadSurfaceRef.current,
+              file,
+            });
 
         // Reuse a replacement editor only while it still belongs to the task
         // that owns the uploaded asset.
@@ -402,7 +410,7 @@ export default function CommentEditor({
     [insertUploadedAsset, t],
   );
 
-  const canUploadFiles = Boolean(taskId || ensureTaskId);
+  const canUploadFiles = Boolean(taskId || ensureTaskId || uploadAsset);
 
   const openImagePicker = useCallback(
     (activeEditor?: Editor | null, range?: SlashRange) => {

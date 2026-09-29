@@ -44,6 +44,10 @@ import getTasks from "./controllers/get-tasks";
 import importTasks from "./controllers/import-tasks";
 import moveTask from "./controllers/move-task";
 import {
+  stageTaskAssetUpload,
+  finalizeStagedTaskAsset,
+} from "./controllers/stage-task-asset";
+import {
   requireBulkTaskEntitlement,
   requireBulkTaskPermission,
   requireTaskAssigneePermission,
@@ -144,6 +148,62 @@ const bulkUpdateTasksRoute = createRoute({
       "No workspace access, or missing the permission the operation needs",
     ),
     404: errorResponse("No tasks found"),
+  },
+});
+
+const stagedUploadRoute = createRoute({
+  method: "post",
+  operationId: "stageTaskAssetUpload",
+  path: "/draft-upload/{projectId}",
+  tags: ["Tasks"],
+  summary: "Stage a task attachment",
+  description:
+    "Upload an attachment before submitting a task. Staged assets are private to the uploader and expire after 24 hours.",
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ task: ["create"] }),
+    requireEntitlement,
+  ] as const,
+  request: {
+    params: projectIdParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: imageUploadBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("Presigned upload", imageUploadSchema),
+    400: errorResponse("Invalid upload"),
+    403: errorResponse("Missing task:create permission"),
+    404: errorResponse("Project not found"),
+    503: errorResponse("Storage unavailable"),
+  },
+});
+const finalizeStagedUploadRoute = createRoute({
+  method: "post",
+  operationId: "finalizeStagedTaskAsset",
+  path: "/draft-upload/{projectId}/finalize",
+  tags: ["Tasks"],
+  summary: "Finalize a staged task attachment",
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ task: ["create"] }),
+    requireEntitlement,
+  ] as const,
+  request: {
+    params: projectIdParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: finalizeImageUploadBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("Staged attachment", finalizedAssetSchema),
+    400: errorResponse("Invalid upload"),
+    403: errorResponse("Missing task:create permission"),
+    404: errorResponse("Project not found"),
+    409: errorResponse("Upload already attached"),
+    503: errorResponse("Storage unavailable"),
   },
 });
 
@@ -698,6 +758,27 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
 
     return c.json(result, 200);
   })
+  .openapi(stagedUploadRoute, async (c) =>
+    c.json(
+      await stageTaskAssetUpload(
+        c.req.valid("param").projectId,
+        c.get("userId"),
+        c.req.valid("json"),
+      ),
+      200,
+    ),
+  )
+  .openapi(finalizeStagedUploadRoute, async (c) => {
+    const asset = await finalizeStagedTaskAsset(
+      c.req.valid("param").projectId,
+      c.get("userId"),
+      c.req.valid("json"),
+    );
+    const base = normalizeApiServerUrl(
+      process.env.KANEO_API_URL || new URL(c.req.url).origin,
+    );
+    return c.json({ id: asset.id, url: `${base}/asset/${asset.id}` }, 200);
+  })
   .openapi(createTaskRoute, async (c) => {
     const { projectId } = c.req.param();
     const {
@@ -709,6 +790,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       status,
       userId,
       customFields,
+      draftAssetIds,
     } = c.req.valid("json");
 
     const parsedStartDate =
@@ -733,6 +815,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       priority,
       status,
       customFields,
+      draftAssetIds,
     });
 
     return c.json(task, 200);

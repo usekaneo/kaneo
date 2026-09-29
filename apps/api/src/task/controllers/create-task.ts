@@ -1,7 +1,8 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
+  assetTable,
   columnTable,
   customFieldDefinitionTable,
   customFieldValueTable,
@@ -53,6 +54,7 @@ async function createTask({
   description,
   priority,
   customFields,
+  draftAssetIds,
 }: {
   projectId: string;
   currentUserId: string;
@@ -64,6 +66,7 @@ async function createTask({
   description?: string;
   priority?: string;
   customFields?: CustomFieldInput[];
+  draftAssetIds?: string[];
 }) {
   const resolvedStatus = status || "to-do";
   const resolvedPriority = priority || "no-priority";
@@ -151,6 +154,28 @@ async function createTask({
         position: nextPosition,
       })
       .returning();
+
+    if (task && draftAssetIds?.length) {
+      const ids = [...new Set(draftAssetIds)];
+      const claimed = await tx
+        .update(assetTable)
+        .set({ taskId: task.id, surface: "description" })
+        .where(
+          and(
+            inArray(assetTable.id, ids),
+            eq(assetTable.projectId, projectId),
+            eq(assetTable.createdBy, currentUserId),
+            eq(assetTable.surface, "draft"),
+            isNull(assetTable.taskId),
+          ),
+        )
+        .returning({ id: assetTable.id });
+      if (claimed.length !== ids.length)
+        throw new HTTPException(400, {
+          message:
+            "Some staged uploads are unavailable or belong to another owner/project",
+        });
+    }
 
     if (task && mergedCustomFields.length) {
       await tx.insert(customFieldValueTable).values(

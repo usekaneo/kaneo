@@ -1,4 +1,5 @@
 import { retryStorageCleanup } from "../storage/cleanup-queue";
+import { cleanupDraftUploads } from "./draft-upload-cleanup";
 import * as Sentry from "@sentry/node";
 import { Cron } from "croner";
 import { checkDueDateReminders } from "./due-date-reminders";
@@ -52,7 +53,12 @@ export function initializeScheduler(): void {
       withCheckIn("storage-cleanup", retryStorageCleanup),
     ),
   );
-
+  jobs.push(
+    new Cron(
+      "31 * * * *",
+      withCheckIn("draft-upload-cleanup", cleanupDraftUploads),
+    ),
+  );
   jobs.push(
     new Cron(
       "*/5 * * * *",

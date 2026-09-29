@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import type { uploadTaskImage } from "@/lib/upload-task-image";
 import CommentEditor from "@/components/activity/comment-editor";
 
 type TaskDescriptionEditorProps = {
@@ -7,6 +8,9 @@ type TaskDescriptionEditorProps = {
   placeholder?: string;
   taskId?: string;
   ensureTaskId?: () => Promise<string | null>;
+  uploadAsset?: (
+    file: File,
+  ) => Promise<Awaited<ReturnType<typeof uploadTaskImage>>>;
 };
 
 export default function TaskDescriptionEditor({
@@ -15,6 +19,7 @@ export default function TaskDescriptionEditor({
   placeholder,
   taskId,
   ensureTaskId,
+  uploadAsset,
 }: TaskDescriptionEditorProps) {
   const { t } = useTranslation();
 
@@ -25,6 +30,7 @@ export default function TaskDescriptionEditor({
       placeholder={placeholder ?? t("tasks:detail.addDescription")}
       taskId={taskId}
       ensureTaskId={ensureTaskId}
+      uploadAsset={uploadAsset}
       uploadSurface="description"
       className="[&_.kaneo-comment-editor-content_.ProseMirror]:min-h-[11rem] [&_.kaneo-comment-editor-content_.ProseMirror]:max-h-none [&_.kaneo-comment-editor-content_.ProseMirror]:overflow-visible [&_.kaneo-comment-editor-content_.ProseMirror]:px-0 [&_.kaneo-comment-editor-content_.ProseMirror]:pt-1 [&_.kaneo-comment-editor-content_.ProseMirror]:pb-2"
     />
