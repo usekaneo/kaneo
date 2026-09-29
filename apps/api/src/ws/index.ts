@@ -273,6 +273,70 @@ function currentProjectWorkspace(projectId: string) {
   return pending;
 }
 
+const authorizationLookups = new Map<
+  string,
+  Promise<{ workspaceId: string | null; members: Set<string> } | null>
+>();
+function currentBroadcastAccess(
+  projectId: string,
+  recipients: Array<{ userId: string }>,
+) {
+  const key = JSON.stringify([
+    projectId,
+    [...new Set(recipients.map((conn) => conn.userId))].sort(),
+  ]);
+  let pending = authorizationLookups.get(key);
+  if (!pending) {
+    pending = (async () => {
+      let workspaceId: string | null;
+      try {
+        workspaceId = await currentProjectWorkspace(projectId);
+      } catch (error) {
+        console.error("Failed to validate project broadcast access:", error);
+        return null;
+      }
+      let members = new Set<string>();
+      if (workspaceId) {
+        try {
+          const rows = await db
+            .select({ userId: workspaceUserTable.userId })
+            .from(workspaceUserTable)
+            .where(
+              and(
+                eq(workspaceUserTable.workspaceId, workspaceId),
+                inArray(workspaceUserTable.userId, [
+                  ...new Set(recipients.map((conn) => conn.userId)),
+                ]),
+              ),
+            );
+          members = new Set(rows.map((row) => row.userId));
+          const nonmembers = [
+            ...new Set(recipients.map((conn) => conn.userId)),
+          ].filter((userId) => !members.has(userId));
+          if (nonmembers.length > 0) {
+            const admins = await db
+              .select({ userId: userTable.id, role: userTable.role })
+              .from(userTable)
+              .where(
+                and(
+                  inArray(userTable.id, nonmembers),
+                  instanceAdminRoleSql(userTable.role),
+                ),
+              );
+            for (const admin of admins) members.add(admin.userId);
+          }
+        } catch (error) {
+          console.error("Failed to validate broadcast membership:", error);
+          return null;
+        }
+      }
+      return { workspaceId, members };
+    })().finally(() => authorizationLookups.delete(key));
+    authorizationLookups.set(key, pending);
+  }
+  return pending;
+}
+
 async function deliverToLocalConnections(
   projectId: string,
   message: ProjectBroadcastMessage,
@@ -285,48 +349,9 @@ async function deliverToLocalConnections(
   const connections = projectConnections.get(projectId);
   if (!connections) return;
   const recipients = [...connections];
-  let workspaceId: string | null;
-  try {
-    workspaceId = await currentProjectWorkspace(projectId);
-  } catch (error) {
-    console.error("Failed to validate project broadcast access:", error);
-    return;
-  }
-  let members = new Set<string>();
-  if (workspaceId) {
-    try {
-      const rows = await db
-        .select({ userId: workspaceUserTable.userId })
-        .from(workspaceUserTable)
-        .where(
-          and(
-            eq(workspaceUserTable.workspaceId, workspaceId),
-            inArray(workspaceUserTable.userId, [
-              ...new Set(recipients.map((conn) => conn.userId)),
-            ]),
-          ),
-        );
-      members = new Set(rows.map((row) => row.userId));
-      const nonmembers = [
-        ...new Set(recipients.map((conn) => conn.userId)),
-      ].filter((userId) => !members.has(userId));
-      if (nonmembers.length > 0) {
-        const admins = await db
-          .select({ userId: userTable.id, role: userTable.role })
-          .from(userTable)
-          .where(
-            and(
-              inArray(userTable.id, nonmembers),
-              instanceAdminRoleSql(userTable.role),
-            ),
-          );
-        for (const admin of admins) members.add(admin.userId);
-      }
-    } catch (error) {
-      console.error("Failed to validate broadcast membership:", error);
-      return;
-    }
-  }
+  const access = await currentBroadcastAccess(projectId, recipients);
+  if (!access) return;
+  const { workspaceId, members } = access;
   const payload = JSON.stringify(message);
   for (const conn of recipients) {
     // A move may have closed these connections while the lookup was in flight.

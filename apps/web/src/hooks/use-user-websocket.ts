@@ -1,8 +1,9 @@
 import { windowId } from "@kaneo/libs";
 import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useLocation, useNavigate } from "@tanstack/react-router";
+import { useEffect, useRef } from "react";
 import { getApiUrl } from "@/fetchers/get-api-url";
+import { evictWorkspaceCache } from "@/lib/evict-workspace-cache";
 import { authClient } from "@/lib/auth-client";
 
 export function getUserWsUrl() {
@@ -23,6 +24,9 @@ const WS_PING_INTERVAL_MS = 30_000;
 export function useUserWebSocket() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const pathname = useLocation({ select: (location) => location.pathname });
+  const pathnameRef = useRef(pathname);
+  pathnameRef.current = pathname;
   const { data: session } = authClient.useSession();
   useEffect(() => {
     if (!session?.user?.id) return;
@@ -64,11 +68,17 @@ export function useUserWebSocket() {
         try {
           const message = JSON.parse(event.data as string) as {
             type?: string;
+            workspaceId?: string;
           };
-          if (message.type === "WORKSPACE_ACCESS_REVOKED") {
-            void queryClient.cancelQueries();
-            queryClient.clear();
-            void navigate({ to: "/dashboard" });
+          if (
+            message.type === "WORKSPACE_ACCESS_REVOKED" &&
+            message.workspaceId
+          ) {
+            evictWorkspaceCache(queryClient, message.workspaceId);
+            const current =
+              pathnameRef.current.match(/\/workspace\/([^/]+)/)?.[1];
+            if (current === message.workspaceId)
+              void navigate({ to: "/dashboard" });
           }
           if (message.type === "NOTIFICATION_CREATED") {
             queryClient.invalidateQueries({ queryKey: ["notifications"] });

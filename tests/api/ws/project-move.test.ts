@@ -252,3 +252,14 @@ describe("workspace membership revocation", () => {
     expect(ws.close).toHaveBeenCalledWith(1008, "Workspace access revoked");
   });
 });
+
+it("coalesces authorization checks across a bulk broadcast burst", async () => {
+  vi.useFakeTimers();
+  await initializeWebSocketAdapter();
+  const connection = connect();
+  for (let index = 0; index < 50; index++)
+    broadcastToProject("project", { ...update, taskId: `task-${index}` });
+  await vi.advanceTimersByTimeAsync(100);
+  expect(connection.send).toHaveBeenCalledTimes(50);
+  expect(m.members).toHaveBeenCalledTimes(1);
+});
