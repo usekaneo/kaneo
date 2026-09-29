@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { handleGitlabMergeRequestOpened } from "../../apps/api/src/plugins/gitlab/webhooks/merge-request-opened";
+import { handleGitlabPush } from "../../apps/api/src/plugins/gitlab/webhooks/push";
 import { resetTestDatabase } from "./helpers/database";
 import {
   createProjectFixture,
@@ -137,6 +138,57 @@ describe("GitLab merge requests on a completed task", () => {
       mergeRequest(),
       fixture.integration.id,
     );
+    expect(await status()).toBe("done");
+  });
+});
+
+describe("GitLab pushes to a completed task", () => {
+  let fixture: Awaited<ReturnType<typeof createFixture>>;
+
+  const push = (after?: string) =>
+    handleGitlabPush(
+      {
+        after,
+        ref: "refs/heads/kan-42-slice-2",
+        project: {
+          name: "project",
+          web_url: "https://gitlab.example/group/project",
+          path_with_namespace: "group/project",
+        },
+      },
+      fixture.integration.id,
+    );
+  const status = async () =>
+    (
+      await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, fixture.task.id),
+      })
+    )?.status;
+  const complete = () =>
+    db
+      .update(schema.taskTable)
+      .set({ status: "done", columnId: fixture.columns.done.id })
+      .where(eq(schema.taskTable.id, fixture.task.id));
+
+  beforeEach(async () => {
+    await resetTestDatabase();
+    fixture = await createFixture();
+  });
+
+  it("moves the task back to progress for a new branch", async () => {
+    await push();
+    expect(await status()).toBe("in-progress");
+  });
+
+  it("keeps the task done for a push to an already linked branch", async () => {
+    await push();
+    await complete();
+    await push();
+    expect(await status()).toBe("done");
+  });
+
+  it("ignores a push that deletes the branch", async () => {
+    await push("0".repeat(40));
     expect(await status()).toBe("done");
   });
 });

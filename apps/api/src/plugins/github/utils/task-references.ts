@@ -1,15 +1,14 @@
 const taskLinkPattern =
   /\/dashboard\/workspace\/[\w-]+\/project\/([\w-]+)\/task\/([\w-]+)(?![\w-])/g;
 
-export function extractTaskIdsFromLinks(
-  projectId: string,
-  ...texts: (string | null | undefined)[]
-): string[] {
-  const ids = new Set<string>();
+export function extractTaskLinks(...texts: (string | null | undefined)[]) {
+  const links = new Map<string, { projectId: string; taskId: string }>();
   for (const text of texts) {
-    for (const match of (text ?? "").matchAll(taskLinkPattern)) {
-      if (match[1] === projectId && match[2]) ids.add(match[2]);
+    for (const [, projectId, taskId] of (text ?? "").matchAll(
+      taskLinkPattern,
+    )) {
+      if (projectId && taskId) links.set(taskId, { projectId, taskId });
     }
   }
-  return [...ids];
+  return [...links.values()];
 }

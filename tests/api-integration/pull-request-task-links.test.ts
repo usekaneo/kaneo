@@ -372,6 +372,19 @@ describe.each(["github", "gitea"] as const)(
       await expectUnchanged();
     });
 
+    it("skips a PR that also links a task in another project", async () => {
+      const other = await createFixture(provider, "OTHER", "other-repo");
+      const taskLink = (projectId: string, taskId: string) =>
+        `https://kaneo.example.com/dashboard/workspace/w/project/${projectId}/task/${taskId}`;
+      await open(
+        payload(
+          "Copy message text",
+          `${taskLink(fixture.project.id, fixture.intended.id)} ${taskLink(other.project.id, other.intended.id)}`,
+        ),
+      );
+      await expectUnchanged();
+    });
+
     it("falls back to the task link when the task key is stale", async () => {
       const taskLink = `https://kaneo.example.com/dashboard/workspace/w/project/${fixture.project.id}/task/${fixture.intended.id}`;
       await open(payload("KAN-999: copy message text", taskLink));

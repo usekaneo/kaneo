@@ -73,12 +73,20 @@ export function PublicTaskCard({
   };
 
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       className="group w-full text-left p-3 bg-card border border-border rounded-lg cursor-pointer transition-[background-color,border-color,box-shadow] duration-150 ease-out hover:border-border/70 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.target !== e.currentTarget) return;
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onTaskClick(task);
+        }
+      }}
       aria-label={`View details for task ${task.title}`}
     >
       <div className="text-[10px] font-mono text-muted-foreground mb-2">
@@ -156,6 +164,6 @@ export function PublicTaskCard({
           />
         )}
       </div>
-    </button>
+    </div>
   );
 }

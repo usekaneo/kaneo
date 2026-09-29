@@ -39,10 +39,18 @@ export function PublicTaskRow({
   const externalLinks = task.externalLinks || [];
 
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       className="group w-full text-left px-4 py-3 rounded-lg flex items-center gap-4 bg-card border border-border shadow-sm hover:shadow-md transition-[background-color,border-color,box-shadow] duration-200 ease-out hover:border-border/70 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
       onClick={() => onTaskClick(task)}
+      onKeyDown={(e) => {
+        if (e.target !== e.currentTarget) return;
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onTaskClick(task);
+        }
+      }}
       aria-label={t("publicProject:taskCard.viewDetailsAria", {
         title: task.title,
       })}
@@ -109,6 +117,6 @@ export function PublicTaskRow({
           />
         )}
       </div>
-    </button>
+    </div>
   );
 }
