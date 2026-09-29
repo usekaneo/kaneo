@@ -281,7 +281,11 @@ test("Dependabot automation excludes human reopens and ready events", () => {
     "utf8",
   );
   assert.match(source, /types: \[opened, synchronize\]/);
-  assert.match(source, /github\.actor == 'dependabot\[bot\]'/);
+  assert.match(source, /github\.event\.sender\.login == 'dependabot\[bot\]'/);
+  assert.match(
+    source,
+    /github\.event\.pull_request\.user\.login == 'dependabot\[bot\]'/,
+  );
 });
 
 test("Blacksmith actions use immutable commits with no scanner exemption", () => {
