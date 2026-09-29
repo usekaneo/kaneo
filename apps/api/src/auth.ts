@@ -207,6 +207,8 @@ function getDeviceAuthVerificationUri(): string {
   return `${base}/device`;
 }
 
+const deletedWorkspaceMembers = new WeakMap<object, string[]>();
+
 export const auth = betterAuth({
   baseURL: baseURLWithoutPath,
   trustedOrigins,
@@ -484,7 +486,7 @@ export const auth = betterAuth({
             ownerId: user.id,
           });
         },
-        beforeDeleteOrganization: async ({ organization }) => {
+        beforeDeleteOrganization: async ({ organization }, ctx) => {
           const billable = await findBillableWorkspaces([organization.id]);
           if (billable.length > 0) {
             throw new APIError("CONFLICT", {
@@ -493,6 +495,31 @@ export const auth = betterAuth({
               ),
             });
           }
+          if (ctx) {
+            const members = await db
+              .select({ userId: schema.workspaceUserTable.userId })
+              .from(schema.workspaceUserTable)
+              .where(
+                eq(schema.workspaceUserTable.workspaceId, organization.id),
+              );
+            deletedWorkspaceMembers.set(
+              ctx.context,
+              members.map((member) => member.userId),
+            );
+          }
+        },
+        afterDeleteOrganization: async ({ organization }, ctx) => {
+          const userIds = ctx
+            ? (deletedWorkspaceMembers.get(ctx.context) ?? [])
+            : [];
+          if (ctx) deletedWorkspaceMembers.delete(ctx.context);
+          await Promise.all(
+            userIds.map((userId) =>
+              revokeWorkspaceConnections(userId, organization.id, {
+                force: true,
+              }),
+            ),
+          );
         },
         afterAddMember: async ({ member }) => {
           if (member?.organizationId) {

@@ -110,6 +110,47 @@ describe("API integration: account deletion", () => {
     }
   });
 
+  it("revokes other members after deleting a workspace through Better Auth", async () => {
+    const owner = await createWorkspaceMember({ role: "owner" });
+    const member = await addMember(owner.workspace.id, "member");
+    const token = `delete-${randomUUID()}`;
+    await db.insert(schema.sessionTable).values({
+      id: randomUUID(),
+      userId: owner.user.id,
+      token,
+      expiresAt: new Date(Date.now() + 60_000),
+    });
+    const ws = { send: vi.fn(), close: vi.fn() };
+    const conn = addConnection(
+      "project",
+      ws as unknown as WSContext,
+      member.id,
+      "window",
+      owner.workspace.id,
+    );
+    try {
+      const response = await auth.handler(
+        new Request("http://localhost:1337/api/auth/organization/delete", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ organizationId: owner.workspace.id }),
+        }),
+      );
+      expect(response.status).toBe(200);
+      expect(ws.close).toHaveBeenCalledWith(1008, "Workspace access revoked");
+      expect(
+        await db.query.workspaceTable.findFirst({
+          where: eq(schema.workspaceTable.id, owner.workspace.id),
+        }),
+      ).toBeUndefined();
+    } finally {
+      removeConnection("project", conn);
+    }
+  });
+
   it("revokes project sockets during account deletion", async () => {
     const owner = await createWorkspaceMember({ role: "owner" });
     const member = await addMember(owner.workspace.id, "member");
