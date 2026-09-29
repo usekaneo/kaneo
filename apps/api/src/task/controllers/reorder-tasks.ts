@@ -1,7 +1,7 @@
 import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { columnTable, taskTable } from "../../database/schema";
+import { columnTable, projectTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { assertValidTaskStatus } from "../validate-task-fields";
 import { assertTaskPosition } from "./next-task-position";
@@ -34,10 +34,14 @@ export default async function reorderTasks(
     columns.set(status, column?.id ?? null);
   }
   const { before, after } = await db.transaction(async (tx) => {
-    // Serialize reorders before comparing the complete affected-column snapshot.
-    await tx.execute(
-      sql`select pg_advisory_xact_lock(hashtext(${projectId}), hashtext('task-reorder'))`,
-    );
+    // Task creation, duplication and moves lock this same row while allocating positions.
+    const [project] = await tx
+      .select({ id: projectTable.id })
+      .from(projectTable)
+      .where(eq(projectTable.id, projectId))
+      .for("update");
+    if (!project)
+      throw new HTTPException(404, { message: "Project not found" });
     // Lock all affected cards together; a concurrent move cannot escape the
     // scope check between reading their current state and writing positions.
     const before = await tx
