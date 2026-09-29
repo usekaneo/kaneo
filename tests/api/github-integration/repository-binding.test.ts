@@ -259,6 +259,43 @@ describe("authorized bounded repository listing", () => {
     expect(page.nextPage).toBeNull();
     expect(m.listRepos).not.toHaveBeenCalled();
   });
+  it("filters by search before checking permissions", async () => {
+    m.listRepos.mockResolvedValue({
+      data: {
+        repositories: [
+          candidate(20),
+          { ...candidate(21), full_name: "owner/Kaneo-API" },
+          { ...candidate(22), description: "Kaneo web client" },
+        ],
+      },
+    });
+    const page = await listUserRepositories("user", {
+      installationPage: 1,
+      repositoryPage: 1,
+      search: "kaneo",
+    });
+    expect(page.repositories.map((repo) => repo.id)).toEqual([21, 22]);
+    expect(m.permission).toHaveBeenCalledTimes(2);
+    expect(m.listRepos).toHaveBeenCalledWith(
+      expect.objectContaining({ per_page: 100, page: 1 }),
+    );
+  });
+  it("continues a search on the next page of a full search page", async () => {
+    m.listRepos.mockResolvedValue({
+      data: {
+        repositories: Array.from({ length: 100 }, (_, i) => candidate(i + 1)),
+      },
+    });
+    const page = await listUserRepositories("user", {
+      installationPage: 1,
+      repositoryPage: 2,
+      search: "no-match",
+    });
+    expect(page.repositories).toEqual([]);
+    expect(m.permission).not.toHaveBeenCalled();
+    expect(m.listRepos).toHaveBeenCalledTimes(1);
+    expect(page.nextPage).toEqual({ installationPage: 1, repositoryPage: 3 });
+  });
   it("rejects unlinked callers before any provider enumeration", async () => {
     m.account.mockResolvedValue(null);
     await expect(

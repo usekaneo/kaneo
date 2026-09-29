@@ -1177,6 +1177,8 @@
 			"installGithubApp": "GitHub 앱 설치",
 			"noSearchMatchTitle": "검색과 일치하는 저장소가 없습니다",
 			"noSearchMatchHint": "검색어를 조정하거나 검색을 지워서 모든 저장소를 확인하세요.",
+			"searching": "모든 저장소를 검색하는 중...",
+			"searchMore": "더 많은 저장소 검색",
 			"footerSummary": "설치 {{installationCount}}건에 걸쳐 저장소 {{repoCount}}개",
 			"manageInstallations": "설치 관리",
 			"updatedPrefix": "업데이트됨",

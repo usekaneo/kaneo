@@ -1179,6 +1179,8 @@
 			"installGithubApp": "Installer l'application GitHub",
 			"noSearchMatchTitle": "Aucun dépôt ne correspond à votre recherche",
 			"noSearchMatchHint": "Essayez d'ajuster vos termes de recherche ou effacez la recherche pour voir tous les dépôts.",
+			"searching": "Recherche dans tous les dépôts...",
+			"searchMore": "Rechercher dans plus de dépôts",
 			"footerSummary": "{{repoCount}} dépôts répartis sur {{installationCount}} installations",
 			"manageInstallations": "Gérer les installations",
 			"updatedPrefix": "Mis à jour",

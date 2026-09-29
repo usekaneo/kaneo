@@ -15,6 +15,7 @@ export type RepositoryPage = {
 async function listRepositories(
   projectId: string,
   page: RepositoryPage = { installationPage: 1, repositoryPage: 1 },
+  search?: string,
 ): Promise<ListRepositoriesResponse> {
   const response = await client["github-integration"].repositories[
     ":projectId"
@@ -23,6 +24,7 @@ async function listRepositories(
     query: {
       installationPage: String(page.installationPage),
       repositoryPage: String(page.repositoryPage),
+      ...(search ? { search } : {}),
     },
   });
 

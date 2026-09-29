@@ -1449,6 +1449,8 @@
 			"installGithubApp": "安装 GitHub App",
 			"noSearchMatchTitle": "没有匹配的仓库",
 			"noSearchMatchHint": "请调整搜索条件或清空搜索以查看所有仓库。",
+			"searching": "正在搜索所有仓库...",
+			"searchMore": "搜索更多仓库",
 			"footerSummary": "{{installationCount}} 个安装中的 {{repoCount}} 个仓库",
 			"manageInstallations": "管理安装",
 			"updatedPrefix": "更新于",

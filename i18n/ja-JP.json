@@ -1411,6 +1411,8 @@
 			"installGithubApp": "GitHub App をインストール",
 			"noSearchMatchTitle": "検索条件に一致するリポジトリがありません",
 			"noSearchMatchHint": "検索キーワードを変更するか、検索をクリアしてすべてのリポジトリを表示してください。",
+			"searching": "すべてのリポジトリを検索中...",
+			"searchMore": "さらにリポジトリを検索",
 			"footerSummary": "{{installationCount}} 件のインストール全体で {{repoCount}} 個のリポジトリ",
 			"manageInstallations": "インストールを管理",
 			"updatedPrefix": "最終更新:",

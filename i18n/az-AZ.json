@@ -1451,6 +1451,8 @@
 			"installGithubApp": "GitHub tətbiqini quraşdır",
 			"noSearchMatchTitle": "Axtarışınıza uyğun repozitoriya yoxdur",
 			"noSearchMatchHint": "Axtarış sözlərini dəyişin və ya bütün repozitoriyaları görmək üçün axtarışı təmizləyin.",
+			"searching": "Bütün repozitoriyalarda axtarılır...",
+			"searchMore": "Daha çox repozitoriyada axtar",
 			"footerSummary": "{{installationCount}} quraşdırmada {{repoCount}} repozitoriya",
 			"manageInstallations": "Quraşdırmaları idarə et",
 			"updatedPrefix": "Yenilənib",

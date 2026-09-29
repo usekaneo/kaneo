@@ -12574,7 +12574,7 @@
           "GitHub"
         ],
         "summary": "List GitHub repositories",
-        "description": "List the repositories reachable through the installed GitHub App, for picking one to link.",
+        "description": "List the repositories reachable through the installed GitHub App, for picking one to link. Pass `search` to match repository names and descriptions; follow `nextPage` to continue the search through every installation.",
         "parameters": [
           {
             "schema": {
@@ -12602,6 +12602,15 @@
             },
             "required": false,
             "name": "repositoryPage",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "required": false,
+            "name": "search",
             "in": "query"
           }
         ],

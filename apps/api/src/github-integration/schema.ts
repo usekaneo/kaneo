@@ -28,6 +28,12 @@ export const repositoryPageQuery = z.object({
     .regex(/^[1-9][0-9]{0,5}$/)
     .default("1")
     .transform(Number),
+  search: z
+    .string()
+    .trim()
+    .max(100)
+    .optional()
+    .transform((value) => value?.toLowerCase() || undefined),
 });
 
 export const importGitHubBody = z.object({

@@ -1178,6 +1178,8 @@
 			"installGithubApp": "GitHub Uygulamasını Kur",
 			"noSearchMatchTitle": "Aramanızla eşleşen depo yok",
 			"noSearchMatchHint": "Arama terimlerinizi ayarlayın veya tüm depoları görmek için aramayı temizleyin.",
+			"searching": "Tüm depolarda aranıyor...",
+			"searchMore": "Daha fazla depoda ara",
 			"footerSummary": "{{installationCount}} kurulum arasında {{repoCount}} depo",
 			"manageInstallations": "Kurulumları Yönet",
 			"updatedPrefix": "Güncellendi",

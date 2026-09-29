@@ -71,7 +71,7 @@ const listRepositoriesRoute = createRoute({
   tags: ["GitHub"],
   summary: "List GitHub repositories",
   description:
-    "List the repositories reachable through the installed GitHub App, for picking one to link.",
+    "List the repositories reachable through the installed GitHub App, for picking one to link. Pass `search` to match repository names and descriptions; follow `nextPage` to continue the search through every installation.",
   middleware: [requireUserSession, ...manageAccess],
   request: { params: projectIdParam, query: repositoryPageQuery },
   responses: {

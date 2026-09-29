@@ -1415,6 +1415,8 @@
 			"installGithubApp": "Installa GitHub App",
 			"noSearchMatchTitle": "Nessun repository corrisponde alla ricerca",
 			"noSearchMatchHint": "Prova a modificare i termini di ricerca o cancella la ricerca per vedere tutti i repository.",
+			"searching": "Ricerca in tutti i repository...",
+			"searchMore": "Cerca in altri repository",
 			"footerSummary": "{{repoCount}} repository in {{installationCount}} installazioni",
 			"manageInstallations": "Gestisci Installazioni",
 			"updatedPrefix": "Aggiornato",

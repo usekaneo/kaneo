@@ -1413,6 +1413,8 @@
 			"installGithubApp": "GitHub App इंस्टॉल करें",
 			"noSearchMatchTitle": "आपकी खोज से मेल खाने वाली कोई रिपॉज़िटरी नहीं",
 			"noSearchMatchHint": "अपने खोज शब्दों को समायोजित करें या सभी रिपॉज़िटरीज़ देखने के लिए खोज साफ़ करें।",
+			"searching": "सभी रिपॉज़िटरी में खोजा जा रहा है...",
+			"searchMore": "और रिपॉज़िटरी में खोजें",
 			"footerSummary": "{{installationCount}} इंस्टॉलेशन में {{repoCount}} रिपॉज़िटरीज़",
 			"manageInstallations": "इंस्टॉलेशन प्रबंधित करें",
 			"updatedPrefix": "अपडेट किया गया",

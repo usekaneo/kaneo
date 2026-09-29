@@ -6506,6 +6506,12 @@
 						"noSearchMatchHint": {
 							"type": "string"
 						},
+						"searching": {
+							"type": "string"
+						},
+						"searchMore": {
+							"type": "string"
+						},
 						"footerSummary": {
 							"type": "string"
 						},
@@ -6593,6 +6599,8 @@
 						"installGithubApp",
 						"noSearchMatchTitle",
 						"noSearchMatchHint",
+						"searching",
+						"searchMore",
 						"footerSummary",
 						"manageInstallations",
 						"updatedPrefix",

@@ -150,4 +150,44 @@ describe("bounded GitHub repository browser", () => {
       }),
     );
   });
+  it("searches every repository page on the server", async () => {
+    m.list.mockImplementation(async (_projectId, cursor, search) => {
+      if (!search) return result("first-page", null);
+      if (cursor.installationPage === 2) return result("kaneo-web", null);
+      if (cursor.repositoryPage === 1)
+        return result("", { installationPage: 1, repositoryPage: 2 });
+      return result("kaneo-api", { installationPage: 2, repositoryPage: 1 });
+    });
+    show();
+    await screen.findByText("owner/first-page");
+    fireEvent.change(screen.getByRole("textbox"), {
+      target: { value: " Kaneo " },
+    });
+    await screen.findByText("owner/kaneo-web");
+    expect(screen.getByText("owner/kaneo-api")).toBeVisible();
+    expect(screen.queryByText("owner/first-page")).toBeNull();
+    expect(m.list).toHaveBeenLastCalledWith(
+      "project",
+      { installationPage: 2, repositoryPage: 1 },
+      "kaneo",
+    );
+  });
+  it("reports no match only after the search has finished", async () => {
+    m.list.mockImplementation(async (_projectId, cursor, search) => {
+      if (!search) return result("first-page", null);
+      return result(
+        "",
+        cursor.repositoryPage < 3
+          ? { installationPage: 1, repositoryPage: cursor.repositoryPage + 1 }
+          : null,
+      );
+    });
+    show();
+    await screen.findByText("owner/first-page");
+    fireEvent.change(screen.getByRole("textbox"), {
+      target: { value: "missing" },
+    });
+    await screen.findByText("settings:repositoryBrowser.noSearchMatchTitle");
+    expect(m.list.mock.calls.filter(([, , search]) => search)).toHaveLength(3);
+  });
 });

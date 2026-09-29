@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import {
   Check,
   Clock,
@@ -33,6 +33,9 @@ import { cn } from "@/lib/cn";
 import { openExternalWebUrl } from "@/lib/external-url";
 import { getInitials } from "@/lib/get-initials";
 
+const FIRST_PAGE: RepositoryPage = { installationPage: 1, repositoryPage: 1 };
+const SEARCH_PAGE_BATCH = 10;
+
 type RepositoryBrowserModalProps = {
   projectId: string;
   open: boolean;
@@ -50,39 +53,83 @@ export function RepositoryBrowserModal({
 }: RepositoryBrowserModalProps) {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = React.useState("");
+  const [search, setSearch] = React.useState("");
+  const [searchBudget, setSearchBudget] = React.useState({
+    search: "",
+    pages: SEARCH_PAGE_BATCH,
+  });
   const { data: session } = authClient.useSession();
+  const userId = session?.user.id;
   const [pageHistory, setPageHistory] = React.useState<RepositoryPage[]>([
-    { installationPage: 1, repositoryPage: 1 },
+    FIRST_PAGE,
   ]);
-  const page = pageHistory[pageHistory.length - 1] ?? {
-    installationPage: 1,
-    repositoryPage: 1,
-  };
+  const page = pageHistory[pageHistory.length - 1] ?? FIRST_PAGE;
 
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["github-repositories", projectId, session?.user.id, page],
+  React.useEffect(() => {
+    const timeout = setTimeout(
+      () => setSearch(searchTerm.trim().toLowerCase()),
+      300,
+    );
+    return () => clearTimeout(timeout);
+  }, [searchTerm]);
+
+  const pageQuery = useQuery({
+    queryKey: ["github-repositories", projectId, userId, page],
     queryFn: () => listRepositories(projectId, page),
-    enabled: open && Boolean(session?.user.id),
+    enabled: open && Boolean(userId) && !search,
   });
 
+  const searchQuery = useInfiniteQuery({
+    queryKey: ["github-repositories", projectId, userId, "search", search],
+    queryFn: ({ pageParam }) => listRepositories(projectId, pageParam, search),
+    initialPageParam: FIRST_PAGE,
+    getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
+    enabled: open && Boolean(userId) && Boolean(search),
+  });
+
+  const searchPageLimit =
+    searchBudget.search === search ? searchBudget.pages : SEARCH_PAGE_BATCH;
+  const searchedPages = searchQuery.data?.pages.length ?? 0;
+  const continueSearch =
+    Boolean(search) &&
+    searchQuery.hasNextPage &&
+    !searchQuery.isError &&
+    searchedPages < searchPageLimit;
+  const { fetchNextPage, isFetching: isFetchingSearch } = searchQuery;
+
+  React.useEffect(() => {
+    if (continueSearch && !isFetchingSearch) fetchNextPage();
+  }, [continueSearch, isFetchingSearch, fetchNextPage, searchedPages]);
+
+  const searchData = React.useMemo(() => {
+    const pages = searchQuery.data?.pages;
+    if (!pages) return undefined;
+    const installations = new Map(
+      pages
+        .flatMap((result) => result.installations)
+        .map((installation) => [installation.id, installation]),
+    );
+    return {
+      repositories: pages.flatMap((result) => result.repositories),
+      installations: [...installations.values()],
+    };
+  }, [searchQuery.data?.pages]);
+
+  const data = search ? searchData : pageQuery.data;
+  const { isLoading, error, refetch } = search ? searchQuery : pageQuery;
+  const isSearching =
+    Boolean(search) && (continueSearch || searchQuery.isFetchingNextPage);
+  const canSearchMore =
+    Boolean(search) &&
+    searchQuery.hasNextPage &&
+    !isSearching &&
+    !searchQuery.isError;
+
   const { data: appInfo } = useQuery({
-    queryKey: ["github-app-info", session?.user.id],
+    queryKey: ["github-app-info", userId],
     queryFn: getGitHubAppInfo,
     enabled: open,
   });
-
-  const filteredRepositories = React.useMemo(() => {
-    if (!data?.repositories) return [];
-
-    if (!searchTerm) return data.repositories;
-
-    const search = searchTerm.toLowerCase();
-    return data.repositories.filter(
-      (repo) =>
-        repo.full_name.toLowerCase().includes(search) ||
-        repo.description?.toLowerCase().includes(search),
-    );
-  }, [data?.repositories, searchTerm]);
 
   const handleSelectRepository = (
     repository: ListRepositoriesResponse["repositories"][number],
@@ -123,7 +170,8 @@ export function RepositoryBrowserModal({
   const resetAndCloseModal = (open: boolean) => {
     if (!open) {
       setSearchTerm("");
-      setPageHistory([{ installationPage: 1, repositoryPage: 1 }]);
+      setSearch("");
+      setPageHistory([FIRST_PAGE]);
     }
     onOpenChange(open);
   };
@@ -190,7 +238,7 @@ export function RepositoryBrowserModal({
 
           {data && !isLoading && (
             <>
-              {data.repositories.length === 0 && (
+              {!search && data.repositories.length === 0 && (
                 <div className="text-center py-12 px-6">
                   <GitBranch className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium mb-2">
@@ -215,9 +263,9 @@ export function RepositoryBrowserModal({
                 </div>
               )}
 
-              {filteredRepositories.length > 0 && (
+              {data.repositories.length > 0 && (
                 <div className="px-6 py-4 space-y-2">
-                  {filteredRepositories.map((repository) => (
+                  {data.repositories.map((repository) => (
                     <button
                       key={repository.id}
                       type="button"
@@ -296,23 +344,44 @@ export function RepositoryBrowserModal({
                 </div>
               )}
 
-              {filteredRepositories.length === 0 &&
-                data.repositories.length > 0 && (
-                  <div className="text-center py-12 px-6">
-                    <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      {t("settings:repositoryBrowser.noSearchMatchTitle")}
-                    </h3>
-                    <p className="text-muted-foreground text-sm">
-                      {t("settings:repositoryBrowser.noSearchMatchHint")}
-                    </p>
-                  </div>
-                )}
+              {isSearching && (
+                <div className="px-6 pb-4 text-center text-sm text-muted-foreground">
+                  {t("settings:repositoryBrowser.searching")}
+                </div>
+              )}
+
+              {search && !isSearching && data.repositories.length === 0 && (
+                <div className="text-center py-12 px-6">
+                  <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">
+                    {t("settings:repositoryBrowser.noSearchMatchTitle")}
+                  </h3>
+                  <p className="text-muted-foreground text-sm">
+                    {t("settings:repositoryBrowser.noSearchMatchHint")}
+                  </p>
+                </div>
+              )}
             </>
           )}
         </div>
 
-        {data && (
+        {canSearchMore && (
+          <div className="flex justify-center border-t px-6 py-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() =>
+                setSearchBudget({
+                  search,
+                  pages: searchPageLimit + SEARCH_PAGE_BATCH,
+                })
+              }
+            >
+              {t("settings:repositoryBrowser.searchMore")}
+            </Button>
+          </div>
+        )}
+        {!search && pageQuery.data && (
           <div className="flex items-center justify-between gap-2 border-t px-6 py-3">
             <Button
               type="button"
@@ -325,9 +394,9 @@ export function RepositoryBrowserModal({
             <Button
               type="button"
               variant="outline"
-              disabled={!data.nextPage}
+              disabled={!pageQuery.data.nextPage}
               onClick={() => {
-                const next = data.nextPage;
+                const next = pageQuery.data.nextPage;
                 if (next) setPageHistory((pages) => [...pages, next]);
               }}
             >

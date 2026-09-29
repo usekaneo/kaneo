@@ -1180,6 +1180,8 @@
 			"installGithubApp": "Встановити GitHub App",
 			"noSearchMatchTitle": "Жоден репозиторій не відповідає вашому пошуку",
 			"noSearchMatchHint": "Спробуйте змінити пошукові терміни або очистіть пошук, щоб побачити всі репозиторії.",
+			"searching": "Пошук у всіх репозиторіях...",
+			"searchMore": "Шукати в інших репозиторіях",
 			"footerSummary": "{{repoCount}} репозиторіїв у {{installationCount}} встановленнях",
 			"manageInstallations": "Керувати встановленнями",
 			"updatedPrefix": "Оновлено",

@@ -1544,6 +1544,8 @@
 			"loadError": "Nie udało się wczytać repozytoriów",
 			"manageInstallations": "Zarządzaj instalacjami",
 			"noSearchMatchHint": "Spróbuj zmienić kryteria wyszukiwania lub wyczyść wyszukiwanie, aby zobaczyć wszystkie repozytoria.",
+			"searching": "Przeszukiwanie wszystkich repozytoriów...",
+			"searchMore": "Przeszukaj więcej repozytoriów",
 			"noSearchMatchTitle": "Brak repozytoriów pasujących do wyszukiwania",
 			"relativeDaysAgo": "{{count}}d temu",
 			"relativeHoursAgo": "{{count}}h temu",

@@ -5,8 +5,10 @@ import { getGithubAccount } from "./verify-repository-owner";
 export type RepositoryPage = {
   installationPage: number;
   repositoryPage: number;
+  search?: string;
 };
 const PAGE_SIZE = 20;
+const SEARCH_PAGE_SIZE = 100;
 
 /** One bounded page. Never return other users' repository or installation metadata. */
 async function listUserRepositories(userId: string, page: RepositoryPage) {
@@ -36,15 +38,24 @@ async function listUserRepositories(userId: string, page: RepositoryPage) {
     throw new HTTPException(403, {
       message: "GitHub identity could not be verified",
     });
+  const { search } = page;
+  const pageSize = search ? SEARCH_PAGE_SIZE : PAGE_SIZE;
   const { data } = await octokit.rest.apps.listReposAccessibleToInstallation({
-    per_page: PAGE_SIZE,
+    per_page: pageSize,
     page: page.repositoryPage,
     request,
   });
+  const matches = search
+    ? data.repositories.filter(
+        (repo) =>
+          repo.full_name.toLowerCase().includes(search) ||
+          repo.description?.toLowerCase().includes(search),
+      )
+    : data.repositories;
   const repositories = [];
   // Bound concurrent requests as well as the total per page.
-  for (let offset = 0; offset < data.repositories.length; offset += 4) {
-    const candidates = data.repositories.slice(offset, offset + 4);
+  for (let offset = 0; offset < matches.length; offset += 4) {
+    const candidates = matches.slice(offset, offset + 4);
     const authorized = await Promise.all(
       candidates.map(async (repo) => {
         try {
@@ -94,7 +105,7 @@ async function listUserRepositories(userId: string, page: RepositoryPage) {
       : [],
     total: repositories.length,
     nextPage:
-      data.repositories.length === PAGE_SIZE
+      data.repositories.length === pageSize
         ? {
             installationPage: page.installationPage,
             repositoryPage: page.repositoryPage + 1,

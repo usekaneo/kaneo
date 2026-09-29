@@ -1411,6 +1411,8 @@
 			"installGithubApp": "Cài đặt ứng dụng GitHub",
 			"noSearchMatchTitle": "Không có kho lưu trữ khớp với tìm kiếm của bạn",
 			"noSearchMatchHint": "Hãy thử điều chỉnh từ khóa tìm kiếm hoặc xóa tìm kiếm để xem tất cả kho lưu trữ.",
+			"searching": "Đang tìm trong tất cả kho mã...",
+			"searchMore": "Tìm trong thêm kho mã",
 			"footerSummary": "{{repoCount}} kho lưu trữ trong {{installationCount}} lượt cài đặt",
 			"manageInstallations": "Quản lý cài đặt",
 			"updatedPrefix": "Đã cập nhật",

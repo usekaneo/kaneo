@@ -952,6 +952,8 @@
 			"installGithubApp": "GitHub App installeren",
 			"noSearchMatchTitle": "Geen overeenkomende repositories",
 			"noSearchMatchHint": "Probeer een andere zoekterm.",
+			"searching": "Alle repositories doorzoeken...",
+			"searchMore": "Meer repositories doorzoeken",
 			"footerSummary": "{{repoCount}} repositories over {{installationCount}} installaties",
 			"manageInstallations": "Installaties beheren",
 			"updatedPrefix": "Bijgewerkt",

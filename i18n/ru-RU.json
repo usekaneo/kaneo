@@ -1180,6 +1180,8 @@
 			"installGithubApp": "Установить GitHub App",
 			"noSearchMatchTitle": "Репозитории по вашему запросу не найдены",
 			"noSearchMatchHint": "Попробуйте изменить поисковый запрос или очистите поиск, чтобы увидеть все репозитории.",
+			"searching": "Поиск по всем репозиториям...",
+			"searchMore": "Искать в других репозиториях",
 			"footerSummary": "{{repoCount}} репозиториев в {{installationCount}} установках",
 			"manageInstallations": "Управление установками",
 			"updatedPrefix": "Обновлён",

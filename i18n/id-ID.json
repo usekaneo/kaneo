@@ -1177,6 +1177,8 @@
 			"installGithubApp": "Pasang GitHub App",
 			"noSearchMatchTitle": "Tidak ada repositori yang cocok dengan pencarian Anda",
 			"noSearchMatchHint": "Coba sesuaikan kata pencarian atau hapus pencarian untuk melihat semua repositori.",
+			"searching": "Mencari di semua repositori...",
+			"searchMore": "Cari di lebih banyak repositori",
 			"footerSummary": "{{repoCount}} repositori di {{installationCount}} pemasangan",
 			"manageInstallations": "Kelola Pemasangan",
 			"updatedPrefix": "Diperbarui",
