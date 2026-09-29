@@ -168,6 +168,5 @@ export const reorderTasksBody = z.object({
         status: z.string().optional(),
       }),
     )
-    .min(1)
-    .max(1000),
+    .min(1),
 });

@@ -10,7 +10,7 @@ import {
 import { useProjectWebSocket } from "./use-project-websocket";
 
 const { client, auth } = vi.hoisted(() => ({
-  client: { invalidateQueries: vi.fn() },
+  client: { invalidateQueries: vi.fn(), setQueryData: vi.fn() },
   auth: { userId: "user-a" as string | null },
 }));
 vi.mock("@tanstack/react-query", () => ({ useQueryClient: () => client }));
@@ -52,12 +52,38 @@ describe("project WebSocket lifecycle", () => {
     TestSocket.instances = [];
     auth.userId = "user-a";
     client.invalidateQueries.mockClear();
+    client.setQueryData.mockClear();
   });
   afterEach(() => {
     cleanup();
     vi.useRealTimers();
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
+  });
+
+  it("patches a reordered batch and invalidates each task detail without reloading the board", () => {
+    renderHook(() => useProjectWebSocket("project-a"));
+    const tasks = [
+      { id: "one", position: 1 },
+      { id: "two", position: 0 },
+    ];
+    act(() => {
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({
+          type: "TASKS_REORDERED",
+          projectId: "project-a",
+          tasks,
+        }),
+      });
+    });
+    expect(client.setQueryData).toHaveBeenCalledWith(
+      ["tasks", "project-a"],
+      expect.any(Function),
+    );
+    expect(client.invalidateQueries.mock.calls).toEqual([
+      [{ queryKey: ["task", "one"] }],
+      [{ queryKey: ["task", "two"] }],
+    ]);
   });
 
   it("ignores late old-project events without stopping the new project's keepalive", () => {

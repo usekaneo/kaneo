@@ -14,6 +14,7 @@ import {
   createRoute,
   errorResponse,
   jsonResponse,
+  z,
 } from "../openapi";
 import {
   assertTaskImageKeyMatchesContext,
@@ -146,6 +147,7 @@ const bulkUpdateTasksRoute = createRoute({
       "No workspace access, or missing the permission the operation needs",
     ),
     404: errorResponse("No tasks found"),
+    409: errorResponse("Tasks changed projects; retry the operation"),
   },
 });
 
@@ -169,7 +171,12 @@ const reorderTasksRoute = createRoute({
     },
   },
   responses: {
-    200: jsonResponse("Updated cards", taskSchema.array()),
+    200: jsonResponse(
+      "Updated card positions and statuses",
+      z
+        .object({ id: z.string(), position: z.number(), status: z.string() })
+        .array(),
+    ),
     400: errorResponse("Invalid positions or column"),
     403: errorResponse("Missing task:update permission"),
     404: errorResponse("Tasks do not belong to the project"),

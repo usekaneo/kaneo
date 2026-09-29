@@ -56,6 +56,13 @@ function KanbanBoard({
   const { t } = useTranslation();
   const { mutate: reorder, isPending: isReordering } = useMutation({
     mutationFn: reorderTasks,
+    onSuccess: (_result, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: ["tasks", variables.projectId],
+      });
+      for (const task of variables.tasks)
+        void queryClient.invalidateQueries({ queryKey: ["task", task.id] });
+    },
     onError: () => {
       toast.error(t("tasks:board.reorderFailed"));
       void queryClient.invalidateQueries({ queryKey: ["tasks", project.id] });
@@ -161,7 +168,10 @@ function KanbanBoard({
 
     if (isReordering) return;
     const canonical =
-      storedProject?.id === project.id ? storedProject : project;
+      queryClient.getQueryData<ProjectWithTasks>(["tasks", project.id]) ??
+      (storedProject?.id === project.id ? storedProject : undefined);
+    if (!canonical) return;
+
     const moved = moveBoardTask(canonical, activeId, overId, sortedByNumber);
     if (!moved || !moved.tasks.length) return;
     setProject(moved.project);

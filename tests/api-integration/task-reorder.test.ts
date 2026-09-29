@@ -30,11 +30,14 @@ describe("atomic card reordering", () => {
         position: 3,
       })
       .returning();
-    await reorderTasks(
+    const result = await reorderTasks(
       project.id,
       [{ id: task.id, position: 1, status: "in-progress" }],
       user.id,
     );
+    expect(result).toEqual([
+      { id: task.id, position: 1, status: "in-progress" },
+    ]);
     expect(
       await db.query.taskTable.findFirst({
         where: eq(schema.taskTable.id, task.id),
@@ -77,4 +80,34 @@ describe("atomic card reordering", () => {
     ).toBe(3);
     expect(publish).not.toHaveBeenCalled();
   });
+});
+
+it("atomically reorders more than 1,000 supported cards", async () => {
+  const { user, workspace } = await createWorkspaceMember();
+  const { project } = await createProjectFixture({ workspaceId: workspace.id });
+  const tasks = await db
+    .insert(schema.taskTable)
+    .values(
+      Array.from({ length: 1001 }, (_, i) => ({
+        projectId: project.id,
+        title: `card-${i}`,
+        number: i + 1,
+        position: i,
+        status: "to-do",
+      })),
+    )
+    .returning({ id: schema.taskTable.id });
+  const result = await reorderTasks(
+    project.id,
+    tasks.map((task, i) => ({ id: task.id, position: 1000 - i })),
+    user.id,
+  );
+  expect(result).toHaveLength(1001);
+  expect(
+    (
+      await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, tasks[0].id),
+      })
+    )?.position,
+  ).toBe(1000);
 });

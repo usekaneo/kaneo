@@ -1,3 +1,5 @@
+import { applyBoardReorder } from "@/components/kanban-board/apply-reorder";
+import type { ProjectWithTasks } from "@/types/project";
 import { windowId } from "@kaneo/libs";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
@@ -62,6 +64,16 @@ export function useProjectWebSocket(projectId: string) {
         if (disposed || activeSocket !== ws) return;
         try {
           const message = JSON.parse(event.data);
+          if (message.type === "TASKS_REORDERED") {
+            queryClient.setQueryData<ProjectWithTasks>(
+              ["tasks", message.projectId],
+              (project) =>
+                project ? applyBoardReorder(project, message.tasks) : project,
+            );
+            for (const task of message.tasks)
+              queryClient.invalidateQueries({ queryKey: ["task", task.id] });
+            return;
+          }
           if (message.type === "PROJECT_MOVED") {
             for (const queryKey of [
               ["projects"],
@@ -75,7 +87,6 @@ export function useProjectWebSocket(projectId: string) {
             return;
           }
           if (
-            message.type === "TASKS_REORDERED" ||
             message.type === "TASK_UPDATED" ||
             message.type === "TASK_CREATED" ||
             message.type === "TASK_DELETED" ||

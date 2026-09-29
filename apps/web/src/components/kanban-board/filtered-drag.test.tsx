@@ -12,6 +12,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@tanstack/react-query", () => ({
   useQueryClient: () => ({
     setQueryData: mocks.setQueryData,
+    getQueryData: () => mocks.project,
     getQueryState: () => undefined,
   }),
   useMutation: () => ({ mutate: mocks.reorder, isPending: false }),

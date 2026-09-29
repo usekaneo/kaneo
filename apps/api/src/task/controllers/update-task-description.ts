@@ -35,7 +35,9 @@ async function updateTaskDescription({
     });
   }
 
-  await publishTaskMutation(existingTask, updatedTask, currentUserId);
+  await publishTaskMutation(existingTask, updatedTask, currentUserId, {
+    fields: ["description"],
+  });
 
   return updatedTask;
 }

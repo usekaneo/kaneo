@@ -51,7 +51,9 @@ async function updateTaskAssignee({
     });
   }
 
-  await publishTaskMutation(existingTask, updatedTask, currentUserId);
+  await publishTaskMutation(existingTask, updatedTask, currentUserId, {
+    fields: ["userId"],
+  });
 
   return updatedTask;
 }
