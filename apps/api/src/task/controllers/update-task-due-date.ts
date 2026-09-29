@@ -51,7 +51,9 @@ async function updateTaskDueDate({
     });
   }
 
-  await publishTaskMutation(existingTask, updatedTask, currentUserId);
+  await publishTaskMutation(existingTask, updatedTask, currentUserId, {
+    fields: ["dueDate"],
+  });
 
   return updatedTask;
 }

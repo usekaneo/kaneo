@@ -144,6 +144,7 @@ const bulkUpdateTasksRoute = createRoute({
       "No workspace access, or missing the permission the operation needs",
     ),
     404: errorResponse("No tasks found"),
+    409: errorResponse("Tasks changed projects; retry the operation"),
   },
 });
 
