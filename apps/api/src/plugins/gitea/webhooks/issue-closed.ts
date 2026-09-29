@@ -1,3 +1,4 @@
+import { isOutboundEcho, type SyncStamp } from "../../github/utils/sync-echo";
 import {
   linkedTaskScope,
   withIntegrationTask,
@@ -100,6 +101,10 @@ export async function handleGiteaIssueClosed(
           }
         }
 
+        const stateStamp = (
+          existingMetadata.lastSync as { state?: SyncStamp } | undefined
+        )?.state;
+        if (isOutboundEcho(stateStamp, "closed", issue.updated_at)) return;
         const lastOutbound = existingMetadata.lastOutboundStateSyncAt;
         if (
           typeof lastOutbound === "number" &&

@@ -1,3 +1,4 @@
+import { isOutboundEcho } from "../../github/utils/sync-echo";
 import {
   linkedTaskScope,
   withIntegrationTask,
@@ -20,6 +21,7 @@ type IssueEditedPayload = {
     number: number;
     title: string;
     body: string | null;
+    updated_at?: string;
     html_url: string;
   };
   changes?: {
@@ -91,10 +93,7 @@ export async function handleGiteaIssueEdited(
         let shouldUpdateTitle = true;
 
         if (lastTitleSync) {
-          if (
-            lastTitleSync.value === issue.title &&
-            lastTitleSync.source === "kaneo"
-          ) {
+          if (isOutboundEcho(lastTitleSync, issue.title, issue.updated_at)) {
             shouldUpdateTitle = false;
           }
         }
@@ -102,6 +101,7 @@ export async function handleGiteaIssueEdited(
         if (shouldUpdateTitle) {
           updateData.title = issue.title;
           updatedMetadata.lastSync.title = {
+            outbound: metadata.lastSync?.title?.outbound,
             timestamp: new Date().toISOString(),
             source: "gitea",
             value: issue.title,
@@ -117,8 +117,7 @@ export async function handleGiteaIssueEdited(
 
         if (lastDescSync) {
           if (
-            lastDescSync.value === formattedDescription &&
-            lastDescSync.source === "kaneo"
+            isOutboundEcho(lastDescSync, formattedDescription, issue.updated_at)
           ) {
             shouldUpdateDescription = false;
           }
@@ -127,6 +126,7 @@ export async function handleGiteaIssueEdited(
         if (shouldUpdateDescription) {
           updateData.description = formattedDescription;
           updatedMetadata.lastSync.description = {
+            outbound: metadata.lastSync?.description?.outbound,
             timestamp: new Date().toISOString(),
             source: "gitea",
             value: formattedDescription,

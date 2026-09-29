@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 const m = vi.hoisted(() => ({
+  current: { title: "", description: "" },
   links: vi.fn(),
   update: vi.fn(),
   save: vi.fn(),
@@ -14,6 +15,9 @@ vi.mock("../../../../apps/api/src/plugins/github/utils/github-app", () => ({
   getVerifiedInstallationOctokit: async () => ({
     rest: { issues: { update: m.update } },
   }),
+}));
+vi.mock("../../../../apps/api/src/database", () => ({
+  default: { query: { taskTable: { findFirst: async () => m.current } } },
 }));
 const { handleTaskTitleChanged } =
   await import("../../../../apps/api/src/plugins/github/events/task-title-changed");
@@ -48,6 +52,7 @@ function link(field: string, source: string, value: string) {
 }
 describe("rapid github text edits", () => {
   it("sends a second local title even immediately after the first sync", async () => {
+    m.current.title = "Second title";
     m.links.mockResolvedValue([link("title", "kaneo", "First title")]);
     await handleTaskTitleChanged(
       {
@@ -64,6 +69,7 @@ describe("rapid github text edits", () => {
     );
   });
   it("sends a different title immediately after an incoming github title", async () => {
+    m.current.title = "Local correction";
     m.links.mockResolvedValue([link("title", "github", "Remote title")]);
     await handleTaskTitleChanged(
       {
@@ -80,6 +86,7 @@ describe("rapid github text edits", () => {
     );
   });
   it("keeps suppressing an exact incoming echo", async () => {
+    m.current.title = "Remote title";
     m.links.mockResolvedValue([link("title", "github", "Remote title")]);
     await handleTaskTitleChanged(
       {
@@ -94,6 +101,7 @@ describe("rapid github text edits", () => {
     expect(m.update).not.toHaveBeenCalled();
   });
   it("sends a second local description immediately after the first sync", async () => {
+    m.current.description = "Second description";
     m.links.mockResolvedValue([
       link("description", "kaneo", "First description"),
     ]);
@@ -113,4 +121,20 @@ describe("rapid github text edits", () => {
       }),
     );
   });
+});
+
+it("does not send a queued title after a newer task edit", async () => {
+  m.current.title = "Newest";
+  m.links.mockResolvedValue([link("title", "kaneo", "Old")]);
+  await handleTaskTitleChanged(
+    {
+      taskId: "task",
+      projectId: "project",
+      userId: "user",
+      oldTitle: "Old",
+      newTitle: "Queued",
+    },
+    context,
+  );
+  expect(m.update).not.toHaveBeenCalled();
 });

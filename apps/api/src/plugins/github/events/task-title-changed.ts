@@ -1,3 +1,6 @@
+import db from "../../../database";
+import { linkedTaskScope } from "../services/integration-task-scope";
+import { outboundStamp } from "../utils/sync-echo";
 import type { PluginContext, TaskTitleChangedEvent } from "../../types";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
 import {
@@ -23,6 +26,12 @@ export async function handleTaskTitleChanged(
   const { repositoryOwner, repositoryName } = config;
 
   try {
+    const current = await db.query.taskTable.findFirst({
+      where: linkedTaskScope(event.taskId, context.projectId),
+      columns: { title: true },
+    });
+    if (!current || current.title !== event.newTitle) return;
+
     const links = await findExternalLinksByTask(event.taskId);
     const issueLink = links.find(
       (link) =>
@@ -47,14 +56,12 @@ export async function handleTaskTitleChanged(
         console.log("Skipping title sync - already synced from GitHub");
         return;
       }
-
-      // Skip if recent sync (within 2 seconds) to prevent rapid loops
     }
 
     const octokit = await getVerifiedInstallationOctokit(config);
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
 
-    await octokit.rest.issues.update({
+    const response = await octokit.rest.issues.update({
       owner: repositoryOwner,
       repo: repositoryName,
       issue_number: issueNumber,
@@ -68,11 +75,11 @@ export async function handleTaskTitleChanged(
         ...metadata,
         lastSync: {
           ...metadata.lastSync,
-          title: {
-            timestamp: new Date().toISOString(),
-            source: "kaneo",
-            value: event.newTitle,
-          },
+          title: outboundStamp(
+            metadata.lastSync?.title,
+            event.newTitle,
+            response?.data?.updated_at,
+          ),
         },
       },
     });

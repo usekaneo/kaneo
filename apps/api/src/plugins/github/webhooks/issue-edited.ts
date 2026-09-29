@@ -1,3 +1,4 @@
+import { isOutboundEcho } from "../utils/sync-echo";
 import {
   linkedTaskScope,
   withIntegrationTask,
@@ -10,11 +11,7 @@ import { parseLinkMetadata } from "../utils/parse-link-metadata";
 
 // What this handler reads back out of the row. Every field is optional,
 // because the row may predate any of them.
-type SyncStamp = {
-  timestamp?: string;
-  source?: string;
-  value?: string;
-};
+type SyncStamp = import("../utils/sync-echo").SyncStamp;
 
 type IssueEditedMetadata = {
   lastSync?: {
@@ -29,6 +26,7 @@ type IssueEditedPayload = {
     number: number;
     title: string;
     body: string | null;
+    updated_at?: string;
     html_url: string;
   };
   changes?: {
@@ -102,10 +100,7 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
         let shouldUpdateTitle = true;
 
         if (lastTitleSync) {
-          if (
-            lastTitleSync.value === issue.title &&
-            lastTitleSync.source === "kaneo"
-          ) {
+          if (isOutboundEcho(lastTitleSync, issue.title, issue.updated_at)) {
             console.log("Skipping title update - already synced from Kaneo");
             shouldUpdateTitle = false;
           }
@@ -114,6 +109,7 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
         if (shouldUpdateTitle) {
           updateData.title = issue.title;
           updatedMetadata.lastSync.title = {
+            outbound: metadata.lastSync?.title?.outbound,
             timestamp: new Date().toISOString(),
             source: "github",
             value: issue.title,
@@ -135,8 +131,7 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
 
         if (lastDescSync) {
           if (
-            lastDescSync.value === formattedDescription &&
-            lastDescSync.source === "kaneo"
+            isOutboundEcho(lastDescSync, formattedDescription, issue.updated_at)
           ) {
             console.log(
               "Skipping description update - already synced from Kaneo",
@@ -148,6 +143,7 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
         if (shouldUpdateDescription) {
           updateData.description = formattedDescription;
           updatedMetadata.lastSync.description = {
+            outbound: metadata.lastSync?.description?.outbound,
             timestamp: new Date().toISOString(),
             source: "github",
             value: formattedDescription,

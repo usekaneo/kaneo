@@ -1,3 +1,6 @@
+import db from "../../../database";
+import { linkedTaskScope } from "../../github/services/integration-task-scope";
+import { outboundStamp } from "../../github/utils/sync-echo";
 import {
   findExternalLinksByTask,
   updateExternalLink,
@@ -6,11 +9,7 @@ import type { PluginContext, TaskTitleChangedEvent } from "../../types";
 import type { GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
 
-type LinkSyncState = {
-  timestamp: string;
-  source: string;
-  value: string;
-};
+type LinkSyncState = import("../../github/utils/sync-echo").SyncStamp;
 
 type LinkMetadata = {
   lastSync?: {
@@ -31,6 +30,12 @@ export async function handleTaskTitleChanged(
   const { repositoryOwner, repositoryName } = config;
 
   try {
+    const current = await db.query.taskTable.findFirst({
+      where: linkedTaskScope(event.taskId, context.projectId),
+      columns: { title: true },
+    });
+    if (!current || current.title !== event.newTitle) return;
+
     const links = await findExternalLinksByTask(event.taskId);
     const issueLink = links.find(
       (link) =>
@@ -81,9 +86,14 @@ export async function handleTaskTitleChanged(
       return;
     }
 
-    await client.updateIssue(repositoryOwner, repositoryName, issueNumber, {
-      title: event.newTitle,
-    });
+    const response = await client.updateIssue(
+      repositoryOwner,
+      repositoryName,
+      issueNumber,
+      {
+        title: event.newTitle,
+      },
+    );
 
     await updateExternalLink(issueLink.id, {
       title: event.newTitle,
@@ -91,11 +101,11 @@ export async function handleTaskTitleChanged(
         ...metadata,
         lastSync: {
           ...metadata.lastSync,
-          title: {
-            timestamp: new Date().toISOString(),
-            source: "kaneo",
-            value: event.newTitle,
-          },
+          title: outboundStamp(
+            metadata.lastSync?.title,
+            event.newTitle,
+            response?.updated_at,
+          ),
         },
       },
     });

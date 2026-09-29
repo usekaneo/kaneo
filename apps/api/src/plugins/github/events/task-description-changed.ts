@@ -1,3 +1,6 @@
+import db from "../../../database";
+import { linkedTaskScope } from "../services/integration-task-scope";
+import { outboundStamp } from "../utils/sync-echo";
 import type { PluginContext, TaskDescriptionChangedEvent } from "../../types";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
 import {
@@ -24,6 +27,16 @@ export async function handleTaskDescriptionChanged(
   const { repositoryOwner, repositoryName } = config;
 
   try {
+    const current = await db.query.taskTable.findFirst({
+      where: linkedTaskScope(event.taskId, context.projectId),
+      columns: { description: true },
+    });
+    if (
+      !current ||
+      (current.description || "") !== (event.newDescription || "")
+    )
+      return;
+
     const links = await findExternalLinksByTask(event.taskId);
     const issueLink = links.find(
       (link) =>
@@ -50,8 +63,6 @@ export async function handleTaskDescriptionChanged(
         console.log("Skipping description sync - already synced from GitHub");
         return;
       }
-
-      // Skip if recent sync (within 2 seconds) to prevent rapid loops
     }
 
     const octokit = await getVerifiedInstallationOctokit(config);
@@ -60,7 +71,7 @@ export async function handleTaskDescriptionChanged(
     // Format description with task ID footer
     const formattedBody = formatIssueBody(event.newDescription, event.taskId);
 
-    await octokit.rest.issues.update({
+    const response = await octokit.rest.issues.update({
       owner: repositoryOwner,
       repo: repositoryName,
       issue_number: issueNumber,
@@ -73,11 +84,11 @@ export async function handleTaskDescriptionChanged(
         ...metadata,
         lastSync: {
           ...metadata.lastSync,
-          description: {
-            timestamp: new Date().toISOString(),
-            source: "kaneo",
-            value: newDescNormalized,
-          },
+          description: outboundStamp(
+            metadata.lastSync?.description,
+            newDescNormalized,
+            response?.data?.updated_at,
+          ),
         },
       },
     });

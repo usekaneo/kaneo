@@ -1,3 +1,6 @@
+import db from "../../../database";
+import { linkedTaskScope } from "../../github/services/integration-task-scope";
+import { outboundStamp } from "../../github/utils/sync-echo";
 import {
   findExternalLinksByTask,
   updateExternalLink,
@@ -7,11 +10,7 @@ import type { PluginContext, TaskDescriptionChangedEvent } from "../../types";
 import type { GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
 
-type LinkSyncState = {
-  timestamp: string;
-  source: string;
-  value: string;
-};
+type LinkSyncState = import("../../github/utils/sync-echo").SyncStamp;
 
 type LinkMetadata = {
   lastSync?: {
@@ -32,6 +31,16 @@ export async function handleTaskDescriptionChanged(
   const { repositoryOwner, repositoryName } = config;
 
   try {
+    const current = await db.query.taskTable.findFirst({
+      where: linkedTaskScope(event.taskId, context.projectId),
+      columns: { description: true },
+    });
+    if (
+      !current ||
+      (current.description || "") !== (event.newDescription || "")
+    )
+      return;
+
     const links = await findExternalLinksByTask(event.taskId);
     const issueLink = links.find(
       (link) =>
@@ -86,20 +95,25 @@ export async function handleTaskDescriptionChanged(
 
     const formattedBody = formatIssueBody(event.newDescription, event.taskId);
 
-    await client.updateIssue(repositoryOwner, repositoryName, issueNumber, {
-      body: formattedBody,
-    });
+    const response = await client.updateIssue(
+      repositoryOwner,
+      repositoryName,
+      issueNumber,
+      {
+        body: formattedBody,
+      },
+    );
 
     await updateExternalLink(issueLink.id, {
       metadata: {
         ...metadata,
         lastSync: {
           ...metadata.lastSync,
-          description: {
-            timestamp: new Date().toISOString(),
-            source: "kaneo",
-            value: newDescNormalized,
-          },
+          description: outboundStamp(
+            metadata.lastSync?.description,
+            newDescNormalized,
+            response?.updated_at,
+          ),
         },
       },
     });

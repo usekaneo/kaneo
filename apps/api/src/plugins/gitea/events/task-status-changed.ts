@@ -1,3 +1,4 @@
+import { outboundStamp } from "../../github/utils/sync-echo";
 import {
   findExternalLinksByTask,
   updateExternalLink,
@@ -30,6 +31,7 @@ export async function handleTaskStatusChanged(
       return;
     }
 
+    const metadata = issueLink.metadata ? JSON.parse(issueLink.metadata) : {};
     const client = createGiteaClient(config);
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
 
@@ -40,26 +42,52 @@ export async function handleTaskStatusChanged(
     ]);
 
     if (event.newStatus === "done") {
-      await client.updateIssue(repositoryOwner, repositoryName, issueNumber, {
-        state: "closed",
-      });
+      const response = await client.updateIssue(
+        repositoryOwner,
+        repositoryName,
+        issueNumber,
+        {
+          state: "closed",
+        },
+      );
 
       await updateExternalLink(issueLink.id, {
         metadata: {
           ...(issueLink.metadata ? JSON.parse(issueLink.metadata) : {}),
           state: "closed",
+          lastSync: {
+            ...metadata.lastSync,
+            state: outboundStamp(
+              metadata.lastSync?.state,
+              "closed",
+              response?.updated_at,
+            ),
+          },
           lastOutboundStateSyncAt: Date.now(),
         },
       });
     } else if (event.oldStatus === "done" && event.newStatus !== "done") {
-      await client.updateIssue(repositoryOwner, repositoryName, issueNumber, {
-        state: "open",
-      });
+      const response = await client.updateIssue(
+        repositoryOwner,
+        repositoryName,
+        issueNumber,
+        {
+          state: "open",
+        },
+      );
 
       await updateExternalLink(issueLink.id, {
         metadata: {
           ...(issueLink.metadata ? JSON.parse(issueLink.metadata) : {}),
           state: "open",
+          lastSync: {
+            ...metadata.lastSync,
+            state: outboundStamp(
+              metadata.lastSync?.state,
+              "open",
+              response?.updated_at,
+            ),
+          },
           lastOutboundStateSyncAt: Date.now(),
         },
       });
