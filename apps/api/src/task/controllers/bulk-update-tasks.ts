@@ -1,7 +1,4 @@
-import {
-  queueStorageCleanup,
-  retryStorageCleanup,
-} from "../../storage/cleanup-queue";
+import { queueStorageCleanup } from "../../storage/cleanup-queue";
 import { assetTable } from "../../database/schema";
 import { and, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
@@ -246,7 +243,6 @@ async function bulkUpdateTasks({
         );
         return tx.delete(taskTable).where(inArray(taskTable.id, foundIds));
       });
-      await retryStorageCleanup().catch(() => {});
 
       updatedCount = result.rowCount ?? foundIds.length;
 
