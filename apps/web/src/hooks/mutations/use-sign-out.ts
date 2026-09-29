@@ -2,14 +2,17 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { getIdToken } from "@/fetchers/oauth/get-id-token";
 import { descriptionSaveQueue } from "@/lib/description-save-queue";
+import { i18n } from "@/lib/i18n";
 import { authClient } from "@/lib/auth-client";
 
 function useSignOut(idpLogoutUrl?: string | null) {
   const navigate = useNavigate();
+  const { data: session } = authClient.useSession();
 
   return useMutation({
     mutationFn: async () => {
-      descriptionSaveQueue.clear();
+      if (!(await descriptionSaveQueue.drain(session?.user.id ?? "")))
+        throw new Error(i18n.t("tasks:detail.editor.saveFailed"));
       let idToken: string | null = null;
 
       if (idpLogoutUrl) {
@@ -24,6 +27,7 @@ function useSignOut(idpLogoutUrl?: string | null) {
       const result = await authClient.signOut({
         fetchOptions: {
           onSuccess: () => {
+            descriptionSaveQueue.clear();
             if (idpLogoutUrl) {
               const redirectUri = `${window.location.origin}/auth/sign-in`;
               const url = new URL(idpLogoutUrl);

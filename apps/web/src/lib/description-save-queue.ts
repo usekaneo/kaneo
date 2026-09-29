@@ -7,6 +7,7 @@ type Entry = {
   state: DescriptionSaveState;
   timer?: ReturnType<typeof setTimeout>;
   running: boolean;
+  promise?: Promise<void>;
   version: number;
 };
 
@@ -15,7 +16,7 @@ export function createDescriptionSaveQueue(delay = 700) {
   const entries = new Map<string, Entry>();
   const listeners = new Set<() => void>();
   const notify = () => listeners.forEach((listener) => listener());
-  const flush = async (id: string) => {
+  const run = async (id: string) => {
     const entry = entries.get(id);
     if (!entry || entry.running) return;
     if (entry.timer) clearTimeout(entry.timer);
@@ -52,7 +53,28 @@ export function createDescriptionSaveQueue(delay = 700) {
       }
     }
   };
+  const flush = (id: string): Promise<void> => {
+    const entry = entries.get(id);
+    if (entry?.running) return entry.promise ?? Promise.resolve();
+    const promise = run(id);
+    if (entry) entry.promise = promise;
+    return promise;
+  };
   return {
+    async drain(ownerId: string) {
+      while (true) {
+        const pending = [...entries.entries()].filter(
+          ([, entry]) => entry.ownerId === ownerId,
+        );
+        if (!pending.length) return true;
+        for (const [id] of pending) {
+          await flush(id);
+          const current = entries.get(id);
+          if (current?.ownerId === ownerId && current.state === "failed")
+            return false;
+        }
+      }
+    },
     schedule(id: string, value: string, save: Entry["save"], ownerId = "") {
       const current = entries.get(id);
       if (current?.timer && current.ownerId !== ownerId)
