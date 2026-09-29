@@ -335,6 +335,9 @@ export const projectTable = pgTable(
     backgroundVersion: text("background_version"),
   },
   (table) => [
+    index("project_background_object_key_idx")
+      .on(table.backgroundObjectKey)
+      .where(sql`${table.backgroundObjectKey} is not null`),
     unique("project_workspace_id_id_unique").on(table.workspaceId, table.id),
     index("project_workspaceId_position_idx").on(
       table.workspaceId,
