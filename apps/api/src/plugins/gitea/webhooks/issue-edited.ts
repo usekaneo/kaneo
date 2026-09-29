@@ -8,6 +8,7 @@ import {
 import { taskTable } from "../../../database/schema";
 import {
   findExternalLink,
+  lockExternalLink,
   updateExternalLink,
 } from "../../github/services/link-manager";
 import { formatTaskDescriptionFromIssue } from "../../github/utils/format";
@@ -104,6 +105,11 @@ export async function handleGiteaIssueEdited(
         )
       : false;
 
+    // Prepare provider confirmation before the locked reread, including stamps
+    // that may be committed between the initial snapshot and this transaction.
+    if ((changes.title && !titleEcho) || (changes.body && !descriptionEcho))
+      await currentIssue();
+
     await withIntegrationTask(externalLink.taskId, integration, async (db) => {
       const task = await db.query.taskTable.findFirst({
         where: linkedTaskScope(externalLink.taskId, integration.projectId),
@@ -113,8 +119,10 @@ export async function handleGiteaIssueEdited(
         return;
       }
 
-      const metadata = externalLink.metadata
-        ? JSON.parse(externalLink.metadata)
+      const lockedLink = await lockExternalLink(externalLink.id, db);
+      if (!lockedLink) return;
+      const metadata = lockedLink.metadata
+        ? JSON.parse(lockedLink.metadata)
         : {};
 
       const updateData: Record<string, unknown> = {};
@@ -130,7 +138,15 @@ export async function handleGiteaIssueEdited(
         let shouldUpdateTitle = true;
 
         if (lastTitleSync) {
-          if (titleEcho) {
+          if (
+            titleEcho ||
+            (await confirmedOutboundEcho(
+              lastTitleSync,
+              issue.title,
+              issue.updated_at,
+              async () => (await currentIssue()).title,
+            ))
+          ) {
             shouldUpdateTitle = false;
           }
         }
@@ -156,7 +172,19 @@ export async function handleGiteaIssueEdited(
         let shouldUpdateDescription = true;
 
         if (lastDescSync) {
-          if (descriptionEcho) {
+          if (
+            descriptionEcho ||
+            (await confirmedOutboundEcho(
+              lastDescSync,
+              formattedDescription,
+              issue.updated_at,
+              async () =>
+                formatTaskDescriptionFromIssue(
+                  (await currentIssue()).body ?? null,
+                  task.id,
+                ),
+            ))
+          ) {
             shouldUpdateDescription = false;
           }
         }

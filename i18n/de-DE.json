@@ -2340,6 +2340,8 @@
 			"labels": "Labels",
 			"copyTaskLink": "Aufgabenlink kopieren",
 			"copyTaskBranch": "Aufgaben-Branch kopieren",
+			"taskLinkCopied": "Aufgabenlink kopiert",
+			"taskBranchCopied": "Branch-Name kopiert",
 			"start": "Start",
 			"startDate": "Startdatum",
 			"noDate": "Kein Datum"

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { handleGiteaIssueEdited } from "../../../../apps/api/src/plugins/gitea/webhooks/issue-edited";
 const m = vi.hoisted(() => ({
   metadata: "",
+  lockedMetadata: undefined as string | undefined,
   getIssue: vi.fn(),
   status: vi.fn(),
   writes: vi.fn(),
@@ -49,6 +50,10 @@ vi.mock(
       metadata: m.metadata,
     }),
     updateExternalLink: m.linkWrites,
+    lockExternalLink: async () => ({
+      id: "link",
+      metadata: m.lockedMetadata ?? m.metadata,
+    }),
   }),
 );
 vi.mock(
@@ -89,6 +94,7 @@ const payload = {
 };
 beforeEach(() => {
   vi.clearAllMocks();
+  m.lockedMetadata = undefined;
   m.getIssue.mockResolvedValue({ title: "Newest title", body: "Newest body" });
   m.metadata = JSON.stringify({
     lastSync: {
@@ -303,4 +309,32 @@ it("accepts a same-timestamp remote close matching historical outbound state", a
     issue: { ...payload.issue, state: "closed", updated_at: stamp },
   });
   expect(m.status).toHaveBeenCalled();
+});
+
+it("retains outbound stamps added after the initial inbound snapshot", async () => {
+  m.metadata = JSON.stringify({ lastSync: {} });
+  const stamp = outboundStamp(undefined, "New local title", "new-time");
+  m.lockedMetadata = JSON.stringify({
+    marker: "preserve",
+    lastSync: { title: stamp },
+  });
+  await handleGiteaIssueEdited(payload);
+  expect(
+    m.linkWrites.mock.calls[0][1].metadata.lastSync.title.outbound,
+  ).toEqual(stamp.outbound);
+  expect(m.linkWrites.mock.calls[0][1].metadata.marker).toBe("preserve");
+});
+
+it("recognizes a delayed echo whose stamp arrives before the locked reread", async () => {
+  m.metadata = JSON.stringify({ lastSync: {} });
+  m.lockedMetadata = JSON.stringify({
+    lastSync: {
+      title: outboundStamp(undefined, payload.issue.title, undefined),
+    },
+  });
+  await handleGiteaIssueEdited({
+    ...payload,
+    changes: { title: payload.changes.title },
+  });
+  expect(m.writes).not.toHaveBeenCalled();
 });

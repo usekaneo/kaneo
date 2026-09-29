@@ -6,7 +6,11 @@ import {
   withIntegrationTask,
 } from "../services/integration-task-scope";
 import { taskTable } from "../../../database/schema";
-import { findExternalLink, updateExternalLink } from "../services/link-manager";
+import {
+  findExternalLink,
+  updateExternalLink,
+  lockExternalLink,
+} from "../services/link-manager";
 import { findAllIntegrationsByRepo } from "../services/task-service";
 import { formatTaskDescriptionFromIssue } from "../utils/format";
 import { parseLinkMetadata } from "../utils/parse-link-metadata";
@@ -110,6 +114,11 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
         )
       : false;
 
+    // Prepare provider confirmation before the locked reread, including stamps
+    // that may be committed between the initial snapshot and this transaction.
+    if ((changes.title && !titleEcho) || (changes.body && !descriptionEcho))
+      await currentIssue();
+
     await withIntegrationTask(externalLink.taskId, integration, async (db) => {
       const task = await db.query.taskTable.findFirst({
         where: linkedTaskScope(externalLink.taskId, integration.projectId),
@@ -120,8 +129,10 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
         return;
       }
 
+      const lockedLink = await lockExternalLink(externalLink.id, db);
+      if (!lockedLink) return;
       const metadata = parseLinkMetadata<IssueEditedMetadata>(
-        externalLink.metadata,
+        lockedLink.metadata,
         {
           externalLinkId: externalLink.id,
           source: "issue_edited",
@@ -141,7 +152,15 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
         let shouldUpdateTitle = true;
 
         if (lastTitleSync) {
-          if (titleEcho) {
+          if (
+            titleEcho ||
+            (await confirmedOutboundEcho(
+              lastTitleSync,
+              issue.title,
+              issue.updated_at,
+              async () => (await currentIssue()).title,
+            ))
+          ) {
             console.log("Skipping title update - already synced from Kaneo");
             shouldUpdateTitle = false;
           }
@@ -171,7 +190,19 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
         let shouldUpdateDescription = true;
 
         if (lastDescSync) {
-          if (descriptionEcho) {
+          if (
+            descriptionEcho ||
+            (await confirmedOutboundEcho(
+              lastDescSync,
+              formattedDescription,
+              issue.updated_at,
+              async () =>
+                formatTaskDescriptionFromIssue(
+                  (await currentIssue()).body ?? null,
+                  task.id,
+                ),
+            ))
+          ) {
             console.log(
               "Skipping description update - already synced from Kaneo",
             );

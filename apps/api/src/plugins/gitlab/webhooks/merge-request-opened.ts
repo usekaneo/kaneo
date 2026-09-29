@@ -5,13 +5,14 @@ import {
   updateExternalLink,
 } from "../../github/services/link-manager";
 import {
-  findTaskByNumber,
+  findTaskById,
   isTaskInFinalState,
   updateTaskStatus,
 } from "../../github/services/task-service";
+import { parseLinkMetadata } from "../../github/utils/parse-link-metadata";
 import type { GitlabConfig } from "../config";
 import { findAllIntegrationsByGitlabProject } from "../services/integration-lookup";
-import { extractTaskNumberGitlab } from "../utils/branch-matcher";
+import { resolveMergeRequestTask } from "../services/resolve-merge-request-task";
 import type { GitlabWebhookProject, GitlabWebhookUser } from "../utils/payload";
 import { resolveTargetStatus } from "../utils/resolve-column";
 import { baseUrlFromProjectWebUrl } from "../utils/webhook-project";
@@ -72,29 +73,30 @@ export async function handleGitlabMergeRequestOpened(
       continue;
     }
 
-    const taskNumber = extractTaskNumberGitlab(
-      branchName,
-      mergeRequest.title,
-      mergeRequest.description ?? undefined,
-      config,
-      integration.project.slug,
-    );
-
-    if (!taskNumber) {
-      continue;
-    }
-
-    const task = await findTaskByNumber(integration.projectId, taskNumber);
-
-    if (!task) {
-      continue;
-    }
-
     const existingLink = await findExternalLink(
       integration.id,
       "pull_request",
       mergeRequest.iid.toString(),
     );
+
+    const linkedTask =
+      existingLink && (await findTaskById(existingLink.taskId));
+    if (existingLink && linkedTask?.projectId !== integration.projectId) {
+      continue;
+    }
+
+    const task =
+      linkedTask ||
+      (await resolveMergeRequestTask({
+        projectId: integration.projectId,
+        projectSlug: integration.project.slug,
+        config,
+        mergeRequest: { ...mergeRequest, source_branch: branchName },
+      }));
+
+    if (!task) {
+      continue;
+    }
 
     const metadata = {
       state: mergeRequest.state,
@@ -133,9 +135,15 @@ export async function handleGitlabMergeRequestOpened(
       config.statusTransitions?.onPROpen || "in-review",
     );
 
-    const isTaskFinal = await isTaskInFinalState(task);
+    const wasDraft =
+      parseLinkMetadata<{ draft: boolean }>(existingLink?.metadata, {
+        externalLinkId: existingLink?.id ?? "",
+        source: "gitlab-merge-request-opened",
+      }).draft === true;
+    const canMove =
+      !existingLink || wasDraft || !(await isTaskInFinalState(task));
 
-    if (task.status !== targetStatus && !isTaskFinal) {
+    if (task.status !== targetStatus && canMove) {
       const statusResult = await updateTaskStatus(task.id, targetStatus);
       if (
         statusResult.applied &&

@@ -209,3 +209,12 @@ export async function getExternalLinksByIntegration(integrationId: string) {
     where: eq(externalLinkTable.integrationId, integrationId),
   });
 }
+
+export async function lockExternalLink(id: string, database: DbOrTx) {
+  const [link] = await database
+    .select({ id: externalLinkTable.id, metadata: externalLinkTable.metadata })
+    .from(externalLinkTable)
+    .where(eq(externalLinkTable.id, id))
+    .for("update");
+  return link;
+}

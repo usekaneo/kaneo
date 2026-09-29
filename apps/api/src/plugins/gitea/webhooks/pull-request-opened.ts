@@ -4,10 +4,7 @@ import {
   findExternalLink,
 } from "../../github/services/link-manager";
 import { resolvePullRequestTask } from "../../github/services/resolve-pull-request-task";
-import {
-  isTaskInFinalState,
-  updateTaskStatus,
-} from "../../github/services/task-service";
+import { updateTaskStatus } from "../../github/services/task-service";
 import type { GiteaConfig } from "../config";
 import {
   findAllIntegrationsByGiteaRepo,
@@ -117,9 +114,7 @@ export async function handleGiteaPullRequestOpened(
     config.statusTransitions?.onPROpen || "in-review",
   );
 
-  const isTaskFinal = await isTaskInFinalState(task);
-
-  if (task.status !== targetStatus && !isTaskFinal) {
+  if (task.status !== targetStatus) {
     const statusResult = await updateTaskStatus(task.id, targetStatus);
     if (
       statusResult.applied &&

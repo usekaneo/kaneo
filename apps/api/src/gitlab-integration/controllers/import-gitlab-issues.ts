@@ -13,13 +13,12 @@ import {
   createExternalLink,
   findExternalLink,
 } from "../../plugins/github/services/link-manager";
-import { findTaskByNumber } from "../../plugins/github/services/task-service";
 import {
   extractIssuePriority,
   extractIssueStatus,
 } from "../../plugins/github/utils/extract-priority";
 import type { GitlabConfig } from "../../plugins/gitlab/config";
-import { extractTaskNumberGitlab } from "../../plugins/gitlab/utils/branch-matcher";
+import { resolveMergeRequestTask } from "../../plugins/gitlab/services/resolve-merge-request-task";
 import {
   createGitlabClient,
   type GitlabIssue,
@@ -408,19 +407,12 @@ async function linkMergeRequestToTask(
     return;
   }
 
-  const taskNumber = extractTaskNumberGitlab(
-    branchName,
-    mergeRequest.title,
-    mergeRequest.description ?? undefined,
-    config,
+  const task = await resolveMergeRequestTask({
+    projectId,
     projectSlug,
-  );
-
-  if (!taskNumber) {
-    return;
-  }
-
-  const task = await findTaskByNumber(projectId, taskNumber);
+    config,
+    mergeRequest: { ...mergeRequest, source_branch: branchName },
+  });
 
   if (!task) {
     return;

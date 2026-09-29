@@ -2731,6 +2731,8 @@
 		},
 		"properties": {
 			"copyTaskBranch": "Kopiuj gałąź zadania",
+			"taskLinkCopied": "Skopiowano link do zadania",
+			"taskBranchCopied": "Skopiowano nazwę gałęzi",
 			"copyTaskLink": "Kopiuj link do zadania",
 			"labels": "Etykiety",
 			"noDate": "Brak daty",

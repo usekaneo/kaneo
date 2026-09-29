@@ -126,3 +126,14 @@ vi.mock(
     };
   },
 );
+it("skips a reopen that Kaneo already applied", async () => {
+  m.find.mockResolvedValue([{ id: "integration-1" }]);
+  m.links.mockResolvedValue({
+    id: "first",
+    taskId: "task",
+    metadata: '{"state":"open"}',
+  });
+  await handleIssueReopened(payload);
+  expect(m.update).not.toHaveBeenCalled();
+  expect(m.status).not.toHaveBeenCalled();
+});

@@ -24,6 +24,7 @@ import {
 
 const m = vi.hoisted(() => ({
   listIssues: vi.fn(),
+  getIssue: vi.fn(),
   listIssueComments: vi.fn(async () => []),
   listIssueNotes: vi.fn(async () => []),
   listPulls: vi.fn(async () => []),
@@ -416,4 +417,39 @@ it("preserves outbound history and unrelated fields across concurrent sync compl
         `time-${i}`,
       ),
     ).toBe(true);
+});
+
+it("keeps outbound history committed during an inbound provider read", async () => {
+  const { updateExternalLink } =
+    await import("../../apps/api/src/plugins/github/services/link-manager");
+  const { isOutboundEcho } =
+    await import("../../apps/api/src/plugins/github/utils/sync-echo");
+  const { link } = await setup();
+  m.getIssue.mockImplementationOnce(async () => {
+    await updateExternalLink(link.id, {
+      outbound: {
+        field: "title",
+        value: "Local edit",
+        updatedAt: "local-time",
+      },
+    });
+    return remoteIssue;
+  });
+  await handleGiteaIssueEdited({
+    action: "edited",
+    repository,
+    issue: remoteIssue,
+    changes: { title: { from: "Old" } },
+  });
+  expect(m.getIssue).toHaveBeenCalledOnce();
+  const saved = await db.query.externalLinkTable.findFirst({
+    where: eq(schema.externalLinkTable.id, link.id),
+  });
+  expect(
+    isOutboundEcho(
+      JSON.parse(saved!.metadata!).lastSync.title,
+      "Local edit",
+      "local-time",
+    ),
+  ).toBe(true);
 });
