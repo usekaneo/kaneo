@@ -3,6 +3,7 @@ import { HttpError } from "@/lib/http-error";
 
 export type TaskReorder = {
   projectId: string;
+  expectedTasks?: { id: string; position: number | null; status: string }[];
   tasks: { id: string; position: number; status?: string }[];
 };
 export default async function reorderTasks(json: TaskReorder) {

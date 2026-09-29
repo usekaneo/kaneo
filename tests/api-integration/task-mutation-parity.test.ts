@@ -1,6 +1,6 @@
 import updateTaskPriority from "../../apps/api/src/task/controllers/update-task-priority";
 import { eq } from "drizzle-orm";
-import { beforeEach, expect, it, vi } from "vite-plus/test";
+import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
 import db, { getDatabase, schema } from "../../apps/api/src/database";
 import updateTask from "../../apps/api/src/task/controllers/update-task";
 import bulkUpdateTasks from "../../apps/api/src/task/controllers/bulk-update-tasks";
@@ -15,6 +15,7 @@ beforeEach(async () => {
   await resetTestDatabase();
   vi.clearAllMocks();
 });
+afterEach(() => vi.restoreAllMocks());
 it("full updates store title history, assignment events and reset reminders together", async () => {
   const { user, workspace } = await createWorkspaceMember();
   const { project } = await createProjectFixture({ workspaceId: workspace.id });
@@ -103,17 +104,14 @@ it("a single-field write does not attribute another concurrent field change to i
     .insert(schema.taskTable)
     .values({ projectId: project.id, title: "old", priority: "low" })
     .returning();
-  const findFirst = getDatabase().query.taskTable.findFirst.bind(
-    getDatabase().query.taskTable,
-  );
-  vi.spyOn(getDatabase().query.taskTable, "findFirst").mockImplementationOnce(
-    async (query) => {
-      const before = await findFirst(query);
+  const transaction = db.transaction.bind(db);
+  vi.spyOn(getDatabase(), "transaction").mockImplementationOnce(
+    async (apply, config) => {
       await db
         .update(schema.taskTable)
         .set({ title: "concurrent title" })
         .where(eq(schema.taskTable.id, task.id));
-      return before;
+      return transaction(apply, config);
     },
   );
   await updateTaskPriority({
@@ -197,3 +195,48 @@ it("bulk assignment resolves the assignee once and bulk status refreshes each pr
     publish.mock.calls.filter(([type]) => type === "task-relation.refresh"),
   ).toHaveLength(1);
 });
+
+it.each(["single", "bulk"])(
+  "%s priority writes publish the actual overwritten priority",
+  async (mode) => {
+    const { user, workspace } = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: workspace.id,
+    });
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "priority race",
+        priority: "low",
+      })
+      .returning();
+    const transaction = db.transaction.bind(db);
+    vi.spyOn(getDatabase(), "transaction").mockImplementationOnce(
+      async (apply, config) => {
+        await db
+          .update(schema.taskTable)
+          .set({ priority: "high" })
+          .where(eq(schema.taskTable.id, task.id));
+        return transaction(apply, config);
+      },
+    );
+    if (mode === "single")
+      await updateTaskPriority({
+        id: task.id,
+        priority: "low",
+        currentUserId: user.id,
+      });
+    else
+      await bulkUpdateTasks({
+        taskIds: [task.id],
+        operation: "updatePriority",
+        value: "low",
+        userId: user.id,
+      });
+    expect(publish).toHaveBeenCalledWith(
+      "task.priority_changed",
+      expect.objectContaining({ oldPriority: "high", newPriority: "low" }),
+    );
+  },
+);

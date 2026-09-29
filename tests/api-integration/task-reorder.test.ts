@@ -111,3 +111,49 @@ it("atomically reorders more than 1,000 supported cards", async () => {
     )?.position,
   ).toBe(1000);
 });
+
+it("rejects a second drag from a stale column snapshot without duplicating positions", async () => {
+  const { user, workspace } = await createWorkspaceMember();
+  const { project } = await createProjectFixture({ workspaceId: workspace.id });
+  const tasks = await db
+    .insert(schema.taskTable)
+    .values(
+      Array.from({ length: 4 }, (_, position) => ({
+        projectId: project.id,
+        title: `card-${position}`,
+        number: position + 1,
+        position,
+        status: "to-do",
+      })),
+    )
+    .returning();
+  const expected = tasks.map((task) => ({
+    id: task.id,
+    position: task.position,
+    status: task.status,
+  }));
+  await reorderTasks(
+    project.id,
+    tasks.map((task, index) => ({
+      id: task.id,
+      position: index === 0 ? 3 : index - 1,
+    })),
+    user.id,
+    expected,
+  );
+  publish.mockClear();
+  await expect(
+    reorderTasks(
+      project.id,
+      [{ id: tasks[1].id, position: 3 }],
+      user.id,
+      expected,
+    ),
+  ).rejects.toMatchObject({ status: 409 });
+  const current = await db
+    .select()
+    .from(schema.taskTable)
+    .where(eq(schema.taskTable.projectId, project.id));
+  expect(new Set(current.map((task) => task.position)).size).toBe(4);
+  expect(publish).not.toHaveBeenCalled();
+});

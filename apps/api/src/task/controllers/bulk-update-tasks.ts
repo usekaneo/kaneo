@@ -195,19 +195,43 @@ async function bulkUpdateTasks({
       }
       assertValidPriority(value);
 
-      const result = await db
-        .update(taskTable)
-        .set({ priority: value })
-        .where(inArray(taskTable.id, foundIds));
-
-      updatedCount = result.rowCount ?? foundIds.length;
-
-      for (const task of tasks)
+      const before = await db.transaction(async (tx) => {
+        const locked = await tx
+          .select({
+            id: taskTable.id,
+            projectId: taskTable.projectId,
+            title: taskTable.title,
+            userId: taskTable.userId,
+            priority: taskTable.priority,
+          })
+          .from(taskTable)
+          .where(inArray(taskTable.id, foundIds))
+          .orderBy(asc(taskTable.id))
+          .for("update");
+        const originalProjects = new Map(
+          tasks.map((task) => [task.id, task.projectId]),
+        );
+        if (
+          locked.length !== foundIds.length ||
+          locked.some(
+            (task) => task.projectId !== originalProjects.get(task.id),
+          )
+        )
+          throw new HTTPException(409, {
+            message: "Tasks changed projects; retry the operation",
+          });
+        await tx
+          .update(taskTable)
+          .set({ priority: value })
+          .where(inArray(taskTable.id, foundIds));
+        return locked;
+      });
+      updatedCount = before.length;
+      for (const task of before)
         await publishTaskMutation(
           task,
           {
             ...task,
-            description: null,
             priority: value,
           },
           userId,
@@ -229,17 +253,42 @@ async function bulkUpdateTasks({
             where: eq(userTable.id, assigneeId),
           })
         : undefined;
-      const result = await db
-        .update(taskTable)
-        .set({ userId: assigneeId })
-        .where(inArray(taskTable.id, foundIds));
-      updatedCount = result.rowCount ?? foundIds.length;
-      for (const task of tasks)
+      const before = await db.transaction(async (tx) => {
+        const locked = await tx
+          .select({
+            id: taskTable.id,
+            projectId: taskTable.projectId,
+            title: taskTable.title,
+            userId: taskTable.userId,
+          })
+          .from(taskTable)
+          .where(inArray(taskTable.id, foundIds))
+          .orderBy(asc(taskTable.id))
+          .for("update");
+        const originalProjects = new Map(
+          tasks.map((task) => [task.id, task.projectId]),
+        );
+        if (
+          locked.length !== foundIds.length ||
+          locked.some(
+            (task) => task.projectId !== originalProjects.get(task.id),
+          )
+        )
+          throw new HTTPException(409, {
+            message: "Tasks changed projects; retry the operation",
+          });
+        await tx
+          .update(taskTable)
+          .set({ userId: assigneeId })
+          .where(inArray(taskTable.id, foundIds));
+        return locked;
+      });
+      updatedCount = before.length;
+      for (const task of before)
         await publishTaskMutation(
           task,
           {
             ...task,
-            description: null,
             userId: assigneeId,
           },
           userId,
