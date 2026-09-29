@@ -44,6 +44,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { useTranslation } from "react-i18next";
 import type { Highlighter } from "shiki";
@@ -62,6 +63,7 @@ import { useUpdateTaskDescription } from "@/hooks/mutations/task/use-update-task
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
+import { descriptionSaveQueue } from "@/lib/description-save-queue";
 import {
   extractIssueKeyFromUrl,
   extractTaskIdFromUrl,
@@ -115,8 +117,6 @@ type SlashMenuState = {
   left: number;
   selectedIndex: number;
 };
-
-const DESCRIPTION_SAVE_DEBOUNCE_MS = 700;
 
 function formatMarkdown(markdown: string) {
   return markdown
@@ -606,40 +606,16 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     };
   }, []);
 
-  const pendingDescriptionSavesRef = useRef(
-    new Map<string, ReturnType<typeof setTimeout>>(),
+  const saveState = useSyncExternalStore(
+    descriptionSaveQueue.subscribe,
+    () => descriptionSaveQueue.get(taskId)?.state ?? "saved",
   );
-
   const scheduleDescriptionSave = useCallback((markdown: string) => {
     if (!canEditRef.current) return;
-
     const editedTask = taskRef.current;
     if (!editedTask) return;
-
-    const timers = pendingDescriptionSavesRef.current;
-    const pending = timers.get(editedTask.id);
-    if (pending) clearTimeout(pending);
-
-    timers.set(
-      editedTask.id,
-      setTimeout(async () => {
-        timers.delete(editedTask.id);
-
-        const updateTaskFn = updateTaskRef.current;
-        if (!updateTaskFn) return;
-
-        const latestTask = taskRef.current;
-        const base = latestTask?.id === editedTask.id ? latestTask : editedTask;
-
-        try {
-          await updateTaskFn({
-            ...base,
-            description: markdown,
-          });
-        } catch (error) {
-          console.error("Failed to update description:", error);
-        }
-      }, DESCRIPTION_SAVE_DEBOUNCE_MS),
+    descriptionSaveQueue.schedule(editedTask.id, markdown, (description) =>
+      updateTaskRef.current({ ...editedTask, description }),
     );
   }, []);
 
@@ -833,7 +809,12 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         },
       },
       onUpdate: ({ editor: activeEditor }) => {
-        if (!canEditRef.current || isSyncingExternalContentRef.current) return;
+        if (
+          !isMountedRef.current ||
+          !canEditRef.current ||
+          isSyncingExternalContentRef.current
+        )
+          return;
         const markdown = formatMarkdown(activeEditor.getMarkdown());
         if (markdown === latestSyncedMarkdownRef.current) return;
         latestSyncedMarkdownRef.current = markdown;
@@ -1055,7 +1036,12 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
       latestSyncedMarkdownRef.current = "";
     }
 
-    const incomingMarkdown = formatMarkdown(task?.description || "");
+    const pendingSave = descriptionSaveQueue.get(taskId);
+    const incomingMarkdown = formatMarkdown(
+      task?.id && pendingSave && pendingSave.state !== "saved"
+        ? pendingSave.value
+        : task?.description || "",
+    );
     if (!hasHydratedRef.current) {
       isSyncingExternalContentRef.current = true;
       latestSyncedMarkdownRef.current = incomingMarkdown;
@@ -1070,7 +1056,8 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
       return;
     }
 
-    if (editor.isFocused) return;
+    if (editor.isFocused || (pendingSave && pendingSave.state !== "saved"))
+      return;
     if (incomingMarkdown === latestSyncedMarkdownRef.current) return;
 
     isSyncingExternalContentRef.current = true;
@@ -1079,7 +1066,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     requestAnimationFrame(() => {
       isSyncingExternalContentRef.current = false;
     });
-  }, [editor, taskId, task?.description]);
+  }, [editor, taskId, task?.id, task?.description]);
 
   useEffect(() => {
     if (!editor) return;
@@ -1429,6 +1416,28 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
       onDragLeave={handleShellDragLeave}
       onDrop={handleShellDrop}
     >
+      {canEdit && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex items-center gap-2 text-xs text-muted-foreground"
+        >
+          {saveState === "failed"
+            ? t("tasks:detail.editor.saveFailed")
+            : saveState === "saved"
+              ? t("tasks:detail.editor.saved")
+              : t("tasks:detail.editor.saving")}
+          {saveState === "failed" && (
+            <Button
+              size="xs"
+              variant="ghost"
+              onClick={() => descriptionSaveQueue.retry(taskId)}
+            >
+              {t("tasks:detail.editor.retrySave")}
+            </Button>
+          )}
+        </div>
+      )}
       <input
         ref={imageInputRef}
         type="file"

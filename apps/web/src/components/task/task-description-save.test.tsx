@@ -1,4 +1,10 @@
-import { act, fireEvent, render, waitFor } from "@testing-library/react";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  waitFor,
+} from "@testing-library/react";
 import { Extension } from "@tiptap/core";
 import TaskItem from "@tiptap/extension-task-item";
 import { EditorView } from "@tiptap/pm/view";
@@ -169,6 +175,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  cleanup();
   vi.useRealTimers();
 });
 
@@ -267,7 +274,7 @@ describe("TaskDescription pending saves", () => {
     await waitFor(() => expect(container.textContent).toContain("alpha"));
 
     await settle();
-    latestEditor().commands.insertContent(" edited in a");
+    act(() => latestEditor().commands.insertContent(" edited in a"));
     expect(mocks.mutateAsync).not.toHaveBeenCalled();
 
     rerender(<TaskDescription taskId="task-b" />);
@@ -287,13 +294,13 @@ describe("TaskDescription pending saves", () => {
     await waitFor(() => expect(container.textContent).toContain("alpha"));
 
     await settle();
-    latestEditor().commands.insertContent(" edited in a");
+    act(() => latestEditor().commands.insertContent(" edited in a"));
 
     rerender(<TaskDescription taskId="task-b" />);
     await waitFor(() => expect(container.textContent).toContain("bravo"));
 
     await settle();
-    latestEditor().commands.insertContent(" edited in b");
+    act(() => latestEditor().commands.insertContent(" edited in b"));
 
     await vi.waitFor(() => expect(mocks.mutateAsync).toHaveBeenCalledTimes(2), {
       timeout: DEBOUNCE_MS * 4,
