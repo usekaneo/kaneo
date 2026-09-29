@@ -395,7 +395,10 @@ export function createApp() {
 
   api.use("/auth/*", async (c, next) => {
     const apiKeyHeader = c.req.header("x-api-key")?.trim();
-    if (apiKeyHeader && !(await verifyApiKey(apiKeyHeader))) {
+    if (
+      apiKeyHeader &&
+      !(await verifyApiKey(apiKeyHeader, { consume: false }))
+    ) {
       throw new HTTPException(401, { message: "Unauthorized" });
     }
     return next();
@@ -682,7 +685,7 @@ export function createApp() {
         return auth.handler(new Request(c.req.raw, { headers }));
       }
 
-      if (!(await verifyApiKey(bearerToken))) {
+      if (!(await verifyApiKey(bearerToken, { consume: false }))) {
         throw new HTTPException(401, { message: "Unauthorized" });
       }
 
