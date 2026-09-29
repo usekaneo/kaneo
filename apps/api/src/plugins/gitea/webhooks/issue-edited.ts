@@ -1,5 +1,7 @@
-import { eq } from "drizzle-orm";
-import db from "../../../database";
+import {
+  linkedTaskScope,
+  withIntegrationTask,
+} from "../../github/services/integration-task-scope";
 import { taskTable } from "../../../database/schema";
 import {
   findExternalLink,
@@ -63,98 +65,102 @@ export async function handleGiteaIssueEdited(
       continue;
     }
 
-    const task = await db.query.taskTable.findFirst({
-      where: eq(taskTable.id, externalLink.taskId),
-    });
-
-    if (!task) {
-      continue;
-    }
-
-    const metadata = externalLink.metadata
-      ? JSON.parse(externalLink.metadata)
-      : {};
-
-    const updateData: Record<string, unknown> = {};
-    const updatedMetadata = { ...metadata };
-
-    if (!updatedMetadata.lastSync) {
-      updatedMetadata.lastSync = {};
-    }
-
-    if (changes.title) {
-      const lastTitleSync = metadata.lastSync?.title;
-
-      let shouldUpdateTitle = true;
-
-      if (lastTitleSync) {
-        if (
-          lastTitleSync.value === issue.title &&
-          lastTitleSync.source === "kaneo"
-        ) {
-          shouldUpdateTitle = false;
-        }
-
-        const timeSinceLastSync =
-          Date.now() - new Date(lastTitleSync.timestamp).getTime();
-        if (timeSinceLastSync < 2000 && shouldUpdateTitle) {
-          shouldUpdateTitle = false;
-        }
-      }
-
-      if (shouldUpdateTitle) {
-        updateData.title = issue.title;
-        updatedMetadata.lastSync.title = {
-          timestamp: new Date().toISOString(),
-          source: "gitea",
-          value: issue.title,
-        };
-      }
-    }
-
-    if (changes.body) {
-      const lastDescSync = metadata.lastSync?.description;
-      const formattedDescription = formatTaskDescriptionFromIssue(issue.body);
-
-      let shouldUpdateDescription = true;
-
-      if (lastDescSync) {
-        if (
-          lastDescSync.value === formattedDescription &&
-          lastDescSync.source === "kaneo"
-        ) {
-          shouldUpdateDescription = false;
-        }
-
-        const timeSinceLastSync =
-          Date.now() - new Date(lastDescSync.timestamp).getTime();
-        if (timeSinceLastSync < 2000 && shouldUpdateDescription) {
-          shouldUpdateDescription = false;
-        }
-      }
-
-      if (shouldUpdateDescription) {
-        updateData.description = formattedDescription;
-        updatedMetadata.lastSync.description = {
-          timestamp: new Date().toISOString(),
-          source: "gitea",
-          value: formattedDescription,
-        };
-      }
-    }
-
-    if (Object.keys(updateData).length > 0) {
-      await db
-        .update(taskTable)
-        .set(updateData)
-        .where(eq(taskTable.id, task.id));
-
-      await updateExternalLink(externalLink.id, {
-        title: issue.title,
-        metadata: updatedMetadata,
+    await withIntegrationTask(externalLink.taskId, integration, async (db) => {
+      const task = await db.query.taskTable.findFirst({
+        where: linkedTaskScope(externalLink.taskId, integration.projectId),
       });
-    }
 
-    return;
+      if (!task) {
+        return;
+      }
+
+      const metadata = externalLink.metadata
+        ? JSON.parse(externalLink.metadata)
+        : {};
+
+      const updateData: Record<string, unknown> = {};
+      const updatedMetadata = { ...metadata };
+
+      if (!updatedMetadata.lastSync) {
+        updatedMetadata.lastSync = {};
+      }
+
+      if (changes.title) {
+        const lastTitleSync = metadata.lastSync?.title;
+
+        let shouldUpdateTitle = true;
+
+        if (lastTitleSync) {
+          if (
+            lastTitleSync.value === issue.title &&
+            lastTitleSync.source === "kaneo"
+          ) {
+            shouldUpdateTitle = false;
+          }
+          const timeSinceLastSync =
+            Date.now() - new Date(lastTitleSync.timestamp).getTime();
+          if (timeSinceLastSync < 2000 && shouldUpdateTitle) {
+            shouldUpdateTitle = false;
+          }
+        }
+
+        if (shouldUpdateTitle) {
+          updateData.title = issue.title;
+          updatedMetadata.lastSync.title = {
+            timestamp: new Date().toISOString(),
+            source: "gitea",
+            value: issue.title,
+          };
+        }
+      }
+
+      if (changes.body) {
+        const lastDescSync = metadata.lastSync?.description;
+        const formattedDescription = formatTaskDescriptionFromIssue(issue.body);
+
+        let shouldUpdateDescription = true;
+
+        if (lastDescSync) {
+          if (
+            lastDescSync.value === formattedDescription &&
+            lastDescSync.source === "kaneo"
+          ) {
+            shouldUpdateDescription = false;
+          }
+          const timeSinceLastSync =
+            Date.now() - new Date(lastDescSync.timestamp).getTime();
+          if (timeSinceLastSync < 2000 && shouldUpdateDescription) {
+            shouldUpdateDescription = false;
+          }
+        }
+
+        if (shouldUpdateDescription) {
+          updateData.description = formattedDescription;
+          updatedMetadata.lastSync.description = {
+            timestamp: new Date().toISOString(),
+            source: "gitea",
+            value: formattedDescription,
+          };
+        }
+      }
+
+      if (Object.keys(updateData).length > 0) {
+        await db
+          .update(taskTable)
+          .set(updateData)
+          .where(linkedTaskScope(task.id, integration.projectId));
+
+        await updateExternalLink(
+          externalLink.id,
+          {
+            title: issue.title,
+            metadata: updatedMetadata,
+          },
+          db,
+        );
+      }
+
+      return;
+    });
   }
 }

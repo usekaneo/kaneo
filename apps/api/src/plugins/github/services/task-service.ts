@@ -8,6 +8,8 @@ import {
 } from "../../../database/schema";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
 
+import type { IntegrationDatabase } from "./integration-task-scope";
+
 export type TaskRow = InferSelectModel<typeof taskTable>;
 
 export type UpdateTaskStatusResult =
@@ -34,8 +36,9 @@ export async function findTaskById(taskId: string) {
 export async function updateTaskStatus(
   taskId: string,
   newStatus: string,
+  database: IntegrationDatabase = db,
 ): Promise<UpdateTaskStatusResult> {
-  const task = await db.query.taskTable.findFirst({
+  const task = await database.query.taskTable.findFirst({
     where: eq(taskTable.id, taskId),
   });
 
@@ -45,7 +48,7 @@ export async function updateTaskStatus(
 
   let columnId: string | null = null;
 
-  const column = await db.query.columnTable.findFirst({
+  const column = await database.query.columnTable.findFirst({
     where: and(
       eq(columnTable.projectId, task.projectId),
       eq(columnTable.slug, newStatus),
@@ -61,14 +64,13 @@ export async function updateTaskStatus(
     return { applied: false };
   }
 
-  await db
+  const [after] = await database
     .update(taskTable)
     .set({ status: newStatus, columnId })
-    .where(eq(taskTable.id, taskId));
-
-  const after = await db.query.taskTable.findFirst({
-    where: eq(taskTable.id, taskId),
-  });
+    .where(
+      and(eq(taskTable.id, taskId), eq(taskTable.projectId, task.projectId)),
+    )
+    .returning();
 
   if (!after) {
     return { applied: false };

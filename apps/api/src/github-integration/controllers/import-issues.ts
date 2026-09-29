@@ -173,6 +173,17 @@ export async function importIssues(projectId: string, runId?: string) {
       }
       const currentRun: typeof githubImportTable.$inferSelect = run;
       run = await db.transaction(async (tx) => {
+        const [currentProject] = await tx
+          .select()
+          .from(projectTable)
+          .where(
+            and(
+              eq(projectTable.id, project.id),
+              eq(projectTable.workspaceId, project.workspaceId),
+            ),
+          )
+          .for("key share");
+        if (!currentProject) throw conflict();
         // Serialize against integration changes and webhook issue creation. No
         // provider request is made while this transaction holds row locks.
         const [currentIntegration] = await tx
@@ -305,12 +316,16 @@ async function applyPage(
   }
   const current = state.currentIssue;
   if (!current) throw new Error("Import continuation missing");
-  const task = await tx.query.taskTable.findFirst({
-    where: and(
-      eq(taskTable.id, current.taskId),
-      eq(taskTable.projectId, project.id),
-    ),
-  });
+  const [task] = await tx
+    .select()
+    .from(taskTable)
+    .where(
+      and(
+        eq(taskTable.id, current.taskId),
+        eq(taskTable.projectId, project.id),
+      ),
+    )
+    .for("no key update");
   if (!task) {
     state.skipped++;
     finishIssue(state);
@@ -540,6 +555,12 @@ async function linkPull(
     database: tx,
   });
   if (!task) return;
+  const [scopedTask] = await tx
+    .select({ id: taskTable.id })
+    .from(taskTable)
+    .where(and(eq(taskTable.id, task.id), eq(taskTable.projectId, project.id)))
+    .for("share");
+  if (!scopedTask) return;
   await tx.insert(externalLinkTable).values({
     taskId: task.id,
     integrationId,

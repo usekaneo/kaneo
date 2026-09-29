@@ -1,4 +1,4 @@
-import db from "../../../database";
+import { withIntegrationTask } from "../services/integration-task-scope";
 import { activityTable } from "../../../database/schema";
 import { findExternalLink } from "../services/link-manager";
 import { findAllIntegrationsByRepo } from "../services/task-service";
@@ -53,25 +53,27 @@ export async function handleIssueCommentCreated(
       continue;
     }
 
-    await db
-      .insert(activityTable)
-      .values({
-        taskId: existingLink.taskId,
-        type: "comment",
-        content: comment.body,
-        externalUserName: comment.user?.login ?? "Unknown",
-        externalUserAvatar: comment.user?.avatar_url ?? null,
-        externalSource: "github",
-        externalUrl: comment.html_url,
-      })
-      .onConflictDoNothing({
-        target: [
-          activityTable.taskId,
-          activityTable.externalSource,
-          activityTable.externalUrl,
-        ],
-      });
+    await withIntegrationTask(existingLink.taskId, integration, async (db) => {
+      await db
+        .insert(activityTable)
+        .values({
+          taskId: existingLink.taskId,
+          type: "comment",
+          content: comment.body,
+          externalUserName: comment.user?.login ?? "Unknown",
+          externalUserAvatar: comment.user?.avatar_url ?? null,
+          externalSource: "github",
+          externalUrl: comment.html_url,
+        })
+        .onConflictDoNothing({
+          target: [
+            activityTable.taskId,
+            activityTable.externalSource,
+            activityTable.externalUrl,
+          ],
+        });
 
-    return;
+      return;
+    });
   }
 }

@@ -1,6 +1,10 @@
+import {
+  linkedTaskScope,
+  withIntegrationTask,
+} from "../services/integration-task-scope";
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
-import { externalLinkTable, taskTable } from "../../../database/schema";
+import { externalLinkTable } from "../../../database/schema";
 import { publishEvent } from "../../../events";
 import { updateExternalLink } from "../services/link-manager";
 import {
@@ -45,51 +49,63 @@ export async function handleIssueReopened(payload: IssueReopenedPayload) {
       continue;
     }
 
-    const task = await db.query.taskTable.findFirst({
-      where: eq(taskTable.id, externalLink.taskId),
-    });
+    await withIntegrationTask(
+      externalLink.taskId,
+      integration,
+      async (db, afterCommit) => {
+        const task = await db.query.taskTable.findFirst({
+          where: linkedTaskScope(externalLink.taskId, integration.projectId),
+        });
 
-    if (!task) {
-      continue;
-    }
+        if (!task) {
+          return;
+        }
 
-    const existingMetadata = parseLinkMetadata(externalLink.metadata, {
-      externalLinkId: externalLink.id,
-      source: "issue_reopened",
-    });
+        const existingMetadata = parseLinkMetadata(externalLink.metadata, {
+          externalLinkId: externalLink.id,
+          source: "issue_reopened",
+        });
 
-    if (existingMetadata.createdFrom === "kaneo") {
-      continue;
-    }
+        if (existingMetadata.createdFrom === "kaneo") {
+          return;
+        }
 
-    const targetStatus = await resolveTargetStatus(
-      task.projectId,
-      "issue_reopened",
-      "to-do",
-    );
+        const targetStatus = await resolveTargetStatus(
+          task.projectId,
+          "issue_reopened",
+          "to-do",
+        );
 
-    const statusResult = await updateTaskStatus(task.id, targetStatus);
-    if (
-      statusResult.applied &&
-      statusResult.before.status !== statusResult.after.status
-    ) {
-      await publishEvent("task.status_changed", {
-        taskId: statusResult.after.id,
-        projectId: statusResult.after.projectId,
-        userId: null,
-        oldStatus: statusResult.before.status,
-        newStatus: statusResult.after.status,
-        title: statusResult.after.title,
-        assigneeId: statusResult.after.userId,
-        type: "status_changed",
-      });
-    }
+        const statusResult = await updateTaskStatus(task.id, targetStatus, db);
+        if (
+          statusResult.applied &&
+          statusResult.before.status !== statusResult.after.status
+        ) {
+          afterCommit(() =>
+            publishEvent("task.status_changed", {
+              taskId: statusResult.after.id,
+              projectId: statusResult.after.projectId,
+              userId: null,
+              oldStatus: statusResult.before.status,
+              newStatus: statusResult.after.status,
+              title: statusResult.after.title,
+              assigneeId: statusResult.after.userId,
+              type: "status_changed",
+            }),
+          );
+        }
 
-    await updateExternalLink(externalLink.id, {
-      metadata: {
-        ...existingMetadata,
-        state: "open",
+        await updateExternalLink(
+          externalLink.id,
+          {
+            metadata: {
+              ...existingMetadata,
+              state: "open",
+            },
+          },
+          db,
+        );
       },
-    });
+    );
   }
 }

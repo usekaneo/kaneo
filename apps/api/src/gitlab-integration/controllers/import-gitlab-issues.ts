@@ -39,6 +39,12 @@ type ImportResult = {
 type GitlabClient = ReturnType<typeof createGitlabClient>;
 
 const PER_PAGE = 100;
+import {
+  type IntegrationDatabase,
+  linkedTaskScope,
+  withIntegrationTask,
+} from "../../plugins/github/services/integration-task-scope";
+
 const MAX_PAGES = 50;
 
 export async function importGitlabIssues(
@@ -187,63 +193,92 @@ async function importSingleIssue(
   const status = extractIssueStatus(labels);
 
   if (existingLink) {
-    const updateData: Record<string, unknown> = {
-      title: issue.title,
-      description: taskDescriptionFromIssue(issue.description),
-    };
+    const result = await withIntegrationTask(
+      existingLink.taskId,
+      { id: integrationId, projectId, project: { workspaceId } },
+      async (database) => {
+        const updateData: Record<string, unknown> = {
+          title: issue.title,
+          description: taskDescriptionFromIssue(issue.description),
+        };
 
-    if (priority) updateData.priority = priority;
-    if (status) updateData.status = status;
+        if (priority) updateData.priority = priority;
+        if (status) updateData.status = status;
 
-    await db
-      .update(taskTable)
-      .set(updateData)
-      .where(eq(taskTable.id, existingLink.taskId));
+        await database
+          .update(taskTable)
+          .set(updateData)
+          .where(linkedTaskScope(existingLink.taskId, projectId));
 
-    await importLabelsForTask(labels, existingLink.taskId, workspaceId);
-    await importNotesForTask(issue, existingLink.taskId, config, client);
+        await importLabelsForTask(
+          labels,
+          existingLink.taskId,
+          workspaceId,
+          database,
+        );
+        await importNotesForTask(
+          issue,
+          existingLink.taskId,
+          config,
+          client,
+          database,
+        );
 
-    return "updated";
+        return "updated" as const;
+      },
+    );
+    return result ?? "skipped";
   }
 
-  const createdTask = await db.transaction(async (tx) => {
-    const number = await claimTaskNumber(projectId, tx);
+  const createdTask = await withIntegrationTask(
+    null,
+    { id: integrationId, projectId, project: { workspaceId } },
+    async (tx) => {
+      const number = await claimTaskNumber(projectId, tx);
 
-    const taskValues: typeof taskTable.$inferInsert = {
-      projectId,
-      userId: null,
-      title: issue.title,
-      description: taskDescriptionFromIssue(issue.description),
-      status: status || "to-do",
-      priority: priority ?? "low",
-      number,
-    };
+      const taskValues: typeof taskTable.$inferInsert = {
+        projectId,
+        userId: null,
+        title: issue.title,
+        description: taskDescriptionFromIssue(issue.description),
+        status: status || "to-do",
+        priority: priority ?? "low",
+        number,
+      };
 
-    const [created] = await tx.insert(taskTable).values(taskValues).returning();
+      const [created] = await tx
+        .insert(taskTable)
+        .values(taskValues)
+        .returning();
 
-    if (!created) {
-      throw new Error("Failed to create task");
-    }
+      if (!created) {
+        throw new Error("Failed to create task");
+      }
 
-    return created;
-  });
+      await createExternalLink(
+        {
+          taskId: created.id,
+          integrationId,
+          resourceType: "issue",
+          externalId: issue.iid.toString(),
+          url: issue.web_url,
+          title: issue.title,
+          metadata: {
+            state: issue.state,
+            createdFrom: "gitlab-import",
+            author: issue.author?.username ?? issue.author?.name,
+          },
+        },
+        tx,
+      );
 
-  await createExternalLink({
-    taskId: createdTask.id,
-    integrationId,
-    resourceType: "issue",
-    externalId: issue.iid.toString(),
-    url: issue.web_url,
-    title: issue.title,
-    metadata: {
-      state: issue.state,
-      createdFrom: "gitlab-import",
-      author: issue.author?.username ?? issue.author?.name,
+      await importLabelsForTask(labels, created.id, workspaceId, tx);
+      await importNotesForTask(issue, created.id, config, client, tx);
+
+      return created;
     },
-  });
-
-  await importLabelsForTask(labels, createdTask.id, workspaceId);
-  await importNotesForTask(issue, createdTask.id, config, client);
+  );
+  if (!createdTask) return "skipped";
 
   await publishEvent("task.created", {
     ...createdTask,
@@ -263,6 +298,7 @@ async function importLabelsForTask(
   issueLabels: string[],
   taskId: string,
   workspaceId: string,
+  database: IntegrationDatabase = db,
 ): Promise<void> {
   const names = issueLabels.filter((name) => name && !isSystemLabelName(name));
 
@@ -271,7 +307,7 @@ async function importLabelsForTask(
     return;
   }
 
-  const existingLabelsOnTask = await db.query.labelTable.findMany({
+  const existingLabelsOnTask = await database.query.labelTable.findMany({
     where: and(eq(labelTable.taskId, taskId), inArray(labelTable.name, names)),
   });
 
@@ -280,14 +316,14 @@ async function importLabelsForTask(
       continue;
     }
 
-    const existingWorkspaceLabel = await db.query.labelTable.findFirst({
+    const existingWorkspaceLabel = await database.query.labelTable.findFirst({
       where: and(
         eq(labelTable.workspaceId, workspaceId),
         eq(labelTable.name, name),
       ),
     });
 
-    await db
+    await database
       .insert(labelTable)
       .values({
         name,
@@ -306,6 +342,7 @@ async function importNotesForTask(
   taskId: string,
   config: GitlabConfig,
   client: GitlabClient,
+  database: IntegrationDatabase = db,
 ): Promise<void> {
   for (let page = 1; page <= MAX_PAGES; page++) {
     const notes = await client.listIssueNotes(
@@ -325,7 +362,7 @@ async function importNotesForTask(
 
       const username = note.author?.username ?? note.author?.name ?? "";
 
-      await db
+      await database
         .insert(activityTable)
         .values({
           taskId,

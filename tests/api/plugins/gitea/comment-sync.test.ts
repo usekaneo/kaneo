@@ -165,3 +165,33 @@ describe("Gitea comment sync", () => {
     );
   });
 });
+
+// Ownership locking is covered by integration-task-scope.test.ts. These cases
+// exercise provider behavior with the transaction's existing database mock.
+vi.mock(
+  "../../../../apps/api/src/plugins/github/services/integration-task-scope",
+  async (importOriginal) => {
+    const actual =
+      await importOriginal<
+        typeof import("../../../../apps/api/src/plugins/github/services/integration-task-scope")
+      >();
+    return {
+      ...actual,
+      withIntegrationTask: async (
+        _taskId: string,
+        _integration: unknown,
+        apply: (
+          database: unknown,
+          afterCommit: (effect: () => Promise<void>) => void,
+        ) => Promise<unknown>,
+      ) => {
+        const database = (await import("../../../../apps/api/src/database"))
+          .default;
+        const effects: Array<() => Promise<void>> = [];
+        const result = await apply(database, (effect) => effects.push(effect));
+        for (const effect of effects) await effect();
+        return result;
+      },
+    };
+  },
+);
