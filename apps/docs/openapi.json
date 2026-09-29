@@ -8778,6 +8778,96 @@
         }
       }
     },
+    "/task/by-ticket-id/{ticketId}": {
+      "get": {
+        "operationId": "getTaskByTicketId",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Get task by ticket ID",
+        "description": "Get a single task by its project key and number, such as KAN-12. If the ticket ID matches multiple accessible tasks, provide workspaceId or projectId to select one.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 128,
+              "description": "Project key and task number, e.g. KAN-12."
+            },
+            "required": true,
+            "description": "Project key and task number, e.g. KAN-12.",
+            "name": "ticketId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Select a workspace if the ticket ID exists in more than one."
+            },
+            "required": false,
+            "description": "Select a workspace if the ticket ID exists in more than one.",
+            "name": "workspaceId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Select a project if the ticket ID exists more than once."
+            },
+            "required": false,
+            "description": "Select a project if the ticket ID exists more than once.",
+            "name": "projectId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Task details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskWithAssignee"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ticket ID",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "404": {
+            "description": "No accessible task has this ticket ID",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Ticket ID matches multiple accessible tasks",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/task/{id}": {
       "get": {
         "operationId": "getTask",
