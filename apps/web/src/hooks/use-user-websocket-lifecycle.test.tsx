@@ -18,17 +18,27 @@ const { client, auth, navigate } = vi.hoisted(() => ({
     removeQueries: vi.fn(),
   },
   navigate: vi.fn(),
-  auth: { userId: "user-a" as string | null, workspaceId: "workspace" },
+  auth: {
+    userId: "user-a" as string | null,
+    workspaceId: "workspace",
+    pathname: "",
+  },
 }));
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => navigate,
-  useLocation: () => `/dashboard/workspace/${auth.workspaceId}`,
+  useLocation: () =>
+    auth.pathname || `/dashboard/workspace/${auth.workspaceId}`,
 }));
 vi.mock("@tanstack/react-query", () => ({ useQueryClient: () => client }));
 vi.mock("@/lib/auth-client", () => ({
   authClient: {
     useSession: () => ({
-      data: auth.userId ? { user: { id: auth.userId } } : null,
+      data: auth.userId
+        ? {
+            user: { id: auth.userId },
+            session: { activeOrganizationId: auth.workspaceId },
+          }
+        : null,
     }),
   },
 }));
@@ -60,6 +70,7 @@ describe("user WebSocket lifecycle", () => {
     TestSocket.instances = [];
     auth.userId = "user-a";
     auth.workspaceId = "workspace";
+    auth.pathname = "";
     vi.clearAllMocks();
   });
   afterEach(() => {
@@ -68,6 +79,23 @@ describe("user WebSocket lifecycle", () => {
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
   });
+  it.each([
+    "/dashboard/settings/workspace/general",
+    "/dashboard/settings/workspace/roles",
+    "/dashboard/settings/projects/general",
+  ])("redirects a revoked active workspace from %s", (path) => {
+    auth.pathname = path;
+    renderHook(useUserWebSocket);
+    act(() =>
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({
+          type: "WORKSPACE_ACCESS_REVOKED",
+          workspaceId: "workspace",
+        }),
+      }),
+    );
+    expect(navigate).toHaveBeenCalledWith({ to: "/dashboard" });
+  });
   it("clears revoked workspace data from the global user connection", () => {
     renderHook(() => useUserWebSocket());
     act(() =>
@@ -75,6 +103,7 @@ describe("user WebSocket lifecycle", () => {
         data: JSON.stringify({
           type: "WORKSPACE_ACCESS_REVOKED",
           workspaceId: "workspace",
+          pathname: "",
         }),
       }),
     );
@@ -165,6 +194,7 @@ describe("user WebSocket lifecycle", () => {
       data: JSON.stringify({
         type: "WORKSPACE_ACCESS_REVOKED",
         workspaceId: "workspace",
+        pathname: "",
       }),
     });
     expect(navigate).not.toHaveBeenCalled();

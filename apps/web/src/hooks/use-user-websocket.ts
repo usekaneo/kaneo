@@ -28,6 +28,8 @@ export function useUserWebSocket() {
   const pathnameRef = useRef(pathname);
   pathnameRef.current = pathname;
   const { data: session } = authClient.useSession();
+  const activeWorkspaceRef = useRef(session?.session?.activeOrganizationId);
+  activeWorkspaceRef.current = session?.session?.activeOrganizationId;
   useEffect(() => {
     if (!session?.user?.id) return;
 
@@ -75,8 +77,11 @@ export function useUserWebSocket() {
             message.workspaceId
           ) {
             evictWorkspaceCache(queryClient, message.workspaceId);
+            const path = pathnameRef.current;
             const current =
-              pathnameRef.current.match(/\/workspace\/([^/]+)/)?.[1];
+              /^\/dashboard\/settings\/(workspace|projects)(\/|$)/.test(path)
+                ? activeWorkspaceRef.current
+                : path.match(/^\/dashboard\/workspace\/([^/]+)/)?.[1];
             if (current === message.workspaceId)
               void navigate({ to: "/dashboard" });
           }
