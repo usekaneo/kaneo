@@ -74,6 +74,7 @@ export async function handleIssueClosed(payload: IssueClosedPayload) {
           task.projectId,
           "issue_closed",
           "done",
+          db,
         );
 
         const statusResult = await updateTaskStatus(task.id, targetStatus, db);

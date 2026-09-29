@@ -115,6 +115,7 @@ export async function handleGitlabIssueReopened(
           task.projectId,
           "issue_reopened",
           "to-do",
+          db,
         );
 
         const statusResult = await updateTaskStatus(task.id, targetStatus, db);
