@@ -1,4 +1,4 @@
-import { and, eq, getTableColumns, inArray, sql } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
@@ -116,8 +116,21 @@ async function bulkUpdateTasks({
         });
         destinations.set(projectId, column?.id ?? null);
       }
-      const updatedTasks = await db.transaction(async (tx) => {
-        const result: (typeof taskTable.$inferSelect)[] = [];
+      const { updatedTasks, beforeById } = await db.transaction(async (tx) => {
+        const before = await tx
+          .select({ id: taskTable.id, status: taskTable.status })
+          .from(taskTable)
+          .where(inArray(taskTable.id, foundIds))
+          .orderBy(asc(taskTable.id))
+          .for("update");
+        const beforeById = new Map(before.map((task) => [task.id, task]));
+        const result: Array<{
+          id: string;
+          projectId: string;
+          status: string;
+          title: string;
+          userId: string | null;
+        }> = [];
         for (const projectId of projectIds) {
           const projectTaskIds = tasks
             .filter((task) => task.projectId === projectId)
@@ -135,8 +148,11 @@ async function bulkUpdateTasks({
               ),
             )
             .returning({
-              ...getTableColumns(taskTable),
-              description: sql<null>`null`,
+              id: taskTable.id,
+              projectId: taskTable.projectId,
+              status: taskTable.status,
+              title: taskTable.title,
+              userId: taskTable.userId,
             });
           if (changed.length !== projectTaskIds.length)
             throw new HTTPException(409, {
@@ -144,7 +160,7 @@ async function bulkUpdateTasks({
             });
           result.push(...changed);
         }
-        return result;
+        return { updatedTasks: result, beforeById };
       });
       updatedCount = updatedTasks.length;
       const parentProjects = await getSubtaskParentProjects(foundIds);
@@ -152,19 +168,18 @@ async function bulkUpdateTasks({
         projects: parentProjects,
       });
       for (const updatedTask of updatedTasks) {
-        const before = tasks.find((task) => task.id === updatedTask.id)!;
-        if (before.status !== updatedTask.status)
-          await publishEvent("task.status_changed", {
-            taskId: updatedTask.id,
-            projectId: updatedTask.projectId,
-            userId,
-            oldStatus: before.status,
-            newStatus: updatedTask.status,
-            title: updatedTask.title,
-            assigneeId: updatedTask.userId,
-            type: "status_changed",
-            skipSubtaskParentRefresh: true,
-          });
+        const before = beforeById.get(updatedTask.id)!;
+        await publishEvent("task.status_changed", {
+          taskId: updatedTask.id,
+          projectId: updatedTask.projectId,
+          userId,
+          oldStatus: before.status,
+          newStatus: updatedTask.status,
+          title: updatedTask.title,
+          assigneeId: updatedTask.userId,
+          type: "status_changed",
+          skipSubtaskParentRefresh: true,
+        });
       }
       for (const projectId of projectIds)
         await publishEvent("task-relation.refresh", { projectId, userId });

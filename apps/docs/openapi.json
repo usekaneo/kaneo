@@ -8546,6 +8546,16 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "Tasks changed projects; retry the operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
