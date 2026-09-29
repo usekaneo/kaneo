@@ -24,6 +24,7 @@ const broadcastMessageSchema = v.object({
     targetTaskId: v.optional(v.string()),
   }),
   excludeInitiatorId: v.optional(v.string()),
+  authorizationBatch: v.optional(v.string()),
 });
 
 const userBroadcastSchema = v.object({

@@ -263,3 +263,41 @@ it("coalesces authorization checks across a bulk broadcast burst", async () => {
   expect(connection.send).toHaveBeenCalledTimes(50);
   expect(m.members).toHaveBeenCalledTimes(1);
 });
+
+it("does not reuse an older flush's membership snapshot for a later Redis broadcast", async () => {
+  m.redis = true;
+  await initializeWebSocketAdapter();
+  const connection = connect();
+  const handler = m.on.mock.calls[0][1];
+  let finish!: (rows: { userId: string }[]) => void;
+  m.members
+    .mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    )
+    .mockResolvedValueOnce([]);
+  const receive = (authorizationBatch: string, taskId: string) =>
+    handler(
+      "kaneo:ws:*:broadcast",
+      "kaneo:ws:project:broadcast",
+      JSON.stringify({
+        projectId: "project",
+        authorizationBatch,
+        message: { ...update, taskId },
+      }),
+    );
+  receive("before-removal", "old-event");
+  receive("before-removal", "another-old-event");
+  await vi.waitFor(() => expect(m.members).toHaveBeenCalledTimes(1));
+  receive("after-removal", "private-event");
+  await vi.waitFor(() => expect(m.members).toHaveBeenCalledTimes(2));
+  finish([{ userId: "user" }]);
+  await vi.waitFor(() => expect(connection.close).toHaveBeenCalled());
+  expect(
+    connection.send.mock.calls.some(
+      ([value]) => JSON.parse(value).taskId === "private-event",
+    ),
+  ).toBe(false);
+});

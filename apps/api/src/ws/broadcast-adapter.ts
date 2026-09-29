@@ -10,6 +10,7 @@ export type BroadcastMessage = {
   projectId: string;
   message: ProjectBroadcastMessage;
   excludeInitiatorId?: string;
+  authorizationBatch?: string;
 };
 
 export type UserBroadcastMessage = {

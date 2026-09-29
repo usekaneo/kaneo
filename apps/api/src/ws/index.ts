@@ -139,6 +139,7 @@ export async function initializeWebSocketAdapter() {
         msg.projectId,
         msg.message,
         msg.excludeInitiatorId,
+        msg.authorizationBatch,
       );
     });
     await nextAdapter.subscribeToUser((msg: UserBroadcast) => {
@@ -280,9 +281,11 @@ const authorizationLookups = new Map<
 function currentBroadcastAccess(
   projectId: string,
   recipients: Array<{ userId: string }>,
+  authorizationBatch: string,
 ) {
   const key = JSON.stringify([
     projectId,
+    authorizationBatch,
     [...new Set(recipients.map((conn) => conn.userId))].sort(),
   ]);
   let pending = authorizationLookups.get(key);
@@ -341,6 +344,7 @@ async function deliverToLocalConnections(
   projectId: string,
   message: ProjectBroadcastMessage,
   excludeInitiatorId?: string,
+  authorizationBatch: string = randomUUID(),
 ) {
   if (message.type === "PROJECT_MOVED") {
     closeLocalProjectConnections(projectId);
@@ -349,7 +353,11 @@ async function deliverToLocalConnections(
   const connections = projectConnections.get(projectId);
   if (!connections) return;
   const recipients = [...connections];
-  const access = await currentBroadcastAccess(projectId, recipients);
+  const access = await currentBroadcastAccess(
+    projectId,
+    recipients,
+    authorizationBatch,
+  );
   if (!access) return;
   const { workspaceId, members } = access;
   const payload = JSON.stringify(message);
@@ -434,6 +442,8 @@ export function broadcastToProject(
 
     if (!queue || !adapter) return;
 
+    // Only this captured flush may share its authorization snapshot.
+    const authorizationBatch = randomUUID();
     // Publish each queued message through the adapter
     for (const { message: msg, excludeInitiatorId: exId } of queue.values()) {
       void adapter
@@ -441,6 +451,7 @@ export function broadcastToProject(
           projectId,
           message: msg,
           excludeInitiatorId: exId,
+          authorizationBatch,
         })
         .catch((err) => {
           console.error(
