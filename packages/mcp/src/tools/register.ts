@@ -243,6 +243,31 @@ export function registerTools(
   );
 
   server.registerTool(
+    "get_task_by_ticket_id",
+    {
+      description:
+        "Get one task by its ticket ID (project key and number, e.g. KAN-12). If multiple accessible tasks share the ID, provide workspaceId or projectId.",
+      inputSchema: z.object({
+        ticketId: nonEmptyString,
+        workspaceId: optionalNonEmptyString,
+        projectId: optionalNonEmptyString,
+      }),
+    },
+    async ({ ticketId, workspaceId, projectId }) => {
+      const query = new URLSearchParams();
+      if (workspaceId) query.set("workspaceId", workspaceId);
+      if (projectId) query.set("projectId", projectId);
+      const suffix = query.toString();
+      return run(() =>
+        client.json(
+          `/api/task/by-ticket-id/${encodeURIComponent(ticketId)}${suffix ? `?${suffix}` : ""}`,
+          { method: "GET" },
+        ),
+      );
+    },
+  );
+
+  server.registerTool(
     "create_task",
     {
       description: "Create a task in a project.",

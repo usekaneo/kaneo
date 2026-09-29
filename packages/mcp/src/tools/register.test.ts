@@ -136,6 +136,36 @@ describe("registerTools", () => {
     });
   });
 
+  it("gets one task by ticket ID with an optional workspace", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      json: vi.fn().mockResolvedValue({ id: "task-1", number: 12 }),
+    };
+    registerTools(server as never, { client: client as never });
+
+    const tool = tools.get("get_task_by_ticket_id");
+    expect(tool).toBeDefined();
+    await tool?.handler({ ticketId: "KAN-12" });
+    await tool?.handler({ ticketId: "KAN-12", workspaceId: "workspace 1" });
+    await tool?.handler({ ticketId: "KAN-12", projectId: "project 1" });
+
+    expect(client.json).toHaveBeenNthCalledWith(
+      1,
+      "/api/task/by-ticket-id/KAN-12",
+      { method: "GET" },
+    );
+    expect(client.json).toHaveBeenNthCalledWith(
+      2,
+      "/api/task/by-ticket-id/KAN-12?workspaceId=workspace+1",
+      { method: "GET" },
+    );
+    expect(client.json).toHaveBeenNthCalledWith(
+      3,
+      "/api/task/by-ticket-id/KAN-12?projectId=project+1",
+      { method: "GET" },
+    );
+  });
+
   it("fetches the current task and sends a full body for update_task", async () => {
     const { server, tools } = createServerMock();
     const client = {
