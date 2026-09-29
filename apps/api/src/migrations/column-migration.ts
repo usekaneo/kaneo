@@ -97,6 +97,17 @@ async function migrateProject(projectId: string, pending: Set<string>) {
         config = JSON.parse(integration.config);
         if (!config || typeof config !== "object" || Array.isArray(config))
           throw new Error("Invalid legacy configuration");
+        const transitions = config.statusTransitions;
+        if (
+          transitions !== undefined &&
+          (!transitions ||
+            typeof transitions !== "object" ||
+            Array.isArray(transitions) ||
+            Object.values(transitions).some(
+              (value) => typeof value !== "string",
+            ))
+        )
+          throw new Error("Invalid legacy status transitions");
       } catch {
         console.error(
           `Skipping invalid legacy integration config ${integration.id}`,

@@ -139,3 +139,39 @@ it("resumes malformed legacy integrations after repair without remigrating compl
     expect.objectContaining({ id: "column-workflow-v1" }),
   ]);
 });
+
+it.each(["invalid", null, [], { onPROpen: 1 }])(
+  "keeps malformed transitions %j pending until repaired",
+  async (statusTransitions) => {
+    const { workspace } = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: workspace.id,
+    });
+    const [integration] = await db
+      .insert(schema.integrationTable)
+      .values({
+        projectId: project.id,
+        type: "gitea",
+        config: JSON.stringify({ statusTransitions }),
+      })
+      .returning();
+    await migrateColumns();
+    expect(await db.select().from(schema.workflowRuleTable)).toHaveLength(0);
+    expect(await db.select().from(schema.dataMigrationTable)).toEqual([
+      expect.objectContaining({
+        id: `column-workflow-pending:${integration.id}`,
+      }),
+    ]);
+    await db
+      .update(schema.integrationTable)
+      .set({
+        config: JSON.stringify({ statusTransitions: { onPROpen: "to-do" } }),
+      })
+      .where(eq(schema.integrationTable.id, integration.id));
+    await migrateColumns();
+    expect(await db.select().from(schema.workflowRuleTable)).toHaveLength(3);
+    expect(await db.select().from(schema.dataMigrationTable)).toEqual([
+      expect.objectContaining({ id: "column-workflow-v1" }),
+    ]);
+  },
+);
