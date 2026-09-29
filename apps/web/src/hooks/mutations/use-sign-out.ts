@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { getIdToken } from "@/fetchers/oauth/get-id-token";
+import { descriptionSaveQueue } from "@/lib/description-save-queue";
 import { authClient } from "@/lib/auth-client";
 
 function useSignOut(idpLogoutUrl?: string | null) {
@@ -8,6 +9,7 @@ function useSignOut(idpLogoutUrl?: string | null) {
 
   return useMutation({
     mutationFn: async () => {
+      descriptionSaveQueue.clear();
       let idToken: string | null = null;
 
       if (idpLogoutUrl) {

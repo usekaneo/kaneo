@@ -1,3 +1,4 @@
+import { extractAssetIds } from "../../storage/cleanup-assets";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
@@ -156,25 +157,30 @@ async function createTask({
       .returning();
 
     if (task && draftAssetIds?.length) {
-      const ids = [...new Set(draftAssetIds)];
-      const claimed = await tx
-        .update(assetTable)
-        .set({ taskId: task.id, surface: "description" })
-        .where(
-          and(
-            inArray(assetTable.id, ids),
-            eq(assetTable.projectId, projectId),
-            eq(assetTable.createdBy, currentUserId),
-            eq(assetTable.surface, "draft"),
-            isNull(assetTable.taskId),
-          ),
-        )
-        .returning({ id: assetTable.id });
-      if (claimed.length !== ids.length)
-        throw new HTTPException(400, {
-          message:
-            "Some staged uploads are unavailable or belong to another owner/project",
-        });
+      const referenced = extractAssetIds(description);
+      const ids = [...new Set(draftAssetIds)].filter((id) =>
+        referenced.has(id),
+      );
+      if (ids.length) {
+        const claimed = await tx
+          .update(assetTable)
+          .set({ taskId: task.id, surface: "description" })
+          .where(
+            and(
+              inArray(assetTable.id, ids),
+              eq(assetTable.projectId, projectId),
+              eq(assetTable.createdBy, currentUserId),
+              eq(assetTable.surface, "draft"),
+              isNull(assetTable.taskId),
+            ),
+          )
+          .returning({ id: assetTable.id });
+        if (claimed.length !== ids.length)
+          throw new HTTPException(400, {
+            message:
+              "Some staged uploads are unavailable or belong to another owner/project",
+          });
+      }
     }
 
     if (task && mergedCustomFields.length) {

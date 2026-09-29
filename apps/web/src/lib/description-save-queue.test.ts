@@ -48,3 +48,49 @@ describe("description save queue", () => {
     expect(queue.get("a")).toBeUndefined();
   });
 });
+
+it("sends a newer pending edit even when the older request fails", async () => {
+  vi.useFakeTimers();
+  let fail!: (error: Error) => void;
+  const save = vi
+    .fn()
+    .mockImplementationOnce(
+      () =>
+        new Promise((_resolve, reject) => {
+          fail = reject;
+        }),
+    )
+    .mockResolvedValue(undefined);
+  const queue = createDescriptionSaveQueue(10);
+  queue.schedule("task", "old", save);
+  await vi.advanceTimersByTimeAsync(10);
+  queue.schedule("task", "new", save);
+  await vi.advanceTimersByTimeAsync(10);
+  fail(new Error("offline"));
+  await vi.advanceTimersByTimeAsync(0);
+  expect(save.mock.calls).toEqual([["old"], ["new"]]);
+  expect(queue.get("task")).toBeUndefined();
+});
+it("isolates owners and prevents a cleared in-flight request from draining another user's drafts", async () => {
+  vi.useFakeTimers();
+  let finish!: () => void;
+  const oldSave = vi.fn(
+    () =>
+      new Promise<void>((resolve) => {
+        finish = resolve;
+      }),
+  );
+  const newSave = vi.fn().mockResolvedValue(undefined);
+  const queue = createDescriptionSaveQueue(10);
+  queue.schedule("task", "private draft", oldSave, "alice");
+  await vi.advanceTimersByTimeAsync(10);
+  queue.schedule("task", "pending private draft", oldSave, "alice");
+  expect(queue.get("task", "bob")).toBeUndefined();
+  queue.clear();
+  queue.schedule("task", "bob's edit", newSave, "bob");
+  finish();
+  await vi.advanceTimersByTimeAsync(10);
+  expect(oldSave).toHaveBeenCalledTimes(1);
+  expect(newSave).toHaveBeenCalledExactlyOnceWith("bob's edit");
+  expect(queue.get("task", "alice")).toBeUndefined();
+});

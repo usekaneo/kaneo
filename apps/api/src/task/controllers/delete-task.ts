@@ -7,10 +7,7 @@ import {
   taskTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
-import {
-  queueStorageCleanup,
-  retryStorageCleanup,
-} from "../../storage/cleanup-queue";
+import { queueStorageCleanup } from "../../storage/cleanup-queue";
 import getTask from "./get-task";
 
 async function deleteTask(taskId: string, currentUserId: string) {
@@ -71,8 +68,6 @@ async function deleteTask(taskId: string, currentUserId: string) {
       targetTaskId: relation.targetTaskId,
     });
   }
-
-  await retryStorageCleanup().catch(() => {});
 
   return task;
 }

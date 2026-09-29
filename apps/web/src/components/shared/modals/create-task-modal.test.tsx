@@ -90,9 +90,16 @@ vi.mock("@/components/task/task-description-editor", () => ({
   default: (props: {
     taskId?: string;
     uploadAsset: (file: File) => Promise<unknown>;
+    onChange: (value: string) => void;
   }) => {
     uploadAsset = props.uploadAsset;
-    return <div data-testid="description-editor" data-task-id={props.taskId} />;
+    return (
+      <textarea
+        data-testid="description-editor"
+        data-task-id={props.taskId}
+        onChange={(event) => props.onChange(event.target.value)}
+      />
+    );
   },
 }));
 
@@ -403,6 +410,9 @@ describe("CreateTaskModal context isolation", () => {
     });
     expect(createTask).not.toHaveBeenCalled();
     expect(updateTask).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByTestId("description-editor"), {
+      target: { value: "![image](/asset/staged-1)" },
+    });
     submit();
     await vi.waitFor(() => expect(createTask).toHaveBeenCalledOnce());
     expect(createTask).toHaveBeenCalledWith(

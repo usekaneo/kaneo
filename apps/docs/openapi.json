@@ -8587,10 +8587,8 @@
                   "surface": {
                     "type": "string",
                     "enum": [
-                      "description",
-                      "comment"
-                    ],
-                    "description": "Where the image is used, which decides how it is scoped."
+                      "description"
+                    ]
                   }
                 },
                 "required": [
@@ -8700,10 +8698,8 @@
                   "surface": {
                     "type": "string",
                     "enum": [
-                      "description",
-                      "comment"
-                    ],
-                    "description": "Where the image is used, which decides how it is scoped."
+                      "description"
+                    ]
                   }
                 },
                 "required": [

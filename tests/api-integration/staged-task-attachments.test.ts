@@ -100,6 +100,7 @@ describe("staged task attachments", () => {
         currentUserId: user.id,
         title: "bad",
         status: "to-do",
+        description: `/api/asset/${asset.id}`,
         draftAssetIds: [asset.id],
       }),
     ).rejects.toThrow("staged uploads");
@@ -123,6 +124,7 @@ describe("staged task attachments", () => {
         currentUserId: user.id,
         title: "bad",
         status: "to-do",
+        description: `/api/asset/${asset.id}`,
         draftAssetIds: [asset.id],
       }),
     ).rejects.toThrow("staged uploads");
@@ -157,4 +159,61 @@ it("expires abandoned pending and finalized uploads without deleting published a
       .map((item) => item.objectKey)
       .sort(),
   ).toEqual(["synthetic-expiry-draft", "synthetic-expiry-draft-pending"]);
+});
+
+it("leaves removed draft attachments private and eligible for expiry", async () => {
+  const { user, workspace } = await createWorkspaceMember();
+  const { project } = await createProjectFixture({ workspaceId: workspace.id });
+  const upload = await stageTaskAssetUpload(project.id, user.id, {
+    filename: "removed.png",
+    contentType: "image/png",
+    size: 12,
+  });
+  const asset = await finalizeStagedTaskAsset(project.id, user.id, {
+    key: upload.key,
+    filename: "removed.png",
+    contentType: "image/png",
+    size: 12,
+  });
+  await createTask({
+    projectId: project.id,
+    currentUserId: user.id,
+    title: "without attachment",
+    status: "to-do",
+    description: "removed",
+    draftAssetIds: [asset.id],
+  });
+  expect(
+    await db.query.assetTable.findFirst({
+      where: eq(schema.assetTable.id, asset.id),
+    }),
+  ).toMatchObject({ taskId: null, surface: "draft" });
+});
+it("finalizes the issued object after its project moves to another workspace", async () => {
+  const { user, workspace } = await createWorkspaceMember();
+  const { project } = await createProjectFixture({ workspaceId: workspace.id });
+  const destination = await createWorkspaceMember();
+  const input = { filename: "moved.png", contentType: "image/png", size: 12 };
+  const upload = await stageTaskAssetUpload(project.id, user.id, input);
+  await db
+    .update(schema.projectTable)
+    .set({ workspaceId: destination.workspace.id })
+    .where(eq(schema.projectTable.id, project.id));
+  await db
+    .update(schema.assetTable)
+    .set({ workspaceId: destination.workspace.id })
+    .where(eq(schema.assetTable.projectId, project.id));
+  const asset = await finalizeStagedTaskAsset(project.id, user.id, {
+    ...input,
+    key: upload.key,
+  });
+  expect(
+    await db.query.assetTable.findFirst({
+      where: eq(schema.assetTable.id, asset.id),
+    }),
+  ).toMatchObject({
+    workspaceId: destination.workspace.id,
+    surface: "draft",
+    objectKey: upload.key,
+  });
 });
