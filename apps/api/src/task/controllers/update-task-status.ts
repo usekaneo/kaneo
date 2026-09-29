@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable, taskTable } from "../../database/schema";
-import { publishEvent } from "../../events";
+import { publishTaskMutation } from "./task-mutation-effects";
 import { assertValidTaskStatus } from "../validate-task-fields";
 
 async function updateTaskStatus({
@@ -45,21 +45,7 @@ async function updateTaskStatus({
     });
   }
 
-  await publishEvent("task.status_changed", {
-    taskId: updatedTask.id,
-    projectId: updatedTask.projectId,
-    userId: currentUserId,
-    oldStatus: existingTask.status,
-    newStatus: status,
-    title: updatedTask.title,
-    assigneeId: updatedTask.userId,
-    type: "status_changed",
-  });
-
-  await publishEvent("task-relation.refresh", {
-    projectId: updatedTask.projectId,
-    userId: currentUserId,
-  });
+  await publishTaskMutation(existingTask, updatedTask, currentUserId);
 
   return updatedTask;
 }

@@ -1,8 +1,8 @@
 import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { taskTable, userTable } from "../../database/schema";
-import { publishEvent } from "../../events";
+import { taskTable } from "../../database/schema";
+import { publishTaskMutation } from "./task-mutation-effects";
 import {
   assertAssignableUser,
   getProjectWorkspaceId,
@@ -51,38 +51,7 @@ async function updateTaskAssignee({
     });
   }
 
-  const newAssigneeName = nextAssigneeId
-    ? (
-        await db
-          .select({ name: userTable.name })
-          .from(userTable)
-          .where(eq(userTable.id, nextAssigneeId))
-          .limit(1)
-      )[0]?.name
-    : undefined;
-
-  if (!nextAssigneeId) {
-    await publishEvent("task.unassigned", {
-      taskId: updatedTask.id,
-      projectId: updatedTask.projectId,
-      userId: currentUserId,
-      title: updatedTask.title,
-      type: "unassigned",
-    });
-
-    return updatedTask;
-  }
-
-  await publishEvent("task.assignee_changed", {
-    taskId: updatedTask.id,
-    projectId: updatedTask.projectId,
-    userId: currentUserId,
-    oldAssignee: existingTask.userId,
-    newAssignee: newAssigneeName,
-    newAssigneeId: nextAssigneeId,
-    title: updatedTask.title,
-    type: "assignee_changed",
-  });
+  await publishTaskMutation(existingTask, updatedTask, currentUserId);
 
   return updatedTask;
 }

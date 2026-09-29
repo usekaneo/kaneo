@@ -6,7 +6,6 @@ import {
   labelTable,
   projectTable,
   taskTable,
-  userTable,
   workspaceUserTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
@@ -14,6 +13,10 @@ import { removeLabelFromGitea } from "../../plugins/gitea/utils/sync-label-to-gi
 import { removeLabelFromGitHub } from "../../plugins/github/utils/sync-label-to-github";
 import { removeLabelFromGitlab } from "../../plugins/gitlab/utils/sync-label-to-gitlab";
 import { assertAssignableUser } from "../../utils/assert-assignable-user";
+import {
+  publishTaskMutation,
+  recordTaskMutation,
+} from "./task-mutation-effects";
 import { getSubtaskParentProjects } from "../get-subtask-parent-projects";
 import {
   assertValidPriority,
@@ -153,21 +156,10 @@ async function bulkUpdateTasks({
       });
       for (const updatedTask of updatedTasks) {
         const before = tasks.find((task) => task.id === updatedTask.id)!;
-        if (before.status !== updatedTask.status)
-          await publishEvent("task.status_changed", {
-            taskId: updatedTask.id,
-            projectId: updatedTask.projectId,
-            userId,
-            oldStatus: before.status,
-            newStatus: updatedTask.status,
-            title: updatedTask.title,
-            assigneeId: updatedTask.userId,
-            type: "status_changed",
-            skipSubtaskParentRefresh: true,
-          });
+        await publishTaskMutation(before, updatedTask, userId, {
+          skipSubtaskParentRefresh: true,
+        });
       }
-      for (const projectId of projectIds)
-        await publishEvent("task-relation.refresh", { projectId, userId });
       break;
     }
 
@@ -184,17 +176,16 @@ async function bulkUpdateTasks({
 
       updatedCount = result.rowCount ?? foundIds.length;
 
-      for (const task of tasks) {
-        await publishEvent("task.priority_changed", {
-          taskId: task.id,
-          projectId: task.projectId,
+      for (const task of tasks)
+        await publishTaskMutation(
+          task,
+          {
+            ...task,
+            description: null,
+            priority: value,
+          },
           userId,
-          oldPriority: task.priority,
-          newPriority: value,
-          title: task.title,
-          type: "priority_changed",
-        });
-      }
+        );
       break;
     }
 
@@ -205,38 +196,21 @@ async function bulkUpdateTasks({
         await assertAssignableUser(assigneeId, workspaceId);
       }
 
-      const newAssigneeName = assigneeId
-        ? (
-            await db
-              .select({ name: userTable.name })
-              .from(userTable)
-              .where(eq(userTable.id, assigneeId))
-              .limit(1)
-          )[0]?.name
-        : undefined;
-
       const result = await db
         .update(taskTable)
         .set({ userId: assigneeId })
         .where(inArray(taskTable.id, foundIds));
-
       updatedCount = result.rowCount ?? foundIds.length;
-
-      for (const task of tasks) {
-        const eventType = assigneeId
-          ? "task.assignee_changed"
-          : "task.unassigned";
-        await publishEvent(eventType, {
-          taskId: task.id,
-          projectId: task.projectId,
+      for (const task of tasks)
+        await publishTaskMutation(
+          task,
+          {
+            ...task,
+            description: null,
+            userId: assigneeId,
+          },
           userId,
-          oldAssignee: task.userId,
-          newAssignee: newAssigneeName,
-          newAssigneeId: assigneeId,
-          title: task.title,
-          type: assigneeId ? "assignee_changed" : "unassigned",
-        });
-      }
+        );
       break;
     }
 
@@ -386,24 +360,26 @@ async function bulkUpdateTasks({
         }
       }
 
-      const result = await db
-        .update(taskTable)
-        .set({ dueDate: parsedDate })
-        .where(inArray(taskTable.id, foundIds));
-
-      updatedCount = result.rowCount ?? foundIds.length;
-
-      for (const task of tasks) {
-        await publishEvent("task.due_date_changed", {
-          taskId: task.id,
-          projectId: task.projectId,
+      const updatedTasks = await db.transaction(async (tx) => {
+        const changed = await tx
+          .update(taskTable)
+          .set({ dueDate: parsedDate })
+          .where(inArray(taskTable.id, foundIds))
+          .returning({
+            ...getTableColumns(taskTable),
+            description: sql<null>`null`,
+          });
+        for (const task of tasks)
+          await recordTaskMutation(tx, task, { dueDate: parsedDate }, userId);
+        return changed;
+      });
+      updatedCount = updatedTasks.length;
+      for (const updatedTask of updatedTasks)
+        await publishTaskMutation(
+          tasks.find((task) => task.id === updatedTask.id)!,
+          updatedTask,
           userId,
-          oldDueDate: task.dueDate,
-          newDueDate: parsedDate,
-          title: task.title,
-          type: "due_date_changed",
-        });
-      }
+        );
       break;
     }
 

@@ -3,7 +3,10 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
-import { deleteOrphanedAssets } from "../../storage/cleanup-assets";
+import {
+  publishTaskMutation,
+  recordTaskMutation,
+} from "./task-mutation-effects";
 import {
   assertAssignableUser,
   getProjectWorkspaceId,
@@ -27,11 +30,13 @@ async function updateTask(
 ) {
   assertTaskPosition(position);
 
-  const [existingTask] = await db
+  let [existingTask] = await db
     .select({
       id: taskTable.id,
       title: taskTable.title,
       priority: taskTable.priority,
+      userId: taskTable.userId,
+      dueDate: taskTable.dueDate,
       description:
         description === undefined ? sql<null>`null` : taskTable.description,
       status: taskTable.status,
@@ -71,26 +76,57 @@ async function updateTask(
     ),
   });
 
-  const [updatedTask] = await db
-    .update(taskTable)
-    .set({
-      title,
-      status,
-      columnId: column?.id ?? null,
-      startDate: startDate || null,
-      dueDate: dueDate || null,
-      projectId,
-      description,
-      priority,
-      position,
-      userId: normalizedUserId ?? null,
-    })
-    .where(eq(taskTable.id, id))
-    .returning({
-      ...getTableColumns(taskTable),
-      description: boardDescription,
-      descriptionDeferred,
-    });
+  const updatedTask = await db.transaction(async (tx) => {
+    const [locked] = await tx
+      .select({
+        id: taskTable.id,
+        title: taskTable.title,
+        priority: taskTable.priority,
+        userId: taskTable.userId,
+        dueDate: taskTable.dueDate,
+        description:
+          description === undefined ? sql<null>`null` : taskTable.description,
+        status: taskTable.status,
+        projectId: taskTable.projectId,
+      })
+      .from(taskTable)
+      .where(and(eq(taskTable.id, id), eq(taskTable.projectId, projectId)))
+      .for("update");
+    if (!locked)
+      throw new HTTPException(409, {
+        message: "Task changed projects; retry the update",
+      });
+    existingTask = locked;
+
+    const [task] = await tx
+      .update(taskTable)
+      .set({
+        title,
+        status,
+        columnId: column?.id ?? null,
+        startDate: startDate || null,
+        dueDate: dueDate || null,
+        projectId,
+        description,
+        priority,
+        position,
+        userId: normalizedUserId ?? null,
+      })
+      .where(and(eq(taskTable.id, id), eq(taskTable.projectId, projectId)))
+      .returning({
+        ...getTableColumns(taskTable),
+        description: boardDescription,
+        descriptionDeferred,
+      });
+    if (task)
+      await recordTaskMutation(
+        tx,
+        existingTask,
+        { title, dueDate: dueDate ?? null },
+        currentUserId,
+      );
+    return task;
+  });
 
   if (!updatedTask) {
     throw new HTTPException(500, {
@@ -98,57 +134,15 @@ async function updateTask(
     });
   }
 
-  if (existingTask.status !== status) {
-    await publishEvent("task.status_changed", {
-      taskId: updatedTask.id,
-      projectId: updatedTask.projectId,
-      userId: currentUserId,
-      oldStatus: existingTask.status,
-      newStatus: status,
-      title: updatedTask.title,
-      assigneeId: updatedTask.userId,
-      type: "status_changed",
-    });
-
-    await publishEvent("task-relation.refresh", {
-      projectId: updatedTask.projectId,
-      userId: currentUserId,
-    });
-  }
-
-  if (existingTask.title !== title) {
-    await publishEvent("task.title_changed", {
-      taskId: updatedTask.id,
-      projectId: updatedTask.projectId,
-      userId: currentUserId,
-      oldTitle: existingTask.title,
-      newTitle: title,
-      type: "title_changed",
-    });
-  }
-
-  if (description !== undefined && existingTask.description !== description) {
-    await publishEvent("task.description_changed", {
-      taskId: updatedTask.id,
-      projectId: updatedTask.projectId,
-      userId: currentUserId,
-      oldDescription: existingTask.description,
-      newDescription: description,
-      type: "description_changed",
-    });
-  }
-
-  if (existingTask.priority !== priority) {
-    await publishEvent("task.priority_changed", {
-      taskId: updatedTask.id,
-      projectId: updatedTask.projectId,
-      userId: currentUserId,
-      oldPriority: existingTask.priority,
-      newPriority: priority,
-      title: updatedTask.title,
-      type: "priority_changed",
-    });
-  }
+  await publishTaskMutation(
+    {
+      ...existingTask,
+      description:
+        description === undefined ? undefined : existingTask.description,
+    },
+    { ...updatedTask, description: description ?? updatedTask.description },
+    currentUserId,
+  );
 
   await publishEvent("task.updated", {
     taskId: updatedTask.id,
@@ -157,12 +151,6 @@ async function updateTask(
     status: updatedTask.status,
     userId: currentUserId,
   });
-
-  if (description !== undefined && existingTask.description !== description) {
-    deleteOrphanedAssets(existingTask.description, description, {
-      taskId: id,
-    }).catch(() => {});
-  }
 
   return updatedTask;
 }

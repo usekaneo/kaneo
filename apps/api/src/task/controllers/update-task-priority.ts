@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { taskTable } from "../../database/schema";
-import { publishEvent } from "../../events";
+import { publishTaskMutation } from "./task-mutation-effects";
 
 async function updateTaskPriority({
   id,
@@ -35,15 +35,7 @@ async function updateTaskPriority({
     });
   }
 
-  await publishEvent("task.priority_changed", {
-    taskId: updatedTask.id,
-    projectId: updatedTask.projectId,
-    userId: currentUserId,
-    oldPriority: existingTask.priority,
-    newPriority: priority,
-    title: updatedTask.title,
-    type: "priority_changed",
-  });
+  await publishTaskMutation(existingTask, updatedTask, currentUserId);
 
   return updatedTask;
 }
