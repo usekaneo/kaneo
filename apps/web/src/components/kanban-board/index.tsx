@@ -1,3 +1,4 @@
+import { markBoardCacheChanged } from "@/lib/board-cache-version";
 import {
   closestCorners,
   DndContext,
@@ -159,11 +160,18 @@ function KanbanBoard({
     const activeId = active.id.toString();
     const overId = over.id.toString();
 
-    if (isReordering) return;
+    if (
+      isReordering ||
+      queryClient.getQueryState(["tasks", project.id])?.fetchStatus ===
+        "fetching"
+    )
+      return;
     const canonical =
       storedProject?.id === project.id ? storedProject : project;
     const moved = moveBoardTask(canonical, activeId, overId, sortedByNumber);
     if (!moved || !moved.tasks.length) return;
+    for (const task of moved.tasks)
+      markBoardCacheChanged(queryClient, project.id, task.id);
     setProject(moved.project);
     queryClient.setQueryData(["tasks", project.id], moved.project);
     reorder({ projectId: project.id, tasks: moved.tasks });

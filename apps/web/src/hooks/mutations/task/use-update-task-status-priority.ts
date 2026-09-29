@@ -1,18 +1,19 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import updateTaskPriority from "@/fetchers/task/update-task-priority";
 import type Task from "@/types/task";
+import { updateBoardTaskCache } from "@/lib/update-board-task-cache";
 
 export function useUpdateTaskPriority() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (task: Task) => updateTaskPriority(task.id, task),
-    onSuccess: (_, variables) => {
+    onSuccess: (updated, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["task", variables.id],
       });
-      queryClient.invalidateQueries({
-        queryKey: ["tasks", variables.projectId],
+      updateBoardTaskCache(queryClient, variables.projectId, variables.id, {
+        priority: updated.priority,
       });
       queryClient.invalidateQueries({
         queryKey: ["notifications"],

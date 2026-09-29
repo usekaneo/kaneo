@@ -1,14 +1,21 @@
-import { useQuery } from "@tanstack/react-query";
+import { markBoardCacheChanged } from "@/lib/board-cache-version";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import getTasks from "@/fetchers/task/get-tasks";
-import { isUnauthorizedError } from "@/lib/http-error";
 
 export function useGetTasks(projectId: string) {
+  const queryClient = useQueryClient();
   return useQuery({
     queryKey: ["tasks", projectId],
-    queryFn: ({ signal }) => getTasks(projectId, signal),
+    queryFn: ({ signal }) => {
+      markBoardCacheChanged(queryClient, projectId);
+      const hasCachedBoard = !!queryClient.getQueryData(["tasks", projectId]);
+      return getTasks(projectId, signal, (board) => {
+        if (!hasCachedBoard)
+          queryClient.setQueryData(["tasks", projectId], board);
+      });
+    },
     refetchOnMount: true,
-    refetchInterval: (query) =>
-      isUnauthorizedError(query.state.error) ? false : 30000,
+    refetchOnWindowFocus: true,
     enabled: !!projectId,
   });
 }

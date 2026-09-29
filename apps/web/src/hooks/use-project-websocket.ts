@@ -1,8 +1,17 @@
+import {
+  getBoardCacheVersion,
+  markBoardCacheChanged,
+} from "@/lib/board-cache-version";
 import { windowId } from "@kaneo/libs";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { getApiUrl } from "@/fetchers/get-api-url";
 import { authClient } from "@/lib/auth-client";
+import getTask from "@/fetchers/task/get-task";
+import getLabelsByTask from "@/fetchers/label/get-labels-by-task";
+import getExternalLinks from "@/fetchers/external-link/get-external-links";
+import { patchBoardTask } from "@/lib/patch-board-task";
+import type { ProjectWithTasks } from "@/types/project";
 
 export function getWsUrl(projectId: string) {
   const base = getApiUrl("ws");
@@ -27,10 +36,14 @@ export function useProjectWebSocket(projectId: string) {
     // Each effect owns its sockets and timers. Late events from an old project
     // or session must not alter the next effect's connection or reconnect it.
     let disposed = false;
+    let hasConnected = false;
+    const taskVersions = new Map<string, number>();
+    const pendingMessages = new Map<string, string>();
     let activeSocket: WebSocket | null = null;
     let retries = 0;
     let retryTimeout: ReturnType<typeof setTimeout> | null = null;
     let pingInterval: ReturnType<typeof setInterval> | null = null;
+    let fallbackInterval: ReturnType<typeof setInterval> | null = null;
 
     function clearPing() {
       if (pingInterval !== null) {
@@ -48,6 +61,16 @@ export function useProjectWebSocket(projectId: string) {
 
       ws.onopen = () => {
         if (disposed || activeSocket !== ws) return;
+        if (hasConnected) markBoardCacheChanged(queryClient, projectId);
+        if (hasConnected)
+          void queryClient.invalidateQueries({
+            queryKey: ["tasks", projectId],
+          });
+        if (fallbackInterval !== null) {
+          clearInterval(fallbackInterval);
+          fallbackInterval = null;
+        }
+        hasConnected = true;
         retries = 0; // Reset retries on successful connection
         // Start keepalive pings to prevent Cloudflare idle timeout (100s)
         clearPing();
@@ -63,6 +86,7 @@ export function useProjectWebSocket(projectId: string) {
         try {
           const message = JSON.parse(event.data);
           if (message.type === "PROJECT_MOVED") {
+            markBoardCacheChanged(queryClient, projectId);
             for (const queryKey of [
               ["projects"],
               ["project", projectId],
@@ -74,8 +98,63 @@ export function useProjectWebSocket(projectId: string) {
             }
             return;
           }
+          const boardIsLoading =
+            queryClient.getQueryState(["tasks", projectId])?.fetchStatus ===
+            "fetching";
+          if (boardIsLoading) {
+            if (
+              message.type === "TASKS_REORDERED" &&
+              Array.isArray(message.tasks)
+            ) {
+              for (const change of message.tasks)
+                pendingMessages.set(
+                  change.id,
+                  JSON.stringify({ ...message, tasks: [change] }),
+                );
+            } else
+              pendingMessages.set(message.taskId || message.type, event.data);
+            return;
+          }
+          if (message.type === "TASKS_REORDERED") {
+            for (const change of Array.isArray(message.tasks)
+              ? message.tasks
+              : []) {
+              taskVersions.set(
+                change.id,
+                (taskVersions.get(change.id) ?? 0) + 1,
+              );
+              markBoardCacheChanged(queryClient, projectId, change.id);
+            }
+            const board = queryClient.getQueryData<ProjectWithTasks>([
+              "tasks",
+              projectId,
+            ]);
+            if (!board || !Array.isArray(message.tasks)) {
+              void queryClient.invalidateQueries({
+                queryKey: ["tasks", projectId],
+              });
+              return;
+            }
+            let updated = board;
+            for (const change of message.tasks) {
+              const task = updated.columns
+                .flatMap((column) => column.tasks)
+                .find((task) => task.id === change.id);
+              if (!task) {
+                markBoardCacheChanged(queryClient, projectId);
+                void queryClient.invalidateQueries({
+                  queryKey: ["tasks", projectId],
+                });
+              }
+              if (task)
+                updated =
+                  patchBoardTask(updated, task.id, { ...task, ...change }) ??
+                  updated;
+            }
+            queryClient.setQueryData(["tasks", projectId], updated);
+            return;
+          }
           if (
-            message.type === "TASKS_REORDERED" ||
             message.type === "TASK_UPDATED" ||
             message.type === "TASK_CREATED" ||
             message.type === "TASK_DELETED" ||
@@ -85,9 +164,81 @@ export function useProjectWebSocket(projectId: string) {
             message.type === "COMMENT_UPDATED" ||
             message.type === "PROJECT_UPDATED"
           ) {
-            queryClient.invalidateQueries({
-              queryKey: ["tasks", message.projectId],
-            });
+            if (
+              message.type === "PROJECT_UPDATED" ||
+              message.type === "TASK_RELATION_UPDATED"
+            ) {
+              markBoardCacheChanged(queryClient, projectId);
+              void queryClient.invalidateQueries({
+                queryKey: ["tasks", projectId],
+              });
+            } else if (!message.taskId && message.type !== "COMMENT_UPDATED") {
+              markBoardCacheChanged(queryClient, projectId);
+              void queryClient.invalidateQueries({
+                queryKey: ["tasks", projectId],
+              });
+            } else if (message.taskId && message.type !== "COMMENT_UPDATED") {
+              const taskId = message.taskId as string;
+              const version = (taskVersions.get(taskId) ?? 0) + 1;
+              taskVersions.set(taskId, version);
+              const boardVersion = getBoardCacheVersion(
+                queryClient,
+                projectId,
+                taskId,
+              );
+              if (message.type === "TASK_DELETED") {
+                queryClient.setQueryData<ProjectWithTasks>(
+                  ["tasks", projectId],
+                  (board) =>
+                    board ? (patchBoardTask(board, taskId) ?? board) : board,
+                );
+              } else {
+                void Promise.all([
+                  getTask(taskId),
+                  getLabelsByTask({ taskId }),
+                  getExternalLinks(taskId),
+                ])
+                  .then(([task, labels, externalLinks]) => {
+                    if (
+                      disposed ||
+                      activeSocket !== ws ||
+                      taskVersions.get(taskId) !== version ||
+                      getBoardCacheVersion(queryClient, projectId, taskId) !==
+                        boardVersion
+                    )
+                      return;
+                    queryClient.setQueryData<ProjectWithTasks>(
+                      ["tasks", projectId],
+                      (board) =>
+                        board
+                          ? (patchBoardTask(board, taskId, {
+                              ...task,
+                              labels,
+                              externalLinks: externalLinks.map((link) => ({
+                                ...link,
+                                metadata:
+                                  link.metadata &&
+                                  typeof link.metadata === "object" &&
+                                  !Array.isArray(link.metadata)
+                                    ? link.metadata
+                                    : null,
+                              })),
+                            }) ?? board)
+                          : board,
+                    );
+                  })
+                  .catch(() => {
+                    if (
+                      !disposed &&
+                      activeSocket === ws &&
+                      taskVersions.get(taskId) === version
+                    )
+                      void queryClient.invalidateQueries({
+                        queryKey: ["tasks", projectId],
+                      });
+                  });
+              }
+            }
 
             if (message.type === "PROJECT_UPDATED") {
               queryClient.invalidateQueries({ queryKey: ["projects"] });
@@ -157,14 +308,40 @@ export function useProjectWebSocket(projectId: string) {
           const delay = BASE_DELAY * 2 ** retries; // 1s, 2s, 4s, 8s, 16s
           retries += 1;
           retryTimeout = setTimeout(connect, delay);
+        } else if (fallbackInterval === null) {
+          // Refresh only when realtime delivery could not reconnect.
+          fallbackInterval = setInterval(() => {
+            void queryClient.invalidateQueries({
+              queryKey: ["tasks", projectId],
+            });
+          }, 30_000);
         }
       };
     }
     connect();
+    const unsubscribe = queryClient.getQueryCache().subscribe(({ query }) => {
+      if (
+        query.queryKey[0] !== "tasks" ||
+        query.queryKey[1] !== projectId ||
+        query.state.fetchStatus !== "idle" ||
+        !pendingMessages.size
+      )
+        return;
+      const messages = Array.from(pendingMessages.values());
+      pendingMessages.clear();
+      queueMicrotask(() => {
+        if (disposed || !activeSocket) return;
+        for (const data of messages)
+          activeSocket.onmessage?.(new MessageEvent("message", { data }));
+      });
+    });
 
     return () => {
+      unsubscribe();
+      pendingMessages.clear();
       disposed = true;
       clearPing();
+      if (fallbackInterval !== null) clearInterval(fallbackInterval);
       if (retryTimeout !== null) {
         clearTimeout(retryTimeout);
       }

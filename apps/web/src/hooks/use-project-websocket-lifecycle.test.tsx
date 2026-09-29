@@ -10,7 +10,14 @@ import {
 import { useProjectWebSocket } from "./use-project-websocket";
 
 const { client, auth } = vi.hoisted(() => ({
-  client: { invalidateQueries: vi.fn() },
+  client: {
+    getQueryCache: () => ({ subscribe: () => () => {} }),
+    getQueryState: vi.fn(),
+    cancelQueries: vi.fn().mockResolvedValue(undefined),
+    invalidateQueries: vi.fn(),
+    setQueryData: vi.fn(),
+    getQueryData: vi.fn(),
+  },
   auth: { userId: "user-a" as string | null },
 }));
 vi.mock("@tanstack/react-query", () => ({ useQueryClient: () => client }));

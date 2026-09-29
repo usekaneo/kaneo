@@ -42,6 +42,7 @@ describe("useGetTasks", () => {
     expect(getPublicProject).toHaveBeenCalledWith(
       { id: "public-parent" },
       expect.any(AbortSignal),
+      expect.any(Function),
     );
   });
 

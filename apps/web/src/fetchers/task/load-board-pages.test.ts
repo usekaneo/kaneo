@@ -58,6 +58,32 @@ function page(number: number, totalPages = 3) {
   };
 }
 describe("complete board loading through bounded pages", () => {
+  it("publishes the first page before a slow continuation and keeps snapshots immutable", async () => {
+    let finish!: (value: ReturnType<typeof page>) => void;
+    const snapshots: ProjectWithTasks[] = [];
+    const load = vi
+      .fn()
+      .mockResolvedValueOnce(page(1, 2))
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            finish = resolve;
+          }),
+      );
+    const loading = loadBoardPages(load, undefined, (board) =>
+      snapshots.push(board),
+    );
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(snapshots[0].columns[0].tasks.map((task) => task.id)).toEqual(["1"]);
+    finish(page(2, 2));
+    await loading;
+    expect(snapshots.at(-1)?.columns[0].tasks.map((task) => task.id)).toEqual([
+      "1",
+      "2",
+    ]);
+    expect(snapshots[0].columns[0].tasks).toHaveLength(1);
+  });
   it("loads sequentially and merges every column, planned and archived task with its complete fields", async () => {
     let active = 0;
     let peak = 0;

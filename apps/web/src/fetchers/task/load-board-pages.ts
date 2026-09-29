@@ -11,14 +11,23 @@ export type BoardPage<T extends ProjectWithTasks> = {
   };
 };
 
-/** Keep the existing board cache shape, but fetch one bounded page at a time. */
+/** Publish immutable snapshots as bounded pages arrive. */
 export async function loadBoardPages<T extends ProjectWithTasks>(
   load: (page: number, relatedPage?: number) => Promise<BoardPage<T>>,
   signal?: AbortSignal,
+  onProgress?: (board: T) => void,
 ): Promise<T> {
   signal?.throwIfAborted();
   const first = await load(1);
   const result = first.data;
+  const reportProgress = () => {
+    signal?.throwIfAborted();
+    result.columns.sort(
+      (left, right) => (left.position ?? 0) - (right.position ?? 0),
+    );
+    onProgress?.(structuredClone(result));
+  };
+  reportProgress();
   const columns = new Map(result.columns.map((column) => [column.id, column]));
   const seen = new Map(
     [
@@ -74,6 +83,7 @@ export async function loadBoardPages<T extends ProjectWithTasks>(
     for (let relatedPage = 2; relatedPage <= total; relatedPage++) {
       signal?.throwIfAborted();
       merge(await load(page, relatedPage));
+      reportProgress();
     }
   };
   await loadRelated(1, first);
@@ -81,6 +91,7 @@ export async function loadBoardPages<T extends ProjectWithTasks>(
     signal?.throwIfAborted();
     const next = await load(page);
     merge(next);
+    reportProgress();
     await loadRelated(page, next);
   }
   result.columns.sort(
