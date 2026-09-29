@@ -1,4 +1,4 @@
-import { withStorageObject } from "../storage/cleanup-queue";
+import { withVerifiedStorageObject } from "../storage/cleanup-queue";
 import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import { requireEntitlement } from "../billing/require-entitlement-middleware";
@@ -1005,73 +1005,76 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       });
     }
 
-    const asset = await withStorageObject(normalizedKey, async (db) => {
-      let uploaded: Awaited<ReturnType<typeof verifyTaskAssetUpload>>;
-      try {
-        uploaded = await verifyTaskAssetUpload(normalizedKey, {
-          size,
-          contentType,
-        });
-      } catch (error) {
-        throw new HTTPException(
-          error instanceof InvalidUploadedAssetError ? 400 : 503,
-          {
-            message:
-              error instanceof InvalidUploadedAssetError
-                ? error.message
-                : "Unable to verify uploaded object.",
-          },
-        );
-      }
+    const asset = await withVerifiedStorageObject(
+      normalizedKey,
+      async () => {
+        try {
+          return await verifyTaskAssetUpload(normalizedKey, {
+            size,
+            contentType,
+          });
+        } catch (error) {
+          throw new HTTPException(
+            error instanceof InvalidUploadedAssetError ? 400 : 503,
+            {
+              message:
+                error instanceof InvalidUploadedAssetError
+                  ? error.message
+                  : "Unable to verify uploaded object.",
+            },
+          );
+        }
+      },
+      async (db, uploaded) => {
+        const [existingAsset] = await db
+          .select({ id: assetTable.id })
+          .from(assetTable)
+          .where(eq(assetTable.objectKey, normalizedKey))
+          .limit(1);
 
-      const [existingAsset] = await db
-        .select({ id: assetTable.id })
-        .from(assetTable)
-        .where(eq(assetTable.objectKey, normalizedKey))
-        .limit(1);
+        const [saved] = existingAsset
+          ? await db
+              .update(assetTable)
+              .set({
+                workspaceId: taskContext.workspaceId,
+                projectId: taskContext.projectId,
+                taskId: taskContext.taskId,
+                filename,
+                mimeType: uploaded.contentType,
+                size: uploaded.size,
+                kind: isImageContentType(uploaded.contentType)
+                  ? "image"
+                  : "attachment",
+                surface,
+                createdBy: userId || null,
+              })
+              .where(eq(assetTable.id, existingAsset.id))
+              .returning({
+                id: assetTable.id,
+              })
+          : await db
+              .insert(assetTable)
+              .values({
+                workspaceId: taskContext.workspaceId,
+                projectId: taskContext.projectId,
+                taskId: taskContext.taskId,
+                objectKey: normalizedKey,
+                filename,
+                mimeType: uploaded.contentType,
+                size: uploaded.size,
+                kind: isImageContentType(uploaded.contentType)
+                  ? "image"
+                  : "attachment",
+                surface,
+                createdBy: userId || null,
+              })
+              .returning({
+                id: assetTable.id,
+              });
 
-      const [saved] = existingAsset
-        ? await db
-            .update(assetTable)
-            .set({
-              workspaceId: taskContext.workspaceId,
-              projectId: taskContext.projectId,
-              taskId: taskContext.taskId,
-              filename,
-              mimeType: uploaded.contentType,
-              size: uploaded.size,
-              kind: isImageContentType(uploaded.contentType)
-                ? "image"
-                : "attachment",
-              surface,
-              createdBy: userId || null,
-            })
-            .where(eq(assetTable.id, existingAsset.id))
-            .returning({
-              id: assetTable.id,
-            })
-        : await db
-            .insert(assetTable)
-            .values({
-              workspaceId: taskContext.workspaceId,
-              projectId: taskContext.projectId,
-              taskId: taskContext.taskId,
-              objectKey: normalizedKey,
-              filename,
-              mimeType: uploaded.contentType,
-              size: uploaded.size,
-              kind: isImageContentType(uploaded.contentType)
-                ? "image"
-                : "attachment",
-              surface,
-              createdBy: userId || null,
-            })
-            .returning({
-              id: assetTable.id,
-            });
-
-      return saved;
-    });
+        return saved;
+      },
+    );
 
     if (!asset) {
       throw new HTTPException(500, {
