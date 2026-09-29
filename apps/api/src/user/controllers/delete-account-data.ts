@@ -6,6 +6,7 @@ import {
 } from "../../billing/controllers/find-billable-workspaces";
 import { syncWorkspaceSeats } from "../../billing/controllers/sync-seats";
 import db from "../../database";
+import { revokeWorkspaceConnections } from "../../ws";
 import { workspaceTable, workspaceUserTable } from "../../database/schema";
 import {
   formatBlockedWorkspacesMessage,
@@ -103,6 +104,13 @@ export async function deleteAccountData(userId: string) {
         );
       });
     }
+  }
+
+  for (const workspaceId of [
+    ...plan.workspaceIdsToDelete,
+    ...plan.workspaceIdsToLeave,
+  ]) {
+    await revokeWorkspaceConnections(userId, workspaceId);
   }
 
   return plan;

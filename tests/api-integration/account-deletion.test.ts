@@ -1,6 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vite-plus/test";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import type { WSContext } from "hono/ws";
+import { auth } from "../../apps/api/src/auth";
+import { addConnection, removeConnection } from "../../apps/api/src/ws";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import deleteAccountData from "../../apps/api/src/user/controllers/delete-account-data";
@@ -69,6 +72,61 @@ describe("API integration: account deletion", () => {
       .where(eq(schema.workspaceTable.id, owner.workspace.id));
 
     expect(workspaces).toHaveLength(1);
+  });
+
+  it("revokes project sockets when a member leaves through Better Auth", async () => {
+    const owner = await createWorkspaceMember({ role: "owner" });
+    const member = await addMember(owner.workspace.id, "member");
+    const token = `leave-${randomUUID()}`;
+    await db.insert(schema.sessionTable).values({
+      id: randomUUID(),
+      userId: member.id,
+      token,
+      expiresAt: new Date(Date.now() + 60_000),
+    });
+    const ws = { send: vi.fn(), close: vi.fn() };
+    const conn = addConnection(
+      "project",
+      ws as unknown as WSContext,
+      member.id,
+      "window",
+      owner.workspace.id,
+    );
+    try {
+      const response = await auth.handler(
+        new Request("http://localhost:1337/api/auth/organization/leave", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ organizationId: owner.workspace.id }),
+        }),
+      );
+      expect(response.status).toBe(200);
+      expect(ws.close).toHaveBeenCalledWith(1008, "Workspace access revoked");
+    } finally {
+      removeConnection("project", conn);
+    }
+  });
+
+  it("revokes project sockets during account deletion", async () => {
+    const owner = await createWorkspaceMember({ role: "owner" });
+    const member = await addMember(owner.workspace.id, "member");
+    const ws = { send: vi.fn(), close: vi.fn() };
+    const conn = addConnection(
+      "project",
+      ws as unknown as WSContext,
+      member.id,
+      "window",
+      owner.workspace.id,
+    );
+    try {
+      await deleteAccountData(member.id);
+      expect(ws.close).toHaveBeenCalledWith(1008, "Workspace access revoked");
+    } finally {
+      removeConnection("project", conn);
+    }
   });
 
   it("leaves a shared workspace that keeps another owner", async () => {

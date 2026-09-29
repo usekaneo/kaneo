@@ -2,8 +2,13 @@ import { randomUUID } from "node:crypto";
 import { and, eq, inArray } from "drizzle-orm";
 import type { WSContext } from "hono/ws";
 import db from "../database";
-import { projectTable, workspaceUserTable } from "../database/schema";
+import {
+  projectTable,
+  userTable,
+  workspaceUserTable,
+} from "../database/schema";
 import { subscribeToEvent } from "../events";
+import { instanceAdminRoleSql } from "../utils/instance-admin-role";
 import { isRedisConfigured } from "../redis";
 import {
   getRelationSourceProject,
@@ -289,6 +294,21 @@ async function deliverToLocalConnections(
           ),
         );
       members = new Set(rows.map((row) => row.userId));
+      const nonmembers = [
+        ...new Set(recipients.map((conn) => conn.userId)),
+      ].filter((userId) => !members.has(userId));
+      if (nonmembers.length > 0) {
+        const admins = await db
+          .select({ userId: userTable.id, role: userTable.role })
+          .from(userTable)
+          .where(
+            and(
+              inArray(userTable.id, nonmembers),
+              instanceAdminRoleSql(userTable.role),
+            ),
+          );
+        for (const admin of admins) members.add(admin.userId);
+      }
     } catch (error) {
       console.error("Failed to validate broadcast membership:", error);
     }

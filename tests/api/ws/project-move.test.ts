@@ -20,6 +20,7 @@ import {
 const m = vi.hoisted(() => ({
   lookup: vi.fn(),
   members: vi.fn(),
+  admins: vi.fn(),
   redis: false,
   publish: vi.fn(),
   on: vi.fn(),
@@ -28,7 +29,12 @@ vi.mock("../../../apps/api/src/database", () => ({
   default: {
     select: (fields: Record<string, unknown>) => ({
       from: () => ({
-        where: () => (fields.userId ? m.members() : { limit: m.lookup }),
+        where: () =>
+          fields.role
+            ? m.admins()
+            : fields.userId
+              ? m.members()
+              : { limit: m.lookup },
       }),
     }),
   },
@@ -67,6 +73,7 @@ const update = {
 };
 beforeEach(() => {
   m.redis = false;
+  m.admins.mockResolvedValue([]);
   m.members.mockResolvedValue([{ userId: "user" }]);
   m.lookup.mockResolvedValue([{ workspaceId: "old" }]);
   m.publish.mockResolvedValue(1);
@@ -159,6 +166,18 @@ describe("project move revocation", () => {
 });
 
 describe("workspace membership revocation", () => {
+  it("keeps instance admins connected without workspace membership", async () => {
+    vi.useFakeTimers();
+    await initializeWebSocketAdapter();
+    const ws = connect();
+    m.members.mockResolvedValue([]);
+    m.admins.mockResolvedValue([{ userId: "user", role: "admin" }]);
+    broadcastToProject("project", update);
+    await vi.advanceTimersByTimeAsync(100);
+    expect(ws.send).toHaveBeenCalledWith(JSON.stringify(update));
+    expect(ws.close).not.toHaveBeenCalled();
+  });
+
   it("stops broadcasts after membership removal even when fan-out was missed", async () => {
     vi.useFakeTimers();
     await initializeWebSocketAdapter();

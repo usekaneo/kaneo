@@ -36,7 +36,7 @@ import {
 import type { AccessControl } from "better-auth/plugins/access";
 import type { UserWithAnonymous } from "better-auth/plugins/anonymous";
 import { config } from "dotenv-mono";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import {
   findBillableWorkspaces,
   formatBillableWorkspacesMessage,
@@ -784,6 +784,26 @@ export const auth = betterAuth({
       }
     }),
     after: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === "/organization/leave") {
+        const session = await getSessionFromCtx(ctx, { disableRefresh: true });
+        const userId = session?.user.id;
+        const workspaceId = ctx.body?.organizationId;
+        if (userId && typeof workspaceId === "string") {
+          const [membership] = await db
+            .select({ id: schema.workspaceUserTable.id })
+            .from(schema.workspaceUserTable)
+            .where(
+              and(
+                eq(schema.workspaceUserTable.userId, userId),
+                eq(schema.workspaceUserTable.workspaceId, workspaceId),
+              ),
+            )
+            .limit(1);
+          if (!membership)
+            await revokeWorkspaceConnections(userId, workspaceId);
+        }
+      }
+
       if (ctx.path.startsWith("/sign-up") || ctx.path.startsWith("/sign-in")) {
         const newSession = ctx.context.newSession;
         if (newSession) {
