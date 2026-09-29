@@ -3,10 +3,12 @@ import { I18nextProvider } from "react-i18next";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import {
   getBrowserLocale,
+  getLocaleDirection,
   i18n,
   preloadNamespaces,
   resolveLocale,
 } from "./index";
+import { persistLocale } from "./locale-storage";
 
 export function AppI18nProvider({ children }: PropsWithChildren) {
   const { user } = useAuth();
@@ -21,6 +23,8 @@ export function AppI18nProvider({ children }: PropsWithChildren) {
       .changeLanguage(resolvedLocale)
       .then(() => preloadNamespaces(resolvedLocale));
     document.documentElement.lang = resolvedLocale;
+    document.documentElement.dir = getLocaleDirection(resolvedLocale);
+    persistLocale(resolvedLocale);
   }, [resolvedLocale]);
 
   return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>;

@@ -177,7 +177,7 @@ export default function ProjectLayout({
                   )}
                 >
                   <SquircleDashed className="size-3.5" />
-                  Backlog
+                  {t("tasks:view.backlog")}
                 </Button>
                 <Button
                   variant={resolvedView === "board" ? "secondary" : "ghost"}
@@ -213,7 +213,7 @@ export default function ProjectLayout({
                   )}
                 >
                   <CalendarDays className="size-3.5" />
-                  Gantt
+                  {t("tasks:view.gantt")}
                 </Button>
               </div>
             )}

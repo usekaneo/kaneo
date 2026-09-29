@@ -1,7 +1,7 @@
-# Kaneo on Coolify
+# Kaneo on Coolify (Persian/RTL fork)
 #
 # Deploy this stack from a Git source with Coolify's "Docker Compose" build pack:
-#   Public Repository -> https://github.com/usekaneo/kaneo
+#   Public Repository -> https://github.com/pourmirzai/kaneo (branch: feat/persian-rtl)
 #   Build Pack: Docker Compose | Base Directory: / | Compose Location: compose.coolify.yml
 #
 # Assign a domain to the "kaneo" service using its container port, e.g. https://kaneo.example.com:5173
@@ -10,8 +10,8 @@
 # The only required environment variable is KANEO_CLIENT_URL (your public URL, without :5173).
 # AUTH_SECRET and the PostgreSQL password are auto-generated via Coolify magic variables.
 # Do NOT set KANEO_API_URL — the entrypoint derives it from KANEO_CLIENT_URL (public URL + /api).
-# The Kaneo image tracks the latest release by default. Set KANEO_IMAGE_TAG to a
-# release tag to hold a deployment on a known version.
+# The image is built from this fork (fa-IR + RTL) by the "Sync upstream" workflow and
+# pushed to GHCR as :latest. Set KANEO_IMAGE_TAG to hold a deployment on a known build.
 
 services:
   postgres:
@@ -30,10 +30,10 @@ services:
       retries: 5
 
   kaneo:
-    # Tracks the latest release. The API runs database migrations on startup, so
-    # set KANEO_IMAGE_TAG to a release tag if a redeploy should stay on a known
-    # version rather than pick up whatever is newest.
-    image: ghcr.io/usekaneo/kaneo:${KANEO_IMAGE_TAG:-latest}
+    # Tracks this fork's latest synced build (Persian/RTL included). The API runs
+    # database migrations on startup, so set KANEO_IMAGE_TAG if a redeploy should
+    # stay on a known build rather than pick up whatever is newest.
+    image: ghcr.io/pourmirzai/kaneo:${KANEO_IMAGE_TAG:-latest}
     environment:
       - KANEO_CLIENT_URL=${KANEO_CLIENT_URL:?}
       - AUTH_SECRET=${SERVICE_HEX_64_KANEO:?}
