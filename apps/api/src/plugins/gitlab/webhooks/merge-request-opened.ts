@@ -11,6 +11,7 @@ import {
   isTaskInFinalState,
   updateTaskStatus,
 } from "../../github/services/task-service";
+import { parseLinkMetadata } from "../../github/utils/parse-link-metadata";
 import type { GitlabConfig } from "../config";
 import { findAllIntegrationsByGitlabProject } from "../services/integration-lookup";
 import { extractTaskNumberGitlab } from "../utils/branch-matcher";
@@ -140,7 +141,13 @@ export async function handleGitlabMergeRequestOpened(
       config.statusTransitions?.onPROpen || "in-review",
     );
 
-    const canMove = !existingLink || !(await isTaskInFinalState(task));
+    const wasDraft =
+      parseLinkMetadata<{ draft: boolean }>(existingLink?.metadata, {
+        externalLinkId: existingLink?.id ?? "",
+        source: "gitlab-merge-request-opened",
+      }).draft === true;
+    const canMove =
+      !existingLink || wasDraft || !(await isTaskInFinalState(task));
 
     if (task.status !== targetStatus && canMove) {
       const statusResult = await updateTaskStatus(task.id, targetStatus);
