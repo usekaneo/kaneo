@@ -1285,3 +1285,10 @@ export const customFieldValueTable = pgTable(
     ),
   ],
 );
+
+export const dataMigrationTable = pgTable("data_migration", {
+  id: text("id").primaryKey(),
+  completedAt: timestamp("completed_at", { mode: "date" })
+    .defaultNow()
+    .notNull(),
+});
