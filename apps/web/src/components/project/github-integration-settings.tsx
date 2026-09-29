@@ -40,6 +40,7 @@ import {
 import useImportGithubIssues from "@/hooks/mutations/github-integration/use-import-github-issues";
 import { useUpdateGithubIntegration } from "@/hooks/mutations/github-integration/use-update-github-integration";
 import useGetGithubIntegration from "@/hooks/queries/github-integration/use-get-github-integration";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
@@ -55,6 +56,8 @@ export function GitHubIntegrationSettings({
   projectId: string;
 }) {
   const { t } = useTranslation();
+  const { canCreateTasks, canUpdateTasks } = useWorkspacePermission();
+  const hasImportPermission = canCreateTasks() && canUpdateTasks();
   const { data: session } = authClient.useSession();
   const { data: appInfo } = useQuery({
     queryKey: ["github-app-info", session?.user.id],
@@ -257,6 +260,7 @@ export function GitHubIntegrationSettings({
   };
 
   const handleImportIssues = async () => {
+    if (!hasImportPermission) return;
     try {
       const result = await importIssues({
         projectId,
@@ -300,7 +304,8 @@ export function GitHubIntegrationSettings({
   const isConnected = !!integration && integration.isActive;
   // The saved binding is verified again by each import request. Resuming must
   // also work after refresh, without a new administrator-only account check.
-  const canImport = isConnected && !integration.requiresVerification;
+  const canImport =
+    hasImportPermission && isConnected && !integration.requiresVerification;
 
   return (
     <div className="space-y-4">
@@ -760,7 +765,9 @@ export function GitHubIntegrationSettings({
             <>
               <Separator />
               <p className="text-xs text-muted-foreground">
-                {t("settings:githubIntegration.importDisabledHint")}
+                {hasImportPermission
+                  ? t("settings:githubIntegration.importDisabledHint")
+                  : t("settings:gitlabIntegration.importPermissionHint")}
               </p>
             </>
           )}
