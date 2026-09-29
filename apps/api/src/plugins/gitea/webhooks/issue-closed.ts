@@ -101,10 +101,7 @@ export async function handleGiteaIssueClosed(
         }
 
         const lastOutbound = existingMetadata.lastOutboundStateSyncAt;
-        if (
-          typeof lastOutbound === "number" &&
-          Number.isFinite(lastOutbound)
-        ) {
+        if (typeof lastOutbound === "number" && Number.isFinite(lastOutbound)) {
           const eventMs = parseIssueUpdatedAtMs(issue);
           if (
             eventMs !== null &&
