@@ -75,6 +75,7 @@ export function useProjectWebSocket(projectId: string) {
             return;
           }
           if (
+            message.type === "TASKS_REORDERED" ||
             message.type === "TASK_UPDATED" ||
             message.type === "TASK_CREATED" ||
             message.type === "TASK_DELETED" ||

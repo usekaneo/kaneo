@@ -2610,6 +2610,9 @@
 		"checklistProgress": "{{completed}} of {{total}} checklist items completed",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"board": {
+			"reorderFailed": "Could not move task. Please try again."
 		}
 	},
 	"invitations": {

@@ -2598,6 +2598,9 @@
 		"checklistProgress": "체크리스트 항목 {{total}}개 중 {{completed}}개 완료",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"board": {
+			"reorderFailed": "Could not move task. Please try again."
 		}
 	},
 	"invitations": {

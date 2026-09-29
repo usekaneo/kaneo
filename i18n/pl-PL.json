@@ -2816,6 +2816,9 @@
 		"checklistProgress": "Ukończone elementy listy kontrolnej: {{completed}} z {{total}}",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"board": {
+			"reorderFailed": "Could not move task. Please try again."
 		}
 	},
 	"press": {

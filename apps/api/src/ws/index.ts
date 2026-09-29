@@ -544,3 +544,15 @@ for (const eventName of taskUpdateEvents) {
     }
   });
 }
+
+subscribeToEvent<{
+  projectId: string;
+  userId: string;
+  tasks: Array<{ id: string; position: number; status?: string }>;
+}>("tasks.reordered", async (data) => {
+  broadcastToProject(data.projectId, {
+    type: "TASKS_REORDERED",
+    projectId: data.projectId,
+    tasks: data.tasks,
+  });
+});

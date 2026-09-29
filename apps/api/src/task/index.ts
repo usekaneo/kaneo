@@ -43,6 +43,7 @@ import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
 import importTasks from "./controllers/import-tasks";
 import moveTask from "./controllers/move-task";
+import reorderTasks from "./controllers/reorder-tasks";
 import {
   requireBulkTaskEntitlement,
   requireBulkTaskPermission,
@@ -84,6 +85,7 @@ import {
   listTasksQuery,
   moveTaskBody,
   projectIdParam,
+  reorderTasksBody,
   taskParam,
   ticketIdParam,
   ticketIdQuery,
@@ -147,6 +149,33 @@ const bulkUpdateTasksRoute = createRoute({
   },
 });
 
+const reorderTasksRoute = createRoute({
+  method: "post",
+  operationId: "reorderTasks",
+  path: "/reorder",
+  tags: ["Tasks"],
+  summary: "Reorder or move cards",
+  description:
+    "Atomically update positions and optional column status for cards in one project. Other task fields are preserved.",
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ task: ["update"] }),
+    requireEntitlement,
+  ] as const,
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: reorderTasksBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("Updated cards", taskSchema.array()),
+    400: errorResponse("Invalid positions or column"),
+    403: errorResponse("Missing task:update permission"),
+    404: errorResponse("Tasks do not belong to the project"),
+    409: errorResponse("Task moved concurrently"),
+  },
+});
 const createTaskRoute = createRoute({
   method: "post",
   operationId: "createTask",
@@ -697,6 +726,10 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
     });
 
     return c.json(result, 200);
+  })
+  .openapi(reorderTasksRoute, async (c) => {
+    const { projectId, tasks } = c.req.valid("json");
+    return c.json(await reorderTasks(projectId, tasks, c.get("userId")), 200);
   })
   .openapi(createTaskRoute, async (c) => {
     const { projectId } = c.req.param();

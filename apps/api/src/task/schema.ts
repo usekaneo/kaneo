@@ -157,3 +157,17 @@ export const descriptionMatchesQuery = z.object({
 });
 
 export const duplicateTaskBody = z.object({ title: z.string().optional() });
+
+export const reorderTasksBody = z.object({
+  projectId: z.string(),
+  tasks: z
+    .array(
+      z.object({
+        id: z.string(),
+        position: z.number().int().min(0).max(MAX_TASK_POSITION),
+        status: z.string().optional(),
+      }),
+    )
+    .min(1)
+    .max(1000),
+});
