@@ -15,6 +15,7 @@ import { resolveTargetStatus } from "../utils/resolve-column";
 import { baseUrlFromRepositoryHtmlUrl } from "../utils/webhook-repo";
 
 type PushPayload = {
+  after?: string;
   ref: string;
   head_commit?: {
     id: string;
@@ -48,6 +49,10 @@ export async function handleGiteaPush(
   integrationId?: string,
 ) {
   const { ref, repository } = payload;
+
+  if (/^0+$/.test(payload.after ?? "")) {
+    return;
+  }
 
   if (!ref.startsWith("refs/heads/")) {
     console.log(`[Gitea Push] Skipping non-branch ref: ${ref}`);

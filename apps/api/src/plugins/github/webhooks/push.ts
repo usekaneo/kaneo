@@ -11,6 +11,7 @@ import { extractTaskNumberFromBranch } from "../utils/branch-matcher";
 import { resolveTargetStatus } from "../utils/resolve-column";
 
 type PushPayload = {
+  after?: string;
   ref: string;
   head_commit?: {
     id: string;
@@ -37,6 +38,10 @@ const PROTECTED_BRANCHES = [
 
 export async function handlePush(payload: PushPayload) {
   const { ref, repository, head_commit } = payload;
+
+  if (/^0+$/.test(payload.after ?? "")) {
+    return;
+  }
 
   const branchName = ref.replace("refs/heads/", "");
   console.log(`[Push] Processing branch: ${branchName}`);

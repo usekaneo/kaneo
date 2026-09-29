@@ -117,4 +117,26 @@ describe("GitLab merge requests on a completed task", () => {
     );
     expect(await status()).toBe("in-review");
   });
+
+  it("does not move a task that moved to another project", async () => {
+    await handleGitlabMergeRequestOpened(
+      mergeRequest({ draft: true }),
+      fixture.integration.id,
+      { moveTask: false },
+    );
+    const other = await createProjectFixture({
+      workspaceId: fixture.project.workspaceId,
+      slug: "OTHER",
+    });
+    await db
+      .update(schema.taskTable)
+      .set({ projectId: other.project.id, columnId: other.columns.done.id })
+      .where(eq(schema.taskTable.id, fixture.task.id));
+
+    await handleGitlabMergeRequestOpened(
+      mergeRequest(),
+      fixture.integration.id,
+    );
+    expect(await status()).toBe("done");
+  });
 });

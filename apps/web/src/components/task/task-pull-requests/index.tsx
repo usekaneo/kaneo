@@ -48,6 +48,7 @@ export function TaskPullRequests({
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
             className={badgeClassName}
           >
             <PullRequestStatusIcon status={getPullRequestStatus(single)} />
@@ -58,6 +59,7 @@ export function TaskPullRequests({
             type="button"
             onClick={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
             className={badgeClassName}
           >
             <PullRequestStatusIcon
@@ -73,6 +75,7 @@ export function TaskPullRequests({
         align="start"
         onClick={(e) => e.stopPropagation()}
         onPointerDown={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
         onKeyDown={(e) => e.stopPropagation()}
       >
         {pullRequests.map((pr) => (

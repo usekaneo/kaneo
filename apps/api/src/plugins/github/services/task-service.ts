@@ -36,10 +36,9 @@ export async function findTaskByLink(
 
   const tasks = await database.query.taskTable.findMany({
     where: and(eq(taskTable.projectId, projectId), inArray(taskTable.id, ids)),
+    limit: 2,
   });
-  return ids
-    .map((id) => tasks.find((task) => task.id === id))
-    .find((task) => task !== undefined);
+  return tasks.length === 1 ? tasks[0] : undefined;
 }
 
 export async function findTaskById(taskId: string) {

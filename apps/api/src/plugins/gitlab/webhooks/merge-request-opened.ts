@@ -81,24 +81,28 @@ export async function handleGitlabMergeRequestOpened(
       mergeRequest.iid.toString(),
     );
 
-    const taskNumber = existingLink
-      ? null
-      : extractTaskNumberGitlab(
-          branchName,
-          mergeRequest.title,
-          mergeRequest.description ?? undefined,
-          config,
-          integration.project.slug,
-        );
+    const linkedTask =
+      existingLink && (await findTaskById(existingLink.taskId));
+    if (existingLink && linkedTask?.projectId !== integration.projectId) {
+      continue;
+    }
 
-    const task = existingLink
-      ? await findTaskById(existingLink.taskId)
-      : taskNumber
-        ? await findTaskByNumber(integration.projectId, taskNumber)
-        : await findTaskByLink(integration.projectId, [
-            mergeRequest.title,
-            mergeRequest.description,
-          ]);
+    const taskNumber = extractTaskNumberGitlab(
+      branchName,
+      mergeRequest.title,
+      mergeRequest.description ?? undefined,
+      config,
+      integration.project.slug,
+    );
+
+    const task =
+      linkedTask ||
+      (taskNumber &&
+        (await findTaskByNumber(integration.projectId, taskNumber))) ||
+      (await findTaskByLink(integration.projectId, [
+        mergeRequest.title,
+        mergeRequest.description,
+      ]));
 
     if (!task) {
       continue;

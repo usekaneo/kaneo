@@ -13,6 +13,7 @@ import { resolveTargetStatus } from "../utils/resolve-column";
 import { baseUrlFromProjectWebUrl } from "../utils/webhook-project";
 
 type PushPayload = {
+  after?: string;
   ref: string;
   commits?: Array<{
     id: string;
@@ -41,6 +42,10 @@ export async function handleGitlabPush(
   integrationId?: string,
 ) {
   const { ref, project } = payload;
+
+  if (/^0+$/.test(payload.after ?? "")) {
+    return;
+  }
 
   if (!ref.startsWith("refs/heads/")) {
     console.log(`[GitLab Push] Skipping non-branch ref: ${ref}`);

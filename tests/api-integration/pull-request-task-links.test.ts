@@ -353,6 +353,24 @@ describe.each(["github", "gitea"] as const)(
       expect((await task(fixture.unrelated.id))?.status).toBe("to-do");
     });
 
+    it("skips a PR that links two tasks", async () => {
+      const taskLink = (id: string) =>
+        `https://kaneo.example.com/dashboard/workspace/w/project/${fixture.project.id}/task/${id}`;
+      await open(
+        payload(
+          "Copy message text",
+          `${taskLink(fixture.intended.id)} ${taskLink(fixture.unrelated.id)}`,
+        ),
+      );
+      await expectUnchanged();
+    });
+
+    it("falls back to the task link when the task key is stale", async () => {
+      const taskLink = `https://kaneo.example.com/dashboard/workspace/w/project/${fixture.project.id}/task/${fixture.intended.id}`;
+      await open(payload("KAN-999: copy message text", taskLink));
+      expect(await links()).toMatchObject([{ taskId: fixture.intended.id }]);
+    });
+
     it("does not follow a task link into another project", async () => {
       const other = await createFixture(provider, "OTHER", "other-repo");
       const taskLink = `https://kaneo.example.com/dashboard/workspace/w/project/${other.project.id}/task/${other.intended.id}`;
@@ -451,9 +469,14 @@ describe.each(["github", "gitea"] as const)(
 
     describe("pushes to a completed task", () => {
       const branch = "kan-42-slice-2";
-      const push = () => {
+      const push = (after?: string) => {
         const { installation, repository } = payload();
-        const event = { ref: `refs/heads/${branch}`, installation, repository };
+        const event = {
+          after,
+          ref: `refs/heads/${branch}`,
+          installation,
+          repository,
+        };
         return provider === "github"
           ? handlePush(event)
           : handleGiteaPush(event, fixture.integration.id);
@@ -469,6 +492,11 @@ describe.each(["github", "gitea"] as const)(
       it("moves the task back to progress for a new branch", async () => {
         await push();
         expect((await task(fixture.intended.id))?.status).toBe("in-progress");
+      });
+
+      it("ignores a push that deletes the branch", async () => {
+        await push("0".repeat(40));
+        expect((await task(fixture.intended.id))?.status).toBe("done");
       });
 
       it("keeps the task done for a push to an already linked branch", async () => {

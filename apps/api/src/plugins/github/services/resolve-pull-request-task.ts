@@ -35,14 +35,16 @@ export async function resolvePullRequestTask({
     config,
     projectSlug,
   );
-  if (taskNumber !== null) {
-    return database.query.taskTable.findFirst({
-      where: and(
-        eq(taskTable.projectId, projectId),
-        eq(taskTable.number, taskNumber),
-      ),
-    });
-  }
+  const numberedTask =
+    taskNumber === null
+      ? undefined
+      : await database.query.taskTable.findFirst({
+          where: and(
+            eq(taskTable.projectId, projectId),
+            eq(taskTable.number, taskNumber),
+          ),
+        });
+  if (numberedTask) return numberedTask;
 
   const linkedTask = await findTaskByLink(
     projectId,
