@@ -12,7 +12,7 @@ import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import type { ExternalLink } from "@/types/external-link";
 import type Task from "@/types/task";
-import { PublicPRBadge } from "./public-pr-badge";
+import { TaskPullRequests } from "@/components/task/task-pull-requests";
 import { PublicTaskLabels } from "./public-task-labels";
 
 type PublicTaskCardProps = {
@@ -150,7 +150,10 @@ export function PublicTaskCard({
         )}
 
         {externalLinks.length > 0 && (
-          <PublicPRBadge externalLinks={externalLinks} />
+          <TaskPullRequests
+            externalLinks={externalLinks}
+            className="border-border bg-sidebar"
+          />
         )}
       </div>
     </button>

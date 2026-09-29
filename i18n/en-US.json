@@ -2341,6 +2341,8 @@
 			"labels": "Labels",
 			"copyTaskLink": "Copy task link",
 			"copyTaskBranch": "Copy task branch",
+			"taskLinkCopied": "Copied task link",
+			"taskBranchCopied": "Copied branch name",
 			"start": "Start",
 			"startDate": "Start date",
 			"noDate": "No date"
