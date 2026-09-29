@@ -353,6 +353,13 @@ describe.each(["github", "gitea"] as const)(
       expect((await task(fixture.unrelated.id))?.status).toBe("to-do");
     });
 
+    it("prefers a mapped issue reference over a task link", async () => {
+      await linkIssue(fixture.intended.id);
+      const taskLink = `https://kaneo.example.com/dashboard/workspace/w/project/${fixture.project.id}/task/${fixture.unrelated.id}`;
+      await open(payload("Copy message text", `Closes #61\n\n${taskLink}`));
+      expect(await links()).toMatchObject([{ taskId: fixture.intended.id }]);
+    });
+
     it("skips a PR that links two tasks", async () => {
       const taskLink = (id: string) =>
         `https://kaneo.example.com/dashboard/workspace/w/project/${fixture.project.id}/task/${id}`;
@@ -492,6 +499,15 @@ describe.each(["github", "gitea"] as const)(
       it("moves the task back to progress for a new branch", async () => {
         await push();
         expect((await task(fixture.intended.id))?.status).toBe("in-progress");
+      });
+
+      it("ignores a tag push", async () => {
+        const { installation, repository } = payload();
+        const event = { ref: "refs/tags/kan-42", installation, repository };
+        await (provider === "github"
+          ? handlePush(event)
+          : handleGiteaPush(event, fixture.integration.id));
+        expect((await task(fixture.intended.id))?.status).toBe("done");
       });
 
       it("ignores a push that deletes the branch", async () => {

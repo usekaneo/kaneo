@@ -43,7 +43,11 @@ export async function handlePush(payload: PushPayload) {
     return;
   }
 
-  const branchName = ref.replace("refs/heads/", "");
+  if (!ref.startsWith("refs/heads/")) {
+    return;
+  }
+
+  const branchName = ref.slice("refs/heads/".length);
   console.log(`[Push] Processing branch: ${branchName}`);
 
   if (PROTECTED_BRANCHES.includes(branchName)) {

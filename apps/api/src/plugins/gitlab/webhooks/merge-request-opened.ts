@@ -6,15 +6,13 @@ import {
 } from "../../github/services/link-manager";
 import {
   findTaskById,
-  findTaskByLink,
-  findTaskByNumber,
   isTaskInFinalState,
   updateTaskStatus,
 } from "../../github/services/task-service";
 import { parseLinkMetadata } from "../../github/utils/parse-link-metadata";
 import type { GitlabConfig } from "../config";
 import { findAllIntegrationsByGitlabProject } from "../services/integration-lookup";
-import { extractTaskNumberGitlab } from "../utils/branch-matcher";
+import { resolveMergeRequestTask } from "../services/resolve-merge-request-task";
 import type { GitlabWebhookProject, GitlabWebhookUser } from "../utils/payload";
 import { resolveTargetStatus } from "../utils/resolve-column";
 import { baseUrlFromProjectWebUrl } from "../utils/webhook-project";
@@ -87,22 +85,14 @@ export async function handleGitlabMergeRequestOpened(
       continue;
     }
 
-    const taskNumber = extractTaskNumberGitlab(
-      branchName,
-      mergeRequest.title,
-      mergeRequest.description ?? undefined,
-      config,
-      integration.project.slug,
-    );
-
     const task =
       linkedTask ||
-      (taskNumber &&
-        (await findTaskByNumber(integration.projectId, taskNumber))) ||
-      (await findTaskByLink(integration.projectId, [
-        mergeRequest.title,
-        mergeRequest.description,
-      ]));
+      (await resolveMergeRequestTask({
+        projectId: integration.projectId,
+        projectSlug: integration.project.slug,
+        config,
+        mergeRequest: { ...mergeRequest, source_branch: branchName },
+      }));
 
     if (!task) {
       continue;

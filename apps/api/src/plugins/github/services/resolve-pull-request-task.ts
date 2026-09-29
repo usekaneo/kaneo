@@ -46,33 +46,34 @@ export async function resolvePullRequestTask({
         });
   if (numberedTask) return numberedTask;
 
-  const linkedTask = await findTaskByLink(
-    projectId,
-    [pullRequest.title, pullRequest.body],
-    database,
-  );
-  if (linkedTask) return linkedTask;
-
   const issueNumbers = extractIssueReferences(
     pullRequest.title,
     pullRequest.body,
     repositoryUrl,
   );
-  if (issueNumbers.length === 0) return;
+  const matches =
+    issueNumbers.length === 0
+      ? []
+      : await database
+          .selectDistinct({ task: taskTable })
+          .from(externalLinkTable)
+          .innerJoin(taskTable, eq(taskTable.id, externalLinkTable.taskId))
+          .where(
+            and(
+              eq(externalLinkTable.integrationId, integrationId),
+              eq(externalLinkTable.resourceType, "issue"),
+              inArray(externalLinkTable.externalId, issueNumbers),
+              eq(taskTable.projectId, projectId),
+            ),
+          )
+          .limit(2);
+  if (matches.length > 0) {
+    return matches.length === 1 ? matches[0]?.task : undefined;
+  }
 
-  const matches = await database
-    .selectDistinct({ task: taskTable })
-    .from(externalLinkTable)
-    .innerJoin(taskTable, eq(taskTable.id, externalLinkTable.taskId))
-    .where(
-      and(
-        eq(externalLinkTable.integrationId, integrationId),
-        eq(externalLinkTable.resourceType, "issue"),
-        inArray(externalLinkTable.externalId, issueNumbers),
-        eq(taskTable.projectId, projectId),
-      ),
-    )
-    .limit(2);
-
-  return matches.length === 1 ? matches[0]?.task : undefined;
+  return findTaskByLink(
+    projectId,
+    [pullRequest.title, pullRequest.body],
+    database,
+  );
 }
