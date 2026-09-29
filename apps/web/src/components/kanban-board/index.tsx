@@ -161,9 +161,7 @@ function KanbanBoard({
 
     if (isReordering) return;
     const canonical =
-      sortedByNumber && storedProject?.id === project.id
-        ? storedProject
-        : project;
+      storedProject?.id === project.id ? storedProject : project;
     const moved = moveBoardTask(canonical, activeId, overId, sortedByNumber);
     if (!moved || !moved.tasks.length) return;
     setProject(moved.project);
