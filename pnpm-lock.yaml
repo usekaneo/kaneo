@@ -133,6 +133,9 @@ importers:
       '@kaneo/email':
         specifier: workspace:*
         version: link:../../packages/email
+      '@kaneo/mcp':
+        specifier: workspace:*
+        version: link:../../packages/mcp
       '@kaneo/permissions':
         specifier: workspace:*
         version: link:../../packages/permissions

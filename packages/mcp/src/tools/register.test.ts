@@ -369,42 +369,51 @@ describe("registerTools", () => {
     });
   });
 
-  it("deletes a task-associated label after a preflight check", async () => {
+  it("deletes a task-associated label without an obsolete preflight", async () => {
     const { server, tools } = createServerMock();
-    const client = {
-      json: vi
-        .fn()
-        .mockResolvedValueOnce({ id: "label-1", taskId: "task-1" })
-        .mockResolvedValueOnce({ id: "label-1" }),
-    };
-
+    const client = { json: vi.fn().mockResolvedValue({ id: "label-1" }) };
     registerTools(server as never, { client: client as never });
-
     const result = await tools.get("delete_label")?.handler({ id: "label-1" });
-
-    expect(client.json).toHaveBeenNthCalledWith(1, "/api/label/label-1", {
-      method: "GET",
-    });
-    expect(client.json).toHaveBeenNthCalledWith(2, "/api/label/label-1", {
+    expect(client.json).toHaveBeenCalledExactlyOnceWith("/api/label/label-1", {
       method: "DELETE",
     });
     expect(result?.isError).toBe(false);
   });
 
-  it("refuses to delete a workspace label (taskId null)", async () => {
+  it("resumes workspace label deletion until the API completes it", async () => {
     const { server, tools } = createServerMock();
     const client = {
-      json: vi.fn().mockResolvedValue({ id: "label-1", taskId: null }),
+      json: vi
+        .fn()
+        .mockResolvedValueOnce({
+          id: "label-1",
+          taskId: null,
+          pendingDeletion: true,
+        })
+        .mockResolvedValueOnce({ id: "label-1", taskId: null }),
     };
-
     registerTools(server as never, { client: client as never });
-
     const result = await tools.get("delete_label")?.handler({ id: "label-1" });
-
-    expect(result?.isError).toBe(true);
-    expect(client.json).toHaveBeenCalledTimes(1);
-    expect(client.json).toHaveBeenCalledWith("/api/label/label-1", {
-      method: "GET",
+    expect(result?.isError).toBe(false);
+    expect(client.json).toHaveBeenCalledTimes(2);
+    expect(client.json).toHaveBeenNthCalledWith(2, "/api/label/label-1", {
+      method: "DELETE",
     });
+  });
+
+  it("returns resumable progress when a cascade exceeds one tool call", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      json: vi.fn().mockResolvedValue({ pendingDeletion: true }),
+    };
+    registerTools(server as never, { client: client as never });
+    const result = await tools.get("delete_label")?.handler({ id: "large" });
+    expect(result?.isError).toBe(false);
+    expect(client.json).toHaveBeenCalledTimes(100);
+    expect(result?.content).toEqual([
+      expect.objectContaining({
+        text: expect.stringContaining('"pendingDeletion": true'),
+      }),
+    ]);
   });
 });

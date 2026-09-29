@@ -54,7 +54,8 @@
     "octokit": "^5.0.5",
     "pg": "^8.23.0",
     "valibot": "^1.5.0",
-    "zod": "^4.6.5"
+    "zod": "^4.6.5",
+    "@kaneo/mcp": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^26.6.2",
