@@ -15,6 +15,7 @@ type Entry = {
 export function createDescriptionSaveQueue(delay = 700) {
   const entries = new Map<string, Entry>();
   const listeners = new Set<() => void>();
+  const pausedOwners = new Map<string, number>();
   const notify = () => listeners.forEach((listener) => listener());
   const run = async (id: string) => {
     const entry = entries.get(id);
@@ -61,6 +62,19 @@ export function createDescriptionSaveQueue(delay = 700) {
     return promise;
   };
   return {
+    isPaused(ownerId: string) {
+      return pausedOwners.has(ownerId);
+    },
+    pause(ownerId: string) {
+      pausedOwners.set(ownerId, (pausedOwners.get(ownerId) ?? 0) + 1);
+      notify();
+      return () => {
+        const count = (pausedOwners.get(ownerId) ?? 1) - 1;
+        if (count) pausedOwners.set(ownerId, count);
+        else pausedOwners.delete(ownerId);
+        notify();
+      };
+    },
     async drain(ownerId: string) {
       while (true) {
         const pending = [...entries.entries()].filter(
@@ -76,6 +90,7 @@ export function createDescriptionSaveQueue(delay = 700) {
       }
     },
     schedule(id: string, value: string, save: Entry["save"], ownerId = "") {
+      if (pausedOwners.has(ownerId)) return;
       const current = entries.get(id);
       if (current?.timer && current.ownerId !== ownerId)
         clearTimeout(current.timer);

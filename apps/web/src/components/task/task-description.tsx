@@ -185,7 +185,11 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   const { data: task } = useGetTask(taskId);
   const { mutateAsync: updateTaskDescription } = useUpdateTaskDescription();
   const { canUpdateTasks } = useWorkspacePermission();
-  const canEdit = canUpdateTasks();
+  const ownerId = useContext(AuthContext).user?.id ?? "";
+  const savesPaused = useSyncExternalStore(descriptionSaveQueue.subscribe, () =>
+    descriptionSaveQueue.isPaused(ownerId),
+  );
+  const canEdit = canUpdateTasks() && !savesPaused;
   const canEditRef = useRef(canEdit);
   canEditRef.current = canEdit;
 
@@ -429,7 +433,6 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     [openImagePicker, t],
   );
 
-  const ownerId = useContext(AuthContext).user?.id ?? "";
   const ownerIdRef = useRef(ownerId);
   ownerIdRef.current = ownerId;
 
@@ -631,7 +634,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   // user can't update tasks, the description renders as read-only: slash
   // menus, paste handlers, and toolbar buttons all become no-ops because
   // the editor refuses content mutations.
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!editor) return;
     editor.setEditable(canEdit);
   }, [editor, canEdit]);
@@ -834,7 +837,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
 
     const pendingSave = descriptionSaveQueue.get(taskId, ownerId);
     const incomingMarkdown = formatMarkdown(
-      task?.id && pendingSave && pendingSave.state !== "saved"
+      pendingSave && pendingSave.state !== "saved"
         ? pendingSave.value
         : task?.description || "",
     );

@@ -175,3 +175,23 @@ it.each(["invalid", null, [], { onPROpen: 1 }])(
     ]);
   },
 );
+
+it("migrates recognized transitions while ignoring unrelated legacy flags", async () => {
+  const { workspace } = await createWorkspaceMember();
+  const { project } = await createProjectFixture({ workspaceId: workspace.id });
+  await db
+    .delete(schema.columnTable)
+    .where(eq(schema.columnTable.projectId, project.id));
+  await db.insert(schema.integrationTable).values({
+    projectId: project.id,
+    type: "gitea",
+    config: JSON.stringify({
+      statusTransitions: { onPROpen: "in-review", legacyFlag: false },
+    }),
+  });
+  await migrateColumns();
+  expect(await db.select().from(schema.workflowRuleTable)).toHaveLength(3);
+  expect(await db.select().from(schema.dataMigrationTable)).toEqual([
+    expect.objectContaining({ id: "column-workflow-v1" }),
+  ]);
+});

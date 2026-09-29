@@ -176,3 +176,102 @@ it.each(["single", "bulk"])(
     expect(await db.select().from(schema.storageCleanupTable)).toHaveLength(0);
   },
 );
+
+it("gives new objects a turn despite a full batch of permanent retries", async () => {
+  await db.insert(schema.storageCleanupTable).values(
+    Array.from({ length: 100 }, (_, index) => ({
+      objectKey: `failure-${index}`,
+      createdAt: new Date(0),
+      lastAttemptAt: new Date(1),
+    })),
+  );
+  await db
+    .insert(schema.storageCleanupTable)
+    .values({ objectKey: "new-object", createdAt: new Date(2) });
+  m.deleteS3Object.mockImplementation(async (key) => {
+    if (key !== "new-object") throw new Error("offline");
+  });
+  await retryStorageCleanup();
+  expect(m.deleteS3Object).toHaveBeenCalledWith("new-object");
+  expect(
+    await db.query.storageCleanupTable.findFirst({
+      where: eq(schema.storageCleanupTable.objectKey, "new-object"),
+    }),
+  ).toBeUndefined();
+});
+
+it("queues more than the PostgreSQL parameter limit without rolling back", async () => {
+  const { queueStorageCleanup } =
+    await import("../../apps/api/src/storage/cleanup-queue");
+  await db.transaction((tx) =>
+    queueStorageCleanup(
+      tx,
+      Array.from({ length: 66_000 }, (_, i) => `large-project-${i}`),
+    ),
+  );
+  const { sql } = await import("drizzle-orm");
+  const count = await db.execute(
+    sql`select count(*)::integer as total from ${schema.storageCleanupTable}`,
+  );
+  expect(count.rows[0].total).toBe(66_000);
+});
+
+it("keeps the pool available and protects objects during slow verification", async () => {
+  const { withVerifiedStorageObject } =
+    await import("../../apps/api/src/storage/cleanup-queue");
+  const { sql } = await import("drizzle-orm");
+  let finish!: () => void;
+  const wait = new Promise<void>((resolve) => {
+    finish = resolve;
+  });
+  let started = 0;
+  let allStarted!: () => void;
+  const ready = new Promise<void>((resolve) => {
+    allStarted = resolve;
+  });
+  const pending = Array.from({ length: 10 }, (_, i) =>
+    withVerifiedStorageObject(
+      `slow-${i}`,
+      async () => {
+        if (++started === 10) allStarted();
+        await wait;
+        return i;
+      },
+      async (_tx, value) => value,
+    ),
+  );
+  try {
+    await ready;
+    expect((await db.execute(sql`select 1 as healthy`)).rows[0].healthy).toBe(
+      1,
+    );
+    await db.insert(schema.storageCleanupTable).values({ objectKey: "slow-0" });
+    await retryStorageCleanup();
+    expect(m.deleteS3Object).not.toHaveBeenCalled();
+    expect(await db.query.storageCleanupTable.findMany()).toHaveLength(1);
+  } finally {
+    finish();
+    await Promise.all(pending);
+  }
+  expect(await db.query.jobLeaseTable.findMany()).toHaveLength(0);
+});
+
+it("declines to finalize after a verification lease expires", async () => {
+  const { withVerifiedStorageObject } =
+    await import("../../apps/api/src/storage/cleanup-queue");
+  const apply = vi.fn();
+  await expect(
+    withVerifiedStorageObject(
+      "expired",
+      async () => {
+        await db
+          .update(schema.jobLeaseTable)
+          .set({ expiresAt: new Date(0) })
+          .where(eq(schema.jobLeaseTable.name, "storage-verification:expired"));
+      },
+      apply,
+    ),
+  ).rejects.toThrow("expired");
+  expect(apply).not.toHaveBeenCalled();
+  expect(await db.query.jobLeaseTable.findMany()).toHaveLength(0);
+});
