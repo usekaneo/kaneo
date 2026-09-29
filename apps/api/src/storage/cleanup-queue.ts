@@ -35,14 +35,16 @@ export async function retryStorageCleanup(): Promise<{ degraded: boolean }> {
         where: eq(storageCleanupTable.objectKey, item.objectKey),
       });
       if (!queued) return;
-      const asset = await tx.query.assetTable.findFirst({
-        columns: { id: true },
-        where: eq(assetTable.objectKey, item.objectKey),
-      });
-      const background = await tx.query.projectTable.findFirst({
-        columns: { id: true },
-        where: eq(projectTable.backgroundObjectKey, item.objectKey),
-      });
+      const [asset] = await tx
+        .select({ id: assetTable.id })
+        .from(assetTable)
+        .where(eq(assetTable.objectKey, item.objectKey))
+        .for("key share");
+      const [background] = await tx
+        .select({ id: projectTable.id })
+        .from(projectTable)
+        .where(eq(projectTable.backgroundObjectKey, item.objectKey))
+        .for("key share");
       if (asset || background) {
         await tx
           .delete(storageCleanupTable)
