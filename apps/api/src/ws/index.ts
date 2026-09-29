@@ -290,7 +290,7 @@ async function deliverToLocalConnections(
     workspaceId = await currentProjectWorkspace(projectId);
   } catch (error) {
     console.error("Failed to validate project broadcast access:", error);
-    workspaceId = null;
+    return;
   }
   let members = new Set<string>();
   if (workspaceId) {
@@ -324,6 +324,7 @@ async function deliverToLocalConnections(
       }
     } catch (error) {
       console.error("Failed to validate broadcast membership:", error);
+      return;
     }
   }
   const payload = JSON.stringify(message);

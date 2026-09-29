@@ -113,16 +113,24 @@ describe("project move revocation", () => {
     expect(old.close).toHaveBeenCalled();
     expect(current.send).toHaveBeenCalledWith(JSON.stringify(update));
   });
-  it("fails closed when workspace lookup fails", async () => {
-    vi.useFakeTimers();
-    await initializeWebSocketAdapter();
-    const old = connect();
-    m.lookup.mockRejectedValueOnce(new Error("Database unavailable"));
-    broadcastToProject("project", update);
-    await vi.advanceTimersByTimeAsync(100);
-    expect(old.send).not.toHaveBeenCalled();
-    expect(old.close).toHaveBeenCalled();
-  });
+  it.each(["workspace", "membership"])(
+    "skips delivery without revoking access on transient %s lookup failure",
+    async (lookup) => {
+      vi.useFakeTimers();
+      await initializeWebSocketAdapter();
+      const old = connect();
+      (lookup === "workspace" ? m.lookup : m.members).mockRejectedValueOnce(
+        new Error("Database unavailable"),
+      );
+      broadcastToProject("project", update);
+      await vi.advanceTimersByTimeAsync(100);
+      expect(old.send).not.toHaveBeenCalled();
+      expect(old.close).not.toHaveBeenCalled();
+      broadcastToProject("project", update);
+      await vi.advanceTimersByTimeAsync(100);
+      expect(old.send).toHaveBeenCalledWith(JSON.stringify(update));
+    },
+  );
   it("does not send an in-flight update after local revocation", async () => {
     vi.useFakeTimers();
     await initializeWebSocketAdapter();
