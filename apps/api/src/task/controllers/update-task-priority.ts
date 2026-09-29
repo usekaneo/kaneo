@@ -35,7 +35,9 @@ async function updateTaskPriority({
     });
   }
 
-  await publishTaskMutation(existingTask, updatedTask, currentUserId);
+  await publishTaskMutation(existingTask, updatedTask, currentUserId, {
+    fields: ["priority"],
+  });
 
   return updatedTask;
 }
