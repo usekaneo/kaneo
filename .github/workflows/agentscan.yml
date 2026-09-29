@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   scan:
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 5
     steps:
       - name: Label and comment on flagged PRs
