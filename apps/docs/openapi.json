@@ -13084,7 +13084,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:create permission",
+            "description": "No workspace access, or missing task:create or task:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -13647,7 +13647,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:create permission",
+            "description": "No workspace access, or missing task:create or task:update permission",
             "content": {
               "text/plain": {
                 "schema": {
