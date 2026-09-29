@@ -55,7 +55,7 @@ function RouteComponent() {
     setSelectedTask(null);
   };
 
-  if (isLoading) {
+  if (isLoading && !project) {
     return <LoadingSkeleton />;
   }
 

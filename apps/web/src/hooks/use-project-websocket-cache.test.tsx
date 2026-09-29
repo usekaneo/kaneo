@@ -277,3 +277,23 @@ it("preserves newer parent progress when an earlier parent refresh finishes last
   ).columns[0].tasks.find((task) => task.id === "a");
   expect(task?.subtaskCounts).toEqual({ completed: 2, total: 2 });
 });
+
+it("bounds per-task reads during a thousand-event burst and reconciles once", async () => {
+  vi.useFakeTimers();
+  try {
+    mocks.getTask.mockReset().mockImplementation(() => new Promise(() => {}));
+    renderHook(() => useProjectWebSocket("p"));
+    for (let i = 0; i < 1000; i++)
+      Socket.current.message("TASK_UPDATED", { taskId: `task-${i}` });
+    expect(mocks.getTask).toHaveBeenCalledTimes(4);
+    await vi.advanceTimersByTimeAsync(200);
+    expect(
+      mocks.client.invalidateQueries.mock.calls.filter(
+        ([options]) => options.queryKey[0] === "tasks",
+      ),
+    ).toHaveLength(1);
+    expect(mocks.getTask).toHaveBeenCalledTimes(4);
+  } finally {
+    vi.useRealTimers();
+  }
+});

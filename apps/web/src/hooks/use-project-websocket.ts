@@ -39,6 +39,18 @@ export function useProjectWebSocket(projectId: string) {
     let needsReconcile = false;
     let flushQueued = false;
     const taskVersions = new Map<string, number>();
+    const refreshingTasks = new Set<string>();
+    let burstReconcileTimer: ReturnType<typeof setTimeout> | null = null;
+    function reconcileBurst() {
+      if (burstReconcileTimer !== null) clearTimeout(burstReconcileTimer);
+      else markBoardCacheChanged(queryClient, projectId);
+      burstReconcileTimer = setTimeout(() => {
+        burstReconcileTimer = null;
+        if (disposed) return;
+        needsReconcile = true;
+        flushPending();
+      }, 200);
+    }
     const pendingMessages = new Map<string, string>();
     let activeSocket: WebSocket | null = null;
     let retries = 0;
@@ -203,7 +215,14 @@ export function useProjectWebSocket(projectId: string) {
                   (board) =>
                     board ? (patchBoardTask(board, taskId) ?? board) : board,
                 );
+              } else if (
+                refreshingTasks.size >= 4 ||
+                refreshingTasks.has(taskId) ||
+                burstReconcileTimer !== null
+              ) {
+                reconcileBurst();
               } else {
+                refreshingTasks.add(taskId);
                 void Promise.all([
                   getTask(taskId, "board"),
                   getLabelsByTask({ taskId }),
@@ -281,7 +300,8 @@ export function useProjectWebSocket(projectId: string) {
                       void queryClient.invalidateQueries({
                         queryKey: ["tasks", projectId],
                       });
-                  });
+                  })
+                  .finally(() => refreshingTasks.delete(taskId));
               }
             }
 
@@ -416,7 +436,7 @@ export function useProjectWebSocket(projectId: string) {
       unsubscribe();
       if (healthyTimeout !== null) clearTimeout(healthyTimeout);
       pendingMessages.clear();
-      if (healthyTimeout !== null) clearTimeout(healthyTimeout);
+      if (burstReconcileTimer !== null) clearTimeout(burstReconcileTimer);
       disposed = true;
       clearPing();
       if (fallbackInterval !== null) clearInterval(fallbackInterval);
