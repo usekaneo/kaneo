@@ -156,8 +156,8 @@ async function moveTask({
       .returning();
 
     if (!updatedTask) {
-      throw new HTTPException(500, {
-        message: "Failed to move task",
+      throw new HTTPException(409, {
+        message: "Task was moved concurrently, please try again",
       });
     }
 
