@@ -36,7 +36,8 @@ export function useProjectWebSocket(projectId: string) {
     // Each effect owns its sockets and timers. Late events from an old project
     // or session must not alter the next effect's connection or reconnect it.
     let disposed = false;
-    let hasConnected = false;
+    let needsReconcile = false;
+    let flushQueued = false;
     const taskVersions = new Map<string, number>();
     const pendingMessages = new Map<string, string>();
     let activeSocket: WebSocket | null = null;
@@ -61,16 +62,12 @@ export function useProjectWebSocket(projectId: string) {
 
       ws.onopen = () => {
         if (disposed || activeSocket !== ws) return;
-        if (hasConnected) markBoardCacheChanged(queryClient, projectId);
-        if (hasConnected)
-          void queryClient.invalidateQueries({
-            queryKey: ["tasks", projectId],
-          });
+        needsReconcile = true;
+        flushPending();
         if (fallbackInterval !== null) {
           clearInterval(fallbackInterval);
           fallbackInterval = null;
         }
-        hasConnected = true;
         retries = 0; // Reset retries on successful connection
         // Start keepalive pings to prevent Cloudflare idle timeout (100s)
         clearPing();
@@ -108,17 +105,21 @@ export function useProjectWebSocket(projectId: string) {
             ) {
               for (const change of message.tasks)
                 pendingMessages.set(
-                  change.id,
+                  `TASKS_REORDERED:${change.id}`,
                   JSON.stringify({ ...message, tasks: [change] }),
                 );
             } else
-              pendingMessages.set(message.taskId || message.type, event.data);
+              pendingMessages.set(
+                `${message.type}:${message.taskId ?? ""}:${message.sourceTaskId ?? ""}:${message.targetTaskId ?? ""}`,
+                event.data,
+              );
             return;
           }
           if (message.type === "TASKS_REORDERED") {
             for (const change of Array.isArray(message.tasks)
               ? message.tasks
               : []) {
+              queryClient.invalidateQueries({ queryKey: ["task", change.id] });
               taskVersions.set(
                 change.id,
                 (taskVersions.get(change.id) ?? 0) + 1,
@@ -181,6 +182,7 @@ export function useProjectWebSocket(projectId: string) {
               const taskId = message.taskId as string;
               const version = (taskVersions.get(taskId) ?? 0) + 1;
               taskVersions.set(taskId, version);
+              markBoardCacheChanged(queryClient, projectId, taskId);
               const boardVersion = getBoardCacheVersion(
                 queryClient,
                 projectId,
@@ -194,7 +196,7 @@ export function useProjectWebSocket(projectId: string) {
                 );
               } else {
                 void Promise.all([
-                  getTask(taskId),
+                  getTask(taskId, "board"),
                   getLabelsByTask({ taskId }),
                   getExternalLinks(taskId),
                 ])
@@ -226,6 +228,21 @@ export function useProjectWebSocket(projectId: string) {
                             }) ?? board)
                           : board,
                     );
+                    for (const progress of task.parentSubtaskCounts ?? []) {
+                      queryClient.setQueryData<ProjectWithTasks>(
+                        ["tasks", projectId],
+                        (board) =>
+                          board
+                            ? (patchBoardTask(board, progress.taskId, {
+                                projectId,
+                                subtaskCounts: {
+                                  completed: progress.completed,
+                                  total: progress.total,
+                                },
+                              }) ?? board)
+                            : board,
+                      );
+                    }
                   })
                   .catch(() => {
                     if (
@@ -279,7 +296,11 @@ export function useProjectWebSocket(projectId: string) {
               });
             }
 
-            if (message.type === "TASK_UPDATED" && message.taskId) {
+            if (
+              (message.type === "TASK_UPDATED" ||
+                message.type === "TASK_MOVED") &&
+              message.taskId
+            ) {
               queryClient.invalidateQueries({
                 queryKey: ["external-links", message.taskId],
               });
@@ -319,21 +340,44 @@ export function useProjectWebSocket(projectId: string) {
       };
     }
     connect();
-    const unsubscribe = queryClient.getQueryCache().subscribe(({ query }) => {
+    function flushPending() {
       if (
-        query.queryKey[0] !== "tasks" ||
-        query.queryKey[1] !== projectId ||
-        query.state.fetchStatus !== "idle" ||
-        !pendingMessages.size
+        disposed ||
+        flushQueued ||
+        queryClient.getQueryState(["tasks", projectId])?.fetchStatus ===
+          "fetching"
       )
         return;
-      const messages = Array.from(pendingMessages.values());
-      pendingMessages.clear();
+      flushQueued = true;
       queueMicrotask(() => {
-        if (disposed || !activeSocket) return;
+        flushQueued = false;
+        if (
+          disposed ||
+          !activeSocket ||
+          queryClient.getQueryState(["tasks", projectId])?.fetchStatus ===
+            "fetching"
+        )
+          return;
+        if (needsReconcile) {
+          needsReconcile = false;
+          markBoardCacheChanged(queryClient, projectId);
+          void queryClient.invalidateQueries({
+            queryKey: ["tasks", projectId],
+          });
+        }
+        const messages = Array.from(pendingMessages.values());
+        pendingMessages.clear();
         for (const data of messages)
           activeSocket.onmessage?.(new MessageEvent("message", { data }));
       });
+    }
+    const unsubscribe = queryClient.getQueryCache().subscribe(({ query }) => {
+      if (
+        query.queryKey[0] === "tasks" &&
+        query.queryKey[1] === projectId &&
+        query.state.fetchStatus === "idle"
+      )
+        flushPending();
     });
 
     return () => {

@@ -1,6 +1,10 @@
 import { QueryClient } from "@tanstack/react-query";
 import { describe, expect, it } from "vite-plus/test";
 import type { ProjectWithTasks } from "@/types/project";
+import {
+  getBoardCacheVersion,
+  markBoardCacheChanged,
+} from "./board-cache-version";
 import { patchBoardTask } from "./patch-board-task";
 import { updateBoardTaskCache } from "./update-board-task-cache";
 
@@ -80,5 +84,33 @@ describe("bounded board cache updates", () => {
     expect(
       patchBoardTask(moved, "a", { projectId: "other" })?.columns[1].tasks,
     ).toHaveLength(0);
+  });
+});
+
+it("rejects a late mutation response after a newer socket patch", () => {
+  const client = new QueryClient();
+  client.setQueryData(["tasks", "p"], board());
+  markBoardCacheChanged(client, "p", "a");
+  const version = getBoardCacheVersion(client, "p", "a");
+  markBoardCacheChanged(client, "p", "a");
+  client.setQueryData(
+    ["tasks", "p"],
+    patchBoardTask(board(), "a", { projectId: "p", title: "remote" }),
+  );
+  updateBoardTaskCache(client, "p", "a", { title: "late response" }, version);
+  expect(
+    client.getQueryData<ProjectWithTasks>(["tasks", "p"])?.columns[0].tasks[0]
+      .title,
+  ).toBe("remote");
+  client.clear();
+});
+it("defers descriptions exceeding the UTF-8 board limit", () => {
+  const updated = patchBoardTask(board(), "a", {
+    projectId: "p",
+    description: "😀".repeat(20000),
+  });
+  expect(updated?.columns[0].tasks[0]).toMatchObject({
+    description: null,
+    descriptionDeferred: true,
   });
 });

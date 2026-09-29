@@ -7,22 +7,33 @@ export function patchBoardTask(
   taskId: string,
   update?: Partial<Task>,
 ) {
+  let patch = update;
+  if (patch && "description" in patch) {
+    const deferred =
+      new TextEncoder().encode(patch.description ?? "").byteLength > 64 * 1024;
+    patch = {
+      ...patch,
+      description: deferred ? null : patch.description,
+      descriptionDeferred: patch.descriptionDeferred ?? deferred,
+    };
+  }
   const existing = [
     ...board.columns.flatMap((column) => column.tasks),
     ...board.plannedTasks,
     ...board.archivedTasks,
   ].find((task) => task.id === taskId);
-  const belongs = update && update.projectId === board.id;
-  const task = belongs
-    ? ({
-        ...existing,
-        ...update,
-        assigneeId:
-          "userId" in update
-            ? (update.userId ?? null)
-            : (existing?.assigneeId ?? null),
-      } as Task)
-    : undefined;
+  const belongs = patch && patch.projectId === board.id;
+  const task =
+    belongs && patch
+      ? ({
+          ...existing,
+          ...patch,
+          assigneeId:
+            "userId" in patch
+              ? (patch.userId ?? null)
+              : (existing?.assigneeId ?? null),
+        } as Task)
+      : undefined;
   const columns = board.columns.map((column) => ({
     ...column,
     tasks: column.tasks.filter((task) => task.id !== taskId),

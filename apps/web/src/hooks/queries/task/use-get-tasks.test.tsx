@@ -85,3 +85,34 @@ describe("useGetTasks", () => {
     expect(getTasks).toHaveBeenCalledTimes(2);
   });
 });
+
+it.each(["private", "public"])(
+  "does not cache incomplete %s pagination after failure and supports retry",
+  async (kind) => {
+    const key =
+      kind === "private" ? ["tasks", "failed"] : ["public-project", "failed"];
+    queryClient.setQueryDefaults(key, { retry: false });
+    const fetcher = kind === "private" ? getTasks : getPublicProject;
+    fetcher.mockImplementationOnce(async (...args) => {
+      args[2]({ id: "failed", columns: [{ tasks: [{ id: "partial" }] }] });
+      throw new Error("second page failed");
+    });
+    const { result } = renderHook(
+      () =>
+        kind === "private"
+          ? useGetTasks("failed")
+          : useGetPublicProject("failed"),
+      { wrapper: Wrapper },
+    );
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.data).toBeUndefined();
+    expect(queryClient.getQueryData(key)).toBeUndefined();
+    const completed = {
+      id: "failed",
+      columns: [{ tasks: [{ id: "partial" }, { id: "page-two" }] }],
+    };
+    fetcher.mockResolvedValue(completed);
+    await result.current.refetch();
+    await waitFor(() => expect(result.current.data).toEqual(completed));
+  },
+);

@@ -1,4 +1,4 @@
-import { and, eq, getTableColumns, inArray, sql } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
@@ -6,6 +6,8 @@ import {
   labelTable,
   projectTable,
   taskTable,
+  userTable,
+  taskReminderSentTable,
   workspaceUserTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
@@ -13,10 +15,7 @@ import { removeLabelFromGitea } from "../../plugins/gitea/utils/sync-label-to-gi
 import { removeLabelFromGitHub } from "../../plugins/github/utils/sync-label-to-github";
 import { removeLabelFromGitlab } from "../../plugins/gitlab/utils/sync-label-to-gitlab";
 import { assertAssignableUser } from "../../utils/assert-assignable-user";
-import {
-  publishTaskMutation,
-  recordTaskMutation,
-} from "./task-mutation-effects";
+import { publishTaskMutation } from "./task-mutation-effects";
 import { getSubtaskParentProjects } from "../get-subtask-parent-projects";
 import {
   assertValidPriority,
@@ -119,8 +118,21 @@ async function bulkUpdateTasks({
         });
         destinations.set(projectId, column?.id ?? null);
       }
-      const updatedTasks = await db.transaction(async (tx) => {
-        const result: (typeof taskTable.$inferSelect)[] = [];
+      const { updatedTasks, beforeById } = await db.transaction(async (tx) => {
+        const before = await tx
+          .select({ id: taskTable.id, status: taskTable.status })
+          .from(taskTable)
+          .where(inArray(taskTable.id, foundIds))
+          .orderBy(asc(taskTable.id))
+          .for("update");
+        const beforeById = new Map(before.map((task) => [task.id, task]));
+        const result: Array<{
+          id: string;
+          projectId: string;
+          status: string;
+          title: string;
+          userId: string | null;
+        }> = [];
         for (const projectId of projectIds) {
           const projectTaskIds = tasks
             .filter((task) => task.projectId === projectId)
@@ -138,8 +150,11 @@ async function bulkUpdateTasks({
               ),
             )
             .returning({
-              ...getTableColumns(taskTable),
-              description: sql<null>`null`,
+              id: taskTable.id,
+              projectId: taskTable.projectId,
+              status: taskTable.status,
+              title: taskTable.title,
+              userId: taskTable.userId,
             });
           if (changed.length !== projectTaskIds.length)
             throw new HTTPException(409, {
@@ -147,7 +162,7 @@ async function bulkUpdateTasks({
             });
           result.push(...changed);
         }
-        return result;
+        return { updatedTasks: result, beforeById };
       });
       updatedCount = updatedTasks.length;
       const parentProjects = await getSubtaskParentProjects(foundIds);
@@ -155,11 +170,22 @@ async function bulkUpdateTasks({
         projects: parentProjects,
       });
       for (const updatedTask of updatedTasks) {
-        const before = tasks.find((task) => task.id === updatedTask.id)!;
+        const before = beforeById.get(updatedTask.id)!;
         await publishTaskMutation(before, updatedTask, userId, {
+          fields: ["status"],
+          skipRelationRefresh: true,
+
           skipSubtaskParentRefresh: true,
         });
+        if (before.status === updatedTask.status)
+          await publishEvent("task.updated", {
+            taskId: updatedTask.id,
+            projectId: updatedTask.projectId,
+            userId,
+          });
       }
+      for (const projectId of projectIds)
+        await publishEvent("task-relation.refresh", { projectId, userId });
       break;
     }
 
@@ -185,6 +211,7 @@ async function bulkUpdateTasks({
             priority: value,
           },
           userId,
+          { fields: ["priority"] },
         );
       break;
     }
@@ -196,6 +223,12 @@ async function bulkUpdateTasks({
         await assertAssignableUser(assigneeId, workspaceId);
       }
 
+      const assignee = assigneeId
+        ? await db.query.userTable.findFirst({
+            columns: { name: true },
+            where: eq(userTable.id, assigneeId),
+          })
+        : undefined;
       const result = await db
         .update(taskTable)
         .set({ userId: assigneeId })
@@ -210,6 +243,7 @@ async function bulkUpdateTasks({
             userId: assigneeId,
           },
           userId,
+          { fields: ["userId"], assigneeName: assignee?.name ?? null },
         );
       break;
     }
@@ -360,25 +394,40 @@ async function bulkUpdateTasks({
         }
       }
 
-      const updatedTasks = await db.transaction(async (tx) => {
-        const changed = await tx
+      const { updatedTasks, beforeById } = await db.transaction(async (tx) => {
+        const before = await tx
+          .select({ id: taskTable.id, dueDate: taskTable.dueDate })
+          .from(taskTable)
+          .where(inArray(taskTable.id, foundIds))
+          .orderBy(asc(taskTable.id))
+          .for("update");
+        const beforeById = new Map(before.map((task) => [task.id, task]));
+        const changedIds = before
+          .filter((task) => task.dueDate?.getTime() !== parsedDate?.getTime())
+          .map((task) => task.id);
+        if (changedIds.length)
+          await tx
+            .delete(taskReminderSentTable)
+            .where(inArray(taskReminderSentTable.taskId, changedIds));
+        const updatedTasks = await tx
           .update(taskTable)
           .set({ dueDate: parsedDate })
           .where(inArray(taskTable.id, foundIds))
           .returning({
-            ...getTableColumns(taskTable),
-            description: sql<null>`null`,
+            id: taskTable.id,
+            projectId: taskTable.projectId,
+            title: taskTable.title,
+            dueDate: taskTable.dueDate,
           });
-        for (const task of tasks)
-          await recordTaskMutation(tx, task, { dueDate: parsedDate }, userId);
-        return changed;
+        return { updatedTasks, beforeById };
       });
       updatedCount = updatedTasks.length;
       for (const updatedTask of updatedTasks)
         await publishTaskMutation(
-          tasks.find((task) => task.id === updatedTask.id)!,
+          beforeById.get(updatedTask.id)!,
           updatedTask,
           userId,
+          { fields: ["dueDate"] },
         );
       break;
     }

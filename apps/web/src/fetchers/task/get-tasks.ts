@@ -1,12 +1,17 @@
 import { client } from "@kaneo/libs";
-import type { ProjectWithTasks } from "@/types/project";
+import type { InferResponseType } from "hono/client";
 import { HttpError } from "@/lib/http-error";
 import { loadBoardPages } from "./load-board-pages";
 
 async function getTasks(
   projectId: string,
   signal?: AbortSignal,
-  onProgress?: (board: ProjectWithTasks) => void,
+  onProgress?: (
+    board: InferResponseType<
+      (typeof client)["task"]["tasks"][":projectId"]["$get"],
+      200
+    >["data"],
+  ) => void,
 ) {
   return loadBoardPages(
     async (page, relatedPage) => {

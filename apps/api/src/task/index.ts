@@ -14,6 +14,7 @@ import {
   createRoute,
   errorResponse,
   jsonResponse,
+  z,
 } from "../openapi";
 import {
   assertTaskImageKeyMatchesContext,
@@ -146,6 +147,7 @@ const bulkUpdateTasksRoute = createRoute({
       "No workspace access, or missing the permission the operation needs",
     ),
     404: errorResponse("No tasks found"),
+    409: errorResponse("Tasks changed projects; retry the operation"),
   },
 });
 
@@ -169,7 +171,12 @@ const reorderTasksRoute = createRoute({
     },
   },
   responses: {
-    200: jsonResponse("Updated cards", taskSchema.array()),
+    200: jsonResponse(
+      "Updated card positions and statuses",
+      z
+        .object({ id: z.string(), position: z.number(), status: z.string() })
+        .array(),
+    ),
     400: errorResponse("Invalid positions or column"),
     403: errorResponse("Missing task:update permission"),
     404: errorResponse("Tasks do not belong to the project"),
@@ -244,9 +251,13 @@ const getTaskRoute = createRoute({
   path: "/{id}",
   tags: ["Tasks"],
   summary: "Get task",
-  description: "Get a single task by ID, with its assignee's name resolved.",
+  description:
+    "Get a single task by ID, with its assignee name. The board view omits descriptions above 64 KiB and includes task and same-project parent subtask progress.",
   middleware: [workspaceAccess.fromTask()] as const,
-  request: { params: taskParam },
+  request: {
+    params: taskParam,
+    query: z.object({ view: z.enum(["detail", "board"]).optional() }),
+  },
   responses: {
     200: jsonResponse("Task details", taskWithAssigneeSchema),
     400: errorResponse(
@@ -799,7 +810,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(getTaskRoute, async (c) => {
     const { id } = c.req.valid("param");
 
-    const task = await getTask(id);
+    const task = await getTask(id, c.req.valid("query").view === "board");
 
     return c.json(task, 200);
   })

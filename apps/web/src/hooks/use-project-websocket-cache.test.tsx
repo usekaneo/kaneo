@@ -44,6 +44,8 @@ vi.mock("@/fetchers/external-link/get-external-links", () => ({
 
 class Socket {
   static current: Socket;
+  onopen: (() => void) | null = null;
+  onclose: (() => void) | null = null;
   onmessage: ((event: { data: string }) => void) | null = null;
   close = vi.fn();
   constructor() {
@@ -135,7 +137,7 @@ describe("board realtime races", () => {
     await Promise.resolve();
     await Promise.resolve();
     await Promise.resolve();
-    expect(mocks.getTask).toHaveBeenCalledExactlyOnceWith("a");
+    expect(mocks.getTask).toHaveBeenCalledExactlyOnceWith("a", "board");
     expect(mocks.client.invalidateQueries).not.toHaveBeenCalledWith({
       queryKey: ["tasks", "p"],
     });
@@ -148,4 +150,51 @@ describe("board realtime races", () => {
       queryKey: ["tasks", "p"],
     });
   });
+});
+
+it("reconciles the initial handshake after active pagination completes", async () => {
+  mocks.client.getQueryState.mockReturnValue({ fetchStatus: "fetching" });
+  renderHook(() => useProjectWebSocket("p"));
+  Socket.current.onopen?.();
+  await Promise.resolve();
+  expect(mocks.client.invalidateQueries).not.toHaveBeenCalled();
+  mocks.client.getQueryState.mockReturnValue({ fetchStatus: "idle" });
+  mocks.subscribe.mock.calls[0][0]({
+    query: { queryKey: ["tasks", "p"], state: { fetchStatus: "idle" } },
+  });
+  await Promise.resolve();
+  expect(mocks.client.invalidateQueries).toHaveBeenCalledExactlyOnceWith({
+    queryKey: ["tasks", "p"],
+  });
+});
+it("preserves distinct task effects across pagination and a disconnect before replay", async () => {
+  vi.useFakeTimers();
+  try {
+    mocks.client.getQueryState.mockReturnValue({ fetchStatus: "fetching" });
+    mocks.getTask.mockResolvedValue({
+      id: "a",
+      projectId: "p",
+      status: "todo",
+    });
+    renderHook(() => useProjectWebSocket("p"));
+    Socket.current.message("COMMENT_UPDATED", { taskId: "a" });
+    Socket.current.message("TASK_LABEL_UPDATED", { taskId: "a" });
+    mocks.client.getQueryState.mockReturnValue({ fetchStatus: "idle" });
+    mocks.subscribe.mock.calls[0][0]({
+      query: { queryKey: ["tasks", "p"], state: { fetchStatus: "idle" } },
+    });
+    Socket.current.onclose?.();
+    await Promise.resolve();
+    await vi.advanceTimersByTimeAsync(1000);
+    Socket.current.onopen?.();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(mocks.client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["comments", "a"],
+    });
+    expect(mocks.client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["labels", "a"],
+    });
+  } finally {
+    vi.useRealTimers();
+  }
 });

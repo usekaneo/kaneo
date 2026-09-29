@@ -50,55 +50,69 @@ export async function recordTaskMutation(
 }
 
 export async function publishTaskMutation(
-  before: TaskBefore,
-  after: TaskBefore & { description: string | null },
+  before: Partial<TaskBefore>,
+  after: Pick<TaskBefore, "id" | "projectId" | "title"> & Partial<TaskBefore>,
   userId?: string,
-  options?: { skipSubtaskParentRefresh?: boolean },
+  options: {
+    skipSubtaskParentRefresh?: boolean;
+    skipRelationRefresh?: boolean;
+    fields?: Array<keyof Changes>;
+    assigneeName?: string | null;
+  } = {},
 ) {
+  const changed = (field: keyof Changes) =>
+    (!options.fields || options.fields.includes(field)) &&
+    before[field] !== after[field];
   const common = {
     taskId: after.id,
     projectId: after.projectId,
     userId,
     title: after.title,
   };
-  if (before.status !== after.status) {
+  if (changed("status")) {
     await publishEvent("task.status_changed", {
       ...common,
       oldStatus: before.status,
       newStatus: after.status,
       assigneeId: after.userId,
       type: "status_changed",
-      ...options,
+      ...(options.skipSubtaskParentRefresh
+        ? { skipSubtaskParentRefresh: true }
+        : {}),
     });
-    await publishEvent("task-relation.refresh", {
-      projectId: after.projectId,
-      userId,
-    });
+    if (!options.skipRelationRefresh)
+      await publishEvent("task-relation.refresh", {
+        projectId: after.projectId,
+        userId,
+      });
   }
-  if (before.title !== after.title)
+  if (changed("title"))
     await publishEvent("task.title_changed", {
       ...common,
       oldTitle: before.title,
       newTitle: after.title,
       type: "title_changed",
     });
-  if (before.priority !== after.priority)
+  if (changed("priority"))
     await publishEvent("task.priority_changed", {
       ...common,
       oldPriority: before.priority,
       newPriority: after.priority,
       type: "priority_changed",
     });
-  if (before.userId !== after.userId) {
-    const assignee = after.userId
-      ? (
-          await db
-            .select({ name: userTable.name })
-            .from(userTable)
-            .where(eq(userTable.id, after.userId))
-            .limit(1)
-        )[0]
-      : undefined;
+  if (changed("userId")) {
+    const assignee =
+      options.assigneeName !== undefined
+        ? { name: options.assigneeName ?? undefined }
+        : after.userId
+          ? (
+              await db
+                .select({ name: userTable.name })
+                .from(userTable)
+                .where(eq(userTable.id, after.userId))
+                .limit(1)
+            )[0]
+          : undefined;
     await publishEvent(
       after.userId ? "task.assignee_changed" : "task.unassigned",
       {
@@ -110,7 +124,10 @@ export async function publishTaskMutation(
       },
     );
   }
-  if (before.dueDate?.getTime() !== after.dueDate?.getTime())
+  if (
+    (!options.fields || options.fields.includes("dueDate")) &&
+    before.dueDate?.getTime() !== after.dueDate?.getTime()
+  )
     await publishEvent("task.due_date_changed", {
       ...common,
       oldDueDate: before.dueDate,
@@ -118,6 +135,7 @@ export async function publishTaskMutation(
       type: "due_date_changed",
     });
   if (
+    (!options.fields || options.fields.includes("description")) &&
     before.description !== undefined &&
     before.description !== after.description
   ) {

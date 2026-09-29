@@ -85,7 +85,12 @@ function RouteComponent() {
   const { projectId, workspaceId } = Route.useParams();
   const { taskId } = Route.useSearch();
   const navigate = useNavigate();
-  const { data } = useGetTasks(projectId);
+  const {
+    data,
+    isError: boardError,
+    isFetching: boardFetching,
+    refetch: retryBoard,
+  } = useGetTasks(projectId);
   const { project, setProject } = useProjectStore();
   const { viewMode, setViewMode } = useUserPreferencesStore();
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
@@ -305,19 +310,31 @@ function RouteComponent() {
             "bg-background": !background,
           })}
         >
-          {sortedProject ? (
+          {boardError ? (
+            <p role="alert" className="p-4 text-destructive">
+              {t("tasks:calendar.loadError")}{" "}
+              <button
+                type="button"
+                className="underline"
+                onClick={() => void retryBoard()}
+              >
+                {t("tasks:descriptionRetry")}
+              </button>
+            </p>
+          ) : sortedProject ? (
             viewMode === "board" ? (
               <KanbanBoard
                 project={sortedProject}
                 disableDragDrop={
-                  sort.field !== "position" && sort.field !== "number"
+                  boardFetching ||
+                  (sort.field !== "position" && sort.field !== "number")
                 }
                 sortedByNumber={sort.field === "number"}
               />
             ) : (
               <ListView
                 project={sortedProject}
-                disableDragDrop={sort.field !== "position"}
+                disableDragDrop={boardFetching || sort.field !== "position"}
               />
             )
           ) : (

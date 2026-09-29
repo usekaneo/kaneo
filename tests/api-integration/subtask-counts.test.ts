@@ -519,3 +519,31 @@ describe("subtask counter mutation paths", () => {
     }
   });
 });
+
+it("returns bounded board refresh descriptions and current parent progress", async () => {
+  await resetTestDatabase();
+  const member = await createWorkspaceMember();
+  const { project } = await createProjectFixture({
+    workspaceId: member.workspace.id,
+  });
+  const parent = await addTask(project.id);
+  const child = await addTask(project.id, "done");
+  await relate(parent.id, child.id);
+  await db
+    .update(schema.taskTable)
+    .set({ description: "😀".repeat(20000) })
+    .where(eq(schema.taskTable.id, child.id));
+  mockAuthenticatedSession(member.user);
+  const response = await createApp().app.request(
+    `/api/task/${child.id}?view=board`,
+  );
+  expect(response.status).toBe(200);
+  const body = await response.json();
+  expect(body).toMatchObject({
+    description: null,
+    descriptionDeferred: true,
+    subtaskCounts: { completed: 0, total: 0 },
+    parentSubtaskCounts: [{ taskId: parent.id, completed: 1, total: 1 }],
+  });
+  expect(body).not.toHaveProperty("workspaceId");
+});

@@ -37,6 +37,18 @@ export const taskSchema = z
 
 export const taskWithAssigneeSchema = taskSchema
   .extend({
+    subtaskCounts: z
+      .object({ completed: z.number(), total: z.number() })
+      .optional(),
+    parentSubtaskCounts: z
+      .array(
+        z.object({
+          taskId: z.string(),
+          completed: z.number(),
+          total: z.number(),
+        }),
+      )
+      .optional(),
     assigneeName: z.string().nullable(),
     assigneeId: z.string().nullable(),
   })

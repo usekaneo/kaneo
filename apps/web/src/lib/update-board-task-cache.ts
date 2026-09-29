@@ -12,9 +12,12 @@ export function updateBoardTaskCache(
   projectId: string,
   taskId: string,
   fields: Partial<Task>,
+  expectedVersion?: string,
 ) {
-  markBoardCacheChanged(queryClient, projectId, taskId);
-  const version = getBoardCacheVersion(queryClient, projectId, taskId);
+  if (expectedVersion === undefined)
+    markBoardCacheChanged(queryClient, projectId, taskId);
+  const version =
+    expectedVersion ?? getBoardCacheVersion(queryClient, projectId, taskId);
   const queryKey = ["tasks", projectId];
   const apply = () => {
     if (getBoardCacheVersion(queryClient, projectId, taskId) !== version)

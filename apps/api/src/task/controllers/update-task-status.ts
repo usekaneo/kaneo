@@ -45,7 +45,9 @@ async function updateTaskStatus({
     });
   }
 
-  await publishTaskMutation(existingTask, updatedTask, currentUserId);
+  await publishTaskMutation(existingTask, updatedTask, currentUserId, {
+    fields: ["status"],
+  });
 
   return updatedTask;
 }

@@ -1,3 +1,7 @@
+import {
+  getBoardCacheVersion,
+  markBoardCacheChanged,
+} from "@/lib/board-cache-version";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import updateTaskDueDate from "@/fetchers/task/update-task-due-date";
 import type Task from "@/types/task";
@@ -8,13 +12,25 @@ export function useUpdateTaskDueDate() {
 
   return useMutation({
     mutationFn: (task: Task) => updateTaskDueDate(task.id, task),
-    onSuccess: (updated, variables) => {
+    onMutate: (task: Task) => {
+      markBoardCacheChanged(queryClient, task.projectId, task.id);
+      return {
+        version: getBoardCacheVersion(queryClient, task.projectId, task.id),
+      };
+    },
+    onSuccess: (updated, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ["task", variables.id],
       });
-      updateBoardTaskCache(queryClient, variables.projectId, variables.id, {
-        dueDate: updated.dueDate,
-      });
+      updateBoardTaskCache(
+        queryClient,
+        variables.projectId,
+        variables.id,
+        {
+          dueDate: updated.dueDate,
+        },
+        context?.version,
+      );
       queryClient.invalidateQueries({
         queryKey: ["notifications"],
       });

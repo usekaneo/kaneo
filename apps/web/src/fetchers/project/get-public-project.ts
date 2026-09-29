@@ -1,6 +1,5 @@
-import type { ProjectWithTasks } from "@/types/project";
 import { client } from "@kaneo/libs";
-import type { InferRequestType } from "hono/client";
+import type { InferRequestType, InferResponseType } from "hono/client";
 import { loadBoardPages } from "@/fetchers/task/load-board-pages";
 import { HttpError } from "@/lib/http-error";
 export type GetPublicProjectRequest = InferRequestType<
@@ -9,7 +8,12 @@ export type GetPublicProjectRequest = InferRequestType<
 async function getPublicProject(
   { id }: GetPublicProjectRequest,
   signal?: AbortSignal,
-  onProgress?: (board: ProjectWithTasks) => void,
+  onProgress?: (
+    board: Omit<
+      InferResponseType<(typeof client)["public-project"][":id"]["$get"], 200>,
+      "pagination"
+    >,
+  ) => void,
 ) {
   return loadBoardPages(
     async (page, relatedPage) => {

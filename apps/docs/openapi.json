@@ -1024,6 +1024,43 @@
           {
             "type": "object",
             "properties": {
+              "subtaskCounts": {
+                "type": "object",
+                "properties": {
+                  "completed": {
+                    "type": "number"
+                  },
+                  "total": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "completed",
+                  "total"
+                ]
+              },
+              "parentSubtaskCounts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "taskId": {
+                      "type": "string"
+                    },
+                    "completed": {
+                      "type": "number"
+                    },
+                    "total": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "taskId",
+                    "completed",
+                    "total"
+                  ]
+                }
+              },
               "assigneeName": {
                 "type": [
                   "string",
@@ -8546,6 +8583,16 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "Tasks changed projects; retry the operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
@@ -8590,8 +8637,7 @@
                         "position"
                       ]
                     },
-                    "minItems": 1,
-                    "maxItems": 1000
+                    "minItems": 1
                   }
                 },
                 "required": [
@@ -8604,13 +8650,29 @@
         },
         "responses": {
           "200": {
-            "description": "Updated cards",
+            "description": "Updated card positions and statuses",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Task"
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "position": {
+                        "type": "number"
+                      },
+                      "status": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "position",
+                      "status"
+                    ]
                   }
                 }
               }
@@ -8987,7 +9049,7 @@
           "Tasks"
         ],
         "summary": "Get task",
-        "description": "Get a single task by ID, with its assignee's name resolved.",
+        "description": "Get a single task by ID, with its assignee name. The board view omits descriptions above 64 KiB and includes task and same-project parent subtask progress.",
         "parameters": [
           {
             "schema": {
@@ -8996,6 +9058,18 @@
             "required": true,
             "name": "id",
             "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "detail",
+                "board"
+              ]
+            },
+            "required": false,
+            "name": "view",
+            "in": "query"
           }
         ],
         "responses": {
