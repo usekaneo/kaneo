@@ -3,7 +3,10 @@ import db from "../../../database";
 import { parseLinkMetadata } from "../utils/parse-link-metadata";
 import { hasNewerObservedEdit, type SyncStamp } from "../utils/sync-echo";
 import { applyObservedTaskValue } from "./apply-observed-task-value";
-import { linkedTaskScope } from "./integration-task-scope";
+import {
+  linkedTaskScope,
+  integrationTaskRevision,
+} from "./integration-task-scope";
 import { findExternalLinksByTask, updateExternalLink } from "./link-manager";
 
 // Provider requests may complete out of order across API instances. Every late
@@ -89,18 +92,23 @@ export async function syncLatestTaskValue(
     if (
       hasNewerObservedEdit(observed, updatedAt) &&
       currentLink.integration &&
-      readCurrent &&
-      (await readCurrent()) === value
+      readCurrent
     ) {
-      await applyObservedTaskValue(
-        currentLink,
-        currentLink.integration,
-        field,
-        value,
-        intentId,
-        updatedAt,
-      );
-      return;
+      const revision = await integrationTaskRevision(taskId, projectId);
+      if (
+        revision &&
+        (await readCurrent()) === value &&
+        (await applyObservedTaskValue(
+          currentLink,
+          currentLink.integration,
+          field,
+          value,
+          intentId,
+          updatedAt,
+          revision,
+        )) === true
+      )
+        return;
     }
     const task = await db.query.taskTable.findFirst({
       where: linkedTaskScope(taskId, projectId),

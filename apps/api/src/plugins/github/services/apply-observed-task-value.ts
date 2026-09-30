@@ -10,7 +10,10 @@ import {
   type SyncStamp,
 } from "../utils/sync-echo";
 import { parseLinkMetadata } from "../utils/parse-link-metadata";
-import { linkedTaskScope } from "./integration-task-scope";
+import {
+  linkedTaskScope,
+  integrationTaskRevision,
+} from "./integration-task-scope";
 import { withIntegrationLink } from "./with-integration-link";
 import { updateExternalLink } from "./link-manager";
 import { updateTaskStatus } from "./task-service";
@@ -24,8 +27,9 @@ export async function applyObservedTaskValue(
   value: string,
   intentId: string,
   updatedAt: string | undefined,
+  expectedRevision: string,
 ) {
-  await withIntegrationLink(
+  return withIntegrationLink(
     link,
     integration,
     async (tx, afterCommit, locked) => {
@@ -36,6 +40,14 @@ export async function applyObservedTaskValue(
         source: "observed_provider_edit",
       });
       const stamp = metadata.lastSync?.[field];
+      if (
+        (await integrationTaskRevision(
+          link.taskId,
+          integration.projectId,
+          tx,
+        )) !== expectedRevision
+      )
+        return false;
       if (
         !hasNewerObservedEdit(
           stamp?.outbound?.find((entry) => entry.intentId === intentId),
@@ -77,6 +89,7 @@ export async function applyObservedTaskValue(
           projectId: integration.projectId,
         }),
       );
+      return true;
     },
   );
 }

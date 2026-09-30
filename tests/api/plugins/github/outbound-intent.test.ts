@@ -48,12 +48,26 @@ vi.mock(
       _integration: unknown,
       field: "title" | "description" | "state",
       value: string,
+      _intentId: string,
+      _updatedAt: string | undefined,
+      expectedRevision: string,
     ) => {
+      if (JSON.stringify(m.current) !== expectedRevision) return false;
       if (field === "state")
         m.current.status = value === "closed" ? "done" : "to-do";
       else m.current[field] = value;
       m.stamps[field] = inboundStamp(m.stamps[field], value, "github");
+      return true;
     },
+  }),
+);
+vi.mock(
+  "../../../../apps/api/src/plugins/github/services/integration-task-scope",
+  async (original) => ({
+    ...(await original<
+      typeof import("../../../../apps/api/src/plugins/github/services/integration-task-scope")
+    >()),
+    integrationTaskRevision: async () => JSON.stringify(m.current),
   }),
 );
 const link = { id: "link", integrationId: "integration" };

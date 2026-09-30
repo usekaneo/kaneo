@@ -103,3 +103,15 @@ export function linkedTaskScope(taskId: string, projectId: string) {
 export function externalLinkScope() {
   return sql`exists (select 1 from ${taskTable} scoped_task join ${integrationTable} scoped_integration on scoped_integration.project_id = scoped_task.project_id where scoped_task.id = ${externalLinkTable.taskId} and scoped_integration.id = ${externalLinkTable.integrationId})`;
 }
+
+export async function integrationTaskRevision(
+  taskId: string,
+  projectId: string,
+  database: IntegrationDatabase = db,
+) {
+  const [task] = await database
+    .select({ revision: sql<string>`${taskTable}.xmin::text` })
+    .from(taskTable)
+    .where(linkedTaskScope(taskId, projectId));
+  return task?.revision;
+}

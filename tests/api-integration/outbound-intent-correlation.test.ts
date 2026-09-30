@@ -182,3 +182,109 @@ it("stops correction when a disconnect races the post-response task read", async
     read.mockRestore();
   }
 });
+
+it.each(
+  (["title", "description", "state"] as const).flatMap((field) =>
+    [false, true].map((aba) => ({ field, aba })),
+  ),
+)(
+  "preserves a newer local $field edit during observed-value HTTP (ABA=$aba)",
+  async ({ field, aba }) => {
+    const { workspace } = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: workspace.id,
+    });
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        number: 1,
+        title: "B",
+        description: "B",
+        status: "to-do",
+      })
+      .returning();
+    const [integration] = await db
+      .insert(schema.integrationTable)
+      .values({ projectId: project.id, type: "github", config: "{}" })
+      .returning();
+    const [link] = await db
+      .insert(schema.externalLinkTable)
+      .values({
+        taskId: task.id,
+        integrationId: integration.id,
+        resourceType: "issue",
+        externalId: "1",
+        url: "https://provider.example/1",
+      })
+      .returning();
+    const older = field === "state" ? "closed" : "A";
+    const prior = field === "state" ? "open" : "B";
+    let first = true;
+    let remote = older;
+    const write = vi.fn(async (value: string) => {
+      remote = value;
+      if (!first) return "2026-09-30T00:00:04Z";
+      first = false;
+      const pending = await db.query.externalLinkTable.findFirst({
+        where: eq(schema.externalLinkTable.id, link.id),
+      });
+      const stamp = JSON.parse(pending?.metadata ?? "{}").lastSync[field];
+      await updateExternalLink(link.id, {
+        metadata: {
+          lastSync: {
+            [field]: inboundStamp(
+              stamp,
+              prior,
+              "github",
+              "2026-09-30T00:00:02Z",
+            ),
+          },
+        },
+        observedOutbound: {
+          field,
+          intentId: stamp.outbound[0].intentId,
+          updatedAt: "2026-09-30T00:00:03Z",
+        },
+      });
+      return "2026-09-30T00:00:01Z";
+    });
+    await syncLatestTaskValue(
+      task.id,
+      project.id,
+      link,
+      field,
+      older,
+      write,
+      async () => {
+        const column = field === "state" ? "status" : field;
+        await db.transaction(async (tx) => {
+          await tx
+            .update(schema.taskTable)
+            .set({
+              [column]: field === "state" ? "in-progress" : "C",
+              updatedAt: task.updatedAt,
+            })
+            .where(eq(schema.taskTable.id, task.id));
+          if (aba)
+            await tx
+              .update(schema.taskTable)
+              .set({
+                [column]: field === "state" ? "to-do" : "B",
+                updatedAt: task.updatedAt,
+              })
+              .where(eq(schema.taskTable.id, task.id));
+        });
+        return remote;
+      },
+    );
+    const current = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, task.id),
+    });
+    expect(field === "state" ? current?.status : current?.[field]).toBe(
+      field === "state" ? (aba ? "to-do" : "in-progress") : aba ? "B" : "C",
+    );
+    expect(remote).toBe(field === "state" ? "open" : aba ? "B" : "C");
+    expect(write).toHaveBeenCalledTimes(2);
+  },
+);

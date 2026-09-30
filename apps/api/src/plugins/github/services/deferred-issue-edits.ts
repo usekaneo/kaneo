@@ -1,6 +1,6 @@
-import { and, asc, eq, gt, like, sql } from "drizzle-orm";
+import { and, asc, eq, gt, like } from "drizzle-orm";
 import db from "../../../database";
-import { externalLinkTable, taskTable } from "../../../database/schema";
+import { externalLinkTable } from "../../../database/schema";
 import { publishEvent } from "../../../events";
 import type { GiteaConfig } from "../../gitea/config";
 import { createGiteaClient } from "../../gitea/utils/gitea-api";
@@ -28,7 +28,7 @@ import { updateExternalLink } from "./link-manager";
 import { syncLatestTaskValue } from "./sync-latest-task-value";
 import {
   linkedTaskScope,
-  type IntegrationDatabase,
+  integrationTaskRevision,
 } from "./integration-task-scope";
 import { withIntegrationLink } from "./with-integration-link";
 
@@ -68,18 +68,6 @@ export async function deferIssueEdit(
         issueEditScope(binding) === issueEditScope(integration),
     },
   );
-}
-
-async function taskRevision(
-  taskId: string,
-  projectId: string,
-  database: IntegrationDatabase = db,
-) {
-  const [task] = await database
-    .select({ revision: sql<string>`${taskTable}.xmin::text` })
-    .from(taskTable)
-    .where(linkedTaskScope(taskId, projectId));
-  return task?.revision;
 }
 
 async function issueAccess(
@@ -180,7 +168,10 @@ export async function replayDeferredIssueEdits() {
           )
         )
           continue;
-        const revision = await taskRevision(link.taskId, integration.projectId);
+        const revision = await integrationTaskRevision(
+          link.taskId,
+          integration.projectId,
+        );
         if (!revision) continue;
         const provider = await issueAccess(integration, link);
         let issue: Awaited<ReturnType<typeof provider.read>>;
@@ -247,8 +238,11 @@ export async function replayDeferredIssueEdits() {
             )
               return;
             if (
-              (await taskRevision(link.taskId, integration.projectId, tx)) !==
-              revision
+              (await integrationTaskRevision(
+                link.taskId,
+                integration.projectId,
+                tx,
+              )) !== revision
             )
               return;
             const task = await tx.query.taskTable.findFirst({
