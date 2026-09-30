@@ -11,6 +11,7 @@ import {
   type SQLWrapper,
   sql,
 } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { HTTPException } from "hono/http-exception";
 import {
   columnTable,
@@ -18,6 +19,7 @@ import {
   labelTable,
   projectTable,
   taskTable,
+  taskRelationTable,
   userTable,
 } from "../../database/schema";
 import { boundedTaskRead, type TaskReadDatabase } from "../bounded-read";
@@ -27,6 +29,7 @@ import {
   descriptionDeferred,
   projectDescriptionDeferred,
 } from "../description-pages";
+import { taskIsCompleted } from "../task-is-completed";
 import { getSubtaskCounts } from "../get-subtask-counts";
 
 export type GetTasksOptions = {
@@ -80,7 +83,7 @@ function buildOrderBy(
   return (sortOrder === "desc" ? desc : asc)(sortValue(sortBy));
 }
 
-function membershipRevision(
+function boardRevision(
   publicOnly: boolean | undefined,
   fields: SQLWrapper[],
 ): SQL<string> {
@@ -97,6 +100,9 @@ async function getTasksPage(
   const [project] = await db
     .select({
       ...getTableColumns(projectTable),
+      revision: options.publicOnly
+        ? sql<string>`${projectTable}.xmin::text`
+        : sql<string>`'0'`,
       description: boardProjectDescription,
       descriptionDeferred: projectDescriptionDeferred,
     })
@@ -146,17 +152,26 @@ async function getTasksPage(
     options.sortOrder ?? "asc",
   );
 
-  const [taskCount] = await db
+  const taskCountQuery = db
     .select({
       count: sql<number>`count(*)`,
-      revision: membershipRevision(options.publicOnly, [
+      revision: boardRevision(options.publicOnly, [
         taskTable.id,
         sortValue(options.sortBy),
         taskTable.status,
+        // Row versions detect content edits without hashing large descriptions.
+        sql`${taskTable}.xmin::text`,
+        userTable.name,
+        userTable.image,
       ]),
     })
     .from(taskTable)
-    .where(whereClause);
+    .$dynamic();
+  const [taskCount] = await (
+    options.publicOnly
+      ? taskCountQuery.leftJoin(userTable, eq(taskTable.userId, userTable.id))
+      : taskCountQuery
+  ).where(whereClause);
 
   const total = Number(taskCount?.count ?? 0);
 
@@ -306,7 +321,7 @@ async function getTasksPage(
   const [columnCount] = await db
     .select({
       count: sql<number>`count(*)`,
-      revision: membershipRevision(options.publicOnly, [
+      revision: boardRevision(options.publicOnly, [
         columnTable.id,
         columnTable.slug,
         columnTable.position,
@@ -325,7 +340,7 @@ async function getTasksPage(
     const [labels] = await db
       .select({
         count: sql<number>`count(*)`,
-        revision: membershipRevision(options.publicOnly, [
+        revision: boardRevision(options.publicOnly, [
           labelTable.id,
           labelTable.taskId,
           labelTable.name,
@@ -337,9 +352,10 @@ async function getTasksPage(
     const [links] = await db
       .select({
         count: sql<number>`count(*)`,
-        revision: membershipRevision(options.publicOnly, [
+        revision: boardRevision(options.publicOnly, [
           externalLinkTable.id,
           externalLinkTable.taskId,
+          sql`${externalLinkTable}.xmin::text`,
         ]),
       })
       .from(externalLinkTable)
@@ -348,6 +364,55 @@ async function getTasksPage(
     linkCount = Number(links?.count ?? 0);
     labelRevision = labels?.revision ?? "0";
     linkRevision = links?.revision ?? "0";
+  }
+
+  let publicRelatedRevision = "0";
+  if (options.publicOnly) {
+    // Every task page must detect edits to cards or metadata loaded earlier.
+    const [labels] = await db
+      .select({
+        revision: boardRevision(true, [
+          labelTable.id,
+          labelTable.taskId,
+          labelTable.name,
+          labelTable.color,
+        ]),
+      })
+      .from(labelTable)
+      .innerJoin(taskTable, eq(labelTable.taskId, taskTable.id))
+      .where(whereClause);
+    const [links] = await db
+      .select({
+        revision: boardRevision(true, [
+          externalLinkTable.id,
+          sql`${externalLinkTable}.xmin::text`,
+        ]),
+      })
+      .from(externalLinkTable)
+      .innerJoin(taskTable, eq(externalLinkTable.taskId, taskTable.id))
+      .where(whereClause);
+    const parent = alias(taskTable, "board_parent");
+    const [children] = await db
+      .select({
+        revision: boardRevision(true, [
+          taskRelationTable.id,
+          taskTable.id,
+          taskIsCompleted,
+        ]),
+      })
+      .from(taskRelationTable)
+      .innerJoin(parent, eq(taskRelationTable.sourceTaskId, parent.id))
+      .innerJoin(taskTable, eq(taskRelationTable.targetTaskId, taskTable.id))
+      .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+      .where(
+        and(
+          eq(parent.projectId, projectId),
+          eq(taskRelationTable.relationType, "subtask"),
+          eq(projectTable.workspaceId, project.workspaceId),
+          eq(projectTable.isPublic, true),
+        ),
+      );
+    publicRelatedRevision = `${labels?.revision}:${links?.revision}:${children?.revision}`;
   }
 
   const columns = projectColumns.map((column) => ({
@@ -404,7 +469,7 @@ async function getTasksPage(
       total,
       ...(options.publicOnly
         ? {
-            revision: `${total}:${taskCount?.revision}:${columnCount?.count}:${columnCount?.revision}`,
+            revision: `${project.revision}:${total}:${taskCount?.revision}:${columnCount?.count}:${columnCount?.revision}:${publicRelatedRevision}`,
             relatedRevision: `${labelCount}:${labelRevision}:${linkCount}:${linkRevision}`,
           }
         : {}),

@@ -246,7 +246,7 @@ it.each(["create", "delete", "move", "reorder"])(
   },
 );
 
-it("detects title-order boundary shifts while ordinary position-order edits remain stable", async () => {
+it("detects task edits between public pages regardless of sort order", async () => {
   const { app, project, tasks } = await fixture(237, true);
   mockAnonymousSession();
   const path = `/api/public-project/${project.id}?limit=100`;
@@ -259,9 +259,90 @@ it("detects title-order boundary shifts while ordinary position-order edits rema
     .where(eq(schema.taskTable.id, tasks[0].id));
   expect(
     (await (await app.request(path + "&page=2")).json()).pagination.revision,
-  ).toBe(position);
+  ).not.toBe(position);
   expect(
     (await (await app.request(path + "&page=2&sortBy=title")).json()).pagination
       .revision,
   ).not.toBe(title);
 });
+
+it.each(["label", "link", "assignee", "project", "subtask"])(
+  "detects a %s edit to an earlier public page while loading a later page",
+  async (change) => {
+    const { app, project, tasks, member } = await fixture(2, true);
+    const task = tasks[0];
+    await db
+      .update(schema.taskTable)
+      .set({ userId: member.user.id })
+      .where(eq(schema.taskTable.id, task.id));
+    const [label] = await db
+      .insert(schema.labelTable)
+      .values({
+        taskId: task.id,
+        workspaceId: member.workspace.id,
+        name: "Before",
+        color: "red",
+      })
+      .returning();
+    const [link] = await db
+      .insert(schema.externalLinkTable)
+      .values({
+        taskId: task.id,
+        resourceType: "pull_request",
+        externalId: "1",
+        url: "https://example.com/pr/1",
+        metadata: JSON.stringify({ merged: false }),
+      })
+      .returning();
+    const { project: childProject } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    await db
+      .update(schema.projectTable)
+      .set({ isPublic: true })
+      .where(eq(schema.projectTable.id, childProject.id));
+    const [child] = await db
+      .insert(schema.taskTable)
+      .values({ projectId: childProject.id, title: "Child", status: "to-do" })
+      .returning();
+    await db.insert(schema.taskRelationTable).values({
+      sourceTaskId: task.id,
+      targetTaskId: child.id,
+      relationType: "subtask",
+    });
+    mockAnonymousSession();
+    const path = `/api/public-project/${project.id}?limit=1`;
+    const before = (await (await app.request(path)).json()).pagination.revision;
+    expect(
+      (await (await app.request(path + "&page=2")).json()).pagination.revision,
+    ).toBe(before);
+    if (change === "label")
+      await db
+        .update(schema.labelTable)
+        .set({ name: "After" })
+        .where(eq(schema.labelTable.id, label.id));
+    if (change === "link")
+      await db
+        .update(schema.externalLinkTable)
+        .set({ metadata: JSON.stringify({ merged: true }) })
+        .where(eq(schema.externalLinkTable.id, link.id));
+    if (change === "assignee")
+      await db
+        .update(schema.userTable)
+        .set({ name: "Renamed", image: "https://example.com/avatar.png" })
+        .where(eq(schema.userTable.id, member.user.id));
+    if (change === "project")
+      await db
+        .update(schema.projectTable)
+        .set({ name: "Renamed project" })
+        .where(eq(schema.projectTable.id, project.id));
+    if (change === "subtask")
+      await db
+        .update(schema.taskTable)
+        .set({ status: "done" })
+        .where(eq(schema.taskTable.id, child.id));
+    expect(
+      (await (await app.request(path + "&page=2")).json()).pagination.revision,
+    ).not.toBe(before);
+  },
+);

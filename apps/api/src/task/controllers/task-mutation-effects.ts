@@ -9,6 +9,7 @@ import {
 import { publishEvent } from "../../events";
 import createNotification from "../../notification/controllers/create-notification";
 import { deleteOrphanedAssets } from "../../storage/cleanup-assets";
+import { getSubtaskParentProjects } from "../get-subtask-parent-projects";
 import { parseMentionIds } from "../../utils/parse-mentions";
 
 type Task = typeof taskTable.$inferSelect;
@@ -22,7 +23,7 @@ type Changes = Partial<
 export type TaskBefore = Pick<
   Task,
   "id" | "projectId" | "title" | "status" | "priority" | "userId" | "dueDate"
-> & { description?: string | null };
+> & { description?: string | null; columnId?: string | null };
 
 export async function recordTaskMutation(
   tx: Transaction,
@@ -80,12 +81,21 @@ export async function publishTaskMutation(
         ? { skipSubtaskParentRefresh: true }
         : {}),
     });
-    if (!options.skipRelationRefresh)
-      await publishEvent("task-relation.refresh", {
-        projectId: after.projectId,
-        userId,
-      });
   }
+  const columnChanged =
+    (!options.fields || options.fields.includes("status")) &&
+    before.columnId !== undefined &&
+    after.columnId !== undefined &&
+    before.columnId !== after.columnId;
+  if (columnChanged && !changed("status") && !options.skipSubtaskParentRefresh)
+    await publishEvent("subtask-parents.refresh", {
+      projects: await getSubtaskParentProjects([after.id]),
+    });
+  if (!options.skipRelationRefresh && (changed("status") || columnChanged))
+    await publishEvent("task-relation.refresh", {
+      projectId: after.projectId,
+      userId,
+    });
   if (changed("title"))
     await publishEvent("task.title_changed", {
       ...common,

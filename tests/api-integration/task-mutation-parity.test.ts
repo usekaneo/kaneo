@@ -284,3 +284,107 @@ it("validates status and assignment without a second pool client inside the muta
     }),
   ).toMatchObject({ status: "done", userId: user.id });
 });
+
+it.each(["single", "full"])(
+  "%s status repairs notify clients without recording a status transition",
+  async (mode) => {
+    const { user, workspace } = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: workspace.id,
+    });
+    const column = await db.query.columnTable.findFirst({
+      where: eq(schema.columnTable.slug, "to-do"),
+    });
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "Legacy task",
+        status: "to-do",
+        columnId: null,
+      })
+      .returning();
+    if (mode === "single")
+      await updateTaskStatus({
+        id: task.id,
+        status: task.status,
+        currentUserId: user.id,
+      });
+    else
+      await updateTask(
+        task.id,
+        task.title,
+        task.status,
+        undefined,
+        undefined,
+        project.id,
+        undefined,
+        task.priority,
+        task.position,
+        undefined,
+        user.id,
+      );
+    expect(
+      (
+        await db.query.taskTable.findFirst({
+          where: eq(schema.taskTable.id, task.id),
+        })
+      )?.columnId,
+    ).toBe(column?.id);
+    expect(publish).toHaveBeenCalledWith(
+      "task.updated",
+      expect.objectContaining({ taskId: task.id, projectId: project.id }),
+    );
+    expect(publish).toHaveBeenCalledWith(
+      "task-relation.refresh",
+      expect.objectContaining({ projectId: project.id }),
+    );
+    expect(
+      publish.mock.calls.some(([type]) => type === "task.status_changed"),
+    ).toBe(false);
+  },
+);
+
+it("rejects a bulk due-date update after a task moves out of the authorized project", async () => {
+  const { user, workspace } = await createWorkspaceMember();
+  const { project } = await createProjectFixture({ workspaceId: workspace.id });
+  const other = await createWorkspaceMember();
+  const { project: foreign } = await createProjectFixture({
+    workspaceId: other.workspace.id,
+  });
+  const dueDate = new Date("2030-01-01");
+  const [task] = await db
+    .insert(schema.taskTable)
+    .values({ projectId: project.id, title: "Moved task", dueDate })
+    .returning();
+  await db
+    .insert(schema.taskReminderSentTable)
+    .values({ taskId: task.id, reminderType: "due_today" });
+  const transaction = db.transaction.bind(db);
+  vi.spyOn(getDatabase(), "transaction").mockImplementationOnce(
+    async (apply, config) => {
+      await db
+        .update(schema.taskTable)
+        .set({ projectId: foreign.id })
+        .where(eq(schema.taskTable.id, task.id));
+      return transaction(apply, config);
+    },
+  );
+  await expect(
+    bulkUpdateTasks({
+      taskIds: [task.id],
+      operation: "updateDueDate",
+      value: null,
+      userId: user.id,
+    }),
+  ).rejects.toMatchObject({ status: 409 });
+  expect(
+    (
+      await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, task.id),
+      })
+    )?.dueDate,
+  ).toEqual(dueDate);
+  expect(await db.query.taskReminderSentTable.findMany()).toHaveLength(1);
+  expect(publish).not.toHaveBeenCalled();
+});

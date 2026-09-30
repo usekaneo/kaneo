@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import { withLockedTask } from "./with-locked-task";
 import { columnTable, taskTable } from "../../database/schema";
+import { publishEvent } from "../../events";
 import { publishTaskMutation } from "./task-mutation-effects";
 import { assertValidTaskStatus } from "../validate-task-fields";
 
@@ -45,6 +46,16 @@ async function updateTaskStatus({
   await publishTaskMutation(existingTask, updatedTask, currentUserId, {
     fields: ["status"],
   });
+
+  if (
+    existingTask.status === updatedTask.status &&
+    existingTask.columnId !== updatedTask.columnId
+  )
+    await publishEvent("task.updated", {
+      taskId: updatedTask.id,
+      projectId: updatedTask.projectId,
+      userId: currentUserId,
+    });
 
   return updatedTask;
 }

@@ -445,11 +445,27 @@ async function bulkUpdateTasks({
 
       const { updatedTasks, beforeById } = await db.transaction(async (tx) => {
         const before = await tx
-          .select({ id: taskTable.id, dueDate: taskTable.dueDate })
+          .select({
+            id: taskTable.id,
+            projectId: taskTable.projectId,
+            dueDate: taskTable.dueDate,
+          })
           .from(taskTable)
           .where(inArray(taskTable.id, foundIds))
           .orderBy(asc(taskTable.id))
           .for("update");
+        const originalProjects = new Map(
+          tasks.map((task) => [task.id, task.projectId]),
+        );
+        if (
+          before.length !== foundIds.length ||
+          before.some(
+            (task) => task.projectId !== originalProjects.get(task.id),
+          )
+        )
+          throw new HTTPException(409, {
+            message: "Tasks changed projects; retry the operation",
+          });
         const beforeById = new Map(before.map((task) => [task.id, task]));
         const changedIds = before
           .filter((task) => task.dueDate?.getTime() !== parsedDate?.getTime())

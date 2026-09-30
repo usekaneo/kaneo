@@ -251,13 +251,13 @@ it.each(
     if (collection === "columns")
       expect(after.revision).not.toBe(before.revision);
     else {
-      expect(after.revision).toBe(before.revision);
+      expect(after.revision).not.toBe(before.revision);
       expect(after.relatedRevision).not.toBe(before.relatedRevision);
     }
   },
 );
 
-it("does not restart public related pagination for ordinary text and integration stamps", async () => {
+it("detects text and integration updates between public related pages", async () => {
   const { app, project, task } = await fixture();
   mockAnonymousSession();
   const path = `/api/public-project/${project.id}?limit=100`;
@@ -276,8 +276,6 @@ it("does not restart public related pagination for ordinary text and integration
     .where(eq(schema.externalLinkTable.id, "link-000"));
   const after = (await (await app.request(path + "&relatedPage=2")).json())
     .pagination;
-  expect(after).toMatchObject({
-    revision: before.revision,
-    relatedRevision: before.relatedRevision,
-  });
+  expect(after.revision).not.toBe(before.revision);
+  expect(after.relatedRevision).not.toBe(before.relatedRevision);
 });

@@ -97,6 +97,7 @@ async function updateTask(
         description:
           description === undefined ? sql<null>`null` : taskTable.description,
         status: taskTable.status,
+        columnId: taskTable.columnId,
         position: taskTable.position,
         projectId: taskTable.projectId,
       })

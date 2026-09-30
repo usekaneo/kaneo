@@ -159,7 +159,7 @@ export const boardSchema = z
         }),
         revision: z.string().optional().openapi({
           description:
-            "Public board task and column membership and ordering revision. Restart pagination if it changes between task or related pages.",
+            "Public board content, membership and ordering revision, including related records and visible subtask progress. Restart pagination if it changes between task or related pages.",
         }),
       })
       .openapi({
