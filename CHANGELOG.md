@@ -1,5 +1,27 @@
 ### Features
 
+- clickable task PR list, task link matching, and reopen completed tasks for new work: #1864
+- **mcp:** get tasks by ticket ID: #1839
+
+### Bug Fixes
+
+- **ci:** publish npm provenance on GitHub-hosted runners: [50779a4](https://github.com/usekaneo/kaneo/commit/50779a4e21159ad322dc4dd18fa7f1689bee64fa)
+- **ci:** pass the GitHub token to AgentScan: #1862
+- **ci:** resolve nightly warnings and errors: #1858
+- **api:** make legacy MCP HTTP requests replica independent: #1850
+- **docker:** disable wget proxy for loopback health checks: #1841
+
+### Documentation
+
+- add AI Policy badge to README: [011c8ee](https://github.com/usekaneo/kaneo/commit/011c8ee731cc684644d8bf568f4a5f74e194878c)
+- update sponsors: [e45c8ac](https://github.com/usekaneo/kaneo/commit/e45c8aceed5da9bcc040a592be9677c79133aecd)
+
+### Credits
+
+Huge thanks to @andrejsshell, @tinsever, @randoneering, and @mazzz1y for helping!
+
+### Features
+
 - **web:** guide cloud users through invites and plan choice during onboarding: #1840
 - rank new issue priority with Jev: [594e016](https://github.com/usekaneo/kaneo/commit/594e0168dbf586b09d1b0a946e5da9148485b76c)
 

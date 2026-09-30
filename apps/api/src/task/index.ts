@@ -275,6 +275,7 @@ const moveTaskRoute = createRoute({
       "No workspace access, or missing task:update permission",
     ),
     404: errorResponse("Task or destination project not found"),
+    409: errorResponse("Task or project moved concurrently; retry the move"),
   },
 });
 

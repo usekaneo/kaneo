@@ -1,5 +1,9 @@
+import { withIntegrationLink } from "../../github/services/with-integration-link";
+import {
+  type IntegrationDatabase,
+  linkedTaskScope,
+} from "../../github/services/integration-task-scope";
 import { eq, inArray } from "drizzle-orm";
-import db from "../../../database";
 import { labelTable, taskTable } from "../../../database/schema";
 import { publishEvent } from "../../../events";
 import {
@@ -63,6 +67,7 @@ async function syncGitlabLabelsToTask(
   workspaceId: string,
   gitlabLabels: Array<{ name: string; color: string }>,
   previousLabels: GitlabWebhookLabel[] | undefined,
+  db: IntegrationDatabase,
 ) {
   const desiredNames = new Set(gitlabLabels.map((l) => l.name));
   const existingRows = await db.query.labelTable.findMany({
@@ -159,114 +164,141 @@ export async function handleGitlabIssueUpdated(
         continue;
       }
 
-      const task = await db.query.taskTable.findFirst({
-        where: eq(taskTable.id, externalLink.taskId),
-        with: { project: true },
-      });
+      await withIntegrationLink(
+        externalLink,
+        integration,
+        async (db, afterCommit, externalLink) => {
+          const task = await db.query.taskTable.findFirst({
+            where: linkedTaskScope(externalLink.taskId, integration.projectId),
+            with: { project: true },
+          });
 
-      if (!task) {
-        continue;
-      }
-
-      let metadata: LinkMetadata = parseLinkSyncMetadata(
-        externalLink.metadata,
-        { externalLinkId: externalLink.id, field: "issue" },
-      );
-
-      if (touchedText) {
-        const updateData: Record<string, unknown> = {};
-        const lastSync = { ...metadata.lastSync };
-        const now = new Date().toISOString();
-
-        if (
-          changes?.title &&
-          !isEchoOf(metadata.lastSync?.title, "kaneo", issue.title)
-        ) {
-          updateData.title = issue.title;
-          lastSync.title = {
-            timestamp: now,
-            source: "gitlab",
-            value: issue.title,
-          };
-        }
-
-        if (changes?.description) {
-          // Kaneo recorded the body with its footer, so compare the raw body.
-          const issueBody = issue.description ?? "";
-          if (!isEchoOf(metadata.lastSync?.description, "kaneo", issueBody)) {
-            const description = taskDescriptionFromIssue(issue.description);
-            updateData.description = description;
-            lastSync.description = {
-              timestamp: now,
-              source: "gitlab",
-              value: description,
-            };
+          if (!task) {
+            return;
           }
-        }
 
-        if (Object.keys(updateData).length > 0) {
-          await db
-            .update(taskTable)
-            .set(updateData)
-            .where(eq(taskTable.id, task.id));
+          let metadata: LinkMetadata = parseLinkSyncMetadata(
+            externalLink.metadata,
+            { externalLinkId: externalLink.id, field: "issue" },
+          );
 
-          metadata = { ...metadata, lastSync };
+          if (touchedText) {
+            const updateData: Record<string, unknown> = {};
+            const lastSync = { ...metadata.lastSync };
+            const now = new Date().toISOString();
 
-          await updateExternalLink(externalLink.id, {
-            title: issue.title,
-            metadata,
-          });
-        }
-      }
+            if (
+              changes?.title &&
+              !isEchoOf(metadata.lastSync?.title, "kaneo", issue.title)
+            ) {
+              updateData.title = issue.title;
+              lastSync.title = {
+                timestamp: now,
+                source: "gitlab",
+                value: issue.title,
+              };
+            }
 
-      if (!touchedLabels || !currentLabels) {
-        continue;
-      }
+            if (changes?.description) {
+              // Kaneo recorded the body with its footer, so compare the raw body.
+              const issueBody = issue.description ?? "";
+              if (
+                !isEchoOf(metadata.lastSync?.description, "kaneo", issueBody)
+              ) {
+                const description = taskDescriptionFromIssue(issue.description);
+                updateData.description = description;
+                lastSync.description = {
+                  timestamp: now,
+                  source: "gitlab",
+                  value: description,
+                };
+              }
+            }
 
-      const titles = labelTitles(currentLabels);
-      const priority = extractIssuePriority(titles);
-      const status = extractIssueStatus(titles);
+            if (Object.keys(updateData).length > 0) {
+              await db
+                .update(taskTable)
+                .set(updateData)
+                .where(linkedTaskScope(task.id, integration.projectId));
 
-      if (priority) {
-        await db
-          .update(taskTable)
-          .set({ priority })
-          .where(eq(taskTable.id, task.id));
-      }
+              metadata = { ...metadata, lastSync };
 
-      // Unrelated label edits also include the full label snapshot. Its status
-      // can predate a close/reopen, so only apply an actual status-label change.
-      const previousStatus = extractIssueStatus(
-        labelTitles(changes?.labels?.previous),
+              await updateExternalLink(
+                externalLink.id,
+                {
+                  title: issue.title,
+                  metadata,
+                },
+                db,
+              );
+              afterCommit(() =>
+                publishEvent("task.updated", {
+                  projectId: integration.projectId,
+                  taskId: task.id,
+                }),
+              );
+            }
+          }
+
+          if (!touchedLabels || !currentLabels) {
+            return;
+          }
+
+          const titles = labelTitles(currentLabels);
+          const priority = extractIssuePriority(titles);
+          const status = extractIssueStatus(titles);
+
+          if (priority) {
+            await db
+              .update(taskTable)
+              .set({ priority })
+              .where(linkedTaskScope(task.id, integration.projectId));
+          }
+
+          // Unrelated label edits also include the full label snapshot. Its status
+          // can predate a close/reopen, so only apply an actual status-label change.
+          const previousStatus = extractIssueStatus(
+            labelTitles(changes?.labels?.previous),
+          );
+          if (status && status !== previousStatus) {
+            const statusResult = await updateTaskStatus(task.id, status, db);
+            if (
+              statusResult.applied &&
+              statusResult.before.status !== statusResult.after.status
+            ) {
+              afterCommit(() =>
+                publishEvent("task.status_changed", {
+                  sourceIntegrationId: integration.id,
+                  taskId: statusResult.after.id,
+                  projectId: statusResult.after.projectId,
+                  userId: null,
+                  oldStatus: statusResult.before.status,
+                  newStatus: statusResult.after.status,
+                  title: statusResult.after.title,
+                  assigneeId: statusResult.after.userId,
+                  type: "status_changed",
+                }),
+              );
+            }
+          }
+
+          if (task.project?.workspaceId) {
+            await syncGitlabLabelsToTask(
+              task.id,
+              task.project.workspaceId,
+              nonSystemLabels(currentLabels),
+              changes?.labels?.previous,
+              db,
+            );
+            afterCommit(() =>
+              publishEvent("task.labels_updated", {
+                projectId: integration.projectId,
+                taskId: task.id,
+              }),
+            );
+          }
+        },
       );
-      if (status && status !== previousStatus) {
-        const statusResult = await updateTaskStatus(task.id, status);
-        if (
-          statusResult.applied &&
-          statusResult.before.status !== statusResult.after.status
-        ) {
-          await publishEvent("task.status_changed", {
-            sourceIntegrationId: integration.id,
-            taskId: statusResult.after.id,
-            projectId: statusResult.after.projectId,
-            userId: null,
-            oldStatus: statusResult.before.status,
-            newStatus: statusResult.after.status,
-            title: statusResult.after.title,
-            assigneeId: statusResult.after.userId,
-            type: "status_changed",
-          });
-        }
-      }
-
-      if (task.project?.workspaceId) {
-        await syncGitlabLabelsToTask(
-          task.id,
-          task.project.workspaceId,
-          nonSystemLabels(currentLabels),
-          changes?.labels?.previous,
-        );
-      }
     } catch (error) {
       console.error("GitLab issue update handler failed for integration", {
         integrationId: integration.id,

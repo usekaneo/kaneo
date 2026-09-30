@@ -2,6 +2,7 @@ import { createId } from "@paralleldrive/cuid2";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
+import { publishEvent } from "../../events";
 import {
   activityTable,
   columnTable,
@@ -45,6 +46,7 @@ import {
   initialImportState,
 } from "../import-state";
 
+type ImportEvent = "task.updated" | "task.labels_updated" | "comment.updated";
 type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 async function resolveImportedStatus(
   tx: Transaction,
@@ -172,7 +174,22 @@ export async function importIssues(projectId: string, runId?: string) {
         });
       }
       const currentRun: typeof githubImportTable.$inferSelect = run;
+      const notifications = new Map<
+        string,
+        { type: ImportEvent; taskId: string }
+      >();
       run = await db.transaction(async (tx) => {
+        const [currentProject] = await tx
+          .select()
+          .from(projectTable)
+          .where(
+            and(
+              eq(projectTable.id, project.id),
+              eq(projectTable.workspaceId, project.workspaceId),
+            ),
+          )
+          .for("key share");
+        if (!currentProject) throw conflict();
         // Serialize against integration changes and webhook issue creation. No
         // provider request is made while this transaction holds row locks.
         const [currentIntegration] = await tx
@@ -187,7 +204,18 @@ export async function importIssues(projectId: string, runId?: string) {
         )
           throw conflict();
         const state = structuredClone(currentRun.state);
-        await applyPage(tx, payload, state, integration.id, project, config);
+        await applyPage(
+          tx,
+          payload,
+          state,
+          integration.id,
+          project,
+          config,
+          (taskId, ...types) => {
+            for (const type of types)
+              notifications.set(`${type}:${taskId}`, { type, taskId });
+          },
+        );
         const [saved] = await tx
           .update(githubImportTable)
           .set({ state })
@@ -201,6 +229,11 @@ export async function importIssues(projectId: string, runId?: string) {
         if (!saved) throw conflict();
         return saved;
       });
+      // Each bounded page is durable before other clients refresh, including
+      // continuation pages that change labels, comments or linked resources.
+      for (const { type, taskId } of notifications.values())
+        await publishEvent(type, { projectId, taskId });
+      await publishEvent("project.updated", { projectId });
     }
     return importProgress(run.runId, run.state);
   });
@@ -243,6 +276,7 @@ async function applyPage(
   integrationId: string,
   project: typeof projectTable.$inferSelect,
   config: GitHubConfig,
+  announce: (taskId: string, ...types: ImportEvent[]) => void,
 ) {
   if (state.phase === "issues") {
     const parsed = issuesPageSchema.safeParse(payload);
@@ -283,6 +317,7 @@ async function applyPage(
     };
     await importLabels(tx, issue.labels.nodes, task.id, project.workspaceId);
     await importComments(tx, issue.comments.nodes, task.id, state.startedAt);
+    announce(task.id, "task.updated", "task.labels_updated", "comment.updated");
     nextIssuePart(state);
     return;
   }
@@ -297,7 +332,8 @@ async function applyPage(
         state.phase = "complete";
         return;
       }
-      await linkPull(tx, pull, integrationId, project, config);
+      const taskId = await linkPull(tx, pull, integrationId, project, config);
+      if (taskId) announce(taskId, "task.updated");
     }
     if (!page.pageInfo.hasNextPage || page.nodes.length === 0)
       state.phase = "complete";
@@ -305,13 +341,29 @@ async function applyPage(
   }
   const current = state.currentIssue;
   if (!current) throw new Error("Import continuation missing");
-  const task = await tx.query.taskTable.findFirst({
-    where: and(
-      eq(taskTable.id, current.taskId),
-      eq(taskTable.projectId, project.id),
-    ),
-  });
-  if (!task) {
+  const [task] = await tx
+    .select()
+    .from(taskTable)
+    .where(
+      and(
+        eq(taskTable.id, current.taskId),
+        eq(taskTable.projectId, project.id),
+      ),
+    )
+    .for("no key update");
+  const [linked] = await tx
+    .select({ id: externalLinkTable.id })
+    .from(externalLinkTable)
+    .where(
+      and(
+        eq(externalLinkTable.integrationId, integrationId),
+        eq(externalLinkTable.resourceType, "issue"),
+        eq(externalLinkTable.externalId, String(current.number)),
+        eq(externalLinkTable.taskId, current.taskId),
+      ),
+    )
+    .for("update");
+  if (!task || !linked) {
     state.skipped++;
     finishIssue(state);
     return;
@@ -353,6 +405,7 @@ async function applyPage(
       label.name.startsWith("status:"),
     );
     await importLabels(tx, labels, task.id, project.workspaceId);
+    announce(task.id, "task.updated", "task.labels_updated");
     nextIssuePart(state);
   } else if (state.phase === "comments") {
     const parsed = commentsPageSchema.safeParse(payload);
@@ -372,6 +425,7 @@ async function applyPage(
     );
     current.moreComments = page.pageInfo.hasNextPage && comments.length > 0;
     await importComments(tx, comments, task.id, state.startedAt);
+    announce(task.id, "comment.updated");
     nextIssuePart(state);
   }
 }
@@ -408,13 +462,20 @@ async function importIssue(
   const priority = extractIssuePriority(issue.labels.nodes);
   const status = extractIssueStatus(issue.labels.nodes);
   if (link) {
-    const task = await tx.query.taskTable.findFirst({
-      where: and(
-        eq(taskTable.id, link.taskId),
-        eq(taskTable.projectId, projectId),
-      ),
-    });
+    const [task] = await tx
+      .select()
+      .from(taskTable)
+      .where(
+        and(eq(taskTable.id, link.taskId), eq(taskTable.projectId, projectId)),
+      )
+      .for("no key update");
     if (!task) return null;
+    const [linked] = await tx
+      .select({ id: externalLinkTable.id })
+      .from(externalLinkTable)
+      .where(eq(externalLinkTable.id, link.id))
+      .for("update");
+    if (!linked) return null;
     const [updated] = await tx
       .update(taskTable)
       .set({
@@ -540,6 +601,12 @@ async function linkPull(
     database: tx,
   });
   if (!task) return;
+  const [scopedTask] = await tx
+    .select({ id: taskTable.id })
+    .from(taskTable)
+    .where(and(eq(taskTable.id, task.id), eq(taskTable.projectId, project.id)))
+    .for("share");
+  if (!scopedTask) return;
   await tx.insert(externalLinkTable).values({
     taskId: task.id,
     integrationId,
@@ -553,4 +620,5 @@ async function linkPull(
       author: pull.author?.login,
     }),
   });
+  return task.id;
 }
