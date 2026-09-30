@@ -153,9 +153,13 @@ export const boardSchema = z
         relatedPage: z.number(),
         relatedPageSize: z.number(),
         relatedTotalPages: z.number(),
+        relatedRevision: z.string().optional().openapi({
+          description:
+            "Public board labels and external links revision for this task page. Restart pagination if it changes during related-page continuations.",
+        }),
         revision: z.string().optional().openapi({
           description:
-            "Public board task membership and ordering revision. Restart pagination if it changes between task or related pages.",
+            "Public board task and column membership and ordering revision. Restart pagination if it changes between task or related pages.",
         }),
       })
       .openapi({

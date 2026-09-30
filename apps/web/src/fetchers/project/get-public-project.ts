@@ -18,6 +18,7 @@ async function getPublicProject(
 ) {
   for (let attempt = 0; attempt < 3; attempt++) {
     let revision: string | undefined;
+    const relatedRevisions = new Map<number, string | undefined>();
     try {
       return await loadBoardPages(
         async (page, relatedPage) => {
@@ -37,6 +38,10 @@ async function getPublicProject(
           const { pagination, ...data } = await response.json();
           if (page === 1 && !relatedPage) revision = pagination.revision;
           else if (revision !== undefined && pagination.revision !== revision)
+            throw new BoardChanged();
+          if (!relatedPage)
+            relatedRevisions.set(page, pagination.relatedRevision);
+          else if (relatedRevisions.get(page) !== pagination.relatedRevision)
             throw new BoardChanged();
           return { data, pagination };
         },

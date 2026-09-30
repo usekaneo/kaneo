@@ -8,6 +8,7 @@ import {
   inArray,
   lte,
   type SQL,
+  type SQLWrapper,
   sql,
 } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
@@ -78,6 +79,15 @@ function buildOrderBy(
   }
 }
 
+function membershipRevision(
+  publicOnly: boolean | undefined,
+  fields: SQLWrapper[],
+): SQL<string> {
+  return publicOnly
+    ? sql<string>`coalesce(sum(hashtextextended(jsonb_build_array(${sql.join(fields, sql`, `)})::text, 0)::numeric), 0)::text`
+    : sql<string>`'0'`;
+}
+
 async function getTasksPage(
   db: TaskReadDatabase,
   projectId: string,
@@ -138,11 +148,12 @@ async function getTasksPage(
   const [taskCount] = await db
     .select({
       count: sql<number>`count(*)`,
-      ...(options.publicOnly
-        ? {
-            revision: sql<string>`coalesce(sum(hashtextextended(jsonb_build_array(${taskTable.id}, ${taskTable.updatedAt}, ${taskTable.position}, ${taskTable.status})::text, 0)::numeric), 0)::text`,
-          }
-        : {}),
+      revision: membershipRevision(options.publicOnly, [
+        taskTable.id,
+        taskTable.updatedAt,
+        taskTable.position,
+        taskTable.status,
+      ]),
     })
     .from(taskTable)
     .where(whereClause);
@@ -293,22 +304,53 @@ async function getTasksPage(
     projectColumns.push(...taskColumns);
   }
   const [columnCount] = await db
-    .select({ count: sql<number>`count(*)` })
+    .select({
+      count: sql<number>`count(*)`,
+      revision: membershipRevision(options.publicOnly, [
+        columnTable.id,
+        columnTable.updatedAt,
+        columnTable.slug,
+        columnTable.position,
+        columnTable.name,
+        columnTable.icon,
+        columnTable.isFinal,
+      ]),
+    })
     .from(columnTable)
     .where(eq(columnTable.projectId, projectId));
   let labelCount = 0;
   let linkCount = 0;
+  let labelRevision = "0";
+  let linkRevision = "0";
   if (taskIds.length) {
     const [labels] = await db
-      .select({ count: sql<number>`count(*)` })
+      .select({
+        count: sql<number>`count(*)`,
+        revision: membershipRevision(options.publicOnly, [
+          labelTable.id,
+          labelTable.updatedAt,
+          labelTable.taskId,
+          labelTable.name,
+          labelTable.color,
+        ]),
+      })
       .from(labelTable)
       .where(inArray(labelTable.taskId, taskIds));
     const [links] = await db
-      .select({ count: sql<number>`count(*)` })
+      .select({
+        count: sql<number>`count(*)`,
+        revision: membershipRevision(options.publicOnly, [
+          externalLinkTable.id,
+          externalLinkTable.updatedAt,
+          externalLinkTable.taskId,
+        ]),
+      })
       .from(externalLinkTable)
       .where(inArray(externalLinkTable.taskId, taskIds));
     labelCount = Number(labels?.count ?? 0);
     linkCount = Number(links?.count ?? 0);
+    labelRevision = labels?.revision ?? "0";
+    linkRevision = links?.revision ?? "0";
   }
 
   const columns = projectColumns.map((column) => ({
@@ -364,7 +406,10 @@ async function getTasksPage(
     pagination: {
       total,
       ...(options.publicOnly
-        ? { revision: `${total}:${taskCount?.revision}` }
+        ? {
+            revision: `${total}:${taskCount?.revision}:${columnCount?.count}:${columnCount?.revision}`,
+            relatedRevision: `${labelCount}:${labelRevision}:${linkCount}:${linkRevision}`,
+          }
         : {}),
       page,
       pageSize,

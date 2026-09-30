@@ -337,9 +337,13 @@
           "relatedTotalPages": {
             "type": "number"
           },
+          "relatedRevision": {
+            "type": "string",
+            "description": "Public board labels and external links revision for this task page. Restart pagination if it changes during related-page continuations."
+          },
           "revision": {
             "type": "string",
-            "description": "Public board task membership and ordering revision. Restart pagination if it changes between task or related pages."
+            "description": "Public board task and column membership and ordering revision. Restart pagination if it changes between task or related pages."
           }
         },
         "required": [

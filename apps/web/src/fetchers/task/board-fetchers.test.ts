@@ -238,3 +238,66 @@ it("honors cancellation before restarting a changed public board", async () => {
   ).rejects.toThrow();
   expect(publicRequest).toHaveBeenCalledTimes(2);
 });
+
+it("reconciles shifted related rows while task membership remains unchanged", async () => {
+  let pass = 0;
+  publicRequest.mockImplementation(
+    async ({ query }: { query: { page: string; relatedPage?: string } }) => {
+      if (!query.relatedPage) pass++;
+      const board = data(1);
+      Object.assign(board.columns[0].tasks[0], {
+        labels: [
+          {
+            id:
+              pass === 1
+                ? "removed-label"
+                : `current-${query.relatedPage ?? 1}`,
+            name: "Label",
+            color: "red",
+          },
+        ],
+      });
+      return Response.json({
+        ...board,
+        pagination: {
+          page: 1,
+          pageSize: 100,
+          total: 1,
+          totalPages: 1,
+          relatedTotalPages: 2,
+          revision: "unchanged tasks and columns",
+          relatedRevision:
+            pass === 1 && !query.relatedPage ? "old labels" : "new labels",
+        },
+      });
+    },
+  );
+  const board = await getPublicProject({ id: "project" });
+  expect(publicRequest).toHaveBeenCalledTimes(4);
+  expect(board.columns[0].tasks[0].labels?.map((label) => label.id)).toEqual([
+    "current-1",
+    "current-2",
+  ]);
+});
+it("compares related revisions within each task page", async () => {
+  publicRequest.mockImplementation(
+    async ({ query }: { query: { page: string; relatedPage?: string } }) => {
+      const board = data(Number(query.page));
+      return Response.json({
+        ...board,
+        pagination: {
+          page: Number(query.page),
+          pageSize: 100,
+          total: 201,
+          totalPages: 3,
+          relatedTotalPages: 2,
+          revision: "stable tasks",
+          relatedRevision: `stable page ${query.page}`,
+        },
+      });
+    },
+  );
+  const board = await getPublicProject({ id: "project" });
+  expect(publicRequest).toHaveBeenCalledTimes(6);
+  expect(board.columns[0].tasks).toHaveLength(3);
+});
