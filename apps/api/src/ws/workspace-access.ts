@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { WSContext } from "hono/ws";
 import db from "../database";
 import { userTable, workspaceUserTable } from "../database/schema";
@@ -32,4 +32,23 @@ export async function syncWorkspaceAccess(userId: string, ws: WSContext) {
     console.error("Failed to synchronize workspace access:", error);
     ws.close(1011, "Workspace access synchronization failed");
   }
+}
+
+export async function hasWorkspaceAccess(userId: string, workspaceId: string) {
+  const [[user], members] = await Promise.all([
+    db
+      .select({ role: userTable.role })
+      .from(userTable)
+      .where(eq(userTable.id, userId)),
+    db
+      .select({ userId: workspaceUserTable.userId })
+      .from(workspaceUserTable)
+      .where(
+        and(
+          eq(workspaceUserTable.userId, userId),
+          eq(workspaceUserTable.workspaceId, workspaceId),
+        ),
+      ),
+  ]);
+  return !!user && (hasInstanceAdminRole(user.role) || members.length > 0);
 }

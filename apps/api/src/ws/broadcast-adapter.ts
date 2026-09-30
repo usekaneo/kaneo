@@ -36,7 +36,7 @@ export type BroadcastAdapter = {
   ): Promise<void>;
 
   subscribeToUser(
-    handler: (msg: UserBroadcast) => void,
+    handler: (msg: UserBroadcast) => void | Promise<void>,
     onRecovery?: () => Promise<void>,
   ): Promise<void>;
 

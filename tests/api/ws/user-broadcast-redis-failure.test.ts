@@ -13,8 +13,10 @@ vi.mock("../../../apps/api/src/events", () => ({
 }));
 
 const accessSync = vi.hoisted(() => vi.fn(async () => undefined));
+const hasAccess = vi.hoisted(() => vi.fn(async () => false));
 vi.mock("../../../apps/api/src/ws/workspace-access", () => ({
   syncWorkspaceAccess: accessSync,
+  hasWorkspaceAccess: hasAccess,
 }));
 const publish = vi.fn();
 const listeners: Array<(p: string, c: string, d: string) => void> = [];
@@ -41,6 +43,8 @@ vi.mock("../../../apps/api/src/redis", () => ({
 
 import {
   addUserConnection,
+  addConnection,
+  removeConnection,
   broadcastToUser,
   initializeWebSocketAdapter,
   removeUserConnection,
@@ -177,4 +181,45 @@ it("resynchronizes healthy browser sockets after the Redis subscriber recovers",
   ready?.("", "", "");
   await new Promise((resolve) => setTimeout(resolve, 0));
   expect(accessSync).not.toHaveBeenCalled();
+});
+
+it("ignores an offline-queued revocation after the member regains access", async () => {
+  await initializeWebSocketAdapter();
+  hasAccess.mockResolvedValue(true);
+  const ws = makeFakeWs();
+  const projectWs = makeFakeWs();
+  const userConnection = addUserConnection("user-1", ws);
+  const projectConnection = addConnection(
+    "project",
+    projectWs,
+    "user-1",
+    "window",
+    "workspace",
+  );
+  emitUserBroadcast({
+    userId: "user-1",
+    origin: "other-instance",
+    message: { type: "WORKSPACE_ACCESS_REVOKED", workspaceId: "workspace" },
+  });
+  await vi.waitFor(() =>
+    expect(hasAccess).toHaveBeenCalledWith("user-1", "workspace"),
+  );
+  await Promise.resolve();
+  expect(sendMock(ws)).not.toHaveBeenCalled();
+  expect(
+    (projectWs as unknown as { close: ReturnType<typeof vi.fn> }).close,
+  ).not.toHaveBeenCalled();
+  hasAccess.mockResolvedValue(false);
+  emitUserBroadcast({
+    userId: "user-1",
+    origin: "other-instance",
+    message: { type: "WORKSPACE_ACCESS_REVOKED", workspaceId: "workspace" },
+  });
+  await vi.waitFor(() => expect(sendMock(ws)).toHaveBeenCalledOnce());
+  expect(
+    (projectWs as unknown as { close: ReturnType<typeof vi.fn> }).close,
+  ).toHaveBeenCalledWith(1008, "Workspace access revoked");
+  removeUserConnection("user-1", userConnection);
+  removeConnection("project", projectConnection);
+  await shutdownWebSocketAdapter();
 });

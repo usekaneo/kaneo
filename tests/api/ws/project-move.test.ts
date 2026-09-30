@@ -238,6 +238,8 @@ describe("workspace membership revocation", () => {
   });
   it("revokes remote subscriptions through the user Redis channel", async () => {
     m.redis = true;
+    m.admins.mockResolvedValue([{ role: "user" }]);
+    m.members.mockResolvedValue([]);
     await initializeWebSocketAdapter();
     const ws = connect();
     const handler = m.on.mock.calls[1][1];
@@ -250,7 +252,9 @@ describe("workspace membership revocation", () => {
         message: { type: "WORKSPACE_ACCESS_REVOKED", workspaceId: "old" },
       }),
     );
-    expect(ws.close).toHaveBeenCalledWith(1008, "Workspace access revoked");
+    await vi.waitFor(() =>
+      expect(ws.close).toHaveBeenCalledWith(1008, "Workspace access revoked"),
+    );
   });
 });
 

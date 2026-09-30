@@ -1,4 +1,4 @@
-import { syncWorkspaceAccess } from "./workspace-access";
+import { hasWorkspaceAccess, syncWorkspaceAccess } from "./workspace-access";
 import { createRevocationDelivery } from "./revocation-delivery";
 import { randomUUID } from "node:crypto";
 import { and, eq, inArray } from "drizzle-orm";
@@ -167,9 +167,26 @@ export async function initializeWebSocketAdapter() {
       );
     });
     await nextAdapter.subscribeToUser(
-      (msg: UserBroadcast) => {
+      async (msg: UserBroadcast) => {
         if (msg.origin === INSTANCE_ID) {
           return;
+        }
+        if (
+          msg.message.type === "WORKSPACE_ACCESS_REVOKED" &&
+          typeof msg.message.workspaceId === "string" &&
+          !msg.message.force
+        ) {
+          try {
+            // Redis can deliver an offline-queued initial publish after this
+            // member has been re-added. Check the recipient's current access.
+            if (await hasWorkspaceAccess(msg.userId, msg.message.workspaceId))
+              return;
+          } catch (error) {
+            console.error(
+              "Failed to verify received workspace revocation:",
+              error,
+            );
+          }
         }
         deliverToLocalUserConnections(msg.userId, msg.message);
       },
@@ -298,7 +315,11 @@ export async function revokeWorkspaceConnections(
   await revocationDelivery?.send(
     {
       userId,
-      message: { type: "WORKSPACE_ACCESS_REVOKED", workspaceId },
+      message: {
+        type: "WORKSPACE_ACCESS_REVOKED",
+        workspaceId,
+        ...(options.force ? { force: true } : {}),
+      },
       origin: INSTANCE_ID,
     },
     options.force

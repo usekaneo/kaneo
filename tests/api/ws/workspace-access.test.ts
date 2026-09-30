@@ -1,6 +1,9 @@
 import { beforeEach, expect, it, vi } from "vite-plus/test";
 import type { WSContext } from "hono/ws";
-import { syncWorkspaceAccess } from "../../../apps/api/src/ws/workspace-access";
+import {
+  hasWorkspaceAccess,
+  syncWorkspaceAccess,
+} from "../../../apps/api/src/ws/workspace-access";
 const m = vi.hoisted(() => ({ user: vi.fn(), memberships: vi.fn() }));
 vi.mock("../../../apps/api/src/database", () => ({
   default: {
@@ -39,4 +42,14 @@ it("requires a reconnect if access synchronization fails", async () => {
     1011,
     "Workspace access synchronization failed",
   );
+});
+
+it("recognizes restored membership and administrator access for delayed revocations", async () => {
+  expect(await hasWorkspaceAccess("user", "still-authorized")).toBe(true);
+  m.memberships.mockResolvedValue([]);
+  expect(await hasWorkspaceAccess("user", "removed")).toBe(false);
+  m.user.mockResolvedValue([{ role: "user,admin" }]);
+  expect(await hasWorkspaceAccess("user", "removed")).toBe(true);
+  m.user.mockResolvedValue([]);
+  expect(await hasWorkspaceAccess("user", "removed")).toBe(false);
 });

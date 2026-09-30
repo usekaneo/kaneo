@@ -90,7 +90,7 @@ export class RedisBroadcastAdapter implements BroadcastAdapter {
   }
 
   async subscribeToUser(
-    handler: (msg: UserBroadcast) => void,
+    handler: (msg: UserBroadcast) => void | Promise<void>,
     onRecovery?: () => Promise<void>,
   ): Promise<void> {
     if (this.userSubscribed) return;
@@ -112,7 +112,11 @@ export class RedisBroadcastAdapter implements BroadcastAdapter {
           console.error("User broadcast channel and payload disagree");
           return;
         }
-        handler(parsed.output as UserBroadcast);
+        void Promise.resolve(handler(parsed.output as UserBroadcast)).catch(
+          (error) => {
+            console.error("Failed to deliver user broadcast:", error);
+          },
+        );
       } catch (err) {
         console.error("Failed to parse user broadcast message:", err);
       }
