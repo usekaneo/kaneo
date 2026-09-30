@@ -1,3 +1,4 @@
+import { applyBoardReorder } from "@/components/kanban-board/apply-reorder";
 import {
   getBoardCacheVersion,
   markBoardCacheChanged,
@@ -156,25 +157,34 @@ export function useProjectWebSocket(projectId: string) {
               });
               return;
             }
-            let updated = board;
-            for (const change of message.tasks) {
-              const task = [
-                ...updated.columns.flatMap((column) => column.tasks),
-                ...updated.plannedTasks,
-                ...updated.archivedTasks,
-              ].find((task) => task.id === change.id);
-              if (!task) {
-                markBoardCacheChanged(queryClient, projectId);
-                void queryClient.invalidateQueries({
-                  queryKey: ["tasks", projectId],
-                });
-              }
-              if (task)
-                updated =
-                  patchBoardTask(updated, task.id, { ...task, ...change }) ??
-                  updated;
+            const knownTasks = new Set([
+              ...board.columns.flatMap((column) =>
+                column.tasks.map((task) => task.id),
+              ),
+              ...board.plannedTasks.map((task) => task.id),
+              ...board.archivedTasks.map((task) => task.id),
+            ]);
+            const statuses = new Set([
+              "planned",
+              "archived",
+              ...board.columns.map((column) => column.slug),
+            ]);
+            if (
+              message.tasks.some(
+                (change: { id: string; status?: string }) =>
+                  !knownTasks.has(change.id) ||
+                  (change.status && !statuses.has(change.status)),
+              )
+            ) {
+              markBoardCacheChanged(queryClient, projectId);
+              void queryClient.invalidateQueries({
+                queryKey: ["tasks", projectId],
+              });
             }
-            queryClient.setQueryData(["tasks", projectId], updated);
+            queryClient.setQueryData(
+              ["tasks", projectId],
+              applyBoardReorder(board, message.tasks),
+            );
             return;
           }
           if (

@@ -341,3 +341,36 @@ it("reconciles a remote read superseded by a narrow local mutation", async () =>
     queryKey: ["tasks", "p"],
   });
 });
+
+it("applies a remote reorder across virtual buckets without waiting for HTTP", () => {
+  const board = mocks.board as {
+    columns: {
+      tasks: { id: string; status: string; columnId: string | null }[];
+    }[];
+    plannedTasks: {
+      id: string;
+      projectId: string;
+      status: string;
+      position: number;
+    }[];
+  };
+  board.plannedTasks = [
+    { id: "planned", projectId: "p", status: "planned", position: 0 },
+  ];
+  renderHook(() => useProjectWebSocket("p"));
+  Socket.current.message("TASKS_REORDERED", {
+    tasks: [
+      { id: "planned", position: 1, status: "todo" },
+      { id: "a", position: 0, status: "archived" },
+    ],
+  });
+  expect((mocks.board as typeof board).plannedTasks).toEqual([]);
+  expect((mocks.board as typeof board).columns[0].tasks).toContainEqual(
+    expect.objectContaining({ id: "planned", status: "todo" }),
+  );
+  expect(
+    (mocks.board as { archivedTasks: unknown[] }).archivedTasks,
+  ).toContainEqual(
+    expect.objectContaining({ id: "a", status: "archived", columnId: null }),
+  );
+});
