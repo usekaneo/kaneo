@@ -1,3 +1,4 @@
+import { publishEvent } from "../../../events";
 import { withIntegrationLink } from "../services/with-integration-link";
 import type { GitHubConfig } from "../config";
 import { getVerifiedInstallationOctokit } from "../utils/github-app";
@@ -88,7 +89,7 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
       withIntegrationLink(
         externalLink,
         integration,
-        async (db, _afterCommit, externalLink) => {
+        async (db, afterCommit, externalLink) => {
           const task = await db.query.taskTable.findFirst({
             where: linkedTaskScope(externalLink.taskId, integration.projectId),
           });
@@ -202,6 +203,12 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
                 metadata: updatedMetadata,
               },
               db,
+            );
+            afterCommit(() =>
+              publishEvent("task.updated", {
+                projectId: integration.projectId,
+                taskId: externalLink.taskId,
+              }),
             );
 
             console.log(

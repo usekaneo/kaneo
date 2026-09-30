@@ -87,6 +87,13 @@ export async function handleIssueLabeled(payload: IssueLabeledPayload) {
         }
 
         if (!addedLabel) {
+          if (priority)
+            afterCommit(() =>
+              publishEvent("task.updated", {
+                projectId: integration.projectId,
+                taskId: existingLink.taskId,
+              }),
+            );
           return;
         }
 
@@ -95,6 +102,13 @@ export async function handleIssueLabeled(payload: IssueLabeledPayload) {
           addedLabel.name.startsWith("status:");
 
         if (isSystemLabel) {
+          if (priority)
+            afterCommit(() =>
+              publishEvent("task.updated", {
+                projectId: integration.projectId,
+                taskId: existingLink.taskId,
+              }),
+            );
           return;
         }
 
@@ -149,6 +163,12 @@ export async function handleIssueLabeled(payload: IssueLabeledPayload) {
           }
         }
 
+        afterCommit(() =>
+          publishEvent("task.labels_updated", {
+            projectId: integration.projectId,
+            taskId: existingLink.taskId,
+          }),
+        );
         return;
       },
     );

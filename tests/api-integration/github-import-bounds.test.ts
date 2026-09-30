@@ -18,6 +18,10 @@ const mocks = vi.hoisted(() => ({
   graphql: vi.fn(),
   verify: vi.fn(),
   comment: vi.fn(),
+  publish: vi.fn(
+    async (_name: string, _payload: { projectId: string; taskId?: string }) =>
+      undefined,
+  ),
 }));
 vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
   getVerifiedInstallationOctokit: mocks.verify,
@@ -26,6 +30,10 @@ vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
       rest: { issues: { createComment: mocks.comment } },
     }),
   }),
+}));
+vi.mock("../../apps/api/src/events", async (original) => ({
+  ...(await original<typeof import("../../apps/api/src/events")>()),
+  publishEvent: mocks.publish,
 }));
 const old = "2020-01-01T00:00:00Z";
 function connection<T>(
@@ -107,6 +115,7 @@ beforeEach(async () => {
   mocks.graphql.mockReset();
   mocks.verify.mockReset().mockResolvedValue({ graphql: mocks.graphql });
   mocks.comment.mockReset();
+  mocks.publish.mockReset().mockResolvedValue(undefined);
 });
 async function setup() {
   const member = await createWorkspaceMember({ role: "admin" });
@@ -152,6 +161,12 @@ describe("bounded resumable GitHub import", () => {
   it("bounds each HTTP step, persists resumable state, imports every issue and retries completion without restarting", async () => {
     const { request, app, project } = await setup();
     serveIssues(9);
+    const observedCounts: number[] = [];
+    mocks.publish.mockImplementation(async (name, payload) => {
+      expect(name).toBe("project.updated");
+      expect(payload).toEqual({ projectId: project.id });
+      observedCounts.push((await db.query.taskTable.findMany()).length);
+    });
     const first = await request();
     expect(first.status).toBe(202);
     const progress = await first.json();
@@ -161,6 +176,7 @@ describe("bounded resumable GitHub import", () => {
       updated: 0,
     });
     expect(mocks.graphql).toHaveBeenCalledTimes(IMPORT_PAGES_PER_REQUEST);
+    expect(observedCounts).toEqual([1, 2, 3, 4]);
     const info = await app.request(
       `/api/github-integration/project/${project.id}`,
     );
@@ -591,6 +607,40 @@ describe("bounded resumable GitHub import", () => {
     expect(await db.query.taskTable.findMany()).toHaveLength(1);
     expect(await db.query.externalLinkTable.findMany()).toHaveLength(1);
     expect(mocks.comment).not.toHaveBeenCalled();
+  });
+
+  it("announces a webhook task only after its task and link commit", async () => {
+    const { project } = await setup();
+    mocks.publish.mockImplementation(async (name, payload) => {
+      expect(name).toBe("task.created");
+      expect(payload.projectId).toBe(project.id);
+      const task = await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, payload.taskId!),
+      });
+      const link = await db.query.externalLinkTable.findFirst({
+        where: eq(schema.externalLinkTable.taskId, payload.taskId!),
+      });
+      expect(task?.title).toBe("Live issue");
+      expect(link?.externalId).toBe("77");
+    });
+    await handleIssueOpened({
+      action: "opened",
+      installation: { id: 1 },
+      repository: {
+        id: 2,
+        owner: { login: "example" },
+        name: "repo",
+        full_name: "example/repo",
+      },
+      issue: {
+        number: 77,
+        title: "Live issue",
+        body: "Description",
+        html_url: "https://github.com/example/repo/issues/77",
+        user: null,
+      },
+    });
+    expect(mocks.publish).toHaveBeenCalledTimes(1);
   });
 
   it("continues all pull request pages and links only matching tasks in this project", async () => {
