@@ -74,6 +74,7 @@ beforeEach(async () => {
   vi.clearAllMocks();
   m.publish.mockReset().mockResolvedValue(undefined);
   m.listIssues.mockResolvedValue([remoteIssue]);
+  m.getIssue.mockReset().mockResolvedValue(remoteIssue);
   m.listIssueComments.mockResolvedValue([]);
   m.listIssueNotes.mockResolvedValue([]);
 });
@@ -515,7 +516,8 @@ it("keeps outbound history committed during an inbound provider read", async () 
     issue: remoteIssue,
     changes: { title: { from: "Old" } },
   });
-  expect(m.getIssue).toHaveBeenCalledOnce();
+  // The outbound metadata change invalidates the first provider confirmation.
+  expect(m.getIssue).toHaveBeenCalledTimes(2);
   const saved = await db.query.externalLinkTable.findFirst({
     where: eq(schema.externalLinkTable.id, link.id),
   });
