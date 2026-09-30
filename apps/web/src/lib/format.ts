@@ -12,19 +12,11 @@ function getLocale(locale?: string) {
 
 const collators = new Map<string, Intl.Collator>();
 
-function getSortLocales(): string[] {
-  if (typeof navigator !== "undefined" && navigator.languages?.length) {
-    return [...navigator.languages];
-  }
-  return [getLocale()];
-}
-
-export function localeCompareSort(a: string, b: string) {
-  const locales = getSortLocales();
-  const key = locales.join(",");
+export function localeCompareSort(a: string, b: string, locale?: string) {
+  const key = getLocale(locale);
   let collator = collators.get(key);
   if (!collator) {
-    collator = new Intl.Collator(locales, {
+    collator = new Intl.Collator(key, {
       sensitivity: "base",
       numeric: true,
     });

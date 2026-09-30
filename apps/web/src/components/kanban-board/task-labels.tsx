@@ -1,17 +1,21 @@
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
+import { localeCompareSort } from "@/lib/format";
 import { resolveLabelColor } from "@/lib/label-color";
 import type Task from "@/types/task";
-import { localeCompareSort } from "@/lib/format";
 
 export function TaskLabels({
   labels,
 }: {
   labels: NonNullable<Task["labels"]>;
 }) {
+  const { i18n } = useTranslation();
+  const locale = i18n.resolvedLanguage || i18n.language;
+
   if (!labels.length) return null;
 
   const sortedLabels = [...labels].sort((a, b) =>
-    localeCompareSort(a.name, b.name),
+    localeCompareSort(a.name, b.name, locale),
   );
 
   return (
