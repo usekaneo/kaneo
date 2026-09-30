@@ -25,6 +25,7 @@ export async function withIntegrationTask<T>(
     database: IntegrationDatabase,
     afterCommit: (effect: () => Promise<void>) => void,
   ) => Promise<T>,
+  expectedBinding?: { config: string; type: string },
 ): Promise<T | undefined> {
   const effects: Array<() => Promise<void>> = [];
   const result = await db.transaction(async (tx) => {
@@ -46,6 +47,21 @@ export async function withIntegrationTask<T>(
       )
       .for("key share", { of: [projectTable, integrationTable] });
     if (!project) return undefined;
+    if (expectedBinding) {
+      const [binding] = await tx
+        .select({ id: integrationTable.id })
+        .from(integrationTable)
+        .where(
+          and(
+            eq(integrationTable.id, integration.id),
+            eq(integrationTable.config, expectedBinding.config),
+            eq(integrationTable.type, expectedBinding.type),
+            eq(integrationTable.isActive, true),
+          ),
+        )
+        .for("share");
+      if (!binding) return undefined;
+    }
     if (taskId !== null) {
       const [task] = await tx
         .select({ id: taskTable.id })

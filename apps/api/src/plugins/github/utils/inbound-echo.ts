@@ -40,7 +40,8 @@ export function inboundEcho(
 export async function withEchoConfirmation<Provider, Result>(
   read: () => Promise<Provider>,
   apply: (current?: Provider) => Promise<Result>,
-): Promise<Result> {
+  defer?: () => Promise<void>,
+): Promise<Result | undefined> {
   const recorded = new Set<string>();
   let current: Provider | undefined;
   let delay = 50;
@@ -66,10 +67,22 @@ export async function withEchoConfirmation<Provider, Result>(
           });
           recorded.add(key);
         }
-        if (Date.now() >= deadline)
+        if (Date.now() >= deadline) {
+          if (defer) {
+            try {
+              await defer();
+              return;
+            } catch (cause) {
+              throw new PendingResponseTimeout(
+                "Could not persist deferred webhook delivery",
+                { cause },
+              );
+            }
+          }
           throw new PendingResponseTimeout(
             "Outbound response is still pending; retry this webhook delivery",
           );
+        }
         await new Promise((resolve) =>
           setTimeout(resolve, Math.min(delay, deadline - Date.now())),
         );

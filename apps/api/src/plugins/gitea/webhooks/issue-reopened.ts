@@ -1,3 +1,4 @@
+import { deferIssueEdit } from "../../github/services/deferred-issue-edits";
 import { inboundStamp } from "../../github/utils/sync-echo";
 import { withIntegrationLink } from "../../github/services/with-integration-link";
 import type { GiteaConfig } from "../config";
@@ -90,103 +91,106 @@ export async function handleGiteaIssueReopened(
           return issue;
         }
       };
-      await withEchoConfirmation(readCurrent, (current) =>
-        withIntegrationLink(
-          externalLink,
-          integration,
-          async (db, afterCommit, externalLink) => {
-            const task = await db.query.taskTable.findFirst({
-              where: linkedTaskScope(
-                externalLink.taskId,
-                integration.projectId,
-              ),
-            });
+      await withEchoConfirmation(
+        readCurrent,
+        (current) =>
+          withIntegrationLink(
+            externalLink,
+            integration,
+            async (db, afterCommit, externalLink) => {
+              const task = await db.query.taskTable.findFirst({
+                where: linkedTaskScope(
+                  externalLink.taskId,
+                  integration.projectId,
+                ),
+              });
 
-            if (!task) {
-              return;
-            }
-            const existingMetadata = parseLinkMetadata<
-              Record<string, unknown> & { lastSync?: { state?: SyncStamp } }
-            >(externalLink.metadata, {
-              externalLinkId: externalLink.id,
-              source: "gitea_issue_reopened",
-            });
-            if (
-              inboundEcho(
-                existingMetadata.lastSync?.state,
-                "open",
-                issue.updated_at,
-                current ? (current.state ?? issue.state) : undefined,
-                { linkId: externalLink.id, field: "state" },
-              )
-            )
-              return;
-            const lastOutbound = existingMetadata.lastOutboundStateSyncAt;
-            if (
-              typeof lastOutbound === "number" &&
-              Number.isFinite(lastOutbound) &&
-              existingMetadata.state === "open"
-            ) {
-              const eventMs = parseIssueUpdatedAtMs(issue);
-              if (
-                eventMs !== null &&
-                Math.abs(eventMs - lastOutbound) <=
-                  OUTBOUND_STATE_ECHO_WINDOW_MS
-              ) {
+              if (!task) {
                 return;
               }
-            }
+              const existingMetadata = parseLinkMetadata<
+                Record<string, unknown> & { lastSync?: { state?: SyncStamp } }
+              >(externalLink.metadata, {
+                externalLinkId: externalLink.id,
+                source: "gitea_issue_reopened",
+              });
+              if (
+                inboundEcho(
+                  existingMetadata.lastSync?.state,
+                  "open",
+                  issue.updated_at,
+                  current ? (current.state ?? issue.state) : undefined,
+                  { linkId: externalLink.id, field: "state" },
+                )
+              )
+                return;
+              const lastOutbound = existingMetadata.lastOutboundStateSyncAt;
+              if (
+                typeof lastOutbound === "number" &&
+                Number.isFinite(lastOutbound) &&
+                existingMetadata.state === "open"
+              ) {
+                const eventMs = parseIssueUpdatedAtMs(issue);
+                if (
+                  eventMs !== null &&
+                  Math.abs(eventMs - lastOutbound) <=
+                    OUTBOUND_STATE_ECHO_WINDOW_MS
+                ) {
+                  return;
+                }
+              }
 
-            const targetStatus = await resolveTargetStatus(
-              task.projectId,
-              "issue_reopened",
-              "to-do",
-              db,
-            );
-
-            const statusResult = await updateTaskStatus(
-              task.id,
-              targetStatus,
-              db,
-            );
-            if (
-              statusResult.applied &&
-              statusResult.before.status !== statusResult.after.status
-            ) {
-              afterCommit(() =>
-                publishEvent("task.status_changed", {
-                  taskId: statusResult.after.id,
-                  projectId: statusResult.after.projectId,
-                  userId: null,
-                  oldStatus: statusResult.before.status,
-                  newStatus: statusResult.after.status,
-                  title: statusResult.after.title,
-                  assigneeId: statusResult.after.userId,
-                  type: "status_changed",
-                }),
+              const targetStatus = await resolveTargetStatus(
+                task.projectId,
+                "issue_reopened",
+                "to-do",
+                db,
               );
-            }
 
-            await updateExternalLink(
-              externalLink.id,
-              {
-                metadata: {
-                  ...existingMetadata,
-                  state: "open",
-                  lastSync: {
-                    ...existingMetadata.lastSync,
-                    state: inboundStamp(
-                      existingMetadata.lastSync?.state,
-                      "open",
-                      "gitea",
-                    ),
+              const statusResult = await updateTaskStatus(
+                task.id,
+                targetStatus,
+                db,
+              );
+              if (
+                statusResult.applied &&
+                statusResult.before.status !== statusResult.after.status
+              ) {
+                afterCommit(() =>
+                  publishEvent("task.status_changed", {
+                    taskId: statusResult.after.id,
+                    projectId: statusResult.after.projectId,
+                    userId: null,
+                    oldStatus: statusResult.before.status,
+                    newStatus: statusResult.after.status,
+                    title: statusResult.after.title,
+                    assigneeId: statusResult.after.userId,
+                    type: "status_changed",
+                  }),
+                );
+              }
+
+              await updateExternalLink(
+                externalLink.id,
+                {
+                  metadata: {
+                    ...existingMetadata,
+                    state: "open",
+                    lastSync: {
+                      ...existingMetadata.lastSync,
+                      state: inboundStamp(
+                        existingMetadata.lastSync?.state,
+                        "open",
+                        "gitea",
+                      ),
+                    },
                   },
                 },
-              },
-              db,
-            );
-          },
-        ),
+                db,
+              );
+            },
+          ),
+        () => deferIssueEdit(externalLink, integration, ["state"]),
       );
     } catch (error) {
       if (error instanceof PendingResponseTimeout) throw error;

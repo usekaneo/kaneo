@@ -15,6 +15,7 @@ export function withIntegrationLink<T>(
     afterCommit: (effect: () => Promise<void>) => void,
     lockedLink: typeof externalLinkTable.$inferSelect,
   ) => Promise<T>,
+  expectedBinding?: { config: string; type: string },
 ) {
   return withIntegrationTask(
     link.taskId,
@@ -53,5 +54,6 @@ export function withIntegrationLink<T>(
         return error;
       }
     },
+    expectedBinding,
   );
 }

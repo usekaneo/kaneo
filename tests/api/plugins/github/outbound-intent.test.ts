@@ -329,3 +329,31 @@ it("bounds abandoned intent polling and reports an unacknowledged delivery", asy
   expect(attempts).toBeLessThanOrEqual(11);
   vi.useRealTimers();
 });
+
+it.each([false, true])(
+  "acknowledges an abandoned writer only after durable deferral (persistFailure=%s)",
+  async (persistFailure) => {
+    vi.useFakeTimers();
+    m.stamps.title = outboundStamp(undefined, "A", undefined, {
+      intentId: "orphan",
+      pending: true,
+    });
+    const defer = vi.fn(async () => {
+      if (persistFailure) throw new Error("database unavailable");
+    });
+    const run = withEchoConfirmation(
+      async () => "A",
+      async () => inboundEcho(m.stamps.title, "A", "version"),
+      defer,
+    );
+    const result = persistFailure
+      ? expect(run).rejects.toThrow(
+          "Could not persist deferred webhook delivery",
+        )
+      : expect(run).resolves.toBeUndefined();
+    await vi.advanceTimersByTimeAsync(5000);
+    await result;
+    expect(defer).toHaveBeenCalledOnce();
+    vi.useRealTimers();
+  },
+);

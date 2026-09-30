@@ -1,3 +1,5 @@
+import type { IntegrationDatabase } from "./integration-task-scope";
+import type { IssueField } from "../utils/deferred-issue-edit";
 import { publishEvent } from "../../../events";
 import { taskTable } from "../../../database/schema";
 import { resolveTargetStatus as resolveGiteaStatus } from "../../gitea/utils/resolve-column";
@@ -41,37 +43,14 @@ export async function applyObservedTaskValue(
         )
       )
         return;
-      if (field === "state") {
-        const resolveStatus =
-          integration.type === "gitea"
-            ? resolveGiteaStatus
-            : resolveGithubStatus;
-        const status = await resolveStatus(
-          integration.projectId,
-          value === "closed" ? "issue_closed" : "issue_reopened",
-          value === "closed" ? "done" : "to-do",
-          tx,
-        );
-        const result = await updateTaskStatus(link.taskId, status, tx);
-        if (result.applied && result.before.status !== result.after.status)
-          afterCommit(() =>
-            publishEvent("task.status_changed", {
-              taskId: result.after.id,
-              projectId: result.after.projectId,
-              userId: null,
-              oldStatus: result.before.status,
-              newStatus: result.after.status,
-              title: result.after.title,
-              assigneeId: result.after.userId,
-              type: "status_changed",
-            }),
-          );
-      } else {
-        await tx
-          .update(taskTable)
-          .set({ [field]: value })
-          .where(linkedTaskScope(link.taskId, integration.projectId));
-      }
+      await writeInboundTaskField(
+        tx,
+        afterCommit,
+        link,
+        integration,
+        field,
+        value,
+      );
       await updateExternalLink(
         link.id,
         {
@@ -94,4 +73,43 @@ export async function applyObservedTaskValue(
       );
     },
   );
+}
+
+export async function writeInboundTaskField(
+  tx: IntegrationDatabase,
+  afterCommit: (effect: () => Promise<void>) => void,
+  link: { taskId: string },
+  integration: { projectId: string; type: string },
+  field: IssueField,
+  value: string,
+) {
+  if (field === "state") {
+    const resolveStatus =
+      integration.type === "gitea" ? resolveGiteaStatus : resolveGithubStatus;
+    const status = await resolveStatus(
+      integration.projectId,
+      value === "closed" ? "issue_closed" : "issue_reopened",
+      value === "closed" ? "done" : "to-do",
+      tx,
+    );
+    const result = await updateTaskStatus(link.taskId, status, tx);
+    if (result.applied && result.before.status !== result.after.status)
+      afterCommit(() =>
+        publishEvent("task.status_changed", {
+          taskId: result.after.id,
+          projectId: result.after.projectId,
+          userId: null,
+          oldStatus: result.before.status,
+          newStatus: result.after.status,
+          title: result.after.title,
+          assigneeId: result.after.userId,
+          type: "status_changed",
+        }),
+      );
+  } else {
+    await tx
+      .update(taskTable)
+      .set({ [field]: value })
+      .where(linkedTaskScope(link.taskId, integration.projectId));
+  }
 }

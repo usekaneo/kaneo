@@ -1,3 +1,4 @@
+import { replayDeferredIssueEdits } from "../plugins/github/services/deferred-issue-edits";
 import * as Sentry from "@sentry/node";
 import { Cron } from "croner";
 import { checkDueDateReminders } from "./due-date-reminders";
@@ -47,6 +48,12 @@ function withCheckIn<T>(name: string, fn: () => Promise<T>) {
 export function initializeScheduler(): void {
   jobs.push(
     new Cron(
+      "* * * * *",
+      withCheckIn("deferred-issue-edits", replayDeferredIssueEdits),
+    ),
+  );
+  jobs.push(
+    new Cron(
       "*/5 * * * *",
       withCheckIn("due-date-reminders", checkDueDateReminders),
     ),
@@ -67,7 +74,7 @@ export function initializeScheduler(): void {
     new Cron("23 * * * *", withCheckIn("trial-reminders", checkTrialReminders)),
   );
   console.log(
-    "⏰ Scheduler started (reminders every 5 minutes, seat reconciliation and trial reminders hourly)",
+    "⏰ Scheduler started (deferred integration edits every minute, reminders every 5 minutes, seat reconciliation and trial reminders hourly)",
   );
 }
 

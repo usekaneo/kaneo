@@ -1,3 +1,4 @@
+import { deferIssueEdit } from "../../github/services/deferred-issue-edits";
 import { inboundStamp } from "../../github/utils/sync-echo";
 import { publishEvent } from "../../../events";
 import { withIntegrationLink } from "../../github/services/with-integration-link";
@@ -84,121 +85,131 @@ export async function handleGiteaIssueEdited(
         return issue;
       }
     };
-    await withEchoConfirmation(readCurrent, (current) =>
-      withIntegrationLink(
-        externalLink,
-        integration,
-        async (db, afterCommit, externalLink) => {
-          const task = await db.query.taskTable.findFirst({
-            where: linkedTaskScope(externalLink.taskId, integration.projectId),
-          });
+    await withEchoConfirmation(
+      readCurrent,
+      (current) =>
+        withIntegrationLink(
+          externalLink,
+          integration,
+          async (db, afterCommit, externalLink) => {
+            const task = await db.query.taskTable.findFirst({
+              where: linkedTaskScope(
+                externalLink.taskId,
+                integration.projectId,
+              ),
+            });
 
-          if (!task) {
-            return;
-          }
-          const metadata = externalLink.metadata
-            ? JSON.parse(externalLink.metadata)
-            : {};
+            if (!task) {
+              return;
+            }
+            const metadata = externalLink.metadata
+              ? JSON.parse(externalLink.metadata)
+              : {};
 
-          const updateData: Record<string, unknown> = {};
-          const updatedMetadata = { ...metadata };
+            const updateData: Record<string, unknown> = {};
+            const updatedMetadata = { ...metadata };
 
-          if (!updatedMetadata.lastSync) {
-            updatedMetadata.lastSync = {};
-          }
+            if (!updatedMetadata.lastSync) {
+              updatedMetadata.lastSync = {};
+            }
 
-          if (changes.title) {
-            const lastTitleSync = metadata.lastSync?.title;
+            if (changes.title) {
+              const lastTitleSync = metadata.lastSync?.title;
 
-            let shouldUpdateTitle = true;
+              let shouldUpdateTitle = true;
 
-            if (lastTitleSync) {
-              if (
-                inboundEcho(
-                  lastTitleSync,
+              if (lastTitleSync) {
+                if (
+                  inboundEcho(
+                    lastTitleSync,
+                    issue.title,
+                    issue.updated_at,
+                    current?.title,
+                    { linkId: externalLink.id, field: "title" },
+                  )
+                ) {
+                  shouldUpdateTitle = false;
+                }
+              }
+
+              if (shouldUpdateTitle) {
+                updateData.title = issue.title;
+                updatedMetadata.lastSync.title = inboundStamp(
+                  metadata.lastSync?.title,
                   issue.title,
-                  issue.updated_at,
-                  current?.title,
-                  { linkId: externalLink.id, field: "title" },
-                )
-              ) {
-                shouldUpdateTitle = false;
+                  "gitea",
+                );
               }
             }
 
-            if (shouldUpdateTitle) {
-              updateData.title = issue.title;
-              updatedMetadata.lastSync.title = inboundStamp(
-                metadata.lastSync?.title,
-                issue.title,
-                "gitea",
+            if (changes.body) {
+              const lastDescSync = metadata.lastSync?.description;
+              const formattedDescription = formatTaskDescriptionFromIssue(
+                issue.body,
+                externalLink.taskId,
               );
-            }
-          }
 
-          if (changes.body) {
-            const lastDescSync = metadata.lastSync?.description;
-            const formattedDescription = formatTaskDescriptionFromIssue(
-              issue.body,
-              externalLink.taskId,
-            );
+              let shouldUpdateDescription = true;
 
-            let shouldUpdateDescription = true;
+              if (lastDescSync) {
+                if (
+                  inboundEcho(
+                    lastDescSync,
+                    formattedDescription,
+                    issue.updated_at,
+                    current
+                      ? formatTaskDescriptionFromIssue(
+                          current.body ?? null,
+                          task.id,
+                        )
+                      : undefined,
+                    { linkId: externalLink.id, field: "description" },
+                  )
+                ) {
+                  shouldUpdateDescription = false;
+                }
+              }
 
-            if (lastDescSync) {
-              if (
-                inboundEcho(
-                  lastDescSync,
+              if (shouldUpdateDescription) {
+                updateData.description = formattedDescription;
+                updatedMetadata.lastSync.description = inboundStamp(
+                  metadata.lastSync?.description,
                   formattedDescription,
-                  issue.updated_at,
-                  current
-                    ? formatTaskDescriptionFromIssue(
-                        current.body ?? null,
-                        task.id,
-                      )
-                    : undefined,
-                  { linkId: externalLink.id, field: "description" },
-                )
-              ) {
-                shouldUpdateDescription = false;
+                  "gitea",
+                );
               }
             }
 
-            if (shouldUpdateDescription) {
-              updateData.description = formattedDescription;
-              updatedMetadata.lastSync.description = inboundStamp(
-                metadata.lastSync?.description,
-                formattedDescription,
-                "gitea",
+            if (Object.keys(updateData).length > 0) {
+              await db
+                .update(taskTable)
+                .set(updateData)
+                .where(linkedTaskScope(task.id, integration.projectId));
+
+              await updateExternalLink(
+                externalLink.id,
+                {
+                  title: issue.title,
+                  metadata: updatedMetadata,
+                },
+                db,
+              );
+              afterCommit(() =>
+                publishEvent("task.updated", {
+                  projectId: integration.projectId,
+                  taskId: externalLink.taskId,
+                }),
               );
             }
-          }
 
-          if (Object.keys(updateData).length > 0) {
-            await db
-              .update(taskTable)
-              .set(updateData)
-              .where(linkedTaskScope(task.id, integration.projectId));
-
-            await updateExternalLink(
-              externalLink.id,
-              {
-                title: issue.title,
-                metadata: updatedMetadata,
-              },
-              db,
-            );
-            afterCommit(() =>
-              publishEvent("task.updated", {
-                projectId: integration.projectId,
-                taskId: externalLink.taskId,
-              }),
-            );
-          }
-
-          return;
-        },
-      ),
+            return;
+          },
+        ),
+      () =>
+        deferIssueEdit(externalLink, integration, [
+          ...(changes.title ? ["title" as const] : []),
+          ...(changes.body ? ["description" as const] : []),
+        ]),
     );
   }
 }

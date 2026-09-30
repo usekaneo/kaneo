@@ -1,3 +1,8 @@
+import { randomUUID } from "node:crypto";
+import {
+  parseDeferredIssueEdit,
+  type IssueField,
+} from "../utils/deferred-issue-edit";
 import { mergeSyncMetadata } from "../utils/merge-sync-metadata";
 import { parseLinkMetadata } from "../utils/parse-link-metadata";
 import { outboundStamp, type SyncStamp } from "../utils/sync-echo";
@@ -24,6 +29,8 @@ export type CreateExternalLinkParams = {
 };
 
 export type UpdateExternalLinkParams = {
+  deferredEdit?: { fields: IssueField[]; scope: string };
+  completeDeferredEdit?: string;
   outbound?: {
     field: "title" | "description" | "state";
     value: string;
@@ -133,7 +140,13 @@ export async function updateExternalLink(
   params: UpdateExternalLinkParams,
   database: DbOrTx = db,
 ) {
-  if (params.outbound || params.metadata || params.observedOutbound) {
+  if (
+    params.outbound ||
+    params.metadata ||
+    params.observedOutbound ||
+    params.deferredEdit ||
+    params.completeDeferredEdit
+  ) {
     await database.transaction(async (tx) => {
       const link = await lockExternalLink(id, tx);
       if (!link) return;
@@ -141,6 +154,26 @@ export async function updateExternalLink(
         Record<string, unknown> & { lastSync?: Record<string, SyncStamp> }
       >(link.metadata, { externalLinkId: id, source: "sync_update" });
       const merged = mergeSyncMetadata(metadata, params.metadata ?? {});
+      // Ordinary sync metadata cannot resurrect or clear a scheduler job.
+      delete merged.deferredIssueEdit;
+      if (metadata.deferredIssueEdit)
+        merged.deferredIssueEdit = metadata.deferredIssueEdit;
+      const previousJob = parseDeferredIssueEdit(metadata.deferredIssueEdit);
+      if (params.completeDeferredEdit === previousJob?.id)
+        delete merged.deferredIssueEdit;
+      if (params.deferredEdit) {
+        const { fields, scope } = params.deferredEdit;
+        merged.deferredIssueEdit = {
+          id: randomUUID(),
+          scope,
+          fields: [
+            ...new Set([
+              ...(previousJob?.scope === scope ? previousJob.fields : []),
+              ...fields,
+            ]),
+          ],
+        };
+      }
       if (params.observedOutbound) {
         const { field, intentId, updatedAt } = params.observedOutbound;
         const stamp = merged.lastSync?.[field];
