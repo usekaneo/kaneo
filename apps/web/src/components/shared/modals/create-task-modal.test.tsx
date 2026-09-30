@@ -45,7 +45,11 @@ const setProject = vi.fn();
 let workspaceId = "workspace-1";
 let projects: { id: string; name: string; slug: string }[] | undefined;
 let storedProject: { id: string; columns: unknown[] } | null = null;
-let ensureTaskId: (() => Promise<string | null>) | undefined;
+let uploadAsset: ((file: File) => Promise<unknown>) | undefined;
+const stageUpload = vi.fn();
+vi.mock("@/lib/upload-draft-asset", () => ({
+  uploadDraftAsset: (...args: unknown[]) => stageUpload(...args),
+}));
 
 beforeEach(() => {
   workspaceId = "workspace-1";
@@ -85,10 +89,17 @@ vi.mock("@tanstack/react-router", () => ({
 vi.mock("@/components/task/task-description-editor", () => ({
   default: (props: {
     taskId?: string;
-    ensureTaskId: () => Promise<string | null>;
+    uploadAsset: (file: File) => Promise<unknown>;
+    onChange: (value: string) => void;
   }) => {
-    ensureTaskId = props.ensureTaskId;
-    return <div data-testid="description-editor" data-task-id={props.taskId} />;
+    uploadAsset = props.uploadAsset;
+    return (
+      <textarea
+        data-testid="description-editor"
+        data-task-id={props.taskId}
+        onChange={(event) => props.onChange(event.target.value)}
+      />
+    );
   },
 }));
 
@@ -302,24 +313,6 @@ function submit() {
   fireEvent.submit(document.querySelector("form") as HTMLFormElement);
 }
 
-function pendingCreate() {
-  let resolve!: (task: never) => void;
-  createTask.mockImplementationOnce(
-    () =>
-      new Promise((done) => {
-        resolve = done;
-      }),
-  );
-  return () =>
-    resolve({
-      id: "old-draft",
-      title: "Draft",
-      status: "planned",
-      projectId: "project-2",
-      createdAt: "2026-08-05T00:00:00.000Z",
-    } as never);
-}
-
 describe("CreateTaskModal context isolation", () => {
   it("never falls back to the last globally visited project", () => {
     storedProject = { id: "foreign-project", columns: [] };
@@ -396,81 +389,82 @@ describe("CreateTaskModal context isolation", () => {
       });
       enterTitle();
       submit();
-      await expect(ensureTaskId?.()).resolves.toBeNull();
+      await expect(uploadAsset?.(new File(["x"], "x.png"))).rejects.toThrow();
       expect(createTask).not.toHaveBeenCalled();
     },
   );
 
-  it("deletes a late draft after navigation without handing its ID to an upload", async () => {
-    const finish = pendingCreate();
-    const view = render(<CreateTaskModal open onClose={vi.fn()} />, {
-      wrapper: createWrapper(),
+  it("stages attachments without creating a task and claims them only on submit", async () => {
+    stageUpload.mockResolvedValue({
+      id: "staged-1",
+      url: "/asset/staged-1",
+      kind: "image",
     });
-    await chooseBeta();
-    let pending!: Promise<string | null>;
-    act(() => {
-      pending = ensureTaskId?.() as Promise<string | null>;
-    });
-    workspaceId = "workspace-2";
-    useLocation.mockReturnValue({
-      pathname: "/dashboard/workspace/workspace-2",
-    });
-    view.rerender(<CreateTaskModal open onClose={vi.fn()} />);
-    await act(async () => {
-      finish();
-      await pending;
-    });
-    await expect(pending).resolves.toBeNull();
-    expect(deleteTask).toHaveBeenCalledExactlyOnceWith("old-draft");
-    expect(screen.getByTestId("description-editor")).not.toHaveAttribute(
-      "data-task-id",
-    );
-    expect(updateTask).not.toHaveBeenCalled();
-    expect(setProject).not.toHaveBeenCalled();
-  });
-
-  it("waits for the upload draft on submit and saves that task only once", async () => {
-    const finish = pendingCreate();
     render(<CreateTaskModal open onClose={vi.fn()} />, {
       wrapper: createWrapper(),
     });
     await chooseBeta();
     enterTitle();
-    let pending!: Promise<string | null>;
-    act(() => {
-      pending = ensureTaskId?.() as Promise<string | null>;
-    });
-    submit();
-    submit();
-    expect(updateTask).not.toHaveBeenCalled();
     await act(async () => {
-      finish();
-      await pending;
+      await uploadAsset?.(new File(["x"], "x.png"));
     });
-    await vi.waitFor(() =>
-      expect(updateTask).toHaveBeenCalledExactlyOnceWith(
-        expect.objectContaining({
-          id: "old-draft",
-          projectId: "project-2",
-          title: "Private task",
-        }),
-      ),
+    expect(createTask).not.toHaveBeenCalled();
+    expect(updateTask).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByTestId("description-editor"), {
+      target: { value: "![image](/asset/staged-1)" },
+    });
+    submit();
+    await vi.waitFor(() => expect(createTask).toHaveBeenCalledOnce());
+    expect(createTask).toHaveBeenCalledWith(
+      expect.objectContaining({
+        draftAssetIds: ["staged-1"],
+        projectId: "project-2",
+      }),
     );
-    expect(createTask).toHaveBeenCalledTimes(1);
-    expect(deleteTask).not.toHaveBeenCalled();
   });
 
-  it("discards an existing draft on close and never puts it into another project's store", async () => {
-    storedProject = { id: "project-1", columns: [] };
+  it("does not submit while attachments are uploading", async () => {
+    let finish!: (value: unknown) => void;
+    stageUpload.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    );
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    enterTitle();
+    let pending!: Promise<unknown>;
+    act(() => {
+      pending = uploadAsset!(new File(["x"], "x.png"));
+    });
+    expect(
+      screen.getByText("activity:comment.editor.uploadingFile"),
+    ).toBeDisabled();
+    submit();
+    expect(createTask).not.toHaveBeenCalled();
+    await act(async () => {
+      finish({ id: "staged-2" });
+      await pending;
+    });
+    submit();
+    await vi.waitFor(() => expect(createTask).toHaveBeenCalledOnce());
+  });
+
+  it("closing after an upload creates no published task or deletion side effect", async () => {
+    stageUpload.mockResolvedValue({ id: "staged-1" });
     const view = render(<CreateTaskModal open onClose={vi.fn()} />, {
       wrapper: createWrapper(),
     });
     await chooseBeta();
     await act(async () => {
-      await ensureTaskId?.();
+      await uploadAsset?.(new File(["x"], "x.png"));
     });
     view.rerender(<CreateTaskModal open={false} onClose={vi.fn()} />);
-    expect(deleteTask).toHaveBeenCalledExactlyOnceWith("task-1");
+    expect(createTask).not.toHaveBeenCalled();
+    expect(deleteTask).not.toHaveBeenCalled();
     expect(setProject).not.toHaveBeenCalled();
   });
 });

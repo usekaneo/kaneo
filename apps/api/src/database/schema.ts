@@ -335,6 +335,9 @@ export const projectTable = pgTable(
     backgroundVersion: text("background_version"),
   },
   (table) => [
+    index("project_background_object_key_idx")
+      .on(table.backgroundObjectKey)
+      .where(sql`${table.backgroundObjectKey} is not null`),
     unique("project_workspace_id_id_unique").on(table.workspaceId, table.id),
     index("project_workspaceId_position_idx").on(
       table.workspaceId,
@@ -651,6 +654,11 @@ export const assetTable = pgTable(
     index("asset_taskId_idx").on(table.taskId),
     index("asset_activityId_idx").on(table.activityId),
     index("asset_createdBy_idx").on(table.createdBy),
+    index("asset_draft_expiry_idx")
+      .on(table.createdAt, table.id)
+      .where(
+        sql`${table.taskId} is null and ${table.surface} in ('draft', 'draft-pending')`,
+      ),
   ],
 );
 
@@ -1290,3 +1298,17 @@ export const customFieldValueTable = pgTable(
     ),
   ],
 );
+
+// These records outlive their original owner so failed object deletion can retry.
+export const storageCleanupTable = pgTable("storage_cleanup", {
+  objectKey: text("object_key").primaryKey(),
+  lastAttemptAt: timestamp("last_attempt_at", { mode: "date" }),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const dataMigrationTable = pgTable("data_migration", {
+  id: text("id").primaryKey(),
+  completedAt: timestamp("completed_at", { mode: "date" })
+    .defaultNow()
+    .notNull(),
+});

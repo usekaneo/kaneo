@@ -73,6 +73,7 @@ export const createTaskBody = z.object({
   priority,
   status: z.string().openapi({ description: "The target column's slug." }),
   userId: z.string().optional().openapi({ description: "Assignee, if any." }),
+  draftAssetIds: z.array(z.string()).max(100).optional(),
   customFields: z
     .array(z.object({ fieldId: z.string(), value: z.string() }))
     .optional(),
@@ -157,6 +158,13 @@ export const descriptionMatchesQuery = z.object({
 });
 
 export const duplicateTaskBody = z.object({ title: z.string().optional() });
+
+export const stagedImageUploadBody = imageUploadBody.extend({
+  surface: z.literal("description"),
+});
+export const finalizeStagedImageUploadBody = finalizeImageUploadBody.extend({
+  surface: z.literal("description"),
+});
 
 export const reorderTasksBody = z.object({
   projectId: z.string(),

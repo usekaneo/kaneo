@@ -2294,7 +2294,11 @@
 					"reset": "Reset size",
 					"resizeHandle": "Resize image",
 					"small": "Small"
-				}
+				},
+				"saved": "Gespeichert",
+				"saving": "Wird gespeichert…",
+				"saveFailed": "Speichern fehlgeschlagen",
+				"retrySave": "Erneut speichern"
 			},
 			"customFieldUpdated": "Field updated",
 			"selectOption": "Select option"
