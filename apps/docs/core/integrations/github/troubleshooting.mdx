@@ -55,7 +55,7 @@ Then check:
 1. The app can read pull requests and repository contents.
 2. Push and pull-request events are subscribed and arriving.
 3. **Workflow → Automation Rules** maps the event to the intended column.
-4. The task is eligible for the transition. Completed tasks are protected from automatic reopening by the integration.
+4. The task is eligible for the transition. A completed task only moves for new work: a branch or pull request that is not yet linked to it.
 
 Try one branch push and inspect its webhook delivery before testing another event.
 

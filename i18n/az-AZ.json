@@ -2340,6 +2340,8 @@
 			"labels": "Etiketlər",
 			"copyTaskLink": "Tapşırığın keçidini kopyala",
 			"copyTaskBranch": "Tapşırığın budağını kopyala",
+			"taskLinkCopied": "Tapşırıq keçidi kopyalandı",
+			"taskBranchCopied": "Branch adı kopyalandı",
 			"start": "Başlat",
 			"startDate": "Başlama tarixi",
 			"noDate": "Tarix yoxdur"

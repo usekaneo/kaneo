@@ -120,6 +120,33 @@ describe("MCP 2026-07-28 stateless HTTP", () => {
     ).toBe(true);
   });
 
+  it("gets one task by ticket ID through the HTTP MCP server", async () => {
+    const apiFetch = vi.fn(async (input: RequestInfo | URL) => {
+      expect(String(input)).toBe(
+        "http://api.test/api/task/by-ticket-id/KAN-12?workspaceId=workspace+1&projectId=project+1",
+      );
+      return Response.json({ id: "task-1", title: "Direct match" });
+    });
+    vi.stubGlobal("fetch", apiFetch);
+    const handler = createModernMcpHandler("test-token", "http://api.test");
+
+    const response = await handler.fetch(
+      modernRequest("tools/call", 1, {
+        name: "get_task_by_ticket_id",
+        arguments: {
+          ticketId: "KAN-12",
+          workspaceId: "workspace 1",
+          projectId: "project 1",
+        },
+      }),
+    );
+    const body = await rpcBody(response);
+
+    expect(response.status).toBe(200);
+    expect(body.result.content[0].text).toContain("Direct match");
+    expect(apiFetch).toHaveBeenCalledTimes(1);
+  });
+
   it("validates bearer authentication on every modern POST", async () => {
     const responses = await Promise.all(
       [1, 2].map((id) =>

@@ -1,4 +1,4 @@
-import db from "../../../database";
+import { withIntegrationLink } from "../../github/services/with-integration-link";
 import { activityTable } from "../../../database/schema";
 import { findExternalLink } from "../../github/services/link-manager";
 import { findAllIntegrationsByGitlabProject } from "../services/integration-lookup";
@@ -67,30 +67,36 @@ export async function handleGitlabNoteCreated(
       continue;
     }
 
-    if (syncedNoteIds(externalLink.metadata).includes(note.id)) {
-      continue;
-    }
+    await withIntegrationLink(
+      externalLink,
+      integration,
+      async (db, _afterCommit, externalLink) => {
+        if (syncedNoteIds(externalLink.metadata).includes(note.id)) {
+          return;
+        }
 
-    await db
-      .insert(activityTable)
-      .values({
-        taskId: externalLink.taskId,
-        type: "comment",
-        content: note.note,
-        externalUserName: username || "Unknown",
-        externalUserAvatar: payload.user?.avatar_url ?? null,
-        externalSource: "gitlab",
-        externalUrl: note.url,
-        eventData: {
-          externalCommentId: note.id,
-        },
-      })
-      .onConflictDoNothing({
-        target: [
-          activityTable.taskId,
-          activityTable.externalSource,
-          activityTable.externalUrl,
-        ],
-      });
+        await db
+          .insert(activityTable)
+          .values({
+            taskId: externalLink.taskId,
+            type: "comment",
+            content: note.note,
+            externalUserName: username || "Unknown",
+            externalUserAvatar: payload.user?.avatar_url ?? null,
+            externalSource: "gitlab",
+            externalUrl: note.url,
+            eventData: {
+              externalCommentId: note.id,
+            },
+          })
+          .onConflictDoNothing({
+            target: [
+              activityTable.taskId,
+              activityTable.externalSource,
+              activityTable.externalUrl,
+            ],
+          });
+      },
+    );
   }
 }
