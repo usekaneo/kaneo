@@ -219,3 +219,43 @@ describe("complete board loading through bounded pages", () => {
     expect(result.columns[1].tasks[0].id).toBe("late");
   });
 });
+
+it("keeps progress cloning linear across large task and related-page loads", async () => {
+  const snapshots: ProjectWithTasks[] = [];
+  const pages = 128;
+  const relatedPages = 8;
+  const result = await loadBoardPages(
+    async (number, related = 1) => {
+      const next = page(number, pages);
+      next.data.columns[0].tasks[0].labels = [
+        { id: `label-${number}-${related}`, name: "Label", color: "red" },
+      ];
+      return {
+        ...next,
+        pagination: { ...next.pagination, relatedTotalPages: relatedPages },
+      };
+    },
+    undefined,
+    (snapshot) => snapshots.push(snapshot),
+  );
+  const weight = (snapshot: ProjectWithTasks) =>
+    [
+      ...snapshot.columns.flatMap((column) => column.tasks),
+      ...snapshot.plannedTasks,
+      ...snapshot.archivedTasks,
+    ].reduce(
+      (count, task) =>
+        count +
+        1 +
+        (task.labels?.length ?? 0) +
+        (task.externalLinks?.length ?? 0),
+      0,
+    );
+  expect(snapshots.length).toBeLessThan(16);
+  expect(
+    snapshots.reduce((count, snapshot) => count + weight(snapshot), 0),
+  ).toBeLessThan(weight(result) * 4);
+  expect(snapshots[0].columns[0].tasks).toHaveLength(1);
+  expect(snapshots.at(-1)?.columns[0].tasks).toHaveLength(pages);
+  expect(result.columns[0].tasks.at(-1)?.labels).toHaveLength(relatedPages);
+});
