@@ -9178,6 +9178,16 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "Task or project moved concurrently; retry the move",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }

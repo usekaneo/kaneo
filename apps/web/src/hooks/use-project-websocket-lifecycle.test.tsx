@@ -132,6 +132,22 @@ describe("project WebSocket lifecycle", () => {
     }
   });
 
+  it("refreshes task resources after a task move", () => {
+    renderHook(() => useProjectWebSocket("project-a"));
+    act(() =>
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({
+          type: "TASK_MOVED",
+          projectId: "project-a",
+          taskId: "task-a",
+        }),
+      }),
+    );
+    expect(client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["external-links", "task-a"],
+    });
+  });
+
   it("preserves bounded exponential reconnects and active message invalidation", () => {
     const { unmount } = renderHook(() => useProjectWebSocket("project-a"));
     for (let retry = 0; retry < 5; retry++) {

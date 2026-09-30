@@ -2329,6 +2329,8 @@
 			"labels": "라벨",
 			"copyTaskLink": "작업 링크 복사",
 			"copyTaskBranch": "작업 브랜치 복사",
+			"taskLinkCopied": "작업 링크를 복사했습니다",
+			"taskBranchCopied": "브랜치 이름을 복사했습니다",
 			"start": "시작",
 			"startDate": "시작일",
 			"noDate": "날짜 없음"

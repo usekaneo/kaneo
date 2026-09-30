@@ -2340,6 +2340,8 @@
 			"labels": "लेबल",
 			"copyTaskLink": "कार्य लिंक कॉपी करें",
 			"copyTaskBranch": "कार्य शाखा कॉपी करें",
+			"taskLinkCopied": "कार्य का लिंक कॉपी किया गया",
+			"taskBranchCopied": "ब्रांच का नाम कॉपी किया गया",
 			"start": "शुरू",
 			"startDate": "शुरू की तारीख",
 			"noDate": "कोई तारीख नहीं"
