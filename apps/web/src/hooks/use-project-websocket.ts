@@ -175,6 +175,7 @@ export function useProjectWebSocket(projectId: string) {
               ["tasks", projectId],
               ["task"],
               ["task-relations"],
+              ["external-links"],
             ]) {
               queryClient.invalidateQueries({ queryKey });
             }

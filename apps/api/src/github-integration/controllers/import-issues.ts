@@ -2,6 +2,7 @@ import { createId } from "@paralleldrive/cuid2";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
+import { publishEvent } from "../../events";
 import {
   activityTable,
   columnTable,
@@ -173,6 +174,17 @@ export async function importIssues(projectId: string, runId?: string) {
       }
       const currentRun: typeof githubImportTable.$inferSelect = run;
       run = await db.transaction(async (tx) => {
+        const [currentProject] = await tx
+          .select()
+          .from(projectTable)
+          .where(
+            and(
+              eq(projectTable.id, project.id),
+              eq(projectTable.workspaceId, project.workspaceId),
+            ),
+          )
+          .for("key share");
+        if (!currentProject) throw conflict();
         // Serialize against integration changes and webhook issue creation. No
         // provider request is made while this transaction holds row locks.
         const [currentIntegration] = await tx
@@ -201,6 +213,9 @@ export async function importIssues(projectId: string, runId?: string) {
         if (!saved) throw conflict();
         return saved;
       });
+      // Each bounded page is durable before other clients refresh, including
+      // continuation pages that change labels, comments or linked resources.
+      await publishEvent("project.updated", { projectId });
     }
     return importProgress(run.runId, run.state);
   });
@@ -305,13 +320,29 @@ async function applyPage(
   }
   const current = state.currentIssue;
   if (!current) throw new Error("Import continuation missing");
-  const task = await tx.query.taskTable.findFirst({
-    where: and(
-      eq(taskTable.id, current.taskId),
-      eq(taskTable.projectId, project.id),
-    ),
-  });
-  if (!task) {
+  const [task] = await tx
+    .select()
+    .from(taskTable)
+    .where(
+      and(
+        eq(taskTable.id, current.taskId),
+        eq(taskTable.projectId, project.id),
+      ),
+    )
+    .for("no key update");
+  const [linked] = await tx
+    .select({ id: externalLinkTable.id })
+    .from(externalLinkTable)
+    .where(
+      and(
+        eq(externalLinkTable.integrationId, integrationId),
+        eq(externalLinkTable.resourceType, "issue"),
+        eq(externalLinkTable.externalId, String(current.number)),
+        eq(externalLinkTable.taskId, current.taskId),
+      ),
+    )
+    .for("update");
+  if (!task || !linked) {
     state.skipped++;
     finishIssue(state);
     return;
@@ -408,13 +439,20 @@ async function importIssue(
   const priority = extractIssuePriority(issue.labels.nodes);
   const status = extractIssueStatus(issue.labels.nodes);
   if (link) {
-    const task = await tx.query.taskTable.findFirst({
-      where: and(
-        eq(taskTable.id, link.taskId),
-        eq(taskTable.projectId, projectId),
-      ),
-    });
+    const [task] = await tx
+      .select()
+      .from(taskTable)
+      .where(
+        and(eq(taskTable.id, link.taskId), eq(taskTable.projectId, projectId)),
+      )
+      .for("no key update");
     if (!task) return null;
+    const [linked] = await tx
+      .select({ id: externalLinkTable.id })
+      .from(externalLinkTable)
+      .where(eq(externalLinkTable.id, link.id))
+      .for("update");
+    if (!linked) return null;
     const [updated] = await tx
       .update(taskTable)
       .set({
@@ -540,6 +578,12 @@ async function linkPull(
     database: tx,
   });
   if (!task) return;
+  const [scopedTask] = await tx
+    .select({ id: taskTable.id })
+    .from(taskTable)
+    .where(and(eq(taskTable.id, task.id), eq(taskTable.projectId, project.id)))
+    .for("share");
+  if (!scopedTask) return;
   await tx.insert(externalLinkTable).values({
     taskId: task.id,
     integrationId,

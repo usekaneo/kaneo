@@ -2329,6 +2329,8 @@
 			"labels": "Label",
 			"copyTaskLink": "Salin tautan tugas",
 			"copyTaskBranch": "Salin branch tugas",
+			"taskLinkCopied": "Tautan tugas disalin",
+			"taskBranchCopied": "Nama branch disalin",
 			"start": "Mulai",
 			"startDate": "Tanggal mulai",
 			"noDate": "Tanpa tanggal"
