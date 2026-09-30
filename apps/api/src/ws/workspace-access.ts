@@ -1,31 +1,38 @@
 import { and, eq } from "drizzle-orm";
 import type { WSContext } from "hono/ws";
 import db from "../database";
-import { userTable, workspaceUserTable } from "../database/schema";
+import {
+  userTable,
+  workspaceTable,
+  workspaceUserTable,
+} from "../database/schema";
 import { hasInstanceAdminRole } from "../utils/instance-admin-role";
 
 export async function syncWorkspaceAccess(userId: string, ws: WSContext) {
   try {
-    const [[user], memberships] = await Promise.all([
-      db
-        .select({ role: userTable.role })
-        .from(userTable)
-        .where(eq(userTable.id, userId)),
-      db
-        .select({ workspaceId: workspaceUserTable.workspaceId })
-        .from(workspaceUserTable)
-        .where(eq(workspaceUserTable.userId, userId)),
-    ]);
+    const [user] = await db
+      .select({ role: userTable.role })
+      .from(userTable)
+      .where(eq(userTable.id, userId));
     if (!user) {
       ws.close(1008, "User access revoked");
       return;
     }
+    // Administrators need an existing-workspace snapshot too: an unrestricted
+    // marker cannot remove a workspace deleted while their socket was offline.
+    const workspaces = hasInstanceAdminRole(user.role)
+      ? await db
+          .select({ workspaceId: workspaceTable.id })
+          .from(workspaceTable)
+          .where(undefined)
+      : await db
+          .select({ workspaceId: workspaceUserTable.workspaceId })
+          .from(workspaceUserTable)
+          .where(eq(workspaceUserTable.userId, userId));
     ws.send(
       JSON.stringify({
         type: "WORKSPACE_ACCESS_SYNC",
-        workspaceIds: hasInstanceAdminRole(user.role)
-          ? null
-          : memberships.map((member) => member.workspaceId),
+        workspaceIds: workspaces.map((workspace) => workspace.workspaceId),
       }),
     );
   } catch (error) {

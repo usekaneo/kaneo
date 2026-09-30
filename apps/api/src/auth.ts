@@ -61,7 +61,10 @@ import { getDefaultCookieAttributes } from "./utils/get-default-cookie-attribute
 import { getInvitationEmailSubject } from "./utils/get-invitation-email-subject";
 import { getWorkspaceInvitationEmailCopy } from "./utils/get-workspace-invitation-email-copy";
 import { getGithubSsoOAuthCredentials } from "./utils/github-sso-env";
-import { hasInstanceAdminRole } from "./utils/instance-admin-role";
+import {
+  hasInstanceAdminRole,
+  instanceAdminRoleSql,
+} from "./utils/instance-admin-role";
 import {
   hasRegisteredUsers,
   promoteInitialAdministrator,
@@ -502,10 +505,15 @@ export const auth = betterAuth({
               .where(
                 eq(schema.workspaceUserTable.workspaceId, organization.id),
               );
-            deletedWorkspaceMembers.set(
-              ctx.context,
-              members.map((member) => member.userId),
-            );
+            const admins = await db
+              .select({ userId: schema.userTable.id })
+              .from(schema.userTable)
+              .where(instanceAdminRoleSql(schema.userTable.role));
+            deletedWorkspaceMembers.set(ctx.context, [
+              ...new Set(
+                [...members, ...admins].map((member) => member.userId),
+              ),
+            ]);
           }
         },
         afterDeleteOrganization: async ({ organization }, ctx) => {

@@ -1,19 +1,32 @@
 import { beforeEach, expect, it, vi } from "vite-plus/test";
+import { workspaceTable } from "../../../apps/api/src/database/schema";
 import type { WSContext } from "hono/ws";
 import {
   hasWorkspaceAccess,
   syncWorkspaceAccess,
 } from "../../../apps/api/src/ws/workspace-access";
-const m = vi.hoisted(() => ({ user: vi.fn(), memberships: vi.fn() }));
+const m = vi.hoisted(() => ({
+  user: vi.fn(),
+  memberships: vi.fn(),
+  workspaces: vi.fn(),
+}));
 vi.mock("../../../apps/api/src/database", () => ({
   default: {
     select: (fields: Record<string, unknown>) => ({
-      from: () => ({ where: () => (fields.role ? m.user() : m.memberships()) }),
+      from: (table: unknown) => ({
+        where: () =>
+          fields.role
+            ? m.user()
+            : table === workspaceTable
+              ? m.workspaces()
+              : m.memberships(),
+      }),
     }),
   },
 }));
 beforeEach(() => {
   m.user.mockResolvedValue([{ role: "user" }]);
+  m.workspaces.mockResolvedValue([{ workspaceId: "admin-accessible" }]);
   m.memberships.mockResolvedValue([{ workspaceId: "still-authorized" }]);
 });
 it("sends current workspace access when reconnecting after an offline removal", async () => {
@@ -26,11 +39,12 @@ it("sends current workspace access when reconnecting after an offline removal", 
 });
 it("preserves instance-admin access independently of memberships", async () => {
   m.user.mockResolvedValue([{ role: "user,admin" }]);
+  m.memberships.mockResolvedValue([]);
   const ws = { send: vi.fn(), close: vi.fn() };
   await syncWorkspaceAccess("user", ws as unknown as WSContext);
   expect(JSON.parse(ws.send.mock.calls[0][0])).toEqual({
     type: "WORKSPACE_ACCESS_SYNC",
-    workspaceIds: null,
+    workspaceIds: ["admin-accessible"],
   });
 });
 it("requires a reconnect if access synchronization fails", async () => {

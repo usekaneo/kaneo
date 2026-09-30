@@ -124,3 +124,21 @@ it("refetches an active board whose pending read has no workspace scope yet", as
   unsubscribe();
   client.clear();
 });
+
+it.each(["revocation", "snapshot"])(
+  "preserves nested workspace-scoped search keys during %s",
+  (kind) => {
+    const client = new QueryClient();
+    const allowedKey = ["search", { query: "task", workspaceId: "allowed" }];
+    const revokedKey = ["search", { query: "task", workspaceId: "revoked" }];
+    client.setQueryData(allowedKey, { results: ["allowed task"] });
+    client.setQueryData(revokedKey, { results: ["private task"] });
+    if (kind === "revocation") evictWorkspaceCache(client, "revoked");
+    else evictInaccessibleWorkspaceCache(client, ["allowed"]);
+    expect(client.getQueryData(allowedKey)).toEqual({
+      results: ["allowed task"],
+    });
+    expect(client.getQueryData(revokedKey)).toBeUndefined();
+    client.clear();
+  },
+);

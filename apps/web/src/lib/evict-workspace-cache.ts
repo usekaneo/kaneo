@@ -81,7 +81,7 @@ function evictPrivateQueries(
       )
         affected = true;
     });
-    const knownOtherWorkspace = query.queryKey.some(
+    let knownOtherWorkspace = query.queryKey.some(
       (value) =>
         typeof value === "string" &&
         scopes.has(value) &&
@@ -89,6 +89,26 @@ function evictPrivateQueries(
           ? allowed.has(scopes.get(value)!)
           : scopes.get(value) !== workspaceId),
     );
+    visit(query.queryKey, (record) => {
+      if (
+        typeof record.workspaceId === "string" &&
+        (allowed
+          ? allowed.has(record.workspaceId)
+          : record.workspaceId !== workspaceId)
+      )
+        knownOtherWorkspace = true;
+      if (
+        Object.values(record).some(
+          (value) =>
+            typeof value === "string" &&
+            scopes.has(value) &&
+            (allowed
+              ? allowed.has(scopes.get(value)!)
+              : scopes.get(value) !== workspaceId),
+        )
+      )
+        knownOtherWorkspace = true;
+    });
     const privatePrefixes = new Set([
       "github-repositories",
       "gitea-repositories",
