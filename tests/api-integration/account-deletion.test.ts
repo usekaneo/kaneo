@@ -60,6 +60,57 @@ describe("API integration: account deletion", () => {
     expect(workspaces).toHaveLength(0);
   });
 
+  it("revokes implicit administrators when deleting a sole-member workspace", async () => {
+    const owner = await createWorkspaceMember({ role: "owner" });
+    const admin = await createWorkspaceMember();
+    await db
+      .update(schema.userTable)
+      .set({ role: "user,admin" })
+      .where(eq(schema.userTable.id, admin.user.id));
+    const { project } = await createProjectFixture({
+      workspaceId: owner.workspace.id,
+    });
+    const board = { send: vi.fn(), close: vi.fn() };
+    const global = { send: vi.fn(), close: vi.fn() };
+    const projectConnection = addConnection(
+      project.id,
+      board as unknown as WSContext,
+      admin.user.id,
+      "window",
+      owner.workspace.id,
+    );
+    const userConnection = addUserConnection(
+      admin.user.id,
+      global as unknown as WSContext,
+    );
+    try {
+      await deleteAccountData(owner.user.id);
+      expect(board.close).toHaveBeenCalledWith(
+        1008,
+        "Workspace access revoked",
+      );
+      expect(
+        global.send.mock.calls.map(([message]) => JSON.parse(message)),
+      ).toContainEqual({
+        type: "WORKSPACE_ACCESS_REVOKED",
+        workspaceId: owner.workspace.id,
+      });
+      expect(
+        await db.query.workspaceTable.findFirst({
+          where: eq(schema.workspaceTable.id, owner.workspace.id),
+        }),
+      ).toBeUndefined();
+      expect(
+        await db.query.workspaceTable.findFirst({
+          where: eq(schema.workspaceTable.id, admin.workspace.id),
+        }),
+      ).toBeDefined();
+    } finally {
+      removeConnection(project.id, projectConnection);
+      removeUserConnection(admin.user.id, userConnection);
+    }
+  });
+
   it("refuses to delete while the account is the only owner of a shared workspace", async () => {
     const owner = await createWorkspaceMember({
       role: "owner",
