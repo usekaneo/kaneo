@@ -19,8 +19,12 @@ export type UpdateTaskStatusResult =
 
 const NON_COLUMN_STATUSES = new Set(["planned", "archived"]);
 
-export async function findTaskByNumber(projectId: string, taskNumber: number) {
-  return db.query.taskTable.findFirst({
+export async function findTaskByNumber(
+  projectId: string,
+  taskNumber: number,
+  database: Pick<typeof db, "query"> = db,
+) {
+  return database.query.taskTable.findFirst({
     where: and(
       eq(taskTable.projectId, projectId),
       eq(taskTable.number, taskNumber),
@@ -45,8 +49,11 @@ export async function findTaskByLink(
   });
 }
 
-export async function findTaskById(taskId: string) {
-  return db.query.taskTable.findFirst({
+export async function findTaskById(
+  taskId: string,
+  database: Pick<typeof db, "query"> = db,
+) {
+  return database.query.taskTable.findFirst({
     where: eq(taskTable.id, taskId),
   });
 }
@@ -97,13 +104,16 @@ export async function updateTaskStatus(
   return { applied: true, before: task, after };
 }
 
-export async function isTaskInFinalState(task: {
-  projectId: string;
-  status: string;
-  columnId: string | null;
-}): Promise<boolean> {
+export async function isTaskInFinalState(
+  task: {
+    projectId: string;
+    status: string;
+    columnId: string | null;
+  },
+  database: Pick<typeof db, "query"> = db,
+): Promise<boolean> {
   if (task.columnId) {
-    const columnById = await db.query.columnTable.findFirst({
+    const columnById = await database.query.columnTable.findFirst({
       where: and(
         eq(columnTable.id, task.columnId),
         eq(columnTable.projectId, task.projectId),
@@ -115,7 +125,7 @@ export async function isTaskInFinalState(task: {
     }
   }
 
-  const columnByStatus = await db.query.columnTable.findFirst({
+  const columnByStatus = await database.query.columnTable.findFirst({
     where: and(
       eq(columnTable.projectId, task.projectId),
       eq(columnTable.slug, task.status),

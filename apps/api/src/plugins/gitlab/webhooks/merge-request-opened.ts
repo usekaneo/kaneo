@@ -1,3 +1,8 @@
+import { withIntegrationLink } from "../../github/services/with-integration-link";
+import {
+  withIntegrationTask,
+  type IntegrationDatabase,
+} from "../../github/services/integration-task-scope";
 import { publishEvent } from "../../../events";
 import {
   createExternalLink,
@@ -98,69 +103,115 @@ export async function handleGitlabMergeRequestOpened(
       continue;
     }
 
-    const metadata = {
-      state: mergeRequest.state,
-      draft: mergeRequest.draft === true,
-      merged: false,
-      branch: branchName,
-      author: payload.user?.username ?? payload.user?.name,
-    };
-
-    if (existingLink) {
-      await updateExternalLink(existingLink.id, {
-        title: mergeRequest.title,
-        url: mergeRequest.url,
-        metadata,
-      });
-    } else {
-      await createExternalLink({
-        taskId: task.id,
-        integrationId: integration.id,
-        resourceType: "pull_request",
-        externalId: mergeRequest.iid.toString(),
-        url: mergeRequest.url,
-        title: mergeRequest.title,
-        metadata,
-      });
-    }
-
-    if (!moveTask) {
-      return;
-    }
-
-    // On reopen the link already exists, but the task still has to move.
-    const targetStatus = await resolveTargetStatus(
-      integration.projectId,
-      "pr_opened",
-      config.statusTransitions?.onPROpen || "in-review",
-    );
-
-    const wasDraft =
-      parseLinkMetadata<{ draft: boolean }>(existingLink?.metadata, {
-        externalLinkId: existingLink?.id ?? "",
-        source: "gitlab-merge-request-opened",
-      }).draft === true;
-    const canMove =
-      !existingLink || wasDraft || !(await isTaskInFinalState(task));
-
-    if (task.status !== targetStatus && canMove) {
-      const statusResult = await updateTaskStatus(task.id, targetStatus);
-      if (
-        statusResult.applied &&
-        statusResult.before.status !== statusResult.after.status
-      ) {
-        await publishEvent("task.status_changed", {
-          taskId: statusResult.after.id,
-          projectId: statusResult.after.projectId,
-          userId: null,
-          oldStatus: statusResult.before.status,
-          newStatus: statusResult.after.status,
-          title: statusResult.after.title,
-          assigneeId: statusResult.after.userId,
-          type: "status_changed",
+    const apply = async (
+      database: IntegrationDatabase,
+      afterCommit: (effect: () => Promise<void>) => void,
+      lockedLink?: { metadata: string | null },
+    ) => {
+      const currentTask = await findTaskById(task.id, database);
+      if (!currentTask) return;
+      if (!existingLink) {
+        if (
+          await findExternalLink(
+            integration.id,
+            "pull_request",
+            mergeRequest.iid.toString(),
+            database,
+          )
+        )
+          return;
+        const resolved = await resolveMergeRequestTask({
+          projectId: integration.projectId,
+          projectSlug: integration.project!.slug,
+          config,
+          mergeRequest: { ...mergeRequest, source_branch: branchName },
+          database,
         });
+        if (resolved?.id !== task.id) return;
       }
-    }
+      const metadata = {
+        state: mergeRequest.state,
+        draft: mergeRequest.draft === true,
+        merged: false,
+        branch: branchName,
+        author: payload.user?.username ?? payload.user?.name,
+      };
+
+      if (existingLink) {
+        await updateExternalLink(
+          existingLink.id,
+          {
+            title: mergeRequest.title,
+            url: mergeRequest.url,
+            metadata,
+          },
+          database,
+        );
+      } else {
+        await createExternalLink(
+          {
+            taskId: task.id,
+            integrationId: integration.id,
+            resourceType: "pull_request",
+            externalId: mergeRequest.iid.toString(),
+            url: mergeRequest.url,
+            title: mergeRequest.title,
+            metadata,
+          },
+          database,
+        );
+      }
+
+      if (!moveTask) {
+        return;
+      }
+
+      // On reopen the link already exists, but the task still has to move.
+      const targetStatus = await resolveTargetStatus(
+        integration.projectId,
+        "pr_opened",
+        config.statusTransitions?.onPROpen || "in-review",
+        database,
+      );
+
+      const wasDraft =
+        parseLinkMetadata<{ draft: boolean }>(lockedLink?.metadata, {
+          externalLinkId: existingLink?.id ?? "",
+          source: "gitlab-merge-request-opened",
+        }).draft === true;
+      const canMove =
+        !existingLink ||
+        wasDraft ||
+        !(await isTaskInFinalState(currentTask, database));
+
+      if (currentTask.status !== targetStatus && canMove) {
+        const statusResult = await updateTaskStatus(
+          task.id,
+          targetStatus,
+          database,
+        );
+        if (
+          statusResult.applied &&
+          statusResult.before.status !== statusResult.after.status
+        ) {
+          afterCommit(() =>
+            publishEvent("task.status_changed", {
+              taskId: statusResult.after.id,
+              projectId: statusResult.after.projectId,
+              userId: null,
+              oldStatus: statusResult.before.status,
+              newStatus: statusResult.after.status,
+              title: statusResult.after.title,
+              assigneeId: statusResult.after.userId,
+              type: "status_changed",
+            }),
+          );
+        }
+      }
+    };
+    if (existingLink)
+      await withIntegrationLink(existingLink, integration, apply);
+    else await withIntegrationTask(task.id, integration, apply);
 
     return;
   }
