@@ -139,3 +139,38 @@ it("patches and sorts planned and archived task reorders", () => {
   expect(updated.plannedTasks.map((task) => task.id)).toEqual(["p2", "p1"]);
   expect(updated.archivedTasks.map((task) => task.id)).toEqual(["a2", "a1"]);
 });
+
+it("moves cards between ordinary, planned and archived buckets while preserving metadata", () => {
+  const project = board();
+  project.plannedTasks = [
+    { id: "p", status: "planned", position: 0, title: "planned title" },
+  ] as typeof project.plannedTasks;
+  project.archivedTasks = [
+    { id: "z", status: "archived", position: 0 },
+  ] as typeof project.archivedTasks;
+  const updated = applyBoardReorder(project, [
+    { id: "a", position: 1, status: "planned" },
+    { id: "p", position: 2, status: "archived" },
+    { id: "z", position: 3, status: "doing" },
+  ]);
+  expect(updated.plannedTasks).toEqual([
+    expect.objectContaining({
+      id: "a",
+      status: "planned",
+      columnId: null,
+      title: "keep a",
+    }),
+  ]);
+  expect(updated.archivedTasks).toEqual([
+    expect.objectContaining({
+      id: "p",
+      status: "archived",
+      columnId: null,
+      title: "planned title",
+    }),
+  ]);
+  expect(updated.columns[1].tasks).toContainEqual(
+    expect.objectContaining({ id: "z", status: "doing", columnId: "doing" }),
+  );
+  expect(updated.columns[0].tasks.some((task) => task.id === "a")).toBe(false);
+});

@@ -7,40 +7,40 @@ export function applyBoardReorder(
 ): ProjectWithTasks {
   const changes = new Map(tasks.map((task) => [task.id, task]));
   return produce(project, (draft) => {
-    for (const bucket of [draft.plannedTasks, draft.archivedTasks]) {
-      for (const task of bucket) {
-        const change = changes.get(task.id);
-        if (change) task.position = change.position;
-      }
-      bucket.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
-    }
+    const buckets = [
+      ...draft.columns.map((column) => ({
+        slug: column.slug,
+        columnId: column.id,
+        tasks: column.tasks,
+      })),
+      { slug: "planned", columnId: null, tasks: draft.plannedTasks },
+      { slug: "archived", columnId: null, tasks: draft.archivedTasks },
+    ];
     const moved: Array<{
       task: (typeof draft.columns)[number]["tasks"][number];
       slug: string;
     }> = [];
-    for (const column of draft.columns) {
-      column.tasks = column.tasks.filter((task) => {
+    for (const bucket of buckets) {
+      for (let index = bucket.tasks.length - 1; index >= 0; index--) {
+        const task = bucket.tasks[index];
         const change = changes.get(task.id);
-        if (!change) return true;
+        if (!change) continue;
         task.position = change.position;
-        if (change.status && change.status !== column.slug) {
-          const destination = draft.columns.find(
-            (column) => column.slug === change.status,
-          );
-          if (destination) {
-            task.status = change.status;
-            task.columnId = destination.id;
-            moved.push({ task, slug: change.status });
-            return false;
-          }
+        const destination =
+          change.status &&
+          buckets.find((bucket) => bucket.slug === change.status);
+        if (destination && destination !== bucket) {
+          task.status = destination.slug;
+          task.columnId = destination.columnId;
+          bucket.tasks.splice(index, 1);
+          moved.push({ task, slug: destination.slug });
         }
-        return true;
-      });
+      }
     }
     for (const { task, slug } of moved)
-      draft.columns.find((column) => column.slug === slug)?.tasks.push(task);
-    for (const column of draft.columns)
-      column.tasks.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+      buckets.find((bucket) => bucket.slug === slug)?.tasks.push(task);
+    for (const bucket of buckets)
+      bucket.tasks.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
   });
 }
 

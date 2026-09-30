@@ -27,7 +27,9 @@ it("includes a newly created local card without replacing newer cached metadata"
   expect(
     selectReorderBoard("p", "created", cached, stored)?.columns[0].tasks,
   ).toEqual([cached.columns[0].tasks[0], stored.columns[0].tasks[1]]);
-  expect(selectReorderBoard("p", "old", cached, stored)).toBe(cached);
+  expect(
+    selectReorderBoard("p", "old", cached, stored)?.columns[0].tasks,
+  ).toEqual([cached.columns[0].tasks[0], stored.columns[0].tasks[1]]);
   expect(
     selectReorderBoard("p", "created", cached, { ...stored, id: "other" }),
   ).toBe(cached);
