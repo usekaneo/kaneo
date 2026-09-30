@@ -48,6 +48,7 @@ it("cancels unknown project settings reads when membership is revoked", async ()
     "github-repositories",
     "gitea-repositories",
     "gitlab-projects",
+    "calendar-feeds",
     "columns",
     "workflow-rules",
     "custom-fields",

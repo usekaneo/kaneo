@@ -102,6 +102,7 @@ function evictPrivateQueries(
       "mattermost-integration",
       "telegram-integration",
       "generic-webhook-integration",
+      "calendar-feeds",
       "columns",
       "workflow-rules",
       "custom-fields",
