@@ -247,6 +247,7 @@ export async function replayDeferredIssueEdits() {
                 repairs.push({
                   field,
                   value: local,
+                  intentId: uncertain?.intentId,
                   providerValue: values[field],
                 });
                 continue;

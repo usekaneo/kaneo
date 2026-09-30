@@ -1169,3 +1169,44 @@ it("preserves a newer correction queued while its worker reads the provider", as
   expect(m.write).toHaveBeenCalledTimes(2);
   expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
 });
+
+it.each(["github", "gitea"])(
+  "retires an uncertain intent after queued %s correction so future genuine edits apply",
+  async (provider) => {
+    const { task, integration, link } = await seed(provider);
+    await db
+      .update(schema.externalLinkTable)
+      .set({
+        metadata: JSON.stringify({
+          lastSync: {
+            title: outboundStamp(undefined, "A", undefined, {
+              intentId: "old-unknown",
+              pending: false,
+              uncertain: true,
+            }),
+          },
+        }),
+      })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    await deferTaskSync(link, integration, ["title"]);
+    await replayDeferredIssueEdits();
+    expect(m.write).toHaveBeenCalledWith(
+      expect.objectContaining({ title: "B" }),
+    );
+    expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+    m.read.mockResolvedValue({
+      title: "A",
+      body: "remote",
+      state: "open",
+      updated_at: "2026-09-30T00:00:05Z",
+    });
+    await deliverField(
+      provider,
+      "title",
+      "A",
+      "2026-09-30T00:00:05Z",
+      integration.id,
+    );
+    expect((await current(task.id))?.title).toBe("A");
+  },
+);
