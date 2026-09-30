@@ -6,7 +6,7 @@ const m = vi.hoisted(() => ({ deleteS3Object: vi.fn() }));
 vi.mock("../../apps/api/src/storage/s3", () => ({
   deleteS3Object: m.deleteS3Object,
 }));
-import db, { schema } from "../../apps/api/src/database";
+import db, { getDatabase, schema } from "../../apps/api/src/database";
 import deleteProject from "../../apps/api/src/project/controllers/delete-project";
 import { retryStorageCleanup } from "../../apps/api/src/storage/cleanup-queue";
 import { resetTestDatabase } from "./helpers/database";
@@ -275,3 +275,75 @@ it("declines to finalize after a verification lease expires", async () => {
   expect(apply).not.toHaveBeenCalled();
   expect(await db.query.jobLeaseTable.findMany()).toHaveLength(0);
 });
+
+it.each(["single", "bulk"])(
+  "rejects %s deletion when a task moves after its authorized read",
+  async (mode) => {
+    const { workspace, user } = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: workspace.id,
+    });
+    const foreign = await createWorkspaceMember();
+    const destination = await createProjectFixture({
+      workspaceId: foreign.workspace.id,
+    });
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "Moved attachment",
+        status: "to-do",
+      })
+      .returning();
+    await db.insert(schema.assetTable).values({
+      taskId: task.id,
+      projectId: project.id,
+      workspaceId: workspace.id,
+      objectKey: "moved-attachment",
+      filename: "test.png",
+      mimeType: "image/png",
+      size: 1,
+      createdBy: user.id,
+    });
+    const transaction = db.transaction.bind(db);
+    vi.spyOn(getDatabase(), "transaction").mockImplementationOnce(
+      async (apply, config) => {
+        await db
+          .update(schema.taskTable)
+          .set({ projectId: destination.project.id })
+          .where(eq(schema.taskTable.id, task.id));
+        await db
+          .update(schema.assetTable)
+          .set({
+            projectId: destination.project.id,
+            workspaceId: foreign.workspace.id,
+          })
+          .where(eq(schema.assetTable.taskId, task.id));
+        return transaction(apply, config);
+      },
+    );
+    const deletion =
+      mode === "single"
+        ? deleteTask(task.id, user.id)
+        : bulkUpdateTasks({
+            taskIds: [task.id],
+            operation: "delete",
+            userId: user.id,
+          });
+    await expect(deletion).rejects.toMatchObject({ status: 409 });
+    expect(
+      await db
+        .select()
+        .from(schema.taskTable)
+        .where(eq(schema.taskTable.id, task.id)),
+    ).toHaveLength(1);
+    expect(
+      await db
+        .select()
+        .from(schema.assetTable)
+        .where(eq(schema.assetTable.taskId, task.id)),
+    ).toHaveLength(1);
+    expect(await db.select().from(schema.storageCleanupTable)).toHaveLength(0);
+    expect(m.deleteS3Object).not.toHaveBeenCalled();
+  },
+);

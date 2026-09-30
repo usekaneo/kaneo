@@ -1,9 +1,25 @@
+import { issueEditScope } from "../../github/utils/deferred-issue-edit";
+import { deferIssueEdit } from "../../github/services/deferred-issue-edits";
+import { inboundStamp } from "../../github/utils/sync-echo";
+import { withIntegrationLink } from "../../github/services/with-integration-link";
+import type { GiteaConfig } from "../config";
+import { createGiteaClient } from "../utils/gitea-api";
+import { parseLinkMetadata } from "../../github/utils/parse-link-metadata";
+import type { SyncStamp } from "../../github/utils/sync-echo";
+import {
+  inboundEcho,
+  withEchoConfirmation,
+} from "../../github/utils/inbound-echo";
+import { linkedTaskScope } from "../../github/services/integration-task-scope";
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
-import { externalLinkTable, taskTable } from "../../../database/schema";
+import { externalLinkTable } from "../../../database/schema";
 import { publishEvent } from "../../../events";
 import { updateExternalLink } from "../../github/services/link-manager";
-import { updateTaskStatus } from "../../github/services/task-service";
+import {
+  isTaskInFinalState,
+  updateTaskStatus,
+} from "../../github/services/task-service";
 import {
   findAllIntegrationsByGiteaRepo,
   repoOwnerLogin,
@@ -65,69 +81,127 @@ export async function handleGiteaIssueClosed(
       continue;
     }
 
-    const task = await db.query.taskTable.findFirst({
-      where: eq(taskTable.id, externalLink.taskId),
-    });
+    const readCurrent = async () => {
+      const config = JSON.parse(integration.config) as GiteaConfig;
+      return await createGiteaClient(config).getIssue(
+        config.repositoryOwner,
+        config.repositoryName,
+        issue.number,
+      );
+    };
+    await withEchoConfirmation(
+      readCurrent,
+      (current, confirmation) =>
+        withIntegrationLink(
+          externalLink,
+          integration,
+          async (db, afterCommit, externalLink) => {
+            const task = await db.query.taskTable.findFirst({
+              where: linkedTaskScope(
+                externalLink.taskId,
+                integration.projectId,
+              ),
+            });
 
-    if (!task) {
-      continue;
-    }
+            if (!task) {
+              return;
+            }
 
-    let existingMetadata: Record<string, unknown> = {};
-    if (externalLink.metadata) {
-      try {
-        existingMetadata = JSON.parse(externalLink.metadata) as Record<
-          string,
-          unknown
-        >;
-      } catch (error) {
-        console.warn("Failed to parse Gitea issue metadata for close sync", {
-          externalLinkId: externalLink.id,
-          metadata: externalLink.metadata,
-          error,
-        });
-      }
-    }
+            const existingMetadata = parseLinkMetadata<
+              Record<string, unknown> & { lastSync?: { state?: SyncStamp } }
+            >(externalLink.metadata, {
+              externalLinkId: externalLink.id,
+              source: "gitea_issue_closed",
+            });
+            if (
+              inboundEcho(
+                existingMetadata.lastSync?.state,
+                "closed",
+                issue.updated_at,
+                current ? (current.state ?? issue.state) : undefined,
+                {
+                  linkId: externalLink.id,
+                  field: "state",
+                  localValue: (await isTaskInFinalState(task, db))
+                    ? "closed"
+                    : "open",
+                  confirmation,
+                },
+              )
+            )
+              return;
+            const lastOutbound = existingMetadata.lastOutboundStateSyncAt;
+            if (
+              typeof lastOutbound === "number" &&
+              Number.isFinite(lastOutbound) &&
+              existingMetadata.state === "closed"
+            ) {
+              const eventMs = parseIssueUpdatedAtMs(issue);
+              if (
+                eventMs !== null &&
+                Math.abs(eventMs - lastOutbound) <=
+                  OUTBOUND_STATE_ECHO_WINDOW_MS
+              ) {
+                return;
+              }
+            }
 
-    const lastOutbound = existingMetadata.lastOutboundStateSyncAt;
-    if (typeof lastOutbound === "number" && Number.isFinite(lastOutbound)) {
-      const eventMs = parseIssueUpdatedAtMs(issue);
-      if (
-        eventMs !== null &&
-        Math.abs(eventMs - lastOutbound) <= OUTBOUND_STATE_ECHO_WINDOW_MS
-      ) {
-        continue;
-      }
-    }
+            const targetStatus = await resolveTargetStatus(
+              task.projectId,
+              "issue_closed",
+              "done",
+              db,
+            );
 
-    const targetStatus = await resolveTargetStatus(
-      task.projectId,
-      "issue_closed",
-      "done",
+            const statusResult = await updateTaskStatus(
+              task.id,
+              targetStatus,
+              db,
+            );
+            if (
+              statusResult.applied &&
+              statusResult.before.status !== statusResult.after.status
+            ) {
+              afterCommit(() =>
+                publishEvent("task.status_changed", {
+                  taskId: statusResult.after.id,
+                  projectId: statusResult.after.projectId,
+                  userId: null,
+                  oldStatus: statusResult.before.status,
+                  newStatus: statusResult.after.status,
+                  title: statusResult.after.title,
+                  assigneeId: statusResult.after.userId,
+                  type: "status_changed",
+                }),
+              );
+            }
+
+            await updateExternalLink(
+              externalLink.id,
+              {
+                metadata: {
+                  ...existingMetadata,
+                  state: "closed",
+                  lastSync: {
+                    ...existingMetadata.lastSync,
+                    state: inboundStamp(
+                      existingMetadata.lastSync?.state,
+                      "closed",
+                      "gitea",
+                      current?.updated_at ?? issue.updated_at,
+                    ),
+                  },
+                },
+              },
+              db,
+            );
+          },
+          {
+            validate: (binding) =>
+              issueEditScope(binding) === issueEditScope(integration),
+          },
+        ),
+      () => deferIssueEdit(externalLink, integration, ["state"]),
     );
-
-    const statusResult = await updateTaskStatus(task.id, targetStatus);
-    if (
-      statusResult.applied &&
-      statusResult.before.status !== statusResult.after.status
-    ) {
-      await publishEvent("task.status_changed", {
-        taskId: statusResult.after.id,
-        projectId: statusResult.after.projectId,
-        userId: null,
-        oldStatus: statusResult.before.status,
-        newStatus: statusResult.after.status,
-        title: statusResult.after.title,
-        assigneeId: statusResult.after.userId,
-        type: "status_changed",
-      });
-    }
-
-    await updateExternalLink(externalLink.id, {
-      metadata: {
-        ...existingMetadata,
-        state: "closed",
-      },
-    });
   }
 }
