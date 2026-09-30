@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import db, { schema } from "../../apps/api/src/database";
+import db, { getDatabase, schema } from "../../apps/api/src/database";
 import reorderTasks from "../../apps/api/src/task/controllers/reorder-tasks";
 import { resetTestDatabase } from "./helpers/database";
 import {
@@ -156,4 +156,54 @@ it("rejects a second drag from a stale column snapshot without duplicating posit
     .where(eq(schema.taskTable.projectId, project.id));
   expect(new Set(current.map((task) => task.position)).size).toBe(4);
   expect(publish).not.toHaveBeenCalled();
+});
+
+it("rejects a legacy full update superseded by an atomic reorder", async () => {
+  const { default: updateTask } =
+    await import("../../apps/api/src/task/controllers/update-task");
+  const { user, workspace } = await createWorkspaceMember();
+  const { project } = await createProjectFixture({ workspaceId: workspace.id });
+  const [task] = await db
+    .insert(schema.taskTable)
+    .values({
+      projectId: project.id,
+      title: "card",
+      status: "to-do",
+      position: 0,
+      priority: "low",
+    })
+    .returning();
+  const transaction = getDatabase().transaction.bind(getDatabase());
+  const intercepted = vi
+    .spyOn(getDatabase(), "transaction")
+    .mockImplementationOnce(async (apply, config) => {
+      await reorderTasks(project.id, [{ id: task.id, position: 2 }], user.id);
+      return transaction(apply, config);
+    });
+  try {
+    await expect(
+      updateTask(
+        task.id,
+        task.title,
+        task.status,
+        undefined,
+        undefined,
+        project.id,
+        undefined,
+        task.priority,
+        1,
+        undefined,
+        user.id,
+      ),
+    ).rejects.toMatchObject({ status: 409 });
+    expect(
+      (
+        await db.query.taskTable.findFirst({
+          where: eq(schema.taskTable.id, task.id),
+        })
+      )?.position,
+    ).toBe(2);
+  } finally {
+    intercepted.mockRestore();
+  }
 });

@@ -1,7 +1,7 @@
 import { and, eq, getTableColumns, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { columnTable, taskTable } from "../../database/schema";
+import { columnTable, projectTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import {
   publishTaskMutation,
@@ -40,6 +40,7 @@ async function updateTask(
       description:
         description === undefined ? sql<null>`null` : taskTable.description,
       status: taskTable.status,
+      position: taskTable.position,
       projectId: taskTable.projectId,
     })
     .from(taskTable)
@@ -76,7 +77,16 @@ async function updateTask(
     ),
   });
 
+  const initialPosition = existingTask.position;
+  const initialStatus = existingTask.status;
   const updatedTask = await db.transaction(async (tx) => {
+    const [project] = await tx
+      .select({ id: projectTable.id })
+      .from(projectTable)
+      .where(eq(projectTable.id, projectId))
+      .for("update");
+    if (!project)
+      throw new HTTPException(404, { message: "Project not found" });
     const [locked] = await tx
       .select({
         id: taskTable.id,
@@ -87,6 +97,7 @@ async function updateTask(
         description:
           description === undefined ? sql<null>`null` : taskTable.description,
         status: taskTable.status,
+        position: taskTable.position,
         projectId: taskTable.projectId,
       })
       .from(taskTable)
@@ -95,6 +106,10 @@ async function updateTask(
     if (!locked)
       throw new HTTPException(409, {
         message: "Task changed projects; retry the update",
+      });
+    if (locked.position !== initialPosition || locked.status !== initialStatus)
+      throw new HTTPException(409, {
+        message: "Task order changed; refresh before updating",
       });
     existingTask = locked;
 
