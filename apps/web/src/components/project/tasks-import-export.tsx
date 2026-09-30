@@ -192,6 +192,7 @@ export function TasksImportExport({ project }: TasksImportExportProps) {
       "priority": "low",
       "startDate": "2025-04-18T00:00:00.000Z",
       "dueDate": "2025-04-20T00:00:00.000Z",
+      "timeEstimate": 7200,
       "userId": "user@example.com"
     }
   ]

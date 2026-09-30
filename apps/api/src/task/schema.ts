@@ -3,6 +3,9 @@ import { TASK_SHORT_ID_PATTERN } from "../search/task-short-id";
 import { MAX_TASK_POSITION } from "./controllers/next-task-position";
 import { VALID_PRIORITIES } from "./validate-task-fields";
 
+// Postgres integer: callers can probe limits, so guard at the schema layer.
+const MAX_TIME_ESTIMATE = 2_147_483_647;
+
 export const taskParam = z.object({ id: z.string() });
 
 export const ticketIdParam = z.object({
@@ -58,10 +61,11 @@ export const bulkUpdateBody = z.object({
     "addLabel",
     "removeLabel",
     "updateDueDate",
+    "updateTimeEstimate",
   ]),
   value: z.string().nullable().optional().openapi({
     description:
-      "The new value for the chosen operation. Unused by `delete`; null clears an assignee or due date.",
+      "The new value for the chosen operation. Unused by `delete`; null clears an assignee, due date, or time estimate.",
   }),
 });
 
@@ -70,6 +74,13 @@ export const createTaskBody = z.object({
   description: z.string(),
   startDate: z.string().optional(),
   dueDate: z.string().optional(),
+  timeEstimate: z
+    .number()
+    .int()
+    .min(0)
+    .max(MAX_TIME_ESTIMATE)
+    .nullable()
+    .optional(),
   priority,
   status: z.string().openapi({ description: "The target column's slug." }),
   userId: z.string().optional().openapi({ description: "Assignee, if any." }),
@@ -86,6 +97,13 @@ export const updateTaskBody = z.object({
   }),
   startDate: z.string().optional(),
   dueDate: z.string().optional(),
+  timeEstimate: z
+    .number()
+    .int()
+    .min(0)
+    .max(MAX_TIME_ESTIMATE)
+    .nullable()
+    .optional(),
   priority,
   status: z.string(),
   projectId: z.string(),
@@ -109,6 +127,13 @@ export const importTasksBody = z.object({
       priority: z.string().optional(),
       startDate: z.string().nullable().optional(),
       dueDate: z.string().nullable().optional(),
+      timeEstimate: z
+        .number()
+        .int()
+        .min(0)
+        .max(MAX_TIME_ESTIMATE)
+        .nullable()
+        .optional(),
       userId: z.string().nullable().optional(),
     }),
   ),
@@ -120,6 +145,15 @@ export const updateAssigneeBody = z.object({
   userId: z.string().nullable().openapi({ description: "Null unassigns." }),
 });
 export const updateDueDateBody = z.object({ dueDate: z.string().optional() });
+export const updateTimeEstimateBody = z.object({
+  timeEstimate: z
+    .number()
+    .int()
+    .min(0)
+    .max(MAX_TIME_ESTIMATE)
+    .nullable()
+    .openapi({ description: "Estimated seconds. Null or 0 clears it." }),
+});
 export const updateTitleBody = z.object({ title: z.string() });
 export const updateDescriptionBody = z.object({ description: z.string() });
 

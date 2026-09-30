@@ -153,7 +153,9 @@
 					"terracotta": "赤陶",
 					"rose": "玫红",
 					"crimson": "深红"
-				}
+				},
+				"setTimeEstimate": "设置",
+				"timeEstimate": "时间估算"
 			}
 		},
 		"boolean": {
@@ -613,7 +615,9 @@
 			"priority": "优先级",
 			"priorityDescription": "显示优先级指示",
 			"projectBackgrounds": "Project backgrounds",
-			"projectBackgroundsDescription": "Show project background images on boards"
+			"projectBackgroundsDescription": "Show project background images on boards",
+			"timeEstimates": "时间估算",
+			"timeEstimatesDescription": "在任务上显示时间估算"
 		},
 		"developerPage": {
 			"pageTitle": "开发者设置",
@@ -1385,7 +1389,8 @@
 				"taskDueDateChanged": "截止日期已变更",
 				"taskAssigneeChanged": "负责人已变更",
 				"taskUnassigned": "任务已取消指派",
-				"dueDateReminder": "截止日期提醒"
+				"dueDateReminder": "截止日期提醒",
+				"taskTimeEstimateChanged": "时间估算已变更"
 			},
 			"reminderLeadTimeLabel": "提前这么多小时发送 Webhook",
 			"connect": "连接 Webhook",
@@ -2140,7 +2145,10 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "在 {{forge}} 上评论"
-		}
+		},
+		"changedTimeEstimate": "将时间估算从 {{from}} 改为 {{to}}",
+		"clearedTimeEstimate": "清除了时间估算",
+		"setTimeEstimate": "将时间估算设为 {{estimate}}"
 	},
 	"tasks": {
 		"title": "任务",
@@ -2333,7 +2341,9 @@
 			"taskBranchCopied": "已复制分支名称",
 			"start": "开始",
 			"startDate": "开始日期",
-			"noDate": "无日期"
+			"noDate": "无日期",
+			"noEstimate": "无估算",
+			"timeEstimate": "时间估算"
 		},
 		"move": {
 			"title": "移动任务",
@@ -2388,6 +2398,14 @@
 					"rose": "玫红",
 					"crimson": "深红"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "请使用类似 2h 30m、90m 或 1.5h 的格式。",
+				"placeholder": "例如 2h 30m",
+				"save": "保存",
+				"title": "时间估算",
+				"updateError": "任务时间估算更新失败",
+				"updateSuccess": "任务时间估算更新成功"
 			}
 		},
 		"backlog": {
@@ -2579,7 +2597,9 @@
 			"actions": "操作",
 			"searchActions": "搜索操作…",
 			"noActionsFound": "未找到操作。",
-			"changeStatus": "更改状态"
+			"changeStatus": "更改状态",
+			"setTimeEstimate": "设置时间估算",
+			"updateTimeEstimateError": "更新时间估算失败"
 		},
 		"editor": {
 			"table": {
@@ -2600,6 +2620,9 @@
 		"checklistProgress": "已完成 {{completed}}/{{total}} 个清单项",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"timeEstimate": {
+			"label": "时间估算"
 		}
 	},
 	"invitations": {

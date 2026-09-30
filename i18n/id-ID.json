@@ -153,7 +153,9 @@
 					"terracotta": "Merah Bata",
 					"rose": "Merah Mawar",
 					"crimson": "Merah Tua"
-				}
+				},
+				"setTimeEstimate": "Atur",
+				"timeEstimate": "Estimasi waktu"
 			}
 		},
 		"boolean": {
@@ -613,7 +615,9 @@
 			"priority": "Prioritas",
 			"priorityDescription": "Tampilkan indikator prioritas",
 			"projectBackgrounds": "Project backgrounds",
-			"projectBackgroundsDescription": "Show project background images on boards"
+			"projectBackgroundsDescription": "Show project background images on boards",
+			"timeEstimates": "Estimasi waktu",
+			"timeEstimatesDescription": "Tampilkan estimasi waktu pada tugas"
 		},
 		"developerPage": {
 			"pageTitle": "Pengaturan Pengembang",
@@ -1113,7 +1117,8 @@
 				"taskDueDateChanged": "Tenggat diubah",
 				"taskAssigneeChanged": "Penanggung jawab diubah",
 				"taskUnassigned": "Penugasan dihapus",
-				"dueDateReminder": "Pengingat tenggat"
+				"dueDateReminder": "Pengingat tenggat",
+				"taskTimeEstimateChanged": "Estimasi waktu diubah"
 			},
 			"connect": "Hubungkan webhook",
 			"saveChanges": "Simpan perubahan",
@@ -2140,7 +2145,10 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "berkomentar di {{forge}}"
-		}
+		},
+		"changedTimeEstimate": "mengubah estimasi waktu dari {{from}} menjadi {{to}}",
+		"clearedTimeEstimate": "menghapus estimasi waktu",
+		"setTimeEstimate": "mengatur estimasi waktu ke {{estimate}}"
 	},
 	"tasks": {
 		"title": "Tugas",
@@ -2333,7 +2341,9 @@
 			"taskBranchCopied": "Nama branch disalin",
 			"start": "Mulai",
 			"startDate": "Tanggal mulai",
-			"noDate": "Tanpa tanggal"
+			"noDate": "Tanpa tanggal",
+			"noEstimate": "Tanpa estimasi",
+			"timeEstimate": "Estimasi waktu"
 		},
 		"move": {
 			"title": "Pindahkan tugas",
@@ -2388,6 +2398,14 @@
 					"rose": "Rose",
 					"crimson": "Crimson"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "Gunakan format seperti 2h 30m, 90m, atau 1.5h.",
+				"placeholder": "cth. 2h 30m",
+				"save": "Simpan",
+				"title": "Estimasi waktu",
+				"updateError": "Gagal memperbarui estimasi waktu tugas",
+				"updateSuccess": "Estimasi waktu tugas berhasil diperbarui"
 			}
 		},
 		"backlog": {
@@ -2566,7 +2584,9 @@
 			"actions": "Aksi",
 			"searchActions": "Cari aksi...",
 			"noActionsFound": "Tidak ada aksi ditemukan.",
-			"changeStatus": "Ubah Status"
+			"changeStatus": "Ubah Status",
+			"setTimeEstimate": "Atur Estimasi Waktu",
+			"updateTimeEstimateError": "Gagal memperbarui estimasi waktu"
 		},
 		"editor": {
 			"table": {
@@ -2600,6 +2620,9 @@
 		"checklistProgress": "{{completed}} dari {{total}} item daftar periksa selesai",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"timeEstimate": {
+			"label": "Estimasi waktu"
 		}
 	},
 	"invitations": {

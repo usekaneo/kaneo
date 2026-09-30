@@ -153,7 +153,9 @@
 					"terracotta": "Đất nung",
 					"rose": "Hồng",
 					"crimson": "Đỏ thẫm"
-				}
+				},
+				"setTimeEstimate": "Đặt",
+				"timeEstimate": "Ước tính thời gian"
 			}
 		},
 		"boolean": {
@@ -613,7 +615,9 @@
 			"priority": "Mức ưu tiên",
 			"priorityDescription": "Hiển thị chỉ báo mức ưu tiên",
 			"projectBackgrounds": "Project backgrounds",
-			"projectBackgroundsDescription": "Show project background images on boards"
+			"projectBackgroundsDescription": "Show project background images on boards",
+			"timeEstimates": "Ước tính thời gian",
+			"timeEstimatesDescription": "Hiển thị ước tính thời gian trên các nhiệm vụ"
 		},
 		"developerPage": {
 			"pageTitle": "Cài đặt nhà phát triển",
@@ -1347,7 +1351,8 @@
 				"taskDueDateChanged": "Thay đổi ngày đến hạn",
 				"taskAssigneeChanged": "Thay đổi người được giao",
 				"taskUnassigned": "Hủy giao công việc",
-				"dueDateReminder": "Nhắc nhở ngày đến hạn"
+				"dueDateReminder": "Nhắc nhở ngày đến hạn",
+				"taskTimeEstimateChanged": "Thay đổi ước tính thời gian"
 			},
 			"reminderLeadTimeLabel": "Gửi webhook trước bao nhiêu giờ",
 			"connect": "Kết nối webhook",
@@ -2140,7 +2145,10 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "đã bình luận trên {{forge}}"
-		}
+		},
+		"changedTimeEstimate": "đã thay đổi ước tính thời gian từ {{from}} sang {{to}}",
+		"clearedTimeEstimate": "đã xóa ước tính thời gian",
+		"setTimeEstimate": "đã đặt ước tính thời gian thành {{estimate}}"
 	},
 	"tasks": {
 		"title": "Nhiệm vụ",
@@ -2333,7 +2341,9 @@
 			"taskBranchCopied": "Đã sao chép tên nhánh",
 			"start": "Bắt đầu",
 			"startDate": "Ngày bắt đầu",
-			"noDate": "Không có ngày"
+			"noDate": "Không có ngày",
+			"noEstimate": "Không có ước tính",
+			"timeEstimate": "Ước tính thời gian"
 		},
 		"move": {
 			"title": "Di chuyển công việc",
@@ -2388,6 +2398,14 @@
 					"rose": "Hồng",
 					"crimson": "Đỏ thẫm"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "Dùng định dạng như 2h 30m, 90m hoặc 1.5h.",
+				"placeholder": "vd. 2h 30m",
+				"save": "Lưu",
+				"title": "Ước tính thời gian",
+				"updateError": "Không thể cập nhật ước tính thời gian của nhiệm vụ",
+				"updateSuccess": "Đã cập nhật ước tính thời gian của nhiệm vụ"
 			}
 		},
 		"backlog": {
@@ -2566,7 +2584,9 @@
 			"actions": "Hành động",
 			"searchActions": "Tìm hành động...",
 			"noActionsFound": "Không tìm thấy hành động nào.",
-			"changeStatus": "Đổi trạng thái"
+			"changeStatus": "Đổi trạng thái",
+			"setTimeEstimate": "Đặt ước tính thời gian",
+			"updateTimeEstimateError": "Không thể cập nhật ước tính thời gian"
 		},
 		"editor": {
 			"table": {
@@ -2600,6 +2620,9 @@
 		"checklistProgress": "Đã hoàn thành {{completed}} trên {{total}} mục trong danh sách kiểm tra",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"timeEstimate": {
+			"label": "Ước tính thời gian"
 		}
 	},
 	"invitations": {

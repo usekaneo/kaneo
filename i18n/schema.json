@@ -589,6 +589,12 @@
 										"rose",
 										"crimson"
 									]
+								},
+								"timeEstimate": {
+									"type": "string"
+								},
+								"setTimeEstimate": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -625,7 +631,9 @@
 								"discardDescription",
 								"discardButton",
 								"untitledTask",
-								"labelColors"
+								"labelColors",
+								"timeEstimate",
+								"setTimeEstimate"
 							]
 						}
 					},
@@ -2720,6 +2728,12 @@
 						},
 						"projectBackgroundsDescription": {
 							"type": "string"
+						},
+						"timeEstimates": {
+							"type": "string"
+						},
+						"timeEstimatesDescription": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -2763,7 +2777,9 @@
 						"priority",
 						"priorityDescription",
 						"projectBackgrounds",
-						"projectBackgroundsDescription"
+						"projectBackgroundsDescription",
+						"timeEstimates",
+						"timeEstimatesDescription"
 					]
 				},
 				"developerPage": {
@@ -6232,6 +6248,9 @@
 								},
 								"dueDateReminder": {
 									"type": "string"
+								},
+								"taskTimeEstimateChanged": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -6246,7 +6265,8 @@
 								"taskDueDateChanged",
 								"taskAssigneeChanged",
 								"taskUnassigned",
-								"dueDateReminder"
+								"dueDateReminder",
+								"taskTimeEstimateChanged"
 							]
 						},
 						"reminderLeadTimeLabel": {
@@ -8698,6 +8718,15 @@
 						"importedFrom",
 						"importedBy"
 					]
+				},
+				"clearedTimeEstimate": {
+					"type": "string"
+				},
+				"setTimeEstimate": {
+					"type": "string"
+				},
+				"changedTimeEstimate": {
+					"type": "string"
 				}
 			},
 			"required": [
@@ -8713,7 +8742,10 @@
 				"moved",
 				"created",
 				"githubUser",
-				"comment"
+				"comment",
+				"clearedTimeEstimate",
+				"setTimeEstimate",
+				"changedTimeEstimate"
 			]
 		},
 		"tasks": {
@@ -9460,6 +9492,12 @@
 						},
 						"noDate": {
 							"type": "string"
+						},
+						"timeEstimate": {
+							"type": "string"
+						},
+						"noEstimate": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -9471,7 +9509,9 @@
 						"taskBranchCopied",
 						"start",
 						"startDate",
-						"noDate"
+						"noDate",
+						"timeEstimate",
+						"noEstimate"
 					]
 				},
 				"move": {
@@ -9675,6 +9715,38 @@
 								"createError",
 								"colors"
 							]
+						},
+						"timeEstimate": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"placeholder": {
+									"type": "string"
+								},
+								"save": {
+									"type": "string"
+								},
+								"invalid": {
+									"type": "string"
+								},
+								"updateSuccess": {
+									"type": "string"
+								},
+								"updateError": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"title",
+								"placeholder",
+								"save",
+								"invalid",
+								"updateSuccess",
+								"updateError"
+							]
 						}
 					},
 					"required": [
@@ -9683,7 +9755,8 @@
 						"priority",
 						"dueDate",
 						"startDate",
-						"labels"
+						"labels",
+						"timeEstimate"
 					]
 				},
 				"backlog": {
@@ -10636,6 +10709,12 @@
 						},
 						"changeStatus": {
 							"type": "string"
+						},
+						"setTimeEstimate": {
+							"type": "string"
+						},
+						"updateTimeEstimateError": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -10659,7 +10738,9 @@
 						"actions",
 						"searchActions",
 						"noActionsFound",
-						"changeStatus"
+						"changeStatus",
+						"setTimeEstimate",
+						"updateTimeEstimateError"
 					]
 				},
 				"editor": {
@@ -10729,6 +10810,16 @@
 				},
 				"descriptionLoadError": {
 					"type": "string"
+				},
+				"timeEstimate": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"label": {
+							"type": "string"
+						}
+					},
+					"required": ["label"]
 				}
 			},
 			"required": [
@@ -10770,7 +10861,8 @@
 				"descriptionSearchError",
 				"descriptionRetry",
 				"descriptionLoading",
-				"descriptionLoadError"
+				"descriptionLoadError",
+				"timeEstimate"
 			]
 		},
 		"invitations": {

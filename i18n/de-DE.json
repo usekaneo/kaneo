@@ -153,7 +153,9 @@
 					"terracotta": "Terrakotta",
 					"rose": "Rosa",
 					"crimson": "Karmesinrot"
-				}
+				},
+				"setTimeEstimate": "Festlegen",
+				"timeEstimate": "Zeitschätzung"
 			}
 		},
 		"boolean": {
@@ -694,7 +696,9 @@
 			"priority": "Priorität",
 			"priorityDescription": "Prioritätsindikatoren anzeigen",
 			"projectBackgrounds": "Project backgrounds",
-			"projectBackgroundsDescription": "Show project background images on boards"
+			"projectBackgroundsDescription": "Show project background images on boards",
+			"timeEstimates": "Zeitschätzungen",
+			"timeEstimatesDescription": "Zeitschätzungen auf Aufgaben anzeigen"
 		},
 		"developerPage": {
 			"pageTitle": "Entwicklereinstellungen",
@@ -1194,7 +1198,8 @@
 				"taskDueDateChanged": "Fälligkeitsdatum geändert",
 				"taskAssigneeChanged": "Zuweisung geändert",
 				"taskUnassigned": "Zuweisung entfernt",
-				"dueDateReminder": "Erinnerungen an Fälligkeitstermine"
+				"dueDateReminder": "Erinnerungen an Fälligkeitstermine",
+				"taskTimeEstimateChanged": "Zeitschätzung geändert"
 			},
 			"reminderLeadTimeLabel": "Webhook so viele Stunden vorher senden",
 			"connect": "Webhook verbinden",
@@ -2151,7 +2156,10 @@
 			"importedFrom": "Importiert aus {{source}}",
 			"importedBy": "Importiert von {{name}}",
 			"commentedOnForge": "hat auf {{forge}} kommentiert"
-		}
+		},
+		"changedTimeEstimate": "hat die Zeitschätzung von {{from}} zu {{to}} geändert",
+		"clearedTimeEstimate": "hat die Zeitschätzung entfernt",
+		"setTimeEstimate": "hat die Zeitschätzung auf {{estimate}} gesetzt"
 	},
 	"tasks": {
 		"title": "Aufgaben",
@@ -2344,7 +2352,9 @@
 			"taskBranchCopied": "Branch-Name kopiert",
 			"start": "Start",
 			"startDate": "Startdatum",
-			"noDate": "Kein Datum"
+			"noDate": "Kein Datum",
+			"noEstimate": "Keine Schätzung",
+			"timeEstimate": "Zeitschätzung"
 		},
 		"move": {
 			"title": "Aufgabe verschieben",
@@ -2399,6 +2409,14 @@
 					"rose": "Rosa",
 					"crimson": "Karmesinrot"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "Verwende ein Format wie 2h 30m, 90m oder 1.5h.",
+				"placeholder": "z.B. 2h 30m",
+				"save": "Speichern",
+				"title": "Zeitschätzung",
+				"updateError": "Zeitschätzung der Aufgabe konnte nicht aktualisiert werden",
+				"updateSuccess": "Zeitschätzung der Aufgabe erfolgreich aktualisiert"
 			}
 		},
 		"backlog": {
@@ -2578,7 +2596,9 @@
 			"actions": "Aktionen",
 			"searchActions": "Aktionen suchen...",
 			"noActionsFound": "Keine Aktionen gefunden.",
-			"changeStatus": "Status ändern"
+			"changeStatus": "Status ändern",
+			"setTimeEstimate": "Zeitschätzung festlegen",
+			"updateTimeEstimateError": "Zeitschätzung konnte nicht aktualisiert werden"
 		},
 		"editor": {
 			"table": {
@@ -2612,6 +2632,9 @@
 		"checklistProgress": "{{completed}} von {{total}} Checklistenpunkten abgeschlossen",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"timeEstimate": {
+			"label": "Zeitschätzung"
 		}
 	},
 	"invitations": {

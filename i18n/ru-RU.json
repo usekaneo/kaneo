@@ -153,7 +153,9 @@
 					"terracotta": "Терракота",
 					"rose": "Роза",
 					"crimson": "Малиновый"
-				}
+				},
+				"setTimeEstimate": "Задать",
+				"timeEstimate": "Оценка времени"
 			}
 		},
 		"boolean": {
@@ -616,7 +618,9 @@
 			"priority": "Приоритет",
 			"priorityDescription": "Показывать индикаторы приоритета",
 			"projectBackgrounds": "Project backgrounds",
-			"projectBackgroundsDescription": "Show project background images on boards"
+			"projectBackgroundsDescription": "Show project background images on boards",
+			"timeEstimates": "Оценки времени",
+			"timeEstimatesDescription": "Показывать оценки времени в задачах"
 		},
 		"developerPage": {
 			"pageTitle": "Настройки разработчика",
@@ -1116,7 +1120,8 @@
 				"taskDueDateChanged": "Изменен срок выполнения",
 				"taskAssigneeChanged": "Изменен исполнитель",
 				"taskUnassigned": "Назначение снято",
-				"dueDateReminder": "Напоминания о сроках"
+				"dueDateReminder": "Напоминания о сроках",
+				"taskTimeEstimateChanged": "Оценка времени изменена"
 			},
 			"connect": "Подключить вебхук",
 			"saveChanges": "Сохранить изменения",
@@ -2181,7 +2186,10 @@
 			"commentedOnForge": "прокомментировал на {{forge}}"
 		},
 		"moved": "переместил задачу из «{{from}}» в «{{to}}»",
-		"created": "создал эту задачу"
+		"created": "создал эту задачу",
+		"changedTimeEstimate": "изменил оценку времени с {{from}} на {{to}}",
+		"clearedTimeEstimate": "очистил оценку времени",
+		"setTimeEstimate": "установил оценку времени: {{estimate}}"
 	},
 	"tasks": {
 		"title": "Задачи",
@@ -2374,7 +2382,9 @@
 			"taskBranchCopied": "Название ветки скопировано",
 			"start": "Начало",
 			"startDate": "Дата начала",
-			"noDate": "Без даты"
+			"noDate": "Без даты",
+			"noEstimate": "Без оценки",
+			"timeEstimate": "Оценка времени"
 		},
 		"move": {
 			"title": "Переместить задачу",
@@ -2429,6 +2439,14 @@
 					"rose": "Роза",
 					"crimson": "Малиновый"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "Используйте формат, например 2h 30m, 90m или 1.5h.",
+				"placeholder": "например, 2h 30m",
+				"save": "Сохранить",
+				"title": "Оценка времени",
+				"updateError": "Не удалось обновить оценку времени задачи",
+				"updateSuccess": "Оценка времени задачи успешно обновлена"
 			}
 		},
 		"backlog": {
@@ -2658,7 +2676,9 @@
 			"archiveSuccess": "{{count}} задач архивировано",
 			"updateSuccess": "{{count}} задач обновлено",
 			"assignSuccess": "{{count}} задач назначено",
-			"addLabelSuccess": "Метка добавлена к {{count}} задачам"
+			"addLabelSuccess": "Метка добавлена к {{count}} задачам",
+			"setTimeEstimate": "Установить оценку времени",
+			"updateTimeEstimateError": "Не удалось обновить оценку времени"
 		},
 		"editor": {
 			"table": {
@@ -2692,6 +2712,9 @@
 		"checklistProgress": "Выполнено пунктов списка: {{completed}} из {{total}}",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"timeEstimate": {
+			"label": "Оценка времени"
 		}
 	},
 	"invitations": {

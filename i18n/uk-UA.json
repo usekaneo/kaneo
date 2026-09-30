@@ -153,7 +153,9 @@
 					"terracotta": "Теракота",
 					"rose": "Троянда",
 					"crimson": "Багряний"
-				}
+				},
+				"setTimeEstimate": "Задати",
+				"timeEstimate": "Оцінка часу"
 			}
 		},
 		"boolean": {
@@ -616,7 +618,9 @@
 			"priority": "Пріоритет",
 			"priorityDescription": "Відображати індикатори пріоритету",
 			"projectBackgrounds": "Project backgrounds",
-			"projectBackgroundsDescription": "Show project background images on boards"
+			"projectBackgroundsDescription": "Show project background images on boards",
+			"timeEstimates": "Оцінки часу",
+			"timeEstimatesDescription": "Показувати оцінки часу в задачах"
 		},
 		"developerPage": {
 			"pageTitle": "Налаштування розробника",
@@ -1116,7 +1120,8 @@
 				"taskDueDateChanged": "Змінено дату завершення",
 				"taskAssigneeChanged": "Змінено виконавця",
 				"taskUnassigned": "Призначення знято",
-				"dueDateReminder": "Нагадування про дату завершення"
+				"dueDateReminder": "Нагадування про дату завершення",
+				"taskTimeEstimateChanged": "Оцінку часу змінено"
 			},
 			"connect": "Підключити вебхук",
 			"saveChanges": "Зберегти зміни",
@@ -2173,7 +2178,10 @@
 			"commentedOnForge": "прокоментував на {{forge}}"
 		},
 		"moved": "перемістив завдання з «{{from}}» до «{{to}}»",
-		"created": "створив це завдання"
+		"created": "створив це завдання",
+		"changedTimeEstimate": "змінив оцінку часу з {{from}} на {{to}}",
+		"clearedTimeEstimate": "очистив оцінку часу",
+		"setTimeEstimate": "встановив оцінку часу на {{estimate}}"
 	},
 	"tasks": {
 		"title": "Завдання",
@@ -2366,7 +2374,9 @@
 			"taskBranchCopied": "Назву гілки скопійовано",
 			"start": "Початок",
 			"startDate": "Дата початку",
-			"noDate": "Немає дати"
+			"noDate": "Немає дати",
+			"noEstimate": "Без оцінки",
+			"timeEstimate": "Оцінка часу"
 		},
 		"move": {
 			"title": "Перемістити завдання",
@@ -2421,6 +2431,14 @@
 					"rose": "Троянда",
 					"crimson": "Багряний"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "Використовуйте формат, наприклад 2h 30m, 90m або 1.5h.",
+				"placeholder": "наприклад, 2h 30m",
+				"save": "Зберегти",
+				"title": "Оцінка часу",
+				"updateError": "Не вдалося оновити оцінку часу задачі",
+				"updateSuccess": "Оцінку часу задачі успішно оновлено"
 			}
 		},
 		"backlog": {
@@ -2602,7 +2620,9 @@
 			"actions": "Дії",
 			"searchActions": "Пошук дій...",
 			"noActionsFound": "Дій не знайдено.",
-			"changeStatus": "Змінити статус"
+			"changeStatus": "Змінити статус",
+			"setTimeEstimate": "Встановити оцінку часу",
+			"updateTimeEstimateError": "Не вдалося оновити оцінку часу"
 		},
 		"editor": {
 			"table": {
@@ -2636,6 +2656,9 @@
 		"checklistProgress": "Виконано пунктів списку: {{completed}} із {{total}}",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"timeEstimate": {
+			"label": "Оцінка часу"
 		}
 	},
 	"invitations": {

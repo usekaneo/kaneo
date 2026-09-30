@@ -153,7 +153,9 @@
 					"terracotta": "Terracota",
 					"rose": "Rosa",
 					"crimson": "Carmesí"
-				}
+				},
+				"setTimeEstimate": "Definir",
+				"timeEstimate": "Estimación de tiempo"
 			}
 		},
 		"boolean": {
@@ -511,7 +513,9 @@
 			"priority": "Prioridad",
 			"priorityDescription": "Mostrar indicador de prioridad",
 			"projectBackgrounds": "Project backgrounds",
-			"projectBackgroundsDescription": "Show project background images on boards"
+			"projectBackgroundsDescription": "Show project background images on boards",
+			"timeEstimates": "Estimaciones de tiempo",
+			"timeEstimatesDescription": "Mostrar estimaciones de tiempo en las tareas"
 		},
 		"developerPage": {
 			"pageTitle": "Ajustes de Desarrollador",
@@ -935,7 +939,8 @@
 				"taskDueDateChanged": "Cambio de fecha de vencimiento",
 				"taskAssigneeChanged": "Cambio de asignado",
 				"taskUnassigned": "Tarea desasignada",
-				"dueDateReminder": "Recordatorios de fecha de vencimiento"
+				"dueDateReminder": "Recordatorios de fecha de vencimiento",
+				"taskTimeEstimateChanged": "Cambio de estimación de tiempo"
 			},
 			"connect": "Conectar al webhook",
 			"saveChanges": "Guardar cambios",
@@ -2162,7 +2167,10 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "comentado en {{forge}}"
-		}
+		},
+		"changedTimeEstimate": "ha cambiado la estimación de tiempo de {{from}} a {{to}}",
+		"clearedTimeEstimate": "eliminada la estimación de tiempo",
+		"setTimeEstimate": "ha configurado la estimación de tiempo a {{estimate}}"
 	},
 	"tasks": {
 		"title": "Tareas",
@@ -2355,7 +2363,9 @@
 			"taskBranchCopied": "Nombre de la rama copiado",
 			"start": "Comenzar",
 			"startDate": "Fecha de inicio",
-			"noDate": "Sin fecha"
+			"noDate": "Sin fecha",
+			"noEstimate": "Sin estimación",
+			"timeEstimate": "Estimación de tiempo"
 		},
 		"popover": {
 			"assignee": {
@@ -2399,6 +2409,14 @@
 					"rose": "Rosa",
 					"crimson": "Carmesí"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "Usa un formato como 2h 30m, 90m o 1.5h.",
+				"placeholder": "p. ej. 2h 30m",
+				"save": "Guardar",
+				"title": "Estimación de tiempo",
+				"updateError": "Error al actualizar la estimación de tiempo de la tarea",
+				"updateSuccess": "Estimación de tiempo de la tarea actualizada correctamente"
 			}
 		},
 		"backlog": {
@@ -2579,7 +2597,9 @@
 			"actions": "Actiones",
 			"searchActions": "Buscar acciones...",
 			"noActionsFound": "No se han encontrado acciones.",
-			"changeStatus": "Cambiar estado"
+			"changeStatus": "Cambiar estado",
+			"setTimeEstimate": "Definir estimación de tiempo",
+			"updateTimeEstimateError": "Error al actualizar la estimación de tiempo"
 		},
 		"move": {
 			"title": "Mover tarea",
@@ -2624,6 +2644,9 @@
 		"checklistProgress": "{{completed}} de {{total}} elementos de la lista completados",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"timeEstimate": {
+			"label": "Estimación de tiempo"
 		}
 	},
 	"invitations": {

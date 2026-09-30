@@ -153,7 +153,9 @@
 					"terracotta": "Τερακότα",
 					"rose": "Ροζ",
 					"crimson": "Βυσσινί"
-				}
+				},
+				"setTimeEstimate": "Ορισμός",
+				"timeEstimate": "Εκτίμηση χρόνου"
 			}
 		},
 		"boolean": {
@@ -614,7 +616,9 @@
 			"priority": "Προτεραιότητα",
 			"priorityDescription": "Εμφάνιση ενδείξεων προτεραιότητας",
 			"projectBackgrounds": "Project backgrounds",
-			"projectBackgroundsDescription": "Show project background images on boards"
+			"projectBackgroundsDescription": "Show project background images on boards",
+			"timeEstimates": "Εκτιμήσεις χρόνου",
+			"timeEstimatesDescription": "Εμφάνιση εκτιμήσεων χρόνου στις εργασίες"
 		},
 		"developerPage": {
 			"pageTitle": "Ρυθμίσεις προγραμματιστή",
@@ -1094,7 +1098,8 @@
 				"taskStatusChanged": "Αλλαγές κατάστασης",
 				"taskTitleChanged": "Αλλαγές τίτλου",
 				"taskUnassigned": "Αφαίρεση ανάθεσης",
-				"dueDateReminder": "Υπενθυμίσεις ημερομηνίας λήξης"
+				"dueDateReminder": "Υπενθυμίσεις ημερομηνίας λήξης",
+				"taskTimeEstimateChanged": "Αλλαγή εκτίμησης χρόνου"
 			},
 			"eventsHint": "Επιλέξτε ποιες αλλαγές έργου θα ενεργοποιούν εξερχόμενα webhooks.",
 			"eventsTitle": "Ειδοποιήσεις γεγονότων",
@@ -2151,7 +2156,10 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "σχολίασε στο {{forge}}"
-		}
+		},
+		"changedTimeEstimate": "άλλαξε την εκτίμηση χρόνου από {{from}} σε {{to}}",
+		"clearedTimeEstimate": "αφαίρεσε την εκτίμηση χρόνου",
+		"setTimeEstimate": "όρισε ως εκτίμηση χρόνου την {{estimate}}"
 	},
 	"tasks": {
 		"title": "Εργασίες",
@@ -2344,7 +2352,9 @@
 			"taskBranchCopied": "Το όνομα του branch αντιγράφηκε",
 			"start": "Έναρξη",
 			"startDate": "Ημερομηνία έναρξης",
-			"noDate": "Χωρίς ημερομηνία"
+			"noDate": "Χωρίς ημερομηνία",
+			"noEstimate": "Χωρίς εκτίμηση",
+			"timeEstimate": "Εκτίμηση χρόνου"
 		},
 		"move": {
 			"title": "Μετακίνηση εργασίας",
@@ -2399,6 +2409,14 @@
 					"rose": "Ροζ",
 					"crimson": "Βυσσινί"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "Χρησιμοποιήστε μορφή όπως 2h 30m, 90m ή 1.5h.",
+				"placeholder": "π.χ. 2h 30m",
+				"save": "Αποθήκευση",
+				"title": "Εκτίμηση χρόνου",
+				"updateError": "Αποτυχία ενημέρωσης εκτίμησης χρόνου της εργασίας",
+				"updateSuccess": "Η εκτίμηση χρόνου της εργασίας ενημερώθηκε με επιτυχία"
 			}
 		},
 		"backlog": {
@@ -2578,7 +2596,9 @@
 			"actions": "Ενέργειες",
 			"searchActions": "Αναζήτηση ενεργειών...",
 			"noActionsFound": "Δεν βρέθηκαν ενέργειες.",
-			"changeStatus": "Αλλαγή κατάστασης"
+			"changeStatus": "Αλλαγή κατάστασης",
+			"setTimeEstimate": "Ορισμός εκτίμησης χρόνου",
+			"updateTimeEstimateError": "Αποτυχία ενημέρωσης εκτίμησης χρόνου"
 		},
 		"editor": {
 			"table": {
@@ -2612,6 +2632,9 @@
 		"checklistProgress": "Ολοκληρώθηκαν {{completed}} από {{total}} στοιχεία λίστας ελέγχου",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"timeEstimate": {
+			"label": "Εκτίμηση χρόνου"
 		}
 	},
 	"invitations": {

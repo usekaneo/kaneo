@@ -153,7 +153,9 @@
 					"terracotta": "Terracotta",
 					"rose": "Rosa",
 					"crimson": "Cremisi"
-				}
+				},
+				"setTimeEstimate": "Imposta",
+				"timeEstimate": "Stima del tempo"
 			}
 		},
 		"boolean": {
@@ -615,7 +617,9 @@
 			"priority": "Priorità",
 			"priorityDescription": "Visualizza indicatori di priorità",
 			"projectBackgrounds": "Project backgrounds",
-			"projectBackgroundsDescription": "Show project background images on boards"
+			"projectBackgroundsDescription": "Show project background images on boards",
+			"timeEstimates": "Stime del tempo",
+			"timeEstimatesDescription": "Mostra le stime del tempo sulle attività"
 		},
 		"developerPage": {
 			"pageTitle": "Impostazioni Sviluppatore",
@@ -1351,7 +1355,8 @@
 				"taskDueDateChanged": "Data scadenza cambiata",
 				"taskAssigneeChanged": "Assegnatario cambiato",
 				"taskUnassigned": "Attività non assegnata",
-				"dueDateReminder": "Promemoria scadenza"
+				"dueDateReminder": "Promemoria scadenza",
+				"taskTimeEstimateChanged": "Stima del tempo cambiata"
 			},
 			"reminderLeadTimeLabel": "Invia il webhook questo numero di ore prima",
 			"connect": "Connetti webhook",
@@ -2162,7 +2167,10 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "ha commentato su {{forge}}"
-		}
+		},
+		"changedTimeEstimate": "ha cambiato la stima del tempo da {{from}} a {{to}}",
+		"clearedTimeEstimate": "ha rimosso la stima del tempo",
+		"setTimeEstimate": "ha impostato la stima del tempo a {{estimate}}"
 	},
 	"tasks": {
 		"title": "Attività",
@@ -2355,7 +2363,9 @@
 			"taskBranchCopied": "Nome del branch copiato",
 			"start": "Inizio",
 			"startDate": "Data inizio",
-			"noDate": "Nessuna data"
+			"noDate": "Nessuna data",
+			"noEstimate": "Nessuna stima",
+			"timeEstimate": "Stima del tempo"
 		},
 		"move": {
 			"title": "Sposta attività",
@@ -2410,6 +2420,14 @@
 					"rose": "Rosa",
 					"crimson": "Cremisi"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "Usa un formato come 2h 30m, 90m o 1.5h.",
+				"placeholder": "es. 2h 30m",
+				"save": "Salva",
+				"title": "Stima del tempo",
+				"updateError": "Aggiornamento della stima del tempo dell'attività fallito",
+				"updateSuccess": "Stima del tempo dell'attività aggiornata con successo"
 			}
 		},
 		"backlog": {
@@ -2590,7 +2608,9 @@
 			"actions": "Azioni",
 			"searchActions": "Cerca azioni...",
 			"noActionsFound": "Nessuna azione trovata.",
-			"changeStatus": "Cambia Stato"
+			"changeStatus": "Cambia Stato",
+			"setTimeEstimate": "Imposta stima del tempo",
+			"updateTimeEstimateError": "Aggiornamento della stima del tempo fallito"
 		},
 		"editor": {
 			"table": {
@@ -2624,6 +2644,9 @@
 		"checklistProgress": "{{completed}} di {{total}} elementi della checklist completati",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"timeEstimate": {
+			"label": "Stima del tempo"
 		}
 	},
 	"invitations": {

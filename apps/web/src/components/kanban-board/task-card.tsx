@@ -7,6 +7,7 @@ import {
   CalendarClock,
   CalendarX,
   SlidersHorizontal,
+  Timer,
 } from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -40,6 +41,7 @@ import {
 } from "@/lib/due-date-status";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
+import { formatTimeEstimate } from "@/lib/time-estimate";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
@@ -74,6 +76,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
     showDueDates,
     showLabels,
     showTaskNumbers,
+    showTimeEstimates,
   } = useUserPreferencesStore();
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
   const { toggleSelection, isSelected, isFocused } = useBulkSelectionStore();
@@ -335,6 +338,13 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                     getDueDateStatus(task.dueDate, taskIsCompleted) ===
                       "no-due-date") && <Calendar className="w-3 h-3" />}
                   <span>{format(new Date(task.dueDate), "MMM d")}</span>
+                </div>
+              )}
+
+              {showTimeEstimates && task.timeEstimate != null && (
+                <div className="flex items-center gap-1 text-[10px] px-2 py-1 rounded h-5.5 bg-muted/50 text-muted-foreground">
+                  <Timer className="w-3 h-3" />
+                  <span>{formatTimeEstimate(task.timeEstimate)}</span>
                 </div>
               )}
 

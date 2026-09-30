@@ -1,10 +1,11 @@
-import { Calendar, CircleAlert, History, UserRound } from "lucide-react";
+import { Calendar, CircleAlert, History, Timer, UserRound } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import useGetWorkspaceUsers from "@/hooks/queries/workspace-users/use-get-workspace-users";
 import { formatDateMedium, formatRelativeTime } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel, getStatusLabel } from "@/lib/i18n/domain";
+import { formatTimeEstimate } from "@/lib/time-estimate";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   HoverCard,
@@ -57,6 +58,8 @@ function getActivityTypeIcon(type: string) {
       return <CircleAlert className={iconClass} />;
     case "due_date_changed":
       return <Calendar className={iconClass} />;
+    case "time_estimate_changed":
+      return <Timer className={iconClass} />;
     case "assignee_changed":
     case "unassigned":
       return <UserRound className={iconClass} />;
@@ -282,6 +285,32 @@ function renderActivityContent({
     }
 
     return <span className="text-sm text-muted-foreground">{content}</span>;
+  }
+
+  if (activity.type === "time_estimate_changed") {
+    if (eventData) {
+      const oldEstimate =
+        typeof eventData.oldTimeEstimate === "number"
+          ? formatTimeEstimate(eventData.oldTimeEstimate)
+          : null;
+      const newEstimate =
+        typeof eventData.newTimeEstimate === "number"
+          ? formatTimeEstimate(eventData.newTimeEstimate)
+          : null;
+
+      return (
+        <span className="text-sm text-muted-foreground">
+          {newEstimate
+            ? oldEstimate
+              ? t("activity:changedTimeEstimate", {
+                  from: oldEstimate,
+                  to: newEstimate,
+                })
+              : t("activity:setTimeEstimate", { estimate: newEstimate })
+            : t("activity:clearedTimeEstimate")}
+        </span>
+      );
+    }
   }
 
   if (activity.type === "unassigned") {

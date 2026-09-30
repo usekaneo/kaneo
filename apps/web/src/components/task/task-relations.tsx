@@ -247,6 +247,7 @@ export default function TaskRelations({
     priority: item.task.priority,
     startDate: null,
     dueDate: null,
+    timeEstimate: null,
     position: null,
     createdAt: "",
     updatedAt: "",

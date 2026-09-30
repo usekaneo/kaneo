@@ -63,6 +63,8 @@ function RouteComponent() {
     setShowLabels,
     showPriority,
     setShowPriority,
+    showTimeEstimates,
+    setShowTimeEstimates,
     showProjectBackgrounds,
     setShowProjectBackgrounds,
     resetDisplayPreferences,
@@ -411,6 +413,27 @@ function RouteComponent() {
               id="show-priority"
               checked={showPriority}
               onCheckedChange={setShowPriority}
+            />
+          </div>
+
+          <Separator />
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label
+                className="text-sm font-medium"
+                htmlFor="show-time-estimates"
+              >
+                {t("settings:preferencesPage.timeEstimates")}
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                {t("settings:preferencesPage.timeEstimatesDescription")}
+              </p>
+            </div>
+            <Switch
+              id="show-time-estimates"
+              checked={showTimeEstimates}
+              onCheckedChange={setShowTimeEstimates}
             />
           </div>
         </div>

@@ -13,6 +13,7 @@ function task(id: string, status = "to-do"): Task {
     priority: "low",
     startDate: null,
     dueDate: null,
+    timeEstimate: null,
     position: 1,
     createdAt: "2020-01-01T00:00:00Z",
     userId: null,

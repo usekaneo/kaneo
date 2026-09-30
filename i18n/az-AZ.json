@@ -153,7 +153,9 @@
 					"terracotta": "Bişmiş gil rəngi",
 					"rose": "Çəhrayı",
 					"crimson": "Tünd qırmızı"
-				}
+				},
+				"setTimeEstimate": "Təyin et",
+				"timeEstimate": "Vaxt təxmini"
 			}
 		},
 		"boolean": {
@@ -614,7 +616,9 @@
 			"priority": "Prioritet",
 			"priorityDescription": "Prioritet göstəricilərini göstər",
 			"projectBackgrounds": "Project backgrounds",
-			"projectBackgroundsDescription": "Show project background images on boards"
+			"projectBackgroundsDescription": "Show project background images on boards",
+			"timeEstimates": "Vaxt təxminləri",
+			"timeEstimatesDescription": "Tapşırıqlarda vaxt təxminlərini göstər"
 		},
 		"developerPage": {
 			"pageTitle": "Proqramçı parametrləri",
@@ -1387,7 +1391,8 @@
 				"taskDueDateChanged": "Son tarix dəyişdi",
 				"taskAssigneeChanged": "İcraçı dəyişdi",
 				"taskUnassigned": "Tapşırığın icraçısı çıxarıldı",
-				"dueDateReminder": "Son tarix xatırlatmaları"
+				"dueDateReminder": "Son tarix xatırlatmaları",
+				"taskTimeEstimateChanged": "Vaxt təxmini dəyişdi"
 			},
 			"reminderLeadTimeLabel": "Webhook-u bu qədər saat əvvəl göndər",
 			"connect": "Webhook-a qoşul",
@@ -2151,7 +2156,10 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "{{forge}}-da şərh yazdı"
-		}
+		},
+		"changedTimeEstimate": "Vaxt təxminini {{from}}-dən {{to}}-yə dəyişdi",
+		"clearedTimeEstimate": "Vaxt təxminini təmizlədi",
+		"setTimeEstimate": "Vaxt təxminini {{estimate}} olaraq təyin etdi"
 	},
 	"tasks": {
 		"title": "Tapşırıqlar",
@@ -2344,7 +2352,9 @@
 			"taskBranchCopied": "Branch adı kopyalandı",
 			"start": "Başlat",
 			"startDate": "Başlama tarixi",
-			"noDate": "Tarix yoxdur"
+			"noDate": "Tarix yoxdur",
+			"noEstimate": "Təxmin yoxdur",
+			"timeEstimate": "Vaxt təxmini"
 		},
 		"move": {
 			"title": "Tapşırığı köçür",
@@ -2399,6 +2409,14 @@
 					"rose": "Çəhrayı",
 					"crimson": "Tünd qırmızı"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "2h 30m, 90m və ya 1.5h kimi formatdan istifadə edin.",
+				"placeholder": "məs. 2h 30m",
+				"save": "Yadda saxla",
+				"title": "Vaxt təxmini",
+				"updateError": "Tapşırığın vaxt təxminini yeniləmək alınmadı",
+				"updateSuccess": "Tapşırığın vaxt təxmini uğurla yeniləndi"
 			}
 		},
 		"backlog": {
@@ -2586,7 +2604,9 @@
 			"actions": "Əməliyyatlar",
 			"searchActions": "Əməliyyatları axtar...",
 			"noActionsFound": "Əməliyyat tapılmadı.",
-			"changeStatus": "Vəziyyəti dəyiş"
+			"changeStatus": "Vəziyyəti dəyiş",
+			"setTimeEstimate": "Vaxt təxmini təyin et",
+			"updateTimeEstimateError": "Vaxt təxminini yeniləmək alınmadı"
 		},
 		"editor": {
 			"table": {
@@ -2612,6 +2632,9 @@
 		"checklistProgress": "{{completed}} of {{total}} checklist items completed",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"timeEstimate": {
+			"label": "Vaxt təxmini"
 		}
 	},
 	"invitations": {

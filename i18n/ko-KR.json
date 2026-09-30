@@ -153,7 +153,9 @@
 					"terracotta": "테라코타",
 					"rose": "로즈",
 					"crimson": "크림슨"
-				}
+				},
+				"setTimeEstimate": "설정",
+				"timeEstimate": "소요 시간 예상"
 			}
 		},
 		"boolean": {
@@ -613,7 +615,9 @@
 			"priority": "우선순위",
 			"priorityDescription": "우선순위 표시기를 표시합니다",
 			"projectBackgrounds": "Project backgrounds",
-			"projectBackgroundsDescription": "Show project background images on boards"
+			"projectBackgroundsDescription": "Show project background images on boards",
+			"timeEstimates": "소요 시간 예상",
+			"timeEstimatesDescription": "작업에 소요 시간 예상을 표시합니다"
 		},
 		"developerPage": {
 			"pageTitle": "개발자 설정",
@@ -1113,7 +1117,8 @@
 				"taskDueDateChanged": "마감일 변경",
 				"taskAssigneeChanged": "담당자 변경",
 				"taskUnassigned": "할당 해제",
-				"dueDateReminder": "마감일 미리 알림"
+				"dueDateReminder": "마감일 미리 알림",
+				"taskTimeEstimateChanged": "소요 시간 예상 변경"
 			},
 			"connect": "웹훅 연결",
 			"saveChanges": "변경사항 저장",
@@ -2140,7 +2145,10 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "{{forge}}에 댓글을 남김"
-		}
+		},
+		"changedTimeEstimate": "소요 시간 예상을 {{from}}에서 {{to}}(으)로 변경함",
+		"clearedTimeEstimate": "소요 시간 예상을 지움",
+		"setTimeEstimate": "소요 시간 예상을 {{estimate}}(으)로 설정함"
 	},
 	"tasks": {
 		"title": "작업",
@@ -2333,7 +2341,9 @@
 			"taskBranchCopied": "브랜치 이름을 복사했습니다",
 			"start": "시작",
 			"startDate": "시작일",
-			"noDate": "날짜 없음"
+			"noDate": "날짜 없음",
+			"noEstimate": "예상 없음",
+			"timeEstimate": "소요 시간 예상"
 		},
 		"move": {
 			"title": "작업 이동",
@@ -2388,6 +2398,14 @@
 					"rose": "로즈",
 					"crimson": "크림슨"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "2h 30m, 90m, 1.5h와 같은 형식을 사용하세요.",
+				"placeholder": "예: 2h 30m",
+				"save": "저장",
+				"title": "소요 시간 예상",
+				"updateError": "작업의 소요 시간 예상을 업데이트하지 못했습니다",
+				"updateSuccess": "작업의 소요 시간 예상이 업데이트되었습니다"
 			}
 		},
 		"backlog": {
@@ -2579,7 +2597,9 @@
 			"actions": "작업",
 			"searchActions": "작업 검색...",
 			"noActionsFound": "작업을 찾을 수 없습니다.",
-			"changeStatus": "상태 변경"
+			"changeStatus": "상태 변경",
+			"setTimeEstimate": "소요 시간 예상 설정",
+			"updateTimeEstimateError": "소요 시간 예상 업데이트에 실패했습니다"
 		},
 		"editor": {
 			"table": {
@@ -2600,6 +2620,9 @@
 		"checklistProgress": "체크리스트 항목 {{total}}개 중 {{completed}}개 완료",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"timeEstimate": {
+			"label": "소요 시간 예상"
 		}
 	},
 	"invitations": {

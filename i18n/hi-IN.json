@@ -153,7 +153,9 @@
 					"terracotta": "टेराकोटा",
 					"rose": "गुलाब",
 					"crimson": "किरमिज़ी"
-				}
+				},
+				"setTimeEstimate": "सेट करें",
+				"timeEstimate": "समय अनुमान"
 			}
 		},
 		"boolean": {
@@ -614,7 +616,9 @@
 			"priority": "प्राथमिकता",
 			"priorityDescription": "प्राथमिकता संकेतक दिखाएँ",
 			"projectBackgrounds": "Project backgrounds",
-			"projectBackgroundsDescription": "Show project background images on boards"
+			"projectBackgroundsDescription": "Show project background images on boards",
+			"timeEstimates": "समय अनुमान",
+			"timeEstimatesDescription": "कार्यों पर समय अनुमान दिखाएँ"
 		},
 		"developerPage": {
 			"pageTitle": "डेवलपर सेटिंग",
@@ -1349,7 +1353,8 @@
 				"taskDueDateChanged": "नियत तारीख बदली",
 				"taskAssigneeChanged": "सौंपा गया बदला",
 				"taskUnassigned": "कार्य असाइन हटाया",
-				"dueDateReminder": "नियत तारीख अनुस्मारक"
+				"dueDateReminder": "नियत तारीख अनुस्मारक",
+				"taskTimeEstimateChanged": "समय अनुमान बदला"
 			},
 			"reminderLeadTimeLabel": "इतने घंटे पहले वेबहुक भेजें",
 			"connect": "वेबहुक कनेक्ट करें",
@@ -2151,7 +2156,10 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "{{forge}} पर टिप्पणी की"
-		}
+		},
+		"changedTimeEstimate": "समय अनुमान {{from}} से {{to}} में बदला",
+		"clearedTimeEstimate": "समय अनुमान साफ़ किया",
+		"setTimeEstimate": "समय अनुमान {{estimate}} सेट किया"
 	},
 	"tasks": {
 		"title": "कार्य",
@@ -2344,7 +2352,9 @@
 			"taskBranchCopied": "ब्रांच का नाम कॉपी किया गया",
 			"start": "शुरू",
 			"startDate": "शुरू की तारीख",
-			"noDate": "कोई तारीख नहीं"
+			"noDate": "कोई तारीख नहीं",
+			"noEstimate": "कोई अनुमान नहीं",
+			"timeEstimate": "समय अनुमान"
 		},
 		"move": {
 			"title": "कार्य ले जाएँ",
@@ -2399,6 +2409,14 @@
 					"rose": "गुलाब",
 					"crimson": "किरमिज़ी"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "2h 30m, 90m या 1.5h जैसा प्रारूप इस्तेमाल करें।",
+				"placeholder": "जैसे 2h 30m",
+				"save": "सहेजें",
+				"title": "समय अनुमान",
+				"updateError": "कार्य का समय अनुमान अपडेट करने में विफल",
+				"updateSuccess": "कार्य का समय अनुमान सफलतापूर्वक अपडेट किया गया"
 			}
 		},
 		"backlog": {
@@ -2578,7 +2596,9 @@
 			"actions": "कार्रवाइयाँ",
 			"searchActions": "कार्रवाइयाँ खोजें...",
 			"noActionsFound": "कोई कार्रवाई नहीं मिली।",
-			"changeStatus": "स्थिति बदलें"
+			"changeStatus": "स्थिति बदलें",
+			"setTimeEstimate": "समय अनुमान सेट करें",
+			"updateTimeEstimateError": "समय अनुमान अपडेट करने में विफल"
 		},
 		"editor": {
 			"table": {
@@ -2612,6 +2632,9 @@
 		"checklistProgress": "चेकलिस्ट के {{total}} में से {{completed}} आइटम पूरे हुए",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"timeEstimate": {
+			"label": "समय अनुमान"
 		}
 	},
 	"invitations": {

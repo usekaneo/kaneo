@@ -15,6 +15,7 @@ export type TaskUpdatePatch = {
   position?: number;
   startDate?: string | null;
   dueDate?: string | null;
+  timeEstimate?: number | null;
   userId?: string | null;
 };
 
@@ -93,6 +94,14 @@ export function buildFullTaskUpdateBody(
   const dueDate = formatOptionalIso(
     patch.dueDate !== undefined ? patch.dueDate : existing.dueDate,
   );
+  const timeEstimateRaw =
+    patch.timeEstimate !== undefined
+      ? patch.timeEstimate
+      : existing.timeEstimate;
+  // Null clears, like formatOptionalIso mapping null dates to omitted keys:
+  // the full-replace PUT clears absent fields.
+  const timeEstimate =
+    typeof timeEstimateRaw === "number" ? timeEstimateRaw : undefined;
 
   const body: Record<string, string | number | undefined> = {
     title,
@@ -108,6 +117,9 @@ export function buildFullTaskUpdateBody(
   }
   if (dueDate !== undefined) {
     body.dueDate = dueDate;
+  }
+  if (timeEstimate !== undefined) {
+    body.timeEstimate = timeEstimate;
   }
   if (userId !== undefined) {
     body.userId = userId;

@@ -153,7 +153,9 @@
 					"terracotta": "Terre cuite",
 					"rose": "Rose",
 					"crimson": "Cramoisi"
-				}
+				},
+				"setTimeEstimate": "Définir",
+				"timeEstimate": "Estimation du temps"
 			}
 		},
 		"boolean": {
@@ -615,7 +617,9 @@
 			"priority": "Priorité",
 			"priorityDescription": "Afficher les indicateurs de priorité",
 			"projectBackgrounds": "Project backgrounds",
-			"projectBackgroundsDescription": "Show project background images on boards"
+			"projectBackgroundsDescription": "Show project background images on boards",
+			"timeEstimates": "Estimations du temps",
+			"timeEstimatesDescription": "Afficher les estimations du temps sur les tâches"
 		},
 		"developerPage": {
 			"pageTitle": "Paramètres développeur",
@@ -1115,7 +1119,8 @@
 				"taskDueDateChanged": "Date d'échéance modifiée",
 				"taskAssigneeChanged": "Assigné modifié",
 				"taskUnassigned": "Tâche désassignée",
-				"dueDateReminder": "Rappels d'échéance"
+				"dueDateReminder": "Rappels d'échéance",
+				"taskTimeEstimateChanged": "Estimation du temps modifiée"
 			},
 			"connect": "Connecter le webhook",
 			"saveChanges": "Enregistrer les modifications",
@@ -2162,7 +2167,10 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "a commenté sur {{forge}}"
-		}
+		},
+		"changedTimeEstimate": "a changé l'estimation du temps de {{from}} à {{to}}",
+		"clearedTimeEstimate": "a effacé l'estimation du temps",
+		"setTimeEstimate": "a défini l'estimation du temps à {{estimate}}"
 	},
 	"tasks": {
 		"title": "Tâches",
@@ -2355,7 +2363,9 @@
 			"taskBranchCopied": "Nom de la branche copié",
 			"start": "Début",
 			"startDate": "Date de début",
-			"noDate": "Pas de date"
+			"noDate": "Pas de date",
+			"noEstimate": "Pas d'estimation",
+			"timeEstimate": "Estimation du temps"
 		},
 		"move": {
 			"title": "Déplacer la tâche",
@@ -2410,6 +2420,14 @@
 					"rose": "Rose",
 					"crimson": "Cramoisi"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "Utilisez un format comme 2h 30m, 90m ou 1.5h.",
+				"placeholder": "ex. 2h 30m",
+				"save": "Enregistrer",
+				"title": "Estimation du temps",
+				"updateError": "Échec de la mise à jour de l'estimation du temps de la tâche",
+				"updateSuccess": "Estimation du temps de la tâche mise à jour avec succès"
 			}
 		},
 		"backlog": {
@@ -2590,7 +2608,9 @@
 			"actions": "Actions",
 			"searchActions": "Rechercher des actions...",
 			"noActionsFound": "Aucune action trouvée.",
-			"changeStatus": "Changer le statut"
+			"changeStatus": "Changer le statut",
+			"setTimeEstimate": "Définir l'estimation du temps",
+			"updateTimeEstimateError": "Échec de la mise à jour de l'estimation du temps"
 		},
 		"editor": {
 			"table": {
@@ -2624,6 +2644,9 @@
 		"checklistProgress": "{{completed}} éléments de la liste terminés sur {{total}}",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"timeEstimate": {
+			"label": "Estimation du temps"
 		}
 	},
 	"invitations": {

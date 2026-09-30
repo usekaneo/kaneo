@@ -36,6 +36,9 @@ type UserPreferencesStore = {
   showPriority: boolean;
   setShowPriority: (show: boolean) => void;
   togglePriority: () => void;
+  showTimeEstimates: boolean;
+  setShowTimeEstimates: (show: boolean) => void;
+  toggleTimeEstimates: () => void;
   showProjectBackgrounds: boolean;
   setShowProjectBackgrounds: (show: boolean) => void;
   showTaskItemCounts: boolean;
@@ -106,6 +109,10 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
       setShowPriority: (show) => set({ showPriority: show }),
       togglePriority: () =>
         set((state) => ({ showPriority: !state.showPriority })),
+      showTimeEstimates: true,
+      setShowTimeEstimates: (show) => set({ showTimeEstimates: show }),
+      toggleTimeEstimates: () =>
+        set((state) => ({ showTimeEstimates: !state.showTimeEstimates })),
       showProjectBackgrounds: true,
       setShowProjectBackgrounds: (show) =>
         set({ showProjectBackgrounds: show }),
@@ -120,6 +127,7 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
           showLabels: true,
           showTaskNumbers: true,
           showPriority: true,
+          showTimeEstimates: true,
           showTaskItemCounts: true,
         }),
 

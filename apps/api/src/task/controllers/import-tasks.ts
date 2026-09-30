@@ -18,6 +18,7 @@ export type ImportTask = {
   priority?: string;
   startDate?: string | null;
   dueDate?: string | null;
+  timeEstimate?: number | null;
   userId?: string | null;
 };
 
@@ -95,6 +96,7 @@ async function importTasks(
             columnId: column?.id ?? null,
             startDate: taskData.startDate ? new Date(taskData.startDate) : null,
             dueDate: taskData.dueDate ? new Date(taskData.dueDate) : null,
+            timeEstimate: taskData.timeEstimate || null,
             description: taskData.description || "",
             priority,
             number: taskNumber,

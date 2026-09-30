@@ -7,6 +7,7 @@ import {
   CalendarClock,
   CalendarX,
   SlidersHorizontal,
+  Timer,
 } from "lucide-react";
 import { type CSSProperties, memo, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -39,6 +40,7 @@ import {
 } from "@/lib/due-date-status";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
+import { formatTimeEstimate } from "@/lib/time-estimate";
 import { toast } from "@/lib/toast";
 import useBacklogBulkSelectionStore from "@/store/backlog-bulk-selection";
 import useProjectStore from "@/store/project";
@@ -77,6 +79,7 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
     showDueDates,
     showLabels,
     showTaskNumbers,
+    showTimeEstimates,
   } = useUserPreferencesStore();
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
   const { mutateAsync: deleteTask } = useDeleteTask();
@@ -226,6 +229,13 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
                   getDueDateStatus(task.dueDate, taskIsCompleted) ===
                     "no-due-date") && <Calendar className="w-3 h-3" />}
                 <span>{format(new Date(task.dueDate), "MMM d")}</span>
+              </div>
+            )}
+
+            {showTimeEstimates && task.timeEstimate != null && (
+              <div className="flex items-center gap-1 text-[10px] px-2 py-1 rounded flex-shrink-0 bg-muted/50 text-muted-foreground">
+                <Timer className="w-3 h-3" />
+                <span>{formatTimeEstimate(task.timeEstimate)}</span>
               </div>
             )}
 

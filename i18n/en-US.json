@@ -159,7 +159,9 @@
 					"terracotta": "Terracotta",
 					"rose": "Rose",
 					"crimson": "Crimson"
-				}
+				},
+				"timeEstimate": "Time estimate",
+				"setTimeEstimate": "Set"
 			}
 		}
 	},
@@ -694,7 +696,9 @@
 			"priority": "Priority",
 			"priorityDescription": "Display priority indicators",
 			"projectBackgrounds": "Project backgrounds",
-			"projectBackgroundsDescription": "Show project background images on boards"
+			"projectBackgroundsDescription": "Show project background images on boards",
+			"timeEstimates": "Time Estimates",
+			"timeEstimatesDescription": "Show time estimates on tasks"
 		},
 		"developerPage": {
 			"pageTitle": "Developer Settings",
@@ -1581,7 +1585,8 @@
 				"taskDueDateChanged": "Due date changed",
 				"taskAssigneeChanged": "Assignee changed",
 				"taskUnassigned": "Task unassigned",
-				"dueDateReminder": "Due-date reminders"
+				"dueDateReminder": "Due-date reminders",
+				"taskTimeEstimateChanged": "Time estimate changed"
 			},
 			"reminderLeadTimeLabel": "Send the webhook this many hours before",
 			"connect": "Connect webhook",
@@ -2151,7 +2156,10 @@
 			},
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}"
-		}
+		},
+		"clearedTimeEstimate": "cleared the time estimate",
+		"setTimeEstimate": "set time estimate to {{estimate}}",
+		"changedTimeEstimate": "changed time estimate from {{from}} to {{to}}"
 	},
 	"tasks": {
 		"checklistProgress": "{{completed}} of {{total}} checklist items completed",
@@ -2345,7 +2353,9 @@
 			"taskBranchCopied": "Copied branch name",
 			"start": "Start",
 			"startDate": "Start date",
-			"noDate": "No date"
+			"noDate": "No date",
+			"timeEstimate": "Time estimate",
+			"noEstimate": "No estimate"
 		},
 		"move": {
 			"title": "Move task",
@@ -2400,6 +2410,14 @@
 					"rose": "Rose",
 					"crimson": "Crimson"
 				}
+			},
+			"timeEstimate": {
+				"title": "Time estimate",
+				"placeholder": "e.g. 2h 30m",
+				"save": "Save",
+				"invalid": "Use a format like 2h 30m, 90m, or 1.5h.",
+				"updateSuccess": "Task time estimate updated successfully",
+				"updateError": "Failed to update task time estimate"
 			}
 		},
 		"backlog": {
@@ -2592,7 +2610,9 @@
 			"actions": "Actions",
 			"searchActions": "Search actions...",
 			"noActionsFound": "No actions found.",
-			"changeStatus": "Change Status"
+			"changeStatus": "Change Status",
+			"setTimeEstimate": "Set Time Estimate",
+			"updateTimeEstimateError": "Failed to update time estimate"
 		},
 		"editor": {
 			"table": {
@@ -2612,7 +2632,10 @@
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
-		"descriptionLoadError": "The description could not be loaded. Retry to load the current version."
+		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"timeEstimate": {
+			"label": "Time estimate"
+		}
 	},
 	"invitations": {
 		"email": {

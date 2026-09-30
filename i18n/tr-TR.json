@@ -153,7 +153,9 @@
 					"terracotta": "Terakota",
 					"rose": "Gül Kurusu",
 					"crimson": "Koyu Kırmızı"
-				}
+				},
+				"setTimeEstimate": "Belirle",
+				"timeEstimate": "Süre tahmini"
 			}
 		},
 		"boolean": {
@@ -614,7 +616,9 @@
 			"priority": "Öncelik",
 			"priorityDescription": "Öncelik göstergelerini görüntüle",
 			"projectBackgrounds": "Project backgrounds",
-			"projectBackgroundsDescription": "Show project background images on boards"
+			"projectBackgroundsDescription": "Show project background images on boards",
+			"timeEstimates": "Süre tahminleri",
+			"timeEstimatesDescription": "Görevlerde süre tahminlerini göster"
 		},
 		"developerPage": {
 			"pageTitle": "Geliştirici Ayarları",
@@ -1114,7 +1118,8 @@
 				"taskDueDateChanged": "Bitiş tarihi değişti",
 				"taskAssigneeChanged": "Atanan kişi değişti",
 				"taskUnassigned": "Atama kaldırıldı",
-				"dueDateReminder": "Bitiş tarihi hatırlatmaları"
+				"dueDateReminder": "Bitiş tarihi hatırlatmaları",
+				"taskTimeEstimateChanged": "Süre tahmini değişti"
 			},
 			"connect": "Webhook bağla",
 			"saveChanges": "Değişiklikleri kaydet",
@@ -2151,7 +2156,10 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "{{forge}}'da yorum yaptı"
-		}
+		},
+		"changedTimeEstimate": "süre tahminini {{from}} yerine {{to}} olarak değiştirdi",
+		"clearedTimeEstimate": "süre tahminini temizledi",
+		"setTimeEstimate": "süre tahminini {{estimate}} olarak ayarladı"
 	},
 	"tasks": {
 		"title": "Görevler",
@@ -2344,7 +2352,9 @@
 			"taskBranchCopied": "Branch adı kopyalandı",
 			"start": "Başlat",
 			"startDate": "Başlangıç tarihi",
-			"noDate": "Tarih yok"
+			"noDate": "Tarih yok",
+			"noEstimate": "Tahmin yok",
+			"timeEstimate": "Süre tahmini"
 		},
 		"move": {
 			"title": "Talebi taşı",
@@ -2399,6 +2409,14 @@
 					"rose": "Gül Kurusu",
 					"crimson": "Koyu Kırmızı"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "2h 30m, 90m veya 1.5h gibi bir biçim kullanın.",
+				"placeholder": "örn. 2h 30m",
+				"save": "Kaydet",
+				"title": "Süre tahmini",
+				"updateError": "Görev süre tahmini güncellenemedi",
+				"updateSuccess": "Görev süre tahmini başarıyla güncellendi"
 			}
 		},
 		"backlog": {
@@ -2578,7 +2596,9 @@
 			"actions": "İşlemler",
 			"searchActions": "İşlem ara...",
 			"noActionsFound": "İşlem bulunamadı.",
-			"changeStatus": "Durumu Değiştir"
+			"changeStatus": "Durumu Değiştir",
+			"setTimeEstimate": "Süre Tahmini Belirle",
+			"updateTimeEstimateError": "Süre tahmini güncellenemedi"
 		},
 		"editor": {
 			"table": {
@@ -2612,6 +2632,9 @@
 		"checklistProgress": "{{total}} kontrol listesi öğesinin {{completed}} tanesi tamamlandı",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"timeEstimate": {
+			"label": "Süre tahmini"
 		}
 	},
 	"invitations": {

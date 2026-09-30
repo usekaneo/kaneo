@@ -144,6 +144,23 @@ export function useBulkOperations() {
     onSuccess: invalidateCommon,
   });
 
+  const bulkTimeEstimate = useMutation({
+    mutationFn: async ({
+      taskIds,
+      timeEstimate,
+    }: {
+      taskIds: string[];
+      timeEstimate: number | null;
+    }) => {
+      await bulkOperation({
+        taskIds,
+        operation: "updateTimeEstimate",
+        value: timeEstimate == null ? null : String(timeEstimate),
+      });
+    },
+    onSuccess: invalidateCommon,
+  });
+
   return {
     bulkDelete: bulkDelete.mutateAsync,
     bulkArchive: bulkArchive.mutateAsync,
@@ -154,5 +171,6 @@ export function useBulkOperations() {
     bulkPriority: bulkPriority.mutateAsync,
     bulkAddLabel: bulkAddLabel.mutateAsync,
     bulkDueDate: bulkDueDate.mutateAsync,
+    bulkTimeEstimate: bulkTimeEstimate.mutateAsync,
   };
 }

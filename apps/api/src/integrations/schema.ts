@@ -15,6 +15,7 @@ export const genericWebhookEventToggles = integrationEventToggles.extend({
   taskDeleted: z.boolean().optional(),
   taskMoved: z.boolean().optional(),
   taskDueDateChanged: z.boolean().optional(),
+  taskTimeEstimateChanged: z.boolean().optional(),
   taskAssigneeChanged: z.boolean().optional(),
   taskUnassigned: z.boolean().optional(),
   dueDateReminder: z.boolean().optional(),

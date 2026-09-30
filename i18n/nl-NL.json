@@ -153,7 +153,9 @@
 					"terracotta": "Terracotta",
 					"rose": "Roos",
 					"crimson": "Karmozijn"
-				}
+				},
+				"setTimeEstimate": "Instellen",
+				"timeEstimate": "Tijdschatting"
 			}
 		},
 		"boolean": {
@@ -510,7 +512,9 @@
 			"priority": "Prioriteit",
 			"priorityDescription": "Toon prioriteitsindicatoren",
 			"projectBackgrounds": "Project backgrounds",
-			"projectBackgroundsDescription": "Show project background images on boards"
+			"projectBackgroundsDescription": "Show project background images on boards",
+			"timeEstimates": "Tijdschattingen",
+			"timeEstimatesDescription": "Toon tijdschattingen op taken"
 		},
 		"developerPage": {
 			"pageTitle": "Ontwikkelaarsinstellingen",
@@ -934,7 +938,8 @@
 				"taskDueDateChanged": "Einddatum gewijzigd",
 				"taskAssigneeChanged": "Toewijzing gewijzigd",
 				"taskUnassigned": "Toewijzing verwijderd",
-				"dueDateReminder": "Einddatum-herinneringen"
+				"dueDateReminder": "Einddatum-herinneringen",
+				"taskTimeEstimateChanged": "Tijdschatting gewijzigd"
 			},
 			"connect": "Webhook verbinden",
 			"saveChanges": "Wijzigingen opslaan",
@@ -2151,7 +2156,10 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "heeft gereageerd op {{forge}}"
-		}
+		},
+		"changedTimeEstimate": "heeft de tijdschatting gewijzigd van {{from}} naar {{to}}",
+		"clearedTimeEstimate": "heeft de tijdschatting verwijderd",
+		"setTimeEstimate": "heeft de tijdschatting ingesteld op {{estimate}}"
 	},
 	"tasks": {
 		"title": "Taken",
@@ -2344,7 +2352,9 @@
 			"taskBranchCopied": "Branchnaam gekopieerd",
 			"start": "Start",
 			"startDate": "Startdatum",
-			"noDate": "Geen datum"
+			"noDate": "Geen datum",
+			"noEstimate": "Geen schatting",
+			"timeEstimate": "Tijdschatting"
 		},
 		"popover": {
 			"assignee": {
@@ -2388,6 +2398,14 @@
 					"rose": "Roos",
 					"crimson": "Karmozijn"
 				}
+			},
+			"timeEstimate": {
+				"invalid": "Gebruik een formaat zoals 2h 30m, 90m of 1.5h.",
+				"placeholder": "bijv. 2h 30m",
+				"save": "Opslaan",
+				"title": "Tijdschatting",
+				"updateError": "Bijwerken van tijdschatting van taak mislukt",
+				"updateSuccess": "Tijdschatting van taak succesvol bijgewerkt"
 			}
 		},
 		"backlog": {
@@ -2567,7 +2585,9 @@
 			"actions": "Acties",
 			"searchActions": "Acties zoeken...",
 			"noActionsFound": "Geen acties gevonden.",
-			"changeStatus": "Status wijzigen"
+			"changeStatus": "Status wijzigen",
+			"setTimeEstimate": "Tijdschatting instellen",
+			"updateTimeEstimateError": "Bijwerken tijdschatting mislukt"
 		},
 		"move": {
 			"title": "Taak verplaatsen",
@@ -2612,6 +2632,9 @@
 		"checklistProgress": "{{completed}} van {{total}} checklistitems voltooid",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"timeEstimate": {
+			"label": "Tijdschatting"
 		}
 	},
 	"invitations": {

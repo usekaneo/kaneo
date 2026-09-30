@@ -16,6 +16,7 @@ export const genericWebhookEventsSchema = integrationEventsSchema
     taskDeleted: z.boolean(),
     taskMoved: z.boolean(),
     taskDueDateChanged: z.boolean(),
+    taskTimeEstimateChanged: z.boolean(),
     taskAssigneeChanged: z.boolean(),
     taskUnassigned: z.boolean(),
     dueDateReminder: z.boolean(),
