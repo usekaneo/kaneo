@@ -1,11 +1,9 @@
+import { syncLatestTaskText } from "../services/sync-latest-task-text";
 import db from "../../../database";
 import { linkedTaskScope } from "../services/integration-task-scope";
 import type { PluginContext, TaskDescriptionChangedEvent } from "../../types";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
-import {
-  findExternalLinksByTask,
-  updateExternalLink,
-} from "../services/link-manager";
+import { findExternalLinksByTask } from "../services/link-manager";
 import { formatIssueBody } from "../utils/format";
 import {
   getGithubApp,
@@ -68,23 +66,22 @@ export async function handleTaskDescriptionChanged(
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
 
     // Format description with task ID footer
-    const formattedBody = formatIssueBody(event.newDescription, event.taskId);
-
-    const response = await octokit.rest.issues.update({
-      owner: repositoryOwner,
-      repo: repositoryName,
-      issue_number: issueNumber,
-      body: formattedBody,
-    });
-
-    // Update metadata to track this sync
-    await updateExternalLink(issueLink.id, {
-      outbound: {
-        field: "description",
-        value: newDescNormalized,
-        updatedAt: response?.data?.updated_at,
+    await syncLatestTaskText(
+      event.taskId,
+      context.projectId,
+      issueLink,
+      "description",
+      newDescNormalized,
+      async (value) => {
+        const response = await octokit.rest.issues.update({
+          owner: repositoryOwner,
+          repo: repositoryName,
+          issue_number: issueNumber,
+          body: formatIssueBody(value, event.taskId),
+        });
+        return response?.data?.updated_at;
       },
-    });
+    );
 
     console.log(`Synced task description to GitHub issue #${issueNumber}`);
   } catch (error) {

@@ -77,6 +77,29 @@ vi.mock(
 vi.mock("../../../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
   createGiteaClient: () => ({ getIssue: m.getIssue }),
 }));
+vi.mock(
+  "../../../../apps/api/src/plugins/github/services/with-integration-link",
+  () => ({
+    withIntegrationLink: async (
+      _link: unknown,
+      _scope: unknown,
+      apply: (
+        database: unknown,
+        afterCommit: unknown,
+        link: unknown,
+      ) => Promise<unknown>,
+    ) =>
+      apply(
+        (await import("../../../../apps/api/src/database")).default,
+        () => {},
+        {
+          id: "link",
+          taskId: "task",
+          metadata: m.lockedMetadata ?? m.metadata,
+        },
+      ),
+  }),
+);
 const payload = {
   action: "edited",
   repository: {
@@ -367,4 +390,34 @@ it("rechecks a close echo from the locked state snapshot", async () => {
     issue: { ...payload.issue, state: "closed" },
   });
   expect(m.status).not.toHaveBeenCalled();
+});
+
+it("applies a close following an inbound reopen within the same provider timestamp", async () => {
+  const { handleGiteaIssueClosed } =
+    await import("../../../../apps/api/src/plugins/gitea/webhooks/issue-closed");
+  const { handleGiteaIssueReopened } =
+    await import("../../../../apps/api/src/plugins/gitea/webhooks/issue-reopened");
+  const stamp = "2026-01-01T00:00:00Z";
+  m.metadata = JSON.stringify({
+    state: "closed",
+    lastSync: { state: outboundStamp(undefined, "closed", stamp) },
+  });
+  m.status.mockResolvedValue({ applied: false });
+  m.linkWrites.mockImplementation(async (_id, update) => {
+    m.metadata = JSON.stringify(update.metadata);
+  });
+  await handleGiteaIssueReopened({
+    ...payload,
+    action: "reopened",
+    issue: { ...payload.issue, state: "open", updated_at: stamp },
+  });
+  expect(JSON.parse(m.metadata).lastSync.state.value).toBe("open");
+  m.getIssue.mockResolvedValue({ state: "closed" });
+  await handleGiteaIssueClosed({
+    ...payload,
+    action: "closed",
+    issue: { ...payload.issue, state: "closed", updated_at: stamp },
+  });
+  expect(m.status).toHaveBeenCalledTimes(2);
+  expect(JSON.parse(m.metadata).state).toBe("closed");
 });

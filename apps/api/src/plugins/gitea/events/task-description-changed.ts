@@ -1,9 +1,7 @@
+import { syncLatestTaskText } from "../../github/services/sync-latest-task-text";
 import db from "../../../database";
 import { linkedTaskScope } from "../../github/services/integration-task-scope";
-import {
-  findExternalLinksByTask,
-  updateExternalLink,
-} from "../../github/services/link-manager";
+import { findExternalLinksByTask } from "../../github/services/link-manager";
 import { formatIssueBody } from "../../github/utils/format";
 import type { PluginContext, TaskDescriptionChangedEvent } from "../../types";
 import type { GiteaConfig } from "../config";
@@ -92,24 +90,24 @@ export async function handleTaskDescriptionChanged(
       return;
     }
 
-    const formattedBody = formatIssueBody(event.newDescription, event.taskId);
-
-    const response = await client.updateIssue(
-      repositoryOwner,
-      repositoryName,
-      issueNumber,
-      {
-        body: formattedBody,
+    await syncLatestTaskText(
+      event.taskId,
+      context.projectId,
+      issueLink,
+      "description",
+      newDescNormalized,
+      async (value) => {
+        const response = await client.updateIssue(
+          repositoryOwner,
+          repositoryName,
+          issueNumber,
+          {
+            body: formatIssueBody(value, event.taskId),
+          },
+        );
+        return response?.updated_at;
       },
     );
-
-    await updateExternalLink(issueLink.id, {
-      outbound: {
-        field: "description",
-        value: newDescNormalized,
-        updatedAt: response?.updated_at,
-      },
-    });
 
     console.log(`Synced task description to Gitea issue #${issueNumber}`);
   } catch (error) {

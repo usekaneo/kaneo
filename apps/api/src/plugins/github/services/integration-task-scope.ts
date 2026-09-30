@@ -44,7 +44,7 @@ export async function withIntegrationTask<T>(
             : undefined,
         ),
       )
-      .for("key share", { of: projectTable });
+      .for("key share", { of: [projectTable, integrationTable] });
     if (!project) return undefined;
     if (taskId !== null) {
       const [task] = await tx

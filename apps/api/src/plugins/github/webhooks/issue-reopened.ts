@@ -1,7 +1,5 @@
-import {
-  linkedTaskScope,
-  withIntegrationTask,
-} from "../services/integration-task-scope";
+import { withIntegrationLink } from "../services/with-integration-link";
+import { linkedTaskScope } from "../services/integration-task-scope";
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import { externalLinkTable } from "../../../database/schema";
@@ -49,10 +47,10 @@ export async function handleIssueReopened(payload: IssueReopenedPayload) {
       continue;
     }
 
-    await withIntegrationTask(
-      externalLink.taskId,
+    await withIntegrationLink(
+      externalLink,
       integration,
-      async (db, afterCommit) => {
+      async (db, afterCommit, externalLink) => {
         const task = await db.query.taskTable.findFirst({
           where: linkedTaskScope(externalLink.taskId, integration.projectId),
         });

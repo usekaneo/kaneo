@@ -1,3 +1,4 @@
+import { withIntegrationLink } from "../../github/services/with-integration-link";
 import type { GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
 import { parseLinkMetadata } from "../../github/utils/parse-link-metadata";
@@ -6,18 +7,12 @@ import {
   inboundEcho,
   withEchoConfirmation,
 } from "../../github/utils/inbound-echo";
-import {
-  linkedTaskScope,
-  withIntegrationTask,
-} from "../../github/services/integration-task-scope";
+import { linkedTaskScope } from "../../github/services/integration-task-scope";
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import { externalLinkTable } from "../../../database/schema";
 import { publishEvent } from "../../../events";
-import {
-  updateExternalLink,
-  lockExternalLink,
-} from "../../github/services/link-manager";
+import { updateExternalLink } from "../../github/services/link-manager";
 import { updateTaskStatus } from "../../github/services/task-service";
 import {
   findAllIntegrationsByGiteaRepo,
@@ -93,10 +88,10 @@ export async function handleGiteaIssueClosed(
       }
     };
     await withEchoConfirmation(readCurrent, (current) =>
-      withIntegrationTask(
-        externalLink.taskId,
+      withIntegrationLink(
+        externalLink,
         integration,
-        async (db, afterCommit) => {
+        async (db, afterCommit, externalLink) => {
           const task = await db.query.taskTable.findFirst({
             where: linkedTaskScope(externalLink.taskId, integration.projectId),
           });
@@ -105,11 +100,9 @@ export async function handleGiteaIssueClosed(
             return;
           }
 
-          const lockedLink = await lockExternalLink(externalLink.id, db);
-          if (!lockedLink) return;
           const existingMetadata = parseLinkMetadata<
             Record<string, unknown> & { lastSync?: { state?: SyncStamp } }
-          >(lockedLink.metadata, {
+          >(externalLink.metadata, {
             externalLinkId: externalLink.id,
             source: "gitea_issue_closed",
           });
@@ -173,6 +166,15 @@ export async function handleGiteaIssueClosed(
               metadata: {
                 ...existingMetadata,
                 state: "closed",
+                lastSync: {
+                  ...existingMetadata.lastSync,
+                  state: {
+                    ...existingMetadata.lastSync?.state,
+                    source: "gitea",
+                    value: "closed",
+                    timestamp: new Date().toISOString(),
+                  },
+                },
               },
             },
             db,

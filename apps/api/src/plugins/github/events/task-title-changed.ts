@@ -1,11 +1,9 @@
+import { syncLatestTaskText } from "../services/sync-latest-task-text";
 import db from "../../../database";
 import { linkedTaskScope } from "../services/integration-task-scope";
 import type { PluginContext, TaskTitleChangedEvent } from "../../types";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
-import {
-  findExternalLinksByTask,
-  updateExternalLink,
-} from "../services/link-manager";
+import { findExternalLinksByTask } from "../services/link-manager";
 import {
   getGithubApp,
   getVerifiedInstallationOctokit,
@@ -60,22 +58,22 @@ export async function handleTaskTitleChanged(
     const octokit = await getVerifiedInstallationOctokit(config);
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
 
-    const response = await octokit.rest.issues.update({
-      owner: repositoryOwner,
-      repo: repositoryName,
-      issue_number: issueNumber,
-      title: event.newTitle,
-    });
-
-    // Update metadata to track this sync
-    await updateExternalLink(issueLink.id, {
-      title: event.newTitle,
-      outbound: {
-        field: "title",
-        value: event.newTitle,
-        updatedAt: response?.data?.updated_at,
+    await syncLatestTaskText(
+      event.taskId,
+      context.projectId,
+      issueLink,
+      "title",
+      event.newTitle,
+      async (value) => {
+        const response = await octokit.rest.issues.update({
+          owner: repositoryOwner,
+          repo: repositoryName,
+          issue_number: issueNumber,
+          title: value,
+        });
+        return response?.data?.updated_at;
       },
-    });
+    );
 
     console.log(`Synced task title to GitHub issue #${issueNumber}`);
   } catch (error) {

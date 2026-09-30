@@ -35,7 +35,7 @@ const context = {
     verifiedByUserId: "user",
   },
 };
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => vi.resetAllMocks());
 function link(field: string, source: string, value: string) {
   return {
     id: "link",
@@ -138,3 +138,96 @@ it("does not send a queued title after a newer task edit", async () => {
   );
   expect(m.update).not.toHaveBeenCalled();
 });
+
+vi.mock("../../../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
+  createGiteaClient: () => ({
+    updateIssue: async (
+      _owner: string,
+      _repo: string,
+      _number: number,
+      input: unknown,
+    ) => m.update(input),
+  }),
+}));
+const giteaTitle = (
+  await import("../../../../apps/api/src/plugins/gitea/events/task-title-changed")
+).handleTaskTitleChanged;
+const giteaDescription = (
+  await import("../../../../apps/api/src/plugins/gitea/events/task-description-changed")
+).handleTaskDescriptionChanged;
+it.each([
+  ["github", "title"],
+  ["github", "description"],
+  ["gitea", "title"],
+  ["gitea", "description"],
+])(
+  "repairs %s %s when an older request completes after the latest edit",
+  async (provider, field) => {
+    let finishOld!: () => void;
+    let oldStarted!: () => void;
+    const started = new Promise<void>((resolve) => {
+      oldStarted = resolve;
+    });
+    const delayed = new Promise<void>((resolve) => {
+      finishOld = resolve;
+    });
+    let remote = "";
+    m.current.title = "A";
+    m.current.description = "A";
+    m.links.mockResolvedValue([link(field, "kaneo", "Before")]);
+    m.update.mockImplementation(async (input) => {
+      const value =
+        field === "title" ? input.title : input.body.split("\n\n---")[0];
+      if (value === "A") {
+        oldStarted();
+        await delayed;
+      }
+      remote = value;
+      return {
+        updated_at: "provider-time",
+        data: { updated_at: "provider-time" },
+      };
+    });
+    const handler =
+      provider === "github"
+        ? field === "title"
+          ? handleTaskTitleChanged
+          : handleTaskDescriptionChanged
+        : field === "title"
+          ? giteaTitle
+          : giteaDescription;
+    const config =
+      provider === "github"
+        ? context
+        : {
+            ...context,
+            config: {
+              ...context.config,
+              baseUrl: "https://gitea.example",
+              accessToken: "test",
+            },
+          };
+    function event(value: string) {
+      return {
+        taskId: "task",
+        projectId: "project",
+        userId: "user",
+        oldTitle: "Before",
+        newTitle: value,
+        oldDescription: "Before",
+        newDescription: value,
+      };
+    }
+    const first = handler(event("A"), config);
+    await started;
+    m.current.title = "B";
+    m.current.description = "B";
+    await handler(event("B"), config);
+    expect(remote).toBe("B");
+    finishOld();
+    await first;
+    expect(remote).toBe("B");
+    expect(m.update).toHaveBeenCalledTimes(3);
+    expect(m.save.mock.calls.at(-1)?.[1].outbound.value).toBe("B");
+  },
+);

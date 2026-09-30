@@ -1,9 +1,7 @@
+import { syncLatestTaskText } from "../../github/services/sync-latest-task-text";
 import db from "../../../database";
 import { linkedTaskScope } from "../../github/services/integration-task-scope";
-import {
-  findExternalLinksByTask,
-  updateExternalLink,
-} from "../../github/services/link-manager";
+import { findExternalLinksByTask } from "../../github/services/link-manager";
 import type { PluginContext, TaskTitleChangedEvent } from "../../types";
 import type { GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
@@ -85,23 +83,24 @@ export async function handleTaskTitleChanged(
       return;
     }
 
-    const response = await client.updateIssue(
-      repositoryOwner,
-      repositoryName,
-      issueNumber,
-      {
-        title: event.newTitle,
+    await syncLatestTaskText(
+      event.taskId,
+      context.projectId,
+      issueLink,
+      "title",
+      event.newTitle,
+      async (value) => {
+        const response = await client.updateIssue(
+          repositoryOwner,
+          repositoryName,
+          issueNumber,
+          {
+            title: value,
+          },
+        );
+        return response?.updated_at;
       },
     );
-
-    await updateExternalLink(issueLink.id, {
-      title: event.newTitle,
-      outbound: {
-        field: "title",
-        value: event.newTitle,
-        updatedAt: response?.updated_at,
-      },
-    });
 
     console.log(`Synced task title to Gitea issue #${issueNumber}`);
   } catch (error) {

@@ -326,7 +326,19 @@ async function applyPage(
       ),
     )
     .for("no key update");
-  if (!task) {
+  const [linked] = await tx
+    .select({ id: externalLinkTable.id })
+    .from(externalLinkTable)
+    .where(
+      and(
+        eq(externalLinkTable.integrationId, integrationId),
+        eq(externalLinkTable.resourceType, "issue"),
+        eq(externalLinkTable.externalId, String(current.number)),
+        eq(externalLinkTable.taskId, current.taskId),
+      ),
+    )
+    .for("update");
+  if (!task || !linked) {
     state.skipped++;
     finishIssue(state);
     return;
@@ -423,13 +435,20 @@ async function importIssue(
   const priority = extractIssuePriority(issue.labels.nodes);
   const status = extractIssueStatus(issue.labels.nodes);
   if (link) {
-    const task = await tx.query.taskTable.findFirst({
-      where: and(
-        eq(taskTable.id, link.taskId),
-        eq(taskTable.projectId, projectId),
-      ),
-    });
+    const [task] = await tx
+      .select()
+      .from(taskTable)
+      .where(
+        and(eq(taskTable.id, link.taskId), eq(taskTable.projectId, projectId)),
+      )
+      .for("no key update");
     if (!task) return null;
+    const [linked] = await tx
+      .select({ id: externalLinkTable.id })
+      .from(externalLinkTable)
+      .where(eq(externalLinkTable.id, link.id))
+      .for("update");
+    if (!linked) return null;
     const [updated] = await tx
       .update(taskTable)
       .set({
