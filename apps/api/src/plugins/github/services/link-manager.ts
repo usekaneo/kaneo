@@ -147,9 +147,9 @@ export async function updateExternalLink(
     params.deferredEdit ||
     params.completeDeferredEdit
   ) {
-    await database.transaction(async (tx) => {
+    return database.transaction(async (tx) => {
       const link = await lockExternalLink(id, tx);
-      if (!link) return;
+      if (!link) return false;
       const metadata = parseLinkMetadata<
         Record<string, unknown> & { lastSync?: Record<string, SyncStamp> }
       >(link.metadata, { externalLinkId: id, source: "sync_update" });
@@ -211,8 +211,8 @@ export async function updateExternalLink(
           metadata: JSON.stringify(merged),
         })
         .where(eq(externalLinkTable.id, id));
+      return true;
     });
-    return;
   }
   const updateData: Record<string, unknown> = {};
 
@@ -224,13 +224,15 @@ export async function updateExternalLink(
   }
 
   if (Object.keys(updateData).length === 0) {
-    return;
+    return false;
   }
 
-  await database
+  const updated = await database
     .update(externalLinkTable)
     .set(updateData)
-    .where(eq(externalLinkTable.id, id));
+    .where(eq(externalLinkTable.id, id))
+    .returning({ id: externalLinkTable.id });
+  return updated.length > 0;
 }
 
 export async function createOrUpdateExternalLink(

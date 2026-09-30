@@ -142,3 +142,43 @@ it.each([
   },
   15000,
 );
+
+it("stops correction when a disconnect races the post-response task read", async () => {
+  const { workspace } = await createWorkspaceMember();
+  const { project } = await createProjectFixture({ workspaceId: workspace.id });
+  const [task] = await db
+    .insert(schema.taskTable)
+    .values({ projectId: project.id, number: 1, title: "B" })
+    .returning();
+  const [integration] = await db
+    .insert(schema.integrationTable)
+    .values({ projectId: project.id, type: "github", config: "{}" })
+    .returning();
+  const [link] = await db
+    .insert(schema.externalLinkTable)
+    .values({
+      taskId: task.id,
+      integrationId: integration.id,
+      resourceType: "issue",
+      externalId: "1",
+      url: "https://provider.example/1",
+    })
+    .returning();
+  const findTask = db.query.taskTable.findFirst.bind(db.query.taskTable);
+  const read = vi
+    .spyOn(db.query.taskTable, "findFirst")
+    .mockImplementation(async (options) => {
+      await db
+        .delete(schema.externalLinkTable)
+        .where(eq(schema.externalLinkTable.id, link.id));
+      return findTask(options);
+    });
+  const write = vi.fn(async () => "2026-09-30T00:00:01Z");
+  try {
+    await syncLatestTaskValue(task.id, project.id, link, "title", "A", write);
+    expect(write).toHaveBeenCalledTimes(1);
+    expect(write).toHaveBeenCalledWith("A");
+  } finally {
+    read.mockRestore();
+  }
+});

@@ -357,3 +357,11 @@ it.each([false, true])(
     vi.useRealTimers();
   },
 );
+
+it("does not PATCH when the link disappears before its pending intent commits", async () => {
+  m.current.title = "B";
+  m.save.mockResolvedValueOnce(false);
+  const write = vi.fn(async () => "stamp");
+  await syncLatestTaskValue("task", "project", link, "title", "B", write);
+  expect(write).not.toHaveBeenCalled();
+});

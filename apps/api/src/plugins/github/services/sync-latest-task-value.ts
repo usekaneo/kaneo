@@ -19,11 +19,25 @@ export async function syncLatestTaskValue(
 ) {
   let value = initialValue;
   for (;;) {
+    const binding = (await findExternalLinksByTask(taskId)).find(
+      (candidate) =>
+        candidate.id === link.id &&
+        candidate.integrationId === link.integrationId &&
+        candidate.resourceType === "issue",
+    );
+    if (
+      !binding ||
+      (binding.integration &&
+        (binding.integration.isActive === false ||
+          binding.integration.projectId !== projectId))
+    )
+      return;
     const intentId = randomUUID();
     // Webhooks may arrive before PATCH returns, including from another instance.
-    await updateExternalLink(link.id, {
+    const persisted = await updateExternalLink(link.id, {
       outbound: { field, value, intentId, pending: true },
     });
+    if (persisted === false) return;
     let updatedAt: string | undefined;
     try {
       updatedAt = await write(value);
@@ -102,13 +116,6 @@ export async function syncLatestTaskValue(
           ? task.title
           : task.description || "";
     if (current === value) return;
-    const stillLinked = currentLinks.some(
-      (currentLink) =>
-        currentLink.id === link.id &&
-        currentLink.integrationId === link.integrationId &&
-        currentLink.resourceType === "issue",
-    );
-    if (!stillLinked) return;
     value = current;
   }
 }
