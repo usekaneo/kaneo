@@ -153,6 +153,10 @@ export const boardSchema = z
         relatedPage: z.number(),
         relatedPageSize: z.number(),
         relatedTotalPages: z.number(),
+        revision: z.string().optional().openapi({
+          description:
+            "Public board task membership and ordering revision. Restart pagination if it changes between task or related pages.",
+        }),
       })
       .openapi({
         description:

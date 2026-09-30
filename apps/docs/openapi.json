@@ -336,6 +336,10 @@
           },
           "relatedTotalPages": {
             "type": "number"
+          },
+          "revision": {
+            "type": "string",
+            "description": "Public board task membership and ordering revision. Restart pagination if it changes between task or related pages."
           }
         },
         "required": [

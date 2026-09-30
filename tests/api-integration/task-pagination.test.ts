@@ -199,3 +199,49 @@ describe("bounded task pages", () => {
     }
   });
 });
+
+it.each(["create", "delete", "move", "reorder"])(
+  "changes the public pagination revision after a concurrent %s",
+  async (change) => {
+    const { project, app, tasks } = await fixture(237, true);
+    mockAnonymousSession();
+    const first = await app.request(
+      `/api/public-project/${project.id}?limit=100`,
+    );
+    const before = (await first.json()).pagination.revision;
+    expect(typeof before).toBe("string");
+    const stable = await app.request(
+      `/api/public-project/${project.id}?page=2&limit=100`,
+    );
+    expect((await stable.json()).pagination.revision).toBe(before);
+    if (change === "create")
+      await db.insert(schema.taskTable).values({
+        id: "new-public-task",
+        projectId: project.id,
+        title: "new",
+        number: 999,
+        position: 1,
+      });
+    else if (change === "delete")
+      await db
+        .delete(schema.taskTable)
+        .where(eq(schema.taskTable.id, tasks[0].id));
+    else if (change === "move") {
+      const { project: other } = await createProjectFixture({
+        workspaceId: project.workspaceId,
+      });
+      await db
+        .update(schema.taskTable)
+        .set({ projectId: other.id })
+        .where(eq(schema.taskTable.id, tasks[0].id));
+    } else
+      await db
+        .update(schema.taskTable)
+        .set({ position: 200 })
+        .where(eq(schema.taskTable.id, tasks[0].id));
+    const later = await app.request(
+      `/api/public-project/${project.id}?page=2&limit=100`,
+    );
+    expect((await later.json()).pagination.revision).not.toBe(before);
+  },
+);

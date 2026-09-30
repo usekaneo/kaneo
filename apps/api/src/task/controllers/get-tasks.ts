@@ -136,7 +136,14 @@ async function getTasksPage(
   );
 
   const [taskCount] = await db
-    .select({ count: sql<number>`count(*)` })
+    .select({
+      count: sql<number>`count(*)`,
+      ...(options.publicOnly
+        ? {
+            revision: sql<string>`coalesce(sum(hashtextextended(jsonb_build_array(${taskTable.id}, ${taskTable.updatedAt}, ${taskTable.position}, ${taskTable.status})::text, 0)::numeric), 0)::text`,
+          }
+        : {}),
+    })
     .from(taskTable)
     .where(whereClause);
 
@@ -356,6 +363,9 @@ async function getTasksPage(
     },
     pagination: {
       total,
+      ...(options.publicOnly
+        ? { revision: `${total}:${taskCount?.revision}` }
+        : {}),
       page,
       pageSize,
       totalPages: Math.max(1, Math.ceil(total / pageSize)),
