@@ -38,6 +38,7 @@ export function useUserWebSocket() {
 
     // A previous session's delayed socket events must not control this session.
     let disposed = false;
+    let userRevoked = false;
     let activeSocket: WebSocket | null = null;
     let retryDelay = BASE_DELAY;
     let retryTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -58,6 +59,18 @@ export function useUserWebSocket() {
         "$sessionSignal",
       ])
         authClient.$store.notify(signal);
+    }
+
+    function revokeUserAccess() {
+      if (userRevoked) return;
+      userRevoked = true;
+      clearPing();
+      queryClient.clear();
+      refreshOrganizationState();
+      void authClient
+        .signOut()
+        .finally(() => navigate({ to: "/auth/sign-in" }))
+        .catch(() => {});
     }
 
     function connect() {
@@ -86,6 +99,10 @@ export function useUserWebSocket() {
             workspaceId?: string;
             workspaceIds?: string[] | null;
           };
+          if (message.type === "USER_ACCESS_REVOKED") {
+            revokeUserAccess();
+            return;
+          }
           if (
             message.type === "WORKSPACE_ACCESS_SYNC" &&
             Array.isArray(message.workspaceIds) &&
@@ -123,10 +140,12 @@ export function useUserWebSocket() {
         }
       };
 
-      ws.onclose = () => {
+      ws.onclose = (event) => {
         if (disposed || activeSocket !== ws) return;
         clearPing();
         activeSocket = null;
+        if (event?.code === 1008) revokeUserAccess();
+        if (userRevoked) return;
 
         const delay = retryDelay;
         retryDelay = Math.min(retryDelay * 2, MAX_RETRY_DELAY);

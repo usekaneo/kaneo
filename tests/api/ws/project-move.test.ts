@@ -16,6 +16,7 @@ import {
   initializeWebSocketAdapter,
   removeConnection,
   revokeWorkspaceConnections,
+  revokeUserConnections,
   shutdownWebSocketAdapter,
 } from "../../../apps/api/src/ws";
 
@@ -351,4 +352,49 @@ it("retries a membership revocation while access remains absent", async () => {
   await revokeWorkspaceConnections("user", "old", { role: "user" });
   await vi.advanceTimersByTimeAsync(1_000);
   expect(m.publish).toHaveBeenCalledTimes(2);
+});
+
+it("returns after local revocation while Redis PUBLISH remains queued", async () => {
+  vi.useFakeTimers();
+  m.redis = true;
+  await initializeWebSocketAdapter();
+  const ws = connect();
+  let finish!: (value: number) => void;
+  m.publish.mockImplementationOnce(
+    () =>
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+  );
+  await expect(
+    revokeWorkspaceConnections("user", "old", { force: true }),
+  ).resolves.toBeUndefined();
+  expect(ws.close).toHaveBeenCalled();
+  await vi.advanceTimersByTimeAsync(60_000);
+  expect(m.publish).toHaveBeenCalledTimes(1);
+  finish(1);
+  await vi.advanceTimersByTimeAsync(60_000);
+  expect(m.publish).toHaveBeenCalledTimes(1);
+});
+it("revokes every project subscription for a deleted user regardless of membership", async () => {
+  const first = connect();
+  const second = connect("other", "implicit-admin-workspace");
+  await revokeUserConnections("user");
+  expect(first.close).toHaveBeenCalledWith(1008, "User access revoked");
+  expect(second.close).toHaveBeenCalledWith(1008, "User access revoked");
+});
+it("revokes all remote subscriptions on a deleted-user Redis message", async () => {
+  m.redis = true;
+  await initializeWebSocketAdapter();
+  const ws = connect("other", "implicit-admin-workspace");
+  const handler = m.on.mock.calls[1][1];
+  handler(
+    "kaneo:ws-user:*:broadcast",
+    "kaneo:ws-user:user:broadcast",
+    JSON.stringify({
+      userId: "user",
+      message: { type: "USER_ACCESS_REVOKED" },
+    }),
+  );
+  expect(ws.close).toHaveBeenCalledWith(1008, "User access revoked");
 });

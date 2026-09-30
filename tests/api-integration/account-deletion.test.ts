@@ -3,7 +3,12 @@ import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import type { WSContext } from "hono/ws";
 import { auth } from "../../apps/api/src/auth";
-import { addConnection, removeConnection } from "../../apps/api/src/ws";
+import {
+  addConnection,
+  addUserConnection,
+  removeUserConnection,
+  removeConnection,
+} from "../../apps/api/src/ws";
 import db, { getDatabase, schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import deleteAccountData from "../../apps/api/src/user/controllers/delete-account-data";
@@ -432,4 +437,62 @@ describe("API integration: avatar routes", () => {
 
     expect(response.status).toBe(401);
   });
+});
+
+it("revokes an administrator's implicit workspace and user sockets after account deletion commits", async () => {
+  const { workspace } = await createWorkspaceMember();
+  const { project } = await createProjectFixture({ workspaceId: workspace.id });
+  const [admin] = await db
+    .insert(schema.userTable)
+    .values({
+      id: randomUUID(),
+      email: `${randomUUID()}@example.com`,
+      name: "Admin",
+      role: "admin",
+      emailVerified: true,
+    })
+    .returning();
+  const token = randomUUID();
+  await db.insert(schema.sessionTable).values({
+    id: randomUUID(),
+    userId: admin.id,
+    token,
+    expiresAt: new Date(Date.now() + 60_000),
+  });
+  const projectWs = { send: vi.fn(), close: vi.fn() };
+  const userWs = { send: vi.fn(), close: vi.fn() };
+  const conn = addConnection(
+    project.id,
+    projectWs as unknown as WSContext,
+    admin.id,
+    "window",
+    workspace.id,
+  );
+  const userConn = addUserConnection(admin.id, userWs as unknown as WSContext);
+  try {
+    const response = await auth.handler(
+      new Request("http://localhost:1337/api/auth/delete-user", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body: "{}",
+      }),
+    );
+    expect(response.status).toBe(200);
+    expect(
+      await db.query.userTable.findFirst({
+        where: eq(schema.userTable.id, admin.id),
+      }),
+    ).toBeUndefined();
+    expect(projectWs.close).toHaveBeenCalledWith(1008, "User access revoked");
+    expect(userWs.send).toHaveBeenCalledWith(
+      JSON.stringify({ type: "USER_ACCESS_REVOKED" }),
+    );
+    expect(userWs.close).toHaveBeenCalledWith(1008, "User access revoked");
+  } finally {
+    removeConnection(project.id, conn);
+    removeUserConnection(admin.id, userConn);
+  }
 });

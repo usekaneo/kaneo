@@ -4,6 +4,7 @@ export function createRevocationDelivery(adapter: BroadcastAdapter) {
   type Pending = {
     message: UserBroadcast;
     shouldRetry?: () => Promise<boolean>;
+    inFlight?: boolean;
   };
   const pending = new Map<string, Pending>();
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -11,6 +12,8 @@ export function createRevocationDelivery(adapter: BroadcastAdapter) {
   let delay = 1_000;
 
   const attempt = async (key: string, entry: Pending, retry = false) => {
+    if (entry.inFlight) return;
+    entry.inFlight = true;
     try {
       if (!retry || !entry.shouldRetry || (await entry.shouldRetry())) {
         if (stopped || pending.get(key) !== entry) return;
@@ -19,6 +22,8 @@ export function createRevocationDelivery(adapter: BroadcastAdapter) {
       if (pending.get(key) === entry) pending.delete(key);
     } catch {
       // Membership is already removed. Keep the signal until Redis recovers.
+    } finally {
+      entry.inFlight = false;
     }
   };
   const schedule = () => {
@@ -39,7 +44,9 @@ export function createRevocationDelivery(adapter: BroadcastAdapter) {
       const key = JSON.stringify([message.userId, message.message.workspaceId]);
       const entry = { message, shouldRetry };
       pending.set(key, entry);
-      await attempt(key, entry);
+      // Redis can queue PUBLISH through a long outage. Local revocation has
+      // already happened; the committed request must not await recovery.
+      void attempt(key, entry).then(schedule);
       schedule();
     },
     stop() {

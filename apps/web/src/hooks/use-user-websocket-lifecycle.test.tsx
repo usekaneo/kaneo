@@ -24,6 +24,7 @@ const { client, auth, navigate } = vi.hoisted(() => ({
     workspaceId: "workspace",
     pathname: "",
     notify: vi.fn(),
+    signOut: vi.fn().mockResolvedValue(undefined),
   },
 }));
 vi.mock("@tanstack/react-router", () => ({
@@ -35,6 +36,7 @@ vi.mock("@tanstack/react-query", () => ({ useQueryClient: () => client }));
 vi.mock("@/lib/auth-client", () => ({
   authClient: {
     $store: { notify: auth.notify },
+    signOut: auth.signOut,
     useSession: () => ({
       data: auth.userId
         ? {
@@ -233,4 +235,19 @@ describe("user WebSocket lifecycle", () => {
     expect(auth.notify).toHaveBeenCalledWith("$listOrg");
     expect(auth.notify).toHaveBeenCalledWith("$activeOrgSignal");
   });
+});
+
+it("clears all private caches and signs out after account-wide revocation", async () => {
+  vi.stubGlobal("WebSocket", TestSocket);
+  auth.userId = "user-a";
+  renderHook(useUserWebSocket);
+  const socket = TestSocket.instances.at(-1)!;
+  socket.onmessage?.({ data: JSON.stringify({ type: "USER_ACCESS_REVOKED" }) });
+  socket.onclose?.();
+  await Promise.resolve();
+  expect(client.clear).toHaveBeenCalled();
+  expect(auth.signOut).toHaveBeenCalled();
+  expect(navigate).toHaveBeenCalledWith({ to: "/auth/sign-in" });
+  cleanup();
+  vi.unstubAllGlobals();
 });

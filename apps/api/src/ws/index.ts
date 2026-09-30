@@ -91,6 +91,19 @@ function deliverToLocalUserConnections(
   ) {
     revokeLocalWorkspaceConnections(userId, message.workspaceId);
   }
+  const allAccessRevoked = message.type === "USER_ACCESS_REVOKED";
+  if (allAccessRevoked) {
+    for (const [projectId, connections] of projectConnections)
+      for (const conn of [...connections]) {
+        if (conn.userId !== userId) continue;
+        removeConnection(projectId, conn);
+        try {
+          conn.ws.close(1008, "User access revoked");
+        } catch {
+          /* Already closed. */
+        }
+      }
+  }
   const connections = userConnections.get(userId);
   if (!connections) return;
 
@@ -100,6 +113,14 @@ function deliverToLocalUserConnections(
       conn.ws.send(payload);
     } catch {
       connections.delete(conn);
+    }
+    if (allAccessRevoked) {
+      connections.delete(conn);
+      try {
+        conn.ws.close(1008, "User access revoked");
+      } catch {
+        /* Already closed. */
+      }
     }
   }
   if (connections.size === 0) {
@@ -233,6 +254,12 @@ function revokeLocalWorkspaceConnections(userId: string, workspaceId: string) {
       }
     }
   }
+}
+
+export async function revokeUserConnections(userId: string) {
+  const message = { type: "USER_ACCESS_REVOKED" };
+  deliverToLocalUserConnections(userId, message);
+  await revocationDelivery?.send({ userId, message, origin: INSTANCE_ID });
 }
 
 export async function revokeWorkspaceConnections(
