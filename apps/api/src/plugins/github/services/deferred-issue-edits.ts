@@ -1,7 +1,8 @@
-import { and, asc, eq, gt, like } from "drizzle-orm";
+import { and, asc, gt, sql } from "drizzle-orm";
 import db from "../../../database";
 import { externalLinkTable } from "../../../database/schema";
 import { publishEvent } from "../../../events";
+import { withJobLease } from "../../../scheduler/leader-lock";
 import type { GiteaConfig } from "../../gitea/config";
 import { createGiteaClient } from "../../gitea/utils/gitea-api";
 import type { GitHubConfig } from "../config";
@@ -101,6 +102,14 @@ async function issueAccess(
 let running = false;
 let cursor: string | undefined;
 export async function replayDeferredIssueEdits() {
+  return withJobLease(
+    "deferred-issue-edits",
+    replayClaimedIssueEdits,
+    () => ({}),
+  );
+}
+
+async function replayClaimedIssueEdits() {
   if (running) return {};
   running = true;
   let degraded = false;
@@ -108,8 +117,7 @@ export async function replayDeferredIssueEdits() {
   try {
     const links = await db.query.externalLinkTable.findMany({
       where: and(
-        eq(externalLinkTable.resourceType, "issue"),
-        like(externalLinkTable.metadata, '%"deferredIssueEdit":%'),
+        sql`${externalLinkTable.resourceType} = 'issue' AND ${externalLinkTable.metadata} LIKE '%"deferredIssueEdit":%'`,
         cursor ? gt(externalLinkTable.id, cursor) : undefined,
       ),
       with: { integration: true },

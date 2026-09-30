@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { beforeEach, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { publishEvent } from "../../apps/api/src/events";
@@ -1687,4 +1687,59 @@ it("durably queues an uncertain standalone writer and later settles it", async (
     integration.id,
   );
   expect((await current(task.id))?.title).toBe("A");
+});
+
+it("skips provider reads and writes while another replica holds the worker lease", async () => {
+  const { link, integration } = await seed();
+  await deferTaskSync(link, integration, ["title"]);
+  await db.execute(sql`INSERT INTO job_lease (name, owner, expires_at)
+    VALUES ('deferred-issue-edits', 'other-replica', now() + interval '10 minutes')`);
+  expect(await replayDeferredIssueEdits()).toEqual({});
+  expect(m.read).not.toHaveBeenCalled();
+  expect(m.write).not.toHaveBeenCalled();
+  expect((await metadata(link.id)).deferredIssueEdit).toBeDefined();
+});
+
+it("recovers a crashed replica lease and releases it after processing", async () => {
+  const { link, integration } = await seed();
+  await updateExternalLink(link.id, {
+    outbound: {
+      field: "title",
+      value: "A",
+      intentId: "dead-writer",
+      cancelled: true,
+    },
+  });
+  await updateExternalLink(link.id, {
+    outbound: { field: "title", value: "B" },
+  });
+  await deferTaskSync(link, integration, ["title"]);
+  await db.execute(sql`INSERT INTO job_lease (name, owner, expires_at)
+    VALUES ('deferred-issue-edits', 'crashed-replica', now() - interval '1 minute')`);
+  await replayDeferredIssueEdits();
+  expect(m.read).toHaveBeenCalledTimes(1);
+  expect(m.write).toHaveBeenCalledTimes(1);
+  expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+  expect(
+    (
+      await db.execute(
+        sql`SELECT name FROM job_lease WHERE name = 'deferred-issue-edits'`,
+      )
+    ).rows,
+  ).toEqual([]);
+});
+
+it("uses the queued-link partial index without inspecting historical issue metadata", async () => {
+  const { link, integration } = await seed();
+  await deferTaskSync(link, integration, ["title"]);
+  await db.transaction(async (tx) => {
+    await tx.execute(sql`SET LOCAL enable_seqscan = off`);
+    const result = await tx.execute<{ "QUERY PLAN": string }>(sql`
+      EXPLAIN SELECT id FROM external_link
+      WHERE resource_type = 'issue' AND metadata LIKE '%"deferredIssueEdit":%'
+      ORDER BY id LIMIT 20`);
+    expect(result.rows.map((row) => row["QUERY PLAN"]).join("\n")).toContain(
+      "external_link_deferred_issue_idx",
+    );
+  });
 });
