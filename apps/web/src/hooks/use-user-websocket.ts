@@ -15,7 +15,7 @@ export function getUserWsUrl() {
   return `${wsBase}/user?windowId=${encodeURIComponent(windowId)}`;
 }
 
-const MAX_RETRIES = 5;
+const MAX_RETRY_DELAY = 30_000;
 const BASE_DELAY = 1000;
 const WS_PING_INTERVAL_MS = 30_000;
 
@@ -39,7 +39,7 @@ export function useUserWebSocket() {
     // A previous session's delayed socket events must not control this session.
     let disposed = false;
     let activeSocket: WebSocket | null = null;
-    let retries = 0;
+    let retryDelay = BASE_DELAY;
     let retryTimeout: ReturnType<typeof setTimeout> | null = null;
     let pingInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -48,6 +48,16 @@ export function useUserWebSocket() {
         clearInterval(pingInterval);
         pingInterval = null;
       }
+    }
+
+    function refreshOrganizationState() {
+      for (const signal of [
+        "$listOrg",
+        "$activeOrgSignal",
+        "$activeMemberRoleSignal",
+        "$sessionSignal",
+      ])
+        authClient.$store.notify(signal);
     }
 
     function connect() {
@@ -59,7 +69,7 @@ export function useUserWebSocket() {
 
       ws.onopen = () => {
         if (disposed || activeSocket !== ws) return;
-        retries = 0;
+        retryDelay = BASE_DELAY;
         clearPing();
         pingInterval = setInterval(() => {
           if (ws.readyState === WebSocket.OPEN) {
@@ -82,6 +92,7 @@ export function useUserWebSocket() {
             message.workspaceIds.every((id) => typeof id === "string")
           ) {
             evictInaccessibleWorkspaceCache(queryClient, message.workspaceIds);
+            refreshOrganizationState();
             const path = pathnameRef.current;
             const current =
               /^\/dashboard\/settings\/(workspace|projects)(\/|$)/.test(path)
@@ -95,6 +106,7 @@ export function useUserWebSocket() {
             message.workspaceId
           ) {
             evictWorkspaceCache(queryClient, message.workspaceId);
+            refreshOrganizationState();
             const path = pathnameRef.current;
             const current =
               /^\/dashboard\/settings\/(workspace|projects)(\/|$)/.test(path)
@@ -116,11 +128,9 @@ export function useUserWebSocket() {
         clearPing();
         activeSocket = null;
 
-        if (retries < MAX_RETRIES) {
-          const delay = BASE_DELAY * 2 ** retries;
-          retries += 1;
-          retryTimeout = setTimeout(connect, delay);
-        }
+        const delay = retryDelay;
+        retryDelay = Math.min(retryDelay * 2, MAX_RETRY_DELAY);
+        retryTimeout = setTimeout(connect, delay);
       };
     }
 

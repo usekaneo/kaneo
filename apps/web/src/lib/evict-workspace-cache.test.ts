@@ -1,4 +1,4 @@
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, QueryObserver } from "@tanstack/react-query";
 import { expect, it } from "vite-plus/test";
 import {
   evictInaccessibleWorkspaceCache,
@@ -86,5 +86,40 @@ it("reconciles missed revocations against a reconnect access snapshot", () => {
   expect(
     client.getQueryData(["github-integration", "unknown-project"]),
   ).toBeUndefined();
+  client.clear();
+});
+
+it("refetches an active board whose pending read has no workspace scope yet", async () => {
+  const client = new QueryClient();
+  const board = {
+    id: "project",
+    workspaceId: "active",
+    columns: [{ tasks: [{ id: "task", title: "Still visible" }] }],
+  };
+  let finishOld!: (value: unknown) => void;
+  let reads = 0;
+  const options = {
+    queryKey: ["tasks", "project"],
+    staleTime: Infinity,
+    retry: false,
+    queryFn: () => {
+      reads++;
+      return reads === 1
+        ? new Promise<unknown>((resolve) => {
+            finishOld = resolve;
+          })
+        : Promise.resolve(board);
+    },
+  };
+  const observer = new QueryObserver(client, options);
+  const unsubscribe = observer.subscribe(() => {});
+  expect(reads).toBe(1);
+  evictInaccessibleWorkspaceCache(client, ["active"]);
+  finishOld({ workspaceId: "revoked", description: "private" });
+  await client.fetchQuery(options);
+  expect(reads).toBe(2);
+  expect(observer.getCurrentResult().data).toEqual(board);
+  expect(client.getQueryData(options.queryKey)).toEqual(board);
+  unsubscribe();
   client.clear();
 });

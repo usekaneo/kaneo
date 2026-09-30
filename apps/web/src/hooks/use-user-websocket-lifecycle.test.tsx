@@ -16,12 +16,14 @@ const { client, auth, navigate } = vi.hoisted(() => ({
     clear: vi.fn(),
     getQueryCache: () => ({ getAll: () => [] }),
     removeQueries: vi.fn(),
+    resetQueries: vi.fn(),
   },
   navigate: vi.fn(),
   auth: {
     userId: "user-a" as string | null,
     workspaceId: "workspace",
     pathname: "",
+    notify: vi.fn(),
   },
 }));
 vi.mock("@tanstack/react-router", () => ({
@@ -32,6 +34,7 @@ vi.mock("@tanstack/react-router", () => ({
 vi.mock("@tanstack/react-query", () => ({ useQueryClient: () => client }));
 vi.mock("@/lib/auth-client", () => ({
   authClient: {
+    $store: { notify: auth.notify },
     useSession: () => ({
       data: auth.userId
         ? {
@@ -167,22 +170,33 @@ describe("user WebSocket lifecycle", () => {
     unmount();
     expect(vi.getTimerCount()).toBe(0);
   });
-  it("retains the five-retry limit and does not duplicate retries on repeated close events", () => {
+  it("keeps retrying through long outages with bounded delays and one timer", () => {
     const { unmount } = renderHook(useUserWebSocket);
-    for (let retry = 0; retry < 5; retry++) {
+    for (const [retry, delay] of [
+      1000, 2000, 4000, 8000, 16000, 30000, 30000, 30000,
+    ].entries()) {
       act(() => {
         const current = TestSocket.instances.at(-1);
         current?.onclose?.();
         current?.onclose?.();
-        vi.advanceTimersByTime(1000 * 2 ** retry);
+        vi.advanceTimersByTime(delay - 1);
       });
+      expect(TestSocket.instances).toHaveLength(retry + 1);
+      expect(vi.getTimerCount()).toBe(1);
+      act(() => vi.advanceTimersByTime(1));
       expect(TestSocket.instances).toHaveLength(retry + 2);
     }
     act(() => {
-      TestSocket.instances.at(-1)?.onclose?.();
-      vi.advanceTimersByTime(60_000);
+      const socket = TestSocket.instances.at(-1)!;
+      socket.open();
+      socket.onmessage?.({
+        data: JSON.stringify({
+          type: "WORKSPACE_ACCESS_SYNC",
+          workspaceIds: [],
+        }),
+      });
     });
-    expect(TestSocket.instances).toHaveLength(6);
+    expect(navigate).toHaveBeenCalledWith({ to: "/dashboard" });
     unmount();
     expect(vi.getTimerCount()).toBe(0);
   });
@@ -199,6 +213,9 @@ describe("user WebSocket lifecycle", () => {
     });
     expect(navigate).not.toHaveBeenCalled();
     expect(client.removeQueries).toHaveBeenCalledOnce();
+    expect(auth.notify).toHaveBeenCalledWith("$listOrg");
+    expect(auth.notify).toHaveBeenCalledWith("$activeOrgSignal");
+    expect(auth.notify).toHaveBeenCalledWith("$sessionSignal");
   });
 
   it("redirects after a reconnect snapshot reveals a missed workspace revocation", () => {
@@ -213,5 +230,7 @@ describe("user WebSocket lifecycle", () => {
     );
     expect(navigate).toHaveBeenCalledWith({ to: "/dashboard" });
     expect(client.removeQueries).toHaveBeenCalledOnce();
+    expect(auth.notify).toHaveBeenCalledWith("$listOrg");
+    expect(auth.notify).toHaveBeenCalledWith("$activeOrgSignal");
   });
 });

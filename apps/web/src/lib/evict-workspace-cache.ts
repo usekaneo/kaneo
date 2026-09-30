@@ -18,7 +18,9 @@ function evictPrivateQueries(
 ) {
   const queries = client.getQueryCache().getAll();
   const ids = new Set<string>(workspaceId ? [workspaceId] : []);
-  const scopes = new Map<string, string>();
+  const scopes = new Map<string, string>(
+    Array.from(allowed ?? [], (id) => [id, id]),
+  );
   const visit = (
     value: unknown,
     callback: (record: Record<string, unknown>) => void,
@@ -138,5 +140,12 @@ function evictPrivateQueries(
     );
   };
   void client.cancelQueries({ predicate });
-  client.removeQueries({ predicate });
+  // Keep active observers attached: removing their query can strand a board
+  // opened concurrently with the access snapshot. Reset and refetch instead.
+  client.removeQueries({
+    predicate: (query) => predicate(query) && !query.isActive(),
+  });
+  void client.resetQueries({
+    predicate: (query) => predicate(query) && query.isActive(),
+  });
 }
