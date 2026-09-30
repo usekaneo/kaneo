@@ -109,6 +109,13 @@ export async function handleGitlabMergeRequestClosed(
           database,
         );
 
+        afterCommit(() =>
+          publishEvent("task.updated", {
+            projectId: integration.projectId,
+            taskId: task.id,
+          }),
+        );
+
         if (!merged) {
           return;
         }

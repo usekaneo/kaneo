@@ -23,6 +23,7 @@ import {
 } from "./helpers/fixtures";
 
 const m = vi.hoisted(() => ({
+  publish: vi.fn(async (_type: string, _data: unknown) => undefined),
   listIssues: vi.fn(),
   listIssueComments: vi.fn(async () => []),
   listIssueNotes: vi.fn(async () => []),
@@ -47,6 +48,10 @@ vi.mock(
     createGitlabClient: () => m,
   }),
 );
+vi.mock("../../apps/api/src/events", async (original) => ({
+  ...(await original<typeof import("../../apps/api/src/events")>()),
+  publishEvent: m.publish,
+}));
 const remoteIssue = {
   number: 1,
   iid: 1,
@@ -66,6 +71,7 @@ const repository = {
 beforeEach(async () => {
   await resetTestDatabase();
   vi.clearAllMocks();
+  m.publish.mockReset().mockResolvedValue(undefined);
   m.listIssues.mockResolvedValue([remoteIssue]);
   m.listIssueComments.mockResolvedValue([]);
   m.listIssueNotes.mockResolvedValue([]);
@@ -481,5 +487,41 @@ it.each(["edit", "labels", "comment"])(
     } finally {
       intercepted.mockRestore();
     }
+  },
+);
+
+it.each(["gitea", "gitlab"])(
+  "announces committed %s reimport updates to task and resource caches",
+  async (provider) => {
+    const fixture = await setup(provider);
+    m.publish.mockImplementation(async (type, data) => {
+      if (
+        !["task.updated", "task.labels_updated", "comment.updated"].includes(
+          type,
+        )
+      )
+        return;
+      expect(data).toEqual({
+        projectId: fixture.project.id,
+        taskId: fixture.task.id,
+      });
+      expect(
+        await db.query.taskTable.findFirst({
+          where: eq(schema.taskTable.id, fixture.task.id),
+        }),
+      ).toMatchObject({
+        title: "Remote title",
+        description: "Remote description",
+      });
+    });
+    const result = await (
+      provider === "gitea" ? importGiteaIssues : importGitlabIssues
+    )(fixture.project.id);
+    expect(result).toMatchObject({ imported: 0, updated: 1 });
+    expect(m.publish.mock.calls.map(([type]) => type)).toEqual([
+      "task.updated",
+      "task.labels_updated",
+      "comment.updated",
+    ]);
   },
 );
