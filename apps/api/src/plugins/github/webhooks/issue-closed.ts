@@ -66,7 +66,7 @@ export async function handleIssueClosed(payload: IssueClosedPayload) {
     };
     await withEchoConfirmation(
       readCurrent,
-      (current) =>
+      (current, confirmation) =>
         withIntegrationLink(
           externalLink,
           integration,
@@ -103,6 +103,7 @@ export async function handleIssueClosed(payload: IssueClosedPayload) {
                   linkId: externalLink.id,
                   field: "state",
                   localValue: task.status === "done" ? "closed" : "open",
+                  confirmation,
                 },
               )
             )

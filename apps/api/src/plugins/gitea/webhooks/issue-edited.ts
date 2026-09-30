@@ -83,7 +83,7 @@ export async function handleGiteaIssueEdited(
     };
     await withEchoConfirmation(
       readCurrent,
-      (current) =>
+      (current, confirmation) =>
         withIntegrationLink(
           externalLink,
           integration,
@@ -125,6 +125,7 @@ export async function handleGiteaIssueEdited(
                       linkId: externalLink.id,
                       field: "title",
                       localValue: task.title,
+                      confirmation,
                     },
                   )
                 ) {
@@ -168,6 +169,7 @@ export async function handleGiteaIssueEdited(
                       linkId: externalLink.id,
                       field: "description",
                       localValue: task.description || "",
+                      confirmation,
                     },
                   )
                 ) {

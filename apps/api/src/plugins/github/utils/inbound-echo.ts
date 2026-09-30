@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { updateExternalLink } from "../services/link-manager";
 import {
   ambiguousOutboundEcho,
@@ -7,7 +8,19 @@ import {
   inboundOccurredAfterIntent,
   type SyncStamp,
 } from "./sync-echo";
-class ConfirmationRequired extends Error {}
+type ConfirmationSnapshot = {
+  fingerprint: string;
+  localValueHash: string;
+};
+type EchoConfirmation = ReadonlyMap<string, ConfirmationSnapshot>;
+class ConfirmationRequired extends Error {
+  constructor(
+    public key?: string,
+    public snapshot?: ConfirmationSnapshot,
+  ) {
+    super("Current provider confirmation is required");
+  }
+}
 class RepairRequired extends Error {}
 export class PendingResponseTimeout extends Error {}
 export class PendingEcho extends Error {
@@ -32,8 +45,39 @@ export function inboundEcho(
     linkId: string;
     field: "title" | "description" | "state";
     localValue?: string;
+    confirmation?: EchoConfirmation;
   },
 ) {
+  const confirmedValue = () => {
+    const key = context ? `${context.linkId}:${context.field}` : undefined;
+    const localValueHash = createHash("sha256")
+      .update(context?.localValue ?? stamp?.value ?? "")
+      .digest("hex");
+    const snapshot = key
+      ? {
+          fingerprint: createHash("sha256")
+            .update(JSON.stringify({ stamp, localValueHash }))
+            .digest("hex"),
+          localValueHash,
+        }
+      : undefined;
+    const previous = key ? context?.confirmation?.get(key) : undefined;
+    // A newer local or provider edit owns reconciliation after the read began.
+    if (
+      providerValue !== undefined &&
+      previous &&
+      previous.localValueHash !== localValueHash
+    )
+      return undefined;
+    if (
+      providerValue === undefined ||
+      (key &&
+        context?.confirmation &&
+        previous?.fingerprint !== snapshot?.fingerprint)
+    )
+      throw new ConfirmationRequired(key, snapshot);
+    return providerValue;
+  };
   const version = Date.parse(updatedAt ?? "");
   const inboundVersion = Date.parse(stamp?.inboundUpdatedAt ?? "");
   const knownVersions = [
@@ -52,8 +96,7 @@ export function inboundEcho(
     version === inboundVersion &&
     stamp?.inboundValue !== value
   ) {
-    if (providerValue === undefined) throw new ConfirmationRequired();
-    if (providerValue !== value) return true;
+    if (confirmedValue() !== value) return true;
   }
   const uncertain = uncertainOutboundIntent(stamp, value);
   const localValue = context?.localValue ?? stamp?.value;
@@ -66,8 +109,7 @@ export function inboundEcho(
       inboundOccurredAfterIntent(stamp, uncertain)
     )
   ) {
-    if (providerValue === undefined) throw new ConfirmationRequired();
-    if (providerValue !== value) return true;
+    if (confirmedValue() !== value) return true;
     throw new RepairRequired();
   }
   const pending = pendingOutboundIntent(stamp, value);
@@ -79,28 +121,30 @@ export function inboundEcho(
         (entry) => !entry.cancelled && entry.updatedAt === updatedAt,
       );
     if (!colliding) return false;
-    if (providerValue === undefined) throw new ConfirmationRequired();
-    return providerValue !== value;
+    return confirmedValue() !== value;
   }
   if (stamp?.value === value && !ambiguousOutboundEcho(stamp, value, updatedAt))
     return true;
-  if (providerValue === undefined) throw new ConfirmationRequired();
-  return providerValue !== value;
+  return confirmedValue() !== value;
 }
 // Every retry releases the transaction first. Persist observed provider versions
 // so an outbound completion cannot repair over a newer edit waiting for it.
 export async function withEchoConfirmation<Provider, Result>(
   read: () => Promise<Provider>,
-  apply: (current?: Provider) => Promise<Result>,
+  apply: (
+    current?: Provider,
+    confirmation?: EchoConfirmation,
+  ) => Promise<Result>,
   defer?: () => Promise<void>,
 ): Promise<Result | undefined> {
   const recorded = new Set<string>();
+  const confirmation = new Map<string, ConfirmationSnapshot>();
   let current: Provider | undefined;
   let delay = 50;
   const deadline = Date.now() + 5000;
   for (;;) {
     try {
-      const result = await apply(current);
+      const result = await apply(current, confirmation);
       if (result instanceof PendingEcho) throw result;
       return result;
     } catch (error) {
@@ -154,10 +198,33 @@ export async function withEchoConfirmation<Provider, Result>(
         );
         delay = Math.min(delay * 2, 1000);
         current = undefined;
-      } else if (
-        error instanceof ConfirmationRequired &&
-        current === undefined
-      ) {
+      } else if (error instanceof ConfirmationRequired) {
+        if (current !== undefined) {
+          await new Promise((resolve) =>
+            setTimeout(
+              resolve,
+              Math.min(delay, Math.max(0, deadline - Date.now())),
+            ),
+          );
+          delay = Math.min(delay * 2, 1000);
+        }
+        if (Date.now() >= deadline) {
+          if (!defer)
+            throw new PendingResponseTimeout(
+              "Provider confirmation changed; retry this webhook delivery",
+            );
+          try {
+            await defer();
+            return;
+          } catch (cause) {
+            throw new PendingResponseTimeout(
+              "Could not persist deferred webhook delivery",
+              { cause },
+            );
+          }
+        }
+        if (error.key && error.snapshot)
+          confirmation.set(error.key, error.snapshot);
         try {
           current = await read();
         } catch (error) {

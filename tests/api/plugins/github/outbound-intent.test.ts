@@ -445,3 +445,56 @@ it("confirms different inbound values sharing a provider version", async () => {
   expect(read).toHaveBeenCalledOnce();
   expect(inboundEcho(stamp, "A", version, "A")).toBe(false);
 });
+
+it("rereads a provider confirmation after the locked sync state changes", async () => {
+  const version = "2026-09-30T00:00:03Z";
+  let stamp = inboundStamp(undefined, "C", "github", version);
+  const read = vi.fn(async () => {
+    if (read.mock.calls.length === 1) {
+      stamp = inboundStamp(stamp, "C", "github", version);
+      return "B";
+    }
+    return "C";
+  });
+  const result = await withEchoConfirmation(
+    read,
+    async (current, confirmation) =>
+      inboundEcho(stamp, "B", version, current, {
+        linkId: "link",
+        field: "title",
+        localValue: stamp.value,
+        confirmation,
+      }),
+  );
+  expect(result).toBe(true);
+  expect(read).toHaveBeenCalledTimes(2);
+});
+it("bounds confirmation retries and durably defers continuous sync changes", async () => {
+  vi.useFakeTimers();
+  try {
+    const version = "2026-09-30T00:00:03Z";
+    let stamp = inboundStamp(undefined, "C", "github", version);
+    const read = vi.fn(async () => {
+      stamp = inboundStamp(stamp, "C", "github", version);
+      return "B";
+    });
+    const defer = vi.fn(async () => undefined);
+    const run = withEchoConfirmation(
+      read,
+      async (current, confirmation) =>
+        inboundEcho(stamp, "B", version, current, {
+          linkId: "link",
+          field: "title",
+          localValue: stamp.value,
+          confirmation,
+        }),
+      defer,
+    );
+    await vi.advanceTimersByTimeAsync(5000);
+    await run;
+    expect(defer).toHaveBeenCalledOnce();
+    expect(read.mock.calls.length).toBeLessThanOrEqual(11);
+  } finally {
+    vi.useRealTimers();
+  }
+});

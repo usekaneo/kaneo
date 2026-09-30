@@ -89,7 +89,7 @@ export async function handleGiteaIssueReopened(
       };
       await withEchoConfirmation(
         readCurrent,
-        (current) =>
+        (current, confirmation) =>
           withIntegrationLink(
             externalLink,
             integration,
@@ -120,6 +120,7 @@ export async function handleGiteaIssueReopened(
                     linkId: externalLink.id,
                     field: "state",
                     localValue: task.status === "done" ? "closed" : "open",
+                    confirmation,
                   },
                 )
               )

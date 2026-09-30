@@ -85,7 +85,7 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
     };
     await withEchoConfirmation(
       readCurrent,
-      (current) =>
+      (current, confirmation) =>
         withIntegrationLink(
           externalLink,
           integration,
@@ -132,6 +132,7 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
                       linkId: externalLink.id,
                       field: "title",
                       localValue: task.title,
+                      confirmation,
                     },
                   )
                 ) {
@@ -181,6 +182,7 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
                       linkId: externalLink.id,
                       field: "description",
                       localValue: task.description || "",
+                      confirmation,
                     },
                   )
                 ) {

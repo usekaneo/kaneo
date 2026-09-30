@@ -298,7 +298,8 @@ it("accepts a legitimate remote edit matching a historical outbound value within
     title: "Earlier title",
     description: "Earlier body",
   });
-  expect(m.getIssue).toHaveBeenCalledTimes(1);
+  // Each ambiguous field needs a confirmation tied to its locked sync state.
+  expect(m.getIssue).toHaveBeenCalledTimes(2);
 });
 
 it("ignores the linked task footer when detecting a description echo", async () => {

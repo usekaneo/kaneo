@@ -890,3 +890,140 @@ it("retains the uncertain intent and job when corrective provider HTTP fails", a
   expect((await current(task.id))?.title).toBe("B");
   expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
 });
+
+it.each(providerFields)(
+  "rechecks a stale $provider $field confirmation after a newer colliding webhook",
+  async ({ provider, field }) => {
+    const { task, integration, link } = await seed(provider);
+    const version = "2026-09-30T00:00:03Z";
+    const initial = field === "state" ? "closed" : "A";
+    const stale = field === "state" ? "open" : "B";
+    const latest = field === "state" ? "closed" : "C";
+    await db
+      .update(schema.taskTable)
+      .set({
+        [field === "state" ? "status" : field]:
+          field === "state" ? "done" : initial,
+      })
+      .where(eq(schema.taskTable.id, task.id));
+    await db
+      .update(schema.externalLinkTable)
+      .set({
+        metadata: JSON.stringify({
+          lastSync: {
+            [field]: inboundStamp(undefined, initial, provider, version),
+          },
+        }),
+      })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    m.read.mockResolvedValue({
+      title: latest,
+      body: latest,
+      state: "closed",
+      updated_at: version,
+    });
+    m.read.mockImplementationOnce(async () => {
+      await deliverField(provider, field, latest, version, integration.id);
+      return { title: stale, body: stale, state: "open", updated_at: version };
+    });
+    await deliverField(provider, field, stale, version, integration.id);
+    const row = await current(task.id);
+    expect(field === "state" ? row?.status : row?.[field]).toBe(
+      field === "state" ? "done" : latest,
+    );
+    expect((await metadata(link.id)).lastSync[field].inboundValue).toBe(latest);
+    expect(m.read.mock.calls.length).toBeGreaterThanOrEqual(2);
+  },
+);
+it.each(["github", "gitea"])(
+  "validates each changed %s field when a shared confirmation GET becomes stale",
+  async (provider) => {
+    const { task, integration, link } = await seed(provider);
+    const version = "2026-09-30T00:00:03Z";
+    await db
+      .update(schema.taskTable)
+      .set({ title: "A", description: "A" })
+      .where(eq(schema.taskTable.id, task.id));
+    await db
+      .update(schema.externalLinkTable)
+      .set({
+        metadata: JSON.stringify({
+          lastSync: {
+            title: inboundStamp(undefined, "A", provider, version),
+            description: inboundStamp(undefined, "A", provider, version),
+          },
+        }),
+      })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    m.read.mockResolvedValue({
+      title: "B",
+      body: "C",
+      state: "open",
+      updated_at: version,
+    });
+    m.read.mockImplementationOnce(async () => {
+      await deliverField(provider, "description", "C", version, integration.id);
+      return { title: "B", body: "B", state: "open", updated_at: version };
+    });
+    const payload = {
+      action: "edited",
+      issue: {
+        number: 1,
+        title: "B",
+        body: "B",
+        updated_at: version,
+        html_url: link.url,
+      },
+      changes: { title: { from: "A" }, body: { from: "A" } },
+      repository: {
+        id: 20,
+        name: "repo",
+        full_name: "owner/repo",
+        owner: { login: "owner" },
+        html_url: "https://git.example/owner/repo",
+      },
+    };
+    if (provider === "github") await handleIssueEdited(payload);
+    else await handleGiteaIssueEdited(payload, integration.id);
+    expect(await current(task.id)).toMatchObject({
+      title: "B",
+      description: "C",
+    });
+  },
+);
+
+it.each(["github", "gitea"])(
+  "preserves a newer local edit committed during %s provider confirmation",
+  async (provider) => {
+    const { task, integration, link } = await seed(provider);
+    const version = "2026-09-30T00:00:03Z";
+    await db
+      .update(schema.taskTable)
+      .set({ title: "A" })
+      .where(eq(schema.taskTable.id, task.id));
+    await db
+      .update(schema.externalLinkTable)
+      .set({
+        metadata: JSON.stringify({
+          lastSync: { title: inboundStamp(undefined, "A", provider, version) },
+        }),
+      })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    m.read.mockResolvedValue({
+      title: "B",
+      body: "body",
+      state: "open",
+      updated_at: version,
+    });
+    m.read.mockImplementationOnce(async () => {
+      await db
+        .update(schema.taskTable)
+        .set({ title: "C" })
+        .where(eq(schema.taskTable.id, task.id));
+      return { title: "B", body: "body", state: "open", updated_at: version };
+    });
+    await deliverField(provider, "title", "B", version, integration.id);
+    expect((await current(task.id))?.title).toBe("C");
+    expect(publishEvent).not.toHaveBeenCalled();
+  },
+);
