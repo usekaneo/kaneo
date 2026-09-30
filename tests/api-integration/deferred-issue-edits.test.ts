@@ -724,9 +724,13 @@ it.each(
     );
   },
 );
-it.each(providerFields)(
-  "repairs a late timed-out $provider $field write without reverting the newer local value",
-  async ({ provider, field }) => {
+it.each(
+  providerFields.flatMap((entry) =>
+    [1, 2].map((count) => ({ ...entry, count })),
+  ),
+)(
+  "repairs a late timed-out $provider $field write without reverting the newer local value (uncertain=$count)",
+  async ({ provider, field, count }) => {
     const { task, integration, link } = await seed(provider);
     const older = field === "state" ? "closed" : "remote-old";
     const latest =
@@ -735,11 +739,17 @@ it.each(providerFields)(
       intentId: "timed-out",
       pending: true,
     });
-    const uncertain = outboundStamp(pending, older, undefined, {
+    let uncertain = outboundStamp(pending, older, undefined, {
       intentId: "timed-out",
       pending: false,
       uncertain: true,
     });
+    if (count === 2)
+      uncertain = outboundStamp(uncertain, older, undefined, {
+        intentId: "second-timed-out",
+        pending: false,
+        uncertain: true,
+      });
     const stamp = outboundStamp(uncertain, latest, "2026-09-30T00:00:02Z", {
       intentId: "newer-completed",
     });
@@ -1170,20 +1180,31 @@ it("preserves a newer correction queued while its worker reads the provider", as
   expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
 });
 
-it.each(["github", "gitea"])(
-  "retires an uncertain intent after queued %s correction so future genuine edits apply",
-  async (provider) => {
+it.each(
+  ["github", "gitea"].flatMap((provider) =>
+    [1, 2].map((count) => ({ provider, count })),
+  ),
+)(
+  "retires uncertain intents after queued $provider correction so future genuine edits apply (uncertain=$count)",
+  async ({ provider, count }) => {
     const { task, integration, link } = await seed(provider);
+    let stamp = outboundStamp(undefined, "A", undefined, {
+      intentId: "old-unknown",
+      pending: false,
+      uncertain: true,
+    });
+    if (count === 2)
+      stamp = outboundStamp(stamp, "A", undefined, {
+        intentId: "second-unknown",
+        pending: false,
+        uncertain: true,
+      });
     await db
       .update(schema.externalLinkTable)
       .set({
         metadata: JSON.stringify({
           lastSync: {
-            title: outboundStamp(undefined, "A", undefined, {
-              intentId: "old-unknown",
-              pending: false,
-              uncertain: true,
-            }),
+            title: stamp,
           },
         }),
       })
@@ -1210,3 +1231,126 @@ it.each(["github", "gitea"])(
     expect((await current(task.id))?.title).toBe("A");
   },
 );
+
+it.each(
+  ["github", "gitea"].flatMap((provider) =>
+    ["webhook", "worker"].map((mode) => ({ provider, mode })),
+  ),
+)(
+  "protects a local edit when only the older of two uncertain $provider writes precedes it ($mode)",
+  async ({ provider, mode }) => {
+    const { task, integration, link } = await seed(provider);
+    let stamp = outboundStamp(undefined, "A", undefined, {
+      intentId: "before-local",
+      pending: true,
+    });
+    stamp = inboundStamp(stamp, "B", provider);
+    stamp = outboundStamp(stamp, "A", undefined, {
+      intentId: "after-local",
+      pending: true,
+    });
+    stamp = outboundStamp(stamp, "A", undefined, {
+      intentId: "before-local",
+      pending: false,
+      uncertain: true,
+    });
+    stamp = outboundStamp(stamp, "A", undefined, {
+      intentId: "after-local",
+      pending: false,
+      uncertain: true,
+    });
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: JSON.stringify({ lastSync: { title: stamp } }) })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    if (mode === "webhook")
+      await deliverField(
+        provider,
+        "title",
+        "A",
+        "2026-09-30T00:00:03Z",
+        integration.id,
+      );
+    else await deferIssueEdit(link, integration, ["title"]);
+    await replayDeferredIssueEdits();
+    expect((await current(task.id))?.title).toBe("B");
+    expect(m.write).toHaveBeenCalledWith(
+      expect.objectContaining({ title: "B" }),
+    );
+  },
+);
+
+it.each(["uncertain", "pending"])(
+  "keeps a newer matching %s write that arrives while a queued repair is in flight",
+  async (kind) => {
+    const { integration, link } = await seed();
+    await db
+      .update(schema.externalLinkTable)
+      .set({
+        metadata: JSON.stringify({
+          lastSync: {
+            title: outboundStamp(undefined, "A", undefined, {
+              intentId: "old",
+              uncertain: true,
+            }),
+          },
+        }),
+      })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    await deferTaskSync(link, integration, ["title"]);
+    m.write.mockImplementationOnce(async () => {
+      await updateExternalLink(link.id, {
+        outbound: {
+          field: "title",
+          value: "A",
+          intentId: "new",
+          pending: kind === "pending",
+          uncertain: kind === "uncertain",
+        },
+      });
+      return { updated_at: "2026-09-30T00:00:04Z" };
+    });
+    await replayDeferredIssueEdits();
+    const entries = (await metadata(link.id)).lastSync.title.outbound;
+    expect(
+      entries.find((entry: { intentId: string }) => entry.intentId === "old"),
+    ).toMatchObject({ cancelled: true, uncertain: false, pending: false });
+    expect(
+      entries.find((entry: { intentId: string }) => entry.intentId === "new"),
+    ).toMatchObject({
+      pending: kind === "pending",
+      uncertain: kind === "uncertain",
+    });
+    expect(
+      entries.find((entry: { intentId: string }) => entry.intentId === "new")
+        .cancelled,
+    ).not.toBe(true);
+  },
+);
+it("retains every captured uncertain intent when the corrective provider write fails", async () => {
+  const { integration, link } = await seed();
+  let stamp = outboundStamp(undefined, "A", undefined, {
+    intentId: "first",
+    uncertain: true,
+  });
+  stamp = outboundStamp(stamp, "A", undefined, {
+    intentId: "second",
+    uncertain: true,
+  });
+  await db
+    .update(schema.externalLinkTable)
+    .set({ metadata: JSON.stringify({ lastSync: { title: stamp } }) })
+    .where(eq(schema.externalLinkTable.id, link.id));
+  await deferTaskSync(link, integration, ["title"]);
+  m.write.mockRejectedValueOnce(new Error("provider unavailable"));
+  expect(await replayDeferredIssueEdits()).toEqual({ degraded: true });
+  const saved = await metadata(link.id);
+  expect(saved.deferredIssueEdit).toBeDefined();
+  for (const id of ["first", "second"]) {
+    const intent = saved.lastSync.title.outbound.find(
+      (entry: { intentId: string }) => entry.intentId === id,
+    );
+    expect(intent.uncertain).toBe(true);
+    expect(intent.cancelled).not.toBe(true);
+  }
+});

@@ -195,14 +195,15 @@ export function hasNewerObservedEdit(
   );
 }
 
-export function uncertainOutboundIntent(
+export function uncertainOutboundIntents(
   stamp: SyncStamp | undefined,
   value: string,
 ) {
-  return stamp?.outbound?.find(
+  const valueHash = hash(value);
+  return (stamp?.outbound ?? []).filter(
     (entry) =>
       !entry.cancelled &&
-      entry.hash === hash(value) &&
+      entry.hash === valueHash &&
       (entry.uncertain ||
         (entry.pending && Date.now() - Date.parse(entry.timestamp) >= 300_000)),
   );

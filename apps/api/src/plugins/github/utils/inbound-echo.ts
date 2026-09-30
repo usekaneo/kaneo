@@ -4,7 +4,7 @@ import {
   ambiguousOutboundEcho,
   isOutboundEcho,
   pendingOutboundIntent,
-  uncertainOutboundIntent,
+  uncertainOutboundIntents,
   inboundOccurredAfterIntent,
   type SyncStamp,
 } from "./sync-echo";
@@ -98,15 +98,17 @@ export function inboundEcho(
   ) {
     if (confirmedValue() !== value) return true;
   }
-  const uncertain = uncertainOutboundIntent(stamp, value);
+  const uncertain = uncertainOutboundIntents(stamp, value);
   const localValue = context?.localValue ?? stamp?.value;
   if (
-    uncertain &&
     localValue !== value &&
-    !(
-      stamp?.source !== "kaneo" &&
-      stamp?.inboundValue === localValue &&
-      inboundOccurredAfterIntent(stamp, uncertain)
+    uncertain.some(
+      (entry) =>
+        !(
+          stamp?.source !== "kaneo" &&
+          stamp?.inboundValue === localValue &&
+          inboundOccurredAfterIntent(stamp, entry)
+        ),
     )
   ) {
     if (confirmedValue() !== value) return true;

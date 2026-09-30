@@ -35,6 +35,7 @@ export type UpdateExternalLinkParams = {
     scope: string;
   };
   completeDeferredEdit?: string;
+  retireOutboundIntents?: { field: IssueField; intentIds: string[] };
   outbound?: {
     field: "title" | "description" | "state";
     value: string;
@@ -149,7 +150,8 @@ export async function updateExternalLink(
     params.metadata ||
     params.observedOutbound ||
     params.deferredEdit ||
-    params.completeDeferredEdit
+    params.completeDeferredEdit ||
+    params.retireOutboundIntents
   ) {
     return database.transaction(async (tx) => {
       const link = await lockExternalLink(id, tx);
@@ -201,6 +203,17 @@ export async function updateExternalLink(
                       ? updatedAt
                       : entry.observedUpdatedAt,
                 }
+              : entry,
+          );
+      }
+      if (params.retireOutboundIntents) {
+        const { field, intentIds } = params.retireOutboundIntents;
+        const ids = new Set(intentIds);
+        const stamp = merged.lastSync?.[field];
+        if (stamp)
+          stamp.outbound = stamp.outbound?.map((entry) =>
+            entry.intentId && ids.has(entry.intentId)
+              ? { ...entry, pending: false, uncertain: false, cancelled: true }
               : entry,
           );
       }

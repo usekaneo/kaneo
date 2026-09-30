@@ -20,7 +20,7 @@ import { parseLinkMetadata } from "../utils/parse-link-metadata";
 import {
   inboundStamp,
   inboundOccurredAfterIntent,
-  uncertainOutboundIntent,
+  uncertainOutboundIntents,
   type SyncStamp,
 } from "../utils/sync-echo";
 import { writeInboundTaskField } from "./apply-observed-task-value";
@@ -199,8 +199,7 @@ export async function replayDeferredIssueEdits() {
         const repairs: Array<{
           field: IssueField;
           value: string;
-          intentId?: string;
-          providerValue: string;
+          intentIds: string[];
         }> = [];
         const applied = await withIntegrationLink(
           link,
@@ -234,7 +233,10 @@ export async function replayDeferredIssueEdits() {
             if (!task) return;
             for (const field of fields) {
               const stamp = current.lastSync?.[field];
-              const uncertain = uncertainOutboundIntent(stamp, values[field]);
+              const uncertain = uncertainOutboundIntents(stamp, values[field]);
+              const intentIds = uncertain.flatMap((entry) =>
+                entry.intentId ? [entry.intentId] : [],
+              );
               const local =
                 field === "state"
                   ? task.status === "done"
@@ -247,41 +249,27 @@ export async function replayDeferredIssueEdits() {
                 repairs.push({
                   field,
                   value: local,
-                  intentId: uncertain?.intentId,
-                  providerValue: values[field],
+                  intentIds,
                 });
                 continue;
               }
               // A crashed older writer can leave the provider behind our completed
               // local value. Its missing receipt does not make it a remote edit.
               if (
-                uncertain &&
-                !(
-                  stamp?.source !== "kaneo" &&
-                  stamp?.inboundValue === local &&
-                  inboundOccurredAfterIntent(stamp, uncertain)
-                ) &&
-                local !== values[field]
+                local !== values[field] &&
+                uncertain.some(
+                  (entry) =>
+                    !(
+                      stamp?.source !== "kaneo" &&
+                      stamp?.inboundValue === local &&
+                      inboundOccurredAfterIntent(stamp, entry)
+                    ),
+                )
               ) {
-                if (uncertain.intentId)
-                  await updateExternalLink(
-                    link.id,
-                    {
-                      outbound: {
-                        field,
-                        value: values[field],
-                        intentId: uncertain.intentId,
-                        pending: false,
-                        uncertain: true,
-                      },
-                    },
-                    tx,
-                  );
                 repairs.push({
                   field,
                   value: local,
-                  intentId: uncertain.intentId,
-                  providerValue: values[field],
+                  intentIds,
                 });
               }
             }
@@ -379,21 +367,16 @@ export async function replayDeferredIssueEdits() {
             link,
             integration,
             async (tx) => {
-              // The repair succeeded. Retire its uncertain intent so a future
-              // genuine provider edit to the old value remains importable.
+              // Retire only the matching intents captured for this repair.
+              // New writes arriving during provider HTTP must remain reconcilable.
               for (const repair of repairs) {
-                if (repair.intentId)
+                if (repair.intentIds.length)
                   await updateExternalLink(
                     link.id,
                     {
-                      outbound: {
+                      retireOutboundIntents: {
                         field: repair.field,
-                        value: repair.providerValue,
-                        intentId: repair.intentId,
-                        updatedAt: issue.updated_at,
-                        pending: false,
-                        uncertain: false,
-                        cancelled: true,
+                        intentIds: repair.intentIds,
                       },
                     },
                     tx,
