@@ -25,7 +25,11 @@ export async function withIntegrationTask<T>(
     database: IntegrationDatabase,
     afterCommit: (effect: () => Promise<void>) => void,
   ) => Promise<T>,
-  expectedBinding?: { config: string; type: string },
+  expectedBinding?: {
+    config?: string;
+    type?: string;
+    validate?: (binding: { config: string; type: string }) => boolean;
+  },
 ): Promise<T | undefined> {
   const effects: Array<() => Promise<void>> = [];
   const result = await db.transaction(async (tx) => {
@@ -49,18 +53,29 @@ export async function withIntegrationTask<T>(
     if (!project) return undefined;
     if (expectedBinding) {
       const [binding] = await tx
-        .select({ id: integrationTable.id })
+        .select({
+          config: integrationTable.config,
+          type: integrationTable.type,
+        })
         .from(integrationTable)
         .where(
           and(
             eq(integrationTable.id, integration.id),
-            eq(integrationTable.config, expectedBinding.config),
-            eq(integrationTable.type, expectedBinding.type),
+            expectedBinding.config === undefined
+              ? undefined
+              : eq(integrationTable.config, expectedBinding.config),
+            expectedBinding.type === undefined
+              ? undefined
+              : eq(integrationTable.type, expectedBinding.type),
             eq(integrationTable.isActive, true),
           ),
         )
         .for("share");
-      if (!binding) return undefined;
+      if (
+        !binding ||
+        (expectedBinding.validate && !expectedBinding.validate(binding))
+      )
+        return undefined;
     }
     if (taskId !== null) {
       const [task] = await tx

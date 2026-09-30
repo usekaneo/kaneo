@@ -17,7 +17,11 @@ import {
   createProjectFixture,
   createWorkspaceMember,
 } from "./helpers/fixtures";
-const m = vi.hoisted(() => ({ integrations: [] as unknown[], read: vi.fn() }));
+const m = vi.hoisted(() => ({
+  integrations: [] as unknown[],
+  read: vi.fn(),
+  write: vi.fn(),
+}));
 vi.mock("../../apps/api/src/events", () => ({
   publishEvent: vi.fn(async () => undefined),
 }));
@@ -32,15 +36,31 @@ vi.mock(
 );
 vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
   getVerifiedInstallationOctokit: async () => ({
-    rest: { issues: { get: async () => ({ data: await m.read() }) } },
+    rest: {
+      issues: {
+        get: async () => ({ data: await m.read() }),
+        update: async (params: Record<string, unknown>) => ({
+          data: await m.write(params),
+        }),
+      },
+    },
   }),
 }));
 vi.mock("../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
-  createGiteaClient: () => ({ getIssue: () => m.read() }),
+  createGiteaClient: () => ({
+    getIssue: () => m.read(),
+    updateIssue: (
+      _owner: string,
+      _repo: string,
+      _number: number,
+      params: Record<string, unknown>,
+    ) => m.write(params),
+  }),
 }));
 beforeEach(async () => {
   await resetTestDatabase();
   vi.clearAllMocks();
+  m.write.mockReset().mockResolvedValue({ updated_at: "2026-09-30T00:00:04Z" });
   m.read.mockReset().mockResolvedValue({
     title: "A",
     body: "recovered body",
@@ -274,3 +294,96 @@ it("rechecks provider state after a newer inbound edit during HTTP", async () =>
   expect((await current(task.id))?.description).toBe("newer edit");
   expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
 });
+
+it("retains deferred edits across credential rotation on the same repository", async () => {
+  const { task, integration, link } = await seed("gitea");
+  await db
+    .update(schema.integrationTable)
+    .set({
+      config: JSON.stringify({
+        ...JSON.parse(integration.config),
+        accessToken: "rotated-test-secret",
+      }),
+    })
+    .where(eq(schema.integrationTable.id, integration.id));
+  await deferIssueEdit(link, integration, ["description"]);
+  expect((await metadata(link.id)).deferredIssueEdit.fields).toEqual([
+    "description",
+  ]);
+  await replayDeferredIssueEdits();
+  expect((await current(task.id))?.description).toBe("recovered body");
+  expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+});
+
+it("does not overwrite a local edit committed before its integration subscriber stamps it", async () => {
+  const { task, integration, link } = await seed();
+  await deferIssueEdit(link, integration, ["description"]);
+  m.read.mockImplementationOnce(async () => {
+    await db
+      .update(schema.taskTable)
+      .set({ description: "new local edit" })
+      .where(eq(schema.taskTable.id, task.id));
+    return { title: "A", body: "stale provider body", state: "closed" };
+  });
+  await replayDeferredIssueEdits();
+  expect((await current(task.id))?.description).toBe("new local edit");
+  expect((await metadata(link.id)).deferredIssueEdit).toBeDefined();
+  expect(publishEvent).not.toHaveBeenCalled();
+});
+it.each(
+  ["github", "gitea"].flatMap((provider) =>
+    ["title", "description", "state"].map((field) => ({ provider, field })),
+  ),
+)(
+  "repairs an expired older $provider $field writer without importing its stale value",
+  async ({ provider, field }) => {
+    const { task, integration, link } = await seed(provider);
+    const local =
+      field === "title" ? "B" : field === "description" ? "old body" : "open";
+    const stale =
+      field === "title"
+        ? "A"
+        : field === "description"
+          ? "recovered body"
+          : "closed";
+    const stamp = outboundStamp(
+      outboundStamp(undefined, stale, undefined, {
+        intentId: "orphan",
+        pending: true,
+      }),
+      local,
+      "2026-09-30T00:00:02Z",
+      { intentId: "newer-completed", pending: false },
+    );
+    const orphan = stamp.outbound?.find((entry) => entry.intentId === "orphan");
+    if (!orphan) throw new Error("Missing orphan fixture");
+    orphan.timestamp = new Date(Date.now() - 300_001).toISOString();
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: JSON.stringify({ lastSync: { [field]: stamp } }) })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    await deferIssueEdit(link, integration, [
+      field as "title" | "description" | "state",
+    ]);
+    expect(
+      (await metadata(link.id)).lastSync[field].outbound.find(
+        (entry: { intentId: string }) => entry.intentId === "orphan",
+      ),
+    ).toMatchObject({ pending: false, uncertain: true });
+    await replayDeferredIssueEdits();
+    expect(await current(task.id)).toMatchObject({
+      title: "B",
+      description: "old body",
+      status: "to-do",
+    });
+    expect(m.write).toHaveBeenCalledWith(
+      expect.objectContaining(
+        field === "description"
+          ? { body: expect.stringContaining("old body") }
+          : { [field]: local },
+      ),
+    );
+    expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+    expect(publishEvent).not.toHaveBeenCalled();
+  },
+);

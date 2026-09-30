@@ -78,9 +78,10 @@ export function outboundStamp(
 export function boundOutboundHistory(entries: OutboundEntry[]) {
   // Keep active intents until they settle; completed history stays bounded.
   const recent = entries
-    .filter(
-      (entry) =>
-        !entry.pending || Date.now() - Date.parse(entry.timestamp) < 300_000,
+    .map((entry) =>
+      entry.pending && Date.now() - Date.parse(entry.timestamp) >= 300_000
+        ? { ...entry, pending: false, uncertain: true }
+        : entry,
     )
     .sort((left, right) => left.timestamp.localeCompare(right.timestamp));
   const completed = recent.filter((entry) => !entry.pending).slice(-32);
@@ -184,5 +185,18 @@ export function hasNewerObservedEdit(
   return (
     Date.parse(entry.observedUpdatedAt) > Date.parse(updatedAt) ||
     (entry.observedUpdatedAt === updatedAt && !!entry.ambiguous)
+  );
+}
+
+export function uncertainOutboundIntent(
+  stamp: SyncStamp | undefined,
+  value: string,
+) {
+  return stamp?.outbound?.find(
+    (entry) =>
+      !entry.cancelled &&
+      entry.hash === hash(value) &&
+      (entry.uncertain ||
+        (entry.pending && Date.now() - Date.parse(entry.timestamp) >= 300_000)),
   );
 }

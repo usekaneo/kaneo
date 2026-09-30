@@ -1,6 +1,6 @@
-import { and, asc, eq, gt, like } from "drizzle-orm";
+import { and, asc, eq, gt, like, sql } from "drizzle-orm";
 import db from "../../../database";
-import { externalLinkTable } from "../../../database/schema";
+import { externalLinkTable, taskTable } from "../../../database/schema";
 import { publishEvent } from "../../../events";
 import type { GiteaConfig } from "../../gitea/config";
 import { createGiteaClient } from "../../gitea/utils/gitea-api";
@@ -10,13 +10,25 @@ import {
   parseDeferredIssueEdit,
   type IssueField,
 } from "../utils/deferred-issue-edit";
-import { formatTaskDescriptionFromIssue } from "../utils/format";
+import {
+  formatIssueBody,
+  formatTaskDescriptionFromIssue,
+} from "../utils/format";
 import { getVerifiedInstallationOctokit } from "../utils/github-app";
 import { inboundEcho, PendingEcho } from "../utils/inbound-echo";
 import { parseLinkMetadata } from "../utils/parse-link-metadata";
-import { inboundStamp, type SyncStamp } from "../utils/sync-echo";
+import {
+  inboundStamp,
+  uncertainOutboundIntent,
+  type SyncStamp,
+} from "../utils/sync-echo";
 import { writeInboundTaskField } from "./apply-observed-task-value";
 import { updateExternalLink } from "./link-manager";
+import { syncLatestTaskValue } from "./sync-latest-task-value";
+import {
+  linkedTaskScope,
+  type IntegrationDatabase,
+} from "./integration-task-scope";
 import { withIntegrationLink } from "./with-integration-link";
 
 type Integration = {
@@ -50,32 +62,75 @@ export async function deferIssueEdit(
         tx,
       );
     },
-    integration,
+    {
+      validate: (binding) =>
+        issueEditScope(binding) === issueEditScope(integration),
+    },
   );
 }
 
-async function readIssue(integration: Integration, externalId: string) {
-  const number = Number(externalId);
+async function taskRevision(
+  taskId: string,
+  projectId: string,
+  fields: IssueField[],
+  database: IntegrationDatabase = db,
+) {
+  const [task] = await database
+    .select({
+      revision: sql<string>`md5(jsonb_build_array(${taskTable.updatedAt}, ${fields.includes("title") ? taskTable.title : sql`null`}, ${fields.includes("description") ? taskTable.description : sql`null`}, ${fields.includes("state") ? taskTable.status : sql`null`})::text)`,
+    })
+    .from(taskTable)
+    .where(linkedTaskScope(taskId, projectId));
+  return task?.revision;
+}
+
+async function issueAccess(
+  integration: Integration,
+  link: { externalId: string; taskId: string },
+) {
+  const number = Number(link.externalId);
   if (!Number.isSafeInteger(number) || number <= 0)
     throw new Error("Invalid issue number");
+  const config = JSON.parse(integration.config);
+  const { repositoryOwner: owner, repositoryName: repo } = config;
+  const payload = (field: IssueField, value: string) =>
+    field === "description"
+      ? { body: formatIssueBody(value, link.taskId) }
+      : { [field]: value };
   if (integration.type === "gitea") {
-    const config = JSON.parse(integration.config) as GiteaConfig;
-    return createGiteaClient(config).getIssue(
-      config.repositoryOwner,
-      config.repositoryName,
-      number,
-    );
+    const client = createGiteaClient(config as GiteaConfig);
+    return {
+      read: () => client.getIssue(owner, repo, number),
+      write: async (field: IssueField, value: string) =>
+        (await client.updateIssue(owner, repo, number, payload(field, value)))
+          ?.updated_at,
+    };
   }
-  const config = JSON.parse(integration.config) as GitHubConfig;
-  const octokit = await getVerifiedInstallationOctokit(config, true);
-  return (
-    await octokit.rest.issues.get({
-      owner: config.repositoryOwner,
-      repo: config.repositoryName,
-      issue_number: number,
-      request: { timeout: 10_000 },
-    })
-  ).data;
+  const octokit = await getVerifiedInstallationOctokit(
+    config as GitHubConfig,
+    true,
+  );
+  return {
+    read: async () =>
+      (
+        await octokit.rest.issues.get({
+          owner,
+          repo,
+          issue_number: number,
+          request: { timeout: 10_000 },
+        })
+      ).data,
+    write: async (field: IssueField, value: string) =>
+      (
+        await octokit.rest.issues.update({
+          owner,
+          repo,
+          issue_number: number,
+          ...payload(field, value),
+          request: { timeout: 10_000 },
+        })
+      )?.data?.updated_at,
+  };
 }
 
 let running = false;
@@ -127,7 +182,14 @@ export async function replayDeferredIssueEdits() {
           )
         )
           continue;
-        const issue = await readIssue(integration, link.externalId);
+        const revision = await taskRevision(
+          link.taskId,
+          integration.projectId,
+          job.fields,
+        );
+        if (!revision) continue;
+        const provider = await issueAccess(integration, link);
+        const issue = await provider.read();
         if (
           typeof issue.title !== "string" ||
           !["open", "closed"].includes(issue.state)
@@ -141,7 +203,8 @@ export async function replayDeferredIssueEdits() {
           ),
           state: issue.state,
         };
-        await withIntegrationLink(
+        const repairs: Array<{ field: IssueField; value: string }> = [];
+        const applied = await withIntegrationLink(
           link,
           integration,
           async (tx, afterCommit, locked) => {
@@ -158,9 +221,60 @@ export async function replayDeferredIssueEdits() {
               )
             )
               return;
+            if (
+              (await taskRevision(
+                link.taskId,
+                integration.projectId,
+                job.fields,
+                tx,
+              )) !== revision
+            )
+              return;
+            const task = await tx.query.taskTable.findFirst({
+              where: linkedTaskScope(link.taskId, integration.projectId),
+              columns: { title: true, description: true, status: true },
+            });
+            if (!task) return;
+            for (const field of job.fields) {
+              const stamp = current.lastSync?.[field];
+              const uncertain = uncertainOutboundIntent(stamp, values[field]);
+              const local =
+                field === "state"
+                  ? task.status === "done"
+                    ? "closed"
+                    : "open"
+                  : field === "description"
+                    ? task.description || ""
+                    : task.title;
+              // A crashed older writer can leave the provider behind our completed
+              // local value. Its missing receipt does not make it a remote edit.
+              if (
+                uncertain &&
+                stamp?.source === "kaneo" &&
+                stamp.value === local &&
+                local !== values[field]
+              ) {
+                if (uncertain.intentId)
+                  await updateExternalLink(
+                    link.id,
+                    {
+                      outbound: {
+                        field,
+                        value: values[field],
+                        intentId: uncertain.intentId,
+                        pending: false,
+                        uncertain: true,
+                      },
+                    },
+                    tx,
+                  );
+                repairs.push({ field, value: local });
+              }
+            }
             // Classify every field before writing any: PendingEcho commits only its observation.
             const accepted = job.fields.filter(
               (field) =>
+                !repairs.some((repair) => repair.field === field) &&
                 !(
                   field === "state" &&
                   integration.type === "github" &&
@@ -198,7 +312,7 @@ export async function replayDeferredIssueEdits() {
               {
                 metadata: current,
                 ...(accepted.includes("title") ? { title: values.title } : {}),
-                completeDeferredEdit: job.id,
+                ...(repairs.length ? {} : { completeDeferredEdit: job.id }),
               },
               tx,
             );
@@ -209,9 +323,43 @@ export async function replayDeferredIssueEdits() {
                   projectId: integration.projectId,
                 }),
               );
+            return true;
           },
           integration,
         );
+        if (applied !== true) continue;
+        for (const repair of repairs) {
+          await syncLatestTaskValue(
+            link.taskId,
+            integration.projectId,
+            link,
+            repair.field,
+            repair.value,
+            (value) => provider.write(repair.field, value),
+            async () => {
+              const current = await provider.read();
+              return repair.field === "description"
+                ? formatTaskDescriptionFromIssue(
+                    current.body ?? null,
+                    link.taskId,
+                  )
+                : current[repair.field];
+            },
+          );
+        }
+        if (repairs.length)
+          await withIntegrationLink(
+            link,
+            integration,
+            async (tx) => {
+              await updateExternalLink(
+                link.id,
+                { completeDeferredEdit: job.id },
+                tx,
+              );
+            },
+            integration,
+          );
       } catch (error) {
         if (error instanceof PendingEcho) continue;
         degraded = true;
