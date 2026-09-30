@@ -1,6 +1,8 @@
 import type { BroadcastAdapter, UserBroadcast } from "./broadcast-adapter";
 
-export function createRevocationDelivery(adapter: BroadcastAdapter) {
+export function createRevocationDelivery(
+  adapter: Pick<BroadcastAdapter, "publishToUser">,
+) {
   type Pending = {
     message: UserBroadcast;
     shouldRetry?: () => Promise<boolean>;

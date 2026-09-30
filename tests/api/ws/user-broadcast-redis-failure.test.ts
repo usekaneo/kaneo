@@ -223,3 +223,47 @@ it("ignores an offline-queued revocation after the member regains access", async
   removeConnection("project", projectConnection);
   await shutdownWebSocketAdapter();
 });
+
+it.each([true, false])(
+  "retries incoming revocation validation without evicting on database errors (restored=%s)",
+  async (restored) => {
+    vi.useFakeTimers();
+    await initializeWebSocketAdapter();
+    hasAccess.mockRejectedValue(new Error("database unavailable"));
+    const ws = makeFakeWs();
+    const projectWs = makeFakeWs();
+    const userConnection = addUserConnection("user-1", ws);
+    const projectConnection = addConnection(
+      "project",
+      projectWs,
+      "user-1",
+      "window",
+      "workspace",
+    );
+    try {
+      emitUserBroadcast({
+        userId: "user-1",
+        origin: "other-instance",
+        message: { type: "WORKSPACE_ACCESS_REVOKED", workspaceId: "workspace" },
+      });
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(sendMock(ws)).not.toHaveBeenCalled();
+      expect(
+        (projectWs as unknown as { close: ReturnType<typeof vi.fn> }).close,
+      ).not.toHaveBeenCalled();
+      hasAccess.mockResolvedValue(restored);
+      await vi.advanceTimersByTimeAsync(2000);
+      expect(sendMock(ws)).toHaveBeenCalledTimes(restored ? 0 : 1);
+      if (!restored)
+        expect(
+          (projectWs as unknown as { close: ReturnType<typeof vi.fn> }).close,
+        ).toHaveBeenCalledWith(1008, "Workspace access revoked");
+    } finally {
+      removeUserConnection("user-1", userConnection);
+      removeConnection("project", projectConnection);
+      await shutdownWebSocketAdapter();
+      hasAccess.mockResolvedValue(false);
+      vi.useRealTimers();
+    }
+  },
+);

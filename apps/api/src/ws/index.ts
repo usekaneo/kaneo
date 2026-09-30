@@ -31,6 +31,9 @@ import { RedisBroadcastAdapter } from "./redis-broadcast-adapter";
 
 const INSTANCE_ID = randomUUID();
 let revocationDelivery: ReturnType<typeof createRevocationDelivery> | undefined;
+let receivedRevocations:
+  | ReturnType<typeof createRevocationDelivery>
+  | undefined;
 
 type ProjectConnection = {
   ws: WSContext;
@@ -157,6 +160,17 @@ export async function initializeWebSocketAdapter() {
     ? new RedisBroadcastAdapter()
     : new InMemoryBroadcastAdapter();
 
+  const retryReceived = createRevocationDelivery({
+    async publishToUser(msg) {
+      if (
+        await hasWorkspaceAccess(msg.userId, msg.message.workspaceId as string)
+      )
+        return;
+      if (receivedRevocations !== retryReceived) return;
+      deliverToLocalUserConnections(msg.userId, msg.message);
+    },
+  });
+  receivedRevocations = retryReceived;
   try {
     await nextAdapter.subscribe((msg: BroadcastMessage) => {
       return deliverToLocalConnections(
@@ -186,6 +200,8 @@ export async function initializeWebSocketAdapter() {
               "Failed to verify received workspace revocation:",
               error,
             );
+            await retryReceived.send(msg);
+            return;
           }
         }
         deliverToLocalUserConnections(msg.userId, msg.message);
@@ -199,6 +215,8 @@ export async function initializeWebSocketAdapter() {
       },
     );
   } catch (err) {
+    retryReceived.stop();
+    receivedRevocations = undefined;
     await nextAdapter.shutdown().catch(() => {});
     throw err;
   }
@@ -211,6 +229,8 @@ export async function initializeWebSocketAdapter() {
 export async function shutdownWebSocketAdapter() {
   revocationDelivery?.stop();
   revocationDelivery = undefined;
+  receivedRevocations?.stop();
+  receivedRevocations = undefined;
   const pendingQueues = [...projectBroadcastQueues.entries()];
 
   for (const timeout of projectBroadcastTimeouts.values()) {
