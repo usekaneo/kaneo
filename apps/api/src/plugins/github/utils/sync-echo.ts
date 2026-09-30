@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 
 export type OutboundIntent = {
   intentId?: string;
@@ -7,6 +7,7 @@ export type OutboundIntent = {
   uncertain?: boolean;
   observedUpdatedAt?: string;
   startedAt?: string;
+  priorInboundId?: string;
   ambiguous?: boolean;
 };
 export type OutboundEntry = OutboundIntent & {
@@ -19,6 +20,7 @@ export type SyncStamp = {
   source?: string;
   value?: string;
   inboundAt?: string;
+  inboundId?: string;
   inboundValue?: string;
   outbound?: OutboundEntry[];
 };
@@ -57,15 +59,16 @@ export function outboundStamp(
     observedUpdatedAt: previousIntent?.observedUpdatedAt,
     startedAt:
       previousIntent?.startedAt ?? (intent.pending ? timestamp : undefined),
+    priorInboundId:
+      previousIntent?.priorInboundId ??
+      (intent.pending ? previous?.inboundId : undefined),
     ambiguous:
       previousIntent?.ambiguous ||
       !!(
         updatedAt &&
         previousIntent?.observedUpdatedAt === updatedAt &&
-        previous?.inboundAt &&
-        previousIntent.startedAt &&
-        previous.inboundAt >= previousIntent.startedAt &&
-        previous.inboundValue !== value
+        inboundOccurredAfterIntent(previous, previousIntent) &&
+        previous?.inboundValue !== value
       ),
     ...intent,
   });
@@ -160,6 +163,7 @@ export function inboundStamp(
     source,
     value,
     inboundAt: timestamp,
+    inboundId: randomUUID(),
     inboundValue: value,
   };
 }
@@ -199,4 +203,14 @@ export function uncertainOutboundIntent(
       (entry.uncertain ||
         (entry.pending && Date.now() - Date.parse(entry.timestamp) >= 300_000)),
   );
+}
+
+export function inboundOccurredAfterIntent(
+  stamp: SyncStamp | undefined,
+  intent: OutboundEntry | undefined,
+) {
+  if (!stamp?.inboundAt || !intent?.startedAt) return false;
+  // IDs preserve ordering even when two persisted stamps share a millisecond.
+  if (stamp.inboundId) return stamp.inboundId !== intent.priorInboundId;
+  return Date.parse(stamp.inboundAt) > Date.parse(intent.startedAt);
 }

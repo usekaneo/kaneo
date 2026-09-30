@@ -7,6 +7,7 @@ import {
 import { mergeSyncMetadata } from "../../../../apps/api/src/plugins/github/utils/merge-sync-metadata";
 import {
   inboundStamp,
+  inboundOccurredAfterIntent,
   isPendingOutboundEcho,
   outboundStamp,
   type OutboundIntent,
@@ -391,4 +392,22 @@ it("durably defers a colliding event when provider confirmation fails", async ()
     defer,
   );
   expect(defer).toHaveBeenCalledOnce();
+});
+
+it("distinguishes earlier and intervening inbound edits within one millisecond", () => {
+  vi.useFakeTimers();
+  const prior = inboundStamp(undefined, "B", "github");
+  const pending = outboundStamp(prior, "A", undefined, {
+    intentId: "pending",
+    pending: true,
+  });
+  const intent = pending.outbound?.find(
+    (entry) => entry.intentId === "pending",
+  );
+  expect(prior.inboundAt).toBe(intent?.startedAt);
+  expect(inboundOccurredAfterIntent(prior, intent)).toBe(false);
+  const later = inboundStamp(pending, "B", "github");
+  expect(later.inboundAt).toBe(intent?.startedAt);
+  expect(inboundOccurredAfterIntent(later, intent)).toBe(true);
+  vi.useRealTimers();
 });

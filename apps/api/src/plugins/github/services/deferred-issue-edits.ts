@@ -19,6 +19,7 @@ import { inboundEcho, PendingEcho } from "../utils/inbound-echo";
 import { parseLinkMetadata } from "../utils/parse-link-metadata";
 import {
   inboundStamp,
+  inboundOccurredAfterIntent,
   uncertainOutboundIntent,
   type SyncStamp,
 } from "../utils/sync-echo";
@@ -72,13 +73,10 @@ export async function deferIssueEdit(
 async function taskRevision(
   taskId: string,
   projectId: string,
-  fields: IssueField[],
   database: IntegrationDatabase = db,
 ) {
   const [task] = await database
-    .select({
-      revision: sql<string>`md5(jsonb_build_array(${taskTable.updatedAt}, ${fields.includes("title") ? taskTable.title : sql`null`}, ${fields.includes("description") ? taskTable.description : sql`null`}, ${fields.includes("state") ? taskTable.status : sql`null`})::text)`,
-    })
+    .select({ revision: sql<string>`${taskTable}.xmin::text` })
     .from(taskTable)
     .where(linkedTaskScope(taskId, projectId));
   return task?.revision;
@@ -182,11 +180,7 @@ export async function replayDeferredIssueEdits() {
           )
         )
           continue;
-        const revision = await taskRevision(
-          link.taskId,
-          integration.projectId,
-          job.fields,
-        );
+        const revision = await taskRevision(link.taskId, integration.projectId);
         if (!revision) continue;
         const provider = await issueAccess(integration, link);
         const issue = await provider.read();
@@ -222,12 +216,8 @@ export async function replayDeferredIssueEdits() {
             )
               return;
             if (
-              (await taskRevision(
-                link.taskId,
-                integration.projectId,
-                job.fields,
-                tx,
-              )) !== revision
+              (await taskRevision(link.taskId, integration.projectId, tx)) !==
+              revision
             )
               return;
             const task = await tx.query.taskTable.findFirst({
@@ -250,7 +240,11 @@ export async function replayDeferredIssueEdits() {
               // local value. Its missing receipt does not make it a remote edit.
               if (
                 uncertain &&
-                stamp?.source === "kaneo" &&
+                !(
+                  stamp?.source !== "kaneo" &&
+                  stamp?.inboundValue === local &&
+                  inboundOccurredAfterIntent(stamp, uncertain)
+                ) &&
                 local !== values[field]
               ) {
                 if (uncertain.intentId)

@@ -472,3 +472,63 @@ it.each(["github", "gitea"])(
     expect((await current(task.id))?.title).toBe("B");
   },
 );
+
+it.each([false, true])(
+  "repairs a crashed first write after a later local edit (previousInbound=%s)",
+  async (previousInbound) => {
+    const { task, integration, link } = await seed();
+    const prior = previousInbound
+      ? inboundStamp(undefined, "B", "github")
+      : undefined;
+    const stamp = outboundStamp(prior, "A", undefined, {
+      intentId: "first-orphan",
+      pending: true,
+    });
+    const orphan = stamp.outbound?.find(
+      (entry) => entry.intentId === "first-orphan",
+    );
+    if (!orphan) throw new Error("Missing orphan fixture");
+    orphan.timestamp = new Date(Date.now() - 300_001).toISOString();
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: JSON.stringify({ lastSync: { title: stamp } }) })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    await db
+      .update(schema.taskTable)
+      .set({ title: "B" })
+      .where(eq(schema.taskTable.id, task.id));
+    await deferIssueEdit(link, integration, ["title"]);
+    await replayDeferredIssueEdits();
+    expect((await current(task.id))?.title).toBe("B");
+    expect(m.write).toHaveBeenCalledWith(
+      expect.objectContaining({ title: "B" }),
+    );
+    expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+  },
+);
+
+it("protects a local ABA edit even when its final fields and timestamp are unchanged", async () => {
+  const { task, integration, link } = await seed();
+  const updatedAt = new Date("2026-09-30T00:00:00Z");
+  await db
+    .update(schema.taskTable)
+    .set({ updatedAt })
+    .where(eq(schema.taskTable.id, task.id));
+  await deferIssueEdit(link, integration, ["description"]);
+  m.read.mockImplementationOnce(async () => {
+    await db.transaction(async (tx) => {
+      await tx
+        .update(schema.taskTable)
+        .set({ description: "temporary edit", updatedAt })
+        .where(eq(schema.taskTable.id, task.id));
+      await tx
+        .update(schema.taskTable)
+        .set({ description: "old body", updatedAt })
+        .where(eq(schema.taskTable.id, task.id));
+    });
+    return { title: "A", body: "stale provider body", state: "closed" };
+  });
+  await replayDeferredIssueEdits();
+  expect((await current(task.id))?.description).toBe("old body");
+  expect((await metadata(link.id)).deferredIssueEdit).toBeDefined();
+});
