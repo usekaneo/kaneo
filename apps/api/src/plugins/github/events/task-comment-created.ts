@@ -1,7 +1,10 @@
 import type { PluginContext, TaskCommentCreatedEvent } from "../../types";
-import type { GitHubConfig } from "../config";
+import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
 import { findExternalLinkByTaskAndType } from "../services/link-manager";
-import { getGithubApp, getInstallationIdForRepo } from "../utils/github-app";
+import {
+  getGithubApp,
+  getVerifiedInstallationOctokit,
+} from "../utils/github-app";
 
 export async function handleTaskCommentCreated(
   event: TaskCommentCreatedEvent,
@@ -13,6 +16,7 @@ export async function handleTaskCommentCreated(
   }
 
   const config = context.config as GitHubConfig;
+  if (!hasVerifiedGitHubBinding(config)) return;
   const { repositoryOwner, repositoryName } = config;
 
   const existingLink = await findExternalLinkByTaskAndType(
@@ -26,15 +30,7 @@ export async function handleTaskCommentCreated(
   }
 
   try {
-    let installationId = config.installationId;
-    if (!installationId) {
-      installationId = await getInstallationIdForRepo(
-        repositoryOwner,
-        repositoryName,
-      );
-    }
-
-    const octokit = await githubApp.getInstallationOctokit(installationId);
+    const octokit = await getVerifiedInstallationOctokit(config);
 
     const issueNumber = Number.parseInt(existingLink.externalId, 10);
 

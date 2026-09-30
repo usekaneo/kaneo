@@ -1,4 +1,11 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import {
   type McpToolRegistrar,
   registerMcpTools,
@@ -98,6 +105,19 @@ describe("MCP tool catalog", () => {
       url: "http://api.test/api/task/t1",
       method: "DELETE",
     });
+  });
+
+  it("duplicates a task and only sends a title when one is given", async () => {
+    await call("duplicate_task", { taskId: "t 1" });
+
+    expect(lastRequest()).toMatchObject({
+      url: "http://api.test/api/task/duplicate/t%201",
+      method: "POST",
+      body: {},
+    });
+
+    await call("duplicate_task", { taskId: "t1", title: "Checklist (copy)" });
+    expect(lastRequest().body).toEqual({ title: "Checklist (copy)" });
   });
 
   it("assigns and unassigns a task", async () => {

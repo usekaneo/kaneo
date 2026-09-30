@@ -9,8 +9,9 @@ import {
   getPosts,
   getUsedCategories,
 } from "@/lib/blog";
+import { withSocialMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withSocialMetadata({
   title: "Blog",
   description:
     "Round-ups, comparisons, and honest writing from the Kaneo team on choosing, self-hosting, and paying for project management software.",
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
     canonical: "/blog",
     types: { "application/rss+xml": "https://kaneo.app/blog/rss.xml" },
   },
-};
+});
 
 export default function Page() {
   const posts = getPosts();

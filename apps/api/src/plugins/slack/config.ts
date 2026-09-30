@@ -56,7 +56,7 @@ export function normalizeSlackConfig(config: SlackConfig): SlackConfig {
     channelName: config.channelName?.trim() || undefined,
     events: {
       ...defaultSlackEvents,
-      ...(config.events ?? {}),
+      ...config.events,
     },
   };
 }

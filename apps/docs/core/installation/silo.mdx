@@ -1,0 +1,151 @@
+---
+title: "Store files with Silo"
+description: "Add private S3-compatible storage to your Kaneo deployment."
+---
+
+[PGSTY Silo](https://silo.pgsty.com/) is a maintained MinIO fork with an S3 API and a web console. This guide uses it for a single-server Kaneo installation.
+
+You need a running Kaneo instance, a hostname such as `files.example.com`, and an HTTPS reverse proxy on the Docker host. The API and every user's browser must be able to reach that hostname.
+
+## 1. Add the storage service
+
+Add this service and volume to your existing `compose.yml`. Merge them into the existing `services` and `volumes` sections; do not create duplicate top-level keys.
+
+```yaml
+services:
+  silo:
+    image: docker.io/pgsty/silo:RELEASE.2026-09-16T00-00-00Z
+    command: server /data --console-address ":9001"
+    env_file:
+      - silo.env
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - silo_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "silo", "healthcheck", "ready"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  silo_data:
+```
+
+The image and health check follow [Silo's container installation guide](https://silo.pgsty.com/download/). Keep the release pinned and review its release notes before changing it.
+
+Create `silo.env` with a unique administrator name and a secret generated with `openssl rand -hex 32`:
+
+```env
+MINIO_ROOT_USER=silo-admin
+MINIO_ROOT_PASSWORD=replace-with-a-generated-secret
+MINIO_API_CORS_ALLOW_ORIGIN=https://kaneo.example.com
+```
+
+Silo retains the `MINIO_*` configuration names. Use the exact origin of your Kaneo instance, including its port if it has one. This global CORS setting applies to buckets without their own CORS configuration. See [Silo's compatibility notes](https://silo.pgsty.com/compatibility/migration/).
+
+```bash
+chmod 600 silo.env
+docker compose up -d silo
+docker compose ps silo
+```
+
+## 2. Put the S3 API behind HTTPS
+
+Point `files.example.com` at your server. Configure your proxy to send that hostname to `http://127.0.0.1:9000`, preserving the request host, path, query string, and body.
+
+For host-installed Nginx with an existing certificate, use:
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name files.example.com;
+    ssl_certificate /etc/letsencrypt/live/files.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/files.example.com/privkey.pem;
+    client_max_body_size 10m;
+
+    location / {
+        proxy_pass http://127.0.0.1:9000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_request_buffering off;
+    }
+}
+```
+
+Adjust the body limit if you increase Kaneo's upload limit. Use a dedicated hostname rather than adding a path prefix to the storage URL. Test with `sudo nginx -t` before reloading Nginx.
+
+Keep port 9001, the administration console, private. On a remote server, open an SSH tunnel from your computer:
+
+```bash
+ssh -L 9001:127.0.0.1:9001 your-user@your-server
+```
+
+Then visit `http://localhost:9001` and sign in with the administrator credentials from `silo.env`.
+
+## 3. Create the bucket and a Kaneo credential
+
+In the Silo console:
+
+1. Create a private bucket named **kaneo-uploads**.
+2. Create a policy named **kaneo-uploads** with the JSON below.
+3. Create a dedicated user for Kaneo and attach that policy. Use that user's access key and secret in Kaneo, not the root administrator credential.
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["s3:GetBucketLocation", "s3:ListBucket"],
+      "Resource": ["arn:aws:s3:::kaneo-uploads"]
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
+      "Resource": ["arn:aws:s3:::kaneo-uploads/*"]
+    }
+  ]
+}
+```
+
+Leave anonymous bucket access disabled. The console's [identity and access guide](https://silo.pgsty.com/administration/identity-access-management/) covers storage-side administration.
+
+## 4. Connect Kaneo
+
+Add these values to Kaneo's `.env`:
+
+```env
+S3_ENDPOINT=https://files.example.com
+S3_BUCKET=kaneo-uploads
+S3_ACCESS_KEY_ID=your-dedicated-user-access-key
+S3_SECRET_ACCESS_KEY=your-dedicated-user-secret
+S3_REGION=us-east-1
+S3_FORCE_PATH_STYLE=true
+```
+
+Apply them:
+
+```bash
+docker compose up -d --force-recreate kaneo
+```
+
+Open a task, upload an image, reload, and open the image again. Try a non-image attachment too. If it fails, check [uploads troubleshooting](/core/operations/troubleshooting#uploads-fail).
+
+## Moving from MinIO
+
+Back up the existing storage and configuration first. Follow [Silo's migration guide](https://silo.pgsty.com/compatibility/migration/) for your exact source and target versions.
+
+Keep existing volume names, mounts, bucket names, and object keys. Do not rename a live `minio_data` volume to `silo_data` just to match this example, as Compose would create a different volume. Existing `MINIO_*` variables keep their spelling.
+
+Test uploads and downloads before switching your team over. Image rollback alone may not reverse changes to persistent storage metadata or permissions.
+
+## Local-only trials
+
+A local setup still needs one storage hostname that both Docker and the browser can resolve. `localhost` inside the Kaneo container points to Kaneo, while `silo` usually resolves only inside Docker. Configure shared DNS and routing for your environment instead of copying either address into `S3_ENDPOINT`.
+
+For the least setup, try Kaneo without attachments first and add storage on a host with a reachable domain.

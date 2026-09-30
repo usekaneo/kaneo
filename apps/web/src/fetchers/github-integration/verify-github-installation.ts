@@ -1,5 +1,6 @@
 import { client } from "@kaneo/libs";
 import type { InferRequestType, InferResponseType } from "hono";
+import { HttpError } from "@/lib/http-error";
 
 export type VerifyGithubInstallationRequest = InferRequestType<
   (typeof client)["github-integration"]["verify"]["$post"]
@@ -18,8 +19,10 @@ async function verifyGithubInstallation(
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error || "Request failed");
+    throw new HttpError(
+      response.status,
+      (await response.text()) || "Request failed",
+    );
   }
 
   const result = await response.json();

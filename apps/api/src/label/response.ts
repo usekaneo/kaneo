@@ -7,9 +7,14 @@ export const labelSchema = z
     color: z.string(),
     createdAt: responseTimestamp,
     updatedAt: responseTimestamp,
+    deletionStartedAt: responseTimestamp.nullable().optional(),
     taskId: z.string().nullable(),
     workspaceId: z.string().nullable(),
   })
   .openapi("Label");
 
 export const labelListSchema = z.array(labelSchema);
+
+export const pendingLabelDeletionSchema = labelSchema
+  .extend({ pendingDeletion: z.literal(true) })
+  .openapi("PendingLabelDeletion");

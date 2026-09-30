@@ -12,6 +12,9 @@ export function useMoveTask() {
     onSuccess: (result, variables) => {
       toast.success(t("tasks:move.success"));
       queryClient.invalidateQueries({
+        queryKey: ["external-links", variables.taskId],
+      });
+      queryClient.invalidateQueries({
         queryKey: ["task", variables.taskId],
       });
       queryClient.invalidateQueries({

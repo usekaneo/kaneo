@@ -6,20 +6,20 @@
 	"types": "./src/index.ts",
 	"license": "MIT",
 	"scripts": {
-		"lint": "biome check --write .",
-		"test": "vitest run --config vitest.config.ts",
-		"typecheck": "tsc --noEmit -p tsconfig.json",
-		"test:watch": "vitest --config vitest.config.ts"
+		"lint": "vp check .",
+		"test": "vp run test:run",
+		"typecheck": "vp run check:types",
+		"test:watch": "vp test --config vitest.config.ts"
 	},
 	"devDependencies": {
-		"@types/react": "^19.2.18",
-		"@types/react-dom": "^19.2.4",
 		"@kaneo/api": "workspace:*",
-		"hono": "^4.13.0",
-		"react": "^19.2.8",
 		"@kaneo/typescript-config": "workspace:*",
+		"@types/react": "^19.3.0",
+		"@types/react-dom": "^19.3.0",
+		"hono": "^4.13.9",
+		"react": "^19.3.0",
 		"typescript": "^7.0.2",
-		"vite": "^8.2.0",
-		"vitest": "^4.1.10"
+		"vite": "catalog:",
+		"vite-plus": "catalog:"
 	}
 }

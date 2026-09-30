@@ -4,7 +4,6 @@ import {
   addDays,
   differenceInCalendarDays,
   eachDayOfInterval,
-  endOfWeek,
   format,
   isSameMonth,
   isToday,
@@ -14,7 +13,9 @@ import {
 } from "date-fns";
 import {
   CalendarDays,
+  CalendarRange,
   ChevronDown,
+  ChevronLeft,
   ChevronRight,
   MoreHorizontal,
   SearchIcon,
@@ -22,9 +23,15 @@ import {
   SquircleDashed,
 } from "lucide-react";
 import type * as React from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import BoardToolbar from "@/components/project-board-toolbar";
-import { PrivateKanbanView } from "@/components/project-private-kanban-view";
 import { PrivateListView } from "@/components/project-private-list-view";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -33,6 +40,7 @@ import {
   CollapsiblePanel,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -59,17 +67,23 @@ import {
 import { useTaskFilters } from "@/hooks/use-task-filters";
 import { cn } from "@/lib/utils";
 import type Task from "@/types/task";
+import messages from "../../../../../i18n/en-US.json";
+import { version } from "../../../../../package.json";
+import { PreviewBoard } from "./board-view";
+import { PreviewCalendar } from "./calendar-view";
 import {
   MOCK_PROJECTS,
+  MOCK_TASK_DETAILS,
   MOCK_USERS,
   MOCK_WORKSPACE,
   MOCK_WORKSPACE_LABELS,
 } from "./mock-data";
+import { PreviewTaskDetailsPanel } from "./task-details";
 
 const PREVIEW_W = 1400;
 const PREVIEW_H = 860;
 
-type PreviewMode = "board" | "list" | "gantt";
+export type PreviewMode = "board" | "list" | "calendar" | "gantt";
 
 type ScheduledTask = Task & {
   scheduleStart: Date;
@@ -105,8 +119,10 @@ function getBarGridColumns(
 function MockGanttTaskBar({
   task,
   timeline,
+  onTaskClick,
 }: {
   task: ScheduledTask;
+  onTaskClick: (task: Task) => void;
   timeline: {
     days: Date[];
     rangeStart: Date;
@@ -134,7 +150,8 @@ function MockGanttTaskBar({
         <div className="relative z-20 w-2 shrink-0 border-r border-primary/15 bg-primary/8" />
         <button
           type="button"
-          className="relative z-10 min-w-0 flex-1 cursor-grab overflow-hidden px-2.5 text-left active:cursor-grabbing"
+          onClick={() => onTaskClick(task)}
+          className="relative z-10 min-w-0 flex-1 cursor-pointer overflow-hidden px-2.5 text-left active:cursor-grabbing"
         >
           <div className="absolute inset-0 z-0 bg-primary/12 transition-colors group-hover:bg-primary/18" />
           <span className="relative z-10 block truncate">{task.title}</span>
@@ -147,9 +164,20 @@ function MockGanttTaskBar({
 
 function MockGanttView({
   project,
+  onTaskClick,
 }: {
   project: (typeof MOCK_PROJECTS)[number];
+  onTaskClick: (task: Task) => void;
 }) {
+  const [search, setSearch] = useState("");
+  const [rangeStart, setRangeStart] = useState(() => subDays(new Date(), 4));
+  const scrollArea = useRef<HTMLDivElement>(null);
+  const visibleTasks = (tasks: ScheduledTask[]) =>
+    tasks.filter((task) =>
+      `${project.slug}-${task.number} ${task.title}`
+        .toLowerCase()
+        .includes(search.toLowerCase()),
+    );
   const dayColumnWidthRem = 2.75;
   const taskColumnWidthRem = 20;
 
@@ -186,18 +214,7 @@ function MockGanttView({
   }, [project.columns]);
 
   const timeline = useMemo(() => {
-    if (parsedTasks.length === 0) return null;
-
-    const latest = parsedTasks.reduce(
-      (current, task) =>
-        task.scheduleEnd > current ? task.scheduleEnd : current,
-      parsedTasks[0].scheduleEnd,
-    );
-
-    const weekEnd = endOfWeek(latest, { weekStartsOn: 1 });
-    const today = new Date();
-    const rangeStart = subDays(today, 4);
-    const rangeEnd = addDays(weekEnd, 21);
+    const rangeEnd = addDays(rangeStart, 41);
     const days = eachDayOfInterval({ start: rangeStart, end: rangeEnd });
 
     return {
@@ -206,28 +223,75 @@ function MockGanttView({
       gridTemplateColumns: `repeat(${days.length}, minmax(${dayColumnWidthRem}rem, ${dayColumnWidthRem}rem))`,
       timelineMinWidthRem: days.length * dayColumnWidthRem,
     };
-  }, [parsedTasks]);
-
-  if (!timeline) return null;
+  }, [rangeStart]);
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-background">
       <div className="border-b border-border/80 px-4 py-3">
         <div className="flex items-center justify-between gap-3">
           <div className="space-y-1">
-            <h2 className="text-sm font-semibold text-foreground">Gantt</h2>
+            <h2 className="text-sm font-semibold text-foreground">
+              {messages.tasks.gantt.title}
+            </h2>
           </div>
 
-          <div className="relative w-full max-w-sm">
+          <div className="relative w-full max-w-52">
             <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-            <div className="flex h-8 items-center rounded-md border border-input bg-background pl-8 pr-3 text-xs text-muted-foreground shadow-xs">
-              Search tasks...
-            </div>
+            <Input
+              type="search"
+              aria-label={messages.tasks.gantt.searchPlaceholder}
+              placeholder={messages.tasks.gantt.searchPlaceholder}
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              className="h-8 [&_[data-slot=input]]:pl-8 [&_[data-slot=input]]:text-xs"
+            />
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon-xs"
+              aria-label={messages.tasks.gantt.previousPeriod}
+              onClick={() => setRangeStart((date) => subDays(date, 28))}
+            >
+              <ChevronLeft />
+            </Button>
+            <input
+              type="date"
+              aria-label={messages.tasks.gantt.periodStart}
+              value={format(rangeStart, "yyyy-MM-dd")}
+              onChange={(event) => {
+                const date = parseTaskDate(event.target.value);
+                if (date) setRangeStart(date);
+              }}
+              className="h-8 rounded-md border border-border bg-background px-2 text-xs"
+            />
+            <Button
+              variant="outline"
+              size="icon-xs"
+              aria-label={messages.tasks.gantt.nextPeriod}
+              onClick={() => setRangeStart((date) => addDays(date, 28))}
+            >
+              <ChevronRight />
+            </Button>
+            <Button
+              variant="outline"
+              size="xs"
+              onClick={() => {
+                setRangeStart(subDays(new Date(), 4));
+                if (scrollArea.current) scrollArea.current.scrollLeft = 0;
+              }}
+            >
+              <CalendarDays className="size-3.5" />
+              {messages.tasks.gantt.jumpToToday}
+            </Button>
           </div>
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-auto overscroll-x-contain">
+      <div
+        ref={scrollArea}
+        className="min-h-0 flex-1 overflow-auto overscroll-x-contain"
+      >
         <div className="relative min-w-max">
           <div className="sticky top-0 z-20 flex border-b border-border bg-background/95 backdrop-blur">
             <div
@@ -296,7 +360,12 @@ function MockGanttView({
             </div>
 
             <div className="relative z-10 flex flex-col">
-              {parsedTasks.map((task) => (
+              {visibleTasks(parsedTasks).length === 0 && (
+                <p className="sticky left-0 w-80 p-4 text-sm text-muted-foreground">
+                  {messages.tasks.gantt.noTasksFound}
+                </p>
+              )}
+              {visibleTasks(parsedTasks).map((task) => (
                 <div
                   key={task.id}
                   className="grid items-stretch border-b border-border/70"
@@ -307,6 +376,7 @@ function MockGanttView({
                   <div className="sticky left-0 z-[11] h-full border-r border-border bg-background">
                     <button
                       type="button"
+                      onClick={() => onTaskClick(task)}
                       className="flex w-full min-w-0 flex-col items-start justify-center gap-0.5 px-3 py-1.5 text-left transition-colors hover:bg-muted"
                     >
                       <div className="flex w-full items-center gap-1.5">
@@ -332,7 +402,11 @@ function MockGanttView({
                     className="relative h-[50px] shrink-0 select-none"
                     style={{ minWidth: `${timeline.timelineMinWidthRem}rem` }}
                   >
-                    <MockGanttTaskBar task={task} timeline={timeline} />
+                    <MockGanttTaskBar
+                      task={task}
+                      timeline={timeline}
+                      onTaskClick={onTaskClick}
+                    />
                   </div>
                 </div>
               ))}
@@ -487,6 +561,11 @@ function MockSidebar({
                   {MOCK_PROJECTS.map((project) => (
                     <SidebarMenuItem key={project.id}>
                       <SidebarMenuButton
+                        data-tour-target={
+                          project.id === MOCK_PROJECTS[0].id
+                            ? "project-main"
+                            : "project-other"
+                        }
                         isActive={project.id === activeProjectId}
                         size="default"
                         className="group/proj h-8 text-sm"
@@ -510,7 +589,7 @@ function MockSidebar({
       {/* Footer: version only */}
       <SidebarFooter>
         <div className="flex items-center justify-center px-2 py-1.5">
-          <span className="text-xs text-muted-foreground">v1.0.0</span>
+          <span className="text-xs text-muted-foreground">v{version}</span>
         </div>
       </SidebarFooter>
     </Sidebar>
@@ -520,15 +599,93 @@ function MockSidebar({
 // ─────────────────────────────────────────────────────────────────────────────
 // AppPreview
 // ─────────────────────────────────────────────────────────────────────────────
-export function AppPreview() {
+export type AppPreviewHandle = {
+  moveTask: (taskId: string, status: string) => void;
+};
+
+export function AppPreview({
+  mode,
+  onModeChange,
+  tourRef,
+}: {
+  mode?: PreviewMode;
+  onModeChange?: (mode: PreviewMode) => void;
+  tourRef?: React.Ref<AppPreviewHandle>;
+}) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
+  const [taskDetails, setTaskDetails] = useState(MOCK_TASK_DETAILS);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const taskTrigger = useRef<HTMLElement | null>(null);
+  const previousScrollLeft = useRef(0);
+  const openTask = (task: Task) => {
+    taskTrigger.current =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    previousScrollLeft.current = wrapperRef.current?.scrollLeft ?? 0;
+    setSelectedTaskId(task.id);
+    if (wrapperRef.current && wrapperRef.current.clientWidth < 768) {
+      wrapperRef.current.scrollLeft = wrapperRef.current.scrollWidth;
+    }
+  };
+  const closeTask = () => {
+    setSelectedTaskId(null);
+    if (wrapperRef.current)
+      wrapperRef.current.scrollLeft = previousScrollLeft.current;
+    taskTrigger.current?.focus({ preventScroll: true });
+  };
 
   const [activeProjectId, setActiveProjectId] = useState(MOCK_PROJECTS[0].id);
-  const [viewMode, setViewMode] = useState<PreviewMode>("board");
+  const [selectedViewMode, setSelectedViewMode] =
+    useState<PreviewMode>("board");
+  const setViewMode = useCallback(
+    (next: PreviewMode) => {
+      setSelectedTaskId(null);
+      setSelectedViewMode(next);
+      onModeChange?.(next);
+    },
+    [onModeChange],
+  );
+  const viewMode = mode ?? selectedViewMode;
+  const previousView = useRef(viewMode);
+  useEffect(() => {
+    if (previousView.current !== viewMode) {
+      setSelectedTaskId(null);
+      previousView.current = viewMode;
+    }
+  }, [viewMode]);
 
-  const activeProject =
-    MOCK_PROJECTS.find((p) => p.id === activeProjectId) ?? MOCK_PROJECTS[0];
+  const [taskStatuses, setTaskStatuses] = useState<Record<string, string>>({});
+  useImperativeHandle(
+    tourRef,
+    () => ({
+      moveTask: (taskId, status) =>
+        setTaskStatuses((current) => ({ ...current, [taskId]: status })),
+    }),
+    [],
+  );
+  const activeProject = useMemo(() => {
+    const project =
+      MOCK_PROJECTS.find((p) => p.id === activeProjectId) ?? MOCK_PROJECTS[0];
+    const tasks = project.columns
+      .flatMap((column) => column.tasks)
+      .map((task) => ({
+        ...task,
+        status: taskStatuses[task.id] ?? task.status,
+      }));
+    return {
+      ...project,
+      columns: project.columns.map((column) => ({
+        ...column,
+        tasks: tasks.filter((task) => task.status === column.id),
+      })),
+    };
+  }, [activeProjectId, taskStatuses]);
+
+  const selectedTask = activeProject.columns
+    .flatMap((column) => column.tasks)
+    .find((task) => task.id === selectedTaskId);
 
   const {
     filters,
@@ -540,19 +697,23 @@ export function AppPreview() {
   } = useTaskFilters(activeProject, activeProjectId);
 
   const handleProjectSelect = useCallback((id: string) => {
+    setSelectedTaskId(null);
     setActiveProjectId(id);
   }, []);
 
-  const setBoardToolbarMode = useCallback((mode: "board" | "list") => {
-    setViewMode(mode);
-  }, []);
+  const setBoardToolbarMode = useCallback(
+    (mode: "board" | "list") => {
+      setViewMode(mode);
+    },
+    [setViewMode],
+  );
 
   // Scale preview to fill the container width; boost on mobile for legibility
   useEffect(() => {
     const el = wrapperRef.current;
     if (!el) return;
     const update = () => {
-      const w = el.getBoundingClientRect().width;
+      const w = el.clientWidth;
       if (w > 0) {
         const boost = w < 768 ? 2.5 : 1;
         setScale((w / PREVIEW_W) * boost);
@@ -596,7 +757,7 @@ export function AppPreview() {
 
           <SidebarInset className="m-2 flex flex-1 flex-col overflow-hidden rounded-xl border border-border/80 bg-background shadow-sm/5">
             {/* ── Project header (matches project-layout.tsx) ───────────── */}
-            <header className="h-10 flex shrink-0 items-center gap-2 border-b border-border bg-card px-2">
+            <header className="h-11 flex shrink-0 items-center gap-2 border-b border-border/80 bg-card px-2">
               <div className="flex w-full items-center justify-between gap-2">
                 <div className="flex min-w-0 items-center gap-2">
                   {/* Breadcrumb */}
@@ -615,6 +776,7 @@ export function AppPreview() {
                     <Button
                       variant={viewMode === "list" ? "secondary" : "ghost"}
                       size="xs"
+                      data-tour-target="list"
                       onClick={() => setViewMode("list")}
                       className={cn(
                         "h-6 gap-1.5 rounded-md px-2 text-xs",
@@ -627,6 +789,7 @@ export function AppPreview() {
                     <Button
                       variant={viewMode === "board" ? "secondary" : "ghost"}
                       size="xs"
+                      data-tour-target="board"
                       onClick={() => setViewMode("board")}
                       className={cn(
                         "h-6 gap-1.5 rounded-md px-2 text-xs",
@@ -637,8 +800,22 @@ export function AppPreview() {
                       Board
                     </Button>
                     <Button
+                      variant={viewMode === "calendar" ? "secondary" : "ghost"}
+                      size="xs"
+                      data-tour-target="calendar"
+                      onClick={() => setViewMode("calendar")}
+                      className={cn(
+                        "h-6 gap-1.5 rounded-md px-2 text-xs",
+                        viewMode !== "calendar" && "text-muted-foreground",
+                      )}
+                    >
+                      <CalendarRange className="size-3.5" />
+                      {messages.tasks.calendar.title}
+                    </Button>
+                    <Button
                       variant={viewMode === "gantt" ? "secondary" : "ghost"}
                       size="xs"
+                      data-tour-target="gantt"
                       onClick={() => setViewMode("gantt")}
                       className={cn(
                         "h-6 gap-1.5 rounded-md px-2 text-xs",
@@ -654,7 +831,7 @@ export function AppPreview() {
             </header>
 
             {/* ── Board Toolbar ─────────────────────────────────────────── */}
-            {viewMode !== "gantt" ? (
+            {viewMode === "board" || viewMode === "list" ? (
               <BoardToolbar
                 project={activeProject}
                 filters={filters}
@@ -671,22 +848,52 @@ export function AppPreview() {
 
             {/* ── View content ─────────────────────────────────────────── */}
             <div className="relative flex-1 overflow-hidden flex flex-col min-h-0 bg-linear-to-b from-muted/20 to-background">
-              {viewMode === "gantt" ? (
-                <MockGanttView project={filteredProject ?? activeProject} />
+              {viewMode === "calendar" ? (
+                <PreviewCalendar
+                  project={activeProject}
+                  onTaskClick={openTask}
+                />
+              ) : viewMode === "gantt" ? (
+                <MockGanttView
+                  key={activeProject.id}
+                  project={activeProject}
+                  onTaskClick={openTask}
+                />
               ) : viewMode === "board" ? (
-                <PrivateKanbanView
+                <PreviewBoard
+                  details={taskDetails}
                   project={filteredProject ?? activeProject}
-                  onTaskClick={() => {}}
+                  onTaskClick={openTask}
                 />
               ) : (
                 <PrivateListView
                   project={filteredProject ?? activeProject}
-                  onTaskClick={() => {}}
+                  onTaskClick={openTask}
                 />
               )}
             </div>
           </SidebarInset>
         </SidebarProvider>
+        {selectedTask && (
+          <PreviewTaskDetailsPanel
+            key={selectedTask.id}
+            task={selectedTask}
+            projectSlug={activeProject.slug}
+            statusName={
+              activeProject.columns.find(
+                (column) => column.id === selectedTask.status,
+              )?.name ?? selectedTask.status
+            }
+            details={taskDetails[selectedTask.id]}
+            onChange={(details) =>
+              setTaskDetails((current) => ({
+                ...current,
+                [selectedTask.id]: details,
+              }))
+            }
+            onClose={closeTask}
+          />
+        )}
       </div>
     </div>
   );

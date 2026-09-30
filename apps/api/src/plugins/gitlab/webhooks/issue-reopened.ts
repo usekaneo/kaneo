@@ -1,0 +1,152 @@
+import { withIntegrationLink } from "../../github/services/with-integration-link";
+import { linkedTaskScope } from "../../github/services/integration-task-scope";
+import { and, eq } from "drizzle-orm";
+import db from "../../../database";
+import { externalLinkTable } from "../../../database/schema";
+import { publishEvent } from "../../../events";
+import { updateExternalLink } from "../../github/services/link-manager";
+import { updateTaskStatus } from "../../github/services/task-service";
+import { findAllIntegrationsByGitlabProject } from "../services/integration-lookup";
+import {
+  OUTBOUND_STATE_ECHO_WINDOW_MS,
+  parseIssueUpdatedAtMs,
+} from "../utils/outbound-echo";
+import type { GitlabWebhookProject } from "../utils/payload";
+import { resolveTargetStatus } from "../utils/resolve-column";
+import { baseUrlFromProjectWebUrl } from "../utils/webhook-project";
+
+type IssueReopenedPayload = {
+  object_attributes: {
+    iid: number;
+    title: string;
+    url: string;
+    state: string;
+    action?: string;
+    updated_at?: string;
+  };
+  project: GitlabWebhookProject;
+};
+
+export async function handleGitlabIssueReopened(
+  payload: IssueReopenedPayload,
+  integrationId?: string,
+) {
+  const issue = payload.object_attributes;
+  const { project } = payload;
+
+  if (issue.action !== "reopen") {
+    return;
+  }
+
+  const baseUrl = baseUrlFromProjectWebUrl(
+    project.web_url,
+    project.path_with_namespace,
+  );
+  if (!baseUrl) return;
+
+  const integrations = await findAllIntegrationsByGitlabProject(
+    baseUrl,
+    project.path_with_namespace,
+    integrationId,
+  );
+
+  for (const integration of integrations) {
+    const externalLink = await db.query.externalLinkTable.findFirst({
+      where: and(
+        eq(externalLinkTable.integrationId, integration.id),
+        eq(externalLinkTable.resourceType, "issue"),
+        eq(externalLinkTable.externalId, issue.iid.toString()),
+      ),
+    });
+
+    if (!externalLink) {
+      continue;
+    }
+
+    await withIntegrationLink(
+      externalLink,
+      integration,
+      async (db, afterCommit, externalLink) => {
+        const task = await db.query.taskTable.findFirst({
+          where: linkedTaskScope(externalLink.taskId, integration.projectId),
+        });
+
+        if (!task) {
+          return;
+        }
+
+        let existingMetadata: Record<string, unknown> = {};
+        if (externalLink.metadata) {
+          try {
+            existingMetadata = JSON.parse(externalLink.metadata) as Record<
+              string,
+              unknown
+            >;
+          } catch (error) {
+            console.warn(
+              "Failed to parse GitLab issue metadata for reopen sync",
+              {
+                externalLinkId: externalLink.id,
+                metadata: externalLink.metadata,
+                error,
+              },
+            );
+          }
+        }
+
+        const lastOutbound = existingMetadata.lastOutboundStateSyncAt;
+        if (
+          typeof lastOutbound === "number" &&
+          Number.isFinite(lastOutbound) &&
+          existingMetadata.state === "opened"
+        ) {
+          const eventMs = parseIssueUpdatedAtMs(issue);
+          if (
+            eventMs !== null &&
+            Math.abs(eventMs - lastOutbound) <= OUTBOUND_STATE_ECHO_WINDOW_MS
+          ) {
+            return;
+          }
+        }
+
+        const targetStatus = await resolveTargetStatus(
+          task.projectId,
+          "issue_reopened",
+          "to-do",
+          db,
+        );
+
+        const statusResult = await updateTaskStatus(task.id, targetStatus, db);
+        if (
+          statusResult.applied &&
+          statusResult.before.status !== statusResult.after.status
+        ) {
+          afterCommit(() =>
+            publishEvent("task.status_changed", {
+              sourceIntegrationId: integration.id,
+              taskId: statusResult.after.id,
+              projectId: statusResult.after.projectId,
+              userId: null,
+              oldStatus: statusResult.before.status,
+              newStatus: statusResult.after.status,
+              title: statusResult.after.title,
+              assigneeId: statusResult.after.userId,
+              type: "status_changed",
+            }),
+          );
+        }
+
+        await updateExternalLink(
+          externalLink.id,
+          {
+            metadata: {
+              ...existingMetadata,
+              state: "opened",
+            },
+          },
+          db,
+        );
+      },
+    );
+  }
+}

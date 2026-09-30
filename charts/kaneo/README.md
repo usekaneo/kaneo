@@ -99,9 +99,9 @@ When CPU autoscaling is enabled, set `kaneo.resources.requests.cpu`; Kubernetes 
 | `kaneo.service.port`                | Kaneo service port                                                                                                 | `5173`                          |
 | `kaneo.service.targetPort`          | Kaneo container port                                                                                               | `5173`                          |
 | `kaneo.env`                         | Environment variables for the Kaneo container                                                                      | See `values.yaml`               |
-| `kaneo.env.clientUrl`               | Public URL of the Kaneo instance. **Required for any non-localhost deployment**; sets `KANEO_CLIENT_URL`. Omitting this causes "invalid origin" errors on login. Note: this key is case-sensitive (`clientUrl`, not `clientURL`). | `""` |
+| `kaneo.env.clientUrl`               | Public URL of the Kaneo instance. **Required for every deployment**; sets `KANEO_CLIENT_URL`. Helm rejects missing values and URLs with credentials, paths, queries or fragments before creating resources. Note: this key is case-sensitive (`clientUrl`, not `clientURL`). | `""` |
 | `kaneo.env.corsOrigins`             | Allowed CORS origins as a comma-separated string or YAML list                                                      | `[]`                            |
-| `kaneo.env.authSecret`              | Required Better Auth secret (minimum 32 characters), ignored if existingSecret is enabled                           | `""` |
+| `kaneo.env.authSecret`              | Required Better Auth secret (minimum 32 characters), stored in a chart-managed Secret; ignored if existingSecret is enabled                           | `""` |
 | `kaneo.env.existingSecret.enabled`  | Whether to use an existing secret for `AUTH_SECRET`                                                                | `false`                         |
 | `kaneo.env.existingSecret.name`     | Name of the existing secret containing `AUTH_SECRET`                                                               | `""`                            |
 | `kaneo.env.existingSecret.key`      | Key in the existing secret that contains `AUTH_SECRET`                                                             | `auth-secret`                   |
@@ -349,7 +349,7 @@ If you're migrating from a previous SQLite-based installation, you'll need to:
 Contact the Kaneo community on [Discord](https://discord.gg/rU4tSyhXXU) for migration assistance.
 ## Troubleshooting
 ### "invalid origin" error on login
-Kaneo's API validates the `Origin` header on every request against `KANEO_CLIENT_URL`. If `clientUrl` is not set (or is set incorrectly), every login attempt fails with this error.
+Kaneo's API validates the `Origin` header on every request against `KANEO_CLIENT_URL`. The chart now requires `clientUrl` before rendering. On older deployments, an unset or incorrect value can cause login failures.
 
 Set `clientUrl` to the URL users access Kaneo from:
 ```yaml
@@ -358,7 +358,7 @@ kaneo:
     clientUrl: "https://kaneo.your-domain.com"
 ```
 
-> **Note:** The key is `clientUrl` (camelCase). `clientURL` (all-caps) is silently ignored; the env var will be empty and login will fail with no helpful error.
+> **Note:** The key is `clientUrl` (camelCase). `clientURL` (all-caps) does not configure this value; Helm reports the missing required `clientUrl`.
 
 ### Pods crash immediately after upgrading to use `existingSecret`
 If pods enter `CrashLoopBackOff` after switching to an existing secret for the external database, the connection URI in the secret is likely wrong. Check what the pod is actually using:
@@ -432,16 +432,16 @@ For production deployments, consider the following security recommendations:
 ### Pod Security Context
 On clusters with Pod Security Admission enforcement, set the following to satisfy the `restricted` policy:
 ```yaml
-kaneo:
-    podSecurityContext:
-        runAsNonRoot: true
-        seccompProfile:
-            type: RuntimeDefault
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
 
-    securityContext:
-        allowPrivilegeEscalation: false
-        capabilities:
-            drop: ["ALL"]
+kaneo:
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
 ```
 ### Registration Control
 By default, user registration is enabled. To disable new user registration:
@@ -451,3 +451,9 @@ kaneo:
     disableRegistration: true
 ```
 This will prevent new users from registering while still allowing existing users to log in. The registration option will be hidden from the login page.
+
+### Authentication secret storage
+
+The chart stores `kaneo.env.authSecret` in a Kubernetes Secret and the application Deployment references its `auth-secret` key. Upgrades preserve the supplied value; the chart does not generate a new signing secret. For production, prefer `kaneo.env.existingSecret` so secret material is not supplied in Helm values or retained in Helm release metadata. Limit access to Secrets and Helm release records.
+
+When upgrading from a chart that placed `AUTH_SECRET` directly in the Deployment, consider the old Deployment, ReplicaSets, exported manifests and deployment logs exposed to readers of those resources. If those readers were not authorized to possess the signing secret, rotate it and invalidate affected authentication artifacts as part of the upgrade. Moving the value into a Secret does not revoke earlier copies.

@@ -15,12 +15,15 @@ import { shortcuts } from "@/constants/shortcuts";
 import useGetCustomFieldFilterValues from "@/hooks/queries/custom-field/use-get-custom-field-filter-values";
 import useGetCustomFieldsByProject from "@/hooks/queries/custom-field/use-get-custom-fields-by-project";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
+import { useDescriptionMatches } from "@/hooks/queries/task/use-description-matches";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useBoardSort } from "@/hooks/use-board-sort";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useTaskFiltersWithLabelsSupport } from "@/hooks/use-task-filters-with-labels-support";
+import { cn } from "@/lib/cn";
 import { sortTasks } from "@/lib/sort-tasks";
+import { useBackgroundStore } from "@/store/background";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 
@@ -82,7 +85,12 @@ function RouteComponent() {
   const { projectId, workspaceId } = Route.useParams();
   const { taskId } = Route.useSearch();
   const navigate = useNavigate();
-  const { data } = useGetTasks(projectId);
+  const {
+    data,
+    isError: boardError,
+    isFetching: boardFetching,
+    refetch: retryBoard,
+  } = useGetTasks(projectId);
   const { project, setProject } = useProjectStore();
   const { viewMode, setViewMode } = useUserPreferencesStore();
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
@@ -92,6 +100,7 @@ function RouteComponent() {
   const [boardSearchInput, setBoardSearchInput] =
     useState<HTMLInputElement | null>(null);
   const { sort, setSort } = useBoardSort(projectId);
+  const { background } = useBackgroundStore();
 
   const { data: users } = useGetActiveWorkspaceUsers(workspaceId);
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);
@@ -186,6 +195,12 @@ function RouteComponent() {
     window.requestAnimationFrame(() => boardSearchInput?.focus());
   }, [isBoardSearchMounted, boardSearchInput]);
 
+  const descriptionSearch = useDescriptionMatches(
+    projectId,
+    project,
+    boardSearchQuery,
+  );
+
   const {
     filters,
     updateFilter,
@@ -194,7 +209,12 @@ function RouteComponent() {
     filteredProject,
     hasActiveFilters,
     clearFilters,
-  } = useTaskFiltersWithLabelsSupport(project, projectId, boardSearchQuery);
+  } = useTaskFiltersWithLabelsSupport(
+    project,
+    projectId,
+    boardSearchQuery,
+    descriptionSearch.ids,
+  );
 
   const sortedProject = useMemo(() => {
     if (!filteredProject || sort.field === "position") return filteredProject;
@@ -219,6 +239,7 @@ function RouteComponent() {
       <Input
         ref={setBoardSearchInput}
         value={boardSearchQuery}
+        maxLength={256}
         onChange={(event) => setBoardSearchQuery(event.target.value)}
         onKeyDown={(event) => {
           if (event.key === "Escape" && !boardSearchQuery.trim()) {
@@ -266,20 +287,63 @@ function RouteComponent() {
           usedCustomFieldValues={usedCustomFieldValues}
         />
 
-        <div className="flex h-full flex-1 overflow-hidden bg-background">
+        {descriptionSearch.isLoading && (
+          <p role="status" className="px-4 py-2 text-sm text-muted-foreground">
+            {t("tasks:descriptionSearchLoading")}
+          </p>
+        )}
+        {descriptionSearch.isError && (
+          <p role="alert" className="px-4 py-2 text-sm text-destructive">
+            {t("tasks:descriptionSearchError")}{" "}
+            <button
+              type="button"
+              className="underline"
+              onClick={() => void descriptionSearch.retry()}
+            >
+              {t("tasks:descriptionRetry")}
+            </button>
+          </p>
+        )}
+
+        {boardError && (
+          <p role="alert" className="p-4 text-destructive">
+            {t("tasks:calendar.loadError")}{" "}
+            <button
+              type="button"
+              className="underline"
+              onClick={() => void retryBoard()}
+            >
+              {t("tasks:descriptionRetry")}
+            </button>
+          </p>
+        )}
+        <div
+          className={cn("flex h-full flex-1 overflow-hidden", {
+            "bg-background": !background,
+          })}
+        >
           {sortedProject ? (
             viewMode === "board" ? (
               <KanbanBoard
                 project={sortedProject}
-                disableDragDrop={sort.field !== "position"}
+                disableCollectionActions={boardFetching || boardError}
+                disableDragDrop={
+                  boardFetching ||
+                  boardError ||
+                  (sort.field !== "position" && sort.field !== "number")
+                }
+                sortedByNumber={sort.field === "number"}
               />
             ) : (
               <ListView
                 project={sortedProject}
-                disableDragDrop={sort.field !== "position"}
+                disableCollectionActions={boardFetching || boardError}
+                disableDragDrop={
+                  boardFetching || boardError || sort.field !== "position"
+                }
               />
             )
-          ) : (
+          ) : boardError ? null : (
             <BoardSkeleton />
           )}
         </div>

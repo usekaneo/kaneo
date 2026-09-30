@@ -11,6 +11,7 @@ import PageTitle from "@/components/page-title";
 import { SettingsSidebarProvider } from "@/components/SettingsSidebar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import useAdminAccess from "@/hooks/queries/admin/use-admin-access";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -31,6 +32,7 @@ function SettingsLayout() {
   const { data: projects } = useGetProjects({
     workspaceId: workspace?.id ?? "",
   });
+  const { data: hasAdminAccess } = useAdminAccess();
 
   const getActiveTab = () => {
     const pathname = location.pathname;
@@ -42,6 +44,9 @@ function SettingsLayout() {
     }
     if (pathname.includes("/dashboard/settings/projects")) {
       return "project";
+    }
+    if (pathname.includes("/dashboard/settings/admin")) {
+      return "admin";
     }
     return "account";
   };
@@ -113,7 +118,7 @@ function SettingsLayout() {
 
             <Tabs
               value={activeTab}
-              className="w-full pt-4 md:w-[400px] md:pt-2"
+              className="w-full max-w-full pt-4 md:w-fit md:pt-2"
             >
               <TabsList className="bg-sidebar gap-2">
                 <TabsTrigger
@@ -150,6 +155,17 @@ function SettingsLayout() {
                 >
                   {t("navigation:sidebar.projects")}
                 </TabsTrigger>
+                {hasAdminAccess ? (
+                  <TabsTrigger
+                    value="admin"
+                    className="[&[data-state=active]]:border [&[data-state=active]]:border-border [&[data-state=active]]:rounded-md [&[data-state=active]]:bg-card"
+                    onClick={() =>
+                      navigate({ to: "/dashboard/settings/admin/users" })
+                    }
+                  >
+                    {t("settings:administration")}
+                  </TabsTrigger>
+                ) : null}
               </TabsList>
             </Tabs>
           </div>

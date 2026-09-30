@@ -59,7 +59,10 @@ export default function TaskMovePopover({
     [destinationProjects, selectedProjectId],
   );
 
-  const destinationColumns = destinationProject?.columns ?? [];
+  const destinationColumns = useMemo(
+    () => destinationProject?.columns ?? [],
+    [destinationProject?.columns],
+  );
   const canKeepCurrentStatus = destinationColumns.some(
     (column) => column.id === task.status,
   );

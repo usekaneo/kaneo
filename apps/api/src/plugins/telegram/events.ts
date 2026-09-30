@@ -7,6 +7,7 @@ import {
   userTable,
   workspaceTable,
 } from "../../database/schema";
+import { safeOutboundError } from "../../utils/outbound-request";
 import type {
   PluginContext,
   TaskCommentCreatedEvent,
@@ -54,17 +55,6 @@ function escapeHtml(value: string): string {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
-}
-
-function redactBotToken(botToken: string): string {
-  const [prefix, suffix = ""] = botToken.split(":", 2);
-  if (!suffix) {
-    return "redacted";
-  }
-
-  return `${prefix}:${
-    suffix.length > 8 ? `${suffix.slice(0, 4)}…${suffix.slice(-4)}` : "••••"
-  }`;
 }
 
 function getSafeTelegramTargetIdentifier(config: TelegramConfig): string {
@@ -183,8 +173,7 @@ async function sendTelegramMessage(
     });
   } catch (error) {
     console.error("sendTelegramMessage postToTelegram failed", {
-      error,
-      botToken: redactBotToken(config.botToken),
+      error: safeOutboundError(error),
       telegramTarget: getSafeTelegramTargetIdentifier(config),
       taskUrl: data.taskUrl,
     });
@@ -209,8 +198,7 @@ async function runTelegramHandler(
   const validation = validateTelegramConfig(context.config);
   if (!validation.valid) {
     console.error("Invalid Telegram plugin config; skipping event dispatch", {
-      errors: validation.errors,
-      config: context.config,
+      reason: "Invalid configuration",
       featureKey,
       projectId: event.projectId,
       taskId: event.taskId,

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { normalizeApiServerUrl } from "../../../apps/api/src/utils/openapi-spec";
 
 describe("normalizeApiServerUrl", () => {

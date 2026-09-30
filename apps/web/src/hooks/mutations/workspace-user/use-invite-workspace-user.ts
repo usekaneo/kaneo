@@ -1,4 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { authClient } from "@/lib/auth-client";
 import queryClient from "@/query-client";
 
@@ -10,6 +11,7 @@ type InviteWorkspaceUserRequest = {
 };
 
 function useInviteWorkspaceUser() {
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: async ({
       workspaceId,
@@ -24,13 +26,16 @@ function useInviteWorkspaceUser() {
         resend,
       });
 
+      if (error?.code === "INVITATION_EMAIL_FAILED") {
+        throw new Error(t("settings:invitationEmailFailed"));
+      }
       if (error) {
         throw new Error(error.message || "Failed to invite workspace member");
       }
 
       return data;
     },
-    onSuccess: (_, { workspaceId }) => {
+    onSettled: (_, _error, { workspaceId }) => {
       queryClient.invalidateQueries({
         queryKey: ["workspace-invites", workspaceId],
       });

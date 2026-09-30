@@ -1,5 +1,6 @@
 import { client } from "@kaneo/libs";
 
+import { HttpError } from "@/lib/http-error";
 export type BillingPlan = "personal" | "team";
 export type BillingInterval = "monthly" | "annual";
 
@@ -14,8 +15,7 @@ export async function createBillingCheckout(input: {
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    throw new HttpError(response.status, await response.text());
   }
 
   return response.json();
@@ -27,8 +27,7 @@ export async function createBillingPortal(workspaceId: string) {
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    throw new HttpError(response.status, await response.text());
   }
 
   return response.json();

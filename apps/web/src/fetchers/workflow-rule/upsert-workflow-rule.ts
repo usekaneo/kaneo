@@ -1,5 +1,7 @@
 import { client } from "@kaneo/libs";
 
+import { HttpError } from "@/lib/http-error";
+
 async function upsertWorkflowRule(
   projectId: string,
   data: { integrationType: string; eventType: string; columnId: string },
@@ -10,8 +12,7 @@ async function upsertWorkflowRule(
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    throw new HttpError(response.status, await response.text());
   }
 
   return response.json();

@@ -48,7 +48,7 @@ export const monday: Comparison = {
     },
     {
       title: "Simple on purpose",
-      body: "Boards, backlog, workflow columns, labels, roles, and time tracking. Nothing to configure before your team can plan a week of work.",
+      body: "Boards, backlog, Gantt and calendar views, custom fields, workflow rules, and time tracking. Start with tasks and dates, then add the fields and workflow columns your project needs.",
     },
   ],
   honestNote:
@@ -72,7 +72,7 @@ export const monday: Comparison = {
     {
       question: "Does Kaneo have automations?",
       answer:
-        "Kaneo has workflow rules per project, so tasks can move and update on defined triggers, plus outgoing webhooks and integrations with GitHub, Gitea, Slack, Discord, and Telegram. It is a smaller automation surface than monday.com's recipe builder.",
+        "Kaneo has workflow rules per project that map integration events to target columns, plus outgoing webhooks, GitHub and Gitea integrations, and notifications in Slack, Discord, Telegram, and Mattermost. It does not have a general automation recipe builder.",
     },
   ],
   related: ["clickup", "asana", "wrike", "leantime"],

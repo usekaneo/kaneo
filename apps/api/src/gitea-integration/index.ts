@@ -24,6 +24,7 @@ import deleteGiteaIntegration from "./controllers/delete-gitea-integration";
 import getGiteaIntegration from "./controllers/get-gitea-integration";
 import { importGiteaIssues } from "./controllers/import-gitea-issues";
 import listGiteaRepositories from "./controllers/list-gitea-repositories";
+import { resolveVerificationToken } from "./controllers/resolve-verification-token";
 import verifyGiteaAccess from "./controllers/verify-gitea-access";
 import {
   giteaDeleteResultSchema,
@@ -62,7 +63,9 @@ const listRepositoriesRoute = createRoute({
   },
   responses: {
     200: jsonResponse("Accessible repositories", giteaRepositoryListSchema),
-    400: errorResponse("Invalid body, or unknown project"),
+    400: errorResponse(
+      "Invalid body, unknown project, or invalid Gitea credentials",
+    ),
     403: errorResponse(
       "No workspace access, or missing workspace:manage_settings",
     ),
@@ -76,7 +79,7 @@ const verifyRoute = createRoute({
   tags: ["Gitea"],
   summary: "Verify Gitea access",
   description:
-    "Check that the base URL is a Gitea instance and that the token can reach the repository with the permissions Kaneo needs. Always 200 -- problems are reported in the body.",
+    "Check that the base URL is a Gitea instance and that the token can reach the repository with the permissions Kaneo needs. Repository permission failures are reported in the body; invalid credentials and upstream errors return an error status. Omit accessToken to use the saved token for the unchanged base URL.",
   middleware: manageAccess,
   request: {
     body: {
@@ -86,7 +89,11 @@ const verifyRoute = createRoute({
   },
   responses: {
     200: jsonResponse("Verification result", giteaVerificationResultSchema),
-    400: errorResponse("Invalid body, or unknown project"),
+    401: errorResponse("Kaneo authentication required"),
+    500: errorResponse("Gitea verification failed"),
+    400: errorResponse(
+      "Invalid body, unknown project, or invalid Gitea credentials",
+    ),
     403: errorResponse(
       "No workspace access, or missing workspace:manage_settings",
     ),
@@ -223,7 +230,8 @@ const giteaIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
   })
   .openapi(verifyRoute, async (c) => {
     const body = c.req.valid("json");
-    const result = await verifyGiteaAccess(body);
+    const accessToken = await resolveVerificationToken(body);
+    const result = await verifyGiteaAccess({ ...body, accessToken });
     return c.json(result, 200);
   })
   .openapi(getIntegrationRoute, async (c) => {

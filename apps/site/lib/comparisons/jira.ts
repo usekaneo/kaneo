@@ -64,7 +64,7 @@ export const jira: Comparison = {
     {
       question: "Does Kaneo have Jira features like sprints and workflows?",
       answer:
-        "Kaneo has backlog planning, configurable workflow columns per project, labels, priorities, assignees, task relations, comments, time tracking, and workspace roles. It does not have Jira's schemes, custom issue-type hierarchies, or marketplace apps, which is the deliberate trade.",
+        "Kaneo has backlog planning, configurable workflow columns, integration-driven workflow rules, Gantt and calendar views, custom fields, task relations, time tracking, and workspace roles. It does not have dedicated sprints with story points and burndown reports, Jira's schemes, custom issue-type hierarchies, or marketplace apps.",
     },
     {
       question: "How much does Kaneo cost compared to Jira?",

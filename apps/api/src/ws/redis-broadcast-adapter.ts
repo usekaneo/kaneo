@@ -20,6 +20,15 @@ const broadcastMessageSchema = v.object({
     type: v.string(),
     projectId: v.string(),
     taskId: v.optional(v.string()),
+    tasks: v.optional(
+      v.array(
+        v.object({
+          id: v.string(),
+          position: v.number(),
+          status: v.optional(v.string()),
+        }),
+      ),
+    ),
     sourceTaskId: v.optional(v.string()),
     targetTaskId: v.optional(v.string()),
   }),
@@ -56,7 +65,9 @@ export class RedisBroadcastAdapter implements BroadcastAdapter {
     );
   }
 
-  async subscribe(handler: (msg: BroadcastMessage) => void): Promise<void> {
+  async subscribe(
+    handler: (msg: BroadcastMessage) => void | Promise<void>,
+  ): Promise<void> {
     if (this.subscribed) return;
     this.subscribed = true;
 
@@ -74,7 +85,9 @@ export class RedisBroadcastAdapter implements BroadcastAdapter {
           console.error("Invalid broadcast message:", parsed.issues);
           return;
         }
-        handler(parsed.output);
+        void Promise.resolve(handler(parsed.output)).catch((error) => {
+          console.error("Failed to deliver project broadcast:", error);
+        });
       } catch (err) {
         console.error("Failed to parse broadcast message:", err);
       }

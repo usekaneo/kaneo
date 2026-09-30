@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { hasBillableSubscription } from "../../../apps/api/src/billing/subscription-state";
 
 describe("hasBillableSubscription", () => {

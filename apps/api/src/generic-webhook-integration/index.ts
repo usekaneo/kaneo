@@ -47,7 +47,7 @@ function toResponse(integration: {
     maskedSecret: maskValue(config.secret),
     events: {
       ...defaultGenericWebhookEvents,
-      ...(config.events ?? {}),
+      ...config.events,
     },
     dueDateReminderLeadTimeMinutes:
       config.dueDateReminderLeadTimeMinutes ?? 1440,
@@ -256,8 +256,8 @@ const genericWebhookIntegration = apiRouter<
           ? currentConfig.secret
           : (body.secret ?? undefined),
       events: {
-        ...(currentConfig.events ?? {}),
-        ...(body.events ?? {}),
+        ...currentConfig.events,
+        ...body.events,
       },
       dueDateReminderLeadTimeMinutes:
         body.dueDateReminderLeadTimeMinutes ??

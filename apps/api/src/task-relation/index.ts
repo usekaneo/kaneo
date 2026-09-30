@@ -217,7 +217,11 @@ const taskRelation = apiRouter<BaseVariables & { workspaceId: string }>()
   })
   .openapi(deleteTaskRelationRoute, async (c) =>
     c.json(
-      await deleteTaskRelation(c.req.valid("param").id, c.get("userId")),
+      await deleteTaskRelation(
+        c.req.valid("param").id,
+        c.get("userId"),
+        c.get("workspaceId"),
+      ),
       200,
     ),
   );

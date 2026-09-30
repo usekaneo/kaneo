@@ -11,6 +11,7 @@ async function updateProject(
   description: string,
   isPublic: boolean,
   workspaceId: string,
+  canShare: boolean,
 ) {
   const [existingProject] = await db
     .select()
@@ -19,12 +20,17 @@ async function updateProject(
       and(eq(projectTable.id, id), eq(projectTable.workspaceId, workspaceId)),
     );
 
-  const isProjectExisting = Boolean(existingProject);
-
-  if (!isProjectExisting) {
+  if (!existingProject) {
     throw new HTTPException(404, {
       message:
         "Project doesn't exist or doesn't belong to the specified workspace",
+    });
+  }
+
+  if (isPublic !== existingProject.isPublic && !canShare) {
+    throw new HTTPException(403, {
+      message:
+        "Changing project visibility requires the project:share permission",
     });
   }
 

@@ -23,34 +23,34 @@
 		"LICENSE"
 	],
 	"keywords": [
-		"planka",
-		"kaneo",
-		"migration",
+		"cli",
 		"import",
 		"kanban",
-		"project-management",
-		"cli"
+		"kaneo",
+		"migration",
+		"planka",
+		"project-management"
 	],
 	"engines": {
 		"node": ">=20"
 	},
 	"scripts": {
-		"build": "tsc -p tsconfig.json",
+		"build": "vp run compile",
 		"prepublishOnly": "pnpm run build",
-		"lint": "biome check --write .",
+		"lint": "vp check .",
 		"start": "node dist/index.js",
-		"test": "vitest run --config vitest.config.ts",
-		"test:watch": "vitest --config vitest.config.ts"
+		"test": "vp run test:run",
+		"test:watch": "vp test --config vitest.config.ts"
 	},
 	"dependencies": {
 		"prompts": "^2.4.2"
 	},
 	"devDependencies": {
 		"@kaneo/typescript-config": "workspace:*",
-		"@types/node": "^26.1.2",
+		"@types/node": "^26.6.2",
 		"@types/prompts": "^2.4.9",
-		"tsx": "^4.23.9",
+		"tsx": "^4.23.15",
 		"typescript": "^7.0.2",
-		"vitest": "^4.1.10"
+		"vite-plus": "catalog:"
 	}
 }

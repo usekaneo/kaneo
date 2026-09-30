@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { isPerTaskRelationQuery } from "./relation-query-keys";
 
 const q = (queryKey: readonly unknown[]) => ({ queryKey });

@@ -1,4 +1,5 @@
 import { getApiUrl } from "@/fetchers/get-api-url";
+import { HttpError } from "@/lib/http-error";
 import type { DiscordIntegration } from "./get-discord-integration";
 
 export type CreateDiscordIntegrationRequest = {
@@ -31,8 +32,7 @@ async function createDiscordIntegration(
   );
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    throw new HttpError(response.status, await response.text());
   }
 
   return (await response.json()) as DiscordIntegration;

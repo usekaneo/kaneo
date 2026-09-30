@@ -1,14 +1,31 @@
-import { z } from "../openapi";
+import { pagingNumber, z } from "../openapi";
+import { TASK_SHORT_ID_PATTERN } from "../search/task-short-id";
+import { MAX_TASK_POSITION } from "./controllers/next-task-position";
 import { VALID_PRIORITIES } from "./validate-task-fields";
 
-const pagingNumber = (min: number, max: number) =>
-  z
-    .string()
-    .regex(/^\d+$/, "Expected a positive integer")
-    .transform(Number)
-    .pipe(z.number().int().min(min).max(max));
-
 export const taskParam = z.object({ id: z.string() });
+
+export const ticketIdParam = z.object({
+  ticketId: z
+    .string()
+    .max(128)
+    .refine(
+      (value) => TASK_SHORT_ID_PATTERN.test(value),
+      "Invalid task ticket ID",
+    )
+    .openapi({
+      description: "Project key and task number, e.g. KAN-12.",
+    }),
+});
+
+export const ticketIdQuery = z.object({
+  workspaceId: z.string().min(1).optional().openapi({
+    description: "Select a workspace if the ticket ID exists in more than one.",
+  }),
+  projectId: z.string().min(1).optional().openapi({
+    description: "Select a project if the ticket ID exists more than once.",
+  }),
+});
 
 export const projectIdParam = z.object({ projectId: z.string() });
 
@@ -21,7 +38,8 @@ export const listTasksQuery = z.object({
   assigneeId: z.string().optional(),
   // Number("abc") is NaN, which used to reach the limit/offset clause unchecked.
   page: pagingNumber(1, 1_000_000).optional(),
-  limit: pagingNumber(1, 200).optional(),
+  relatedPage: pagingNumber(1, 1_000_000).optional(),
+  limit: pagingNumber(1, 100).optional(),
   sortBy: z
     .enum(["createdAt", "priority", "dueDate", "position", "title", "number"])
     .optional(),
@@ -62,13 +80,16 @@ export const createTaskBody = z.object({
 
 export const updateTaskBody = z.object({
   title: z.string(),
-  description: z.string(),
+  description: z.string().optional().openapi({
+    description:
+      "Omit to preserve the existing description when updating a list summary.",
+  }),
   startDate: z.string().optional(),
   dueDate: z.string().optional(),
   priority,
   status: z.string(),
   projectId: z.string(),
-  position: z.number(),
+  position: z.number().int().min(0).max(MAX_TASK_POSITION),
   userId: z.string().optional(),
 });
 
@@ -121,4 +142,43 @@ export const finalizeImageUploadBody = z.object({
   contentType: z.string(),
   size: z.number(),
   surface,
+});
+
+export const descriptionPageQuery = z.object({
+  offset: pagingNumber(0, 2_000_000_000, 0),
+  version: z
+    .string()
+    .regex(/^[0-9]{1,10}$/)
+    .optional(),
+});
+export const descriptionMatchesQuery = z.object({
+  query: z.string().trim().min(1).max(256),
+  after: z.string().min(1).max(128).optional(),
+});
+
+export const duplicateTaskBody = z.object({ title: z.string().optional() });
+
+export const reorderTasksBody = z.object({
+  projectId: z.string(),
+  expectedTasks: z
+    .array(
+      z.object({
+        id: z.string(),
+        position: z.number().int().min(0).max(MAX_TASK_POSITION).nullable(),
+        status: z.string(),
+      }),
+    )
+    .optional()
+    .describe(
+      "Previous complete contents of the affected columns; stale snapshots return 409",
+    ),
+  tasks: z
+    .array(
+      z.object({
+        id: z.string(),
+        position: z.number().int().min(0).max(MAX_TASK_POSITION),
+        status: z.string().optional(),
+      }),
+    )
+    .min(1),
 });

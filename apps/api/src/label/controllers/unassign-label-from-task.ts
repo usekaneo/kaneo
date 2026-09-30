@@ -33,7 +33,7 @@ async function unassignLabelFromTask(id: string, userId: string) {
     .where(eq(taskTable.id, label.taskId))
     .limit(1);
 
-  if (!task) {
+  if (!task || task.workspaceId !== label.workspaceId) {
     throw new HTTPException(404, {
       message: "Task not found",
     });

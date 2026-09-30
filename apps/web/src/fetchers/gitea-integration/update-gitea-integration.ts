@@ -1,5 +1,6 @@
 import { client } from "@kaneo/libs";
 import type { InferRequestType } from "hono";
+import { HttpError } from "@/lib/http-error";
 
 export type UpdateGiteaIntegrationRequest = InferRequestType<
   (typeof client)["gitea-integration"]["project"][":projectId"]["$patch"]
@@ -23,7 +24,8 @@ async function updateGiteaIntegration(
       .catch(async () => ({
         message: (await response.text()) || "Request failed",
       }));
-    throw new Error(
+    throw new HttpError(
+      response.status,
       typeof error === "object" && error && "message" in error
         ? String(error.message)
         : "Request failed",

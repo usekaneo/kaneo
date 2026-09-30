@@ -5,6 +5,11 @@ import * as React from "react";
 
 import { cn } from "@/lib/cn";
 
+const PreviewCardDelays = React.createContext<{
+  openDelay?: number;
+  closeDelay?: number;
+}>({});
+
 function PreviewCard({
   closeDelay,
   openDelay,
@@ -13,23 +18,34 @@ function PreviewCard({
   openDelay?: number;
   closeDelay?: number;
 }) {
-  void openDelay;
-  void closeDelay;
-  return <PreviewCardPrimitive.Root {...props} />;
+  const delays = React.useMemo(
+    () => ({ openDelay, closeDelay }),
+    [openDelay, closeDelay],
+  );
+  return (
+    <PreviewCardDelays.Provider value={delays}>
+      <PreviewCardPrimitive.Root {...props} />
+    </PreviewCardDelays.Provider>
+  );
 }
 
 function PreviewCardTrigger({
   asChild = false,
   children,
   render,
+  delay,
+  closeDelay,
   ...props
 }: PreviewCardPrimitive.Trigger.Props & { asChild?: boolean }) {
+  const rootDelays = React.useContext(PreviewCardDelays);
   const resolvedRender =
     asChild && React.isValidElement(children) ? children : render;
 
   return (
     <PreviewCardPrimitive.Trigger
       data-slot="preview-card-trigger"
+      delay={delay ?? rootDelays.openDelay}
+      closeDelay={closeDelay ?? rootDelays.closeDelay}
       render={resolvedRender}
       {...props}
     >

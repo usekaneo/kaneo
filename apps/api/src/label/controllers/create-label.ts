@@ -5,6 +5,7 @@ import { labelTable, projectTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { syncLabelToGitea } from "../../plugins/gitea/utils/sync-label-to-gitea";
 import { syncLabelToGitHub } from "../../plugins/github/utils/sync-label-to-github";
+import { syncLabelToGitlab } from "../../plugins/gitlab/utils/sync-label-to-gitlab";
 
 async function createLabel(
   name: string,
@@ -13,6 +14,16 @@ async function createLabel(
   workspaceId: string,
   userId: string,
 ) {
+  const deleting = await db.query.labelTable.findFirst({
+    where: and(
+      eq(labelTable.workspaceId, workspaceId),
+      eq(labelTable.name, name),
+      isNull(labelTable.taskId),
+    ),
+  });
+  if (deleting?.deletionStartedAt)
+    throw new HTTPException(409, { message: "This label is being deleted" });
+
   if (taskId) {
     const [task] = await db
       .select({
@@ -61,6 +72,9 @@ async function createLabel(
       });
       syncLabelToGitea(taskId, name, color).catch((error) => {
         console.error("Failed to sync label to Gitea:", error);
+      });
+      syncLabelToGitlab(taskId, name, color).catch((error) => {
+        console.error("Failed to sync label to GitLab:", error);
       });
 
       await publishEvent("task.label_created", {

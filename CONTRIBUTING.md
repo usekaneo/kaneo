@@ -6,8 +6,6 @@ Thanks for wanting to contribute to Kaneo! Whether you're fixing bugs, adding fe
 
 - [Code of Conduct](#code-of-conduct)
 - [Getting Started](#getting-started)
-  - [What You'll Need](#what-youll-need)
-  - [Setting Up Your Dev Environment](#setting-up-your-dev-environment)
 - [Making Your First Contribution](#making-your-first-contribution)
   - [Finding Something to Work On](#finding-something-to-work-on)
   - [The Process](#the-process)
@@ -25,39 +23,14 @@ We want everyone to feel welcome here. Please be respectful and follow our [Code
 
 ## Getting Started
 
-### What You'll Need
+Fork and clone the repository:
 
-- **Node.js** (24 or newer)
-- **pnpm** (we use this instead of npm/yarn)
-- **Git**
-- **Docker** (optional, for testing full deployments)
-
-### Setting Up Your Dev Environment
-
-1. **Fork and clone the repo**:
 ```bash
 git clone https://github.com/yourusername/kaneo.git
 cd kaneo
 ```
 
-2. **Install dependencies**:
-```bash
-pnpm install
-```
-
-3. **Set up environment variables**:
-   Create a `.env` file in the repository root for server configuration. The web app includes localhost development defaults; put local Vite overrides such as `VITE_API_URL` in `apps/web/.env.local`. See [ENVIRONMENT_SETUP.md](ENVIRONMENT_SETUP.md) for the required variables and examples.
-
-4. **Start everything up**:
-```bash
-pnpm run dev
-```
-
-This starts both the API (port 1337) and web app (port 5173). Both will automatically reload when you make changes.
-
-> **Tip**: The web app at http://localhost:5173 will automatically connect to the API at http://localhost:1337
-
-> **Need help with setup?** See our [Environment Setup Guide](ENVIRONMENT_SETUP.md) for detailed instructions and troubleshooting tips.
+Follow the [local development setup guide](ENVIRONMENT_SETUP.md) for prerequisites, database and environment configuration, installation, startup, and troubleshooting.
 
 ## Making Your First Contribution
 
@@ -96,13 +69,36 @@ Then open a pull request on GitHub with a clear description of what you changed 
 
 ### Code Style
 
-We use **Biome** for formatting and linting. Before you commit:
+We use **Vite+** for development, workspace tasks, testing, formatting, and linting.
+It is pinned in `pnpm-workspace.yaml`; a global `vp` installation is optional.
+Before you commit:
 
 ```bash
 pnpm run lint
+pnpm run typecheck
 ```
 
-This will check and automatically fix formatting issues. Most editors can auto-format on save if you install the Biome extension.
+`pnpm lint` checks formatting and lint rules without changing files. Use
+`pnpm format` to format the repository or `pnpm exec vp check --fix` to also apply
+safe lint fixes. Install the recommended Vite Plus extension pack for editor support.
+
+The existing `pnpm build`, `pnpm dev`, `pnpm test`, and `pnpm test:integration`
+commands use the Vite+ task runner. Package tasks in `vite.config.ts` build their
+workspace dependencies before compiling, testing, or checking types. Build and
+typecheck results are cached; tests and development servers always run. Web builds
+always run too, so a cached build cannot skip a Sentry source-map upload.
+
+Use `pnpm --filter @kaneo/web dev` to start just the web app, or
+`pnpm exec vp run --filter @kaneo/api test` to run API unit tests with dependency
+builds. `pnpm exec vp test run` runs the unit-test projects directly; PostgreSQL
+integration tests remain behind `pnpm test:integration`.
+
+Vite+ built-ins and package scripts are distinct: `vp build` builds a Vite app,
+while `vp run build` runs the package's build script. The API still uses esbuild,
+the site uses Next.js, and libraries use TypeScript to preserve their output.
+Typechecking remains an explicit package task so both web tsconfigs are covered.
+The root lint configuration preserves the previous policy where equivalents exist;
+additional React Compiler and accessibility rules are left for a separate review.
 
 ### Commit Messages
 
@@ -201,23 +197,7 @@ kaneo/
 
 ## Using AI
 
-You are welcome to use AI tools to help you contribute, and we as maintainers do the same. They are useful for research, writing code or tests, and exploring unfamiliar parts of the project. Two boundaries apply to every contribution.
-
-### Speak for yourself
-
-Write issues, pull request descriptions, and review replies in your own words. Clear, imperfect writing is better than a generated explanation that is longer than necessary or does not accurately describe the contribution.
-
-### Think for yourself
-
-Understand and take responsibility for every change you submit. Before requesting review, reproduce the problem, reduce the solution to its necessary scope, and verify the behavior yourself. You should be able to explain the design decisions, tradeoffs, and tests without relying on an AI-generated answer.
-
-AI output is not evidence that a change is correct. Include meaningful regression coverage for behavior changes and keep unrelated or speculative work out of the pull request.
-
-Automated review can be part of preparing an open pull request. Address relevant bot feedback and stabilize the change before requesting review from a maintainer.
-
-Maintainers may close a pull request without a detailed implementation review when its description is inaccurate, its scope exceeds the linked issue, important behavior is untested, or the author cannot explain and validate the submitted work. Review feedback identifies problems; it does not replace the contributor's own investigation and validation.
-
-For more context, see [this blog article](https://roe.dev/blog/using-ai-in-open-source).
+Please read and follow our [AI Contribution Policy](AI_POLICY.md), which adopts the [Human Voice policy](https://ai-policy.dev/policies/human-voice/).
 
 ## Need Help?
 

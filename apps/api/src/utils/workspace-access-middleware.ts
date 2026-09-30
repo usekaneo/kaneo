@@ -170,10 +170,27 @@ async function lookupWorkspaceId(
 
       case "label": {
         const [label] = await db
-          .select({ workspaceId: schema.labelTable.workspaceId })
+          .select({
+            workspaceId: schema.labelTable.workspaceId,
+            taskId: schema.labelTable.taskId,
+            taskWorkspaceId: schema.projectTable.workspaceId,
+          })
           .from(schema.labelTable)
+          .leftJoin(
+            schema.taskTable,
+            eq(schema.labelTable.taskId, schema.taskTable.id),
+          )
+          .leftJoin(
+            schema.projectTable,
+            eq(schema.taskTable.projectId, schema.projectTable.id),
+          )
           .where(eq(schema.labelTable.id, id))
           .limit(1);
+        // Older releases allowed inconsistent label/task references. Never use
+        // such a row to authorize reads, mutations or external provider sync.
+        if (label?.taskId && label.taskWorkspaceId !== label.workspaceId) {
+          return null;
+        }
         return label?.workspaceId || null;
       }
 

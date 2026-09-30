@@ -153,14 +153,20 @@ async function globalSearch(params: SearchParams): Promise<{
   // or a decomposed "ПА-23" would never reach the stored composed form.
   const shortIdMatch = query.normalize("NFKC").match(TASK_SHORT_ID_PATTERN);
 
+  const shortIdNumber = Number(shortIdMatch?.[2]);
+
   if (type === "all" || type === "tasks") {
     const seenTaskIds = new Set<string>();
 
     // If query matches short-id pattern, look up by project slug + task number first
-    if (shortIdMatch?.[1] && shortIdMatch[2]) {
+    if (
+      shortIdMatch?.[1] &&
+      Number.isSafeInteger(shortIdNumber) &&
+      shortIdNumber > 0 &&
+      shortIdNumber <= 2_147_483_647
+    ) {
       const slug = shortIdMatch[1];
-      const numberStr = shortIdMatch[2];
-      const taskNumber = Number.parseInt(numberStr, 10);
+      const taskNumber = shortIdNumber;
 
       const shortIdTasks = await db
         .select({

@@ -1,0 +1,31 @@
+# Exclude dependency and skill lockfiles from both line and file counts.
+exclude_files:
+  - pnpm-lock.yaml
+  - package-lock.json
+  - skills-lock.json
+
+# Thresholds are inclusive. The larger size from line and file counts wins.
+# Keep entries ordered from smallest to largest; xl also covers larger PRs.
+label_configs:
+  - size: xs
+    diff: 25
+    files: 1
+    labels: ["size/xs"]
+  - size: s
+    diff: 150
+    files: 10
+    labels: ["size/s"]
+  - size: m
+    diff: 600
+    files: 25
+    labels: ["size/m"]
+  - size: l
+    diff: 2500
+    files: 50
+    labels: ["size/l"]
+  - size: xl
+    diff: 5000
+    files: 100
+    labels: ["size/xl"]
+
+added_lines_only: false

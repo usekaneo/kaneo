@@ -24,6 +24,7 @@ type ColumnSectionProps = {
   subtaskChildren: Map<string, string[]>;
   tasksById: Map<string, Column["tasks"][number]>;
   relationsLoading: boolean;
+  disableCollectionActions: boolean;
   toggleSection: (columnId: string) => void;
   toggleTaskExpanded: (rowId: string) => void;
   onAddTask: (columnId: string) => void;
@@ -41,6 +42,7 @@ export default function ColumnSection({
   subtaskChildren,
   tasksById,
   relationsLoading,
+  disableCollectionActions,
   toggleSection,
   toggleTaskExpanded,
   onAddTask,
@@ -128,6 +130,7 @@ export default function ColumnSection({
           {column.isFinal && column.tasks.length > 0 && (
             <button
               type="button"
+              disabled={disableCollectionActions}
               onClick={() => handleArchiveClick(column)}
               className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
               title={t("tasks:listView.archiveAllTooltip")}

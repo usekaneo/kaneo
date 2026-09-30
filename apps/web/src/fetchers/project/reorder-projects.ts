@@ -1,5 +1,7 @@
 import { client } from "@kaneo/libs";
 
+import { HttpError } from "@/lib/http-error";
+
 async function reorderProjects(
   workspaceId: string,
   projects: Array<{ id: string; position: number }>,
@@ -10,8 +12,7 @@ async function reorderProjects(
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    throw new HttpError(response.status, await response.text());
   }
 
   return response.json();

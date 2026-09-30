@@ -1,4 +1,14 @@
 export const MAX_AVATAR_BYTES = 512 * 1024;
+export const MAX_AVATAR_BASE64_CHARS = Math.ceil(MAX_AVATAR_BYTES / 3) * 4;
+// Permit the data URL prefix and modest whitespace without unbounded cleanup.
+export const MAX_AVATAR_INPUT_CHARS = MAX_AVATAR_BASE64_CHARS + 1024;
+export const MAX_AVATAR_REQUEST_BYTES = 768 * 1024;
+
+function avatarSizeError() {
+  return new Error(
+    `Image exceeds the maximum avatar size of ${MAX_AVATAR_BYTES / 1024}KB.`,
+  );
+}
 
 const AVATAR_MIME_TYPES = ["image/png", "image/jpeg", "image/webp"] as const;
 
@@ -21,7 +31,7 @@ function hasMagicBytes(mimeType: AvatarMimeType, bytes: Buffer) {
       return (
         bytes.length >= 8 &&
         bytes.subarray(0, 8).equals(
-          // biome-ignore format: PNG signature
+          // prettier-ignore -- PNG signature
           Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
         )
       );
@@ -49,6 +59,7 @@ export function decodeAvatarUpload(input: {
   contentType: string;
   data: string;
 }): { mimeType: AvatarMimeType; bytes: Buffer } {
+  if (input.data.length > MAX_AVATAR_INPUT_CHARS) throw avatarSizeError();
   const mimeType = normalizeAvatarMimeType(input.contentType);
 
   if (!isAvatarMimeType(mimeType)) {
@@ -59,10 +70,15 @@ export function decodeAvatarUpload(input: {
 
   const payload = stripDataUrlPrefix(input.data).replace(/\s+/g, "");
 
+  if (payload.length > MAX_AVATAR_BASE64_CHARS) throw avatarSizeError();
+
   if (!payload || !BASE64_PATTERN.test(payload) || payload.length % 4 !== 0) {
     throw new Error("Image data must be base64 encoded.");
   }
 
+  const padding = payload.endsWith("==") ? 2 : payload.endsWith("=") ? 1 : 0;
+  if ((payload.length / 4) * 3 - padding > MAX_AVATAR_BYTES)
+    throw avatarSizeError();
   const bytes = Buffer.from(payload, "base64");
 
   if (bytes.length === 0) {

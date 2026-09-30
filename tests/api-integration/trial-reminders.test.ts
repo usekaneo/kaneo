@@ -8,7 +8,7 @@ import {
   expect,
   it,
   vi,
-} from "vitest";
+} from "vite-plus/test";
 
 const sendTrialReminderEmail = vi.fn();
 
@@ -19,9 +19,8 @@ vi.mock("@kaneo/email", () => ({
 }));
 
 const { default: db, schema } = await import("../../apps/api/src/database");
-const { checkTrialReminders } = await import(
-  "../../apps/api/src/scheduler/trial-reminders"
-);
+const { checkTrialReminders } =
+  await import("../../apps/api/src/scheduler/trial-reminders");
 const { resetTestDatabase } = await import("./helpers/database");
 const { createWorkspaceMember } = await import("./helpers/fixtures");
 
@@ -187,6 +186,37 @@ describe("trial reminder emails", () => {
     await checkTrialReminders();
 
     expect(sendTrialReminderEmail).toHaveBeenCalledTimes(2);
+  });
+
+  it("shares one cap across both reminder types and leaves unsent rows for the next run", async () => {
+    for (let i = 0; i < 2; i++) {
+      await seedTrial(new Date(Date.now() + 2.5 * DAY));
+      await seedTrial(new Date(Date.now() - DAY));
+    }
+    await checkTrialReminders();
+    expect(sendTrialReminderEmail).toHaveBeenCalledTimes(2);
+    expect(
+      await db.select().from(schema.billingReminderSentTable),
+    ).toHaveLength(2);
+    await checkTrialReminders();
+    expect(sendTrialReminderEmail).toHaveBeenCalledTimes(4);
+    expect(new Set(recipients()).size).toBe(4);
+    expect(
+      await db.select().from(schema.billingReminderSentTable),
+    ).toHaveLength(4);
+  });
+
+  it("spends only the remaining budget on the second reminder type", async () => {
+    const ending = await seedTrial(new Date(Date.now() + 2.5 * DAY));
+    for (let i = 0; i < 3; i++) await seedTrial(new Date(Date.now() - DAY));
+    await checkTrialReminders();
+    expect(sendTrialReminderEmail).toHaveBeenCalledTimes(2);
+    expect(recipients()).toContain(ending.user.email);
+    const rows = await db.select().from(schema.billingReminderSentTable);
+    expect(rows.map((row) => row.reminderType).sort()).toEqual([
+      "trial_ending",
+      "trial_expired",
+    ]);
   });
 
   it("sends the most urgent trials first", async () => {

@@ -1,26 +1,65 @@
 ---
-title: API Reference
-description: Complete API reference for Kaneo
+title: "Make your first API request"
+description: "Authenticate, find a project, and read its tasks."
 ---
 
-## Overview
+Use the Kaneo API for scripts and integrations. Requests go to your instance's public API URL, usually `https://kaneo.example.com/api`.
 
-Kaneo API endpoint pages are generated automatically from our OpenAPI specification.
+## 1. Create an API key
 
-<Card
-  title="OpenAPI Specification"
-  icon="code"
-  href="https://cloud.kaneo.app/api/openapi"
->
-  View the canonical OpenAPI schema powering this documentation.
-</Card>
+Open **Settings → Account → API Keys** in Kaneo and create a key for your script. Copy it when it is shown. See [Authentication](/api-reference/authentication) for API keys and device authorization.
 
-## Authentication
+Keep keys in server-side scripts or secret storage. Do not put a personal API key in frontend JavaScript shipped to other users.
 
-All API endpoints require authentication. Refer to the [authentication guide](/api-reference/authentication) for details on creating and using API keys.
+## 2. Find your workspace and project IDs
 
-## Base URL
+Open a project in the browser. Its URL includes both IDs:
 
 ```text
-https://your-kaneo-instance.com/api
+/dashboard/workspace/WORKSPACE_ID/project/PROJECT_ID/board
 ```
+
+Use the IDs from the URL, not the workspace name or a task number such as `WEB-22`.
+
+## 3. List the workspace's projects
+
+Set `KANEO_API_KEY` in your shell using your secret manager or a private environment file. Then replace the example workspace ID:
+
+```bash
+curl --fail-with-body --get 'https://kaneo.example.com/api/project' \
+  --data-urlencode 'workspaceId=WORKSPACE_ID' \
+  -H "Authorization: Bearer $KANEO_API_KEY"
+```
+
+A successful response is a JSON array of projects. Use a project's `id` in the next request.
+
+## 4. Read the project's tasks
+
+```bash
+curl --fail-with-body \
+  'https://kaneo.example.com/api/task/tasks/PROJECT_ID?page=1&limit=50' \
+  -H "Authorization: Bearer $KANEO_API_KEY"
+```
+
+This endpoint returns a project board, including columns and task buckets, together with pagination metadata. It is not a flat task array. Follow `pagination.totalPages` for task pages and `pagination.relatedTotalPages` for related metadata pages when those span multiple pages.
+
+For a single task, request `GET /api/task/TASK_ID`. Check the endpoint reference for the exact response and supported filters. Large descriptions can be deferred from list results, so fetch task details when you need the full text.
+
+## Handle errors
+
+| Status | What to check |
+| --- | --- |
+| 400 | Required IDs, query parameters, and request body |
+| 401 | Missing, invalid, or expired credentials |
+| 403 | Workspace membership and permission for the requested action |
+| 404 | The resource ID and endpoint path |
+| 429 | Rate limits; wait before retrying |
+| 5xx | Instance logs and service health |
+
+Inspect the response body for the specific error. Do not retry a mutation blindly when you are unsure whether it already succeeded.
+
+## API reference
+
+The endpoint pages are generated from the repository's [OpenAPI specification](/openapi.json). A running instance exposes its own schema at `/api/openapi`, which is the best match for that instance's installed version.
+
+Most application endpoints require authentication. Public endpoints, including health and sign-in routes, have their own requirements. Authentication never grants access to every workspace automatically.
