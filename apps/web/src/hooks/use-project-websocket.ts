@@ -81,6 +81,7 @@ export function useProjectWebSocket(projectId: string) {
               ["tasks", projectId],
               ["task"],
               ["task-relations"],
+              ["external-links"],
             ]) {
               queryClient.invalidateQueries({ queryKey });
             }
@@ -139,7 +140,11 @@ export function useProjectWebSocket(projectId: string) {
               });
             }
 
-            if (message.type === "TASK_UPDATED" && message.taskId) {
+            if (
+              (message.type === "TASK_UPDATED" ||
+                message.type === "TASK_MOVED") &&
+              message.taskId
+            ) {
               queryClient.invalidateQueries({
                 queryKey: ["external-links", message.taskId],
               });

@@ -381,6 +381,7 @@ const taskUpdateEvents = [
   "task.label_assigned",
   "task.label_unassigned",
   "task.label_created",
+  "task.labels_updated",
   "task.label_deleted",
   "task-relation.created",
   "task-relation.deleted",
@@ -500,6 +501,7 @@ for (const eventName of taskUpdateEvents) {
       case "task.label_assigned":
       case "task.label_unassigned":
       case "task.label_created":
+      case "task.labels_updated":
       case "task.label_deleted":
         type = "TASK_LABEL_UPDATED";
         break;
