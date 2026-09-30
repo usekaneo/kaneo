@@ -326,6 +326,7 @@ function RouteComponent() {
             viewMode === "board" ? (
               <KanbanBoard
                 project={sortedProject}
+                disableCollectionActions={boardFetching || boardError}
                 disableDragDrop={
                   boardFetching ||
                   boardError ||
@@ -336,6 +337,7 @@ function RouteComponent() {
             ) : (
               <ListView
                 project={sortedProject}
+                disableCollectionActions={boardFetching || boardError}
                 disableDragDrop={
                   boardFetching || boardError || sort.field !== "position"
                 }

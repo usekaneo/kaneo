@@ -162,6 +162,13 @@ export async function handleGitlabMergeRequestOpened(
         );
       }
 
+      afterCommit(() =>
+        publishEvent("task.updated", {
+          projectId: integration.projectId,
+          taskId: task.id,
+        }),
+      );
+
       if (!moveTask) {
         return;
       }

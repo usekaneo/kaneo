@@ -95,6 +95,13 @@ export async function handleGiteaPullRequestClosed(
           database,
         );
 
+        afterCommit(() =>
+          publishEvent("task.updated", {
+            projectId: integration.projectId,
+            taskId: task.id,
+          }),
+        );
+
         if (pull_request.merged) {
           const allTaskPRs = await database.query.externalLinkTable.findMany({
             where: and(

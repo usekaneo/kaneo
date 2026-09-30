@@ -223,7 +223,7 @@ async function importSingleIssue(
     const result = await withIntegrationTask(
       existingLink.taskId,
       { id: integrationId, projectId, project: { workspaceId } },
-      async (database) => {
+      async (database, afterCommit) => {
         const [linked] = await database
           .select({ id: externalLinkTable.id })
           .from(externalLinkTable)
@@ -259,6 +259,17 @@ async function importSingleIssue(
 
         await importCommentsForTask(comments, existingLink.taskId, database);
 
+        afterCommit(async () => {
+          for (const type of [
+            "task.updated",
+            "task.labels_updated",
+            "comment.updated",
+          ])
+            await publishEvent(type, {
+              projectId,
+              taskId: existingLink.taskId,
+            });
+        });
         return "updated" as const;
       },
     );
@@ -520,4 +531,5 @@ async function linkPullRequestToTask(
       author: pr.user?.login ?? pr.user?.username,
     },
   });
+  await publishEvent("task.updated", { projectId, taskId: task.id });
 }

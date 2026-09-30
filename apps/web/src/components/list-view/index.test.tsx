@@ -1,4 +1,10 @@
-import { act, cleanup, render } from "@testing-library/react";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vite-plus/test";
 import type { DragEndEvent } from "@dnd-kit/core";
 import type { ProjectWithTasks } from "@/types/project";
@@ -7,6 +13,11 @@ const m = vi.hoisted(() => ({
   props: {} as {
     sensors?: unknown[];
     onDragEnd?: (event: DragEndEvent) => void;
+  },
+  archive: {} as {
+    onConfirm?: () => void;
+    disabled?: boolean;
+    taskCount?: number;
   },
   mutate: vi.fn(),
   setProject: vi.fn(),
@@ -32,7 +43,10 @@ vi.mock("./task-row", () => ({ default: () => null }));
 vi.mock("../bulk-selection/bulk-toolbar", () => ({ default: () => null }));
 vi.mock("../shared/modals/create-task-modal", () => ({ default: () => null }));
 vi.mock("../shared/modals/archive-tasks-modal", () => ({
-  ArchiveTasksModal: () => null,
+  ArchiveTasksModal: (props: typeof m.archive) => {
+    m.archive = props;
+    return null;
+  },
 }));
 afterEach(() => {
   cleanup();
@@ -68,4 +82,45 @@ it("disables keyboard sensors and rejects drag completion on a partial board", (
   );
   expect(m.mutate).not.toHaveBeenCalled();
   expect(m.setProject).not.toHaveBeenCalled();
+});
+
+it("blocks archive-all during pagination or errors, including an already-open confirmation", () => {
+  const column = {
+    id: "done",
+    name: "Done",
+    slug: "done",
+    isFinal: true,
+    tasks: [{ id: "a" }],
+  };
+  const project = {
+    id: "p",
+    workspaceId: "w",
+    columns: [column],
+    plannedTasks: [],
+    archivedTasks: [],
+  } as unknown as ProjectWithTasks;
+  const { rerender } = render(<ListView project={project} />);
+  fireEvent.click(screen.getByTitle(/archiveAllTooltip/));
+  const complete = {
+    ...project,
+    columns: [
+      {
+        ...project.columns[0],
+        tasks: [...project.columns[0].tasks, { id: "b" }],
+      },
+    ],
+  } as unknown as ProjectWithTasks;
+  rerender(<ListView project={complete} disableCollectionActions />);
+  expect(screen.getByTitle(/archiveAllTooltip/).hasAttribute("disabled")).toBe(
+    true,
+  );
+  expect(m.archive.disabled).toBe(true);
+  act(() => m.archive.onConfirm?.());
+  expect(m.mutate).not.toHaveBeenCalled();
+  expect(m.setProject).not.toHaveBeenCalled();
+  rerender(<ListView project={complete} />);
+  expect(m.archive.taskCount).toBe(2);
+  act(() => m.archive.onConfirm?.());
+  expect(m.mutate).toHaveBeenCalledTimes(2);
+  expect(m.setProject).toHaveBeenCalledOnce();
 });

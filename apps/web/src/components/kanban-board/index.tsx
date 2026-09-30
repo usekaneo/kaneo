@@ -38,12 +38,14 @@ import TaskCard from "./task-card";
 type KanbanBoardProps = {
   project: ProjectWithTasks;
   disableDragDrop?: boolean;
+  disableCollectionActions?: boolean;
   sortedByNumber?: boolean;
 };
 
 function KanbanBoard({
   project,
   disableDragDrop = false,
+  disableCollectionActions = false,
   sortedByNumber = false,
 }: KanbanBoardProps) {
   const queryClient = useQueryClient();
@@ -286,7 +288,11 @@ function KanbanBoard({
                   "h-fit": !!background,
                 })}
               >
-                <Column column={column} disableDragDrop={disableDragDrop} />
+                <Column
+                  column={column}
+                  disableDragDrop={disableDragDrop}
+                  disableCollectionActions={disableCollectionActions}
+                />
               </div>
             ))}
           </div>

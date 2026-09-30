@@ -135,6 +135,13 @@ export async function handleGiteaPullRequestOpened(
         database,
       );
 
+      afterCommit(() =>
+        publishEvent("task.updated", {
+          projectId: integration.projectId,
+          taskId: task.id,
+        }),
+      );
+
       const targetStatus = await resolveTargetStatus(
         integration.projectId,
         "pr_opened",
