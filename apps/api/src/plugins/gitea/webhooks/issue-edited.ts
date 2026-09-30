@@ -1,5 +1,6 @@
-import { eq } from "drizzle-orm";
-import db from "../../../database";
+import { publishEvent } from "../../../events";
+import { withIntegrationLink } from "../../github/services/with-integration-link";
+import { linkedTaskScope } from "../../github/services/integration-task-scope";
 import { taskTable } from "../../../database/schema";
 import {
   findExternalLink,
@@ -63,98 +64,114 @@ export async function handleGiteaIssueEdited(
       continue;
     }
 
-    const task = await db.query.taskTable.findFirst({
-      where: eq(taskTable.id, externalLink.taskId),
-    });
+    await withIntegrationLink(
+      externalLink,
+      integration,
+      async (db, afterCommit, externalLink) => {
+        const task = await db.query.taskTable.findFirst({
+          where: linkedTaskScope(externalLink.taskId, integration.projectId),
+        });
 
-    if (!task) {
-      continue;
-    }
-
-    const metadata = externalLink.metadata
-      ? JSON.parse(externalLink.metadata)
-      : {};
-
-    const updateData: Record<string, unknown> = {};
-    const updatedMetadata = { ...metadata };
-
-    if (!updatedMetadata.lastSync) {
-      updatedMetadata.lastSync = {};
-    }
-
-    if (changes.title) {
-      const lastTitleSync = metadata.lastSync?.title;
-
-      let shouldUpdateTitle = true;
-
-      if (lastTitleSync) {
-        if (
-          lastTitleSync.value === issue.title &&
-          lastTitleSync.source === "kaneo"
-        ) {
-          shouldUpdateTitle = false;
+        if (!task) {
+          return;
         }
 
-        const timeSinceLastSync =
-          Date.now() - new Date(lastTitleSync.timestamp).getTime();
-        if (timeSinceLastSync < 2000 && shouldUpdateTitle) {
-          shouldUpdateTitle = false;
-        }
-      }
+        const metadata = externalLink.metadata
+          ? JSON.parse(externalLink.metadata)
+          : {};
 
-      if (shouldUpdateTitle) {
-        updateData.title = issue.title;
-        updatedMetadata.lastSync.title = {
-          timestamp: new Date().toISOString(),
-          source: "gitea",
-          value: issue.title,
-        };
-      }
-    }
+        const updateData: Record<string, unknown> = {};
+        const updatedMetadata = { ...metadata };
 
-    if (changes.body) {
-      const lastDescSync = metadata.lastSync?.description;
-      const formattedDescription = formatTaskDescriptionFromIssue(issue.body);
-
-      let shouldUpdateDescription = true;
-
-      if (lastDescSync) {
-        if (
-          lastDescSync.value === formattedDescription &&
-          lastDescSync.source === "kaneo"
-        ) {
-          shouldUpdateDescription = false;
+        if (!updatedMetadata.lastSync) {
+          updatedMetadata.lastSync = {};
         }
 
-        const timeSinceLastSync =
-          Date.now() - new Date(lastDescSync.timestamp).getTime();
-        if (timeSinceLastSync < 2000 && shouldUpdateDescription) {
-          shouldUpdateDescription = false;
+        if (changes.title) {
+          const lastTitleSync = metadata.lastSync?.title;
+
+          let shouldUpdateTitle = true;
+
+          if (lastTitleSync) {
+            if (
+              lastTitleSync.value === issue.title &&
+              lastTitleSync.source === "kaneo"
+            ) {
+              shouldUpdateTitle = false;
+            }
+            const timeSinceLastSync =
+              Date.now() - new Date(lastTitleSync.timestamp).getTime();
+            if (timeSinceLastSync < 2000 && shouldUpdateTitle) {
+              shouldUpdateTitle = false;
+            }
+          }
+
+          if (shouldUpdateTitle) {
+            updateData.title = issue.title;
+            updatedMetadata.lastSync.title = {
+              timestamp: new Date().toISOString(),
+              source: "gitea",
+              value: issue.title,
+            };
+          }
         }
-      }
 
-      if (shouldUpdateDescription) {
-        updateData.description = formattedDescription;
-        updatedMetadata.lastSync.description = {
-          timestamp: new Date().toISOString(),
-          source: "gitea",
-          value: formattedDescription,
-        };
-      }
-    }
+        if (changes.body) {
+          const lastDescSync = metadata.lastSync?.description;
+          const formattedDescription = formatTaskDescriptionFromIssue(
+            issue.body,
+          );
 
-    if (Object.keys(updateData).length > 0) {
-      await db
-        .update(taskTable)
-        .set(updateData)
-        .where(eq(taskTable.id, task.id));
+          let shouldUpdateDescription = true;
 
-      await updateExternalLink(externalLink.id, {
-        title: issue.title,
-        metadata: updatedMetadata,
-      });
-    }
+          if (lastDescSync) {
+            if (
+              lastDescSync.value === formattedDescription &&
+              lastDescSync.source === "kaneo"
+            ) {
+              shouldUpdateDescription = false;
+            }
+            const timeSinceLastSync =
+              Date.now() - new Date(lastDescSync.timestamp).getTime();
+            if (timeSinceLastSync < 2000 && shouldUpdateDescription) {
+              shouldUpdateDescription = false;
+            }
+          }
 
-    return;
+          if (shouldUpdateDescription) {
+            updateData.description = formattedDescription;
+            updatedMetadata.lastSync.description = {
+              timestamp: new Date().toISOString(),
+              source: "gitea",
+              value: formattedDescription,
+            };
+          }
+        }
+
+        if (Object.keys(updateData).length > 0) {
+          await db
+            .update(taskTable)
+            .set(updateData)
+            .where(linkedTaskScope(task.id, integration.projectId));
+
+          await updateExternalLink(
+            externalLink.id,
+            {
+              title: issue.title,
+              metadata: updatedMetadata,
+            },
+            db,
+          );
+          afterCommit(() =>
+            publishEvent("task.updated", {
+              projectId: integration.projectId,
+              taskId: externalLink.taskId,
+            }),
+          );
+        }
+
+        return;
+      },
+    );
   }
 }

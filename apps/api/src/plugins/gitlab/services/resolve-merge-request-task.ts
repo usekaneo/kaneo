@@ -1,3 +1,4 @@
+import db from "../../../database";
 import {
   findTaskByLink,
   findTaskByNumber,
@@ -10,7 +11,9 @@ export async function resolveMergeRequestTask({
   projectSlug,
   config,
   mergeRequest,
+  database = db,
 }: {
+  database?: Pick<typeof db, "query">;
   projectId: string;
   projectSlug: string;
   config: GitlabConfig;
@@ -28,11 +31,15 @@ export async function resolveMergeRequestTask({
     projectSlug,
   );
   const numberedTask = taskNumber
-    ? await findTaskByNumber(projectId, taskNumber)
+    ? await findTaskByNumber(projectId, taskNumber, database)
     : undefined;
 
   return (
     numberedTask ??
-    findTaskByLink(projectId, [mergeRequest.title, mergeRequest.description])
+    findTaskByLink(
+      projectId,
+      [mergeRequest.title, mergeRequest.description],
+      database,
+    )
   );
 }
