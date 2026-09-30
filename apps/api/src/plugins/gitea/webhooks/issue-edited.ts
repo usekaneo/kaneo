@@ -140,7 +140,7 @@ export async function handleGiteaIssueEdited(
                   metadata.lastSync?.title,
                   issue.title,
                   "gitea",
-                  current?.updated_at ?? issue.updated_at,
+                  issue.updated_at,
                 );
               }
             }
@@ -184,7 +184,7 @@ export async function handleGiteaIssueEdited(
                   metadata.lastSync?.description,
                   formattedDescription,
                   "gitea",
-                  current?.updated_at ?? issue.updated_at,
+                  issue.updated_at,
                 );
               }
             }

@@ -27,6 +27,7 @@ import {
 import { writeInboundTaskField } from "./apply-observed-task-value";
 import { updateExternalLink } from "./link-manager";
 import { syncLatestTaskValue } from "./sync-latest-task-value";
+import { isTaskInFinalState } from "./task-service";
 import {
   linkedTaskScope,
   integrationTaskRevision,
@@ -236,9 +237,18 @@ async function replayClaimedIssueEdits() {
               return;
             const task = await tx.query.taskTable.findFirst({
               where: linkedTaskScope(link.taskId, integration.projectId),
-              columns: { title: true, description: true, status: true },
+              columns: {
+                title: true,
+                description: true,
+                status: true,
+                columnId: true,
+                projectId: true,
+              },
             });
             if (!task) return;
+            const taskIsClosed = fields.includes("state")
+              ? await isTaskInFinalState(task, tx)
+              : false;
             for (const field of fields) {
               const stamp = current.lastSync?.[field];
               const uncertain = uncertainOutboundIntents(stamp, values[field]);
@@ -247,7 +257,7 @@ async function replayClaimedIssueEdits() {
               );
               const local =
                 field === "state"
-                  ? task.status === "done"
+                  ? taskIsClosed
                     ? "closed"
                     : "open"
                   : field === "description"
@@ -303,7 +313,7 @@ async function replayClaimedIssueEdits() {
                     field,
                     localValue:
                       field === "state"
-                        ? task.status === "done"
+                        ? taskIsClosed
                           ? "closed"
                           : "open"
                         : field === "description"

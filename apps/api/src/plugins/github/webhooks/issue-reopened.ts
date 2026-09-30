@@ -13,6 +13,7 @@ import { publishEvent } from "../../../events";
 import { updateExternalLink } from "../services/link-manager";
 import {
   findAllIntegrationsByRepo,
+  isTaskInFinalState,
   updateTaskStatus,
 } from "../services/task-service";
 import { parseLinkMetadata } from "../utils/parse-link-metadata";
@@ -106,7 +107,9 @@ export async function handleIssueReopened(payload: IssueReopenedPayload) {
                 {
                   linkId: externalLink.id,
                   field: "state",
-                  localValue: task.status === "done" ? "closed" : "open",
+                  localValue: (await isTaskInFinalState(task, db))
+                    ? "closed"
+                    : "open",
                   confirmation,
                 },
               )

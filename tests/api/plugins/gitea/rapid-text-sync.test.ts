@@ -12,6 +12,7 @@ const m = vi.hoisted(() => ({
 vi.mock("../../../../apps/api/src/database", () => ({
   default: {
     query: {
+      columnTable: { findFirst: async () => undefined },
       externalLinkTable: {
         findFirst: async () => ({
           id: "link",
@@ -205,7 +206,12 @@ it("allows a new remote edit back to an older outbound value", async () => {
 
 vi.mock(
   "../../../../apps/api/src/plugins/github/services/task-service",
-  () => ({ updateTaskStatus: m.status }),
+  async (original) => ({
+    ...(await original<
+      typeof import("../../../../apps/api/src/plugins/github/services/task-service")
+    >()),
+    updateTaskStatus: m.status,
+  }),
 );
 vi.mock("../../../../apps/api/src/plugins/gitea/utils/resolve-column", () => ({
   resolveTargetStatus: async (

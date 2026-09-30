@@ -150,7 +150,7 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
                   metadata.lastSync?.title,
                   issue.title,
                   "github",
-                  current?.updated_at ?? issue.updated_at,
+                  issue.updated_at,
                 );
                 console.log(
                   `Updating task title from GitHub: "${changes.title.from}" → "${issue.title}"`,
@@ -200,7 +200,7 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
                   metadata.lastSync?.description,
                   formattedDescription,
                   "github",
-                  current?.updated_at ?? issue.updated_at,
+                  issue.updated_at,
                 );
                 console.log("Updating task description from GitHub");
               }

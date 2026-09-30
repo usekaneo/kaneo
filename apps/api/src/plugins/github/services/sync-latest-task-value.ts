@@ -13,6 +13,7 @@ import {
   integrationTaskRevision,
 } from "./integration-task-scope";
 import { findExternalLinksByTask, updateExternalLink } from "./link-manager";
+import { isTaskInFinalState } from "./task-service";
 
 // Provider requests may complete out of order across API instances. Every late
 // completion repairs the provider using the current, still-linked task value.
@@ -158,12 +159,18 @@ export async function syncLatestTaskValue(
     }
     const task = await db.query.taskTable.findFirst({
       where: linkedTaskScope(taskId, projectId),
-      columns: { title: true, description: true, status: true },
+      columns: {
+        title: true,
+        description: true,
+        status: true,
+        columnId: true,
+        projectId: true,
+      },
     });
     if (!task) return;
     const current =
       field === "state"
-        ? task.status === "done"
+        ? (await isTaskInFinalState(task))
           ? "closed"
           : "open"
         : field === "title"

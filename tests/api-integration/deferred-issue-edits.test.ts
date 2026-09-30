@@ -1930,3 +1930,186 @@ it.each(
     expect(m.write).not.toHaveBeenCalled();
   },
 );
+
+it.each(
+  (["github", "gitea"] as const).flatMap((provider) =>
+    (["title", "description"] as const).map((field) => ({ provider, field })),
+  ),
+)(
+  "keeps the $provider $field webhook version when only the other field is confirmed",
+  async ({ provider, field }) => {
+    const { task, integration, link } = await seed(provider);
+    const confirmedField = field === "title" ? "description" : "title";
+    const before = { title: "title-0", description: "body-0" };
+    const first = { title: "title-1", description: "body-1" };
+    const latest = { title: "title-2", description: "body-2" };
+    const t0 = "2026-09-30T00:00:00Z";
+    const t1 = "2026-09-30T00:00:01Z";
+    const t2 = "2026-09-30T00:00:02Z";
+    const t3 = "2026-09-30T00:00:03Z";
+    await db
+      .update(schema.taskTable)
+      .set(before)
+      .where(eq(schema.taskTable.id, task.id));
+    await db
+      .update(schema.externalLinkTable)
+      .set({
+        metadata: JSON.stringify({
+          lastSync: {
+            [confirmedField]: inboundStamp(
+              undefined,
+              before[confirmedField],
+              provider,
+              t1,
+            ),
+            [field]: inboundStamp(undefined, before[field], provider, t0),
+          },
+        }),
+      })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    // Confirmation reads the whole issue, including a newer edit to the other
+    // field. Its timestamp must not be assigned to that field's older payload.
+    m.read.mockResolvedValue({
+      title: field === "title" ? latest.title : first.title,
+      body: field === "description" ? latest.description : first.description,
+      state: "open",
+      updated_at: t3,
+    });
+    const payload = {
+      action: "edited",
+      issue: {
+        number: 1,
+        title: first.title,
+        body: first.description,
+        updated_at: t1,
+        html_url: link.url,
+      },
+      changes: {
+        title: { from: before.title },
+        body: { from: before.description },
+      },
+      repository: {
+        id: 20,
+        name: "repo",
+        full_name: "owner/repo",
+        owner: { login: "owner" },
+        html_url: "https://git.example/owner/repo",
+      },
+    };
+    if (provider === "github") await handleIssueEdited(payload);
+    else await handleGiteaIssueEdited(payload, integration.id);
+    expect(m.read).toHaveBeenCalled();
+    expect((await current(task.id))?.[field]).toBe(first[field]);
+    expect((await metadata(link.id)).lastSync[field].inboundUpdatedAt).toBe(t1);
+    await deliverField(provider, field, latest[field], t2, integration.id);
+    expect((await current(task.id))?.[field]).toBe(latest[field]);
+  },
+);
+
+it.each(["github", "gitea"])(
+  "keeps %s issues closed when orphaned replay finds a custom final workflow task",
+  async (provider) => {
+    const { task, integration, link } = await seed(provider);
+    const [finalColumn] = await db
+      .insert(schema.columnTable)
+      .values({
+        projectId: task.projectId,
+        name: "Released",
+        slug: "released",
+        position: 10,
+        isFinal: true,
+      })
+      .returning();
+    await db.insert(schema.workflowRuleTable).values({
+      projectId: task.projectId,
+      integrationType: provider,
+      eventType: "issue_closed",
+      columnId: finalColumn.id,
+    });
+    await db
+      .update(schema.taskTable)
+      .set({ status: "released", columnId: finalColumn.id })
+      .where(eq(schema.taskTable.id, task.id));
+    // A genuine remote close has already been applied through the workflow.
+    // An older writer was orphaned; its stale delivery still needs replay.
+    const stamp = inboundStamp(
+      outboundStamp(undefined, "closed", undefined, {
+        intentId: "old-close",
+        pending: true,
+      }),
+      "closed",
+      provider,
+      "2026-09-30T00:00:03Z",
+    );
+    const orphan = stamp.outbound?.find(
+      (entry) => entry.intentId === "old-close",
+    );
+    if (!orphan) throw new Error("Missing orphaned close intent");
+    orphan.timestamp = new Date(Date.now() - 300_001).toISOString();
+    orphan.startedAt = orphan.timestamp;
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: JSON.stringify({ lastSync: { state: stamp } }) })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    m.read.mockResolvedValue({
+      title: "B",
+      body: "old body",
+      state: "closed",
+      updated_at: "2026-09-30T00:00:03Z",
+    });
+    await deferIssueEdit(link, integration, ["state"]);
+    await replayDeferredIssueEdits();
+    expect((await current(task.id))?.status).toBe("released");
+    expect(m.write).not.toHaveBeenCalledWith(
+      expect.objectContaining({ state: "open" }),
+    );
+  },
+);
+
+it.each(
+  (["github", "gitea"] as const).flatMap((provider) =>
+    [true, false].map((isFinal) => ({ provider, isFinal })),
+  ),
+)(
+  "repairs a late $provider close using the custom column's final flag ($isFinal)",
+  async ({ provider, isFinal }) => {
+    const { task, integration, link } = await seed(provider);
+    const [column] = await db
+      .insert(schema.columnTable)
+      .values({
+        projectId: task.projectId,
+        name: "Custom",
+        slug: "custom",
+        position: 10,
+        isFinal,
+      })
+      .returning();
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: "{}" })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    const write = vi.fn(async (_state: string) => {
+      if (write.mock.calls.length === 1) {
+        await db
+          .update(schema.taskTable)
+          .set({ status: column.slug, columnId: column.id })
+          .where(eq(schema.taskTable.id, task.id));
+      }
+      return "2026-09-30T00:00:04Z";
+    });
+    await syncLatestTaskValue(
+      task.id,
+      task.projectId,
+      link,
+      "state",
+      "closed",
+      write,
+      undefined,
+      integration,
+    );
+    expect(write.mock.calls.map(([state]) => state)).toEqual(
+      isFinal ? ["closed"] : ["closed", "open"],
+    );
+    expect((await metadata(link.id)).state).toBe(isFinal ? "closed" : "open");
+  },
+);

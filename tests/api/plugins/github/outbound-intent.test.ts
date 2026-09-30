@@ -19,7 +19,12 @@ const m = vi.hoisted(() => ({
   save: vi.fn(),
 }));
 vi.mock("../../../../apps/api/src/database", () => ({
-  default: { query: { taskTable: { findFirst: async () => m.current } } },
+  default: {
+    query: {
+      taskTable: { findFirst: async () => m.current },
+      columnTable: { findFirst: async () => undefined },
+    },
+  },
 }));
 vi.mock(
   "../../../../apps/api/src/plugins/github/services/link-manager",

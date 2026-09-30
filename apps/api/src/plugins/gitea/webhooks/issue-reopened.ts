@@ -17,7 +17,10 @@ import db from "../../../database";
 import { externalLinkTable } from "../../../database/schema";
 import { publishEvent } from "../../../events";
 import { updateExternalLink } from "../../github/services/link-manager";
-import { updateTaskStatus } from "../../github/services/task-service";
+import {
+  isTaskInFinalState,
+  updateTaskStatus,
+} from "../../github/services/task-service";
 import {
   findAllIntegrationsByGiteaRepo,
   repoOwnerLogin,
@@ -120,7 +123,9 @@ export async function handleGiteaIssueReopened(
                   {
                     linkId: externalLink.id,
                     field: "state",
-                    localValue: task.status === "done" ? "closed" : "open",
+                    localValue: (await isTaskInFinalState(task, db))
+                      ? "closed"
+                      : "open",
                     confirmation,
                   },
                 )

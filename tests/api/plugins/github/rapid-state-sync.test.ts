@@ -4,7 +4,10 @@ import { handleTaskStatusChanged as gitea } from "../../../../apps/api/src/plugi
 const m = vi.hoisted(() => ({ status: "", write: vi.fn(), save: vi.fn() }));
 vi.mock("../../../../apps/api/src/database", () => ({
   default: {
-    query: { taskTable: { findFirst: async () => ({ status: m.status }) } },
+    query: {
+      taskTable: { findFirst: async () => ({ status: m.status }) },
+      columnTable: { findFirst: async () => undefined },
+    },
   },
 }));
 vi.mock(
