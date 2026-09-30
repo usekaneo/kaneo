@@ -231,6 +231,12 @@ export async function handleGitlabIssueUpdated(
                 },
                 db,
               );
+              afterCommit(() =>
+                publishEvent("task.updated", {
+                  projectId: integration.projectId,
+                  taskId: task.id,
+                }),
+              );
             }
           }
 
@@ -283,6 +289,12 @@ export async function handleGitlabIssueUpdated(
               nonSystemLabels(currentLabels),
               changes?.labels?.previous,
               db,
+            );
+            afterCommit(() =>
+              publishEvent("task.labels_updated", {
+                projectId: integration.projectId,
+                taskId: task.id,
+              }),
             );
           }
         },

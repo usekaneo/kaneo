@@ -1,3 +1,4 @@
+import { publishEvent } from "../../../events";
 import { withIntegrationLink } from "../services/with-integration-link";
 import { linkedTaskScope } from "../services/integration-task-scope";
 import { taskTable } from "../../../database/schema";
@@ -72,7 +73,7 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
     await withIntegrationLink(
       externalLink,
       integration,
-      async (db, _afterCommit, externalLink) => {
+      async (db, afterCommit, externalLink) => {
         const task = await db.query.taskTable.findFirst({
           where: linkedTaskScope(externalLink.taskId, integration.projectId),
         });
@@ -186,6 +187,12 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
               metadata: updatedMetadata,
             },
             db,
+          );
+          afterCommit(() =>
+            publishEvent("task.updated", {
+              projectId: integration.projectId,
+              taskId: externalLink.taskId,
+            }),
           );
 
           console.log(

@@ -208,15 +208,35 @@ export async function handleGiteaIssueLabeled(
                 giteaLabelsForSync(issue.labels),
                 db,
               );
+              afterCommit(() =>
+                publishEvent("task.labels_updated", {
+                  projectId: integration.projectId,
+                  taskId: existingLink.taskId,
+                }),
+              );
             }
             return;
           }
 
           if (!addedLabel) {
+            if (priority)
+              afterCommit(() =>
+                publishEvent("task.updated", {
+                  projectId: integration.projectId,
+                  taskId: existingLink.taskId,
+                }),
+              );
             return;
           }
 
           if (isSystemLabelName(addedLabel.name)) {
+            if (priority)
+              afterCommit(() =>
+                publishEvent("task.updated", {
+                  projectId: integration.projectId,
+                  taskId: existingLink.taskId,
+                }),
+              );
             return;
           }
 
@@ -273,6 +293,12 @@ export async function handleGiteaIssueLabeled(
               await db.delete(labelTable).where(eq(labelTable.id, label.id));
             }
           }
+          afterCommit(() =>
+            publishEvent("task.labels_updated", {
+              projectId: integration.projectId,
+              taskId: existingLink.taskId,
+            }),
+          );
         },
       );
     } catch (error) {

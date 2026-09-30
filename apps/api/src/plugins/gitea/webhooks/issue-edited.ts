@@ -1,3 +1,4 @@
+import { publishEvent } from "../../../events";
 import { withIntegrationLink } from "../../github/services/with-integration-link";
 import { linkedTaskScope } from "../../github/services/integration-task-scope";
 import { taskTable } from "../../../database/schema";
@@ -66,7 +67,7 @@ export async function handleGiteaIssueEdited(
     await withIntegrationLink(
       externalLink,
       integration,
-      async (db, _afterCommit, externalLink) => {
+      async (db, afterCommit, externalLink) => {
         const task = await db.query.taskTable.findFirst({
           where: linkedTaskScope(externalLink.taskId, integration.projectId),
         });
@@ -160,6 +161,12 @@ export async function handleGiteaIssueEdited(
               metadata: updatedMetadata,
             },
             db,
+          );
+          afterCommit(() =>
+            publishEvent("task.updated", {
+              projectId: integration.projectId,
+              taskId: externalLink.taskId,
+            }),
           );
         }
 

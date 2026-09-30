@@ -2,6 +2,7 @@ import { createId } from "@paralleldrive/cuid2";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
+import { publishEvent } from "../../events";
 import {
   activityTable,
   columnTable,
@@ -212,6 +213,9 @@ export async function importIssues(projectId: string, runId?: string) {
         if (!saved) throw conflict();
         return saved;
       });
+      // Each bounded page is durable before other clients refresh, including
+      // continuation pages that change labels, comments or linked resources.
+      await publishEvent("project.updated", { projectId });
     }
     return importProgress(run.runId, run.state);
   });

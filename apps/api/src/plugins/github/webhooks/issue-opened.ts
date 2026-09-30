@@ -1,5 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
+import { publishEvent } from "../../../events";
 import {
   columnTable,
   integrationTable,
@@ -130,6 +131,7 @@ export async function handleIssueOpened(payload: IssueOpenedPayload) {
       return task;
     });
     if (!createdTask) continue;
+    await publishEvent("task.created", { projectId, taskId: createdTask.id });
 
     const project = await db.query.projectTable.findFirst({
       where: eq(projectTable.id, projectId),
