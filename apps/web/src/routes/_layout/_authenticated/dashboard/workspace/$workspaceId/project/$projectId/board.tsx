@@ -85,7 +85,12 @@ function RouteComponent() {
   const { projectId, workspaceId } = Route.useParams();
   const { taskId } = Route.useSearch();
   const navigate = useNavigate();
-  const { data } = useGetTasks(projectId);
+  const {
+    data,
+    isError: boardError,
+    isFetching: boardFetching,
+    refetch: retryBoard,
+  } = useGetTasks(projectId);
   const { project, setProject } = useProjectStore();
   const { viewMode, setViewMode } = useUserPreferencesStore();
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
@@ -300,6 +305,18 @@ function RouteComponent() {
           </p>
         )}
 
+        {boardError && (
+          <p role="alert" className="p-4 text-destructive">
+            {t("tasks:calendar.loadError")}{" "}
+            <button
+              type="button"
+              className="underline"
+              onClick={() => void retryBoard()}
+            >
+              {t("tasks:descriptionRetry")}
+            </button>
+          </p>
+        )}
         <div
           className={cn("flex h-full flex-1 overflow-hidden", {
             "bg-background": !background,
@@ -309,18 +326,24 @@ function RouteComponent() {
             viewMode === "board" ? (
               <KanbanBoard
                 project={sortedProject}
+                disableCollectionActions={boardFetching || boardError}
                 disableDragDrop={
-                  sort.field !== "position" && sort.field !== "number"
+                  boardFetching ||
+                  boardError ||
+                  (sort.field !== "position" && sort.field !== "number")
                 }
                 sortedByNumber={sort.field === "number"}
               />
             ) : (
               <ListView
                 project={sortedProject}
-                disableDragDrop={sort.field !== "position"}
+                disableCollectionActions={boardFetching || boardError}
+                disableDragDrop={
+                  boardFetching || boardError || sort.field !== "position"
+                }
               />
             )
-          ) : (
+          ) : boardError ? null : (
             <BoardSkeleton />
           )}
         </div>

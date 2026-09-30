@@ -1,6 +1,6 @@
 {
-  "id": "97f81269-8e8e-4eab-bc0a-79300d79bfa4",
-  "prevId": "f3f8969a-f5cf-42d2-bdea-77f4a97e0950",
+  "id": "4979d93d-0739-4b09-8ce2-43eb47c915c5",
+  "prevId": "34e70d06-88aa-4af7-bb27-8b57ff0819a7",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1756,6 +1756,22 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "external_link_deferred_issue_idx": {
+          "name": "external_link_deferred_issue_idx",
+          "columns": [
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"external_link\".\"resource_type\" = 'issue' AND \"external_link\".\"metadata\" LIKE '%\"deferredIssueEdit\":%'",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -2965,38 +2981,6 @@
           ]
         }
       },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.storage_cleanup": {
-      "name": "storage_cleanup",
-      "schema": "",
-      "columns": {
-        "object_key": {
-          "name": "object_key",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "last_attempt_at": {
-          "name": "last_attempt_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

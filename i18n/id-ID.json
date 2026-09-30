@@ -2329,6 +2329,8 @@
 			"labels": "Label",
 			"copyTaskLink": "Salin tautan tugas",
 			"copyTaskBranch": "Salin branch tugas",
+			"taskLinkCopied": "Tautan tugas disalin",
+			"taskBranchCopied": "Nama branch disalin",
 			"start": "Mulai",
 			"startDate": "Tanggal mulai",
 			"noDate": "Tanpa tanggal"
@@ -2598,6 +2600,9 @@
 		"checklistProgress": "{{completed}} dari {{total}} item daftar periksa selesai",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"board": {
+			"reorderFailed": "Could not move task. Please try again."
 		}
 	},
 	"invitations": {

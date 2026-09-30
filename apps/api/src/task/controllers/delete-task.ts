@@ -26,11 +26,15 @@ async function deleteTask(taskId: string, currentUserId: string) {
 
   const deletedTask = await db.transaction(async (tx) => {
     const [locked] = await tx
-      .select({ id: taskTable.id })
+      .select({ id: taskTable.id, projectId: taskTable.projectId })
       .from(taskTable)
       .where(eq(taskTable.id, taskId))
       .for("update");
     if (!locked) throw new HTTPException(404, { message: "Task not found" });
+    if (locked.projectId !== task.projectId)
+      throw new HTTPException(409, {
+        message: "Task changed projects; retry the operation",
+      });
     const assets = await tx
       .select({ objectKey: assetTable.objectKey })
       .from(assetTable)
