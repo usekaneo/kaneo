@@ -183,7 +183,33 @@ export async function replayDeferredIssueEdits() {
         const revision = await taskRevision(link.taskId, integration.projectId);
         if (!revision) continue;
         const provider = await issueAccess(integration, link);
-        const issue = await provider.read();
+        let issue: Awaited<ReturnType<typeof provider.read>>;
+        try {
+          issue = await provider.read();
+        } catch (error) {
+          if (
+            typeof error !== "object" ||
+            error === null ||
+            !("status" in error) ||
+            error.status !== 404
+          )
+            throw error;
+          // Only retire this read's job; credentials, binding, or queued fields
+          // may have changed while the provider request was in flight.
+          await withIntegrationLink(
+            link,
+            integration,
+            async (tx) => {
+              await updateExternalLink(
+                link.id,
+                { completeDeferredEdit: job.id },
+                tx,
+              );
+            },
+            integration,
+          );
+          continue;
+        }
         if (
           typeof issue.title !== "string" ||
           !["open", "closed"].includes(issue.state)

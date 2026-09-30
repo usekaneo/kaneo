@@ -532,3 +532,83 @@ it("protects a local ABA edit even when its final fields and timestamp are uncha
   expect((await current(task.id))?.description).toBe("old body");
   expect((await metadata(link.id)).deferredIssueEdit).toBeDefined();
 });
+
+it.each(["github", "gitea"])(
+  "retires a deleted %s issue's deferred read without removing its link or task",
+  async (provider) => {
+    const { task, integration, link } = await seed(provider);
+    await deferIssueEdit(link, integration, ["description"]);
+    m.read.mockRejectedValue(
+      Object.assign(new Error("not found"), { status: 404 }),
+    );
+    expect(await replayDeferredIssueEdits()).toEqual({ degraded: false });
+    expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+    expect(await current(task.id)).toMatchObject({
+      title: "B",
+      description: "old body",
+    });
+    expect(
+      await db.query.externalLinkTable.findFirst({
+        where: eq(schema.externalLinkTable.id, link.id),
+      }),
+    ).toBeDefined();
+    expect(publishEvent).not.toHaveBeenCalled();
+    expect(m.write).not.toHaveBeenCalled();
+    await replayDeferredIssueEdits();
+    expect(m.read).toHaveBeenCalledOnce();
+  },
+);
+it.each([403, 429, 500, 408])(
+  "retains a deferred issue read after HTTP %s",
+  async (status) => {
+    const { integration, link } = await seed();
+    await deferIssueEdit(link, integration, ["description"]);
+    m.read.mockRejectedValue(
+      Object.assign(new Error("provider unavailable"), { status }),
+    );
+    expect(await replayDeferredIssueEdits()).toEqual({ degraded: true });
+    expect((await metadata(link.id)).deferredIssueEdit.fields).toEqual([
+      "description",
+    ]);
+  },
+);
+it("preserves a newer job queued while a missing-issue read is in flight", async () => {
+  const { task, integration, link } = await seed();
+  await deferIssueEdit(link, integration, ["state"]);
+  m.read.mockImplementationOnce(async () => {
+    await deferIssueEdit(link, integration, ["description"]);
+    throw Object.assign(new Error("not found"), { status: 404 });
+  });
+  await replayDeferredIssueEdits();
+  expect((await metadata(link.id)).deferredIssueEdit.fields).toEqual([
+    "state",
+    "description",
+  ]);
+  await replayDeferredIssueEdits();
+  expect(await current(task.id)).toMatchObject({
+    status: "done",
+    description: "recovered body",
+  });
+  expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+});
+it("retains missing-issue work when credentials rotate during the read", async () => {
+  const { task, integration, link } = await seed("gitea");
+  await deferIssueEdit(link, integration, ["description"]);
+  m.read.mockImplementationOnce(async () => {
+    await db
+      .update(schema.integrationTable)
+      .set({
+        config: JSON.stringify({
+          ...JSON.parse(integration.config),
+          accessToken: "rotated-test-secret",
+        }),
+      })
+      .where(eq(schema.integrationTable.id, integration.id));
+    throw Object.assign(new Error("not found"), { status: 404 });
+  });
+  await replayDeferredIssueEdits();
+  expect((await metadata(link.id)).deferredIssueEdit).toBeDefined();
+  await replayDeferredIssueEdits();
+  expect((await current(task.id))?.description).toBe("recovered body");
+  expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+});
