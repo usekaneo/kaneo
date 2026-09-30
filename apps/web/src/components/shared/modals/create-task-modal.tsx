@@ -370,16 +370,16 @@ function CreateTaskModalContent({
 
   const hasUnsavedChanges = Boolean(
     title.trim() ||
-      description.trim() ||
-      priority !== "no-priority" ||
-      assigneeId ||
-      startDate ||
-      dueDate ||
-      trimmedTimeEstimateInput ||
-      selectedProjectId ||
-      labels.length > 0 ||
-      draftTask ||
-      hasCustomFieldChanges,
+    description.trim() ||
+    priority !== "no-priority" ||
+    assigneeId ||
+    startDate ||
+    dueDate ||
+    trimmedTimeEstimateInput ||
+    selectedProjectId ||
+    labels.length > 0 ||
+    draftTask ||
+    hasCustomFieldChanges,
   );
 
   const discardDraft = useCallback(() => {
