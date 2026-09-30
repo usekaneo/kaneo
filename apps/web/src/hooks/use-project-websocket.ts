@@ -121,19 +121,38 @@ export function useProjectWebSocket(projectId: string) {
             "fetching";
           if (boardIsLoading) {
             if (
-              message.type === "TASKS_REORDERED" &&
-              Array.isArray(message.tasks)
+              [
+                "TASK_CREATED",
+                "TASK_DELETED",
+                "TASK_MOVED",
+                "TASKS_REORDERED",
+              ].includes(message.type)
             ) {
-              for (const change of message.tasks)
-                pendingMessages.set(
-                  `TASKS_REORDERED:${change.id}`,
-                  JSON.stringify({ ...message, tasks: [change] }),
-                );
-            } else
-              pendingMessages.set(
-                `${message.type}:${message.taskId ?? ""}:${message.sourceTaskId ?? ""}:${message.targetTaskId ?? ""}`,
-                event.data,
-              );
+              // Offset pages can skip unrelated boundary tasks when membership
+              // or positions change. Reconcile after this fetch completes.
+              needsReconcile = true;
+              markBoardCacheChanged(queryClient, projectId);
+              const ids =
+                message.type === "TASKS_REORDERED"
+                  ? Array.isArray(message.tasks)
+                    ? message.tasks.map((task: { id: string }) => task.id)
+                    : []
+                  : message.taskId
+                    ? [message.taskId]
+                    : [];
+              for (const id of ids) {
+                queryClient.invalidateQueries({ queryKey: ["task", id] });
+                if (message.type === "TASK_MOVED")
+                  queryClient.invalidateQueries({
+                    queryKey: ["external-links", id],
+                  });
+              }
+              return;
+            }
+            pendingMessages.set(
+              `${message.type}:${message.taskId ?? ""}:${message.sourceTaskId ?? ""}:${message.targetTaskId ?? ""}`,
+              event.data,
+            );
             return;
           }
           if (message.type === "TASKS_REORDERED") {

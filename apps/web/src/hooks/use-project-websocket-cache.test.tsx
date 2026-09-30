@@ -77,7 +77,7 @@ beforeEach(() => {
   mocks.client.setQueryData.mockImplementation((_key, value) => {
     mocks.board = typeof value === "function" ? value(mocks.board) : value;
   });
-  mocks.client.invalidateQueries.mockClear();
+  mocks.client.invalidateQueries.mockReset();
   mocks.client.getQueryState.mockReset();
   mocks.subscribe.mockClear();
 });
@@ -374,3 +374,43 @@ it("applies a remote reorder across virtual buckets without waiting for HTTP", (
     expect.objectContaining({ id: "a", status: "archived", columnId: null }),
   );
 });
+
+it.each(["TASK_CREATED", "TASK_DELETED", "TASK_MOVED", "TASKS_REORDERED"])(
+  "reconciles page boundaries after %s arrives during pagination",
+  async (type) => {
+    mocks.client.getQueryState.mockReturnValue({ fetchStatus: "fetching" });
+    mocks.getTask.mockReset();
+    renderHook(() => useProjectWebSocket("p"));
+    Socket.current.message(type, {
+      taskId: "a",
+      tasks: [{ id: "a", position: 2 }],
+    });
+    Socket.current.message(type, {
+      taskId: "b",
+      tasks: [{ id: "b", position: 0 }],
+    });
+    expect(mocks.client.invalidateQueries).not.toHaveBeenCalledWith({
+      queryKey: ["tasks", "p"],
+    });
+    mocks.client.getQueryState.mockReturnValue({ fetchStatus: "idle" });
+    mocks.client.invalidateQueries.mockImplementation(({ queryKey }) => {
+      if (queryKey[0] === "tasks")
+        mocks.client.getQueryState.mockReturnValue({ fetchStatus: "fetching" });
+    });
+    const idle = () =>
+      mocks.subscribe.mock.calls[0][0]({
+        query: { queryKey: ["tasks", "p"], state: { fetchStatus: "idle" } },
+      });
+    idle();
+    await Promise.resolve();
+    mocks.client.getQueryState.mockReturnValue({ fetchStatus: "idle" });
+    idle();
+    await Promise.resolve();
+    expect(
+      mocks.client.invalidateQueries.mock.calls.filter(
+        ([options]) => options.queryKey[0] === "tasks",
+      ),
+    ).toHaveLength(1);
+    expect(mocks.getTask).not.toHaveBeenCalled();
+  },
+);
