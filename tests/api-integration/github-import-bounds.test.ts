@@ -163,9 +163,16 @@ describe("bounded resumable GitHub import", () => {
     serveIssues(9);
     const observedCounts: number[] = [];
     mocks.publish.mockImplementation(async (name, payload) => {
-      expect(name).toBe("project.updated");
-      expect(payload).toEqual({ projectId: project.id });
-      observedCounts.push((await db.query.taskTable.findMany()).length);
+      if (name === "project.updated") {
+        expect(payload).toEqual({ projectId: project.id });
+        observedCounts.push((await db.query.taskTable.findMany()).length);
+      } else {
+        expect(
+          await db.query.taskTable.findFirst({
+            where: eq(schema.taskTable.id, payload.taskId!),
+          }),
+        ).toBeDefined();
+      }
     });
     const first = await request();
     expect(first.status).toBe(202);
@@ -280,6 +287,24 @@ describe("bounded resumable GitHub import", () => {
         return emptyPulls();
       },
     );
+    const delivered: Array<{
+      name: string;
+      priority?: string;
+      labels: number;
+      comments: number;
+    }> = [];
+    mocks.publish.mockImplementation(async (name, payload) => {
+      if (!payload.taskId) return;
+      const committed = await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, payload.taskId),
+      });
+      delivered.push({
+        name,
+        priority: committed?.priority,
+        labels: (await db.query.labelTable.findMany()).length,
+        comments: (await db.query.activityTable.findMany()).length,
+      });
+    });
     let result = await importIssues(project.id);
     expect(result.pending).toBe(true);
     expect((await saved())?.state).toMatchObject({
@@ -290,6 +315,16 @@ describe("bounded resumable GitHub import", () => {
     expect(result.pending).toBe(false);
     expect(await db.query.labelTable.findMany()).toHaveLength(25);
     expect(await db.query.activityTable.findMany()).toHaveLength(82);
+    expect(delivered).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: "task.labels_updated",
+          priority: "urgent",
+          labels: 25,
+        }),
+        expect.objectContaining({ name: "comment.updated", comments: 82 }),
+      ]),
+    );
     expect(await db.query.taskTable.findFirst()).toMatchObject({
       priority: "urgent",
       status: "in-progress",

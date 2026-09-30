@@ -1,4 +1,4 @@
-import { syncLatestTaskText } from "../services/sync-latest-task-text";
+import { syncLatestTaskValue } from "../services/sync-latest-task-value";
 import db from "../../../database";
 import { linkedTaskScope } from "../services/integration-task-scope";
 import type { PluginContext, TaskDescriptionChangedEvent } from "../../types";
@@ -66,7 +66,7 @@ export async function handleTaskDescriptionChanged(
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
 
     // Format description with task ID footer
-    await syncLatestTaskText(
+    await syncLatestTaskValue(
       event.taskId,
       context.projectId,
       issueLink,

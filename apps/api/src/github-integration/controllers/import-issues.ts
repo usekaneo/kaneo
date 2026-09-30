@@ -46,6 +46,7 @@ import {
   initialImportState,
 } from "../import-state";
 
+type ImportEvent = "task.updated" | "task.labels_updated" | "comment.updated";
 type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 async function resolveImportedStatus(
   tx: Transaction,
@@ -173,6 +174,10 @@ export async function importIssues(projectId: string, runId?: string) {
         });
       }
       const currentRun: typeof githubImportTable.$inferSelect = run;
+      const notifications = new Map<
+        string,
+        { type: ImportEvent; taskId: string }
+      >();
       run = await db.transaction(async (tx) => {
         const [currentProject] = await tx
           .select()
@@ -199,7 +204,18 @@ export async function importIssues(projectId: string, runId?: string) {
         )
           throw conflict();
         const state = structuredClone(currentRun.state);
-        await applyPage(tx, payload, state, integration.id, project, config);
+        await applyPage(
+          tx,
+          payload,
+          state,
+          integration.id,
+          project,
+          config,
+          (taskId, ...types) => {
+            for (const type of types)
+              notifications.set(`${type}:${taskId}`, { type, taskId });
+          },
+        );
         const [saved] = await tx
           .update(githubImportTable)
           .set({ state })
@@ -215,6 +231,8 @@ export async function importIssues(projectId: string, runId?: string) {
       });
       // Each bounded page is durable before other clients refresh, including
       // continuation pages that change labels, comments or linked resources.
+      for (const { type, taskId } of notifications.values())
+        await publishEvent(type, { projectId, taskId });
       await publishEvent("project.updated", { projectId });
     }
     return importProgress(run.runId, run.state);
@@ -258,6 +276,7 @@ async function applyPage(
   integrationId: string,
   project: typeof projectTable.$inferSelect,
   config: GitHubConfig,
+  announce: (taskId: string, ...types: ImportEvent[]) => void,
 ) {
   if (state.phase === "issues") {
     const parsed = issuesPageSchema.safeParse(payload);
@@ -298,6 +317,7 @@ async function applyPage(
     };
     await importLabels(tx, issue.labels.nodes, task.id, project.workspaceId);
     await importComments(tx, issue.comments.nodes, task.id, state.startedAt);
+    announce(task.id, "task.updated", "task.labels_updated", "comment.updated");
     nextIssuePart(state);
     return;
   }
@@ -312,7 +332,8 @@ async function applyPage(
         state.phase = "complete";
         return;
       }
-      await linkPull(tx, pull, integrationId, project, config);
+      const taskId = await linkPull(tx, pull, integrationId, project, config);
+      if (taskId) announce(taskId, "task.updated");
     }
     if (!page.pageInfo.hasNextPage || page.nodes.length === 0)
       state.phase = "complete";
@@ -384,6 +405,7 @@ async function applyPage(
       label.name.startsWith("status:"),
     );
     await importLabels(tx, labels, task.id, project.workspaceId);
+    announce(task.id, "task.updated", "task.labels_updated");
     nextIssuePart(state);
   } else if (state.phase === "comments") {
     const parsed = commentsPageSchema.safeParse(payload);
@@ -403,6 +425,7 @@ async function applyPage(
     );
     current.moreComments = page.pageInfo.hasNextPage && comments.length > 0;
     await importComments(tx, comments, task.id, state.startedAt);
+    announce(task.id, "comment.updated");
     nextIssuePart(state);
   }
 }
@@ -597,4 +620,5 @@ async function linkPull(
       author: pull.author?.login,
     }),
   });
+  return task.id;
 }

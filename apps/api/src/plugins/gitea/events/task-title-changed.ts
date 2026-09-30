@@ -1,4 +1,4 @@
-import { syncLatestTaskText } from "../../github/services/sync-latest-task-text";
+import { syncLatestTaskValue } from "../../github/services/sync-latest-task-value";
 import db from "../../../database";
 import { linkedTaskScope } from "../../github/services/integration-task-scope";
 import { findExternalLinksByTask } from "../../github/services/link-manager";
@@ -83,7 +83,7 @@ export async function handleTaskTitleChanged(
       return;
     }
 
-    await syncLatestTaskText(
+    await syncLatestTaskValue(
       event.taskId,
       context.projectId,
       issueLink,

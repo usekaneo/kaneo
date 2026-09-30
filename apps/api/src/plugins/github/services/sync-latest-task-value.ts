@@ -4,11 +4,11 @@ import { findExternalLinksByTask, updateExternalLink } from "./link-manager";
 
 // Provider requests may complete out of order across API instances. Every late
 // completion repairs the provider using the current, still-linked task value.
-export async function syncLatestTaskText(
+export async function syncLatestTaskValue(
   taskId: string,
   projectId: string,
   link: { id: string; integrationId: string | null },
-  field: "title" | "description",
+  field: "title" | "description" | "state",
   initialValue: string,
   write: (value: string) => Promise<string | undefined>,
 ) {
@@ -18,13 +18,23 @@ export async function syncLatestTaskText(
     await updateExternalLink(link.id, {
       ...(field === "title" ? { title: value } : {}),
       outbound: { field, value, updatedAt },
+      ...(field === "state"
+        ? { metadata: { state: value, lastOutboundStateSyncAt: Date.now() } }
+        : {}),
     });
     const task = await db.query.taskTable.findFirst({
       where: linkedTaskScope(taskId, projectId),
-      columns: { title: true, description: true },
+      columns: { title: true, description: true, status: true },
     });
     if (!task) return;
-    const current = field === "title" ? task.title : task.description || "";
+    const current =
+      field === "state"
+        ? task.status === "done"
+          ? "closed"
+          : "open"
+        : field === "title"
+          ? task.title
+          : task.description || "";
     if (current === value) return;
     const stillLinked = (await findExternalLinksByTask(taskId)).some(
       (currentLink) =>

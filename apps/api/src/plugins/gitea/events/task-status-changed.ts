@@ -1,7 +1,5 @@
-import {
-  findExternalLinksByTask,
-  updateExternalLink,
-} from "../../github/services/link-manager";
+import { syncLatestTaskValue } from "../../github/services/sync-latest-task-value";
+import { findExternalLinksByTask } from "../../github/services/link-manager";
 import type { PluginContext, TaskStatusChangedEvent } from "../../types";
 import type { GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
@@ -39,42 +37,23 @@ export async function handleTaskStatusChanged(
       `status:${event.newStatus}`,
     ]);
 
-    if (event.newStatus === "done") {
-      const response = await client.updateIssue(
-        repositoryOwner,
-        repositoryName,
-        issueNumber,
-        {
-          state: "closed",
+    if (event.newStatus === "done" || event.oldStatus === "done") {
+      await syncLatestTaskValue(
+        event.taskId,
+        event.projectId,
+        issueLink,
+        "state",
+        event.newStatus === "done" ? "closed" : "open",
+        async (value) => {
+          const response = await client.updateIssue(
+            repositoryOwner,
+            repositoryName,
+            issueNumber,
+            { state: value === "closed" ? "closed" : "open" },
+          );
+          return response?.updated_at;
         },
       );
-
-      await updateExternalLink(issueLink.id, {
-        outbound: {
-          field: "state",
-          value: "closed",
-          updatedAt: response?.updated_at,
-        },
-        metadata: { state: "closed", lastOutboundStateSyncAt: Date.now() },
-      });
-    } else if (event.oldStatus === "done" && event.newStatus !== "done") {
-      const response = await client.updateIssue(
-        repositoryOwner,
-        repositoryName,
-        issueNumber,
-        {
-          state: "open",
-        },
-      );
-
-      await updateExternalLink(issueLink.id, {
-        outbound: {
-          field: "state",
-          value: "open",
-          updatedAt: response?.updated_at,
-        },
-        metadata: { state: "open", lastOutboundStateSyncAt: Date.now() },
-      });
     }
   } catch (error) {
     console.error("Failed to update Gitea issue status:", error);

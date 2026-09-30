@@ -1,9 +1,7 @@
+import { syncLatestTaskValue } from "../services/sync-latest-task-value";
 import type { PluginContext, TaskStatusChangedEvent } from "../../types";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
-import {
-  findExternalLinksByTask,
-  updateExternalLink,
-} from "../services/link-manager";
+import { findExternalLinksByTask } from "../services/link-manager";
 import {
   getGithubApp,
   getVerifiedInstallationOctokit,
@@ -54,38 +52,23 @@ export async function handleTaskStatusChanged(
       [`status:${event.newStatus}`],
     );
 
-    if (event.newStatus === "done") {
-      const response = await octokit.rest.issues.update({
-        owner: repositoryOwner,
-        repo: repositoryName,
-        issue_number: issueNumber,
-        state: "closed",
-      });
-
-      await updateExternalLink(issueLink.id, {
-        outbound: {
-          field: "state",
-          value: "closed",
-          updatedAt: response?.data?.updated_at,
+    if (event.newStatus === "done" || event.oldStatus === "done") {
+      await syncLatestTaskValue(
+        event.taskId,
+        event.projectId,
+        issueLink,
+        "state",
+        event.newStatus === "done" ? "closed" : "open",
+        async (value) => {
+          const response = await octokit.rest.issues.update({
+            owner: repositoryOwner,
+            repo: repositoryName,
+            issue_number: issueNumber,
+            state: value === "closed" ? "closed" : "open",
+          });
+          return response?.data?.updated_at;
         },
-        metadata: { state: "closed" },
-      });
-    } else if (event.oldStatus === "done" && event.newStatus !== "done") {
-      const response = await octokit.rest.issues.update({
-        owner: repositoryOwner,
-        repo: repositoryName,
-        issue_number: issueNumber,
-        state: "open",
-      });
-
-      await updateExternalLink(issueLink.id, {
-        outbound: {
-          field: "state",
-          value: "open",
-          updatedAt: response?.data?.updated_at,
-        },
-        metadata: { state: "open" },
-      });
+      );
     }
   } catch (error) {
     console.error("Failed to update GitHub issue status:", error);
