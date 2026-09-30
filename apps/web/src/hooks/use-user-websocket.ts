@@ -3,7 +3,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { getApiUrl } from "@/fetchers/get-api-url";
-import { evictWorkspaceCache } from "@/lib/evict-workspace-cache";
+import {
+  evictInaccessibleWorkspaceCache,
+  evictWorkspaceCache,
+} from "@/lib/evict-workspace-cache";
 import { authClient } from "@/lib/auth-client";
 
 export function getUserWsUrl() {
@@ -71,7 +74,22 @@ export function useUserWebSocket() {
           const message = JSON.parse(event.data as string) as {
             type?: string;
             workspaceId?: string;
+            workspaceIds?: string[] | null;
           };
+          if (
+            message.type === "WORKSPACE_ACCESS_SYNC" &&
+            Array.isArray(message.workspaceIds) &&
+            message.workspaceIds.every((id) => typeof id === "string")
+          ) {
+            evictInaccessibleWorkspaceCache(queryClient, message.workspaceIds);
+            const path = pathnameRef.current;
+            const current =
+              /^\/dashboard\/settings\/(workspace|projects)(\/|$)/.test(path)
+                ? activeWorkspaceRef.current
+                : path.match(/^\/dashboard\/workspace\/([^/]+)/)?.[1];
+            if (current && !message.workspaceIds.includes(current))
+              void navigate({ to: "/dashboard" });
+          }
           if (
             message.type === "WORKSPACE_ACCESS_REVOKED" &&
             message.workspaceId

@@ -200,4 +200,18 @@ describe("user WebSocket lifecycle", () => {
     expect(navigate).not.toHaveBeenCalled();
     expect(client.removeQueries).toHaveBeenCalledOnce();
   });
+
+  it("redirects after a reconnect snapshot reveals a missed workspace revocation", () => {
+    renderHook(useUserWebSocket);
+    act(() =>
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({
+          type: "WORKSPACE_ACCESS_SYNC",
+          workspaceIds: ["other"],
+        }),
+      }),
+    );
+    expect(navigate).toHaveBeenCalledWith({ to: "/dashboard" });
+    expect(client.removeQueries).toHaveBeenCalledOnce();
+  });
 });

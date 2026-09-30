@@ -36,7 +36,7 @@ import {
 import type { AccessControl } from "better-auth/plugins/access";
 import type { UserWithAnonymous } from "better-auth/plugins/anonymous";
 import { config } from "dotenv-mono";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import {
   findBillableWorkspaces,
   formatBillableWorkspacesMessage,
@@ -815,22 +815,23 @@ export const auth = betterAuth({
     }),
     after: createAuthMiddleware(async (ctx) => {
       if (ctx.path === "/organization/leave") {
-        const session = await getSessionFromCtx(ctx, { disableRefresh: true });
-        const userId = session?.user.id;
-        const workspaceId = ctx.body?.organizationId;
-        if (userId && typeof workspaceId === "string") {
-          const [membership] = await db
-            .select({ id: schema.workspaceUserTable.id })
-            .from(schema.workspaceUserTable)
-            .where(
-              and(
-                eq(schema.workspaceUserTable.userId, userId),
-                eq(schema.workspaceUserTable.workspaceId, workspaceId),
-              ),
-            )
-            .limit(1);
-          if (!membership)
-            await revokeWorkspaceConnections(userId, workspaceId);
+        // The successful endpoint returns the removed member. No post-delete
+        // query may prevent revocation after membership has already committed.
+        const removed = ctx.context.returned as
+          | { userId?: string; organizationId?: string }
+          | undefined;
+        if (
+          typeof removed?.userId === "string" &&
+          typeof removed.organizationId === "string" &&
+          removed.organizationId === ctx.body?.organizationId
+        ) {
+          await revokeWorkspaceConnections(
+            removed.userId,
+            removed.organizationId,
+            {
+              role: ctx.context.session?.user.role ?? null,
+            },
+          );
         }
       }
 

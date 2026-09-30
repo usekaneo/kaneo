@@ -1,6 +1,9 @@
 import { QueryClient } from "@tanstack/react-query";
 import { expect, it } from "vite-plus/test";
-import { evictWorkspaceCache } from "./evict-workspace-cache";
+import {
+  evictInaccessibleWorkspaceCache,
+  evictWorkspaceCache,
+} from "./evict-workspace-cache";
 
 it("evicts revoked and unscoped private data while preserving another workspace's board", () => {
   const client = new QueryClient();
@@ -62,5 +65,26 @@ it("cancels unknown project settings reads when membership is revoked", async ()
     await pending.catch(() => undefined);
     expect(client.getQueryData([prefix, "unknown-project"])).toBeUndefined();
   }
+  client.clear();
+});
+
+it("reconciles missed revocations against a reconnect access snapshot", () => {
+  const client = new QueryClient();
+  const active = { id: "active-project", workspaceId: "active", columns: [] };
+  client.setQueryData(["tasks", "active-project"], active);
+  client.setQueryData(["tasks", "old-project"], {
+    id: "old-project",
+    workspaceId: "revoked",
+    columns: [],
+  });
+  client.setQueryData(["github-integration", "unknown-project"], {
+    repository: "private",
+  });
+  evictInaccessibleWorkspaceCache(client, ["active"]);
+  expect(client.getQueryData(["tasks", "active-project"])).toEqual(active);
+  expect(client.getQueryData(["tasks", "old-project"])).toBeUndefined();
+  expect(
+    client.getQueryData(["github-integration", "unknown-project"]),
+  ).toBeUndefined();
   client.clear();
 });

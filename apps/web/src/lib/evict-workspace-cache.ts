@@ -1,8 +1,23 @@
 import type { QueryClient } from "@tanstack/react-query";
 
 export function evictWorkspaceCache(client: QueryClient, workspaceId: string) {
+  evictPrivateQueries(client, workspaceId);
+}
+
+export function evictInaccessibleWorkspaceCache(
+  client: QueryClient,
+  workspaceIds: string[],
+) {
+  evictPrivateQueries(client, undefined, new Set(workspaceIds));
+}
+
+function evictPrivateQueries(
+  client: QueryClient,
+  workspaceId?: string,
+  allowed?: Set<string>,
+) {
   const queries = client.getQueryCache().getAll();
-  const ids = new Set([workspaceId]);
+  const ids = new Set<string>(workspaceId ? [workspaceId] : []);
   const scopes = new Map<string, string>();
   const visit = (
     value: unknown,
@@ -26,7 +41,13 @@ export function evictWorkspaceCache(client: QueryClient, workspaceId: string) {
         typeof record.id === "string"
       )
         scopes.set(record.id, record.workspaceId);
-      if (record.workspaceId === workspaceId && typeof record.id === "string")
+      if (
+        typeof record.workspaceId === "string" &&
+        (allowed
+          ? !allowed.has(record.workspaceId)
+          : record.workspaceId === workspaceId) &&
+        typeof record.id === "string"
+      )
         ids.add(record.id);
     });
   for (const query of queries)
@@ -49,6 +70,9 @@ export function evictWorkspaceCache(client: QueryClient, workspaceId: string) {
     let affected = false;
     visit([query.queryKey, query.state.data], (record) => {
       if (
+        (allowed &&
+          typeof record.workspaceId === "string" &&
+          !allowed.has(record.workspaceId)) ||
         Object.values(record).some(
           (value) => typeof value === "string" && ids.has(value),
         )
@@ -59,7 +83,9 @@ export function evictWorkspaceCache(client: QueryClient, workspaceId: string) {
       (value) =>
         typeof value === "string" &&
         scopes.has(value) &&
-        scopes.get(value) !== workspaceId,
+        (allowed
+          ? allowed.has(scopes.get(value)!)
+          : scopes.get(value) !== workspaceId),
     );
     const privatePrefixes = new Set([
       "github-repositories",
