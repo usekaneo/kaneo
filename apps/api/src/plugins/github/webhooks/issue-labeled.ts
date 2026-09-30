@@ -1,7 +1,5 @@
-import {
-  linkedTaskScope,
-  withIntegrationTask,
-} from "../services/integration-task-scope";
+import { withIntegrationLink } from "../services/with-integration-link";
+import { linkedTaskScope } from "../services/integration-task-scope";
 import { eq } from "drizzle-orm";
 import { labelTable, taskTable } from "../../../database/schema";
 import { publishEvent } from "../../../events";
@@ -49,10 +47,10 @@ export async function handleIssueLabeled(payload: IssueLabeledPayload) {
       continue;
     }
 
-    await withIntegrationTask(
-      existingLink.taskId,
+    await withIntegrationLink(
+      existingLink,
       integration,
-      async (db, afterCommit) => {
+      async (db, afterCommit, existingLink) => {
         const priority = extractIssuePriority(issue.labels);
         const status = extractIssueStatus(issue.labels);
 

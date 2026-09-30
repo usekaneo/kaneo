@@ -149,3 +149,26 @@ vi.mock(
     };
   },
 );
+
+vi.mock(
+  "../../../../../apps/api/src/plugins/github/services/with-integration-link",
+  async () => ({
+    withIntegrationLink: async (
+      link: unknown,
+      integration: unknown,
+      apply: (
+        database: unknown,
+        afterCommit: (effect: () => Promise<void>) => void,
+        link: unknown,
+      ) => Promise<unknown>,
+    ) => {
+      const { withIntegrationTask } =
+        await import("../../../../../apps/api/src/plugins/github/services/integration-task-scope");
+      return withIntegrationTask(
+        (link as { taskId: string }).taskId,
+        integration as Parameters<typeof withIntegrationTask>[1],
+        (database, afterCommit) => apply(database, afterCommit, link),
+      );
+    },
+  }),
+);

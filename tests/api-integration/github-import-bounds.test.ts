@@ -5,6 +5,7 @@ import { importIssues } from "../../apps/api/src/github-integration/controllers/
 import { withGithubImportLock } from "../../apps/api/src/github-integration/import-lock";
 import { IMPORT_PAGES_PER_REQUEST } from "../../apps/api/src/github-integration/import-pages";
 import { createApp } from "../../apps/api/src/index";
+import moveTask from "../../apps/api/src/task/controllers/move-task";
 import { handleIssueOpened } from "../../apps/api/src/plugins/github/webhooks/issue-opened";
 import { mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
@@ -632,3 +633,85 @@ describe("bounded resumable GitHub import", () => {
     ).toHaveLength(25);
   });
 });
+
+it.each(["labels", "comments"])(
+  "skips unlinked GitHub %s continuation data after a task moves away and back",
+  async (phase) => {
+    const { project, member } = await setup();
+    const { project: destination } = await createProjectFixture({
+      workspaceId: project.workspaceId,
+    });
+    let movedTaskId: string | undefined;
+    mocks.graphql.mockImplementation(async (query: string) => {
+      if (query.includes("query ImportIssues("))
+        return issuePage([
+          issue(
+            1,
+            phase === "labels"
+              ? { labels: connection([label(1)], true, "first", 2) }
+              : { comments: connection([comment(1)], true, "first", 2) },
+          ),
+        ]);
+      if (
+        query.includes(
+          phase === "labels"
+            ? "query ImportIssueLabels("
+            : "query ImportIssueComments(",
+        )
+      ) {
+        const task = await db.query.taskTable.findFirst({
+          where: eq(schema.taskTable.projectId, project.id),
+        });
+        movedTaskId = task!.id;
+        await moveTask({
+          taskId: task!.id,
+          destinationProjectId: destination.id,
+          userId: member.user.id,
+        });
+        await moveTask({
+          taskId: task!.id,
+          destinationProjectId: project.id,
+          userId: member.user.id,
+        });
+        return {
+          repository: {
+            databaseId: 2,
+            issue:
+              phase === "labels"
+                ? {
+                    labels: connection([
+                      { name: "status:in-progress", color: "ffffff" },
+                      label(2),
+                    ]),
+                  }
+                : { comments: connection([comment(2)]) },
+          },
+        };
+      }
+      return emptyPulls();
+    });
+    expect(await importIssues(project.id)).toMatchObject({
+      pending: false,
+      skipped: 1,
+    });
+    const saved = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, movedTaskId!),
+    });
+    expect(saved?.status).toBe("to-do");
+    expect(
+      await db.query.externalLinkTable.findMany({
+        where: eq(schema.externalLinkTable.taskId, movedTaskId!),
+      }),
+    ).toEqual([]);
+    const labels = await db.query.labelTable.findMany({
+      where: eq(schema.labelTable.taskId, movedTaskId!),
+    });
+    expect(labels.some((row) => row.name === "label-2")).toBe(false);
+    const comments = await db.query.activityTable.findMany({
+      where: eq(schema.activityTable.taskId, movedTaskId!),
+    });
+    expect(comments.some((row) => row.externalUrl === comment(2).url)).toBe(
+      false,
+    );
+  },
+);

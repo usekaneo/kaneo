@@ -1,7 +1,5 @@
-import {
-  linkedTaskScope,
-  withIntegrationTask,
-} from "../services/integration-task-scope";
+import { withIntegrationLink } from "../services/with-integration-link";
+import { linkedTaskScope } from "../services/integration-task-scope";
 import { taskTable } from "../../../database/schema";
 import { findExternalLink, updateExternalLink } from "../services/link-manager";
 import { findAllIntegrationsByRepo } from "../services/task-service";
@@ -71,132 +69,136 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
       continue;
     }
 
-    await withIntegrationTask(externalLink.taskId, integration, async (db) => {
-      const task = await db.query.taskTable.findFirst({
-        where: linkedTaskScope(externalLink.taskId, integration.projectId),
-      });
+    await withIntegrationLink(
+      externalLink,
+      integration,
+      async (db, _afterCommit, externalLink) => {
+        const task = await db.query.taskTable.findFirst({
+          where: linkedTaskScope(externalLink.taskId, integration.projectId),
+        });
 
-      if (!task) {
-        console.error(`Task ${externalLink.taskId} not found`);
-        return;
-      }
+        if (!task) {
+          console.error(`Task ${externalLink.taskId} not found`);
+          return;
+        }
 
-      const metadata = parseLinkMetadata<IssueEditedMetadata>(
-        externalLink.metadata,
-        {
-          externalLinkId: externalLink.id,
-          source: "issue_edited",
-        },
-      );
+        const metadata = parseLinkMetadata<IssueEditedMetadata>(
+          externalLink.metadata,
+          {
+            externalLinkId: externalLink.id,
+            source: "issue_edited",
+          },
+        );
 
-      const updateData: Record<string, unknown> = {};
-      const updatedMetadata: IssueEditedMetadata = { ...metadata };
+        const updateData: Record<string, unknown> = {};
+        const updatedMetadata: IssueEditedMetadata = { ...metadata };
 
-      if (!updatedMetadata.lastSync) {
-        updatedMetadata.lastSync = {};
-      }
+        if (!updatedMetadata.lastSync) {
+          updatedMetadata.lastSync = {};
+        }
 
-      if (changes.title) {
-        const lastTitleSync = metadata.lastSync?.title;
+        if (changes.title) {
+          const lastTitleSync = metadata.lastSync?.title;
 
-        let shouldUpdateTitle = true;
+          let shouldUpdateTitle = true;
 
-        if (lastTitleSync) {
-          if (
-            lastTitleSync.value === issue.title &&
-            lastTitleSync.source === "kaneo"
-          ) {
-            console.log("Skipping title update - already synced from Kaneo");
-            shouldUpdateTitle = false;
+          if (lastTitleSync) {
+            if (
+              lastTitleSync.value === issue.title &&
+              lastTitleSync.source === "kaneo"
+            ) {
+              console.log("Skipping title update - already synced from Kaneo");
+              shouldUpdateTitle = false;
+            }
+            const timeSinceLastSync =
+              Date.now() - new Date(lastTitleSync.timestamp ?? 0).getTime();
+            if (timeSinceLastSync < 2000 && shouldUpdateTitle) {
+              console.log(
+                `Skipping title update - recent sync detected (${timeSinceLastSync}ms ago)`,
+              );
+              shouldUpdateTitle = false;
+            }
           }
-          const timeSinceLastSync =
-            Date.now() - new Date(lastTitleSync.timestamp ?? 0).getTime();
-          if (timeSinceLastSync < 2000 && shouldUpdateTitle) {
+
+          if (shouldUpdateTitle) {
+            updateData.title = issue.title;
+            updatedMetadata.lastSync.title = {
+              timestamp: new Date().toISOString(),
+              source: "github",
+              value: issue.title,
+            };
             console.log(
-              `Skipping title update - recent sync detected (${timeSinceLastSync}ms ago)`,
+              `Updating task title from GitHub: "${changes.title.from}" → "${issue.title}"`,
             );
-            shouldUpdateTitle = false;
           }
         }
 
-        if (shouldUpdateTitle) {
-          updateData.title = issue.title;
-          updatedMetadata.lastSync.title = {
-            timestamp: new Date().toISOString(),
-            source: "github",
-            value: issue.title,
-          };
+        if (changes.body) {
+          const lastDescSync = metadata.lastSync?.description;
+          const formattedDescription = formatTaskDescriptionFromIssue(
+            issue.body,
+            task.id,
+          );
+
+          let shouldUpdateDescription = true;
+
+          if (lastDescSync) {
+            if (
+              lastDescSync.value === formattedDescription &&
+              lastDescSync.source === "kaneo"
+            ) {
+              console.log(
+                "Skipping description update - already synced from Kaneo",
+              );
+              shouldUpdateDescription = false;
+            }
+            const timeSinceLastSync =
+              Date.now() - new Date(lastDescSync.timestamp ?? 0).getTime();
+            if (timeSinceLastSync < 2000 && shouldUpdateDescription) {
+              console.log(
+                `Skipping description update - recent sync detected (${timeSinceLastSync}ms ago)`,
+              );
+              shouldUpdateDescription = false;
+            }
+          }
+
+          if (shouldUpdateDescription) {
+            updateData.description = formattedDescription;
+            updatedMetadata.lastSync.description = {
+              timestamp: new Date().toISOString(),
+              source: "github",
+              value: formattedDescription,
+            };
+            console.log("Updating task description from GitHub");
+          }
+        }
+
+        if (Object.keys(updateData).length > 0) {
+          await db
+            .update(taskTable)
+            .set(updateData)
+            .where(linkedTaskScope(task.id, integration.projectId));
+
+          await updateExternalLink(
+            externalLink.id,
+            {
+              title: issue.title,
+              metadata: updatedMetadata,
+            },
+            db,
+          );
+
           console.log(
-            `Updating task title from GitHub: "${changes.title.from}" → "${issue.title}"`,
+            `Synced ${Object.keys(updateData).join(", ")} from GitHub issue #${issue.number} to task ${task.id}`,
+          );
+        } else {
+          console.log(
+            `No updates needed for task ${task.id} from issue #${issue.number}`,
           );
         }
-      }
 
-      if (changes.body) {
-        const lastDescSync = metadata.lastSync?.description;
-        const formattedDescription = formatTaskDescriptionFromIssue(
-          issue.body,
-          task.id,
-        );
-
-        let shouldUpdateDescription = true;
-
-        if (lastDescSync) {
-          if (
-            lastDescSync.value === formattedDescription &&
-            lastDescSync.source === "kaneo"
-          ) {
-            console.log(
-              "Skipping description update - already synced from Kaneo",
-            );
-            shouldUpdateDescription = false;
-          }
-          const timeSinceLastSync =
-            Date.now() - new Date(lastDescSync.timestamp ?? 0).getTime();
-          if (timeSinceLastSync < 2000 && shouldUpdateDescription) {
-            console.log(
-              `Skipping description update - recent sync detected (${timeSinceLastSync}ms ago)`,
-            );
-            shouldUpdateDescription = false;
-          }
-        }
-
-        if (shouldUpdateDescription) {
-          updateData.description = formattedDescription;
-          updatedMetadata.lastSync.description = {
-            timestamp: new Date().toISOString(),
-            source: "github",
-            value: formattedDescription,
-          };
-          console.log("Updating task description from GitHub");
-        }
-      }
-
-      if (Object.keys(updateData).length > 0) {
-        await db
-          .update(taskTable)
-          .set(updateData)
-          .where(linkedTaskScope(task.id, integration.projectId));
-
-        await updateExternalLink(
-          externalLink.id,
-          {
-            title: issue.title,
-            metadata: updatedMetadata,
-          },
-          db,
-        );
-
-        console.log(
-          `Synced ${Object.keys(updateData).join(", ")} from GitHub issue #${issue.number} to task ${task.id}`,
-        );
-      } else {
-        console.log(
-          `No updates needed for task ${task.id} from issue #${issue.number}`,
-        );
-      }
-
-      return;
-    });
+        return;
+      },
+    );
   }
 }

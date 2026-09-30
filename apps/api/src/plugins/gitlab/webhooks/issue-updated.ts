@@ -1,7 +1,7 @@
+import { withIntegrationLink } from "../../github/services/with-integration-link";
 import {
   type IntegrationDatabase,
   linkedTaskScope,
-  withIntegrationTask,
 } from "../../github/services/integration-task-scope";
 import { eq, inArray } from "drizzle-orm";
 import { labelTable, taskTable } from "../../../database/schema";
@@ -164,10 +164,10 @@ export async function handleGitlabIssueUpdated(
         continue;
       }
 
-      await withIntegrationTask(
-        externalLink.taskId,
+      await withIntegrationLink(
+        externalLink,
         integration,
-        async (db, afterCommit) => {
+        async (db, afterCommit, externalLink) => {
           const task = await db.query.taskTable.findFirst({
             where: linkedTaskScope(externalLink.taskId, integration.projectId),
             with: { project: true },

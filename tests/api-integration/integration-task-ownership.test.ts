@@ -413,3 +413,73 @@ it("preserves legacy links belonging to the destination integration when moving 
   });
   expect(await db.query.externalLinkTable.findMany()).toEqual([compatible]);
 });
+
+it.each(["edit", "labels", "comment"])(
+  "ignores a stale %s webhook after its link is removed during a move and return",
+  async (kind) => {
+    const f = await setup();
+    const transaction = getDatabase().transaction.bind(getDatabase());
+    const intercepted = vi
+      .spyOn(getDatabase(), "transaction")
+      .mockImplementationOnce(async (apply, config) => {
+        await moveTask({
+          taskId: f.task.id,
+          destinationProjectId: f.destination.id,
+          userId: f.source.user.id,
+        });
+        await moveTask({
+          taskId: f.task.id,
+          destinationProjectId: f.project.id,
+          userId: f.source.user.id,
+        });
+        return transaction(apply, config);
+      });
+    try {
+      if (kind === "edit")
+        await handleGiteaIssueEdited(
+          {
+            action: "edited",
+            issue: remoteIssue,
+            repository,
+            changes: {
+              title: { from: "Private title" },
+              body: { from: "Private description" },
+            },
+          },
+          f.integration.id,
+        );
+      if (kind === "labels")
+        await handleGiteaIssueLabeled(
+          {
+            action: "labeled",
+            issue: {
+              number: 1,
+              labels: [{ name: "priority:high" }, { name: "bug" }],
+            },
+            label: { name: "bug", color: "ff0000" },
+            repository,
+          },
+          f.integration.id,
+        );
+      if (kind === "comment")
+        await handleGiteaIssueCommentCreated(
+          {
+            action: "created",
+            issue: { number: 1 },
+            repository,
+            comment: {
+              id: 4,
+              body: "Wrong workspace",
+              html_url: `${remoteIssue.html_url}#comment-4`,
+              user: { login: "author", avatar_url: "" },
+              created_at: new Date().toISOString(),
+            },
+          },
+          f.integration.id,
+        );
+      await expectPrivateTask(f.task.id);
+    } finally {
+      intercepted.mockRestore();
+    }
+  },
+);

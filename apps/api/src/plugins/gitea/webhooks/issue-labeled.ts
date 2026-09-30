@@ -1,7 +1,7 @@
+import { withIntegrationLink } from "../../github/services/with-integration-link";
 import {
   type IntegrationDatabase,
   linkedTaskScope,
-  withIntegrationTask,
 } from "../../github/services/integration-task-scope";
 import { eq, inArray } from "drizzle-orm";
 import { labelTable, taskTable } from "../../../database/schema";
@@ -146,10 +146,10 @@ export async function handleGiteaIssueLabeled(
         continue;
       }
 
-      await withIntegrationTask(
-        existingLink.taskId,
+      await withIntegrationLink(
+        existingLink,
         integration,
-        async (db, afterCommit) => {
+        async (db, afterCommit, existingLink) => {
           const priority = extractIssuePriority(issue.labels);
           const status = extractIssueStatus(issue.labels);
 
