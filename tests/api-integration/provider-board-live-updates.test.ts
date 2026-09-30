@@ -87,7 +87,12 @@ it.each([
       .values({
         projectId: project.id,
         type: provider,
-        config: "{}",
+        config: JSON.stringify({
+          baseUrl: "https://gitea.example",
+          repositoryOwner: "owner",
+          repositoryName: "repo",
+          accessToken: "fake-test-token",
+        }),
         isActive: true,
       })
       .returning();

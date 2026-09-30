@@ -972,6 +972,11 @@ export const externalLinkTable = pgTable(
     index("external_link_integrationId_idx").on(table.integrationId),
     index("external_link_externalId_idx").on(table.externalId),
     index("external_link_resourceType_idx").on(table.resourceType),
+    index("external_link_deferred_issue_idx")
+      .on(table.id)
+      .where(
+        sql`${table.resourceType} = 'issue' AND ${table.metadata} LIKE '%"deferredIssueEdit":%'`,
+      ),
   ],
 );
 

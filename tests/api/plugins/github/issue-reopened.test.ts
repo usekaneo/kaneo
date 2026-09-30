@@ -14,13 +14,17 @@ vi.mock("../../../../apps/api/src/database", () => ({
     query: {
       externalLinkTable: { findFirst: m.links },
       taskTable: { findFirst: m.tasks },
+      columnTable: { findFirst: async () => undefined },
     },
   },
 }));
 vi.mock("../../../../apps/api/src/events", () => ({ publishEvent: m.publish }));
 vi.mock(
   "../../../../apps/api/src/plugins/github/services/task-service",
-  () => ({
+  async (original) => ({
+    ...(await original<
+      typeof import("../../../../apps/api/src/plugins/github/services/task-service")
+    >()),
     findAllIntegrationsByRepo: m.find,
     updateTaskStatus: m.status,
   }),
@@ -71,14 +75,14 @@ it.each(["null", "[]", "42", '"text"', "invalid JSON"])(
     expect(m.update).toHaveBeenCalledWith(
       "first",
       {
-        metadata: { state: "open" },
+        metadata: expect.objectContaining({ state: "open" }),
       },
       expect.anything(),
     );
     expect(m.update).toHaveBeenCalledWith(
       "second",
       {
-        metadata: { custom: "keep", state: "open" },
+        metadata: expect.objectContaining({ custom: "keep", state: "open" }),
       },
       expect.anything(),
     );

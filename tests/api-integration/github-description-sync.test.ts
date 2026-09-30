@@ -15,6 +15,7 @@ const m = vi.hoisted(() => ({
 }));
 vi.mock("../../apps/api/src/plugins/github/services/link-manager", () => ({
   findExternalLink: m.find,
+  lockExternalLink: m.find,
   updateExternalLink: m.update,
 }));
 
