@@ -1,3 +1,4 @@
+import { issueEditScope } from "../utils/deferred-issue-edit";
 import { deferIssueEdit } from "../services/deferred-issue-edits";
 import { inboundStamp } from "../../github/utils/sync-echo";
 import { publishEvent } from "../../../events";
@@ -236,6 +237,10 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
             }
 
             return;
+          },
+          {
+            validate: (binding) =>
+              issueEditScope(binding) === issueEditScope(integration),
           },
         ),
       () =>

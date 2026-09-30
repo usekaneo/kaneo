@@ -1,3 +1,4 @@
+import { issueEditScope } from "../../github/utils/deferred-issue-edit";
 import { deferIssueEdit } from "../../github/services/deferred-issue-edits";
 import { inboundStamp } from "../../github/utils/sync-echo";
 import { withIntegrationLink } from "../../github/services/with-integration-link";
@@ -190,6 +191,10 @@ export async function handleGiteaIssueReopened(
                 },
                 db,
               );
+            },
+            {
+              validate: (binding) =>
+                issueEditScope(binding) === issueEditScope(integration),
             },
           ),
         () => deferIssueEdit(externalLink, integration, ["state"]),

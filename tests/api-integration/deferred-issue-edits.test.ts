@@ -1354,3 +1354,66 @@ it("retains every captured uncertain intent when the corrective provider write f
     expect(intent.cancelled).not.toBe(true);
   }
 });
+
+it.each(
+  providerFields.flatMap((entry) =>
+    ["rebound", "disabled", "credentials"].map((change) => ({
+      ...entry,
+      change,
+    })),
+  ),
+)(
+  "guards the $provider $field confirmation after its integration is $change",
+  async ({ provider, field, change }) => {
+    const { task, integration, link } = await seed(provider);
+    const version = "2026-09-30T00:00:03Z";
+    const before = field === "state" ? "closed" : "A";
+    const after = field === "state" ? "open" : "B";
+    const column = field === "state" ? "status" : field;
+    await db
+      .update(schema.taskTable)
+      .set({ [column]: field === "state" ? "done" : before })
+      .where(eq(schema.taskTable.id, task.id));
+    await db
+      .update(schema.externalLinkTable)
+      .set({
+        metadata: JSON.stringify({
+          lastSync: {
+            [field]: inboundStamp(undefined, before, provider, version),
+          },
+        }),
+      })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    m.read.mockImplementationOnce(async () => {
+      const config = JSON.parse(integration.config);
+      await db
+        .update(schema.integrationTable)
+        .set(
+          change === "disabled"
+            ? { isActive: false }
+            : {
+                config: JSON.stringify({
+                  ...config,
+                  ...(change === "rebound"
+                    ? { repositoryName: "other" }
+                    : { accessToken: "new-fake-token" }),
+                }),
+              },
+        )
+        .where(eq(schema.integrationTable.id, integration.id));
+      return {
+        title: field === "title" ? after : "A",
+        body: field === "description" ? after : "A",
+        state: field === "state" ? after : "closed",
+        updated_at: version,
+      };
+    });
+    await deliverField(provider, field, after, version, integration.id);
+    const value = change === "credentials" ? after : before;
+    expect((await current(task.id))?.[column]).toBe(
+      field === "state" ? (value === "closed" ? "done" : "to-do") : value,
+    );
+    expect(m.read).toHaveBeenCalledOnce();
+    if (change !== "credentials") expect(publishEvent).not.toHaveBeenCalled();
+  },
+);

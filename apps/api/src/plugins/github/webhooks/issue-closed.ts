@@ -1,3 +1,4 @@
+import { issueEditScope } from "../utils/deferred-issue-edit";
 import { deferIssueEdit } from "../services/deferred-issue-edits";
 import type { GitHubConfig } from "../config";
 import { getVerifiedInstallationOctokit } from "../utils/github-app";
@@ -158,6 +159,10 @@ export async function handleIssueClosed(payload: IssueClosedPayload) {
               },
               db,
             );
+          },
+          {
+            validate: (binding) =>
+              issueEditScope(binding) === issueEditScope(integration),
           },
         ),
       () => deferIssueEdit(externalLink, integration, ["state"]),
