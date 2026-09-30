@@ -53,6 +53,9 @@ export async function handleTaskStatusChanged(
           );
           return response?.updated_at;
         },
+        async () =>
+          (await client.getIssue(repositoryOwner, repositoryName, issueNumber))
+            .state ?? "open",
       );
     }
   } catch (error) {

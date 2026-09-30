@@ -1,3 +1,4 @@
+import { inboundStamp } from "../../github/utils/sync-echo";
 import { publishEvent } from "../../../events";
 import { withIntegrationLink } from "../../github/services/with-integration-link";
 import type { GiteaConfig } from "../config";
@@ -127,12 +128,11 @@ export async function handleGiteaIssueEdited(
 
             if (shouldUpdateTitle) {
               updateData.title = issue.title;
-              updatedMetadata.lastSync.title = {
-                outbound: metadata.lastSync?.title?.outbound,
-                timestamp: new Date().toISOString(),
-                source: "gitea",
-                value: issue.title,
-              };
+              updatedMetadata.lastSync.title = inboundStamp(
+                metadata.lastSync?.title,
+                issue.title,
+                "gitea",
+              );
             }
           }
 
@@ -166,12 +166,11 @@ export async function handleGiteaIssueEdited(
 
             if (shouldUpdateDescription) {
               updateData.description = formattedDescription;
-              updatedMetadata.lastSync.description = {
-                outbound: metadata.lastSync?.description?.outbound,
-                timestamp: new Date().toISOString(),
-                source: "gitea",
-                value: formattedDescription,
-              };
+              updatedMetadata.lastSync.description = inboundStamp(
+                metadata.lastSync?.description,
+                formattedDescription,
+                "gitea",
+              );
             }
           }
 

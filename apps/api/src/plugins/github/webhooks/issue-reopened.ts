@@ -1,3 +1,7 @@
+import type { GitHubConfig } from "../config";
+import { getVerifiedInstallationOctokit } from "../utils/github-app";
+import { inboundEcho, withEchoConfirmation } from "../utils/inbound-echo";
+import { inboundStamp, type SyncStamp } from "../utils/sync-echo";
 import { withIntegrationLink } from "../services/with-integration-link";
 import { linkedTaskScope } from "../services/integration-task-scope";
 import { and, eq } from "drizzle-orm";
@@ -19,6 +23,7 @@ type IssueReopenedPayload = {
     title: string;
     html_url: string;
     state: string;
+    updated_at?: string;
   };
   installation?: { id: number };
   repository: {
@@ -47,67 +52,109 @@ export async function handleIssueReopened(payload: IssueReopenedPayload) {
       continue;
     }
 
-    await withIntegrationLink(
-      externalLink,
-      integration,
-      async (db, afterCommit, externalLink) => {
-        const task = await db.query.taskTable.findFirst({
-          where: linkedTaskScope(externalLink.taskId, integration.projectId),
-        });
+    const readCurrent = async () => {
+      try {
+        const config = JSON.parse(integration.config) as GitHubConfig;
+        const octokit = await getVerifiedInstallationOctokit(config);
+        return (
+          await octokit.rest.issues.get({
+            owner: config.repositoryOwner,
+            repo: config.repositoryName,
+            issue_number: issue.number,
+          })
+        ).data;
+      } catch {
+        return issue;
+      }
+    };
+    await withEchoConfirmation(readCurrent, (current) =>
+      withIntegrationLink(
+        externalLink,
+        integration,
+        async (db, afterCommit, externalLink) => {
+          const task = await db.query.taskTable.findFirst({
+            where: linkedTaskScope(externalLink.taskId, integration.projectId),
+          });
 
-        if (!task) {
-          return;
-        }
+          if (!task) {
+            return;
+          }
 
-        const existingMetadata = parseLinkMetadata(externalLink.metadata, {
-          externalLinkId: externalLink.id,
-          source: "issue_reopened",
-        });
+          const existingMetadata = parseLinkMetadata<
+            Record<string, unknown> & { lastSync?: { state?: SyncStamp } }
+          >(externalLink.metadata, {
+            externalLinkId: externalLink.id,
+            source: "issue_reopened",
+          });
 
-        if (
-          existingMetadata.createdFrom === "kaneo" ||
-          existingMetadata.state === "open"
-        ) {
-          return;
-        }
+          if (
+            existingMetadata.createdFrom === "kaneo" ||
+            existingMetadata.state === "open"
+          ) {
+            return;
+          }
 
-        const targetStatus = await resolveTargetStatus(
-          task.projectId,
-          "issue_reopened",
-          "to-do",
-          db,
-        );
+          if (
+            inboundEcho(
+              existingMetadata.lastSync?.state,
+              "open",
+              issue.updated_at,
+              current?.state,
+              { linkId: externalLink.id, field: "state" },
+            )
+          )
+            return;
 
-        const statusResult = await updateTaskStatus(task.id, targetStatus, db);
-        if (
-          statusResult.applied &&
-          statusResult.before.status !== statusResult.after.status
-        ) {
-          afterCommit(() =>
-            publishEvent("task.status_changed", {
-              taskId: statusResult.after.id,
-              projectId: statusResult.after.projectId,
-              userId: null,
-              oldStatus: statusResult.before.status,
-              newStatus: statusResult.after.status,
-              title: statusResult.after.title,
-              assigneeId: statusResult.after.userId,
-              type: "status_changed",
-            }),
+          const targetStatus = await resolveTargetStatus(
+            task.projectId,
+            "issue_reopened",
+            "to-do",
+            db,
           );
-        }
 
-        await updateExternalLink(
-          externalLink.id,
-          {
-            metadata: {
-              ...existingMetadata,
-              state: "open",
+          const statusResult = await updateTaskStatus(
+            task.id,
+            targetStatus,
+            db,
+          );
+          if (
+            statusResult.applied &&
+            statusResult.before.status !== statusResult.after.status
+          ) {
+            afterCommit(() =>
+              publishEvent("task.status_changed", {
+                taskId: statusResult.after.id,
+                projectId: statusResult.after.projectId,
+                userId: null,
+                oldStatus: statusResult.before.status,
+                newStatus: statusResult.after.status,
+                title: statusResult.after.title,
+                assigneeId: statusResult.after.userId,
+                type: "status_changed",
+              }),
+            );
+          }
+
+          await updateExternalLink(
+            externalLink.id,
+            {
+              metadata: {
+                ...existingMetadata,
+                state: "open",
+                lastSync: {
+                  ...existingMetadata.lastSync,
+                  state: inboundStamp(
+                    existingMetadata.lastSync?.state,
+                    "open",
+                    "github",
+                  ),
+                },
+              },
             },
-          },
-          db,
-        );
-      },
+            db,
+          );
+        },
+      ),
     );
   }
 }

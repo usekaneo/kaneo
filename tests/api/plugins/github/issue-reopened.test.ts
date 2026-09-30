@@ -71,14 +71,14 @@ it.each(["null", "[]", "42", '"text"', "invalid JSON"])(
     expect(m.update).toHaveBeenCalledWith(
       "first",
       {
-        metadata: { state: "open" },
+        metadata: expect.objectContaining({ state: "open" }),
       },
       expect.anything(),
     );
     expect(m.update).toHaveBeenCalledWith(
       "second",
       {
-        metadata: { custom: "keep", state: "open" },
+        metadata: expect.objectContaining({ custom: "keep", state: "open" }),
       },
       expect.anything(),
     );

@@ -1,3 +1,4 @@
+import { inboundStamp } from "../../github/utils/sync-echo";
 import { publishEvent } from "../../../events";
 import { withIntegrationLink } from "../services/with-integration-link";
 import type { GitHubConfig } from "../config";
@@ -137,12 +138,11 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
 
             if (shouldUpdateTitle) {
               updateData.title = issue.title;
-              updatedMetadata.lastSync.title = {
-                outbound: metadata.lastSync?.title?.outbound,
-                timestamp: new Date().toISOString(),
-                source: "github",
-                value: issue.title,
-              };
+              updatedMetadata.lastSync.title = inboundStamp(
+                metadata.lastSync?.title,
+                issue.title,
+                "github",
+              );
               console.log(
                 `Updating task title from GitHub: "${changes.title.from}" → "${issue.title}"`,
               );
@@ -182,12 +182,11 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
 
             if (shouldUpdateDescription) {
               updateData.description = formattedDescription;
-              updatedMetadata.lastSync.description = {
-                outbound: metadata.lastSync?.description?.outbound,
-                timestamp: new Date().toISOString(),
-                source: "github",
-                value: formattedDescription,
-              };
+              updatedMetadata.lastSync.description = inboundStamp(
+                metadata.lastSync?.description,
+                formattedDescription,
+                "github",
+              );
               console.log("Updating task description from GitHub");
             }
           }

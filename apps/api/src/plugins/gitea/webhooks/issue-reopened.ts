@@ -1,3 +1,4 @@
+import { inboundStamp } from "../../github/utils/sync-echo";
 import { withIntegrationLink } from "../../github/services/with-integration-link";
 import type { GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
@@ -5,6 +6,7 @@ import { parseLinkMetadata } from "../../github/utils/parse-link-metadata";
 import type { SyncStamp } from "../../github/utils/sync-echo";
 import {
   inboundEcho,
+  PendingResponseTimeout,
   withEchoConfirmation,
 } from "../../github/utils/inbound-echo";
 import { linkedTaskScope } from "../../github/services/integration-task-scope";
@@ -173,12 +175,11 @@ export async function handleGiteaIssueReopened(
                   state: "open",
                   lastSync: {
                     ...existingMetadata.lastSync,
-                    state: {
-                      ...existingMetadata.lastSync?.state,
-                      source: "gitea",
-                      value: "open",
-                      timestamp: new Date().toISOString(),
-                    },
+                    state: inboundStamp(
+                      existingMetadata.lastSync?.state,
+                      "open",
+                      "gitea",
+                    ),
                   },
                 },
               },
@@ -188,6 +189,7 @@ export async function handleGiteaIssueReopened(
         ),
       );
     } catch (error) {
+      if (error instanceof PendingResponseTimeout) throw error;
       console.error("Gitea issue_reopened handler failed for integration", {
         integrationId: integration.id,
         issueNumber: issue.number,

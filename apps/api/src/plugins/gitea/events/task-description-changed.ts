@@ -2,7 +2,10 @@ import { syncLatestTaskValue } from "../../github/services/sync-latest-task-valu
 import db from "../../../database";
 import { linkedTaskScope } from "../../github/services/integration-task-scope";
 import { findExternalLinksByTask } from "../../github/services/link-manager";
-import { formatIssueBody } from "../../github/utils/format";
+import {
+  formatIssueBody,
+  formatTaskDescriptionFromIssue,
+} from "../../github/utils/format";
 import type { PluginContext, TaskDescriptionChangedEvent } from "../../types";
 import type { GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
@@ -107,6 +110,12 @@ export async function handleTaskDescriptionChanged(
         );
         return response?.updated_at;
       },
+      async () =>
+        formatTaskDescriptionFromIssue(
+          (await client.getIssue(repositoryOwner, repositoryName, issueNumber))
+            .body ?? null,
+          event.taskId,
+        ),
     );
 
     console.log(`Synced task description to Gitea issue #${issueNumber}`);

@@ -4,7 +4,10 @@ import { linkedTaskScope } from "../services/integration-task-scope";
 import type { PluginContext, TaskDescriptionChangedEvent } from "../../types";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
 import { findExternalLinksByTask } from "../services/link-manager";
-import { formatIssueBody } from "../utils/format";
+import {
+  formatIssueBody,
+  formatTaskDescriptionFromIssue,
+} from "../utils/format";
 import {
   getGithubApp,
   getVerifiedInstallationOctokit,
@@ -81,6 +84,17 @@ export async function handleTaskDescriptionChanged(
         });
         return response?.data?.updated_at;
       },
+      async () =>
+        formatTaskDescriptionFromIssue(
+          (
+            await octokit.rest.issues.get({
+              owner: repositoryOwner,
+              repo: repositoryName,
+              issue_number: issueNumber,
+            })
+          ).data.body ?? null,
+          event.taskId,
+        ),
     );
 
     console.log(`Synced task description to GitHub issue #${issueNumber}`);

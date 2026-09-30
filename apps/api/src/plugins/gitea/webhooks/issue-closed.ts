@@ -1,3 +1,4 @@
+import { inboundStamp } from "../../github/utils/sync-echo";
 import { withIntegrationLink } from "../../github/services/with-integration-link";
 import type { GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
@@ -169,12 +170,11 @@ export async function handleGiteaIssueClosed(
                 state: "closed",
                 lastSync: {
                   ...existingMetadata.lastSync,
-                  state: {
-                    ...existingMetadata.lastSync?.state,
-                    source: "gitea",
-                    value: "closed",
-                    timestamp: new Date().toISOString(),
-                  },
+                  state: inboundStamp(
+                    existingMetadata.lastSync?.state,
+                    "closed",
+                    "gitea",
+                  ),
                 },
               },
             },

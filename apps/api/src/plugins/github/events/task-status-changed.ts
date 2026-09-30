@@ -68,6 +68,14 @@ export async function handleTaskStatusChanged(
           });
           return response?.data?.updated_at;
         },
+        async () =>
+          (
+            await octokit.rest.issues.get({
+              owner: repositoryOwner,
+              repo: repositoryName,
+              issue_number: issueNumber,
+            })
+          ).data.state ?? "open",
       );
     }
   } catch (error) {

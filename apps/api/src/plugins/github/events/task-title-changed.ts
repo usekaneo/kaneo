@@ -73,6 +73,14 @@ export async function handleTaskTitleChanged(
         });
         return response?.data?.updated_at;
       },
+      async () =>
+        (
+          await octokit.rest.issues.get({
+            owner: repositoryOwner,
+            repo: repositoryName,
+            issue_number: issueNumber,
+          })
+        ).data.title,
     );
 
     console.log(`Synced task title to GitHub issue #${issueNumber}`);

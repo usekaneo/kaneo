@@ -6,6 +6,7 @@ import {
 } from "../../../../apps/api/src/plugins/github/utils/inbound-echo";
 import { mergeSyncMetadata } from "../../../../apps/api/src/plugins/github/utils/merge-sync-metadata";
 import {
+  inboundStamp,
   isPendingOutboundEcho,
   outboundStamp,
   type OutboundIntent,
@@ -28,9 +29,30 @@ vi.mock(
         integrationId: "integration",
         resourceType: "issue",
         metadata: JSON.stringify({ lastSync: m.stamps }),
+        integration: {
+          id: "integration",
+          projectId: "project",
+          type: "github",
+        },
       },
     ],
     updateExternalLink: m.save,
+  }),
+);
+vi.mock(
+  "../../../../apps/api/src/plugins/github/services/apply-observed-task-value",
+  () => ({
+    applyObservedTaskValue: async (
+      _link: unknown,
+      _integration: unknown,
+      field: "title" | "description" | "state",
+      value: string,
+    ) => {
+      if (field === "state")
+        m.current.status = value === "closed" ? "done" : "to-do";
+      else m.current[field] = value;
+      m.stamps[field] = inboundStamp(m.stamps[field], value, "github");
+    },
   }),
 );
 const link = { id: "link", integrationId: "integration" };
@@ -180,9 +202,13 @@ it("keeps an active intent while bounding completed rapid-write history", () => 
   expect(isPendingOutboundEcho(stamp, "A")).toBe(true);
 });
 
-it.each(["title", "description", "state"] as const)(
-  "preserves a later provider %s edit back to an in-flight value",
-  async (field) => {
+it.each(
+  (["title", "description", "state"] as const).flatMap((field) =>
+    [false, true].map((colliding) => ({ field, colliding })),
+  ),
+)(
+  "preserves a later provider $field edit back to an in-flight value (collision=$colliding)",
+  async ({ field, colliding }) => {
     const a = field === "state" ? "closed" : "A";
     const b = field === "state" ? "open" : "B";
     m.current = { title: a, description: a, status: "done" };
@@ -190,7 +216,7 @@ it.each(["title", "description", "state"] as const)(
     const release = deferred();
     let remote = a;
     const firstVersion = "2026-09-30T00:00:01Z";
-    const laterVersion = "2026-09-30T00:00:03Z";
+    const laterVersion = colliding ? firstVersion : "2026-09-30T00:00:03Z";
     const outbound = syncLatestTaskValue(
       "task",
       "project",
@@ -203,6 +229,7 @@ it.each(["title", "description", "state"] as const)(
         await release.promise;
         return firstVersion;
       },
+      async () => remote,
     );
     await started.promise;
     const apply = (value: string, version: string) =>
@@ -218,6 +245,7 @@ it.each(["title", "description", "state"] as const)(
             if (field === "state")
               m.current.status = value === "closed" ? "done" : "to-do";
             else m.current[field] = value;
+            m.stamps[field] = inboundStamp(m.stamps[field], value, "github");
           }
           return Promise.resolve();
         },
@@ -280,3 +308,24 @@ it.each([
     );
   },
 );
+
+it("bounds abandoned intent polling and reports an unacknowledged delivery", async () => {
+  vi.useFakeTimers();
+  m.stamps.title = outboundStamp(undefined, "A", undefined, {
+    intentId: "abandoned",
+    pending: true,
+  });
+  let attempts = 0;
+  const run = withEchoConfirmation(
+    async () => "A",
+    async () => {
+      attempts++;
+      return inboundEcho(m.stamps.title, "A", "version");
+    },
+  );
+  const rejected = expect(run).rejects.toThrow("retry this webhook delivery");
+  await vi.advanceTimersByTimeAsync(5000);
+  await rejected;
+  expect(attempts).toBeLessThanOrEqual(11);
+  vi.useRealTimers();
+});

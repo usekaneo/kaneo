@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto";
 import db from "../../../database";
 import { parseLinkMetadata } from "../utils/parse-link-metadata";
-import type { SyncStamp } from "../utils/sync-echo";
+import { hasNewerObservedEdit, type SyncStamp } from "../utils/sync-echo";
+import { applyObservedTaskValue } from "./apply-observed-task-value";
 import { linkedTaskScope } from "./integration-task-scope";
 import { findExternalLinksByTask, updateExternalLink } from "./link-manager";
 
@@ -14,6 +15,7 @@ export async function syncLatestTaskValue(
   field: "title" | "description" | "state",
   initialValue: string,
   write: (value: string) => Promise<string | undefined>,
+  readCurrent?: () => Promise<string>,
 ) {
   let value = initialValue;
   for (;;) {
@@ -67,11 +69,25 @@ export async function syncLatestTaskValue(
     });
     const observed = metadata.lastSync?.[field]?.outbound?.find(
       (entry) => entry.intentId === intentId,
-    )?.observedUpdatedAt;
+    );
     // The waiting inbound handler applies this newer provider edit after the
     // exact response version is available; do not overwrite it with a repair.
-    if (updatedAt && observed && Date.parse(observed) > Date.parse(updatedAt))
+    if (
+      hasNewerObservedEdit(observed, updatedAt) &&
+      currentLink.integration &&
+      readCurrent &&
+      (await readCurrent()) === value
+    ) {
+      await applyObservedTaskValue(
+        currentLink,
+        currentLink.integration,
+        field,
+        value,
+        intentId,
+        updatedAt,
+      );
       return;
+    }
     const task = await db.query.taskTable.findFirst({
       where: linkedTaskScope(taskId, projectId),
       columns: { title: true, description: true, status: true },

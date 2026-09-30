@@ -6,6 +6,8 @@ export type OutboundIntent = {
   cancelled?: boolean;
   uncertain?: boolean;
   observedUpdatedAt?: string;
+  startedAt?: string;
+  ambiguous?: boolean;
 };
 export type OutboundEntry = OutboundIntent & {
   hash: string;
@@ -16,6 +18,8 @@ export type SyncStamp = {
   timestamp?: string;
   source?: string;
   value?: string;
+  inboundAt?: string;
+  inboundValue?: string;
   outbound?: OutboundEntry[];
 };
 
@@ -51,12 +55,24 @@ export function outboundStamp(
     timestamp,
     updatedAt,
     observedUpdatedAt: previousIntent?.observedUpdatedAt,
+    startedAt:
+      previousIntent?.startedAt ?? (intent.pending ? timestamp : undefined),
+    ambiguous:
+      previousIntent?.ambiguous ||
+      !!(
+        updatedAt &&
+        previousIntent?.observedUpdatedAt === updatedAt &&
+        previous?.inboundAt &&
+        previousIntent.startedAt &&
+        previous.inboundAt >= previousIntent.startedAt &&
+        previous.inboundValue !== value
+      ),
     ...intent,
   });
   const bounded = boundOutboundHistory(outbound);
   if (intent.pending || intent.cancelled || intent.uncertain)
     return { ...previous, outbound: bounded };
-  return { timestamp, source: "kaneo", value, outbound: bounded };
+  return { ...previous, timestamp, source: "kaneo", value, outbound: bounded };
 }
 
 export function boundOutboundHistory(entries: OutboundEntry[]) {
@@ -129,4 +145,44 @@ export async function confirmedOutboundEcho(
   if (!isOutboundEcho(stamp, value, updatedAt)) return false;
   if (stamp?.value === value) return true;
   return (await readCurrent()) !== value;
+}
+
+export function inboundStamp(
+  previous: SyncStamp | undefined,
+  value: string,
+  source: string,
+): SyncStamp {
+  const timestamp = new Date().toISOString();
+  return {
+    ...previous,
+    timestamp,
+    source,
+    value,
+    inboundAt: timestamp,
+    inboundValue: value,
+  };
+}
+export function ambiguousOutboundEcho(
+  stamp: SyncStamp | undefined,
+  value: string,
+  updatedAt?: string,
+) {
+  return (
+    stamp?.outbound?.some(
+      (entry) =>
+        entry.ambiguous &&
+        entry.hash === hash(value) &&
+        entry.updatedAt === updatedAt,
+    ) ?? false
+  );
+}
+export function hasNewerObservedEdit(
+  entry: OutboundEntry | undefined,
+  updatedAt: string | undefined,
+) {
+  if (!updatedAt || !entry?.observedUpdatedAt) return false;
+  return (
+    Date.parse(entry.observedUpdatedAt) > Date.parse(updatedAt) ||
+    (entry.observedUpdatedAt === updatedAt && !!entry.ambiguous)
+  );
 }

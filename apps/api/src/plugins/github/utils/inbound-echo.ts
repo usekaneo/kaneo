@@ -1,10 +1,12 @@
 import { updateExternalLink } from "../services/link-manager";
 import {
+  ambiguousOutboundEcho,
   isOutboundEcho,
   pendingOutboundIntent,
   type SyncStamp,
 } from "./sync-echo";
 class ConfirmationRequired extends Error {}
+export class PendingResponseTimeout extends Error {}
 export class PendingEcho extends Error {
   recorded = false;
   constructor(
@@ -28,7 +30,8 @@ export function inboundEcho(
   const pending = pendingOutboundIntent(stamp, value);
   if (pending) throw new PendingEcho(pending.intentId, updatedAt, context);
   if (!isOutboundEcho(stamp, value, updatedAt)) return false;
-  if (stamp?.value === value) return true;
+  if (stamp?.value === value && !ambiguousOutboundEcho(stamp, value, updatedAt))
+    return true;
   if (providerValue === undefined) throw new ConfirmationRequired();
   return providerValue !== value;
 }
@@ -40,6 +43,8 @@ export async function withEchoConfirmation<Provider, Result>(
 ): Promise<Result> {
   const recorded = new Set<string>();
   let current: Provider | undefined;
+  let delay = 50;
+  const deadline = Date.now() + 5000;
   for (;;) {
     try {
       const result = await apply(current);
@@ -61,7 +66,14 @@ export async function withEchoConfirmation<Provider, Result>(
           });
           recorded.add(key);
         }
-        await new Promise((resolve) => setTimeout(resolve, 50));
+        if (Date.now() >= deadline)
+          throw new PendingResponseTimeout(
+            "Outbound response is still pending; retry this webhook delivery",
+          );
+        await new Promise((resolve) =>
+          setTimeout(resolve, Math.min(delay, deadline - Date.now())),
+        );
+        delay = Math.min(delay * 2, 1000);
         current = undefined;
       } else if (
         error instanceof ConfirmationRequired &&
