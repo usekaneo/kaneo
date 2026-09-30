@@ -4,6 +4,8 @@ CREATE TABLE "storage_cleanup" (
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE INDEX "project_background_object_key_idx" ON "project" USING btree ("background_object_key") WHERE "project"."background_object_key" is not null;
+--> statement-breakpoint
 -- Capture keys for every cascade, including workspace deletion. The outbox has
 -- no owner FK, so its records survive the deletion transaction.
 CREATE FUNCTION queue_deleted_storage_object() RETURNS trigger AS $$

@@ -1,5 +1,5 @@
 {
-  "id": "f3f8969a-f5cf-42d2-bdea-77f4a97e0950",
+  "id": "34e70d06-88aa-4af7-bb27-8b57ff0819a7",
   "prevId": "a1fedcde-206d-4e0b-b639-257249201363",
   "version": "7",
   "dialect": "postgresql",
@@ -1456,32 +1456,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.data_migration": {
-      "name": "data_migration",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "completed_at": {
-          "name": "completed_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.device_code": {
       "name": "device_code",
       "schema": "",
@@ -1753,6 +1727,22 @@
             }
           ],
           "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "external_link_deferred_issue_idx": {
+          "name": "external_link_deferred_issue_idx",
+          "columns": [
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"external_link\".\"resource_type\" = 'issue' AND \"external_link\".\"metadata\" LIKE '%\"deferredIssueEdit\":%'",
           "concurrently": false,
           "method": "btree",
           "with": {}
