@@ -17,6 +17,11 @@ const config = {
 
 vi.mock("../../../../apps/api/src/database", () => ({
   default: {
+    select: () => ({
+      from: () => ({
+        where: () => ({ for: async () => [{ id: "link-1" }] }),
+      }),
+    }),
     insert: () => ({ values: mocks.values }),
     update: () => ({ set: () => ({ where: vi.fn() }) }),
     delete: () => ({ where: vi.fn() }),

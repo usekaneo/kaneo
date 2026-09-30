@@ -1,3 +1,5 @@
+import { mergeSyncMetadata } from "../utils/merge-sync-metadata";
+import { parseLinkMetadata } from "../utils/parse-link-metadata";
 import { outboundStamp, type SyncStamp } from "../utils/sync-echo";
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
@@ -122,35 +124,27 @@ export async function updateExternalLink(
   params: UpdateExternalLinkParams,
   database: DbOrTx = db,
 ) {
-  if (params.outbound) {
-    await db.transaction(async (tx) => {
-      const [link] = await tx
-        .select({ metadata: externalLinkTable.metadata })
-        .from(externalLinkTable)
-        .where(eq(externalLinkTable.id, id))
-        .for("update");
+  if (params.outbound || params.metadata) {
+    await database.transaction(async (tx) => {
+      const link = await lockExternalLink(id, tx);
       if (!link) return;
-      const metadata = (link.metadata ? JSON.parse(link.metadata) : {}) as {
-        lastSync?: Record<string, SyncStamp>;
-      };
-      const { field, value, updatedAt } = params.outbound!;
+      const metadata = parseLinkMetadata<
+        Record<string, unknown> & { lastSync?: Record<string, SyncStamp> }
+      >(link.metadata, { externalLinkId: id, source: "sync_update" });
+      const merged = mergeSyncMetadata(metadata, params.metadata ?? {});
+      if (params.outbound) {
+        const { field, value, updatedAt } = params.outbound;
+        merged.lastSync = {
+          ...merged.lastSync,
+          [field]: outboundStamp(merged.lastSync?.[field], value, updatedAt),
+        };
+      }
       await tx
         .update(externalLinkTable)
         .set({
           ...(params.title !== undefined ? { title: params.title } : {}),
           ...(params.url !== undefined ? { url: params.url } : {}),
-          metadata: JSON.stringify({
-            ...metadata,
-            ...params.metadata,
-            lastSync: {
-              ...metadata.lastSync,
-              [field]: outboundStamp(
-                metadata.lastSync?.[field],
-                value,
-                updatedAt,
-              ),
-            },
-          }),
+          metadata: JSON.stringify(merged),
         })
         .where(eq(externalLinkTable.id, id));
     });
@@ -163,9 +157,6 @@ export async function updateExternalLink(
   }
   if (params.url !== undefined) {
     updateData.url = params.url;
-  }
-  if (params.metadata !== undefined) {
-    updateData.metadata = JSON.stringify(params.metadata);
   }
 
   if (Object.keys(updateData).length === 0) {

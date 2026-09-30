@@ -1,10 +1,11 @@
 import type { GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
 import { parseLinkMetadata } from "../../github/utils/parse-link-metadata";
+import type { SyncStamp } from "../../github/utils/sync-echo";
 import {
-  confirmedOutboundEcho,
-  type SyncStamp,
-} from "../../github/utils/sync-echo";
+  inboundEcho,
+  withEchoConfirmation,
+} from "../../github/utils/inbound-echo";
 import {
   linkedTaskScope,
   withIntegrationTask,
@@ -13,7 +14,10 @@ import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import { externalLinkTable } from "../../../database/schema";
 import { publishEvent } from "../../../events";
-import { updateExternalLink } from "../../github/services/link-manager";
+import {
+  updateExternalLink,
+  lockExternalLink,
+} from "../../github/services/link-manager";
 import { updateTaskStatus } from "../../github/services/task-service";
 import {
   findAllIntegrationsByGiteaRepo,
@@ -76,108 +80,105 @@ export async function handleGiteaIssueClosed(
       continue;
     }
 
-    const metadata = parseLinkMetadata<{ lastSync?: { state?: SyncStamp } }>(
-      externalLink.metadata,
-      { externalLinkId: externalLink.id, source: "gitea_issue_closed" },
-    );
-    const stateEcho = await confirmedOutboundEcho(
-      metadata.lastSync?.state,
-      "closed",
-      issue.updated_at,
-      async () => {
+    const readCurrent = async () => {
+      try {
         const config = JSON.parse(integration.config) as GiteaConfig;
-        return (
-          await createGiteaClient(config).getIssue(
-            config.repositoryOwner,
-            config.repositoryName,
-            issue.number,
-          )
-        ).state;
-      },
-    );
-    await withIntegrationTask(
-      externalLink.taskId,
-      integration,
-      async (db, afterCommit) => {
-        const task = await db.query.taskTable.findFirst({
-          where: linkedTaskScope(externalLink.taskId, integration.projectId),
-        });
+        return await createGiteaClient(config).getIssue(
+          config.repositoryOwner,
+          config.repositoryName,
+          issue.number,
+        );
+      } catch {
+        return issue;
+      }
+    };
+    await withEchoConfirmation(readCurrent, (current) =>
+      withIntegrationTask(
+        externalLink.taskId,
+        integration,
+        async (db, afterCommit) => {
+          const task = await db.query.taskTable.findFirst({
+            where: linkedTaskScope(externalLink.taskId, integration.projectId),
+          });
 
-        if (!task) {
-          return;
-        }
-
-        let existingMetadata: Record<string, unknown> = {};
-        if (externalLink.metadata) {
-          try {
-            existingMetadata = JSON.parse(externalLink.metadata) as Record<
-              string,
-              unknown
-            >;
-          } catch (error) {
-            console.warn(
-              "Failed to parse Gitea issue metadata for close sync",
-              {
-                externalLinkId: externalLink.id,
-                metadata: externalLink.metadata,
-                error,
-              },
-            );
-          }
-        }
-        if (stateEcho) return;
-        const lastOutbound = existingMetadata.lastOutboundStateSyncAt;
-        if (
-          typeof lastOutbound === "number" &&
-          Number.isFinite(lastOutbound) &&
-          existingMetadata.state === "closed"
-        ) {
-          const eventMs = parseIssueUpdatedAtMs(issue);
-          if (
-            eventMs !== null &&
-            Math.abs(eventMs - lastOutbound) <= OUTBOUND_STATE_ECHO_WINDOW_MS
-          ) {
+          if (!task) {
             return;
           }
-        }
 
-        const targetStatus = await resolveTargetStatus(
-          task.projectId,
-          "issue_closed",
-          "done",
-          db,
-        );
+          const lockedLink = await lockExternalLink(externalLink.id, db);
+          if (!lockedLink) return;
+          const existingMetadata = parseLinkMetadata<
+            Record<string, unknown> & { lastSync?: { state?: SyncStamp } }
+          >(lockedLink.metadata, {
+            externalLinkId: externalLink.id,
+            source: "gitea_issue_closed",
+          });
+          if (
+            inboundEcho(
+              existingMetadata.lastSync?.state,
+              "closed",
+              issue.updated_at,
+              current ? (current.state ?? issue.state) : undefined,
+            )
+          )
+            return;
+          const lastOutbound = existingMetadata.lastOutboundStateSyncAt;
+          if (
+            typeof lastOutbound === "number" &&
+            Number.isFinite(lastOutbound) &&
+            existingMetadata.state === "closed"
+          ) {
+            const eventMs = parseIssueUpdatedAtMs(issue);
+            if (
+              eventMs !== null &&
+              Math.abs(eventMs - lastOutbound) <= OUTBOUND_STATE_ECHO_WINDOW_MS
+            ) {
+              return;
+            }
+          }
 
-        const statusResult = await updateTaskStatus(task.id, targetStatus, db);
-        if (
-          statusResult.applied &&
-          statusResult.before.status !== statusResult.after.status
-        ) {
-          afterCommit(() =>
-            publishEvent("task.status_changed", {
-              taskId: statusResult.after.id,
-              projectId: statusResult.after.projectId,
-              userId: null,
-              oldStatus: statusResult.before.status,
-              newStatus: statusResult.after.status,
-              title: statusResult.after.title,
-              assigneeId: statusResult.after.userId,
-              type: "status_changed",
-            }),
+          const targetStatus = await resolveTargetStatus(
+            task.projectId,
+            "issue_closed",
+            "done",
+            db,
           );
-        }
 
-        await updateExternalLink(
-          externalLink.id,
-          {
-            metadata: {
-              ...existingMetadata,
-              state: "closed",
+          const statusResult = await updateTaskStatus(
+            task.id,
+            targetStatus,
+            db,
+          );
+          if (
+            statusResult.applied &&
+            statusResult.before.status !== statusResult.after.status
+          ) {
+            afterCommit(() =>
+              publishEvent("task.status_changed", {
+                taskId: statusResult.after.id,
+                projectId: statusResult.after.projectId,
+                userId: null,
+                oldStatus: statusResult.before.status,
+                newStatus: statusResult.after.status,
+                title: statusResult.after.title,
+                assigneeId: statusResult.after.userId,
+                type: "status_changed",
+              }),
+            );
+          }
+
+          await updateExternalLink(
+            externalLink.id,
+            {
+              metadata: {
+                ...existingMetadata,
+                state: "closed",
+              },
             },
-          },
-          db,
-        );
-      },
+            db,
+          );
+        },
+      ),
     );
   }
 }

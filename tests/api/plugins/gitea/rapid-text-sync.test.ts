@@ -204,6 +204,7 @@ it("ignores an older close echo after a newer outbound reopen", async () => {
       ),
     },
   });
+  m.getIssue.mockResolvedValue({ state: "open" });
   await handleGiteaIssueClosed({
     ...payload,
     action: "closed",
@@ -228,6 +229,7 @@ it("ignores an older reopen echo after a newer outbound close", async () => {
       ),
     },
   });
+  m.getIssue.mockResolvedValue({ state: "closed" });
   await handleGiteaIssueReopened({
     ...payload,
     action: "reopened",
@@ -337,4 +339,32 @@ it("recognizes a delayed echo whose stamp arrives before the locked reread", asy
     changes: { title: payload.changes.title },
   });
   expect(m.writes).not.toHaveBeenCalled();
+});
+
+it("applies an ordinary complete webhook without consulting an unavailable provider", async () => {
+  m.metadata = JSON.stringify({ lastSync: {} });
+  m.getIssue.mockRejectedValue(new Error("provider unavailable"));
+  await handleGiteaIssueEdited(payload);
+  expect(m.getIssue).not.toHaveBeenCalled();
+  expect(m.writes).toHaveBeenCalledWith(
+    expect.objectContaining({
+      title: payload.issue.title,
+      description: payload.issue.body,
+    }),
+  );
+});
+
+it("rechecks a close echo from the locked state snapshot", async () => {
+  m.metadata = JSON.stringify({ lastSync: {} });
+  m.lockedMetadata = JSON.stringify({
+    lastSync: { state: outboundStamp(undefined, "closed") },
+  });
+  const { handleGiteaIssueClosed } =
+    await import("../../../../apps/api/src/plugins/gitea/webhooks/issue-closed");
+  await handleGiteaIssueClosed({
+    action: "closed",
+    repository: payload.repository,
+    issue: { ...payload.issue, state: "closed" },
+  });
+  expect(m.status).not.toHaveBeenCalled();
 });

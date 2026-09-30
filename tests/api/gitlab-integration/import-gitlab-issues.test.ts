@@ -8,6 +8,11 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("../../../apps/api/src/database", () => ({
   default: {
+    select: () => ({
+      from: () => ({
+        where: () => ({ for: async () => [{ id: "link-1" }] }),
+      }),
+    }),
     query: {
       projectTable: {
         findFirst: async () => ({

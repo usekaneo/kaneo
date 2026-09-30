@@ -197,6 +197,38 @@ describe("integration task ownership", () => {
     },
   );
 
+  it.each(["gitea", "gitlab"])(
+    "%s import cannot revive a removed link after a task moves away and back",
+    async (type) => {
+      const f = await setup(type);
+      const fetchComments =
+        type === "gitea" ? m.listIssueComments : m.listIssueNotes;
+      fetchComments.mockImplementationOnce(async () => {
+        await moveTask({
+          taskId: f.task.id,
+          destinationProjectId: f.destination.id,
+          currentUserId: f.source.user.id,
+        });
+        await moveTask({
+          taskId: f.task.id,
+          destinationProjectId: f.project.id,
+          currentUserId: f.source.user.id,
+        });
+        return [];
+      });
+      const result = await (
+        type === "gitea" ? importGiteaIssues : importGitlabIssues
+      )(f.project.id);
+      expect(result).toMatchObject({ updated: 0, skipped: 1 });
+      await expectPrivateTask(f.task.id);
+      expect(
+        await db.query.externalLinkTable.findFirst({
+          where: eq(schema.externalLinkTable.id, f.link.id),
+        }),
+      ).toBeUndefined();
+    },
+  );
+
   it("gitea edits, labels and comments cannot follow stale links", async () => {
     const f = await setup();
     await moveWithoutCleanup(f);
@@ -404,11 +436,32 @@ it("preserves outbound history and unrelated fields across concurrent sync compl
       }),
     ),
   );
+  const beforeStateWebhook = await db.query.externalLinkTable.findFirst({
+    where: eq(schema.externalLinkTable.id, link.id),
+  });
+  const latestTitleStamp = JSON.parse(beforeStateWebhook!.metadata!).lastSync
+    .title;
+  // A state webhook can hold a metadata snapshot predating every outbound write.
+  await updateExternalLink(link.id, {
+    metadata: {
+      remoteMarker: "keep",
+      state: "closed",
+      lastSync: {
+        title: {
+          source: "github",
+          value: "remote",
+          timestamp: "2000-01-01T00:00:00Z",
+          outbound: [],
+        },
+      },
+    },
+  });
   const saved = await db.query.externalLinkTable.findFirst({
     where: eq(schema.externalLinkTable.id, link.id),
   });
   const metadata = JSON.parse(saved!.metadata!);
   expect(metadata.remoteMarker).toBe("keep");
+  expect(metadata.lastSync.title).toEqual(latestTitleStamp);
   for (let i = 0; i < 12; i++)
     expect(
       isOutboundEcho(
@@ -425,6 +478,21 @@ it("keeps outbound history committed during an inbound provider read", async () 
   const { isOutboundEcho } =
     await import("../../apps/api/src/plugins/github/utils/sync-echo");
   const { link } = await setup();
+  const { outboundStamp } =
+    await import("../../apps/api/src/plugins/github/utils/sync-echo");
+  await db
+    .update(schema.externalLinkTable)
+    .set({
+      metadata: JSON.stringify({
+        lastSync: {
+          title: outboundStamp(
+            outboundStamp(undefined, remoteIssue.title),
+            "Latest local",
+          ),
+        },
+      }),
+    })
+    .where(eq(schema.externalLinkTable.id, link.id));
   m.getIssue.mockImplementationOnce(async () => {
     await updateExternalLink(link.id, {
       outbound: {
