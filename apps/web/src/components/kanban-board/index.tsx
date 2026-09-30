@@ -1,3 +1,4 @@
+import { selectReorderBoard } from "./select-reorder-board";
 import {
   closestCorners,
   DndContext,
@@ -188,9 +189,12 @@ function KanbanBoard({
     const overId = over.id.toString();
 
     if (isReordering) return;
-    const canonical =
-      queryClient.getQueryData<ProjectWithTasks>(["tasks", project.id]) ??
-      (storedProject?.id === project.id ? storedProject : undefined);
+    const canonical = selectReorderBoard(
+      project.id,
+      activeId,
+      queryClient.getQueryData<ProjectWithTasks>(["tasks", project.id]),
+      storedProject,
+    );
     if (!canonical) return;
 
     const moved = moveBoardTask(canonical, activeId, overId, sortedByNumber);
