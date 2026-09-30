@@ -1,6 +1,6 @@
 {
-  "id": "6e54311b-6998-4449-9c84-a5bbbe7440aa",
-  "prevId": "97f81269-8e8e-4eab-bc0a-79300d79bfa4",
+  "id": "189e547c-65c9-4720-b773-3951a7d45704",
+  "prevId": "6e54311b-6998-4449-9c84-a5bbbe7440aa",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -684,6 +684,28 @@
             }
           ],
           "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "asset_draft_expiry_idx": {
+          "name": "asset_draft_expiry_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"asset\".\"task_id\" is null and \"asset\".\"surface\" in ('draft', 'draft-pending')",
           "concurrently": false,
           "method": "btree",
           "with": {}
