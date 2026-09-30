@@ -246,6 +246,9 @@ export function useProjectWebSocket(projectId: string) {
                   (board) =>
                     board ? (patchBoardTask(board, taskId) ?? board) : board,
                 );
+              } else if (!queryClient.getQueryData(["tasks", projectId])) {
+                // Calendar, backlog and detail-only views have no board to
+                // patch. Their active detail queries are invalidated below.
               } else if (
                 refreshingTasks.size >= 4 ||
                 refreshingTasks.has(taskId) ||

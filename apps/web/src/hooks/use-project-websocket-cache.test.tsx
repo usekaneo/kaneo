@@ -414,3 +414,17 @@ it.each(["TASK_CREATED", "TASK_DELETED", "TASK_MOVED", "TASKS_REORDERED"])(
     expect(mocks.getTask).not.toHaveBeenCalled();
   },
 );
+
+it.each(["TASK_UPDATED", "TASK_CREATED", "TASK_MOVED", "TASK_LABEL_UPDATED"])(
+  "keeps detail invalidation without board-only reads for %s",
+  (type) => {
+    mocks.board = undefined;
+    mocks.getTask.mockReset();
+    renderHook(() => useProjectWebSocket("p"));
+    Socket.current.message(type, { taskId: "a" });
+    expect(mocks.getTask).not.toHaveBeenCalled();
+    expect(mocks.client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["task", "a"],
+    });
+  },
+);

@@ -216,6 +216,9 @@ export async function handleGitlabIssueUpdated(
             title: issue.title,
             metadata,
           });
+          await publishEvent("project.updated", {
+            projectId: integration.projectId,
+          });
         }
       }
 
@@ -266,6 +269,9 @@ export async function handleGitlabIssueUpdated(
           nonSystemLabels(currentLabels),
           changes?.labels?.previous,
         );
+        await publishEvent("project.updated", {
+          projectId: integration.projectId,
+        });
       }
     } catch (error) {
       console.error("GitLab issue update handler failed for integration", {

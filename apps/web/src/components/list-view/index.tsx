@@ -133,6 +133,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
   );
 
   const handleDragStart = (event: DragStartEvent) => {
+    if (disableDragDrop) return;
     setActiveId(event.active.id);
   };
 
@@ -165,7 +166,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
     setActiveId(null);
     setOverColumnId(null);
 
-    if (!over || !project?.columns) return;
+    if (disableDragDrop || !over || !project?.columns) return;
 
     const activeTaskId = active.id.toString();
     const overId = over.id.toString();
@@ -397,7 +398,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
 
   return (
     <DndContext
-      sensors={sensors}
+      sensors={disableDragDrop ? [] : sensors}
       collisionDetection={closestCorners}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}

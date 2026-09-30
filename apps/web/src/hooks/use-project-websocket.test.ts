@@ -22,6 +22,7 @@ vi.mock("@tanstack/react-query", () => ({
     invalidateQueries,
     getQueryCache: () => ({ subscribe: () => () => {} }),
     getQueryState,
+    getQueryData: () => undefined,
     cancelQueries,
   }),
 }));
