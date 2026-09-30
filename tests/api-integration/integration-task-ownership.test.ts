@@ -25,6 +25,7 @@ import {
 const m = vi.hoisted(() => ({
   publish: vi.fn(async (_type: string, _data: unknown) => undefined),
   listIssues: vi.fn(),
+  getIssue: vi.fn(),
   listIssueComments: vi.fn(async () => []),
   listIssueNotes: vi.fn(async () => []),
   listPulls: vi.fn(async () => []),
@@ -73,6 +74,7 @@ beforeEach(async () => {
   vi.clearAllMocks();
   m.publish.mockReset().mockResolvedValue(undefined);
   m.listIssues.mockResolvedValue([remoteIssue]);
+  m.getIssue.mockReset().mockResolvedValue(remoteIssue);
   m.listIssueComments.mockResolvedValue([]);
   m.listIssueNotes.mockResolvedValue([]);
 });
@@ -420,6 +422,113 @@ it("preserves legacy links belonging to the destination integration when moving 
   expect(await db.query.externalLinkTable.findMany()).toEqual([compatible]);
 });
 
+it("preserves outbound history and unrelated fields across concurrent sync completions", async () => {
+  const { updateExternalLink } =
+    await import("../../apps/api/src/plugins/github/services/link-manager");
+  const { isOutboundEcho } =
+    await import("../../apps/api/src/plugins/github/utils/sync-echo");
+  const { link } = await setup();
+  await db
+    .update(schema.externalLinkTable)
+    .set({ metadata: JSON.stringify({ remoteMarker: "keep" }) })
+    .where(eq(schema.externalLinkTable.id, link.id));
+  await Promise.all(
+    Array.from({ length: 12 }, (_, i) =>
+      updateExternalLink(link.id, {
+        outbound: {
+          field: i % 2 ? "description" : "title",
+          value: `edit-${i}`,
+          updatedAt: `time-${i}`,
+        },
+      }),
+    ),
+  );
+  const beforeStateWebhook = await db.query.externalLinkTable.findFirst({
+    where: eq(schema.externalLinkTable.id, link.id),
+  });
+  const latestTitleStamp = JSON.parse(beforeStateWebhook!.metadata!).lastSync
+    .title;
+  // A state webhook can hold a metadata snapshot predating every outbound write.
+  await updateExternalLink(link.id, {
+    metadata: {
+      remoteMarker: "keep",
+      state: "closed",
+      lastSync: {
+        title: {
+          source: "github",
+          value: "remote",
+          timestamp: "2000-01-01T00:00:00Z",
+          outbound: [],
+        },
+      },
+    },
+  });
+  const saved = await db.query.externalLinkTable.findFirst({
+    where: eq(schema.externalLinkTable.id, link.id),
+  });
+  const metadata = JSON.parse(saved!.metadata!);
+  expect(metadata.remoteMarker).toBe("keep");
+  expect(metadata.lastSync.title).toEqual(latestTitleStamp);
+  for (let i = 0; i < 12; i++)
+    expect(
+      isOutboundEcho(
+        metadata.lastSync[i % 2 ? "description" : "title"],
+        `edit-${i}`,
+        `time-${i}`,
+      ),
+    ).toBe(true);
+});
+
+it("keeps outbound history committed during an inbound provider read", async () => {
+  const { updateExternalLink } =
+    await import("../../apps/api/src/plugins/github/services/link-manager");
+  const { isOutboundEcho } =
+    await import("../../apps/api/src/plugins/github/utils/sync-echo");
+  const { link } = await setup();
+  const { outboundStamp } =
+    await import("../../apps/api/src/plugins/github/utils/sync-echo");
+  await db
+    .update(schema.externalLinkTable)
+    .set({
+      metadata: JSON.stringify({
+        lastSync: {
+          title: outboundStamp(
+            outboundStamp(undefined, remoteIssue.title),
+            "Latest local",
+          ),
+        },
+      }),
+    })
+    .where(eq(schema.externalLinkTable.id, link.id));
+  m.getIssue.mockImplementationOnce(async () => {
+    await updateExternalLink(link.id, {
+      outbound: {
+        field: "title",
+        value: "Local edit",
+        updatedAt: "local-time",
+      },
+    });
+    return remoteIssue;
+  });
+  await handleGiteaIssueEdited({
+    action: "edited",
+    repository,
+    issue: remoteIssue,
+    changes: { title: { from: "Old" } },
+  });
+  // The outbound metadata change invalidates the first provider confirmation.
+  expect(m.getIssue).toHaveBeenCalledTimes(2);
+  const saved = await db.query.externalLinkTable.findFirst({
+    where: eq(schema.externalLinkTable.id, link.id),
+  });
+  expect(
+    isOutboundEcho(
+      JSON.parse(saved!.metadata!).lastSync.title,
+      "Local edit",
+      "local-time",
+    ),
+  ).toBe(true);
+});
 it.each(["edit", "labels", "comment"])(
   "ignores a stale %s webhook after its link is removed during a move and return",
   async (kind) => {

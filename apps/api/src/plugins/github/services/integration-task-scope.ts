@@ -25,6 +25,11 @@ export async function withIntegrationTask<T>(
     database: IntegrationDatabase,
     afterCommit: (effect: () => Promise<void>) => void,
   ) => Promise<T>,
+  expectedBinding?: {
+    config?: string;
+    type?: string;
+    validate?: (binding: { config: string; type: string }) => boolean;
+  },
 ): Promise<T | undefined> {
   const effects: Array<() => Promise<void>> = [];
   const result = await db.transaction(async (tx) => {
@@ -46,6 +51,32 @@ export async function withIntegrationTask<T>(
       )
       .for("key share", { of: [projectTable, integrationTable] });
     if (!project) return undefined;
+    if (expectedBinding) {
+      const [binding] = await tx
+        .select({
+          config: integrationTable.config,
+          type: integrationTable.type,
+        })
+        .from(integrationTable)
+        .where(
+          and(
+            eq(integrationTable.id, integration.id),
+            expectedBinding.config === undefined
+              ? undefined
+              : eq(integrationTable.config, expectedBinding.config),
+            expectedBinding.type === undefined
+              ? undefined
+              : eq(integrationTable.type, expectedBinding.type),
+            eq(integrationTable.isActive, true),
+          ),
+        )
+        .for("share");
+      if (
+        !binding ||
+        (expectedBinding.validate && !expectedBinding.validate(binding))
+      )
+        return undefined;
+    }
     if (taskId !== null) {
       const [task] = await tx
         .select({ id: taskTable.id })
@@ -71,4 +102,16 @@ export function linkedTaskScope(taskId: string, projectId: string) {
 
 export function externalLinkScope() {
   return sql`exists (select 1 from ${taskTable} scoped_task join ${integrationTable} scoped_integration on scoped_integration.project_id = scoped_task.project_id where scoped_task.id = ${externalLinkTable.taskId} and scoped_integration.id = ${externalLinkTable.integrationId})`;
+}
+
+export async function integrationTaskRevision(
+  taskId: string,
+  projectId: string,
+  database: IntegrationDatabase = db,
+) {
+  const [task] = await database
+    .select({ revision: sql<string>`${taskTable}.xmin::text` })
+    .from(taskTable)
+    .where(linkedTaskScope(taskId, projectId));
+  return task?.revision;
 }
