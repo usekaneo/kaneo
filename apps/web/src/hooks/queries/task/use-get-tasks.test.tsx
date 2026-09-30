@@ -1,5 +1,5 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, renderHook, waitFor } from "@testing-library/react";
+import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import queryClient from "@/query-client";
@@ -42,6 +42,7 @@ describe("useGetTasks", () => {
     expect(getPublicProject).toHaveBeenCalledWith(
       { id: "public-parent" },
       expect.any(AbortSignal),
+      expect.any(Function),
     );
   });
 
@@ -83,4 +84,99 @@ describe("useGetTasks", () => {
     );
     expect(getTasks).toHaveBeenCalledTimes(2);
   });
+});
+
+it.each(["private", "public"])(
+  "does not cache incomplete %s pagination after failure and supports retry",
+  async (kind) => {
+    const key =
+      kind === "private" ? ["tasks", "failed"] : ["public-project", "failed"];
+    queryClient.setQueryDefaults(key, { retry: false });
+    const fetcher = kind === "private" ? getTasks : getPublicProject;
+    fetcher.mockImplementationOnce(async (...args) => {
+      args[2]({ id: "failed", columns: [{ tasks: [{ id: "partial" }] }] });
+      throw new Error("second page failed");
+    });
+    const { result } = renderHook(
+      () =>
+        kind === "private"
+          ? useGetTasks("failed")
+          : useGetPublicProject("failed"),
+      { wrapper: Wrapper },
+    );
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.data).toBeUndefined();
+    expect(queryClient.getQueryData(key)).toBeUndefined();
+    const completed = {
+      id: "failed",
+      columns: [{ tasks: [{ id: "partial" }, { id: "page-two" }] }],
+    };
+    fetcher.mockResolvedValue(completed);
+    await result.current.refetch();
+    await waitFor(() => expect(result.current.data).toEqual(completed));
+  },
+);
+
+it.each(["create", "delete", "move", "edit"])(
+  "replays a local %s invalidation after initial pagination",
+  async (operation) => {
+    let finish!: (value: unknown) => void;
+    const stale = {
+      id: "initial",
+      columns: [{ tasks: [{ id: "old", title: "Before" }] }],
+    };
+    const current = {
+      id: "initial",
+      columns: [
+        {
+          tasks:
+            operation === "delete" || operation === "move"
+              ? []
+              : [
+                  {
+                    id: operation === "create" ? "new" : "old",
+                    title: "After",
+                  },
+                ],
+        },
+      ],
+    };
+    getTasks
+      .mockImplementationOnce((_id, _signal, onProgress) => {
+        onProgress(stale);
+        return new Promise((resolve) => {
+          finish = resolve;
+        });
+      })
+      .mockResolvedValue(current);
+    const { result } = renderHook(() => useGetTasks("initial"), {
+      wrapper: Wrapper,
+    });
+    await waitFor(() => expect(result.current.data).toEqual(stale));
+    expect(queryClient.getQueryData(["tasks", "initial"])).toBeUndefined();
+    act(() => {
+      for (let count = 0; count < 20; count++)
+        void queryClient.invalidateQueries({ queryKey: ["tasks", "initial"] });
+    });
+    act(() => finish(stale));
+    await waitFor(() => expect(result.current.data).toEqual(current));
+    expect(getTasks).toHaveBeenCalledTimes(2);
+  },
+);
+it("does not restart a cancelled initial board after a queued local invalidation", async () => {
+  let finish!: (value: unknown) => void;
+  getTasks.mockImplementationOnce(
+    () =>
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+  );
+  renderHook(() => useGetTasks("cancelled"), { wrapper: Wrapper });
+  await waitFor(() => expect(getTasks).toHaveBeenCalledOnce());
+  void queryClient.invalidateQueries({ queryKey: ["tasks", "cancelled"] });
+  await queryClient.cancelQueries({ queryKey: ["tasks", "cancelled"] });
+  act(() => finish({ id: "cancelled", columns: [] }));
+  await Promise.resolve();
+  expect(getTasks).toHaveBeenCalledOnce();
+  expect(queryClient.getQueryData(["tasks", "cancelled"])).toBeUndefined();
 });

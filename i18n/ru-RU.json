@@ -2692,6 +2692,9 @@
 		"checklistProgress": "Выполнено пунктов списка: {{completed}} из {{total}}",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"board": {
+			"reorderFailed": "Could not move task. Please try again."
 		}
 	},
 	"invitations": {

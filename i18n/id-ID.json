@@ -2600,6 +2600,9 @@
 		"checklistProgress": "{{completed}} dari {{total}} item daftar periksa selesai",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"board": {
+			"reorderFailed": "Could not move task. Please try again."
 		}
 	},
 	"invitations": {

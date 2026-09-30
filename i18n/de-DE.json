@@ -2612,6 +2612,9 @@
 		"checklistProgress": "{{completed}} von {{total}} Checklistenpunkten abgeschlossen",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"board": {
+			"reorderFailed": "Die Reihenfolge konnte nicht gespeichert werden."
 		}
 	},
 	"invitations": {

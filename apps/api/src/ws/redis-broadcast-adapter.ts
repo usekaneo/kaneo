@@ -20,6 +20,15 @@ const broadcastMessageSchema = v.object({
     type: v.string(),
     projectId: v.string(),
     taskId: v.optional(v.string()),
+    tasks: v.optional(
+      v.array(
+        v.object({
+          id: v.string(),
+          position: v.number(),
+          status: v.optional(v.string()),
+        }),
+      ),
+    ),
     sourceTaskId: v.optional(v.string()),
     targetTaskId: v.optional(v.string()),
   }),

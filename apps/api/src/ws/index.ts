@@ -297,7 +297,7 @@ export function broadcastToProject(
     projectBroadcastQueues.set(projectId, new Map());
   }
 
-  const messageKey = `${message.type}:${message.taskId ?? ""}:${message.sourceTaskId ?? ""}:${message.targetTaskId ?? ""}`;
+  const messageKey = `${message.type === "TASKS_REORDERED" ? `${message.type}:${crypto.randomUUID()}` : message.type}:${message.taskId ?? ""}:${message.sourceTaskId ?? ""}:${message.targetTaskId ?? ""}`;
   projectBroadcastQueues
     .get(projectId)
     ?.set(messageKey, { message, excludeInitiatorId });
@@ -415,7 +415,7 @@ subscribeToEvent<{
     { type: "TASK_MOVED", projectId: fromProjectId, taskId },
     initiatorId,
   );
-  refreshParentBoards(await getSubtaskParentProjects([taskId]), fromProjectId);
+  refreshParentBoards(await getSubtaskParentProjects([taskId]), toProjectId);
 });
 
 subscribeToEvent<{
@@ -546,3 +546,15 @@ for (const eventName of taskUpdateEvents) {
     }
   });
 }
+
+subscribeToEvent<{
+  projectId: string;
+  userId: string;
+  tasks: Array<{ id: string; position: number; status?: string }>;
+}>("tasks.reordered", async (data) => {
+  broadcastToProject(data.projectId, {
+    type: "TASKS_REORDERED",
+    projectId: data.projectId,
+    tasks: data.tasks,
+  });
+});
