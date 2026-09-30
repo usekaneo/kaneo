@@ -3,6 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
   activityTable,
+  externalLinkTable,
   integrationTable,
   labelTable,
   projectTable,
@@ -223,6 +224,19 @@ async function importSingleIssue(
       existingLink.taskId,
       { id: integrationId, projectId, project: { workspaceId } },
       async (database) => {
+        const [linked] = await database
+          .select({ id: externalLinkTable.id })
+          .from(externalLinkTable)
+          .where(
+            and(
+              eq(externalLinkTable.id, existingLink.id),
+              eq(externalLinkTable.taskId, existingLink.taskId),
+              eq(externalLinkTable.integrationId, integrationId),
+            ),
+          )
+          .for("update");
+        if (!linked) return "skipped" as const;
+
         const updateData: Record<string, unknown> = {
           title: issue.title,
           description: formatTaskDescriptionFromIssue(issue.body),

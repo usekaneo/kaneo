@@ -196,6 +196,38 @@ describe("integration task ownership", () => {
     },
   );
 
+  it.each(["gitea", "gitlab"])(
+    "%s import cannot revive a removed link after a task moves away and back",
+    async (type) => {
+      const f = await setup(type);
+      const fetchComments =
+        type === "gitea" ? m.listIssueComments : m.listIssueNotes;
+      fetchComments.mockImplementationOnce(async () => {
+        await moveTask({
+          taskId: f.task.id,
+          destinationProjectId: f.destination.id,
+          currentUserId: f.source.user.id,
+        });
+        await moveTask({
+          taskId: f.task.id,
+          destinationProjectId: f.project.id,
+          currentUserId: f.source.user.id,
+        });
+        return [];
+      });
+      const result = await (
+        type === "gitea" ? importGiteaIssues : importGitlabIssues
+      )(f.project.id);
+      expect(result).toMatchObject({ updated: 0, skipped: 1 });
+      await expectPrivateTask(f.task.id);
+      expect(
+        await db.query.externalLinkTable.findFirst({
+          where: eq(schema.externalLinkTable.id, f.link.id),
+        }),
+      ).toBeUndefined();
+    },
+  );
+
   it("gitea edits, labels and comments cannot follow stale links", async () => {
     const f = await setup();
     await moveWithoutCleanup(f);
