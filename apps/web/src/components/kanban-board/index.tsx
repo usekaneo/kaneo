@@ -192,6 +192,7 @@ function KanbanBoard({
     const overId = over.id.toString();
 
     if (
+      disableDragDrop ||
       isReordering ||
       queryClient.getQueryState(["tasks", project.id])?.fetchStatus ===
         "fetching"

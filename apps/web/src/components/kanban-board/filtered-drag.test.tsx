@@ -1,5 +1,12 @@
-import { fireEvent, render } from "@testing-library/react";
-import { describe, expect, it, vi } from "vite-plus/test";
+import { cleanup, fireEvent, render } from "@testing-library/react";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import type { ProjectWithTasks } from "@/types/project";
 import KanbanBoard from "./index";
 
@@ -41,12 +48,23 @@ vi.mock("../bulk-selection/bulk-toolbar", () => ({ default: () => null }));
 vi.mock("./column", () => ({ default: () => null }));
 vi.mock("./task-card", () => ({ default: () => null }));
 vi.mock("@dnd-kit/core", () => ({
-  DndContext: ({ onDragEnd }: { onDragEnd: (event: unknown) => void }) => (
-    <button
-      onClick={() => onDragEnd({ active: { id: "a" }, over: { id: "b" } })}
-    >
-      drop
-    </button>
+  DndContext: ({
+    onDragStart,
+    onDragEnd,
+  }: {
+    onDragStart: (event: unknown) => void;
+    onDragEnd: (event: unknown) => void;
+  }) => (
+    <>
+      <button onClick={() => onDragStart({ active: { id: "a" } })}>
+        start
+      </button>
+      <button
+        onClick={() => onDragEnd({ active: { id: "a" }, over: { id: "b" } })}
+      >
+        drop
+      </button>
+    </>
   ),
   DragOverlay: () => null,
   MouseSensor: {},
@@ -58,6 +76,8 @@ vi.mock("@dnd-kit/core", () => ({
   defaultDropAnimationSideEffects: vi.fn(),
 }));
 
+beforeEach(() => vi.clearAllMocks());
+afterEach(cleanup);
 describe("filtered board dragging", () => {
   it("moves visible tasks in canonical state and sends one ordering mutation", () => {
     const columns = [
@@ -97,4 +117,30 @@ describe("filtered board dragging", () => {
     expect(mocks.reorder).toHaveBeenCalledOnce();
     view.unmount();
   });
+});
+
+it("rejects an in-flight Kanban drop after a failed refresh disables dragging", () => {
+  const canonical = {
+    id: "p",
+    columns: [
+      {
+        id: "todo",
+        slug: "todo",
+        tasks: [
+          { id: "a", status: "todo", position: 0 },
+          { id: "b", status: "todo", position: 1 },
+        ],
+      },
+    ],
+    plannedTasks: [],
+    archivedTasks: [],
+  } as unknown as ProjectWithTasks;
+  mocks.project = canonical;
+  const view = render(<KanbanBoard project={canonical} />);
+  fireEvent.click(view.getByText("start"));
+  view.rerender(<KanbanBoard project={canonical} disableDragDrop />);
+  fireEvent.click(view.getByText("drop"));
+  expect(mocks.reorder).not.toHaveBeenCalled();
+  expect(mocks.setProject).not.toHaveBeenCalled();
+  expect(mocks.setQueryData).not.toHaveBeenCalled();
 });

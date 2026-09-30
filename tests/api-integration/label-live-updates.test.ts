@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { beforeEach, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import updateLabel from "../../apps/api/src/label/controllers/update-label";
@@ -95,4 +96,35 @@ it("announces a direct task label recolor and emits nothing for a failed edit", 
     "Label not found",
   );
   expect(publish).not.toHaveBeenCalled();
+});
+
+it("announces an unassigned workspace label edit to every local board's choices", async () => {
+  const { workspace } = await createWorkspaceMember();
+  const { project: first } = await createProjectFixture({
+    workspaceId: workspace.id,
+  });
+  const { project: second } = await createProjectFixture({
+    workspaceId: workspace.id,
+  });
+  const { workspace: foreign } = await createWorkspaceMember();
+  await createProjectFixture({ workspaceId: foreign.id });
+  const [label] = await db
+    .insert(schema.labelTable)
+    .values({ workspaceId: workspace.id, name: "Unassigned", color: "red" })
+    .returning();
+  publish.mockImplementation(async () => {
+    expect(
+      await db.query.labelTable.findFirst({
+        where: eq(schema.labelTable.id, label.id),
+      }),
+    ).toMatchObject({ name: "Renamed", color: "blue" });
+  });
+  await updateLabel(label.id, "Renamed", "blue");
+  expect(publish.mock.calls).toEqual(
+    expect.arrayContaining([
+      ["project.updated", { projectId: first.id }],
+      ["project.updated", { projectId: second.id }],
+    ]),
+  );
+  expect(publish).toHaveBeenCalledTimes(2);
 });
