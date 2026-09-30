@@ -29,13 +29,6 @@
 			"founding": true
 		},
 		{
-			"login": "floreabogdan",
-			"name": "Bogdan FLOREA",
-			"avatarUrl": "https://avatars.githubusercontent.com/u/983985?v=4",
-			"tier": 5,
-			"founding": false
-		},
-		{
 			"login": "randoneering",
 			"name": "(justin)randoneering",
 			"avatarUrl": "https://avatars.githubusercontent.com/u/127273550?v=4",
@@ -64,6 +57,13 @@
 			"avatarUrl": "https://avatars.githubusercontent.com/u/58935?v=4",
 			"tier": 10,
 			"founding": true
+		},
+		{
+			"login": "floreabogdan",
+			"name": "Bogdan FLOREA",
+			"avatarUrl": "https://avatars.githubusercontent.com/u/983985?v=4",
+			"tier": 5,
+			"founding": false
 		},
 		{
 			"login": "KnudH",

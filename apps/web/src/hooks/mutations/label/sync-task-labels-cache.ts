@@ -1,3 +1,7 @@
+import {
+  getBoardCacheVersion,
+  markBoardCacheChanged,
+} from "@/lib/board-cache-version";
 import type { QueryClient } from "@tanstack/react-query";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
@@ -47,16 +51,36 @@ export function syncTaskLabelsInTasksCache(
   taskId: string,
   updater: TaskLabelsUpdater,
 ) {
-  queryClient.setQueriesData<ProjectWithTasks | undefined>(
-    {
-      queryKey: ["tasks"],
-      predicate: (query) => query.queryKey.length === 2,
-    },
-    (existingProject) =>
-      existingProject
-        ? updateTaskLabelsInProject(existingProject, taskId, updater)
-        : existingProject,
-  );
+  const boards = queryClient.getQueryCache().findAll({
+    queryKey: ["tasks"],
+    predicate: (query) => query.queryKey.length === 2,
+  });
+  for (const query of boards) {
+    const projectId = query.queryKey[1];
+    if (typeof projectId !== "string") continue;
+    markBoardCacheChanged(queryClient, projectId, taskId);
+    const version = getBoardCacheVersion(queryClient, projectId, taskId);
+    const apply = () => {
+      if (getBoardCacheVersion(queryClient, projectId, taskId) !== version) {
+        void queryClient.invalidateQueries({ queryKey: query.queryKey });
+        return;
+      }
+      queryClient.setQueryData<ProjectWithTasks>(query.queryKey, (board) =>
+        board ? updateTaskLabelsInProject(board, taskId, updater) : board,
+      );
+    };
+    if (query.state.fetchStatus === "fetching") {
+      const unsubscribe = queryClient
+        .getQueryCache()
+        .subscribe(({ query: updated, type }) => {
+          if (updated !== query) return;
+          if (type === "removed" || updated.state.fetchStatus === "idle") {
+            unsubscribe();
+            if (type !== "removed") apply();
+          }
+        });
+    } else apply();
+  }
 }
 
 export function addLabelToTaskInTasksCache(

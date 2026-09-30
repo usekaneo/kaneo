@@ -1,6 +1,8 @@
+import { withIntegrationLink } from "../../github/services/with-integration-link";
+import { linkedTaskScope } from "../../github/services/integration-task-scope";
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
-import { externalLinkTable, taskTable } from "../../../database/schema";
+import { externalLinkTable } from "../../../database/schema";
 import { publishEvent } from "../../../events";
 import { updateExternalLink } from "../../github/services/link-manager";
 import { updateTaskStatus } from "../../github/services/task-service";
@@ -61,74 +63,90 @@ export async function handleGitlabIssueReopened(
       continue;
     }
 
-    const task = await db.query.taskTable.findFirst({
-      where: eq(taskTable.id, externalLink.taskId),
-    });
-
-    if (!task) {
-      continue;
-    }
-
-    let existingMetadata: Record<string, unknown> = {};
-    if (externalLink.metadata) {
-      try {
-        existingMetadata = JSON.parse(externalLink.metadata) as Record<
-          string,
-          unknown
-        >;
-      } catch (error) {
-        console.warn("Failed to parse GitLab issue metadata for reopen sync", {
-          externalLinkId: externalLink.id,
-          metadata: externalLink.metadata,
-          error,
+    await withIntegrationLink(
+      externalLink,
+      integration,
+      async (db, afterCommit, externalLink) => {
+        const task = await db.query.taskTable.findFirst({
+          where: linkedTaskScope(externalLink.taskId, integration.projectId),
         });
-      }
-    }
 
-    const lastOutbound = existingMetadata.lastOutboundStateSyncAt;
-    if (
-      typeof lastOutbound === "number" &&
-      Number.isFinite(lastOutbound) &&
-      existingMetadata.state === "opened"
-    ) {
-      const eventMs = parseIssueUpdatedAtMs(issue);
-      if (
-        eventMs !== null &&
-        Math.abs(eventMs - lastOutbound) <= OUTBOUND_STATE_ECHO_WINDOW_MS
-      ) {
-        continue;
-      }
-    }
+        if (!task) {
+          return;
+        }
 
-    const targetStatus = await resolveTargetStatus(
-      task.projectId,
-      "issue_reopened",
-      "to-do",
-    );
+        let existingMetadata: Record<string, unknown> = {};
+        if (externalLink.metadata) {
+          try {
+            existingMetadata = JSON.parse(externalLink.metadata) as Record<
+              string,
+              unknown
+            >;
+          } catch (error) {
+            console.warn(
+              "Failed to parse GitLab issue metadata for reopen sync",
+              {
+                externalLinkId: externalLink.id,
+                metadata: externalLink.metadata,
+                error,
+              },
+            );
+          }
+        }
 
-    const statusResult = await updateTaskStatus(task.id, targetStatus);
-    if (
-      statusResult.applied &&
-      statusResult.before.status !== statusResult.after.status
-    ) {
-      await publishEvent("task.status_changed", {
-        sourceIntegrationId: integration.id,
-        taskId: statusResult.after.id,
-        projectId: statusResult.after.projectId,
-        userId: null,
-        oldStatus: statusResult.before.status,
-        newStatus: statusResult.after.status,
-        title: statusResult.after.title,
-        assigneeId: statusResult.after.userId,
-        type: "status_changed",
-      });
-    }
+        const lastOutbound = existingMetadata.lastOutboundStateSyncAt;
+        if (
+          typeof lastOutbound === "number" &&
+          Number.isFinite(lastOutbound) &&
+          existingMetadata.state === "opened"
+        ) {
+          const eventMs = parseIssueUpdatedAtMs(issue);
+          if (
+            eventMs !== null &&
+            Math.abs(eventMs - lastOutbound) <= OUTBOUND_STATE_ECHO_WINDOW_MS
+          ) {
+            return;
+          }
+        }
 
-    await updateExternalLink(externalLink.id, {
-      metadata: {
-        ...existingMetadata,
-        state: "opened",
+        const targetStatus = await resolveTargetStatus(
+          task.projectId,
+          "issue_reopened",
+          "to-do",
+          db,
+        );
+
+        const statusResult = await updateTaskStatus(task.id, targetStatus, db);
+        if (
+          statusResult.applied &&
+          statusResult.before.status !== statusResult.after.status
+        ) {
+          afterCommit(() =>
+            publishEvent("task.status_changed", {
+              sourceIntegrationId: integration.id,
+              taskId: statusResult.after.id,
+              projectId: statusResult.after.projectId,
+              userId: null,
+              oldStatus: statusResult.before.status,
+              newStatus: statusResult.after.status,
+              title: statusResult.after.title,
+              assigneeId: statusResult.after.userId,
+              type: "status_changed",
+            }),
+          );
+        }
+
+        await updateExternalLink(
+          externalLink.id,
+          {
+            metadata: {
+              ...existingMetadata,
+              state: "opened",
+            },
+          },
+          db,
+        );
       },
-    });
+    );
   }
 }

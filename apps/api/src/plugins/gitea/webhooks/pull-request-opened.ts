@@ -1,13 +1,11 @@
+import { withIntegrationTask } from "../../github/services/integration-task-scope";
 import { publishEvent } from "../../../events";
 import {
   createExternalLink,
   findExternalLink,
 } from "../../github/services/link-manager";
 import { resolvePullRequestTask } from "../../github/services/resolve-pull-request-task";
-import {
-  isTaskInFinalState,
-  updateTaskStatus,
-} from "../../github/services/task-service";
+import { updateTaskStatus } from "../../github/services/task-service";
 import type { GiteaConfig } from "../config";
 import {
   findAllIntegrationsByGiteaRepo,
@@ -95,46 +93,86 @@ export async function handleGiteaPullRequestOpened(
   if (integrationId && integration.id !== integrationId) return;
   const branchName = pull_request.head.ref;
 
-  await createExternalLink({
-    taskId: task.id,
-    integrationId: integration.id,
-    resourceType: "pull_request",
-    externalId: pull_request.number.toString(),
-    url: pull_request.html_url,
-    title: pull_request.title,
-    metadata: {
-      state: pull_request.state,
-      draft: pull_request.draft,
-      merged: pull_request.merged,
-      branch: branchName,
-      author: pull_request.user?.login ?? pull_request.user?.username,
-    },
-  });
-
-  const targetStatus = await resolveTargetStatus(
-    integration.projectId,
-    "pr_opened",
-    config.statusTransitions?.onPROpen || "in-review",
-  );
-
-  const isTaskFinal = await isTaskInFinalState(task);
-
-  if (task.status !== targetStatus && !isTaskFinal) {
-    const statusResult = await updateTaskStatus(task.id, targetStatus);
-    if (
-      statusResult.applied &&
-      statusResult.before.status !== statusResult.after.status
-    ) {
-      await publishEvent("task.status_changed", {
-        taskId: statusResult.after.id,
-        projectId: statusResult.after.projectId,
-        userId: null,
-        oldStatus: statusResult.before.status,
-        newStatus: statusResult.after.status,
-        title: statusResult.after.title,
-        assigneeId: statusResult.after.userId,
-        type: "status_changed",
+  await withIntegrationTask(
+    task.id,
+    integration,
+    async (database, afterCommit) => {
+      const currentTask = await resolvePullRequestTask({
+        integrationId: integration.id,
+        projectId: integration.projectId,
+        projectSlug: integration.project.slug,
+        config,
+        repositoryUrl: repository.html_url,
+        pullRequest: pull_request,
+        database,
       });
-    }
-  }
+      if (currentTask?.id !== task.id) return;
+      if (
+        await findExternalLink(
+          integration.id,
+          "pull_request",
+          pull_request.number.toString(),
+          database,
+        )
+      )
+        return;
+      await createExternalLink(
+        {
+          taskId: task.id,
+          integrationId: integration.id,
+          resourceType: "pull_request",
+          externalId: pull_request.number.toString(),
+          url: pull_request.html_url,
+          title: pull_request.title,
+          metadata: {
+            state: pull_request.state,
+            draft: pull_request.draft,
+            merged: pull_request.merged,
+            branch: branchName,
+            author: pull_request.user?.login ?? pull_request.user?.username,
+          },
+        },
+        database,
+      );
+
+      afterCommit(() =>
+        publishEvent("task.updated", {
+          projectId: integration.projectId,
+          taskId: task.id,
+        }),
+      );
+
+      const targetStatus = await resolveTargetStatus(
+        integration.projectId,
+        "pr_opened",
+        config.statusTransitions?.onPROpen || "in-review",
+        database,
+      );
+
+      if (currentTask.status !== targetStatus) {
+        const statusResult = await updateTaskStatus(
+          task.id,
+          targetStatus,
+          database,
+        );
+        if (
+          statusResult.applied &&
+          statusResult.before.status !== statusResult.after.status
+        ) {
+          afterCommit(() =>
+            publishEvent("task.status_changed", {
+              taskId: statusResult.after.id,
+              projectId: statusResult.after.projectId,
+              userId: null,
+              oldStatus: statusResult.before.status,
+              newStatus: statusResult.after.status,
+              title: statusResult.after.title,
+              assigneeId: statusResult.after.userId,
+              type: "status_changed",
+            }),
+          );
+        }
+      }
+    },
+  );
 }

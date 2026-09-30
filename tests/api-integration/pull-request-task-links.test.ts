@@ -10,6 +10,8 @@ import { handleGiteaPullRequestOpened } from "../../apps/api/src/plugins/gitea/w
 import { resolvePullRequestTask } from "../../apps/api/src/plugins/github/services/resolve-pull-request-task";
 import { handlePullRequestClosed } from "../../apps/api/src/plugins/github/webhooks/pull-request-closed";
 import { handlePullRequestOpened } from "../../apps/api/src/plugins/github/webhooks/pull-request-opened";
+import { handlePush } from "../../apps/api/src/plugins/github/webhooks/push";
+import { handleGiteaPush } from "../../apps/api/src/plugins/gitea/webhooks/push";
 import { resetTestDatabase } from "./helpers/database";
 import {
   createProjectFixture,
@@ -344,6 +346,59 @@ describe.each(["github", "gitea"] as const)(
       expect((await task(fixture.unrelated.id))?.status).toBe("to-do");
     });
 
+    it("links a PR whose description contains the task link", async () => {
+      const taskLink = `https://kaneo.example.com/dashboard/workspace/w/project/${fixture.project.id}/task/${fixture.intended.id}`;
+      await open(payload("Copy message text", `Implements ${taskLink}`));
+      expect(await links()).toMatchObject([{ taskId: fixture.intended.id }]);
+      expect((await task(fixture.unrelated.id))?.status).toBe("to-do");
+    });
+
+    it("prefers a mapped issue reference over a task link", async () => {
+      await linkIssue(fixture.intended.id);
+      const taskLink = `https://kaneo.example.com/dashboard/workspace/w/project/${fixture.project.id}/task/${fixture.unrelated.id}`;
+      await open(payload("Copy message text", `Closes #61\n\n${taskLink}`));
+      expect(await links()).toMatchObject([{ taskId: fixture.intended.id }]);
+    });
+
+    it("skips a PR that links two tasks", async () => {
+      const taskLink = (id: string) =>
+        `https://kaneo.example.com/dashboard/workspace/w/project/${fixture.project.id}/task/${id}`;
+      await open(
+        payload(
+          "Copy message text",
+          `${taskLink(fixture.intended.id)} ${taskLink(fixture.unrelated.id)}`,
+        ),
+      );
+      await expectUnchanged();
+    });
+
+    it("skips a PR that also links a task in another project", async () => {
+      const other = await createFixture(provider, "OTHER", "other-repo");
+      const taskLink = (projectId: string, taskId: string) =>
+        `https://kaneo.example.com/dashboard/workspace/w/project/${projectId}/task/${taskId}`;
+      await open(
+        payload(
+          "Copy message text",
+          `${taskLink(fixture.project.id, fixture.intended.id)} ${taskLink(other.project.id, other.intended.id)}`,
+        ),
+      );
+      await expectUnchanged();
+    });
+
+    it("falls back to the task link when the task key is stale", async () => {
+      const taskLink = `https://kaneo.example.com/dashboard/workspace/w/project/${fixture.project.id}/task/${fixture.intended.id}`;
+      await open(payload("KAN-999: copy message text", taskLink));
+      expect(await links()).toMatchObject([{ taskId: fixture.intended.id }]);
+    });
+
+    it("does not follow a task link into another project", async () => {
+      const other = await createFixture(provider, "OTHER", "other-repo");
+      const taskLink = `https://kaneo.example.com/dashboard/workspace/w/project/${other.project.id}/task/${other.intended.id}`;
+      await open(payload("Copy message text", taskLink));
+      await expectUnchanged();
+      expect((await task(other.intended.id))?.status).toBe("to-do");
+    });
+
     it("does not infer a local task from an unmapped remote issue", async () => {
       await open();
       await expectUnchanged();
@@ -418,7 +473,7 @@ describe.each(["github", "gitea"] as const)(
       expect((await task(fixture.unrelated.id))?.status).toBe("to-do");
     });
 
-    it("links a final task without moving it back to review", async () => {
+    it("moves a completed task back to review when a new PR opens", async () => {
       await linkIssue(fixture.intended.id);
       await db
         .update(schema.taskTable)
@@ -426,7 +481,59 @@ describe.each(["github", "gitea"] as const)(
         .where(eq(schema.taskTable.id, fixture.intended.id));
       await open();
       expect(await links()).toMatchObject([{ taskId: fixture.intended.id }]);
-      expect((await task(fixture.intended.id))?.status).toBe("done");
+      expect(await task(fixture.intended.id)).toMatchObject({
+        status: "in-review",
+        columnId: fixture.columns.inReview.id,
+      });
+    });
+
+    describe("pushes to a completed task", () => {
+      const branch = "kan-42-slice-2";
+      const push = (after?: string) => {
+        const { installation, repository } = payload();
+        const event = {
+          after,
+          ref: `refs/heads/${branch}`,
+          installation,
+          repository,
+        };
+        return provider === "github"
+          ? handlePush(event)
+          : handleGiteaPush(event, fixture.integration.id);
+      };
+      const complete = () =>
+        db
+          .update(schema.taskTable)
+          .set({ status: "done", columnId: fixture.columns.done.id })
+          .where(eq(schema.taskTable.id, fixture.intended.id));
+
+      beforeEach(complete);
+
+      it("moves the task back to progress for a new branch", async () => {
+        await push();
+        expect((await task(fixture.intended.id))?.status).toBe("in-progress");
+      });
+
+      it("ignores a tag push", async () => {
+        const { installation, repository } = payload();
+        const event = { ref: "refs/tags/kan-42", installation, repository };
+        await (provider === "github"
+          ? handlePush(event)
+          : handleGiteaPush(event, fixture.integration.id));
+        expect((await task(fixture.intended.id))?.status).toBe("done");
+      });
+
+      it("ignores a push that deletes the branch", async () => {
+        await push("0".repeat(40));
+        expect((await task(fixture.intended.id))?.status).toBe("done");
+      });
+
+      it("keeps the task done for a push to an already linked branch", async () => {
+        await push();
+        await complete();
+        await push();
+        expect((await task(fixture.intended.id))?.status).toBe("done");
+      });
     });
 
     it("skips ambiguous candidates across repository integrations for an unscoped delivery", async () => {

@@ -2329,6 +2329,8 @@
 			"labels": "Nhãn",
 			"copyTaskLink": "Sao chép liên kết công việc",
 			"copyTaskBranch": "Sao chép nhánh công việc",
+			"taskLinkCopied": "Đã sao chép liên kết công việc",
+			"taskBranchCopied": "Đã sao chép tên nhánh",
 			"start": "Bắt đầu",
 			"startDate": "Ngày bắt đầu",
 			"noDate": "Không có ngày"
@@ -2598,6 +2600,9 @@
 		"checklistProgress": "Đã hoàn thành {{completed}} trên {{total}} mục trong danh sách kiểm tra",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"board": {
+			"reorderFailed": "Could not move task. Please try again."
 		}
 	},
 	"invitations": {

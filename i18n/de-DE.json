@@ -2340,6 +2340,8 @@
 			"labels": "Labels",
 			"copyTaskLink": "Aufgabenlink kopieren",
 			"copyTaskBranch": "Aufgaben-Branch kopieren",
+			"taskLinkCopied": "Aufgabenlink kopiert",
+			"taskBranchCopied": "Branch-Name kopiert",
 			"start": "Start",
 			"startDate": "Startdatum",
 			"noDate": "Kein Datum"
@@ -2610,6 +2612,9 @@
 		"checklistProgress": "{{completed}} von {{total}} Checklistenpunkten abgeschlossen",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"board": {
+			"reorderFailed": "Die Reihenfolge konnte nicht gespeichert werden."
 		}
 	},
 	"invitations": {

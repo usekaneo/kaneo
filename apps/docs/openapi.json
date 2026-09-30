@@ -336,6 +336,14 @@
           },
           "relatedTotalPages": {
             "type": "number"
+          },
+          "relatedRevision": {
+            "type": "string",
+            "description": "Public board labels and external links revision for this task page. Restart pagination if it changes during related-page continuations."
+          },
+          "revision": {
+            "type": "string",
+            "description": "Public board content, membership and ordering revision, including related records and visible subtask progress. Restart pagination if it changes between task or related pages."
           }
         },
         "required": [
@@ -1024,6 +1032,43 @@
           {
             "type": "object",
             "properties": {
+              "subtaskCounts": {
+                "type": "object",
+                "properties": {
+                  "completed": {
+                    "type": "number"
+                  },
+                  "total": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "completed",
+                  "total"
+                ]
+              },
+              "parentSubtaskCounts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "taskId": {
+                      "type": "string"
+                    },
+                    "completed": {
+                      "type": "number"
+                    },
+                    "total": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "taskId",
+                    "completed",
+                    "total"
+                  ]
+                }
+              },
               "assigneeName": {
                 "type": [
                   "string",
@@ -8546,6 +8591,171 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "Tasks changed projects; retry the operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/task/reorder": {
+      "post": {
+        "operationId": "reorderTasks",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Reorder or move cards",
+        "description": "Atomically update positions and optional column status for cards in one project. Other task fields are preserved.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "projectId": {
+                    "type": "string"
+                  },
+                  "expectedTasks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "position": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 0,
+                          "maximum": 2147483646
+                        },
+                        "status": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "position",
+                        "status"
+                      ]
+                    },
+                    "description": "Previous complete contents of the affected columns; stale snapshots return 409"
+                  },
+                  "tasks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "position": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 2147483646
+                        },
+                        "status": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "position"
+                      ]
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "projectId",
+                  "tasks"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated card positions and statuses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "position": {
+                        "type": "number"
+                      },
+                      "status": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "position",
+                      "status"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid positions or column",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "Missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Tasks do not belong to the project",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Board changed or task moved; refresh before reordering",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
@@ -8875,7 +9085,7 @@
           "Tasks"
         ],
         "summary": "Get task",
-        "description": "Get a single task by ID, with its assignee's name resolved.",
+        "description": "Get a single task by ID, with its assignee name. The board view omits descriptions above 64 KiB and includes task and same-project parent subtask progress.",
         "parameters": [
           {
             "schema": {
@@ -8884,6 +9094,18 @@
             "required": true,
             "name": "id",
             "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "detail",
+                "board"
+              ]
+            },
+            "required": false,
+            "name": "view",
+            "in": "query"
           }
         ],
         "responses": {
@@ -9161,6 +9383,16 @@
           },
           "404": {
             "description": "Task or destination project not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Task or project moved concurrently; retry the move",
             "content": {
               "text/plain": {
                 "schema": {
