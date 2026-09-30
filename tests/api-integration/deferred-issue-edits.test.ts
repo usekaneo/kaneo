@@ -387,3 +387,32 @@ it.each(
     expect(publishEvent).not.toHaveBeenCalled();
   },
 );
+
+it("repairs an orphaned write using a newer local value whose subscriber has not stamped it", async () => {
+  const { task, integration, link } = await seed();
+  const stamp = outboundStamp(
+    outboundStamp(undefined, "A", undefined, {
+      intentId: "orphan",
+      pending: true,
+    }),
+    "B",
+    "2026-09-30T00:00:02Z",
+    { intentId: "completed" },
+  );
+  const orphan = stamp.outbound?.find((entry) => entry.intentId === "orphan");
+  if (!orphan) throw new Error("Missing orphan fixture");
+  orphan.timestamp = new Date(Date.now() - 300_001).toISOString();
+  await db
+    .update(schema.externalLinkTable)
+    .set({ metadata: JSON.stringify({ lastSync: { title: stamp } }) })
+    .where(eq(schema.externalLinkTable.id, link.id));
+  await db
+    .update(schema.taskTable)
+    .set({ title: "C" })
+    .where(eq(schema.taskTable.id, task.id));
+  await deferIssueEdit(link, integration, ["title"]);
+  await replayDeferredIssueEdits();
+  expect((await current(task.id))?.title).toBe("C");
+  expect(m.write).toHaveBeenCalledWith(expect.objectContaining({ title: "C" }));
+  expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+});

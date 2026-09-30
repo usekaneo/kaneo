@@ -251,7 +251,6 @@ export async function replayDeferredIssueEdits() {
               if (
                 uncertain &&
                 stamp?.source === "kaneo" &&
-                stamp.value === local &&
                 local !== values[field]
               ) {
                 if (uncertain.intentId)
