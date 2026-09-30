@@ -175,10 +175,13 @@ export async function updateExternalLink(
         delete merged.deferredIssueEdit;
       if (params.deferredEdit) {
         const { fields, repairFields = [], scope } = params.deferredEdit;
+        // The last queued direction for each field supersedes its older intent.
         const repairs = [
           ...new Set([
             ...(previousJob?.scope === scope
-              ? (previousJob.repairFields ?? [])
+              ? (previousJob.repairFields ?? []).filter(
+                  (field) => !fields.includes(field),
+                )
               : []),
             ...repairFields,
           ]),
@@ -189,7 +192,11 @@ export async function updateExternalLink(
           ...(repairs.length ? { repairFields: repairs } : {}),
           fields: [
             ...new Set([
-              ...(previousJob?.scope === scope ? previousJob.fields : []),
+              ...(previousJob?.scope === scope
+                ? previousJob.fields.filter(
+                    (field) => !repairFields.includes(field),
+                  )
+                : []),
               ...fields,
             ]),
           ],

@@ -1743,3 +1743,108 @@ it("uses the queued-link partial index without inspecting historical issue metad
     );
   });
 });
+
+it.each(providerFields)(
+  "imports a newer deferred $provider $field webhook over an older queued local repair",
+  async ({ provider, field }) => {
+    const { task, integration, link } = await seed(provider);
+    const version = "2026-09-30T00:00:03Z";
+    const initial = field === "state" ? "open" : "B";
+    const latest = field === "state" ? "closed" : "C";
+    await db
+      .update(schema.taskTable)
+      .set({
+        [field === "state" ? "status" : field]:
+          field === "state" ? "to-do" : initial,
+      })
+      .where(eq(schema.taskTable.id, task.id));
+    await db
+      .update(schema.externalLinkTable)
+      .set({
+        metadata: JSON.stringify({
+          lastSync: {
+            [field]: inboundStamp(undefined, initial, provider, version),
+          },
+        }),
+      })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    await deferTaskSync(link, integration, [field]);
+    m.read.mockRejectedValueOnce(
+      new Error("confirmation temporarily unavailable"),
+    );
+    await deliverField(provider, field, latest, version, integration.id);
+    expect((await metadata(link.id)).deferredIssueEdit.fields).toContain(field);
+    m.read.mockResolvedValue({
+      title: "C",
+      body: "C",
+      state: "closed",
+      updated_at: version,
+    });
+    await replayDeferredIssueEdits();
+    const row = await current(task.id);
+    expect(field === "state" ? row?.status : row?.[field]).toBe(
+      field === "state" ? "done" : latest,
+    );
+    expect(m.write).not.toHaveBeenCalled();
+    expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+  },
+);
+
+it.each(providerFields)(
+  "keeps a newer local $provider $field repair over an older deferred inbound job",
+  async ({ provider, field }) => {
+    const { task, integration, link } = await seed(provider);
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: "{}" })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    await deferIssueEdit(link, integration, [field]);
+    const latest = field === "state" ? "closed" : "C";
+    await db
+      .update(schema.taskTable)
+      .set({
+        [field === "state" ? "status" : field]:
+          field === "state" ? "done" : latest,
+      })
+      .where(eq(schema.taskTable.id, task.id));
+    await deferTaskSync(link, integration, [field]);
+    m.read.mockResolvedValue({
+      title: "A",
+      body: "A",
+      state: "open",
+      updated_at: "2026-09-30T00:00:03Z",
+    });
+    await replayDeferredIssueEdits();
+    expect(m.write).toHaveBeenCalledWith(
+      expect.objectContaining({
+        [field === "description" ? "body" : field]:
+          field === "description" ? expect.stringContaining("C") : latest,
+      }),
+    );
+    expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+  },
+);
+
+it("reconciles an existing overlapping inbound/repair job from the current provider value", async () => {
+  const { task, integration, link } = await seed();
+  await db
+    .update(schema.externalLinkTable)
+    .set({ metadata: "{}" })
+    .where(eq(schema.externalLinkTable.id, link.id));
+  await deferIssueEdit(link, integration, ["title"]);
+  const queued = await metadata(link.id);
+  queued.deferredIssueEdit.repairFields = ["title"];
+  await db
+    .update(schema.externalLinkTable)
+    .set({ metadata: JSON.stringify(queued) })
+    .where(eq(schema.externalLinkTable.id, link.id));
+  m.read.mockResolvedValue({
+    title: "C",
+    body: "body",
+    state: "open",
+    updated_at: "2026-09-30T00:00:03Z",
+  });
+  await replayDeferredIssueEdits();
+  expect((await current(task.id))?.title).toBe("C");
+  expect(m.write).not.toHaveBeenCalled();
+});

@@ -253,7 +253,10 @@ async function replayClaimedIssueEdits() {
                   : field === "description"
                     ? task.description || ""
                     : task.title;
-              if (job.repairFields?.includes(field)) {
+              if (
+                job.repairFields?.includes(field) &&
+                !job.fields.includes(field)
+              ) {
                 repairs.push({
                   field,
                   value: local,
