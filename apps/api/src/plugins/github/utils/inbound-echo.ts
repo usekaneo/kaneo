@@ -1,4 +1,8 @@
-import { isOutboundEcho, type SyncStamp } from "./sync-echo";
+import {
+  isOutboundEcho,
+  isPendingOutboundEcho,
+  type SyncStamp,
+} from "./sync-echo";
 class ConfirmationRequired extends Error {}
 
 export function inboundEcho(
@@ -7,6 +11,7 @@ export function inboundEcho(
   updatedAt?: string,
   providerValue?: string,
 ) {
+  if (isPendingOutboundEcho(stamp, value)) return true;
   if (!isOutboundEcho(stamp, value, updatedAt)) return false;
   if (stamp?.value === value) return true;
   if (providerValue === undefined) throw new ConfirmationRequired();

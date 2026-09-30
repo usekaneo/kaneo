@@ -28,6 +28,9 @@ export type UpdateExternalLinkParams = {
     field: "title" | "description" | "state";
     value: string;
     updatedAt?: string;
+    intentId?: string;
+    pending?: boolean;
+    cancelled?: boolean;
   };
   title?: string | null;
   url?: string;
@@ -133,10 +136,15 @@ export async function updateExternalLink(
       >(link.metadata, { externalLinkId: id, source: "sync_update" });
       const merged = mergeSyncMetadata(metadata, params.metadata ?? {});
       if (params.outbound) {
-        const { field, value, updatedAt } = params.outbound;
+        const { field, value, updatedAt, ...intent } = params.outbound;
         merged.lastSync = {
           ...merged.lastSync,
-          [field]: outboundStamp(merged.lastSync?.[field], value, updatedAt),
+          [field]: outboundStamp(
+            merged.lastSync?.[field],
+            value,
+            updatedAt,
+            intent,
+          ),
         };
       }
       await tx

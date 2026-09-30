@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, expect, it, vi } from "vite-plus/test";
+import { publishEvent } from "../../apps/api/src/events";
 import db, { getDatabase, schema } from "../../apps/api/src/database";
 import { handlePullRequestOpened } from "../../apps/api/src/plugins/github/webhooks/pull-request-opened";
 import { handlePullRequestClosed } from "../../apps/api/src/plugins/github/webhooks/pull-request-closed";
@@ -17,19 +18,33 @@ import {
 vi.mock("../../apps/api/src/events", () => ({
   publishEvent: vi.fn(async () => undefined),
 }));
-beforeEach(resetTestDatabase);
+beforeEach(async () => {
+  await resetTestDatabase();
+  vi.mocked(publishEvent).mockReset();
+});
 const cases = ["github", "gitea", "gitlab"].flatMap((provider) =>
   ["opened", "merged"].flatMap((action) =>
     ["ordinary", "moved", "returned"].map((race) => ({
       provider,
       action,
       race,
+      sameStatus: false,
+    })),
+  ),
+);
+cases.push(
+  ...["github", "gitea", "gitlab"].flatMap((provider) =>
+    ["opened", "merged", "closed"].map((action) => ({
+      provider,
+      action,
+      race: "ordinary",
+      sameStatus: action !== "closed",
     })),
   ),
 );
 it.each(cases)(
   "$provider $action webhook respects task ownership ($race)",
-  async ({ provider, action, race }) => {
+  async ({ provider, action, race, sameStatus }) => {
     const { user, workspace } = await createWorkspaceMember();
     const { project } = await createProjectFixture({
       workspaceId: workspace.id,
@@ -48,7 +63,11 @@ it.each(cases)(
         projectId: project.id,
         number: 1,
         title: "card",
-        status: "to-do",
+        status: sameStatus
+          ? action === "opened"
+            ? "in-progress"
+            : "done"
+          : "to-do",
         position: 0,
       })
       .returning();
@@ -72,7 +91,7 @@ it.each(cases)(
         }),
       })
       .returning();
-    if (action === "merged")
+    if (action !== "opened")
       await db.insert(schema.externalLinkTable).values({
         taskId: task.id,
         integrationId: integration.id,
@@ -117,12 +136,38 @@ it.each(cases)(
         title: "change",
         description: null,
         url: "https://git.example/owner/repo/-/merge_requests/1",
-        state: action === "opened" ? "opened" : "merged",
-        action: action === "opened" ? "open" : "merge",
+        state:
+          action === "opened"
+            ? "opened"
+            : action === "merged"
+              ? "merged"
+              : "closed",
+        action:
+          action === "opened"
+            ? "open"
+            : action === "merged"
+              ? "merge"
+              : "close",
         source_branch: "KAN-1",
         draft: false,
       },
     };
+    vi.mocked(publishEvent).mockImplementation(async (type) => {
+      if (type !== "task.updated") return;
+      const committed = await db.query.externalLinkTable.findFirst({
+        where: eq(schema.externalLinkTable.taskId, task.id),
+      });
+      expect(committed).toBeDefined();
+      expect(JSON.parse(committed!.metadata!).state).toBe(
+        action === "opened"
+          ? provider === "gitlab"
+            ? "opened"
+            : "open"
+          : action === "merged" && provider === "gitlab"
+            ? "merged"
+            : "closed",
+      );
+    });
     const transaction = getDatabase().transaction.bind(getDatabase());
     const intercepted =
       race === "ordinary"
@@ -169,7 +214,9 @@ it.each(cases)(
         race === "ordinary"
           ? action === "opened"
             ? "in-progress"
-            : "done"
+            : action === "merged"
+              ? "done"
+              : "to-do"
           : "to-do",
       );
       expect(saved?.projectId).toBe(
@@ -179,6 +226,15 @@ it.each(cases)(
         where: eq(schema.externalLinkTable.taskId, task.id),
       });
       expect(links).toHaveLength(race === "ordinary" ? 1 : 0);
+      expect(
+        vi
+          .mocked(publishEvent)
+          .mock.calls.filter(([type]) => type === "task.updated"),
+      ).toEqual(
+        race === "ordinary"
+          ? [["task.updated", { projectId: project.id, taskId: task.id }]]
+          : [],
+      );
     } finally {
       intercepted?.mockRestore();
     }

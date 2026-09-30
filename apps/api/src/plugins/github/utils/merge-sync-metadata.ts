@@ -1,4 +1,8 @@
-import type { SyncStamp } from "./sync-echo";
+import {
+  boundOutboundHistory,
+  type OutboundEntry,
+  type SyncStamp,
+} from "./sync-echo";
 type SyncMetadata = Record<string, unknown> & {
   lastSync?: Record<string, SyncStamp>;
 };
@@ -34,13 +38,23 @@ export function mergeSyncMetadata(
     if (history.length)
       lastSync[field] = {
         ...latest,
-        outbound: [
-          ...new Map(
-            history.map((entry) => [JSON.stringify(entry), entry]),
-          ).values(),
-        ]
-          .sort((a, b) => a.timestamp.localeCompare(b.timestamp))
-          .slice(-32),
+        outbound: boundOutboundHistory([
+          ...history
+            .reduce((entries, entry) => {
+              const key = entry.intentId ?? JSON.stringify(entry);
+              const prior = entries.get(key);
+              if (
+                !prior ||
+                entry.timestamp > prior.timestamp ||
+                (entry.timestamp === prior.timestamp &&
+                  prior.pending &&
+                  !entry.pending)
+              )
+                entries.set(key, entry);
+              return entries;
+            }, new Map<string, OutboundEntry>())
+            .values(),
+        ]),
       };
   }
   return {
