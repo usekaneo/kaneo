@@ -256,3 +256,28 @@ it.each(
     }
   },
 );
+
+it("does not restart public related pagination for ordinary text and integration stamps", async () => {
+  const { app, project, task } = await fixture();
+  mockAnonymousSession();
+  const path = `/api/public-project/${project.id}?limit=100`;
+  const before = (await (await app.request(path)).json()).pagination;
+  await db
+    .update(schema.taskTable)
+    .set({ title: "Edited title", description: "Edited body" })
+    .where(eq(schema.taskTable.id, task.id));
+  await db
+    .update(schema.externalLinkTable)
+    .set({
+      metadata: JSON.stringify({
+        lastSync: { title: { source: "kaneo", value: "Edited title" } },
+      }),
+    })
+    .where(eq(schema.externalLinkTable.id, "link-000"));
+  const after = (await (await app.request(path + "&relatedPage=2")).json())
+    .pagination;
+  expect(after).toMatchObject({
+    revision: before.revision,
+    relatedRevision: before.relatedRevision,
+  });
+});

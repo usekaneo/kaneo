@@ -57,26 +57,27 @@ const priorityCaseExpr = sql<number>`CASE
   ELSE 0
 END`;
 
+function sortValue(sortBy: GetTasksOptions["sortBy"]): SQLWrapper {
+  switch (sortBy) {
+    case "createdAt":
+      return taskTable.createdAt;
+    case "priority":
+      return priorityCaseExpr;
+    case "dueDate":
+      return taskTable.dueDate;
+    case "title":
+      return taskTable.title;
+    case "number":
+      return taskTable.number;
+    default:
+      return taskTable.position;
+  }
+}
 function buildOrderBy(
   sortBy: GetTasksOptions["sortBy"],
   sortOrder: GetTasksOptions["sortOrder"],
 ): SQL {
-  const direction = sortOrder === "desc" ? desc : asc;
-
-  switch (sortBy) {
-    case "createdAt":
-      return direction(taskTable.createdAt);
-    case "priority":
-      return direction(priorityCaseExpr);
-    case "dueDate":
-      return direction(taskTable.dueDate);
-    case "title":
-      return direction(taskTable.title);
-    case "number":
-      return direction(taskTable.number);
-    default:
-      return direction(taskTable.position);
-  }
+  return (sortOrder === "desc" ? desc : asc)(sortValue(sortBy));
 }
 
 function membershipRevision(
@@ -150,8 +151,7 @@ async function getTasksPage(
       count: sql<number>`count(*)`,
       revision: membershipRevision(options.publicOnly, [
         taskTable.id,
-        taskTable.updatedAt,
-        taskTable.position,
+        sortValue(options.sortBy),
         taskTable.status,
       ]),
     })
@@ -308,7 +308,6 @@ async function getTasksPage(
       count: sql<number>`count(*)`,
       revision: membershipRevision(options.publicOnly, [
         columnTable.id,
-        columnTable.updatedAt,
         columnTable.slug,
         columnTable.position,
         columnTable.name,
@@ -328,7 +327,6 @@ async function getTasksPage(
         count: sql<number>`count(*)`,
         revision: membershipRevision(options.publicOnly, [
           labelTable.id,
-          labelTable.updatedAt,
           labelTable.taskId,
           labelTable.name,
           labelTable.color,
@@ -341,7 +339,6 @@ async function getTasksPage(
         count: sql<number>`count(*)`,
         revision: membershipRevision(options.publicOnly, [
           externalLinkTable.id,
-          externalLinkTable.updatedAt,
           externalLinkTable.taskId,
         ]),
       })

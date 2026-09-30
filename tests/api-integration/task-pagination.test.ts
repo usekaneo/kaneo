@@ -245,3 +245,23 @@ it.each(["create", "delete", "move", "reorder"])(
     expect((await later.json()).pagination.revision).not.toBe(before);
   },
 );
+
+it("detects title-order boundary shifts while ordinary position-order edits remain stable", async () => {
+  const { app, project, tasks } = await fixture(237, true);
+  mockAnonymousSession();
+  const path = `/api/public-project/${project.id}?limit=100`;
+  const position = (await (await app.request(path)).json()).pagination.revision;
+  const title = (await (await app.request(path + "&sortBy=title")).json())
+    .pagination.revision;
+  await db
+    .update(schema.taskTable)
+    .set({ title: "ZZZ new title" })
+    .where(eq(schema.taskTable.id, tasks[0].id));
+  expect(
+    (await (await app.request(path + "&page=2")).json()).pagination.revision,
+  ).toBe(position);
+  expect(
+    (await (await app.request(path + "&page=2&sortBy=title")).json()).pagination
+      .revision,
+  ).not.toBe(title);
+});

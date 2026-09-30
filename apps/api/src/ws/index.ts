@@ -415,7 +415,7 @@ subscribeToEvent<{
     { type: "TASK_MOVED", projectId: fromProjectId, taskId },
     initiatorId,
   );
-  refreshParentBoards(await getSubtaskParentProjects([taskId]), fromProjectId);
+  refreshParentBoards(await getSubtaskParentProjects([taskId]), toProjectId);
 });
 
 subscribeToEvent<{
