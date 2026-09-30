@@ -473,3 +473,13 @@ it("drains queued detail events after retries fall back to polling", async () =>
     vi.useRealTimers();
   }
 });
+
+it("refreshes workspace label filters when a remote project event changes labels", async () => {
+  renderHook(() => useProjectWebSocket("p"));
+  Socket.current.message("PROJECT_UPDATED", {});
+  await vi.waitFor(() =>
+    expect(mocks.client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["labels"],
+    }),
+  );
+});

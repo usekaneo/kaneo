@@ -70,6 +70,7 @@ export function useProjectWebSocket(projectId: string) {
     }) {
       if (message.type === "PROJECT_UPDATED") {
         queryClient.invalidateQueries({ queryKey: ["projects"] });
+        queryClient.invalidateQueries({ queryKey: ["labels"] });
         return;
       }
 
