@@ -202,23 +202,29 @@ export async function updateExternalLink(
 
 export async function createOrUpdateExternalLink(
   params: CreateExternalLinkParams,
+  database: DbOrTx = db,
 ): Promise<{ id: string; created: boolean }> {
   const existing = await findExternalLink(
     params.integrationId,
     params.resourceType,
     params.externalId,
+    database,
   );
 
   if (existing) {
-    await updateExternalLink(existing.id, {
-      title: params.title,
-      url: params.url,
-      metadata: params.metadata,
-    });
+    await updateExternalLink(
+      existing.id,
+      {
+        title: params.title,
+        url: params.url,
+        metadata: params.metadata,
+      },
+      database,
+    );
     return { id: existing.id, created: false };
   }
 
-  const link = await createExternalLink(params);
+  const link = await createExternalLink(params, database);
   return { id: link.id, created: true };
 }
 
