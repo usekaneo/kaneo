@@ -29,7 +29,16 @@ export function inboundEcho(
 ) {
   const pending = pendingOutboundIntent(stamp, value);
   if (pending) throw new PendingEcho(pending.intentId, updatedAt, context);
-  if (!isOutboundEcho(stamp, value, updatedAt)) return false;
+  if (!isOutboundEcho(stamp, value, updatedAt)) {
+    const colliding =
+      updatedAt &&
+      stamp?.outbound?.some(
+        (entry) => !entry.cancelled && entry.updatedAt === updatedAt,
+      );
+    if (!colliding) return false;
+    if (providerValue === undefined) throw new ConfirmationRequired();
+    return providerValue !== value;
+  }
   if (stamp?.value === value && !ambiguousOutboundEcho(stamp, value, updatedAt))
     return true;
   if (providerValue === undefined) throw new ConfirmationRequired();
@@ -92,7 +101,20 @@ export async function withEchoConfirmation<Provider, Result>(
         error instanceof ConfirmationRequired &&
         current === undefined
       ) {
-        current = await read();
+        try {
+          current = await read();
+        } catch (error) {
+          if (!defer) throw error;
+          try {
+            await defer();
+            return;
+          } catch (cause) {
+            throw new PendingResponseTimeout(
+              "Could not persist deferred webhook delivery",
+              { cause },
+            );
+          }
+        }
       } else {
         throw error;
       }

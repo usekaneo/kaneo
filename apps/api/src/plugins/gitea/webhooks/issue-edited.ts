@@ -74,16 +74,12 @@ export async function handleGiteaIssueEdited(
     }
 
     const readCurrent = async () => {
-      try {
-        const config = JSON.parse(integration.config) as GiteaConfig;
-        return await createGiteaClient(config).getIssue(
-          config.repositoryOwner,
-          config.repositoryName,
-          issue.number,
-        );
-      } catch {
-        return issue;
-      }
+      const config = JSON.parse(integration.config) as GiteaConfig;
+      return await createGiteaClient(config).getIssue(
+        config.repositoryOwner,
+        config.repositoryName,
+        issue.number,
+      );
     };
     await withEchoConfirmation(
       readCurrent,

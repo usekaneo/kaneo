@@ -365,3 +365,30 @@ it("does not PATCH when the link disappears before its pending intent commits", 
   await syncLatestTaskValue("task", "project", link, "title", "B", write);
   expect(write).not.toHaveBeenCalled();
 });
+
+it("confirms a delayed different value sharing an outbound provider version", async () => {
+  const stamp = outboundStamp(undefined, "A", "shared-version", {
+    intentId: "completed",
+  });
+  expect(inboundEcho(stamp, "A", "shared-version")).toBe(true);
+  const read = vi.fn(async () => "A");
+  expect(
+    await withEchoConfirmation(read, async (current) =>
+      inboundEcho(stamp, "B", "shared-version", current),
+    ),
+  ).toBe(true);
+  expect(read).toHaveBeenCalledOnce();
+  expect(inboundEcho(stamp, "B", "shared-version", "B")).toBe(false);
+});
+it("durably defers a colliding event when provider confirmation fails", async () => {
+  const stamp = outboundStamp(undefined, "A", "shared-version");
+  const defer = vi.fn(async () => undefined);
+  await withEchoConfirmation(
+    async () => {
+      throw new Error("provider unavailable");
+    },
+    async (current) => inboundEcho(stamp, "B", "shared-version", current),
+    defer,
+  );
+  expect(defer).toHaveBeenCalledOnce();
+});

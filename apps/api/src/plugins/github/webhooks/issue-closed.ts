@@ -54,19 +54,15 @@ export async function handleIssueClosed(payload: IssueClosedPayload) {
     }
 
     const readCurrent = async () => {
-      try {
-        const config = JSON.parse(integration.config) as GitHubConfig;
-        const octokit = await getVerifiedInstallationOctokit(config);
-        return (
-          await octokit.rest.issues.get({
-            owner: config.repositoryOwner,
-            repo: config.repositoryName,
-            issue_number: issue.number,
-          })
-        ).data;
-      } catch {
-        return issue;
-      }
+      const config = JSON.parse(integration.config) as GitHubConfig;
+      const octokit = await getVerifiedInstallationOctokit(config);
+      return (
+        await octokit.rest.issues.get({
+          owner: config.repositoryOwner,
+          repo: config.repositoryName,
+          issue_number: issue.number,
+        })
+      ).data;
     };
     await withEchoConfirmation(
       readCurrent,

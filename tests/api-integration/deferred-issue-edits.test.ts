@@ -7,6 +7,7 @@ import {
   replayDeferredIssueEdits,
 } from "../../apps/api/src/plugins/github/services/deferred-issue-edits";
 import { updateExternalLink } from "../../apps/api/src/plugins/github/services/link-manager";
+import { handleGiteaIssueEdited } from "../../apps/api/src/plugins/gitea/webhooks/issue-edited";
 import { handleIssueEdited } from "../../apps/api/src/plugins/github/webhooks/issue-edited";
 import {
   inboundStamp,
@@ -416,3 +417,58 @@ it("repairs an orphaned write using a newer local value whose subscriber has not
   expect(m.write).toHaveBeenCalledWith(expect.objectContaining({ title: "C" }));
   expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
 });
+
+it.each(["github", "gitea"])(
+  "preserves the final %s value when colliding-version webhooks arrive in reverse",
+  async (provider) => {
+    const { task, integration, link } = await seed(provider);
+    await db
+      .update(schema.taskTable)
+      .set({ title: "A" })
+      .where(eq(schema.taskTable.id, task.id));
+    await db
+      .update(schema.externalLinkTable)
+      .set({
+        metadata: JSON.stringify({
+          lastSync: {
+            title: outboundStamp(undefined, "A", "2026-09-30T00:00:03Z"),
+          },
+        }),
+      })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    const apply = async (title: string, from: string) => {
+      const payload = {
+        action: "edited",
+        issue: {
+          number: 1,
+          title,
+          body: "body",
+          updated_at: "2026-09-30T00:00:03Z",
+          html_url: link.url,
+        },
+        changes: { title: { from } },
+        repository: {
+          id: 20,
+          name: "repo",
+          full_name: "owner/repo",
+          owner: { login: "owner" },
+          html_url: "https://git.example/owner/repo",
+        },
+      };
+      if (provider === "github") await handleIssueEdited(payload);
+      else await handleGiteaIssueEdited(payload, integration.id);
+    };
+    await apply("A", "B");
+    await apply("B", "A");
+    expect((await current(task.id))?.title).toBe("A");
+    expect(m.read).toHaveBeenCalledOnce();
+    m.read.mockResolvedValueOnce({
+      title: "B",
+      body: "body",
+      state: "open",
+      updated_at: "2026-09-30T00:00:03Z",
+    });
+    await apply("B", "A");
+    expect((await current(task.id))?.title).toBe("B");
+  },
+);
