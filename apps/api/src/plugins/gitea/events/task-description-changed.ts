@@ -107,7 +107,7 @@ export async function handleTaskDescriptionChanged(
       metadata: {
         ...metadata,
         lastSync: {
-          ...(metadata.lastSync ?? {}),
+          ...metadata.lastSync,
           description: {
             timestamp: new Date().toISOString(),
             source: "kaneo",

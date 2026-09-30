@@ -429,6 +429,31 @@ export function registerMcpTools(
   );
 
   registerTool(
+    "get_task_by_ticket_id",
+    {
+      description:
+        "Get one task by its ticket ID (project key and number, e.g. KAN-12). If multiple accessible tasks share the ID, provide workspaceId or projectId.",
+      inputSchema: z.object({
+        ticketId: nonEmptyString,
+        workspaceId: optionalNonEmptyString,
+        projectId: optionalNonEmptyString,
+      }),
+    },
+    async ({ ticketId, workspaceId, projectId }) => {
+      const query = new URLSearchParams();
+      if (workspaceId) query.set("workspaceId", workspaceId);
+      if (projectId) query.set("projectId", projectId);
+      const suffix = query.toString();
+      return run(() =>
+        client.json(
+          `/api/task/by-ticket-id/${encodeURIComponent(ticketId)}${suffix ? `?${suffix}` : ""}`,
+          { method: "GET" },
+        ),
+      );
+    },
+  );
+
+  registerTool(
     "create_task",
     {
       description: "Create a task in a project.",
@@ -458,6 +483,28 @@ export function registerMcpTools(
       if (args.userId !== undefined) body.userId = args.userId;
       return run(() =>
         client.json(`/api/task/${encodeURIComponent(args.projectId)}`, {
+          method: "POST",
+          body: JSON.stringify(body),
+        }),
+      );
+    },
+  );
+
+  registerTool(
+    "duplicate_task",
+    {
+      description:
+        "Duplicate a task in the same project, copying its fields and labels. Pass title to rename the copy.",
+      inputSchema: z.object({
+        taskId: nonEmptyString,
+        title: optionalNonEmptyString,
+      }),
+    },
+    async (args) => {
+      const body: Record<string, string> = {};
+      if (args.title !== undefined) body.title = args.title;
+      return run(() =>
+        client.json(`/api/task/duplicate/${encodeURIComponent(args.taskId)}`, {
           method: "POST",
           body: JSON.stringify(body),
         }),

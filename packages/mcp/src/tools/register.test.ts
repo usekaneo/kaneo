@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vite-plus/test";
 import { registerTools } from "./register.js";
 
 type RegisteredTool = {
@@ -49,6 +49,62 @@ describe("registerTools", () => {
     );
   });
 
+  it("uses the API-key current-user endpoint for whoami", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      usingApiKey: true,
+      json: vi.fn().mockResolvedValue({
+        id: "user-1",
+        name: "Mohiuddin",
+      }),
+    };
+
+    registerTools(server as never, { client: client as never });
+
+    const result = await tools.get("whoami")?.handler({});
+
+    expect(client.json).toHaveBeenCalledWith("/api/user/me", {
+      method: "GET",
+    });
+    expect(result?.isError).toBe(false);
+    expect(result?.content).toEqual([
+      {
+        type: "text",
+        text: JSON.stringify({ id: "user-1", name: "Mohiuddin" }, null, 2),
+      },
+    ]);
+  });
+
+  it("uses the session endpoint for whoami with device authentication", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      usingApiKey: false,
+      json: vi.fn().mockResolvedValue({
+        user: { id: "user-1" },
+        session: { id: "session-1" },
+      }),
+    };
+
+    registerTools(server as never, { client: client as never });
+
+    const result = await tools.get("whoami")?.handler({});
+
+    expect(client.json).toHaveBeenCalledWith("/api/auth/get-session", {
+      method: "GET",
+    });
+    expect(result?.isError).toBe(false);
+    expect(result?.content).toEqual([
+      {
+        type: "text",
+        text: JSON.stringify(
+          { user: { id: "user-1" }, session: { id: "session-1" } },
+          null,
+          2,
+        ),
+      },
+    ]);
+  });
+
   it("builds the expected query string for list_tasks", async () => {
     const { server, tools } = createServerMock();
     const client = {
@@ -78,6 +134,36 @@ describe("registerTools", () => {
       ],
       isError: false,
     });
+  });
+
+  it("gets one task by ticket ID with an optional workspace", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      json: vi.fn().mockResolvedValue({ id: "task-1", number: 12 }),
+    };
+    registerTools(server as never, { client: client as never });
+
+    const tool = tools.get("get_task_by_ticket_id");
+    expect(tool).toBeDefined();
+    await tool?.handler({ ticketId: "KAN-12" });
+    await tool?.handler({ ticketId: "KAN-12", workspaceId: "workspace 1" });
+    await tool?.handler({ ticketId: "KAN-12", projectId: "project 1" });
+
+    expect(client.json).toHaveBeenNthCalledWith(
+      1,
+      "/api/task/by-ticket-id/KAN-12",
+      { method: "GET" },
+    );
+    expect(client.json).toHaveBeenNthCalledWith(
+      2,
+      "/api/task/by-ticket-id/KAN-12?workspaceId=workspace+1",
+      { method: "GET" },
+    );
+    expect(client.json).toHaveBeenNthCalledWith(
+      3,
+      "/api/task/by-ticket-id/KAN-12?projectId=project+1",
+      { method: "GET" },
+    );
   });
 
   it("fetches the current task and sends a full body for update_task", async () => {

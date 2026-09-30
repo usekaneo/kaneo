@@ -7,6 +7,7 @@ import { UserCheck } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
+import { CloudAuthLayout } from "@/components/auth/cloud-auth-layout";
 import { AuthLayout } from "@/components/auth/layout";
 import { SignUpForm } from "@/components/auth/sign-up-form";
 import { SSOProviders } from "@/components/auth/sso-providers";
@@ -15,6 +16,7 @@ import { Turnstile } from "@/components/auth/turnstile";
 import PageTitle from "@/components/page-title";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { getConfig } from "@/fetchers/config/get-config";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
 import useInstanceStatus from "@/hooks/queries/instance/use-instance-status";
 import { authClient } from "@/lib/auth-client";
@@ -32,6 +34,11 @@ const signUpSearchSchema = z.object({
 export const Route = createFileRoute("/auth/sign-up")({
   component: SignUp,
   validateSearch: signUpSearchSchema,
+  loader: ({ context }) =>
+    context.queryClient.prefetchQuery({
+      queryKey: ["config"],
+      queryFn: getConfig,
+    }),
 });
 
 function SignUp() {
@@ -76,6 +83,7 @@ function SignUp() {
   const invitationId = search.invitationId;
   const prefillEmail = search.email;
   const isInstanceAdminSetup = instanceStatus?.hasUsers === false;
+  const SignUpLayout = config?.isCloud ? CloudAuthLayout : AuthLayout;
 
   const baseUrl = import.meta.env.VITE_CLIENT_URL ?? window.location.origin;
   const callbackURL = invitationId
@@ -113,7 +121,7 @@ function SignUp() {
   return (
     <>
       <PageTitle title={t("auth:signUp.pageTitle")} />
-      <AuthLayout
+      <SignUpLayout
         title={
           isInstanceAdminSetup
             ? t("auth:signUp.instanceAdminTitle", {
@@ -136,7 +144,7 @@ function SignUp() {
                   : t("auth:signUp.subtitleDefault")
         }
       >
-        <div className="space-y-4 mt-6">
+        <div className={config?.isCloud ? "space-y-4" : "space-y-4 mt-6"}>
           {invitationId && (
             <Alert>
               <AlertDescription>
@@ -248,7 +256,7 @@ function SignUp() {
             />
           )}
         </div>
-      </AuthLayout>
+      </SignUpLayout>
     </>
   );
 }

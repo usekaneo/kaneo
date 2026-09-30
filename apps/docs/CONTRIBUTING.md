@@ -1,34 +1,29 @@
-> **Customize this file**: Tailor this template to your project by noting specific contribution types you're looking for, adding a Code of Conduct, or adjusting the writing guidelines to match your style.
+# Contribute to the docs
 
-# Contribute to the documentation
+Read the implementation behind a feature before documenting it. Test the instructions from the reader's starting point, including how they get any IDs, credentials, or files the example needs.
 
-Thank you for your interest in contributing to our documentation! This guide will help you get started.
+## Write for the person doing the work
 
-## How to contribute
+- Use everyday English, short paragraphs, and sentence-case headings.
+- Start with what the reader can accomplish and what they need first.
+- Use the actual labels in the interface. Explain a term before relying on it.
+- Avoid marketing filler, unnecessary warnings, and em dashes.
+- Explain the result of an action, plus how to change or undo it when relevant.
+- Keep setup tutorials separate from detailed configuration references.
+- Use example.com domains and fictional people. Never include live credentials or private project data.
 
-### Option 1: Edit directly on GitHub
+## Add useful images
 
-1. Navigate to the page you want to edit
-2. Click the "Edit this file" button (the pencil icon)
-3. Make your changes and submit a pull request
+Use real app screenshots with fictional data. Include both themes where available, descriptive alt text, and a caption that tells readers what to notice. Put the image next to the step it explains. Use diagrams for system relationships instead of inventing screenshots of an interface.
 
-### Option 2: Local development
+See [the screenshot guide](images/product/README.md) for reproduction. Verify the page at desktop and mobile widths, and check that the right screenshot appears in each theme.
 
-1. Fork and clone this repository
-2. Install the Mintlify CLI: `npm i -g mint`
-3. Create a branch for your changes
-4. Make changes
-5. Navigate to the docs directory and run `mint dev`
-6. Preview your changes at `http://localhost:3000`
-7. Commit your changes and submit a pull request
+## Check your change
 
-For more details on local development, see our [development guide](development.mdx).
+From `apps/docs`, run `pnpm dlx mint validate` and `pnpm dlx mint broken-links`. Preview with `pnpm dlx mint dev` and follow the updated navigation and instructions in a browser.
 
-## Writing guidelines
+Keep existing page URLs where possible. When a URL must change, add a redirect in `docs.json` and update internal links. Add new guide pages to the appropriate navigation group.
 
-- **Use active voice**: "Run the command" not "The command should be run"
-- **Address the reader directly**: Use "you" instead of "the user"
-- **Keep sentences concise**: Aim for one idea per sentence
-- **Lead with the goal**: Start instructions with what the user wants to accomplish
-- **Use consistent terminology**: Don't alternate between synonyms for the same concept
-- **Include examples**: Show, don't just tell
+API route and schema changes require `pnpm openapi:check:fix` from the repository root. Do not hand-edit generated endpoint contracts to conceal a mismatch. Older links under `api-reference/endpoints/` are kept as thin pages pointing at the same schema; update their method and path when a route moves, and let OpenAPI supply their descriptions.
+
+In your pull request, say which instructions you executed and which you only reviewed. A successful docs build does not prove an installation or restore works.

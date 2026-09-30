@@ -1,0 +1,98 @@
+# Disposable CI data only. Use a unique --project-name; never load the root .env.
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: kaneo_ci_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ci-only-password
+    ports: ["127.0.0.1:59432:5432"]
+    volumes:
+      - ./init-databases.sql:/docker-entrypoint-initdb.d/ci.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d kaneo_ci_test"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+  redis:
+    image: redis:7-alpine
+    ports: ["127.0.0.1:59379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+  minio:
+    image: bitnamilegacy/minio@sha256:8935e75fa5d11295c17171e4aa49efe390a1193cd7f12e4d21b92af9ffef09d7
+    entrypoint: /opt/bitnami/minio/bin/minio
+    command: server /tmp/minio --address :9000
+    environment:
+      MINIO_ROOT_USER: local-test-access
+      MINIO_ROOT_PASSWORD: local-test-secret-only
+      MINIO_BROWSER: "off"
+      MINIO_UPDATE: "off"
+    ports: ["127.0.0.1:59040:9000"]
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:9000/minio/health/ready"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+  app:
+    image: ${KANEO_CI_IMAGE:-kaneo:ci}
+    environment: &app-env
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:ci-only-password@postgres:5432/kaneo_ci_test
+      AUTH_SECRET: ci-only-secret-with-at-least-32-characters
+      KANEO_CLIENT_URL: http://127.0.0.1:55173
+      DISABLE_REGISTRATION: "false"
+      DISABLE_GUEST_ACCESS: "true"
+      DISABLE_PASSWORD_REGISTRATION: "false"
+      REDIS_URL: ${KANEO_CI_REDIS_URL:-}
+      S3_ENDPOINT: http://minio:9000
+      S3_BUCKET: kaneo-ci-test
+      S3_ACCESS_KEY_ID: local-test-access
+      S3_SECRET_ACCESS_KEY: local-test-secret-only
+      S3_REGION: us-east-1
+      S3_FORCE_PATH_STYLE: "true"
+    ports: ["127.0.0.1:55173:5173"]
+    depends_on:
+      postgres: {condition: service_healthy}
+      minio: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:5173/api/health"]
+      interval: 2s
+      timeout: 5s
+      retries: 60
+  second:
+    image: ${KANEO_CI_IMAGE:-kaneo:ci}
+    profiles: [realtime]
+    environment:
+      <<: *app-env
+      KANEO_CLIENT_URL: http://127.0.0.1:55174
+      REDIS_URL: redis://redis:6379
+    ports: ["127.0.0.1:55174:5173"]
+    depends_on:
+      app: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:5173/api/health"]
+      interval: 2s
+      timeout: 5s
+      retries: 60
+  upgrade:
+    image: ${KANEO_UPGRADE_IMAGE:-kaneo:ci}
+    profiles: [upgrade]
+    environment:
+      <<: *app-env
+      DATABASE_URL: postgresql://postgres:ci-only-password@postgres:5432/kaneo_upgrade_test
+      KANEO_CLIENT_URL: http://127.0.0.1:55175
+      REDIS_URL: ""
+    ports: ["127.0.0.1:55175:5173"]
+    depends_on:
+      postgres: {condition: service_healthy}
+      minio: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:5173/api/health"]
+      interval: 2s
+      timeout: 5s
+      retries: 60

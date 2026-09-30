@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { formatIssueBody } from "../../apps/api/src/plugins/github/utils/format";
 import { handleIssueEdited } from "../../apps/api/src/plugins/github/webhooks/issue-edited";

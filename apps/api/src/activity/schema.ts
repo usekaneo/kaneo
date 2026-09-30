@@ -18,12 +18,12 @@ export const createActivityBody = z.object({
 
 export const createCommentBody = z.object({
   taskId: z.string(),
-  comment: z.string(),
+  comment: z.string().max(10_000),
 });
 
 export const updateCommentBody = z.object({
   activityId: z.string(),
-  comment: z.string(),
+  comment: z.string().max(10_000),
 });
 
 export const deleteCommentBody = z.object({ activityId: z.string() });

@@ -7,6 +7,7 @@ import {
   taskTable,
 } from "../../../database/schema";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
+import { extractTaskLinks } from "../utils/task-references";
 
 export type TaskRow = InferSelectModel<typeof taskTable>;
 
@@ -21,6 +22,23 @@ export async function findTaskByNumber(projectId: string, taskNumber: number) {
     where: and(
       eq(taskTable.projectId, projectId),
       eq(taskTable.number, taskNumber),
+    ),
+  });
+}
+
+export async function findTaskByLink(
+  projectId: string,
+  texts: (string | null | undefined)[],
+  database: Pick<typeof db, "query"> = db,
+) {
+  const links = extractTaskLinks(...texts);
+  const link = links.length === 1 ? links[0] : undefined;
+  if (link?.projectId !== projectId) return;
+
+  return database.query.taskTable.findFirst({
+    where: and(
+      eq(taskTable.projectId, projectId),
+      eq(taskTable.id, link.taskId),
     ),
   });
 }

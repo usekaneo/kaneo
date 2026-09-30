@@ -12,7 +12,7 @@ export const asana: Comparison = {
   subheading:
     "Asana's free plan now stops at two people, and single sign-on only arrives at the Enterprise tier. Kaneo is open source, self-hostable, and gives every team the whole product.",
   verdict:
-    "Kaneo is an open-source, MIT-licensed alternative to Asana that you can self-host for free with unlimited users. Asana is cloud-only, priced per user from $10.99 a month, and keeps SAML single sign-on for its Enterprise tier. Kaneo covers boards, backlog, workflows, roles, and time tracking, without Asana's portfolios, goals, or workload views.",
+    "Kaneo is an open-source, MIT-licensed alternative to Asana that you can self-host for free with unlimited users. Asana is cloud-only, priced per user from $10.99 a month, and keeps SAML single sign-on for its Enterprise tier. Kaneo covers boards, backlog, Gantt and calendar views, custom fields, workflows, roles, and time tracking. Asana's portfolios, goals, and workload views remain outside Kaneo's scope.",
   facts: {
     license: "MIT, versus a proprietary licence for Asana",
     hosting: "Self-host anywhere, or EU-hosted cloud. Asana is cloud only",
@@ -48,7 +48,7 @@ export const asana: Comparison = {
     },
     {
       title: "Work, not work management",
-      body: "Kaneo gives you boards, a backlog, workflows, labels, and time tracking. There is no portfolio layer to maintain and no reporting suite to configure first.",
+      body: "Kaneo brings boards, backlog, Gantt and calendar planning, custom fields, workflow rules, and time tracking together. Teams can organise tasks and schedules without setting up a portfolio reporting layer.",
     },
   ],
   honestNote:

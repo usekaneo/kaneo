@@ -1,4 +1,4 @@
-import { beforeEach, expect, it, vi } from "vitest";
+import { beforeEach, expect, it, vi } from "vite-plus/test";
 import { handleIssueReopened } from "../../../../apps/api/src/plugins/github/webhooks/issue-reopened";
 
 const m = vi.hoisted(() => ({
@@ -20,11 +20,16 @@ vi.mock("../../../../apps/api/src/database", () => ({
 vi.mock("../../../../apps/api/src/events", () => ({ publishEvent: m.publish }));
 vi.mock(
   "../../../../apps/api/src/plugins/github/services/task-service",
-  () => ({ findAllIntegrationsByRepo: m.find, updateTaskStatus: m.status }),
+  () => ({
+    findAllIntegrationsByRepo: m.find,
+    updateTaskStatus: m.status,
+  }),
 );
 vi.mock(
   "../../../../apps/api/src/plugins/github/services/link-manager",
-  () => ({ updateExternalLink: m.update }),
+  () => ({
+    updateExternalLink: m.update,
+  }),
 );
 vi.mock("../../../../apps/api/src/plugins/github/utils/resolve-column", () => ({
   resolveTargetStatus: async () => "to-do",
@@ -78,6 +83,17 @@ it("retains the Kaneo-origin skip rule for valid metadata", async () => {
     id: "first",
     taskId: "task",
     metadata: '{"createdFrom":"kaneo"}',
+  });
+  await handleIssueReopened(payload);
+  expect(m.update).not.toHaveBeenCalled();
+  expect(m.status).not.toHaveBeenCalled();
+});
+it("skips a reopen that Kaneo already applied", async () => {
+  m.find.mockResolvedValue([{ id: "integration-1" }]);
+  m.links.mockResolvedValue({
+    id: "first",
+    taskId: "task",
+    metadata: '{"state":"open"}',
   });
   await handleIssueReopened(payload);
   expect(m.update).not.toHaveBeenCalled();

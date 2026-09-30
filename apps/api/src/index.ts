@@ -1,3 +1,4 @@
+import { drainPasswordResetDeliveries } from "./utils/password-reset-delivery";
 import "./instrument";
 
 import { dirname } from "node:path";
@@ -14,9 +15,11 @@ import { compress } from "hono/compress";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import activity from "./activity";
+import admin from "./admin";
 import { auth } from "./auth";
 import { organizationRoutes } from "./auth-openapi";
 import billing from "./billing";
+import calendarFeed, { publicCalendarFeed } from "./calendar-feed";
 import column from "./column";
 import comment from "./comment";
 import config from "./config";
@@ -32,6 +35,9 @@ import giteaIntegration, { handleGiteaWebhookRoute } from "./gitea-integration";
 import githubIntegration, {
   handleGithubWebhookRoute,
 } from "./github-integration";
+import gitlabIntegration, {
+  handleGitlabWebhookRoute,
+} from "./gitlab-integration";
 import getInstanceStatus from "./instance/controllers/get-instance-status";
 import invitation from "./invitation";
 import label from "./label";
@@ -75,7 +81,9 @@ import { migrateSessionColumn } from "./utils/migrate-session-column";
 import { migrateWorkspaceUserEmail } from "./utils/migrate-workspace-user-email";
 import { normalizeApiServerUrl } from "./utils/openapi-spec";
 import { seedDefaultWorkspaceRoles } from "./utils/seed-default-workspace-roles";
+import { drainSignInEmails } from "./utils/sign-in-email-tasks";
 import { validateWorkspaceAccess } from "./utils/validate-workspace-access";
+import { verifyApiKey } from "./utils/verify-api-key";
 import workflowRule from "./workflow-rule";
 import workspace from "./workspace";
 import {
@@ -365,6 +373,8 @@ export function createApp() {
       },
     );
 
+  api.route("/calendar-feed", publicCalendarFeed);
+
   api.post("/github-integration/webhook", handleGithubWebhookRoute);
 
   api.post(
@@ -372,10 +382,23 @@ export function createApp() {
     handleGiteaWebhookRoute,
   );
 
+  api.post(
+    "/gitlab-integration/webhook/:integrationId",
+    handleGitlabWebhookRoute,
+  );
+
   const invitationPublicApi = api.get("/invitation/public/:id", async (c) => {
     const { id } = c.req.param();
     const result = await getInvitationDetails(id);
     return c.json(result);
+  });
+
+  api.use("/auth/*", async (c, next) => {
+    const apiKeyHeader = c.req.header("x-api-key")?.trim();
+    if (apiKeyHeader && !(await verifyApiKey(apiKeyHeader))) {
+      throw new HTTPException(401, { message: "Unauthorized" });
+    }
+    return next();
   });
 
   api.openapi(
@@ -646,29 +669,27 @@ export function createApp() {
 
   api.on(["POST", "GET", "PUT", "PATCH", "DELETE"], "/auth/*", async (c) => {
     const authHeader = c.req.header("Authorization");
-    const apiKeyHeader = c.req.header("x-api-key");
+    const apiKeyHeader = c.req.header("x-api-key")?.trim();
     const bearerToken = authHeader?.match(/^Bearer\s+(\S+)$/i)?.[1];
 
     if (bearerToken && !apiKeyHeader) {
-      const session = await auth.api.getSession({
-        headers: c.req.raw.headers,
-      });
+      const headers = new Headers(c.req.raw.headers);
+      headers.delete("cookie");
+      const session = await auth.api.getSession({ headers });
 
       // Preserve Better Auth bearer session tokens on auth routes.
       if (session?.session && session.user) {
-        return auth.handler(c.req.raw);
+        return auth.handler(new Request(c.req.raw, { headers }));
       }
 
-      const headers = new Headers(c.req.raw.headers);
+      if (!(await verifyApiKey(bearerToken))) {
+        throw new HTTPException(401, { message: "Unauthorized" });
+      }
 
       // Better Auth API key plugin validates from x-api-key by default.
       headers.set("x-api-key", bearerToken);
 
-      return auth.handler(
-        new Request(c.req.raw, {
-          headers,
-        }),
-      );
+      return auth.handler(new Request(c.req.raw, { headers }));
     }
 
     return auth.handler(c.req.raw);
@@ -709,6 +730,7 @@ export function createApp() {
 
   const billingApi = api.route("/billing", billing);
   const projectApi = api.route("/project", project);
+  const calendarFeedApi = api.route("/calendar-feed", calendarFeed);
   const taskApi = api.route("/task", task);
   const columnApi = api.route("/column", column);
   const activityApi = api.route("/activity", activity);
@@ -726,6 +748,10 @@ export function createApp() {
     githubIntegration,
   );
   const giteaIntegrationApi = api.route("/gitea-integration", giteaIntegration);
+  const gitlabIntegrationApi = api.route(
+    "/gitlab-integration",
+    gitlabIntegration,
+  );
   const genericWebhookIntegrationApi = api.route(
     "/generic-webhook-integration",
     genericWebhookIntegration,
@@ -750,6 +776,7 @@ export function createApp() {
   const workspaceApi = api.route("/workspace", workspace);
   const customFieldApi = api.route("/custom-field", customField);
   const userApi = api.route("/user", user);
+  const adminApi = api.route("/admin", admin);
 
   app.route(
     "/",
@@ -814,6 +841,7 @@ export function createApp() {
 
       const userId = c.get("userId");
 
+      let workspaceId: string | undefined;
       if (projectId) {
         const [project] = await db
           .select({ workspaceId: schema.projectTable.workspaceId })
@@ -826,6 +854,7 @@ export function createApp() {
         }
 
         await validateWorkspaceAccess(userId, project.workspaceId);
+        workspaceId = project.workspaceId;
       }
 
       const windowId = c.req.query("windowId");
@@ -834,8 +863,14 @@ export function createApp() {
 
       return {
         onOpen(_evt, ws) {
-          if (projectId) {
-            conn = addConnection(projectId, ws, userId, initiatorId);
+          if (projectId && workspaceId) {
+            conn = addConnection(
+              projectId,
+              ws,
+              userId,
+              initiatorId,
+              workspaceId,
+            );
           }
         },
         onMessage: handleWebSocketMessage,
@@ -864,12 +899,14 @@ export function createApp() {
     genericWebhookIntegrationApi,
     githubIntegrationApi,
     giteaIntegrationApi,
+    gitlabIntegrationApi,
     invitationApi,
     invitationPublicApi,
     labelApi,
     notificationApi,
     notificationPreferencesApi,
     projectApi,
+    calendarFeedApi,
     publicProjectApi,
     searchApi,
     mattermostIntegrationApi,
@@ -879,6 +916,7 @@ export function createApp() {
     telegramIntegrationApi,
     timeEntryApi,
     userApi,
+    adminApi,
     workflowRuleApi,
     workspaceApi,
     customFieldApi,
@@ -958,6 +996,13 @@ export async function startServer(
     shutdownScheduler();
     await shutdownWebSocketAdapter();
     server.close();
+    const [, signInEmailsDrained] = await Promise.all([
+      drainPasswordResetDeliveries(),
+      drainSignInEmails(),
+    ]);
+    if (!signInEmailsDrained) {
+      console.warn("Timed out waiting for pending sign-in emails");
+    }
     process.exit(0);
   };
 
@@ -984,6 +1029,7 @@ const {
   genericWebhookIntegrationApi,
   githubIntegrationApi,
   giteaIntegrationApi,
+  gitlabIntegrationApi,
   invitationApi,
   invitationPublicApi,
   labelApi,
@@ -991,6 +1037,7 @@ const {
   notificationApi,
   notificationPreferencesApi,
   projectApi,
+  calendarFeedApi,
   publicProjectApi,
   searchApi,
   slackIntegrationApi,
@@ -999,6 +1046,7 @@ const {
   telegramIntegrationApi,
   timeEntryApi,
   userApi,
+  adminApi,
   workflowRuleApi,
   workspaceApi,
   customFieldApi,
@@ -1019,6 +1067,7 @@ export type AppType =
   | typeof billingApi
   | typeof configApi
   | typeof projectApi
+  | typeof calendarFeedApi
   | typeof taskApi
   | typeof columnApi
   | typeof activityApi
@@ -1030,6 +1079,7 @@ export type AppType =
   | typeof searchApi
   | typeof githubIntegrationApi
   | typeof giteaIntegrationApi
+  | typeof gitlabIntegrationApi
   | typeof genericWebhookIntegrationApi
   | typeof discordIntegrationApi
   | typeof mattermostIntegrationApi
@@ -1042,6 +1092,7 @@ export type AppType =
   | typeof workspaceApi
   | typeof customFieldApi
   | typeof userApi
+  | typeof adminApi
   | typeof publicProjectApi
   | typeof invitationPublicApi
   | typeof oauthApi;

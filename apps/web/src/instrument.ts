@@ -8,7 +8,17 @@ if (dsn && !dsn.startsWith("KANEO_")) {
     dsn,
     environment: import.meta.env.MODE,
     release: __APP_VERSION__,
-    sendDefaultPii: false,
+    dataCollection: {
+      userInfo: false,
+      cookies: false,
+      httpHeaders: { request: false, response: false },
+      httpBodies: [],
+      urlQueryParams: false,
+      genAI: { inputs: false, outputs: false },
+      databaseQueryData: false,
+      queues: false,
+      graphQL: { document: false, variables: false },
+    },
     ignoreErrors: [
       // Thrown by Safari browser extensions on iOS 18+ injecting content scripts;
       // not caused by kaneo code.

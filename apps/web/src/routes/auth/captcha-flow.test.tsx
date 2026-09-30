@@ -1,3 +1,4 @@
+import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
   fireEvent,
@@ -14,14 +15,17 @@ import {
   expect,
   it,
   vi,
-} from "vitest";
+} from "vite-plus/test";
 
 const m = vi.hoisted(() => ({
   anonymous: vi.fn(),
   social: vi.fn(),
   oauth2: vi.fn(),
   navigate: vi.fn(),
+  isCloud: false,
+  getConfig: vi.fn(),
 }));
+vi.mock("@/fetchers/config/get-config", () => ({ getConfig: m.getConfig }));
 vi.mock("@/lib/auth-client", () => ({
   authClient: { signIn: m, getLastUsedLoginMethod: () => null },
 }));
@@ -33,6 +37,7 @@ vi.mock("@tanstack/react-router", () => ({
 vi.mock("@/hooks/queries/config/use-get-config", () => ({
   default: () => ({
     data: {
+      isCloud: m.isCloud,
       hasGuestAccess: true,
       hasGithubSignIn: true,
       hasCustomOAuth: true,
@@ -48,7 +53,14 @@ vi.mock("@/hooks/queries/instance/use-instance-status", () => ({
   }),
 }));
 vi.mock("@/components/auth/layout", () => ({
-  AuthLayout: ({ children }: { children: ReactNode }) => children,
+  AuthLayout: ({ children }: { children: ReactNode }) => (
+    <div data-testid="self-hosted-sign-up">{children}</div>
+  ),
+}));
+vi.mock("@/components/auth/cloud-auth-layout", () => ({
+  CloudAuthLayout: ({ children }: { children: ReactNode }) => (
+    <div data-testid="cloud-sign-up">{children}</div>
+  ),
 }));
 vi.mock("@/components/auth/sign-up-form", () => ({ SignUpForm: () => null }));
 vi.mock("@/components/auth/sign-in-form", () => ({ SignInForm: () => null }));
@@ -73,8 +85,35 @@ afterAll(() => vi.unstubAllEnvs());
 afterEach(() => cleanup());
 beforeEach(() => {
   vi.clearAllMocks();
+  m.isCloud = false;
   for (const mock of [m.anonymous, m.social, m.oauth2])
     mock.mockResolvedValue({ error: { message: "Retry" } });
+});
+describe("sign-up layout", () => {
+  it("still renders the route when config preloading fails", async () => {
+    m.getConfig.mockRejectedValueOnce(new Error("offline"));
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const loader = signup.options.loader as (args: {
+      context: { queryClient: QueryClient };
+    }) => Promise<void>;
+    await expect(loader({ context: { queryClient } })).resolves.toBeUndefined();
+    expect(queryClient.getQueryState(["config"])?.status).toBe("error");
+  });
+
+  const Page = signup.options.component as ComponentType;
+
+  it("uses the existing layout for a self-hosted instance", () => {
+    render(<Page />);
+    expect(screen.getByTestId("self-hosted-sign-up")).toBeInTheDocument();
+  });
+
+  it("uses the cloud layout only when the instance reports cloud mode", () => {
+    m.isCloud = true;
+    render(<Page />);
+    expect(screen.getByTestId("cloud-sign-up")).toBeInTheDocument();
+  });
 });
 describe.each([
   ["sign-in", signin],

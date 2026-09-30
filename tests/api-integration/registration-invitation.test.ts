@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { checkRegistrationAllowed } from "../../apps/api/src/utils/check-registration-allowed";
 import { resetTestDatabase } from "./helpers/database";
@@ -69,7 +69,10 @@ describe("API integration: invite-only registration", () => {
     const result = await checkRegistrationAllowed(
       email.toUpperCase(),
       undefined,
-      { allowInvitationByEmail: true, emailVerified: true },
+      {
+        allowInvitationByEmail: true,
+        emailVerified: true,
+      },
     );
 
     expect(result.allowed).toBe(true);

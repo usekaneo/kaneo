@@ -10,6 +10,7 @@ export const authCaptchaPaths = new Set([
   "/sign-in/oauth2",
   "/sign-in/anonymous",
   "/sign-in/magic-link",
+  "/request-password-reset",
   "/email-otp/send-verification-otp",
 ]);
 

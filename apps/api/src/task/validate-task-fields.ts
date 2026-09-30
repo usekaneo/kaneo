@@ -3,9 +3,27 @@ import { HTTPException } from "hono/http-exception";
 import db from "../database";
 import { columnTable, customFieldDefinitionTable } from "../database/schema";
 
+export function isCustomFieldValueEmpty(
+  value: string,
+  type: "number" | "boolean" | "date" | "dropdown" | "multiselect",
+): boolean {
+  if (value.trim() === "") return true;
+
+  if (type === "multiselect") {
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) && parsed.length === 0;
+    } catch {
+      return false;
+    }
+  }
+
+  return false;
+}
+
 export function validateCustomFieldValue(
   value: string,
-  type: "number" | "boolean" | "date" | "dropdown",
+  type: "number" | "boolean" | "date" | "dropdown" | "multiselect",
   fieldName: string,
   options?: unknown,
 ): string | null {
@@ -70,6 +88,37 @@ export function validateCustomFieldValue(
     }
   }
 
+  if (type === "multiselect") {
+    let parsedOptions: string[] = Array.isArray(options) ? options : [];
+
+    if (typeof options === "string") {
+      try {
+        parsedOptions = JSON.parse(options);
+      } catch {
+        return `Custom field "${fieldName}" has invalid multiselect options.`;
+      }
+    }
+
+    let selectedValues: unknown;
+    try {
+      selectedValues = JSON.parse(value);
+    } catch {
+      return `Custom field "${fieldName}" expects a JSON array of selected options, got "${value}".`;
+    }
+
+    if (!Array.isArray(selectedValues) || selectedValues.length === 0) {
+      return `Custom field "${fieldName}" expects at least one selected option.`;
+    }
+
+    const invalidValues = selectedValues.filter(
+      (v) => typeof v !== "string" || !parsedOptions.includes(v),
+    );
+
+    if (invalidValues.length > 0) {
+      return `Custom field "${fieldName}" expects values from: ${parsedOptions.join(", ")}, got invalid value(s): ${invalidValues.join(", ")}.`;
+    }
+  }
+
   return null;
 }
 
@@ -100,13 +149,28 @@ export async function assertRequiredCustomFields(
   }
 
   for (const cf of customFields) {
-    if (cf.value.trim() === "") continue;
     const def = allFields.find((f) => f.id === cf.fieldId);
     if (!def) continue;
 
+    const type = def.type as
+      | "number"
+      | "boolean"
+      | "date"
+      | "dropdown"
+      | "multiselect";
+
+    if (isCustomFieldValueEmpty(cf.value, type)) {
+      if (def.required) {
+        throw new HTTPException(400, {
+          message: `Custom field "${def.name}" is required to create a task.`,
+        });
+      }
+      continue;
+    }
+
     const error = validateCustomFieldValue(
       cf.value,
-      def.type as "number" | "boolean" | "date" | "dropdown",
+      type,
       def.name,
       def.options,
     );
@@ -117,13 +181,37 @@ export async function assertRequiredCustomFields(
   }
 
   const providedIds = new Set(
-    customFields.filter((f) => f.value.trim() !== "").map((f) => f.fieldId),
+    customFields
+      .filter((cf) => {
+        const def = allFields.find((f) => f.id === cf.fieldId);
+        if (!def) return false;
+
+        return !isCustomFieldValueEmpty(
+          cf.value,
+          def.type as
+            | "number"
+            | "boolean"
+            | "date"
+            | "dropdown"
+            | "multiselect",
+        );
+      })
+      .map((f) => f.fieldId),
   );
 
   for (const field of allFields.filter((f) => f.required)) {
     const isSatisfied =
       providedIds.has(field.id) ||
-      (field.defaultValue != null && field.defaultValue.trim() !== "");
+      (field.defaultValue != null &&
+        !isCustomFieldValueEmpty(
+          field.defaultValue,
+          field.type as
+            | "number"
+            | "boolean"
+            | "date"
+            | "dropdown"
+            | "multiselect",
+        ));
 
     if (!isSatisfied) {
       throw new HTTPException(400, {

@@ -7,7 +7,6 @@ import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import TaskList from "@tiptap/extension-task-list";
 import { Markdown } from "@tiptap/markdown";
-import { Fragment, Slice } from "@tiptap/pm/model";
 import { TextSelection } from "@tiptap/pm/state";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
@@ -43,6 +42,7 @@ import { KaneoMention } from "@/components/task/extensions/kaneo-mention";
 import type { MentionMember } from "@/components/task/extensions/mention-list";
 import { MentionSuggestion } from "@/components/task/extensions/mention-suggestion";
 import { MermaidBlock } from "@/components/task/extensions/mermaid-block";
+import { SafeHardBreak } from "@/components/task/extensions/safe-hard-break";
 import {
   SHIKI_CODEBLOCK_REFRESH_META,
   ShikiCodeBlock,
@@ -62,7 +62,6 @@ import {
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { cn } from "@/lib/cn";
-import { parseTaskListMarkdownToNodes } from "@/lib/editor-task-list-paste";
 import {
   extractIssueKeyFromUrl,
   extractTaskIdFromUrl,
@@ -70,6 +69,8 @@ import {
   normalizeUrl,
 } from "@/lib/editor-url-utils";
 import { isInCodeBlockLanguagePicker } from "@/lib/is-in-codeblock-language-picker";
+import { normalizeCommentMarkdown } from "@/lib/normalize-comment-markdown";
+import { pasteMarkdown } from "@/lib/paste-markdown";
 import { toast } from "@/lib/toast";
 import { uploadTaskImage } from "@/lib/upload-task-image";
 
@@ -149,15 +150,6 @@ const COMMENT_SHIKI_LANGUAGE_ALIASES: Record<string, string> = {
   plaintext: "text",
 };
 
-function normalizeMarkdown(markdown: string) {
-  return markdown
-    .replace(/\r\n/g, "\n")
-    .replace(/&nbsp;/g, " ")
-    .replace(/\u00A0/g, " ")
-    .replace(/\n{3,}/g, "\n\n")
-    .replace(/\n{2,}$/g, "\n");
-}
-
 type EmbedComposerState = {
   mode: "choice" | "input";
   url: string;
@@ -209,8 +201,15 @@ export default function CommentEditor({
   const dragDepthRef = useRef(0);
   const isSyncingRef = useRef(false);
   const hasHydratedRef = useRef(false);
-  const latestValueRef = useRef(normalizeMarkdown(value || ""));
+  const latestValueRef = useRef(normalizeCommentMarkdown(value || ""));
   const lastEditorRef = useRef<Editor | null>(null);
+  const isMountedRef = useRef(false);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
   const taskIdRef = useRef(taskId);
   const ensureTaskIdRef = useRef(ensureTaskId);
   const uploadSurfaceRef = useRef(uploadSurface);
@@ -308,16 +307,21 @@ export default function CommentEditor({
       }
 
       if (asset.kind === "image") {
-        chain
+        const ran = chain
           .setImage({
             src: asset.url,
             alt: asset.alt,
           })
           .run();
+        // Chain commands report silent failure via false rather than
+        // throwing; convert it so the caller's catch reports it.
+        if (!ran) {
+          throw new Error(t("activity:comment.editor.failedToUploadFile"));
+        }
         return;
       }
 
-      chain
+      const ran = chain
         .insertContent({
           type: "attachmentCard",
           attrs: {
@@ -328,15 +332,19 @@ export default function CommentEditor({
           },
         })
         .run();
+      if (!ran) {
+        throw new Error(t("activity:comment.editor.failedToUploadFile"));
+      }
     },
-    [],
+    [t],
   );
 
   const handleAssetFileUpload = useCallback(
     async (file: File, targetEditor?: Editor | null, range?: SlashRange) => {
       const activeEditor = targetEditor || lastEditorRef.current;
+      const initialTaskId = taskIdRef.current;
       const resolvedTaskId =
-        taskIdRef.current ?? (await ensureTaskIdRef.current?.());
+        initialTaskId ?? (await ensureTaskIdRef.current?.());
 
       if (!activeEditor || !resolvedTaskId) {
         toast.error(t("activity:comment.editor.uploadsOnlyOnSavedTasks"));
@@ -353,7 +361,28 @@ export default function CommentEditor({
           surface: uploadSurfaceRef.current,
           file,
         });
-        insertUploadedAsset(activeEditor, uploadedAsset, range);
+
+        // Reuse a replacement editor only while it still belongs to the task
+        // that owns the uploaded asset.
+        const currentEditor = !activeEditor.isDestroyed
+          ? activeEditor
+          : lastEditorRef.current;
+        const taskChanged =
+          initialTaskId === undefined
+            ? taskIdRef.current !== undefined &&
+              taskIdRef.current !== resolvedTaskId
+            : taskIdRef.current !== initialTaskId;
+        if (!isMountedRef.current || taskChanged) {
+          toast.dismiss(loadingToast);
+          return;
+        }
+        if (!currentEditor || currentEditor.isDestroyed) {
+          throw new Error(t("activity:comment.editor.failedToUploadFile"));
+        }
+
+        // Only report success when the image actually landed in the document;
+        // insertUploadedAsset throws otherwise and the catch below reports it.
+        insertUploadedAsset(currentEditor, uploadedAsset, range);
 
         toast.dismiss(loadingToast);
         toast.success(
@@ -617,7 +646,9 @@ export default function CommentEditor({
           codeBlock: {
             HTMLAttributes: { class: "kaneo-tiptap-codeblock" },
           },
+          hardBreak: false,
         }),
+        SafeHardBreak,
         Markdown.configure({
           markedOptions: {
             breaks: true,
@@ -680,20 +711,7 @@ export default function CommentEditor({
           }
 
           const plainText = event.clipboardData?.getData("text/plain") || "";
-          const taskListNodes = parseTaskListMarkdownToNodes(plainText);
-          if (taskListNodes) {
-            event.preventDefault();
-            const nodes = taskListNodes.map((node) =>
-              view.state.schema.nodeFromJSON(node),
-            );
-            const fragment = Fragment.fromArray(nodes);
-            view.dispatch(
-              view.state.tr
-                .replaceSelection(new Slice(fragment, 0, 0))
-                .scrollIntoView(),
-            );
-            return true;
-          }
+          if (editor && pasteMarkdown(editor, event)) return true;
 
           const pastedText = plainText.trim();
           if (!pastedText || /\s/.test(pastedText)) return false;
@@ -907,7 +925,7 @@ export default function CommentEditor({
       },
       onUpdate: ({ editor: activeEditor }) => {
         if (readOnly || disabled || !onChange || isSyncingRef.current) return;
-        const markdown = normalizeMarkdown(activeEditor.getMarkdown());
+        const markdown = normalizeCommentMarkdown(activeEditor.getMarkdown());
         latestValueRef.current = markdown;
         onChange(markdown);
       },
@@ -958,7 +976,10 @@ export default function CommentEditor({
   }, [editor]);
 
   useEffect(() => {
-    if (!editor) return;
+    // The editor instance can be destroyed and replaced while effects are
+    // flushing (e.g. Shiki resolving recreates it via useEditor deps). The
+    // next run attaches to the replacement instance.
+    if (!editor || editor.isDestroyed) return;
 
     const handleImagePreviewClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement | null;
@@ -1057,7 +1078,7 @@ export default function CommentEditor({
       lastEditorRef.current = editor;
     }
 
-    const incoming = normalizeMarkdown(value || "");
+    const incoming = normalizeCommentMarkdown(value || "");
     if (!hasHydratedRef.current) {
       isSyncingRef.current = true;
       latestValueRef.current = incoming;

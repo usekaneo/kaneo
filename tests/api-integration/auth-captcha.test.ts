@@ -1,4 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import * as email from "@kaneo/email";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { resetTestDatabase } from "./helpers/database";
@@ -22,6 +30,7 @@ const endpoints = [
     { providerId: "custom", callbackURL: "http://localhost:5173/dashboard" },
   ],
   ["/sign-in/anonymous", {}],
+  ["/request-password-reset", { email: "captcha@example.com" }],
   [
     "/sign-in/magic-link",
     {
@@ -50,6 +59,7 @@ function post(path: string, body: unknown, token?: string) {
 describe("server-side auth CAPTCHA enforcement", () => {
   beforeEach(async () => {
     await resetTestDatabase();
+    vi.spyOn(email, "isSmtpConfigured").mockReturnValue(true);
     await createWorkspaceMember();
     vi.stubEnv("TURNSTILE_SECRET_KEY", "test-only-secret");
   });

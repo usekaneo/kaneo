@@ -198,6 +198,22 @@ export async function getInvitationDetails(
   };
 }
 
+export async function userExistsByEmail(email: string): Promise<boolean> {
+  const [user] = await db
+    .select({ id: userTable.id })
+    .from(userTable)
+    .where(eq(userTable.email, email.toLowerCase()))
+    .limit(1);
+  return Boolean(user);
+}
+
+export async function canSendSignInEmail(email: string): Promise<boolean> {
+  if (await userExistsByEmail(email)) {
+    return true;
+  }
+  return (await getUserPendingInvitations(email)).length > 0;
+}
+
 export async function getUserPendingInvitations(userEmail: string) {
   const now = new Date();
 

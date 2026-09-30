@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vite-plus/test";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import { loadBoardPages } from "./load-board-pages";

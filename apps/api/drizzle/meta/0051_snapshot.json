@@ -1,5 +1,5 @@
 {
-	"id": "88a5e3d7-c2e1-45a0-8fb3-b01b288edc8c",
+	"id": "de1aba3a-dd83-48d6-93a3-c53b2ff18aee",
 	"prevId": "f9757406-e33b-407b-9849-36c7af901b05",
 	"version": "7",
 	"dialect": "postgresql",
@@ -1446,7 +1446,7 @@
 					"name": "integration_id",
 					"type": "text",
 					"primaryKey": false,
-					"notNull": true
+					"notNull": false
 				},
 				"resource_type": {
 					"name": "resource_type",
@@ -2931,12 +2931,6 @@
 				"due_date": {
 					"name": "due_date",
 					"type": "timestamp",
-					"primaryKey": false,
-					"notNull": false
-				},
-				"time_estimate": {
-					"name": "time_estimate",
-					"type": "integer",
 					"primaryKey": false,
 					"notNull": false
 				},

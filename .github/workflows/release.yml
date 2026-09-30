@@ -31,7 +31,8 @@ permissions: {}
 jobs:
   plan:
     name: Plan
-    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     permissions:
       contents: write # semantic-release verifies push permission even on a dry run
     outputs:
@@ -45,12 +46,12 @@ jobs:
           fi
 
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
         with:
           fetch-depth: 0
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           version: 10.32.1
 
@@ -94,15 +95,40 @@ jobs:
             echo "</details>"
           } >> "$GITHUB_STEP_SUMMARY"
 
+  verify-ci:
+    name: Verify CI for release source
+    needs: plan
+    if: ${{ !inputs.dry_run && needs.plan.outputs.version != '' }}
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 35
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.19.0
+          package-manager-cache: false
+      - name: Wait for successful main CI on this exact commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/ci/require-ci.mjs
+
   images:
     name: Images
-    needs: plan
+    needs: [plan, verify-ci]
     if: ${{ !inputs.dry_run && needs.plan.outputs.version != '' }}
     permissions:
       contents: read
       packages: write
-    uses: ./.github/workflows/build-images.yml
-    secrets: inherit
+
+    uses: ./.github/workflows/build-images.yml # zizmor: ignore[self-repository] $/-syntax not parsed by pinned actionlint v1.7.12; revisit when supported
+    secrets:
+      GH_PACKAGE_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
     with:
       source_mode: planned
       version: ${{ needs.plan.outputs.version }}
@@ -114,13 +140,15 @@ jobs:
     if: ${{ !inputs.dry_run && needs.plan.outputs.version != '' }}
     permissions:
       contents: read
-    uses: ./.github/workflows/helm-validate.yml
+
+    uses: ./.github/workflows/helm-validate.yml # zizmor: ignore[self-repository] $/-syntax not parsed by pinned actionlint v1.7.12; revisit when supported
 
   release:
     name: Release
     needs: [plan, images, chart]
     if: ${{ !inputs.dry_run && needs.plan.outputs.version != '' }}
-    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     permissions:
       contents: write
       issues: write
@@ -131,13 +159,13 @@ jobs:
       # The same token the API calls use, so the release commit and tag are not
       # pushed under a different identity than the one that was verified.
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
         with:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           version: 10.32.1
 
@@ -179,7 +207,8 @@ jobs:
   promote:
     name: Promote
     needs: [plan, release]
-    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     permissions:
       contents: read
       packages: write
@@ -208,6 +237,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-    uses: ./.github/workflows/helm-chart.yml
+
+    uses: ./.github/workflows/helm-chart.yml # zizmor: ignore[self-repository] $/-syntax not parsed by pinned actionlint v1.7.12; revisit when supported
     with:
       version: ${{ needs.plan.outputs.version }}

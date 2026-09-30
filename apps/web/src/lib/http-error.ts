@@ -9,7 +9,16 @@ export class HttpError extends Error {
 }
 
 export function isUnauthorizedError(error: unknown): boolean {
-  return error instanceof HttpError && error.status === 401;
+  if (error instanceof HttpError) return error.status === 401;
+  // Recognize HttpError-shaped values even when their prototype differs.
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    error.name === "HttpError" &&
+    "status" in error &&
+    error.status === 401
+  );
 }
 
 // Shared unauthorized redirect for both the React Query error cache and direct

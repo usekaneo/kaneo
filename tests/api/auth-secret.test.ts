@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { resolveAuthSecret } from "../../apps/api/src/utils/auth-secret";
 
 const valid = "a".repeat(32);

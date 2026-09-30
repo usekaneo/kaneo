@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { importIssues } from "../../apps/api/src/github-integration/controllers/import-issues";
 import { resetTestDatabase } from "./helpers/database";

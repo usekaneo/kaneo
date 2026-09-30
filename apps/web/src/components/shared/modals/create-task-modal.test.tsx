@@ -7,7 +7,14 @@ import {
   screen,
 } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 
 import CreateTaskModal from "./create-task-modal";
 
@@ -188,7 +195,9 @@ describe("CreateTaskModal", () => {
       screen.getByPlaceholderText(
         "common:modals.createTask.taskTitlePlaceholder",
       ),
-      { target: { value: "Unsaved task" } },
+      {
+        target: { value: "Unsaved task" },
+      },
     );
     const backdrop = document.querySelector('[data-slot="dialog-backdrop"]');
     fireEvent.pointerDown(backdrop as Element);
@@ -242,7 +251,9 @@ describe("CreateTaskModal", () => {
       screen.getByPlaceholderText(
         "common:modals.createTask.taskTitlePlaceholder",
       ),
-      { target: { value: "Picked project task" } },
+      {
+        target: { value: "Picked project task" },
+      },
     );
     fireEvent.submit(document.querySelector("form") as HTMLFormElement);
 

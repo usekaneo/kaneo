@@ -1,6 +1,7 @@
 import { findExternalLinkByTaskAndType } from "../../github/services/link-manager";
 import type { PluginContext, TaskCommentCreatedEvent } from "../../types";
 import type { GiteaConfig } from "../config";
+import { markKaneoComment } from "../utils/comment-origin";
 import { createGiteaClient } from "../utils/gitea-api";
 
 export async function handleTaskCommentCreated(
@@ -52,7 +53,7 @@ export async function handleTaskCommentCreated(
       repositoryOwner,
       repositoryName,
       issueNumber,
-      event.comment,
+      markKaneoComment(event.comment),
     );
   } catch (error) {
     console.error("Failed to create Gitea comment:", error);

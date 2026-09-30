@@ -1,5 +1,6 @@
 import { and, asc, count, eq, sql } from "drizzle-orm";
 import db, { schema } from "../database";
+import { instanceAdminRoleSql } from "./instance-admin-role";
 
 export const nonAnonymousUser = sql`${schema.userTable.isAnonymous} IS NOT TRUE`;
 
@@ -19,7 +20,7 @@ export async function promoteInitialAdministrator(
     const [admin] = await tx
       .select({ id: schema.userTable.id })
       .from(schema.userTable)
-      .where(and(nonAnonymousUser, eq(schema.userTable.role, "admin")))
+      .where(and(nonAnonymousUser, instanceAdminRoleSql(schema.userTable.role)))
       .limit(1);
     if (admin) return;
 

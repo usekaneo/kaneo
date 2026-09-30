@@ -582,6 +582,9 @@ export function NotificationPreferencesSettings() {
           <p className="text-sm text-muted-foreground">
             {t("settings:notificationsPage.eventPreferencesDescription")}
           </p>
+          <p className="text-sm text-muted-foreground">
+            {t("settings:notificationsPage.recipientHint")}
+          </p>
         </div>
 
         <div className="flex flex-col gap-4">

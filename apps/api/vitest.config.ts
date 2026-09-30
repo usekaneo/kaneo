@@ -1,4 +1,4 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig } from "vite-plus";
 
 export default defineConfig({
   test: {
@@ -11,7 +11,7 @@ export default defineConfig({
       reportsDirectory: "./coverage",
     },
   },
-  esbuild: {
+  oxc: {
     target: "node18",
   },
 });

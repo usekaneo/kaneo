@@ -10,6 +10,7 @@ import {
   getPostsByCategory,
   getUsedCategories,
 } from "@/lib/blog";
+import { withSocialMetadata } from "@/lib/metadata";
 
 type Params = { category: string };
 
@@ -26,11 +27,11 @@ export async function generateMetadata({
   const category = categories[slug];
   if (!category) return {};
 
-  return {
+  return withSocialMetadata({
     title: `${category.name} — Kaneo blog`,
     description: category.description,
     alternates: { canonical: blogCategoryPath(category.slug) },
-  };
+  });
 }
 
 export default async function Page({ params }: { params: Promise<Params> }) {

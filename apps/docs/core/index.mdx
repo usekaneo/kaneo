@@ -1,38 +1,61 @@
 ---
-title: Quick Start
-description: Get started with Kaneo in minutes
+title: "Your first project"
+description: "From an empty workspace to a finished task."
 ---
 
-## Introduction
+You need a Kaneo account and access to an instance. Use [Kaneo Cloud](https://cloud.kaneo.app), join your team's instance, or [host your own](/core/installation/index).
 
-Kaneo <span className='text-fd-muted-foreground text-sm'>(/kəˈneɪ.oʊ/)</span> is a project management tool that gets out of your way. It is designed to be a simple, yet powerful tool for managing your projects. It **works for you** instead of you working for it.
+We'll use a website launch as an example. You can follow along with your own project name.
 
-### Components
+## 1. Create a workspace
 
-Kaneo is composed of several components:
+After signing in, create a workspace for your team, for example **Studio North**. If you already belong to a workspace, use the workspace menu at the top of the sidebar to switch to it.
 
-- API: The backend API that powers the application, it is built with Hono and TypeScript.
-- Web: The frontend web application that is built with React and Tailwind CSS.
-- Database: The database that is built with PostgreSQL.
+A workspace is the boundary for membership and permissions. Separate teams that should not share access belong in separate workspaces.
 
-### Installation
+## 2. Add a project
 
-We offer two ways to install Kaneo:
+Choose **Add project** in the sidebar and create **Website launch**. Open the project, then choose **Tasks**. Board and List are two views of the same tasks.
 
-**Quick Setup with drim (Recommended)**
+<Frame caption="Website launch, with work grouped into To Do, In Progress, In Review, and Done.">
+  <img className="block dark:hidden" src="/images/product/board-light.png" alt="Website launch, with work grouped into To Do, In Progress, In Review, and Done." />
+  <img className="hidden dark:block" src="/images/product/board-dark.png" alt="Website launch, with work grouped into To Do, In Progress, In Review, and Done." />
+</Frame>
 
-For straightforward deployments, use [drim](/core/installation/drim) - a CLI tool that handles everything automatically:
+Start with the existing columns. You can [change the workflow](/core/functional/configure-workflows) later.
 
-Install drim using the [version-pinned download and checksum verification](/core/installation/drim#installation), then run:
+## 3. Write the first task
 
-```bash
-drim setup
-```
+Use the **+** button in a board column to add a task. Call it **Build the new homepage**, then open it.
 
-**Manual Setup with Docker Compose**
+Add a short description of what needs to be true when the task is finished. For example:
 
-For more control or complex setups, follow the manual installation process:
+> Publish the new homepage with approved copy, a working contact link, and a layout checked on mobile.
 
-- [Setting up the Docker compose file](/core/installation/docker-compose)
-- [Setting up the environment variables](/core/installation/environment-variables)
-- [Starting the services](/core/installation/start-services)
+Use a checklist for the smaller steps. Set a due date if there is a real deadline, and add a label such as **Design** if it will help you find related work.
+
+<Frame caption="An open task with a description, checklist, assignee, dates, labels, and comments.">
+  <img className="block dark:hidden" src="/images/product/task-light.png" alt="An open task with a description, checklist, assignee, dates, labels, and comments." />
+  <img className="hidden dark:block" src="/images/product/task-dark.png" alt="An open task with a description, checklist, assignee, dates, labels, and comments." />
+</Frame>
+
+## 4. Invite a teammate
+
+Open **Members** in the workspace sidebar and choose **Invite member**. Enter your teammate's email address, then copy the invitation link and share it with them. If your instance has email configured, Kaneo can also deliver the invitation by email.
+
+Your teammate opens the link, signs in with the invited email address, and accepts. Return to the task and choose an assignee. If that control is unavailable, ask a workspace admin to check your role.
+
+See [Members and roles](/core/functional/collaborate-with-team) for pending invitations and access changes.
+
+## 5. Move the work forward
+
+Drag the task into **In Progress** when work starts. Add questions and updates in the task's comments so the context stays with the work.
+
+When the work is finished, move it to the project's done column. If it needs another pass, move it back to an active column.
+
+You now have a shared project with a task your team can follow from start to finish.
+
+<CardGroup cols={2}>
+  <Card title="Work with tasks" icon="square-check" href="/core/functional/plan-and-execute-tasks">Explore Board, List, filters, and task details.</Card>
+  <Card title="Plan upcoming work" icon="list" href="/core/functional/backlog-planning">Keep ideas in the backlog until they are ready.</Card>
+</CardGroup>

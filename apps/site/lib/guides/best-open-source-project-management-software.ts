@@ -18,7 +18,7 @@ export const bestOpenSourceProjectManagement: Guide = {
           name: "Kaneo",
           meta: "MIT",
           href: "https://kaneo.app",
-          body: "A focused tracker with boards, backlog, workflow rules, roles, time tracking, and an API. One container plus PostgreSQL, with a Helm chart. Single sign-on through Google, GitHub, Discord, or any OIDC provider is in the free build, and there is no paid edition holding features back. Best for teams that want something small they can own.",
+          body: "A focused tracker with boards, backlog, Gantt and calendar views, custom fields, workflow rules, roles, time tracking, and an API. One container plus PostgreSQL, with a Helm chart. Single sign-on through Google, GitHub, Discord, or any OIDC provider is in the free build, and there is no paid edition holding features back. Best for teams that want something small they can own.",
         },
         {
           name: "OpenProject",
@@ -89,7 +89,7 @@ export const bestOpenSourceProjectManagement: Guide = {
       heading: "What each one is genuinely best at",
       body: [
         "For a small software team that wants a board, a backlog, and no administration: Kaneo or Plane. For classical project management with schedules and budgets: OpenProject. For Scrum with real sprint mechanics: Taiga. For a mature tracker with a plugin for everything: Redmine. For personal task management with a good mobile experience: Vikunja. For the lightest possible install: Kanboard.",
-        "We build Kaneo, so treat the recommendation accordingly. The honest version is that if you need Gantt charts, budgets, or sprint burndowns, Kaneo will not give them to you, and two of the tools above will.",
+        "We build Kaneo, so treat the recommendation accordingly. Kaneo includes Gantt and calendar planning, custom fields, and time tracking. It does not provide budgets, cost reporting, baseline comparisons, or sprint burndowns; choose a tool with those capabilities if your team depends on them.",
       ],
     },
   ],
@@ -121,5 +121,5 @@ export const bestOpenSourceProjectManagement: Guide = {
     { label: "Kaneo vs Plane", href: "/plane-alternative" },
     { label: "All comparisons", href: "/alternatives" },
   ],
-  updatedOn: "2026-08-19",
+  updatedOn: "2026-09-23",
 };

@@ -1,9 +1,16 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import type Task from "@/types/task";
 import TaskCardContextMenuContent from "./task-card-context-menu-content";
 
+const duplicateTask = vi.fn();
+const canCreateTasks = vi.fn(() => true);
+vi.mock("@/hooks/mutations/task/use-duplicate-task", () => ({
+  useDuplicateTask: () => ({ mutate: duplicateTask }),
+}));
+
 afterEach(() => {
+  canCreateTasks.mockReturnValue(true);
   cleanup();
   vi.clearAllMocks();
 });
@@ -16,9 +23,15 @@ vi.mock("@/components/ui/context-menu", () => ({
   }): React.JSX.Element => <div>{children}</div>,
   ContextMenuItem: ({
     children,
+    onClick,
   }: {
     children: React.ReactNode;
-  }): React.JSX.Element => <div>{children}</div>,
+    onClick?: () => void;
+  }): React.JSX.Element => (
+    <button type="button" onClick={onClick}>
+      {children}
+    </button>
+  ),
   ContextMenuSeparator: (): React.JSX.Element => <div />,
   ContextMenuSub: ({
     children,
@@ -93,6 +106,7 @@ vi.mock("@/hooks/mutations/task/use-update-task-time-estimate", () => ({
 
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({
+    canCreateTasks,
     canUpdateTasks: () => true,
     canDeleteTasks: () => true,
     canAssignTasks: () => true,
@@ -109,7 +123,8 @@ vi.mock("@/store/project", () => ({
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
-    t: (key: string) => key,
+    t: (key: string, options?: { title?: string }) =>
+      options?.title ? `${key}|${options.title}` : key,
   }),
 }));
 
@@ -185,4 +200,20 @@ describe("TaskCardContextMenuContent", () => {
       );
     });
   });
+});
+
+it("duplicates using the localized title suffix", () => {
+  renderTask(task);
+  fireEvent.click(
+    screen.getByRole("button", { name: "tasks:actions.duplicate" }),
+  );
+  expect(duplicateTask).toHaveBeenCalledWith({
+    taskId: task.id,
+    title: `tasks:duplicate.titleSuffix|${task.title}`,
+  });
+});
+it("hides duplication without task-create permission", () => {
+  canCreateTasks.mockReturnValue(false);
+  renderTask(task);
+  expect(screen.queryByText("tasks:actions.duplicate")).toBeNull();
 });

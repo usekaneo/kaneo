@@ -39,6 +39,8 @@ type UserPreferencesStore = {
   showTimeEstimates: boolean;
   setShowTimeEstimates: (show: boolean) => void;
   toggleTimeEstimates: () => void;
+  showProjectBackgrounds: boolean;
+  setShowProjectBackgrounds: (show: boolean) => void;
   showTaskItemCounts: boolean;
   setShowTaskItemCounts: (show: boolean) => void;
   toggleTaskItemCounts: () => void;
@@ -111,6 +113,9 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
       setShowTimeEstimates: (show) => set({ showTimeEstimates: show }),
       toggleTimeEstimates: () =>
         set((state) => ({ showTimeEstimates: !state.showTimeEstimates })),
+      showProjectBackgrounds: true,
+      setShowProjectBackgrounds: (show) =>
+        set({ showProjectBackgrounds: show }),
       showTaskItemCounts: true,
       setShowTaskItemCounts: (show) => set({ showTaskItemCounts: show }),
       toggleTaskItemCounts: () =>

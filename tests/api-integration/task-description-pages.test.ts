@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 import db, { getDatabasePool, schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import {
@@ -63,7 +63,10 @@ describe("large task descriptions", () => {
       );
       expect(
         tasks.find((entry: { id: string }) => entry.id === task.id),
-      ).toMatchObject({ description: null, descriptionDeferred: true });
+      ).toMatchObject({
+        description: null,
+        descriptionDeferred: true,
+      });
       expect(
         tasks.find((entry: { id: string }) => entry.id === small.id),
       ).toMatchObject({

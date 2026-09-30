@@ -19,6 +19,9 @@ import { produce } from "immer";
 import { useEffect, useState } from "react";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { useProjectBackground } from "@/hooks/use-project-background";
+import { cn } from "@/lib/cn";
+import { useBackgroundStore } from "@/store/background";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
@@ -29,11 +32,16 @@ import TaskCard from "./task-card";
 type KanbanBoardProps = {
   project: ProjectWithTasks;
   disableDragDrop?: boolean;
+  sortedByNumber?: boolean;
 };
 
-function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
+function KanbanBoard({
+  project,
+  disableDragDrop = false,
+  sortedByNumber = false,
+}: KanbanBoardProps) {
   const queryClient = useQueryClient();
-  const { setProject } = useProjectStore();
+  const { project: storedProject, setProject } = useProjectStore();
   const {
     setAvailableTasks,
     focusNext,
@@ -43,7 +51,21 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
   } = useBulkSelectionStore();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const { mutate: updateTask } = useUpdateTask();
+  const background = useProjectBackground({
+    backgroundVersion: project.backgroundVersion,
+    projectId: project.id,
+    viewMode: "board",
+  });
+  const { setBackground } = useBackgroundStore();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setBackground(background);
+  }, [background, setBackground]);
+
+  useEffect(() => {
+    return () => setBackground(null);
+  }, [setBackground]);
 
   useEffect(() => {
     if (project?.columns) {
@@ -127,6 +149,62 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
     const activeId = active.id.toString();
     const overId = over.id.toString();
 
+    if (sortedByNumber) {
+      const sourceColumn = project.columns.find((column) =>
+        column.tasks.some((task) => task.id === activeId),
+      );
+      const destinationColumn = project.columns.find(
+        (column) =>
+          column.id === overId ||
+          column.tasks.some((task) => task.id === overId),
+      );
+
+      if (
+        !sourceColumn ||
+        !destinationColumn ||
+        sourceColumn.id === destinationColumn.id
+      ) {
+        return;
+      }
+
+      const currentProject = storedProject ?? project;
+      const currentDestination = currentProject.columns.find(
+        (column) => column.id === destinationColumn.id,
+      );
+      const position =
+        Math.max(
+          -1,
+          ...(currentDestination?.tasks.map((task) => task.position ?? -1) ??
+            []),
+        ) + 1;
+      const updatedProject = produce(currentProject, (draft) => {
+        const source = draft.columns.find((column) =>
+          column.tasks.some((task) => task.id === activeId),
+        );
+        const destination = draft.columns.find(
+          (column) => column.id === destinationColumn.id,
+        );
+        if (!source || !destination) return;
+
+        const taskIndex = source.tasks.findIndex(
+          (task) => task.id === activeId,
+        );
+        const [task] = source.tasks.splice(taskIndex, 1);
+        task.status = destination.slug;
+        task.position = position;
+        destination.tasks.push(task);
+      });
+
+      const movedTask = updatedProject.columns
+        .find((column) => column.id === destinationColumn.id)
+        ?.tasks.find((task) => task.id === activeId);
+      if (!movedTask) return;
+
+      setProject(updatedProject);
+      updateTask(movedTask);
+      return;
+    }
+
     const updatedProject = produce(project, (draft) => {
       const sourceColumn = draft?.columns?.find((col) =>
         col.tasks.some((task) => task.id === activeId),
@@ -198,12 +276,9 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
 
         <div className="relative min-h-0 flex-1">
           <div className="flex h-full flex-1 gap-4 overflow-x-auto px-4 pb-4 md:px-5">
-            {[...Array(4)].map((_, i) => (
+            {[0, 1, 2, 3].map((i) => (
               <div
-                key={`kanban-column-skeleton-${
-                  // biome-ignore lint/suspicious/noArrayIndexKey: It's a skeleton
-                  i
-                }`}
+                key={`kanban-column-skeleton-${i}`}
                 className="h-full min-w-80 w-full flex-1 rounded-xl border border-border/70 bg-card"
               >
                 <div className="px-4 py-3 flex items-center justify-between">
@@ -212,12 +287,9 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
                 </div>
 
                 <div className="px-2 pb-4 flex flex-col gap-3 flex-1">
-                  {[...Array(3)].map((_, j) => (
+                  {[0, 1, 2].map((j) => (
                     <div
-                      key={`kanban-task-skeleton-${
-                        // biome-ignore lint/suspicious/noArrayIndexKey: It's a skeleton
-                        j
-                      }`}
+                      key={`kanban-task-skeleton-${j}`}
                       className="p-4 bg-card rounded-lg border border-border/50 animate-pulse"
                     >
                       <div className="space-y-3">
@@ -248,13 +320,19 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex h-full w-full flex-col bg-linear-to-b from-muted/20 to-background">
+      <div
+        className={cn("flex h-full w-full flex-col", {
+          "bg-linear-to-b from-muted/20 to-background": !background,
+        })}
+      >
         <div className="min-h-0 flex-1 overflow-x-auto [-webkit-overflow-scrolling:touch]">
           <div className="flex h-full min-w-max gap-4 px-4 py-4 md:px-5">
             {project.columns?.map((column) => (
               <div
                 key={column.id}
-                className="h-full max-w-96 min-w-80 shrink-0 flex-1"
+                className={cn("h-full max-w-96 min-w-80 shrink-0 flex-1", {
+                  "h-fit": !!background,
+                })}
               >
                 <Column column={column} disableDragDrop={disableDragDrop} />
               </div>

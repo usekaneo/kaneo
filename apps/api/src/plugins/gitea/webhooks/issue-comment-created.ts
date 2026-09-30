@@ -5,6 +5,7 @@ import {
   findAllIntegrationsByGiteaRepo,
   repoOwnerLogin,
 } from "../services/integration-lookup";
+import { isKaneoComment } from "../utils/comment-origin";
 import { baseUrlFromRepositoryHtmlUrl } from "../utils/webhook-repo";
 
 type IssueCommentCreatedPayload = {
@@ -36,7 +37,7 @@ export async function handleGiteaIssueCommentCreated(
 ) {
   const { issue, comment, repository } = payload;
 
-  if (payload.action !== "created") {
+  if (payload.action !== "created" || isKaneoComment(comment.body)) {
     return;
   }
 

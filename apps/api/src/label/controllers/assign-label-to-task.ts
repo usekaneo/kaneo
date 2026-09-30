@@ -16,6 +16,10 @@ import {
   removeLabelFromGitHub,
   syncLabelToGitHub,
 } from "../../plugins/github/utils/sync-label-to-github";
+import {
+  removeLabelFromGitlab,
+  syncLabelToGitlab,
+} from "../../plugins/gitlab/utils/sync-label-to-gitlab";
 
 type LabelRow = typeof labelTableType.$inferSelect;
 
@@ -156,6 +160,9 @@ async function assignLabelToTask(id: string, taskId: string, userId: string) {
     removeLabelFromGitea(previousTaskId, previousName).catch((error) => {
       console.error("Failed to remove label from Gitea:", error);
     });
+    removeLabelFromGitlab(previousTaskId, previousName).catch((error) => {
+      console.error("Failed to remove label from GitLab:", error);
+    });
   }
 
   if (!inserted) {
@@ -167,6 +174,9 @@ async function assignLabelToTask(id: string, taskId: string, userId: string) {
   });
   syncLabelToGitea(taskId, taskLabel.name, taskLabel.color).catch((error) => {
     console.error("Failed to sync label to Gitea:", error);
+  });
+  syncLabelToGitlab(taskId, taskLabel.name, taskLabel.color).catch((error) => {
+    console.error("Failed to sync label to GitLab:", error);
   });
 
   await publishEvent("task.label_assigned", {

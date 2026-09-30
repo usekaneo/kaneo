@@ -1,0 +1,123 @@
+---
+title: "Backups and recovery"
+description: "Save the database, uploaded files, and configuration, then prove you can restore them."
+---
+
+A complete Kaneo backup has three parts:
+
+| Part | What it contains |
+| --- | --- |
+| PostgreSQL | Accounts, workspaces, tasks, comments, settings, avatars, and attachment records |
+| Object storage | The actual files attached to tasks and comments |
+| Configuration | Compose files, environment files, proxy configuration, and the application image tag or digest |
+
+Keep an encrypted copy away from the server. A backup on the same disk will not help if you lose that disk.
+
+The commands below apply to the [Docker Compose setup](/core/installation/docker-compose). Run them from its directory. With a managed database or storage service, use the provider's backup tools as well.
+
+## Make a consistent backup
+
+Schedule a maintenance window and stop every Kaneo API instance that can write to this database. For the single-container setup:
+
+```bash
+docker compose stop kaneo
+```
+
+If uploads are configured, wait for outstanding signed upload URLs to expire before taking the storage snapshot. The default is five minutes; use your configured `S3_PRESIGN_TTL_SECONDS` if it differs.
+
+Create a private backup directory and dump PostgreSQL:
+
+```bash
+umask 077
+backup_dir="backups/$(date -u +%Y%m%dT%H%M%SZ)"
+mkdir -p "$backup_dir"
+docker compose exec -T postgres sh -c \
+  'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --format=custom' \
+  > "$backup_dir/database.dump"
+```
+
+Check the command's exit status. Do not keep going after a failed dump. Check that the archive can be read:
+
+```bash
+docker compose exec -T postgres pg_restore --list \
+  < "$backup_dir/database.dump" > "$backup_dir/database.contents"
+cp compose.yml .env "$backup_dir/"
+docker compose images > "$backup_dir/images.txt"
+```
+
+Also copy any `silo.env`, proxy files, Compose override files, and secret references needed to recreate your setup. Preserve `AUTH_SECRET` and, when used, `NOTIFICATION_SECRET_ENCRYPTION_KEY`; the latter is needed to decrypt personal notification credentials. Use your actual Compose filename if it differs.
+
+The custom archive is created by [pg_dump](https://www.postgresql.org/docs/16/app-pgdump.html). Listing its contents checks the archive structure; a successful restore is the stronger check.
+
+## Save uploaded files
+
+Keep Kaneo stopped while saving storage, so the database records and files stay aligned.
+
+For the single-node Silo service in this guide, copy its complete data directory while it is stopped. `docker compose cp` can copy from a stopped container. Include the hidden metadata files:
+
+```bash
+docker compose stop silo
+mkdir -p "$backup_dir/silo-data"
+docker compose cp silo:/data/. "$backup_dir/silo-data/"
+docker compose start silo
+```
+
+Check the copy succeeded before restarting Kaneo. For large volumes, a consistent filesystem snapshot may be more practical. Record the volume name and snapshot identifier beside the database dump. See the [Compose copy reference](https://docs.docker.com/reference/cli/docker/compose/cp/).
+
+For managed object storage, use a recoverable bucket snapshot or versioned backup and record its recovery point. Make sure your retention policy will preserve objects deleted after the backup. Store any encryption keys and bucket policies needed for recovery separately and securely.
+
+Once the database, storage, and configuration copies are complete:
+
+```bash
+docker compose start kaneo
+```
+
+## Test the database restore in isolation
+
+Use a separate directory and Compose project with a new volume. Do not point this test at the live database. Save this as `compose.restore.yml`:
+
+```yaml
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: kaneo
+      POSTGRES_DB: kaneo
+      POSTGRES_PASSWORD: ${RESTORE_DB_PASSWORD:?Set a temporary restore password}
+    volumes:
+      - restore_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kaneo -d kaneo"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+volumes:
+  restore_data:
+```
+
+Start the isolated database, then restore the selected dump. Replace the path with your actual backup:
+
+```bash
+export RESTORE_DB_PASSWORD="$(openssl rand -hex 32)"
+docker compose -p kaneo-restore -f compose.restore.yml up -d --wait
+docker compose -p kaneo-restore -f compose.restore.yml exec -T postgres \
+  pg_restore --username=kaneo --dbname=kaneo \
+  --no-owner --no-privileges --exit-on-error \
+  < /absolute/path/to/backup/database.dump
+```
+
+Use a new, empty recovery volume for each rehearsal. Do not run the restore repeatedly against a partially restored database. [pg_restore](https://www.postgresql.org/docs/16/app-pgrestore.html) stops at the first error with these flags.
+
+## Recover the whole instance
+
+1. Restore PostgreSQL into an empty recovery database.
+2. Restore the matching storage backup, preserving bucket names, object keys, and required key material. For a fresh single-node Silo recovery volume, create the stopped container with `docker compose create silo`, copy the saved `silo-data/.` into `silo:/data/` with `docker compose cp`, check ownership matches the container's runtime user, then start it. Do not overlay a recovery copy onto a live storage volume.
+3. Deploy the Kaneo image recorded with the backup. Restore its `AUTH_SECRET` and other required settings.
+4. Set the recovery instance's URLs, database connection, and storage endpoint to the recovery services.
+5. Before starting it, isolate outbound email, webhooks, and repository integrations at the network level. Integration credentials can be present in the restored database, not only in `.env`.
+6. Sign in, compare several projects and tasks with the expected backup state, and open existing attachments. Try a new task and file upload.
+7. Only after those checks, plan the cutover and restore the intended URLs and delivery channels.
+
+A restore loses changes made after the selected recovery point. Tell your team which point you are restoring before bringing it back online.
+
+Schedule backups at a frequency that matches how much work you can afford to lose. Rehearse recovery after major deployment changes, and keep a record of the last successful restore.

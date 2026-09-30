@@ -22,6 +22,7 @@ import {
 import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
 import useGetGiteaIntegration from "@/hooks/queries/gitea-integration/use-get-gitea-integration";
 import useGetGithubIntegration from "@/hooks/queries/github-integration/use-get-github-integration";
+import useGetGitlabIntegration from "@/hooks/queries/gitlab-integration/use-get-gitlab-integration";
 import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
@@ -96,6 +97,7 @@ export default function TaskPropertiesSidebar({
   const { data: taskLabels = [] } = useGetLabelsByTask(taskId ?? "");
   const { data: githubIntegration } = useGetGithubIntegration(projectId);
   const { data: giteaIntegration } = useGetGiteaIntegration(projectId);
+  const { data: gitlabIntegration } = useGetGitlabIntegration(projectId);
   const { data: workspaceProjects = [] } = useGetProjects({ workspaceId });
   const canMoveTask =
     Boolean(task) && workspaceProjects.some((p) => p.id !== task?.projectId);
@@ -114,7 +116,12 @@ export default function TaskPropertiesSidebar({
   const branchPattern =
     githubIntegration?.branchPattern ||
     giteaIntegration?.branchPattern ||
+    gitlabIntegration?.branchPattern ||
     "{slug}-{number}";
+  const copiedBranchPattern =
+    branchPattern === "{slug}-{number}"
+      ? "{slug}-{number}-{title}"
+      : branchPattern;
 
   const assignee = workspaceUsers?.members?.find(
     (member) => member.userId === task?.userId,
@@ -124,18 +131,18 @@ export default function TaskPropertiesSidebar({
     navigator.clipboard.writeText(
       `${window.location.origin}/dashboard/workspace/${workspaceId}/project/${projectId}/task/${taskId}`,
     );
-    toast.message(t("tasks:properties.copyTaskLink"));
+    toast.message(t("tasks:properties.taskLinkCopied"));
   };
 
   const handleCopyTaskBranch = () => {
     const branchName = generateBranchName(
-      branchPattern,
+      copiedBranchPattern,
       projectSlug,
       taskNumber,
       task?.title,
     );
     navigator.clipboard.writeText(branchName);
-    toast.message(t("tasks:properties.copyTaskBranch"));
+    toast.message(t("tasks:properties.taskBranchCopied"));
   };
 
   return (
@@ -149,7 +156,7 @@ export default function TaskPropertiesSidebar({
                 <TaskMovePopover
                   task={task}
                   workspaceId={workspaceId}
-                  triggerClassName="rounded-l-md rounded-r-none border-r-0"
+                  triggerClassName="rounded-e-none border-e-0 before:rounded-e-none"
                 />
               )}
               <TooltipProvider>
@@ -160,7 +167,9 @@ export default function TaskPropertiesSidebar({
                       size="sm"
                       className={cn(
                         "text-foreground border-r-0",
-                        canMoveTask ? "rounded-none" : "rounded-r-none",
+                        canMoveTask
+                          ? "rounded-none before:rounded-none"
+                          : "rounded-e-none before:rounded-e-none",
                       )}
                       onClick={() => handleCopyTaskLink()}
                     >
@@ -180,7 +189,7 @@ export default function TaskPropertiesSidebar({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-foreground rounded-l-none"
+                      className="text-foreground rounded-s-none before:rounded-s-none"
                       onClick={() => handleCopyTaskBranch()}
                     >
                       <GitBranch className="size-4" />
@@ -358,7 +367,7 @@ export default function TaskPropertiesSidebar({
                   <TaskMovePopover
                     task={task}
                     workspaceId={workspaceId}
-                    triggerClassName="rounded-l-md rounded-r-none border-r-0"
+                    triggerClassName="rounded-e-none border-e-0 before:rounded-e-none"
                   />
                 )}
                 <TooltipProvider>
@@ -369,7 +378,9 @@ export default function TaskPropertiesSidebar({
                         size="sm"
                         className={cn(
                           "text-foreground border-r-0",
-                          canMoveTask ? "rounded-none" : "rounded-r-none",
+                          canMoveTask
+                            ? "rounded-none before:rounded-none"
+                            : "rounded-e-none before:rounded-e-none",
                         )}
                         onClick={() => handleCopyTaskLink()}
                       >
@@ -389,7 +400,7 @@ export default function TaskPropertiesSidebar({
                       <Button
                         variant="outline"
                         size="sm"
-                        className="text-foreground rounded-l-none"
+                        className="text-foreground rounded-s-none before:rounded-s-none"
                         onClick={() => handleCopyTaskBranch()}
                       >
                         <GitBranch className="size-4" />
@@ -568,7 +579,7 @@ export default function TaskPropertiesSidebar({
                     <TaskMovePopover
                       task={task}
                       workspaceId={workspaceId}
-                      triggerClassName="rounded-l-md rounded-r-none border-r-0"
+                      triggerClassName="rounded-e-none border-e-0 before:rounded-e-none"
                     />
                   )}
                   <TooltipProvider>
@@ -579,7 +590,9 @@ export default function TaskPropertiesSidebar({
                           size="sm"
                           className={cn(
                             "text-foreground border-r-0",
-                            canMoveTask ? "rounded-none" : "rounded-r-none",
+                            canMoveTask
+                              ? "rounded-none before:rounded-none"
+                              : "rounded-e-none before:rounded-e-none",
                           )}
                           onClick={() => handleCopyTaskLink()}
                         >
@@ -599,7 +612,7 @@ export default function TaskPropertiesSidebar({
                         <Button
                           variant="outline"
                           size="sm"
-                          className="text-foreground rounded-l-none"
+                          className="text-foreground rounded-s-none before:rounded-s-none"
                           onClick={() => handleCopyTaskBranch()}
                         >
                           <GitBranch className="size-4" />

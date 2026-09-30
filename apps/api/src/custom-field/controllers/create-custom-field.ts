@@ -8,7 +8,10 @@ import {
   taskTable,
 } from "../../database/schema";
 
-import { validateCustomFieldValue } from "../../task/validate-task-fields";
+import {
+  isCustomFieldValueEmpty,
+  validateCustomFieldValue,
+} from "../../task/validate-task-fields";
 
 async function createCustomField(
   projectId: string,
@@ -18,6 +21,9 @@ async function createCustomField(
   defaultValue?: string,
   options?: string[],
 ) {
+  if (!name.trim())
+    throw new HTTPException(400, { message: "Name cannot be empty" });
+
   const [project] = await db
     .select({ id: projectTable.id })
     .from(projectTable)
@@ -83,10 +89,46 @@ async function createCustomField(
     }
   }
 
-  if (type === "dropdown" && (!options || options.length === 0)) {
+  if (type === "dropdown" && (!options || options.length < 1)) {
     throw new HTTPException(400, {
       message: "Dropdown fields must have at least one option",
     });
+  }
+
+  if (type === "multiselect") {
+    const normalizedOptions = Array.from(
+      new Set(
+        (options ?? [])
+          .map((opt) => opt.trim())
+          .filter((opt) => opt.length > 0),
+      ),
+    );
+
+    if (normalizedOptions.length < 2) {
+      throw new HTTPException(400, {
+        message: "Multiselect fields must have at least 2 options",
+      });
+    }
+  }
+
+  if (type === "multiselect" && defaultValue != null) {
+    const empty = isCustomFieldValueEmpty(defaultValue, "multiselect");
+    if (required && empty) {
+      throw new HTTPException(400, {
+        message: "Required fields must have a default value",
+      });
+    }
+    if (!empty) {
+      const error = validateCustomFieldValue(
+        defaultValue,
+        "multiselect",
+        name,
+        options,
+      );
+      if (error) {
+        throw new HTTPException(400, { message: error });
+      }
+    }
   }
 
   const storedDefaultValue =

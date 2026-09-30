@@ -117,7 +117,7 @@ export function normalizeGenericWebhookConfig(
       config.dueDateReminderLeadTimeMinutes ?? 1440,
     events: {
       ...defaultGenericWebhookEvents,
-      ...(config.events ?? {}),
+      ...config.events,
     },
   };
 }

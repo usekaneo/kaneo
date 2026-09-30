@@ -44,7 +44,7 @@ export const focalboard: Comparison = {
     },
     {
       title: "Independent of a chat platform",
-      body: "Focalboard's future is as a Mattermost plugin. Kaneo is a standalone product, and it integrates with Slack, Discord, and Telegram rather than living inside one of them.",
+      body: "Focalboard's future is as a Mattermost plugin. Kaneo is a standalone product with optional notifications in Mattermost, Slack, Discord, and Telegram.",
     },
     {
       title: "More than a board",
@@ -52,7 +52,7 @@ export const focalboard: Comparison = {
     },
   ],
   honestNote:
-    "If you already run Mattermost, the maintained Boards plugin keeps your tasks next to your conversations, and that adjacency is worth a lot. Focalboard's card and property model is also flexible in a Notion-like way that Kaneo deliberately does not copy.",
+    "If you already run Mattermost, the maintained Boards plugin keeps your tasks next to your conversations, and that adjacency is worth a lot. Kaneo also has custom fields for text, numbers, dates, dropdowns, and checkboxes, but it runs as a separate app with optional Mattermost notifications.",
   faq: [
     {
       question: "Is Focalboard discontinued?",
@@ -72,7 +72,7 @@ export const focalboard: Comparison = {
     {
       question: "Does Kaneo need Mattermost or another chat tool?",
       answer:
-        "No. Kaneo is standalone. It can post notifications into Slack, Discord, or Telegram, but nothing requires them.",
+        "No. Kaneo is standalone. It can post notifications into Mattermost, Slack, Discord, or Telegram, but nothing requires them.",
     },
   ],
   related: ["planka", "wekan", "trello", "notion"],

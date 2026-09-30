@@ -6,14 +6,13 @@ import {
   Calendar,
   CalendarClock,
   CalendarX,
-  GitMerge,
-  GitPullRequest,
   SlidersHorizontal,
-  SquareCheck,
   Timer,
 } from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { TaskProgressBadges } from "@/components/task/task-progress-badges";
+import { TaskPullRequests } from "@/components/task/task-pull-requests";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -35,15 +34,12 @@ import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import useGetCustomFieldValuesByProject from "@/hooks/queries/custom-field/use-get-custom-field-values-by-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
-import { cn } from "@/lib/cn";
 import {
   dueDateStatusColors,
   getDueDateStatus,
   isTaskCompleted,
 } from "@/lib/due-date-status";
-import { getExternalWebUrl, openExternalWebUrl } from "@/lib/external-url";
 import { getInitials } from "@/lib/get-initials";
-import { getTaskItemStats } from "@/lib/get-task-item-stats";
 import { getPriorityIcon } from "@/lib/priority";
 import { formatTimeEstimate } from "@/lib/time-estimate";
 import { toast } from "@/lib/toast";
@@ -80,55 +76,12 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
     showDueDates,
     showLabels,
     showTaskNumbers,
-    showTaskItemCounts,
     showTimeEstimates,
   } = useUserPreferencesStore();
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
   const { toggleSelection, isSelected, isFocused } = useBulkSelectionStore();
   const isTaskSelected = isSelected(task.id);
   const isTaskFocused = isFocused(task.id);
-  const taskItemStats = useMemo(
-    () =>
-      showTaskItemCounts && !task.descriptionDeferred
-        ? getTaskItemStats(task.description)
-        : null,
-    [task.description, task.descriptionDeferred, showTaskItemCounts],
-  );
-
-  const pullRequests = useMemo(() => {
-    return (task.externalLinks ?? []).filter(
-      (link) =>
-        link.resourceType === "pull_request" &&
-        getExternalWebUrl(link.url) !== null,
-    );
-  }, [task.externalLinks]);
-
-  const getPRInfo = (pr: (typeof pullRequests)[number]) => {
-    const isMerged = pr.metadata?.merged === true;
-    const isDraft = pr.metadata?.draft === true;
-
-    if (isMerged) {
-      return {
-        icon: <GitMerge className="h-3 w-3 text-info-foreground" />,
-        status: t("tasks:pr.merged"),
-        statusClass: "text-info-foreground",
-      };
-    }
-
-    if (isDraft) {
-      return {
-        icon: <GitPullRequest className="h-3 w-3 text-muted-foreground" />,
-        status: t("tasks:pr.draft"),
-        statusClass: "text-muted-foreground",
-      };
-    }
-
-    return {
-      icon: <GitPullRequest className="h-3 w-3 text-success-foreground" />,
-      status: t("tasks:pr.open"),
-      statusClass: "text-success-foreground",
-    };
-  };
 
   const { data: projectCustomFieldValues = [] } =
     useGetCustomFieldValuesByProject(task.projectId);
@@ -143,9 +96,18 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
 
   const activeCustomFieldValues = useMemo(
     () =>
-      customFieldValues.filter(
-        (field) => field.value !== null && field.value !== "",
-      ),
+      customFieldValues.filter((field) => {
+        if (field.value === null || field.value === "") return false;
+        if (field.fieldType === "multiselect") {
+          try {
+            const parsed = JSON.parse(field.value);
+            return Array.isArray(parsed) && parsed.length > 0;
+          } catch {
+            return false;
+          }
+        }
+        return true;
+      }),
     [customFieldValues],
   );
 
@@ -215,7 +177,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <ContextMenu>
         <ContextMenuTrigger asChild>
-          {/** biome-ignore lint/a11y/noStaticElementInteractions: false positive for onClick and onKeyDown */}
+          {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- false positive for onClick and onKeyDown */}
           <div
             onClick={handleTaskCardClick}
             className={`group relative rounded-lg border bg-background p-3 shadow-xs/5 transition-[background-color,border-color,box-shadow,scale] duration-150 ease-out active:scale-[0.98] ${
@@ -289,7 +251,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
               </div>
             )}
 
-            <div className="flex items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5">
               {showPriority && (
                 <span className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground h-5.5">
                   {getPriorityIcon(task.priority ?? "")}
@@ -325,38 +287,43 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                     onPointerDown={(e) => e.stopPropagation()}
                   >
                     <div className="space-y-1.5">
-                      {activeCustomFieldValues.map((field) => (
-                        <div
-                          key={field.id}
-                          className="flex items-center justify-between gap-2 text-xs"
-                        >
-                          <span className="font-medium text-muted-foreground truncate">
-                            {field.fieldName}
-                          </span>
-                          <span className="text-foreground truncate max-w-24">
-                            {field.value}
-                          </span>
-                        </div>
-                      ))}
+                      {activeCustomFieldValues.map((field) => {
+                        const value = field.value;
+
+                        if (!value) return null;
+
+                        let displayValue: string = value;
+                        if (field.fieldType === "multiselect") {
+                          try {
+                            const parsed = JSON.parse(value);
+                            if (Array.isArray(parsed)) {
+                              displayValue = parsed.join(", ");
+                            }
+                          } catch {
+                            displayValue = value;
+                          }
+                        }
+
+                        return (
+                          <div
+                            key={field.id}
+                            className="flex items-center justify-between gap-2 text-xs"
+                          >
+                            <span className="font-medium text-muted-foreground truncate">
+                              {field.fieldName}
+                            </span>
+                            <span className="text-foreground truncate max-w-24">
+                              {displayValue}
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </HoverCardContent>
                 </HoverCard>
               )}
 
-              {taskItemStats && taskItemStats.total > 0 && (
-                <span
-                  className={cn(
-                    "flex items-center gap-1 text-[10px] px-2 py-1 rounded bg-muted/50 text-muted-foreground h-5.5",
-                    {
-                      "bg-success/10 text-success-foreground":
-                        taskItemStats.completed === taskItemStats.total,
-                    },
-                  )}
-                >
-                  <SquareCheck className="h-[12px] w-[12px]" />
-                  {taskItemStats.completed}/{taskItemStats.total}
-                </span>
-              )}
+              <TaskProgressBadges task={task} />
 
               {showDueDates && task.dueDate && (
                 <div
@@ -381,114 +348,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                 </div>
               )}
 
-              {pullRequests.length === 1 && (
-                <HoverCard openDelay={200} closeDelay={100}>
-                  <HoverCardTrigger asChild>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openExternalWebUrl(pullRequests[0].url);
-                      }}
-                      className="inline-flex items-center gap-1.5 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground"
-                    >
-                      {getPRInfo(pullRequests[0]).icon}
-                      <span>#{pullRequests[0].externalId}</span>
-                    </button>
-                  </HoverCardTrigger>
-                  <HoverCardContent
-                    className="w-72 p-3"
-                    side="bottom"
-                    onClick={(e) => e.stopPropagation()}
-                    onPointerDown={(e) => e.stopPropagation()}
-                  >
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        {getPRInfo(pullRequests[0]).icon}
-                        <span>{getPRInfo(pullRequests[0]).status}</span>
-                        <span className="text-muted-foreground/50">•</span>
-                        <span>#{pullRequests[0].externalId}</span>
-                      </div>
-                      <p className="text-sm font-medium leading-snug">
-                        {pullRequests[0].title || t("tasks:pr.label")}
-                      </p>
-                    </div>
-                  </HoverCardContent>
-                </HoverCard>
-              )}
-
-              {pullRequests.length > 1 &&
-                (() => {
-                  const hasOpen = pullRequests.some(
-                    (pr) => !pr.metadata?.merged && !pr.metadata?.draft,
-                  );
-                  const allMerged = pullRequests.every(
-                    (pr) => pr.metadata?.merged,
-                  );
-                  const iconColor = allMerged
-                    ? "text-info-foreground"
-                    : hasOpen
-                      ? "text-success-foreground"
-                      : "text-muted-foreground";
-
-                  return (
-                    <HoverCard openDelay={200} closeDelay={100}>
-                      <HoverCardTrigger asChild>
-                        <button
-                          type="button"
-                          onClick={(e) => e.stopPropagation()}
-                          className="inline-flex items-center gap-1.5 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground"
-                        >
-                          <GitPullRequest className={`h-3 w-3 ${iconColor}`} />
-                          <span>
-                            {t("tasks:pr.count", {
-                              count: pullRequests.length,
-                            })}
-                          </span>
-                        </button>
-                      </HoverCardTrigger>
-                      <HoverCardContent
-                        className="w-auto min-w-56 max-w-96 p-1"
-                        side="bottom"
-                        onClick={(e) => e.stopPropagation()}
-                        onPointerDown={(e) => e.stopPropagation()}
-                      >
-                        {pullRequests.map((pr, index) => {
-                          const prInfo = getPRInfo(pr);
-                          const repoMatch = pr.url.match(
-                            /github\.com\/([^/]+\/[^/]+)\/pull/,
-                          );
-                          const repoName = repoMatch ? repoMatch[1] : null;
-                          return (
-                            <div key={pr.id}>
-                              {index > 0 && (
-                                <hr className="border-border my-1" />
-                              )}
-                              <button
-                                type="button"
-                                onClick={() => openExternalWebUrl(pr.url)}
-                                className="w-full px-2 py-1.5 text-left hover:bg-muted/50 rounded transition-colors"
-                              >
-                                <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                                  {prInfo.icon}
-                                  <span>
-                                    {repoName}#{pr.externalId}
-                                  </span>
-                                </div>
-                                <p className="text-xs leading-tight line-clamp-2 mt-0.5">
-                                  {pr.title || t("tasks:pr.label")}
-                                </p>
-                                <span className="text-[10px] text-muted-foreground">
-                                  {prInfo.status}
-                                </span>
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </HoverCardContent>
-                    </HoverCard>
-                  );
-                })()}
+              <TaskPullRequests externalLinks={task.externalLinks} />
             </div>
           </div>
         </ContextMenuTrigger>

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { formatTimeEstimate, parseTimeEstimate } from "./time-estimate";
 
 describe("parseTimeEstimate", () => {

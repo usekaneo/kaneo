@@ -13,12 +13,12 @@ ENV SENTRY_PROJECT=$SENTRY_PROJECT
 # Install build dependencies in a single layer
 RUN apk add --no-cache python3 make g++ && \
   corepack enable && \
-  corepack prepare pnpm@10.7.0 --activate
+  corepack prepare pnpm@10.32.1 --activate
 
 WORKDIR /app
 
 # Copy package files first for better layer caching
-COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json vite.config.ts ./
 COPY apps/web/package.json ./apps/web/
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/libs/package.json ./packages/libs/
@@ -71,6 +71,8 @@ RUN addgroup -g 1001 appuser && \
 
 # Copy built files from builder stage
 COPY --from=builder --chown=appuser:appuser /app/apps/web/dist /usr/share/nginx/html
+# The inherited web root must be writable for atomic runtime configuration updates.
+RUN chown appuser:appuser /usr/share/nginx/html
 
 # Copy nginx configuration and public runtime configuration renderer
 COPY --chown=appuser:appuser apps/web/nginx.conf /etc/nginx/conf.d/default.conf

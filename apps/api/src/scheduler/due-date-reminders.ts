@@ -9,24 +9,29 @@ import {
   workspaceUserTable,
 } from "../database/schema";
 import createNotification from "../notification/controllers/create-notification";
-import { REMINDER_WINDOW_MINUTES } from "./reminder-timing";
+import {
+  DUE_DATE_DURATION_MS,
+  REMINDER_WINDOW_MINUTES,
+} from "./reminder-timing";
 
 type ReminderType = "configured_before" | "overdue";
 
 const MINUTE_MS = 60 * 1000;
 
 function buildWindows(now: Date) {
-  const nowMs = now.getTime();
+  // Shift the window to stored day-start timestamps, preserving indexed lookups.
+  const nowMs = now.getTime() - DUE_DATE_DURATION_MS;
+  const windowEnd = new Date(nowMs);
 
   return {
     upcoming: {
       start: new Date(nowMs - REMINDER_WINDOW_MINUTES * MINUTE_MS),
-      end: now,
+      end: windowEnd,
       type: "configured_before" as ReminderType,
       notificationType: "due_date_reminder" as const,
     },
     overdue: {
-      end: now,
+      end: windowEnd,
       start: new Date(nowMs - 10 * MINUTE_MS),
       type: "overdue" as ReminderType,
       notificationType: "task_overdue" as const,
