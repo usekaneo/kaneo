@@ -66,6 +66,7 @@ function makeTasks(status: string, count: number): Task[] {
     priority: null,
     startDate: null,
     dueDate: null,
+    timeEstimate: null,
     position: index,
     createdAt: "2026-09-16T00:00:00.000Z",
     userId: null,
