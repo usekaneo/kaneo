@@ -223,7 +223,12 @@ export async function replayDeferredIssueEdits() {
           ),
           state: issue.state,
         };
-        const repairs: Array<{ field: IssueField; value: string }> = [];
+        const repairs: Array<{
+          field: IssueField;
+          value: string;
+          intentId?: string;
+          providerValue: string;
+        }> = [];
         const applied = await withIntegrationLink(
           link,
           integration,
@@ -287,7 +292,12 @@ export async function replayDeferredIssueEdits() {
                     },
                     tx,
                   );
-                repairs.push({ field, value: local });
+                repairs.push({
+                  field,
+                  value: local,
+                  intentId: uncertain.intentId,
+                  providerValue: values[field],
+                });
               }
             }
             // Classify every field before writing any: PendingEcho commits only its observation.
@@ -304,7 +314,18 @@ export async function replayDeferredIssueEdits() {
                   values[field],
                   issue.updated_at,
                   values[field],
-                  { linkId: link.id, field },
+                  {
+                    linkId: link.id,
+                    field,
+                    localValue:
+                      field === "state"
+                        ? task.status === "done"
+                          ? "closed"
+                          : "open"
+                        : field === "description"
+                          ? task.description || ""
+                          : task.title,
+                  },
                 ),
             );
             for (const field of accepted) {
@@ -322,6 +343,7 @@ export async function replayDeferredIssueEdits() {
                   current.lastSync?.[field],
                   values[field],
                   integration.type,
+                  issue.updated_at,
                 ),
               };
               if (field === "state") current.state = values.state;
@@ -371,6 +393,26 @@ export async function replayDeferredIssueEdits() {
             link,
             integration,
             async (tx) => {
+              // The repair succeeded. Retire its uncertain intent so a future
+              // genuine provider edit to the old value remains importable.
+              for (const repair of repairs) {
+                if (repair.intentId)
+                  await updateExternalLink(
+                    link.id,
+                    {
+                      outbound: {
+                        field: repair.field,
+                        value: repair.providerValue,
+                        intentId: repair.intentId,
+                        updatedAt: issue.updated_at,
+                        pending: false,
+                        uncertain: false,
+                        cancelled: true,
+                      },
+                    },
+                    tx,
+                  );
+              }
               await updateExternalLink(
                 link.id,
                 { completeDeferredEdit: job.id },

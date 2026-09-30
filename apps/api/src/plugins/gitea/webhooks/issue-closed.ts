@@ -115,7 +115,11 @@ export async function handleGiteaIssueClosed(
                 "closed",
                 issue.updated_at,
                 current ? (current.state ?? issue.state) : undefined,
-                { linkId: externalLink.id, field: "state" },
+                {
+                  linkId: externalLink.id,
+                  field: "state",
+                  localValue: task.status === "done" ? "closed" : "open",
+                },
               )
             )
               return;
@@ -177,6 +181,7 @@ export async function handleGiteaIssueClosed(
                       existingMetadata.lastSync?.state,
                       "closed",
                       "gitea",
+                      current?.updated_at ?? issue.updated_at,
                     ),
                   },
                 },

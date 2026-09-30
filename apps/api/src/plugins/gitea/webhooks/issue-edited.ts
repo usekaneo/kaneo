@@ -121,7 +121,11 @@ export async function handleGiteaIssueEdited(
                     issue.title,
                     issue.updated_at,
                     current?.title,
-                    { linkId: externalLink.id, field: "title" },
+                    {
+                      linkId: externalLink.id,
+                      field: "title",
+                      localValue: task.title,
+                    },
                   )
                 ) {
                   shouldUpdateTitle = false;
@@ -134,6 +138,7 @@ export async function handleGiteaIssueEdited(
                   metadata.lastSync?.title,
                   issue.title,
                   "gitea",
+                  current?.updated_at ?? issue.updated_at,
                 );
               }
             }
@@ -159,7 +164,11 @@ export async function handleGiteaIssueEdited(
                           task.id,
                         )
                       : undefined,
-                    { linkId: externalLink.id, field: "description" },
+                    {
+                      linkId: externalLink.id,
+                      field: "description",
+                      localValue: task.description || "",
+                    },
                   )
                 ) {
                   shouldUpdateDescription = false;
@@ -172,6 +181,7 @@ export async function handleGiteaIssueEdited(
                   metadata.lastSync?.description,
                   formattedDescription,
                   "gitea",
+                  current?.updated_at ?? issue.updated_at,
                 );
               }
             }

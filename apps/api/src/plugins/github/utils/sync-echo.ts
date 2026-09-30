@@ -22,6 +22,7 @@ export type SyncStamp = {
   inboundAt?: string;
   inboundId?: string;
   inboundValue?: string;
+  inboundUpdatedAt?: string;
   outbound?: OutboundEntry[];
 };
 
@@ -155,6 +156,7 @@ export function inboundStamp(
   previous: SyncStamp | undefined,
   value: string,
   source: string,
+  updatedAt?: string,
 ): SyncStamp {
   const timestamp = new Date().toISOString();
   return {
@@ -165,6 +167,7 @@ export function inboundStamp(
     inboundAt: timestamp,
     inboundId: randomUUID(),
     inboundValue: value,
+    inboundUpdatedAt: updatedAt ?? previous?.inboundUpdatedAt,
   };
 }
 export function ambiguousOutboundEcho(

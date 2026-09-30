@@ -9,6 +9,10 @@ import {
 import { updateExternalLink } from "../../apps/api/src/plugins/github/services/link-manager";
 import { handleGiteaIssueEdited } from "../../apps/api/src/plugins/gitea/webhooks/issue-edited";
 import { handleIssueEdited } from "../../apps/api/src/plugins/github/webhooks/issue-edited";
+import { handleIssueClosed } from "../../apps/api/src/plugins/github/webhooks/issue-closed";
+import { handleIssueReopened } from "../../apps/api/src/plugins/github/webhooks/issue-reopened";
+import { handleGiteaIssueClosed } from "../../apps/api/src/plugins/gitea/webhooks/issue-closed";
+import { handleGiteaIssueReopened } from "../../apps/api/src/plugins/gitea/webhooks/issue-reopened";
 import {
   inboundStamp,
   outboundStamp,
@@ -610,5 +614,279 @@ it("retains missing-issue work when credentials rotate during the read", async (
   expect((await metadata(link.id)).deferredIssueEdit).toBeDefined();
   await replayDeferredIssueEdits();
   expect((await current(task.id))?.description).toBe("recovered body");
+  expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+});
+
+type IssueField = "title" | "description" | "state";
+async function deliverField(
+  provider: string,
+  field: IssueField,
+  value: string,
+  version: string,
+  integrationId: string,
+) {
+  const payload = {
+    action:
+      field === "state"
+        ? value === "closed"
+          ? "closed"
+          : "reopened"
+        : "edited",
+    issue: {
+      number: 1,
+      title: field === "title" ? value : "unchanged",
+      body: field === "description" ? value : "unchanged",
+      state: field === "state" ? value : "open",
+      updated_at: version,
+      html_url: "https://git.example/owner/repo/issues/1",
+    },
+    changes:
+      field === "title"
+        ? { title: { from: "before" } }
+        : { body: { from: "before" } },
+    repository: {
+      id: 20,
+      name: "repo",
+      full_name: "owner/repo",
+      owner: { login: "owner" },
+      html_url: "https://git.example/owner/repo",
+    },
+  };
+  if (field !== "state") {
+    if (provider === "github") await handleIssueEdited(payload);
+    else await handleGiteaIssueEdited(payload, integrationId);
+  } else if (provider === "github") {
+    await (value === "closed" ? handleIssueClosed : handleIssueReopened)(
+      payload,
+    );
+  } else {
+    await (
+      value === "closed" ? handleGiteaIssueClosed : handleGiteaIssueReopened
+    )(payload, integrationId);
+  }
+}
+const providerFields = ["github", "gitea"].flatMap((provider) =>
+  (["title", "description", "state"] as const).map((field) => ({
+    provider,
+    field,
+  })),
+);
+it.each(
+  providerFields.flatMap((entry) =>
+    [false, true].map((collision) => ({ ...entry, collision })),
+  ),
+)(
+  "preserves the latest genuine $provider $field delivery (sameVersion=$collision)",
+  async ({ provider, field, collision }) => {
+    const { task, integration, link } = await seed(provider);
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: "{}" })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    const latest = field === "state" ? "open" : "remote-new";
+    const older = field === "state" ? "closed" : "remote-old";
+    const version = "2026-09-30T00:00:03Z";
+    m.read.mockResolvedValue({
+      title: latest,
+      body: latest,
+      state: "open",
+      updated_at: version,
+    });
+    await deliverField(provider, field, latest, version, integration.id);
+    await deliverField(
+      provider,
+      field,
+      older,
+      collision ? version : "2026-09-30T00:00:02Z",
+      integration.id,
+    );
+    const row = await current(task.id);
+    expect(field === "state" ? row?.status : row?.[field]).toBe(
+      field === "state" ? "to-do" : latest,
+    );
+    expect((await metadata(link.id)).lastSync[field].inboundUpdatedAt).toBe(
+      version,
+    );
+    if (collision) expect(m.read).toHaveBeenCalledOnce();
+    else expect(m.read).not.toHaveBeenCalled();
+    await deliverField(
+      provider,
+      field,
+      older,
+      "2026-09-30T00:00:04Z",
+      integration.id,
+    );
+    const after = await current(task.id);
+    expect(field === "state" ? after?.status : after?.[field]).toBe(
+      field === "state" ? "done" : older,
+    );
+  },
+);
+it.each(providerFields)(
+  "repairs a late timed-out $provider $field write without reverting the newer local value",
+  async ({ provider, field }) => {
+    const { task, integration, link } = await seed(provider);
+    const older = field === "state" ? "closed" : "remote-old";
+    const latest =
+      field === "state" ? "open" : field === "title" ? "B" : "old body";
+    const pending = outboundStamp(undefined, older, undefined, {
+      intentId: "timed-out",
+      pending: true,
+    });
+    const uncertain = outboundStamp(pending, older, undefined, {
+      intentId: "timed-out",
+      pending: false,
+      uncertain: true,
+    });
+    const stamp = outboundStamp(uncertain, latest, "2026-09-30T00:00:02Z", {
+      intentId: "newer-completed",
+    });
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: JSON.stringify({ lastSync: { [field]: stamp } }) })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    m.read.mockResolvedValue({
+      title: older,
+      body: older,
+      state: "closed",
+      updated_at: "2026-09-30T00:00:03Z",
+    });
+    await deliverField(
+      provider,
+      field,
+      older,
+      "2026-09-30T00:00:03Z",
+      integration.id,
+    );
+    expect((await metadata(link.id)).deferredIssueEdit.fields).toEqual([field]);
+    expect(await current(task.id)).toMatchObject({
+      title: "B",
+      description: "old body",
+      status: "to-do",
+    });
+    await replayDeferredIssueEdits();
+    expect(await current(task.id)).toMatchObject({
+      title: "B",
+      description: "old body",
+      status: "to-do",
+    });
+    expect(m.write).toHaveBeenCalledWith(
+      expect.objectContaining(
+        field === "description"
+          ? { body: expect.stringContaining(latest) }
+          : { [field]: latest },
+      ),
+    );
+    expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+    expect(publishEvent).not.toHaveBeenCalled();
+    await deliverField(
+      provider,
+      field,
+      older,
+      "2026-09-30T00:00:05Z",
+      integration.id,
+    );
+    const later = await current(task.id);
+    expect(field === "state" ? later?.status : later?.[field]).toBe(
+      field === "state" ? "done" : older,
+    );
+    expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+  },
+);
+
+it("completes uncertain replay when the task already equals the provider", async () => {
+  const { task, integration, link } = await seed();
+  const uncertain = outboundStamp(
+    outboundStamp(undefined, "A", undefined, {
+      intentId: "uncertain",
+      pending: true,
+    }),
+    "A",
+    undefined,
+    { intentId: "uncertain", pending: false, uncertain: true },
+  );
+  const stamp = outboundStamp(uncertain, "B", "2026-09-30T00:00:02Z");
+  await db
+    .update(schema.externalLinkTable)
+    .set({ metadata: JSON.stringify({ lastSync: { title: stamp } }) })
+    .where(eq(schema.externalLinkTable.id, link.id));
+  await db
+    .update(schema.taskTable)
+    .set({ title: "A" })
+    .where(eq(schema.taskTable.id, task.id));
+  await deferIssueEdit(link, integration, ["title"]);
+  expect(await replayDeferredIssueEdits()).toEqual({ degraded: false });
+  expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+  expect((await current(task.id))?.title).toBe("A");
+  expect(m.write).not.toHaveBeenCalled();
+});
+it("repairs an uncertain delivery over an unstamped local edit after a genuine provider edit", async () => {
+  const { task, integration, link } = await seed();
+  const pending = outboundStamp(undefined, "A", undefined, {
+    intentId: "uncertain",
+    pending: true,
+  });
+  const stamp = inboundStamp(
+    outboundStamp(pending, "A", undefined, {
+      intentId: "uncertain",
+      pending: false,
+      uncertain: true,
+    }),
+    "B",
+    "github",
+    "2026-09-30T00:00:02Z",
+  );
+  await db
+    .update(schema.externalLinkTable)
+    .set({ metadata: JSON.stringify({ lastSync: { title: stamp } }) })
+    .where(eq(schema.externalLinkTable.id, link.id));
+  await db
+    .update(schema.taskTable)
+    .set({ title: "C" })
+    .where(eq(schema.taskTable.id, task.id));
+  await deliverField(
+    "github",
+    "title",
+    "A",
+    "2026-09-30T00:00:03Z",
+    integration.id,
+  );
+  expect((await current(task.id))?.title).toBe("C");
+  expect((await metadata(link.id)).deferredIssueEdit.fields).toEqual(["title"]);
+  await replayDeferredIssueEdits();
+  expect(m.write).toHaveBeenCalledWith(expect.objectContaining({ title: "C" }));
+});
+
+it("retains the uncertain intent and job when corrective provider HTTP fails", async () => {
+  const { task, integration, link } = await seed();
+  const pending = outboundStamp(undefined, "A", undefined, {
+    intentId: "failed-repair",
+    pending: true,
+  });
+  const stamp = outboundStamp(
+    outboundStamp(pending, "A", undefined, {
+      intentId: "failed-repair",
+      pending: false,
+      uncertain: true,
+    }),
+    "B",
+    "2026-09-30T00:00:02Z",
+  );
+  await db
+    .update(schema.externalLinkTable)
+    .set({ metadata: JSON.stringify({ lastSync: { title: stamp } }) })
+    .where(eq(schema.externalLinkTable.id, link.id));
+  await deferIssueEdit(link, integration, ["title"]);
+  m.write.mockRejectedValueOnce(new Error("provider unavailable"));
+  expect(await replayDeferredIssueEdits()).toEqual({ degraded: true });
+  const queued = await metadata(link.id);
+  expect(queued.deferredIssueEdit).toBeDefined();
+  const retained = queued.lastSync.title.outbound.find(
+    (entry: { intentId: string }) => entry.intentId === "failed-repair",
+  );
+  expect(retained.uncertain).toBe(true);
+  expect(retained.cancelled).not.toBe(true);
+  await replayDeferredIssueEdits();
+  expect((await current(task.id))?.title).toBe("B");
   expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
 });

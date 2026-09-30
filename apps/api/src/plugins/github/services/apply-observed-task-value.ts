@@ -59,7 +59,13 @@ export async function applyObservedTaskValue(
             ...(field === "state" ? { state: value } : {}),
             lastSync: {
               ...metadata.lastSync,
-              [field]: inboundStamp(stamp, value, integration.type),
+              [field]: inboundStamp(
+                stamp,
+                value,
+                integration.type,
+                stamp?.outbound?.find((entry) => entry.intentId === intentId)
+                  ?.observedUpdatedAt,
+              ),
             },
           },
         },

@@ -3,9 +3,12 @@ import {
   ambiguousOutboundEcho,
   isOutboundEcho,
   pendingOutboundIntent,
+  uncertainOutboundIntent,
+  inboundOccurredAfterIntent,
   type SyncStamp,
 } from "./sync-echo";
 class ConfirmationRequired extends Error {}
+class RepairRequired extends Error {}
 export class PendingResponseTimeout extends Error {}
 export class PendingEcho extends Error {
   recorded = false;
@@ -25,8 +28,48 @@ export function inboundEcho(
   value: string,
   updatedAt?: string,
   providerValue?: string,
-  context?: { linkId: string; field: "title" | "description" | "state" },
+  context?: {
+    linkId: string;
+    field: "title" | "description" | "state";
+    localValue?: string;
+  },
 ) {
+  const version = Date.parse(updatedAt ?? "");
+  const inboundVersion = Date.parse(stamp?.inboundUpdatedAt ?? "");
+  const knownVersions = [
+    inboundVersion,
+    ...(stamp?.outbound ?? [])
+      .filter((entry) => !entry.cancelled && !entry.pending && !entry.uncertain)
+      .map((entry) => Date.parse(entry.updatedAt ?? "")),
+  ].filter(Number.isFinite);
+  if (
+    Number.isFinite(version) &&
+    knownVersions.some((known) => known > version)
+  )
+    return true;
+  if (
+    Number.isFinite(version) &&
+    version === inboundVersion &&
+    stamp?.inboundValue !== value
+  ) {
+    if (providerValue === undefined) throw new ConfirmationRequired();
+    if (providerValue !== value) return true;
+  }
+  const uncertain = uncertainOutboundIntent(stamp, value);
+  const localValue = context?.localValue ?? stamp?.value;
+  if (
+    uncertain &&
+    localValue !== value &&
+    !(
+      stamp?.source !== "kaneo" &&
+      stamp?.inboundValue === localValue &&
+      inboundOccurredAfterIntent(stamp, uncertain)
+    )
+  ) {
+    if (providerValue === undefined) throw new ConfirmationRequired();
+    if (providerValue !== value) return true;
+    throw new RepairRequired();
+  }
   const pending = pendingOutboundIntent(stamp, value);
   if (pending) throw new PendingEcho(pending.intentId, updatedAt, context);
   if (!isOutboundEcho(stamp, value, updatedAt)) {
@@ -61,7 +104,21 @@ export async function withEchoConfirmation<Provider, Result>(
       if (result instanceof PendingEcho) throw result;
       return result;
     } catch (error) {
-      if (error instanceof PendingEcho) {
+      if (error instanceof RepairRequired) {
+        if (!defer)
+          throw new PendingResponseTimeout(
+            "Uncertain outbound write needs durable repair",
+          );
+        try {
+          await defer();
+          return;
+        } catch (cause) {
+          throw new PendingResponseTimeout(
+            "Could not persist deferred webhook delivery",
+            { cause },
+          );
+        }
+      } else if (error instanceof PendingEcho) {
         const { context, intentId, updatedAt } = error;
         const key = `${intentId}:${updatedAt}`;
         if (

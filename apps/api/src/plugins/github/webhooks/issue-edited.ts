@@ -128,7 +128,11 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
                     issue.title,
                     issue.updated_at,
                     current?.title,
-                    { linkId: externalLink.id, field: "title" },
+                    {
+                      linkId: externalLink.id,
+                      field: "title",
+                      localValue: task.title,
+                    },
                   )
                 ) {
                   console.log(
@@ -144,6 +148,7 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
                   metadata.lastSync?.title,
                   issue.title,
                   "github",
+                  current?.updated_at ?? issue.updated_at,
                 );
                 console.log(
                   `Updating task title from GitHub: "${changes.title.from}" → "${issue.title}"`,
@@ -172,7 +177,11 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
                           task.id,
                         )
                       : undefined,
-                    { linkId: externalLink.id, field: "description" },
+                    {
+                      linkId: externalLink.id,
+                      field: "description",
+                      localValue: task.description || "",
+                    },
                   )
                 ) {
                   console.log(
@@ -188,6 +197,7 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
                   metadata.lastSync?.description,
                   formattedDescription,
                   "github",
+                  current?.updated_at ?? issue.updated_at,
                 );
                 console.log("Updating task description from GitHub");
               }

@@ -102,7 +102,11 @@ export async function handleIssueReopened(payload: IssueReopenedPayload) {
                 "open",
                 issue.updated_at,
                 current?.state,
-                { linkId: externalLink.id, field: "state" },
+                {
+                  linkId: externalLink.id,
+                  field: "state",
+                  localValue: task.status === "done" ? "closed" : "open",
+                },
               )
             )
               return;
@@ -149,6 +153,7 @@ export async function handleIssueReopened(payload: IssueReopenedPayload) {
                       existingMetadata.lastSync?.state,
                       "open",
                       "github",
+                      current?.updated_at ?? issue.updated_at,
                     ),
                   },
                 },

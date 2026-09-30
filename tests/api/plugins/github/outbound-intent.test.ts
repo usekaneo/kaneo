@@ -304,9 +304,15 @@ it.each([
     );
     expect(echo).toBe(true);
     expect(m.current.title).toBe("B");
-    expect(inboundEcho(m.stamps.title, "A", "2026-09-30T00:00:03Z", "A")).toBe(
-      false,
+    const defer = vi.fn(async () => undefined);
+    await withEchoConfirmation(
+      async () => "A",
+      async (current) =>
+        inboundEcho(m.stamps.title, "A", "2026-09-30T00:00:03Z", current),
+      defer,
     );
+    expect(defer).toHaveBeenCalledOnce();
+    expect(m.current.title).toBe("B");
   },
 );
 
@@ -410,4 +416,18 @@ it("distinguishes earlier and intervening inbound edits within one millisecond",
   expect(later.inboundAt).toBe(intent?.startedAt);
   expect(inboundOccurredAfterIntent(later, intent)).toBe(true);
   vi.useRealTimers();
+});
+
+it("confirms different inbound values sharing a provider version", async () => {
+  const version = "2026-09-30T00:00:03Z";
+  const stamp = inboundStamp(undefined, "B", "github", version);
+  expect(inboundEcho(stamp, "A", "2026-09-30T00:00:02Z")).toBe(true);
+  const read = vi.fn(async () => "B");
+  expect(
+    await withEchoConfirmation(read, async (current) =>
+      inboundEcho(stamp, "A", version, current),
+    ),
+  ).toBe(true);
+  expect(read).toHaveBeenCalledOnce();
+  expect(inboundEcho(stamp, "A", version, "A")).toBe(false);
 });
