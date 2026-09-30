@@ -1417,3 +1417,89 @@ it.each(
     if (change !== "credentials") expect(publishEvent).not.toHaveBeenCalled();
   },
 );
+
+it.each(
+  providerFields.flatMap((entry) =>
+    ["inbound", "queued"].map((mode) => ({ ...entry, mode })),
+  ),
+)(
+  "retires successful $provider/$field repairs before a later field fails ($mode)",
+  async ({ provider, field, mode }) => {
+    const { task, integration, link } = await seed(provider);
+    const next = field === "title" ? "description" : "title";
+    const before = field === "state" ? "closed" : "A";
+    const stamps: Record<string, unknown> = {};
+    for (const f of [field, next]) {
+      const value = f === "state" ? "closed" : "A";
+      stamps[f] = outboundStamp(
+        outboundStamp(undefined, value, undefined, {
+          intentId: `${f}-old-1`,
+          uncertain: true,
+        }),
+        value,
+        undefined,
+        { intentId: `${f}-old-2`, uncertain: true },
+      );
+    }
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: JSON.stringify({ lastSync: stamps }) })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    if (mode === "queued")
+      await deferTaskSync(link, integration, [field, next]);
+    else await deferIssueEdit(link, integration, [field, next]);
+    const issue: {
+      title: string;
+      body: string;
+      state: string;
+      updated_at: string;
+    } = {
+      title: "A",
+      body: "A",
+      state: "closed",
+      updated_at: "2026-09-30T00:00:03Z",
+    };
+    m.read.mockImplementation(async () => ({ ...issue }));
+    m.write.mockImplementation(async (payload: Record<string, string>) => {
+      if (m.write.mock.calls.length === 2)
+        throw new Error("second field failed");
+      if (payload.title !== undefined) issue.title = payload.title;
+      if (payload.body !== undefined) issue.body = payload.body;
+      if (payload.state !== undefined) issue.state = payload.state;
+      issue.updated_at = "2026-09-30T00:00:05Z";
+      return { updated_at: issue.updated_at };
+    });
+    expect(await replayDeferredIssueEdits()).toEqual({ degraded: true });
+    const saved = await metadata(link.id);
+    expect(saved.deferredIssueEdit).toBeDefined();
+    for (const id of [`${field}-old-1`, `${field}-old-2`])
+      expect(
+        saved.lastSync[field].outbound.find(
+          (entry: { intentId: string }) => entry.intentId === id,
+        ),
+      ).toMatchObject({ cancelled: true, uncertain: false });
+    for (const id of [`${next}-old-1`, `${next}-old-2`])
+      expect(
+        saved.lastSync[next].outbound.find(
+          (entry: { intentId: string }) => entry.intentId === id,
+        ).cancelled,
+      ).not.toBe(true);
+    await replayDeferredIssueEdits();
+    expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+    if (field === "description") issue.body = before;
+    else issue[field] = before;
+    issue.updated_at = "2026-09-30T00:00:06Z";
+    await deliverField(
+      provider,
+      field,
+      before,
+      issue.updated_at,
+      integration.id,
+    );
+    expect(
+      field === "state"
+        ? (await current(task.id))?.status
+        : (await current(task.id))?.[field],
+    ).toBe(field === "state" ? "done" : before);
+  },
+);

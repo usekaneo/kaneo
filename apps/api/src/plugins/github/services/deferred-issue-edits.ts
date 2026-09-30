@@ -361,27 +361,31 @@ export async function replayDeferredIssueEdits() {
             },
             integration,
           );
+          // A later field can fail; persist this field's successful repair first.
+          if (repair.intentIds.length)
+            await withIntegrationLink(
+              link,
+              integration,
+              async (tx) => {
+                await updateExternalLink(
+                  link.id,
+                  {
+                    retireOutboundIntents: {
+                      field: repair.field,
+                      intentIds: repair.intentIds,
+                    },
+                  },
+                  tx,
+                );
+              },
+              integration,
+            );
         }
         if (repairs.length)
           await withIntegrationLink(
             link,
             integration,
             async (tx) => {
-              // Retire only the matching intents captured for this repair.
-              // New writes arriving during provider HTTP must remain reconcilable.
-              for (const repair of repairs) {
-                if (repair.intentIds.length)
-                  await updateExternalLink(
-                    link.id,
-                    {
-                      retireOutboundIntents: {
-                        field: repair.field,
-                        intentIds: repair.intentIds,
-                      },
-                    },
-                    tx,
-                  );
-              }
               await updateExternalLink(
                 link.id,
                 { completeDeferredEdit: job.id },
