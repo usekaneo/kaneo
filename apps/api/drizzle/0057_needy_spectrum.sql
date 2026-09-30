@@ -1,0 +1,1 @@
+CREATE INDEX "project_background_object_key_idx" ON "project" USING btree ("background_object_key") WHERE "project"."background_object_key" is not null;
