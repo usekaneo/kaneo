@@ -1,4 +1,3 @@
-import { publishEvent } from "../../../events";
 import { eq } from "drizzle-orm";
 import db from "../../../database";
 import { taskTable } from "../../../database/schema";
@@ -181,9 +180,6 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
       await updateExternalLink(externalLink.id, {
         title: issue.title,
         metadata: updatedMetadata,
-      });
-      await publishEvent("project.updated", {
-        projectId: integration.projectId,
       });
 
       console.log(

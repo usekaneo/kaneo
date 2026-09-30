@@ -76,10 +76,6 @@ export async function handleIssueLabeled(payload: IssueLabeledPayload) {
     }
 
     if (!addedLabel) {
-      if (priority)
-        await publishEvent("project.updated", {
-          projectId: integration.projectId,
-        });
       return;
     }
 
@@ -88,10 +84,6 @@ export async function handleIssueLabeled(payload: IssueLabeledPayload) {
       addedLabel.name.startsWith("status:");
 
     if (isSystemLabel) {
-      if (priority)
-        await publishEvent("project.updated", {
-          projectId: integration.projectId,
-        });
       return;
     }
 
@@ -144,7 +136,6 @@ export async function handleIssueLabeled(payload: IssueLabeledPayload) {
       }
     }
 
-    await publishEvent("project.updated", { projectId: integration.projectId });
     return;
   }
 }

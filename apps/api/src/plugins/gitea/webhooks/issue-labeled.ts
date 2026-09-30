@@ -190,26 +190,15 @@ export async function handleGiteaIssueLabeled(
             task.project.workspaceId,
             giteaLabelsForSync(issue.labels),
           );
-          await publishEvent("project.updated", {
-            projectId: integration.projectId,
-          });
         }
         continue;
       }
 
       if (!addedLabel) {
-        if (priority)
-          await publishEvent("project.updated", {
-            projectId: integration.projectId,
-          });
         continue;
       }
 
       if (isSystemLabelName(addedLabel.name)) {
-        if (priority)
-          await publishEvent("project.updated", {
-            projectId: integration.projectId,
-          });
         continue;
       }
 
@@ -263,9 +252,6 @@ export async function handleGiteaIssueLabeled(
           await db.delete(labelTable).where(eq(labelTable.id, label.id));
         }
       }
-      await publishEvent("project.updated", {
-        projectId: integration.projectId,
-      });
     } catch (error) {
       console.error("Gitea issue_labeled handler failed for integration", {
         integrationId: integration.id,

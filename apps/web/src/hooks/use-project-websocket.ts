@@ -62,6 +62,70 @@ export function useProjectWebSocket(projectId: string) {
     let pingInterval: ReturnType<typeof setInterval> | null = null;
     let fallbackInterval: ReturnType<typeof setInterval> | null = null;
 
+    function invalidateDetails(message: {
+      type: string;
+      taskId?: string;
+      sourceTaskId?: string;
+      targetTaskId?: string;
+    }) {
+      if (message.type === "PROJECT_UPDATED") {
+        queryClient.invalidateQueries({ queryKey: ["projects"] });
+        return;
+      }
+
+      if (message.type === "TASK_RELATION_UPDATED") {
+        if (message.sourceTaskId) {
+          queryClient.invalidateQueries({
+            queryKey: ["task", message.sourceTaskId],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["task-relations", message.sourceTaskId],
+          });
+        }
+        if (message.targetTaskId) {
+          queryClient.invalidateQueries({
+            queryKey: ["task", message.targetTaskId],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["task-relations", message.targetTaskId],
+          });
+        }
+        if (!message.sourceTaskId && !message.targetTaskId) {
+          queryClient.invalidateQueries({
+            queryKey: ["task-relations"],
+          });
+        }
+      } else {
+        queryClient.invalidateQueries({
+          queryKey: ["task", message.taskId],
+        });
+      }
+
+      if (message.type === "TASK_LABEL_UPDATED") {
+        queryClient.invalidateQueries({
+          queryKey: ["labels", message.taskId],
+        });
+      }
+
+      if (
+        (message.type === "TASK_UPDATED" || message.type === "TASK_MOVED") &&
+        message.taskId
+      ) {
+        queryClient.invalidateQueries({
+          queryKey: ["external-links", message.taskId],
+        });
+      }
+
+      if (message.type === "COMMENT_UPDATED") {
+        queryClient.invalidateQueries({
+          queryKey: ["activities", message.taskId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["comments", message.taskId],
+        });
+      }
+    }
+
     function clearPing() {
       if (pingInterval !== null) {
         clearInterval(pingInterval);
@@ -346,63 +410,7 @@ export function useProjectWebSocket(projectId: string) {
               }
             }
 
-            if (message.type === "PROJECT_UPDATED") {
-              queryClient.invalidateQueries({ queryKey: ["projects"] });
-              return;
-            }
-
-            if (message.type === "TASK_RELATION_UPDATED") {
-              if (message.sourceTaskId) {
-                queryClient.invalidateQueries({
-                  queryKey: ["task", message.sourceTaskId],
-                });
-                queryClient.invalidateQueries({
-                  queryKey: ["task-relations", message.sourceTaskId],
-                });
-              }
-              if (message.targetTaskId) {
-                queryClient.invalidateQueries({
-                  queryKey: ["task", message.targetTaskId],
-                });
-                queryClient.invalidateQueries({
-                  queryKey: ["task-relations", message.targetTaskId],
-                });
-              }
-              if (!message.sourceTaskId && !message.targetTaskId) {
-                queryClient.invalidateQueries({
-                  queryKey: ["task-relations"],
-                });
-              }
-            } else {
-              queryClient.invalidateQueries({
-                queryKey: ["task", message.taskId],
-              });
-            }
-
-            if (message.type === "TASK_LABEL_UPDATED") {
-              queryClient.invalidateQueries({
-                queryKey: ["labels", message.taskId],
-              });
-            }
-
-            if (
-              (message.type === "TASK_UPDATED" ||
-                message.type === "TASK_MOVED") &&
-              message.taskId
-            ) {
-              queryClient.invalidateQueries({
-                queryKey: ["external-links", message.taskId],
-              });
-            }
-
-            if (message.type === "COMMENT_UPDATED") {
-              queryClient.invalidateQueries({
-                queryKey: ["activities", message.taskId],
-              });
-              queryClient.invalidateQueries({
-                queryKey: ["comments", message.taskId],
-              });
-            }
+            invalidateDetails(message);
           }
         } catch {
           // Ignore malformed messages
@@ -429,6 +437,7 @@ export function useProjectWebSocket(projectId: string) {
               queryKey: ["tasks", projectId],
             });
           }, 30_000);
+          flushPending();
         }
       };
     }
@@ -446,7 +455,7 @@ export function useProjectWebSocket(projectId: string) {
         flushQueued = false;
         if (
           disposed ||
-          !activeSocket ||
+          (!activeSocket && fallbackInterval === null) ||
           queryClient.getQueryState(["tasks", projectId])?.fetchStatus ===
             "fetching"
         )
@@ -460,8 +469,19 @@ export function useProjectWebSocket(projectId: string) {
         }
         const messages = Array.from(pendingMessages.values());
         pendingMessages.clear();
-        for (const data of messages)
-          activeSocket.onmessage?.(new MessageEvent("message", { data }));
+        for (const data of messages) {
+          if (activeSocket)
+            activeSocket.onmessage?.(new MessageEvent("message", { data }));
+          else {
+            // Fallback polling repairs the board; queued detail events still
+            // need to refresh their own caches after pagination finishes.
+            try {
+              invalidateDetails(JSON.parse(data));
+            } catch {
+              /* Malformed message. */
+            }
+          }
+        }
       });
     }
     const unsubscribe = queryClient.getQueryCache().subscribe(({ query }) => {

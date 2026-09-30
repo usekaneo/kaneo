@@ -305,28 +305,30 @@ function RouteComponent() {
           </p>
         )}
 
+        {boardError && (
+          <p role="alert" className="p-4 text-destructive">
+            {t("tasks:calendar.loadError")}{" "}
+            <button
+              type="button"
+              className="underline"
+              onClick={() => void retryBoard()}
+            >
+              {t("tasks:descriptionRetry")}
+            </button>
+          </p>
+        )}
         <div
           className={cn("flex h-full flex-1 overflow-hidden", {
             "bg-background": !background,
           })}
         >
-          {boardError ? (
-            <p role="alert" className="p-4 text-destructive">
-              {t("tasks:calendar.loadError")}{" "}
-              <button
-                type="button"
-                className="underline"
-                onClick={() => void retryBoard()}
-              >
-                {t("tasks:descriptionRetry")}
-              </button>
-            </p>
-          ) : sortedProject ? (
+          {sortedProject ? (
             viewMode === "board" ? (
               <KanbanBoard
                 project={sortedProject}
                 disableDragDrop={
                   boardFetching ||
+                  boardError ||
                   (sort.field !== "position" && sort.field !== "number")
                 }
                 sortedByNumber={sort.field === "number"}
@@ -334,10 +336,12 @@ function RouteComponent() {
             ) : (
               <ListView
                 project={sortedProject}
-                disableDragDrop={boardFetching || sort.field !== "position"}
+                disableDragDrop={
+                  boardFetching || boardError || sort.field !== "position"
+                }
               />
             )
-          ) : (
+          ) : boardError ? null : (
             <BoardSkeleton />
           )}
         </div>

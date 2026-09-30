@@ -428,3 +428,48 @@ it.each(["TASK_UPDATED", "TASK_CREATED", "TASK_MOVED", "TASK_LABEL_UPDATED"])(
     });
   },
 );
+
+it("drains queued detail events after retries fall back to polling", async () => {
+  vi.useFakeTimers();
+  try {
+    mocks.client.getQueryState.mockReturnValue({ fetchStatus: "fetching" });
+    renderHook(() => useProjectWebSocket("p"));
+    Socket.current.message("COMMENT_UPDATED", { taskId: "a" });
+    Socket.current.message("TASK_LABEL_UPDATED", { taskId: "a" });
+    Socket.current.message("TASK_UPDATED", { taskId: "a" });
+    Socket.current.message("TASK_RELATION_UPDATED", {
+      sourceTaskId: "a",
+      targetTaskId: "b",
+    });
+    for (const delay of [1000, 2000, 4000, 8000, 16000]) {
+      Socket.current.onclose?.();
+      await vi.advanceTimersByTimeAsync(delay);
+    }
+    Socket.current.onclose?.();
+    mocks.client.invalidateQueries.mockClear();
+    mocks.getTask.mockClear();
+    mocks.client.getQueryState.mockReturnValue({ fetchStatus: "idle" });
+    const listener = mocks.subscribe.mock.calls[0][0] as (
+      event: unknown,
+    ) => void;
+    listener({
+      query: { queryKey: ["tasks", "p"], state: { fetchStatus: "idle" } },
+    });
+    await vi.runAllTicks();
+    for (const key of [
+      ["comments", "a"],
+      ["activities", "a"],
+      ["labels", "a"],
+      ["task", "a"],
+      ["external-links", "a"],
+      ["task-relations", "b"],
+    ])
+      expect(mocks.client.invalidateQueries).toHaveBeenCalledWith({
+        queryKey: key,
+      });
+    expect(mocks.getTask).not.toHaveBeenCalled();
+  } finally {
+    cleanup();
+    vi.useRealTimers();
+  }
+});
