@@ -56,6 +56,7 @@ export async function handleTaskStatusChanged(
         async () =>
           (await client.getIssue(repositoryOwner, repositoryName, issueNumber))
             .state ?? "open",
+        { type: "gitea", config: JSON.stringify(config) },
       );
     }
   } catch (error) {

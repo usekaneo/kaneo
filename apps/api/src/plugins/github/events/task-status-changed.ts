@@ -76,6 +76,7 @@ export async function handleTaskStatusChanged(
               issue_number: issueNumber,
             })
           ).data.state ?? "open",
+        { type: "github", config: JSON.stringify(config) },
       );
     }
   } catch (error) {

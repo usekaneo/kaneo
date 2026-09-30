@@ -103,6 +103,7 @@ export async function handleTaskTitleChanged(
       async () =>
         (await client.getIssue(repositoryOwner, repositoryName, issueNumber))
           .title,
+      { type: "gitea", config: JSON.stringify(config) },
     );
 
     console.log(`Synced task title to Gitea issue #${issueNumber}`);

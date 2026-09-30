@@ -28,6 +28,7 @@ export async function applyObservedTaskValue(
   intentId: string,
   updatedAt: string | undefined,
   expectedRevision: string,
+  expectedBinding?: Parameters<typeof withIntegrationLink>[3],
 ) {
   return withIntegrationLink(
     link,
@@ -91,6 +92,7 @@ export async function applyObservedTaskValue(
       );
       return true;
     },
+    expectedBinding,
   );
 }
 

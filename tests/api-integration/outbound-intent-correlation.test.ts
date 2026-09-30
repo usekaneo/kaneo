@@ -288,3 +288,152 @@ it.each(
     expect(write).toHaveBeenCalledTimes(2);
   },
 );
+
+it.each(
+  (["github", "gitea"] as const).flatMap((provider) =>
+    (["title", "description", "state"] as const).flatMap((field) =>
+      ["retry", "read", "apply"].map((phase) => ({ provider, field, phase })),
+    ),
+  ),
+)(
+  "stops $field sync against a reconfigured provider ($provider/$phase)",
+  async ({ provider, field, phase }) => {
+    const { workspace } = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: workspace.id,
+    });
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        number: 1,
+        title: "B",
+        description: "B",
+        status: "to-do",
+      })
+      .returning();
+    const [integration] = await db
+      .insert(schema.integrationTable)
+      .values({
+        projectId: project.id,
+        type: provider,
+        config: JSON.stringify({ repositoryName: "old", accessToken: "fake" }),
+      })
+      .returning();
+    const [link] = await db
+      .insert(schema.externalLinkTable)
+      .values({
+        taskId: task.id,
+        integrationId: integration.id,
+        resourceType: "issue",
+        externalId: "1",
+        url: "https://provider.example/1",
+      })
+      .returning();
+    const older = field === "state" ? "closed" : "A";
+    const reconfigure = async () => {
+      await db
+        .update(schema.integrationTable)
+        .set({
+          config: JSON.stringify({
+            repositoryName: "new",
+            accessToken: "fake",
+          }),
+        })
+        .where(eq(schema.integrationTable.id, integration.id));
+    };
+    const write = vi.fn(async () => {
+      if (write.mock.calls.length === 1) {
+        if (phase !== "retry") {
+          const saved = await db.query.externalLinkTable.findFirst({
+            where: eq(schema.externalLinkTable.id, link.id),
+          });
+          const stamp = JSON.parse(saved!.metadata!).lastSync[field];
+          await updateExternalLink(link.id, {
+            metadata: {
+              lastSync: {
+                [field]: inboundStamp(
+                  stamp,
+                  field === "state" ? "open" : "B",
+                  provider,
+                  "2026-09-30T00:00:02Z",
+                ),
+              },
+            },
+            observedOutbound: {
+              field,
+              intentId: stamp.outbound[0].intentId,
+              updatedAt: "2026-09-30T00:00:03Z",
+            },
+          });
+        }
+        if (phase !== "apply") await reconfigure();
+      }
+      return "2026-09-30T00:00:01Z";
+    });
+    const read = vi.fn(async () => {
+      await reconfigure();
+      return older;
+    });
+    await syncLatestTaskValue(
+      task.id,
+      project.id,
+      link,
+      field,
+      older,
+      write,
+      read,
+    );
+    expect(write).toHaveBeenCalledTimes(1);
+    expect(read).toHaveBeenCalledTimes(phase === "apply" ? 1 : 0);
+    const current = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, task.id),
+    });
+    expect(field === "state" ? current?.status : current?.[field]).toBe(
+      field === "state" ? "to-do" : "B",
+    );
+  },
+);
+it.each(["github", "gitea"])(
+  "rejects a stale provider context before the initial %s write",
+  async (provider) => {
+    const { workspace } = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: workspace.id,
+    });
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({ projectId: project.id, number: 1, title: "A" })
+      .returning();
+    const [integration] = await db
+      .insert(schema.integrationTable)
+      .values({
+        projectId: project.id,
+        type: provider,
+        config: JSON.stringify({ repositoryName: "new" }),
+      })
+      .returning();
+    const [link] = await db
+      .insert(schema.externalLinkTable)
+      .values({
+        taskId: task.id,
+        integrationId: integration.id,
+        resourceType: "issue",
+        externalId: "1",
+        url: "https://provider.example/1",
+      })
+      .returning();
+    const write = vi.fn(async () => "2026-09-30T00:00:01Z");
+    await syncLatestTaskValue(
+      task.id,
+      project.id,
+      link,
+      "title",
+      "A",
+      write,
+      undefined,
+      { type: provider, config: JSON.stringify({ repositoryName: "old" }) },
+    );
+    expect(write).not.toHaveBeenCalled();
+  },
+);

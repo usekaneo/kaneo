@@ -95,6 +95,7 @@ export async function handleTaskDescriptionChanged(
           ).data.body ?? null,
           event.taskId,
         ),
+      { type: "github", config: JSON.stringify(config) },
     );
 
     console.log(`Synced task description to GitHub issue #${issueNumber}`);

@@ -19,9 +19,11 @@ export async function syncLatestTaskValue(
   initialValue: string,
   write: (value: string) => Promise<string | undefined>,
   readCurrent?: () => Promise<string>,
+  expectedBinding?: { type?: string; config?: string },
 ) {
   let value = initialValue;
-  for (;;) {
+  let identity = expectedBinding;
+  const currentBinding = async () => {
     const binding = (await findExternalLinksByTask(taskId)).find(
       (candidate) =>
         candidate.id === link.id &&
@@ -32,15 +34,27 @@ export async function syncLatestTaskValue(
       !binding ||
       (binding.integration &&
         (binding.integration.isActive === false ||
-          binding.integration.projectId !== projectId))
+          binding.integration.projectId !== projectId ||
+          (identity?.type !== undefined &&
+            binding.integration.type !== identity.type) ||
+          (identity?.config !== undefined &&
+            binding.integration.config !== identity.config)))
     )
       return;
+    return binding;
+  };
+  for (;;) {
+    const binding = await currentBinding();
+    if (!binding) return;
+    identity ??= binding.integration
+      ? { type: binding.integration.type, config: binding.integration.config }
+      : undefined;
     const intentId = randomUUID();
     // Webhooks may arrive before PATCH returns, including from another instance.
     const persisted = await updateExternalLink(link.id, {
       outbound: { field, value, intentId, pending: true },
     });
-    if (persisted === false) return;
+    if (persisted === false || !(await currentBinding())) return;
     let updatedAt: string | undefined;
     try {
       updatedAt = await write(value);
@@ -63,6 +77,7 @@ export async function syncLatestTaskValue(
       }).catch(() => {});
       throw error;
     }
+    if (!(await currentBinding())) return;
     await updateExternalLink(link.id, {
       ...(field === "title" ? { title: value } : {}),
       outbound: { field, value, updatedAt, intentId, pending: false },
@@ -70,13 +85,7 @@ export async function syncLatestTaskValue(
         ? { metadata: { state: value, lastOutboundStateSyncAt: Date.now() } }
         : {}),
     });
-    const currentLinks = await findExternalLinksByTask(taskId);
-    const currentLink = currentLinks.find(
-      (candidate) =>
-        candidate.id === link.id &&
-        candidate.integrationId === link.integrationId &&
-        candidate.resourceType === "issue",
-    );
+    const currentLink = await currentBinding();
     if (!currentLink) return;
     const metadata = parseLinkMetadata<{
       lastSync?: Record<string, SyncStamp>;
@@ -95,6 +104,7 @@ export async function syncLatestTaskValue(
       readCurrent
     ) {
       const revision = await integrationTaskRevision(taskId, projectId);
+      if (!(await currentBinding())) return;
       if (
         revision &&
         (await readCurrent()) === value &&
@@ -106,6 +116,7 @@ export async function syncLatestTaskValue(
           intentId,
           updatedAt,
           revision,
+          identity,
         )) === true
       )
         return;

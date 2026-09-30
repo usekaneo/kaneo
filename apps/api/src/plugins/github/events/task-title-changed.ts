@@ -81,6 +81,7 @@ export async function handleTaskTitleChanged(
             issue_number: issueNumber,
           })
         ).data.title,
+      { type: "github", config: JSON.stringify(config) },
     );
 
     console.log(`Synced task title to GitHub issue #${issueNumber}`);

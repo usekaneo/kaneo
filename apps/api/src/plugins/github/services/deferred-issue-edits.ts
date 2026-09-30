@@ -380,6 +380,7 @@ export async function replayDeferredIssueEdits() {
                   )
                 : current[repair.field];
             },
+            integration,
           );
         }
         if (repairs.length)

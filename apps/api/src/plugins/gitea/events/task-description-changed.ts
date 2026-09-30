@@ -116,6 +116,7 @@ export async function handleTaskDescriptionChanged(
             .body ?? null,
           event.taskId,
         ),
+      { type: "gitea", config: JSON.stringify(config) },
     );
 
     console.log(`Synced task description to Gitea issue #${issueNumber}`);
