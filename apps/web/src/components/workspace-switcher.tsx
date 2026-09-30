@@ -27,7 +27,6 @@ import {
   getModifierKeyText,
   useRegisterShortcuts,
 } from "@/hooks/use-keyboard-shortcuts";
-import { useUserWebSocket } from "@/hooks/use-user-websocket";
 import { authClient } from "@/lib/auth-client";
 import { hasInstanceAdminRole } from "@/lib/instance-admin";
 import type { Workspace } from "@/types/workspace";
@@ -38,7 +37,6 @@ export function WorkspaceSwitcher() {
   const { data: workspace } = useActiveWorkspace();
 
   // User-scoped WebSocket for real-time events (e.g. NOTIFICATION_CREATED)
-  useUserWebSocket();
   const { data: workspaces } = useGetWorkspaces();
   const { data: session } = authClient.useSession();
   const { data: config } = useGetConfig();

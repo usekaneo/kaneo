@@ -34,6 +34,7 @@ const userBroadcastSchema = v.object({
 });
 
 export class RedisBroadcastAdapter implements BroadcastAdapter {
+  private recoveryHandler: (() => void) | null = null;
   private subscribed = false;
   private userSubscribed = false;
   private _pmessageHandler:
@@ -88,7 +89,10 @@ export class RedisBroadcastAdapter implements BroadcastAdapter {
     await getRedisSub().psubscribe(CHANNEL_PATTERN);
   }
 
-  async subscribeToUser(handler: (msg: UserBroadcast) => void): Promise<void> {
+  async subscribeToUser(
+    handler: (msg: UserBroadcast) => void,
+    onRecovery?: () => Promise<void>,
+  ): Promise<void> {
     if (this.userSubscribed) return;
     this.userSubscribed = true;
 
@@ -114,11 +118,35 @@ export class RedisBroadcastAdapter implements BroadcastAdapter {
       }
     };
     (getRedisSub() as Redis).on("pmessage", this._userPmessageHandler);
+    if (onRecovery) {
+      this.recoveryHandler = () => {
+        if (!this.userSubscribed) return;
+        // A browser socket can stay open while this subscriber misses messages.
+        // Restore the subscription before taking an authoritative snapshot.
+        void getRedisSub()
+          .psubscribe(USER_CHANNEL_PATTERN)
+          .then(async () => {
+            if (this.userSubscribed) await onRecovery();
+          })
+          .catch((error) => {
+            console.error(
+              "Failed to recover user broadcast subscription:",
+              error,
+            );
+          });
+      };
+      getRedisSub().on("ready", this.recoveryHandler);
+    }
     await getRedisSub().psubscribe(USER_CHANNEL_PATTERN);
   }
 
   async shutdown(): Promise<void> {
     const sub = getRedisSub() as Redis;
+    this.userSubscribed = false;
+    if (this.recoveryHandler) {
+      sub.off("ready", this.recoveryHandler);
+      this.recoveryHandler = null;
+    }
 
     if (this._pmessageHandler) {
       sub.off("pmessage", this._pmessageHandler);

@@ -35,7 +35,10 @@ export type BroadcastAdapter = {
     handler: (msg: BroadcastMessage) => void | Promise<void>,
   ): Promise<void>;
 
-  subscribeToUser(handler: (msg: UserBroadcast) => void): Promise<void>;
+  subscribeToUser(
+    handler: (msg: UserBroadcast) => void,
+    onRecovery?: () => Promise<void>,
+  ): Promise<void>;
 
   /** Cleanup on shutdown */
   shutdown(): Promise<void>;

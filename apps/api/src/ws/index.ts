@@ -1,3 +1,4 @@
+import { syncWorkspaceAccess } from "./workspace-access";
 import { createRevocationDelivery } from "./revocation-delivery";
 import { randomUUID } from "node:crypto";
 import { and, eq, inArray } from "drizzle-orm";
@@ -165,12 +166,21 @@ export async function initializeWebSocketAdapter() {
         msg.authorizationBatch,
       );
     });
-    await nextAdapter.subscribeToUser((msg: UserBroadcast) => {
-      if (msg.origin === INSTANCE_ID) {
-        return;
-      }
-      deliverToLocalUserConnections(msg.userId, msg.message);
-    });
+    await nextAdapter.subscribeToUser(
+      (msg: UserBroadcast) => {
+        if (msg.origin === INSTANCE_ID) {
+          return;
+        }
+        deliverToLocalUserConnections(msg.userId, msg.message);
+      },
+      async () => {
+        await Promise.all(
+          [...userConnections].flatMap(([userId, connections]) =>
+            [...connections].map(({ ws }) => syncWorkspaceAccess(userId, ws)),
+          ),
+        );
+      },
+    );
   } catch (err) {
     await nextAdapter.shutdown().catch(() => {});
     throw err;

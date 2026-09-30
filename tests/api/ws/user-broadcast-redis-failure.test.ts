@@ -12,6 +12,10 @@ vi.mock("../../../apps/api/src/events", () => ({
   publishEvent: vi.fn(),
 }));
 
+const accessSync = vi.hoisted(() => vi.fn(async () => undefined));
+vi.mock("../../../apps/api/src/ws/workspace-access", () => ({
+  syncWorkspaceAccess: accessSync,
+}));
 const publish = vi.fn();
 const listeners: Array<(p: string, c: string, d: string) => void> = [];
 const subscriber = {
@@ -155,4 +159,22 @@ describe("broadcastToUser with the redis adapter", () => {
 
     removeUserConnection("user-1", conn);
   });
+});
+
+it("resynchronizes healthy browser sockets after the Redis subscriber recovers", async () => {
+  await initializeWebSocketAdapter();
+  const ws = makeFakeWs();
+  const conn = addUserConnection("user-1", ws);
+  const ready = subscriber.on.mock.calls.find(
+    ([event]) => event === "ready",
+  )?.[1];
+  expect(ready).toBeDefined();
+  ready?.("", "", "");
+  await vi.waitFor(() => expect(accessSync).toHaveBeenCalledWith("user-1", ws));
+  removeUserConnection("user-1", conn);
+  await shutdownWebSocketAdapter();
+  accessSync.mockClear();
+  ready?.("", "", "");
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  expect(accessSync).not.toHaveBeenCalled();
 });
