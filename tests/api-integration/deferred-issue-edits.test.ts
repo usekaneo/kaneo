@@ -6,6 +6,8 @@ import {
   deferIssueEdit,
   replayDeferredIssueEdits,
 } from "../../apps/api/src/plugins/github/services/deferred-issue-edits";
+import { deferTaskSync } from "../../apps/api/src/plugins/github/services/defer-issue-edit";
+import { syncLatestTaskValue } from "../../apps/api/src/plugins/github/services/sync-latest-task-value";
 import { updateExternalLink } from "../../apps/api/src/plugins/github/services/link-manager";
 import { handleGiteaIssueEdited } from "../../apps/api/src/plugins/gitea/webhooks/issue-edited";
 import { handleIssueEdited } from "../../apps/api/src/plugins/github/webhooks/issue-edited";
@@ -1027,3 +1029,143 @@ it.each(["github", "gitea"])(
     expect(publishEvent).not.toHaveBeenCalled();
   },
 );
+
+it.each(
+  (["github", "gitea"] as const).flatMap((provider) =>
+    (["title", "description", "state"] as const).map((field) => ({
+      provider,
+      field,
+    })),
+  ),
+)(
+  "bounds sustained $provider/$field correction and durably syncs the latest task",
+  async ({ provider, field }) => {
+    const { task, integration, link } = await seed(provider);
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: "{}" })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    const initial = field === "state" ? "open" : "A";
+    const column = field === "state" ? "status" : field;
+    const write = vi.fn(async () => {
+      if (write.mock.calls.length > 6)
+        throw new Error("unbounded repair regression");
+      await db
+        .update(schema.taskTable)
+        .set({
+          [column]:
+            field === "state"
+              ? write.mock.calls.length % 2
+                ? "done"
+                : "to-do"
+              : `edit-${write.mock.calls.length}`,
+        })
+        .where(eq(schema.taskTable.id, task.id));
+      return "2026-09-30T00:00:04Z";
+    });
+    await syncLatestTaskValue(
+      task.id,
+      integration.projectId,
+      link,
+      field,
+      initial,
+      write,
+    ).catch(() => undefined);
+    expect(write).toHaveBeenCalledTimes(3);
+    expect((await metadata(link.id)).deferredIssueEdit).toMatchObject({
+      fields: [],
+      repairFields: [field],
+    });
+    expect(JSON.stringify(await metadata(link.id))).not.toContain(
+      "test-secret-never-metadata",
+    );
+    const latest = field === "state" ? "closed" : "latest local";
+    await db
+      .update(schema.taskTable)
+      .set({ [column]: field === "state" ? "done" : latest })
+      .where(eq(schema.taskTable.id, task.id));
+    await replayDeferredIssueEdits();
+    expect(m.write).toHaveBeenCalledTimes(1);
+    expect(m.write).toHaveBeenCalledWith(
+      expect.objectContaining(
+        field === "description"
+          ? { body: expect.stringContaining(latest) }
+          : { [field]: latest },
+      ),
+    );
+    expect((await current(task.id))?.[column]).toBe(
+      field === "state" ? "done" : latest,
+    );
+    expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+    expect(publishEvent).not.toHaveBeenCalled();
+  },
+);
+
+it("coalesces local correction fields with inbound deliveries without importing stale values", async () => {
+  const { task, integration, link } = await seed();
+  await db
+    .update(schema.externalLinkTable)
+    .set({ metadata: "{}" })
+    .where(eq(schema.externalLinkTable.id, link.id));
+  await Promise.all([
+    deferTaskSync(link, integration, ["title"]),
+    deferTaskSync(link, integration, ["description"]),
+    deferIssueEdit(link, integration, ["state"]),
+  ]);
+  const job = (await metadata(link.id)).deferredIssueEdit;
+  expect(job.fields).toEqual(["state"]);
+  expect(job.repairFields.sort()).toEqual(["description", "title"]);
+  await replayDeferredIssueEdits();
+  expect(await current(task.id)).toMatchObject({
+    title: "B",
+    description: "old body",
+    status: "done",
+  });
+  expect(m.write).toHaveBeenCalledTimes(2);
+  expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+});
+it("retains failed queued corrections and retries the current task value", async () => {
+  const { task, integration, link } = await seed();
+  await db
+    .update(schema.externalLinkTable)
+    .set({ metadata: "{}" })
+    .where(eq(schema.externalLinkTable.id, link.id));
+  await deferTaskSync(link, integration, ["title"]);
+  m.write.mockRejectedValueOnce(new Error("provider unavailable"));
+  expect(await replayDeferredIssueEdits()).toEqual({ degraded: true });
+  expect((await metadata(link.id)).deferredIssueEdit.repairFields).toEqual([
+    "title",
+  ]);
+  await db
+    .update(schema.taskTable)
+    .set({ title: "latest" })
+    .where(eq(schema.taskTable.id, task.id));
+  await replayDeferredIssueEdits();
+  expect(m.write).toHaveBeenLastCalledWith(
+    expect.objectContaining({ title: "latest" }),
+  );
+  expect((await current(task.id))?.title).toBe("latest");
+  expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+  expect(publishEvent).not.toHaveBeenCalled();
+});
+it("preserves a newer correction queued while its worker reads the provider", async () => {
+  const { integration, link } = await seed();
+  await db
+    .update(schema.externalLinkTable)
+    .set({ metadata: "{}" })
+    .where(eq(schema.externalLinkTable.id, link.id));
+  await deferTaskSync(link, integration, ["title"]);
+  const first = (await metadata(link.id)).deferredIssueEdit.id;
+  m.read.mockImplementationOnce(async () => {
+    await deferTaskSync(link, integration, ["description"]);
+    return { title: "A", body: "remote", state: "open" };
+  });
+  await replayDeferredIssueEdits();
+  expect(m.write).not.toHaveBeenCalled();
+  const next = (await metadata(link.id)).deferredIssueEdit;
+  expect(next.id).not.toBe(first);
+  expect(next.repairFields.sort()).toEqual(["description", "title"]);
+  await replayDeferredIssueEdits();
+  expect(m.write).toHaveBeenCalledTimes(2);
+  expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+});

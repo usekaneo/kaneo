@@ -1,3 +1,4 @@
+import { deferTaskSync } from "./defer-issue-edit";
 import { randomUUID } from "node:crypto";
 import db from "../../../database";
 import { parseLinkMetadata } from "../utils/parse-link-metadata";
@@ -22,6 +23,7 @@ export async function syncLatestTaskValue(
   expectedBinding?: { type?: string; config?: string },
 ) {
   let value = initialValue;
+  let attempts = 0;
   let identity = expectedBinding;
   const currentBinding = async () => {
     const binding = (await findExternalLinksByTask(taskId)).find(
@@ -58,6 +60,7 @@ export async function syncLatestTaskValue(
     let updatedAt: string | undefined;
     try {
       updatedAt = await write(value);
+      attempts++;
     } catch (error) {
       const status =
         typeof error === "object" && error && "status" in error
@@ -135,6 +138,13 @@ export async function syncLatestTaskValue(
           ? task.title
           : task.description || "";
     if (current === value) return;
+    if (attempts >= 3) {
+      if (binding.integration)
+        await deferTaskSync({ id: link.id, taskId }, binding.integration, [
+          field,
+        ]);
+      return;
+    }
     value = current;
   }
 }

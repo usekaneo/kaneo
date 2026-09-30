@@ -29,7 +29,11 @@ export type CreateExternalLinkParams = {
 };
 
 export type UpdateExternalLinkParams = {
-  deferredEdit?: { fields: IssueField[]; scope: string };
+  deferredEdit?: {
+    fields: IssueField[];
+    repairFields?: IssueField[];
+    scope: string;
+  };
   completeDeferredEdit?: string;
   outbound?: {
     field: "title" | "description" | "state";
@@ -162,10 +166,19 @@ export async function updateExternalLink(
       if (params.completeDeferredEdit === previousJob?.id)
         delete merged.deferredIssueEdit;
       if (params.deferredEdit) {
-        const { fields, scope } = params.deferredEdit;
+        const { fields, repairFields = [], scope } = params.deferredEdit;
+        const repairs = [
+          ...new Set([
+            ...(previousJob?.scope === scope
+              ? (previousJob.repairFields ?? [])
+              : []),
+            ...repairFields,
+          ]),
+        ];
         merged.deferredIssueEdit = {
           id: randomUUID(),
           scope,
+          ...(repairs.length ? { repairFields: repairs } : {}),
           fields: [
             ...new Set([
               ...(previousJob?.scope === scope ? previousJob.fields : []),

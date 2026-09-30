@@ -5,6 +5,7 @@ export type IssueField = "title" | "description" | "state";
 export type DeferredIssueEdit = {
   id: string;
   fields: IssueField[];
+  repairFields?: IssueField[];
   scope: string;
 };
 
@@ -17,7 +18,12 @@ export function parseDeferredIssueEdit(
     typeof job.id !== "string" ||
     typeof job.scope !== "string" ||
     !Array.isArray(job.fields) ||
-    !job.fields.length ||
+    (job.repairFields !== undefined &&
+      (!Array.isArray(job.repairFields) ||
+        job.repairFields.some(
+          (field) => !["title", "description", "state"].includes(field),
+        ))) ||
+    (!job.fields.length && !job.repairFields?.length) ||
     job.fields.some(
       (field) => !["title", "description", "state"].includes(field),
     )

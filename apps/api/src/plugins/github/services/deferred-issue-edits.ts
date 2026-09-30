@@ -47,28 +47,7 @@ const metadataFor = (link: { id: string; metadata: string | null }) =>
     source: "deferred_issue_edit",
   });
 
-// Commit the intent before acknowledging a delivery which cannot wait for its writer.
-export async function deferIssueEdit(
-  link: { id: string; taskId: string },
-  integration: Integration,
-  fields: IssueField[],
-) {
-  await withIntegrationLink(
-    link,
-    integration,
-    async (tx) => {
-      await updateExternalLink(
-        link.id,
-        { deferredEdit: { fields, scope: issueEditScope(integration) } },
-        tx,
-      );
-    },
-    {
-      validate: (binding) =>
-        issueEditScope(binding) === issueEditScope(integration),
-    },
-  );
-}
+export { deferIssueEdit } from "./defer-issue-edit";
 
 async function issueAccess(
   integration: Integration,
@@ -156,9 +135,12 @@ export async function replayDeferredIssueEdits() {
           await updateExternalLink(link.id, { completeDeferredEdit: job.id });
           continue;
         }
+        const fields = [
+          ...new Set([...job.fields, ...(job.repairFields ?? [])]),
+        ];
         // An orphaned writer expires after five minutes; until then let it settle.
         if (
-          job.fields.some((field) =>
+          fields.some((field) =>
             metadata.lastSync?.[field]?.outbound?.some(
               (entry) =>
                 entry.pending &&
@@ -230,7 +212,7 @@ export async function replayDeferredIssueEdits() {
             )
               return;
             if (
-              job.fields.some(
+              fields.some(
                 (field) =>
                   JSON.stringify(current.lastSync?.[field]) !==
                   JSON.stringify(metadata.lastSync?.[field]),
@@ -250,7 +232,7 @@ export async function replayDeferredIssueEdits() {
               columns: { title: true, description: true, status: true },
             });
             if (!task) return;
-            for (const field of job.fields) {
+            for (const field of fields) {
               const stamp = current.lastSync?.[field];
               const uncertain = uncertainOutboundIntent(stamp, values[field]);
               const local =
@@ -261,6 +243,14 @@ export async function replayDeferredIssueEdits() {
                   : field === "description"
                     ? task.description || ""
                     : task.title;
+              if (job.repairFields?.includes(field)) {
+                repairs.push({
+                  field,
+                  value: local,
+                  providerValue: values[field],
+                });
+                continue;
+              }
               // A crashed older writer can leave the provider behind our completed
               // local value. Its missing receipt does not make it a remote edit.
               if (
