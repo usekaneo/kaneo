@@ -2345,6 +2345,8 @@
 			"labels": "Labels",
 			"copyTaskLink": "Copy task link",
 			"copyTaskBranch": "Copy task branch",
+			"taskLinkCopied": "Copied task link",
+			"taskBranchCopied": "Copied branch name",
 			"start": "Start",
 			"startDate": "Start date",
 			"noDate": "No date"
@@ -2614,7 +2616,10 @@
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
 		"descriptionRetry": "Retry",
 		"descriptionLoading": "Loading description…",
-		"descriptionLoadError": "The description could not be loaded. Retry to load the current version."
+		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
+		"board": {
+			"reorderFailed": "Could not move task. Please try again."
+		}
 	},
 	"invitations": {
 		"email": {

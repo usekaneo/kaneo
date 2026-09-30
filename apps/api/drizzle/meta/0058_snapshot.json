@@ -1,6 +1,6 @@
 {
-  "id": "189e547c-65c9-4720-b773-3951a7d45704",
-  "prevId": "6e54311b-6998-4449-9c84-a5bbbe7440aa",
+  "id": "03fa116e-7718-4056-9f45-ad3848a938b0",
+  "prevId": "283831b3-9d4f-42ee-a7f5-ff0e8dfce419",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1775,6 +1775,22 @@
             }
           ],
           "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "external_link_deferred_issue_idx": {
+          "name": "external_link_deferred_issue_idx",
+          "columns": [
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"external_link\".\"resource_type\" = 'issue' AND \"external_link\".\"metadata\" LIKE '%\"deferredIssueEdit\":%'",
           "concurrently": false,
           "method": "btree",
           "with": {}

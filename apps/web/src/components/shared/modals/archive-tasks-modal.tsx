@@ -11,6 +11,7 @@ import {
 
 type ArchiveTasksModalProps = {
   open: boolean;
+  disabled?: boolean;
   onClose: () => void;
   onConfirm: () => void;
   taskCount: number;
@@ -18,6 +19,7 @@ type ArchiveTasksModalProps = {
 
 export function ArchiveTasksModal({
   open,
+  disabled = false,
   onClose,
   onConfirm,
   taskCount,
@@ -66,6 +68,7 @@ export function ArchiveTasksModal({
           <Button
             type="button"
             variant="default"
+            disabled={disabled}
             onClick={onConfirm}
             className="shadow-sm min-w-[100px] font-medium"
           >

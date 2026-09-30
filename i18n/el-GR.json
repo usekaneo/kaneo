@@ -2344,6 +2344,8 @@
 			"labels": "Ετικέτες",
 			"copyTaskLink": "Αντιγραφή συνδέσμου εργασίας",
 			"copyTaskBranch": "Αντιγραφή κλάδου εργασίας",
+			"taskLinkCopied": "Ο σύνδεσμος της εργασίας αντιγράφηκε",
+			"taskBranchCopied": "Το όνομα του branch αντιγράφηκε",
 			"start": "Έναρξη",
 			"startDate": "Ημερομηνία έναρξης",
 			"noDate": "Χωρίς ημερομηνία"
@@ -2614,6 +2616,9 @@
 		"checklistProgress": "Ολοκληρώθηκαν {{completed}} από {{total}} στοιχεία λίστας ελέγχου",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"board": {
+			"reorderFailed": "Could not move task. Please try again."
 		}
 	},
 	"invitations": {

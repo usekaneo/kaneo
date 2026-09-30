@@ -165,3 +165,28 @@ export const stagedImageUploadBody = imageUploadBody.extend({
 export const finalizeStagedImageUploadBody = finalizeImageUploadBody.extend({
   surface: z.literal("description"),
 });
+
+export const reorderTasksBody = z.object({
+  projectId: z.string(),
+  expectedTasks: z
+    .array(
+      z.object({
+        id: z.string(),
+        position: z.number().int().min(0).max(MAX_TASK_POSITION).nullable(),
+        status: z.string(),
+      }),
+    )
+    .optional()
+    .describe(
+      "Previous complete contents of the affected columns; stale snapshots return 409",
+    ),
+  tasks: z
+    .array(
+      z.object({
+        id: z.string(),
+        position: z.number().int().min(0).max(MAX_TASK_POSITION),
+        status: z.string().optional(),
+      }),
+    )
+    .min(1),
+});

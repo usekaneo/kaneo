@@ -13,6 +13,8 @@ import createActivities from "../../activity/controllers/create-activities";
 import db from "../../database";
 import {
   assetTable,
+  externalLinkTable,
+  integrationTable,
   labelTable,
   projectTable,
   taskRelationTable,
@@ -199,6 +201,29 @@ async function moveProject(
         message: "Project was moved to another workspace, please try again",
       });
     }
+
+    // Older task moves could leave links owned by a different project.
+    await tx
+      .delete(externalLinkTable)
+      .where(
+        and(
+          inArray(
+            externalLinkTable.taskId,
+            tx
+              .select({ id: taskTable.id })
+              .from(taskTable)
+              .where(eq(taskTable.projectId, id)),
+          ),
+          isNotNull(externalLinkTable.integrationId),
+          notInArray(
+            externalLinkTable.integrationId,
+            tx
+              .select({ id: integrationTable.id })
+              .from(integrationTable)
+              .where(eq(integrationTable.projectId, id)),
+          ),
+        ),
+      );
 
     // Assets and task labels denormalize the project's workspace.
     await tx

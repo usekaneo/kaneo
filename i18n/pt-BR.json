@@ -2355,6 +2355,8 @@
 			"labels": "Etiquetas",
 			"copyTaskLink": "Copiar link da tarefa",
 			"copyTaskBranch": "Copiar branch da tarefa",
+			"taskLinkCopied": "Link da tarefa copiado",
+			"taskBranchCopied": "Nome da branch copiado",
 			"start": "Início",
 			"startDate": "Data de início",
 			"noDate": "Sem data"
@@ -2626,6 +2628,9 @@
 		"checklistProgress": "{{completed}} de {{total}} itens da lista concluídos",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"board": {
+			"reorderFailed": "Could not move task. Please try again."
 		}
 	},
 	"invitations": {
