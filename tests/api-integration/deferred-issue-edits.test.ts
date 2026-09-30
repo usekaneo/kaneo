@@ -626,6 +626,7 @@ async function deliverField(
   value: string,
   version: string,
   integrationId: string,
+  repositoryName = "repo",
 ) {
   const payload = {
     action:
@@ -640,7 +641,7 @@ async function deliverField(
       body: field === "description" ? value : "unchanged",
       state: field === "state" ? value : "open",
       updated_at: version,
-      html_url: "https://git.example/owner/repo/issues/1",
+      html_url: `https://git.example/owner/${repositoryName}/issues/1`,
     },
     changes:
       field === "title"
@@ -648,10 +649,10 @@ async function deliverField(
         : { body: { from: "before" } },
     repository: {
       id: 20,
-      name: "repo",
-      full_name: "owner/repo",
+      name: repositoryName,
+      full_name: `owner/${repositoryName}`,
       owner: { login: "owner" },
-      html_url: "https://git.example/owner/repo",
+      html_url: `https://git.example/owner/${repositoryName}`,
     },
   };
   if (field !== "state") {
@@ -1848,3 +1849,84 @@ it("reconciles an existing overlapping inbound/repair job from the current provi
   expect((await current(task.id))?.title).toBe("C");
   expect(m.write).not.toHaveBeenCalled();
 });
+
+it.each(
+  providerFields.flatMap((entry) =>
+    [false, true].map((failed) => ({ ...entry, failed })),
+  ),
+)(
+  "retires an old $provider $field intent after repository reconfiguration (failed=$failed)",
+  async ({ provider, field, failed }) => {
+    const { task, integration, link } = await seed(provider);
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: "{}" })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    const older = field === "state" ? "closed" : "A";
+    const fresh = field === "state" ? "open" : "new-repo-value";
+    const write = vi.fn(async () => {
+      const config = JSON.stringify({
+        ...JSON.parse(integration.config),
+        repositoryName: "new-repo",
+      });
+      const [rebound] = await db
+        .update(schema.integrationTable)
+        .set({ config })
+        .where(eq(schema.integrationTable.id, integration.id))
+        .returning();
+      m.integrations = [rebound];
+      await updateExternalLink(link.id, {
+        outbound: {
+          field,
+          value: fresh,
+          intentId: "new-repo-intent",
+          pending: true,
+        },
+      });
+      if (failed) throw new Error("old repository request failed");
+      return "2026-09-30T00:00:02Z";
+    });
+    const result = syncLatestTaskValue(
+      task.id,
+      integration.projectId,
+      link,
+      field,
+      older,
+      write,
+      undefined,
+      integration,
+    );
+    if (failed)
+      await expect(result).rejects.toThrow("old repository request failed");
+    else await result;
+    const stamp = (await metadata(link.id)).lastSync[field];
+    const oldIntent = stamp.outbound.find(
+      (entry: { intentId: string }) => entry.intentId !== "new-repo-intent",
+    );
+    expect(oldIntent).toMatchObject({
+      pending: false,
+      uncertain: false,
+      cancelled: true,
+    });
+    expect(
+      stamp.outbound.find(
+        (entry: { intentId: string }) => entry.intentId === "new-repo-intent",
+      ),
+    ).toMatchObject({ pending: true });
+    await deliverField(
+      provider,
+      field,
+      older,
+      "2026-09-30T00:00:03Z",
+      integration.id,
+      "new-repo",
+    );
+    const row = await current(task.id);
+    expect(field === "state" ? row?.status : row?.[field]).toBe(
+      field === "state" ? "done" : older,
+    );
+    expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+    expect(write).toHaveBeenCalledTimes(1);
+    expect(m.write).not.toHaveBeenCalled();
+  },
+);

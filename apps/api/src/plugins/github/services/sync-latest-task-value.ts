@@ -30,6 +30,7 @@ export async function syncLatestTaskValue(
   let value = initialValue;
   let attempts = 0;
   let identity = expectedBinding;
+  let lastIntentId: string | undefined;
   const currentBinding = async () => {
     const binding = (await findExternalLinksByTask(taskId)).find(
       (candidate) =>
@@ -46,8 +47,15 @@ export async function syncLatestTaskValue(
             binding.integration.type !== identity.type) ||
           (identity?.config !== undefined &&
             binding.integration.config !== identity.config)))
-    )
+    ) {
+      // The old request cannot identify deliveries from the retained new binding.
+      // Retire only its UUID, preserving newer intents and current field metadata.
+      if (lastIntentId)
+        await updateExternalLink(link.id, {
+          retireOutboundIntents: { field, intentIds: [lastIntentId] },
+        });
       return;
+    }
     return binding;
   };
   for (;;) {
@@ -70,6 +78,7 @@ export async function syncLatestTaskValue(
         issueEditScope(binding.integration) === queued.scope
       );
     const intentId = randomUUID();
+    lastIntentId = intentId;
     // Webhooks may arrive before PATCH returns, including from another instance.
     const persisted = await updateExternalLink(link.id, {
       outbound: { field, value, intentId, pending: true },
