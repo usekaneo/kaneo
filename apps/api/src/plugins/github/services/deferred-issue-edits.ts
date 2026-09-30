@@ -360,6 +360,7 @@ export async function replayDeferredIssueEdits() {
                 : current[repair.field];
             },
             integration,
+            true,
           );
           // A later field can fail; persist this field's successful repair first.
           if (repair.intentIds.length)
@@ -385,10 +386,24 @@ export async function replayDeferredIssueEdits() {
           await withIntegrationLink(
             link,
             integration,
-            async (tx) => {
+            async (tx, _afterCommit, locked) => {
+              // Writes settled after the receipt need their own later correction.
+              const current = metadataFor(locked);
+              const remaining = fields.filter(
+                (field) =>
+                  uncertainOutboundIntents(current.lastSync?.[field]).length,
+              );
               await updateExternalLink(
                 link.id,
-                { completeDeferredEdit: job.id },
+                remaining.length
+                  ? {
+                      deferredEdit: {
+                        fields: [],
+                        repairFields: remaining,
+                        scope: job.scope,
+                      },
+                    }
+                  : { completeDeferredEdit: job.id },
                 tx,
               );
             },

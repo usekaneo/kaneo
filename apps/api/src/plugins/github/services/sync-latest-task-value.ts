@@ -1,6 +1,10 @@
 import { deferTaskSync } from "./defer-issue-edit";
 import { randomUUID } from "node:crypto";
 import db from "../../../database";
+import {
+  issueEditScope,
+  parseDeferredIssueEdit,
+} from "../utils/deferred-issue-edit";
 import { parseLinkMetadata } from "../utils/parse-link-metadata";
 import { hasNewerObservedEdit, type SyncStamp } from "../utils/sync-echo";
 import { applyObservedTaskValue } from "./apply-observed-task-value";
@@ -21,6 +25,7 @@ export async function syncLatestTaskValue(
   write: (value: string) => Promise<string | undefined>,
   readCurrent?: () => Promise<string>,
   expectedBinding?: { type?: string; config?: string },
+  repair = false,
 ) {
   let value = initialValue;
   let attempts = 0;
@@ -51,6 +56,19 @@ export async function syncLatestTaskValue(
     identity ??= binding.integration
       ? { type: binding.integration.type, config: binding.integration.config }
       : undefined;
+    const queued = parseDeferredIssueEdit(
+      parseLinkMetadata<{ deferredIssueEdit?: unknown }>(binding.metadata, {
+        externalLinkId: link.id,
+        source: "outbound_repair",
+      }).deferredIssueEdit,
+    );
+    const repairing =
+      repair ||
+      !!(
+        queued?.repairFields?.includes(field) &&
+        binding.integration &&
+        issueEditScope(binding.integration) === queued.scope
+      );
     const intentId = randomUUID();
     // Webhooks may arrive before PATCH returns, including from another instance.
     const persisted = await updateExternalLink(link.id, {
@@ -78,12 +96,17 @@ export async function syncLatestTaskValue(
           uncertain: !rejected,
         },
       }).catch(() => {});
+      if (!rejected && binding.integration?.config && (await currentBinding()))
+        await deferTaskSync({ id: link.id, taskId }, binding.integration, [
+          field,
+        ]).catch(() => {});
       throw error;
     }
     if (!(await currentBinding())) return;
     await updateExternalLink(link.id, {
       ...(field === "title" ? { title: value } : {}),
       outbound: { field, value, updatedAt, intentId, pending: false },
+      ...(repairing ? { retireUncertainOutbound: field } : {}),
       ...(field === "state"
         ? { metadata: { state: value, lastOutboundStateSyncAt: Date.now() } }
         : {}),

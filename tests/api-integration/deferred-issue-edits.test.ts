@@ -1281,7 +1281,7 @@ it.each(
 );
 
 it.each(["uncertain", "pending"])(
-  "keeps a newer matching %s write that arrives while a queued repair is in flight",
+  "settles a matching %s write during repair while preserving active requests",
   async (kind) => {
     const { integration, link } = await seed();
     await db
@@ -1319,12 +1319,12 @@ it.each(["uncertain", "pending"])(
       entries.find((entry: { intentId: string }) => entry.intentId === "new"),
     ).toMatchObject({
       pending: kind === "pending",
-      uncertain: kind === "uncertain",
+      uncertain: false,
     });
     expect(
       entries.find((entry: { intentId: string }) => entry.intentId === "new")
         .cancelled,
-    ).not.toBe(true);
+    ).toBe(kind === "uncertain" ? true : undefined);
   },
 );
 it("retains every captured uncertain intent when the corrective provider write fails", async () => {
@@ -1503,3 +1503,188 @@ it.each(
     ).toBe(field === "state" ? "done" : before);
   },
 );
+
+it.each(providerFields)(
+  "settles a $provider/$field write that becomes uncertain during correction before later genuine edits",
+  async ({ provider, field }) => {
+    const { task, integration, link } = await seed(provider);
+    const older = field === "state" ? "closed" : "A";
+    await db
+      .update(schema.externalLinkTable)
+      .set({
+        metadata: JSON.stringify({
+          lastSync: {
+            [field]: outboundStamp(undefined, older, undefined, {
+              intentId: "old",
+              uncertain: true,
+            }),
+          },
+        }),
+      })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    await deferTaskSync(link, integration, [field]);
+    m.write.mockImplementationOnce(async () => {
+      await updateExternalLink(link.id, {
+        outbound: {
+          field,
+          value: older,
+          intentId: "during-repair",
+          pending: false,
+          uncertain: true,
+        },
+      });
+      return { updated_at: "2026-09-30T00:00:04Z" };
+    });
+    await replayDeferredIssueEdits();
+    const column = field === "state" ? "status" : field;
+    const later = field === "state" ? "open" : "C";
+    await db
+      .update(schema.taskTable)
+      .set({ [column]: field === "state" ? "in-progress" : later })
+      .where(eq(schema.taskTable.id, task.id));
+    await syncLatestTaskValue(
+      task.id,
+      integration.projectId,
+      link,
+      field,
+      later,
+      async () => "2026-09-30T00:00:05Z",
+    );
+    m.read.mockResolvedValue({
+      title: older,
+      body: older,
+      state: "closed",
+      updated_at: "2026-09-30T00:00:06Z",
+    });
+    await deliverField(
+      provider,
+      field,
+      older,
+      "2026-09-30T00:00:06Z",
+      integration.id,
+    );
+    expect((await current(task.id))?.[column]).toBe(
+      field === "state" ? "done" : older,
+    );
+  },
+);
+it("queues an intent inserted after the repair receipt for a fresh correction", async () => {
+  const { task, integration, link } = await seed();
+  await db
+    .update(schema.externalLinkTable)
+    .set({
+      metadata: JSON.stringify({
+        lastSync: {
+          title: outboundStamp(undefined, "A", undefined, {
+            intentId: "old",
+            uncertain: true,
+          }),
+        },
+      }),
+    })
+    .where(eq(schema.externalLinkTable.id, link.id));
+  await deferTaskSync(link, integration, ["title"]);
+  const find = db.query.externalLinkTable.findMany.bind(
+    db.query.externalLinkTable,
+  );
+  let inserted = false;
+  const spy = vi
+    .spyOn(db.query.externalLinkTable, "findMany")
+    .mockImplementation(async (options) => {
+      const rows = await find(options);
+      if (
+        !inserted &&
+        m.write.mock.calls.length &&
+        rows.some(
+          (row) =>
+            JSON.parse(row.metadata ?? "{}").lastSync?.title?.value === "B",
+        )
+      ) {
+        inserted = true;
+        await updateExternalLink(link.id, {
+          outbound: {
+            field: "title",
+            value: "A",
+            intentId: "after-receipt",
+            pending: false,
+            uncertain: true,
+          },
+        });
+        return find(options);
+      }
+      return rows;
+    });
+  try {
+    await replayDeferredIssueEdits();
+  } finally {
+    spy.mockRestore();
+  }
+  expect(inserted).toBe(true);
+  expect((await metadata(link.id)).deferredIssueEdit.repairFields).toEqual([
+    "title",
+  ]);
+  await db
+    .update(schema.taskTable)
+    .set({ title: "C" })
+    .where(eq(schema.taskTable.id, task.id));
+  await syncLatestTaskValue(
+    task.id,
+    integration.projectId,
+    link,
+    "title",
+    "C",
+    async () => "2026-09-30T00:00:05Z",
+  );
+  m.read.mockResolvedValue({
+    title: "A",
+    body: "body",
+    state: "open",
+    updated_at: "2026-09-30T00:00:06Z",
+  });
+  await deliverField(
+    "github",
+    "title",
+    "A",
+    "2026-09-30T00:00:06Z",
+    integration.id,
+  );
+  expect((await current(task.id))?.title).toBe("A");
+});
+it("durably queues an uncertain standalone writer and later settles it", async () => {
+  const { task, integration, link } = await seed();
+  await db
+    .update(schema.externalLinkTable)
+    .set({ metadata: "{}" })
+    .where(eq(schema.externalLinkTable.id, link.id));
+  await expect(
+    syncLatestTaskValue(
+      task.id,
+      integration.projectId,
+      link,
+      "title",
+      "A",
+      async () => {
+        throw new Error("provider unavailable");
+      },
+    ),
+  ).rejects.toThrow("provider unavailable");
+  expect((await metadata(link.id)).deferredIssueEdit.repairFields).toEqual([
+    "title",
+  ]);
+  await replayDeferredIssueEdits();
+  expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+  m.read.mockResolvedValue({
+    title: "A",
+    body: "body",
+    state: "open",
+    updated_at: "2026-09-30T00:00:06Z",
+  });
+  await deliverField(
+    "github",
+    "title",
+    "A",
+    "2026-09-30T00:00:06Z",
+    integration.id,
+  );
+  expect((await current(task.id))?.title).toBe("A");
+});

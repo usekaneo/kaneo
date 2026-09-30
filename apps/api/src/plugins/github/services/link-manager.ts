@@ -5,7 +5,11 @@ import {
 } from "../utils/deferred-issue-edit";
 import { mergeSyncMetadata } from "../utils/merge-sync-metadata";
 import { parseLinkMetadata } from "../utils/parse-link-metadata";
-import { outboundStamp, type SyncStamp } from "../utils/sync-echo";
+import {
+  outboundStamp,
+  uncertainOutboundIntents,
+  type SyncStamp,
+} from "../utils/sync-echo";
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import {
@@ -35,6 +39,7 @@ export type UpdateExternalLinkParams = {
     scope: string;
   };
   completeDeferredEdit?: string;
+  retireUncertainOutbound?: IssueField;
   retireOutboundIntents?: { field: IssueField; intentIds: string[] };
   outbound?: {
     field: "title" | "description" | "state";
@@ -151,7 +156,8 @@ export async function updateExternalLink(
     params.observedOutbound ||
     params.deferredEdit ||
     params.completeDeferredEdit ||
-    params.retireOutboundIntents
+    params.retireOutboundIntents ||
+    params.retireUncertainOutbound
   ) {
     return database.transaction(async (tx) => {
       const link = await lockExternalLink(id, tx);
@@ -213,6 +219,16 @@ export async function updateExternalLink(
         if (stamp)
           stamp.outbound = stamp.outbound?.map((entry) =>
             entry.intentId && ids.has(entry.intentId)
+              ? { ...entry, pending: false, uncertain: false, cancelled: true }
+              : entry,
+          );
+      }
+      if (params.retireUncertainOutbound) {
+        const stamp = merged.lastSync?.[params.retireUncertainOutbound];
+        const settled = new Set(uncertainOutboundIntents(stamp));
+        if (stamp)
+          stamp.outbound = stamp.outbound?.map((entry) =>
+            settled.has(entry)
               ? { ...entry, pending: false, uncertain: false, cancelled: true }
               : entry,
           );
