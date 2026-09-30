@@ -31,6 +31,12 @@ export type UpdateExternalLinkParams = {
     intentId?: string;
     pending?: boolean;
     cancelled?: boolean;
+    uncertain?: boolean;
+  };
+  observedOutbound?: {
+    field: "title" | "description" | "state";
+    intentId: string;
+    updatedAt: string;
   };
   title?: string | null;
   url?: string;
@@ -127,7 +133,7 @@ export async function updateExternalLink(
   params: UpdateExternalLinkParams,
   database: DbOrTx = db,
 ) {
-  if (params.outbound || params.metadata) {
+  if (params.outbound || params.metadata || params.observedOutbound) {
     await database.transaction(async (tx) => {
       const link = await lockExternalLink(id, tx);
       if (!link) return;
@@ -135,6 +141,23 @@ export async function updateExternalLink(
         Record<string, unknown> & { lastSync?: Record<string, SyncStamp> }
       >(link.metadata, { externalLinkId: id, source: "sync_update" });
       const merged = mergeSyncMetadata(metadata, params.metadata ?? {});
+      if (params.observedOutbound) {
+        const { field, intentId, updatedAt } = params.observedOutbound;
+        const stamp = merged.lastSync?.[field];
+        if (stamp)
+          stamp.outbound = stamp.outbound?.map((entry) =>
+            entry.intentId === intentId
+              ? {
+                  ...entry,
+                  observedUpdatedAt:
+                    !entry.observedUpdatedAt ||
+                    updatedAt > entry.observedUpdatedAt
+                      ? updatedAt
+                      : entry.observedUpdatedAt,
+                }
+              : entry,
+          );
+      }
       if (params.outbound) {
         const { field, value, updatedAt, ...intent } = params.outbound;
         merged.lastSync = {

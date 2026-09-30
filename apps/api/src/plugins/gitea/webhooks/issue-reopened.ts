@@ -115,6 +115,7 @@ export async function handleGiteaIssueReopened(
                 "open",
                 issue.updated_at,
                 current ? (current.state ?? issue.state) : undefined,
+                { linkId: externalLink.id, field: "state" },
               )
             )
               return;

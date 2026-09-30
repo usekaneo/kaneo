@@ -125,6 +125,7 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
                   issue.title,
                   issue.updated_at,
                   current?.title,
+                  { linkId: externalLink.id, field: "title" },
                 )
               ) {
                 console.log(
@@ -169,6 +170,7 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
                         task.id,
                       )
                     : undefined,
+                  { linkId: externalLink.id, field: "description" },
                 )
               ) {
                 console.log(

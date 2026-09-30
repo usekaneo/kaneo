@@ -1,4 +1,6 @@
 import { and, eq } from "drizzle-orm";
+import { PendingEcho } from "../utils/inbound-echo";
+import { updateExternalLink } from "./link-manager";
 import { externalLinkTable } from "../../../database/schema";
 import {
   withIntegrationTask,
@@ -30,7 +32,26 @@ export function withIntegrationLink<T>(
         )
         .for("update");
       if (!lockedLink) return;
-      return apply(database, afterCommit, lockedLink);
+      try {
+        return await apply(database, afterCommit, lockedLink);
+      } catch (error) {
+        if (!(error instanceof PendingEcho)) throw error;
+        if (error.context && error.intentId && error.updatedAt) {
+          await updateExternalLink(
+            lockedLink.id,
+            {
+              observedOutbound: {
+                field: error.context.field,
+                intentId: error.intentId,
+                updatedAt: error.updatedAt,
+              },
+            },
+            database,
+          );
+          error.recorded = true;
+        }
+        return error;
+      }
     },
   );
 }

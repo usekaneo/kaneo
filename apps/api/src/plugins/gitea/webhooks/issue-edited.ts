@@ -118,6 +118,7 @@ export async function handleGiteaIssueEdited(
                   issue.title,
                   issue.updated_at,
                   current?.title,
+                  { linkId: externalLink.id, field: "title" },
                 )
               ) {
                 shouldUpdateTitle = false;
@@ -156,6 +157,7 @@ export async function handleGiteaIssueEdited(
                         task.id,
                       )
                     : undefined,
+                  { linkId: externalLink.id, field: "description" },
                 )
               ) {
                 shouldUpdateDescription = false;

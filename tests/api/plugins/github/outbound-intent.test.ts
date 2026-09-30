@@ -1,6 +1,9 @@
 import { beforeEach, expect, it, vi } from "vite-plus/test";
 import { syncLatestTaskValue } from "../../../../apps/api/src/plugins/github/services/sync-latest-task-value";
-import { inboundEcho } from "../../../../apps/api/src/plugins/github/utils/inbound-echo";
+import {
+  inboundEcho,
+  withEchoConfirmation,
+} from "../../../../apps/api/src/plugins/github/utils/inbound-echo";
 import { mergeSyncMetadata } from "../../../../apps/api/src/plugins/github/utils/merge-sync-metadata";
 import {
   isPendingOutboundEcho,
@@ -20,7 +23,12 @@ vi.mock(
   "../../../../apps/api/src/plugins/github/services/link-manager",
   () => ({
     findExternalLinksByTask: async () => [
-      { id: "link", integrationId: "integration", resourceType: "issue" },
+      {
+        id: "link",
+        integrationId: "integration",
+        resourceType: "issue",
+        metadata: JSON.stringify({ lastSync: m.stamps }),
+      },
     ],
     updateExternalLink: m.save,
   }),
@@ -33,14 +41,32 @@ beforeEach(() => {
       _id: string,
       {
         outbound,
+        observedOutbound,
       }: {
-        outbound: OutboundIntent & {
+        observedOutbound?: {
+          field: string;
+          intentId: string;
+          updatedAt: string;
+        };
+        outbound?: OutboundIntent & {
           field: string;
           value: string;
           updatedAt?: string;
         };
       },
     ) => {
+      if (observedOutbound) {
+        const entry = m.stamps[observedOutbound.field]?.outbound?.find(
+          (entry) => entry.intentId === observedOutbound.intentId,
+        );
+        if (
+          entry &&
+          (!entry.observedUpdatedAt ||
+            observedOutbound.updatedAt > entry.observedUpdatedAt)
+        )
+          entry.observedUpdatedAt = observedOutbound.updatedAt;
+      }
+      if (!outbound) return;
       m.stamps[outbound.field] = outboundStamp(
         m.stamps[outbound.field],
         outbound.value,
@@ -67,6 +93,7 @@ it.each(["title", "description", "state"] as const)(
     const release = deferred();
     let first = true;
     let remote = a;
+    const webhooks: Promise<unknown>[] = [];
     const write = async (value: string) => {
       if (first) {
         first = false;
@@ -74,13 +101,25 @@ it.each(["title", "description", "state"] as const)(
         await release.promise;
       }
       remote = value;
-      // Exercise the same predicate used by the guarded inbound handlers while
-      // the provider has applied the write and has not returned its response.
-      if (!inboundEcho(m.stamps[field], value, `${value}-stamp`, remote)) {
-        if (field === "state")
-          m.current.status = value === "closed" ? "done" : "to-do";
-        else m.current[field] = value;
-      }
+      // The provider does not wait for webhook processing before responding.
+      webhooks.push(
+        withEchoConfirmation(
+          async () => remote,
+          (current) => {
+            if (
+              !inboundEcho(m.stamps[field], value, `${value}-stamp`, current, {
+                linkId: "link",
+                field,
+              })
+            ) {
+              if (field === "state")
+                m.current.status = value === "closed" ? "done" : "to-do";
+              else m.current[field] = value;
+            }
+            return Promise.resolve();
+          },
+        ),
+      );
       return `${value}-stamp`;
     };
     const older = syncLatestTaskValue("task", "project", link, field, a, write);
@@ -89,6 +128,7 @@ it.each(["title", "description", "state"] as const)(
     await syncLatestTaskValue("task", "project", link, field, b, write);
     release.resolve();
     await older;
+    await Promise.all(webhooks);
     expect(remote).toBe(b);
     expect(field === "state" ? m.current.status : m.current[field]).toBe(
       field === "state" ? "to-do" : b,
@@ -104,7 +144,7 @@ it.each(["title", "description", "state"] as const)(
 it("clears failed intents so a later legitimate provider edit is accepted", async () => {
   await expect(
     syncLatestTaskValue("task", "project", link, "title", "A", async () => {
-      throw new Error("provider failed");
+      throw Object.assign(new Error("provider failed"), { status: 422 });
     }),
   ).rejects.toThrow("provider failed");
   expect(isPendingOutboundEcho(m.stamps.title, "A")).toBe(false);
@@ -139,3 +179,104 @@ it("keeps an active intent while bounding completed rapid-write history", () => 
   expect(stamp.outbound?.filter((entry) => !entry.pending)).toHaveLength(32);
   expect(isPendingOutboundEcho(stamp, "A")).toBe(true);
 });
+
+it.each(["title", "description", "state"] as const)(
+  "preserves a later provider %s edit back to an in-flight value",
+  async (field) => {
+    const a = field === "state" ? "closed" : "A";
+    const b = field === "state" ? "open" : "B";
+    m.current = { title: a, description: a, status: "done" };
+    const started = deferred();
+    const release = deferred();
+    let remote = a;
+    const firstVersion = "2026-09-30T00:00:01Z";
+    const laterVersion = "2026-09-30T00:00:03Z";
+    const outbound = syncLatestTaskValue(
+      "task",
+      "project",
+      link,
+      field,
+      a,
+      async (value) => {
+        remote = value;
+        started.resolve();
+        await release.promise;
+        return firstVersion;
+      },
+    );
+    await started.promise;
+    const apply = (value: string, version: string) =>
+      withEchoConfirmation(
+        async () => remote,
+        (current) => {
+          if (
+            !inboundEcho(m.stamps[field], value, version, current, {
+              linkId: "link",
+              field,
+            })
+          ) {
+            if (field === "state")
+              m.current.status = value === "closed" ? "done" : "to-do";
+            else m.current[field] = value;
+          }
+          return Promise.resolve();
+        },
+      );
+    const original = apply(a, firstVersion);
+    remote = b;
+    await apply(b, "2026-09-30T00:00:02Z");
+    remote = a;
+    const legitimate = apply(a, laterVersion);
+    await vi.waitFor(() =>
+      expect(m.stamps[field].outbound?.[0].observedUpdatedAt).toBe(
+        laterVersion,
+      ),
+    );
+    release.resolve();
+    await Promise.all([outbound, original, legitimate]);
+    expect(remote).toBe(a);
+    expect(field === "state" ? m.current.status : m.current[field]).toBe(
+      field === "state" ? "done" : a,
+    );
+  },
+);
+it.each([
+  new Error("lost response"),
+  Object.assign(new Error("timeout"), { status: 408 }),
+  Object.assign(new Error("gateway failure"), { status: 502 }),
+])(
+  "recognizes a potentially applied failed write after a newer local edit (%s)",
+  async (error) => {
+    m.current = { title: "A", description: "", status: "to-do" };
+    let remote = "A";
+    await expect(
+      syncLatestTaskValue("task", "project", link, "title", "A", async () => {
+        throw error;
+      }),
+    ).rejects.toThrow(error.message);
+    m.current.title = "B";
+    await syncLatestTaskValue(
+      "task",
+      "project",
+      link,
+      "title",
+      "B",
+      async (value) => {
+        remote = value;
+        return "2026-09-30T00:00:02Z";
+      },
+    );
+    const echo = await withEchoConfirmation(
+      async () => remote,
+      (current) =>
+        Promise.resolve(
+          inboundEcho(m.stamps.title, "A", "2026-09-30T00:00:01Z", current),
+        ),
+    );
+    expect(echo).toBe(true);
+    expect(m.current.title).toBe("B");
+    expect(inboundEcho(m.stamps.title, "A", "2026-09-30T00:00:03Z", "A")).toBe(
+      false,
+    );
+  },
+);

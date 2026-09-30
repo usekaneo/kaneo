@@ -112,6 +112,7 @@ export async function handleGiteaIssueClosed(
               "closed",
               issue.updated_at,
               current ? (current.state ?? issue.state) : undefined,
+              { linkId: externalLink.id, field: "state" },
             )
           )
             return;

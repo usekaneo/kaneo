@@ -4,6 +4,8 @@ export type OutboundIntent = {
   intentId?: string;
   pending?: boolean;
   cancelled?: boolean;
+  uncertain?: boolean;
+  observedUpdatedAt?: string;
 };
 export type OutboundEntry = OutboundIntent & {
   hash: string;
@@ -41,9 +43,18 @@ export function outboundStamp(
       hash: hash(previous.value),
       timestamp: previous.timestamp,
     });
-  outbound.push({ hash: hash(value), timestamp, updatedAt, ...intent });
+  const previousIntent = previous?.outbound?.find(
+    (entry) => intent.intentId && entry.intentId === intent.intentId,
+  );
+  outbound.push({
+    hash: hash(value),
+    timestamp,
+    updatedAt,
+    observedUpdatedAt: previousIntent?.observedUpdatedAt,
+    ...intent,
+  });
   const bounded = boundOutboundHistory(outbound);
-  if (intent.pending || intent.cancelled)
+  if (intent.pending || intent.cancelled || intent.uncertain)
     return { ...previous, outbound: bounded };
   return { timestamp, source: "kaneo", value, outbound: bounded };
 }
@@ -62,17 +73,24 @@ export function boundOutboundHistory(entries: OutboundEntry[]) {
   );
 }
 
-export function isPendingOutboundEcho(
+export function pendingOutboundIntent(
   stamp: SyncStamp | undefined,
   value: string,
 ) {
-  return (stamp?.outbound ?? []).some(
+  return (stamp?.outbound ?? []).find(
     (entry) =>
       entry.pending &&
       !entry.cancelled &&
       entry.hash === hash(value) &&
       Date.now() - Date.parse(entry.timestamp) < 300_000,
   );
+}
+
+export function isPendingOutboundEcho(
+  stamp: SyncStamp | undefined,
+  value: string,
+) {
+  return !!pendingOutboundIntent(stamp, value);
 }
 
 export function isOutboundEcho(
