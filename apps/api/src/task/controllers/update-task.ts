@@ -36,6 +36,7 @@ async function updateTask(
       description:
         description === undefined ? sql<null>`null` : taskTable.description,
       status: taskTable.status,
+      timeEstimate: taskTable.timeEstimate,
       projectId: taskTable.projectId,
     })
     .from(taskTable)
@@ -150,6 +151,24 @@ async function updateTask(
       title: updatedTask.title,
       type: "priority_changed",
     });
+  }
+
+  // Only an explicitly provided estimate emits a change event, mirroring
+  // the description check above: an omitted estimate still clears the
+  // stored value, but that is not an intentional edit worth an entry.
+  if (timeEstimate !== undefined) {
+    const newTimeEstimate = timeEstimate || null;
+    if ((existingTask.timeEstimate ?? null) !== newTimeEstimate) {
+      await publishEvent("task.time_estimate_changed", {
+        taskId: updatedTask.id,
+        projectId: updatedTask.projectId,
+        userId: currentUserId,
+        oldTimeEstimate: existingTask.timeEstimate,
+        newTimeEstimate,
+        title: updatedTask.title,
+        type: "time_estimate_changed",
+      });
+    }
   }
 
   await publishEvent("task.updated", {

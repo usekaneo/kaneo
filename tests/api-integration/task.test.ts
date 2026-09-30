@@ -731,6 +731,80 @@ describe("API integration: task time estimate", () => {
     });
   });
 
+  it("emits a time estimate change event on full task update", async () => {
+    const member = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const created = await createTask(app, project.id, {
+      title: "Full update events task",
+      description: "Estimate edits",
+      priority: "medium",
+      status: "to-do",
+      timeEstimate: 7200,
+    });
+
+    const fullUpdate = (timeEstimate: number) =>
+      app.request(`/api/task/${created.id}`, {
+        method: "PUT",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          title: "Full update events task",
+          description: "Estimate edits",
+          priority: "medium",
+          status: "to-do",
+          projectId: project.id,
+          position: 1,
+          timeEstimate,
+        }),
+      });
+
+    const changedResponse = await fullUpdate(3600);
+    expect(changedResponse.status).toBe(200);
+    await expect(changedResponse.json()).resolves.toMatchObject({
+      id: created.id,
+      timeEstimate: 3600,
+    });
+
+    const estimateRows = () =>
+      db
+        .select()
+        .from(schema.activityTable)
+        .where(
+          and(
+            eq(schema.activityTable.taskId, created.id),
+            eq(schema.activityTable.type, "time_estimate_changed"),
+          ),
+        );
+
+    await vi.waitFor(async () => {
+      expect(await estimateRows()).toHaveLength(1);
+    });
+
+    expect((await estimateRows())[0]).toMatchObject({
+      taskId: created.id,
+      userId: member.user.id,
+      type: "time_estimate_changed",
+      eventData: {
+        oldTimeEstimate: 7200,
+        newTimeEstimate: 3600,
+      },
+    });
+
+    // Repeating the same value must not emit again.
+    const repeatResponse = await fullUpdate(3600);
+    expect(repeatResponse.status).toBe(200);
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    expect(await estimateRows()).toHaveLength(1);
+  });
+
   it("rejects unauthenticated time estimate updates", async () => {
     const member = await createWorkspaceMember();
     const { project } = await createProjectFixture({
