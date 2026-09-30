@@ -534,7 +534,7 @@ export const auth = betterAuth({
               await revokeWorkspaceConnections(
                 member.userId,
                 member.organizationId,
-                { force: true },
+                { role: user.role ?? null },
               );
             }
             void syncWorkspaceSeats(member.organizationId).catch((error) => {

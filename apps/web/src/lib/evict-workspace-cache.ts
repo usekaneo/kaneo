@@ -62,6 +62,10 @@ export function evictWorkspaceCache(client: QueryClient, workspaceId: string) {
         scopes.get(value) !== workspaceId,
     );
     const privatePrefixes = new Set([
+      "github-repositories",
+      "gitea-repositories",
+      "gitlab-projects",
+      "active-organization",
       "github-integration",
       "gitlab-integration",
       "gitea-integration",

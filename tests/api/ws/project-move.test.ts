@@ -328,3 +328,27 @@ it("retries revocation delivery after Redis recovers without a project broadcast
   await vi.advanceTimersByTimeAsync(60_000);
   expect(m.publish).toHaveBeenCalledTimes(2);
 });
+
+it("drops a queued membership revocation when access is restored before Redis recovery", async () => {
+  vi.useFakeTimers();
+  m.redis = true;
+  await initializeWebSocketAdapter();
+  m.publish.mockRejectedValueOnce(new Error("Redis unavailable"));
+  await revokeWorkspaceConnections("user", "old", { role: "user" });
+  const reconnected = connect();
+  m.members.mockResolvedValue([{ userId: "user" }]);
+  await vi.advanceTimersByTimeAsync(60_000);
+  expect(m.publish).toHaveBeenCalledTimes(1);
+  expect(reconnected.close).not.toHaveBeenCalled();
+});
+
+it("retries a membership revocation while access remains absent", async () => {
+  vi.useFakeTimers();
+  m.redis = true;
+  await initializeWebSocketAdapter();
+  m.members.mockResolvedValue([]);
+  m.publish.mockRejectedValueOnce(new Error("Redis unavailable"));
+  await revokeWorkspaceConnections("user", "old", { role: "user" });
+  await vi.advanceTimersByTimeAsync(1_000);
+  expect(m.publish).toHaveBeenCalledTimes(2);
+});

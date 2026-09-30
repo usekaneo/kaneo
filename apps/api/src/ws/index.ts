@@ -238,14 +238,17 @@ function revokeLocalWorkspaceConnections(userId: string, workspaceId: string) {
 export async function revokeWorkspaceConnections(
   userId: string,
   workspaceId: string,
-  options: { force?: boolean } = {},
+  options: { force?: boolean; role?: string | null } = {},
 ) {
   if (!options.force) {
     try {
-      const [user] = await db
-        .select({ userId: userTable.id, role: userTable.role })
-        .from(userTable)
-        .where(eq(userTable.id, userId));
+      const [user] =
+        "role" in options
+          ? [{ role: options.role }]
+          : await db
+              .select({ userId: userTable.id, role: userTable.role })
+              .from(userTable)
+              .where(eq(userTable.id, userId));
       if (hasInstanceAdminRole(user?.role)) return;
     } catch (error) {
       console.error("Failed to read role after membership removal:", error);
@@ -255,11 +258,33 @@ export async function revokeWorkspaceConnections(
     type: "WORKSPACE_ACCESS_REVOKED",
     workspaceId,
   });
-  await revocationDelivery?.send({
-    userId,
-    message: { type: "WORKSPACE_ACCESS_REVOKED", workspaceId },
-    origin: INSTANCE_ID,
-  });
+  await revocationDelivery?.send(
+    {
+      userId,
+      message: { type: "WORKSPACE_ACCESS_REVOKED", workspaceId },
+      origin: INSTANCE_ID,
+    },
+    options.force
+      ? undefined
+      : async () => {
+          const [[user], members] = await Promise.all([
+            db
+              .select({ role: userTable.role })
+              .from(userTable)
+              .where(eq(userTable.id, userId)),
+            db
+              .select({ userId: workspaceUserTable.userId })
+              .from(workspaceUserTable)
+              .where(
+                and(
+                  eq(workspaceUserTable.userId, userId),
+                  eq(workspaceUserTable.workspaceId, workspaceId),
+                ),
+              ),
+          ]);
+          return !hasInstanceAdminRole(user?.role) && members.length === 0;
+        },
+  );
 }
 
 const workspaceLookups = new Map<string, Promise<string | null>>();

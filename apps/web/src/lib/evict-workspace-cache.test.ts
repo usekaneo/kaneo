@@ -42,6 +42,9 @@ it("cancels unknown project settings reads when membership is revoked", async ()
   const client = new QueryClient();
   for (const prefix of [
     "github-integration",
+    "github-repositories",
+    "gitea-repositories",
+    "gitlab-projects",
     "columns",
     "workflow-rules",
     "custom-fields",
