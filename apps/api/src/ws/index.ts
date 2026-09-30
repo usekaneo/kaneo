@@ -1,3 +1,4 @@
+import { createRevocationDelivery } from "./revocation-delivery";
 import { randomUUID } from "node:crypto";
 import { and, eq, inArray } from "drizzle-orm";
 import type { WSContext } from "hono/ws";
@@ -28,6 +29,7 @@ import { InMemoryBroadcastAdapter } from "./in-memory-broadcast-adapter";
 import { RedisBroadcastAdapter } from "./redis-broadcast-adapter";
 
 const INSTANCE_ID = randomUUID();
+let revocationDelivery: ReturnType<typeof createRevocationDelivery> | undefined;
 
 type ProjectConnection = {
   ws: WSContext;
@@ -154,10 +156,13 @@ export async function initializeWebSocketAdapter() {
   }
 
   adapter = nextAdapter;
+  revocationDelivery = createRevocationDelivery(nextAdapter);
   console.log(`📡 WebSockets Initialized using: "${adapter.constructor.name}"`);
 }
 
 export async function shutdownWebSocketAdapter() {
+  revocationDelivery?.stop();
+  revocationDelivery = undefined;
   const pendingQueues = [...projectBroadcastQueues.entries()];
 
   for (const timeout of projectBroadcastTimeouts.values()) {
@@ -236,26 +241,25 @@ export async function revokeWorkspaceConnections(
   options: { force?: boolean } = {},
 ) {
   if (!options.force) {
-    const [user] = await db
-      .select({ userId: userTable.id, role: userTable.role })
-      .from(userTable)
-      .where(eq(userTable.id, userId));
-    if (hasInstanceAdminRole(user?.role)) return;
+    try {
+      const [user] = await db
+        .select({ userId: userTable.id, role: userTable.role })
+        .from(userTable)
+        .where(eq(userTable.id, userId));
+      if (hasInstanceAdminRole(user?.role)) return;
+    } catch (error) {
+      console.error("Failed to read role after membership removal:", error);
+    }
   }
   deliverToLocalUserConnections(userId, {
     type: "WORKSPACE_ACCESS_REVOKED",
     workspaceId,
   });
-  try {
-    await adapter?.publishToUser({
-      userId,
-      message: { type: "WORKSPACE_ACCESS_REVOKED", workspaceId },
-      origin: INSTANCE_ID,
-    });
-  } catch (error) {
-    // Every delivery rechecks membership if a revocation message is lost.
-    console.error("Failed to publish workspace revocation:", error);
-  }
+  await revocationDelivery?.send({
+    userId,
+    message: { type: "WORKSPACE_ACCESS_REVOKED", workspaceId },
+    origin: INSTANCE_ID,
+  });
 }
 
 const workspaceLookups = new Map<string, Promise<string | null>>();

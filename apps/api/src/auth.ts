@@ -528,12 +528,15 @@ export const auth = betterAuth({
             });
           }
         },
-        afterRemoveMember: async ({ member }) => {
+        afterRemoveMember: async ({ member, user }) => {
           if (member?.organizationId) {
-            await revokeWorkspaceConnections(
-              member.userId,
-              member.organizationId,
-            );
+            if (!hasInstanceAdminRole(user.role)) {
+              await revokeWorkspaceConnections(
+                member.userId,
+                member.organizationId,
+                { force: true },
+              );
+            }
             void syncWorkspaceSeats(member.organizationId).catch((error) => {
               console.error("Seat sync after member remove failed:", error);
             });

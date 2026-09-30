@@ -301,3 +301,30 @@ it("does not reuse an older flush's membership snapshot for a later Redis broadc
     ),
   ).toBe(false);
 });
+
+it("still revokes local subscriptions when the post-removal role lookup fails", async () => {
+  await initializeWebSocketAdapter();
+  const ws = connect();
+  m.admins.mockRejectedValueOnce(new Error("database unavailable"));
+  await expect(
+    revokeWorkspaceConnections("user", "old"),
+  ).resolves.toBeUndefined();
+  expect(ws.close).toHaveBeenCalledWith(1008, "Workspace access revoked");
+});
+
+it("retries revocation delivery after Redis recovers without a project broadcast", async () => {
+  vi.useFakeTimers();
+  m.redis = true;
+  await initializeWebSocketAdapter();
+  m.publish.mockRejectedValueOnce(new Error("Redis unavailable"));
+  await revokeWorkspaceConnections("user", "old", { force: true });
+  expect(m.publish).toHaveBeenCalledTimes(1);
+  await vi.advanceTimersByTimeAsync(1_000);
+  expect(m.publish).toHaveBeenCalledTimes(2);
+  expect(JSON.parse(m.publish.mock.calls[1][1])).toMatchObject({
+    userId: "user",
+    message: { type: "WORKSPACE_ACCESS_REVOKED", workspaceId: "old" },
+  });
+  await vi.advanceTimersByTimeAsync(60_000);
+  expect(m.publish).toHaveBeenCalledTimes(2);
+});

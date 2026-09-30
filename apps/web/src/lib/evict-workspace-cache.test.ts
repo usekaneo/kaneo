@@ -37,3 +37,27 @@ it("evicts revoked and unscoped private data while preserving another workspace'
   expect(client.getQueryData(["task", "unscoped"])).toBeUndefined();
   client.clear();
 });
+
+it("cancels unknown project settings reads when membership is revoked", async () => {
+  const client = new QueryClient();
+  for (const prefix of [
+    "github-integration",
+    "columns",
+    "workflow-rules",
+    "custom-fields",
+  ]) {
+    let finish!: (value: string) => void;
+    const pending = client.fetchQuery({
+      queryKey: [prefix, "unknown-project"],
+      queryFn: () =>
+        new Promise<string>((resolve) => {
+          finish = resolve;
+        }),
+    });
+    evictWorkspaceCache(client, "revoked");
+    finish("private");
+    await pending.catch(() => undefined);
+    expect(client.getQueryData([prefix, "unknown-project"])).toBeUndefined();
+  }
+  client.clear();
+});
