@@ -648,7 +648,18 @@ describe("bounded resumable GitHub import", () => {
     const { project } = await setup();
     mocks.publish.mockImplementation(async (name, payload) => {
       expect(name).toBe("task.created");
-      expect(payload.projectId).toBe(project.id);
+      expect(payload).toMatchObject({
+        projectId: project.id,
+        title: "Live issue",
+        description: "Description",
+        priority: "low",
+        status: "to-do",
+        number: 1,
+        userId: "",
+        source: "github",
+        externalId: "77",
+        actor: "github-webhook",
+      });
       const task = await db.query.taskTable.findFirst({
         where: eq(schema.taskTable.id, payload.taskId!),
       });
