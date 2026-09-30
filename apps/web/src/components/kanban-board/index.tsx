@@ -1,4 +1,5 @@
 import { markBoardCacheChanged } from "@/lib/board-cache-version";
+import { selectReorderBoard } from "./select-reorder-board";
 import {
   closestCorners,
   DndContext,
@@ -194,9 +195,12 @@ function KanbanBoard({
         "fetching"
     )
       return;
-    const canonical =
-      queryClient.getQueryData<ProjectWithTasks>(["tasks", project.id]) ??
-      (storedProject?.id === project.id ? storedProject : undefined);
+    const canonical = selectReorderBoard(
+      project.id,
+      activeId,
+      queryClient.getQueryData<ProjectWithTasks>(["tasks", project.id]),
+      storedProject,
+    );
     if (!canonical) return;
 
     const moved = moveBoardTask(canonical, activeId, overId, sortedByNumber);
