@@ -297,3 +297,47 @@ it("bounds per-task reads during a thousand-event burst and reconciles once", as
     vi.useRealTimers();
   }
 });
+
+it("applies remote reorders to virtual task buckets", () => {
+  const board = mocks.board as {
+    plannedTasks: unknown[];
+    archivedTasks: unknown[];
+  };
+  board.plannedTasks = [
+    { id: "p1", projectId: "p", status: "planned", position: 0 },
+    { id: "p2", projectId: "p", status: "planned", position: 1 },
+  ];
+  renderHook(() => useProjectWebSocket("p"));
+  Socket.current.message("TASKS_REORDERED", {
+    tasks: [
+      { id: "p1", position: 1 },
+      { id: "p2", position: 0 },
+    ],
+  });
+  expect(
+    (mocks.board as { plannedTasks: { id: string }[] }).plannedTasks.map(
+      (task) => task.id,
+    ),
+  ).toEqual(["p2", "p1"]);
+});
+
+it("reconciles a remote read superseded by a narrow local mutation", async () => {
+  const { markBoardCacheChanged } = await import("@/lib/board-cache-version");
+  let finish!: (value: unknown) => void;
+  mocks.getTask.mockImplementationOnce(
+    () =>
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+  );
+  renderHook(() => useProjectWebSocket("p"));
+  Socket.current.message("TASK_UPDATED", { taskId: "a" });
+  markBoardCacheChanged(mocks.client as never, "p", "a");
+  finish({ id: "a", projectId: "p", status: "todo", dueDate: "2026-10-01" });
+  await Promise.resolve();
+  await Promise.resolve();
+  await Promise.resolve();
+  expect(mocks.client.invalidateQueries).toHaveBeenCalledWith({
+    queryKey: ["tasks", "p"],
+  });
+});

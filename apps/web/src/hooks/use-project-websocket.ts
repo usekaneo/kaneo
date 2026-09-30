@@ -158,9 +158,11 @@ export function useProjectWebSocket(projectId: string) {
             }
             let updated = board;
             for (const change of message.tasks) {
-              const task = updated.columns
-                .flatMap((column) => column.tasks)
-                .find((task) => task.id === change.id);
+              const task = [
+                ...updated.columns.flatMap((column) => column.tasks),
+                ...updated.plannedTasks,
+                ...updated.archivedTasks,
+              ].find((task) => task.id === change.id);
               if (!task) {
                 markBoardCacheChanged(queryClient, projectId);
                 void queryClient.invalidateQueries({
@@ -232,11 +234,18 @@ export function useProjectWebSocket(projectId: string) {
                     if (
                       disposed ||
                       activeSocket !== ws ||
-                      taskVersions.get(taskId) !== version ||
-                      getBoardCacheVersion(queryClient, projectId, taskId) !==
-                        boardVersion
+                      taskVersions.get(taskId) !== version
                     )
                       return;
+                    if (
+                      getBoardCacheVersion(queryClient, projectId, taskId) !==
+                      boardVersion
+                    ) {
+                      void queryClient.invalidateQueries({
+                        queryKey: ["tasks", projectId],
+                      });
+                      return;
+                    }
                     const staleOwnCounts =
                       (parentCountVersions.get(taskId) ?? 0) > sequence;
                     const { subtaskCounts, ...taskFields } = task;

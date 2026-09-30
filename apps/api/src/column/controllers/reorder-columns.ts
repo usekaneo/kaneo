@@ -1,3 +1,4 @@
+import { publishEvent } from "../../events";
 import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
@@ -27,6 +28,8 @@ async function reorderColumns(
     where: eq(columnTable.projectId, projectId),
     orderBy: (columns, { asc }) => [asc(columns.position)],
   });
+
+  await publishEvent("project.updated", { projectId: projectId });
 
   return updated;
 }
