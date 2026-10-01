@@ -156,6 +156,7 @@ describe("API integration: project creation", () => {
     const duplicate = await create(member.workspace.id, "kan");
     expect(duplicate.status).toBe(409);
     await expect(duplicate.text()).resolves.toContain('"kan" (Kanban)');
+    expect((await create(member.workspace.id, "ＫＡＮ")).status).toBe(409);
 
     mockAuthenticatedSession(other.user);
     expect((await create(other.workspace.id, "KAN")).status).toBe(200);

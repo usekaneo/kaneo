@@ -21,10 +21,11 @@ function getUniqueProjectKey(
   const key = projects.find((project) => project.id === projectId)?.slug;
   if (!key) return undefined;
 
+  const normalizedKey = key.normalize("NFKC").toLowerCase();
   const sharesKey = projects.some(
     (project) =>
       project.id !== projectId &&
-      project.slug.toLowerCase() === key.toLowerCase(),
+      project.slug.normalize("NFKC").toLowerCase() === normalizedKey,
   );
   return sharesKey ? undefined : key;
 }

@@ -2,7 +2,11 @@ import { and, eq, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { projectTable } from "../../database/schema";
-import { findProjectKeyConflict, projectKeyTakenMessage } from "../project-key";
+import {
+  findProjectKeyConflict,
+  isSameProjectKey,
+  projectKeyTakenMessage,
+} from "../project-key";
 
 async function updateProject(
   id: string,
@@ -41,7 +45,7 @@ async function updateProject(
       });
     }
 
-    if (slug.toLowerCase() !== existingProject.slug.toLowerCase()) {
+    if (!isSameProjectKey(slug, existingProject.slug)) {
       const keyConflict = await findProjectKeyConflict(
         tx,
         workspaceId,

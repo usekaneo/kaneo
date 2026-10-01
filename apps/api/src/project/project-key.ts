@@ -1,6 +1,12 @@
-import { and, eq, ne, sql } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import type db from "../database";
 import { projectTable } from "../database/schema";
+
+export function isSameProjectKey(a: string, b: string) {
+  return (
+    a.normalize("NFKC").toLowerCase() === b.normalize("NFKC").toLowerCase()
+  );
+}
 
 export async function findProjectKeyConflict(
   database: Pick<typeof db, "select">,
@@ -8,19 +14,17 @@ export async function findProjectKeyConflict(
   key: string,
   excludeProjectId?: string,
 ) {
-  const [conflict] = await database
-    .select({ name: projectTable.name })
+  const projects = await database
+    .select({ name: projectTable.name, slug: projectTable.slug })
     .from(projectTable)
     .where(
       and(
         eq(projectTable.workspaceId, workspaceId),
         excludeProjectId ? ne(projectTable.id, excludeProjectId) : undefined,
-        sql`lower(${projectTable.slug}) = lower(${key})`,
       ),
-    )
-    .limit(1);
+    );
 
-  return conflict;
+  return projects.find((project) => isSameProjectKey(project.slug, key));
 }
 
 export function projectKeyTakenMessage(key: string, projectName: string) {
