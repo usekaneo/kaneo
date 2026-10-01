@@ -10,3 +10,4 @@
 ^charts/
 ^tests/
 ^apps/docs/
+^scripts/security/file-secrets\.test\.mjs$
