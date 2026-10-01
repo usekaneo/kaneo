@@ -37,6 +37,7 @@ import {
 import useImportGiteaIssues from "@/hooks/mutations/gitea-integration/use-import-gitea-issues";
 import { useUpdateGiteaIntegration } from "@/hooks/mutations/gitea-integration/use-update-gitea-integration";
 import useGetGiteaIntegration from "@/hooks/queries/gitea-integration/use-get-gitea-integration";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
 
@@ -72,6 +73,8 @@ function createVerificationSnapshot(
 
 export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
   const { t } = useTranslation();
+  const { canCreateTasks, canUpdateTasks } = useWorkspacePermission();
+  const hasImportPermission = canCreateTasks() && canUpdateTasks();
 
   const giteaIntegrationSchema = React.useMemo(
     () =>
@@ -350,6 +353,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
   };
 
   const handleImportIssues = async () => {
+    if (!hasImportPermission) return;
     try {
       await importIssues(projectId);
       toast.success(t("settings:giteaIntegration.toast.issuesImported"));
@@ -445,7 +449,8 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
       currentVerificationSnapshot.repositoryOwner &&
     verificationResult.verified.repositoryName ===
       currentVerificationSnapshot.repositoryName;
-  const canImport = isConnected && Boolean(hasVerifiedCurrentValues);
+  const canImport =
+    hasImportPermission && isConnected && Boolean(hasVerifiedCurrentValues);
 
   const repoUrl =
     integration?.baseUrl && integration.repositoryOwner
@@ -872,7 +877,9 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
             <>
               <Separator />
               <p className="text-xs text-muted-foreground">
-                {t("settings:giteaIntegration.importDisabledHint")}
+                {hasImportPermission
+                  ? t("settings:giteaIntegration.importDisabledHint")
+                  : t("settings:gitlabIntegration.importPermissionHint")}
               </p>
             </>
           )}

@@ -20,6 +20,13 @@ const { verify, success, failure, integration, translate } = vi.hoisted(() => ({
     isActive: true,
   },
 }));
+const permissions = vi.hoisted(() => ({ create: true, update: true }));
+vi.mock("@/hooks/use-workspace-permission", () => ({
+  useWorkspacePermission: () => ({
+    canCreateTasks: () => permissions.create,
+    canUpdateTasks: () => permissions.update,
+  }),
+}));
 vi.mock("react-i18next", () => ({ useTranslation: () => ({ t: translate }) }));
 vi.mock("@/hooks/queries/gitea-integration/use-get-gitea-integration", () => ({
   default: () => ({ data: integration }),
@@ -49,6 +56,8 @@ vi.mock("@/lib/toast", () => ({
 }));
 afterEach(() => {
   cleanup();
+  permissions.create = true;
+  permissions.update = true;
   vi.clearAllMocks();
 });
 describe("saved Gitea verification", () => {
@@ -86,3 +95,29 @@ describe("saved Gitea verification", () => {
     expect(success).not.toHaveBeenCalled();
   });
 });
+
+it.each(["create", "update"] as const)(
+  "disables verified Gitea imports without %s permission",
+  async (permission) => {
+    permissions[permission] = false;
+    verify.mockResolvedValue({
+      isInstalled: true,
+      hasRequiredPermissions: true,
+    });
+    render(<GiteaIntegrationSettings projectId="project" />);
+    const verifyButton = screen.getByRole("button", {
+      name: "settings:giteaIntegration.verify",
+    });
+    await waitFor(() => expect(verifyButton).toBeEnabled());
+    fireEvent.click(verifyButton);
+    await waitFor(() => expect(success).toHaveBeenCalled());
+    expect(
+      screen.getByRole("button", {
+        name: "settings:giteaIntegration.importIssues",
+      }),
+    ).toBeDisabled();
+    expect(
+      screen.getByText("settings:gitlabIntegration.importPermissionHint"),
+    ).toBeInTheDocument();
+  },
+);
