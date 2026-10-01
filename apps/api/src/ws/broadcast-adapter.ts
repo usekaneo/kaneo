@@ -2,6 +2,7 @@ export type ProjectBroadcastMessage = {
   type: string;
   projectId: string;
   taskId?: string;
+  tasks?: Array<{ id: string; position: number; status?: string }>;
   sourceTaskId?: string;
   targetTaskId?: string;
 };

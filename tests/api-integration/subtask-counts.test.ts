@@ -433,60 +433,65 @@ describe("API integration: subtask counters", () => {
 
 describe("subtask counter mutation paths", () => {
   beforeEach(resetTestDatabase);
-  it("refreshes a parent after moving a child into a nonfinal workflow", async () => {
-    const member = await createWorkspaceMember();
-    const parentProject = await createProjectFixture({
-      workspaceId: member.workspace.id,
-    });
-    const source = await createProjectFixture({
-      workspaceId: member.workspace.id,
-    });
-    const destination = await createProjectFixture({
-      workspaceId: member.workspace.id,
-    });
-    await db
-      .update(schema.columnTable)
-      .set({ isFinal: false })
-      .where(eq(schema.columnTable.id, destination.columns.done.id));
-    const parent = await addTask(parentProject.project.id);
-    const child = await addTask(source.project.id, "done");
-    await relate(parent.id, child.id);
-    expect(await countsFor(parentProject.project.id, parent.id)).toEqual({
-      completed: 1,
-      total: 1,
-    });
-    await initializeWebSocketAdapter();
-    const send = vi.fn();
-    const connection = addConnection(
-      parentProject.project.id,
-      { send } as never,
-      member.user.id,
-      "same-window",
-      member.workspace.id,
-    );
-    try {
-      await eventContext.run({ initiatorId: "same-window" }, () =>
-        moveTask({
-          taskId: child.id,
-          destinationProjectId: destination.project.id,
-          currentUserId: member.user.id,
-        }),
-      );
-      await vi.waitFor(() => expect(send).toHaveBeenCalled());
-      expect(JSON.parse(send.mock.calls[0][0])).toEqual({
-        type: "TASK_RELATION_UPDATED",
-        projectId: parentProject.project.id,
-        taskId: "",
+  it.each([false, true])(
+    "refreshes a parent after moving a child into a nonfinal workflow (sameSource=%s)",
+    async (sameSource) => {
+      const member = await createWorkspaceMember();
+      const parentProject = await createProjectFixture({
+        workspaceId: member.workspace.id,
       });
+      const source = sameSource
+        ? parentProject
+        : await createProjectFixture({
+            workspaceId: member.workspace.id,
+          });
+      const destination = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      await db
+        .update(schema.columnTable)
+        .set({ isFinal: false })
+        .where(eq(schema.columnTable.id, destination.columns.done.id));
+      const parent = await addTask(parentProject.project.id);
+      const child = await addTask(source.project.id, "done");
+      await relate(parent.id, child.id);
       expect(await countsFor(parentProject.project.id, parent.id)).toEqual({
-        completed: 0,
+        completed: 1,
         total: 1,
       });
-    } finally {
-      removeConnection(parentProject.project.id, connection);
-      await shutdownWebSocketAdapter();
-    }
-  });
+      await initializeWebSocketAdapter();
+      const send = vi.fn();
+      const connection = addConnection(
+        parentProject.project.id,
+        { send } as never,
+        member.user.id,
+        "same-window",
+        member.workspace.id,
+      );
+      try {
+        await eventContext.run({ initiatorId: "same-window" }, () =>
+          moveTask({
+            taskId: child.id,
+            destinationProjectId: destination.project.id,
+            currentUserId: member.user.id,
+          }),
+        );
+        await vi.waitFor(() => expect(send).toHaveBeenCalled());
+        expect(JSON.parse(send.mock.calls[0][0])).toEqual({
+          type: "TASK_RELATION_UPDATED",
+          projectId: parentProject.project.id,
+          taskId: "",
+        });
+        expect(await countsFor(parentProject.project.id, parent.id)).toEqual({
+          completed: 0,
+          total: 1,
+        });
+      } finally {
+        removeConnection(parentProject.project.id, connection);
+        await shutdownWebSocketAdapter();
+      }
+    },
+  );
   it("refreshes same-project parents in other windows after child deletion", async () => {
     const member = await createWorkspaceMember();
     const { project } = await createProjectFixture({
@@ -518,4 +523,32 @@ describe("subtask counter mutation paths", () => {
       await shutdownWebSocketAdapter();
     }
   });
+});
+
+it("returns bounded board refresh descriptions and current parent progress", async () => {
+  await resetTestDatabase();
+  const member = await createWorkspaceMember();
+  const { project } = await createProjectFixture({
+    workspaceId: member.workspace.id,
+  });
+  const parent = await addTask(project.id);
+  const child = await addTask(project.id, "done");
+  await relate(parent.id, child.id);
+  await db
+    .update(schema.taskTable)
+    .set({ description: "😀".repeat(20000) })
+    .where(eq(schema.taskTable.id, child.id));
+  mockAuthenticatedSession(member.user);
+  const response = await createApp().app.request(
+    `/api/task/${child.id}?view=board`,
+  );
+  expect(response.status).toBe(200);
+  const body = await response.json();
+  expect(body).toMatchObject({
+    description: null,
+    descriptionDeferred: true,
+    subtaskCounts: { completed: 0, total: 0 },
+    parentSubtaskCounts: [{ taskId: parent.id, completed: 1, total: 1 }],
+  });
+  expect(body).not.toHaveProperty("workspaceId");
 });

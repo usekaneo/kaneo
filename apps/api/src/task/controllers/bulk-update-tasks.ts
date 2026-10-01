@@ -1,12 +1,15 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { queueStorageCleanup } from "../../storage/cleanup-queue";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
+  assetTable,
   columnTable,
   labelTable,
   projectTable,
   taskTable,
   userTable,
+  taskReminderSentTable,
   workspaceUserTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
@@ -14,6 +17,7 @@ import { removeLabelFromGitea } from "../../plugins/gitea/utils/sync-label-to-gi
 import { removeLabelFromGitHub } from "../../plugins/github/utils/sync-label-to-github";
 import { removeLabelFromGitlab } from "../../plugins/gitlab/utils/sync-label-to-gitlab";
 import { assertAssignableUser } from "../../utils/assert-assignable-user";
+import { publishTaskMutation } from "./task-mutation-effects";
 import { getSubtaskParentProjects } from "../get-subtask-parent-projects";
 import {
   assertValidPriority,
@@ -104,52 +108,86 @@ async function bulkUpdateTasks({
       }
       const projectIds = [...new Set(tasks.map((t) => t.projectId))];
 
+      // Validate every project's destination before the first write.
+      const destinations = new Map<string, string | null>();
       for (const projectId of projectIds) {
         await assertValidTaskStatus(value, projectId);
-
         const column = await db.query.columnTable.findFirst({
           where: and(
             eq(columnTable.projectId, projectId),
             eq(columnTable.slug, value),
           ),
         });
-
-        const projectTasks = tasks.filter(
-          (task) => task.projectId === projectId,
-        );
-        const projectTaskIds = projectTasks.map((task) => task.id);
-
-        const result = await db
-          .update(taskTable)
-          .set({ status: value, columnId: column?.id ?? null })
-          .where(inArray(taskTable.id, projectTaskIds));
-
-        updatedCount += result.rowCount ?? projectTaskIds.length;
-
-        const parentProjects = await getSubtaskParentProjects(projectTaskIds);
-        await publishEvent("subtask-parents.refresh", {
-          projects: parentProjects,
-        });
-
-        for (const task of projectTasks) {
-          await publishEvent("task.status_changed", {
-            taskId: task.id,
-            projectId,
-            userId,
-            oldStatus: task.status,
-            newStatus: value,
-            title: task.title,
-            assigneeId: task.userId,
-            type: "status_changed",
-            skipSubtaskParentRefresh: true,
-          });
-        }
-
-        await publishEvent("task-relation.refresh", {
-          projectId,
-          userId,
-        });
+        destinations.set(projectId, column?.id ?? null);
       }
+      const { updatedTasks, beforeById } = await db.transaction(async (tx) => {
+        const before = await tx
+          .select({ id: taskTable.id, status: taskTable.status })
+          .from(taskTable)
+          .where(inArray(taskTable.id, foundIds))
+          .orderBy(asc(taskTable.id))
+          .for("update");
+        const beforeById = new Map(before.map((task) => [task.id, task]));
+        const result: Array<{
+          id: string;
+          projectId: string;
+          status: string;
+          title: string;
+          userId: string | null;
+        }> = [];
+        for (const projectId of projectIds) {
+          const projectTaskIds = tasks
+            .filter((task) => task.projectId === projectId)
+            .map((task) => task.id);
+          const changed = await tx
+            .update(taskTable)
+            .set({
+              status: value,
+              columnId: destinations.get(projectId) ?? null,
+            })
+            .where(
+              and(
+                inArray(taskTable.id, projectTaskIds),
+                eq(taskTable.projectId, projectId),
+              ),
+            )
+            .returning({
+              id: taskTable.id,
+              projectId: taskTable.projectId,
+              status: taskTable.status,
+              title: taskTable.title,
+              userId: taskTable.userId,
+            });
+          if (changed.length !== projectTaskIds.length)
+            throw new HTTPException(409, {
+              message: "Tasks changed projects; retry the operation",
+            });
+          result.push(...changed);
+        }
+        return { updatedTasks: result, beforeById };
+      });
+      updatedCount = updatedTasks.length;
+      const parentProjects = await getSubtaskParentProjects(foundIds);
+      await publishEvent("subtask-parents.refresh", {
+        projects: parentProjects,
+      });
+      for (const updatedTask of updatedTasks) {
+        const before = beforeById.get(updatedTask.id)!;
+        await publishTaskMutation(before, updatedTask, userId, {
+          fields: ["status"],
+          skipRelationRefresh: true,
+
+          skipSubtaskParentRefresh: true,
+        });
+        if (before.status === updatedTask.status)
+          await publishEvent("task.updated", {
+            taskId: updatedTask.id,
+            projectId: updatedTask.projectId,
+            userId,
+          });
+      }
+      for (const projectId of projectIds)
+        await publishEvent("task-relation.refresh", { projectId, userId });
       break;
     }
 
@@ -159,24 +197,48 @@ async function bulkUpdateTasks({
       }
       assertValidPriority(value);
 
-      const result = await db
-        .update(taskTable)
-        .set({ priority: value })
-        .where(inArray(taskTable.id, foundIds));
-
-      updatedCount = result.rowCount ?? foundIds.length;
-
-      for (const task of tasks) {
-        await publishEvent("task.priority_changed", {
-          taskId: task.id,
-          projectId: task.projectId,
+      const before = await db.transaction(async (tx) => {
+        const locked = await tx
+          .select({
+            id: taskTable.id,
+            projectId: taskTable.projectId,
+            title: taskTable.title,
+            userId: taskTable.userId,
+            priority: taskTable.priority,
+          })
+          .from(taskTable)
+          .where(inArray(taskTable.id, foundIds))
+          .orderBy(asc(taskTable.id))
+          .for("update");
+        const originalProjects = new Map(
+          tasks.map((task) => [task.id, task.projectId]),
+        );
+        if (
+          locked.length !== foundIds.length ||
+          locked.some(
+            (task) => task.projectId !== originalProjects.get(task.id),
+          )
+        )
+          throw new HTTPException(409, {
+            message: "Tasks changed projects; retry the operation",
+          });
+        await tx
+          .update(taskTable)
+          .set({ priority: value })
+          .where(inArray(taskTable.id, foundIds));
+        return locked;
+      });
+      updatedCount = before.length;
+      for (const task of before)
+        await publishTaskMutation(
+          task,
+          {
+            ...task,
+            priority: value,
+          },
           userId,
-          oldPriority: task.priority,
-          newPriority: value,
-          title: task.title,
-          type: "priority_changed",
-        });
-      }
+          { fields: ["priority"] },
+        );
       break;
     }
 
@@ -187,47 +249,88 @@ async function bulkUpdateTasks({
         await assertAssignableUser(assigneeId, workspaceId);
       }
 
-      const newAssigneeName = assigneeId
-        ? (
-            await db
-              .select({ name: userTable.name })
-              .from(userTable)
-              .where(eq(userTable.id, assigneeId))
-              .limit(1)
-          )[0]?.name
+      const assignee = assigneeId
+        ? await db.query.userTable.findFirst({
+            columns: { name: true },
+            where: eq(userTable.id, assigneeId),
+          })
         : undefined;
-
-      const result = await db
-        .update(taskTable)
-        .set({ userId: assigneeId })
-        .where(inArray(taskTable.id, foundIds));
-
-      updatedCount = result.rowCount ?? foundIds.length;
-
-      for (const task of tasks) {
-        const eventType = assigneeId
-          ? "task.assignee_changed"
-          : "task.unassigned";
-        await publishEvent(eventType, {
-          taskId: task.id,
-          projectId: task.projectId,
+      const before = await db.transaction(async (tx) => {
+        const locked = await tx
+          .select({
+            id: taskTable.id,
+            projectId: taskTable.projectId,
+            title: taskTable.title,
+            userId: taskTable.userId,
+          })
+          .from(taskTable)
+          .where(inArray(taskTable.id, foundIds))
+          .orderBy(asc(taskTable.id))
+          .for("update");
+        const originalProjects = new Map(
+          tasks.map((task) => [task.id, task.projectId]),
+        );
+        if (
+          locked.length !== foundIds.length ||
+          locked.some(
+            (task) => task.projectId !== originalProjects.get(task.id),
+          )
+        )
+          throw new HTTPException(409, {
+            message: "Tasks changed projects; retry the operation",
+          });
+        await tx
+          .update(taskTable)
+          .set({ userId: assigneeId })
+          .where(inArray(taskTable.id, foundIds));
+        return locked;
+      });
+      updatedCount = before.length;
+      for (const task of before)
+        await publishTaskMutation(
+          task,
+          {
+            ...task,
+            userId: assigneeId,
+          },
           userId,
-          oldAssignee: task.userId,
-          newAssignee: newAssigneeName,
-          newAssigneeId: assigneeId,
-          title: task.title,
-          type: assigneeId ? "assignee_changed" : "unassigned",
-        });
-      }
+          { fields: ["userId"], assigneeName: assignee?.name ?? null },
+        );
       break;
     }
 
     case "delete": {
       // Relations cascade away with the children, so capture parents first.
       const parentProjects = await getSubtaskParentProjects(foundIds);
-      const result = await db
-        .delete(taskTable)
-        .where(inArray(taskTable.id, foundIds));
+      const result = await db.transaction(async (tx) => {
+        const locked = await tx
+          .select({ id: taskTable.id, projectId: taskTable.projectId })
+          .from(taskTable)
+          .where(inArray(taskTable.id, foundIds))
+          .orderBy(asc(taskTable.id))
+          .for("update");
+        const originalProjects = new Map(
+          tasks.map((task) => [task.id, task.projectId]),
+        );
+        if (
+          locked.length !== foundIds.length ||
+          locked.some(
+            (task) => task.projectId !== originalProjects.get(task.id),
+          )
+        )
+          throw new HTTPException(409, {
+            message: "Tasks changed projects; retry the operation",
+          });
+        const assets = await tx
+          .select({ objectKey: assetTable.objectKey })
+          .from(assetTable)
+          .where(inArray(assetTable.taskId, foundIds));
+        await queueStorageCleanup(
+          tx,
+          assets.map((asset) => asset.objectKey),
+        );
+        return tx.delete(taskTable).where(inArray(taskTable.id, foundIds));
+      });
 
       updatedCount = result.rowCount ?? foundIds.length;
 
@@ -368,24 +471,57 @@ async function bulkUpdateTasks({
         }
       }
 
-      const result = await db
-        .update(taskTable)
-        .set({ dueDate: parsedDate })
-        .where(inArray(taskTable.id, foundIds));
-
-      updatedCount = result.rowCount ?? foundIds.length;
-
-      for (const task of tasks) {
-        await publishEvent("task.due_date_changed", {
-          taskId: task.id,
-          projectId: task.projectId,
+      const { updatedTasks, beforeById } = await db.transaction(async (tx) => {
+        const before = await tx
+          .select({
+            id: taskTable.id,
+            projectId: taskTable.projectId,
+            dueDate: taskTable.dueDate,
+          })
+          .from(taskTable)
+          .where(inArray(taskTable.id, foundIds))
+          .orderBy(asc(taskTable.id))
+          .for("update");
+        const originalProjects = new Map(
+          tasks.map((task) => [task.id, task.projectId]),
+        );
+        if (
+          before.length !== foundIds.length ||
+          before.some(
+            (task) => task.projectId !== originalProjects.get(task.id),
+          )
+        )
+          throw new HTTPException(409, {
+            message: "Tasks changed projects; retry the operation",
+          });
+        const beforeById = new Map(before.map((task) => [task.id, task]));
+        const changedIds = before
+          .filter((task) => task.dueDate?.getTime() !== parsedDate?.getTime())
+          .map((task) => task.id);
+        if (changedIds.length)
+          await tx
+            .delete(taskReminderSentTable)
+            .where(inArray(taskReminderSentTable.taskId, changedIds));
+        const updatedTasks = await tx
+          .update(taskTable)
+          .set({ dueDate: parsedDate })
+          .where(inArray(taskTable.id, foundIds))
+          .returning({
+            id: taskTable.id,
+            projectId: taskTable.projectId,
+            title: taskTable.title,
+            dueDate: taskTable.dueDate,
+          });
+        return { updatedTasks, beforeById };
+      });
+      updatedCount = updatedTasks.length;
+      for (const updatedTask of updatedTasks)
+        await publishTaskMutation(
+          beforeById.get(updatedTask.id)!,
+          updatedTask,
           userId,
-          oldDueDate: task.dueDate,
-          newDueDate: parsedDate,
-          title: task.title,
-          type: "due_date_changed",
-        });
-      }
+          { fields: ["dueDate"] },
+        );
       break;
     }
 
