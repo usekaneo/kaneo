@@ -39,6 +39,11 @@ vi.mock("@/hooks/mutations/task/use-update-task", () => ({
 vi.mock("@/store/project", () => ({
   default: () => ({ setProject: m.setProject }),
 }));
+// This view groups subtasks under their parents, so it reads the project's
+// relations. The suite mounts ListView without a QueryClientProvider.
+vi.mock("@/hooks/queries/task-relation/use-get-project-task-relations", () => ({
+  default: () => ({ data: [], isLoading: false }),
+}));
 vi.mock("./task-row", () => ({ default: () => null }));
 vi.mock("../bulk-selection/bulk-toolbar", () => ({ default: () => null }));
 vi.mock("../shared/modals/create-task-modal", () => ({ default: () => null }));
