@@ -1,3 +1,4 @@
+import { syncWorkspaceAccess } from "./ws/workspace-access";
 import { drainPasswordResetDeliveries } from "./utils/password-reset-delivery";
 import "./instrument";
 
@@ -812,6 +813,7 @@ export function createApp() {
         onOpen(_evt, ws) {
           if (userId) {
             conn = addUserConnection(userId, ws);
+            void syncWorkspaceAccess(userId, ws);
           }
         },
         onMessage: handleWebSocketMessage,

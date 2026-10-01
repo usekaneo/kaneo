@@ -9,9 +9,12 @@ import {
 } from "../../../apps/api/src/ws";
 vi.mock("../../../apps/api/src/database", () => ({
   default: {
-    select: () => ({
+    select: (fields: Record<string, unknown>) => ({
       from: () => ({
-        where: () => ({ limit: async () => [{ workspaceId: "workspace" }] }),
+        where: () =>
+          fields.userId
+            ? Promise.resolve([{ userId: "observer" }])
+            : { limit: async () => [{ workspaceId: "workspace" }] },
       }),
     }),
   },

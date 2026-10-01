@@ -5,6 +5,7 @@ import {
 } from "@/lib/board-cache-version";
 import { windowId } from "@kaneo/libs";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { getApiUrl } from "@/fetchers/get-api-url";
 import { authClient } from "@/lib/auth-client";
@@ -29,6 +30,7 @@ const WS_PING_INTERVAL_MS = 30_000;
 
 export function useProjectWebSocket(projectId: string) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { data: session } = authClient.useSession();
 
   useEffect(() => {
@@ -419,7 +421,7 @@ export function useProjectWebSocket(projectId: string) {
         }
       };
 
-      ws.onclose = () => {
+      ws.onclose = (event) => {
         if (disposed || activeSocket !== ws) return;
         clearPing();
         if (healthyTimeout !== null) {
@@ -427,6 +429,17 @@ export function useProjectWebSocket(projectId: string) {
           healthyTimeout = null;
         }
         activeSocket = null;
+
+        if (
+          event?.code === 1008 &&
+          event.reason === "Workspace access revoked"
+        ) {
+          disposed = true;
+          void queryClient.cancelQueries();
+          queryClient.clear();
+          void navigate({ to: "/dashboard" });
+          return;
+        }
 
         if (retries < MAX_RETRIES) {
           const delay = BASE_DELAY * 2 ** retries; // 1s, 2s, 4s, 8s, 16s
@@ -508,5 +521,5 @@ export function useProjectWebSocket(projectId: string) {
       }
       activeSocket?.close();
     };
-  }, [projectId, session?.user?.id, queryClient]);
+  }, [projectId, session?.user?.id, queryClient, navigate]);
 }
