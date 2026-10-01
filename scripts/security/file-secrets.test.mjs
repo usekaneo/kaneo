@@ -34,7 +34,7 @@ function runStartup(env) {
   );
 }
 
-test("bundled startup reads password and auth secret files", () => {
+test("bundled startup checks secret files without exporting their contents", () => {
   const directory = mkdtempSync(
     path.join(tmpdir(), "kaneo-entrypoint-secret-"),
   );
@@ -50,10 +50,8 @@ test("bundled startup reads password and auth secret files", () => {
     });
 
     assert.equal(result.status, 0, result.stderr);
-    assert.deepEqual(result.stdout.trimEnd().split("\n").slice(-2), [
-      "postgresql://kaneo:space%20%26%2F%23%25@postgres:5432/kaneo",
-      "a".repeat(32),
-    ]);
+    assert.deepEqual(result.stdout.split("\n").slice(-3, -1), ["", ""]);
+    assert.doesNotMatch(result.stdout, /space|a{32}/);
     assert.doesNotMatch(result.stdout, /generated a random secret/);
   } finally {
     rmSync(directory, { recursive: true, force: true });
@@ -82,7 +80,10 @@ test("unreadable AUTH_SECRET_FILE fails instead of generating a session secret",
   });
 
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /AUTH_SECRET_FILE could not be read/);
+  assert.match(
+    result.stderr,
+    /AUTH_SECRET_FILE could not be read \(ENOENT\): \/missing\/auth-secret/,
+  );
   assert.doesNotMatch(result.stdout, /generated a random secret/);
 });
 
@@ -93,7 +94,10 @@ test("unreadable POSTGRES_PASSWORD_FILE fails before database startup", () => {
   });
 
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /POSTGRES_PASSWORD_FILE could not be read/);
+  assert.match(
+    result.stderr,
+    /POSTGRES_PASSWORD_FILE could not be read \(ENOENT\): \/missing\/postgres-password/,
+  );
 });
 
 test("an empty auth secret file fails instead of generating a random value", () => {

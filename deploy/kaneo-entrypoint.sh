@@ -5,22 +5,21 @@ urlencode() {
   node -e 'const input = process.argv[1]; process.stdout.write(encodeURIComponent(input).replace(/[!\x27()*]/g, (char) => `%${char.charCodeAt(0).toString(16).toUpperCase()}`));' -- "$1"
 }
 
-read_file_secret() {
+check_file_secret() {
   node -e '
     const fs = require("node:fs");
     const [name, file] = process.argv.slice(1);
     let value;
     try {
       value = fs.readFileSync(file, "utf8").replace(/(?:\r?\n)+$/, "");
-    } catch {
-      process.stderr.write(`ERROR: ${name} could not be read\n`);
+    } catch (error) {
+      process.stderr.write(`ERROR: ${name} could not be read (${error.code ?? "unknown"}): ${file}\n`);
       process.exit(1);
     }
     if (!value) {
-      process.stderr.write(`ERROR: ${name} points to an empty file\n`);
+      process.stderr.write(`ERROR: ${name} points to an empty file: ${file}\n`);
       process.exit(1);
     }
-    process.stdout.write(value);
   ' -- "$1" "$2"
 }
 
@@ -51,10 +50,6 @@ fi
 # This image requires either DATABASE_URL or POSTGRES_PASSWORD so startup
 # fails fast instead of silently falling back to localhost inside the container.
 if [ -z "${DATABASE_URL:-}" ]; then
-  if [ -z "${POSTGRES_PASSWORD:-}" ] && [ -n "${POSTGRES_PASSWORD_FILE:-}" ]; then
-    POSTGRES_PASSWORD="$(read_file_secret POSTGRES_PASSWORD_FILE "$POSTGRES_PASSWORD_FILE")"
-    export POSTGRES_PASSWORD
-  fi
   POSTGRES_DB="${POSTGRES_DB:-kaneo}"
   POSTGRES_USER="${POSTGRES_USER:-kaneo}"
   if [ -n "${POSTGRES_PASSWORD:-}" ]; then
@@ -62,6 +57,9 @@ if [ -z "${DATABASE_URL:-}" ]; then
     encoded_password="$(urlencode "$POSTGRES_PASSWORD")"
     export DATABASE_URL="postgresql://${encoded_user}:${encoded_password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DB}"
     echo "DATABASE_URL not set — derived from POSTGRES_* vars"
+  elif [ -n "${POSTGRES_PASSWORD_FILE:-}" ]; then
+    check_file_secret POSTGRES_PASSWORD_FILE "$POSTGRES_PASSWORD_FILE"
+    echo "DATABASE_URL not set — the API derives it from POSTGRES_* vars and POSTGRES_PASSWORD_FILE"
   else
     echo "ERROR: DATABASE_URL is not set and POSTGRES_PASSWORD is not set for bundled-image startup" >&2
     exit 1
@@ -69,13 +67,9 @@ if [ -z "${DATABASE_URL:-}" ]; then
 fi
 
 # Auto-generate AUTH_SECRET if not set
-if [ -z "${AUTH_SECRET:-}" ]; then
-  if [ -n "${AUTH_SECRET_FILE:-}" ]; then
-    AUTH_SECRET="$(read_file_secret AUTH_SECRET_FILE "$AUTH_SECRET_FILE")"
-    export AUTH_SECRET
-  fi
-fi
-if [ -z "${AUTH_SECRET:-}" ]; then
+if [ -z "${AUTH_SECRET:-}" ] && [ -n "${AUTH_SECRET_FILE:-}" ]; then
+  check_file_secret AUTH_SECRET_FILE "$AUTH_SECRET_FILE"
+elif [ -z "${AUTH_SECRET:-}" ]; then
   export AUTH_SECRET="$(node -e 'process.stdout.write(require("node:crypto").randomBytes(32).toString("hex"))')"
   echo "WARNING: AUTH_SECRET not set — generated a random secret for this session."
   echo "WARNING: Set AUTH_SECRET in your .env to persist sessions across restarts."
