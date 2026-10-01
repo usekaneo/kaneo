@@ -14,34 +14,34 @@ async function updateProject(
   workspaceId: string,
   canShare: boolean,
 ) {
-  const [existingProject] = await db
-    .select()
-    .from(projectTable)
-    .where(
-      and(eq(projectTable.id, id), eq(projectTable.workspaceId, workspaceId)),
+  return db.transaction(async (tx) => {
+    await tx.execute(
+      sql`SELECT pg_advisory_xact_lock(1524, hashtext(${workspaceId}))`,
     );
 
-  if (!existingProject) {
-    throw new HTTPException(404, {
-      message:
-        "Project doesn't exist or doesn't belong to the specified workspace",
-    });
-  }
+    const [existingProject] = await tx
+      .select()
+      .from(projectTable)
+      .where(
+        and(eq(projectTable.id, id), eq(projectTable.workspaceId, workspaceId)),
+      )
+      .for("update");
 
-  if (isPublic !== existingProject.isPublic && !canShare) {
-    throw new HTTPException(403, {
-      message:
-        "Changing project visibility requires the project:share permission",
-    });
-  }
+    if (!existingProject) {
+      throw new HTTPException(404, {
+        message:
+          "Project doesn't exist or doesn't belong to the specified workspace",
+      });
+    }
 
-  const keyChanged = slug.toLowerCase() !== existingProject.slug.toLowerCase();
+    if (isPublic !== existingProject.isPublic && !canShare) {
+      throw new HTTPException(403, {
+        message:
+          "Changing project visibility requires the project:share permission",
+      });
+    }
 
-  return db.transaction(async (tx) => {
-    if (keyChanged) {
-      await tx.execute(
-        sql`SELECT pg_advisory_xact_lock(1524, hashtext(${workspaceId}))`,
-      );
+    if (slug.toLowerCase() !== existingProject.slug.toLowerCase()) {
       const keyConflict = await findProjectKeyConflict(
         tx,
         workspaceId,
@@ -64,17 +64,8 @@ async function updateProject(
         description,
         isPublic,
       })
-      .where(
-        and(eq(projectTable.id, id), eq(projectTable.workspaceId, workspaceId)),
-      )
+      .where(eq(projectTable.id, id))
       .returning();
-
-    if (!updatedProject) {
-      throw new HTTPException(404, {
-        message:
-          "Project doesn't exist or doesn't belong to the specified workspace",
-      });
-    }
 
     return updatedProject;
   });

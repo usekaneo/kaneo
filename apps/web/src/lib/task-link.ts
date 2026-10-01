@@ -2,10 +2,11 @@ import { createSlug } from "@/lib/utils/create-slug";
 import { isReservedWorkspaceSlug } from "@/lib/utils/create-workspace-slug";
 
 const MAX_TITLE_SLUG_LENGTH = 60;
+const MAX_TICKET_ID_LENGTH = 128;
 
 type TaskPathInput = {
   workspaceId: string;
-  workspaceSlug?: string | null;
+  workspace?: { id: string; slug?: string | null } | null;
   projectId: string;
   workspaceProjects?: { id: string; slug: string }[];
   taskId: string;
@@ -30,13 +31,16 @@ function getUniqueProjectKey(
 
 export function getTaskPath({
   workspaceId,
-  workspaceSlug,
+  workspace,
   projectId,
   workspaceProjects = [],
   taskId,
   taskNumber,
   title,
 }: TaskPathInput) {
+  const fullPath = `/dashboard/workspace/${workspaceId}/project/${projectId}/task/${taskId}`;
+  const workspaceSlug =
+    workspace?.id === workspaceId ? workspace.slug : undefined;
   const projectKey = getUniqueProjectKey(workspaceProjects, projectId);
   if (
     !workspaceSlug ||
@@ -44,10 +48,13 @@ export function getTaskPath({
     !taskNumber ||
     isReservedWorkspaceSlug(workspaceSlug)
   ) {
-    return `/dashboard/workspace/${workspaceId}/project/${projectId}/task/${taskId}`;
+    return fullPath;
   }
 
-  const ticketId = `${projectKey}-${taskNumber}`.replace(
+  const rawTicketId = `${projectKey}-${taskNumber}`;
+  if (rawTicketId.length > MAX_TICKET_ID_LENGTH) return fullPath;
+
+  const ticketId = rawTicketId.replace(
     /[^\p{L}\p{N}\p{M}._~-]/gu,
     (character) => encodeURIComponent(character),
   );

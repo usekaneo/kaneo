@@ -134,7 +134,7 @@ export default function TaskPropertiesSidebar({
       generateLink(
         getTaskPath({
           workspaceId,
-          workspaceSlug: workspace?.slug,
+          workspace,
           projectId,
           workspaceProjects,
           taskId,

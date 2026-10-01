@@ -74,8 +74,9 @@ vi.mock("@/hooks/queries/workspace/use-active-workspace", () => ({
   default: () => ({ data: { slug: "acme" } }),
 }));
 
-vi.mock("@/hooks/queries/project/use-get-projects", () => ({
-  default: () => ({ data: [] }),
+vi.mock("@tanstack/react-query", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@tanstack/react-query")>()),
+  useQueryClient: () => ({ getQueryData: () => [] }),
 }));
 
 vi.mock("@/hooks/mutations/task/use-update-task", () => ({
