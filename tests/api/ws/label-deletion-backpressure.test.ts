@@ -124,9 +124,16 @@ describe("awaited label deletion broadcasts", () => {
 
 vi.mock("../../../apps/api/src/database", () => ({
   default: {
-    select: () => ({
+    select: (fields: Record<string, unknown>) => ({
       from: () => ({
-        where: () => ({ limit: async () => [{ workspaceId: "workspace" }] }),
+        where: () =>
+          fields.userId
+            ? Promise.resolve([
+                { userId: "observer" },
+                { userId: "initiator" },
+                { userId: "foreign" },
+              ])
+            : { limit: async () => [{ workspaceId: "workspace" }] },
       }),
     }),
   },

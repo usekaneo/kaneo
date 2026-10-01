@@ -25,6 +25,7 @@ describe("generateProjectSlug", () => {
 
   it("keeps digits and punctuation handling as they were", () => {
     expect(generateProjectSlug("Sprint 2")).toBe("S2");
+    expect(generateProjectSlug("123abc")).toBe("123");
     expect(generateProjectSlug("[Alpha] Beta Gamma")).toBe("ABG");
   });
 

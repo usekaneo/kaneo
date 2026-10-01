@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Layout, List } from "lucide-react";
-import { createElement, useEffect, useState } from "react";
+import { createElement, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
 import { CopyUrlButton } from "@/components/public-project/copy-url-button";
@@ -38,7 +38,19 @@ function RouteComponent() {
     return "kanban";
   });
 
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const selectedTask = useMemo(() => {
+    if (!selectedTaskId || !project) return null;
+    for (const column of project.columns) {
+      const task = column.tasks.find((task) => task.id === selectedTaskId);
+      if (task) return task;
+    }
+    return (
+      project.plannedTasks.find((task) => task.id === selectedTaskId) ??
+      project.archivedTasks.find((task) => task.id === selectedTaskId) ??
+      null
+    );
+  }, [project, selectedTaskId]);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
   useEffect(() => {
@@ -46,16 +58,16 @@ function RouteComponent() {
   }, [viewMode]);
 
   const handleTaskClick = (task: Task) => {
-    setSelectedTask(task);
+    setSelectedTaskId(task.id);
     setIsTaskModalOpen(true);
   };
 
   const handleTaskModalClose = () => {
     setIsTaskModalOpen(false);
-    setSelectedTask(null);
+    setSelectedTaskId(null);
   };
 
-  if (isLoading) {
+  if (isLoading && !project) {
     return <LoadingSkeleton />;
   }
 
@@ -142,7 +154,7 @@ function RouteComponent() {
           task={selectedTask}
           projectSlug={project.slug}
           columns={project.columns}
-          open={isTaskModalOpen}
+          open={isTaskModalOpen && !!selectedTask}
           onOpenChange={handleTaskModalClose}
         />
       </div>

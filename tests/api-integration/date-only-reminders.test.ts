@@ -8,7 +8,7 @@ import {
 } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { taskReminderSentTable } from "../../apps/api/src/database/schema";
-import createNotification from "../../apps/api/src/notification/controllers/create-notification";
+import { persistNotification as createNotification } from "../../apps/api/src/notification/controllers/create-notification";
 import { sendDueDateReminder } from "../../apps/api/src/plugins/generic-webhook/events";
 import { checkDueDateReminders } from "../../apps/api/src/scheduler/due-date-reminders";
 import { checkProjectWebhookReminders } from "../../apps/api/src/scheduler/project-webhook-reminders";
@@ -21,7 +21,10 @@ import {
 vi.mock(
   "../../apps/api/src/notification/controllers/create-notification",
   () => ({
-    default: vi.fn().mockResolvedValue(undefined),
+    persistNotification: vi
+      .fn()
+      .mockResolvedValue({ id: "synthetic-notification" }),
+    dispatchNotification: vi.fn().mockResolvedValue(undefined),
   }),
 );
 vi.mock("../../apps/api/src/plugins/generic-webhook/events", () => ({
@@ -135,6 +138,7 @@ describe("API integration: date-only reminders", () => {
             leadTimeMinutes: 840,
           }),
         }),
+        expect.any(Object),
       );
       expect(sendDueDateReminder).toHaveBeenCalledExactlyOnceWith(
         expect.any(Object),
@@ -165,6 +169,7 @@ describe("API integration: date-only reminders", () => {
         type: "task_overdue",
         resourceId: task.id,
       }),
+      expect.any(Object),
     );
   });
 
@@ -177,6 +182,7 @@ describe("API integration: date-only reminders", () => {
     await checkAllReminders();
     expect(createNotification).toHaveBeenCalledExactlyOnceWith(
       expect.objectContaining({ type: "due_date_reminder" }),
+      expect.any(Object),
     );
     expect(sendDueDateReminder).toHaveBeenCalledTimes(1);
   });

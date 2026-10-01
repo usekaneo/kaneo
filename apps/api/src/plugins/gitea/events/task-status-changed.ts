@@ -1,7 +1,5 @@
-import {
-  findExternalLinksByTask,
-  updateExternalLink,
-} from "../../github/services/link-manager";
+import { syncLatestTaskValue } from "../../github/services/sync-latest-task-value";
+import { findExternalLinksByTask } from "../../github/services/link-manager";
 import type { PluginContext, TaskStatusChangedEvent } from "../../types";
 import type { GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
@@ -39,30 +37,27 @@ export async function handleTaskStatusChanged(
       `status:${event.newStatus}`,
     ]);
 
-    if (event.newStatus === "done") {
-      await client.updateIssue(repositoryOwner, repositoryName, issueNumber, {
-        state: "closed",
-      });
-
-      await updateExternalLink(issueLink.id, {
-        metadata: {
-          ...(issueLink.metadata ? JSON.parse(issueLink.metadata) : {}),
-          state: "closed",
-          lastOutboundStateSyncAt: Date.now(),
+    if (event.newStatus === "done" || event.oldStatus === "done") {
+      await syncLatestTaskValue(
+        event.taskId,
+        event.projectId,
+        issueLink,
+        "state",
+        event.newStatus === "done" ? "closed" : "open",
+        async (value) => {
+          const response = await client.updateIssue(
+            repositoryOwner,
+            repositoryName,
+            issueNumber,
+            { state: value === "closed" ? "closed" : "open" },
+          );
+          return response?.updated_at;
         },
-      });
-    } else if (event.oldStatus === "done" && event.newStatus !== "done") {
-      await client.updateIssue(repositoryOwner, repositoryName, issueNumber, {
-        state: "open",
-      });
-
-      await updateExternalLink(issueLink.id, {
-        metadata: {
-          ...(issueLink.metadata ? JSON.parse(issueLink.metadata) : {}),
-          state: "open",
-          lastOutboundStateSyncAt: Date.now(),
-        },
-      });
+        async () =>
+          (await client.getIssue(repositoryOwner, repositoryName, issueNumber))
+            .state ?? "open",
+        { type: "gitea", config: JSON.stringify(config) },
+      );
     }
   } catch (error) {
     console.error("Failed to update Gitea issue status:", error);

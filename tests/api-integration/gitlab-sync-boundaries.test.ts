@@ -105,6 +105,26 @@ describe("GitLab import authorization", () => {
       });
     },
   );
+  it("links an imported merge request through its task link", async () => {
+    const { project, task, request } = await setup();
+    mocks.listMergeRequests.mockResolvedValueOnce([
+      {
+        iid: 7,
+        title: "Unrelated title",
+        description: `https://kaneo.example.com/dashboard/workspace/w/project/${project.id}/task/${task.id}`,
+        web_url: "https://gitlab.example/group/project/-/merge_requests/7",
+        state: "opened",
+        source_branch: "unrelated",
+      },
+    ]);
+    expect((await request()).status).toBe(200);
+    expect(
+      await db.query.externalLinkTable.findFirst({
+        where: eq(schema.externalLinkTable.resourceType, "pull_request"),
+      }),
+    ).toMatchObject({ taskId: task.id, externalId: "7" });
+  });
+
   it("allows a custom role with both permissions to refresh an existing task", async () => {
     const { task, request } = await setup();
     const response = await request();

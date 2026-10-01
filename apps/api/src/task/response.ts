@@ -37,6 +37,18 @@ export const taskSchema = z
 
 export const taskWithAssigneeSchema = taskSchema
   .extend({
+    subtaskCounts: z
+      .object({ completed: z.number(), total: z.number() })
+      .optional(),
+    parentSubtaskCounts: z
+      .array(
+        z.object({
+          taskId: z.string(),
+          completed: z.number(),
+          total: z.number(),
+        }),
+      )
+      .optional(),
     assigneeName: z.string().nullable(),
     assigneeId: z.string().nullable(),
   })
@@ -141,6 +153,14 @@ export const boardSchema = z
         relatedPage: z.number(),
         relatedPageSize: z.number(),
         relatedTotalPages: z.number(),
+        relatedRevision: z.string().optional().openapi({
+          description:
+            "Public board labels and external links revision for this task page. Restart pagination if it changes during related-page continuations.",
+        }),
+        revision: z.string().optional().openapi({
+          description:
+            "Public board content, membership and ordering revision, including related records and visible subtask progress. Restart pagination if it changes between task or related pages.",
+        }),
       })
       .openapi({
         description:

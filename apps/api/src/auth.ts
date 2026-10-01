@@ -1,3 +1,4 @@
+import { revokeUserConnections, revokeWorkspaceConnections } from "./ws";
 import { apiKey } from "@better-auth/api-key";
 import {
   isSmtpConfigured,
@@ -61,7 +62,10 @@ import { getDefaultCookieAttributes } from "./utils/get-default-cookie-attribute
 import { getInvitationEmailSubject } from "./utils/get-invitation-email-subject";
 import { getWorkspaceInvitationEmailCopy } from "./utils/get-workspace-invitation-email-copy";
 import { getGithubSsoOAuthCredentials } from "./utils/github-sso-env";
-import { hasInstanceAdminRole } from "./utils/instance-admin-role";
+import {
+  hasInstanceAdminRole,
+  instanceAdminRoleSql,
+} from "./utils/instance-admin-role";
 import {
   hasRegisteredUsers,
   promoteInitialAdministrator,
@@ -206,6 +210,8 @@ function getDeviceAuthVerificationUri(): string {
   const base = clientUrl.replace(/\/$/, "");
   return `${base}/device`;
 }
+
+const deletedWorkspaceMembers = new WeakMap<object, string[]>();
 
 export const auth = betterAuth({
   baseURL: baseURLWithoutPath,
@@ -484,7 +490,7 @@ export const auth = betterAuth({
             ownerId: user.id,
           });
         },
-        beforeDeleteOrganization: async ({ organization }) => {
+        beforeDeleteOrganization: async ({ organization }, ctx) => {
           const billable = await findBillableWorkspaces([organization.id]);
           if (billable.length > 0) {
             throw new APIError("CONFLICT", {
@@ -493,6 +499,36 @@ export const auth = betterAuth({
               ),
             });
           }
+          if (ctx) {
+            const members = await db
+              .select({ userId: schema.workspaceUserTable.userId })
+              .from(schema.workspaceUserTable)
+              .where(
+                eq(schema.workspaceUserTable.workspaceId, organization.id),
+              );
+            const admins = await db
+              .select({ userId: schema.userTable.id })
+              .from(schema.userTable)
+              .where(instanceAdminRoleSql(schema.userTable.role));
+            deletedWorkspaceMembers.set(ctx.context, [
+              ...new Set(
+                [...members, ...admins].map((member) => member.userId),
+              ),
+            ]);
+          }
+        },
+        afterDeleteOrganization: async ({ organization }, ctx) => {
+          const userIds = ctx
+            ? (deletedWorkspaceMembers.get(ctx.context) ?? [])
+            : [];
+          if (ctx) deletedWorkspaceMembers.delete(ctx.context);
+          await Promise.all(
+            userIds.map((userId) =>
+              revokeWorkspaceConnections(userId, organization.id, {
+                force: true,
+              }),
+            ),
+          );
         },
         afterAddMember: async ({ member }) => {
           if (member?.organizationId) {
@@ -501,8 +537,15 @@ export const auth = betterAuth({
             });
           }
         },
-        afterRemoveMember: async ({ member }) => {
+        afterRemoveMember: async ({ member, user }) => {
           if (member?.organizationId) {
+            if (!hasInstanceAdminRole(user.role)) {
+              await revokeWorkspaceConnections(
+                member.userId,
+                member.organizationId,
+                { role: user.role ?? null },
+              );
+            }
             void syncWorkspaceSeats(member.organizationId).catch((error) => {
               console.error("Seat sync after member remove failed:", error);
             });
@@ -604,6 +647,19 @@ export const auth = betterAuth({
   },
   databaseHooks: {
     user: {
+      delete: {
+        after: async (user, ctx) => {
+          // Anonymous linking deletes the old identity after issuing a new
+          // session. The replacement account must retain its authentication.
+          if (
+            (user as Partial<UserWithAnonymous>).isAnonymous &&
+            ctx?.context.newSession &&
+            ctx.context.newSession.user.id !== user.id
+          )
+            return;
+          await revokeUserConnections(user.id);
+        },
+      },
       update: {
         before: async (user, ctx) => {
           if (
@@ -780,6 +836,27 @@ export const auth = betterAuth({
       }
     }),
     after: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === "/organization/leave") {
+        // The successful endpoint returns the removed member. No post-delete
+        // query may prevent revocation after membership has already committed.
+        const removed = ctx.context.returned as
+          | { userId?: string; organizationId?: string }
+          | undefined;
+        if (
+          typeof removed?.userId === "string" &&
+          typeof removed.organizationId === "string" &&
+          removed.organizationId === ctx.body?.organizationId
+        ) {
+          await revokeWorkspaceConnections(
+            removed.userId,
+            removed.organizationId,
+            {
+              role: ctx.context.session?.user.role ?? null,
+            },
+          );
+        }
+      }
+
       if (ctx.path.startsWith("/sign-up") || ctx.path.startsWith("/sign-in")) {
         const newSession = ctx.context.newSession;
         if (newSession) {
