@@ -22,6 +22,9 @@ export const ticketIdQuery = z.object({
   workspaceId: z.string().min(1).optional().openapi({
     description: "Select a workspace if the ticket ID exists in more than one.",
   }),
+  workspaceSlug: z.string().min(1).max(128).optional().openapi({
+    description: "Select a workspace by its slug instead of its ID.",
+  }),
   projectId: z.string().min(1).optional().openapi({
     description: "Select a project if the ticket ID exists more than once.",
   }),

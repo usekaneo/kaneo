@@ -2183,8 +2183,8 @@
 			"taskNotFound": "Talep bulunamadı",
 			"taskNotFoundDescription": "Aradığınız talep mevcut değil veya silinmiş.",
 			"ticketAmbiguous": "Talep kimliği birden fazla talep ile eşleşiyor",
-			"ticketAmbiguousDescription": "{{ticketId}} birden fazla çalışma alanınızdaki taleplerle eşleşiyor. İstediğiniz çalışma alanına geçin ve bağlantıyı yeniden açın.",
-			"ticketNotFoundDescription": "Çalışma alanlarınızda {{ticketId}} kimliğine sahip bir talep yok veya bu talebe erişiminiz yok.",
+			"ticketAmbiguousDescription": "{{ticketId}} bu çalışma alanındaki birden fazla projedeki taleplerle eşleşiyor. Bağlantının çalışması için bu projelerden birine farklı bir anahtar verin.",
+			"ticketNotFoundDescription": "Bu çalışma alanında {{ticketId}} kimliğine sahip bir talep yok veya bu talebe erişiminiz yok.",
 			"customFields": "Custom Fields"
 		},
 		"detail": {

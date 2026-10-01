@@ -5,6 +5,7 @@ import {
   projectTable,
   taskTable,
   userTable,
+  workspaceTable,
   workspaceUserTable,
 } from "../../database/schema";
 import { escapeLikePattern } from "../../search/like-pattern";
@@ -15,8 +16,11 @@ import getTask from "./get-task";
 export default async function getTaskByTicketId(
   ticketId: string,
   userId: string,
-  workspaceId?: string,
-  projectId?: string,
+  {
+    workspaceId,
+    workspaceSlug,
+    projectId,
+  }: { workspaceId?: string; workspaceSlug?: string; projectId?: string } = {},
 ) {
   const match = ticketId.normalize("NFKC").match(TASK_SHORT_ID_PATTERN);
   const number = Number(match?.[2]);
@@ -49,6 +53,15 @@ export default async function getTaskByTicketId(
         ilike(projectTable.slug, escapeLikePattern(match[1])),
         eq(taskTable.number, number),
         workspaceId ? eq(projectTable.workspaceId, workspaceId) : undefined,
+        workspaceSlug
+          ? inArray(
+              projectTable.workspaceId,
+              db
+                .select({ id: workspaceTable.id })
+                .from(workspaceTable)
+                .where(eq(workspaceTable.slug, workspaceSlug)),
+            )
+          : undefined,
         projectId ? eq(projectTable.id, projectId) : undefined,
         hasInstanceAdminRole(user?.role)
           ? undefined

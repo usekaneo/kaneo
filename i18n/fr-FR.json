@@ -2194,8 +2194,8 @@
 			"taskNotFound": "Tâche non trouvée",
 			"taskNotFoundDescription": "La tâche que vous recherchez n'existe pas ou a été supprimée.",
 			"ticketAmbiguous": "Cet identifiant correspond à plusieurs tâches",
-			"ticketAmbiguousDescription": "{{ticketId}} correspond à des tâches dans plusieurs de vos espaces de travail. Passez à l'espace de travail souhaité, puis rouvrez le lien.",
-			"ticketNotFoundDescription": "Aucune tâche avec l'identifiant {{ticketId}} n'existe dans vos espaces de travail, ou vous n'y avez pas accès.",
+			"ticketAmbiguousDescription": "{{ticketId}} correspond à des tâches dans plusieurs projets de cet espace de travail. Attribuez une clé différente à l'un de ces projets pour que le lien fonctionne.",
+			"ticketNotFoundDescription": "Aucune tâche avec l'identifiant {{ticketId}} n'existe dans cet espace de travail, ou vous n'y avez pas accès.",
 			"customFields": "Custom Fields"
 		},
 		"detail": {

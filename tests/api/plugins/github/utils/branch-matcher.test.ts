@@ -195,6 +195,14 @@ describe("extractTaskNumberFromPRBody", () => {
   });
 
   it.each([
+    "https://kaneo.example.com/acme/task/KAN-42",
+    "https://kaneo.example.com/acme/task/KAN-42/fix-kan-7-login",
+    "[Task](https://kaneo.example.com/acme/task/kan-42/fix-login)",
+  ])("recognizes the short task link %s", (body) => {
+    expect(extractTaskNumberFromPRBody(body, "KAN")).toBe(42);
+  });
+
+  it.each([
     "Closes #61",
     "Fixes #61",
     "Resolves #61",

@@ -21,6 +21,7 @@ import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-stat
 import { useUpdateTaskPriority } from "@/hooks/mutations/task/use-update-task-status-priority";
 import { useUpdateTaskTitle } from "@/hooks/mutations/task/use-update-task-title";
 import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
@@ -28,6 +29,7 @@ import { generateLink } from "@/lib/generate-link";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
+import { getTaskPath } from "@/lib/task-link";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
@@ -50,6 +52,7 @@ export default function TaskCardContextMenuContent({
 }: TaskCardContextMenuContentProps) {
   const { t } = useTranslation();
   const { project } = useProjectStore();
+  const { data: workspace } = useActiveWorkspace();
   const { data: columnsData = [] } = useGetColumns(taskCardContext.projectId);
   const columns =
     project?.columns && project.columns.length > 0
@@ -93,7 +96,16 @@ export default function TaskCardContextMenuContent({
   }, [workspaceUsers]);
 
   const handleCopyTaskLink = () => {
-    const path = `/dashboard/workspace/${taskCardContext.worskpaceId}/project/${taskCardContext.projectId}/task/${task.id}`;
+    const path = getTaskPath({
+      workspaceId: taskCardContext.worskpaceId,
+      workspaceSlug: workspace?.slug,
+      projectId: taskCardContext.projectId,
+      projectSlug:
+        project?.id === taskCardContext.projectId ? project.slug : undefined,
+      taskId: task.id,
+      taskNumber: task.number,
+      title: task.title,
+    });
     const taskLink = generateLink(path);
 
     navigator.clipboard.writeText(taskLink);

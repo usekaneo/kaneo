@@ -63,6 +63,10 @@ describe("API integration: task ticket ID lookup", () => {
       `/api/task/by-ticket-id/DE_-23?workspaceId=${outsider.workspace.id}`,
     );
     expect(privateSelection.status).toBe(404);
+    const privateSlug = await app.request(
+      `/api/task/by-ticket-id/DE_-23?workspaceSlug=${outsider.workspace.slug}`,
+    );
+    expect(privateSlug.status).toBe(404);
   });
 
   it("disambiguates accessible tasks by workspace or project", async () => {
@@ -115,6 +119,16 @@ describe("API integration: task ticket ID lookup", () => {
       title: "Second",
       workspaceId: other.workspace.id,
     });
+
+    const bySlug = await app.request(
+      `/api/task/by-ticket-id/KAN-12?workspaceSlug=${other.workspace.slug}`,
+    );
+    expect(bySlug.status).toBe(200);
+    expect(await bySlug.json()).toMatchObject({ title: "Second" });
+    const unknownSlug = await app.request(
+      "/api/task/by-ticket-id/KAN-12?workspaceSlug=no-such-workspace",
+    );
+    expect(unknownSlug.status).toBe(404);
   });
 
   it("accepts a ticket ID generated from a numeric-leading project name", async () => {

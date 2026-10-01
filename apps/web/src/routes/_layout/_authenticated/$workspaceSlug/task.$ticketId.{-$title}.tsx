@@ -9,41 +9,38 @@ import {
   isUnauthorizedError,
 } from "@/lib/http-error";
 
-export const Route = createFileRoute("/_layout/_authenticated/tasks/$ticketId")(
-  {
-    loader: async ({ params, context }) => {
-      let task: Awaited<ReturnType<typeof getTaskByTicketId>>;
-      try {
-        task = await getTaskByTicketId(
-          params.ticketId,
-          context.session?.session?.activeOrganizationId,
-        );
-      } catch (error) {
-        if (isUnauthorizedError(error)) {
-          handleUnauthorized();
-          return;
-        }
-        if (!(error instanceof HttpError)) throw error;
-        if (error.status === 409) return { failure: "ambiguous" as const };
-        if (error.status === 400 || error.status === 404) {
-          return { failure: "notFound" as const };
-        }
-        throw error;
+export const Route = createFileRoute(
+  "/_layout/_authenticated/$workspaceSlug/task/$ticketId/{-$title}",
+)({
+  loader: async ({ params }) => {
+    let task: Awaited<ReturnType<typeof getTaskByTicketId>>;
+    try {
+      task = await getTaskByTicketId(params.ticketId, params.workspaceSlug);
+    } catch (error) {
+      if (isUnauthorizedError(error)) {
+        handleUnauthorized();
+        return;
       }
+      if (!(error instanceof HttpError)) throw error;
+      if (error.status === 409) return { failure: "ambiguous" as const };
+      if (error.status === 400 || error.status === 404) {
+        return { failure: "notFound" as const };
+      }
+      throw error;
+    }
 
-      throw redirect({
-        to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
-        params: {
-          workspaceId: task.workspaceId,
-          projectId: task.projectId,
-          taskId: task.id,
-        },
-        replace: true,
-      });
-    },
-    component: RouteComponent,
+    throw redirect({
+      to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
+      params: {
+        workspaceId: task.workspaceId,
+        projectId: task.projectId,
+        taskId: task.id,
+      },
+      replace: true,
+    });
   },
-);
+  component: RouteComponent,
+});
 
 function RouteComponent() {
   const { t } = useTranslation();

@@ -2184,8 +2184,8 @@
 			"taskNotFound": "Task not found",
 			"taskNotFoundDescription": "The task you are looking for does not exist or has been deleted.",
 			"ticketAmbiguous": "Task ID matches more than one task",
-			"ticketAmbiguousDescription": "{{ticketId}} matches tasks in more than one of your workspaces. Switch to the workspace you want, then open the link again.",
-			"ticketNotFoundDescription": "No task with the ID {{ticketId}} exists in your workspaces, or you don't have access to it.",
+			"ticketAmbiguousDescription": "{{ticketId}} matches tasks in more than one project in this workspace. Give one of those projects a different key to fix the link.",
+			"ticketNotFoundDescription": "No task with the ID {{ticketId}} exists in this workspace, or you don't have access to it.",
 			"customFields": "Custom Fields"
 		},
 		"detail": {

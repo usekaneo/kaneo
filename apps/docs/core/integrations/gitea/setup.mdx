@@ -47,17 +47,17 @@ Choose your branch naming pattern in the integration settings. In the project’
 
 ## Link task IDs to Kaneo
 
-Every task opens at a short URL built from its ticket ID, such as `https://kaneo.example.com/tasks/KAN-12`. Kaneo finds the task among the signed-in user’s workspaces and redirects to it. When the same ID exists in more than one of their workspaces, the active workspace wins.
+Every task has a short link built from its workspace and ticket ID, such as `https://kaneo.example.com/acme/task/KAN-12/fix-login-timeout`. The title at the end is optional and ignored, so `https://kaneo.example.com/acme/task/KAN-12` opens the same task. **Copy link** on a task gives you this link, which shows your workspace’s part of the path.
 
 To turn references such as `KAN-12` in Gitea commits and pull requests into links, open the repository’s **Settings**, enable **Use External Issue Tracker**, and set:
 
 | Gitea setting | Value |
 | --- | --- |
 | External Issue Tracker URL | `https://kaneo.example.com` |
-| External Issue Tracker URL Format | `https://kaneo.example.com/tasks/{index}` |
+| External Issue Tracker URL Format | `https://kaneo.example.com/acme/task/{index}`, with your workspace in place of `acme` |
 | External Issue Tracker Number Format | Alphanumeric |
 
-The alphanumeric format only matches keys of one to ten uppercase letters. For keys with digits or other characters, choose **Regular Expression** and capture the whole ticket ID, for example `([A-Z0-9]+-\d+)`.
+The alphanumeric format only matches keys of one to ten uppercase letters. For any other key, choose **Regular Expression** and match your project’s key exactly, such as `(DE_-\d+)` or `(ПРО-\d+)`. To link several projects, list their keys: `((?:KAN|OPS)-\d+)`.
 
 ## Replace a token or disconnect
 

@@ -2172,8 +2172,8 @@
 			"taskNotFound": "タスクが見つかりません",
 			"taskNotFoundDescription": "お探しのタスクは存在しないか、削除されました。",
 			"ticketAmbiguous": "このタスクIDは複数のタスクに一致します",
-			"ticketAmbiguousDescription": "{{ticketId}} は複数のワークスペースのタスクに一致します。目的のワークスペースに切り替えてから、もう一度リンクを開いてください。",
-			"ticketNotFoundDescription": "ワークスペースに ID が {{ticketId}} のタスクが存在しないか、アクセス権がありません。",
+			"ticketAmbiguousDescription": "{{ticketId}} はこのワークスペース内の複数のプロジェクトのタスクに一致します。リンクを機能させるには、いずれかのプロジェクトのキーを変更してください。",
+			"ticketNotFoundDescription": "このワークスペースに ID が {{ticketId}} のタスクが存在しないか、アクセス権がありません。",
 			"customFields": "Custom Fields"
 		},
 		"detail": {

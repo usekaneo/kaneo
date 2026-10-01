@@ -342,7 +342,7 @@ const getTaskByTicketIdRoute = createRoute({
   tags: ["Tasks"],
   summary: "Get task by ticket ID",
   description:
-    "Get a single task by its project key and number, such as KAN-12. If the ticket ID matches multiple accessible tasks, provide workspaceId or projectId to select one.",
+    "Get a single task by its project key and number, such as KAN-12. If the ticket ID matches multiple accessible tasks, provide workspaceId, workspaceSlug, or projectId to select one.",
   request: { params: ticketIdParam, query: ticketIdQuery },
   responses: {
     200: jsonResponse("Task details", taskByTicketIdSchema),
@@ -892,14 +892,8 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
   })
   .openapi(getTaskByTicketIdRoute, async (c) => {
     const { ticketId } = c.req.valid("param");
-    const { workspaceId, projectId } = c.req.valid("query");
     return c.json(
-      await getTaskByTicketId(
-        ticketId,
-        c.get("userId"),
-        workspaceId,
-        projectId,
-      ),
+      await getTaskByTicketId(ticketId, c.get("userId"), c.req.valid("query")),
       200,
     );
   })

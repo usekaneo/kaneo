@@ -2194,8 +2194,8 @@
 			"taskNotFound": "Tarea no encontrada",
 			"taskNotFoundDescription": "La tarea que buscas no existe o ha sido eliminada.",
 			"ticketAmbiguous": "El ID coincide con más de una tarea",
-			"ticketAmbiguousDescription": "{{ticketId}} coincide con tareas en más de uno de tus espacios de trabajo. Cambia al espacio de trabajo que quieras y vuelve a abrir el enlace.",
-			"ticketNotFoundDescription": "No existe ninguna tarea con el ID {{ticketId}} en tus espacios de trabajo, o no tienes acceso a ella.",
+			"ticketAmbiguousDescription": "{{ticketId}} coincide con tareas de más de un proyecto en este espacio de trabajo. Asigna una clave diferente a uno de esos proyectos para que el enlace funcione.",
+			"ticketNotFoundDescription": "No existe ninguna tarea con el ID {{ticketId}} en este espacio de trabajo, o no tienes acceso a ella.",
 			"customFields": "Custom Fields"
 		},
 		"detail": {

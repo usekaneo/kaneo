@@ -33,13 +33,13 @@ import { Route as InvitationAcceptInviteIdRouteImport } from './routes/invitatio
 import { Route as LayoutAuthenticatedDashboardIndexRouteImport } from './routes/_layout/_authenticated/dashboard/index'
 import { Route as LayoutAuthenticatedDashboardInvitationsRouteImport } from './routes/_layout/_authenticated/dashboard/invitations'
 import { Route as LayoutAuthenticatedDashboardSettingsRouteImport } from './routes/_layout/_authenticated/dashboard/settings'
-import { Route as LayoutAuthenticatedTasksTicketIdRouteImport } from './routes/_layout/_authenticated/tasks/$ticketId'
 import { Route as LayoutAuthenticatedDashboardSettingsAccountRouteImport } from './routes/_layout/_authenticated/dashboard/settings/account'
 import { Route as LayoutAuthenticatedDashboardSettingsAdminRouteImport } from './routes/_layout/_authenticated/dashboard/settings/admin'
 import { Route as LayoutAuthenticatedDashboardSettingsProjectsRouteImport } from './routes/_layout/_authenticated/dashboard/settings/projects'
 import { Route as LayoutAuthenticatedDashboardSettingsWorkspaceRouteImport } from './routes/_layout/_authenticated/dashboard/settings/workspace'
 import { Route as LayoutAuthenticatedDashboardWorkspaceWorkspaceIdRouteImport } from './routes/_layout/_authenticated/dashboard/workspace/$workspaceId'
 import { Route as LayoutAuthenticatedDashboardWorkspaceCreateRouteImport } from './routes/_layout/_authenticated/dashboard/workspace/create'
+import { Route as LayoutAuthenticatedWorkspaceSlugTaskTicketIdChar123TitleChar125RouteImport } from './routes/_layout/_authenticated/$workspaceSlug/task.$ticketId.{-$title}'
 import { Route as LayoutAuthenticatedDashboardSettingsAccountDeveloperRouteImport } from './routes/_layout/_authenticated/dashboard/settings/account/developer'
 import { Route as LayoutAuthenticatedDashboardSettingsAccountInformationRouteImport } from './routes/_layout/_authenticated/dashboard/settings/account/information'
 import { Route as LayoutAuthenticatedDashboardSettingsAccountNotificationsRouteImport } from './routes/_layout/_authenticated/dashboard/settings/account/notifications'
@@ -191,12 +191,6 @@ const LayoutAuthenticatedDashboardSettingsRoute =
     path: '/settings',
     getParentRoute: () => LayoutAuthenticatedDashboardRoute,
   } as any)
-const LayoutAuthenticatedTasksTicketIdRoute =
-  LayoutAuthenticatedTasksTicketIdRouteImport.update({
-    id: '/tasks/$ticketId',
-    path: '/tasks/$ticketId',
-    getParentRoute: () => LayoutAuthenticatedRoute,
-  } as any)
 const LayoutAuthenticatedDashboardSettingsAccountRoute =
   LayoutAuthenticatedDashboardSettingsAccountRouteImport.update({
     id: '/account',
@@ -233,6 +227,14 @@ const LayoutAuthenticatedDashboardWorkspaceCreateRoute =
     path: '/workspace/create',
     getParentRoute: () => LayoutAuthenticatedDashboardRoute,
   } as any)
+const LayoutAuthenticatedWorkspaceSlugTaskTicketIdChar123TitleChar125Route =
+  LayoutAuthenticatedWorkspaceSlugTaskTicketIdChar123TitleChar125RouteImport.update(
+    {
+      id: '/$workspaceSlug/task/$ticketId/{-$title}',
+      path: '/$workspaceSlug/task/$ticketId/{-$title}',
+      getParentRoute: () => LayoutAuthenticatedRoute,
+    } as any,
+  )
 const LayoutAuthenticatedDashboardSettingsAccountDeveloperRoute =
   LayoutAuthenticatedDashboardSettingsAccountDeveloperRouteImport.update({
     id: '/developer',
@@ -428,7 +430,6 @@ export interface FileRoutesByFullPath {
   '/invitation/accept/$inviteId': typeof InvitationAcceptInviteIdRoute
   '/dashboard/invitations': typeof LayoutAuthenticatedDashboardInvitationsRoute
   '/dashboard/settings': typeof LayoutAuthenticatedDashboardSettingsRouteWithChildren
-  '/tasks/$ticketId': typeof LayoutAuthenticatedTasksTicketIdRoute
   '/dashboard/': typeof LayoutAuthenticatedDashboardIndexRoute
   '/dashboard/settings/account': typeof LayoutAuthenticatedDashboardSettingsAccountRouteWithChildren
   '/dashboard/settings/admin': typeof LayoutAuthenticatedDashboardSettingsAdminRouteWithChildren
@@ -436,6 +437,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/settings/workspace': typeof LayoutAuthenticatedDashboardSettingsWorkspaceRouteWithChildren
   '/dashboard/workspace/$workspaceId': typeof LayoutAuthenticatedDashboardWorkspaceWorkspaceIdRouteWithChildren
   '/dashboard/workspace/create': typeof LayoutAuthenticatedDashboardWorkspaceCreateRoute
+  '/$workspaceSlug/task/$ticketId/{-$title}': typeof LayoutAuthenticatedWorkspaceSlugTaskTicketIdChar123TitleChar125Route
   '/dashboard/settings/account/developer': typeof LayoutAuthenticatedDashboardSettingsAccountDeveloperRoute
   '/dashboard/settings/account/information': typeof LayoutAuthenticatedDashboardSettingsAccountInformationRoute
   '/dashboard/settings/account/notifications': typeof LayoutAuthenticatedDashboardSettingsAccountNotificationsRoute
@@ -481,13 +483,13 @@ export interface FileRoutesByTo {
   '/invitation/accept/$inviteId': typeof InvitationAcceptInviteIdRoute
   '/dashboard/invitations': typeof LayoutAuthenticatedDashboardInvitationsRoute
   '/dashboard/settings': typeof LayoutAuthenticatedDashboardSettingsRouteWithChildren
-  '/tasks/$ticketId': typeof LayoutAuthenticatedTasksTicketIdRoute
   '/dashboard': typeof LayoutAuthenticatedDashboardIndexRoute
   '/dashboard/settings/account': typeof LayoutAuthenticatedDashboardSettingsAccountRouteWithChildren
   '/dashboard/settings/admin': typeof LayoutAuthenticatedDashboardSettingsAdminRouteWithChildren
   '/dashboard/settings/projects': typeof LayoutAuthenticatedDashboardSettingsProjectsRouteWithChildren
   '/dashboard/settings/workspace': typeof LayoutAuthenticatedDashboardSettingsWorkspaceRouteWithChildren
   '/dashboard/workspace/create': typeof LayoutAuthenticatedDashboardWorkspaceCreateRoute
+  '/$workspaceSlug/task/$ticketId/{-$title}': typeof LayoutAuthenticatedWorkspaceSlugTaskTicketIdChar123TitleChar125Route
   '/dashboard/settings/account/developer': typeof LayoutAuthenticatedDashboardSettingsAccountDeveloperRoute
   '/dashboard/settings/account/information': typeof LayoutAuthenticatedDashboardSettingsAccountInformationRoute
   '/dashboard/settings/account/notifications': typeof LayoutAuthenticatedDashboardSettingsAccountNotificationsRoute
@@ -538,7 +540,6 @@ export interface FileRoutesById {
   '/invitation/accept/$inviteId': typeof InvitationAcceptInviteIdRoute
   '/_layout/_authenticated/dashboard/invitations': typeof LayoutAuthenticatedDashboardInvitationsRoute
   '/_layout/_authenticated/dashboard/settings': typeof LayoutAuthenticatedDashboardSettingsRouteWithChildren
-  '/_layout/_authenticated/tasks/$ticketId': typeof LayoutAuthenticatedTasksTicketIdRoute
   '/_layout/_authenticated/dashboard/': typeof LayoutAuthenticatedDashboardIndexRoute
   '/_layout/_authenticated/dashboard/settings/account': typeof LayoutAuthenticatedDashboardSettingsAccountRouteWithChildren
   '/_layout/_authenticated/dashboard/settings/admin': typeof LayoutAuthenticatedDashboardSettingsAdminRouteWithChildren
@@ -546,6 +547,7 @@ export interface FileRoutesById {
   '/_layout/_authenticated/dashboard/settings/workspace': typeof LayoutAuthenticatedDashboardSettingsWorkspaceRouteWithChildren
   '/_layout/_authenticated/dashboard/workspace/$workspaceId': typeof LayoutAuthenticatedDashboardWorkspaceWorkspaceIdRouteWithChildren
   '/_layout/_authenticated/dashboard/workspace/create': typeof LayoutAuthenticatedDashboardWorkspaceCreateRoute
+  '/_layout/_authenticated/$workspaceSlug/task/$ticketId/{-$title}': typeof LayoutAuthenticatedWorkspaceSlugTaskTicketIdChar123TitleChar125Route
   '/_layout/_authenticated/dashboard/settings/account/developer': typeof LayoutAuthenticatedDashboardSettingsAccountDeveloperRoute
   '/_layout/_authenticated/dashboard/settings/account/information': typeof LayoutAuthenticatedDashboardSettingsAccountInformationRoute
   '/_layout/_authenticated/dashboard/settings/account/notifications': typeof LayoutAuthenticatedDashboardSettingsAccountNotificationsRoute
@@ -595,7 +597,6 @@ export interface FileRouteTypes {
     | '/invitation/accept/$inviteId'
     | '/dashboard/invitations'
     | '/dashboard/settings'
-    | '/tasks/$ticketId'
     | '/dashboard/'
     | '/dashboard/settings/account'
     | '/dashboard/settings/admin'
@@ -603,6 +604,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings/workspace'
     | '/dashboard/workspace/$workspaceId'
     | '/dashboard/workspace/create'
+    | '/$workspaceSlug/task/$ticketId/{-$title}'
     | '/dashboard/settings/account/developer'
     | '/dashboard/settings/account/information'
     | '/dashboard/settings/account/notifications'
@@ -648,13 +650,13 @@ export interface FileRouteTypes {
     | '/invitation/accept/$inviteId'
     | '/dashboard/invitations'
     | '/dashboard/settings'
-    | '/tasks/$ticketId'
     | '/dashboard'
     | '/dashboard/settings/account'
     | '/dashboard/settings/admin'
     | '/dashboard/settings/projects'
     | '/dashboard/settings/workspace'
     | '/dashboard/workspace/create'
+    | '/$workspaceSlug/task/$ticketId/{-$title}'
     | '/dashboard/settings/account/developer'
     | '/dashboard/settings/account/information'
     | '/dashboard/settings/account/notifications'
@@ -704,7 +706,6 @@ export interface FileRouteTypes {
     | '/invitation/accept/$inviteId'
     | '/_layout/_authenticated/dashboard/invitations'
     | '/_layout/_authenticated/dashboard/settings'
-    | '/_layout/_authenticated/tasks/$ticketId'
     | '/_layout/_authenticated/dashboard/'
     | '/_layout/_authenticated/dashboard/settings/account'
     | '/_layout/_authenticated/dashboard/settings/admin'
@@ -712,6 +713,7 @@ export interface FileRouteTypes {
     | '/_layout/_authenticated/dashboard/settings/workspace'
     | '/_layout/_authenticated/dashboard/workspace/$workspaceId'
     | '/_layout/_authenticated/dashboard/workspace/create'
+    | '/_layout/_authenticated/$workspaceSlug/task/$ticketId/{-$title}'
     | '/_layout/_authenticated/dashboard/settings/account/developer'
     | '/_layout/_authenticated/dashboard/settings/account/information'
     | '/_layout/_authenticated/dashboard/settings/account/notifications'
@@ -919,13 +921,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutAuthenticatedDashboardSettingsRouteImport
       parentRoute: typeof LayoutAuthenticatedDashboardRoute
     }
-    '/_layout/_authenticated/tasks/$ticketId': {
-      id: '/_layout/_authenticated/tasks/$ticketId'
-      path: '/tasks/$ticketId'
-      fullPath: '/tasks/$ticketId'
-      preLoaderRoute: typeof LayoutAuthenticatedTasksTicketIdRouteImport
-      parentRoute: typeof LayoutAuthenticatedRoute
-    }
     '/_layout/_authenticated/dashboard/settings/account': {
       id: '/_layout/_authenticated/dashboard/settings/account'
       path: '/account'
@@ -967,6 +962,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/workspace/create'
       preLoaderRoute: typeof LayoutAuthenticatedDashboardWorkspaceCreateRouteImport
       parentRoute: typeof LayoutAuthenticatedDashboardRoute
+    }
+    '/_layout/_authenticated/$workspaceSlug/task/$ticketId/{-$title}': {
+      id: '/_layout/_authenticated/$workspaceSlug/task/$ticketId/{-$title}'
+      path: '/$workspaceSlug/task/$ticketId/{-$title}'
+      fullPath: '/$workspaceSlug/task/$ticketId/{-$title}'
+      preLoaderRoute: typeof LayoutAuthenticatedWorkspaceSlugTaskTicketIdChar123TitleChar125RouteImport
+      parentRoute: typeof LayoutAuthenticatedRoute
     }
     '/_layout/_authenticated/dashboard/settings/account/developer': {
       id: '/_layout/_authenticated/dashboard/settings/account/developer'
@@ -1327,7 +1329,7 @@ interface LayoutAuthenticatedRouteChildren {
   LayoutAuthenticatedInvitationsRoute: typeof LayoutAuthenticatedInvitationsRoute
   LayoutAuthenticatedOnboardingRoute: typeof LayoutAuthenticatedOnboardingRoute
   LayoutAuthenticatedProfileSetupRoute: typeof LayoutAuthenticatedProfileSetupRoute
-  LayoutAuthenticatedTasksTicketIdRoute: typeof LayoutAuthenticatedTasksTicketIdRoute
+  LayoutAuthenticatedWorkspaceSlugTaskTicketIdChar123TitleChar125Route: typeof LayoutAuthenticatedWorkspaceSlugTaskTicketIdChar123TitleChar125Route
 }
 
 const LayoutAuthenticatedRouteChildren: LayoutAuthenticatedRouteChildren = {
@@ -1336,7 +1338,8 @@ const LayoutAuthenticatedRouteChildren: LayoutAuthenticatedRouteChildren = {
   LayoutAuthenticatedInvitationsRoute: LayoutAuthenticatedInvitationsRoute,
   LayoutAuthenticatedOnboardingRoute: LayoutAuthenticatedOnboardingRoute,
   LayoutAuthenticatedProfileSetupRoute: LayoutAuthenticatedProfileSetupRoute,
-  LayoutAuthenticatedTasksTicketIdRoute: LayoutAuthenticatedTasksTicketIdRoute,
+  LayoutAuthenticatedWorkspaceSlugTaskTicketIdChar123TitleChar125Route:
+    LayoutAuthenticatedWorkspaceSlugTaskTicketIdChar123TitleChar125Route,
 }
 
 const LayoutAuthenticatedRouteWithChildren =

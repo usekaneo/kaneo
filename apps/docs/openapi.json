@@ -7206,6 +7206,16 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "Another project in the workspace uses this key",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
@@ -7341,6 +7351,16 @@
           },
           "403": {
             "description": "No workspace access, missing project:update, or missing project:share when visibility changes",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Another project in the workspace uses the new key",
             "content": {
               "text/plain": {
                 "schema": {
@@ -9251,7 +9271,7 @@
           "Tasks"
         ],
         "summary": "Get task by ticket ID",
-        "description": "Get a single task by its project key and number, such as KAN-12. If the ticket ID matches multiple accessible tasks, provide workspaceId or projectId to select one.",
+        "description": "Get a single task by its project key and number, such as KAN-12. If the ticket ID matches multiple accessible tasks, provide workspaceId, workspaceSlug, or projectId to select one.",
         "parameters": [
           {
             "schema": {
@@ -9273,6 +9293,18 @@
             "required": false,
             "description": "Select a workspace if the ticket ID exists in more than one.",
             "name": "workspaceId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "description": "Select a workspace by its slug instead of its ID."
+            },
+            "required": false,
+            "description": "Select a workspace by its slug instead of its ID.",
+            "name": "workspaceSlug",
             "in": "query"
           },
           {
