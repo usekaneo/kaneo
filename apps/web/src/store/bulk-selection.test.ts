@@ -39,6 +39,14 @@ describe.each(stores)("%s range selection", (_name, store) => {
     expect(store.getState().selectionAnchorId).toBe("e");
   });
 
+  it("follows the current visible order after filtering or reordering", () => {
+    store.getState().toggleSelection("a");
+    store.getState().setAvailableTasks(["e", "a", "d", "c"]);
+    store.getState().selectRange("c");
+    expect(store.getState().selectedTaskIds).toEqual(new Set(["a", "d", "c"]));
+    expect(store.getState().selectionAnchorId).toBe("a");
+  });
+
   it("clears the anchor with the selection", () => {
     store.getState().toggleSelection("b");
     store.getState().clearSelection();

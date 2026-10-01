@@ -1,6 +1,14 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import type Task from "@/types/task";
+import useBulkSelectionStore from "@/store/bulk-selection";
 import BacklogTaskRow from "../backlog-list-view/backlog-task-row";
 import TaskCard from "../kanban-board/task-card";
 import { PublicTaskCard } from "../public-project/task-card";
@@ -9,10 +17,13 @@ import TaskRow from "./task-row";
 
 const useExternalLinks = vi.fn((_taskId: string) => ({ data: [] }));
 const useGetLabelsByTask = vi.fn((_taskId: string) => ({ data: [] }));
-const { selectRange, navigate } = vi.hoisted(() => ({
-  selectRange: vi.fn(),
+const { navigate } = vi.hoisted(() => ({
   navigate: vi.fn(),
 }));
+
+beforeEach(() => {
+  useBulkSelectionStore.setState(useBulkSelectionStore.getInitialState());
+});
 
 afterEach(() => {
   cleanup();
@@ -56,25 +67,6 @@ vi.mock(
     default: () => null,
   }),
 );
-
-vi.mock("@/store/bulk-selection", () => ({
-  default: (
-    selector: (state: {
-      toggleSelection: (taskId: string) => void;
-      selectRange: (taskId: string) => void;
-      setSelectionAnchor: (taskId: string) => void;
-      selectedTaskIds: Set<string>;
-      focusedTaskId: string | null;
-    }) => unknown,
-  ) =>
-    selector({
-      toggleSelection: vi.fn(),
-      selectRange,
-      setSelectionAnchor: vi.fn(),
-      selectedTaskIds: new Set<string>(),
-      focusedTaskId: null,
-    }),
-}));
 
 vi.mock("@/store/project", () => ({
   default: (
@@ -136,6 +128,8 @@ describe("TaskRow", () => {
   it.each(["board", "list"])(
     "selects a range with Shift+Enter in the %s view",
     (view) => {
+      useBulkSelectionStore.getState().setAvailableTasks(["anchor", task.id]);
+      useBulkSelectionStore.getState().setSelectionAnchor("anchor");
       render(
         view === "board" ? (
           <TaskCard task={task} />
@@ -149,11 +143,51 @@ describe("TaskRow", () => {
         shiftKey: true,
       });
 
-      expect(selectRange).toHaveBeenCalledWith(task.id);
+      expect(useBulkSelectionStore.getState().selectedTaskIds).toEqual(
+        new Set(["anchor", task.id]),
+      );
       expect(navigate).not.toHaveBeenCalled();
 
       fireEvent.keyDown(screen.getByText("Row from payload"), { key: "Enter" });
       expect(navigate).toHaveBeenCalled();
+    },
+  );
+
+  it.each(["board", "list"])(
+    "selects a visible range with Shift+click and preserves Ctrl/Cmd toggling in the %s view",
+    (view) => {
+      const otherTask = { ...task, id: "task-2", title: "Second task" };
+      useBulkSelectionStore
+        .getState()
+        .setAvailableTasks([task.id, "middle", otherTask.id]);
+      render(
+        <>
+          {view === "board" ? (
+            <TaskCard task={task} />
+          ) : (
+            <TaskRow task={task} projectSlug="kan" />
+          )}
+          {view === "board" ? (
+            <TaskCard task={otherTask} />
+          ) : (
+            <TaskRow task={otherTask} projectSlug="kan" />
+          )}
+        </>,
+      );
+      fireEvent.click(screen.getByText(task.title));
+      expect(navigate).toHaveBeenCalled();
+      navigate.mockClear();
+      fireEvent.click(screen.getByText(otherTask.title), { shiftKey: true });
+      expect(useBulkSelectionStore.getState().selectedTaskIds).toEqual(
+        new Set([task.id, "middle", otherTask.id]),
+      );
+      expect(navigate).not.toHaveBeenCalled();
+      fireEvent.click(screen.getByText(task.title), { ctrlKey: true });
+      fireEvent.click(screen.getByText(otherTask.title), { metaKey: true });
+      expect(useBulkSelectionStore.getState().selectedTaskIds).toEqual(
+        new Set(["middle"]),
+      );
+      expect(navigate).not.toHaveBeenCalled();
     },
   );
 
