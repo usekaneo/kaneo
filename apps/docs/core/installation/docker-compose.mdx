@@ -119,8 +119,11 @@ Write each secret to its own file:
 mkdir -p secrets
 openssl rand -hex 32 > secrets/postgres_password
 openssl rand -hex 32 > secrets/auth_secret
-chmod 600 secrets/*
+chmod 700 secrets
+chmod 644 secrets/*
 ```
+
+Compose mounts these files with their host ownership, and the containers read them as non-root users (UID 1001 for Kaneo, `postgres` for PostgreSQL). The files therefore need to be readable by other users, while the `700` directory keeps other accounts on the host from reaching them.
 
 Remove `POSTGRES_PASSWORD` and `AUTH_SECRET` from `.env`. In `compose.yml`, replace the `POSTGRES_PASSWORD` line of the `postgres` service and add the secrets to both services:
 
