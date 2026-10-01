@@ -202,6 +202,15 @@ describe("extractTaskNumberFromPRBody", () => {
     expect(extractTaskNumberFromPRBody(body, "KAN")).toBe(42);
   });
 
+  it("recognizes a short task link with a non-Latin project key", () => {
+    expect(
+      extractTaskNumberFromPRBody(
+        "https://kaneo.example.com/acme/task/ПРО-42/fix-login",
+        "ПРО",
+      ),
+    ).toBe(42);
+  });
+
   it.each([
     "Closes #61",
     "Fixes #61",

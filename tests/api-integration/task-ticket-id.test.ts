@@ -150,6 +150,25 @@ describe("API integration: task ticket ID lookup", () => {
     expect(await response.json()).toMatchObject({ title: "Numeric key" });
   });
 
+  it("resolves a project key outside the generated key format", async () => {
+    const member = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      slug: "OPS.2",
+    });
+    await db.insert(schema.taskTable).values({
+      projectId: project.id,
+      title: "Dotted key",
+      number: 12,
+    });
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+    const response = await app.request("/api/task/by-ticket-id/OPS.2-12");
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ title: "Dotted key" });
+  });
+
   it("rejects invalid and unauthenticated lookups", async () => {
     const member = await createWorkspaceMember();
     mockAuthenticatedSession(member.user);

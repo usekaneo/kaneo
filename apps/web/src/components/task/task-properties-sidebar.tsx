@@ -136,7 +136,7 @@ export default function TaskPropertiesSidebar({
           workspaceId,
           workspaceSlug: workspace?.slug,
           projectId,
-          projectSlug,
+          workspaceProjects,
           taskId,
           taskNumber,
           title: task?.title,

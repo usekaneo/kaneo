@@ -21,6 +21,7 @@ import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-stat
 import { useUpdateTaskPriority } from "@/hooks/mutations/task/use-update-task-status-priority";
 import { useUpdateTaskTitle } from "@/hooks/mutations/task/use-update-task-title";
 import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
+import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
@@ -53,6 +54,9 @@ export default function TaskCardContextMenuContent({
   const { t } = useTranslation();
   const { project } = useProjectStore();
   const { data: workspace } = useActiveWorkspace();
+  const { data: workspaceProjects = [] } = useGetProjects({
+    workspaceId: taskCardContext.worskpaceId,
+  });
   const { data: columnsData = [] } = useGetColumns(taskCardContext.projectId);
   const columns =
     project?.columns && project.columns.length > 0
@@ -100,8 +104,7 @@ export default function TaskCardContextMenuContent({
       workspaceId: taskCardContext.worskpaceId,
       workspaceSlug: workspace?.slug,
       projectId: taskCardContext.projectId,
-      projectSlug:
-        project?.id === taskCardContext.projectId ? project.slug : undefined,
+      workspaceProjects,
       taskId: task.id,
       taskNumber: task.number,
       title: task.title,

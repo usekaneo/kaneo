@@ -64,8 +64,17 @@ async function updateProject(
         description,
         isPublic,
       })
-      .where(eq(projectTable.id, id))
+      .where(
+        and(eq(projectTable.id, id), eq(projectTable.workspaceId, workspaceId)),
+      )
       .returning();
+
+    if (!updatedProject) {
+      throw new HTTPException(404, {
+        message:
+          "Project doesn't exist or doesn't belong to the specified workspace",
+      });
+    }
 
     return updatedProject;
   });

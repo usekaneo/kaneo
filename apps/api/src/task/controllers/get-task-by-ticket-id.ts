@@ -9,7 +9,7 @@ import {
   workspaceUserTable,
 } from "../../database/schema";
 import { escapeLikePattern } from "../../search/like-pattern";
-import { TASK_SHORT_ID_PATTERN } from "../../search/task-short-id";
+import { TICKET_ID_PATTERN } from "../ticket-id";
 import { hasInstanceAdminRole } from "../../utils/instance-admin-role";
 import getTask from "./get-task";
 
@@ -22,7 +22,7 @@ export default async function getTaskByTicketId(
     projectId,
   }: { workspaceId?: string; workspaceSlug?: string; projectId?: string } = {},
 ) {
-  const match = ticketId.normalize("NFKC").match(TASK_SHORT_ID_PATTERN);
+  const match = ticketId.normalize("NFKC").match(TICKET_ID_PATTERN);
   const number = Number(match?.[2]);
   if (
     !match?.[1] ||

@@ -57,7 +57,7 @@ To turn references such as `KAN-12` in Gitea commits and pull requests into link
 | External Issue Tracker URL Format | `https://kaneo.example.com/acme/task/{index}`, with your workspace in place of `acme` |
 | External Issue Tracker Number Format | Alphanumeric |
 
-The alphanumeric format only matches keys of one to ten uppercase letters. For any other key, choose **Regular Expression** and match your project’s key exactly, such as `(DE_-\d+)` or `(ПРО-\d+)`. To link several projects, list their keys: `((?:KAN|OPS)-\d+)`.
+The alphanumeric format only matches keys of one to ten uppercase letters. For any other key, choose **Regular Expression** and match your project’s key exactly, such as `(DE_-\d+)`, `(ПРО-\d+)`, or `(OPS\.2-\d+)` with the `.` escaped. To link several projects, list their keys: `((?:KAN|OPS)-\d+)`.
 
 ## Replace a token or disconnect
 

@@ -74,6 +74,10 @@ vi.mock("@/hooks/queries/workspace/use-active-workspace", () => ({
   default: () => ({ data: { slug: "acme" } }),
 }));
 
+vi.mock("@/hooks/queries/project/use-get-projects", () => ({
+  default: () => ({ data: [] }),
+}));
+
 vi.mock("@/hooks/mutations/task/use-update-task", () => ({
   useUpdateTask: () => ({ mutateAsync: vi.fn() }),
 }));
