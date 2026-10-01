@@ -16,6 +16,8 @@ import {
   verifyGiteaToken,
 } from "../../plugins/gitea/utils/gitea-api";
 
+import { resolveVerificationToken } from "./resolve-verification-token";
+
 async function createGiteaIntegration({
   projectId,
   baseUrl,
@@ -46,24 +48,11 @@ async function createGiteaIntegration({
     ),
   });
 
-  let resolvedToken = accessToken?.trim() ?? "";
-  if (!resolvedToken && existingIntegration) {
-    try {
-      const prev = JSON.parse(existingIntegration.config) as GiteaConfig;
-      resolvedToken = prev.accessToken;
-    } catch (error) {
-      console.warn("Failed to parse existing Gitea integration config", {
-        integrationId: existingIntegration.id,
-        error,
-      });
-    }
-  }
-
-  if (!resolvedToken) {
-    throw new HTTPException(400, {
-      message: "Personal access token is required",
-    });
-  }
+  const resolvedToken = await resolveVerificationToken({
+    projectId,
+    baseUrl: normalizedBase,
+    accessToken,
+  });
 
   try {
     await verifyGiteaToken(normalizedBase, resolvedToken);

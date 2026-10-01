@@ -199,3 +199,150 @@ describe("bounded task pages", () => {
     }
   });
 });
+
+it.each(["create", "delete", "move", "reorder"])(
+  "changes the public pagination revision after a concurrent %s",
+  async (change) => {
+    const { project, app, tasks } = await fixture(237, true);
+    mockAnonymousSession();
+    const first = await app.request(
+      `/api/public-project/${project.id}?limit=100`,
+    );
+    const before = (await first.json()).pagination.revision;
+    expect(typeof before).toBe("string");
+    const stable = await app.request(
+      `/api/public-project/${project.id}?page=2&limit=100`,
+    );
+    expect((await stable.json()).pagination.revision).toBe(before);
+    if (change === "create")
+      await db.insert(schema.taskTable).values({
+        id: "new-public-task",
+        projectId: project.id,
+        title: "new",
+        number: 999,
+        position: 1,
+      });
+    else if (change === "delete")
+      await db
+        .delete(schema.taskTable)
+        .where(eq(schema.taskTable.id, tasks[0].id));
+    else if (change === "move") {
+      const { project: other } = await createProjectFixture({
+        workspaceId: project.workspaceId,
+      });
+      await db
+        .update(schema.taskTable)
+        .set({ projectId: other.id })
+        .where(eq(schema.taskTable.id, tasks[0].id));
+    } else
+      await db
+        .update(schema.taskTable)
+        .set({ position: 200 })
+        .where(eq(schema.taskTable.id, tasks[0].id));
+    const later = await app.request(
+      `/api/public-project/${project.id}?page=2&limit=100`,
+    );
+    expect((await later.json()).pagination.revision).not.toBe(before);
+  },
+);
+
+it("detects task edits between public pages regardless of sort order", async () => {
+  const { app, project, tasks } = await fixture(237, true);
+  mockAnonymousSession();
+  const path = `/api/public-project/${project.id}?limit=100`;
+  const position = (await (await app.request(path)).json()).pagination.revision;
+  const title = (await (await app.request(path + "&sortBy=title")).json())
+    .pagination.revision;
+  await db
+    .update(schema.taskTable)
+    .set({ title: "ZZZ new title" })
+    .where(eq(schema.taskTable.id, tasks[0].id));
+  expect(
+    (await (await app.request(path + "&page=2")).json()).pagination.revision,
+  ).not.toBe(position);
+  expect(
+    (await (await app.request(path + "&page=2&sortBy=title")).json()).pagination
+      .revision,
+  ).not.toBe(title);
+});
+
+it.each(["label", "link", "assignee", "project", "subtask"])(
+  "detects a %s edit to an earlier public page while loading a later page",
+  async (change) => {
+    const { app, project, tasks, member } = await fixture(2, true);
+    const task = tasks[0];
+    await db
+      .update(schema.taskTable)
+      .set({ userId: member.user.id })
+      .where(eq(schema.taskTable.id, task.id));
+    const [label] = await db
+      .insert(schema.labelTable)
+      .values({
+        taskId: task.id,
+        workspaceId: member.workspace.id,
+        name: "Before",
+        color: "red",
+      })
+      .returning();
+    const [link] = await db
+      .insert(schema.externalLinkTable)
+      .values({
+        taskId: task.id,
+        resourceType: "pull_request",
+        externalId: "1",
+        url: "https://example.com/pr/1",
+        metadata: JSON.stringify({ merged: false }),
+      })
+      .returning();
+    const { project: childProject } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    await db
+      .update(schema.projectTable)
+      .set({ isPublic: true })
+      .where(eq(schema.projectTable.id, childProject.id));
+    const [child] = await db
+      .insert(schema.taskTable)
+      .values({ projectId: childProject.id, title: "Child", status: "to-do" })
+      .returning();
+    await db.insert(schema.taskRelationTable).values({
+      sourceTaskId: task.id,
+      targetTaskId: child.id,
+      relationType: "subtask",
+    });
+    mockAnonymousSession();
+    const path = `/api/public-project/${project.id}?limit=1`;
+    const before = (await (await app.request(path)).json()).pagination.revision;
+    expect(
+      (await (await app.request(path + "&page=2")).json()).pagination.revision,
+    ).toBe(before);
+    if (change === "label")
+      await db
+        .update(schema.labelTable)
+        .set({ name: "After" })
+        .where(eq(schema.labelTable.id, label.id));
+    if (change === "link")
+      await db
+        .update(schema.externalLinkTable)
+        .set({ metadata: JSON.stringify({ merged: true }) })
+        .where(eq(schema.externalLinkTable.id, link.id));
+    if (change === "assignee")
+      await db
+        .update(schema.userTable)
+        .set({ name: "Renamed", image: "https://example.com/avatar.png" })
+        .where(eq(schema.userTable.id, member.user.id));
+    if (change === "project")
+      await db
+        .update(schema.projectTable)
+        .set({ name: "Renamed project" })
+        .where(eq(schema.projectTable.id, project.id));
+    if (change === "subtask")
+      await db
+        .update(schema.taskTable)
+        .set({ status: "done" })
+        .where(eq(schema.taskTable.id, child.id));
+    expect(
+      (await (await app.request(path + "&page=2")).json()).pagination.revision,
+    ).not.toBe(before);
+  },
+);

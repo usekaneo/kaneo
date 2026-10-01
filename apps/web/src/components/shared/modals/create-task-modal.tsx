@@ -75,11 +75,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import useSetCustomFieldValue from "@/hooks/mutations/custom-field/use-set-custom-field-value";
 import useCreateLabel from "@/hooks/mutations/label/use-create-label";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
-import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
-import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import useGetCustomFieldsByProject from "@/hooks/queries/custom-field/use-get-custom-fields-by-project";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
@@ -87,6 +84,7 @@ import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
+import { uploadDraftAsset } from "@/lib/upload-draft-asset";
 import { formatDateMedium } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
 import { resolveLabelColor } from "@/lib/label-color";
@@ -252,7 +250,6 @@ function CreateTaskModalContent({
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [createMore, setCreateMore] = useState(false);
   const [labels, setLabels] = useState<Label[]>([]);
-  const [draftTask, setDraftTask] = useState<Task | null>(null);
   const [discardConfirmationOpen, setDiscardConfirmationOpen] = useState(false);
 
   const [labelsOpen, setLabelsOpen] = useState(false);
@@ -276,8 +273,8 @@ function CreateTaskModalContent({
   const resolvedProjectId = resolvedProject?.id ?? "";
 
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const draftCreationPromiseRef = useRef<Promise<Task | null> | null>(null);
-  const draftTaskRef = useRef<Task | null>(null);
+  const stagedAssetsRef = useRef<string[]>([]);
+  const pendingUploadsRef = useRef(0);
   const activeRef = useRef(true);
   const submittingRef = useRef(false);
   const [isPreparingDraft, setIsPreparingDraft] = useState(false);
@@ -286,16 +283,12 @@ function CreateTaskModalContent({
   const didSubmitRef = useRef(false);
 
   const { mutateAsync: createTask } = useCreateTask();
-  const { mutateAsync: updateTask } = useUpdateTask();
-  const { mutateAsync: deleteTask } = useDeleteTask();
 
   const { data: rawCustomFields } = useGetCustomFieldsByProject(
     resolvedProjectId,
   ) as { data: CustomFieldDefinition[] | undefined };
 
   const customFields = useMemo(() => rawCustomFields ?? [], [rawCustomFields]);
-
-  const { mutateAsync: setCustomFieldValue } = useSetCustomFieldValue();
 
   const [customFieldValues, setCustomFieldValues] = useState<
     Record<string, string>
@@ -365,31 +358,20 @@ function CreateTaskModalContent({
     dueDate ||
     selectedProjectId ||
     labels.length > 0 ||
-    draftTask ||
+    stagedAssetsRef.current.length > 0 ||
     hasCustomFieldChanges,
   );
-
-  const discardDraft = useCallback(() => {
-    const abandoned = draftTaskRef.current;
-    if (abandoned && !didSubmitRef.current) {
-      draftTaskRef.current = null;
-      void deleteTask(abandoned.id).catch(() => {
-        // An expired session can prevent cleanup; never reuse the draft.
-      });
-    }
-  }, [deleteTask]);
 
   useEffect(() => {
     activeRef.current = true;
     return () => {
       activeRef.current = false;
-      discardDraft();
     };
-  }, [discardDraft]);
+  }, []);
 
   const handleClose = () => {
     activeRef.current = false;
-    discardDraft();
+
     onClose();
   };
 
@@ -464,87 +446,34 @@ function CreateTaskModalContent({
     [project, setProject, workspaceUsers?.members],
   );
 
-  const ensureDraftTask = useCallback(async () => {
-    if (!activeRef.current || submittingRef.current) return null;
-    if (draftTaskRef.current) {
-      return draftTaskRef.current.projectId === resolvedProjectId
-        ? draftTaskRef.current.id
-        : null;
-    }
-
-    if (draftCreationPromiseRef.current) {
-      const pendingTask = await draftCreationPromiseRef.current;
-      return activeRef.current ? (pendingTask?.id ?? null) : null;
-    }
-
-    if (!resolvedProjectId) {
-      toast.error(t("common:modals.createTask.chooseProjectForImages"));
-      return null;
-    }
-
-    setIsPreparingDraft(true);
-    const draftStatus = "planned";
-    const draftPromise = createTask({
-      title: title.trim() || t("common:modals.createTask.untitledTask"),
-      description: description.trim() || "",
-      userId: assigneeId,
-      priority,
-      projectId: resolvedProjectId,
-      startDate: startDate ? startDate.toISOString() : undefined,
-      dueDate: dueDate ? dueDate.toISOString() : undefined,
-      status: draftStatus,
-      customFields: Object.entries(customFieldValues)
-        .filter(([_, value]) => value.trim() !== "")
-        .map(([fieldId, value]) => ({
-          fieldId,
-          value,
-        })),
-    }).then((task) => {
-      const createdTask = normalizeTask(task);
-      if (!activeRef.current) {
-        void deleteTask(createdTask.id).catch(() => {});
-        return null;
+  const stageAsset = useCallback(
+    async (file: File) => {
+      if (!activeRef.current || submittingRef.current || !resolvedProjectId) {
+        throw new Error(t("common:modals.createTask.chooseProjectForImages"));
       }
-      draftTaskRef.current = createdTask;
-      setDraftTask(createdTask);
-      return createdTask;
-    });
-
-    draftCreationPromiseRef.current = draftPromise;
-
-    try {
-      const createdTask = await draftPromise;
-      return activeRef.current ? (createdTask?.id ?? null) : null;
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t("common:modals.createTask.prepareTaskError"),
-      );
-      return null;
-    } finally {
-      draftCreationPromiseRef.current = null;
-      if (activeRef.current) setIsPreparingDraft(false);
-    }
-  }, [
-    assigneeId,
-    createTask,
-    description,
-    deleteTask,
-    startDate,
-    dueDate,
-    priority,
-    resolvedProjectId,
-    title,
-    t,
-    customFieldValues,
-  ]);
+      pendingUploadsRef.current += 1;
+      setIsPreparingDraft(true);
+      try {
+        const asset = await uploadDraftAsset(resolvedProjectId, file);
+        if (!activeRef.current)
+          throw new Error(t("common:modals.createTask.prepareTaskError"));
+        stagedAssetsRef.current.push(asset.id);
+        return asset;
+      } finally {
+        pendingUploadsRef.current -= 1;
+        if (activeRef.current)
+          setIsPreparingDraft(pendingUploadsRef.current > 0);
+      }
+    },
+    [resolvedProjectId, t],
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (
       !activeRef.current ||
       submittingRef.current ||
+      pendingUploadsRef.current > 0 ||
       !canCreateTaskCapability ||
       !title.trim() ||
       !resolvedProjectId ||
@@ -555,50 +484,29 @@ function CreateTaskModalContent({
     submittingRef.current = true;
     setIsSubmitting(true);
     try {
-      // Submitting while a file prepares its draft must update that same task.
-      const pendingDraft = draftCreationPromiseRef.current;
-      if (pendingDraft) await pendingDraft;
-      if (!activeRef.current) return;
-      const currentDraft = draftTaskRef.current;
-      if (currentDraft && currentDraft.projectId !== resolvedProjectId) return;
       const taskStatus = status ?? "to-do";
       didSubmitRef.current = true;
-
-      const savedTask = currentDraft
-        ? normalizeTask(
-            await updateTask({
-              ...currentDraft,
-              title: title.trim(),
-              description: description.trim() || "",
-              userId: assigneeId || null,
-              status: taskStatus,
-              priority,
-              startDate: startDate ? startDate.toISOString() : null,
-              dueDate: dueDate ? dueDate.toISOString() : null,
-              projectId: resolvedProjectId,
-              customFieldValues: Object.entries(customFieldValues)
-                .filter(([_, value]) => value.trim() !== "")
-                .map(([fieldId, value]) => ({ fieldId, value })),
-            }),
-          )
-        : normalizeTask(
-            await createTask({
-              title: title.trim(),
-              description: description.trim() || "",
-              userId: assigneeId,
-              priority,
-              projectId: resolvedProjectId,
-              startDate: startDate ? startDate.toISOString() : undefined,
-              dueDate: dueDate ? dueDate.toISOString() : undefined,
-              status: taskStatus,
-              customFields: Object.entries(customFieldValues)
-                .filter(([_, value]) => value.trim() !== "")
-                .map(([fieldId, value]) => ({
-                  fieldId,
-                  value,
-                })),
-            }),
-          );
+      const savedTask = normalizeTask(
+        await createTask({
+          title: title.trim(),
+          description: description.trim() || "",
+          userId: assigneeId,
+          priority,
+          projectId: resolvedProjectId,
+          startDate: startDate ? startDate.toISOString() : undefined,
+          dueDate: dueDate ? dueDate.toISOString() : undefined,
+          status: taskStatus,
+          draftAssetIds: stagedAssetsRef.current.filter((id) =>
+            description.includes(`/asset/${id}`),
+          ),
+          customFields: Object.entries(customFieldValues)
+            .filter(([_, value]) => value.trim() !== "")
+            .map(([fieldId, value]) => ({
+              fieldId,
+              value,
+            })),
+        }),
+      );
 
       for (const label of labels) {
         try {
@@ -613,27 +521,10 @@ function CreateTaskModalContent({
         }
       }
 
-      if (currentDraft) {
-        for (const [fieldId, value] of Object.entries(customFieldValues)) {
-          if (value) {
-            await setCustomFieldValue({
-              taskId: savedTask.id,
-              fieldId,
-              value: String(value),
-            });
-          }
-        }
-      }
-
-      draftTaskRef.current = null;
+      stagedAssetsRef.current = [];
       if (!activeRef.current) return;
-      setDraftTask(savedTask);
       syncTaskIntoProject(savedTask);
-      toast.success(
-        draftTask
-          ? t("common:modals.createTask.successUpdated")
-          : t("common:modals.createTask.successCreated"),
-      );
+      toast.success(t("common:modals.createTask.successCreated"));
 
       if (createMore) {
         setTitle("");
@@ -647,10 +538,10 @@ function CreateTaskModalContent({
         setSearchValue("");
         setSelectedColor("gray");
         setNewLabelName("");
-        draftCreationPromiseRef.current = null;
+        stagedAssetsRef.current = [];
         setEditorVersion((version) => version + 1);
         didSubmitRef.current = false;
-        setDraftTask(null);
+
         setCustomFieldValues(buildDefaultCustomFieldValues());
       } else {
         closeAndReset();
@@ -658,7 +549,6 @@ function CreateTaskModalContent({
     } catch (error) {
       didSubmitRef.current = false;
       if (!activeRef.current) {
-        discardDraft();
         return;
       }
       toast.error(
@@ -1091,8 +981,7 @@ function CreateTaskModalContent({
                 placeholder={t(
                   "common:modals.createTask.descriptionPlaceholder",
                 )}
-                taskId={draftTask?.id}
-                ensureTaskId={ensureDraftTask}
+                uploadAsset={stageAsset}
               />
             </div>
 
@@ -1204,12 +1093,14 @@ function CreateTaskModalContent({
                           type="button"
                           className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
                           disabled={
-                            isPreparingDraft || !!draftTask || isSubmitting
+                            isPreparingDraft ||
+                            stagedAssetsRef.current.length > 0 ||
+                            isSubmitting
                           }
                           onClick={() => {
                             if (
-                              !draftCreationPromiseRef.current &&
-                              !draftTaskRef.current &&
+                              pendingUploadsRef.current === 0 &&
+                              stagedAssetsRef.current.length === 0 &&
                               !submittingRef.current
                             ) {
                               setSelectedProjectId(workspaceProject.id);
@@ -1601,11 +1492,19 @@ function CreateTaskModalContent({
             </Button>
             <Button
               type="submit"
-              disabled={!title.trim() || !resolvedProjectId || isSubmitting}
+              disabled={
+                !title.trim() ||
+                !resolvedProjectId ||
+                isSubmitting ||
+                isPreparingDraft
+              }
+              aria-busy={isPreparingDraft || isSubmitting}
               size="sm"
               className="disabled:opacity-50"
             >
-              {t("common:modals.createTask.createButton")}
+              {isPreparingDraft
+                ? t("activity:comment.editor.uploadingFile")
+                : t("common:modals.createTask.createButton")}
             </Button>
           </DialogFooter>
         </form>

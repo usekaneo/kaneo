@@ -6,7 +6,13 @@ import {
 } from "../../billing/controllers/find-billable-workspaces";
 import { syncWorkspaceSeats } from "../../billing/controllers/sync-seats";
 import db from "../../database";
-import { workspaceTable, workspaceUserTable } from "../../database/schema";
+import { revokeWorkspaceConnections } from "../../ws";
+import {
+  userTable,
+  workspaceTable,
+  workspaceUserTable,
+} from "../../database/schema";
+import { instanceAdminRoleSql } from "../../utils/instance-admin-role";
 import {
   formatBlockedWorkspacesMessage,
   hasOwnerRole,
@@ -79,9 +85,24 @@ export async function deleteAccountData(userId: string) {
   }
 
   if (plan.workspaceIdsToDelete.length > 0) {
+    const admins = await db
+      .select({ userId: userTable.id })
+      .from(userTable)
+      .where(instanceAdminRoleSql(userTable.role));
+    const recipients = new Set([
+      userId,
+      ...admins.map((admin) => admin.userId),
+    ]);
     await db
       .delete(workspaceTable)
       .where(inArray(workspaceTable.id, plan.workspaceIdsToDelete));
+    for (const workspaceId of plan.workspaceIdsToDelete) {
+      await Promise.all(
+        [...recipients].map((recipient) =>
+          revokeWorkspaceConnections(recipient, workspaceId, { force: true }),
+        ),
+      );
+    }
   }
 
   if (plan.workspaceIdsToLeave.length > 0) {
@@ -103,6 +124,10 @@ export async function deleteAccountData(userId: string) {
         );
       });
     }
+  }
+
+  for (const workspaceId of plan.workspaceIdsToLeave) {
+    await revokeWorkspaceConnections(userId, workspaceId, { force: true });
   }
 
   return plan;

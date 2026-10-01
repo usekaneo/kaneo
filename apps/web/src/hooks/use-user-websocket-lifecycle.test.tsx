@@ -9,15 +9,41 @@ import {
 } from "vite-plus/test";
 import { useUserWebSocket } from "./use-user-websocket";
 
-const { client, auth } = vi.hoisted(() => ({
-  client: { invalidateQueries: vi.fn() },
-  auth: { userId: "user-a" as string | null },
+const { client, auth, navigate } = vi.hoisted(() => ({
+  client: {
+    invalidateQueries: vi.fn(),
+    cancelQueries: vi.fn(),
+    clear: vi.fn(),
+    getQueryCache: () => ({ getAll: () => [] }),
+    removeQueries: vi.fn(),
+    resetQueries: vi.fn(),
+  },
+  navigate: vi.fn(),
+  auth: {
+    userId: "user-a" as string | null,
+    workspaceId: "workspace",
+    pathname: "",
+    notify: vi.fn(),
+    signOut: vi.fn().mockResolvedValue(undefined),
+  },
+}));
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => navigate,
+  useLocation: () =>
+    auth.pathname || `/dashboard/workspace/${auth.workspaceId}`,
 }));
 vi.mock("@tanstack/react-query", () => ({ useQueryClient: () => client }));
 vi.mock("@/lib/auth-client", () => ({
   authClient: {
+    $store: { notify: auth.notify },
+    signOut: auth.signOut,
     useSession: () => ({
-      data: auth.userId ? { user: { id: auth.userId } } : null,
+      data: auth.userId
+        ? {
+            user: { id: auth.userId },
+            session: { activeOrganizationId: auth.workspaceId },
+          }
+        : null,
     }),
   },
 }));
@@ -48,7 +74,9 @@ describe("user WebSocket lifecycle", () => {
     vi.stubEnv("VITE_API_URL", "http://localhost:1337");
     TestSocket.instances = [];
     auth.userId = "user-a";
-    client.invalidateQueries.mockClear();
+    auth.workspaceId = "workspace";
+    auth.pathname = "";
+    vi.clearAllMocks();
   });
   afterEach(() => {
     cleanup();
@@ -56,6 +84,39 @@ describe("user WebSocket lifecycle", () => {
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
   });
+  it.each([
+    "/dashboard/settings/workspace/general",
+    "/dashboard/settings/workspace/roles",
+    "/dashboard/settings/projects/general",
+  ])("redirects a revoked active workspace from %s", (path) => {
+    auth.pathname = path;
+    renderHook(useUserWebSocket);
+    act(() =>
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({
+          type: "WORKSPACE_ACCESS_REVOKED",
+          workspaceId: "workspace",
+        }),
+      }),
+    );
+    expect(navigate).toHaveBeenCalledWith({ to: "/dashboard" });
+  });
+  it("clears revoked workspace data from the global user connection", () => {
+    renderHook(() => useUserWebSocket());
+    act(() =>
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({
+          type: "WORKSPACE_ACCESS_REVOKED",
+          workspaceId: "workspace",
+          pathname: "",
+        }),
+      }),
+    );
+    expect(client.cancelQueries).toHaveBeenCalledOnce();
+    expect(client.removeQueries).toHaveBeenCalledOnce();
+    expect(navigate).toHaveBeenCalledWith({ to: "/dashboard" });
+  });
+
   it("ignores events from an old account without stopping the new account's keepalive", () => {
     const { rerender, unmount } = renderHook(useUserWebSocket);
     const old = TestSocket.instances[0];
@@ -111,23 +172,82 @@ describe("user WebSocket lifecycle", () => {
     unmount();
     expect(vi.getTimerCount()).toBe(0);
   });
-  it("retains the five-retry limit and does not duplicate retries on repeated close events", () => {
+  it("keeps retrying through long outages with bounded delays and one timer", () => {
     const { unmount } = renderHook(useUserWebSocket);
-    for (let retry = 0; retry < 5; retry++) {
+    for (const [retry, delay] of [
+      1000, 2000, 4000, 8000, 16000, 30000, 30000, 30000,
+    ].entries()) {
       act(() => {
         const current = TestSocket.instances.at(-1);
         current?.onclose?.();
         current?.onclose?.();
-        vi.advanceTimersByTime(1000 * 2 ** retry);
+        vi.advanceTimersByTime(delay - 1);
       });
+      expect(TestSocket.instances).toHaveLength(retry + 1);
+      expect(vi.getTimerCount()).toBe(1);
+      act(() => vi.advanceTimersByTime(1));
       expect(TestSocket.instances).toHaveLength(retry + 2);
     }
     act(() => {
-      TestSocket.instances.at(-1)?.onclose?.();
-      vi.advanceTimersByTime(60_000);
+      const socket = TestSocket.instances.at(-1)!;
+      socket.open();
+      socket.onmessage?.({
+        data: JSON.stringify({
+          type: "WORKSPACE_ACCESS_SYNC",
+          workspaceIds: [],
+        }),
+      });
     });
-    expect(TestSocket.instances).toHaveLength(6);
+    expect(navigate).toHaveBeenCalledWith({ to: "/dashboard" });
     unmount();
     expect(vi.getTimerCount()).toBe(0);
   });
+
+  it("keeps users in their current workspace when an inactive membership is revoked", () => {
+    auth.workspaceId = "other-workspace";
+    renderHook(() => useUserWebSocket());
+    TestSocket.instances[0].onmessage?.({
+      data: JSON.stringify({
+        type: "WORKSPACE_ACCESS_REVOKED",
+        workspaceId: "workspace",
+        pathname: "",
+      }),
+    });
+    expect(navigate).not.toHaveBeenCalled();
+    expect(client.removeQueries).toHaveBeenCalledOnce();
+    expect(auth.notify).toHaveBeenCalledWith("$listOrg");
+    expect(auth.notify).toHaveBeenCalledWith("$activeOrgSignal");
+    expect(auth.notify).toHaveBeenCalledWith("$sessionSignal");
+  });
+
+  it("redirects after a reconnect snapshot reveals a missed workspace revocation", () => {
+    renderHook(useUserWebSocket);
+    act(() =>
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({
+          type: "WORKSPACE_ACCESS_SYNC",
+          workspaceIds: ["other"],
+        }),
+      }),
+    );
+    expect(navigate).toHaveBeenCalledWith({ to: "/dashboard" });
+    expect(client.removeQueries).toHaveBeenCalledOnce();
+    expect(auth.notify).toHaveBeenCalledWith("$listOrg");
+    expect(auth.notify).toHaveBeenCalledWith("$activeOrgSignal");
+  });
+});
+
+it("clears all private caches and signs out after account-wide revocation", async () => {
+  vi.stubGlobal("WebSocket", TestSocket);
+  auth.userId = "user-a";
+  renderHook(useUserWebSocket);
+  const socket = TestSocket.instances.at(-1)!;
+  socket.onmessage?.({ data: JSON.stringify({ type: "USER_ACCESS_REVOKED" }) });
+  socket.onclose?.();
+  await Promise.resolve();
+  expect(client.clear).toHaveBeenCalled();
+  expect(auth.signOut).toHaveBeenCalled();
+  expect(navigate).toHaveBeenCalledWith({ to: "/auth/sign-in" });
+  cleanup();
+  vi.unstubAllGlobals();
 });

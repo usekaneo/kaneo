@@ -6,12 +6,12 @@
 		"url": "https://github.com/usekaneo/kaneo",
 		"source": "github"
 	},
-	"version": "0.1.11",
+	"version": "0.1.12",
 	"packages": [
 		{
 			"registryType": "npm",
 			"identifier": "@kaneo/mcp",
-			"version": "0.1.11",
+			"version": "0.1.12",
 			"transport": {
 				"type": "stdio"
 			},

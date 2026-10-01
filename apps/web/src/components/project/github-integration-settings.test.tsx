@@ -71,6 +71,13 @@ vi.mock(
 vi.mock("@/components/project/repository-browser-modal", () => ({
   RepositoryBrowserModal: () => null,
 }));
+const permissions = vi.hoisted(() => ({ create: true, update: true }));
+vi.mock("@/hooks/use-workspace-permission", () => ({
+  useWorkspacePermission: () => ({
+    canCreateTasks: () => permissions.create,
+    canUpdateTasks: () => permissions.update,
+  }),
+}));
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
@@ -96,6 +103,8 @@ afterEach(() => cleanup());
 beforeEach(() => {
   vi.clearAllMocks();
   m.integration.current = null;
+  permissions.create = true;
+  permissions.update = true;
   m.link.mockResolvedValue({ error: null });
 });
 describe("GitHub account verification flow", () => {
@@ -219,3 +228,30 @@ describe("saved GitHub import progress", () => {
     );
   });
 });
+
+it.each(["create", "update"] as const)(
+  "disables GitHub imports without %s permission",
+  async (permission) => {
+    permissions[permission] = false;
+    m.appInfo.mockResolvedValue({
+      accountConnected: true,
+      accountLinkingAvailable: true,
+    });
+    m.integration.current = {
+      repositoryOwner: "owner",
+      repositoryName: "repo",
+      isActive: true,
+      requiresVerification: false,
+    };
+    show();
+    const button = await screen.findByRole("button", {
+      name: "settings:githubIntegration.importIssues",
+    });
+    expect(button).toBeDisabled();
+    fireEvent.click(button);
+    expect(m.importIssues).not.toHaveBeenCalled();
+    expect(
+      screen.getByText("settings:gitlabIntegration.importPermissionHint"),
+    ).toBeInTheDocument();
+  },
+);

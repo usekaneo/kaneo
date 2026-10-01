@@ -15,18 +15,18 @@
 			"founding": false
 		},
 		{
+			"login": "bojanmilevski",
+			"name": "Bojan Milevski",
+			"avatarUrl": "https://avatars.githubusercontent.com/u/113335496?v=4",
+			"tier": 5,
+			"founding": false
+		},
+		{
 			"login": "danielsada",
 			"name": "Daniel Sada",
 			"avatarUrl": "https://avatars.githubusercontent.com/u/2849006?v=4",
 			"tier": 5,
 			"founding": true
-		},
-		{
-			"login": "floreabogdan",
-			"name": "Bogdan FLOREA",
-			"avatarUrl": "https://avatars.githubusercontent.com/u/983985?v=4",
-			"tier": 5,
-			"founding": false
 		},
 		{
 			"login": "randoneering",
@@ -57,6 +57,13 @@
 			"avatarUrl": "https://avatars.githubusercontent.com/u/58935?v=4",
 			"tier": 10,
 			"founding": true
+		},
+		{
+			"login": "floreabogdan",
+			"name": "Bogdan FLOREA",
+			"avatarUrl": "https://avatars.githubusercontent.com/u/983985?v=4",
+			"tier": 5,
+			"founding": false
 		},
 		{
 			"login": "KnudH",
