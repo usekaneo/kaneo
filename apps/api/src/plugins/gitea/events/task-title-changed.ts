@@ -1,16 +1,12 @@
-import {
-  findExternalLinksByTask,
-  updateExternalLink,
-} from "../../github/services/link-manager";
+import { syncLatestTaskValue } from "../../github/services/sync-latest-task-value";
+import db from "../../../database";
+import { linkedTaskScope } from "../../github/services/integration-task-scope";
+import { findExternalLinksByTask } from "../../github/services/link-manager";
 import type { PluginContext, TaskTitleChangedEvent } from "../../types";
 import type { GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
 
-type LinkSyncState = {
-  timestamp: string;
-  source: string;
-  value: string;
-};
+type LinkSyncState = import("../../github/utils/sync-echo").SyncStamp;
 
 type LinkMetadata = {
   lastSync?: {
@@ -31,6 +27,12 @@ export async function handleTaskTitleChanged(
   const { repositoryOwner, repositoryName } = config;
 
   try {
+    const current = await db.query.taskTable.findFirst({
+      where: linkedTaskScope(event.taskId, context.projectId),
+      columns: { title: true },
+    });
+    if (!current || current.title !== event.newTitle) return;
+
     const links = await findExternalLinksByTask(event.taskId);
     const issueLink = links.find(
       (link) =>
@@ -68,15 +70,6 @@ export async function handleTaskTitleChanged(
         console.log("Skipping title sync - already synced from Gitea");
         return;
       }
-
-      const timeSinceLastSync =
-        Date.now() - new Date(lastTitleSync.timestamp).getTime();
-      if (lastTitleSync.source === "gitea" && timeSinceLastSync < 2000) {
-        console.log(
-          `Skipping title sync - recent sync detected (${timeSinceLastSync}ms ago)`,
-        );
-        return;
-      }
     }
 
     const client = createGiteaClient(config);
@@ -90,24 +83,28 @@ export async function handleTaskTitleChanged(
       return;
     }
 
-    await client.updateIssue(repositoryOwner, repositoryName, issueNumber, {
-      title: event.newTitle,
-    });
-
-    await updateExternalLink(issueLink.id, {
-      title: event.newTitle,
-      metadata: {
-        ...metadata,
-        lastSync: {
-          ...metadata.lastSync,
-          title: {
-            timestamp: new Date().toISOString(),
-            source: "kaneo",
-            value: event.newTitle,
+    await syncLatestTaskValue(
+      event.taskId,
+      context.projectId,
+      issueLink,
+      "title",
+      event.newTitle,
+      async (value) => {
+        const response = await client.updateIssue(
+          repositoryOwner,
+          repositoryName,
+          issueNumber,
+          {
+            title: value,
           },
-        },
+        );
+        return response?.updated_at;
       },
-    });
+      async () =>
+        (await client.getIssue(repositoryOwner, repositoryName, issueNumber))
+          .title,
+      { type: "gitea", config: JSON.stringify(config) },
+    );
 
     console.log(`Synced task title to Gitea issue #${issueNumber}`);
   } catch (error) {
