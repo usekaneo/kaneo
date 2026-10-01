@@ -2579,7 +2579,11 @@
 					"reset": "Reset size",
 					"resizeHandle": "Resize image",
 					"small": "Small"
-				}
+				},
+				"saved": "Saved",
+				"saving": "Saving…",
+				"saveFailed": "Changes could not be saved",
+				"retrySave": "Retry"
 			},
 			"noActivity": "Nie znaleziono aktywności",
 			"openInFullPage": "Otwórz na pełnej stronie",
@@ -2731,6 +2735,8 @@
 		},
 		"properties": {
 			"copyTaskBranch": "Kopiuj gałąź zadania",
+			"taskLinkCopied": "Skopiowano link do zadania",
+			"taskBranchCopied": "Skopiowano nazwę gałęzi",
 			"copyTaskLink": "Kopiuj link do zadania",
 			"labels": "Etykiety",
 			"noDate": "Brak daty",
@@ -2816,6 +2822,9 @@
 		"checklistProgress": "Ukończone elementy listy kontrolnej: {{completed}} z {{total}}",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"board": {
+			"reorderFailed": "Could not move task. Please try again."
 		}
 	},
 	"press": {

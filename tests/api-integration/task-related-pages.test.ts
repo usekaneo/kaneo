@@ -188,3 +188,94 @@ describe("bounded board related pages", () => {
     }
   });
 });
+
+it.each(
+  ["labels", "links", "columns"].flatMap((collection) =>
+    ["create", "delete"].map((change) => ({ collection, change })),
+  ),
+)(
+  "detects $collection $change between public related pages",
+  async ({ collection, change }) => {
+    const { app, member, project, task } = await fixture();
+    mockAnonymousSession();
+    const path = `/api/public-project/${project.id}?limit=100`;
+    const first = await app.request(path);
+    const before = (await first.json()).pagination;
+    const stable = await app.request(path + "&relatedPage=2");
+    expect((await stable.json()).pagination).toMatchObject({
+      revision: before.revision,
+      relatedRevision: before.relatedRevision,
+    });
+    if (collection === "labels") {
+      if (change === "delete")
+        await db
+          .delete(schema.labelTable)
+          .where(eq(schema.labelTable.id, "label-000"));
+      else
+        await db.insert(schema.labelTable).values({
+          id: "label---new",
+          taskId: task.id,
+          workspaceId: member.workspace.id,
+          name: "New label",
+          color: "blue",
+        });
+    } else if (collection === "links") {
+      if (change === "delete")
+        await db
+          .delete(schema.externalLinkTable)
+          .where(eq(schema.externalLinkTable.id, "link-000"));
+      else
+        await db.insert(schema.externalLinkTable).values({
+          id: "link---new",
+          taskId: task.id,
+          resourceType: "issue",
+          externalId: "new",
+          url: "https://example.com/new",
+        });
+    } else {
+      if (change === "delete")
+        await db
+          .delete(schema.columnTable)
+          .where(eq(schema.columnTable.id, "column-0"));
+      else
+        await db.insert(schema.columnTable).values({
+          id: "column---new",
+          projectId: project.id,
+          slug: "new",
+          name: "New column",
+          position: 0,
+        });
+    }
+    const later = await app.request(path + "&relatedPage=2");
+    const after = (await later.json()).pagination;
+    if (collection === "columns")
+      expect(after.revision).not.toBe(before.revision);
+    else {
+      expect(after.revision).not.toBe(before.revision);
+      expect(after.relatedRevision).not.toBe(before.relatedRevision);
+    }
+  },
+);
+
+it("detects text and integration updates between public related pages", async () => {
+  const { app, project, task } = await fixture();
+  mockAnonymousSession();
+  const path = `/api/public-project/${project.id}?limit=100`;
+  const before = (await (await app.request(path)).json()).pagination;
+  await db
+    .update(schema.taskTable)
+    .set({ title: "Edited title", description: "Edited body" })
+    .where(eq(schema.taskTable.id, task.id));
+  await db
+    .update(schema.externalLinkTable)
+    .set({
+      metadata: JSON.stringify({
+        lastSync: { title: { source: "kaneo", value: "Edited title" } },
+      }),
+    })
+    .where(eq(schema.externalLinkTable.id, "link-000"));
+  const after = (await (await app.request(path + "&relatedPage=2")).json())
+    .pagination;
+  expect(after.revision).not.toBe(before.revision);
+  expect(after.relatedRevision).not.toBe(before.relatedRevision);
+});

@@ -10,7 +10,14 @@ import {
 import { useProjectWebSocket } from "./use-project-websocket";
 
 const { client, auth } = vi.hoisted(() => ({
-  client: { invalidateQueries: vi.fn() },
+  client: {
+    getQueryCache: () => ({ subscribe: () => () => {} }),
+    getQueryState: vi.fn(),
+    cancelQueries: vi.fn().mockResolvedValue(undefined),
+    invalidateQueries: vi.fn(),
+    setQueryData: vi.fn(),
+    getQueryData: vi.fn(),
+  },
   auth: { userId: "user-a" as string | null },
 }));
 vi.mock("@tanstack/react-query", () => ({ useQueryClient: () => client }));
@@ -132,10 +139,27 @@ describe("project WebSocket lifecycle", () => {
     }
   });
 
+  it("refreshes task resources after a task move", () => {
+    renderHook(() => useProjectWebSocket("project-a"));
+    act(() =>
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({
+          type: "TASK_MOVED",
+          projectId: "project-a",
+          taskId: "task-a",
+        }),
+      }),
+    );
+    expect(client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["external-links", "task-a"],
+    });
+  });
+
   it("preserves bounded exponential reconnects and active message invalidation", () => {
     const { unmount } = renderHook(() => useProjectWebSocket("project-a"));
     for (let retry = 0; retry < 5; retry++) {
       act(() => {
+        TestSocket.instances.at(-1)?.open();
         TestSocket.instances.at(-1)?.onclose?.();
         vi.advanceTimersByTime(1000 * 2 ** retry);
       });

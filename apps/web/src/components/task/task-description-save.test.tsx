@@ -1,4 +1,10 @@
-import { act, fireEvent, render, waitFor } from "@testing-library/react";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  waitFor,
+} from "@testing-library/react";
 import { Extension } from "@tiptap/core";
 import TaskItem from "@tiptap/extension-task-item";
 import { EditorView } from "@tiptap/pm/view";
@@ -169,6 +175,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  cleanup();
   vi.useRealTimers();
 });
 
@@ -267,7 +274,7 @@ describe("TaskDescription pending saves", () => {
     await waitFor(() => expect(container.textContent).toContain("alpha"));
 
     await settle();
-    latestEditor().commands.insertContent(" edited in a");
+    act(() => latestEditor().commands.insertContent(" edited in a"));
     expect(mocks.mutateAsync).not.toHaveBeenCalled();
 
     rerender(<TaskDescription taskId="task-b" />);
@@ -287,13 +294,13 @@ describe("TaskDescription pending saves", () => {
     await waitFor(() => expect(container.textContent).toContain("alpha"));
 
     await settle();
-    latestEditor().commands.insertContent(" edited in a");
+    act(() => latestEditor().commands.insertContent(" edited in a"));
 
     rerender(<TaskDescription taskId="task-b" />);
     await waitFor(() => expect(container.textContent).toContain("bravo"));
 
     await settle();
-    latestEditor().commands.insertContent(" edited in b");
+    act(() => latestEditor().commands.insertContent(" edited in b"));
 
     await vi.waitFor(() => expect(mocks.mutateAsync).toHaveBeenCalledTimes(2), {
       timeout: DEBOUNCE_MS * 4,
@@ -301,4 +308,44 @@ describe("TaskDescription pending saves", () => {
 
     expect(savedTaskIds().sort()).toEqual(["task-a", "task-b"]);
   });
+});
+
+it("restores a queued draft before uncached task data arrives", async () => {
+  const { descriptionSaveQueue } = await import("@/lib/description-save-queue");
+  descriptionSaveQueue.schedule("uncached", "retained draft", async () => {
+    throw new Error("offline");
+  });
+  const view = render(<TaskDescription taskId="uncached" />);
+  await waitFor(() =>
+    expect(view.container.textContent).toContain("retained draft"),
+  );
+  mocks.tasks.set("uncached", {
+    id: "uncached",
+    projectId: "p",
+    description: "server content",
+  });
+  view.rerender(<TaskDescription taskId="uncached" />);
+  expect(view.container.textContent).toContain("retained draft");
+  expect(view.container.textContent).not.toContain("server content");
+  view.unmount();
+  descriptionSaveQueue.clear();
+});
+
+it("disables description editing while sign-out owns the save pause", async () => {
+  const { descriptionSaveQueue } = await import("@/lib/description-save-queue");
+  mocks.tasks.set("paused", {
+    id: "paused",
+    projectId: "p",
+    description: "saved",
+  });
+  const view = render(<TaskDescription taskId="paused" />);
+  await settle();
+  let resume!: () => void;
+  act(() => {
+    resume = descriptionSaveQueue.pause("");
+  });
+  expect(latestEditor().isEditable).toBe(false);
+  act(() => resume());
+  expect(latestEditor().isEditable).toBe(true);
+  view.unmount();
 });

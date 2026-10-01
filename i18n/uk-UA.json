@@ -2316,7 +2316,11 @@
 					"reset": "Reset size",
 					"resizeHandle": "Resize image",
 					"small": "Small"
-				}
+				},
+				"saved": "Saved",
+				"saving": "Saving…",
+				"saveFailed": "Changes could not be saved",
+				"retrySave": "Retry"
 			},
 			"customFieldUpdated": "Field updated",
 			"selectOption": "Select option"
@@ -2362,6 +2366,8 @@
 			"labels": "Мітки",
 			"copyTaskLink": "Копіювати посилання на завдання",
 			"copyTaskBranch": "Копіювати гілку завдання",
+			"taskLinkCopied": "Посилання на завдання скопійовано",
+			"taskBranchCopied": "Назву гілки скопійовано",
 			"start": "Початок",
 			"startDate": "Дата початку",
 			"noDate": "Немає дати"
@@ -2634,6 +2640,9 @@
 		"checklistProgress": "Виконано пунктів списку: {{completed}} із {{total}}",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"board": {
+			"reorderFailed": "Could not move task. Please try again."
 		}
 	},
 	"invitations": {

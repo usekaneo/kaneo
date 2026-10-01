@@ -13,11 +13,9 @@ const m = vi.hoisted(() => ({
   find: vi.fn(),
   update: vi.fn(async () => undefined),
 }));
-vi.mock("../../apps/api/src/plugins/github/services/task-service", () => ({
-  findAllIntegrationsByRepo: async () => [{ id: "verified-integration" }],
-}));
 vi.mock("../../apps/api/src/plugins/github/services/link-manager", () => ({
   findExternalLink: m.find,
+  lockExternalLink: m.find,
   updateExternalLink: m.update,
 }));
 
@@ -29,6 +27,21 @@ beforeEach(async () => {
 async function setup() {
   const { workspace } = await createWorkspaceMember();
   const { project } = await createProjectFixture({ workspaceId: workspace.id });
+  const [integration] = await db
+    .insert(schema.integrationTable)
+    .values({
+      projectId: project.id,
+      type: "github",
+      config: JSON.stringify({
+        repositoryOwner: "example",
+        repositoryName: "repo",
+        installationId: 10,
+        repositoryId: 20,
+        verifiedGithubAccountId: "123",
+        verifiedByUserId: "user",
+      }),
+    })
+    .returning();
   const [task] = await db
     .insert(schema.taskTable)
     .values({
@@ -38,8 +51,12 @@ async function setup() {
       number: 1,
     })
     .returning();
-  m.find.mockResolvedValue({
+  const link = {
     id: "link",
+    integrationId: integration.id,
+    resourceType: "issue",
+    externalId: "1",
+    url: "https://github.com/example/repo/issues/1",
     taskId: task.id,
     metadata: JSON.stringify({
       lastSync: {
@@ -50,7 +67,9 @@ async function setup() {
         },
       },
     }),
-  });
+  };
+  await db.insert(schema.externalLinkTable).values(link);
+  m.find.mockResolvedValue(link);
   return task;
 }
 function webhook(body: string) {
@@ -103,6 +122,7 @@ describe("GitHub description round trip", () => {
           }),
         }),
       }),
+      expect.anything(),
     );
   });
 

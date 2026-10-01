@@ -18,7 +18,8 @@ concurrency:
 
 jobs:
   publish:
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    # npm provenance and trusted publishing require a GitHub-hosted runner.
+    runs-on: ubuntu-24.04
     if: ${{ github.event_name == 'push' || startsWith(github.event.release.tag_name, 'mcp-v') }}
     permissions:
       # gh release create needs contents: write; npm publish --provenance needs id-token: write.
@@ -27,7 +28,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
           fetch-depth: 0
