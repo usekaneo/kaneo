@@ -9,27 +9,12 @@ import {
   isUnauthorizedError,
 } from "@/lib/http-error";
 
-function hasStatus(error: unknown, ...statuses: number[]) {
-  return error instanceof HttpError && statuses.includes(error.status);
-}
-
-async function findTask(ticketId: string, activeWorkspaceId?: string | null) {
-  if (activeWorkspaceId) {
-    try {
-      return await getTaskByTicketId(ticketId, activeWorkspaceId);
-    } catch (error) {
-      if (!hasStatus(error, 404)) throw error;
-    }
-  }
-  return getTaskByTicketId(ticketId);
-}
-
 export const Route = createFileRoute("/_layout/_authenticated/tasks/$ticketId")(
   {
     loader: async ({ params, context }) => {
       let task: Awaited<ReturnType<typeof getTaskByTicketId>>;
       try {
-        task = await findTask(
+        task = await getTaskByTicketId(
           params.ticketId,
           context.session?.session?.activeOrganizationId,
         );
@@ -38,8 +23,9 @@ export const Route = createFileRoute("/_layout/_authenticated/tasks/$ticketId")(
           handleUnauthorized();
           return;
         }
-        if (hasStatus(error, 409)) return { failure: "ambiguous" as const };
-        if (hasStatus(error, 400, 404)) {
+        if (!(error instanceof HttpError)) throw error;
+        if (error.status === 409) return { failure: "ambiguous" as const };
+        if (error.status === 400 || error.status === 404) {
           return { failure: "notFound" as const };
         }
         throw error;
