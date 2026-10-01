@@ -2,16 +2,11 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import {
-  Calendar,
-  CalendarClock,
-  CalendarX,
-  GitMerge,
-  GitPullRequest,
-} from "lucide-react";
+import { Calendar, CalendarClock, CalendarX } from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskProgressBadges } from "@/components/task/task-progress-badges";
+import { TaskPullRequests } from "@/components/task/task-pull-requests";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -23,11 +18,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/preview-card";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
@@ -37,7 +27,6 @@ import {
   getDueDateStatus,
   isTaskCompleted,
 } from "@/lib/due-date-status";
-import { getExternalWebUrl, openExternalWebUrl } from "@/lib/external-url";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
@@ -91,41 +80,6 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
       (member) => member.userId === task.userId,
     );
   }, [workspaceUsers, task.userId]);
-
-  const pullRequests = useMemo(() => {
-    return (task.externalLinks ?? []).filter(
-      (link) =>
-        link.resourceType === "pull_request" &&
-        getExternalWebUrl(link.url) !== null,
-    );
-  }, [task.externalLinks]);
-
-  const getPRInfo = (pr: (typeof pullRequests)[number]) => {
-    const isMerged = pr.metadata?.merged === true;
-    const isDraft = pr.metadata?.draft === true;
-
-    if (isMerged) {
-      return {
-        icon: <GitMerge className="h-3 w-3 text-info-foreground" />,
-        status: t("tasks:pr.merged"),
-        statusClass: "text-info-foreground",
-      };
-    }
-
-    if (isDraft) {
-      return {
-        icon: <GitPullRequest className="h-3 w-3 text-muted-foreground" />,
-        status: t("tasks:pr.draft"),
-        statusClass: "text-muted-foreground",
-      };
-    }
-
-    return {
-      icon: <GitPullRequest className="h-3 w-3 text-success-foreground" />,
-      status: t("tasks:pr.open"),
-      statusClass: "text-success-foreground",
-    };
-  };
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -221,114 +175,10 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
                   <TaskProgressBadges task={task} />
                   {showLabels && <TaskLabels labels={task.labels ?? []} />}
 
-                  {pullRequests.length === 1 && (
-                    <HoverCard openDelay={200} closeDelay={100}>
-                      <HoverCardTrigger asChild>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openExternalWebUrl(pullRequests[0].url);
-                          }}
-                          className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-sidebar text-[10px] font-medium text-muted-foreground"
-                        >
-                          {getPRInfo(pullRequests[0]).icon}
-                          <span>#{pullRequests[0].externalId}</span>
-                        </button>
-                      </HoverCardTrigger>
-                      <HoverCardContent
-                        className="w-72 p-3"
-                        side="bottom"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            {getPRInfo(pullRequests[0]).icon}
-                            <span>{getPRInfo(pullRequests[0]).status}</span>
-                            <span className="text-muted-foreground/50">•</span>
-                            <span>#{pullRequests[0].externalId}</span>
-                          </div>
-                          <p className="text-sm font-medium leading-snug">
-                            {pullRequests[0].title || t("tasks:pr.label")}
-                          </p>
-                        </div>
-                      </HoverCardContent>
-                    </HoverCard>
-                  )}
-
-                  {pullRequests.length > 1 &&
-                    (() => {
-                      const hasOpen = pullRequests.some(
-                        (pr) => !pr.metadata?.merged && !pr.metadata?.draft,
-                      );
-                      const allMerged = pullRequests.every(
-                        (pr) => pr.metadata?.merged,
-                      );
-                      const iconColor = allMerged
-                        ? "text-info-foreground"
-                        : hasOpen
-                          ? "text-success-foreground"
-                          : "text-muted-foreground";
-
-                      return (
-                        <HoverCard openDelay={200} closeDelay={100}>
-                          <HoverCardTrigger asChild>
-                            <button
-                              type="button"
-                              onClick={(e) => e.stopPropagation()}
-                              className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-sidebar text-[10px] font-medium text-muted-foreground"
-                            >
-                              <GitPullRequest
-                                className={`h-3 w-3 ${iconColor}`}
-                              />
-                              <span>
-                                {t("tasks:pr.count", {
-                                  count: pullRequests.length,
-                                })}
-                              </span>
-                            </button>
-                          </HoverCardTrigger>
-                          <HoverCardContent
-                            className="w-auto min-w-56 max-w-96 p-1"
-                            side="bottom"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {pullRequests.map((pr, index) => {
-                              const prInfo = getPRInfo(pr);
-                              const repoMatch = pr.url.match(
-                                /github\.com\/([^/]+\/[^/]+)\/pull/,
-                              );
-                              const repoName = repoMatch ? repoMatch[1] : null;
-                              return (
-                                <div key={pr.id}>
-                                  {index > 0 && (
-                                    <hr className="border-border my-1" />
-                                  )}
-                                  <button
-                                    type="button"
-                                    onClick={() => openExternalWebUrl(pr.url)}
-                                    className="w-full px-2 py-1.5 text-left hover:bg-muted/50 rounded transition-colors"
-                                  >
-                                    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                                      {prInfo.icon}
-                                      <span>
-                                        {repoName}#{pr.externalId}
-                                      </span>
-                                    </div>
-                                    <p className="text-xs leading-tight line-clamp-2 mt-0.5">
-                                      {pr.title || t("tasks:pr.label")}
-                                    </p>
-                                    <span className="text-[10px] text-muted-foreground">
-                                      {prInfo.status}
-                                    </span>
-                                  </button>
-                                </div>
-                              );
-                            })}
-                          </HoverCardContent>
-                        </HoverCard>
-                      );
-                    })()}
+                  <TaskPullRequests
+                    externalLinks={task.externalLinks}
+                    className="border-border bg-sidebar"
+                  />
                 </div>
               </div>
             </div>

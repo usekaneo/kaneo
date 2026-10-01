@@ -1,5 +1,11 @@
+import { QueryClient } from "@tanstack/react-query";
+import type { ProjectWithTasks } from "@/types/project";
 import { describe, expect, it } from "vite-plus/test";
-import { updateTaskLabelsInProject } from "./sync-task-labels-cache";
+import {
+  addLabelToTaskInTasksCache,
+  removeLabelFromTaskInTasksCache,
+  updateTaskLabelsInProject,
+} from "./sync-task-labels-cache";
 
 describe("updateTaskLabelsInProject", () => {
   it("adds a label to the matching task without changing other tasks", () => {
@@ -177,3 +183,44 @@ describe("updateTaskLabelsInProject", () => {
     ]);
   });
 });
+
+it.each(["attach", "detach"])(
+  "preserves a local label %s after an older board fetch completes",
+  async (action) => {
+    const client = new QueryClient();
+    const label = { id: "label", name: "bug", color: "red" };
+    const board = {
+      id: "project",
+      columns: [
+        {
+          id: "todo",
+          tasks: [{ id: "task", labels: action === "attach" ? [] : [label] }],
+        },
+      ],
+      plannedTasks: [],
+      archivedTasks: [],
+    } as unknown as ProjectWithTasks;
+    client.setQueryData(["tasks", "project"], board);
+    let release!: () => void;
+    const wait = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const fetch = client.fetchQuery({
+      queryKey: ["tasks", "project"],
+      queryFn: async () => {
+        await wait;
+        return board;
+      },
+      staleTime: 0,
+    });
+    if (action === "attach") addLabelToTaskInTasksCache(client, "task", label);
+    else removeLabelFromTaskInTasksCache(client, "task", label.id);
+    release();
+    await fetch;
+    expect(
+      client.getQueryData<ProjectWithTasks>(["tasks", "project"])?.columns[0]
+        .tasks[0].labels,
+    ).toEqual(action === "attach" ? [label] : []);
+    client.clear();
+  },
+);
