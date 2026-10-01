@@ -123,4 +123,24 @@ describe("authorizeAssetAccess", () => {
       expect(await statusOf(authorizeAssetAccess(context, asset))).toBe(200);
     },
   );
+  it.each(["draft", "draft-pending"])(
+    "keeps %s uploads private to the uploader even in public projects",
+    async (surface) => {
+      state.caller = "member";
+      const asset = {
+        workspaceId: "workspace-1",
+        isPublic: true,
+        surface,
+        createdBy: "user-other-member",
+      };
+      expect(isPublicAsset(asset)).toBe(false);
+      expect(await statusOf(authorizeAssetAccess(context, asset))).toBe(403);
+      expect(state.validateCalls).toHaveLength(0);
+      expect(
+        await statusOf(
+          authorizeAssetAccess(context, { ...asset, createdBy: "user-member" }),
+        ),
+      ).toBe(200);
+    },
+  );
 });

@@ -58,6 +58,32 @@ function page(number: number, totalPages = 3) {
   };
 }
 describe("complete board loading through bounded pages", () => {
+  it("publishes the first page before a slow continuation and keeps snapshots immutable", async () => {
+    let finish!: (value: ReturnType<typeof page>) => void;
+    const snapshots: ProjectWithTasks[] = [];
+    const load = vi
+      .fn()
+      .mockResolvedValueOnce(page(1, 2))
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            finish = resolve;
+          }),
+      );
+    const loading = loadBoardPages(load, undefined, (board) =>
+      snapshots.push(board),
+    );
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(snapshots[0].columns[0].tasks.map((task) => task.id)).toEqual(["1"]);
+    finish(page(2, 2));
+    await loading;
+    expect(snapshots.at(-1)?.columns[0].tasks.map((task) => task.id)).toEqual([
+      "1",
+      "2",
+    ]);
+    expect(snapshots[0].columns[0].tasks).toHaveLength(1);
+  });
   it("loads sequentially and merges every column, planned and archived task with its complete fields", async () => {
     let active = 0;
     let peak = 0;
@@ -192,4 +218,44 @@ describe("complete board loading through bounded pages", () => {
     expect(result.columns.map((column) => column.id)).toEqual(["to-do", "new"]);
     expect(result.columns[1].tasks[0].id).toBe("late");
   });
+});
+
+it("keeps progress cloning linear across large task and related-page loads", async () => {
+  const snapshots: ProjectWithTasks[] = [];
+  const pages = 128;
+  const relatedPages = 8;
+  const result = await loadBoardPages(
+    async (number, related = 1) => {
+      const next = page(number, pages);
+      next.data.columns[0].tasks[0].labels = [
+        { id: `label-${number}-${related}`, name: "Label", color: "red" },
+      ];
+      return {
+        ...next,
+        pagination: { ...next.pagination, relatedTotalPages: relatedPages },
+      };
+    },
+    undefined,
+    (snapshot) => snapshots.push(snapshot),
+  );
+  const weight = (snapshot: ProjectWithTasks) =>
+    [
+      ...snapshot.columns.flatMap((column) => column.tasks),
+      ...snapshot.plannedTasks,
+      ...snapshot.archivedTasks,
+    ].reduce(
+      (count, task) =>
+        count +
+        1 +
+        (task.labels?.length ?? 0) +
+        (task.externalLinks?.length ?? 0),
+      0,
+    );
+  expect(snapshots.length).toBeLessThan(16);
+  expect(
+    snapshots.reduce((count, snapshot) => count + weight(snapshot), 0),
+  ).toBeLessThan(weight(result) * 4);
+  expect(snapshots[0].columns[0].tasks).toHaveLength(1);
+  expect(snapshots.at(-1)?.columns[0].tasks).toHaveLength(pages);
+  expect(result.columns[0].tasks.at(-1)?.labels).toHaveLength(relatedPages);
 });

@@ -78,6 +78,9 @@ export async function verifyApiKey(
     if (!apiKey) {
       return null;
     }
+    // A key may expire while SELECT waits for another request's row lock.
+    const now = new Date();
+    if (apiKey.expiresAt && apiKey.expiresAt <= now) return null;
 
     if (options.consume === false)
       return {
@@ -93,7 +96,6 @@ export async function verifyApiKey(
 
     // Locking the key serializes quota/refill and window accounting across API
     // instances. Neither a stale lookup nor a rejected request can restore quota.
-    const now = new Date();
     let remaining = apiKey.remaining;
     let lastRefillAt = apiKey.lastRefillAt;
     if (remaining !== null) {

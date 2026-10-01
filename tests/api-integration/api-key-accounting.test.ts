@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vite-plus/test";
 import { auth } from "../../apps/api/src/auth";
-import db, { schema } from "../../apps/api/src/database";
+import db, { getDatabasePool, schema } from "../../apps/api/src/database";
 import { verifyApiKey } from "../../apps/api/src/utils/verify-api-key";
 import { resetTestDatabase } from "./helpers/database";
 import { createWorkspaceMember } from "./helpers/fixtures";
@@ -100,3 +100,55 @@ it("creates normal API keys with the configured 100-per-minute limit", async () 
   for (let i = 0; i < 11; i++)
     expect(await verifyApiKey(created.key)).not.toBeNull();
 });
+
+it.each([true, false])(
+  "rejects a key that expires while waiting for its row lock (consume=%s)",
+  async (consume) => {
+    const expiresAt = new Date(Date.now() + 1200);
+    const { key, row } = await seedKey({ expiresAt, remaining: 1 });
+    let release!: () => void;
+    let ready!: () => void;
+    const locked = new Promise<void>((resolve) => {
+      ready = resolve;
+    });
+    const hold = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const holder = db.transaction(async (tx) => {
+      await tx
+        .select()
+        .from(schema.apikeyTable)
+        .where(eq(schema.apikeyTable.id, row.id))
+        .for("update");
+      ready();
+      await hold;
+    });
+    await locked;
+    try {
+      const verification = verifyApiKey(key, { consume });
+      let waiting = false;
+      for (let attempt = 0; attempt < 100 && !waiting; attempt++) {
+        const result = await getDatabasePool().query<{ waiting: boolean }>(
+          `SELECT EXISTS (SELECT 1 FROM pg_stat_activity WHERE datname = current_database() AND wait_event_type = 'Lock' AND query LIKE '%"apikey"%') AS waiting`,
+        );
+        waiting = result.rows[0].waiting;
+        if (!waiting) await new Promise((resolve) => setTimeout(resolve, 10));
+      }
+      expect(waiting).toBe(true);
+      await new Promise((resolve) =>
+        setTimeout(resolve, Math.max(0, expiresAt.getTime() - Date.now() + 50)),
+      );
+      release();
+      await expect(verification).resolves.toBeNull();
+      const [saved] = await db
+        .select()
+        .from(schema.apikeyTable)
+        .where(eq(schema.apikeyTable.id, row.id));
+      expect(saved.remaining).toBe(1);
+      expect(saved.requestCount).toBe(0);
+    } finally {
+      release();
+      await holder;
+    }
+  },
+);

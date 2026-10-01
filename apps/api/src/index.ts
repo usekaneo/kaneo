@@ -453,6 +453,7 @@ export function createApp() {
           mimeType: schema.assetTable.mimeType,
           filename: schema.assetTable.filename,
           surface: schema.assetTable.surface,
+          createdBy: schema.assetTable.createdBy,
           workspaceId: schema.assetTable.workspaceId,
           isPublic: schema.projectTable.isPublic,
         })

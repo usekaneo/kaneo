@@ -1,5 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
+import { publishEvent } from "../../../events";
 import {
   columnTable,
   integrationTable,
@@ -130,6 +131,16 @@ export async function handleIssueOpened(payload: IssueOpenedPayload) {
       return task;
     });
     if (!createdTask) continue;
+    await publishEvent("task.created", {
+      ...createdTask,
+      taskId: createdTask.id,
+      userId: createdTask.userId ?? "",
+      type: "task",
+      content: null,
+      source: "github",
+      externalId: issue.number.toString(),
+      actor: issue.user?.login ?? "github-webhook",
+    });
 
     const project = await db.query.projectTable.findFirst({
       where: eq(projectTable.id, projectId),
