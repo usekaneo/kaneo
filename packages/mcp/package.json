@@ -19,6 +19,10 @@
 		".": {
 			"import": "./dist/server.js",
 			"types": "./dist/server.d.ts"
+		},
+		"./tools": {
+			"types": "./dist/tools/register.d.ts",
+			"import": "./dist/tools/register.js"
 		}
 	},
 	"publishConfig": {
