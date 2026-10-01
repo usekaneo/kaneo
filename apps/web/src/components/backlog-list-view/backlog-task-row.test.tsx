@@ -19,10 +19,11 @@ import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import BacklogTaskRow from "./backlog-task-row";
 
+const { sortableKeyDown } = vi.hoisted(() => ({ sortableKeyDown: vi.fn() }));
 const { useSortable } = vi.hoisted(() => ({
   useSortable: vi.fn((_options: { id: string }) => ({
     attributes: { role: "button" },
-    listeners: {},
+    listeners: { onKeyDown: sortableKeyDown },
     setNodeRef: vi.fn(),
     transform: null,
     transition: null,
@@ -155,6 +156,12 @@ describe("backlog row subscriptions", () => {
     expect(useBacklogBulkSelectionStore.getState().selectedTaskIds).toEqual(
       new Set([task.id, otherTask.id]),
     );
+    expect(sortableKeyDown).not.toHaveBeenCalled();
+    fireEvent.keyDown(screen.getByRole("button", { name: /Second task/ }), {
+      key: " ",
+      code: "Space",
+    });
+    expect(sortableKeyDown).toHaveBeenCalledOnce();
   });
 
   it("only renders the row whose selection changes, including deselection", () => {

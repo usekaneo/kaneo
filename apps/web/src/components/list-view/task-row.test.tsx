@@ -1,3 +1,4 @@
+import { DndContext, KeyboardSensor } from "@dnd-kit/core";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import {
   afterEach,
@@ -130,26 +131,45 @@ describe("TaskRow", () => {
     (view) => {
       useBulkSelectionStore.getState().setAvailableTasks(["anchor", task.id]);
       useBulkSelectionStore.getState().setSelectionAnchor("anchor");
+      const onDragStart = vi.fn();
       render(
-        view === "board" ? (
-          <TaskCard task={task} />
-        ) : (
-          <TaskRow task={task} projectSlug="kan" />
-        ),
+        <DndContext
+          sensors={[{ sensor: KeyboardSensor, options: {} }]}
+          onDragStart={onDragStart}
+        >
+          {view === "board" ? (
+            <TaskCard task={task} />
+          ) : (
+            <TaskRow task={task} projectSlug="kan" />
+          )}
+        </DndContext>,
       );
 
-      fireEvent.keyDown(screen.getByText("Row from payload"), {
-        key: "Enter",
-        shiftKey: true,
-      });
+      fireEvent.keyDown(
+        screen.getByRole("button", { name: /Row from payload/ }),
+        {
+          key: "Enter",
+          shiftKey: true,
+        },
+      );
 
       expect(useBulkSelectionStore.getState().selectedTaskIds).toEqual(
         new Set(["anchor", task.id]),
       );
       expect(navigate).not.toHaveBeenCalled();
+      expect(onDragStart).not.toHaveBeenCalled();
 
-      fireEvent.keyDown(screen.getByText("Row from payload"), { key: "Enter" });
+      fireEvent.keyDown(
+        screen.getByRole("button", { name: /Row from payload/ }),
+        { key: "Enter" },
+      );
       expect(navigate).toHaveBeenCalled();
+      expect(onDragStart).not.toHaveBeenCalled();
+      fireEvent.keyDown(
+        screen.getByRole("button", { name: /Row from payload/ }),
+        { key: " ", code: "Space" },
+      );
+      expect(onDragStart).toHaveBeenCalledOnce();
     },
   );
 

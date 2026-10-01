@@ -171,9 +171,16 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Escape") {
-      toggleSelection(task.id);
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.defaultPrevented || e.target !== e.currentTarget) return;
+    if (e.key === "Enter") {
+      handleTaskCardClick(e);
+      e.preventDefault();
+    } else {
+      if (e.key === "Escape") {
+        toggleSelection(task.id);
+      }
+      listeners?.onKeyDown?.(e);
     }
   };
 
@@ -189,12 +196,21 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      role="button"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+    >
       <ContextMenu>
         <ContextMenuTrigger asChild>
           {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- false positive for onClick and onKeyDown */}
           <div
             onClick={handleTaskCardClick}
+            onKeyDown={handleKeyDown}
             className={`group relative rounded-lg border bg-background p-3 shadow-xs/5 transition-[background-color,border-color,box-shadow,scale] duration-150 ease-out active:scale-[0.98] ${
               disableDragDrop ? "cursor-default" : "cursor-move"
             } ${
@@ -206,13 +222,6 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                 ? "border-ring/40 bg-accent/50 shadow-sm ring-1 ring-inset ring-ring/30"
                 : "border-border"
             } ${isTaskFocused ? "ring-2 ring-inset ring-ring/50" : ""}`}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleTaskCardClick(e);
-              } else if (e.key === "Escape") {
-                handleKeyDown(e);
-              }
-            }}
           >
             {showTaskNumbers && (
               <div className="mb-2 text-[10px] font-mono text-muted-foreground/90">

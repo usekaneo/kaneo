@@ -161,9 +161,13 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.defaultPrevented || e.target !== e.currentTarget) return;
     if (e.key === "Enter") {
       handleClick(e);
+      e.preventDefault();
+    } else {
+      listeners?.onKeyDown?.(e);
     }
   };
 
@@ -195,13 +199,13 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
           {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- false positive for onClick and onKeyDown */}
           <div
             onClick={handleClick}
-            onKeyDown={handleKeyDown}
             className={cn(
               "group relative flex items-center gap-3 px-4 py-1.5 transition-colors cursor-pointer",
               isTaskSelected ? "bg-accent/45" : "hover:bg-accent/60",
             )}
             {...attributes}
             {...listeners}
+            onKeyDown={handleKeyDown}
           >
             {showPriority && (
               <div className="flex-shrink-0 first:[&_svg]:h-4 first:[&_svg]:w-4">
