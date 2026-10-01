@@ -4,6 +4,7 @@ import path from "node:path";
 import { Pool } from "pg";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import { resolveDatabaseConfig } from "../../apps/api/src/database/resolve-database-url";
+import { createApp } from "../../apps/api/src/index";
 import { resolveAuthSecret } from "../../apps/api/src/utils/auth-secret";
 
 const SECRET_ENV_KEYS = [
@@ -16,6 +17,9 @@ const SECRET_ENV_KEYS = [
   "POSTGRES_PASSWORD_FILE",
   "AUTH_SECRET",
   "AUTH_SECRET_FILE",
+  "CUSTOM_OAUTH_CLIENT_ID",
+  "CUSTOM_OAUTH_CLIENT_SECRET",
+  "CUSTOM_OAUTH_CLIENT_SECRET_FILE",
 ] as const;
 
 let savedEnv: Record<string, string | undefined>;
@@ -76,5 +80,21 @@ describe("API integration: file-backed secrets", () => {
     process.env.AUTH_SECRET_FILE = authFile;
 
     expect(resolveAuthSecret()).toBe(secret);
+  });
+
+  it("reports custom OAuth as configured with only CUSTOM_OAUTH_CLIENT_SECRET_FILE", async () => {
+    const clientSecretFile = path.join(directory, "custom-oauth-client-secret");
+    writeFileSync(clientSecretFile, "custom-client-secret\n");
+
+    process.env.CUSTOM_OAUTH_CLIENT_ID = "kaneo";
+    process.env.CUSTOM_OAUTH_CLIENT_SECRET = "";
+    process.env.CUSTOM_OAUTH_CLIENT_SECRET_FILE = clientSecretFile;
+
+    const response = await createApp().app.request("/api/config");
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual(
+      expect.objectContaining({ hasCustomOAuth: true }),
+    );
   });
 });
