@@ -1,3 +1,4 @@
+import { inArray } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
@@ -167,6 +168,62 @@ describe("API integration: task ticket ID lookup", () => {
     const response = await app.request("/api/task/by-ticket-id/OPS.2-12");
     expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({ title: "Dotted key" });
+  });
+
+  it("resolves a full-width project key as stored", async () => {
+    const member = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      slug: "ＡＢＣ",
+    });
+    await db.insert(schema.taskTable).values({
+      projectId: project.id,
+      title: "Full-width key",
+      number: 1,
+    });
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+    const response = await app.request(
+      `/api/task/by-ticket-id/${encodeURIComponent("ＡＢＣ-1")}`,
+    );
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ title: "Full-width key" });
+  });
+
+  it("prefers an active project over an archived one sharing its key", async () => {
+    const member = await createWorkspaceMember();
+    const { project: active } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      slug: "ARC",
+    });
+    const { project: archived } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      slug: "arc",
+    });
+    const { project: alsoArchived } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      slug: "Arc",
+    });
+    await db
+      .update(schema.projectTable)
+      .set({ archivedAt: new Date() })
+      .where(inArray(schema.projectTable.id, [archived.id, alsoArchived.id]));
+    await db.insert(schema.taskTable).values([
+      { projectId: active.id, title: "Active", number: 5 },
+      { projectId: archived.id, title: "Archived", number: 5 },
+      { projectId: alsoArchived.id, title: "Also archived", number: 5 },
+      { projectId: archived.id, title: "Archived only", number: 6 },
+      { projectId: alsoArchived.id, title: "Also archived only", number: 6 },
+    ]);
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+    const preferred = await app.request("/api/task/by-ticket-id/ARC-5");
+    expect(preferred.status).toBe(200);
+    expect(await preferred.json()).toMatchObject({ title: "Active" });
+    const archivedOnly = await app.request("/api/task/by-ticket-id/ARC-6");
+    expect(archivedOnly.status).toBe(409);
   });
 
   it("rejects invalid and unauthenticated lookups", async () => {

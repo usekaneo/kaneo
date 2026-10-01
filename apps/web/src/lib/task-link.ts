@@ -51,13 +51,14 @@ export function getTaskPath({
     return fullPath;
   }
 
-  const rawTicketId = `${projectKey}-${taskNumber}`;
-  if (rawTicketId.length > MAX_TICKET_ID_LENGTH) return fullPath;
+  const ticketId = `${projectKey}-${taskNumber}`;
+  if (
+    ticketId.length > MAX_TICKET_ID_LENGTH ||
+    /[^\p{L}\p{N}\p{M}._~-]/u.test(ticketId)
+  ) {
+    return fullPath;
+  }
 
-  const ticketId = rawTicketId.replace(
-    /[^\p{L}\p{N}\p{M}._~-]/gu,
-    (character) => encodeURIComponent(character),
-  );
   const titleSlug = createSlug(title ?? "")
     .slice(0, MAX_TITLE_SLUG_LENGTH)
     .replace(/-+$/, "");

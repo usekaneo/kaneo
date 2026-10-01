@@ -1,4 +1,4 @@
-import { and, eq, ilike, inArray } from "drizzle-orm";
+import { and, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
@@ -44,13 +44,23 @@ export default async function getTaskByTicketId(
     .from(workspaceUserTable)
     .where(eq(workspaceUserTable.userId, userId));
 
+  const keys = new Set([match[1], ticketId.match(TICKET_ID_PATTERN)?.[1]]);
+
   const matches = await db
-    .select({ id: taskTable.id, workspaceId: projectTable.workspaceId })
+    .select({
+      id: taskTable.id,
+      workspaceId: projectTable.workspaceId,
+      archivedAt: projectTable.archivedAt,
+    })
     .from(taskTable)
     .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
     .where(
       and(
-        ilike(projectTable.slug, escapeLikePattern(match[1])),
+        or(
+          ...[...keys]
+            .filter((key) => key !== undefined)
+            .map((key) => ilike(projectTable.slug, escapeLikePattern(key))),
+        ),
         eq(taskTable.number, number),
         workspaceId ? eq(projectTable.workspaceId, workspaceId) : undefined,
         workspaceSlug
@@ -68,13 +78,14 @@ export default async function getTaskByTicketId(
           : inArray(projectTable.workspaceId, memberWorkspaces),
       ),
     )
+    .orderBy(sql`${projectTable.archivedAt} is not null`)
     .limit(2);
 
-  const matchedTask = matches[0];
+  const [matchedTask, nextMatch] = matches;
   if (!matchedTask) {
     throw new HTTPException(404, { message: "Task not found" });
   }
-  if (matches.length > 1) {
+  if (nextMatch && (matchedTask.archivedAt || !nextMatch.archivedAt)) {
     throw new HTTPException(409, {
       message: "Task ticket ID matches multiple accessible tasks",
     });
