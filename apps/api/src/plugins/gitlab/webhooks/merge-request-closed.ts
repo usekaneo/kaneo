@@ -1,3 +1,4 @@
+import { withIntegrationLink } from "../../github/services/with-integration-link";
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import { externalLinkTable } from "../../../database/schema";
@@ -69,86 +70,111 @@ export async function handleGitlabMergeRequestClosed(
       continue;
     }
 
-    const task = await findTaskById(externalLink.taskId);
+    await withIntegrationLink(
+      externalLink,
+      integration,
+      async (database, afterCommit, lockedLink) => {
+        const task = await findTaskById(externalLink.taskId, database);
 
-    if (!task) {
-      continue;
-    }
+        if (!task) {
+          return;
+        }
 
-    let existingMetadata: Record<string, unknown> = {};
-    if (externalLink.metadata) {
-      try {
-        existingMetadata = JSON.parse(externalLink.metadata) as Record<
-          string,
-          unknown
-        >;
-      } catch (error) {
-        console.warn("Failed to parse GitLab merge request metadata", {
-          externalLinkId: externalLink.id,
-          metadata: externalLink.metadata,
-          error,
+        let existingMetadata: Record<string, unknown> = {};
+        if (lockedLink.metadata) {
+          try {
+            existingMetadata = JSON.parse(lockedLink.metadata) as Record<
+              string,
+              unknown
+            >;
+          } catch (error) {
+            console.warn("Failed to parse GitLab merge request metadata", {
+              externalLinkId: externalLink.id,
+              metadata: lockedLink.metadata,
+              error,
+            });
+          }
+        }
+
+        await updateExternalLink(
+          externalLink.id,
+          {
+            metadata: {
+              ...existingMetadata,
+              state: merged ? "merged" : "closed",
+              draft: false,
+              merged,
+            },
+          },
+          database,
+        );
+
+        afterCommit(() =>
+          publishEvent("task.updated", {
+            projectId: integration.projectId,
+            taskId: task.id,
+          }),
+        );
+
+        if (!merged) {
+          return;
+        }
+
+        const allTaskMergeRequests =
+          await database.query.externalLinkTable.findMany({
+            where: and(
+              eq(externalLinkTable.taskId, task.id),
+              eq(externalLinkTable.resourceType, "pull_request"),
+            ),
+          });
+
+        const hasOpenMergeRequests = allTaskMergeRequests.some((link) => {
+          if (link.id === externalLink.id) return false;
+          try {
+            const metadata = link.metadata
+              ? (JSON.parse(link.metadata) as { state?: string })
+              : {};
+            return metadata.state === "opened";
+          } catch {
+            return false;
+          }
         });
-      }
-    }
 
-    await updateExternalLink(externalLink.id, {
-      metadata: {
-        ...existingMetadata,
-        state: merged ? "merged" : "closed",
-        draft: false,
-        merged,
+        if (hasOpenMergeRequests) {
+          return;
+        }
+
+        const targetStatus = await resolveTargetStatus(
+          integration.projectId,
+          "pr_merged",
+          config.statusTransitions?.onPRMerge || "done",
+          database,
+        );
+
+        const statusResult = await updateTaskStatus(
+          task.id,
+          targetStatus,
+          database,
+        );
+        if (
+          statusResult.applied &&
+          statusResult.before.status !== statusResult.after.status
+        ) {
+          afterCommit(() =>
+            publishEvent("task.status_changed", {
+              taskId: statusResult.after.id,
+              projectId: statusResult.after.projectId,
+              userId: null,
+              oldStatus: statusResult.before.status,
+              newStatus: statusResult.after.status,
+              title: statusResult.after.title,
+              assigneeId: statusResult.after.userId,
+              type: "status_changed",
+            }),
+          );
+        }
       },
-    });
-
-    if (!merged) {
-      return;
-    }
-
-    const allTaskMergeRequests = await db.query.externalLinkTable.findMany({
-      where: and(
-        eq(externalLinkTable.taskId, task.id),
-        eq(externalLinkTable.resourceType, "pull_request"),
-      ),
-    });
-
-    const hasOpenMergeRequests = allTaskMergeRequests.some((link) => {
-      if (link.id === externalLink.id) return false;
-      try {
-        const metadata = link.metadata
-          ? (JSON.parse(link.metadata) as { state?: string })
-          : {};
-        return metadata.state === "opened";
-      } catch {
-        return false;
-      }
-    });
-
-    if (hasOpenMergeRequests) {
-      return;
-    }
-
-    const targetStatus = await resolveTargetStatus(
-      integration.projectId,
-      "pr_merged",
-      config.statusTransitions?.onPRMerge || "done",
     );
-
-    const statusResult = await updateTaskStatus(task.id, targetStatus);
-    if (
-      statusResult.applied &&
-      statusResult.before.status !== statusResult.after.status
-    ) {
-      await publishEvent("task.status_changed", {
-        taskId: statusResult.after.id,
-        projectId: statusResult.after.projectId,
-        userId: null,
-        oldStatus: statusResult.before.status,
-        newStatus: statusResult.after.status,
-        title: statusResult.after.title,
-        assigneeId: statusResult.after.userId,
-        type: "status_changed",
-      });
-    }
 
     return;
   }

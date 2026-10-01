@@ -1,42 +1,50 @@
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-
 const mocks = vi.hoisted(() => ({
   findFirst: vi.fn(),
   delete: vi.fn(),
-  deleteS3Object: vi.fn(),
+  select: vi.fn(),
+  queueStorageCleanup: vi.fn(),
+  retryStorageCleanup: vi.fn(),
   publishEvent: vi.fn(),
   getProjectSubtaskParentProjects: vi.fn(),
 }));
-
 vi.mock("../../../apps/api/src/database", () => ({
   default: {
     query: { projectTable: { findFirst: mocks.findFirst } },
-    delete: mocks.delete,
+    transaction: (fn: (tx: unknown) => Promise<unknown>) =>
+      fn({ select: mocks.select, delete: mocks.delete }),
   },
 }));
-
-vi.mock("../../../apps/api/src/storage/s3", () => ({
-  deleteS3Object: mocks.deleteS3Object,
+vi.mock("../../../apps/api/src/storage/cleanup-queue", () => ({
+  queueStorageCleanup: mocks.queueStorageCleanup,
+  retryStorageCleanup: mocks.retryStorageCleanup,
 }));
-
 vi.mock("../../../apps/api/src/events", () => ({
   publishEvent: mocks.publishEvent,
 }));
-
 vi.mock("../../../apps/api/src/task/get-subtask-parent-projects", () => ({
   getProjectSubtaskParentProjects: mocks.getProjectSubtaskParentProjects,
 }));
-
 import deleteProject from "../../../apps/api/src/project/controllers/delete-project";
-
-function mockDeletedProject(backgroundObjectKey: string | null) {
-  const returning = vi
-    .fn()
-    .mockResolvedValue([{ id: "project-1", backgroundObjectKey }]);
-  const where = vi.fn(() => ({ returning }));
-  mocks.delete.mockReturnValue({ where });
+function seed(backgroundObjectKey: string | null, assets: string[] = []) {
+  const project = {
+    id: "project-1",
+    workspaceId: "workspace-1",
+    backgroundObjectKey,
+  };
+  mocks.select
+    .mockReturnValueOnce({
+      from: () => ({ where: () => ({ for: async () => [project] }) }),
+    })
+    .mockReturnValueOnce({
+      from: () => ({
+        where: async () => assets.map((objectKey) => ({ objectKey })),
+      }),
+    });
+  mocks.delete.mockReturnValue({
+    where: () => ({ returning: async () => [project] }),
+  });
 }
-
 describe("deleteProject", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -45,44 +53,33 @@ describe("deleteProject", () => {
       workspaceId: "workspace-1",
       tasks: [],
     });
-    mocks.deleteS3Object.mockResolvedValue(undefined);
     mocks.getProjectSubtaskParentProjects.mockResolvedValue([
       { projectId: "parent-project" },
     ]);
-    mocks.publishEvent.mockResolvedValue(undefined);
+    mocks.retryStorageCleanup.mockResolvedValue({ degraded: false });
   });
-
-  it("deletes the background object after deleting its project", async () => {
-    mockDeletedProject(
-      "workspace/ws/project/project-1/backgrounds/background-v1",
-    );
-
+  it("queues all attachment keys and the background before the cascade", async () => {
+    seed("background", ["attachment-a", "attachment-b"]);
     await deleteProject("project-1", "workspace-1");
-
+    expect(mocks.queueStorageCleanup).toHaveBeenCalledWith(expect.anything(), [
+      "attachment-a",
+      "attachment-b",
+      "background",
+    ]);
+    expect(mocks.queueStorageCleanup.mock.invocationCallOrder[0]).toBeLessThan(
+      mocks.delete.mock.invocationCallOrder[0],
+    );
     expect(mocks.publishEvent).toHaveBeenCalledWith("subtask-parents.refresh", {
       projects: [{ projectId: "parent-project" }],
     });
-    expect(mocks.deleteS3Object).toHaveBeenCalledWith(
-      "workspace/ws/project/project-1/backgrounds/background-v1",
+  });
+  it("still succeeds while durable cleanup waits for storage recovery", async () => {
+    seed("background");
+    mocks.retryStorageCleanup.mockRejectedValue(
+      new Error("storage unavailable"),
     );
-  });
-
-  it("does not call object storage when the project has no background", async () => {
-    mockDeletedProject(null);
-
-    await deleteProject("project-1", "workspace-1");
-
-    expect(mocks.deleteS3Object).not.toHaveBeenCalled();
-  });
-
-  it("does not fail project deletion when object cleanup fails", async () => {
-    mockDeletedProject("background-v1");
-    mocks.deleteS3Object.mockRejectedValue(new Error("storage unavailable"));
-
     await expect(
       deleteProject("project-1", "workspace-1"),
-    ).resolves.toMatchObject({
-      id: "project-1",
-    });
+    ).resolves.toMatchObject({ id: "project-1" });
   });
 });
