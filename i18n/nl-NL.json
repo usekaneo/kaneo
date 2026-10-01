@@ -2182,6 +2182,9 @@
 			"loadingTask": "Taak laden...",
 			"taskNotFound": "Taak niet gevonden",
 			"taskNotFoundDescription": "De taak die u zoekt bestaat niet of is verwijderd.",
+			"ticketAmbiguous": "Taak-ID komt overeen met meerdere taken",
+			"ticketAmbiguousDescription": "{{ticketId}} komt overeen met taken in meer dan één van uw werkruimtes. Schakel over naar de gewenste werkruimte en open de link opnieuw.",
+			"ticketNotFoundDescription": "Er bestaat geen taak met de ID {{ticketId}} in uw werkruimtes, of u hebt er geen toegang toe.",
 			"customFields": "Custom Fields"
 		},
 		"detail": {

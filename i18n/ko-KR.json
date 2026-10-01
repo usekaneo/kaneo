@@ -2171,6 +2171,9 @@
 			"loadingTask": "작업 로딩 중...",
 			"taskNotFound": "작업을 찾을 수 없음",
 			"taskNotFoundDescription": "찾는 작업이 존재하지 않거나 삭제되었습니다.",
+			"ticketAmbiguous": "작업 ID가 여러 작업과 일치합니다",
+			"ticketAmbiguousDescription": "{{ticketId}}이(가) 여러 워크스페이스의 작업과 일치합니다. 원하는 워크스페이스로 전환한 후 링크를 다시 여세요.",
+			"ticketNotFoundDescription": "워크스페이스에 ID가 {{ticketId}}인 작업이 없거나 해당 작업에 대한 접근 권한이 없습니다.",
 			"customFields": "Custom Fields"
 		},
 		"detail": {

@@ -54,6 +54,14 @@ export const taskWithAssigneeSchema = taskSchema
   })
   .openapi("TaskWithAssignee");
 
+export const taskByTicketIdSchema = taskWithAssigneeSchema
+  .extend({
+    workspaceId: z.string().openapi({
+      description: "The workspace that owns the task's project.",
+    }),
+  })
+  .openapi("TaskByTicketId");
+
 const taskLabelSchema = z
   .object({ id: z.string(), name: z.string(), color: z.string() })
   .openapi("TaskLabel");

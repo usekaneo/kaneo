@@ -8826,6 +8826,15 @@
 						"taskNotFoundDescription": {
 							"type": "string"
 						},
+						"ticketAmbiguous": {
+							"type": "string"
+						},
+						"ticketAmbiguousDescription": {
+							"type": "string"
+						},
+						"ticketNotFoundDescription": {
+							"type": "string"
+						},
 						"customFields": {
 							"type": "string"
 						}
@@ -8835,6 +8844,9 @@
 						"loadingTask",
 						"taskNotFound",
 						"taskNotFoundDescription",
+						"ticketAmbiguous",
+						"ticketAmbiguousDescription",
+						"ticketNotFoundDescription",
 						"customFields"
 					]
 				},
@@ -10745,6 +10757,16 @@
 				},
 				"descriptionLoadError": {
 					"type": "string"
+				},
+				"board": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"reorderFailed": {
+							"type": "string"
+						}
+					},
+					"required": ["reorderFailed"]
 				}
 			},
 			"required": [
@@ -10786,7 +10808,8 @@
 				"descriptionSearchError",
 				"descriptionRetry",
 				"descriptionLoading",
-				"descriptionLoadError"
+				"descriptionLoadError",
+				"board"
 			]
 		},
 		"invitations": {

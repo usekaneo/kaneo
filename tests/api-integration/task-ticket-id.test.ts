@@ -54,6 +54,7 @@ describe("API integration: task ticket ID lookup", () => {
       description: "Full description",
       assigneeName: member.user.name,
       projectId: project.id,
+      workspaceId: member.workspace.id,
       number: 23,
     });
     const missing = await app.request("/api/task/by-ticket-id/DE_-24");
@@ -110,7 +111,10 @@ describe("API integration: task ticket ID lookup", () => {
       `/api/task/by-ticket-id/KAN-12?workspaceId=${other.workspace.id}`,
     );
     expect(selected.status).toBe(200);
-    expect(await selected.json()).toMatchObject({ title: "Second" });
+    expect(await selected.json()).toMatchObject({
+      title: "Second",
+      workspaceId: other.workspace.id,
+    });
   });
 
   it("accepts a ticket ID generated from a numeric-leading project name", async () => {

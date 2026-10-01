@@ -74,6 +74,7 @@ import {
   finalizedAssetSchema,
   imageUploadSchema,
   moveTaskResultSchema,
+  taskByTicketIdSchema,
   taskExportSchema,
   taskImportResultSchema,
   taskSchema,
@@ -344,7 +345,7 @@ const getTaskByTicketIdRoute = createRoute({
     "Get a single task by its project key and number, such as KAN-12. If the ticket ID matches multiple accessible tasks, provide workspaceId or projectId to select one.",
   request: { params: ticketIdParam, query: ticketIdQuery },
   responses: {
-    200: jsonResponse("Task details", taskWithAssigneeSchema),
+    200: jsonResponse("Task details", taskByTicketIdSchema),
     400: errorResponse("Invalid ticket ID"),
     404: errorResponse("No accessible task has this ticket ID"),
     409: errorResponse("Ticket ID matches multiple accessible tasks"),

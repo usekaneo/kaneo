@@ -1065,6 +1065,25 @@
           "createdAt"
         ]
       },
+      "TaskByTicketId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TaskWithAssignee"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "workspaceId": {
+                "type": "string",
+                "description": "The workspace that owns the task's project."
+              }
+            },
+            "required": [
+              "workspaceId"
+            ]
+          }
+        ]
+      },
       "TaskWithAssignee": {
         "allOf": [
           {
@@ -9274,7 +9293,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskWithAssignee"
+                  "$ref": "#/components/schemas/TaskByTicketId"
                 }
               }
             }

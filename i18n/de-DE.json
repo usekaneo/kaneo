@@ -2182,6 +2182,9 @@
 			"loadingTask": "Aufgabe wird geladen...",
 			"taskNotFound": "Aufgabe nicht gefunden",
 			"taskNotFoundDescription": "Die gesuchte Aufgabe existiert nicht oder wurde gelöscht.",
+			"ticketAmbiguous": "Aufgaben-ID passt zu mehreren Aufgaben",
+			"ticketAmbiguousDescription": "{{ticketId}} passt zu Aufgaben in mehreren deiner Workspaces. Wechsle zum gewünschten Workspace und öffne den Link erneut.",
+			"ticketNotFoundDescription": "In deinen Workspaces gibt es keine Aufgabe mit der ID {{ticketId}}, oder du hast keinen Zugriff darauf.",
 			"customFields": "Custom Fields"
 		},
 		"detail": {

@@ -45,6 +45,20 @@ Save the repository connection, verify its current settings, then choose **Impor
 
 Choose your branch naming pattern in the integration settings. In the project’s [Workflow settings](/core/functional/configure-workflows), map branch pushes, opened pull requests, and merged pull requests to the intended columns. Try one task first and check its status before adopting the pattern across your team.
 
+## Link task IDs to Kaneo
+
+Every task opens at a short URL built from its ticket ID, such as `https://kaneo.example.com/tasks/KAN-12`. Kaneo finds the task among the signed-in user’s workspaces and redirects to it. When the same ID exists in more than one of their workspaces, the active workspace wins.
+
+To turn references such as `KAN-12` in Gitea commits and pull requests into links, open the repository’s **Settings**, enable **Use External Issue Tracker**, and set:
+
+| Gitea setting | Value |
+| --- | --- |
+| External Issue Tracker URL | `https://kaneo.example.com` |
+| External Issue Tracker URL Format | `https://kaneo.example.com/tasks/{index}` |
+| External Issue Tracker Number Format | Alphanumeric |
+
+The alphanumeric format only matches keys of one to ten uppercase letters. For keys with digits or other characters, choose **Regular Expression** and capture the whole ticket ID, for example `([A-Z0-9]+-\d+)`.
+
 ## Replace a token or disconnect
 
 To rotate credentials, enter a replacement token, verify access, and save. On an existing connection, an empty token field keeps the saved token; it does not clear it.

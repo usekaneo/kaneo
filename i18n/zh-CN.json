@@ -2171,6 +2171,9 @@
 			"loadingTask": "正在加载任务…",
 			"taskNotFound": "未找到任务",
 			"taskNotFoundDescription": "你查找的任务不存在或已删除。",
+			"ticketAmbiguous": "该任务 ID 匹配多个任务",
+			"ticketAmbiguousDescription": "{{ticketId}} 匹配你多个工作区中的任务。请切换到目标工作区，然后重新打开链接。",
+			"ticketNotFoundDescription": "你的工作区中不存在 ID 为 {{ticketId}} 的任务，或你无权访问该任务。",
 			"customFields": "Custom Fields"
 		},
 		"detail": {

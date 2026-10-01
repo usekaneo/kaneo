@@ -41,7 +41,7 @@ export default async function getTaskByTicketId(
     .where(eq(workspaceUserTable.userId, userId));
 
   const matches = await db
-    .select({ id: taskTable.id })
+    .select({ id: taskTable.id, workspaceId: projectTable.workspaceId })
     .from(taskTable)
     .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
     .where(
@@ -67,5 +67,8 @@ export default async function getTaskByTicketId(
     });
   }
 
-  return getTask(matchedTask.id);
+  return {
+    ...(await getTask(matchedTask.id)),
+    workspaceId: matchedTask.workspaceId,
+  };
 }

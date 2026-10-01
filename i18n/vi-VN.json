@@ -2171,6 +2171,9 @@
 			"loadingTask": "Đang tải công việc...",
 			"taskNotFound": "Không tìm thấy công việc",
 			"taskNotFoundDescription": "Công việc bạn đang tìm không tồn tại hoặc đã bị xóa.",
+			"ticketAmbiguous": "Mã công việc khớp với nhiều công việc",
+			"ticketAmbiguousDescription": "{{ticketId}} khớp với công việc trong nhiều không gian làm việc của bạn. Hãy chuyển sang không gian làm việc bạn muốn rồi mở lại liên kết.",
+			"ticketNotFoundDescription": "Không có công việc nào có mã {{ticketId}} trong không gian làm việc của bạn, hoặc bạn không có quyền truy cập.",
 			"customFields": "Custom Fields"
 		},
 		"detail": {

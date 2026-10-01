@@ -2460,6 +2460,9 @@
 			"selectTask": "Wybierz zadanie",
 			"taskNotFound": "Nie znaleziono zadania",
 			"taskNotFoundDescription": "Zadanie, którego szukasz, nie istnieje lub zostało usunięte.",
+			"ticketAmbiguous": "Identyfikator pasuje do więcej niż jednego zadania",
+			"ticketAmbiguousDescription": "{{ticketId}} pasuje do zadań w więcej niż jednym z Twoich obszarów roboczych. Przełącz się na właściwy obszar roboczy i ponownie otwórz link.",
+			"ticketNotFoundDescription": "W Twoich obszarach roboczych nie ma zadania o identyfikatorze {{ticketId}} lub nie masz do niego dostępu.",
 			"customFields": "Custom Fields"
 		},
 		"contextMenu": {
