@@ -189,6 +189,9 @@ describe("API integration: task ticket ID lookup", () => {
     );
     expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({ title: "Full-width key" });
+    const normalized = await app.request("/api/task/by-ticket-id/abc-1");
+    expect(normalized.status).toBe(200);
+    expect(await normalized.json()).toMatchObject({ title: "Full-width key" });
   });
 
   it("prefers an active project over an archived one sharing its key", async () => {
