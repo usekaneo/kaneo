@@ -109,6 +109,53 @@ docker compose up -d --force-recreate kaneo
 
 A plain restart keeps the old environment. If you use a proxy in another container, connect it to Kaneo's Docker network and proxy to `kaneo:5173` instead of the host's loopback address.
 
+## Keep secrets in files
+
+Instead of putting `POSTGRES_PASSWORD` and `AUTH_SECRET` in `.env`, you can mount them as Docker secret files. This requires a Kaneo release that includes `_FILE` support, so raise `KANEO_IMAGE_TAG` past `2.28.3` first.
+
+Move the values you already use from `.env` into their own files:
+
+```bash
+mkdir -p secrets
+sed -n 's/^POSTGRES_PASSWORD=//p' .env > secrets/postgres_password
+sed -n 's/^AUTH_SECRET=//p' .env > secrets/auth_secret
+chmod 700 secrets
+chmod 644 secrets/*
+```
+
+Keep the current values. PostgreSQL sets its password only when it first initializes the `postgres_data` volume, so a new value in the file would no longer match the database. A new `AUTH_SECRET` would also sign everyone out. Generate fresh values with `openssl rand -hex 32` only for a new installation that has not started yet.
+
+Compose mounts these files with their host ownership, and the containers read them as non-root users (UID 1001 for Kaneo, `postgres` for PostgreSQL). The files therefore need to be readable by other users, while the `700` directory keeps other accounts on the host from reaching them.
+
+Remove `POSTGRES_PASSWORD` and `AUTH_SECRET` from `.env`. In `compose.yml`, replace the `POSTGRES_PASSWORD` line of the `postgres` service and add the secrets to both services:
+
+```yaml
+services:
+  postgres:
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-kaneo}
+      POSTGRES_DB: ${POSTGRES_DB:-kaneo}
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_password
+
+  kaneo:
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      AUTH_SECRET_FILE: /run/secrets/auth_secret
+    secrets:
+      - postgres_password
+      - auth_secret
+
+secrets:
+  postgres_password:
+    file: ./secrets/postgres_password
+  auth_secret:
+    file: ./secrets/auth_secret
+```
+
+Keep the other keys of each service as they are. For [custom OAuth](/core/social-providers/custom-oauth), mount the client secret the same way and set `CUSTOM_OAUTH_CLIENT_SECRET_FILE`. A direct value in `.env` takes precedence over its `_FILE` variable, so leave the direct variable unset. See the [environment variable reference](/core/installation/environment-variables#authentication) for how files are read and what happens when one is missing.
+
 ## Optional features
 
 - [Silo](/core/installation/silo) stores images and attachments.
