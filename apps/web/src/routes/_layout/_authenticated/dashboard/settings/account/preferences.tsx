@@ -18,6 +18,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useLocale } from "@/hooks/use-locale";
+import { getLocaleLabel } from "@/lib/i18n/get-locale-label";
 import {
   isWeekStartDay,
   useUserPreferencesStore,
@@ -30,18 +31,6 @@ export const Route = createFileRoute(
 )({
   component: RouteComponent,
 });
-
-function getLocaleLabel(locale: AppLocale) {
-  try {
-    const localeObj = new Intl.Locale(locale);
-    const languageDisplayNames = new Intl.DisplayNames([locale], {
-      type: "language",
-    });
-    return languageDisplayNames.of(localeObj.language) ?? locale;
-  } catch {
-    return locale;
-  }
-}
 
 function RouteComponent() {
   const { t } = useTranslation();
