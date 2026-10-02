@@ -50,19 +50,22 @@ vi.mock("@/hooks/use-project-background", () => ({
 vi.mock("../bulk-selection/bulk-toolbar", () => ({ default: () => null }));
 vi.mock("./column", () => ({
   default: ({
+    automaticSortLabel,
     column,
-    isPriorityOverlaySuppressed,
-    priorityOverlayColumnId,
+    isSortOverlaySuppressed,
+    sortOverlayColumnId,
   }: {
+    automaticSortLabel?: string;
     column: { id: string; tasks: { id: string }[] };
-    isPriorityOverlaySuppressed: boolean;
-    priorityOverlayColumnId: string | null;
+    isSortOverlaySuppressed: boolean;
+    sortOverlayColumnId: string | null;
   }) => (
     <div
       data-testid={`column-${column.id}`}
       data-task-ids={column.tasks.map((task) => task.id).join(",")}
-      data-priority-overlay={
-        priorityOverlayColumnId === column.id && !isPriorityOverlaySuppressed
+      data-automatic-sort-label={automaticSortLabel}
+      data-sort-overlay={
+        sortOverlayColumnId === column.id && !isSortOverlaySuppressed
           ? "visible"
           : "hidden"
       }
@@ -269,6 +272,60 @@ it("places a cross-column drop at the bottom without Command", () => {
   );
 });
 
+it("keeps modifier-assisted drops append-only on number-sorted boards", () => {
+  const canonical = {
+    id: "p",
+    columns: [
+      {
+        id: "todo",
+        slug: "todo",
+        tasks: [{ id: "a", status: "todo", position: 0, priority: "low" }],
+      },
+      {
+        id: "doing",
+        slug: "doing",
+        tasks: [
+          { id: "c", status: "doing", position: 0, priority: "high" },
+          { id: "d", status: "doing", position: 1, priority: "medium" },
+        ],
+      },
+    ],
+    plannedTasks: [],
+    archivedTasks: [],
+  } as unknown as ProjectWithTasks;
+  mocks.project = canonical;
+  const view = render(
+    <KanbanBoard project={canonical} sortedByNumber={true} />,
+  );
+
+  fireEvent.click(view.getByText("start"), { ctrlKey: true });
+  fireEvent.click(view.getByText("over"));
+  fireEvent.keyDown(window, { key: "Control", ctrlKey: true });
+  fireEvent.click(view.getByText("over-center"));
+
+  expect(view.getByTestId("column-doing")).toHaveAttribute(
+    "data-sort-overlay",
+    "visible",
+  );
+  expect(view.getByTestId("column-doing")).toHaveAttribute(
+    "data-automatic-sort-label",
+    "tasks:sort.fields.number",
+  );
+  expect(view.getByTestId("column-doing")).toHaveAttribute(
+    "data-task-ids",
+    "c,d",
+  );
+
+  fireEvent.click(view.getByText("drop-c"));
+
+  expect(
+    mocks.setProject.mock.calls[0][0].columns[1].tasks.map(
+      (task: { id: string }) => task.id,
+    ),
+  ).toEqual(["c", "d", "a"]);
+  expect(mocks.reorder).toHaveBeenCalledOnce();
+});
+
 describe.each([
   ["⌘", "Meta", "metaKey"],
   ["Ctrl", "Control", "ctrlKey"],
@@ -298,22 +355,28 @@ describe.each([
         archivedTasks: [],
       } as unknown as ProjectWithTasks;
       mocks.project = canonical;
-      const view = render(<KanbanBoard project={canonical} />);
+      const view = render(
+        <KanbanBoard project={canonical} sortedByPriority={true} />,
+      );
 
       fireEvent.click(view.getByText("start"), {
         [modifier]: commandState === "held-at-start",
       });
       fireEvent.click(view.getByText("over"));
       expect(view.getByTestId("column-doing")).toHaveAttribute(
-        "data-priority-overlay",
+        "data-sort-overlay",
         commandState === "held-at-start" ? "hidden" : "visible",
+      );
+      expect(view.getByTestId("column-doing")).toHaveAttribute(
+        "data-automatic-sort-label",
+        "tasks:sort.fields.priority",
       );
 
       if (commandState !== "held-at-start")
         fireEvent.keyDown(window, { key, [modifier]: true });
       fireEvent.keyUp(window, { key: "a", [modifier]: true });
       expect(view.getByTestId("column-doing")).toHaveAttribute(
-        "data-priority-overlay",
+        "data-sort-overlay",
         "hidden",
       );
       expect(view.getByTestId("column-doing")).toHaveAttribute(
@@ -343,7 +406,7 @@ describe.each([
         fireEvent.blur(window);
       }
       expect(view.getByTestId("column-doing")).toHaveAttribute(
-        "data-priority-overlay",
+        "data-sort-overlay",
         "visible",
       );
       expect(view.getByTestId("column-doing")).toHaveAttribute(

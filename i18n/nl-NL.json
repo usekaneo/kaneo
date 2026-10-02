@@ -2502,6 +2502,7 @@
 		},
 		"kanban": {
 			"addTask": "Taak toevoegen",
+			"automaticallySortedOverlayHint": "Automatisch gesorteerd op {{sort}}",
 			"priorityOrderedOverlayHint": "Houd {{key}} ingedrukt om kaarten te sorteren"
 		},
 		"pr": {

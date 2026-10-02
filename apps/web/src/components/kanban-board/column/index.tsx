@@ -12,8 +12,9 @@ type ColumnProps = {
   column: ProjectWithTasks["columns"][number];
   activeTaskId?: string | null;
   sourceColumnId?: string;
-  isPriorityOverlaySuppressed?: boolean;
-  priorityOverlayColumnId?: string | null;
+  automaticSortLabel?: string;
+  isSortOverlaySuppressed?: boolean;
+  sortOverlayColumnId?: string | null;
   disableDragDrop?: boolean;
   disableCollectionActions?: boolean;
 };
@@ -65,8 +66,9 @@ function Column({
   isDragPreview = false,
   activeTaskId = null,
   sourceColumnId,
-  isPriorityOverlaySuppressed = false,
-  priorityOverlayColumnId = null,
+  automaticSortLabel,
+  isSortOverlaySuppressed = false,
+  sortOverlayColumnId = null,
   disableDragDrop = false,
   disableCollectionActions = false,
 }: ColumnProps) {
@@ -74,11 +76,11 @@ function Column({
   const { background } = useBackgroundStore();
   const { t } = useTranslation();
   const isActiveTaskColumn = column.id === sourceColumnId;
-  const showPriorityOverlay =
-    priorityOverlayColumnId === column.id &&
+  const showSortOverlay =
+    sortOverlayColumnId === column.id &&
     activeTaskId !== null &&
     !isActiveTaskColumn &&
-    !isPriorityOverlaySuppressed;
+    !isSortOverlaySuppressed;
 
   return (
     <div
@@ -101,12 +103,16 @@ function Column({
           onIsOverChange={setIsDropzoneOver}
         />
       </div>
-      {showPriorityOverlay && (
+      {showSortOverlay && (
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-white/85 px-4 text-center">
           <span className="text-sm font-medium text-neutral-950">
-            {t("tasks:kanban.priorityOrderedOverlayHint", {
-              key: getModifierKeyText(),
-            })}
+            {automaticSortLabel
+              ? t("tasks:kanban.automaticallySortedOverlayHint", {
+                  sort: automaticSortLabel,
+                })
+              : t("tasks:kanban.priorityOrderedOverlayHint", {
+                  key: getModifierKeyText(),
+                })}
           </span>
         </div>
       )}

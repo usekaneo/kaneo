@@ -240,9 +240,9 @@ function KanbanBoard({
     const activatorEvent = event.activatorEvent as
       | (Event & { metaKey?: boolean; ctrlKey?: boolean })
       | undefined;
-    const modifierHeld = Boolean(
-      activatorEvent?.metaKey || (!isMac && activatorEvent?.ctrlKey),
-    );
+    const modifierHeld =
+      !sortedByNumber &&
+      Boolean(activatorEvent?.metaKey || (!isMac && activatorEvent?.ctrlKey));
     setIsSortModifierHeld(modifierHeld);
     isSortedReorderActiveRef.current = modifierHeld;
     setIsSortedReorderActive(modifierHeld);
@@ -287,7 +287,12 @@ function KanbanBoard({
   };
 
   useEffect(() => {
-    if (!isSortedReorderActive || !activeId || !hoverPlacement) {
+    if (
+      sortedByNumber ||
+      !isSortedReorderActive ||
+      !activeId ||
+      !hoverPlacement
+    ) {
       dragPreviewProjectRef.current = null;
       setDragPreviewProject(null);
       return;
@@ -305,11 +310,18 @@ function KanbanBoard({
         )?.project ?? current;
       return next;
     });
-  }, [activeId, hoverPlacement, isSortedReorderActive, project]);
+  }, [
+    activeId,
+    hoverPlacement,
+    isSortedReorderActive,
+    project,
+    sortedByNumber,
+  ]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    const shouldAllowSortedReorder = isSortedReorderActiveRef.current;
+    const shouldAllowSortedReorder =
+      !sortedByNumber && isSortedReorderActiveRef.current;
     const finalHoverPlacement = hoverPlacementRef.current;
     const finalPreviewProject = dragPreviewProjectRef.current;
     const visualPlacement =
@@ -426,6 +438,7 @@ function KanbanBoard({
       setDragPreviewProject(null);
     };
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (sortedByNumber) return;
       if (
         event.key !== "Meta" &&
         !event.metaKey &&
@@ -451,7 +464,7 @@ function KanbanBoard({
       window.removeEventListener("keyup", handleKeyUp, { capture: true });
       window.removeEventListener("blur", handleBlur);
     };
-  }, [isMac]);
+  }, [isMac, sortedByNumber]);
 
   if (!project?.columns) {
     return (
@@ -546,8 +559,15 @@ function KanbanBoard({
                       column.tasks.some((task) => task.id === activeId),
                     )?.id
                   }
-                  isPriorityOverlaySuppressed={isSortModifierHeld}
-                  priorityOverlayColumnId={overColumnId}
+                  automaticSortLabel={
+                    sortedByNumber
+                      ? t("tasks:sort.fields.number")
+                      : sortedByPriority
+                        ? t("tasks:sort.fields.priority")
+                        : undefined
+                  }
+                  isSortOverlaySuppressed={isSortModifierHeld}
+                  sortOverlayColumnId={overColumnId}
                   disableDragDrop={disableDragDrop}
                   disableCollectionActions={disableCollectionActions}
                 />

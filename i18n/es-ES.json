@@ -2513,6 +2513,7 @@
 		},
 		"kanban": {
 			"addTask": "Añadir tarea",
+			"automaticallySortedOverlayHint": "Ordenado automáticamente por {{sort}}",
 			"priorityOrderedOverlayHint": "Mantén pulsada {{key}} para ordenar las tarjetas"
 		},
 		"pr": {

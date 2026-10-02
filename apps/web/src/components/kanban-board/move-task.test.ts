@@ -75,18 +75,21 @@ describe("board moves", () => {
     ]);
   });
 
-  it("can reorder against a target card when a sorted board override is active", () => {
-    const moved = moveBoardTask(board(), "a", "c", true, true)!;
+  it("keeps number-sorted moves append-only when a sorted override is active", () => {
+    const original = board();
+    original.columns[1].tasks.push({
+      id: "d",
+      status: "doing",
+      position: 1,
+    } as (typeof original.columns)[number]["tasks"][number]);
+    const moved = moveBoardTask(original, "a", "c", true, true)!;
 
     expect(moved.project.columns[1].tasks.map((task) => task.id)).toEqual([
       "c",
+      "d",
       "a",
     ]);
-    expect(moved.tasks).toEqual([
-      { id: "hidden", position: 0 },
-      { id: "b", position: 1 },
-      { id: "a", position: 1, status: "doing" },
-    ]);
+    expect(moved.tasks).toEqual([{ id: "a", position: 2, status: "doing" }]);
   });
 
   it("can insert before a cross-column target for a visual drag preview", () => {

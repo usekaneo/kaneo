@@ -2650,6 +2650,7 @@
 		},
 		"kanban": {
 			"addTask": "Dodaj zadanie",
+			"automaticallySortedOverlayHint": "Automatyczne sortowanie: {{sort}}",
 			"priorityOrderedOverlayHint": "Przytrzymaj {{key}}, aby uporządkować karty"
 		},
 		"labels": {

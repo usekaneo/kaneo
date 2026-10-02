@@ -39,7 +39,7 @@ export function moveBoardTask(
     !source ||
     !destination ||
     activeId === overId ||
-    (sortedByNumber && !allowSortedReorder && source.id === destination.id)
+    (sortedByNumber && source.id === destination.id)
   )
     return null;
   const next = produce(project, (draft) => {
@@ -48,7 +48,7 @@ export function moveBoardTask(
     const sourceIndex = from.tasks.findIndex((task) => task.id === activeId);
     const [task] = from.tasks.splice(sourceIndex, 1);
     task.status = to.slug;
-    if (sortedByNumber && !allowSortedReorder) {
+    if (sortedByNumber) {
       task.position =
         Math.max(-1, ...to.tasks.map((task) => task.position ?? -1)) + 1;
       to.tasks.push(task);

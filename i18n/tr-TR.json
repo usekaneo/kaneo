@@ -2513,6 +2513,7 @@
 		},
 		"kanban": {
 			"addTask": "Talep ekle",
+			"automaticallySortedOverlayHint": "{{sort}} ölçütüne göre otomatik olarak sıralandı",
 			"priorityOrderedOverlayHint": "Kartları sıralamak için {{key}} tuşunu basılı tutun"
 		},
 		"pr": {

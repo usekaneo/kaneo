@@ -2510,6 +2510,7 @@
 		},
 		"kanban": {
 			"addTask": "タスクを追加",
+			"automaticallySortedOverlayHint": "{{sort}}で自動的に並べ替え",
 			"priorityOrderedOverlayHint": "{{key}}を押しながらカードを並べ替え"
 		},
 		"pr": {

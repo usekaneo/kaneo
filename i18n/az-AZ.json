@@ -2521,6 +2521,7 @@
 		},
 		"kanban": {
 			"addTask": "Tapşırıq əlavə et",
+			"automaticallySortedOverlayHint": "Avtomatik olaraq {{sort}} üzrə sıralanıb",
 			"priorityOrderedOverlayHint": "Kartları sıralamaq üçün {{key}} düyməsini basılı saxlayın"
 		},
 		"pr": {

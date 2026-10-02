@@ -2555,6 +2555,7 @@
 		},
 		"kanban": {
 			"addTask": "Добавить задачу",
+			"automaticallySortedOverlayHint": "Автоматическая сортировка: {{sort}}",
 			"priorityOrderedOverlayHint": "Удерживайте {{key}}, чтобы изменить порядок карточек"
 		},
 		"pr": {

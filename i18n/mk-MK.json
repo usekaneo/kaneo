@@ -2513,6 +2513,7 @@
 		},
 		"kanban": {
 			"addTask": "Додади задача",
+			"automaticallySortedOverlayHint": "Автоматски подредено според {{sort}}",
 			"priorityOrderedOverlayHint": "Држете го притиснато {{key}} за да ги подредите картичките"
 		},
 		"pr": {
