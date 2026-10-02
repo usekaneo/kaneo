@@ -8,7 +8,6 @@ export type AnalyticsEvent =
 
 export type TrackOptions = {
   props?: Record<string, string | number | boolean>;
-  revenue?: { currency: string; amount: number };
 };
 
 declare global {
