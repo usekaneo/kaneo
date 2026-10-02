@@ -34,7 +34,7 @@ export function ActivityFeed({ workspaceId }: ActivityFeedProps) {
             </div>
           ))}
         </div>
-      ) : isError ? (
+      ) : isError && !activities ? (
         <p className="py-6 text-muted-foreground text-sm">
           {t("workspace:home.activity.loadError")}
         </p>

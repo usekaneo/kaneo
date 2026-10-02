@@ -38,6 +38,26 @@ async function getAssignedTasks(workspaceId: string, userId: string) {
     sql`not ${taskIsCompleted}`,
   );
 
+  // Existing databases may contain duplicate slugs from concurrent column
+  // creation. A lateral lookup must return at most one decoration per task.
+  const statusColumn = db
+    .select({ name: columnTable.name, icon: columnTable.icon })
+    .from(columnTable)
+    .where(
+      and(
+        eq(columnTable.projectId, taskTable.projectId),
+        eq(columnTable.slug, taskTable.status),
+      ),
+    )
+    .orderBy(
+      sql`case when ${columnTable.id} = ${taskTable.columnId} then 0 else 1 end`,
+      asc(columnTable.position),
+      asc(columnTable.createdAt),
+      asc(columnTable.id),
+    )
+    .limit(1)
+    .as("assigned_status_column");
+
   const [tasks, [totals]] = await Promise.all([
     db
       .select({
@@ -46,8 +66,8 @@ async function getAssignedTasks(workspaceId: string, userId: string) {
         number: taskTable.number,
         title: taskTable.title,
         status: taskTable.status,
-        statusName: columnTable.name,
-        statusIcon: columnTable.icon,
+        statusName: statusColumn.name,
+        statusIcon: statusColumn.icon,
         priority: taskTable.priority,
         dueDate: taskTable.dueDate,
         projectName: projectTable.name,
@@ -56,13 +76,7 @@ async function getAssignedTasks(workspaceId: string, userId: string) {
       })
       .from(taskTable)
       .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
-      .leftJoin(
-        columnTable,
-        and(
-          eq(columnTable.projectId, taskTable.projectId),
-          eq(columnTable.slug, taskTable.status),
-        ),
-      )
+      .leftJoinLateral(statusColumn, sql`true`)
       .where(openAndMine)
       .orderBy(
         sql`${taskTable.dueDate} asc nulls last`,

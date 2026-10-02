@@ -151,6 +151,40 @@ describe("API integration: assigned tasks", () => {
     });
   });
 
+  it("returns each task once when existing columns share a slug", async () => {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    await db.insert(schema.columnTable).values({
+      projectId: project.id,
+      name: "Duplicate to-do",
+      slug: columns.todo.slug,
+      position: -1,
+    });
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "Once only",
+        status: columns.todo.slug,
+        columnId: columns.todo.id,
+        userId: member.user.id,
+      })
+      .returning();
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+    const response = await app.request(
+      `/api/task/assigned?workspaceId=${member.workspace.id}`,
+    );
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as AssignedTasksResponse;
+    expect(body.total).toBe(1);
+    expect(body.tasks).toEqual([
+      expect.objectContaining({ id: task.id, statusName: columns.todo.name }),
+    ]);
+  });
+
   it("refuses a workspace the caller does not belong to", async () => {
     const member = await createWorkspaceMember();
     const outsider = await createWorkspaceMember();

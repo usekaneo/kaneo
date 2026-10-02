@@ -61,7 +61,7 @@ function RouteComponent() {
                 </div>
               ))}
             </div>
-          ) : isError ? (
+          ) : isError && !assigned ? (
             <p className="p-6 text-muted-foreground text-sm">
               {t("workspace:myWork.loadError")}
             </p>

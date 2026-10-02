@@ -60,7 +60,7 @@ export function UpNext({
             </div>
           ))}
         </div>
-      ) : isError ? (
+      ) : isError && !tasks ? (
         <p className="py-6 text-muted-foreground text-sm">
           {t("workspace:myWork.loadError")}
         </p>

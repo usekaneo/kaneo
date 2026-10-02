@@ -38,7 +38,7 @@ export function HomeProjects({ workspaceId }: HomeProjectsProps) {
           aria-label={t("common:empty.loading")}
           className="h-28 w-full"
         />
-      ) : isError ? (
+      ) : isError && !projects ? (
         <p role="alert" className="text-muted-foreground text-sm">
           {t("workspace:home.projects.loadError")}
         </p>
