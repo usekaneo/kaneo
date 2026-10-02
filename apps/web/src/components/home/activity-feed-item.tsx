@@ -53,7 +53,9 @@ export function ActivityFeedItem({
             className="min-w-0 truncate hover:text-foreground"
           >
             <span className="font-medium">
-              {activity.projectSlug}-{activity.taskNumber}
+              {activity.taskNumber == null
+                ? activity.projectSlug
+                : `${activity.projectSlug}-${activity.taskNumber}`}
             </span>{" "}
             {activity.taskTitle}
           </Link>

@@ -33,7 +33,9 @@ export function AssignedTaskRow({
         {getColumnIcon(task.status, false, task.statusIcon)}
       </span>
       <span className="w-16 shrink-0 truncate font-medium text-muted-foreground text-xs">
-        {task.projectSlug}-{task.number}
+        {task.number == null
+          ? task.projectSlug
+          : `${task.projectSlug}-${task.number}`}
       </span>
       <span className="min-w-0 flex-1 truncate text-foreground text-sm">
         {task.title}

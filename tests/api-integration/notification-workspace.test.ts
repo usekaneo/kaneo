@@ -114,6 +114,43 @@ describe("workspace inbox", () => {
     ).toEqual([foreign.id, anotherUser.id].sort());
   });
 
+  it("keeps resource-less integration alerts accessible in workspace inboxes", async () => {
+    const { member, other, app } = await fixture();
+    const [global] = await db
+      .insert(schema.notificationTable)
+      .values({
+        userId: member.user.id,
+        title: "Integration alert",
+      })
+      .returning();
+    for (const workspaceId of [member.workspace.id, other.workspace.id]) {
+      const response = await app.request(
+        `/api/notification?workspaceId=${workspaceId}`,
+      );
+      expect(await response.json()).toEqual(
+        expect.arrayContaining([expect.objectContaining({ id: global.id })]),
+      );
+    }
+    await app.request(
+      `/api/notification/read-all?workspaceId=${member.workspace.id}`,
+      { method: "PATCH" },
+    );
+    expect(
+      (await db.select().from(schema.notificationTable)).find(
+        (n) => n.id === global.id,
+      )?.isRead,
+    ).toBe(true);
+    await app.request(
+      `/api/notification/clear-all?workspaceId=${other.workspace.id}`,
+      { method: "DELETE" },
+    );
+    expect(
+      (await db.select().from(schema.notificationTable)).some(
+        (n) => n.id === global.id,
+      ),
+    ).toBe(false);
+  });
+
   it("keeps the unscoped API compatible and rejects empty workspace filters", async () => {
     const { local, workspace, foreign, app } = await fixture();
     const response = await app.request("/api/notification");

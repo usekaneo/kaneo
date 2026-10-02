@@ -83,7 +83,9 @@ export function WeekStrip({ tasks, workspaceId }: WeekStripProps) {
                   >
                     {day.isPast
                       ? t("workspace:myWork.due.overdue")
-                      : `${task.projectSlug}-${task.number}`}
+                      : task.number == null
+                        ? task.projectSlug
+                        : `${task.projectSlug}-${task.number}`}
                   </span>
                   <span className="truncate text-foreground text-xs">
                     {task.title}

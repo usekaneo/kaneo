@@ -13,6 +13,7 @@ import PageTitle from "@/components/page-title";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import { Button } from "@/components/ui/button";
 import useGetAssignedTasks from "@/hooks/queries/task/use-get-assigned-tasks";
+import { useLocalDay } from "@/hooks/use-local-day";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { formatDate } from "@/lib/format";
 
@@ -24,6 +25,7 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { t } = useTranslation();
+  const day = useLocalDay();
   const { workspaceId } = Route.useParams();
   const {
     data: assigned,
@@ -49,7 +51,7 @@ function RouteComponent() {
             <header className="flex items-end justify-between gap-4">
               <div className="flex flex-col gap-1.5">
                 <p className="font-medium text-[13px] text-muted-foreground">
-                  {formatDate(new Date(), {
+                  {formatDate(new Date(day), {
                     weekday: "long",
                     month: "long",
                     day: "numeric",

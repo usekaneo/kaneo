@@ -22,12 +22,12 @@ const VISIBLE_ACTIVITIES = 6;
 // without leaving the inbox.
 export function InboxTask({ taskId }: InboxTaskProps) {
   const { t } = useTranslation();
-  const { data: task, isLoading, isError } = useGetTask(taskId);
+  const { data: task, isLoading, isError } = useGetTask(taskId, true);
   const {
     data: activities = [],
     isPending: activityPending,
     isError: activityError,
-  } = useGetActivitiesByTaskId(taskId);
+  } = useGetActivitiesByTaskId(taskId, true);
   const { canUpdateTasks } = useWorkspacePermission();
 
   if (isLoading) {

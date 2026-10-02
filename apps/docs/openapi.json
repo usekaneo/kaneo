@@ -12719,10 +12719,10 @@
             "schema": {
               "type": "string",
               "minLength": 1,
-              "description": "Limit notifications to resources currently in this workspace. Omit to include all workspaces."
+              "description": "Limit notifications to resources currently in this workspace, plus user-wide notifications with no resource. Omit to include all workspaces."
             },
             "required": false,
-            "description": "Limit notifications to resources currently in this workspace. Omit to include all workspaces.",
+            "description": "Limit notifications to resources currently in this workspace, plus user-wide notifications with no resource. Omit to include all workspaces.",
             "name": "workspaceId",
             "in": "query"
           }
@@ -12894,10 +12894,10 @@
             "schema": {
               "type": "string",
               "minLength": 1,
-              "description": "Limit notifications to resources currently in this workspace. Omit to include all workspaces."
+              "description": "Limit notifications to resources currently in this workspace, plus user-wide notifications with no resource. Omit to include all workspaces."
             },
             "required": false,
-            "description": "Limit notifications to resources currently in this workspace. Omit to include all workspaces.",
+            "description": "Limit notifications to resources currently in this workspace, plus user-wide notifications with no resource. Omit to include all workspaces.",
             "name": "workspaceId",
             "in": "query"
           }
@@ -12932,10 +12932,10 @@
             "schema": {
               "type": "string",
               "minLength": 1,
-              "description": "Limit notifications to resources currently in this workspace. Omit to include all workspaces."
+              "description": "Limit notifications to resources currently in this workspace, plus user-wide notifications with no resource. Omit to include all workspaces."
             },
             "required": false,
-            "description": "Limit notifications to resources currently in this workspace. Omit to include all workspaces.",
+            "description": "Limit notifications to resources currently in this workspace, plus user-wide notifications with no resource. Omit to include all workspaces.",
             "name": "workspaceId",
             "in": "query"
           }

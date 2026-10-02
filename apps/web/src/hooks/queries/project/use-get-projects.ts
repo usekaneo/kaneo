@@ -6,6 +6,10 @@ function useGetProjects({ workspaceId }: { workspaceId: string }) {
     queryFn: () => getProjects({ workspaceId }),
     queryKey: ["projects", workspaceId],
     enabled: !!workspaceId,
+    // Home and the sidebar show statistics without a project socket.
+    refetchInterval: 30_000,
+    refetchOnWindowFocus: "always",
+    refetchOnMount: "always",
   });
 }
 

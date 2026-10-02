@@ -8,10 +8,16 @@ import type { PropsWithChildren } from "react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import useGetWorkspaceActivities from "./activity/use-get-workspace-activities";
 import useGetAssignedTasks from "./task/use-get-assigned-tasks";
+import useGetTask from "./task/use-get-task";
+import useGetActivitiesByTaskId from "./activity/use-get-activities-by-task-id";
+import useGetProjects from "./project/use-get-projects";
 
 const mocks = vi.hoisted(() => ({
   assigned: vi.fn(),
   activities: vi.fn(),
+  task: vi.fn(),
+  comments: vi.fn(),
+  projects: vi.fn(),
 }));
 vi.mock("@/fetchers/task/get-assigned-tasks", () => ({
   default: mocks.assigned,
@@ -19,6 +25,12 @@ vi.mock("@/fetchers/task/get-assigned-tasks", () => ({
 vi.mock("@/fetchers/activity/get-workspace-activities", () => ({
   default: mocks.activities,
 }));
+
+vi.mock("@/fetchers/task/get-task", () => ({ default: mocks.task }));
+vi.mock("@/fetchers/activity/get-activites-by-task-id", () => ({
+  default: mocks.comments,
+}));
+vi.mock("@/fetchers/project/get-projects", () => ({ default: mocks.projects }));
 
 afterEach(() => {
   cleanup();
@@ -42,11 +54,22 @@ describe("personal work refresh", () => {
       total: 1,
     });
     mocks.activities.mockResolvedValue([]);
+    mocks.task.mockResolvedValue({ title: "Before" });
+    mocks.comments.mockResolvedValue([]);
+    mocks.projects.mockResolvedValue([
+      { statistics: { completionPercentage: 0 } },
+    ]);
     const { result } = renderHook(
       () => {
         const tasks = useGetAssignedTasks("workspace");
         const activity = useGetWorkspaceActivities("workspace");
+        const task = useGetTask("task", true);
+        const comments = useGetActivitiesByTaskId("task", true);
+        const projects = useGetProjects({ workspaceId: "workspace" });
         return {
+          task: task.data,
+          comments: comments.data,
+          projects: projects.data,
           tasks: tasks.data,
           activity: activity.data,
           ready: tasks.isSuccess && activity.isSuccess,
@@ -63,6 +86,11 @@ describe("personal work refresh", () => {
       total: 1,
     });
     mocks.activities.mockResolvedValue([{ id: "comment" }]);
+    mocks.task.mockResolvedValue({ title: "After" });
+    mocks.comments.mockResolvedValue([{ id: "comment" }]);
+    mocks.projects.mockResolvedValue([
+      { statistics: { completionPercentage: 50 } },
+    ]);
     await act(async () => {
       await vi.advanceTimersByTimeAsync(30_010);
     });
@@ -72,6 +100,12 @@ describe("personal work refresh", () => {
     });
     expect(result.current.tasks?.tasks[0].title).toBe("After");
     expect(result.current.activity).toEqual([{ id: "comment" }]);
+
+    expect(result.current.task?.title).toBe("After");
+    expect(result.current.comments).toEqual([{ id: "comment" }]);
+    expect(result.current.projects?.[0].statistics.completionPercentage).toBe(
+      50,
+    );
 
     focusManager.setFocused(false);
     const calls = mocks.assigned.mock.calls.length;

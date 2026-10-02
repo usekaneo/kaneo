@@ -6,6 +6,8 @@ import { notificationTable } from "../database/schema";
 export function notificationWorkspaceFilter(workspaceId?: string) {
   if (!workspaceId) return undefined;
   return sql<boolean>`(
+    (${notificationTable.resourceId} IS NULL AND ${notificationTable.resourceType} IS NULL)
+    OR
     (${notificationTable.resourceType} = 'workspace' AND ${notificationTable.resourceId} = ${workspaceId})
     OR (${notificationTable.resourceType} = 'task' AND EXISTS (
       SELECT 1 FROM task AS inbox_task
