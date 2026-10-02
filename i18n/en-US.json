@@ -2527,7 +2527,7 @@
 		},
 		"kanban": {
 			"addTask": "Add task",
-			"priorityOrderedOverlayHint": "Hold ⌘ to sort cards"
+			"priorityOrderedOverlayHint": "Hold {{key}} to sort cards"
 		},
 		"pr": {
 			"merged": "Merged",

@@ -28,7 +28,10 @@ import { rollbackBoardReorder } from "./apply-reorder";
 import { getVisualTaskPlacement, moveBoardTask } from "./move-task";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { produce } from "immer";
-import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import {
+  getModifierKeyText,
+  useRegisterShortcuts,
+} from "@/hooks/use-keyboard-shortcuts";
 import { useProjectBackground } from "@/hooks/use-project-background";
 import { cn } from "@/lib/cn";
 import { useBackgroundStore } from "@/store/background";
@@ -59,6 +62,7 @@ function KanbanBoard({
   sortedByNumber = false,
   sortedByPriority = false,
 }: KanbanBoardProps) {
+  const isMac = getModifierKeyText() === "⌘";
   const queryClient = useQueryClient();
   const { project: storedProject, setProject } = useProjectStore();
   const {
@@ -76,7 +80,7 @@ function KanbanBoard({
   const [dragPreviewProject, setDragPreviewProject] =
     useState<ProjectWithTasks | null>(null);
   const [isSortedReorderActive, setIsSortedReorderActive] = useState(false);
-  const [isCommandHeld, setIsCommandHeld] = useState(false);
+  const [isSortModifierHeld, setIsSortModifierHeld] = useState(false);
   const activeIdRef = useRef<UniqueIdentifier | null>(null);
   const dragPreviewProjectRef = useRef<ProjectWithTasks | null>(null);
   const hoverPlacementRef = useRef<HoverPlacement | null>(null);
@@ -234,12 +238,14 @@ function KanbanBoard({
     setHoverPlacement(null);
     setDragPreviewProject(null);
     const activatorEvent = event.activatorEvent as
-      | (Event & { metaKey?: boolean })
+      | (Event & { metaKey?: boolean; ctrlKey?: boolean })
       | undefined;
-    const metaKey = Boolean(activatorEvent?.metaKey);
-    setIsCommandHeld(metaKey);
-    isSortedReorderActiveRef.current = metaKey;
-    setIsSortedReorderActive(metaKey);
+    const modifierHeld = Boolean(
+      activatorEvent?.metaKey || (!isMac && activatorEvent?.ctrlKey),
+    );
+    setIsSortModifierHeld(modifierHeld);
+    isSortedReorderActiveRef.current = modifierHeld;
+    setIsSortedReorderActive(modifierHeld);
   };
 
   const getColumnIdForOver = (overId: string) => {
@@ -311,7 +317,7 @@ function KanbanBoard({
         ? getVisualTaskPlacement(finalPreviewProject, active.id.toString())
         : null;
     const finalPlacement = visualPlacement ?? finalHoverPlacement;
-    setIsCommandHeld(false);
+    setIsSortModifierHeld(false);
     activeIdRef.current = null;
     setActiveId(null);
     setOverColumnId(null);
@@ -413,21 +419,26 @@ function KanbanBoard({
 
   useEffect(() => {
     const stopSorting = () => {
-      setIsCommandHeld(false);
+      setIsSortModifierHeld(false);
       isSortedReorderActiveRef.current = false;
       setIsSortedReorderActive(false);
       dragPreviewProjectRef.current = null;
       setDragPreviewProject(null);
     };
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Meta" && !event.metaKey) return;
+      if (
+        event.key !== "Meta" &&
+        !event.metaKey &&
+        (isMac || (event.key !== "Control" && !event.ctrlKey))
+      )
+        return;
       if (!activeIdRef.current) return;
-      setIsCommandHeld(true);
+      setIsSortModifierHeld(true);
       isSortedReorderActiveRef.current = true;
       setIsSortedReorderActive(true);
     };
     const handleKeyUp = (event: KeyboardEvent) => {
-      if (!event.metaKey) stopSorting();
+      if (!event.metaKey && (isMac || !event.ctrlKey)) stopSorting();
     };
     const handleBlur = stopSorting;
 
@@ -440,7 +451,7 @@ function KanbanBoard({
       window.removeEventListener("keyup", handleKeyUp, { capture: true });
       window.removeEventListener("blur", handleBlur);
     };
-  }, []);
+  }, [isMac]);
 
   if (!project?.columns) {
     return (
@@ -500,7 +511,7 @@ function KanbanBoard({
       onDragOver={handleDragHover}
       onDragEnd={handleDragEnd}
       onDragCancel={() => {
-        setIsCommandHeld(false);
+        setIsSortModifierHeld(false);
         activeIdRef.current = null;
         setActiveId(null);
         setOverColumnId(null);
@@ -535,7 +546,7 @@ function KanbanBoard({
                       column.tasks.some((task) => task.id === activeId),
                     )?.id
                   }
-                  isPriorityOverlaySuppressed={isCommandHeld}
+                  isPriorityOverlaySuppressed={isSortModifierHeld}
                   priorityOverlayColumnId={overColumnId}
                   disableDragDrop={disableDragDrop}
                   disableCollectionActions={disableCollectionActions}

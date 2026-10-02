@@ -1,3 +1,4 @@
+import { getModifierKeyText } from "@/hooks/use-keyboard-shortcuts";
 import { cva } from "class-variance-authority";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -103,7 +104,9 @@ function Column({
       {showPriorityOverlay && (
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-white/85 px-4 text-center">
           <span className="text-sm font-medium text-neutral-950">
-            {t("tasks:kanban.priorityOrderedOverlayHint")}
+            {t("tasks:kanban.priorityOrderedOverlayHint", {
+              key: getModifierKeyText(),
+            })}
           </span>
         </div>
       )}

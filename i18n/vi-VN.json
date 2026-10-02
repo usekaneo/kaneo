@@ -2502,7 +2502,7 @@
 		},
 		"kanban": {
 			"addTask": "Thêm công việc",
-			"priorityOrderedOverlayHint": "Giữ phím ⌘ để sắp xếp thẻ"
+			"priorityOrderedOverlayHint": "Giữ phím {{key}} để sắp xếp thẻ"
 		},
 		"pr": {
 			"merged": "Đã gộp",

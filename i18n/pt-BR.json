@@ -2524,7 +2524,7 @@
 		},
 		"kanban": {
 			"addTask": "Adicionar tarefa",
-			"priorityOrderedOverlayHint": "Mantenha ⌘ pressionado para ordenar os cartões"
+			"priorityOrderedOverlayHint": "Mantenha {{key}} pressionado para ordenar os cartões"
 		},
 		"pr": {
 			"merged": "Mesclado",

@@ -2502,7 +2502,7 @@
 		},
 		"kanban": {
 			"addTask": "Taak toevoegen",
-			"priorityOrderedOverlayHint": "Houd ⌘ ingedrukt om kaarten te sorteren"
+			"priorityOrderedOverlayHint": "Houd {{key}} ingedrukt om kaarten te sorteren"
 		},
 		"pr": {
 			"merged": "Samengevoegd",

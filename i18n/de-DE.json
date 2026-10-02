@@ -2513,7 +2513,7 @@
 		},
 		"kanban": {
 			"addTask": "Aufgabe hinzufügen",
-			"priorityOrderedOverlayHint": "Halte ⌘ gedrückt, um Karten zu sortieren"
+			"priorityOrderedOverlayHint": "Halte {{key}} gedrückt, um Karten zu sortieren"
 		},
 		"pr": {
 			"merged": "Zusammengeführt",

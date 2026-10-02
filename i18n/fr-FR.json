@@ -2524,7 +2524,7 @@
 		},
 		"kanban": {
 			"addTask": "Ajouter une tâche",
-			"priorityOrderedOverlayHint": "Maintenez ⌘ enfoncée pour trier les cartes"
+			"priorityOrderedOverlayHint": "Maintenez {{key}} enfoncée pour trier les cartes"
 		},
 		"pr": {
 			"merged": "Fusionné",

@@ -2515,7 +2515,7 @@
 		},
 		"kanban": {
 			"addTask": "添加任务",
-			"priorityOrderedOverlayHint": "按住 ⌘ 键以调整卡片顺序"
+			"priorityOrderedOverlayHint": "按住 {{key}} 键以调整卡片顺序"
 		},
 		"pr": {
 			"merged": "已合并",

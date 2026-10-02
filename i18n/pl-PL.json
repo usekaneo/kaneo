@@ -2650,7 +2650,7 @@
 		},
 		"kanban": {
 			"addTask": "Dodaj zadanie",
-			"priorityOrderedOverlayHint": "Przytrzymaj ⌘, aby uporządkować karty"
+			"priorityOrderedOverlayHint": "Przytrzymaj {{key}}, aby uporządkować karty"
 		},
 		"labels": {
 			"empty": "Brak dostępnych etykiet",

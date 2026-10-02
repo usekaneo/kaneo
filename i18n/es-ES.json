@@ -2513,7 +2513,7 @@
 		},
 		"kanban": {
 			"addTask": "Añadir tarea",
-			"priorityOrderedOverlayHint": "Mantén pulsada ⌘ para ordenar las tarjetas"
+			"priorityOrderedOverlayHint": "Mantén pulsada {{key}} para ordenar las tarjetas"
 		},
 		"pr": {
 			"merged": "Mergeada",

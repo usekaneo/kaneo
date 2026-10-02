@@ -2510,7 +2510,7 @@
 		},
 		"kanban": {
 			"addTask": "タスクを追加",
-			"priorityOrderedOverlayHint": "⌘を押しながらカードを並べ替え"
+			"priorityOrderedOverlayHint": "{{key}}を押しながらカードを並べ替え"
 		},
 		"pr": {
 			"merged": "マージ済み",

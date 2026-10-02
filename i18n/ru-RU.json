@@ -2555,7 +2555,7 @@
 		},
 		"kanban": {
 			"addTask": "Добавить задачу",
-			"priorityOrderedOverlayHint": "Удерживайте ⌘, чтобы изменить порядок карточек"
+			"priorityOrderedOverlayHint": "Удерживайте {{key}}, чтобы изменить порядок карточек"
 		},
 		"pr": {
 			"merged": "Влит",

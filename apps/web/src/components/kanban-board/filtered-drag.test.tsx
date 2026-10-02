@@ -16,6 +16,7 @@ const mocks = vi.hoisted(() => ({
   setProject: vi.fn(),
   reorder: vi.fn(),
   setQueryData: vi.fn(),
+  modifierKey: "Ctrl",
 }));
 vi.mock("@tanstack/react-query", () => ({
   useQueryClient: () => ({
@@ -41,6 +42,7 @@ vi.mock("@/store/bulk-selection", () => ({
 }));
 vi.mock("@/hooks/use-keyboard-shortcuts", () => ({
   useRegisterShortcuts: vi.fn(),
+  getModifierKeyText: () => mocks.modifierKey,
 }));
 vi.mock("@/hooks/use-project-background", () => ({
   useProjectBackground: () => null,
@@ -83,8 +85,11 @@ vi.mock("@dnd-kit/core", () => ({
     <>
       {children}
       <button
-        onClick={() =>
-          onDragStart({ active: { id: "a" }, activatorEvent: undefined })
+        onClick={(event) =>
+          onDragStart({
+            active: { id: "a" },
+            activatorEvent: event.nativeEvent,
+          })
         }
       >
         start
@@ -155,7 +160,10 @@ vi.mock("@dnd-kit/core", () => ({
   defaultDropAnimationSideEffects: vi.fn(),
 }));
 
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => {
+  vi.clearAllMocks();
+  mocks.modifierKey = "Ctrl";
+});
 afterEach(cleanup);
 describe("filtered board dragging", () => {
   it("moves visible tasks in canonical state and sends one ordering mutation", () => {
@@ -261,90 +269,103 @@ it("places a cross-column drop at the bottom without Command", () => {
   );
 });
 
-it.each(["held", "released", "blurred"])(
-  "uses the matching drop behavior when Command is %s",
-  (commandState) => {
-    const canonical = {
-      id: "p",
-      columns: [
-        {
-          id: "todo",
-          slug: "todo",
-          tasks: [{ id: "a", status: "todo", position: 0, priority: "low" }],
-        },
-        {
-          id: "doing",
-          slug: "doing",
-          tasks: [{ id: "c", status: "doing", position: 0, priority: "high" }],
-        },
-      ],
-      plannedTasks: [],
-      archivedTasks: [],
-    } as unknown as ProjectWithTasks;
-    mocks.project = canonical;
-    const view = render(<KanbanBoard project={canonical} />);
+describe.each([
+  ["⌘", "Meta", "metaKey"],
+  ["Ctrl", "Control", "ctrlKey"],
+  ["Ctrl", "Meta", "metaKey"],
+])("sorting with %s and %s", (label, key, modifier) => {
+  it.each(["held", "released", "blurred", "held-at-start"])(
+    "uses the matching drop behavior when modifier is %s",
+    (commandState) => {
+      mocks.modifierKey = label;
+      const canonical = {
+        id: "p",
+        columns: [
+          {
+            id: "todo",
+            slug: "todo",
+            tasks: [{ id: "a", status: "todo", position: 0, priority: "low" }],
+          },
+          {
+            id: "doing",
+            slug: "doing",
+            tasks: [
+              { id: "c", status: "doing", position: 0, priority: "high" },
+            ],
+          },
+        ],
+        plannedTasks: [],
+        archivedTasks: [],
+      } as unknown as ProjectWithTasks;
+      mocks.project = canonical;
+      const view = render(<KanbanBoard project={canonical} />);
 
-    fireEvent.click(view.getByText("start"));
-    fireEvent.click(view.getByText("over"));
-    expect(view.getByTestId("column-doing")).toHaveAttribute(
-      "data-priority-overlay",
-      "visible",
-    );
+      fireEvent.click(view.getByText("start"), {
+        [modifier]: commandState === "held-at-start",
+      });
+      fireEvent.click(view.getByText("over"));
+      expect(view.getByTestId("column-doing")).toHaveAttribute(
+        "data-priority-overlay",
+        commandState === "held-at-start" ? "hidden" : "visible",
+      );
 
-    fireEvent.keyDown(window, { key: "Meta", metaKey: true });
-    expect(view.getByTestId("column-doing")).toHaveAttribute(
-      "data-priority-overlay",
-      "hidden",
-    );
-    expect(view.getByTestId("column-doing")).toHaveAttribute(
-      "data-task-ids",
-      "a,c",
-    );
-
-    if (commandState === "held") {
-      fireEvent.click(view.getByText("over-center"));
+      if (commandState !== "held-at-start")
+        fireEvent.keyDown(window, { key, [modifier]: true });
+      fireEvent.keyUp(window, { key: "a", [modifier]: true });
+      expect(view.getByTestId("column-doing")).toHaveAttribute(
+        "data-priority-overlay",
+        "hidden",
+      );
       expect(view.getByTestId("column-doing")).toHaveAttribute(
         "data-task-ids",
-        "c,a",
+        "a,c",
       );
+
+      if (commandState === "held" || commandState === "held-at-start") {
+        fireEvent.click(view.getByText("over-center"));
+        expect(view.getByTestId("column-doing")).toHaveAttribute(
+          "data-task-ids",
+          "c,a",
+        );
+        fireEvent.click(view.getByText("over-active"));
+        fireEvent.click(view.getByText("drop-over"));
+        expect(
+          mocks.setProject.mock.calls[0][0].columns[1].tasks.map(
+            (task: { id: string }) => task.id,
+          ),
+        ).toEqual(["c", "a"]);
+        return;
+      }
+
+      if (commandState === "released") {
+        fireEvent.keyUp(window, { key, [modifier]: false });
+      } else {
+        fireEvent.blur(window);
+      }
+      expect(view.getByTestId("column-doing")).toHaveAttribute(
+        "data-priority-overlay",
+        "visible",
+      );
+      expect(view.getByTestId("column-doing")).toHaveAttribute(
+        "data-task-ids",
+        "c",
+      );
+
       fireEvent.click(view.getByText("over-active"));
+      expect(view.getByTestId("column-doing")).toHaveAttribute(
+        "data-task-ids",
+        "c",
+      );
+
       fireEvent.click(view.getByText("drop-over"));
       expect(
         mocks.setProject.mock.calls[0][0].columns[1].tasks.map(
           (task: { id: string }) => task.id,
         ),
       ).toEqual(["c", "a"]);
-      return;
-    }
-
-    if (commandState === "released") {
-      fireEvent.keyUp(window, { key: "Meta", metaKey: false });
-    } else {
-      fireEvent.blur(window);
-    }
-    expect(view.getByTestId("column-doing")).toHaveAttribute(
-      "data-priority-overlay",
-      "visible",
-    );
-    expect(view.getByTestId("column-doing")).toHaveAttribute(
-      "data-task-ids",
-      "c",
-    );
-
-    fireEvent.click(view.getByText("over-active"));
-    expect(view.getByTestId("column-doing")).toHaveAttribute(
-      "data-task-ids",
-      "c",
-    );
-
-    fireEvent.click(view.getByText("drop-over"));
-    expect(
-      mocks.setProject.mock.calls[0][0].columns[1].tasks.map(
-        (task: { id: string }) => task.id,
-      ),
-    ).toEqual(["c", "a"]);
-    expect(mocks.setProject.mock.calls[0][0].columns[1].tasks[1].priority).toBe(
-      "low",
-    );
-  },
-);
+      expect(
+        mocks.setProject.mock.calls[0][0].columns[1].tasks[1].priority,
+      ).toBe("low");
+    },
+  );
+});

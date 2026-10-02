@@ -2502,7 +2502,7 @@
 		},
 		"kanban": {
 			"addTask": "Tambah tugas",
-			"priorityOrderedOverlayHint": "Tahan ⌘ untuk mengurutkan kartu"
+			"priorityOrderedOverlayHint": "Tahan {{key}} untuk mengurutkan kartu"
 		},
 		"pr": {
 			"merged": "Digabung",

@@ -2515,7 +2515,7 @@
 		},
 		"kanban": {
 			"addTask": "작업 추가",
-			"priorityOrderedOverlayHint": "⌘ 키를 누른 채로 카드를 정렬하세요"
+			"priorityOrderedOverlayHint": "{{key}} 키를 누른 채로 카드를 정렬하세요"
 		},
 		"pr": {
 			"merged": "병합됨",

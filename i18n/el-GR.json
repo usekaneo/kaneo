@@ -2513,7 +2513,7 @@
 		},
 		"kanban": {
 			"addTask": "Προσθήκη εργασίας",
-			"priorityOrderedOverlayHint": "Κρατήστε πατημένο το ⌘ για να ταξινομήσετε τις κάρτες"
+			"priorityOrderedOverlayHint": "Κρατήστε πατημένο το {{key}} για να ταξινομήσετε τις κάρτες"
 		},
 		"pr": {
 			"merged": "Συγχωνευμένο",

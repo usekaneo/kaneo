@@ -2521,7 +2521,7 @@
 		},
 		"kanban": {
 			"addTask": "Tapşırıq əlavə et",
-			"priorityOrderedOverlayHint": "Kartları sıralamaq üçün ⌘ düyməsini basılı saxlayın"
+			"priorityOrderedOverlayHint": "Kartları sıralamaq üçün {{key}} düyməsini basılı saxlayın"
 		},
 		"pr": {
 			"merged": "Birləşdirilib",

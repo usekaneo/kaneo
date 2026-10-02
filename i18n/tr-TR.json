@@ -2513,7 +2513,7 @@
 		},
 		"kanban": {
 			"addTask": "Talep ekle",
-			"priorityOrderedOverlayHint": "Kartları sıralamak için ⌘ tuşunu basılı tutun"
+			"priorityOrderedOverlayHint": "Kartları sıralamak için {{key}} tuşunu basılı tutun"
 		},
 		"pr": {
 			"merged": "Birleştirildi",

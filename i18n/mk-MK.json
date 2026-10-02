@@ -2513,7 +2513,7 @@
 		},
 		"kanban": {
 			"addTask": "Додади задача",
-			"priorityOrderedOverlayHint": "Држете го притиснато ⌘ за да ги подредите картичките"
+			"priorityOrderedOverlayHint": "Држете го притиснато {{key}} за да ги подредите картичките"
 		},
 		"pr": {
 			"merged": "Споен",
