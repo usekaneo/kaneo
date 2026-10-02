@@ -9,6 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { shortcuts } from "@/constants/shortcuts";
 import type Task from "@/types/task";
 import TaskDeleteButton from "./task-delete-button";
 import TaskMovePopover from "./task-move-popover";
@@ -31,6 +32,7 @@ export default function TaskActions({
   deleteHandle,
 }: TaskActionsProps) {
   const { t } = useTranslation();
+  const copyModifiers = shortcuts.copyTask.prefix.split("+");
 
   return (
     <div className="flex *:not-first:rounded-s-none *:not-first:before:rounded-s-none *:not-last:rounded-e-none *:not-last:border-e-0 *:not-last:before:rounded-e-none">
@@ -43,6 +45,7 @@ export default function TaskActions({
             <Button
               variant="outline"
               size="sm"
+              aria-label={t("tasks:properties.copyTaskLink")}
               className="text-foreground"
               onClick={onCopyLink}
             >
@@ -50,11 +53,13 @@ export default function TaskActions({
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <KbdSequence
-              keys={["Ctrl", "Shift", "C"]}
-              description={t("tasks:properties.copyTaskLink")}
-              separator=""
-            />
+            <span className="flex items-center gap-2">
+              {t("tasks:properties.copyTaskLink")}
+              <KbdSequence
+                keys={[...copyModifiers, shortcuts.copyTask.link.toUpperCase()]}
+                separator=""
+              />
+            </span>
           </TooltipContent>
         </Tooltip>
         <Tooltip>
@@ -62,6 +67,7 @@ export default function TaskActions({
             <Button
               variant="outline"
               size="sm"
+              aria-label={t("tasks:properties.copyTaskBranch")}
               className="text-foreground"
               onClick={onCopyBranch}
             >
@@ -69,11 +75,16 @@ export default function TaskActions({
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <KbdSequence
-              keys={["Ctrl", "Shift", "G"]}
-              description={t("tasks:properties.copyTaskBranch")}
-              separator=""
-            />
+            <span className="flex items-center gap-2">
+              {t("tasks:properties.copyTaskBranch")}
+              <KbdSequence
+                keys={[
+                  ...copyModifiers,
+                  shortcuts.copyTask.branch.toUpperCase(),
+                ]}
+                separator=""
+              />
+            </span>
           </TooltipContent>
         </Tooltip>
         {task && <TaskDeleteButton handle={deleteHandle} />}
