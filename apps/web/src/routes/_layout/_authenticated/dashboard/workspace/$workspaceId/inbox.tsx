@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import WorkspaceLayout from "@/components/common/workspace-layout";
 import { InboxDetail } from "@/components/inbox/inbox-detail";
 import { InboxList } from "@/components/inbox/inbox-list";
+import { Button } from "@/components/ui/button";
 import PageTitle from "@/components/page-title";
 import useMarkNotificationAsRead from "@/hooks/mutations/notification/use-mark-notification-as-read";
 import useGetNotifications from "@/hooks/queries/notification/use-get-notifications";
@@ -19,7 +20,13 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { t } = useTranslation();
-  const { data: notifications = [] } = useGetNotifications();
+  const { workspaceId } = Route.useParams();
+  const {
+    data: notifications = [],
+    isPending,
+    isError,
+    refetch,
+  } = useGetNotifications(workspaceId);
   const { mutate: markAsRead } = useMarkNotificationAsRead();
   const [selectedId, setSelectedId] = useState<string>();
 
@@ -44,11 +51,27 @@ function RouteComponent() {
               selected && "hidden",
             )}
           >
-            <InboxList
-              notifications={notifications}
-              selectedId={selected?.id}
-              onSelect={handleSelect}
-            />
+            {isPending ? (
+              <p role="status" className="p-5 text-muted-foreground text-sm">
+                {t("common:empty.loading")}
+              </p>
+            ) : isError ? (
+              <div className="flex flex-col items-start gap-3 p-5">
+                <p role="alert" className="text-muted-foreground text-sm">
+                  {t("notifications:inbox.loadError")}
+                </p>
+                <Button variant="outline" onClick={() => void refetch()}>
+                  {t("common:error.tryAgain")}
+                </Button>
+              </div>
+            ) : (
+              <InboxList
+                workspaceId={workspaceId}
+                notifications={notifications}
+                selectedId={selected?.id}
+                onSelect={handleSelect}
+              />
+            )}
           </div>
           <div className={cn("min-w-0 flex-1", !selected && "hidden lg:block")}>
             {selected ? (

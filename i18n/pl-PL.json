@@ -617,7 +617,8 @@
 			"selectPrompt": "Select a notification to read it",
 			"taskUnavailable": "This task is no longer available.",
 			"today": "Today",
-			"unread": "Unread"
+			"unread": "Unread",
+			"loadError": "Notifications couldn't be loaded."
 		}
 	},
 	"workspace": {
@@ -697,7 +698,8 @@
 				"tasks_many": "{{count}} tasks",
 				"tasks_one": "{{count}} task",
 				"tasks_other": "{{count}} tasks",
-				"title": "Your projects"
+				"title": "Your projects",
+				"loadError": "Projects couldn't be loaded."
 			},
 			"upNext": {
 				"assigned_few": "{{count}} assigned to you",

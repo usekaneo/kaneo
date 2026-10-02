@@ -14,5 +14,5 @@ export function commentExcerpt(content: string | null): string | null {
 
   if (!text) return null;
   if (text.length <= EXCERPT_LENGTH) return text;
-  return `${text.slice(0, EXCERPT_LENGTH).trimEnd()}…`;
+  return `${text.slice(0, EXCERPT_LENGTH - 1).trimEnd()}…`;
 }

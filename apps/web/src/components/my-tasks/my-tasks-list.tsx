@@ -7,6 +7,7 @@ import {
   groupAssignedTasksByProject,
 } from "@/components/my-work/group-assigned-tasks";
 import type { AssignedTask } from "@/fetchers/task/get-assigned-tasks";
+import { useLocalDay } from "@/hooks/use-local-day";
 import { cn } from "@/lib/cn";
 import type { MyTasksGroupBy } from "./my-tasks-group-by";
 
@@ -24,12 +25,13 @@ export function MyTasksList({
   workspaceId,
 }: MyTasksListProps) {
   const { t } = useTranslation();
+  const day = useLocalDay();
   const groups = useMemo(
     () =>
       groupBy === "project"
         ? groupAssignedTasksByProject(tasks)
-        : groupAssignedTasksByDueDate(tasks),
-    [tasks, groupBy],
+        : groupAssignedTasksByDueDate(tasks, new Date(day)),
+    [tasks, groupBy, day],
   );
 
   const bucketTitles: Record<DueBucket, string> = {

@@ -23,7 +23,11 @@ const VISIBLE_ACTIVITIES = 6;
 export function InboxTask({ taskId }: InboxTaskProps) {
   const { t } = useTranslation();
   const { data: task, isLoading, isError } = useGetTask(taskId);
-  const { data: activities = [] } = useGetActivitiesByTaskId(taskId);
+  const {
+    data: activities = [],
+    isPending: activityPending,
+    isError: activityError,
+  } = useGetActivitiesByTaskId(taskId);
   const { canUpdateTasks } = useWorkspacePermission();
 
   if (isLoading) {
@@ -88,24 +92,35 @@ export function InboxTask({ taskId }: InboxTaskProps) {
         <h3 className="font-medium text-muted-foreground text-xs">
           {t("notifications:inbox.recentActivity")}
         </h3>
-        {recent.length > 0 && (
-          <Timeline>
-            {recent.map((activity, index) => {
-              const next = recent[index + 1];
-              return (
-                <Activity
-                  key={activity.id}
-                  activity={activity}
-                  step={recent.length - index}
-                  showConnector={
-                    !isCommentActivity(activity) &&
-                    Boolean(next) &&
-                    !isCommentActivity(next)
-                  }
-                />
-              );
-            })}
-          </Timeline>
+        {activityPending ? (
+          <Skeleton
+            aria-label={t("common:empty.loading")}
+            className="h-24 w-full"
+          />
+        ) : activityError ? (
+          <p role="alert" className="text-muted-foreground text-sm">
+            {t("workspace:home.activity.loadError")}
+          </p>
+        ) : (
+          recent.length > 0 && (
+            <Timeline>
+              {recent.map((activity, index) => {
+                const next = recent[index + 1];
+                return (
+                  <Activity
+                    key={activity.id}
+                    activity={activity}
+                    step={recent.length - index}
+                    showConnector={
+                      !isCommentActivity(activity) &&
+                      Boolean(next) &&
+                      !isCommentActivity(next)
+                    }
+                  />
+                );
+              })}
+            </Timeline>
+          )
         )}
         {canUpdateTasks() && <CommentInput taskId={taskId} />}
       </div>

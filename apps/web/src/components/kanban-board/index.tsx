@@ -1,3 +1,4 @@
+import { invalidateMyWork } from "@/lib/invalidate-my-work";
 import { markBoardCacheChanged } from "@/lib/board-cache-version";
 import { selectReorderBoard } from "./select-reorder-board";
 import {
@@ -67,6 +68,7 @@ function KanbanBoard({
       reorderTasks(request),
     onMutate: (variables) => ({ previousBoard: variables.previousBoard }),
     onSuccess: (_result, variables) => {
+      invalidateMyWork(queryClient);
       void queryClient.invalidateQueries({
         queryKey: ["tasks", variables.projectId],
       });

@@ -12713,7 +12713,20 @@
           "Notifications"
         ],
         "summary": "List notifications",
-        "description": "Get every notification for the current user, read and unread.",
+        "description": "Get up to 50 notifications for the current user, read and unread. Optionally limit them to one workspace before applying the limit.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Limit notifications to resources currently in this workspace. Omit to include all workspaces."
+            },
+            "required": false,
+            "description": "Limit notifications to resources currently in this workspace. Omit to include all workspaces.",
+            "name": "workspaceId",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "List of notifications",
@@ -12875,7 +12888,20 @@
           "Notifications"
         ],
         "summary": "Mark all read",
-        "description": "Mark every notification for the current user as read.",
+        "description": "Mark notifications for the current user as read, optionally limited to one workspace.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Limit notifications to resources currently in this workspace. Omit to include all workspaces."
+            },
+            "required": false,
+            "description": "Limit notifications to resources currently in this workspace. Omit to include all workspaces.",
+            "name": "workspaceId",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "All notifications marked as read",
@@ -12900,7 +12926,20 @@
           "Notifications"
         ],
         "summary": "Clear all",
-        "description": "Permanently delete every notification for the current user. This cannot be undone.",
+        "description": "Permanently delete notifications for the current user, optionally limited to one workspace. This cannot be undone.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Limit notifications to resources currently in this workspace. Omit to include all workspaces."
+            },
+            "required": false,
+            "description": "Limit notifications to resources currently in this workspace. Omit to include all workspaces.",
+            "name": "workspaceId",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "All notifications cleared",

@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import type { AssignedTask } from "@/fetchers/task/get-assigned-tasks";
+import { useLocalDay } from "@/hooks/use-local-day";
 import { cn } from "@/lib/cn";
 import { formatDate } from "@/lib/format";
 import { buildWeek } from "./build-week";
@@ -15,7 +16,8 @@ const VISIBLE_TASKS_PER_DAY = 2;
 
 export function WeekStrip({ tasks, workspaceId }: WeekStripProps) {
   const { t } = useTranslation();
-  const week = useMemo(() => buildWeek(tasks), [tasks]);
+  const day = useLocalDay();
+  const week = useMemo(() => buildWeek(tasks, new Date(day)), [tasks, day]);
 
   return (
     <div className="overflow-x-auto rounded-xl border border-border bg-card">

@@ -8277,6 +8277,9 @@
 						"emptyFilter": {
 							"type": "string"
 						},
+						"loadError": {
+							"type": "string"
+						},
 						"selectPrompt": {
 							"type": "string"
 						},
@@ -8300,6 +8303,7 @@
 						"earlier",
 						"filters",
 						"emptyFilter",
+						"loadError",
 						"selectPrompt",
 						"back",
 						"openTask",
@@ -11296,6 +11300,9 @@
 								"all": {
 									"type": "string"
 								},
+								"loadError": {
+									"type": "string"
+								},
 								"tasks_one": {
 									"type": "string"
 								},
@@ -11315,7 +11322,7 @@
 									"type": "string"
 								}
 							},
-							"required": ["title", "all"]
+							"required": ["title", "all", "loadError"]
 						},
 						"activity": {
 							"type": "object",

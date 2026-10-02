@@ -39,7 +39,7 @@ export function NavMain() {
     select: (location) => location.pathname.replace(/\/+$/, ""),
   });
   const { data: invitations = [] } = usePendingInvitations();
-  const { data: notifications = [] } = useGetNotifications();
+  const { data: notifications = [] } = useGetNotifications(workspace?.id);
   const { data: assignedTasks } = useGetAssignedTasks(workspace?.id);
 
   const inboxUrl = workspace

@@ -2048,6 +2048,7 @@
 				"mentions": "Mentions"
 			},
 			"emptyFilter": "Nothing here",
+			"loadError": "Notifications couldn't be loaded.",
 			"selectPrompt": "Select a notification to read it",
 			"back": "Inbox",
 			"openTask": "Open task",
@@ -2742,6 +2743,7 @@
 			"projects": {
 				"title": "Your projects",
 				"all": "All projects",
+				"loadError": "Projects couldn't be loaded.",
 				"tasks_one": "{{count}} task",
 				"tasks_other": "{{count}} tasks"
 			},

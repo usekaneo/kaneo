@@ -23,12 +23,14 @@ import {
 import { InboxListItem } from "./inbox-list-item";
 
 type InboxListProps = {
+  workspaceId: string;
   notifications: Notification[];
   selectedId: string | undefined;
   onSelect: (notification: Notification) => void;
 };
 
 export function InboxList({
+  workspaceId,
   notifications,
   selectedId,
   onSelect,
@@ -36,8 +38,8 @@ export function InboxList({
   const { t } = useTranslation();
   const [filter, setFilter] = useState<InboxFilter>("all");
   const [showClearDialog, setShowClearDialog] = useState(false);
-  const { mutate: markAllAsRead } = useMarkAllNotificationsAsRead();
-  const { mutate: clearAll } = useClearNotifications();
+  const { mutate: markAllAsRead } = useMarkAllNotificationsAsRead(workspaceId);
+  const { mutate: clearAll } = useClearNotifications(workspaceId);
 
   const unreadCount = notifications.filter(
     (notification) => !notification.isRead,

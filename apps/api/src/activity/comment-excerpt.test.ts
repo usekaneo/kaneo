@@ -24,7 +24,7 @@ describe("commentExcerpt", () => {
 
   it("truncates long comments", () => {
     const excerpt = commentExcerpt("a".repeat(500));
-    expect(excerpt).toHaveLength(241);
+    expect(excerpt).toHaveLength(240);
     expect(excerpt?.endsWith("…")).toBe(true);
   });
 
