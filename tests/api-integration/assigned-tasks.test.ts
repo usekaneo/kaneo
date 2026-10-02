@@ -139,6 +139,11 @@ describe("API integration: assigned tasks", () => {
     const body = (await response.json()) as AssignedTasksResponse;
 
     expect(body.total).toBe(3);
+    const countResponse = await app.request(
+      `/api/task/assigned?workspaceId=${member.workspace.id}&countOnly=true`,
+    );
+    expect(countResponse.status).toBe(200);
+    expect(await countResponse.json()).toEqual({ tasks: [], total: 3 });
     expect(body.tasks.map((task) => task.id)).toEqual([
       soon.id,
       later.id,
@@ -192,9 +197,11 @@ describe("API integration: assigned tasks", () => {
     mockAuthenticatedSession(outsider.user);
     const { app } = createApp();
 
-    const response = await app.request(
-      `/api/task/assigned?workspaceId=${member.workspace.id}`,
-    );
-    expect(response.status).toBe(403);
+    for (const countOnly of ["false", "true"]) {
+      const response = await app.request(
+        `/api/task/assigned?workspaceId=${member.workspace.id}&countOnly=${countOnly}`,
+      );
+      expect(response.status).toBe(403);
+    }
   });
 });

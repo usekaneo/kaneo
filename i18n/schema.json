@@ -11238,6 +11238,9 @@
 							"type": "object",
 							"additionalProperties": false,
 							"properties": {
+								"truncated": {
+									"type": "string"
+								},
 								"more_one": {
 									"type": "string"
 								},
@@ -11257,7 +11260,7 @@
 									"type": "string"
 								}
 							},
-							"required": []
+							"required": ["truncated"]
 						},
 						"upNext": {
 							"type": "object",

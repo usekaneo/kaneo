@@ -116,12 +116,12 @@ const listAssignedTasksRoute = createRoute({
   tags: ["Tasks"],
   summary: "List my assigned tasks",
   description:
-    "Get the open tasks assigned to the caller across a workspace's active projects. Completed and archived tasks are excluded. Ordered by due date (undated last), then priority. At most 100 tasks are returned; total counts all of them.",
+    "Get the open tasks assigned to the caller across a workspace's active projects. Completed and archived tasks are excluded. Ordered by due date (undated last), then priority. At most 100 tasks are returned; total counts all of them. Set countOnly=true to return just that total without loading task rows or labels.",
   middleware: [workspaceAccess.fromQuery()] as const,
   request: { query: assignedTasksQuery },
   responses: {
     200: jsonResponse("Open tasks assigned to the caller", assignedTasksSchema),
-    400: errorResponse("Workspace ID could not be determined"),
+    400: errorResponse("Invalid workspace ID or query parameters"),
     403: errorResponse("No access to the workspace"),
   },
 });
@@ -794,8 +794,15 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
   })
   // Registered ahead of the `/{id}` routes, which would otherwise claim it.
   .openapi(listAssignedTasksRoute, async (c) => {
-    const { workspaceId } = c.req.valid("query");
-    return c.json(await getAssignedTasks(workspaceId, c.get("userId")), 200);
+    const { workspaceId, countOnly } = c.req.valid("query");
+    return c.json(
+      await getAssignedTasks(
+        workspaceId,
+        c.get("userId"),
+        countOnly === "true",
+      ),
+      200,
+    );
   })
   .openapi(listTasksRoute, async (c) => {
     const { projectId } = c.req.valid("param");

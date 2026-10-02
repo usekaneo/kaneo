@@ -2731,6 +2731,7 @@
 			},
 			"newTask": "New task",
 			"week": {
+				"truncated": "The week preview includes only the first {{shown}} of {{total}} assigned tasks.",
 				"more_one": "+{{count}} more",
 				"more_other": "+{{count}} more"
 			},

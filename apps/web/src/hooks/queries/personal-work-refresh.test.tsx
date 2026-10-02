@@ -3,7 +3,7 @@ import {
   QueryClientProvider,
   focusManager,
 } from "@tanstack/react-query";
-import { act, cleanup, renderHook } from "@testing-library/react";
+import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import type { PropsWithChildren } from "react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import useGetWorkspaceActivities from "./activity/use-get-workspace-activities";
@@ -40,6 +40,35 @@ afterEach(() => {
 });
 
 describe("personal work refresh", () => {
+  it("keeps sidebar counts separate from the full assigned-task cache", async () => {
+    mocks.assigned.mockImplementation(async (_workspaceId, countOnly) => ({
+      tasks: countOnly ? [] : [{ id: "task", title: "Assigned task" }],
+      total: 101,
+    }));
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const wrapper = ({ children }: PropsWithChildren) => (
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    );
+    const { result } = renderHook(
+      () => ({
+        list: useGetAssignedTasks("workspace").data,
+        count: useGetAssignedTasks("workspace", true).data,
+      }),
+      { wrapper },
+    );
+    await waitFor(() => {
+      expect(result.current.list?.tasks).toEqual([
+        { id: "task", title: "Assigned task" },
+      ]);
+      expect(result.current.count).toEqual({ tasks: [], total: 101 });
+    });
+    expect(mocks.assigned).toHaveBeenCalledWith("workspace", false);
+    expect(mocks.assigned).toHaveBeenCalledWith("workspace", true);
+    client.clear();
+  });
+
   it("refreshes remote edits and comments without a project socket or notification", async () => {
     vi.useFakeTimers();
     focusManager.setFocused(true);

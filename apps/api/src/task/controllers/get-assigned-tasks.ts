@@ -29,7 +29,11 @@ const priorityRank = sql<number>`CASE
   ELSE 0
 END`;
 
-async function getAssignedTasks(workspaceId: string, userId: string) {
+async function getAssignedTasks(
+  workspaceId: string,
+  userId: string,
+  countOnly = false,
+) {
   const openAndMine = and(
     eq(projectTable.workspaceId, workspaceId),
     isNull(projectTable.archivedAt),
@@ -37,6 +41,17 @@ async function getAssignedTasks(workspaceId: string, userId: string) {
     ne(taskTable.status, "archived"),
     sql`not ${taskIsCompleted}`,
   );
+
+  const totalsQuery = db
+    .select({ total: count() })
+    .from(taskTable)
+    .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+    .where(openAndMine);
+
+  if (countOnly) {
+    const [totals] = await totalsQuery;
+    return { tasks: [], total: Number(totals?.total ?? 0) };
+  }
 
   // Existing databases may contain duplicate slugs from concurrent column
   // creation. A lateral lookup must return at most one decoration per task.
@@ -85,11 +100,7 @@ async function getAssignedTasks(workspaceId: string, userId: string) {
         asc(taskTable.id),
       )
       .limit(ASSIGNED_TASKS_LIMIT),
-    db
-      .select({ total: count() })
-      .from(taskTable)
-      .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
-      .where(openAndMine),
+    totalsQuery,
   ]);
 
   const labels = tasks.length

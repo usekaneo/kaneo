@@ -2752,7 +2752,8 @@
 			},
 			"week": {
 				"more_one": "+{{count}} more",
-				"more_other": "+{{count}} more"
+				"more_other": "+{{count}} more",
+				"truncated": "The week preview includes only the first {{shown}} of {{total}} assigned tasks."
 			}
 		},
 		"myTasks": {

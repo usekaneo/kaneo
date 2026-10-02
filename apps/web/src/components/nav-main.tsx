@@ -40,7 +40,7 @@ export function NavMain() {
   });
   const { data: invitations = [] } = usePendingInvitations();
   const { data: notifications = [] } = useGetNotifications(workspace?.id);
-  const { data: assignedTasks } = useGetAssignedTasks(workspace?.id);
+  const { data: assignedTasks } = useGetAssignedTasks(workspace?.id, true);
 
   const inboxUrl = workspace
     ? `/dashboard/workspace/${workspace.id}/inbox`

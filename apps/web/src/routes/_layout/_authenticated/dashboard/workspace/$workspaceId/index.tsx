@@ -74,6 +74,15 @@ function RouteComponent() {
               workspaceId={workspaceId}
             />
 
+            {assigned && assigned.total > assigned.tasks.length && (
+              <p className="text-muted-foreground text-xs">
+                {t("workspace:home.week.truncated", {
+                  shown: assigned.tasks.length,
+                  total: assigned.total,
+                })}
+              </p>
+            )}
+
             <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem]">
               <div className="flex min-w-0 flex-col gap-9">
                 <UpNext

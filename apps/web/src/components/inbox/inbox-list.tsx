@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import useClearNotifications from "@/hooks/mutations/notification/use-clear-notifications";
 import useMarkAllNotificationsAsRead from "@/hooks/mutations/notification/use-mark-all-notifications-as-read";
+import { useLocalDay } from "@/hooks/use-local-day";
 import { cn } from "@/lib/cn";
 import type { Notification } from "@/types/notification";
 import {
@@ -36,6 +37,7 @@ export function InboxList({
   onSelect,
 }: InboxListProps) {
   const { t } = useTranslation();
+  const day = useLocalDay();
   const [filter, setFilter] = useState<InboxFilter>("all");
   const [showClearDialog, setShowClearDialog] = useState(false);
   const { mutate: markAllAsRead } = useMarkAllNotificationsAsRead(workspaceId);
@@ -45,8 +47,12 @@ export function InboxList({
     (notification) => !notification.isRead,
   ).length;
   const { today, earlier } = useMemo(
-    () => groupNotifications(filterNotifications(notifications, filter)),
-    [notifications, filter],
+    () =>
+      groupNotifications(
+        filterNotifications(notifications, filter),
+        new Date(day),
+      ),
+    [notifications, filter, day],
   );
 
   const filters: Array<{ value: InboxFilter; label: string; count?: number }> =
