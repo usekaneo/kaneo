@@ -25,7 +25,7 @@ export function moveBoardTask(
   activeId: string,
   overId: string,
   sortedByNumber = false,
-  allowSortedReorder = false,
+  _allowSortedReorder = false,
   insertAfterTarget?: boolean,
 ) {
   const source = project.columns.find((column) =>

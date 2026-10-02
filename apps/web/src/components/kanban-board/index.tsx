@@ -63,6 +63,7 @@ function KanbanBoard({
   sortedByPriority = false,
 }: KanbanBoardProps) {
   const isMac = getModifierKeyText() === "⌘";
+  const isAutomaticallySorted = sortedByNumber || sortedByPriority;
   const queryClient = useQueryClient();
   const { project: storedProject, setProject } = useProjectStore();
   const {
@@ -241,7 +242,7 @@ function KanbanBoard({
       | (Event & { metaKey?: boolean; ctrlKey?: boolean })
       | undefined;
     const modifierHeld =
-      !sortedByNumber &&
+      !isAutomaticallySorted &&
       Boolean(activatorEvent?.metaKey || (!isMac && activatorEvent?.ctrlKey));
     setIsSortModifierHeld(modifierHeld);
     isSortedReorderActiveRef.current = modifierHeld;
@@ -260,7 +261,14 @@ function KanbanBoard({
 
   const handleDragHover = (event: DragOverEvent | DragMoveEvent) => {
     const overId = event.over?.id.toString();
-    if (overId === activeIdRef.current?.toString()) return;
+    if (overId === activeIdRef.current?.toString()) {
+      if (!isSortedReorderActiveRef.current) {
+        setOverColumnId(null);
+        hoverPlacementRef.current = null;
+        setHoverPlacement(null);
+      }
+      return;
+    }
     setOverColumnId(overId ? getColumnIdForOver(overId) : null);
     if (!overId) {
       hoverPlacementRef.current = null;
@@ -288,7 +296,7 @@ function KanbanBoard({
 
   useEffect(() => {
     if (
-      sortedByNumber ||
+      isAutomaticallySorted ||
       !isSortedReorderActive ||
       !activeId ||
       !hoverPlacement
@@ -315,13 +323,13 @@ function KanbanBoard({
     hoverPlacement,
     isSortedReorderActive,
     project,
-    sortedByNumber,
+    isAutomaticallySorted,
   ]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     const shouldAllowSortedReorder =
-      !sortedByNumber && isSortedReorderActiveRef.current;
+      !isAutomaticallySorted && isSortedReorderActiveRef.current;
     const finalHoverPlacement = hoverPlacementRef.current;
     const finalPreviewProject = dragPreviewProjectRef.current;
     const visualPlacement =
@@ -438,7 +446,7 @@ function KanbanBoard({
       setDragPreviewProject(null);
     };
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (sortedByNumber) return;
+      if (isAutomaticallySorted) return;
       if (
         event.key !== "Meta" &&
         !event.metaKey &&
@@ -464,7 +472,7 @@ function KanbanBoard({
       window.removeEventListener("keyup", handleKeyUp, { capture: true });
       window.removeEventListener("blur", handleBlur);
     };
-  }, [isMac, sortedByNumber]);
+  }, [isAutomaticallySorted, isMac]);
 
   if (!project?.columns) {
     return (

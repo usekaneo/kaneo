@@ -272,6 +272,36 @@ it("places a cross-column drop at the bottom without Command", () => {
   );
 });
 
+it("cancels a stale cross-column drop after returning to the active card", () => {
+  const canonical = {
+    id: "p",
+    columns: [
+      {
+        id: "todo",
+        slug: "todo",
+        tasks: [{ id: "a", status: "todo", position: 0, priority: "low" }],
+      },
+      {
+        id: "doing",
+        slug: "doing",
+        tasks: [{ id: "c", status: "doing", position: 0, priority: "high" }],
+      },
+    ],
+    plannedTasks: [],
+    archivedTasks: [],
+  } as unknown as ProjectWithTasks;
+  mocks.project = canonical;
+  const view = render(<KanbanBoard project={canonical} />);
+
+  fireEvent.click(view.getByText("start"));
+  fireEvent.click(view.getByText("over"));
+  fireEvent.click(view.getByText("over-active"));
+  fireEvent.click(view.getByText("drop-over"));
+
+  expect(mocks.setProject).not.toHaveBeenCalled();
+  expect(mocks.reorder).not.toHaveBeenCalled();
+});
+
 it("keeps modifier-assisted drops append-only on number-sorted boards", () => {
   const canonical = {
     id: "p",
@@ -326,6 +356,63 @@ it("keeps modifier-assisted drops append-only on number-sorted boards", () => {
   expect(mocks.reorder).toHaveBeenCalledOnce();
 });
 
+it("keeps modifier-assisted drops append-only on priority-sorted boards", () => {
+  const canonical = {
+    id: "p",
+    columns: [
+      {
+        id: "todo",
+        slug: "todo",
+        tasks: [{ id: "a", status: "todo", position: 0, priority: "low" }],
+      },
+      {
+        id: "doing",
+        slug: "doing",
+        tasks: [
+          { id: "c", status: "doing", position: 0, priority: "high" },
+          { id: "d", status: "doing", position: 1, priority: "medium" },
+        ],
+      },
+    ],
+    plannedTasks: [],
+    archivedTasks: [],
+  } as unknown as ProjectWithTasks;
+  mocks.project = canonical;
+  const view = render(
+    <KanbanBoard project={canonical} sortedByPriority={true} />,
+  );
+
+  fireEvent.click(view.getByText("start"), { ctrlKey: true });
+  fireEvent.click(view.getByText("over"));
+  fireEvent.keyDown(window, { key: "Control", ctrlKey: true });
+  fireEvent.click(view.getByText("over-center"));
+
+  expect(view.getByTestId("column-doing")).toHaveAttribute(
+    "data-sort-overlay",
+    "visible",
+  );
+  expect(view.getByTestId("column-doing")).toHaveAttribute(
+    "data-automatic-sort-label",
+    "tasks:sort.fields.priority",
+  );
+  expect(view.getByTestId("column-doing")).toHaveAttribute(
+    "data-task-ids",
+    "c,d",
+  );
+
+  fireEvent.click(view.getByText("drop-c"));
+
+  expect(
+    mocks.setProject.mock.calls[0][0].columns[1].tasks.map(
+      (task: { id: string }) => task.id,
+    ),
+  ).toEqual(["c", "d", "a"]);
+  expect(mocks.setProject.mock.calls[0][0].columns[1].tasks[2].priority).toBe(
+    "low",
+  );
+  expect(mocks.reorder).toHaveBeenCalledOnce();
+});
+
 describe.each([
   ["⌘", "Meta", "metaKey"],
   ["Ctrl", "Control", "ctrlKey"],
@@ -355,9 +442,7 @@ describe.each([
         archivedTasks: [],
       } as unknown as ProjectWithTasks;
       mocks.project = canonical;
-      const view = render(
-        <KanbanBoard project={canonical} sortedByPriority={true} />,
-      );
+      const view = render(<KanbanBoard project={canonical} />);
 
       fireEvent.click(view.getByText("start"), {
         [modifier]: commandState === "held-at-start",
@@ -367,9 +452,8 @@ describe.each([
         "data-sort-overlay",
         commandState === "held-at-start" ? "hidden" : "visible",
       );
-      expect(view.getByTestId("column-doing")).toHaveAttribute(
+      expect(view.getByTestId("column-doing")).not.toHaveAttribute(
         "data-automatic-sort-label",
-        "tasks:sort.fields.priority",
       );
 
       if (commandState !== "held-at-start")
@@ -421,14 +505,8 @@ describe.each([
       );
 
       fireEvent.click(view.getByText("drop-over"));
-      expect(
-        mocks.setProject.mock.calls[0][0].columns[1].tasks.map(
-          (task: { id: string }) => task.id,
-        ),
-      ).toEqual(["c", "a"]);
-      expect(
-        mocks.setProject.mock.calls[0][0].columns[1].tasks[1].priority,
-      ).toBe("low");
+      expect(mocks.setProject).not.toHaveBeenCalled();
+      expect(mocks.reorder).not.toHaveBeenCalled();
     },
   );
 });
