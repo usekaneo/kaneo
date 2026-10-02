@@ -8,7 +8,7 @@ import {
   getLabelsForIssue,
 } from "../../github/utils/format";
 import type { PluginContext, TaskCreatedEvent } from "../../types";
-import type { GiteaConfig } from "../config";
+import { canSyncGiteaIssues, type GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
 import { addLabelsToIssueGitea } from "../utils/labels";
 
@@ -17,7 +17,7 @@ export async function handleTaskCreated(
   context: PluginContext,
 ): Promise<void> {
   const config = context.config as GiteaConfig;
-  if (!config.baseUrl || !config.accessToken) {
+  if (!canSyncGiteaIssues(config) || !config.baseUrl || !config.accessToken) {
     return;
   }
 

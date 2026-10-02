@@ -21,11 +21,19 @@ import {
   Form,
   FormControl,
   FormField,
+  FormDescription,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import type { VerifyGiteaAccessResponse } from "@/fetchers/gitea-integration/verify-gitea-access";
@@ -41,11 +49,14 @@ import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
 
+type GiteaIssueSyncMode = "sync" | "ingest-only" | "off";
+
 type GiteaIntegrationFormValues = {
   baseUrl: string;
   accessToken: string;
   repositoryOwner: string;
   repositoryName: string;
+  issueSyncMode: GiteaIssueSyncMode;
 };
 
 type GiteaVerificationSnapshot = {
@@ -53,6 +64,7 @@ type GiteaVerificationSnapshot = {
   accessToken: string;
   repositoryOwner: string;
   repositoryName: string;
+  issueSyncMode: GiteaIssueSyncMode;
 };
 
 type GiteaVerificationState = {
@@ -68,6 +80,7 @@ function createVerificationSnapshot(
     accessToken: values.accessToken.trim(),
     repositoryOwner: values.repositoryOwner.trim(),
     repositoryName: values.repositoryName.trim(),
+    issueSyncMode: values.issueSyncMode,
   };
 }
 
@@ -91,6 +104,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
             }
           }, t("settings:giteaIntegration.validation.baseUrlInvalid")),
         accessToken: z.string(),
+        issueSyncMode: z.enum(["sync", "ingest-only", "off"]),
         repositoryOwner: z
           .string()
           .min(1, t("settings:giteaIntegration.validation.ownerRequired"))
@@ -139,6 +153,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
       accessToken: "",
       repositoryOwner: "",
       repositoryName: "",
+      issueSyncMode: "sync",
     },
   });
 
@@ -154,6 +169,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
       accessToken: "",
       repositoryOwner: integration.repositoryOwner,
       repositoryName: integration.repositoryName,
+      issueSyncMode: getFormValues("issueSyncMode"),
     });
     // Intentionally clear verify state after reload: import must not run until the user re-verifies (token/URL may have changed).
     // Clear verify state when the form reloads so import cannot run against stale credentials.
@@ -161,6 +177,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
     setShowWebhookSecret(false);
   }, [
     resetForm,
+    getFormValues,
     integration?.baseUrl,
     integration?.repositoryOwner,
     integration?.repositoryName,
@@ -169,6 +186,10 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
   React.useEffect(() => {
     resetIntegrationForm();
   }, [resetIntegrationForm]);
+
+  React.useEffect(() => {
+    form.setValue("issueSyncMode", integration?.issueSyncMode ?? "sync");
+  }, [form, integration?.id, integration?.issueSyncMode]);
 
   const runVerify = React.useCallback(
     async (data: GiteaIntegrationFormValues, showToast = true) => {
@@ -188,6 +209,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
           accessToken: snapshot.accessToken || undefined,
           repositoryOwner: snapshot.repositoryOwner,
           repositoryName: snapshot.repositoryName,
+          issueSyncMode: snapshot.issueSyncMode,
         });
         setVerificationResult({
           result,
@@ -224,6 +246,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
   const accessToken = form.watch("accessToken");
   const repositoryOwner = form.watch("repositoryOwner");
   const repositoryName = form.watch("repositoryName");
+  const issueSyncMode = form.watch("issueSyncMode");
   const currentVerificationSnapshot = React.useMemo(
     () =>
       createVerificationSnapshot({
@@ -231,8 +254,9 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
         accessToken,
         repositoryOwner,
         repositoryName,
+        issueSyncMode,
       }),
-    [baseUrl, accessToken, repositoryOwner, repositoryName],
+    [baseUrl, accessToken, repositoryOwner, repositoryName, issueSyncMode],
   );
 
   React.useEffect(() => {
@@ -248,7 +272,9 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
         current.verified.repositoryOwner ===
           currentVerificationSnapshot.repositoryOwner &&
         current.verified.repositoryName ===
-          currentVerificationSnapshot.repositoryName;
+          currentVerificationSnapshot.repositoryName &&
+        current.verified.issueSyncMode ===
+          currentVerificationSnapshot.issueSyncMode;
 
       return stillMatches ? current : null;
     });
@@ -273,6 +299,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
     repositoryOwner,
     repositoryName,
     accessToken,
+    issueSyncMode,
     formState.isValid,
     runVerify,
     getFormValues,
@@ -293,7 +320,9 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
         verificationResult.verified.accessToken === snapshot.accessToken &&
         verificationResult.verified.repositoryOwner ===
           snapshot.repositoryOwner &&
-        verificationResult.verified.repositoryName === snapshot.repositoryName;
+        verificationResult.verified.repositoryName ===
+          snapshot.repositoryName &&
+        verificationResult.verified.issueSyncMode === snapshot.issueSyncMode;
 
       if (data.accessToken.trim() && !hasMatchingVerification) {
         const verification = await verifyAccess({
@@ -302,6 +331,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
           accessToken: snapshot.accessToken || undefined,
           repositoryOwner: snapshot.repositoryOwner,
           repositoryName: snapshot.repositoryName,
+          issueSyncMode: snapshot.issueSyncMode,
         });
 
         if (!verification.isInstalled || !verification.hasRequiredPermissions) {
@@ -319,6 +349,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
             : {}),
           repositoryOwner: data.repositoryOwner,
           repositoryName: data.repositoryName,
+          ...(!integration ? { issueSyncMode: data.issueSyncMode } : {}),
         },
       });
       form.setValue("accessToken", "");
@@ -340,6 +371,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
         accessToken: "",
         repositoryOwner: "",
         repositoryName: "",
+        issueSyncMode: "sync",
       });
       setVerificationResult(null);
       toast.success(t("settings:giteaIntegration.toast.removed"));
@@ -353,7 +385,8 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
   };
 
   const handleImportIssues = async () => {
-    if (!hasImportPermission) return;
+    if (!hasImportPermission || issueSyncMode === "off" || isUpdatingSettings)
+      return;
     try {
       await importIssues(projectId);
       toast.success(t("settings:giteaIntegration.toast.issuesImported"));
@@ -362,6 +395,26 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
         error instanceof Error
           ? error.message
           : t("settings:giteaIntegration.toast.importError"),
+      );
+    }
+  };
+
+  const handleIssueSyncModeChange = async (mode: string | null) => {
+    if (mode !== "sync" && mode !== "ingest-only" && mode !== "off") return;
+    if (!integration) {
+      form.setValue("issueSyncMode", mode, { shouldValidate: true });
+      return;
+    }
+
+    try {
+      await updateGiteaSettings({ projectId, json: { issueSyncMode: mode } });
+      form.setValue("issueSyncMode", mode, { shouldValidate: true });
+      toast.success(t("settings:giteaIntegration.toast.updated"));
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("settings:giteaIntegration.toast.settingsUpdateError"),
       );
     }
   };
@@ -448,9 +501,15 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
     verificationResult.verified.repositoryOwner ===
       currentVerificationSnapshot.repositoryOwner &&
     verificationResult.verified.repositoryName ===
-      currentVerificationSnapshot.repositoryName;
+      currentVerificationSnapshot.repositoryName &&
+    verificationResult.verified.issueSyncMode ===
+      currentVerificationSnapshot.issueSyncMode;
   const canImport =
-    hasImportPermission && isConnected && Boolean(hasVerifiedCurrentValues);
+    hasImportPermission &&
+    isConnected &&
+    issueSyncMode !== "off" &&
+    !isUpdatingSettings &&
+    Boolean(hasVerifiedCurrentValues);
 
   const repoUrl =
     integration?.baseUrl && integration.repositoryOwner
@@ -524,7 +583,11 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
                   {t("settings:giteaIntegration.commentTaskLinkTitle")}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {t("settings:giteaIntegration.commentTaskLinkHint")}
+                  {issueSyncMode === "sync"
+                    ? t("settings:giteaIntegration.commentTaskLinkHint")
+                    : t(
+                        "settings:giteaIntegration.issueSyncMode.backlinkDisabledHint",
+                      )}
                 </p>
               </div>
               <Switch
@@ -552,7 +615,8 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
                     );
                   }
                 }}
-                disabled={isUpdatingSettings}
+                disabled={isUpdatingSettings || issueSyncMode !== "sync"}
+                aria-label={t("settings:giteaIntegration.commentTaskLinkTitle")}
               />
             </div>
 
@@ -609,6 +673,73 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
       <div className="space-y-4 rounded-xl border border-border bg-card p-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="issueSyncMode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("settings:giteaIntegration.issueSyncMode.label")}
+                  </FormLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={handleIssueSyncModeChange}
+                    disabled={
+                      isCreating ||
+                      isDeleting ||
+                      isUpdatingSettings ||
+                      isImporting ||
+                      isVerifying
+                    }
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full sm:w-72">
+                        <SelectValue>
+                          {field.value === "sync"
+                            ? t("settings:giteaIntegration.issueSyncMode.sync")
+                            : field.value === "ingest-only"
+                              ? t(
+                                  "settings:giteaIntegration.issueSyncMode.ingestOnly",
+                                )
+                              : t(
+                                  "settings:giteaIntegration.issueSyncMode.off",
+                                )}
+                        </SelectValue>
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="sync">
+                        {t("settings:giteaIntegration.issueSyncMode.sync")}
+                      </SelectItem>
+                      <SelectItem value="ingest-only">
+                        {t(
+                          "settings:giteaIntegration.issueSyncMode.ingestOnly",
+                        )}
+                      </SelectItem>
+                      <SelectItem value="off">
+                        {t("settings:giteaIntegration.issueSyncMode.off")}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    {field.value === "sync"
+                      ? t("settings:giteaIntegration.issueSyncMode.syncHint")
+                      : field.value === "ingest-only"
+                        ? t(
+                            "settings:giteaIntegration.issueSyncMode.ingestOnlyHint",
+                          )
+                        : t("settings:giteaIntegration.issueSyncMode.offHint")}
+                    <span className="mt-1 block">
+                      {t("settings:giteaIntegration.issueSyncMode.switchHint")}
+                    </span>
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Separator />
+
             <FormField
               control={form.control}
               name="baseUrl"
@@ -784,6 +915,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
                   disabled={
                     isCreating ||
                     isDeleting ||
+                    isUpdatingSettings ||
                     !formState.isValid ||
                     (verificationResult ? !hasVerifiedCurrentValues : false)
                   }
@@ -801,7 +933,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
                     variant="destructive"
                     size="sm"
                     onClick={handleDelete}
-                    disabled={isCreating || isDeleting}
+                    disabled={isCreating || isDeleting || isUpdatingSettings}
                     className="gap-2"
                   >
                     <Unlink className="size-3" />
@@ -877,9 +1009,13 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
             <>
               <Separator />
               <p className="text-xs text-muted-foreground">
-                {hasImportPermission
-                  ? t("settings:giteaIntegration.importDisabledHint")
-                  : t("settings:gitlabIntegration.importPermissionHint")}
+                {issueSyncMode === "off"
+                  ? t(
+                      "settings:giteaIntegration.issueSyncMode.importDisabledHint",
+                    )
+                  : hasImportPermission
+                    ? t("settings:giteaIntegration.importDisabledHint")
+                    : t("settings:gitlabIntegration.importPermissionHint")}
               </p>
             </>
           )}

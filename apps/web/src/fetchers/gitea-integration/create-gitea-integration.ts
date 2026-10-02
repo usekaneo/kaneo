@@ -6,6 +6,7 @@ export type CreateGiteaIntegrationRequest = {
   accessToken?: string;
   repositoryOwner: string;
   repositoryName: string;
+  issueSyncMode?: "sync" | "ingest-only" | "off";
 };
 
 async function createGiteaIntegration(

@@ -321,6 +321,136 @@ it("retains deferred edits across credential rotation on the same repository", a
   expect((await current(task.id))?.description).toBe("recovered body");
   expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
 });
+it.each(["ingest-only", "off"])(
+  "retires queued Gitea repairs after switching to %s without catch-up on re-enable",
+  async (issueSyncMode) => {
+    const { task, integration, link } = await seed("gitea");
+    await deferTaskSync(link, integration, ["title", "description", "state"]);
+    expect((await metadata(link.id)).deferredIssueEdit).toBeDefined();
+    await db
+      .update(schema.integrationTable)
+      .set({
+        config: JSON.stringify({
+          ...JSON.parse(integration.config),
+          issueSyncMode,
+        }),
+      })
+      .where(eq(schema.integrationTable.id, integration.id));
+    await replayDeferredIssueEdits();
+    expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+    expect(await current(task.id)).toMatchObject({
+      title: "B",
+      description: "old body",
+      status: "to-do",
+    });
+    expect(m.read).not.toHaveBeenCalled();
+    expect(m.write).not.toHaveBeenCalled();
+    await db
+      .update(schema.integrationTable)
+      .set({ config: integration.config })
+      .where(eq(schema.integrationTable.id, integration.id));
+    await replayDeferredIssueEdits();
+    expect(m.read).not.toHaveBeenCalled();
+    expect(m.write).not.toHaveBeenCalled();
+    expect(
+      await db.query.externalLinkTable.findFirst({
+        where: eq(schema.externalLinkTable.id, link.id),
+      }),
+    ).toMatchObject({ taskId: task.id, externalId: "1" });
+  },
+);
+
+it.each([
+  {
+    name: "title and body",
+    fields: ["title", "description"] as const,
+    repairs: ["state"] as const,
+    expected: {
+      title: "Incoming title",
+      description: "Incoming body",
+      status: "to-do",
+    },
+  },
+  {
+    name: "state",
+    fields: ["state"] as const,
+    repairs: ["title", "description"] as const,
+    expected: { title: "B", description: "old body", status: "done" },
+  },
+])(
+  "applies mixed deferred inbound $name in ingest-only despite orphaned outbound intents without repairing Gitea",
+  async ({ fields, repairs, expected }) => {
+    const { task, integration, link } = await seed("gitea");
+    await deferIssueEdit(link, integration, [...fields]);
+    await deferTaskSync(link, integration, [...repairs]);
+    const queued = (await metadata(link.id)).deferredIssueEdit;
+    expect(queued.fields).toEqual(fields);
+    expect(queued.repairFields).toEqual(repairs);
+    await db
+      .update(schema.integrationTable)
+      .set({
+        config: JSON.stringify({
+          ...JSON.parse(integration.config),
+          issueSyncMode: "ingest-only",
+        }),
+      })
+      .where(eq(schema.integrationTable.id, integration.id));
+    m.read.mockResolvedValue({
+      title: "Incoming title",
+      body: "Incoming body",
+      state: "closed",
+      updated_at: "2026-10-01T00:00:01Z",
+    });
+    await replayDeferredIssueEdits();
+    expect(await current(task.id)).toMatchObject(expected);
+    expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+    expect(m.write).not.toHaveBeenCalled();
+  },
+);
+
+it("keeps a new ingest-only webhook delivery that encounters an old pending outbound echo", async () => {
+  const { task, integration, link } = await seed("gitea");
+  const config = JSON.stringify({
+    ...JSON.parse(integration.config),
+    issueSyncMode: "ingest-only",
+  });
+  await db
+    .update(schema.integrationTable)
+    .set({ config })
+    .where(eq(schema.integrationTable.id, integration.id));
+  m.read.mockResolvedValue({
+    title: "A",
+    body: "Incoming body",
+    state: "open",
+    updated_at: "2026-10-01T00:00:01Z",
+  });
+  await handleGiteaIssueEdited(
+    {
+      action: "edited",
+      issue: {
+        number: 1,
+        title: "A",
+        body: "Incoming body",
+        html_url: link.url,
+        updated_at: "2026-10-01T00:00:01Z",
+      },
+      changes: { title: { from: "B" }, body: { from: "old body" } },
+      repository: {
+        owner: { login: "owner" },
+        name: "repo",
+        html_url: "https://git.example/owner/repo",
+      },
+    },
+    integration.id,
+  );
+  await replayDeferredIssueEdits();
+  expect(await current(task.id)).toMatchObject({
+    title: "A",
+    description: "Incoming body",
+  });
+  expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+  expect(m.write).not.toHaveBeenCalled();
+});
 
 it("does not overwrite a local edit committed before its integration subscriber stamps it", async () => {
   const { task, integration, link } = await seed();

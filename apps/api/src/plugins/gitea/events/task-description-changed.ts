@@ -7,7 +7,7 @@ import {
   formatTaskDescriptionFromIssue,
 } from "../../github/utils/format";
 import type { PluginContext, TaskDescriptionChangedEvent } from "../../types";
-import type { GiteaConfig } from "../config";
+import { canSyncGiteaIssues, type GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
 
 type LinkSyncState = import("../../github/utils/sync-echo").SyncStamp;
@@ -24,7 +24,7 @@ export async function handleTaskDescriptionChanged(
   context: PluginContext,
 ): Promise<void> {
   const config = context.config as GiteaConfig;
-  if (!config.baseUrl || !config.accessToken) {
+  if (!canSyncGiteaIssues(config) || !config.baseUrl || !config.accessToken) {
     return;
   }
 

@@ -3,6 +3,7 @@ import db from "../../database";
 import { integrationTable } from "../../database/schema";
 import {
   defaultGiteaConfig,
+  getGiteaIssueSyncMode,
   type GiteaConfig,
 } from "../../plugins/gitea/config";
 import { normalizeApiServerUrl } from "../../utils/openapi-spec";
@@ -41,6 +42,7 @@ async function getGiteaIntegration(
     baseUrl: config.baseUrl,
     repositoryOwner: config.repositoryOwner,
     repositoryName: config.repositoryName,
+    issueSyncMode: getGiteaIssueSyncMode(config),
     maskedAccessToken: maskToken(config.accessToken),
     webhookUrl: `${apiBase.replace(/\/$/, "")}/gitea-integration/webhook/${integration.id}`,
     webhookSecret: includeWebhookSecret ? (config.webhookSecret ?? "") : "",

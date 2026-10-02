@@ -6,6 +6,8 @@ import db from "../../database";
 import { integrationTable, projectTable } from "../../database/schema";
 import {
   type GiteaConfig,
+  type GiteaIssueSyncMode,
+  getGiteaIssueSyncMode,
   getDefaultGiteaConfig,
   normalizeGiteaBaseUrl,
   validateGiteaConfig,
@@ -15,6 +17,7 @@ import {
   GiteaApiError,
   verifyGiteaToken,
 } from "../../plugins/gitea/utils/gitea-api";
+import { retireGiteaIssueEdits } from "../../plugins/gitea/services/retire-issue-edits";
 
 import { resolveVerificationToken } from "./resolve-verification-token";
 
@@ -24,12 +27,14 @@ async function createGiteaIntegration({
   accessToken,
   repositoryOwner,
   repositoryName,
+  issueSyncMode,
 }: {
   projectId: string;
   baseUrl: string;
   accessToken: string | undefined;
   repositoryOwner: string;
   repositoryName: string;
+  issueSyncMode?: GiteaIssueSyncMode;
 }) {
   const project = await db.query.projectTable.findFirst({
     where: eq(projectTable.id, projectId),
@@ -112,11 +117,10 @@ async function createGiteaIntegration({
   }
 
   let webhookSecret = randomBytes(24).toString("hex");
+  let previousConfig: GiteaConfig | undefined;
   if (existingIntegration) {
     try {
-      const previousConfig = JSON.parse(
-        existingIntegration.config,
-      ) as GiteaConfig;
+      previousConfig = JSON.parse(existingIntegration.config) as GiteaConfig;
       webhookSecret = previousConfig.webhookSecret ?? webhookSecret;
     } catch (error) {
       console.warn("Failed to parse existing Gitea config for webhook secret", {
@@ -126,13 +130,16 @@ async function createGiteaIntegration({
     }
   }
 
-  const config: GiteaConfig = getDefaultGiteaConfig(
-    normalizedBase,
-    resolvedToken,
-    repositoryOwner,
-    repositoryName,
-    webhookSecret,
-  );
+  const config: GiteaConfig = {
+    ...getDefaultGiteaConfig(
+      normalizedBase,
+      resolvedToken,
+      repositoryOwner,
+      repositoryName,
+      webhookSecret,
+    ),
+    issueSyncMode: issueSyncMode ?? getGiteaIssueSyncMode(previousConfig ?? {}),
+  };
 
   const validation = await validateGiteaConfig(config);
   if (!validation.valid) {
@@ -142,20 +149,30 @@ async function createGiteaIntegration({
   }
 
   if (existingIntegration) {
-    const [updated] = await db
-      .update(integrationTable)
-      .set({
-        config: JSON.stringify(config),
-        isActive: true,
-        updatedAt: new Date(),
-      })
-      .where(
-        and(
-          eq(integrationTable.projectId, projectId),
-          eq(integrationTable.type, "gitea"),
-        ),
-      )
-      .returning();
+    const updated = await db.transaction(async (tx) => {
+      const [saved] = await tx
+        .update(integrationTable)
+        .set({
+          config: JSON.stringify(config),
+          isActive: true,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(integrationTable.projectId, projectId),
+            eq(integrationTable.type, "gitea"),
+          ),
+        )
+        .returning();
+      if (saved && getGiteaIssueSyncMode(config) !== "sync") {
+        await retireGiteaIssueEdits(
+          saved.id,
+          tx,
+          getGiteaIssueSyncMode(config),
+        );
+      }
+      return saved;
+    });
 
     if (!updated) {
       throw new HTTPException(500, {
@@ -170,6 +187,7 @@ async function createGiteaIntegration({
       repositoryOwner,
       repositoryName,
       webhookSecret,
+      issueSyncMode: getGiteaIssueSyncMode(config),
       isActive: updated.isActive,
       createdAt: updated.createdAt,
       updatedAt: updated.updatedAt,
@@ -199,6 +217,7 @@ async function createGiteaIntegration({
     repositoryOwner,
     repositoryName,
     webhookSecret,
+    issueSyncMode: getGiteaIssueSyncMode(config),
     isActive: newIntegration.isActive,
     createdAt: newIntegration.createdAt,
     updatedAt: newIntegration.updatedAt,

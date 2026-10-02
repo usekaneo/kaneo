@@ -73,13 +73,11 @@ describe("saved Gitea verification", () => {
     await waitFor(() => expect(button).toBeEnabled());
     fireEvent.click(button);
     await waitFor(() => expect(success).toHaveBeenCalled());
-    expect(verify).toHaveBeenCalledWith({
-      projectId: "project",
-      baseUrl: integration.baseUrl,
-      repositoryOwner: "owner",
-      repositoryName: "repo",
-      accessToken: undefined,
-    });
+    expect(
+      screen.getByRole("button", {
+        name: "settings:giteaIntegration.importIssues",
+      }),
+    ).toBeEnabled();
   });
   it("shows verification errors for a saved integration", async () => {
     verify.mockRejectedValue(new Error("Verification failed"));

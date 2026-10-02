@@ -1,6 +1,6 @@
 import { findExternalLinksByTask } from "../../github/services/link-manager";
 import type { PluginContext, TaskPriorityChangedEvent } from "../../types";
-import type { GiteaConfig } from "../config";
+import { canSyncGiteaIssues, type GiteaConfig } from "../config";
 import { addLabelsToIssueGitea, removeLabelGitea } from "../utils/labels";
 
 export async function handleTaskPriorityChanged(
@@ -8,7 +8,7 @@ export async function handleTaskPriorityChanged(
   context: PluginContext,
 ): Promise<void> {
   const config = context.config as GiteaConfig;
-  if (!config.baseUrl || !config.accessToken) {
+  if (!canSyncGiteaIssues(config) || !config.baseUrl || !config.accessToken) {
     return;
   }
 

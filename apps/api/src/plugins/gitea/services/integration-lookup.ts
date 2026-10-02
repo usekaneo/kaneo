@@ -2,13 +2,14 @@ import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import { integrationTable } from "../../../database/schema";
 import type { GiteaConfig } from "../config";
-import { normalizeGiteaBaseUrl } from "../config";
+import { getGiteaIssueSyncMode, normalizeGiteaBaseUrl } from "../config";
 
 export async function findAllIntegrationsByGiteaRepo(
   baseUrl: string,
   owner: string,
   repo: string,
   integrationId?: string,
+  eventType?: "issues",
 ) {
   const normalized = normalizeGiteaBaseUrl(baseUrl);
   const conditions = [
@@ -38,7 +39,10 @@ export async function findAllIntegrationsByGiteaRepo(
           integrationId,
         });
       }
-      return matches;
+      return (
+        matches &&
+        (eventType !== "issues" || getGiteaIssueSyncMode(config) !== "off")
+      );
     } catch {
       return false;
     }
