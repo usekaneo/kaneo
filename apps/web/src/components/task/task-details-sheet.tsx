@@ -111,6 +111,7 @@ export default function TaskDetailsSheet({
             handle={deleteHandle}
             taskId={currentTaskId}
             onDeleted={onClose}
+            shortcutEnabled={Boolean(taskId)}
           />
         )}
         <div

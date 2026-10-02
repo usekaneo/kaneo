@@ -1,5 +1,5 @@
 import type { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AlertDialog,
@@ -21,12 +21,14 @@ type TaskDeleteDialogProps = {
   handle: AlertDialogPrimitive.Handle<unknown>;
   taskId: string;
   onDeleted: () => void;
+  shortcutEnabled?: boolean;
 };
 
 export default function TaskDeleteDialog({
   handle,
   taskId,
   onDeleted,
+  shortcutEnabled = true,
 }: TaskDeleteDialogProps) {
   const { t } = useTranslation();
   const { canDeleteTasks, isCheckingPermissions } = useWorkspacePermission();
@@ -35,7 +37,7 @@ export default function TaskDeleteDialog({
 
   const deleteShortcuts = useMemo(
     () =>
-      canDelete
+      canDelete && shortcutEnabled
         ? {
             modifierShortcuts: {
               [shortcuts.deleteTask.prefix]: {
@@ -44,9 +46,13 @@ export default function TaskDeleteDialog({
             },
           }
         : {},
-    [canDelete, handle],
+    [canDelete, shortcutEnabled, handle],
   );
   useRegisterShortcuts(deleteShortcuts);
+
+  useEffect(() => {
+    return () => handle.close();
+  }, [handle, taskId]);
 
   if (!canDelete) {
     return null;

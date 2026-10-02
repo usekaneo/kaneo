@@ -45,15 +45,27 @@ vi.mock("@/lib/toast", () => ({
   toast: { error: mocks.error, success: mocks.success },
 }));
 
-function renderTaskDelete(onDeleted = vi.fn()) {
+function renderTaskDelete({
+  onDeleted = vi.fn(),
+  shortcutEnabled,
+}: { onDeleted?: () => void; shortcutEnabled?: boolean } = {}) {
   const handle = AlertDialogCreateHandle();
-  render(
+  const renderView = (taskId: string) => (
     <KeyboardShortcutsProvider>
       <TaskDeleteButton handle={handle} />
-      <TaskDeleteDialog handle={handle} taskId="task-1" onDeleted={onDeleted} />
-    </KeyboardShortcutsProvider>,
+      <TaskDeleteDialog
+        handle={handle}
+        taskId={taskId}
+        onDeleted={onDeleted}
+        shortcutEnabled={shortcutEnabled}
+      />
+    </KeyboardShortcutsProvider>
   );
-  return onDeleted;
+  const { rerender } = render(renderView("task-1"));
+  return {
+    onDeleted,
+    switchTask: (taskId: string) => rerender(renderView(taskId)),
+  };
 }
 
 async function confirmDeletion() {
@@ -89,7 +101,7 @@ describe("TaskDeleteButton", () => {
 
   it("deletes after confirmation and reports success", async () => {
     mocks.deleteTask.mockResolvedValue({ id: "task-1" });
-    const onDeleted = renderTaskDelete();
+    const { onDeleted } = renderTaskDelete();
 
     fireEvent.click(
       screen.getByRole("button", { name: "tasks:delete.action" }),
@@ -140,9 +152,32 @@ describe("TaskDeleteButton", () => {
     expect(screen.queryByText("tasks:delete.title")).toBeNull();
   });
 
+  it("leaves the shortcut off while the view has it disabled", async () => {
+    renderTaskDelete({ shortcutEnabled: false });
+
+    fireEvent.keyDown(document, { key: "Backspace", ctrlKey: true });
+    await act(async () => {});
+
+    expect(screen.queryByText("tasks:delete.title")).toBeNull();
+  });
+
+  it("closes the confirmation when the view switches to another task", async () => {
+    const { switchTask } = renderTaskDelete();
+
+    fireEvent.keyDown(document, { key: "Backspace", ctrlKey: true });
+    expect(await screen.findByText("tasks:delete.title")).toBeTruthy();
+
+    switchTask("task-2");
+
+    await waitFor(() =>
+      expect(screen.queryByText("tasks:delete.title")).toBeNull(),
+    );
+    expect(mocks.deleteTask).not.toHaveBeenCalled();
+  });
+
   it("keeps the current view open and reports a failed deletion", async () => {
     mocks.deleteTask.mockRejectedValue(new Error("Delete denied"));
-    const onDeleted = renderTaskDelete();
+    const { onDeleted } = renderTaskDelete();
 
     fireEvent.click(
       screen.getByRole("button", { name: "tasks:delete.action" }),
