@@ -1,3 +1,4 @@
+import type { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
 import {
   Calendar,
   CalendarClock,
@@ -5,9 +6,7 @@ import {
   CalendarX,
   Plus,
 } from "lucide-react";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AlertDialogCreateHandle } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -34,7 +33,6 @@ import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import TaskActions from "./task-actions";
 import TaskAssigneePopover from "./task-assignee-popover";
-import TaskDeleteDialog from "./task-delete-dialog";
 import TaskDueDatePopover from "./task-due-date-popover";
 import TaskLabelsPopover from "./task-labels-popover";
 import TaskPriorityPopover from "./task-priority-popover";
@@ -69,7 +67,7 @@ type TaskPropertiesSidebarProps = {
   workspaceId: string;
   className?: string;
   compact?: boolean;
-  onDeleted: () => void;
+  deleteHandle: AlertDialogPrimitive.Handle<unknown>;
 };
 
 export default function TaskPropertiesSidebar({
@@ -78,10 +76,9 @@ export default function TaskPropertiesSidebar({
   workspaceId,
   className,
   compact = false,
-  onDeleted,
+  deleteHandle,
 }: TaskPropertiesSidebarProps) {
   const { t } = useTranslation();
-  const [deleteHandle] = useState(() => AlertDialogCreateHandle());
   const { data: task } = useGetTask(taskId ?? "");
   const { data: project } = useGetProject({ id: projectId, workspaceId });
   const { data: columns = [] } = useGetColumns(projectId);
@@ -140,13 +137,6 @@ export default function TaskPropertiesSidebar({
 
   return (
     <div className={className}>
-      {taskId && (
-        <TaskDeleteDialog
-          handle={deleteHandle}
-          taskId={taskId}
-          onDeleted={onDeleted}
-        />
-      )}
       <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
         {/* Compact mode: properties + icons in one row */}
         {compact && (

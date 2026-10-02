@@ -1,4 +1,5 @@
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -110,6 +111,33 @@ describe("TaskDeleteButton", () => {
 
     expect(await screen.findByText("tasks:delete.title")).toBeTruthy();
     expect(mocks.deleteTask).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["an input", () => document.createElement("input")],
+    ["a textarea", () => document.createElement("textarea")],
+    [
+      "the task editor",
+      () => {
+        const editor = document.createElement("div");
+        editor.contentEditable = "true";
+        return editor;
+      },
+    ],
+  ])("ignores the shortcut while typing in %s", async (_, createField) => {
+    renderTaskDelete();
+    const field = createField();
+    document.body.append(field);
+
+    try {
+      field.focus();
+      fireEvent.keyDown(field, { key: "Backspace", ctrlKey: true });
+      await act(async () => {});
+    } finally {
+      field.remove();
+    }
+
+    expect(screen.queryByText("tasks:delete.title")).toBeNull();
   });
 
   it("keeps the current view open and reports a failed deletion", async () => {
