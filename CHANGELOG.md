@@ -1,5 +1,37 @@
 ### Features
 
+- **site:** add guides and retarget alternatives: [58f6d47](https://github.com/usekaneo/kaneo/commit/58f6d47939bc95e2ae9e8b42442647ea03f30844)
+- **web:** track the cloud signup funnel: [abacad7](https://github.com/usekaneo/kaneo/commit/abacad71bee5e0ab5f4ba1420bde536683533075)
+- **docker:** support file-backed secrets for container deployments: #1853
+- sort labels alphabetically: #1856
+- **web:** select task ranges with shift-click: #1838
+
+### Bug Fixes
+
+- **site:** list GitLab with the git integrations: [3c01517](https://github.com/usekaneo/kaneo/commit/3c01517c0c2396394ac35c7b29802f7f31719840)
+- **site:** serve favicon.ico: [e7ef050](https://github.com/usekaneo/kaneo/commit/e7ef0505e36eeaff3a8854f35e489847fa3fabe5)
+- **docs:** load the docs font from its real path: [22c7a02](https://github.com/usekaneo/kaneo/commit/22c7a02186ced4899b4b7cb267030b5fc25a0b53)
+- **tasks:** make bulk status changes atomic: #1873
+- **integrations:** preserve rapid legitimate edits: #1874
+- **integrations:** enforce current task ownership: #1867
+- **ws:** revoke removed workspace members: #1865
+- **migrations:** record workflow migration completion: #1872
+- **auth:** enforce api key quotas and rate limits: #1869
+- **mcp:** share tools and support workspace label deletion: #1871
+- **reminders:** persist notification and claim atomically: #1870
+- **integrations:** require task update permission for imports: #1868
+- **gitea:** reject saved tokens for changed servers: #1866
+
+### Documentation
+
+- update sponsors: [1c51887](https://github.com/usekaneo/kaneo/commit/1c51887af53369df508c7dc4dbb7713788a9bd89)
+
+### Credits
+
+Huge thanks to @tuttucodes, @druwan, and @tinsever for helping!
+
+### Features
+
 - clickable task PR list, task link matching, and reopen completed tasks for new work: #1864
 - **mcp:** get tasks by ticket ID: #1839
 
