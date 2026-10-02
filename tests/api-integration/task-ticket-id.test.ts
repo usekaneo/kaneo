@@ -155,6 +155,52 @@ describe("API integration: task ticket ID lookup", () => {
     expect(await response.json()).toMatchObject({ title: "Numeric key" });
   });
 
+  it("prefers an exact workspace slug over a case-insensitive match", async () => {
+    const member = await createWorkspaceMember();
+    const other = await createWorkspaceMember();
+    await db.insert(schema.workspaceUserTable).values({
+      workspaceId: other.workspace.id,
+      userId: member.user.id,
+      role: "member",
+      joinedAt: new Date(),
+    });
+    await db
+      .update(schema.workspaceTable)
+      .set({ slug: "case-ws" })
+      .where(eq(schema.workspaceTable.id, member.workspace.id));
+    await db
+      .update(schema.workspaceTable)
+      .set({ slug: "CASE-WS" })
+      .where(eq(schema.workspaceTable.id, other.workspace.id));
+    const lower = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      slug: "KAN",
+    });
+    const upper = await createProjectFixture({
+      workspaceId: other.workspace.id,
+      slug: "KAN",
+    });
+    await db.insert(schema.taskTable).values([
+      { projectId: lower.project.id, title: "Lower", number: 12 },
+      { projectId: upper.project.id, title: "Upper", number: 12 },
+    ]);
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+    const exactLower = await app.request(
+      "/api/task/by-ticket-id/KAN-12?workspaceSlug=case-ws",
+    );
+    expect(await exactLower.json()).toMatchObject({ title: "Lower" });
+    const exactUpper = await app.request(
+      "/api/task/by-ticket-id/KAN-12?workspaceSlug=CASE-WS",
+    );
+    expect(await exactUpper.json()).toMatchObject({ title: "Upper" });
+    const mixed = await app.request(
+      "/api/task/by-ticket-id/KAN-12?workspaceSlug=Case-Ws",
+    );
+    expect(mixed.status).toBe(409);
+  });
+
   it("resolves a project key outside the generated key format", async () => {
     const member = await createWorkspaceMember();
     const { project } = await createProjectFixture({

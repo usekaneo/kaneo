@@ -48,6 +48,23 @@ export default async function getTaskByTicketId(
     .from(workspaceUserTable)
     .where(eq(workspaceUserTable.userId, userId));
 
+  let slugWorkspaceIds: string[] | undefined;
+  if (workspaceSlug) {
+    const slugMatches = await db
+      .select({ id: workspaceTable.id, slug: workspaceTable.slug })
+      .from(workspaceTable)
+      .where(sql`lower(${workspaceTable.slug}) = lower(${workspaceSlug})`);
+    const exactMatch = slugMatches.find(
+      (workspace) => workspace.slug === workspaceSlug,
+    );
+    slugWorkspaceIds = exactMatch
+      ? [exactMatch.id]
+      : slugMatches.map((workspace) => workspace.id);
+    if (slugWorkspaceIds.length === 0) {
+      throw new HTTPException(404, { message: "Task not found" });
+    }
+  }
+
   const candidates = await db
     .select({
       id: taskTable.id,
@@ -62,16 +79,8 @@ export default async function getTaskByTicketId(
         eq(taskTable.number, number),
         mayMatchProjectKey(projectKey),
         workspaceId ? eq(projectTable.workspaceId, workspaceId) : undefined,
-        workspaceSlug
-          ? inArray(
-              projectTable.workspaceId,
-              db
-                .select({ id: workspaceTable.id })
-                .from(workspaceTable)
-                .where(
-                  sql`lower(${workspaceTable.slug}) = lower(${workspaceSlug})`,
-                ),
-            )
+        slugWorkspaceIds
+          ? inArray(projectTable.workspaceId, slugWorkspaceIds)
           : undefined,
         projectId ? eq(projectTable.id, projectId) : undefined,
         hasInstanceAdminRole(user?.role)
