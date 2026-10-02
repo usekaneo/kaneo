@@ -153,7 +153,8 @@
 					"terracotta": "Merah Bata",
 					"rose": "Merah Mawar",
 					"crimson": "Merah Tua"
-				}
+				},
+				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
 		},
 		"boolean": {

@@ -125,4 +125,61 @@ describe("API integration: workspace activity", () => {
     );
     expect(response.status).toBe(403);
   });
+  it.each([
+    { workspace: ["read"] },
+    { workspace: ["read"], project: ["read"] },
+    { workspace: ["read"], task: ["read"] },
+  ])(
+    "rejects members missing project or task read permission (%j)",
+    async (permissions) => {
+      const member = await createWorkspaceMember({ role: "limited" });
+      await db.insert(schema.workspaceRoleTable).values({
+        workspaceId: member.workspace.id,
+        role: "limited",
+        permission: JSON.stringify(permissions),
+      });
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+      const response = await app.request(
+        `/api/activity/workspace/${member.workspace.id}`,
+      );
+      expect(response.status).toBe(403);
+    },
+  );
+
+  it("bounds an inbox preview while preserving full task history", async () => {
+    const member = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({ projectId: project.id, title: "Busy task", status: "to-do" })
+      .returning();
+    const now = Date.now();
+    await db.insert(schema.activityTable).values(
+      Array.from({ length: 15 }, (_, i) => ({
+        taskId: task.id,
+        type: "comment",
+        content: `Comment ${i}`,
+        createdAt: new Date(now - i * 1000),
+      })),
+    );
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+    const preview = await app.request(`/api/activity/${task.id}?limit=6`);
+    expect(preview.status).toBe(200);
+    expect(
+      (await preview.json()).map((event: { content: string }) => event.content),
+    ).toEqual(Array.from({ length: 6 }, (_, i) => `Comment ${i}`));
+    const full = await app.request(`/api/activity/${task.id}`);
+    expect(full.status).toBe(200);
+    expect(await full.json()).toHaveLength(15);
+    for (const limit of ["0", "101", "abc"]) {
+      const invalid = await app.request(
+        `/api/activity/${task.id}?limit=${limit}`,
+      );
+      expect(invalid.status).toBe(400);
+    }
+  });
 });

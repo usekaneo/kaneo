@@ -75,6 +75,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
+import { getColumnIcon } from "@/lib/column";
+import { getStatusDisplayLabel } from "@/lib/i18n/domain";
 import useCreateLabel from "@/hooks/mutations/label/use-create-label";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import useGetCustomFieldsByProject from "@/hooks/queries/custom-field/use-get-custom-fields-by-project";
@@ -271,6 +274,18 @@ function CreateTaskModalContent({
     (candidate) => candidate.id === (explicitProjectId || selectedProjectId),
   );
   const resolvedProjectId = resolvedProject?.id ?? "";
+  const {
+    data: projectColumns,
+    isError: columnsError,
+    refetch: refetchColumns,
+  } = useGetColumns(open ? resolvedProjectId : "");
+  const initialColumn = status
+    ? projectColumns?.find((column) => column.slug === status)
+    : (projectColumns?.find((column) => !column.isFinal) ??
+      projectColumns?.[0]);
+  const taskStatus = status ?? initialColumn?.slug ?? "planned";
+  const awaitingColumns =
+    !status && Boolean(resolvedProjectId) && !projectColumns;
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const stagedAssetsRef = useRef<string[]>([]);
@@ -475,6 +490,7 @@ function CreateTaskModalContent({
       submittingRef.current ||
       pendingUploadsRef.current > 0 ||
       !canCreateTaskCapability ||
+      awaitingColumns ||
       !title.trim() ||
       !resolvedProjectId ||
       !workspace?.id
@@ -484,7 +500,6 @@ function CreateTaskModalContent({
     submittingRef.current = true;
     setIsSubmitting(true);
     try {
-      const taskStatus = status ?? "to-do";
       didSubmitRef.current = true;
       const savedTask = normalizeTask(
         await createTask({
@@ -575,12 +590,7 @@ function CreateTaskModalContent({
 
   const selectedPriority = priorityOptions.find((p) => p.value === priority);
 
-  const statusLabel = useMemo(() => {
-    if (status) {
-      return t(`tasks:status.${status}`);
-    }
-    return t("tasks:status.in-progress");
-  }, [status, t]);
+  const statusLabel = getStatusDisplayLabel(taskStatus, initialColumn?.name);
   const selectedUser = workspaceUsers?.members?.find(
     (u) => u.userId === assigneeId,
   );
@@ -1120,7 +1130,11 @@ function CreateTaskModalContent({
                 </Popover>
               )}
               <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-accent/50 text-foreground rounded-md text-xs font-medium border border-border">
-                <div className="w-1.5 h-1.5 bg-foreground rounded-full" />
+                {getColumnIcon(
+                  taskStatus,
+                  initialColumn?.isFinal,
+                  initialColumn?.icon,
+                )}
                 {statusLabel}
               </div>
 
@@ -1468,6 +1482,22 @@ function CreateTaskModalContent({
             </div>
           </div>
 
+          {awaitingColumns && columnsError && (
+            <div
+              role="alert"
+              className="flex items-center gap-2 px-6 py-2 text-sm text-muted-foreground"
+            >
+              {t("common:modals.createTask.statusLoadError")}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => void refetchColumns()}
+              >
+                {t("common:actions.tryAgain")}
+              </Button>
+            </div>
+          )}
           <DialogFooter className="flex-shrink-0 border-t border-border bg-background px-6 py-4">
             <div className="flex items-center gap-3 mr-auto">
               <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
@@ -1496,6 +1526,7 @@ function CreateTaskModalContent({
                 !title.trim() ||
                 !resolvedProjectId ||
                 isSubmitting ||
+                awaitingColumns ||
                 isPreparingDraft
               }
               aria-busy={isPreparingDraft || isSubmitting}

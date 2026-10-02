@@ -153,7 +153,8 @@
 					"terracotta": "Terracotta",
 					"rose": "Rosa",
 					"crimson": "Cremisi"
-				}
+				},
+				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
 		},
 		"boolean": {

@@ -8583,7 +8583,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No access to the workspace",
+            "description": "No workspace access, or missing project:read or task:read permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11184,7 +11184,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No access to the workspace",
+            "description": "No workspace access, or missing project:read or task:read permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11203,7 +11203,7 @@
           "Activity"
         ],
         "summary": "Get task activity",
-        "description": "Get a task's full activity feed, newest first: comments alongside system events such as status and assignee changes.",
+        "description": "Get a task's activity feed, newest first: comments alongside system events such as status and assignee changes. Set limit to request a bounded preview; omit it for the full feed.",
         "parameters": [
           {
             "schema": {
@@ -11212,6 +11212,18 @@
             "required": true,
             "name": "taskId",
             "in": "path"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "description": "Maximum number of recent activities; omit for the full feed."
+            },
+            "required": false,
+            "description": "Maximum number of recent activities; omit for the full feed.",
+            "name": "limit",
+            "in": "query"
           }
         ],
         "responses": {

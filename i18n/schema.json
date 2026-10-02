@@ -459,6 +459,9 @@
 								"description": {
 									"type": "string"
 								},
+								"statusLoadError": {
+									"type": "string"
+								},
 								"taskTitlePlaceholder": {
 									"type": "string"
 								},
@@ -596,6 +599,7 @@
 								"selectProject",
 								"title",
 								"description",
+								"statusLoadError",
 								"taskTitlePlaceholder",
 								"descriptionPlaceholder",
 								"chooseProjectForImages",

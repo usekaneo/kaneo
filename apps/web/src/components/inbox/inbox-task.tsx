@@ -6,10 +6,11 @@ import { DueDateText } from "@/components/my-work/due-date-text";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Timeline } from "@/components/ui/timeline";
 import useGetActivitiesByTaskId from "@/hooks/queries/activity/use-get-activities-by-task-id";
+import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
-import { getPriorityLabel, getStatusLabel } from "@/lib/i18n/domain";
+import { getPriorityLabel, getStatusDisplayLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
 
 type InboxTaskProps = {
@@ -27,7 +28,11 @@ export function InboxTask({ taskId }: InboxTaskProps) {
     data: activities = [],
     isPending: activityPending,
     isError: activityError,
-  } = useGetActivitiesByTaskId(taskId, true);
+  } = useGetActivitiesByTaskId(taskId, true, VISIBLE_ACTIVITIES);
+  const { data: columns = [] } = useGetColumns(task?.projectId ?? "");
+  const statusColumn = columns.find(
+    (column) => column.slug === task?.status || column.id === task?.status,
+  );
   const { canUpdateTasks } = useWorkspacePermission();
 
   if (isLoading) {
@@ -60,8 +65,12 @@ export function InboxTask({ taskId }: InboxTaskProps) {
           <div className="flex items-center gap-1.5">
             <dt className="sr-only">{t("tasks:status.label")}</dt>
             <dd className="flex items-center gap-1.5">
-              {getColumnIcon(task.status)}
-              {getStatusLabel(task.status)}
+              {getColumnIcon(
+                task.status,
+                statusColumn?.isFinal,
+                statusColumn?.icon,
+              )}
+              {getStatusDisplayLabel(task.status, statusColumn?.name)}
             </dd>
           </div>
           <div className="flex items-center gap-1.5">

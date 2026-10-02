@@ -69,6 +69,31 @@ describe("personal work refresh", () => {
     client.clear();
   });
 
+  it("keeps bounded inbox activity separate from full task history", async () => {
+    mocks.comments.mockImplementation(async ({ limit }) =>
+      Array.from({ length: limit ?? 10 }, (_, id) => ({ id })),
+    );
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const wrapper = ({ children }: PropsWithChildren) => (
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    );
+    const { result } = renderHook(
+      () => ({
+        full: useGetActivitiesByTaskId("task").data,
+        preview: useGetActivitiesByTaskId("task", true, 6).data,
+      }),
+      { wrapper },
+    );
+    await waitFor(() => {
+      expect(result.current.full).toHaveLength(10);
+      expect(result.current.preview).toHaveLength(6);
+    });
+    expect(mocks.comments).toHaveBeenCalledWith({ taskId: "task", limit: 6 });
+    client.clear();
+  });
+
   it("refreshes remote edits and comments without a project socket or notification", async () => {
     vi.useFakeTimers();
     focusManager.setFocused(true);

@@ -153,7 +153,8 @@
 					"terracotta": "Đất nung",
 					"rose": "Hồng",
 					"crimson": "Đỏ thẫm"
-				}
+				},
+				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
 		},
 		"boolean": {

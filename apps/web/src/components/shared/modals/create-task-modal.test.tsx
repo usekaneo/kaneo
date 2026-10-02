@@ -44,6 +44,11 @@ const updateTask = vi.fn(async (input: Record<string, unknown>) => input);
 const setProject = vi.fn();
 let workspaceId = "workspace-1";
 let projects: { id: string; name: string; slug: string }[] | undefined;
+let columnsError = false;
+const refetchColumns = vi.fn();
+let projectColumns:
+  | { id: string; slug: string; name: string; isFinal: boolean }[]
+  | undefined;
 let storedProject: { id: string; columns: unknown[] } | null = null;
 let uploadAsset: ((file: File) => Promise<unknown>) | undefined;
 const stageUpload = vi.fn();
@@ -58,6 +63,10 @@ beforeEach(() => {
     { id: "project-2", name: "Beta", slug: "bet" },
   ];
   storedProject = null;
+  columnsError = false;
+  projectColumns = [
+    { id: "todo", slug: "to-do", name: "To Do", isFinal: false },
+  ];
   useLocation.mockReturnValue({ pathname: "/dashboard/workspace/workspace-1" });
 });
 const createTask = vi.fn(async (input: Record<string, unknown>) => ({
@@ -138,6 +147,14 @@ vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({
     canCreateTasks: () => true,
     canCreateLabels: () => true,
+  }),
+}));
+
+vi.mock("@/hooks/queries/column/use-get-columns", () => ({
+  useGetColumns: () => ({
+    data: projectColumns,
+    isError: columnsError,
+    refetch: refetchColumns,
   }),
 }));
 
@@ -276,6 +293,77 @@ describe("CreateTaskModal", () => {
         }),
       );
     });
+  });
+
+  it("creates Home tasks in the first open custom column and shows its name", async () => {
+    projectColumns = [
+      { id: "done", slug: "done", name: "Finished", isFinal: true },
+      {
+        id: "ready",
+        slug: "ready-for-work",
+        name: "Ready for work",
+        isFinal: false,
+      },
+    ];
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    expect(screen.getByText("Ready for work")).toBeInTheDocument();
+    enterTitle();
+    submit();
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({ status: "ready-for-work" }),
+      ),
+    );
+  });
+
+  it("waits for the chosen project's columns before submitting", async () => {
+    projectColumns = undefined;
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    enterTitle();
+    expect(
+      screen.getByText("common:modals.createTask.createButton"),
+    ).toBeDisabled();
+    submit();
+    expect(createTask).not.toHaveBeenCalled();
+  });
+
+  it("offers a retry when project statuses could not be loaded", async () => {
+    projectColumns = undefined;
+    columnsError = true;
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "common:modals.createTask.statusLoadError",
+    );
+    fireEvent.click(screen.getByText("common:actions.tryAgain"));
+    expect(refetchColumns).toHaveBeenCalledOnce();
+    submit();
+    expect(createTask).not.toHaveBeenCalled();
+  });
+
+  it("keeps an explicit planned status even when the project has custom columns", async () => {
+    projectColumns = [
+      { id: "ready", slug: "ready", name: "Ready", isFinal: false },
+    ];
+    render(<CreateTaskModal open status="planned" onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    enterTitle();
+    submit();
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({ status: "planned" }),
+      ),
+    );
   });
 
   it("hides the picker when a project is in scope from the route", () => {

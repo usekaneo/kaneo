@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, inArray, isNull } from "drizzle-orm";
+import { and, desc, eq, gte, isNull, sql } from "drizzle-orm";
 import db from "../../database";
 import {
   activityTable,
@@ -56,10 +56,7 @@ async function getWorkspaceActivities(workspaceId: string) {
     .where(
       and(
         eq(projectTable.workspaceId, workspaceId),
-        inArray(
-          taskTable.projectId,
-          projects.map((project) => project.id),
-        ),
+        sql`${taskTable.projectId} = ANY(${sql.param(projects.map((project) => project.id))}::text[])`,
         isNull(projectTable.archivedAt),
         gte(activityTable.createdAt, since),
       ),

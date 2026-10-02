@@ -204,4 +204,29 @@ describe("API integration: assigned tasks", () => {
       expect(response.status).toBe(403);
     }
   });
+  it.each([
+    { workspace: ["read"] },
+    { workspace: ["read"], project: ["read"] },
+    { workspace: ["read"], task: ["read"] },
+  ])(
+    "rejects members missing project or task read permission (%j)",
+    async (permissions) => {
+      const member = await createWorkspaceMember({ role: "limited" });
+      await db.insert(schema.workspaceRoleTable).values({
+        workspaceId: member.workspace.id,
+        role: "limited",
+        permission: JSON.stringify(permissions),
+      });
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+      const response = await app.request(
+        `/api/task/assigned?workspaceId=${member.workspace.id}`,
+      );
+      expect(response.status).toBe(403);
+      const count = await app.request(
+        `/api/task/assigned?workspaceId=${member.workspace.id}&countOnly=true`,
+      );
+      expect(count.status).toBe(403);
+    },
+  );
 });

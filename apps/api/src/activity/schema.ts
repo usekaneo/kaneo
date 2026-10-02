@@ -1,4 +1,10 @@
-import { z } from "../openapi";
+import { pagingNumber, z } from "../openapi";
+
+export const activitiesQuery = z.object({
+  limit: pagingNumber(1, 100).optional().openapi({
+    description: "Maximum number of recent activities; omit for the full feed.",
+  }),
+});
 
 export const taskIdParam = z.object({ taskId: z.string() });
 

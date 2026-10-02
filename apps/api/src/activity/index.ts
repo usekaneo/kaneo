@@ -21,6 +21,7 @@ import {
   workspaceActivityListSchema,
 } from "./response";
 import {
+  activitiesQuery,
   createActivityBody,
   createCommentBody,
   deleteCommentBody,
@@ -37,7 +38,10 @@ const getWorkspaceActivitiesRoute = createRoute({
   summary: "Get recent workspace activity",
   description:
     "Get the 20 most recent task events across a workspace's active projects from the last 30 days, newest first. Each event carries a short plain-text excerpt instead of its full content.",
-  middleware: [workspaceAccess.fromParam()] as const,
+  middleware: [
+    workspaceAccess.fromParam(),
+    requireWorkspacePermission({ project: ["read"], task: ["read"] }),
+  ] as const,
   request: { params: workspaceIdParam },
   responses: {
     200: jsonResponse(
@@ -45,7 +49,9 @@ const getWorkspaceActivitiesRoute = createRoute({
       workspaceActivityListSchema,
     ),
     400: errorResponse("Workspace ID could not be determined"),
-    403: errorResponse("No access to the workspace"),
+    403: errorResponse(
+      "No workspace access, or missing project:read or task:read permission",
+    ),
   },
 });
 
@@ -56,9 +62,9 @@ const getActivitiesRoute = createRoute({
   tags: ["Activity"],
   summary: "Get task activity",
   description:
-    "Get a task's full activity feed, newest first: comments alongside system events such as status and assignee changes.",
+    "Get a task's activity feed, newest first: comments alongside system events such as status and assignee changes. Set limit to request a bounded preview; omit it for the full feed.",
   middleware: [workspaceAccess.fromTaskId()] as const,
-  request: { params: taskIdParam },
+  request: { params: taskIdParam, query: activitiesQuery },
   responses: {
     200: jsonResponse("List of activities for the task", activityListSchema),
     400: errorResponse(
@@ -178,7 +184,13 @@ const activity = apiRouter()
     c.json(await getWorkspaceActivities(c.req.valid("param").workspaceId), 200),
   )
   .openapi(getActivitiesRoute, async (c) =>
-    c.json(await getActivities(c.req.valid("param").taskId), 200),
+    c.json(
+      await getActivities(
+        c.req.valid("param").taskId,
+        c.req.valid("query").limit,
+      ),
+      200,
+    ),
   )
   .openapi(createActivityRoute, async (c) => {
     const { taskId, message, type, eventData } = c.req.valid("json");
