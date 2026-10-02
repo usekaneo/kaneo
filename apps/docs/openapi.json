@@ -1472,7 +1472,7 @@
             "format": "date-time"
           },
           "eventData": {
-            "description": "Type-specific payload, e.g. { oldStatus, newStatus } for status_changed."
+            "description": "Type-specific payload. For status_changed, oldStatus/newStatus are slugs and oldStatusName/newStatusName carry current configured column names when available."
           },
           "excerpt": {
             "type": [

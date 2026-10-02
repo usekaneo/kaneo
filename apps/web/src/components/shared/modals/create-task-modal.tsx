@@ -281,8 +281,7 @@ function CreateTaskModalContent({
   } = useGetColumns(open ? resolvedProjectId : "");
   const initialColumn = status
     ? projectColumns?.find((column) => column.slug === status)
-    : (projectColumns?.find((column) => !column.isFinal) ??
-      projectColumns?.[0]);
+    : projectColumns?.find((column) => !column.isFinal);
   const taskStatus = status ?? initialColumn?.slug ?? "planned";
   const awaitingColumns =
     !status && Boolean(resolvedProjectId) && !projectColumns;
@@ -1494,7 +1493,7 @@ function CreateTaskModalContent({
                 size="sm"
                 onClick={() => void refetchColumns()}
               >
-                {t("common:actions.tryAgain")}
+                {t("common:error.tryAgain")}
               </Button>
             </div>
           )}

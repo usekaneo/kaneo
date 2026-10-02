@@ -21,15 +21,12 @@ export const Route = createFileRoute(
 function RouteComponent() {
   const { t } = useTranslation();
   const { workspaceId } = Route.useParams();
-  const {
-    data: notifications = [],
-    isPending,
-    isError,
-    refetch,
-  } = useGetNotifications(workspaceId);
+  const { data, isPending, isError, refetch } =
+    useGetNotifications(workspaceId);
   const { mutate: markAsRead } = useMarkNotificationAsRead();
   const [selectedId, setSelectedId] = useState<string>();
 
+  const notifications = data ?? [];
   const selected = notifications.find(
     (notification) => notification.id === selectedId,
   );
@@ -55,7 +52,7 @@ function RouteComponent() {
               <p role="status" className="p-5 text-muted-foreground text-sm">
                 {t("common:empty.loading")}
               </p>
-            ) : isError ? (
+            ) : isError && !data ? (
               <div className="flex flex-col items-start gap-3 p-5">
                 <p role="alert" className="text-muted-foreground text-sm">
                   {t("notifications:inbox.loadError")}

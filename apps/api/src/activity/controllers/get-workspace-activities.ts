@@ -1,7 +1,8 @@
-import { and, desc, eq, gte, isNull, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNull, sql } from "drizzle-orm";
 import db from "../../database";
 import {
   activityTable,
+  columnTable,
   projectTable,
   taskTable,
   userTable,
@@ -64,10 +65,67 @@ async function getWorkspaceActivities(workspaceId: string) {
     .orderBy(desc(activityTable.createdAt), desc(activityTable.id))
     .limit(WORKSPACE_ACTIVITY_LIMIT);
 
-  return rows.map(({ content, ...row }) => ({
-    ...row,
-    excerpt: commentExcerpt(content),
-  }));
+  const statusChanges = rows.filter((row) => row.type === "status_changed");
+  const statusSlugs = [
+    ...new Set(
+      statusChanges.flatMap((row) => {
+        const data = statusData(row.eventData);
+        return [data?.oldStatus, data?.newStatus].filter(
+          (value): value is string => typeof value === "string",
+        );
+      }),
+    ),
+  ];
+  const columns = statusSlugs.length
+    ? await db
+        .select({
+          projectId: columnTable.projectId,
+          slug: columnTable.slug,
+          name: columnTable.name,
+        })
+        .from(columnTable)
+        .innerJoin(projectTable, eq(columnTable.projectId, projectTable.id))
+        .where(
+          and(
+            eq(projectTable.workspaceId, workspaceId),
+            inArray(columnTable.projectId, [
+              ...new Set(statusChanges.map((row) => row.projectId)),
+            ]),
+            inArray(columnTable.slug, statusSlugs),
+          ),
+        )
+        .orderBy(
+          asc(columnTable.position),
+          asc(columnTable.createdAt),
+          asc(columnTable.id),
+        )
+    : [];
+
+  return rows.map(({ content, ...row }) => {
+    const data =
+      row.type === "status_changed" ? statusData(row.eventData) : null;
+    const nameOf = (slug: unknown) =>
+      columns.find(
+        (column) => column.projectId === row.projectId && column.slug === slug,
+      )?.name;
+    return {
+      ...row,
+      eventData: data
+        ? {
+            ...data,
+            oldStatusName: nameOf(data.oldStatus),
+            newStatusName: nameOf(data.newStatus),
+          }
+        : row.eventData,
+      excerpt: commentExcerpt(content),
+    };
+  });
+}
+
+function statusData(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
 }
 
 export default getWorkspaceActivities;

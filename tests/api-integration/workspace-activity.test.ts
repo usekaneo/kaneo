@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
@@ -15,6 +16,7 @@ type WorkspaceActivityResponse = Array<{
   userName: string | null;
   taskTitle: string;
   projectSlug: string;
+  eventData: Record<string, unknown> | null;
 }>;
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -31,6 +33,10 @@ describe("API integration: workspace activity", () => {
       workspaceId: member.workspace.id,
       slug: "web",
     });
+    await db
+      .update(schema.columnTable)
+      .set({ name: "Queued for QA" })
+      .where(eq(schema.columnTable.id, web.columns.todo.id));
     const foreign = await createProjectFixture({
       workspaceId: elsewhere.workspace.id,
       slug: "foreign",
@@ -110,7 +116,16 @@ describe("API integration: workspace activity", () => {
       projectSlug: "web",
     });
     expect(body[0]).not.toHaveProperty("content");
-    expect(body[1]).toMatchObject({ type: "status_changed", excerpt: null });
+    expect(body[1]).toMatchObject({
+      type: "status_changed",
+      excerpt: null,
+      eventData: {
+        oldStatus: "to-do",
+        newStatus: "in-progress",
+        oldStatusName: "Queued for QA",
+        newStatusName: "In Progress",
+      },
+    });
   });
 
   it("refuses a workspace the caller does not belong to", async () => {

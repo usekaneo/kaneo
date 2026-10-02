@@ -1,19 +1,30 @@
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { InboxTask } from "./inbox-task";
 
-const activityQuery = vi.hoisted(() => vi.fn(() => ({ data: [] })));
-vi.mock("@/hooks/queries/task/use-get-task", () => ({
-  default: () => ({
+const queries = vi.hoisted(() => ({
+  activity: vi.fn(),
+  task: vi.fn(),
+}));
+beforeEach(() => {
+  queries.task.mockReturnValue({
     data: {
       id: "task",
       title: "Custom workflow",
       status: "review",
-      columnId: "review-column",
       projectId: "project",
     },
-  }),
-}));
+  });
+  queries.activity.mockReturnValue({ data: [] });
+});
+vi.mock("@/hooks/queries/task/use-get-task", () => ({ default: queries.task }));
 vi.mock("@/hooks/queries/column/use-get-columns", () => ({
   useGetColumns: () => ({
     data: [
@@ -28,7 +39,7 @@ vi.mock("@/hooks/queries/column/use-get-columns", () => ({
   }),
 }));
 vi.mock("@/hooks/queries/activity/use-get-activities-by-task-id", () => ({
-  default: activityQuery,
+  default: queries.activity,
 }));
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({ canUpdateTasks: () => false }),
@@ -46,6 +57,29 @@ describe("Inbox task preview", () => {
     render(<InboxTask taskId="task" />);
     expect(screen.getByText("Awaiting approval")).toBeInTheDocument();
     expect(document.querySelector(".lucide-flag")).not.toBeNull();
-    expect(activityQuery).toHaveBeenCalledWith("task", true, 6);
+    expect(queries.activity).toHaveBeenCalledWith("task", true, 6);
+  });
+  it("keeps cached task and activity content after a failed background refresh", () => {
+    queries.task.mockReturnValue({
+      data: { title: "Cached task", status: "review", projectId: "project" },
+      isError: true,
+    });
+    queries.activity.mockReturnValue({ data: [], isError: true });
+    render(<InboxTask taskId="task" />);
+    expect(screen.getByText("Cached task")).toBeVisible();
+    expect(
+      screen.queryByText("notifications:inbox.taskUnavailable"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("workspace:home.activity.loadError"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("announces initial task failures", () => {
+    queries.task.mockReturnValue({ isError: true });
+    render(<InboxTask taskId="task" />);
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "notifications:inbox.taskUnavailable",
+    );
   });
 });

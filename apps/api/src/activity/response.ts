@@ -37,7 +37,7 @@ export const workspaceActivityListSchema = z.array(
       createdAt: responseTimestamp,
       eventData: z.unknown().openapi({
         description:
-          "Type-specific payload, e.g. { oldStatus, newStatus } for status_changed.",
+          "Type-specific payload. For status_changed, oldStatus/newStatus are slugs and oldStatusName/newStatusName carry current configured column names when available.",
       }),
       excerpt: z.string().nullable().openapi({
         description:

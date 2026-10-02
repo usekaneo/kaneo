@@ -23,9 +23,9 @@ const VISIBLE_ACTIVITIES = 6;
 // without leaving the inbox.
 export function InboxTask({ taskId }: InboxTaskProps) {
   const { t } = useTranslation();
-  const { data: task, isLoading, isError } = useGetTask(taskId, true);
+  const { data: task, isLoading } = useGetTask(taskId, true);
   const {
-    data: activities = [],
+    data: activities,
     isPending: activityPending,
     isError: activityError,
   } = useGetActivitiesByTaskId(taskId, true, VISIBLE_ACTIVITIES);
@@ -45,15 +45,15 @@ export function InboxTask({ taskId }: InboxTaskProps) {
     );
   }
 
-  if (isError || !task) {
+  if (!task) {
     return (
-      <p className="text-muted-foreground text-sm">
+      <p role="alert" className="text-muted-foreground text-sm">
         {t("notifications:inbox.taskUnavailable")}
       </p>
     );
   }
 
-  const recent = activities.slice(0, VISIBLE_ACTIVITIES);
+  const recent = (activities ?? []).slice(0, VISIBLE_ACTIVITIES);
 
   return (
     <div className="flex flex-col gap-7">
@@ -106,7 +106,7 @@ export function InboxTask({ taskId }: InboxTaskProps) {
             aria-label={t("common:empty.loading")}
             className="h-24 w-full"
           />
-        ) : activityError ? (
+        ) : activityError && !activities ? (
           <p role="alert" className="text-muted-foreground text-sm">
             {t("workspace:home.activity.loadError")}
           </p>

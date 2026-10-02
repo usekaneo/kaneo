@@ -1,6 +1,6 @@
 import type { WorkspaceActivity } from "@/fetchers/activity/get-workspace-activities";
 import { formatDateMedium } from "@/lib/format";
-import { getPriorityLabel, getStatusLabel } from "@/lib/i18n/domain";
+import { getPriorityLabel, getStatusDisplayLabel } from "@/lib/i18n/domain";
 
 type Translate = (key: string, options?: Record<string, unknown>) => string;
 
@@ -33,8 +33,18 @@ export function describeActivity(activity: WorkspaceActivity, t: Translate) {
     case "status_changed":
       if (eventData) {
         return t("activity:changedStatus", {
-          from: getStatusLabel(String(eventData.oldStatus ?? "")),
-          to: getStatusLabel(String(eventData.newStatus ?? "")),
+          from: getStatusDisplayLabel(
+            String(eventData.oldStatus ?? ""),
+            typeof eventData.oldStatusName === "string"
+              ? eventData.oldStatusName
+              : undefined,
+          ),
+          to: getStatusDisplayLabel(
+            String(eventData.newStatus ?? ""),
+            typeof eventData.newStatusName === "string"
+              ? eventData.newStatusName
+              : undefined,
+          ),
         });
       }
       break;

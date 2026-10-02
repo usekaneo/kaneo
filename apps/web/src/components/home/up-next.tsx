@@ -61,7 +61,7 @@ export function UpNext({
           ))}
         </div>
       ) : isError && !tasks ? (
-        <p className="py-6 text-muted-foreground text-sm">
+        <p role="alert" className="py-6 text-muted-foreground text-sm">
           {t("workspace:myWork.loadError")}
         </p>
       ) : !tasks?.length ? (

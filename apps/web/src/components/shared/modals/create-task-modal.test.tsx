@@ -343,10 +343,27 @@ describe("CreateTaskModal", () => {
     expect(screen.getByRole("alert")).toHaveTextContent(
       "common:modals.createTask.statusLoadError",
     );
-    fireEvent.click(screen.getByText("common:actions.tryAgain"));
+    fireEvent.click(screen.getByText("common:error.tryAgain"));
     expect(refetchColumns).toHaveBeenCalledOnce();
     submit();
     expect(createTask).not.toHaveBeenCalled();
+  });
+
+  it("uses planned when every column is final", async () => {
+    projectColumns = [
+      { id: "done", slug: "done", name: "Finished", isFinal: true },
+    ];
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    enterTitle();
+    submit();
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({ status: "planned" }),
+      ),
+    );
   });
 
   it("keeps an explicit planned status even when the project has custom columns", async () => {

@@ -35,7 +35,7 @@ export function ActivityFeed({ workspaceId }: ActivityFeedProps) {
           ))}
         </div>
       ) : isError && !activities ? (
-        <p className="py-6 text-muted-foreground text-sm">
+        <p role="alert" className="py-6 text-muted-foreground text-sm">
           {t("workspace:home.activity.loadError")}
         </p>
       ) : !activities?.length ? (

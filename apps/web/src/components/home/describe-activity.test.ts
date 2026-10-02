@@ -51,6 +51,40 @@ describe("describeActivity", () => {
     ).toBe("activity:clearedDueDate");
   });
 
+  it("uses configured status names and falls back for deleted columns", () => {
+    expect(
+      describeActivity(
+        activity({
+          type: "status_changed",
+          eventData: {
+            oldStatus: "review",
+            newStatus: "approved",
+            oldStatusName: "Awaiting approval",
+            newStatusName: "Ready to ship",
+          },
+        }),
+        t,
+      ),
+    ).toBe(
+      'activity:changedStatus {"from":"Awaiting approval","to":"Ready to ship"}',
+    );
+    expect(
+      describeActivity(
+        activity({
+          type: "status_changed",
+          eventData: {
+            oldStatus: "removed-lane",
+            newStatus: "review",
+            newStatusName: "Awaiting approval",
+          },
+        }),
+        t,
+      ),
+    ).toBe(
+      'activity:changedStatus {"from":"Removed Lane","to":"Awaiting approval"}',
+    );
+  });
+
   it("falls back to the stored text for events without event data", () => {
     expect(
       describeActivity(

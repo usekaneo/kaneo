@@ -62,7 +62,7 @@ function RouteComponent() {
               ))}
             </div>
           ) : isError && !assigned ? (
-            <p className="p-6 text-muted-foreground text-sm">
+            <p role="alert" className="p-6 text-muted-foreground text-sm">
               {t("workspace:myWork.loadError")}
             </p>
           ) : !assigned?.tasks.length ? (
