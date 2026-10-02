@@ -46,12 +46,9 @@ async function updateProject(
     }
 
     if (!isSameProjectKey(slug, existingProject.slug)) {
-      const keyConflict = await findProjectKeyConflict(
-        tx,
-        workspaceId,
-        slug,
-        id,
-      );
+      const keyConflict = await findProjectKeyConflict(tx, workspaceId, slug, {
+        excludeProjectId: id,
+      });
       if (keyConflict) {
         throw new HTTPException(409, {
           message: projectKeyTakenMessage(slug, keyConflict.name),

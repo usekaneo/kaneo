@@ -68,7 +68,7 @@ async function moveProject(
       tx,
       targetWorkspaceId,
       existingProject.slug,
-      id,
+      { excludeProjectId: id },
     );
 
     if (keyConflict) {

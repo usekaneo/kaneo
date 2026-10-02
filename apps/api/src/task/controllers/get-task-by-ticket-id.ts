@@ -8,7 +8,10 @@ import {
   workspaceTable,
   workspaceUserTable,
 } from "../../database/schema";
-import { isSameProjectKey } from "../../project/project-key";
+import {
+  isSameProjectKey,
+  mayMatchProjectKey,
+} from "../../project/project-key";
 import { TICKET_ID_PATTERN } from "../ticket-id";
 import { hasInstanceAdminRole } from "../../utils/instance-admin-role";
 import getTask from "./get-task";
@@ -57,6 +60,7 @@ export default async function getTaskByTicketId(
     .where(
       and(
         eq(taskTable.number, number),
+        mayMatchProjectKey(projectKey),
         workspaceId ? eq(projectTable.workspaceId, workspaceId) : undefined,
         workspaceSlug
           ? inArray(

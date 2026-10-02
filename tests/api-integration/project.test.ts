@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
@@ -199,5 +199,45 @@ describe("API integration: project creation", () => {
     );
     expect((await update(project.id, "Design", "KAN")).status).toBe(409);
     expect((await update(project.id, "Design", "DSN")).status).toBe(200);
+  });
+
+  it("rejects unarchiving a project whose key an active project uses", async () => {
+    const member = await createWorkspaceMember({ role: "admin" });
+    await createProjectFixture({
+      workspaceId: member.workspace.id,
+      name: "Kanban",
+      slug: "KAN",
+    });
+    const { project: archived } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      slug: "kan",
+    });
+    const { project: archivedTwin } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      slug: "OLD",
+    });
+    const { project: otherArchived } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      slug: "old",
+    });
+    await db
+      .update(schema.projectTable)
+      .set({ archivedAt: new Date() })
+      .where(
+        inArray(schema.projectTable.id, [
+          archived.id,
+          archivedTwin.id,
+          otherArchived.id,
+        ]),
+      );
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+    const unarchive = (id: string) =>
+      app.request(`/api/project/${id}/unarchive`, { method: "PUT" });
+
+    const conflict = await unarchive(archived.id);
+    expect(conflict.status).toBe(409);
+    await expect(conflict.text()).resolves.toContain("(Kanban)");
+    expect((await unarchive(archivedTwin.id)).status).toBe(200);
   });
 });
