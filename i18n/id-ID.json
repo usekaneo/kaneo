@@ -2501,7 +2501,8 @@
 			"noTasks": "Tidak ada tugas"
 		},
 		"kanban": {
-			"addTask": "Tambah tugas"
+			"addTask": "Tambah tugas",
+			"priorityOrderedOverlayHint": "Tahan ⌘ untuk mengurutkan kartu"
 		},
 		"pr": {
 			"merged": "Digabung",

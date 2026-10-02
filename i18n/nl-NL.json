@@ -2501,7 +2501,8 @@
 			"noTasks": "Geen taken"
 		},
 		"kanban": {
-			"addTask": "Taak toevoegen"
+			"addTask": "Taak toevoegen",
+			"priorityOrderedOverlayHint": "Houd ⌘ ingedrukt om kaarten te sorteren"
 		},
 		"pr": {
 			"merged": "Samengevoegd",

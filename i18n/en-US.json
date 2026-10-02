@@ -2526,7 +2526,8 @@
 			"noTasks": "No tasks"
 		},
 		"kanban": {
-			"addTask": "Add task"
+			"addTask": "Add task",
+			"priorityOrderedOverlayHint": "Hold ⌘ to sort cards"
 		},
 		"pr": {
 			"merged": "Merged",

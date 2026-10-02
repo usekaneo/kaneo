@@ -4,7 +4,9 @@ import {
   closestCorners,
   DndContext,
   type DragEndEvent,
+  type DragMoveEvent,
   DragOverlay,
+  type DragOverEvent,
   type DragStartEvent,
   type DropAnimation,
   defaultDropAnimationSideEffects,
@@ -19,11 +21,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
 import reorderTasks, { type TaskReorder } from "@/fetchers/task/reorder-tasks";
+import updateTaskPriority from "@/fetchers/task/update-task-priority";
 import { toast } from "@/lib/toast";
 import { useTranslation } from "react-i18next";
 import { rollbackBoardReorder } from "./apply-reorder";
-import { moveBoardTask } from "./move-task";
-import { useEffect, useState } from "react";
+import { getVisualTaskPlacement, moveBoardTask } from "./move-task";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { produce } from "immer";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useProjectBackground } from "@/hooks/use-project-background";
 import { cn } from "@/lib/cn";
@@ -40,6 +44,12 @@ type KanbanBoardProps = {
   disableDragDrop?: boolean;
   disableCollectionActions?: boolean;
   sortedByNumber?: boolean;
+  sortedByPriority?: boolean;
+};
+
+type HoverPlacement = {
+  insertAfterTarget?: boolean;
+  overId: string;
 };
 
 function KanbanBoard({
@@ -47,6 +57,7 @@ function KanbanBoard({
   disableDragDrop = false,
   disableCollectionActions = false,
   sortedByNumber = false,
+  sortedByPriority = false,
 }: KanbanBoardProps) {
   const queryClient = useQueryClient();
   const { project: storedProject, setProject } = useProjectStore();
@@ -58,6 +69,21 @@ function KanbanBoard({
     clearFocus,
   } = useBulkSelectionStore();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
+  const [overColumnId, setOverColumnId] = useState<string | null>(null);
+  const [hoverPlacement, setHoverPlacement] = useState<HoverPlacement | null>(
+    null,
+  );
+  const [dragPreviewProject, setDragPreviewProject] =
+    useState<ProjectWithTasks | null>(null);
+  const [isSortedReorderActive, setIsSortedReorderActive] = useState(false);
+  const [isCommandHeld, setIsCommandHeld] = useState(false);
+  const activeIdRef = useRef<UniqueIdentifier | null>(null);
+  const dragPreviewProjectRef = useRef<ProjectWithTasks | null>(null);
+  const hoverPlacementRef = useRef<HoverPlacement | null>(null);
+  const isSortedReorderActiveRef = useRef(false);
+  useLayoutEffect(() => {
+    dragPreviewProjectRef.current = dragPreviewProject;
+  }, [dragPreviewProject]);
   const { t } = useTranslation();
   const { mutate: reorder, isPending: isReordering } = useMutation({
     mutationFn: ({
@@ -90,6 +116,27 @@ function KanbanBoard({
         }
       }
       toast.error(t("tasks:board.reorderFailed"));
+      void queryClient.invalidateQueries({ queryKey: ["tasks", project.id] });
+    },
+  });
+  const { mutate: updatePriority } = useMutation({
+    mutationFn: ({
+      task,
+      taskId,
+    }: {
+      task: Parameters<typeof updateTaskPriority>[1];
+      taskId: string;
+    }) => updateTaskPriority(taskId, task),
+    onSuccess: (_updated, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: ["task", variables.taskId],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["activities", variables.taskId],
+      });
+    },
+    onError: () => {
+      toast.error(t("tasks:popover.priority.updateError"));
       void queryClient.invalidateQueries({ queryKey: ["tasks", project.id] });
     },
   });
@@ -179,17 +226,111 @@ function KanbanBoard({
   };
 
   const handleDragStart = (event: DragStartEvent) => {
+    activeIdRef.current = event.active.id;
     setActiveId(event.active.id);
+    setOverColumnId(null);
+    dragPreviewProjectRef.current = null;
+    hoverPlacementRef.current = null;
+    setHoverPlacement(null);
+    setDragPreviewProject(null);
+    const activatorEvent = event.activatorEvent as
+      | (Event & { metaKey?: boolean })
+      | undefined;
+    const metaKey = Boolean(activatorEvent?.metaKey);
+    setIsCommandHeld(metaKey);
+    isSortedReorderActiveRef.current = metaKey;
+    setIsSortedReorderActive(metaKey);
   };
+
+  const getColumnIdForOver = (overId: string) => {
+    return (
+      project.columns.find(
+        (column) =>
+          column.id === overId ||
+          column.tasks.some((task) => task.id === overId),
+      )?.id ?? null
+    );
+  };
+
+  const handleDragHover = (event: DragOverEvent | DragMoveEvent) => {
+    const overId = event.over?.id.toString();
+    if (overId === activeIdRef.current?.toString()) return;
+    setOverColumnId(overId ? getColumnIdForOver(overId) : null);
+    if (!overId) {
+      hoverPlacementRef.current = null;
+      setHoverPlacement(null);
+      return;
+    }
+
+    const translated = event.active.rect.current.translated;
+    const insertAfterTarget =
+      overId === getColumnIdForOver(overId)
+        ? undefined
+        : Boolean(
+            translated &&
+            translated.top + translated.height / 2 >
+              event.over!.rect.top + event.over!.rect.height / 2,
+          );
+    hoverPlacementRef.current = { overId, insertAfterTarget };
+    setHoverPlacement((current) =>
+      current?.overId === overId &&
+      current.insertAfterTarget === insertAfterTarget
+        ? current
+        : { overId, insertAfterTarget },
+    );
+  };
+
+  useEffect(() => {
+    if (!isSortedReorderActive || !activeId || !hoverPlacement) {
+      dragPreviewProjectRef.current = null;
+      setDragPreviewProject(null);
+      return;
+    }
+
+    setDragPreviewProject((current) => {
+      const next =
+        moveBoardTask(
+          current ?? project,
+          activeId.toString(),
+          hoverPlacement.overId,
+          false,
+          true,
+          hoverPlacement.insertAfterTarget,
+        )?.project ?? current;
+      return next;
+    });
+  }, [activeId, hoverPlacement, isSortedReorderActive, project]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    const shouldAllowSortedReorder = isSortedReorderActiveRef.current;
+    const finalHoverPlacement = hoverPlacementRef.current;
+    const finalPreviewProject = dragPreviewProjectRef.current;
+    const visualPlacement =
+      shouldAllowSortedReorder && finalPreviewProject
+        ? getVisualTaskPlacement(finalPreviewProject, active.id.toString())
+        : null;
+    const finalPlacement = visualPlacement ?? finalHoverPlacement;
+    setIsCommandHeld(false);
+    activeIdRef.current = null;
     setActiveId(null);
-
-    if (!over || !project?.columns) return;
+    setOverColumnId(null);
+    dragPreviewProjectRef.current = null;
+    hoverPlacementRef.current = null;
+    setHoverPlacement(null);
+    setDragPreviewProject(null);
+    isSortedReorderActiveRef.current = false;
+    setIsSortedReorderActive(false);
 
     const activeId = active.id.toString();
-    const overId = over.id.toString();
+    const overId =
+      shouldAllowSortedReorder && finalPlacement
+        ? finalPlacement.overId
+        : over?.id === active.id
+          ? overColumnId
+          : over?.id.toString();
+
+    if (!overId || !project?.columns) return;
 
     if (
       disableDragDrop ||
@@ -206,12 +347,62 @@ function KanbanBoard({
     );
     if (!canonical) return;
 
-    const moved = moveBoardTask(canonical, activeId, overId, sortedByNumber);
+    const sourceColumn = canonical.columns.find((column) =>
+      column.tasks.some((task) => task.id === activeId),
+    );
+    const destinationColumn = canonical.columns.find(
+      (column) =>
+        column.id === overId || column.tasks.some((task) => task.id === overId),
+    );
+    const isCrossColumnMove =
+      sourceColumn &&
+      destinationColumn &&
+      sourceColumn.id !== destinationColumn.id;
+    const usesAppendOnlySortedMove =
+      sortedByNumber ||
+      (!shouldAllowSortedReorder &&
+        (sortedByPriority || Boolean(isCrossColumnMove)));
+    const moved = moveBoardTask(
+      canonical,
+      activeId,
+      overId,
+      usesAppendOnlySortedMove,
+      shouldAllowSortedReorder,
+      shouldAllowSortedReorder && finalPlacement
+        ? finalPlacement.insertAfterTarget
+        : undefined,
+    );
     if (!moved || !moved.tasks.length) return;
+    const activeTask = canonical.columns
+      .flatMap((column) => column.tasks)
+      .find((task) => task.id === activeId);
+    const priorityTarget = shouldAllowSortedReorder
+      ? canonical.columns
+          .flatMap((column) => column.tasks)
+          .find((task) => task.id === overId)
+      : null;
+    const movedProject =
+      activeTask && priorityTarget
+        ? produce(moved.project, (draft) => {
+            const task = draft.columns
+              .flatMap((column) => column.tasks)
+              .find((task) => task.id === activeId);
+            if (task) task.priority = priorityTarget.priority;
+          })
+        : moved.project;
+    if (activeTask && priorityTarget) {
+      updatePriority({
+        taskId: activeId,
+        task: {
+          ...activeTask,
+          priority: priorityTarget.priority,
+        },
+      });
+    }
     for (const task of moved.tasks)
       markBoardCacheChanged(queryClient, project.id, task.id);
-    setProject(moved.project);
-    queryClient.setQueryData(["tasks", project.id], moved.project);
+    setProject(movedProject);
+    queryClient.setQueryData(["tasks", project.id], movedProject);
     reorder({
       projectId: project.id,
       tasks: moved.tasks,
@@ -219,6 +410,37 @@ function KanbanBoard({
       previousBoard: canonical,
     });
   };
+
+  useEffect(() => {
+    const stopSorting = () => {
+      setIsCommandHeld(false);
+      isSortedReorderActiveRef.current = false;
+      setIsSortedReorderActive(false);
+      dragPreviewProjectRef.current = null;
+      setDragPreviewProject(null);
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Meta" && !event.metaKey) return;
+      if (!activeIdRef.current) return;
+      setIsCommandHeld(true);
+      isSortedReorderActiveRef.current = true;
+      setIsSortedReorderActive(true);
+    };
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (!event.metaKey) stopSorting();
+    };
+    const handleBlur = stopSorting;
+
+    window.addEventListener("keydown", handleKeyDown, { capture: true });
+    window.addEventListener("keyup", handleKeyUp, { capture: true });
+    window.addEventListener("blur", handleBlur);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown, { capture: true });
+      window.removeEventListener("keyup", handleKeyUp, { capture: true });
+      window.removeEventListener("blur", handleBlur);
+    };
+  }, []);
 
   if (!project?.columns) {
     return (
@@ -262,6 +484,7 @@ function KanbanBoard({
     );
   }
 
+  const displayedProject = dragPreviewProject ?? project;
   const activeTask = activeId
     ? project.columns
         .flatMap((col) => col.tasks)
@@ -273,7 +496,21 @@ function KanbanBoard({
       sensors={sensors}
       collisionDetection={closestCorners}
       onDragStart={handleDragStart}
+      onDragMove={handleDragHover}
+      onDragOver={handleDragHover}
       onDragEnd={handleDragEnd}
+      onDragCancel={() => {
+        setIsCommandHeld(false);
+        activeIdRef.current = null;
+        setActiveId(null);
+        setOverColumnId(null);
+        dragPreviewProjectRef.current = null;
+        hoverPlacementRef.current = null;
+        setHoverPlacement(null);
+        setDragPreviewProject(null);
+        isSortedReorderActiveRef.current = false;
+        setIsSortedReorderActive(false);
+      }}
     >
       <div
         className={cn("flex h-full w-full flex-col", {
@@ -282,7 +519,7 @@ function KanbanBoard({
       >
         <div className="min-h-0 flex-1 overflow-x-auto [-webkit-overflow-scrolling:touch]">
           <div className="flex h-full min-w-max gap-4 px-4 py-4 md:px-5">
-            {project.columns?.map((column) => (
+            {displayedProject.columns?.map((column) => (
               <div
                 key={column.id}
                 className={cn("h-full max-w-96 min-w-80 shrink-0 flex-1", {
@@ -291,6 +528,15 @@ function KanbanBoard({
               >
                 <Column
                   column={column}
+                  isDragPreview={dragPreviewProject !== null}
+                  activeTaskId={activeId?.toString() ?? null}
+                  sourceColumnId={
+                    project.columns.find((column) =>
+                      column.tasks.some((task) => task.id === activeId),
+                    )?.id
+                  }
+                  isPriorityOverlaySuppressed={isCommandHeld}
+                  priorityOverlayColumnId={overColumnId}
                   disableDragDrop={disableDragDrop}
                   disableCollectionActions={disableCollectionActions}
                 />

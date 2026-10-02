@@ -2520,7 +2520,8 @@
 			"noTasks": "Tapşırıq yoxdur"
 		},
 		"kanban": {
-			"addTask": "Tapşırıq əlavə et"
+			"addTask": "Tapşırıq əlavə et",
+			"priorityOrderedOverlayHint": "Kartları sıralamaq üçün ⌘ düyməsini basılı saxlayın"
 		},
 		"pr": {
 			"merged": "Birləşdirilib",

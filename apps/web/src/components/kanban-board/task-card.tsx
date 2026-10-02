@@ -50,10 +50,15 @@ import { TaskLabels } from "./task-labels";
 
 type TaskCardProps = {
   task: Task;
+  isDragPreview?: boolean;
   disableDragDrop?: boolean;
 };
 
-function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
+function TaskCard({
+  task,
+  disableDragDrop = false,
+  isDragPreview = false,
+}: TaskCardProps) {
   const { t } = useTranslation();
   const {
     attributes,
@@ -109,7 +114,8 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
   );
 
   const style: CSSProperties = {
-    transform: CSS.Transform.toString(transform),
+    // The preview already reorders the DOM; sortable transforms would shift it twice.
+    transform: isDragPreview ? undefined : CSS.Transform.toString(transform),
     transition:
       transition || "transform 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
     opacity: isDragging ? 0.6 : 1,

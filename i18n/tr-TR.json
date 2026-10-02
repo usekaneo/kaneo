@@ -2512,7 +2512,8 @@
 			"noTasks": "Talep yok"
 		},
 		"kanban": {
-			"addTask": "Talep ekle"
+			"addTask": "Talep ekle",
+			"priorityOrderedOverlayHint": "Kartları sıralamak için ⌘ tuşunu basılı tutun"
 		},
 		"pr": {
 			"merged": "Birleştirildi",

@@ -2512,7 +2512,8 @@
 			"noTasks": "कोई कार्य नहीं"
 		},
 		"kanban": {
-			"addTask": "कार्य जोड़ें"
+			"addTask": "कार्य जोड़ें",
+			"priorityOrderedOverlayHint": "कार्डों को क्रम में लगाने के लिए ⌘ दबाए रखें"
 		},
 		"pr": {
 			"merged": "मर्ज किया",

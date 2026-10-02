@@ -2514,7 +2514,8 @@
 			"noTasks": "无任务"
 		},
 		"kanban": {
-			"addTask": "添加任务"
+			"addTask": "添加任务",
+			"priorityOrderedOverlayHint": "按住 ⌘ 键以调整卡片顺序"
 		},
 		"pr": {
 			"merged": "已合并",

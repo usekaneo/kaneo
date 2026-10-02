@@ -2523,7 +2523,8 @@
 			"noTasks": "Aucune tâche"
 		},
 		"kanban": {
-			"addTask": "Ajouter une tâche"
+			"addTask": "Ajouter une tâche",
+			"priorityOrderedOverlayHint": "Maintenez ⌘ enfoncée pour trier les cartes"
 		},
 		"pr": {
 			"merged": "Fusionné",

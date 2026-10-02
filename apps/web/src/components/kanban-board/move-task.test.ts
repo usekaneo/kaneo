@@ -1,7 +1,7 @@
 import { applyBoardReorder, rollbackBoardReorder } from "./apply-reorder";
 import { describe, expect, it } from "vite-plus/test";
 import type { ProjectWithTasks } from "@/types/project";
-import { moveBoardTask } from "./move-task";
+import { getVisualTaskPlacement, moveBoardTask } from "./move-task";
 
 function board() {
   return {
@@ -73,6 +73,65 @@ describe("board moves", () => {
     expect(moveBoardTask(board(), "a", "doing", true)?.tasks).toEqual([
       { id: "a", position: 1, status: "doing" },
     ]);
+  });
+
+  it("can reorder against a target card when a sorted board override is active", () => {
+    const moved = moveBoardTask(board(), "a", "c", true, true)!;
+
+    expect(moved.project.columns[1].tasks.map((task) => task.id)).toEqual([
+      "c",
+      "a",
+    ]);
+    expect(moved.tasks).toEqual([
+      { id: "hidden", position: 0 },
+      { id: "b", position: 1 },
+      { id: "a", position: 1, status: "doing" },
+    ]);
+  });
+
+  it("can insert before a cross-column target for a visual drag preview", () => {
+    const moved = moveBoardTask(board(), "a", "c", false, true, false)!;
+
+    expect(moved.project.columns[1].tasks.map((task) => task.id)).toEqual([
+      "a",
+      "c",
+    ]);
+  });
+
+  it("derives the persisted position from the visual preview neighbors", () => {
+    const preview = moveBoardTask(board(), "a", "c", false, true, false)!;
+    expect(getVisualTaskPlacement(preview.project, "a")).toEqual({
+      overId: "c",
+      insertAfterTarget: false,
+    });
+
+    const bottomPreview = moveBoardTask(board(), "a", "c", false, true, true)!;
+    expect(getVisualTaskPlacement(bottomPreview.project, "a")).toEqual({
+      overId: "c",
+      insertAfterTarget: true,
+    });
+
+    const middleBoard = board();
+    middleBoard.columns[1].tasks.push({
+      id: "d",
+      status: "doing",
+      position: 1,
+    } as (typeof middleBoard.columns)[number]["tasks"][number]);
+    const middlePreview = moveBoardTask(
+      middleBoard,
+      "a",
+      "d",
+      false,
+      true,
+      false,
+    )!;
+    expect(
+      middlePreview.project.columns[1].tasks.map((task) => task.id),
+    ).toEqual(["c", "a", "d"]);
+    expect(getVisualTaskPlacement(middlePreview.project, "a")).toEqual({
+      overId: "d",
+      insertAfterTarget: false,
+    });
   });
 });
 
