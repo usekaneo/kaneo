@@ -8,12 +8,16 @@ import { TrialStatusCard } from "@/components/billing/trial-status-card";
 import PageTitle from "@/components/page-title";
 import { Spinner } from "@/components/ui/spinner";
 import { useGetBilling } from "@/hooks/queries/billing/use-get-billing";
+import { useTrackSubscription } from "@/hooks/use-track-subscription";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/workspace/billing",
 )({
   component: RouteComponent,
+  validateSearch: (search: Record<string, unknown>) => ({
+    checkout: typeof search.checkout === "string" ? search.checkout : undefined,
+  }),
 });
 
 function RouteComponent() {
@@ -21,6 +25,8 @@ function RouteComponent() {
   const { workspace, isAdmin } = useWorkspacePermission();
   const workspaceId = workspace?.id;
   const { data: billing, isLoading } = useGetBilling(workspaceId);
+  const { checkout } = Route.useSearch();
+  useTrackSubscription(checkout, billing?.seats);
 
   if (isLoading) {
     return (
