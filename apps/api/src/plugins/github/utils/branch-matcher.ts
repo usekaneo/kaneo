@@ -73,7 +73,9 @@ const URL_PATTERN = /\bhttps?:\/\/\S+/gi;
 
 function withShortLinksAsTickets(text: string) {
   return text.replace(URL_PATTERN, (url) => {
-    const ticket = url.match(/\/task\/([^/?#\s]+-\d+)(?=[/?#)\]>]|$)/)?.[1];
+    const ticket = url.match(
+      /\/task\/([^/?#\s]+-\d+)(?![\p{L}\p{N}\p{M}_~-])/u,
+    )?.[1];
     return ticket ? ` ${ticket} ` : url;
   });
 }

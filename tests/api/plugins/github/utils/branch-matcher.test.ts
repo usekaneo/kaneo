@@ -209,6 +209,21 @@ describe("extractTaskNumberFromPRBody", () => {
         "KAN",
       ),
     ).toBeNull();
+    expect(
+      extractTaskNumberFromPRBody(
+        "See https://kaneo.example.com/KAN-42/task/OPS-5.",
+        "KAN",
+      ),
+    ).toBeNull();
+  });
+
+  it("reads a short link that ends a sentence", () => {
+    expect(
+      extractTaskNumberFromPRBody(
+        "Fixes https://kaneo.example.com/acme/task/KAN-42.",
+        "KAN",
+      ),
+    ).toBe(42);
   });
 
   it("ignores the project key in another project's link title", () => {
