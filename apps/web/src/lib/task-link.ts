@@ -14,6 +14,13 @@ type TaskPathInput = {
   title?: string | null;
 };
 
+function isLinkSegment(value: string) {
+  return (
+    value.length <= MAX_LOOKUP_VALUE_LENGTH &&
+    /^[\p{L}\p{N}\p{M}._~-]+$/u.test(value)
+  );
+}
+
 function getUniqueProjectKey(
   projects: { id: string; slug: string }[],
   projectId: string,
@@ -47,23 +54,18 @@ export function getTaskPath({
     !workspaceSlug ||
     !projectKey ||
     !taskNumber ||
-    workspaceSlug.length > MAX_LOOKUP_VALUE_LENGTH ||
+    !isLinkSegment(workspaceSlug) ||
     isReservedWorkspaceSlug(workspaceSlug)
   ) {
     return fullPath;
   }
 
   const ticketId = `${projectKey}-${taskNumber}`;
-  if (
-    ticketId.length > MAX_LOOKUP_VALUE_LENGTH ||
-    /[^\p{L}\p{N}\p{M}._~-]/u.test(ticketId)
-  ) {
-    return fullPath;
-  }
+  if (!isLinkSegment(ticketId)) return fullPath;
 
   const titleSlug = createSlug(title ?? "")
     .slice(0, MAX_TITLE_SLUG_LENGTH)
     .replace(/-+$/, "");
 
-  return `/${encodeURIComponent(workspaceSlug)}/task/${ticketId}${titleSlug ? `/${titleSlug}` : ""}`;
+  return `/${workspaceSlug}/task/${ticketId}${titleSlug ? `/${titleSlug}` : ""}`;
 }
