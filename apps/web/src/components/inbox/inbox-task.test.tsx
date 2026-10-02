@@ -20,6 +20,7 @@ beforeEach(() => {
       id: "task",
       title: "Custom workflow",
       status: "review",
+      columnId: "review-column",
       projectId: "project",
     },
   });
@@ -29,6 +30,13 @@ vi.mock("@/hooks/queries/task/use-get-task", () => ({ default: queries.task }));
 vi.mock("@/hooks/queries/column/use-get-columns", () => ({
   useGetColumns: () => ({
     data: [
+      {
+        id: "other-column",
+        slug: "review",
+        name: "Other queue",
+        icon: "Circle",
+        isFinal: true,
+      },
       {
         id: "review-column",
         slug: "review",

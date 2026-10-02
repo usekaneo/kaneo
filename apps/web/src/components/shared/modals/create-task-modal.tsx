@@ -281,7 +281,12 @@ function CreateTaskModalContent({
   } = useGetColumns(open ? resolvedProjectId : "");
   const initialColumn = status
     ? projectColumns?.find((column) => column.slug === status)
-    : projectColumns?.find((column) => !column.isFinal);
+    : projectColumns?.find(
+        (column) =>
+          !column.isFinal &&
+          projectColumns.filter((other) => other.slug === column.slug)
+            .length === 1,
+      );
   const taskStatus = status ?? initialColumn?.slug ?? "planned";
   const awaitingColumns =
     !status && Boolean(resolvedProjectId) && !projectColumns;

@@ -39,9 +39,10 @@ export function InboxTask({ taskId }: InboxTaskProps) {
     isError: activityError,
   } = useGetActivitiesByTaskId(taskId, true, VISIBLE_ACTIVITIES);
   const { data: columns = [] } = useGetColumns(task?.projectId ?? "");
-  const statusColumn = columns.find(
-    (column) => column.slug === task?.status || column.id === task?.status,
-  );
+  const slugColumns = columns.filter((column) => column.slug === task?.status);
+  const statusColumn =
+    columns.find((column) => column.id === task?.columnId) ??
+    (slugColumns.length === 1 ? slugColumns[0] : undefined);
   const { canUpdateTasks } = useWorkspacePermission();
 
   if (isLoading) {

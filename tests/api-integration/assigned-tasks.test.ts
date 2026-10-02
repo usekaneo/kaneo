@@ -210,6 +210,12 @@ describe("API integration: assigned tasks", () => {
     expect(response.status).toBe(200);
     const body = (await response.json()) as AssignedTasksResponse;
     expect(body.total).toBe(1);
+    const details = await app.request(`/api/task/${task.id}`);
+    expect(details.status).toBe(200);
+    expect(await details.json()).toMatchObject({
+      id: task.id,
+      columnId: columns.todo.id,
+    });
     expect(body.tasks).toEqual([
       expect.objectContaining({ id: task.id, statusName: columns.todo.name }),
     ]);

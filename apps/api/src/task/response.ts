@@ -37,6 +37,10 @@ export const taskSchema = z
 
 export const taskWithAssigneeSchema = taskSchema
   .extend({
+    columnId: z.string().nullable().openapi({
+      description:
+        "The referenced workflow column; null for virtual statuses and legacy tasks without a column reference.",
+    }),
     subtaskCounts: z
       .object({ completed: z.number(), total: z.number() })
       .optional(),

@@ -349,6 +349,24 @@ describe("CreateTaskModal", () => {
     expect(createTask).not.toHaveBeenCalled();
   });
 
+  it("uses planned instead of an ambiguous open/final status slug", async () => {
+    projectColumns = [
+      { id: "done", slug: "shared", name: "Finished", isFinal: true },
+      { id: "open", slug: "shared", name: "Open", isFinal: false },
+    ];
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    enterTitle();
+    submit();
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({ status: "planned" }),
+      ),
+    );
+  });
+
   it("uses planned when every column is final", async () => {
     projectColumns = [
       { id: "done", slug: "done", name: "Finished", isFinal: true },
