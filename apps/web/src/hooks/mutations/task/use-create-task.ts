@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import createTask, {
   type CreateTaskRequest,
 } from "@/fetchers/task/create-task";
+import { trackFirstTask } from "@/lib/analytics/activation";
 
 function useCreateTask() {
   const queryClient = useQueryClient();
@@ -32,6 +33,7 @@ function useCreateTask() {
         draftAssetIds,
       ),
     onSuccess: (_data, variables) => {
+      trackFirstTask();
       void queryClient.invalidateQueries({
         queryKey: ["tasks", variables.projectId],
       });

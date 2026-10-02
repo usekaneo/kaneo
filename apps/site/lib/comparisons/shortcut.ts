@@ -31,7 +31,7 @@ export const shortcut: Comparison = {
     { feature: "SSO included", kaneo: "Free", them: "Enterprise" },
     {
       feature: "Git integration",
-      kaneo: "GitHub, Gitea",
+      kaneo: "GitHub, GitLab, Gitea",
       them: "GitHub, GitLab",
     },
     { feature: "Time tracking", kaneo: true, them: false },
@@ -71,7 +71,7 @@ export const shortcut: Comparison = {
     {
       question: "Does Kaneo link tasks to Git commits and pull requests?",
       answer:
-        "Yes. Kaneo has GitHub and Gitea integrations that connect repository activity to tasks, plus outgoing webhooks if you want to wire up something else.",
+        "Yes. Kaneo has GitHub, GitLab, and Gitea integrations that connect repository activity to tasks, plus outgoing webhooks if you want to wire up something else.",
     },
     {
       question: "Does Kaneo have epics and iterations?",
