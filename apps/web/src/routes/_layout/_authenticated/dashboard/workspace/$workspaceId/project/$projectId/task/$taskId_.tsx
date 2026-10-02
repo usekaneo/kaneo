@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import TaskLayout from "@/components/common/task-layout";
 import PageTitle from "@/components/page-title";
-import TaskDeleteButton from "@/components/task/task-delete-button";
 import TaskDetailsContent from "@/components/task/task-details-content";
 import {
   TaskDetailsSkeleton,
@@ -74,11 +73,6 @@ function RouteComponent() {
       taskId={taskId}
       projectId={projectId}
       workspaceId={workspaceId}
-      headerActions={
-        !isLoading && task ? (
-          <TaskDeleteButton taskId={taskId} onDeleted={handleDeleted} />
-        ) : null
-      }
       rightSidebar={
         isLoading ? (
           <TaskPropertiesSidebarSkeleton className="h-full w-full lg:w-72 xl:w-80 flex flex-col gap-2" />
@@ -88,6 +82,7 @@ function RouteComponent() {
             projectId={projectId}
             workspaceId={workspaceId}
             className="h-full w-full lg:w-72 xl:w-80 flex flex-col gap-2"
+            onDeleted={handleDeleted}
           />
         )
       }
