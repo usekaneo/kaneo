@@ -18,5 +18,6 @@ export const configSchema = z
     customOAuthAutoLogin: z.boolean(),
     customOAuthLogoutUrl: z.string().nullable(),
     billingEnabled: z.boolean(),
+    toltPublicKey: z.string().nullable(),
   })
   .openapi("Config");

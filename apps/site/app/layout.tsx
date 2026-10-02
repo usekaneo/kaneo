@@ -5,6 +5,7 @@ import "./globals.css";
 
 const siteTitle = landing.seo.title;
 const siteDescription = landing.seo.description;
+const toltPublicKey = process.env.NEXT_PUBLIC_TOLT_PUBLIC_KEY;
 
 export const viewport: Viewport = {
   themeColor: [
@@ -142,6 +143,13 @@ export default function RootLayout({
             "window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }"
           }
         </Script>
+        {toltPublicKey ? (
+          <Script
+            src="https://cdn.tolt.io/tolt.js"
+            data-tolt={toltPublicKey}
+            strategy="afterInteractive"
+          />
+        ) : null}
       </body>
     </html>
   );

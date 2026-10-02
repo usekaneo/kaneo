@@ -508,6 +508,12 @@
           },
           "billingEnabled": {
             "type": "boolean"
+          },
+          "toltPublicKey": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         },
         "required": [
@@ -526,7 +532,8 @@
           "disableLoginForm",
           "customOAuthAutoLogin",
           "customOAuthLogoutUrl",
-          "billingEnabled"
+          "billingEnabled",
+          "toltPublicKey"
         ]
       },
       "McpClientRegistration": {
