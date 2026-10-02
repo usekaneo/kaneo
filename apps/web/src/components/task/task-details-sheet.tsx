@@ -125,6 +125,7 @@ export default function TaskDetailsSheet({
             className="w-full bg-sidebar border-b border-border flex flex-col gap-0 overflow-y-auto shrink-0"
             compact={true}
             deleteHandle={deleteHandle}
+            shortcutsEnabled={Boolean(taskId)}
           />
 
           <div className="flex-1 overflow-y-auto min-h-0">

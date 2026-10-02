@@ -10,7 +10,6 @@ import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { shortcuts } from "@/constants/shortcuts";
 import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
 import useGetGiteaIntegration from "@/hooks/queries/gitea-integration/use-get-gitea-integration";
 import useGetGithubIntegration from "@/hooks/queries/github-integration/use-get-github-integration";
@@ -20,7 +19,7 @@ import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
-import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { useTaskCopyShortcuts } from "@/hooks/use-task-copy-shortcuts";
 import { getColumnIcon } from "@/lib/column";
 import {
   dueDateStatusColors,
@@ -70,6 +69,7 @@ type TaskPropertiesSidebarProps = {
   className?: string;
   compact?: boolean;
   deleteHandle: AlertDialogPrimitive.Handle<unknown>;
+  shortcutsEnabled?: boolean;
 };
 
 export default function TaskPropertiesSidebar({
@@ -79,6 +79,7 @@ export default function TaskPropertiesSidebar({
   className,
   compact = false,
   deleteHandle,
+  shortcutsEnabled = true,
 }: TaskPropertiesSidebarProps) {
   const { t } = useTranslation();
   const { data: task } = useGetTask(taskId ?? "");
@@ -137,18 +138,11 @@ export default function TaskPropertiesSidebar({
     toast.message(t("tasks:properties.taskBranchCopied"));
   };
 
-  useRegisterShortcuts(
-    task
-      ? {
-          modifierShortcuts: {
-            [shortcuts.copyTask.prefix]: {
-              [shortcuts.copyTask.link]: handleCopyTaskLink,
-              [shortcuts.copyTask.branch]: handleCopyTaskBranch,
-            },
-          },
-        }
-      : {},
-  );
+  useTaskCopyShortcuts({
+    enabled: Boolean(task) && shortcutsEnabled,
+    onCopyLink: handleCopyTaskLink,
+    onCopyBranch: handleCopyTaskBranch,
+  });
 
   return (
     <div className={className}>
