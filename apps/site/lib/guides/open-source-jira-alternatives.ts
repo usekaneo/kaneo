@@ -2,15 +2,71 @@ import type { Guide } from "./types";
 
 export const openSourceJiraAlternatives: Guide = {
   slug: "open-source-jira-alternatives",
-  question: "What are the best open-source Jira alternatives?",
-  title: "Open-source Jira alternatives worth using in 2026",
+  question: "What are the best free, open-source Jira alternatives?",
+  title: "Free, open-source Jira alternatives compared (2026)",
   description:
-    "The open-source, self-hostable tools that actually replace Jira for a small or mid-sized team, what each one gives up, and how to move your issues across.",
+    "Jira is not open source and costs money to self-host. Five free, open-source alternatives you can run yourself, compared on licence, single sign-on, and fit.",
   summary:
     "Five self-hostable trackers that replace Jira, and the Jira features none of them have.",
   answer:
-    "The realistic open-source Jira alternatives are Kaneo, Plane, OpenProject, Redmine, and Taiga. Kaneo is the lightest and is MIT licensed with single sign-on included, Plane is closest in interface to a modern tracker, OpenProject is closest to Jira in scope, Redmine has the deepest plugin ecosystem, and Taiga is the strongest for Scrum. None of them replicate Jira's schemes, marketplace, or Jira Service Management.",
+    "Jira is not open source, and self-hosting it means a paid Data Center subscription. The realistic free, open-source Jira alternatives are Kaneo, Plane, OpenProject, Redmine, and Taiga. Kaneo is the lightest and is MIT licensed with single sign-on included, Plane is closest in interface to a modern tracker, OpenProject is closest to Jira in scope, Redmine has the deepest plugin ecosystem, and Taiga is the strongest for Scrum. None of them replicate Jira's schemes, marketplace, or Jira Service Management.",
   sections: [
+    {
+      heading: "At a glance",
+      table: {
+        columns: [
+          "Tool",
+          "Licence",
+          "Free to self-host",
+          "SSO in the free build",
+          "Best for",
+        ],
+        rows: [
+          [
+            "Kaneo",
+            "MIT",
+            "Yes, every feature",
+            "Yes, any OIDC provider",
+            "Focused teams who want it light",
+          ],
+          [
+            "Plane",
+            "AGPL-3.0 (Community)",
+            "Community edition",
+            "No, paid tiers",
+            "Linear-style cycles and modules",
+          ],
+          [
+            "OpenProject",
+            "GPLv3 (Community)",
+            "Community edition",
+            "No, Enterprise add-on",
+            "Gantt charts, budgets, classic PM",
+          ],
+          [
+            "Redmine",
+            "GPLv2",
+            "Yes",
+            "LDAP built in, OIDC by plugin",
+            "Plugin-heavy, mature setups",
+          ],
+          [
+            "Taiga",
+            "MPL-2.0",
+            "Yes",
+            "GitHub or GitLab login only",
+            "Scrum teams",
+          ],
+          [
+            "Jira (for reference)",
+            "Proprietary",
+            "No, Data Center is paid",
+            "Atlassian Guard or Enterprise",
+            "Large, complex organisations",
+          ],
+        ],
+      },
+    },
     {
       heading: "Why teams leave Jira",
       body: [
@@ -72,6 +128,16 @@ export const openSourceJiraAlternatives: Guide = {
   ],
   faq: [
     {
+      question: "Is Jira open source?",
+      answer:
+        "No. Jira is proprietary, closed-source software from Atlassian, sold as Jira Cloud and as a self-managed Jira Data Center subscription. If you need a tracker whose code you can read, change, and run for free, you need one of the open-source alternatives above.",
+    },
+    {
+      question: "What is the best free Jira alternative?",
+      answer:
+        "For a free, self-hosted tool, Kaneo is the lightest to run and the only option here with OIDC single sign-on in the free build. Taiga is the strongest for Scrum, OpenProject the closest to Jira in scope, and Plane the closest to a modern hosted tracker.",
+    },
+    {
       question: "Is there a free version of Jira?",
       answer:
         "Jira Cloud has a free tier for up to 10 users with limits on storage and automation. Beyond that it is priced per user, and SAML single sign-on needs an Atlassian Guard subscription or the Enterprise tier. Self-hosting means Jira Data Center, which is a paid annual subscription.",
@@ -95,10 +161,14 @@ export const openSourceJiraAlternatives: Guide = {
   related: [
     { label: "Kaneo vs Jira", href: "/jira-alternative" },
     {
+      label: "Best Jira alternatives, including paid tools",
+      href: "/blog/best-jira-alternatives",
+    },
+    {
       label: "Best open-source project management software",
       href: "/guides/best-open-source-project-management-software",
     },
     { label: "All comparisons", href: "/alternatives" },
   ],
-  updatedOn: "2026-09-23",
+  updatedOn: "2026-10-02",
 };
