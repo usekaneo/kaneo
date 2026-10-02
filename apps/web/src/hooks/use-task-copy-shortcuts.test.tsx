@@ -53,4 +53,35 @@ describe("useTaskCopyShortcuts", () => {
     expect(onCopyLink).not.toHaveBeenCalled();
     expect(onCopyBranch).not.toHaveBeenCalled();
   });
+
+  it("settles and uses the latest handlers when callers pass new ones on every render", () => {
+    const firstLink = vi.fn();
+    const latestLink = vi.fn();
+    let renders = 0;
+    const { rerender } = renderHook(
+      (props: { onCopyLink: () => void }) => {
+        renders += 1;
+        useTaskCopyShortcuts({
+          enabled: true,
+          onCopyLink: () => props.onCopyLink(),
+          onCopyBranch: () => {},
+        });
+      },
+      {
+        initialProps: { onCopyLink: firstLink },
+        wrapper: KeyboardShortcutsProvider,
+      },
+    );
+
+    rerender({ onCopyLink: latestLink });
+    fireEvent.keyDown(document.body, {
+      key: "C",
+      ctrlKey: true,
+      shiftKey: true,
+    });
+
+    expect(renders).toBeLessThan(10);
+    expect(firstLink).not.toHaveBeenCalled();
+    expect(latestLink).toHaveBeenCalledOnce();
+  });
 });

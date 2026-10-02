@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import { shortcuts } from "@/constants/shortcuts";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
@@ -13,19 +13,25 @@ export function useTaskCopyShortcuts({
   onCopyLink,
   onCopyBranch,
 }: TaskCopyShortcutsOptions) {
+  const handlers = useRef({ onCopyLink, onCopyBranch });
+  useLayoutEffect(() => {
+    handlers.current = { onCopyLink, onCopyBranch };
+  });
+
   const copyShortcuts = useMemo(
     () =>
       enabled
         ? {
             modifierShortcuts: {
               [shortcuts.copyTask.prefix]: {
-                [shortcuts.copyTask.link]: onCopyLink,
-                [shortcuts.copyTask.branch]: onCopyBranch,
+                [shortcuts.copyTask.link]: () => handlers.current.onCopyLink(),
+                [shortcuts.copyTask.branch]: () =>
+                  handlers.current.onCopyBranch(),
               },
             },
           }
         : {},
-    [enabled, onCopyLink, onCopyBranch],
+    [enabled],
   );
   useRegisterShortcuts(copyShortcuts);
 }
