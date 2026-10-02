@@ -2054,7 +2054,8 @@
 			"back": "Inbox",
 			"openTask": "Open task",
 			"recentActivity": "Recent activity",
-			"taskUnavailable": "This task is no longer available."
+			"taskUnavailable": "This task is no longer available.",
+			"taskLoadError": "This task couldn’t be loaded."
 		}
 	},
 	"activity": {

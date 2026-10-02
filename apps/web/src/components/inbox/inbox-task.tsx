@@ -3,6 +3,8 @@ import Activity from "@/components/activity";
 import CommentInput from "@/components/activity/comment-input";
 import { isCommentActivity } from "@/components/activity/utils";
 import { DueDateText } from "@/components/my-work/due-date-text";
+import { Button } from "@/components/ui/button";
+import { HttpError } from "@/lib/http-error";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Timeline } from "@/components/ui/timeline";
 import useGetActivitiesByTaskId from "@/hooks/queries/activity/use-get-activities-by-task-id";
@@ -23,7 +25,14 @@ const VISIBLE_ACTIVITIES = 6;
 // without leaving the inbox.
 export function InboxTask({ taskId }: InboxTaskProps) {
   const { t } = useTranslation();
-  const { data: task, isLoading } = useGetTask(taskId, true);
+  const {
+    data: task,
+    isLoading,
+    isError,
+    error,
+    isFetching,
+    refetch,
+  } = useGetTask(taskId, true);
   const {
     data: activities,
     isPending: activityPending,
@@ -46,10 +55,28 @@ export function InboxTask({ taskId }: InboxTaskProps) {
   }
 
   if (!task) {
+    const unavailable =
+      !isError ||
+      (error instanceof HttpError && [400, 403, 404].includes(error.status));
     return (
-      <p role="alert" className="text-muted-foreground text-sm">
-        {t("notifications:inbox.taskUnavailable")}
-      </p>
+      <div className="flex flex-col items-start gap-3">
+        <p role="alert" className="text-muted-foreground text-sm">
+          {t(
+            unavailable
+              ? "notifications:inbox.taskUnavailable"
+              : "notifications:inbox.taskLoadError",
+          )}
+        </p>
+        {!unavailable && (
+          <Button
+            variant="outline"
+            disabled={isFetching}
+            onClick={() => void refetch()}
+          >
+            {t("common:error.tryAgain")}
+          </Button>
+        )}
+      </div>
     );
   }
 

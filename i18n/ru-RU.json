@@ -2084,7 +2084,8 @@
 			"taskUnavailable": "This task is no longer available.",
 			"today": "Today",
 			"unread": "Unread",
-			"loadError": "Notifications couldn't be loaded."
+			"loadError": "Notifications couldn't be loaded.",
+			"taskLoadError": "This task couldn’t be loaded."
 		}
 	},
 	"activity": {

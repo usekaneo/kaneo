@@ -121,9 +121,12 @@ export function NavProjects() {
   const { t } = useTranslation();
   const { isMobile } = useSidebar();
   const { data: workspace } = useActiveWorkspace();
-  const { data: projects } = useGetProjects({
-    workspaceId: workspace?.id || "",
-  });
+  const { data: projects } = useGetProjects(
+    {
+      workspaceId: workspace?.id || "",
+    },
+    true,
+  );
   const queryClient = useQueryClient();
   const { mutateAsync: deleteProject } = useDeleteProject();
   const reorderProjects = useReorderProjects();

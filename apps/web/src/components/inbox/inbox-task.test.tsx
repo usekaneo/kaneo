@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import {
   afterEach,
   beforeEach,
@@ -7,6 +7,7 @@ import {
   it,
   vi,
 } from "vite-plus/test";
+import { HttpError } from "@/lib/http-error";
 import { InboxTask } from "./inbox-task";
 
 const queries = vi.hoisted(() => ({
@@ -76,10 +77,28 @@ describe("Inbox task preview", () => {
   });
 
   it("announces initial task failures", () => {
-    queries.task.mockReturnValue({ isError: true });
+    const refetch = vi.fn();
+    queries.task.mockReturnValue({
+      isError: true,
+      error: new Error("Network unavailable"),
+      refetch,
+    });
+    render(<InboxTask taskId="task" />);
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "notifications:inbox.taskLoadError",
+    );
+    fireEvent.click(screen.getByText("common:error.tryAgain"));
+    expect(refetch).toHaveBeenCalledOnce();
+  });
+  it("reports an inaccessible or deleted task without a misleading network retry", () => {
+    queries.task.mockReturnValue({
+      isError: true,
+      error: new HttpError(404, "Not found"),
+    });
     render(<InboxTask taskId="task" />);
     expect(screen.getByRole("alert")).toHaveTextContent(
       "notifications:inbox.taskUnavailable",
     );
+    expect(screen.queryByText("common:error.tryAgain")).not.toBeInTheDocument();
   });
 });

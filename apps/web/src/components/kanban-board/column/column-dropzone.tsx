@@ -55,7 +55,11 @@ export function ColumnDropzone({
                 }
                 transition={{ type: "spring", duration: 0.35, bounce: 0.15 }}
               >
-                <TaskCard task={task} disableDragDrop={disableDragDrop} />
+                <TaskCard
+                  task={task}
+                  disableDragDrop={disableDragDrop}
+                  isFinalColumn={column.isFinal}
+                />
               </motion.div>
             ))}
           </AnimatePresence>

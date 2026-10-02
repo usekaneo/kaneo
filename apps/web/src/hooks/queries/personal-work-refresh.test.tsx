@@ -94,6 +94,42 @@ describe("personal work refresh", () => {
     client.clear();
   });
 
+  it("keeps project pickers cached and polls only for an opted-in observer", async () => {
+    vi.useFakeTimers();
+    focusManager.setFocused(true);
+    const client = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+          staleTime: Infinity,
+          refetchOnMount: false,
+          refetchOnWindowFocus: false,
+        },
+      },
+    });
+    client.setQueryData(["projects", "workspace"], [{ id: "cached" }]);
+    mocks.projects.mockResolvedValue([{ id: "fresh" }]);
+    const wrapper = ({ children }: PropsWithChildren) => (
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    );
+    const { result, rerender } = renderHook(
+      ({ refresh }) => useGetProjects({ workspaceId: "workspace" }, refresh),
+      { wrapper, initialProps: { refresh: false } },
+    );
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(60_010);
+    });
+    expect(mocks.projects).not.toHaveBeenCalled();
+    expect(result.current.data).toEqual([{ id: "cached" }]);
+    rerender({ refresh: true });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_010);
+    });
+    expect(mocks.projects).toHaveBeenCalledOnce();
+    expect(result.current.data).toEqual([{ id: "fresh" }]);
+    client.clear();
+  });
+
   it("refreshes remote edits and comments without a project socket or notification", async () => {
     vi.useFakeTimers();
     focusManager.setFocused(true);
@@ -119,7 +155,7 @@ describe("personal work refresh", () => {
         const activity = useGetWorkspaceActivities("workspace");
         const task = useGetTask("task", true);
         const comments = useGetActivitiesByTaskId("task", true);
-        const projects = useGetProjects({ workspaceId: "workspace" });
+        const projects = useGetProjects({ workspaceId: "workspace" }, true);
         return {
           task: task.data,
           comments: comments.data,

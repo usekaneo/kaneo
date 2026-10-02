@@ -60,9 +60,14 @@ const dueDateTextColors: Record<DueDateStatus, string> = {
 type TaskCardProps = {
   task: Task;
   disableDragDrop?: boolean;
+  isFinalColumn?: boolean;
 };
 
-function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
+function TaskCard({
+  task,
+  disableDragDrop = false,
+  isFinalColumn,
+}: TaskCardProps) {
   const { t } = useTranslation();
   const {
     attributes,
@@ -71,9 +76,14 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: task.id, disabled: disableDragDrop });
+  } = useSortable({
+    id: task.id,
+    disabled: disableDragDrop,
+    data: { isFinalColumn },
+  });
   const { project } = useProjectStore();
-  const taskIsCompleted = isTaskCompleted(task.status, project?.columns);
+  const taskIsCompleted =
+    isFinalColumn ?? isTaskCompleted(task.status, project?.columns);
   const dueDateStatus = getDueDateStatus(task.dueDate, taskIsCompleted);
   const isOverdue = dueDateStatus === "overdue";
   const hasPriority = Boolean(task.priority) && task.priority !== "no-priority";

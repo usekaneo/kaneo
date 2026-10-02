@@ -58,6 +58,7 @@ function KanbanBoard({
   const focusPrevious = useBulkSelectionStore((state) => state.focusPrevious);
   const focusedTaskId = useBulkSelectionStore((state) => state.focusedTaskId);
   const clearFocus = useBulkSelectionStore((state) => state.clearFocus);
+  const [activeIsFinal, setActiveIsFinal] = useState<boolean | undefined>();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const { t } = useTranslation();
   const { mutate: reorder, isPending: isReordering } = useMutation({
@@ -182,6 +183,8 @@ function KanbanBoard({
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id);
+    const isFinal = event.active.data?.current?.isFinalColumn;
+    setActiveIsFinal(typeof isFinal === "boolean" ? isFinal : undefined);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -305,7 +308,7 @@ function KanbanBoard({
         {activeTask ? (
           <div className="transform rotate-1 scale-[1.03] shadow-lg">
             <div className="ring-2 ring-ring/35 rounded-lg">
-              <TaskCard task={activeTask} />
+              <TaskCard task={activeTask} isFinalColumn={activeIsFinal} />
             </div>
           </div>
         ) : null}

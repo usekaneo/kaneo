@@ -8298,6 +8298,9 @@
 						},
 						"taskUnavailable": {
 							"type": "string"
+						},
+						"taskLoadError": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -8312,7 +8315,8 @@
 						"back",
 						"openTask",
 						"recentActivity",
-						"taskUnavailable"
+						"taskUnavailable",
+						"taskLoadError"
 					]
 				}
 			},

@@ -17,7 +17,7 @@ export function HomeProjects({ workspaceId }: HomeProjectsProps) {
     data: projects,
     isPending,
     isError,
-  } = useGetProjects({ workspaceId });
+  } = useGetProjects({ workspaceId }, true);
 
   return (
     <section className="flex flex-col gap-3">
