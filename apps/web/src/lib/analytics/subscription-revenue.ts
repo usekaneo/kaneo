@@ -4,7 +4,7 @@ import {
   type BillingPlanKey,
 } from "@/constants/billing";
 
-export function subscriptionRevenue(
+export function subscriptionRevenueUsd(
   plan: BillingPlanKey,
   interval: BillingIntervalKey,
   seats: number,
@@ -14,5 +14,5 @@ export function subscriptionRevenue(
   ];
   if (price === undefined) return undefined;
   const units = plan === "team" ? Math.max(1, Math.floor(seats) || 1) : 1;
-  return { currency: "USD", amount: price * units };
+  return price * units;
 }

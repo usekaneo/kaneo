@@ -11,18 +11,16 @@ describe("track", () => {
     expect(() => track("Signup")).not.toThrow();
   });
 
-  it("forwards the event, props, and revenue to Plausible", () => {
+  it("forwards the event and props to Plausible", () => {
     const plausible = vi.fn();
     window.plausible = plausible;
 
     track("Subscribed", {
-      props: { plan: "team", interval: "annual" },
-      revenue: { currency: "USD", amount: 150 },
+      props: { plan: "team", interval: "annual", revenue_usd: 150 },
     });
 
     expect(plausible).toHaveBeenCalledWith("Subscribed", {
-      props: { plan: "team", interval: "annual" },
-      revenue: { currency: "USD", amount: 150 },
+      props: { plan: "team", interval: "annual", revenue_usd: 150 },
     });
   });
 

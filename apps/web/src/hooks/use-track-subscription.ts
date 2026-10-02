@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { takePendingPurchase } from "@/lib/analytics/pending-purchase";
-import { subscriptionRevenue } from "@/lib/analytics/subscription-revenue";
+import { subscriptionRevenueUsd } from "@/lib/analytics/subscription-revenue";
 import { track } from "@/lib/analytics/track";
 
 export function useTrackSubscription(
@@ -11,9 +11,16 @@ export function useTrackSubscription(
     if (checkout !== "success" || seats === undefined) return;
     const purchase = takePendingPurchase();
     if (!purchase) return;
+    const revenue = subscriptionRevenueUsd(
+      purchase.plan,
+      purchase.interval,
+      seats,
+    );
     track("Subscribed", {
-      props: purchase,
-      revenue: subscriptionRevenue(purchase.plan, purchase.interval, seats),
+      props: {
+        ...purchase,
+        ...(revenue === undefined ? {} : { revenue_usd: revenue }),
+      },
     });
   }, [checkout, seats]);
 }
