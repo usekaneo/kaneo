@@ -52,3 +52,39 @@ describe("shortcut key normalization", () => {
     expect(handler).not.toHaveBeenCalled();
   });
 });
+
+describe("modifier shortcuts", () => {
+  it("matches shortcuts that need several modifiers", () => {
+    const handler = vi.fn();
+    const { result } = renderHook(useKeyboardShortcuts, {
+      wrapper: KeyboardShortcutsProvider,
+    });
+    act(() =>
+      result.current.registerModifierShortcut("Ctrl+Shift", "c", handler),
+    );
+    fireEvent.keyDown(document.body, { key: "c", ctrlKey: true });
+    expect(handler).not.toHaveBeenCalled();
+    fireEvent.keyDown(document.body, {
+      key: "C",
+      ctrlKey: true,
+      shiftKey: true,
+    });
+    expect(handler).toHaveBeenCalledOnce();
+  });
+
+  it("ignores single-modifier shortcuts while extra modifiers are held", () => {
+    const handler = vi.fn();
+    const { result } = renderHook(useKeyboardShortcuts, {
+      wrapper: KeyboardShortcutsProvider,
+    });
+    act(() => result.current.registerModifierShortcut("Ctrl", "k", handler));
+    fireEvent.keyDown(document.body, {
+      key: "K",
+      ctrlKey: true,
+      shiftKey: true,
+    });
+    expect(handler).not.toHaveBeenCalled();
+    fireEvent.keyDown(document.body, { key: "k", ctrlKey: true });
+    expect(handler).toHaveBeenCalledOnce();
+  });
+});

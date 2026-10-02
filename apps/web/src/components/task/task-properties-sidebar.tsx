@@ -19,6 +19,7 @@ import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import { useTaskCopyShortcuts } from "@/hooks/use-task-copy-shortcuts";
 import { getColumnIcon } from "@/lib/column";
 import {
   dueDateStatusColors,
@@ -68,6 +69,7 @@ type TaskPropertiesSidebarProps = {
   className?: string;
   compact?: boolean;
   deleteHandle: AlertDialogPrimitive.Handle<unknown>;
+  shortcutsEnabled?: boolean;
 };
 
 export default function TaskPropertiesSidebar({
@@ -77,6 +79,7 @@ export default function TaskPropertiesSidebar({
   className,
   compact = false,
   deleteHandle,
+  shortcutsEnabled = true,
 }: TaskPropertiesSidebarProps) {
   const { t } = useTranslation();
   const { data: task } = useGetTask(taskId ?? "");
@@ -134,6 +137,12 @@ export default function TaskPropertiesSidebar({
     navigator.clipboard.writeText(branchName);
     toast.message(t("tasks:properties.taskBranchCopied"));
   };
+
+  useTaskCopyShortcuts({
+    enabled: Boolean(task) && shortcutsEnabled,
+    onCopyLink: handleCopyTaskLink,
+    onCopyBranch: handleCopyTaskBranch,
+  });
 
   return (
     <div className={className}>
