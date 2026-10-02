@@ -202,6 +202,21 @@ describe("extractTaskNumberFromPRBody", () => {
     expect(extractTaskNumberFromPRBody(body, "KAN")).toBe(42);
   });
 
+  it("ignores task markers inside another project's link", () => {
+    expect(
+      extractTaskNumberFromPRBody(
+        "See https://kaneo.example.com/acme/task/OPS-5/fix-task-3-sorting",
+        "KAN",
+      ),
+    ).toBeNull();
+    expect(
+      extractTaskNumberFromPRBody(
+        "task: 7, see https://kaneo.example.com/acme/task/OPS-5/fix-task-3",
+        "KAN",
+      ),
+    ).toBe(7);
+  });
+
   it("recognizes a short task link with a non-Latin project key", () => {
     expect(
       extractTaskNumberFromPRBody(

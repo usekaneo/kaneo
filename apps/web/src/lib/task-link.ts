@@ -2,7 +2,7 @@ import { createSlug } from "@/lib/utils/create-slug";
 import { isReservedWorkspaceSlug } from "@/lib/utils/create-workspace-slug";
 
 const MAX_TITLE_SLUG_LENGTH = 60;
-const MAX_TICKET_ID_LENGTH = 128;
+const MAX_LOOKUP_VALUE_LENGTH = 128;
 
 type TaskPathInput = {
   workspaceId: string;
@@ -47,6 +47,7 @@ export function getTaskPath({
     !workspaceSlug ||
     !projectKey ||
     !taskNumber ||
+    workspaceSlug.length > MAX_LOOKUP_VALUE_LENGTH ||
     isReservedWorkspaceSlug(workspaceSlug)
   ) {
     return fullPath;
@@ -54,7 +55,7 @@ export function getTaskPath({
 
   const ticketId = `${projectKey}-${taskNumber}`;
   if (
-    ticketId.length > MAX_TICKET_ID_LENGTH ||
+    ticketId.length > MAX_LOOKUP_VALUE_LENGTH ||
     /[^\p{L}\p{N}\p{M}._~-]/u.test(ticketId)
   ) {
     return fullPath;

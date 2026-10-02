@@ -81,7 +81,9 @@ function extractExplicitTaskNumber(
     if (key?.[1]) return Number.parseInt(key[1], 10);
   }
 
-  const task = text.match(/\btask[:\-\s#]+(\d+)\b/i);
+  const task = text
+    .replace(/\bhttps?:\/\/\S+/gi, " ")
+    .match(/\btask[:\-\s#]+(\d+)\b/i);
   return task?.[1] ? Number.parseInt(task[1], 10) : null;
 }
 
