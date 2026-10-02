@@ -3,6 +3,8 @@ import { createSlug } from "./create-slug";
 const RANDOM_SUFFIX_LENGTH = 12;
 
 const RESERVED_WORKSPACE_SLUGS = new Set([
+  ".",
+  "..",
   ".well-known",
   "api",
   "assets",

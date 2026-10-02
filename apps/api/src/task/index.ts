@@ -342,7 +342,7 @@ const getTaskByTicketIdRoute = createRoute({
   tags: ["Tasks"],
   summary: "Get task by ticket ID",
   description:
-    "Get a single task by its project key and number, such as KAN-12. A match in an active project takes precedence, then the most recently archived project. If the ticket ID still matches multiple accessible tasks, provide workspaceId, workspaceSlug, or projectId to select one.",
+    "Get a single task by its project key and number, such as KAN-12. A match in an active project takes precedence, then the most recently archived project. If the ticket ID still matches multiple accessible tasks, narrow the lookup to a workspace with workspaceId or workspaceSlug, or to a single project with projectId.",
   request: { params: ticketIdParam, query: ticketIdQuery },
   responses: {
     200: jsonResponse("Task details", taskByTicketIdSchema),
