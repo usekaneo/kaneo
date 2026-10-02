@@ -43,10 +43,13 @@
     }
 
     if (window.location.hostname === 'cloud.kaneo.app') {
+      window.plausible = window.plausible || function () {
+        (window.plausible.q = window.plausible.q || []).push(arguments);
+      };
       const script = document.createElement('script');
       script.defer = true;
       script.setAttribute('data-domain', 'cloud.kaneo.app');
-      script.src = 'https://plausible.kaneo.app/js/script.js';
+      script.src = 'https://plausible.kaneo.app/js/script.revenue.js';
       document.head.appendChild(script);
     }
   </script>
