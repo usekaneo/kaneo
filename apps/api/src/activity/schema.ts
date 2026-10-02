@@ -2,6 +2,8 @@ import { z } from "../openapi";
 
 export const taskIdParam = z.object({ taskId: z.string() });
 
+export const workspaceIdParam = z.object({ workspaceId: z.string().min(1) });
+
 export const createActivityBody = z.object({
   taskId: z.string(),
   message: z.string().nullable().openapi({

@@ -602,6 +602,7 @@ export const activityTable = pgTable(
   (table) => [
     index("activity_task_id_idx").on(table.taskId),
     index("activity_userId_idx").on(table.userId),
+    index("activity_createdAt_idx").on(table.createdAt),
     unique("activity_task_external_source_external_url_unique").on(
       table.taskId,
       table.externalSource,

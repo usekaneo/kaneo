@@ -29,6 +29,8 @@ export const ticketIdQuery = z.object({
 
 export const projectIdParam = z.object({ projectId: z.string() });
 
+export const assignedTasksQuery = z.object({ workspaceId: z.string().min(1) });
+
 const priority = z.enum(VALID_PRIORITIES);
 
 // Required object of optional filters: a RouteParameter cannot itself be optional.

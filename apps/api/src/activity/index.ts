@@ -13,15 +13,41 @@ import createActivity from "./controllers/create-activity";
 import createComment from "./controllers/create-comment";
 import deleteComment from "./controllers/delete-comment";
 import getActivities from "./controllers/get-activities";
+import getWorkspaceActivities from "./controllers/get-workspace-activities";
 import updateComment from "./controllers/update-comment";
-import { activityListSchema, activitySchema } from "./response";
+import {
+  activityListSchema,
+  activitySchema,
+  workspaceActivityListSchema,
+} from "./response";
 import {
   createActivityBody,
   createCommentBody,
   deleteCommentBody,
   taskIdParam,
   updateCommentBody,
+  workspaceIdParam,
 } from "./schema";
+
+const getWorkspaceActivitiesRoute = createRoute({
+  method: "get",
+  operationId: "getWorkspaceActivities",
+  path: "/workspace/{workspaceId}",
+  tags: ["Activity"],
+  summary: "Get recent workspace activity",
+  description:
+    "Get the 20 most recent task events across a workspace's active projects from the last 30 days, newest first. Each event carries a short plain-text excerpt instead of its full content.",
+  middleware: [workspaceAccess.fromParam()] as const,
+  request: { params: workspaceIdParam },
+  responses: {
+    200: jsonResponse(
+      "Recent activity in the workspace",
+      workspaceActivityListSchema,
+    ),
+    400: errorResponse("Workspace ID could not be determined"),
+    403: errorResponse("No access to the workspace"),
+  },
+});
 
 const getActivitiesRoute = createRoute({
   method: "get",
@@ -148,6 +174,9 @@ const deleteCommentRoute = createRoute({
 });
 
 const activity = apiRouter()
+  .openapi(getWorkspaceActivitiesRoute, async (c) =>
+    c.json(await getWorkspaceActivities(c.req.valid("param").workspaceId), 200),
+  )
   .openapi(getActivitiesRoute, async (c) =>
     c.json(await getActivities(c.req.valid("param").taskId), 200),
   )
