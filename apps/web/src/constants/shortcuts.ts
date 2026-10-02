@@ -30,6 +30,10 @@ export const shortcuts = {
     prefix: "t",
     create: "c",
   },
+  deleteTask: {
+    prefix: getModifierKeyText(),
+    key: "Backspace",
+  },
   view: {
     prefix: "v",
     board: "b",
