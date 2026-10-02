@@ -2512,7 +2512,9 @@
 			"noTasks": "Keine Aufgaben"
 		},
 		"kanban": {
-			"addTask": "Aufgabe hinzufügen"
+			"addTask": "Aufgabe hinzufügen",
+			"automaticallySortedOverlayHint": "Automatisch nach {{sort}} sortiert",
+			"priorityOrderedOverlayHint": "Halte {{key}} gedrückt, um Karten zu sortieren"
 		},
 		"pr": {
 			"merged": "Zusammengeführt",

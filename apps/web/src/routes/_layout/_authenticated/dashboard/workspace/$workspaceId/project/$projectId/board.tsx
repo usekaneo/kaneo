@@ -330,9 +330,12 @@ function RouteComponent() {
                 disableDragDrop={
                   boardFetching ||
                   boardError ||
-                  (sort.field !== "position" && sort.field !== "number")
+                  (sort.field !== "position" &&
+                    sort.field !== "number" &&
+                    sort.field !== "priority")
                 }
                 sortedByNumber={sort.field === "number"}
+                sortedByPriority={sort.field === "priority"}
               />
             ) : (
               <ListView

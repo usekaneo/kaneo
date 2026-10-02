@@ -1,12 +1,20 @@
+import { getModifierKeyText } from "@/hooks/use-keyboard-shortcuts";
 import { cva } from "class-variance-authority";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useBackgroundStore } from "@/store/background";
 import type { ProjectWithTasks } from "@/types/project";
 import { ColumnDropzone } from "./column-dropzone";
 import { ColumnHeader } from "./column-header";
 
 type ColumnProps = {
+  isDragPreview?: boolean;
   column: ProjectWithTasks["columns"][number];
+  activeTaskId?: string | null;
+  sourceColumnId?: string;
+  automaticSortLabel?: string;
+  isSortOverlaySuppressed?: boolean;
+  sortOverlayColumnId?: string | null;
   disableDragDrop?: boolean;
   disableCollectionActions?: boolean;
 };
@@ -55,11 +63,24 @@ export const columnVariants = cva(
 
 function Column({
   column,
+  isDragPreview = false,
+  activeTaskId = null,
+  sourceColumnId,
+  automaticSortLabel,
+  isSortOverlaySuppressed = false,
+  sortOverlayColumnId = null,
   disableDragDrop = false,
   disableCollectionActions = false,
 }: ColumnProps) {
   const [isDropzoneOver, setIsDropzoneOver] = useState(false);
   const { background } = useBackgroundStore();
+  const { t } = useTranslation();
+  const isActiveTaskColumn = column.id === sourceColumnId;
+  const showSortOverlay =
+    sortOverlayColumnId === column.id &&
+    activeTaskId !== null &&
+    !isActiveTaskColumn &&
+    !isSortOverlaySuppressed;
 
   return (
     <div
@@ -77,10 +98,24 @@ function Column({
       <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-2 pt-1 pb-2 [-webkit-overflow-scrolling:touch]">
         <ColumnDropzone
           column={column}
+          isDragPreview={isDragPreview}
           disableDragDrop={disableDragDrop}
           onIsOverChange={setIsDropzoneOver}
         />
       </div>
+      {showSortOverlay && (
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-white/85 px-4 text-center">
+          <span className="text-sm font-medium text-neutral-950">
+            {automaticSortLabel
+              ? t("tasks:kanban.automaticallySortedOverlayHint", {
+                  sort: automaticSortLabel,
+                })
+              : t("tasks:kanban.priorityOrderedOverlayHint", {
+                  key: getModifierKeyText(),
+                })}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

@@ -2649,7 +2649,9 @@
 			"showTaskDates": "Show task dates"
 		},
 		"kanban": {
-			"addTask": "Dodaj zadanie"
+			"addTask": "Dodaj zadanie",
+			"automaticallySortedOverlayHint": "Automatyczne sortowanie: {{sort}}",
+			"priorityOrderedOverlayHint": "Przytrzymaj {{key}}, aby uporządkować karty"
 		},
 		"labels": {
 			"empty": "Brak dostępnych etykiet",

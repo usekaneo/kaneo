@@ -2554,7 +2554,9 @@
 			"noTasks": "Нет задач"
 		},
 		"kanban": {
-			"addTask": "Добавить задачу"
+			"addTask": "Добавить задачу",
+			"automaticallySortedOverlayHint": "Автоматическая сортировка: {{sort}}",
+			"priorityOrderedOverlayHint": "Удерживайте {{key}}, чтобы изменить порядок карточек"
 		},
 		"pr": {
 			"merged": "Влит",

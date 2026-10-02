@@ -2512,7 +2512,9 @@
 			"noTasks": "Δεν υπάρχουν εργασίες"
 		},
 		"kanban": {
-			"addTask": "Προσθήκη εργασίας"
+			"addTask": "Προσθήκη εργασίας",
+			"automaticallySortedOverlayHint": "Αυτόματη ταξινόμηση κατά {{sort}}",
+			"priorityOrderedOverlayHint": "Κρατήστε πατημένο το {{key}} για να ταξινομήσετε τις κάρτες"
 		},
 		"pr": {
 			"merged": "Συγχωνευμένο",

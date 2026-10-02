@@ -2501,7 +2501,9 @@
 			"noTasks": "Không có công việc"
 		},
 		"kanban": {
-			"addTask": "Thêm công việc"
+			"addTask": "Thêm công việc",
+			"automaticallySortedOverlayHint": "Tự động sắp xếp theo {{sort}}",
+			"priorityOrderedOverlayHint": "Giữ phím {{key}} để sắp xếp thẻ"
 		},
 		"pr": {
 			"merged": "Đã gộp",

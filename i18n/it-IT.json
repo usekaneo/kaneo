@@ -2523,7 +2523,9 @@
 			"noTasks": "Nessuna attività"
 		},
 		"kanban": {
-			"addTask": "Aggiungi attività"
+			"addTask": "Aggiungi attività",
+			"automaticallySortedOverlayHint": "Ordinamento automatico per {{sort}}",
+			"priorityOrderedOverlayHint": "Tieni premuto {{key}} per ordinare le schede"
 		},
 		"pr": {
 			"merged": "Unito",

@@ -2512,7 +2512,9 @@
 			"noTasks": "No hay tareas"
 		},
 		"kanban": {
-			"addTask": "Añadir tarea"
+			"addTask": "Añadir tarea",
+			"automaticallySortedOverlayHint": "Ordenado automáticamente por {{sort}}",
+			"priorityOrderedOverlayHint": "Mantén pulsada {{key}} para ordenar las tarjetas"
 		},
 		"pr": {
 			"merged": "Mergeada",

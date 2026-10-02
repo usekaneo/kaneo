@@ -2523,7 +2523,9 @@
 			"noTasks": "Nenhuma tarefa"
 		},
 		"kanban": {
-			"addTask": "Adicionar tarefa"
+			"addTask": "Adicionar tarefa",
+			"automaticallySortedOverlayHint": "Ordenado automaticamente por {{sort}}",
+			"priorityOrderedOverlayHint": "Mantenha {{key}} pressionado para ordenar os cartões"
 		},
 		"pr": {
 			"merged": "Mesclado",

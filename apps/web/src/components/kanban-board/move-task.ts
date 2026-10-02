@@ -1,11 +1,32 @@
 import { produce } from "immer";
 import type { ProjectWithTasks } from "@/types/project";
 
+export function getVisualTaskPlacement(
+  project: ProjectWithTasks,
+  activeId: string,
+) {
+  const column = project.columns.find((column) =>
+    column.tasks.some((task) => task.id === activeId),
+  );
+  if (!column) return null;
+
+  const index = column.tasks.findIndex((task) => task.id === activeId);
+  const nextTask = column.tasks[index + 1];
+  if (nextTask) return { overId: nextTask.id, insertAfterTarget: false };
+
+  const previousTask = column.tasks[index - 1];
+  if (previousTask) return { overId: previousTask.id, insertAfterTarget: true };
+
+  return { overId: column.id, insertAfterTarget: undefined };
+}
+
 export function moveBoardTask(
   project: ProjectWithTasks,
   activeId: string,
   overId: string,
   sortedByNumber = false,
+  _allowSortedReorder = false,
+  insertAfterTarget?: boolean,
 ) {
   const source = project.columns.find((column) =>
     column.tasks.some((task) => task.id === activeId),
@@ -37,8 +58,13 @@ export function moveBoardTask(
       overId === to.id
         ? to.tasks.length
         : to.tasks.findIndex((task) => task.id === overId);
-    if (from.id !== to.id || sourceIndex <= index)
-      index += overId === to.id ? 0 : 1;
+    if (overId !== to.id) {
+      if (insertAfterTarget !== undefined) {
+        index += insertAfterTarget ? 1 : 0;
+      } else if (from.id !== to.id || sourceIndex <= index) {
+        index += 1;
+      }
+    }
     to.tasks.splice(index, 0, task);
     for (const column of new Set([from, to]))
       column.tasks.forEach((task, position) => {

@@ -2501,7 +2501,9 @@
 			"noTasks": "Tidak ada tugas"
 		},
 		"kanban": {
-			"addTask": "Tambah tugas"
+			"addTask": "Tambah tugas",
+			"automaticallySortedOverlayHint": "Diurutkan otomatis berdasarkan {{sort}}",
+			"priorityOrderedOverlayHint": "Tahan {{key}} untuk mengurutkan kartu"
 		},
 		"pr": {
 			"merged": "Digabung",

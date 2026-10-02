@@ -2523,7 +2523,9 @@
 			"noTasks": "Aucune tâche"
 		},
 		"kanban": {
-			"addTask": "Ajouter une tâche"
+			"addTask": "Ajouter une tâche",
+			"automaticallySortedOverlayHint": "Tri automatique par {{sort}}",
+			"priorityOrderedOverlayHint": "Maintenez {{key}} enfoncée pour trier les cartes"
 		},
 		"pr": {
 			"merged": "Fusionné",

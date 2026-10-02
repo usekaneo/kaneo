@@ -2534,7 +2534,9 @@
 			"noTasks": "Немає завдань"
 		},
 		"kanban": {
-			"addTask": "Додати завдання"
+			"addTask": "Додати завдання",
+			"automaticallySortedOverlayHint": "Автоматично відсортовано за полем «{{sort}}»",
+			"priorityOrderedOverlayHint": "Утримуйте {{key}}, щоб змінити порядок карток"
 		},
 		"pr": {
 			"merged": "Змерджено",
