@@ -1,4 +1,4 @@
-import { inArray } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
@@ -227,6 +227,14 @@ describe("API integration: task ticket ID lookup", () => {
     expect(await preferred.json()).toMatchObject({ title: "Active" });
     const archivedOnly = await app.request("/api/task/by-ticket-id/ARC-6");
     expect(archivedOnly.status).toBe(409);
+
+    await db
+      .update(schema.projectTable)
+      .set({ archivedAt: new Date(Date.now() + 60_000) })
+      .where(eq(schema.projectTable.id, active.id));
+    const afterArchiving = await app.request("/api/task/by-ticket-id/ARC-5");
+    expect(afterArchiving.status).toBe(200);
+    expect(await afterArchiving.json()).toMatchObject({ title: "Active" });
   });
 
   it("rejects invalid and unauthenticated lookups", async () => {

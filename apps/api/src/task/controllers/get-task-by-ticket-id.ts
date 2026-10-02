@@ -78,15 +78,15 @@ export default async function getTaskByTicketId(
       ),
     );
 
+  const rank = (candidate: { archivedAt: Date | null }) =>
+    candidate.archivedAt?.getTime() ?? Number.POSITIVE_INFINITY;
   const [matchedTask, nextMatch] = candidates
     .filter((candidate) => isSameProjectKey(candidate.slug, projectKey))
-    .sort(
-      (a, b) => Number(Boolean(a.archivedAt)) - Number(Boolean(b.archivedAt)),
-    );
+    .sort((a, b) => (rank(a) === rank(b) ? 0 : rank(a) > rank(b) ? -1 : 1));
   if (!matchedTask) {
     throw new HTTPException(404, { message: "Task not found" });
   }
-  if (nextMatch && (matchedTask.archivedAt || !nextMatch.archivedAt)) {
+  if (nextMatch && rank(nextMatch) === rank(matchedTask)) {
     throw new HTTPException(409, {
       message: "Task ticket ID matches multiple accessible tasks",
     });

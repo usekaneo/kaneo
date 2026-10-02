@@ -202,6 +202,21 @@ describe("extractTaskNumberFromPRBody", () => {
     expect(extractTaskNumberFromPRBody(body, "KAN")).toBe(42);
   });
 
+  it("ignores the project key in another project's link title", () => {
+    expect(
+      extractTaskNumberFromPRBody(
+        "See https://kaneo.example.com/acme/task/OPS-5/kan-7-follow-up",
+        "KAN",
+      ),
+    ).toBeNull();
+  });
+
+  it("does not join text around a link into a task marker", () => {
+    expect(
+      extractTaskNumberFromPRBody("Task https://example.com 123", "KAN"),
+    ).toBeNull();
+  });
+
   it("ignores task markers inside another project's link", () => {
     expect(
       extractTaskNumberFromPRBody(
