@@ -63,7 +63,7 @@ export const githubProjects: Comparison = {
     {
       question: "Does Kaneo integrate with GitHub?",
       answer:
-        "Yes. Kaneo has GitHub and Gitea integrations connecting repository activity to tasks, plus outgoing webhooks, a public API, and an MCP server if you want AI agents to work with your board.",
+        "Yes. Kaneo has GitHub, GitLab, and Gitea integrations connecting repository activity to tasks, plus outgoing webhooks, a public API, and an MCP server if you want AI agents to work with your board.",
     },
     {
       question: "Can GitHub Projects be self-hosted?",
