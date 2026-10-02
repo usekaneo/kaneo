@@ -39,7 +39,11 @@ async function getAssignedTasks(
     isNull(projectTable.archivedAt),
     eq(taskTable.userId, userId),
     ne(taskTable.status, "archived"),
-    sql`not ${taskIsCompleted}`,
+    sql`not coalesce((
+      select ${columnTable.isFinal} from ${columnTable}
+      where ${columnTable.id} = ${taskTable.columnId}
+        and ${columnTable.projectId} = ${taskTable.projectId}
+    ), ${taskIsCompleted})`,
   );
 
   const totalsQuery = db

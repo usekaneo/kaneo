@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, inArray, isNull, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, isNull, sql } from "drizzle-orm";
 import db from "../../database";
 import {
   activityTable,
@@ -94,20 +94,18 @@ async function getWorkspaceActivities(workspaceId: string) {
             inArray(columnTable.slug, statusSlugs),
           ),
         )
-        .orderBy(
-          asc(columnTable.position),
-          asc(columnTable.createdAt),
-          asc(columnTable.id),
-        )
     : [];
 
   return rows.map(({ content, ...row }) => {
     const data =
       row.type === "status_changed" ? statusData(row.eventData) : null;
-    const nameOf = (slug: unknown) =>
-      columns.find(
+    const nameOf = (slug: unknown) => {
+      const matching = columns.filter(
         (column) => column.projectId === row.projectId && column.slug === slug,
-      )?.name;
+      );
+      // Historical events only store slugs. Duplicates cannot identify a column.
+      return matching.length === 1 ? matching[0]?.name : undefined;
+    };
     return {
       ...row,
       eventData: data

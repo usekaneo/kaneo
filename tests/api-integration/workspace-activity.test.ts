@@ -197,4 +197,45 @@ describe("API integration: workspace activity", () => {
       expect(invalid.status).toBe(400);
     }
   });
+  it("does not guess a historical column name when its status slug is ambiguous", async () => {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    await db.insert(schema.columnTable).values({
+      projectId: project.id,
+      slug: columns.todo.slug,
+      name: "Other queue",
+      position: -1,
+    });
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "Historical status",
+        status: "in-progress",
+        columnId: columns.inProgress.id,
+      })
+      .returning();
+    await db.insert(schema.activityTable).values({
+      taskId: task.id,
+      type: "status_changed",
+      eventData: {
+        oldStatus: columns.todo.slug,
+        newStatus: columns.inProgress.slug,
+      },
+    });
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+    const response = await app.request(
+      `/api/activity/workspace/${member.workspace.id}`,
+    );
+    expect(response.status).toBe(200);
+    const [event] = await response.json();
+    expect(event.eventData).not.toHaveProperty("oldStatusName");
+    expect(event.eventData).toMatchObject({
+      oldStatus: "to-do",
+      newStatusName: "In Progress",
+    });
+  });
 });

@@ -156,17 +156,21 @@ describe("API integration: assigned tasks", () => {
     });
   });
 
-  it("returns each task once when existing columns share a slug", async () => {
+  it("uses column references when duplicate slugs include final columns", async () => {
     const member = await createWorkspaceMember();
     const { project, columns } = await createProjectFixture({
       workspaceId: member.workspace.id,
     });
-    await db.insert(schema.columnTable).values({
-      projectId: project.id,
-      name: "Duplicate to-do",
-      slug: columns.todo.slug,
-      position: -1,
-    });
+    const [finalColumn] = await db
+      .insert(schema.columnTable)
+      .values({
+        projectId: project.id,
+        name: "Duplicate to-do",
+        slug: columns.todo.slug,
+        position: -1,
+        isFinal: true,
+      })
+      .returning();
     const [task] = await db
       .insert(schema.taskTable)
       .values({
@@ -177,8 +181,29 @@ describe("API integration: assigned tasks", () => {
         userId: member.user.id,
       })
       .returning();
+    await db.insert(schema.taskTable).values([
+      {
+        projectId: project.id,
+        title: "In the final duplicate",
+        status: columns.todo.slug,
+        columnId: finalColumn.id,
+        userId: member.user.id,
+        number: 2,
+      },
+      {
+        projectId: project.id,
+        title: "Legacy ambiguous status",
+        status: columns.todo.slug,
+        userId: member.user.id,
+        number: 3,
+      },
+    ]);
     mockAuthenticatedSession(member.user);
     const { app } = createApp();
+    const countResponse = await app.request(
+      `/api/task/assigned?workspaceId=${member.workspace.id}&countOnly=true`,
+    );
+    expect(await countResponse.json()).toEqual({ tasks: [], total: 1 });
     const response = await app.request(
       `/api/task/assigned?workspaceId=${member.workspace.id}`,
     );
