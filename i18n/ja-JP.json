@@ -2284,7 +2284,11 @@
 					"reset": "Reset size",
 					"resizeHandle": "Resize image",
 					"small": "Small"
-				}
+				},
+				"saved": "Saved",
+				"saving": "Saving…",
+				"saveFailed": "Changes could not be saved",
+				"retrySave": "Retry"
 			},
 			"customFieldUpdated": "Field updated",
 			"selectOption": "Select option"
@@ -2330,6 +2334,8 @@
 			"labels": "ラベル",
 			"copyTaskLink": "タスクのリンクをコピー",
 			"copyTaskBranch": "タスクのブランチ名をコピー",
+			"taskLinkCopied": "タスクのリンクをコピーしました",
+			"taskBranchCopied": "ブランチ名をコピーしました",
 			"start": "開始",
 			"startDate": "開始日",
 			"noDate": "日付なし"
@@ -2610,6 +2616,9 @@
 		"checklistProgress": "チェックリスト {{total}} 項目中 {{completed}} 項目完了",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"board": {
+			"reorderFailed": "Could not move task. Please try again."
 		}
 	},
 	"invitations": {

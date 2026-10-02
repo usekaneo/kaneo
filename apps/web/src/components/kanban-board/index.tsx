@@ -1,3 +1,5 @@
+import { markBoardCacheChanged } from "@/lib/board-cache-version";
+import { selectReorderBoard } from "./select-reorder-board";
 import {
   closestCorners,
   DndContext,
@@ -15,10 +17,14 @@ import {
 } from "@dnd-kit/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { produce } from "immer";
+import { useMutation } from "@tanstack/react-query";
+import reorderTasks, { type TaskReorder } from "@/fetchers/task/reorder-tasks";
+import { toast } from "@/lib/toast";
+import { useTranslation } from "react-i18next";
+import { rollbackBoardReorder } from "./apply-reorder";
+import { moveBoardTask } from "./move-task";
 import { useEffect, useState } from "react";
 import { useTaskProjectById } from "@/components/task/task-view-context";
-import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useProjectBackground } from "@/hooks/use-project-background";
 import { cn } from "@/lib/cn";
@@ -33,25 +39,61 @@ import TaskCard from "./task-card";
 type KanbanBoardProps = {
   project: ProjectWithTasks;
   disableDragDrop?: boolean;
+  disableCollectionActions?: boolean;
   sortedByNumber?: boolean;
 };
 
 function KanbanBoard({
   project,
   disableDragDrop = false,
+  disableCollectionActions = false,
   sortedByNumber = false,
 }: KanbanBoardProps) {
   const queryClient = useQueryClient();
   const { project: storedProject, setProject } = useProjectStore();
-  const {
-    setAvailableTasks,
-    focusNext,
-    focusPrevious,
-    focusedTaskId,
-    clearFocus,
-  } = useBulkSelectionStore();
+  const setAvailableTasks = useBulkSelectionStore(
+    (state) => state.setAvailableTasks,
+  );
+  const focusNext = useBulkSelectionStore((state) => state.focusNext);
+  const focusPrevious = useBulkSelectionStore((state) => state.focusPrevious);
+  const focusedTaskId = useBulkSelectionStore((state) => state.focusedTaskId);
+  const clearFocus = useBulkSelectionStore((state) => state.clearFocus);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
-  const { mutate: updateTask } = useUpdateTask();
+  const { t } = useTranslation();
+  const { mutate: reorder, isPending: isReordering } = useMutation({
+    mutationFn: ({
+      previousBoard: _previousBoard,
+      ...request
+    }: TaskReorder & { previousBoard: ProjectWithTasks }) =>
+      reorderTasks(request),
+    onMutate: (variables) => ({ previousBoard: variables.previousBoard }),
+    onSuccess: (_result, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: ["tasks", variables.projectId],
+      });
+      for (const task of variables.tasks)
+        void queryClient.invalidateQueries({ queryKey: ["task", task.id] });
+    },
+    onError: (_error, variables, context) => {
+      const previous = context?.previousBoard;
+      if (previous) {
+        const current = queryClient.getQueryData<ProjectWithTasks>([
+          "tasks",
+          variables.projectId,
+        ]);
+        const restored = current
+          ? rollbackBoardReorder(current, previous, variables.tasks)
+          : null;
+        if (restored) {
+          queryClient.setQueryData(["tasks", variables.projectId], restored);
+          if (useProjectStore.getState().project?.id === variables.projectId)
+            setProject(restored);
+        }
+      }
+      toast.error(t("tasks:board.reorderFailed"));
+      void queryClient.invalidateQueries({ queryKey: ["tasks", project.id] });
+    },
+  });
   const background = useProjectBackground({
     backgroundVersion: project.backgroundVersion,
     projectId: project.id,
@@ -152,120 +194,33 @@ function KanbanBoard({
     const activeId = active.id.toString();
     const overId = over.id.toString();
 
-    if (sortedByNumber) {
-      const sourceColumn = project.columns.find((column) =>
-        column.tasks.some((task) => task.id === activeId),
-      );
-      const destinationColumn = project.columns.find(
-        (column) =>
-          column.id === overId ||
-          column.tasks.some((task) => task.id === overId),
-      );
-
-      if (
-        !sourceColumn ||
-        !destinationColumn ||
-        sourceColumn.id === destinationColumn.id
-      ) {
-        return;
-      }
-
-      const currentProject = storedProject ?? project;
-      const currentDestination = currentProject.columns.find(
-        (column) => column.id === destinationColumn.id,
-      );
-      const position =
-        Math.max(
-          -1,
-          ...(currentDestination?.tasks.map((task) => task.position ?? -1) ??
-            []),
-        ) + 1;
-      const updatedProject = produce(currentProject, (draft) => {
-        const source = draft.columns.find((column) =>
-          column.tasks.some((task) => task.id === activeId),
-        );
-        const destination = draft.columns.find(
-          (column) => column.id === destinationColumn.id,
-        );
-        if (!source || !destination) return;
-
-        const taskIndex = source.tasks.findIndex(
-          (task) => task.id === activeId,
-        );
-        const [task] = source.tasks.splice(taskIndex, 1);
-        task.status = destination.slug;
-        task.position = position;
-        destination.tasks.push(task);
-      });
-
-      const movedTask = updatedProject.columns
-        .find((column) => column.id === destinationColumn.id)
-        ?.tasks.find((task) => task.id === activeId);
-      if (!movedTask) return;
-
-      setProject(updatedProject);
-      updateTask(movedTask);
+    if (
+      disableDragDrop ||
+      isReordering ||
+      queryClient.getQueryState(["tasks", project.id])?.fetchStatus ===
+        "fetching"
+    )
       return;
-    }
+    const canonical = selectReorderBoard(
+      project.id,
+      activeId,
+      queryClient.getQueryData<ProjectWithTasks>(["tasks", project.id]),
+      storedProject,
+    );
+    if (!canonical) return;
 
-    const updatedProject = produce(project, (draft) => {
-      const sourceColumn = draft?.columns?.find((col) =>
-        col.tasks.some((task) => task.id === activeId),
-      );
-      const destinationColumn = draft?.columns?.find(
-        (col) =>
-          col.id === overId || col.tasks.some((task) => task.id === overId),
-      );
-
-      if (!sourceColumn || !destinationColumn) return;
-
-      const sourceTaskIndex = sourceColumn.tasks.findIndex(
-        (task) => task.id === activeId,
-      );
-      const task = sourceColumn.tasks[sourceTaskIndex];
-
-      sourceColumn.tasks = sourceColumn.tasks.filter((t) => t.id !== activeId);
-
-      if (sourceColumn.id === destinationColumn.id) {
-        let destinationIndex = destinationColumn.tasks.findIndex(
-          (t) => t.id === overId,
-        );
-        if (sourceTaskIndex <= destinationIndex) {
-          destinationIndex += 1;
-        }
-        destinationColumn.tasks.splice(destinationIndex, 0, task);
-
-        destinationColumn.tasks.forEach((t, index) => {
-          updateTask({ ...t, position: index });
-        });
-
-        queryClient.invalidateQueries({
-          queryKey: ["projects", project.workspaceId],
-        });
-      } else {
-        // A task's status is a column slug. The column id is only the
-        // droppable identity here, and the two are interchangeable only
-        // because the tasks endpoint happens to return `id: column.slug`.
-        task.status = destinationColumn.slug;
-        const destinationIndex =
-          overId === destinationColumn.id
-            ? destinationColumn.tasks.length
-            : destinationColumn.tasks.findIndex((t) => t.id === overId) + 1;
-
-        destinationColumn.tasks.splice(destinationIndex, 0, task);
-
-        destinationColumn.tasks.forEach((t, index) => {
-          updateTask({ ...t, status: destinationColumn.slug, position: index });
-        });
-
-        sourceColumn.tasks.forEach((t, index) => {
-          updateTask({ ...t, position: index });
-        });
-      }
+    const moved = moveBoardTask(canonical, activeId, overId, sortedByNumber);
+    if (!moved || !moved.tasks.length) return;
+    for (const task of moved.tasks)
+      markBoardCacheChanged(queryClient, project.id, task.id);
+    setProject(moved.project);
+    queryClient.setQueryData(["tasks", project.id], moved.project);
+    reorder({
+      projectId: project.id,
+      tasks: moved.tasks,
+      expectedTasks: moved.expectedTasks,
+      previousBoard: canonical,
     });
-
-    setProject(updatedProject);
-    setActiveId(null);
   };
 
   if (!project?.columns) {
@@ -337,7 +292,11 @@ function KanbanBoard({
                   "h-fit": !!background,
                 })}
               >
-                <Column column={column} disableDragDrop={disableDragDrop} />
+                <Column
+                  column={column}
+                  disableDragDrop={disableDragDrop}
+                  disableCollectionActions={disableCollectionActions}
+                />
               </div>
             ))}
           </div>

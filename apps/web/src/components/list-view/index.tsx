@@ -45,18 +45,23 @@ import TaskRow from "./task-row";
 type ListViewProps = {
   project: ProjectWithTasks;
   disableDragDrop?: boolean;
+  disableCollectionActions?: boolean;
 };
 
-function ListView({ project, disableDragDrop = false }: ListViewProps) {
+function ListView({
+  project,
+  disableDragDrop = false,
+  disableCollectionActions = false,
+}: ListViewProps) {
   const { t } = useTranslation();
   const { setProject } = useProjectStore();
-  const {
-    setAvailableTasks,
-    focusNext,
-    focusPrevious,
-    focusedTaskId,
-    clearFocus,
-  } = useBulkSelectionStore();
+  const setAvailableTasks = useBulkSelectionStore(
+    (state) => state.setAvailableTasks,
+  );
+  const focusNext = useBulkSelectionStore((state) => state.focusNext);
+  const focusPrevious = useBulkSelectionStore((state) => state.focusPrevious);
+  const focusedTaskId = useBulkSelectionStore((state) => state.focusedTaskId);
+  const clearFocus = useBulkSelectionStore((state) => state.clearFocus);
   const { mutate: updateTask } = useUpdateTask();
   const navigate = useNavigate();
   const { columnActions } = useTaskViewCapabilities();
@@ -77,9 +82,10 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [activeColumn, setActiveColumn] = useState<string | null>(null);
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
-  const [columnToArchive, setColumnToArchive] = useState<
-    ProjectWithTasks["columns"][number] | null
-  >(null);
+  const [columnToArchive, setColumnToArchive] = useState<string | null>(null);
+  const archiveColumn = project.columns.find(
+    (column) => column.id === columnToArchive,
+  );
 
   useEffect(() => {
     if (project?.columns) {
@@ -140,6 +146,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
   );
 
   const handleDragStart = (event: DragStartEvent) => {
+    if (disableDragDrop) return;
     setActiveId(event.active.id);
   };
 
@@ -172,7 +179,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
     setActiveId(null);
     setOverColumnId(null);
 
-    if (!over || !project?.columns) return;
+    if (disableDragDrop || !over || !project?.columns) return;
 
     const activeTaskId = active.id.toString();
     const overId = over.id.toString();
@@ -253,17 +260,22 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
   };
 
   const handleArchiveClick = (column: ProjectWithTasks["columns"][number]) => {
-    if (!column.isFinal || column.tasks.length === 0) return;
-    setColumnToArchive(column);
+    if (
+      disableCollectionActions ||
+      !column.isFinal ||
+      column.tasks.length === 0
+    )
+      return;
+    setColumnToArchive(column.id);
     setIsArchiveModalOpen(true);
   };
 
   const handleConfirmArchive = () => {
-    if (!columnToArchive) return;
+    if (disableCollectionActions || !archiveColumn?.isFinal) return;
 
     const updatedProject = produce(project, (draft) => {
       const archivedColumn = draft?.columns?.find(
-        (col) => col.id === columnToArchive.id,
+        (col) => col.id === columnToArchive,
       );
       if (!archivedColumn) return;
 
@@ -279,7 +291,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
 
     setProject(updatedProject);
     toast.success(
-      t("tasks:archive.success", { count: columnToArchive.tasks.length }),
+      t("tasks:archive.success", { count: archiveColumn.tasks.length }),
     );
 
     setIsArchiveModalOpen(false);
@@ -348,6 +360,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
               {column.isFinal && column.tasks.length > 0 && (
                 <button
                   type="button"
+                  disabled={disableCollectionActions}
                   onClick={() => handleArchiveClick(column)}
                   className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
                   title={t("tasks:listView.archiveAllTooltip")}
@@ -410,7 +423,7 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
 
   return (
     <DndContext
-      sensors={sensors}
+      sensors={disableDragDrop ? [] : sensors}
       collisionDetection={closestCorners}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
@@ -467,8 +480,9 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
           setIsArchiveModalOpen(false);
           setColumnToArchive(null);
         }}
+        disabled={disableCollectionActions}
         onConfirm={handleConfirmArchive}
-        taskCount={columnToArchive?.tasks.length ?? 0}
+        taskCount={archiveColumn?.tasks.length ?? 0}
       />
 
       <BulkToolbar />

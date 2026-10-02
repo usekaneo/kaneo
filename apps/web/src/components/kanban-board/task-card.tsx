@@ -6,13 +6,12 @@ import {
   Calendar,
   CalendarClock,
   CalendarX,
-  GitMerge,
-  GitPullRequest,
   SlidersHorizontal,
 } from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskProgressBadges } from "@/components/task/task-progress-badges";
+import { TaskPullRequests } from "@/components/task/task-pull-requests";
 import {
   useTaskProject,
   useTaskViewCapabilities,
@@ -42,7 +41,6 @@ import {
   getDueDateStatus,
   isTaskCompleted,
 } from "@/lib/due-date-status";
-import { getExternalWebUrl, openExternalWebUrl } from "@/lib/external-url";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
@@ -80,44 +78,19 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
     showTaskNumbers,
   } = useUserPreferencesStore();
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
-  const { toggleSelection, isSelected, isFocused } = useBulkSelectionStore();
-  const isTaskSelected = isSelected(task.id);
-  const isTaskFocused = isFocused(task.id);
-
-  const pullRequests = useMemo(() => {
-    return (task.externalLinks ?? []).filter(
-      (link) =>
-        link.resourceType === "pull_request" &&
-        getExternalWebUrl(link.url) !== null,
-    );
-  }, [task.externalLinks]);
-
-  const getPRInfo = (pr: (typeof pullRequests)[number]) => {
-    const isMerged = pr.metadata?.merged === true;
-    const isDraft = pr.metadata?.draft === true;
-
-    if (isMerged) {
-      return {
-        icon: <GitMerge className="h-3 w-3 text-info-foreground" />,
-        status: t("tasks:pr.merged"),
-        statusClass: "text-info-foreground",
-      };
-    }
-
-    if (isDraft) {
-      return {
-        icon: <GitPullRequest className="h-3 w-3 text-muted-foreground" />,
-        status: t("tasks:pr.draft"),
-        statusClass: "text-muted-foreground",
-      };
-    }
-
-    return {
-      icon: <GitPullRequest className="h-3 w-3 text-success-foreground" />,
-      status: t("tasks:pr.open"),
-      statusClass: "text-success-foreground",
-    };
-  };
+  const toggleSelection = useBulkSelectionStore(
+    (state) => state.toggleSelection,
+  );
+  const selectRange = useBulkSelectionStore((state) => state.selectRange);
+  const setSelectionAnchor = useBulkSelectionStore(
+    (state) => state.setSelectionAnchor,
+  );
+  const isTaskSelected = useBulkSelectionStore((state) =>
+    state.selectedTaskIds.has(task.id),
+  );
+  const isTaskFocused = useBulkSelectionStore(
+    (state) => state.focusedTaskId === task.id,
+  );
 
   const { data: projectCustomFieldValues = [] } =
     useGetCustomFieldValuesByProject(task.projectId);
@@ -171,14 +144,19 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
   ) {
     if (!project || !task) return;
 
-    if (
-      bulkSelection &&
-      ((e as React.MouseEvent).metaKey || (e as React.KeyboardEvent).ctrlKey)
-    ) {
+    if (bulkSelection && e.shiftKey) {
+      e.preventDefault();
+      selectRange(task.id);
+      return;
+    }
+
+    if (bulkSelection && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
       toggleSelection(task.id);
       return;
     }
 
+    setSelectionAnchor(task.id);
     const currentParams = new URLSearchParams(window.location.search);
     const currentTaskId = currentParams.get("taskId");
 
@@ -195,9 +173,16 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Escape") {
-      toggleSelection(task.id);
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.defaultPrevented || e.target !== e.currentTarget) return;
+    if (e.key === "Enter") {
+      handleTaskCardClick(e);
+      e.preventDefault();
+    } else {
+      if (e.key === "Escape") {
+        toggleSelection(task.id);
+      }
+      listeners?.onKeyDown?.(e);
     }
   };
 
@@ -213,12 +198,21 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      role="button"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+    >
       <ContextMenu>
         <ContextMenuTrigger asChild>
           {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- false positive for onClick and onKeyDown */}
           <div
             onClick={handleTaskCardClick}
+            onKeyDown={handleKeyDown}
             className={`group relative rounded-lg border bg-background p-3 shadow-xs/5 transition-[background-color,border-color,box-shadow,scale] duration-150 ease-out active:scale-[0.98] ${
               disableDragDrop ? "cursor-default" : "cursor-move"
             } ${
@@ -230,13 +224,6 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                 ? "border-ring/40 bg-accent/50 shadow-sm ring-1 ring-inset ring-ring/30"
                 : "border-border"
             } ${isTaskFocused ? "ring-2 ring-inset ring-ring/50" : ""}`}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleTaskCardClick(e);
-              } else if (e.key === "Escape") {
-                handleKeyDown(e);
-              }
-            }}
           >
             {showTaskNumbers && (
               <div className="mb-2 text-[10px] font-mono text-muted-foreground/90">
@@ -380,114 +367,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                 </div>
               )}
 
-              {pullRequests.length === 1 && (
-                <HoverCard openDelay={200} closeDelay={100}>
-                  <HoverCardTrigger asChild>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openExternalWebUrl(pullRequests[0].url);
-                      }}
-                      className="inline-flex items-center gap-1.5 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground"
-                    >
-                      {getPRInfo(pullRequests[0]).icon}
-                      <span>#{pullRequests[0].externalId}</span>
-                    </button>
-                  </HoverCardTrigger>
-                  <HoverCardContent
-                    className="w-72 p-3"
-                    side="bottom"
-                    onClick={(e) => e.stopPropagation()}
-                    onPointerDown={(e) => e.stopPropagation()}
-                  >
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        {getPRInfo(pullRequests[0]).icon}
-                        <span>{getPRInfo(pullRequests[0]).status}</span>
-                        <span className="text-muted-foreground/50">•</span>
-                        <span>#{pullRequests[0].externalId}</span>
-                      </div>
-                      <p className="text-sm font-medium leading-snug">
-                        {pullRequests[0].title || t("tasks:pr.label")}
-                      </p>
-                    </div>
-                  </HoverCardContent>
-                </HoverCard>
-              )}
-
-              {pullRequests.length > 1 &&
-                (() => {
-                  const hasOpen = pullRequests.some(
-                    (pr) => !pr.metadata?.merged && !pr.metadata?.draft,
-                  );
-                  const allMerged = pullRequests.every(
-                    (pr) => pr.metadata?.merged,
-                  );
-                  const iconColor = allMerged
-                    ? "text-info-foreground"
-                    : hasOpen
-                      ? "text-success-foreground"
-                      : "text-muted-foreground";
-
-                  return (
-                    <HoverCard openDelay={200} closeDelay={100}>
-                      <HoverCardTrigger asChild>
-                        <button
-                          type="button"
-                          onClick={(e) => e.stopPropagation()}
-                          className="inline-flex items-center gap-1.5 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground"
-                        >
-                          <GitPullRequest className={`h-3 w-3 ${iconColor}`} />
-                          <span>
-                            {t("tasks:pr.count", {
-                              count: pullRequests.length,
-                            })}
-                          </span>
-                        </button>
-                      </HoverCardTrigger>
-                      <HoverCardContent
-                        className="w-auto min-w-56 max-w-96 p-1"
-                        side="bottom"
-                        onClick={(e) => e.stopPropagation()}
-                        onPointerDown={(e) => e.stopPropagation()}
-                      >
-                        {pullRequests.map((pr, index) => {
-                          const prInfo = getPRInfo(pr);
-                          const repoMatch = pr.url.match(
-                            /github\.com\/([^/]+\/[^/]+)\/pull/,
-                          );
-                          const repoName = repoMatch ? repoMatch[1] : null;
-                          return (
-                            <div key={pr.id}>
-                              {index > 0 && (
-                                <hr className="border-border my-1" />
-                              )}
-                              <button
-                                type="button"
-                                onClick={() => openExternalWebUrl(pr.url)}
-                                className="w-full px-2 py-1.5 text-left hover:bg-muted/50 rounded transition-colors"
-                              >
-                                <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                                  {prInfo.icon}
-                                  <span>
-                                    {repoName}#{pr.externalId}
-                                  </span>
-                                </div>
-                                <p className="text-xs leading-tight line-clamp-2 mt-0.5">
-                                  {pr.title || t("tasks:pr.label")}
-                                </p>
-                                <span className="text-[10px] text-muted-foreground">
-                                  {prInfo.status}
-                                </span>
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </HoverCardContent>
-                    </HoverCard>
-                  );
-                })()}
+              <TaskPullRequests externalLinks={task.externalLinks} />
             </div>
           </div>
         </ContextMenuTrigger>

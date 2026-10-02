@@ -11,6 +11,7 @@ COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/email/package.json ./packages/email/
 COPY packages/libs/package.json ./packages/libs/
 COPY packages/permissions/package.json ./packages/permissions/
+COPY packages/mcp/package.json ./packages/mcp/
 COPY apps/api/package.json ./apps/api/
 
 RUN pnpm install --frozen-lockfile
@@ -19,6 +20,7 @@ COPY packages/typescript-config ./packages/typescript-config
 COPY packages/email ./packages/email
 COPY packages/libs ./packages/libs
 COPY packages/permissions ./packages/permissions
+COPY packages/mcp ./packages/mcp
 COPY i18n ./i18n
 COPY apps/api ./apps/api
 
@@ -44,6 +46,7 @@ COPY --from=api-builder /app/packages/typescript-config/package.json ./packages/
 COPY --from=api-builder /app/packages/libs/package.json ./packages/libs/
 COPY --from=api-builder /app/packages/email/package.json ./packages/email/
 COPY --from=api-builder /app/packages/permissions/package.json ./packages/permissions/
+COPY --from=api-builder /app/packages/mcp/package.json ./packages/mcp/
 
 RUN sed -i 's/"prepare": "husky"/"prepare": ""/g' package.json && \
   corepack enable && \
@@ -54,6 +57,7 @@ COPY --from=api-builder /app/apps/api/dist ./apps/api/dist
 COPY --from=api-builder /app/apps/api/drizzle ./apps/api/drizzle
 COPY --from=api-builder /app/packages/email ./packages/email
 COPY --from=api-builder /app/packages/permissions ./packages/permissions
+COPY --from=api-builder /app/packages/mcp/dist ./packages/mcp/dist
 
 FROM --platform=$BUILDPLATFORM node:24.19.0-alpine AS web-builder
 
@@ -97,7 +101,8 @@ WORKDIR /app
 COPY --from=api-runtime --chown=appuser:appuser /app /app
 
 # Fail the build early if the runtime dependency layout is broken on the target architecture
-RUN cd /app/apps/api && node -e "const fs=require('fs');for(const m of ['bcryptjs','hono','pg','drizzle-orm','better-auth','ioredis','valibot','octokit','@modelcontextprotocol/sdk']){fs.accessSync('node_modules/'+m+'/package.json')}for(const m of ['email','permissions']){fs.accessSync('node_modules/@kaneo/'+m+'/dist/index.js')}"
+RUN cd /app/apps/api && node -e "const fs=require('fs');for(const m of ['bcryptjs','hono','pg','drizzle-orm','better-auth','ioredis','valibot','octokit','@modelcontextprotocol/sdk']){fs.accessSync('node_modules/'+m+'/package.json')}for(const m of ['email','permissions']){fs.accessSync('node_modules/@kaneo/'+m+'/dist/index.js')}" && \
+  node --input-type=module -e "import { registerTools } from '@kaneo/mcp/tools'; if (typeof registerTools !== 'function') process.exit(1)"
 
 COPY --from=web-builder --chown=appuser:appuser /app/apps/web/dist /usr/share/nginx/html
 COPY --chown=appuser:appuser apps/web/nginx.kaneo.conf /etc/nginx/conf.d/default.conf

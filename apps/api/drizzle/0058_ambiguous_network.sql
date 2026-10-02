@@ -1,0 +1,1 @@
+CREATE INDEX "asset_draft_expiry_idx" ON "asset" USING btree ("created_at","id") WHERE "asset"."task_id" is null and "asset"."surface" in ('draft', 'draft-pending');

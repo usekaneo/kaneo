@@ -9,6 +9,7 @@ Treat this guide as a set of defaults. The developer's request takes precedence.
 ## What matters
 
 - Keep routine work simple. Solve the user's problem with the smallest model that makes the behavior clear. Read the relevant code first, but do not keep complexity just because it is already there.
+- Keep modules small. Across the whole repo, give each file one responsibility: one component per file, and pure helpers and types in their own modules next to the code that uses them, with tests beside them. When a file grows a second concern, split it into a folder. Do not extract one-line wrappers; inline those.
 - Keep boards fast. Task-heavy views and realtime updates should not move or render more data than they need.
 - Keep self-hosting easy. A single instance must work without Redis or another managed service. Support both bundled same-origin and separately hosted API and web deployments.
 - Respect workspace boundaries. The API enforces authentication and permissions; a hidden UI control is not an authorization check. Never leak secrets or private workspace data through responses, logs, events, WebSockets, or MCP.

@@ -2295,7 +2295,11 @@
 					"reset": "Reset size",
 					"resizeHandle": "Resize image",
 					"small": "Small"
-				}
+				},
+				"saved": "Saved",
+				"saving": "Saving…",
+				"saveFailed": "Changes could not be saved",
+				"retrySave": "Retry"
 			},
 			"customFieldUpdated": "Field updated",
 			"selectOption": "Select option"
@@ -2341,6 +2345,8 @@
 			"labels": "Етикети",
 			"copyTaskLink": "Копирај линк на задача",
 			"copyTaskBranch": "Копирај гранка на задача",
+			"taskLinkCopied": "Врската до задачата е копирана",
+			"taskBranchCopied": "Името на гранката е копирано",
 			"start": "Почеток",
 			"startDate": "Почетен датум",
 			"noDate": "Без датум"
@@ -2622,6 +2628,9 @@
 		"checklistProgress": "Завршени се {{completed}} од {{total}} ставки од списокот",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"board": {
+			"reorderFailed": "Could not move task. Please try again."
 		}
 	},
 	"invitations": {

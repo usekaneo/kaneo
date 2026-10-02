@@ -2284,7 +2284,11 @@
 					"reset": "Reset size",
 					"resizeHandle": "Resize image",
 					"small": "Small"
-				}
+				},
+				"saved": "Saved",
+				"saving": "Saving…",
+				"saveFailed": "Changes could not be saved",
+				"retrySave": "Retry"
 			},
 			"customFieldUpdated": "Field updated",
 			"selectOption": "Select option"
@@ -2330,6 +2334,8 @@
 			"labels": "라벨",
 			"copyTaskLink": "작업 링크 복사",
 			"copyTaskBranch": "작업 브랜치 복사",
+			"taskLinkCopied": "작업 링크를 복사했습니다",
+			"taskBranchCopied": "브랜치 이름을 복사했습니다",
 			"start": "시작",
 			"startDate": "시작일",
 			"noDate": "날짜 없음"
@@ -2610,6 +2616,9 @@
 		"checklistProgress": "체크리스트 항목 {{total}}개 중 {{completed}}개 완료",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"board": {
+			"reorderFailed": "Could not move task. Please try again."
 		}
 	},
 	"invitations": {

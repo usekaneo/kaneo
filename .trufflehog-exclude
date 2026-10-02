@@ -10,3 +10,6 @@
 ^charts/
 ^tests/
 ^apps/docs/
+^\.cursor/rules/deployment-devops\.mdc$
+^CONTRIBUTORS\.svg$
+^scripts/security/file-secrets\.test\.mjs$

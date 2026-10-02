@@ -2306,7 +2306,11 @@
 					"reset": "Reset size",
 					"resizeHandle": "Resize image",
 					"small": "Small"
-				}
+				},
+				"saved": "Saved",
+				"saving": "Saving…",
+				"saveFailed": "Changes could not be saved",
+				"retrySave": "Retry"
 			},
 			"customFieldUpdated": "Field updated",
 			"selectOption": "Select option"
@@ -2352,6 +2356,8 @@
 			"labels": "Labels",
 			"copyTaskLink": "Copier le lien de la tâche",
 			"copyTaskBranch": "Copier la branche de la tâche",
+			"taskLinkCopied": "Lien de la tâche copié",
+			"taskBranchCopied": "Nom de la branche copié",
 			"start": "Début",
 			"startDate": "Date de début",
 			"noDate": "Pas de date"
@@ -2634,6 +2640,9 @@
 		"checklistProgress": "{{completed}} éléments de la liste terminés sur {{total}}",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"board": {
+			"reorderFailed": "Could not move task. Please try again."
 		}
 	},
 	"invitations": {

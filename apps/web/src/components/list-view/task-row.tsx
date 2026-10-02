@@ -2,16 +2,11 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import {
-  Calendar,
-  CalendarClock,
-  CalendarX,
-  GitMerge,
-  GitPullRequest,
-} from "lucide-react";
+import { Calendar, CalendarClock, CalendarX } from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskProgressBadges } from "@/components/task/task-progress-badges";
+import { TaskPullRequests } from "@/components/task/task-pull-requests";
 import {
   useTaskProject,
   useTaskViewCapabilities,
@@ -27,11 +22,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/preview-card";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { cn } from "@/lib/cn";
@@ -40,7 +30,6 @@ import {
   getDueDateStatus,
   isTaskCompleted,
 } from "@/lib/due-date-status";
-import { getExternalWebUrl, openExternalWebUrl } from "@/lib/external-url";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
@@ -83,9 +72,19 @@ function TaskRow({ task, projectSlug, disableDragDrop = false }: TaskRowProps) {
   } = useUserPreferencesStore();
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
   const { mutateAsync: deleteTask } = useDeleteTask();
-  const { toggleSelection, isSelected, isFocused } = useBulkSelectionStore();
-  const isTaskSelected = isSelected(task.id);
-  const isTaskFocused = isFocused(task.id);
+  const toggleSelection = useBulkSelectionStore(
+    (state) => state.toggleSelection,
+  );
+  const selectRange = useBulkSelectionStore((state) => state.selectRange);
+  const setSelectionAnchor = useBulkSelectionStore(
+    (state) => state.setSelectionAnchor,
+  );
+  const isTaskSelected = useBulkSelectionStore((state) =>
+    state.selectedTaskIds.has(task.id),
+  );
+  const isTaskFocused = useBulkSelectionStore(
+    (state) => state.focusedTaskId === task.id,
+  );
 
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
     project?.workspaceId ?? "",
@@ -97,50 +96,21 @@ function TaskRow({ task, projectSlug, disableDragDrop = false }: TaskRowProps) {
     );
   }, [workspaceUsers, task.userId]);
 
-  const pullRequests = useMemo(() => {
-    return (task.externalLinks ?? []).filter(
-      (link) =>
-        link.resourceType === "pull_request" &&
-        getExternalWebUrl(link.url) !== null,
-    );
-  }, [task.externalLinks]);
-
-  const getPRInfo = (pr: (typeof pullRequests)[number]) => {
-    const isMerged = pr.metadata?.merged === true;
-    const isDraft = pr.metadata?.draft === true;
-
-    if (isMerged) {
-      return {
-        icon: <GitMerge className="h-3 w-3 text-info-foreground" />,
-        status: t("tasks:pr.merged"),
-        statusClass: "text-info-foreground",
-      };
-    }
-
-    if (isDraft) {
-      return {
-        icon: <GitPullRequest className="h-3 w-3 text-muted-foreground" />,
-        status: t("tasks:pr.draft"),
-        statusClass: "text-muted-foreground",
-      };
-    }
-
-    return {
-      icon: <GitPullRequest className="h-3 w-3 text-success-foreground" />,
-      status: t("tasks:pr.open"),
-      statusClass: "text-success-foreground",
-    };
-  };
-
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition: transition || "transform 200ms cubic-bezier(0.23, 1, 0.32, 1)",
     touchAction: isDragging ? "none" : "auto",
   };
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = (e: React.MouseEvent | React.KeyboardEvent) => {
     if (!project || !task) return;
     if (e.defaultPrevented) return;
+
+    if (e.shiftKey) {
+      e.preventDefault();
+      selectRange(task.id);
+      return;
+    }
 
     if (e.metaKey || e.ctrlKey) {
       e.preventDefault();
@@ -148,6 +118,7 @@ function TaskRow({ task, projectSlug, disableDragDrop = false }: TaskRowProps) {
       return;
     }
 
+    setSelectionAnchor(task.id);
     const currentParams = new URLSearchParams(window.location.search);
     const currentTaskId = currentParams.get("taskId");
 
@@ -164,9 +135,13 @@ function TaskRow({ task, projectSlug, disableDragDrop = false }: TaskRowProps) {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.defaultPrevented || e.target !== e.currentTarget) return;
     if (e.key === "Enter") {
-      handleClick(e as unknown as React.MouseEvent);
+      handleClick(e);
+      e.preventDefault();
+    } else {
+      listeners?.onKeyDown?.(e);
     }
   };
 
@@ -198,13 +173,13 @@ function TaskRow({ task, projectSlug, disableDragDrop = false }: TaskRowProps) {
           {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- false positive for onClick and onKeyDown */}
           <div
             onClick={handleClick}
-            onKeyDown={handleKeyDown}
             className={cn(
               "group relative flex items-center gap-3 px-4 py-1.5 transition-colors cursor-pointer",
               isTaskSelected ? "bg-accent/45" : "hover:bg-accent/60",
             )}
             {...attributes}
             {...listeners}
+            onKeyDown={handleKeyDown}
           >
             {showPriority && (
               <div className="flex-shrink-0 first:[&_svg]:h-4 first:[&_svg]:w-4">
@@ -226,114 +201,10 @@ function TaskRow({ task, projectSlug, disableDragDrop = false }: TaskRowProps) {
                   <TaskProgressBadges task={task} />
                   {showLabels && <TaskLabels labels={task.labels ?? []} />}
 
-                  {pullRequests.length === 1 && (
-                    <HoverCard openDelay={200} closeDelay={100}>
-                      <HoverCardTrigger asChild>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openExternalWebUrl(pullRequests[0].url);
-                          }}
-                          className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-sidebar text-[10px] font-medium text-muted-foreground"
-                        >
-                          {getPRInfo(pullRequests[0]).icon}
-                          <span>#{pullRequests[0].externalId}</span>
-                        </button>
-                      </HoverCardTrigger>
-                      <HoverCardContent
-                        className="w-72 p-3"
-                        side="bottom"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            {getPRInfo(pullRequests[0]).icon}
-                            <span>{getPRInfo(pullRequests[0]).status}</span>
-                            <span className="text-muted-foreground/50">•</span>
-                            <span>#{pullRequests[0].externalId}</span>
-                          </div>
-                          <p className="text-sm font-medium leading-snug">
-                            {pullRequests[0].title || t("tasks:pr.label")}
-                          </p>
-                        </div>
-                      </HoverCardContent>
-                    </HoverCard>
-                  )}
-
-                  {pullRequests.length > 1 &&
-                    (() => {
-                      const hasOpen = pullRequests.some(
-                        (pr) => !pr.metadata?.merged && !pr.metadata?.draft,
-                      );
-                      const allMerged = pullRequests.every(
-                        (pr) => pr.metadata?.merged,
-                      );
-                      const iconColor = allMerged
-                        ? "text-info-foreground"
-                        : hasOpen
-                          ? "text-success-foreground"
-                          : "text-muted-foreground";
-
-                      return (
-                        <HoverCard openDelay={200} closeDelay={100}>
-                          <HoverCardTrigger asChild>
-                            <button
-                              type="button"
-                              onClick={(e) => e.stopPropagation()}
-                              className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-sidebar text-[10px] font-medium text-muted-foreground"
-                            >
-                              <GitPullRequest
-                                className={`h-3 w-3 ${iconColor}`}
-                              />
-                              <span>
-                                {t("tasks:pr.count", {
-                                  count: pullRequests.length,
-                                })}
-                              </span>
-                            </button>
-                          </HoverCardTrigger>
-                          <HoverCardContent
-                            className="w-auto min-w-56 max-w-96 p-1"
-                            side="bottom"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {pullRequests.map((pr, index) => {
-                              const prInfo = getPRInfo(pr);
-                              const repoMatch = pr.url.match(
-                                /github\.com\/([^/]+\/[^/]+)\/pull/,
-                              );
-                              const repoName = repoMatch ? repoMatch[1] : null;
-                              return (
-                                <div key={pr.id}>
-                                  {index > 0 && (
-                                    <hr className="border-border my-1" />
-                                  )}
-                                  <button
-                                    type="button"
-                                    onClick={() => openExternalWebUrl(pr.url)}
-                                    className="w-full px-2 py-1.5 text-left hover:bg-muted/50 rounded transition-colors"
-                                  >
-                                    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                                      {prInfo.icon}
-                                      <span>
-                                        {repoName}#{pr.externalId}
-                                      </span>
-                                    </div>
-                                    <p className="text-xs leading-tight line-clamp-2 mt-0.5">
-                                      {pr.title || t("tasks:pr.label")}
-                                    </p>
-                                    <span className="text-[10px] text-muted-foreground">
-                                      {prInfo.status}
-                                    </span>
-                                  </button>
-                                </div>
-                              );
-                            })}
-                          </HoverCardContent>
-                        </HoverCard>
-                      );
-                    })()}
+                  <TaskPullRequests
+                    externalLinks={task.externalLinks}
+                    className="border-border bg-sidebar"
+                  />
                 </div>
               </div>
             </div>

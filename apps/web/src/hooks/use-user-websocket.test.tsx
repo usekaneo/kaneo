@@ -11,8 +11,15 @@ import {
 } from "vite-plus/test";
 import { useUserWebSocket } from "./use-user-websocket";
 
+const { navigate } = vi.hoisted(() => ({ navigate: vi.fn() }));
+
 vi.mock("@kaneo/libs", () => ({
   windowId: "test-window-id",
+}));
+
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => navigate,
+  useLocation: () => "/dashboard",
 }));
 
 vi.mock("@/lib/auth-client", () => ({

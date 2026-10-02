@@ -126,6 +126,8 @@ Kaneo checks the configured branch pattern first, then explicit task references 
 
 Issue references use the remote repository's numbering. A title containing `#61` or a body containing `Closes #61` resolves through the issue link recorded by this integration. If GitHub issue 61 is linked to Kaneo task `PROJ-42`, the PR belongs to `PROJ-42`, even if `PROJ-61` also exists. Same-repository `owner/repo#61` references and issue URLs are also supported. References to another repository are ignored.
 
+If none of those match, Kaneo looks for a task link in the PR title or body. Paste the link from **Copy task link** on the task, and the PR is linked to that task. A PR that links to more than one task, or to a task in another project, is not linked.
+
 Without an explicit task reference, unmapped issues do not create PR associations. References that map to multiple tasks within the integration are skipped. Repeated issue links to the same task are accepted. Bare numeric title shortcuts such as `[42]`, `(42)`, or `42: ...` are not task identifiers; use the project key instead.
 
 GitHub webhooks also skip conflicting candidates or an existing PR association across projects connected to the repository. Signed Gitea webhooks resolve only within their authenticated integration; another project's mappings or PR links do not block that integration. Direct Gitea handler calls without an integration ID use the repository-wide checks. Imports for both providers remain scoped to the selected project.
@@ -145,7 +147,7 @@ Customize when tasks automatically change status:
 Configure these in your project's GitHub integration settings to match your workflow.
 
 <Warning>
-Status transitions only apply if the task is not already in "done" status. This prevents accidentally reopening completed tasks.
+A completed task moves again only when new work starts on it: the first push to a branch that is not yet linked to the task, or a pull request that is not yet linked to it. More pushes to a linked branch, or reopening a pull request, leave a completed task where it is.
 </Warning>
 
 ### Label Synchronization

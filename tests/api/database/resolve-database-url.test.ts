@@ -1,3 +1,6 @@
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import {
   resolveDatabaseConfig,
@@ -11,13 +14,16 @@ const keys = [
   "POSTGRES_DB",
   "POSTGRES_USER",
   "POSTGRES_PASSWORD",
+  "POSTGRES_PASSWORD_FILE",
 ] as const;
 
 describe("resolve-database-url", () => {
   const original: Partial<Record<(typeof keys)[number], string | undefined>> =
     {};
+  let directory: string;
 
   beforeEach(() => {
+    directory = mkdtempSync(path.join(tmpdir(), "kaneo-db-secret-"));
     for (const key of keys) {
       original[key] = process.env[key];
       delete process.env[key];
@@ -33,6 +39,7 @@ describe("resolve-database-url", () => {
         process.env[key] = value;
       }
     }
+    rmSync(directory, { recursive: true, force: true });
   });
 
   it("returns DATABASE_URL unchanged when explicitly configured", () => {
@@ -81,6 +88,43 @@ describe("resolve-database-url", () => {
       database: "kaneo",
       username: "kaneo",
     });
+  });
+
+  it("derives and URL-encodes POSTGRES_PASSWORD_FILE when no direct password exists", () => {
+    const file = path.join(directory, "db-password");
+    writeFileSync(file, "space &/#%!'\n");
+    process.env.POSTGRES_PASSWORD_FILE = file;
+
+    expect(resolveDatabaseConfig()).toMatchObject({
+      connectionString:
+        "postgresql://kaneo:space%20%26%2F%23%25!'@postgres:5432/kaneo",
+      source: "POSTGRES_ENV",
+    });
+  });
+
+  it("keeps direct database credentials ahead of file credentials", () => {
+    process.env.POSTGRES_PASSWORD = "direct";
+    process.env.POSTGRES_PASSWORD_FILE = path.join(directory, "missing");
+    expect(resolveDatabaseConnectionString()).toBe(
+      "postgresql://kaneo:direct@postgres:5432/kaneo",
+    );
+
+    process.env.DATABASE_URL = "postgresql://app:db@example.com/app";
+    process.env.POSTGRES_PASSWORD = "";
+    expect(resolveDatabaseConnectionString()).toBe(process.env.DATABASE_URL);
+  });
+
+  it("fails when POSTGRES_PASSWORD_FILE is missing or empty", () => {
+    const file = path.join(directory, "db-password");
+    process.env.POSTGRES_PASSWORD_FILE = file;
+    expect(() => resolveDatabaseConfig()).toThrow(
+      "POSTGRES_PASSWORD_FILE could not be read",
+    );
+
+    writeFileSync(file, "\n");
+    expect(() => resolveDatabaseConfig()).toThrow(
+      "POSTGRES_PASSWORD_FILE points to an empty file",
+    );
   });
 
   it("preserves the localhost fallback when only POSTGRES_DB and POSTGRES_USER are set", () => {

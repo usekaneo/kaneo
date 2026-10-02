@@ -29,8 +29,9 @@ export async function canReceiveResourceNotification(
   userId: string,
   resourceId?: string | null,
   resourceType?: string | null,
+  database: Pick<typeof db, "select"> = db,
 ) {
-  const [user] = await db
+  const [user] = await database
     .select({ id: userTable.id })
     .from(userTable)
     .where(

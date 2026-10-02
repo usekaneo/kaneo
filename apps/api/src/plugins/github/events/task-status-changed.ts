@@ -1,9 +1,7 @@
+import { syncLatestTaskValue } from "../services/sync-latest-task-value";
 import type { PluginContext, TaskStatusChangedEvent } from "../../types";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
-import {
-  findExternalLinksByTask,
-  updateExternalLink,
-} from "../services/link-manager";
+import { findExternalLinksByTask } from "../services/link-manager";
 import {
   getGithubApp,
   getVerifiedInstallationOctokit,
@@ -54,34 +52,32 @@ export async function handleTaskStatusChanged(
       [`status:${event.newStatus}`],
     );
 
-    if (event.newStatus === "done") {
-      await octokit.rest.issues.update({
-        owner: repositoryOwner,
-        repo: repositoryName,
-        issue_number: issueNumber,
-        state: "closed",
-      });
-
-      await updateExternalLink(issueLink.id, {
-        metadata: {
-          ...(issueLink.metadata ? JSON.parse(issueLink.metadata) : {}),
-          state: "closed",
+    if (event.newStatus === "done" || event.oldStatus === "done") {
+      await syncLatestTaskValue(
+        event.taskId,
+        event.projectId,
+        issueLink,
+        "state",
+        event.newStatus === "done" ? "closed" : "open",
+        async (value) => {
+          const response = await octokit.rest.issues.update({
+            owner: repositoryOwner,
+            repo: repositoryName,
+            issue_number: issueNumber,
+            state: value === "closed" ? "closed" : "open",
+          });
+          return response?.data?.updated_at;
         },
-      });
-    } else if (event.oldStatus === "done" && event.newStatus !== "done") {
-      await octokit.rest.issues.update({
-        owner: repositoryOwner,
-        repo: repositoryName,
-        issue_number: issueNumber,
-        state: "open",
-      });
-
-      await updateExternalLink(issueLink.id, {
-        metadata: {
-          ...(issueLink.metadata ? JSON.parse(issueLink.metadata) : {}),
-          state: "open",
-        },
-      });
+        async () =>
+          (
+            await octokit.rest.issues.get({
+              owner: repositoryOwner,
+              repo: repositoryName,
+              issue_number: issueNumber,
+            })
+          ).data.state ?? "open",
+        { type: "github", config: JSON.stringify(config) },
+      );
     }
   } catch (error) {
     console.error("Failed to update GitHub issue status:", error);

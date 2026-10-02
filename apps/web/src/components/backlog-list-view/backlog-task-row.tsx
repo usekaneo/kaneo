@@ -83,6 +83,12 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
   const toggleSelection = useBacklogBulkSelectionStore(
     (state) => state.toggleSelection,
   );
+  const selectRange = useBacklogBulkSelectionStore(
+    (state) => state.selectRange,
+  );
+  const setSelectionAnchor = useBacklogBulkSelectionStore(
+    (state) => state.setSelectionAnchor,
+  );
   const isTaskSelected = useBacklogBulkSelectionStore((state) =>
     state.selectedTaskIds.has(task.id),
   );
@@ -122,9 +128,15 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
     touchAction: isDragging ? "none" : "auto",
   };
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = (e: React.MouseEvent | React.KeyboardEvent) => {
     if (!projectId || !task) return;
     if (e.defaultPrevented) return;
+
+    if (e.shiftKey) {
+      e.preventDefault();
+      selectRange(task.id);
+      return;
+    }
 
     if (e.metaKey || e.ctrlKey) {
       e.preventDefault();
@@ -132,6 +144,7 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
       return;
     }
 
+    setSelectionAnchor(task.id);
     const currentParams = new URLSearchParams(window.location.search);
     const currentTaskId = currentParams.get("taskId");
 
@@ -148,9 +161,13 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.defaultPrevented || e.target !== e.currentTarget) return;
     if (e.key === "Enter") {
-      handleClick(e as unknown as React.MouseEvent);
+      handleClick(e);
+      e.preventDefault();
+    } else {
+      listeners?.onKeyDown?.(e);
     }
   };
 
@@ -182,13 +199,13 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
           {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- false positive for onClick and onKeyDown */}
           <div
             onClick={handleClick}
-            onKeyDown={handleKeyDown}
             className={cn(
               "group relative flex items-center gap-3 px-4 py-1.5 transition-colors cursor-pointer",
               isTaskSelected ? "bg-accent/45" : "hover:bg-accent/60",
             )}
             {...attributes}
             {...listeners}
+            onKeyDown={handleKeyDown}
           >
             {showPriority && (
               <div className="flex-shrink-0 first:[&_svg]:h-4 first:[&_svg]:w-4">

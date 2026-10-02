@@ -1,3 +1,4 @@
+import { syncWorkspaceAccess } from "./ws/workspace-access";
 import { drainPasswordResetDeliveries } from "./utils/password-reset-delivery";
 import "./instrument";
 
@@ -396,7 +397,10 @@ export function createApp() {
 
   api.use("/auth/*", async (c, next) => {
     const apiKeyHeader = c.req.header("x-api-key")?.trim();
-    if (apiKeyHeader && !(await verifyApiKey(apiKeyHeader))) {
+    if (
+      apiKeyHeader &&
+      !(await verifyApiKey(apiKeyHeader, { consume: false }))
+    ) {
       throw new HTTPException(401, { message: "Unauthorized" });
     }
     return next();
@@ -451,6 +455,7 @@ export function createApp() {
           mimeType: schema.assetTable.mimeType,
           filename: schema.assetTable.filename,
           surface: schema.assetTable.surface,
+          createdBy: schema.assetTable.createdBy,
           workspaceId: schema.assetTable.workspaceId,
           isPublic: schema.projectTable.isPublic,
         })
@@ -683,7 +688,7 @@ export function createApp() {
         return auth.handler(new Request(c.req.raw, { headers }));
       }
 
-      if (!(await verifyApiKey(bearerToken))) {
+      if (!(await verifyApiKey(bearerToken, { consume: false }))) {
         throw new HTTPException(401, { message: "Unauthorized" });
       }
 
@@ -795,15 +800,6 @@ export function createApp() {
     "/ws/user",
     upgradeWebSocket(async (c) => {
       assertWebSocketOrigin(c.req.raw.headers);
-      try {
-        await authenticateApiRequest(c);
-      } catch (error) {
-        if (error instanceof HTTPException) {
-          throw error;
-        }
-        console.error("API authentication failed:", error);
-        throw new HTTPException(500, { message: "Internal Server Error" });
-      }
 
       const userId = c.get("userId");
       let conn: ReturnType<typeof addUserConnection> | null = null;
@@ -812,6 +808,7 @@ export function createApp() {
         onOpen(_evt, ws) {
           if (userId) {
             conn = addUserConnection(userId, ws);
+            void syncWorkspaceAccess(userId, ws);
           }
         },
         onMessage: handleWebSocketMessage,
@@ -829,16 +826,6 @@ export function createApp() {
     upgradeWebSocket(async (c) => {
       assertWebSocketOrigin(c.req.raw.headers);
       const projectId = c.req.param("projectId");
-
-      try {
-        await authenticateApiRequest(c);
-      } catch (error) {
-        if (error instanceof HTTPException) {
-          throw error;
-        }
-        console.error("API authentication failed:", error);
-        throw new HTTPException(500, { message: "Internal Server Error" });
-      }
 
       const userId = c.get("userId");
 

@@ -2325,7 +2325,11 @@
 					"reset": "Reset size",
 					"resizeHandle": "Resize image",
 					"small": "Small"
-				}
+				},
+				"saved": "Saved",
+				"saving": "Saving…",
+				"saveFailed": "Changes could not be saved",
+				"retrySave": "Retry"
 			},
 			"customFieldUpdated": "Field updated",
 			"selectOption": "Select option"
@@ -2371,6 +2375,8 @@
 			"labels": "Метки",
 			"copyTaskLink": "Скопировать ссылку на задачу",
 			"copyTaskBranch": "Скопировать ветку задачи",
+			"taskLinkCopied": "Ссылка на задачу скопирована",
+			"taskBranchCopied": "Название ветки скопировано",
 			"start": "Начало",
 			"startDate": "Дата начала",
 			"noDate": "Без даты"
@@ -2702,6 +2708,9 @@
 		"checklistProgress": "Выполнено пунктов списка: {{completed}} из {{total}}",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"board": {
+			"reorderFailed": "Could not move task. Please try again."
 		}
 	},
 	"invitations": {

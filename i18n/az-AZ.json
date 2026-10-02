@@ -2295,7 +2295,11 @@
 					"reset": "Reset size",
 					"resizeHandle": "Resize image",
 					"small": "Small"
-				}
+				},
+				"saved": "Saved",
+				"saving": "Saving…",
+				"saveFailed": "Changes could not be saved",
+				"retrySave": "Retry"
 			},
 			"customFieldUpdated": "Field updated",
 			"selectOption": "Select option"
@@ -2341,6 +2345,8 @@
 			"labels": "Etiketlər",
 			"copyTaskLink": "Tapşırığın keçidini kopyala",
 			"copyTaskBranch": "Tapşırığın budağını kopyala",
+			"taskLinkCopied": "Tapşırıq keçidi kopyalandı",
+			"taskBranchCopied": "Branch adı kopyalandı",
 			"start": "Başlat",
 			"startDate": "Başlama tarixi",
 			"noDate": "Tarix yoxdur"
@@ -2622,6 +2628,9 @@
 		"checklistProgress": "{{completed}} of {{total}} checklist items completed",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"board": {
+			"reorderFailed": "Could not move task. Please try again."
 		}
 	},
 	"invitations": {

@@ -19,10 +19,11 @@ import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import BacklogTaskRow from "./backlog-task-row";
 
+const { sortableKeyDown } = vi.hoisted(() => ({ sortableKeyDown: vi.fn() }));
 const { useSortable } = vi.hoisted(() => ({
   useSortable: vi.fn((_options: { id: string }) => ({
     attributes: { role: "button" },
-    listeners: {},
+    listeners: { onKeyDown: sortableKeyDown },
     setNodeRef: vi.fn(),
     transform: null,
     transition: null,
@@ -59,7 +60,10 @@ vi.mock("@/store/user-preferences", () => ({
   useUserPreferencesStore: () => ({ showLabels: true, showTaskNumbers: true }),
 }));
 vi.mock("react-i18next", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { language: "en-US", resolvedLanguage: "en-US" },
+  }),
   initReactI18next: { type: "3rdParty", init: vi.fn() },
 }));
 
@@ -105,6 +109,64 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("backlog row subscriptions", () => {
+  it.each([
+    ["plain click", {}],
+    ["Ctrl+click", { ctrlKey: true }],
+  ])(
+    "selects the visible range after %s and Shift+click",
+    (_label, firstClick) => {
+      useBacklogBulkSelectionStore
+        .getState()
+        .setAvailableTasks([task.id, otherTask.id]);
+      render(
+        <>
+          <BacklogTaskRow task={task} />
+          <BacklogTaskRow task={otherTask} />
+        </>,
+      );
+
+      fireEvent.click(
+        screen.getByRole("button", { name: /First task/ }),
+        firstClick,
+      );
+      fireEvent.click(screen.getByRole("button", { name: /Second task/ }), {
+        shiftKey: true,
+      });
+
+      expect(useBacklogBulkSelectionStore.getState().selectedTaskIds).toEqual(
+        new Set([task.id, otherTask.id]),
+      );
+    },
+  );
+
+  it("selects the visible range with Shift+Enter", () => {
+    useBacklogBulkSelectionStore
+      .getState()
+      .setAvailableTasks([task.id, otherTask.id]);
+    render(
+      <>
+        <BacklogTaskRow task={task} />
+        <BacklogTaskRow task={otherTask} />
+      </>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /First task/ }));
+    fireEvent.keyDown(screen.getByRole("button", { name: /Second task/ }), {
+      key: "Enter",
+      shiftKey: true,
+    });
+
+    expect(useBacklogBulkSelectionStore.getState().selectedTaskIds).toEqual(
+      new Set([task.id, otherTask.id]),
+    );
+    expect(sortableKeyDown).not.toHaveBeenCalled();
+    fireEvent.keyDown(screen.getByRole("button", { name: /Second task/ }), {
+      key: " ",
+      code: "Space",
+    });
+    expect(sortableKeyDown).toHaveBeenCalledOnce();
+  });
+
   it("only renders the row whose selection changes, including deselection", () => {
     render(
       <>
