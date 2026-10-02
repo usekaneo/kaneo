@@ -326,6 +326,7 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
             taskCardContext={{
               projectId,
               worskpaceId: workspace.id,
+              workspaceSlug: workspace.slug,
             }}
             onDeleteClick={() => setIsDeleteTaskModalOpen(true)}
           />

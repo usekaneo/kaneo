@@ -1,4 +1,4 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
@@ -68,7 +68,9 @@ export default async function getTaskByTicketId(
               db
                 .select({ id: workspaceTable.id })
                 .from(workspaceTable)
-                .where(eq(workspaceTable.slug, workspaceSlug)),
+                .where(
+                  sql`lower(${workspaceTable.slug}) = lower(${workspaceSlug})`,
+                ),
             )
           : undefined,
         projectId ? eq(projectTable.id, projectId) : undefined,

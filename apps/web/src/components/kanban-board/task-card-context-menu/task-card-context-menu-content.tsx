@@ -23,7 +23,6 @@ import { useUpdateTaskPriority } from "@/hooks/mutations/task/use-update-task-st
 import { useUpdateTaskTitle } from "@/hooks/mutations/task/use-update-task-title";
 import type getProjects from "@/fetchers/project/get-projects";
 import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
-import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
@@ -38,6 +37,7 @@ import type Task from "@/types/task";
 
 type TaskCardContext = {
   worskpaceId: string;
+  workspaceSlug?: string | null;
   projectId: string;
 };
 
@@ -54,7 +54,6 @@ export default function TaskCardContextMenuContent({
 }: TaskCardContextMenuContentProps) {
   const { t } = useTranslation();
   const { project } = useProjectStore();
-  const { data: workspace } = useActiveWorkspace();
   const queryClient = useQueryClient();
   const { data: columnsData = [] } = useGetColumns(taskCardContext.projectId);
   const columns =
@@ -101,7 +100,10 @@ export default function TaskCardContextMenuContent({
   const handleCopyTaskLink = () => {
     const path = getTaskPath({
       workspaceId: taskCardContext.worskpaceId,
-      workspace,
+      workspace: {
+        id: taskCardContext.worskpaceId,
+        slug: taskCardContext.workspaceSlug,
+      },
       projectId: taskCardContext.projectId,
       workspaceProjects: queryClient.getQueryData<
         Awaited<ReturnType<typeof getProjects>>

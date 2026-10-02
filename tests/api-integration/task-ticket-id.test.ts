@@ -125,6 +125,10 @@ describe("API integration: task ticket ID lookup", () => {
       `/api/task/by-ticket-id/KAN-12?workspaceSlug=${other.workspace.slug}`,
     );
     expect(bySlug.status).toBe(200);
+    const byUpperSlug = await app.request(
+      `/api/task/by-ticket-id/KAN-12?workspaceSlug=${other.workspace.slug.toUpperCase()}`,
+    );
+    expect(byUpperSlug.status).toBe(200);
     expect(await bySlug.json()).toMatchObject({ title: "Second" });
     const unknownSlug = await app.request(
       "/api/task/by-ticket-id/KAN-12?workspaceSlug=no-such-workspace",

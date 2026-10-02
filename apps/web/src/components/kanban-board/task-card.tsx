@@ -376,6 +376,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
             taskCardContext={{
               projectId: project.id,
               worskpaceId: workspace.id,
+              workspaceSlug: workspace.slug,
             }}
             onDeleteClick={() => setIsDeleteTaskModalOpen(true)}
           />
