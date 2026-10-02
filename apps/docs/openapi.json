@@ -3242,6 +3242,14 @@
           "repositoryName": {
             "type": "string"
           },
+          "issueSyncMode": {
+            "type": "string",
+            "enum": [
+              "sync",
+              "ingest-only",
+              "off"
+            ]
+          },
           "maskedAccessToken": {
             "type": "string"
           },
@@ -3281,6 +3289,7 @@
           "baseUrl",
           "repositoryOwner",
           "repositoryName",
+          "issueSyncMode",
           "maskedAccessToken",
           "isActive",
           "createdAt",
@@ -17125,6 +17134,14 @@
                   "repositoryName": {
                     "type": "string",
                     "minLength": 1
+                  },
+                  "issueSyncMode": {
+                    "type": "string",
+                    "enum": [
+                      "sync",
+                      "ingest-only",
+                      "off"
+                    ]
                   }
                 },
                 "required": [
@@ -17307,6 +17324,14 @@
                   "repositoryName": {
                     "type": "string",
                     "minLength": 1
+                  },
+                  "issueSyncMode": {
+                    "type": "string",
+                    "enum": [
+                      "sync",
+                      "ingest-only",
+                      "off"
+                    ]
                   }
                 },
                 "required": [
@@ -17403,6 +17428,14 @@
                   },
                   "commentTaskLinkOnGiteaIssue": {
                     "type": "boolean"
+                  },
+                  "issueSyncMode": {
+                    "type": "string",
+                    "enum": [
+                      "sync",
+                      "ingest-only",
+                      "off"
+                    ]
                   }
                 }
               }
@@ -17577,7 +17610,7 @@
             }
           },
           "400": {
-            "description": "projectId is required",
+            "description": "Invalid request, inactive integration, or issue sync is off",
             "content": {
               "application/json": {
                 "schema": {

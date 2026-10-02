@@ -147,6 +147,7 @@ export async function handleGiteaIssueLabeled(
     owner,
     repository.name,
     integrationId,
+    "issues",
   );
 
   for (const integration of integrations) {

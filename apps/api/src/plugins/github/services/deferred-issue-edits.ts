@@ -4,7 +4,7 @@ import db from "../../../database";
 import { externalLinkTable } from "../../../database/schema";
 import { publishEvent } from "../../../events";
 import { withJobLease } from "../../../scheduler/leader-lock";
-import type { GiteaConfig } from "../../gitea/config";
+import { getGiteaIssueSyncMode, type GiteaConfig } from "../../gitea/config";
 import { createGiteaClient } from "../../gitea/utils/gitea-api";
 import type { GitHubConfig } from "../config";
 import {
@@ -137,9 +137,18 @@ async function replayClaimedIssueEdits() {
         const job = parseDeferredIssueEdit(metadata.deferredIssueEdit);
         if (!job) continue;
         const integration = link.integration;
+        const issueSyncMode =
+          integration?.type === "gitea"
+            ? getGiteaIssueSyncMode(
+                JSON.parse(integration.config) as GiteaConfig,
+              )
+            : "sync";
+        const ingestOnly = issueSyncMode === "ingest-only";
         if (
           !integration?.isActive ||
           !["github", "gitea"].includes(integration.type) ||
+          issueSyncMode === "off" ||
+          (ingestOnly && !job.fields.length) ||
           issueEditScope(integration) !== job.scope
         ) {
           await updateExternalLink(link.id, { completeDeferredEdit: job.id });
@@ -155,10 +164,14 @@ async function replayClaimedIssueEdits() {
         )
           continue;
         const fields = [
-          ...new Set([...job.fields, ...(job.repairFields ?? [])]),
+          ...new Set([
+            ...job.fields,
+            ...(ingestOnly ? [] : (job.repairFields ?? [])),
+          ]),
         ];
         // An orphaned writer expires after five minutes; until then let it settle.
         if (
+          !ingestOnly &&
           fields.some((field) =>
             metadata.lastSync?.[field]?.outbound?.some(
               (entry) =>
@@ -259,7 +272,7 @@ async function replayClaimedIssueEdits() {
             const taskIsClosed = fields.includes("state")
               ? await isTaskInFinalState(task, tx)
               : false;
-            for (const field of fields) {
+            for (const field of ingestOnly ? [] : fields) {
               const stamp = current.lastSync?.[field];
               const uncertain = uncertainOutboundIntents(stamp, values[field]);
               const intentIds = uncertain.flatMap((entry) =>
@@ -305,33 +318,37 @@ async function replayClaimedIssueEdits() {
               }
             }
             // Classify every field before writing any: PendingEcho commits only its observation.
-            const accepted = job.fields.filter(
-              (field) =>
-                !repairs.some((repair) => repair.field === field) &&
-                !(
-                  field === "state" &&
-                  integration.type === "github" &&
-                  current.createdFrom === "kaneo"
-                ) &&
-                !inboundEcho(
-                  current.lastSync?.[field],
-                  values[field],
-                  issue.updated_at,
-                  values[field],
-                  {
-                    linkId: link.id,
-                    field,
-                    localValue:
-                      field === "state"
-                        ? taskIsClosed
-                          ? "closed"
-                          : "open"
-                        : field === "description"
-                          ? task.description || ""
-                          : task.title,
-                  },
-                ),
-            );
+            // In ingest-only, the confirmed provider value wins. Old outbound
+            // intents must neither block delivery nor schedule a repair write.
+            const accepted = ingestOnly
+              ? job.fields
+              : job.fields.filter(
+                  (field) =>
+                    !repairs.some((repair) => repair.field === field) &&
+                    !(
+                      field === "state" &&
+                      integration.type === "github" &&
+                      current.createdFrom === "kaneo"
+                    ) &&
+                    !inboundEcho(
+                      current.lastSync?.[field],
+                      values[field],
+                      issue.updated_at,
+                      values[field],
+                      {
+                        linkId: link.id,
+                        field,
+                        localValue:
+                          field === "state"
+                            ? taskIsClosed
+                              ? "closed"
+                              : "open"
+                            : field === "description"
+                              ? task.description || ""
+                              : task.title,
+                      },
+                    ),
+                );
             for (const field of accepted) {
               await writeInboundTaskField(
                 tx,

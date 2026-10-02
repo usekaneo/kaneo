@@ -12,7 +12,7 @@ import {
 } from "../../github/services/link-manager";
 import { formatIssueBody, formatIssueTitle } from "../../github/utils/format";
 import type { PluginContext, TaskCreatedEvent } from "../../types";
-import type { GiteaConfig } from "../config";
+import { canSyncGiteaIssues, type GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
 import { addLabelsToIssueGitea, removeLabelGitea } from "../utils/labels";
 
@@ -21,7 +21,7 @@ async function createTaskIssue(
   context: PluginContext,
 ): Promise<void> {
   const config = context.config as GiteaConfig;
-  if (!config.baseUrl || !config.accessToken) {
+  if (!canSyncGiteaIssues(config) || !config.baseUrl || !config.accessToken) {
     return;
   }
 

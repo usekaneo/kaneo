@@ -66,6 +66,7 @@ export async function handleGiteaIssueClosed(
     owner,
     repository.name,
     integrationId,
+    "issues",
   );
 
   for (const integration of integrations) {

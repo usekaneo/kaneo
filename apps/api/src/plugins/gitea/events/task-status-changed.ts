@@ -4,7 +4,7 @@ import { syncLatestTaskValue } from "../../github/services/sync-latest-task-valu
 import { isTaskInFinalState } from "../../github/services/task-service";
 import { findExternalLinksByTask } from "../../github/services/link-manager";
 import type { PluginContext, TaskStatusChangedEvent } from "../../types";
-import type { GiteaConfig } from "../config";
+import { canSyncGiteaIssues, type GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
 import { addLabelsToIssueGitea, removeLabelGitea } from "../utils/labels";
 
@@ -23,7 +23,7 @@ export async function handleTaskStatusChanged(
     return;
 
   const config = context.config as GiteaConfig;
-  if (!config.baseUrl || !config.accessToken) {
+  if (!canSyncGiteaIssues(config) || !config.baseUrl || !config.accessToken) {
     return;
   }
 

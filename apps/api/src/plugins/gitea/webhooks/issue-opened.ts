@@ -21,7 +21,7 @@ import {
   extractIssueStatus,
 } from "../../github/utils/extract-priority";
 import { formatTaskDescriptionFromIssue } from "../../github/utils/format";
-import type { GiteaConfig } from "../config";
+import { canSyncGiteaIssues, type GiteaConfig } from "../config";
 import {
   findAllIntegrationsByGiteaRepo,
   repoOwnerLogin,
@@ -67,6 +67,7 @@ export async function handleGiteaIssueOpened(
     owner,
     repository.name,
     integrationId,
+    "issues",
   );
 
   if (integrations.length === 0) {
@@ -202,6 +203,10 @@ export async function handleGiteaIssueOpened(
     });
 
     if (!project) {
+      continue;
+    }
+
+    if (!canSyncGiteaIssues(config)) {
       continue;
     }
 

@@ -3,17 +3,31 @@ title: Connect Gitea
 description: Verify repository access, configure webhooks, and import existing issues.
 ---
 
-Connect a Kaneo project to one Gitea repository to sync issues and respond to branch and pull-request activity. You need permission to manage the Kaneo project, a Gitea token that can read the account and repository and write issues, and repository admin access to create its webhook.
+Connect a Kaneo project to one Gitea repository to sync issues and respond to branch and pull-request activity. You need permission to manage the Kaneo project, a Gitea token that can read the account and repository, and repository admin access to create its webhook. Two-way issue sync also requires permission to write issues.
 
 ## Connect the repository
 
-1. Create a personal access token in Gitea under **Settings → Applications**. Give it the scopes needed to read your user and repository and write issues. The token’s account must also have write access to the target repository.
+1. Create a personal access token in Gitea under **Settings → Applications**. Give it the scopes needed to read your user and repository. For **Two-way sync**, also grant issue write access; the token’s account must have write access to the target repository. **Ingest only** and **Off** do not require issue write access.
 2. In Kaneo, open **Settings → Projects**, select your project, and open **Integrations → Gitea**.
 3. Enter the Gitea base URL, such as `https://git.example.com`. Use the final URL directly, without `/api/v1`, credentials, a query string, or a fragment.
 4. Enter the access token and repository owner and name. You can also browse repositories from the form.
-5. Choose **Verify access** and resolve any reported problem, then save the connection.
+5. Choose the **Issue sync mode** before connecting, then choose **Verify** and resolve any reported problem. Save the connection with **Connect**.
 
 The API must be able to reach your Gitea server. Verification checks the token and repository permissions; it does not prove that webhooks can reach Kaneo in the other direction.
+
+## Choose an issue sync mode
+
+| Mode | Behavior |
+| --- | --- |
+| **Two-way sync** (`sync`) | Sync issues, comments, and labels in both directions. This is the default, including for connections created before this setting was added. |
+| **Ingest only** (`ingest-only`) | Read Gitea issues, comments, and labels into Kaneo. Kaneo does not create or update Gitea issues, comments, or labels, including task-link comments and status labels. |
+| **Off** (`off`) | Ignore inbound issue, issue-comment, and issue-label events and stop outbound issue, comment, and label changes. Manual issue and pull-request import is also disabled. |
+
+On an existing connection, selecting a mode saves it immediately. Changing the mode keeps existing Kaneo tasks, Gitea issues, and their links. It does not export existing tasks or automatically catch up on events missed in another mode. Rotating credentials or saving connection details preserves the selected mode.
+
+Switching away from **Two-way sync** cancels queued outbound issue repairs. **Ingest only** still processes queued inbound Gitea updates; **Off** discards them. Requests already sent to Gitea cannot be cancelled by a later mode change.
+
+All three modes retain live branch, push, and pull-request linking and workflow automation while the connection is active. **Off** is not a connection-wide disable switch. Task-link comments are available only in **Two-way sync**; their saved preference is kept in the other modes.
 
 ## Configure the webhook
 
@@ -35,11 +49,11 @@ The URL has this shape:
 https://kaneo.example.com/api/gitea-integration/webhook/INTEGRATION_ID
 ```
 
-Use Gitea’s test delivery, then create a test issue and confirm it appears in Kaneo. A successful test response proves the request arrived; checking the resulting task proves issue sync works. See [Gitea’s webhook documentation](https://docs.gitea.com/usage/repository/webhooks/) for its settings and delivery log.
+Use Gitea’s test delivery to check that requests reach Kaneo. In **Two-way sync** or **Ingest only**, create a test issue and confirm it appears in Kaneo. In **Off**, issue events are intentionally ignored; exercise a branch push or pull request tied to a Kaneo task instead. A successful test response proves the request arrived; checking the resulting task proves the selected automation works. See [Gitea’s webhook documentation](https://docs.gitea.com/usage/repository/webhooks/) for its settings and delivery log.
 
 ## Import existing issues
 
-Save the repository connection, verify its current settings, then choose **Import Issues**. Verification is cleared when you reload the page or change connection details. If import is disabled, verify again. When replacing the token, save it before importing because the importer uses the saved connection.
+In **Two-way sync** or **Ingest only**, save the repository connection, verify its current settings, then choose **Import issues**. Verification is cleared when you reload the page or change connection details or issue sync mode. If import is disabled, verify again. When replacing the token, save it before importing because the importer uses the saved connection. **Off** disables this combined issue and pull-request import without cutting off live pull-request webhooks.
 
 ## Configure automation
 
@@ -73,5 +87,5 @@ Choose **Disconnect** to remove the Kaneo connection. This does not delete the G
 | Repository not found | Check owner, name, and token access to private repositories. |
 | Verification succeeds, writes fail | Check token scopes as well as the account’s repository permissions. |
 | Invalid webhook signature | Copy the current secret from Kaneo and save it in Gitea. |
-| No tasks arrive | Check recent Gitea deliveries, selected events, repository identity, and the active connection. |
+| No tasks arrive | Check recent Gitea deliveries, selected events, repository identity, the active connection, and whether issue sync is set to **Off**. |
 | Task does not move after a push | Check the branch naming pattern and workflow mapping. |

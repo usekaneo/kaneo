@@ -3,7 +3,7 @@ import { canSyncTask } from "../../sync/eligibility";
 import { eq } from "drizzle-orm";
 import db from "../../../database";
 import { externalLinkTable } from "../../../database/schema";
-import type { GiteaConfig } from "../config";
+import { canSyncGiteaIssues, type GiteaConfig } from "../config";
 import { createGiteaClient } from "./gitea-api";
 
 const namedColorToHex: Record<string, string> = {
@@ -64,7 +64,7 @@ async function getGiteaIssueContext(taskId: string) {
   }
 
   const integration = externalLink.integration;
-  if (!integration) {
+  if (!integration?.isActive) {
     return null;
   }
 
@@ -77,7 +77,7 @@ async function getGiteaIssueContext(taskId: string) {
     return null;
   }
 
-  if (!config.accessToken || !config.baseUrl) {
+  if (!canSyncGiteaIssues(config) || !config.accessToken || !config.baseUrl) {
     return null;
   }
 

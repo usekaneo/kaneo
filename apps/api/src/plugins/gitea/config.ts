@@ -4,6 +4,9 @@ import { branchPatterns } from "../github/config";
 
 export { branchPatterns };
 
+export const giteaIssueSyncModes = ["sync", "ingest-only", "off"] as const;
+export type GiteaIssueSyncMode = (typeof giteaIssueSyncModes)[number];
+
 export const giteaConfigSchema = v.object({
   baseUrl: v.pipe(v.string(), v.url()),
   accessToken: v.pipe(v.string(), v.trim(), v.nonEmpty()),
@@ -13,6 +16,7 @@ export const giteaConfigSchema = v.object({
   syncRules: v.optional(
     v.custom<SyncRules>((value) => syncRulesSchema.safeParse(value).success),
   ),
+  issueSyncMode: v.optional(v.picklist(giteaIssueSyncModes)),
   branchPattern: v.optional(v.string()),
   customBranchRegex: v.optional(v.string()),
   commentTaskLinkOnGiteaIssue: v.optional(v.boolean()),
@@ -26,6 +30,18 @@ export const giteaConfigSchema = v.object({
 });
 
 export type GiteaConfig = v.InferOutput<typeof giteaConfigSchema>;
+
+export function getGiteaIssueSyncMode(
+  config: Pick<GiteaConfig, "issueSyncMode">,
+): GiteaIssueSyncMode {
+  return config.issueSyncMode ?? "sync";
+}
+
+export function canSyncGiteaIssues(
+  config: Pick<GiteaConfig, "issueSyncMode">,
+): boolean {
+  return getGiteaIssueSyncMode(config) === "sync";
+}
 
 export async function validateGiteaConfig(
   config: unknown,
@@ -48,6 +64,7 @@ export async function validateGiteaConfig(
 }
 
 export const defaultGiteaConfig: Partial<GiteaConfig> = {
+  issueSyncMode: "sync",
   branchPattern: "{slug}-{number}",
   commentTaskLinkOnGiteaIssue: true,
   statusTransitions: {

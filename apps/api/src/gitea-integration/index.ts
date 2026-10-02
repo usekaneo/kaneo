@@ -13,7 +13,12 @@ import {
   errorResponse,
   jsonResponse,
 } from "../openapi";
-import { type GiteaConfig, validateGiteaConfig } from "../plugins/gitea/config";
+import {
+  getGiteaIssueSyncMode,
+  type GiteaConfig,
+  validateGiteaConfig,
+} from "../plugins/gitea/config";
+import { retireGiteaIssueEdits } from "../plugins/gitea/services/retire-issue-edits";
 import { handleGiteaWebhookRequest } from "../plugins/gitea/webhook-handler";
 import {
   hasWorkspacePermission,
@@ -209,7 +214,9 @@ const importIssuesRoute = createRoute({
   },
   responses: {
     200: jsonResponse("Import summary", giteaImportResultSchema),
-    400: errorResponse("projectId is required"),
+    400: errorResponse(
+      "Invalid request, inactive integration, or issue sync is off",
+    ),
     403: errorResponse(
       "No access to the project, or missing task:create or task:update permission",
     ),
@@ -226,7 +233,23 @@ const giteaIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(verifyRoute, async (c) => {
     const body = c.req.valid("json");
     const accessToken = await resolveVerificationToken(body);
-    const result = await verifyGiteaAccess({ ...body, accessToken });
+    let issueSyncMode = body.issueSyncMode;
+    if (issueSyncMode === undefined) {
+      const saved = await db.query.integrationTable.findFirst({
+        where: and(
+          eq(integrationTable.projectId, body.projectId),
+          eq(integrationTable.type, "gitea"),
+        ),
+      });
+      issueSyncMode = saved
+        ? getGiteaIssueSyncMode(JSON.parse(saved.config) as GiteaConfig)
+        : "sync";
+    }
+    const result = await verifyGiteaAccess({
+      ...body,
+      accessToken,
+      issueSyncMode,
+    });
     return c.json(result, 200);
   })
   .openapi(getIntegrationRoute, async (c) => {
@@ -252,6 +275,7 @@ const giteaIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
       accessToken: body.accessToken,
       repositoryOwner: body.repositoryOwner,
       repositoryName: body.repositoryName,
+      issueSyncMode: body.issueSyncMode,
     });
     const integration = await getGiteaIntegration(projectId, true);
     if (!integration) {
@@ -293,6 +317,10 @@ const giteaIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
       };
     }
 
+    if (body.issueSyncMode !== undefined) {
+      config = { ...config, issueSyncMode: body.issueSyncMode };
+    }
+
     const validation = await validateGiteaConfig(config);
     if (!validation.valid) {
       throw new HTTPException(400, {
@@ -300,25 +328,24 @@ const giteaIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
       });
     }
 
-    const [saved] = await db
-      .update(integrationTable)
-      .set({
-        config: JSON.stringify(config),
-        isActive:
-          body.isActive !== undefined ? body.isActive : (row.isActive ?? true),
-        updatedAt: new Date(),
-      })
-      .where(
-        and(
-          eq(integrationTable.id, row.id),
-          eq(integrationTable.config, row.config),
-        ),
-      )
-      .returning({ id: integrationTable.id });
-    if (!saved)
-      throw new HTTPException(409, {
+    await db.transaction(async (tx) => {
+      const [saved] = await tx
+        .update(integrationTable)
+        .set({
+          config: JSON.stringify(config),
+          isActive: body.isActive !== undefined ? body.isActive : (row.isActive ?? true),
+          updatedAt: new Date(),
+        })
+        .where(and(eq(integrationTable.id, row.id), eq(integrationTable.config, row.config)))
+        .returning({ id: integrationTable.id });
+      if (!saved) throw new HTTPException(409, {
         message: "Integration changed; refresh before updating settings",
       });
+      if (getGiteaIssueSyncMode(config) !== "sync" &&
+          getGiteaIssueSyncMode(config) !== getGiteaIssueSyncMode(JSON.parse(row.config) as GiteaConfig)) {
+        await retireGiteaIssueEdits(row.id, tx, getGiteaIssueSyncMode(config));
+      }
+    });
 
     const updated = await getGiteaIntegration(projectId, true);
     if (!updated) {

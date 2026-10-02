@@ -1,5 +1,5 @@
 import type { IssueWrite } from "../../sync/issue-write";
-import type { GiteaConfig } from "../config";
+import { canSyncGiteaIssues, type GiteaConfig } from "../config";
 import { createGiteaClient, type GiteaLabel } from "./gitea-api";
 
 const labelColors: Record<string, string> = {
@@ -25,6 +25,7 @@ export async function ensureLabelsExistGitea(
   requireSuccess = false,
   write: IssueWrite = (send) => send(),
 ): Promise<Map<string, number>> {
+  if (!canSyncGiteaIssues(config)) return new Map<string, number>();
   const client = createGiteaClient(config);
   const map = new Map<string, number>();
   const { repositoryOwner, repositoryName } = config;
@@ -73,6 +74,7 @@ export async function addLabelsToIssueGitea(
   requireSuccess = false,
   write: IssueWrite = (send) => send(),
 ) {
+  if (!canSyncGiteaIssues(config)) return;
   if (labelNames.length === 0) return;
 
   const nameToId = await ensureLabelsExistGitea(
@@ -115,6 +117,7 @@ export async function removeLabelGitea(
   write: IssueWrite = (send) => send(),
   requireSuccess = false,
 ) {
+  if (!canSyncGiteaIssues(config)) return;
   const client = createGiteaClient(config);
   let labels: GiteaLabel[];
   try {

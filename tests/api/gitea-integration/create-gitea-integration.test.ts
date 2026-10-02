@@ -6,8 +6,8 @@ const m = vi.hoisted(() => ({
   getRepo: vi.fn(),
   save: vi.fn(),
 }));
-vi.mock("../../../apps/api/src/database", () => ({
-  default: {
+vi.mock("../../../apps/api/src/database", () => {
+  const database = {
     query: {
       projectTable: { findFirst: async () => ({ id: "project" }) },
       integrationTable: { findFirst: m.config, findMany: async () => [] },
@@ -21,8 +21,15 @@ vi.mock("../../../apps/api/src/database", () => ({
         }),
       }),
     }),
-  },
-}));
+  };
+  return {
+    default: {
+      ...database,
+      transaction: async (apply: (tx: typeof database) => Promise<unknown>) =>
+        apply(database),
+    },
+  };
+});
 vi.mock("../../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
   GiteaApiError: class extends Error {},
   verifyGiteaToken: m.verify,

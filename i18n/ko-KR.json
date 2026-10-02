@@ -1006,7 +1006,19 @@
 			"searchRepos": "검색…",
 			"browseNeedsCredentials": "찾아보려면 Gitea URL과 토큰을 입력하세요",
 			"loadingRepos": "저장소 로딩 중…",
-			"retry": "재시도"
+			"retry": "재시도",
+			"issueSyncMode": {
+				"backlinkDisabledHint": "Task link comments are only available in two-way sync mode. Your preference is kept when switching modes.",
+				"importDisabledHint": "Manual issue and pull-request import is disabled while issue sync is off. Live pull-request and push events still work.",
+				"ingestOnly": "Ingest only",
+				"ingestOnlyHint": "Import Gitea issues, comments, and labels into Kaneo without writing changes back to Gitea.",
+				"label": "Issue sync mode",
+				"off": "Off",
+				"offHint": "Ignore issue, comment, and label events and stop sending issue changes to Gitea. Live branch, push, and pull-request automation stays enabled.",
+				"switchHint": "Changes save immediately for connected repositories. Existing tasks and links are kept; switching modes does not backfill or export existing tasks.",
+				"sync": "Two-way sync",
+				"syncHint": "Sync issues, comments, and labels in both directions between Gitea and Kaneo."
+			}
 		},
 		"slackIntegration": {
 			"validation": {

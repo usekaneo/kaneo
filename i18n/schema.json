@@ -5687,6 +5687,54 @@
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
+						"issueSyncMode": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"sync": {
+									"type": "string"
+								},
+								"ingestOnly": {
+									"type": "string"
+								},
+								"off": {
+									"type": "string"
+								},
+								"syncHint": {
+									"type": "string"
+								},
+								"ingestOnlyHint": {
+									"type": "string"
+								},
+								"offHint": {
+									"type": "string"
+								},
+								"switchHint": {
+									"type": "string"
+								},
+								"backlinkDisabledHint": {
+									"type": "string"
+								},
+								"importDisabledHint": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"label",
+								"sync",
+								"ingestOnly",
+								"off",
+								"syncHint",
+								"ingestOnlyHint",
+								"offHint",
+								"switchHint",
+								"backlinkDisabledHint",
+								"importDisabledHint"
+							]
+						},
 						"validation": {
 							"type": "object",
 							"additionalProperties": false,
@@ -5941,6 +5989,7 @@
 						}
 					},
 					"required": [
+						"issueSyncMode",
 						"validation",
 						"toast",
 						"webhookShow",

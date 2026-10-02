@@ -1432,6 +1432,18 @@
 			"importSummary": "Created: {{imported}} · Updated: {{updated}} · Skipped: {{skipped}}"
 		},
 		"giteaIntegration": {
+			"issueSyncMode": {
+				"label": "Issue sync mode",
+				"sync": "Two-way sync",
+				"ingestOnly": "Ingest only",
+				"off": "Off",
+				"syncHint": "Sync issues, comments, and labels in both directions between Gitea and Kaneo.",
+				"ingestOnlyHint": "Import Gitea issues, comments, and labels into Kaneo without writing changes back to Gitea.",
+				"offHint": "Ignore issue, comment, and label events and stop sending issue changes to Gitea. Live branch, push, and pull-request automation stays enabled.",
+				"switchHint": "Changes save immediately for connected repositories. Existing tasks and links are kept; switching modes does not backfill or export existing tasks.",
+				"backlinkDisabledHint": "Task link comments are only available in two-way sync mode. Your preference is kept when switching modes.",
+				"importDisabledHint": "Manual issue and pull-request import is disabled while issue sync is off. Live pull-request and push events still work."
+			},
 			"validation": {
 				"baseUrlRequired": "Gitea base URL is required",
 				"baseUrlInvalid": "Enter a valid URL (e.g. https://gitea.example.com)",
@@ -1480,7 +1492,7 @@
 			"baseUrlLabel": "Gitea URL",
 			"baseUrlHint": "Root URL of your Gitea instance",
 			"tokenLabel": "Personal access token",
-			"tokenHint": "Token with repo and issues access",
+			"tokenHint": "Token with repository access; two-way sync also requires issue write access",
 			"tokenPlaceholder": "Paste token",
 			"tokenPlaceholderUpdate": "Paste new token to rotate",
 			"currentToken": "stored",

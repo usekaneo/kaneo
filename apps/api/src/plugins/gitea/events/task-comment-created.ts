@@ -2,7 +2,7 @@ import { dispatchIssueWrite } from "../../sync/dispatch-issue-write";
 import { canSyncTask } from "../../sync/eligibility";
 import { findExternalLinkByTaskAndType } from "../../github/services/link-manager";
 import type { PluginContext, TaskCommentCreatedEvent } from "../../types";
-import type { GiteaConfig } from "../config";
+import { canSyncGiteaIssues, type GiteaConfig } from "../config";
 import { markKaneoComment } from "../utils/comment-origin";
 import { createGiteaClient } from "../utils/gitea-api";
 
@@ -21,7 +21,7 @@ export async function handleTaskCommentCreated(
     return;
 
   const config = context.config as GiteaConfig;
-  if (!config.baseUrl || !config.accessToken) {
+  if (!canSyncGiteaIssues(config) || !config.baseUrl || !config.accessToken) {
     return;
   }
 
