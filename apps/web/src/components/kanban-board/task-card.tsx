@@ -33,12 +33,14 @@ import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import useGetCustomFieldValuesByProject from "@/hooks/queries/custom-field/use-get-custom-field-values-by-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import { cn } from "@/lib/cn";
 import {
-  dueDateStatusColors,
+  type DueDateStatus,
   getDueDateStatus,
   isTaskCompleted,
 } from "@/lib/due-date-status";
 import { getInitials } from "@/lib/get-initials";
+import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
@@ -47,6 +49,13 @@ import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
 import TaskCardContextMenuContent from "./task-card-context-menu/task-card-context-menu-content";
 import { TaskLabels } from "./task-labels";
+
+const dueDateTextColors: Record<DueDateStatus, string> = {
+  overdue: "text-destructive-foreground",
+  "due-soon": "text-warning-foreground",
+  "far-future": "text-muted-foreground",
+  "no-due-date": "text-muted-foreground",
+};
 
 type TaskCardProps = {
   task: Task;
@@ -65,6 +74,9 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
   } = useSortable({ id: task.id, disabled: disableDragDrop });
   const { project } = useProjectStore();
   const taskIsCompleted = isTaskCompleted(task.status, project?.columns);
+  const dueDateStatus = getDueDateStatus(task.dueDate, taskIsCompleted);
+  const isOverdue = dueDateStatus === "overdue";
+  const hasPriority = Boolean(task.priority) && task.priority !== "no-priority";
   const { data: workspace } = useActiveWorkspace();
   const { mutateAsync: deleteTask } = useDeleteTask();
   const navigate = useNavigate();
@@ -211,20 +223,26 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
           <div
             onClick={handleTaskCardClick}
             onKeyDown={handleKeyDown}
-            className={`group relative rounded-lg border bg-background p-3 shadow-xs/5 transition-[background-color,border-color,box-shadow,scale] duration-150 ease-out active:scale-[0.98] ${
-              disableDragDrop ? "cursor-default" : "cursor-move"
-            } ${
+            className={cn(
+              "group relative rounded-lg border p-3 transition-[background-color,border-color,box-shadow,scale] duration-150 ease-out active:scale-[0.98]",
+              disableDragDrop ? "cursor-default" : "cursor-move",
+              // Finished work steps back so open cards draw the eye.
+              taskIsCompleted
+                ? "bg-background/60"
+                : "bg-background shadow-xs/5",
               isDragging
                 ? "border-ring/40 bg-card shadow-lg"
-                : "hover:border-border/90 hover:bg-background hover:shadow-sm"
-            } ${
+                : "hover:bg-background hover:shadow-sm",
               isTaskSelected
                 ? "border-ring/40 bg-accent/50 shadow-sm ring-1 ring-inset ring-ring/30"
-                : "border-border"
-            } ${isTaskFocused ? "ring-2 ring-inset ring-ring/50" : ""}`}
+                : isOverdue
+                  ? "border-destructive/70 ring-[3px] ring-destructive/10"
+                  : "border-border hover:border-border/90",
+              isTaskFocused && "ring-2 ring-inset ring-ring/50",
+            )}
           >
             {showTaskNumbers && (
-              <div className="mb-2 text-[10px] font-mono text-muted-foreground/90">
+              <div className="mb-2 font-medium text-[11px] text-muted-foreground/90">
                 {project?.slug}-{task.number}
               </div>
             )}
@@ -254,9 +272,14 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
               </div>
             )}
 
-            <div className="mb-2.5 pr-6">
+            <div className={cn("pr-6", !taskIsCompleted && "mb-2.5")}>
               <div
-                className="overflow-hidden break-words leading-5 font-medium text-foreground/95 text-[15px]"
+                className={cn(
+                  "overflow-hidden break-words leading-5 font-medium text-[15px]",
+                  taskIsCompleted
+                    ? "text-muted-foreground"
+                    : "text-foreground/95",
+                )}
                 style={{
                   display: "-webkit-box",
                   WebkitLineClamp: 3,
@@ -269,15 +292,23 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
               </div>
             </div>
 
-            {showLabels && (
+            {!taskIsCompleted && showLabels && Boolean(task.labels?.length) && (
               <div className="mb-2.5">
                 <TaskLabels labels={task.labels ?? []} />
               </div>
             )}
 
-            <div className="flex flex-wrap items-center gap-1.5">
-              {showPriority && (
-                <span className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground h-5.5">
+            <div
+              className={cn(
+                "flex flex-wrap items-center gap-x-2.5 gap-y-1.5 empty:hidden",
+                taskIsCompleted && "hidden",
+              )}
+            >
+              {showPriority && hasPriority && (
+                <span
+                  className="inline-flex h-5.5 items-center"
+                  title={getPriorityLabel(task.priority ?? "")}
+                >
                   {getPriorityIcon(task.priority ?? "")}
                 </span>
               )}
@@ -351,16 +382,22 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
 
               {showDueDates && task.dueDate && (
                 <div
-                  className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded h-5.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate, taskIsCompleted)]}`}
+                  className={cn(
+                    "flex h-5.5 items-center gap-1 text-[10px]",
+                    isOverdue && "font-medium",
+                    dueDateTextColors[dueDateStatus],
+                  )}
                 >
-                  {getDueDateStatus(task.dueDate, taskIsCompleted) ===
-                    "overdue" && <CalendarX className="w-3 h-3" />}
-                  {getDueDateStatus(task.dueDate, taskIsCompleted) ===
-                    "due-soon" && <CalendarClock className="w-3 h-3" />}
-                  {(getDueDateStatus(task.dueDate, taskIsCompleted) ===
-                    "far-future" ||
-                    getDueDateStatus(task.dueDate, taskIsCompleted) ===
-                      "no-due-date") && <Calendar className="w-3 h-3" />}
+                  {dueDateStatus === "overdue" && (
+                    <CalendarX className="w-3 h-3" />
+                  )}
+                  {dueDateStatus === "due-soon" && (
+                    <CalendarClock className="w-3 h-3" />
+                  )}
+                  {(dueDateStatus === "far-future" ||
+                    dueDateStatus === "no-due-date") && (
+                    <Calendar className="w-3 h-3" />
+                  )}
                   <span>{format(new Date(task.dueDate), "MMM d")}</span>
                 </div>
               )}

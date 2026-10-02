@@ -1881,14 +1881,16 @@
 				"close": "Đóng"
 			}
 		},
-		"notifications": "Thông báo",
 		"sidebar": {
-			"overview": "Tổng quan",
 			"projects": "Dự án",
 			"members": "Thành viên",
 			"invitations": "Lời mời",
 			"more": "Thêm",
-			"backToBoard": "Quay lại bảng"
+			"backToBoard": "Quay lại bảng",
+			"home": "Home",
+			"inbox": "Inbox",
+			"invitePeople": "Invite people",
+			"myTasks": "My tasks"
 		},
 		"projectList": {
 			"viewProject": "Xem dự án",
@@ -1973,16 +1975,12 @@
 		}
 	},
 	"notifications": {
-		"title": "Thông báo",
 		"newCount_other": "{{count}} mới",
 		"emptyTitle": "Chưa có thông báo nào",
 		"emptySubtitle": "Bạn sẽ thấy các cập nhật và hoạt động ở đây.",
 		"clearAll": "Xóa tất cả thông báo",
 		"clearDialogTitle": "Xóa tất cả thông báo?",
 		"clearDialogDescription": "Thao tác này sẽ xóa vĩnh viễn tất cả thông báo. Bạn không thể hoàn tác hành động này.",
-		"shortcuts": {
-			"open": "Mở thông báo"
-		},
 		"reminderLeadTime": {
 			"minutes_other": "{{count}} phút",
 			"hours_other": "{{count}} giờ",
@@ -2026,6 +2024,24 @@
 				"contentWithTask": "Đã bắt đầu theo dõi thời gian trên công việc: {{taskTitle}}",
 				"contentWithoutTask": "Đã bắt đầu theo dõi thời gian trên một công việc"
 			}
+		},
+		"inbox": {
+			"back": "Inbox",
+			"earlier": "Earlier",
+			"emptyFilter": "Nothing here",
+			"filters": {
+				"all": "All",
+				"label": "Filter notifications",
+				"mentions": "Mentions",
+				"unread": "Unread"
+			},
+			"openTask": "Open task",
+			"pageTitle": "Inbox",
+			"recentActivity": "Recent activity",
+			"selectPrompt": "Select a notification to read it",
+			"taskUnavailable": "This task is no longer available.",
+			"today": "Today",
+			"unread": "Unread"
 		}
 	},
 	"activity": {
@@ -2691,6 +2707,57 @@
 			"submit": "Tạo không gian làm việc",
 			"success": "Tạo không gian làm việc thành công",
 			"error": "Không thể tạo không gian làm việc"
+		},
+		"home": {
+			"activity": {
+				"commented": "commented",
+				"empty": "Nothing has happened in the last 30 days.",
+				"loadError": "Activity couldn't be loaded.",
+				"title": "Activity",
+				"updated": "updated the task"
+			},
+			"greeting": {
+				"afternoon": "Good afternoon",
+				"evening": "Good evening",
+				"morning": "Good morning"
+			},
+			"newTask": "New task",
+			"pageTitle": "Home",
+			"projects": {
+				"all": "All projects",
+				"tasks_other": "{{count}} tasks",
+				"title": "Your projects"
+			},
+			"upNext": {
+				"assigned_other": "{{count}} assigned to you",
+				"title": "Up next",
+				"viewAll": "View all"
+			},
+			"week": {
+				"more_other": "+{{count}} more"
+			}
+		},
+		"myTasks": {
+			"emptyDescription": "Tasks assigned to you across this workspace show up here.",
+			"groupBy": {
+				"dueDate": "Due date",
+				"label": "Group by",
+				"project": "Project"
+			},
+			"pageTitle": "My tasks",
+			"truncated": "Showing the first {{shown}} of {{total}} tasks."
+		},
+		"myWork": {
+			"due": {
+				"later": "Later",
+				"noDueDate": "No due date",
+				"overdue": "Overdue",
+				"thisWeek": "This week",
+				"today": "Today",
+				"tomorrow": "Tomorrow"
+			},
+			"empty": "Nothing assigned to you",
+			"loadError": "Your tasks couldn't be loaded."
 		}
 	},
 	"team": {

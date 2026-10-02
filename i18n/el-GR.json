@@ -1888,14 +1888,16 @@
 				"close": "Κλείσιμο"
 			}
 		},
-		"notifications": "Ειδοποιήσεις",
 		"sidebar": {
-			"overview": "Επισκόπηση",
 			"projects": "Έργα",
 			"members": "Μέλη",
 			"invitations": "Προσκλήσεις",
 			"more": "Περισσότερα",
-			"backToBoard": "Επιστροφή στον πίνακα"
+			"backToBoard": "Επιστροφή στον πίνακα",
+			"home": "Home",
+			"inbox": "Inbox",
+			"invitePeople": "Invite people",
+			"myTasks": "My tasks"
 		},
 		"projectList": {
 			"viewProject": "Προβολή έργου",
@@ -1980,7 +1982,6 @@
 		}
 	},
 	"notifications": {
-		"title": "Ειδοποιήσεις",
 		"newCount_one": "{{count}} νέα",
 		"newCount_other": "{{count}} νέα",
 		"emptyTitle": "Δεν υπάρχουν ακόμα ειδοποιήσεις",
@@ -1988,9 +1989,6 @@
 		"clearAll": "Εκκαθάριση όλων των ειδοποιήσεων",
 		"clearDialogTitle": "Εκκαθάριση όλων των ειδοποιήσεων;",
 		"clearDialogDescription": "Αυτό θα αφαιρέσει οριστικά όλες τις ειδοποιήσεις. Δεν μπορείτε να αναιρέσετε αυτήν την ενέργεια.",
-		"shortcuts": {
-			"open": "Άνοιγμα ειδοποιήσεων"
-		},
 		"events": {
 			"task_created": {
 				"title": "Δημιουργήθηκε νέα εργασία",
@@ -2037,6 +2035,24 @@
 			"hours_other": "{{count}} ώρες",
 			"days_one": "{{count}} ημέρα",
 			"days_other": "{{count}} ημέρες"
+		},
+		"inbox": {
+			"back": "Inbox",
+			"earlier": "Earlier",
+			"emptyFilter": "Nothing here",
+			"filters": {
+				"all": "All",
+				"label": "Filter notifications",
+				"mentions": "Mentions",
+				"unread": "Unread"
+			},
+			"openTask": "Open task",
+			"pageTitle": "Inbox",
+			"recentActivity": "Recent activity",
+			"selectPrompt": "Select a notification to read it",
+			"taskUnavailable": "This task is no longer available.",
+			"today": "Today",
+			"unread": "Unread"
 		}
 	},
 	"activity": {
@@ -2704,6 +2720,60 @@
 			"submit": "Δημιουργία χώρου εργασίας",
 			"success": "Ο χώρος εργασίας δημιουργήθηκε με επιτυχία",
 			"error": "Αποτυχία δημιουργίας χώρου εργασίας"
+		},
+		"home": {
+			"activity": {
+				"commented": "commented",
+				"empty": "Nothing has happened in the last 30 days.",
+				"loadError": "Activity couldn't be loaded.",
+				"title": "Activity",
+				"updated": "updated the task"
+			},
+			"greeting": {
+				"afternoon": "Good afternoon",
+				"evening": "Good evening",
+				"morning": "Good morning"
+			},
+			"newTask": "New task",
+			"pageTitle": "Home",
+			"projects": {
+				"all": "All projects",
+				"tasks_one": "{{count}} task",
+				"tasks_other": "{{count}} tasks",
+				"title": "Your projects"
+			},
+			"upNext": {
+				"assigned_one": "{{count}} assigned to you",
+				"assigned_other": "{{count}} assigned to you",
+				"title": "Up next",
+				"viewAll": "View all"
+			},
+			"week": {
+				"more_one": "+{{count}} more",
+				"more_other": "+{{count}} more"
+			}
+		},
+		"myTasks": {
+			"emptyDescription": "Tasks assigned to you across this workspace show up here.",
+			"groupBy": {
+				"dueDate": "Due date",
+				"label": "Group by",
+				"project": "Project"
+			},
+			"pageTitle": "My tasks",
+			"truncated": "Showing the first {{shown}} of {{total}} tasks."
+		},
+		"myWork": {
+			"due": {
+				"later": "Later",
+				"noDueDate": "No due date",
+				"overdue": "Overdue",
+				"thisWeek": "This week",
+				"today": "Today",
+				"tomorrow": "Tomorrow"
+			},
+			"empty": "Nothing assigned to you",
+			"loadError": "Your tasks couldn't be loaded."
 		}
 	},
 	"team": {

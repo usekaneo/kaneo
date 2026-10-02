@@ -1888,14 +1888,16 @@
 				"close": "बंद करें"
 			}
 		},
-		"notifications": "सूचनाएँ",
 		"sidebar": {
-			"overview": "अवलोकन",
 			"projects": "प्रोजेक्ट",
 			"members": "सदस्य",
 			"invitations": "निमंत्रण",
 			"more": "और",
-			"backToBoard": "बोर्ड पर वापस जाएँ"
+			"backToBoard": "बोर्ड पर वापस जाएँ",
+			"home": "Home",
+			"inbox": "Inbox",
+			"invitePeople": "Invite people",
+			"myTasks": "My tasks"
 		},
 		"projectList": {
 			"viewProject": "प्रोजेक्ट देखें",
@@ -1980,7 +1982,6 @@
 		}
 	},
 	"notifications": {
-		"title": "सूचनाएँ",
 		"newCount_one": "{{count}} नई",
 		"newCount_other": "{{count}} नई",
 		"emptyTitle": "अभी तक कोई सूचना नहीं",
@@ -1988,9 +1989,6 @@
 		"clearAll": "सभी सूचनाएँ साफ़ करें",
 		"clearDialogTitle": "सभी सूचनाएँ साफ़ करें?",
 		"clearDialogDescription": "यह सभी सूचनाओं को स्थायी रूप से हटा देगा। यह कार्रवाई पूर्ववत नहीं की जा सकती।",
-		"shortcuts": {
-			"open": "सूचनाएँ खोलें"
-		},
 		"reminderLeadTime": {
 			"minutes_one": "{{count}} मिनट",
 			"minutes_other": "{{count}} मिनट",
@@ -2037,6 +2035,24 @@
 				"contentWithTask": "कार्य पर समय ट्रैकिंग शुरू: {{taskTitle}}",
 				"contentWithoutTask": "एक कार्य पर समय ट्रैकिंग शुरू"
 			}
+		},
+		"inbox": {
+			"back": "Inbox",
+			"earlier": "Earlier",
+			"emptyFilter": "Nothing here",
+			"filters": {
+				"all": "All",
+				"label": "Filter notifications",
+				"mentions": "Mentions",
+				"unread": "Unread"
+			},
+			"openTask": "Open task",
+			"pageTitle": "Inbox",
+			"recentActivity": "Recent activity",
+			"selectPrompt": "Select a notification to read it",
+			"taskUnavailable": "This task is no longer available.",
+			"today": "Today",
+			"unread": "Unread"
 		}
 	},
 	"activity": {
@@ -2704,6 +2720,60 @@
 			"submit": "वर्कस्पेस बनाएँ",
 			"success": "वर्कस्पेस सफलतापूर्वक बनाया गया",
 			"error": "वर्कस्पेस बनाने में विफल"
+		},
+		"home": {
+			"activity": {
+				"commented": "commented",
+				"empty": "Nothing has happened in the last 30 days.",
+				"loadError": "Activity couldn't be loaded.",
+				"title": "Activity",
+				"updated": "updated the task"
+			},
+			"greeting": {
+				"afternoon": "Good afternoon",
+				"evening": "Good evening",
+				"morning": "Good morning"
+			},
+			"newTask": "New task",
+			"pageTitle": "Home",
+			"projects": {
+				"all": "All projects",
+				"tasks_one": "{{count}} task",
+				"tasks_other": "{{count}} tasks",
+				"title": "Your projects"
+			},
+			"upNext": {
+				"assigned_one": "{{count}} assigned to you",
+				"assigned_other": "{{count}} assigned to you",
+				"title": "Up next",
+				"viewAll": "View all"
+			},
+			"week": {
+				"more_one": "+{{count}} more",
+				"more_other": "+{{count}} more"
+			}
+		},
+		"myTasks": {
+			"emptyDescription": "Tasks assigned to you across this workspace show up here.",
+			"groupBy": {
+				"dueDate": "Due date",
+				"label": "Group by",
+				"project": "Project"
+			},
+			"pageTitle": "My tasks",
+			"truncated": "Showing the first {{shown}} of {{total}} tasks."
+		},
+		"myWork": {
+			"due": {
+				"later": "Later",
+				"noDueDate": "No due date",
+				"overdue": "Overdue",
+				"thisWeek": "This week",
+				"today": "Today",
+				"tomorrow": "Tomorrow"
+			},
+			"empty": "Nothing assigned to you",
+			"loadError": "Your tasks couldn't be loaded."
 		}
 	},
 	"team": {

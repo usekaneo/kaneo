@@ -2,6 +2,7 @@ import { cva } from "class-variance-authority";
 import { useState } from "react";
 import { useBackgroundStore } from "@/store/background";
 import type { ProjectWithTasks } from "@/types/project";
+import { ColumnAddTask } from "./column-add-task";
 import { ColumnDropzone } from "./column-dropzone";
 import { ColumnHeader } from "./column-header";
 
@@ -74,12 +75,14 @@ function Column({
           disableCollectionActions={disableCollectionActions}
         />
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-2 pt-1 pb-2 [-webkit-overflow-scrolling:touch]">
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-2 [-webkit-overflow-scrolling:touch]">
         <ColumnDropzone
           column={column}
           disableDragDrop={disableDragDrop}
           onIsOverChange={setIsDropzoneOver}
         />
+        {/* New work starts in an open column; finished ones only collect. */}
+        {!column.isFinal && <ColumnAddTask columnId={column.id} />}
       </div>
     </div>
   );

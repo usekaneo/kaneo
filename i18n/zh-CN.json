@@ -1881,14 +1881,16 @@
 				"close": "关闭"
 			}
 		},
-		"notifications": "通知",
 		"sidebar": {
-			"overview": "概览",
 			"projects": "项目",
 			"members": "成员",
 			"invitations": "邀请",
 			"more": "更多",
-			"backToBoard": "返回看板"
+			"backToBoard": "返回看板",
+			"home": "Home",
+			"inbox": "Inbox",
+			"invitePeople": "Invite people",
+			"myTasks": "My tasks"
 		},
 		"projectList": {
 			"viewProject": "查看项目",
@@ -1973,16 +1975,12 @@
 		}
 	},
 	"notifications": {
-		"title": "通知",
 		"newCount_other": "{{count}} 条新通知",
 		"emptyTitle": "暂无通知",
 		"emptySubtitle": "更新和活动将显示在这里。",
 		"clearAll": "清空所有通知",
 		"clearDialogTitle": "清空所有通知？",
 		"clearDialogDescription": "这将永久删除所有通知，此操作不可撤销。",
-		"shortcuts": {
-			"open": "打开通知"
-		},
 		"reminderLeadTime": {
 			"minutes_other": "{{count}} 分钟",
 			"hours_other": "{{count}} 小时",
@@ -2026,6 +2024,24 @@
 				"contentWithTask": "已开始为任务 {{taskTitle}} 计时",
 				"contentWithoutTask": "已开始为某个任务计时"
 			}
+		},
+		"inbox": {
+			"back": "Inbox",
+			"earlier": "Earlier",
+			"emptyFilter": "Nothing here",
+			"filters": {
+				"all": "All",
+				"label": "Filter notifications",
+				"mentions": "Mentions",
+				"unread": "Unread"
+			},
+			"openTask": "Open task",
+			"pageTitle": "Inbox",
+			"recentActivity": "Recent activity",
+			"selectPrompt": "Select a notification to read it",
+			"taskUnavailable": "This task is no longer available.",
+			"today": "Today",
+			"unread": "Unread"
 		}
 	},
 	"activity": {
@@ -2691,6 +2707,57 @@
 			"submit": "创建工作区",
 			"success": "工作区创建成功",
 			"error": "工作区创建失败"
+		},
+		"home": {
+			"activity": {
+				"commented": "commented",
+				"empty": "Nothing has happened in the last 30 days.",
+				"loadError": "Activity couldn't be loaded.",
+				"title": "Activity",
+				"updated": "updated the task"
+			},
+			"greeting": {
+				"afternoon": "Good afternoon",
+				"evening": "Good evening",
+				"morning": "Good morning"
+			},
+			"newTask": "New task",
+			"pageTitle": "Home",
+			"projects": {
+				"all": "All projects",
+				"tasks_other": "{{count}} tasks",
+				"title": "Your projects"
+			},
+			"upNext": {
+				"assigned_other": "{{count}} assigned to you",
+				"title": "Up next",
+				"viewAll": "View all"
+			},
+			"week": {
+				"more_other": "+{{count}} more"
+			}
+		},
+		"myTasks": {
+			"emptyDescription": "Tasks assigned to you across this workspace show up here.",
+			"groupBy": {
+				"dueDate": "Due date",
+				"label": "Group by",
+				"project": "Project"
+			},
+			"pageTitle": "My tasks",
+			"truncated": "Showing the first {{shown}} of {{total}} tasks."
+		},
+		"myWork": {
+			"due": {
+				"later": "Later",
+				"noDueDate": "No due date",
+				"overdue": "Overdue",
+				"thisWeek": "This week",
+				"today": "Today",
+				"tomorrow": "Tomorrow"
+			},
+			"empty": "Nothing assigned to you",
+			"loadError": "Your tasks couldn't be loaded."
 		}
 	},
 	"team": {

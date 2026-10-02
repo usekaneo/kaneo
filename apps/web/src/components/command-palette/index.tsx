@@ -82,7 +82,7 @@ function CommandPalette() {
         [shortcuts.project.list]: () => {
           if (!workspace?.id) return;
           navigate({
-            to: "/dashboard/workspace/$workspaceId",
+            to: "/dashboard/workspace/$workspaceId/projects",
             params: { workspaceId: workspace.id },
           });
         },
@@ -118,7 +118,7 @@ function CommandPalette() {
             onRun: () => {
               if (!workspace?.id) return;
               navigate({
-                to: "/dashboard/workspace/$workspaceId",
+                to: "/dashboard/workspace/$workspaceId/projects",
                 params: { workspaceId: workspace.id },
               });
             },

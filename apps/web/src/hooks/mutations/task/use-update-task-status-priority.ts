@@ -3,6 +3,7 @@ import {
   markBoardCacheChanged,
 } from "@/lib/board-cache-version";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { invalidateMyWork } from "@/lib/invalidate-my-work";
 import updateTaskPriority from "@/fetchers/task/update-task-priority";
 import type Task from "@/types/task";
 import { updateBoardTaskCache } from "@/lib/update-board-task-cache";
@@ -19,6 +20,7 @@ export function useUpdateTaskPriority() {
       };
     },
     onSuccess: (updated, variables, context) => {
+      invalidateMyWork(queryClient);
       queryClient.invalidateQueries({
         queryKey: ["task", variables.id],
       });

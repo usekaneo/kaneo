@@ -1888,14 +1888,16 @@
 				"close": "Kapat"
 			}
 		},
-		"notifications": "Bildirimler",
 		"sidebar": {
-			"overview": "Genel Bakış",
 			"projects": "Projeler",
 			"members": "Üyeler",
 			"invitations": "Davetler",
 			"more": "Daha fazla",
-			"backToBoard": "Panoya dön"
+			"backToBoard": "Panoya dön",
+			"home": "Home",
+			"inbox": "Inbox",
+			"invitePeople": "Invite people",
+			"myTasks": "My tasks"
 		},
 		"projectList": {
 			"viewProject": "Projeyi Görüntüle",
@@ -1980,7 +1982,6 @@
 		}
 	},
 	"notifications": {
-		"title": "Bildirimler",
 		"newCount_one": "{{count}} yeni",
 		"newCount_other": "{{count}} yeni",
 		"emptyTitle": "Henüz bildirim yok",
@@ -1988,9 +1989,6 @@
 		"clearAll": "Tüm bildirimleri temizle",
 		"clearDialogTitle": "Tüm bildirimler temizlensin mi?",
 		"clearDialogDescription": "Bu, tüm bildirimleri kalıcı olarak kaldıracak. Bu işlemi geri alamazsınız.",
-		"shortcuts": {
-			"open": "Bildirimleri aç"
-		},
 		"events": {
 			"task_created": {
 				"title": "Yeni Talep Oluşturuldu",
@@ -2037,6 +2035,24 @@
 			"hours_other": "{{count}} saat",
 			"days_one": "{{count}} gün",
 			"days_other": "{{count}} gün"
+		},
+		"inbox": {
+			"back": "Inbox",
+			"earlier": "Earlier",
+			"emptyFilter": "Nothing here",
+			"filters": {
+				"all": "All",
+				"label": "Filter notifications",
+				"mentions": "Mentions",
+				"unread": "Unread"
+			},
+			"openTask": "Open task",
+			"pageTitle": "Inbox",
+			"recentActivity": "Recent activity",
+			"selectPrompt": "Select a notification to read it",
+			"taskUnavailable": "This task is no longer available.",
+			"today": "Today",
+			"unread": "Unread"
 		}
 	},
 	"activity": {
@@ -2704,6 +2720,60 @@
 			"submit": "Çalışma alanı oluştur",
 			"success": "Çalışma alanı başarıyla oluşturuldu",
 			"error": "Çalışma alanı oluşturulamadı"
+		},
+		"home": {
+			"activity": {
+				"commented": "commented",
+				"empty": "Nothing has happened in the last 30 days.",
+				"loadError": "Activity couldn't be loaded.",
+				"title": "Activity",
+				"updated": "updated the task"
+			},
+			"greeting": {
+				"afternoon": "Good afternoon",
+				"evening": "Good evening",
+				"morning": "Good morning"
+			},
+			"newTask": "New task",
+			"pageTitle": "Home",
+			"projects": {
+				"all": "All projects",
+				"tasks_one": "{{count}} task",
+				"tasks_other": "{{count}} tasks",
+				"title": "Your projects"
+			},
+			"upNext": {
+				"assigned_one": "{{count}} assigned to you",
+				"assigned_other": "{{count}} assigned to you",
+				"title": "Up next",
+				"viewAll": "View all"
+			},
+			"week": {
+				"more_one": "+{{count}} more",
+				"more_other": "+{{count}} more"
+			}
+		},
+		"myTasks": {
+			"emptyDescription": "Tasks assigned to you across this workspace show up here.",
+			"groupBy": {
+				"dueDate": "Due date",
+				"label": "Group by",
+				"project": "Project"
+			},
+			"pageTitle": "My tasks",
+			"truncated": "Showing the first {{shown}} of {{total}} tasks."
+		},
+		"myWork": {
+			"due": {
+				"later": "Later",
+				"noDueDate": "No due date",
+				"overdue": "Overdue",
+				"thisWeek": "This week",
+				"today": "Today",
+				"tomorrow": "Tomorrow"
+			},
+			"empty": "Nothing assigned to you",
+			"loadError": "Your tasks couldn't be loaded."
 		}
 	},
 	"team": {

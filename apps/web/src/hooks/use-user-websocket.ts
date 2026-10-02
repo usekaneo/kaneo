@@ -134,6 +134,10 @@ export function useUserWebSocket() {
           }
           if (message.type === "NOTIFICATION_CREATED") {
             queryClient.invalidateQueries({ queryKey: ["notifications"] });
+            // Home and My tasks sit outside any project socket; a notification
+            // is their signal that the caller's work changed.
+            queryClient.invalidateQueries({ queryKey: ["assigned-tasks"] });
+            queryClient.invalidateQueries({ queryKey: ["workspace-activity"] });
           }
         } catch {
           // Ignore malformed messages

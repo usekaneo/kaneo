@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { invalidateMyWork } from "@/lib/invalidate-my-work";
 import deleteTask from "@/fetchers/task/delete-task";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
@@ -10,6 +11,7 @@ export function useDeleteTask() {
   return useMutation({
     mutationFn: deleteTask,
     onSuccess: (deletedTask) => {
+      invalidateMyWork(queryClient);
       queryClient.setQueryData<ProjectWithTasks | undefined>(
         ["tasks", deletedTask.projectId],
         (project) =>

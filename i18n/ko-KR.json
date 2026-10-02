@@ -1881,14 +1881,16 @@
 				"close": "닫기"
 			}
 		},
-		"notifications": "알림",
 		"sidebar": {
-			"overview": "개요",
 			"projects": "프로젝트",
 			"members": "멤버",
 			"invitations": "초대",
 			"more": "더 보기",
-			"backToBoard": "보드로 돌아가기"
+			"backToBoard": "보드로 돌아가기",
+			"home": "Home",
+			"inbox": "Inbox",
+			"invitePeople": "Invite people",
+			"myTasks": "My tasks"
 		},
 		"projectList": {
 			"viewProject": "프로젝트 보기",
@@ -1973,16 +1975,12 @@
 		}
 	},
 	"notifications": {
-		"title": "알림",
 		"newCount_other": "새 알림 {{count}}개",
 		"emptyTitle": "아직 알림이 없습니다",
 		"emptySubtitle": "여기서 업데이트와 활동을 확인할 수 있습니다.",
 		"clearAll": "모든 알림 지우기",
 		"clearDialogTitle": "모든 알림을 지우시겠습니까?",
 		"clearDialogDescription": "모든 알림이 영구적으로 제거됩니다. 이 작업은 취소할 수 없습니다.",
-		"shortcuts": {
-			"open": "알림 열기"
-		},
 		"events": {
 			"task_created": {
 				"title": "새 작업 생성됨",
@@ -2026,6 +2024,24 @@
 			"minutes_other": "{{count}}분",
 			"hours_other": "{{count}}시간",
 			"days_other": "{{count}}일"
+		},
+		"inbox": {
+			"back": "Inbox",
+			"earlier": "Earlier",
+			"emptyFilter": "Nothing here",
+			"filters": {
+				"all": "All",
+				"label": "Filter notifications",
+				"mentions": "Mentions",
+				"unread": "Unread"
+			},
+			"openTask": "Open task",
+			"pageTitle": "Inbox",
+			"recentActivity": "Recent activity",
+			"selectPrompt": "Select a notification to read it",
+			"taskUnavailable": "This task is no longer available.",
+			"today": "Today",
+			"unread": "Unread"
 		}
 	},
 	"activity": {
@@ -2691,6 +2707,57 @@
 			"submit": "워크스페이스 만들기",
 			"success": "워크스페이스가 생성되었습니다",
 			"error": "워크스페이스 생성에 실패했습니다"
+		},
+		"home": {
+			"activity": {
+				"commented": "commented",
+				"empty": "Nothing has happened in the last 30 days.",
+				"loadError": "Activity couldn't be loaded.",
+				"title": "Activity",
+				"updated": "updated the task"
+			},
+			"greeting": {
+				"afternoon": "Good afternoon",
+				"evening": "Good evening",
+				"morning": "Good morning"
+			},
+			"newTask": "New task",
+			"pageTitle": "Home",
+			"projects": {
+				"all": "All projects",
+				"tasks_other": "{{count}} tasks",
+				"title": "Your projects"
+			},
+			"upNext": {
+				"assigned_other": "{{count}} assigned to you",
+				"title": "Up next",
+				"viewAll": "View all"
+			},
+			"week": {
+				"more_other": "+{{count}} more"
+			}
+		},
+		"myTasks": {
+			"emptyDescription": "Tasks assigned to you across this workspace show up here.",
+			"groupBy": {
+				"dueDate": "Due date",
+				"label": "Group by",
+				"project": "Project"
+			},
+			"pageTitle": "My tasks",
+			"truncated": "Showing the first {{shown}} of {{total}} tasks."
+		},
+		"myWork": {
+			"due": {
+				"later": "Later",
+				"noDueDate": "No due date",
+				"overdue": "Overdue",
+				"thisWeek": "This week",
+				"today": "Today",
+				"tomorrow": "Tomorrow"
+			},
+			"empty": "Nothing assigned to you",
+			"loadError": "Your tasks couldn't be loaded."
 		}
 	},
 	"team": {
