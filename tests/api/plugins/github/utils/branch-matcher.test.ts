@@ -202,6 +202,15 @@ describe("extractTaskNumberFromPRBody", () => {
     expect(extractTaskNumberFromPRBody(body, "KAN")).toBe(42);
   });
 
+  it("ignores a workspace slug that looks like a ticket ID", () => {
+    expect(
+      extractTaskNumberFromPRBody(
+        "See https://kaneo.example.com/kan-42/task/OPS-5/fix-login",
+        "KAN",
+      ),
+    ).toBeNull();
+  });
+
   it("ignores the project key in another project's link title", () => {
     expect(
       extractTaskNumberFromPRBody(
