@@ -4,8 +4,10 @@ import type { Context, Next } from "hono";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../database";
 import { isInstanceAdmin } from "./is-instance-admin";
+import { hasInstanceAdminRole } from "./instance-admin-role";
 
-type PermissionMap = Record<string, string[]>;
+export type PermissionMap = Record<string, string[]>;
+type PermissionDatabase = Pick<typeof db, "select">;
 
 function builtInRoleStatements(
   role: string,
@@ -53,8 +55,9 @@ function parsePermissionStatements(
 async function customRoleStatements(
   workspaceId: string,
   role: string,
+  database: PermissionDatabase = db,
 ): Promise<Record<string, readonly string[]> | null> {
-  const [row] = await db
+  const [row] = await database
     .select({ permission: schema.workspaceRoleTable.permission })
     .from(schema.workspaceRoleTable)
     .where(
@@ -109,7 +112,16 @@ export async function hasWorkspacePermission(
   const userId = c.get("userId");
   if (!userId) return false;
 
-  const [member] = await db
+  return hasMemberPermission(userId, workspaceId, permissions);
+}
+
+async function hasMemberPermission(
+  userId: string,
+  workspaceId: string,
+  permissions: PermissionMap,
+  database: PermissionDatabase = db,
+) {
+  const [member] = await database
     .select({ role: schema.workspaceUserTable.role })
     .from(schema.workspaceUserTable)
     .where(
@@ -129,10 +141,28 @@ export async function hasWorkspacePermission(
   // missed the seed (e.g., seed failed during workspace creation and
   // the boot-time backfill hasn't run yet).
   const statements =
-    (await customRoleStatements(workspaceId, member.role)) ??
+    (await customRoleStatements(workspaceId, member.role, database)) ??
     builtInRoleStatements(member.role);
 
   return Boolean(statements && satisfies(statements, permissions));
+}
+
+// Background jobs have no Hono context. Resolve the current role from the same
+// permission source as HTTP requests instead of saving a grant at enqueue time.
+export async function hasUserWorkspacePermission(
+  userId: string,
+  workspaceId: string,
+  permissions: PermissionMap,
+  database: PermissionDatabase = db,
+) {
+  const [user] = await database
+    .select({ role: schema.userTable.role })
+    .from(schema.userTable)
+    .where(eq(schema.userTable.id, userId))
+    .limit(1);
+  if (!user) return false;
+  if (hasInstanceAdminRole(user.role)) return true;
+  return hasMemberPermission(userId, workspaceId, permissions, database);
 }
 
 export function requireWorkspacePermission(permissions: PermissionMap) {

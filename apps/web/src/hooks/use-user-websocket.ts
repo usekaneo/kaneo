@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { getApiUrl } from "@/fetchers/get-api-url";
+import { agentQueryKeys } from "@/hooks/queries/agent/agent-query-keys";
 import {
   evictInaccessibleWorkspaceCache,
   evictWorkspaceCache,
@@ -98,6 +99,7 @@ export function useUserWebSocket() {
             type?: string;
             workspaceId?: string;
             workspaceIds?: string[] | null;
+            runId?: string;
           };
           if (message.type === "USER_ACCESS_REVOKED") {
             revokeUserAccess();
@@ -131,6 +133,18 @@ export function useUserWebSocket() {
                 : path.match(/^\/dashboard\/workspace\/([^/]+)/)?.[1];
             if (current === message.workspaceId)
               void navigate({ to: "/dashboard" });
+          }
+          if (
+            message.type === "AGENT_RUN_UPDATED" &&
+            message.workspaceId &&
+            message.runId
+          ) {
+            queryClient.invalidateQueries({
+              queryKey: agentQueryKeys.run(message.workspaceId, message.runId),
+            });
+            queryClient.invalidateQueries({
+              queryKey: agentQueryKeys.recentRuns(message.workspaceId),
+            });
           }
           if (message.type === "NOTIFICATION_CREATED") {
             queryClient.invalidateQueries({ queryKey: ["notifications"] });

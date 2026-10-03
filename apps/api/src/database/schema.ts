@@ -8,12 +8,19 @@ import {
   integer,
   jsonb,
   pgTable,
+  serial,
   text,
   timestamp,
   unique,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import type { GitHubImportState } from "../github-integration/import-state";
+import type {
+  AgentAction,
+  AgentAttachment,
+  AgentSnapshot,
+  AgentEffect,
+} from "../agent/types";
 
 const bytea = customType<{ data: Buffer; driverData: Buffer }>({
   dataType() {
@@ -1313,3 +1320,158 @@ export const dataMigrationTable = pgTable("data_migration", {
     .defaultNow()
     .notNull(),
 });
+
+export const agentConversationTable = pgTable(
+  "agent_conversation",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    projectId: text("project_id").references(() => projectTable.id, {
+      onDelete: "cascade",
+    }),
+    title: text("title").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("agent_conversation_owner_idx").on(
+      table.workspaceId,
+      table.userId,
+      table.updatedAt,
+    ),
+  ],
+);
+
+export const agentRunTable = pgTable(
+  "agent_run",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    conversationId: text("conversation_id")
+      .notNull()
+      .references(() => agentConversationTable.id, { onDelete: "cascade" }),
+    requestId: text("request_id").notNull(),
+    prompt: text("prompt").notNull(),
+    attachments: jsonb("attachments")
+      .$type<AgentAttachment[]>()
+      .notNull()
+      .default([]),
+    response: text("response").notNull().default(""),
+    status: text("status", {
+      enum: [
+        "queued",
+        "running",
+        "awaiting_review",
+        "completed",
+        "failed",
+        "cancelled",
+      ],
+    })
+      .notNull()
+      .default("queued"),
+    model: text("model").notNull(),
+    error: text("error"),
+    inputTokens: integer("input_tokens").notNull().default(0),
+    outputTokens: integer("output_tokens").notNull().default(0),
+    costUsd: text("cost_usd"),
+    leaseOwner: text("lease_owner"),
+    leaseExpiresAt: timestamp("lease_expires_at", { mode: "date" }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    finishedAt: timestamp("finished_at", { mode: "date" }),
+  },
+  (table) => [
+    unique("agent_run_request_unique").on(
+      table.conversationId,
+      table.requestId,
+    ),
+    index("agent_run_queue_idx").on(table.status, table.createdAt),
+    index("agent_run_conversation_idx").on(
+      table.conversationId,
+      table.createdAt,
+    ),
+  ],
+);
+
+export const agentStepTable = pgTable(
+  "agent_step",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    runId: text("run_id")
+      .notNull()
+      .references(() => agentRunTable.id, { onDelete: "cascade" }),
+    toolCallId: text("tool_call_id").notNull(),
+    toolName: text("tool_name").notNull(),
+    input: jsonb("input").$type<unknown>().notNull(),
+    summary: text("summary"),
+    status: text("status", { enum: ["running", "completed", "failed"] })
+      .notNull()
+      .default("running"),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    finishedAt: timestamp("finished_at", { mode: "date" }),
+  },
+  (table) => [
+    unique("agent_step_call_unique").on(table.runId, table.toolCallId),
+  ],
+);
+
+export const agentProposalTable = pgTable(
+  "agent_proposal",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    runId: text("run_id")
+      .notNull()
+      .references(() => agentRunTable.id, { onDelete: "cascade" }),
+    action: jsonb("action").$type<AgentAction>().notNull(),
+    before: jsonb("before").$type<AgentSnapshot>(),
+    after: jsonb("after").$type<AgentSnapshot>(),
+    reason: text("reason").notNull(),
+    status: text("status", {
+      enum: ["pending", "applied", "discarded", "undone"],
+    })
+      .notNull()
+      .default("pending"),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    appliedAt: timestamp("applied_at", { mode: "date" }),
+    undoneAt: timestamp("undone_at", { mode: "date" }),
+  },
+  (table) => [index("agent_proposal_run_idx").on(table.runId, table.createdAt)],
+);
+
+export const agentEffectTable = pgTable(
+  "agent_effect",
+  {
+    sequence: serial("sequence").notNull().unique(),
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    proposalId: text("proposal_id")
+      .notNull()
+      .references(() => agentProposalTable.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    payload: jsonb("payload").$type<AgentEffect>().notNull(),
+    leaseOwner: text("lease_owner"),
+    leaseExpiresAt: timestamp("lease_expires_at", { mode: "date" }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    deliveredAt: timestamp("delivered_at", { mode: "date" }),
+  },
+  (table) => [
+    index("agent_effect_pending_idx").on(table.deliveredAt, table.createdAt),
+  ],
+);

@@ -16,6 +16,8 @@ import { compress } from "hono/compress";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import activity from "./activity";
+import agent from "./agent";
+import { initializeAgentWorker, shutdownAgentWorker } from "./agent/worker";
 import admin from "./admin";
 import { auth } from "./auth";
 import { organizationRoutes } from "./auth-openapi";
@@ -782,6 +784,7 @@ export function createApp() {
   const customFieldApi = api.route("/custom-field", customField);
   const userApi = api.route("/user", user);
   const adminApi = api.route("/admin", admin);
+  const agentApi = api.route("/agent", agent);
 
   app.route(
     "/",
@@ -877,6 +880,7 @@ export function createApp() {
     api,
     injectWebSocket,
     activityApi,
+    agentApi,
     billingApi,
     columnApi,
     commentApi,
@@ -946,6 +950,7 @@ export async function runStartupTasks() {
   initializePlugins();
   initializeScheduler();
   await initializeWebSocketAdapter();
+  initializeAgentWorker();
 }
 
 export async function startServer(
@@ -981,6 +986,7 @@ export async function startServer(
 
     console.log("🛑 Shutting down gracefully...");
     shutdownScheduler();
+    await shutdownAgentWorker();
     await shutdownWebSocketAdapter();
     server.close();
     const [, signInEmailsDrained] = await Promise.all([
@@ -1007,6 +1013,7 @@ const {
   app,
   injectWebSocket,
   activityApi,
+  agentApi,
   billingApi,
   columnApi,
   commentApi,
@@ -1051,6 +1058,7 @@ if (isMainModule) {
 }
 
 export type AppType =
+  | typeof agentApi
   | typeof billingApi
   | typeof configApi
   | typeof projectApi

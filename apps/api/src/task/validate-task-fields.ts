@@ -125,8 +125,9 @@ export function validateCustomFieldValue(
 export async function assertRequiredCustomFields(
   projectId: string,
   customFields: { fieldId: string; value: string }[] = [],
+  database: Pick<typeof db, "select"> = db,
 ): Promise<void> {
-  const allFields = await db
+  const allFields = await database
     .select({
       id: customFieldDefinitionTable.id,
       name: customFieldDefinitionTable.name,

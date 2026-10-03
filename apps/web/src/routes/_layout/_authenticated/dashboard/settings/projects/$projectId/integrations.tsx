@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { z } from "zod/v4";
 import { GithubIcon } from "@/components/icons/github-icon";
 import { GitlabIcon } from "@/components/icons/gitlab-icon";
 import PageTitle from "@/components/page-title";
@@ -31,11 +32,17 @@ export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/projects/$projectId/integrations",
 )({
   component: RouteComponent,
+  validateSearch: z.object({
+    githubAccountLink: z.literal(true).optional().catch(undefined),
+    error: z.string().optional(),
+  }),
 });
 
 function RouteComponent() {
   const { t } = useTranslation();
   const { projectId } = Route.useParams();
+  const search = Route.useSearch();
+  const accountLinkError = search.githubAccountLink ? search.error : undefined;
 
   return (
     <>
@@ -55,8 +62,12 @@ function RouteComponent() {
             icon={<GithubIcon className="size-4" />}
             subtitle={t("settings:projectIntegrations.githubSectionSubtitle")}
             title={t("settings:projectIntegrations.githubSectionTitle")}
+            defaultOpen={Boolean(accountLinkError)}
           >
-            <GitHubIntegrationSettings projectId={projectId} />
+            <GitHubIntegrationSettings
+              projectId={projectId}
+              accountLinkError={accountLinkError}
+            />
           </IntegrationSection>
 
           <IntegrationSection

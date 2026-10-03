@@ -1,5 +1,10 @@
 import { relations } from "drizzle-orm";
 import {
+  agentConversationTable,
+  agentRunTable,
+  agentStepTable,
+  agentProposalTable,
+  agentEffectTable,
   accountTable,
   activityTable,
   apikeyTable,
@@ -32,6 +37,65 @@ import {
   workspaceTable,
   workspaceUserTable,
 } from "./schema";
+
+export const agentConversationTableRelations = relations(
+  agentConversationTable,
+  ({ one, many }) => ({
+    workspace: one(workspaceTable, {
+      fields: [agentConversationTable.workspaceId],
+      references: [workspaceTable.id],
+    }),
+    user: one(userTable, {
+      fields: [agentConversationTable.userId],
+      references: [userTable.id],
+    }),
+    project: one(projectTable, {
+      fields: [agentConversationTable.projectId],
+      references: [projectTable.id],
+    }),
+    runs: many(agentRunTable),
+  }),
+);
+export const agentRunTableRelations = relations(
+  agentRunTable,
+  ({ one, many }) => ({
+    conversation: one(agentConversationTable, {
+      fields: [agentRunTable.conversationId],
+      references: [agentConversationTable.id],
+    }),
+    steps: many(agentStepTable),
+    proposals: many(agentProposalTable),
+  }),
+);
+export const agentStepTableRelations = relations(agentStepTable, ({ one }) => ({
+  run: one(agentRunTable, {
+    fields: [agentStepTable.runId],
+    references: [agentRunTable.id],
+  }),
+}));
+export const agentProposalTableRelations = relations(
+  agentProposalTable,
+  ({ one, many }) => ({
+    run: one(agentRunTable, {
+      fields: [agentProposalTable.runId],
+      references: [agentRunTable.id],
+    }),
+    effects: many(agentEffectTable),
+  }),
+);
+export const agentEffectTableRelations = relations(
+  agentEffectTable,
+  ({ one }) => ({
+    proposal: one(agentProposalTable, {
+      fields: [agentEffectTable.proposalId],
+      references: [agentProposalTable.id],
+    }),
+    user: one(userTable, {
+      fields: [agentEffectTable.userId],
+      references: [userTable.id],
+    }),
+  }),
+);
 
 export const userTableRelations = relations(userTable, ({ many, one }) => ({
   sessions: many(sessionTable),

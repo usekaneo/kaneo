@@ -2,6 +2,11 @@ import { config } from "dotenv-mono";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import {
+  agentConversationTableRelations,
+  agentRunTableRelations,
+  agentStepTableRelations,
+  agentProposalTableRelations,
+  agentEffectTableRelations,
   accountTableRelations,
   activityTableRelations,
   apikeyTableRelations,
@@ -36,6 +41,11 @@ import {
 } from "./relations";
 import { resolveDatabaseConnectionString } from "./resolve-database-url";
 import {
+  agentConversationTable,
+  agentRunTable,
+  agentStepTable,
+  agentProposalTable,
+  agentEffectTable,
   dataMigrationTable,
   storageCleanupTable,
   accountTable,
@@ -84,6 +94,16 @@ import {
 config();
 
 export const schema = {
+  agentConversationTableRelations,
+  agentRunTableRelations,
+  agentStepTableRelations,
+  agentProposalTableRelations,
+  agentEffectTableRelations,
+  agentConversationTable,
+  agentRunTable,
+  agentStepTable,
+  agentProposalTable,
+  agentEffectTable,
   dataMigrationTable,
   storageCleanupTable,
   accountTable,

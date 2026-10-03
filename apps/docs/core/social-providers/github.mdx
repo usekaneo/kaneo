@@ -19,6 +19,8 @@ Use your own hostname. If the API is hosted separately, use its public origin in
 
 For provider-specific options, see the [official OAuth guide](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app).
 
+If you use a GitHub App's client credentials instead, open its **Permissions and events → Account permissions → Email addresses** setting and select **Read-only**. Kaneo requests `user:email`, but GitHub Apps also require this account permission to return private emails and their verification status. Save the change, approve any permission update GitHub requests, and authorize again.
+
 ## Configure Kaneo
 
 Add the values from the provider to your server's `.env`:
@@ -39,6 +41,8 @@ docker compose up -d --force-recreate kaneo
 Open Kaneo in a private browser window and choose the GitHub sign-in option. Complete authorization and confirm you return to Kaneo.
 
 If the provider reports a redirect mismatch, compare the full URL, including the scheme, hostname, port, and path. If sign-in succeeds but joining a workspace fails, check the invitation email and instance registration settings.
+
+An `email_not_found` error means GitHub did not return an email. An `unable_to_link_account` error with an “untrusted provider” log means GitHub did not confirm that email as verified. Check the Email addresses permission above and verify your email in GitHub. A private email works when the app can read it; making it public is unnecessary.
 
 ## Turn it off
 

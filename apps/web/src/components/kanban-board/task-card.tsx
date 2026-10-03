@@ -7,6 +7,7 @@ import {
   CalendarClock,
   CalendarX,
   SlidersHorizontal,
+  Sparkles,
 } from "lucide-react";
 import { type CSSProperties, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -43,6 +44,7 @@ import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
+import { useAgentPanelStore } from "@/store/agent-panel";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
@@ -110,6 +112,9 @@ function TaskCard({
   );
   const isTaskFocused = useBulkSelectionStore(
     (state) => state.focusedTaskId === task.id,
+  );
+  const proposedChange = useAgentPanelStore(
+    (state) => state.proposedByTaskId[task.id],
   );
 
   const { data: projectCustomFieldValues = [] } =
@@ -245,9 +250,11 @@ function TaskCard({
                 : "hover:bg-background hover:shadow-sm",
               isTaskSelected
                 ? "border-ring/40 bg-accent/50 shadow-sm ring-1 ring-inset ring-ring/30"
-                : isOverdue
-                  ? "border-destructive/70 ring-[3px] ring-destructive/10"
-                  : "border-border hover:border-border/90",
+                : proposedChange
+                  ? "border-info ring-[3px] ring-info/12"
+                  : isOverdue
+                    ? "border-destructive/70 ring-[3px] ring-destructive/10"
+                    : "border-border hover:border-border/90",
               isTaskFocused && "ring-2 ring-inset ring-ring/50",
             )}
           >
@@ -414,6 +421,15 @@ function TaskCard({
 
               <TaskPullRequests externalLinks={task.externalLinks} />
             </div>
+
+            {proposedChange && (
+              <div className="mt-2.5 flex items-center gap-1.5 rounded-md bg-info/8 px-2 py-1.5 font-medium text-[11px] text-info-foreground">
+                <Sparkles aria-hidden="true" className="size-3 shrink-0" />
+                <span className="truncate">
+                  {t("agent:overlay.proposed", { change: proposedChange })}
+                </span>
+              </div>
+            )}
           </div>
         </ContextMenuTrigger>
 

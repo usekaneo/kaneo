@@ -5,6 +5,7 @@ import {
   Inbox,
   type LucideIcon,
   Mail,
+  Sparkles,
   Users,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -16,6 +17,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { shortcuts } from "@/constants/shortcuts";
+import useAgentConfig from "@/hooks/queries/agent/use-agent-config";
 import { usePendingInvitations } from "@/hooks/queries/invitation/use-pending-invitations";
 import useGetNotifications from "@/hooks/queries/notification/use-get-notifications";
 import useGetAssignedTasks from "@/hooks/queries/task/use-get-assigned-tasks";
@@ -41,6 +43,7 @@ export function NavMain() {
   const { data: invitations = [] } = usePendingInvitations();
   const { data: notifications = [] } = useGetNotifications(workspace?.id);
   const { data: assignedTasks } = useGetAssignedTasks(workspace?.id, true);
+  const { data: agentConfig } = useAgentConfig(workspace?.id);
 
   const inboxUrl = workspace
     ? `/dashboard/workspace/${workspace.id}/inbox`
@@ -65,6 +68,15 @@ export function NavMain() {
 
   const navItems: NavItem[] = [
     { title: t("navigation:sidebar.home"), icon: House, url: homeUrl },
+    ...(agentConfig?.enabled
+      ? [
+          {
+            title: t("navigation:sidebar.agent"),
+            icon: Sparkles,
+            url: `${homeUrl}/agent`,
+          },
+        ]
+      : []),
     {
       title: t("navigation:sidebar.inbox"),
       icon: Inbox,

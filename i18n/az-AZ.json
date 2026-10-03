@@ -1094,6 +1094,12 @@
 			"add": "Əlavə et"
 		},
 		"githubIntegration": {
+			"accountLinkErrors": {
+				"emailAccess": "Could not connect your GitHub account. Verify your email in GitHub and ask your instance administrator to check email access. For a GitHub App, enable Account permissions → Email addresses → Read-only, save the change, and authorize again.",
+				"emailMismatch": "Your GitHub email must match your Kaneo account email. Connect the GitHub account with the matching email.",
+				"alreadyLinked": "This GitHub account is already linked to another Kaneo account. Sign in to that Kaneo account or connect a different GitHub account.",
+				"failed": "Could not connect your GitHub account. Try Connect GitHub again."
+			},
 			"validation": {
 				"ownerRequired": "Repozitoriyanın sahibi tələb olunur",
 				"ownerInvalid": "Repozitoriya sahibinin formatı yanlışdır",
@@ -1898,7 +1904,8 @@
 			"home": "Home",
 			"inbox": "Inbox",
 			"invitePeople": "Invite people",
-			"myTasks": "My tasks"
+			"myTasks": "My tasks",
+			"agent": "Agent"
 		},
 		"projectList": {
 			"viewProject": "Layihəyə bax",
@@ -3088,6 +3095,162 @@
 			"composeLinkDescription": "The maintained compose.yml with persistent storage and health checks.",
 			"startLink": "Start and verify the services",
 			"startLinkDescription": "Start the stack, inspect its status, and check that the application is available."
+		}
+	},
+	"agent": {
+		"composer": {
+			"enterToSend": "↵ to send",
+			"followUp": "Ask a follow-up…",
+			"placeholder": "Ask about this project…",
+			"reviewMode": "Ask before changes",
+			"reviewModeHint": "The agent only proposes changes. Nothing changes until you review and apply it.",
+			"send": "Send",
+			"stop": "Stop the agent",
+			"attach": "Attach text files",
+			"attachmentErrors": {
+				"empty": "That file is empty.",
+				"notText": "Only text files can be attached, like .md, .txt, .csv or .json.",
+				"tooLarge": "That file is too large. Attach up to 50,000 characters per file and 100,000 in total.",
+				"tooMany_one": "You can attach up to {{count}} file.",
+				"tooMany_other": "You can attach up to {{count}} files."
+			},
+			"removeAttachment": "Remove {{name}}"
+		},
+		"errors": {
+			"conflict": "This conversation already has a run in progress.",
+			"entitlement": "This workspace's plan doesn't include the agent.",
+			"forbidden": "You don't have access to this anymore.",
+			"generic": "The agent couldn't do that. Try again.",
+			"rateLimited": "You've started a lot of runs. Wait a minute and try again.",
+			"unavailable": "The agent isn't available on this instance right now."
+		},
+		"home": {
+			"examples": {
+				"plan": {
+					"description": "Turn ideas and notes into tasks with owners, priorities and dates.",
+					"first": "Turn my meeting notes into tasks",
+					"second": "Plan the next two weeks from the backlog",
+					"title": "Plan"
+				},
+				"report": {
+					"description": "Summaries built from tasks, comments and workload.",
+					"first": "Write a status update I can post in chat",
+					"second": "What did the team finish since Monday?",
+					"title": "Report"
+				},
+				"triage": {
+					"description": "Sort incoming work: prioritize it, spot duplicates, route it to the right person.",
+					"first": "Prioritize everything new in the backlog",
+					"second": "Find duplicate bug reports",
+					"title": "Triage"
+				}
+			},
+			"examplesHint": "Click an example to start",
+			"examplesTitle": "Try asking",
+			"placeholder": "Describe what you need, like turning meeting notes into tasks…",
+			"scope": "Works across {{workspace}} with your permissions",
+			"title": "What can I take off your plate?"
+		},
+		"overlay": {
+			"assignee": "assign to {{value}}",
+			"dueDate": "due {{value}}",
+			"priority": "priority {{value}}",
+			"proposed": "Proposed: {{change}}",
+			"rename": "rename",
+			"update": "update task"
+		},
+		"panel": {
+			"close": "Close agent",
+			"history": "Previous conversations",
+			"historyEmpty": "No conversations yet",
+			"historyError": "Couldn't load conversations",
+			"introBody": "I can read tasks, comments and workload here, then propose changes for you to review.",
+			"introTitle": "What should we look at in {{project}}?",
+			"label": "Agent panel",
+			"newConversation": "New conversation"
+		},
+		"proposal": {
+			"action": {
+				"assign": "Assign",
+				"clearDueDate": "Clear due date",
+				"create": "Create task",
+				"moveDueDate": "Move due date",
+				"priority": "Change priority",
+				"reassign": "Reassign",
+				"rename": "Rename",
+				"setDueDate": "Set due date",
+				"unassign": "Unassign",
+				"update": "Update task"
+			},
+			"noDueDate": "No due date",
+			"status": {
+				"applied": "Applied",
+				"discarded": "Discarded",
+				"pending": "Pending",
+				"undone": "Undone"
+			},
+			"unassigned": "Unassigned",
+			"undo": "Undo",
+			"unknownMember": "Former member"
+		},
+		"recent": {
+			"applied_one": "Applied {{count}} change",
+			"applied_other": "Applied {{count}} changes",
+			"empty": "Nothing yet. Ask something above to get started.",
+			"loadError": "Couldn't load recent runs.",
+			"private": "Only you can see these",
+			"status": {
+				"awaiting_review": "Ready to review",
+				"cancelled": "Stopped",
+				"completed": "Answered",
+				"failed": "Failed",
+				"queued": "Queued",
+				"running": "Working…"
+			},
+			"title": "Recent runs",
+			"toReview_one": "{{count}} change to review",
+			"toReview_other": "{{count}} changes to review"
+		},
+		"review": {
+			"appliedCount_one": "{{count}} applied",
+			"appliedCount_other": "{{count}} applied",
+			"appliedToast_one": "Applied {{count}} change",
+			"appliedToast_other": "Applied {{count}} changes",
+			"apply_one": "Apply {{count}} change",
+			"apply_other": "Apply {{count}} changes",
+			"discard": "Discard",
+			"failedDescription": "The task changed or you no longer have access. Ask the agent again for a fresh proposal.",
+			"failedToast_one": "{{count}} change couldn't be applied",
+			"failedToast_other": "{{count}} changes couldn't be applied",
+			"label": "Proposed changes",
+			"nothingApplied": "Nothing applied yet",
+			"title_one": "{{count}} proposed change",
+			"title_other": "{{count}} proposed changes",
+			"undoConflict": "Someone edited this task since, so it can't be undone automatically.",
+			"undoHint": "Undo anytime",
+			"undoneToast": "Change undone"
+		},
+		"run": {
+			"cancelled": "Stopped before finishing.",
+			"loadError": "Couldn't load this run.",
+			"stepDone": "Done",
+			"stepRunning": "Running…",
+			"steps_one": "Worked through {{count}} step",
+			"steps_other": "Worked through {{count}} steps",
+			"working": "Working…"
+		},
+		"suggestions": {
+			"risk": "What's at risk this week?",
+			"statusUpdate": "Draft a status update",
+			"workload": "Is anyone overloaded?"
+		},
+		"thread": {
+			"loadError": "Couldn't load this conversation."
+		},
+		"title": "Agent",
+		"unavailable": {
+			"description": "An instance admin can enable it with KANEO_AGENT_ENABLED and an OpenRouter API key. Your past runs stay available below.",
+			"title": "The agent isn't set up on this instance"
 		}
 	}
 }

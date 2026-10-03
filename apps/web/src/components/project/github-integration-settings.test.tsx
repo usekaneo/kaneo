@@ -89,18 +89,26 @@ import { toast } from "@/lib/toast";
 
 import { GitHubIntegrationSettings } from "./github-integration-settings";
 
-function show() {
+function show(accountLinkError?: string) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
   return render(
     <QueryClientProvider client={client}>
-      <GitHubIntegrationSettings projectId="project" />
+      <GitHubIntegrationSettings
+        projectId="project"
+        accountLinkError={accountLinkError}
+      />
     </QueryClientProvider>,
   );
 }
 afterEach(() => cleanup());
 beforeEach(() => {
+  window.history.replaceState(
+    null,
+    "",
+    "/dashboard/settings/projects/project/integrations",
+  );
   vi.clearAllMocks();
   m.integration.current = null;
   permissions.create = true;
@@ -122,11 +130,76 @@ describe("GitHub account verification flow", () => {
       expect(m.link).toHaveBeenCalledWith({
         provider: "github",
         callbackURL: window.location.href,
+        errorCallbackURL: `${window.location.href}?githubAccountLink=true`,
       }),
     );
     expect(
       screen.getByRole("button", { name: "settings:githubIntegration.browse" }),
     ).toBeDisabled();
+  });
+  it.each([
+    ["email_not_found", "emailAccess"],
+    ["unable_to_link_account", "emailAccess"],
+    ["email_doesn't_match", "emailMismatch"],
+    ["account_already_linked_to_different_user", "alreadyLinked"],
+    ["access_denied", "failed"],
+    ["<script>unexpected</script>", "failed"],
+  ])("shows recovery guidance for callback error %s", async (error, key) => {
+    m.appInfo.mockResolvedValue({
+      accountConnected: false,
+      accountLinkingAvailable: true,
+    });
+    show(error);
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      `settings:githubIntegration.accountLinkErrors.${key}`,
+    );
+    expect(
+      screen.getByRole("button", {
+        name: "settings:githubIntegration.connect GitHub",
+      }),
+    ).toBeEnabled();
+  });
+  it("clears the previous OAuth error when retrying and preserves other URL state", async () => {
+    window.history.replaceState(
+      null,
+      "",
+      "/dashboard/settings/projects/project/integrations?tab=github&githubAccountLink=true&error=unable_to_link_account&error_description=old#github",
+    );
+    m.appInfo.mockResolvedValue({
+      accountConnected: false,
+      accountLinkingAvailable: true,
+    });
+    show("unable_to_link_account");
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: "settings:githubIntegration.connect GitHub",
+      }),
+    );
+    const callbackURL = `${window.location.origin}/dashboard/settings/projects/project/integrations?tab=github#github`;
+    const errorCallbackURL = `${window.location.origin}/dashboard/settings/projects/project/integrations?tab=github&githubAccountLink=true#github`;
+    await waitFor(() =>
+      expect(m.link).toHaveBeenCalledWith({
+        provider: "github",
+        callbackURL,
+        errorCallbackURL,
+      }),
+    );
+  });
+  it("reports an immediate linking failure and lets the user retry", async () => {
+    m.appInfo.mockResolvedValue({
+      accountConnected: false,
+      accountLinkingAvailable: true,
+    });
+    m.link.mockResolvedValue({ error: { message: "Provider unavailable" } });
+    show();
+    const button = await screen.findByRole("button", {
+      name: "settings:githubIntegration.connect GitHub",
+    });
+    fireEvent.click(button);
+    await waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith("Provider unavailable"),
+    );
+    expect(button).toBeEnabled();
   });
   it("explains the administrator prerequisite when GitHub sign-in is disabled", async () => {
     m.appInfo.mockResolvedValue({

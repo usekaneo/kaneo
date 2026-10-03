@@ -12,6 +12,8 @@ import { useUserPreferencesStore } from "@/store/user-preferences";
 type LayoutProps = {
   children: ReactNode;
   className?: string;
+  // Rendered beside the main panel, e.g. the agent panel.
+  aside?: ReactNode;
 };
 
 type HeaderProps = {
@@ -45,7 +47,7 @@ function LayoutContent({ children, className }: ContentProps) {
   );
 }
 
-function Layout({ children, className }: LayoutProps) {
+function Layout({ children, className, aside }: LayoutProps) {
   const { sidebarDefaultOpen } = useUserPreferencesStore();
   const { background } = useBackgroundStore();
 
@@ -81,6 +83,7 @@ function Layout({ children, className }: LayoutProps) {
           {isDemoMode && <DemoAlert />}
           {children}
         </SidebarInset>
+        {aside}
       </SidebarProvider>
     </div>
   );

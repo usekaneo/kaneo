@@ -16,6 +16,7 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
 import { GithubIcon } from "@/components/icons/github-icon";
+import { GitHubAccountLinkError } from "@/components/project/github-account-link-error";
 import { RepositoryBrowserModal } from "@/components/project/repository-browser-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -52,8 +53,10 @@ type GithubIntegrationFormValues = {
 
 export function GitHubIntegrationSettings({
   projectId,
+  accountLinkError,
 }: {
   projectId: string;
+  accountLinkError?: string;
 }) {
   const { t } = useTranslation();
   const { canCreateTasks, canUpdateTasks } = useWorkspacePermission();
@@ -68,9 +71,16 @@ export function GitHubIntegrationSettings({
   const linkAccount = async () => {
     setIsLinkingAccount(true);
     try {
+      const callbackURL = new URL(window.location.href);
+      callbackURL.searchParams.delete("githubAccountLink");
+      callbackURL.searchParams.delete("error");
+      callbackURL.searchParams.delete("error_description");
+      const errorCallbackURL = new URL(callbackURL);
+      errorCallbackURL.searchParams.set("githubAccountLink", "true");
       const result = await authClient.linkSocial({
         provider: "github",
-        callbackURL: window.location.href,
+        callbackURL: callbackURL.href,
+        errorCallbackURL: errorCallbackURL.href,
       });
       if (result.error) throw new Error(result.error.message);
     } catch (error) {
@@ -309,6 +319,7 @@ export function GitHubIntegrationSettings({
 
   return (
     <div className="space-y-4">
+      {accountLinkError && <GitHubAccountLinkError error={accountLinkError} />}
       {appInfo && !appInfo.accountConnected && (
         <div className="space-y-3 rounded-md border border-border bg-sidebar p-4">
           <p className="text-sm">

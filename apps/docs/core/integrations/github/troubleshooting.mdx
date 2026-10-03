@@ -5,6 +5,14 @@ description: "Find why repository connection, issue sync, or status changes stop
 
 Start with the connection shown under **Settings → Projects → your project → Integrations → GitHub**. Then check the matching symptom below.
 
+## Connect GitHub fails during authorization
+
+The **Connect GitHub** button links your GitHub identity to your signed-in Kaneo account so Kaneo can verify repository administration. It uses the [GitHub sign-in credentials](/core/social-providers/github), which are separate from the installation credentials used for repository sync.
+
+If the callback reports `email_not_found`, or `unable_to_link_account` with an “untrusted provider” API log, check that GitHub has verified your email and that the application can read it. For a GitHub App, enable **Permissions and events → Account permissions → Email addresses → Read-only**, save, approve any requested permission update, and try **Connect GitHub** again. The requested `user:email` scope alone does not grant that GitHub App permission.
+
+If the callback reports `email_doesn't_match`, use a GitHub account whose email matches your Kaneo account. If it reports `account_already_linked_to_different_user`, that GitHub identity is already linked to another Kaneo account.
+
 ## The repository is missing or verification fails
 
 Open [GitHub App installations](https://github.com/settings/installations) and check that the app is installed on the correct account or organization. Add the specific repository to its allowed repositories if needed.

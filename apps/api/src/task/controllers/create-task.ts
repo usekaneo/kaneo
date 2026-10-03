@@ -57,6 +57,7 @@ async function createTask({
   priority,
   customFields,
   draftAssetIds,
+  transaction,
 }: {
   projectId: string;
   currentUserId: string;
@@ -69,16 +70,18 @@ async function createTask({
   priority?: string;
   customFields?: CustomFieldInput[];
   draftAssetIds?: string[];
+  transaction?: Parameters<Parameters<typeof db.transaction>[0]>[0];
 }) {
+  const database = transaction ?? db;
   const resolvedStatus = status || "to-do";
   const resolvedPriority = priority || "no-priority";
   const normalizedCustomFields = deduplicateCustomFields(customFields);
 
   const normalizedUserId = userId?.trim() || undefined;
 
-  await assertValidTaskStatus(resolvedStatus, projectId);
+  await assertValidTaskStatus(resolvedStatus, projectId, database);
 
-  const allFields = await db
+  const allFields = await database
     .select()
     .from(customFieldDefinitionTable)
     .where(eq(customFieldDefinitionTable.projectId, projectId));
@@ -108,30 +111,33 @@ async function createTask({
     }
   }
 
-  await assertRequiredCustomFields(projectId, mergedCustomFields);
+  await assertRequiredCustomFields(projectId, mergedCustomFields, database);
 
   let assignee: { name: string } | undefined;
 
   if (normalizedUserId) {
     await assertAssignableUser(
       normalizedUserId,
-      await getProjectWorkspaceId(projectId),
+      await getProjectWorkspaceId(projectId, database),
+      database,
     );
 
-    [assignee] = await db
+    [assignee] = await database
       .select({ name: userTable.name })
       .from(userTable)
       .where(eq(userTable.id, normalizedUserId));
   }
 
-  const column = await db.query.columnTable.findFirst({
+  const column = await database.query.columnTable.findFirst({
     where: and(
       eq(columnTable.projectId, projectId),
       eq(columnTable.slug, resolvedStatus),
     ),
   });
 
-  const createdTask = await db.transaction(async (tx) => {
+  const insertTask = async (
+    tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  ) => {
     const taskNumber = await claimTaskNumber(projectId, tx);
     const nextPosition = await nextTaskPosition(
       tx,
@@ -206,7 +212,10 @@ async function createTask({
     }
 
     return task;
-  });
+  };
+  const createdTask = transaction
+    ? await insertTask(transaction)
+    : await db.transaction(insertTask);
 
   if (!createdTask) {
     throw new HTTPException(500, {
@@ -214,14 +223,15 @@ async function createTask({
     });
   }
 
-  await publishEvent("task.created", {
-    ...createdTask,
-    taskId: createdTask.id,
-    userId: createdTask.userId ?? "",
-    currentUserId: currentUserId,
-    type: "created",
-    content: null,
-  });
+  if (!transaction)
+    await publishEvent("task.created", {
+      ...createdTask,
+      taskId: createdTask.id,
+      userId: createdTask.userId ?? "",
+      currentUserId: currentUserId,
+      type: "created",
+      content: null,
+    });
 
   return {
     ...createdTask,

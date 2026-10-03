@@ -19,6 +19,10 @@ export const shortcuts = {
     prefix: getModifierKeyText(),
     toggle: "b",
   },
+  agent: {
+    prefix: getModifierKeyText(),
+    toggle: "j",
+  },
   palette: {
     prefix: getModifierKeyText(),
     open: "k",
