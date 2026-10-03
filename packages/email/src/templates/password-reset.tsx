@@ -59,6 +59,17 @@ const messages = {
     ignore: "心当たりがない場合は、変更は行われません。",
     footer: "Kaneo セキュリティメール",
   },
+  "zh-tw": {
+    preview: "重設你的 Kaneo 密碼",
+    title: "重設密碼",
+    subtitleWithName: (name: string) =>
+      `${name} 你好，請點選下方按鈕設定新密碼。`,
+    subtitleDefault: "請點選下方按鈕設定新密碼。",
+    cta: "重設密碼",
+    expiry: "此重設連結將在 1 小時後失效。",
+    ignore: "如果這不是你本人的操作，你的密碼不會有任何變更。",
+    footer: "Kaneo 安全性通知",
+  },
 } as const;
 
 const PasswordResetEmail = ({
