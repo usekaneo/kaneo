@@ -3,7 +3,7 @@ import type { Notification } from "@/types/notification";
 import {
   getNotificationContent,
   getNotificationTitle,
-} from "./notification-dropdown";
+} from "./notification-text";
 
 const t = (key: string, options?: Record<string, unknown>) => {
   if (key === "notifications:reminderLeadTime.days") {

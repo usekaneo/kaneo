@@ -2,8 +2,10 @@ import { client } from "@kaneo/libs";
 
 import { HttpError } from "@/lib/http-error";
 
-async function clearNotifications() {
-  const response = await client.notification["clear-all"].$delete();
+async function clearNotifications(workspaceId?: string) {
+  const response = await client.notification["clear-all"].$delete({
+    query: { workspaceId },
+  });
 
   if (!response.ok) {
     throw new HttpError(response.status, await response.text());

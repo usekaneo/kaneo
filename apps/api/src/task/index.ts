@@ -40,6 +40,7 @@ import createTask from "./controllers/create-task";
 import deleteTask from "./controllers/delete-task";
 import duplicateTask from "./controllers/duplicate-task";
 import exportTasks from "./controllers/export-tasks";
+import getAssignedTasks from "./controllers/get-assigned-tasks";
 import getTaskByTicketId from "./controllers/get-task-by-ticket-id";
 import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
@@ -67,6 +68,7 @@ import {
   getDescriptionPage,
 } from "./description-pages";
 import {
+  assignedTasksSchema,
   boardSchema,
   bulkResultSchema,
   descriptionMatchesSchema,
@@ -80,6 +82,7 @@ import {
   taskWithAssigneeSchema,
 } from "./response";
 import {
+  assignedTasksQuery,
   bulkUpdateBody,
   createTaskBody,
   descriptionMatchesQuery,
@@ -105,6 +108,28 @@ import {
   updateTaskBody,
   updateTitleBody,
 } from "./schema";
+
+const listAssignedTasksRoute = createRoute({
+  method: "get",
+  operationId: "listAssignedTasks",
+  path: "/assigned",
+  tags: ["Tasks"],
+  summary: "List my assigned tasks",
+  description:
+    "Get the open tasks assigned to the caller across a workspace's active projects. Completed and archived tasks are excluded. Ordered by due date (undated last), then priority. At most 100 tasks are returned; total counts all of them. Set countOnly=true to return just that total without loading task rows or labels.",
+  middleware: [
+    workspaceAccess.fromQuery(),
+    requireWorkspacePermission({ project: ["read"], task: ["read"] }),
+  ] as const,
+  request: { query: assignedTasksQuery },
+  responses: {
+    200: jsonResponse("Open tasks assigned to the caller", assignedTasksSchema),
+    400: errorResponse("Invalid workspace ID or query parameters"),
+    403: errorResponse(
+      "No workspace access, or missing project:read or task:read permission",
+    ),
+  },
+});
 
 const listTasksRoute = createRoute({
   method: "get",
@@ -768,6 +793,18 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
         c.req.valid("param").projectId,
         query,
         after,
+      ),
+      200,
+    );
+  })
+  // Registered ahead of the `/{id}` routes, which would otherwise claim it.
+  .openapi(listAssignedTasksRoute, async (c) => {
+    const { workspaceId, countOnly } = c.req.valid("query");
+    return c.json(
+      await getAssignedTasks(
+        workspaceId,
+        c.get("userId"),
+        countOnly === "true",
       ),
       200,
     );

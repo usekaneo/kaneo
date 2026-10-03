@@ -459,6 +459,9 @@
 								"description": {
 									"type": "string"
 								},
+								"statusLoadError": {
+									"type": "string"
+								},
 								"taskTitlePlaceholder": {
 									"type": "string"
 								},
@@ -596,6 +599,7 @@
 								"selectProject",
 								"title",
 								"description",
+								"statusLoadError",
 								"taskTitlePlaceholder",
 								"descriptionPlaceholder",
 								"chooseProjectForImages",
@@ -7628,16 +7632,10 @@
 						"footer"
 					]
 				},
-				"notifications": {
-					"type": "string"
-				},
 				"sidebar": {
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
-						"overview": {
-							"type": "string"
-						},
 						"projects": {
 							"type": "string"
 						},
@@ -7652,15 +7650,30 @@
 						},
 						"backToBoard": {
 							"type": "string"
+						},
+						"home": {
+							"type": "string"
+						},
+						"inbox": {
+							"type": "string"
+						},
+						"myTasks": {
+							"type": "string"
+						},
+						"invitePeople": {
+							"type": "string"
 						}
 					},
 					"required": [
-						"overview",
 						"projects",
 						"members",
 						"invitations",
 						"more",
-						"backToBoard"
+						"backToBoard",
+						"home",
+						"inbox",
+						"myTasks",
+						"invitePeople"
 					]
 				},
 				"projectList": {
@@ -7984,7 +7997,6 @@
 			},
 			"required": [
 				"commandPalette",
-				"notifications",
 				"sidebar",
 				"projectList",
 				"search",
@@ -8000,9 +8012,6 @@
 			"type": "object",
 			"additionalProperties": false,
 			"properties": {
-				"title": {
-					"type": "string"
-				},
 				"newCount_one": {
 					"type": "string"
 				},
@@ -8035,16 +8044,6 @@
 				},
 				"clearDialogDescription": {
 					"type": "string"
-				},
-				"shortcuts": {
-					"type": "object",
-					"additionalProperties": false,
-					"properties": {
-						"open": {
-							"type": "string"
-						}
-					},
-					"required": ["open"]
 				},
 				"reminderLeadTime": {
 					"type": "object",
@@ -8243,18 +8242,93 @@
 						"task_overdue",
 						"time_entry_created"
 					]
+				},
+				"inbox": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"pageTitle": {
+							"type": "string"
+						},
+						"unread": {
+							"type": "string"
+						},
+						"today": {
+							"type": "string"
+						},
+						"earlier": {
+							"type": "string"
+						},
+						"filters": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"all": {
+									"type": "string"
+								},
+								"unread": {
+									"type": "string"
+								},
+								"mentions": {
+									"type": "string"
+								}
+							},
+							"required": ["label", "all", "unread", "mentions"]
+						},
+						"emptyFilter": {
+							"type": "string"
+						},
+						"loadError": {
+							"type": "string"
+						},
+						"selectPrompt": {
+							"type": "string"
+						},
+						"back": {
+							"type": "string"
+						},
+						"openTask": {
+							"type": "string"
+						},
+						"recentActivity": {
+							"type": "string"
+						},
+						"taskUnavailable": {
+							"type": "string"
+						},
+						"taskLoadError": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"pageTitle",
+						"unread",
+						"today",
+						"earlier",
+						"filters",
+						"emptyFilter",
+						"loadError",
+						"selectPrompt",
+						"back",
+						"openTask",
+						"recentActivity",
+						"taskUnavailable",
+						"taskLoadError"
+					]
 				}
 			},
 			"required": [
-				"title",
 				"emptyTitle",
 				"emptySubtitle",
 				"clearAll",
 				"clearDialogTitle",
 				"clearDialogDescription",
-				"shortcuts",
 				"reminderLeadTime",
-				"events"
+				"events",
+				"inbox"
 			]
 		},
 		"activity": {
@@ -10745,6 +10819,16 @@
 				},
 				"descriptionLoadError": {
 					"type": "string"
+				},
+				"board": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"reorderFailed": {
+							"type": "string"
+						}
+					},
+					"required": ["reorderFailed"]
 				}
 			},
 			"required": [
@@ -10786,7 +10870,8 @@
 				"descriptionSearchError",
 				"descriptionRetry",
 				"descriptionLoading",
-				"descriptionLoadError"
+				"descriptionLoadError",
+				"board"
 			]
 		},
 		"invitations": {
@@ -11130,9 +11215,244 @@
 						"success",
 						"error"
 					]
+				},
+				"home": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"pageTitle": {
+							"type": "string"
+						},
+						"greeting": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"morning": {
+									"type": "string"
+								},
+								"afternoon": {
+									"type": "string"
+								},
+								"evening": {
+									"type": "string"
+								}
+							},
+							"required": ["morning", "afternoon", "evening"]
+						},
+						"newTask": {
+							"type": "string"
+						},
+						"week": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"truncated": {
+									"type": "string"
+								},
+								"more_one": {
+									"type": "string"
+								},
+								"more_zero": {
+									"type": "string"
+								},
+								"more_two": {
+									"type": "string"
+								},
+								"more_few": {
+									"type": "string"
+								},
+								"more_many": {
+									"type": "string"
+								},
+								"more_other": {
+									"type": "string"
+								}
+							},
+							"required": ["truncated"]
+						},
+						"upNext": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"assigned_one": {
+									"type": "string"
+								},
+								"assigned_zero": {
+									"type": "string"
+								},
+								"assigned_two": {
+									"type": "string"
+								},
+								"assigned_few": {
+									"type": "string"
+								},
+								"assigned_many": {
+									"type": "string"
+								},
+								"assigned_other": {
+									"type": "string"
+								},
+								"viewAll": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "viewAll"]
+						},
+						"projects": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"all": {
+									"type": "string"
+								},
+								"loadError": {
+									"type": "string"
+								},
+								"tasks_one": {
+									"type": "string"
+								},
+								"tasks_zero": {
+									"type": "string"
+								},
+								"tasks_two": {
+									"type": "string"
+								},
+								"tasks_few": {
+									"type": "string"
+								},
+								"tasks_many": {
+									"type": "string"
+								},
+								"tasks_other": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "all", "loadError"]
+						},
+						"activity": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"commented": {
+									"type": "string"
+								},
+								"updated": {
+									"type": "string"
+								},
+								"empty": {
+									"type": "string"
+								},
+								"loadError": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"title",
+								"commented",
+								"updated",
+								"empty",
+								"loadError"
+							]
+						}
+					},
+					"required": [
+						"pageTitle",
+						"greeting",
+						"newTask",
+						"week",
+						"upNext",
+						"projects",
+						"activity"
+					]
+				},
+				"myWork": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"empty": {
+							"type": "string"
+						},
+						"loadError": {
+							"type": "string"
+						},
+						"due": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"overdue": {
+									"type": "string"
+								},
+								"today": {
+									"type": "string"
+								},
+								"tomorrow": {
+									"type": "string"
+								},
+								"thisWeek": {
+									"type": "string"
+								},
+								"later": {
+									"type": "string"
+								},
+								"noDueDate": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"overdue",
+								"today",
+								"tomorrow",
+								"thisWeek",
+								"later",
+								"noDueDate"
+							]
+						}
+					},
+					"required": ["empty", "loadError", "due"]
+				},
+				"myTasks": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"pageTitle": {
+							"type": "string"
+						},
+						"emptyDescription": {
+							"type": "string"
+						},
+						"groupBy": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"dueDate": {
+									"type": "string"
+								},
+								"project": {
+									"type": "string"
+								}
+							},
+							"required": ["label", "dueDate", "project"]
+						},
+						"truncated": {
+							"type": "string"
+						}
+					},
+					"required": ["pageTitle", "emptyDescription", "groupBy", "truncated"]
 				}
 			},
-			"required": ["projects", "search", "create"]
+			"required": ["projects", "search", "create", "home", "myWork", "myTasks"]
 		},
 		"team": {
 			"type": "object",

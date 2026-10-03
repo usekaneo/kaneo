@@ -153,7 +153,8 @@
 					"terracotta": "Terracotta",
 					"rose": "Roos",
 					"crimson": "Karmozijn"
-				}
+				},
+				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
 		},
 		"boolean": {
@@ -1888,14 +1889,16 @@
 				"close": "Sluiten"
 			}
 		},
-		"notifications": "Meldingen",
 		"sidebar": {
-			"overview": "Overzicht",
 			"projects": "Projecten",
 			"members": "Leden",
 			"invitations": "Uitnodigingen",
 			"more": "Meer",
-			"backToBoard": "Terug naar bord"
+			"backToBoard": "Terug naar bord",
+			"home": "Home",
+			"inbox": "Inbox",
+			"invitePeople": "Invite people",
+			"myTasks": "My tasks"
 		},
 		"projectList": {
 			"viewProject": "Project bekijken",
@@ -1980,7 +1983,6 @@
 		}
 	},
 	"notifications": {
-		"title": "Meldingen",
 		"newCount_one": "{{count}} nieuw",
 		"newCount_other": "{{count}} nieuw",
 		"emptyTitle": "Nog geen meldingen",
@@ -1988,9 +1990,6 @@
 		"clearAll": "Alle meldingen wissen",
 		"clearDialogTitle": "Alle meldingen wissen?",
 		"clearDialogDescription": "Dit zal alle meldingen permanent verwijderen. Dit kan niet ongedaan worden gemaakt.",
-		"shortcuts": {
-			"open": "Meldingen openen"
-		},
 		"events": {
 			"task_created": {
 				"title": "Nieuwe taak aangemaakt",
@@ -2037,6 +2036,26 @@
 			"hours_other": "{{count}} uur",
 			"days_one": "{{count}} dag",
 			"days_other": "{{count}} dagen"
+		},
+		"inbox": {
+			"back": "Inbox",
+			"earlier": "Earlier",
+			"emptyFilter": "Nothing here",
+			"filters": {
+				"all": "All",
+				"label": "Filter notifications",
+				"mentions": "Mentions",
+				"unread": "Unread"
+			},
+			"openTask": "Open task",
+			"pageTitle": "Inbox",
+			"recentActivity": "Recent activity",
+			"selectPrompt": "Select a notification to read it",
+			"taskUnavailable": "This task is no longer available.",
+			"today": "Today",
+			"unread": "Unread",
+			"loadError": "Notifications couldn't be loaded.",
+			"taskLoadError": "This task couldn’t be loaded."
 		}
 	},
 	"activity": {
@@ -2704,6 +2723,62 @@
 			"submit": "Werkruimte maken",
 			"success": "Werkruimte succesvol aangemaakt",
 			"error": "Aanmaken werkruimte mislukt"
+		},
+		"home": {
+			"activity": {
+				"commented": "commented",
+				"empty": "Nothing has happened in the last 30 days.",
+				"loadError": "Activity couldn't be loaded.",
+				"title": "Activity",
+				"updated": "updated the task"
+			},
+			"greeting": {
+				"afternoon": "Good afternoon",
+				"evening": "Good evening",
+				"morning": "Good morning"
+			},
+			"newTask": "New task",
+			"pageTitle": "Home",
+			"projects": {
+				"all": "All projects",
+				"tasks_one": "{{count}} task",
+				"tasks_other": "{{count}} tasks",
+				"title": "Your projects",
+				"loadError": "Projects couldn't be loaded."
+			},
+			"upNext": {
+				"assigned_one": "{{count}} assigned to you",
+				"assigned_other": "{{count}} assigned to you",
+				"title": "Up next",
+				"viewAll": "View all"
+			},
+			"week": {
+				"more_one": "+{{count}} more",
+				"more_other": "+{{count}} more",
+				"truncated": "The week preview includes only the first {{shown}} of {{total}} assigned tasks."
+			}
+		},
+		"myTasks": {
+			"emptyDescription": "Tasks assigned to you across this workspace show up here.",
+			"groupBy": {
+				"dueDate": "Due date",
+				"label": "Group by",
+				"project": "Project"
+			},
+			"pageTitle": "My tasks",
+			"truncated": "Showing the first {{shown}} of {{total}} tasks."
+		},
+		"myWork": {
+			"due": {
+				"later": "Later",
+				"noDueDate": "No due date",
+				"overdue": "Overdue",
+				"thisWeek": "This week",
+				"today": "Today",
+				"tomorrow": "Tomorrow"
+			},
+			"empty": "Nothing assigned to you",
+			"loadError": "Your tasks couldn't be loaded."
 		}
 	},
 	"team": {

@@ -8,6 +8,7 @@ function useDeleteComment(taskId: string) {
     mutationFn: deleteComment,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["activities", taskId] });
+      void queryClient.invalidateQueries({ queryKey: ["workspace-activity"] });
     },
   });
 }

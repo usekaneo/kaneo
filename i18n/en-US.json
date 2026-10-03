@@ -120,6 +120,7 @@
 				"selectProject": "Select project",
 				"title": "New Task",
 				"description": "Create a new task by providing a title, description, and other details.",
+				"statusLoadError": "Project statuses couldn’t be loaded.",
 				"taskTitlePlaceholder": "Task title",
 				"descriptionPlaceholder": "Add a description for your task...",
 				"chooseProjectForImages": "Choose a project before uploading images.",
@@ -1888,14 +1889,16 @@
 				"close": "Close"
 			}
 		},
-		"notifications": "Notifications",
 		"sidebar": {
-			"overview": "Overview",
 			"projects": "Projects",
 			"members": "Members",
 			"invitations": "Invitations",
 			"more": "More",
-			"backToBoard": "Back to board"
+			"backToBoard": "Back to board",
+			"home": "Home",
+			"inbox": "Inbox",
+			"myTasks": "My tasks",
+			"invitePeople": "Invite people"
 		},
 		"projectList": {
 			"viewProject": "View Project",
@@ -1980,7 +1983,6 @@
 		}
 	},
 	"notifications": {
-		"title": "Notifications",
 		"newCount_one": "{{count}} new",
 		"newCount_other": "{{count}} new",
 		"emptyTitle": "No notifications yet",
@@ -1988,9 +1990,6 @@
 		"clearAll": "Clear all notifications",
 		"clearDialogTitle": "Clear all notifications?",
 		"clearDialogDescription": "This will permanently remove all notifications. You can't undo this action.",
-		"shortcuts": {
-			"open": "Open notifications"
-		},
 		"reminderLeadTime": {
 			"minutes_one": "{{count}} minute",
 			"minutes_other": "{{count}} minutes",
@@ -2037,6 +2036,26 @@
 				"contentWithTask": "Time tracking started on task: {{taskTitle}}",
 				"contentWithoutTask": "Time tracking started on a task"
 			}
+		},
+		"inbox": {
+			"pageTitle": "Inbox",
+			"unread": "Unread",
+			"today": "Today",
+			"earlier": "Earlier",
+			"filters": {
+				"label": "Filter notifications",
+				"all": "All",
+				"unread": "Unread",
+				"mentions": "Mentions"
+			},
+			"emptyFilter": "Nothing here",
+			"loadError": "Notifications couldn't be loaded.",
+			"selectPrompt": "Select a notification to read it",
+			"back": "Inbox",
+			"openTask": "Open task",
+			"recentActivity": "Recent activity",
+			"taskUnavailable": "This task is no longer available.",
+			"taskLoadError": "This task couldn’t be loaded."
 		}
 	},
 	"activity": {
@@ -2704,6 +2723,62 @@
 			"submit": "Create workspace",
 			"success": "Workspace created successfully",
 			"error": "Failed to create workspace"
+		},
+		"home": {
+			"pageTitle": "Home",
+			"greeting": {
+				"morning": "Good morning",
+				"afternoon": "Good afternoon",
+				"evening": "Good evening"
+			},
+			"newTask": "New task",
+			"week": {
+				"truncated": "The week preview includes only the first {{shown}} of {{total}} assigned tasks.",
+				"more_one": "+{{count}} more",
+				"more_other": "+{{count}} more"
+			},
+			"upNext": {
+				"title": "Up next",
+				"assigned_one": "{{count}} assigned to you",
+				"assigned_other": "{{count}} assigned to you",
+				"viewAll": "View all"
+			},
+			"projects": {
+				"title": "Your projects",
+				"all": "All projects",
+				"loadError": "Projects couldn't be loaded.",
+				"tasks_one": "{{count}} task",
+				"tasks_other": "{{count}} tasks"
+			},
+			"activity": {
+				"title": "Activity",
+				"commented": "commented",
+				"updated": "updated the task",
+				"empty": "Nothing has happened in the last 30 days.",
+				"loadError": "Activity couldn't be loaded."
+			}
+		},
+		"myWork": {
+			"empty": "Nothing assigned to you",
+			"loadError": "Your tasks couldn't be loaded.",
+			"due": {
+				"overdue": "Overdue",
+				"today": "Today",
+				"tomorrow": "Tomorrow",
+				"thisWeek": "This week",
+				"later": "Later",
+				"noDueDate": "No due date"
+			}
+		},
+		"myTasks": {
+			"pageTitle": "My tasks",
+			"emptyDescription": "Tasks assigned to you across this workspace show up here.",
+			"groupBy": {
+				"label": "Group by",
+				"dueDate": "Due date",
+				"project": "Project"
+			},
+			"truncated": "Showing the first {{shown}} of {{total}} tasks."
 		}
 	},
 	"team": {

@@ -153,7 +153,8 @@
 					"terracotta": "テラコッタ",
 					"rose": "ローズ",
 					"crimson": "クリムゾン"
-				}
+				},
+				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
 		},
 		"boolean": {
@@ -1881,14 +1882,16 @@
 				"close": "閉じる"
 			}
 		},
-		"notifications": "通知",
 		"sidebar": {
-			"overview": "概要",
 			"projects": "プロジェクト",
 			"members": "メンバー",
 			"invitations": "招待",
 			"more": "その他",
-			"backToBoard": "ボードに戻る"
+			"backToBoard": "ボードに戻る",
+			"home": "Home",
+			"inbox": "Inbox",
+			"invitePeople": "Invite people",
+			"myTasks": "My tasks"
 		},
 		"projectList": {
 			"viewProject": "プロジェクトを表示",
@@ -1973,16 +1976,12 @@
 		}
 	},
 	"notifications": {
-		"title": "通知",
 		"newCount_other": "{{count}} 件の新着",
 		"emptyTitle": "通知はまだありません",
 		"emptySubtitle": "更新やアクティビティがここに表示されます。",
 		"clearAll": "すべての通知を消去",
 		"clearDialogTitle": "すべての通知を消去しますか？",
 		"clearDialogDescription": "これにより、すべての通知が完全に削除されます。この操作は取り消せません。",
-		"shortcuts": {
-			"open": "通知を開く"
-		},
 		"reminderLeadTime": {
 			"minutes_other": "{{count}} 分",
 			"hours_other": "{{count}} 時間",
@@ -2026,6 +2025,26 @@
 				"contentWithTask": "タスク「{{taskTitle}}」の時間計測を開始しました",
 				"contentWithoutTask": "タスクの時間計測を開始しました"
 			}
+		},
+		"inbox": {
+			"back": "Inbox",
+			"earlier": "Earlier",
+			"emptyFilter": "Nothing here",
+			"filters": {
+				"all": "All",
+				"label": "Filter notifications",
+				"mentions": "Mentions",
+				"unread": "Unread"
+			},
+			"openTask": "Open task",
+			"pageTitle": "Inbox",
+			"recentActivity": "Recent activity",
+			"selectPrompt": "Select a notification to read it",
+			"taskUnavailable": "This task is no longer available.",
+			"today": "Today",
+			"unread": "Unread",
+			"loadError": "Notifications couldn't be loaded.",
+			"taskLoadError": "This task couldn’t be loaded."
 		}
 	},
 	"activity": {
@@ -2691,6 +2710,59 @@
 			"submit": "ワークスペースを作成",
 			"success": "ワークスペースを作成しました",
 			"error": "ワークスペースの作成に失敗しました"
+		},
+		"home": {
+			"activity": {
+				"commented": "commented",
+				"empty": "Nothing has happened in the last 30 days.",
+				"loadError": "Activity couldn't be loaded.",
+				"title": "Activity",
+				"updated": "updated the task"
+			},
+			"greeting": {
+				"afternoon": "Good afternoon",
+				"evening": "Good evening",
+				"morning": "Good morning"
+			},
+			"newTask": "New task",
+			"pageTitle": "Home",
+			"projects": {
+				"all": "All projects",
+				"tasks_other": "{{count}} tasks",
+				"title": "Your projects",
+				"loadError": "Projects couldn't be loaded."
+			},
+			"upNext": {
+				"assigned_other": "{{count}} assigned to you",
+				"title": "Up next",
+				"viewAll": "View all"
+			},
+			"week": {
+				"more_other": "+{{count}} more",
+				"truncated": "The week preview includes only the first {{shown}} of {{total}} assigned tasks."
+			}
+		},
+		"myTasks": {
+			"emptyDescription": "Tasks assigned to you across this workspace show up here.",
+			"groupBy": {
+				"dueDate": "Due date",
+				"label": "Group by",
+				"project": "Project"
+			},
+			"pageTitle": "My tasks",
+			"truncated": "Showing the first {{shown}} of {{total}} tasks."
+		},
+		"myWork": {
+			"due": {
+				"later": "Later",
+				"noDueDate": "No due date",
+				"overdue": "Overdue",
+				"thisWeek": "This week",
+				"today": "Today",
+				"tomorrow": "Tomorrow"
+			},
+			"empty": "Nothing assigned to you",
+			"loadError": "Your tasks couldn't be loaded."
 		}
 	},
 	"team": {

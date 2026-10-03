@@ -153,7 +153,8 @@
 					"terracotta": "Теракота",
 					"rose": "Роза",
 					"crimson": "Гримизна"
-				}
+				},
+				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
 		},
 		"boolean": {
@@ -1888,14 +1889,16 @@
 				"close": "Затвори"
 			}
 		},
-		"notifications": "Известувања",
 		"sidebar": {
-			"overview": "Преглед",
 			"projects": "Проекти",
 			"members": "Членови",
 			"invitations": "Покани",
 			"more": "Повеќе",
-			"backToBoard": "Назад на табла"
+			"backToBoard": "Назад на табла",
+			"home": "Home",
+			"inbox": "Inbox",
+			"invitePeople": "Invite people",
+			"myTasks": "My tasks"
 		},
 		"projectList": {
 			"viewProject": "Погледни проект",
@@ -1980,7 +1983,6 @@
 		}
 	},
 	"notifications": {
-		"title": "Известувања",
 		"newCount_one": "{{count}} ново",
 		"newCount_other": "{{count}} нови",
 		"emptyTitle": "Нема известувања засега",
@@ -1988,9 +1990,6 @@
 		"clearAll": "Исчисти ги сите известувања",
 		"clearDialogTitle": "Исчисти ги сите известувања?",
 		"clearDialogDescription": "Ова трајно ќе ги отстрани сите известувања. Не можеш да ја вратиш оваа акција.",
-		"shortcuts": {
-			"open": "Отвори известувања"
-		},
 		"events": {
 			"task_created": {
 				"title": "Нова задача е креирана",
@@ -2037,6 +2036,26 @@
 			"hours_other": "{{count}} часа",
 			"days_one": "{{count}} ден",
 			"days_other": "{{count}} дена"
+		},
+		"inbox": {
+			"back": "Inbox",
+			"earlier": "Earlier",
+			"emptyFilter": "Nothing here",
+			"filters": {
+				"all": "All",
+				"label": "Filter notifications",
+				"mentions": "Mentions",
+				"unread": "Unread"
+			},
+			"openTask": "Open task",
+			"pageTitle": "Inbox",
+			"recentActivity": "Recent activity",
+			"selectPrompt": "Select a notification to read it",
+			"taskUnavailable": "This task is no longer available.",
+			"today": "Today",
+			"unread": "Unread",
+			"loadError": "Notifications couldn't be loaded.",
+			"taskLoadError": "This task couldn’t be loaded."
 		}
 	},
 	"activity": {
@@ -2704,6 +2723,62 @@
 			"submit": "Креирај работен простор",
 			"success": "Работниот простор е успешно креиран",
 			"error": "Неуспешно креирање на работен простор"
+		},
+		"home": {
+			"activity": {
+				"commented": "commented",
+				"empty": "Nothing has happened in the last 30 days.",
+				"loadError": "Activity couldn't be loaded.",
+				"title": "Activity",
+				"updated": "updated the task"
+			},
+			"greeting": {
+				"afternoon": "Good afternoon",
+				"evening": "Good evening",
+				"morning": "Good morning"
+			},
+			"newTask": "New task",
+			"pageTitle": "Home",
+			"projects": {
+				"all": "All projects",
+				"tasks_one": "{{count}} task",
+				"tasks_other": "{{count}} tasks",
+				"title": "Your projects",
+				"loadError": "Projects couldn't be loaded."
+			},
+			"upNext": {
+				"assigned_one": "{{count}} assigned to you",
+				"assigned_other": "{{count}} assigned to you",
+				"title": "Up next",
+				"viewAll": "View all"
+			},
+			"week": {
+				"more_one": "+{{count}} more",
+				"more_other": "+{{count}} more",
+				"truncated": "The week preview includes only the first {{shown}} of {{total}} assigned tasks."
+			}
+		},
+		"myTasks": {
+			"emptyDescription": "Tasks assigned to you across this workspace show up here.",
+			"groupBy": {
+				"dueDate": "Due date",
+				"label": "Group by",
+				"project": "Project"
+			},
+			"pageTitle": "My tasks",
+			"truncated": "Showing the first {{shown}} of {{total}} tasks."
+		},
+		"myWork": {
+			"due": {
+				"later": "Later",
+				"noDueDate": "No due date",
+				"overdue": "Overdue",
+				"thisWeek": "This week",
+				"today": "Today",
+				"tomorrow": "Tomorrow"
+			},
+			"empty": "Nothing assigned to you",
+			"loadError": "Your tasks couldn't be loaded."
 		}
 	},
 	"team": {

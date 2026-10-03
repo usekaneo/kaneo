@@ -29,6 +29,14 @@ export const ticketIdQuery = z.object({
 
 export const projectIdParam = z.object({ projectId: z.string() });
 
+export const assignedTasksQuery = z.object({
+  workspaceId: z.string().min(1),
+  countOnly: z.enum(["true", "false"]).optional().openapi({
+    description:
+      "Return only the total, with an empty tasks array, without loading task rows or labels.",
+  }),
+});
+
 const priority = z.enum(VALID_PRIORITIES);
 
 // Required object of optional filters: a RouteParameter cannot itself be optional.

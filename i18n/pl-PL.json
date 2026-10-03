@@ -153,7 +153,8 @@
 					"terracotta": "Terakota",
 					"rose": "Róża",
 					"crimson": "Karmazyn"
-				}
+				},
+				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
 		},
 		"boolean": {
@@ -445,14 +446,16 @@
 				"close": "Zamknij"
 			}
 		},
-		"notifications": "Powiadomienia",
 		"sidebar": {
-			"overview": "Przegląd",
 			"projects": "Projekty",
 			"members": "Członkowie",
 			"invitations": "Zaproszenia",
 			"more": "Więcej",
-			"backToBoard": "Wróć do tablicy"
+			"backToBoard": "Wróć do tablicy",
+			"home": "Home",
+			"inbox": "Inbox",
+			"invitePeople": "Invite people",
+			"myTasks": "My tasks"
 		},
 		"projectList": {
 			"viewProject": "Zobacz projekt",
@@ -537,7 +540,6 @@
 		}
 	},
 	"notifications": {
-		"title": "Powiadomienia",
 		"newCount_one": "{{count}} nowe",
 		"newCount_few": "{{count}} nowe",
 		"newCount_many": "{{count}} nowych",
@@ -547,9 +549,6 @@
 		"clearAll": "Wyczyść wszystkie powiadomienia",
 		"clearDialogTitle": "Wyczyścić wszystkie powiadomienia?",
 		"clearDialogDescription": "To trwale usunie wszystkie powiadomienia. Nie można tego cofnąć.",
-		"shortcuts": {
-			"open": "Otwórz powiadomienia"
-		},
 		"reminderLeadTime": {
 			"minutes_one": "{{count}} minuta",
 			"minutes_few": "{{count}} minuty",
@@ -602,6 +601,26 @@
 				"contentWithTask": "Rozpoczęto śledzenie czasu dla zadania: {{taskTitle}}",
 				"contentWithoutTask": "Rozpoczęto śledzenie czasu dla zadania"
 			}
+		},
+		"inbox": {
+			"back": "Inbox",
+			"earlier": "Earlier",
+			"emptyFilter": "Nothing here",
+			"filters": {
+				"all": "All",
+				"label": "Filter notifications",
+				"mentions": "Mentions",
+				"unread": "Unread"
+			},
+			"openTask": "Open task",
+			"pageTitle": "Inbox",
+			"recentActivity": "Recent activity",
+			"selectPrompt": "Select a notification to read it",
+			"taskUnavailable": "This task is no longer available.",
+			"today": "Today",
+			"unread": "Unread",
+			"loadError": "Notifications couldn't be loaded.",
+			"taskLoadError": "This task couldn’t be loaded."
 		}
 	},
 	"workspace": {
@@ -659,6 +678,68 @@
 			"submit": "Utwórz obszar roboczy",
 			"success": "Obszar roboczy został utworzony",
 			"error": "Nie udało się utworzyć obszaru roboczego"
+		},
+		"home": {
+			"activity": {
+				"commented": "commented",
+				"empty": "Nothing has happened in the last 30 days.",
+				"loadError": "Activity couldn't be loaded.",
+				"title": "Activity",
+				"updated": "updated the task"
+			},
+			"greeting": {
+				"afternoon": "Good afternoon",
+				"evening": "Good evening",
+				"morning": "Good morning"
+			},
+			"newTask": "New task",
+			"pageTitle": "Home",
+			"projects": {
+				"all": "All projects",
+				"tasks_few": "{{count}} tasks",
+				"tasks_many": "{{count}} tasks",
+				"tasks_one": "{{count}} task",
+				"tasks_other": "{{count}} tasks",
+				"title": "Your projects",
+				"loadError": "Projects couldn't be loaded."
+			},
+			"upNext": {
+				"assigned_few": "{{count}} assigned to you",
+				"assigned_many": "{{count}} assigned to you",
+				"assigned_one": "{{count}} assigned to you",
+				"assigned_other": "{{count}} assigned to you",
+				"title": "Up next",
+				"viewAll": "View all"
+			},
+			"week": {
+				"more_few": "+{{count}} more",
+				"more_many": "+{{count}} more",
+				"more_one": "+{{count}} more",
+				"more_other": "+{{count}} more",
+				"truncated": "The week preview includes only the first {{shown}} of {{total}} assigned tasks."
+			}
+		},
+		"myTasks": {
+			"emptyDescription": "Tasks assigned to you across this workspace show up here.",
+			"groupBy": {
+				"dueDate": "Due date",
+				"label": "Group by",
+				"project": "Project"
+			},
+			"pageTitle": "My tasks",
+			"truncated": "Showing the first {{shown}} of {{total}} tasks."
+		},
+		"myWork": {
+			"due": {
+				"later": "Later",
+				"noDueDate": "No due date",
+				"overdue": "Overdue",
+				"thisWeek": "This week",
+				"today": "Today",
+				"tomorrow": "Tomorrow"
+			},
+			"empty": "Nothing assigned to you",
+			"loadError": "Your tasks couldn't be loaded."
 		}
 	},
 	"team": {
