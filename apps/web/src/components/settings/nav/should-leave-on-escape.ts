@@ -1,5 +1,5 @@
 // Escape belongs to whatever is open on top of the page (dialogs, menus,
-// selects, the mobile nav sheet) and to text fields; only a bare Escape on
+// selects, the mobile nav sheet) and to forms and controls; only a bare Escape on
 // the settings page itself leaves settings. Closed Base UI popups can stay
 // mounted (hidden, with data-closed), so only count the open ones.
 const OVERLAY_SELECTOR = [
@@ -37,6 +37,9 @@ export function shouldLeaveOnEscape(event: KeyboardEvent, root: ParentNode) {
   if (
     target instanceof HTMLElement &&
     (target.isContentEditable ||
+      target.closest(
+        'form, [role="switch"], [role="checkbox"], [role="radio"]',
+      ) ||
       target.tagName === "INPUT" ||
       target.tagName === "TEXTAREA" ||
       target.tagName === "SELECT")

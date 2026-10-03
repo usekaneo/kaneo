@@ -39,6 +39,28 @@ describe("shouldLeaveOnEscape", () => {
     expect(shouldLeaveOnEscape(escapeFrom(input), document)).toBe(false);
   });
 
+  it.each(["switch", "checkbox", "radio"])(
+    "leaves Escape to a focused %s control",
+    (role) => {
+      const control = document.createElement("button");
+      control.setAttribute("role", role);
+      const child = document.createElement("span");
+      control.append(child);
+      document.body.append(control);
+      expect(shouldLeaveOnEscape(escapeFrom(control), document)).toBe(false);
+      expect(shouldLeaveOnEscape(escapeFrom(child), document)).toBe(false);
+    },
+  );
+
+  it("leaves Escape to buttons within a settings form", () => {
+    const form = document.createElement("form");
+    const button = document.createElement("button");
+    form.append(button);
+    document.body.append(form);
+    expect(shouldLeaveOnEscape(escapeFrom(button), document)).toBe(false);
+    expect(shouldLeaveOnEscape(escapeFrom(document.body), document)).toBe(true);
+  });
+
   it("leaves Escape to open dialogs and popups", () => {
     const dialog = document.createElement("div");
     dialog.setAttribute("role", "dialog");
