@@ -1039,7 +1039,14 @@
 			"telegramSectionTitle": "Telegram inteqrasiyası",
 			"telegramSectionSubtitle": "Layihənin tapşırıq yeniləmələrini bot ilə Telegram söhbətinə və ya mövzusuna göndərin.",
 			"gitlabSectionSubtitle": "Synchronize tasks with GitLab.com or a self-managed instance (issues, merge requests, webhooks).",
-			"gitlabSectionTitle": "GitLab Integration"
+			"gitlabSectionTitle": "GitLab Integration",
+			"codeHostingTitle": "Kod hostinqi",
+			"chatTitle": "Çat və vebhuklar",
+			"statusConnected": "Qoşulub",
+			"statusPaused": "Dayandırılıb",
+			"connect": "Qoş",
+			"configure": "Tənzimlə",
+			"done": "Hazır"
 		},
 		"projectVisibility": {
 			"pageTitle": "Layihənin görünürlüğü",

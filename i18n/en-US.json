@@ -1119,7 +1119,14 @@
 			"mattermostSectionTitle": "Mattermost Integration",
 			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook.",
 			"telegramSectionTitle": "Telegram Integration",
-			"telegramSectionSubtitle": "Send project task updates into a Telegram chat or topic with a bot."
+			"telegramSectionSubtitle": "Send project task updates into a Telegram chat or topic with a bot.",
+			"codeHostingTitle": "Code hosting",
+			"chatTitle": "Chat & webhooks",
+			"statusConnected": "Connected",
+			"statusPaused": "Paused",
+			"connect": "Connect",
+			"configure": "Configure",
+			"done": "Done"
 		},
 		"projectVisibility": {
 			"pageTitle": "Project Visibility",

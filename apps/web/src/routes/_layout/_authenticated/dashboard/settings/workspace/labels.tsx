@@ -47,6 +47,7 @@ import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { resolveLabelColor } from "@/lib/label-color";
 import { toast } from "@/lib/toast";
+import { SettingsPage } from "@/components/settings/settings-page";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/workspace/labels",
@@ -222,18 +223,10 @@ function RouteComponent() {
   return (
     <>
       <PageTitle title={t("settings:workspaceLabels.pageTitle")} />
-      <div className="max-w-4xl mx-auto space-y-8">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold">
-            {t("settings:workspaceLabels.title", { defaultValue: "Labels" })}
-          </h1>
-          <p className="text-muted-foreground">
-            {t("settings:workspaceLabels.subtitle", {
-              defaultValue: "Create, edit, and delete workspace-level labels.",
-            })}
-          </p>
-        </div>
-
+      <SettingsPage
+        title={t("settings:workspaceLabels.title")}
+        description={t("settings:workspaceLabels.subtitle")}
+      >
         <CardFrame>
           <Card className="!rounded-none !border-t-0">
             <CardHeader>
@@ -358,7 +351,7 @@ function RouteComponent() {
             </CardPanel>
           </Card>
         </CardFrame>
-      </div>
+      </SettingsPage>
 
       {/* Create Dialog */}
       <Dialog

@@ -1039,7 +1039,14 @@
 			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook.",
 			"mattermostSectionTitle": "Mattermost Integration",
 			"gitlabSectionSubtitle": "Synchronize tasks with GitLab.com or a self-managed instance (issues, merge requests, webhooks).",
-			"gitlabSectionTitle": "GitLab Integration"
+			"gitlabSectionTitle": "GitLab Integration",
+			"codeHostingTitle": "कोड होस्टिंग",
+			"chatTitle": "चैट और वेबहुक",
+			"statusConnected": "कनेक्टेड",
+			"statusPaused": "रोका गया",
+			"connect": "कनेक्ट करें",
+			"configure": "कॉन्फ़िगर करें",
+			"done": "हो गया"
 		},
 		"projectVisibility": {
 			"pageTitle": "प्रोजेक्ट दृश्यता",
