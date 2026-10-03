@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import * as eligibility from "../../apps/api/src/plugins/sync/eligibility";
 import {
   afterEach,
   beforeEach,
@@ -659,3 +660,66 @@ it.each(["gitea", "gitlab"])(
     ]);
   },
 );
+
+it("does not apply a webhook after its link is paused while waiting for the link lock", async () => {
+  const f = await setup();
+  let release!: () => void;
+  let locked!: () => void;
+  let checked!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const acquired = new Promise<void>((resolve) => {
+    locked = resolve;
+  });
+  const eligibilityChecked = new Promise<void>((resolve) => {
+    checked = resolve;
+  });
+  const original = eligibility.canSyncTask;
+  const guard = vi
+    .spyOn(eligibility, "canSyncTask")
+    .mockImplementation(async (...args) => {
+      const result = await original(...args);
+      checked();
+      return result;
+    });
+  const pause = db.transaction(async (tx) => {
+    await tx
+      .select()
+      .from(schema.externalLinkTable)
+      .where(eq(schema.externalLinkTable.id, f.link.id))
+      .for("update");
+    await tx
+      .update(schema.externalLinkTable)
+      .set({ metadata: JSON.stringify({ syncFilterPaused: true }) })
+      .where(eq(schema.externalLinkTable.id, f.link.id));
+    locked();
+    await gate;
+  });
+  await acquired;
+  const webhook = handleGiteaIssueEdited(
+    {
+      action: "edited",
+      issue: remoteIssue,
+      repository,
+      changes: {
+        title: { from: "Private title" },
+        body: { from: "Private description" },
+      },
+    },
+    f.integration.id,
+  );
+  try {
+    await eligibilityChecked;
+    release();
+    await pause;
+    await webhook;
+    expect(guard).toHaveBeenCalledTimes(2);
+    await expectPrivateTask(f.task.id);
+  } finally {
+    release();
+    await pause;
+    await webhook;
+    guard.mockRestore();
+  }
+});

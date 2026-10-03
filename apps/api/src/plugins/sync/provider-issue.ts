@@ -31,6 +31,7 @@ export async function providerIssue(
     description?: string | null;
     state: string;
     updated_at?: string;
+    content_version?: number;
   }) => ({
     title: issue.title,
     description: formatTaskDescriptionFromIssue(
@@ -39,17 +40,26 @@ export async function providerIssue(
     ),
     state: issue.state === "closed" ? ("closed" as const) : ("open" as const),
     updatedAt: issue.updated_at ?? null,
+    contentVersion: issue.content_version ?? null,
   });
   if (integration.type === "gitea") {
     const client = createGiteaClient(config as GiteaConfig);
+    let contentVersion: number | undefined;
     return {
-      read: async () => normalize(await client.getIssue(owner, repo, number)),
+      read: async () => {
+        const issue = await client.getIssue(owner, repo, number);
+        contentVersion = issue.content_version;
+        return normalize(issue);
+      },
       write: async (values: IssueValues) =>
         normalize(
           await client.updateIssue(owner, repo, number, {
             title: values.title,
             body: formatIssueBody(values.description, link.taskId),
             state: values.state,
+            ...(contentVersion === undefined
+              ? {}
+              : { content_version: contentVersion }),
           }),
         ),
     };

@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { PendingEcho } from "../utils/inbound-echo";
 import { updateExternalLink } from "./link-manager";
 import { externalLinkTable } from "../../../database/schema";
+import { canSyncTask } from "../../sync/eligibility";
 import {
   withIntegrationTask,
   type IntegrationDatabase,
@@ -33,6 +34,15 @@ export function withIntegrationLink<T>(
         )
         .for("update");
       if (!lockedLink) return;
+      if (
+        !(await canSyncTask(
+          link.taskId,
+          integration.id,
+          database,
+          expectedBinding?.config,
+        ))
+      )
+        return;
       try {
         return await apply(database, afterCommit, lockedLink);
       } catch (error) {
