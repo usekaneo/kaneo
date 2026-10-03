@@ -28,6 +28,7 @@ export function useIntegrationStatuses(projectId: string) {
   const statuses = {
     github: getIntegrationStatus({
       queryStatus: github.status,
+      hasData: github.data !== undefined,
       configured: Boolean(github.data),
       isActive: github.data?.isActive,
       detail: formatRepository(
@@ -37,6 +38,7 @@ export function useIntegrationStatuses(projectId: string) {
     }),
     gitea: getIntegrationStatus({
       queryStatus: gitea.status,
+      hasData: gitea.data !== undefined,
       configured: Boolean(gitea.data),
       isActive: gitea.data?.isActive,
       detail: formatRepository(
@@ -46,36 +48,42 @@ export function useIntegrationStatuses(projectId: string) {
     }),
     gitlab: getIntegrationStatus({
       queryStatus: gitlab.status,
+      hasData: gitlab.data !== undefined,
       configured: Boolean(gitlab.data),
       isActive: gitlab.data?.isActive,
       detail: gitlab.data?.projectPath,
     }),
     slack: getIntegrationStatus({
       queryStatus: slack.status,
+      hasData: slack.data !== undefined,
       configured: Boolean(slack.data?.webhookConfigured),
       isActive: slack.data?.isActive,
       detail: formatChannel(slack.data?.channelName),
     }),
     discord: getIntegrationStatus({
       queryStatus: discord.status,
+      hasData: discord.data !== undefined,
       configured: Boolean(discord.data?.webhookConfigured),
       isActive: discord.data?.isActive,
       detail: formatChannel(discord.data?.channelName),
     }),
     mattermost: getIntegrationStatus({
       queryStatus: mattermost.status,
+      hasData: mattermost.data !== undefined,
       configured: Boolean(mattermost.data?.webhookConfigured),
       isActive: mattermost.data?.isActive,
       detail: formatChannel(mattermost.data?.channelName),
     }),
     telegram: getIntegrationStatus({
       queryStatus: telegram.status,
+      hasData: telegram.data !== undefined,
       configured: Boolean(telegram.data?.botTokenConfigured),
       isActive: telegram.data?.isActive,
       detail: telegram.data?.chatLabel,
     }),
     webhook: getIntegrationStatus({
       queryStatus: webhook.status,
+      hasData: webhook.data !== undefined,
       configured: Boolean(webhook.data?.webhookConfigured),
       isActive: webhook.data?.isActive,
     }),

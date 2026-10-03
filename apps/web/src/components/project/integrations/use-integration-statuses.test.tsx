@@ -125,7 +125,11 @@ describe("useIntegrationStatuses", () => {
   it("starts with an unknown status when switching projects", async () => {
     fetchers.github.mockImplementation((projectId: string) =>
       projectId === "p1"
-        ? Promise.resolve({ repositoryOwner: "acme", repositoryName: "web" })
+        ? Promise.resolve({
+            repositoryOwner: "acme",
+            repositoryName: "web",
+            isActive: true,
+          })
         : new Promise(() => {}),
     );
     const { result, rerender } = renderHook(
@@ -139,4 +143,64 @@ describe("useIntegrationStatuses", () => {
     expect(result.current.statuses.github.state).toBe("loading");
     expect(result.current.statuses.github.detail).toBeUndefined();
   });
+  it("shows loading during a delayed retry and reuses the in-flight request", async () => {
+    let resolve!: (value: unknown) => void;
+    fetchers.github
+      .mockRejectedValueOnce(new Error("Network unavailable"))
+      .mockReturnValue(
+        new Promise((done) => {
+          resolve = done;
+        }),
+      );
+    const { result } = renderHook(() => useIntegrationStatuses("p1"), {
+      wrapper,
+    });
+    await waitFor(() =>
+      expect(result.current.statuses.github.state).toBe("unavailable"),
+    );
+    act(() => result.current.retry("github"));
+    await waitFor(() =>
+      expect(result.current.statuses.github.state).toBe("loading"),
+    );
+    act(() => result.current.retry("github"));
+    expect(fetchers.github).toHaveBeenCalledTimes(2);
+    await act(async () => {
+      resolve(null);
+    });
+    await waitFor(() =>
+      expect(result.current.statuses.github.state).toBe("disconnected"),
+    );
+  });
+
+  it.each([
+    {
+      data: { repositoryOwner: "acme", repositoryName: "web", isActive: true },
+      expected: { state: "connected", detail: "acme/web" },
+    },
+    {
+      data: { repositoryOwner: "acme", repositoryName: "web", isActive: null },
+      expected: { state: "paused", detail: "acme/web" },
+    },
+    { data: null, expected: { state: "disconnected" } },
+  ])(
+    "keeps the last loaded status after a failed background refresh: $expected.state",
+    async ({ data, expected }) => {
+      fetchers.github
+        .mockResolvedValueOnce(data)
+        .mockRejectedValue(new Error("Network unavailable"));
+      const { result } = renderHook(() => useIntegrationStatuses("p1"), {
+        wrapper,
+      });
+      await waitFor(() =>
+        expect(result.current.statuses.github).toEqual(expected),
+      );
+      await act(async () => {
+        await client.refetchQueries({ queryKey: ["github-integration", "p1"] });
+      });
+      expect(client.getQueryState(["github-integration", "p1"])?.status).toBe(
+        "error",
+      );
+      expect(result.current.statuses.github).toEqual(expected);
+    },
+  );
 });

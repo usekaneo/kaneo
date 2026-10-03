@@ -22,19 +22,40 @@ describe("getIntegrationStatus", () => {
     ).toEqual({ state: "unavailable" });
   });
 
+  it.each(["pending", "error"] as const)(
+    "keeps cached configuration when the query is %s",
+    (queryStatus) => {
+      expect(
+        getIntegrationStatus({
+          queryStatus,
+          hasData: true,
+          configured: true,
+          isActive: true,
+          detail: "acme/web",
+        }),
+      ).toEqual({ state: "connected", detail: "acme/web" });
+      expect(
+        getIntegrationStatus({ queryStatus, hasData: true, configured: false }),
+      ).toEqual({ state: "disconnected" });
+    },
+  );
+
   it("is disconnected until the integration is configured", () => {
     expect(
       getIntegrationStatus({ configured: false, isActive: true, detail: "x" }),
     ).toEqual({ state: "disconnected" });
   });
 
-  it("is paused when configured but switched off", () => {
-    expect(
-      getIntegrationStatus({ configured: true, isActive: false }).state,
-    ).toBe("paused");
-  });
+  it.each([false, null, undefined])(
+    "is paused when configured with inactive value %s",
+    (isActive) => {
+      expect(getIntegrationStatus({ configured: true, isActive }).state).toBe(
+        "paused",
+      );
+    },
+  );
 
-  it("is connected when configured and not switched off", () => {
+  it("is connected when configured and explicitly active", () => {
     expect(
       getIntegrationStatus({
         configured: true,
@@ -42,7 +63,6 @@ describe("getIntegrationStatus", () => {
         detail: " acme/web ",
       }),
     ).toEqual({ state: "connected", detail: "acme/web" });
-    expect(getIntegrationStatus({ configured: true }).state).toBe("connected");
   });
 });
 

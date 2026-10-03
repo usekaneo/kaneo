@@ -11,6 +11,7 @@ export type IntegrationStatus = {
 };
 
 type IntegrationStatusInput = {
+  hasData?: boolean;
   queryStatus?: "pending" | "error" | "success";
   configured: boolean;
   isActive?: boolean | null;
@@ -19,16 +20,17 @@ type IntegrationStatusInput = {
 
 export function getIntegrationStatus({
   queryStatus = "success",
+  hasData = queryStatus === "success",
   configured,
   isActive,
   detail,
 }: IntegrationStatusInput): IntegrationStatus {
-  if (queryStatus === "pending") return { state: "loading" };
-  if (queryStatus === "error") return { state: "unavailable" };
+  if (!hasData && queryStatus === "pending") return { state: "loading" };
+  if (!hasData && queryStatus === "error") return { state: "unavailable" };
   if (!configured) return { state: "disconnected" };
 
   return {
-    state: isActive === false ? "paused" : "connected",
+    state: isActive === true ? "connected" : "paused",
     detail: detail?.trim() || undefined,
   };
 }
