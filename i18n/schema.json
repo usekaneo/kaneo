@@ -12098,6 +12098,9 @@
 						"roadmap": {
 							"type": "string"
 						},
+						"community": {
+							"type": "string"
+						},
 						"menu": {
 							"type": "string"
 						},
@@ -12123,6 +12126,7 @@
 						"guides",
 						"comparisons",
 						"roadmap",
+						"community",
 						"menu",
 						"closeMenu",
 						"home",
