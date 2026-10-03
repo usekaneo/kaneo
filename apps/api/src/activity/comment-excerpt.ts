@@ -13,6 +13,15 @@ export function commentExcerpt(content: string | null): string | null {
     .trim();
 
   if (!text) return null;
-  if (text.length <= EXCERPT_LENGTH) return text;
-  return `${text.slice(0, EXCERPT_LENGTH - 1).trimEnd()}…`;
+  const characters: string[] = [];
+  for (const character of text) {
+    characters.push(character);
+    if (characters.length > EXCERPT_LENGTH) {
+      return `${characters
+        .slice(0, EXCERPT_LENGTH - 1)
+        .join("")
+        .trimEnd()}…`;
+    }
+  }
+  return text;
 }

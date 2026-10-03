@@ -28,6 +28,13 @@ describe("commentExcerpt", () => {
     expect(excerpt?.endsWith("…")).toBe(true);
   });
 
+  it("keeps surrogate pairs intact at the excerpt boundary", () => {
+    const prefix = "a".repeat(238);
+    expect(commentExcerpt(`${prefix}😀tail`)).toBe(`${prefix}😀…`);
+    const atLimit = "😀".repeat(240);
+    expect(commentExcerpt(atLimit)).toBe(atLimit);
+  });
+
   it("returns null when nothing readable is left", () => {
     expect(commentExcerpt(null)).toBeNull();
     expect(commentExcerpt("![only](https://x.test/a.png)")).toBeNull();
