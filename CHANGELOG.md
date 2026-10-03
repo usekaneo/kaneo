@@ -1,3 +1,14 @@
+### Features
+
+- add short task links like /acme/task/KAN-12: #1891
+- **web:** add home, inbox and my tasks pages: #1898
+- **web:** wire the task copy shortcuts: #1897
+- **web:** move task delete into the action group: #1896
+
+### Credits
+
+Huge thanks to @andrejsshell and @tinsever for helping!
+
 ### Bug Fixes
 
 - **web:** send subscription revenue as a property: [445b735](https://github.com/usekaneo/kaneo/commit/445b735188ea01c832ec1406a03c5ec50edd9b60)
