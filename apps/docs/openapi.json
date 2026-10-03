@@ -7741,7 +7741,7 @@
             }
           },
           "409": {
-            "description": "An active project in the workspace uses this key",
+            "description": "Another project in the workspace uses this key",
             "content": {
               "text/plain": {
                 "schema": {

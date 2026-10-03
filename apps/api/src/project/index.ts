@@ -280,7 +280,7 @@ const unarchiveProjectRoute = createRoute({
     403: errorResponse(
       "No workspace access, or missing project:update permission",
     ),
-    409: errorResponse("An active project in the workspace uses this key"),
+    409: errorResponse("Another project in the workspace uses this key"),
   },
 });
 

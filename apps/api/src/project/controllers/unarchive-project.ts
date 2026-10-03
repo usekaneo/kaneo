@@ -29,11 +29,11 @@ async function unarchiveProject(id: string, workspaceId: string) {
       tx,
       workspaceId,
       existingProject.slug,
-      { excludeProjectId: id, activeOnly: true },
+      { excludeProjectId: id },
     );
     if (keyConflict) {
       throw new HTTPException(409, {
-        message: `This workspace already has an active project using the key "${existingProject.slug}" (${keyConflict.name}). Change one of the keys before unarchiving this project.`,
+        message: `This workspace already has a project using the key "${existingProject.slug}" (${keyConflict.name}). Change one of the keys before unarchiving this project.`,
       });
     }
 

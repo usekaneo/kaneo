@@ -201,7 +201,7 @@ describe("API integration: project creation", () => {
     expect((await update(project.id, "Design", "DSN")).status).toBe(200);
   });
 
-  it("rejects unarchiving a project whose key an active project uses", async () => {
+  it("rejects unarchiving a project whose key another project uses", async () => {
     const member = await createWorkspaceMember({ role: "admin" });
     await createProjectFixture({
       workspaceId: member.workspace.id,
@@ -220,6 +220,10 @@ describe("API integration: project creation", () => {
       workspaceId: member.workspace.id,
       slug: "old",
     });
+    const { project: uniqueArchived } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      slug: "NEW",
+    });
     await db
       .update(schema.projectTable)
       .set({ archivedAt: new Date() })
@@ -228,6 +232,7 @@ describe("API integration: project creation", () => {
           archived.id,
           archivedTwin.id,
           otherArchived.id,
+          uniqueArchived.id,
         ]),
       );
     mockAuthenticatedSession(member.user);
@@ -238,6 +243,7 @@ describe("API integration: project creation", () => {
     const conflict = await unarchive(archived.id);
     expect(conflict.status).toBe(409);
     await expect(conflict.text()).resolves.toContain("(Kanban)");
-    expect((await unarchive(archivedTwin.id)).status).toBe(200);
+    expect((await unarchive(archivedTwin.id)).status).toBe(409);
+    expect((await unarchive(uniqueArchived.id)).status).toBe(200);
   });
 });

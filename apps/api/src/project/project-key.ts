@@ -1,4 +1,4 @@
-import { and, eq, isNull, ne, or, sql } from "drizzle-orm";
+import { and, eq, ne, or, sql } from "drizzle-orm";
 import type db from "../database";
 import { projectTable } from "../database/schema";
 
@@ -19,10 +19,7 @@ export async function findProjectKeyConflict(
   database: Pick<typeof db, "select">,
   workspaceId: string,
   key: string,
-  {
-    excludeProjectId,
-    activeOnly = false,
-  }: { excludeProjectId?: string; activeOnly?: boolean } = {},
+  { excludeProjectId }: { excludeProjectId?: string } = {},
 ) {
   const projects = await database
     .select({ name: projectTable.name, slug: projectTable.slug })
@@ -32,7 +29,6 @@ export async function findProjectKeyConflict(
         eq(projectTable.workspaceId, workspaceId),
         mayMatchProjectKey(key),
         excludeProjectId ? ne(projectTable.id, excludeProjectId) : undefined,
-        activeOnly ? isNull(projectTable.archivedAt) : undefined,
       ),
     );
 
