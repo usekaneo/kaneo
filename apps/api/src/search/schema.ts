@@ -11,6 +11,10 @@ export const searchQuery = z.object({
     .default("all"),
   workspaceId: z.string().min(1),
   projectId: z.string().optional(),
+  excludeProjectId: z.string().optional().openapi({
+    description:
+      "Leave out results scoped to this project, e.g. to search other projects in the workspace for a cross-project picker. Ignored together with `projectId`.",
+  }),
   limit: z
     .string()
     .optional()

@@ -29,8 +29,15 @@ const globalSearchRoute = createRoute({
 });
 
 const search = apiRouter().openapi(globalSearchRoute, async (c) => {
-  const { q, type, workspaceId, projectId, limit, userEmail } =
-    c.req.valid("query");
+  const {
+    q,
+    type,
+    workspaceId,
+    projectId,
+    excludeProjectId,
+    limit,
+    userEmail,
+  } = c.req.valid("query");
 
   return c.json(
     await globalSearch({
@@ -40,6 +47,7 @@ const search = apiRouter().openapi(globalSearchRoute, async (c) => {
       type,
       workspaceId,
       projectId,
+      excludeProjectId,
       limit,
     }),
     200,

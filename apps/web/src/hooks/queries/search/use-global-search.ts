@@ -12,6 +12,7 @@ type SearchParams = {
     | "activities";
   workspaceId: string | undefined;
   projectId?: string;
+  excludeProjectId?: string;
   limit?: number;
 };
 
