@@ -37,8 +37,9 @@ export const taskSchema = z
 
 export const taskWithAssigneeSchema = taskSchema
   .extend({
-    workspaceId: z.string().openapi({
-      description: "The workspace currently owning the task's project.",
+    workspaceId: z.string().optional().openapi({
+      description:
+        "The workspace currently owning the task's project. Included in the detail view; omitted from the compact board view.",
     }),
     columnId: z.string().nullable().openapi({
       description:

@@ -48,9 +48,9 @@ async function getTask(taskId: string, board = false) {
     });
   }
 
-  const result = task[0];
-  const { workspaceId } = result;
-  if (!board || !workspaceId) return result;
+  if (!board) return task[0];
+  const { workspaceId, ...result } = task[0];
+  if (!workspaceId) return result;
   const parent = alias(taskTable, "parent");
   const parents = await db
     .selectDistinct({ id: parent.id })

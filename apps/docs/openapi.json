@@ -1175,7 +1175,7 @@
             "properties": {
               "workspaceId": {
                 "type": "string",
-                "description": "The workspace currently owning the task's project."
+                "description": "The workspace currently owning the task's project. Included in the detail view; omitted from the compact board view."
               },
               "columnId": {
                 "type": [
@@ -1235,7 +1235,6 @@
               }
             },
             "required": [
-              "workspaceId",
               "columnId",
               "assigneeName",
               "assigneeId"
