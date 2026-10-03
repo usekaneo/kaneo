@@ -10,9 +10,11 @@ import useGetWorkspaceActivities from "./activity/use-get-workspace-activities";
 import useGetAssignedTasks from "./task/use-get-assigned-tasks";
 import useGetTask from "./task/use-get-task";
 import useGetActivitiesByTaskId from "./activity/use-get-activities-by-task-id";
+import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import useCreateComment from "@/hooks/mutations/comment/use-create-comment";
 import useUpdateComment from "@/hooks/mutations/comment/use-update-comment";
 import useDeleteComment from "@/hooks/mutations/comment/use-delete-comment";
+import { useGetColumns } from "./column/use-get-columns";
 import useGetProjects from "./project/use-get-projects";
 
 const mocks = vi.hoisted(() => ({
@@ -21,6 +23,8 @@ const mocks = vi.hoisted(() => ({
   task: vi.fn(),
   comments: vi.fn(),
   projects: vi.fn(),
+  columns: vi.fn(),
+  createTask: vi.fn(),
   createComment: vi.fn(),
   updateComment: vi.fn(),
   deleteComment: vi.fn(),
@@ -36,8 +40,11 @@ vi.mock("@/fetchers/task/get-task", () => ({ default: mocks.task }));
 vi.mock("@/fetchers/activity/get-activites-by-task-id", () => ({
   default: mocks.comments,
 }));
+vi.mock("@/fetchers/column/get-columns", () => ({ default: mocks.columns }));
 vi.mock("@/fetchers/project/get-projects", () => ({ default: mocks.projects }));
 
+vi.mock("@/fetchers/task/create-task", () => ({ default: mocks.createTask }));
+vi.mock("@/lib/analytics/activation", () => ({ trackFirstTask: vi.fn() }));
 vi.mock("@/fetchers/comment/create-comment", () => ({
   default: mocks.createComment,
 }));
@@ -143,6 +150,107 @@ describe("personal work refresh", () => {
     });
     expect(mocks.projects).toHaveBeenCalledOnce();
     expect(result.current.data).toEqual([{ id: "fresh" }]);
+    client.clear();
+  });
+
+  it("refreshes cached Inbox workflow names on mount, while visible and on focus", async () => {
+    vi.useFakeTimers();
+    focusManager.setFocused(true);
+    const client = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+          staleTime: Infinity,
+          refetchOnMount: false,
+          refetchOnWindowFocus: false,
+        },
+      },
+    });
+    client.setQueryData(
+      ["columns", "project"],
+      [{ id: "review", name: "Old name" }],
+    );
+    mocks.columns.mockResolvedValue([
+      { id: "review", name: "Renamed", icon: "Flag" },
+    ]);
+    const wrapper = ({ children }: PropsWithChildren) => (
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    );
+    const cached = renderHook(() => useGetColumns("project"), { wrapper });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(60_010);
+    });
+    expect(mocks.columns).not.toHaveBeenCalled();
+    cached.unmount();
+    const { result } = renderHook(
+      () => useGetColumns("project", { refreshWhileVisible: true }),
+      { wrapper },
+    );
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10);
+    });
+    expect(mocks.columns).toHaveBeenCalledOnce();
+    expect(result.current.data).toEqual([
+      { id: "review", name: "Renamed", icon: "Flag" },
+    ]);
+    const calls = mocks.columns.mock.calls.length;
+    mocks.columns.mockResolvedValue([
+      { id: "review", name: "Changed again", icon: "Circle" },
+    ]);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_010);
+    });
+    expect(mocks.columns).toHaveBeenCalledTimes(calls + 1);
+    expect(result.current.data?.[0].name).toBe("Changed again");
+    focusManager.setFocused(false);
+    const backgroundCalls = mocks.columns.mock.calls.length;
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(60_000);
+    });
+    expect(mocks.columns).toHaveBeenCalledTimes(backgroundCalls);
+    await act(async () => {
+      focusManager.setFocused(true);
+      await vi.advanceTimersByTimeAsync(10);
+    });
+    expect(mocks.columns).toHaveBeenCalledTimes(backgroundCalls + 1);
+    client.clear();
+  });
+
+  it("refreshes Home project statistics immediately after task creation", async () => {
+    mocks.projects.mockResolvedValue([
+      { id: "project", statistics: { totalTasks: 1 } },
+    ]);
+    mocks.createTask.mockResolvedValue({ id: "created", projectId: "project" });
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const wrapper = ({ children }: PropsWithChildren) => (
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    );
+    const { result } = renderHook(
+      () => ({
+        projects: useGetProjects({ workspaceId: "workspace" }),
+        create: useCreateTask(),
+      }),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.projects.isSuccess).toBe(true));
+    mocks.projects.mockResolvedValue([
+      { id: "project", statistics: { totalTasks: 2 } },
+    ]);
+    await act(async () => {
+      await result.current.create.mutateAsync({
+        projectId: "project",
+        title: "New",
+        description: "",
+        status: "to-do",
+        priority: "no-priority",
+      });
+    });
+    await waitFor(() =>
+      expect(result.current.projects.data?.[0].statistics.totalTasks).toBe(2),
+    );
+    expect(mocks.projects).toHaveBeenCalledTimes(2);
     client.clear();
   });
 

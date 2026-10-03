@@ -35,6 +35,7 @@ function useCreateTask() {
       ),
     onSuccess: (_data, variables) => {
       invalidateMyWork(queryClient);
+      void queryClient.invalidateQueries({ queryKey: ["projects"] });
       trackFirstTask();
       void queryClient.invalidateQueries({
         queryKey: ["tasks", variables.projectId],

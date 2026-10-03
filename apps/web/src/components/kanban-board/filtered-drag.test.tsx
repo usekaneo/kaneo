@@ -131,6 +131,9 @@ describe("filtered board dragging", () => {
     expect(mocks.invalidateQueries).not.toHaveBeenCalledWith({
       queryKey: ["workspace-activity"],
     });
+    expect(mocks.invalidateQueries).not.toHaveBeenCalledWith({
+      queryKey: ["projects"],
+    });
     view.unmount();
   });
 });
@@ -189,5 +192,8 @@ it("refreshes personal work after a cross-column status change", () => {
   });
   expect(mocks.invalidateQueries).toHaveBeenCalledWith({
     queryKey: ["workspace-activity"],
+  });
+  expect(mocks.invalidateQueries).toHaveBeenCalledWith({
+    queryKey: ["projects"],
   });
 });

@@ -12,6 +12,7 @@ export function useDeleteTask() {
     mutationFn: deleteTask,
     onSuccess: (deletedTask) => {
       invalidateMyWork(queryClient);
+      void queryClient.invalidateQueries({ queryKey: ["projects"] });
       queryClient.setQueryData<ProjectWithTasks | undefined>(
         ["tasks", deletedTask.projectId],
         (project) =>

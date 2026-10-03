@@ -280,7 +280,7 @@ function CreateTaskModalContent({
     isError: columnsError,
     refetch: refetchColumns,
     isFetching: columnsFetching,
-  } = useGetColumns(open ? resolvedProjectId : "", true);
+  } = useGetColumns(open ? resolvedProjectId : "", { refreshOnMount: true });
   const initialColumn = getInitialTaskColumn(projectColumns, status);
   const taskStatus = status ?? initialColumn?.slug ?? "planned";
   const awaitingColumns =

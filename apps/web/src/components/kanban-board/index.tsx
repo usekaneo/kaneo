@@ -69,8 +69,10 @@ function KanbanBoard({
       reorderTasks(request),
     onMutate: (variables) => ({ previousBoard: variables.previousBoard }),
     onSuccess: (_result, variables) => {
-      if (variables.tasks.some((task) => task.status !== undefined))
+      if (variables.tasks.some((task) => task.status !== undefined)) {
         invalidateMyWork(queryClient);
+        void queryClient.invalidateQueries({ queryKey: ["projects"] });
+      }
       void queryClient.invalidateQueries({
         queryKey: ["tasks", variables.projectId],
       });

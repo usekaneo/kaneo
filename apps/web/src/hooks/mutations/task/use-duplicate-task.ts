@@ -12,6 +12,7 @@ export function useDuplicateTask() {
     mutationFn: duplicateTask,
     onSuccess: (task) => {
       invalidateMyWork(queryClient);
+      void queryClient.invalidateQueries({ queryKey: ["projects"] });
       toast.success(t("tasks:duplicate.success"));
       queryClient.invalidateQueries({
         queryKey: ["tasks", task.projectId],

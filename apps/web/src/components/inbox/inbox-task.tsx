@@ -41,7 +41,9 @@ export function InboxTask({ taskId, workspaceId }: InboxTaskProps) {
     isPending: activityPending,
     isError: activityError,
   } = useGetActivitiesByTaskId(taskId, true, VISIBLE_ACTIVITIES);
-  const { data: columns = [] } = useGetColumns(task?.projectId ?? "");
+  const { data: columns = [] } = useGetColumns(task?.projectId ?? "", {
+    refreshWhileVisible: true,
+  });
   const slugColumns = columns.filter((column) => column.slug === task?.status);
   const statusColumn =
     columns.find((column) => column.id === task?.columnId) ??
