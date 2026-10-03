@@ -17,7 +17,12 @@ export async function taskIssueLabels(
   return [
     ...new Set([
       ...getLabelsForIssue(priority, status),
-      ...assigned.map((label) => label.name),
+      ...assigned
+        .map((label) => label.name)
+        .filter(
+          (name) =>
+            !name.startsWith("status:") && !name.startsWith("priority:"),
+        ),
     ]),
   ];
 }

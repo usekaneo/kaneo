@@ -152,15 +152,15 @@ async function createGiteaIntegration({
       })
       .where(
         and(
-          eq(integrationTable.projectId, projectId),
-          eq(integrationTable.type, "gitea"),
+          eq(integrationTable.id, existingIntegration.id),
+          eq(integrationTable.config, existingIntegration.config),
         ),
       )
       .returning();
 
     if (!updated) {
-      throw new HTTPException(500, {
-        message: "Failed to update Gitea integration",
+      throw new HTTPException(409, {
+        message: "Gitea integration changed; refresh before reconnecting",
       });
     }
 

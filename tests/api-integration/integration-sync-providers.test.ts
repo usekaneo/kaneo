@@ -194,12 +194,23 @@ describe.each(["github", "gitea", "gitlab"] as const)(
       await reconcileProjectSync(f.project.id, f.integration.id);
       expect(create).not.toHaveBeenCalled();
       await f.assign();
+      await db.insert(schema.labelTable).values(
+        ["status:done", "priority:high"].map((name) => ({
+          taskId: f.task.id,
+          workspaceId: f.workspace.id,
+          name,
+          color: "#123456",
+        })),
+      );
       await Promise.all([
         reconcileTaskSync(f.project.id, f.task.id),
         reconcileProjectSync(f.project.id, f.integration.id),
       ]);
       expect(create).toHaveBeenCalledOnce();
       expect(mocks.labels.mock.calls[0]!.at(-1)).toContain("export");
+      expect(mocks.labels.mock.calls[0]!.at(-1)).toContain("status:to-do");
+      expect(mocks.labels.mock.calls[0]!.at(-1)).not.toContain("status:done");
+      expect(mocks.labels.mock.calls[0]!.at(-1)).not.toContain("priority:high");
       expect(
         await db.query.externalLinkTable.findMany({
           where: eq(schema.externalLinkTable.taskId, f.task.id),

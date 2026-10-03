@@ -190,15 +190,15 @@ async function createGitlabIntegration({
       })
       .where(
         and(
-          eq(integrationTable.projectId, projectId),
-          eq(integrationTable.type, "gitlab"),
+          eq(integrationTable.id, existingIntegration.id),
+          eq(integrationTable.config, existingIntegration.config),
         ),
       )
       .returning();
 
     if (!updated) {
-      throw new HTTPException(500, {
-        message: "Failed to update GitLab integration",
+      throw new HTTPException(409, {
+        message: "GitLab integration changed; refresh before reconnecting",
       });
     }
 
