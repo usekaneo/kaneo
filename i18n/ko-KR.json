@@ -1888,6 +1888,7 @@
 			"loading": "Loading sync rules…",
 			"matchLabels": "Label matching",
 			"missingLabels": "A selected workspace label is unavailable. Sync stays paused until the rule is repaired.",
+			"removeMissingLabels": "사용할 수 없는 라벨 제거",
 			"next": "Next",
 			"noDescription": "No description",
 			"noLabels": "Create workspace labels before configuring a task filter.",

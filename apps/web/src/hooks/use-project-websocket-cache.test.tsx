@@ -503,5 +503,8 @@ it.each([
     expect(mocks.client.invalidateQueries).toHaveBeenCalledWith({
       queryKey: ["integration-sync-preview", "p"],
     });
+    expect(mocks.client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["integration-sync-review", "p"],
+    });
   });
 });

@@ -29,6 +29,7 @@ export function LabelRuleEditor({
   const id = useId();
   const [labelName, setLabelName] = useState("");
   const outgoing = direction === "outgoing";
+  const availableLabelIds = new Set(labels.map((label) => label.id));
   const addLabel = () => {
     const name = labelName.trim();
     if (
@@ -117,6 +118,22 @@ export function LabelRuleEditor({
                 <p className="text-xs text-muted-foreground">
                   {t("settings:syncRules.noLabels")}
                 </p>
+              )}
+              {rule.labels.some((id) => !availableLabelIds.has(id)) && (
+                <Button
+                  size="xs"
+                  variant="outline"
+                  onClick={() =>
+                    onChange({
+                      ...rule,
+                      labels: rule.labels.filter((id) =>
+                        availableLabelIds.has(id),
+                      ),
+                    })
+                  }
+                >
+                  {t("settings:syncRules.removeMissingLabels")}
+                </Button>
               )}
               {labels.map((label) => (
                 <Label

@@ -107,6 +107,83 @@ function mount(node = <SyncRulesSection {...param} />) {
 }
 
 describe("advanced sync settings", () => {
+  it("removes unavailable labels without resetting valid selections or match mode", async () => {
+    useUserPreferencesStore.setState({ advancedSettings: true });
+    mocks.get.mockResolvedValue({
+      ...saved,
+      missingLabels: ["deleted-label"],
+      rules: {
+        ...saved.rules,
+        outgoing: {
+          mode: "labels",
+          match: "all",
+          labels: ["label-1", "deleted-label"],
+        },
+      },
+    });
+    mount();
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: "settings:syncRules.removeMissingLabels",
+      }),
+    );
+    expect(screen.getByRole("checkbox", { name: "sync" })).toBeChecked();
+    const apply = screen.getByRole("button", {
+      name: "settings:syncRules.apply",
+    });
+    await waitFor(() => expect(apply).toBeEnabled());
+    fireEvent.click(apply);
+    await waitFor(() =>
+      expect(mocks.save).toHaveBeenCalledWith(
+        param,
+        {
+          ...saved.rules,
+          outgoing: { mode: "labels", match: "all", labels: ["label-1"] },
+        },
+        "b".repeat(64),
+      ),
+    );
+  });
+
+  it("refreshes an open comparison and submits its new token after invalidation", async () => {
+    const { client } = mount(
+      <ResumeSyncDialog param={param} linkId="link-1" onClose={vi.fn()} />,
+    );
+    await screen.findByText("Kaneo title");
+    mocks.review.mockResolvedValueOnce({
+      task: { id: "task-1", number: 1, title: "Kaneo task" },
+      local: {
+        title: "Live Kaneo title",
+        description: "Local body",
+        state: "open",
+      },
+      remote: {
+        title: "Repository title",
+        description: "Remote body",
+        state: "closed",
+      },
+      token: "d".repeat(64),
+    });
+    await act(async () => {
+      await client.invalidateQueries({
+        queryKey: ["integration-sync-review", param.projectId],
+      });
+    });
+    expect(await screen.findByText("Live Kaneo title")).toBeVisible();
+    expect(screen.queryByText("Kaneo title")).toBeNull();
+    fireEvent.click(
+      screen.getByRole("button", { name: "settings:syncRules.useKaneo" }),
+    );
+    await waitFor(() =>
+      expect(mocks.resume).toHaveBeenCalledWith(
+        param,
+        "link-1",
+        "d".repeat(64),
+        "kaneo",
+      ),
+    );
+  });
+
   it("refreshes cached issue metadata after saving rules", async () => {
     useUserPreferencesStore.setState({ advancedSettings: true });
     mocks.get.mockResolvedValue({ ...saved, willCreate: 1 });

@@ -2,6 +2,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import * as events from "../../apps/api/src/events";
 import * as assets from "../../apps/api/src/storage/cleanup-assets";
+import { handleGitlabIssueReopened } from "../../apps/api/src/plugins/gitlab/webhooks/issue-reopened";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { getSyncIntegration } from "../../apps/api/src/integration-sync/controllers/get-integration";
@@ -609,6 +610,13 @@ describe("reviewed sync resume", () => {
         where: eq(schema.externalLinkTable.taskId, f.task.id),
       }),
     ).toHaveLength(1);
+    expect(
+      (
+        await db.query.externalLinkTable.findFirst({
+          where: eq(schema.externalLinkTable.id, f.link.id),
+        })
+      )?.title,
+    ).toBe("Repository title");
   });
   it("keeps Kaneo values only after the repository update succeeds", async () => {
     const f = await paused();
@@ -620,6 +628,66 @@ describe("reviewed sync resume", () => {
       state: "open",
     });
     expect(await canSyncTask(f.task.id, f.integration.id)).toBe(true);
+    expect(
+      (
+        await db.query.externalLinkTable.findFirst({
+          where: eq(schema.externalLinkTable.id, f.link.id),
+        })
+      )?.title,
+    ).toBe("Kaneo title");
+  });
+  it("preserves a GitLab task's chosen column through its reopen echo", async () => {
+    const f = await paused();
+    await db
+      .update(schema.integrationTable)
+      .set({
+        type: "gitlab",
+        config: JSON.stringify({
+          baseUrl: "https://git.example",
+          accessToken: "test-only",
+          projectPath: "team/repo",
+          syncRules: f.rules,
+        }),
+      })
+      .where(eq(schema.integrationTable.id, f.integration.id));
+    await db
+      .update(schema.taskTable)
+      .set({
+        status: f.columns.inProgress.slug,
+        columnId: f.columns.inProgress.id,
+      })
+      .where(eq(schema.taskTable.id, f.task.id));
+    const review = await reviewSyncResume(f.project.id, "gitlab", f.link.id);
+    await resumeSync(f.project.id, "gitlab", f.link.id, review.token, "kaneo");
+    const link = await db.query.externalLinkTable.findFirst({
+      where: eq(schema.externalLinkTable.id, f.link.id),
+    });
+    expect(JSON.parse(link!.metadata!)).toMatchObject({ state: "opened" });
+    await handleGitlabIssueReopened(
+      {
+        object_attributes: {
+          iid: 9,
+          title: "Kaneo title",
+          url: link!.url,
+          state: "opened",
+          action: "reopen",
+          updated_at: new Date().toISOString(),
+        },
+        project: {
+          path_with_namespace: "team/repo",
+          web_url: "https://git.example/team/repo",
+        },
+      },
+      f.integration.id,
+    );
+    expect(
+      await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, f.task.id),
+      }),
+    ).toMatchObject({
+      status: f.columns.inProgress.slug,
+      columnId: f.columns.inProgress.id,
+    });
   });
   it("runs mention notifications and asset cleanup when adopting repository text", async () => {
     vi.spyOn(events, "publishEvent").mockResolvedValue(undefined);

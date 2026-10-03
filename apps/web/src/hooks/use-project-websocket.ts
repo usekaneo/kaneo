@@ -86,6 +86,9 @@ export function useProjectWebSocket(projectId: string) {
         queryClient.invalidateQueries({
           queryKey: ["integration-sync-preview", projectId],
         });
+        queryClient.invalidateQueries({
+          queryKey: ["integration-sync-review", projectId],
+        });
       }
       if (message.type === "PROJECT_UPDATED") {
         queryClient.invalidateQueries({ queryKey: ["projects"] });

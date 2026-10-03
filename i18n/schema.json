@@ -1774,6 +1774,9 @@
 						"missingLabels": {
 							"type": "string"
 						},
+						"removeMissingLabels": {
+							"type": "string"
+						},
 						"apply": {
 							"type": "string"
 						},
@@ -1893,6 +1896,7 @@
 						"saveError",
 						"refreshPreview",
 						"missingLabels",
+						"removeMissingLabels",
 						"apply",
 						"saved",
 						"loading",

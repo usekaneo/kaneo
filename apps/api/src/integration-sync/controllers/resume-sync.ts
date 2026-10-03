@@ -106,6 +106,9 @@ async function resumeWithLease(
         await updateExternalLink(
           linkId,
           {
+            ...(field === "title"
+              ? { title: review[source === "kaneo" ? "local" : "remote"].title }
+              : {}),
             ...(source === "kaneo" && provider !== "gitlab"
               ? {
                   outbound: {
@@ -158,7 +161,11 @@ async function resumeWithLease(
                     },
                   }
                 : {}),
-              state: review[source === "kaneo" ? "local" : "remote"].state,
+              state:
+                provider === "gitlab" &&
+                review[source === "kaneo" ? "local" : "remote"].state === "open"
+                  ? "opened"
+                  : review[source === "kaneo" ? "local" : "remote"].state,
             },
             retireUncertainOutbound: field,
           },

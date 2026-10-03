@@ -452,6 +452,7 @@
 			"saveError": "Could not apply these rules. The integration or task scope may have changed. Refresh the preview and try again.",
 			"refreshPreview": "Refresh preview",
 			"missingLabels": "A selected workspace label is unavailable. Sync stays paused until the rule is repaired.",
+			"removeMissingLabels": "Remove unavailable labels",
 			"apply": "Apply sync rules",
 			"saved": "Sync rules saved",
 			"loading": "Loading sync rules…",

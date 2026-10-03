@@ -1895,6 +1895,7 @@
 			"loading": "Synchronisierungsregeln werden geladen…",
 			"matchLabels": "Labelübereinstimmung",
 			"missingLabels": "Ein ausgewähltes Workspace-Label ist nicht verfügbar. Die Synchronisierung bleibt pausiert, bis die Regel korrigiert wird.",
+			"removeMissingLabels": "Nicht verfügbare Labels entfernen",
 			"next": "Weiter",
 			"noDescription": "Keine Beschreibung",
 			"noLabels": "Erstelle zuerst Workspace-Labels, um einen Aufgabenfilter einzurichten.",
