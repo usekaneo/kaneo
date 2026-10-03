@@ -1225,7 +1225,7 @@
 				"issue_closed": "Problème Fermé"
 			},
 			"gitlabHeading": "GitLab",
-			"gitlabHint": "When a GitLab webhook event occurs, move the linked task to a column."
+			"gitlabHint": "Lorsqu'un événement de webhook GitLab survient, déplacez la tâche associée vers une colonne."
 		},
 		"externalLinks": {
 			"resources": "Ressources",
@@ -1234,14 +1234,14 @@
 			"merged": "Fusionné",
 			"draft": "Brouillon",
 			"open": "Ouvert",
-			"adding": "Adding...",
-			"addResource": "Add resource",
-			"cancel": "Cancel",
-			"empty": "No resources linked to this task.",
-			"titleOptional": "Title (optional)",
+			"adding": "Ajout...",
+			"addResource": "Ajouter une ressource",
+			"cancel": "Annuler",
+			"empty": "Aucune ressource liée à cette tâche.",
+			"titleOptional": "Titre (optionnel)",
 			"url": "URL",
-			"remove": "Remove {{title}}",
-			"removeError": "Failed to remove the resource link."
+			"remove": "Supprimer {{title}}",
+			"removeError": "Échec de la suppression du lien de la ressource."
 		},
 		"workspaceRoles": {
 			"pageTitle": "Rôles",
