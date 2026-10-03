@@ -76,6 +76,7 @@ import {
   finalizedAssetSchema,
   imageUploadSchema,
   moveTaskResultSchema,
+  taskByTicketIdSchema,
   taskExportSchema,
   taskImportResultSchema,
   taskSchema,
@@ -366,10 +367,10 @@ const getTaskByTicketIdRoute = createRoute({
   tags: ["Tasks"],
   summary: "Get task by ticket ID",
   description:
-    "Get a single task by its project key and number, such as KAN-12. If the ticket ID matches multiple accessible tasks, provide workspaceId or projectId to select one.",
+    "Get a single task by its project key and number, such as KAN-12. A match in an active project takes precedence, then the most recently archived project. If the ticket ID still matches multiple accessible tasks, narrow the lookup to a workspace with workspaceId or workspaceSlug, or to a single project with projectId.",
   request: { params: ticketIdParam, query: ticketIdQuery },
   responses: {
-    200: jsonResponse("Task details", taskWithAssigneeSchema),
+    200: jsonResponse("Task details", taskByTicketIdSchema),
     400: errorResponse("Invalid ticket ID"),
     404: errorResponse("No accessible task has this ticket ID"),
     409: errorResponse("Ticket ID matches multiple accessible tasks"),
@@ -928,14 +929,8 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
   })
   .openapi(getTaskByTicketIdRoute, async (c) => {
     const { ticketId } = c.req.valid("param");
-    const { workspaceId, projectId } = c.req.valid("query");
     return c.json(
-      await getTaskByTicketId(
-        ticketId,
-        c.get("userId"),
-        workspaceId,
-        projectId,
-      ),
+      await getTaskByTicketId(ticketId, c.get("userId"), c.req.valid("query")),
       200,
     );
   })

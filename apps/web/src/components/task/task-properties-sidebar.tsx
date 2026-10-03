@@ -18,6 +18,7 @@ import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useGetTask from "@/hooks/queries/task/use-get-task";
+import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useTaskCopyShortcuts } from "@/hooks/use-task-copy-shortcuts";
 import { getColumnIcon } from "@/lib/column";
@@ -27,10 +28,12 @@ import {
   isTaskCompleted,
 } from "@/lib/due-date-status";
 import { formatDateShort } from "@/lib/format";
+import { generateLink } from "@/lib/generate-link";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel, getStatusDisplayLabel } from "@/lib/i18n/domain";
 import { resolveLabelColor } from "@/lib/label-color";
 import { getPriorityIcon } from "@/lib/priority";
+import { getTaskPath } from "@/lib/task-link";
 import { toast } from "@/lib/toast";
 import TaskActions from "./task-actions";
 import TaskAssigneePopover from "./task-assignee-popover";
@@ -84,6 +87,7 @@ export default function TaskPropertiesSidebar({
   const { t } = useTranslation();
   const { data: task } = useGetTask(taskId ?? "");
   const { data: project } = useGetProject({ id: projectId, workspaceId });
+  const { data: workspace } = useActiveWorkspace();
   const { data: columns = [] } = useGetColumns(projectId);
   const taskIsCompleted = isTaskCompleted(task?.status ?? "", columns);
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(workspaceId);
@@ -121,8 +125,19 @@ export default function TaskPropertiesSidebar({
   );
 
   const handleCopyTaskLink = () => {
+    if (!taskId) return;
     navigator.clipboard.writeText(
-      `${window.location.origin}/dashboard/workspace/${workspaceId}/project/${projectId}/task/${taskId}`,
+      generateLink(
+        getTaskPath({
+          workspaceId,
+          workspace,
+          projectId,
+          workspaceProjects,
+          taskId,
+          taskNumber,
+          title: task?.title,
+        }),
+      ),
     );
     toast.message(t("tasks:properties.taskLinkCopied"));
   };

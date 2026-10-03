@@ -253,6 +253,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
             taskCardContext={{
               projectId: project.id,
               worskpaceId: workspace.id,
+              workspaceSlug: workspace.slug,
             }}
             onDeleteClick={() => setIsDeleteTaskModalOpen(true)}
           />

@@ -8900,6 +8900,15 @@
 						"taskNotFoundDescription": {
 							"type": "string"
 						},
+						"ticketAmbiguous": {
+							"type": "string"
+						},
+						"ticketAmbiguousDescription": {
+							"type": "string"
+						},
+						"ticketNotFoundDescription": {
+							"type": "string"
+						},
 						"customFields": {
 							"type": "string"
 						}
@@ -8909,6 +8918,9 @@
 						"loadingTask",
 						"taskNotFound",
 						"taskNotFoundDescription",
+						"ticketAmbiguous",
+						"ticketAmbiguousDescription",
+						"ticketNotFoundDescription",
 						"customFields"
 					]
 				},

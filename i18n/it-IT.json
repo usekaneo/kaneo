@@ -2212,6 +2212,9 @@
 			"loadingTask": "Caricamento attività...",
 			"taskNotFound": "Attività non trovata",
 			"taskNotFoundDescription": "L'attività che stai cercando non esiste o è stata eliminata.",
+			"ticketAmbiguous": "L'ID corrisponde a più attività",
+			"ticketAmbiguousDescription": "{{ticketId}} corrisponde ad attività in più progetti di questo workspace. Assegna una chiave diversa a uno di questi progetti per far funzionare il link.",
+			"ticketNotFoundDescription": "In questo workspace non esiste un'attività con ID {{ticketId}}, oppure non hai accesso a essa.",
 			"customFields": "Custom Fields"
 		},
 		"detail": {

@@ -2,6 +2,29 @@ import { createSlug } from "./create-slug";
 
 const RANDOM_SUFFIX_LENGTH = 12;
 
+const RESERVED_WORKSPACE_SLUGS = new Set([
+  ".",
+  "..",
+  ".well-known",
+  "api",
+  "assets",
+  "auth",
+  "dashboard",
+  "device",
+  "images",
+  "invitation",
+  "invitations",
+  "mcp",
+  "onboarding",
+  "profile-setup",
+  "public-project",
+  "test-error",
+]);
+
+export function isReservedWorkspaceSlug(slug: string): boolean {
+  return RESERVED_WORKSPACE_SLUGS.has(slug.toLowerCase());
+}
+
 export function createWorkspaceBaseSlug(value: string): string {
   return createSlug(value) || "workspace";
 }
@@ -19,7 +42,10 @@ export function createUniqueWorkspaceSlug(
     Array.from(existingSlugs, (slug) => slug?.toLowerCase()).filter(Boolean),
   );
 
-  if (!usedSlugs.has(baseSlug.toLowerCase())) {
+  if (
+    !usedSlugs.has(baseSlug.toLowerCase()) &&
+    !isReservedWorkspaceSlug(baseSlug)
+  ) {
     return baseSlug;
   }
 

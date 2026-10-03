@@ -2190,6 +2190,9 @@
 			"loadingTask": "Memuat tugas...",
 			"taskNotFound": "Tugas tidak ditemukan",
 			"taskNotFoundDescription": "Tugas yang Anda cari tidak ada atau telah dihapus.",
+			"ticketAmbiguous": "ID tugas cocok dengan lebih dari satu tugas",
+			"ticketAmbiguousDescription": "{{ticketId}} cocok dengan tugas di lebih dari satu proyek di ruang kerja ini. Berikan kunci yang berbeda ke salah satu proyek tersebut agar tautan berfungsi.",
+			"ticketNotFoundDescription": "Tidak ada tugas dengan ID {{ticketId}} di ruang kerja ini, atau Anda tidak memiliki akses ke tugas tersebut.",
 			"customFields": "Custom Fields"
 		},
 		"detail": {

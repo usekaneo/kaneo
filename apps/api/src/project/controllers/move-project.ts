@@ -1,13 +1,4 @@
-import {
-  and,
-  eq,
-  inArray,
-  isNotNull,
-  max,
-  ne,
-  notInArray,
-  sql,
-} from "drizzle-orm";
+import { and, eq, inArray, isNotNull, max, notInArray, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import createActivities from "../../activity/controllers/create-activities";
 import db from "../../database";
@@ -24,6 +15,7 @@ import {
 } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { closeProjectConnections } from "../../ws";
+import { findProjectKeyConflict } from "../project-key";
 
 async function moveProject(
   id: string,
@@ -72,17 +64,12 @@ async function moveProject(
     // rather than silently renaming a project out from under its ticket ids.
     // Compared case-insensitively, since the lookup is. Archived projects
     // count: their tasks still resolve by short id.
-    const [keyConflict] = await tx
-      .select({ name: projectTable.name })
-      .from(projectTable)
-      .where(
-        and(
-          eq(projectTable.workspaceId, targetWorkspaceId),
-          ne(projectTable.id, id),
-          sql`lower(${projectTable.slug}) = lower(${existingProject.slug})`,
-        ),
-      )
-      .limit(1);
+    const keyConflict = await findProjectKeyConflict(
+      tx,
+      targetWorkspaceId,
+      existingProject.slug,
+      { excludeProjectId: id },
+    );
 
     if (keyConflict) {
       throw new HTTPException(409, {

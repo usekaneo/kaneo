@@ -2201,6 +2201,9 @@
 			"loadingTask": "Talep yükleniyor...",
 			"taskNotFound": "Talep bulunamadı",
 			"taskNotFoundDescription": "Aradığınız talep mevcut değil veya silinmiş.",
+			"ticketAmbiguous": "Talep kimliği birden fazla talep ile eşleşiyor",
+			"ticketAmbiguousDescription": "{{ticketId}} bu çalışma alanındaki birden fazla projedeki taleplerle eşleşiyor. Bağlantının çalışması için bu projelerden birine farklı bir anahtar verin.",
+			"ticketNotFoundDescription": "Bu çalışma alanında {{ticketId}} kimliğine sahip bir talep yok veya bu talebe erişiminiz yok.",
 			"customFields": "Custom Fields"
 		},
 		"detail": {

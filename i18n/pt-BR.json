@@ -2212,6 +2212,9 @@
 			"loadingTask": "Carregando tarefa...",
 			"taskNotFound": "Tarefa não encontrada",
 			"taskNotFoundDescription": "A tarefa que você está procurando não existe ou foi excluída.",
+			"ticketAmbiguous": "O ID corresponde a mais de uma tarefa",
+			"ticketAmbiguousDescription": "{{ticketId}} corresponde a tarefas em mais de um projeto neste espaço de trabalho. Dê uma chave diferente a um desses projetos para que o link funcione.",
+			"ticketNotFoundDescription": "Nenhuma tarefa com o ID {{ticketId}} existe neste espaço de trabalho, ou você não tem acesso a ela.",
 			"customFields": "Custom Fields"
 		},
 		"detail": {

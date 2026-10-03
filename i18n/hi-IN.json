@@ -2201,6 +2201,9 @@
 			"loadingTask": "कार्य लोड हो रहा है...",
 			"taskNotFound": "कार्य नहीं मिला",
 			"taskNotFoundDescription": "जो कार्य आप खोज रहे हैं वह मौजूद नहीं है या हटा दिया गया है।",
+			"ticketAmbiguous": "यह कार्य ID एक से अधिक कार्यों से मेल खाती है",
+			"ticketAmbiguousDescription": "{{ticketId}} इस वर्कस्पेस के एक से अधिक प्रोजेक्ट के कार्यों से मेल खाती है। लिंक ठीक करने के लिए उनमें से किसी एक प्रोजेक्ट को अलग कुंजी दें।",
+			"ticketNotFoundDescription": "इस वर्कस्पेस में {{ticketId}} ID वाला कोई कार्य नहीं है, या आपके पास उसकी पहुँच नहीं है।",
 			"customFields": "Custom Fields"
 		},
 		"detail": {

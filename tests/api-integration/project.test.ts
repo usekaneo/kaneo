@@ -1,10 +1,13 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { mockAnonymousSession, mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
-import { createWorkspaceMember } from "./helpers/fixtures";
+import {
+  createProjectFixture,
+  createWorkspaceMember,
+} from "./helpers/fixtures";
 
 describe("API integration: project creation", () => {
   beforeEach(async () => {
@@ -126,5 +129,121 @@ describe("API integration: project creation", () => {
     await expect(response.text()).resolves.toBe(
       "You don't have access to this workspace",
     );
+  });
+
+  it("rejects a project key already used in the workspace", async () => {
+    const member = await createWorkspaceMember();
+    const other = await createWorkspaceMember();
+    await createProjectFixture({
+      workspaceId: member.workspace.id,
+      name: "Kanban",
+      slug: "KAN",
+    });
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+    const create = (workspaceId: string, slug: string) =>
+      app.request("/api/project", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          workspaceId,
+          name: "New",
+          icon: "Folder",
+          slug,
+        }),
+      });
+
+    const duplicate = await create(member.workspace.id, "kan");
+    expect(duplicate.status).toBe(409);
+    await expect(duplicate.text()).resolves.toContain('"kan" (Kanban)');
+    expect((await create(member.workspace.id, "ＫＡＮ")).status).toBe(409);
+
+    mockAuthenticatedSession(other.user);
+    expect((await create(other.workspace.id, "KAN")).status).toBe(200);
+  });
+
+  it("rejects renaming a project to a key already used in the workspace", async () => {
+    const member = await createWorkspaceMember({ role: "admin" });
+    await createProjectFixture({
+      workspaceId: member.workspace.id,
+      name: "Kanban",
+      slug: "KAN",
+    });
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      name: "Design",
+      slug: "DES",
+    });
+    const { project: twin } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      name: "Design Twin",
+      slug: "des",
+    });
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+    const update = (id: string, name: string, slug: string) =>
+      app.request(`/api/project/${id}`, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          name,
+          icon: "Folder",
+          slug,
+          description: "",
+          isPublic: false,
+        }),
+      });
+
+    expect((await update(twin.id, "Design Twin Renamed", "des")).status).toBe(
+      200,
+    );
+    expect((await update(project.id, "Design", "KAN")).status).toBe(409);
+    expect((await update(project.id, "Design", "DSN")).status).toBe(200);
+  });
+
+  it("rejects unarchiving a project whose key another project uses", async () => {
+    const member = await createWorkspaceMember({ role: "admin" });
+    await createProjectFixture({
+      workspaceId: member.workspace.id,
+      name: "Kanban",
+      slug: "KAN",
+    });
+    const { project: archived } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      slug: "kan",
+    });
+    const { project: archivedTwin } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      slug: "OLD",
+    });
+    const { project: otherArchived } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      slug: "old",
+    });
+    const { project: uniqueArchived } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+      slug: "NEW",
+    });
+    await db
+      .update(schema.projectTable)
+      .set({ archivedAt: new Date() })
+      .where(
+        inArray(schema.projectTable.id, [
+          archived.id,
+          archivedTwin.id,
+          otherArchived.id,
+          uniqueArchived.id,
+        ]),
+      );
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+    const unarchive = (id: string) =>
+      app.request(`/api/project/${id}/unarchive`, { method: "PUT" });
+
+    const conflict = await unarchive(archived.id);
+    expect(conflict.status).toBe(409);
+    await expect(conflict.text()).resolves.toContain("(Kanban)");
+    expect((await unarchive(archivedTwin.id)).status).toBe(409);
+    expect((await unarchive(uniqueArchived.id)).status).toBe(200);
   });
 });

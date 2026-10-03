@@ -2201,6 +2201,9 @@
 			"loadingTask": "Tapşırıq yüklənir...",
 			"taskNotFound": "Tapşırıq tapılmadı",
 			"taskNotFoundDescription": "Axtardığınız tapşırıq mövcud deyil və ya silinib.",
+			"ticketAmbiguous": "Tapşırıq ID-si birdən çox tapşırığa uyğun gəlir",
+			"ticketAmbiguousDescription": "{{ticketId}} bu iş sahəsində birdən çox layihədəki tapşırıqlara uyğun gəlir. Linki düzəltmək üçün həmin layihələrdən birinə fərqli açar verin.",
+			"ticketNotFoundDescription": "Bu iş sahəsində {{ticketId}} ID-li tapşırıq yoxdur və ya ona girişiniz yoxdur.",
 			"customFields": "Custom Fields"
 		},
 		"detail": {

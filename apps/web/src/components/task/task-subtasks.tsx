@@ -378,6 +378,7 @@ export default function TaskSubtasks({
                     tasks={getTargetTasks(taskObj)}
                     projectId={subtask.task.projectId}
                     workspaceId={workspace?.id ?? workspaceId}
+                    workspaceSlug={workspace?.slug}
                     isSelected={isSelected}
                     isFocused={focusedIndex === index}
                     isCompleted={subtask.task.isCompleted}
