@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
-import { resolveVerificationToken } from "../../apps/api/src/gitea-integration/controllers/resolve-verification-token";
+import { eq } from "drizzle-orm";
+import { resolveVerificationContext } from "../../apps/api/src/gitea-integration/controllers/resolve-verification-context";
 import verifyGiteaAccess from "../../apps/api/src/gitea-integration/controllers/verify-gitea-access";
 import { createApp } from "../../apps/api/src/index";
 import { mockAuthenticatedSession } from "./helpers/auth";
@@ -100,6 +101,33 @@ describe("saved Gitea token verification route", () => {
     expect(body).not.toContain("secret");
     expect(verifyGiteaAccess).not.toHaveBeenCalled();
   });
+  it.each(["{", "null", "[]", '{"issueSyncMode":"broken"}'])(
+    "requires an explicit mode to reconnect over unusable saved config %s",
+    async (config) => {
+      const { project } = await fixture();
+      await db
+        .update(schema.integrationTable)
+        .set({ config })
+        .where(eq(schema.integrationTable.projectId, project.id));
+      const request = (issueSyncMode?: "ingest-only") =>
+        createApp().app.request("/api/gitea-integration/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            projectId: project.id,
+            baseUrl: "https://gitea.example",
+            accessToken: "new-token",
+            repositoryOwner: "owner",
+            repositoryName: "repo",
+            ...(issueSyncMode ? { issueSyncMode } : {}),
+          }),
+        });
+      const invalid = await request();
+      expect(invalid.status).toBe(400);
+      expect(await invalid.text()).toContain("Reconnect the integration");
+      expect((await request("ingest-only")).status).toBe(200);
+    },
+  );
   it("requires workspace management permission to use stored credentials", async () => {
     const { project } = await fixture();
     const outsider = await createWorkspaceMember();
@@ -121,19 +149,25 @@ describe("saved Gitea token verification route", () => {
       }),
     });
     const input = { projectId: project.id, baseUrl: "https://gitea.example/" };
-    expect(await resolveVerificationToken(input)).toBe("stored-token");
+    expect(await resolveVerificationContext(input)).toEqual({
+      accessToken: "stored-token",
+      issueSyncMode: "sync",
+    });
     await expect(
-      resolveVerificationToken({ ...input, baseUrl: "https://other.example" }),
+      resolveVerificationContext({
+        ...input,
+        baseUrl: "https://other.example",
+      }),
     ).rejects.toMatchObject({ status: 400 });
     await expect(
-      resolveVerificationToken({ ...input, projectId: "other-project" }),
+      resolveVerificationContext({ ...input, projectId: "other-project" }),
     ).rejects.toMatchObject({ status: 400 });
     expect(
-      await resolveVerificationToken({
+      await resolveVerificationContext({
         ...input,
         baseUrl: "https://other.example",
         accessToken: "new-token",
       }),
-    ).toBe("new-token");
+    ).toEqual({ accessToken: "new-token", issueSyncMode: "sync" });
   });
 });

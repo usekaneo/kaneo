@@ -1,3 +1,4 @@
+import { giteaIssueSyncModes } from "../plugins/gitea/config";
 import { z } from "../openapi";
 
 const giteaCredentials = {
@@ -16,6 +17,7 @@ export const verifyGiteaBody = z.object({
   }),
   repositoryOwner: z.string().min(1),
   repositoryName: z.string().min(1),
+  issueSyncMode: z.enum(giteaIssueSyncModes).optional(),
 });
 
 export const createGiteaBody = z.object({
@@ -25,9 +27,11 @@ export const createGiteaBody = z.object({
   }),
   repositoryOwner: z.string().min(1),
   repositoryName: z.string().min(1),
+  issueSyncMode: z.enum(giteaIssueSyncModes).optional(),
 });
 
 export const updateGiteaBody = z.object({
   isActive: z.boolean().optional(),
   commentTaskLinkOnGiteaIssue: z.boolean().optional(),
+  issueSyncMode: z.enum(giteaIssueSyncModes).optional(),
 });

@@ -1,4 +1,5 @@
 import { responseTimestamp, z } from "../openapi";
+import { giteaIssueSyncModes } from "../plugins/gitea/config";
 
 // Credentials are only ever returned masked; the webhook secret goes only to
 // callers holding workspace:manage_settings.
@@ -11,6 +12,7 @@ export const giteaIntegrationSchema = z
       .openapi({ description: "Root URL of the Gitea instance." }),
     repositoryOwner: z.string(),
     repositoryName: z.string(),
+    issueSyncMode: z.enum(giteaIssueSyncModes),
     maskedAccessToken: z.string(),
     webhookUrl: z.string().optional().openapi({
       description: "Where Gitea should POST events for this project.",

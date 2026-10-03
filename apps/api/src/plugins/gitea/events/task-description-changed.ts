@@ -7,8 +7,9 @@ import {
   formatTaskDescriptionFromIssue,
 } from "../../github/utils/format";
 import type { PluginContext, TaskDescriptionChangedEvent } from "../../types";
-import type { GiteaConfig } from "../config";
+import { canSyncGiteaIssues, type GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
+import { withGiteaOutboundWrite } from "../services/outbound-fence";
 
 type LinkSyncState = import("../../github/utils/sync-echo").SyncStamp;
 
@@ -24,7 +25,7 @@ export async function handleTaskDescriptionChanged(
   context: PluginContext,
 ): Promise<void> {
   const config = context.config as GiteaConfig;
-  if (!config.baseUrl || !config.accessToken) {
+  if (!canSyncGiteaIssues(config) || !config.baseUrl || !config.accessToken) {
     return;
   }
 
@@ -99,16 +100,22 @@ export async function handleTaskDescriptionChanged(
       issueLink,
       "description",
       newDescNormalized,
-      async (value) => {
-        const response = await client.updateIssue(
-          repositoryOwner,
-          repositoryName,
-          issueNumber,
+      async (value, intentId) => {
+        const result = await withGiteaOutboundWrite(
           {
-            body: formatIssueBody(value, event.taskId),
+            integrationId: context.integrationId,
+            projectId: context.projectId,
+            config,
+            link: issueLink,
+            intent: { field: "description", intentId },
           },
+          () =>
+            client.updateIssue(repositoryOwner, repositoryName, issueNumber, {
+              body: formatIssueBody(value, event.taskId),
+            }),
         );
-        return response?.updated_at;
+        if (!result.sent) return result;
+        return { sent: true, updatedAt: result.value.updated_at };
       },
       async () =>
         formatTaskDescriptionFromIssue(
@@ -118,8 +125,6 @@ export async function handleTaskDescriptionChanged(
         ),
       { type: "gitea", config: JSON.stringify(config) },
     );
-
-    console.log(`Synced task description to Gitea issue #${issueNumber}`);
   } catch (error) {
     console.error("Failed to update Gitea issue description:", error);
   }

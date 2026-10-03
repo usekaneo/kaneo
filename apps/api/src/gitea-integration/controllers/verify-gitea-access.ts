@@ -1,5 +1,9 @@
 import { HTTPException } from "hono/http-exception";
-import { normalizeGiteaBaseUrl } from "../../plugins/gitea/config";
+import {
+  canSyncGiteaIssues,
+  type GiteaIssueSyncMode,
+  normalizeGiteaBaseUrl,
+} from "../../plugins/gitea/config";
 import {
   createGiteaClient,
   GiteaApiError,
@@ -11,11 +15,13 @@ async function verifyGiteaAccess({
   accessToken,
   repositoryOwner,
   repositoryName,
+  issueSyncMode,
 }: {
   baseUrl: string;
   accessToken: string;
   repositoryOwner: string;
   repositoryName: string;
+  issueSyncMode?: GiteaIssueSyncMode;
 }) {
   try {
     const normalized = normalizeGiteaBaseUrl(baseUrl);
@@ -48,14 +54,16 @@ async function verifyGiteaAccess({
 
     const perms = repo.permissions;
     const hasIssuesWrite = perms?.admin === true || perms?.push === true;
+    const hasRequiredPermissions =
+      !canSyncGiteaIssues({ issueSyncMode }) || hasIssuesWrite;
 
     return {
       isInstalled: true,
-      hasRequiredPermissions: Boolean(hasIssuesWrite),
+      hasRequiredPermissions,
       repositoryExists: true,
       repositoryPrivate: repo.private,
-      missingPermissions: hasIssuesWrite ? [] : ["issues (write)"],
-      message: hasIssuesWrite
+      missingPermissions: hasRequiredPermissions ? [] : ["issues (write)"],
+      message: hasRequiredPermissions
         ? "Token can access the repository."
         : "Token may not have sufficient permissions to manage issues.",
       failureReason: null,

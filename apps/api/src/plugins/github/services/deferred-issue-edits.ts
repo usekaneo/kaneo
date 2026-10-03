@@ -3,8 +3,9 @@ import db from "../../../database";
 import { externalLinkTable } from "../../../database/schema";
 import { publishEvent } from "../../../events";
 import { withJobLease } from "../../../scheduler/leader-lock";
-import type { GiteaConfig } from "../../gitea/config";
+import { getGiteaIssueSyncMode, type GiteaConfig } from "../../gitea/config";
 import { createGiteaClient } from "../../gitea/utils/gitea-api";
+import { withGiteaOutboundWrite } from "../../gitea/services/outbound-fence";
 import type { GitHubConfig } from "../config";
 import {
   issueEditScope,
@@ -53,7 +54,7 @@ export { deferIssueEdit } from "./defer-issue-edit";
 
 async function issueAccess(
   integration: Integration,
-  link: { externalId: string; taskId: string },
+  link: { id: string; externalId: string; taskId: string },
 ) {
   const number = Number(link.externalId);
   if (!Number.isSafeInteger(number) || number <= 0)
@@ -68,9 +69,21 @@ async function issueAccess(
     const client = createGiteaClient(config as GiteaConfig);
     return {
       read: () => client.getIssue(owner, repo, number),
-      write: async (field: IssueField, value: string) =>
-        (await client.updateIssue(owner, repo, number, payload(field, value)))
-          ?.updated_at,
+      write: async (field: IssueField, value: string, intentId: string) => {
+        const result = await withGiteaOutboundWrite(
+          {
+            integrationId: integration.id,
+            projectId: integration.projectId,
+            config: config as GiteaConfig,
+            link,
+            intent: { field, intentId },
+          },
+          () => client.updateIssue(owner, repo, number, payload(field, value)),
+        );
+        return result.sent
+          ? { sent: true as const, updatedAt: result.value.updated_at }
+          : result;
+      },
     };
   }
   const octokit = await getVerifiedInstallationOctokit(
@@ -87,8 +100,9 @@ async function issueAccess(
           request: { timeout: 10_000 },
         })
       ).data,
-    write: async (field: IssueField, value: string) =>
-      (
+    write: async (field: IssueField, value: string, _intentId: string) => ({
+      sent: true as const,
+      updatedAt: (
         await octokit.rest.issues.update({
           owner,
           repo,
@@ -97,6 +111,7 @@ async function issueAccess(
           request: { timeout: 10_000 },
         })
       )?.data?.updated_at,
+    }),
   };
 }
 
@@ -136,19 +151,32 @@ async function replayClaimedIssueEdits() {
         const job = parseDeferredIssueEdit(metadata.deferredIssueEdit);
         if (!job) continue;
         const integration = link.integration;
+        const issueSyncMode =
+          integration?.type === "gitea"
+            ? getGiteaIssueSyncMode(
+                JSON.parse(integration.config) as GiteaConfig,
+              )
+            : "sync";
+        const ingestOnly = issueSyncMode === "ingest-only";
         if (
           !integration?.isActive ||
           !["github", "gitea"].includes(integration.type) ||
+          issueSyncMode === "off" ||
+          (ingestOnly && !job.fields.length) ||
           issueEditScope(integration) !== job.scope
         ) {
           await updateExternalLink(link.id, { completeDeferredEdit: job.id });
           continue;
         }
         const fields = [
-          ...new Set([...job.fields, ...(job.repairFields ?? [])]),
+          ...new Set([
+            ...job.fields,
+            ...(ingestOnly ? [] : (job.repairFields ?? [])),
+          ]),
         ];
         // An orphaned writer expires after five minutes; until then let it settle.
         if (
+          !ingestOnly &&
           fields.some((field) =>
             metadata.lastSync?.[field]?.outbound?.some(
               (entry) =>
@@ -249,7 +277,7 @@ async function replayClaimedIssueEdits() {
             const taskIsClosed = fields.includes("state")
               ? await isTaskInFinalState(task, tx)
               : false;
-            for (const field of fields) {
+            for (const field of ingestOnly ? [] : fields) {
               const stamp = current.lastSync?.[field];
               const uncertain = uncertainOutboundIntents(stamp, values[field]);
               const intentIds = uncertain.flatMap((entry) =>
@@ -295,33 +323,37 @@ async function replayClaimedIssueEdits() {
               }
             }
             // Classify every field before writing any: PendingEcho commits only its observation.
-            const accepted = job.fields.filter(
-              (field) =>
-                !repairs.some((repair) => repair.field === field) &&
-                !(
-                  field === "state" &&
-                  integration.type === "github" &&
-                  current.createdFrom === "kaneo"
-                ) &&
-                !inboundEcho(
-                  current.lastSync?.[field],
-                  values[field],
-                  issue.updated_at,
-                  values[field],
-                  {
-                    linkId: link.id,
-                    field,
-                    localValue:
-                      field === "state"
-                        ? taskIsClosed
-                          ? "closed"
-                          : "open"
-                        : field === "description"
-                          ? task.description || ""
-                          : task.title,
-                  },
-                ),
-            );
+            // In ingest-only, the confirmed provider value wins. Old outbound
+            // intents must neither block delivery nor schedule a repair write.
+            const accepted = ingestOnly
+              ? job.fields
+              : job.fields.filter(
+                  (field) =>
+                    !repairs.some((repair) => repair.field === field) &&
+                    !(
+                      field === "state" &&
+                      integration.type === "github" &&
+                      current.createdFrom === "kaneo"
+                    ) &&
+                    !inboundEcho(
+                      current.lastSync?.[field],
+                      values[field],
+                      issue.updated_at,
+                      values[field],
+                      {
+                        linkId: link.id,
+                        field,
+                        localValue:
+                          field === "state"
+                            ? taskIsClosed
+                              ? "closed"
+                              : "open"
+                            : field === "description"
+                              ? task.description || ""
+                              : task.title,
+                      },
+                    ),
+                );
             for (const field of accepted) {
               await writeInboundTaskField(
                 tx,
@@ -363,6 +395,7 @@ async function replayClaimedIssueEdits() {
           integration,
         );
         if (applied !== true) continue;
+        let repairSkipped = false;
         for (const repair of repairs) {
           await syncLatestTaskValue(
             link.taskId,
@@ -370,7 +403,15 @@ async function replayClaimedIssueEdits() {
             link,
             repair.field,
             repair.value,
-            (value) => provider.write(repair.field, value),
+            async (value, intentId) => {
+              const result = await provider.write(
+                repair.field,
+                value,
+                intentId,
+              );
+              if (!result.sent) repairSkipped = true;
+              return result;
+            },
             async () => {
               const current = await provider.read();
               return repair.field === "description"
@@ -383,6 +424,7 @@ async function replayClaimedIssueEdits() {
             integration,
             true,
           );
+          if (repairSkipped) break;
           // A later field can fail; persist this field's successful repair first.
           if (repair.intentIds.length)
             await withIntegrationLink(
@@ -403,7 +445,7 @@ async function replayClaimedIssueEdits() {
               integration,
             );
         }
-        if (repairs.length)
+        if (repairs.length && !repairSkipped)
           await withIntegrationLink(
             link,
             integration,

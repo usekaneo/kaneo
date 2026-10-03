@@ -42,6 +42,7 @@ export async function handleGiteaLabelCreated(
     owner,
     repository.name,
     integrationId,
+    "issues",
   );
 
   for (const integration of integrations) {

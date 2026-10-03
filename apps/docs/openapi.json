@@ -2828,6 +2828,14 @@
           "repositoryName": {
             "type": "string"
           },
+          "issueSyncMode": {
+            "type": "string",
+            "enum": [
+              "sync",
+              "ingest-only",
+              "off"
+            ]
+          },
           "maskedAccessToken": {
             "type": "string"
           },
@@ -2867,6 +2875,7 @@
           "baseUrl",
           "repositoryOwner",
           "repositoryName",
+          "issueSyncMode",
           "maskedAccessToken",
           "isActive",
           "createdAt",
@@ -14167,6 +14176,14 @@
                   "repositoryName": {
                     "type": "string",
                     "minLength": 1
+                  },
+                  "issueSyncMode": {
+                    "type": "string",
+                    "enum": [
+                      "sync",
+                      "ingest-only",
+                      "off"
+                    ]
                   }
                 },
                 "required": [
@@ -14326,6 +14343,14 @@
                   "repositoryName": {
                     "type": "string",
                     "minLength": 1
+                  },
+                  "issueSyncMode": {
+                    "type": "string",
+                    "enum": [
+                      "sync",
+                      "ingest-only",
+                      "off"
+                    ]
                   }
                 },
                 "required": [
@@ -14370,6 +14395,16 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "Integration changed or repository is already linked",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       },
@@ -14402,6 +14437,14 @@
                   },
                   "commentTaskLinkOnGiteaIssue": {
                     "type": "boolean"
+                  },
+                  "issueSyncMode": {
+                    "type": "string",
+                    "enum": [
+                      "sync",
+                      "ingest-only",
+                      "off"
+                    ]
                   }
                 }
               }
@@ -14448,6 +14491,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/GiteaIntegrationNotFound"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Integration changed. Reload and try again.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -14556,7 +14609,7 @@
             }
           },
           "400": {
-            "description": "projectId is required",
+            "description": "Invalid request, inactive integration, or issue sync is off",
             "content": {
               "text/plain": {
                 "schema": {

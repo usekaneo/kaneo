@@ -71,7 +71,7 @@ export async function handleTaskTitleChanged(
           issue_number: issueNumber,
           title: value,
         });
-        return response?.data?.updated_at;
+        return { sent: true, updatedAt: response?.data?.updated_at };
       },
       async () =>
         (

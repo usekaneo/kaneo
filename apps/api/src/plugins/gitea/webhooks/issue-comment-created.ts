@@ -55,6 +55,7 @@ export async function handleGiteaIssueCommentCreated(
     owner,
     repository.name,
     integrationId,
+    "issues",
   );
 
   for (const integration of integrations) {

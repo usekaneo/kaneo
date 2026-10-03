@@ -8,16 +8,17 @@ import {
   getLabelsForIssue,
 } from "../../github/utils/format";
 import type { PluginContext, TaskCreatedEvent } from "../../types";
-import type { GiteaConfig } from "../config";
+import { canSyncGiteaIssues, type GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
 import { addLabelsToIssueGitea } from "../utils/labels";
+import { withGiteaOutboundWrite } from "../services/outbound-fence";
 
 export async function handleTaskCreated(
   event: TaskCreatedEvent,
   context: PluginContext,
 ): Promise<void> {
   const config = context.config as GiteaConfig;
-  if (!config.baseUrl || !config.accessToken) {
+  if (!canSyncGiteaIssues(config) || !config.baseUrl || !config.accessToken) {
     return;
   }
 
@@ -35,16 +36,23 @@ export async function handleTaskCreated(
 
   try {
     const client = createGiteaClient(config);
-    const createdIssue = await client.createIssue(
-      repositoryOwner,
-      repositoryName,
+    const result = await withGiteaOutboundWrite(
       {
-        title: formatIssueTitle(event.title),
-        body: formatIssueBody(event.description, event.taskId),
+        integrationId: context.integrationId,
+        projectId: context.projectId,
+        config,
+        taskId: event.taskId,
       },
+      () =>
+        client.createIssue(repositoryOwner, repositoryName, {
+          title: formatIssueTitle(event.title),
+          body: formatIssueBody(event.description, event.taskId),
+        }),
     );
+    if (!result.sent) return;
+    const createdIssue = result.value;
 
-    await createExternalLink({
+    const issueLink = await createExternalLink({
       taskId: event.taskId,
       integrationId: context.integrationId,
       resourceType: "issue",
@@ -59,7 +67,21 @@ export async function handleTaskCreated(
     });
 
     const labels = getLabelsForIssue(event.priority, event.status);
-    await addLabelsToIssueGitea(config, createdIssue.number, labels);
+    const added = await addLabelsToIssueGitea(
+      {
+        integrationId: context.integrationId,
+        projectId: context.projectId,
+        config,
+        link: {
+          id: issueLink.id,
+          taskId: event.taskId,
+          externalId: createdIssue.number.toString(),
+        },
+      },
+      createdIssue.number,
+      labels,
+    );
+    if (added.outcome === "skipped") return;
   } catch (error) {
     console.error("Failed to create Gitea issue:", error);
   }

@@ -10,7 +10,10 @@ import {
   taskTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
-import type { GiteaConfig } from "../../plugins/gitea/config";
+import {
+  getGiteaIssueSyncMode,
+  type GiteaConfig,
+} from "../../plugins/gitea/config";
 import { isKaneoComment } from "../../plugins/gitea/utils/comment-origin";
 import {
   createGiteaClient,
@@ -94,6 +97,12 @@ export async function importGiteaIssues(
     });
     throw new HTTPException(400, {
       message: `Invalid Gitea integration config: ${message}`,
+    });
+  }
+
+  if (getGiteaIssueSyncMode(config) === "off") {
+    throw new HTTPException(400, {
+      message: "Gitea issue import is disabled while issue sync mode is off",
     });
   }
 

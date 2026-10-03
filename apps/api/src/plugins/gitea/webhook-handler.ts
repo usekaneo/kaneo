@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import db from "../../database";
 import { integrationTable } from "../../database/schema";
-import type { GiteaConfig } from "./config";
+import { getGiteaIssueSyncMode, type GiteaConfig } from "./config";
 import { verifyGiteaSignature } from "./utils/verify-signature";
 import { handleGiteaIssueClosed } from "./webhooks/issue-closed";
 import { handleGiteaIssueCommentCreated } from "./webhooks/issue-comment-created";
@@ -105,6 +105,14 @@ export async function handleGiteaWebhookRequest(
 
   if (!event) {
     return { success: false, error: "Missing event name" };
+  }
+
+  if (
+    !integration.isActive ||
+    (getGiteaIssueSyncMode(config) === "off" &&
+      ["issues", "issue_comment", "issue_label"].includes(event))
+  ) {
+    return { success: true };
   }
 
   let payload: Record<string, unknown>;

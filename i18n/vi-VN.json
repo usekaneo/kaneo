@@ -1239,7 +1239,19 @@
 			"searchRepos": "Tìm kiếm…",
 			"browseNeedsCredentials": "Nhập URL và token Gitea để duyệt",
 			"loadingRepos": "Đang tải kho lưu trữ…",
-			"retry": "Thử lại"
+			"retry": "Thử lại",
+			"issueSyncMode": {
+				"backlinkDisabledHint": "Task link comments are only available in two-way sync mode. Your preference is kept when switching modes.",
+				"importDisabledHint": "Manual issue and pull-request import is disabled while issue sync is off. Live pull-request and push events still work.",
+				"ingestOnly": "Ingest only",
+				"ingestOnlyHint": "Import Gitea issues, comments, and labels into Kaneo without writing changes back to Gitea.",
+				"label": "Issue sync mode",
+				"off": "Off",
+				"offHint": "Ignore issue, comment, and label events and stop sending issue changes to Gitea. Live branch, push, and pull-request automation stays enabled.",
+				"switchHint": "Changes save immediately for connected repositories. Existing tasks and links are kept; switching modes does not backfill or export existing tasks.",
+				"sync": "Two-way sync",
+				"syncHint": "Sync issues, comments, and labels in both directions between Gitea and Kaneo."
+			}
 		},
 		"slackIntegration": {
 			"validation": {

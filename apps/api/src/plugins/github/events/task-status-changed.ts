@@ -66,7 +66,7 @@ export async function handleTaskStatusChanged(
             issue_number: issueNumber,
             state: value === "closed" ? "closed" : "open",
           });
-          return response?.data?.updated_at;
+          return { sent: true, updatedAt: response?.data?.updated_at };
         },
         async () =>
           (

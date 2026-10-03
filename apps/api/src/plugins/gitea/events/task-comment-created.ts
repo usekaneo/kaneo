@@ -1,15 +1,16 @@
 import { findExternalLinkByTaskAndType } from "../../github/services/link-manager";
 import type { PluginContext, TaskCommentCreatedEvent } from "../../types";
-import type { GiteaConfig } from "../config";
+import { canSyncGiteaIssues, type GiteaConfig } from "../config";
 import { markKaneoComment } from "../utils/comment-origin";
 import { createGiteaClient } from "../utils/gitea-api";
+import { withGiteaOutboundWrite } from "../services/outbound-fence";
 
 export async function handleTaskCommentCreated(
   event: TaskCommentCreatedEvent,
   context: PluginContext,
 ): Promise<void> {
   const config = context.config as GiteaConfig;
-  if (!config.baseUrl || !config.accessToken) {
+  if (!canSyncGiteaIssues(config) || !config.baseUrl || !config.accessToken) {
     return;
   }
 
@@ -49,11 +50,20 @@ export async function handleTaskCommentCreated(
       return;
     }
 
-    await client.createIssueComment(
-      repositoryOwner,
-      repositoryName,
-      issueNumber,
-      markKaneoComment(event.comment),
+    await withGiteaOutboundWrite(
+      {
+        integrationId: context.integrationId,
+        projectId: context.projectId,
+        config,
+        link: existingLink,
+      },
+      () =>
+        client.createIssueComment(
+          repositoryOwner,
+          repositoryName,
+          issueNumber,
+          markKaneoComment(event.comment),
+        ),
     );
   } catch (error) {
     console.error("Failed to create Gitea comment:", error);
