@@ -1,3 +1,5 @@
+import { acceptsIssue, readSyncRules } from "../../sync/rules";
+import { handleIssueOpened } from "./issue-opened";
 import { withIntegrationLink } from "../services/with-integration-link";
 import { linkedTaskScope } from "../services/integration-task-scope";
 import { eq } from "drizzle-orm";
@@ -44,6 +46,20 @@ export async function handleIssueLabeled(payload: IssueLabeledPayload) {
     );
 
     if (!existingLink) {
+      const fullIssue = issue as typeof issue &
+        Partial<Parameters<typeof handleIssueOpened>[0]["issue"]>;
+      if (
+        payload.action === "labeled" &&
+        readSyncRules(integration.config)?.incoming.mode === "labels" &&
+        acceptsIssue(integration.config, issue.labels) &&
+        fullIssue.title &&
+        fullIssue.html_url
+      ) {
+        await handleIssueOpened(
+          payload as Parameters<typeof handleIssueOpened>[0],
+          integration.id,
+        );
+      }
       continue;
     }
 

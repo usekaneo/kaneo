@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import db from "../database";
+import { publishEvent } from "../events";
 import { integrationTable } from "../database/schema";
 import { scopeToProjectFromBody } from "../integrations/middleware";
 import { projectIdBody, projectIdParam } from "../integrations/schema";
@@ -262,6 +263,11 @@ const giteaIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
     if (!integration) {
       throw new HTTPException(500, { message: "Failed to load integration" });
     }
+    if (integration)
+      await publishEvent("integration.sync_rules_changed", {
+        projectId,
+        integrationId: integration.id,
+      });
     return c.json(integration, 200);
   })
   .openapi(updateIntegrationRoute, async (c) => {
@@ -319,6 +325,12 @@ const giteaIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
     if (!updated) {
       throw new HTTPException(500, { message: "Failed to load integration" });
     }
+    if (body.isActive === true && !row.isActive)
+      await publishEvent("integration.sync_rules_changed", {
+        projectId,
+        integrationId: row.id,
+      });
+    await publishEvent("project.updated", { projectId });
     return c.json(updated, 200);
   })
   .openapi(deleteIntegrationRoute, async (c) => {

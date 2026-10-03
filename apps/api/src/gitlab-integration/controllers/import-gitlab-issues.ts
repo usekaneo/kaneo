@@ -1,3 +1,4 @@
+import { acceptsIssue } from "../../plugins/sync/rules";
 import { and, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
@@ -189,6 +190,8 @@ async function importSingleIssue(
     issue.iid.toString(),
   );
 
+  if (!existingLink && !acceptsIssue(config, issue.labels)) return "skipped";
+
   const labels = issue.labels ?? [];
   const priority = extractIssuePriority(labels);
   const status = extractIssueStatus(labels);
@@ -255,6 +258,16 @@ async function importSingleIssue(
     null,
     { id: integrationId, projectId, project: { workspaceId } },
     async (tx) => {
+      const binding = await tx.query.integrationTable.findFirst({
+        where: eq(integrationTable.id, integrationId),
+      });
+      if (
+        !binding ||
+        binding.config !== JSON.stringify(config) ||
+        !acceptsIssue(binding.config, issue.labels) ||
+        (await findExternalLink(integrationId, "issue", String(issue.iid), tx))
+      )
+        return null;
       const number = await claimTaskNumber(projectId, tx);
 
       const taskValues: typeof taskTable.$inferInsert = {

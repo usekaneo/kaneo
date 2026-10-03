@@ -1,3 +1,4 @@
+import { canSyncTask } from "../../sync/eligibility";
 import { and, eq, sql } from "drizzle-orm";
 import db from "../../../database";
 import {
@@ -33,6 +34,19 @@ export async function withIntegrationTask<T>(
 ): Promise<T | undefined> {
   const effects: Array<() => Promise<void>> = [];
   const result = await db.transaction(async (tx) => {
+    if (taskId === null) {
+      const [binding] = await tx
+        .select({ id: integrationTable.id })
+        .from(integrationTable)
+        .where(
+          and(
+            eq(integrationTable.id, integration.id),
+            eq(integrationTable.isActive, true),
+          ),
+        )
+        .for("no key update");
+      if (!binding) return undefined;
+    }
     const [project] = await tx
       .select({ id: projectTable.id })
       .from(projectTable)
@@ -89,6 +103,15 @@ export async function withIntegrationTask<T>(
         )
         .for("no key update");
       if (!task) return undefined;
+      if (
+        !(await canSyncTask(
+          taskId,
+          integration.id,
+          tx,
+          expectedBinding?.config,
+        ))
+      )
+        return undefined;
     }
     return apply(tx, (effect) => effects.push(effect));
   });

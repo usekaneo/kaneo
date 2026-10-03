@@ -1,3 +1,4 @@
+import { canSyncTask } from "../../sync/eligibility";
 import { syncLatestTaskValue } from "../../github/services/sync-latest-task-value";
 import { findExternalLinksByTask } from "../../github/services/link-manager";
 import type { PluginContext, TaskStatusChangedEvent } from "../../types";
@@ -9,6 +10,16 @@ export async function handleTaskStatusChanged(
   event: TaskStatusChangedEvent,
   context: PluginContext,
 ): Promise<void> {
+  if (
+    !(await canSyncTask(
+      event.taskId,
+      context.integrationId,
+      undefined,
+      JSON.stringify(context.config),
+    ))
+  )
+    return;
+
   const config = context.config as GiteaConfig;
   if (!config.baseUrl || !config.accessToken) {
     return;

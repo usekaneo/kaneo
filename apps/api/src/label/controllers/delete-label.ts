@@ -97,6 +97,14 @@ async function deleteLabel(
       .returning();
     if (!root) throw new HTTPException(404, { message: "Label not found" });
     if (root.workspaceId) {
+      const projects = await db
+        .select({ id: projectTable.id })
+        .from(projectTable)
+        .where(eq(projectTable.workspaceId, root.workspaceId));
+      for (const project of projects)
+        await publishEvent("integration.sync_labels_changed", {
+          projectId: project.id,
+        });
       const predicate = and(
         eq(labelTable.workspaceId, root.workspaceId),
         eq(labelTable.name, root.name),

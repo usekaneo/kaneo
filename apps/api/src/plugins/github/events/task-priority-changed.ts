@@ -1,3 +1,4 @@
+import { canSyncTask } from "../../sync/eligibility";
 import type { PluginContext, TaskPriorityChangedEvent } from "../../types";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
 import { findExternalLinksByTask } from "../services/link-manager";
@@ -11,6 +12,16 @@ export async function handleTaskPriorityChanged(
   event: TaskPriorityChangedEvent,
   context: PluginContext,
 ): Promise<void> {
+  if (
+    !(await canSyncTask(
+      event.taskId,
+      context.integrationId,
+      undefined,
+      JSON.stringify(context.config),
+    ))
+  )
+    return;
+
   const githubApp = getGithubApp();
   if (!githubApp) {
     return;

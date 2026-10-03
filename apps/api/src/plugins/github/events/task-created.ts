@@ -1,24 +1,24 @@
+import { taskIssueLabels } from "../../sync/issue-labels";
+import { withTaskSyncCreation } from "../../sync/create-task-issue";
 import { eq } from "drizzle-orm";
 import db from "../../../database";
 import { projectTable } from "../../../database/schema";
+import { isTaskInFinalState } from "../services/task-service";
 import type { PluginContext, TaskCreatedEvent } from "../../types";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
 import {
   createExternalLink,
+  updateExternalLink,
   findExternalLinkByTaskAndType,
 } from "../services/link-manager";
-import {
-  formatIssueBody,
-  formatIssueTitle,
-  getLabelsForIssue,
-} from "../utils/format";
+import { formatIssueBody, formatIssueTitle } from "../utils/format";
 import {
   getGithubApp,
   getVerifiedInstallationOctokit,
 } from "../utils/github-app";
 import { addLabelsToIssue } from "../utils/labels";
 
-export async function handleTaskCreated(
+async function createTaskIssue(
   event: TaskCreatedEvent,
   context: PluginContext,
 ): Promise<void> {
@@ -51,16 +51,7 @@ export async function handleTaskCreated(
       body: formatIssueBody(event.description, event.taskId),
     });
 
-    const labels = getLabelsForIssue(event.priority, event.status);
-    await addLabelsToIssue(
-      octokit,
-      repositoryOwner,
-      repositoryName,
-      createdIssue.data.number,
-      labels,
-    );
-
-    await createExternalLink({
+    const createdLink = await createExternalLink({
       taskId: event.taskId,
       integrationId: context.integrationId,
       resourceType: "issue",
@@ -72,6 +63,37 @@ export async function handleTaskCreated(
         createdFrom: "kaneo",
       },
     });
+
+    if (
+      await isTaskInFinalState({
+        projectId: event.projectId,
+        status: event.status,
+        columnId: null,
+      })
+    ) {
+      await octokit.rest.issues.update({
+        owner: repositoryOwner,
+        repo: repositoryName,
+        issue_number: createdIssue.data.number,
+        state: "closed",
+      });
+      await updateExternalLink(createdLink.id, {
+        metadata: { state: "closed", lastOutboundStateSyncAt: Date.now() },
+      });
+    }
+
+    const labels = await taskIssueLabels(
+      event.taskId,
+      event.priority,
+      event.status,
+    );
+    await addLabelsToIssue(
+      octokit,
+      repositoryOwner,
+      repositoryName,
+      createdIssue.data.number,
+      labels,
+    );
 
     if (config.commentTaskLinkOnGitHubIssue !== false) {
       const project = await db.query.projectTable.findFirst({
@@ -95,4 +117,13 @@ export async function handleTaskCreated(
   } catch (error) {
     console.error("Failed to create GitHub issue:", error);
   }
+}
+
+export async function handleTaskCreated(
+  event: TaskCreatedEvent,
+  context: PluginContext,
+): Promise<void> {
+  await withTaskSyncCreation(event, context, (current) =>
+    createTaskIssue(current, context),
+  );
 }

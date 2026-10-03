@@ -1,3 +1,5 @@
+import { acceptsIssue, readSyncRules } from "../../sync/rules";
+import { handleGitlabIssueOpened } from "./issue-opened";
 import { withIntegrationLink } from "../../github/services/with-integration-link";
 import {
   type IntegrationDatabase,
@@ -161,6 +163,13 @@ export async function handleGitlabIssueUpdated(
       );
 
       if (!externalLink) {
+        if (
+          touchedLabels &&
+          readSyncRules(integration.config)?.incoming.mode === "labels" &&
+          acceptsIssue(integration.config, payload.labels)
+        ) {
+          await handleGitlabIssueOpened(payload, integration.id);
+        }
         continue;
       }
 

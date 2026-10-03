@@ -72,8 +72,10 @@ async function updateLabel(id: string, name: string, color: string) {
             );
     return { updatedLabel, projects };
   });
-  for (const { projectId } of result.projects)
+  for (const { projectId } of result.projects) {
     await publishEvent("project.updated", { projectId });
+    await publishEvent("integration.sync_labels_changed", { projectId });
+  }
   return result.updatedLabel;
 }
 

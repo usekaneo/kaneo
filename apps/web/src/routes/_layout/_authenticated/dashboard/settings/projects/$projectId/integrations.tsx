@@ -1,3 +1,4 @@
+import { useProjectWebSocket } from "@/hooks/use-project-websocket";
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
@@ -15,6 +16,7 @@ export const Route = createFileRoute(
 function RouteComponent() {
   const { t } = useTranslation();
   const { projectId } = Route.useParams();
+  useProjectWebSocket(projectId);
   const { statuses, retry } = useIntegrationStatuses(projectId);
 
   return (

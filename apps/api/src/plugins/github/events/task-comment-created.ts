@@ -1,3 +1,4 @@
+import { canSyncTask } from "../../sync/eligibility";
 import type { PluginContext, TaskCommentCreatedEvent } from "../../types";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
 import { findExternalLinkByTaskAndType } from "../services/link-manager";
@@ -10,6 +11,16 @@ export async function handleTaskCommentCreated(
   event: TaskCommentCreatedEvent,
   context: PluginContext,
 ): Promise<void> {
+  if (
+    !(await canSyncTask(
+      event.taskId,
+      context.integrationId,
+      undefined,
+      JSON.stringify(context.config),
+    ))
+  )
+    return;
+
   const githubApp = getGithubApp();
   if (!githubApp) {
     return;

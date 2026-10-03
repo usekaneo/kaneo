@@ -36,6 +36,7 @@ function pickSettings(config: Partial<GitlabConfig>): Partial<GitlabConfig> {
   if (config.statusTransitions !== undefined) {
     settings.statusTransitions = config.statusTransitions;
   }
+  if (config.syncRules !== undefined) settings.syncRules = config.syncRules;
   return settings;
 }
 

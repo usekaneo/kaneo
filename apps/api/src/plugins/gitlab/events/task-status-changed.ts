@@ -1,3 +1,4 @@
+import { canSyncTask } from "../../sync/eligibility";
 import {
   findExternalLinksByTask,
   updateExternalLink,
@@ -12,6 +13,16 @@ export async function handleTaskStatusChanged(
   event: TaskStatusChangedEvent,
   context: PluginContext,
 ): Promise<void> {
+  if (
+    !(await canSyncTask(
+      event.taskId,
+      context.integrationId,
+      undefined,
+      JSON.stringify(context.config),
+    ))
+  )
+    return;
+
   // Keep activity and other integrations informed without echoing an issue
   // webhook back to the GitLab project that produced it.
   if (event.sourceIntegrationId === context.integrationId) return;

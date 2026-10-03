@@ -1,3 +1,4 @@
+import { canSyncTask } from "../../sync/eligibility";
 import {
   findExternalLinksByTask,
   updateExternalLink,
@@ -15,6 +16,16 @@ export async function handleTaskTitleChanged(
   event: TaskTitleChangedEvent,
   context: PluginContext,
 ): Promise<void> {
+  if (
+    !(await canSyncTask(
+      event.taskId,
+      context.integrationId,
+      undefined,
+      JSON.stringify(context.config),
+    ))
+  )
+    return;
+
   const config = context.config as GitlabConfig;
   if (!config.baseUrl || !config.accessToken) {
     return;

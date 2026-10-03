@@ -1,18 +1,18 @@
+import { taskIssueLabels } from "../../sync/issue-labels";
+import { withTaskSyncCreation } from "../../sync/create-task-issue";
 import {
   createExternalLink,
+  updateExternalLink,
   findExternalLinkByTaskAndType,
 } from "../../github/services/link-manager";
-import {
-  formatIssueBody,
-  formatIssueTitle,
-  getLabelsForIssue,
-} from "../../github/utils/format";
+import { formatIssueBody, formatIssueTitle } from "../../github/utils/format";
+import { isTaskInFinalState } from "../../github/services/task-service";
 import type { PluginContext, TaskCreatedEvent } from "../../types";
 import type { GitlabConfig } from "../config";
 import { createGitlabClient } from "../utils/gitlab-api";
 import { addLabelsToIssueGitlab } from "../utils/labels";
 
-export async function handleTaskCreated(
+async function createTaskIssue(
   event: TaskCreatedEvent,
   context: PluginContext,
 ): Promise<void> {
@@ -38,7 +38,7 @@ export async function handleTaskCreated(
       description: formatIssueBody(event.description, event.taskId),
     });
 
-    await createExternalLink({
+    const createdLink = await createExternalLink({
       taskId: event.taskId,
       integrationId: context.integrationId,
       resourceType: "issue",
@@ -52,12 +52,36 @@ export async function handleTaskCreated(
       },
     });
 
+    if (
+      await isTaskInFinalState({
+        projectId: event.projectId,
+        status: event.status,
+        columnId: null,
+      })
+    ) {
+      await client.updateIssue(config.projectPath, createdIssue.iid, {
+        state_event: "close",
+      });
+      await updateExternalLink(createdLink.id, {
+        metadata: { state: "closed", lastOutboundStateSyncAt: Date.now() },
+      });
+    }
+
     await addLabelsToIssueGitlab(
       config,
       createdIssue.iid,
-      getLabelsForIssue(event.priority, event.status),
+      await taskIssueLabels(event.taskId, event.priority, event.status),
     );
   } catch (error) {
     console.error("Failed to create GitLab issue:", error);
   }
+}
+
+export async function handleTaskCreated(
+  event: TaskCreatedEvent,
+  context: PluginContext,
+): Promise<void> {
+  await withTaskSyncCreation(event, context, (current) =>
+    createTaskIssue(current, context),
+  );
 }

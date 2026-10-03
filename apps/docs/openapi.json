@@ -2254,6 +2254,342 @@
           "relevanceScore"
         ]
       },
+      "IntegrationSyncPreview": {
+        "type": "object",
+        "properties": {
+          "isActive": {
+            "type": "boolean"
+          },
+          "rules": {
+            "type": "object",
+            "properties": {
+              "outgoing": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "all"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "mode"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "labels"
+                        ]
+                      },
+                      "match": {
+                        "type": "string",
+                        "enum": [
+                          "any",
+                          "all"
+                        ]
+                      },
+                      "labels": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "minItems": 1,
+                        "maxItems": 50
+                      }
+                    },
+                    "required": [
+                      "mode",
+                      "match",
+                      "labels"
+                    ]
+                  }
+                ],
+                "description": "Kaneo workspace label IDs controlling task sync. Missing labels pause sync."
+              },
+              "incoming": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "all"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "mode"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "labels"
+                        ]
+                      },
+                      "match": {
+                        "type": "string",
+                        "enum": [
+                          "any",
+                          "all"
+                        ]
+                      },
+                      "labels": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "minItems": 1,
+                        "maxItems": 50
+                      }
+                    },
+                    "required": [
+                      "mode",
+                      "match",
+                      "labels"
+                    ]
+                  }
+                ],
+                "description": "Exact repository label names controlling which issues can be imported."
+              }
+            },
+            "required": [
+              "outgoing",
+              "incoming"
+            ]
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "color": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "color"
+              ]
+            }
+          },
+          "missingLabels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "matching": {
+            "type": "number"
+          },
+          "willCreate": {
+            "type": "number"
+          },
+          "willPause": {
+            "type": "number"
+          },
+          "needsReview": {
+            "type": "number"
+          },
+          "paused": {
+            "type": "number"
+          },
+          "matchingTasks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "number": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "title": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "number",
+                "title"
+              ]
+            }
+          },
+          "pausedNextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "pausedTasks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "number": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "title": {
+                  "type": "string"
+                },
+                "linkId": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "eligible": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "id",
+                "number",
+                "title",
+                "linkId",
+                "url",
+                "eligible"
+              ]
+            }
+          },
+          "previewToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "isActive",
+          "rules",
+          "labels",
+          "missingLabels",
+          "total",
+          "matching",
+          "willCreate",
+          "willPause",
+          "needsReview",
+          "paused",
+          "matchingTasks",
+          "pausedNextCursor",
+          "pausedTasks",
+          "previewToken"
+        ]
+      },
+      "IntegrationSyncResumePreview": {
+        "type": "object",
+        "properties": {
+          "task": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "number": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "number",
+              "title"
+            ]
+          },
+          "local": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "state": {
+                "type": "string",
+                "enum": [
+                  "open",
+                  "closed"
+                ]
+              }
+            },
+            "required": [
+              "title",
+              "description",
+              "state"
+            ]
+          },
+          "remote": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "state": {
+                "type": "string",
+                "enum": [
+                  "open",
+                  "closed"
+                ]
+              }
+            },
+            "required": [
+              "title",
+              "description",
+              "state"
+            ]
+          },
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "task",
+          "local",
+          "remote",
+          "token"
+        ]
+      },
       "GitHubAppInfo": {
         "type": "object",
         "properties": {
@@ -13453,6 +13789,792 @@
           },
           "403": {
             "description": "No access to the workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/integration-sync/project/{projectId}/{provider}": {
+      "get": {
+        "operationId": "getIntegrationSyncRules",
+        "tags": [
+          "Integration sync"
+        ],
+        "summary": "Get sync rules and current task scope",
+        "description": "Workspace members can inspect saved rules. Rules remain active when advanced mode is hidden. Paused issue links are preserved; eligible paused tasks require review before resuming.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "github",
+                "gitea",
+                "gitlab"
+              ]
+            },
+            "required": true,
+            "name": "provider",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "after",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Saved rules and scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntegrationSyncPreview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid rule or workspace label",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access or required permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Integration or linked task not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Configuration, impact or comparison changed; review again",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "saveIntegrationSyncRules",
+        "tags": [
+          "Integration sync"
+        ],
+        "summary": "Apply a previewed sync rule",
+        "description": "Save shared integration rules only if the preview is still current. Excluded links are paused, never deleted. Newly matching unlinked tasks are exported through the integration event path. Paused links require explicit review to resume.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "github",
+                "gitea",
+                "gitlab"
+              ]
+            },
+            "required": true,
+            "name": "provider",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rules": {
+                    "type": "object",
+                    "properties": {
+                      "outgoing": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "mode": {
+                                "type": "string",
+                                "enum": [
+                                  "all"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "mode"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "mode": {
+                                "type": "string",
+                                "enum": [
+                                  "labels"
+                                ]
+                              },
+                              "match": {
+                                "type": "string",
+                                "enum": [
+                                  "any",
+                                  "all"
+                                ]
+                              },
+                              "labels": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 128
+                                },
+                                "minItems": 1,
+                                "maxItems": 50
+                              }
+                            },
+                            "required": [
+                              "mode",
+                              "match",
+                              "labels"
+                            ]
+                          }
+                        ],
+                        "description": "Kaneo workspace label IDs controlling task sync. Missing labels pause sync."
+                      },
+                      "incoming": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "mode": {
+                                "type": "string",
+                                "enum": [
+                                  "all"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "mode"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "mode": {
+                                "type": "string",
+                                "enum": [
+                                  "labels"
+                                ]
+                              },
+                              "match": {
+                                "type": "string",
+                                "enum": [
+                                  "any",
+                                  "all"
+                                ]
+                              },
+                              "labels": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 128
+                                },
+                                "minItems": 1,
+                                "maxItems": 50
+                              }
+                            },
+                            "required": [
+                              "mode",
+                              "match",
+                              "labels"
+                            ]
+                          }
+                        ],
+                        "description": "Exact repository label names controlling which issues can be imported."
+                      }
+                    },
+                    "required": [
+                      "outgoing",
+                      "incoming"
+                    ]
+                  },
+                  "previewToken": {
+                    "type": "string",
+                    "minLength": 64,
+                    "maxLength": 64
+                  }
+                },
+                "required": [
+                  "rules",
+                  "previewToken"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Saved rules and current scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntegrationSyncPreview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid rule or workspace label",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access or required permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Integration or linked task not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Configuration, impact or comparison changed; review again",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/integration-sync/project/{projectId}/{provider}/preview": {
+      "post": {
+        "operationId": "previewIntegrationSyncRules",
+        "tags": [
+          "Integration sync"
+        ],
+        "summary": "Preview a sync rule change",
+        "description": "Returns matching tasks, new exports, paused links and a token bound to the current integration and impact. Outgoing labels are workspace label IDs; incoming labels are exact repository label names.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "github",
+                "gitea",
+                "gitlab"
+              ]
+            },
+            "required": true,
+            "name": "provider",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rules": {
+                    "type": "object",
+                    "properties": {
+                      "outgoing": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "mode": {
+                                "type": "string",
+                                "enum": [
+                                  "all"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "mode"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "mode": {
+                                "type": "string",
+                                "enum": [
+                                  "labels"
+                                ]
+                              },
+                              "match": {
+                                "type": "string",
+                                "enum": [
+                                  "any",
+                                  "all"
+                                ]
+                              },
+                              "labels": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 128
+                                },
+                                "minItems": 1,
+                                "maxItems": 50
+                              }
+                            },
+                            "required": [
+                              "mode",
+                              "match",
+                              "labels"
+                            ]
+                          }
+                        ],
+                        "description": "Kaneo workspace label IDs controlling task sync. Missing labels pause sync."
+                      },
+                      "incoming": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "mode": {
+                                "type": "string",
+                                "enum": [
+                                  "all"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "mode"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "mode": {
+                                "type": "string",
+                                "enum": [
+                                  "labels"
+                                ]
+                              },
+                              "match": {
+                                "type": "string",
+                                "enum": [
+                                  "any",
+                                  "all"
+                                ]
+                              },
+                              "labels": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 128
+                                },
+                                "minItems": 1,
+                                "maxItems": 50
+                              }
+                            },
+                            "required": [
+                              "mode",
+                              "match",
+                              "labels"
+                            ]
+                          }
+                        ],
+                        "description": "Exact repository label names controlling which issues can be imported."
+                      }
+                    },
+                    "required": [
+                      "outgoing",
+                      "incoming"
+                    ]
+                  }
+                },
+                "required": [
+                  "rules"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Proposed rule impact",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntegrationSyncPreview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid rule or workspace label",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access or required permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Integration or linked task not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Configuration, impact or comparison changed; review again",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/integration-sync/project/{projectId}/{provider}/links/{linkId}/review": {
+      "get": {
+        "operationId": "reviewIntegrationSyncResume",
+        "tags": [
+          "Integration sync"
+        ],
+        "summary": "Compare a paused task with its external issue",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "github",
+                "gitea",
+                "gitlab"
+              ]
+            },
+            "required": true,
+            "name": "provider",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "linkId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current values and comparison token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntegrationSyncResumePreview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid rule or workspace label",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access or required permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Integration or linked task not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Configuration, impact or comparison changed; review again",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "External issue unavailable; sync remains paused",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/integration-sync/project/{projectId}/{provider}/links/{linkId}/resume": {
+      "post": {
+        "operationId": "resumeIntegrationSync",
+        "tags": [
+          "Integration sync"
+        ],
+        "summary": "Resume a reviewed issue link",
+        "description": "Explicitly choose the current Kaneo or repository title, description and open/closed state. Existing links are reused; historical comments are not replayed. The task must still match its outgoing rule. A changed comparison requires another review.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "github",
+                "gitea",
+                "gitlab"
+              ]
+            },
+            "required": true,
+            "name": "provider",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "linkId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "minLength": 64,
+                    "maxLength": 64
+                  },
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "kaneo",
+                      "provider"
+                    ]
+                  }
+                },
+                "required": [
+                  "token",
+                  "source"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sync resumed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid rule or workspace label",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access or required permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Integration or linked task not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Configuration, impact or comparison changed; review again",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "External issue unavailable; sync remains paused",
             "content": {
               "text/plain": {
                 "schema": {

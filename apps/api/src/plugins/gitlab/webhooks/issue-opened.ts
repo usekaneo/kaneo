@@ -1,6 +1,13 @@
+import { acceptsIssue } from "../../sync/rules";
+import { importIssueLabels } from "../../sync/issue-labels";
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
-import { columnTable, projectTable, taskTable } from "../../../database/schema";
+import {
+  columnTable,
+  integrationTable,
+  projectTable,
+  taskTable,
+} from "../../../database/schema";
 import { publishEvent } from "../../../events";
 import { claimTaskNumber } from "../../../task/controllers/claim-task-numbers";
 import {
@@ -75,6 +82,7 @@ export async function handleGitlabIssueOpened(
   const author = payload.user?.username ?? payload.user?.name;
 
   for (const integration of integrations) {
+    if (!acceptsIssue(integration.config, payload.labels)) continue;
     let config: GitlabConfig;
     try {
       config = JSON.parse(integration.config) as GitlabConfig;
@@ -90,69 +98,76 @@ export async function handleGitlabIssueOpened(
     const priority = extractIssuePriority(existingLabels);
     const status = extractIssueStatus(existingLabels);
 
-    const existingLink = await findExternalLink(
-      integration.id,
-      "issue",
-      issue.iid.toString(),
-    );
-
-    if (existingLink) {
-      continue;
-    }
-
-    const nextTaskNumber = await claimTaskNumber(projectId);
-
-    const resolvedStatus = await resolveTargetStatus(
-      projectId,
-      "issue_opened",
-      status || "to-do",
-    );
-
-    const targetColumn = await db.query.columnTable.findFirst({
-      where: and(
-        eq(columnTable.projectId, projectId),
-        eq(columnTable.slug, resolvedStatus),
-      ),
+    const result = await db.transaction(async (tx) => {
+      const [current] = await tx
+        .select()
+        .from(integrationTable)
+        .where(eq(integrationTable.id, integration.id))
+        .for("update");
+      if (
+        !current?.isActive ||
+        current.config !== integration.config ||
+        !acceptsIssue(current.config, payload.labels)
+      )
+        return null;
+      if (
+        await findExternalLink(integration.id, "issue", String(issue.iid), tx)
+      )
+        return null;
+      const resolvedStatus = await resolveTargetStatus(
+        projectId,
+        "issue_opened",
+        status || "to-do",
+        tx,
+      );
+      const targetColumn = await tx.query.columnTable.findFirst({
+        where: and(
+          eq(columnTable.projectId, projectId),
+          eq(columnTable.slug, resolvedStatus),
+        ),
+      });
+      const nextTaskNumber = await claimTaskNumber(projectId, tx);
+      const [task] = await tx
+        .insert(taskTable)
+        .values({
+          projectId,
+          userId: null,
+          title: issue.title,
+          description: taskDescriptionFromIssue(issue.description),
+          status: resolvedStatus,
+          columnId: targetColumn?.id ?? null,
+          priority: priority ?? "low",
+          number: nextTaskNumber,
+        })
+        .returning();
+      if (!task) throw new Error("Failed to create task from gitlab issue");
+      const linkMetadata = {
+        state: "opened",
+        createdFrom: "gitlab",
+        author: author,
+      };
+      const link = await createExternalLink(
+        {
+          taskId: task.id,
+          integrationId: integration.id,
+          resourceType: "issue",
+          externalId: String(issue.iid),
+          url: issue.url,
+          title: issue.title,
+          metadata: linkMetadata,
+        },
+        tx,
+      );
+      await importIssueLabels(
+        task.id,
+        integration.project.workspaceId,
+        payload.labels,
+        tx,
+      );
+      return { task, link, linkMetadata };
     });
-
-    const taskValues: typeof taskTable.$inferInsert = {
-      projectId,
-      userId: null,
-      title: issue.title,
-      description: taskDescriptionFromIssue(issue.description),
-      status: resolvedStatus,
-      columnId: targetColumn?.id ?? null,
-      priority: priority ?? "low",
-      number: nextTaskNumber,
-    };
-
-    const [createdTask] = await db
-      .insert(taskTable)
-      .values(taskValues)
-      .returning();
-
-    if (!createdTask) {
-      console.error("Failed to create task from GitLab issue");
-      continue;
-    }
-
-    const linkMetadata: Record<string, unknown> = {
-      state: "opened",
-      createdFrom: "gitlab",
-      author,
-    };
-
-    // Must run before task.created: the plugin's onTaskCreated uses link
-    // existence to skip self-originated tasks, else it duplicates the issue.
-    const issueLink = await createExternalLink({
-      taskId: createdTask.id,
-      integrationId: integration.id,
-      resourceType: "issue",
-      externalId: issue.iid.toString(),
-      url: issue.url,
-      title: issue.title,
-      metadata: linkMetadata,
-    });
+    if (!result) continue;
+    const { task: createdTask, link: issueLink, linkMetadata } = result;
 
     await publishEvent("task.created", {
       ...createdTask,

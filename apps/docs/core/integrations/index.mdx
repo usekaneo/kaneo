@@ -21,6 +21,17 @@ Connect the tools your team already uses. Repository connections and shared noti
 
 GitHub, Gitea, and GitLab have connection forms under **Settings → Projects → your project → Integrations**. Follow the provider guide to connect a repository and configure its webhook.
 
+## Limit repository sync by label
+
+Enable **Advanced settings** in **Account → Preferences** or **Workspace → General**, then open a connected GitHub, Gitea, or GitLab integration. Workspace settings managers can edit its **Sync scope**. The saved rules apply to everyone in the project; turning advanced mode off only hides the editor.
+
+- **Kaneo → repository** selects workspace labels by stable ID. Match any selected label or require all of them. The preview shows matching tasks, new exports, and affected links before you apply the rule.
+- **Repository → Kaneo** selects exact repository label names for new tasks and imports. Existing linked tasks follow the Kaneo rule. Adding a qualifying repository label can admit an issue that was previously excluded.
+
+When a linked task loses its qualifying labels, synchronization pauses in both directions. Both records and their link remain. Reapplying the label does not overwrite either side: choose **Review and resume**, compare the current title, description, and open/closed state, then keep the Kaneo or repository values. Historical comments are not replayed. Missing or deleted workspace labels keep the filter closed until you repair the rule.
+
+Newly matching tasks without an issue link are exported in the background when rules or task labels change. Use **Export matching tasks** to retry tasks that still have no issue link after a failed export. An inactive integration does not export or resume tasks. Existing installations retain unrestricted sync until a rule is saved.
+
 ## Team notifications
 
 Send selected project events to a shared channel. Open **Settings → Projects → your project → Integrations** to connect these services.

@@ -1,3 +1,4 @@
+import { canSyncTask } from "../../sync/eligibility";
 import { syncLatestTaskValue } from "../services/sync-latest-task-value";
 import type { PluginContext, TaskStatusChangedEvent } from "../../types";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
@@ -12,6 +13,16 @@ export async function handleTaskStatusChanged(
   event: TaskStatusChangedEvent,
   context: PluginContext,
 ): Promise<void> {
+  if (
+    !(await canSyncTask(
+      event.taskId,
+      context.integrationId,
+      undefined,
+      JSON.stringify(context.config),
+    ))
+  )
+    return;
+
   const githubApp = getGithubApp();
   if (!githubApp) {
     return;

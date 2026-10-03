@@ -1,3 +1,4 @@
+import { canSyncTask } from "../../sync/eligibility";
 import { deferTaskSync } from "./defer-issue-edit";
 import { randomUUID } from "node:crypto";
 import db from "../../../database";
@@ -57,6 +58,15 @@ export async function syncLatestTaskValue(
         });
       return;
     }
+    if (
+      !(await canSyncTask(
+        taskId,
+        link.integrationId ?? "",
+        undefined,
+        identity?.config,
+      ))
+    )
+      return;
     return binding;
   };
   for (;;) {

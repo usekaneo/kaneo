@@ -111,12 +111,11 @@ async function createGiteaIntegration({
     }
   }
 
+  let previousConfig: Partial<GiteaConfig> = {};
   let webhookSecret = randomBytes(24).toString("hex");
   if (existingIntegration) {
     try {
-      const previousConfig = JSON.parse(
-        existingIntegration.config,
-      ) as GiteaConfig;
+      previousConfig = JSON.parse(existingIntegration.config) as GiteaConfig;
       webhookSecret = previousConfig.webhookSecret ?? webhookSecret;
     } catch (error) {
       console.warn("Failed to parse existing Gitea config for webhook secret", {
@@ -133,6 +132,8 @@ async function createGiteaIntegration({
     repositoryName,
     webhookSecret,
   );
+
+  if (previousConfig.syncRules) config.syncRules = previousConfig.syncRules;
 
   const validation = await validateGiteaConfig(config);
   if (!validation.valid) {

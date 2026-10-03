@@ -1,3 +1,4 @@
+import { canSyncTask } from "../../sync/eligibility";
 import { findExternalLinksByTask } from "../../github/services/link-manager";
 import type { PluginContext, TaskPriorityChangedEvent } from "../../types";
 import type { GitlabConfig } from "../config";
@@ -7,6 +8,16 @@ export async function handleTaskPriorityChanged(
   event: TaskPriorityChangedEvent,
   context: PluginContext,
 ): Promise<void> {
+  if (
+    !(await canSyncTask(
+      event.taskId,
+      context.integrationId,
+      undefined,
+      JSON.stringify(context.config),
+    ))
+  )
+    return;
+
   const config = context.config as GitlabConfig;
   if (!config.baseUrl || !config.accessToken) {
     return;

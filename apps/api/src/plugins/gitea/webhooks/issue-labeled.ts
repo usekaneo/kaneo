@@ -1,3 +1,5 @@
+import { acceptsIssue, readSyncRules } from "../../sync/rules";
+import { handleGiteaIssueOpened } from "./issue-opened";
 import { withIntegrationLink } from "../../github/services/with-integration-link";
 import {
   type IntegrationDatabase,
@@ -143,6 +145,20 @@ export async function handleGiteaIssueLabeled(
       );
 
       if (!existingLink) {
+        const fullIssue = issue as typeof issue &
+          Partial<Parameters<typeof handleGiteaIssueOpened>[0]["issue"]>;
+        if (
+          ["label_updated", "labeled"].includes(payload.action) &&
+          readSyncRules(integration.config)?.incoming.mode === "labels" &&
+          acceptsIssue(integration.config, issue.labels) &&
+          fullIssue.title &&
+          fullIssue.html_url
+        ) {
+          await handleGiteaIssueOpened(
+            payload as Parameters<typeof handleGiteaIssueOpened>[0],
+            integration.id,
+          );
+        }
         continue;
       }
 

@@ -483,3 +483,22 @@ it("refreshes workspace label filters when a remote project event changes labels
     }),
   );
 });
+
+it.each([
+  "PROJECT_UPDATED",
+  "TASK_LABEL_UPDATED",
+  "TASK_CREATED",
+  "TASK_DELETED",
+  "TASK_MOVED",
+])("refreshes saved scopes and draft impact after %s", async (type) => {
+  renderHook(() => useProjectWebSocket("p"));
+  Socket.current.message(type, { taskId: "a" });
+  await vi.waitFor(() => {
+    expect(mocks.client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["integration-sync", "p"],
+    });
+    expect(mocks.client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["integration-sync-preview", "p"],
+    });
+  });
+});

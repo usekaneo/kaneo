@@ -1,3 +1,4 @@
+import { canSyncTask } from "../../sync/eligibility";
 import { eq } from "drizzle-orm";
 import db from "../../../database";
 import { externalLinkTable } from "../../../database/schema";
@@ -63,6 +64,8 @@ async function getGitlabIssueContext(taskId: string) {
   if (!externalLink?.integration) {
     return null;
   }
+
+  if (!(await canSyncTask(taskId, externalLink.integration.id))) return null;
 
   let config: GitlabConfig;
   try {

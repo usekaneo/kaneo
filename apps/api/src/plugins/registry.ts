@@ -1,3 +1,4 @@
+import { reconcileProjectSync, reconcileTaskSync } from "./sync/reconcile";
 import { and, eq } from "drizzle-orm";
 import db from "../database";
 import { integrationTable } from "../database/schema";
@@ -228,6 +229,34 @@ export function initializeEventSubscriptions(): void {
       title: data.title,
     });
   });
+
+  for (const event of [
+    "task.label_created",
+    "task.label_deleted",
+    "task.label_assigned",
+    "task.label_unassigned",
+    "task.labels_updated",
+  ]) {
+    subscribeToEvent<{ projectId: string; taskId: string }>(
+      event,
+      async (data) => {
+        await reconcileTaskSync(data.projectId, data.taskId);
+      },
+    );
+  }
+  subscribeToEvent<{ projectId: string; integrationId: string }>(
+    "integration.sync_rules_changed",
+    async (data) => {
+      await reconcileProjectSync(data.projectId, data.integrationId);
+    },
+  );
+
+  subscribeToEvent<{ projectId: string }>(
+    "integration.sync_labels_changed",
+    async (data) => {
+      await reconcileProjectSync(data.projectId);
+    },
+  );
 
   eventSubscriptionsInitialized = true;
   console.log("✓ Plugin event subscriptions initialized");

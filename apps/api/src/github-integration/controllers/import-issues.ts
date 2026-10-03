@@ -1,3 +1,6 @@
+import { acceptsIssue, readSyncRules } from "../../plugins/sync/rules";
+import { canSyncTask } from "../../plugins/sync/eligibility";
+import { importIssueLabels } from "../../plugins/sync/issue-labels";
 import { createId } from "@paralleldrive/cuid2";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
@@ -173,6 +176,35 @@ export async function importIssues(projectId: string, runId?: string) {
           message: "GitHub import paused; retry to resume saved progress",
         });
       }
+      let admitted = true;
+      let scopeLabels: unknown = [];
+      const rules = readSyncRules(integration.config);
+      if (
+        run.state.phase === "issues" &&
+        (rules?.incoming.mode === "labels" || rules?.outgoing.mode === "labels")
+      ) {
+        const parsed = issuesPageSchema.safeParse(payload);
+        const issue = parsed.success
+          ? parsed.data.repository.issues.nodes[0]
+          : undefined;
+        if (issue) {
+          try {
+            const remote = await octokit.rest.issues.get({
+              owner: config.repositoryOwner,
+              repo: config.repositoryName,
+              issue_number: issue.number,
+              request: { timeout: 10_000 },
+            });
+            scopeLabels = remote.data.labels;
+            admitted = acceptsIssue(integration.config, scopeLabels);
+          } catch {
+            throw new HTTPException(502, {
+              message:
+                "Issue labels could not be read; resume the import later",
+            });
+          }
+        }
+      }
       const currentRun: typeof githubImportTable.$inferSelect = run;
       const notifications = new Map<
         string,
@@ -215,6 +247,8 @@ export async function importIssues(projectId: string, runId?: string) {
             for (const type of types)
               notifications.set(`${type}:${taskId}`, { type, taskId });
           },
+          admitted,
+          scopeLabels,
         );
         const [saved] = await tx
           .update(githubImportTable)
@@ -277,6 +311,8 @@ async function applyPage(
   project: typeof projectTable.$inferSelect,
   config: GitHubConfig,
   announce: (taskId: string, ...types: ImportEvent[]) => void,
+  admitted = true,
+  scopeLabels: unknown = [],
 ) {
   if (state.phase === "issues") {
     const parsed = issuesPageSchema.safeParse(payload);
@@ -288,6 +324,14 @@ async function applyPage(
     const issue = page.nodes[0];
     if (!issue || Date.parse(issue.createdAt) > Date.parse(state.startedAt)) {
       state.moreIssues = false;
+      finishIssue(state);
+      return;
+    }
+    if (
+      !admitted &&
+      !(await findLink(tx, integrationId, "issue", issue.number))
+    ) {
+      state.skipped++;
       finishIssue(state);
       return;
     }
@@ -315,6 +359,7 @@ async function applyPage(
         label.name.startsWith("priority:"),
       ),
     };
+    await importIssueLabels(task.id, project.workspaceId, scopeLabels, tx);
     await importLabels(tx, issue.labels.nodes, task.id, project.workspaceId);
     await importComments(tx, issue.comments.nodes, task.id, state.startedAt);
     announce(task.id, "task.updated", "task.labels_updated", "comment.updated");
@@ -363,7 +408,11 @@ async function applyPage(
       ),
     )
     .for("update");
-  if (!task || !linked) {
+  if (
+    !task ||
+    !linked ||
+    !(await canSyncTask(current.taskId, integrationId, tx))
+  ) {
     state.skipped++;
     finishIssue(state);
     return;
@@ -462,6 +511,7 @@ async function importIssue(
   const priority = extractIssuePriority(issue.labels.nodes);
   const status = extractIssueStatus(issue.labels.nodes);
   if (link) {
+    if (!(await canSyncTask(link.taskId, integrationId, tx))) return null;
     const [task] = await tx
       .select()
       .from(taskTable)
@@ -606,7 +656,7 @@ async function linkPull(
     .from(taskTable)
     .where(and(eq(taskTable.id, task.id), eq(taskTable.projectId, project.id)))
     .for("share");
-  if (!scopedTask) return;
+  if (!scopedTask || !(await canSyncTask(task.id, integrationId, tx))) return;
   await tx.insert(externalLinkTable).values({
     taskId: task.id,
     integrationId,

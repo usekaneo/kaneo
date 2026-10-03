@@ -1,3 +1,4 @@
+import { canSyncTask } from "../../sync/eligibility";
 import { eq } from "drizzle-orm";
 import db from "../../../database";
 import { externalLinkTable } from "../../../database/schema";
@@ -65,6 +66,8 @@ async function getGiteaIssueContext(taskId: string) {
   if (!integration) {
     return null;
   }
+
+  if (!(await canSyncTask(taskId, integration.id))) return null;
 
   let config: GiteaConfig;
   try {

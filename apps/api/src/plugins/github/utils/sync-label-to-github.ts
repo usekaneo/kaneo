@@ -1,3 +1,4 @@
+import { canSyncTask } from "../../sync/eligibility";
 import { eq } from "drizzle-orm";
 import db from "../../../database";
 import { externalLinkTable } from "../../../database/schema";
@@ -60,6 +61,8 @@ async function getGitHubContext(taskId: string) {
   if (integration?.type !== "github" || !integration.isActive) {
     return null;
   }
+
+  if (!(await canSyncTask(taskId, integration.id))) return null;
 
   let config: GitHubConfig;
   try {

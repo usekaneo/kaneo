@@ -122,6 +122,14 @@ export function ExternalLinksAccordion({
     const isIssue = link.resourceType === "issue";
     const isBranch = link.resourceType === "branch";
 
+    if (isIssue && link.metadata?.syncFilterPaused === true) {
+      return (
+        <span className="text-xs font-medium text-warning-foreground">
+          {t("settings:syncRules.paused")}
+        </span>
+      );
+    }
+
     if (isIssue) {
       return (
         <span className="text-xs font-medium text-muted-foreground">

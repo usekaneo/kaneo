@@ -1,18 +1,18 @@
+import { taskIssueLabels } from "../../sync/issue-labels";
+import { withTaskSyncCreation } from "../../sync/create-task-issue";
 import {
   createExternalLink,
+  updateExternalLink,
   findExternalLinkByTaskAndType,
 } from "../../github/services/link-manager";
-import {
-  formatIssueBody,
-  formatIssueTitle,
-  getLabelsForIssue,
-} from "../../github/utils/format";
+import { formatIssueBody, formatIssueTitle } from "../../github/utils/format";
+import { isTaskInFinalState } from "../../github/services/task-service";
 import type { PluginContext, TaskCreatedEvent } from "../../types";
 import type { GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
 import { addLabelsToIssueGitea } from "../utils/labels";
 
-export async function handleTaskCreated(
+async function createTaskIssue(
   event: TaskCreatedEvent,
   context: PluginContext,
 ): Promise<void> {
@@ -44,7 +44,7 @@ export async function handleTaskCreated(
       },
     );
 
-    await createExternalLink({
+    const createdLink = await createExternalLink({
       taskId: event.taskId,
       integrationId: context.integrationId,
       resourceType: "issue",
@@ -58,9 +58,40 @@ export async function handleTaskCreated(
       },
     });
 
-    const labels = getLabelsForIssue(event.priority, event.status);
+    if (
+      await isTaskInFinalState({
+        projectId: event.projectId,
+        status: event.status,
+        columnId: null,
+      })
+    ) {
+      await client.updateIssue(
+        repositoryOwner,
+        repositoryName,
+        createdIssue.number,
+        { state: "closed" },
+      );
+      await updateExternalLink(createdLink.id, {
+        metadata: { state: "closed", lastOutboundStateSyncAt: Date.now() },
+      });
+    }
+
+    const labels = await taskIssueLabels(
+      event.taskId,
+      event.priority,
+      event.status,
+    );
     await addLabelsToIssueGitea(config, createdIssue.number, labels);
   } catch (error) {
     console.error("Failed to create Gitea issue:", error);
   }
+}
+
+export async function handleTaskCreated(
+  event: TaskCreatedEvent,
+  context: PluginContext,
+): Promise<void> {
+  await withTaskSyncCreation(event, context, (current) =>
+    createTaskIssue(current, context),
+  );
 }

@@ -3,6 +3,8 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { labelTable, projectTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { removeLabelFromGitea } from "../../plugins/gitea/utils/sync-label-to-gitea";
+import { removeLabelFromGitlab } from "../../plugins/gitlab/utils/sync-label-to-gitlab";
 import { removeLabelFromGitHub } from "../../plugins/github/utils/sync-label-to-github";
 
 async function unassignLabelFromTask(id: string, userId: string) {
@@ -51,6 +53,12 @@ async function unassignLabelFromTask(id: string, userId: string) {
   }
 
   if (deletedLabel.taskId) {
+    removeLabelFromGitea(deletedLabel.taskId, deletedLabel.name).catch(
+      (error) => console.error("Failed to remove label from Gitea:", error),
+    );
+    removeLabelFromGitlab(deletedLabel.taskId, deletedLabel.name).catch(
+      (error) => console.error("Failed to remove label from GitLab:", error),
+    );
     removeLabelFromGitHub(deletedLabel.taskId, deletedLabel.name).catch(
       (error) => {
         console.error("Failed to remove label from GitHub:", error);

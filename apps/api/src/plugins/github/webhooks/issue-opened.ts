@@ -1,3 +1,5 @@
+import { acceptsIssue } from "../../sync/rules";
+import { importIssueLabels } from "../../sync/issue-labels";
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import { publishEvent } from "../../../events";
@@ -39,7 +41,10 @@ type IssueOpenedPayload = {
   };
 };
 
-export async function handleIssueOpened(payload: IssueOpenedPayload) {
+export async function handleIssueOpened(
+  payload: IssueOpenedPayload,
+  integrationId?: string,
+) {
   const githubApp = getGithubApp();
   if (!githubApp) {
     return;
@@ -55,13 +60,16 @@ export async function handleIssueOpened(payload: IssueOpenedPayload) {
     return;
   }
 
-  const integrations = await findAllIntegrationsByRepo(payload);
+  const integrations = (await findAllIntegrationsByRepo(payload)).filter(
+    (integration) => !integrationId || integration.id === integrationId,
+  );
 
   if (integrations.length === 0) {
     return;
   }
 
   for (const integration of integrations) {
+    if (!acceptsIssue(integration.config, issue.labels)) continue;
     const config = JSON.parse(integration.config) as GitHubConfig;
     const projectId = integration.projectId;
 
@@ -126,6 +134,12 @@ export async function handleIssueOpened(payload: IssueOpenedPayload) {
             author: issue.user?.login,
           },
         },
+        tx,
+      );
+      await importIssueLabels(
+        task.id,
+        integration.project.workspaceId,
+        issue.labels,
         tx,
       );
       return task;
