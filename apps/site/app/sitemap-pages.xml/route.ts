@@ -20,6 +20,7 @@ const staticEntries: Entry[] = [
   { path: "/alternatives" },
   { path: "/guides" },
   { path: "/blog" },
+  { path: "/community" },
   { path: "/privacy" },
   { path: "/terms" },
 ];
