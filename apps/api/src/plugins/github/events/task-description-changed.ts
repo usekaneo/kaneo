@@ -93,7 +93,7 @@ export async function handleTaskDescriptionChanged(
           issue_number: issueNumber,
           body: formatIssueBody(value, event.taskId),
         });
-        return response?.data?.updated_at;
+        return { sent: true, updatedAt: response?.data?.updated_at };
       },
       async () =>
         formatTaskDescriptionFromIssue(

@@ -42,7 +42,11 @@ vi.mock("../../../../apps/api/src/events", () => ({ publishEvent: vi.fn() }));
 vi.mock(
   "../../../../apps/api/src/plugins/github/services/link-manager",
   () => ({
-    findExternalLinkByTaskAndType: async () => ({ externalId: "42" }),
+    findExternalLinkByTaskAndType: async () => ({
+      id: "link-1",
+      taskId: "task-1",
+      externalId: "42",
+    }),
     findExternalLink: async () => ({ taskId: "task-1" }),
     createExternalLink: vi.fn(),
   }),
@@ -64,6 +68,17 @@ vi.mock("../../../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
     listPulls: async () => [],
   }),
 }));
+
+// Real admission/locking is exercised in gitea-outbound-fence.test.ts.
+vi.mock(
+  "../../../../apps/api/src/plugins/gitea/services/outbound-fence",
+  () => ({
+    withGiteaOutboundWrite: async <T>(
+      _binding: unknown,
+      write: () => Promise<T>,
+    ) => ({ sent: true, value: await write() }),
+  }),
+);
 
 function comment(body: string, id = 1) {
   return {

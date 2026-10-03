@@ -172,7 +172,7 @@ it.each(["title", "description", "state"] as const)(
           },
         ),
       );
-      return `${value}-stamp`;
+      return { sent: true as const, updatedAt: `${value}-stamp` };
     };
     const older = syncLatestTaskValue("task", "project", link, field, a, write);
     await started.promise;
@@ -257,7 +257,7 @@ it.each(
         remote = value;
         started.resolve();
         await release.promise;
-        return firstVersion;
+        return { sent: true, updatedAt: firstVersion };
       },
       async () => remote,
     );
@@ -321,7 +321,7 @@ it.each([
       "B",
       async (value) => {
         remote = value;
-        return "2026-09-30T00:00:02Z";
+        return { sent: true, updatedAt: "2026-09-30T00:00:02Z" };
       },
     );
     const echo = await withEchoConfirmation(
@@ -397,7 +397,10 @@ it.each([false, true])(
 it("does not PATCH when the link disappears before its pending intent commits", async () => {
   m.current.title = "B";
   m.save.mockResolvedValueOnce(false);
-  const write = vi.fn(async () => "stamp");
+  const write = vi.fn(async () => ({
+    sent: true as const,
+    updatedAt: "stamp",
+  }));
   await syncLatestTaskValue("task", "project", link, "title", "B", write);
   expect(write).not.toHaveBeenCalled();
 });

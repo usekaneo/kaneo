@@ -80,92 +80,90 @@ export async function giteaFetch<T>(
   const root = normalizeGiteaBaseUrl(baseUrl);
   const url = `${root}/api/v1${path.startsWith("/") ? path : `/${path}`}`;
 
-  await assertPublicDestination(root, "Gitea");
-
   const controller = new AbortController();
-  let timedOut = false;
+  const abortFromCaller = () => controller.abort(init?.signal?.reason);
   const timeoutId = setTimeout(() => {
-    timedOut = true;
-    controller.abort();
+    controller.abort(
+      new GiteaApiError(
+        `Gitea request timed out after ${GITEA_FETCH_TIMEOUT_MS}ms`,
+        408,
+        "TIMEOUT",
+      ),
+    );
   }, GITEA_FETCH_TIMEOUT_MS);
-  if (init?.signal) {
-    if (init.signal.aborted) {
-      controller.abort();
-    } else {
-      init.signal.addEventListener("abort", () => controller.abort(), {
-        once: true,
-      });
-    }
-  }
+  let rejectAborted!: () => void;
+  const aborted = new Promise<never>((_, reject) => {
+    rejectAborted = () => reject(controller.signal.reason);
+    controller.signal.addEventListener("abort", rejectAborted, { once: true });
+  });
+  if (init?.signal?.aborted) abortFromCaller();
+  else init?.signal?.addEventListener("abort", abortFromCaller, { once: true });
 
   try {
-    Sentry.addBreadcrumb({
-      category: "integration",
-      level: "info",
-      data: { integration: "gitea" },
-    });
-    const res = await fetch(url, {
-      ...init,
-      signal: controller.signal,
-      // Following redirects would let a public host bounce the request to an
-      // internal address after the destination check has already passed.
-      redirect: "manual",
-      headers: {
-        ...authHeaders(token),
-        ...init?.headers,
-      },
-    });
+    return await Promise.race([
+      aborted,
+      (async () => {
+        controller.signal.throwIfAborted();
+        await assertPublicDestination(root, "Gitea");
+        // DNS itself may not be cancellable. Never send when it eventually resolves
+        // after the overall deadline (and after the fence has released its lock).
+        controller.signal.throwIfAborted();
+        Sentry.addBreadcrumb({
+          category: "integration",
+          level: "info",
+          data: { integration: "gitea" },
+        });
+        const res = await fetch(url, {
+          ...init,
+          signal: controller.signal,
+          // Following redirects would let a public host bounce the request to an
+          // internal address after the destination check has already passed.
+          redirect: "manual",
+          headers: {
+            ...authHeaders(token),
+            ...init?.headers,
+          },
+        });
 
-    if (res.status >= 300 && res.status < 400) {
-      throw new GiteaApiError(
-        `Gitea request was redirected (HTTP ${res.status})`,
-        res.status,
-        "REDIRECT",
-      );
-    }
+        if (res.status >= 300 && res.status < 400) {
+          throw new GiteaApiError(
+            `Gitea request was redirected (HTTP ${res.status})`,
+            res.status,
+            "REDIRECT",
+          );
+        }
 
-    const text = await res.text();
+        const text = await res.text();
+
+        if (!res.ok) {
+          throw new GiteaApiError(
+            `Gitea API error ${res.status}`,
+            res.status,
+            "HTTP_ERROR",
+            text,
+          );
+        }
+
+        if (res.status === 204 || text === "") {
+          return undefined;
+        }
+
+        try {
+          return JSON.parse(text) as T;
+        } catch {
+          throw new GiteaApiError(
+            "Gitea API returned invalid JSON",
+            res.status,
+            "INVALID_JSON",
+            text,
+          );
+        }
+      })(),
+    ]);
+  } finally {
     clearTimeout(timeoutId);
-
-    if (!res.ok) {
-      throw new GiteaApiError(
-        `Gitea API error ${res.status}`,
-        res.status,
-        "HTTP_ERROR",
-        text,
-      );
-    }
-
-    if (res.status === 204 || text === "") {
-      return undefined;
-    }
-
-    try {
-      return JSON.parse(text) as T;
-    } catch {
-      throw new GiteaApiError(
-        "Gitea API returned invalid JSON",
-        res.status,
-        "INVALID_JSON",
-        text,
-      );
-    }
-  } catch (error) {
-    clearTimeout(timeoutId);
-    if (error instanceof GiteaApiError) {
-      throw error;
-    }
-    if (error instanceof Error && error.name === "AbortError") {
-      if (timedOut) {
-        throw new GiteaApiError(
-          `Gitea request timed out after ${GITEA_FETCH_TIMEOUT_MS}ms`,
-          408,
-          "TIMEOUT",
-        );
-      }
-      throw error;
-    }
-    throw error;
+    init?.signal?.removeEventListener("abort", abortFromCaller);
+    controller.signal.removeEventListener("abort", rejectAborted);
   }
 }
 
@@ -387,15 +385,15 @@ export function createGiteaClient(
       labelIds: number[],
     ) {
       if (labelIds.length === 0) return;
-      const MAX_LABELS_PER_REQUEST = 50;
-      const path = `${owner(repositoryOwner, repositoryName)}/issues/${index}/labels`;
-      for (let i = 0; i < labelIds.length; i += MAX_LABELS_PER_REQUEST) {
-        const chunk = labelIds.slice(i, i + MAX_LABELS_PER_REQUEST);
-        await giteaFetch<unknown>(baseUrl, accessToken, path, {
+      await giteaFetch<unknown>(
+        baseUrl,
+        accessToken,
+        `${owner(repositoryOwner, repositoryName)}/issues/${index}/labels`,
+        {
           method: "POST",
-          body: JSON.stringify({ labels: chunk }),
-        });
-      }
+          body: JSON.stringify({ labels: labelIds }),
+        },
+      );
     },
 
     async replaceIssueLabels(

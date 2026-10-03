@@ -1,9 +1,6 @@
-import { and, eq } from "drizzle-orm";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
-import db from "../database";
 import { publishEvent } from "../events";
-import { integrationTable } from "../database/schema";
 import { scopeToProjectFromBody } from "../integrations/middleware";
 import { projectIdBody, projectIdParam } from "../integrations/schema";
 import {
@@ -13,12 +10,6 @@ import {
   errorResponse,
   jsonResponse,
 } from "../openapi";
-import {
-  getGiteaIssueSyncMode,
-  type GiteaConfig,
-  validateGiteaConfig,
-} from "../plugins/gitea/config";
-import { retireGiteaIssueEdits } from "../plugins/gitea/services/retire-issue-edits";
 import { handleGiteaWebhookRequest } from "../plugins/gitea/webhook-handler";
 import {
   hasWorkspacePermission,
@@ -30,7 +21,8 @@ import deleteGiteaIntegration from "./controllers/delete-gitea-integration";
 import getGiteaIntegration from "./controllers/get-gitea-integration";
 import { importGiteaIssues } from "./controllers/import-gitea-issues";
 import listGiteaRepositories from "./controllers/list-gitea-repositories";
-import { resolveVerificationToken } from "./controllers/resolve-verification-token";
+import { resolveVerificationContext } from "./controllers/resolve-verification-context";
+import updateGiteaIntegration from "./controllers/update-gitea-integration";
 import verifyGiteaAccess from "./controllers/verify-gitea-access";
 import {
   giteaDeleteResultSchema,
@@ -142,6 +134,7 @@ const createIntegrationRoute = createRoute({
   responses: {
     200: jsonResponse("The stored integration", giteaIntegrationSchema),
     400: errorResponse("Invalid body"),
+    409: errorResponse("Integration changed or repository is already linked"),
     403: errorResponse(
       "No access to the project, or missing workspace:manage_settings",
     ),
@@ -168,11 +161,11 @@ const updateIntegrationRoute = createRoute({
   responses: {
     200: jsonResponse("The updated integration", giteaIntegrationSchema),
     400: errorResponse("The resulting config failed validation"),
+    409: errorResponse("Integration changed. Reload and try again."),
     403: errorResponse(
       "No access to the project, or missing workspace:manage_settings",
     ),
     404: errorResponse("Project or integration not found"),
-    409: errorResponse("Integration changed; refresh before updating settings"),
   },
 });
 
@@ -232,19 +225,8 @@ const giteaIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
   })
   .openapi(verifyRoute, async (c) => {
     const body = c.req.valid("json");
-    const accessToken = await resolveVerificationToken(body);
-    let issueSyncMode = body.issueSyncMode;
-    if (issueSyncMode === undefined) {
-      const saved = await db.query.integrationTable.findFirst({
-        where: and(
-          eq(integrationTable.projectId, body.projectId),
-          eq(integrationTable.type, "gitea"),
-        ),
-      });
-      issueSyncMode = saved
-        ? getGiteaIssueSyncMode(JSON.parse(saved.config) as GiteaConfig)
-        : "sync";
-    }
+    const { accessToken, issueSyncMode } =
+      await resolveVerificationContext(body);
     const result = await verifyGiteaAccess({
       ...body,
       accessToken,
@@ -285,78 +267,15 @@ const giteaIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
       await publishEvent("integration.sync_rules_changed", {
         projectId,
         integrationId: integration.id,
+        existingLinksOnly: true,
       });
     return c.json(integration, 200);
   })
   .openapi(updateIntegrationRoute, async (c) => {
     const { projectId } = c.req.valid("param");
     const body = c.req.valid("json");
-
-    const row = await db.query.integrationTable.findFirst({
-      where: and(
-        eq(integrationTable.projectId, projectId),
-        eq(integrationTable.type, "gitea"),
-      ),
-    });
-
-    if (!row) {
-      throw new HTTPException(404, { message: "Integration not found" });
-    }
-
-    let config: GiteaConfig;
-    try {
-      config = JSON.parse(row.config) as GiteaConfig;
-    } catch {
-      throw new HTTPException(500, { message: "Invalid integration config" });
-    }
-
-    if (body.commentTaskLinkOnGiteaIssue !== undefined) {
-      config = {
-        ...config,
-        commentTaskLinkOnGiteaIssue: body.commentTaskLinkOnGiteaIssue,
-      };
-    }
-
-    if (body.issueSyncMode !== undefined) {
-      config = { ...config, issueSyncMode: body.issueSyncMode };
-    }
-
-    const validation = await validateGiteaConfig(config);
-    if (!validation.valid) {
-      throw new HTTPException(400, {
-        message: validation.errors?.join(", ") ?? "Invalid config",
-      });
-    }
-
-    await db.transaction(async (tx) => {
-      const [saved] = await tx
-        .update(integrationTable)
-        .set({
-          config: JSON.stringify(config),
-          isActive: body.isActive !== undefined ? body.isActive : (row.isActive ?? true),
-          updatedAt: new Date(),
-        })
-        .where(and(eq(integrationTable.id, row.id), eq(integrationTable.config, row.config)))
-        .returning({ id: integrationTable.id });
-      if (!saved) throw new HTTPException(409, {
-        message: "Integration changed; refresh before updating settings",
-      });
-      if (getGiteaIssueSyncMode(config) !== "sync" &&
-          getGiteaIssueSyncMode(config) !== getGiteaIssueSyncMode(JSON.parse(row.config) as GiteaConfig)) {
-        await retireGiteaIssueEdits(row.id, tx, getGiteaIssueSyncMode(config));
-      }
-    });
-
-    const updated = await getGiteaIntegration(projectId, true);
-    if (!updated) {
-      throw new HTTPException(500, { message: "Failed to load integration" });
-    }
-    if (body.isActive === true && !row.isActive)
-      await publishEvent("integration.sync_rules_changed", {
-        projectId,
-        integrationId: row.id,
-      });
-    await publishEvent("project.updated", { projectId, linksChanged: true });
+    const updated = await updateGiteaIntegration(projectId, body);
+    if (!updated) throw new HTTPException(404, { message: "Integration not found" });
     return c.json(updated, 200);
   })
   .openapi(deleteIntegrationRoute, async (c) => {
@@ -373,7 +292,7 @@ const giteaIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
 export async function handleGiteaWebhookRoute(c: Context) {
   const integrationId = c.req.param("integrationId");
   if (!integrationId) {
-    return c.json({ error: "Missing integration id" }, 400);
+    throw new HTTPException(400, { message: "Missing integration id" });
   }
 
   const arrayBuffer = await c.req.arrayBuffer();
@@ -395,7 +314,7 @@ export async function handleGiteaWebhookRoute(c: Context) {
   );
 
   if (!result.success) {
-    return c.json({ error: result.error }, 400);
+    throw new HTTPException(400, { message: result.error ?? "Invalid Gitea webhook" });
   }
 
   return c.json({ status: "success" });

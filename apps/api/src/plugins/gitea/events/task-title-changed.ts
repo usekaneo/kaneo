@@ -100,24 +100,17 @@ export async function handleTaskTitleChanged(
       issueLink,
       "title",
       event.newTitle,
-      async (value) => {
-        const response = await client.updateIssue(
-          repositoryOwner,
-          repositoryName,
-          issueNumber,
-          {
-            title: value,
-          },
-        );
-        return response?.updated_at;
-      },
+      async (value) => ({
+        sent: true,
+        updatedAt: (await client.updateIssue(repositoryOwner, repositoryName, issueNumber, {
+          title: value,
+        })).updated_at,
+      }),
       async () =>
         (await client.getIssue(repositoryOwner, repositoryName, issueNumber))
           .title,
       { type: "gitea", config: JSON.stringify(config) },
     );
-
-    console.log(`Synced task title to Gitea issue #${issueNumber}`);
   } catch (error) {
     console.error("Failed to update Gitea issue title:", error);
   }

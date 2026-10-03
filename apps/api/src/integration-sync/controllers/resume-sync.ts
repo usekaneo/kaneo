@@ -1,3 +1,5 @@
+import { getGiteaIssueSyncMode, type GiteaConfig } from "../../plugins/gitea/config";
+import { withGiteaOutboundWrite } from "../../plugins/gitea/services/outbound-fence";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { publishEvent } from "../../events";
@@ -67,13 +69,18 @@ async function resumeWithLease(
   let updatedAt: string | null = null;
   let adoption: Awaited<ReturnType<typeof applySyncResume>>;
   const validate = async (tx: Parameters<typeof lockResumeScope>[4]) => {
-    await lockResumeScope(
+    const binding = await lockResumeScope(
       projectId,
       provider,
       linkId,
       authorizedWorkspaceId,
       tx,
     );
+    if (provider === "gitea") {
+      const mode = getGiteaIssueSyncMode(JSON.parse(binding.config) as GiteaConfig);
+      if (mode === "off" || (source === "kaneo" && mode !== "sync"))
+        throw new HTTPException(409, { message: "Issue sync mode does not allow this operation" });
+    }
     const review = await reviewSyncResume(
       projectId,
       provider,
@@ -94,10 +101,17 @@ async function resumeWithLease(
         const review = await validate(tx);
         // Dispatch while scope changes are excluded, then release the locks
         // before awaiting the response. Completion rechecks the local snapshot.
-        request = snapshot.access.write(review.local).then(
-          (value) => ({ value }),
-          (error: unknown) => ({ error }),
-        );
+        const send = async () => {
+          if (provider !== "gitea") return snapshot.access.write(review.local);
+          const result = await withGiteaOutboundWrite({
+            integrationId: review.integration.id, projectId,
+            config: JSON.parse(review.integration.config) as GiteaConfig,
+            link: review.link, resumePaused: true,
+          }, () => snapshot.access.write(review.local));
+          if (!result.sent) throw new HTTPException(409, { message: "Issue sync scope changed" });
+          return result.value;
+        };
+        request = send().then((value) => ({ value }), (error: unknown) => ({ error }));
       });
       const result = await request!;
       if ("error" in result) {

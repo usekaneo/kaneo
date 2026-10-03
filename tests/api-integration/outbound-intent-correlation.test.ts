@@ -65,7 +65,7 @@ it.each([
       async (value) => {
         remote = value;
         await response;
-        return "2026-09-30T00:00:01Z";
+        return { sent: true, updatedAt: "2026-09-30T00:00:01Z" };
       },
       async () => remote,
     );
@@ -177,12 +177,15 @@ it("stops correction when a disconnect races the post-response task read", async
     });
   const write = vi.fn(async () => {
     responseReceived = true;
-    return "2026-09-30T00:00:01Z";
+    return {
+      sent: true as const,
+      updatedAt: "2026-09-30T00:00:01Z",
+    };
   });
   try {
     await syncLatestTaskValue(task.id, project.id, link, "title", "A", write);
     expect(write).toHaveBeenCalledTimes(1);
-    expect(write).toHaveBeenCalledWith("A");
+    expect(write).toHaveBeenCalledWith("A", expect.any(String));
   } finally {
     read.mockRestore();
   }
@@ -229,7 +232,8 @@ it.each(
     let remote = older;
     const write = vi.fn(async (value: string) => {
       remote = value;
-      if (!first) return "2026-09-30T00:00:04Z";
+      if (!first)
+        return { sent: true as const, updatedAt: "2026-09-30T00:00:04Z" };
       first = false;
       const pending = await db.query.externalLinkTable.findFirst({
         where: eq(schema.externalLinkTable.id, link.id),
@@ -252,7 +256,7 @@ it.each(
           updatedAt: "2026-09-30T00:00:03Z",
         },
       });
-      return "2026-09-30T00:00:01Z";
+      return { sent: true as const, updatedAt: "2026-09-30T00:00:01Z" };
     });
     await syncLatestTaskValue(
       task.id,
@@ -347,6 +351,16 @@ it.each(
         })
         .where(eq(schema.integrationTable.id, integration.id));
     };
+    let responseReceived = false;
+    let reconfigured = false;
+    const findLinks = db.query.externalLinkTable.findMany.bind(db.query.externalLinkTable);
+    const linksRead = vi.spyOn(db.query.externalLinkTable, "findMany").mockImplementation(async (options) => {
+      if (responseReceived && !reconfigured && phase !== "apply") {
+        reconfigured = true;
+        await reconfigure();
+      }
+      return findLinks(options);
+    });
     const write = vi.fn(async () => {
       if (write.mock.calls.length === 1) {
         if (phase !== "retry") {
@@ -372,23 +386,27 @@ it.each(
             },
           });
         }
-        if (phase !== "apply") await reconfigure();
+        responseReceived = true;
       }
-      return "2026-09-30T00:00:01Z";
+      return { sent: true as const, updatedAt: "2026-09-30T00:00:01Z" };
     });
     const read = vi.fn(async () => {
       await reconfigure();
       return older;
     });
-    await syncLatestTaskValue(
-      task.id,
-      project.id,
-      link,
-      field,
-      older,
-      write,
-      read,
-    );
+    try {
+      await syncLatestTaskValue(
+        task.id,
+        project.id,
+        link,
+        field,
+        older,
+        write,
+        read,
+      );
+    } finally {
+      linksRead.mockRestore();
+    }
     expect(write).toHaveBeenCalledTimes(1);
     expect(read).toHaveBeenCalledTimes(phase === "apply" ? 1 : 0);
     const current = await db.query.taskTable.findFirst({
@@ -428,7 +446,10 @@ it.each(["github", "gitea"])(
         url: "https://provider.example/1",
       })
       .returning();
-    const write = vi.fn(async () => "2026-09-30T00:00:01Z");
+    const write = vi.fn(async () => ({
+      sent: true as const,
+      updatedAt: "2026-09-30T00:00:01Z",
+    }));
     await syncLatestTaskValue(
       task.id,
       project.id,

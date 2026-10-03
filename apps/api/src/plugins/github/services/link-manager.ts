@@ -41,6 +41,7 @@ export type UpdateExternalLinkParams = {
   completeDeferredEdit?: string;
   retireUncertainOutbound?: IssueField;
   retireOutboundIntents?: { field: IssueField; intentIds: string[] };
+  requireOutboundIntent?: { field: IssueField; intentId: string };
   outbound?: {
     field: "title" | "description" | "state";
     value: string;
@@ -157,7 +158,8 @@ export async function updateExternalLink(
     params.deferredEdit ||
     params.completeDeferredEdit ||
     params.retireOutboundIntents ||
-    params.retireUncertainOutbound
+    params.retireUncertainOutbound ||
+    params.requireOutboundIntent
   ) {
     return database.transaction(async (tx) => {
       const link = await lockExternalLink(id, tx);
@@ -165,6 +167,13 @@ export async function updateExternalLink(
       const metadata = parseLinkMetadata<
         Record<string, unknown> & { lastSync?: Record<string, SyncStamp> }
       >(link.metadata, { externalLinkId: id, source: "sync_update" });
+      if (params.requireOutboundIntent) {
+        const { field, intentId } = params.requireOutboundIntent;
+        const intent = metadata.lastSync?.[field]?.outbound?.find(
+          (entry) => entry.intentId === intentId,
+        );
+        if (!intent || intent.cancelled) return false;
+      }
       const merged = mergeSyncMetadata(metadata, params.metadata ?? {});
       // Ordinary sync metadata cannot resurrect or clear a scheduler job.
       delete merged.deferredIssueEdit;

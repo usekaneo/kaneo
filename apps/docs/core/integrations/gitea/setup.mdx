@@ -19,15 +19,42 @@ The API must be able to reach your Gitea server. Verification checks the token a
 
 | Mode | Behavior |
 | --- | --- |
-| **Two-way sync** (`sync`) | Sync issues, comments, and labels in both directions. This is the default, including for connections created before this setting was added. |
-| **Ingest only** (`ingest-only`) | Read Gitea issues, comments, and labels into Kaneo. Kaneo does not create or update Gitea issues, comments, or labels, including task-link comments and status labels. |
+| **Two-way sync** (`sync`) | Sync eligible issues, comments, and labels in both directions, subject to the project's sync rules and paused links. This is the default, including for connections created before this setting was added. |
+| **Ingest only** (`ingest-only`) | Read eligible Gitea issues, comments, and labels into Kaneo under the same sync rules. Kaneo does not create or update Gitea issues, comments, or labels, including task-link comments and status labels. |
 | **Off** (`off`) | Ignore inbound issue, issue-comment, and issue-label events and stop outbound issue, comment, and label changes. Manual issue and pull-request import is also disabled. |
 
-On an existing connection, selecting a mode saves it immediately. Changing the mode keeps existing Kaneo tasks, Gitea issues, and their links. It does not export existing tasks or automatically catch up on events missed in another mode. Rotating credentials or saving connection details preserves the selected mode.
+On an existing connection, selecting a mode submits the change immediately. Changing the mode keeps existing Kaneo tasks, Gitea issues, and their links. It does not export unlinked tasks or automatically catch up on events missed in another mode, including when returning to **Two-way sync**. Automatic project-wide reconciliation after workspace label changes updates existing Gitea links only; it does not export that backlog. Rotating credentials or saving connection details preserves the selected mode.
 
-Switching away from **Two-way sync** cancels queued outbound issue repairs. **Ingest only** still processes queued inbound Gitea updates; **Off** discards them. Requests already sent to Gitea cannot be cancelled by a later mode change.
+Reactivating an inactive connection through the API is a separate operation: if its mode stays **Two-way sync**, reactivation can export eligible unlinked tasks under the saved rules. Changing the mode and reactivating in the same request reconciles existing links only. Reactivation in **Ingest only** or **Off** does not allow exports.
+
+Switching to **Two-way sync** checks the saved connection's repository write permissions before saving; a failed check leaves the mode unchanged. The token must also have the required issue-write scopes. If the connection changes while verification is running, reload the settings and try again.
+
+Switching away from **Two-way sync** cancels queued outbound issue repairs. **Ingest only** still processes queued inbound Gitea updates; **Off** discards them. Saving an unchanged mode does not rewrite queued work.
+
+A mode change waits for admitted outbound requests to finish or time out before saving. Once **Ingest only** or **Off** is saved, stale work cannot start new outbound issue, comment, or label requests while that mode remains active. Requests already received by Gitea may still complete remotely after a timeout; they cannot be cancelled by a later mode change.
 
 All three modes retain live branch, push, and pull-request linking and workflow automation while the connection is active. **Off** is not a connection-wide disable switch. Task-link comments are available only in **Two-way sync**; their saved preference is kept in the other modes.
+
+## Choose the sync scope
+
+The project's **Sync scope** rules and issue sync mode apply together. **Two-way sync** does not override a label filter or resume a paused link, and rules that match a task do not permit writes in **Ingest only** or **Off**. Rules apply to everyone using the project, even when **Advanced settings** is hidden.
+
+Enable **Advanced settings** in **Preferences** to edit the rules:
+
+- **Kaneo → repository** selects eligible Kaneo tasks using workspace labels, matching any or all selected labels. Existing links follow this task rule in both directions. If a task stops matching, its link pauses; restoring a matching label does not automatically resume it. An unavailable selected workspace label must be repaired in the rule before sync can continue.
+- **Repository → Kaneo** selects which Gitea issues can be imported or create tasks, using exact repository label names. Existing links still follow the Kaneo task rule.
+
+Review **What will change** before choosing **Apply sync rules**. In **Two-way sync**, applying rules can export matching unlinked tasks; **Export matching tasks** explicitly exports eligible pending tasks without changing the rules. These explicit actions are different from changing issue sync mode. In **Ingest only** and **Off**, the preview reports no new exports and applying rules cannot export tasks.
+
+### Review paused links
+
+Pausing preserves the Kaneo task, Gitea issue, and their link. Once the task matches the rule again, choose **Review and resume** to compare the current title, description, and open/closed state:
+
+- In **Two-way sync**, choose **Keep Kaneo values** or **Keep repository values**.
+- In **Ingest only**, only **Keep repository values** is allowed. **Keep Kaneo values** is refused because it would write to Gitea.
+- In **Off**, neither choice can resume issue sync.
+
+Resuming still requires an active connection and the current task to be eligible. It does not replay historical comments or replace labels. If the task, issue, rules, or connection changed during review, refresh the comparison before trying again.
 
 ## Configure the webhook
 
@@ -87,5 +114,6 @@ Choose **Disconnect** to remove the Kaneo connection. This does not delete the G
 | Repository not found | Check owner, name, and token access to private repositories. |
 | Verification succeeds, writes fail | Check token scopes as well as the account’s repository permissions. |
 | Invalid webhook signature | Copy the current secret from Kaneo and save it in Gitea. |
-| No tasks arrive | Check recent Gitea deliveries, selected events, repository identity, the active connection, and whether issue sync is set to **Off**. |
+| No tasks arrive | Check recent Gitea deliveries, selected events, repository identity, the active connection, incoming sync rules, and whether issue sync is set to **Off**. For an existing linked task, also check its outgoing rule and paused-link status. |
 | Task does not move after a push | Check the branch naming pattern and workflow mapping. |
+| Labels fail to sync | Check issue-write access and Gitea availability. Operations that require label sync report provider errors, but independent close/reopen actions or imported task-link comments may still complete after a label failure. A failed label update does not mean every part of the operation was rolled back. |

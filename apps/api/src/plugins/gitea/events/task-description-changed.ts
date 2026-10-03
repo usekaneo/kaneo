@@ -110,17 +110,12 @@ export async function handleTaskDescriptionChanged(
       issueLink,
       "description",
       newDescNormalized,
-      async (value) => {
-        const response = await client.updateIssue(
-          repositoryOwner,
-          repositoryName,
-          issueNumber,
-          {
-            body: formatIssueBody(value, event.taskId),
-          },
-        );
-        return response?.updated_at;
-      },
+      async (value) => ({
+        sent: true,
+        updatedAt: (await client.updateIssue(repositoryOwner, repositoryName, issueNumber, {
+          body: formatIssueBody(value, event.taskId),
+        })).updated_at,
+      }),
       async () =>
         formatTaskDescriptionFromIssue(
           (await client.getIssue(repositoryOwner, repositoryName, issueNumber))
@@ -129,8 +124,6 @@ export async function handleTaskDescriptionChanged(
         ),
       { type: "gitea", config: JSON.stringify(config) },
     );
-
-    console.log(`Synced task description to Gitea issue #${issueNumber}`);
   } catch (error) {
     console.error("Failed to update Gitea issue description:", error);
   }

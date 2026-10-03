@@ -111,12 +111,12 @@ export async function syncTaskFieldLabels(
           : (current[field] ?? "no-priority");
       if (currentValue === value) return value;
     }
-  }).catch(() => {
+  }).catch((error: unknown) => {
     console.error("Issue field label synchronization failed", {
       integrationId: context.integrationId,
       linkId: link.id,
       field,
     });
-    throw new Error("Issue field label synchronization failed");
+    throw error;
   });
 }

@@ -1,3 +1,4 @@
+import { withGiteaOutboundWrite, type GiteaOutboundBinding } from "../gitea/services/outbound-fence";
 import type { IssueWrite } from "./issue-write";
 import { and, eq, inArray, isNull, or } from "drizzle-orm";
 import db from "../../database";
@@ -7,10 +8,15 @@ import { canSyncTask } from "./eligibility";
 import { readSyncRules } from "./rules";
 import { sameConfig } from "./same-config";
 
+export class IssueWriteRefused extends Error {
+  constructor() { super("Issue sync scope changed"); }
+}
+
 export async function dispatchIssueWrite<T>(
   link: { id: string; taskId: string; integrationId: string | null },
   expectedConfig: string | undefined,
   send: () => Promise<T>,
+  intent?: GiteaOutboundBinding["intent"],
 ): Promise<{ value: T } | undefined> {
   if (!link.integrationId) return;
   const integration = await db.query.integrationTable.findFirst({
@@ -18,6 +24,19 @@ export async function dispatchIssueWrite<T>(
     with: { project: true },
   });
   if (!integration) return;
+  if (integration.type === "gitea") {
+    let config: GiteaOutboundBinding["config"];
+    try { config = JSON.parse(expectedConfig ?? integration.config); }
+    catch { return; }
+    const result = await withGiteaOutboundWrite({
+      integrationId: integration.id,
+      projectId: integration.projectId,
+      config,
+      link,
+      intent,
+    }, send);
+    return result.sent ? { value: result.value } : undefined;
+  }
   let request: Promise<{ value: T } | { error: unknown }> | undefined;
   try {
     await withIntegrationLink(
@@ -84,7 +103,7 @@ export function createIssueWrite(
 ): IssueWrite {
   return async (send) => {
     const result = await dispatchIssueWrite(link, expectedConfig, send);
-    if (!result) throw new Error("Issue sync scope changed");
+    if (!result) throw new IssueWriteRefused();
     return result.value;
   };
 }

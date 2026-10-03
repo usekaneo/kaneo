@@ -1,3 +1,4 @@
+import { IssueWriteRefused } from "../../sync/dispatch-issue-write";
 import { acceptsIssue } from "../../sync/rules";
 import { importIssueLabels } from "../../sync/issue-labels";
 import { canSyncTask } from "../../sync/eligibility";
@@ -233,13 +234,12 @@ export async function handleGiteaIssueOpened(
       }
 
       if (labelsToAdd.length > 0) {
-        await addLabelsToIssueGitea(
-          config,
-          issue.number,
-          labelsToAdd,
-          true,
-          write,
-        );
+        try {
+          await addLabelsToIssueGitea(config, issue.number, labelsToAdd, true, write);
+        } catch (error) {
+          if (error instanceof IssueWriteRefused) continue;
+          console.error("Gitea imported issue label synchronization failed", error);
+        }
       }
 
       if (config.commentTaskLinkOnGiteaIssue !== false) {

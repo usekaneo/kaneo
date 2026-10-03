@@ -18,6 +18,7 @@ import { handleGiteaIssueReopened } from "../../apps/api/src/plugins/gitea/webho
 import {
   inboundStamp,
   outboundStamp,
+  type SyncStamp,
 } from "../../apps/api/src/plugins/github/utils/sync-echo";
 import { resetTestDatabase } from "./helpers/database";
 import {
@@ -136,6 +137,139 @@ async function current(taskId: string) {
     where: eq(schema.taskTable.id, taskId),
   });
 }
+it.each(["title", "description", "state"] as const)(
+  "retires only a skipped %s intent without completing or retrying it",
+  async (field) => {
+    const { task, integration, link } = await seed();
+    const previous = inboundStamp(
+      outboundStamp(undefined, "older", undefined, {
+        intentId: "older-pending",
+        pending: true,
+      }),
+      "provider value",
+      "github",
+    );
+    await db
+      .update(schema.externalLinkTable)
+      .set({
+        title: "retained title",
+        metadata: JSON.stringify({
+          lastSync: { [field]: previous },
+          state: "retained state",
+          lastOutboundStateSyncAt: 123,
+        }),
+      })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    let skippedIntentId = "";
+    const write = vi.fn(async (_value: string, intentId: string) => {
+      skippedIntentId = intentId;
+      await updateExternalLink(link.id, {
+        outbound: {
+          field,
+          value: "newer",
+          intentId: "newer-pending",
+          pending: true,
+        },
+      });
+      return { sent: false as const };
+    });
+    await syncLatestTaskValue(
+      task.id,
+      integration.projectId,
+      link,
+      field,
+      field === "state" ? "closed" : "stale value",
+      write,
+    );
+    const saved = await metadata(link.id);
+    const stamp = saved.lastSync[field];
+    expect(stamp).toMatchObject({
+      source: previous.source,
+      value: previous.value,
+      timestamp: previous.timestamp,
+    });
+    expect(
+      stamp.outbound.find(
+        (entry: { intentId: string }) => entry.intentId === skippedIntentId,
+      ),
+    ).toMatchObject({ pending: false, uncertain: false, cancelled: true });
+    for (const intentId of ["older-pending", "newer-pending"])
+      expect(
+        stamp.outbound.find(
+          (entry: { intentId: string }) => entry.intentId === intentId,
+        ),
+      ).toMatchObject({ pending: true });
+    expect(saved.deferredIssueEdit).toBeUndefined();
+    expect(saved.state).toBe("retained state");
+    expect(saved.lastOutboundStateSyncAt).toBe(123);
+    const savedLink = await db.query.externalLinkTable.findFirst({
+      where: eq(schema.externalLinkTable.id, link.id),
+    });
+    expect(savedLink?.title).toBe("retained title");
+    expect(write).toHaveBeenCalledTimes(1);
+  },
+);
+
+it.each(
+  (["title", "description", "state"] as const).flatMap((field) =>
+    [false, true].flatMap((failed) =>
+      [false, true].map((removed) => ({ field, failed, removed })),
+    ),
+  ),
+)(
+  "does not revive an invalidated $field completion (failed=$failed, removed=$removed)",
+  async ({ field, failed, removed }) => {
+    const { task, integration, link } = await seed();
+    await db
+      .update(schema.externalLinkTable)
+      .set({ title: "retained title" })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    let invalidatedMetadata: unknown;
+    const write = vi.fn(async (_value: string, intentId: string) => {
+      await updateExternalLink(link.id, {
+        retireOutboundIntents: { field, intentIds: [intentId] },
+      });
+      await updateExternalLink(link.id, {
+        outbound: {
+          field,
+          value: "new binding value",
+          intentId: "new-binding-intent",
+          pending: true,
+        },
+      });
+      const saved: { lastSync: Record<string, SyncStamp> } = await metadata(
+        link.id,
+      );
+      if (removed) {
+        saved.lastSync[field].outbound = saved.lastSync[field].outbound?.filter(
+          (entry) => entry.intentId !== intentId,
+        );
+        await db
+          .update(schema.externalLinkTable)
+          .set({ metadata: JSON.stringify(saved) })
+          .where(eq(schema.externalLinkTable.id, link.id));
+      }
+      invalidatedMetadata = saved;
+      if (failed) throw new Error("late old request failure");
+      return { sent: true as const, updatedAt: "2026-09-30T00:00:04Z" };
+    });
+    await syncLatestTaskValue(
+      task.id,
+      integration.projectId,
+      link,
+      field,
+      field === "state" ? "closed" : "stale value",
+      write,
+    );
+    expect(await metadata(link.id)).toEqual(invalidatedMetadata);
+    const savedLink = await db.query.externalLinkTable.findFirst({
+      where: eq(schema.externalLinkTable.id, link.id),
+    });
+    expect(savedLink?.title).toBe("retained title");
+    expect(write).toHaveBeenCalledTimes(1);
+  },
+);
+
 it("durably acknowledges an orphaned delivery and later recovers every changed field", async () => {
   const { task, integration, link } = await seed();
   await handleIssueEdited({
@@ -1202,7 +1336,7 @@ it.each(
               : `edit-${write.mock.calls.length}`,
         })
         .where(eq(schema.taskTable.id, task.id));
-      return "2026-09-30T00:00:04Z";
+      return { sent: true as const, updatedAt: "2026-09-30T00:00:04Z" };
     });
     await syncLatestTaskValue(
       task.id,
@@ -1679,7 +1813,7 @@ it.each(providerFields)(
       link,
       field,
       later,
-      async () => "2026-09-30T00:00:05Z",
+      async () => ({ sent: true, updatedAt: "2026-09-30T00:00:05Z" }),
     );
     m.read.mockResolvedValue({
       title: older,
@@ -1764,7 +1898,7 @@ it("queues an intent inserted after the repair receipt for a fresh correction", 
     link,
     "title",
     "C",
-    async () => "2026-09-30T00:00:05Z",
+    async () => ({ sent: true, updatedAt: "2026-09-30T00:00:05Z" }),
   );
   m.read.mockResolvedValue({
     title: "A",
@@ -1994,7 +2128,7 @@ it.each(
       .where(eq(schema.externalLinkTable.id, link.id));
     const older = field === "state" ? "closed" : "A";
     const fresh = field === "state" ? "open" : "new-repo-value";
-    const write = vi.fn(async () => {
+    const reconfigure = async () => {
       const config = JSON.stringify({
         ...JSON.parse(integration.config),
         repositoryName: "new-repo",
@@ -2013,8 +2147,21 @@ it.each(
           pending: true,
         },
       });
+    };
+    let responseReceived = false;
+    let reconfigured = false;
+    const findLinks = db.query.externalLinkTable.findMany.bind(db.query.externalLinkTable);
+    const linksRead = vi.spyOn(db.query.externalLinkTable, "findMany").mockImplementation(async (options) => {
+      if (responseReceived && !reconfigured) {
+        reconfigured = true;
+        await reconfigure();
+      }
+      return findLinks(options);
+    });
+    const write = vi.fn(async () => {
+      responseReceived = true;
       if (failed) throw new Error("old repository request failed");
-      return "2026-09-30T00:00:02Z";
+      return { sent: true as const, updatedAt: "2026-09-30T00:00:02Z" };
     });
     const result = syncLatestTaskValue(
       task.id,
@@ -2026,9 +2173,13 @@ it.each(
       undefined,
       integration,
     );
-    if (failed)
-      await expect(result).rejects.toThrow("old repository request failed");
-    else await result;
+    try {
+      if (failed)
+        await expect(result).rejects.toThrow("old repository request failed");
+      else await result;
+    } finally {
+      linksRead.mockRestore();
+    }
     const stamp = (await metadata(link.id)).lastSync[field];
     const oldIntent = stamp.outbound.find(
       (entry: { intentId: string }) => entry.intentId !== "new-repo-intent",
@@ -2225,7 +2376,7 @@ it.each(
           .set({ status: column.slug, columnId: column.id })
           .where(eq(schema.taskTable.id, task.id));
       }
-      return "2026-09-30T00:00:04Z";
+      return { sent: true as const, updatedAt: "2026-09-30T00:00:04Z" };
     });
     await syncLatestTaskValue(
       task.id,

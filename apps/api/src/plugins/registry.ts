@@ -246,17 +246,17 @@ export function initializeEventSubscriptions(): void {
       await reconcileTaskSync(data.toProjectId, data.taskId);
     },
   );
-  subscribeToEvent<{ projectId: string; integrationId: string }>(
+  subscribeToEvent<{ projectId: string; integrationId: string; existingLinksOnly?: boolean }>(
     "integration.sync_rules_changed",
     async (data) => {
-      await reconcileProjectSync(data.projectId, data.integrationId);
+      await reconcileProjectSync(data.projectId, data.integrationId, data.existingLinksOnly);
     },
   );
 
   subscribeToEvent<{ projectId: string; integrationId?: string }>(
     "integration.sync_labels_changed",
     async (data) => {
-      await reconcileProjectSync(data.projectId, data.integrationId);
+      await reconcileProjectSync(data.projectId, data.integrationId, "gitea");
     },
   );
 

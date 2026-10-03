@@ -35,7 +35,7 @@ export async function initializeTaskState(
         { id: link.id, integrationId: context.integrationId },
         "state",
         closing ? "closed" : "open",
-        send,
+        async (value) => ({ sent: true, updatedAt: await send(value) }),
         undefined,
         { config: JSON.stringify(context.config) },
       );

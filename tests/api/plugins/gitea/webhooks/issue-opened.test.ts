@@ -97,6 +97,17 @@ vi.mock("../../../../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
   createGiteaClient: (...args: unknown[]) => mocks.createGiteaClient(...args),
 }));
 
+// Real admission/locking is exercised in gitea-outbound-fence.test.ts.
+vi.mock(
+  "../../../../../apps/api/src/plugins/gitea/services/outbound-fence",
+  () => ({
+    withGiteaOutboundWrite: async <T>(
+      _binding: unknown,
+      write: () => Promise<T>,
+    ) => ({ sent: true, value: await write() }),
+  }),
+);
+
 vi.mock("../../../../../apps/api/src/plugins/gitea/utils/labels", () => ({
   addLabelsToIssueGitea: (...args: unknown[]) =>
     mocks.addLabelsToIssueGitea(...args),
@@ -112,7 +123,7 @@ const integration = {
     baseUrl: "https://gitea.example.com",
     repositoryOwner: "usekaneo",
     repositoryName: "kaneo",
-    token: "token",
+    accessToken: "token",
   }),
 };
 
@@ -145,8 +156,13 @@ beforeEach(() => {
   mocks.resolveTargetStatus.mockResolvedValue("to-do");
   mocks.columnFindFirst.mockResolvedValue(null);
   mocks.projectFindFirst.mockResolvedValue(null);
-  mocks.createExternalLink.mockResolvedValue({ id: "link-1" });
+  mocks.createExternalLink.mockResolvedValue({
+    id: "link-1",
+    taskId: "task-1",
+    externalId: "42",
+  });
   mocks.publishEvent.mockResolvedValue(undefined);
+  mocks.addLabelsToIssueGitea.mockResolvedValue({ outcome: "completed" });
 });
 
 describe("handleGiteaIssueOpened", () => {

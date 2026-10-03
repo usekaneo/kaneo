@@ -54,7 +54,7 @@ export { deferIssueEdit } from "./defer-issue-edit";
 
 async function issueAccess(
   integration: Integration,
-  link: { externalId: string; taskId: string },
+  link: { id: string; externalId: string; taskId: string },
 ) {
   const number = Number(link.externalId);
   if (!Number.isSafeInteger(number) || number <= 0)
@@ -69,9 +69,10 @@ async function issueAccess(
     const client = createGiteaClient(config as GiteaConfig);
     return {
       read: () => client.getIssue(owner, repo, number),
-      write: async (field: IssueField, value: string) =>
-        (await client.updateIssue(owner, repo, number, payload(field, value)))
-          ?.updated_at,
+      write: async (field: IssueField, value: string, _intentId: string) => ({
+        sent: true as const,
+        updatedAt: (await client.updateIssue(owner, repo, number, payload(field, value))).updated_at,
+      }),
     };
   }
   const octokit = await getVerifiedInstallationOctokit(
@@ -88,8 +89,9 @@ async function issueAccess(
           request: { timeout: 10_000 },
         })
       ).data,
-    write: async (field: IssueField, value: string) =>
-      (
+    write: async (field: IssueField, value: string, _intentId: string) => ({
+      sent: true as const,
+      updatedAt: (
         await octokit.rest.issues.update({
           owner,
           repo,
@@ -98,6 +100,7 @@ async function issueAccess(
           request: { timeout: 10_000 },
         })
       )?.data?.updated_at,
+    }),
   };
 }
 
@@ -390,14 +393,23 @@ async function replayClaimedIssueEdits() {
           integration,
         );
         if (applied !== true) continue;
+        let repairSkipped = false;
         for (const repair of repairs) {
-          await syncLatestTaskValue(
+          const synchronized = await syncLatestTaskValue(
             link.taskId,
             integration.projectId,
             link,
             repair.field,
             repair.value,
-            (value) => provider.write(repair.field, value),
+            async (value, intentId) => {
+              const result = await provider.write(
+                repair.field,
+                value,
+                intentId,
+              );
+              if (!result.sent) repairSkipped = true;
+              return result;
+            },
             async () => {
               const current = await provider.read();
               return repair.field === "description"
@@ -410,6 +422,8 @@ async function replayClaimedIssueEdits() {
             integration,
             true,
           );
+          if (!synchronized) repairSkipped = true;
+          if (repairSkipped) break;
           // A later field can fail; persist this field's successful repair first.
           if (repair.intentIds.length)
             await withIntegrationLink(
@@ -430,7 +444,7 @@ async function replayClaimedIssueEdits() {
               integration,
             );
         }
-        if (repairs.length)
+        if (repairs.length && !repairSkipped)
           await withIntegrationLink(
             link,
             integration,

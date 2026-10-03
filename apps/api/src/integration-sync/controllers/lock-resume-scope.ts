@@ -68,4 +68,5 @@ export async function lockResumeScope(
     .from(externalLinkTable)
     .where(eq(externalLinkTable.id, linkId))
     .for("update");
+  return binding!;
 }

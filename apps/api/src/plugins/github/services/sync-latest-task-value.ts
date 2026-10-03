@@ -1,3 +1,4 @@
+import { canSyncGiteaIssues, type GiteaConfig } from "../../gitea/config";
 import { dispatchIssueWrite } from "../../sync/dispatch-issue-write";
 import { canSyncTask } from "../../sync/eligibility";
 import { deferTaskSync } from "./defer-issue-edit";
@@ -17,6 +18,10 @@ import {
 import { findExternalLinksByTask, updateExternalLink } from "./link-manager";
 import { isTaskInFinalState } from "./task-service";
 
+export type TaskValueWriteResult =
+  | { sent: false }
+  | { sent: true; updatedAt?: string };
+
 // Provider requests may complete out of order across API instances. Every late
 // completion repairs the provider using the current, still-linked task value.
 export async function syncLatestTaskValue(
@@ -25,7 +30,7 @@ export async function syncLatestTaskValue(
   link: { id: string; integrationId: string | null },
   field: "title" | "description" | "state",
   initialValue: string,
-  write: (value: string) => Promise<string | undefined>,
+  write: (value: string, intentId: string) => Promise<TaskValueWriteResult>,
   readCurrent?: () => Promise<string>,
   expectedBinding?: { type?: string; config?: string },
   repair = false,
@@ -41,8 +46,14 @@ export async function syncLatestTaskValue(
         candidate.integrationId === link.integrationId &&
         candidate.resourceType === "issue",
     );
+    let modeAllowsWrite = true;
+    if (binding?.integration?.type === "gitea") {
+      try { modeAllowsWrite = canSyncGiteaIssues(JSON.parse(binding.integration.config) as GiteaConfig); }
+      catch { modeAllowsWrite = false; }
+    }
     if (
       !binding ||
+      !modeAllowsWrite ||
       (binding.integration &&
         (binding.integration.isActive === false ||
           binding.integration.projectId !== projectId ||
@@ -96,28 +107,15 @@ export async function syncLatestTaskValue(
       outbound: { field, value, intentId, pending: true },
     });
     if (persisted === false || !(await currentBinding())) return;
-    let updatedAt: string | undefined;
+    let result: TaskValueWriteResult;
     try {
       const dispatched = await dispatchIssueWrite(
         { ...link, taskId },
         identity?.config,
-        () => write(value),
+        () => write(value, intentId),
+        { field, intentId },
       );
-      if (!dispatched) {
-        await updateExternalLink(link.id, {
-          outbound: {
-            field,
-            value,
-            intentId,
-            pending: false,
-            cancelled: true,
-            uncertain: false,
-          },
-        });
-        return;
-      }
-      updatedAt = dispatched.value;
-      attempts++;
+      result = dispatched?.value ?? { sent: false };
     } catch (error) {
       const status =
         typeof error === "object" && error && "status" in error
@@ -125,7 +123,8 @@ export async function syncLatestTaskValue(
           : undefined;
       const rejected =
         status !== undefined && status >= 400 && status < 500 && status !== 408;
-      await updateExternalLink(link.id, {
+      const completed = await updateExternalLink(link.id, {
+        requireOutboundIntent: { field, intentId },
         outbound: {
           field,
           value,
@@ -135,14 +134,24 @@ export async function syncLatestTaskValue(
           uncertain: !rejected,
         },
       }).catch(() => {});
+      if (completed === false) return;
       if (!rejected && binding.integration?.config && (await currentBinding()))
         await deferTaskSync({ id: link.id, taskId }, binding.integration, [
           field,
         ]).catch(() => {});
       throw error;
     }
+    if (!result.sent) {
+      await updateExternalLink(link.id, {
+        retireOutboundIntents: { field, intentIds: [intentId] },
+      });
+      return;
+    }
+    attempts++;
+    const { updatedAt } = result;
     if (!(await currentBinding())) return;
-    await updateExternalLink(link.id, {
+    const completed = await updateExternalLink(link.id, {
+      requireOutboundIntent: { field, intentId },
       ...(field === "title" ? { title: value } : {}),
       outbound: { field, value, updatedAt, intentId, pending: false },
       ...(repairing ? { retireUncertainOutbound: field } : {}),
@@ -150,6 +159,7 @@ export async function syncLatestTaskValue(
         ? { metadata: { state: value, lastOutboundStateSyncAt: Date.now() } }
         : {}),
     });
+    if (completed === false) return;
     const currentLink = await currentBinding();
     if (!currentLink) return;
     const metadata = parseLinkMetadata<{

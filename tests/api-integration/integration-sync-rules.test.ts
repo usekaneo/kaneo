@@ -671,6 +671,54 @@ describe("reviewed sync resume", () => {
     const link = await f.link(true);
     return { ...f, link };
   }
+  it.each(
+    (["sync", "ingest-only", "off"] as const).flatMap((mode) =>
+      (["kaneo", "provider"] as const).map((source) => ({ mode, source })),
+    ),
+  )("applies $mode policy to a reviewed $source resume over HTTP", async ({ mode, source }) => {
+    const f = await paused();
+    const config = { ...JSON.parse(f.integration.config), syncRules: f.rules, issueSyncMode: mode };
+    await db.update(schema.integrationTable).set({ config: JSON.stringify(config) })
+      .where(eq(schema.integrationTable.id, f.integration.id));
+    const review = await f.request(`/links/${f.link.id}/review`, "GET");
+    expect(review.status).toBe(200);
+    const { token } = await review.json();
+    const before = await db.query.taskTable.findFirst({ where: eq(schema.taskTable.id, f.task.id) });
+    const response = await f.request(`/links/${f.link.id}/resume`, "POST", { source, token });
+    const allowed = mode === "sync" || (mode === "ingest-only" && source === "provider");
+    if (allowed) {
+      expect(response.status).toBe(200);
+      expect(provider.write).toHaveBeenCalledTimes(source === "kaneo" ? 1 : 0);
+      expect(await canSyncTask(f.task.id, f.integration.id)).toBe(true);
+      const task = await db.query.taskTable.findFirst({ where: eq(schema.taskTable.id, f.task.id) });
+      expect(task!.title).toBe(source === "provider" ? "Repository title" : before!.title);
+    } else {
+      expect(response.status).toBeGreaterThanOrEqual(400);
+      expect(response.status).toBeLessThan(500);
+      expect(await readErrorBody(response)).toMatchObject({ message: expect.any(String), code: expect.any(String) });
+      expect(provider.write).not.toHaveBeenCalled();
+      expect(await db.query.taskTable.findFirst({ where: eq(schema.taskTable.id, f.task.id) })).toEqual(before);
+      const link = await db.query.externalLinkTable.findFirst({ where: eq(schema.externalLinkTable.id, f.link.id) });
+      expect(JSON.parse(link!.metadata!)).toMatchObject({ syncFilterPaused: true, retained: "preserve-me" });
+    }
+  });
+
+  it.each(["sync", "ingest-only", "off"] as const)(
+    "previews creation only when %s permits export",
+    async (mode) => {
+      const f = await setup();
+      await f.assign();
+      await db.update(schema.integrationTable).set({ config: JSON.stringify({
+        ...JSON.parse(f.integration.config), syncRules: f.rules, issueSyncMode: mode,
+      }) }).where(eq(schema.integrationTable.id, f.integration.id));
+      const preview = await f.request("/preview", "POST", { rules: f.rules });
+      expect(preview.status).toBe(200);
+      expect(await preview.json()).toMatchObject({ matching: 1, willCreate: mode === "sync" ? 1 : 0 });
+      expect(provider.write).not.toHaveBeenCalled();
+      expect(await db.query.externalLinkTable.findMany({ where: eq(schema.externalLinkTable.taskId, f.task.id) })).toEqual([]);
+    },
+  );
+
   it("returns not found when disconnect commits between the binding lookups", async () => {
     const f = await paused();
     await expect(

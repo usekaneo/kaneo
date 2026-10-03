@@ -1,3 +1,4 @@
+import { IssueWriteRefused } from "../../sync/dispatch-issue-write";
 import type { IssueWrite } from "../../sync/issue-write";
 import { canSyncGiteaIssues, type GiteaConfig } from "../config";
 import { createGiteaClient, type GiteaLabel } from "./gitea-api";
@@ -34,7 +35,7 @@ export async function ensureLabelsExistGitea(
   try {
     existingLabels = await client.listLabels(repositoryOwner, repositoryName);
   } catch (error) {
-    if (requireSuccess) throw error;
+    if (requireSuccess || error instanceof IssueWriteRefused) throw error;
     console.error("Failed to list Gitea labels for ensureLabelsExistGitea", {
       repositoryOwner,
       repositoryName,
@@ -60,7 +61,7 @@ export async function ensureLabelsExistGitea(
       nameToId.set(name, created.id);
       map.set(name, created.id);
     } catch (error) {
-      if (requireSuccess) throw error;
+      if (requireSuccess || error instanceof IssueWriteRefused) throw error;
       console.error(`Failed to ensure Gitea label "${name}":`, error);
     }
   }
@@ -105,7 +106,7 @@ export async function addLabelsToIssueGitea(
       ),
     );
   } catch (error) {
-    if (requireSuccess) throw error;
+    if (requireSuccess || error instanceof IssueWriteRefused) throw error;
     console.error("Failed to add labels to Gitea issue:", error);
   }
 }
@@ -126,7 +127,7 @@ export async function removeLabelGitea(
       config.repositoryName,
     );
   } catch (error) {
-    if (requireSuccess) throw error;
+    if (requireSuccess || error instanceof IssueWriteRefused) throw error;
     console.error("Failed to list Gitea labels for removal:", {
       repositoryOwner: config.repositoryOwner,
       repositoryName: config.repositoryName,
@@ -150,7 +151,7 @@ export async function removeLabelGitea(
       ),
     );
   } catch (error) {
-    if (requireSuccess) throw error;
+    if (requireSuccess || error instanceof IssueWriteRefused) throw error;
     console.error("Failed to remove label from Gitea issue:", {
       repositoryOwner: config.repositoryOwner,
       repositoryName: config.repositoryName,

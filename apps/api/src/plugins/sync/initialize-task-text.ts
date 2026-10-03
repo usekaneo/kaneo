@@ -1,3 +1,4 @@
+import { IssueWriteRefused } from "./dispatch-issue-write";
 import db from "../../database";
 import { and, eq } from "drizzle-orm";
 import { externalLinkTable } from "../../database/schema";
@@ -41,16 +42,17 @@ export async function initializeTaskText(
   const values = { title: task.title, description: task.description ?? "" };
   for (const field of ["title", "description"] as const) {
     if (previous?.[field] === values[field]) continue;
-    await syncLatestTaskValue(
+    const synchronized = await syncLatestTaskValue(
       task.id,
       context.projectId,
       { id: link.id, integrationId: context.integrationId },
       field,
       values[field],
-      (value) => send(field, value),
+      async (value) => ({ sent: true, updatedAt: await send(field, value) }),
       undefined,
       { config: JSON.stringify(context.config) },
     );
+    if (!synchronized) throw new IssueWriteRefused();
   }
   if (
     !(await canSyncTask(

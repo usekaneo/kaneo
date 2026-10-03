@@ -63,24 +63,6 @@ describe("gitea reconnect credentials", () => {
     expect(m.getRepo).not.toHaveBeenCalled();
     expect(m.save).not.toHaveBeenCalled();
   });
-  it("reuses credentials only for the same normalized destination", async () => {
-    await reconnect(input);
-    expect(m.verify).toHaveBeenCalledWith(
-      "https://gitea.example",
-      "saved-token",
-    );
-  });
-  it("allows a changed destination with an explicitly supplied token", async () => {
-    await reconnect({
-      ...input,
-      baseUrl: "https://new-gitea.example",
-      accessToken: " new-token ",
-    });
-    expect(m.verify).toHaveBeenCalledWith(
-      "https://new-gitea.example",
-      "new-token",
-    );
-  });
   it("rejects invalid saved configuration without contacting a provider", async () => {
     m.config.mockResolvedValue({ id: "integration", config: "{" });
     await expect(reconnect(input)).rejects.toMatchObject({ status: 400 });

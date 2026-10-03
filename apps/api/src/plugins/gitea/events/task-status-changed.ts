@@ -1,3 +1,6 @@
+import db from "../../../database";
+import { linkedTaskScope } from "../../github/services/integration-task-scope";
+import { IssueWriteRefused } from "../../sync/dispatch-issue-write";
 import { syncTaskFieldLabels } from "../../sync/sync-task-field-labels";
 import { canSyncTask } from "../../sync/eligibility";
 import { syncLatestTaskValue } from "../../github/services/sync-latest-task-value";
@@ -55,7 +58,13 @@ export async function handleTaskStatusChanged(
         if (add.length)
           await addLabelsToIssueGitea(config, issueNumber, add, true, write);
       },
-    );
+    ).catch(async (error: unknown) => {
+      if (error instanceof IssueWriteRefused) return undefined;
+      console.error("Gitea status label synchronization failed", error);
+      return (await db.query.taskTable.findFirst({
+        where: linkedTaskScope(event.taskId, event.projectId),
+      }))?.status;
+    });
     if (currentValue === undefined) return;
     const closing = await isTaskInFinalState({
       projectId: event.projectId,
@@ -83,7 +92,7 @@ export async function handleTaskStatusChanged(
             issueNumber,
             { state: value === "closed" ? "closed" : "open" },
           );
-          return response?.updated_at;
+          return { sent: true, updatedAt: response?.updated_at };
         },
         async () =>
           (await client.getIssue(repositoryOwner, repositoryName, issueNumber))
