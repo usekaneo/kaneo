@@ -171,6 +171,7 @@ const updateIntegrationRoute = createRoute({
       "No workspace access, or missing workspace:manage_settings",
     ),
     404: jsonResponse("Integration not found", integrationNotFoundSchema),
+    409: errorResponse("Integration changed; refresh before updating settings"),
   },
 });
 
@@ -306,7 +307,7 @@ const giteaIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
       });
     }
 
-    await db
+    const [saved] = await db
       .update(integrationTable)
       .set({
         config: JSON.stringify(config),
@@ -316,10 +317,15 @@ const giteaIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
       })
       .where(
         and(
-          eq(integrationTable.projectId, projectId),
-          eq(integrationTable.type, "gitea"),
+          eq(integrationTable.id, row.id),
+          eq(integrationTable.config, row.config),
         ),
-      );
+      )
+      .returning({ id: integrationTable.id });
+    if (!saved)
+      throw new HTTPException(409, {
+        message: "Integration changed; refresh before updating settings",
+      });
 
     const updated = await getGiteaIntegration(projectId, true);
     if (!updated) {

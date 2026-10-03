@@ -1,4 +1,5 @@
 import { acceptsIssue } from "../../plugins/sync/rules";
+import { sameConfig } from "../../plugins/sync/same-config";
 import { and, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
@@ -263,7 +264,7 @@ async function importSingleIssue(
       });
       if (
         !binding ||
-        binding.config !== JSON.stringify(config) ||
+        !sameConfig(binding.config, JSON.stringify(config)) ||
         !acceptsIssue(binding.config, issue.labels) ||
         (await findExternalLink(integrationId, "issue", String(issue.iid), tx))
       )

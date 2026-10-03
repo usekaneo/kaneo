@@ -23,6 +23,9 @@ import {
   reconcileProjectSync,
   reconcileTaskSync,
 } from "../../apps/api/src/plugins/sync/reconcile";
+import { getSyncIntegration } from "../../apps/api/src/integration-sync/controllers/get-integration";
+import { previewSyncRules } from "../../apps/api/src/integration-sync/controllers/preview-rules";
+import type { SyncRules } from "../../apps/api/src/plugins/sync/rules";
 import { canSyncTask } from "../../apps/api/src/plugins/sync/eligibility";
 import { resetTestDatabase } from "./helpers/database";
 import {
@@ -189,6 +192,44 @@ describe.each(["github", "gitea", "gitlab"] as const)(
       gitea: mocks.giteaCreate,
       gitlab: mocks.gitlabCreate,
     }[type];
+    it("exports equivalent formatted configurations while rejecting real changes", async () => {
+      const f = await setup(type);
+      await f.assign();
+      await db
+        .update(schema.integrationTable)
+        .set({ config: JSON.stringify(f.config, null, 2) })
+        .where(eq(schema.integrationTable.id, f.integration.id));
+      const reordered = Object.fromEntries(Object.entries(f.config).reverse());
+      expect(
+        await canSyncTask(
+          f.task.id,
+          f.integration.id,
+          undefined,
+          JSON.stringify(reordered),
+        ),
+      ).toBe(true);
+      expect(
+        await canSyncTask(
+          f.task.id,
+          f.integration.id,
+          undefined,
+          JSON.stringify({ ...f.config, accessToken: "changed-test-token" }),
+        ),
+      ).toBe(false);
+      expect(
+        await canSyncTask(
+          f.task.id,
+          f.integration.id,
+          undefined,
+          JSON.stringify({
+            ...f.config,
+            syncRules: { ...f.config.syncRules, outgoing: { mode: "all" } },
+          }),
+        ),
+      ).toBe(false);
+      await reconcileProjectSync(f.project.id, f.integration.id);
+      expect(create).toHaveBeenCalledOnce();
+    });
     it("exports newly eligible tasks once, including their custom labels", async () => {
       const f = await setup(type);
       await reconcileProjectSync(f.project.id, f.integration.id);
@@ -661,4 +702,59 @@ it("broadcasts only changed links and avoids task scans for unconfigured integra
     }),
   ).toBe(true);
   expect(publish).not.toHaveBeenCalled();
+});
+
+it("continues after a task export throws and leaves failed tasks available for explicit retry", async () => {
+  const f = await setup("gitea");
+  await f.assign();
+  const [other] = await db
+    .insert(schema.taskTable)
+    .values({
+      projectId: f.project.id,
+      title: "Other task",
+      number: 2,
+      status: f.columns.todo.slug,
+      columnId: f.columns.todo.id,
+    })
+    .returning();
+  await db.insert(schema.labelTable).values({
+    taskId: other!.id,
+    workspaceId: f.workspace.id,
+    name: "export",
+    color: "#123456",
+  });
+  const handler = vi
+    .spyOn(giteaPlugin, "onTaskCreated")
+    .mockRejectedValueOnce(new Error("Test creation lease failed"));
+  const log = vi.spyOn(console, "error").mockImplementation(() => {});
+  try {
+    await reconcileProjectSync(f.project.id, f.integration.id);
+    expect(mocks.giteaCreate).toHaveBeenCalledOnce();
+    expect(log).toHaveBeenCalledWith(
+      "Task sync reconciliation failed",
+      expect.objectContaining({ integrationId: f.integration.id }),
+    );
+    const integration = await getSyncIntegration(f.project.id, "gitea");
+    expect(
+      (await previewSyncRules(integration, f.config.syncRules as SyncRules))
+        .willCreate,
+    ).toBe(1);
+    const linked = await db.query.externalLinkTable.findMany();
+    expect(linked).toHaveLength(1);
+    mocks.giteaCreate.mockResolvedValueOnce({
+      number: 13,
+      html_url: "https://git.example/team/repo/issues/13",
+      title: "Retried task",
+      state: "open",
+    });
+    await reconcileProjectSync(f.project.id, f.integration.id);
+    expect(mocks.giteaCreate).toHaveBeenCalledTimes(2);
+    expect(
+      (await previewSyncRules(integration, f.config.syncRules as SyncRules))
+        .willCreate,
+    ).toBe(0);
+  } finally {
+    handler.mockRestore();
+    log.mockRestore();
+  }
 });

@@ -67,28 +67,28 @@ async function resumeWithLease(
         }
       }
       if (source === "provider") {
-        const final = review.remote.state === "closed";
-        const columns = await tx
-          .select()
-          .from(columnTable)
-          .where(eq(columnTable.projectId, projectId))
-          .orderBy(asc(columnTable.position));
-        const current = columns.find((column) => column.id === task.columnId);
-        const target =
-          current?.isFinal === final
-            ? current
-            : columns.find((column) => column.isFinal === final);
-        if (!target)
-          throw new HTTPException(409, {
-            message: "A matching open or completed column is required",
-          });
+        let status = { status: task.status, columnId: task.columnId };
+        if (review.local.state !== review.remote.state) {
+          const columns = await tx
+            .select()
+            .from(columnTable)
+            .where(eq(columnTable.projectId, projectId))
+            .orderBy(asc(columnTable.position));
+          const target = columns.find(
+            (column) => column.isFinal === (review.remote.state === "closed"),
+          );
+          if (!target)
+            throw new HTTPException(409, {
+              message: "A matching open or completed column is required",
+            });
+          status = { status: target.slug, columnId: target.id };
+        }
         const [after] = await tx
           .update(taskTable)
           .set({
             title: review.remote.title,
             description: review.remote.description,
-            status: target.slug,
-            columnId: target.id,
+            ...status,
           })
           .where(eq(taskTable.id, task.id))
           .returning();

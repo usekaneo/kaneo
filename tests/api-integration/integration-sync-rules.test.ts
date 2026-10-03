@@ -717,6 +717,47 @@ describe("reviewed sync resume", () => {
     expect(await canSyncTask(f.task.id, f.integration.id)).toBe(true);
   });
 
+  it.each(["planned", "archived"])(
+    "keeps an open %s task in its virtual status when adopting repository text",
+    async (status) => {
+      const f = await paused();
+      await db
+        .update(schema.taskTable)
+        .set({ status, columnId: null })
+        .where(eq(schema.taskTable.id, f.task.id));
+      provider.read.mockResolvedValue({
+        title: "Repository title",
+        description: "Repository body",
+        state: "open",
+        updatedAt: "2026-01-01T00:00:00Z",
+      });
+      const publish = vi
+        .spyOn(events, "publishEvent")
+        .mockResolvedValue(undefined);
+      const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+      expect(review.local.state).toBe("open");
+      await resumeSync(
+        f.project.id,
+        "gitea",
+        f.link.id,
+        review.token,
+        "provider",
+      );
+      expect(
+        await db.query.taskTable.findFirst({
+          where: eq(schema.taskTable.id, f.task.id),
+        }),
+      ).toMatchObject({
+        status,
+        columnId: null,
+        title: "Repository title",
+        description: "Repository body",
+      });
+      expect(
+        publish.mock.calls.some(([name]) => name === "task.status_changed"),
+      ).toBe(false);
+    },
+  );
   it("adopts repository values and completion state using the existing link", async () => {
     const publish = vi
       .spyOn(events, "publishEvent")

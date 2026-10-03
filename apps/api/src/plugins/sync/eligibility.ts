@@ -1,4 +1,5 @@
 import { outgoingPredicate } from "./task-predicate";
+import { sameConfig } from "./same-config";
 import { and, eq } from "drizzle-orm";
 import db from "../../database";
 import {
@@ -57,7 +58,8 @@ export async function canSyncTask(
   });
   if (
     !integration?.isActive ||
-    (expectedConfig !== undefined && integration.config !== expectedConfig)
+    (expectedConfig !== undefined &&
+      !sameConfig(integration.config, expectedConfig))
   )
     return false;
   const rules = readSyncRules(integration.config);

@@ -15573,6 +15573,16 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "Integration changed; refresh before updating settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       },
@@ -16125,6 +16135,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/GitlabIntegrationNotFound"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Integration changed; refresh before updating settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }

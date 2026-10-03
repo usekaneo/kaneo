@@ -164,6 +164,31 @@ async function expectPrivateTask(taskId: string) {
 }
 describe("integration task ownership", () => {
   it.each(["gitea", "gitlab"])(
+    "%s imports new issues from formatted configuration JSON",
+    async (type) => {
+      const f = await setup(type);
+      await db
+        .update(schema.projectTable)
+        .set({ lastTaskNumber: 1 })
+        .where(eq(schema.projectTable.id, f.project.id));
+      await db
+        .delete(schema.externalLinkTable)
+        .where(eq(schema.externalLinkTable.id, f.link.id));
+      await db
+        .update(schema.integrationTable)
+        .set({
+          config: JSON.stringify(JSON.parse(f.integration.config), null, 2),
+        })
+        .where(eq(schema.integrationTable.id, f.integration.id));
+      expect(
+        await (type === "gitea" ? importGiteaIssues : importGitlabIssues)(
+          f.project.id,
+        ),
+      ).toMatchObject({ imported: 1, skipped: 0 });
+    },
+  );
+
+  it.each(["gitea", "gitlab"])(
     "%s import cannot modify a moved task through an old link",
     async (type) => {
       const fixture = await setup(type);
