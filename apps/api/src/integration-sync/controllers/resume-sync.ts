@@ -14,7 +14,11 @@ import { formatIssueBody } from "../../plugins/github/utils/format";
 import { reviewSyncResume } from "./review-resume";
 import { lockResumeScope } from "./lock-resume-scope";
 import { withSyncLease } from "../../plugins/sync/lease";
-import type { TaskStatusChangedEvent } from "../../plugins/types";
+import {
+  publishTaskMutation,
+  recordTaskMutation,
+  type TaskBefore,
+} from "../../task/controllers/task-mutation-effects";
 
 export async function resumeSync(
   projectId: string,
@@ -36,8 +40,8 @@ async function resumeWithLease(
   source: "kaneo" | "provider",
 ) {
   let providerWritten = false;
-  let statusChange:
-    | (TaskStatusChangedEvent & { assigneeId: string | null })
+  let adoption:
+    | { before: TaskBefore; after: TaskBefore; integrationId: string }
     | undefined;
   let taskId: string | undefined;
   try {
@@ -78,7 +82,7 @@ async function resumeWithLease(
           throw new HTTPException(409, {
             message: "A matching open or completed column is required",
           });
-        await tx
+        const [after] = await tx
           .update(taskTable)
           .set({
             title: review.remote.title,
@@ -86,18 +90,14 @@ async function resumeWithLease(
             status: target.slug,
             columnId: target.id,
           })
-          .where(eq(taskTable.id, task.id));
-        if (task.status !== target.slug)
-          statusChange = {
-            sourceIntegrationId: review.integration.id,
-            taskId: task.id,
-            projectId,
-            userId: null,
-            assigneeId: task.userId,
-            oldStatus: task.status,
-            newStatus: target.slug,
-            title: review.remote.title,
-          };
+          .where(eq(taskTable.id, task.id))
+          .returning();
+        await recordTaskMutation(tx, task, after!);
+        adoption = {
+          before: task,
+          after: after!,
+          integrationId: review.integration.id,
+        };
       }
       const job = parseDeferredIssueEdit(
         JSON.parse(link.metadata ?? "{}").deferredIssueEdit,
@@ -178,10 +178,10 @@ async function resumeWithLease(
     }
     throw error;
   }
-  if (statusChange)
-    await publishEvent("task.status_changed", {
-      ...statusChange,
-      type: "status_changed",
+  if (adoption)
+    await publishTaskMutation(adoption.before, adoption.after, undefined, {
+      fields: ["title", "description", "status"],
+      sourceIntegrationId: adoption.integrationId,
     });
   await publishEvent("task.updated", { projectId, taskId });
   await publishEvent("project.updated", { projectId });

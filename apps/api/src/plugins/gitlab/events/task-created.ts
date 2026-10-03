@@ -1,3 +1,4 @@
+import { canSyncTask } from "../../sync/eligibility";
 import { taskIssueLabels } from "../../sync/issue-labels";
 import { withTaskSyncCreation } from "../../sync/create-task-issue";
 import {
@@ -33,6 +34,16 @@ async function createTaskIssue(
 
   try {
     const client = createGitlabClient(config);
+    if (
+      !(await canSyncTask(
+        event.taskId,
+        context.integrationId,
+        undefined,
+        JSON.stringify(context.config),
+      ))
+    )
+      return;
+
     const createdIssue = await client.createIssue(config.projectPath, {
       title: formatIssueTitle(event.title),
       description: formatIssueBody(event.description, event.taskId),
@@ -51,6 +62,20 @@ async function createTaskIssue(
         lastOutboundStateSyncAt: Date.now(),
       },
     });
+
+    if (
+      !(await canSyncTask(
+        event.taskId,
+        context.integrationId,
+        undefined,
+        JSON.stringify(context.config),
+      ))
+    ) {
+      await updateExternalLink(createdLink.id, {
+        metadata: { syncFilterPaused: true },
+      });
+      return;
+    }
 
     if (
       await isTaskInFinalState({

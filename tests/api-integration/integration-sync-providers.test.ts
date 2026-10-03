@@ -248,6 +248,77 @@ describe.each(["github", "gitea", "gitlab"] as const)(
       expect(JSON.parse(link!.metadata!)).toMatchObject({ state: "closed" });
     });
 
+    it.each(["labels", "rules", "deactivation"])(
+      "pauses a dispatched creation after %s change without follow-up writes",
+      async (change) => {
+        const f = await setup(type);
+        await f.assign();
+        await db
+          .update(schema.taskTable)
+          .set({ status: f.columns.done.slug, columnId: f.columns.done.id })
+          .where(eq(schema.taskTable.id, f.task.id));
+        let release!: () => void;
+        const gate = new Promise<void>((resolve) => {
+          release = resolve;
+        });
+        create.mockImplementationOnce(async () => {
+          await gate;
+          const issue = {
+            number: 12,
+            iid: 12,
+            title: "Export task",
+            state: type === "gitlab" ? "opened" : "open",
+            html_url: "https://git.example/issues/12",
+            web_url: "https://git.example/issues/12",
+          };
+          return type === "github" ? { data: issue } : issue;
+        });
+        const exportTask = reconcileTaskSync(f.project.id, f.task.id);
+        try {
+          await vi.waitFor(() => expect(create).toHaveBeenCalledOnce());
+          if (change === "labels")
+            await db
+              .delete(schema.labelTable)
+              .where(eq(schema.labelTable.taskId, f.task.id));
+          else if (change === "deactivation")
+            await db
+              .update(schema.integrationTable)
+              .set({ isActive: false })
+              .where(eq(schema.integrationTable.id, f.integration.id));
+          else
+            await db
+              .update(schema.integrationTable)
+              .set({
+                config: JSON.stringify({
+                  ...f.config,
+                  syncRules: {
+                    ...f.config.syncRules,
+                    outgoing: {
+                      mode: "labels",
+                      match: "any",
+                      labels: ["missing-label"],
+                    },
+                  },
+                }),
+              })
+              .where(eq(schema.integrationTable.id, f.integration.id));
+        } finally {
+          release();
+          await exportTask;
+        }
+        const link = await db.query.externalLinkTable.findFirst({
+          where: eq(schema.externalLinkTable.taskId, f.task.id),
+        });
+        expect(JSON.parse(link!.metadata!)).toMatchObject({
+          syncFilterPaused: true,
+        });
+        expect(mocks.update).not.toHaveBeenCalled();
+        expect(mocks.labels).not.toHaveBeenCalled();
+        expect(mocks.comment).not.toHaveBeenCalled();
+        expect(create).toHaveBeenCalledOnce();
+      },
+    );
+
     it("imports a closed issue gaining a label into a completed column", async () => {
       const f = await setup(type);
       if (type === "github") {

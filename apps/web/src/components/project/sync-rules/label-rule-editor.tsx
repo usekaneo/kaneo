@@ -125,6 +125,10 @@ export function LabelRuleEditor({
                 >
                   <Checkbox
                     checked={rule.labels.includes(label.id)}
+                    disabled={
+                      rule.labels.length >= 50 &&
+                      !rule.labels.includes(label.id)
+                    }
                     onCheckedChange={(checked) =>
                       onChange({
                         ...rule,

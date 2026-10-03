@@ -1,6 +1,7 @@
 import { and, eq, sql } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import * as events from "../../apps/api/src/events";
+import * as assets from "../../apps/api/src/storage/cleanup-assets";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { getSyncIntegration } from "../../apps/api/src/integration-sync/controllers/get-integration";
@@ -566,6 +567,31 @@ describe("reviewed sync resume", () => {
       columnId: f.columns.done.id,
     });
     expect(provider.write).not.toHaveBeenCalled();
+    expect(
+      await db.query.activityTable.findFirst({
+        where: and(
+          eq(schema.activityTable.taskId, f.task.id),
+          eq(schema.activityTable.type, "title_changed"),
+        ),
+      }),
+    ).toMatchObject({
+      eventData: { oldTitle: "Kaneo title", newTitle: "Repository title" },
+    });
+    expect(publish).toHaveBeenCalledWith(
+      "task.title_changed",
+      expect.objectContaining({
+        sourceIntegrationId: f.integration.id,
+        oldTitle: "Kaneo title",
+        newTitle: "Repository title",
+      }),
+    );
+    expect(publish).toHaveBeenCalledWith(
+      "task.description_changed",
+      expect.objectContaining({
+        sourceIntegrationId: f.integration.id,
+        newDescription: "Repository body",
+      }),
+    );
     expect(publish).toHaveBeenCalledWith(
       "task.status_changed",
       expect.objectContaining({
@@ -594,6 +620,40 @@ describe("reviewed sync resume", () => {
       state: "open",
     });
     expect(await canSyncTask(f.task.id, f.integration.id)).toBe(true);
+  });
+  it("runs mention notifications and asset cleanup when adopting repository text", async () => {
+    vi.spyOn(events, "publishEvent").mockResolvedValue(undefined);
+    const cleanup = vi
+      .spyOn(assets, "deleteOrphanedAssets")
+      .mockResolvedValue(undefined);
+    const f = await paused();
+    provider.read.mockResolvedValue({
+      title: "Repository title",
+      description: `<kaneo-mention id="${f.user.id}">Team member</kaneo-mention>`,
+      state: "closed",
+      updatedAt: "2026-01-01T00:00:00Z",
+    });
+    const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+    await resumeSync(
+      f.project.id,
+      "gitea",
+      f.link.id,
+      review.token,
+      "provider",
+    );
+    expect(cleanup).toHaveBeenCalledWith(
+      "Kaneo body",
+      review.remote.description,
+      { taskId: f.task.id },
+    );
+    expect(
+      await db.query.notificationTable.findFirst({
+        where: and(
+          eq(schema.notificationTable.resourceId, f.task.id),
+          eq(schema.notificationTable.type, "task_mention"),
+        ),
+      }),
+    ).toMatchObject({ userId: f.user.id });
   });
   it("requires a fresh comparison after either side changes", async () => {
     const f = await paused();

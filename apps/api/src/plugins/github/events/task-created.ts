@@ -1,3 +1,4 @@
+import { canSyncTask } from "../../sync/eligibility";
 import { taskIssueLabels } from "../../sync/issue-labels";
 import { withTaskSyncCreation } from "../../sync/create-task-issue";
 import { eq } from "drizzle-orm";
@@ -44,6 +45,16 @@ async function createTaskIssue(
   try {
     const octokit = await getVerifiedInstallationOctokit(config);
 
+    if (
+      !(await canSyncTask(
+        event.taskId,
+        context.integrationId,
+        undefined,
+        JSON.stringify(context.config),
+      ))
+    )
+      return;
+
     const createdIssue = await octokit.rest.issues.create({
       owner: repositoryOwner,
       repo: repositoryName,
@@ -63,6 +74,20 @@ async function createTaskIssue(
         createdFrom: "kaneo",
       },
     });
+
+    if (
+      !(await canSyncTask(
+        event.taskId,
+        context.integrationId,
+        undefined,
+        JSON.stringify(context.config),
+      ))
+    ) {
+      await updateExternalLink(createdLink.id, {
+        metadata: { syncFilterPaused: true },
+      });
+      return;
+    }
 
     if (
       await isTaskInFinalState({

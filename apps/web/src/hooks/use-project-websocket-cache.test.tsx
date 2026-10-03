@@ -477,11 +477,14 @@ it("drains queued detail events after retries fall back to polling", async () =>
 it("refreshes workspace label filters when a remote project event changes labels", async () => {
   renderHook(() => useProjectWebSocket("p"));
   Socket.current.message("PROJECT_UPDATED", {});
-  await vi.waitFor(() =>
+  await vi.waitFor(() => {
     expect(mocks.client.invalidateQueries).toHaveBeenCalledWith({
       queryKey: ["labels"],
-    }),
-  );
+    });
+    expect(mocks.client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["external-links"],
+    });
+  });
 });
 
 it.each([

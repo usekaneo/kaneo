@@ -19,6 +19,7 @@ export function useSaveSyncRules(param: SyncParams) {
       await client.invalidateQueries({
         queryKey: ["integration-sync-preview", param.projectId],
       });
+      await client.invalidateQueries({ queryKey: ["external-links"] });
     },
   });
 }

@@ -98,12 +98,84 @@ function mount(node = <SyncRulesSection {...param} />) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
-  return render(
-    <QueryClientProvider client={client}>{node}</QueryClientProvider>,
-  );
+  return {
+    client,
+    ...render(
+      <QueryClientProvider client={client}>{node}</QueryClientProvider>,
+    ),
+  };
 }
 
 describe("advanced sync settings", () => {
+  it("refreshes cached issue metadata after saving rules", async () => {
+    useUserPreferencesStore.setState({ advancedSettings: true });
+    mocks.get.mockResolvedValue({ ...saved, willCreate: 1 });
+    const { client } = mount();
+    client.setQueryData(["external-links", "task-1"], [{ metadata: "{}" }]);
+    const apply = await screen.findByRole("button", {
+      name: "settings:syncRules.exportPending",
+    });
+    await waitFor(() => expect(apply).toBeEnabled());
+    fireEvent.click(apply);
+    await waitFor(() =>
+      expect(
+        client.getQueryState(["external-links", "task-1"])?.isInvalidated,
+      ).toBe(true),
+    );
+  });
+
+  it("shows a retry after a failed refresh even when rules were cached", async () => {
+    const { client } = mount();
+    await screen.findByText("settings:syncRules.anySummary");
+    mocks.get.mockRejectedValueOnce(new Error("Unavailable"));
+    await act(async () => {
+      await client.invalidateQueries({ queryKey: ["integration-sync"] });
+    });
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "settings:syncRules.loadError",
+    );
+    expect(screen.queryByText("settings:syncRules.anySummary")).toBeNull();
+    fireEvent.click(
+      screen.getByRole("button", { name: "common:error.tryAgain" }),
+    );
+    expect(
+      await screen.findByText("settings:syncRules.anySummary"),
+    ).toBeVisible();
+  });
+
+  it("stops at 50 labels while allowing a selected label to be removed", async () => {
+    useUserPreferencesStore.setState({ advancedSettings: true });
+    const labels = Array.from({ length: 51 }, (_, i) => ({
+      id: `label-${i + 1}`,
+      name: `Label ${i + 1}`,
+      color: "#123456",
+    }));
+    mocks.get.mockResolvedValue({
+      ...saved,
+      labels,
+      rules: {
+        ...saved.rules,
+        outgoing: {
+          mode: "labels",
+          match: "any",
+          labels: labels.slice(0, 50).map((label) => label.id),
+        },
+      },
+    });
+    mount();
+    const extra = await screen.findByRole("checkbox", { name: "Label 51" });
+    expect(extra).toHaveAttribute("aria-disabled", "true");
+    fireEvent.click(extra);
+    expect(extra).not.toBeChecked();
+    const selected = screen.getByRole("checkbox", { name: "Label 1" });
+    expect(selected).not.toHaveAttribute("aria-disabled", "true");
+    fireEvent.click(selected);
+    expect(extra).not.toHaveAttribute("aria-disabled", "true");
+    fireEvent.click(extra);
+    expect(selected).toHaveAttribute("aria-disabled", "true");
+    expect(extra).toBeChecked();
+  });
+
   it("offers an explicit retry for eligible tasks without an issue link", async () => {
     useUserPreferencesStore.setState({ advancedSettings: true });
     mocks.get.mockResolvedValue({ ...saved, willCreate: 1 });

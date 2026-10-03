@@ -27,7 +27,7 @@ export function SyncRulesSection({ projectId, provider }: SyncParams) {
         {t("settings:syncRules.loading")}
       </p>
     );
-  if (!data)
+  if (query.isError || !data)
     return (
       <div
         role="alert"
