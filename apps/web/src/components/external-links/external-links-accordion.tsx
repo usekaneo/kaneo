@@ -275,7 +275,7 @@ export function ExternalLinksAccordion({
               </DialogTitle>
             </DialogHeader>
 
-            <div className="grid gap-4 py-4">
+            <div className="grid gap-4 px-6 py-4">
               <div className="grid gap-2">
                 <Label htmlFor="external-resource-url">
                   {t("settings:externalLinks.url")}
