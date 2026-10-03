@@ -2,7 +2,6 @@ import {
   formatChannel,
   formatRepository,
   getIntegrationStatus,
-  type IntegrationStatus,
 } from "@/components/project/integrations/get-integration-status";
 import type { IntegrationId } from "@/components/project/integrations/integration-definitions";
 import useGetDiscordIntegration from "@/hooks/queries/discord-integration/use-get-discord-integration";
@@ -16,61 +15,86 @@ import useGetTelegramIntegration from "@/hooks/queries/telegram-integration/use-
 
 // Shares query keys with the per-integration settings panels, so opening a
 // panel reuses what the list already loaded.
-export function useIntegrationStatuses(
-  projectId: string,
-  enabled: boolean,
-): Partial<Record<IntegrationId, IntegrationStatus>> {
-  const options = { enabled };
-  const { data: github } = useGetGithubIntegration(projectId, options);
-  const { data: gitea } = useGetGiteaIntegration(projectId, options);
-  const { data: gitlab } = useGetGitlabIntegration(projectId, options);
-  const { data: slack } = useGetSlackIntegration(projectId, options);
-  const { data: discord } = useGetDiscordIntegration(projectId, options);
-  const { data: mattermost } = useGetMattermostIntegration(projectId, options);
-  const { data: telegram } = useGetTelegramIntegration(projectId, options);
-  const { data: webhook } = useGetGenericWebhookIntegration(projectId, options);
+export function useIntegrationStatuses(projectId: string) {
+  const github = useGetGithubIntegration(projectId);
+  const gitea = useGetGiteaIntegration(projectId);
+  const gitlab = useGetGitlabIntegration(projectId);
+  const slack = useGetSlackIntegration(projectId);
+  const discord = useGetDiscordIntegration(projectId);
+  const mattermost = useGetMattermostIntegration(projectId);
+  const telegram = useGetTelegramIntegration(projectId);
+  const webhook = useGetGenericWebhookIntegration(projectId);
 
-  if (!enabled) return {};
-
-  return {
+  const statuses = {
     github: getIntegrationStatus({
-      configured: Boolean(github),
-      isActive: github?.isActive,
-      detail: formatRepository(github?.repositoryOwner, github?.repositoryName),
+      queryStatus: github.status,
+      configured: Boolean(github.data),
+      isActive: github.data?.isActive,
+      detail: formatRepository(
+        github.data?.repositoryOwner,
+        github.data?.repositoryName,
+      ),
     }),
     gitea: getIntegrationStatus({
-      configured: Boolean(gitea),
-      isActive: gitea?.isActive,
-      detail: formatRepository(gitea?.repositoryOwner, gitea?.repositoryName),
+      queryStatus: gitea.status,
+      configured: Boolean(gitea.data),
+      isActive: gitea.data?.isActive,
+      detail: formatRepository(
+        gitea.data?.repositoryOwner,
+        gitea.data?.repositoryName,
+      ),
     }),
     gitlab: getIntegrationStatus({
-      configured: Boolean(gitlab),
-      isActive: gitlab?.isActive,
-      detail: gitlab?.projectPath,
+      queryStatus: gitlab.status,
+      configured: Boolean(gitlab.data),
+      isActive: gitlab.data?.isActive,
+      detail: gitlab.data?.projectPath,
     }),
     slack: getIntegrationStatus({
-      configured: Boolean(slack?.webhookConfigured),
-      isActive: slack?.isActive,
-      detail: formatChannel(slack?.channelName),
+      queryStatus: slack.status,
+      configured: Boolean(slack.data?.webhookConfigured),
+      isActive: slack.data?.isActive,
+      detail: formatChannel(slack.data?.channelName),
     }),
     discord: getIntegrationStatus({
-      configured: Boolean(discord?.webhookConfigured),
-      isActive: discord?.isActive,
-      detail: formatChannel(discord?.channelName),
+      queryStatus: discord.status,
+      configured: Boolean(discord.data?.webhookConfigured),
+      isActive: discord.data?.isActive,
+      detail: formatChannel(discord.data?.channelName),
     }),
     mattermost: getIntegrationStatus({
-      configured: Boolean(mattermost?.webhookConfigured),
-      isActive: mattermost?.isActive,
-      detail: formatChannel(mattermost?.channelName),
+      queryStatus: mattermost.status,
+      configured: Boolean(mattermost.data?.webhookConfigured),
+      isActive: mattermost.data?.isActive,
+      detail: formatChannel(mattermost.data?.channelName),
     }),
     telegram: getIntegrationStatus({
-      configured: Boolean(telegram?.botTokenConfigured),
-      isActive: telegram?.isActive,
-      detail: telegram?.chatLabel,
+      queryStatus: telegram.status,
+      configured: Boolean(telegram.data?.botTokenConfigured),
+      isActive: telegram.data?.isActive,
+      detail: telegram.data?.chatLabel,
     }),
     webhook: getIntegrationStatus({
-      configured: Boolean(webhook?.webhookConfigured),
-      isActive: webhook?.isActive,
+      queryStatus: webhook.status,
+      configured: Boolean(webhook.data?.webhookConfigured),
+      isActive: webhook.data?.isActive,
     }),
+  };
+  const queries = {
+    github,
+    gitea,
+    gitlab,
+    slack,
+    discord,
+    mattermost,
+    telegram,
+    webhook,
+  };
+
+  return {
+    statuses,
+    retry: (id: IntegrationId) => {
+      void queries[id].refetch();
+    },
   };
 }

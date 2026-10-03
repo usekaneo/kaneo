@@ -56,6 +56,37 @@ describe("shouldLeaveOnEscape", () => {
     );
   });
 
+  it.each(["toast-popup", "tooltip-popup"])("ignores a visible %s", (slot) => {
+    const popup = document.createElement("div");
+    popup.dataset.slot = slot;
+    document.body.append(popup);
+
+    expect(shouldLeaveOnEscape(escapeFrom(document.body), document)).toBe(true);
+  });
+
+  it.each([
+    "dialog-popup",
+    "alert-dialog-popup",
+    "sheet-popup",
+    "menu-popup",
+    "select-popup",
+    "combobox-popup",
+    "autocomplete-popup",
+    "popover-popup",
+    "command-dialog-popup",
+    "preview-card-content",
+  ])("leaves Escape to an open %s", (slot) => {
+    const popup = document.createElement("div");
+    popup.dataset.slot = slot;
+    document.body.append(popup);
+
+    expect(shouldLeaveOnEscape(escapeFrom(document.body), document)).toBe(
+      false,
+    );
+    popup.setAttribute("data-closed", "");
+    expect(shouldLeaveOnEscape(escapeFrom(document.body), document)).toBe(true);
+  });
+
   it("ignores popups that stay mounted after closing", () => {
     const positioner = document.createElement("div");
     positioner.hidden = true;

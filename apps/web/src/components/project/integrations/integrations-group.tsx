@@ -7,6 +7,7 @@ import { IntegrationRow } from "@/components/project/integrations/integration-ro
 import { SettingsSectionHeader } from "@/components/settings/settings-section-header";
 
 type IntegrationsGroupProps = {
+  onRetry: (id: IntegrationId) => void;
   title: string;
   integrations: IntegrationDefinition[];
   projectId: string;
@@ -15,6 +16,7 @@ type IntegrationsGroupProps = {
 
 export function IntegrationsGroup({
   title,
+  onRetry,
   integrations,
   projectId,
   statuses,
@@ -29,6 +31,7 @@ export function IntegrationsGroup({
             integration={integration}
             projectId={projectId}
             status={statuses[integration.id]}
+            onRetry={() => onRetry(integration.id)}
           />
         ))}
       </div>

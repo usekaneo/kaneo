@@ -5,7 +5,6 @@ import { INTEGRATIONS } from "@/components/project/integrations/integration-defi
 import { IntegrationsGroup } from "@/components/project/integrations/integrations-group";
 import { useIntegrationStatuses } from "@/components/project/integrations/use-integration-statuses";
 import { SettingsPage } from "@/components/settings/settings-page";
-import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/projects/$projectId/integrations",
@@ -16,8 +15,7 @@ export const Route = createFileRoute(
 function RouteComponent() {
   const { t } = useTranslation();
   const { projectId } = Route.useParams();
-  const { canManageSettings } = useWorkspacePermission();
-  const statuses = useIntegrationStatuses(projectId, canManageSettings());
+  const { statuses, retry } = useIntegrationStatuses(projectId);
 
   return (
     <>
@@ -33,6 +31,7 @@ function RouteComponent() {
           )}
           projectId={projectId}
           statuses={statuses}
+          onRetry={retry}
         />
         <IntegrationsGroup
           title={t("settings:projectIntegrations.chatTitle")}
@@ -41,6 +40,7 @@ function RouteComponent() {
           )}
           projectId={projectId}
           statuses={statuses}
+          onRetry={retry}
         />
       </SettingsPage>
     </>

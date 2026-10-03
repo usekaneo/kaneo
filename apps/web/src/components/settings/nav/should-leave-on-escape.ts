@@ -6,7 +6,16 @@ const OVERLAY_SELECTOR = [
   '[role="dialog"]',
   '[role="alertdialog"]',
   '[role="menu"]',
-  '[data-slot$="-popup"]',
+  '[data-slot="dialog-popup"]',
+  '[data-slot="alert-dialog-popup"]',
+  '[data-slot="sheet-popup"]',
+  '[data-slot="menu-popup"]',
+  '[data-slot="select-popup"]',
+  '[data-slot="combobox-popup"]',
+  '[data-slot="autocomplete-popup"]',
+  '[data-slot="popover-popup"]',
+  '[data-slot="command-dialog-popup"]',
+  '[data-slot="preview-card-content"]',
 ].join(",");
 
 function hasOpenOverlay(root: ParentNode) {

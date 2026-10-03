@@ -1,4 +1,9 @@
-export type IntegrationState = "connected" | "paused" | "disconnected";
+export type IntegrationState =
+  | "connected"
+  | "paused"
+  | "disconnected"
+  | "loading"
+  | "unavailable";
 
 export type IntegrationStatus = {
   state: IntegrationState;
@@ -6,16 +11,20 @@ export type IntegrationStatus = {
 };
 
 type IntegrationStatusInput = {
+  queryStatus?: "pending" | "error" | "success";
   configured: boolean;
   isActive?: boolean | null;
   detail?: string | null;
 };
 
 export function getIntegrationStatus({
+  queryStatus = "success",
   configured,
   isActive,
   detail,
 }: IntegrationStatusInput): IntegrationStatus {
+  if (queryStatus === "pending") return { state: "loading" };
+  if (queryStatus === "error") return { state: "unavailable" };
   if (!configured) return { state: "disconnected" };
 
   return {

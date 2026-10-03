@@ -6,6 +6,22 @@ import {
 } from "@/components/project/integrations/get-integration-status";
 
 describe("getIntegrationStatus", () => {
+  it("does not report pending or failed requests as disconnected", () => {
+    expect(
+      getIntegrationStatus({ queryStatus: "pending", configured: false }),
+    ).toEqual({ state: "loading" });
+    expect(
+      getIntegrationStatus({ queryStatus: "error", configured: false }),
+    ).toEqual({ state: "unavailable" });
+    expect(
+      getIntegrationStatus({
+        queryStatus: "error",
+        configured: true,
+        detail: "stale",
+      }),
+    ).toEqual({ state: "unavailable" });
+  });
+
   it("is disconnected until the integration is configured", () => {
     expect(
       getIntegrationStatus({ configured: false, isActive: true, detail: "x" }),

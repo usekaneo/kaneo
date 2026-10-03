@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { IntegrationStatus } from "@/components/project/integrations/get-integration-status";
 import type { IntegrationDefinition } from "@/components/project/integrations/integration-definitions";
 import { IntegrationStatusBadge } from "@/components/project/integrations/integration-status-badge";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Collapsible,
   CollapsiblePanel,
@@ -12,6 +12,7 @@ import {
 import { cn } from "@/lib/cn";
 
 type IntegrationRowProps = {
+  onRetry: () => void;
   integration: IntegrationDefinition;
   projectId: string;
   status: IntegrationStatus | undefined;
@@ -19,6 +20,7 @@ type IntegrationRowProps = {
 
 export function IntegrationRow({
   integration,
+  onRetry,
   projectId,
   status,
 }: IntegrationRowProps) {
@@ -28,8 +30,8 @@ export function IntegrationRow({
     typeof integration.name === "string"
       ? integration.name
       : t(integration.name.key);
-  const state = status?.state ?? "disconnected";
-  const isSetUp = state !== "disconnected";
+  const state = status?.state ?? "loading";
+  const isSetUp = state === "connected" || state === "paused";
 
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
@@ -55,19 +57,34 @@ export function IntegrationRow({
             </p>
           )}
         </div>
-        <CollapsibleTrigger
-          className={buttonVariants({
-            variant: "outline",
-            size: "sm",
-            className: "w-24 shrink-0",
-          })}
-        >
-          {open
-            ? t("settings:projectIntegrations.done")
-            : isSetUp
-              ? t("settings:projectIntegrations.configure")
-              : t("settings:projectIntegrations.connect")}
-        </CollapsibleTrigger>
+        {state === "unavailable" && !open ? (
+          <Button
+            className="w-24 shrink-0"
+            onClick={onRetry}
+            size="sm"
+            type="button"
+            variant="outline"
+          >
+            {t("common:error.tryAgain")}
+          </Button>
+        ) : (
+          <CollapsibleTrigger
+            disabled={state === "loading" && !open}
+            className={buttonVariants({
+              variant: "outline",
+              size: "sm",
+              className: "w-24 shrink-0",
+            })}
+          >
+            {open
+              ? t("settings:projectIntegrations.done")
+              : state === "loading"
+                ? t("common:empty.loading")
+                : isSetUp
+                  ? t("settings:projectIntegrations.configure")
+                  : t("settings:projectIntegrations.connect")}
+          </CollapsibleTrigger>
+        )}
       </div>
       <CollapsiblePanel>
         <div className="border-t border-border bg-muted/40 p-4">

@@ -9,7 +9,14 @@ type IntegrationStatusBadgeProps = {
 export function IntegrationStatusBadge({ state }: IntegrationStatusBadgeProps) {
   const { t } = useTranslation();
 
-  if (state === "disconnected") return null;
+  if (state === "disconnected" || state === "loading") return null;
+  if (state === "unavailable") {
+    return (
+      <span className="text-xs text-muted-foreground" role="status">
+        {t("common:error.title")}
+      </span>
+    );
+  }
 
   const connected = state === "connected";
 
