@@ -4351,6 +4351,27 @@
 						},
 						"telegramSectionSubtitle": {
 							"type": "string"
+						},
+						"codeHostingTitle": {
+							"type": "string"
+						},
+						"chatTitle": {
+							"type": "string"
+						},
+						"statusConnected": {
+							"type": "string"
+						},
+						"statusPaused": {
+							"type": "string"
+						},
+						"connect": {
+							"type": "string"
+						},
+						"configure": {
+							"type": "string"
+						},
+						"done": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -4372,7 +4393,14 @@
 						"mattermostSectionTitle",
 						"mattermostSectionSubtitle",
 						"telegramSectionTitle",
-						"telegramSectionSubtitle"
+						"telegramSectionSubtitle",
+						"codeHostingTitle",
+						"chatTitle",
+						"statusConnected",
+						"statusPaused",
+						"connect",
+						"configure",
+						"done"
 					]
 				},
 				"projectVisibility": {

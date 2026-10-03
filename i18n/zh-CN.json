@@ -1037,7 +1037,14 @@
 			"telegramSectionTitle": "Telegram 集成",
 			"telegramSectionSubtitle": "通过 Bot 将项目任务更新发送到 Telegram 聊天或话题。",
 			"gitlabSectionSubtitle": "Synchronize tasks with GitLab.com or a self-managed instance (issues, merge requests, webhooks).",
-			"gitlabSectionTitle": "GitLab Integration"
+			"gitlabSectionTitle": "GitLab Integration",
+			"codeHostingTitle": "代码托管",
+			"chatTitle": "聊天与 Webhook",
+			"statusConnected": "已连接",
+			"statusPaused": "已暂停",
+			"connect": "连接",
+			"configure": "配置",
+			"done": "完成"
 		},
 		"projectVisibility": {
 			"pageTitle": "项目可见性",

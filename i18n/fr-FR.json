@@ -805,7 +805,14 @@
 			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook.",
 			"mattermostSectionTitle": "Mattermost Integration",
 			"gitlabSectionSubtitle": "Synchronize tasks with GitLab.com or a self-managed instance (issues, merge requests, webhooks).",
-			"gitlabSectionTitle": "GitLab Integration"
+			"gitlabSectionTitle": "GitLab Integration",
+			"codeHostingTitle": "Hébergement de code",
+			"chatTitle": "Chat et webhooks",
+			"statusConnected": "Connecté",
+			"statusPaused": "En pause",
+			"connect": "Connecter",
+			"configure": "Configurer",
+			"done": "Terminé"
 		},
 		"projectVisibility": {
 			"pageTitle": "Visibilité du projet",

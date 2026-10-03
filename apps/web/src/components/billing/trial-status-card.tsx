@@ -22,7 +22,7 @@ export function TrialStatusCard({ billing }: TrialStatusCardProps) {
   return (
     <div
       className={cn(
-        "rounded-md border bg-sidebar p-5",
+        "rounded-xl border border-border bg-card p-5",
         expired ? "border-warning/40" : "border-border",
       )}
     >

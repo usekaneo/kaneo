@@ -411,7 +411,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
 
   if (integrationError) {
     return (
-      <div className="space-y-4 border border-destructive/25 rounded-md p-4 bg-sidebar">
+      <div className="space-y-4 rounded-xl border border-destructive/25 bg-card p-4">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
             <p className="text-sm font-medium text-destructive">
@@ -459,7 +459,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
 
   return (
     <div className="space-y-4">
-      <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+      <div className="space-y-4 rounded-xl border border-border bg-card p-4">
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <p className="text-sm font-medium">
@@ -606,7 +606,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
         )}
       </div>
 
-      <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+      <div className="space-y-4 rounded-xl border border-border bg-card p-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -846,7 +846,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
       </div>
 
       {isConnected && (
-        <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+        <div className="space-y-4 rounded-xl border border-border bg-card p-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <p className="text-sm font-medium">

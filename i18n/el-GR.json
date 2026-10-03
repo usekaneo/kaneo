@@ -804,7 +804,14 @@
 			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook.",
 			"mattermostSectionTitle": "Mattermost Integration",
 			"gitlabSectionSubtitle": "Synchronize tasks with GitLab.com or a self-managed instance (issues, merge requests, webhooks).",
-			"gitlabSectionTitle": "GitLab Integration"
+			"gitlabSectionTitle": "GitLab Integration",
+			"codeHostingTitle": "Φιλοξενία κώδικα",
+			"chatTitle": "Συνομιλία & webhooks",
+			"statusConnected": "Συνδεδεμένο",
+			"statusPaused": "Σε παύση",
+			"connect": "Σύνδεση",
+			"configure": "Ρύθμιση",
+			"done": "Τέλος"
 		},
 		"projectVisibility": {
 			"pageTitle": "Ορατότητα έργου",
