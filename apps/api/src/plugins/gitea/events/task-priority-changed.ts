@@ -25,19 +25,27 @@ export async function handleTaskPriorityChanged(
     }
 
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
+    const binding = {
+      integrationId: context.integrationId,
+      projectId: context.projectId,
+      config,
+      link: issueLink,
+    };
 
     if (event.oldPriority && event.oldPriority !== "no-priority") {
-      await removeLabelGitea(
-        config,
+      const removed = await removeLabelGitea(
+        binding,
         issueNumber,
         `priority:${event.oldPriority}`,
       );
+      if (removed.outcome === "skipped") return;
     }
 
     if (event.newPriority && event.newPriority !== "no-priority") {
-      await addLabelsToIssueGitea(config, issueNumber, [
+      const added = await addLabelsToIssueGitea(binding, issueNumber, [
         `priority:${event.newPriority}`,
       ]);
+      if (added.outcome === "skipped") return;
     }
   } catch (error) {
     console.error("Failed to update Gitea issue priority:", error);

@@ -23,9 +23,13 @@ The API must be able to reach your Gitea server. Verification checks the token a
 | **Ingest only** (`ingest-only`) | Read Gitea issues, comments, and labels into Kaneo. Kaneo does not create or update Gitea issues, comments, or labels, including task-link comments and status labels. |
 | **Off** (`off`) | Ignore inbound issue, issue-comment, and issue-label events and stop outbound issue, comment, and label changes. Manual issue and pull-request import is also disabled. |
 
-On an existing connection, selecting a mode saves it immediately. Changing the mode keeps existing Kaneo tasks, Gitea issues, and their links. It does not export existing tasks or automatically catch up on events missed in another mode. Rotating credentials or saving connection details preserves the selected mode.
+On an existing connection, selecting a mode submits the change immediately. Changing the mode keeps existing Kaneo tasks, Gitea issues, and their links. It does not export existing tasks or automatically catch up on events missed in another mode. Rotating credentials or saving connection details preserves the selected mode.
 
-Switching away from **Two-way sync** cancels queued outbound issue repairs. **Ingest only** still processes queued inbound Gitea updates; **Off** discards them. Requests already sent to Gitea cannot be cancelled by a later mode change.
+Switching to **Two-way sync** checks the saved connection's repository write permissions before saving; a failed check leaves the mode unchanged. The token must also have the required issue-write scopes. If the connection changes while verification is running, reload the settings and try again.
+
+Switching away from **Two-way sync** cancels queued outbound issue repairs. **Ingest only** still processes queued inbound Gitea updates; **Off** discards them. Saving an unchanged mode does not rewrite queued work.
+
+A mode change waits for admitted outbound requests to finish or time out before saving. Once **Ingest only** or **Off** is saved, stale work cannot start new outbound issue, comment, or label requests while that mode remains active. Requests already received by Gitea may still complete remotely after a timeout; they cannot be cancelled by a later mode change.
 
 All three modes retain live branch, push, and pull-request linking and workflow automation while the connection is active. **Off** is not a connection-wide disable switch. Task-link comments are available only in **Two-way sync**; their saved preference is kept in the other modes.
 

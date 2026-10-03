@@ -22,6 +22,7 @@ import { createGiteaClient } from "../utils/gitea-api";
 import { addLabelsToIssueGitea } from "../utils/labels";
 import { resolveTargetStatus } from "../utils/resolve-column";
 import { baseUrlFromRepositoryHtmlUrl } from "../utils/webhook-repo";
+import { withGiteaOutboundWrite } from "../services/outbound-fence";
 
 type IssueOpenedPayload = {
   action: string;
@@ -128,7 +129,7 @@ export async function handleGiteaIssueOpened(
 
     // Must run before task.created: the plugin's onTaskCreated uses link
     // existence to skip self-originated tasks, else it duplicates the issue.
-    await createExternalLink({
+    const issueLink = await createExternalLink({
       taskId: createdTask.id,
       integrationId: integration.id,
       resourceType: "issue",
@@ -171,6 +172,16 @@ export async function handleGiteaIssueOpened(
 
     try {
       const client = createGiteaClient(config);
+      const binding = {
+        integrationId: integration.id,
+        projectId,
+        config,
+        link: {
+          id: issueLink.id,
+          taskId: createdTask.id,
+          externalId: issue.number.toString(),
+        },
+      };
 
       const existingLabels =
         issue.labels
@@ -188,15 +199,22 @@ export async function handleGiteaIssueOpened(
       }
 
       if (labelsToAdd.length > 0) {
-        await addLabelsToIssueGitea(config, issue.number, labelsToAdd);
+        const added = await addLabelsToIssueGitea(
+          binding,
+          issue.number,
+          labelsToAdd,
+        );
+        if (added.outcome === "skipped") continue;
       }
 
       if (config.commentTaskLinkOnGiteaIssue !== false) {
-        await client.createIssueComment(
-          config.repositoryOwner,
-          config.repositoryName,
-          issue.number,
-          markKaneoComment(`[${taskIdentifier}](${taskUrl})`),
+        await withGiteaOutboundWrite(binding, () =>
+          client.createIssueComment(
+            config.repositoryOwner,
+            config.repositoryName,
+            issue.number,
+            markKaneoComment(`[${taskIdentifier}](${taskUrl})`),
+          ),
         );
       }
     } catch (error) {

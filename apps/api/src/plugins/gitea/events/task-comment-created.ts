@@ -3,6 +3,7 @@ import type { PluginContext, TaskCommentCreatedEvent } from "../../types";
 import { canSyncGiteaIssues, type GiteaConfig } from "../config";
 import { markKaneoComment } from "../utils/comment-origin";
 import { createGiteaClient } from "../utils/gitea-api";
+import { withGiteaOutboundWrite } from "../services/outbound-fence";
 
 export async function handleTaskCommentCreated(
   event: TaskCommentCreatedEvent,
@@ -49,11 +50,20 @@ export async function handleTaskCommentCreated(
       return;
     }
 
-    await client.createIssueComment(
-      repositoryOwner,
-      repositoryName,
-      issueNumber,
-      markKaneoComment(event.comment),
+    await withGiteaOutboundWrite(
+      {
+        integrationId: context.integrationId,
+        projectId: context.projectId,
+        config,
+        link: existingLink,
+      },
+      () =>
+        client.createIssueComment(
+          repositoryOwner,
+          repositoryName,
+          issueNumber,
+          markKaneoComment(event.comment),
+        ),
     );
   } catch (error) {
     console.error("Failed to create Gitea comment:", error);

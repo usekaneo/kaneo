@@ -4,6 +4,7 @@ import type { PluginContext, TaskStatusChangedEvent } from "../../types";
 import { canSyncGiteaIssues, type GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
 import { addLabelsToIssueGitea, removeLabelGitea } from "../utils/labels";
+import { withGiteaOutboundWrite } from "../services/outbound-fence";
 
 export async function handleTaskStatusChanged(
   event: TaskStatusChangedEvent,
@@ -31,11 +32,22 @@ export async function handleTaskStatusChanged(
     const client = createGiteaClient(config);
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
 
-    await removeLabelGitea(config, issueNumber, `status:${event.oldStatus}`);
-
-    await addLabelsToIssueGitea(config, issueNumber, [
+    const binding = {
+      integrationId: context.integrationId,
+      projectId: context.projectId,
+      config,
+      link: issueLink,
+    };
+    const removed = await removeLabelGitea(
+      binding,
+      issueNumber,
+      `status:${event.oldStatus}`,
+    );
+    if (removed.outcome === "skipped") return;
+    const added = await addLabelsToIssueGitea(binding, issueNumber, [
       `status:${event.newStatus}`,
     ]);
+    if (added.outcome === "skipped") return;
 
     if (event.newStatus === "done" || event.oldStatus === "done") {
       await syncLatestTaskValue(
@@ -44,14 +56,17 @@ export async function handleTaskStatusChanged(
         issueLink,
         "state",
         event.newStatus === "done" ? "closed" : "open",
-        async (value) => {
-          const response = await client.updateIssue(
-            repositoryOwner,
-            repositoryName,
-            issueNumber,
-            { state: value === "closed" ? "closed" : "open" },
+        async (value, intentId) => {
+          const result = await withGiteaOutboundWrite(
+            { ...binding, intent: { field: "state", intentId } },
+            () =>
+              client.updateIssue(repositoryOwner, repositoryName, issueNumber, {
+                state: value === "closed" ? "closed" : "open",
+              }),
           );
-          return response?.updated_at;
+          return result.sent
+            ? { sent: true, updatedAt: result.value.updated_at }
+            : result;
         },
         async () =>
           (await client.getIssue(repositoryOwner, repositoryName, issueNumber))

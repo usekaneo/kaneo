@@ -184,6 +184,13 @@ function expectNoRemoteWrites() {
     expect(method).not.toHaveBeenCalled();
   }
 }
+function allowRepositoryWrites() {
+  remote.getRepo.mockResolvedValue({
+    ...repository,
+    private: true,
+    permissions: { pull: true, push: true, admin: false },
+  });
+}
 
 describe("Gitea issue synchronization modes", () => {
   it("ingests issues, comments and labels without backlink or label writes", async () => {
@@ -364,6 +371,7 @@ describe("Gitea issue synchronization modes", () => {
     "retires pending writes immediately when switching through %s",
     async (issueSyncMode) => {
       const f = await fixture("sync");
+      allowRepositoryWrites();
       const task = await linkedTask(f);
       const link = await db.query.externalLinkTable.findFirst({
         where: eq(schema.externalLinkTable.taskId, task.id),
@@ -392,6 +400,7 @@ describe("Gitea issue synchronization modes", () => {
 
   it("preserves inbound work while discarding repairs across rapid ingest-only and sync toggles", async () => {
     const f = await fixture("sync");
+    allowRepositoryWrites();
     const task = await linkedTask(f);
     const link = await db.query.externalLinkTable.findFirst({
       where: eq(schema.externalLinkTable.taskId, task.id),
@@ -626,6 +635,15 @@ describe("Gitea issue synchronization modes", () => {
     "preserves %s across connection saves, credential rotation and omitted-field patches",
     async (mode) => {
       const f = await fixture(mode);
+      const task = await linkedTask(f);
+      const link = await db.query.externalLinkTable.findFirst({
+        where: eq(schema.externalLinkTable.taskId, task.id),
+      });
+      if (mode === "ingest-only")
+        await deferIssueEdit(link!, f.integration, ["title", "description"]);
+      const queuedBefore = await db.query.externalLinkTable.findFirst({
+        where: eq(schema.externalLinkTable.id, link!.id),
+      });
       for (const accessToken of [undefined, "rotated-test-token"]) {
         const response = await f.request("POST", {
           baseUrl: f.config.baseUrl,
@@ -640,6 +658,11 @@ describe("Gitea issue synchronization modes", () => {
         (await f.request("PATCH", { commentTaskLinkOnGiteaIssue: false }))
           .status,
       ).toBe(200);
+      expect(
+        await db.query.externalLinkTable.findFirst({
+          where: eq(schema.externalLinkTable.id, link!.id),
+        }),
+      ).toEqual(queuedBefore);
       const saved = await db.query.integrationTable.findFirst({
         where: eq(schema.integrationTable.id, f.integration.id),
       });
@@ -652,6 +675,7 @@ describe("Gitea issue synchronization modes", () => {
 
   it("changes only the mode without exporting or deleting existing links", async () => {
     const f = await fixture("off");
+    allowRepositoryWrites();
     const task = await linkedTask(f);
     const before = await db.query.externalLinkTable.findMany({
       where: eq(schema.externalLinkTable.taskId, task.id),
@@ -727,6 +751,111 @@ describe("Gitea issue synchronization modes", () => {
     expect(await denied.json()).toMatchObject({
       repositoryExists: false,
       hasRequiredPermissions: false,
+    });
+  });
+
+  it("reconnects with explicit credentials and mode despite malformed saved config", async () => {
+    const f = await fixture("ingest-only");
+    await db
+      .update(schema.integrationTable)
+      .set({ config: "null" })
+      .where(eq(schema.integrationTable.id, f.integration.id));
+    const response = await f.request("POST", {
+      baseUrl: f.config.baseUrl,
+      accessToken: "reconnected-token",
+      repositoryOwner: "owner",
+      repositoryName: "repo",
+      issueSyncMode: "ingest-only",
+    });
+    expect(response.status).toBe(200);
+    const saved = await db.query.integrationTable.findFirst({
+      where: eq(schema.integrationTable.id, f.integration.id),
+    });
+    expect(JSON.parse(saved!.config)).toMatchObject({
+      accessToken: "reconnected-token",
+      issueSyncMode: "ingest-only",
+      repositoryOwner: "owner",
+      repositoryName: "repo",
+    });
+  });
+
+  it.each(["PATCH", "POST"])(
+    "refuses read-only sync enabling on %s without altering queued inbound work",
+    async (method) => {
+      const f = await fixture("ingest-only");
+      const task = await linkedTask(f);
+      const link = await db.query.externalLinkTable.findFirst({
+        where: eq(schema.externalLinkTable.taskId, task.id),
+      });
+      await deferIssueEdit(link!, f.integration, ["title"]);
+      const before = await db.query.externalLinkTable.findFirst({
+        where: eq(schema.externalLinkTable.id, link!.id),
+      });
+      const response = await f.request(method, {
+        baseUrl: f.config.baseUrl,
+        accessToken: "new-token",
+        repositoryOwner: "owner",
+        repositoryName: "repo",
+        issueSyncMode: "sync",
+      });
+      expect(response.status).toBe(400);
+      expect(
+        await db.query.integrationTable.findFirst({
+          where: eq(schema.integrationTable.id, f.integration.id),
+        }),
+      ).toEqual(f.integration);
+      expect(
+        await db.query.externalLinkTable.findFirst({
+          where: eq(schema.externalLinkTable.id, link!.id),
+        }),
+      ).toEqual(before);
+    },
+  );
+
+  it("retires inbound work on ingest-only to off without checking write permission", async () => {
+    const f = await fixture("ingest-only");
+    const task = await linkedTask(f);
+    const link = await db.query.externalLinkTable.findFirst({
+      where: eq(schema.externalLinkTable.taskId, task.id),
+    });
+    await deferIssueEdit(link!, f.integration, ["title"]);
+    expect((await f.request("PATCH", { issueSyncMode: "off" })).status).toBe(
+      200,
+    );
+    const retired = await db.query.externalLinkTable.findFirst({
+      where: eq(schema.externalLinkTable.id, link!.id),
+    });
+    expect(JSON.parse(retired!.metadata!).deferredIssueEdit).toBeUndefined();
+    expect(
+      (await f.request("PATCH", { issueSyncMode: "ingest-only" })).status,
+    ).toBe(200);
+    expect(remote.getRepo).not.toHaveBeenCalled();
+  });
+
+  it("rejects a stale permission result rather than overwriting newer credentials", async () => {
+    const f = await fixture("off");
+    remote.getRepo.mockImplementationOnce(async () => {
+      await db
+        .update(schema.integrationTable)
+        .set({
+          config: JSON.stringify({
+            ...f.config,
+            accessToken: "concurrently-rotated-token",
+          }),
+          updatedAt: new Date(),
+        })
+        .where(eq(schema.integrationTable.id, f.integration.id));
+      return { ...repository, private: true, permissions: { push: true } };
+    });
+    expect((await f.request("PATCH", { issueSyncMode: "sync" })).status).toBe(
+      409,
+    );
+    const saved = await db.query.integrationTable.findFirst({
+      where: eq(schema.integrationTable.id, f.integration.id),
+    });
+    expect(JSON.parse(saved!.config)).toMatchObject({
+      accessToken: "concurrently-rotated-token",
+      issueSyncMode: "off",
     });
   });
 });

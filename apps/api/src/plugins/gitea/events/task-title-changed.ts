@@ -5,6 +5,7 @@ import { findExternalLinksByTask } from "../../github/services/link-manager";
 import type { PluginContext, TaskTitleChangedEvent } from "../../types";
 import { canSyncGiteaIssues, type GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
+import { withGiteaOutboundWrite } from "../services/outbound-fence";
 
 type LinkSyncState = import("../../github/utils/sync-echo").SyncStamp;
 
@@ -89,24 +90,28 @@ export async function handleTaskTitleChanged(
       issueLink,
       "title",
       event.newTitle,
-      async (value) => {
-        const response = await client.updateIssue(
-          repositoryOwner,
-          repositoryName,
-          issueNumber,
+      async (value, intentId) => {
+        const result = await withGiteaOutboundWrite(
           {
-            title: value,
+            integrationId: context.integrationId,
+            projectId: context.projectId,
+            config,
+            link: issueLink,
+            intent: { field: "title", intentId },
           },
+          () =>
+            client.updateIssue(repositoryOwner, repositoryName, issueNumber, {
+              title: value,
+            }),
         );
-        return response?.updated_at;
+        if (!result.sent) return result;
+        return { sent: true, updatedAt: result.value.updated_at };
       },
       async () =>
         (await client.getIssue(repositoryOwner, repositoryName, issueNumber))
           .title,
       { type: "gitea", config: JSON.stringify(config) },
     );
-
-    console.log(`Synced task title to Gitea issue #${issueNumber}`);
   } catch (error) {
     console.error("Failed to update Gitea issue title:", error);
   }

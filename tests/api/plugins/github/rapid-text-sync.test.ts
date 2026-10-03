@@ -149,6 +149,16 @@ vi.mock("../../../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
     ) => m.update(input),
   }),
 }));
+// Real Gitea admission/locking is exercised in gitea-outbound-fence.test.ts.
+vi.mock(
+  "../../../../apps/api/src/plugins/gitea/services/outbound-fence",
+  () => ({
+    withGiteaOutboundWrite: async <T>(
+      _binding: unknown,
+      write: () => Promise<T>,
+    ) => ({ sent: true, value: await write() }),
+  }),
+);
 const giteaTitle = (
   await import("../../../../apps/api/src/plugins/gitea/events/task-title-changed")
 ).handleTaskTitleChanged;

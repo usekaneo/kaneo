@@ -65,7 +65,7 @@ it.each([
       async (value) => {
         remote = value;
         await response;
-        return "2026-09-30T00:00:01Z";
+        return { sent: true, updatedAt: "2026-09-30T00:00:01Z" };
       },
       async () => remote,
     );
@@ -173,11 +173,14 @@ it("stops correction when a disconnect races the post-response task read", async
         .where(eq(schema.externalLinkTable.id, link.id));
       return findTask(options);
     });
-  const write = vi.fn(async () => "2026-09-30T00:00:01Z");
+  const write = vi.fn(async () => ({
+    sent: true as const,
+    updatedAt: "2026-09-30T00:00:01Z",
+  }));
   try {
     await syncLatestTaskValue(task.id, project.id, link, "title", "A", write);
     expect(write).toHaveBeenCalledTimes(1);
-    expect(write).toHaveBeenCalledWith("A");
+    expect(write).toHaveBeenCalledWith("A", expect.any(String));
   } finally {
     read.mockRestore();
   }
@@ -247,7 +250,7 @@ it.each(
           updatedAt: "2026-09-30T00:00:03Z",
         },
       });
-      return "2026-09-30T00:00:01Z";
+      return { sent: true as const, updatedAt: "2026-09-30T00:00:01Z" };
     });
     await syncLatestTaskValue(
       task.id,
@@ -369,7 +372,7 @@ it.each(
         }
         if (phase !== "apply") await reconfigure();
       }
-      return "2026-09-30T00:00:01Z";
+      return { sent: true as const, updatedAt: "2026-09-30T00:00:01Z" };
     });
     const read = vi.fn(async () => {
       await reconfigure();
@@ -423,7 +426,10 @@ it.each(["github", "gitea"])(
         url: "https://provider.example/1",
       })
       .returning();
-    const write = vi.fn(async () => "2026-09-30T00:00:01Z");
+    const write = vi.fn(async () => ({
+      sent: true as const,
+      updatedAt: "2026-09-30T00:00:01Z",
+    }));
     await syncLatestTaskValue(
       task.id,
       project.id,

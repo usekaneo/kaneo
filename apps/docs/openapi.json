@@ -14395,6 +14395,16 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "Integration changed or repository is already linked",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       },
@@ -14481,6 +14491,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/GiteaIntegrationNotFound"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Integration changed. Reload and try again.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }

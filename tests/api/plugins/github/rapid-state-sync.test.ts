@@ -1,6 +1,10 @@
 import { beforeEach, expect, it, vi } from "vite-plus/test";
 import { handleTaskStatusChanged as github } from "../../../../apps/api/src/plugins/github/events/task-status-changed";
 import { handleTaskStatusChanged as gitea } from "../../../../apps/api/src/plugins/gitea/events/task-status-changed";
+import {
+  addLabelsToIssueGitea,
+  removeLabelGitea,
+} from "../../../../apps/api/src/plugins/gitea/utils/labels";
 const m = vi.hoisted(() => ({ status: "", write: vi.fn(), save: vi.fn() }));
 vi.mock("../../../../apps/api/src/database", () => ({
   default: {
@@ -47,6 +51,16 @@ vi.mock("../../../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
     ) => m.write(state),
   }),
 }));
+// Real Gitea admission/locking is exercised in gitea-outbound-fence.test.ts.
+vi.mock(
+  "../../../../apps/api/src/plugins/gitea/services/outbound-fence",
+  () => ({
+    withGiteaOutboundWrite: async <T>(
+      _binding: unknown,
+      write: () => Promise<T>,
+    ) => ({ sent: true, value: await write() }),
+  }),
+);
 vi.mock("../../../../apps/api/src/plugins/github/utils/labels", () => ({
   removeLabel: vi.fn(),
   addLabelsToIssue: vi.fn(),
@@ -76,7 +90,11 @@ function deferred() {
   });
   return { promise, resolve };
 }
-beforeEach(() => vi.resetAllMocks());
+beforeEach(() => {
+  vi.resetAllMocks();
+  vi.mocked(removeLabelGitea).mockResolvedValue({ outcome: "completed" });
+  vi.mocked(addLabelsToIssueGitea).mockResolvedValue({ outcome: "completed" });
+});
 it.each([
   ["github", "closed"],
   ["github", "open"],
