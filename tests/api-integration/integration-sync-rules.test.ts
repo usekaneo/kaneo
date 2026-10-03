@@ -473,6 +473,113 @@ describe("reviewed sync resume", () => {
     const link = await f.link(true);
     return { ...f, link };
   }
+  it.each(["kaneo", "provider"] as const)(
+    "reviews and resumes %s values through HTTP with validated responses",
+    async (source) => {
+      vi.spyOn(events, "publishEvent").mockResolvedValue(undefined);
+      const f = await paused();
+      const suffix = `/links/${f.link.id}`;
+      const response = await f.request(`${suffix}/review`, "GET");
+      expect(response.status).toBe(200);
+      const review = await response.json();
+      expect(review).toMatchObject({
+        task: { id: f.task.id, title: "Kaneo title", number: 1 },
+        local: {
+          title: "Kaneo title",
+          description: "Kaneo body",
+          state: "open",
+        },
+        remote: {
+          title: "Repository title",
+          description: "Repository body",
+          state: "closed",
+        },
+        token: expect.stringMatching(/^[a-f0-9]{64}$/),
+      });
+      for (const body of [
+        { source: "external", token: review.token },
+        { source, token: "short" },
+      ])
+        expect((await f.request(`${suffix}/resume`, "POST", body)).status).toBe(
+          400,
+        );
+      expect(provider.write).not.toHaveBeenCalled();
+      const resumed = await f.request(`${suffix}/resume`, "POST", {
+        source,
+        token: review.token,
+      });
+      expect(resumed.status).toBe(200);
+      expect(await resumed.json()).toEqual({ success: true });
+      expect(await canSyncTask(f.task.id, f.integration.id)).toBe(true);
+      expect(
+        await db.query.externalLinkTable.findFirst({
+          where: eq(schema.externalLinkTable.id, f.link.id),
+        }),
+      ).toMatchObject({
+        title: source === "kaneo" ? "Kaneo title" : "Repository title",
+      });
+    },
+  );
+
+  it("denies HTTP review and resume to members and users outside the workspace", async () => {
+    const f = await setup("member");
+    await f.assign();
+    await f.setRules();
+    const link = await f.link(true);
+    const suffix = `/links/${link.id}`;
+    expect((await f.request(`${suffix}/review`, "GET")).status).toBe(403);
+    expect(
+      (
+        await f.request(`${suffix}/resume`, "POST", {
+          source: "kaneo",
+          token: "a".repeat(64),
+        })
+      ).status,
+    ).toBe(403);
+    const outsider = await createWorkspaceMember({ role: "owner" });
+    mockAuthenticatedSession(outsider.user);
+    expect((await f.request(`${suffix}/review`, "GET")).status).toBe(403);
+    expect(
+      (
+        await f.request(`${suffix}/resume`, "POST", {
+          source: "kaneo",
+          token: "a".repeat(64),
+        })
+      ).status,
+    ).toBe(403);
+    expect(provider.read).not.toHaveBeenCalled();
+    expect(provider.write).not.toHaveBeenCalled();
+  });
+
+  it("requires task update permission in addition to settings permission to resume over HTTP", async () => {
+    const f = await setup("settings-only");
+    await db.insert(schema.workspaceRoleTable).values({
+      workspaceId: f.workspace.id,
+      role: "settings-only",
+      permission: JSON.stringify({
+        workspace: ["manage_settings"],
+        project: ["read"],
+        task: ["read"],
+      }),
+    });
+    await f.assign();
+    await f.setRules();
+    const link = await f.link(true);
+    const response = await f.request(`/links/${link.id}/review`, "GET");
+    expect(response.status).toBe(200);
+    const { token } = await response.json();
+    expect(
+      (
+        await f.request(`/links/${link.id}/resume`, "POST", {
+          source: "provider",
+          token,
+        })
+      ).status,
+    ).toBe(403);
+    expect(await canSyncTask(f.task.id, f.integration.id)).toBe(false);
+    expect(provider.write).not.toHaveBeenCalled();
+  });
+
   it("rejects a stale local comparison before writing to the provider", async () => {
     const f = await paused();
     const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
