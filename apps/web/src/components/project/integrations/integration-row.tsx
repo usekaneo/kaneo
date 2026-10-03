@@ -96,6 +96,7 @@ export function IntegrationRow({
               integration.id === "gitlab") && (
               <div className="mt-4">
                 <SyncRulesSection
+                  key={`${projectId}:${integration.id}`}
                   projectId={projectId}
                   provider={integration.id}
                 />

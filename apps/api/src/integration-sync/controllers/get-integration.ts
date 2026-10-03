@@ -3,9 +3,14 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { integrationTable } from "../../database/schema";
 import { readSyncRules } from "../../plugins/sync/rules";
+import type { IntegrationDatabase } from "../../plugins/github/services/integration-task-scope";
 
-export async function getSyncIntegration(projectId: string, provider: string) {
-  const integration = await db.query.integrationTable.findFirst({
+export async function getSyncIntegration(
+  projectId: string,
+  provider: string,
+  database: IntegrationDatabase = db,
+) {
+  const integration = await database.query.integrationTable.findFirst({
     where: and(
       eq(integrationTable.projectId, projectId),
       eq(integrationTable.type, provider),

@@ -1,13 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { and, asc, eq, sql } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import {
-  columnTable,
-  externalLinkTable,
-  integrationTable,
-  taskTable,
-} from "../../database/schema";
+import { columnTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { updateExternalLink } from "../../plugins/github/services/link-manager";
 import { parseDeferredIssueEdit } from "../../plugins/github/utils/deferred-issue-edit";
@@ -16,13 +11,11 @@ import {
   type SyncStamp,
 } from "../../plugins/github/utils/sync-echo";
 import { formatIssueBody } from "../../plugins/github/utils/format";
-import { taskMatchesRule } from "../../plugins/sync/eligibility";
-import { readSyncRules } from "../../plugins/sync/rules";
 import { reviewSyncResume } from "./review-resume";
+import { lockResumeScope } from "./lock-resume-scope";
+import { withSyncLease } from "../../plugins/sync/lease";
+import type { TaskStatusChangedEvent } from "../../plugins/types";
 
-// A resume lease performs fresh reads and a nested commit using the pool.
-// Queue concurrent requests locally to leave connections available for them.
-let resumeQueue: Promise<void> = Promise.resolve();
 export async function resumeSync(
   projectId: string,
   provider: string,
@@ -30,14 +23,9 @@ export async function resumeSync(
   token: string,
   source: "kaneo" | "provider",
 ) {
-  const next = resumeQueue.then(() =>
+  return withSyncLease(`sync-resume:${linkId}`, () =>
     resumeWithLease(projectId, provider, linkId, token, source),
   );
-  resumeQueue = next.then(
-    () => {},
-    () => {},
-  );
-  return next;
 }
 
 async function resumeWithLease(
@@ -47,78 +35,33 @@ async function resumeWithLease(
   token: string,
   source: "kaneo" | "provider",
 ) {
-  await db.transaction(async (lease) => {
-    const result = await lease.execute<{ locked: boolean }>(
-      sql`select pg_try_advisory_xact_lock(hashtextextended(${`sync-resume:${linkId}`}, 0)) as locked`,
-    );
-    if (!result.rows[0]?.locked)
-      throw new HTTPException(409, {
-        message: "This task is already being resumed",
-      });
-    const review = await reviewSyncResume(projectId, provider, linkId);
-    if (review.token !== token)
-      throw new HTTPException(409, {
-        message: "Task or issue changed; review the comparison again",
-      });
-    let updatedAt: string | null = null;
-    if (source === "kaneo") {
-      try {
-        updatedAt = (await review.access.write(review.local)).updatedAt;
-      } catch {
-        throw new HTTPException(502, {
-          message: "External issue could not be updated; sync remains paused",
-        });
-      }
-    }
+  let providerWritten = false;
+  let statusChange:
+    | (TaskStatusChangedEvent & { assigneeId: string | null })
+    | undefined;
+  let taskId: string | undefined;
+  try {
     await db.transaction(async (tx) => {
-      const [binding] = await tx
-        .select()
-        .from(integrationTable)
-        .where(
-          and(
-            eq(integrationTable.id, review.integration.id),
-            eq(integrationTable.config, review.integration.config),
-            eq(integrationTable.isActive, true),
-          ),
-        )
-        .for("share");
-      const [task] = await tx
-        .select()
-        .from(taskTable)
-        .where(
-          and(
-            eq(taskTable.id, review.task.id),
-            eq(taskTable.projectId, projectId),
-          ),
-        )
-        .for("no key update");
-      const [link] = await tx
-        .select()
-        .from(externalLinkTable)
-        .where(
-          and(
-            eq(externalLinkTable.id, linkId),
-            eq(externalLinkTable.integrationId, review.integration.id),
-            eq(externalLinkTable.taskId, review.task.id),
-          ),
-        )
-        .for("update");
-      if (
-        !binding ||
-        !task ||
-        !link ||
-        task.updatedAt.getTime() !== review.task.updatedAt.getTime() ||
-        link.metadata !== review.link.metadata ||
-        !(await taskMatchesRule(
-          task.id,
-          projectId,
-          readSyncRules(binding.config)!.outgoing,
-          tx,
-        ))
-      )
+      await lockResumeScope(projectId, provider, linkId, tx);
+      const review = await reviewSyncResume(projectId, provider, linkId, tx);
+      taskId = review.task.id;
+      const task = review.task;
+      const link = review.link;
+      if (review.token !== token)
         throw new HTTPException(409, {
-          message: "Sync scope or task changed; review again before resuming",
+          message: "Task or issue changed; review the comparison again",
         });
+      let updatedAt: string | null = null;
+      if (source === "kaneo") {
+        try {
+          updatedAt = (await review.access.write(review.local)).updatedAt;
+          providerWritten = true;
+        } catch {
+          throw new HTTPException(502, {
+            message: "External issue could not be updated; sync remains paused",
+          });
+        }
+      }
       if (source === "provider") {
         const final = review.remote.state === "closed";
         const columns = await tx
@@ -144,6 +87,17 @@ async function resumeWithLease(
             columnId: target.id,
           })
           .where(eq(taskTable.id, task.id));
+        if (task.status !== target.slug)
+          statusChange = {
+            sourceIntegrationId: review.integration.id,
+            taskId: task.id,
+            projectId,
+            userId: null,
+            assigneeId: task.userId,
+            oldStatus: task.status,
+            newStatus: target.slug,
+            title: review.remote.title,
+          };
       }
       const job = parseDeferredIssueEdit(
         JSON.parse(link.metadata ?? "{}").deferredIssueEdit,
@@ -166,6 +120,7 @@ async function resumeWithLease(
             ...(job ? { completeDeferredEdit: job.id } : {}),
             metadata: {
               syncFilterPaused: false,
+              syncResumeUncertain: false,
               ...(provider === "gitlab"
                 ? {
                     lastOutboundStateSyncAt: Date.now(),
@@ -211,8 +166,24 @@ async function resumeWithLease(
         );
       }
     });
-    await publishEvent("task.updated", { projectId, taskId: review.task.id });
-    await publishEvent("project.updated", { projectId });
-  });
+  } catch (error) {
+    if (providerWritten) {
+      // A database failure after a successful provider write must remain visible
+      // to the next review. The link stays paused and clients refresh both sides.
+      await updateExternalLink(linkId, {
+        metadata: { syncFilterPaused: true, syncResumeUncertain: true },
+      });
+      await publishEvent("project.updated", { projectId });
+      if (taskId) await publishEvent("task.updated", { projectId, taskId });
+    }
+    throw error;
+  }
+  if (statusChange)
+    await publishEvent("task.status_changed", {
+      ...statusChange,
+      type: "status_changed",
+    });
+  await publishEvent("task.updated", { projectId, taskId });
+  await publishEvent("project.updated", { projectId });
   return { success: true };
 }

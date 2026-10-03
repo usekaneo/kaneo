@@ -251,10 +251,10 @@ export function initializeEventSubscriptions(): void {
     },
   );
 
-  subscribeToEvent<{ projectId: string }>(
+  subscribeToEvent<{ projectId: string; integrationId?: string }>(
     "integration.sync_labels_changed",
     async (data) => {
-      await reconcileProjectSync(data.projectId);
+      await reconcileProjectSync(data.projectId, data.integrationId);
     },
   );
 

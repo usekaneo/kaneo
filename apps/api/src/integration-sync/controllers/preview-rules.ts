@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, or, sql } from "drizzle-orm";
 import db from "../../database";
 import { externalLinkTable, taskTable } from "../../database/schema";
 import type { IntegrationDatabase } from "../../plugins/github/services/integration-task-scope";
@@ -23,103 +23,102 @@ export async function previewSyncRules(
     readSyncRules(integration.config)!.outgoing,
     database,
   );
-  const rows = await database
-    .selectDistinctOn([taskTable.id], {
-      id: taskTable.id,
-      eligible: proposed.predicate,
-      current: current.predicate,
-      linkId: externalLinkTable.id,
-      url: externalLinkTable.url,
-      paused: sql<boolean>`coalesce(${externalLinkTable.metadata} ~ '"syncFilterPaused"[[:space:]]*:[[:space:]]*true', false)`,
+  const paused = sql<boolean>`coalesce(${externalLinkTable.metadata} ~ '"syncFilterPaused"[[:space:]]*:[[:space:]]*true', false)`;
+  const scope = database.$with("sync_scope").as(
+    database
+      .selectDistinctOn([taskTable.id], {
+        id: taskTable.id,
+        eligible: proposed.predicate.as("eligible"),
+        current: current.predicate.as("current"),
+        linkId: sql<string | null>`${externalLinkTable.id}`.as("link_id"),
+        url: externalLinkTable.url,
+        paused: paused.as("paused"),
+      })
+      .from(taskTable)
+      .leftJoin(
+        externalLinkTable,
+        and(
+          eq(externalLinkTable.taskId, taskTable.id),
+          eq(externalLinkTable.integrationId, integration.id),
+          eq(externalLinkTable.resourceType, "issue"),
+        ),
+      )
+      .where(eq(taskTable.projectId, integration.projectId))
+      .orderBy(asc(taskTable.id), desc(paused), asc(externalLinkTable.id)),
+  );
+  const [impact] = await database
+    .with(scope)
+    .select({
+      total: sql<number>`count(*)::int`,
+      matching: sql<number>`count(*) filter (where ${scope.eligible})::int`,
+      willCreate: sql<number>`count(*) filter (where ${scope.eligible} and ${scope.linkId} is null)::int`,
+      willPause: sql<number>`count(*) filter (where ${scope.linkId} is not null and not ${scope.eligible} and not ${scope.paused})::int`,
+      needsReview: sql<number>`count(*) filter (where ${scope.linkId} is not null and ${scope.eligible} and (${scope.paused} or not ${scope.current}))::int`,
+      paused: sql<number>`count(*) filter (where ${scope.linkId} is not null and (not ${scope.eligible} or ${scope.paused}))::int`,
+      // Build the ordered scope revision in PostgreSQL instead of transferring
+      // every task/link to the API just to hash it. Page cursors do not affect it.
+      revision: sql<string>`md5(coalesce(string_agg(jsonb_build_array(${scope.id}, ${scope.eligible}, ${scope.current}, ${scope.linkId}, ${scope.url}, ${scope.paused})::text, ',' order by ${scope.id}), ''))`,
     })
-    .from(taskTable)
-    .leftJoin(
-      externalLinkTable,
+    .from(scope);
+  const matchingTasks = await database
+    .with(scope)
+    .select({
+      id: taskTable.id,
+      number: taskTable.number,
+      title: taskTable.title,
+    })
+    .from(scope)
+    .innerJoin(taskTable, eq(taskTable.id, scope.id))
+    .where(sql`${scope.eligible}`)
+    .orderBy(asc(scope.id))
+    .limit(10);
+  const pausedPage = await database
+    .with(scope)
+    .select({
+      id: taskTable.id,
+      number: taskTable.number,
+      title: taskTable.title,
+      linkId: scope.linkId,
+      url: scope.url,
+      eligible: scope.eligible,
+    })
+    .from(scope)
+    .innerJoin(taskTable, eq(taskTable.id, scope.id))
+    .where(
       and(
-        eq(externalLinkTable.taskId, taskTable.id),
-        eq(externalLinkTable.integrationId, integration.id),
-        eq(externalLinkTable.resourceType, "issue"),
+        sql`${scope.linkId} is not null`,
+        or(sql`not ${scope.eligible}`, scope.paused),
+        after ? gt(scope.id, after) : undefined,
       ),
     )
-    .where(eq(taskTable.projectId, integration.projectId))
-    .orderBy(
-      asc(taskTable.id),
-      desc(
-        sql`coalesce(${externalLinkTable.metadata} ~ '"syncFilterPaused"[[:space:]]*:[[:space:]]*true', false)`,
-      ),
-      asc(externalLinkTable.id),
-    );
-  const matching = rows.filter((row) => row.eligible);
-  const paused = rows.filter(
-    (row) => row.linkId && (!row.eligible || row.paused),
-  );
-  const pausedPage = paused
-    .filter((row) => !after || row.id > after)
-    .slice(0, 26);
-  const sampled = [
-    ...new Set(
-      [...matching.slice(0, 10), ...pausedPage.slice(0, 25)].map(
-        (row) => row.id,
-      ),
-    ),
-  ];
-  const tasks = sampled.length
-    ? await database
-        .select({
-          id: taskTable.id,
-          number: taskTable.number,
-          title: taskTable.title,
-        })
-        .from(taskTable)
-        .where(
-          and(
-            eq(taskTable.projectId, integration.projectId),
-            inArray(taskTable.id, sampled),
-          ),
-        )
-    : [];
-  const samples = new Map(tasks.map((task) => [task.id, task]));
+    .orderBy(asc(scope.id))
+    .limit(26);
   const previewToken = createHash("sha256")
     .update(
       JSON.stringify({
         integration: [integration.id, integration.config, integration.isActive],
         rules,
         labels: proposed.labels,
-        rows,
+        revision: impact!.revision,
       }),
     )
     .digest("hex");
+  const { revision: _, ...counts } = impact!;
   return {
     isActive: integration.isActive === true,
     rules,
     labels: proposed.labels,
     missingLabels: proposed.missing,
-    total: new Set(rows.map((row) => row.id)).size,
-    matching: matching.length,
-    willCreate: matching.filter((row) => !row.linkId).length,
-    willPause: rows.filter((row) => row.linkId && !row.eligible && !row.paused)
-      .length,
-    needsReview: rows.filter(
-      (row) => row.linkId && row.eligible && (row.paused || !row.current),
-    ).length,
-    paused: paused.length,
-    matchingTasks: matching
-      .slice(0, 10)
-      .flatMap((row) => samples.get(row.id) ?? []),
+    ...counts,
+    matchingTasks,
     pausedNextCursor: pausedPage.length > 25 ? pausedPage[24]!.id : null,
-    pausedTasks: pausedPage.slice(0, 25).flatMap((row) => {
-      const task = samples.get(row.id);
-      return task && row.linkId && row.url
-        ? [
-            {
-              ...task,
-              linkId: row.linkId,
-              url: row.url,
-              eligible: row.eligible,
-            },
-          ]
-        : [];
-    }),
+    pausedTasks: pausedPage
+      .slice(0, 25)
+      .flatMap((task) =>
+        task.linkId && task.url
+          ? [{ ...task, linkId: task.linkId, url: task.url }]
+          : [],
+      ),
     previewToken,
   };
 }

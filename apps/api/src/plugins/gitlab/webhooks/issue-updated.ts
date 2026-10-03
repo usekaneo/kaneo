@@ -37,6 +37,7 @@ type IssueUpdatedPayload = {
   object_attributes: {
     iid: number;
     title: string;
+    state?: string;
     description: string | null;
     url: string;
     action?: string;
@@ -166,9 +167,12 @@ export async function handleGitlabIssueUpdated(
         if (
           touchedLabels &&
           readSyncRules(integration.config)?.incoming.mode === "labels" &&
-          acceptsIssue(integration.config, payload.labels)
+          acceptsIssue(integration.config, currentLabels)
         ) {
-          await handleGitlabIssueOpened(payload, integration.id);
+          await handleGitlabIssueOpened(
+            { ...payload, labels: currentLabels },
+            integration.id,
+          );
         }
         continue;
       }

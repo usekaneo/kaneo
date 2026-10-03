@@ -27,6 +27,7 @@ type IssueOpenedPayload = {
   issue: {
     number: number;
     title: string;
+    state?: string;
     body: string | null;
     html_url: string;
     labels?: Array<string | { name?: string }>;
@@ -72,6 +73,7 @@ export async function handleIssueOpened(
     if (!acceptsIssue(integration.config, issue.labels)) continue;
     const config = JSON.parse(integration.config) as GitHubConfig;
     const projectId = integration.projectId;
+    const closed = issue.state === "closed";
 
     const priority = extractIssuePriority(issue.labels);
     const status = extractIssueStatus(issue.labels);
@@ -95,16 +97,24 @@ export async function handleIssueOpened(
       if (existingLink) return null;
       const targetStatus = await resolveTargetStatus(
         projectId,
-        "issue_opened",
-        status || "to-do",
+        closed ? "issue_closed" : "issue_opened",
+        closed ? "done" : status || "to-do",
         tx,
       );
-      const targetColumn = await tx.query.columnTable.findFirst({
+      let targetColumn = await tx.query.columnTable.findFirst({
         where: and(
           eq(columnTable.projectId, projectId),
           eq(columnTable.slug, targetStatus),
         ),
       });
+      if (closed && !targetColumn?.isFinal)
+        targetColumn = await tx.query.columnTable.findFirst({
+          where: and(
+            eq(columnTable.projectId, projectId),
+            eq(columnTable.isFinal, true),
+          ),
+          orderBy: (column, { asc }) => [asc(column.position)],
+        });
       const number = await claimTaskNumber(projectId, tx);
       const [task] = await tx
         .insert(taskTable)
@@ -113,7 +123,7 @@ export async function handleIssueOpened(
           userId: null,
           title: issue.title,
           description: formatTaskDescriptionFromIssue(issue.body),
-          status: targetStatus,
+          status: closed ? (targetColumn?.slug ?? "done") : targetStatus,
           columnId: targetColumn?.id ?? null,
           priority: priority ?? "low",
           number,
@@ -129,7 +139,7 @@ export async function handleIssueOpened(
           url: issue.html_url,
           title: issue.title,
           metadata: {
-            state: "open",
+            state: closed ? "closed" : "open",
             createdFrom: "github",
             author: issue.user?.login,
           },

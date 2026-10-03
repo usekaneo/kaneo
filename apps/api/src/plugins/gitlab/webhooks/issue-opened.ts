@@ -39,6 +39,7 @@ type IssueOpenedPayload = {
   object_attributes: {
     iid: number;
     title: string;
+    state?: string;
     description: string | null;
     url: string;
     action?: string;
@@ -94,6 +95,7 @@ export async function handleGitlabIssueOpened(
       continue;
     }
     const projectId = integration.projectId;
+    const closed = issue.state === "closed";
 
     const priority = extractIssuePriority(existingLabels);
     const status = extractIssueStatus(existingLabels);
@@ -116,16 +118,24 @@ export async function handleGitlabIssueOpened(
         return null;
       const resolvedStatus = await resolveTargetStatus(
         projectId,
-        "issue_opened",
-        status || "to-do",
+        closed ? "issue_closed" : "issue_opened",
+        closed ? "done" : status || "to-do",
         tx,
       );
-      const targetColumn = await tx.query.columnTable.findFirst({
+      let targetColumn = await tx.query.columnTable.findFirst({
         where: and(
           eq(columnTable.projectId, projectId),
           eq(columnTable.slug, resolvedStatus),
         ),
       });
+      if (closed && !targetColumn?.isFinal)
+        targetColumn = await tx.query.columnTable.findFirst({
+          where: and(
+            eq(columnTable.projectId, projectId),
+            eq(columnTable.isFinal, true),
+          ),
+          orderBy: (column, { asc }) => [asc(column.position)],
+        });
       const nextTaskNumber = await claimTaskNumber(projectId, tx);
       const [task] = await tx
         .insert(taskTable)
@@ -134,7 +144,7 @@ export async function handleGitlabIssueOpened(
           userId: null,
           title: issue.title,
           description: taskDescriptionFromIssue(issue.description),
-          status: resolvedStatus,
+          status: closed ? (targetColumn?.slug ?? "done") : resolvedStatus,
           columnId: targetColumn?.id ?? null,
           priority: priority ?? "low",
           number: nextTaskNumber,
@@ -142,7 +152,7 @@ export async function handleGitlabIssueOpened(
         .returning();
       if (!task) throw new Error("Failed to create task from gitlab issue");
       const linkMetadata = {
-        state: "opened",
+        state: closed ? "closed" : "opened",
         createdFrom: "gitlab",
         author: author,
       };

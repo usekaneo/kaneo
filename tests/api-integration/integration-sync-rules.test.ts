@@ -1,5 +1,6 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import * as events from "../../apps/api/src/events";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { getSyncIntegration } from "../../apps/api/src/integration-sync/controllers/get-integration";
@@ -7,6 +8,7 @@ import { previewSyncRules } from "../../apps/api/src/integration-sync/controller
 import { resumeSync } from "../../apps/api/src/integration-sync/controllers/resume-sync";
 import { reviewSyncResume } from "../../apps/api/src/integration-sync/controllers/review-resume";
 import { saveSyncRules } from "../../apps/api/src/integration-sync/controllers/save-rules";
+import * as linkManager from "../../apps/api/src/plugins/github/services/link-manager";
 import { createExternalLink } from "../../apps/api/src/plugins/github/services/link-manager";
 import { withIntegrationTask } from "../../apps/api/src/plugins/github/services/integration-task-scope";
 import { withTaskSyncCreation } from "../../apps/api/src/plugins/sync/create-task-issue";
@@ -408,6 +410,59 @@ describe("integration label policies", () => {
   });
 });
 
+it("pages a large paused scope and preserves metadata across batched rule saves", async () => {
+  const f = await setup();
+  await f.link();
+  const tasks = await db
+    .insert(schema.taskTable)
+    .values(
+      Array.from({ length: 205 }, (_, index) => ({
+        projectId: f.project.id,
+        number: index + 2,
+        title: `Task ${index}`,
+      })),
+    )
+    .returning();
+  await db.insert(schema.externalLinkTable).values(
+    tasks.map((task) => ({
+      taskId: task.id,
+      integrationId: f.integration.id,
+      resourceType: "issue",
+      externalId: String(task.number),
+      url: `https://git.example/issues/${task.number}`,
+      metadata: JSON.stringify({
+        retained: task.id,
+        deferredIssueEdit: { id: "old-job" },
+      }),
+    })),
+  );
+  const preview = await f.preview();
+  expect(preview).toMatchObject({ total: 206, willPause: 206, paused: 206 });
+  expect(preview.pausedTasks).toHaveLength(25);
+  expect(preview.pausedNextCursor).toBeTruthy();
+  await saveSyncRules(f.project.id, "gitea", f.rules, preview.previewToken);
+  const links = await db.query.externalLinkTable.findMany();
+  expect(links.every((link) => isSyncPaused(link.metadata))).toBe(true);
+  expect(
+    links.filter(
+      (link) => JSON.parse(link.metadata!).deferredIssueEdit?.id === "old-job",
+    ),
+  ).toHaveLength(205);
+  const binding = await getSyncIntegration(f.project.id, "gitea");
+  const first = await previewSyncRules(binding, f.rules);
+  const second = await previewSyncRules(
+    binding,
+    f.rules,
+    undefined,
+    first.pausedNextCursor!,
+  );
+  expect(second.previewToken).toBe(first.previewToken);
+  expect(second.pausedTasks).toHaveLength(25);
+  expect(
+    second.pausedTasks.every((task) => task.id > first.pausedNextCursor!),
+  ).toBe(true);
+});
+
 describe("reviewed sync resume", () => {
   async function paused() {
     const f = await setup();
@@ -416,8 +471,83 @@ describe("reviewed sync resume", () => {
     const link = await f.link(true);
     return { ...f, link };
   }
-  it("adopts repository values and completion state using the existing link", async () => {
+  it("rejects a stale local comparison before writing to the provider", async () => {
     const f = await paused();
+    const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+    await db
+      .update(schema.taskTable)
+      .set({ title: "Changed locally" })
+      .where(eq(schema.taskTable.id, f.task.id));
+    await expect(
+      resumeSync(f.project.id, "gitea", f.link.id, review.token, "kaneo"),
+    ).rejects.toMatchObject({ status: 409 });
+    expect(provider.write).not.toHaveBeenCalled();
+  });
+
+  it("locks local values, integration, labels and link while writing to the provider", async () => {
+    const f = await paused();
+    const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    provider.write.mockImplementation(async () => {
+      await gate;
+      return { updatedAt: "2026-01-02T00:00:00Z" };
+    });
+    const resume = resumeSync(
+      f.project.id,
+      "gitea",
+      f.link.id,
+      review.token,
+      "kaneo",
+    );
+    try {
+      await vi.waitFor(() => expect(provider.write).toHaveBeenCalledOnce());
+      const attempts = [
+        (tx: typeof db) =>
+          tx
+            .update(schema.taskTable)
+            .set({ title: "Concurrent edit" })
+            .where(eq(schema.taskTable.id, f.task.id)),
+        (tx: typeof db) =>
+          tx
+            .update(schema.integrationTable)
+            .set({ isActive: false })
+            .where(eq(schema.integrationTable.id, f.integration.id)),
+        (tx: typeof db) =>
+          tx
+            .delete(schema.labelTable)
+            .where(eq(schema.labelTable.taskId, f.task.id)),
+        (tx: typeof db) =>
+          tx
+            .update(schema.externalLinkTable)
+            .set({ metadata: "{}" })
+            .where(eq(schema.externalLinkTable.id, f.link.id)),
+      ];
+      for (const apply of attempts)
+        await expect(
+          db.transaction(async (tx) => {
+            await tx.execute(sql`set local lock_timeout = '100ms'`);
+            await apply(tx as typeof db);
+          }),
+        ).rejects.toMatchObject({ cause: { code: "55P03" } });
+    } finally {
+      release();
+      await resume;
+    }
+    expect(await canSyncTask(f.task.id, f.integration.id)).toBe(true);
+  });
+
+  it("adopts repository values and completion state using the existing link", async () => {
+    const publish = vi
+      .spyOn(events, "publishEvent")
+      .mockResolvedValue(undefined);
+    const f = await paused();
+    await db
+      .update(schema.taskTable)
+      .set({ userId: f.user.id })
+      .where(eq(schema.taskTable.id, f.task.id));
     const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
     expect(review.local.title).toBe("Kaneo title");
     await resumeSync(
@@ -436,6 +566,17 @@ describe("reviewed sync resume", () => {
       columnId: f.columns.done.id,
     });
     expect(provider.write).not.toHaveBeenCalled();
+    expect(publish).toHaveBeenCalledWith(
+      "task.status_changed",
+      expect.objectContaining({
+        sourceIntegrationId: f.integration.id,
+        assigneeId: f.user.id,
+        taskId: f.task.id,
+        oldStatus: f.columns.todo.slug,
+        newStatus: f.columns.done.slug,
+        title: "Repository title",
+      }),
+    );
     expect(await canSyncTask(f.task.id, f.integration.id)).toBe(true);
     expect(
       await db.query.externalLinkTable.findMany({
@@ -468,6 +609,33 @@ describe("reviewed sync resume", () => {
     expect(provider.write).not.toHaveBeenCalled();
     expect(await canSyncTask(f.task.id, f.integration.id)).toBe(false);
   });
+  it("records an uncertain resume and refreshes clients if local commit fails after the provider write", async () => {
+    const f = await paused();
+    const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+    vi.spyOn(linkManager, "updateExternalLink").mockRejectedValueOnce(
+      new Error("Local metadata commit failed"),
+    );
+    const publish = vi.spyOn(events, "publishEvent");
+    await expect(
+      resumeSync(f.project.id, "gitea", f.link.id, review.token, "kaneo"),
+    ).rejects.toThrow("Local metadata commit failed");
+    expect(provider.write).toHaveBeenCalledOnce();
+    const link = await db.query.externalLinkTable.findFirst({
+      where: eq(schema.externalLinkTable.id, f.link.id),
+    });
+    expect(JSON.parse(link!.metadata!)).toMatchObject({
+      syncFilterPaused: true,
+      syncResumeUncertain: true,
+    });
+    expect(publish).toHaveBeenCalledWith("project.updated", {
+      projectId: f.project.id,
+    });
+    expect(publish).toHaveBeenCalledWith("task.updated", {
+      projectId: f.project.id,
+      taskId: f.task.id,
+    });
+  });
+
   it("keeps the link paused when a provider request fails", async () => {
     const f = await paused();
     const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);

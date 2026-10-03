@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import {
   beforeAll,
   beforeEach,
@@ -7,8 +7,12 @@ import {
   it,
   vi,
 } from "vite-plus/test";
-import db, { schema } from "../../apps/api/src/database";
+import * as events from "../../apps/api/src/events";
+import db, { getDatabasePool, schema } from "../../apps/api/src/database";
 import { giteaPlugin } from "../../apps/api/src/plugins/gitea";
+import { handleGiteaIssueLabeled } from "../../apps/api/src/plugins/gitea/webhooks/issue-labeled";
+import { handleIssueLabeled } from "../../apps/api/src/plugins/github/webhooks/issue-labeled";
+import { handleGitlabIssueUpdated } from "../../apps/api/src/plugins/gitlab/webhooks/issue-updated";
 import { handleGiteaIssueOpened } from "../../apps/api/src/plugins/gitea/webhooks/issue-opened";
 import { githubPlugin } from "../../apps/api/src/plugins/github";
 import { handleIssueOpened } from "../../apps/api/src/plugins/github/webhooks/issue-opened";
@@ -244,6 +248,83 @@ describe.each(["github", "gitea", "gitlab"] as const)(
       expect(JSON.parse(link!.metadata!)).toMatchObject({ state: "closed" });
     });
 
+    it("imports a closed issue gaining a label into a completed column", async () => {
+      const f = await setup(type);
+      if (type === "github") {
+        const payload = {
+          action: "labeled",
+          installation: { id: 2 },
+          issue: {
+            number: 99,
+            title: "Closed issue",
+            body: "Body",
+            state: "closed",
+            html_url: "https://github.com/team/repo/issues/99",
+            labels: ["export"],
+            user: { login: "author" },
+          },
+          repository: {
+            id: 1,
+            owner: { login: "team" },
+            name: "repo",
+            full_name: "team/repo",
+          },
+        };
+        await handleIssueLabeled(payload);
+      } else if (type === "gitea") {
+        const payload = {
+          action: "label_updated",
+          issue: {
+            number: 99,
+            title: "Closed issue",
+            body: "Body",
+            state: "closed",
+            html_url: "https://git.example/team/repo/issues/99",
+            labels: ["export"],
+            user: { login: "author" },
+          },
+          repository: {
+            owner: { login: "team" },
+            name: "repo",
+            html_url: "https://git.example/team/repo",
+          },
+        };
+        await handleGiteaIssueLabeled(payload, f.integration.id);
+      } else {
+        // GitLab can send the authoritative labels only inside the change.
+        await handleGitlabIssueUpdated(
+          {
+            object_attributes: {
+              iid: 99,
+              title: "Closed issue",
+              description: "Body",
+              state: "closed",
+              url: "https://gitlab.example/team/repo/-/issues/99",
+            },
+            changes: {
+              labels: { previous: [], current: [{ title: "export" }] },
+            },
+            project: {
+              name: "repo",
+              path_with_namespace: "team/repo",
+              web_url: "https://gitlab.example/team/repo",
+            },
+          },
+          f.integration.id,
+        );
+      }
+      const link = (await db.query.externalLinkTable.findMany())[0]!;
+      expect(JSON.parse(link.metadata!)).toMatchObject({ state: "closed" });
+      expect(
+        await db.query.taskTable.findFirst({
+          where: eq(schema.taskTable.id, link.taskId),
+        }),
+      ).toMatchObject({
+        columnId: f.columns.done.id,
+        status: f.columns.done.slug,
+      });
+    });
+
     it("admits only matching repository issues and deduplicates concurrent webhooks", async () => {
       const f = await setup(type);
       async function receive(labels: string[]) {
@@ -355,4 +436,147 @@ it("exports a burst larger than the database pool without exhausting lease conne
   );
   expect(mocks.giteaCreate).toHaveBeenCalledTimes(20);
   expect(await db.query.externalLinkTable.findMany()).toHaveLength(20);
+});
+
+it("lets an unrelated export proceed while another provider call is slow", async () => {
+  const f = await setup("gitea");
+  await f.assign();
+  const [other] = await db
+    .insert(schema.taskTable)
+    .values({ projectId: f.project.id, number: 2, title: "Fast task" })
+    .returning();
+  await db.insert(schema.labelTable).values({
+    taskId: other!.id,
+    workspaceId: f.workspace.id,
+    name: "export",
+    color: "#123456",
+  });
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  mocks.giteaCreate.mockImplementationOnce(async () => {
+    await gate;
+    return {
+      number: 12,
+      html_url: "https://git.example/issues/12",
+      title: "Slow issue",
+      state: "open",
+    };
+  });
+  mocks.giteaCreate.mockResolvedValueOnce({
+    number: 13,
+    html_url: "https://git.example/issues/13",
+    title: "Fast issue",
+    state: "open",
+  });
+  const slow = reconcileTaskSync(f.project.id, f.task.id);
+  try {
+    await vi.waitFor(() => expect(mocks.giteaCreate).toHaveBeenCalledTimes(1));
+    await reconcileTaskSync(f.project.id, other!.id);
+    expect(
+      await db.query.externalLinkTable.findFirst({
+        where: eq(schema.externalLinkTable.taskId, other!.id),
+      }),
+    ).toBeTruthy();
+  } finally {
+    release();
+    await slow;
+  }
+});
+
+it("retries a competing creation after the first attempt fails", async () => {
+  const f = await setup("gitea");
+  await f.assign();
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  mocks.giteaCreate.mockImplementationOnce(async () => {
+    await gate;
+    throw new Error("Temporary provider failure");
+  });
+  const first = reconcileTaskSync(f.project.id, f.task.id);
+  await vi.waitFor(() => expect(mocks.giteaCreate).toHaveBeenCalledTimes(1));
+  const competing = reconcileTaskSync(f.project.id, f.task.id);
+  release();
+  await Promise.all([first, competing]);
+  expect(mocks.giteaCreate).toHaveBeenCalledTimes(2);
+  expect(await db.query.externalLinkTable.findMany()).toHaveLength(1);
+});
+
+it("runs task creation HTTP calls without an idle database transaction", async () => {
+  const f = await setup("gitea");
+  await f.assign();
+  mocks.giteaCreate.mockImplementationOnce(async () => {
+    const result = await db.execute<{ transactions: string }>(sql`
+      select count(*)::text as transactions from pg_stat_activity
+      where datname = current_database() and pid <> pg_backend_pid() and state = 'idle in transaction'
+    `);
+    expect(result.rows[0]!.transactions).toBe("0");
+    return {
+      number: 12,
+      html_url: "https://git.example/issues/12",
+      title: "Export task",
+      state: "open",
+    };
+  });
+  await reconcileTaskSync(f.project.id, f.task.id);
+  expect(await db.query.externalLinkTable.findMany()).toHaveLength(1);
+});
+
+it("waits for another instance's creation lease instead of dropping the export", async () => {
+  const f = await setup("gitea");
+  await f.assign();
+  const key = `sync-create:${f.integration.id}:${f.task.id}`;
+  const holder = await getDatabasePool().connect();
+  await holder.query("select pg_advisory_lock(hashtextextended($1, 0))", [key]);
+  const competing = reconcileTaskSync(f.project.id, f.task.id);
+  try {
+    await vi.waitFor(async () => {
+      const result = await db.execute<{ waiting: number }>(sql`
+        select count(*)::int as waiting from pg_stat_activity
+        where datname = current_database() and wait_event = 'advisory'
+      `);
+      expect(result.rows[0]!.waiting).toBeGreaterThan(0);
+    });
+    expect(mocks.giteaCreate).not.toHaveBeenCalled();
+  } finally {
+    await holder.query("select pg_advisory_unlock(hashtextextended($1, 0))", [
+      key,
+    ]);
+    holder.release();
+    await competing;
+  }
+  expect(mocks.giteaCreate).toHaveBeenCalledOnce();
+  expect(await db.query.externalLinkTable.findMany()).toHaveLength(1);
+});
+
+it("broadcasts only changed links and avoids task scans for unconfigured integrations", async () => {
+  const f = await setup("gitea");
+  const publish = vi.spyOn(events, "publishEvent");
+  await reconcileProjectSync(f.project.id);
+  expect(publish).not.toHaveBeenCalled();
+  await f.assign();
+  await reconcileTaskSync(f.project.id, f.task.id);
+  expect(publish).toHaveBeenCalledOnce();
+  publish.mockClear();
+  await reconcileProjectSync(f.project.id);
+  expect(publish).not.toHaveBeenCalled();
+  const { syncRules: _, ...legacy } = f.config;
+  await db
+    .update(schema.integrationTable)
+    .set({ config: JSON.stringify(legacy) })
+    .where(eq(schema.integrationTable.id, f.integration.id));
+  const query = vi.spyOn(getDatabasePool(), "query");
+  await reconcileProjectSync(f.project.id);
+  expect(
+    query.mock.calls.every((call) => {
+      const first = call[0] as unknown as string | { text: string };
+      return !(typeof first === "string" ? first : first.text).includes(
+        'from "task"',
+      );
+    }),
+  ).toBe(true);
+  expect(publish).not.toHaveBeenCalled();
 });

@@ -8,14 +8,16 @@ import { taskMatchesRule } from "../../plugins/sync/eligibility";
 import { providerIssue } from "../../plugins/sync/provider-issue";
 import { isSyncPaused, readSyncRules } from "../../plugins/sync/rules";
 import { getSyncIntegration } from "./get-integration";
+import type { IntegrationDatabase } from "../../plugins/github/services/integration-task-scope";
 
 export async function reviewSyncResume(
   projectId: string,
   provider: string,
   linkId: string,
+  database: IntegrationDatabase = db,
 ) {
-  const integration = await getSyncIntegration(projectId, provider);
-  const link = await db.query.externalLinkTable.findFirst({
+  const integration = await getSyncIntegration(projectId, provider, database);
+  const link = await database.query.externalLinkTable.findFirst({
     where: and(
       eq(externalLinkTable.id, linkId),
       eq(externalLinkTable.integrationId, integration.id),
@@ -24,7 +26,7 @@ export async function reviewSyncResume(
   });
   const task =
     link &&
-    (await db.query.taskTable.findFirst({
+    (await database.query.taskTable.findFirst({
       where: and(
         eq(taskTable.id, link.taskId),
         eq(taskTable.projectId, projectId),
@@ -39,6 +41,7 @@ export async function reviewSyncResume(
       task.id,
       projectId,
       readSyncRules(integration.config)!.outgoing,
+      database,
     ))
   )
     throw new HTTPException(409, {
@@ -51,7 +54,7 @@ export async function reviewSyncResume(
     const local = {
       title: task.title,
       description: task.description ?? "",
-      state: (await isTaskInFinalState(task))
+      state: (await isTaskInFinalState(task, database))
         ? ("closed" as const)
         : ("open" as const),
     };
@@ -66,6 +69,7 @@ export async function reviewSyncResume(
           binding: [integration.id, integration.config],
           task,
           link,
+          local,
           remoteIssue,
         }),
       )

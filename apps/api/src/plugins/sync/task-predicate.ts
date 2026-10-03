@@ -1,4 +1,4 @@
-import { and, eq, isNull, sql } from "drizzle-orm";
+import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import db from "../../database";
 import { labelTable, taskTable } from "../../database/schema";
 import type { IntegrationDatabase } from "../github/services/integration-task-scope";
@@ -22,7 +22,8 @@ export async function outgoingPredicate(
         isNull(labelTable.taskId),
         isNull(labelTable.deletionStartedAt),
       ),
-    );
+    )
+    .orderBy(asc(labelTable.id));
   if (rule.mode === "all")
     return { predicate: sql<boolean>`true`, labels, missing: [] as string[] };
   const selected = labels.filter((label) => rule.labels.includes(label.id));

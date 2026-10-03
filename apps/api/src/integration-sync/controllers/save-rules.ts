@@ -1,13 +1,9 @@
 import { and, eq, not, or } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import {
-  externalLinkTable,
-  integrationTable,
-  taskTable,
-} from "../../database/schema";
+import { integrationTable } from "../../database/schema";
 import { publishEvent } from "../../events";
-import { updateExternalLink } from "../../plugins/github/services/link-manager";
+import { pauseIssueLinks } from "../../plugins/sync/pause-issue-links";
 import { outgoingPredicate } from "../../plugins/sync/task-predicate";
 import { readSyncRules, type SyncRules } from "../../plugins/sync/rules";
 import { getSyncIntegration } from "./get-integration";
@@ -58,24 +54,12 @@ export async function saveSyncRules(
       rules.outgoing,
       tx,
     );
-    const links = await tx
-      .select({ id: externalLinkTable.id })
-      .from(externalLinkTable)
-      .innerJoin(taskTable, eq(taskTable.id, externalLinkTable.taskId))
-      .where(
-        and(
-          eq(externalLinkTable.integrationId, integration.id),
-          eq(externalLinkTable.resourceType, "issue"),
-          eq(taskTable.projectId, projectId),
-          or(not(oldScope.predicate), not(nextScope.predicate)),
-        ),
-      );
-    for (const link of links)
-      await updateExternalLink(
-        link.id,
-        { metadata: { syncFilterPaused: true } },
-        tx,
-      );
+    await pauseIssueLinks(
+      projectId,
+      integration.id,
+      or(not(oldScope.predicate), not(nextScope.predicate))!,
+      tx,
+    );
     const config = JSON.parse(current.config) as Record<string, unknown>;
     await tx
       .update(integrationTable)

@@ -1,30 +1,38 @@
-import { and, asc, eq, gt, inArray } from "drizzle-orm";
+import { and, asc, eq, gt } from "drizzle-orm";
 import db from "../../database";
-import { integrationTable, taskTable } from "../../database/schema";
+import { externalLinkTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { getPlugin } from "../registry";
 import { canSyncTask } from "./eligibility";
-import { readSyncRules, syncProviders } from "./rules";
+import { getSyncIntegrations } from "./integrations";
 
 export async function reconcileTaskSync(
   projectId: string,
   taskId: string,
   onlyIntegrationId?: string,
 ) {
-  const integrations = await db.query.integrationTable.findMany({
-    where: and(
-      eq(integrationTable.projectId, projectId),
-      eq(integrationTable.isActive, true),
-      inArray(integrationTable.type, [...syncProviders]),
-      onlyIntegrationId
-        ? eq(integrationTable.id, onlyIntegrationId)
-        : undefined,
-    ),
-  });
+  const integrations = await getSyncIntegrations(projectId, onlyIntegrationId);
+  await reconcileTaskWithIntegrations(projectId, taskId, integrations);
+}
+
+async function reconcileTaskWithIntegrations(
+  projectId: string,
+  taskId: string,
+  integrations: Awaited<ReturnType<typeof getSyncIntegrations>>,
+) {
+  if (!integrations.length) return;
+  const links = () =>
+    db.query.externalLinkTable.findMany({
+      where: and(
+        eq(externalLinkTable.taskId, taskId),
+        eq(externalLinkTable.resourceType, "issue"),
+      ),
+      columns: { id: true, metadata: true },
+      orderBy: (link, { asc }) => [asc(link.id)],
+    });
+  const before = await links();
   for (const integration of integrations) {
-    // Legacy integrations retain their existing task-created behavior.
-    const config = JSON.parse(integration.config) as Record<string, unknown>;
-    if (!config.syncRules || !readSyncRules(config)) continue;
+    const config = integration.parsedConfig;
     if (
       !(await canSyncTask(
         taskId,
@@ -54,13 +62,16 @@ export async function reconcileTaskSync(
       { integrationId: integration.id, projectId, config },
     );
   }
-  await publishEvent("task.updated", { projectId, taskId });
+  if (JSON.stringify(before) !== JSON.stringify(await links()))
+    await publishEvent("task.updated", { projectId, taskId });
 }
 
 export async function reconcileProjectSync(
   projectId: string,
   integrationId?: string,
 ) {
+  const integrations = await getSyncIntegrations(projectId, integrationId);
+  if (!integrations.length) return;
   let cursor: string | undefined;
   for (;;) {
     const tasks = await db
@@ -76,7 +87,7 @@ export async function reconcileProjectSync(
       .limit(50);
     if (!tasks.length) return;
     for (const task of tasks)
-      await reconcileTaskSync(projectId, task.id, integrationId);
+      await reconcileTaskWithIntegrations(projectId, task.id, integrations);
     cursor = tasks.at(-1)?.id;
   }
 }
