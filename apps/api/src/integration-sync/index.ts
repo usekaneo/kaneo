@@ -23,7 +23,10 @@ import {
   syncPreviewSchema,
 } from "./schema";
 
-const access = [workspaceAccess.fromProject("projectId")];
+const access = [
+  workspaceAccess.fromProject("projectId"),
+  requireWorkspacePermission({ project: ["read"], task: ["read"] }),
+];
 const manage = [
   ...access,
   requireWorkspacePermission({ workspace: ["manage_settings"] }),
@@ -49,7 +52,7 @@ const getRoute = createRoute({
   tags: ["Integration sync"],
   summary: "Get sync rules and current task scope",
   description:
-    "Workspace members can inspect saved rules. Rules remain active when advanced mode is hidden. Paused issue links are preserved; eligible paused tasks require review before resuming.",
+    "Workspace members with project and task read permissions can inspect saved rules. Rules remain active when advanced mode is hidden. Paused issue links are preserved; eligible paused tasks require review before resuming.",
   middleware: access,
   request: {
     params: syncParams,

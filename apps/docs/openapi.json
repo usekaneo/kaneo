@@ -13807,7 +13807,7 @@
           "Integration sync"
         ],
         "summary": "Get sync rules and current task scope",
-        "description": "Workspace members can inspect saved rules. Rules remain active when advanced mode is hidden. Paused issue links are preserved; eligible paused tasks require review before resuming.",
+        "description": "Workspace members with project and task read permissions can inspect saved rules. Rules remain active when advanced mode is hidden. Paused issue links are preserved; eligible paused tasks require review before resuming.",
         "parameters": [
           {
             "schema": {

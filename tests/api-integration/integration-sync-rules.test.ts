@@ -1,3 +1,4 @@
+import { createHash, randomUUID } from "node:crypto";
 import { and, eq, sql } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import * as events from "../../apps/api/src/events";
@@ -25,7 +26,7 @@ import {
   readSyncRules,
   type SyncRules,
 } from "../../apps/api/src/plugins/sync/rules";
-import { mockAuthenticatedSession } from "./helpers/auth";
+import { mockAnonymousSession, mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
 import {
   createProjectFixture,
@@ -118,10 +119,15 @@ async function setup(role = "owner") {
         })
         .returning()
     )[0]!;
-  const request = (suffix: string, method: string, body?: unknown) =>
+  const request = (
+    suffix: string,
+    method: string,
+    body?: unknown,
+    headers?: Record<string, string>,
+  ) =>
     app.request(path + suffix, {
       method,
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...headers },
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     });
   const setRules = () =>
@@ -472,6 +478,69 @@ describe("reviewed sync resume", () => {
     await f.setRules();
     const link = await f.link(true);
     return { ...f, link };
+  }
+  for (const authentication of ["custom-role", "api-key"] as const) {
+    it.each([{}, { project: ["read"] }, { task: ["read"] }] as Array<
+      Record<string, string[]>
+    >)(
+      `${authentication} cannot inspect or mutate sync without both project and task reads: %j`,
+      async (readPermissions) => {
+        const f = await setup(
+          authentication === "custom-role" ? "restricted" : "owner",
+        );
+        await f.assign();
+        await f.setRules();
+        const link = await f.link(true);
+        const permissions = {
+          ...readPermissions,
+          workspace: ["manage_settings"],
+          task: ["update", ...(readPermissions.task ?? [])],
+        };
+        const headers: Record<string, string> = {};
+        if (authentication === "custom-role") {
+          await db.insert(schema.workspaceRoleTable).values({
+            workspaceId: f.workspace.id,
+            role: "restricted",
+            permission: JSON.stringify(permissions),
+          });
+        } else {
+          mockAnonymousSession();
+          const key = `kaneo_test_${randomUUID()}`;
+          await db.insert(schema.apikeyTable).values({
+            referenceId: f.user.id,
+            userId: f.user.id,
+            key: createHash("sha256").update(key).digest("base64url"),
+            name: "scoped sync test",
+            permissions: JSON.stringify(permissions),
+            enabled: true,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
+          headers.Authorization = `Bearer ${key}`;
+        }
+        const requests: Array<[string, string, unknown?]> = [
+          ["", "GET"],
+          ["/preview", "POST", { rules: f.rules }],
+          ["", "PATCH", { rules: f.rules, previewToken: "a".repeat(64) }],
+          [`/links/${link.id}/review`, "GET"],
+          [
+            `/links/${link.id}/resume`,
+            "POST",
+            { source: "kaneo", token: "a".repeat(64) },
+          ],
+        ];
+        for (const [suffix, method, body] of requests) {
+          const response = await f.request(suffix, method, body, headers);
+          expect(response.status, suffix).toBe(403);
+          const text = await response.text();
+          expect(text).not.toContain("Kaneo title");
+          expect(text).not.toContain("Kaneo body");
+          expect(text).not.toContain("Repository title");
+        }
+        expect(provider.read).not.toHaveBeenCalled();
+        expect(provider.write).not.toHaveBeenCalled();
+      },
+    );
   }
   it.each(["kaneo", "provider"] as const)(
     "reviews and resumes %s values through HTTP with validated responses",
