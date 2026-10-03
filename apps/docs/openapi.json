@@ -1173,6 +1173,10 @@
           {
             "type": "object",
             "properties": {
+              "workspaceId": {
+                "type": "string",
+                "description": "The workspace currently owning the task's project."
+              },
               "columnId": {
                 "type": [
                   "string",
@@ -1231,6 +1235,7 @@
               }
             },
             "required": [
+              "workspaceId",
               "columnId",
               "assigneeName",
               "assigneeId"

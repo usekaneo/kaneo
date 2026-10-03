@@ -10,6 +10,9 @@ import useGetWorkspaceActivities from "./activity/use-get-workspace-activities";
 import useGetAssignedTasks from "./task/use-get-assigned-tasks";
 import useGetTask from "./task/use-get-task";
 import useGetActivitiesByTaskId from "./activity/use-get-activities-by-task-id";
+import useCreateComment from "@/hooks/mutations/comment/use-create-comment";
+import useUpdateComment from "@/hooks/mutations/comment/use-update-comment";
+import useDeleteComment from "@/hooks/mutations/comment/use-delete-comment";
 import useGetProjects from "./project/use-get-projects";
 
 const mocks = vi.hoisted(() => ({
@@ -18,6 +21,9 @@ const mocks = vi.hoisted(() => ({
   task: vi.fn(),
   comments: vi.fn(),
   projects: vi.fn(),
+  createComment: vi.fn(),
+  updateComment: vi.fn(),
+  deleteComment: vi.fn(),
 }));
 vi.mock("@/fetchers/task/get-assigned-tasks", () => ({
   default: mocks.assigned,
@@ -31,6 +37,16 @@ vi.mock("@/fetchers/activity/get-activites-by-task-id", () => ({
   default: mocks.comments,
 }));
 vi.mock("@/fetchers/project/get-projects", () => ({ default: mocks.projects }));
+
+vi.mock("@/fetchers/comment/create-comment", () => ({
+  default: mocks.createComment,
+}));
+vi.mock("@/fetchers/comment/update-comment", () => ({
+  default: mocks.updateComment,
+}));
+vi.mock("@/fetchers/comment/delete-comment", () => ({
+  default: mocks.deleteComment,
+}));
 
 afterEach(() => {
   cleanup();
@@ -129,6 +145,57 @@ describe("personal work refresh", () => {
     expect(result.current.data).toEqual([{ id: "fresh" }]);
     client.clear();
   });
+
+  it.each(["create", "edit", "delete"])(
+    "refreshes Home activity immediately after comment %s without refreshing assigned counts",
+    async (action) => {
+      mocks.activities.mockResolvedValue([]);
+      mocks.assigned.mockResolvedValue({ tasks: [], total: 0 });
+      mocks.createComment.mockResolvedValue({ id: "comment" });
+      mocks.updateComment.mockResolvedValue({ id: "comment" });
+      mocks.deleteComment.mockResolvedValue({ id: "comment" });
+      const client = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      });
+      const wrapper = ({ children }: PropsWithChildren) => (
+        <QueryClientProvider client={client}>{children}</QueryClientProvider>
+      );
+      const { result } = renderHook(
+        () => ({
+          activity: useGetWorkspaceActivities("workspace"),
+          assigned: useGetAssignedTasks("workspace", true),
+          create: useCreateComment(),
+          edit: useUpdateComment(),
+          remove: useDeleteComment("task"),
+        }),
+        { wrapper },
+      );
+      await waitFor(() => {
+        expect(result.current.activity.isSuccess).toBe(true);
+        expect(result.current.assigned.isSuccess).toBe(true);
+      });
+      mocks.activities.mockResolvedValue([{ id: "fresh" }]);
+      await act(async () => {
+        if (action === "create")
+          await result.current.create.mutateAsync({
+            taskId: "task",
+            comment: "Added",
+          });
+        else if (action === "edit")
+          await result.current.edit.mutateAsync({
+            activityId: "comment",
+            comment: "Edited",
+          });
+        else await result.current.remove.mutateAsync({ activityId: "comment" });
+      });
+      await waitFor(() =>
+        expect(result.current.activity.data).toEqual([{ id: "fresh" }]),
+      );
+      expect(mocks.activities).toHaveBeenCalledTimes(2);
+      expect(mocks.assigned).toHaveBeenCalledOnce();
+      client.clear();
+    },
+  );
 
   it("refreshes remote edits and comments without a project socket or notification", async () => {
     vi.useFakeTimers();

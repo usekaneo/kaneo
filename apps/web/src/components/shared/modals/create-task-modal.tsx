@@ -95,6 +95,7 @@ import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
+import { getInitialTaskColumn } from "./initial-task-column";
 
 type CreateTaskModalProps = {
   open: boolean;
@@ -278,18 +279,14 @@ function CreateTaskModalContent({
     data: projectColumns,
     isError: columnsError,
     refetch: refetchColumns,
-  } = useGetColumns(open ? resolvedProjectId : "");
-  const initialColumn = status
-    ? projectColumns?.find((column) => column.slug === status)
-    : projectColumns?.find(
-        (column) =>
-          !column.isFinal &&
-          projectColumns.filter((other) => other.slug === column.slug)
-            .length === 1,
-      );
+    isFetching: columnsFetching,
+  } = useGetColumns(open ? resolvedProjectId : "", true);
+  const initialColumn = getInitialTaskColumn(projectColumns, status);
   const taskStatus = status ?? initialColumn?.slug ?? "planned";
   const awaitingColumns =
-    !status && Boolean(resolvedProjectId) && !projectColumns;
+    !status &&
+    Boolean(resolvedProjectId) &&
+    (!projectColumns || columnsFetching || columnsError);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const stagedAssetsRef = useRef<string[]>([]);
@@ -504,6 +501,14 @@ function CreateTaskModalContent({
     submittingRef.current = true;
     setIsSubmitting(true);
     try {
+      let submitStatus = taskStatus;
+      if (!status) {
+        const workflow = await refetchColumns();
+        if (!activeRef.current) return;
+        if (workflow.isError || !workflow.data)
+          throw new Error(t("common:modals.createTask.statusLoadError"));
+        submitStatus = getInitialTaskColumn(workflow.data)?.slug ?? "planned";
+      }
       didSubmitRef.current = true;
       const savedTask = normalizeTask(
         await createTask({
@@ -514,7 +519,7 @@ function CreateTaskModalContent({
           projectId: resolvedProjectId,
           startDate: startDate ? startDate.toISOString() : undefined,
           dueDate: dueDate ? dueDate.toISOString() : undefined,
-          status: taskStatus,
+          status: submitStatus,
           draftAssetIds: stagedAssetsRef.current.filter((id) =>
             description.includes(`/asset/${id}`),
           ),

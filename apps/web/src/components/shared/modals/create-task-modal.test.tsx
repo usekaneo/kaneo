@@ -45,6 +45,7 @@ const setProject = vi.fn();
 let workspaceId = "workspace-1";
 let projects: { id: string; name: string; slug: string }[] | undefined;
 let columnsError = false;
+let columnsFetching = false;
 const refetchColumns = vi.fn();
 let projectColumns:
   | { id: string; slug: string; name: string; isFinal: boolean }[]
@@ -64,6 +65,11 @@ beforeEach(() => {
   ];
   storedProject = null;
   columnsError = false;
+  columnsFetching = false;
+  refetchColumns.mockImplementation(async () => ({
+    data: projectColumns,
+    isError: columnsError,
+  }));
   projectColumns = [
     { id: "todo", slug: "to-do", name: "To Do", isFinal: false },
   ];
@@ -154,6 +160,7 @@ vi.mock("@/hooks/queries/column/use-get-columns", () => ({
   useGetColumns: () => ({
     data: projectColumns,
     isError: columnsError,
+    isFetching: columnsFetching,
     refetch: refetchColumns,
   }),
 }));
@@ -330,6 +337,74 @@ describe("CreateTaskModal", () => {
       screen.getByText("common:modals.createTask.createButton"),
     ).toBeDisabled();
     submit();
+    expect(createTask).not.toHaveBeenCalled();
+  });
+
+  it("uses fresh workflow columns when a cached open column became final", async () => {
+    refetchColumns.mockResolvedValue({
+      data: [
+        { id: "todo", slug: "to-do", name: "Completed", isFinal: true },
+        { id: "ready", slug: "ready", name: "Ready", isFinal: false },
+      ],
+      isError: false,
+    });
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    enterTitle();
+    submit();
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({ status: "ready" }),
+      ),
+    );
+  });
+
+  it("does not create from cached columns when the submission refresh fails", async () => {
+    refetchColumns.mockResolvedValue({ data: projectColumns, isError: true });
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    enterTitle();
+    submit();
+    await vi.waitFor(() => expect(refetchColumns).toHaveBeenCalledOnce());
+    expect(createTask).not.toHaveBeenCalled();
+  });
+
+  it("waits for refreshing cached workflow columns", async () => {
+    columnsFetching = true;
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    enterTitle();
+    expect(
+      screen.getByText("common:modals.createTask.createButton"),
+    ).toBeDisabled();
+    submit();
+    expect(createTask).not.toHaveBeenCalled();
+  });
+
+  it("does not publish after closing during workflow verification", async () => {
+    let finish!: (value: unknown) => void;
+    refetchColumns.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    );
+    const view = render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    enterTitle();
+    submit();
+    view.rerender(<CreateTaskModal open={false} onClose={vi.fn()} />);
+    await act(async () => {
+      finish({ data: projectColumns, isError: false });
+    });
     expect(createTask).not.toHaveBeenCalled();
   });
 

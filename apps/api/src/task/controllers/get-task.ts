@@ -22,7 +22,6 @@ async function getTask(taskId: string, board = false) {
       ...(board
         ? {
             descriptionDeferred,
-            workspaceId: sql<string>`(select ${projectTable.workspaceId} from ${projectTable} where ${projectTable.id} = ${taskTable.projectId})`,
           }
         : {}),
       status: taskTable.status,
@@ -36,6 +35,7 @@ async function getTask(taskId: string, board = false) {
       assigneeName: userTable.name,
       assigneeId: userTable.id,
       projectId: taskTable.projectId,
+      workspaceId: sql<string>`(select ${projectTable.workspaceId} from ${projectTable} where ${projectTable.id} = ${taskTable.projectId})`,
     })
     .from(taskTable)
     .leftJoin(userTable, eq(taskTable.userId, userTable.id))
@@ -48,7 +48,8 @@ async function getTask(taskId: string, board = false) {
     });
   }
 
-  const { workspaceId, ...result } = task[0];
+  const result = task[0];
+  const { workspaceId } = result;
   if (!board || !workspaceId) return result;
   const parent = alias(taskTable, "parent");
   const parents = await db

@@ -74,6 +74,7 @@ function RouteComponent() {
             {selected ? (
               <InboxDetail
                 notification={selected}
+                workspaceId={workspaceId}
                 onBack={() => setSelectedId(undefined)}
               />
             ) : (

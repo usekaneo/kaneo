@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import {
   afterEach,
@@ -22,10 +23,28 @@ beforeEach(() => {
       status: "review",
       columnId: "review-column",
       projectId: "project",
+      workspaceId: "workspace",
     },
   });
   queries.activity.mockReturnValue({ data: [] });
 });
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({
+    params,
+    children,
+    ...props
+  }: {
+    params: { workspaceId: string; projectId: string; taskId: string };
+    children?: ReactNode;
+  }) => (
+    <a
+      {...props}
+      href={`/dashboard/workspace/${params.workspaceId}/project/${params.projectId}/task/${params.taskId}`}
+    >
+      {children}
+    </a>
+  ),
+}));
 vi.mock("@/hooks/queries/task/use-get-task", () => ({ default: queries.task }));
 vi.mock("@/hooks/queries/column/use-get-columns", () => ({
   useGetColumns: () => ({
@@ -67,6 +86,33 @@ describe("Inbox task preview", () => {
     expect(screen.getByText("Awaiting approval")).toBeInTheDocument();
     expect(document.querySelector(".lucide-flag")).not.toBeNull();
     expect(queries.activity).toHaveBeenCalledWith("task", true, 6);
+  });
+  it("updates the task link when a remote move changes its project and workspace", () => {
+    const view = render(
+      <InboxTask taskId="task" workspaceId="old-workspace" />,
+    );
+    expect(
+      screen.getByRole("link", { name: "notifications:inbox.openTask" }),
+    ).toHaveAttribute(
+      "href",
+      "/dashboard/workspace/workspace/project/project/task/task",
+    );
+    queries.task.mockReturnValue({
+      data: {
+        id: "task",
+        title: "Moved task",
+        status: "review",
+        projectId: "new-project",
+        workspaceId: "new-workspace",
+      },
+    });
+    view.rerender(<InboxTask taskId="task" workspaceId="old-workspace" />);
+    expect(
+      screen.getByRole("link", { name: "notifications:inbox.openTask" }),
+    ).toHaveAttribute(
+      "href",
+      "/dashboard/workspace/new-workspace/project/new-project/task/task",
+    );
   });
   it("keeps cached task and activity content after a failed background refresh", () => {
     queries.task.mockReturnValue({

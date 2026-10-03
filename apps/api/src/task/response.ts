@@ -37,6 +37,9 @@ export const taskSchema = z
 
 export const taskWithAssigneeSchema = taskSchema
   .extend({
+    workspaceId: z.string().openapi({
+      description: "The workspace currently owning the task's project.",
+    }),
     columnId: z.string().nullable().openapi({
       description:
         "The referenced workflow column; null for virtual statuses and legacy tasks without a column reference.",

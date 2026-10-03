@@ -1,8 +1,6 @@
-import { Link } from "@tanstack/react-router";
-import { ArrowLeft, ArrowUpRight } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
-  getEventDataRecord,
   getNotificationContent,
   getNotificationTitle,
 } from "@/components/notification/notification-text";
@@ -15,15 +13,15 @@ import { NotificationIcon } from "./notification-icon";
 type InboxDetailProps = {
   notification: Notification;
   onBack: () => void;
+  workspaceId: string;
 };
 
-export function InboxDetail({ notification, onBack }: InboxDetailProps) {
+export function InboxDetail({
+  notification,
+  onBack,
+  workspaceId,
+}: InboxDetailProps) {
   const { t } = useTranslation();
-  const eventData = getEventDataRecord(notification.eventData);
-  const workspaceId =
-    typeof eventData?.workspaceId === "string" ? eventData.workspaceId : null;
-  const projectId =
-    typeof eventData?.projectId === "string" ? eventData.projectId : null;
   const taskId =
     notification.resourceType === "task" ? notification.resourceId : null;
   const content = getNotificationContent(notification, t);
@@ -48,21 +46,6 @@ export function InboxDetail({ notification, onBack }: InboxDetailProps) {
             {formatRelativeTime(notification.createdAt)}
           </time>
         </span>
-        {taskId && workspaceId && projectId && (
-          <Button
-            variant="outline"
-            size="xs"
-            render={
-              <Link
-                to="/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId"
-                params={{ workspaceId, projectId, taskId }}
-              />
-            }
-          >
-            {t("notifications:inbox.openTask")}
-            <ArrowUpRight />
-          </Button>
-        )}
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
@@ -79,7 +62,9 @@ export function InboxDetail({ notification, onBack }: InboxDetailProps) {
             </div>
           </div>
 
-          {taskId && <InboxTask key={taskId} taskId={taskId} />}
+          {taskId && (
+            <InboxTask key={taskId} taskId={taskId} workspaceId={workspaceId} />
+          )}
         </div>
       </div>
     </div>

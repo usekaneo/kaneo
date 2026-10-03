@@ -1,3 +1,5 @@
+import { Link } from "@tanstack/react-router";
+import { ArrowUpRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Activity from "@/components/activity";
 import CommentInput from "@/components/activity/comment-input";
@@ -17,13 +19,14 @@ import { getPriorityIcon } from "@/lib/priority";
 
 type InboxTaskProps = {
   taskId: string;
+  workspaceId?: string;
 };
 
 const VISIBLE_ACTIVITIES = 6;
 
 // The task a notification points at, with enough of its thread to answer
 // without leaving the inbox.
-export function InboxTask({ taskId }: InboxTaskProps) {
+export function InboxTask({ taskId, workspaceId }: InboxTaskProps) {
   const { t } = useTranslation();
   const {
     data: task,
@@ -81,14 +84,36 @@ export function InboxTask({ taskId }: InboxTaskProps) {
     );
   }
 
+  const linkWorkspaceId = task.workspaceId || workspaceId;
   const recent = (activities ?? []).slice(0, VISIBLE_ACTIVITIES);
 
   return (
     <div className="flex flex-col gap-7">
       <div className="flex flex-col gap-3.5">
-        <h2 className="font-semibold text-2xl text-foreground tracking-tight">
-          {task.title}
-        </h2>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <h2 className="min-w-0 flex-1 font-semibold text-2xl text-foreground tracking-tight">
+            {task.title}
+          </h2>
+          {linkWorkspaceId && (
+            <Button
+              variant="outline"
+              size="xs"
+              render={
+                <Link
+                  to="/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId"
+                  params={{
+                    workspaceId: linkWorkspaceId,
+                    projectId: task.projectId,
+                    taskId: task.id,
+                  }}
+                />
+              }
+            >
+              {t("notifications:inbox.openTask")}
+              <ArrowUpRight />
+            </Button>
+          )}
+        </div>
         <dl className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-foreground/85">
           <div className="flex items-center gap-1.5">
             <dt className="sr-only">{t("tasks:status.label")}</dt>

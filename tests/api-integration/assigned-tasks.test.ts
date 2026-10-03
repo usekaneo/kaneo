@@ -215,6 +215,7 @@ describe("API integration: assigned tasks", () => {
     expect(await details.json()).toMatchObject({
       id: task.id,
       columnId: columns.todo.id,
+      workspaceId: member.workspace.id,
     });
     expect(body.tasks).toEqual([
       expect.objectContaining({ id: task.id, statusName: columns.todo.name }),
