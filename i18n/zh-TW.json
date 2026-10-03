@@ -153,7 +153,8 @@
 					"terracotta": "赤陶紅",
 					"rose": "玫瑰紅",
 					"crimson": "緋紅"
-				}
+				},
+				"statusLoadError": "無法載入專案狀態。"
 			}
 		},
 		"boolean": {
@@ -1881,14 +1882,16 @@
 				"close": "關閉"
 			}
 		},
-		"notifications": "通知",
 		"sidebar": {
-			"overview": "總覽",
 			"projects": "專案",
 			"members": "成員",
 			"invitations": "邀請",
 			"more": "更多",
-			"backToBoard": "返回看板"
+			"backToBoard": "返回看板",
+			"home": "首頁",
+			"inbox": "收件匣",
+			"myTasks": "我的任務",
+			"invitePeople": "邀請成員"
 		},
 		"projectList": {
 			"viewProject": "檢視專案",
@@ -1973,16 +1976,12 @@
 		}
 	},
 	"notifications": {
-		"title": "通知",
 		"newCount_other": "{{count}} 則新通知",
 		"emptyTitle": "目前沒有通知",
 		"emptySubtitle": "更新和活動會顯示在這裡。",
 		"clearAll": "清除所有通知",
 		"clearDialogTitle": "要清除所有通知嗎？",
 		"clearDialogDescription": "這會永久移除所有通知，且無法復原。",
-		"shortcuts": {
-			"open": "開啟通知"
-		},
 		"reminderLeadTime": {
 			"minutes_other": "{{count}} 分鐘",
 			"hours_other": "{{count}} 小時",
@@ -2026,6 +2025,26 @@
 				"contentWithTask": "已開始為任務 {{taskTitle}} 計時",
 				"contentWithoutTask": "已開始為某個任務計時"
 			}
+		},
+		"inbox": {
+			"pageTitle": "收件匣",
+			"unread": "未讀",
+			"today": "今天",
+			"earlier": "更早",
+			"filters": {
+				"label": "篩選通知",
+				"all": "全部",
+				"unread": "未讀",
+				"mentions": "提及"
+			},
+			"emptyFilter": "沒有符合條件的通知",
+			"loadError": "無法載入通知。",
+			"selectPrompt": "選擇一則通知來閱讀",
+			"back": "收件匣",
+			"openTask": "開啟任務",
+			"recentActivity": "最近動態",
+			"taskUnavailable": "這個任務已無法存取。",
+			"taskLoadError": "無法載入這個任務。"
 		}
 	},
 	"activity": {
@@ -2171,7 +2190,10 @@
 			"loadingTask": "正在載入任務…",
 			"taskNotFound": "找不到任務",
 			"taskNotFoundDescription": "你要找的任務不存在或已被刪除。",
-			"customFields": "自訂欄位"
+			"customFields": "自訂欄位",
+			"ticketAmbiguous": "任務 ID 對應到多個任務",
+			"ticketAmbiguousDescription": "{{ticketId}} 對應到此工作區中多個專案的任務。請將其中一個專案改用不同的代號來修正連結。",
+			"ticketNotFoundDescription": "此工作區中沒有 ID 為 {{ticketId}} 的任務，或你沒有存取權限。"
 		},
 		"detail": {
 			"subtaskOf": "父任務",
@@ -2691,6 +2713,59 @@
 			"submit": "建立工作區",
 			"success": "工作區已建立",
 			"error": "無法建立工作區"
+		},
+		"home": {
+			"pageTitle": "首頁",
+			"greeting": {
+				"morning": "早安",
+				"afternoon": "午安",
+				"evening": "晚安"
+			},
+			"newTask": "新增任務",
+			"week": {
+				"truncated": "本週預覽只顯示 {{total}} 個指派任務中的前 {{shown}} 個。",
+				"more_other": "還有 {{count}} 個"
+			},
+			"upNext": {
+				"title": "接下來",
+				"assigned_other": "{{count}} 個指派給你",
+				"viewAll": "查看全部"
+			},
+			"projects": {
+				"title": "你的專案",
+				"all": "所有專案",
+				"loadError": "無法載入專案。",
+				"tasks_other": "{{count}} 個任務"
+			},
+			"activity": {
+				"title": "動態",
+				"commented": "已留言",
+				"updated": "更新了任務",
+				"empty": "過去 30 天沒有任何動態。",
+				"loadError": "無法載入動態。"
+			}
+		},
+		"myWork": {
+			"empty": "沒有指派給你的任務",
+			"loadError": "無法載入你的任務。",
+			"due": {
+				"overdue": "已逾期",
+				"today": "今天",
+				"tomorrow": "明天",
+				"thisWeek": "本週",
+				"later": "之後",
+				"noDueDate": "無截止日"
+			}
+		},
+		"myTasks": {
+			"pageTitle": "我的任務",
+			"emptyDescription": "此工作區中指派給你的任務會顯示在這裡。",
+			"groupBy": {
+				"label": "分組依據",
+				"dueDate": "截止日",
+				"project": "專案"
+			},
+			"truncated": "顯示 {{total}} 個任務中的前 {{shown}} 個。"
 		}
 	},
 	"team": {
