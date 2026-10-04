@@ -240,6 +240,12 @@ export function initializeEventSubscriptions(): void {
       },
     );
   }
+  subscribeToEvent<{ taskId: string; toProjectId: string }>(
+    "task.moved",
+    async (data) => {
+      await reconcileTaskSync(data.toProjectId, data.taskId);
+    },
+  );
   subscribeToEvent<{ projectId: string; integrationId: string }>(
     "integration.sync_rules_changed",
     async (data) => {

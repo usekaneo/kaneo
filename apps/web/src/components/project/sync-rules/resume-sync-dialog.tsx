@@ -77,7 +77,7 @@ export function ResumeSyncDialog({
                   >
                     <p className="text-xs font-medium text-muted-foreground">
                       {side === "local"
-                        ? "Kaneo"
+                        ? t("common:appName")
                         : t("settings:syncRules.repository")}
                     </p>
                     <p
