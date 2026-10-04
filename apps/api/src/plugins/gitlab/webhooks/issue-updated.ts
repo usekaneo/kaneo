@@ -256,7 +256,7 @@ export async function handleGitlabIssueUpdated(
                   projectId: integration.projectId,
                   taskId: task.id,
                   ...(typeof updateData.title === "string"
-                    ? { title: updateData.title }
+                    ? { titleChanged: true }
                     : {}),
                 }),
               );

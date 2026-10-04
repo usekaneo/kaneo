@@ -225,7 +225,7 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
                   projectId: integration.projectId,
                   taskId: externalLink.taskId,
                   ...(typeof updateData.title === "string"
-                    ? { title: updateData.title }
+                    ? { titleChanged: true }
                     : {}),
                 }),
               );

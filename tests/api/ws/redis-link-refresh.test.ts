@@ -29,7 +29,7 @@ it("retains the link-refresh flag when receiving a Redis project broadcast", asy
         type: "PROJECT_UPDATED",
         projectId: "project",
         linksChanged: true,
-        taskTitle: "Current",
+        taskTitleChanged: true,
       },
     }),
   );
@@ -37,7 +37,7 @@ it("retains the link-refresh flag when receiving a Redis project broadcast", asy
     expect.objectContaining({
       message: expect.objectContaining({
         linksChanged: true,
-        taskTitle: "Current",
+        taskTitleChanged: true,
       }),
     }),
   );

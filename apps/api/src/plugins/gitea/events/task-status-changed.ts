@@ -1,4 +1,4 @@
-import { createIssueWrite } from "../../sync/dispatch-issue-write";
+import { syncTaskFieldLabels } from "../../sync/sync-task-field-labels";
 import { canSyncTask } from "../../sync/eligibility";
 import { syncLatestTaskValue } from "../../github/services/sync-latest-task-value";
 import { findExternalLinksByTask } from "../../github/services/link-manager";
@@ -39,36 +39,30 @@ export async function handleTaskStatusChanged(
     if (!issueLink) {
       return;
     }
-    const write = createIssueWrite(
-      { ...issueLink, taskId: event.taskId },
-      JSON.stringify(context.config),
-    );
-
     const client = createGiteaClient(config);
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
 
-    await removeLabelGitea(
-      config,
-      issueNumber,
-      `status:${event.oldStatus}`,
-      write,
+    const currentValue = await syncTaskFieldLabels(
+      event.taskId,
+      context,
+      issueLink,
+      "gitea",
+      "status",
+      async ({ add, remove }, write) => {
+        for (const name of remove)
+          await removeLabelGitea(config, issueNumber, name, write);
+        if (add.length)
+          await addLabelsToIssueGitea(config, issueNumber, add, true, write);
+      },
     );
-
-    await addLabelsToIssueGitea(
-      config,
-      issueNumber,
-      [`status:${event.newStatus}`],
-      false,
-      write,
-    );
-
-    if (event.newStatus === "done" || event.oldStatus === "done") {
+    if (currentValue === undefined) return;
+    if (currentValue === "done" || event.oldStatus === "done") {
       await syncLatestTaskValue(
         event.taskId,
         event.projectId,
         issueLink,
         "state",
-        event.newStatus === "done" ? "closed" : "open",
+        currentValue === "done" ? "closed" : "open",
         async (value) => {
           const response = await client.updateIssue(
             repositoryOwner,

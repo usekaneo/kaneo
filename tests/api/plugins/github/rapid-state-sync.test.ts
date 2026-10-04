@@ -147,3 +147,7 @@ vi.mock("../../../../apps/api/src/plugins/sync/dispatch-issue-write", () => ({
     send: () => Promise<unknown>,
   ) => ({ value: await send() }),
 }));
+
+vi.mock("../../../../apps/api/src/plugins/sync/sync-task-field-labels", () => ({
+  syncTaskFieldLabels: async () => m.status,
+}));

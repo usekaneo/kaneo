@@ -206,7 +206,7 @@ describe("broadcastToProject", () => {
     removeConnection("proj-1", conn);
   });
 
-  it("preserves the latest task title through later unrelated updates in the batch", async () => {
+  it("keeps title-change hints through batching without broadcasting private titles", async () => {
     const ws = makeFakeWs();
     const conn = addConnection("proj-1", ws, "user-1", "init-1", "workspace");
     await taskTitleHandler({
@@ -229,8 +229,10 @@ describe("broadcastToProject", () => {
       timeout: 300,
     });
     expect(JSON.parse(send.mock.calls[0][0])).toMatchObject({
-      taskTitle: "Current",
+      taskTitleChanged: true,
     });
+    expect(send.mock.calls[0][0]).not.toContain("Current");
+    expect(send.mock.calls[0][0]).not.toContain("First");
     removeConnection("proj-1", conn);
   });
 

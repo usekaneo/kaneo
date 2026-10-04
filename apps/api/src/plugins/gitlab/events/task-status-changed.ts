@@ -1,4 +1,5 @@
 import { createIssueWrite } from "../../sync/dispatch-issue-write";
+import { syncTaskFieldLabels } from "../../sync/sync-task-field-labels";
 import { canSyncTask } from "../../sync/eligibility";
 import {
   findExternalLinksByTask,
@@ -44,11 +45,6 @@ export async function handleTaskStatusChanged(
     if (!issueLink) {
       return;
     }
-    const write = createIssueWrite(
-      { ...issueLink, taskId: event.taskId },
-      JSON.stringify(context.config),
-    );
-
     const issueIid = Number.parseInt(issueLink.externalId, 10);
     if (Number.isNaN(issueIid)) {
       console.warn("Skipping GitLab status sync for invalid issue iid", {
@@ -58,19 +54,23 @@ export async function handleTaskStatusChanged(
       return;
     }
 
-    await updateIssueLabelsGitlab(
-      config,
-      issueIid,
-      {
-        remove: [`status:${event.oldStatus}`],
-        add: [`status:${event.newStatus}`],
-      },
-      false,
-      write,
+    const currentValue = await syncTaskFieldLabels(
+      event.taskId,
+      context,
+      issueLink,
+      "gitlab",
+      "status",
+      (changes, write) =>
+        updateIssueLabelsGitlab(config, issueIid, changes, true, write),
+    );
+    if (currentValue === undefined) return;
+    const write = createIssueWrite(
+      { ...issueLink, taskId: event.taskId },
+      JSON.stringify(context.config),
     );
 
-    const closing = event.newStatus === "done";
-    const reopening = event.oldStatus === "done" && event.newStatus !== "done";
+    const closing = currentValue === "done";
+    const reopening = event.oldStatus === "done" && currentValue !== "done";
 
     if (!closing && !reopening) {
       return;

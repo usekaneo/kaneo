@@ -1,4 +1,4 @@
-import { createIssueWrite } from "../../sync/dispatch-issue-write";
+import { syncTaskFieldLabels } from "../../sync/sync-task-field-labels";
 import { canSyncTask } from "../../sync/eligibility";
 import { syncLatestTaskValue } from "../services/sync-latest-task-value";
 import type { PluginContext, TaskStatusChangedEvent } from "../../types";
@@ -44,40 +44,45 @@ export async function handleTaskStatusChanged(
     if (!issueLink) {
       return;
     }
-    const write = createIssueWrite(
-      { ...issueLink, taskId: event.taskId },
-      JSON.stringify(context.config),
-    );
-
     const octokit = await getVerifiedInstallationOctokit(config);
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
 
-    await removeLabel(
-      octokit,
-      repositoryOwner,
-      repositoryName,
-      issueNumber,
-      `status:${event.oldStatus}`,
-      write,
+    const currentValue = await syncTaskFieldLabels(
+      event.taskId,
+      context,
+      issueLink,
+      "github",
+      "status",
+      async ({ add, remove }, write) => {
+        for (const name of remove)
+          await removeLabel(
+            octokit,
+            repositoryOwner,
+            repositoryName,
+            issueNumber,
+            name,
+            write,
+          );
+        if (add.length)
+          await addLabelsToIssue(
+            octokit,
+            repositoryOwner,
+            repositoryName,
+            issueNumber,
+            add,
+            true,
+            write,
+          );
+      },
     );
-
-    await addLabelsToIssue(
-      octokit,
-      repositoryOwner,
-      repositoryName,
-      issueNumber,
-      [`status:${event.newStatus}`],
-      false,
-      write,
-    );
-
-    if (event.newStatus === "done" || event.oldStatus === "done") {
+    if (currentValue === undefined) return;
+    if (currentValue === "done" || event.oldStatus === "done") {
       await syncLatestTaskValue(
         event.taskId,
         event.projectId,
         issueLink,
         "state",
-        event.newStatus === "done" ? "closed" : "open",
+        currentValue === "done" ? "closed" : "open",
         async (value) => {
           const response = await octokit.rest.issues.update({
             owner: repositoryOwner,

@@ -539,10 +539,7 @@ export function broadcastToProject(
     message: {
       ...message,
       ...(previous?.message.linksChanged ? { linksChanged: true } : {}),
-      ...(message.taskTitle === undefined &&
-      previous?.message.taskTitle !== undefined
-        ? { taskTitle: previous.message.taskTitle }
-        : {}),
+      ...(previous?.message.taskTitleChanged ? { taskTitleChanged: true } : {}),
     },
     excludeInitiatorId,
   });
@@ -582,8 +579,7 @@ export function broadcastToProject(
 }
 
 type TaskEvent = {
-  title?: string;
-  newTitle?: string;
+  titleChanged?: boolean;
   skipSubtaskParentRefresh?: boolean;
   id: string | undefined;
   projectId: string;
@@ -788,12 +784,9 @@ for (const eventName of taskUpdateEvents) {
         taskId: taskId,
         sourceTaskId: data.sourceTaskId,
         targetTaskId: data.targetTaskId,
-        ...(eventName === "task.title_changed" &&
-        typeof data.newTitle === "string"
-          ? { taskTitle: data.newTitle }
-          : typeof data.title === "string"
-            ? { taskTitle: data.title }
-            : {}),
+        ...(eventName === "task.title_changed" || data.titleChanged
+          ? { taskTitleChanged: true }
+          : {}),
       },
       initiatorId,
     );

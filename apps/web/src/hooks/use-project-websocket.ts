@@ -14,7 +14,10 @@ import getLabelsByTask from "@/fetchers/label/get-labels-by-task";
 import getExternalLinks from "@/fetchers/external-link/get-external-links";
 import { patchBoardTask } from "@/lib/patch-board-task";
 import type { ProjectWithTasks } from "@/types/project";
-import { patchSyncTaskTitles } from "@/lib/patch-sync-task-titles";
+import {
+  hasSyncTaskSample,
+  patchSyncTaskTitles,
+} from "@/lib/patch-sync-task-titles";
 
 export function getWsUrl(projectId: string) {
   const base = getApiUrl("ws");
@@ -43,6 +46,7 @@ export function useProjectWebSocket(projectId: string) {
     let needsReconcile = false;
     let flushQueued = false;
     const taskVersions = new Map<string, number>();
+    const titleVersions = new Map<string, number>();
     const refreshingTasks = new Set<string>();
     let burstReconcileTimer: ReturnType<typeof setTimeout> | null = null;
     function reconcileBurst() {
@@ -72,15 +76,7 @@ export function useProjectWebSocket(projectId: string) {
       targetTaskId?: string;
       linksChanged?: boolean;
     }) {
-      if (
-        [
-          "PROJECT_UPDATED",
-          "TASK_LABEL_UPDATED",
-          "TASK_CREATED",
-          "TASK_DELETED",
-          "TASK_MOVED",
-        ].includes(message.type)
-      ) {
+      if (["PROJECT_UPDATED", "TASK_LABEL_UPDATED"].includes(message.type)) {
         queryClient.invalidateQueries({
           queryKey: ["integration-sync", projectId],
         });
@@ -190,13 +186,44 @@ export function useProjectWebSocket(projectId: string) {
         if (disposed || activeSocket !== ws) return;
         try {
           const message = JSON.parse(event.data);
-          if (message.taskId && typeof message.taskTitle === "string")
-            patchSyncTaskTitles(
-              queryClient,
-              projectId,
-              message.taskId,
-              message.taskTitle,
-            );
+          if (
+            message.taskId &&
+            message.taskTitleChanged &&
+            hasSyncTaskSample(queryClient, projectId, message.taskId)
+          ) {
+            const taskId = message.taskId as string;
+            const version = (titleVersions.get(taskId) ?? 0) + 1;
+            titleVersions.set(taskId, version);
+            // Read titles through the task API, which enforces task-read permission.
+            void getTask(taskId, "board")
+              .then((task) => {
+                if (
+                  !disposed &&
+                  activeSocket === ws &&
+                  titleVersions.get(taskId) === version &&
+                  task.projectId === projectId
+                )
+                  patchSyncTaskTitles(
+                    queryClient,
+                    projectId,
+                    taskId,
+                    task.title,
+                  );
+              })
+              .catch(() => {});
+          }
+          if (
+            ["TASK_CREATED", "TASK_DELETED", "TASK_MOVED"].includes(
+              message.type,
+            )
+          ) {
+            queryClient.invalidateQueries({
+              queryKey: ["integration-sync", projectId],
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["integration-sync-preview", projectId],
+            });
+          }
           if (message.type === "PROJECT_MOVED") {
             markBoardCacheChanged(queryClient, projectId);
             for (const queryKey of [

@@ -145,3 +145,23 @@ vi.mock(
     ) => ({ value: await send() }),
   }),
 );
+
+vi.mock(
+  "../../../../../apps/api/src/plugins/sync/sync-task-field-labels",
+  () => ({
+    syncTaskFieldLabels: async (
+      _taskId: string,
+      _context: unknown,
+      _link: unknown,
+      _provider: string,
+      _field: string,
+      send: (changes: unknown, write: unknown) => Promise<void>,
+    ) => {
+      await send(
+        { add: ["status:done"], remove: ["status:in-review"] },
+        (run: () => Promise<unknown>) => run(),
+      );
+      return "done";
+    },
+  }),
+);

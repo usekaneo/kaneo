@@ -24,6 +24,7 @@ const mocks = vi.hoisted(() => ({
     getQueryData: vi.fn(),
     setQueryData: vi.fn(),
     setQueriesData: vi.fn(),
+    getQueriesData: vi.fn().mockReturnValue([]),
     invalidateQueries: vi.fn(),
     cancelQueries: vi.fn().mockResolvedValue(undefined),
   },
@@ -80,6 +81,7 @@ beforeEach(() => {
   });
   mocks.client.invalidateQueries.mockReset();
   mocks.client.setQueriesData.mockClear();
+  mocks.client.getQueriesData.mockReset().mockReturnValue([]);
   mocks.client.getQueryState.mockReset();
   mocks.subscribe.mockClear();
 });
@@ -561,19 +563,67 @@ it("patches affected task names from the normal task refresh without querying sy
     });
 });
 
-it("patches affected names from title broadcasts without a loaded board", async () => {
+it("reads affected task names through the authorized API without a loaded board", async () => {
   mocks.board = null;
-  mocks.getTask.mockClear();
+  mocks.getTask
+    .mockReset()
+    .mockResolvedValue({ id: "a", projectId: "p", title: "Current" });
+  mocks.client.getQueriesData.mockReturnValue([
+    [[], { matchingTasks: [{ id: "a" }], pausedTasks: [] }],
+  ]);
   renderHook(() => useProjectWebSocket("p"));
-  Socket.current.message("TASK_UPDATED", { taskId: "a", taskTitle: "Current" });
+  Socket.current.message("TASK_UPDATED", {
+    taskId: "a",
+    taskTitleChanged: true,
+  });
   await vi.waitFor(() =>
     expect(mocks.client.setQueriesData).toHaveBeenCalledWith(
       { queryKey: ["integration-sync-preview", "p"] },
       expect.any(Function),
     ),
   );
-  expect(mocks.getTask).not.toHaveBeenCalled();
+  expect(mocks.getTask).toHaveBeenCalledOnce();
   expect(mocks.client.invalidateQueries).not.toHaveBeenCalledWith({
     queryKey: ["integration-sync-preview", "p"],
   });
+});
+
+it.each(["TASK_CREATED", "TASK_DELETED", "TASK_MOVED"])(
+  "refreshes sync previews for %s during a board fetch",
+  async (type) => {
+    mocks.client.getQueryState.mockReturnValue({ fetchStatus: "fetching" });
+    renderHook(() => useProjectWebSocket("p"));
+    Socket.current.message(type, { taskId: "a" });
+    for (const prefix of ["integration-sync", "integration-sync-preview"])
+      expect(mocks.client.invalidateQueries).toHaveBeenCalledWith({
+        queryKey: [prefix, "p"],
+      });
+  },
+);
+
+it("does not fetch a changed title absent from cached sync samples", () => {
+  mocks.board = null;
+  mocks.getTask.mockClear();
+  renderHook(() => useProjectWebSocket("p"));
+  Socket.current.message("TASK_UPDATED", {
+    taskId: "a",
+    taskTitleChanged: true,
+  });
+  expect(mocks.getTask).not.toHaveBeenCalled();
+});
+
+it("keeps cached names unchanged when the task API denies the title read", async () => {
+  mocks.board = null;
+  mocks.getTask.mockReset().mockRejectedValue(new Error("Forbidden"));
+  mocks.client.getQueriesData.mockReturnValue([
+    [[], { matchingTasks: [{ id: "a" }], pausedTasks: [] }],
+  ]);
+  renderHook(() => useProjectWebSocket("p"));
+  Socket.current.message("TASK_UPDATED", {
+    taskId: "a",
+    taskTitleChanged: true,
+  });
+  await vi.waitFor(() => expect(mocks.getTask).toHaveBeenCalledOnce());
+  await Promise.resolve();
+  expect(mocks.client.setQueriesData).not.toHaveBeenCalled();
 });

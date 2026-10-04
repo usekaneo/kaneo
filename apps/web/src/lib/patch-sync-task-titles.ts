@@ -28,3 +28,21 @@ export function patchSyncTaskTitles(
       },
     );
 }
+
+export function hasSyncTaskSample(
+  client: QueryClient,
+  projectId: string,
+  taskId: string,
+) {
+  return ["integration-sync", "integration-sync-preview"].some((prefix) =>
+    client
+      .getQueriesData<SyncPreview>({ queryKey: [prefix, projectId] })
+      .some(
+        ([, data]) =>
+          data &&
+          [...data.matchingTasks, ...data.pausedTasks].some(
+            (task) => task.id === taskId,
+          ),
+      ),
+  );
+}

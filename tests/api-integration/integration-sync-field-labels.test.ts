@@ -1,0 +1,238 @@
+import { eq } from "drizzle-orm";
+import { beforeEach, expect, it, vi } from "vite-plus/test";
+import db, { schema } from "../../apps/api/src/database";
+import { githubPlugin } from "../../apps/api/src/plugins/github";
+import { giteaPlugin } from "../../apps/api/src/plugins/gitea";
+import { gitlabPlugin } from "../../apps/api/src/plugins/gitlab";
+import { resetTestDatabase } from "./helpers/database";
+import {
+  createProjectFixture,
+  createWorkspaceMember,
+} from "./helpers/fixtures";
+
+const mocks = vi.hoisted(() => ({ labels: new Set<string>(), write: vi.fn() }));
+const names = [
+  "status:planned",
+  "status:in-progress",
+  "status:in-review",
+  "priority:low",
+  "priority:high",
+  "priority:urgent",
+  "keep",
+];
+const available = () => names.map((name, id) => ({ name, id: id + 1 }));
+const issue = () => ({
+  title: "Task",
+  body: "",
+  state: "open",
+  labels: [...mocks.labels],
+  updated_at: "2026-10-04T00:00:00Z",
+});
+vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
+  getGithubApp: () => ({}),
+  getVerifiedInstallationOctokit: async () => ({
+    rest: {
+      issues: {
+        get: async () => ({ data: issue() }),
+        getLabel: async () => ({}),
+        removeLabel: async ({ name }: { name: string }) => {
+          mocks.labels.delete(name);
+        },
+        addLabels: async ({ labels }: { labels: string[] }) => {
+          await mocks.write();
+          for (const name of labels) mocks.labels.add(name);
+        },
+      },
+    },
+  }),
+}));
+vi.mock("../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
+  createGiteaClient: () => ({
+    getIssue: async () => issue(),
+    listLabels: async () => available(),
+    removeLabelFromIssue: async (
+      _owner: string,
+      _repo: string,
+      _number: number,
+      id: number,
+    ) => {
+      mocks.labels.delete(names[id - 1]);
+    },
+    addLabelsToIssue: async (
+      _owner: string,
+      _repo: string,
+      _number: number,
+      ids: number[],
+    ) => {
+      await mocks.write();
+      for (const id of ids) mocks.labels.add(names[id - 1]);
+    },
+  }),
+}));
+vi.mock("../../apps/api/src/plugins/gitlab/utils/gitlab-api", () => ({
+  createGitlabClient: () => ({
+    getIssue: async () => issue(),
+    listLabels: async () => available(),
+    updateIssue: async (
+      _project: string,
+      _number: number,
+      body: { add_labels?: string; remove_labels?: string },
+    ) => {
+      await mocks.write();
+      for (const name of body.remove_labels?.split(",") ?? [])
+        mocks.labels.delete(name);
+      for (const name of body.add_labels?.split(",") ?? [])
+        mocks.labels.add(name);
+      return issue();
+    },
+  }),
+}));
+beforeEach(async () => {
+  await resetTestDatabase();
+  mocks.write.mockReset().mockResolvedValue(undefined);
+  mocks.labels = new Set(["status:planned", "priority:low", "keep"]);
+});
+
+it.each(
+  (["github", "gitea", "gitlab"] as const).flatMap((provider) =>
+    (["status", "priority"] as const).flatMap((field) =>
+      (field === "priority" ? [false, true, "clear"] : [false, true]).map(
+        (overlap) => ({ provider, field, overlap }),
+      ),
+    ),
+  ),
+)(
+  "$provider replaces actual $field labels after resume (overlap=$overlap)",
+  async ({ provider, field, overlap }) => {
+    const { workspace, user } = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: workspace.id,
+    });
+    const clearing = overlap === "clear";
+    const overlapping = overlap === true;
+    const first =
+      field === "status" ? "in-progress" : clearing ? "no-priority" : "high";
+    const last = field === "status" ? "in-review" : "urgent";
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        number: 1,
+        title: "Task",
+        status: "in-progress",
+        priority: field === "priority" ? first : "high",
+      })
+      .returning();
+    const config = {
+      baseUrl: "https://git.example",
+      accessToken: "fake-test-token",
+      repositoryOwner: "team",
+      repositoryName: "repo",
+      projectPath: "team/repo",
+      installationId: 1,
+      repositoryId: 2,
+      verifiedGithubAccountId: "3",
+      verifiedByUserId: user.id,
+    };
+    const [integration] = await db
+      .insert(schema.integrationTable)
+      .values({
+        projectId: project.id,
+        type: provider,
+        isActive: true,
+        config: JSON.stringify(config),
+      })
+      .returning();
+    const [link] = await db
+      .insert(schema.externalLinkTable)
+      .values({
+        taskId: task.id,
+        integrationId: integration.id,
+        resourceType: "issue",
+        externalId: "1",
+        url: "https://git.example/team/repo/issues/1",
+        metadata: JSON.stringify({
+          syncResumeLabelBaseline: [...mocks.labels],
+        }),
+      })
+      .returning();
+    const plugin =
+      provider === "github"
+        ? githubPlugin
+        : provider === "gitea"
+          ? giteaPlugin
+          : gitlabPlugin;
+    const context = {
+      integrationId: integration.id,
+      projectId: project.id,
+      config,
+    };
+    const sync = (oldValue: string, value: string) =>
+      field === "status"
+        ? plugin.onTaskStatusChanged!(
+            {
+              taskId: task.id,
+              projectId: project.id,
+              userId: user.id,
+              title: task.title,
+              oldStatus: oldValue,
+              newStatus: value,
+            },
+            context,
+          )
+        : plugin.onTaskPriorityChanged!(
+            {
+              taskId: task.id,
+              projectId: project.id,
+              userId: user.id,
+              title: task.title,
+              oldPriority: oldValue,
+              newPriority: value,
+            },
+            context,
+          );
+    let release!: () => void;
+    let started!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const writing = new Promise<void>((resolve) => {
+      started = resolve;
+    });
+    if (overlapping)
+      mocks.write.mockImplementationOnce(async () => {
+        started();
+        await gate;
+      });
+    const initial = sync(field === "status" ? "to-do" : "urgent", first);
+    if (overlapping) {
+      await writing;
+      // A slow provider request must not hold task or project row locks.
+      await db
+        .update(schema.taskTable)
+        .set({ [field]: last })
+        .where(eq(schema.taskTable.id, task.id));
+      const later = sync(first, last);
+      release();
+      await Promise.all([initial, later]);
+    } else await initial;
+    const expected = `${field}:${overlapping ? last : first}`;
+    expect(
+      [...mocks.labels].filter((name) => name.startsWith(`${field}:`)),
+    ).toEqual(clearing ? [] : [expected]);
+    expect(mocks.labels.has("keep")).toBe(true);
+    expect(
+      mocks.labels.has(field === "status" ? "priority:low" : "status:planned"),
+    ).toBe(true);
+    const saved = await db.query.externalLinkTable.findFirst({
+      where: eq(schema.externalLinkTable.id, link.id),
+    });
+    if (!clearing)
+      expect(JSON.parse(saved!.metadata!).syncResumeLabelBaseline).toContain(
+        expected,
+      );
+    expect(JSON.parse(saved!.metadata!).syncResumeLabelBaseline).not.toContain(
+      `${field}:${field === "status" ? "planned" : "low"}`,
+    );
+  },
+);

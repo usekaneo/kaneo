@@ -1,4 +1,4 @@
-import { createIssueWrite } from "../../sync/dispatch-issue-write";
+import { syncTaskFieldLabels } from "../../sync/sync-task-field-labels";
 import { canSyncTask } from "../../sync/eligibility";
 import { findExternalLinksByTask } from "../../github/services/link-manager";
 import type { PluginContext, TaskPriorityChangedEvent } from "../../types";
@@ -35,31 +35,19 @@ export async function handleTaskPriorityChanged(
     if (!issueLink) {
       return;
     }
-    const write = createIssueWrite(
-      { ...issueLink, taskId: event.taskId },
-      JSON.stringify(context.config),
-    );
-
     const issueIid = Number.parseInt(issueLink.externalId, 10);
     if (Number.isNaN(issueIid)) {
       return;
     }
 
-    const remove =
-      event.oldPriority && event.oldPriority !== "no-priority"
-        ? [`priority:${event.oldPriority}`]
-        : [];
-    const add =
-      event.newPriority && event.newPriority !== "no-priority"
-        ? [`priority:${event.newPriority}`]
-        : [];
-
-    await updateIssueLabelsGitlab(
-      config,
-      issueIid,
-      { add, remove },
-      false,
-      write,
+    await syncTaskFieldLabels(
+      event.taskId,
+      context,
+      issueLink,
+      "gitlab",
+      "priority",
+      (changes, write) =>
+        updateIssueLabelsGitlab(config, issueIid, changes, true, write),
     );
   } catch (error) {
     console.error("Failed to update GitLab issue priority:", error);

@@ -88,7 +88,7 @@ export async function applyObservedTaskValue(
         publishEvent("task.updated", {
           taskId: link.taskId,
           projectId: integration.projectId,
-          ...(field === "title" ? { title: value } : {}),
+          ...(field === "title" ? { titleChanged: true } : {}),
         }),
       );
       return true;

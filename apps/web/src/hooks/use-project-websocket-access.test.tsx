@@ -16,6 +16,7 @@ const { client, auth, navigate } = vi.hoisted(() => ({
     getQueryData: vi.fn(),
     setQueryData: vi.fn(),
     setQueriesData: vi.fn(),
+    getQueriesData: vi.fn().mockReturnValue([]),
     invalidateQueries: vi.fn(),
     cancelQueries: vi.fn(),
     clear: vi.fn(),

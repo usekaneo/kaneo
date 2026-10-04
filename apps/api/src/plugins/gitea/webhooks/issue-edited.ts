@@ -208,7 +208,7 @@ export async function handleGiteaIssueEdited(
                   projectId: integration.projectId,
                   taskId: externalLink.taskId,
                   ...(typeof updateData.title === "string"
-                    ? { title: updateData.title }
+                    ? { titleChanged: true }
                     : {}),
                 }),
               );
