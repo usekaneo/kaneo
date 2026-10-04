@@ -184,7 +184,7 @@ export async function syncLatestTaskValue(
           identity,
         )) === true
       )
-        return;
+        return true;
     }
     const task = await db.query.taskTable.findFirst({
       where: linkedTaskScope(taskId, projectId),
@@ -205,7 +205,7 @@ export async function syncLatestTaskValue(
         : field === "title"
           ? task.title
           : task.description || "";
-    if (current === value) return;
+    if (current === value) return true;
     if (attempts >= 3) {
       if (binding.integration)
         await deferTaskSync({ id: link.id, taskId }, binding.integration, [

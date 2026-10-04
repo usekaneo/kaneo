@@ -347,6 +347,7 @@ async function applyPage(
     state.currentIssue = {
       number: issue.number,
       taskId: task.id,
+      isNewTask: task.result === "imported",
       labelCursor: cursor(issue.labels.pageInfo, null),
       commentCursor: cursor(issue.comments.pageInfo, null),
       labelsRemaining,
@@ -409,11 +410,11 @@ async function applyPage(
       ),
     )
     .for("update");
-  if (
-    !task ||
-    !linked ||
-    !(await canSyncTask(current.taskId, integrationId, tx))
-  ) {
+  const eligible =
+    task && linked && (await canSyncTask(current.taskId, integrationId, tx));
+  // A newly admitted issue's initial history belongs to the explicit import,
+  // even when its resulting link is paused for outgoing sync.
+  if (!task || !linked || (!eligible && !current.isNewTask)) {
     state.skipped++;
     finishIssue(state);
     return;

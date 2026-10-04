@@ -126,13 +126,15 @@ async function createTaskIssue(
               : { body: formatIssueBody(value, event.taskId) }),
           })
         )?.data?.updated_at,
-      close: () =>
-        octokit.rest.issues.update({
-          owner: repositoryOwner,
-          repo: repositoryName,
-          issue_number: issueNumber,
-          state: "closed",
-        }),
+      state: async (value) =>
+        (
+          await octokit.rest.issues.update({
+            owner: repositoryOwner,
+            repo: repositoryName,
+            issue_number: issueNumber,
+            state: value === "closed" ? "closed" : "open",
+          })
+        )?.data?.updated_at,
       labels: () =>
         syncTaskFieldLabels(
           event.taskId,

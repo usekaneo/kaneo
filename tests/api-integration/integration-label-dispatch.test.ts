@@ -137,7 +137,7 @@ it.each(["github", "gitea", "gitlab"] as const)(
       link,
       {
         text: async () => undefined,
-        close: mocks.addLabel,
+        state: mocks.addLabel,
         labels: () =>
           syncTaskFieldLabels(
             f.task.id,

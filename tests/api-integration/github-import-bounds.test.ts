@@ -299,6 +299,89 @@ describe("bounded resumable GitHub import", () => {
       syncFilterPaused: true,
     });
   });
+
+  it("finishes a new paused issue's comment history across import requests", async () => {
+    const { member, project, integration, config } = await setup();
+    const [root] = await db
+      .insert(schema.labelTable)
+      .values({
+        workspaceId: member.workspace.id,
+        name: "export",
+        color: "red",
+      })
+      .returning();
+    await db
+      .update(schema.integrationTable)
+      .set({
+        config: JSON.stringify({
+          ...config,
+          syncRules: {
+            outgoing: { mode: "labels", match: "any", labels: [root.id] },
+            incoming: { mode: "all" },
+          },
+        }),
+      })
+      .where(eq(schema.integrationTable.id, integration.id));
+    mocks.verify.mockResolvedValue({
+      graphql: mocks.graphql,
+      rest: { issues: { get: async () => ({ data: { labels: [] } }) } },
+    });
+    const comments = Array.from({ length: 85 }, (_, index) => comment(index));
+    mocks.graphql.mockImplementation(
+      async (query: string, vars: { cursor: string | null }) => {
+        if (query.includes("query ImportIssues("))
+          return issuePage([
+            issue(1, {
+              comments: connection(
+                comments.slice(0, 20),
+                true,
+                "20",
+                comments.length,
+              ),
+            }),
+          ]);
+        if (query.includes("query ImportIssueComments(")) {
+          const start = Number(vars.cursor);
+          const end = Math.min(start + 20, comments.length);
+          return {
+            repository: {
+              databaseId: 2,
+              issue: {
+                comments: connection(
+                  comments.slice(start, end),
+                  end < comments.length,
+                  String(end),
+                  comments.length,
+                ),
+              },
+            },
+          };
+        }
+        return emptyPulls();
+      },
+    );
+    let result = await importIssues(project.id);
+    expect(result).toMatchObject({ pending: true, imported: 1, skipped: 0 });
+    expect(
+      JSON.parse((await db.query.externalLinkTable.findFirst())!.metadata!),
+    ).toMatchObject({ syncFilterPaused: true });
+    result = await importIssues(project.id, result.runId);
+    expect(result).toMatchObject({ pending: false, imported: 1, skipped: 0 });
+    expect(await db.query.activityTable.findMany()).toHaveLength(
+      comments.length,
+    );
+    expect(
+      JSON.parse((await db.query.externalLinkTable.findFirst())!.metadata!),
+    ).toMatchObject({ syncFilterPaused: true });
+    expect(await importIssues(project.id)).toMatchObject({
+      pending: false,
+      imported: 0,
+      skipped: 1,
+    });
+    expect(await db.query.activityTable.findMany()).toHaveLength(
+      comments.length,
+    );
+  });
   it("rejects an incoming rule change while fetching a page before creating tasks or consuming its cursor", async () => {
     const { integration, config, request } = await setup();
     const started = deferred();

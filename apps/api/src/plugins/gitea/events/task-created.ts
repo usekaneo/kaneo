@@ -108,10 +108,17 @@ async function createTaskIssue(
               : { body: formatIssueBody(value, event.taskId) },
           )
         )?.updated_at,
-      close: () =>
-        client.updateIssue(repositoryOwner, repositoryName, issueNumber, {
-          state: "closed",
-        }),
+      state: async (value) =>
+        (
+          await client.updateIssue(
+            repositoryOwner,
+            repositoryName,
+            issueNumber,
+            {
+              state: value === "closed" ? "closed" : "open",
+            },
+          )
+        )?.updated_at,
       labels: () =>
         syncTaskFieldLabels(
           event.taskId,

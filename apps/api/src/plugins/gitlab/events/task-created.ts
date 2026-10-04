@@ -101,10 +101,12 @@ async function createTaskIssue(
               : { description: formatIssueBody(value, event.taskId) },
           )
         )?.updated_at,
-      close: () =>
-        client.updateIssue(config.projectPath, issueNumber, {
-          state_event: "close",
-        }),
+      state: async (value) =>
+        (
+          await client.updateIssue(config.projectPath, issueNumber, {
+            state_event: value === "closed" ? "close" : "reopen",
+          })
+        )?.updated_at,
       labels: () =>
         syncTaskFieldLabels(
           event.taskId,

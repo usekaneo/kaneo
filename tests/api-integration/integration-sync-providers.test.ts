@@ -503,6 +503,117 @@ describe.each(["github", "gitea", "gitlab"] as const)(
       );
     });
 
+    it("repairs a late initialization close after a concurrent reopen", async () => {
+      const f = await setup(type);
+      await f.assign();
+      await db
+        .update(schema.taskTable)
+        .set({ status: f.columns.done.slug, columnId: f.columns.done.id })
+        .where(eq(schema.taskTable.id, f.task.id));
+      let started!: () => void;
+      let release!: () => void;
+      const dispatched = new Promise<void>((resolve) => {
+        started = resolve;
+      });
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      let firstClose = true;
+      let remoteState = "open";
+      mocks.update.mockImplementation(async (...args: unknown[]) => {
+        const patch = args.at(-1) as { state?: string; state_event?: string };
+        const state =
+          patch.state ?? (patch.state_event === "close" ? "closed" : "open");
+        if (state === "closed" && firstClose) {
+          firstClose = false;
+          started();
+          await gate;
+        }
+        remoteState = state;
+      });
+      const exporting = reconcileTaskSync(f.project.id, f.task.id);
+      try {
+        await dispatched;
+        await db.transaction(async (tx) => {
+          await tx.execute(sql`set local lock_timeout = '1s'`);
+          await tx
+            .update(schema.taskTable)
+            .set({ status: f.columns.todo.slug, columnId: f.columns.todo.id })
+            .where(eq(schema.taskTable.id, f.task.id));
+        });
+        await plugin.onTaskStatusChanged!(
+          {
+            taskId: f.task.id,
+            projectId: f.project.id,
+            userId: null,
+            title: f.task.title,
+            oldStatus: f.columns.done.slug,
+            newStatus: f.columns.todo.slug,
+          },
+          {
+            integrationId: f.integration.id,
+            projectId: f.project.id,
+            config: f.config,
+          },
+        );
+        expect(remoteState).toBe("open");
+      } finally {
+        release();
+        await exporting;
+      }
+      expect(remoteState).toBe("open");
+      const link = (await db.query.externalLinkTable.findMany())[0]!;
+      expect(JSON.parse(link.metadata!)).toMatchObject({
+        state: "open",
+        syncInitializedState: true,
+        syncInitializationPending: false,
+      });
+    });
+
+    it("retries an uncertain initialization close as open after the task changes", async () => {
+      const f = await setup(type);
+      await f.assign();
+      await db
+        .update(schema.taskTable)
+        .set({ status: f.columns.done.slug, columnId: f.columns.done.id })
+        .where(eq(schema.taskTable.id, f.task.id));
+      let remoteState = "open";
+      const log = vi.spyOn(console, "error").mockImplementation(() => {});
+      mocks.update.mockImplementationOnce(async () => {
+        remoteState = "closed";
+        throw new Error("private-state-response-token");
+      });
+      await reconcileTaskSync(f.project.id, f.task.id);
+      const link = (await db.query.externalLinkTable.findMany())[0]!;
+      expect(JSON.parse(link.metadata!)).toMatchObject({
+        syncInitializationPending: true,
+      });
+      expect(JSON.parse(link.metadata!).syncInitializedState).not.toBe(true);
+      expect(remoteState).toBe("closed");
+      expect(JSON.stringify(log.mock.calls)).not.toContain(
+        "private-state-response-token",
+      );
+      await db
+        .update(schema.taskTable)
+        .set({ status: f.columns.todo.slug, columnId: f.columns.todo.id })
+        .where(eq(schema.taskTable.id, f.task.id));
+      mocks.update.mockImplementation(async (...args: unknown[]) => {
+        const patch = args.at(-1) as { state?: string; state_event?: string };
+        remoteState =
+          patch.state ?? (patch.state_event === "close" ? "closed" : "open");
+      });
+      await reconcileProjectSync(f.project.id, f.integration.id);
+      expect(create).toHaveBeenCalledOnce();
+      expect(remoteState).toBe("open");
+      expect(
+        JSON.parse((await db.query.externalLinkTable.findFirst())!.metadata!),
+      ).toMatchObject({
+        state: "open",
+        syncInitializedState: true,
+        syncInitializationPending: false,
+      });
+    });
+
     it.each([false, true])(
       "replays edits made during creation and retries failed text initialization (failure=%s)",
       async (failure) => {

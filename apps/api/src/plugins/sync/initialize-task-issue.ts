@@ -1,13 +1,12 @@
 import { updateExternalLink } from "../github/services/link-manager";
-import { isTaskInFinalState } from "../github/services/task-service";
 import { parseLinkMetadata } from "../github/utils/parse-link-metadata";
 import type { PluginContext, TaskCreatedEvent } from "../types";
 import { createIssueWrite } from "./dispatch-issue-write";
 import { initializeTaskText } from "./initialize-task-text";
+import { initializeTaskState } from "./initialize-task-state";
 
 type Initialization = {
   syncInitializationPending?: boolean;
-  syncInitializedState?: boolean;
   syncInitializedLabels?: boolean;
   syncInitializedComment?: boolean;
 };
@@ -31,7 +30,7 @@ export async function initializeTaskIssue(
       field: "title" | "description",
       value: string,
     ) => Promise<string | undefined>;
-    close: () => Promise<unknown>;
+    state: (value: string) => Promise<string | undefined>;
     labels: () => Promise<string | undefined>;
     comment?: () => Promise<unknown>;
   },
@@ -45,23 +44,7 @@ export async function initializeTaskIssue(
     { ...link, taskId: event.taskId, integrationId: context.integrationId },
     JSON.stringify(context.config),
   );
-  if (!progress.syncInitializedState) {
-    if (
-      await isTaskInFinalState({
-        projectId: event.projectId,
-        status: current.status,
-        columnId: null,
-      })
-    ) {
-      await write(actions.close);
-      await updateExternalLink(link.id, {
-        metadata: { state: "closed", lastOutboundStateSyncAt: Date.now() },
-      });
-    }
-    await updateExternalLink(link.id, {
-      metadata: { syncInitializedState: true },
-    });
-  }
+  await initializeTaskState(current, context, link, actions.state);
   if (!progress.syncInitializedLabels) {
     if ((await actions.labels()) === undefined)
       throw new Error("Issue sync scope changed");
