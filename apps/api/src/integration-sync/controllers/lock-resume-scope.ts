@@ -44,7 +44,7 @@ export async function lockResumeScope(
     });
   if (rule.mode === "labels") {
     // Protect both selected roots and assigned copies against rename/deletion
-    // until the provider write and local resume have committed.
+    // while validating each local resume phase.
     await tx
       .select({ id: labelTable.id })
       .from(labelTable)

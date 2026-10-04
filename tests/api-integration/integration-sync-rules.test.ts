@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import * as events from "../../apps/api/src/events";
 import * as assets from "../../apps/api/src/storage/cleanup-assets";
 import { handleGitlabIssueReopened } from "../../apps/api/src/plugins/gitlab/webhooks/issue-reopened";
-import db, { schema } from "../../apps/api/src/database";
+import db, { getDatabase, schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { getSyncIntegration } from "../../apps/api/src/integration-sync/controllers/get-integration";
 import { previewSyncRules } from "../../apps/api/src/integration-sync/controllers/preview-rules";
@@ -690,59 +690,142 @@ describe("reviewed sync resume", () => {
     expect(provider.write).not.toHaveBeenCalled();
   });
 
-  it("locks local values, integration, labels and link while writing to the provider", async () => {
+  it.each(["task", "integration", "labels", "link"] as const)(
+    "allows %s edits during a provider write and retains an uncertain paused link",
+    async (change) => {
+      const f = await paused();
+      const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+      let release!: () => void;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      provider.write.mockImplementation(async () => {
+        await gate;
+        return { updatedAt: "2026-01-02T00:00:00Z" };
+      });
+      const resume = resumeSync(
+        f.project.id,
+        "gitea",
+        f.link.id,
+        review.token,
+        "kaneo",
+      ).then(
+        () => undefined,
+        (error: unknown) => error,
+      );
+      try {
+        await vi.waitFor(() => expect(provider.write).toHaveBeenCalledOnce());
+        const attempts = {
+          task: (tx: typeof db) =>
+            tx
+              .update(schema.taskTable)
+              .set({ title: "Concurrent edit" })
+              .where(eq(schema.taskTable.id, f.task.id)),
+          integration: (tx: typeof db) =>
+            tx
+              .update(schema.integrationTable)
+              .set({ isActive: false })
+              .where(eq(schema.integrationTable.id, f.integration.id)),
+          labels: (tx: typeof db) =>
+            tx
+              .delete(schema.labelTable)
+              .where(eq(schema.labelTable.taskId, f.task.id)),
+          link: (tx: typeof db) =>
+            tx
+              .update(schema.externalLinkTable)
+              .set({ metadata: "{}" })
+              .where(eq(schema.externalLinkTable.id, f.link.id)),
+        };
+        await db.transaction(async (tx) => {
+          await tx.execute(sql`set local lock_timeout = '1s'`);
+          await attempts[change](tx as typeof db);
+        });
+        const activity = await db.execute<{ count: number }>(sql`
+        select count(*)::int as count from pg_stat_activity
+        where datname = current_database() and state = 'idle in transaction'
+      `);
+        expect(activity.rows[0]!.count).toBe(0);
+      } finally {
+        release();
+      }
+      expect(await resume).toMatchObject({ status: 409 });
+      const stored = await db.query.externalLinkTable.findFirst({
+        where: eq(schema.externalLinkTable.id, f.link.id),
+      });
+      expect(JSON.parse(stored!.metadata!)).toMatchObject({
+        syncFilterPaused: true,
+        syncResumeUncertain: true,
+      });
+      if (change === "task")
+        expect(
+          await db.query.taskTable.findFirst({
+            where: eq(schema.taskTable.id, f.task.id),
+          }),
+        ).toMatchObject({ title: "Concurrent edit" });
+    },
+  );
+
+  it("allows task edits during the provider read and rejects the stale comparison before dispatch", async () => {
     const f = await paused();
     const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
     let release!: () => void;
     const gate = new Promise<void>((resolve) => {
       release = resolve;
     });
-    provider.write.mockImplementation(async () => {
+    provider.read.mockImplementationOnce(async () => {
       await gate;
-      return { updatedAt: "2026-01-02T00:00:00Z" };
+      return { ...review.remote, updatedAt: review.remoteIssueUpdatedAt };
     });
+    provider.read.mockClear();
     const resume = resumeSync(
       f.project.id,
       "gitea",
       f.link.id,
       review.token,
       "kaneo",
+    ).then(
+      () => undefined,
+      (error: unknown) => error,
     );
     try {
-      await vi.waitFor(() => expect(provider.write).toHaveBeenCalledOnce());
-      const attempts = [
-        (tx: typeof db) =>
-          tx
-            .update(schema.taskTable)
-            .set({ title: "Concurrent edit" })
-            .where(eq(schema.taskTable.id, f.task.id)),
-        (tx: typeof db) =>
-          tx
-            .update(schema.integrationTable)
-            .set({ isActive: false })
-            .where(eq(schema.integrationTable.id, f.integration.id)),
-        (tx: typeof db) =>
-          tx
-            .delete(schema.labelTable)
-            .where(eq(schema.labelTable.taskId, f.task.id)),
-        (tx: typeof db) =>
-          tx
-            .update(schema.externalLinkTable)
-            .set({ metadata: "{}" })
-            .where(eq(schema.externalLinkTable.id, f.link.id)),
-      ];
-      for (const apply of attempts)
-        await expect(
-          db.transaction(async (tx) => {
-            await tx.execute(sql`set local lock_timeout = '100ms'`);
-            await apply(tx as typeof db);
-          }),
-        ).rejects.toMatchObject({ cause: { code: "55P03" } });
+      await vi.waitFor(() => expect(provider.read).toHaveBeenCalledOnce());
+      await db.transaction(async (tx) => {
+        await tx.execute(sql`set local lock_timeout = '1s'`);
+        await tx
+          .update(schema.taskTable)
+          .set({ title: "Edited during read" })
+          .where(eq(schema.taskTable.id, f.task.id));
+      });
     } finally {
       release();
-      await resume;
     }
-    expect(await canSyncTask(f.task.id, f.integration.id)).toBe(true);
+    expect(await resume).toMatchObject({ status: 409 });
+    expect(provider.write).not.toHaveBeenCalled();
+    expect(await canSyncTask(f.task.id, f.integration.id)).toBe(false);
+  });
+
+  it("records an uncertain provider write when the dispatch transaction fails", async () => {
+    const f = await paused();
+    const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+    const transaction = getDatabase().transaction.bind(getDatabase());
+    vi.spyOn(getDatabase(), "transaction").mockImplementationOnce(
+      (apply, config) =>
+        transaction(async (tx) => {
+          await apply(tx);
+          throw new Error("Injected dispatch transaction failure");
+        }, config),
+    );
+    await expect(
+      resumeSync(f.project.id, "gitea", f.link.id, review.token, "kaneo"),
+    ).rejects.toThrow("Injected dispatch transaction failure");
+    expect(provider.write).toHaveBeenCalledOnce();
+    const stored = await db.query.externalLinkTable.findFirst({
+      where: eq(schema.externalLinkTable.id, f.link.id),
+    });
+    expect(JSON.parse(stored!.metadata!)).toMatchObject({
+      syncFilterPaused: true,
+      syncResumeUncertain: true,
+    });
   });
 
   it.each(["planned", "archived"])(

@@ -19,47 +19,59 @@ export async function dispatchIssueWrite<T>(
   });
   if (!integration) return;
   let request: Promise<{ value: T } | { error: unknown }> | undefined;
-  await withIntegrationLink(
-    link,
-    integration,
-    async (tx) => {
-      const rule = readSyncRules(integration.config)?.outgoing;
-      if (rule?.mode === "labels") {
-        await tx
-          .select({ id: labelTable.id })
-          .from(labelTable)
-          .where(
-            and(
-              eq(labelTable.workspaceId, integration.project.workspaceId),
-              or(
-                and(
-                  isNull(labelTable.taskId),
-                  inArray(labelTable.id, rule.labels),
+  try {
+    await withIntegrationLink(
+      link,
+      integration,
+      async (tx) => {
+        const rule = readSyncRules(integration.config)?.outgoing;
+        if (rule?.mode === "labels") {
+          await tx
+            .select({ id: labelTable.id })
+            .from(labelTable)
+            .where(
+              and(
+                eq(labelTable.workspaceId, integration.project.workspaceId),
+                or(
+                  and(
+                    isNull(labelTable.taskId),
+                    inArray(labelTable.id, rule.labels),
+                  ),
+                  eq(labelTable.taskId, link.taskId),
                 ),
-                eq(labelTable.taskId, link.taskId),
               ),
-            ),
-          )
-          .orderBy(labelTable.id)
-          .for("share");
-      }
-      if (!(await canSyncTask(link.taskId, integration.id, tx, expectedConfig)))
-        return;
-      // Start the request while pause/rule/label writes are excluded. Settle it
-      // after commit so provider latency never holds these row locks.
-      request = send().then(
-        (value) => ({ value }),
-        (error: unknown) => ({ error }),
-      );
-    },
-    {
-      type: integration.type,
-      validate: (binding) =>
-        sameConfig(binding.config, integration.config) &&
-        (expectedConfig === undefined ||
-          sameConfig(binding.config, expectedConfig)),
-    },
-  );
+            )
+            .orderBy(labelTable.id)
+            .for("share");
+        }
+        if (
+          !(await canSyncTask(link.taskId, integration.id, tx, expectedConfig))
+        )
+          return;
+        // Start the request while pause/rule/label writes are excluded. Settle it
+        // after commit so provider latency never holds these row locks.
+        request = send().then(
+          (value) => ({ value }),
+          (error: unknown) => ({ error }),
+        );
+      },
+      {
+        type: integration.type,
+        validate: (binding) =>
+          sameConfig(binding.config, integration.config) &&
+          (expectedConfig === undefined ||
+            sameConfig(binding.config, expectedConfig)),
+      },
+    );
+  } catch (error) {
+    if (!request) throw error;
+    // The eligible dispatch path only reads/locks rows. A failed commit cannot
+    // undo its provider request; settle it so the caller records its outcome.
+    console.error("Issue write scope transaction failed after dispatch", {
+      integrationId: integration.id,
+      linkId: link.id,
+    });
+  }
   if (!request) return;
   const result = await request;
   if ("error" in result) throw result.error;

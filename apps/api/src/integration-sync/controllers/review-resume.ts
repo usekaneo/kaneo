@@ -9,12 +9,14 @@ import { providerIssue } from "../../plugins/sync/provider-issue";
 import { isSyncPaused, readSyncRules } from "../../plugins/sync/rules";
 import { getSyncIntegration } from "./get-integration";
 import type { IntegrationDatabase } from "../../plugins/github/services/integration-task-scope";
+import type { ResumeProviderSnapshot } from "./resume-provider-snapshot";
 
 export async function reviewSyncResume(
   projectId: string,
   provider: string,
   linkId: string,
   database: IntegrationDatabase = db,
+  providerSnapshot?: ResumeProviderSnapshot,
 ) {
   const integration = await getSyncIntegration(projectId, provider, database);
   const link = await database.query.externalLinkTable.findFirst({
@@ -55,21 +57,23 @@ export async function reviewSyncResume(
       ? ("closed" as const)
       : ("open" as const),
   };
-  let access: Awaited<ReturnType<typeof providerIssue>>;
-  let remoteIssue: Awaited<ReturnType<typeof access.read>>;
-  try {
-    access = await providerIssue(integration, link);
-    remoteIssue = await access.read();
-  } catch {
-    console.error("Sync resume provider read failed", {
-      projectId,
-      provider,
-      linkId,
-    });
-    throw new HTTPException(502, {
-      message: "External issue could not be read; sync remains paused",
-    });
+  let snapshot = providerSnapshot;
+  if (!snapshot) {
+    try {
+      const access = await providerIssue(integration, link);
+      snapshot = { access, remoteIssue: await access.read() };
+    } catch {
+      console.error("Sync resume provider read failed", {
+        projectId,
+        provider,
+        linkId,
+      });
+      throw new HTTPException(502, {
+        message: "External issue could not be read; sync remains paused",
+      });
+    }
   }
+  const { remoteIssue } = snapshot;
   const remote = {
     title: remoteIssue.title,
     description: remoteIssue.description,
@@ -90,7 +94,7 @@ export async function reviewSyncResume(
     integration,
     link,
     task,
-    access,
+    snapshot,
     local,
     remote,
     remoteIssueLabels: remoteIssue.labels,

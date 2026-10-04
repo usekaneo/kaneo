@@ -8,7 +8,12 @@ import {
   vi,
 } from "vite-plus/test";
 import * as events from "../../apps/api/src/events";
-import db, { getDatabasePool, schema } from "../../apps/api/src/database";
+import db, {
+  getDatabase,
+  getDatabasePool,
+  schema,
+} from "../../apps/api/src/database";
+import { syncLatestTaskValue } from "../../apps/api/src/plugins/github/services/sync-latest-task-value";
 import { giteaPlugin } from "../../apps/api/src/plugins/gitea";
 import { handleGiteaIssueLabeled } from "../../apps/api/src/plugins/gitea/webhooks/issue-labeled";
 import { handleIssueLabeled } from "../../apps/api/src/plugins/github/webhooks/issue-labeled";
@@ -569,6 +574,108 @@ describe.each(["github", "gitea", "gitlab"] as const)(
         await comment;
       }
     });
+
+    it("records a successful outbound edit after its scope transaction fails", async () => {
+      const f = await setup(type);
+      await f.assign();
+      await reconcileTaskSync(f.project.id, f.task.id);
+      const link = (await db.query.externalLinkTable.findMany())[0]!;
+      await db
+        .update(schema.taskTable)
+        .set({ title: "New title" })
+        .where(eq(schema.taskTable.id, f.task.id));
+      const write = vi.fn(async () => "local-time");
+      let injected = false;
+      const transaction = getDatabase().transaction.bind(getDatabase());
+      vi.spyOn(getDatabase(), "transaction").mockImplementation(
+        (apply, config) =>
+          transaction(async (tx) => {
+            const result = await apply(tx);
+            if (!injected && write.mock.calls.length) {
+              injected = true;
+              throw new Error("Injected dispatch transaction failure");
+            }
+            return result;
+          }, config),
+      );
+      const log = vi.spyOn(console, "error").mockImplementation(() => {});
+      await syncLatestTaskValue(
+        f.task.id,
+        f.project.id,
+        link,
+        "title",
+        "New title",
+        write,
+        undefined,
+        { type, config: f.integration.config },
+      );
+      expect(injected).toBe(true);
+      expect(write).toHaveBeenCalledOnce();
+      const stored = await db.query.externalLinkTable.findFirst({
+        where: eq(schema.externalLinkTable.id, link.id),
+      });
+      expect(JSON.parse(stored!.metadata!).lastSync.title).toMatchObject({
+        source: "kaneo",
+        value: "New title",
+        outbound: [
+          expect.objectContaining({ pending: false, updatedAt: "local-time" }),
+        ],
+      });
+      expect(log).toHaveBeenCalledWith(
+        "Issue write scope transaction failed after dispatch",
+        { integrationId: f.integration.id, linkId: link.id },
+      );
+    });
+
+    it.each(["open", "closed"] as const)(
+      "adopts the configured %s workflow target when resuming",
+      async (state) => {
+        const f = await setup(type);
+        await f.assign();
+        await reconcileTaskSync(f.project.id, f.task.id);
+        const link = (await db.query.externalLinkTable.findMany())[0]!;
+        const [target] = await db
+          .insert(schema.columnTable)
+          .values({
+            projectId: f.project.id,
+            name: "Mapped",
+            slug: "mapped",
+            position: 99,
+            isFinal: state === "closed",
+          })
+          .returning();
+        await db.insert(schema.workflowRuleTable).values({
+          projectId: f.project.id,
+          integrationType: type,
+          eventType: state === "closed" ? "issue_closed" : "issue_reopened",
+          columnId: target.id,
+        });
+        if (state === "open")
+          await db
+            .update(schema.taskTable)
+            .set({ status: f.columns.done.slug, columnId: f.columns.done.id })
+            .where(eq(schema.taskTable.id, f.task.id));
+        await updateExternalLink(link.id, {
+          metadata: { syncFilterPaused: true },
+        });
+        mocks.read.mockResolvedValue({
+          title: "Repository title",
+          description: "Repository body",
+          state,
+          updatedAt: "remote-time",
+          labels: [],
+        });
+        const review = await reviewSyncResume(f.project.id, type, link.id);
+        await resumeSync(f.project.id, type, link.id, review.token, "provider");
+        expect(
+          await db.query.taskTable.findFirst({
+            where: eq(schema.taskTable.id, f.task.id),
+          }),
+        ).toMatchObject({ status: "mapped", columnId: target.id });
+        expect(mocks.write).not.toHaveBeenCalled();
+        expect(await canSyncTask(f.task.id, f.integration.id)).toBe(true);
+      },
+    );
 
     it.each(["kaneo", "provider"] as const)(
       "preserves unreviewed fields after resuming with %s and accepts later label changes",
