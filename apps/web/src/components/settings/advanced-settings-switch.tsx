@@ -16,12 +16,18 @@ export function AdvancedSettingsSwitch() {
 
   return (
     <div className="flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-4">
-      <Label htmlFor={id} className="text-sm font-medium">
-        {t("settings:advancedSettings")}
-      </Label>
+      <div className="space-y-1">
+        <Label htmlFor={id} className="text-sm font-medium">
+          {t("settings:advancedSettings")}
+        </Label>
+        <p id={`${id}-description`} className="text-xs text-muted-foreground">
+          {t("settings:advancedSettingsDescription")}
+        </p>
+      </div>
       <Switch
         id={id}
         aria-label={t("settings:advancedSettings")}
+        aria-describedby={`${id}-description`}
         checked={advancedSettings}
         onCheckedChange={setAdvancedSettings}
       />

@@ -43,13 +43,15 @@ vi.mock("../../apps/api/src/plugins/sync/provider-issue", () => ({
 beforeEach(async () => {
   await resetTestDatabase();
   vi.clearAllMocks();
-  provider.read.mockResolvedValue({
+  provider.read.mockReset().mockResolvedValue({
     title: "Repository title",
     description: "Repository body",
     state: "closed",
     updatedAt: "2026-01-01T00:00:00Z",
   });
-  provider.write.mockResolvedValue({ updatedAt: "2026-01-02T00:00:00Z" });
+  provider.write
+    .mockReset()
+    .mockResolvedValue({ updatedAt: "2026-01-02T00:00:00Z" });
 });
 
 async function setup(role = "owner") {
@@ -287,6 +289,71 @@ describe("integration label policies", () => {
     expect(
       readSyncRules((await getSyncIntegration(f.project.id, "gitea")).config),
     ).toEqual(defaultSyncRules);
+  });
+
+  it.each(["unrelated rename", "unrelated color", "selected color"])(
+    "saves a reviewed label rule after an %s change",
+    async (change) => {
+      const f = await setup();
+      await f.assign();
+      const [other] = await db
+        .insert(schema.labelTable)
+        .values({
+          workspaceId: f.workspace.id,
+          name: "Unrelated",
+          color: "#123456",
+        })
+        .returning();
+      const preview = await f.preview();
+      await db
+        .update(schema.labelTable)
+        .set(
+          change === "unrelated rename"
+            ? { name: "Renamed" }
+            : { color: "#654321" },
+        )
+        .where(
+          eq(
+            schema.labelTable.id,
+            change === "selected color" ? f.label.id : other.id,
+          ),
+        );
+      expect(
+        (
+          await f.request("", "PATCH", {
+            rules: f.rules,
+            previewToken: preview.previewToken,
+          })
+        ).status,
+      ).toBe(200);
+      expect(
+        readSyncRules((await getSyncIntegration(f.project.id, "gitea")).config),
+      ).toEqual(f.rules);
+    },
+  );
+
+  it("rejects a selected label rename even when task eligibility is unchanged", async () => {
+    const f = await setup();
+    await f.assign();
+    const preview = await f.preview();
+    await db
+      .update(schema.labelTable)
+      .set({ name: "Renamed" })
+      .where(
+        and(
+          eq(schema.labelTable.workspaceId, f.workspace.id),
+          eq(schema.labelTable.name, f.label.name),
+        ),
+      );
+    expect((await f.preview()).matching).toBe(preview.matching);
+    expect(
+      (
+        await f.request("", "PATCH", {
+          rules: f.rules,
+          previewToken: preview.previewToken,
+        })
+      ).status,
+    ).toBe(409);
   });
 
   it("rejects labels belonging to another workspace", async () => {
@@ -860,6 +927,90 @@ describe("reviewed sync resume", () => {
     expect(await resume).toMatchObject({ status: 409 });
     expect(provider.write).not.toHaveBeenCalled();
     expect(await canSyncTask(f.task.id, f.integration.id)).toBe(false);
+  });
+
+  it("pauses again when a repository edit's webhook was discarded during resume", async () => {
+    const f = await paused();
+    const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+    let remote = review.snapshot.remoteIssue;
+    const ignoredWebhook = vi.fn(async () => {
+      await db
+        .update(schema.taskTable)
+        .set({ title: "Edited after read" })
+        .where(eq(schema.taskTable.id, f.task.id));
+    });
+    const publish = vi
+      .spyOn(events, "publishEvent")
+      .mockResolvedValue(undefined);
+    provider.read.mockImplementation(async () => remote);
+    provider.read.mockImplementationOnce(async () => {
+      const snapshot = remote;
+      remote = {
+        ...remote,
+        title: "Edited after read",
+        updatedAt: "new-provider-version",
+      };
+      await withIntegrationLink(f.link, f.integration, ignoredWebhook);
+      return snapshot;
+    });
+    await expect(
+      resumeSync(f.project.id, "gitea", f.link.id, review.token, "provider"),
+    ).rejects.toMatchObject({ status: 409 });
+    expect(ignoredWebhook).not.toHaveBeenCalled();
+    expect(await canSyncTask(f.task.id, f.integration.id)).toBe(false);
+    expect(provider.write).not.toHaveBeenCalled();
+    expect(publish).toHaveBeenCalledWith(
+      "task.updated",
+      expect.objectContaining({ taskId: f.task.id }),
+    );
+    const followUp = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+    expect(followUp.local.title).toBe(review.remote.title);
+    expect(followUp.remote.title).toBe("Edited after read");
+  });
+
+  it("verifies adopted repository values outside locks without replaying labels", async () => {
+    const f = await paused();
+    const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+    provider.read.mockResolvedValueOnce(review.snapshot.remoteIssue);
+    provider.read.mockImplementationOnce(async () => {
+      expect(await canSyncTask(f.task.id, f.integration.id)).toBe(true);
+      const activity = await db.execute<{ count: number }>(sql`
+        select count(*)::int as count from pg_stat_activity
+        where datname = current_database() and state = 'idle in transaction'
+      `);
+      expect(activity.rows[0]!.count).toBe(0);
+      return {
+        ...review.snapshot.remoteIssue,
+        labels: ["Changed label"],
+        updatedAt: "new-version",
+      };
+    });
+    await expect(
+      resumeSync(f.project.id, "gitea", f.link.id, review.token, "provider"),
+    ).resolves.toEqual({ success: true });
+    expect(provider.read).toHaveBeenCalledTimes(3);
+    expect(
+      await db.query.labelTable.findMany({
+        where: eq(schema.labelTable.taskId, f.task.id),
+      }),
+    ).toEqual([expect.objectContaining({ name: f.label.name })]);
+  });
+
+  it("keeps adoption paused if the verification read fails without exposing provider secrets", async () => {
+    const f = await paused();
+    const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    provider.read.mockResolvedValueOnce(review.snapshot.remoteIssue);
+    provider.read.mockRejectedValueOnce(
+      new Error("private-provider-token-and-response"),
+    );
+    await expect(
+      resumeSync(f.project.id, "gitea", f.link.id, review.token, "provider"),
+    ).rejects.toMatchObject({ status: 502 });
+    expect(await canSyncTask(f.task.id, f.integration.id)).toBe(false);
+    expect(JSON.stringify(log.mock.calls)).not.toContain(
+      "private-provider-token-and-response",
+    );
   });
 
   it("records an uncertain provider write when the dispatch transaction fails", async () => {

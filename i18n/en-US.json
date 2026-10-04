@@ -424,6 +424,7 @@
 	},
 	"settings": {
 		"advancedSettings": "Advanced settings",
+		"advancedSettingsDescription": "A personal display preference for this browser across all your workspaces.",
 		"syncRules": {
 			"title": "Sync scope",
 			"filteredBadge": "Filtered by labels",

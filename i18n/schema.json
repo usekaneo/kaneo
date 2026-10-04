@@ -1689,6 +1689,9 @@
 				"advancedSettings": {
 					"type": "string"
 				},
+				"advancedSettingsDescription": {
+					"type": "string"
+				},
 				"syncRules": {
 					"type": "object",
 					"additionalProperties": false,
@@ -7779,6 +7782,7 @@
 			},
 			"required": [
 				"advancedSettings",
+				"advancedSettingsDescription",
 				"syncRules",
 				"account",
 				"administration",

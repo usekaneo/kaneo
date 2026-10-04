@@ -96,12 +96,16 @@ export async function previewSyncRules(
     )
     .orderBy(asc(scope.id))
     .limit(26);
+  const selectedLabelIds =
+    rules.outgoing.mode === "labels" ? rules.outgoing.labels : [];
   const previewToken = createHash("sha256")
     .update(
       JSON.stringify({
         integration: [integration.id, integration.config, integration.isActive],
         rules,
-        labels: proposed.labels,
+        labels: proposed.labels
+          .filter((label) => selectedLabelIds.includes(label.id))
+          .map(({ id, name }) => [id, name]),
         revision: impact!.revision,
       }),
     )

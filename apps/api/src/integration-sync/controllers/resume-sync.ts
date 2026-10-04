@@ -8,6 +8,7 @@ import { publishTaskMutation } from "../../task/controllers/task-mutation-effect
 import { applySyncResume } from "./apply-resume";
 import { lockResumeScope } from "./lock-resume-scope";
 import { reviewSyncResume } from "./review-resume";
+import { verifyResumeProvider } from "./verify-resume-provider";
 import type { ResumeProviderSnapshot } from "./resume-provider-snapshot";
 
 export async function resumeSync(
@@ -112,6 +113,24 @@ async function resumeWithLease(
     }
     throw error;
   }
+  let verificationError: unknown;
+  if (source === "provider") {
+    // An edit's only webhook may have been discarded while the link was paused.
+    // Read after unpausing: earlier edits are detected, and later webhooks run.
+    try {
+      await verifyResumeProvider(snapshot);
+    } catch (error) {
+      verificationError = error;
+      console.error("Sync resume provider verification failed", {
+        projectId,
+        provider,
+        linkId,
+      });
+      await updateExternalLink(linkId, {
+        metadata: { syncFilterPaused: true },
+      });
+    }
+  }
   if (adoption)
     await publishTaskMutation(adoption.before, adoption.after, undefined, {
       fields: ["title", "description", "status"],
@@ -119,5 +138,6 @@ async function resumeWithLease(
     });
   await publishEvent("task.updated", { projectId, taskId: initial.task.id });
   await publishEvent("project.updated", { projectId });
+  if (verificationError) throw verificationError;
   return { success: true };
 }
