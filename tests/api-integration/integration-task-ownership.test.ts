@@ -1,4 +1,5 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
+import * as eligibility from "../../apps/api/src/plugins/sync/eligibility";
 import {
   afterEach,
   beforeEach,
@@ -163,6 +164,31 @@ async function expectPrivateTask(taskId: string) {
   ).toEqual([]);
 }
 describe("integration task ownership", () => {
+  it.each(["gitea", "gitlab"])(
+    "%s imports new issues from formatted configuration JSON",
+    async (type) => {
+      const f = await setup(type);
+      await db
+        .update(schema.projectTable)
+        .set({ lastTaskNumber: 1 })
+        .where(eq(schema.projectTable.id, f.project.id));
+      await db
+        .delete(schema.externalLinkTable)
+        .where(eq(schema.externalLinkTable.id, f.link.id));
+      await db
+        .update(schema.integrationTable)
+        .set({
+          config: JSON.stringify(JSON.parse(f.integration.config), null, 2),
+        })
+        .where(eq(schema.integrationTable.id, f.integration.id));
+      expect(
+        await (type === "gitea" ? importGiteaIssues : importGitlabIssues)(
+          f.project.id,
+        ),
+      ).toMatchObject({ imported: 1, skipped: 0 });
+    },
+  );
+
   it.each(["gitea", "gitlab"])(
     "%s import cannot modify a moved task through an old link",
     async (type) => {
@@ -634,3 +660,66 @@ it.each(["gitea", "gitlab"])(
     ]);
   },
 );
+
+it("does not apply a webhook after its link is paused while waiting for the link lock", async () => {
+  const f = await setup();
+  let release!: () => void;
+  let locked!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const acquired = new Promise<void>((resolve) => {
+    locked = resolve;
+  });
+  const guard = vi.spyOn(eligibility, "canSyncTask");
+  const pause = db.transaction(async (tx) => {
+    await tx
+      .select()
+      .from(schema.externalLinkTable)
+      .where(eq(schema.externalLinkTable.id, f.link.id))
+      .for("update");
+    await tx
+      .update(schema.externalLinkTable)
+      .set({ metadata: JSON.stringify({ syncFilterPaused: true }) })
+      .where(eq(schema.externalLinkTable.id, f.link.id));
+    locked();
+    await gate;
+  });
+  await acquired;
+  const webhook = handleGiteaIssueEdited(
+    {
+      action: "edited",
+      issue: remoteIssue,
+      repository,
+      changes: {
+        title: { from: "Private title" },
+        body: { from: "Private description" },
+      },
+    },
+    f.integration.id,
+  );
+  try {
+    await vi.waitFor(async () => {
+      const waiting = await db.execute<{ blocked: boolean }>(sql`
+        select exists (
+          select 1 from pg_stat_activity
+          where datname = current_database()
+            and wait_event_type = 'Lock'
+            and query like '%external_link%'
+        ) as blocked
+      `);
+      expect(waiting.rows[0]?.blocked).toBe(true);
+    });
+    expect(guard).not.toHaveBeenCalled();
+    release();
+    await pause;
+    await webhook;
+    expect(guard).toHaveBeenCalledOnce();
+    await expectPrivateTask(f.task.id);
+  } finally {
+    release();
+    await pause;
+    await webhook;
+    guard.mockRestore();
+  }
+});

@@ -41,6 +41,7 @@ import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import useGetFullWorkspace from "@/hooks/queries/workspace/use-get-full-workspace";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toast } from "@/lib/toast";
+import { AdvancedSettingsSwitch } from "@/components/settings/advanced-settings-switch";
 import { SettingsPage } from "@/components/settings/settings-page";
 import { SettingsSectionHeader } from "@/components/settings/settings-section-header";
 
@@ -509,6 +510,8 @@ function RouteComponent() {
             </div>
           </div>
         )}
+
+        <AdvancedSettingsSwitch />
 
         <AlertDialog
           open={isTransferModalOpen}

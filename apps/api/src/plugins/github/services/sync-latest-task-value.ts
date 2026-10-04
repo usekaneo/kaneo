@@ -1,3 +1,5 @@
+import { dispatchIssueWrite } from "../../sync/dispatch-issue-write";
+import { canSyncTask } from "../../sync/eligibility";
 import { deferTaskSync } from "./defer-issue-edit";
 import { randomUUID } from "node:crypto";
 import db from "../../../database";
@@ -57,6 +59,15 @@ export async function syncLatestTaskValue(
         });
       return;
     }
+    if (
+      !(await canSyncTask(
+        taskId,
+        link.integrationId ?? "",
+        undefined,
+        identity?.config,
+      ))
+    )
+      return;
     return binding;
   };
   for (;;) {
@@ -87,7 +98,25 @@ export async function syncLatestTaskValue(
     if (persisted === false || !(await currentBinding())) return;
     let updatedAt: string | undefined;
     try {
-      updatedAt = await write(value);
+      const dispatched = await dispatchIssueWrite(
+        { ...link, taskId },
+        identity?.config,
+        () => write(value),
+      );
+      if (!dispatched) {
+        await updateExternalLink(link.id, {
+          outbound: {
+            field,
+            value,
+            intentId,
+            pending: false,
+            cancelled: true,
+            uncertain: false,
+          },
+        });
+        return;
+      }
+      updatedAt = dispatched.value;
       attempts++;
     } catch (error) {
       const status =
@@ -155,7 +184,7 @@ export async function syncLatestTaskValue(
           identity,
         )) === true
       )
-        return;
+        return true;
     }
     const task = await db.query.taskTable.findFirst({
       where: linkedTaskScope(taskId, projectId),
@@ -176,7 +205,7 @@ export async function syncLatestTaskValue(
         : field === "title"
           ? task.title
           : task.description || "";
-    if (current === value) return;
+    if (current === value) return true;
     if (attempts >= 3) {
       if (binding.integration)
         await deferTaskSync({ id: link.id, taskId }, binding.integration, [

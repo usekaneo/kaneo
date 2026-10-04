@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import db from "../database";
+import { publishEvent } from "../events";
 import { accountTable, integrationTable } from "../database/schema";
 import { scopeToProjectFromBody } from "../integrations/middleware";
 import { projectIdParam } from "../integrations/schema";
@@ -314,6 +315,11 @@ const githubIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
       repositoryName,
     });
 
+    if (integration)
+      await publishEvent("integration.sync_rules_changed", {
+        projectId,
+        integrationId: integration.id,
+      });
     return c.json(integration, 200);
   })
   .openapi(updateIntegrationRoute, async (c) => {
@@ -373,6 +379,12 @@ const githubIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
       });
 
     const updated = await getGithubIntegration(projectId);
+    if (body.isActive === true && !row.isActive)
+      await publishEvent("integration.sync_rules_changed", {
+        projectId,
+        integrationId: row.id,
+      });
+    await publishEvent("project.updated", { projectId, linksChanged: true });
     return c.json(updated, 200);
   })
   .openapi(deleteIntegrationRoute, async (c) => {

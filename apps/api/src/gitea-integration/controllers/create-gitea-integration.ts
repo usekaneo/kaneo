@@ -111,12 +111,11 @@ async function createGiteaIntegration({
     }
   }
 
+  let previousConfig: Partial<GiteaConfig> = {};
   let webhookSecret = randomBytes(24).toString("hex");
   if (existingIntegration) {
     try {
-      const previousConfig = JSON.parse(
-        existingIntegration.config,
-      ) as GiteaConfig;
+      previousConfig = JSON.parse(existingIntegration.config) as GiteaConfig;
       webhookSecret = previousConfig.webhookSecret ?? webhookSecret;
     } catch (error) {
       console.warn("Failed to parse existing Gitea config for webhook secret", {
@@ -133,6 +132,8 @@ async function createGiteaIntegration({
     repositoryName,
     webhookSecret,
   );
+
+  if (previousConfig.syncRules) config.syncRules = previousConfig.syncRules;
 
   const validation = await validateGiteaConfig(config);
   if (!validation.valid) {
@@ -151,15 +152,15 @@ async function createGiteaIntegration({
       })
       .where(
         and(
-          eq(integrationTable.projectId, projectId),
-          eq(integrationTable.type, "gitea"),
+          eq(integrationTable.id, existingIntegration.id),
+          eq(integrationTable.config, existingIntegration.config),
         ),
       )
       .returning();
 
     if (!updated) {
-      throw new HTTPException(500, {
-        message: "Failed to update Gitea integration",
+      throw new HTTPException(409, {
+        message: "Gitea integration changed; refresh before reconnecting",
       });
     }
 

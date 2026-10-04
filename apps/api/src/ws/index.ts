@@ -534,9 +534,15 @@ export function broadcastToProject(
   }
 
   const messageKey = `${message.type === "TASKS_REORDERED" ? `${message.type}:${crypto.randomUUID()}` : message.type}:${message.taskId ?? ""}:${message.sourceTaskId ?? ""}:${message.targetTaskId ?? ""}`;
-  projectBroadcastQueues
-    .get(projectId)
-    ?.set(messageKey, { message, excludeInitiatorId });
+  const previous = projectBroadcastQueues.get(projectId)?.get(messageKey);
+  projectBroadcastQueues.get(projectId)?.set(messageKey, {
+    message: {
+      ...message,
+      ...(previous?.message.linksChanged ? { linksChanged: true } : {}),
+      ...(previous?.message.taskTitleChanged ? { taskTitleChanged: true } : {}),
+    },
+    excludeInitiatorId,
+  });
 
   if (projectBroadcastTimeouts.has(projectId)) {
     return;
@@ -573,6 +579,7 @@ export function broadcastToProject(
 }
 
 type TaskEvent = {
+  titleChanged?: boolean;
   skipSubtaskParentRefresh?: boolean;
   id: string | undefined;
   projectId: string;
@@ -708,13 +715,18 @@ subscribeToEvent<{ notificationId: string; userId: string }>(
 subscribeToEvent<{
   projectId: string;
   initiatorId?: string;
+  linksChanged?: boolean;
 }>("project.updated", async (data) => {
   const { projectId, initiatorId } = data;
   if (!projectId) return;
 
   broadcastToProject(
     projectId,
-    { type: "PROJECT_UPDATED", projectId },
+    {
+      type: "PROJECT_UPDATED",
+      projectId,
+      ...(data.linksChanged ? { linksChanged: true } : {}),
+    },
     initiatorId,
   );
 });
@@ -772,6 +784,9 @@ for (const eventName of taskUpdateEvents) {
         taskId: taskId,
         sourceTaskId: data.sourceTaskId,
         targetTaskId: data.targetTaskId,
+        ...(eventName === "task.title_changed" || data.titleChanged
+          ? { taskTitleChanged: true }
+          : {}),
       },
       initiatorId,
     );

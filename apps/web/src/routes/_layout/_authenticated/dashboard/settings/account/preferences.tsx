@@ -26,6 +26,7 @@ import {
   WEEK_START_DAYS,
   type WeekStartDay,
 } from "@/store/user-preferences";
+import { AdvancedSettingsSwitch } from "@/components/settings/advanced-settings-switch";
 import { SettingsPage } from "@/components/settings/settings-page";
 import { SettingsSectionHeader } from "@/components/settings/settings-section-header";
 
@@ -368,6 +369,8 @@ function RouteComponent() {
           </div>
         </div>
       </div>
+
+      <AdvancedSettingsSwitch />
     </SettingsPage>
   );
 }

@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { beforeEach, expect, it, vi } from "vite-plus/test";
 import db, { getDatabase, schema } from "../../apps/api/src/database";
 import { publishEvent } from "../../apps/api/src/events";
@@ -20,7 +20,10 @@ beforeEach(async () => {
 });
 it.each(
   ["github", "gitea", "gitlab"].flatMap((provider) =>
-    ["new", "existing", "moved"].map((race) => ({ provider, race })),
+    ["new", "existing", "moved", "excluded", "paused"].map((race) => ({
+      provider,
+      race,
+    })),
   ),
 )(
   "$provider branch push preserves ownership and final tasks ($race)",
@@ -58,10 +61,31 @@ it.each(
           verifiedGithubAccountId: "123",
           verifiedByUserId: user.id,
           branchPattern: "{slug}-{number}",
+          ...(race === "excluded"
+            ? {
+                syncRules: {
+                  outgoing: {
+                    mode: "labels",
+                    match: "any",
+                    labels: ["missing"],
+                  },
+                  incoming: { mode: "all" },
+                },
+              }
+            : {}),
           statusTransitions: { onBranchPush: "in-progress" },
         }),
       })
       .returning();
+    if (race === "paused")
+      await db.insert(schema.externalLinkTable).values({
+        taskId: task.id,
+        integrationId: integration.id,
+        resourceType: "issue",
+        externalId: "2",
+        url: "https://git.example/owner/repo/issues/2",
+        metadata: JSON.stringify({ syncFilterPaused: true }),
+      });
     if (race === "existing")
       await db.insert(schema.externalLinkTable).values({
         taskId: task.id,
@@ -98,7 +122,10 @@ it.each(
     vi.mocked(publishEvent).mockImplementation(async (type) => {
       if (type !== "task.updated") return;
       const committed = await db.query.externalLinkTable.findFirst({
-        where: eq(schema.externalLinkTable.taskId, task.id),
+        where: and(
+          eq(schema.externalLinkTable.taskId, task.id),
+          eq(schema.externalLinkTable.resourceType, "branch"),
+        ),
       });
       expect(committed?.resourceType).toBe("branch");
     });
@@ -125,9 +152,14 @@ it.each(
       expect(saved?.projectId).toBe(
         race === "moved" ? destination.id : project.id,
       );
-      expect(saved?.status).toBe(race === "new" ? "in-progress" : "done");
+      expect(saved?.status).toBe(
+        ["new", "excluded", "paused"].includes(race) ? "in-progress" : "done",
+      );
       const links = await db.query.externalLinkTable.findMany({
-        where: eq(schema.externalLinkTable.taskId, task.id),
+        where: and(
+          eq(schema.externalLinkTable.taskId, task.id),
+          eq(schema.externalLinkTable.resourceType, "branch"),
+        ),
       });
       expect(links).toHaveLength(race === "moved" ? 0 : 1);
       expect(

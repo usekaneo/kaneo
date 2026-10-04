@@ -3,6 +3,10 @@ import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import type { IntegrationDefinition } from "@/components/project/integrations/integration-definitions";
 import { IntegrationRow } from "@/components/project/integrations/integration-row";
 
+vi.mock("@/components/project/sync-rules/sync-rules-section", () => ({
+  SyncRulesSection: () => <p>Sync rules</p>,
+}));
+
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));

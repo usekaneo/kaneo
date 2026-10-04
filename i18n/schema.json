@@ -1686,6 +1686,254 @@
 			"type": "object",
 			"additionalProperties": false,
 			"properties": {
+				"advancedSettings": {
+					"type": "string"
+				},
+				"advancedSettingsDescription": {
+					"type": "string"
+				},
+				"syncRules": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"title": {
+							"type": "string"
+						},
+						"filteredBadge": {
+							"type": "string"
+						},
+						"sharedHint": {
+							"type": "string"
+						},
+						"outgoing": {
+							"type": "string"
+						},
+						"incoming": {
+							"type": "string"
+						},
+						"outgoingHint": {
+							"type": "string"
+						},
+						"incomingHint": {
+							"type": "string"
+						},
+						"all": {
+							"type": "string"
+						},
+						"filtered": {
+							"type": "string"
+						},
+						"any": {
+							"type": "string"
+						},
+						"every": {
+							"type": "string"
+						},
+						"matchLabels": {
+							"type": "string"
+						},
+						"repositoryLabel": {
+							"type": "string"
+						},
+						"addLabel": {
+							"type": "string"
+						},
+						"removeLabel": {
+							"type": "string"
+						},
+						"noLabels": {
+							"type": "string"
+						},
+						"selectLabel": {
+							"type": "string"
+						},
+						"anySummary": {
+							"type": "string"
+						},
+						"allSummary": {
+							"type": "string"
+						},
+						"unavailableLabel": {
+							"type": "string"
+						},
+						"impactTitle": {
+							"type": "string"
+						},
+						"impact": {
+							"type": "string"
+						},
+						"preserveHint": {
+							"type": "string"
+						},
+						"previewing": {
+							"type": "string"
+						},
+						"saveError": {
+							"type": "string"
+						},
+						"refreshPreview": {
+							"type": "string"
+						},
+						"rulesChanged": {
+							"type": "string"
+						},
+						"loadSavedRules": {
+							"type": "string"
+						},
+						"missingLabels": {
+							"type": "string"
+						},
+						"removeMissingLabels": {
+							"type": "string"
+						},
+						"apply": {
+							"type": "string"
+						},
+						"saved": {
+							"type": "string"
+						},
+						"loading": {
+							"type": "string"
+						},
+						"loadError": {
+							"type": "string"
+						},
+						"advancedHint": {
+							"type": "string"
+						},
+						"paused": {
+							"type": "string"
+						},
+						"pausedCount_one": {
+							"type": "string"
+						},
+						"pausedCount_zero": {
+							"type": "string"
+						},
+						"pausedCount_two": {
+							"type": "string"
+						},
+						"pausedCount_few": {
+							"type": "string"
+						},
+						"pausedCount_many": {
+							"type": "string"
+						},
+						"pausedCount_other": {
+							"type": "string"
+						},
+						"pausedHint": {
+							"type": "string"
+						},
+						"reviewRequired": {
+							"type": "string"
+						},
+						"excluded": {
+							"type": "string"
+						},
+						"review": {
+							"type": "string"
+						},
+						"previous": {
+							"type": "string"
+						},
+						"next": {
+							"type": "string"
+						},
+						"reviewTitle": {
+							"type": "string"
+						},
+						"reviewHint": {
+							"type": "string"
+						},
+						"resumeError": {
+							"type": "string"
+						},
+						"refreshComparison": {
+							"type": "string"
+						},
+						"repository": {
+							"type": "string"
+						},
+						"open": {
+							"type": "string"
+						},
+						"closed": {
+							"type": "string"
+						},
+						"noDescription": {
+							"type": "string"
+						},
+						"useRepository": {
+							"type": "string"
+						},
+						"useKaneo": {
+							"type": "string"
+						},
+						"exportPending": {
+							"type": "string"
+						},
+						"inactiveHint": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"title",
+						"filteredBadge",
+						"sharedHint",
+						"outgoing",
+						"incoming",
+						"outgoingHint",
+						"incomingHint",
+						"all",
+						"filtered",
+						"any",
+						"every",
+						"matchLabels",
+						"repositoryLabel",
+						"addLabel",
+						"removeLabel",
+						"noLabels",
+						"selectLabel",
+						"anySummary",
+						"allSummary",
+						"unavailableLabel",
+						"impactTitle",
+						"impact",
+						"preserveHint",
+						"previewing",
+						"saveError",
+						"refreshPreview",
+						"rulesChanged",
+						"loadSavedRules",
+						"missingLabels",
+						"removeMissingLabels",
+						"apply",
+						"saved",
+						"loading",
+						"loadError",
+						"advancedHint",
+						"paused",
+						"pausedHint",
+						"reviewRequired",
+						"excluded",
+						"review",
+						"previous",
+						"next",
+						"reviewTitle",
+						"reviewHint",
+						"resumeError",
+						"refreshComparison",
+						"repository",
+						"open",
+						"closed",
+						"noDescription",
+						"useRepository",
+						"useKaneo",
+						"exportPending",
+						"inactiveHint"
+					]
+				},
 				"account": {
 					"type": "string"
 				},
@@ -7533,6 +7781,9 @@
 				}
 			},
 			"required": [
+				"advancedSettings",
+				"advancedSettingsDescription",
+				"syncRules",
 				"account",
 				"administration",
 				"developer",
