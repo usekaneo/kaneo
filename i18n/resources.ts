@@ -19,6 +19,7 @@ export const supportedLocales = [
   "uk-UA",
   "vi-VN",
   "zh-CN",
+  "zh-TW",
 ] as const;
 
 export type AppLocale = (typeof supportedLocales)[number];
@@ -71,5 +72,7 @@ export async function loadLocale(locale: AppLocale): Promise<object> {
       return (await import("./vi-VN.json")).default;
     case "zh-CN":
       return (await import("./zh-CN.json")).default;
+    case "zh-TW":
+      return (await import("./zh-TW.json")).default;
   }
 }
