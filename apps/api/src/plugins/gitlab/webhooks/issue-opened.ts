@@ -1,6 +1,7 @@
 import { acceptsIssue } from "../../sync/rules";
 import { importIssueLabels } from "../../sync/issue-labels";
 import { canSyncTask } from "../../sync/eligibility";
+import { createIssueWrite } from "../../sync/dispatch-issue-write";
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import {
@@ -175,11 +176,21 @@ export async function handleGitlabIssueOpened(
         payload.labels,
         tx,
       );
-      await canSyncTask(task.id, integration.id, tx, integration.config);
-      return { task, link, linkMetadata };
+      const eligible = await canSyncTask(
+        task.id,
+        integration.id,
+        tx,
+        integration.config,
+      );
+      return { task, link, linkMetadata, eligible };
     });
     if (!result) continue;
-    const { task: createdTask, link: issueLink, linkMetadata } = result;
+    const {
+      task: createdTask,
+      link: issueLink,
+      linkMetadata,
+      eligible,
+    } = result;
 
     await publishEvent("task.created", {
       ...createdTask,
@@ -191,6 +202,15 @@ export async function handleGitlabIssueOpened(
       externalId: issue.iid.toString(),
       actor: author ?? "gitlab-webhook",
     });
+    if (!eligible) continue;
+    const write = createIssueWrite(
+      {
+        id: issueLink.id,
+        taskId: createdTask.id,
+        integrationId: integration.id,
+      },
+      integration.config,
+    );
 
     const kaneoProject = await db.query.projectTable.findFirst({
       where: eq(projectTable.id, projectId),
@@ -216,14 +236,22 @@ export async function handleGitlabIssueOpened(
       }
 
       if (labelsToAdd.length > 0) {
-        await addLabelsToIssueGitlab(config, issue.iid, labelsToAdd);
+        await addLabelsToIssueGitlab(
+          config,
+          issue.iid,
+          labelsToAdd,
+          true,
+          write,
+        );
       }
 
       if (config.commentTaskLinkOnGitlabIssue !== false) {
-        const note = await createGitlabClient(config).createIssueNote(
-          config.projectPath,
-          issue.iid,
-          `[${taskIdentifier}](${taskUrl})`,
+        const note = await write(() =>
+          createGitlabClient(config).createIssueNote(
+            config.projectPath,
+            issue.iid,
+            `[${taskIdentifier}](${taskUrl})`,
+          ),
         );
 
         await updateExternalLink(issueLink.id, {
@@ -233,8 +261,13 @@ export async function handleGitlabIssueOpened(
           },
         });
       }
-    } catch (error) {
-      console.error("Failed to process GitLab issue:", error);
+    } catch {
+      console.error("GitLab imported issue linking write failed", {
+        projectId,
+        taskId: createdTask.id,
+        integrationId: integration.id,
+        linkId: issueLink.id,
+      });
     }
   }
 }

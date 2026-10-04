@@ -46,6 +46,13 @@ vi.mock("../../../../../apps/api/src/plugins/sync/eligibility", () => ({
   canSyncTask: async () => true,
 }));
 
+vi.mock(
+  "../../../../../apps/api/src/plugins/sync/dispatch-issue-write",
+  () => ({
+    createIssueWrite: () => (send: () => Promise<unknown>) => send(),
+  }),
+);
+
 vi.mock("../../../../../apps/api/src/database", () => ({ default: mocks.db }));
 
 vi.mock("../../../../../apps/api/src/events", () => ({

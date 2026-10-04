@@ -1,6 +1,7 @@
 import { acceptsIssue } from "../../sync/rules";
 import { importIssueLabels } from "../../sync/issue-labels";
 import { canSyncTask } from "../../sync/eligibility";
+import { createIssueWrite } from "../../sync/dispatch-issue-write";
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import { publishEvent } from "../../../events";
@@ -79,7 +80,7 @@ export async function handleIssueOpened(
     const priority = extractIssuePriority(issue.labels);
     const status = extractIssueStatus(issue.labels);
 
-    const createdTask = await db.transaction(async (tx) => {
+    const result = await db.transaction(async (tx) => {
       // Use the same integration lock as resumable imports before checking the
       // link. The task and link must either both commit or both roll back.
       const [current] = await tx
@@ -131,7 +132,7 @@ export async function handleIssueOpened(
         })
         .returning();
       if (!task) throw new Error("Failed to create task from GitHub issue");
-      await createExternalLink(
+      const link = await createExternalLink(
         {
           taskId: task.id,
           integrationId: integration.id,
@@ -153,10 +154,16 @@ export async function handleIssueOpened(
         issue.labels,
         tx,
       );
-      await canSyncTask(task.id, integration.id, tx, integration.config);
-      return task;
+      const eligible = await canSyncTask(
+        task.id,
+        integration.id,
+        tx,
+        integration.config,
+      );
+      return { task, link, eligible };
     });
-    if (!createdTask) continue;
+    if (!result) continue;
+    const { task: createdTask, link, eligible } = result;
     await publishEvent("task.created", {
       ...createdTask,
       taskId: createdTask.id,
@@ -167,6 +174,11 @@ export async function handleIssueOpened(
       externalId: issue.number.toString(),
       actor: issue.user?.login ?? "github-webhook",
     });
+    if (!eligible) continue;
+    const write = createIssueWrite(
+      { id: link.id, taskId: createdTask.id, integrationId: integration.id },
+      integration.config,
+    );
 
     const project = await db.query.projectTable.findFirst({
       where: eq(projectTable.id, projectId),
@@ -216,19 +228,28 @@ export async function handleIssueOpened(
           repository.name,
           issue.number,
           labelsToAdd,
+          true,
+          write,
         );
       }
 
       if (config.commentTaskLinkOnGitHubIssue !== false) {
-        await octokit.rest.issues.createComment({
-          owner: repository.owner.login,
-          repo: repository.name,
-          issue_number: issue.number,
-          body: `[${taskIdentifier}](${taskUrl})`,
-        });
+        await write(() =>
+          octokit.rest.issues.createComment({
+            owner: repository.owner.login,
+            repo: repository.name,
+            issue_number: issue.number,
+            body: `[${taskIdentifier}](${taskUrl})`,
+          }),
+        );
       }
-    } catch (error) {
-      console.error("Failed to process GitHub issue:", error);
+    } catch {
+      console.error("GitHub imported issue linking write failed", {
+        projectId,
+        taskId: createdTask.id,
+        integrationId: integration.id,
+        linkId: link.id,
+      });
     }
   }
 }

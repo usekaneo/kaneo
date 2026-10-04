@@ -1,6 +1,7 @@
 import { acceptsIssue } from "../../sync/rules";
 import { importIssueLabels } from "../../sync/issue-labels";
 import { canSyncTask } from "../../sync/eligibility";
+import { createIssueWrite } from "../../sync/dispatch-issue-write";
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import {
@@ -169,11 +170,16 @@ export async function handleGiteaIssueOpened(
         issue.labels,
         tx,
       );
-      await canSyncTask(task.id, integration.id, tx, integration.config);
-      return { task, link, linkMetadata };
+      const eligible = await canSyncTask(
+        task.id,
+        integration.id,
+        tx,
+        integration.config,
+      );
+      return { task, link, linkMetadata, eligible };
     });
     if (!result) continue;
-    const { task: createdTask } = result;
+    const { task: createdTask, link, eligible } = result;
 
     await publishEvent("task.created", {
       ...createdTask,
@@ -185,6 +191,11 @@ export async function handleGiteaIssueOpened(
       externalId: issue.number.toString(),
       actor: issue.user?.login ?? issue.user?.username ?? "gitea-webhook",
     });
+    if (!eligible) continue;
+    const write = createIssueWrite(
+      { id: link.id, taskId: createdTask.id, integrationId: integration.id },
+      integration.config,
+    );
 
     const project = await db.query.projectTable.findFirst({
       where: eq(projectTable.id, projectId),
@@ -217,19 +228,32 @@ export async function handleGiteaIssueOpened(
       }
 
       if (labelsToAdd.length > 0) {
-        await addLabelsToIssueGitea(config, issue.number, labelsToAdd);
+        await addLabelsToIssueGitea(
+          config,
+          issue.number,
+          labelsToAdd,
+          true,
+          write,
+        );
       }
 
       if (config.commentTaskLinkOnGiteaIssue !== false) {
-        await client.createIssueComment(
-          config.repositoryOwner,
-          config.repositoryName,
-          issue.number,
-          markKaneoComment(`[${taskIdentifier}](${taskUrl})`),
+        await write(() =>
+          client.createIssueComment(
+            config.repositoryOwner,
+            config.repositoryName,
+            issue.number,
+            markKaneoComment(`[${taskIdentifier}](${taskUrl})`),
+          ),
         );
       }
-    } catch (error) {
-      console.error("Failed to process Gitea issue:", error);
+    } catch {
+      console.error("Gitea imported issue linking write failed", {
+        projectId,
+        taskId: createdTask.id,
+        integrationId: integration.id,
+        linkId: link.id,
+      });
     }
   }
 }
