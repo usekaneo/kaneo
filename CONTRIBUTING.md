@@ -106,10 +106,13 @@ To turn on enforcement once this workflow is on `main`:
    commit, and that's the one to require.
 
 The automation only reads code and policy from `main`, relies on GitHub's own
-issue links, and never runs anything from the PR. If the policy file is broken
-or the GitHub API errors out, the check fails instead of letting the PR
-through. Revoking a voucher, removing the label, or closing the issue all
-trigger a recheck of open PRs.
+issue links, and never runs anything from the PR. Once it lists the open PRs
+and publishes pending checks, a broken policy or an eligibility lookup error
+fails the affected checks. If GitHub cannot list PRs or accept check updates,
+the workflow fails but earlier check results can remain unchanged, including
+successful ones. Maintainers must inspect failed workflow runs and rerun them
+after GitHub recovers before relying on those results. Revoking a voucher,
+removing the label, or closing the issue all trigger a recheck of open PRs.
 
 ### The Process
 

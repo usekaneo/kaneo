@@ -34,6 +34,9 @@ function fixture(options = {}) {
     let data;
     let status = 200;
     if (path.includes("/check-runs")) {
+      if (options.publicationStatus) {
+        return Response.json({}, { status: options.publicationStatus });
+      }
       const id =
         init.method === "POST"
           ? checks.size + 1
@@ -52,6 +55,7 @@ function fixture(options = {}) {
       checks.set(id, entry);
       data = { id };
     } else if (path === "/repos/test/repo/pulls") {
+      status = options.listStatus ?? 200;
       data = options.pullPages
         ? options.pullPages[Number(parsed.searchParams.get("page")) - 1]
         : pulls;
@@ -174,7 +178,7 @@ test("repository maintainers and explicit automation can omit issues", async () 
   assert.equal(bot.statuses.at(-1).state, "failure");
 });
 
-test("API and policy errors replace an earlier successful status with error", async () => {
+test("eligibility lookup and policy errors publish failing checks", async () => {
   for (const options of [
     { permissionStatus: 403 },
     { permissionStatus: 500 },
@@ -200,6 +204,32 @@ test("API and policy errors replace an earlier successful status with error", as
     const { github, statuses } = fixture();
     await assert.rejects(reconcile(github, loader), AggregateError);
     assert.equal(statuses.at(-1).state, "failure");
+  }
+});
+
+test("discovery and publication outages preserve prior success until a rerun", async () => {
+  for (const failure of ["listStatus", "publicationStatus"]) {
+    const options = {};
+    const { github, statuses } = fixture(options);
+    await reconcile(github, async () => policy);
+    assert.equal(statuses.at(-1).state, "success");
+    const published = statuses.length;
+
+    options.issue = { ...issue, labels: [] };
+    options[failure] = 503;
+    await assert.rejects(
+      reconcile(github, async () => policy),
+      /503/,
+    );
+    assert.equal(statuses.length, published);
+    assert.equal(statuses.at(-1).state, "success");
+
+    delete options[failure];
+    await reconcile(github, async () => policy);
+    assert.deepEqual(
+      statuses.slice(published).map((status) => status.state),
+      ["pending", "failure"],
+    );
   }
 });
 
