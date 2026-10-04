@@ -1,9 +1,10 @@
 import { HTTPException } from "hono/http-exception";
 import type { ResumeProviderSnapshot } from "./resume-provider-snapshot";
+import type { IssueValues } from "../../plugins/sync/provider-issue";
 
 export async function verifyResumeProvider(
   snapshot: ResumeProviderSnapshot,
-  source: "kaneo" | "provider",
+  expected: IssueValues,
 ) {
   let current: ResumeProviderSnapshot["remoteIssue"];
   try {
@@ -16,10 +17,9 @@ export async function verifyResumeProvider(
   const initialLabels = [...new Set(snapshot.remoteIssue.labels ?? [])].sort();
   const currentLabels = [...new Set(current.labels ?? [])].sort();
   if (
-    (source === "provider" &&
-      (current.title !== snapshot.remoteIssue.title ||
-        current.description !== snapshot.remoteIssue.description ||
-        current.state !== snapshot.remoteIssue.state)) ||
+    current.title !== expected.title ||
+    current.description !== expected.description ||
+    current.state !== expected.state ||
     initialLabels.length !== currentLabels.length ||
     initialLabels.some((label, index) => label !== currentLabels[index])
   )

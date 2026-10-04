@@ -50,6 +50,7 @@ const mocks = vi.hoisted(() => ({
   update: vi.fn(),
   labels: vi.fn(),
   comment: vi.fn(),
+  comments: vi.fn(),
   read: vi.fn(),
   write: vi.fn(),
 }));
@@ -68,6 +69,7 @@ vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
         create: mocks.githubCreate,
         update: mocks.update,
         createComment: mocks.comment,
+        listComments: mocks.comments,
       },
     },
   }),
@@ -115,6 +117,7 @@ beforeEach(async () => {
   mocks.update.mockResolvedValue(undefined);
   mocks.labels.mockResolvedValue(undefined);
   mocks.comment.mockResolvedValue({ id: 123 });
+  mocks.comments.mockReset().mockResolvedValue({ data: [] });
   mocks.read.mockResolvedValue({
     title: "Repository title",
     description: "Repository body",
@@ -122,7 +125,15 @@ beforeEach(async () => {
     updatedAt: "2026-01-01T00:00:00Z",
     labels: ["export", "priority:low", "status:to-do", "remote-old"],
   });
-  mocks.write.mockResolvedValue({ updatedAt: "2026-01-02T00:00:00Z" });
+  mocks.write.mockImplementation(async (values) => {
+    const current = await mocks.read.mock.results.at(-1)!.value;
+    mocks.read.mockResolvedValue({
+      ...current,
+      ...values,
+      updatedAt: "2026-01-02T00:00:00Z",
+    });
+    return { updatedAt: "2026-01-02T00:00:00Z" };
+  });
   mocks.githubCreate.mockResolvedValue({
     data: {
       number: 12,
@@ -812,6 +823,164 @@ describe.each(["github", "gitea", "gitlab"] as const)(
         expect(await db.query.externalLinkTable.findMany()).toHaveLength(1);
       },
     );
+
+    if (type === "github")
+      it.each([
+        "first-page",
+        "later-page",
+        "read-failure",
+        "scope-loss",
+      ] as const)(
+        "reconciles an accepted comment with a lost response (%s) before retrying",
+        async (scenario) => {
+          const f = await setup(type);
+          await f.assign();
+          f.config.commentTaskLinkOnGitHubIssue = true;
+          await db
+            .update(schema.integrationTable)
+            .set({ config: JSON.stringify(f.config) })
+            .where(eq(schema.integrationTable.id, f.integration.id));
+          let deliveredBody = "";
+          mocks.comment.mockImplementationOnce(async ({ body }) => {
+            deliveredBody = body;
+            throw new Error("Comment accepted but its response was lost");
+          });
+          await reconcileTaskSync(f.project.id, f.task.id);
+          const link = (await db.query.externalLinkTable.findMany())[0]!;
+          expect(JSON.parse(link.metadata!)).toMatchObject({
+            syncInitializationPending: true,
+          });
+          mocks.comments.mockImplementation(async ({ page }) => {
+            const activity = await db.execute<{ count: number }>(sql`
+              select count(*)::int as count from pg_stat_activity
+              where datname = current_database() and state = 'idle in transaction'
+            `);
+            expect(activity.rows[0]!.count).toBe(0);
+            if (scenario === "scope-loss") {
+              await db
+                .delete(schema.labelTable)
+                .where(eq(schema.labelTable.taskId, f.task.id));
+              return { data: [] };
+            }
+            return {
+              data:
+                scenario === "later-page" && page === 1
+                  ? Array.from({ length: 100 }, () => ({
+                      body: "Other comment",
+                    }))
+                  : [{ body: deliveredBody }],
+            };
+          });
+          if (scenario === "read-failure") {
+            const log = vi.spyOn(console, "error").mockImplementation(() => {});
+            mocks.comments.mockRejectedValueOnce(
+              Object.assign(new Error("Read unavailable"), {
+                request: {
+                  headers: { authorization: "private-provider-token" },
+                },
+              }),
+            );
+            try {
+              await reconcileTaskSync(f.project.id, f.task.id);
+              expect(JSON.stringify(log.mock.calls)).not.toContain(
+                "private-provider-token",
+              );
+            } finally {
+              log.mockRestore();
+            }
+            expect(mocks.comment).toHaveBeenCalledOnce();
+            const pending = await db.query.externalLinkTable.findFirst({
+              where: eq(schema.externalLinkTable.id, link.id),
+            });
+            expect(JSON.parse(pending!.metadata!)).toMatchObject({
+              syncInitializationPending: true,
+            });
+          }
+          await reconcileTaskSync(f.project.id, f.task.id);
+          expect(mocks.githubCreate).toHaveBeenCalledOnce();
+          expect(mocks.comment).toHaveBeenCalledOnce();
+          expect(mocks.comments).toHaveBeenCalled();
+          const completed = await db.query.externalLinkTable.findFirst({
+            where: eq(schema.externalLinkTable.id, link.id),
+          });
+          if (scenario === "scope-loss") {
+            expect(JSON.parse(completed!.metadata!)).toMatchObject({
+              syncInitializationPending: true,
+              syncFilterPaused: true,
+            });
+            return;
+          }
+          expect(JSON.parse(completed!.metadata!)).toMatchObject({
+            syncInitializationPending: false,
+            syncInitializedComment: true,
+          });
+        },
+      );
+
+    if (type === "gitlab")
+      it.each(["status:to-do", "priority:low"])(
+        "preserves the local %s scope label when the outbound baseline contains it",
+        async (name) => {
+          const f = await setup(type);
+          await f.assign();
+          const [root] = await db
+            .insert(schema.labelTable)
+            .values({
+              workspaceId: f.workspace.id,
+              name,
+              color: "#123456",
+            })
+            .returning();
+          await db.insert(schema.labelTable).values({
+            workspaceId: f.workspace.id,
+            taskId: f.task.id,
+            name,
+            color: root.color,
+          });
+          f.config.syncRules.outgoing.labels = [root.id];
+          await db
+            .update(schema.integrationTable)
+            .set({ config: JSON.stringify(f.config) })
+            .where(eq(schema.integrationTable.id, f.integration.id));
+          await reconcileTaskSync(f.project.id, f.task.id);
+          const link = (await db.query.externalLinkTable.findMany())[0]!;
+          await updateExternalLink(link.id, {
+            metadata: { syncResumeLabelBaseline: ["export", name] },
+          });
+          await handleGitlabIssueUpdated(
+            {
+              object_attributes: {
+                iid: 12,
+                title: f.task.title,
+                description: "",
+                state: "opened",
+                url: "https://gitlab.example/team/repo/-/issues/12",
+              },
+              changes: {
+                labels: {
+                  previous: [{ title: "export" }, { title: name }],
+                  current: [
+                    { title: "export" },
+                    { title: name },
+                    { title: "new-remote" },
+                  ],
+                },
+              },
+              project: {
+                name: "repo",
+                path_with_namespace: "team/repo",
+                web_url: "https://gitlab.example/team/repo",
+              },
+            },
+            f.integration.id,
+          );
+          const assigned = await db.query.labelTable.findMany({
+            where: eq(schema.labelTable.taskId, f.task.id),
+          });
+          expect(assigned.map((label) => label.name)).toContain(name);
+          expect(await canSyncTask(f.task.id, f.integration.id)).toBe(true);
+        },
+      );
 
     it("does not dispatch a comment when its link is paused while the handler waits", async () => {
       const f = await setup(type);

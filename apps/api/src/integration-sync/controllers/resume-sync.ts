@@ -135,10 +135,13 @@ async function resumeWithLease(
     throw error;
   }
   let verificationError: unknown;
-  // A label edit's only webhook may have been discarded while paused, in either
+  // An issue edit's only webhook may have been discarded while paused, in either
   // resume direction. Read after unpausing so later webhooks can also run.
   try {
-    await verifyResumeProvider(snapshot, source);
+    await verifyResumeProvider(
+      snapshot,
+      source === "kaneo" ? initial.local : initial.remote,
+    );
   } catch (error) {
     verificationError = error;
     console.error("Sync resume provider verification failed", {

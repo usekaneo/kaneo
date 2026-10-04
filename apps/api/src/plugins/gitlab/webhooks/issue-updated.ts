@@ -126,7 +126,12 @@ async function syncGitlabLabelsToTask(
       nonSystemLabels(previousLabels).map((label) => label.name),
   );
   const labelsToDelete = existingRows
-    .filter((row) => previousNames.has(row.name) && !desiredNames.has(row.name))
+    .filter(
+      (row) =>
+        !isSystemLabelName(row.name) &&
+        previousNames.has(row.name) &&
+        !desiredNames.has(row.name),
+    )
     .map((row) => row.id);
 
   if (labelsToDelete.length > 0) {

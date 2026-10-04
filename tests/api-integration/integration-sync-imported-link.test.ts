@@ -13,7 +13,7 @@ import {
   createWorkspaceMember,
 } from "./helpers/fixtures";
 
-const mocks = vi.hoisted(() => ({ issues: vi.fn() }));
+const mocks = vi.hoisted(() => ({ issues: vi.fn(), publish: vi.fn() }));
 vi.mock("../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
   createGiteaClient: () => ({
     listIssues: mocks.issues,
@@ -28,7 +28,7 @@ vi.mock("../../apps/api/src/plugins/gitlab/utils/gitlab-api", () => ({
     listIssueNotes: async () => [],
   }),
 }));
-vi.mock("../../apps/api/src/events", () => ({ publishEvent: async () => {} }));
+vi.mock("../../apps/api/src/events", () => ({ publishEvent: mocks.publish }));
 vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
   getGithubApp: () => ({
     getInstallationOctokit: async () => ({
@@ -39,7 +39,115 @@ vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
 beforeEach(async () => {
   await resetTestDatabase();
   mocks.issues.mockReset().mockResolvedValue([]);
+  mocks.publish.mockReset().mockResolvedValue(undefined);
 });
+
+it.each(["gitea", "gitlab"] as const)(
+  "%s manual refresh commits its final label eligibility before publishing",
+  async (provider) => {
+    const { workspace } = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: workspace.id,
+    });
+    const [root] = await db
+      .insert(schema.labelTable)
+      .values({
+        workspaceId: workspace.id,
+        name: "export",
+        color: "#123456",
+      })
+      .returning();
+    const [integration] = await db
+      .insert(schema.integrationTable)
+      .values({
+        projectId: project.id,
+        type: provider,
+        isActive: true,
+        config: JSON.stringify({
+          repositoryOwner: "team",
+          repositoryName: "repo",
+          baseUrl: "https://git.example",
+          projectPath: "team/repo",
+          accessToken: "fake-test-token",
+          syncRules: {
+            outgoing: { mode: "labels", match: "any", labels: [root.id] },
+            incoming: { mode: "all" },
+          },
+        }),
+      })
+      .returning();
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        title: "Existing task",
+        number: 1,
+      })
+      .returning();
+    await db.insert(schema.labelTable).values({
+      workspaceId: workspace.id,
+      taskId: task.id,
+      name: root.name,
+      color: root.color,
+    });
+    const [link] = await db
+      .insert(schema.externalLinkTable)
+      .values({
+        taskId: task.id,
+        integrationId: integration.id,
+        resourceType: "issue",
+        externalId: "9",
+        metadata: "{}",
+        url: "https://git.example/team/repo/issues/9",
+      })
+      .returning();
+    mocks.issues.mockResolvedValue([
+      provider === "gitea"
+        ? {
+            number: 9,
+            title: "Updated issue",
+            body: "Body",
+            state: "open",
+            html_url: link.url,
+            labels: [{ id: 2, name: "other", color: "123456" }],
+          }
+        : {
+            iid: 9,
+            title: "Updated issue",
+            description: "Body",
+            state: "opened",
+            web_url: link.url,
+            labels: ["other"],
+          },
+    ]);
+    const pausedAtPublish: boolean[] = [];
+    mocks.publish.mockImplementation(async () => {
+      const stored = await db.query.externalLinkTable.findFirst({
+        where: eq(schema.externalLinkTable.id, link.id),
+      });
+      pausedAtPublish.push(
+        JSON.parse(stored!.metadata!).syncFilterPaused === true,
+      );
+    });
+    expect(
+      await (provider === "gitea" ? importGiteaIssues : importGitlabIssues)(
+        project.id,
+      ),
+    ).toMatchObject({ updated: 1 });
+    expect(pausedAtPublish).toEqual(Array(3).fill(provider === "gitea"));
+    const labels = await db.query.labelTable.findMany({
+      where: eq(schema.labelTable.taskId, task.id),
+    });
+    expect(labels.map((label) => label.name).includes("export")).toBe(
+      provider === "gitlab",
+    );
+    expect(
+      await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, task.id),
+      }),
+    ).toMatchObject({ title: "Updated issue" });
+  },
+);
 
 it.each(
   (["github", "gitea", "gitlab"] as const).flatMap((provider) =>

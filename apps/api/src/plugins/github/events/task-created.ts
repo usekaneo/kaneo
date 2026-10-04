@@ -16,6 +16,7 @@ import {
   findExternalLinkByTaskAndType,
 } from "../services/link-manager";
 import { formatIssueBody, formatIssueTitle } from "../utils/format";
+import { taskLinkCommentExists } from "../services/task-link-comment-exists";
 import {
   getGithubApp,
   getVerifiedInstallationOctokit,
@@ -165,6 +166,18 @@ async function createTaskIssue(
         ),
       ...(comment
         ? {
+            ...(existingLink
+              ? {
+                  commentExists: () =>
+                    taskLinkCommentExists(
+                      octokit,
+                      repositoryOwner,
+                      repositoryName,
+                      issueNumber,
+                      comment!,
+                    ),
+                }
+              : {}),
             comment: () =>
               octokit.rest.issues.createComment({
                 owner: repositoryOwner,

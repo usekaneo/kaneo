@@ -265,6 +265,7 @@ async function importSingleIssue(
           workspaceId,
           database,
         );
+        await canSyncTask(existingLink.taskId, integrationId, database);
 
         await importCommentsForTask(comments, existingLink.taskId, database);
 

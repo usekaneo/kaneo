@@ -33,6 +33,7 @@ export async function initializeTaskIssue(
     state: (value: string) => Promise<string | undefined>;
     labels: () => Promise<string | undefined>;
     comment?: () => Promise<unknown>;
+    commentExists?: () => Promise<boolean>;
   },
 ) {
   const current = await initializeTaskText(event, context, link, actions.text);
@@ -53,7 +54,7 @@ export async function initializeTaskIssue(
     });
   }
   if (!progress.syncInitializedComment && actions.comment) {
-    await write(actions.comment);
+    if (!(await actions.commentExists?.())) await write(actions.comment);
     await updateExternalLink(link.id, {
       metadata: { syncInitializedComment: true },
     });

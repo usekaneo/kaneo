@@ -50,9 +50,15 @@ beforeEach(async () => {
     state: "closed",
     updatedAt: "2026-01-01T00:00:00Z",
   });
-  provider.write
-    .mockReset()
-    .mockResolvedValue({ updatedAt: "2026-01-02T00:00:00Z" });
+  provider.write.mockReset().mockImplementation(async (values) => {
+    const current = await provider.read.mock.results.at(-1)!.value;
+    provider.read.mockResolvedValue({
+      ...current,
+      ...values,
+      updatedAt: "2026-01-02T00:00:00Z",
+    });
+    return { updatedAt: "2026-01-02T00:00:00Z" };
+  });
 });
 
 async function setup(role = "owner") {
@@ -1220,6 +1226,73 @@ describe("reviewed sync resume", () => {
     expect(followUp.local.title).toBe(review.remote.title);
     expect(followUp.remote.title).toBe("Edited after read");
   });
+
+  it.each(
+    (["title", "description", "state"] as const).flatMap((field) =>
+      (["partial-write", "concurrent-edit"] as const).map((cause) => ({
+        field,
+        cause,
+      })),
+    ),
+  )(
+    "pauses Kaneo resume when $cause leaves $field different from the selected values",
+    async ({ field, cause }) => {
+      const f = await paused();
+      const review = await reviewSyncResume(
+        f.project.id,
+        "gitea",
+        f.link.id,
+        f.workspace.id,
+      );
+      let remote = review.snapshot.remoteIssue;
+      const webhook = vi.fn();
+      provider.read.mockImplementation(async () => {
+        const activity = await db.execute<{ count: number }>(sql`
+          select count(*)::int as count from pg_stat_activity
+          where datname = current_database() and state = 'idle in transaction'
+        `);
+        expect(activity.rows[0]!.count).toBe(0);
+        return remote;
+      });
+      provider.write.mockImplementationOnce(async (values) => {
+        remote = {
+          ...remote,
+          ...values,
+          [field]:
+            cause === "partial-write"
+              ? remote[field]
+              : field === "state"
+                ? "closed"
+                : "Concurrent repository edit",
+          updatedAt: "new-provider-version",
+        };
+        if (cause === "concurrent-edit")
+          await withIntegrationLink(f.link, f.integration, webhook);
+        return { updatedAt: remote.updatedAt };
+      });
+      await expect(
+        resumeSync(
+          f.project.id,
+          "gitea",
+          f.link.id,
+          review.token,
+          "kaneo",
+          f.workspace.id,
+        ),
+      ).rejects.toMatchObject({ status: 409 });
+      expect(provider.write).toHaveBeenCalledWith(review.local);
+      expect(webhook).not.toHaveBeenCalled();
+      expect(await canSyncTask(f.task.id, f.integration.id)).toBe(false);
+      const followUp = await reviewSyncResume(
+        f.project.id,
+        "gitea",
+        f.link.id,
+        f.workspace.id,
+      );
+      expect(followUp.local).toEqual(review.local);
+      expect(followUp.remote[field]).not.toBe(review.local[field]);
+    },
+  );
 
   it("verifies adopted repository values outside locks without replaying labels", async () => {
     const f = await paused();
