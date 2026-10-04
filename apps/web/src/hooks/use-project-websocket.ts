@@ -198,15 +198,19 @@ export function useProjectWebSocket(projectId: string) {
           )
             // An open comparison needs a fresh token; other tasks and closed
             // dialogs must not cause provider reads during routine edits.
-            for (const [
-              queryKey,
-              review,
-            ] of queryClient.getQueriesData<ResumePreview>({
+            for (const query of queryClient.getQueryCache().findAll({
               queryKey: ["integration-sync-review", projectId],
               type: "active",
-            }))
-              if (review?.task?.id === message.taskId)
-                void queryClient.invalidateQueries({ queryKey, exact: true });
+            })) {
+              const review = query.state.data as ResumePreview | undefined;
+              if ((review?.task.id ?? query.meta?.taskId) !== message.taskId)
+                continue;
+              const filters = { queryKey: query.queryKey, exact: true };
+              // Invalidation reuses an initial fetch with no data. Reset it so
+              // a pre-edit snapshot cannot become the first displayed token.
+              if (!review) void queryClient.resetQueries(filters);
+              else void queryClient.invalidateQueries(filters);
+            }
           let titleTaskRequest: ReturnType<typeof getTask> | undefined;
           if (
             message.taskId &&

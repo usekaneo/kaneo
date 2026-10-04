@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => ({
   subscribe: vi.fn(),
   client: {
     getQueryCache: () => ({
+      findAll: () => [],
       subscribe: (listener: unknown) => {
         mocks.subscribe(listener);
         return () => {};

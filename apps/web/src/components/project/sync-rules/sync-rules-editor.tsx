@@ -19,8 +19,22 @@ export function SyncRulesEditor({
 }) {
   const { t } = useTranslation();
   const [rules, setRules] = useState(saved.rules);
+  const [previousSavedRules, setPreviousSavedRules] = useState(saved.rules);
   const save = useSaveSyncRules(param);
-  const dirty = JSON.stringify(rules) !== JSON.stringify(saved.rules);
+  const rulesKey = JSON.stringify(rules);
+  const savedKey = JSON.stringify(saved.rules);
+  const previousSavedKey = JSON.stringify(previousSavedRules);
+  const dirty = rulesKey !== previousSavedKey;
+  const savedChanged = savedKey !== previousSavedKey;
+  if (savedChanged && (!dirty || rulesKey === savedKey)) {
+    setRules(saved.rules);
+    setPreviousSavedRules(saved.rules);
+  }
+  const resetDraft = () => {
+    setRules(saved.rules);
+    setPreviousSavedRules(saved.rules);
+    save.reset();
+  };
   const valid = [rules.outgoing, rules.incoming].every(
     (rule) => rule.mode === "all" || rule.labels.length > 0,
   );
@@ -33,6 +47,21 @@ export function SyncRulesEditor({
   const impact = dirty ? preview.data : saved;
   return (
     <div className="space-y-5 border-t border-border pt-5">
+      {savedChanged && dirty && (
+        <div role="alert" className="space-y-2">
+          <p className="text-xs text-muted-foreground">
+            {t("settings:syncRules.rulesChanged")}
+          </p>
+          <Button
+            variant="outline"
+            size="xs"
+            disabled={save.isPending}
+            onClick={resetDraft}
+          >
+            {t("settings:syncRules.loadSavedRules")}
+          </Button>
+        </div>
+      )}
       <div className="grid gap-6 sm:grid-cols-2">
         <LabelRuleEditor
           direction="outgoing"
@@ -143,10 +172,7 @@ export function SyncRulesEditor({
             variant="ghost"
             size="sm"
             disabled={save.isPending}
-            onClick={() => {
-              setRules(saved.rules);
-              save.reset();
-            }}
+            onClick={resetDraft}
           >
             {t("common:actions.cancel")}
           </Button>

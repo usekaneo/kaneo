@@ -11,7 +11,7 @@ import { useProjectWebSocket } from "./use-project-websocket";
 
 const { client, auth, navigate } = vi.hoisted(() => ({
   client: {
-    getQueryCache: () => ({ subscribe: () => () => {} }),
+    getQueryCache: () => ({ subscribe: () => () => {}, findAll: () => [] }),
     getQueryState: vi.fn(),
     getQueryData: vi.fn(),
     setQueryData: vi.fn(),

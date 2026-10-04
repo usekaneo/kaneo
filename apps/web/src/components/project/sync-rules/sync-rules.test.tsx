@@ -107,9 +107,93 @@ function mount(node = <SyncRulesSection {...param} />) {
 }
 
 describe("advanced sync settings", () => {
+  it.each(["apply", "reload"])(
+    "keeps a dirty draft after shared rules change until %s",
+    async (choice) => {
+      useUserPreferencesStore.setState({ advancedSettings: true });
+      const initial = {
+        ...saved,
+        labels: [
+          ...saved.labels,
+          { id: "label-2", name: "later", color: "#654321" },
+        ],
+      };
+      mocks.get.mockResolvedValue(initial);
+      const { client } = mount();
+      fireEvent.click(await screen.findByRole("checkbox", { name: "later" }));
+      const draft = {
+        ...saved.rules,
+        outgoing: {
+          mode: "labels",
+          match: "any",
+          labels: ["label-1", "label-2"],
+        },
+      };
+      act(() =>
+        client.setQueryData(
+          ["integration-sync", param.projectId, param.provider, ""],
+          {
+            ...initial,
+            rules: { outgoing: { mode: "all" }, incoming: { mode: "all" } },
+          },
+        ),
+      );
+      await screen.findByText("settings:syncRules.rulesChanged");
+      expect(screen.getByRole("checkbox", { name: "sync" })).toBeChecked();
+      expect(screen.getByRole("checkbox", { name: "later" })).toBeChecked();
+      expect(mocks.save).not.toHaveBeenCalled();
+      if (choice === "reload") {
+        fireEvent.click(
+          screen.getByRole("button", {
+            name: "settings:syncRules.loadSavedRules",
+          }),
+        );
+        expect(screen.queryByRole("checkbox")).toBeNull();
+        expect(
+          screen.queryByText("settings:syncRules.rulesChanged"),
+        ).toBeNull();
+        expect(mocks.save).not.toHaveBeenCalled();
+      } else {
+        const apply = screen.getByRole("button", {
+          name: "settings:syncRules.apply",
+        });
+        await waitFor(() => expect(apply).toBeEnabled());
+        fireEvent.click(apply);
+        await waitFor(() =>
+          expect(mocks.save).toHaveBeenCalledWith(param, draft, "b".repeat(64)),
+        );
+      }
+    },
+  );
+
+  it("adopts refreshed shared rules when the editor has no draft changes", async () => {
+    useUserPreferencesStore.setState({ advancedSettings: true });
+    const { client } = mount();
+    await screen.findByRole("checkbox", { name: "sync" });
+    act(() =>
+      client.setQueryData(
+        ["integration-sync", param.projectId, param.provider, ""],
+        {
+          ...saved,
+          rules: { outgoing: { mode: "all" }, incoming: { mode: "all" } },
+        },
+      ),
+    );
+    await waitFor(() => expect(screen.queryByRole("checkbox")).toBeNull());
+    expect(screen.queryByText("settings:syncRules.rulesChanged")).toBeNull();
+    expect(
+      screen.getByRole("button", { name: "settings:syncRules.apply" }),
+    ).toBeDisabled();
+  });
+
   it("invalidates a cached rule preview after resuming a link", async () => {
     const { client } = mount(
-      <ResumeSyncDialog param={param} linkId="link-1" onClose={vi.fn()} />,
+      <ResumeSyncDialog
+        param={param}
+        linkId="link-1"
+        taskId="task-1"
+        onClose={vi.fn()}
+      />,
     );
     const key = [
       "integration-sync-preview",
@@ -166,7 +250,12 @@ describe("advanced sync settings", () => {
 
   it("refreshes an open comparison and submits its new token after invalidation", async () => {
     const { client } = mount(
-      <ResumeSyncDialog param={param} linkId="link-1" onClose={vi.fn()} />,
+      <ResumeSyncDialog
+        param={param}
+        linkId="link-1"
+        taskId="task-1"
+        onClose={vi.fn()}
+      />,
     );
     await screen.findByText("Kaneo title");
     mocks.review.mockResolvedValueOnce({
@@ -377,7 +466,14 @@ describe("advanced sync settings", () => {
   it("keeps the comparison open and requires refresh after a failed resume", async () => {
     const onClose = vi.fn();
     mocks.resume.mockRejectedValue(new Error("Comparison changed"));
-    mount(<ResumeSyncDialog param={param} linkId="link-1" onClose={onClose} />);
+    mount(
+      <ResumeSyncDialog
+        param={param}
+        linkId="link-1"
+        taskId="task-1"
+        onClose={onClose}
+      />,
+    );
     await screen.findByText("Repository title");
     const keepLocal = screen.getByRole("button", {
       name: "settings:syncRules.useKaneo",

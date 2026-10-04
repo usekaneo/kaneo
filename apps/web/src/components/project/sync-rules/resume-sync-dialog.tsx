@@ -17,14 +17,16 @@ import { useResumePreview } from "@/hooks/queries/integration-sync/use-resume-pr
 export function ResumeSyncDialog({
   param,
   linkId,
+  taskId,
   onClose,
 }: {
   param: SyncParams;
   linkId: string;
+  taskId: string;
   onClose: () => void;
 }) {
   const { t } = useTranslation();
-  const preview = useResumePreview(param, linkId);
+  const preview = useResumePreview(param, linkId, taskId);
   const resume = useResumeSync(param, linkId);
   const data = preview.data;
   const choose = (source: "kaneo" | "provider") => {

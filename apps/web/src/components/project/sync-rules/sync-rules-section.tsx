@@ -17,7 +17,10 @@ export function SyncRulesSection({ projectId, provider }: SyncParams) {
   const canManage = canManageSettings();
   const canResume = canManage && canUpdateTasks();
   const [pages, setPages] = useState<string[]>([]);
-  const [reviewLinkId, setReviewLinkId] = useState<string | null>(null);
+  const [reviewTask, setReviewTask] = useState<{
+    taskId: string;
+    linkId: string;
+  } | null>(null);
   const param = { projectId, provider };
   const query = useSyncRules(param, pages.at(-1));
   const data = query.data;
@@ -101,7 +104,7 @@ export function SyncRulesSection({ projectId, provider }: SyncParams) {
       )}
       {advanced && canManage ? (
         <SyncRulesEditor
-          key={JSON.stringify(data.rules)}
+          key={`${projectId}:${provider}`}
           param={param}
           saved={data}
         />
@@ -144,7 +147,9 @@ export function SyncRulesSection({ projectId, provider }: SyncParams) {
                   <Button
                     size="xs"
                     variant="outline"
-                    onClick={() => setReviewLinkId(task.linkId)}
+                    onClick={() =>
+                      setReviewTask({ taskId: task.id, linkId: task.linkId })
+                    }
                   >
                     {t("settings:syncRules.review")}
                   </Button>
@@ -177,11 +182,12 @@ export function SyncRulesSection({ projectId, provider }: SyncParams) {
           )}
         </div>
       )}
-      {reviewLinkId && (
+      {reviewTask && (
         <ResumeSyncDialog
           param={param}
-          linkId={reviewLinkId}
-          onClose={() => setReviewLinkId(null)}
+          linkId={reviewTask.linkId}
+          taskId={reviewTask.taskId}
+          onClose={() => setReviewTask(null)}
         />
       )}
     </section>

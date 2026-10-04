@@ -1771,6 +1771,12 @@
 						"refreshPreview": {
 							"type": "string"
 						},
+						"rulesChanged": {
+							"type": "string"
+						},
+						"loadSavedRules": {
+							"type": "string"
+						},
 						"missingLabels": {
 							"type": "string"
 						},
@@ -1895,6 +1901,8 @@
 						"previewing",
 						"saveError",
 						"refreshPreview",
+						"rulesChanged",
+						"loadSavedRules",
 						"missingLabels",
 						"removeMissingLabels",
 						"apply",

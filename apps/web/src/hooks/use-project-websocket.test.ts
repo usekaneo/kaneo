@@ -20,7 +20,7 @@ const cancelQueries = vi.fn().mockResolvedValue(undefined);
 vi.mock("@tanstack/react-query", () => ({
   useQueryClient: () => ({
     invalidateQueries,
-    getQueryCache: () => ({ subscribe: () => () => {} }),
+    getQueryCache: () => ({ subscribe: () => () => {}, findAll: () => [] }),
     getQueryState,
     getQueryData: () => undefined,
     getQueriesData: () => [],

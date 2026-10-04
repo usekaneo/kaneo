@@ -451,6 +451,8 @@
 			"previewing": "Checking sync impact…",
 			"saveError": "Could not apply these rules. The integration or task scope may have changed. Refresh the preview and try again.",
 			"refreshPreview": "Refresh preview",
+			"rulesChanged": "The saved rules changed while you were editing. Your draft is preserved. Review the current rules above before applying it, or load the saved rules.",
+			"loadSavedRules": "Load saved rules",
 			"missingLabels": "A selected workspace label is unavailable. Sync stays paused until the rule is repaired.",
 			"removeMissingLabels": "Remove unavailable labels",
 			"apply": "Apply sync rules",

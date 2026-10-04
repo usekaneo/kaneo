@@ -158,6 +158,56 @@ async function saved() {
 }
 
 describe("bounded resumable GitHub import", () => {
+  it.each([false, true])(
+    "fails closed for invalid stored rules (linked=%s)",
+    async (linked) => {
+      const { project, integration, config, request } = await setup();
+      if (linked) {
+        const [task] = await db
+          .insert(schema.taskTable)
+          .values({
+            projectId: project.id,
+            title: "Existing task",
+            number: 1,
+            status: "to-do",
+          })
+          .returning();
+        await db.insert(schema.externalLinkTable).values({
+          taskId: task!.id,
+          integrationId: integration.id,
+          resourceType: "issue",
+          externalId: "1",
+          url: "https://github.com/example/repo/issues/1",
+        });
+      }
+      await db
+        .update(schema.integrationTable)
+        .set({
+          config: JSON.stringify({
+            ...config,
+            syncRules: {
+              outgoing: { mode: "all" },
+              incoming: { mode: "labels", match: "any", labels: [] },
+            },
+          }),
+        })
+        .where(eq(schema.integrationTable.id, integration.id));
+      serveIssues(1);
+      const response = await request();
+      expect(response.status).toBe(200);
+      expect(await response.json()).toMatchObject({ imported: 0, skipped: 1 });
+      const tasks = await db.query.taskTable.findMany();
+      const links = await db.query.externalLinkTable.findMany();
+      expect(tasks).toHaveLength(linked ? 1 : 0);
+      expect(links).toHaveLength(linked ? 1 : 0);
+      if (linked) {
+        expect(tasks[0]?.title).toBe("Existing task");
+        expect(JSON.parse(links[0]!.metadata!)).toMatchObject({
+          syncFilterPaused: true,
+        });
+      }
+    },
+  );
   it("preserves provider colors when rule checks import labels before the page", async () => {
     const { member, integration, config, request } = await setup();
     await db.insert(schema.labelTable).values({

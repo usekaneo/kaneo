@@ -176,9 +176,9 @@ export async function importIssues(projectId: string, runId?: string) {
           message: "GitHub import paused; retry to resume saved progress",
         });
       }
-      let admitted = true;
-      let scopeLabels: unknown = [];
       const rules = readSyncRules(integration.config);
+      let admitted = rules !== null;
+      let scopeLabels: unknown = [];
       if (
         run.state.phase === "issues" &&
         (rules?.incoming.mode === "labels" || rules?.outgoing.mode === "labels")

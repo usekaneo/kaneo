@@ -62,6 +62,7 @@ it("refreshes only the affected open comparison before accepting its new token",
       const preview = useResumePreview(
         { projectId: "project", provider: "github" },
         "link",
+        "task",
       );
       return { data: preview.data, isFetching: preview.isFetching };
     },
@@ -138,5 +139,72 @@ it("refreshes only the affected open comparison before accepting its new token",
   cleanup();
   resolveBoard(null);
   await boardFetch;
+  client.clear();
+});
+
+it("replaces a pre-edit initial review fetch and ignores its late response", async () => {
+  vi.stubGlobal("WebSocket", Socket);
+  const client = new QueryClient();
+  const stale: ResumePreview = {
+    task: { id: "task", title: "Old", number: 1 },
+    local: { title: "Old", description: "", state: "open" },
+    remote: { title: "Remote", description: "", state: "open" },
+    token: "old-token",
+  };
+  let originalSignal: AbortSignal | undefined;
+  let finishOriginal!: (value: ResumePreview) => void;
+  let finishCurrent!: (value: ResumePreview) => void;
+  mocks.review
+    .mockReset()
+    .mockImplementationOnce((_param, _link, signal) => {
+      originalSignal = signal;
+      return new Promise<ResumePreview>((resolve) => {
+        finishOriginal = resolve;
+      });
+    })
+    .mockImplementationOnce(
+      () =>
+        new Promise<ResumePreview>((resolve) => {
+          finishCurrent = resolve;
+        }),
+    );
+  const { result } = renderHook(
+    () => {
+      useProjectWebSocket("project");
+      const preview = useResumePreview(
+        { projectId: "project", provider: "github" },
+        "link",
+        "task",
+      );
+      return { data: preview.data, isFetching: preview.isFetching };
+    },
+    {
+      wrapper: ({ children }: { children: ReactNode }) => (
+        <QueryClientProvider client={client}>{children}</QueryClientProvider>
+      ),
+    },
+  );
+  await waitFor(() => expect(mocks.review).toHaveBeenCalledOnce());
+  act(() => Socket.current.message("unrelated-task"));
+  expect(mocks.review).toHaveBeenCalledOnce();
+  act(() => Socket.current.message("task"));
+  await waitFor(() => expect(mocks.review).toHaveBeenCalledTimes(2));
+  expect(originalSignal?.aborted).toBe(true);
+  await act(async () => finishOriginal(stale));
+  expect(result.current.data).toBeUndefined();
+  expect(result.current.isFetching).toBe(true);
+  act(() =>
+    finishCurrent({
+      ...stale,
+      task: { ...stale.task, title: "Current" },
+      local: { ...stale.local, title: "Current" },
+      token: "current-token",
+    }),
+  );
+  await waitFor(() => {
+    expect(result.current.isFetching).toBe(false);
+    expect(result.current.data?.token).toBe("current-token");
+  });
+  cleanup();
   client.clear();
 });

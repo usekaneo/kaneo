@@ -2501,7 +2501,9 @@
 			"useKaneo": "Keep Kaneo values",
 			"useRepository": "Keep repository values",
 			"exportPending": "Export matching tasks",
-			"inactiveHint": "This integration is paused. No tasks will be exported until it is reactivated."
+			"inactiveHint": "This integration is paused. No tasks will be exported until it is reactivated.",
+			"loadSavedRules": "Load saved rules",
+			"rulesChanged": "The saved rules changed while you were editing. Your draft is preserved. Review the current rules above before applying it, or load the saved rules."
 		}
 	},
 	"tasks": {
