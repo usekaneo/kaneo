@@ -503,8 +503,22 @@ it.each([
     expect(mocks.client.invalidateQueries).toHaveBeenCalledWith({
       queryKey: ["integration-sync-preview", "p"],
     });
-    expect(mocks.client.invalidateQueries).toHaveBeenCalledWith({
+    expect(mocks.client.invalidateQueries).not.toHaveBeenCalledWith({
       queryKey: ["integration-sync-review", "p"],
     });
   });
+});
+
+it("keeps sync comparisons and scope queries stable during unrelated task edits", async () => {
+  renderHook(() => useProjectWebSocket("p"));
+  Socket.current.message("TASK_UPDATED", { taskId: "a" });
+  await vi.waitFor(() => expect(mocks.getTask).toHaveBeenCalled());
+  for (const key of [
+    "integration-sync",
+    "integration-sync-preview",
+    "integration-sync-review",
+  ])
+    expect(mocks.client.invalidateQueries).not.toHaveBeenCalledWith({
+      queryKey: [key, "p"],
+    });
 });

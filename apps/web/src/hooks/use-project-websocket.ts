@@ -73,7 +73,6 @@ export function useProjectWebSocket(projectId: string) {
       if (
         [
           "PROJECT_UPDATED",
-          "TASK_UPDATED",
           "TASK_LABEL_UPDATED",
           "TASK_CREATED",
           "TASK_DELETED",
@@ -85,9 +84,6 @@ export function useProjectWebSocket(projectId: string) {
         });
         queryClient.invalidateQueries({
           queryKey: ["integration-sync-preview", projectId],
-        });
-        queryClient.invalidateQueries({
-          queryKey: ["integration-sync-review", projectId],
         });
       }
       if (message.type === "PROJECT_UPDATED") {

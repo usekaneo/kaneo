@@ -106,3 +106,14 @@ it("still removes ordinary labels", async () => {
 vi.mock("../../../../../apps/api/src/plugins/sync/eligibility", () => ({
   canSyncTask: async () => true,
 }));
+
+vi.mock(
+  "../../../../../apps/api/src/plugins/sync/dispatch-issue-write",
+  () => ({
+    dispatchIssueWrite: async (
+      _link: unknown,
+      _config: unknown,
+      send: () => Promise<unknown>,
+    ) => ({ value: await send() }),
+  }),
+);

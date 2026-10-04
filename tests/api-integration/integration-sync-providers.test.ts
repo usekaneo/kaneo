@@ -27,6 +27,7 @@ import { getSyncIntegration } from "../../apps/api/src/integration-sync/controll
 import { previewSyncRules } from "../../apps/api/src/integration-sync/controllers/preview-rules";
 import type { SyncRules } from "../../apps/api/src/plugins/sync/rules";
 import { canSyncTask } from "../../apps/api/src/plugins/sync/eligibility";
+import * as eligibility from "../../apps/api/src/plugins/sync/eligibility";
 import { resumeSync } from "../../apps/api/src/integration-sync/controllers/resume-sync";
 import { reviewSyncResume } from "../../apps/api/src/integration-sync/controllers/review-resume";
 import { updateExternalLink } from "../../apps/api/src/plugins/github/services/link-manager";
@@ -248,6 +249,39 @@ describe.each(["github", "gitea", "gitlab"] as const)(
         ),
       ).toBe(false);
       await reconcileProjectSync(f.project.id, f.integration.id);
+      expect(create).toHaveBeenCalledOnce();
+    });
+    it("skips completed links and excluded unlinked tasks, while still pausing excluded links", async () => {
+      const f = await setup(type);
+      await f.assign();
+      await reconcileTaskSync(f.project.id, f.task.id);
+      await db.insert(schema.taskTable).values(
+        Array.from({ length: 30 }, (_, index) => ({
+          projectId: f.project.id,
+          title: "Unmatched task",
+          number: index + 2,
+          status: "to-do",
+        })),
+      );
+      const guard = vi.spyOn(eligibility, "canSyncTask");
+      const publish = vi.spyOn(events, "publishEvent");
+      await reconcileProjectSync(f.project.id, f.integration.id);
+      expect(guard).not.toHaveBeenCalled();
+      expect(publish).not.toHaveBeenCalled();
+      await db
+        .delete(schema.labelTable)
+        .where(eq(schema.labelTable.taskId, f.task.id));
+      await reconcileProjectSync(f.project.id, f.integration.id);
+      expect(guard).toHaveBeenCalledOnce();
+      const link = await db.query.externalLinkTable.findFirst({
+        where: eq(schema.externalLinkTable.taskId, f.task.id),
+      });
+      expect(JSON.parse(link!.metadata!)).toMatchObject({
+        syncFilterPaused: true,
+      });
+      expect(
+        publish.mock.calls.filter(([name]) => name === "project.updated"),
+      ).toHaveLength(1);
       expect(create).toHaveBeenCalledOnce();
     });
     it("exports newly eligible tasks once, including their custom labels", async () => {
@@ -987,6 +1021,36 @@ it("waits for another instance's creation lease instead of dropping the export",
   expect(await db.query.externalLinkTable.findMany()).toHaveLength(1);
 });
 
+it("refreshes scope once after a bulk run pauses multiple links", async () => {
+  const f = await setup("gitea");
+  const [other] = await db
+    .insert(schema.taskTable)
+    .values({
+      projectId: f.project.id,
+      title: "Other linked task",
+      number: 2,
+      status: "to-do",
+    })
+    .returning();
+  await db.insert(schema.externalLinkTable).values(
+    [f.task.id, other!.id].map((taskId, index) => ({
+      taskId,
+      integrationId: f.integration.id,
+      resourceType: "issue",
+      externalId: String(index + 1),
+      url: `https://git.example/team/repo/issues/${index + 1}`,
+    })),
+  );
+  const publish = vi.spyOn(events, "publishEvent");
+  await reconcileProjectSync(f.project.id);
+  expect(
+    publish.mock.calls.filter(([name]) => name === "task.updated"),
+  ).toHaveLength(2);
+  expect(
+    publish.mock.calls.filter(([name]) => name === "project.updated"),
+  ).toEqual([["project.updated", { projectId: f.project.id }]]);
+});
+
 it("broadcasts only changed links and avoids task scans for unconfigured integrations", async () => {
   const f = await setup("gitea");
   const publish = vi.spyOn(events, "publishEvent");
@@ -994,7 +1058,10 @@ it("broadcasts only changed links and avoids task scans for unconfigured integra
   expect(publish).not.toHaveBeenCalled();
   await f.assign();
   await reconcileTaskSync(f.project.id, f.task.id);
-  expect(publish).toHaveBeenCalledOnce();
+  expect(publish.mock.calls).toEqual([
+    ["task.updated", { projectId: f.project.id, taskId: f.task.id }],
+    ["project.updated", { projectId: f.project.id }],
+  ]);
   publish.mockClear();
   await reconcileProjectSync(f.project.id);
   expect(publish).not.toHaveBeenCalled();

@@ -1,10 +1,17 @@
 import { and, asc, eq, gt } from "drizzle-orm";
 import db from "../../database";
-import { externalLinkTable, taskTable } from "../../database/schema";
+import {
+  externalLinkTable,
+  projectTable,
+  taskTable,
+} from "../../database/schema";
 import { publishEvent } from "../../events";
 import { getPlugin } from "../registry";
 import { canSyncTask } from "./eligibility";
 import { getSyncIntegrations } from "./integrations";
+import { readSyncRules } from "./rules";
+import { outgoingPredicate } from "./task-predicate";
+import { reconciliationPredicate } from "./reconciliation-predicate";
 
 export async function reconcileTaskSync(
   projectId: string,
@@ -12,7 +19,8 @@ export async function reconcileTaskSync(
   onlyIntegrationId?: string,
 ) {
   const integrations = await getSyncIntegrations(projectId, onlyIntegrationId);
-  await reconcileTaskWithIntegrations(projectId, taskId, integrations);
+  if (await reconcileTaskWithIntegrations(projectId, taskId, integrations))
+    await publishEvent("project.updated", { projectId });
 }
 
 async function reconcileTaskWithIntegrations(
@@ -20,7 +28,7 @@ async function reconcileTaskWithIntegrations(
   taskId: string,
   integrations: Awaited<ReturnType<typeof getSyncIntegrations>>,
 ) {
-  if (!integrations.length) return;
+  if (!integrations.length) return false;
   const links = () =>
     db.query.externalLinkTable.findMany({
       where: and(
@@ -73,8 +81,11 @@ async function reconcileTaskWithIntegrations(
       });
     }
   }
-  if (JSON.stringify(before) !== JSON.stringify(await links()))
+  if (JSON.stringify(before) !== JSON.stringify(await links())) {
     await publishEvent("task.updated", { projectId, taskId });
+    return true;
+  }
+  return false;
 }
 
 export async function reconcileProjectSync(
@@ -83,31 +94,53 @@ export async function reconcileProjectSync(
 ) {
   const integrations = await getSyncIntegrations(projectId, integrationId);
   if (!integrations.length) return;
-  let cursor: string | undefined;
-  for (;;) {
-    const tasks = await db
-      .select({ id: taskTable.id })
-      .from(taskTable)
-      .where(
-        and(
-          eq(taskTable.projectId, projectId),
-          cursor ? gt(taskTable.id, cursor) : undefined,
-        ),
-      )
-      .orderBy(asc(taskTable.id))
-      .limit(50);
-    if (!tasks.length) return;
-    for (const task of tasks) {
-      try {
-        await reconcileTaskWithIntegrations(projectId, task.id, integrations);
-      } catch {
-        console.error("Task sync reconciliation failed", {
-          projectId,
-          taskId: task.id,
-          integrationId,
-        });
+  const project = await db.query.projectTable.findFirst({
+    where: eq(projectTable.id, projectId),
+    columns: { workspaceId: true },
+  });
+  if (!project) return;
+  let changed = false;
+  try {
+    for (const integration of integrations) {
+      const scope = await outgoingPredicate(
+        project.workspaceId,
+        readSyncRules(integration.config)!.outgoing,
+      );
+      let cursor: string | undefined;
+      for (;;) {
+        const tasks = await db
+          .select({ id: taskTable.id })
+          .from(taskTable)
+          .where(
+            and(
+              eq(taskTable.projectId, projectId),
+              reconciliationPredicate(integration.id, scope.predicate),
+              cursor ? gt(taskTable.id, cursor) : undefined,
+            ),
+          )
+          .orderBy(asc(taskTable.id))
+          .limit(50);
+        if (!tasks.length) break;
+        for (const task of tasks) {
+          try {
+            if (
+              await reconcileTaskWithIntegrations(projectId, task.id, [
+                integration,
+              ])
+            )
+              changed = true;
+          } catch {
+            console.error("Task sync reconciliation failed", {
+              projectId,
+              taskId: task.id,
+              integrationId: integration.id,
+            });
+          }
+        }
+        cursor = tasks.at(-1)?.id;
       }
     }
-    cursor = tasks.at(-1)?.id;
+  } finally {
+    if (changed) await publishEvent("project.updated", { projectId });
   }
 }
