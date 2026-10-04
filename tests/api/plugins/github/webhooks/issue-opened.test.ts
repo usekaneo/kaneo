@@ -68,6 +68,10 @@ const mocks = vi.hoisted(() => {
   };
 });
 
+vi.mock("../../../../../apps/api/src/plugins/sync/eligibility", () => ({
+  canSyncTask: async () => true,
+}));
+
 vi.mock("../../../../../apps/api/src/database", () => ({
   default: mocks.mockDb,
 }));

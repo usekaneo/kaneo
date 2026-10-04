@@ -5,6 +5,8 @@ export type ProjectBroadcastMessage = {
   tasks?: Array<{ id: string; position: number; status?: string }>;
   sourceTaskId?: string;
   targetTaskId?: string;
+  linksChanged?: boolean;
+  taskTitle?: string;
 };
 
 export type BroadcastMessage = {

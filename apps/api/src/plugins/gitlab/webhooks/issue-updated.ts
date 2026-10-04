@@ -255,6 +255,9 @@ export async function handleGitlabIssueUpdated(
                 publishEvent("task.updated", {
                   projectId: integration.projectId,
                   taskId: task.id,
+                  ...(typeof updateData.title === "string"
+                    ? { title: updateData.title }
+                    : {}),
                 }),
               );
             }

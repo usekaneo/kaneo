@@ -15,6 +15,7 @@ const { client, auth, navigate } = vi.hoisted(() => ({
     getQueryState: vi.fn(),
     getQueryData: vi.fn(),
     setQueryData: vi.fn(),
+    setQueriesData: vi.fn(),
     invalidateQueries: vi.fn(),
     cancelQueries: vi.fn(),
     clear: vi.fn(),

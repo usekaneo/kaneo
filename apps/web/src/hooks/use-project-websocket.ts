@@ -14,6 +14,7 @@ import getLabelsByTask from "@/fetchers/label/get-labels-by-task";
 import getExternalLinks from "@/fetchers/external-link/get-external-links";
 import { patchBoardTask } from "@/lib/patch-board-task";
 import type { ProjectWithTasks } from "@/types/project";
+import { patchSyncTaskTitles } from "@/lib/patch-sync-task-titles";
 
 export function getWsUrl(projectId: string) {
   const base = getApiUrl("ws");
@@ -69,6 +70,7 @@ export function useProjectWebSocket(projectId: string) {
       taskId?: string;
       sourceTaskId?: string;
       targetTaskId?: string;
+      linksChanged?: boolean;
     }) {
       if (
         [
@@ -89,7 +91,8 @@ export function useProjectWebSocket(projectId: string) {
       if (message.type === "PROJECT_UPDATED") {
         queryClient.invalidateQueries({ queryKey: ["projects"] });
         queryClient.invalidateQueries({ queryKey: ["labels"] });
-        queryClient.invalidateQueries({ queryKey: ["external-links"] });
+        if (message.linksChanged)
+          queryClient.invalidateQueries({ queryKey: ["external-links"] });
         return;
       }
 
@@ -187,6 +190,13 @@ export function useProjectWebSocket(projectId: string) {
         if (disposed || activeSocket !== ws) return;
         try {
           const message = JSON.parse(event.data);
+          if (message.taskId && typeof message.taskTitle === "string")
+            patchSyncTaskTitles(
+              queryClient,
+              projectId,
+              message.taskId,
+              message.taskTitle,
+            );
           if (message.type === "PROJECT_MOVED") {
             markBoardCacheChanged(queryClient, projectId);
             for (const queryKey of [
@@ -365,6 +375,13 @@ export function useProjectWebSocket(projectId: string) {
                     }
                     const staleOwnCounts =
                       (parentCountVersions.get(taskId) ?? 0) > sequence;
+                    if (task.projectId === projectId)
+                      patchSyncTaskTitles(
+                        queryClient,
+                        projectId,
+                        taskId,
+                        task.title,
+                      );
                     const { subtaskCounts, ...taskFields } = task;
                     if (staleOwnCounts)
                       void queryClient.invalidateQueries({

@@ -77,6 +77,10 @@ async function createTaskIssue(
           state: createdIssue.data.state,
           createdFrom: "kaneo",
           syncInitializationPending: true,
+          syncCreatedText: {
+            title: event.title,
+            description: event.description ?? "",
+          },
         },
       });
       issueNumber = createdIssue.data.number;
@@ -110,6 +114,17 @@ async function createTaskIssue(
       }
     }
     await initializeTaskIssue(event, context, createdLink, {
+      text: async (field, value) =>
+        (
+          await octokit.rest.issues.update({
+            owner: repositoryOwner,
+            repo: repositoryName,
+            issue_number: issueNumber,
+            ...(field === "title"
+              ? { title: formatIssueTitle(value) }
+              : { body: formatIssueBody(value, event.taskId) }),
+          })
+        )?.data?.updated_at,
       close: () =>
         octokit.rest.issues.update({
           owner: repositoryOwner,

@@ -1,5 +1,6 @@
 import { acceptsIssue } from "../../sync/rules";
 import { importIssueLabels } from "../../sync/issue-labels";
+import { canSyncTask } from "../../sync/eligibility";
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import {
@@ -174,6 +175,7 @@ export async function handleGitlabIssueOpened(
         payload.labels,
         tx,
       );
+      await canSyncTask(task.id, integration.id, tx, integration.config);
       return { task, link, linkMetadata };
     });
     if (!result) continue;

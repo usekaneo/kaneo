@@ -16,6 +16,7 @@ const { client, auth } = vi.hoisted(() => ({
     cancelQueries: vi.fn().mockResolvedValue(undefined),
     invalidateQueries: vi.fn(),
     setQueryData: vi.fn(),
+    setQueriesData: vi.fn(),
     getQueryData: vi.fn(),
   },
   auth: { userId: "user-a" as string | null },

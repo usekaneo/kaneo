@@ -92,7 +92,11 @@ it.each(["github", "gitea", "gitlab"] as const)(
   async (provider) => {
     const f = await fixture(provider);
     await updateExternalLink(f.link.id, {
-      metadata: { syncInitializationPending: true, syncInitializedState: true },
+      metadata: {
+        syncInitializationPending: true,
+        syncInitializedState: true,
+        syncCreatedText: { title: f.task.title, description: "" },
+      },
     });
     const link = (await db.query.externalLinkTable.findFirst({
       where: eq(schema.externalLinkTable.id, f.link.id),
@@ -130,6 +134,7 @@ it.each(["github", "gitea", "gitlab"] as const)(
       },
       link,
       {
+        text: async () => undefined,
         close: mocks.addLabel,
         labels: (names, write) => {
           if (provider === "github")

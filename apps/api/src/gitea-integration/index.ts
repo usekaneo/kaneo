@@ -336,7 +336,7 @@ const giteaIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
         projectId,
         integrationId: row.id,
       });
-    await publishEvent("project.updated", { projectId });
+    await publishEvent("project.updated", { projectId, linksChanged: true });
     return c.json(updated, 200);
   })
   .openapi(deleteIntegrationRoute, async (c) => {

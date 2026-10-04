@@ -70,6 +70,10 @@ async function createTaskIssue(
           state: createdIssue.state,
           createdFrom: "kaneo",
           syncInitializationPending: true,
+          syncCreatedText: {
+            title: event.title,
+            description: event.description ?? "",
+          },
           lastOutboundStateSyncAt: Date.now(),
         },
       });
@@ -92,6 +96,17 @@ async function createTaskIssue(
     }
 
     await initializeTaskIssue(event, context, createdLink, {
+      text: async (field, value) =>
+        (
+          await client.updateIssue(
+            repositoryOwner,
+            repositoryName,
+            issueNumber,
+            field === "title"
+              ? { title: formatIssueTitle(value) }
+              : { body: formatIssueBody(value, event.taskId) },
+          )
+        )?.updated_at,
       close: () =>
         client.updateIssue(repositoryOwner, repositoryName, issueNumber, {
           state: "closed",

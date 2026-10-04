@@ -28,6 +28,10 @@ const projectUpdateHandler = vi
     ([eventName]: [string]) => eventName === "project.updated",
   )?.[1];
 
+const taskTitleHandler = vi
+  .mocked(subscribeToEvent)
+  .mock.calls.find(([eventName]) => eventName === "task.title_changed")![1];
+
 function makeFakeWs() {
   return {
     send: vi.fn(),
@@ -182,6 +186,51 @@ describe("broadcastToProject", () => {
       projectId: "proj-1",
     });
 
+    removeConnection("proj-1", conn);
+  });
+
+  it("preserves a link refresh when a later unrelated project update shares its batch", async () => {
+    const ws = makeFakeWs();
+    const conn = addConnection("proj-1", ws, "user-1", "init-1", "workspace");
+    await projectUpdateHandler?.({ projectId: "proj-1", linksChanged: true });
+    await projectUpdateHandler?.({ projectId: "proj-1" });
+    const send = (ws as { send: ReturnType<typeof vi.fn> }).send;
+    await vi.waitFor(() => expect(send).toHaveBeenCalledOnce(), {
+      timeout: 300,
+    });
+    expect(JSON.parse(send.mock.calls[0][0])).toMatchObject({
+      type: "PROJECT_UPDATED",
+      projectId: "proj-1",
+      linksChanged: true,
+    });
+    removeConnection("proj-1", conn);
+  });
+
+  it("preserves the latest task title through later unrelated updates in the batch", async () => {
+    const ws = makeFakeWs();
+    const conn = addConnection("proj-1", ws, "user-1", "init-1", "workspace");
+    await taskTitleHandler({
+      projectId: "proj-1",
+      taskId: "t1",
+      newTitle: "First",
+    });
+    await taskTitleHandler({
+      projectId: "proj-1",
+      taskId: "t1",
+      newTitle: "Current",
+    });
+    broadcastToProject("proj-1", {
+      type: "TASK_UPDATED",
+      projectId: "proj-1",
+      taskId: "t1",
+    });
+    const send = (ws as { send: ReturnType<typeof vi.fn> }).send;
+    await vi.waitFor(() => expect(send).toHaveBeenCalledOnce(), {
+      timeout: 300,
+    });
+    expect(JSON.parse(send.mock.calls[0][0])).toMatchObject({
+      taskTitle: "Current",
+    });
     removeConnection("proj-1", conn);
   });
 

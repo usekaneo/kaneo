@@ -224,6 +224,9 @@ export async function handleIssueEdited(payload: IssueEditedPayload) {
                 publishEvent("task.updated", {
                   projectId: integration.projectId,
                   taskId: externalLink.taskId,
+                  ...(typeof updateData.title === "string"
+                    ? { title: updateData.title }
+                    : {}),
                 }),
               );
 

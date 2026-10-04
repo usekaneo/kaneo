@@ -361,6 +361,7 @@ async function applyPage(
     };
     await importIssueLabels(task.id, project.workspaceId, scopeLabels, tx);
     await importLabels(tx, issue.labels.nodes, task.id, project.workspaceId);
+    await canSyncTask(task.id, integrationId, tx);
     await importComments(tx, issue.comments.nodes, task.id, state.startedAt);
     announce(task.id, "task.updated", "task.labels_updated", "comment.updated");
     nextIssuePart(state);

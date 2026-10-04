@@ -73,6 +73,6 @@ export async function saveSyncRules(
     projectId,
     integrationId: integration.id,
   });
-  await publishEvent("project.updated", { projectId });
+  await publishEvent("project.updated", { projectId, linksChanged: true });
   return previewSyncRules(await getSyncIntegration(projectId, provider), rules);
 }

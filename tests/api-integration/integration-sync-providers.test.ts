@@ -367,6 +367,83 @@ describe.each(["github", "gitea", "gitlab"] as const)(
       expect(JSON.parse(link!.metadata!)).toMatchObject({ state: "closed" });
     });
 
+    it.each([false, true])(
+      "replays edits made during creation and retries failed text initialization (failure=%s)",
+      async (failure) => {
+        const f = await setup(type);
+        await f.assign();
+        let release!: () => void;
+        const gate = new Promise<void>((resolve) => {
+          release = resolve;
+        });
+        const response = await create.getMockImplementation()!();
+        create.mockImplementationOnce(async () => {
+          await gate;
+          return response;
+        });
+        if (failure)
+          mocks.update.mockRejectedValueOnce(
+            new Error("Temporary text initialization failure"),
+          );
+        const exportTask = reconcileTaskSync(f.project.id, f.task.id);
+        try {
+          await vi.waitFor(() => expect(create).toHaveBeenCalledOnce());
+          await db
+            .update(schema.taskTable)
+            .set({
+              title: "Edited title",
+              description: "Edited description",
+              status: f.columns.done.slug,
+              columnId: f.columns.done.id,
+              priority: "urgent",
+            })
+            .where(eq(schema.taskTable.id, f.task.id));
+        } finally {
+          release();
+          await exportTask;
+        }
+        if (failure) {
+          const link = (await db.query.externalLinkTable.findMany())[0]!;
+          expect(JSON.parse(link.metadata!)).toMatchObject({
+            syncInitializationPending: true,
+          });
+          await reconcileTaskSync(f.project.id, f.task.id);
+        }
+        expect(create).toHaveBeenCalledOnce();
+        const updates = mocks.update.mock.calls.map((call) => call.at(-1));
+        expect(updates).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ title: "Edited title" }),
+            expect.objectContaining(
+              type === "gitlab"
+                ? { description: expect.stringContaining("Edited description") }
+                : { body: expect.stringContaining("Edited description") },
+            ),
+            expect.objectContaining(
+              type === "gitlab"
+                ? { state_event: "close" }
+                : { state: "closed" },
+            ),
+          ]),
+        );
+        const names = mocks.labels.mock.calls[0]![type === "github" ? 4 : 2];
+        expect(names).toEqual(
+          expect.arrayContaining(["priority:urgent", "status:done"]),
+        );
+        expect(names).not.toContain("status:to-do");
+        const link = (await db.query.externalLinkTable.findMany())[0]!;
+        expect(link.title).toBe("Edited title");
+        expect(JSON.parse(link.metadata!)).toMatchObject({
+          syncInitializationPending: false,
+          syncInitializedText: {
+            title: "Edited title",
+            description: "Edited description",
+          },
+          state: "closed",
+        });
+      },
+    );
+
     it.each(["labels", "rules", "deactivation"])(
       "pauses a dispatched creation after %s change without follow-up writes",
       async (change) => {

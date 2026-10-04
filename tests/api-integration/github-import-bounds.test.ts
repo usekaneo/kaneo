@@ -158,6 +158,39 @@ async function saved() {
 }
 
 describe("bounded resumable GitHub import", () => {
+  it("pauses a newly imported issue that misses the outgoing rule before announcing it", async () => {
+    const { member, integration, config, request } = await setup();
+    const [root] = await db
+      .insert(schema.labelTable)
+      .values({
+        workspaceId: member.workspace.id,
+        name: "export",
+        color: "red",
+      })
+      .returning();
+    await db
+      .update(schema.integrationTable)
+      .set({
+        config: JSON.stringify({
+          ...config,
+          syncRules: {
+            outgoing: { mode: "labels", match: "any", labels: [root.id] },
+            incoming: { mode: "all" },
+          },
+        }),
+      })
+      .where(eq(schema.integrationTable.id, integration.id));
+    mocks.verify.mockResolvedValue({
+      graphql: mocks.graphql,
+      rest: { issues: { get: async () => ({ data: { labels: [] } }) } },
+    });
+    serveIssues(1);
+    expect((await request()).status).toBe(200);
+    const link = (await db.query.externalLinkTable.findMany())[0]!;
+    expect(JSON.parse(link.metadata!)).toMatchObject({
+      syncFilterPaused: true,
+    });
+  });
   it("rejects an incoming rule change while fetching a page before creating tasks or consuming its cursor", async () => {
     const { integration, config, request } = await setup();
     const started = deferred();

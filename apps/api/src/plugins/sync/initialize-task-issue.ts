@@ -5,6 +5,7 @@ import type { PluginContext, TaskCreatedEvent } from "../types";
 import { createIssueWrite } from "./dispatch-issue-write";
 import type { IssueWrite } from "./issue-write";
 import { taskIssueLabels } from "./issue-labels";
+import { initializeTaskText } from "./initialize-task-text";
 
 type Initialization = {
   syncInitializationPending?: boolean;
@@ -28,11 +29,16 @@ export async function initializeTaskIssue(
   context: PluginContext,
   link: Link,
   actions: {
+    text: (
+      field: "title" | "description",
+      value: string,
+    ) => Promise<string | undefined>;
     close: () => Promise<unknown>;
     labels: (names: string[], write: IssueWrite) => Promise<void>;
     comment?: () => Promise<unknown>;
   },
 ) {
+  const current = await initializeTaskText(event, context, link, actions.text);
   const progress = parseLinkMetadata<Initialization>(link.metadata, {
     externalLinkId: link.id,
     source: "sync_creation",
@@ -45,7 +51,7 @@ export async function initializeTaskIssue(
     if (
       await isTaskInFinalState({
         projectId: event.projectId,
-        status: event.status,
+        status: current.status,
         columnId: null,
       })
     ) {
@@ -60,7 +66,7 @@ export async function initializeTaskIssue(
   }
   if (!progress.syncInitializedLabels) {
     await actions.labels(
-      await taskIssueLabels(event.taskId, event.priority, event.status),
+      await taskIssueLabels(event.taskId, current.priority, current.status),
       write,
     );
     await updateExternalLink(link.id, {
