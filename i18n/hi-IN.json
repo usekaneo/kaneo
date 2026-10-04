@@ -2492,6 +2492,33 @@
 					"rose": "गुलाब",
 					"crimson": "किरमिज़ी"
 				}
+			},
+			"recurrence": {
+				"updateError": "Failed to update task repeat",
+				"every": "Every",
+				"hint": "When this task is done, the next one is created.",
+				"interval": "Interval",
+				"onDays": "On these days",
+				"pattern": {
+					"daily": "Daily",
+					"monthly": "Monthly",
+					"periodically": "Periodically",
+					"weekly": "Weekly",
+					"yearly": "Yearly"
+				},
+				"repeats": "Repeats",
+				"toggle": "Repeat",
+				"unit": {
+					"days_one": "day",
+					"days_other": "days",
+					"label": "Unit",
+					"months_one": "month",
+					"months_other": "months",
+					"weeks_one": "week",
+					"weeks_other": "weeks",
+					"years_one": "year",
+					"years_other": "years"
+				}
 			}
 		},
 		"backlog": {
@@ -2708,6 +2735,17 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"recurrence": {
+			"daily_one": "Every day",
+			"daily_other": "Every {{count}} days",
+			"monthly_one": "Every month",
+			"monthly_other": "Every {{count}} months",
+			"weekly_one": "Every week",
+			"weekly_other": "Every {{count}} weeks",
+			"yearly_one": "Every year",
+			"yearly_other": "Every {{count}} years",
+			"onDays": "{{rule}} on {{days}}"
 		}
 	},
 	"invitations": {

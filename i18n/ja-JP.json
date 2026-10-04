@@ -2480,6 +2480,29 @@
 					"rose": "ローズ",
 					"crimson": "クリムゾン"
 				}
+			},
+			"recurrence": {
+				"updateError": "Failed to update task repeat",
+				"every": "Every",
+				"hint": "When this task is done, the next one is created.",
+				"interval": "Interval",
+				"onDays": "On these days",
+				"pattern": {
+					"daily": "Daily",
+					"monthly": "Monthly",
+					"periodically": "Periodically",
+					"weekly": "Weekly",
+					"yearly": "Yearly"
+				},
+				"repeats": "Repeats",
+				"toggle": "Repeat",
+				"unit": {
+					"days_other": "days",
+					"label": "Unit",
+					"months_other": "months",
+					"weeks_other": "weeks",
+					"years_other": "years"
+				}
 			}
 		},
 		"backlog": {
@@ -2695,6 +2718,13 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"recurrence": {
+			"daily_other": "Every {{count}} days",
+			"monthly_other": "Every {{count}} months",
+			"weekly_other": "Every {{count}} weeks",
+			"yearly_other": "Every {{count}} years",
+			"onDays": "{{rule}} on {{days}}"
 		}
 	},
 	"invitations": {

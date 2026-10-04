@@ -2467,6 +2467,33 @@
 				"updateError": "Failed to update task due date",
 				"clear": "Clear date"
 			},
+			"recurrence": {
+				"toggle": "Repeat",
+				"repeats": "Repeats",
+				"pattern": {
+					"daily": "Daily",
+					"weekly": "Weekly",
+					"monthly": "Monthly",
+					"yearly": "Yearly",
+					"periodically": "Periodically"
+				},
+				"every": "Every",
+				"interval": "Interval",
+				"unit": {
+					"label": "Unit",
+					"days_one": "day",
+					"days_other": "days",
+					"weeks_one": "week",
+					"weeks_other": "weeks",
+					"months_one": "month",
+					"months_other": "months",
+					"years_one": "year",
+					"years_other": "years"
+				},
+				"onDays": "On these days",
+				"hint": "When this task is done, the next one is created.",
+				"updateError": "Failed to update task repeat"
+			},
 			"startDate": {
 				"updateSuccess": "Task start date updated successfully",
 				"updateError": "Failed to update task start date",
@@ -2636,6 +2663,17 @@
 			"updateError": "Failed to update task due date",
 			"clearSuccess": "Task due date cleared",
 			"clearError": "Failed to clear due date"
+		},
+		"recurrence": {
+			"daily_one": "Every day",
+			"daily_other": "Every {{count}} days",
+			"weekly_one": "Every week",
+			"weekly_other": "Every {{count}} weeks",
+			"monthly_one": "Every month",
+			"monthly_other": "Every {{count}} months",
+			"yearly_one": "Every year",
+			"yearly_other": "Every {{count}} years",
+			"onDays": "{{rule}} on {{days}}"
 		},
 		"labels": {
 			"label": "Labels",

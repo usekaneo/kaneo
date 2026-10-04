@@ -11,6 +11,7 @@ import {
 import { type CSSProperties, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskProgressBadges } from "@/components/task/task-progress-badges";
+import { TaskRecurrenceBadge } from "@/components/task/task-recurrence-badge";
 import { TaskPullRequests } from "@/components/task/task-pull-requests";
 import {
   AlertDialog,
@@ -389,6 +390,7 @@ function TaskCard({
               )}
 
               <TaskProgressBadges task={task} />
+              <TaskRecurrenceBadge task={task} />
 
               {showDueDates && task.dueDate && (
                 <div

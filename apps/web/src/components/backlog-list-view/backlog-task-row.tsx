@@ -11,6 +11,7 @@ import {
 import { type CSSProperties, memo, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskProgressBadges } from "@/components/task/task-progress-badges";
+import { TaskRecurrenceBadge } from "@/components/task/task-recurrence-badge";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -225,6 +226,7 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
                 </span>
                 <div className="flex items-center gap-1">
                   <TaskProgressBadges task={task} />
+                  <TaskRecurrenceBadge task={task} />
                   {showLabels && <TaskLabels labels={task.labels ?? []} />}
                 </div>
               </div>

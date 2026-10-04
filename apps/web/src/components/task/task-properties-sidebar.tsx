@@ -40,6 +40,7 @@ import TaskAssigneePopover from "./task-assignee-popover";
 import TaskDueDatePopover from "./task-due-date-popover";
 import TaskLabelsPopover from "./task-labels-popover";
 import TaskPriorityPopover from "./task-priority-popover";
+import { TaskRecurrenceBadge } from "./task-recurrence-badge";
 import TaskStartDatePopover from "./task-start-date-popover";
 import TaskStatusPopover from "./task-status-popover";
 
@@ -303,6 +304,7 @@ export default function TaskPropertiesSidebar({
                         </span>
                       </>
                     )}
+                    <TaskRecurrenceBadge task={task} asText />
                   </Button>
                 </TaskDueDatePopover>
               )}
@@ -452,6 +454,7 @@ export default function TaskPropertiesSidebar({
                           </span>
                         </>
                       )}
+                      <TaskRecurrenceBadge task={task} asText />
                     </Button>
                   </TaskDueDatePopover>
                 )}
@@ -601,6 +604,7 @@ export default function TaskPropertiesSidebar({
                           </span>
                         </>
                       )}
+                      <TaskRecurrenceBadge task={task} asText />
                     </Button>
                   </TaskDueDatePopover>
                 )}

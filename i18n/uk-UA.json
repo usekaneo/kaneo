@@ -2516,6 +2516,41 @@
 					"rose": "Троянда",
 					"crimson": "Багряний"
 				}
+			},
+			"recurrence": {
+				"updateError": "Failed to update task repeat",
+				"every": "Every",
+				"hint": "When this task is done, the next one is created.",
+				"interval": "Interval",
+				"onDays": "On these days",
+				"pattern": {
+					"daily": "Daily",
+					"monthly": "Monthly",
+					"periodically": "Periodically",
+					"weekly": "Weekly",
+					"yearly": "Yearly"
+				},
+				"repeats": "Repeats",
+				"toggle": "Repeat",
+				"unit": {
+					"days_few": "days",
+					"days_many": "days",
+					"days_one": "day",
+					"days_other": "days",
+					"label": "Unit",
+					"months_few": "months",
+					"months_many": "months",
+					"months_one": "month",
+					"months_other": "months",
+					"weeks_few": "weeks",
+					"weeks_many": "weeks",
+					"weeks_one": "week",
+					"weeks_other": "weeks",
+					"years_few": "years",
+					"years_many": "years",
+					"years_one": "year",
+					"years_other": "years"
+				}
 			}
 		},
 		"backlog": {
@@ -2734,6 +2769,25 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"recurrence": {
+			"daily_few": "Every {{count}} days",
+			"daily_many": "Every {{count}} days",
+			"daily_one": "Every day",
+			"daily_other": "Every {{count}} days",
+			"monthly_few": "Every {{count}} months",
+			"monthly_many": "Every {{count}} months",
+			"monthly_one": "Every month",
+			"monthly_other": "Every {{count}} months",
+			"weekly_few": "Every {{count}} weeks",
+			"weekly_many": "Every {{count}} weeks",
+			"weekly_one": "Every week",
+			"weekly_other": "Every {{count}} weeks",
+			"yearly_few": "Every {{count}} years",
+			"yearly_many": "Every {{count}} years",
+			"yearly_one": "Every year",
+			"yearly_other": "Every {{count}} years",
+			"onDays": "{{rule}} on {{days}}"
 		}
 	},
 	"invitations": {
