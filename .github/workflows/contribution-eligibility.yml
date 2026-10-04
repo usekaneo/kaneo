@@ -4,7 +4,7 @@ on:
   # zizmor: ignore[dangerous-triggers] Only executes policy code from main;
   # never checks out or executes pull-request content.
   pull_request_target:
-    types: [opened, edited, synchronize, reopened, ready_for_review]
+    types: [opened, edited, synchronize, reopened, ready_for_review, closed]
   issues:
     types: [labeled, unlabeled, closed, reopened, deleted, transferred]
   label:

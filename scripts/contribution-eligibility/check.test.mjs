@@ -279,6 +279,24 @@ test("a vouched PR never overrides an ineligible PR on the same commit", async (
   }
 });
 
+test("closing an ineligible PR clears its failure from a shared commit on recheck", async () => {
+  const pulls = [pull, { ...pull, number: 2, user: { ...pull.user, id: 456 } }];
+  const { github, statuses } = fixture({ pulls, links: [] });
+  const vouched = {
+    ...policy,
+    vouchedContributors: [{ id: 123, login: "trusted", reason: "Trusted." }],
+  };
+  await reconcile(github, async () => vouched);
+  assert.equal(statuses.at(-1).state, "failure");
+  assert.match(statuses.at(-1).description, /PR #2/);
+
+  pulls.pop();
+  await reconcile(github, async () => vouched);
+  assert.equal(statuses.at(-1).sha, sha);
+  assert.equal(statuses.at(-1).state, "success");
+  assert.match(statuses.at(-1).description, /PR #1/);
+});
+
 test("a failure on one PR still updates other PRs before failing the workflow", async () => {
   const { github, statuses } = fixture({
     pulls: [pull, { ...pull, number: 2, head: { sha: "b".repeat(40) } }],
