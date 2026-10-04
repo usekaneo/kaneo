@@ -82,6 +82,9 @@ export const createTaskBody = z.object({
   priority,
   status: z.string().openapi({ description: "The target column's slug." }),
   userId: z.string().optional().openapi({ description: "Assignee, if any." }),
+  recurrence: taskRecurrenceSchema
+    .optional()
+    .openapi({ description: "Omit to create a task that does not repeat." }),
   draftAssetIds: z.array(z.string()).max(100).optional(),
   customFields: z
     .array(z.object({ fieldId: z.string(), value: z.string() }))

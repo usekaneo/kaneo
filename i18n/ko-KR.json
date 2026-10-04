@@ -126,7 +126,6 @@
 				"startDate": "시작일",
 				"dueDate": "마감일",
 				"clearStartDate": "시작일 지우기",
-				"clearDueDate": "마감일 지우기",
 				"assign": "할당",
 				"assignUnassigned": "미할당",
 				"assignUnassignedTitle": "미할당",

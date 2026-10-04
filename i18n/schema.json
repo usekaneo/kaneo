@@ -498,9 +498,6 @@
 								"clearStartDate": {
 									"type": "string"
 								},
-								"clearDueDate": {
-									"type": "string"
-								},
 								"assign": {
 									"type": "string"
 								},
@@ -612,7 +609,6 @@
 								"startDate",
 								"dueDate",
 								"clearStartDate",
-								"clearDueDate",
 								"assign",
 								"assignUnassigned",
 								"assignUnassignedTitle",

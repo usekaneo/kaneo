@@ -121,6 +121,37 @@ describe("API integration: recurring tasks", () => {
     expect(stored?.recurrence).toBeNull();
   });
 
+  it("creates a task that already repeats", async () => {
+    const { project, app } = await seedProject();
+    const recurrence = { ...weekly, weekdays: [1, 4] };
+
+    const created = await request(app, "POST", `/api/task/${project.id}`, {
+      title: "Water the plants",
+      description: "",
+      priority: "no-priority",
+      status: "to-do",
+      dueDate: "2026-03-10T00:00:00.000Z",
+      recurrence,
+    });
+    expect(created.status).toBe(200);
+    const task = await created.json();
+    expect(task).toMatchObject({ recurrence });
+
+    const stored = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, task.id),
+    });
+    expect(stored?.recurrence).toEqual(recurrence);
+
+    const invalid = await request(app, "POST", `/api/task/${project.id}`, {
+      title: "Water the plants",
+      description: "",
+      priority: "no-priority",
+      status: "to-do",
+      recurrence: { ...weekly, frequency: "daily", weekdays: [1] },
+    });
+    expect(invalid.status).toBe(400);
+  });
+
   it("rejects invalid recurrence rules", async () => {
     const { project, columns, app } = await seedProject();
     const task = await seedTask(project.id, columns.todo.id);

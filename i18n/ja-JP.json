@@ -126,7 +126,6 @@
 				"startDate": "開始日",
 				"dueDate": "期限",
 				"clearStartDate": "開始日をクリア",
-				"clearDueDate": "期限をクリア",
 				"assign": "担当者を割り当て",
 				"assignUnassigned": "未割り当て",
 				"assignUnassignedTitle": "未割り当て",

@@ -126,7 +126,6 @@
 				"startDate": "开始日期",
 				"dueDate": "截止日期",
 				"clearStartDate": "清除开始日期",
-				"clearDueDate": "清除截止日期",
 				"assign": "指派",
 				"assignUnassigned": "未指派",
 				"assignUnassignedTitle": "未指派",

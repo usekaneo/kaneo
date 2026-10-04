@@ -21,6 +21,7 @@ import {
   assertValidTaskStatus,
   isCustomFieldValueEmpty,
 } from "../validate-task-fields";
+import type { TaskRecurrence } from "../recurrence/schema";
 import { claimTaskNumber } from "./claim-task-numbers";
 import { nextTaskPosition } from "./next-task-position";
 
@@ -55,6 +56,7 @@ async function createTask({
   dueDate,
   description,
   priority,
+  recurrence,
   customFields,
   draftAssetIds,
 }: {
@@ -67,6 +69,7 @@ async function createTask({
   dueDate?: Date;
   description?: string;
   priority?: string;
+  recurrence?: TaskRecurrence;
   customFields?: CustomFieldInput[];
   draftAssetIds?: string[];
 }) {
@@ -152,6 +155,7 @@ async function createTask({
         dueDate: dueDate || null,
         description: description || "",
         priority: resolvedPriority,
+        recurrence: recurrence ?? null,
         number: taskNumber,
         position: nextPosition,
       })

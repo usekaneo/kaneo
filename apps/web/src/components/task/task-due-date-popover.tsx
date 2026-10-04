@@ -1,8 +1,5 @@
-import { Repeat, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
@@ -11,12 +8,10 @@ import {
 import { useUpdateTaskDueDate } from "@/hooks/mutations/task/use-update-task-due-date";
 import { useUpdateTaskRecurrence } from "@/hooks/mutations/task/use-update-task-recurrence";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
-import { cn } from "@/lib/cn";
-import { upcomingOccurrences } from "@/lib/next-occurrence-date";
 import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
 import type { TaskRecurrence } from "@/types/task/recurrence";
-import TaskRecurrenceSettings from "./task-recurrence-settings";
+import TaskDueDatePicker from "./task-due-date-picker";
 
 type TaskDueDatePopoverProps = {
   task: Task;
@@ -38,10 +33,9 @@ export default function TaskDueDatePopover({
     () => (task.dueDate ? new Date(task.dueDate) : undefined),
     [task.dueDate],
   );
-  const upcoming = useMemo(
-    () =>
-      dueDate && recurrence ? upcomingOccurrences(dueDate, recurrence, 8) : [],
-    [dueDate, recurrence],
+  const startDate = useMemo(
+    () => (task.startDate ? new Date(task.startDate) : undefined),
+    [task.startDate],
   );
 
   const handleDateChange = async (date: Date | undefined) => {
@@ -74,76 +68,23 @@ export default function TaskDueDatePopover({
     }
   };
 
-  const toggleRepeat = () =>
-    handleRecurrenceChange(
-      recurrence
-        ? null
-        : {
-            frequency: "weekly",
-            interval: 1,
-            weekdays: [(dueDate ?? new Date()).getDay()],
-            // Keeps the next due date on the same local day across DST changes.
-            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
-          },
-    );
-
   if (!canEdit) return <>{children}</>;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent className="w-72 p-0" align="start">
-        <Calendar
-          mode="single"
-          selected={dueDate}
-          defaultMonth={dueDate}
-          onSelect={handleDateChange}
-          disabled={
-            task.startDate ? { before: new Date(task.startDate) } : undefined
-          }
-          modifiers={{ repeats: upcoming }}
-          modifiersClassNames={{
-            repeats:
-              "[&>button]:bg-primary/12 [&>button]:font-medium [&>button]:text-primary",
+        <TaskDueDatePicker
+          dueDate={dueDate}
+          startDate={startDate}
+          recurrence={recurrence}
+          onDateChange={handleDateChange}
+          onRecurrenceChange={handleRecurrenceChange}
+          onClear={() => {
+            setOpen(false);
+            void handleDateChange(undefined);
           }}
-          className="w-full bg-popover"
         />
-        {recurrence && (
-          <TaskRecurrenceSettings
-            recurrence={recurrence}
-            defaultWeekday={(dueDate ?? new Date()).getDay()}
-            onChange={handleRecurrenceChange}
-          />
-        )}
-        <div className="flex items-center justify-between border-t border-border p-1.5">
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-pressed={Boolean(recurrence)}
-            className={cn(
-              "gap-2 text-muted-foreground hover:text-foreground",
-              recurrence && "bg-accent text-foreground",
-            )}
-            onClick={toggleRepeat}
-          >
-            <Repeat className="h-4 w-4" />
-            {t("tasks:popover.recurrence.toggle")}
-          </Button>
-          {task.dueDate && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-2 text-muted-foreground hover:text-foreground"
-              onClick={() => {
-                setOpen(false);
-                void handleDateChange(undefined);
-              }}
-            >
-              <X className="h-4 w-4" />
-              {t("tasks:popover.dueDate.clear")}
-            </Button>
-          )}
-        </div>
       </PopoverContent>
     </Popover>
   );

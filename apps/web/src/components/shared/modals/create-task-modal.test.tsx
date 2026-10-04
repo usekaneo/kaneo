@@ -178,7 +178,10 @@ vi.mock("@/lib/toast", () => ({
 }));
 
 vi.mock("react-i18next", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { language: "en-US" },
+  }),
   initReactI18next: { type: "3rdParty", init: vi.fn() },
 }));
 
@@ -322,6 +325,27 @@ describe("CreateTaskModal", () => {
     await vi.waitFor(() =>
       expect(createTask).toHaveBeenCalledWith(
         expect.objectContaining({ status: "ready-for-work" }),
+      ),
+    );
+  });
+
+  it("creates a repeating task from the due date picker", async () => {
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    enterTitle();
+    fireEvent.click(screen.getByText("common:modals.createTask.dueDate"));
+    fireEvent.click(await screen.findByText("tasks:popover.recurrence.toggle"));
+    submit();
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({
+          recurrence: expect.objectContaining({
+            frequency: "weekly",
+            interval: 1,
+          }),
+        }),
       ),
     );
   });

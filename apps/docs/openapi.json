@@ -9753,6 +9753,16 @@
                     "type": "string",
                     "description": "Assignee, if any."
                   },
+                  "recurrence": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/TaskRecurrence"
+                      },
+                      {
+                        "description": "Omit to create a task that does not repeat."
+                      }
+                    ]
+                  },
                   "draftAssetIds": {
                     "type": "array",
                     "items": {

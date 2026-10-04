@@ -916,6 +916,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       priority,
       status,
       userId,
+      recurrence,
       customFields,
       draftAssetIds,
     } = c.req.valid("json");
@@ -941,6 +942,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       dueDate: parsedDueDate,
       priority,
       status,
+      recurrence,
       customFields,
       draftAssetIds,
     });

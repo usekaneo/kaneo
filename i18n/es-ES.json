@@ -126,7 +126,6 @@
 				"startDate": "Fecha de inicio",
 				"dueDate": "Fecha de vencimiento",
 				"clearStartDate": "Borrar fecha de inicio",
-				"clearDueDate": "Borrar fecha de vencimiento",
 				"assign": "Asignar",
 				"assignUnassigned": "Sin asignar",
 				"assignUnassignedTitle": "Sin asignar",
