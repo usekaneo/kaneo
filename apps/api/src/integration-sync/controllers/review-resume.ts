@@ -8,6 +8,7 @@ import { taskMatchesRule } from "../../plugins/sync/eligibility";
 import { providerIssue } from "../../plugins/sync/provider-issue";
 import { isSyncPaused, readSyncRules } from "../../plugins/sync/rules";
 import { getSyncIntegration } from "./get-integration";
+import { getAuthorizedSyncProject } from "./authorized-project";
 import type { IntegrationDatabase } from "../../plugins/github/services/integration-task-scope";
 import type { ResumeProviderSnapshot } from "./resume-provider-snapshot";
 
@@ -15,10 +16,15 @@ export async function reviewSyncResume(
   projectId: string,
   provider: string,
   linkId: string,
+  authorizedWorkspaceId: string,
   database: IntegrationDatabase = db,
   providerSnapshot?: ResumeProviderSnapshot,
 ) {
   const integration = await getSyncIntegration(projectId, provider, database);
+  if (integration.project.workspaceId !== authorizedWorkspaceId)
+    throw new HTTPException(403, {
+      message: "Project no longer belongs to the authorized workspace",
+    });
   const link = await database.query.externalLinkTable.findFirst({
     where: and(
       eq(externalLinkTable.id, linkId),
@@ -73,6 +79,8 @@ export async function reviewSyncResume(
       });
     }
   }
+  // Provider latency must not allow a moved project's comparison to escape.
+  await getAuthorizedSyncProject(projectId, authorizedWorkspaceId, database);
   const { remoteIssue } = snapshot;
   const remote = {
     title: remoteIssue.title,

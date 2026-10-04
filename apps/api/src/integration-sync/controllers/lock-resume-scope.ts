@@ -9,13 +9,16 @@ import {
 import type { IntegrationDatabase } from "../../plugins/github/services/integration-task-scope";
 import { readSyncRules } from "../../plugins/sync/rules";
 import { getSyncIntegration } from "./get-integration";
+import { getAuthorizedSyncProject } from "./authorized-project";
 
 export async function lockResumeScope(
   projectId: string,
   provider: string,
   linkId: string,
+  authorizedWorkspaceId: string,
   tx: IntegrationDatabase,
 ) {
+  await getAuthorizedSyncProject(projectId, authorizedWorkspaceId, tx, true);
   const integration = await getSyncIntegration(projectId, provider, tx);
   const [binding] = await tx
     .select()

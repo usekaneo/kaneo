@@ -17,10 +17,18 @@ export async function resumeSync(
   linkId: string,
   token: string,
   source: "kaneo" | "provider",
+  authorizedWorkspaceId: string,
 ) {
   try {
     return await withSyncLease(`sync-resume:${linkId}`, () =>
-      resumeWithLease(projectId, provider, linkId, token, source),
+      resumeWithLease(
+        projectId,
+        provider,
+        linkId,
+        token,
+        source,
+        authorizedWorkspaceId,
+      ),
     );
   } catch (error) {
     if (error instanceof SyncLeaseBusyError)
@@ -35,9 +43,15 @@ async function resumeWithLease(
   linkId: string,
   token: string,
   source: "kaneo" | "provider",
+  authorizedWorkspaceId: string,
 ) {
   // Provider latency must not retain a pooled connection or block local edits.
-  const initial = await reviewSyncResume(projectId, provider, linkId);
+  const initial = await reviewSyncResume(
+    projectId,
+    provider,
+    linkId,
+    authorizedWorkspaceId,
+  );
   const { snapshot } = initial;
   let request:
     | Promise<
@@ -52,12 +66,19 @@ async function resumeWithLease(
   let providerWritten = false;
   let updatedAt: string | null = null;
   let adoption: Awaited<ReturnType<typeof applySyncResume>>;
-  const validate = async (tx: Parameters<typeof lockResumeScope>[3]) => {
-    await lockResumeScope(projectId, provider, linkId, tx);
+  const validate = async (tx: Parameters<typeof lockResumeScope>[4]) => {
+    await lockResumeScope(
+      projectId,
+      provider,
+      linkId,
+      authorizedWorkspaceId,
+      tx,
+    );
     const review = await reviewSyncResume(
       projectId,
       provider,
       linkId,
+      authorizedWorkspaceId,
       tx,
       snapshot,
     );

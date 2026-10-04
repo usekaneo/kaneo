@@ -7,9 +7,11 @@ import {
   z,
 } from "../openapi";
 import { readSyncRules } from "../plugins/sync/rules";
+import db from "../database";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import { getSyncIntegration } from "./controllers/get-integration";
+import { getAuthorizedSyncProject } from "./controllers/authorized-project";
 import { previewSyncRules } from "./controllers/preview-rules";
 import { resumeSync } from "./controllers/resume-sync";
 import { reviewSyncResume } from "./controllers/review-resume";
@@ -134,24 +136,41 @@ const resumeRoute = createRoute({
 export default apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(getRoute, async (c) => {
     const { projectId, provider } = c.req.valid("param");
-    const integration = await getSyncIntegration(projectId, provider);
     return c.json(
-      await previewSyncRules(
-        integration,
-        readSyncRules(integration.config)!,
-        undefined,
-        c.req.valid("query").after,
-      ),
+      await db.transaction(async (tx) => {
+        await getAuthorizedSyncProject(
+          projectId,
+          c.get("workspaceId"),
+          tx,
+          true,
+        );
+        const integration = await getSyncIntegration(projectId, provider, tx);
+        return previewSyncRules(
+          integration,
+          readSyncRules(integration.config)!,
+          tx,
+          c.req.valid("query").after,
+        );
+      }),
       200,
     );
   })
   .openapi(previewRoute, async (c) => {
     const { projectId, provider } = c.req.valid("param");
     return c.json(
-      await previewSyncRules(
-        await getSyncIntegration(projectId, provider),
-        c.req.valid("json").rules,
-      ),
+      await db.transaction(async (tx) => {
+        await getAuthorizedSyncProject(
+          projectId,
+          c.get("workspaceId"),
+          tx,
+          true,
+        );
+        return previewSyncRules(
+          await getSyncIntegration(projectId, provider, tx),
+          c.req.valid("json").rules,
+          tx,
+        );
+      }),
       200,
     );
   })
@@ -171,7 +190,12 @@ export default apiRouter<BaseVariables & { workspaceId: string }>()
   })
   .openapi(reviewRoute, async (c) => {
     const { projectId, provider, linkId } = c.req.valid("param");
-    const review = await reviewSyncResume(projectId, provider, linkId);
+    const review = await reviewSyncResume(
+      projectId,
+      provider,
+      linkId,
+      c.get("workspaceId"),
+    );
     return c.json(
       {
         task: {
@@ -190,7 +214,14 @@ export default apiRouter<BaseVariables & { workspaceId: string }>()
     const { projectId, provider, linkId } = c.req.valid("param");
     const { source, token } = c.req.valid("json");
     return c.json(
-      await resumeSync(projectId, provider, linkId, token, source),
+      await resumeSync(
+        projectId,
+        provider,
+        linkId,
+        token,
+        source,
+        c.get("workspaceId"),
+      ),
       200,
     );
   });

@@ -680,7 +680,13 @@ describe("reviewed sync resume", () => {
             return integration;
           },
         );
-        await lockResumeScope(f.project.id, "gitea", f.link.id, tx);
+        await lockResumeScope(
+          f.project.id,
+          "gitea",
+          f.link.id,
+          f.workspace.id,
+          tx,
+        );
       }),
     ).rejects.toMatchObject({ status: 404, message: "Linked task not found" });
     expect(
@@ -890,22 +896,41 @@ describe("reviewed sync resume", () => {
 
   it("rejects a stale local comparison before writing to the provider", async () => {
     const f = await paused();
-    const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+    const review = await reviewSyncResume(
+      f.project.id,
+      "gitea",
+      f.link.id,
+      f.workspace.id,
+    );
     await db
       .update(schema.taskTable)
       .set({ title: "Changed locally" })
       .where(eq(schema.taskTable.id, f.task.id));
     await expect(
-      resumeSync(f.project.id, "gitea", f.link.id, review.token, "kaneo"),
+      resumeSync(
+        f.project.id,
+        "gitea",
+        f.link.id,
+        review.token,
+        "kaneo",
+        f.workspace.id,
+      ),
     ).rejects.toMatchObject({ status: 409 });
     expect(provider.write).not.toHaveBeenCalled();
   });
 
-  it.each(["task", "integration", "labels", "link"] as const)(
+  it.each(["task", "integration", "labels", "link", "project"] as const)(
     "allows %s edits during a provider write and retains an uncertain paused link",
     async (change) => {
       const f = await paused();
-      const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+      const target =
+        change === "project" ? await createWorkspaceMember() : undefined;
+      const review = await reviewSyncResume(
+        f.project.id,
+        "gitea",
+        f.link.id,
+        f.workspace.id,
+      );
       let release!: () => void;
       const gate = new Promise<void>((resolve) => {
         release = resolve;
@@ -920,6 +945,7 @@ describe("reviewed sync resume", () => {
         f.link.id,
         review.token,
         "kaneo",
+        f.workspace.id,
       ).then(
         () => undefined,
         (error: unknown) => error,
@@ -946,6 +972,11 @@ describe("reviewed sync resume", () => {
               .update(schema.externalLinkTable)
               .set({ metadata: "{}" })
               .where(eq(schema.externalLinkTable.id, f.link.id)),
+          project: (tx: typeof db) =>
+            tx
+              .update(schema.projectTable)
+              .set({ workspaceId: target!.workspace.id })
+              .where(eq(schema.projectTable.id, f.project.id)),
         };
         await db.transaction(async (tx) => {
           await tx.execute(sql`set local lock_timeout = '1s'`);
@@ -959,7 +990,9 @@ describe("reviewed sync resume", () => {
       } finally {
         release();
       }
-      expect(await resume).toMatchObject({ status: 409 });
+      expect(await resume).toMatchObject({
+        status: change === "project" ? 403 : 409,
+      });
       const stored = await db.query.externalLinkTable.findFirst({
         where: eq(schema.externalLinkTable.id, f.link.id),
       });
@@ -976,9 +1009,125 @@ describe("reviewed sync resume", () => {
     },
   );
 
+  it.each(["review", "kaneo", "provider"] as const)(
+    "rejects %s when the project moves after authorization",
+    async (source) => {
+      const f = await paused();
+      const target = await createWorkspaceMember({ role: "owner" });
+      await db
+        .update(schema.integrationTable)
+        .set({
+          config: JSON.stringify({
+            ...JSON.parse(f.integration.config),
+            syncRules: defaultSyncRules,
+          }),
+        })
+        .where(eq(schema.integrationTable.id, f.integration.id));
+      const review = await reviewSyncResume(
+        f.project.id,
+        "gitea",
+        f.link.id,
+        f.workspace.id,
+      );
+      const query = getDatabase().query.integrationTable;
+      const findFirst = query.findFirst.bind(query);
+      vi.spyOn(query, "findFirst").mockImplementationOnce(async (...args) => {
+        await moveProject(
+          f.project.id,
+          f.workspace.id,
+          target.workspace.id,
+          target.user.id,
+        );
+        return findFirst(...args);
+      });
+      const response = await f.request(
+        `/links/${f.link.id}/${source === "review" ? "review" : "resume"}`,
+        source === "review" ? "GET" : "POST",
+        source === "review" ? undefined : { source, token: review.token },
+      );
+      expect(response.status).toBe(403);
+      expect(provider.write).not.toHaveBeenCalled();
+      expect(await response.text()).not.toContain("Repository body");
+      expect(
+        await db.query.taskTable.findFirst({
+          where: eq(schema.taskTable.id, f.task.id),
+        }),
+      ).toMatchObject({ title: f.task.title, description: f.task.description });
+      expect(
+        isSyncPaused(
+          (await db.query.externalLinkTable.findFirst({
+            where: eq(schema.externalLinkTable.id, f.link.id),
+          }))!.metadata,
+        ),
+      ).toBe(true);
+    },
+  );
+
+  it.each(["review", "kaneo", "provider"] as const)(
+    "rejects %s if the project moves while the provider read is pending",
+    async (source) => {
+      const f = await paused();
+      const target = await createWorkspaceMember({ role: "owner" });
+      await db
+        .update(schema.integrationTable)
+        .set({
+          config: JSON.stringify({
+            ...JSON.parse(f.integration.config),
+            syncRules: defaultSyncRules,
+          }),
+        })
+        .where(eq(schema.integrationTable.id, f.integration.id));
+      const review = await reviewSyncResume(
+        f.project.id,
+        "gitea",
+        f.link.id,
+        f.workspace.id,
+      );
+      provider.read.mockImplementationOnce(async () => {
+        const activity = await db.execute<{ count: number }>(sql`
+          select count(*)::int as count from pg_stat_activity
+          where datname = current_database() and state = 'idle in transaction'
+        `);
+        expect(activity.rows[0]!.count).toBe(0);
+        await moveProject(
+          f.project.id,
+          f.workspace.id,
+          target.workspace.id,
+          target.user.id,
+        );
+        return review.snapshot.remoteIssue;
+      });
+      const response = await f.request(
+        `/links/${f.link.id}/${source === "review" ? "review" : "resume"}`,
+        source === "review" ? "GET" : "POST",
+        source === "review" ? undefined : { source, token: review.token },
+      );
+      expect(response.status).toBe(403);
+      expect(provider.write).not.toHaveBeenCalled();
+      expect(await response.text()).not.toContain("Repository body");
+      expect(
+        await db.query.taskTable.findFirst({
+          where: eq(schema.taskTable.id, f.task.id),
+        }),
+      ).toMatchObject({ title: f.task.title, description: f.task.description });
+      expect(
+        isSyncPaused(
+          (await db.query.externalLinkTable.findFirst({
+            where: eq(schema.externalLinkTable.id, f.link.id),
+          }))!.metadata,
+        ),
+      ).toBe(true);
+    },
+  );
+
   it("allows task edits during the provider read and rejects the stale comparison before dispatch", async () => {
     const f = await paused();
-    const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+    const review = await reviewSyncResume(
+      f.project.id,
+      "gitea",
+      f.link.id,
+      f.workspace.id,
+    );
     let release!: () => void;
     const gate = new Promise<void>((resolve) => {
       release = resolve;
@@ -994,6 +1143,7 @@ describe("reviewed sync resume", () => {
       f.link.id,
       review.token,
       "kaneo",
+      f.workspace.id,
     ).then(
       () => undefined,
       (error: unknown) => error,
@@ -1017,7 +1167,12 @@ describe("reviewed sync resume", () => {
 
   it("pauses again when a repository edit's webhook was discarded during resume", async () => {
     const f = await paused();
-    const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+    const review = await reviewSyncResume(
+      f.project.id,
+      "gitea",
+      f.link.id,
+      f.workspace.id,
+    );
     let remote = review.snapshot.remoteIssue;
     const ignoredWebhook = vi.fn(async () => {
       await db
@@ -1040,7 +1195,14 @@ describe("reviewed sync resume", () => {
       return snapshot;
     });
     await expect(
-      resumeSync(f.project.id, "gitea", f.link.id, review.token, "provider"),
+      resumeSync(
+        f.project.id,
+        "gitea",
+        f.link.id,
+        review.token,
+        "provider",
+        f.workspace.id,
+      ),
     ).rejects.toMatchObject({ status: 409 });
     expect(ignoredWebhook).not.toHaveBeenCalled();
     expect(await canSyncTask(f.task.id, f.integration.id)).toBe(false);
@@ -1049,14 +1211,24 @@ describe("reviewed sync resume", () => {
       "task.updated",
       expect.objectContaining({ taskId: f.task.id }),
     );
-    const followUp = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+    const followUp = await reviewSyncResume(
+      f.project.id,
+      "gitea",
+      f.link.id,
+      f.workspace.id,
+    );
     expect(followUp.local.title).toBe(review.remote.title);
     expect(followUp.remote.title).toBe("Edited after read");
   });
 
   it("verifies adopted repository values outside locks without replaying labels", async () => {
     const f = await paused();
-    const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+    const review = await reviewSyncResume(
+      f.project.id,
+      "gitea",
+      f.link.id,
+      f.workspace.id,
+    );
     provider.read.mockResolvedValueOnce(review.snapshot.remoteIssue);
     provider.read.mockImplementationOnce(async () => {
       expect(await canSyncTask(f.task.id, f.integration.id)).toBe(true);
@@ -1072,7 +1244,14 @@ describe("reviewed sync resume", () => {
       };
     });
     await expect(
-      resumeSync(f.project.id, "gitea", f.link.id, review.token, "provider"),
+      resumeSync(
+        f.project.id,
+        "gitea",
+        f.link.id,
+        review.token,
+        "provider",
+        f.workspace.id,
+      ),
     ).resolves.toEqual({ success: true });
     expect(provider.read).toHaveBeenCalledTimes(3);
     expect(
@@ -1084,14 +1263,26 @@ describe("reviewed sync resume", () => {
 
   it("keeps adoption paused if the verification read fails without exposing provider secrets", async () => {
     const f = await paused();
-    const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+    const review = await reviewSyncResume(
+      f.project.id,
+      "gitea",
+      f.link.id,
+      f.workspace.id,
+    );
     const log = vi.spyOn(console, "error").mockImplementation(() => {});
     provider.read.mockResolvedValueOnce(review.snapshot.remoteIssue);
     provider.read.mockRejectedValueOnce(
       new Error("private-provider-token-and-response"),
     );
     await expect(
-      resumeSync(f.project.id, "gitea", f.link.id, review.token, "provider"),
+      resumeSync(
+        f.project.id,
+        "gitea",
+        f.link.id,
+        review.token,
+        "provider",
+        f.workspace.id,
+      ),
     ).rejects.toMatchObject({ status: 502 });
     expect(await canSyncTask(f.task.id, f.integration.id)).toBe(false);
     expect(JSON.stringify(log.mock.calls)).not.toContain(
@@ -1101,7 +1292,12 @@ describe("reviewed sync resume", () => {
 
   it("records an uncertain provider write when the dispatch transaction fails", async () => {
     const f = await paused();
-    const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+    const review = await reviewSyncResume(
+      f.project.id,
+      "gitea",
+      f.link.id,
+      f.workspace.id,
+    );
     const transaction = getDatabase().transaction.bind(getDatabase());
     vi.spyOn(getDatabase(), "transaction").mockImplementationOnce(
       (apply, config) =>
@@ -1111,7 +1307,14 @@ describe("reviewed sync resume", () => {
         }, config),
     );
     await expect(
-      resumeSync(f.project.id, "gitea", f.link.id, review.token, "kaneo"),
+      resumeSync(
+        f.project.id,
+        "gitea",
+        f.link.id,
+        review.token,
+        "kaneo",
+        f.workspace.id,
+      ),
     ).rejects.toThrow("Injected dispatch transaction failure");
     expect(provider.write).toHaveBeenCalledOnce();
     const stored = await db.query.externalLinkTable.findFirst({
@@ -1140,7 +1343,12 @@ describe("reviewed sync resume", () => {
       const publish = vi
         .spyOn(events, "publishEvent")
         .mockResolvedValue(undefined);
-      const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+      const review = await reviewSyncResume(
+        f.project.id,
+        "gitea",
+        f.link.id,
+        f.workspace.id,
+      );
       expect(review.local.state).toBe("open");
       await resumeSync(
         f.project.id,
@@ -1148,6 +1356,7 @@ describe("reviewed sync resume", () => {
         f.link.id,
         review.token,
         "provider",
+        f.workspace.id,
       );
       expect(
         await db.query.taskTable.findFirst({
@@ -1173,7 +1382,12 @@ describe("reviewed sync resume", () => {
       .update(schema.taskTable)
       .set({ userId: f.user.id })
       .where(eq(schema.taskTable.id, f.task.id));
-    const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+    const review = await reviewSyncResume(
+      f.project.id,
+      "gitea",
+      f.link.id,
+      f.workspace.id,
+    );
     expect(review.local.title).toBe("Kaneo title");
     await resumeSync(
       f.project.id,
@@ -1181,6 +1395,7 @@ describe("reviewed sync resume", () => {
       f.link.id,
       review.token,
       "provider",
+      f.workspace.id,
     );
     const task = await db.query.taskTable.findFirst({
       where: eq(schema.taskTable.id, f.task.id),
@@ -1243,8 +1458,20 @@ describe("reviewed sync resume", () => {
   });
   it("keeps Kaneo values only after the repository update succeeds", async () => {
     const f = await paused();
-    const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
-    await resumeSync(f.project.id, "gitea", f.link.id, review.token, "kaneo");
+    const review = await reviewSyncResume(
+      f.project.id,
+      "gitea",
+      f.link.id,
+      f.workspace.id,
+    );
+    await resumeSync(
+      f.project.id,
+      "gitea",
+      f.link.id,
+      review.token,
+      "kaneo",
+      f.workspace.id,
+    );
     expect(provider.write).toHaveBeenCalledWith({
       title: "Kaneo title",
       description: "Kaneo body",
@@ -1280,8 +1507,20 @@ describe("reviewed sync resume", () => {
         columnId: f.columns.inProgress.id,
       })
       .where(eq(schema.taskTable.id, f.task.id));
-    const review = await reviewSyncResume(f.project.id, "gitlab", f.link.id);
-    await resumeSync(f.project.id, "gitlab", f.link.id, review.token, "kaneo");
+    const review = await reviewSyncResume(
+      f.project.id,
+      "gitlab",
+      f.link.id,
+      f.workspace.id,
+    );
+    await resumeSync(
+      f.project.id,
+      "gitlab",
+      f.link.id,
+      review.token,
+      "kaneo",
+      f.workspace.id,
+    );
     const link = await db.query.externalLinkTable.findFirst({
       where: eq(schema.externalLinkTable.id, f.link.id),
     });
@@ -1324,13 +1563,19 @@ describe("reviewed sync resume", () => {
       state: "closed",
       updatedAt: "2026-01-01T00:00:00Z",
     });
-    const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+    const review = await reviewSyncResume(
+      f.project.id,
+      "gitea",
+      f.link.id,
+      f.workspace.id,
+    );
     await resumeSync(
       f.project.id,
       "gitea",
       f.link.id,
       review.token,
       "provider",
+      f.workspace.id,
     );
     expect(cleanup).toHaveBeenCalledWith(
       "Kaneo body",
@@ -1348,27 +1593,51 @@ describe("reviewed sync resume", () => {
   });
   it("requires a fresh comparison after either side changes", async () => {
     const f = await paused();
-    const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+    const review = await reviewSyncResume(
+      f.project.id,
+      "gitea",
+      f.link.id,
+      f.workspace.id,
+    );
     provider.read.mockResolvedValue({
       ...review.remote,
       title: "Changed remotely",
       updatedAt: "2026-01-03T00:00:00Z",
     });
     await expect(
-      resumeSync(f.project.id, "gitea", f.link.id, review.token, "kaneo"),
+      resumeSync(
+        f.project.id,
+        "gitea",
+        f.link.id,
+        review.token,
+        "kaneo",
+        f.workspace.id,
+      ),
     ).rejects.toMatchObject({ status: 409 });
     expect(provider.write).not.toHaveBeenCalled();
     expect(await canSyncTask(f.task.id, f.integration.id)).toBe(false);
   });
   it("records an uncertain resume and refreshes clients if local commit fails after the provider write", async () => {
     const f = await paused();
-    const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+    const review = await reviewSyncResume(
+      f.project.id,
+      "gitea",
+      f.link.id,
+      f.workspace.id,
+    );
     vi.spyOn(linkManager, "updateExternalLink").mockRejectedValueOnce(
       new Error("Local metadata commit failed"),
     );
     const publish = vi.spyOn(events, "publishEvent");
     await expect(
-      resumeSync(f.project.id, "gitea", f.link.id, review.token, "kaneo"),
+      resumeSync(
+        f.project.id,
+        "gitea",
+        f.link.id,
+        review.token,
+        "kaneo",
+        f.workspace.id,
+      ),
     ).rejects.toThrow("Local metadata commit failed");
     expect(provider.write).toHaveBeenCalledOnce();
     const link = await db.query.externalLinkTable.findFirst({
@@ -1389,10 +1658,22 @@ describe("reviewed sync resume", () => {
 
   it("keeps the link paused when a provider request fails", async () => {
     const f = await paused();
-    const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+    const review = await reviewSyncResume(
+      f.project.id,
+      "gitea",
+      f.link.id,
+      f.workspace.id,
+    );
     provider.write.mockRejectedValue(new Error("offline"));
     await expect(
-      resumeSync(f.project.id, "gitea", f.link.id, review.token, "kaneo"),
+      resumeSync(
+        f.project.id,
+        "gitea",
+        f.link.id,
+        review.token,
+        "kaneo",
+        f.workspace.id,
+      ),
     ).rejects.toMatchObject({ status: 502 });
     expect(await canSyncTask(f.task.id, f.integration.id)).toBe(false);
   });
@@ -1400,7 +1681,12 @@ describe("reviewed sync resume", () => {
     "logs the failed resume %s stage without provider secrets",
     async (stage) => {
       const f = await paused();
-      const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+      const review = await reviewSyncResume(
+        f.project.id,
+        "gitea",
+        f.link.id,
+        f.workspace.id,
+      );
       const failure = Object.assign(new Error("private-provider-response"), {
         request: { headers: { authorization: "fake-test-secret" } },
       });
@@ -1443,11 +1729,16 @@ describe("reviewed sync resume", () => {
       .delete(schema.labelTable)
       .where(eq(schema.labelTable.taskId, f.task.id));
     await expect(
-      reviewSyncResume(f.project.id, "gitea", f.link.id),
+      reviewSyncResume(f.project.id, "gitea", f.link.id, f.workspace.id),
     ).rejects.toMatchObject({ status: 409 });
     const other = await setup();
     await expect(
-      reviewSyncResume(other.project.id, "gitea", f.link.id),
+      reviewSyncResume(
+        other.project.id,
+        "gitea",
+        f.link.id,
+        other.workspace.id,
+      ),
     ).rejects.toMatchObject({ status: 404 });
     expect(provider.read).not.toHaveBeenCalled();
   });

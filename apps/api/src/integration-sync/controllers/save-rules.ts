@@ -1,12 +1,13 @@
 import { and, eq, not, or } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { integrationTable, projectTable } from "../../database/schema";
+import { integrationTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { pauseIssueLinks } from "../../plugins/sync/pause-issue-links";
 import { outgoingPredicate } from "../../plugins/sync/task-predicate";
 import { readSyncRules, type SyncRules } from "../../plugins/sync/rules";
 import { getSyncIntegration } from "./get-integration";
+import { getAuthorizedSyncProject } from "./authorized-project";
 import { previewSyncRules } from "./preview-rules";
 
 export async function saveSyncRules(
@@ -19,20 +20,12 @@ export async function saveSyncRules(
   const integration = await getSyncIntegration(projectId, provider);
   const savedPreview = await db.transaction(async (tx) => {
     // Keep the workspace authorized by middleware stable through the save.
-    const [project] = await tx
-      .select()
-      .from(projectTable)
-      .where(
-        and(
-          eq(projectTable.id, projectId),
-          eq(projectTable.workspaceId, authorizedWorkspaceId),
-        ),
-      )
-      .for("share");
-    if (!project)
-      throw new HTTPException(403, {
-        message: "Project no longer belongs to the authorized workspace",
-      });
+    const project = await getAuthorizedSyncProject(
+      projectId,
+      authorizedWorkspaceId,
+      tx,
+      true,
+    );
     const [current] = await tx
       .select()
       .from(integrationTable)

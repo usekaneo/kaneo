@@ -989,8 +989,20 @@ describe.each(["github", "gitea", "gitlab"] as const)(
           updatedAt: "remote-time",
           labels: [],
         });
-        const review = await reviewSyncResume(f.project.id, type, link.id);
-        await resumeSync(f.project.id, type, link.id, review.token, "provider");
+        const review = await reviewSyncResume(
+          f.project.id,
+          type,
+          link.id,
+          f.workspace.id,
+        );
+        await resumeSync(
+          f.project.id,
+          type,
+          link.id,
+          review.token,
+          "provider",
+          f.workspace.id,
+        );
         expect(
           await db.query.taskTable.findFirst({
             where: eq(schema.taskTable.id, f.task.id),
@@ -1035,8 +1047,20 @@ describe.each(["github", "gitea", "gitlab"] as const)(
           name: "local-only",
           color: "#123456",
         });
-        const review = await reviewSyncResume(f.project.id, type, link.id);
-        await resumeSync(f.project.id, type, link.id, review.token, source);
+        const review = await reviewSyncResume(
+          f.project.id,
+          type,
+          link.id,
+          f.workspace.id,
+        );
+        await resumeSync(
+          f.project.id,
+          type,
+          link.id,
+          review.token,
+          source,
+          f.workspace.id,
+        );
         const baseline = [
           "export",
           "priority:low",
