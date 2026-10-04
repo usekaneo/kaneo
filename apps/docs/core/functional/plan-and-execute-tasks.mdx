@@ -45,10 +45,21 @@ Open a task to edit its description and properties. Use **Open in full page** fr
 - **Assignee:** choose the person responsible for the next step. Clear it to leave the task unassigned.
 - **Priority:** show what needs attention first. A task can have no priority.
 - **Dates:** add start and due dates when the work has a schedule.
+- **Repeat:** turn on **Repeat** in the due date picker for recurring work. See [Repeat a task](#repeat-a-task).
 - **Labels:** group related work across projects. Removing a label from one task does not delete the workspace label.
 - **Comments:** ask questions and record decisions where everyone following the task can find them.
 
 Use the attachment button, paste, or drag a file into the editor to add supporting material. Images appear inline; other files appear as attachments. On self-hosted instances, an operator must [configure file storage](/core/installation/object-storage-and-image-uploads) first.
+
+## Repeat a task
+
+For work that comes back on a schedule, such as a weekly report, open the task's due date and choose **Repeat**. Pick **Daily**, **Weekly**, **Monthly**, or **Yearly**, or **Periodically** to repeat every few days, weeks, months, or years. Weekly patterns can repeat on several days, such as Monday and Thursday. The calendar highlights the upcoming dates.
+
+When a repeating task moves into a done column, Kaneo creates the next task in the project's first open column. The next task keeps the title, description, assignee, priority, labels, and custom fields. It is due on the next date of the pattern after the completed task's due date, and its start date moves by the same number of days. A task without a due date repeats from the moment it is completed, with no start date.
+
+The completed task stays in the done column as a record, and the repeat setting moves to the new task. Reopening the completed task does not create another one. To stop the series, open the due date of the open task and turn off **Repeat**. Subtasks are not copied.
+
+In a project connected to GitHub, Gitea, or GitLab, each new occurrence is treated like any other new task: it gets its own issue when it matches the integration's sync rules.
 
 ## Break work into subtasks
 
