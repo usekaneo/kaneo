@@ -154,6 +154,15 @@ async function assignLabelToTask(id: string, taskId: string, userId: string) {
     });
 
   if (previousTaskId) {
+    const previousTask = await db.query.taskTable.findFirst({
+      where: eq(taskTable.id, previousTaskId),
+      columns: { projectId: true },
+    });
+    if (previousTask)
+      await publishEvent("task.labels_updated", {
+        projectId: previousTask.projectId,
+        taskId: previousTaskId,
+      });
     removeLabelFromGitHub(previousTaskId, previousName).catch((error) => {
       console.error("Failed to remove label from GitHub:", error);
     });

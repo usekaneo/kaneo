@@ -4,6 +4,7 @@ import db from "../../database";
 import { labelTable, projectTable, taskTable } from "../../database/schema";
 
 import { publishEvent } from "../../events";
+import { notifySyncWorkspaceLabelChanged } from "../../plugins/sync/workspace-label-changed";
 
 async function updateLabel(id: string, name: string, color: string) {
   const result = await db.transaction(async (tx) => {
@@ -70,10 +71,23 @@ async function updateLabel(id: string, name: string, color: string) {
                 eq(projectTable.workspaceId, label.workspaceId ?? ""),
               ),
             );
-    return { updatedLabel, projects };
+    return { updatedLabel, projects, original: label };
   });
-  for (const { projectId } of result.projects)
+  for (const { projectId } of result.projects) {
     await publishEvent("project.updated", { projectId });
+  }
+  if (result.original.name !== name) {
+    if (!result.original.taskId && result.original.workspaceId)
+      await notifySyncWorkspaceLabelChanged(result.original.workspaceId, id, {
+        publishProjectUpdates: false,
+      });
+    else if (result.original.taskId)
+      for (const { projectId } of result.projects)
+        await publishEvent("task.labels_updated", {
+          projectId,
+          taskId: result.original.taskId,
+        });
+  }
   return result.updatedLabel;
 }
 
