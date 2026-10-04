@@ -1,0 +1,26 @@
+{
+	"vouchedContributors": [
+		{
+			"id": 44305048,
+			"login": "andrejsshell",
+			"reason": "Core team (usekaneo/developers)."
+		},
+		{
+			"id": 127273550,
+			"login": "randoneering",
+			"reason": "Core team (usekaneo/developers)."
+		},
+		{
+			"id": 176929823,
+			"login": "tinsever",
+			"reason": "Core team (usekaneo/developers)."
+		}
+	],
+	"exemptBots": [
+		{
+			"id": 49699333,
+			"login": "dependabot[bot]",
+			"reason": "Repository-managed dependency updates."
+		}
+	]
+}
