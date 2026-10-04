@@ -778,6 +778,48 @@ export function registerTools(
   );
 
   registerTool(
+    "update_task_recurrence",
+    {
+      description:
+        "Make a task repeat, or omit frequency to stop it repeating. When a repeating task moves into a final column, the next task is created in the first open column, due one step after the completed task's due date.",
+      inputSchema: z.object({
+        taskId: nonEmptyString,
+        frequency: z.enum(["daily", "weekly", "monthly", "yearly"]).optional(),
+        interval: z.number().int().min(1).max(99).default(1),
+        weekdays: z
+          .array(z.number().int().min(0).max(6))
+          .min(1)
+          .max(7)
+          .optional()
+          .describe(
+            "Weekly only: days to repeat on, 0 for Sunday to 6 for Saturday.",
+          ),
+        timeZone: nonEmptyString
+          .default("UTC")
+          .describe(
+            "IANA time zone that keeps the next due date on the same local day.",
+          ),
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/task/recurrence/${encodeURIComponent(args.taskId)}`, {
+          method: "PUT",
+          body: JSON.stringify({
+            recurrence: args.frequency
+              ? {
+                  frequency: args.frequency,
+                  interval: args.interval,
+                  ...(args.weekdays ? { weekdays: args.weekdays } : {}),
+                  timeZone: args.timeZone,
+                }
+              : null,
+          }),
+        }),
+      ),
+  );
+
+  registerTool(
     "list_task_time_entries",
     {
       description: "List the time entries logged against a task.",

@@ -167,6 +167,36 @@ describe("MCP tool catalog", () => {
     expect(apiFetch).not.toHaveBeenCalled();
   });
 
+  it("sets and stops a task's recurrence", async () => {
+    await call("update_task_recurrence", {
+      taskId: "t1",
+      frequency: "weekly",
+      interval: 2,
+      weekdays: [1, 5],
+      timeZone: "Europe/Madrid",
+    });
+    expect(lastRequest()).toMatchObject({
+      url: "http://api.test/api/task/recurrence/t1",
+      method: "PUT",
+      body: {
+        recurrence: {
+          frequency: "weekly",
+          interval: 2,
+          weekdays: [1, 5],
+          timeZone: "Europe/Madrid",
+        },
+      },
+    });
+
+    await call("update_task_recurrence", { taskId: "t1", frequency: "daily" });
+    expect(lastRequest().body).toEqual({
+      recurrence: { frequency: "daily", interval: 1, timeZone: "UTC" },
+    });
+
+    await call("update_task_recurrence", { taskId: "t1" });
+    expect(lastRequest().body).toEqual({ recurrence: null });
+  });
+
   it("reads time entries for a task and by id", async () => {
     await call("list_task_time_entries", { taskId: "t1" });
     expect(lastRequest().url).toBe("http://api.test/api/time-entry/task/t1");
