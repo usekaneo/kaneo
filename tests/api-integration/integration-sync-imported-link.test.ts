@@ -4,6 +4,8 @@ import db, { schema } from "../../apps/api/src/database";
 import { handleIssueOpened } from "../../apps/api/src/plugins/github/webhooks/issue-opened";
 import { handleGiteaIssueOpened } from "../../apps/api/src/plugins/gitea/webhooks/issue-opened";
 import { handleGitlabIssueOpened } from "../../apps/api/src/plugins/gitlab/webhooks/issue-opened";
+import { importGiteaIssues } from "../../apps/api/src/gitea-integration/controllers/import-gitea-issues";
+import { importGitlabIssues } from "../../apps/api/src/gitlab-integration/controllers/import-gitlab-issues";
 import { canSyncTask } from "../../apps/api/src/plugins/sync/eligibility";
 import { resetTestDatabase } from "./helpers/database";
 import {
@@ -11,6 +13,21 @@ import {
   createWorkspaceMember,
 } from "./helpers/fixtures";
 
+const mocks = vi.hoisted(() => ({ issues: vi.fn() }));
+vi.mock("../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
+  createGiteaClient: () => ({
+    listIssues: mocks.issues,
+    listPulls: async () => [],
+    listIssueComments: async () => [],
+  }),
+}));
+vi.mock("../../apps/api/src/plugins/gitlab/utils/gitlab-api", () => ({
+  createGitlabClient: () => ({
+    listIssues: mocks.issues,
+    listMergeRequests: async () => [],
+    listIssueNotes: async () => [],
+  }),
+}));
 vi.mock("../../apps/api/src/events", () => ({ publishEvent: async () => {} }));
 vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
   getGithubApp: () => ({
@@ -21,15 +38,20 @@ vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
 }));
 beforeEach(async () => {
   await resetTestDatabase();
+  mocks.issues.mockReset().mockResolvedValue([]);
 });
 
 it.each(
   (["github", "gitea", "gitlab"] as const).flatMap((provider) =>
-    [true, false].map((qualifying) => ({ provider, qualifying })),
+    [true, false].flatMap((qualifying) =>
+      (provider === "github" ? ["webhook"] : ["webhook", "manual"]).map(
+        (source) => ({ provider, qualifying, source }),
+      ),
+    ),
   ),
 )(
-  "$provider imports links with their committed outgoing scope (qualifying=$qualifying)",
-  async ({ provider, qualifying }) => {
+  "$provider $source imports links with their committed outgoing scope (qualifying=$qualifying)",
+  async ({ provider, qualifying, source }) => {
     const { workspace, user } = await createWorkspaceMember();
     const { project } = await createProjectFixture({
       workspaceId: workspace.id,
@@ -80,7 +102,29 @@ it.each(
       full_name: "team/repo",
       html_url: "https://git.example/team/repo",
     };
-    if (provider === "github")
+    if (source === "manual") {
+      mocks.issues.mockResolvedValue([
+        provider === "gitea"
+          ? {
+              ...issue,
+              state: "open",
+              labels: labels.map((name, id) => ({ id, name, color: "ff0000" })),
+            }
+          : {
+              iid: 9,
+              title: issue.title,
+              description: "Body",
+              web_url: issue.html_url,
+              state: "opened",
+              labels,
+            },
+      ]);
+      expect(
+        await (provider === "gitea" ? importGiteaIssues : importGitlabIssues)(
+          project.id,
+        ),
+      ).toMatchObject({ imported: 1 });
+    } else if (provider === "github")
       await handleIssueOpened(
         { action: "opened", installation: { id: 2 }, issue, repository },
         integration.id,

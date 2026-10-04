@@ -343,6 +343,7 @@ async function importSingleIssue(
       );
 
       await importLabelsForTask(labels, created.id, workspaceId, tx);
+      await canSyncTask(created.id, integrationId, tx, binding.config);
 
       await importCommentsForTask(comments, created.id, tx);
 
