@@ -1,7 +1,10 @@
 import { HTTPException } from "hono/http-exception";
 import type { ResumeProviderSnapshot } from "./resume-provider-snapshot";
 
-export async function verifyResumeProvider(snapshot: ResumeProviderSnapshot) {
+export async function verifyResumeProvider(
+  snapshot: ResumeProviderSnapshot,
+  source: "kaneo" | "provider",
+) {
   let current: ResumeProviderSnapshot["remoteIssue"];
   try {
     current = await snapshot.access.read();
@@ -10,10 +13,15 @@ export async function verifyResumeProvider(snapshot: ResumeProviderSnapshot) {
       message: "External issue could not be verified; sync remains paused",
     });
   }
+  const initialLabels = [...new Set(snapshot.remoteIssue.labels ?? [])].sort();
+  const currentLabels = [...new Set(current.labels ?? [])].sort();
   if (
-    current.title !== snapshot.remoteIssue.title ||
-    current.description !== snapshot.remoteIssue.description ||
-    current.state !== snapshot.remoteIssue.state
+    (source === "provider" &&
+      (current.title !== snapshot.remoteIssue.title ||
+        current.description !== snapshot.remoteIssue.description ||
+        current.state !== snapshot.remoteIssue.state)) ||
+    initialLabels.length !== currentLabels.length ||
+    initialLabels.some((label, index) => label !== currentLabels[index])
   )
     throw new HTTPException(409, {
       message:

@@ -34,7 +34,7 @@ Resuming leaves priority, detailed status, and custom labels unchanged. Later re
 
 Kaneo rereads the issue when you resume and rejects a changed comparison. Local edits remain available while the repository responds; a task, rule, label, or link change during a resume write keeps synchronization paused for another review. When adopting a different open/closed state, resume uses the project's configured issue close or reopen workflow target. Gitea's content version, when available, also protects the body write from concurrent edits. Provider APIs do not offer an atomic version check for every issue field, so an edit made after the final read can still conflict with a resume write. Avoid editing the repository issue while resuming it. A rejected provider write leaves synchronization paused for another review.
 
-When keeping repository values, Kaneo checks the issue again after adopting them. A changed issue or failed verification pauses the link again for another review. The adopted values remain visible in the next comparison.
+Kaneo checks repository labels again after either resume choice. A label change or failed verification pauses the link for another review, leaving priority and custom labels unchanged. When keeping repository values, this check also verifies the adopted title, description, and open/closed state. Adopted values remain visible in the next comparison if verification fails.
 
 An issue creation request already sent to a repository may finish after its task stops matching. Kaneo keeps the returned issue link paused and stops further updates. Local edits remain available while the repository responds.
 

@@ -135,22 +135,20 @@ async function resumeWithLease(
     throw error;
   }
   let verificationError: unknown;
-  if (source === "provider") {
-    // An edit's only webhook may have been discarded while the link was paused.
-    // Read after unpausing: earlier edits are detected, and later webhooks run.
-    try {
-      await verifyResumeProvider(snapshot);
-    } catch (error) {
-      verificationError = error;
-      console.error("Sync resume provider verification failed", {
-        projectId,
-        provider,
-        linkId,
-      });
-      await updateExternalLink(linkId, {
-        metadata: { syncFilterPaused: true },
-      });
-    }
+  // A label edit's only webhook may have been discarded while paused, in either
+  // resume direction. Read after unpausing so later webhooks can also run.
+  try {
+    await verifyResumeProvider(snapshot, source);
+  } catch (error) {
+    verificationError = error;
+    console.error("Sync resume provider verification failed", {
+      projectId,
+      provider,
+      linkId,
+    });
+    await updateExternalLink(linkId, {
+      metadata: { syncFilterPaused: true },
+    });
   }
   if (adoption)
     await publishTaskMutation(adoption.before, adoption.after, undefined, {

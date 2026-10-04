@@ -1223,6 +1223,13 @@ describe("reviewed sync resume", () => {
 
   it("verifies adopted repository values outside locks without replaying labels", async () => {
     const f = await paused();
+    provider.read.mockResolvedValue({
+      title: "Repository title",
+      description: "Repository body",
+      state: "closed",
+      updatedAt: "2026-01-01T00:00:00Z",
+      labels: ["priority:low", "custom"],
+    });
     const review = await reviewSyncResume(
       f.project.id,
       "gitea",
@@ -1239,7 +1246,7 @@ describe("reviewed sync resume", () => {
       expect(activity.rows[0]!.count).toBe(0);
       return {
         ...review.snapshot.remoteIssue,
-        labels: ["Changed label"],
+        labels: ["custom", "priority:low", "custom"],
         updatedAt: "new-version",
       };
     });
@@ -1260,6 +1267,60 @@ describe("reviewed sync resume", () => {
       }),
     ).toEqual([expect.objectContaining({ name: f.label.name })]);
   });
+
+  it.each(
+    ["kaneo", "provider"].flatMap((source) =>
+      ["priority", "status", "custom"].map((field) => ({ source, field })),
+    ),
+  )(
+    "pauses $source resume when $field labels change during the handoff",
+    async ({ source, field }) => {
+      const f = await paused();
+      const labels = ["priority:low", "status:planned", "custom:old"];
+      const changed = labels.map((label) =>
+        label.startsWith(`${field}:`) ? `${field}:new` : label,
+      );
+      provider.read.mockResolvedValue({
+        title: "Repository title",
+        description: "Repository body",
+        state: "open",
+        updatedAt: "2026-01-01T00:00:00Z",
+        labels,
+      });
+      const review = await reviewSyncResume(
+        f.project.id,
+        "gitea",
+        f.link.id,
+        f.workspace.id,
+      );
+      provider.read.mockResolvedValueOnce(review.snapshot.remoteIssue);
+      provider.read.mockImplementationOnce(async () => {
+        expect(await canSyncTask(f.task.id, f.integration.id)).toBe(true);
+        return { ...review.snapshot.remoteIssue, labels: changed };
+      });
+      await expect(
+        resumeSync(
+          f.project.id,
+          "gitea",
+          f.link.id,
+          review.token,
+          source as "kaneo" | "provider",
+          f.workspace.id,
+        ),
+      ).rejects.toMatchObject({ status: 409 });
+      expect(await canSyncTask(f.task.id, f.integration.id)).toBe(false);
+      expect(
+        await db.query.taskTable.findFirst({
+          where: eq(schema.taskTable.id, f.task.id),
+        }),
+      ).toMatchObject({ priority: f.task.priority, status: f.task.status });
+      expect(
+        await db.query.labelTable.findMany({
+          where: eq(schema.labelTable.taskId, f.task.id),
+        }),
+      ).toEqual([expect.objectContaining({ name: f.label.name })]);
+    },
+  );
 
   it("keeps adoption paused if the verification read fails without exposing provider secrets", async () => {
     const f = await paused();
