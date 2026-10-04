@@ -1,6 +1,7 @@
 import { syncTaskFieldLabels } from "../../sync/sync-task-field-labels";
 import { canSyncTask } from "../../sync/eligibility";
 import { syncLatestTaskValue } from "../../github/services/sync-latest-task-value";
+import { isTaskInFinalState } from "../../github/services/task-service";
 import { findExternalLinksByTask } from "../../github/services/link-manager";
 import type { PluginContext, TaskStatusChangedEvent } from "../../types";
 import type { GiteaConfig } from "../config";
@@ -56,13 +57,25 @@ export async function handleTaskStatusChanged(
       },
     );
     if (currentValue === undefined) return;
-    if (currentValue === "done" || event.oldStatus === "done") {
+    const closing = await isTaskInFinalState({
+      projectId: event.projectId,
+      status: currentValue,
+      columnId: null,
+    });
+    const reopening =
+      !closing &&
+      (await isTaskInFinalState({
+        projectId: event.projectId,
+        status: event.oldStatus,
+        columnId: null,
+      }));
+    if (closing || reopening) {
       await syncLatestTaskValue(
         event.taskId,
         event.projectId,
         issueLink,
         "state",
-        currentValue === "done" ? "closed" : "open",
+        closing ? "closed" : "open",
         async (value) => {
           const response = await client.updateIssue(
             repositoryOwner,

@@ -130,6 +130,14 @@ describe("GitLab status webhook feedback", () => {
 });
 
 // Policy enforcement is covered by the PostgreSQL sync-rules integration tests.
+vi.mock(
+  "../../../../../apps/api/src/plugins/github/services/task-service",
+  () => ({
+    isTaskInFinalState: async (task: { status: string }) =>
+      task.status === "done",
+  }),
+);
+
 vi.mock("../../../../../apps/api/src/plugins/sync/eligibility", () => ({
   canSyncTask: async () => true,
 }));

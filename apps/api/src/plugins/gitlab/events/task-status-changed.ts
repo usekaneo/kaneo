@@ -1,6 +1,7 @@
 import { createIssueWrite } from "../../sync/dispatch-issue-write";
 import { syncTaskFieldLabels } from "../../sync/sync-task-field-labels";
 import { canSyncTask } from "../../sync/eligibility";
+import { isTaskInFinalState } from "../../github/services/task-service";
 import {
   findExternalLinksByTask,
   updateExternalLink,
@@ -69,8 +70,18 @@ export async function handleTaskStatusChanged(
       JSON.stringify(context.config),
     );
 
-    const closing = currentValue === "done";
-    const reopening = event.oldStatus === "done" && currentValue !== "done";
+    const closing = await isTaskInFinalState({
+      projectId: event.projectId,
+      status: currentValue,
+      columnId: null,
+    });
+    const reopening =
+      !closing &&
+      (await isTaskInFinalState({
+        projectId: event.projectId,
+        status: event.oldStatus,
+        columnId: null,
+      }));
 
     if (!closing && !reopening) {
       return;

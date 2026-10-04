@@ -1,4 +1,4 @@
-import { and, asc, eq, isNull, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
 import db from "../../database";
 import { labelTable, taskTable } from "../../database/schema";
 import type { IntegrationDatabase } from "../github/services/integration-task-scope";
@@ -8,22 +8,31 @@ export async function outgoingPredicate(
   workspaceId: string,
   rule: LabelRule,
   database: IntegrationDatabase = db,
+  includeAllLabels = false,
 ) {
-  const labels = await database
-    .select({
-      id: labelTable.id,
-      name: labelTable.name,
-      color: labelTable.color,
-    })
-    .from(labelTable)
-    .where(
-      and(
-        eq(labelTable.workspaceId, workspaceId),
-        isNull(labelTable.taskId),
-        isNull(labelTable.deletionStartedAt),
-      ),
-    )
-    .orderBy(asc(labelTable.id));
+  // Only the settings preview needs the full picker. Eligibility checks resolve
+  // selected roots afresh without loading unrelated workspace labels.
+  const labels =
+    rule.mode === "all" && !includeAllLabels
+      ? []
+      : await database
+          .select({
+            id: labelTable.id,
+            name: labelTable.name,
+            color: labelTable.color,
+          })
+          .from(labelTable)
+          .where(
+            and(
+              eq(labelTable.workspaceId, workspaceId),
+              isNull(labelTable.taskId),
+              isNull(labelTable.deletionStartedAt),
+              !includeAllLabels && rule.mode === "labels"
+                ? inArray(labelTable.id, rule.labels)
+                : undefined,
+            ),
+          )
+          .orderBy(asc(labelTable.id));
   if (rule.mode === "all")
     return { predicate: sql<boolean>`true`, labels, missing: [] as string[] };
   const selected = labels.filter((label) => rule.labels.includes(label.id));

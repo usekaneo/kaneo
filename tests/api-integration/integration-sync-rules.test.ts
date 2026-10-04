@@ -10,11 +10,13 @@ import { getSyncIntegration } from "../../apps/api/src/integration-sync/controll
 import { previewSyncRules } from "../../apps/api/src/integration-sync/controllers/preview-rules";
 import { resumeSync } from "../../apps/api/src/integration-sync/controllers/resume-sync";
 import { reviewSyncResume } from "../../apps/api/src/integration-sync/controllers/review-resume";
+import { lockResumeScope } from "../../apps/api/src/integration-sync/controllers/lock-resume-scope";
 import { saveSyncRules } from "../../apps/api/src/integration-sync/controllers/save-rules";
 import * as linkManager from "../../apps/api/src/plugins/github/services/link-manager";
 import { createExternalLink } from "../../apps/api/src/plugins/github/services/link-manager";
 import { withIntegrationLink } from "../../apps/api/src/plugins/github/services/with-integration-link";
 import { withTaskSyncCreation } from "../../apps/api/src/plugins/sync/create-task-issue";
+import { outgoingPredicate } from "../../apps/api/src/plugins/sync/task-predicate";
 import {
   canSyncTask,
   taskMatchesRule,
@@ -234,6 +236,36 @@ describe("integration label policies", () => {
     expect(
       await taskMatchesRule(f.task.id, f.project.id, f.rules.outgoing),
     ).toBe(true);
+    await db
+      .update(schema.labelTable)
+      .set({ deletionStartedAt: new Date() })
+      .where(eq(schema.labelTable.id, f.label.id));
+    expect(
+      await taskMatchesRule(f.task.id, f.project.id, f.rules.outgoing),
+    ).toBe(false);
+  });
+
+  it("limits eligibility scopes to selected roots while keeping the complete preview picker", async () => {
+    const f = await setup();
+    await f.assign();
+    await db.insert(schema.labelTable).values(
+      Array.from({ length: 200 }, (_, index) => ({
+        workspaceId: f.workspace.id,
+        name: `Unrelated label ${index}`,
+        color: "#123456",
+      })),
+    );
+    const scope = await outgoingPredicate(f.workspace.id, f.rules.outgoing);
+    expect(scope.labels.map((label) => label.id)).toEqual([f.label.id]);
+    expect((await f.preview()).labels).toHaveLength(201);
+    expect(
+      await taskMatchesRule(f.task.id, f.project.id, f.rules.outgoing),
+    ).toBe(true);
+    const unrestricted = await outgoingPredicate(f.workspace.id, {
+      mode: "all",
+    });
+    expect(unrestricted.labels).toEqual([]);
+    expect((await f.preview(defaultSyncRules)).labels).toHaveLength(201);
     await db
       .update(schema.labelTable)
       .set({ deletionStartedAt: new Date() })
@@ -479,6 +511,32 @@ describe("reviewed sync resume", () => {
     const link = await f.link(true);
     return { ...f, link };
   }
+  it("returns not found when disconnect commits between the binding lookups", async () => {
+    const f = await paused();
+    await expect(
+      db.transaction(async (tx) => {
+        const load = tx.query.integrationTable.findFirst.bind(
+          tx.query.integrationTable,
+        );
+        vi.spyOn(tx.query.integrationTable, "findFirst").mockImplementationOnce(
+          async (config) => {
+            const integration = await load(config);
+            await db
+              .delete(schema.integrationTable)
+              .where(eq(schema.integrationTable.id, f.integration.id));
+            return integration;
+          },
+        );
+        await lockResumeScope(f.project.id, "gitea", f.link.id, tx);
+      }),
+    ).rejects.toMatchObject({ status: 404, message: "Linked task not found" });
+    expect(
+      await db.query.externalLinkTable.findFirst({
+        where: eq(schema.externalLinkTable.id, f.link.id),
+      }),
+    ).toBeUndefined();
+    expect(provider.write).not.toHaveBeenCalled();
+  });
   it("returns a retryable conflict when another instance retains the resume lease", async () => {
     const f = await paused();
     await db.insert(schema.jobLeaseTable).values({

@@ -17,6 +17,7 @@ export async function previewSyncRules(
     integration.project.workspaceId,
     rules.outgoing,
     database,
+    true,
   );
   const current = await outgoingPredicate(
     integration.project.workspaceId,

@@ -1,6 +1,7 @@
 import { syncTaskFieldLabels } from "../../sync/sync-task-field-labels";
 import { canSyncTask } from "../../sync/eligibility";
 import { syncLatestTaskValue } from "../services/sync-latest-task-value";
+import { isTaskInFinalState } from "../services/task-service";
 import type { PluginContext, TaskStatusChangedEvent } from "../../types";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
 import { findExternalLinksByTask } from "../services/link-manager";
@@ -76,13 +77,25 @@ export async function handleTaskStatusChanged(
       },
     );
     if (currentValue === undefined) return;
-    if (currentValue === "done" || event.oldStatus === "done") {
+    const closing = await isTaskInFinalState({
+      projectId: event.projectId,
+      status: currentValue,
+      columnId: null,
+    });
+    const reopening =
+      !closing &&
+      (await isTaskInFinalState({
+        projectId: event.projectId,
+        status: event.oldStatus,
+        columnId: null,
+      }));
+    if (closing || reopening) {
       await syncLatestTaskValue(
         event.taskId,
         event.projectId,
         issueLink,
         "state",
-        currentValue === "done" ? "closed" : "open",
+        closing ? "closed" : "open",
         async (value) => {
           const response = await octokit.rest.issues.update({
             owner: repositoryOwner,

@@ -443,6 +443,66 @@ describe.each(["github", "gitea", "gitlab"] as const)(
       expect(JSON.parse(link!.metadata!)).toMatchObject({ state: "closed" });
     });
 
+    it("reopens and closes exported issues when moving out of and into a custom final column", async () => {
+      const f = await setup(type);
+      await f.assign();
+      const [final] = await db
+        .insert(schema.columnTable)
+        .values({
+          projectId: f.project.id,
+          name: "Shipped",
+          slug: "shipped",
+          position: 99,
+          isFinal: true,
+        })
+        .returning();
+      await db
+        .update(schema.taskTable)
+        .set({ status: final.slug, columnId: final.id })
+        .where(eq(schema.taskTable.id, f.task.id));
+      await reconcileProjectSync(f.project.id, f.integration.id);
+      expect(mocks.update.mock.calls[0]!.at(-1)).toMatchObject(
+        type === "gitlab" ? { state_event: "close" } : { state: "closed" },
+      );
+      mocks.update.mockClear();
+      const context = {
+        integrationId: f.integration.id,
+        projectId: f.project.id,
+        config: f.config,
+      };
+      const changeStatus = async (
+        oldStatus: string,
+        newStatus: string,
+        columnId: string,
+      ) => {
+        await db
+          .update(schema.taskTable)
+          .set({ status: newStatus, columnId })
+          .where(eq(schema.taskTable.id, f.task.id));
+        await plugin.onTaskStatusChanged!(
+          {
+            taskId: f.task.id,
+            projectId: f.project.id,
+            userId: null,
+            title: f.task.title,
+            oldStatus,
+            newStatus,
+          },
+          context,
+        );
+      };
+      await changeStatus(final.slug, f.columns.todo.slug, f.columns.todo.id);
+      expect(mocks.update).toHaveBeenCalledOnce();
+      expect(mocks.update.mock.calls[0]!.at(-1)).toMatchObject(
+        type === "gitlab" ? { state_event: "reopen" } : { state: "open" },
+      );
+      await changeStatus(f.columns.todo.slug, final.slug, final.id);
+      expect(mocks.update).toHaveBeenCalledTimes(2);
+      expect(mocks.update.mock.calls[1]!.at(-1)).toMatchObject(
+        type === "gitlab" ? { state_event: "close" } : { state: "closed" },
+      );
+    });
+
     it.each([false, true])(
       "replays edits made during creation and retries failed text initialization (failure=%s)",
       async (failure) => {
