@@ -627,3 +627,25 @@ it("keeps cached names unchanged when the task API denies the title read", async
   await Promise.resolve();
   expect(mocks.client.setQueriesData).not.toHaveBeenCalled();
 });
+
+it("shares one authorized task read between the board and sync samples", async () => {
+  mocks.getTask.mockReset().mockResolvedValue({
+    id: "a",
+    projectId: "p",
+    title: "Current",
+    status: "todo",
+    position: 0,
+  });
+  mocks.client.getQueriesData.mockReturnValue([
+    [[], { matchingTasks: [{ id: "a" }], pausedTasks: [] }],
+  ]);
+  renderHook(() => useProjectWebSocket("p"));
+  Socket.current.message("TASK_UPDATED", {
+    taskId: "a",
+    taskTitleChanged: true,
+  });
+  await vi.waitFor(() =>
+    expect(mocks.client.setQueriesData).toHaveBeenCalled(),
+  );
+  expect(mocks.getTask).toHaveBeenCalledOnce();
+});

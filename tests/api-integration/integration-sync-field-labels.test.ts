@@ -10,7 +10,11 @@ import {
   createWorkspaceMember,
 } from "./helpers/fixtures";
 
-const mocks = vi.hoisted(() => ({ labels: new Set<string>(), write: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  labels: new Set<string>(),
+  read: vi.fn(),
+  write: vi.fn(),
+}));
 const names = [
   "status:planned",
   "status:in-progress",
@@ -33,7 +37,7 @@ vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
   getVerifiedInstallationOctokit: async () => ({
     rest: {
       issues: {
-        get: async () => ({ data: issue() }),
+        get: async () => ({ data: await mocks.read() }),
         getLabel: async () => ({}),
         removeLabel: async ({ name }: { name: string }) => {
           mocks.labels.delete(name);
@@ -48,7 +52,7 @@ vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
 }));
 vi.mock("../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
   createGiteaClient: () => ({
-    getIssue: async () => issue(),
+    getIssue: async () => mocks.read(),
     listLabels: async () => available(),
     removeLabelFromIssue: async (
       _owner: string,
@@ -71,7 +75,7 @@ vi.mock("../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
 }));
 vi.mock("../../apps/api/src/plugins/gitlab/utils/gitlab-api", () => ({
   createGitlabClient: () => ({
-    getIssue: async () => issue(),
+    getIssue: async () => mocks.read(),
     listLabels: async () => available(),
     updateIssue: async (
       _project: string,
@@ -90,15 +94,17 @@ vi.mock("../../apps/api/src/plugins/gitlab/utils/gitlab-api", () => ({
 beforeEach(async () => {
   await resetTestDatabase();
   mocks.write.mockReset().mockResolvedValue(undefined);
+  mocks.read.mockReset().mockImplementation(() => issue());
   mocks.labels = new Set(["status:planned", "priority:low", "keep"]);
 });
 
 it.each(
   (["github", "gitea", "gitlab"] as const).flatMap((provider) =>
     (["status", "priority"] as const).flatMap((field) =>
-      (field === "priority" ? [false, true, "clear"] : [false, true]).map(
-        (overlap) => ({ provider, field, overlap }),
-      ),
+      (field === "priority"
+        ? [false, true, "clear", "read-error"]
+        : [false, true]
+      ).map((overlap) => ({ provider, field, overlap })),
     ),
   ),
 )(
@@ -204,6 +210,33 @@ it.each(
         started();
         await gate;
       });
+    if (overlap === "read-error") {
+      const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+      const privateError = Object.assign(
+        new Error("fake-private-provider-body"),
+        {
+          request: {
+            headers: { authorization: "fake-private-provider-token" },
+          },
+        },
+      );
+      mocks.read.mockRejectedValueOnce(privateError);
+      try {
+        await sync(field === "status" ? "to-do" : "urgent", first);
+        const output = errors.mock.calls
+          .flatMap((args) =>
+            args.map((value) => String(value) + JSON.stringify(value)),
+          )
+          .join("\n");
+        expect(output).not.toContain("fake-private-provider");
+        expect(output).toContain(integration.id);
+        expect(output).toContain(link.id);
+        expect(mocks.write).not.toHaveBeenCalled();
+        return;
+      } finally {
+        errors.mockRestore();
+      }
+    }
     const initial = sync(field === "status" ? "to-do" : "urgent", first);
     if (overlapping) {
       await writing;

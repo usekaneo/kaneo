@@ -186,6 +186,7 @@ export function useProjectWebSocket(projectId: string) {
         if (disposed || activeSocket !== ws) return;
         try {
           const message = JSON.parse(event.data);
+          let titleTaskRequest: ReturnType<typeof getTask> | undefined;
           if (
             message.taskId &&
             message.taskTitleChanged &&
@@ -195,7 +196,8 @@ export function useProjectWebSocket(projectId: string) {
             const version = (titleVersions.get(taskId) ?? 0) + 1;
             titleVersions.set(taskId, version);
             // Read titles through the task API, which enforces task-read permission.
-            void getTask(taskId, "board")
+            titleTaskRequest = getTask(taskId, "board");
+            void titleTaskRequest
               .then((task) => {
                 if (
                   !disposed &&
@@ -380,7 +382,7 @@ export function useProjectWebSocket(projectId: string) {
               } else {
                 refreshingTasks.add(taskId);
                 void Promise.all([
-                  getTask(taskId, "board"),
+                  titleTaskRequest ?? getTask(taskId, "board"),
                   getLabelsByTask({ taskId }),
                   getExternalLinks(taskId),
                 ])
