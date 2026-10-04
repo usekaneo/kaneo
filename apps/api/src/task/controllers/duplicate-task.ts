@@ -16,8 +16,11 @@ import {
 import { publishEvent } from "../../events";
 import { contentReferencesAsset } from "../../storage/cleanup-assets";
 import { copyTaskAssetObject, deleteS3Object } from "../../storage/s3";
+import {
+  assertAssignableUser,
+  filterAssignableUsers,
+} from "../../utils/assert-assignable-user";
 import { taskIsCompleted } from "../task-is-completed";
-import { assertAssignableUser } from "../../utils/assert-assignable-user";
 import {
   assertRequiredCustomFields,
   assertValidTaskStatus,
@@ -133,7 +136,7 @@ type Occurrence = {
 };
 
 // Rolls back an occurrence whose rule another transaction already moved.
-class RuleAlreadyMoved extends Error {}
+class RuleAlreadyMovedError extends Error {}
 
 type DuplicatedTask = typeof taskTable.$inferSelect & {
   assigneeName: string | undefined;
@@ -178,8 +181,18 @@ async function duplicateTask({
 
   const status = occurrence?.status ?? sourceTask.status;
   await assertValidTaskStatus(status, sourceTask.projectId);
-  if (sourceTask.userId)
-    await assertAssignableUser(sourceTask.userId, project.workspaceId);
+  // A manual copy reports a departed assignee; an occurrence goes unassigned
+  // so the series keeps going.
+  let userId = sourceTask.userId;
+  if (userId && occurrence) {
+    const assignable = await filterAssignableUsers(
+      [userId],
+      project.workspaceId,
+    );
+    if (!assignable.has(userId)) userId = null;
+  } else if (userId) {
+    await assertAssignableUser(userId, project.workspaceId);
+  }
   const column = await db.query.columnTable.findFirst({
     where: and(
       eq(columnTable.projectId, sourceTask.projectId),
@@ -304,7 +317,7 @@ async function duplicateTask({
             ),
           )
           .for("update");
-        if (!claimed) throw new RuleAlreadyMoved();
+        if (!claimed) throw new RuleAlreadyMovedError();
         recurrence = claimed.recurrence;
         await tx
           .update(taskTable)
@@ -324,7 +337,7 @@ async function duplicateTask({
         .values({
           id: duplicatedTaskId,
           projectId: sourceTask.projectId,
-          userId: sourceTask.userId,
+          userId,
           title: title?.trim() || sourceTask.title,
           status,
           columnId: column?.id ?? null,
@@ -383,7 +396,7 @@ async function duplicateTask({
     });
   } catch (error) {
     await discardCopiedObjects(assets.map((asset) => asset.objectKey));
-    if (error instanceof RuleAlreadyMoved) return null;
+    if (error instanceof RuleAlreadyMovedError) return null;
     throw error;
   }
 

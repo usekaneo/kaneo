@@ -1,6 +1,7 @@
 import { and, asc, eq, isNotNull } from "drizzle-orm";
 import db from "../../database";
 import { columnTable, taskTable } from "../../database/schema";
+import { publishEvent } from "../../events";
 import duplicateTask from "../controllers/duplicate-task";
 import { taskIsCompleted } from "../task-is-completed";
 import { nextOccurrenceDates } from "./next-occurrence-date";
@@ -43,7 +44,7 @@ export async function createNextOccurrence(
     .limit(1);
   if (!openColumn) return null;
 
-  return duplicateTask({
+  const next = await duplicateTask({
     taskId,
     currentUserId: currentUserId ?? "",
     canUpdateTasks: true,
@@ -52,4 +53,13 @@ export async function createNextOccurrence(
       ...nextOccurrenceDates(task, task.recurrence, new Date()),
     },
   });
+  // Clients refetched the completed task on its status change, before its rule
+  // moved, so they still show it as repeating.
+  if (next)
+    await publishEvent("task.updated", {
+      taskId,
+      projectId: task.projectId,
+      userId: currentUserId,
+    });
+  return next;
 }

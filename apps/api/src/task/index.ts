@@ -64,11 +64,11 @@ import updateTaskPriority from "./controllers/update-task-priority";
 import updateTaskRecurrence from "./controllers/update-task-recurrence";
 import updateTaskStatus from "./controllers/update-task-status";
 import updateTaskTitle from "./controllers/update-task-title";
-import "./recurrence/subscribe";
 import {
   getDeferredDescriptionMatches,
   getDescriptionPage,
 } from "./description-pages";
+import "./recurrence/subscribe";
 import {
   assignedTasksSchema,
   boardSchema,

@@ -15,7 +15,7 @@ export function TaskRecurrenceBadge({
   if (!task.recurrence) return null;
   const label = formatRecurrence(t, task.recurrence, i18n.language);
   const className =
-    "inline-flex shrink-0 cursor-inherit items-center text-muted-foreground";
+    "inline-flex shrink-0 cursor-[inherit] items-center text-muted-foreground";
 
   // Inside another button, such as the due date trigger, stay plain text.
   if (asText) {

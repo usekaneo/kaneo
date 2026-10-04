@@ -1,6 +1,7 @@
 import { and, eq, ne } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
+import { subscribeToEvent } from "../../apps/api/src/events";
 import { createApp } from "../../apps/api/src/index";
 import { createNextOccurrence } from "../../apps/api/src/task/recurrence/create-next-occurrence";
 import { mockAuthenticatedSession } from "./helpers/auth";
@@ -115,6 +116,30 @@ describe("API integration: recurring tasks", () => {
       { recurrence: null },
     );
     expect(cleared.status).toBe(200);
+    const stored = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, task.id),
+    });
+    expect(stored?.recurrence).toBeNull();
+  });
+
+  it("rejects a member without task update permission", async () => {
+    const viewer = await createWorkspaceMember({ role: "viewer" });
+    const { project, columns } = await createProjectFixture({
+      workspaceId: viewer.workspace.id,
+    });
+    mockAuthenticatedSession(viewer.user);
+    const task = await seedTask(project.id, columns.todo.id, {
+      recurrence: null,
+    });
+
+    const response = await request(
+      createApp().app,
+      "PUT",
+      `/api/task/recurrence/${task.id}`,
+      { recurrence: weekly },
+    );
+
+    expect(response.status).toBe(403);
     const stored = await db.query.taskTable.findFirst({
       where: eq(schema.taskTable.id, task.id),
     });
@@ -295,6 +320,35 @@ describe("API integration: recurring tasks", () => {
       .where(eq(schema.taskTable.id, task.id));
     await expect(createNextOccurrence(task.id, null)).resolves.toBeNull();
     expect(await otherTasks(project.id, task.id)).toHaveLength(1);
+  });
+
+  it("tells clients that the completed task no longer repeats", async () => {
+    const { project, columns } = await seedProject();
+    const task = await seedTask(project.id, columns.done.id, {
+      status: "done",
+    });
+    const updated: string[] = [];
+    await subscribeToEvent<{ taskId: string }>("task.updated", async (data) => {
+      updated.push(data.taskId);
+    });
+
+    const next = await createNextOccurrence(task.id, null);
+
+    expect(next).not.toBeNull();
+    expect(updated).toContain(task.id);
+  });
+
+  it("leaves the next occurrence unassigned when the assignee has left", async () => {
+    const { project, columns } = await seedProject();
+    const departed = await createWorkspaceMember();
+    const task = await seedTask(project.id, columns.done.id, {
+      status: "done",
+      userId: departed.user.id,
+    });
+
+    const next = await createNextOccurrence(task.id, null);
+
+    expect(next).toMatchObject({ userId: null, recurrence: weekly });
   });
 
   it("ignores tasks that are not completed or do not repeat", async () => {

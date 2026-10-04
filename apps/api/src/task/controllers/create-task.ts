@@ -16,12 +16,12 @@ import {
   assertAssignableUser,
   getProjectWorkspaceId,
 } from "../../utils/assert-assignable-user";
+import type { TaskRecurrence } from "../recurrence/schema";
 import {
   assertRequiredCustomFields,
   assertValidTaskStatus,
   isCustomFieldValueEmpty,
 } from "../validate-task-fields";
-import type { TaskRecurrence } from "../recurrence/schema";
 import { claimTaskNumber } from "./claim-task-numbers";
 import { nextTaskPosition } from "./next-task-position";
 
