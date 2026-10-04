@@ -31,10 +31,6 @@ permissions:
   issues: read
   checks: write
 
-concurrency:
-  group: contribution-eligibility
-  cancel-in-progress: false
-
 jobs:
   reconcile:
     # Dependabot-triggered runs may receive a read-only token. CI completion
@@ -42,6 +38,10 @@ jobs:
     if: >-
       (github.event_name != 'pull_request_target' || github.actor != 'dependabot[bot]') &&
       (github.event_name != 'workflow_run' || github.event.workflow_run.actor.login == 'dependabot[bot]')
+    # Skipped CI-completion events must not replace queued policy rechecks.
+    concurrency:
+      group: contribution-eligibility
+      cancel-in-progress: false
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 15
     steps:
