@@ -1,3 +1,4 @@
+import { resumeLabelChanges } from "../../sync/resume-label-changes";
 import { acceptsIssue, readSyncRules } from "../../sync/rules";
 import { handleGitlabIssueOpened } from "./issue-opened";
 import { withIntegrationLink } from "../../github/services/with-integration-link";
@@ -71,6 +72,7 @@ async function syncGitlabLabelsToTask(
   gitlabLabels: Array<{ name: string; color: string }>,
   previousLabels: GitlabWebhookLabel[] | undefined,
   db: IntegrationDatabase,
+  resumeBaseline?: string[],
 ) {
   const desiredNames = new Set(gitlabLabels.map((l) => l.name));
   const existingRows = await db.query.labelTable.findMany({
@@ -78,7 +80,11 @@ async function syncGitlabLabelsToTask(
   });
 
   const labelsToInsert = gitlabLabels
-    .filter((g) => !existingRows.some((row) => row.name === g.name))
+    .filter(
+      (g) =>
+        (!resumeBaseline || !resumeBaseline.includes(g.name)) &&
+        !existingRows.some((row) => row.name === g.name),
+    )
     .map((g) => ({
       name: g.name,
       color: g.color,
@@ -116,7 +122,8 @@ async function syncGitlabLabelsToTask(
   // Absence from GitLab alone does not imply removal: local labels may not
   // have synced yet. Only delete names explicitly removed by this event.
   const previousNames = new Set(
-    nonSystemLabels(previousLabels).map((label) => label.name),
+    resumeBaseline ??
+      nonSystemLabels(previousLabels).map((label) => label.name),
   );
   const labelsToDelete = existingRows
     .filter((row) => previousNames.has(row.name) && !desiredNames.has(row.name))
@@ -258,10 +265,18 @@ export async function handleGitlabIssueUpdated(
           }
 
           const titles = labelTitles(currentLabels);
+          const labelChanges = resumeLabelChanges(externalLink, titles);
+          if (labelChanges.baseline)
+            await updateExternalLink(
+              externalLink.id,
+              { metadata: { syncResumeLabelBaseline: titles } },
+              db,
+            );
+
           const priority = extractIssuePriority(titles);
           const status = extractIssueStatus(titles);
 
-          if (priority) {
+          if (priority && labelChanges.priorityChanged) {
             await db
               .update(taskTable)
               .set({ priority })
@@ -273,7 +288,11 @@ export async function handleGitlabIssueUpdated(
           const previousStatus = extractIssueStatus(
             labelTitles(changes?.labels?.previous),
           );
-          if (status && status !== previousStatus) {
+          if (
+            status &&
+            labelChanges.statusChanged &&
+            status !== previousStatus
+          ) {
             const statusResult = await updateTaskStatus(task.id, status, db);
             if (
               statusResult.applied &&
@@ -302,6 +321,7 @@ export async function handleGitlabIssueUpdated(
               nonSystemLabels(currentLabels),
               changes?.labels?.previous,
               db,
+              labelChanges.baseline,
             );
             afterCommit(() =>
               publishEvent("task.labels_updated", {

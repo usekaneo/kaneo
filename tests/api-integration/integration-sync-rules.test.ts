@@ -13,7 +13,7 @@ import { reviewSyncResume } from "../../apps/api/src/integration-sync/controller
 import { saveSyncRules } from "../../apps/api/src/integration-sync/controllers/save-rules";
 import * as linkManager from "../../apps/api/src/plugins/github/services/link-manager";
 import { createExternalLink } from "../../apps/api/src/plugins/github/services/link-manager";
-import { withIntegrationTask } from "../../apps/api/src/plugins/github/services/integration-task-scope";
+import { withIntegrationLink } from "../../apps/api/src/plugins/github/services/with-integration-link";
 import { withTaskSyncCreation } from "../../apps/api/src/plugins/sync/create-task-issue";
 import {
   canSyncTask,
@@ -324,7 +324,7 @@ describe("integration label policies", () => {
     await f.assign();
     expect(await canSyncTask(f.task.id, f.integration.id)).toBe(false);
     expect(await f.preview()).toMatchObject({ needsReview: 1, willCreate: 0 });
-    await withIntegrationTask(f.task.id, f.integration, async (tx) =>
+    await withIntegrationLink(link, f.integration, async (tx) =>
       tx
         .update(schema.taskTable)
         .set({ title: "Should not be applied" })

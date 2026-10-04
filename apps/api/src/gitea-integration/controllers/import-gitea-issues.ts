@@ -1,4 +1,5 @@
 import { acceptsIssue } from "../../plugins/sync/rules";
+import { canSyncTask } from "../../plugins/sync/eligibility";
 import { sameConfig } from "../../plugins/sync/same-config";
 import { and, eq, inArray, notInArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
@@ -239,7 +240,11 @@ async function importSingleIssue(
             ),
           )
           .for("update");
-        if (!linked) return "skipped" as const;
+        if (
+          !linked ||
+          !(await canSyncTask(existingLink.taskId, integrationId, database))
+        )
+          return "skipped" as const;
 
         const updateData: Record<string, unknown> = {
           title: issue.title,

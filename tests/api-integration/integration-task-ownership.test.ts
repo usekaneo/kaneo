@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import * as eligibility from "../../apps/api/src/plugins/sync/eligibility";
 import {
   afterEach,
@@ -665,24 +665,13 @@ it("does not apply a webhook after its link is paused while waiting for the link
   const f = await setup();
   let release!: () => void;
   let locked!: () => void;
-  let checked!: () => void;
   const gate = new Promise<void>((resolve) => {
     release = resolve;
   });
   const acquired = new Promise<void>((resolve) => {
     locked = resolve;
   });
-  const eligibilityChecked = new Promise<void>((resolve) => {
-    checked = resolve;
-  });
-  const original = eligibility.canSyncTask;
-  const guard = vi
-    .spyOn(eligibility, "canSyncTask")
-    .mockImplementation(async (...args) => {
-      const result = await original(...args);
-      checked();
-      return result;
-    });
+  const guard = vi.spyOn(eligibility, "canSyncTask");
   const pause = db.transaction(async (tx) => {
     await tx
       .select()
@@ -710,11 +699,22 @@ it("does not apply a webhook after its link is paused while waiting for the link
     f.integration.id,
   );
   try {
-    await eligibilityChecked;
+    await vi.waitFor(async () => {
+      const waiting = await db.execute<{ blocked: boolean }>(sql`
+        select exists (
+          select 1 from pg_stat_activity
+          where datname = current_database()
+            and wait_event_type = 'Lock'
+            and query like '%external_link%'
+        ) as blocked
+      `);
+      expect(waiting.rows[0]?.blocked).toBe(true);
+    });
+    expect(guard).not.toHaveBeenCalled();
     release();
     await pause;
     await webhook;
-    expect(guard).toHaveBeenCalledTimes(2);
+    expect(guard).toHaveBeenCalledOnce();
     await expectPrivateTask(f.task.id);
   } finally {
     release();

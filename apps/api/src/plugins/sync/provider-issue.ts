@@ -32,6 +32,7 @@ export async function providerIssue(
     state: string;
     updated_at?: string;
     content_version?: number;
+    labels?: Array<string | { name?: string }>;
   }) => ({
     title: issue.title,
     description: formatTaskDescriptionFromIssue(
@@ -41,6 +42,10 @@ export async function providerIssue(
     state: issue.state === "closed" ? ("closed" as const) : ("open" as const),
     updatedAt: issue.updated_at ?? null,
     contentVersion: issue.content_version ?? null,
+    labels: (issue.labels ?? []).flatMap((label) => {
+      const name = typeof label === "string" ? label : label.name;
+      return name ? [name] : [];
+    }),
   });
   if (integration.type === "gitea") {
     const client = createGiteaClient(config as GiteaConfig);

@@ -35,6 +35,7 @@ export function withIntegrationLink<T>(
         .for("update");
       if (!lockedLink) return;
       if (
+        lockedLink.resourceType === "issue" &&
         !(await canSyncTask(
           link.taskId,
           integration.id,

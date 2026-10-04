@@ -124,6 +124,7 @@ async function resumeWithLease(
             metadata: {
               syncFilterPaused: false,
               syncResumeUncertain: false,
+              syncResumeLabelBaseline: review.remoteIssueLabels,
               ...(provider === "gitlab"
                 ? {
                     lastOutboundStateSyncAt: Date.now(),

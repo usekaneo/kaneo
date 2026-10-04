@@ -27,6 +27,9 @@ import { getSyncIntegration } from "../../apps/api/src/integration-sync/controll
 import { previewSyncRules } from "../../apps/api/src/integration-sync/controllers/preview-rules";
 import type { SyncRules } from "../../apps/api/src/plugins/sync/rules";
 import { canSyncTask } from "../../apps/api/src/plugins/sync/eligibility";
+import { resumeSync } from "../../apps/api/src/integration-sync/controllers/resume-sync";
+import { reviewSyncResume } from "../../apps/api/src/integration-sync/controllers/review-resume";
+import { updateExternalLink } from "../../apps/api/src/plugins/github/services/link-manager";
 import deleteLabel from "../../apps/api/src/label/controllers/delete-label";
 import { resetTestDatabase } from "./helpers/database";
 import {
@@ -41,6 +44,11 @@ const mocks = vi.hoisted(() => ({
   update: vi.fn(),
   labels: vi.fn(),
   comment: vi.fn(),
+  read: vi.fn(),
+  write: vi.fn(),
+}));
+vi.mock("../../apps/api/src/plugins/sync/provider-issue", () => ({
+  providerIssue: async () => ({ read: mocks.read, write: mocks.write }),
 }));
 vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
   getGithubApp: () => ({
@@ -93,6 +101,14 @@ beforeEach(async () => {
   mocks.update.mockResolvedValue(undefined);
   mocks.labels.mockResolvedValue(undefined);
   mocks.comment.mockResolvedValue({ id: 123 });
+  mocks.read.mockResolvedValue({
+    title: "Repository title",
+    description: "Repository body",
+    state: "open",
+    updatedAt: "2026-01-01T00:00:00Z",
+    labels: ["export", "priority:low", "status:to-do", "remote-old"],
+  });
+  mocks.write.mockResolvedValue({ updatedAt: "2026-01-02T00:00:00Z" });
   mocks.githubCreate.mockResolvedValue({
     data: {
       number: 12,
@@ -519,6 +535,134 @@ describe.each(["github", "gitea", "gitlab"] as const)(
         await comment;
       }
     });
+
+    it.each(["kaneo", "provider"] as const)(
+      "preserves unreviewed fields after resuming with %s and accepts later label changes",
+      async (source) => {
+        const f = await setup(type);
+        await f.assign();
+        await reconcileTaskSync(f.project.id, f.task.id);
+        const link = (await db.query.externalLinkTable.findMany())[0]!;
+        await updateExternalLink(link.id, {
+          metadata: { syncFilterPaused: true },
+        });
+        const [planned] = await db
+          .insert(schema.columnTable)
+          .values({
+            projectId: f.project.id,
+            name: "Planned",
+            slug: "planned",
+            position: -1,
+            isFinal: false,
+          })
+          .returning();
+        await db
+          .update(schema.taskTable)
+          .set({
+            status: planned!.slug,
+            columnId: planned!.id,
+            priority: "urgent",
+          })
+          .where(eq(schema.taskTable.id, f.task.id));
+        await db.insert(schema.labelTable).values({
+          workspaceId: f.workspace.id,
+          taskId: f.task.id,
+          name: "local-only",
+          color: "#123456",
+        });
+        const review = await reviewSyncResume(f.project.id, type, link.id);
+        await resumeSync(f.project.id, type, link.id, review.token, source);
+        const baseline = [
+          "export",
+          "priority:low",
+          "status:to-do",
+          "remote-old",
+        ];
+        async function receive(
+          names: string[],
+          previous: string[],
+          added = "new-remote",
+        ) {
+          if (type === "github")
+            await handleIssueLabeled({
+              action: "labeled",
+              installation: { id: 2 },
+              repository: { id: 1, owner: { login: "team" }, name: "repo" },
+              issue: { number: 12, labels: names },
+              label: { name: added, color: "123456" },
+            });
+          else if (type === "gitea")
+            await handleGiteaIssueLabeled(
+              {
+                action: "label_updated",
+                repository: {
+                  owner: { login: "team" },
+                  name: "repo",
+                  html_url: "https://git.example/team/repo",
+                },
+                issue: { number: 12, labels: names },
+              },
+              f.integration.id,
+            );
+          else
+            await handleGitlabIssueUpdated(
+              {
+                object_attributes: {
+                  iid: 12,
+                  title: "Repository title",
+                  description: "Repository body",
+                  state: "opened",
+                  url: "https://gitlab.example/team/repo/-/issues/12",
+                },
+                changes: {
+                  labels: {
+                    previous: previous.map((title) => ({ title })),
+                    current: names.map((title) => ({ title })),
+                  },
+                },
+                project: {
+                  name: "repo",
+                  path_with_namespace: "team/repo",
+                  web_url: "https://gitlab.example/team/repo",
+                },
+              },
+              f.integration.id,
+            );
+        }
+        const first = [...baseline, "new-remote"];
+        await receive(first, baseline);
+        expect(
+          await db.query.taskTable.findFirst({
+            where: eq(schema.taskTable.id, f.task.id),
+          }),
+        ).toMatchObject({
+          priority: "urgent",
+          status: "planned",
+          columnId: planned!.id,
+        });
+        const labels = await db.query.labelTable.findMany({
+          where: eq(schema.labelTable.taskId, f.task.id),
+        });
+        expect(labels.map((label) => label.name).sort()).toEqual([
+          "export",
+          "local-only",
+          "new-remote",
+        ]);
+        const changed = [
+          "export",
+          "priority:high",
+          "status:in-progress",
+          "remote-old",
+          "new-remote",
+        ];
+        await receive(changed, first, "priority:high");
+        expect(
+          await db.query.taskTable.findFirst({
+            where: eq(schema.taskTable.id, f.task.id),
+          }),
+        ).toMatchObject({ priority: "high", status: "in-progress" });
+      },
+    );
 
     it("imports a closed issue gaining a label into a completed column", async () => {
       const f = await setup(type);

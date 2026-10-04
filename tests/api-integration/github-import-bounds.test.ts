@@ -158,6 +158,40 @@ async function saved() {
 }
 
 describe("bounded resumable GitHub import", () => {
+  it("rejects an incoming rule change while fetching a page before creating tasks or consuming its cursor", async () => {
+    const { integration, config, request } = await setup();
+    const started = deferred();
+    const release = deferred();
+    mocks.graphql.mockImplementationOnce(async () => {
+      started.resolve();
+      await release.promise;
+      return issuePage([issue(1)], true, "first", 2);
+    });
+    const importing = request();
+    await started.promise;
+    await db
+      .update(schema.integrationTable)
+      .set({
+        config: JSON.stringify({
+          ...config,
+          syncRules: {
+            outgoing: { mode: "all" },
+            incoming: { mode: "labels", labels: ["approved"], match: "any" },
+          },
+        }),
+      })
+      .where(eq(schema.integrationTable.id, integration.id));
+    release.resolve();
+    expect((await importing).status).toBe(409);
+    expect(await db.query.taskTable.findMany()).toHaveLength(0);
+    expect(await db.query.externalLinkTable.findMany()).toHaveLength(0);
+    expect((await saved())?.state).toMatchObject({
+      phase: "issues",
+      issueCursor: null,
+      imported: 0,
+    });
+  });
+
   it("bounds each HTTP step, persists resumable state, imports every issue and retries completion without restarting", async () => {
     const { request, app, project } = await setup();
     serveIssues(9);

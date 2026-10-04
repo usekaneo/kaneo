@@ -1,3 +1,4 @@
+import { resumeLabelChanges } from "../../sync/resume-label-changes";
 import { acceptsIssue, readSyncRules } from "../../sync/rules";
 import { handleGiteaIssueOpened } from "./issue-opened";
 import { withIntegrationLink } from "../../github/services/with-integration-link";
@@ -8,7 +9,10 @@ import {
 import { eq, inArray } from "drizzle-orm";
 import { labelTable, taskTable } from "../../../database/schema";
 import { publishEvent } from "../../../events";
-import { findExternalLink } from "../../github/services/link-manager";
+import {
+  findExternalLink,
+  updateExternalLink,
+} from "../../github/services/link-manager";
 import { updateTaskStatus } from "../../github/services/task-service";
 import {
   extractIssuePriority,
@@ -63,14 +67,20 @@ async function syncGiteaLabelsToTask(
   workspaceId: string,
   giteaLabels: Array<{ name: string; color?: string }>,
   db: IntegrationDatabase,
+  previousNames?: string[],
 ) {
   const desiredNames = new Set(giteaLabels.map((l) => l.name));
+  const previous = previousNames ? new Set(previousNames) : undefined;
   const existingRows = await db.query.labelTable.findMany({
     where: eq(labelTable.taskId, taskId),
   });
 
   const labelsToInsert = giteaLabels
-    .filter((g) => !existingRows.some((row) => row.name === g.name))
+    .filter(
+      (g) =>
+        (!previous || !previous.has(g.name)) &&
+        !existingRows.some((row) => row.name === g.name),
+    )
     .map((g) => ({
       name: g.name,
       color: normalizedGiteaLabelColor(g),
@@ -110,7 +120,10 @@ async function syncGiteaLabelsToTask(
 
   const labelsToDelete = existingRows
     .filter(
-      (row) => !desiredNames.has(row.name) && !isSystemLabelName(row.name),
+      (row) =>
+        (!previous || previous.has(row.name)) &&
+        !desiredNames.has(row.name) &&
+        !isSystemLabelName(row.name),
     )
     .map((row) => row.id);
 
@@ -166,10 +179,21 @@ export async function handleGiteaIssueLabeled(
         existingLink,
         integration,
         async (db, afterCommit, existingLink) => {
+          const names = (issue.labels ?? []).flatMap((label) => {
+            const name = typeof label === "string" ? label : label.name;
+            return name ? [name] : [];
+          });
+          const changes = resumeLabelChanges(existingLink, names);
+          if (changes.baseline && issue.labels !== undefined)
+            await updateExternalLink(
+              existingLink.id,
+              { metadata: { syncResumeLabelBaseline: names } },
+              db,
+            );
           const priority = extractIssuePriority(issue.labels);
           const status = extractIssueStatus(issue.labels);
 
-          if (priority) {
+          if (priority && changes.priorityChanged) {
             await db
               .update(taskTable)
               .set({ priority })
@@ -178,7 +202,7 @@ export async function handleGiteaIssueLabeled(
               );
           }
 
-          if (status) {
+          if (status && changes.statusChanged) {
             const statusResult = await updateTaskStatus(
               existingLink.taskId,
               status,
@@ -223,6 +247,7 @@ export async function handleGiteaIssueLabeled(
                 task.project.workspaceId,
                 giteaLabelsForSync(issue.labels),
                 db,
+                changes.baseline,
               );
               afterCommit(() =>
                 publishEvent("task.labels_updated", {

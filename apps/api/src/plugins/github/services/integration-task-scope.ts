@@ -1,4 +1,3 @@
-import { canSyncTask } from "../../sync/eligibility";
 import { and, eq, sql } from "drizzle-orm";
 import db from "../../../database";
 import {
@@ -103,15 +102,6 @@ export async function withIntegrationTask<T>(
         )
         .for("no key update");
       if (!task) return undefined;
-      if (
-        !(await canSyncTask(
-          taskId,
-          integration.id,
-          tx,
-          expectedBinding?.config,
-        ))
-      )
-        return undefined;
     }
     return apply(tx, (effect) => effects.push(effect));
   });

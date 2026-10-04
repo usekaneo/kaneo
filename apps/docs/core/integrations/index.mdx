@@ -30,6 +30,8 @@ Enable **Advanced settings** in **Account → Preferences** or **Workspace → G
 
 When a linked task loses its qualifying labels, synchronization pauses in both directions. Both records and their link remain. Reapplying the label does not overwrite either side: choose **Review and resume**, compare the current title, description, and open/closed state, then keep the Kaneo or repository values. Historical comments are not replayed. Missing or deleted workspace labels keep the filter closed until you repair the rule.
 
+Resuming leaves priority, detailed status, and custom labels unchanged. Later repository label events apply changes made after the comparison, so an unrelated label event does not restore stale values from the pause. Issue filters do not prevent branch or pull request linking and their configured status transitions.
+
 Kaneo rereads the issue when you resume and rejects a changed comparison. Gitea's content version, when available, also protects the body write from concurrent edits. Provider APIs do not offer an atomic version check for every issue field, so an edit made after the final read can still conflict with a resume write. Avoid editing the repository issue while resuming it. A rejected provider write leaves synchronization paused for another review.
 
 An issue creation request already sent to a repository may finish after its task stops matching. Kaneo keeps the returned issue link paused and stops further updates. Local edits remain available while the repository responds.

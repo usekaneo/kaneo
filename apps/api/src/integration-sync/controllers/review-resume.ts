@@ -81,6 +81,7 @@ export async function reviewSyncResume(
       access,
       local,
       remote,
+      remoteIssueLabels: remoteIssue.labels,
       remoteIssueUpdatedAt: remoteIssue.updatedAt,
       token,
     };
