@@ -1,5 +1,6 @@
 import { pagingNumber, z } from "../openapi";
 import { MAX_TASK_POSITION } from "./controllers/next-task-position";
+import { taskRecurrenceSchema } from "./recurrence/schema";
 import { TICKET_ID_PATTERN } from "./ticket-id";
 import { VALID_PRIORITIES } from "./validate-task-fields";
 
@@ -129,6 +130,11 @@ export const updateAssigneeBody = z.object({
   userId: z.string().nullable().openapi({ description: "Null unassigns." }),
 });
 export const updateDueDateBody = z.object({ dueDate: z.string().optional() });
+export const updateRecurrenceBody = z.object({
+  recurrence: taskRecurrenceSchema
+    .nullable()
+    .openapi({ description: "Null stops the task from repeating." }),
+});
 export const updateTitleBody = z.object({ title: z.string() });
 export const updateDescriptionBody = z.object({ description: z.string() });
 

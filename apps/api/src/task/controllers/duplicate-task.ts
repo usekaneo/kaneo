@@ -1,5 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNotNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
@@ -16,6 +16,7 @@ import {
 import { publishEvent } from "../../events";
 import { contentReferencesAsset } from "../../storage/cleanup-assets";
 import { copyTaskAssetObject, deleteS3Object } from "../../storage/s3";
+import { taskIsCompleted } from "../task-is-completed";
 import { assertAssignableUser } from "../../utils/assert-assignable-user";
 import {
   assertRequiredCustomFields,
@@ -116,17 +117,43 @@ async function duplicateDescriptionAssets({
   return { assets, description: duplicatedDescription };
 }
 
+type DuplicateTaskOptions = {
+  taskId: string;
+  currentUserId: string;
+  canUpdateTasks: boolean;
+  title?: string;
+};
+
+// The next occurrence of a recurring task: a copy in a new status and dates that
+// takes over the completed task's recurrence rule.
+type Occurrence = {
+  status: string;
+  startDate: Date | null;
+  dueDate: Date | null;
+};
+
+// Rolls back an occurrence whose rule another transaction already moved.
+class RuleAlreadyMoved extends Error {}
+
+type DuplicatedTask = typeof taskTable.$inferSelect & {
+  assigneeName: string | undefined;
+};
+
+function duplicateTask(options: DuplicateTaskOptions): Promise<DuplicatedTask>;
+// Resolves to null when the source no longer holds a rule to hand over: it was
+// reopened, or a concurrent completion already created the next occurrence.
+function duplicateTask(
+  options: DuplicateTaskOptions & { occurrence: Occurrence },
+): Promise<DuplicatedTask | null>;
 async function duplicateTask({
   taskId,
   currentUserId,
   canUpdateTasks,
   title,
-}: {
-  taskId: string;
-  currentUserId: string;
-  canUpdateTasks: boolean;
-  title?: string;
-}) {
+  occurrence,
+}: DuplicateTaskOptions & {
+  occurrence?: Occurrence;
+}): Promise<DuplicatedTask | null> {
   const sourceTask = await db.query.taskTable.findFirst({
     where: eq(taskTable.id, taskId),
   });
@@ -149,13 +176,14 @@ async function duplicateTask({
     });
   }
 
-  await assertValidTaskStatus(sourceTask.status, sourceTask.projectId);
+  const status = occurrence?.status ?? sourceTask.status;
+  await assertValidTaskStatus(status, sourceTask.projectId);
   if (sourceTask.userId)
     await assertAssignableUser(sourceTask.userId, project.workspaceId);
   const column = await db.query.columnTable.findFirst({
     where: and(
       eq(columnTable.projectId, sourceTask.projectId),
-      eq(columnTable.slug, sourceTask.status),
+      eq(columnTable.slug, status),
     ),
   });
 
@@ -256,11 +284,38 @@ async function duplicateTask({
 
   try {
     duplicated = await db.transaction(async (tx) => {
+      // Locks the project row before the task row, the same order task updates
+      // use.
       const taskNumber = await claimTaskNumber(sourceTask.projectId, tx);
+
+      // Moving the rule off the completed task is the claim. The row lock makes
+      // a concurrent claim wait and then see no rule, so each completion
+      // creates one next task.
+      let recurrence: (typeof taskTable.$inferSelect)["recurrence"] = null;
+      if (occurrence) {
+        const [claimed] = await tx
+          .select({ recurrence: taskTable.recurrence })
+          .from(taskTable)
+          .where(
+            and(
+              eq(taskTable.id, sourceTask.id),
+              isNotNull(taskTable.recurrence),
+              taskIsCompleted,
+            ),
+          )
+          .for("update");
+        if (!claimed) throw new RuleAlreadyMoved();
+        recurrence = claimed.recurrence;
+        await tx
+          .update(taskTable)
+          .set({ recurrence: null })
+          .where(eq(taskTable.id, sourceTask.id));
+      }
+
       const nextPosition = await nextTaskPosition(
         tx,
         sourceTask.projectId,
-        sourceTask.status,
+        status,
         column?.id ?? null,
       );
 
@@ -271,10 +326,11 @@ async function duplicateTask({
           projectId: sourceTask.projectId,
           userId: sourceTask.userId,
           title: title?.trim() || sourceTask.title,
-          status: sourceTask.status,
+          status,
           columnId: column?.id ?? null,
-          startDate: sourceTask.startDate,
-          dueDate: sourceTask.dueDate,
+          startDate: occurrence ? occurrence.startDate : sourceTask.startDate,
+          dueDate: occurrence ? occurrence.dueDate : sourceTask.dueDate,
+          recurrence,
           description,
           priority: sourceTask.priority,
           number: taskNumber,
@@ -327,6 +383,7 @@ async function duplicateTask({
     });
   } catch (error) {
     await discardCopiedObjects(assets.map((asset) => asset.objectKey));
+    if (error instanceof RuleAlreadyMoved) return null;
     throw error;
   }
 
