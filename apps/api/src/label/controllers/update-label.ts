@@ -78,7 +78,9 @@ async function updateLabel(id: string, name: string, color: string) {
   }
   if (result.original.name !== name) {
     if (!result.original.taskId && result.original.workspaceId)
-      await notifySyncWorkspaceLabelChanged(result.original.workspaceId, id);
+      await notifySyncWorkspaceLabelChanged(result.original.workspaceId, id, {
+        publishProjectUpdates: false,
+      });
     else if (result.original.taskId)
       for (const { projectId } of result.projects)
         await publishEvent("task.labels_updated", {

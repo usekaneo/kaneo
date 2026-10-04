@@ -7,6 +7,7 @@ import { readSyncRules, syncProviders } from "./rules";
 export async function notifySyncWorkspaceLabelChanged(
   workspaceId: string,
   labelId: string,
+  { publishProjectUpdates = true }: { publishProjectUpdates?: boolean } = {},
 ) {
   const integrations = await db
     .select({
@@ -32,6 +33,7 @@ export async function notifySyncWorkspaceLabelChanged(
         integrationId: integration.id,
       });
   }
-  for (const projectId of projects)
-    await publishEvent("project.updated", { projectId });
+  if (publishProjectUpdates)
+    for (const projectId of projects)
+      await publishEvent("project.updated", { projectId });
 }
