@@ -4,6 +4,7 @@ import {
 } from "../../sync/initialize-task-issue";
 import { canSyncTask } from "../../sync/eligibility";
 import { withTaskSyncCreation } from "../../sync/create-task-issue";
+import { syncTaskFieldLabels } from "../../sync/sync-task-field-labels";
 import { eq } from "drizzle-orm";
 import db from "../../../database";
 import { projectTable } from "../../../database/schema";
@@ -19,7 +20,7 @@ import {
   getGithubApp,
   getVerifiedInstallationOctokit,
 } from "../utils/github-app";
-import { addLabelsToIssue } from "../utils/labels";
+import { addLabelsToIssue, removeLabel } from "../utils/labels";
 
 async function createTaskIssue(
   event: TaskCreatedEvent,
@@ -132,15 +133,33 @@ async function createTaskIssue(
           issue_number: issueNumber,
           state: "closed",
         }),
-      labels: (labels, write) =>
-        addLabelsToIssue(
-          octokit,
-          repositoryOwner,
-          repositoryName,
-          issueNumber,
-          labels,
-          true,
-          write,
+      labels: () =>
+        syncTaskFieldLabels(
+          event.taskId,
+          context,
+          { id: createdLink.id, externalId: String(issueNumber) },
+          "github",
+          "initialization",
+          async ({ add, remove }, write) => {
+            for (const name of remove)
+              await removeLabel(
+                octokit,
+                repositoryOwner,
+                repositoryName,
+                issueNumber,
+                name,
+                write,
+              );
+            await addLabelsToIssue(
+              octokit,
+              repositoryOwner,
+              repositoryName,
+              issueNumber,
+              add,
+              true,
+              write,
+            );
+          },
         ),
       ...(comment
         ? {

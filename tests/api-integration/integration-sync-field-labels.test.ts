@@ -102,8 +102,15 @@ it.each(
   (["github", "gitea", "gitlab"] as const).flatMap((provider) =>
     (["status", "priority"] as const).flatMap((field) =>
       (field === "priority"
-        ? [false, true, "clear", "read-error"]
-        : [false, true]
+        ? [
+            false,
+            true,
+            "clear",
+            "read-error",
+            "initialization",
+            "initialization-waits",
+          ]
+        : [false, true, "initialization", "initialization-waits"]
       ).map((overlap) => ({ provider, field, overlap })),
     ),
   ),
@@ -115,7 +122,9 @@ it.each(
       workspaceId: workspace.id,
     });
     const clearing = overlap === "clear";
-    const overlapping = overlap === true;
+    const initializing =
+      overlap === "initialization" || overlap === "initialization-waits";
+    const overlapping = overlap === true || initializing;
     const first =
       field === "status" ? "in-progress" : clearing ? "no-priority" : "high";
     const last = field === "status" ? "in-review" : "urgent";
@@ -139,6 +148,7 @@ it.each(
       repositoryId: 2,
       verifiedGithubAccountId: "3",
       verifiedByUserId: user.id,
+      commentTaskLinkOnGitHubIssue: false,
     };
     const [integration] = await db
       .insert(schema.integrationTable)
@@ -159,6 +169,13 @@ it.each(
         url: "https://git.example/team/repo/issues/1",
         metadata: JSON.stringify({
           syncResumeLabelBaseline: [...mocks.labels],
+          ...(initializing
+            ? {
+                syncInitializationPending: true,
+                syncInitializedState: true,
+                syncCreatedText: { title: "Task", description: "" },
+              }
+            : {}),
         }),
       })
       .returning();
@@ -197,6 +214,20 @@ it.each(
             },
             context,
           );
+    const initialize = () =>
+      plugin.onTaskCreated!(
+        {
+          taskId: task.id,
+          projectId: project.id,
+          userId: user.id,
+          title: task.title,
+          description: null,
+          status: task.status,
+          priority: task.priority,
+          number: 1,
+        },
+        context,
+      );
     let release!: () => void;
     let started!: () => void;
     const gate = new Promise<void>((resolve) => {
@@ -237,7 +268,10 @@ it.each(
         errors.mockRestore();
       }
     }
-    const initial = sync(field === "status" ? "to-do" : "urgent", first);
+    const initial =
+      overlap === "initialization"
+        ? initialize()
+        : sync(field === "status" ? "to-do" : "urgent", first);
     if (overlapping) {
       await writing;
       // A slow provider request must not hold task or project row locks.
@@ -245,7 +279,8 @@ it.each(
         .update(schema.taskTable)
         .set({ [field]: last })
         .where(eq(schema.taskTable.id, task.id));
-      const later = sync(first, last);
+      const later =
+        overlap === "initialization-waits" ? initialize() : sync(first, last);
       release();
       await Promise.all([initial, later]);
     } else await initial;
@@ -255,11 +290,24 @@ it.each(
     ).toEqual(clearing ? [] : [expected]);
     expect(mocks.labels.has("keep")).toBe(true);
     expect(
-      mocks.labels.has(field === "status" ? "priority:low" : "status:planned"),
+      mocks.labels.has(
+        field === "status"
+          ? initializing
+            ? "priority:high"
+            : "priority:low"
+          : initializing
+            ? "status:in-progress"
+            : "status:planned",
+      ),
     ).toBe(true);
     const saved = await db.query.externalLinkTable.findFirst({
       where: eq(schema.externalLinkTable.id, link.id),
     });
+    if (initializing)
+      expect(JSON.parse(saved!.metadata!)).toMatchObject({
+        syncInitializedLabels: true,
+        syncInitializationPending: false,
+      });
     if (!clearing)
       expect(JSON.parse(saved!.metadata!).syncResumeLabelBaseline).toContain(
         expected,

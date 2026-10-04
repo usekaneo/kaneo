@@ -1,4 +1,5 @@
 import { initializeTaskIssue } from "../../apps/api/src/plugins/sync/initialize-task-issue";
+import { syncTaskFieldLabels } from "../../apps/api/src/plugins/sync/sync-task-field-labels";
 import { addLabelsToIssue } from "../../apps/api/src/plugins/github/utils/labels";
 import { addLabelsToIssueGitea } from "../../apps/api/src/plugins/gitea/utils/labels";
 import { addLabelsToIssueGitlab } from "../../apps/api/src/plugins/gitlab/utils/labels";
@@ -39,6 +40,7 @@ vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
   getVerifiedInstallationOctokit: async () => ({
     rest: {
       issues: {
+        get: async () => ({ data: { labels: [] } }),
         getLabel: async () => {
           await mocks.lookup();
           throw new Error("Label does not exist");
@@ -136,33 +138,45 @@ it.each(["github", "gitea", "gitlab"] as const)(
       {
         text: async () => undefined,
         close: mocks.addLabel,
-        labels: (names, write) => {
-          if (provider === "github")
-            return addLabelsToIssue(
-              octokit,
-              "team",
-              "repo",
-              12,
-              names,
-              true,
-              write,
-            );
-          if (provider === "gitea")
-            return addLabelsToIssueGitea(
-              f.config as GiteaConfig,
-              12,
-              names,
-              true,
-              write,
-            );
-          return addLabelsToIssueGitlab(
-            f.config as GitlabConfig,
-            12,
-            names,
-            true,
-            write,
-          );
-        },
+        labels: () =>
+          syncTaskFieldLabels(
+            f.task.id,
+            {
+              integrationId: f.integration.id,
+              projectId: f.project.id,
+              config: f.config,
+            },
+            f.link,
+            provider,
+            "initialization",
+            ({ add: names }, write) => {
+              if (provider === "github")
+                return addLabelsToIssue(
+                  octokit,
+                  "team",
+                  "repo",
+                  12,
+                  names,
+                  true,
+                  write,
+                );
+              if (provider === "gitea")
+                return addLabelsToIssueGitea(
+                  f.config as GiteaConfig,
+                  12,
+                  names,
+                  true,
+                  write,
+                );
+              return addLabelsToIssueGitlab(
+                f.config as GitlabConfig,
+                12,
+                names,
+                true,
+                write,
+              );
+            },
+          ),
       },
     ).then(
       () => undefined,

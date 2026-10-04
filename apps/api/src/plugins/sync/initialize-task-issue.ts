@@ -3,8 +3,6 @@ import { isTaskInFinalState } from "../github/services/task-service";
 import { parseLinkMetadata } from "../github/utils/parse-link-metadata";
 import type { PluginContext, TaskCreatedEvent } from "../types";
 import { createIssueWrite } from "./dispatch-issue-write";
-import type { IssueWrite } from "./issue-write";
-import { taskIssueLabels } from "./issue-labels";
 import { initializeTaskText } from "./initialize-task-text";
 
 type Initialization = {
@@ -34,7 +32,7 @@ export async function initializeTaskIssue(
       value: string,
     ) => Promise<string | undefined>;
     close: () => Promise<unknown>;
-    labels: (names: string[], write: IssueWrite) => Promise<void>;
+    labels: () => Promise<string | undefined>;
     comment?: () => Promise<unknown>;
   },
 ) {
@@ -65,10 +63,8 @@ export async function initializeTaskIssue(
     });
   }
   if (!progress.syncInitializedLabels) {
-    await actions.labels(
-      await taskIssueLabels(event.taskId, current.priority, current.status),
-      write,
-    );
+    if ((await actions.labels()) === undefined)
+      throw new Error("Issue sync scope changed");
     await updateExternalLink(link.id, {
       metadata: { syncInitializedLabels: true },
     });

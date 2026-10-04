@@ -88,12 +88,20 @@ vi.mock("../../apps/api/src/plugins/gitlab/utils/gitlab-api", () => ({
 }));
 vi.mock("../../apps/api/src/plugins/github/utils/labels", () => ({
   addLabelsToIssue: mocks.labels,
+  removeLabel: async () => {},
 }));
 vi.mock("../../apps/api/src/plugins/gitea/utils/labels", () => ({
   addLabelsToIssueGitea: mocks.labels,
+  removeLabelGitea: async () => {},
 }));
 vi.mock("../../apps/api/src/plugins/gitlab/utils/labels", () => ({
   addLabelsToIssueGitlab: mocks.labels,
+  updateIssueLabelsGitlab: (
+    config: unknown,
+    number: number,
+    changes: { add: string[] },
+    ...args: unknown[]
+  ) => mocks.labels(config, number, changes.add, ...args),
 }));
 
 beforeAll(() => {

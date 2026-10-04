@@ -8,6 +8,7 @@ import type { PluginContext } from "../types";
 import { createIssueWrite } from "./dispatch-issue-write";
 import { canSyncTask } from "./eligibility";
 import type { IssueWrite } from "./issue-write";
+import { taskIssueLabels } from "./issue-labels";
 import { withSyncLease } from "./lease";
 import { providerIssue } from "./provider-issue";
 
@@ -16,13 +17,15 @@ export async function syncTaskFieldLabels(
   context: PluginContext,
   link: { id: string; externalId: string },
   provider: string,
-  field: "priority" | "status",
+  field: "priority" | "status" | "initialization",
   send: (
     changes: { add: string[]; remove: string[] },
     write: IssueWrite,
   ) => Promise<void>,
 ) {
   const config = JSON.stringify(context.config);
+  const prefixes =
+    field === "initialization" ? ["priority:", "status:"] : [`${field}:`];
   return withSyncLease(`sync-field-labels:${link.id}`, async () => {
     const remote = await providerIssue(
       { type: provider, config },
@@ -41,15 +44,22 @@ export async function syncTaskFieldLabels(
         where: linkedTaskScope(taskId, context.projectId),
       });
       if (!task) return;
-      const value = task[field] ?? "no-priority";
       const labels = (await remote.read()).labels;
-      const prefix = `${field}:`;
       const add =
-        field === "priority" && value === "no-priority"
-          ? []
-          : [`${prefix}${value}`];
+        field === "initialization"
+          ? (await taskIssueLabels(taskId, task.priority, task.status)).sort()
+          : field === "priority" &&
+              (!task.priority || task.priority === "no-priority")
+            ? []
+            : [`${field}:${task[field]}`];
+      const value =
+        field === "initialization"
+          ? JSON.stringify(add)
+          : (task[field] ?? "no-priority");
       const remove = labels.filter(
-        (name) => name.startsWith(prefix) && !add.includes(name),
+        (name) =>
+          prefixes.some((prefix) => name.startsWith(prefix)) &&
+          !add.includes(name),
       );
       await send({ add, remove }, write);
       if (
@@ -73,10 +83,14 @@ export async function syncTaskFieldLabels(
         await updateExternalLink(link.id, {
           metadata: {
             syncResumeLabelBaseline: [
-              ...metadata.syncResumeLabelBaseline.filter(
-                (name) => typeof name === "string" && !name.startsWith(prefix),
-              ),
-              ...add,
+              ...new Set([
+                ...metadata.syncResumeLabelBaseline.filter(
+                  (name) =>
+                    typeof name === "string" &&
+                    !prefixes.some((prefix) => name.startsWith(prefix)),
+                ),
+                ...add,
+              ]),
             ],
           },
         });
@@ -87,7 +101,15 @@ export async function syncTaskFieldLabels(
       if (!current) return;
       // A later event may time out waiting for this lease. The current owner
       // repairs edits made during its provider request before releasing it.
-      if ((current[field] ?? "no-priority") === value) return value;
+      const currentValue =
+        field === "initialization"
+          ? JSON.stringify(
+              (
+                await taskIssueLabels(taskId, current.priority, current.status)
+              ).sort(),
+            )
+          : (current[field] ?? "no-priority");
+      if (currentValue === value) return value;
     }
   }).catch(() => {
     console.error("Issue field label synchronization failed", {

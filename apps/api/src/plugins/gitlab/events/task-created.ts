@@ -4,6 +4,7 @@ import {
 } from "../../sync/initialize-task-issue";
 import { canSyncTask } from "../../sync/eligibility";
 import { withTaskSyncCreation } from "../../sync/create-task-issue";
+import { syncTaskFieldLabels } from "../../sync/sync-task-field-labels";
 import {
   createExternalLink,
   updateExternalLink,
@@ -13,7 +14,7 @@ import { formatIssueBody, formatIssueTitle } from "../../github/utils/format";
 import type { PluginContext, TaskCreatedEvent } from "../../types";
 import type { GitlabConfig } from "../config";
 import { createGitlabClient } from "../utils/gitlab-api";
-import { addLabelsToIssueGitlab } from "../utils/labels";
+import { updateIssueLabelsGitlab } from "../utils/labels";
 
 async function createTaskIssue(
   event: TaskCreatedEvent,
@@ -104,8 +105,16 @@ async function createTaskIssue(
         client.updateIssue(config.projectPath, issueNumber, {
           state_event: "close",
         }),
-      labels: (labels, write) =>
-        addLabelsToIssueGitlab(config, issueNumber, labels, true, write),
+      labels: () =>
+        syncTaskFieldLabels(
+          event.taskId,
+          context,
+          { id: createdLink.id, externalId: String(issueNumber) },
+          "gitlab",
+          "initialization",
+          (changes, write) =>
+            updateIssueLabelsGitlab(config, issueNumber, changes, true, write),
+        ),
     });
   } catch (error) {
     console.error("Failed to create GitLab issue:", error);

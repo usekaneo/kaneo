@@ -4,6 +4,7 @@ import {
 } from "../../sync/initialize-task-issue";
 import { canSyncTask } from "../../sync/eligibility";
 import { withTaskSyncCreation } from "../../sync/create-task-issue";
+import { syncTaskFieldLabels } from "../../sync/sync-task-field-labels";
 import {
   createExternalLink,
   updateExternalLink,
@@ -13,7 +14,7 @@ import { formatIssueBody, formatIssueTitle } from "../../github/utils/format";
 import type { PluginContext, TaskCreatedEvent } from "../../types";
 import type { GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
-import { addLabelsToIssueGitea } from "../utils/labels";
+import { addLabelsToIssueGitea, removeLabelGitea } from "../utils/labels";
 
 async function createTaskIssue(
   event: TaskCreatedEvent,
@@ -111,8 +112,19 @@ async function createTaskIssue(
         client.updateIssue(repositoryOwner, repositoryName, issueNumber, {
           state: "closed",
         }),
-      labels: (labels, write) =>
-        addLabelsToIssueGitea(config, issueNumber, labels, true, write),
+      labels: () =>
+        syncTaskFieldLabels(
+          event.taskId,
+          context,
+          { id: createdLink.id, externalId: String(issueNumber) },
+          "gitea",
+          "initialization",
+          async ({ add, remove }, write) => {
+            for (const name of remove)
+              await removeLabelGitea(config, issueNumber, name, write);
+            await addLabelsToIssueGitea(config, issueNumber, add, true, write);
+          },
+        ),
     });
   } catch (error) {
     console.error("Failed to create Gitea issue:", error);
