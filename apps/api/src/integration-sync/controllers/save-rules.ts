@@ -1,7 +1,7 @@
 import { and, eq, not, or } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { integrationTable } from "../../database/schema";
+import { integrationTable, projectTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { pauseIssueLinks } from "../../plugins/sync/pause-issue-links";
 import { outgoingPredicate } from "../../plugins/sync/task-predicate";
@@ -14,9 +14,25 @@ export async function saveSyncRules(
   provider: string,
   rules: SyncRules,
   previewToken: string,
+  authorizedWorkspaceId: string,
 ) {
   const integration = await getSyncIntegration(projectId, provider);
-  await db.transaction(async (tx) => {
+  const savedPreview = await db.transaction(async (tx) => {
+    // Keep the workspace authorized by middleware stable through the save.
+    const [project] = await tx
+      .select()
+      .from(projectTable)
+      .where(
+        and(
+          eq(projectTable.id, projectId),
+          eq(projectTable.workspaceId, authorizedWorkspaceId),
+        ),
+      )
+      .for("share");
+    if (!project)
+      throw new HTTPException(403, {
+        message: "Project no longer belongs to the authorized workspace",
+      });
     const [current] = await tx
       .select()
       .from(integrationTable)
@@ -31,11 +47,8 @@ export async function saveSyncRules(
       throw new HTTPException(409, {
         message: "Integration changed; preview again before saving",
       });
-    const preview = await previewSyncRules(
-      { ...integration, ...current },
-      rules,
-      tx,
-    );
+    const currentIntegration = { ...integration, ...current, project };
+    const preview = await previewSyncRules(currentIntegration, rules, tx);
     if (preview.previewToken !== previewToken)
       throw new HTTPException(409, {
         message: "Sync impact changed; preview again before saving",
@@ -45,12 +58,12 @@ export async function saveSyncRules(
         message: "Select existing labels from this workspace",
       });
     const oldScope = await outgoingPredicate(
-      integration.project.workspaceId,
+      project.workspaceId,
       readSyncRules(current.config)!.outgoing,
       tx,
     );
     const nextScope = await outgoingPredicate(
-      integration.project.workspaceId,
+      project.workspaceId,
       rules.outgoing,
       tx,
     );
@@ -61,18 +74,25 @@ export async function saveSyncRules(
       tx,
     );
     const config = JSON.parse(current.config) as Record<string, unknown>;
+    const nextConfig = JSON.stringify({ ...config, syncRules: rules });
     await tx
       .update(integrationTable)
       .set({
-        config: JSON.stringify({ ...config, syncRules: rules }),
+        config: nextConfig,
         updatedAt: new Date(),
       })
       .where(eq(integrationTable.id, integration.id));
+    // A post-commit project move must not expose the destination's labels.
+    return previewSyncRules(
+      { ...currentIntegration, config: nextConfig },
+      rules,
+      tx,
+    );
   });
   await publishEvent("integration.sync_rules_changed", {
     projectId,
     integrationId: integration.id,
   });
   await publishEvent("project.updated", { projectId, linksChanged: true });
-  return previewSyncRules(await getSyncIntegration(projectId, provider), rules);
+  return savedPreview;
 }

@@ -1,5 +1,6 @@
 import {
   apiRouter,
+  type BaseVariables,
   createRoute,
   errorResponse,
   jsonResponse,
@@ -130,7 +131,7 @@ const resumeRoute = createRoute({
   },
 });
 
-export default apiRouter()
+export default apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(getRoute, async (c) => {
     const { projectId, provider } = c.req.valid("param");
     const integration = await getSyncIntegration(projectId, provider);
@@ -158,7 +159,13 @@ export default apiRouter()
     const { projectId, provider } = c.req.valid("param");
     const { rules, previewToken } = c.req.valid("json");
     return c.json(
-      await saveSyncRules(projectId, provider, rules, previewToken),
+      await saveSyncRules(
+        projectId,
+        provider,
+        rules,
+        previewToken,
+        c.get("workspaceId"),
+      ),
       200,
     );
   })

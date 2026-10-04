@@ -82,7 +82,13 @@ it.each(["gitea", "gitlab"] as const)(
         await getSyncIntegration(project.id, type),
         rules,
       );
-      await saveSyncRules(project.id, type, rules, preview.previewToken);
+      await saveSyncRules(
+        project.id,
+        type,
+        rules,
+        preview.previewToken,
+        member.workspace.id,
+      );
     } finally {
       release();
     }

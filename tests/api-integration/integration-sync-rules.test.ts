@@ -12,6 +12,7 @@ import { resumeSync } from "../../apps/api/src/integration-sync/controllers/resu
 import { reviewSyncResume } from "../../apps/api/src/integration-sync/controllers/review-resume";
 import { lockResumeScope } from "../../apps/api/src/integration-sync/controllers/lock-resume-scope";
 import { saveSyncRules } from "../../apps/api/src/integration-sync/controllers/save-rules";
+import moveProject from "../../apps/api/src/project/controllers/move-project";
 import * as linkManager from "../../apps/api/src/plugins/github/services/link-manager";
 import { createExternalLink } from "../../apps/api/src/plugins/github/services/link-manager";
 import { withIntegrationLink } from "../../apps/api/src/plugins/github/services/with-integration-link";
@@ -406,12 +407,91 @@ describe("integration label policies", () => {
     expect((await f.request("", "GET")).status).toBe(403);
   });
 
+  it("rejects a rule save if the project moves after workspace authorization", async () => {
+    const f = await setup();
+    const target = await createWorkspaceMember({ role: "owner" });
+    const rules = { ...defaultSyncRules, incoming: f.rules.incoming };
+    const preview = await f.preview(rules);
+    const transaction = getDatabase().transaction.bind(getDatabase());
+    vi.spyOn(getDatabase(), "transaction").mockImplementationOnce(
+      async (apply, config) => {
+        await moveProject(
+          f.project.id,
+          f.workspace.id,
+          target.workspace.id,
+          target.user.id,
+        );
+        return transaction(apply, config);
+      },
+    );
+    const publish = vi
+      .spyOn(events, "publishEvent")
+      .mockResolvedValue(undefined);
+    const response = await f.request("", "PATCH", {
+      rules,
+      previewToken: preview.previewToken,
+    });
+    expect(response.status).toBe(403);
+    expect(
+      await db.query.integrationTable.findFirst({
+        where: eq(schema.integrationTable.id, f.integration.id),
+      }),
+    ).toMatchObject({ config: f.integration.config });
+    expect(publish).not.toHaveBeenCalledWith(
+      "integration.sync_rules_changed",
+      expect.anything(),
+    );
+  });
+
+  it("returns the authorized workspace's saved preview if the project moves after commit", async () => {
+    const f = await setup();
+    const target = await createWorkspaceMember({ role: "owner" });
+    const [privateLabel] = await db
+      .insert(schema.labelTable)
+      .values({
+        workspaceId: target.workspace.id,
+        name: "Private destination label",
+        color: "#abcdef",
+      })
+      .returning();
+    const preview = await f.preview(defaultSyncRules);
+    vi.spyOn(events, "publishEvent").mockImplementation(async (name) => {
+      if (name === "integration.sync_rules_changed")
+        await moveProject(
+          f.project.id,
+          f.workspace.id,
+          target.workspace.id,
+          target.user.id,
+        );
+    });
+    const response = await f.request("", "PATCH", {
+      rules: defaultSyncRules,
+      previewToken: preview.previewToken,
+    });
+    expect(response.status).toBe(200);
+    const saved = await response.json();
+    expect(saved.labels).toEqual([expect.objectContaining({ id: f.label.id })]);
+    expect(JSON.stringify(saved)).not.toContain(privateLabel!.id);
+    expect(JSON.stringify(saved)).not.toContain(privateLabel!.name);
+    expect(
+      await db.query.projectTable.findFirst({
+        where: eq(schema.projectTable.id, f.project.id),
+      }),
+    ).toMatchObject({ workspaceId: target.workspace.id });
+  });
+
   it("pauses excluded links, preserves metadata, and never silently resumes", async () => {
     const f = await setup();
     const link = await f.link();
     const preview = await f.preview();
     expect(preview).toMatchObject({ willPause: 1, matching: 0 });
-    await saveSyncRules(f.project.id, "gitea", f.rules, preview.previewToken);
+    await saveSyncRules(
+      f.project.id,
+      "gitea",
+      f.rules,
+      preview.previewToken,
+      f.workspace.id,
+    );
     expect(await canSyncTask(f.task.id, f.integration.id)).toBe(false);
     let stored = await db.query.externalLinkTable.findFirst({
       where: eq(schema.externalLinkTable.id, link.id),
@@ -547,7 +627,13 @@ it("pages a large paused scope and preserves metadata across batched rule saves"
   expect(preview).toMatchObject({ total: 206, willPause: 206, paused: 206 });
   expect(preview.pausedTasks).toHaveLength(25);
   expect(preview.pausedNextCursor).toBeTruthy();
-  await saveSyncRules(f.project.id, "gitea", f.rules, preview.previewToken);
+  await saveSyncRules(
+    f.project.id,
+    "gitea",
+    f.rules,
+    preview.previewToken,
+    f.workspace.id,
+  );
   const links = await db.query.externalLinkTable.findMany();
   expect(links.every((link) => isSyncPaused(link.metadata))).toBe(true);
   expect(
