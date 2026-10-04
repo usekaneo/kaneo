@@ -14564,7 +14564,7 @@
             }
           },
           "409": {
-            "description": "Configuration, impact or comparison changed; review again",
+            "description": "Comparison changed or synchronization is busy; review or retry",
             "content": {
               "text/plain": {
                 "schema": {

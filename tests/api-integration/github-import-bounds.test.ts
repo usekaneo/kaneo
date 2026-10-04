@@ -723,6 +723,74 @@ describe("bounded resumable GitHub import", () => {
     expect(mocks.publish).toHaveBeenCalledTimes(1);
   });
 
+  it.each(["excluded", "paused"])(
+    "imports pull request links for tasks with %s issue sync",
+    async (scope) => {
+      const { project, integration, config } = await setup();
+      const [task] = await db
+        .insert(schema.taskTable)
+        .values({
+          projectId: project.id,
+          number: 1,
+          title: "Existing task",
+          status: "to-do",
+        })
+        .returning();
+      if (scope === "excluded")
+        await db
+          .update(schema.integrationTable)
+          .set({
+            config: JSON.stringify({
+              ...config,
+              syncRules: {
+                outgoing: { mode: "labels", match: "any", labels: ["missing"] },
+                incoming: { mode: "all" },
+              },
+            }),
+          })
+          .where(eq(schema.integrationTable.id, integration.id));
+      else
+        await db.insert(schema.externalLinkTable).values({
+          taskId: task!.id,
+          integrationId: integration.id,
+          resourceType: "issue",
+          externalId: "1",
+          url: "https://github.com/example/repo/issues/1",
+          metadata: JSON.stringify({ syncFilterPaused: true }),
+        });
+      mocks.graphql.mockImplementation(async (query: string) => {
+        if (query.includes("query ImportIssues(")) return issuePage([]);
+        return {
+          repository: {
+            databaseId: 2,
+            pullRequests: connection([
+              {
+                number: 5,
+                title: `${project.slug.toUpperCase()}-1`,
+                body: null,
+                url: "https://github.com/example/repo/pull/5",
+                state: "OPEN",
+                createdAt: old,
+                headRefName: `${project.slug.toLowerCase()}-1`,
+                author: null,
+              },
+            ]),
+          },
+        };
+      });
+      expect((await importIssues(project.id)).pending).toBe(false);
+      expect(
+        await db.query.externalLinkTable.findFirst({
+          where: eq(schema.externalLinkTable.resourceType, "pull_request"),
+        }),
+      ).toMatchObject({
+        taskId: task!.id,
+        integrationId: integration.id,
+        externalId: "5",
+      });
+    },
+  );
+
   it("continues all pull request pages and links only matching tasks in this project", async () => {
     const { project, integration } = await setup();
     mocks.graphql.mockImplementation(

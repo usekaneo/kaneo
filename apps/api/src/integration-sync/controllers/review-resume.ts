@@ -48,46 +48,53 @@ export async function reviewSyncResume(
       message:
         "The task must match the current rule and be paused before resuming",
     });
+  const local = {
+    title: task.title,
+    description: task.description ?? "",
+    state: (await isTaskInFinalState(task, database))
+      ? ("closed" as const)
+      : ("open" as const),
+  };
+  let access: Awaited<ReturnType<typeof providerIssue>>;
+  let remoteIssue: Awaited<ReturnType<typeof access.read>>;
   try {
-    const access = await providerIssue(integration, link);
-    const remoteIssue = await access.read();
-    const local = {
-      title: task.title,
-      description: task.description ?? "",
-      state: (await isTaskInFinalState(task, database))
-        ? ("closed" as const)
-        : ("open" as const),
-    };
-    const remote = {
-      title: remoteIssue.title,
-      description: remoteIssue.description,
-      state: remoteIssue.state,
-    };
-    const token = createHash("sha256")
-      .update(
-        JSON.stringify({
-          binding: [integration.id, integration.config],
-          task,
-          link,
-          local,
-          remoteIssue,
-        }),
-      )
-      .digest("hex");
-    return {
-      integration,
-      link,
-      task,
-      access,
-      local,
-      remote,
-      remoteIssueLabels: remoteIssue.labels,
-      remoteIssueUpdatedAt: remoteIssue.updatedAt,
-      token,
-    };
+    access = await providerIssue(integration, link);
+    remoteIssue = await access.read();
   } catch {
+    console.error("Sync resume provider read failed", {
+      projectId,
+      provider,
+      linkId,
+    });
     throw new HTTPException(502, {
       message: "External issue could not be read; sync remains paused",
     });
   }
+  const remote = {
+    title: remoteIssue.title,
+    description: remoteIssue.description,
+    state: remoteIssue.state,
+  };
+  const token = createHash("sha256")
+    .update(
+      JSON.stringify({
+        binding: [integration.id, integration.config],
+        task,
+        link,
+        local,
+        remoteIssue,
+      }),
+    )
+    .digest("hex");
+  return {
+    integration,
+    link,
+    task,
+    access,
+    local,
+    remote,
+    remoteIssueLabels: remoteIssue.labels,
+    remoteIssueUpdatedAt: remoteIssue.updatedAt,
+    token,
+  };
 }

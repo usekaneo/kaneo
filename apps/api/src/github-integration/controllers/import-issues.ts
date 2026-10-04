@@ -656,7 +656,7 @@ async function linkPull(
     .from(taskTable)
     .where(and(eq(taskTable.id, task.id), eq(taskTable.projectId, project.id)))
     .for("share");
-  if (!scopedTask || !(await canSyncTask(task.id, integrationId, tx))) return;
+  if (!scopedTask) return;
   await tx.insert(externalLinkTable).values({
     taskId: task.id,
     integrationId,

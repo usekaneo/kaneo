@@ -23,6 +23,7 @@ export async function ensureLabelsExistGitea(
   config: GiteaConfig,
   labels: string[],
   requireSuccess = false,
+  write: IssueWrite = (send) => send(),
 ): Promise<Map<string, number>> {
   const client = createGiteaClient(config);
   const map = new Map<string, number>();
@@ -52,11 +53,8 @@ export async function ensureLabelsExistGitea(
       }
 
       const color = getLabelColor(name);
-      const created = await client.createLabel(
-        repositoryOwner,
-        repositoryName,
-        name,
-        color,
+      const created = await write(() =>
+        client.createLabel(repositoryOwner, repositoryName, name, color),
       );
       nameToId.set(name, created.id);
       map.set(name, created.id);
@@ -81,6 +79,7 @@ export async function addLabelsToIssueGitea(
     config,
     labelNames,
     requireSuccess,
+    write,
   );
   const ids: number[] = [];
   for (const name of labelNames) {

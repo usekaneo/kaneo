@@ -14,6 +14,7 @@ import { formatIssueBody } from "../../plugins/github/utils/format";
 import { reviewSyncResume } from "./review-resume";
 import { lockResumeScope } from "./lock-resume-scope";
 import { withSyncLease } from "../../plugins/sync/lease";
+import { SyncLeaseBusyError } from "../../plugins/sync/lease-busy-error";
 import {
   publishTaskMutation,
   recordTaskMutation,
@@ -27,9 +28,15 @@ export async function resumeSync(
   token: string,
   source: "kaneo" | "provider",
 ) {
-  return withSyncLease(`sync-resume:${linkId}`, () =>
-    resumeWithLease(projectId, provider, linkId, token, source),
-  );
+  try {
+    return await withSyncLease(`sync-resume:${linkId}`, () =>
+      resumeWithLease(projectId, provider, linkId, token, source),
+    );
+  } catch (error) {
+    if (error instanceof SyncLeaseBusyError)
+      throw new HTTPException(409, { message: error.message });
+    throw error;
+  }
 }
 
 async function resumeWithLease(
@@ -61,6 +68,11 @@ async function resumeWithLease(
           updatedAt = (await review.access.write(review.local)).updatedAt;
           providerWritten = true;
         } catch {
+          console.error("Sync resume provider write failed", {
+            projectId,
+            provider,
+            linkId,
+          });
           throw new HTTPException(502, {
             message: "External issue could not be updated; sync remains paused",
           });

@@ -24,6 +24,7 @@ export async function ensureLabelsExistGitlab(
   config: GitlabConfig,
   labels: string[],
   requireSuccess = false,
+  write: IssueWrite = (send) => send(),
 ): Promise<void> {
   if (labels.length === 0) return;
 
@@ -46,7 +47,9 @@ export async function ensureLabelsExistGitlab(
     if (existing.includes(name)) continue;
 
     try {
-      await client.createLabel(projectPath, name, getLabelColor(name));
+      await write(() =>
+        client.createLabel(projectPath, name, getLabelColor(name)),
+      );
     } catch (error) {
       if (requireSuccess) throw error;
       console.error(`Failed to ensure GitLab label "${name}":`, error);
@@ -69,7 +72,7 @@ export async function updateIssueLabelsGitlab(
 
   if (add.length === 0 && remove.length === 0) return;
 
-  await ensureLabelsExistGitlab(config, add, requireSuccess);
+  await ensureLabelsExistGitlab(config, add, requireSuccess, write);
 
   const body: Record<string, string> = {};
   if (add.length > 0) {

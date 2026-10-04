@@ -479,6 +479,34 @@ describe("reviewed sync resume", () => {
     const link = await f.link(true);
     return { ...f, link };
   }
+  it("returns a retryable conflict when another instance retains the resume lease", async () => {
+    const f = await paused();
+    await db.insert(schema.jobLeaseTable).values({
+      name: `sync-resume:${f.link.id}`,
+      owner: "crashed-test-instance",
+      expiresAt: new Date(Date.now() + 15 * 60_000),
+    });
+    const response = await f.request(`/links/${f.link.id}/resume`, "POST", {
+      source: "kaneo",
+      token: "a".repeat(64),
+    });
+    expect(response.status).toBe(409);
+    expect(await response.text()).toBe(
+      "Synchronization is busy; retry shortly",
+    );
+    expect(provider.read).not.toHaveBeenCalled();
+    expect(provider.write).not.toHaveBeenCalled();
+    expect((await db.query.jobLeaseTable.findFirst())?.owner).toBe(
+      "crashed-test-instance",
+    );
+    expect(
+      isSyncPaused(
+        (await db.query.externalLinkTable.findFirst({
+          where: eq(schema.externalLinkTable.id, f.link.id),
+        }))!.metadata,
+      ),
+    ).toBe(true);
+  });
   for (const authentication of ["custom-role", "api-key"] as const) {
     it.each([{}, { project: ["read"] }, { task: ["read"] }] as Array<
       Record<string, string[]>
@@ -990,6 +1018,47 @@ describe("reviewed sync resume", () => {
     ).rejects.toMatchObject({ status: 502 });
     expect(await canSyncTask(f.task.id, f.integration.id)).toBe(false);
   });
+  it.each(["read", "write"] as const)(
+    "logs the failed resume %s stage without provider secrets",
+    async (stage) => {
+      const f = await paused();
+      const review = await reviewSyncResume(f.project.id, "gitea", f.link.id);
+      const failure = Object.assign(new Error("private-provider-response"), {
+        request: { headers: { authorization: "fake-test-secret" } },
+      });
+      provider[stage].mockRejectedValue(failure);
+      const log = vi.spyOn(console, "error").mockImplementation(() => {});
+      try {
+        const response = await f.request(
+          `/links/${f.link.id}/${stage === "read" ? "review" : "resume"}`,
+          stage === "read" ? "GET" : "POST",
+          stage === "read"
+            ? undefined
+            : { source: "kaneo", token: review.token },
+        );
+        expect(response.status).toBe(502);
+        expect(await response.text()).not.toContain(
+          "private-provider-response",
+        );
+        expect(log).toHaveBeenCalledWith(
+          `Sync resume provider ${stage} failed`,
+          {
+            projectId: f.project.id,
+            provider: "gitea",
+            linkId: f.link.id,
+          },
+        );
+        expect(JSON.stringify(log.mock.calls)).not.toContain(
+          "fake-test-secret",
+        );
+        expect(JSON.stringify(log.mock.calls)).not.toContain(
+          "private-provider-response",
+        );
+      } finally {
+        log.mockRestore();
+      }
+    },
+  );
   it("does not review an excluded task or a link from another integration", async () => {
     const f = await paused();
     await db

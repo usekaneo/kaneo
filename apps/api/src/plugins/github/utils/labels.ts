@@ -24,6 +24,7 @@ export async function ensureLabelsExist(
   repo: string,
   labels: string[],
   requireSuccess = false,
+  write: IssueWrite = (send) => send(),
 ) {
   for (const labelName of labels) {
     try {
@@ -35,12 +36,14 @@ export async function ensureLabelsExist(
     } catch {
       try {
         const color = getLabelColor(labelName);
-        await octokit.rest.issues.createLabel({
-          owner,
-          repo,
-          name: labelName,
-          color,
-        });
+        await write(() =>
+          octokit.rest.issues.createLabel({
+            owner,
+            repo,
+            name: labelName,
+            color,
+          }),
+        );
       } catch (createError) {
         if (requireSuccess) throw createError;
         console.error(`Failed to create label "${labelName}":`, createError);
@@ -59,7 +62,14 @@ export async function addLabelsToIssue(
   write: IssueWrite = (send) => send(),
 ) {
   try {
-    await ensureLabelsExist(octokit, owner, repo, labels, requireSuccess);
+    await ensureLabelsExist(
+      octokit,
+      owner,
+      repo,
+      labels,
+      requireSuccess,
+      write,
+    );
 
     await write(() =>
       octokit.rest.issues.addLabels({

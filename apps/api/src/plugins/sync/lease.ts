@@ -2,14 +2,18 @@ import { randomUUID } from "node:crypto";
 import { setTimeout as delay } from "node:timers/promises";
 import { sql } from "drizzle-orm";
 import db from "../../database";
+import { SyncLeaseBusyError } from "./lease-busy-error";
 
 const LEASE_MS = 15 * 60 * 1000;
 
 export async function withSyncLease<T>(
   key: string,
   run: () => Promise<T>,
+  { maxWaitMs = 5_000 }: { maxWaitMs?: number } = {},
 ): Promise<T> {
   const owner = randomUUID();
+  const deadline = performance.now() + maxWaitMs;
+  let retryDelay = 100;
   for (;;) {
     const claimed = await db.execute(sql`
       insert into job_lease (name, owner, expires_at)
@@ -19,7 +23,10 @@ export async function withSyncLease<T>(
       returning name
     `);
     if (claimed.rowCount) break;
-    await delay(100);
+    const remaining = deadline - performance.now();
+    if (remaining <= 0) throw new SyncLeaseBusyError();
+    await delay(Math.min(retryDelay, remaining));
+    retryDelay = Math.min(retryDelay * 2, 1_000);
   }
   // Claims use short statements rather than reserving application connections
   // during provider requests. Slow exports block only their own task key.

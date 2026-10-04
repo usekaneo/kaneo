@@ -123,6 +123,9 @@ const resumeRoute = createRoute({
   responses: {
     200: jsonResponse("Sync resumed", z.object({ success: z.boolean() })),
     ...errors,
+    409: errorResponse(
+      "Comparison changed or synchronization is busy; review or retry",
+    ),
     502: errorResponse("External issue unavailable; sync remains paused"),
   },
 });
