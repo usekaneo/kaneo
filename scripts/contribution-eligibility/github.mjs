@@ -49,9 +49,9 @@ export class GitHub {
     }
   }
 
-  async linkedIssueNumbers(number) {
+  async linkedIssues(number) {
     const [owner, name] = this.repository.split("/");
-    const numbers = new Set();
+    const issues = new Map();
     let after = null;
     do {
       const result = await this.request("graphql", {
@@ -61,7 +61,15 @@ export class GitHub {
             repository(owner: $owner, name: $name) {
               pullRequest(number: $number) {
                 closingIssuesReferences(first: 100, after: $after) {
-                  nodes { number repository { nameWithOwner } }
+                  nodes {
+                    number
+                    state
+                    repository { nameWithOwner }
+                    labels(first: 100) {
+                      nodes { name }
+                      pageInfo { hasNextPage endCursor }
+                    }
+                  }
                   pageInfo { hasNextPage endCursor }
                 }
               }
@@ -75,13 +83,18 @@ export class GitHub {
       if (!connection) throw new Error("GitHub did not return linked issues.");
       for (const issue of connection.nodes) {
         if (
+          issue &&
           issue.repository.nameWithOwner.toLowerCase() ===
-          this.repository.toLowerCase()
+            this.repository.toLowerCase()
         ) {
-          numbers.add(issue.number);
+          issues.set(issue.number, {
+            number: issue.number,
+            state: issue.state.toLowerCase(),
+            labels: await this.issueLabels(issue.number, issue.labels),
+          });
         }
       }
-      if (!connection.pageInfo.hasNextPage) return [...numbers];
+      if (!connection.pageInfo.hasNextPage) return [...issues.values()];
       if (
         !connection.pageInfo.endCursor ||
         connection.pageInfo.endCursor === after
@@ -90,5 +103,41 @@ export class GitHub {
       }
       after = connection.pageInfo.endCursor;
     } while (after);
+  }
+
+  async issueLabels(number, firstPage) {
+    const [owner, name] = this.repository.split("/");
+    let connection = firstPage;
+    const labels = [...connection.nodes];
+    let after = null;
+    while (connection.pageInfo.hasNextPage) {
+      if (
+        !connection.pageInfo.endCursor ||
+        connection.pageInfo.endCursor === after
+      ) {
+        throw new Error("GitHub returned an invalid label pagination cursor.");
+      }
+      after = connection.pageInfo.endCursor;
+      const result = await this.request("graphql", {
+        method: "POST",
+        body: {
+          query: `query($owner: String!, $name: String!, $number: Int!, $after: String) {
+            repository(owner: $owner, name: $name) {
+              issue(number: $number) {
+                labels(first: 100, after: $after) {
+                  nodes { name }
+                  pageInfo { hasNextPage endCursor }
+                }
+              }
+            }
+          }`,
+          variables: { owner, name, number, after },
+        },
+      });
+      connection = result.data?.repository?.issue?.labels;
+      if (!connection) throw new Error("GitHub did not return issue labels.");
+      labels.push(...connection.nodes);
+    }
+    return labels;
   }
 }

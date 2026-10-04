@@ -19,7 +19,15 @@ const issue = {
   state: "open",
   labels: [{ name: "ready-for-contribution" }],
 };
-const link = { number: 12, repository: { nameWithOwner: "test/repo" } };
+const link = {
+  number: 12,
+  repository: { nameWithOwner: "test/repo" },
+  state: "OPEN",
+  labels: {
+    nodes: issue.labels,
+    pageInfo: { hasNextPage: false, endCursor: null },
+  },
+};
 
 function fixture(options = {}) {
   const requests = [];
@@ -68,8 +76,23 @@ function fixture(options = {}) {
       status = options.permissionStatus ?? (options.permission ? 200 : 404);
       data = options.permission ?? {};
     } else if (path === "/graphql") {
-      const page = options.linkPages?.[body.variables.after ? 1 : 0] ?? {
-        nodes: options.links ?? [link],
+      if (body.query.includes("issue(number:")) {
+        return Response.json({
+          data: { repository: { issue: { labels: options.labelPage } } },
+        });
+      }
+      const pageIndex = body.variables.after ? Number(body.variables.after) : 0;
+      const page = options.linkPages?.[pageIndex] ?? {
+        nodes: options.links ?? [
+          {
+            ...link,
+            state: (options.issue ?? issue).state.toUpperCase(),
+            labels: {
+              nodes: (options.issue ?? issue).labels,
+              pageInfo: { hasNextPage: false, endCursor: null },
+            },
+          },
+        ],
         pageInfo: { hasNextPage: false, endCursor: null },
       };
       data = options.graphqlErrors
@@ -82,9 +105,6 @@ function fixture(options = {}) {
               repository: { pullRequest: { closingIssuesReferences: page } },
             },
           };
-    } else if (path.startsWith("/repos/test/repo/issues/")) {
-      data = options.issue ?? issue;
-      status = options.issueStatus ?? 200;
     } else {
       throw new Error(`Unexpected test request: ${path}`);
     }
@@ -123,7 +143,7 @@ test("mere mentions, foreign issues, deleted issues and revoked approval fail", 
   for (const options of [
     { links: [] },
     { links: [{ ...link, repository: { nameWithOwner: "other/repo" } }] },
-    { issueStatus: 404 },
+    { links: [null] },
     { issue: { ...issue, labels: [] } },
     { issue: { ...issue, state: "closed" } },
   ]) {
@@ -183,7 +203,6 @@ test("eligibility lookup and policy errors publish failing checks", async () => 
     { permissionStatus: 403 },
     { permissionStatus: 500 },
     { graphqlErrors: true },
-    { issueStatus: 500 },
   ]) {
     const { github, statuses } = fixture(options);
     await assert.rejects(
@@ -317,7 +336,7 @@ test("linked issues paginate and accept case-insensitive repository names", asyn
     linkPages: [
       {
         nodes: [{ ...link, repository: { nameWithOwner: "foreign/repo" } }],
-        pageInfo: { hasNextPage: true, endCursor: "next" },
+        pageInfo: { hasNextPage: true, endCursor: "1" },
       },
       {
         nodes: [{ ...link, repository: { nameWithOwner: "TEST/REPO" } }, link],
@@ -325,11 +344,82 @@ test("linked issues paginate and accept case-insensitive repository names", asyn
       },
     ],
   });
-  assert.deepEqual(await github.linkedIssueNumbers(1), [12]);
+  assert.deepEqual(await github.linkedIssues(1), [issue]);
   assert.deepEqual(
     requests.map((request) => request.body.variables.after),
-    [null, "next"],
+    [null, "1"],
   );
+});
+
+test("a thousand closing references use ten batched issue requests", async () => {
+  const linkPages = Array.from({ length: 10 }, (_, page) => ({
+    nodes: Array.from({ length: 100 }, (_, index) => ({
+      ...link,
+      number: page * 100 + index + 1,
+      labels: {
+        ...link.labels,
+        nodes: page === 9 && index === 99 ? issue.labels : [],
+      },
+    })),
+    pageInfo: { hasNextPage: page < 9, endCursor: String(page + 1) },
+  }));
+  const { github, requests, statuses } = fixture({ linkPages });
+  await reconcile(github, async () => policy);
+  assert.equal(statuses.at(-1).state, "success");
+  assert.match(statuses.at(-1).description, /issue #1000/);
+  assert.equal(requests.filter(({ path }) => path === "/graphql").length, 10);
+  assert.equal(
+    requests.some(({ path }) => path.includes("/issues/")),
+    false,
+  );
+});
+
+test("approval labels beyond the first page are included", async () => {
+  const { github, requests, statuses } = fixture({
+    links: [
+      {
+        ...link,
+        labels: {
+          nodes: Array.from({ length: 100 }, (_, index) => ({
+            name: `label-${index}`,
+          })),
+          pageInfo: { hasNextPage: true, endCursor: "labels-next" },
+        },
+      },
+    ],
+    labelPage: {
+      nodes: issue.labels,
+      pageInfo: { hasNextPage: false, endCursor: null },
+    },
+  });
+  await reconcile(github, async () => policy);
+  assert.equal(statuses.at(-1).state, "success");
+  const labelRequest = requests.find(({ body }) =>
+    body?.query?.includes("issue(number:"),
+  );
+  assert.equal(labelRequest.body.variables.number, 12);
+  assert.equal(labelRequest.body.variables.after, "labels-next");
+});
+
+test("missing or invalid label pages fail the affected eligibility check", async () => {
+  for (const cursor of [null, "labels-next"]) {
+    const { github, statuses } = fixture({
+      links: [
+        {
+          ...link,
+          labels: {
+            nodes: [],
+            pageInfo: { hasNextPage: true, endCursor: cursor },
+          },
+        },
+      ],
+    });
+    await assert.rejects(
+      reconcile(github, async () => policy),
+      AggregateError,
+    );
+    assert.equal(statuses.at(-1).state, "failure");
+  }
 });
 
 test("open PRs paginate beyond the first hundred", async () => {
@@ -346,7 +436,7 @@ test("invalid pagination and missing configuration reject", async () => {
       { nodes: [], pageInfo: { hasNextPage: true, endCursor: null } },
     ],
   });
-  await assert.rejects(github.linkedIssueNumbers(1), /pagination cursor/);
+  await assert.rejects(github.linkedIssues(1), /pagination cursor/);
   assert.throws(
     () =>
       new GitHub({ GITHUB_REPOSITORY: "../invalid", GH_TOKEN: "synthetic" }),

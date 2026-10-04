@@ -18,16 +18,7 @@ async function checkPullRequest(github, pull, policy, policyError) {
   if (exemption) {
     result = { state: "success", description: exemption };
   } else {
-    const numbers = await github.linkedIssueNumbers(pull.number);
-    const issues = [];
-    for (const issueNumber of numbers) {
-      const issue = await github.request(
-        `repos/${github.repository}/issues/${issueNumber}`,
-        { allowNotFound: true },
-      );
-      if (issue) issues.push(issue);
-    }
-    result = assessIssues(issues);
+    result = assessIssues(await github.linkedIssues(pull.number));
   }
   const current = await github.request(
     `repos/${github.repository}/pulls/${pull.number}`,
