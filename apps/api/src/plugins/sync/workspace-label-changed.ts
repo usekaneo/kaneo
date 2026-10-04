@@ -19,11 +19,12 @@ export async function notifySyncWorkspaceLabelChanged(
     .where(
       and(
         eq(projectTable.workspaceId, workspaceId),
-        eq(integrationTable.isActive, true),
         inArray(integrationTable.type, [...syncProviders]),
       ),
     );
+  const projects = new Set<string>();
   for (const integration of integrations) {
+    projects.add(integration.projectId);
     const rule = readSyncRules(integration.config)?.outgoing;
     if (rule?.mode === "labels" && rule.labels.includes(labelId))
       await publishEvent("integration.sync_labels_changed", {
@@ -31,4 +32,6 @@ export async function notifySyncWorkspaceLabelChanged(
         integrationId: integration.id,
       });
   }
+  for (const projectId of projects)
+    await publishEvent("project.updated", { projectId });
 }

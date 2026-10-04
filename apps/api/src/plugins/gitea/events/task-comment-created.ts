@@ -1,3 +1,4 @@
+import { dispatchIssueWrite } from "../../sync/dispatch-issue-write";
 import { canSyncTask } from "../../sync/eligibility";
 import { findExternalLinkByTaskAndType } from "../../github/services/link-manager";
 import type { PluginContext, TaskCommentCreatedEvent } from "../../types";
@@ -60,11 +61,13 @@ export async function handleTaskCommentCreated(
       return;
     }
 
-    await client.createIssueComment(
-      repositoryOwner,
-      repositoryName,
-      issueNumber,
-      markKaneoComment(event.comment),
+    await dispatchIssueWrite(existingLink, JSON.stringify(context.config), () =>
+      client.createIssueComment(
+        repositoryOwner,
+        repositoryName,
+        issueNumber,
+        markKaneoComment(event.comment),
+      ),
     );
   } catch (error) {
     console.error("Failed to create Gitea comment:", error);

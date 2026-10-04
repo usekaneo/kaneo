@@ -1,3 +1,4 @@
+import { createIssueWrite } from "../../sync/dispatch-issue-write";
 import { canSyncTask } from "../../sync/eligibility";
 import { findExternalLinksByTask } from "../../github/services/link-manager";
 import type { PluginContext, TaskPriorityChangedEvent } from "../../types";
@@ -34,6 +35,10 @@ export async function handleTaskPriorityChanged(
     if (!issueLink) {
       return;
     }
+    const write = createIssueWrite(
+      { ...issueLink, taskId: event.taskId },
+      JSON.stringify(context.config),
+    );
 
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
 
@@ -42,13 +47,18 @@ export async function handleTaskPriorityChanged(
         config,
         issueNumber,
         `priority:${event.oldPriority}`,
+        write,
       );
     }
 
     if (event.newPriority && event.newPriority !== "no-priority") {
-      await addLabelsToIssueGitea(config, issueNumber, [
-        `priority:${event.newPriority}`,
-      ]);
+      await addLabelsToIssueGitea(
+        config,
+        issueNumber,
+        [`priority:${event.newPriority}`],
+        false,
+        write,
+      );
     }
   } catch (error) {
     console.error("Failed to update Gitea issue priority:", error);

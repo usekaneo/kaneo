@@ -107,6 +107,25 @@ function mount(node = <SyncRulesSection {...param} />) {
 }
 
 describe("advanced sync settings", () => {
+  it("invalidates a cached rule preview after resuming a link", async () => {
+    const { client } = mount(
+      <ResumeSyncDialog param={param} linkId="link-1" onClose={vi.fn()} />,
+    );
+    const key = [
+      "integration-sync-preview",
+      param.projectId,
+      param.provider,
+      saved.rules,
+    ];
+    client.setQueryData(key, { ...saved, paused: 1, needsReview: 1 });
+    await screen.findByText("Kaneo title");
+    fireEvent.click(
+      screen.getByRole("button", { name: "settings:syncRules.useKaneo" }),
+    );
+    await waitFor(() =>
+      expect(client.getQueryState(key)?.isInvalidated).toBe(true),
+    );
+  });
   it("removes unavailable labels without resetting valid selections or match mode", async () => {
     useUserPreferencesStore.setState({ advancedSettings: true });
     mocks.get.mockResolvedValue({

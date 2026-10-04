@@ -1,3 +1,4 @@
+import { dispatchIssueWrite } from "../../sync/dispatch-issue-write";
 import { canSyncTask } from "../../sync/eligibility";
 import {
   findExternalLinkByTaskAndType,
@@ -60,11 +61,18 @@ export async function handleTaskCommentCreated(
   }
 
   try {
-    const note = await createGitlabClient(config).createIssueNote(
-      config.projectPath,
-      issueIid,
-      event.comment,
+    const dispatched = await dispatchIssueWrite(
+      existingLink,
+      JSON.stringify(context.config),
+      () =>
+        createGitlabClient(config).createIssueNote(
+          config.projectPath,
+          issueIid,
+          event.comment,
+        ),
     );
+    if (!dispatched) return;
+    const note = dispatched.value;
 
     const metadata = parseLinkSyncMetadata(existingLink.metadata, {
       externalLinkId: existingLink.id,

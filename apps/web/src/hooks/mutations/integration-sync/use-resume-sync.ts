@@ -17,6 +17,9 @@ export function useResumeSync(param: SyncParams, linkId: string) {
         queryKey: ["integration-sync", param.projectId],
       });
       await client.invalidateQueries({
+        queryKey: ["integration-sync-preview", param.projectId],
+      });
+      await client.invalidateQueries({
         queryKey: [
           "integration-sync-review",
           param.projectId,

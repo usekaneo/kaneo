@@ -1,62 +1,45 @@
-import type { PoolClient } from "pg";
-import { getDatabasePool } from "../../database";
+import { randomUUID } from "node:crypto";
+import { setTimeout as delay } from "node:timers/promises";
+import { sql } from "drizzle-orm";
+import db from "../../database";
 
-const queues = new Map<string, Promise<unknown>>();
-const waiting: Array<() => void> = [];
-let active = 0;
-const MAX_CONCURRENT_SYNC = 2;
+const LEASE_MS = 15 * 60 * 1000;
 
-// Reserve only two pool connections for session locks. Provider callbacks and
-// ordinary requests can still use the rest of the pool during network calls.
-export function withSyncLease<T>(
+export async function withSyncLease<T>(
   key: string,
   run: () => Promise<T>,
 ): Promise<T> {
-  const previous = queues.get(key) ?? Promise.resolve();
-  const next = previous
-    .catch(() => {})
-    .then(async () => {
-      if (active >= MAX_CONCURRENT_SYNC)
-        await new Promise<void>((resolve) => waiting.push(resolve));
-      else active++;
-      let client: PoolClient | undefined;
-      let locked = false;
-      let releaseError: Error | undefined;
-      try {
-        client = await getDatabasePool().connect();
-        // Wait for competing instances, then recheck the link in run(). A failed
-        // first attempt must not consume a competing task's creation attempt.
-        await client.query("select pg_advisory_lock(hashtextextended($1, 0))", [
-          key,
-        ]);
-        locked = true;
-        return await run();
-      } finally {
-        if (client) {
-          try {
-            if (locked)
-              await client.query(
-                "select pg_advisory_unlock(hashtextextended($1, 0))",
-                [key],
-              );
-          } catch (error) {
-            releaseError =
-              error instanceof Error
-                ? error
-                : new Error("Sync lock release failed");
-          }
-          client.release(releaseError);
-        }
-        const resume = waiting.shift();
-        if (resume) resume();
-        else active--;
-      }
-    });
-  queues.set(key, next);
-  void next
-    .finally(() => {
-      if (queues.get(key) === next) queues.delete(key);
-    })
-    .catch(() => {});
-  return next;
+  const owner = randomUUID();
+  for (;;) {
+    const claimed = await db.execute(sql`
+      insert into job_lease (name, owner, expires_at)
+      values (${key}, ${owner}, timezone('UTC', clock_timestamp()) + ${LEASE_MS} * interval '1 millisecond')
+      on conflict (name) do update set owner = excluded.owner, expires_at = excluded.expires_at
+      where job_lease.expires_at < timezone('UTC', clock_timestamp())
+      returning name
+    `);
+    if (claimed.rowCount) break;
+    await delay(100);
+  }
+  // Claims use short statements rather than reserving application connections
+  // during provider requests. Slow exports block only their own task key.
+  const renewal = setInterval(() => {
+    void db
+      .execute(sql`
+      update job_lease set expires_at = timezone('UTC', clock_timestamp()) + ${LEASE_MS} * interval '1 millisecond'
+      where name = ${key} and owner = ${owner}
+    `)
+      .catch(() => {
+        console.error("Sync creation lease renewal failed", { key });
+      });
+  }, 60_000);
+  renewal.unref();
+  try {
+    return await run();
+  } finally {
+    clearInterval(renewal);
+    await db.execute(
+      sql`delete from job_lease where name = ${key} and owner = ${owner}`,
+    );
+  }
 }

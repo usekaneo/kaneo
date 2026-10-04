@@ -1,3 +1,4 @@
+import { createIssueWrite } from "../../sync/dispatch-issue-write";
 import { canSyncTask } from "../../sync/eligibility";
 import type { PluginContext, TaskPriorityChangedEvent } from "../../types";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
@@ -42,6 +43,10 @@ export async function handleTaskPriorityChanged(
     if (!issueLink) {
       return;
     }
+    const write = createIssueWrite(
+      { ...issueLink, taskId: event.taskId },
+      JSON.stringify(context.config),
+    );
 
     const octokit = await getVerifiedInstallationOctokit(config);
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
@@ -53,6 +58,7 @@ export async function handleTaskPriorityChanged(
         repositoryName,
         issueNumber,
         `priority:${event.oldPriority}`,
+        write,
       );
     }
 
@@ -63,6 +69,8 @@ export async function handleTaskPriorityChanged(
         repositoryName,
         issueNumber,
         [`priority:${event.newPriority}`],
+        false,
+        write,
       );
     }
   } catch (error) {

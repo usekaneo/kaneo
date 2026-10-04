@@ -1,3 +1,4 @@
+import { createIssueWrite } from "../../sync/dispatch-issue-write";
 import { canSyncTask } from "../../sync/eligibility";
 import {
   findExternalLinksByTask,
@@ -43,6 +44,10 @@ export async function handleTaskStatusChanged(
     if (!issueLink) {
       return;
     }
+    const write = createIssueWrite(
+      { ...issueLink, taskId: event.taskId },
+      JSON.stringify(context.config),
+    );
 
     const issueIid = Number.parseInt(issueLink.externalId, 10);
     if (Number.isNaN(issueIid)) {
@@ -53,10 +58,16 @@ export async function handleTaskStatusChanged(
       return;
     }
 
-    await updateIssueLabelsGitlab(config, issueIid, {
-      remove: [`status:${event.oldStatus}`],
-      add: [`status:${event.newStatus}`],
-    });
+    await updateIssueLabelsGitlab(
+      config,
+      issueIid,
+      {
+        remove: [`status:${event.oldStatus}`],
+        add: [`status:${event.newStatus}`],
+      },
+      false,
+      write,
+    );
 
     const closing = event.newStatus === "done";
     const reopening = event.oldStatus === "done" && event.newStatus !== "done";
@@ -65,9 +76,11 @@ export async function handleTaskStatusChanged(
       return;
     }
 
-    await createGitlabClient(config).updateIssue(config.projectPath, issueIid, {
-      state_event: closing ? "close" : "reopen",
-    });
+    await write(() =>
+      createGitlabClient(config).updateIssue(config.projectPath, issueIid, {
+        state_event: closing ? "close" : "reopen",
+      }),
+    );
 
     await updateExternalLink(issueLink.id, {
       metadata: {

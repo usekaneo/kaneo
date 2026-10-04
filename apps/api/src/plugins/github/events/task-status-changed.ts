@@ -1,3 +1,4 @@
+import { createIssueWrite } from "../../sync/dispatch-issue-write";
 import { canSyncTask } from "../../sync/eligibility";
 import { syncLatestTaskValue } from "../services/sync-latest-task-value";
 import type { PluginContext, TaskStatusChangedEvent } from "../../types";
@@ -43,6 +44,10 @@ export async function handleTaskStatusChanged(
     if (!issueLink) {
       return;
     }
+    const write = createIssueWrite(
+      { ...issueLink, taskId: event.taskId },
+      JSON.stringify(context.config),
+    );
 
     const octokit = await getVerifiedInstallationOctokit(config);
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
@@ -53,6 +58,7 @@ export async function handleTaskStatusChanged(
       repositoryName,
       issueNumber,
       `status:${event.oldStatus}`,
+      write,
     );
 
     await addLabelsToIssue(
@@ -61,6 +67,8 @@ export async function handleTaskStatusChanged(
       repositoryName,
       issueNumber,
       [`status:${event.newStatus}`],
+      false,
+      write,
     );
 
     if (event.newStatus === "done" || event.oldStatus === "done") {

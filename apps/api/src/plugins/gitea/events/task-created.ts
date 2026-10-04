@@ -1,5 +1,8 @@
+import {
+  initializeTaskIssue,
+  isIssueInitializationPending,
+} from "../../sync/initialize-task-issue";
 import { canSyncTask } from "../../sync/eligibility";
-import { taskIssueLabels } from "../../sync/issue-labels";
 import { withTaskSyncCreation } from "../../sync/create-task-issue";
 import {
   createExternalLink,
@@ -7,7 +10,6 @@ import {
   findExternalLinkByTaskAndType,
 } from "../../github/services/link-manager";
 import { formatIssueBody, formatIssueTitle } from "../../github/utils/format";
-import { isTaskInFinalState } from "../../github/services/task-service";
 import type { PluginContext, TaskCreatedEvent } from "../../types";
 import type { GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
@@ -30,9 +32,7 @@ async function createTaskIssue(
     "issue",
   );
 
-  if (existingLink) {
-    return;
-  }
+  if (existingLink && !isIssueInitializationPending(existingLink)) return;
 
   try {
     const client = createGiteaClient(config);
@@ -46,28 +46,36 @@ async function createTaskIssue(
     )
       return;
 
-    const createdIssue = await client.createIssue(
-      repositoryOwner,
-      repositoryName,
-      {
-        title: formatIssueTitle(event.title),
-        body: formatIssueBody(event.description, event.taskId),
-      },
-    );
+    let createdLink: { id: string; metadata?: string | null } | undefined =
+      existingLink;
+    let issueNumber = existingLink ? Number(existingLink.externalId) : 0;
+    if (!existingLink) {
+      const createdIssue = await client.createIssue(
+        repositoryOwner,
+        repositoryName,
+        {
+          title: formatIssueTitle(event.title),
+          body: formatIssueBody(event.description, event.taskId),
+        },
+      );
 
-    const createdLink = await createExternalLink({
-      taskId: event.taskId,
-      integrationId: context.integrationId,
-      resourceType: "issue",
-      externalId: createdIssue.number.toString(),
-      url: createdIssue.html_url,
-      title: createdIssue.title,
-      metadata: {
-        state: createdIssue.state,
-        createdFrom: "kaneo",
-        lastOutboundStateSyncAt: Date.now(),
-      },
-    });
+      createdLink = await createExternalLink({
+        taskId: event.taskId,
+        integrationId: context.integrationId,
+        resourceType: "issue",
+        externalId: createdIssue.number.toString(),
+        url: createdIssue.html_url,
+        title: createdIssue.title,
+        metadata: {
+          state: createdIssue.state,
+          createdFrom: "kaneo",
+          syncInitializationPending: true,
+          lastOutboundStateSyncAt: Date.now(),
+        },
+      });
+      issueNumber = createdIssue.number;
+    }
+    if (!createdLink) return;
 
     if (
       !(await canSyncTask(
@@ -83,30 +91,14 @@ async function createTaskIssue(
       return;
     }
 
-    if (
-      await isTaskInFinalState({
-        projectId: event.projectId,
-        status: event.status,
-        columnId: null,
-      })
-    ) {
-      await client.updateIssue(
-        repositoryOwner,
-        repositoryName,
-        createdIssue.number,
-        { state: "closed" },
-      );
-      await updateExternalLink(createdLink.id, {
-        metadata: { state: "closed", lastOutboundStateSyncAt: Date.now() },
-      });
-    }
-
-    const labels = await taskIssueLabels(
-      event.taskId,
-      event.priority,
-      event.status,
-    );
-    await addLabelsToIssueGitea(config, createdIssue.number, labels);
+    await initializeTaskIssue(event, context, createdLink, {
+      close: () =>
+        client.updateIssue(repositoryOwner, repositoryName, issueNumber, {
+          state: "closed",
+        }),
+      labels: (labels, write) =>
+        addLabelsToIssueGitea(config, issueNumber, labels, true, write),
+    });
   } catch (error) {
     console.error("Failed to create Gitea issue:", error);
   }

@@ -3,6 +3,7 @@ import db from "../../database";
 import { externalLinkTable, taskTable } from "../../database/schema";
 import type { PluginContext, TaskCreatedEvent } from "../types";
 import { canSyncTask } from "./eligibility";
+import { isIssueInitializationPending } from "./initialize-task-issue";
 import { withSyncLease } from "./lease";
 
 export async function withTaskSyncCreation(
@@ -29,17 +30,14 @@ async function createWithLease(
     ))
   )
     return;
-  if (
-    await db.query.externalLinkTable.findFirst({
-      where: and(
-        eq(externalLinkTable.taskId, event.taskId),
-        eq(externalLinkTable.integrationId, context.integrationId),
-        eq(externalLinkTable.resourceType, "issue"),
-      ),
-      columns: { id: true },
-    })
-  )
-    return;
+  const link = await db.query.externalLinkTable.findFirst({
+    where: and(
+      eq(externalLinkTable.taskId, event.taskId),
+      eq(externalLinkTable.integrationId, context.integrationId),
+      eq(externalLinkTable.resourceType, "issue"),
+    ),
+  });
+  if (link && !isIssueInitializationPending(link)) return;
   const task = await db.query.taskTable.findFirst({
     where: and(
       eq(taskTable.id, event.taskId),

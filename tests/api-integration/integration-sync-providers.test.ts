@@ -27,6 +27,7 @@ import { getSyncIntegration } from "../../apps/api/src/integration-sync/controll
 import { previewSyncRules } from "../../apps/api/src/integration-sync/controllers/preview-rules";
 import type { SyncRules } from "../../apps/api/src/plugins/sync/rules";
 import { canSyncTask } from "../../apps/api/src/plugins/sync/eligibility";
+import deleteLabel from "../../apps/api/src/label/controllers/delete-label";
 import { resetTestDatabase } from "./helpers/database";
 import {
   createProjectFixture,
@@ -89,6 +90,9 @@ beforeAll(() => {
 beforeEach(async () => {
   await resetTestDatabase();
   vi.clearAllMocks();
+  mocks.update.mockResolvedValue(undefined);
+  mocks.labels.mockResolvedValue(undefined);
+  mocks.comment.mockResolvedValue({ id: 123 });
   mocks.githubCreate.mockResolvedValue({
     data: {
       number: 12,
@@ -248,10 +252,18 @@ describe.each(["github", "gitea", "gitlab"] as const)(
         reconcileProjectSync(f.project.id, f.integration.id),
       ]);
       expect(create).toHaveBeenCalledOnce();
-      expect(mocks.labels.mock.calls[0]!.at(-1)).toContain("export");
-      expect(mocks.labels.mock.calls[0]!.at(-1)).toContain("status:to-do");
-      expect(mocks.labels.mock.calls[0]!.at(-1)).not.toContain("status:done");
-      expect(mocks.labels.mock.calls[0]!.at(-1)).not.toContain("priority:high");
+      expect(mocks.labels.mock.calls[0]![type === "github" ? 4 : 2]).toContain(
+        "export",
+      );
+      expect(mocks.labels.mock.calls[0]![type === "github" ? 4 : 2]).toContain(
+        "status:to-do",
+      );
+      expect(
+        mocks.labels.mock.calls[0]![type === "github" ? 4 : 2],
+      ).not.toContain("status:done");
+      expect(
+        mocks.labels.mock.calls[0]![type === "github" ? 4 : 2],
+      ).not.toContain("priority:high");
       expect(
         await db.query.externalLinkTable.findMany({
           where: eq(schema.externalLinkTable.taskId, f.task.id),
@@ -370,6 +382,143 @@ describe.each(["github", "gitea", "gitlab"] as const)(
         expect(create).toHaveBeenCalledOnce();
       },
     );
+
+    it.each(
+      type === "github"
+        ? (["state", "labels", "comment"] as const)
+        : (["state", "labels"] as const),
+    )(
+      "retries incomplete %s initialization without recreating the issue",
+      async (stage) => {
+        const f = await setup(type);
+        await f.assign();
+        if (stage === "comment") {
+          f.config.commentTaskLinkOnGitHubIssue = true;
+          await db
+            .update(schema.integrationTable)
+            .set({ config: JSON.stringify(f.config) })
+            .where(eq(schema.integrationTable.id, f.integration.id));
+        }
+        await db
+          .update(schema.taskTable)
+          .set({ status: f.columns.done.slug, columnId: f.columns.done.id })
+          .where(eq(schema.taskTable.id, f.task.id));
+        const failing = {
+          state: mocks.update,
+          labels: mocks.labels,
+          comment: mocks.comment,
+        }[stage];
+        failing.mockRejectedValueOnce(
+          new Error("Temporary initialization failure"),
+        );
+        await reconcileTaskSync(f.project.id, f.task.id);
+        const integration = await getSyncIntegration(f.project.id, type);
+        expect(
+          (await previewSyncRules(integration, f.config.syncRules as SyncRules))
+            .willCreate,
+        ).toBe(1);
+        const link = await db.query.externalLinkTable.findFirst({
+          where: eq(schema.externalLinkTable.taskId, f.task.id),
+        });
+        expect(JSON.parse(link!.metadata!)).toMatchObject({
+          syncInitializationPending: true,
+        });
+        await reconcileTaskSync(f.project.id, f.task.id);
+        expect(create).toHaveBeenCalledOnce();
+        expect(failing).toHaveBeenCalledTimes(2);
+        expect(
+          (await previewSyncRules(integration, f.config.syncRules as SyncRules))
+            .willCreate,
+        ).toBe(0);
+        expect(await db.query.externalLinkTable.findMany()).toHaveLength(1);
+      },
+    );
+
+    it("does not dispatch a comment when its link is paused while the handler waits", async () => {
+      const f = await setup(type);
+      await f.assign();
+      await reconcileTaskSync(f.project.id, f.task.id);
+      mocks.comment.mockClear();
+      const link = (await db.query.externalLinkTable.findMany())[0]!;
+      const holder = await getDatabasePool().connect();
+      await holder.query("begin");
+      await holder.query(
+        "select id from external_link where id = $1 for update",
+        [link.id],
+      );
+      await holder.query(
+        "update external_link set metadata = $2 where id = $1",
+        [link.id, JSON.stringify({ syncFilterPaused: true })],
+      );
+      const comment = plugin.onTaskCommentCreated!(
+        {
+          taskId: f.task.id,
+          projectId: f.project.id,
+          userId: "test-user",
+          comment: "Excluded comment",
+        },
+        {
+          integrationId: f.integration.id,
+          projectId: f.project.id,
+          config: f.config,
+        },
+      );
+      try {
+        await vi.waitFor(async () => {
+          const result = await db.execute<{ waiting: number }>(
+            sql`select count(*)::int as waiting from pg_stat_activity where datname = current_database() and wait_event_type = 'Lock' and pid <> pg_backend_pid()`,
+          );
+          expect(result.rows[0]!.waiting).toBeGreaterThan(0);
+        });
+      } finally {
+        await holder.query("commit");
+        holder.release();
+        await comment;
+      }
+      expect(mocks.comment).not.toHaveBeenCalled();
+    });
+
+    it("releases dispatch locks while the provider handles a comment", async () => {
+      const f = await setup(type);
+      await f.assign();
+      await reconcileTaskSync(f.project.id, f.task.id);
+      let release!: () => void;
+      const response = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      mocks.comment.mockClear();
+      mocks.comment.mockImplementationOnce(async () => {
+        await response;
+        return { id: 123 };
+      });
+      const comment = plugin.onTaskCommentCreated!(
+        {
+          taskId: f.task.id,
+          projectId: f.project.id,
+          userId: "test-user",
+          comment: "Already dispatched",
+        },
+        {
+          integrationId: f.integration.id,
+          projectId: f.project.id,
+          config: f.config,
+        },
+      );
+      try {
+        await vi.waitFor(() => expect(mocks.comment).toHaveBeenCalledOnce());
+        await db
+          .delete(schema.labelTable)
+          .where(eq(schema.labelTable.taskId, f.task.id));
+        await reconcileTaskSync(f.project.id, f.task.id);
+        const link = (await db.query.externalLinkTable.findMany())[0]!;
+        expect(JSON.parse(link.metadata!)).toMatchObject({
+          syncFilterPaused: true,
+        });
+      } finally {
+        release();
+        await comment;
+      }
+    });
 
     it("imports a closed issue gaining a label into a completed column", async () => {
       const f = await setup(type);
@@ -561,7 +710,7 @@ it("exports a burst larger than the database pool without exhausting lease conne
   expect(await db.query.externalLinkTable.findMany()).toHaveLength(20);
 });
 
-it("lets an unrelated export proceed while another provider call is slow", async () => {
+it("lets an unrelated export proceed while two provider calls are slow", async () => {
   const f = await setup("gitea");
   await f.assign();
   const [other] = await db
@@ -593,9 +742,32 @@ it("lets an unrelated export proceed while another provider call is slow", async
     title: "Fast issue",
     state: "open",
   });
-  const slow = reconcileTaskSync(f.project.id, f.task.id);
+  const [secondSlow] = await db
+    .insert(schema.taskTable)
+    .values({ projectId: f.project.id, number: 3, title: "Second slow task" })
+    .returning();
+  await db.insert(schema.labelTable).values({
+    taskId: secondSlow!.id,
+    workspaceId: f.workspace.id,
+    name: "export",
+    color: "#123456",
+  });
+  mocks.giteaCreate.mockReset();
+  mocks.giteaCreate.mockImplementation(async (...args) => {
+    if (args[2].title !== "Fast task") await gate;
+    return {
+      number: args[2].title === "Fast task" ? 13 : 12,
+      html_url: "https://git.example/issues/12",
+      title: args[2].title,
+      state: "open",
+    };
+  });
+  const slow = Promise.all([
+    reconcileTaskSync(f.project.id, f.task.id),
+    reconcileTaskSync(f.project.id, secondSlow!.id),
+  ]);
   try {
-    await vi.waitFor(() => expect(mocks.giteaCreate).toHaveBeenCalledTimes(1));
+    await vi.waitFor(() => expect(mocks.giteaCreate).toHaveBeenCalledTimes(2));
     await reconcileTaskSync(f.project.id, other!.id);
     expect(
       await db.query.externalLinkTable.findFirst({
@@ -652,23 +824,19 @@ it("waits for another instance's creation lease instead of dropping the export",
   const f = await setup("gitea");
   await f.assign();
   const key = `sync-create:${f.integration.id}:${f.task.id}`;
-  const holder = await getDatabasePool().connect();
-  await holder.query("select pg_advisory_lock(hashtextextended($1, 0))", [key]);
+  await db.insert(schema.jobLeaseTable).values({
+    name: key,
+    owner: "other-test-instance",
+    expiresAt: new Date(Date.now() + 60_000),
+  });
   const competing = reconcileTaskSync(f.project.id, f.task.id);
   try {
-    await vi.waitFor(async () => {
-      const result = await db.execute<{ waiting: number }>(sql`
-        select count(*)::int as waiting from pg_stat_activity
-        where datname = current_database() and wait_event = 'advisory'
-      `);
-      expect(result.rows[0]!.waiting).toBeGreaterThan(0);
-    });
+    await new Promise((resolve) => setTimeout(resolve, 250));
     expect(mocks.giteaCreate).not.toHaveBeenCalled();
   } finally {
-    await holder.query("select pg_advisory_unlock(hashtextextended($1, 0))", [
-      key,
-    ]);
-    holder.release();
+    await db
+      .delete(schema.jobLeaseTable)
+      .where(eq(schema.jobLeaseTable.name, key));
     await competing;
   }
   expect(mocks.giteaCreate).toHaveBeenCalledOnce();
@@ -757,4 +925,26 @@ it("continues after a task export throws and leaves failed tasks available for e
     handler.mockRestore();
     log.mockRestore();
   }
+});
+
+it("broadcasts deleted label availability even without changed links or an active integration", async () => {
+  const f = await setup("gitea");
+  const foreign = await setup("gitea");
+  await db
+    .update(schema.integrationTable)
+    .set({ isActive: false })
+    .where(eq(schema.integrationTable.id, f.integration.id));
+  const publish = vi.spyOn(events, "publishEvent");
+  await deleteLabel(f.config.syncRules.outgoing.labels[0]!, "test-user");
+  expect(publish).toHaveBeenCalledWith("project.updated", {
+    projectId: f.project.id,
+  });
+  expect(publish).not.toHaveBeenCalledWith("project.updated", {
+    projectId: foreign.project.id,
+  });
+  const integration = await getSyncIntegration(f.project.id, "gitea");
+  expect(
+    (await previewSyncRules(integration, f.config.syncRules as SyncRules))
+      .missingLabels,
+  ).toEqual(f.config.syncRules.outgoing.labels);
 });

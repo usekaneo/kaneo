@@ -228,3 +228,12 @@ vi.mock(
 vi.mock("../../../../apps/api/src/plugins/sync/eligibility", () => ({
   canSyncTask: async () => true,
 }));
+
+vi.mock("../../../../apps/api/src/plugins/sync/dispatch-issue-write", () => ({
+  createIssueWrite: () => (send: () => Promise<unknown>) => send(),
+  dispatchIssueWrite: async (
+    _link: unknown,
+    _config: unknown,
+    send: () => Promise<unknown>,
+  ) => ({ value: await send() }),
+}));

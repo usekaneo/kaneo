@@ -1,3 +1,4 @@
+import type { IssueWrite } from "../../sync/issue-write";
 import type { GiteaConfig } from "../config";
 import { createGiteaClient, type GiteaLabel } from "./gitea-api";
 
@@ -21,6 +22,7 @@ function getLabelColor(labelName: string): string {
 export async function ensureLabelsExistGitea(
   config: GiteaConfig,
   labels: string[],
+  requireSuccess = false,
 ): Promise<Map<string, number>> {
   const client = createGiteaClient(config);
   const map = new Map<string, number>();
@@ -30,6 +32,7 @@ export async function ensureLabelsExistGitea(
   try {
     existingLabels = await client.listLabels(repositoryOwner, repositoryName);
   } catch (error) {
+    if (requireSuccess) throw error;
     console.error("Failed to list Gitea labels for ensureLabelsExistGitea", {
       repositoryOwner,
       repositoryName,
@@ -58,6 +61,7 @@ export async function ensureLabelsExistGitea(
       nameToId.set(name, created.id);
       map.set(name, created.id);
     } catch (error) {
+      if (requireSuccess) throw error;
       console.error(`Failed to ensure Gitea label "${name}":`, error);
     }
   }
@@ -68,10 +72,16 @@ export async function addLabelsToIssueGitea(
   config: GiteaConfig,
   issueIndex: number,
   labelNames: string[],
+  requireSuccess = false,
+  write: IssueWrite = (send) => send(),
 ) {
   if (labelNames.length === 0) return;
 
-  const nameToId = await ensureLabelsExistGitea(config, labelNames);
+  const nameToId = await ensureLabelsExistGitea(
+    config,
+    labelNames,
+    requireSuccess,
+  );
   const ids: number[] = [];
   for (const name of labelNames) {
     const id = nameToId.get(name);
@@ -85,13 +95,16 @@ export async function addLabelsToIssueGitea(
   const client = createGiteaClient(config);
 
   try {
-    await client.addLabelsToIssue(
-      config.repositoryOwner,
-      config.repositoryName,
-      issueIndex,
-      ids,
+    await write(() =>
+      client.addLabelsToIssue(
+        config.repositoryOwner,
+        config.repositoryName,
+        issueIndex,
+        ids,
+      ),
     );
   } catch (error) {
+    if (requireSuccess) throw error;
     console.error("Failed to add labels to Gitea issue:", error);
   }
 }
@@ -100,6 +113,7 @@ export async function removeLabelGitea(
   config: GiteaConfig,
   issueIndex: number,
   labelName: string,
+  write: IssueWrite = (send) => send(),
 ) {
   const client = createGiteaClient(config);
   let labels: GiteaLabel[];
@@ -123,11 +137,13 @@ export async function removeLabelGitea(
   if (!label) return;
 
   try {
-    await client.removeLabelFromIssue(
-      config.repositoryOwner,
-      config.repositoryName,
-      issueIndex,
-      label.id,
+    await write(() =>
+      client.removeLabelFromIssue(
+        config.repositoryOwner,
+        config.repositoryName,
+        issueIndex,
+        label.id,
+      ),
     );
   } catch (error) {
     console.error("Failed to remove label from Gitea issue:", {

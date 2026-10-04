@@ -1,5 +1,8 @@
+import {
+  initializeTaskIssue,
+  isIssueInitializationPending,
+} from "../../sync/initialize-task-issue";
 import { canSyncTask } from "../../sync/eligibility";
-import { taskIssueLabels } from "../../sync/issue-labels";
 import { withTaskSyncCreation } from "../../sync/create-task-issue";
 import {
   createExternalLink,
@@ -7,7 +10,6 @@ import {
   findExternalLinkByTaskAndType,
 } from "../../github/services/link-manager";
 import { formatIssueBody, formatIssueTitle } from "../../github/utils/format";
-import { isTaskInFinalState } from "../../github/services/task-service";
 import type { PluginContext, TaskCreatedEvent } from "../../types";
 import type { GitlabConfig } from "../config";
 import { createGitlabClient } from "../utils/gitlab-api";
@@ -28,9 +30,7 @@ async function createTaskIssue(
     "issue",
   );
 
-  if (existingLink) {
-    return;
-  }
+  if (existingLink && !isIssueInitializationPending(existingLink)) return;
 
   try {
     const client = createGitlabClient(config);
@@ -44,24 +44,32 @@ async function createTaskIssue(
     )
       return;
 
-    const createdIssue = await client.createIssue(config.projectPath, {
-      title: formatIssueTitle(event.title),
-      description: formatIssueBody(event.description, event.taskId),
-    });
+    let createdLink: { id: string; metadata?: string | null } | undefined =
+      existingLink;
+    let issueNumber = existingLink ? Number(existingLink.externalId) : 0;
+    if (!existingLink) {
+      const createdIssue = await client.createIssue(config.projectPath, {
+        title: formatIssueTitle(event.title),
+        description: formatIssueBody(event.description, event.taskId),
+      });
 
-    const createdLink = await createExternalLink({
-      taskId: event.taskId,
-      integrationId: context.integrationId,
-      resourceType: "issue",
-      externalId: createdIssue.iid.toString(),
-      url: createdIssue.web_url,
-      title: createdIssue.title,
-      metadata: {
-        state: createdIssue.state,
-        createdFrom: "kaneo",
-        lastOutboundStateSyncAt: Date.now(),
-      },
-    });
+      createdLink = await createExternalLink({
+        taskId: event.taskId,
+        integrationId: context.integrationId,
+        resourceType: "issue",
+        externalId: createdIssue.iid.toString(),
+        url: createdIssue.web_url,
+        title: createdIssue.title,
+        metadata: {
+          state: createdIssue.state,
+          createdFrom: "kaneo",
+          syncInitializationPending: true,
+          lastOutboundStateSyncAt: Date.now(),
+        },
+      });
+      issueNumber = createdIssue.iid;
+    }
+    if (!createdLink) return;
 
     if (
       !(await canSyncTask(
@@ -77,26 +85,14 @@ async function createTaskIssue(
       return;
     }
 
-    if (
-      await isTaskInFinalState({
-        projectId: event.projectId,
-        status: event.status,
-        columnId: null,
-      })
-    ) {
-      await client.updateIssue(config.projectPath, createdIssue.iid, {
-        state_event: "close",
-      });
-      await updateExternalLink(createdLink.id, {
-        metadata: { state: "closed", lastOutboundStateSyncAt: Date.now() },
-      });
-    }
-
-    await addLabelsToIssueGitlab(
-      config,
-      createdIssue.iid,
-      await taskIssueLabels(event.taskId, event.priority, event.status),
-    );
+    await initializeTaskIssue(event, context, createdLink, {
+      close: () =>
+        client.updateIssue(config.projectPath, issueNumber, {
+          state_event: "close",
+        }),
+      labels: (labels, write) =>
+        addLabelsToIssueGitlab(config, issueNumber, labels, true, write),
+    });
   } catch (error) {
     console.error("Failed to create GitLab issue:", error);
   }

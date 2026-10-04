@@ -17,6 +17,7 @@ const m = vi.hoisted(() => ({
   current: { title: "", description: "", status: "" },
   stamps: {} as Record<string, SyncStamp>,
   save: vi.fn(),
+  dispatch: vi.fn(),
 }));
 vi.mock("../../../../apps/api/src/database", () => ({
   default: {
@@ -77,6 +78,15 @@ vi.mock(
 );
 const link = { id: "link", integrationId: "integration" };
 beforeEach(() => {
+  m.dispatch
+    .mockReset()
+    .mockImplementation(
+      async (
+        _link: unknown,
+        _config: unknown,
+        send: () => Promise<unknown>,
+      ) => ({ value: await send() }),
+    );
   m.stamps = {};
   m.save.mockReset().mockImplementation(
     async (
@@ -508,3 +518,28 @@ it("bounds confirmation retries and durably defers continuous sync changes", asy
 vi.mock("../../../../apps/api/src/plugins/sync/eligibility", () => ({
   canSyncTask: async () => true,
 }));
+
+vi.mock("../../../../apps/api/src/plugins/sync/dispatch-issue-write", () => ({
+  createIssueWrite: () => (send: () => Promise<unknown>) => send(),
+  dispatchIssueWrite: m.dispatch,
+}));
+
+it("cancels an outbound intent when scope changes before dispatch", async () => {
+  m.current = { title: "Paused edit", description: "", status: "to-do" };
+  m.dispatch.mockResolvedValueOnce(undefined);
+  const write = vi.fn();
+  await syncLatestTaskValue(
+    "task",
+    "project",
+    { id: "link", integrationId: "integration" },
+    "title",
+    "Paused edit",
+    write,
+  );
+  expect(write).not.toHaveBeenCalled();
+  expect(m.stamps.title?.outbound?.[0]).toMatchObject({
+    pending: false,
+    cancelled: true,
+    uncertain: false,
+  });
+});

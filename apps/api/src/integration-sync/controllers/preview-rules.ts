@@ -24,6 +24,7 @@ export async function previewSyncRules(
     database,
   );
   const paused = sql<boolean>`coalesce(${externalLinkTable.metadata} ~ '"syncFilterPaused"[[:space:]]*:[[:space:]]*true', false)`;
+  const initializing = sql<boolean>`coalesce(${externalLinkTable.metadata} ~ '"syncInitializationPending"[[:space:]]*:[[:space:]]*true', false)`;
   const scope = database.$with("sync_scope").as(
     database
       .selectDistinctOn([taskTable.id], {
@@ -33,6 +34,7 @@ export async function previewSyncRules(
         linkId: sql<string | null>`${externalLinkTable.id}`.as("link_id"),
         url: externalLinkTable.url,
         paused: paused.as("paused"),
+        initializing: initializing.as("initializing"),
       })
       .from(taskTable)
       .leftJoin(
@@ -51,13 +53,13 @@ export async function previewSyncRules(
     .select({
       total: sql<number>`count(*)::int`,
       matching: sql<number>`count(*) filter (where ${scope.eligible})::int`,
-      willCreate: sql<number>`count(*) filter (where ${scope.eligible} and ${scope.linkId} is null)::int`,
+      willCreate: sql<number>`count(*) filter (where ${scope.eligible} and (${scope.linkId} is null or (${scope.initializing} and not ${scope.paused})))::int`,
       willPause: sql<number>`count(*) filter (where ${scope.linkId} is not null and not ${scope.eligible} and not ${scope.paused})::int`,
       needsReview: sql<number>`count(*) filter (where ${scope.linkId} is not null and ${scope.eligible} and (${scope.paused} or not ${scope.current}))::int`,
       paused: sql<number>`count(*) filter (where ${scope.linkId} is not null and (not ${scope.eligible} or ${scope.paused}))::int`,
       // Build the ordered scope revision in PostgreSQL instead of transferring
       // every task/link to the API just to hash it. Page cursors do not affect it.
-      revision: sql<string>`md5(coalesce(string_agg(jsonb_build_array(${scope.id}, ${scope.eligible}, ${scope.current}, ${scope.linkId}, ${scope.url}, ${scope.paused})::text, ',' order by ${scope.id}), ''))`,
+      revision: sql<string>`md5(coalesce(string_agg(jsonb_build_array(${scope.id}, ${scope.eligible}, ${scope.current}, ${scope.linkId}, ${scope.url}, ${scope.paused}, ${scope.initializing})::text, ',' order by ${scope.id}), ''))`,
     })
     .from(scope);
   const matchingTasks = await database

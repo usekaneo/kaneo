@@ -34,6 +34,8 @@ Kaneo rereads the issue when you resume and rejects a changed comparison. Gitea'
 
 An issue creation request already sent to a repository may finish after its task stops matching. Kaneo keeps the returned issue link paused and stops further updates. Local edits remain available while the repository responds.
 
+If creating an issue succeeds but its initial state, labels, or linking comment fails, **Export matching tasks** retries the unfinished steps using the existing issue link.
+
 Newly matching tasks without an issue link are exported in the background when rules or task labels change. Use **Export matching tasks** to retry tasks that still have no issue link after a failed export. An inactive integration does not export or resume tasks. Existing installations retain unrestricted sync until a rule is saved.
 
 ## Team notifications

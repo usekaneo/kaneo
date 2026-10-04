@@ -1,3 +1,4 @@
+import { createIssueWrite } from "../../sync/dispatch-issue-write";
 import { canSyncTask } from "../../sync/eligibility";
 import { syncLatestTaskValue } from "../../github/services/sync-latest-task-value";
 import { findExternalLinksByTask } from "../../github/services/link-manager";
@@ -38,15 +39,28 @@ export async function handleTaskStatusChanged(
     if (!issueLink) {
       return;
     }
+    const write = createIssueWrite(
+      { ...issueLink, taskId: event.taskId },
+      JSON.stringify(context.config),
+    );
 
     const client = createGiteaClient(config);
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
 
-    await removeLabelGitea(config, issueNumber, `status:${event.oldStatus}`);
+    await removeLabelGitea(
+      config,
+      issueNumber,
+      `status:${event.oldStatus}`,
+      write,
+    );
 
-    await addLabelsToIssueGitea(config, issueNumber, [
-      `status:${event.newStatus}`,
-    ]);
+    await addLabelsToIssueGitea(
+      config,
+      issueNumber,
+      [`status:${event.newStatus}`],
+      false,
+      write,
+    );
 
     if (event.newStatus === "done" || event.oldStatus === "done") {
       await syncLatestTaskValue(

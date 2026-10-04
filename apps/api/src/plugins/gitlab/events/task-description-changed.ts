@@ -1,3 +1,4 @@
+import { createIssueWrite } from "../../sync/dispatch-issue-write";
 import { canSyncTask } from "../../sync/eligibility";
 import {
   findExternalLinksByTask,
@@ -43,6 +44,10 @@ export async function handleTaskDescriptionChanged(
     if (!issueLink) {
       return;
     }
+    const write = createIssueWrite(
+      { ...issueLink, taskId: event.taskId },
+      JSON.stringify(context.config),
+    );
 
     const metadata = parseLinkSyncMetadata(issueLink.metadata, {
       externalLinkId: issueLink.id,
@@ -66,9 +71,11 @@ export async function handleTaskDescriptionChanged(
 
     const issueDescription = formatIssueBody(newDescription, event.taskId);
 
-    await createGitlabClient(config).updateIssue(config.projectPath, issueIid, {
-      description: issueDescription,
-    });
+    await write(() =>
+      createGitlabClient(config).updateIssue(config.projectPath, issueIid, {
+        description: issueDescription,
+      }),
+    );
 
     await updateExternalLink(issueLink.id, {
       metadata: withLastSync(
