@@ -37,6 +37,19 @@ export async function importIssueLabels(
     (name) => !name.startsWith("status:") && !name.startsWith("priority:"),
   );
   if (!names.length) return;
+  const providerColors = new Map<string, string>();
+  if (Array.isArray(labels))
+    for (const label of labels) {
+      if (
+        !label ||
+        typeof label !== "object" ||
+        typeof label.color !== "string" ||
+        !label.color
+      )
+        continue;
+      const [name] = issueLabelNames([label]);
+      if (name) providerColors.set(name, `#${label.color.replace(/^#/, "")}`);
+    }
   const existing = await database
     .select({ name: labelTable.name, color: labelTable.color })
     .from(labelTable)
@@ -49,7 +62,9 @@ export async function importIssueLabels(
       [...new Set(names)].map((name) => ({
         name,
         color:
-          existing.find((label) => label.name === name)?.color ?? "#6B7280",
+          existing.find((label) => label.name === name)?.color ??
+          providerColors.get(name) ??
+          "#6B7280",
         taskId,
         workspaceId,
       })),

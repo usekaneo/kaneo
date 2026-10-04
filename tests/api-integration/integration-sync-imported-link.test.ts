@@ -92,7 +92,7 @@ it.each(
       title: "Imported issue",
       body: "Body",
       html_url: "https://git.example/team/repo/issues/9",
-      labels,
+      labels: labels.map((name) => ({ name, color: "1a2b3c" })),
       user: { login: "author" },
     };
     const repository = {
@@ -143,7 +143,7 @@ it.each(
             description: "Body",
             url: issue.html_url,
           },
-          labels: labels.map((title) => ({ title })),
+          labels: labels.map((title) => ({ title, color: "#1a2b3c" })),
           project: {
             name: "repo",
             path_with_namespace: "team/repo",
@@ -156,6 +156,18 @@ it.each(
     expect(link).toBeDefined();
     expect(JSON.parse(link.metadata!).syncFilterPaused === true).toBe(
       !qualifying,
+    );
+    const assigned = await db.query.labelTable.findFirst({
+      where: eq(schema.labelTable.taskId, link.taskId),
+    });
+    expect(assigned?.color).toBe(
+      qualifying
+        ? label.color
+        : source === "manual"
+          ? provider === "gitea"
+            ? "#ff0000"
+            : "#6B7280"
+          : "#1a2b3c",
     );
     if (!qualifying) {
       await db.insert(schema.labelTable).values({

@@ -12,6 +12,7 @@ import { authClient } from "@/lib/auth-client";
 import getTask from "@/fetchers/task/get-task";
 import getLabelsByTask from "@/fetchers/label/get-labels-by-task";
 import getExternalLinks from "@/fetchers/external-link/get-external-links";
+import type { ResumePreview } from "@/fetchers/integration-sync/types";
 import { patchBoardTask } from "@/lib/patch-board-task";
 import type { ProjectWithTasks } from "@/types/project";
 import {
@@ -186,6 +187,26 @@ export function useProjectWebSocket(projectId: string) {
         if (disposed || activeSocket !== ws) return;
         try {
           const message = JSON.parse(event.data);
+          if (
+            message.taskId &&
+            [
+              "TASK_UPDATED",
+              "TASK_LABEL_UPDATED",
+              "TASK_MOVED",
+              "TASK_DELETED",
+            ].includes(message.type)
+          )
+            // An open comparison needs a fresh token; other tasks and closed
+            // dialogs must not cause provider reads during routine edits.
+            for (const [
+              queryKey,
+              review,
+            ] of queryClient.getQueriesData<ResumePreview>({
+              queryKey: ["integration-sync-review", projectId],
+              type: "active",
+            }))
+              if (review?.task?.id === message.taskId)
+                void queryClient.invalidateQueries({ queryKey, exact: true });
           let titleTaskRequest: ReturnType<typeof getTask> | undefined;
           if (
             message.taskId &&

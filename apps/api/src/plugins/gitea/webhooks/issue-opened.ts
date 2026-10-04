@@ -39,7 +39,7 @@ type IssueOpenedPayload = {
     state?: string;
     body: string | null;
     html_url: string;
-    labels?: Array<string | { name?: string }>;
+    labels?: Array<string | { name?: string; color?: string }>;
     user: { login?: string; username?: string } | null;
   };
   repository: {

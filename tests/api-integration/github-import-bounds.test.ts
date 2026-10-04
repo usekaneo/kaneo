@@ -158,6 +158,64 @@ async function saved() {
 }
 
 describe("bounded resumable GitHub import", () => {
+  it("preserves provider colors when rule checks import labels before the page", async () => {
+    const { member, integration, config, request } = await setup();
+    await db.insert(schema.labelTable).values({
+      workspaceId: member.workspace.id,
+      name: "workspace",
+      color: "#123456",
+    });
+    await db
+      .update(schema.integrationTable)
+      .set({
+        config: JSON.stringify({
+          ...config,
+          syncRules: {
+            outgoing: { mode: "all" },
+            incoming: { mode: "labels", match: "any", labels: ["approved"] },
+          },
+        }),
+      })
+      .where(eq(schema.integrationTable.id, integration.id));
+    const labels = [
+      { name: "approved", color: "abcdef" },
+      { name: "workspace", color: "fedcba" },
+    ];
+    mocks.verify.mockResolvedValue({
+      graphql: mocks.graphql,
+      rest: {
+        issues: {
+          get: async () => ({
+            data: {
+              labels: [
+                ...labels,
+                { name: "scope-only", color: "#654321" },
+                "no-color",
+              ],
+            },
+          }),
+        },
+      },
+    });
+    mocks.graphql.mockImplementation(async (query: string) =>
+      query.includes("query ImportIssues(")
+        ? issuePage([issue(1, { labels: connection(labels) })])
+        : emptyPulls(),
+    );
+    expect((await request()).status).toBe(200);
+    const link = (await db.query.externalLinkTable.findMany())[0]!;
+    const assigned = await db.query.labelTable.findMany({
+      where: eq(schema.labelTable.taskId, link.taskId),
+    });
+    expect(
+      Object.fromEntries(assigned.map(({ name, color }) => [name, color])),
+    ).toEqual({
+      approved: "#abcdef",
+      workspace: "#123456",
+      "scope-only": "#654321",
+      "no-color": "#6B7280",
+    });
+  });
   it("pauses a newly imported issue that misses the outgoing rule before announcing it", async () => {
     const { member, integration, config, request } = await setup();
     const [root] = await db
