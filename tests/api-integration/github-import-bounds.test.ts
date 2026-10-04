@@ -300,88 +300,147 @@ describe("bounded resumable GitHub import", () => {
     });
   });
 
-  it("finishes a new paused issue's comment history across import requests", async () => {
-    const { member, project, integration, config } = await setup();
-    const [root] = await db
-      .insert(schema.labelTable)
-      .values({
-        workspaceId: member.workspace.id,
-        name: "export",
-        color: "red",
-      })
-      .returning();
-    await db
-      .update(schema.integrationTable)
-      .set({
-        config: JSON.stringify({
-          ...config,
-          syncRules: {
-            outgoing: { mode: "labels", match: "any", labels: [root.id] },
-            incoming: { mode: "all" },
-          },
-        }),
-      })
-      .where(eq(schema.integrationTable.id, integration.id));
-    mocks.verify.mockResolvedValue({
-      graphql: mocks.graphql,
-      rest: { issues: { get: async () => ({ data: { labels: [] } }) } },
-    });
-    const comments = Array.from({ length: 85 }, (_, index) => comment(index));
-    mocks.graphql.mockImplementation(
-      async (query: string, vars: { cursor: string | null }) => {
-        if (query.includes("query ImportIssues("))
-          return issuePage([
-            issue(1, {
-              comments: connection(
-                comments.slice(0, 20),
-                true,
-                "20",
-                comments.length,
-              ),
-            }),
-          ]);
-        if (query.includes("query ImportIssueComments(")) {
-          const start = Number(vars.cursor);
-          const end = Math.min(start + 20, comments.length);
-          return {
-            repository: {
-              databaseId: 2,
-              issue: {
+  it.each(["new", "legacy-new", "legacy-existing"])(
+    "preserves %s issue history across import requests",
+    async (history) => {
+      const { member, project, integration, config } = await setup();
+      const existing = history === "legacy-existing";
+      if (existing) {
+        const [task] = await db
+          .insert(schema.taskTable)
+          .values({
+            projectId: project.id,
+            number: 1,
+            title: "Existing imported task",
+            status: "to-do",
+          })
+          .returning();
+        await db.insert(schema.externalLinkTable).values({
+          taskId: task.id,
+          integrationId: integration.id,
+          resourceType: "issue",
+          externalId: "1",
+          url: "https://github.com/example/repo/issues/1",
+          createdAt: new Date(old),
+          metadata: JSON.stringify({ createdFrom: "github-import" }),
+        });
+      }
+      const [root] = await db
+        .insert(schema.labelTable)
+        .values({
+          workspaceId: member.workspace.id,
+          name: "export",
+          color: "red",
+        })
+        .returning();
+      await db
+        .update(schema.integrationTable)
+        .set({
+          config: JSON.stringify({
+            ...config,
+            syncRules: {
+              outgoing: existing
+                ? { mode: "all" }
+                : { mode: "labels", match: "any", labels: [root.id] },
+              incoming: { mode: "all" },
+            },
+          }),
+        })
+        .where(eq(schema.integrationTable.id, integration.id));
+      mocks.verify.mockResolvedValue({
+        graphql: mocks.graphql,
+        rest: { issues: { get: async () => ({ data: { labels: [] } }) } },
+      });
+      const comments = Array.from({ length: 85 }, (_, index) => comment(index));
+      mocks.graphql.mockImplementation(
+        async (query: string, vars: { cursor: string | null }) => {
+          if (query.includes("query ImportIssues("))
+            return issuePage([
+              issue(1, {
                 comments: connection(
-                  comments.slice(start, end),
-                  end < comments.length,
-                  String(end),
+                  comments.slice(0, 20),
+                  true,
+                  "20",
                   comments.length,
                 ),
+              }),
+            ]);
+          if (query.includes("query ImportIssueComments(")) {
+            const start = Number(vars.cursor);
+            const end = Math.min(start + 20, comments.length);
+            return {
+              repository: {
+                databaseId: 2,
+                issue: {
+                  comments: connection(
+                    comments.slice(start, end),
+                    end < comments.length,
+                    String(end),
+                    comments.length,
+                  ),
+                },
               },
-            },
-          };
-        }
-        return emptyPulls();
-      },
-    );
-    let result = await importIssues(project.id);
-    expect(result).toMatchObject({ pending: true, imported: 1, skipped: 0 });
-    expect(
-      JSON.parse((await db.query.externalLinkTable.findFirst())!.metadata!),
-    ).toMatchObject({ syncFilterPaused: true });
-    result = await importIssues(project.id, result.runId);
-    expect(result).toMatchObject({ pending: false, imported: 1, skipped: 0 });
-    expect(await db.query.activityTable.findMany()).toHaveLength(
-      comments.length,
-    );
-    expect(
-      JSON.parse((await db.query.externalLinkTable.findFirst())!.metadata!),
-    ).toMatchObject({ syncFilterPaused: true });
-    expect(await importIssues(project.id)).toMatchObject({
-      pending: false,
-      imported: 0,
-      skipped: 1,
-    });
-    expect(await db.query.activityTable.findMany()).toHaveLength(
-      comments.length,
-    );
-  });
+            };
+          }
+          return emptyPulls();
+        },
+      );
+      let result = await importIssues(project.id);
+      expect(result).toMatchObject({
+        pending: true,
+        imported: existing ? 0 : 1,
+        updated: existing ? 1 : 0,
+        skipped: 0,
+      });
+      expect(
+        JSON.parse((await db.query.externalLinkTable.findFirst())!.metadata!)
+          .syncFilterPaused === true,
+      ).toBe(!existing);
+      const initialComments = (await db.query.activityTable.findMany()).length;
+      if (history !== "new") {
+        const persisted = (await saved())!;
+        delete persisted.state.currentIssue!.isNewTask;
+        await db
+          .update(schema.githubImportTable)
+          .set({ state: persisted.state })
+          .where(eq(schema.githubImportTable.integrationId, integration.id));
+      }
+      if (existing)
+        await db
+          .update(schema.integrationTable)
+          .set({
+            config: JSON.stringify({
+              ...config,
+              syncRules: {
+                outgoing: { mode: "labels", match: "any", labels: [root.id] },
+                incoming: { mode: "all" },
+              },
+            }),
+          })
+          .where(eq(schema.integrationTable.id, integration.id));
+      result = await importIssues(project.id, result.runId);
+      expect(result).toMatchObject({
+        pending: false,
+        imported: existing ? 0 : 1,
+        updated: existing ? 1 : 0,
+        skipped: existing ? 1 : 0,
+      });
+      expect(await db.query.activityTable.findMany()).toHaveLength(
+        existing ? initialComments : comments.length,
+      );
+      expect(
+        JSON.parse((await db.query.externalLinkTable.findFirst())!.metadata!),
+      ).toMatchObject({ syncFilterPaused: true });
+      expect(await importIssues(project.id)).toMatchObject({
+        pending: false,
+        imported: 0,
+        skipped: 1,
+      });
+      expect(await db.query.activityTable.findMany()).toHaveLength(
+        existing ? initialComments : comments.length,
+      );
+    },
+  );
   it("rejects an incoming rule change while fetching a page before creating tasks or consuming its cursor", async () => {
     const { integration, config, request } = await setup();
     const started = deferred();

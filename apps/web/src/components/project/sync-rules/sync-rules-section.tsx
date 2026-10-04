@@ -162,7 +162,7 @@ export function SyncRulesSection({ projectId, provider }: SyncParams) {
               <Button
                 size="xs"
                 variant="outline"
-                disabled={!pages.length}
+                disabled={!pages.length || query.isPlaceholderData}
                 onClick={() => setPages((current) => current.slice(0, -1))}
               >
                 {t("settings:syncRules.previous")}
@@ -170,7 +170,7 @@ export function SyncRulesSection({ projectId, provider }: SyncParams) {
               <Button
                 size="xs"
                 variant="outline"
-                disabled={!data.pausedNextCursor}
+                disabled={!data.pausedNextCursor || query.isPlaceholderData}
                 onClick={() => {
                   if (data.pausedNextCursor)
                     setPages((current) => [...current, data.pausedNextCursor!]);

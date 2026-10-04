@@ -1,6 +1,7 @@
 import { acceptsIssue, readSyncRules } from "../../plugins/sync/rules";
 import { canSyncTask } from "../../plugins/sync/eligibility";
 import { importIssueLabels } from "../../plugins/sync/issue-labels";
+import { parseLinkMetadata } from "../../plugins/github/utils/parse-link-metadata";
 import { createId } from "@paralleldrive/cuid2";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
@@ -399,7 +400,11 @@ async function applyPage(
     )
     .for("no key update");
   const [linked] = await tx
-    .select({ id: externalLinkTable.id })
+    .select({
+      id: externalLinkTable.id,
+      metadata: externalLinkTable.metadata,
+      createdAt: externalLinkTable.createdAt,
+    })
     .from(externalLinkTable)
     .where(
       and(
@@ -410,6 +415,18 @@ async function applyPage(
       ),
     )
     .for("update");
+  if (linked && current.isNewTask === undefined) {
+    const metadata = parseLinkMetadata<{ createdFrom?: string }>(
+      linked.metadata,
+      {
+        externalLinkId: linked.id,
+        source: "github_import_continuation",
+      },
+    );
+    current.isNewTask =
+      metadata.createdFrom === "github-import" &&
+      linked.createdAt.getTime() >= Date.parse(state.startedAt);
+  }
   const eligible =
     task && linked && (await canSyncTask(current.taskId, integrationId, tx));
   // A newly admitted issue's initial history belongs to the explicit import,

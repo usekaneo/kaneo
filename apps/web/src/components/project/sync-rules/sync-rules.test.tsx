@@ -107,6 +107,119 @@ function mount(node = <SyncRulesSection {...param} />) {
 }
 
 describe("advanced sync settings", () => {
+  it("keeps a dirty rule draft while loading another paused-task page", async () => {
+    useUserPreferencesStore.setState({ advancedSettings: true });
+    const initial = {
+      ...saved,
+      labels: [
+        ...saved.labels,
+        { id: "label-2", name: "later", color: "#654321" },
+      ],
+      paused: 30,
+      pausedNextCursor: "next-page",
+    };
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    mocks.get.mockImplementation(async (_params, after?: string) => {
+      if (after) {
+        await gate;
+        return { ...initial, pausedNextCursor: null };
+      }
+      return initial;
+    });
+    mocks.save.mockResolvedValue(initial);
+    mount();
+    fireEvent.click(await screen.findByRole("checkbox", { name: "later" }));
+    await waitFor(() =>
+      expect(
+        screen.getByRole("button", { name: "settings:syncRules.apply" }),
+      ).toBeEnabled(),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "settings:syncRules.next" }),
+    );
+    try {
+      await waitFor(() =>
+        expect(mocks.get).toHaveBeenCalledWith(param, "next-page"),
+      );
+      expect(screen.getByRole("checkbox", { name: "later" })).toBeChecked();
+      expect(
+        screen.getByRole("button", { name: "settings:syncRules.next" }),
+      ).toBeDisabled();
+    } finally {
+      await act(async () => {
+        release();
+      });
+    }
+    await waitFor(() =>
+      expect(
+        screen.getByRole("button", { name: "settings:syncRules.next" }),
+      ).toBeDisabled(),
+    );
+    expect(screen.getByRole("checkbox", { name: "later" })).toBeChecked();
+    fireEvent.click(
+      screen.getByRole("button", { name: "settings:syncRules.apply" }),
+    );
+    await waitFor(() =>
+      expect(mocks.save).toHaveBeenCalledWith(
+        param,
+        {
+          ...saved.rules,
+          outgoing: {
+            mode: "labels",
+            match: "any",
+            labels: ["label-1", "label-2"],
+          },
+        },
+        "b".repeat(64),
+      ),
+    );
+  });
+
+  it.each([
+    { projectId: "another-project", provider: "gitea" as const },
+    { projectId: param.projectId, provider: "github" as const },
+  ])(
+    "does not show a previous integration's data while changing scope to %j",
+    async (nextParam) => {
+      useUserPreferencesStore.setState({ advancedSettings: true });
+      let release!: () => void;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      mocks.get.mockImplementation(async (scope) => {
+        if (
+          scope.projectId === nextParam.projectId &&
+          scope.provider === nextParam.provider
+        )
+          await gate;
+        return saved;
+      });
+      const { client, rerender } = mount();
+      await screen.findByRole("checkbox", { name: "sync" });
+      rerender(
+        <QueryClientProvider client={client}>
+          <SyncRulesSection {...nextParam} />
+        </QueryClientProvider>,
+      );
+      try {
+        await waitFor(() =>
+          expect(mocks.get).toHaveBeenCalledWith(nextParam, undefined),
+        );
+        expect(screen.queryByRole("checkbox", { name: "sync" })).toBeNull();
+        expect(screen.getByRole("status")).toHaveTextContent(
+          "settings:syncRules.loading",
+        );
+      } finally {
+        await act(async () => {
+          release();
+        });
+      }
+    },
+  );
+
   it.each(["apply", "reload"])(
     "keeps a dirty draft after shared rules change until %s",
     async (choice) => {
