@@ -45,7 +45,17 @@ export function withIntegrationLink<T>(
       )
         return;
       try {
-        return await apply(database, afterCommit, lockedLink);
+        const result = await apply(database, afterCommit, lockedLink);
+        // Inbound label mutations can remove the predicate that admitted this
+        // callback. Commit its paused link with the mutation, before events run.
+        if (lockedLink.resourceType === "issue")
+          await canSyncTask(
+            link.taskId,
+            integration.id,
+            database,
+            expectedBinding?.config,
+          );
+        return result;
       } catch (error) {
         if (!(error instanceof PendingEcho)) throw error;
         if (error.context && error.intentId && error.updatedAt) {

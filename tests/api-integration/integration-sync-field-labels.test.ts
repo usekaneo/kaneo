@@ -14,6 +14,8 @@ const mocks = vi.hoisted(() => ({
   labels: new Set<string>(),
   read: vi.fn(),
   write: vi.fn(),
+  list: vi.fn(),
+  remove: vi.fn(),
 }));
 const names = [
   "status:planned",
@@ -53,13 +55,17 @@ vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
 vi.mock("../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
   createGiteaClient: () => ({
     getIssue: async () => mocks.read(),
-    listLabels: async () => available(),
+    listLabels: async () => {
+      await mocks.list();
+      return available();
+    },
     removeLabelFromIssue: async (
       _owner: string,
       _repo: string,
       _number: number,
       id: number,
     ) => {
+      await mocks.remove();
       mocks.labels.delete(names[id - 1]);
     },
     addLabelsToIssue: async (
@@ -95,6 +101,8 @@ beforeEach(async () => {
   await resetTestDatabase();
   mocks.write.mockReset().mockResolvedValue(undefined);
   mocks.read.mockReset().mockImplementation(() => issue());
+  mocks.list.mockReset().mockResolvedValue(undefined);
+  mocks.remove.mockReset().mockResolvedValue(undefined);
   mocks.labels = new Set(["status:planned", "priority:low", "keep"]);
 });
 
@@ -109,6 +117,9 @@ it.each(
             "read-error",
             "initialization",
             "initialization-waits",
+            ...(provider === "gitea"
+              ? ["initialization-list-error", "initialization-remove-error"]
+              : []),
           ]
         : [false, true, "initialization", "initialization-waits"]
       ).map((overlap) => ({ provider, field, overlap })),
@@ -123,8 +134,12 @@ it.each(
     });
     const clearing = overlap === "clear";
     const initializing =
-      overlap === "initialization" || overlap === "initialization-waits";
-    const overlapping = overlap === true || initializing;
+      typeof overlap === "string" && overlap.startsWith("initialization");
+    const initializationFailure =
+      overlap === "initialization-list-error" ||
+      overlap === "initialization-remove-error";
+    const overlapping =
+      overlap === true || (initializing && !initializationFailure);
     const first =
       field === "status" ? "in-progress" : clearing ? "no-priority" : "high";
     const last = field === "status" ? "in-review" : "urgent";
@@ -228,6 +243,42 @@ it.each(
         },
         context,
       );
+    if (initializationFailure) {
+      const log = vi.spyOn(console, "error").mockImplementation(() => {});
+      (overlap === "initialization-list-error"
+        ? mocks.list
+        : mocks.remove
+      ).mockRejectedValueOnce(new Error("Temporary provider failure"));
+      try {
+        await initialize();
+        const failed = await db.query.externalLinkTable.findFirst({
+          where: eq(schema.externalLinkTable.id, link.id),
+        });
+        expect(JSON.parse(failed!.metadata!)).toMatchObject({
+          syncInitializationPending: true,
+        });
+        expect(JSON.parse(failed!.metadata!).syncInitializedLabels).not.toBe(
+          true,
+        );
+        expect(mocks.write).not.toHaveBeenCalled();
+        await initialize();
+        const retried = await db.query.externalLinkTable.findFirst({
+          where: eq(schema.externalLinkTable.id, link.id),
+        });
+        expect(JSON.parse(retried!.metadata!)).toMatchObject({
+          syncInitializedLabels: true,
+          syncInitializationPending: false,
+        });
+        expect([...mocks.labels].sort()).toEqual([
+          "keep",
+          "priority:high",
+          "status:in-progress",
+        ]);
+      } finally {
+        log.mockRestore();
+      }
+      return;
+    }
     let release!: () => void;
     let started!: () => void;
     const gate = new Promise<void>((resolve) => {

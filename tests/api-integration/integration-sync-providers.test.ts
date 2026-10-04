@@ -226,6 +226,74 @@ describe.each(["github", "gitea", "gitlab"] as const)(
       gitea: mocks.giteaCreate,
       gitlab: mocks.gitlabCreate,
     }[type];
+    it("commits an inbound scope-label removal with a paused link before publishing", async () => {
+      const f = await setup(type);
+      await f.assign();
+      await reconcileTaskSync(f.project.id, f.task.id);
+      const link = (await db.query.externalLinkTable.findMany())[0]!;
+      const publish = vi
+        .spyOn(events, "publishEvent")
+        .mockResolvedValue(undefined);
+      try {
+        if (type === "github")
+          await handleIssueLabeled({
+            action: "unlabeled",
+            installation: { id: 2 },
+            repository: { id: 1, owner: { login: "team" }, name: "repo" },
+            issue: { number: 12, labels: [] },
+            label: { name: "export", color: "123456" },
+          });
+        else if (type === "gitea")
+          await handleGiteaIssueLabeled(
+            {
+              action: "label_updated",
+              repository: {
+                owner: { login: "team" },
+                name: "repo",
+                html_url: "https://git.example/team/repo",
+              },
+              issue: { number: 12, labels: [] },
+            },
+            f.integration.id,
+          );
+        else
+          await handleGitlabIssueUpdated(
+            {
+              object_attributes: {
+                iid: 12,
+                title: "Export task",
+                description: "",
+                state: "opened",
+                url: "https://gitlab.example/team/repo/-/issues/12",
+              },
+              changes: {
+                labels: { previous: [{ title: "export" }], current: [] },
+              },
+              project: {
+                name: "repo",
+                path_with_namespace: "team/repo",
+                web_url: "https://gitlab.example/team/repo",
+              },
+            },
+            f.integration.id,
+          );
+        expect(
+          await db.query.labelTable.findMany({
+            where: eq(schema.labelTable.taskId, f.task.id),
+          }),
+        ).toEqual([]);
+        const paused = await db.query.externalLinkTable.findFirst({
+          where: eq(schema.externalLinkTable.id, link.id),
+        });
+        expect(JSON.parse(paused!.metadata!)).toMatchObject({
+          syncFilterPaused: true,
+        });
+        await f.assign();
+        expect(await canSyncTask(f.task.id, f.integration.id)).toBe(false);
+      } finally {
+        publish.mockRestore();
+      }
+    });
     it("exports equivalent formatted configurations while rejecting real changes", async () => {
       const f = await setup(type);
       await f.assign();

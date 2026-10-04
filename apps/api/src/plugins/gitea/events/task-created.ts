@@ -121,7 +121,7 @@ async function createTaskIssue(
           "initialization",
           async ({ add, remove }, write) => {
             for (const name of remove)
-              await removeLabelGitea(config, issueNumber, name, write);
+              await removeLabelGitea(config, issueNumber, name, write, true);
             await addLabelsToIssueGitea(config, issueNumber, add, true, write);
           },
         ),

@@ -50,7 +50,7 @@ export async function handleTaskStatusChanged(
       "status",
       async ({ add, remove }, write) => {
         for (const name of remove)
-          await removeLabelGitea(config, issueNumber, name, write);
+          await removeLabelGitea(config, issueNumber, name, write, true);
         if (add.length)
           await addLabelsToIssueGitea(config, issueNumber, add, true, write);
       },

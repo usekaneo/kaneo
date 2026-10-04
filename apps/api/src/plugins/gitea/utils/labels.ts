@@ -113,6 +113,7 @@ export async function removeLabelGitea(
   issueIndex: number,
   labelName: string,
   write: IssueWrite = (send) => send(),
+  requireSuccess = false,
 ) {
   const client = createGiteaClient(config);
   let labels: GiteaLabel[];
@@ -122,6 +123,7 @@ export async function removeLabelGitea(
       config.repositoryName,
     );
   } catch (error) {
+    if (requireSuccess) throw error;
     console.error("Failed to list Gitea labels for removal:", {
       repositoryOwner: config.repositoryOwner,
       repositoryName: config.repositoryName,
@@ -145,6 +147,7 @@ export async function removeLabelGitea(
       ),
     );
   } catch (error) {
+    if (requireSuccess) throw error;
     console.error("Failed to remove label from Gitea issue:", {
       repositoryOwner: config.repositoryOwner,
       repositoryName: config.repositoryName,
