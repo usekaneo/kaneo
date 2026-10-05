@@ -4,7 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Radio, RadioGroup } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
-import { type ProjectAccessValue, toggleProjectId } from "./project-access";
+import { type ProjectAccessValue } from "./project-access/project-access-value";
+import { toggleProjectId } from "./project-access/toggle-project-id";
 
 type Props = {
   value: ProjectAccessValue;

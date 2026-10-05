@@ -45,11 +45,9 @@ import { syncWorkspaceSeats } from "./billing/controllers/sync-seats";
 import db, { schema } from "./database";
 import { authDatabaseAdapter } from "./database/auth-adapter";
 import { publishEvent } from "./events";
-import {
-  applyInvitationProjectAccess,
-  resolveInvitationProjectAccess,
-} from "./project-access/invitation-project-access";
-import { clearMemberProjectAccess } from "./project-access/member-project-access";
+import { applyInvitationProjectAccess } from "./project-access/apply-invitation-project-access";
+import { resolveInvitationProjectAccess } from "./project-access/resolve-invitation-project-access";
+import { clearMemberProjectAccess } from "./project-access/clear-member-project-access";
 import clearEmailVerificationOnAdminChange from "./user/controllers/clear-email-verification-on-admin-change";
 import deleteAccountData from "./user/controllers/delete-account-data";
 import prepareAdminUserRemoval from "./user/controllers/prepare-admin-user-removal";

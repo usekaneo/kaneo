@@ -14,11 +14,9 @@ import {
   DialogPopup,
   DialogTitle,
 } from "../ui/dialog";
-import {
-  isProjectAccessComplete,
-  type ProjectAccessValue,
-  toProjectAccessRequest,
-} from "./project-access";
+import { isProjectAccessComplete } from "./project-access/is-project-access-complete";
+import { type ProjectAccessValue } from "./project-access/project-access-value";
+import { toProjectAccessRequest } from "./project-access/to-project-access-request";
 import ProjectAccessFields from "./project-access-fields";
 
 type Props = {

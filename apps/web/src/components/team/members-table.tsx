@@ -56,10 +56,10 @@ import {
 import MemberProjectAccessDialog from "./member-project-access-dialog";
 import {
   ALL_PROJECTS_ACCESS,
-  findMemberProjectAccess,
-  getInvitationProjectAccess,
   type ProjectAccessValue,
-} from "./project-access";
+} from "./project-access/project-access-value";
+import { findMemberProjectAccess } from "./project-access/find-member-project-access";
+import { getInvitationProjectAccess } from "./project-access/get-invitation-project-access";
 
 type Props = {
   workspaceId: string;

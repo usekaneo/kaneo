@@ -3,7 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../../database";
 import { publishEvent } from "../../events";
 import { keepHiddenGrants } from "../../project-access/keep-hidden-grants";
-import { replaceMemberProjectAccess } from "../../project-access/member-project-access";
+import { replaceMemberProjectAccess } from "../../project-access/replace-member-project-access";
 import type { ProjectAccessMode } from "../../project-access/project-access-mode";
 import { resolveProjectAccessRequest } from "../../project-access/resolve-project-access-request";
 

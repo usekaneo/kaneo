@@ -1,6 +1,6 @@
-import { findInaccessibleProjectIds } from "./assert-project-access";
+import { findInaccessibleProjectIds } from "./find-inaccessible-project-ids";
 import { isProjectAccessRestricted } from "./is-project-access-restricted";
-import { getMemberProjectAccess } from "./member-project-access";
+import { getMemberProjectAccess } from "./get-member-project-access";
 import type { ResolvedProjectAccess } from "./resolve-project-access-request";
 
 type Outcome =

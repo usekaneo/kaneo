@@ -15,7 +15,7 @@ import {
   workspaceUserTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
-import { grantProjectToRestrictedMember } from "../../project-access/member-project-access";
+import { grantProjectToRestrictedMember } from "../../project-access/grant-project-to-restricted-member";
 import { filterUsersWithProjectAccess } from "../../project-access/filter-users-with-project-access";
 import { closeProjectConnections } from "../../ws";
 import { findProjectKeyConflict } from "../project-key";
@@ -114,20 +114,15 @@ async function moveProject(
       .delete(workspaceMemberProjectTable)
       .where(eq(workspaceMemberProjectTable.projectId, id));
 
-    // The source position means nothing in the target's ordering, and keeping
-    // it would collide with whichever project already holds that slot. Append
-    // instead, matching where `createProject` puts a new project.
     const [{ maxPosition } = { maxPosition: null }] = await tx
       .select({ maxPosition: max(projectTable.position) })
       .from(projectTable)
       .where(eq(projectTable.workspaceId, targetWorkspaceId));
+    const appendedPosition = maxPosition === null ? 0 : maxPosition + 1;
 
     const [movedProject] = await tx
       .update(projectTable)
-      .set({
-        workspaceId: targetWorkspaceId,
-        position: maxPosition === null ? 0 : maxPosition + 1,
-      })
+      .set({ workspaceId: targetWorkspaceId, position: appendedPosition })
       .where(
         and(
           eq(projectTable.id, id),

@@ -2,32 +2,22 @@ import { createHash, randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
-import { createApp } from "../../apps/api/src/index";
 import { mockAnonymousSession, mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
-import {
-  addWorkspaceMember,
-  createRestrictedWorkspace,
-} from "./helpers/project-access";
+import { addWorkspaceMember } from "./helpers/project-access/add-workspace-member";
+import { createRestrictedWorkspace } from "./helpers/project-access/create-restricted-workspace";
+import { projectAccessApi } from "./helpers/project-access/project-access-api";
 
 beforeEach(resetTestDatabase);
-
-function client(headers: Record<string, string> = {}) {
-  const { app } = createApp();
-  return (path: string, init: { method?: string; body?: unknown } = {}) =>
-    app.request(`/api${path}`, {
-      method: init.method ?? "GET",
-      headers: { "content-type": "application/json", ...headers },
-      body: init.body === undefined ? undefined : JSON.stringify(init.body),
-    });
-}
 
 describe("project access enforcement", () => {
   it("lists only the projects a restricted member can access", async () => {
     const ctx = await createRestrictedWorkspace();
     mockAuthenticatedSession(ctx.restricted);
 
-    const response = await client()(`/project?workspaceId=${ctx.workspace.id}`);
+    const response = await projectAccessApi()(
+      `/project?workspaceId=${ctx.workspace.id}`,
+    );
 
     expect(response.status).toBe(200);
     const projects = (await response.json()) as { id: string }[];
@@ -37,7 +27,7 @@ describe("project access enforcement", () => {
   it("blocks every read of a project outside the selection", async () => {
     const ctx = await createRestrictedWorkspace();
     mockAuthenticatedSession(ctx.restricted);
-    const request = client();
+    const request = projectAccessApi();
 
     const hidden = [
       `/project/${ctx.beta.id}`,
@@ -77,7 +67,7 @@ describe("project access enforcement", () => {
   it("blocks writes to a project outside the selection", async () => {
     const ctx = await createRestrictedWorkspace();
     mockAuthenticatedSession(ctx.restricted);
-    const request = client();
+    const request = projectAccessApi();
 
     const title = await request(`/task/title/${ctx.betaTask.id}`, {
       method: "PUT",
@@ -116,7 +106,7 @@ describe("project access enforcement", () => {
   it("filters search, assigned tasks and ticket lookups", async () => {
     const ctx = await createRestrictedWorkspace();
     mockAuthenticatedSession(ctx.restricted);
-    const request = client();
+    const request = projectAccessApi();
 
     const search = await request(
       `/search?workspaceId=${ctx.workspace.id}&q=task&type=tasks`,
@@ -156,7 +146,7 @@ describe("project access enforcement", () => {
     ]);
     mockAuthenticatedSession(ctx.restricted);
 
-    const response = await client()("/notification");
+    const response = await projectAccessApi()("/notification");
 
     expect(response.status).toBe(200);
     const body = JSON.stringify(await response.json());
@@ -170,12 +160,14 @@ describe("project access enforcement", () => {
 
     for (const user of [ctx.owner, unrestricted]) {
       mockAuthenticatedSession(user);
-      const response = await client()(
+      const response = await projectAccessApi()(
         `/project?workspaceId=${ctx.workspace.id}`,
       );
       expect(response.status).toBe(200);
       expect(await response.json()).toHaveLength(2);
-      expect((await client()(`/task/${ctx.betaTask.id}`)).status).toBe(200);
+      expect(
+        (await projectAccessApi()(`/task/${ctx.betaTask.id}`)).status,
+      ).toBe(200);
     }
   });
 
@@ -192,7 +184,7 @@ describe("project access enforcement", () => {
       updatedAt: new Date(),
       enabled: true,
     });
-    const request = client({ Authorization: `Bearer ${key}` });
+    const request = projectAccessApi({ Authorization: `Bearer ${key}` });
 
     expect((await request(`/project/${ctx.beta.id}`)).status).toBe(403);
     expect((await request(`/project/${ctx.alpha.id}`)).status).toBe(200);
@@ -205,7 +197,7 @@ describe("project access enforcement", () => {
       .set({ userId: null })
       .where(eq(schema.taskTable.id, ctx.betaTask.id));
     mockAuthenticatedSession(ctx.owner);
-    const request = client();
+    const request = projectAccessApi();
 
     const members = await request(
       `/workspace/${ctx.workspace.id}/members?projectId=${ctx.beta.id}`,
@@ -227,7 +219,7 @@ describe("project access enforcement", () => {
     );
 
     mockAuthenticatedSession(ctx.restricted);
-    const peek = await client()(
+    const peek = await projectAccessApi()(
       `/workspace/${ctx.workspace.id}/members?projectId=${ctx.beta.id}`,
     );
     expect(peek.status).toBe(403);
@@ -237,7 +229,7 @@ describe("project access enforcement", () => {
     const ctx = await createRestrictedWorkspace();
     mockAuthenticatedSession(ctx.owner);
 
-    const moved = await client()(`/task/move/${ctx.alphaTask.id}`, {
+    const moved = await projectAccessApi()(`/task/move/${ctx.alphaTask.id}`, {
       method: "PUT",
       body: { destinationProjectId: ctx.beta.id },
     });
@@ -253,7 +245,7 @@ describe("project access enforcement", () => {
   it("keeps tasks editable after their assignee loses access", async () => {
     const ctx = await createRestrictedWorkspace();
     mockAuthenticatedSession(ctx.owner);
-    const request = client();
+    const request = projectAccessApi();
 
     const updated = await request(`/task/${ctx.betaTask.id}`, {
       method: "PUT",
@@ -280,7 +272,7 @@ describe("project access enforcement", () => {
   it("keeps a restricted member's access to projects they create", async () => {
     const ctx = await createRestrictedWorkspace();
     mockAuthenticatedSession(ctx.restricted);
-    const request = client();
+    const request = projectAccessApi();
 
     const created = await request("/project", {
       method: "POST",

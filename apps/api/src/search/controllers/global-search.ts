@@ -8,7 +8,7 @@ import {
   workspaceTable,
   workspaceUserTable,
 } from "../../database/schema";
-import { canAccessProject } from "../../project-access/assert-project-access";
+import { canAccessProject } from "../../project-access/can-access-project";
 import { projectAccessCondition } from "../../project-access/project-access-condition";
 import { escapeLikePattern } from "../like-pattern";
 import { TASK_SHORT_ID_PATTERN } from "../task-short-id";

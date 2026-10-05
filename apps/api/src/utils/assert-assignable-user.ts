@@ -1,7 +1,7 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../database";
-import { findInaccessibleProjectIds } from "../project-access/assert-project-access";
+import { findInaccessibleProjectIds } from "../project-access/find-inaccessible-project-ids";
 import { instanceAdminRoleSql } from "./instance-admin-role";
 
 export const NOT_ASSIGNABLE = "Assignee is not a member of this workspace";

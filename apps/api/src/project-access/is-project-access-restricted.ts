@@ -1,8 +1,8 @@
 import { and, eq } from "drizzle-orm";
 import db, { schema } from "../database";
 import { hasInstanceAdminRole } from "../utils/instance-admin-role";
-import { getMemberProjectAccess } from "./member-project-access";
-import { isOwnerRole } from "./project-access-mode";
+import { getMemberProjectAccess } from "./get-member-project-access";
+import { isOwnerRole } from "./is-owner-role";
 
 export async function isProjectAccessRestricted(
   workspaceId: string,

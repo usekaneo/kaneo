@@ -3,7 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { userTable, workspaceUserTable } from "../../database/schema";
 import { assertProjectAccess } from "../../project-access/assert-project-access";
-import { findWorkspaceProjectIds } from "../../project-access/member-project-access";
+import { findWorkspaceProjectIds } from "../../project-access/find-workspace-project-ids";
 import { projectAccessCondition } from "../../project-access/project-access-condition";
 
 async function getWorkspaceMembers(request: {

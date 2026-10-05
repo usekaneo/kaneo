@@ -57,9 +57,12 @@ vi.mock(
   }),
 );
 vi.mock("../../../apps/api/src/events", () => ({ subscribeToEvent: vi.fn() }));
-vi.mock("../../../apps/api/src/project-access/assert-project-access", () => ({
-  findInaccessibleProjectIds: m.inaccessible,
-}));
+vi.mock(
+  "../../../apps/api/src/project-access/find-inaccessible-project-ids",
+  () => ({
+    findInaccessibleProjectIds: m.inaccessible,
+  }),
+);
 const projectAccessUpdated = vi
   .mocked(subscribeToEvent)
   .mock.calls.find(([eventName]) => eventName === "project_access.updated")![1];

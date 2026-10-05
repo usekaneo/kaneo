@@ -201,12 +201,9 @@ async function lookupScope(
         )
         .where(eq(schema.labelTable.id, id))
         .limit(1);
-      // Older releases allowed inconsistent label/task references. Never use
-      // such a row to authorize reads, mutations or external provider sync.
-      if (label?.taskId && label.taskWorkspaceId !== label.workspaceId) {
-        return null;
-      }
-      if (!label?.workspaceId) return null;
+      const labelOutsideTaskWorkspace =
+        label?.taskId && label.taskWorkspaceId !== label.workspaceId;
+      if (labelOutsideTaskWorkspace || !label?.workspaceId) return null;
       return {
         workspaceId: label.workspaceId,
         projectId: label.taskProjectId ?? null,

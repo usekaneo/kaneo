@@ -5,7 +5,7 @@ import {
   errorResponse,
   jsonResponse,
 } from "../openapi";
-import { listWorkspaceProjectAccess } from "../project-access/member-project-access";
+import { listWorkspaceProjectAccess } from "../project-access/list-workspace-project-access";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import getWorkspaceMembersCtrl from "./controllers/get-workspace-members";

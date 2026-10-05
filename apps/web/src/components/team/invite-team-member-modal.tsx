@@ -31,10 +31,10 @@ import { Input } from "../ui/input";
 import InvitationLinkField from "./invitation-link-field";
 import {
   ALL_PROJECTS_ACCESS,
-  isProjectAccessComplete,
   type ProjectAccessValue,
-  toProjectAccessRequest,
-} from "./project-access";
+} from "./project-access/project-access-value";
+import { isProjectAccessComplete } from "./project-access/is-project-access-complete";
+import { toProjectAccessRequest } from "./project-access/to-project-access-request";
 import ProjectAccessFields from "./project-access-fields";
 
 type Props = {

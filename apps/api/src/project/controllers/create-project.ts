@@ -2,7 +2,7 @@ import { eq, max, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable, projectTable } from "../../database/schema";
-import { grantProjectToRestrictedMember } from "../../project-access/member-project-access";
+import { grantProjectToRestrictedMember } from "../../project-access/grant-project-to-restricted-member";
 import { findProjectKeyConflict, projectKeyTakenMessage } from "../project-key";
 
 export const DEFAULT_PROJECT_COLUMNS = [

@@ -10,7 +10,7 @@ import {
   workspaceUserTable,
 } from "../database/schema";
 import { subscribeToEvent } from "../events";
-import { findInaccessibleProjectIds } from "../project-access/assert-project-access";
+import { findInaccessibleProjectIds } from "../project-access/find-inaccessible-project-ids";
 import { filterUsersWithProjectAccess } from "../project-access/filter-users-with-project-access";
 import {
   hasInstanceAdminRole,

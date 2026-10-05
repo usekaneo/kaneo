@@ -1,76 +1,35 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
-import { createApp } from "../../apps/api/src/index";
 import { mockAuthenticatedSession } from "./helpers/auth";
 import { signUpWithSession } from "./helpers/auth-session";
 import { resetTestDatabase } from "./helpers/database";
-import { createProjectFixture } from "./helpers/fixtures";
-import {
-  addWorkspaceMember,
-  createRestrictedWorkspace,
-  restrictToProjects,
-} from "./helpers/project-access";
+import { addWorkspaceMember } from "./helpers/project-access/add-workspace-member";
+import { createRestrictedWorkspace } from "./helpers/project-access/create-restricted-workspace";
+import { restrictToProjects } from "./helpers/project-access/restrict-to-projects";
+import { projectAccessApi } from "./helpers/project-access/project-access-api";
+import { putMemberProjectAccess } from "./helpers/project-access/put-member-project-access";
+import { readMemberAccessRows } from "./helpers/project-access/read-member-access-rows";
+import { createInvitationWorkspace } from "./helpers/project-access/create-invitation-workspace";
 
 beforeEach(resetTestDatabase);
-
-const origin = "http://localhost:5173";
-
-function client(headers: Record<string, string> = {}) {
-  const { app } = createApp();
-  return (path: string, init: { method?: string; body?: unknown } = {}) =>
-    app.request(`/api${path}`, {
-      method: init.method ?? "GET",
-      headers: { "content-type": "application/json", origin, ...headers },
-      body: init.body === undefined ? undefined : JSON.stringify(init.body),
-    });
-}
-
-function setAccess(
-  request: ReturnType<typeof client>,
-  workspaceId: string,
-  userId: string,
-  body: { projectAccess: string; projectIds?: string[] },
-) {
-  return request(`/workspace/${workspaceId}/members/${userId}/project-access`, {
-    method: "PUT",
-    body,
-  });
-}
-
-async function accessRows(workspaceId: string, userId: string) {
-  const rules = await db
-    .select()
-    .from(schema.workspaceMemberAccessTable)
-    .where(
-      and(
-        eq(schema.workspaceMemberAccessTable.workspaceId, workspaceId),
-        eq(schema.workspaceMemberAccessTable.userId, userId),
-      ),
-    );
-  const grants = await db
-    .select()
-    .from(schema.workspaceMemberProjectTable)
-    .where(
-      and(
-        eq(schema.workspaceMemberProjectTable.workspaceId, workspaceId),
-        eq(schema.workspaceMemberProjectTable.userId, userId),
-      ),
-    );
-  return { rules, grants };
-}
 
 describe("managing member project access", () => {
   it("restricts a member and lifts the restriction again", async () => {
     const ctx = await createRestrictedWorkspace();
     const member = await addWorkspaceMember(ctx.workspace.id);
     mockAuthenticatedSession(ctx.owner);
-    const request = client();
+    const request = projectAccessApi();
 
-    const restricted = await setAccess(request, ctx.workspace.id, member.id, {
-      projectAccess: "selected",
-      projectIds: [ctx.beta.id],
-    });
+    const restricted = await putMemberProjectAccess(
+      request,
+      ctx.workspace.id,
+      member.id,
+      {
+        projectAccess: "selected",
+        projectIds: [ctx.beta.id],
+      },
+    );
     expect(restricted.status).toBe(200);
     expect(await restricted.json()).toEqual({
       userId: member.id,
@@ -98,39 +57,60 @@ describe("managing member project access", () => {
     );
 
     mockAuthenticatedSession(member);
-    expect((await client()(`/project/${ctx.alpha.id}`)).status).toBe(403);
-    expect((await client()(`/project/${ctx.beta.id}`)).status).toBe(200);
+    expect((await projectAccessApi()(`/project/${ctx.alpha.id}`)).status).toBe(
+      403,
+    );
+    expect((await projectAccessApi()(`/project/${ctx.beta.id}`)).status).toBe(
+      200,
+    );
 
     mockAuthenticatedSession(ctx.owner);
-    const lifted = await setAccess(client(), ctx.workspace.id, member.id, {
-      projectAccess: "all",
-    });
+    const lifted = await putMemberProjectAccess(
+      projectAccessApi(),
+      ctx.workspace.id,
+      member.id,
+      {
+        projectAccess: "all",
+      },
+    );
     expect(lifted.status).toBe(200);
-    expect(await accessRows(ctx.workspace.id, member.id)).toEqual({
+    expect(await readMemberAccessRows(ctx.workspace.id, member.id)).toEqual({
       rules: [],
       grants: [],
     });
 
     mockAuthenticatedSession(member);
-    expect((await client()(`/project/${ctx.alpha.id}`)).status).toBe(200);
+    expect((await projectAccessApi()(`/project/${ctx.alpha.id}`)).status).toBe(
+      200,
+    );
   });
 
   it("refuses to restrict owners or yourself", async () => {
     const ctx = await createRestrictedWorkspace();
     const admin = await addWorkspaceMember(ctx.workspace.id, "admin");
     mockAuthenticatedSession(admin);
-    const request = client();
+    const request = projectAccessApi();
 
-    const owner = await setAccess(request, ctx.workspace.id, ctx.owner.id, {
-      projectAccess: "selected",
-      projectIds: [ctx.alpha.id],
-    });
+    const owner = await putMemberProjectAccess(
+      request,
+      ctx.workspace.id,
+      ctx.owner.id,
+      {
+        projectAccess: "selected",
+        projectIds: [ctx.alpha.id],
+      },
+    );
     expect(owner.status).toBe(400);
 
-    const self = await setAccess(request, ctx.workspace.id, admin.id, {
-      projectAccess: "selected",
-      projectIds: [ctx.alpha.id],
-    });
+    const self = await putMemberProjectAccess(
+      request,
+      ctx.workspace.id,
+      admin.id,
+      {
+        projectAccess: "selected",
+        projectIds: [ctx.alpha.id],
+      },
+    );
     expect(self.status).toBe(403);
   });
 
@@ -138,16 +118,21 @@ describe("managing member project access", () => {
     const ctx = await createRestrictedWorkspace();
     const member = await addWorkspaceMember(ctx.workspace.id);
     mockAuthenticatedSession(member);
-    const request = client();
+    const request = projectAccessApi();
 
     expect(
       (await request(`/workspace/${ctx.workspace.id}/project-access`)).status,
     ).toBe(403);
     expect(
       (
-        await setAccess(request, ctx.workspace.id, ctx.restricted.id, {
-          projectAccess: "all",
-        })
+        await putMemberProjectAccess(
+          request,
+          ctx.workspace.id,
+          ctx.restricted.id,
+          {
+            projectAccess: "all",
+          },
+        )
       ).status,
     ).toBe(403);
   });
@@ -160,20 +145,30 @@ describe("managing member project access", () => {
     const member = await addWorkspaceMember(ctx.workspace.id);
     await restrictToProjects(ctx.workspace.id, member.id, [ctx.beta.id]);
     mockAuthenticatedSession(admin);
-    const request = client();
+    const request = projectAccessApi();
 
-    const hidden = await setAccess(request, ctx.workspace.id, member.id, {
-      projectAccess: "selected",
-      projectIds: [ctx.beta.id],
-    });
+    const hidden = await putMemberProjectAccess(
+      request,
+      ctx.workspace.id,
+      member.id,
+      {
+        projectAccess: "selected",
+        projectIds: [ctx.beta.id],
+      },
+    );
     expect(hidden.status).toBe(403);
 
-    const everything = await setAccess(request, ctx.workspace.id, member.id, {
-      projectAccess: "all",
-    });
+    const everything = await putMemberProjectAccess(
+      request,
+      ctx.workspace.id,
+      member.id,
+      {
+        projectAccess: "all",
+      },
+    );
     expect(everything.status).toBe(403);
 
-    const narrowed = await setAccess(
+    const narrowed = await putMemberProjectAccess(
       request,
       ctx.workspace.id,
       unrestricted.id,
@@ -181,10 +176,15 @@ describe("managing member project access", () => {
     );
     expect(narrowed.status).toBe(403);
 
-    const visible = await setAccess(request, ctx.workspace.id, member.id, {
-      projectAccess: "selected",
-      projectIds: [ctx.alpha.id],
-    });
+    const visible = await putMemberProjectAccess(
+      request,
+      ctx.workspace.id,
+      member.id,
+      {
+        projectAccess: "selected",
+        projectIds: [ctx.alpha.id],
+      },
+    );
     expect(visible.status).toBe(200);
     expect(
       ((await visible.json()) as { projectIds: string[] }).projectIds.sort(),
@@ -196,8 +196,8 @@ describe("managing member project access", () => {
     const other = await createRestrictedWorkspace();
     mockAuthenticatedSession(ctx.owner);
 
-    const response = await setAccess(
-      client(),
+    const response = await putMemberProjectAccess(
+      projectAccessApi(),
       ctx.workspace.id,
       ctx.restricted.id,
       { projectAccess: "selected", projectIds: [other.alpha.id] },
@@ -208,40 +208,8 @@ describe("managing member project access", () => {
 });
 
 describe("invitations with project access", () => {
-  async function workspaceWithInvitee() {
-    const { app } = createApp();
-    const owner = await signUpWithSession(app, {
-      email: "owner@example.com",
-      name: "Owner",
-    });
-    const ownerRequest = client({ cookie: owner.cookies });
-    const created = await ownerRequest("/auth/organization/create", {
-      method: "POST",
-      body: { name: "Agency", slug: "agency" },
-    });
-    expect(created.status).toBe(200);
-    const workspace = (await created.json()) as { id: string };
-    const alpha = await createProjectFixture({
-      workspaceId: workspace.id,
-      name: "Alpha",
-      slug: "alpha",
-    });
-    const beta = await createProjectFixture({
-      workspaceId: workspace.id,
-      name: "Beta",
-      slug: "beta",
-    });
-    return {
-      app,
-      ownerRequest,
-      workspaceId: workspace.id,
-      alpha: alpha.project,
-      beta: beta.project,
-    };
-  }
-
   it("applies the invitation's project selection when it's accepted", async () => {
-    const ctx = await workspaceWithInvitee();
+    const ctx = await createInvitationWorkspace();
 
     const invited = await ctx.ownerRequest("/auth/organization/invite-member", {
       method: "POST",
@@ -268,7 +236,7 @@ describe("invitations with project access", () => {
       email: "client@example.com",
       name: "Client",
     });
-    const inviteeRequest = client({ cookie: invitee.cookies });
+    const inviteeRequest = projectAccessApi({ cookie: invitee.cookies });
     const accepted = await inviteeRequest(
       "/auth/organization/accept-invitation",
       {
@@ -278,7 +246,7 @@ describe("invitations with project access", () => {
     );
     expect(accepted.status).toBe(200);
 
-    const rows = await accessRows(ctx.workspaceId, invitee.userId);
+    const rows = await readMemberAccessRows(ctx.workspaceId, invitee.userId);
     expect(rows.rules.map((rule) => rule.projectAccess)).toEqual(["selected"]);
     expect(rows.grants.map((grant) => grant.projectId)).toEqual([ctx.alpha.id]);
 
@@ -304,14 +272,16 @@ describe("invitations with project access", () => {
       },
     });
     expect(removed.status).toBe(200);
-    expect(await accessRows(ctx.workspaceId, invitee.userId)).toEqual({
-      rules: [],
-      grants: [],
-    });
+    expect(await readMemberAccessRows(ctx.workspaceId, invitee.userId)).toEqual(
+      {
+        rules: [],
+        grants: [],
+      },
+    );
   });
 
   it("gives every project to an invitation without a selection", async () => {
-    const ctx = await workspaceWithInvitee();
+    const ctx = await createInvitationWorkspace();
 
     const invited = await ctx.ownerRequest("/auth/organization/invite-member", {
       method: "POST",
@@ -328,7 +298,7 @@ describe("invitations with project access", () => {
       email: "teammate@example.com",
       name: "Teammate",
     });
-    const inviteeRequest = client({ cookie: invitee.cookies });
+    const inviteeRequest = projectAccessApi({ cookie: invitee.cookies });
     expect(
       (
         await inviteeRequest("/auth/organization/accept-invitation", {
@@ -345,7 +315,7 @@ describe("invitations with project access", () => {
   });
 
   it("rejects an invitation for projects outside the workspace", async () => {
-    const ctx = await workspaceWithInvitee();
+    const ctx = await createInvitationWorkspace();
     const other = await createRestrictedWorkspace();
 
     const invited = await ctx.ownerRequest("/auth/organization/invite-member", {

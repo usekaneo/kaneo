@@ -1,8 +1,8 @@
-import { findInaccessibleProjectIds } from "./assert-project-access";
+import { findInaccessibleProjectIds } from "./find-inaccessible-project-ids";
 import { isProjectAccessRestricted } from "./is-project-access-restricted";
-import { findWorkspaceProjectIds } from "./member-project-access";
+import { findWorkspaceProjectIds } from "./find-workspace-project-ids";
+import { isOwnerRole } from "./is-owner-role";
 import {
-  isOwnerRole,
   isProjectAccessMode,
   type ProjectAccessMode,
 } from "./project-access-mode";

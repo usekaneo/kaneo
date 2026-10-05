@@ -7,7 +7,3 @@ export function isProjectAccessMode(
 ): value is ProjectAccessMode {
   return PROJECT_ACCESS_MODES.includes(value as ProjectAccessMode);
 }
-
-export function isOwnerRole(role: string | null | undefined) {
-  return typeof role === "string" && role.split(",").includes("owner");
-}
