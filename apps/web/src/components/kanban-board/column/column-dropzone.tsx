@@ -1,4 +1,4 @@
-import { useDroppable } from "@dnd-kit/core";
+import { useDndContext, useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -32,6 +32,8 @@ export function ColumnDropzone({
   }, [isOver, onIsOverChange]);
 
   const reduceMotion = useReducedMotion();
+  const { active } = useDndContext();
+  const hidden = reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98 };
 
   return (
     <div ref={setNodeRef} className="flex-1 min-h-0">
@@ -44,15 +46,13 @@ export function ColumnDropzone({
             {column.tasks.map((task) => (
               <motion.div
                 key={task.id}
-                initial={
-                  reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98 }
-                }
+                // The dragged card only changes columns in the drag preview,
+                // so it must not fade out of one column and into the next.
+                initial={task.id === active?.id ? false : hidden}
                 animate={
                   reduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }
                 }
-                exit={
-                  reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98 }
-                }
+                exit={task.id === active?.id ? undefined : hidden}
                 transition={{ type: "spring", duration: 0.35, bounce: 0.15 }}
               >
                 <TaskCard
