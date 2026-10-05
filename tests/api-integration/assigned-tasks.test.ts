@@ -156,7 +156,7 @@ describe("API integration: assigned tasks", () => {
     });
   });
 
-  it("uses column references when duplicate slugs include final columns", async () => {
+  it("counts open tasks by column reference and resolves legacy tasks by status slug", async () => {
     const member = await createWorkspaceMember();
     const { project, columns } = await createProjectFixture({
       workspaceId: member.workspace.id,
@@ -181,35 +181,38 @@ describe("API integration: assigned tasks", () => {
         userId: member.user.id,
       })
       .returning();
-    await db.insert(schema.taskTable).values([
-      {
-        projectId: project.id,
-        title: "In the final duplicate",
-        status: columns.todo.slug,
-        columnId: finalColumn.id,
-        userId: member.user.id,
-        number: 2,
-      },
-      {
-        projectId: project.id,
-        title: "Legacy ambiguous status",
-        status: columns.todo.slug,
-        userId: member.user.id,
-        number: 3,
-      },
-    ]);
+    const [, legacy] = await db
+      .insert(schema.taskTable)
+      .values([
+        {
+          projectId: project.id,
+          title: "In the final duplicate",
+          status: columns.todo.slug,
+          columnId: finalColumn.id,
+          userId: member.user.id,
+          number: 2,
+        },
+        {
+          projectId: project.id,
+          title: "Legacy status without column",
+          status: columns.todo.slug,
+          userId: member.user.id,
+          number: 3,
+        },
+      ])
+      .returning();
     mockAuthenticatedSession(member.user);
     const { app } = createApp();
     const countResponse = await app.request(
       `/api/task/assigned?workspaceId=${member.workspace.id}&countOnly=true`,
     );
-    expect(await countResponse.json()).toEqual({ tasks: [], total: 1 });
+    expect(await countResponse.json()).toEqual({ tasks: [], total: 2 });
     const response = await app.request(
       `/api/task/assigned?workspaceId=${member.workspace.id}`,
     );
     expect(response.status).toBe(200);
     const body = (await response.json()) as AssignedTasksResponse;
-    expect(body.total).toBe(1);
+    expect(body.total).toBe(2);
     const details = await app.request(`/api/task/${task.id}`);
     expect(details.status).toBe(200);
     expect(await details.json()).toMatchObject({
@@ -217,9 +220,12 @@ describe("API integration: assigned tasks", () => {
       columnId: columns.todo.id,
       workspaceId: member.workspace.id,
     });
-    expect(body.tasks).toEqual([
-      expect.objectContaining({ id: task.id, statusName: columns.todo.name }),
-    ]);
+    expect(body.tasks.map((t) => t.id).sort()).toEqual(
+      [task.id, legacy.id].sort(),
+    );
+    expect(body.tasks.every((t) => t.statusName === columns.todo.name)).toBe(
+      true,
+    );
   });
 
   it("refuses a workspace the caller does not belong to", async () => {

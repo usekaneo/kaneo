@@ -197,7 +197,7 @@ describe("API integration: workspace activity", () => {
       expect(invalid.status).toBe(400);
     }
   });
-  it("does not guess a historical column name when its status slug is ambiguous", async () => {
+  it("resolves historical column names by exact status slug", async () => {
     const member = await createWorkspaceMember();
     const { project, columns } = await createProjectFixture({
       workspaceId: member.workspace.id,
@@ -232,9 +232,9 @@ describe("API integration: workspace activity", () => {
     );
     expect(response.status).toBe(200);
     const [event] = await response.json();
-    expect(event.eventData).not.toHaveProperty("oldStatusName");
     expect(event.eventData).toMatchObject({
       oldStatus: "to-do",
+      oldStatusName: "To Do",
       newStatusName: "In Progress",
     });
   });
