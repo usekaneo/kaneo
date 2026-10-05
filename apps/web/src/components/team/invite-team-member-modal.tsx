@@ -64,7 +64,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
     useState<ProjectAccessValue>(ALL_PROJECTS_ACCESS);
   const [showProjectAccessError, setShowProjectAccessError] = useState(false);
   const { data: projects, isLoading: isLoadingProjects } = useGetProjects({
-    workspaceId: open ? (workspaceId ?? "") : "",
+    workspaceId: workspaceId ?? "",
   });
 
   const form = useForm<TeamMemberFormValues>({
@@ -117,8 +117,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
         return;
       }
 
-      resetInviteTeamMember();
-      onClose();
+      closeModal();
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : t("team:inviteModal.error"),
@@ -126,25 +125,31 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
     }
   };
 
-  const resetInviteTeamMember = async () => {
+  const closeModal = () => {
     if (workspaceId) {
-      await queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: ["workspace-users", workspaceId],
       });
     }
+    onClose();
+  };
+
+  const resetAfterClose = (isOpen: boolean) => {
+    if (isOpen) return;
+    setCreatedInvitation(null);
     form.reset();
     setProjectAccess(ALL_PROJECTS_ACCESS);
     setShowProjectAccessError(false);
   };
 
-  const resetAndCloseModal = () => {
-    setCreatedInvitation(null);
-    resetInviteTeamMember();
-    onClose();
-  };
-
   return (
-    <Dialog open={open} onOpenChange={resetAndCloseModal}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) closeModal();
+      }}
+      onOpenChangeComplete={resetAfterClose}
+    >
       <DialogPopup className="w-full max-w-md">
         <DialogHeader>
           <DialogTitle>
@@ -165,7 +170,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
               <InvitationLinkField invitationId={createdInvitation.id} />
             </DialogPanel>
             <DialogFooter>
-              <Button size="sm" onClick={resetAndCloseModal}>
+              <Button size="sm" onClick={closeModal}>
                 {t("team:inviteModal.done")}
               </Button>
             </DialogFooter>
