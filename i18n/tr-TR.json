@@ -2601,7 +2601,8 @@
 			"noTasks": "Talep yok"
 		},
 		"kanban": {
-			"addTask": "Talep ekle"
+			"addTask": "Talep ekle",
+			"automaticallySortedHint": "{{sort}} ölçütüne göre otomatik olarak sıralandı"
 		},
 		"pr": {
 			"merged": "Birleştirildi",

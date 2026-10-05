@@ -5,7 +5,8 @@ export function moveBoardTask(
   project: ProjectWithTasks,
   activeId: string,
   overId: string,
-  sortedByNumber = false,
+  appendOnly = false,
+  insertAfterTarget?: boolean,
 ) {
   const source = project.columns.find((column) =>
     column.tasks.some((task) => task.id === activeId),
@@ -18,7 +19,7 @@ export function moveBoardTask(
     !source ||
     !destination ||
     activeId === overId ||
-    (sortedByNumber && source.id === destination.id)
+    (appendOnly && source.id === destination.id)
   )
     return null;
   const next = produce(project, (draft) => {
@@ -27,7 +28,7 @@ export function moveBoardTask(
     const sourceIndex = from.tasks.findIndex((task) => task.id === activeId);
     const [task] = from.tasks.splice(sourceIndex, 1);
     task.status = to.slug;
-    if (sortedByNumber) {
+    if (appendOnly) {
       task.position =
         Math.max(-1, ...to.tasks.map((task) => task.position ?? -1)) + 1;
       to.tasks.push(task);
@@ -37,8 +38,13 @@ export function moveBoardTask(
       overId === to.id
         ? to.tasks.length
         : to.tasks.findIndex((task) => task.id === overId);
-    if (from.id !== to.id || sourceIndex <= index)
-      index += overId === to.id ? 0 : 1;
+    if (overId !== to.id) {
+      if (insertAfterTarget !== undefined) {
+        index += insertAfterTarget ? 1 : 0;
+      } else if (from.id !== to.id || sourceIndex <= index) {
+        index += 1;
+      }
+    }
     to.tasks.splice(index, 0, task);
     for (const column of new Set([from, to]))
       column.tasks.forEach((task, position) => {

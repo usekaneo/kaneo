@@ -2602,7 +2602,8 @@
 			"noTasks": "작업 없음"
 		},
 		"kanban": {
-			"addTask": "작업 추가"
+			"addTask": "작업 추가",
+			"automaticallySortedHint": "{{sort}} 기준으로 자동 정렬됨"
 		},
 		"pr": {
 			"merged": "병합됨",
