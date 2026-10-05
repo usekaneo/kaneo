@@ -1,14 +1,18 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { schema } from "../database";
 import { hasInstanceAdminRole } from "../utils/instance-admin-role";
+import { roleHasWorkspacePermission } from "../utils/require-workspace-permission";
 import type { DbOrTx } from "./db-or-tx";
 
 export async function lockAccessChange(
   database: DbOrTx,
   change: { workspaceId: string; actorId: string; userId: string },
-): Promise<{ actorAllowed: boolean; targetIsMember: boolean }> {
+): Promise<{ actorAllowed: boolean; targetRole: string | null }> {
   const rows = await database
-    .select({ userId: schema.workspaceUserTable.userId })
+    .select({
+      userId: schema.workspaceUserTable.userId,
+      role: schema.workspaceUserTable.role,
+    })
     .from(schema.workspaceUserTable)
     .where(
       and(
@@ -21,17 +25,24 @@ export async function lockAccessChange(
     )
     .orderBy(schema.workspaceUserTable.id)
     .for("update");
-  const members = new Set(rows.map((row) => row.userId));
+  const roles = new Map(rows.map((row) => [row.userId, row.role]));
+  const actorRole = roles.get(change.actorId);
 
-  let actorAllowed = members.has(change.actorId);
-  if (!actorAllowed) {
-    const [actor] = await database
-      .select({ role: schema.userTable.role })
-      .from(schema.userTable)
-      .where(eq(schema.userTable.id, change.actorId))
-      .limit(1);
-    actorAllowed = hasInstanceAdminRole(actor?.role);
+  if (
+    actorRole &&
+    (await roleHasWorkspacePermission(change.workspaceId, actorRole, {
+      member: ["update"],
+    }))
+  ) {
+    return { actorAllowed: true, targetRole: roles.get(change.userId) ?? null };
   }
 
-  return { actorAllowed, targetIsMember: members.has(change.userId) };
+  const [actor] = await database
+    .select({ role: schema.userTable.role })
+    .from(schema.userTable)
+    .where(eq(schema.userTable.id, change.actorId))
+    .limit(1);
+  const actorAllowed = hasInstanceAdminRole(actor?.role);
+
+  return { actorAllowed, targetRole: roles.get(change.userId) ?? null };
 }

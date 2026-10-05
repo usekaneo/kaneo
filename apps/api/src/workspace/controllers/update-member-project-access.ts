@@ -1,6 +1,5 @@
-import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
-import db, { schema } from "../../database";
+import db from "../../database";
 import { publishEvent } from "../../events";
 import { keepHiddenGrants } from "../../project-access/keep-hidden-grants";
 import { lockAccessChange } from "../../project-access/lock-access-change";
@@ -24,44 +23,27 @@ async function updateMemberProjectAccess(request: {
     });
   }
 
-  const [member] = await db
-    .select({ role: schema.workspaceUserTable.role })
-    .from(schema.workspaceUserTable)
-    .where(
-      and(
-        eq(schema.workspaceUserTable.workspaceId, workspaceId),
-        eq(schema.workspaceUserTable.userId, userId),
-      ),
-    )
-    .limit(1);
-
-  if (!member) {
-    throw new HTTPException(404, { message: "Member not found" });
-  }
-
-  const resolution = await resolveProjectAccessRequest({
-    workspaceId,
-    actorId,
-    targetRole: member.role,
-    projectAccess: request.projectAccess,
-    projectIds: request.projectIds,
-  });
-
-  if (!resolution.ok) {
-    throw new HTTPException(resolution.status, {
-      message: resolution.message,
-    });
-  }
-
-  const unassigned = await db.transaction(async (tx) => {
+  const { access, unassigned } = await db.transaction(async (tx) => {
     const lock = await lockAccessChange(tx, { workspaceId, actorId, userId });
     if (!lock.actorAllowed) {
-      throw new HTTPException(403, {
-        message: "You don't have access to this workspace",
-      });
+      throw new HTTPException(403, { message: "Insufficient permissions" });
     }
-    if (!lock.targetIsMember) {
+    if (lock.targetRole === null) {
       throw new HTTPException(404, { message: "Member not found" });
+    }
+
+    const resolution = await resolveProjectAccessRequest({
+      workspaceId,
+      actorId,
+      targetRole: lock.targetRole,
+      projectAccess: request.projectAccess,
+      projectIds: request.projectIds,
+      database: tx,
+    });
+    if (!resolution.ok) {
+      throw new HTTPException(resolution.status, {
+        message: resolution.message,
+      });
     }
 
     const outcome = await keepHiddenGrants({
@@ -80,7 +62,14 @@ async function updateMemberProjectAccess(request: {
       userId,
       ...outcome.access,
     });
-    return unassignInaccessibleTasks(tx, { workspaceId, userId, actorId });
+    return {
+      access: resolution.access,
+      unassigned: await unassignInaccessibleTasks(tx, {
+        workspaceId,
+        userId,
+        actorId,
+      }),
+    };
   });
 
   await publishEvent("project_access.updated", { workspaceId, userId });
@@ -88,7 +77,7 @@ async function updateMemberProjectAccess(request: {
     await publishEvent("task.bulk_unassigned", { projectId, userId: actorId });
   }
 
-  return { userId, ...resolution.access };
+  return { userId, ...access };
 }
 
 export default updateMemberProjectAccess;

@@ -1,3 +1,5 @@
+import db from "../database";
+import type { DbOrTx } from "./db-or-tx";
 import { findInaccessibleProjectIds } from "./find-inaccessible-project-ids";
 import { isProjectAccessRestricted } from "./is-project-access-restricted";
 import { findWorkspaceProjectIds } from "./find-workspace-project-ids";
@@ -25,7 +27,9 @@ export async function resolveProjectAccessRequest(request: {
   targetRole: string | null | undefined;
   projectAccess: unknown;
   projectIds: unknown;
+  database?: DbOrTx;
 }): Promise<Resolution> {
+  const database = request.database ?? db;
   const projectAccess = request.projectAccess ?? "all";
   if (!isProjectAccessMode(projectAccess)) {
     return {
@@ -53,14 +57,24 @@ export async function resolveProjectAccessRequest(request: {
   }
 
   if (projectAccess === "all") {
-    if (await isProjectAccessRestricted(request.workspaceId, request.actorId)) {
+    if (
+      await isProjectAccessRestricted(
+        request.workspaceId,
+        request.actorId,
+        database,
+      )
+    ) {
       return { ok: false, status: 403, message: GRANT_DENIED };
     }
     return { ok: true, access: { projectAccess, projectIds: [] } };
   }
 
   const projectIds = [...new Set(rawIds as string[])];
-  const known = await findWorkspaceProjectIds(request.workspaceId, projectIds);
+  const known = await findWorkspaceProjectIds(
+    request.workspaceId,
+    projectIds,
+    database,
+  );
   if (known.length !== projectIds.length) {
     return {
       ok: false,
@@ -69,7 +83,11 @@ export async function resolveProjectAccessRequest(request: {
     };
   }
 
-  const denied = await findInaccessibleProjectIds(request.actorId, projectIds);
+  const denied = await findInaccessibleProjectIds(
+    request.actorId,
+    projectIds,
+    database,
+  );
   if (denied.length > 0) {
     return { ok: false, status: 403, message: GRANT_DENIED };
   }

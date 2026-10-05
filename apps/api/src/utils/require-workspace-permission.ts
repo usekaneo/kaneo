@@ -84,6 +84,17 @@ function satisfies(
   return true;
 }
 
+export async function roleHasWorkspacePermission(
+  workspaceId: string,
+  role: string,
+  permissions: PermissionMap,
+) {
+  const statements =
+    (await customRoleStatements(workspaceId, role)) ??
+    builtInRoleStatements(role);
+  return Boolean(statements && satisfies(statements, permissions));
+}
+
 export async function hasWorkspacePermission(
   c: Context,
   permissions: PermissionMap,
