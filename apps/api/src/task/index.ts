@@ -40,6 +40,7 @@ import createTask from "./controllers/create-task";
 import deleteTask from "./controllers/delete-task";
 import duplicateTask from "./controllers/duplicate-task";
 import exportTasks from "./controllers/export-tasks";
+import getAssignedTasks from "./controllers/get-assigned-tasks";
 import getTaskByTicketId from "./controllers/get-task-by-ticket-id";
 import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
@@ -67,6 +68,7 @@ import {
   getDescriptionPage,
 } from "./description-pages";
 import {
+  assignedTasksSchema,
   boardSchema,
   bulkResultSchema,
   descriptionMatchesSchema,
@@ -74,12 +76,14 @@ import {
   finalizedAssetSchema,
   imageUploadSchema,
   moveTaskResultSchema,
+  taskByTicketIdSchema,
   taskExportSchema,
   taskImportResultSchema,
   taskSchema,
   taskWithAssigneeSchema,
 } from "./response";
 import {
+  assignedTasksQuery,
   bulkUpdateBody,
   createTaskBody,
   descriptionMatchesQuery,
@@ -105,6 +109,28 @@ import {
   updateTaskBody,
   updateTitleBody,
 } from "./schema";
+
+const listAssignedTasksRoute = createRoute({
+  method: "get",
+  operationId: "listAssignedTasks",
+  path: "/assigned",
+  tags: ["Tasks"],
+  summary: "List my assigned tasks",
+  description:
+    "Get the open tasks assigned to the caller across a workspace's active projects. Completed and archived tasks are excluded. Ordered by due date (undated last), then priority. At most 100 tasks are returned; total counts all of them. Set countOnly=true to return just that total without loading task rows or labels.",
+  middleware: [
+    workspaceAccess.fromQuery(),
+    requireWorkspacePermission({ project: ["read"], task: ["read"] }),
+  ] as const,
+  request: { query: assignedTasksQuery },
+  responses: {
+    200: jsonResponse("Open tasks assigned to the caller", assignedTasksSchema),
+    400: errorResponse("Invalid workspace ID or query parameters"),
+    403: errorResponse(
+      "No workspace access, or missing project:read or task:read permission",
+    ),
+  },
+});
 
 const listTasksRoute = createRoute({
   method: "get",
@@ -341,10 +367,10 @@ const getTaskByTicketIdRoute = createRoute({
   tags: ["Tasks"],
   summary: "Get task by ticket ID",
   description:
-    "Get a single task by its project key and number, such as KAN-12. If the ticket ID matches multiple accessible tasks, provide workspaceId or projectId to select one.",
+    "Get a single task by its project key and number, such as KAN-12. A match in an active project takes precedence, then the most recently archived project. If the ticket ID still matches multiple accessible tasks, narrow the lookup to a workspace with workspaceId or workspaceSlug, or to a single project with projectId.",
   request: { params: ticketIdParam, query: ticketIdQuery },
   responses: {
-    200: jsonResponse("Task details", taskWithAssigneeSchema),
+    200: jsonResponse("Task details", taskByTicketIdSchema),
     400: errorResponse("Invalid ticket ID"),
     404: errorResponse("No accessible task has this ticket ID"),
     409: errorResponse("Ticket ID matches multiple accessible tasks"),
@@ -772,6 +798,18 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       200,
     );
   })
+  // Registered ahead of the `/{id}` routes, which would otherwise claim it.
+  .openapi(listAssignedTasksRoute, async (c) => {
+    const { workspaceId, countOnly } = c.req.valid("query");
+    return c.json(
+      await getAssignedTasks(
+        workspaceId,
+        c.get("userId"),
+        countOnly === "true",
+      ),
+      200,
+    );
+  })
   .openapi(listTasksRoute, async (c) => {
     const { projectId } = c.req.valid("param");
     const filters = c.req.valid("query") || {};
@@ -891,14 +929,8 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
   })
   .openapi(getTaskByTicketIdRoute, async (c) => {
     const { ticketId } = c.req.valid("param");
-    const { workspaceId, projectId } = c.req.valid("query");
     return c.json(
-      await getTaskByTicketId(
-        ticketId,
-        c.get("userId"),
-        workspaceId,
-        projectId,
-      ),
+      await getTaskByTicketId(ticketId, c.get("userId"), c.req.valid("query")),
       200,
     );
   })

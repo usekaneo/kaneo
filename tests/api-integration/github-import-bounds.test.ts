@@ -158,6 +158,323 @@ async function saved() {
 }
 
 describe("bounded resumable GitHub import", () => {
+  it.each([false, true])(
+    "fails closed for invalid stored rules (linked=%s)",
+    async (linked) => {
+      const { project, integration, config, request } = await setup();
+      if (linked) {
+        const [task] = await db
+          .insert(schema.taskTable)
+          .values({
+            projectId: project.id,
+            title: "Existing task",
+            number: 1,
+            status: "to-do",
+          })
+          .returning();
+        await db.insert(schema.externalLinkTable).values({
+          taskId: task!.id,
+          integrationId: integration.id,
+          resourceType: "issue",
+          externalId: "1",
+          url: "https://github.com/example/repo/issues/1",
+        });
+      }
+      await db
+        .update(schema.integrationTable)
+        .set({
+          config: JSON.stringify({
+            ...config,
+            syncRules: {
+              outgoing: { mode: "all" },
+              incoming: { mode: "labels", match: "any", labels: [] },
+            },
+          }),
+        })
+        .where(eq(schema.integrationTable.id, integration.id));
+      serveIssues(1);
+      const response = await request();
+      expect(response.status).toBe(200);
+      expect(await response.json()).toMatchObject({ imported: 0, skipped: 1 });
+      const tasks = await db.query.taskTable.findMany();
+      const links = await db.query.externalLinkTable.findMany();
+      expect(tasks).toHaveLength(linked ? 1 : 0);
+      expect(links).toHaveLength(linked ? 1 : 0);
+      if (linked) {
+        expect(tasks[0]?.title).toBe("Existing task");
+        expect(JSON.parse(links[0]!.metadata!)).toMatchObject({
+          syncFilterPaused: true,
+        });
+      }
+    },
+  );
+  it("preserves provider colors when rule checks import labels before the page", async () => {
+    const { member, integration, config, request } = await setup();
+    await db.insert(schema.labelTable).values({
+      workspaceId: member.workspace.id,
+      name: "workspace",
+      color: "#123456",
+    });
+    await db
+      .update(schema.integrationTable)
+      .set({
+        config: JSON.stringify({
+          ...config,
+          syncRules: {
+            outgoing: { mode: "all" },
+            incoming: { mode: "labels", match: "any", labels: ["approved"] },
+          },
+        }),
+      })
+      .where(eq(schema.integrationTable.id, integration.id));
+    const labels = [
+      { name: "approved", color: "abcdef" },
+      { name: "workspace", color: "fedcba" },
+    ];
+    mocks.verify.mockResolvedValue({
+      graphql: mocks.graphql,
+      rest: {
+        issues: {
+          get: async () => ({
+            data: {
+              labels: [
+                ...labels,
+                { name: "scope-only", color: "#654321" },
+                "no-color",
+              ],
+            },
+          }),
+        },
+      },
+    });
+    mocks.graphql.mockImplementation(async (query: string) =>
+      query.includes("query ImportIssues(")
+        ? issuePage([issue(1, { labels: connection(labels) })])
+        : emptyPulls(),
+    );
+    expect((await request()).status).toBe(200);
+    const link = (await db.query.externalLinkTable.findMany())[0]!;
+    const assigned = await db.query.labelTable.findMany({
+      where: eq(schema.labelTable.taskId, link.taskId),
+    });
+    expect(
+      Object.fromEntries(assigned.map(({ name, color }) => [name, color])),
+    ).toEqual({
+      approved: "#abcdef",
+      workspace: "#123456",
+      "scope-only": "#654321",
+      "no-color": "#6B7280",
+    });
+  });
+  it("pauses a newly imported issue that misses the outgoing rule before announcing it", async () => {
+    const { member, integration, config, request } = await setup();
+    const [root] = await db
+      .insert(schema.labelTable)
+      .values({
+        workspaceId: member.workspace.id,
+        name: "export",
+        color: "red",
+      })
+      .returning();
+    await db
+      .update(schema.integrationTable)
+      .set({
+        config: JSON.stringify({
+          ...config,
+          syncRules: {
+            outgoing: { mode: "labels", match: "any", labels: [root.id] },
+            incoming: { mode: "all" },
+          },
+        }),
+      })
+      .where(eq(schema.integrationTable.id, integration.id));
+    mocks.verify.mockResolvedValue({
+      graphql: mocks.graphql,
+      rest: { issues: { get: async () => ({ data: { labels: [] } }) } },
+    });
+    serveIssues(1);
+    expect((await request()).status).toBe(200);
+    const link = (await db.query.externalLinkTable.findMany())[0]!;
+    expect(JSON.parse(link.metadata!)).toMatchObject({
+      syncFilterPaused: true,
+    });
+  });
+
+  it.each(["new", "legacy-new", "legacy-existing"])(
+    "preserves %s issue history across import requests",
+    async (history) => {
+      const { member, project, integration, config } = await setup();
+      const existing = history === "legacy-existing";
+      if (existing) {
+        const [task] = await db
+          .insert(schema.taskTable)
+          .values({
+            projectId: project.id,
+            number: 1,
+            title: "Existing imported task",
+            status: "to-do",
+          })
+          .returning();
+        await db.insert(schema.externalLinkTable).values({
+          taskId: task.id,
+          integrationId: integration.id,
+          resourceType: "issue",
+          externalId: "1",
+          url: "https://github.com/example/repo/issues/1",
+          createdAt: new Date(old),
+          metadata: JSON.stringify({ createdFrom: "github-import" }),
+        });
+      }
+      const [root] = await db
+        .insert(schema.labelTable)
+        .values({
+          workspaceId: member.workspace.id,
+          name: "export",
+          color: "red",
+        })
+        .returning();
+      await db
+        .update(schema.integrationTable)
+        .set({
+          config: JSON.stringify({
+            ...config,
+            syncRules: {
+              outgoing: existing
+                ? { mode: "all" }
+                : { mode: "labels", match: "any", labels: [root.id] },
+              incoming: { mode: "all" },
+            },
+          }),
+        })
+        .where(eq(schema.integrationTable.id, integration.id));
+      mocks.verify.mockResolvedValue({
+        graphql: mocks.graphql,
+        rest: { issues: { get: async () => ({ data: { labels: [] } }) } },
+      });
+      const comments = Array.from({ length: 85 }, (_, index) => comment(index));
+      mocks.graphql.mockImplementation(
+        async (query: string, vars: { cursor: string | null }) => {
+          if (query.includes("query ImportIssues("))
+            return issuePage([
+              issue(1, {
+                comments: connection(
+                  comments.slice(0, 20),
+                  true,
+                  "20",
+                  comments.length,
+                ),
+              }),
+            ]);
+          if (query.includes("query ImportIssueComments(")) {
+            const start = Number(vars.cursor);
+            const end = Math.min(start + 20, comments.length);
+            return {
+              repository: {
+                databaseId: 2,
+                issue: {
+                  comments: connection(
+                    comments.slice(start, end),
+                    end < comments.length,
+                    String(end),
+                    comments.length,
+                  ),
+                },
+              },
+            };
+          }
+          return emptyPulls();
+        },
+      );
+      let result = await importIssues(project.id);
+      expect(result).toMatchObject({
+        pending: true,
+        imported: existing ? 0 : 1,
+        updated: existing ? 1 : 0,
+        skipped: 0,
+      });
+      expect(
+        JSON.parse((await db.query.externalLinkTable.findFirst())!.metadata!)
+          .syncFilterPaused === true,
+      ).toBe(!existing);
+      const initialComments = (await db.query.activityTable.findMany()).length;
+      if (history !== "new") {
+        const persisted = (await saved())!;
+        delete persisted.state.currentIssue!.isNewTask;
+        await db
+          .update(schema.githubImportTable)
+          .set({ state: persisted.state })
+          .where(eq(schema.githubImportTable.integrationId, integration.id));
+      }
+      if (existing)
+        await db
+          .update(schema.integrationTable)
+          .set({
+            config: JSON.stringify({
+              ...config,
+              syncRules: {
+                outgoing: { mode: "labels", match: "any", labels: [root.id] },
+                incoming: { mode: "all" },
+              },
+            }),
+          })
+          .where(eq(schema.integrationTable.id, integration.id));
+      result = await importIssues(project.id, result.runId);
+      expect(result).toMatchObject({
+        pending: false,
+        imported: existing ? 0 : 1,
+        updated: existing ? 1 : 0,
+        skipped: existing ? 1 : 0,
+      });
+      expect(await db.query.activityTable.findMany()).toHaveLength(
+        existing ? initialComments : comments.length,
+      );
+      expect(
+        JSON.parse((await db.query.externalLinkTable.findFirst())!.metadata!),
+      ).toMatchObject({ syncFilterPaused: true });
+      expect(await importIssues(project.id)).toMatchObject({
+        pending: false,
+        imported: 0,
+        skipped: 1,
+      });
+      expect(await db.query.activityTable.findMany()).toHaveLength(
+        existing ? initialComments : comments.length,
+      );
+    },
+  );
+  it("rejects an incoming rule change while fetching a page before creating tasks or consuming its cursor", async () => {
+    const { integration, config, request } = await setup();
+    const started = deferred();
+    const release = deferred();
+    mocks.graphql.mockImplementationOnce(async () => {
+      started.resolve();
+      await release.promise;
+      return issuePage([issue(1)], true, "first", 2);
+    });
+    const importing = request();
+    await started.promise;
+    await db
+      .update(schema.integrationTable)
+      .set({
+        config: JSON.stringify({
+          ...config,
+          syncRules: {
+            outgoing: { mode: "all" },
+            incoming: { mode: "labels", labels: ["approved"], match: "any" },
+          },
+        }),
+      })
+      .where(eq(schema.integrationTable.id, integration.id));
+    release.resolve();
+    expect((await importing).status).toBe(409);
+    expect(await db.query.taskTable.findMany()).toHaveLength(0);
+    expect(await db.query.externalLinkTable.findMany()).toHaveLength(0);
+    expect((await saved())?.state).toMatchObject({
+      phase: "issues",
+      issueCursor: null,
+      imported: 0,
+    });
+  });
+
   it("bounds each HTTP step, persists resumable state, imports every issue and retries completion without restarting", async () => {
     const { request, app, project } = await setup();
     serveIssues(9);
@@ -688,6 +1005,74 @@ describe("bounded resumable GitHub import", () => {
     });
     expect(mocks.publish).toHaveBeenCalledTimes(1);
   });
+
+  it.each(["excluded", "paused"])(
+    "imports pull request links for tasks with %s issue sync",
+    async (scope) => {
+      const { project, integration, config } = await setup();
+      const [task] = await db
+        .insert(schema.taskTable)
+        .values({
+          projectId: project.id,
+          number: 1,
+          title: "Existing task",
+          status: "to-do",
+        })
+        .returning();
+      if (scope === "excluded")
+        await db
+          .update(schema.integrationTable)
+          .set({
+            config: JSON.stringify({
+              ...config,
+              syncRules: {
+                outgoing: { mode: "labels", match: "any", labels: ["missing"] },
+                incoming: { mode: "all" },
+              },
+            }),
+          })
+          .where(eq(schema.integrationTable.id, integration.id));
+      else
+        await db.insert(schema.externalLinkTable).values({
+          taskId: task!.id,
+          integrationId: integration.id,
+          resourceType: "issue",
+          externalId: "1",
+          url: "https://github.com/example/repo/issues/1",
+          metadata: JSON.stringify({ syncFilterPaused: true }),
+        });
+      mocks.graphql.mockImplementation(async (query: string) => {
+        if (query.includes("query ImportIssues(")) return issuePage([]);
+        return {
+          repository: {
+            databaseId: 2,
+            pullRequests: connection([
+              {
+                number: 5,
+                title: `${project.slug.toUpperCase()}-1`,
+                body: null,
+                url: "https://github.com/example/repo/pull/5",
+                state: "OPEN",
+                createdAt: old,
+                headRefName: `${project.slug.toLowerCase()}-1`,
+                author: null,
+              },
+            ]),
+          },
+        };
+      });
+      expect((await importIssues(project.id)).pending).toBe(false);
+      expect(
+        await db.query.externalLinkTable.findFirst({
+          where: eq(schema.externalLinkTable.resourceType, "pull_request"),
+        }),
+      ).toMatchObject({
+        taskId: task!.id,
+        integrationId: integration.id,
+        externalId: "5",
+      });
+    },
+  );
 
   it("continues all pull request pages and links only matching tasks in this project", async () => {
     const { project, integration } = await setup();

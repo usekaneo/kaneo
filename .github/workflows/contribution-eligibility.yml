@@ -1,0 +1,64 @@
+name: Contribution eligibility
+
+on:
+  # zizmor: ignore[dangerous-triggers] Only executes policy code from main;
+  # never checks out or executes pull-request content.
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened, ready_for_review, closed]
+  issues:
+    types: [labeled, unlabeled, closed, reopened, deleted, transferred]
+  label:
+    types: [edited, deleted]
+  # zizmor: ignore[dangerous-triggers] Reads GitHub metadata and trusted main
+  # code only; does not consume artifacts or code from the triggering run.
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+  push:
+    branches: [main]
+    paths:
+      - .github/contribution-policy.json
+      - .github/workflows/contribution-eligibility.yml
+      - scripts/contribution-eligibility/**
+  # Manual sidebar links and permission changes have no matching Actions event.
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+  checks: write
+
+jobs:
+  reconcile:
+    # Dependabot-triggered runs may receive a read-only token. CI completion
+    # rechecks its PR using a token issued in the trusted workflow context.
+    if: >-
+      (github.event_name != 'pull_request_target' || github.actor != 'dependabot[bot]') &&
+      (github.event_name != 'workflow_run' || github.event.workflow_run.actor.login == 'dependabot[bot]')
+    # Skipped CI-completion events must not replace queued policy rechecks.
+    concurrency:
+      group: contribution-eligibility
+      cancel-in-progress: false
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 15
+    steps:
+      - name: Check out current trusted policy
+        uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
+        with:
+          # Always read the latest policy, including when an older run is queued.
+          ref: main
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.19.0
+          package-manager-cache: false
+
+      - name: Check open pull requests
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/contribution-eligibility/check.mjs

@@ -153,7 +153,8 @@
 					"terracotta": "Terracota",
 					"rose": "Rosa",
 					"crimson": "Carmesí"
-				}
+				},
+				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
 		},
 		"boolean": {
@@ -423,6 +424,7 @@
 		}
 	},
 	"settings": {
+		"advancedSettings": "Configuración avanzada",
 		"account": "Cuenta",
 		"developer": "Desarrollador",
 		"information": "Información",
@@ -700,7 +702,14 @@
 			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook.",
 			"mattermostSectionTitle": "Mattermost Integration",
 			"gitlabSectionSubtitle": "Synchronize tasks with GitLab.com or a self-managed instance (issues, merge requests, webhooks).",
-			"gitlabSectionTitle": "GitLab Integration"
+			"gitlabSectionTitle": "GitLab Integration",
+			"codeHostingTitle": "Alojamiento de código",
+			"chatTitle": "Chat y webhooks",
+			"statusConnected": "Conectado",
+			"statusPaused": "En pausa",
+			"connect": "Conectar",
+			"configure": "Configurar",
+			"done": "Listo"
 		},
 		"projectVisibility": {
 			"pageTitle": "Visibilidad del Proyecto",
@@ -1871,7 +1880,67 @@
 				"viewPlans": "View plans"
 			},
 			"openFailed": "Couldn't open billing for this workspace"
-		}
+		},
+		"syncRules": {
+			"addLabel": "Add label",
+			"advancedHint": "Enable Advanced settings in Preferences to edit these rules.",
+			"all": "All tasks and issues",
+			"allSummary": "All of: {{labels}}",
+			"any": "Any selected label",
+			"anySummary": "Any of: {{labels}}",
+			"apply": "Apply sync rules",
+			"closed": "Closed",
+			"every": "All selected labels",
+			"excluded": "Outside the current rule",
+			"filtered": "Only matching labels",
+			"filteredBadge": "Filtered by labels",
+			"impact": "{{matching}} of {{total}} tasks match. {{create}} tasks will be exported, {{pause}} links will pause, and {{review}} links need review to resume.",
+			"impactTitle": "What will change",
+			"incoming": "Repository → Kaneo",
+			"incomingHint": "Choose which issues can be imported or create tasks. Use exact repository label names. Existing links follow the Kaneo task rule.",
+			"loadError": "Sync rules could not be loaded.",
+			"loading": "Loading sync rules…",
+			"matchLabels": "Label matching",
+			"missingLabels": "A selected workspace label is unavailable. Sync stays paused until the rule is repaired.",
+			"removeMissingLabels": "Eliminar etiquetas no disponibles",
+			"next": "Next",
+			"noDescription": "No description",
+			"noLabels": "Create workspace labels before configuring a task filter.",
+			"open": "Open",
+			"outgoing": "Kaneo → repository",
+			"outgoingHint": "Choose which Kaneo tasks can sync. Losing a matching label pauses both directions for an existing task.",
+			"paused": "Sync paused",
+			"pausedCount_many": "{{count}} paused links",
+			"pausedCount_one": "{{count}} paused link",
+			"pausedCount_other": "{{count}} paused links",
+			"pausedHint": "Records and links are preserved. Tasks that match again need review before syncing resumes.",
+			"preserveHint": "Pausing keeps both records and their link. Resuming requires a comparison; historical comments are never replayed.",
+			"previewing": "Checking sync impact…",
+			"previous": "Previous",
+			"refreshComparison": "Refresh comparison",
+			"refreshPreview": "Refresh preview",
+			"removeLabel": "Remove {{name}}",
+			"repository": "Repository",
+			"repositoryLabel": "Repository label name",
+			"resumeError": "Could not resume. The task, issue or rule may have changed, or the provider is unavailable. Sync remains paused; refresh the comparison.",
+			"review": "Review and resume",
+			"reviewHint": "Compare the current title, description and open/closed state. Choose which side to keep for these fields. Labels and historical comments remain unchanged.",
+			"reviewRequired": "Matches the rule · review required",
+			"reviewTitle": "Review before resuming sync",
+			"saved": "Sync rules saved",
+			"saveError": "Could not apply these rules. The integration or task scope may have changed. Refresh the preview and try again.",
+			"selectLabel": "Select at least one label to preview this rule.",
+			"sharedHint": "These rules apply to everyone using this project. Hiding advanced settings does not disable them.",
+			"title": "Sync scope",
+			"unavailableLabel": "Unavailable label",
+			"useKaneo": "Keep Kaneo values",
+			"useRepository": "Keep repository values",
+			"exportPending": "Export matching tasks",
+			"inactiveHint": "This integration is paused. No tasks will be exported until it is reactivated.",
+			"loadSavedRules": "Load saved rules",
+			"rulesChanged": "The saved rules changed while you were editing. Your draft is preserved. Review the current rules above before applying it, or load the saved rules."
+		},
+		"advancedSettingsDescription": "A personal display preference for this browser across all your workspaces."
 	},
 	"navigation": {
 		"commandPalette": {
@@ -1895,14 +1964,16 @@
 				"close": "Cerrar"
 			}
 		},
-		"notifications": "Notificaciones",
 		"sidebar": {
-			"overview": "Vista general",
 			"projects": "Proyectos",
 			"members": "Miembros",
 			"invitations": "Invitaciones",
 			"more": "Más",
-			"backToBoard": "Volver al tablero"
+			"backToBoard": "Volver al tablero",
+			"home": "Home",
+			"inbox": "Inbox",
+			"invitePeople": "Invite people",
+			"myTasks": "My tasks"
 		},
 		"projectList": {
 			"viewProject": "Ver Proyecto",
@@ -1987,7 +2058,6 @@
 		}
 	},
 	"notifications": {
-		"title": "Notificationes",
 		"newCount_one": "{{count}} nueva",
 		"newCount_other": "{{count}} nuevas",
 		"emptyTitle": "Ninguna notificación todavía",
@@ -1995,9 +2065,6 @@
 		"clearAll": "Borrar todas las notificaciones",
 		"clearDialogTitle": "¿Borrar notificaciones?",
 		"clearDialogDescription": "Esto eliminará todas las notificaciones. Esta acción no puede deshacerse.",
-		"shortcuts": {
-			"open": "Abrir notificaciones"
-		},
 		"events": {
 			"task_created": {
 				"title": "Se ha creado una nueva tarea",
@@ -2048,7 +2115,27 @@
 			"hours_many": "{{count}} horas",
 			"minutes_many": "{{count}} minutos"
 		},
-		"newCount_many": "{{count}} nuevas"
+		"newCount_many": "{{count}} nuevas",
+		"inbox": {
+			"back": "Inbox",
+			"earlier": "Earlier",
+			"emptyFilter": "Nothing here",
+			"filters": {
+				"all": "All",
+				"label": "Filter notifications",
+				"mentions": "Mentions",
+				"unread": "Unread"
+			},
+			"openTask": "Open task",
+			"pageTitle": "Inbox",
+			"recentActivity": "Recent activity",
+			"selectPrompt": "Select a notification to read it",
+			"taskUnavailable": "This task is no longer available.",
+			"today": "Today",
+			"unread": "Unread",
+			"loadError": "Notifications couldn't be loaded.",
+			"taskLoadError": "This task couldn’t be loaded."
+		}
 	},
 	"activity": {
 		"assignedToSelf": "se ha asignado la tarea a sí mismo",
@@ -2193,6 +2280,9 @@
 			"loadingTask": "Cargando tarea...",
 			"taskNotFound": "Tarea no encontrada",
 			"taskNotFoundDescription": "La tarea que buscas no existe o ha sido eliminada.",
+			"ticketAmbiguous": "El ID coincide con más de una tarea",
+			"ticketAmbiguousDescription": "{{ticketId}} coincide con tareas de más de un proyecto en este espacio de trabajo. Asigna una clave diferente a uno de esos proyectos para que el enlace funcione.",
+			"ticketNotFoundDescription": "No existe ninguna tarea con el ID {{ticketId}} en este espacio de trabajo, o no tienes acceso a ella.",
 			"customFields": "Custom Fields"
 		},
 		"detail": {
@@ -2719,6 +2809,65 @@
 			"submit": "Crear espacio de trabajo",
 			"success": "Espacio de trabajo creado correctamente",
 			"error": "Error al crear espacio de trabajo"
+		},
+		"home": {
+			"activity": {
+				"commented": "commented",
+				"empty": "Nothing has happened in the last 30 days.",
+				"loadError": "Activity couldn't be loaded.",
+				"title": "Activity",
+				"updated": "updated the task"
+			},
+			"greeting": {
+				"afternoon": "Good afternoon",
+				"evening": "Good evening",
+				"morning": "Good morning"
+			},
+			"newTask": "New task",
+			"pageTitle": "Home",
+			"projects": {
+				"all": "All projects",
+				"tasks_many": "{{count}} tasks",
+				"tasks_one": "{{count}} task",
+				"tasks_other": "{{count}} tasks",
+				"title": "Your projects",
+				"loadError": "Projects couldn't be loaded."
+			},
+			"upNext": {
+				"assigned_many": "{{count}} assigned to you",
+				"assigned_one": "{{count}} assigned to you",
+				"assigned_other": "{{count}} assigned to you",
+				"title": "Up next",
+				"viewAll": "View all"
+			},
+			"week": {
+				"more_many": "+{{count}} more",
+				"more_one": "+{{count}} more",
+				"more_other": "+{{count}} more",
+				"truncated": "The week preview includes only the first {{shown}} of {{total}} assigned tasks."
+			}
+		},
+		"myTasks": {
+			"emptyDescription": "Tasks assigned to you across this workspace show up here.",
+			"groupBy": {
+				"dueDate": "Due date",
+				"label": "Group by",
+				"project": "Project"
+			},
+			"pageTitle": "My tasks",
+			"truncated": "Showing the first {{shown}} of {{total}} tasks."
+		},
+		"myWork": {
+			"due": {
+				"later": "Later",
+				"noDueDate": "No due date",
+				"overdue": "Overdue",
+				"thisWeek": "This week",
+				"today": "Today",
+				"tomorrow": "Tomorrow"
+			},
+			"empty": "Nothing assigned to you",
+			"loadError": "Your tasks couldn't be loaded."
 		}
 	},
 	"team": {
@@ -2887,6 +3036,7 @@
 			"guides": "Guides",
 			"comparisons": "Compare tools",
 			"roadmap": "Roadmap",
+			"community": "Comunidad",
 			"menu": "Menu",
 			"closeMenu": "Close menu",
 			"home": "Kaneo home",

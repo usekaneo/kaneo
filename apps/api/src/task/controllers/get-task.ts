@@ -22,10 +22,10 @@ async function getTask(taskId: string, board = false) {
       ...(board
         ? {
             descriptionDeferred,
-            workspaceId: sql<string>`(select ${projectTable.workspaceId} from ${projectTable} where ${projectTable.id} = ${taskTable.projectId})`,
           }
         : {}),
       status: taskTable.status,
+      columnId: taskTable.columnId,
       priority: taskTable.priority,
       startDate: taskTable.startDate,
       dueDate: taskTable.dueDate,
@@ -35,6 +35,7 @@ async function getTask(taskId: string, board = false) {
       assigneeName: userTable.name,
       assigneeId: userTable.id,
       projectId: taskTable.projectId,
+      workspaceId: sql<string>`(select ${projectTable.workspaceId} from ${projectTable} where ${projectTable.id} = ${taskTable.projectId})`,
     })
     .from(taskTable)
     .leftJoin(userTable, eq(taskTable.userId, userTable.id))
@@ -47,8 +48,9 @@ async function getTask(taskId: string, board = false) {
     });
   }
 
+  if (!board) return task[0];
   const { workspaceId, ...result } = task[0];
-  if (!board || !workspaceId) return result;
+  if (!workspaceId) return result;
   const parent = alias(taskTable, "parent");
   const parents = await db
     .selectDistinct({ id: parent.id })

@@ -207,6 +207,9 @@ export async function handleGiteaIssueEdited(
                 publishEvent("task.updated", {
                   projectId: integration.projectId,
                   taskId: externalLink.taskId,
+                  ...(typeof updateData.title === "string"
+                    ? { titleChanged: true }
+                    : {}),
                 }),
               );
             }

@@ -195,6 +195,77 @@ describe("extractTaskNumberFromPRBody", () => {
   });
 
   it.each([
+    "https://kaneo.example.com/acme/task/KAN-42",
+    "https://kaneo.example.com/acme/task/KAN-42/fix-kan-7-login",
+    "[Task](https://kaneo.example.com/acme/task/kan-42/fix-login)",
+  ])("recognizes the short task link %s", (body) => {
+    expect(extractTaskNumberFromPRBody(body, "KAN")).toBe(42);
+  });
+
+  it("ignores a workspace slug that looks like a ticket ID", () => {
+    expect(
+      extractTaskNumberFromPRBody(
+        "See https://kaneo.example.com/kan-42/task/OPS-5/fix-login",
+        "KAN",
+      ),
+    ).toBeNull();
+    expect(
+      extractTaskNumberFromPRBody(
+        "See https://kaneo.example.com/KAN-42/task/OPS-5.",
+        "KAN",
+      ),
+    ).toBeNull();
+  });
+
+  it("reads a short link that ends a sentence", () => {
+    expect(
+      extractTaskNumberFromPRBody(
+        "Fixes https://kaneo.example.com/acme/task/KAN-42.",
+        "KAN",
+      ),
+    ).toBe(42);
+  });
+
+  it("ignores the project key in another project's link title", () => {
+    expect(
+      extractTaskNumberFromPRBody(
+        "See https://kaneo.example.com/acme/task/OPS-5/kan-7-follow-up",
+        "KAN",
+      ),
+    ).toBeNull();
+  });
+
+  it("does not join text around a link into a task marker", () => {
+    expect(
+      extractTaskNumberFromPRBody("Task https://example.com 123", "KAN"),
+    ).toBeNull();
+  });
+
+  it("ignores task markers inside another project's link", () => {
+    expect(
+      extractTaskNumberFromPRBody(
+        "See https://kaneo.example.com/acme/task/OPS-5/fix-task-3-sorting",
+        "KAN",
+      ),
+    ).toBeNull();
+    expect(
+      extractTaskNumberFromPRBody(
+        "task: 7, see https://kaneo.example.com/acme/task/OPS-5/fix-task-3",
+        "KAN",
+      ),
+    ).toBe(7);
+  });
+
+  it("recognizes a short task link with a non-Latin project key", () => {
+    expect(
+      extractTaskNumberFromPRBody(
+        "https://kaneo.example.com/acme/task/ПРО-42/fix-login",
+        "ПРО",
+      ),
+    ).toBe(42);
+  });
+
+  it.each([
     "Closes #61",
     "Fixes #61",
     "Resolves #61",

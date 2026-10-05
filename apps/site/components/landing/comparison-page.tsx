@@ -273,6 +273,15 @@ export function ComparisonPage({ data }: { data: Comparison }) {
                         Kaneo vs {entry.competitor}
                       </a>
                     ))}
+                    {data.guides?.map((guide) => (
+                      <a
+                        key={guide.href}
+                        className="inline-flex min-h-11 items-center rounded-lg border border-border/70 px-3 py-2 text-muted-foreground text-sm transition-colors focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-4 hover:bg-accent hover:text-foreground"
+                        href={guide.href}
+                      >
+                        {guide.label}
+                      </a>
+                    ))}
                     <a
                       className="inline-flex min-h-11 items-center rounded-lg border border-border/70 px-3 py-2 text-muted-foreground text-sm transition-colors focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-4 hover:bg-accent hover:text-foreground"
                       href="/alternatives"

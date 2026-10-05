@@ -35,7 +35,7 @@ export function SubscriptionCard({
   const renews = formatBillingDate(billing.currentPeriodEnd);
 
   return (
-    <div className="rounded-md border border-border bg-sidebar">
+    <div className="rounded-xl border border-border bg-card">
       <div className="flex flex-wrap items-start justify-between gap-4 p-5">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">

@@ -8,6 +8,7 @@ Thanks for wanting to contribute to Kaneo! Whether you're fixing bugs, adding fe
 - [Getting Started](#getting-started)
 - [Making Your First Contribution](#making-your-first-contribution)
   - [Finding Something to Work On](#finding-something-to-work-on)
+  - [Contribution Eligibility](#contribution-eligibility)
   - [The Process](#the-process)
 - [Development Guidelines](#development-guidelines)
   - [Code Style](#code-style)
@@ -36,9 +37,82 @@ Follow the [local development setup guide](ENVIRONMENT_SETUP.md) for prerequisit
 
 ### Finding Something to Work On
 
-- **Browse [open issues](https://github.com/usekaneo/kaneo/issues)** - look for "good first issue" labels
+- **Browse [issues ready for contribution](https://github.com/usekaneo/kaneo/issues?q=is%3Aissue%20is%3Aopen%20label%3Aready-for-contribution)** - the "good first issue" ones are a nice place to start
 - **Check our [Discord](https://discord.gg/rU4tSyhXXU)** - we often discuss features and bugs there
-- **Found a bug?** Feel free to fix it and open a PR
+- **Found a bug?** Open an issue first and wait for a maintainer to give the go-ahead before sending a PR (unless you're [exempt](#contribution-eligibility))
+
+### Contribution Eligibility
+
+Please talk to us before you start writing code. Find or open an issue and
+agree on the scope with a maintainer. Unless someone has vouched for you, your
+PR needs to link an open issue in this repo with the **`ready-for-contribution`**
+label. Opening an issue yourself isn't approval; a maintainer adds the label
+once the work is agreed.
+
+Link the issue in your PR description with `Fixes #123` or `Closes #123`.
+GitHub only picks those up for PRs against the default branch, so for other
+branches a maintainer can link the issue from the PR's Development sidebar.
+Just mentioning it (`See #123`) isn't enough.
+
+You can skip the issue if you're a repo admin, have the **maintain** role, have
+been vouched for, or are an approved bot. A voucher is tied to one GitHub
+account, can't be handed to someone else, and only skips the issue step.
+Everyone still goes through code review, CI, and the [AI policy](AI_POLICY.md).
+Past contributions or org membership don't earn a voucher automatically.
+
+The **Contribution eligibility** check on your PR tells you where you stand. If
+it fails, link an approved issue or ask a maintainer to vouch for you.
+
+The check reruns when you edit the PR description or push commits, when an
+issue gains or loses the label, and when the voucher list changes. It can't
+react to sidebar links or permission changes, so an hourly scheduled run picks
+those up (GitHub sometimes runs these late). Maintainers can also trigger the
+workflow by hand. Dependabot PRs are checked after their CI run finishes,
+because bot-triggered workflows may only get read-only tokens.
+
+Once the check is required, a failing result blocks merging. It won't stop
+anyone from opening a PR, and it never closes one.
+
+#### Managing Vouchers
+
+Vouchers live in
+[`.github/contribution-policy.json`](.github/contribution-policy.json). To vouch
+for someone, add them to `vouchedContributors` in a PR to `main`. To revoke,
+remove them. Review these changes the same way you'd review code.
+
+```json
+{
+  "id": 123456789,
+  "login": "example-contributor",
+  "reason": "Consistently submits focused changes and follows through on review."
+}
+```
+
+Get the numeric ID with `gh api users/USERNAME --jq '{id,login}'`. Only the ID
+matters for eligibility; `login` and `reason` are there so people can tell who
+it is and why. That way a renamed account keeps its voucher, and whoever grabs
+an old username doesn't inherit it.
+
+Bots go in `exemptBots`. For now that's just Dependabot.
+
+To turn on enforcement once this workflow is on `main`:
+
+1. Create the `ready-for-contribution` label and only put it on work you've agreed to.
+2. Run the **Contribution eligibility** workflow once so it checks PRs that are already open.
+3. In the branch rules for `main`, require the **Contribution eligibility**
+   status check with GitHub Actions as the source. Do the same for any other
+   protected branches people contribute to. Don't pick the workflow's
+   `reconcile` job: the script publishes its own check on each PR's head
+   commit, and that's the one to require.
+
+The automation only reads code and policy from `main`, relies on GitHub's own
+issue links, and never runs anything from the PR. Once it lists the open PRs
+and publishes pending checks, a broken policy or an eligibility lookup error
+fails the affected checks. If GitHub cannot list PRs or accept check updates,
+the workflow fails but earlier check results can remain unchanged, including
+successful ones. Maintainers must inspect failed workflow runs and rerun them
+after GitHub recovers before relying on those results. Revoking a voucher,
+removing the label, or closing the issue all trigger a recheck of open PRs.
 
 ### The Process
 
@@ -63,7 +137,8 @@ git commit -m "docs: update deployment guide"
 git push origin your-branch-name
 ```
 
-Then open a pull request on GitHub with a clear description of what you changed and why.
+Then open a pull request on GitHub that explains what you changed and why. Link
+the approved issue too, unless you're exempt.
 
 ## Development Guidelines
 
@@ -207,7 +282,7 @@ Please read and follow our [AI Contribution Policy](AI_POLICY.md), which adopts 
 
 ## Types of Contributions We Love
 
-- **Bug fixes** - Found something broken? Fix it!
+- **Bug fixes** - Found something broken? Open an issue so we can agree on the fix
 - **New features** - Have an idea? Let's discuss it first
 - **Documentation** - Help others understand how to use Kaneo
 - **Performance improvements** - Make things faster

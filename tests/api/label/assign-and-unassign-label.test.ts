@@ -23,6 +23,7 @@ function createMockTxContext() {
     insert: (...args: unknown[]) => mockInsert(...args),
     delete: (...args: unknown[]) => mockDelete(...args),
     query: {
+      taskTable: { findFirst: async () => ({ projectId: "proj-1" }) },
       labelTable: {
         findFirst: (...args: unknown[]) => mockFindFirst(...args),
       },
@@ -37,6 +38,7 @@ const mockTransaction = vi.fn(async (cb: (tx: unknown) => unknown) =>
 vi.mock("../../../apps/api/src/database", () => ({
   default: {
     query: {
+      taskTable: { findFirst: async () => ({ projectId: "proj-1" }) },
       labelTable: {
         findFirst: (...args: unknown[]) => mockFindFirst(...args),
       },
@@ -144,6 +146,7 @@ describe("unassignLabelFromTask", () => {
     mockSelect.mockReturnValue(makeSelectMock([TASK]));
     mockDelete.mockReturnValue(makeDeleteMock(TASK_LABEL));
     mockRemoveLabelFromGitHub.mockResolvedValue(undefined);
+    mockRemoveLabelFromGitea.mockResolvedValue(undefined);
 
     await unassignLabelFromTask("label-task-1", "user-1");
 
@@ -163,6 +166,7 @@ describe("unassignLabelFromTask", () => {
     mockSelect.mockReturnValue(makeSelectMock([TASK]));
     mockDelete.mockReturnValue(makeDeleteMock(TASK_LABEL));
     mockRemoveLabelFromGitHub.mockResolvedValue(undefined);
+    mockRemoveLabelFromGitea.mockResolvedValue(undefined);
 
     await unassignLabelFromTask("label-task-1", "user-1");
 
@@ -258,6 +262,10 @@ describe("assignLabelToTask", () => {
 
     await assignLabelToTask("label-task-1", "task-1", "user-1");
 
+    expect(mockPublishEvent).toHaveBeenCalledWith("task.labels_updated", {
+      projectId: "proj-1",
+      taskId: "task-old",
+    });
     expect(mockRemoveLabelFromGitHub).toHaveBeenCalledWith("task-old", "bug");
     expect(mockRemoveLabelFromGitea).toHaveBeenCalledWith("task-old", "bug");
     expect(mockSyncLabelToGitHub).toHaveBeenCalledWith(
@@ -345,3 +353,11 @@ describe("assignLabelToTask", () => {
     expect(mockInsert).not.toHaveBeenCalled();
   });
 });
+
+vi.mock(
+  "../../../apps/api/src/plugins/gitlab/utils/sync-label-to-gitlab",
+  () => ({
+    removeLabelFromGitlab: async () => undefined,
+    syncLabelToGitlab: async () => undefined,
+  }),
+);

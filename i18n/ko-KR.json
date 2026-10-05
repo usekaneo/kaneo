@@ -153,7 +153,8 @@
 					"terracotta": "테라코타",
 					"rose": "로즈",
 					"crimson": "크림슨"
-				}
+				},
+				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
 		},
 		"boolean": {
@@ -421,6 +422,7 @@
 		}
 	},
 	"settings": {
+		"advancedSettings": "고급 설정",
 		"account": "계정",
 		"developer": "개발자",
 		"information": "정보",
@@ -802,7 +804,14 @@
 			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook.",
 			"mattermostSectionTitle": "Mattermost Integration",
 			"gitlabSectionSubtitle": "Synchronize tasks with GitLab.com or a self-managed instance (issues, merge requests, webhooks).",
-			"gitlabSectionTitle": "GitLab Integration"
+			"gitlabSectionTitle": "GitLab Integration",
+			"codeHostingTitle": "코드 호스팅",
+			"chatTitle": "채팅 및 웹훅",
+			"statusConnected": "연결됨",
+			"statusPaused": "일시 중지됨",
+			"connect": "연결",
+			"configure": "구성",
+			"done": "완료"
 		},
 		"projectVisibility": {
 			"pageTitle": "프로젝트 공개 설정",
@@ -1857,7 +1866,65 @@
 				"viewPlans": "View plans"
 			},
 			"openFailed": "Couldn't open billing for this workspace"
-		}
+		},
+		"syncRules": {
+			"addLabel": "Add label",
+			"advancedHint": "Enable Advanced settings in Preferences to edit these rules.",
+			"all": "All tasks and issues",
+			"allSummary": "All of: {{labels}}",
+			"any": "Any selected label",
+			"anySummary": "Any of: {{labels}}",
+			"apply": "Apply sync rules",
+			"closed": "Closed",
+			"every": "All selected labels",
+			"excluded": "Outside the current rule",
+			"filtered": "Only matching labels",
+			"filteredBadge": "Filtered by labels",
+			"impact": "{{matching}} of {{total}} tasks match. {{create}} tasks will be exported, {{pause}} links will pause, and {{review}} links need review to resume.",
+			"impactTitle": "What will change",
+			"incoming": "Repository → Kaneo",
+			"incomingHint": "Choose which issues can be imported or create tasks. Use exact repository label names. Existing links follow the Kaneo task rule.",
+			"loadError": "Sync rules could not be loaded.",
+			"loading": "Loading sync rules…",
+			"matchLabels": "Label matching",
+			"missingLabels": "A selected workspace label is unavailable. Sync stays paused until the rule is repaired.",
+			"removeMissingLabels": "사용할 수 없는 라벨 제거",
+			"next": "Next",
+			"noDescription": "No description",
+			"noLabels": "Create workspace labels before configuring a task filter.",
+			"open": "Open",
+			"outgoing": "Kaneo → repository",
+			"outgoingHint": "Choose which Kaneo tasks can sync. Losing a matching label pauses both directions for an existing task.",
+			"paused": "Sync paused",
+			"pausedCount_other": "{{count}} paused links",
+			"pausedHint": "Records and links are preserved. Tasks that match again need review before syncing resumes.",
+			"preserveHint": "Pausing keeps both records and their link. Resuming requires a comparison; historical comments are never replayed.",
+			"previewing": "Checking sync impact…",
+			"previous": "Previous",
+			"refreshComparison": "Refresh comparison",
+			"refreshPreview": "Refresh preview",
+			"removeLabel": "Remove {{name}}",
+			"repository": "Repository",
+			"repositoryLabel": "Repository label name",
+			"resumeError": "Could not resume. The task, issue or rule may have changed, or the provider is unavailable. Sync remains paused; refresh the comparison.",
+			"review": "Review and resume",
+			"reviewHint": "Compare the current title, description and open/closed state. Choose which side to keep for these fields. Labels and historical comments remain unchanged.",
+			"reviewRequired": "Matches the rule · review required",
+			"reviewTitle": "Review before resuming sync",
+			"saved": "Sync rules saved",
+			"saveError": "Could not apply these rules. The integration or task scope may have changed. Refresh the preview and try again.",
+			"selectLabel": "Select at least one label to preview this rule.",
+			"sharedHint": "These rules apply to everyone using this project. Hiding advanced settings does not disable them.",
+			"title": "Sync scope",
+			"unavailableLabel": "Unavailable label",
+			"useKaneo": "Keep Kaneo values",
+			"useRepository": "Keep repository values",
+			"exportPending": "Export matching tasks",
+			"inactiveHint": "This integration is paused. No tasks will be exported until it is reactivated.",
+			"loadSavedRules": "Load saved rules",
+			"rulesChanged": "The saved rules changed while you were editing. Your draft is preserved. Review the current rules above before applying it, or load the saved rules."
+		},
+		"advancedSettingsDescription": "A personal display preference for this browser across all your workspaces."
 	},
 	"navigation": {
 		"commandPalette": {
@@ -1881,14 +1948,16 @@
 				"close": "닫기"
 			}
 		},
-		"notifications": "알림",
 		"sidebar": {
-			"overview": "개요",
 			"projects": "프로젝트",
 			"members": "멤버",
 			"invitations": "초대",
 			"more": "더 보기",
-			"backToBoard": "보드로 돌아가기"
+			"backToBoard": "보드로 돌아가기",
+			"home": "Home",
+			"inbox": "Inbox",
+			"invitePeople": "Invite people",
+			"myTasks": "My tasks"
 		},
 		"projectList": {
 			"viewProject": "프로젝트 보기",
@@ -1973,16 +2042,12 @@
 		}
 	},
 	"notifications": {
-		"title": "알림",
 		"newCount_other": "새 알림 {{count}}개",
 		"emptyTitle": "아직 알림이 없습니다",
 		"emptySubtitle": "여기서 업데이트와 활동을 확인할 수 있습니다.",
 		"clearAll": "모든 알림 지우기",
 		"clearDialogTitle": "모든 알림을 지우시겠습니까?",
 		"clearDialogDescription": "모든 알림이 영구적으로 제거됩니다. 이 작업은 취소할 수 없습니다.",
-		"shortcuts": {
-			"open": "알림 열기"
-		},
 		"events": {
 			"task_created": {
 				"title": "새 작업 생성됨",
@@ -2026,6 +2091,26 @@
 			"minutes_other": "{{count}}분",
 			"hours_other": "{{count}}시간",
 			"days_other": "{{count}}일"
+		},
+		"inbox": {
+			"back": "Inbox",
+			"earlier": "Earlier",
+			"emptyFilter": "Nothing here",
+			"filters": {
+				"all": "All",
+				"label": "Filter notifications",
+				"mentions": "Mentions",
+				"unread": "Unread"
+			},
+			"openTask": "Open task",
+			"pageTitle": "Inbox",
+			"recentActivity": "Recent activity",
+			"selectPrompt": "Select a notification to read it",
+			"taskUnavailable": "This task is no longer available.",
+			"today": "Today",
+			"unread": "Unread",
+			"loadError": "Notifications couldn't be loaded.",
+			"taskLoadError": "This task couldn’t be loaded."
 		}
 	},
 	"activity": {
@@ -2171,6 +2256,9 @@
 			"loadingTask": "작업 로딩 중...",
 			"taskNotFound": "작업을 찾을 수 없음",
 			"taskNotFoundDescription": "찾는 작업이 존재하지 않거나 삭제되었습니다.",
+			"ticketAmbiguous": "작업 ID가 여러 작업과 일치합니다",
+			"ticketAmbiguousDescription": "{{ticketId}}이(가) 이 워크스페이스의 여러 프로젝트에 있는 작업과 일치합니다. 링크가 작동하도록 해당 프로젝트 중 하나의 키를 변경하세요.",
+			"ticketNotFoundDescription": "이 워크스페이스에 ID가 {{ticketId}}인 작업이 없거나 해당 작업에 대한 접근 권한이 없습니다.",
 			"customFields": "Custom Fields"
 		},
 		"detail": {
@@ -2693,6 +2781,59 @@
 			"submit": "워크스페이스 만들기",
 			"success": "워크스페이스가 생성되었습니다",
 			"error": "워크스페이스 생성에 실패했습니다"
+		},
+		"home": {
+			"activity": {
+				"commented": "commented",
+				"empty": "Nothing has happened in the last 30 days.",
+				"loadError": "Activity couldn't be loaded.",
+				"title": "Activity",
+				"updated": "updated the task"
+			},
+			"greeting": {
+				"afternoon": "Good afternoon",
+				"evening": "Good evening",
+				"morning": "Good morning"
+			},
+			"newTask": "New task",
+			"pageTitle": "Home",
+			"projects": {
+				"all": "All projects",
+				"tasks_other": "{{count}} tasks",
+				"title": "Your projects",
+				"loadError": "Projects couldn't be loaded."
+			},
+			"upNext": {
+				"assigned_other": "{{count}} assigned to you",
+				"title": "Up next",
+				"viewAll": "View all"
+			},
+			"week": {
+				"more_other": "+{{count}} more",
+				"truncated": "The week preview includes only the first {{shown}} of {{total}} assigned tasks."
+			}
+		},
+		"myTasks": {
+			"emptyDescription": "Tasks assigned to you across this workspace show up here.",
+			"groupBy": {
+				"dueDate": "Due date",
+				"label": "Group by",
+				"project": "Project"
+			},
+			"pageTitle": "My tasks",
+			"truncated": "Showing the first {{shown}} of {{total}} tasks."
+		},
+		"myWork": {
+			"due": {
+				"later": "Later",
+				"noDueDate": "No due date",
+				"overdue": "Overdue",
+				"thisWeek": "This week",
+				"today": "Today",
+				"tomorrow": "Tomorrow"
+			},
+			"empty": "Nothing assigned to you",
+			"loadError": "Your tasks couldn't be loaded."
 		}
 	},
 	"team": {
@@ -2861,6 +3002,7 @@
 			"guides": "Guides",
 			"comparisons": "Compare tools",
 			"roadmap": "Roadmap",
+			"community": "커뮤니티",
 			"menu": "Menu",
 			"closeMenu": "Close menu",
 			"home": "Kaneo home",

@@ -185,13 +185,14 @@ export function KeyboardShortcutsProvider({
       }
 
       if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
-        const modifierKey = event.metaKey
-          ? "⌘"
-          : event.ctrlKey
-            ? "Ctrl"
-            : event.altKey
-              ? "Alt"
-              : "Shift";
+        const modifierKey = [
+          event.metaKey && "⌘",
+          event.ctrlKey && "Ctrl",
+          event.altKey && "Alt",
+          event.shiftKey && "Shift",
+        ]
+          .filter(Boolean)
+          .join("+");
         const shortcutKey = `${modifierKey}+${key}`;
 
         if (modifierShortcuts.has(shortcutKey)) {

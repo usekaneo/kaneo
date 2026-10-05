@@ -23,7 +23,7 @@
 	},
 	"fonts": {
 		"family": "Geist Variable",
-		"source": "/fonts/geist.woff2",
+		"source": "https://kaneo.app/docs/fonts/geist.woff2",
 		"format": "woff2"
 	},
 	"favicon": "/favicon.svg",

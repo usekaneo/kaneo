@@ -1,3 +1,4 @@
+import integrationSync from "./integration-sync";
 import { syncWorkspaceAccess } from "./ws/workspace-access";
 import { drainPasswordResetDeliveries } from "./utils/password-reset-delivery";
 import "./instrument";
@@ -748,6 +749,7 @@ export function createApp() {
     notificationPreferences,
   );
   const searchApi = api.route("/search", search);
+  const integrationSyncApi = api.route("/integration-sync", integrationSync);
   const githubIntegrationApi = api.route(
     "/github-integration",
     githubIntegration,
@@ -884,6 +886,7 @@ export function createApp() {
     discordIntegrationApi,
     externalLinkApi,
     genericWebhookIntegrationApi,
+    integrationSyncApi,
     githubIntegrationApi,
     giteaIntegrationApi,
     gitlabIntegrationApi,
@@ -1014,6 +1017,7 @@ const {
   discordIntegrationApi,
   externalLinkApi,
   genericWebhookIntegrationApi,
+  integrationSyncApi,
   githubIntegrationApi,
   giteaIntegrationApi,
   gitlabIntegrationApi,
@@ -1064,6 +1068,7 @@ export type AppType =
   | typeof notificationApi
   | typeof notificationPreferencesApi
   | typeof searchApi
+  | typeof integrationSyncApi
   | typeof githubIntegrationApi
   | typeof giteaIntegrationApi
   | typeof gitlabIntegrationApi

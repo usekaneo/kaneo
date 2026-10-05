@@ -131,6 +131,7 @@ const createProjectRoute = createRoute({
     403: errorResponse(
       "No workspace access, or missing project:create permission",
     ),
+    409: errorResponse("Another project in the workspace uses this key"),
   },
 });
 
@@ -207,6 +208,7 @@ const updateProjectRoute = createRoute({
     403: errorResponse(
       "No workspace access, missing project:update, or missing project:share when visibility changes",
     ),
+    409: errorResponse("Another project in the workspace uses the new key"),
   },
 });
 
@@ -278,6 +280,7 @@ const unarchiveProjectRoute = createRoute({
     403: errorResponse(
       "No workspace access, or missing project:update permission",
     ),
+    409: errorResponse("Another project in the workspace uses this key"),
   },
 });
 

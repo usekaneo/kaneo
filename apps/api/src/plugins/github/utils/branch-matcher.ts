@@ -69,19 +69,32 @@ export function extractTaskNumberFromBranch(
   return null;
 }
 
+const URL_PATTERN = /\bhttps?:\/\/\S+/gi;
+
+function withShortLinksAsTickets(text: string) {
+  return text.replace(URL_PATTERN, (url) => {
+    const ticket = url.match(
+      /\/task\/([^/?#\s]+-\d+)(?![\p{L}\p{N}\p{M}_~-])/u,
+    )?.[1];
+    return ticket ? ` ${ticket} ` : url;
+  });
+}
+
 function extractExplicitTaskNumber(
   text: string,
   projectSlug?: string,
 ): number | null {
   if (projectSlug) {
     const slug = projectSlug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const key = text.match(
+    const key = withShortLinksAsTickets(text).match(
       new RegExp(`(?:^|[^\\w-])${slug}-(\\d+)(?=$|[^\\w])`, "i"),
     );
     if (key?.[1]) return Number.parseInt(key[1], 10);
   }
 
-  const task = text.match(/\btask[:\-\s#]+(\d+)\b/i);
+  const task = text
+    .replace(URL_PATTERN, "<link>")
+    .match(/\btask[:\-\s#]+(\d+)\b/i);
   return task?.[1] ? Number.parseInt(task[1], 10) : null;
 }
 

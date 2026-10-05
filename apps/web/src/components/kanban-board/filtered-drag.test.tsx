@@ -8,6 +8,7 @@ import {
   vi,
 } from "vite-plus/test";
 import type { ReactNode } from "react";
+import type { TaskReorder } from "@/fetchers/task/reorder-tasks";
 import type { ProjectWithTasks } from "@/types/project";
 import KanbanBoard from "./index";
 
@@ -16,15 +17,35 @@ const mocks = vi.hoisted(() => ({
   setProject: vi.fn(),
   reorder: vi.fn(),
   setQueryData: vi.fn(),
+  updatePriority: vi.fn(),
+  mutationIndex: 0,
   modifierKey: "Ctrl",
+  invalidateQueries: vi.fn(),
+  success: undefined as
+    | ((
+        result: unknown,
+        variables: TaskReorder & { previousBoard: ProjectWithTasks },
+      ) => void)
+    | undefined,
 }));
 vi.mock("@tanstack/react-query", () => ({
-  useQueryClient: () => ({
-    setQueryData: mocks.setQueryData,
-    getQueryData: () => mocks.project,
-    getQueryState: () => undefined,
-  }),
-  useMutation: () => ({ mutate: mocks.reorder, isPending: false }),
+  useQueryClient: () => {
+    // The board calls useQueryClient before its mutations on every render.
+    mocks.mutationIndex = 0;
+    return {
+      setQueryData: mocks.setQueryData,
+      invalidateQueries: mocks.invalidateQueries,
+      getQueryData: () => mocks.project,
+      getQueryState: () => undefined,
+    };
+  },
+  useMutation: ({ onSuccess }: { onSuccess: typeof mocks.success }) => {
+    if (mocks.mutationIndex++ === 0) {
+      mocks.success = onSuccess;
+      return { mutate: mocks.reorder, isPending: false };
+    }
+    return { mutate: mocks.updatePriority, isPending: false };
+  },
 }));
 vi.mock("@kaneo/libs", () => ({ client: {} }));
 vi.mock("@tanstack/react-router", () => ({ useNavigate: () => vi.fn() }));
@@ -36,9 +57,6 @@ vi.mock("@/store/project", () => ({
 }));
 vi.mock("@/store/background", () => ({
   useBackgroundStore: () => ({ setBackground: vi.fn() }),
-}));
-vi.mock("@/store/bulk-selection", () => ({
-  default: () => ({ setAvailableTasks: vi.fn(), clearFocus: vi.fn() }),
 }));
 vi.mock("@/hooks/use-keyboard-shortcuts", () => ({
   useRegisterShortcuts: vi.fn(),
@@ -205,6 +223,16 @@ describe("filtered board dragging", () => {
       ),
     ).toEqual(["hidden", "b", "a"]);
     expect(mocks.reorder).toHaveBeenCalledOnce();
+    mocks.success?.(null, mocks.reorder.mock.calls[0]?.[0]);
+    expect(mocks.invalidateQueries).not.toHaveBeenCalledWith({
+      queryKey: ["assigned-tasks"],
+    });
+    expect(mocks.invalidateQueries).not.toHaveBeenCalledWith({
+      queryKey: ["workspace-activity"],
+    });
+    expect(mocks.invalidateQueries).not.toHaveBeenCalledWith({
+      queryKey: ["projects"],
+    });
     view.unmount();
   });
 });
@@ -233,6 +261,40 @@ it("rejects an in-flight Kanban drop after a failed refresh disables dragging", 
   expect(mocks.reorder).not.toHaveBeenCalled();
   expect(mocks.setProject).not.toHaveBeenCalled();
   expect(mocks.setQueryData).not.toHaveBeenCalled();
+});
+
+it("refreshes personal work after a cross-column status change", () => {
+  const project = {
+    id: "p",
+    columns: [
+      {
+        id: "todo",
+        slug: "todo",
+        tasks: [{ id: "a", status: "todo", position: 0 }],
+      },
+      {
+        id: "done",
+        slug: "done",
+        tasks: [{ id: "b", status: "done", position: 0 }],
+      },
+    ],
+    plannedTasks: [],
+    archivedTasks: [],
+  } as unknown as ProjectWithTasks;
+  mocks.project = project;
+  const view = render(<KanbanBoard project={project} />);
+  fireEvent.click(view.getByText("drop"));
+  expect(mocks.reorder).toHaveBeenCalledOnce();
+  mocks.success?.(null, mocks.reorder.mock.calls[0]?.[0]);
+  expect(mocks.invalidateQueries).toHaveBeenCalledWith({
+    queryKey: ["assigned-tasks"],
+  });
+  expect(mocks.invalidateQueries).toHaveBeenCalledWith({
+    queryKey: ["workspace-activity"],
+  });
+  expect(mocks.invalidateQueries).toHaveBeenCalledWith({
+    queryKey: ["projects"],
+  });
 });
 
 it("places a cross-column drop at the bottom without Command", () => {

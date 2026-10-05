@@ -155,7 +155,7 @@ jobs:
       - name: Test release security controls
         run: |
           docker pull nginx:1.29.5-alpine
-          node --test scripts/security/*.test.mjs scripts/ci/*.test.mjs
+          node --test scripts/security/*.test.mjs scripts/ci/*.test.mjs scripts/contribution-eligibility/*.test.mjs
 
       - name: Run unit tests
         env:

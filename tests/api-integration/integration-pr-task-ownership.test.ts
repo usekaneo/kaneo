@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { beforeEach, expect, it, vi } from "vite-plus/test";
 import { publishEvent } from "../../apps/api/src/events";
 import db, { getDatabase, schema } from "../../apps/api/src/database";
@@ -29,6 +29,7 @@ const cases = ["github", "gitea", "gitlab"].flatMap((provider) =>
       action,
       race,
       sameStatus: false,
+      syncScope: "all",
     })),
   ),
 );
@@ -39,12 +40,26 @@ cases.push(
       action,
       race: "ordinary",
       sameStatus: action !== "closed",
+      syncScope: "all",
     })),
   ),
 );
+cases.push(
+  ...["github", "gitea", "gitlab"].flatMap((provider) =>
+    ["opened", "merged", "closed"].flatMap((action) =>
+      ["excluded", "paused"].map((syncScope) => ({
+        provider,
+        action,
+        race: "ordinary",
+        sameStatus: false,
+        syncScope,
+      })),
+    ),
+  ),
+);
 it.each(cases)(
-  "$provider $action webhook respects task ownership ($race)",
-  async ({ provider, action, race, sameStatus }) => {
+  "$provider $action webhook respects task ownership ($race, $syncScope issue sync)",
+  async ({ provider, action, race, sameStatus, syncScope }) => {
     const { user, workspace } = await createWorkspaceMember();
     const { project } = await createProjectFixture({
       workspaceId: workspace.id,
@@ -87,10 +102,31 @@ it.each(cases)(
           verifiedGithubAccountId: "123",
           verifiedByUserId: user.id,
           branchPattern: "{slug}-{number}",
+          ...(syncScope === "excluded"
+            ? {
+                syncRules: {
+                  outgoing: {
+                    mode: "labels",
+                    match: "any",
+                    labels: ["missing"],
+                  },
+                  incoming: { mode: "all" },
+                },
+              }
+            : {}),
           statusTransitions: { onPROpen: "in-progress", onPRMerge: "done" },
         }),
       })
       .returning();
+    if (syncScope === "paused")
+      await db.insert(schema.externalLinkTable).values({
+        taskId: task.id,
+        integrationId: integration.id,
+        resourceType: "issue",
+        externalId: "2",
+        url: "https://git.example/owner/repo/issues/2",
+        metadata: JSON.stringify({ syncFilterPaused: true }),
+      });
     if (action !== "opened")
       await db.insert(schema.externalLinkTable).values({
         taskId: task.id,
@@ -155,7 +191,10 @@ it.each(cases)(
     vi.mocked(publishEvent).mockImplementation(async (type) => {
       if (type !== "task.updated") return;
       const committed = await db.query.externalLinkTable.findFirst({
-        where: eq(schema.externalLinkTable.taskId, task.id),
+        where: and(
+          eq(schema.externalLinkTable.taskId, task.id),
+          eq(schema.externalLinkTable.resourceType, "pull_request"),
+        ),
       });
       expect(committed).toBeDefined();
       expect(JSON.parse(committed!.metadata!).state).toBe(
@@ -223,7 +262,10 @@ it.each(cases)(
         race === "moved" ? destination.id : project.id,
       );
       const links = await db.query.externalLinkTable.findMany({
-        where: eq(schema.externalLinkTable.taskId, task.id),
+        where: and(
+          eq(schema.externalLinkTable.taskId, task.id),
+          eq(schema.externalLinkTable.resourceType, "pull_request"),
+        ),
       });
       expect(links).toHaveLength(race === "ordinary" ? 1 : 0);
       expect(

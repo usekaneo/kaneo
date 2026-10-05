@@ -428,3 +428,12 @@ it("applies a close following an inbound reopen within the same provider timesta
   expect(m.status).toHaveBeenCalledTimes(2);
   expect(JSON.parse(m.metadata).state).toBe("closed");
 });
+
+vi.mock("../../../../apps/api/src/plugins/sync/dispatch-issue-write", () => ({
+  createIssueWrite: () => (send: () => Promise<unknown>) => send(),
+  dispatchIssueWrite: async (
+    _link: unknown,
+    _config: unknown,
+    send: () => Promise<unknown>,
+  ) => ({ value: await send() }),
+}));

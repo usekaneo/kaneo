@@ -153,7 +153,8 @@
 					"terracotta": "Đất nung",
 					"rose": "Hồng",
 					"crimson": "Đỏ thẫm"
-				}
+				},
+				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
 		},
 		"boolean": {
@@ -421,6 +422,7 @@
 		}
 	},
 	"settings": {
+		"advancedSettings": "Cài đặt nâng cao",
 		"account": "Tài khoản",
 		"developer": "Nhà phát triển",
 		"information": "Thông tin",
@@ -1036,7 +1038,14 @@
 			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook.",
 			"mattermostSectionTitle": "Mattermost Integration",
 			"gitlabSectionSubtitle": "Synchronize tasks with GitLab.com or a self-managed instance (issues, merge requests, webhooks).",
-			"gitlabSectionTitle": "GitLab Integration"
+			"gitlabSectionTitle": "GitLab Integration",
+			"codeHostingTitle": "Lưu trữ mã nguồn",
+			"chatTitle": "Trò chuyện & webhook",
+			"statusConnected": "Đã kết nối",
+			"statusPaused": "Đã tạm dừng",
+			"connect": "Kết nối",
+			"configure": "Cấu hình",
+			"done": "Xong"
 		},
 		"projectVisibility": {
 			"pageTitle": "Chế độ hiển thị dự án",
@@ -1857,7 +1866,65 @@
 				"viewPlans": "View plans"
 			},
 			"openFailed": "Couldn't open billing for this workspace"
-		}
+		},
+		"syncRules": {
+			"addLabel": "Add label",
+			"advancedHint": "Enable Advanced settings in Preferences to edit these rules.",
+			"all": "All tasks and issues",
+			"allSummary": "All of: {{labels}}",
+			"any": "Any selected label",
+			"anySummary": "Any of: {{labels}}",
+			"apply": "Apply sync rules",
+			"closed": "Closed",
+			"every": "All selected labels",
+			"excluded": "Outside the current rule",
+			"filtered": "Only matching labels",
+			"filteredBadge": "Filtered by labels",
+			"impact": "{{matching}} of {{total}} tasks match. {{create}} tasks will be exported, {{pause}} links will pause, and {{review}} links need review to resume.",
+			"impactTitle": "What will change",
+			"incoming": "Repository → Kaneo",
+			"incomingHint": "Choose which issues can be imported or create tasks. Use exact repository label names. Existing links follow the Kaneo task rule.",
+			"loadError": "Sync rules could not be loaded.",
+			"loading": "Loading sync rules…",
+			"matchLabels": "Label matching",
+			"missingLabels": "A selected workspace label is unavailable. Sync stays paused until the rule is repaired.",
+			"removeMissingLabels": "Xóa nhãn không khả dụng",
+			"next": "Next",
+			"noDescription": "No description",
+			"noLabels": "Create workspace labels before configuring a task filter.",
+			"open": "Open",
+			"outgoing": "Kaneo → repository",
+			"outgoingHint": "Choose which Kaneo tasks can sync. Losing a matching label pauses both directions for an existing task.",
+			"paused": "Sync paused",
+			"pausedCount_other": "{{count}} paused links",
+			"pausedHint": "Records and links are preserved. Tasks that match again need review before syncing resumes.",
+			"preserveHint": "Pausing keeps both records and their link. Resuming requires a comparison; historical comments are never replayed.",
+			"previewing": "Checking sync impact…",
+			"previous": "Previous",
+			"refreshComparison": "Refresh comparison",
+			"refreshPreview": "Refresh preview",
+			"removeLabel": "Remove {{name}}",
+			"repository": "Repository",
+			"repositoryLabel": "Repository label name",
+			"resumeError": "Could not resume. The task, issue or rule may have changed, or the provider is unavailable. Sync remains paused; refresh the comparison.",
+			"review": "Review and resume",
+			"reviewHint": "Compare the current title, description and open/closed state. Choose which side to keep for these fields. Labels and historical comments remain unchanged.",
+			"reviewRequired": "Matches the rule · review required",
+			"reviewTitle": "Review before resuming sync",
+			"saved": "Sync rules saved",
+			"saveError": "Could not apply these rules. The integration or task scope may have changed. Refresh the preview and try again.",
+			"selectLabel": "Select at least one label to preview this rule.",
+			"sharedHint": "These rules apply to everyone using this project. Hiding advanced settings does not disable them.",
+			"title": "Sync scope",
+			"unavailableLabel": "Unavailable label",
+			"useKaneo": "Keep Kaneo values",
+			"useRepository": "Keep repository values",
+			"exportPending": "Export matching tasks",
+			"inactiveHint": "This integration is paused. No tasks will be exported until it is reactivated.",
+			"loadSavedRules": "Load saved rules",
+			"rulesChanged": "The saved rules changed while you were editing. Your draft is preserved. Review the current rules above before applying it, or load the saved rules."
+		},
+		"advancedSettingsDescription": "A personal display preference for this browser across all your workspaces."
 	},
 	"navigation": {
 		"commandPalette": {
@@ -1881,14 +1948,16 @@
 				"close": "Đóng"
 			}
 		},
-		"notifications": "Thông báo",
 		"sidebar": {
-			"overview": "Tổng quan",
 			"projects": "Dự án",
 			"members": "Thành viên",
 			"invitations": "Lời mời",
 			"more": "Thêm",
-			"backToBoard": "Quay lại bảng"
+			"backToBoard": "Quay lại bảng",
+			"home": "Home",
+			"inbox": "Inbox",
+			"invitePeople": "Invite people",
+			"myTasks": "My tasks"
 		},
 		"projectList": {
 			"viewProject": "Xem dự án",
@@ -1973,16 +2042,12 @@
 		}
 	},
 	"notifications": {
-		"title": "Thông báo",
 		"newCount_other": "{{count}} mới",
 		"emptyTitle": "Chưa có thông báo nào",
 		"emptySubtitle": "Bạn sẽ thấy các cập nhật và hoạt động ở đây.",
 		"clearAll": "Xóa tất cả thông báo",
 		"clearDialogTitle": "Xóa tất cả thông báo?",
 		"clearDialogDescription": "Thao tác này sẽ xóa vĩnh viễn tất cả thông báo. Bạn không thể hoàn tác hành động này.",
-		"shortcuts": {
-			"open": "Mở thông báo"
-		},
 		"reminderLeadTime": {
 			"minutes_other": "{{count}} phút",
 			"hours_other": "{{count}} giờ",
@@ -2026,6 +2091,26 @@
 				"contentWithTask": "Đã bắt đầu theo dõi thời gian trên công việc: {{taskTitle}}",
 				"contentWithoutTask": "Đã bắt đầu theo dõi thời gian trên một công việc"
 			}
+		},
+		"inbox": {
+			"back": "Inbox",
+			"earlier": "Earlier",
+			"emptyFilter": "Nothing here",
+			"filters": {
+				"all": "All",
+				"label": "Filter notifications",
+				"mentions": "Mentions",
+				"unread": "Unread"
+			},
+			"openTask": "Open task",
+			"pageTitle": "Inbox",
+			"recentActivity": "Recent activity",
+			"selectPrompt": "Select a notification to read it",
+			"taskUnavailable": "This task is no longer available.",
+			"today": "Today",
+			"unread": "Unread",
+			"loadError": "Notifications couldn't be loaded.",
+			"taskLoadError": "This task couldn’t be loaded."
 		}
 	},
 	"activity": {
@@ -2171,6 +2256,9 @@
 			"loadingTask": "Đang tải công việc...",
 			"taskNotFound": "Không tìm thấy công việc",
 			"taskNotFoundDescription": "Công việc bạn đang tìm không tồn tại hoặc đã bị xóa.",
+			"ticketAmbiguous": "Mã công việc khớp với nhiều công việc",
+			"ticketAmbiguousDescription": "{{ticketId}} khớp với công việc trong nhiều dự án của không gian làm việc này. Hãy đặt khóa khác cho một trong các dự án đó để liên kết hoạt động.",
+			"ticketNotFoundDescription": "Không có công việc nào có mã {{ticketId}} trong không gian làm việc này, hoặc bạn không có quyền truy cập.",
 			"customFields": "Custom Fields"
 		},
 		"detail": {
@@ -2693,6 +2781,59 @@
 			"submit": "Tạo không gian làm việc",
 			"success": "Tạo không gian làm việc thành công",
 			"error": "Không thể tạo không gian làm việc"
+		},
+		"home": {
+			"activity": {
+				"commented": "commented",
+				"empty": "Nothing has happened in the last 30 days.",
+				"loadError": "Activity couldn't be loaded.",
+				"title": "Activity",
+				"updated": "updated the task"
+			},
+			"greeting": {
+				"afternoon": "Good afternoon",
+				"evening": "Good evening",
+				"morning": "Good morning"
+			},
+			"newTask": "New task",
+			"pageTitle": "Home",
+			"projects": {
+				"all": "All projects",
+				"tasks_other": "{{count}} tasks",
+				"title": "Your projects",
+				"loadError": "Projects couldn't be loaded."
+			},
+			"upNext": {
+				"assigned_other": "{{count}} assigned to you",
+				"title": "Up next",
+				"viewAll": "View all"
+			},
+			"week": {
+				"more_other": "+{{count}} more",
+				"truncated": "The week preview includes only the first {{shown}} of {{total}} assigned tasks."
+			}
+		},
+		"myTasks": {
+			"emptyDescription": "Tasks assigned to you across this workspace show up here.",
+			"groupBy": {
+				"dueDate": "Due date",
+				"label": "Group by",
+				"project": "Project"
+			},
+			"pageTitle": "My tasks",
+			"truncated": "Showing the first {{shown}} of {{total}} tasks."
+		},
+		"myWork": {
+			"due": {
+				"later": "Later",
+				"noDueDate": "No due date",
+				"overdue": "Overdue",
+				"thisWeek": "This week",
+				"today": "Today",
+				"tomorrow": "Tomorrow"
+			},
+			"empty": "Nothing assigned to you",
+			"loadError": "Your tasks couldn't be loaded."
 		}
 	},
 	"team": {
@@ -2861,6 +3002,7 @@
 			"guides": "Guides",
 			"comparisons": "Compare tools",
 			"roadmap": "Roadmap",
+			"community": "Cộng đồng",
 			"menu": "Menu",
 			"closeMenu": "Close menu",
 			"home": "Kaneo home",

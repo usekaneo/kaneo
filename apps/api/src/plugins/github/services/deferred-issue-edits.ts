@@ -1,3 +1,4 @@
+import { canSyncTask } from "../../sync/eligibility";
 import { and, asc, gt, sql } from "drizzle-orm";
 import db from "../../../database";
 import { externalLinkTable } from "../../../database/schema";
@@ -144,6 +145,15 @@ async function replayClaimedIssueEdits() {
           await updateExternalLink(link.id, { completeDeferredEdit: job.id });
           continue;
         }
+        if (
+          !(await canSyncTask(
+            link.taskId,
+            integration.id,
+            undefined,
+            integration.config,
+          ))
+        )
+          continue;
         const fields = [
           ...new Set([...job.fields, ...(job.repairFields ?? [])]),
         ];

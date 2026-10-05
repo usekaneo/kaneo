@@ -1,3 +1,4 @@
+import { invalidateMyWork } from "@/lib/invalidate-my-work";
 import { markBoardCacheChanged } from "@/lib/board-cache-version";
 import { selectReorderBoard } from "./select-reorder-board";
 import {
@@ -66,13 +67,14 @@ function KanbanBoard({
   const isAutomaticallySorted = sortedByNumber || sortedByPriority;
   const queryClient = useQueryClient();
   const { project: storedProject, setProject } = useProjectStore();
-  const {
-    setAvailableTasks,
-    focusNext,
-    focusPrevious,
-    focusedTaskId,
-    clearFocus,
-  } = useBulkSelectionStore();
+  const setAvailableTasks = useBulkSelectionStore(
+    (state) => state.setAvailableTasks,
+  );
+  const focusNext = useBulkSelectionStore((state) => state.focusNext);
+  const focusPrevious = useBulkSelectionStore((state) => state.focusPrevious);
+  const focusedTaskId = useBulkSelectionStore((state) => state.focusedTaskId);
+  const clearFocus = useBulkSelectionStore((state) => state.clearFocus);
+  const [activeIsFinal, setActiveIsFinal] = useState<boolean | undefined>();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [overColumnId, setOverColumnId] = useState<string | null>(null);
   const [hoverPlacement, setHoverPlacement] = useState<HoverPlacement | null>(
@@ -98,6 +100,10 @@ function KanbanBoard({
       reorderTasks(request),
     onMutate: (variables) => ({ previousBoard: variables.previousBoard }),
     onSuccess: (_result, variables) => {
+      if (variables.tasks.some((task) => task.status !== undefined)) {
+        invalidateMyWork(queryClient);
+        void queryClient.invalidateQueries({ queryKey: ["projects"] });
+      }
       void queryClient.invalidateQueries({
         queryKey: ["tasks", variables.projectId],
       });
@@ -247,6 +253,8 @@ function KanbanBoard({
     setIsSortModifierHeld(modifierHeld);
     isSortedReorderActiveRef.current = modifierHeld;
     setIsSortedReorderActive(modifierHeld);
+    const isFinal = event.active.data?.current?.isFinalColumn;
+    setActiveIsFinal(typeof isFinal === "boolean" ? isFinal : undefined);
   };
 
   const getColumnIdForOver = (overId: string) => {
@@ -588,7 +596,7 @@ function KanbanBoard({
         {activeTask ? (
           <div className="transform rotate-1 scale-[1.03] shadow-lg">
             <div className="ring-2 ring-ring/35 rounded-lg">
-              <TaskCard task={activeTask} />
+              <TaskCard task={activeTask} isFinalColumn={activeIsFinal} />
             </div>
           </div>
         ) : null}

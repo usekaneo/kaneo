@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { track } from "@/lib/analytics/track";
 import { authClient } from "@/lib/auth-client";
 import queryClient from "@/query-client";
 
@@ -34,6 +35,9 @@ function useInviteWorkspaceUser() {
       }
 
       return data;
+    },
+    onSuccess: (_data, { resend }) => {
+      if (!resend) track("Invite Sent");
     },
     onSettled: (_, _error, { workspaceId }) => {
       queryClient.invalidateQueries({

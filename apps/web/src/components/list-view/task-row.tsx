@@ -67,9 +67,19 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
   } = useUserPreferencesStore();
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
   const { mutateAsync: deleteTask } = useDeleteTask();
-  const { toggleSelection, isSelected, isFocused } = useBulkSelectionStore();
-  const isTaskSelected = isSelected(task.id);
-  const isTaskFocused = isFocused(task.id);
+  const toggleSelection = useBulkSelectionStore(
+    (state) => state.toggleSelection,
+  );
+  const selectRange = useBulkSelectionStore((state) => state.selectRange);
+  const setSelectionAnchor = useBulkSelectionStore(
+    (state) => state.setSelectionAnchor,
+  );
+  const isTaskSelected = useBulkSelectionStore((state) =>
+    state.selectedTaskIds.has(task.id),
+  );
+  const isTaskFocused = useBulkSelectionStore(
+    (state) => state.focusedTaskId === task.id,
+  );
 
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
     workspace?.id ?? "",
@@ -87,9 +97,15 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     touchAction: isDragging ? "none" : "auto",
   };
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = (e: React.MouseEvent | React.KeyboardEvent) => {
     if (!project || !task) return;
     if (e.defaultPrevented) return;
+
+    if (e.shiftKey) {
+      e.preventDefault();
+      selectRange(task.id);
+      return;
+    }
 
     if (e.metaKey || e.ctrlKey) {
       e.preventDefault();
@@ -97,6 +113,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
       return;
     }
 
+    setSelectionAnchor(task.id);
     const currentParams = new URLSearchParams(window.location.search);
     const currentTaskId = currentParams.get("taskId");
 
@@ -113,9 +130,13 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.defaultPrevented || e.target !== e.currentTarget) return;
     if (e.key === "Enter") {
-      handleClick(e as unknown as React.MouseEvent);
+      handleClick(e);
+      e.preventDefault();
+    } else {
+      listeners?.onKeyDown?.(e);
     }
   };
 
@@ -147,13 +168,13 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
           {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- false positive for onClick and onKeyDown */}
           <div
             onClick={handleClick}
-            onKeyDown={handleKeyDown}
             className={cn(
               "group relative flex items-center gap-3 px-4 py-1.5 transition-colors cursor-pointer",
               isTaskSelected ? "bg-accent/45" : "hover:bg-accent/60",
             )}
             {...attributes}
             {...listeners}
+            onKeyDown={handleKeyDown}
           >
             {showPriority && (
               <div className="flex-shrink-0 first:[&_svg]:h-4 first:[&_svg]:w-4">
@@ -232,6 +253,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
             taskCardContext={{
               projectId: project.id,
               worskpaceId: workspace.id,
+              workspaceSlug: workspace.slug,
             }}
             onDeleteClick={() => setIsDeleteTaskModalOpen(true)}
           />

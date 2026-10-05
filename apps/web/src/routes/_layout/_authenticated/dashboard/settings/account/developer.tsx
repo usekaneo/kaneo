@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/card";
 import useGetApiKeys from "@/hooks/queries/use-get-api-keys";
 import type { CreateApiKeyResponse } from "@/types/api-key";
+import { SettingsPage } from "@/components/settings/settings-page";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/account/developer",
@@ -48,16 +49,10 @@ function RouteComponent() {
   return (
     <>
       <PageTitle title={t("settings:developerPage.pageTitle")} />
-      <div className="max-w-4xl mx-auto space-y-8">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold">
-            {t("settings:developerPage.title")}
-          </h1>
-          <p className="text-muted-foreground">
-            {t("settings:developerPage.subtitle")}
-          </p>
-        </div>
-
+      <SettingsPage
+        title={t("settings:developerPage.title")}
+        description={t("settings:developerPage.subtitle")}
+      >
         <CardFrame>
           <Card className="!rounded-none !border-t-0">
             <CardHeader>
@@ -86,7 +81,7 @@ function RouteComponent() {
             </CardPanel>
           </Card>
         </CardFrame>
-      </div>
+      </SettingsPage>
 
       <CreateApiKeyDialog
         open={createDialogOpen}

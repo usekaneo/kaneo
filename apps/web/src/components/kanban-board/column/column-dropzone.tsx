@@ -62,6 +62,7 @@ export function ColumnDropzone({
                   task={task}
                   disableDragDrop={disableDragDrop}
                   isDragPreview={isDragPreview}
+                  isFinalColumn={column.isFinal}
                 />
               </motion.div>
             ))}

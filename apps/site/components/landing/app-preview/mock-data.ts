@@ -41,6 +41,9 @@ export const MOCK_USERS = {
   ],
 };
 
+// The person signed in to the preview: Home, Inbox and My tasks are theirs.
+export const CURRENT_USER = { id: "u-3", name: "Jim Halpert" };
+
 // ------------------------------------------------------------------
 // Helper timestamps / dates
 // ------------------------------------------------------------------
@@ -141,6 +144,26 @@ const scrTasks: TaskWithExtras[] = [
     labels: [],
   },
   {
+    id: "t-108",
+    number: 8,
+    title: "Put Dwight's stapler in Jell-O",
+    description:
+      "Third time this quarter. Use the lime flavor so he can still identify it.",
+    priority: "low",
+    status: "to-do",
+    position: 3,
+    startDate: d(-4),
+    dueDate: d(-2),
+    userId: "u-3",
+    projectId: SCR_ID,
+    workspaceId: WS_ID,
+    createdAt: CREATED_AT,
+    updatedAt: UPDATED_AT,
+    assigneeName: "Jim Halpert",
+    assigneeImage: null,
+    labels: [],
+  },
+  {
     id: "t-105",
     number: 5,
     title: "Review Dwight's beet farm expense report",
@@ -207,7 +230,7 @@ export const WEB_PROJECT: ProjectWithTasks = {
   name: "Scranton Branch",
   slug: "SCR",
   description: "Day-to-day operations of the Scranton office.",
-  icon: null,
+  icon: "Building2",
   workspaceId: WS_ID,
   isPublic: false,
   createdAt: CREATED_AT,
@@ -362,7 +385,7 @@ export const MOB_PROJECT: ProjectWithTasks = {
   name: "Threat Level Midnight",
   slug: "TLM",
   description: "Michael Scott's magnum opus. In production since 1996.",
-  icon: null,
+  icon: "Video",
   workspaceId: WS_ID,
   isPublic: false,
   createdAt: CREATED_AT,

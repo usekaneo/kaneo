@@ -1,6 +1,14 @@
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { TaskLabels } from "./task-labels";
+
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { language: "en-US", resolvedLanguage: "en-US" },
+  }),
+  initReactI18next: { type: "3rdParty", init: vi.fn() },
+}));
 
 afterEach(() => {
   cleanup();
@@ -20,7 +28,7 @@ describe("TaskLabels", () => {
     render(<TaskLabels labels={[{ id: "label-1", name, color: "purple" }]} />);
 
     const labelName = screen.getByText(name);
-    const badge = labelName.closest('[data-slot="badge"]');
+    const badge = labelName.closest('[data-slot="task-label"]');
     expect(labelName).not.toHaveClass("max-w-20");
     expect(labelName).toHaveClass("min-w-0", "truncate");
     expect(labelName).toHaveAttribute("title", name);
