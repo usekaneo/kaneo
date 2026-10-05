@@ -4,7 +4,6 @@ import { columnTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import duplicateTask from "../controllers/duplicate-task";
 import { taskIsCompleted } from "../task-is-completed";
-import { nextOccurrenceDates } from "./next-occurrence-date";
 
 // Creates the next task of a recurring series once the task sits in a final
 // column. The copy lands in the project's first open column, with its dates
@@ -14,12 +13,7 @@ export async function createNextOccurrence(
   currentUserId: string | null | undefined,
 ) {
   const [task] = await db
-    .select({
-      projectId: taskTable.projectId,
-      startDate: taskTable.startDate,
-      dueDate: taskTable.dueDate,
-      recurrence: taskTable.recurrence,
-    })
+    .select({ projectId: taskTable.projectId })
     .from(taskTable)
     .where(
       and(
@@ -29,7 +23,7 @@ export async function createNextOccurrence(
       ),
     )
     .limit(1);
-  if (!task?.recurrence) return null;
+  if (!task) return null;
 
   const [openColumn] = await db
     .select({ slug: columnTable.slug })
@@ -48,10 +42,7 @@ export async function createNextOccurrence(
     taskId,
     currentUserId: currentUserId ?? "",
     canUpdateTasks: true,
-    occurrence: {
-      status: openColumn.slug,
-      ...nextOccurrenceDates(task, task.recurrence, new Date()),
-    },
+    occurrence: { status: openColumn.slug, completedAt: new Date() },
   });
   // Clients refetched the completed task on its status change, before its rule
   // moved, so they still show it as repeating.

@@ -1,4 +1,4 @@
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { subscribeToEvent } from "../../apps/api/src/events";
@@ -320,6 +320,49 @@ describe("API integration: recurring tasks", () => {
       .where(eq(schema.taskTable.id, task.id));
     await expect(createNextOccurrence(task.id, null)).resolves.toBeNull();
     expect(await otherTasks(project.id, task.id)).toHaveLength(1);
+  });
+
+  it("dates the next occurrence from the rule it claims", async () => {
+    const { project, columns } = await seedProject();
+    const task = await seedTask(project.id, columns.done.id, {
+      status: "done",
+    });
+    const daily = { ...weekly, frequency: "daily" } as const;
+
+    // An edit holds the row while the occurrence reads the old rule and waits
+    // for the lock.
+    let commitEdit = () => {};
+    const editCommitted = new Promise<void>((resolve) => {
+      commitEdit = resolve;
+    });
+    let editLocked = () => {};
+    const locked = new Promise<void>((resolve) => {
+      editLocked = resolve;
+    });
+    const edit = db.transaction(async (tx) => {
+      await tx
+        .update(schema.taskTable)
+        .set({ recurrence: daily })
+        .where(eq(schema.taskTable.id, task.id));
+      editLocked();
+      await editCommitted;
+    });
+    await locked;
+    const occurrence = createNextOccurrence(task.id, null);
+    await vi.waitFor(async () => {
+      const { rows } = await db.execute(
+        sql`select 1 from pg_stat_activity where wait_event_type = 'Lock'`,
+      );
+      if (!rows.length) throw new Error("The claim is not waiting yet");
+    });
+    commitEdit();
+    await edit;
+
+    await expect(occurrence).resolves.toMatchObject({
+      startDate: new Date("2026-03-10T00:00:00.000Z"),
+      dueDate: new Date("2026-03-11T00:00:00.000Z"),
+      recurrence: daily,
+    });
   });
 
   it("tells clients that the completed task no longer repeats", async () => {

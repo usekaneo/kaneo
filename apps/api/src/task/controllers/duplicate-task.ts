@@ -20,6 +20,7 @@ import {
   assertAssignableUser,
   filterAssignableUsers,
 } from "../../utils/assert-assignable-user";
+import { nextOccurrenceDates } from "../recurrence/next-occurrence-date";
 import { taskIsCompleted } from "../task-is-completed";
 import {
   assertRequiredCustomFields,
@@ -127,12 +128,11 @@ type DuplicateTaskOptions = {
   title?: string;
 };
 
-// The next occurrence of a recurring task: a copy in a new status and dates that
-// takes over the completed task's recurrence rule.
+// The next occurrence of a recurring task: a copy in a new status that takes
+// over the completed task's recurrence rule, with its dates moved one step on.
 type Occurrence = {
   status: string;
-  startDate: Date | null;
-  dueDate: Date | null;
+  completedAt: Date;
 };
 
 // Rolls back an occurrence whose rule another transaction already moved.
@@ -303,11 +303,20 @@ async function duplicateTask({
 
       // Moving the rule off the completed task is the claim. The row lock makes
       // a concurrent claim wait and then see no rule, so each completion
-      // creates one next task.
+      // creates one next task. Dates come from the same locked row, so an edit
+      // to the rule or due date cannot pair one with the other's old value.
       let recurrence: (typeof taskTable.$inferSelect)["recurrence"] = null;
+      let dates = {
+        startDate: sourceTask.startDate,
+        dueDate: sourceTask.dueDate,
+      };
       if (occurrence) {
         const [claimed] = await tx
-          .select({ recurrence: taskTable.recurrence })
+          .select({
+            startDate: taskTable.startDate,
+            dueDate: taskTable.dueDate,
+            recurrence: taskTable.recurrence,
+          })
           .from(taskTable)
           .where(
             and(
@@ -317,8 +326,13 @@ async function duplicateTask({
             ),
           )
           .for("update");
-        if (!claimed) throw new RuleAlreadyMovedError();
+        if (!claimed?.recurrence) throw new RuleAlreadyMovedError();
         recurrence = claimed.recurrence;
+        dates = nextOccurrenceDates(
+          claimed,
+          claimed.recurrence,
+          occurrence.completedAt,
+        );
         await tx
           .update(taskTable)
           .set({ recurrence: null })
@@ -341,8 +355,7 @@ async function duplicateTask({
           title: title?.trim() || sourceTask.title,
           status,
           columnId: column?.id ?? null,
-          startDate: occurrence ? occurrence.startDate : sourceTask.startDate,
-          dueDate: occurrence ? occurrence.dueDate : sourceTask.dueDate,
+          ...dates,
           recurrence,
           description,
           priority: sourceTask.priority,
