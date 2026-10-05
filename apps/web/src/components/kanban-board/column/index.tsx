@@ -3,7 +3,6 @@ import { cva } from "class-variance-authority";
 import { memo } from "react";
 import { useBackgroundStore } from "@/store/background";
 import type { ProjectWithTasks } from "@/types/project";
-import { ColumnAddTask } from "./column-add-task";
 import { ColumnDropzone } from "./column-dropzone";
 import { ColumnHeader } from "./column-header";
 import { ColumnSortHint } from "./column-sort-hint";
@@ -94,8 +93,6 @@ function Column({
           disableDragDrop={disableDragDrop}
           disableSorting={disableSorting}
         />
-        {/* New work starts in an open column; finished ones only collect. */}
-        {!column.isFinal && <ColumnAddTask columnId={column.id} />}
       </div>
       {sortHint && <ColumnSortHint label={sortHint} />}
     </div>
