@@ -83,9 +83,10 @@ function Column({
           column={column}
           disableDragDrop={disableDragDrop}
           onIsOverChange={setIsDropzoneOver}
-        />
-        {/* New work starts in an open column; finished ones only collect. */}
-        {!column.isFinal && <ColumnAddTask columnId={column.id} />}
+        >
+          {/* New work starts in an open column; finished ones only collect. */}
+          {!column.isFinal && <ColumnAddTask columnId={column.id} />}
+        </ColumnDropzone>
       </div>
       {sortHint && <ColumnSortHint label={sortHint} />}
     </div>

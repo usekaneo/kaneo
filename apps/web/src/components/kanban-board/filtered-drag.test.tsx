@@ -327,6 +327,28 @@ describe("cross-column dragging", () => {
     expect(shownIds(view, "doing")).toBe("c,d");
     expect(mocks.reorder).not.toHaveBeenCalled();
   });
+
+  it("keeps board updates that arrive during a drag", () => {
+    const project = crossColumnBoard();
+    mocks.project = project;
+    const view = render(<KanbanBoard project={project} />);
+
+    fireEvent.click(view.getByText("start"));
+    fireEvent.click(view.getByText("over-c"));
+
+    const updated = crossColumnBoard();
+    updated.columns[1].tasks.push({
+      id: "e",
+      status: "doing",
+      position: 2,
+    } as (typeof updated.columns)[number]["tasks"][number]);
+    mocks.project = updated;
+    view.rerender(<KanbanBoard project={updated} />);
+    expect(shownIds(view, "doing")).toBe("a,c,d,e");
+
+    fireEvent.click(view.getByText("drop-on-card"));
+    expect(savedIds(1)).toEqual(["a", "c", "d", "e"]);
+  });
 });
 
 describe.each([

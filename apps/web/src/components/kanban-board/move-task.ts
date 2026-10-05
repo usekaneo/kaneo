@@ -1,25 +1,6 @@
 import { produce } from "immer";
 import type { ProjectWithTasks } from "@/types/project";
 
-export function getVisualTaskPlacement(
-  project: ProjectWithTasks,
-  activeId: string,
-) {
-  const column = project.columns.find((column) =>
-    column.tasks.some((task) => task.id === activeId),
-  );
-  if (!column) return null;
-
-  const index = column.tasks.findIndex((task) => task.id === activeId);
-  const nextTask = column.tasks[index + 1];
-  if (nextTask) return { overId: nextTask.id, insertAfterTarget: false };
-
-  const previousTask = column.tasks[index - 1];
-  if (previousTask) return { overId: previousTask.id, insertAfterTarget: true };
-
-  return { overId: column.id, insertAfterTarget: undefined };
-}
-
 export function moveBoardTask(
   project: ProjectWithTasks,
   activeId: string,

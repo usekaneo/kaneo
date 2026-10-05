@@ -1,7 +1,7 @@
 import { applyBoardReorder, rollbackBoardReorder } from "./apply-reorder";
 import { describe, expect, it } from "vite-plus/test";
 import type { ProjectWithTasks } from "@/types/project";
-import { getVisualTaskPlacement, moveBoardTask } from "./move-task";
+import { moveBoardTask } from "./move-task";
 
 function board() {
   return {
@@ -82,35 +82,6 @@ describe("board moves", () => {
       "a",
       "c",
     ]);
-  });
-
-  it("derives the persisted position from the visual preview neighbors", () => {
-    const preview = moveBoardTask(board(), "a", "c", false, false)!;
-    expect(getVisualTaskPlacement(preview.project, "a")).toEqual({
-      overId: "c",
-      insertAfterTarget: false,
-    });
-
-    const bottomPreview = moveBoardTask(board(), "a", "c", false, true)!;
-    expect(getVisualTaskPlacement(bottomPreview.project, "a")).toEqual({
-      overId: "c",
-      insertAfterTarget: true,
-    });
-
-    const middleBoard = board();
-    middleBoard.columns[1].tasks.push({
-      id: "d",
-      status: "doing",
-      position: 1,
-    } as (typeof middleBoard.columns)[number]["tasks"][number]);
-    const middlePreview = moveBoardTask(middleBoard, "a", "d", false, false)!;
-    expect(
-      middlePreview.project.columns[1].tasks.map((task) => task.id),
-    ).toEqual(["c", "a", "d"]);
-    expect(getVisualTaskPlacement(middlePreview.project, "a")).toEqual({
-      overId: "d",
-      insertAfterTarget: false,
-    });
   });
 });
 

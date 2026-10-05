@@ -4,7 +4,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useEffect } from "react";
+import { type ReactNode, useEffect } from "react";
 import type { ProjectWithTasks } from "@/types/project";
 import TaskCard from "../task-card";
 
@@ -12,12 +12,14 @@ type ColumnDropzoneProps = {
   column: ProjectWithTasks["columns"][number];
   disableDragDrop?: boolean;
   onIsOverChange?: (isOver: boolean) => void;
+  children?: ReactNode;
 };
 
 export function ColumnDropzone({
   column,
   disableDragDrop = false,
   onIsOverChange,
+  children,
 }: ColumnDropzoneProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
@@ -36,7 +38,7 @@ export function ColumnDropzone({
   const hidden = reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98 };
 
   return (
-    <div ref={setNodeRef} className="flex-1 min-h-0">
+    <div ref={setNodeRef} className="flex min-h-full flex-col">
       <SortableContext
         items={column.tasks}
         strategy={verticalListSortingStrategy}
@@ -46,8 +48,6 @@ export function ColumnDropzone({
             {column.tasks.map((task) => (
               <motion.div
                 key={task.id}
-                // The dragged card only changes columns in the drag preview,
-                // so it must not fade out of one column and into the next.
                 initial={task.id === active?.id ? false : hidden}
                 animate={
                   reduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }
@@ -65,6 +65,7 @@ export function ColumnDropzone({
           </AnimatePresence>
         </div>
       </SortableContext>
+      {children}
     </div>
   );
 }
