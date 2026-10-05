@@ -12,6 +12,7 @@ import {
 import { subscribeToEvent } from "../events";
 import { findInaccessibleProjectIds } from "../project-access/find-inaccessible-project-ids";
 import { filterUsersWithProjectAccess } from "../project-access/filter-users-with-project-access";
+import { listWorkspaceProjectIds } from "../project-access/list-workspace-project-ids";
 import {
   hasInstanceAdminRole,
   instanceAdminRoleSql,
@@ -797,6 +798,11 @@ subscribeToEvent<{ workspaceId: string; userId: string }>(
     const message = { type: "PROJECT_ACCESS_CHANGED", workspaceId };
     deliverToLocalUserConnections(userId, message);
     await revocationDelivery?.send({ userId, message, origin: INSTANCE_ID });
+    for (const projectId of await listWorkspaceProjectIds(workspaceId))
+      broadcastToProject(projectId, {
+        type: "PROJECT_MEMBERS_UPDATED",
+        projectId,
+      });
   },
 );
 

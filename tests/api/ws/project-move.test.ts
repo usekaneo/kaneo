@@ -73,6 +73,10 @@ vi.mock(
     findInaccessibleProjectIds: m.inaccessible,
   }),
 );
+vi.mock(
+  "../../../apps/api/src/project-access/list-workspace-project-ids",
+  () => ({ listWorkspaceProjectIds: async () => [] }),
+);
 const projectAccessUpdated = vi
   .mocked(subscribeToEvent)
   .mock.calls.find(([eventName]) => eventName === "project_access.updated")![1];

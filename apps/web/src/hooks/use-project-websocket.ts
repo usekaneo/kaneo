@@ -188,6 +188,15 @@ export function useProjectWebSocket(projectId: string) {
         if (disposed || activeSocket !== ws) return;
         try {
           const message = JSON.parse(event.data);
+          if (message.type === "PROJECT_MEMBERS_UPDATED") {
+            void queryClient.invalidateQueries({
+              predicate: (query) =>
+                query.queryKey[0] === "workspace-users" &&
+                query.queryKey[2] === "project" &&
+                query.queryKey[3] === projectId,
+            });
+            return;
+          }
           if (
             message.taskId &&
             [

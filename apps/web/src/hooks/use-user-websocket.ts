@@ -150,6 +150,7 @@ export function useUserWebSocket() {
               ["assigned-tasks", workspaceId],
               ["search", { workspaceId }],
               ["workspace-activity", workspaceId],
+              ["labels", workspaceId],
               ["notifications"],
             ])
               void queryClient.invalidateQueries({ queryKey });
