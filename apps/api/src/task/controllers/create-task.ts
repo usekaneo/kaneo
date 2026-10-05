@@ -133,6 +133,11 @@ async function createTask({
       eq(columnTable.slug, resolvedStatus),
     ),
   });
+  // A rule would never fire on a task that starts out completed.
+  if (recurrence && column?.isFinal)
+    throw new HTTPException(400, {
+      message: "Create the task in an open column to make it repeat",
+    });
 
   const createdTask = await db.transaction(async (tx) => {
     const taskNumber = await claimTaskNumber(projectId, tx);

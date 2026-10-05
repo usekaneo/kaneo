@@ -9811,7 +9811,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown project",
+            "description": "Invalid body, unknown project, or a repeating task in a final column",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10865,7 +10865,7 @@
           "Tasks"
         ],
         "summary": "Update task recurrence",
-        "description": "Make a task repeat, or stop it repeating. When a repeating task moves into a final column, the next task is created in the project's first open column with its dates moved forward one interval from the completed task's due date, and the rule moves to that new task.",
+        "description": "Make a task repeat, or stop it repeating. When a repeating task moves into a final column, the next task is created in the project's first open column with its dates moved forward one interval from the completed task's due date, and the rule moves to that new task. A completed task cannot start repeating: reopen it, or set the rule on its next task.",
         "parameters": [
           {
             "schema": {
@@ -10937,6 +10937,16 @@
           },
           "404": {
             "description": "Task not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The task is completed and no longer holds a rule; reopen it first",
             "content": {
               "text/plain": {
                 "schema": {

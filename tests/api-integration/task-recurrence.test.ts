@@ -365,6 +365,73 @@ describe("API integration: recurring tasks", () => {
     });
   });
 
+  it("only lets a completed task edit the rule it still holds", async () => {
+    const { project, columns, app } = await seedProject();
+    const task = await seedTask(project.id, columns.done.id, {
+      status: "done",
+    });
+    const monthly = { ...weekly, frequency: "monthly" } as const;
+    const setRule = (recurrence: unknown) =>
+      request(app, "PUT", `/api/task/recurrence/${task.id}`, { recurrence });
+
+    // The rule has not moved yet, so the next task will take the edit.
+    expect((await setRule(monthly)).status).toBe(200);
+
+    // Another request claims the rule while this edit waits for the row.
+    let commitClaim = () => {};
+    const claimCommitted = new Promise<void>((resolve) => {
+      commitClaim = resolve;
+    });
+    let claimLocked = () => {};
+    const locked = new Promise<void>((resolve) => {
+      claimLocked = resolve;
+    });
+    const claim = db.transaction(async (tx) => {
+      await tx
+        .update(schema.taskTable)
+        .set({ recurrence: null })
+        .where(eq(schema.taskTable.id, task.id));
+      claimLocked();
+      await claimCommitted;
+    });
+    await locked;
+    const edit = setRule(weekly);
+    await vi.waitFor(async () => {
+      const { rows } = await db.execute(
+        sql`select 1 from pg_stat_activity where wait_event_type = 'Lock'`,
+      );
+      if (!rows.length) throw new Error("The edit is not waiting yet");
+    });
+    commitClaim();
+    await claim;
+
+    expect((await edit).status).toBe(409);
+    expect((await setRule(null)).status).toBe(200);
+    const stored = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, task.id),
+    });
+    expect(stored?.recurrence).toBeNull();
+  });
+
+  it("does not create a task in a final column that repeats", async () => {
+    const { project, app } = await seedProject();
+
+    const created = await request(app, "POST", `/api/task/${project.id}`, {
+      title: "Water the plants",
+      description: "",
+      priority: "no-priority",
+      status: "done",
+      recurrence: weekly,
+    });
+
+    expect(created.status).toBe(400);
+    expect(
+      await db.query.taskTable.findMany({
+        where: eq(schema.taskTable.projectId, project.id),
+      }),
+    ).toHaveLength(0);
+  });
+
   it("tells clients that the completed task no longer repeats", async () => {
     const { project, columns } = await seedProject();
     const task = await seedTask(project.id, columns.done.id, {

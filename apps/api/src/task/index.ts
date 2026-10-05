@@ -301,7 +301,9 @@ const createTaskRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The created task", taskSchema),
-    400: errorResponse("Invalid body, or unknown project"),
+    400: errorResponse(
+      "Invalid body, unknown project, or a repeating task in a final column",
+    ),
     403: errorResponse(
       "No workspace access, or missing task:create permission",
     ),
@@ -638,7 +640,7 @@ const updateTaskRecurrenceRoute = createRoute({
   tags: ["Tasks"],
   summary: "Update task recurrence",
   description:
-    "Make a task repeat, or stop it repeating. When a repeating task moves into a final column, the next task is created in the project's first open column with its dates moved forward one interval from the completed task's due date, and the rule moves to that new task.",
+    "Make a task repeat, or stop it repeating. When a repeating task moves into a final column, the next task is created in the project's first open column with its dates moved forward one interval from the completed task's due date, and the rule moves to that new task. A completed task cannot start repeating: reopen it, or set the rule on its next task.",
   middleware: [
     workspaceAccess.fromTask(),
     requireWorkspacePermission({ task: ["update"] }),
@@ -658,6 +660,9 @@ const updateTaskRecurrenceRoute = createRoute({
       "No workspace access, or missing task:update permission",
     ),
     404: errorResponse("Task not found"),
+    409: errorResponse(
+      "The task is completed and no longer holds a rule; reopen it first",
+    ),
   },
 });
 
