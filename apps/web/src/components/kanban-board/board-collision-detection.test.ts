@@ -18,13 +18,17 @@ const rects = new Map([
   ["doing", rect(320, 100, 300, 700)],
   ["c", rect(330, 110, 280, 80)],
   ["d", rect(330, 200, 280, 80)],
+  ["scrolled", rect(330, 10, 280, 80)],
 ]);
 
 const columnData = {
   empty: { type: "column", column: { id: "empty", tasks: [] } },
   doing: {
     type: "column",
-    column: { id: "doing", tasks: [{ id: "c" }, { id: "d" }] },
+    column: {
+      id: "doing",
+      tasks: [{ id: "scrolled" }, { id: "c" }, { id: "d" }],
+    },
   },
 } as Record<string, unknown>;
 
@@ -68,8 +72,14 @@ describe("boardCollisionDetection", () => {
     expect(detect({ x: 400, y: 104 })).toEqual(["c"]);
   });
 
-  it("snaps to a column across the gap between columns", () => {
-    expect(detect({ x: 310, y: 160 })).toEqual(["empty"]);
+  it("snaps to the nearer column across the gap between columns", () => {
+    expect(detect({ x: 305, y: 160 })).toEqual(["empty"]);
+    expect(detect({ x: 315, y: 160 })).toEqual(["c"]);
+  });
+
+  it("ignores cards scrolled out of their column", () => {
+    expect(detect({ x: 400, y: 50 })).toEqual([]);
+    expect(detect({ x: 400, y: 101 })).toEqual(["c"]);
   });
 
   it("finds nothing outside every column", () => {

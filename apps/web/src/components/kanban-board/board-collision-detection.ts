@@ -1,7 +1,7 @@
 import {
   type CollisionDetection,
   closestCorners,
-  pointerWithin,
+  type DroppableContainer,
 } from "@dnd-kit/core";
 import type { ProjectWithTasks } from "@/types/project";
 
@@ -20,33 +20,34 @@ export const boardCollisionDetection: CollisionDetection = (args) => {
   } = args;
   if (!pointer) return closestCorners(args);
 
-  const [hit] = pointerWithin(args);
-  const target = hit
-    ? droppableContainers.find((container) => container.id === hit.id)
-    : droppableContainers.find((container) => {
-        const rect = droppableRects.get(container.id);
-        return (
-          (container.data.current as ColumnData | undefined)?.type ===
-            "column" &&
-          rect !== undefined &&
-          pointer.y >= rect.top &&
-          pointer.y <= rect.bottom &&
-          pointer.x >= rect.left - COLUMN_GAP &&
-          pointer.x <= rect.right + COLUMN_GAP
-        );
-      });
-  if (!target) return [];
+  let column: DroppableContainer | undefined;
+  let columnDistance = COLUMN_GAP;
+  for (const container of droppableContainers) {
+    if ((container.data.current as ColumnData | undefined)?.type !== "column")
+      continue;
+    const rect = droppableRects.get(container.id);
+    if (!rect || pointer.y < rect.top || pointer.y > rect.bottom) continue;
+    const distance = Math.max(rect.left - pointer.x, pointer.x - rect.right, 0);
+    if (distance < columnDistance) {
+      column = container;
+      columnDistance = distance;
+    }
+  }
+  const columnRect = column && droppableRects.get(column.id);
+  if (!column || !columnRect) return [];
 
-  const data = target.data.current as ColumnData | undefined;
-  if (data?.type !== "column" || !data.column?.tasks.length)
-    return [{ id: target.id }];
-
-  let closest: { id: string | number } = { id: target.id };
+  let closest: { id: string | number } = { id: column.id };
   let closestDistance = Number.POSITIVE_INFINITY;
-  for (const task of data.column.tasks) {
+  const tasks =
+    (column.data.current as ColumnData | undefined)?.column?.tasks ?? [];
+  for (const task of tasks) {
     const rect = droppableRects.get(task.id);
-    if (!rect) continue;
-    const distance = Math.abs(rect.top + rect.height / 2 - pointer.y);
+    if (!rect || rect.bottom < columnRect.top || rect.top > columnRect.bottom)
+      continue;
+    const distance =
+      pointer.y >= rect.top && pointer.y <= rect.bottom
+        ? 0
+        : Math.abs(rect.top + rect.height / 2 - pointer.y);
     if (distance < closestDistance) {
       closest = { id: task.id };
       closestDistance = distance;
