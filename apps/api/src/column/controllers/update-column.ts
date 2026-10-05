@@ -4,6 +4,7 @@ import db from "../../database";
 import { columnTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { getProjectSubtaskParentProjects } from "../../task/get-subtask-parent-projects";
+import { VIRTUAL_STATUSES } from "../../task/validate-task-fields";
 import { toSlug } from "./create-column";
 
 async function updateColumn(
@@ -31,6 +32,12 @@ async function updateColumn(
     if (!slug) {
       throw new HTTPException(400, {
         message: "Column name must contain at least one alphanumeric character",
+      });
+    }
+
+    if ((VIRTUAL_STATUSES as readonly string[]).includes(slug)) {
+      throw new HTTPException(409, {
+        message: `Column slug "${slug}" is reserved for virtual task statuses`,
       });
     }
 
