@@ -1,3 +1,4 @@
+import type { DbOrTx } from "./db-or-tx";
 import { findInaccessibleProjectIds } from "./find-inaccessible-project-ids";
 import { isProjectAccessRestricted } from "./is-project-access-restricted";
 import { getMemberProjectAccess } from "./get-member-project-access";
@@ -12,14 +13,15 @@ export async function keepHiddenGrants(request: {
   actorId: string;
   userId: string;
   access: ResolvedProjectAccess;
+  database: DbOrTx;
 }): Promise<Outcome> {
-  const { workspaceId, actorId, userId, access } = request;
+  const { workspaceId, actorId, userId, access, database } = request;
 
-  if (!(await isProjectAccessRestricted(workspaceId, actorId))) {
+  if (!(await isProjectAccessRestricted(workspaceId, actorId, database))) {
     return { ok: true, access };
   }
 
-  const current = await getMemberProjectAccess(workspaceId, userId);
+  const current = await getMemberProjectAccess(workspaceId, userId, database);
   if (current.projectAccess === "all") {
     return {
       ok: false,
@@ -28,7 +30,11 @@ export async function keepHiddenGrants(request: {
     };
   }
 
-  const hidden = await findInaccessibleProjectIds(actorId, current.projectIds);
+  const hidden = await findInaccessibleProjectIds(
+    actorId,
+    current.projectIds,
+    database,
+  );
   return {
     ok: true,
     access: {

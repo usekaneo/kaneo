@@ -3,7 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../../database";
 import { publishEvent } from "../../events";
 import { keepHiddenGrants } from "../../project-access/keep-hidden-grants";
-import { lockActorMembership } from "../../project-access/lock-actor-membership";
+import { lockAccessChange } from "../../project-access/lock-access-change";
 import { replaceMemberProjectAccess } from "../../project-access/replace-member-project-access";
 import type { ProjectAccessMode } from "../../project-access/project-access-mode";
 import { resolveProjectAccessRequest } from "../../project-access/resolve-project-access-request";
@@ -53,23 +53,28 @@ async function updateMemberProjectAccess(request: {
     });
   }
 
-  const outcome = await keepHiddenGrants({
-    workspaceId,
-    actorId,
-    userId,
-    access: resolution.access,
-  });
-
-  if (!outcome.ok) {
-    throw new HTTPException(403, { message: outcome.message });
-  }
-
   const unassigned = await db.transaction(async (tx) => {
-    if (!(await lockActorMembership(tx, workspaceId, actorId))) {
+    const lock = await lockAccessChange(tx, { workspaceId, actorId, userId });
+    if (!lock.actorAllowed) {
       throw new HTTPException(403, {
         message: "You don't have access to this workspace",
       });
     }
+    if (!lock.targetIsMember) {
+      throw new HTTPException(404, { message: "Member not found" });
+    }
+
+    const outcome = await keepHiddenGrants({
+      workspaceId,
+      actorId,
+      userId,
+      access: resolution.access,
+      database: tx,
+    });
+    if (!outcome.ok) {
+      throw new HTTPException(403, { message: outcome.message });
+    }
+
     await replaceMemberProjectAccess(tx, {
       workspaceId,
       userId,
