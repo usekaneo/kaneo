@@ -187,8 +187,54 @@ describe("managing member project access", () => {
     );
     expect(visible.status).toBe(200);
     expect(
-      ((await visible.json()) as { projectIds: string[] }).projectIds.sort(),
-    ).toEqual([ctx.alpha.id, ctx.beta.id].sort());
+      ((await visible.json()) as { projectIds: string[] }).projectIds,
+    ).toEqual([ctx.alpha.id]);
+    const stored = await readMemberAccessRows(ctx.workspace.id, member.id);
+    expect(stored.grants.map((grant) => grant.projectId).sort()).toEqual(
+      [ctx.alpha.id, ctx.beta.id].sort(),
+    );
+
+    const listed = await request(
+      `/workspace/${ctx.workspace.id}/project-access`,
+    );
+    expect(listed.status).toBe(200);
+    const entries = (await listed.json()) as {
+      userId: string;
+      projectIds: string[];
+    }[];
+    expect(JSON.stringify(entries)).not.toContain(ctx.beta.id);
+    expect(entries.find((entry) => entry.userId === member.id)).toMatchObject({
+      projectIds: [ctx.alpha.id],
+    });
+  });
+
+  it("unassigns a member from tasks in projects they lose", async () => {
+    const ctx = await createRestrictedWorkspace();
+    const member = await addWorkspaceMember(ctx.workspace.id);
+    await db
+      .update(schema.taskTable)
+      .set({ userId: member.id })
+      .where(eq(schema.taskTable.id, ctx.betaTask.id));
+    mockAuthenticatedSession(ctx.owner);
+
+    const restricted = await putMemberProjectAccess(
+      projectAccessApi(),
+      ctx.workspace.id,
+      member.id,
+      { projectAccess: "selected", projectIds: [ctx.alpha.id] },
+    );
+
+    expect(restricted.status).toBe(200);
+    const [task] = await db
+      .select({ userId: schema.taskTable.userId })
+      .from(schema.taskTable)
+      .where(eq(schema.taskTable.id, ctx.betaTask.id));
+    expect(task?.userId).toBeNull();
+    const activities = await db
+      .select({ type: schema.activityTable.type })
+      .from(schema.activityTable)
+      .where(eq(schema.activityTable.taskId, ctx.betaTask.id));
+    expect(activities.map((activity) => activity.type)).toContain("unassigned");
   });
 
   it("rejects projects from another workspace", async () => {

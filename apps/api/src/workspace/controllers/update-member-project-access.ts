@@ -3,9 +3,11 @@ import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../../database";
 import { publishEvent } from "../../events";
 import { keepHiddenGrants } from "../../project-access/keep-hidden-grants";
+import { lockActorMembership } from "../../project-access/lock-actor-membership";
 import { replaceMemberProjectAccess } from "../../project-access/replace-member-project-access";
 import type { ProjectAccessMode } from "../../project-access/project-access-mode";
 import { resolveProjectAccessRequest } from "../../project-access/resolve-project-access-request";
+import { unassignInaccessibleTasks } from "../../project-access/unassign-inaccessible-tasks";
 
 async function updateMemberProjectAccess(request: {
   workspaceId: string;
@@ -62,17 +64,26 @@ async function updateMemberProjectAccess(request: {
     throw new HTTPException(403, { message: outcome.message });
   }
 
-  await db.transaction((tx) =>
-    replaceMemberProjectAccess(tx, {
+  const unassigned = await db.transaction(async (tx) => {
+    if (!(await lockActorMembership(tx, workspaceId, actorId))) {
+      throw new HTTPException(403, {
+        message: "You don't have access to this workspace",
+      });
+    }
+    await replaceMemberProjectAccess(tx, {
       workspaceId,
       userId,
       ...outcome.access,
-    }),
-  );
+    });
+    return unassignInaccessibleTasks(tx, { workspaceId, userId, actorId });
+  });
 
   await publishEvent("project_access.updated", { workspaceId, userId });
+  for (const projectId of new Set(unassigned.map((task) => task.projectId))) {
+    await publishEvent("task.bulk_unassigned", { projectId, userId: actorId });
+  }
 
-  return { userId, ...outcome.access };
+  return { userId, ...resolution.access };
 }
 
 export default updateMemberProjectAccess;

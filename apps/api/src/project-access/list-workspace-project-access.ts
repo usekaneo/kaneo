@@ -1,9 +1,11 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import db, { schema } from "../database";
 import type { MemberProjectAccess } from "./member-project-access-type";
+import { projectAccessCondition } from "./project-access-condition";
 
 export async function listWorkspaceProjectAccess(
   workspaceId: string,
+  viewerId: string,
 ): Promise<MemberProjectAccess[]> {
   const [rules, grants] = await Promise.all([
     db
@@ -19,7 +21,15 @@ export async function listWorkspaceProjectAccess(
         projectId: schema.workspaceMemberProjectTable.projectId,
       })
       .from(schema.workspaceMemberProjectTable)
-      .where(eq(schema.workspaceMemberProjectTable.workspaceId, workspaceId)),
+      .where(
+        and(
+          eq(schema.workspaceMemberProjectTable.workspaceId, workspaceId),
+          projectAccessCondition(
+            viewerId,
+            schema.workspaceMemberProjectTable.projectId,
+          ),
+        ),
+      ),
   ]);
 
   return rules

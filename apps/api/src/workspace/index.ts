@@ -47,7 +47,7 @@ const getWorkspaceProjectAccessRoute = createRoute({
   tags: ["Workspaces"],
   summary: "Get member project access",
   description:
-    "List the members who are limited to selected projects, with the projects each one can access. Everyone else in the workspace can access every project.",
+    "List the members who are limited to selected projects, with the projects each one can access. Everyone else in the workspace can access every project. A caller whose own access is limited only sees the projects they can access.",
   middleware: [
     workspaceAccess.fromParam("workspaceId"),
     requireWorkspacePermission({ member: ["update"] }),
@@ -110,7 +110,10 @@ const workspace = apiRouter<BaseVariables & { workspaceId: string }>()
     ),
   )
   .openapi(getWorkspaceProjectAccessRoute, async (c) =>
-    c.json(await listWorkspaceProjectAccess(c.get("workspaceId")), 200),
+    c.json(
+      await listWorkspaceProjectAccess(c.get("workspaceId"), c.get("userId")),
+      200,
+    ),
   )
   .openapi(updateMemberProjectAccessRoute, async (c) => {
     const { userId } = c.req.valid("param");

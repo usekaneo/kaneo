@@ -28,5 +28,5 @@ export const memberProjectAccessListSchema = z
   .array(memberProjectAccessSchema)
   .openapi({
     description:
-      "Members limited to selected projects. Members not listed can access every project.",
+      "Members limited to selected projects. Members not listed can access every project. Project IDs only include projects the caller can access.",
   });

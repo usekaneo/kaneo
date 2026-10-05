@@ -18838,7 +18838,7 @@
           "Workspaces"
         ],
         "summary": "Get member project access",
-        "description": "List the members who are limited to selected projects, with the projects each one can access. Everyone else in the workspace can access every project.",
+        "description": "List the members who are limited to selected projects, with the projects each one can access. Everyone else in the workspace can access every project. A caller whose own access is limited only sees the projects they can access.",
         "parameters": [
           {
             "schema": {
@@ -18859,7 +18859,7 @@
                   "items": {
                     "$ref": "#/components/schemas/MemberProjectAccess"
                   },
-                  "description": "Members limited to selected projects. Members not listed can access every project."
+                  "description": "Members limited to selected projects. Members not listed can access every project. Project IDs only include projects the caller can access."
                 }
               }
             }
