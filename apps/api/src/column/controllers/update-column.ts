@@ -1,9 +1,10 @@
-import { eq } from "drizzle-orm";
+import { eq, and, ne } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { getProjectSubtaskParentProjects } from "../../task/get-subtask-parent-projects";
+import { toSlug } from "./create-column";
 
 async function updateColumn(
   id: string,
@@ -22,10 +23,41 @@ async function updateColumn(
     throw new HTTPException(404, { message: "Column not found" });
   }
 
+  let newSlug: string | undefined;
+
+  if (data.name !== undefined && data.name !== existing.name) {
+    const slug = toSlug(data.name);
+
+    if (!slug) {
+      throw new HTTPException(400, {
+        message: "Column name must contain at least one alphanumeric character",
+      });
+    }
+
+    if (slug !== existing.slug) {
+      const conflict = await db.query.columnTable.findFirst({
+        where: and(
+          eq(columnTable.projectId, existing.projectId),
+          eq(columnTable.slug, slug),
+          ne(columnTable.id, id),
+        ),
+      });
+
+      if (conflict) {
+        throw new HTTPException(409, {
+          message: `Column with slug "${slug}" already exists in this project`,
+        });
+      }
+
+      newSlug = slug;
+    }
+  }
+
   const [updated] = await db
     .update(columnTable)
     .set({
       ...(data.name !== undefined && { name: data.name }),
+      ...(newSlug !== undefined && { slug: newSlug }),
       ...(data.icon !== undefined && { icon: data.icon }),
       ...(data.color !== undefined && { color: data.color }),
       ...(data.isFinal !== undefined && { isFinal: data.isFinal }),
