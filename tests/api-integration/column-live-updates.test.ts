@@ -24,19 +24,20 @@ it("announces committed column changes for focused remote boards", async () => {
   await updateColumn(column.id, { name: "Reviewed", color: "#123456" });
   await reorderColumns(project.id, [{ id: column.id, position: 0 }]);
   await deleteColumn(column.id);
-  expect(publish.mock.calls).toEqual(
-    Array.from({ length: 4 }, () => [
-      "project.updated",
-      { projectId: project.id },
-    ]),
-  );
+  expect(publish.mock.calls).toEqual([
+    ["project.updated", { projectId: project.id }],
+    ["subtask-parents.refresh", { projects: [{ projectId: project.id }] }],
+    ["project.updated", { projectId: project.id }],
+    ["project.updated", { projectId: project.id }],
+    ["project.updated", { projectId: project.id }],
+  ]);
   expect(
     await db.query.columnTable.findFirst({
       where: (table, { eq }) => eq(table.id, column.id),
     }),
   ).toBeUndefined();
   await expect(deleteColumn(column.id)).rejects.toThrow("Column not found");
-  expect(publish).toHaveBeenCalledTimes(4);
+  expect(publish).toHaveBeenCalledTimes(5);
 });
 
 it.each(["missing", "foreign"])(
