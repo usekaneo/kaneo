@@ -92,7 +92,10 @@ async function updateColumn(
     return updatedColumn;
   });
 
-  if (existing.isFinal !== updated.isFinal) {
+  if (
+    existing.isFinal !== updated.isFinal ||
+    existing.slug !== updated.slug
+  ) {
     const parents = await getProjectSubtaskParentProjects(
       updated.projectId,
       updated.slug,
