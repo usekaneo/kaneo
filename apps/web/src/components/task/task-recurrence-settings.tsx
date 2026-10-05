@@ -26,17 +26,16 @@ const PATTERNS: Pattern[] = [
 ];
 const FREQUENCIES: Frequency[] = ["daily", "weekly", "monthly", "yearly"];
 
-// Weekdays only belong to weekly rules; a new weekly rule starts on the due
-// date's weekday.
+// Weekdays only belong to weekly rules. Until the user picks some, a weekly
+// rule repeats on the due date's weekday.
 function withFrequency(
   recurrence: TaskRecurrence,
   frequency: Frequency,
   interval: number,
-  defaultWeekday: number,
 ): TaskRecurrence {
-  const { weekdays, ...rule } = recurrence;
+  const { weekdays: _, ...rule } = recurrence;
   return frequency === "weekly"
-    ? { ...rule, frequency, interval, weekdays: weekdays ?? [defaultWeekday] }
+    ? { ...recurrence, frequency, interval }
     : { ...rule, frequency, interval };
 }
 
@@ -74,7 +73,7 @@ export default function TaskRecurrenceSettings({
   };
 
   const change = (frequency: Frequency, interval: number) =>
-    onChange(withFrequency(recurrence, frequency, interval, defaultWeekday));
+    onChange(withFrequency(recurrence, frequency, interval));
 
   return (
     <div className="flex flex-col gap-3 border-t border-border p-3">

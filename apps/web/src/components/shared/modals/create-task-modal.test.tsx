@@ -348,6 +348,10 @@ describe("CreateTaskModal", () => {
         }),
       ),
     );
+    // The rule follows the due date's weekday until the user picks days.
+    expect(createTask.mock.calls.at(-1)?.[0].recurrence).not.toHaveProperty(
+      "weekdays",
+    );
   });
 
   it("waits for the chosen project's columns before submitting", async () => {

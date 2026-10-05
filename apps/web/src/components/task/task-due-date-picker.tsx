@@ -67,7 +67,7 @@ export default function TaskDueDatePicker({
             recurrence && "bg-accent text-foreground",
           )}
           onClick={() =>
-            onRecurrenceChange(recurrence ? null : defaultRecurrence(dueDate))
+            onRecurrenceChange(recurrence ? null : defaultRecurrence())
           }
         >
           <Repeat className="h-4 w-4" />
