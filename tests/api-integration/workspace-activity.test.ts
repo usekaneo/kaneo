@@ -204,7 +204,7 @@ describe("API integration: workspace activity", () => {
     });
     await db.insert(schema.columnTable).values({
       projectId: project.id,
-      slug: columns.todo.slug,
+      slug: `${columns.todo.slug}-other`,
       name: "Other queue",
       position: -1,
     });

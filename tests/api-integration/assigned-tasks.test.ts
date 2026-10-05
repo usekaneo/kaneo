@@ -166,7 +166,7 @@ describe("API integration: assigned tasks", () => {
       .values({
         projectId: project.id,
         name: "Duplicate to-do",
-        slug: columns.todo.slug,
+        slug: `${columns.todo.slug}-final`,
         position: -1,
         isFinal: true,
       })
