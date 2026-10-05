@@ -421,6 +421,13 @@
       "when": 1790975740959,
       "tag": "0059_odd_medusa",
       "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1791233089423,
+      "tag": "0060_gorgeous_anthem",
+      "breakpoints": true
     }
   ]
 }
