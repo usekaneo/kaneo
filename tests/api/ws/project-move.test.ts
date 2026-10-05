@@ -27,10 +27,20 @@ const m = vi.hoisted(() => ({
   admins: vi.fn(),
   projectAccess: vi.fn(),
   inaccessible: vi.fn(),
+  sync: vi.fn(),
   redis: false,
   publish: vi.fn(),
   on: vi.fn(),
 }));
+vi.mock(
+  "../../../apps/api/src/ws/workspace-access",
+  async (importOriginal) => ({
+    ...(await importOriginal<
+      typeof import("../../../apps/api/src/ws/workspace-access")
+    >()),
+    syncWorkspaceAccess: m.sync,
+  }),
+);
 vi.mock("../../../apps/api/src/database", () => ({
   default: {
     select: (fields: Record<string, unknown>) => ({
@@ -72,20 +82,20 @@ vi.mock("../../../apps/api/src/redis", () => ({
   getRedisSub: () => ({
     on: m.on,
     off: vi.fn(),
-    psubscribe: vi.fn(),
+    psubscribe: vi.fn(async () => {}),
     punsubscribe: vi.fn(),
   }),
   closeRedis: vi.fn(),
 }));
 const tracked: Array<[string, ReturnType<typeof addConnection>]> = [];
-function connect(projectId = "project", workspaceId = "old") {
+function connect(projectId = "project", workspaceId = "old", userId = "user") {
   const ws = { send: vi.fn(), close: vi.fn() };
   tracked.push([
     projectId,
     addConnection(
       projectId,
       ws as unknown as WSContext,
-      "user",
+      userId,
       "window",
       workspaceId,
     ),
@@ -386,6 +396,81 @@ describe("project access revocation", () => {
     expect(
       types.filter((type) => type === "PROJECT_ACCESS_CHANGED"),
     ).toHaveLength(2);
+  });
+
+  it("rechecks local project sockets once per user after Redis reconnects", async () => {
+    m.redis = true;
+    await initializeWebSocketAdapter();
+    const revoked = connect();
+    const kept = connect("kept-project");
+    const elsewhere = connect("other-project", "other-workspace");
+    const colleague = connect("project", "old", "colleague");
+    const tab = { send: vi.fn(), close: vi.fn() };
+    const colleagueTab = { send: vi.fn(), close: vi.fn() };
+    const conn = addUserConnection("user", tab as unknown as WSContext);
+    const colleagueConn = addUserConnection(
+      "colleague",
+      colleagueTab as unknown as WSContext,
+    );
+    m.inaccessible.mockImplementation(async (userId: string) =>
+      userId === "user" ? ["project"] : [],
+    );
+    try {
+      const ready = m.on.mock.calls.find(([event]) => event === "ready")![1];
+      ready();
+      await vi.waitFor(() =>
+        expect(revoked.close).toHaveBeenCalledWith(
+          1008,
+          "Project access revoked",
+        ),
+      );
+      expect(m.inaccessible).toHaveBeenCalledTimes(2);
+      expect(m.inaccessible).toHaveBeenCalledWith("user", [
+        "project",
+        "kept-project",
+        "other-project",
+      ]);
+      expect(m.inaccessible).toHaveBeenCalledWith("colleague", ["project"]);
+      expect(kept.close).not.toHaveBeenCalled();
+      expect(elsewhere.close).not.toHaveBeenCalled();
+      expect(colleague.close).not.toHaveBeenCalled();
+      await vi.waitFor(() =>
+        expect(tab.send).toHaveBeenCalledWith(
+          JSON.stringify({
+            type: "PROJECT_ACCESS_CHANGED",
+            workspaceId: "old",
+          }),
+        ),
+      );
+      expect(tab.send).toHaveBeenCalledOnce();
+      expect(tab.close).not.toHaveBeenCalled();
+      expect(colleagueTab.send).not.toHaveBeenCalled();
+      expect(m.sync).toHaveBeenCalledWith("user", tab);
+      expect(m.sync).toHaveBeenCalledWith("colleague", colleagueTab);
+    } finally {
+      removeUserConnection("user", conn);
+      removeUserConnection("colleague", colleagueConn);
+    }
+  });
+
+  it("keeps project sockets open when the reconnect recheck fails", async () => {
+    m.redis = true;
+    await initializeWebSocketAdapter();
+    const ws = connect();
+    const tab = { send: vi.fn(), close: vi.fn() };
+    const conn = addUserConnection("user", tab as unknown as WSContext);
+    m.inaccessible.mockRejectedValueOnce(new Error("database unavailable"));
+    try {
+      const ready = m.on.mock.calls.find(([event]) => event === "ready")![1];
+      ready();
+      await vi.waitFor(() => expect(m.inaccessible).toHaveBeenCalledOnce());
+      await vi.waitFor(() => expect(m.sync).toHaveBeenCalled());
+      await Promise.resolve();
+      expect(ws.close).not.toHaveBeenCalled();
+      expect(tab.send).not.toHaveBeenCalled();
+    } finally {
+      removeUserConnection("user", conn);
+    }
   });
 });
 

@@ -215,11 +215,12 @@ export async function initializeWebSocketAdapter() {
         deliverToLocalUserConnections(msg.userId, msg.message);
       },
       async () => {
-        await Promise.all(
-          [...userConnections].flatMap(([userId, connections]) =>
+        await Promise.all([
+          ...[...userConnections].flatMap(([userId, connections]) =>
             [...connections].map(({ ws }) => syncWorkspaceAccess(userId, ws)),
           ),
-        );
+          recheckLocalProjectAccess(),
+        ]);
       },
     );
   } catch (err) {
@@ -313,16 +314,19 @@ function revokeLocalWorkspaceConnections(userId: string, workspaceId: string) {
 
 async function revokeLocalProjectConnections(
   userId: string,
-  workspaceId: string,
+  workspaceId?: string,
 ) {
+  const revokedWorkspaceIds = new Set<string>();
   const owned = [...projectConnections].flatMap(([projectId, connections]) =>
     [...connections]
       .filter(
-        (conn) => conn.userId === userId && conn.workspaceId === workspaceId,
+        (conn) =>
+          conn.userId === userId &&
+          (workspaceId === undefined || conn.workspaceId === workspaceId),
       )
       .map((conn) => ({ projectId, conn })),
   );
-  if (owned.length === 0) return;
+  if (owned.length === 0) return revokedWorkspaceIds;
   let denied: Set<string>;
   try {
     denied = new Set(
@@ -333,16 +337,41 @@ async function revokeLocalProjectConnections(
     );
   } catch (error) {
     console.error("Failed to verify project access:", error);
-    return;
+    return revokedWorkspaceIds;
   }
   for (const { projectId, conn } of owned) {
     if (!denied.has(projectId)) continue;
     if (!projectConnections.get(projectId)?.has(conn)) continue;
     removeConnection(projectId, conn);
+    revokedWorkspaceIds.add(conn.workspaceId);
     try {
       conn.ws.close(1008, "Project access revoked");
     } catch {}
   }
+  return revokedWorkspaceIds;
+}
+
+async function recheckLocalProjectAccess() {
+  const userIds = new Set(
+    [...projectConnections.values()].flatMap((connections) =>
+      [...connections].map((conn) => conn.userId),
+    ),
+  );
+  await Promise.all(
+    [...userIds].map(async (userId) => {
+      for (const workspaceId of await revokeLocalProjectConnections(userId)) {
+        const payload = JSON.stringify({
+          type: "PROJECT_ACCESS_CHANGED",
+          workspaceId,
+        });
+        for (const { ws } of userConnections.get(userId) ?? []) {
+          try {
+            ws.send(payload);
+          } catch {}
+        }
+      }
+    }),
+  );
 }
 
 export async function revokeUserConnections(userId: string) {

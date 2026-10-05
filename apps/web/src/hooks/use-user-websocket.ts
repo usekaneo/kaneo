@@ -3,11 +3,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { getApiUrl } from "@/fetchers/get-api-url";
+import getProjects from "@/fetchers/project/get-projects";
+import { evictProjectCache } from "@/lib/evict-project-cache";
 import {
   evictInaccessibleWorkspaceCache,
   evictWorkspaceCache,
 } from "@/lib/evict-workspace-cache";
 import { authClient } from "@/lib/auth-client";
+import { findRemovedProjectIds } from "@/lib/find-removed-project-ids";
 
 export function getUserWsUrl() {
   const base = getApiUrl("ws");
@@ -137,13 +140,31 @@ export function useUserWebSocket() {
             message.workspaceId
           ) {
             const { workspaceId } = message;
+            const projectsKey = ["projects", workspaceId];
+            const before =
+              queryClient.getQueryData<
+                NonNullable<Awaited<ReturnType<typeof getProjects>>>
+              >(projectsKey);
             for (const queryKey of [
-              ["projects", workspaceId],
+              projectsKey,
               ["assigned-tasks", workspaceId],
               ["search", { workspaceId }],
               ["workspace-activity", workspaceId],
+              ["notifications"],
             ])
               void queryClient.invalidateQueries({ queryKey });
+            if (before)
+              void queryClient
+                .fetchQuery({
+                  queryKey: projectsKey,
+                  queryFn: () => getProjects({ workspaceId }),
+                })
+                .then((after) => {
+                  if (disposed) return;
+                  for (const projectId of findRemovedProjectIds(before, after))
+                    evictProjectCache(queryClient, projectId);
+                })
+                .catch(() => {});
           }
           if (message.type === "NOTIFICATION_CREATED") {
             queryClient.invalidateQueries({ queryKey: ["notifications"] });
