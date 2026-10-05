@@ -14,17 +14,32 @@ function rect(left: number, top: number, width: number, height: number) {
 }
 
 const rects = new Map([
-  ["empty-column", rect(0, 100, 300, 700)],
-  ["neighbor-card", rect(320, 100, 300, 80)],
+  ["empty", rect(0, 100, 300, 700)],
+  ["doing", rect(320, 100, 300, 700)],
+  ["c", rect(330, 110, 280, 80)],
+  ["d", rect(330, 200, 280, 80)],
 ]);
+
+const columnData = {
+  empty: { type: "column", column: { id: "empty", tasks: [] } },
+  doing: {
+    type: "column",
+    column: { id: "doing", tasks: [{ id: "c" }, { id: "d" }] },
+  },
+} as Record<string, unknown>;
 
 function detect(pointer: { x: number; y: number } | null) {
   const droppableContainers = [...rects.keys()].map(
-    (id) => ({ id, disabled: false }) as unknown as DroppableContainer,
+    (id) =>
+      ({
+        id,
+        disabled: false,
+        data: { current: columnData[id] },
+      }) as unknown as DroppableContainer,
   );
   return boardCollisionDetection({
     active: { id: "card" } as never,
-    collisionRect: rect(100, 220, 300, 80),
+    collisionRect: rect(100, 120, 300, 80),
     droppableRects: rects,
     droppableContainers,
     pointerCoordinates: pointer,
@@ -33,14 +48,27 @@ function detect(pointer: { x: number; y: number } | null) {
 
 describe("boardCollisionDetection", () => {
   it("targets the empty column under the pointer over a closer card", () => {
-    expect(detect({ x: 150, y: 260 })).toEqual(["empty-column"]);
+    expect(detect({ x: 150, y: 160 })).toEqual(["empty"]);
+  });
+
+  it("targets the card under the pointer", () => {
+    expect(detect({ x: 400, y: 150 })).toEqual(["c"]);
+  });
+
+  it("targets the last card below a column's cards", () => {
+    expect(detect({ x: 400, y: 600 })).toEqual(["d"]);
+  });
+
+  it("targets the nearest card in the gap between cards", () => {
+    expect(detect({ x: 400, y: 194 })).toEqual(["c"]);
+    expect(detect({ x: 400, y: 197 })).toEqual(["d"]);
   });
 
   it("finds nothing when the pointer is between columns", () => {
-    expect(detect({ x: 310, y: 260 })).toEqual([]);
+    expect(detect({ x: 310, y: 160 })).toEqual([]);
   });
 
   it("falls back to corner distance without a pointer", () => {
-    expect(detect(null)[0]).toBe("neighbor-card");
+    expect(detect(null)[0]).toBe("c");
   });
 });
