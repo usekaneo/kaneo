@@ -1,7 +1,7 @@
 import { eq, and, ne } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { columnTable } from "../../database/schema";
+import { columnTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { getProjectSubtaskParentProjects } from "../../task/get-subtask-parent-projects";
 import { VIRTUAL_STATUSES } from "../../task/validate-task-fields";
@@ -60,21 +60,37 @@ async function updateColumn(
     }
   }
 
-  const [updated] = await db
-    .update(columnTable)
-    .set({
-      ...(data.name !== undefined && { name: data.name }),
-      ...(newSlug !== undefined && { slug: newSlug }),
-      ...(data.icon !== undefined && { icon: data.icon }),
-      ...(data.color !== undefined && { color: data.color }),
-      ...(data.isFinal !== undefined && { isFinal: data.isFinal }),
-    })
-    .where(eq(columnTable.id, id))
-    .returning();
+  const updated = await db.transaction(async (tx) => {
+    const [updatedColumn] = await tx
+      .update(columnTable)
+      .set({
+        ...(data.name !== undefined && { name: data.name }),
+        ...(newSlug !== undefined && { slug: newSlug }),
+        ...(data.icon !== undefined && { icon: data.icon }),
+        ...(data.color !== undefined && { color: data.color }),
+        ...(data.isFinal !== undefined && { isFinal: data.isFinal }),
+      })
+      .where(eq(columnTable.id, id))
+      .returning();
 
-  if (!updated) {
-    throw new HTTPException(500, { message: "Failed to update column" });
-  }
+    if (!updatedColumn) {
+      throw new HTTPException(500, { message: "Failed to update column" });
+    }
+
+    if (newSlug !== undefined) {
+      await tx
+        .update(taskTable)
+        .set({ status: newSlug })
+        .where(
+          and(
+            eq(taskTable.projectId, existing.projectId),
+            eq(taskTable.status, existing.slug),
+          ),
+        );
+    }
+
+    return updatedColumn;
+  });
 
   if (existing.isFinal !== updated.isFinal) {
     const parents = await getProjectSubtaskParentProjects(
