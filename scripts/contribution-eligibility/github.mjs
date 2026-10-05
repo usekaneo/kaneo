@@ -49,6 +49,27 @@ export class GitHub {
     }
   }
 
+  async convertToDraft(pullRequestId) {
+    if (typeof pullRequestId !== "string" || !pullRequestId.trim()) {
+      throw new Error("Missing pull request node ID.");
+    }
+    const result = await this.request("graphql", {
+      method: "POST",
+      body: {
+        query: `mutation($pullRequestId: ID!) {
+          convertPullRequestToDraft(input: { pullRequestId: $pullRequestId }) {
+            pullRequest { id isDraft }
+          }
+        }`,
+        variables: { pullRequestId },
+      },
+    });
+    const converted = result.data?.convertPullRequestToDraft?.pullRequest;
+    if (converted?.id !== pullRequestId || converted.isDraft !== true) {
+      throw new Error("GitHub did not convert the pull request to draft.");
+    }
+  }
+
   async linkedIssues(number) {
     const [owner, name] = this.repository.split("/");
     const issues = new Map();

@@ -8,6 +8,8 @@ const sha = "a".repeat(40);
 const policy = { vouchedContributors: [], exemptBots: [] };
 const pull = {
   number: 1,
+  node_id: "PR_test_1",
+  draft: false,
   state: "open",
   user: { id: 123, login: "newcomer", type: "User" },
   head: { sha },
@@ -33,6 +35,8 @@ function fixture(options = {}) {
   const requests = [];
   const statuses = [];
   const checks = new Map();
+  const drafts = new Set();
+  const conversions = [];
   const pulls = options.pulls ?? [pull];
   const fetcher = async (url, init) => {
     const parsed = new URL(url);
@@ -71,11 +75,35 @@ function fixture(options = {}) {
       const current = pulls.find(
         (item) => item.number === Number(path.split("/").at(-1)),
       );
-      data = { ...current, ...options.current };
+      data = {
+        ...current,
+        draft: drafts.has(current.node_id) || current.draft,
+        ...options.current,
+      };
     } else if (path.includes("/collaborators/")) {
       status = options.permissionStatus ?? (options.permission ? 200 : 404);
       data = options.permission ?? {};
     } else if (path === "/graphql") {
+      if (body.query.includes("convertPullRequestToDraft")) {
+        if (options.conversionStatus) {
+          return Response.json({}, { status: options.conversionStatus });
+        }
+        if (options.conversionErrors) {
+          return Response.json({ errors: [{ message: "synthetic failure" }] });
+        }
+        conversions.push(body.variables.pullRequestId);
+        drafts.add(body.variables.pullRequestId);
+        return Response.json({
+          data: {
+            convertPullRequestToDraft: {
+              pullRequest: {
+                id: body.variables.pullRequestId,
+                isDraft: options.conversionDraft ?? true,
+              },
+            },
+          },
+        });
+      }
       if (body.query.includes("issue(number:")) {
         return Response.json({
           data: { repository: { issue: { labels: options.labelPage } } },
@@ -119,8 +147,87 @@ function fixture(options = {}) {
     },
     fetcher,
   );
-  return { github, requests, statuses };
+  return { github, requests, statuses, conversions };
 }
+
+test("ineligible PRs become drafts once and are re-drafted if marked ready", async () => {
+  const options = { links: [] };
+  const { github, conversions, statuses } = fixture(options);
+  await reconcile(github, async () => policy);
+  assert.deepEqual(conversions, [pull.node_id]);
+  assert.equal(statuses.at(-1).state, "failure");
+  await reconcile(github, async () => policy);
+  assert.deepEqual(conversions, [pull.node_id]);
+
+  options.current = { draft: false };
+  await reconcile(github, async () => policy);
+  assert.deepEqual(conversions, [pull.node_id, pull.node_id]);
+});
+
+test("eligible PRs and existing drafts keep their draft status", async () => {
+  for (const options of [
+    {},
+    { pulls: [{ ...pull, draft: true }] },
+    { pulls: [{ ...pull, draft: true }], links: [] },
+    { links: [], permission: { permission: "admin" } },
+  ]) {
+    const { github, conversions } = fixture(options);
+    await reconcile(github, async () => policy);
+    assert.deepEqual(conversions, []);
+  }
+});
+
+test("approving an issue after conversion does not mark the draft ready", async () => {
+  const options = { links: [] };
+  const { github, conversions, statuses, requests } = fixture(options);
+  await reconcile(github, async () => policy);
+  options.links = [link];
+  await reconcile(github, async () => policy);
+  assert.equal(statuses.at(-1).state, "success");
+  assert.deepEqual(conversions, [pull.node_id]);
+  assert.equal(
+    requests.some(({ body }) =>
+      body?.query?.includes("markPullRequestReadyForReview"),
+    ),
+    false,
+  );
+});
+
+test("stale or closed ineligible PRs are not converted", async () => {
+  for (const current of [
+    { head: { sha: "b".repeat(40) } },
+    { body: "Fixes #99" },
+    { base: { ref: "other" } },
+    { state: "closed" },
+  ]) {
+    const { github, conversions } = fixture({ current, links: [] });
+    await reconcile(github, async () => policy);
+    assert.deepEqual(conversions, []);
+  }
+});
+
+test("conversion failures fail the check and retry on the next run", async () => {
+  for (const failure of [
+    { conversionStatus: 403 },
+    { conversionErrors: true },
+    { conversionDraft: false },
+    { current: { node_id: undefined } },
+  ]) {
+    const options = { links: [], ...failure };
+    const { github, statuses } = fixture(options);
+    await assert.rejects(
+      reconcile(github, async () => policy),
+      AggregateError,
+    );
+    assert.equal(statuses.at(-1).state, "failure");
+    assert.match(statuses.at(-1).description, /could not be checked/);
+    for (const key of Object.keys(failure)) delete options[key];
+    options.current = { draft: false };
+    await reconcile(github, async () => policy);
+    assert.equal(statuses.at(-1).state, "failure");
+    assert.match(statuses.at(-1).description, /ready-for-contribution/);
+  }
+});
 
 test("approved issue publishes pending then success on the fork's exact head", async () => {
   const { github, statuses } = fixture();
@@ -147,10 +254,11 @@ test("mere mentions, foreign issues, deleted issues and revoked approval fail", 
     { issue: { ...issue, labels: [] } },
     { issue: { ...issue, state: "closed" } },
   ]) {
-    const { github, statuses } = fixture(options);
+    const { github, statuses, conversions } = fixture(options);
     await reconcile(github, async () => policy);
     assert.equal(statuses.at(-1).state, "failure");
     assert.match(statuses.at(-1).description, /ready-for-contribution/);
+    assert.deepEqual(conversions, [pull.node_id]);
   }
 });
 
@@ -204,7 +312,7 @@ test("eligibility lookup and policy errors publish failing checks", async () => 
     { permissionStatus: 500 },
     { graphqlErrors: true },
   ]) {
-    const { github, statuses } = fixture(options);
+    const { github, statuses, conversions } = fixture(options);
     await assert.rejects(
       reconcile(github, async () => policy),
       AggregateError,
@@ -213,6 +321,7 @@ test("eligibility lookup and policy errors publish failing checks", async () => 
       statuses.map((status) => status.state),
       ["pending", "failure"],
     );
+    assert.deepEqual(conversions, []);
   }
   for (const loader of [
     async () => ({}),
@@ -220,9 +329,10 @@ test("eligibility lookup and policy errors publish failing checks", async () => 
       throw new SyntaxError("Invalid JSON");
     },
   ]) {
-    const { github, statuses } = fixture();
+    const { github, statuses, conversions } = fixture();
     await assert.rejects(reconcile(github, loader), AggregateError);
     assert.equal(statuses.at(-1).state, "failure");
+    assert.deepEqual(conversions, []);
   }
 });
 
@@ -280,8 +390,13 @@ test("a changed head, body or target cannot receive a stale success", async () =
 
 test("a vouched PR never overrides an ineligible PR on the same commit", async () => {
   for (const reverse of [false, true]) {
-    const newcomer = { ...pull, number: 2, user: { ...pull.user, id: 456 } };
-    const { github, statuses } = fixture({
+    const newcomer = {
+      ...pull,
+      number: 2,
+      node_id: "PR_test_2",
+      user: { ...pull.user, id: 456 },
+    };
+    const { github, statuses, conversions } = fixture({
       pulls: reverse ? [newcomer, pull] : [pull, newcomer],
       links: [],
     });
@@ -295,6 +410,7 @@ test("a vouched PR never overrides an ineligible PR on the same commit", async (
       false,
     );
     assert.match(statuses.at(-1).description, /PR #2/);
+    assert.deepEqual(conversions, [newcomer.node_id]);
   }
 });
 
