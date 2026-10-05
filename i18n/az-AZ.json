@@ -2493,30 +2493,30 @@
 				}
 			},
 			"recurrence": {
-				"updateError": "Failed to update task repeat",
-				"every": "Every",
-				"hint": "When this task is done, the next one is created.",
-				"interval": "Interval",
-				"onDays": "On these days",
+				"updateError": "Tapşırığın təkrarını yeniləmək alınmadı",
+				"every": "Hər",
+				"hint": "Bu tapşırıq tamamlandıqda növbəti yaradılır.",
+				"interval": "İnterval",
+				"onDays": "Bu günlərdə",
 				"pattern": {
-					"daily": "Daily",
-					"monthly": "Monthly",
-					"periodically": "Periodically",
-					"weekly": "Weekly",
-					"yearly": "Yearly"
+					"daily": "Hər gün",
+					"monthly": "Hər ay",
+					"periodically": "Dövri",
+					"weekly": "Hər həftə",
+					"yearly": "Hər il"
 				},
-				"repeats": "Repeats",
-				"toggle": "Repeat",
+				"repeats": "Təkrar",
+				"toggle": "Təkrarla",
 				"unit": {
-					"days_one": "day",
-					"days_other": "days",
-					"label": "Unit",
-					"months_one": "month",
-					"months_other": "months",
-					"weeks_one": "week",
-					"weeks_other": "weeks",
-					"years_one": "year",
-					"years_other": "years"
+					"days_one": "gündən bir",
+					"days_other": "gündən bir",
+					"label": "Vahid",
+					"months_one": "aydan bir",
+					"months_other": "aydan bir",
+					"weeks_one": "həftədən bir",
+					"weeks_other": "həftədən bir",
+					"years_one": "ildən bir",
+					"years_other": "ildən bir"
 				}
 			}
 		},
@@ -2736,15 +2736,15 @@
 			"reorderFailed": "Could not move task. Please try again."
 		},
 		"recurrence": {
-			"daily_one": "Every day",
-			"daily_other": "Every {{count}} days",
-			"monthly_one": "Every month",
-			"monthly_other": "Every {{count}} months",
-			"weekly_one": "Every week",
-			"weekly_other": "Every {{count}} weeks",
-			"yearly_one": "Every year",
-			"yearly_other": "Every {{count}} years",
-			"onDays": "{{rule}} on {{days}}"
+			"daily_one": "Hər gün",
+			"daily_other": "Hər {{count}} gündən bir",
+			"monthly_one": "Hər ay",
+			"monthly_other": "Hər {{count}} aydan bir",
+			"weekly_one": "Hər həftə",
+			"weekly_other": "Hər {{count}} həftədən bir",
+			"yearly_one": "Hər il",
+			"yearly_other": "Hər {{count}} ildən bir",
+			"onDays": "{{rule}}: {{days}}"
 		}
 	},
 	"invitations": {

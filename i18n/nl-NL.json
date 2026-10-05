@@ -2482,30 +2482,30 @@
 				}
 			},
 			"recurrence": {
-				"updateError": "Failed to update task repeat",
-				"every": "Every",
-				"hint": "When this task is done, the next one is created.",
+				"updateError": "Bijwerken herhaling mislukt",
+				"every": "Om de",
+				"hint": "Als deze taak klaar is, wordt de volgende aangemaakt.",
 				"interval": "Interval",
-				"onDays": "On these days",
+				"onDays": "Op deze dagen",
 				"pattern": {
-					"daily": "Daily",
-					"monthly": "Monthly",
-					"periodically": "Periodically",
-					"weekly": "Weekly",
-					"yearly": "Yearly"
+					"daily": "Dagelijks",
+					"monthly": "Maandelijks",
+					"periodically": "Periodiek",
+					"weekly": "Wekelijks",
+					"yearly": "Jaarlijks"
 				},
-				"repeats": "Repeats",
-				"toggle": "Repeat",
+				"repeats": "Herhaalt",
+				"toggle": "Herhalen",
 				"unit": {
-					"days_one": "day",
-					"days_other": "days",
-					"label": "Unit",
-					"months_one": "month",
-					"months_other": "months",
+					"days_one": "dag",
+					"days_other": "dagen",
+					"label": "Eenheid",
+					"months_one": "maand",
+					"months_other": "maanden",
 					"weeks_one": "week",
-					"weeks_other": "weeks",
-					"years_one": "year",
-					"years_other": "years"
+					"weeks_other": "weken",
+					"years_one": "jaar",
+					"years_other": "jaar"
 				}
 			}
 		},
@@ -2736,15 +2736,15 @@
 			"reorderFailed": "Could not move task. Please try again."
 		},
 		"recurrence": {
-			"daily_one": "Every day",
-			"daily_other": "Every {{count}} days",
-			"monthly_one": "Every month",
-			"monthly_other": "Every {{count}} months",
-			"weekly_one": "Every week",
-			"weekly_other": "Every {{count}} weeks",
-			"yearly_one": "Every year",
-			"yearly_other": "Every {{count}} years",
-			"onDays": "{{rule}} on {{days}}"
+			"daily_one": "Elke dag",
+			"daily_other": "Om de {{count}} dagen",
+			"monthly_one": "Elke maand",
+			"monthly_other": "Om de {{count}} maanden",
+			"weekly_one": "Elke week",
+			"weekly_other": "Om de {{count}} weken",
+			"yearly_one": "Elk jaar",
+			"yearly_other": "Om de {{count}} jaar",
+			"onDays": "{{rule}} op {{days}}"
 		}
 	},
 	"invitations": {

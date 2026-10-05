@@ -2493,30 +2493,30 @@
 				}
 			},
 			"recurrence": {
-				"updateError": "Failed to update task repeat",
-				"every": "Every",
-				"hint": "When this task is done, the next one is created.",
-				"interval": "Interval",
-				"onDays": "On these days",
+				"updateError": "कार्य का दोहराव अपडेट करने में विफल",
+				"every": "हर",
+				"hint": "यह कार्य पूरा होने पर अगला कार्य बनाया जाता है।",
+				"interval": "अंतराल",
+				"onDays": "इन दिनों पर",
 				"pattern": {
-					"daily": "Daily",
-					"monthly": "Monthly",
-					"periodically": "Periodically",
-					"weekly": "Weekly",
-					"yearly": "Yearly"
+					"daily": "रोज़ाना",
+					"monthly": "मासिक",
+					"periodically": "समय-समय पर",
+					"weekly": "साप्ताहिक",
+					"yearly": "वार्षिक"
 				},
-				"repeats": "Repeats",
-				"toggle": "Repeat",
+				"repeats": "दोहराव",
+				"toggle": "दोहराएँ",
 				"unit": {
-					"days_one": "day",
-					"days_other": "days",
-					"label": "Unit",
-					"months_one": "month",
-					"months_other": "months",
-					"weeks_one": "week",
-					"weeks_other": "weeks",
-					"years_one": "year",
-					"years_other": "years"
+					"days_one": "दिन",
+					"days_other": "दिन",
+					"label": "इकाई",
+					"months_one": "महीना",
+					"months_other": "महीने",
+					"weeks_one": "सप्ताह",
+					"weeks_other": "सप्ताह",
+					"years_one": "साल",
+					"years_other": "साल"
 				}
 			}
 		},
@@ -2736,15 +2736,15 @@
 			"reorderFailed": "Could not move task. Please try again."
 		},
 		"recurrence": {
-			"daily_one": "Every day",
-			"daily_other": "Every {{count}} days",
-			"monthly_one": "Every month",
-			"monthly_other": "Every {{count}} months",
-			"weekly_one": "Every week",
-			"weekly_other": "Every {{count}} weeks",
-			"yearly_one": "Every year",
-			"yearly_other": "Every {{count}} years",
-			"onDays": "{{rule}} on {{days}}"
+			"daily_one": "हर दिन",
+			"daily_other": "हर {{count}} दिन",
+			"monthly_one": "हर महीने",
+			"monthly_other": "हर {{count}} महीने",
+			"weekly_one": "हर सप्ताह",
+			"weekly_other": "हर {{count}} सप्ताह",
+			"yearly_one": "हर साल",
+			"yearly_other": "हर {{count}} साल",
+			"onDays": "{{rule}}: {{days}}"
 		}
 	},
 	"invitations": {

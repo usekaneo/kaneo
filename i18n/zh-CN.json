@@ -2481,26 +2481,26 @@
 				}
 			},
 			"recurrence": {
-				"updateError": "Failed to update task repeat",
-				"every": "Every",
-				"hint": "When this task is done, the next one is created.",
-				"interval": "Interval",
-				"onDays": "On these days",
+				"updateError": "更新任务重复设置失败",
+				"every": "每",
+				"hint": "完成此任务后，将创建下一个任务。",
+				"interval": "间隔",
+				"onDays": "重复日",
 				"pattern": {
-					"daily": "Daily",
-					"monthly": "Monthly",
-					"periodically": "Periodically",
-					"weekly": "Weekly",
-					"yearly": "Yearly"
+					"daily": "每天",
+					"monthly": "每月",
+					"periodically": "定期",
+					"weekly": "每周",
+					"yearly": "每年"
 				},
-				"repeats": "Repeats",
-				"toggle": "Repeat",
+				"repeats": "重复",
+				"toggle": "重复",
 				"unit": {
-					"days_other": "days",
-					"label": "Unit",
-					"months_other": "months",
-					"weeks_other": "weeks",
-					"years_other": "years"
+					"days_other": "天",
+					"label": "单位",
+					"months_other": "个月",
+					"weeks_other": "周",
+					"years_other": "年"
 				}
 			}
 		},
@@ -2719,11 +2719,11 @@
 			"reorderFailed": "无法移动任务，请重试。"
 		},
 		"recurrence": {
-			"daily_other": "Every {{count}} days",
-			"monthly_other": "Every {{count}} months",
-			"weekly_other": "Every {{count}} weeks",
-			"yearly_other": "Every {{count}} years",
-			"onDays": "{{rule}} on {{days}}"
+			"daily_other": "每 {{count}} 天",
+			"monthly_other": "每 {{count}} 个月",
+			"weekly_other": "每 {{count}} 周",
+			"yearly_other": "每 {{count}} 年",
+			"onDays": "{{rule}}的{{days}}"
 		}
 	},
 	"invitations": {

@@ -12,6 +12,12 @@ describe("formatRecurrence", () => {
     ).toBe('tasks:recurrence.monthly:{"count":3}');
   });
 
+  it("uses the pattern name when the interval is 1", () => {
+    expect(
+      formatRecurrence(t, { frequency: "daily", interval: 1 }, "en-US"),
+    ).toBe("tasks:popover.recurrence.pattern.daily:undefined");
+  });
+
   it("names the weekdays of weekly rules, Monday first", () => {
     expect(
       formatRecurrence(

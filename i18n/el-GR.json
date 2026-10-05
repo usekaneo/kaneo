@@ -2493,30 +2493,30 @@
 				}
 			},
 			"recurrence": {
-				"updateError": "Failed to update task repeat",
-				"every": "Every",
-				"hint": "When this task is done, the next one is created.",
-				"interval": "Interval",
-				"onDays": "On these days",
+				"updateError": "Αποτυχία ενημέρωσης επανάληψης εργασίας",
+				"every": "Κάθε",
+				"hint": "Όταν ολοκληρωθεί αυτή η εργασία, δημιουργείται η επόμενη.",
+				"interval": "Διάστημα",
+				"onDays": "Αυτές τις ημέρες",
 				"pattern": {
-					"daily": "Daily",
-					"monthly": "Monthly",
-					"periodically": "Periodically",
-					"weekly": "Weekly",
-					"yearly": "Yearly"
+					"daily": "Καθημερινά",
+					"monthly": "Μηνιαία",
+					"periodically": "Περιοδικά",
+					"weekly": "Εβδομαδιαία",
+					"yearly": "Ετήσια"
 				},
-				"repeats": "Repeats",
-				"toggle": "Repeat",
+				"repeats": "Επαναλαμβάνεται",
+				"toggle": "Επανάληψη",
 				"unit": {
-					"days_one": "day",
-					"days_other": "days",
-					"label": "Unit",
-					"months_one": "month",
-					"months_other": "months",
-					"weeks_one": "week",
-					"weeks_other": "weeks",
-					"years_one": "year",
-					"years_other": "years"
+					"days_one": "ημέρα",
+					"days_other": "ημέρες",
+					"label": "Μονάδα",
+					"months_one": "μήνα",
+					"months_other": "μήνες",
+					"weeks_one": "εβδομάδα",
+					"weeks_other": "εβδομάδες",
+					"years_one": "χρόνο",
+					"years_other": "χρόνια"
 				}
 			}
 		},
@@ -2736,15 +2736,15 @@
 			"reorderFailed": "Could not move task. Please try again."
 		},
 		"recurrence": {
-			"daily_one": "Every day",
-			"daily_other": "Every {{count}} days",
-			"monthly_one": "Every month",
-			"monthly_other": "Every {{count}} months",
-			"weekly_one": "Every week",
-			"weekly_other": "Every {{count}} weeks",
-			"yearly_one": "Every year",
-			"yearly_other": "Every {{count}} years",
-			"onDays": "{{rule}} on {{days}}"
+			"daily_one": "Κάθε ημέρα",
+			"daily_other": "Κάθε {{count}} ημέρες",
+			"monthly_one": "Κάθε μήνα",
+			"monthly_other": "Κάθε {{count}} μήνες",
+			"weekly_one": "Κάθε εβδομάδα",
+			"weekly_other": "Κάθε {{count}} εβδομάδες",
+			"yearly_one": "Κάθε χρόνο",
+			"yearly_other": "Κάθε {{count}} χρόνια",
+			"onDays": "{{rule}}: {{days}}"
 		}
 	},
 	"invitations": {

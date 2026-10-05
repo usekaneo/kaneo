@@ -15,10 +15,26 @@ export function formatWeekday(
   }).format(new Date(SUNDAY + day * 86_400_000));
 }
 
+function formatPattern(t: TFunction, frequency: TaskRecurrence["frequency"]) {
+  switch (frequency) {
+    case "daily":
+      return t("tasks:popover.recurrence.pattern.daily");
+    case "weekly":
+      return t("tasks:popover.recurrence.pattern.weekly");
+    case "monthly":
+      return t("tasks:popover.recurrence.pattern.monthly");
+    case "yearly":
+      return t("tasks:popover.recurrence.pattern.yearly");
+  }
+}
+
+// An interval of 1 uses the pattern name: in languages such as Russian the
+// plural "one" form also covers 21, 31, and so on, so it must show the count.
 function formatInterval(
   t: TFunction,
   { frequency, interval }: Pick<TaskRecurrence, "frequency" | "interval">,
 ) {
+  if (interval === 1) return formatPattern(t, frequency);
   switch (frequency) {
     case "daily":
       return t("tasks:recurrence.daily", { count: interval });

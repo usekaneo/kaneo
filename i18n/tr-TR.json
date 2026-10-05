@@ -2493,30 +2493,30 @@
 				}
 			},
 			"recurrence": {
-				"updateError": "Failed to update task repeat",
-				"every": "Every",
-				"hint": "When this task is done, the next one is created.",
-				"interval": "Interval",
-				"onDays": "On these days",
+				"updateError": "Talep tekrarı güncellenemedi",
+				"every": "Her",
+				"hint": "Bu talep tamamlandığında bir sonraki oluşturulur.",
+				"interval": "Aralık",
+				"onDays": "Bu günlerde",
 				"pattern": {
-					"daily": "Daily",
-					"monthly": "Monthly",
-					"periodically": "Periodically",
-					"weekly": "Weekly",
-					"yearly": "Yearly"
+					"daily": "Her gün",
+					"monthly": "Her ay",
+					"periodically": "Periyodik",
+					"weekly": "Her hafta",
+					"yearly": "Her yıl"
 				},
-				"repeats": "Repeats",
-				"toggle": "Repeat",
+				"repeats": "Tekrar",
+				"toggle": "Tekrarla",
 				"unit": {
-					"days_one": "day",
-					"days_other": "days",
-					"label": "Unit",
-					"months_one": "month",
-					"months_other": "months",
-					"weeks_one": "week",
-					"weeks_other": "weeks",
-					"years_one": "year",
-					"years_other": "years"
+					"days_one": "günde",
+					"days_other": "günde",
+					"label": "Birim",
+					"months_one": "ayda",
+					"months_other": "ayda",
+					"weeks_one": "haftada",
+					"weeks_other": "haftada",
+					"years_one": "yılda",
+					"years_other": "yılda"
 				}
 			}
 		},
@@ -2736,15 +2736,15 @@
 			"reorderFailed": "Could not move task. Please try again."
 		},
 		"recurrence": {
-			"daily_one": "Every day",
-			"daily_other": "Every {{count}} days",
-			"monthly_one": "Every month",
-			"monthly_other": "Every {{count}} months",
-			"weekly_one": "Every week",
-			"weekly_other": "Every {{count}} weeks",
-			"yearly_one": "Every year",
-			"yearly_other": "Every {{count}} years",
-			"onDays": "{{rule}} on {{days}}"
+			"daily_one": "Her gün",
+			"daily_other": "{{count}} günde bir",
+			"monthly_one": "Her ay",
+			"monthly_other": "{{count}} ayda bir",
+			"weekly_one": "Her hafta",
+			"weekly_other": "{{count}} haftada bir",
+			"yearly_one": "Her yıl",
+			"yearly_other": "{{count}} yılda bir",
+			"onDays": "{{rule}}: {{days}}"
 		}
 	},
 	"invitations": {

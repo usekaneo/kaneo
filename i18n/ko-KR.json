@@ -2481,26 +2481,26 @@
 				}
 			},
 			"recurrence": {
-				"updateError": "Failed to update task repeat",
-				"every": "Every",
-				"hint": "When this task is done, the next one is created.",
-				"interval": "Interval",
-				"onDays": "On these days",
+				"updateError": "작업 반복 업데이트에 실패했습니다",
+				"every": "간격",
+				"hint": "이 작업을 완료하면 다음 작업이 생성됩니다.",
+				"interval": "간격",
+				"onDays": "반복 요일",
 				"pattern": {
-					"daily": "Daily",
-					"monthly": "Monthly",
-					"periodically": "Periodically",
-					"weekly": "Weekly",
-					"yearly": "Yearly"
+					"daily": "매일",
+					"monthly": "매월",
+					"periodically": "주기적으로",
+					"weekly": "매주",
+					"yearly": "매년"
 				},
-				"repeats": "Repeats",
-				"toggle": "Repeat",
+				"repeats": "반복",
+				"toggle": "반복",
 				"unit": {
-					"days_other": "days",
-					"label": "Unit",
-					"months_other": "months",
-					"weeks_other": "weeks",
-					"years_other": "years"
+					"days_other": "일마다",
+					"label": "단위",
+					"months_other": "개월마다",
+					"weeks_other": "주마다",
+					"years_other": "년마다"
 				}
 			}
 		},
@@ -2719,11 +2719,11 @@
 			"reorderFailed": "Could not move task. Please try again."
 		},
 		"recurrence": {
-			"daily_other": "Every {{count}} days",
-			"monthly_other": "Every {{count}} months",
-			"weekly_other": "Every {{count}} weeks",
-			"yearly_other": "Every {{count}} years",
-			"onDays": "{{rule}} on {{days}}"
+			"daily_other": "{{count}}일마다",
+			"monthly_other": "{{count}}개월마다",
+			"weekly_other": "{{count}}주마다",
+			"yearly_other": "{{count}}년마다",
+			"onDays": "{{rule}} {{days}}"
 		}
 	},
 	"invitations": {

@@ -2481,26 +2481,26 @@
 				}
 			},
 			"recurrence": {
-				"updateError": "Failed to update task repeat",
-				"every": "Every",
-				"hint": "When this task is done, the next one is created.",
-				"interval": "Interval",
-				"onDays": "On these days",
+				"updateError": "Không thể cập nhật lặp lại công việc",
+				"every": "Mỗi",
+				"hint": "Khi công việc này hoàn thành, công việc tiếp theo sẽ được tạo.",
+				"interval": "Khoảng cách",
+				"onDays": "Vào các ngày",
 				"pattern": {
-					"daily": "Daily",
-					"monthly": "Monthly",
-					"periodically": "Periodically",
-					"weekly": "Weekly",
-					"yearly": "Yearly"
+					"daily": "Hằng ngày",
+					"monthly": "Hằng tháng",
+					"periodically": "Định kỳ",
+					"weekly": "Hằng tuần",
+					"yearly": "Hằng năm"
 				},
-				"repeats": "Repeats",
-				"toggle": "Repeat",
+				"repeats": "Lặp lại",
+				"toggle": "Lặp lại",
 				"unit": {
-					"days_other": "days",
-					"label": "Unit",
-					"months_other": "months",
-					"weeks_other": "weeks",
-					"years_other": "years"
+					"days_other": "ngày",
+					"label": "Đơn vị",
+					"months_other": "tháng",
+					"weeks_other": "tuần",
+					"years_other": "năm"
 				}
 			}
 		},
@@ -2719,11 +2719,11 @@
 			"reorderFailed": "Could not move task. Please try again."
 		},
 		"recurrence": {
-			"daily_other": "Every {{count}} days",
-			"monthly_other": "Every {{count}} months",
-			"weekly_other": "Every {{count}} weeks",
-			"yearly_other": "Every {{count}} years",
-			"onDays": "{{rule}} on {{days}}"
+			"daily_other": "Mỗi {{count}} ngày",
+			"monthly_other": "Mỗi {{count}} tháng",
+			"weekly_other": "Mỗi {{count}} tuần",
+			"yearly_other": "Mỗi {{count}} năm",
+			"onDays": "{{rule}} vào {{days}}"
 		}
 	},
 	"invitations": {

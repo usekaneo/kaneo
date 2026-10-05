@@ -2493,30 +2493,30 @@
 				}
 			},
 			"recurrence": {
-				"updateError": "Failed to update task repeat",
-				"every": "Every",
-				"hint": "When this task is done, the next one is created.",
-				"interval": "Interval",
-				"onDays": "On these days",
+				"updateError": "Wiederholung konnte nicht aktualisiert werden",
+				"every": "Alle",
+				"hint": "Wenn diese Aufgabe erledigt ist, wird die nächste erstellt.",
+				"interval": "Intervall",
+				"onDays": "An diesen Tagen",
 				"pattern": {
-					"daily": "Daily",
-					"monthly": "Monthly",
-					"periodically": "Periodically",
-					"weekly": "Weekly",
-					"yearly": "Yearly"
+					"daily": "Täglich",
+					"monthly": "Monatlich",
+					"periodically": "Periodisch",
+					"weekly": "Wöchentlich",
+					"yearly": "Jährlich"
 				},
-				"repeats": "Repeats",
-				"toggle": "Repeat",
+				"repeats": "Wiederholung",
+				"toggle": "Wiederholen",
 				"unit": {
-					"days_one": "day",
-					"days_other": "days",
-					"label": "Unit",
-					"months_one": "month",
-					"months_other": "months",
-					"weeks_one": "week",
-					"weeks_other": "weeks",
-					"years_one": "year",
-					"years_other": "years"
+					"days_one": "Tag",
+					"days_other": "Tage",
+					"label": "Einheit",
+					"months_one": "Monat",
+					"months_other": "Monate",
+					"weeks_one": "Woche",
+					"weeks_other": "Wochen",
+					"years_one": "Jahr",
+					"years_other": "Jahre"
 				}
 			}
 		},
@@ -2736,15 +2736,15 @@
 			"reorderFailed": "Die Reihenfolge konnte nicht gespeichert werden."
 		},
 		"recurrence": {
-			"daily_one": "Every day",
-			"daily_other": "Every {{count}} days",
-			"monthly_one": "Every month",
-			"monthly_other": "Every {{count}} months",
-			"weekly_one": "Every week",
-			"weekly_other": "Every {{count}} weeks",
-			"yearly_one": "Every year",
-			"yearly_other": "Every {{count}} years",
-			"onDays": "{{rule}} on {{days}}"
+			"daily_one": "Jeden Tag",
+			"daily_other": "Alle {{count}} Tage",
+			"monthly_one": "Jeden Monat",
+			"monthly_other": "Alle {{count}} Monate",
+			"weekly_one": "Jede Woche",
+			"weekly_other": "Alle {{count}} Wochen",
+			"yearly_one": "Jedes Jahr",
+			"yearly_other": "Alle {{count}} Jahre",
+			"onDays": "{{rule}} am {{days}}"
 		}
 	},
 	"invitations": {

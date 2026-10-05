@@ -2505,34 +2505,34 @@
 				}
 			},
 			"recurrence": {
-				"updateError": "Failed to update task repeat",
-				"every": "Every",
-				"hint": "When this task is done, the next one is created.",
-				"interval": "Interval",
-				"onDays": "On these days",
+				"updateError": "Échec de la mise à jour de la répétition de la tâche",
+				"every": "Fréquence",
+				"hint": "Une fois cette tâche terminée, la suivante est créée.",
+				"interval": "Intervalle",
+				"onDays": "Les jours suivants",
 				"pattern": {
-					"daily": "Daily",
-					"monthly": "Monthly",
-					"periodically": "Periodically",
-					"weekly": "Weekly",
-					"yearly": "Yearly"
+					"daily": "Tous les jours",
+					"monthly": "Tous les mois",
+					"periodically": "Périodiquement",
+					"weekly": "Toutes les semaines",
+					"yearly": "Tous les ans"
 				},
-				"repeats": "Repeats",
-				"toggle": "Repeat",
+				"repeats": "Répétition",
+				"toggle": "Répéter",
 				"unit": {
-					"days_many": "days",
-					"days_one": "day",
-					"days_other": "days",
-					"label": "Unit",
-					"months_many": "months",
-					"months_one": "month",
-					"months_other": "months",
-					"weeks_many": "weeks",
-					"weeks_one": "week",
-					"weeks_other": "weeks",
-					"years_many": "years",
-					"years_one": "year",
-					"years_other": "years"
+					"days_many": "jours",
+					"days_one": "jour",
+					"days_other": "jours",
+					"label": "Unité",
+					"months_many": "mois",
+					"months_one": "mois",
+					"months_other": "mois",
+					"weeks_many": "semaines",
+					"weeks_one": "semaine",
+					"weeks_other": "semaines",
+					"years_many": "ans",
+					"years_one": "an",
+					"years_other": "ans"
 				}
 			}
 		},
@@ -2753,19 +2753,19 @@
 			"reorderFailed": "Could not move task. Please try again."
 		},
 		"recurrence": {
-			"daily_many": "Every {{count}} days",
-			"daily_one": "Every day",
-			"daily_other": "Every {{count}} days",
-			"monthly_many": "Every {{count}} months",
-			"monthly_one": "Every month",
-			"monthly_other": "Every {{count}} months",
-			"weekly_many": "Every {{count}} weeks",
-			"weekly_one": "Every week",
-			"weekly_other": "Every {{count}} weeks",
-			"yearly_many": "Every {{count}} years",
-			"yearly_one": "Every year",
-			"yearly_other": "Every {{count}} years",
-			"onDays": "{{rule}} on {{days}}"
+			"daily_many": "Tous les {{count}} jours",
+			"daily_one": "Tous les jours",
+			"daily_other": "Tous les {{count}} jours",
+			"monthly_many": "Tous les {{count}} mois",
+			"monthly_one": "Tous les mois",
+			"monthly_other": "Tous les {{count}} mois",
+			"weekly_many": "Toutes les {{count}} semaines",
+			"weekly_one": "Toutes les semaines",
+			"weekly_other": "Toutes les {{count}} semaines",
+			"yearly_many": "Tous les {{count}} ans",
+			"yearly_one": "Tous les ans",
+			"yearly_other": "Tous les {{count}} ans",
+			"onDays": "{{rule}} : {{days}}"
 		}
 	},
 	"invitations": {

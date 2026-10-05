@@ -2493,30 +2493,30 @@
 				}
 			},
 			"recurrence": {
-				"updateError": "Failed to update task repeat",
-				"every": "Every",
-				"hint": "When this task is done, the next one is created.",
-				"interval": "Interval",
-				"onDays": "On these days",
+				"updateError": "Неуспешно ажурирање на повторувањето на задачата",
+				"every": "На секои",
+				"hint": "Кога оваа задача ќе заврши, ќе се создаде следната.",
+				"interval": "Интервал",
+				"onDays": "Во овие денови",
 				"pattern": {
-					"daily": "Daily",
-					"monthly": "Monthly",
-					"periodically": "Periodically",
-					"weekly": "Weekly",
-					"yearly": "Yearly"
+					"daily": "Дневно",
+					"monthly": "Месечно",
+					"periodically": "Периодично",
+					"weekly": "Неделно",
+					"yearly": "Годишно"
 				},
-				"repeats": "Repeats",
-				"toggle": "Repeat",
+				"repeats": "Повторување",
+				"toggle": "Повторувај",
 				"unit": {
-					"days_one": "day",
-					"days_other": "days",
-					"label": "Unit",
-					"months_one": "month",
-					"months_other": "months",
-					"weeks_one": "week",
-					"weeks_other": "weeks",
-					"years_one": "year",
-					"years_other": "years"
+					"days_one": "ден",
+					"days_other": "дена",
+					"label": "Единица",
+					"months_one": "месец",
+					"months_other": "месеци",
+					"weeks_one": "недела",
+					"weeks_other": "недели",
+					"years_one": "година",
+					"years_other": "години"
 				}
 			}
 		},
@@ -2736,15 +2736,15 @@
 			"reorderFailed": "Could not move task. Please try again."
 		},
 		"recurrence": {
-			"daily_one": "Every day",
-			"daily_other": "Every {{count}} days",
-			"monthly_one": "Every month",
-			"monthly_other": "Every {{count}} months",
-			"weekly_one": "Every week",
-			"weekly_other": "Every {{count}} weeks",
-			"yearly_one": "Every year",
-			"yearly_other": "Every {{count}} years",
-			"onDays": "{{rule}} on {{days}}"
+			"daily_one": "На секој {{count}} ден",
+			"daily_other": "На секои {{count}} дена",
+			"monthly_one": "На секој {{count}} месец",
+			"monthly_other": "На секои {{count}} месеци",
+			"weekly_one": "На секоја {{count}} недела",
+			"weekly_other": "На секои {{count}} недели",
+			"yearly_one": "На секоја {{count}} година",
+			"yearly_other": "На секои {{count}} години",
+			"onDays": "{{rule}}: {{days}}"
 		}
 	},
 	"invitations": {
