@@ -1,5 +1,5 @@
 import type { Active, Over } from "@dnd-kit/core";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { ProjectWithTasks } from "@/types/project";
 import type { DragHover } from "./drag-hover";
 import { getHoveredOtherColumnId } from "./get-hovered-other-column-id";
@@ -15,29 +15,33 @@ export function useDragPreview(project: ProjectWithTasks) {
       ? moveIntoHoveredColumn(project, current.activeId, current.overId)
       : null;
 
+  const preview = useMemo(
+    () =>
+      hover
+        ? moveIntoHoveredColumn(project, hover.activeId, hover.overId)
+        : null,
+    [project, hover],
+  );
+
   const update = (next: DragHover | null) => {
     hoverRef.current = next;
     setHover(next);
   };
 
   return {
-    preview: previewFor(hover),
+    preview,
     hover: (active: Active, over: Over) => {
       const activeId = active.id.toString();
       const overId = over.id.toString();
-      const shown = previewFor(hoverRef.current) ?? project;
+      const current = hoverRef.current;
+      if (current?.activeId === activeId && current?.overId === overId) return;
+      const shown = previewFor(current) ?? project;
       if (getHoveredOtherColumnId(shown, activeId, overId))
         update({ activeId, overId });
     },
-    getDropPlacement: (active: Active, over: Over) => {
+    getDropPlacement: (activeId: string, overId: string) => {
       const shown = previewFor(hoverRef.current);
-      return shown
-        ? getPreviewDropPlacement(
-            shown,
-            active.id.toString(),
-            over.id.toString(),
-          )
-        : null;
+      return shown ? getPreviewDropPlacement(shown, activeId, overId) : null;
     },
     clear: () => update(null),
   };

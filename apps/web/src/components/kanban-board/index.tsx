@@ -2,7 +2,6 @@ import { invalidateMyWork } from "@/lib/invalidate-my-work";
 import { markBoardCacheChanged } from "@/lib/board-cache-version";
 import { selectReorderBoard } from "./select-reorder-board";
 import {
-  closestCorners,
   DndContext,
   type DragEndEvent,
   DragOverlay,
@@ -24,6 +23,7 @@ import reorderTasks, { type TaskReorder } from "@/fetchers/task/reorder-tasks";
 import { toast } from "@/lib/toast";
 import { useTranslation } from "react-i18next";
 import { rollbackBoardReorder } from "./apply-reorder";
+import { boardCollisionDetection } from "./board-collision-detection";
 import { getHoveredOtherColumnId } from "./drag-preview/get-hovered-other-column-id";
 import { moveBoardTask } from "./move-task";
 import { useDragPreview } from "./drag-preview/use-drag-preview";
@@ -222,13 +222,15 @@ function KanbanBoard({
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    const placement = over ? dragPreview.getDropPlacement(active, over) : null;
+    const activeId = active.id.toString();
+    const overId =
+      over?.id.toString() ?? (dragPreview.preview ? activeId : null);
+    const placement = overId
+      ? dragPreview.getDropPlacement(activeId, overId)
+      : null;
     resetDrag();
 
-    if (!over || !project?.columns) return;
-
-    const activeId = active.id.toString();
-    const overId = over.id.toString();
+    if (!overId || !project?.columns) return;
 
     if (
       disableDragDrop ||
@@ -318,7 +320,7 @@ function KanbanBoard({
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCorners}
+      collisionDetection={boardCollisionDetection}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
@@ -340,6 +342,7 @@ function KanbanBoard({
               >
                 <Column
                   column={column}
+                  activeTaskId={activeId?.toString() ?? null}
                   sortHint={
                     column.id === sortHintColumnId
                       ? t("tasks:kanban.automaticallySortedHint", {

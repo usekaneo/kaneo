@@ -1,5 +1,5 @@
 import { cva } from "class-variance-authority";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { useBackgroundStore } from "@/store/background";
 import type { ProjectWithTasks } from "@/types/project";
 import { ColumnAddTask } from "./column-add-task";
@@ -9,6 +9,7 @@ import { ColumnSortHint } from "./column-sort-hint";
 
 type ColumnProps = {
   column: ProjectWithTasks["columns"][number];
+  activeTaskId: string | null;
   sortHint?: string;
   disableDragDrop?: boolean;
   disableCollectionActions?: boolean;
@@ -58,6 +59,7 @@ export const columnVariants = cva(
 
 function Column({
   column,
+  activeTaskId,
   sortHint,
   disableDragDrop = false,
   disableCollectionActions = false,
@@ -81,6 +83,7 @@ function Column({
       <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-2 [-webkit-overflow-scrolling:touch]">
         <ColumnDropzone
           column={column}
+          activeTaskId={activeTaskId}
           disableDragDrop={disableDragDrop}
           onIsOverChange={setIsDropzoneOver}
         >
@@ -93,4 +96,4 @@ function Column({
   );
 }
 
-export default Column;
+export default memo(Column);

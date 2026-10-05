@@ -1,4 +1,4 @@
-import { useDndContext, useDroppable } from "@dnd-kit/core";
+import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -10,6 +10,7 @@ import TaskCard from "../task-card";
 
 type ColumnDropzoneProps = {
   column: ProjectWithTasks["columns"][number];
+  activeTaskId: string | null;
   disableDragDrop?: boolean;
   onIsOverChange?: (isOver: boolean) => void;
   children?: ReactNode;
@@ -17,6 +18,7 @@ type ColumnDropzoneProps = {
 
 export function ColumnDropzone({
   column,
+  activeTaskId,
   disableDragDrop = false,
   onIsOverChange,
   children,
@@ -34,7 +36,6 @@ export function ColumnDropzone({
   }, [isOver, onIsOverChange]);
 
   const reduceMotion = useReducedMotion();
-  const { active } = useDndContext();
   const hidden = reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98 };
 
   return (
@@ -48,11 +49,11 @@ export function ColumnDropzone({
             {column.tasks.map((task) => (
               <motion.div
                 key={task.id}
-                initial={task.id === active?.id ? false : hidden}
+                initial={task.id === activeTaskId ? false : hidden}
                 animate={
                   reduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }
                 }
-                exit={task.id === active?.id ? undefined : hidden}
+                exit={task.id === activeTaskId ? undefined : hidden}
                 transition={{ type: "spring", duration: 0.35, bounce: 0.15 }}
               >
                 <TaskCard

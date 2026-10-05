@@ -103,6 +103,9 @@ vi.mock("@dnd-kit/core", () => ({
         <button onClick={drop("b")}>drop</button>
         <button onClick={drop("a")}>drop-on-card</button>
         <button onClick={drop("c")}>drop-c</button>
+        <button onClick={() => onDragEnd({ active: { id: "a" }, over: null })}>
+          drop-gap
+        </button>
         <button onClick={() => onDragCancel()}>cancel</button>
       </>
     );
@@ -112,6 +115,7 @@ vi.mock("@dnd-kit/core", () => ({
   TouchSensor: {},
   KeyboardSensor: {},
   closestCorners: {},
+  pointerWithin: {},
   useSensor: vi.fn(),
   useSensors: vi.fn(),
   defaultDropAnimationSideEffects: vi.fn(),
@@ -325,6 +329,27 @@ describe("cross-column dragging", () => {
     fireEvent.click(view.getByText("cancel"));
     expect(shownIds(view, "todo")).toBe("a");
     expect(shownIds(view, "doing")).toBe("c,d");
+    expect(mocks.reorder).not.toHaveBeenCalled();
+  });
+
+  it("drops where the card is shown when released over a gap", () => {
+    const project = crossColumnBoard();
+    mocks.project = project;
+    const view = render(<KanbanBoard project={project} />);
+
+    fireEvent.click(view.getByText("start"));
+    fireEvent.click(view.getByText("over-c"));
+    fireEvent.click(view.getByText("drop-gap"));
+    expect(savedIds(1)).toEqual(["a", "c", "d"]);
+  });
+
+  it("ignores a release over a gap without a preview", () => {
+    const project = crossColumnBoard();
+    mocks.project = project;
+    const view = render(<KanbanBoard project={project} />);
+
+    fireEvent.click(view.getByText("start"));
+    fireEvent.click(view.getByText("drop-gap"));
     expect(mocks.reorder).not.toHaveBeenCalled();
   });
 
