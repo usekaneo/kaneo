@@ -121,16 +121,17 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
   const { mutateAsync: updateMemberRole } = useUpdateWorkspaceUserRole();
   const { copy: copyInvitationLink } = useCopyInvitationLink();
   const { data: allWorkspaceRoles = [] } = useWorkspaceRoles(workspaceId);
-  const { canManageTeam, canRemoveMembers, canInviteUsers } =
+  const { canManageTeam, canUpdateMembers, canRemoveMembers, canInviteUsers } =
     useWorkspacePermission();
   const canChangeRoles = Boolean(canManageTeam());
+  const canManageProjectAccess = Boolean(canUpdateMembers());
   const canRemove = Boolean(canRemoveMembers());
   const canInvite = Boolean(canInviteUsers());
   const { data: projectAccessEntries } = useGetWorkspaceProjectAccess(
     workspaceId,
-    canChangeRoles,
+    canManageProjectAccess,
   );
-  const columnCount = canChangeRoles ? 5 : 4;
+  const columnCount = canManageProjectAccess ? 5 : 4;
 
   const describeAccess = (access: ProjectAccessValue) =>
     access.projectAccess === "all"
@@ -221,7 +222,7 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
             <TableHead className="text-foreground font-medium">
               {t("team:membersTable.columns.role", { defaultValue: "Role" })}
             </TableHead>
-            {canChangeRoles ? (
+            {canManageProjectAccess ? (
               <TableHead className="text-foreground font-medium">
                 {t("team:membersTable.columns.projects")}
               </TableHead>
@@ -239,6 +240,8 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
             const isSelf = currentUser?.id === member.userId;
             const showRoleSelect =
               canChangeRoles && !isSelf && member.role !== "owner";
+            const showAccessEdit =
+              canManageProjectAccess && !isSelf && member.role !== "owner";
             const access =
               member.role === "owner"
                 ? ALL_PROJECTS_ACCESS
@@ -327,11 +330,11 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
                     </Badge>
                   )}
                 </TableCell>
-                {canChangeRoles ? (
+                {canManageProjectAccess ? (
                   <TableCell className="py-3 text-sm text-muted-foreground">
                     {!projectAccessEntries ? (
                       "–"
-                    ) : showRoleSelect ? (
+                    ) : showAccessEdit ? (
                       <Button
                         variant="ghost"
                         size="sm"
@@ -428,7 +431,7 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
                   })}
                 </Badge>
               </TableCell>
-              {canChangeRoles ? (
+              {canManageProjectAccess ? (
                 <TableCell className="py-3 text-sm text-muted-foreground">
                   {describeAccess(getInvitationProjectAccess(invitation))}
                 </TableCell>

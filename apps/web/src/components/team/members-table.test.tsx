@@ -101,6 +101,7 @@ const canInviteUsers = vi.fn(() => true);
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({
     canManageTeam: () => true,
+    canUpdateMembers: () => true,
     canRemoveMembers: () => true,
     canInviteUsers: () => canInviteUsers(),
   }),

@@ -280,6 +280,17 @@ function CreateTaskModalContent({
     workspaceId: workspace?.id || "",
     projectId: resolvedProjectId,
   });
+  const workspaceAssigneeOptions = useMemo(
+    () =>
+      (workspaceUsers?.members ?? []).map((member) => ({
+        id: member.userId,
+        name: member.user?.name ?? "",
+        image: member.user?.image ?? null,
+      })),
+    [workspaceUsers?.members],
+  );
+  const projectMembersPending =
+    Boolean(resolvedProjectId) && projectMembers === undefined;
   const assigneeOptions = useMemo(
     () =>
       resolvedProjectId
@@ -288,16 +299,14 @@ function CreateTaskModalContent({
             name: member.name,
             image: member.image,
           }))
-        : (workspaceUsers?.members ?? []).map((member) => ({
-            id: member.userId,
-            name: member.user?.name ?? "",
-            image: member.user?.image ?? null,
-          })),
-    [resolvedProjectId, projectMembers, workspaceUsers?.members],
+        : workspaceAssigneeOptions,
+    [resolvedProjectId, projectMembers, workspaceAssigneeOptions],
   );
-  const selectedUser = assigneeOptions.find(
-    (option) => option.id === assigneeId,
-  );
+  const selectedUser =
+    assigneeOptions.find((option) => option.id === assigneeId) ??
+    (projectMembersPending
+      ? workspaceAssigneeOptions.find((option) => option.id === assigneeId)
+      : undefined);
   const {
     data: projectColumns,
     isError: columnsError,
