@@ -1,11 +1,13 @@
-import { useId } from "react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { CheckboxGroup } from "@/components/ui/checkbox-group";
+import { Field, FieldError } from "@/components/ui/field";
+import { Fieldset, FieldsetLegend } from "@/components/ui/fieldset";
+import { Label } from "@/components/ui/label";
 import { Radio, RadioGroup } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
-import { type ProjectAccessValue } from "./project-access/project-access-value";
-import { toggleProjectId } from "./project-access/toggle-project-id";
+import type { ProjectAccessValue } from "./project-access/project-access-value";
 
 type Props = {
   value: ProjectAccessValue;
@@ -27,117 +29,94 @@ function ProjectAccessFields({
   error,
 }: Props) {
   const { t } = useTranslation();
-  const id = useId();
-  const headingId = `${id}-heading`;
-  const errorId = `${id}-error`;
 
   return (
-    <div className="space-y-3">
-      <div className="space-y-0.5">
-        <p id={headingId} className="text-sm font-medium">
-          {t("team:projectAccess.label")}
-        </p>
-        <p className="text-xs text-muted-foreground">
-          {t("team:projectAccess.description")}
-        </p>
-      </div>
-
-      <RadioGroup
-        aria-labelledby={headingId}
-        className="gap-2"
-        disabled={disabled}
-        value={value.projectAccess}
-        onValueChange={(mode) =>
-          onChange({
-            ...value,
-            projectAccess: mode === "selected" ? "selected" : "all",
-          })
+    <div className="flex flex-col gap-3">
+      <Fieldset
+        className="max-w-none gap-3"
+        render={
+          <RadioGroup
+            disabled={disabled}
+            value={value.projectAccess}
+            onValueChange={(mode) =>
+              onChange({
+                ...value,
+                projectAccess: mode === "selected" ? "selected" : "all",
+              })
+            }
+          />
         }
       >
-        <label className="flex items-start gap-3" htmlFor={`${id}-all`}>
-          <Radio className="mt-0.5" id={`${id}-all`} value="all" />
-          <div className="min-w-0 space-y-0.5">
-            <p className="text-sm font-medium">
-              {t("team:projectAccess.allProjects")}
-            </p>
-            <p className="text-xs text-muted-foreground">
+        <div className="flex flex-col gap-0.5">
+          <FieldsetLegend className="text-sm font-medium">
+            {t("team:projectAccess.label")}
+          </FieldsetLegend>
+          <p className="text-muted-foreground text-xs">
+            {t("team:projectAccess.description")}
+          </p>
+        </div>
+        <Label className="items-start gap-3">
+          <Radio value="all" />
+          <span className="flex flex-col gap-0.5">
+            {t("team:projectAccess.allProjects")}
+            <span className="font-normal text-muted-foreground text-xs">
               {t("team:projectAccess.allProjectsDescription")}
-            </p>
-          </div>
-        </label>
-
-        <label className="flex items-start gap-3" htmlFor={`${id}-selected`}>
-          <Radio className="mt-0.5" id={`${id}-selected`} value="selected" />
-          <div className="min-w-0 space-y-0.5">
-            <p className="text-sm font-medium">
-              {t("team:projectAccess.selectedProjects")}
-            </p>
-            <p className="text-xs text-muted-foreground">
+            </span>
+          </span>
+        </Label>
+        <Label className="items-start gap-3">
+          <Radio value="selected" />
+          <span className="flex flex-col gap-0.5">
+            {t("team:projectAccess.selectedProjects")}
+            <span className="font-normal text-muted-foreground text-xs">
               {t("team:projectAccess.selectedProjectsDescription")}
-            </p>
-          </div>
-        </label>
-      </RadioGroup>
+            </span>
+          </span>
+        </Label>
+      </Fieldset>
 
       {value.projectAccess === "selected" ? (
-        <div
-          role="group"
-          aria-label={t("team:projectAccess.projectsLabel")}
-          aria-describedby={error ? errorId : undefined}
-          className="max-h-56 space-y-2 overflow-y-auto rounded-md border border-dashed border-border/80 px-3 py-3"
-        >
-          {isLoadingProjects ? (
-            <>
-              <Skeleton className="h-4 w-2/3" />
-              <Skeleton className="h-4 w-1/2" />
-            </>
-          ) : !projects?.length ? (
-            <p className="text-sm text-muted-foreground">
-              {t("team:projectAccess.noProjects")}
-            </p>
-          ) : (
-            projects.map((project) => {
-              const checkboxId = `${id}-project-${project.id}`;
-              return (
-                <label
-                  key={project.id}
-                  className="flex items-center gap-3"
-                  htmlFor={checkboxId}
-                >
-                  <Checkbox
-                    checked={value.projectIds.includes(project.id)}
-                    disabled={disabled}
-                    id={checkboxId}
-                    onCheckedChange={(checked) =>
-                      onChange({
-                        ...value,
-                        projectIds: toggleProjectId(
-                          value.projectIds,
-                          project.id,
-                          Boolean(checked),
-                        ),
-                      })
-                    }
-                  />
-                  <span className="truncate text-sm font-medium">
-                    {project.name}
-                  </span>
+        <Field className="ps-7" invalid={Boolean(error)}>
+          <Fieldset
+            className="max-w-none gap-3"
+            render={
+              <CheckboxGroup
+                disabled={disabled}
+                value={value.projectIds}
+                onValueChange={(projectIds) =>
+                  onChange({ ...value, projectIds })
+                }
+              />
+            }
+          >
+            <FieldsetLegend className="sr-only">
+              {t("team:projectAccess.projectsLabel")}
+            </FieldsetLegend>
+            {isLoadingProjects ? (
+              <>
+                <Skeleton className="h-4 w-2/3" />
+                <Skeleton className="h-4 w-1/2" />
+              </>
+            ) : !projects?.length ? (
+              <p className="text-muted-foreground text-sm">
+                {t("team:projectAccess.noProjects")}
+              </p>
+            ) : (
+              projects.map((project) => (
+                <Label key={project.id} className="max-w-full">
+                  <Checkbox value={project.id} />
+                  <span className="truncate">{project.name}</span>
                   {project.archivedAt ? (
                     <Badge variant="outline" className="shrink-0">
                       {t("team:projectAccess.archived")}
                     </Badge>
                   ) : null}
-                </label>
-              );
-            })
-          )}
-        </div>
-      ) : null}
-
-      {error ? (
-        <p id={errorId} className="text-sm font-medium text-destructive">
-          {error}
-        </p>
+                </Label>
+              ))
+            )}
+          </Fieldset>
+          {error ? <FieldError match>{error}</FieldError> : null}
+        </Field>
       ) : null}
     </div>
   );
